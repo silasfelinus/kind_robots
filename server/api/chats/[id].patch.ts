@@ -1,4 +1,4 @@
-//server/api/chats/[id].patch.ts
+// server/api/chats/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
     // Parse and validate the Chat ID from the URL params
     chatId = Number(event.context.params?.id)
     if (isNaN(chatId) || chatId <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid chat ID.',
@@ -20,18 +19,10 @@ export default defineEventHandler(async (event) => {
 
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader) {
-      console.error('Authorization header is missing.')
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
         statusCode: 401,
-        message: 'Authorization header is missing.',
-      })
-    }
-    if (!authorizationHeader.startsWith('Bearer ')) {
-      console.error('Authorization token format is incorrect.')
-      throw createError({
-        statusCode: 401,
-        message: 'Authorization token format is incorrect.',
+        message: 'Authorization token is required in the format "Bearer <token>".',
       })
     }
 
@@ -42,8 +33,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      console.error(`Invalid or expired token: ${token}`)
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -58,7 +47,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!chat) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: `Chat with ID ${chatId} not found.`,
@@ -66,10 +54,6 @@ export default defineEventHandler(async (event) => {
     }
 
     if (chat.userId !== userIdFromToken) {
-      console.error(
-        `User ID mismatch. Token user ID: ${userIdFromToken}, Chat owner ID: ${chat.userId}`,
-      )
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this chat.',
@@ -79,8 +63,6 @@ export default defineEventHandler(async (event) => {
     // Parse and validate the update data
     const updatedChatData = await readBody(event)
     if (!updatedChatData || Object.keys(updatedChatData).length === 0) {
-      console.error('No data provided for update.')
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
@@ -96,15 +78,15 @@ export default defineEventHandler(async (event) => {
     // Successful update response
     response = {
       success: true,
-      updatedChat,
+      data: {
+        updatedChat,
+      },
+      message: `Chat with ID ${chatId} updated successfully.`,
       statusCode: 200,
     }
     event.node.res.statusCode = 200
   } catch (error) {
     const handledError = errorHandler(error)
-    console.error(`Failed to update chat with ID "${chatId}":`, handledError)
-
-    // Set the appropriate status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

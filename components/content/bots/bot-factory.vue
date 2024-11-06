@@ -29,7 +29,6 @@
       <lazy-use-bot v-if="activeTab === 'use-bot'" />
       <lazy-chat-test v-if="activeTab === 'chat-test'" />
       <lazy-stream-tester v-if="activeTab === 'stream-tester'" />
-      <lazy-botstore-manager v-if="activeTab === 'botstore-manager'" />
     </div>
   </div>
 </template>
@@ -43,7 +42,6 @@ const tabs = [
   { name: 'use-bot', label: 'Use Bot' },
   { name: 'chat-test', label: 'Chat Test' },
   { name: 'stream-tester', label: 'Stream Tester' },
-  { name: 'botstore-manager', label: 'Bot Manager' },
 ]
 
 const activeTab = ref('add-bot') // Default to the first tab

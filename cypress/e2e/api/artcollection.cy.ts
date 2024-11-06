@@ -199,7 +199,7 @@ describe('Art Collection API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
       expect(response.body.data.message).to.include(
-        `Art entry with ID ${collectionId} deleted successfully`,
+        `Collection with ID ${collectionId} deleted successfully`,
       )
     })
   })

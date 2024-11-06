@@ -5,7 +5,10 @@ import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async () => {
+  let response
+
   try {
+    // Fetch users with a matchRecord greater than 0, ordered by matchRecord descending
     const users = await prisma.user.findMany({
       where: {
         matchRecord: {
@@ -21,8 +24,24 @@ export default defineEventHandler(async () => {
         matchRecord: true,
       },
     })
-    return { success: true, users }
+
+    // Return success response with user data
+    response = {
+      success: true,
+      users,
+      statusCode: 200,
+    }
   } catch (error: unknown) {
-    return errorHandler(error)
+    // Handle error and set appropriate response
+    const handledError = errorHandler(error)
+    console.error('Error fetching high match scores:', handledError)
+
+    response = {
+      success: false,
+      message: handledError.message || 'Failed to fetch high match scores.',
+      statusCode: handledError.statusCode || 500,
+    }
   }
+
+  return response
 })

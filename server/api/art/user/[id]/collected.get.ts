@@ -10,15 +10,17 @@ export default defineEventHandler(async (event) => {
     const userId = Number(event.context.params?.id)
 
     if (isNaN(userId)) {
-      return { success: false, message: 'Invalid user ID' }
+      event.node.res.statusCode = 400
+      throw new Error('Invalid user ID')
     }
 
     // Fetch the user's collected art via their collections
     const collectedArt = await fetchUserCollectedArt(userId)
 
-    return { success: true, collectedArt }
+    // Wrap the collected art in a data object
+    return { success: true, data: { collectedArt } }
   } catch (error: unknown) {
-    return errorHandler(error + `Failed to fetch collected art for user ${event.context.params?.id}`)
+    return errorHandler(`Failed to fetch collected art for user ${event.context.params?.id}`)
   }
 })
 
@@ -37,7 +39,5 @@ async function fetchUserCollectedArt(userId: number): Promise<Art[]> {
   })
 
   // Flatten the collected art from the collections into a single array
-  const collectedArt: Art[] = collections.flatMap((collection) => collection.art)
-
-  return collectedArt
+  return collections.flatMap((collection) => collection.art)
 }

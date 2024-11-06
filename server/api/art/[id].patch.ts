@@ -1,16 +1,13 @@
-//server/api/art/[id].patch.ts
+// server/api/art/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import type { Art } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async (event) => {
-  let response
-  let id
-
   try {
     // Validate the Art ID
-    id = Number(event.context.params?.id)
+    const id = Number(event.context.params?.id) // `id` is now consistently defined as `const`
     if (isNaN(id) || id <= 0) {
       event.node.res.statusCode = 400
       throw createError({
@@ -30,7 +27,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const token = authorizationHeader.split(' ')[1] // Extract token after "Bearer "
+    const token = authorizationHeader.split(' ')[1]
     const user = await prisma.user.findFirst({
       where: { apiKey: token },
       select: { id: true },
@@ -85,25 +82,22 @@ export default defineEventHandler(async (event) => {
     })
 
     // Successful update response
-    response = {
-      success: true,
-      updatedArt,
-      statusCode: 200,
-    }
     event.node.res.statusCode = 200
+    return {
+      success: true,
+      data: { updatedArt },
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.log('Error Handled:', handledError)
 
-    // Explicitly set the status code based on the handled error
+    // Set the status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    return {
       success: false,
       message:
-        handledError.message || `Failed to update art entry with ID ${id}.`,
-      statusCode: event.node.res.statusCode,
+        handledError.message ||
+        `Failed to update art entry with ID ${event.context.params?.id}.`,
     }
   }
-
-  return response
 })

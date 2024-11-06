@@ -5,11 +5,7 @@ import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import { generateSillyName } from './../../../utils/useRandomName'
 import { saveImage } from './../../../server/api/utils/saveImage'
-import type { PitchType } from '@prisma/client'
-
-console.log(
-  "🚀 Starting up the art generation engine! Let's create something amazing!",
-)
+import type { Art, PitchType } from '@prisma/client'
 
 type GenerateImageResponse = {
   images: string[]
@@ -51,7 +47,6 @@ export default defineEventHandler(async (event) => {
   let newArt: Art | null = null
 
   try {
-    console.log('🌟 Event triggered! Reading request body...')
     const requestData: RequestData = await readBody(event)
 
     // Validate required fields
@@ -185,24 +180,19 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 201
     return {
       success: true,
-      message: 'Art and image saved successfully!',
-      art: newArt,
-      imageId: imageId,
+      data: {
+        message: 'Art and image saved successfully!',
+        art: newArt,
+        imageId,
+      },
     }
   } catch (error) {
-    const { message, statusCode } = errorHandler(error)
-    event.node.res.statusCode = statusCode || 500
+    const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
     return {
       success: false,
-      message:
-        message.includes('token') || message.includes('required')
-          ? message
-          : 'Failed to create new art.',
-      error: message,
-      statusCode: event.node.res.statusCode,
+      message: handledError.message || 'Failed to create new art.',
     }
-  } finally {
-    console.log('🎬 Art generation process completed.')
   }
 })
 
@@ -211,7 +201,6 @@ async function validateAndLoadUserId(
   validatedData: Partial<RequestData>,
 ): Promise<number> {
   console.log('🔍 Validating and loading User ID...')
-
   if (!data.username && !data.userId) {
     console.warn('No userName or userId provided.')
     return 0
@@ -264,7 +253,7 @@ async function validateAndLoadPromptId(
       const newPrompt = await prisma.prompt.create({
         data: {
           prompt: data.promptString,
-          userId: validatedData.userId || 10, // Use validated userId
+          userId: validatedData.userId || 10,
           galleryId: data.galleryId ?? 21,
           pitchId: data.pitchId ?? null,
         },
@@ -299,7 +288,6 @@ async function validateAndLoadPitchId(
     const existingPitch = await prisma.pitch.findUnique({
       where: { pitch: data.pitch },
     })
-
     if (existingPitch) {
       console.log(`✅ Existing pitch found: ${existingPitch.id}`)
       return existingPitch.id
@@ -318,7 +306,6 @@ async function validateAndLoadPitchId(
           channelId: data.channelId || null,
         },
       })
-
       console.log(`✅ New pitch created: ${newPitch.id}`)
       return newPitch.id
     }
@@ -335,7 +322,7 @@ async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
       const galleryName = data.galleryName ?? 'cafefred'
 
       const existingGallery = await prisma.gallery.findFirst({
-        where: { name: galleryName }, // Switch to findFirst for non-unique field search
+        where: { name: galleryName },
       })
 
       if (existingGallery) {
@@ -375,9 +362,7 @@ export async function generateImage(
 ): Promise<{ images: string[] }> {
   console.log('📸 Starting image generation...')
   const config = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
   }
 
   const requestBody = {
@@ -390,7 +375,6 @@ export async function generateImage(
     seed: seed || -1,
     steps: steps || 20,
   }
-  console.log('🚀 Image generation payload:', requestBody)
 
   try {
     const response = await fetch(
@@ -410,8 +394,6 @@ export async function generateImage(
     }
 
     const responseData = await response.json()
-    console.log('📷 Image generation complete:', responseData)
-
     return { images: responseData.images }
   } catch (error) {
     console.error('Error during image generation:', error)

@@ -31,8 +31,6 @@ export const verifyJwtToken = async (
       Buffer.from(JWT_SECRET as string, 'utf-8'),
     )
     const decoded = await jwtVerify(token, secretKey)
-    console.log('Decoded Payload:', decoded.payload) // More specific logging
-    console.log('Protected Header:', decoded.protectedHeader)
 
     return { success: true, userId: decoded.payload.id as number | null }
   } catch (error: unknown) {
@@ -88,8 +86,6 @@ export const getUserDataByToken = async (token: string) => {
         Channels: true, // Include Channels relation
       },
     })
-
-    console.log('Fetched User:', user) // Debug log
 
     if (!user) {
       return { success: false, message: 'User not found.', statusCode: 404 }
@@ -210,7 +206,6 @@ export async function validateUserCredentials(
       console.log('Debug: User not found')
       return null
     }
-    console.log('User found, validating', user)
 
     if (user.password && password) {
       const isPasswordValid = await bcryptCompare(password, user.password)

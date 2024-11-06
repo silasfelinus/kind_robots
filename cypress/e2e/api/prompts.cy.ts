@@ -65,12 +65,14 @@ describe('Prompt Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      promptId = response.body.newPrompt.id
+      expect(response.body).to.have.property('success', true)
+      promptId = response.body.data?.newPrompt.id
     })
   })
 
   // Step 2: Attempt to update prompt without authentication
   it('Attempt to Update Prompt without Authentication (expect failure)', () => {
+    cy.wrap(promptId).should('exist') // Ensure promptId exists
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${promptId}`,
@@ -79,11 +81,15 @@ describe('Prompt Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
   // Step 3: Attempt to update prompt with invalid token
   it('Attempt to Update Prompt with Invalid Token (expect failure)', () => {
+    cy.wrap(promptId).should('exist') // Ensure promptId exists
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${promptId}`,
@@ -95,6 +101,7 @@ describe('Prompt Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
@@ -110,6 +117,7 @@ describe('Prompt Management API Tests', () => {
       body: { prompt: 'angel bunny' },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
     })
   })
 
@@ -125,7 +133,8 @@ describe('Prompt Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.prompt).to.eq('angel bunny')
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data?.prompt).to.eq('angel bunny')
     })
   })
 
@@ -140,7 +149,8 @@ describe('Prompt Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.prompts)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data?.prompts)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -156,6 +166,9 @@ describe('Prompt Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -172,6 +185,7 @@ describe('Prompt Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
@@ -187,6 +201,10 @@ describe('Prompt Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data?.message).to.include(
+        `Prompt with ID ${promptId} successfully deleted.`,
+      )
     })
   })
 })

@@ -11,22 +11,18 @@ export default defineEventHandler(async (event) => {
     // Parse and validate the User ID from the URL params
     userId = Number(event.context.params?.id)
     if (isNaN(userId) || userId <= 0) {
-      event.node.res.statusCode = 400
-      console.error(`Invalid User ID: ${userId}`)
       throw createError({ statusCode: 400, message: 'Invalid User ID.' })
     }
 
     // Extract and verify the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader) {
-      console.error('Authorization header is missing.')
       throw createError({
         statusCode: 401,
         message: 'Authorization header is missing.',
       })
     }
     if (!authorizationHeader.startsWith('Bearer ')) {
-      console.error('Authorization token format is incorrect.')
       throw createError({
         statusCode: 401,
         message: 'Authorization token format is incorrect.',
@@ -43,8 +39,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      console.error(`Invalid or expired token: ${token}`)
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -53,10 +47,6 @@ export default defineEventHandler(async (event) => {
 
     const userIdFromToken = user.id
     if (userIdFromToken !== userId) {
-      console.error(
-        `Token user ID (${userIdFromToken}) does not match target user ID (${userId})`,
-      )
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this user.',
@@ -66,8 +56,6 @@ export default defineEventHandler(async (event) => {
     // Parse and validate the update data
     const updateData = await readBody(event)
     if (!updateData || Object.keys(updateData).length === 0) {
-      console.error('No data provided for update.')
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
@@ -85,8 +73,8 @@ export default defineEventHandler(async (event) => {
     // Successful update response
     response = {
       success: true,
-      user: updatedUser,
       message: 'User updated successfully.',
+      data: updatedUser,
       statusCode: 200,
     }
     event.node.res.statusCode = 200

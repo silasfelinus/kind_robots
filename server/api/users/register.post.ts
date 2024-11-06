@@ -1,12 +1,10 @@
 // /server/api/user/register.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error' // Importing the centralized error handler
+import { errorHandler } from '../utils/error'
 import { createUser } from '.'
 
 export default defineEventHandler(async (event) => {
   console.log('🚀 Launching the user creation journey...')
-
-  console.log('📬 Received event context params:', event.context.params) // Add this line to log the params
 
   try {
     // Reading the user data from the event body
@@ -15,21 +13,27 @@ export default defineEventHandler(async (event) => {
 
     // Ensuring the essential fields are provided
     if (!userData.username && !userData.email) {
-      throw new Error(
-        '👤 Username or 📧 email is required to forge a new star in our universe.',
-      )
+      return {
+        success: false,
+        message:
+          '👤 Username or 📧 email is required to forge a new star in our universe.',
+        statusCode: 400,
+      }
     }
     if (userData.password && userData.password.length < 8) {
-      throw new Error(
-        '🔑 Password must be a strong shield with at least 8 characters.',
-      )
+      return {
+        success: false,
+        message:
+          '🔑 Password must be a strong shield with at least 8 characters.',
+        statusCode: 400,
+      }
     }
 
     // Initiating the user creation with the gathered stellar dust (user data)
     const result = await createUser({
       username: userData.username,
       email: userData.email,
-      password: userData.password, // Corrected the parameter passing here
+      password: userData.password,
     })
 
     // If the star formation (user creation) is successful, we celebrate with a warm welcome
@@ -39,20 +43,28 @@ export default defineEventHandler(async (event) => {
         success: true,
         message:
           '🌟 Welcome to our cosmic family, brave explorer! Your account has been created.',
-        user: result.user,
+        data: { user: result.user },
+        statusCode: 201,
       }
     }
 
     // If something goes amiss in the cosmic process, we communicate the issue
-    throw new Error(
-      typeof result.message === 'string'
-        ? `🌌 Cosmic anomaly detected: ${result.message}`
-        : '🌌 An unexpected cosmic event occurred. Please try forging your star again.',
-    )
+    return {
+      success: false,
+      message:
+        typeof result.message === 'string'
+          ? `🌌 Cosmic anomaly detected: ${result.message}`
+          : '🌌 An unexpected cosmic event occurred. Please try forging your star again.',
+      statusCode: 500,
+    }
   } catch (error: unknown) {
-    const { message } = errorHandler(error)
+    const { message, statusCode } = errorHandler(error)
     // If a cosmic storm (error) occurs, we navigate safely with our error handler
     console.error('🌩️ Cosmic storm encountered:', message)
-    return { success: false, message: `🚀 Mission abort! ${message}` }
+    return {
+      success: false,
+      message: `🚀 Mission abort! ${message}`,
+      statusCode: statusCode || 500,
+    }
   }
 })

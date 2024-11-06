@@ -1,8 +1,12 @@
+// server/api/components/[name]/index.get.ts
+
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
+  let response
+
   try {
     // Extract folder name from the route parameters
     const folderName = event.context.params?.name
@@ -21,15 +25,33 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!components.length) {
-      throw new Error(`No components found in the folder "${folderName}".`)
+      return {
+        success: false,
+        message: `No components found in the folder "${folderName}".`,
+        statusCode: 404,
+      }
     }
 
-    return {
+    // Return success response with components
+    response = {
       success: true,
-      components,
+      data: { components },
+      message: 'Components retrieved successfully.',
+      statusCode: 200,
     }
+    event.node.res.statusCode = 200
   } catch (error: unknown) {
-    // Use the errorHandler for consistent error handling
-    return errorHandler(error)
+    const handledError = errorHandler(error)
+    console.error('Error retrieving components:', handledError)
+
+    // Set response and status code based on handled error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
+      success: false,
+      message: handledError.message || 'Failed to retrieve components.',
+      statusCode: event.node.res.statusCode,
+    }
   }
+
+  return response
 })

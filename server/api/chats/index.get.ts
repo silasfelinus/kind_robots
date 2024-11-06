@@ -5,12 +5,28 @@ import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async () => {
+  let response
+
   try {
     const chatExchanges = await fetchAllChatExchanges()
-    return { success: true, chatExchanges }
+    response = {
+      success: true,
+      data: {
+        chatExchanges,
+      },
+      message: 'Chat exchanges retrieved successfully.',
+      statusCode: 200,
+    }
   } catch (error: unknown) {
-    return errorHandler(error)
+    const handledError = errorHandler(error)
+    response = {
+      success: false,
+      message: handledError.message || 'Failed to retrieve chat exchanges.',
+      statusCode: handledError.statusCode || 500,
+    }
   }
+
+  return response
 })
 
 // Function to fetch all Chat Exchanges

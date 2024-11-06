@@ -1,36 +1,50 @@
 // server/api/galleries/random/image/index.get.ts
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, createError } from 'h3'
 import { fetchRandomImage } from '../..'
+import { errorHandler } from '../../utils/error'
 
 interface RandomImageResponse {
   success: boolean
-  image?: string
   message?: string
+  data?: {
+    image: string
+  }
   error?: string
 }
 
 export default defineEventHandler(async (): Promise<RandomImageResponse> => {
+  let response: RandomImageResponse
+
   try {
     // Fetch a random image
     const image = await fetchRandomImage()
 
     // Check if an image was found
     if (!image) {
-      return {
-        success: false,
+      throw createError({
+        statusCode: 404,
         message: 'No images available.',
-        error: 'No image found',
-      }
+      })
     }
 
     // Return the success response with the image
-    return { success: true, image }
+    response = {
+      success: true,
+      message: 'Random image fetched successfully.',
+      data: { image },
+    }
   } catch (error: unknown) {
-    // Return the error response with a detailed message
-    return {
+    // Handle the error using a centralized error handler
+    const handledError = errorHandler(error)
+    console.error('Error fetching random image:', handledError)
+
+    // Set the response based on the handled error
+    response = {
       success: false,
-      message: 'Failed to fetch a random image.',
-      error: error instanceof Error ? error.message : 'Unknown error',
+      message: handledError.message || 'Failed to fetch a random image.',
+      error: handledError.message,
     }
   }
+
+  return response
 })

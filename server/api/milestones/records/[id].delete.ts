@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
     // Validate and parse the milestone record ID
     recordId = Number(event.context.params?.id)
     if (isNaN(recordId) || recordId <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400, // Bad Request
         message: 'Milestone Record ID must be a positive integer.',
@@ -23,7 +22,6 @@ export default defineEventHandler(async (event) => {
     // Extract and validate the API key from the Authorization header
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401, // Unauthorized
         message:
@@ -38,7 +36,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401, // Unauthorized
         message: 'Invalid or expired token.',
@@ -52,7 +49,6 @@ export default defineEventHandler(async (event) => {
       where: { id: recordId },
     })
     if (!milestoneRecord) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404, // Not Found
         message: `Milestone Record with ID ${recordId} does not exist.`,
@@ -60,7 +56,6 @@ export default defineEventHandler(async (event) => {
     }
 
     if (milestoneRecord.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403, // Forbidden
         message: 'You are not authorized to delete this milestone record.',
@@ -74,6 +69,7 @@ export default defineEventHandler(async (event) => {
 
     console.log('Milestone Record deleted successfully:', recordId)
 
+    // Successful response
     response = {
       success: true,
       message: `Milestone Record with ID ${recordId} successfully deleted.`,
@@ -84,7 +80,7 @@ export default defineEventHandler(async (event) => {
     const handledError = errorHandler(error)
     console.error(
       `Error while deleting Milestone Record with ID "${recordId}":`,
-      error,
+      handledError
     )
 
     // Set the appropriate status code and response message

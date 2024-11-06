@@ -31,13 +31,14 @@ describe('Reaction Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
+      expect(response.body.data?.art).to.have.property('id')
       artId = response.body.data?.art.id
     })
   })
 
   // Step 2: Attempt to create a reaction without an authorization token
   it('should not allow creating a reaction without an authorization token', () => {
-    cy.wrap(artId).should('exist') // Ensure artId exists
+    cy.wrap(artId).should('exist')
 
     cy.request({
       method: 'POST',
@@ -61,7 +62,7 @@ describe('Reaction Management API Tests', () => {
   })
 
   it('should not allow creating a reaction with an invalid authorization token', () => {
-    cy.wrap(artId).should('exist') // Ensure artId exists
+    cy.wrap(artId).should('exist')
 
     cy.request({
       method: 'POST',
@@ -87,7 +88,7 @@ describe('Reaction Management API Tests', () => {
 
   // Step 3: Create a reaction with valid authentication
   it('Create a New Art Reaction with Authentication', () => {
-    cy.wrap(artId).should('exist') // Ensure artId exists
+    cy.wrap(artId).should('exist')
 
     cy.request({
       method: 'POST',
@@ -110,13 +111,14 @@ describe('Reaction Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
+      expect(response.body.data?.reaction).to.have.property('id')
       reactionId = response.body.data?.reaction.id
     })
   })
 
   // Step 4: Edit the reaction with valid authentication
   it('Edit the Art Reaction with Authentication', () => {
-    cy.wrap(reactionId).should('exist') // Ensure reactionId exists
+    cy.wrap(reactionId).should('exist')
 
     cy.request({
       method: 'PATCH',
@@ -135,12 +137,15 @@ describe('Reaction Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data?.reaction).to.have.property('rating', 4)
+      expect(response.body.data?.reaction.comment).to.eq(
+        'Actually, clapping for this artwork!',
+      )
     })
   })
 
   // Step 5: Attempt to delete reaction without authentication
   it('Attempt to Delete Reaction without Authentication (expect failure)', () => {
-    cy.wrap(reactionId).should('exist') // Ensure reactionId exists
+    cy.wrap(reactionId).should('exist')
 
     cy.request({
       method: 'DELETE',
@@ -157,7 +162,7 @@ describe('Reaction Management API Tests', () => {
 
   // Step 6: Attempt to delete reaction with invalid token
   it('Attempt to Delete Reaction with Invalid Token (expect failure)', () => {
-    cy.wrap(reactionId).should('exist') // Ensure reactionId exists
+    cy.wrap(reactionId).should('exist')
 
     cy.request({
       method: 'DELETE',
@@ -175,7 +180,7 @@ describe('Reaction Management API Tests', () => {
 
   // Step 7: Delete reaction with valid authentication
   it('Delete the Art Reaction with Authentication', () => {
-    cy.wrap(reactionId).should('exist') // Ensure reactionId exists
+    cy.wrap(reactionId).should('exist')
 
     cy.request({
       method: 'DELETE',
@@ -195,7 +200,7 @@ describe('Reaction Management API Tests', () => {
 
   // Step 8: Delete the created art piece with valid authentication
   it('Delete the Created Art Piece with Authentication', () => {
-    cy.wrap(artId).should('exist') // Ensure artId exists
+    cy.wrap(artId).should('exist')
 
     cy.request({
       method: 'DELETE',

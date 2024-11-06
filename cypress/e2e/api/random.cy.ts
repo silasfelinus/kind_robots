@@ -7,7 +7,6 @@ describe('RandomList Management API Tests', () => {
   let randomListId: number | undefined
   const userId = 9 // Example user ID for tests
 
-  // Capture initial timestamp for unique titles and items
   const now = Date.now()
   let uniqueTitle = `Dreams-${now}`
   const initialItems = [`Dream-${now}-1`, `Dream-${now}-2`, `Dream-${now}-3`]
@@ -70,13 +69,14 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      randomListId = response.body.randomList.id
+      expect(response.body).to.have.property('success', true)
+      randomListId = response.body.data?.randomList.id
     })
   })
 
   // Step 2: Attempt to update random list without authentication
   it('Attempt to Update RandomList without Authentication (expect failure)', () => {
-    if (!randomListId) throw new Error('randomListId is undefined')
+    cy.wrap(randomListId).should('exist')
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${randomListId}`,
@@ -85,12 +85,15 @@ describe('RandomList Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
   // Step 3: Attempt to update random list with invalid token
   it('Attempt to Update RandomList with Invalid Token (expect failure)', () => {
-    if (!randomListId) throw new Error('randomListId is undefined')
+    cy.wrap(randomListId).should('exist')
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${randomListId}`,
@@ -102,6 +105,7 @@ describe('RandomList Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
@@ -109,7 +113,7 @@ describe('RandomList Management API Tests', () => {
   it('Update RandomList with Authentication', () => {
     const newTitle = `Updated-${uniqueTitle}`
     const updatedItems = [`Updated-Dream-${now}-1`, `Updated-Dream-${now}-2`]
-    if (!randomListId) throw new Error('randomListId is undefined')
+    cy.wrap(randomListId).should('exist')
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${randomListId}`,
@@ -124,14 +128,15 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.updatedList.title).to.eq(newTitle)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.updatedList.title).to.eq(newTitle)
       uniqueTitle = newTitle // Update for following tests
     })
   })
 
   // Step 5: Retrieve random list by ID
   it('Get RandomList by ID', () => {
-    if (!randomListId) throw new Error('randomListId is undefined')
+    cy.wrap(randomListId).should('exist')
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${randomListId}`,
@@ -140,7 +145,8 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.list.title).to.eq(uniqueTitle)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.list.title).to.eq(uniqueTitle)
     })
   })
 
@@ -154,7 +160,8 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.list.title).to.eq(uniqueTitle)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.list.title).to.eq(uniqueTitle)
     })
   })
 
@@ -169,7 +176,8 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.randomLists)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.randomLists)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -177,7 +185,7 @@ describe('RandomList Management API Tests', () => {
 
   // Step 8: Attempt to delete random list without authentication
   it('Attempt to Delete RandomList without Authentication (expect failure)', () => {
-    if (!randomListId) throw new Error('randomListId is undefined')
+    cy.wrap(randomListId).should('exist')
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${randomListId}`,
@@ -185,12 +193,15 @@ describe('RandomList Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
   // Step 9: Attempt to delete random list with invalid token
   it('Attempt to Delete RandomList with Invalid Token (expect failure)', () => {
-    if (!randomListId) throw new Error('randomListId is undefined')
+    cy.wrap(randomListId).should('exist')
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${randomListId}`,
@@ -201,12 +212,13 @@ describe('RandomList Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
   // Step 10: Delete random list with valid authentication
   it('Delete RandomList with Authentication', () => {
-    if (!randomListId) throw new Error('randomListId is undefined')
+    cy.wrap(randomListId).should('exist')
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${randomListId}`,
@@ -216,6 +228,10 @@ describe('RandomList Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.message).to.include(
+        `RandomList with ID ${randomListId} successfully deleted.`,
+      )
     })
   })
 })

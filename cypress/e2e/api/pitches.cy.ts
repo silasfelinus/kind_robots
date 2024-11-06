@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/pitches.cy.ts
 
 describe('Pitch Management API Tests', () => {
@@ -60,12 +61,14 @@ describe('Pitch Management API Tests', () => {
       },
       body: {
         pitch: uniquePitchName,
-        PitchType: 'INSPIRATION', // Adjust to match schema’s `PitchType`
+        PitchType: 'INSPIRATION',
         userId: 9,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      pitchId = response.body.pitch.id // Capture ID for use in other tests
+      expect(response.body.success).to.be.true
+      expect(response.body.data.pitch).to.be.an('object').that.is.not.empty
+      pitchId = response.body.data.pitch.id
     })
   })
 
@@ -111,7 +114,8 @@ describe('Pitch Management API Tests', () => {
       body: { pitch: updatedPitchName },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.pitch.pitch).to.eq(updatedPitchName)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.pitch.pitch).to.eq(updatedPitchName)
     })
   })
 
@@ -127,7 +131,8 @@ describe('Pitch Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.pitch.pitch).to.eq(`Updated-${uniquePitchName}`)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.pitch.pitch).to.eq(`Updated-${uniquePitchName}`)
     })
   })
 
@@ -142,7 +147,8 @@ describe('Pitch Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.pitches)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.pitches)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -189,6 +195,10 @@ describe('Pitch Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.message).to.include(
+        `Pitch with ID ${pitchId} successfully deleted`,
+      )
     })
   })
 })

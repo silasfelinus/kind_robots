@@ -8,7 +8,6 @@ describe('Gallery Management API Tests', () => {
   let galleryId: number // Store gallery ID for further operations
 
   // Step 1: Attempt to create a gallery with various authentication scenarios
-
   it('should not allow creating a gallery without an authorization token', () => {
     cy.request({
       method: 'POST',
@@ -93,7 +92,7 @@ describe('Gallery Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
-      galleryId = response.body.newGallery?.id // Capture the gallery ID for further tests
+      galleryId = response.body.data?.newGallery.id // Capture the gallery ID for further tests
     })
   })
 
@@ -108,7 +107,8 @@ describe('Gallery Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.gallery.name).to.eq('Test Gallery')
+      expect(response.body.success).to.be.true
+      expect(response.body.data.gallery.name).to.eq('Test Gallery')
     })
   })
 
@@ -123,7 +123,8 @@ describe('Gallery Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.galleries)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.galleries)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -176,7 +177,7 @@ describe('Gallery Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.gallery.description).to.eq(
+      expect(response.body.data.gallery.description).to.eq(
         'Updated description for the gallery',
       )
     })
@@ -220,7 +221,7 @@ describe('Gallery Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.message).to.include(
+      expect(response.body.data.message).to.include(
         `Gallery with ID ${galleryId} successfully deleted`,
       )
     })

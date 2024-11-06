@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
     // Validate and parse the chat exchange ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400, // Bad Request
         message: 'Invalid Chat Exchange ID. It must be a positive integer.',
@@ -21,7 +20,6 @@ export default defineEventHandler(async (event) => {
     // Extract and verify the API key from the Authorization header
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401, // Unauthorized
         message:
@@ -36,7 +34,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401, // Unauthorized
         message: 'Invalid or expired token.',
@@ -51,7 +48,6 @@ export default defineEventHandler(async (event) => {
       select: { userId: true },
     })
     if (!chatExchange) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404, // Not Found
         message: `Chat exchange with ID ${id} does not exist.`,
@@ -59,7 +55,6 @@ export default defineEventHandler(async (event) => {
     }
 
     if (chatExchange.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403, // Forbidden
         message: 'You do not have permission to delete this chat exchange.',
@@ -69,21 +64,24 @@ export default defineEventHandler(async (event) => {
     // Delete the chat exchange
     await prisma.chatExchange.delete({ where: { id } })
 
+    // Set the success response
     response = {
       success: true,
-      message: `Chat exchange with ID ${id} successfully deleted.`,
+      data: {
+        message: `Chat exchange with ID ${id} successfully deleted.`,
+      },
       statusCode: 200,
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
       message:
         handledError.message || `Failed to delete chat exchange with ID ${id}.`,
-      statusCode: event.node.res.statusCode,
+      statusCode: handledError.statusCode || 500,
     }
+    event.node.res.statusCode = response.statusCode
   }
 
   return response

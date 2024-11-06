@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/component-reactions.cy.ts
 
 describe('Component Reactions API Tests', () => {
@@ -27,6 +26,7 @@ describe('Component Reactions API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
       componentId = response.body.data.component.id
       expect(componentId).to.be.a('number')
     })
@@ -53,6 +53,7 @@ describe('Component Reactions API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -80,6 +81,7 @@ describe('Component Reactions API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -107,6 +109,7 @@ describe('Component Reactions API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
+      expect(response.body).to.have.property('success', true)
       reactionId = response.body.data.reaction.id
       expect(reactionId).to.be.a('number')
     })
@@ -125,7 +128,7 @@ describe('Component Reactions API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.success).to.be.true
+      expect(response.body).to.have.property('success', true)
       expect(response.body.data.reactions)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
@@ -145,6 +148,7 @@ describe('Component Reactions API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
       const reaction = response.body.data.reaction
       expect(reaction.id).to.eq(reactionId)
       expect(reaction.componentId).to.eq(componentId)
@@ -173,6 +177,7 @@ describe('Component Reactions API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.body).to.have.property('success', false)
     })
 
     // Attempt update with invalid token
@@ -191,6 +196,7 @@ describe('Component Reactions API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.body).to.have.property('success', false)
     })
 
     // Attempt update with valid token
@@ -209,7 +215,7 @@ describe('Component Reactions API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.success).to.be.true
+      expect(response.body).to.have.property('success', true)
       expect(response.body.data.reaction.reactionType).to.eq('BOOED')
       expect(response.body.data.reaction.comment).to.eq(
         'Actually, I have second thoughts...',
@@ -232,6 +238,7 @@ describe('Component Reactions API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.body).to.have.property('success', false)
     })
 
     // Attempt delete with invalid token
@@ -245,6 +252,7 @@ describe('Component Reactions API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.body).to.have.property('success', false)
     })
 
     // Attempt delete with valid token
@@ -257,7 +265,7 @@ describe('Component Reactions API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.success).to.be.true
+      expect(response.body).to.have.property('success', true)
       expect(response.body.data.message).to.include(
         `Reaction with ID ${reactionId} successfully deleted.`,
       )
@@ -278,7 +286,7 @@ describe('Component Reactions API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.success).to.be.true
+      expect(response.body).to.have.property('success', true)
     })
   })
 })

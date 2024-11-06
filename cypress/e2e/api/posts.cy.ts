@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/api/posts.cy.ts
 
 describe('Post Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/posts'
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let postId: number // Define postId for storing created post ID
+  let postId: number
   const userId = 9
   const uniquePostTitle = `Test Post Title - ${Date.now()}`
 
@@ -84,7 +85,9 @@ describe('Post Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      postId = response.body.post.id
+      expect(response.body.success).to.be.true
+      expect(response.body.data.post).to.be.an('object').that.is.not.empty
+      postId = response.body.data.post.id
     })
   })
 
@@ -138,11 +141,12 @@ describe('Post Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.post.title).to.eq('Updated Test Post Title')
-      expect(response.body.post.content).to.eq(
+      expect(response.body.success).to.be.true
+      expect(response.body.data.post.title).to.eq('Updated Test Post Title')
+      expect(response.body.data.post.content).to.eq(
         'This is updated test post content.',
       )
-      expect(response.body.post.label).to.eq('Updated Label')
+      expect(response.body.data.post.label).to.eq('Updated Label')
     })
   })
 
@@ -158,7 +162,8 @@ describe('Post Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.post.title).to.eq('Updated Test Post Title')
+      expect(response.body.success).to.be.true
+      expect(response.body.data.post.title).to.eq('Updated Test Post Title')
     })
   })
 
@@ -173,7 +178,8 @@ describe('Post Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.posts)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.posts)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -224,6 +230,7 @@ describe('Post Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
       expect(response.body.message).to.include(
         `Post with ID ${postId} successfully deleted`,
       )

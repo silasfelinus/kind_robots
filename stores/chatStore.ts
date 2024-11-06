@@ -142,6 +142,30 @@ export const useChatStore = defineStore({
         throw error
       }
     },
+    async continueExchange(
+      previousExchangeId: number,
+      newPrompt: string,
+      promptId?: number,
+    ) {
+      const previousExchange = this.chatExchanges.find(
+        (exchange: ChatExchange) => exchange.id === previousExchangeId,
+      )
+
+      if (!previousExchange) {
+        handleError(ErrorType.VALIDATION_ERROR, 'Previous exchange not found.')
+        return
+      }
+
+      const userStore = useUserStore()
+
+      return await this.addExchange(
+        newPrompt,
+        userStore.userId,
+        previousExchange.botId ?? 1,
+        previousExchange.id,
+        promptId ?? previousExchange.promptId ?? undefined,
+      )
+    },
 
     async fetchStream(
       url: string,

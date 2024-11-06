@@ -1,11 +1,10 @@
 // cypress/e2e/tags.cy.js
-/* eslint-disable no-undef */
 
 describe('Tag Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/tags'
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let tagId // Store tag ID for further operations
+  let tagId: number // Define tagId for further operations
 
   // Test to get all tags
   it('Get All Tags', () => {
@@ -17,6 +16,7 @@ describe('Tag Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
       expect(response.body.tags)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
@@ -38,8 +38,9 @@ describe('Tag Management API Tests', () => {
         userId: 9,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
+      expect(response.body.tag).to.be.an('object')
       tagId = response.body.tag.id // Capture created tag ID for future operations
     })
   })
@@ -59,6 +60,9 @@ describe('Tag Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -116,6 +120,9 @@ describe('Tag Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -147,6 +154,9 @@ describe('Tag Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+      expect(response.body.message).to.include(
+        `Tag with ID ${tagId} deleted successfully`,
+      )
     })
   })
 })

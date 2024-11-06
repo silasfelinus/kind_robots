@@ -77,6 +77,7 @@ describe('Reward Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
+      expect(response.body).to.have.property('success', true)
       expect(response.body.reward).to.be.an('object')
       expect(response.body.reward.label).to.eq('Test Label')
       rewardId = response.body.reward.id
@@ -132,6 +133,7 @@ describe('Reward Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
       expect(response.body.updatedReward.label).to.eq('Updated Test Label')
     })
   })
@@ -147,6 +149,7 @@ describe('Reward Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
       expect(response.body.reward).to.be.an('object')
       expect(response.body.reward.text).to.eq('Updated Test Reward Text')
     })
@@ -163,6 +166,7 @@ describe('Reward Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
       expect(response.body.rewards)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
@@ -211,6 +215,10 @@ describe('Reward Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.message).to.include(
+        `Reward with ID ${rewardId} deleted successfully`,
+      )
     })
   })
 })

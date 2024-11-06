@@ -34,8 +34,8 @@ describe('Milestone Record Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      createdUserId = response.body.user.id
-      createdUserToken = response.body.user.apiKey // Store the user-specific token
+      createdUserId = response.body.data.user.id
+      createdUserToken = response.body.data.user.apiKey // Store the user-specific token
     })
   })
 
@@ -94,8 +94,9 @@ describe('Milestone Record Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      expect(response.body.record).to.be.an('object').that.is.not.empty
-      milestoneRecordId = response.body.record.id
+      expect(response.body.success).to.be.true
+      expect(response.body.data.record).to.be.an('object').that.is.not.empty
+      milestoneRecordId = response.body.data.record.id
       cy.log('Created Milestone Record ID:', milestoneRecordId)
     })
   })
@@ -144,6 +145,10 @@ describe('Milestone Record Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.message).to.include(
+        `Milestone record with ID ${milestoneRecordId} successfully deleted`,
+      )
       cy.log('Deleted Milestone Record ID:', milestoneRecordId)
     })
   })

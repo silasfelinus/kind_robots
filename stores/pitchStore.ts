@@ -195,20 +195,27 @@ export const usePitchStore = defineStore('pitch', {
       }, `fetching pitch by ID: ${pitchId}`)
     },
 
-    async createPitch(newPitch: Partial<Pitch>) {
-      return handleError(async () => {
+    async createPitch(
+      newPitch: Partial<Pitch>,
+    ): Promise<{ success: boolean; message: string }> {
+      try {
         const response = await performFetch<{ pitch?: Pitch }>('/api/pitches', {
           method: 'POST',
           body: JSON.stringify(newPitch),
         })
         if (response.success && response.data?.pitch) {
           this.pitches.push(response.data.pitch)
-          if (isClient)
+          if (isClient) {
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
+          }
           return { success: true, message: 'Pitch created successfully' }
+        } else {
+          throw new Error(response.message || 'Pitch creation failed')
         }
-        throw new Error(response.message || 'Pitch creation failed')
-      }, 'creating pitch')
+      } catch (err) {
+        handleError(err, 'creating pitch')
+        return { success: false, message: 'Pitch creation failed' } // Provide failure response
+      }
     },
 
     async updatePitch(pitchId: number, updates: Partial<Pitch>) {

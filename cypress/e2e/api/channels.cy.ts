@@ -23,6 +23,7 @@ describe('Channel Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -46,6 +47,7 @@ describe('Channel Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -66,8 +68,9 @@ describe('Channel Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      expect(response.body.newChannel).to.be.an('object')
-      channelId = response.body.newChannel.id
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.newChannel).to.be.an('object')
+      channelId = response.body.data.newChannel.id
     })
   })
 
@@ -81,8 +84,9 @@ describe('Channel Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.channel.label).to.eq(uniqueLabel)
-      expect(response.body.messages).to.be.an('array')
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.channel.label).to.eq(uniqueLabel)
+      expect(response.body.data.messages).to.be.an('array')
     })
   })
 
@@ -96,7 +100,8 @@ describe('Channel Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.channels)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.channels)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -118,6 +123,7 @@ describe('Channel Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -141,6 +147,7 @@ describe('Channel Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -161,7 +168,8 @@ describe('Channel Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.updatedChannel).to.include({
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.updatedChannel).to.include({
         label: updatedLabel,
         description: 'global botchat',
         title: 'Bot Cafe',
@@ -179,6 +187,7 @@ describe('Channel Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -196,6 +205,7 @@ describe('Channel Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -210,6 +220,8 @@ describe('Channel Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.message).to.include('Channel successfully deleted')
     })
   })
 })

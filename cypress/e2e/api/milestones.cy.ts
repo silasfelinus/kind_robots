@@ -17,7 +17,8 @@ describe('Milestone Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.milestones)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.milestones)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -47,8 +48,9 @@ describe('Milestone Management API Tests', () => {
       ],
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.milestones).to.be.an('array').that.is.not.empty
-      milestoneId = response.body.milestones[0].id
+      expect(response.body.success).to.be.true
+      expect(response.body.data.milestones).to.be.an('array').that.is.not.empty
+      milestoneId = response.body.data.milestones[0].id
     })
   })
 
@@ -62,9 +64,10 @@ describe('Milestone Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('milestone')
-      expect(response.body.milestone.label).to.eq('Artist!')
-      expect(response.body.milestone).to.have.property('isActive')
+      expect(response.body.success).to.be.true
+      expect(response.body.data).to.have.property('milestone')
+      expect(response.body.data.milestone.label).to.eq('Artist!')
+      expect(response.body.data.milestone).to.have.property('isActive')
     })
   })
 
@@ -82,6 +85,7 @@ describe('Milestone Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
 
       // Verify the update
       cy.request({
@@ -93,11 +97,12 @@ describe('Milestone Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body.milestone.label).to.eq('Master Artist!')
-        expect(response.body.milestone.message).to.eq(
+        expect(response.body.success).to.be.true
+        expect(response.body.data.milestone.label).to.eq('Master Artist!')
+        expect(response.body.data.milestone.message).to.eq(
           'You created a masterpiece!',
         )
-        expect(response.body.milestone.karma).to.eq(20)
+        expect(response.body.data.milestone.karma).to.eq(20)
       })
     })
   })
@@ -112,6 +117,10 @@ describe('Milestone Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.message).to.include(
+        `Milestone with ID ${milestoneId} successfully deleted`,
+      )
     })
   })
 })

@@ -6,11 +6,24 @@ import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async () => {
   try {
+    // Fetch all pitches from the database
     const pitches = await prisma.pitch.findMany()
-    return { success: true, pitches }
+    
+    return {
+      success: true,
+      message: 'Pitches fetched successfully.',
+      data: pitches,  // Return pitches in data field
+      statusCode: 200,
+    }
   } catch (error: unknown) {
     console.error('Error fetching pitches:', error) // Debugging line
-    return errorHandler(error)
+    const { success, message, statusCode } = errorHandler(error)
+    
+    return {
+      success,
+      message,
+      statusCode,
+    }
   }
 })
 

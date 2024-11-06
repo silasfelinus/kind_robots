@@ -82,31 +82,23 @@ export const useUserStore = defineStore({
   },
   actions: {
     initializeUser() {
-      console.log('Initializing User - apiKey:', this.apiKey) // Debugging
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
       this.setStayLoggedIn(stayLoggedIn)
       if (storedToken) {
         this.token = storedToken
       }
-      console.log('will I call fetchUserByDataToken?')
       if (stayLoggedIn && storedToken) {
-        console.log('calling fetchUserByDataToken')
         this.fetchUserDataByToken(storedToken)
       }
-      console.log('user logged in: ', this.user)
-      console.log('user token: ', this.token)
     },
     async fetchUserDataByToken(token: string): Promise<void> {
       try {
-        console.log('Fetching User by data token:', token)
         const response = await this.apiCall('/api/auth/validate', 'POST', {
           type: 'token',
           data: { token },
         })
-        console.log('will I set user with this : ', response.user)
         if (response.success && response.user) {
-          console.log('success, setting user') // Debugging
           this.setUser(response.user)
         }
       } catch (error: unknown) {
@@ -151,9 +143,7 @@ export const useUserStore = defineStore({
     },
 
     setUser(userData: User): void {
-      console.log('setting user: ', userData)
       this.user = userData
-      console.log('apikey is now: ', this.apiKey)
     },
     setStayLoggedIn(value: boolean) {
       try {
@@ -327,7 +317,6 @@ export const useUserStore = defineStore({
       }
     },
     logout(): void {
-      console.log('Logging out, clearing apiKey') // Debugging
       this.user = null
       this.token = ''
       this.removeFromLocalStorage('token')

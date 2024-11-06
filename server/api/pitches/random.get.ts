@@ -5,7 +5,7 @@ import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Extract count from query parameters
+    // Extract count from query parameters, default to 5 if not provided
     const count = Number(event.context.query?.count) || 5
 
     // Fetch random pitches
@@ -14,9 +14,20 @@ export default defineEventHandler(async (event) => {
       orderBy: { createdAt: 'desc' }, // Optional: Order by createdAt or any other field
     })
 
-    return { success: true, pitches }
+    return {
+      success: true,
+      message: 'Random pitches fetched successfully.',
+      data: pitches, // Return pitches in data field
+      statusCode: 200,
+    }
   } catch (error: unknown) {
     console.error('Error fetching random pitches:', error)
-    return errorHandler(error)
+    const { success, message, statusCode } = errorHandler(error)
+
+    return {
+      success,
+      message,
+      statusCode,
+    }
   }
 })

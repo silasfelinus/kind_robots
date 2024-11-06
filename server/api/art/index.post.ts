@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error' // Import the error handler
+import { errorHandler } from '../utils/error'
 import prisma from './../utils/prisma'
 import type { Prisma, Art } from '@prisma/client'
 
@@ -13,7 +13,6 @@ export default defineEventHandler(async (event) => {
       return {
         success: false,
         message: '"promptString" is a required field.',
-        statusCode: 400,
       }
     }
 
@@ -24,24 +23,20 @@ export default defineEventHandler(async (event) => {
       return {
         success: false,
         message: result.error,
-        statusCode: 500,
       }
     }
 
     // Art created successfully, return 201 status
     event.node.res.statusCode = 201 // Created
-    return { success: true, art: result.art, statusCode: 201 }
+    return { success: true, data: { art: result.art } }
   } catch (error) {
     // Use the error handler to process the error
-    const { message, statusCode } = errorHandler(error)
-
-    // Return the error response with the processed message and status code
-    event.node.res.statusCode = statusCode || 500 // Default to 500 if no status code is provided
+    const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
     return {
       success: false,
       message: 'Failed to create a new art object',
-      error: message || 'An unknown error occurred',
-      statusCode: statusCode || 500,
+      error: handledError.message || 'An unknown error occurred',
     }
   }
 })

@@ -4,23 +4,41 @@ import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
+  let response
+
   try {
     const id = Number(event.context.params?.id)
 
     if (isNaN(id)) {
-      return { success: false, message: 'Invalid ID', statusCode: 400 }
+      return {
+        success: false,
+        message: 'Invalid ID',
+        statusCode: 400,
+      }
     }
 
     // Fetch the pitch by ID and its related data
     const pitchDetails = await fetchPitchById(id)
     if (!pitchDetails) {
-      return { success: false, message: 'Pitch not found', statusCode: 404 }
+      return {
+        success: false,
+        message: 'Pitch not found',
+        statusCode: 404,
+      }
     }
 
-    return { success: true, ...pitchDetails } // Spread pitchDetails directly in the response
+    response = {
+      success: true,
+      message: 'Pitch details fetched successfully.',
+      data: pitchDetails, // Return the pitch details under data
+      statusCode: 200,
+    }
+    event.node.res.statusCode = response.statusCode
   } catch (error: unknown) {
     return errorHandler(error)
   }
+
+  return response
 })
 
 export async function fetchPitchById(id: number): Promise<PitchDetails | null> {

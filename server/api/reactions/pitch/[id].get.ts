@@ -1,3 +1,4 @@
+// server/api/reactions/pitch/[id].get.ts
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
@@ -9,6 +10,7 @@ export default defineEventHandler(async (event) => {
 
     // Validate pitchId
     if (isNaN(pitchId) || pitchId <= 0) {
+      event.node.res.statusCode = 400
       throw new Error('A valid pitch ID is required.')
     }
 
@@ -21,17 +23,20 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!reactions || reactions.length === 0) {
+      event.node.res.statusCode = 404
       return {
         success: false,
-        message: `No reactions found for pitch with ID ${pitchId}.`,
-        statusCode: 404,
+        data: {
+          message: `No reactions found for pitch with ID ${pitchId}.`,
+        },
       }
     }
 
-    // Return the reactions
+    // Return the reactions in the required format
+    event.node.res.statusCode = 200
     return {
       success: true,
-      reactions,
+      data: { reactions },
     }
   } catch (error) {
     console.error(
@@ -39,9 +44,16 @@ export default defineEventHandler(async (event) => {
       error,
     )
     // Use the errorHandler for consistent error handling
-    return errorHandler({
+    const handledError = errorHandler({
       error,
       context: `Fetching reactions for pitch ID ${event.context.params?.id}`,
     })
+    event.node.res.statusCode = handledError.statusCode || 500
+    return {
+      success: false,
+      data: {
+        message: handledError.message || 'Failed to retrieve reactions.',
+      },
+    }
   }
 })

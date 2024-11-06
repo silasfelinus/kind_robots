@@ -2,6 +2,7 @@
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
+import type { Reaction } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   let reactionId: number | null = null
@@ -87,8 +88,11 @@ export default defineEventHandler(async (event) => {
 
     response = {
       success: true,
-      reaction: updatedReaction,
-      message: 'Reaction updated successfully',
+      data: {
+        reaction: updatedReaction,
+        message: 'Reaction updated successfully',
+      },
+      statusCode: 200,
     }
     event.node.res.statusCode = 200
   } catch (error) {
@@ -96,9 +100,11 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message:
-        handledError.message ||
-        `Failed to update reaction with ID ${reactionId}.`,
+      data: {
+        message:
+          handledError.message ||
+          `Failed to update reaction with ID ${reactionId}.`,
+      },
       statusCode: event.node.res.statusCode,
     }
   }

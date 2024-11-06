@@ -1,4 +1,4 @@
-//server/api/reactions/art/[id].get.ts
+// server/api/reactions/art/[id].get.ts
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
@@ -10,39 +10,39 @@ export default defineEventHandler(async (event) => {
 
     // Validate artId
     if (isNaN(artId) || artId <= 0) {
+      event.node.res.statusCode = 400
       throw new Error('A valid art ID is required.')
     }
 
     // Fetch reactions associated with the given artId
     const reactions = await prisma.reaction.findMany({
-      where: { artId }, // Adjust for the art-specific field
+      where: { artId },
       include: {
         User: true, // Include user data if required
       },
     })
 
     if (!reactions || reactions.length === 0) {
+      event.node.res.statusCode = 404
       return {
         success: false,
-        message: `No reactions found for art with ID ${artId}.`,
-        statusCode: 404,
+        data: {
+          message: `No reactions found for art with ID ${artId}.`,
+        },
       }
     }
 
-    // Return the reactions
+    // Return the reactions within a data object
     return {
       success: true,
-      reactions,
+      data: { reactions },
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(
       `Error fetching reactions for art ID ${event.context.params?.id}:`,
       error,
     )
     // Use the errorHandler for consistent error handling
-    return errorHandler({
-      error,
-      context: `Fetching reactions for art ID ${event.context.params?.id}`,
-    })
+    return errorHandler(error)
   }
 })

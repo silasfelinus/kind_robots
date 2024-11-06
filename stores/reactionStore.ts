@@ -5,6 +5,7 @@ import type {
   ReactionType,
   ReactionCategory,
 } from '@prisma/client'
+import { performFetch, handleError } from './utils'
 
 export enum ReactionTypeEnum {
   LOVED = 'LOVED',
@@ -28,31 +29,24 @@ export const useReactionStore = defineStore('reactionStore', {
     reactions: [] as Reaction[],
     loading: false,
     error: null as string | null,
-    channels: [] as Channel[], // Store channels related to reactions
+    channels: [] as Channel[],
     isInitialized: false,
   }),
 
   getters: {
     getReactionsByComponentId: (state) => (componentId: number) => {
-      console.log(`Getting reactions for componentId: ${componentId}`)
       return state.reactions.filter(
         (reaction: Reaction) => reaction.componentId === componentId,
       )
     },
-
     getUserReactionForComponent:
       (state) => (componentId: number, userId: number) => {
-        console.log(
-          `Getting user reaction for componentId: ${componentId}, userId: ${userId}`,
-        )
         return state.reactions.find(
           (reaction: Reaction) =>
             reaction.componentId === componentId && reaction.userId === userId,
         )
       },
-
     getChannelsForComponent: (state) => (componentId: number) => {
-      console.log(`Getting channels for componentId: ${componentId}`)
       return state.channels.filter((channel: Channel) =>
         state.reactions.some(
           (reaction: Reaction) =>
@@ -65,13 +59,12 @@ export const useReactionStore = defineStore('reactionStore', {
 
   actions: {
     async initializeReactions() {
-      console.log('Initializing reactions...')
       if (!this.isInitialized) {
         await this.fetchReactions()
         this.isInitialized = true
       }
-      console.log('Initialization complete')
     },
+
     async createReactionWithChannel(
       reactionData: {
         userId: number
@@ -86,184 +79,95 @@ export const useReactionStore = defineStore('reactionStore', {
       },
       comment: { title: string; description: string },
     ) {
-      console.log('Creating reaction with channel', reactionData, comment)
       this.loading = true
       this.error = null
       try {
-        // Create a new channel for the reaction
-        const channelResponse = await fetch('/api/channels', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            label: `Reaction-Component-${Date.now()}`,
-            title: comment.title,
-            description: comment.description,
-          }),
-        })
-        if (!channelResponse.ok) throw new Error('Failed to create channel')
-        const newChannel: Channel = await channelResponse.json()
-
-        // Create the reaction and link it to the new channel
-        const reactionResponse = await fetch('/api/reactions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...reactionData, channelId: newChannel.id }),
-        })
-        if (!reactionResponse.ok) throw new Error('Failed to create reaction')
-        const newReaction: Reaction = await reactionResponse.json()
-
-        // Update the store with the new reaction and channel
-        this.reactions.push(newReaction)
-        this.channels.push(newChannel)
-        console.log(
-          'Created new reaction and channel:',
-          newReaction,
-          newChannel,
+        const channelResponse = await performFetch<{ channel: Channel }>(
+          '/api/channels',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              label: `Reaction-Component-${Date.now()}`,
+              title: comment.title,
+              description: comment.description,
+            }),
+          },
         )
+
+        if (!channelResponse.success) throw new Error(channelResponse.message)
+        const newChannel = channelResponse.data?.channel
+
+        const reactionResponse = await performFetch<{ reaction: Reaction }>(
+          '/api/reactions',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...reactionData,
+              channelId: newChannel?.id,
+            }),
+          },
+        )
+
+        if (!reactionResponse.success) throw new Error(reactionResponse.message)
+        const newReaction = reactionResponse.data?.reaction
+
+        if (newReaction) this.reactions.push(newReaction)
+        if (newChannel) this.channels.push(newChannel)
       } catch (error) {
-        console.error('Error creating reaction with channel:', error)
-        this.error =
-          error instanceof Error
-            ? error.message
-            : 'Failed to create reaction with channel'
+        handleError(error, 'creating reaction with channel')
       } finally {
         this.loading = false
       }
     },
+
     async fetchReactionsByArtId(artId: number) {
       this.loading = true
       this.error = null
       try {
-        const response = await fetch(`/api/reactions/art/${artId}`)
-        if (!response.ok) throw new Error('Failed to fetch reactions')
-        const data = await response.json()
-        const artReactions = data.reactions
-        // Append or merge if necessary, instead of overwriting
-        this.reactions = [...this.reactions, ...artReactions]
+        const response = await performFetch<{ reactions: Reaction[] }>(
+          `/api/reactions/art/${artId}`,
+        )
+        if (!response.success) throw new Error(response.message)
+        this.reactions = [
+          ...this.reactions,
+          ...(response.data?.reactions || []),
+        ]
       } catch (error) {
-        this.error =
-          error instanceof Error ? error.message : 'Failed to fetch reactions'
+        handleError(error, 'fetching reactions by art ID')
       } finally {
         this.loading = false
       }
     },
-    // Get reaction by chatExchangeId
-    getReactionByChatExchangeId(chatExchangeId: number) {
-      return this.reactions.find(
-        (reaction: Reaction) => reaction.chatExchangeId === chatExchangeId,
-      )
-    },
+
     async fetchReactionsByComponentId(componentId: number) {
-      console.log(`Fetching reactions for componentId: ${componentId}`)
       this.loading = true
       this.error = null
       try {
-        const response = await fetch(
+        const response = await performFetch<{ reactions: Reaction[] }>(
           `/api/components/${componentId}/reactions`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          },
         )
-        const data = await response.json()
-        if (data.success) {
-          this.reactions = data.reactions
-          console.log('Fetched reactions:', this.reactions)
-        } else {
-          throw new Error('Failed to fetch reactions')
-        }
+        if (!response.success) throw new Error(response.message)
+        this.reactions = response.data?.reactions || []
       } catch (error) {
-        console.error('Error fetching reactions by componentId:', error)
-        this.error =
-          error instanceof Error ? error.message : 'Failed to fetch reactions'
+        handleError(error, 'fetching reactions by component ID')
       } finally {
         this.loading = false
       }
     },
+
     async fetchReactions() {
-      console.log('Fetching all reactions')
       this.loading = true
       this.error = null
       try {
-        const response = await fetch('/api/reactions', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-        if (!response.ok) {
-          console.error('Error response from fetchReactions:', response)
-          throw new Error('Failed to fetch reactions')
-        }
-        const data = await response.json()
-        this.reactions = data.reactions
-        console.log('Fetched reactions:', this.reactions)
-      } catch (error) {
-        console.error('Error fetching reactions:', error)
-        this.error =
-          error instanceof Error ? error.message : 'Failed to fetch reactions'
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async fetchReactionsForPitch(pitchId: number) {
-      console.log(`Fetching reactions for pitchId: ${pitchId}`)
-      this.loading = true
-      this.error = null
-      try {
-        const response = await fetch(`/api/reactions/pitch/${pitchId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-        if (!response.ok) {
-          console.error('Error response from fetchReactionsForPitch:', response)
-          throw new Error('Failed to fetch reactions')
-        }
-        const data = await response.json()
-        this.reactions = data.reactions
-        console.log('Fetched reactions:', this.reactions)
-      } catch (error) {
-        console.error('Error fetching reactions for pitch:', error)
-        this.error =
-          error instanceof Error ? error.message : 'Failed to fetch reactions'
-      } finally {
-        this.loading = false
-        console.log('Finished fetching reactions for pitchId:', pitchId)
-      }
-    },
-
-    async findUserReactionForPitch(pitchId: number, userId: number) {
-      console.log(
-        `Finding user reaction for pitchId: ${pitchId}, userId: ${userId}`,
-      )
-      try {
-        const response = await fetch(
-          `/api/reactions/user/${userId}/pitch/${pitchId}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          },
+        const response = await performFetch<{ reactions: Reaction[] }>(
+          '/api/reactions',
         )
-        if (!response.ok) {
-          console.error(
-            'Error response from findUserReactionForPitch:',
-            response,
-          )
-          throw new Error('Failed to find user reaction')
-        }
-        const reaction: Reaction = await response.json()
-        console.log('Found user reaction:', reaction)
-        return reaction
+        if (!response.success) throw new Error(response.message)
+        this.reactions = response.data?.reactions || []
       } catch (error) {
-        console.error('Error finding user reaction:', error)
-        throw error
+        handleError(error, 'fetching all reactions')
+      } finally {
+        this.loading = false
       }
     },
 
@@ -308,125 +212,85 @@ export const useReactionStore = defineStore('reactionStore', {
       tagId?: number | null
       reactionCategory?: ReactionCategoryEnum
     }) {
-      console.log('Creating reaction with data:', {
-        userId,
-        reactionType,
-        rating,
-        comment,
-      })
       try {
-        const response = await fetch('/api/reactions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId,
-            reactionType,
-            rating,
-            comment,
-            artId,
-            artImageId,
-            pitchId,
-            componentId,
-            channelId,
-            chatExchangeId,
-            botId,
-            galleryId,
-            messageId,
-            postId,
-            promptId,
-            resourceId,
-            reactionCategory,
-            rewardId,
-            tagId,
-          }),
-        })
-        if (!response.ok) throw new Error('Failed to create reaction')
-        const newReaction: Reaction = await response.json()
-        this.reactions.push(newReaction)
-        console.log('Created new reaction:', newReaction)
+        const response = await performFetch<{ reaction: Reaction }>(
+          '/api/reactions',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              userId,
+              reactionType,
+              rating,
+              comment,
+              artId,
+              artImageId,
+              pitchId,
+              componentId,
+              channelId,
+              chatExchangeId,
+              botId,
+              galleryId,
+              messageId,
+              postId,
+              promptId,
+              resourceId,
+              reactionCategory,
+              rewardId,
+              tagId,
+            }),
+          },
+        )
+        if (!response.success) throw new Error(response.message)
+        const newReaction = response.data?.reaction
+        if (newReaction) this.reactions.push(newReaction)
         return newReaction
       } catch (error) {
-        console.error('Error creating reaction:', error)
-        this.error =
-          error instanceof Error ? error.message : 'Failed to create reaction'
+        handleError(error, 'adding reaction')
         throw error
       }
     },
+
     async updateReaction(
       reactionId: number,
-      updates: { reactionType?: ReactionTypeEnum },
+      updates: {
+        reactionType?: ReactionTypeEnum
+        rating?: number
+        comment?: string
+      },
     ) {
-      console.log(
-        'Updating reaction with reactionId:',
-        reactionId,
-        'and updates:',
-        updates,
-      )
-
       try {
-        const response = await fetch(`/api/reactions/${reactionId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updates),
-        })
-        if (!response.ok) {
-          console.error('Error response from updateReaction:', response)
-          throw new Error('Failed to update reaction')
-        }
-        const updatedReaction: Reaction = await response.json()
+        const response = await performFetch<{ reaction: Reaction }>(
+          `/api/reactions/${reactionId}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify(updates),
+          },
+        )
+        if (!response.success) throw new Error(response.message)
+        const updatedReaction = response.data?.reaction
         const index = this.reactions.findIndex((r) => r.id === reactionId)
-        if (index !== -1) {
+        if (index !== -1 && updatedReaction)
           this.reactions[index] = updatedReaction
-        }
-        console.log('Updated reaction:', updatedReaction)
         return updatedReaction
       } catch (error) {
-        console.error('Error updating reaction:', error)
+        handleError(error, 'updating reaction')
         throw error
       }
-    },
-    async editReaction(
-      id: number,
-      reactionData: Reaction,
-    ): Promise<Reaction | null> {
-      const errorStore = useErrorStore()
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch(`/api/reactions/${id}`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(reactionData),
-          })
-          if (response.ok) {
-            return await response.json()
-          } else {
-            const errorResponse = await response.json()
-            throw new Error(errorResponse.message)
-          }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to update reaction.',
-      )
     },
 
     async deleteReaction(reactionId: number) {
-      console.log('Deleting reaction with reactionId:', reactionId)
       this.loading = true
       this.error = null
       try {
-        const response = await fetch(`/api/reactions/${reactionId}`, {
+        const response = await performFetch(`/api/reactions/${reactionId}`, {
           method: 'DELETE',
         })
-        if (!response.ok) throw new Error('Failed to delete reaction')
+        if (!response.success) throw new Error(response.message)
         this.reactions = this.reactions.filter(
           (reaction: Reaction) => reaction.id !== reactionId,
         )
-        console.log('Deleted reaction, remaining reactions:', this.reactions)
       } catch (error) {
-        this.error =
-          error instanceof Error ? error.message : 'Failed to delete reaction'
+        handleError(error, 'deleting reaction')
       } finally {
         this.loading = false
       }

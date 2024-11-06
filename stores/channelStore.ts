@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Message } from '@prisma/client'
-import { useErrorStore, ErrorType } from './errorStore'
+import { performFetch, handleError } from './utils'
 
 interface Channel {
   id: number
@@ -8,7 +8,7 @@ interface Channel {
   description: string | null
   title: string | null
   userId: number | null
-  componentId: number | null // Field for component association
+  componentId: number | null
   createdAt: Date
   updatedAt: Date | null
 }
@@ -33,148 +33,125 @@ export const useChannelStore = defineStore({
 
     async initializeChannels() {
       if (this.isInitialized) return
-      const errorStore = useErrorStore()
       this.loading = true
       try {
-        const res = await fetch('/api/channels')
-        const data = await res.json()
-
-        if (data.success) {
-          this.channels = data.channels
+        const response = await performFetch<{ channels: Channel[] }>(
+          '/api/channels',
+        )
+        if (response.success) {
+          this.channels = response.data?.channels || []
           this.isInitialized = true
         } else {
-          throw new Error('Failed to fetch channels')
+          throw new Error(response.message)
         }
-      } catch (error: unknown) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          error instanceof Error ? error.message : 'Error initializing channels',
-        )
+      } catch (error) {
+        handleError(error, 'initializing channels')
       } finally {
         this.loading = false
       }
     },
 
     async fetchChannelByComponentId(componentId: number) {
-      const errorStore = useErrorStore()
       this.loading = true
       try {
-        const res = await fetch(`/api/components/${componentId}/channel`)
-        const data = await res.json()
-
-        if (data.success) {
-          this.channels = [data.channel] // A component has one channel
-        } else {
-          throw new Error('Failed to fetch channel for component')
-        }
-      } catch (error: unknown) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          error instanceof Error ? error.message : 'Error fetching channel for component',
+        const response = await performFetch<{ channel: Channel }>(
+          `/api/components/${componentId}/channel`,
         )
+        if (response.success && response.data?.channel) {
+          this.channels = [response.data.channel] // A component has one channel
+        } else if (!response.success) {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'fetching channel for component')
       } finally {
         this.loading = false
       }
     },
 
     setCurrentChannel(channelId: number) {
-      this.currentChannel = this.channels.find((ch) => ch.id === channelId) || null
+      const selectedChannel = this.channels.find((ch) => ch.id === channelId)
+      this.currentChannel = selectedChannel ?? null
     },
 
     async removeChannel(channelId: number) {
-      const errorStore = useErrorStore()
       this.loading = true
       try {
-        const res = await fetch(`/api/channels/${channelId}`, {
+        const response = await performFetch(`/api/channels/${channelId}`, {
           method: 'DELETE',
         })
-        if (res.ok) {
+        if (response.success) {
           this.channels = this.channels.filter((ch) => ch.id !== channelId)
           if (this.currentChannel?.id === channelId) {
             this.currentChannel = null
           }
         } else {
-          throw new Error('Failed to remove channel')
+          throw new Error(response.message)
         }
-      } catch (error: unknown) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          error instanceof Error ? error.message : 'Unknown error occurred while removing channel',
-        )
+      } catch (error) {
+        handleError(error, 'removing channel')
       } finally {
         this.loading = false
       }
     },
 
     async fetchMessagesByChannelId(channelId: number) {
-      const errorStore = useErrorStore()
       this.loading = true
       try {
-        const res = await fetch(`/api/channels/${channelId}/messages`)
-        const data = await res.json()
-
-        if (data.success) {
-          const newMessages = data.messages.filter(
-            (message: Message) => !this.messages.some((m) => m.id === message.id),
-          )
-          this.messages.push(...newMessages)
-        } else {
-          throw new Error('Failed to fetch messages for channel')
-        }
-      } catch (error: unknown) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          error instanceof Error ? error.message : 'Error fetching messages for channel',
+        const response = await performFetch<{ messages: Message[] }>(
+          `/api/channels/${channelId}/messages`,
         )
+        if (response.success) {
+          const newMessages = response.data?.messages.filter(
+            (message) => !this.messages.some((m) => m.id === message.id),
+          )
+          if (newMessages) this.messages.push(...newMessages)
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'fetching messages for channel')
       } finally {
         this.loading = false
       }
     },
 
     async fetchChannels() {
-      const errorStore = useErrorStore()
       this.loading = true
       try {
-        const res = await fetch('/api/channels')
-        const data = await res.json()
-        if (data.success) {
-          this.channels = data.channels
+        const response = await performFetch<{ channels: Channel[] }>(
+          '/api/channels',
+        )
+        if (response.success) {
+          this.channels = response.data?.channels || []
         } else {
-          throw new Error('Failed to fetch channels')
+          throw new Error(response.message)
         }
       } catch (error) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          'Error fetching channels: ' + (error instanceof Error ? error.message : 'Unknown error'),
-        )
+        handleError(error, 'fetching channels')
       } finally {
         this.loading = false
       }
     },
 
     async createChannel(newChannel: { title: string; label: string }) {
-      const errorStore = useErrorStore()
       this.loading = true
       try {
-        const res = await fetch('/api/channels', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await performFetch<{ channel: Channel }>(
+          '/api/channels',
+          {
+            method: 'POST',
+            body: JSON.stringify(newChannel),
           },
-          body: JSON.stringify(newChannel),
-        })
-        const data = await res.json()
-
-        if (data.success) {
-          this.channels.push(data.channel)
-        } else {
-          throw new Error('Failed to create channel')
-        }
-      } catch (error: unknown) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          error instanceof Error ? error.message : 'Unknown error occurred while creating a channel',
         )
+        if (response.success) {
+          const createdChannel = response.data?.channel
+          if (createdChannel) this.channels.push(createdChannel)
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'creating a channel')
       } finally {
         this.loading = false
       }
@@ -184,33 +161,33 @@ export const useChannelStore = defineStore({
       return this.messages.filter((message) => message.channelId === channelId)
     },
 
-    async sendMessage(newMessage: { content: string; channelId: number; userId: number; sender: string }) {
-      const errorStore = useErrorStore()
+    async sendMessage(newMessage: {
+      content: string
+      channelId: number
+      userId: number
+      sender: string
+    }) {
       this.loading = true
       try {
-        const res = await fetch(`/api/channels/${newMessage.channelId}/messages`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await performFetch<{ message: Message }>(
+          `/api/channels/${newMessage.channelId}/messages`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              content: newMessage.content,
+              userId: newMessage.userId,
+              sender: newMessage.sender,
+            }),
           },
-          body: JSON.stringify({
-            content: newMessage.content,
-            userId: newMessage.userId,
-            sender: newMessage.sender,
-          }),
-        })
-        const data = await res.json()
-
-        if (data.success) {
-          this.messages.push(data.message)
-        } else {
-          throw new Error('Failed to send message')
-        }
-      } catch (error: unknown) {
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          error instanceof Error ? error.message : 'Unknown error occurred while sending the message',
         )
+        if (response.success) {
+          const createdMessage = response.data?.message
+          if (createdMessage) this.messages.push(createdMessage)
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'sending message')
       } finally {
         this.loading = false
       }

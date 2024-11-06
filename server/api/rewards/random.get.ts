@@ -1,13 +1,20 @@
+// /server/api/rewards/random.get.ts
 import { defineEventHandler } from 'h3'
-import prisma from '../utils/prisma' // Import your prisma client
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async () => {
+  let response
+
   try {
     // Count the total number of rewards in the database
     const totalRewards = await prisma.reward.count()
 
     if (totalRewards === 0) {
-      throw new Error('No rewards available in the database')
+      return {
+        success: false,
+        message: 'No rewards available in the database.',
+        statusCode: 404,
+      }
     }
 
     // Generate a random offset to pick a reward
@@ -20,17 +27,29 @@ export default defineEventHandler(async () => {
     })
 
     if (!randomReward) {
-      throw new Error('No reward found after random selection')
+      return {
+        success: false,
+        message: 'No reward found after random selection.',
+        statusCode: 404,
+      }
     }
 
-    return { success: true, reward: randomReward }
+    response = {
+      success: true,
+      reward: randomReward,
+      statusCode: 200,
+    }
   } catch (error: unknown) {
-    console.error(
-      `Failed to fetch random reward: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    )
-    return {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    console.error(`Error fetching random reward: ${errorMessage}`)
+
+    response = {
       success: false,
-      message: `Failed to fetch random reward: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      message: `Failed to fetch random reward: ${errorMessage}`,
+      statusCode: 500,
     }
   }
+
+  return response
 })

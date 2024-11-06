@@ -5,11 +5,12 @@ import { errorHandler } from '../utils/error'
 import type { Prisma, Reward } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
+  let response
+
   try {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message:
@@ -24,7 +25,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -36,11 +36,8 @@ export default defineEventHandler(async (event) => {
     // Read and validate the reward data from the request body
     const rewardData = await readBody<Partial<Reward>>(event)
 
-    // Ensure required fields are present and of type string
-    const icon = rewardData.icon || ''
-    const text = rewardData.text || ''
-    const power = rewardData.power || ''
-
+    // Ensure required fields are present
+    const { icon = '', text = '', power = '' } = rewardData
     if (!icon || !text || !power) {
       const missingFields = []
       if (!icon) missingFields.push('"icon"')
@@ -54,7 +51,6 @@ export default defineEventHandler(async (event) => {
 
     // Verify userId in rewardData matches the authenticated user
     if (rewardData.userId && rewardData.userId !== authenticatedUserId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message:
@@ -62,7 +58,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Prepare data for the new reward, setting defaults for optional fields
+    // Prepare data for the new reward
     const data: Prisma.RewardCreateInput = {
       icon,
       text,
@@ -70,7 +66,7 @@ export default defineEventHandler(async (event) => {
       collection: rewardData.collection || 'genesis',
       rarity: rewardData.rarity ?? 0,
       label: rewardData.label || null,
-      User: { connect: { id: authenticatedUserId } }, // Link to authenticated user
+      User: { connect: { id: authenticatedUserId } },
       ...(rewardData.artImageId && {
         ArtImage: { connect: { id: rewardData.artImageId } },
       }),
@@ -79,15 +75,21 @@ export default defineEventHandler(async (event) => {
     // Create the new reward in the database
     const newReward = await prisma.reward.create({ data })
 
-    event.node.res.statusCode = 201 // Created
-    return { success: true, reward: newReward }
+    response = {
+      success: true,
+      reward: newReward,
+      statusCode: 201,
+    }
+    event.node.res.statusCode = 201
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
-    return {
+    response = {
       success: false,
       message: message || 'Failed to create a new reward',
       statusCode: statusCode || 500,
     }
   }
+
+  return response
 })

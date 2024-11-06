@@ -6,14 +6,23 @@ import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async () => {
   try {
+    // Fetch all posts from the database
     const posts = await prisma.post.findMany()
-    return { success: true, posts }
+
+    // Return a successful response with the posts
+    return { success: true, posts, message: 'Posts retrieved successfully.' }
   } catch (error: unknown) {
+    console.error('Error fetching posts:', error) // Debugging line
     return errorHandler(error)
   }
 })
 
 // Function to fetch all Posts
 export async function fetchAllPosts(): Promise<Post[]> {
-  return await prisma.post.findMany()
+  try {
+    return await prisma.post.findMany()
+  } catch (error: unknown) {
+    console.error('Error in fetchAllPosts:', error) // Debugging line
+    throw error
+  }
 }

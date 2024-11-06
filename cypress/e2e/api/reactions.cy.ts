@@ -104,6 +104,8 @@ describe('Reaction Management API Tests', () => {
         comment: 'Love this pancake sunrise art!',
         rating: 5,
         channelId: null,
+        chatExchangeId: null,
+        artImageId: null,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)

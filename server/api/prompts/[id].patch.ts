@@ -79,10 +79,10 @@ export default defineEventHandler(async (event) => {
     // Update the prompt in the database
     const updatedPrompt = await updatePrompt(id, updatedPromptData)
 
-    // Success response
+    // Success response with data object wrapping
     response = {
       success: true,
-      updatedPrompt,
+      data: { updatedPrompt },
       statusCode: 200,
     }
     event.node.res.statusCode = 200

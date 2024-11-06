@@ -13,9 +13,15 @@ export async function updatePrompt(
     })
   } catch (error: unknown) {
     const errorMessage =
-      error instanceof Error ? error.message : 'An unknown error occurred.'
-    console.error(`Error updating Prompt with id ${id}:`, errorMessage)
-    throw errorHandler({ success: false, message: errorMessage })
+      error instanceof Error
+        ? error.message
+        : 'An unknown error occurred during prompt update.'
+    console.error(`Error updating Prompt with ID ${id}:`, errorMessage)
+    throw errorHandler({
+      success: false,
+      message: `Failed to update Prompt with ID ${id}: ${errorMessage}`,
+      statusCode: 500,
+    })
   }
 }
 
@@ -23,19 +29,31 @@ export async function fetchAllPrompts(): Promise<Prompt[]> {
   try {
     return await prisma.prompt.findMany()
   } catch (error: unknown) {
-    console.error('Error fetching all prompts:', error)
-    throw errorHandler(error)
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unknown error occurred.'
+    console.error('Error fetching all prompts:', errorMessage)
+    throw errorHandler({
+      success: false,
+      message: `Failed to fetch all prompts: ${errorMessage}`,
+      statusCode: 500,
+    })
   }
 }
 
 export async function fetchArtByPromptId(promptId: number): Promise<Art[]> {
   try {
     return await prisma.art.findMany({
-      where: { promptId: promptId },
+      where: { promptId },
     })
   } catch (error: unknown) {
-    console.error(`Error fetching Art by Prompt ID ${promptId}:`, error)
-    throw errorHandler(error)
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unknown error occurred.'
+    console.error(`Error fetching Art by Prompt ID ${promptId}:`, errorMessage)
+    throw errorHandler({
+      success: false,
+      message: `Failed to fetch Art for Prompt ID ${promptId}: ${errorMessage}`,
+      statusCode: 500,
+    })
   }
 }
 
@@ -47,10 +65,20 @@ export async function fetchPromptById(id: number): Promise<Prompt | null> {
     })
     if (!prompt) {
       console.warn(`No Prompt found for ID: ${id}`)
+      throw createError({
+        statusCode: 404,
+        message: `Prompt with ID ${id} not found.`,
+      })
     }
     return prompt
   } catch (error: unknown) {
-    console.error(`Error fetching Prompt by ID ${id}:`, error)
-    throw errorHandler(error)
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unknown error occurred.'
+    console.error(`Error fetching Prompt by ID ${id}:`, errorMessage)
+    throw errorHandler({
+      success: false,
+      message: `Failed to fetch Prompt with ID ${id}: ${errorMessage}`,
+      statusCode: 500,
+    })
   }
 }

@@ -1,12 +1,11 @@
 // /server/api/prompts/[id].delete.ts
-// /server/api/prompts/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   let response
-  let id
+  let id: number | undefined
 
   try {
     // Validate and parse the prompt ID
@@ -75,7 +74,7 @@ export default defineEventHandler(async (event) => {
     console.log(`Successfully deleted prompt with ID: ${id}`)
     response = {
       success: true,
-      message: `Prompt with ID ${id} successfully deleted.`,
+      data: { message: `Prompt with ID ${id} successfully deleted.` },
       statusCode: 200,
     }
     event.node.res.statusCode = 200
@@ -83,11 +82,15 @@ export default defineEventHandler(async (event) => {
     const handledError = errorHandler(error)
     console.error('Error deleting prompt:', handledError)
 
-    // Set the response status code based on the handled error
+    // Use `id` if it exists; otherwise, a generic message
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message: handledError.message || `Failed to delete prompt with ID ${id}.`,
+      message:
+        handledError.message ||
+        (id
+          ? `Failed to delete prompt with ID ${id}.`
+          : 'Failed to delete prompt.'),
       statusCode: event.node.res.statusCode,
     }
   }

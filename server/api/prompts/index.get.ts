@@ -7,11 +7,12 @@ export default defineEventHandler(async () => {
   try {
     const prompts = await fetchAllPrompts()
 
-    // Fetch related Art for each Prompt and convert BigInts to Strings
+    // Fetch related Art for each Prompt and convert BigInts to Strings if necessary
     const promptDetails = await Promise.all(
       prompts.map(async (prompt) => {
         const art = await fetchArtByPromptId(prompt.id)
-        // Assuming 'art' and 'prompt' might have BigInt properties
+
+        // Convert BigInt properties to strings for compatibility
         const artProcessed = JSON.parse(
           JSON.stringify(art, (_, v) =>
             typeof v === 'bigint' ? v.toString() : v,
@@ -22,12 +23,20 @@ export default defineEventHandler(async () => {
             typeof v === 'bigint' ? v.toString() : v,
           ),
         )
+
         return { ...promptProcessed, Art: artProcessed }
       }),
     )
 
-    return { success: true, prompts: promptDetails }
+    // Return response in the standardized format
+    return { success: true, data: { prompts: promptDetails } }
   } catch (error: unknown) {
-    return errorHandler(error)
+    // Use the errorHandler to process the error with a consistent response format
+    const { message, statusCode } = errorHandler(error)
+    return {
+      success: false,
+      message: `Failed to fetch prompts: ${message}`,
+      statusCode: statusCode || 500,
+    }
   }
 })

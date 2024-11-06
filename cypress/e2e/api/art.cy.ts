@@ -7,7 +7,6 @@ describe('Art Management API Tests', () => {
   const invalidToken = 'someInvalidTokenValue'
   const userToken = Cypress.env('USER_TOKEN')
 
-  // Create a new Art before running tests
   before(() => {
     cy.request({
       method: 'POST',
@@ -32,14 +31,11 @@ describe('Art Management API Tests', () => {
       cy.log('API Response:', JSON.stringify(response.body))
 
       expect(response.status).to.eq(201)
-      if (!response.body.success) {
-        throw new Error(
-          `API error occurred: ${response.body.message || 'Unknown error'}`,
-        )
-      }
+      expect(response.body.success).to.be.true
+      expect(response.body.data.art).to.be.an('object').that.is.not.empty
 
-      artId = response.body.art?.id
-      generatedPath = response.body.art?.path
+      artId = response.body.data.art?.id
+      generatedPath = response.body.data.art?.path
       if (!artId || !generatedPath) {
         throw new Error('Failed to capture art ID or path from response')
       }
@@ -69,6 +65,7 @@ describe('Art Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include('Authorization token required')
     })
   })
@@ -97,6 +94,7 @@ describe('Art Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include(
         'Invalid or expired authorization token',
       )
@@ -126,8 +124,9 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      expect(response.body.art).to.be.an('object').that.is.not.empty
-      artId = response.body.art.id
+      expect(response.body.success).to.be.true
+      expect(response.body.data.art).to.be.an('object').that.is.not.empty
+      artId = response.body.data.art.id
     })
   })
 
@@ -141,10 +140,11 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.art.path).to.include('cafefred')
-      expect(response.body.art.path).to.match(/\.webp$/)
-      expect(response.body.art.cfg).to.eq(7)
-      expect(response.body.art).to.include.keys(['createdAt', 'updatedAt'])
+      expect(response.body.success).to.be.true
+      expect(response.body.data.art.path).to.include('cafefred')
+      expect(response.body.data.art.path).to.match(/\.webp$/)
+      expect(response.body.data.art.cfg).to.eq(7)
+      expect(response.body.data.art).to.include.keys(['createdAt', 'updatedAt'])
     })
   })
 
@@ -158,7 +158,8 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.artEntries)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.artEntries)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -179,7 +180,8 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.updatedArt).to.include({
+      expect(response.body.success).to.be.true
+      expect(response.body.data.updatedArt).to.include({
         id: artId,
         designer: 'updatedDesigner',
         isPublic: true,
@@ -201,6 +203,7 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -223,6 +226,7 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -237,6 +241,7 @@ describe('Art Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -254,6 +259,7 @@ describe('Art Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -268,6 +274,7 @@ describe('Art Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
       expect(response.body.message).to.include(
         `Art entry with ID ${artId} deleted successfully`,
       )

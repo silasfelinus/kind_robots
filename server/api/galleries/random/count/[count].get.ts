@@ -1,7 +1,7 @@
 // server/api/galleries/random/count/[count].get.ts
 import { defineEventHandler } from 'h3'
 import prisma from '../../../utils/prisma'
-import { getGalleryImages } from '../../..'
+import { getGalleryImages } from '../..'
 import { errorHandler } from '../../../utils/error'
 
 export default defineEventHandler(async (event) => {
@@ -43,7 +43,10 @@ export default defineEventHandler(async (event) => {
 
     // Collect images until reaching the desired count or exhausting available galleries
     while (selectedImages.length < count && remainingGalleryIDs.length > 0) {
-      const batchSize = Math.min(remainingGalleryIDs.length, count - selectedImages.length)
+      const batchSize = Math.min(
+        remainingGalleryIDs.length,
+        count - selectedImages.length,
+      )
       const selectedBatchIDs = remainingGalleryIDs.slice(0, batchSize)
       remainingGalleryIDs = remainingGalleryIDs.slice(batchSize)
 
@@ -60,7 +63,8 @@ export default defineEventHandler(async (event) => {
       )
       allImagesArrays.forEach((galleryImages) => {
         if (galleryImages.length > 0) {
-          const randomImage = galleryImages[Math.floor(Math.random() * galleryImages.length)]
+          const randomImage =
+            galleryImages[Math.floor(Math.random() * galleryImages.length)]
           selectedImages.push(randomImage)
         }
       })

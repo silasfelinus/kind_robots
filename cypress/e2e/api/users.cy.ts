@@ -31,13 +31,13 @@ describe('User Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body).to.have.property('message').that.is.a('string')
-      createdUserId = response.body.user.id
-      createdUserToken = response.body.user.apiKey // Store the user-specific token
+      createdUserId = response.body.data.id
+      createdUserToken = response.body.data.apiKey // Store the user-specific token
     })
   })
 
   context('User Retrieval Tests', () => {
-    it('Get All Users with Authentication', () => {
+    it('Get All Users', () => {
       cy.request({
         method: 'GET',
         url: baseUrl,
@@ -67,20 +67,16 @@ describe('User Management API Tests', () => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
         expect(response.body).to.have.property('message').that.is.a('string')
-        expect(response.body).to.have.nested.property(
-          'data.user.id',
-          createdUserId,
-        )
+        expect(response.body).to.have.nested.property('data.id', createdUserId)
       })
     })
 
-    it('Get Usernames with Authentication', () => {
+    it('Get Usernames', () => {
       cy.request({
         method: 'GET',
         url: `${baseUrl}/usernames`,
         headers: {
           Accept: 'application/json',
-          'x-api-key': apiKey,
         },
       }).then((response) => {
         expect(response.status).to.eq(200)

@@ -12,21 +12,18 @@ export default defineEventHandler(async (event) => {
     // Parse and validate the pitch ID from the URL params
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
-        message: 'Invalid pitch ID.',
+        message: 'Invalid pitch ID. It must be a positive integer.',
       })
     }
 
     // Extract and validate the authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
+        message: 'Authorization token is required in the format "Bearer <token>".',
       })
     }
 
@@ -37,7 +34,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -47,9 +43,10 @@ export default defineEventHandler(async (event) => {
     const userId = user.id
 
     // Fetch the existing pitch to verify ownership
-    const existingPitch = await prisma.pitch.findUnique({ where: { id } })
+    const existingPitch = await prisma.pitch.findUnique({
+      where: { id },
+    })
     if (!existingPitch) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
         message: 'Pitch not found.',
@@ -58,7 +55,6 @@ export default defineEventHandler(async (event) => {
 
     // Verify ownership of the pitch
     if (existingPitch.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this pitch.',
@@ -68,7 +64,6 @@ export default defineEventHandler(async (event) => {
     // Parse the incoming request body as partial pitch data
     const pitchData: Prisma.PitchUpdateInput = await readBody(event)
     if (!pitchData || Object.keys(pitchData).length === 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
@@ -76,12 +71,16 @@ export default defineEventHandler(async (event) => {
     }
 
     // Update the pitch in the database
-    const updatedPitch = await updatePitch(id, pitchData)
+    const updatedPitch = await prisma.pitch.update({
+      where: { id },
+      data: pitchData,
+    })
 
     // Successful response with updated pitch
     response = {
       success: true,
-      pitch: updatedPitch,
+      message: 'Pitch updated successfully.',
+      data: updatedPitch,
       statusCode: 200,
     }
     event.node.res.statusCode = 200
@@ -97,18 +96,3 @@ export default defineEventHandler(async (event) => {
 
   return response
 })
-
-// Function to update an existing Pitch by ID
-export async function updatePitch(
-  id: number,
-  updatedPitch: Prisma.PitchUpdateInput,
-): Promise<Pitch | null> {
-  try {
-    return await prisma.pitch.update({
-      where: { id },
-      data: updatedPitch,
-    })
-  } catch (error: unknown) {
-    throw errorHandler(error)
-  }
-}

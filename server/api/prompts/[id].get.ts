@@ -1,18 +1,17 @@
+// /server/api/prompts/[id].get.ts
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
-import { fetchArtByPromptId, fetchPromptById } from './artQueries'
+import { fetchArtByPromptId, fetchPromptById } from '.'
 
 // Event handler for fetching Prompt and related Art by ID
 export default defineEventHandler(async (event) => {
+  let response
+
   try {
     const id = Number(event.context.params?.id)
 
-    if (isNaN(id)) {
-      return {
-        success: false,
-        message: 'Invalid ID format.',
-        statusCode: 400, // Bad Request
-      }
+    if (isNaN(id) || id <= 0) {
+      throw new Error('Invalid ID format. It must be a positive integer.')
     }
 
     console.log(`Fetching Prompt with ID: ${id}`)
@@ -38,13 +37,29 @@ export default defineEventHandler(async (event) => {
     // Extract Art IDs
     const artIds = art.map((a) => a.id)
 
-    return { success: true, data: { prompt: prompt.prompt, artIds } }
+    // Successful response with prompt and art IDs
+    response = {
+      success: true,
+      data: {
+        prompt: prompt.prompt,
+        artIds,
+      },
+      statusCode: 200,
+    }
   } catch (error: unknown) {
     console.error('Error fetching prompt or related art:', error)
     // Use the errorHandler to process the error
-    return errorHandler({
+    const { message, statusCode } = errorHandler({
       error,
       context: 'Fetching Prompt and related Art by ID',
     })
+
+    response = {
+      success: false,
+      message: message || 'Failed to fetch prompt and related art.',
+      statusCode: statusCode || 500,
+    }
   }
+
+  return response
 })

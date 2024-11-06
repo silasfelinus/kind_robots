@@ -1,7 +1,7 @@
-// server/api/random/username.get.ts
+// /server/api/random/username.get.ts
 import { defineEventHandler } from 'h3'
 import prisma from '../utils/prisma'
-import { errorHandler } from './../../../server/api/utils/error'
+import { errorHandler } from '../utils/error'
 
 // Backup lists
 const backupAdjectives = ['Happy', 'Sad', 'Angry']
@@ -9,6 +9,8 @@ const backupNouns = ['Cat', 'Dog', 'Fish']
 const backupTitles = ['Mr.', 'Mrs.', 'Dr.']
 
 export default defineEventHandler(async () => {
+  let sillyName: string
+
   try {
     // Fetch lists from the database
     const adjectivesList = await prisma.randomList.findFirst({
@@ -33,14 +35,20 @@ export default defineEventHandler(async () => {
     )
 
     // Generate the silly name
-    const sillyName = `${randomAdjective} ${randomNoun} ${randomTitle}`
+    sillyName = `${randomAdjective} ${randomNoun} ${randomTitle}`
 
     return {
       success: true,
-      sillyName,
+      data: { sillyName }, // Wrap the silly name in data
+      message: 'Silly name generated successfully.',
     }
   } catch (error: unknown) {
-    return errorHandler({ error, context: 'Error in /api/randomname' })
+    const handledError = errorHandler(error)
+    return {
+      success: false,
+      message: handledError.message || 'Failed to generate silly name.',
+      statusCode: handledError.statusCode || 500,
+    }
   }
 })
 

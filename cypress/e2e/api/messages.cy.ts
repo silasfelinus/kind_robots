@@ -1,5 +1,5 @@
-// cypress/e2e/messages.cy.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+// cypress/e2e/messages.cy.ts
 
 describe('Message Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/messages'
@@ -9,7 +9,6 @@ describe('Message Management API Tests', () => {
   const channelId: number = 2 // Sample channel ID
 
   // Step 1: Attempt to create a message with various authentication scenarios
-
   it('should not allow creating a message without an authorization token', () => {
     cy.request({
       method: 'POST',
@@ -72,8 +71,9 @@ describe('Message Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      expect(response.body.newMessage).to.be.an('object').that.is.not.empty
-      messageId = response.body.newMessage.id
+      expect(response.body.success).to.be.true
+      expect(response.body.data.newMessage).to.be.an('object').that.is.not.empty
+      messageId = response.body.data.newMessage.id
     })
   })
 
@@ -88,7 +88,8 @@ describe('Message Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.messages)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.messages)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -106,7 +107,8 @@ describe('Message Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.message.sender).to.eq('WELCOMEBOT')
+      expect(response.body.success).to.be.true
+      expect(response.body.data.message.sender).to.eq('WELCOMEBOT')
     })
   })
 
@@ -142,6 +144,8 @@ describe('Message Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+
       // Verify the update
       cy.request({
         method: 'GET',
@@ -152,7 +156,8 @@ describe('Message Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body.message.content).to.eq(
+        expect(response.body.success).to.be.true
+        expect(response.body.data.message.content).to.eq(
           'Hello! Welcome to our updated Livechat!',
         )
       })
@@ -186,6 +191,10 @@ describe('Message Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.message).to.include(
+        `Message with ID ${messageId} successfully deleted`,
+      )
     })
   })
 })

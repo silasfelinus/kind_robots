@@ -28,6 +28,7 @@ describe('ChatExchange Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -54,6 +55,7 @@ describe('ChatExchange Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -77,8 +79,10 @@ describe('ChatExchange Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      expect(response.body.newExchange).to.be.an('object').that.is.not.empty
-      chatExchangeId = response.body.newExchange.id
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.newExchange).to.be.an('object').that.is.not
+        .empty
+      chatExchangeId = response.body.data.newExchange.id
     })
   })
 
@@ -92,7 +96,8 @@ describe('ChatExchange Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.chatExchanges.botName).to.eq('AMI')
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.chatExchange.botName).to.eq('AMI')
     })
   })
 
@@ -106,7 +111,8 @@ describe('ChatExchange Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.chatExchanges)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.chatExchanges)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -122,7 +128,8 @@ describe('ChatExchange Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.userChats)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.userChats)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -138,7 +145,8 @@ describe('ChatExchange Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.botChats)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.botChats)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -158,6 +166,7 @@ describe('ChatExchange Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include(
         'Authorization header is missing',
       )
@@ -179,6 +188,7 @@ describe('ChatExchange Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -197,6 +207,7 @@ describe('ChatExchange Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
     })
   })
 
@@ -210,6 +221,7 @@ describe('ChatExchange Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -227,6 +239,7 @@ describe('ChatExchange Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -241,6 +254,10 @@ describe('ChatExchange Management API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.message).to.include(
+        'Chat exchange successfully deleted',
+      )
     })
   })
 })

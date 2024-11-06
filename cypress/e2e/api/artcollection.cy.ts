@@ -33,7 +33,10 @@ describe('Art Collection API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      artId = response.body.art?.id
+      expect(response.body.success).to.be.true
+      expect(response.body.data.art).to.be.an('object').that.is.not.empty
+
+      artId = response.body.data.art.id
       if (!artId) throw new Error('Failed to create art.')
     })
   })
@@ -52,8 +55,11 @@ describe('Art Collection API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
-      collectionId = response.body.collection.id
-      existingArtIds = response.body.collection.art.map((art: Art) => art.id)
+      expect(response.body.success).to.be.true
+      collectionId = response.body.data.collection.id
+      existingArtIds = response.body.data.collection.art.map(
+        (art: Art) => art.id,
+      )
     })
   })
 
@@ -66,6 +72,7 @@ describe('Art Collection API Tests', () => {
       body: { artIds: [artId] },
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -83,6 +90,7 @@ describe('Art Collection API Tests', () => {
       body: { artIds: [artId] },
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -106,7 +114,7 @@ describe('Art Collection API Tests', () => {
         userId: 9,
       },
     }).then((response) => {
-      newArtId = response.body.art.id
+      newArtId = response.body.data.art.id
       expect(newArtId).to.exist
       cy.request({
         method: 'PATCH',
@@ -119,7 +127,8 @@ describe('Art Collection API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        const returnedArtIds = response.body.collection.art.map(
+        expect(response.body.success).to.be.true
+        const returnedArtIds = response.body.data.collection.art.map(
           (art: Art) => art.id,
         )
         expect(returnedArtIds).to.include(newArtId)
@@ -141,7 +150,8 @@ describe('Art Collection API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      const returnedArtIds = response.body.collection.art.map(
+      expect(response.body.success).to.be.true
+      const returnedArtIds = response.body.data.collection.art.map(
         (art: Art) => art.id,
       )
       expect(returnedArtIds).to.not.include(artIdToRemove)
@@ -156,6 +166,7 @@ describe('Art Collection API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -172,6 +183,7 @@ describe('Art Collection API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -185,6 +197,10 @@ describe('Art Collection API Tests', () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.message).to.include(
+        `Art entry with ID ${collectionId} deleted successfully`,
+      )
     })
   })
 
@@ -200,6 +216,7 @@ describe('Art Collection API Tests', () => {
           },
         }).then((response) => {
           expect(response.status).to.eq(200)
+          expect(response.body.success).to.be.true
         })
       }
     })

@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     // Extract Art IDs
     const artIds = art.map((a) => a.id)
 
-    return { success: true, prompt: prompt.prompt, artIds }
+    return { success: true, data: { prompt: prompt.prompt, artIds } }
   } catch (error: unknown) {
     console.error('Error fetching prompt or related art:', error)
     // Use the errorHandler to process the error

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/bots.cy.js
 
 describe('Bot Management API Tests', () => {
@@ -27,6 +28,7 @@ describe('Bot Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -51,6 +53,7 @@ describe('Bot Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -81,7 +84,6 @@ describe('Bot Management API Tests', () => {
         modules: 'core, analytics',
         userId: 9,
       },
-      failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
@@ -102,6 +104,7 @@ describe('Bot Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -123,6 +126,7 @@ describe('Bot Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -164,6 +168,7 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+      expect(response.body.data).to.be.an('array')
       const bot = response.body.data.find((bot: Bot) => bot.id === createdBotId)
       expect(bot).to.include({
         id: createdBotId,
@@ -181,6 +186,7 @@ describe('Bot Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -198,6 +204,7 @@ describe('Bot Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })

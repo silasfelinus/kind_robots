@@ -8,8 +8,14 @@ import prisma from '../../utils/prisma'
 export default defineEventHandler(async (event) => {
   try {
     const userId = Number(event.context.params?.id) // Ensure the userId is correctly parsed from the URL parameter
+
+    if (isNaN(userId) || userId <= 0) {
+      event.node.res.statusCode = 400
+      throw new Error('Invalid user ID')
+    }
+
     const userArt = await fetchArtByUserId(userId)
-    return { success: true, art: userArt }
+    return { success: true, data: { art: userArt } }
   } catch (error: unknown) {
     return errorHandler(error)
   }

@@ -6,8 +6,21 @@ import prisma from '../utils/prisma'
 export default defineEventHandler(async (event) => {
   try {
     const id = Number(event.context.params?.id)
+
+    if (isNaN(id) || id <= 0) {
+      event.node.res.statusCode = 400
+      throw new Error('Invalid art ID.')
+    }
+
     const art = await fetchArtById(id)
-    return { success: true, art }
+
+    if (!art) {
+      event.node.res.statusCode = 404
+      throw new Error(`Art entry with ID ${id} not found.`)
+    }
+
+    // Wrap the fetched art in a data object
+    return { success: true, data: { art } }
   } catch (error: unknown) {
     return errorHandler(error)
   }

@@ -3,8 +3,6 @@ import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
-  let response
-
   try {
     // Validate the Art ID
     const id = Number(event.context.params?.id)
@@ -22,8 +20,7 @@ export default defineEventHandler(async (event) => {
       event.node.res.statusCode = 401
       throw createError({
         statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
+        message: 'Authorization token is required in the format "Bearer <token>".',
       })
     }
 
@@ -69,24 +66,22 @@ export default defineEventHandler(async (event) => {
     await prisma.art.delete({ where: { id } })
 
     // Successful deletion response
-    response = {
-      success: true,
-      message: `Art entry with ID ${id} deleted successfully.`,
-      statusCode: 200,
-    }
     event.node.res.statusCode = 200
+    return {
+      success: true,
+      data: {
+        message: `Art entry with ID ${id} deleted successfully.`,
+      },
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.log('Error Handled:', handledError)
 
-    // Explicitly set the status code based on the handled error
+    // Set the status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    return {
       success: false,
-      message: handledError.message || `Failed to process the request.`,
-      statusCode: event.node.res.statusCode,
+      message: handledError.message || 'Failed to process the request.',
     }
   }
-
-  return response
 })

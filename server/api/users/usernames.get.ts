@@ -9,13 +9,10 @@ export default defineEventHandler(async () => {
   try {
     const response = await fetchUsers()
 
-    if (!response.success || !response.users) {
-      throw new Error(
-        response.message || 'Unknown error occurred while fetching users',
-      )
-    }
+    // Handle case where response does not include users or users is not an array
+    const users = Array.isArray(response.users) ? response.users : []
+    const usernames = users.map((user) => user.username).filter(Boolean) // Filter out undefined or null usernames
 
-    const usernames = response.users.map((user) => user.username)
     return {
       success: true,
       message: 'Usernames fetched successfully.',
@@ -24,16 +21,17 @@ export default defineEventHandler(async () => {
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.error('Failed to fetch users:', handledError.message) // Log the error message for debugging
+    console.error('Failed to fetch usernames:', handledError.message) // Log the error message for debugging
 
     return {
       success: false,
-      message: `Failed to fetch users. Reason: ${handledError.message}`,
+      message: `Failed to fetch usernames. Reason: ${handledError.message}`,
       statusCode: handledError.statusCode || 500,
     }
   }
 })
 
+// Additional utility function for fetching username by ID
 export async function fetchUsernameById(
   id: number,
 ): Promise<Partial<User> | null> {
@@ -43,7 +41,7 @@ export async function fetchUsernameById(
       select: {
         id: true,
         username: true, // Include username
-        // ... other fields
+        // ... other fields if needed
       },
     })
   } catch (error: unknown) {

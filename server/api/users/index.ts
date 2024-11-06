@@ -72,41 +72,44 @@ export async function createUser(data: {
   }
 }
 
+// Optimized fetchUsers to ensure users always returns an array
 export async function fetchUsers(): Promise<{
   success: boolean
   users?: Partial<User>[]
   message?: string
 }> {
   try {
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        createdAt: true,
-        updatedAt: true,
-        Role: true,
-        username: true,
-        emailVerified: true,
-        questPoints: true,
-        name: true,
-        bio: true,
-        birthday: true,
-        city: true,
-        state: true,
-        country: true,
-        timezone: true,
-        avatarImage: true,
-        showMature: true,
-        karma: true,
-        mana: true,
-        clickRecord: true,
-        matchRecord: true,
-        // Other fields can be added here if needed
-      },
-    })
+    const users =
+      (await prisma.user.findMany({
+        select: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          Role: true,
+          username: true,
+          emailVerified: true,
+          questPoints: true,
+          name: true,
+          bio: true,
+          birthday: true,
+          city: true,
+          state: true,
+          country: true,
+          timezone: true,
+          avatarImage: true,
+          showMature: true,
+          karma: true,
+          mana: true,
+          clickRecord: true,
+          matchRecord: true,
+        },
+      })) ?? [] // Ensures users is always an array
+
     return { success: true, users }
   } catch (error) {
-    console.error(`Failed to fetch users: ${errorHandler(error).message}`)
-    return { success: false, message: errorHandler(error).message }
+    const handledError = errorHandler(error)
+    console.error(`Failed to fetch users: ${handledError.message}`)
+    return { success: false, message: handledError.message }
   }
 }
 

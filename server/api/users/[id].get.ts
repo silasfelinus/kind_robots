@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Check for the auth-secret header and validate it
-    const authSecretHeader = event.req.headers['auth-secret']
+    const authSecretHeader = event.node.req.headers['auth-secret']
     const returnApiKey = authSecretHeader === AUTH_SECRET
 
     // Fetch the user, including the apiKey if returnApiKey is true

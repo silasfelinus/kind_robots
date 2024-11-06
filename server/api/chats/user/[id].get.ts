@@ -1,4 +1,4 @@
-// /server/api/chats/bot/[id].get.ts
+// /server/api/chats/user/[id].get.ts
 import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'

@@ -64,11 +64,12 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    // Set status to 201 Created
+    // Return the new art image wrapped in a data object
     event.node.res.statusCode = 201
-    return { success: true, artImage: newArtImage }
+    return { success: true, data: { artImage: newArtImage } }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    return { success: false, message: handledError.message, statusCode: handledError.statusCode || 500 }
+    event.node.res.statusCode = handledError.statusCode || 500
+    return { success: false, message: handledError.message }
   }
 })

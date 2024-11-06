@@ -11,13 +11,13 @@ export default defineEventHandler(async () => {
       return {
         success: false,
         message: 'No art images found.',
-        statusCode: 404,
       }
     }
 
-    return { success: true, artImages }
+    // Return the found art images wrapped in a data object
+    return { success: true, data: { artImages } }
   } catch (error) {
-    return errorHandler(error) // Do not concatenate error with string
+    return errorHandler(error)
   }
 })
 

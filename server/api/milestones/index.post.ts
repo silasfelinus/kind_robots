@@ -5,6 +5,8 @@ import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
+  let response
+
   try {
     // Read and validate the milestones data from the request body
     const milestonesData: Partial<Milestone>[] = await readBody(event)
@@ -17,26 +19,39 @@ export default defineEventHandler(async (event) => {
     }
 
     // Create milestones in batch and retrieve results
-    const { createdMilestones, errors } =
-      await createMilestonesBatch(milestonesData)
+    const { createdMilestones, errors } = await createMilestonesBatch(milestonesData)
 
-    // Return result based on errors presence
+    // Prepare the response based on the presence of errors
     if (errors.length > 0) {
-      return {
+      response = {
         success: false,
         message: 'Some milestones could not be created.',
         errors,
+        statusCode: 400,
+      }
+    } else {
+      response = {
+        success: true,
+        message: 'All milestones created successfully.',
+        data: createdMilestones,
+        statusCode: 201,
       }
     }
-
-    return {
-      success: true,
-      milestones: createdMilestones,
-      message: 'All milestones created successfully.',
-    }
+    event.node.res.statusCode = response.statusCode
   } catch (error) {
-    return errorHandler(error)
+    const handledError = errorHandler(error)
+    console.error('Error creating milestones:', handledError)
+
+    // Set the response and status code based on the handled error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
+      success: false,
+      message: handledError.message || 'Failed to create milestones.',
+      statusCode: event.node.res.statusCode,
+    }
   }
+
+  return response
 })
 
 // Function to create milestones in batch and return the created records

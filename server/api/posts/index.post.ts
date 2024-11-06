@@ -5,15 +5,14 @@ import prisma from '../utils/prisma'
 import { Prisma, type Post } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
-  let response
-
   try {
     // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
         statusCode: 401,
-        message: 'Authorization token is required in the format "Bearer <token>".',
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
       })
     }
 

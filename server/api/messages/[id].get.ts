@@ -1,11 +1,16 @@
 // /server/api/messages/[id].get.ts
-import { defineEventHandler, createError } from 'h3'
+import { defineEventHandler, createError, setResponseStatus } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
-export default defineEventHandler(async (event) => {
-  let response: { success: boolean; message: string; statusCode: number }
-  let id: number
+interface MessageResponse {
+  success: boolean
+  message: string
+}
+
+export default defineEventHandler(async (event): Promise<MessageResponse> => {
+  let response: MessageResponse
+  let id: number | undefined // Initialize id as possibly undefined
 
   try {
     // Validate and parse the Message ID
@@ -69,20 +74,19 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       message: `Message with ID ${id} successfully deleted.`,
-      statusCode: 200,
     }
-    event.node.res.statusCode = 200
+    setResponseStatus(event, 200)
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.error('Error deleting message:', handledError)
 
-    // Set the status code based on the handled error
-    event.node.res.statusCode = handledError.statusCode || 500
+    // Set the response and status code based on the handled error
+    setResponseStatus(event, handledError.statusCode || 500)
     response = {
       success: false,
       message:
-        handledError.message || `Failed to delete message with ID ${id}.`,
-      statusCode: event.node.res.statusCode,
+        handledError.message ||
+        `Failed to delete message with ID ${id ?? 'unknown'}.`,
     }
   }
 

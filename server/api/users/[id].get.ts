@@ -9,11 +9,17 @@ const AUTH_SECRET = process.env.AUTH_SECRET // Set your auth-secret as an enviro
 export default defineEventHandler(async (event) => {
   console.log('Fetching user by ID with optional API key inclusion.')
 
+  let response
+
   try {
     // Extract the user ID from the route parameters
     const userId = Number(event.context.params?.id)
     if (isNaN(userId) || userId <= 0) {
-      return { success: false, message: 'Invalid User ID.' }
+      return {
+        success: false,
+        message: 'Invalid User ID.',
+        statusCode: 400,
+      }
     }
 
     // Check for the auth-secret header and validate it
@@ -23,18 +29,40 @@ export default defineEventHandler(async (event) => {
     // Fetch the user, including the apiKey if returnApiKey is true
     const user = await fetchUserById(userId, returnApiKey)
     if (!user) {
-      return { success: false, message: 'User not found.' }
+      return {
+        success: false,
+        message: 'User not found.',
+        statusCode: 404,
+      }
     }
 
-    return { success: true, user }
+    // Successful response
+    response = {
+      success: true,
+      message: 'User fetched successfully.',
+      data: user,
+      statusCode: 200,
+    }
   } catch (error: unknown) {
-    const { message } = errorHandler(error)
-    return { success: false, message: `Failed to fetch user: ${message}` }
+    const handledError = errorHandler(error)
+    console.error(`Error fetching user: ${handledError.message}`)
+
+    // Error response
+    response = {
+      success: false,
+      message: `Failed to fetch user: ${handledError.message}`,
+      statusCode: handledError.statusCode || 500,
+    }
   }
+
+  return response
 })
 
 // Modify fetchUserById to conditionally include apiKey
-export async function fetchUserById(id: number, includeApiKey = false): Promise<Partial<User> | null> {
+export async function fetchUserById(
+  id: number,
+  includeApiKey = false,
+): Promise<Partial<User> | null> {
   try {
     return await prisma.user.findUnique({
       where: { id },

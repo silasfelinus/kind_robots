@@ -16,14 +16,20 @@ export default defineEventHandler(async () => {
     }
 
     const usernames = response.users.map((user) => user.username)
-    return { success: true, usernames }
+    return {
+      success: true,
+      message: 'Usernames fetched successfully.',
+      data: { usernames },
+      statusCode: 200,
+    }
   } catch (error: unknown) {
-    const { message } = errorHandler(error)
-    console.error('Failed to fetch users:', message) // Log the error message for debugging
+    const handledError = errorHandler(error)
+    console.error('Failed to fetch users:', handledError.message) // Log the error message for debugging
 
     return {
       success: false,
-      message: `Failed to fetch users. Reason: ${message}`,
+      message: `Failed to fetch users. Reason: ${handledError.message}`,
+      statusCode: handledError.statusCode || 500,
     }
   }
 })
@@ -41,8 +47,8 @@ export async function fetchUsernameById(
       },
     })
   } catch (error: unknown) {
-    const { message } = errorHandler(error)
-    console.error(`Failed to fetch user by ID: ${message}`)
-    throw new Error(errorHandler(error).message)
+    const handledError = errorHandler(error)
+    console.error(`Failed to fetch user by ID: ${handledError.message}`)
+    throw new Error(handledError.message)
   }
 }

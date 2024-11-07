@@ -19,13 +19,15 @@ export default defineEventHandler(async (event) => {
     }
 
     // Create milestones in batch and retrieve results
-    const { createdMilestones, errors } = await createMilestonesBatch(milestonesData)
+    const { createdMilestones, errors } =
+      await createMilestonesBatch(milestonesData)
 
     // Prepare the response based on the presence of errors
     if (errors.length > 0) {
       response = {
         success: false,
         message: 'Some milestones could not be created.',
+        data: createdMilestones, // Ensure `data` is always returned as an array
         errors,
         statusCode: 400,
       }
@@ -33,7 +35,7 @@ export default defineEventHandler(async (event) => {
       response = {
         success: true,
         message: 'All milestones created successfully.',
-        data: createdMilestones,
+        data: createdMilestones, // Ensure `data` is an array
         statusCode: 201,
       }
     }
@@ -47,6 +49,7 @@ export default defineEventHandler(async (event) => {
     response = {
       success: false,
       message: handledError.message || 'Failed to create milestones.',
+      data: [], // Ensure `data` is always returned as an array, even on error
       statusCode: event.node.res.statusCode,
     }
   }

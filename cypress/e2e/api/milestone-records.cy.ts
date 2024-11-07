@@ -95,8 +95,8 @@ describe('Milestone Record Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
-      expect(response.body.data.record).to.be.an('object').that.is.not.empty
-      milestoneRecordId = response.body.data.record.id
+      expect(response.body.data).to.be.an('object').that.is.not.empty
+      milestoneRecordId = response.body.data.id
       cy.log('Created Milestone Record ID:', milestoneRecordId)
     })
   })

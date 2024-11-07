@@ -23,6 +23,11 @@ export const loadComponentStore = async () => {
   return useComponentStore();
 };
 
+export const loadCommunicationStore = async () => {
+  const { useCommunicationStore } = await import('@/stores/communicationStore');
+  return useCommunicationStore();
+};
+
 export const loadUserStore = async () => {
   const { useUserStore } = await import('@/stores/userStore');
   return useUserStore();

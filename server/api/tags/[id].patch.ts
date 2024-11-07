@@ -7,7 +7,6 @@ import type { Tag } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   const tagId = Number(event.context.params?.id)
-  let response
 
   try {
     // Validate Tag ID
@@ -21,10 +20,11 @@ export default defineEventHandler(async (event) => {
     // Use validateApiKey to authenticate
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
+      event.node.res.statusCode = 401 // Set HTTP status code to 401 Unauthorized
+      return {
+        success: false,
         message: 'Invalid or expired token.',
-      })
+      }
     }
 
     // Verify Tag Ownership
@@ -33,25 +33,28 @@ export default defineEventHandler(async (event) => {
       select: { userId: true },
     })
     if (!existingTag) {
-      throw createError({
-        statusCode: 404,
+      event.node.res.statusCode = 404 // Set HTTP status code to 404 Not Found
+      return {
+        success: false,
         message: `Tag with ID ${tagId} does not exist.`,
-      })
+      }
     }
     if (existingTag.userId !== user.id) {
-      throw createError({
-        statusCode: 403,
+      event.node.res.statusCode = 403 // Set HTTP status code to 403 Forbidden
+      return {
+        success: false,
         message: 'You do not have permission to update this tag.',
-      })
+      }
     }
 
     // Read and Validate Update Data
     const tagData: Partial<Tag> = await readBody(event)
     if (!tagData || Object.keys(tagData).length === 0) {
-      throw createError({
-        statusCode: 400,
+      event.node.res.statusCode = 400 // Set HTTP status code to 400 Bad Request
+      return {
+        success: false,
         message: 'No data provided for update.',
-      })
+      }
     }
 
     // Perform Update
@@ -60,21 +63,19 @@ export default defineEventHandler(async (event) => {
       data: tagData,
     })
 
-    // Return Success Response
-    response = {
+    // Set Success Response Status Code to 200
+    event.node.res.statusCode = 200
+    return {
       success: true,
-      data: { tag: updatedTag },
-      statusCode: 200,
+      data: updatedTag,
     }
   } catch (error: unknown) {
     // Process Error with Error Handler
-    const handledError = errorHandler(error)
-    response = {
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500 // Set appropriate error status code
+    return {
       success: false,
-      message: handledError.message || `Failed to update tag with ID ${tagId}.`,
-      statusCode: handledError.statusCode || 500,
+      message: message || `Failed to update tag with ID ${tagId}.`,
     }
   }
-
-  return response
 })

@@ -42,13 +42,15 @@ export default defineEventHandler(async (event) => {
 
     tagData.userId = authenticatedUserId
 
-    // Create the tag and ensure the response contains a 201 status
-    const result = await addTag(tagData)
+    // Consolidate the tag creation here and set status code to 201
+    const tag = await prisma.tag.create({
+      data: tagData as Prisma.TagCreateInput,
+    })
     return {
       success: true,
-      data: result.tag,
+      data: tag,
       message: 'Tag created successfully',
-      statusCode: 201,
+      statusCode: 201, // Ensure 201 status for successful creation
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
@@ -61,18 +63,3 @@ export default defineEventHandler(async (event) => {
     }
   }
 })
-
-export async function addTag(
-  tagData: Partial<Tag>,
-): Promise<{ tag: Tag | null; error: string | null }> {
-  try {
-    const tag = await prisma.tag.create({
-      data: tagData as Prisma.TagCreateInput,
-    })
-    return { tag, error: null }
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown database error'
-    throw new Error(`Failed to create tag: ${errorMessage}`)
-  }
-}

@@ -31,8 +31,8 @@ describe('User Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body).to.have.property('message').that.is.a('string')
-      createdUserId = response.body.data.user.id
-      createdUserToken = response.body.data.user.apiKey // Store the user-specific token
+      createdUserId = response.body.data.id
+      createdUserToken = response.body.data.apiKey // Store the user-specific token
     })
   })
 
@@ -71,6 +71,7 @@ describe('User Management API Tests', () => {
       })
     })
 
+    // Test to get all usernames
     it('Get Usernames', () => {
       cy.request({
         method: 'GET',
@@ -81,10 +82,10 @@ describe('User Management API Tests', () => {
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('success', true)
-        expect(response.body).to.have.property('message').that.is.a('string')
-        expect(response.body).to.have.property('data').that.is.an('array')
-        expect(response.body.data).to.include(uniqueUsername)
+        expect(response.body.success).to.be.true
+        expect(response.body.data) // Access `data` directly as an array
+          .to.be.an('array')
+          .and.to.include(uniqueUsername) // Check for the specific username
       })
     })
   })

@@ -19,7 +19,6 @@ interface RequestData {
   artId?: number
   componentId?: number
   pitchId?: number
-  channelId?: number
   comment?: string
 }
 
@@ -45,7 +44,6 @@ export default defineEventHandler(async (event) => {
       artId,
       componentId,
       pitchId,
-      channelId,
       comment,
     } = requestData
 
@@ -66,8 +64,6 @@ export default defineEventHandler(async (event) => {
       matchCondition.componentId = componentId
     } else if (pitchId) {
       matchCondition.pitchId = pitchId
-    } else if (channelId) {
-      matchCondition.channelId = channelId
     } else {
       throw new Error('Invalid or missing identifier for reaction.')
     }
@@ -127,7 +123,6 @@ export async function fetchAllReactions() {
         Art: true, // Include related Art data if needed
         Pitch: true, // Include related Pitch data if needed
         Component: true, // Include related Component data if needed
-        Channel: true, // Include related Channel data if needed
       },
     })
   } catch (error: unknown) {
@@ -144,7 +139,6 @@ export async function fetchReactionById(id: number) {
         Art: true, // Include related Art data if needed
         Pitch: true, // Include related Pitch data if needed
         Component: true, // Include related Component data if needed
-        Channel: true, // Include related Channel data if needed
       },
     })
 

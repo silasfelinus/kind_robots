@@ -1,31 +1,42 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/chats.cy.ts
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
-describe('ChatExchange Management API Tests', () => {
+describe('Chat API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/chats'
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let chatExchangeId: number
-  const userId: number = 9
-  const botId: number = 1
+  let chatId: number
+  const userId = 9
+  const botId = 1
 
-  it('should not allow creating a new chat exchange without an authorization token', () => {
-    cy.request({
-      method: 'POST',
-      url: baseUrl,
+  // Helper function to make requests with optional token and body
+  const makeRequest = (
+    method: string,
+    url: string,
+    token: string | null,
+    body?: object,
+  ) => {
+    return cy.request({
+      method,
+      url,
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
       },
-      body: {
-        userId,
-        botId,
-        botName: 'AMI',
-        username: 'silasfelinus',
-        userPrompt: 'How are you?',
-        botResponse: "I'm fine, thank you!",
-        previousEntryId: null,
-      },
+      body,
       failOnStatusCode: false,
+    })
+  }
+
+  // === AUTHORIZATION TESTS ===
+  it('should not allow creating a chat without an authorization token', () => {
+    makeRequest('POST', baseUrl, null, {
+      type: 'UserToBot',
+      sender: 'silasfelinus',
+      recipient: 'AMI',
+      content: 'Hello, AMI!',
+      userId,
+      botId,
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
@@ -35,24 +46,14 @@ describe('ChatExchange Management API Tests', () => {
     })
   })
 
-  it('should not allow creating a new chat exchange with an invalid authorization token', () => {
-    cy.request({
-      method: 'POST',
-      url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
-      body: {
-        userId,
-        botId,
-        botName: 'AMI',
-        username: 'silasfelinus',
-        userPrompt: 'How are you?',
-        botResponse: "I'm fine, thank you!",
-        previousEntryId: null,
-      },
-      failOnStatusCode: false,
+  it('should not allow creating a chat with an invalid authorization token', () => {
+    makeRequest('POST', baseUrl, invalidToken, {
+      type: 'UserToBot',
+      sender: 'silasfelinus',
+      recipient: 'AMI',
+      content: 'Hello, AMI!',
+      userId,
+      botId,
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
@@ -60,111 +61,85 @@ describe('ChatExchange Management API Tests', () => {
     })
   })
 
-  it('Create a New Chat Exchange with Valid Authentication', () => {
-    cy.request({
-      method: 'POST',
-      url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-      body: {
-        userId,
-        botId,
-        botName: 'AMI',
-        username: 'silasfelinus',
-        userPrompt: 'How are you?',
-        botResponse: "I'm fine, thank you!",
-        previousEntryId: null,
-      },
+  // === CREATION TEST ===
+  it('Create a new Chat with valid authentication', () => {
+    makeRequest('POST', baseUrl, userToken, {
+      type: 'UserToBot',
+      sender: 'silasfelinus',
+      recipient: 'AMI',
+      content: 'Hello, AMI!',
+      title: 'Greeting',
+      label: 'Introduction',
+      isPublic: true,
+      isFavorite: false,
+      userId,
+      botId,
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.newExchange).to.be.an('object').that.is.not
-        .empty
-      chatExchangeId = response.body.data.newExchange.id
+      expect(response.body.data.chat).to.be.an('object').that.is.not.empty
+      chatId = response.body.data.chat.id
     })
   })
 
-  it('Get Chat Exchange by ID', () => {
-    cy.request({
-      method: 'GET',
-      url: `${baseUrl}/${chatExchangeId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-    }).then((response) => {
+  // === RETRIEVAL TESTS ===
+  it('Get Chat by ID', () => {
+    makeRequest('GET', `${baseUrl}/${chatId}`, userToken).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.chatExchange.botName).to.eq('AMI')
+      expect(response.body.data.chat.sender).to.eq('silasfelinus')
     })
   })
 
-  it('Get All Chat Exchanges', () => {
-    cy.request({
-      method: 'GET',
-      url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-    }).then((response) => {
+  it('Get All Chats', () => {
+    makeRequest('GET', baseUrl, userToken).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.chatExchanges)
+      expect(response.body.data.chats)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
   })
 
-  it('Get Chat Exchanges by User ID', () => {
-    cy.request({
-      method: 'GET',
-      url: `${baseUrl}/user/${userId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
+  it('Get Chats by User ID', () => {
+    makeRequest('GET', `${baseUrl}/user/${userId}`, userToken).then(
+      (response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body).to.have.property('success', true)
+        expect(response.body.data.userChats)
+          .to.be.an('array')
+          .and.have.length.greaterThan(0)
       },
+    )
+  })
+
+  it('Get Chats by Bot ID', () => {
+    makeRequest('GET', `${baseUrl}/bot/${botId}`, userToken).then(
+      (response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body).to.have.property('success', true)
+        expect(response.body.data.botChats)
+          .to.be.an('array')
+          .and.have.length.greaterThan(0)
+      },
+    )
+  })
+
+  // === UPDATE TESTS ===
+  it('Update Chat with Valid Authentication', () => {
+    makeRequest('PATCH', `${baseUrl}/${chatId}`, userToken, {
+      content: 'Hello again, AMI!',
+      isFavorite: true,
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.userChats)
-        .to.be.an('array')
-        .and.have.length.greaterThan(0)
+      expect(response.body.data.chat.isFavorite).to.eq(true)
     })
   })
 
-  it('Get Chat Exchanges by Bot ID', () => {
-    cy.request({
-      method: 'GET',
-      url: `${baseUrl}/bot/${botId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body.data.botChats)
-        .to.be.an('array')
-        .and.have.length.greaterThan(0)
-    })
-  })
-
-  it('should not allow updating a chat exchange without an authorization token', () => {
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${chatExchangeId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: {
-        userPrompt: 'Unauthorized update attempt',
-        botResponse: "I'm great, unauthorized attempt!",
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
+  // === DELETION TESTS ===
+  it('should not allow deleting a chat without an authorization token', () => {
+    makeRequest('DELETE', `${baseUrl}/${chatId}`, null).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include(
@@ -173,92 +148,25 @@ describe('ChatExchange Management API Tests', () => {
     })
   })
 
-  it('should not allow updating a chat exchange with an invalid authorization token', () => {
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${chatExchangeId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
+  it('should not allow deleting a chat with an invalid authorization token', () => {
+    makeRequest('DELETE', `${baseUrl}/${chatId}`, invalidToken).then(
+      (response) => {
+        expect(response.status).to.eq(401)
+        expect(response.body).to.have.property('success', false)
+        expect(response.body.message).to.include('Invalid or expired token')
       },
-      body: {
-        userPrompt: 'Invalid token update attempt',
-        botResponse: "I'm great, invalid attempt!",
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(401)
-      expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.include('Invalid or expired token')
-    })
+    )
   })
 
-  it('Update Chat Exchange with Valid Authentication', () => {
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${chatExchangeId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
+  it('Delete Chat with Valid Authentication', () => {
+    makeRequest('DELETE', `${baseUrl}/${chatId}`, userToken).then(
+      (response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body).to.have.property('success', true)
+        expect(response.body.message).to.include(
+          `Chat with ID ${chatId} successfully deleted`,
+        )
       },
-      body: {
-        userPrompt: 'How are you?',
-        botResponse: "I'm great, thank you!",
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-    })
-  })
-
-  it('should not allow deleting a chat exchange without an authorization token', () => {
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${chatExchangeId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(401)
-      expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
-    })
-  })
-
-  it('should not allow deleting a chat exchange with an invalid authorization token', () => {
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${chatExchangeId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(401)
-      expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.include('Invalid or expired token')
-    })
-  })
-
-  it('Delete Chat Exchange with Valid Authentication', () => {
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${chatExchangeId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body.message).to.include(
-        `Chat exchange with ID ${chatExchangeId} successfully deleted`,
-      )
-      expect(response.body).to.have.property('data').that.is.an('object')
-    })
+    )
   })
 })

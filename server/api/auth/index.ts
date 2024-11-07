@@ -82,9 +82,6 @@ export const getUserDataByToken = async (token: string) => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        Channels: true, // Include Channels relation
-      },
     })
 
     if (!user) {

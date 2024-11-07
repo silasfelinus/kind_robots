@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Display messages for the selected chat exchange -->
-    <div v-if="chatExchange" class="message-thread">
+    <div v-if="chat" class="message-thread">
       <div
         v-for="(message, index) in chatMessages"
         :key="index"
@@ -22,7 +22,7 @@ import { computed } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
 
 const props = defineProps({
-  chatExchangeId: {
+  chatId: {
     type: Number,
     required: true,
   },
@@ -39,18 +39,16 @@ const props = defineProps({
 const chatStore = useChatStore()
 
 // Fetch chat exchange by ID
-const chatExchange = computed(() => {
-  return chatStore.chatExchanges.find(
-    (exchange) => exchange.id === props.chatExchangeId,
-  )
+const chat = computed(() => {
+  return chatStore.chats.find((exchange) => exchange.id === props.chatId)
 })
 
-// Build the conversation messages based on chatExchange
+// Build the conversation messages based on chat
 const chatMessages = computed(() => {
-  if (chatExchange.value) {
+  if (chat.value) {
     return [
-      { role: 'user', content: chatExchange.value.userPrompt },
-      { role: 'bot', content: chatExchange.value.botResponse },
+      { role: 'user', content: chat.value.userPrompt },
+      { role: 'bot', content: chat.value.botResponse },
     ]
   }
   return []

@@ -9,7 +9,7 @@
       <!-- Scrollable conversation area -->
       <div class="conversation-area flex-grow overflow-y-auto p-4">
         <ConversationDisplay
-          :chat-exchange-id="activeChatExchangeId"
+          :chat-exchange-id="activechatId"
           :current-bot="currentBot"
           :is-reply-loading="isReplyLoading"
         />
@@ -76,7 +76,7 @@ const error = ref<string | null>(null)
 const isReplyLoading = ref(false)
 
 // Computed properties
-const conversations = computed(() => chatStore.chatExchanges)
+const conversations = computed(() => chatStore.chats)
 const activeConversationIndex = ref<number | null>(null) // Use this to track the current conversation index
 
 const defaultBot = {
@@ -89,12 +89,12 @@ const defaultBot = {
   avatarImage: '/images/amibotsquare1.webp',
 }
 
-// Use fallback values if activeConversationIndex or chatExchange ID is null
-const activeChatExchangeId = computed(
+// Use fallback values if activeConversationIndex or chat ID is null
+const activechatId = computed(
   () =>
     activeConversationIndex.value !== null &&
-    chatStore.chatExchanges[activeConversationIndex.value]
-      ? chatStore.chatExchanges[activeConversationIndex.value].id
+    chatStore.chats[activeConversationIndex.value]
+      ? chatStore.chats[activeConversationIndex.value].id
       : -1, // Fallback to -1 or any invalid ID if not set
 )
 
@@ -123,7 +123,7 @@ const sendMessage = async () => {
         botId,
       )
       activeConversationIndex.value = newExchange
-        ? chatStore.chatExchanges.length - 1
+        ? chatStore.chats.length - 1
         : null
     } else {
       const previousExchange =

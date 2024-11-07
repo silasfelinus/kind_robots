@@ -26,9 +26,7 @@ model Art {
   promptString  String          @default(" ")
   cfg           Int?            @default(3)
   cfgHalf       Boolean?        @default(false)
-  channelId     Int?            @default(1)
   artImageId    Int?
-  Channel       Channel?        @relation(fields: [channelId], references: [id])
   Gallery       Gallery?        @relation(fields: [galleryId], references: [id])
   Pitch         Pitch?          @relation(fields: [pitchId], references: [id])
   Prompt        Prompt?         @relation(fields: [promptId], references: [id])
@@ -37,7 +35,7 @@ model Art {
   Reaction      Reaction[]
   ArtCollection ArtCollection[] @relation("ArtToArtCollection")
 
-  @@index([channelId], map: "Art_channelId_fkey")
+
   @@index([galleryId], map: "Art_galleryId_fkey")
   @@index([pitchId], map: "Art_pitchId_fkey")
   @@index([promptId], map: "Art_promptId_fkey")
@@ -55,8 +53,6 @@ model ArtImage {
   fileName       String?   @db.VarChar(764)
   fileType       String    @default("png")
   botId          Int?      @unique
-  channelId      Int?      @unique
-  chatExchangeId Int?      @unique
   componentId    Int?      @unique
   messageId      Int?      @unique
   milestoneId    Int?      @unique
@@ -72,14 +68,10 @@ model ArtImage {
   Art            Art?      @relation(fields: [artId], references: [id])
   Gallery        Gallery?  @relation(fields: [galleryId], references: [id])
   User           User?     @relation(fields: [userId], references: [id])
-  Channel        Channel?   @relation(fields: [channelId], references: [id])
-  Bot            Bot?      @relation(fields: [botId], references: [id])      
-  ChatExchange   ChatExchange?       @relation(fields: [chatExchangeId], references: [id])   
+  Bot            Bot?      @relation(fields: [botId], references: [id])       
   Component      Component?          @relation(fields: [componentId], references: [id])
-  Message        Message?           @relation(fields: [messageId], references: [id])
   Milestone      Milestone?           @relation(fields: [milestoneId], references: [id])
   Pitch          Pitch?           @relation(fields: [pitchId], references: [id])
-  Post           Post?           @relation(fields: [postId], references: [id])
   Prompt         Prompt?           @relation(fields: [promptId], references: [id])
   Reaction       Reaction?          @relation(fields: [reactionId], references: [id])
   Resource       Resource?           @relation(fields: [resourceId], references: [id])
@@ -127,78 +119,24 @@ model Bot {
   artImageId        Int?
   ArtImage          ArtImage?
   User              User?          @relation(fields: [userId], references: [id])
-  ChatExchanges     ChatExchange[]
-  Messages          Message[]
-  Posts             Post[]
   Prompts           Prompt[]
   Reactions         Reaction[]
-  Chat              Chat[]
+  Chats              Chat[]
 
   @@index([userId], map: "Bot_userId_fkey")
 }
 
-model Channel {
-  id          Int        @id @default(autoincrement())
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime?  @default(now()) @updatedAt
-  label       String     @unique(map: "Channel_id_key", length: 200) @db.VarChar(764)
-  description String?    @db.VarChar(2000)
-  title       String?    @db.VarChar(256)
-  userId      Int?
-  componentId Int?
-  artImageId  Int?
-  ArtImage    ArtImage?
-  Art         Art[]
-  Component   Component? @relation(fields: [componentId], references: [id])
-  User        User?      @relation(fields: [userId], references: [id])
-  Galleries   Gallery[]
-  Messages    Message[]
-  Pitches     Pitch[]
-  Posts       Post[]
-  Prompts     Prompt[]
-  Reactions   Reaction[]
-  Tags        Tag[]
-  Chats       Chat[]
-
-  @@index([componentId], map: "Channel_componentId_fkey")
-  @@index([userId], map: "Channel_userId_fkey")
-}
-
-model ChatExchange {
-  id              Int        @id @default(autoincrement())
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @default(now()) @updatedAt
-  username        String     @db.VarChar(255)
-  isPublic        Boolean    @default(false)
-  previousEntryId Int?       @default(0)
-  botName         String     @db.VarChar(255)
-  userPrompt      String     @db.Text
-  botResponse     String     @db.Text
-  botId           Int?
-  userId          Int?
-  promptId        Int?
-  artImageId      Int?
-  ArtImage        ArtImage?
-  Bot             Bot?       @relation(fields: [botId], references: [id])
-  Prompt          Prompt?    @relation(fields: [promptId], references: [id])
-  User            User?      @relation(fields: [userId], references: [id])
-  Reactions       Reaction[]
-
-  @@index([botId], map: "ChatExchange_botId_fkey")
-  @@index([promptId], map: "ChatExchange_promptId_fkey")
-  @@index([userId], map: "ChatExchange_userId_fkey")
-}
 
 model Chat {
   id              Int                @id @default(autoincrement())
   createdAt       DateTime           @default(now())
   updatedAt       DateTime?          @default(now()) @updatedAt
-  type            CommunicationType
+  type            ChatType
   sender          String             @db.VarChar(255)
   recipient       String?            @db.VarChar(255)
   content         String             @db.Text
   title           String?            @db.VarChar(255)
-  label           String?            @db.VarChar(255)
+  channel         String?            @db.VarChar(255) @unique
   isPublic        Boolean            @default(true)
   isFavorite      Boolean            @default(false)
   previousEntryId Int?
@@ -206,24 +144,22 @@ model Chat {
   userId          Int?
   botId           Int?
   recipientId			Int?
-  channelId       Int?
   artImageId      Int?
   promptId        Int?
   botName         String?            @db.VarChar(255)
   Reactions       Reaction[]
   ArtImage        ArtImage?        
   Bot             Bot?               @relation(fields: [botId], references: [id])
-  Channel         Channel?           @relation(fields: [channelId], references: [id])
   Prompt          Prompt?            @relation(fields: [promptId], references: [id])
   User            User?              @relation(fields: [userId], references: [id])
 
 }
 
-enum CommunicationType {
-  UserToBot
+enum ChatType {
+  ToBot
   BotResponse
-  UserToForum
-  UserToUser
+  ToForum
+  ToUser
 }
   
 
@@ -243,7 +179,6 @@ model Component {
   notes             String?
   artImageId        Int?
   ArtImage          ArtImage?
-  Channels          Channel[]
   Reactions         Reaction[]
   Tags              Tag[]      @relation("ComponentToTag")
 }
@@ -262,15 +197,12 @@ model Gallery {
   isMature       Boolean    @default(false)
   userId         Int?       @default(1)
   isPublic       Boolean    @default(true)
-  channelId      Int?       @default(1)
   Art            Art[]
   ArtImage       ArtImage[]
-  Channel        Channel?   @relation(fields: [channelId], references: [id])
   User           User?      @relation(fields: [userId], references: [id])
   Prompts        Prompt[]
   Reactions      Reaction[]
 
-  @@index([channelId], map: "Gallery_channelId_fkey")
   @@index([userId], map: "Gallery_userId_fkey")
 }
 
@@ -285,27 +217,6 @@ model Log {
   @@index([userId], map: "Log_userId_fkey")
 }
 
-model Message {
-  id         Int       @id @default(autoincrement())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime? @default(now()) @updatedAt
-  sender     String    @db.VarChar(764)
-  recipient  String    @db.VarChar(764)
-  content    String    @db.Text
-  channelId  Int
-  botId      Int?
-  userId     Int?
-  artImageId Int?
-  ArtImage   ArtImage?
-  Bot        Bot?      @relation(fields: [botId], references: [id])
-  channel    Channel   @relation(fields: [channelId], references: [id])
-  User       User?     @relation(fields: [userId], references: [id])
-  Reactions   Reaction[]
-
-  @@index([botId], map: "Message_botId_fkey")
-  @@index([channelId], map: "Message_channelId_fkey")
-  @@index([userId], map: "Message_userId_fkey")
-}
 
 model Milestone {
   id               Int               @id @default(autoincrement())
@@ -353,48 +264,20 @@ model Pitch {
   isMature       Boolean    @default(false)
   isPublic       Boolean    @default(true)
   userId         Int?       @default(1)
-  channelId      Int?
   imagePrompt    String?    @db.VarChar(256)
   description    String?    @db.VarChar(256)
   examples       String?    @db.LongText
   artImageId     Int?
   ArtImage       ArtImage?
   Art            Art[]
-  Channel        Channel?   @relation(fields: [channelId], references: [id])
   User           User?      @relation(fields: [userId], references: [id])
   Prompts        Prompt[]
   Reactions      Reaction[]
   Tags           Tag[]      @relation("PitchToTag")
 
-  @@index([channelId], map: "Pitch_channelId_fkey")
   @@index([userId], map: "Pitch_userId_fkey")
 }
 
-model Post {
-  id         Int       @id @default(autoincrement())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime? @default(now()) @updatedAt
-  username   String    @db.VarChar(764)
-  content    String    @db.VarChar(764)
-  title      String?   @db.VarChar(764)
-  label      String    @db.VarChar(764)
-  imagePath  String?   @db.VarChar(764)
-  isFavorite Boolean   @default(false)
-  userId     Int?
-  botId      Int?
-  channelId  Int?
-  artImageId Int?
-  ArtImage   ArtImage?
-  Bot        Bot?      @relation(fields: [botId], references: [id])
-  Channel    Channel?  @relation(fields: [channelId], references: [id])
-  User       User?     @relation(fields: [userId], references: [id])
-  Tags       Tag[]     @relation("PostToTag")
-  Reactions  Reaction[]
-
-  @@index([botId], map: "Post_botId_fkey")
-  @@index([channelId], map: "Post_channelId_fkey")
-  @@index([userId], map: "Post_userId_fkey")
-}
 
 model Prompt {
   id         Int            @id @default(autoincrement())
@@ -404,35 +287,21 @@ model Prompt {
   userId     Int?           @default(1)
   galleryId  Int?           @default(21)
   pitchId    Int?
-  channelId  Int?           @default(1)
   botId      Int?
   artImageId Int?
   ArtImage   ArtImage?
   Art        Art[]
-  Chats      ChatExchange[]
+  Chats      Chat[]
   Reactions  Reaction[]
-  Threads    Chat[]
   Bot        Bot?           @relation(fields: [botId], references: [id])
-  Channel    Channel?       @relation(fields: [channelId], references: [id])
   Gallery    Gallery?       @relation(fields: [galleryId], references: [id])
   Pitch      Pitch?         @relation(fields: [pitchId], references: [id])
   User       User?          @relation(fields: [userId], references: [id])
 
   @@index([botId], map: "Prompt_botId_fkey")
-  @@index([channelId], map: "Prompt_channelId_fkey")
   @@index([galleryId], map: "Prompt_galleryId_fkey")
   @@index([pitchId], map: "Prompt_pitchId_fkey")
   @@index([userId], map: "Prompt_userId_fkey")
-}
-
-model RandomList {
-  id     Int    @id @default(autoincrement())
-  title  String @unique @db.VarChar(764)
-  items  String @db.LongText
-  userId Int?   @default(1)
-  User   User?  @relation(fields: [userId], references: [id])
-
-  @@index([userId], map: "RandomList_userId_fkey")
 }
 
 model Reaction {
@@ -446,8 +315,6 @@ model Reaction {
   artId            Int?
   pitchId          Int?
   componentId      Int?
-  channelId        Int? 
-  chatExchangeId   Int?
   botId            Int?
   galleryId        Int?
   messageId        Int?      
@@ -462,15 +329,11 @@ model Reaction {
   chatId  Int?
   Chat    Chat?      @relation(fields: [chatId], references: [id])
   Art              Art?             @relation(fields: [artId], references: [id])
-  Channel          Channel?         @relation(fields: [channelId], references: [id])
-  ChatExchange     ChatExchange?    @relation(fields: [chatExchangeId], references: [id])
   Component        Component?       @relation(fields: [componentId], references: [id])
   Pitch            Pitch?           @relation(fields: [pitchId], references: [id])
   User             User             @relation(fields: [userId], references: [id])
   Gallery          Gallery?         @relation(fields: [galleryId], references: [id])
   Bot              Bot?             @relation(fields: [botId], references: [id])       
-  Message          Message?         @relation(fields: [messageId], references: [id])
-  Post             Post?            @relation(fields: [postId], references: [id])
   Prompt           Prompt?          @relation(fields: [promptId], references: [id])
   Resource         Resource?        @relation(fields: [resourceId], references: [id])
   Reward           Reward?          @relation(fields: [rewardId], references: [id])
@@ -479,9 +342,7 @@ model Reaction {
   @@index([artId], map: "Reaction_artId_fkey")
   @@index([pitchId], map: "Reaction_pitchId_fkey")
   @@index([userId], map: "Reaction_userId_fkey")
-  @@index([channelId], map: "Reaction_channelId_fkey")
   @@index([componentId], map: "Reaction_componentId_fkey")
-  @@index([chatExchangeId], map: "Reaction_chatExchangeId_fkey")
 }
 
 model Resource {
@@ -537,17 +398,13 @@ model Tag {
   isPublic   Boolean?    @default(false)
   isMature   Boolean     @default(false)
   userId     Int?        @default(1)
-  channelId  Int?        @default(1)
   artImageId Int?
   ArtImage   ArtImage?
-  Channel    Channel?    @relation(fields: [channelId], references: [id])
   User       User?       @relation(fields: [userId], references: [id])
   Components Component[] @relation("ComponentToTag")
   Pitches    Pitch[]     @relation("PitchToTag")
-  Posts      Post[]      @relation("PostToTag")
   Reactions  Reaction[]
 
-  @@index([channelId], map: "Tag_channelId_fkey")
   @@index([userId], map: "Tag_userId_fkey")
 }
 
@@ -589,17 +446,12 @@ model User {
   ArtCollections ArtCollection[]
   ArtImages      ArtImage[]
   Bots           Bot[]
-  Channels       Channel[]
-  ChatExchanges  ChatExchange[]
   Chats          Chat[]
   Galleries      Gallery[]
   Logs           Log[]
-  Messages       Message[]
   Milestones     MilestoneRecord[]
   Pitches        Pitch[]
-  Posts          Post[]
   Prompts        Prompt[]
-  RandomLists    RandomList[]
   Reactions      Reaction[]
   Resources      Resource[]
   Rewards        Reward[]
@@ -675,7 +527,6 @@ enum ReactionCategory {
   ART_IMAGE
   PITCH
   COMPONENT
-  CHANNEL
   CHAT_EXCHANGE
   BOT
   GALLERY

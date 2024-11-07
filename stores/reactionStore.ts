@@ -1,10 +1,5 @@
 import { defineStore } from 'pinia'
-import type {
-  Reaction,
-  Channel,
-  ReactionType,
-  ReactionCategory,
-} from '@prisma/client'
+import type { Reaction, ReactionType, ReactionCategory } from '@prisma/client'
 import { performFetch, handleError } from './utils'
 
 export enum ReactionTypeEnum {
@@ -20,7 +15,6 @@ export enum ReactionCategoryEnum {
   ART = 'ART',
   PITCH = 'PITCH',
   COMPONENT = 'COMPONENT',
-  CHANNEL = 'CHANNEL',
   TITLE = 'TITLE',
 }
 
@@ -29,7 +23,6 @@ export const useReactionStore = defineStore('reactionStore', {
     reactions: [] as Reaction[],
     loading: false,
     error: null as string | null,
-    channels: [] as Channel[],
     isInitialized: false,
   }),
 
@@ -46,15 +39,6 @@ export const useReactionStore = defineStore('reactionStore', {
             reaction.componentId === componentId && reaction.userId === userId,
         )
       },
-    getChannelsForComponent: (state) => (componentId: number) => {
-      return state.channels.filter((channel: Channel) =>
-        state.reactions.some(
-          (reaction: Reaction) =>
-            reaction.componentId === componentId &&
-            reaction.channelId === channel.id,
-        ),
-      )
-    },
   },
 
   actions: {
@@ -64,62 +48,6 @@ export const useReactionStore = defineStore('reactionStore', {
         this.isInitialized = true
       }
     },
-
-    async createReactionWithChannel(
-      reactionData: {
-        userId: number
-        reactionType: ReactionType
-        pitchId?: number
-        artId?: number
-        componentId?: number
-        channelId?: number
-        chatExchangeId?: number
-        comment?: string
-        reactionCategory?: ReactionCategory
-      },
-      comment: { title: string; description: string },
-    ) {
-      this.loading = true
-      this.error = null
-      try {
-        const channelResponse = await performFetch<{ channel: Channel }>(
-          '/api/channels',
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              label: `Reaction-Component-${Date.now()}`,
-              title: comment.title,
-              description: comment.description,
-            }),
-          },
-        )
-
-        if (!channelResponse.success) throw new Error(channelResponse.message)
-        const newChannel = channelResponse.data?.channel
-
-        const reactionResponse = await performFetch<{ reaction: Reaction }>(
-          '/api/reactions',
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              ...reactionData,
-              channelId: newChannel?.id,
-            }),
-          },
-        )
-
-        if (!reactionResponse.success) throw new Error(reactionResponse.message)
-        const newReaction = reactionResponse.data?.reaction
-
-        if (newReaction) this.reactions.push(newReaction)
-        if (newChannel) this.channels.push(newChannel)
-      } catch (error) {
-        handleError(error, 'creating reaction with channel')
-      } finally {
-        this.loading = false
-      }
-    },
-
     async fetchReactionsByArtId(artId: number) {
       this.loading = true
       this.error = null
@@ -180,8 +108,7 @@ export const useReactionStore = defineStore('reactionStore', {
       artImageId = null,
       pitchId = null,
       componentId = null,
-      channelId = null,
-      chatExchangeId = null,
+      chatId = null,
       botId = null,
       galleryId = null,
       messageId = null,
@@ -200,8 +127,7 @@ export const useReactionStore = defineStore('reactionStore', {
       artImageId?: number | null
       pitchId?: number | null
       componentId?: number | null
-      channelId?: number | null
-      chatExchangeId?: number | null
+      chatId?: number | null
       botId?: number | null
       galleryId?: number | null
       messageId?: number | null
@@ -226,8 +152,7 @@ export const useReactionStore = defineStore('reactionStore', {
               artImageId,
               pitchId,
               componentId,
-              channelId,
-              chatExchangeId,
+              chatId,
               botId,
               galleryId,
               messageId,

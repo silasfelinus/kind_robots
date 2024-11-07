@@ -22,7 +22,6 @@ describe('Reaction Management API Tests', () => {
         steps: 10,
         path: ' ',
         seed: null,
-        channelId: null,
         galleryId: null,
         promptId: null,
         pitchId: null,
@@ -104,8 +103,7 @@ describe('Reaction Management API Tests', () => {
         artId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
-        channelId: null,
-        chatExchangeId: null,
+        chatId: null,
         artImageId: null,
       },
     }).then((response) => {

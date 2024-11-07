@@ -93,7 +93,7 @@ import {
 } from '@/stores/reactionStore'
 
 const props = defineProps({
-  chatExchangeId: { type: Number, default: null },
+  chatId: { type: Number, default: null },
   artId: { type: Number, default: null },
   pitchId: { type: Number, default: null },
   componentId: { type: Number, default: null },
@@ -135,7 +135,7 @@ const submitReaction = async () => {
 
   try {
     await reactionStore.addReaction({
-      chatExchangeId: props.chatExchangeId,
+      chatId: props.chatId,
       artId: props.artId,
       pitchId: props.pitchId,
       componentId: props.componentId,

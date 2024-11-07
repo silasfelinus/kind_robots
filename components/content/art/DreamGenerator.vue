@@ -110,7 +110,6 @@ const generateArt = async () => {
         flavorText: flavorText.value,
         userId: userId.value,
         galleryId: 21,
-        channelName: 'dreamscapes',
       }),
     })
 

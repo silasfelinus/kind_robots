@@ -12,7 +12,6 @@ export interface GenerateArtData {
   userId?: number
   pitchId?: number
   galleryId?: number
-  channelId?: number
   checkpoint?: string
   sampler?: string
   steps?: number
@@ -194,7 +193,6 @@ export const useArtStore = defineStore({
       path: string
       seed: number | null
       steps: number | null
-      channelId: number | null
       galleryId: number | null
       promptId: number | null
       pitchId: number | null

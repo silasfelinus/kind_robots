@@ -131,17 +131,6 @@
 
       <gallery-selector />
 
-      <!-- Channel Name (optional) -->
-      <div>
-        <label for="channelName">Channel Name (Optional):</label>
-        <input
-          id="channelName"
-          v-model="formData.channelName"
-          type="text"
-          placeholder="Enter channel name (optional)"
-        />
-      </div>
-
       <!-- Pitch Name (optional) -->
       <div>
         <label for="pitch">Pitch Name (Optional):</label>
@@ -222,7 +211,6 @@ const formData = ref({
   designer: '',
   galleryName: gallery.value?.name || 'cafefred',
   galleryId: gallery.value?.id,
-  channelName: '',
   pitch: '',
   isPublic: true,
   isMature: false,

@@ -27,7 +27,6 @@ describe('Gallery Management API Tests', () => {
           '/images/collection1/image1.webp,/images/collection1/image2.webp',
         isMature: false,
         isPublic: true,
-        channelId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -58,7 +57,6 @@ describe('Gallery Management API Tests', () => {
           '/images/collection1/image1.webp,/images/collection1/image2.webp',
         isMature: false,
         isPublic: true,
-        channelId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -87,7 +85,6 @@ describe('Gallery Management API Tests', () => {
           '/images/collection1/image1.webp,/images/collection1/image2.webp',
         isMature: false,
         isPublic: true,
-        channelId: null,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)

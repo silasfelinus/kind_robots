@@ -18,8 +18,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 2,
@@ -36,8 +36,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 3,
@@ -54,8 +54,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 4,
@@ -72,8 +72,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 5,
@@ -90,8 +90,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 6,
@@ -108,8 +108,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 7,
@@ -126,8 +126,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 8,
@@ -144,8 +144,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 9,
@@ -162,8 +162,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 10,
@@ -180,8 +180,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 11,
@@ -198,8 +198,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 12,
@@ -216,8 +216,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 13,
@@ -234,8 +234,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 14,
@@ -252,8 +252,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 15,
@@ -270,8 +270,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 16,
@@ -288,8 +288,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 17,
@@ -306,8 +306,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 18,
@@ -324,8 +324,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 19,
@@ -342,8 +342,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 20,
@@ -360,8 +360,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 21,
@@ -378,8 +378,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 22,
@@ -396,8 +396,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 23,
@@ -414,8 +414,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 24,
@@ -432,8 +432,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 25,
@@ -450,8 +450,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 26,
@@ -468,8 +468,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 27,
@@ -486,8 +486,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 28,
@@ -504,8 +504,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 29,
@@ -522,8 +522,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 30,
@@ -540,8 +540,8 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
   {
     id: 31,
@@ -558,7 +558,7 @@ export const samplePitches: Pitch[] = [
     isMature: false,
     isPublic: true,
     userId: 1,
-    channelId: null,
     artImageId: null,
+    examples: null
   },
 ]

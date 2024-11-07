@@ -19,11 +19,11 @@
     >
       <div class="message-header flex items-center mb-2">
         <h3 class="text-lg font-semibold">
-          {{ message.username }} (Bot: {{ message.botName }})
+          {{ message.sender }} (Bot: {{ message.botName }})
         </h3>
       </div>
-      <p class="user-prompt mb-1 text-gray-600">{{ message.userPrompt }}</p>
-      <p class="bot-response font-medium">{{ message.botResponse }}</p>
+      <p class="user-prompt mb-1 text-gray-600">{{ message.title }}</p>
+      <p class="bot-response font-medium">{{ message.content }}</p>
     </div>
     <public-wall />
   </div>
@@ -38,14 +38,13 @@ import { useBotStore } from './../../../stores/botStore'
 // Get stores and necessary properties
 const { userId } = useUserStore()
 const { selectedBotId, bots } = useBotStore()
-const { fetchChatExchangesByUserId, chatExchanges } =
-  useChatStore()
+const { fetchChatsByUserId, chats } = useChatStore()
 
 // Fetch chat exchanges on mount
 onMounted(async () => {
   if (userId) {
     try {
-      await fetchChatExchangesByUserId(userId)
+      await fetchChatsByUserId(userId)
     } catch (error) {
       console.error('Failed to fetch chat exchanges:', error)
     }
@@ -56,11 +55,11 @@ onMounted(async () => {
 
 // Filter messages based on selectedBotId
 const filteredMessages = computed(() => {
-  if (!chatExchanges || chatExchanges.length === 0) return []
+  if (!chats || chats.length === 0) return []
 
   return selectedBotId
-    ? chatExchanges.filter((exchange: ChatExchange) => exchange.botId === selectedBotId)
-    : chatExchanges
+    ? chats.filter((exchange: Chat) => exchange.botId === selectedBotId)
+    : chats
 })
 </script>
 

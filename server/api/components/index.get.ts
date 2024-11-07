@@ -9,12 +9,12 @@ export default defineEventHandler(async () => {
 
   try {
     // Fetch all components from the database
-    const components = await prisma.component.findMany()
+    const data = await prisma.component.findMany()
 
     // Return success response with data in a structured format
     response = {
       success: true,
-      data: { components },
+      data,
       statusCode: 200, // OK
     }
   } catch (error: unknown) {

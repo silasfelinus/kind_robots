@@ -5,7 +5,6 @@ import { validateApiKey } from '../utils/validateKey'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
-  let response
   const tagId = Number(event.context.params?.id)
 
   try {
@@ -55,9 +54,9 @@ export default defineEventHandler(async (event) => {
     // Successful deletion response
     event.node.res.setHeader('Content-Type', 'application/json')
     event.node.res.statusCode = 200
-    response = {
+    return {
       success: true,
-      data: { message: `Tag with ID ${tagId} successfully deleted.` },
+      message: `Tag with ID ${tagId} successfully deleted.`,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
@@ -66,11 +65,9 @@ export default defineEventHandler(async (event) => {
     // Set the response and status code based on the handled error
     event.node.res.setHeader('Content-Type', 'application/json')
     event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    return {
       success: false,
       message: handledError.message || `Failed to delete tag with ID ${tagId}.`,
     }
   }
-
-  return response
 })

@@ -1,7 +1,8 @@
 // /server/api/galleries/[id].patch.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -16,25 +17,9 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Extract and verify the authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      return errorHandler({
-        error: new Error(
-          'Authorization token is required in the format "Bearer <token>".'
-        ),
-        context: 'Update Gallery',
-        statusCode: 401,
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
+    // Use the utility function to validate the API key
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       return errorHandler({
         error: new Error('Invalid or expired token.'),
         context: 'Update Gallery',
@@ -95,7 +80,8 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message: handledError.message || `Failed to update gallery with ID ${id}.`,
+      message:
+        handledError.message || `Failed to update gallery with ID ${id}.`,
       statusCode: event.node.res.statusCode,
     }
   }

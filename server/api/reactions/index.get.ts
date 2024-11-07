@@ -7,12 +7,12 @@ export default defineEventHandler(async () => {
   console.log('Starting to handle fetchAllReactions in API handler')
 
   try {
-    const reactions = await fetchAllReactions()
-    console.log('Successfully fetched reactions:', reactions)
+    const data = await fetchAllReactions()
+    console.log('Successfully fetched reactions:', data)
 
     return {
       success: true,
-      data: { reactions },
+      data,
     }
   } catch (error: unknown) {
     console.error('Error fetching reactions in API handler:', error)

@@ -15,12 +15,12 @@ export default defineEventHandler(async (): Promise<ChatsResponse> => {
   let response: ChatsResponse
   try {
     // Fetch all chats
-    const chats: Chat[] = await prisma.chat.findMany()
+    const data: Chat[] = await prisma.chat.findMany()
 
     // Return success response with chats data
     response = {
       success: true,
-      data: chats,
+      data,
       message: 'Chats fetched successfully.',
       statusCode: 200,
     }

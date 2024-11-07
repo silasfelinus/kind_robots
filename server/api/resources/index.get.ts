@@ -7,12 +7,12 @@ import type { Resource } from '@prisma/client'
 export default defineEventHandler(async () => {
   try {
     // Fetch all resources from the database
-    const resources = await prisma.resource.findMany()
+    const data = await prisma.resource.findMany()
 
     return {
       success: true,
       message: 'Resources fetched successfully.',
-      data: { resources },
+      data,
       statusCode: 200,
     }
   } catch (error: unknown) {

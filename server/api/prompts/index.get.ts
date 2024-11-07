@@ -1,43 +1,44 @@
 // /server/api/art/prompts/index.get.ts
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
-import { fetchAllPrompts, fetchArtByPromptId } from '.'
+import { fetchArtByPromptId } from '.'
+import prisma from '../utils/prisma'
 
 export default defineEventHandler(async () => {
   try {
-    const prompts = await fetchAllPrompts()
+    // Fetch all prompts and their related Art in a single consolidated function
+    const prompts = await prisma.prompt.findMany()
 
-    // Fetch related Art for each Prompt
     const promptDetails = await Promise.all(
       prompts.map(async (prompt) => {
         const art = await fetchArtByPromptId(prompt.id)
 
-        // Convert BigInt properties to strings if necessary
-        const artProcessed = JSON.parse(
-          JSON.stringify(art, (_, v) =>
-            typeof v === 'bigint' ? v.toString() : v,
-          ),
-        )
-        const promptProcessed = JSON.parse(
+        // Convert BigInt properties to strings in both prompt and art data
+        const processedPrompt = JSON.parse(
           JSON.stringify(prompt, (_, v) =>
             typeof v === 'bigint' ? v.toString() : v,
           ),
         )
+        const processedArt = JSON.parse(
+          JSON.stringify(art, (_, v) =>
+            typeof v === 'bigint' ? v.toString() : v,
+          ),
+        )
 
-        return { ...promptProcessed, Art: artProcessed }
+        return { ...processedPrompt, Art: processedArt }
       }),
     )
 
-    // Return response in the standardized format
+    // Return success response with prompt details
     return {
       success: true,
       data: { prompts: promptDetails },
       message: 'Prompts fetched successfully.',
     }
   } catch (error: unknown) {
-    // Use the errorHandler to process the error with a consistent response format
+    // Process error using errorHandler and log for debugging
     const { message, statusCode } = errorHandler(error)
-    console.error(`Failed to fetch prompts: ${message}`) // Log the error for debugging
+    console.error(`Failed to fetch prompts: ${message}`)
     return {
       success: false,
       message: `Failed to fetch prompts: ${message}`,

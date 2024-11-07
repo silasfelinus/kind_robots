@@ -15,12 +15,12 @@ export default defineEventHandler(async (): Promise<GalleriesResponse> => {
   let response: GalleriesResponse
   try {
     // Fetch galleries
-    const galleries: Gallery[] = await fetchGalleries()
+    const data: Gallery[] = await fetchGalleries()
 
     // Return success response with galleries data
     response = {
       success: true,
-      data: galleries,
+      data,
       message: 'Galleries fetched successfully.',
       statusCode: 200,
     }

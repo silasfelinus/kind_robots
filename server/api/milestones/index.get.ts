@@ -8,13 +8,13 @@ export default defineEventHandler(async (event) => {
   let response
 
   try {
-    const milestones = await prisma.milestone.findMany()
+    const data = await prisma.milestone.findMany()
 
     // Set response for successful fetch
     response = {
       success: true,
       message: 'Milestones fetched successfully.',
-      data: milestones,
+      data,
     }
     setResponseStatus(event, 200)
   } catch (error: unknown) {

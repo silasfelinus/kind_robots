@@ -7,12 +7,12 @@ export default defineEventHandler(async (event) => {
   let response
 
   try {
-    const rewards = await fetchAllRewards()
+    const data = await fetchAllRewards()
 
     // Success Response
     response = {
       success: true,
-      rewards,
+      data,
       statusCode: 200,
     }
     event.node.res.statusCode = 200

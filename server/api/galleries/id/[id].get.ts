@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       message: `Gallery with ID ${id} retrieved successfully.`,
-      data: { gallery },
+      data: gallery,
       statusCode: 200,
     }
     event.node.res.statusCode = 200

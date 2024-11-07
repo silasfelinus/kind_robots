@@ -92,7 +92,7 @@ describe('Gallery Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
-      galleryId = response.body.data?.id // Capture the gallery ID for further tests
+      galleryId = response.body.data.id // Capture the gallery ID for further tests
     })
   })
 
@@ -108,7 +108,7 @@ describe('Gallery Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.gallery.name).to.eq('Test Gallery')
+      expect(response.body.data.name).to.eq('Test Gallery')
     })
   })
 

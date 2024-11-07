@@ -1,11 +1,11 @@
-// cypress/e2e/communications.cy.ts
+// cypress/e2e/chats.cy.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
-describe('Communication API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/communications'
+describe('Chat API Tests', () => {
+  const baseUrl = 'https://kind-robots.vercel.app/api/chats'
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let communicationId: number
+  let chatId: number
   const userId = 9
   const botId = 1
   const recipientId = 5
@@ -26,7 +26,7 @@ describe('Communication API Tests', () => {
   }
 
   // === AUTHORIZATION TESTS ===
-  it('should not allow creating a communication without an authorization token', () => {
+  it('should not allow creating a chat without an authorization token', () => {
     makeRequest('POST', baseUrl, null, {
       type: 'UserToBot',
       sender: 'silasfelinus',
@@ -41,7 +41,7 @@ describe('Communication API Tests', () => {
     })
   })
 
-  it('should not allow creating a communication with an invalid authorization token', () => {
+  it('should not allow creating a chat with an invalid authorization token', () => {
     makeRequest('POST', baseUrl, invalidToken, {
       type: 'UserToBot',
       sender: 'silasfelinus',
@@ -57,7 +57,7 @@ describe('Communication API Tests', () => {
   })
 
   // === CREATION TEST ===
-  it('Create a new Communication with valid authentication', () => {
+  it('Create a new Chat with valid authentication', () => {
     makeRequest('POST', baseUrl, userToken, {
       type: 'UserToBot',
       sender: 'silasfelinus',
@@ -72,78 +72,78 @@ describe('Communication API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.communication).to.be.an('object').that.is.not.empty
-      communicationId = response.body.data.communication.id
+      expect(response.body.data.chat).to.be.an('object').that.is.not.empty
+      chatId = response.body.data.chat.id
     })
   })
 
   // === RETRIEVAL TESTS ===
-  it('Get Communication by ID', () => {
-    makeRequest('GET', `${baseUrl}/${communicationId}`, userToken).then((response) => {
+  it('Get Chat by ID', () => {
+    makeRequest('GET', `${baseUrl}/${chatId}`, userToken).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.communication.sender).to.eq('silasfelinus')
+      expect(response.body.data.chat.sender).to.eq('silasfelinus')
     })
   })
 
-  it('Get All Communications', () => {
+  it('Get All Chats', () => {
     makeRequest('GET', baseUrl, userToken).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.communications).to.be.an('array').and.have.length.greaterThan(0)
+      expect(response.body.data.chats).to.be.an('array').and.have.length.greaterThan(0)
     })
   })
 
-  it('Get Communications by User ID', () => {
+  it('Get Chats by User ID', () => {
     makeRequest('GET', `${baseUrl}/user/${userId}`, userToken).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.userCommunications).to.be.an('array').and.have.length.greaterThan(0)
+      expect(response.body.data.userChats).to.be.an('array').and.have.length.greaterThan(0)
     })
   })
 
-  it('Get Communications by Bot ID', () => {
+  it('Get Chats by Bot ID', () => {
     makeRequest('GET', `${baseUrl}/bot/${botId}`, userToken).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.botCommunications).to.be.an('array').and.have.length.greaterThan(0)
+      expect(response.body.data.botChats).to.be.an('array').and.have.length.greaterThan(0)
     })
   })
 
   // === UPDATE TESTS ===
-  it('Update Communication with Valid Authentication', () => {
-    makeRequest('PATCH', `${baseUrl}/${communicationId}`, userToken, {
+  it('Update Chat with Valid Authentication', () => {
+    makeRequest('PATCH', `${baseUrl}/${chatId}`, userToken, {
       content: 'Hello again, AMI!',
       isFavorite: true,
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.communication.isFavorite).to.eq(true)
+      expect(response.body.data.chat.isFavorite).to.eq(true)
     })
   })
 
   // === DELETION TESTS ===
-  it('should not allow deleting a communication without an authorization token', () => {
-    makeRequest('DELETE', `${baseUrl}/${communicationId}`, null).then((response) => {
+  it('should not allow deleting a chat without an authorization token', () => {
+    makeRequest('DELETE', `${baseUrl}/${chatId}`, null).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Authorization token is required')
     })
   })
 
-  it('should not allow deleting a communication with an invalid authorization token', () => {
-    makeRequest('DELETE', `${baseUrl}/${communicationId}`, invalidToken).then((response) => {
+  it('should not allow deleting a chat with an invalid authorization token', () => {
+    makeRequest('DELETE', `${baseUrl}/${chatId}`, invalidToken).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
-  it('Delete Communication with Valid Authentication', () => {
-    makeRequest('DELETE', `${baseUrl}/${communicationId}`, userToken).then((response) => {
+  it('Delete Chat with Valid Authentication', () => {
+    makeRequest('DELETE', `${baseUrl}/${chatId}`, userToken).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.message).to.include(`Communication with ID ${communicationId} successfully deleted`)
+      expect(response.body.message).to.include(`Chat with ID ${chatId} successfully deleted`)
     })
   })
 })

@@ -221,7 +221,7 @@ describe('Channel Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.message).to.include('Channel successfully deleted')
+      expect(response.body.message).to.include('deleted successfully.')
     })
   })
 })

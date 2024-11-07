@@ -72,8 +72,8 @@ describe('Message Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
-      expect(response.body.data.newMessage).to.be.an('object').that.is.not.empty
-      messageId = response.body.data.newMessage.id
+      expect(response.body.data).to.be.an('object').that.is.not.empty
+      messageId = response.body.data.id
     })
   })
 
@@ -89,7 +89,7 @@ describe('Message Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.messages)
+      expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })

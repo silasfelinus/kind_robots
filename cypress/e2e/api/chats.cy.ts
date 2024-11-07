@@ -168,7 +168,7 @@ describe('ChatExchange Management API Tests', () => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include(
-        'Authorization header is missing',
+        'Authorization token is required',
       )
     })
   })

@@ -92,7 +92,7 @@ describe('Gallery Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
-      galleryId = response.body.data?.newGallery.id // Capture the gallery ID for further tests
+      galleryId = response.body.data?.id // Capture the gallery ID for further tests
     })
   })
 
@@ -119,7 +119,6 @@ describe('Gallery Management API Tests', () => {
       url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)

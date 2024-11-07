@@ -7,7 +7,7 @@ import type { Gallery } from '@prisma/client'
 type GalleriesResponse = {
   success: boolean
   message?: string
-  galleries?: Gallery[]
+  data: Gallery[] // Ensuring data is always present
   statusCode?: number
 }
 
@@ -20,7 +20,7 @@ export default defineEventHandler(async (): Promise<GalleriesResponse> => {
     // Return success response with galleries data
     response = {
       success: true,
-      galleries,
+      data: galleries,
       message: 'Galleries fetched successfully.',
       statusCode: 200,
     }
@@ -29,6 +29,7 @@ export default defineEventHandler(async (): Promise<GalleriesResponse> => {
     const handledError = errorHandler(error)
     response = {
       success: false,
+      data: [], // Ensure data is an empty array on failure
       message: handledError.message || 'Failed to fetch galleries.',
       statusCode: handledError.statusCode || 500,
     }

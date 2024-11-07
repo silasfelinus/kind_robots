@@ -140,7 +140,7 @@ describe('Component Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data.message).to.include(
-        `Component with ID ${componentId} successfully deleted.`,
+        `Component with ID ${componentId} deleted successfully`,
       )
     })
   })

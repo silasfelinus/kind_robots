@@ -67,8 +67,8 @@ describe('Pitch Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
-      expect(response.body.data.pitch).to.be.an('object').that.is.not.empty
-      pitchId = response.body.data.pitch.id
+      expect(response.body.data).to.be.an('object').that.is.not.empty
+      pitchId = response.body.data.id
     })
   })
 

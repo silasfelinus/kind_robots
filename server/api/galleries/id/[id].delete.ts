@@ -1,8 +1,8 @@
-// server/api/galleries/[id].delete.ts
-
+// /server/api/galleries/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -12,7 +12,6 @@ export default defineEventHandler(async (event) => {
     // 1. Extract and validate the gallery ID from the request parameters
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400, // Bad Request
         message: 'Invalid Gallery ID. Gallery ID must be a positive integer.',
@@ -21,25 +20,9 @@ export default defineEventHandler(async (event) => {
 
     console.log(`Attempting to delete gallery with ID: ${id}`)
 
-    // 2. Extract and verify the authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
-      throw createError({
-        statusCode: 401, // Unauthorized
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
-      event.node.res.statusCode = 401
+    // 2. Use the utility function to validate the API key
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401, // Unauthorized
         message: 'Invalid or expired token.',
@@ -55,7 +38,6 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!gallery) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404, // Not Found
         message: `Gallery with ID ${id} does not exist.`,
@@ -64,7 +46,6 @@ export default defineEventHandler(async (event) => {
 
     // 4. Check if the logged-in user is the owner of the gallery
     if (gallery.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403, // Forbidden
         message: 'You do not have permission to delete this gallery.',

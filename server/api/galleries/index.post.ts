@@ -2,12 +2,13 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 import type { Prisma, Gallery } from '@prisma/client'
 
 type GalleryResponse = {
   success: boolean
   message?: string
-  newGallery?: Gallery
+  data?: Gallery
   statusCode?: number
 }
 
@@ -15,23 +16,9 @@ export default defineEventHandler(async (event): Promise<GalleryResponse> => {
   let response: GalleryResponse
 
   try {
-    // Validate the authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
+    // Validate the API key using the utility function
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -55,8 +42,8 @@ export default defineEventHandler(async (event): Promise<GalleryResponse> => {
       })
     }
 
-    // Prepare data with the authenticated user connected
-    const data: Prisma.GalleryCreateInput = {
+    // Prepare input data with the authenticated user connected
+    const galleryInput: Prisma.GalleryCreateInput = {
       name: galleryData.name,
       content: galleryData.content,
       description: galleryData.description || null,
@@ -66,19 +53,19 @@ export default defineEventHandler(async (event): Promise<GalleryResponse> => {
       imagePaths: galleryData.imagePaths || null,
       isMature: galleryData.isMature ?? false,
       isPublic: galleryData.isPublic ?? true,
-      User: { connect: { id: userId } }, // Link to authenticated user
+      User: { connect: { id: userId } },
       ...(galleryData.Channel?.connect?.id && {
         Channel: { connect: { id: galleryData.Channel.connect.id } },
       }),
     }
 
     // Create the gallery entry
-    const newGallery = await prisma.gallery.create({ data })
+    const newGallery = await prisma.gallery.create({ data: galleryInput })
 
     // Successful creation response
     response = {
       success: true,
-      newGallery,
+      data: newGallery,
       message: 'Gallery created successfully.',
       statusCode: 201,
     }
@@ -87,6 +74,7 @@ export default defineEventHandler(async (event): Promise<GalleryResponse> => {
     response = {
       success: false,
       message: handledError.message || 'Failed to create gallery entry.',
+      data: undefined, // Ensure `data` is undefined in case of error
       statusCode: handledError.statusCode || 500,
     }
   }

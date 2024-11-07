@@ -1,7 +1,8 @@
-// server/api/galleries/batch.patch.ts
+// /server/api/galleries/batch.patch.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 import type { Prisma, Gallery } from '@prisma/client'
 
 // Define types for gallery update data and batch response
@@ -28,8 +29,19 @@ type BatchUpdateResponse = {
 export default defineEventHandler(async (event) => {
   let response: BatchUpdateResponse
   try {
-    const galleriesData: GalleryUpdateData[] = await readBody(event)
+    // Validate the API key using the utility function
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
 
+    const userId = user.id
+
+    // Read and validate the incoming gallery update data
+    const galleriesData: GalleryUpdateData[] = await readBody(event)
     if (!Array.isArray(galleriesData)) {
       throw createError({
         statusCode: 400,
@@ -49,11 +61,15 @@ export default defineEventHandler(async (event) => {
         continue
       }
 
-      // Fetch the gallery by name using findFirst
-      const gallery = await prisma.gallery.findFirst({ where: { name } })
+      // Fetch the gallery by name and ensure it belongs to the authenticated user
+      const gallery = await prisma.gallery.findFirst({
+        where: { name, userId }, // Match both name and user ID for ownership
+      })
 
       if (!gallery) {
-        errors.push(`Gallery named '${name}' not found.`)
+        errors.push(
+          `Gallery named '${name}' not found or does not belong to the user.`,
+        )
         continue
       }
 
@@ -79,7 +95,10 @@ export default defineEventHandler(async (event) => {
       success: errors.length === 0,
       updatedGalleries,
       errors,
-      message: errors.length > 0 ? 'Some galleries were not updated.' : 'All galleries updated successfully.',
+      message:
+        errors.length > 0
+          ? 'Some galleries were not updated.'
+          : 'All galleries updated successfully.',
       statusCode: errors.length > 0 ? 207 : 200, // 207 for partial success
     }
     event.node.res.statusCode = response.statusCode ?? 500

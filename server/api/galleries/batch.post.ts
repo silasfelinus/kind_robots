@@ -7,6 +7,7 @@ import {
 } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 import type { Prisma, Gallery } from '@prisma/client'
 
 type BatchCreateResponse = {
@@ -22,23 +23,9 @@ export default defineEventHandler(
   async (event): Promise<BatchCreateResponse> => {
     let response: BatchCreateResponse
     try {
-      // Validate the authorization token
-      const authorizationHeader = event.node.req.headers['authorization']
-      if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-        throw createError({
-          statusCode: 401,
-          message:
-            'Authorization token is required in the format "Bearer <token>".',
-        })
-      }
-
-      const token = authorizationHeader.split(' ')[1]
-      const user = await prisma.user.findFirst({
-        where: { apiKey: token },
-        select: { id: true },
-      })
-
-      if (!user) {
+      // Validate the API key using the utility function
+      const { isValid, user } = await validateApiKey(event)
+      if (!isValid || !user) {
         throw createError({
           statusCode: 401,
           message: 'Invalid or expired token.',

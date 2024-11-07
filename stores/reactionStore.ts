@@ -111,8 +111,6 @@ export const useReactionStore = defineStore('reactionStore', {
       chatId = null,
       botId = null,
       galleryId = null,
-      messageId = null,
-      postId = null,
       promptId = null,
       resourceId = null,
       rewardId = null,
@@ -130,8 +128,6 @@ export const useReactionStore = defineStore('reactionStore', {
       chatId?: number | null
       botId?: number | null
       galleryId?: number | null
-      messageId?: number | null
-      postId?: number | null
       promptId?: number | null
       resourceId?: number | null
       rewardId?: number | null
@@ -155,8 +151,6 @@ export const useReactionStore = defineStore('reactionStore', {
               chatId,
               botId,
               galleryId,
-              messageId,
-              postId,
               promptId,
               resourceId,
               reactionCategory,

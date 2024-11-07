@@ -283,7 +283,7 @@ async function validateAndLoadPitchId(
   }
 
   if (data.pitch) {
-    const existingPitch = await prisma.pitch.findUnique({
+    const existingPitch = await prisma.pitch.findFirst({
       where: { pitch: data.pitch },
     })
     if (existingPitch) {

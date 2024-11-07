@@ -43,10 +43,20 @@ const chat = computed(() => {
   return chatStore.chats.find((exchange) => exchange.id === props.chatId)
 })
 
-// Build the conversation messages based on chat
 const chatMessages = computed(() => {
   if (chat.value) {
-    return [{ role: 'user', content: chat.value.content }]
+    // Retrieve the bot response if available; otherwise, return a placeholder or an empty string
+    const botResponse =
+      chatStore.chats.find(
+        (entry) =>
+          entry.previousEntryId === chat.value?.id &&
+          entry.type === 'BotResponse',
+      )?.content || 'Bot response not available.'
+
+    return [
+      { role: 'user', content: chat.value.content || 'No content available' },
+      { role: 'bot', content: botResponse },
+    ]
   }
   return []
 })

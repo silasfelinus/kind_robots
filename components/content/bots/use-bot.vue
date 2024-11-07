@@ -97,7 +97,7 @@
       <chat-card
         v-for="(exchange, index) in activeChatCards"
         :key="index"
-        :chat-exchange-id="exchange.id"
+        :chat-id="exchange.id"
       />
     </div>
     <p v-else class="text-center text-gray-600 mt-6">No active chats yet.</p>
@@ -132,7 +132,6 @@ function updateParsedUserPrompts() {
     : []
 }
 
-// Function to handle sending a selected prompt
 async function sendPrompt(prompt: string) {
   if (!prompt) return console.warn('Prompt is empty, cannot send.')
 
@@ -150,7 +149,13 @@ async function sendPrompt(prompt: string) {
         throw new Error('Failed to generate a prompt ID.')
       }
 
-      await chatStore.addChat(prompt, userId, botId, undefined, newPrompt.id)
+      await chatStore.addChat({
+        content: prompt,
+        userId,
+        botId,
+        recipientId: botId,
+        promptId: newPrompt.id,
+      })
       promptStore.currentPrompt = ''
     } else {
       console.warn('Missing user or bot ID, cannot proceed.')
@@ -163,7 +168,6 @@ async function sendPrompt(prompt: string) {
   }
 }
 
-// Function to handle submitting a custom prompt
 async function submitCustomPrompt() {
   const trimmedPrompt = promptStore.currentPrompt.trim()
   if (!trimmedPrompt) {
@@ -177,7 +181,12 @@ async function submitCustomPrompt() {
     const { id: botId } = botStore.currentBot || {}
 
     if (userId && botId) {
-      await chatStore.addChat(trimmedPrompt, userId, botId)
+      await chatStore.addChat({
+        content: trimmedPrompt,
+        userId,
+        botId,
+        recipientId: botId,
+      })
       promptStore.currentPrompt = ''
     } else {
       errorMessage.value = 'Please select a bot and ensure you are logged in.'

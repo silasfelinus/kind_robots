@@ -44,38 +44,53 @@ export const useChatStore = defineStore({
       }
     },
 
-    async addChat(
-      content: string,
-      userId: number,
-      isPublic: boolean = true,
-      originId: number | null = null,
-      previousEntryId: number | null = null,
-    ) {
-      if (!content || !userId) {
-        handleError(ErrorType.VALIDATION_ERROR, 'Missing content or userId.')
-        return
-      }
-
-      const userStore = useUserStore()
-
+    async addChat({
+      content,
+      userId,
+      botId = null,
+      botName = null,
+      recipientId,
+      isPublic = true,
+      originId = null,
+      previousEntryId = null,
+      promptId = null,
+    }: {
+      content: string
+      userId: number
+      botId?: number | null
+      botName?: string | null
+      recipientId: number
+      isPublic?: boolean
+      originId?: number | null
+      previousEntryId?: number | null
+      promptId?: number | null
+    }) {
       try {
+        const userStore = useUserStore()
+        const username = userStore.username ?? 'Unknown User'
+
+        // Determine sender and recipient based on whether it's a user prompt or bot response
+        const isUserMessage = !!botId // If botId exists, it's a user message
+        const sender = isUserMessage ? username : botName
+        const recipient = isUserMessage ? botName : username
+
         const chat: Omit<Chat, 'id' | 'createdAt' | 'updatedAt'> = {
-          userId,
-          sender: userStore.username ?? 'Unknown User',
           content,
+          userId,
+          sender: sender || 'Unknown',
+          recipient: recipient || 'Unknown',
           isPublic,
+          type: isUserMessage ? 'ToBot' : 'BotResponse',
+          recipientId,
+          botId,
+          botName,
+          originId,
+          previousEntryId,
           artImageId: null,
-          type: 'ToBot',
-          recipient: null,
           title: null,
           channel: null,
           isFavorite: false,
-          previousEntryId,
-          originId: originId ?? previousEntryId, // Set originId to previousEntryId if originId is null
-          botId: null,
-          recipientId: null,
-          promptId: null,
-          botName: null,
+          promptId,
         }
 
         const response = await performFetch<{ newChat: Chat }>('/api/chats', {
@@ -98,30 +113,29 @@ export const useChatStore = defineStore({
     async deleteChat(chatId: number): Promise<boolean> {
       const userStore = useUserStore()
       const currentUserId = userStore.user?.id
-    
+
       if (!currentUserId) {
         handleError(ErrorType.AUTH_ERROR, 'User not authenticated.')
         return false
       }
-    
+
       const chat = this.chats.find((chat) => chat.id === chatId)
       if (!chat) {
         handleError(ErrorType.UNKNOWN_ERROR, 'Chat not found.')
         return false
       }
-    
+
       if (chat.userId !== currentUserId) {
         handleError(ErrorType.AUTH_ERROR, 'Unauthorized delete attempt.')
         return false
       }
-    
+
       try {
         const response = await performFetch(`/api/chats/${chatId}`, {
           method: 'DELETE',
         })
-    
+
         if (response.success) {
-          // Remove from local state and update localStorage
           this.chats = this.chats.filter((chat) => chat.id !== chatId)
           this.saveToLocalStorage()
           return true
@@ -133,7 +147,12 @@ export const useChatStore = defineStore({
         return false
       }
     },
-    
+    get activeChatsByBotId() {
+      return (botId: number) => {
+        return this.chats.filter((chat) => chat.botId === botId)
+      }
+    },
+
     async editChat(chatId: number, updatedData: Partial<Chat>) {
       try {
         const response = await performFetch<{ chat: Chat }>(

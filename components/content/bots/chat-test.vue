@@ -16,7 +16,7 @@
         placeholder="Type your prompt here"
         class="w-full p-2 border rounded-md mb-2"
       />
-      <button class="btn btn-primary w-full" @click="addNewExchange">
+      <button class="btn btn-primary w-full" @click="addChat">
         Add New Exchange
       </button>
     </div>
@@ -28,8 +28,12 @@
         <li v-for="exchange in chats" :key="exchange.id" class="p-3 border-b">
           <div class="flex justify-between items-center">
             <div>
-              <p><strong>User Prompt:</strong> {{ exchange.userPrompt }}</p>
-              <p><strong>Bot Response:</strong> {{ exchange.botResponse }}</p>
+              <p><strong>User Prompt:</strong> {{ exchange.content }}</p>
+              <p>
+                <strong>Bot Response:</strong>
+                <!-- Display bot reply here, if needed -->
+              </p>
+
               <p><strong>Exchange ID:</strong> {{ exchange.id }}</p>
               <p>
                 <strong>Previous Entry ID:</strong>
@@ -39,7 +43,7 @@
             <div class="space-x-2">
               <button
                 class="btn btn-secondary"
-                @click="continueExchange(exchange.id)"
+                @click="continueChat(exchange.id)"
               >
                 Continue
               </button>
@@ -49,10 +53,7 @@
               >
                 Edit
               </button>
-              <button
-                class="btn btn-error"
-                @click="deleteExchange(exchange.id)"
-              >
+              <button class="btn btn-error" @click="deleteChat(exchange.id)">
                 Delete
               </button>
             </div>
@@ -110,31 +111,54 @@ function showFeedback(message: string, isError: boolean = false) {
   setTimeout(() => (feedbackMessage.value = null), 3000)
 }
 
-// Add a new exchange
-async function addNewExchange() {
+async function addChat() {
   if (!newPrompt.value.trim())
     return showFeedback('Prompt cannot be empty.', true)
 
   const userId = userStore.user?.id || 1 // Default user ID
-  const botId = botStore.currentBot?.id || 1 // Default bot ID
+  const botId = botStore.currentBot?.id || null
+  const botName = botStore.currentBot?.name || 'Unknown Bot'
+  const recipientId = botId || 1 // Assuming bot is the recipient
+
   try {
-    await chatStore.addExchange(newPrompt.value, userId, botId)
-    showFeedback('Exchange added successfully!')
+    await chatStore.addChat({
+      content: newPrompt.value,
+      userId,
+      botId,
+      botName,
+      recipientId,
+    })
+    showFeedback('Chat added successfully!')
   } catch (error) {
-    showFeedback('Failed to add exchange.', true)
+    showFeedback('Failed to add chat.', true)
     console.error(error)
   }
   newPrompt.value = ''
 }
 
-// Continue an existing exchange
-async function continueExchange(exchangeId: number) {
-  const existingPrompt = "I'm continuing the conversation!"
+async function continueChat(chatId: number) {
+  const existingContent = 'Continuing conversation!'
+  const botId = botStore.currentBot?.id || null
+  const botName = botStore.currentBot?.name || 'Unknown Bot'
+  const userId = userStore.user?.id || 1 // Default user ID
+  const recipientId = botId || 1 // Assuming bot is the recipient
+
   try {
-    await chatStore.continueExchange(exchangeId, existingPrompt)
+    const previousEntry = chatStore.chats.find((chat) => chat.id === chatId)
+    if (!previousEntry) throw new Error('Chat not found')
+
+    await chatStore.addChat({
+      content: existingContent,
+      userId,
+      botId,
+      botName,
+      recipientId,
+      originId: previousEntry.originId ?? previousEntry.id,
+      previousEntryId: previousEntry.id,
+    })
     showFeedback('Continued conversation successfully!')
   } catch (error) {
-    showFeedback('Failed to continue exchange.', true)
+    showFeedback('Failed to continue chat.', true)
     console.error(error)
   }
 }
@@ -142,7 +166,7 @@ async function continueExchange(exchangeId: number) {
 // Edit an existing exchange
 async function editExchange(exchangeId: number, updatedPrompt: string) {
   try {
-    await chatStore.editExchange(exchangeId, { userPrompt: updatedPrompt })
+    await chatStore.editChat(exchangeId, { content: updatedPrompt })
     showFeedback('Exchange edited successfully!')
   } catch (error) {
     showFeedback('Failed to edit exchange.', true)
@@ -150,11 +174,11 @@ async function editExchange(exchangeId: number, updatedPrompt: string) {
   }
 }
 
-async function deleteExchange(exchangeId: number) {
+async function deleteChat(exchangeId: number) {
   try {
-    const wasDeleted = await chatStore.deleteExchange(exchangeId)
+    const wasDeleted = await chatStore.deleteChat(exchangeId)
     if (wasDeleted) {
-      showFeedback('Exchange deleted successfully!')
+      showFeedback('Chat deleted successfully!')
     } else {
       showFeedback(
         'Failed to delete exchange due to authorization or other error.',

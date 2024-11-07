@@ -9,7 +9,7 @@
       <!-- Scrollable conversation area -->
       <div class="conversation-area flex-grow overflow-y-auto p-4">
         <ConversationDisplay
-          :chat-exchange-id="activechatId"
+          :chat-id="activechatId"
           :current-bot="currentBot"
           :is-reply-loading="isReplyLoading"
         />
@@ -101,7 +101,6 @@ const activechatId = computed(
 // Use defaultBot when botStore.currentBot is null
 const currentBot = computed(() => botStore.currentBot ?? defaultBot)
 
-// Send message function
 const sendMessage = async () => {
   if (!message.value.trim()) return
 
@@ -111,24 +110,36 @@ const sendMessage = async () => {
   try {
     const userId = userStore.user?.id
     const botId = botStore.currentBot?.id
+    const botName = botStore.currentBot?.name
+    const recipientId = botId ?? -1 // Provide a fallback default if botId is undefined
 
-    if (!userId || !botId)
+    if (!userId || recipientId === -1)
       throw new Error('User or Bot information is missing.')
 
-    // Add or continue conversation based on activeConversationIndex
     if (activeConversationIndex.value === null) {
-      const newExchange = await chatStore.addExchange(
-        message.value,
+      // Add new conversation
+      const newChat = await chatStore.addChat({
+        content: message.value,
         userId,
         botId,
-      )
-      activeConversationIndex.value = newExchange
+        botName,
+        recipientId, // recipientId now has a default fallback
+      })
+      activeConversationIndex.value = newChat
         ? chatStore.chats.length - 1
         : null
     } else {
-      const previousExchange =
-        conversations.value[activeConversationIndex.value!]
-      await chatStore.continueExchange(previousExchange.id, message.value)
+      // Continue existing conversation
+      const previousChat = conversations.value[activeConversationIndex.value]
+      await chatStore.addChat({
+        content: message.value,
+        userId,
+        botId,
+        botName,
+        recipientId,
+        originId: previousChat.originId ?? previousChat.id,
+        previousEntryId: previousChat.id,
+      })
     }
 
     message.value = '' // Clear input after sending

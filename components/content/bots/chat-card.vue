@@ -21,13 +21,16 @@
 
     <!-- Message Thread -->
     <div class="message-thread mb-4">
-      <div class="message p-2 mb-2 rounded-md bg-gray-100">
-        <p class="text-sm text-gray-700"><strong>User:</strong></p>
-        <p class="text-base">{{ userMessage }}</p>
-      </div>
-      <div v-if="botResponse" class="message p-2 mb-2 rounded-md bg-gray-100">
-        <p class="text-sm text-gray-700"><strong>Bot:</strong></p>
-        <p class="text-base">{{ botResponse }}</p>
+      <div
+        v-for="message in threadMessages"
+        :key="message.id"
+        class="message p-2 mb-2 rounded-md"
+        :class="message.sender === senderName ? 'bg-gray-100' : 'bg-blue-100'"
+      >
+        <p class="text-sm text-gray-700">
+          <strong>{{ message.sender }}:</strong>
+        </p>
+        <p class="text-base">{{ message.content }}</p>
       </div>
     </div>
 
@@ -80,14 +83,19 @@ const chat = computed(() =>
 )
 
 const fullChat = computed(() => JSON.stringify(chat.value, null, 2))
-const userMessage = computed(
-  () => chat.value?.content || 'No message available',
-)
-const botResponse = computed(() => chat.value?.response || '') // Direct bot response field
 const senderName = computed(() => chat.value?.sender || 'User')
 const botName = computed(() => chat.value?.botName || 'Bot')
 const botAvatar = computed(() => botStore.currentBot?.avatarImage || '')
 
+// Threaded messages (all messages with the same originId)
+const threadMessages = computed(() =>
+  chatStore.chats.filter(
+    (message) =>
+      message.originId === chat.value?.originId || message.id === props.chatId,
+  ),
+)
+
+// Send a reply
 const sendReply = async () => {
   if (replyMessage.value.trim()) {
     try {

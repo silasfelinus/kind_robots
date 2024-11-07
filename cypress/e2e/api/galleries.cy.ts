@@ -123,7 +123,7 @@ describe('Gallery Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.galleries)
+      expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })

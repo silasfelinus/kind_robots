@@ -1,27 +1,28 @@
+// /stores/chatStore.ts
 import { defineStore } from 'pinia';
 import { useErrorStore, ErrorType } from './errorStore';
 import { useUserStore } from './userStore';
 import { performFetch, handleError } from './utils';
-import type { Communication } from '@prisma/client';
+import type { Chat } from '@prisma/client';
 
-export const useCommunicationStore = defineStore({
-  id: 'communication',
+export const useChatStore = defineStore({
+  id: 'chat',
   state: () => ({
-    communications: [] as Communication[],
+    chats: [] as Chat[],
     isInitialized: false,
   }),
 
   getters: {
-    communicationsByUserId: (state) => {
+    chatsByUserId: (state) => {
       const userStore = useUserStore();
-      return state.communications.filter(
-        (comm) => comm.userId === userStore.user?.id
+      return state.chats.filter(
+        (chat) => chat.userId === userStore.user?.id
       );
     },
-    publicCommunications(state) {
+    publicChats(state) {
       const userStore = useUserStore();
-      return state.communications.filter(
-        (comm) => comm.isPublic && comm.userId !== userStore.user?.id
+      return state.chats.filter(
+        (chat) => chat.isPublic && chat.userId !== userStore.user?.id
       );
     },
   },
@@ -34,7 +35,7 @@ export const useCommunicationStore = defineStore({
 
         const userStore = useUserStore();
         if (userStore.user?.id) {
-          await this.fetchCommunicationsByUserId(userStore.user.id);
+          await this.fetchChatsByUserId(userStore.user.id);
         } else {
           handleError(ErrorType.VALIDATION_ERROR, 'User ID not found.');
         }
@@ -45,7 +46,7 @@ export const useCommunicationStore = defineStore({
       }
     },
 
-    async addCommunication(
+    async addChat(
       content: string,
       userId: number,
       isPublic: boolean = true
@@ -58,48 +59,44 @@ export const useCommunicationStore = defineStore({
       const userStore = useUserStore();
 
       try {
-        const communication: Omit<
-          Communication,
-          'id' | 'createdAt' | 'updatedAt'
-        > = {
+        const chat: Omit<Chat, 'id' | 'createdAt' | 'updatedAt'> = {
           userId,
           username: userStore.username ?? 'Unknown User',
           content,
           isPublic,
         };
 
-        const response = await performFetch<{ newCommunication: Communication }>(
-          '/api/communications',
+        const response = await performFetch<{ newChat: Chat }>(
+          '/api/chats',
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(communication),
+            body: JSON.stringify(chat),
           }
         );
 
-        const newCommunication = response.data?.newCommunication;
-        if (!newCommunication)
-          throw new Error('Failed to create new communication.');
+        const newChat = response.data?.newChat;
+        if (!newChat) throw new Error('Failed to create new chat.');
 
-        this.communications.push(newCommunication);
+        this.chats.push(newChat);
         this.saveToLocalStorage();
-        return newCommunication;
+        return newChat;
       } catch (error) {
         handleError(
           ErrorType.NETWORK_ERROR,
-          `Error in addCommunication: ${error}`
+          `Error in addChat: ${error}`
         );
         throw error;
       }
     },
 
-    async fetchCommunicationsByUserId(userId: number) {
+    async fetchChatsByUserId(userId: number) {
       try {
-        const response = await performFetch<{ userCommunications: Communication[] }>(
-          `/api/communications/user/${userId}`
+        const response = await performFetch<{ userChats: Chat[] }>(
+          `/api/chats/user/${userId}`
         );
         if (response.success) {
-          this.communications = response.data?.userCommunications || [];
+          this.chats = response.data?.userChats || [];
           this.saveToLocalStorage();
         } else {
           handleError(ErrorType.NETWORK_ERROR, response.message);
@@ -107,18 +104,15 @@ export const useCommunicationStore = defineStore({
       } catch (error) {
         handleError(
           ErrorType.NETWORK_ERROR,
-          `Failed to fetch communications: ${error}`
+          `Failed to fetch chats: ${error}`
         );
       }
     },
 
-    async editCommunication(
-      communicationId: number,
-      updatedData: Partial<Communication>
-    ) {
+    async editChat(chatId: number, updatedData: Partial<Chat>) {
       try {
-        const response = await performFetch<{ communication: Communication }>(
-          `/api/communications/${communicationId}`,
+        const response = await performFetch<{ chat: Chat }>(
+          `/api/chats/${chatId}`,
           {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -126,26 +120,26 @@ export const useCommunicationStore = defineStore({
           }
         );
 
-        const updatedCommunication = response.data?.communication;
-        if (updatedCommunication) {
-          this.communications = this.communications.map((comm) =>
-            comm.id === communicationId ? updatedCommunication : comm
+        const updatedChat = response.data?.chat;
+        if (updatedChat) {
+          this.chats = this.chats.map((chat) =>
+            chat.id === chatId ? updatedChat : chat
           );
           this.saveToLocalStorage();
-          return updatedCommunication;
+          return updatedChat;
         } else {
-          throw new Error('Failed to update communication');
+          throw new Error('Failed to update chat');
         }
       } catch (error) {
         handleError(
           ErrorType.NETWORK_ERROR,
-          `Error editing communication: ${error}`
+          `Error editing chat: ${error}`
         );
         throw error;
       }
     },
 
-    async deleteCommunication(communicationId: number): Promise<boolean> {
+    async deleteChat(chatId: number): Promise<boolean> {
       const userStore = useUserStore();
       const currentUserId = userStore.user?.id;
 
@@ -154,30 +148,30 @@ export const useCommunicationStore = defineStore({
         return false;
       }
 
-      const communication = this.communications.find(
-        (comm) => comm.id === communicationId
+      const chat = this.chats.find(
+        (chat) => chat.id === chatId
       );
-      if (!communication) {
-        handleError(ErrorType.UNKNOWN_ERROR, 'Communication not found.');
+      if (!chat) {
+        handleError(ErrorType.UNKNOWN_ERROR, 'Chat not found.');
         return false;
       }
 
-      if (communication.userId !== currentUserId) {
+      if (chat.userId !== currentUserId) {
         handleError(ErrorType.AUTH_ERROR, 'Unauthorized delete attempt.');
         return false;
       }
 
       try {
         const response = await performFetch(
-          `/api/communications/${communicationId}`,
+          `/api/chats/${chatId}`,
           {
             method: 'DELETE',
           }
         );
 
         if (response.success) {
-          this.communications = this.communications.filter(
-            (comm) => comm.id !== communicationId
+          this.chats = this.chats.filter(
+            (chat) => chat.id !== chatId
           );
           this.saveToLocalStorage();
           return true;
@@ -187,7 +181,7 @@ export const useCommunicationStore = defineStore({
       } catch (error) {
         handleError(
           ErrorType.NETWORK_ERROR,
-          `Error deleting communication: ${error}`
+          `Error deleting chat: ${error}`
         );
         return false;
       }
@@ -196,48 +190,48 @@ export const useCommunicationStore = defineStore({
     loadFromLocalStorage() {
       if (typeof window === 'undefined') return;
 
-      const savedCommunications = localStorage.getItem('communications');
+      const savedChats = localStorage.getItem('chats');
 
-      if (savedCommunications) {
+      if (savedChats) {
         try {
-          const parsedCommunications = JSON.parse(savedCommunications);
-          if (Array.isArray(parsedCommunications)) {
-            this.communications = parsedCommunications.map((comm) => ({
-              ...comm,
-              createdAt: comm.createdAt ? new Date(comm.createdAt) : new Date(),
-              updatedAt: comm.updatedAt ? new Date(comm.updatedAt) : new Date(),
-              userId: comm.userId ?? 0,
-              username: comm.username || 'Unknown User',
-              content: comm.content || 'No content available',
-              isPublic: comm.isPublic ?? true,
+          const parsedChats = JSON.parse(savedChats);
+          if (Array.isArray(parsedChats)) {
+            this.chats = parsedChats.map((chat) => ({
+              ...chat,
+              createdAt: chat.createdAt ? new Date(chat.createdAt) : new Date(),
+              updatedAt: chat.updatedAt ? new Date(chat.updatedAt) : new Date(),
+              userId: chat.userId ?? 0,
+              username: chat.username || 'Unknown User',
+              content: chat.content || 'No content available',
+              isPublic: chat.isPublic ?? true,
             }));
           } else {
             console.warn('Invalid data format in localStorage, clearing data.');
-            localStorage.removeItem('communications');
-            this.communications = [];
+            localStorage.removeItem('chats');
+            this.chats = [];
           }
         } catch (error) {
           handleError(
             ErrorType.PARSE_ERROR,
-            `Failed to parse communications from localStorage: ${error}`
+            `Failed to parse chats from localStorage: ${error}`
           );
-          localStorage.removeItem('communications');
-          this.communications = [];
+          localStorage.removeItem('chats');
+          this.chats = [];
         }
       } else {
-        this.communications = [];
+        this.chats = [];
       }
     },
 
     saveToLocalStorage() {
       if (typeof window !== 'undefined') {
         localStorage.setItem(
-          'communications',
-          JSON.stringify(this.communications)
+          'chats',
+          JSON.stringify(this.chats)
         );
       }
     },
   },
 });
 
-export type { Communication };
+export type { Chat };

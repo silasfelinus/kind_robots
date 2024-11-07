@@ -256,8 +256,9 @@ describe('ChatExchange Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body.message).to.include(
-        'Chat exchange successfully deleted',
+        `Chat exchange with ID ${chatExchangeId} successfully deleted`,
       )
+      expect(response.body).to.have.property('data').that.is.an('object')
     })
   })
 })

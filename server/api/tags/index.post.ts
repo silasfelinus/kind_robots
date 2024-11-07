@@ -20,11 +20,11 @@ export default defineEventHandler(async (event) => {
     const tagData = await readBody<Partial<Tag>>(event)
 
     if (!tagData.title || !tagData.label) {
+      event.node.res.statusCode = 400 // Set HTTP status code to 400 for validation error
       return {
         success: false,
         data: null,
         message: '"title" and "label" are required fields.',
-        statusCode: 400,
       }
     }
 
@@ -34,20 +34,21 @@ export default defineEventHandler(async (event) => {
     const tag = await prisma.tag.create({
       data: tagData as Prisma.TagCreateInput,
     })
+
+    event.node.res.statusCode = 201 // Set HTTP status code to 201 for successful creation
     return {
       success: true,
       data: tag,
       message: 'Tag created successfully',
-      statusCode: 201, // Ensure 201 status for successful creation
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500 // Set appropriate error status code
     return {
       success: false,
       data: null,
       message: 'Failed to create a new tag',
       error: message || 'An unknown error occurred',
-      statusCode: statusCode || 500,
     }
   }
 })

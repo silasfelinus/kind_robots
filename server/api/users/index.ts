@@ -75,7 +75,7 @@ export async function createUser(data: {
 // Optimized fetchUsers to ensure users always returns an array
 export async function fetchUsers(): Promise<{
   success: boolean
-  users?: Partial<User>[]
+  users: Partial<User>[] // Explicitly defined as always an array
   message?: string
 }> {
   try {
@@ -103,13 +103,13 @@ export async function fetchUsers(): Promise<{
           clickRecord: true,
           matchRecord: true,
         },
-      })) ?? [] // Ensures users is always an array
+      })) || [] // Fallback to empty array if findMany returns null/undefined
 
     return { success: true, users }
   } catch (error) {
     const handledError = errorHandler(error)
     console.error(`Failed to fetch users: ${handledError.message}`)
-    return { success: false, message: handledError.message }
+    return { success: false, users: [], message: handledError.message }
   }
 }
 

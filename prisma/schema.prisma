@@ -211,7 +211,7 @@ model Chat {
   promptId        Int?
   botName         String?            @db.VarChar(255)
   Reactions       Reaction[]
-  ArtImage        ArtImage?          @relation(fields: [artImageId], references: [id])
+  ArtImage        ArtImage?        
   Bot             Bot?               @relation(fields: [botId], references: [id])
   Channel         Channel?           @relation(fields: [channelId], references: [id])
   Prompt          Prompt?            @relation(fields: [promptId], references: [id])

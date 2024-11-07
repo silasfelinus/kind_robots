@@ -104,13 +104,14 @@ const sendReply = async () => {
         chatStore.chats.filter((c) => c.originId === originId).slice(-1)[0]
           ?.id || chat.value?.id
 
-      await chatStore.addChat(
-        replyMessage.value,
-        chat.value?.userId || 0, // Provide a valid userId or handle this with a fallback
-        true, // isPublic set to true; adjust if needed
+      await chatStore.addChat({
+        content: replyMessage.value,
+        userId: chat.value?.userId || 0,
+        recipientId: chat.value?.recipientId || 0, // Add a valid recipientId here
+        isPublic: true, // Adjust if needed
         originId,
         previousEntryId,
-      )
+      })
 
       replyMessage.value = ''
       showReply.value = false

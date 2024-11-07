@@ -57,7 +57,7 @@ describe('Tag Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data).to.have.property('tag').that.is.an('object')
+      expect(response.body).to.have.property('data').that.is.an('object')
       const createdTag = response.body.data.tag
       expect(createdTag).to.have.all.keys(
         'id',

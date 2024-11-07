@@ -31,14 +31,14 @@ export default defineEventHandler(async (event) => {
     tagData.userId = authenticatedUserId
 
     // Create the tag and ensure the response contains a 201 status
-    const tag = await prisma.tag.create({
+    const data = await prisma.tag.create({
       data: tagData as Prisma.TagCreateInput,
     })
 
     event.node.res.statusCode = 201 // Set HTTP status code to 201 for successful creation
     return {
       success: true,
-      data: tag,
+      data,
       message: 'Tag created successfully',
     }
   } catch (error) {

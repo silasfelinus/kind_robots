@@ -13,6 +13,11 @@ export const useChatStore = defineStore({
   }),
 
   getters: {
+    activeChatsByBotId() {
+      return (botId: number) => {
+        return this.chats.filter((chat) => chat.botId === botId)
+      }
+    },
     chatsByUserId: (state) => {
       const userStore = useUserStore()
       return state.chats.filter((chat) => chat.userId === userStore.user?.id)
@@ -145,11 +150,6 @@ export const useChatStore = defineStore({
       } catch (error) {
         handleError(ErrorType.NETWORK_ERROR, `Error deleting chat: ${error}`)
         return false
-      }
-    },
-    get activeChatsByBotId() {
-      return (botId: number) => {
-        return this.chats.filter((chat) => chat.botId === botId)
       }
     },
 

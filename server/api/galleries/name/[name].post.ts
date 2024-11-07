@@ -51,7 +51,6 @@ export default defineEventHandler(async (event: H3Event) => {
         highlightImage: galleryData.highlightImage ?? null,
         imagePaths: galleryData.imagePaths ?? null,
         isMature: galleryData.isMature ?? false,
-        channelId: galleryData.channelId ?? null,
       },
     })
 

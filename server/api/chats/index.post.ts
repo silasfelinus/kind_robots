@@ -2,122 +2,89 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import type { ChatExchange } from '@prisma/client'
+import { validateApiKey } from '../utils/validateKey'
+import type { Prisma, Chat } from '@prisma/client'
 
-export default defineEventHandler(async (event) => {
-  let response
+type ChatResponse = {
+  success: boolean
+  message?: string
+  data?: Chat
+  statusCode?: number
+}
+
+export default defineEventHandler(async (event): Promise<ChatResponse> => {
+  let response: ChatResponse
 
   try {
-    // Validate the authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
+    // Validate the API key using the utility function
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    const authenticatedUserId = user.id
+    const userId = user.id
 
-    // Read and validate the chat exchange data from the request body
-    const exchangeData: Partial<ChatExchange> = await readBody(event)
+    // Read and validate the communication data from the request body
+    const chatData = await readBody(event)
 
-    // Validate required fields
-    const requiredFields: (keyof ChatExchange)[] = [
-      'userId',
-      'botId',
-      'botName',
-      'username',
-      'userPrompt',
-      'botResponse',
-    ]
+    // Check for required fields
+    const requiredFields = ['type', 'sender', 'content']
     const missingFields = requiredFields.filter(
-      (field) =>
-        exchangeData[field] === undefined || exchangeData[field] === null,
+      (field) => !chatData[field as keyof typeof chatData],
     )
-
     if (missingFields.length > 0) {
       throw createError({
         statusCode: 400,
-        message: `Missing required fields: ${missingFields.join(', ')}`,
+        message: `Missing required fields: ${missingFields.join(', ')}.`,
       })
     }
 
-    // Check if userId in exchangeData matches the authenticated user
-    if (exchangeData.userId !== authenticatedUserId) {
-      throw createError({
-        statusCode: 403,
-        message: 'User ID does not match the authenticated user.',
-      })
+    // Prepare input data for creating a new communication entry
+    const chatInput: Prisma.ChatCreateInput = {
+      type: chatData.type,
+      sender: chatData.sender,
+      recipient: chatData.recipient || null,
+      content: chatData.content,
+      title: chatData.title || null,
+      label: chatData.label || null,
+      isPublic: chatData.isPublic ?? false,
+      isFavorite: chatData.isFavorite ?? false,
+      previousEntryId: chatData.previousEntryId || null,
+      imagePath: chatData.imagePath || null,
+      User: { connect: { id: userId } },
+      ...(chatData.botId && { Bot: { connect: { id: chatData.botId } } }),
+      ...(chatData.promptId && {
+        Prompt: { connect: { id: chatData.promptId } },
+      }),
+      ...(chatData.artImageId && {
+        ArtImage: { connect: { id: chatData.artImageId } },
+      }),
     }
 
-    // Ensure bot and user exist
-    const [userExists, botExists] = await Promise.all([
-      prisma.user.findUnique({ where: { id: authenticatedUserId } }),
-      prisma.bot.findUnique({ where: { id: exchangeData.botId ?? undefined } }),
-    ])
+    // Create the chat entry
+    const newChat = await prisma.chat.create({ data: chatInput })
 
-    if (!userExists) {
-      throw createError({
-        statusCode: 404,
-        message: `User with ID ${authenticatedUserId} does not exist.`,
-      })
-    }
-
-    if (!botExists) {
-      throw createError({
-        statusCode: 404,
-        message: `Bot with ID ${exchangeData.botId} does not exist.`,
-      })
-    }
-
-    // Create the chat exchange entry
-    const newExchange = await prisma.chatExchange.create({
-      data: {
-        userId: authenticatedUserId,
-        botId: exchangeData.botId as number,
-        botName: exchangeData.botName as string,
-        username: exchangeData.username as string,
-        userPrompt: exchangeData.userPrompt as string,
-        botResponse: exchangeData.botResponse as string,
-        previousEntryId: exchangeData.previousEntryId ?? null,
-        promptId: exchangeData.promptId ?? null,
-        isPublic: exchangeData.isPublic ?? false,
-      },
-    })
-
+    // Successful creation response
     response = {
       success: true,
-      data: { newExchange },
-      message: 'Chat exchange created successfully.',
+      data: newChat,
+      message: 'chat created successfully.',
       statusCode: 201,
     }
-    event.node.res.statusCode = 201 // Created
   } catch (error) {
-    const { message, statusCode } = errorHandler(error)
-
-    // Return the specific error message from errorHandler
-    event.node.res.statusCode = statusCode || 500
+    const handledError = errorHandler(error)
     response = {
       success: false,
-      message,
-      statusCode: statusCode || 500,
+      message: handledError.message || 'Failed to create chat entry.',
+      data: undefined, // Ensure `data` is undefined in case of error
+      statusCode: handledError.statusCode || 500,
     }
   }
 
+  // Set the status code in the response object
+  event.node.res.statusCode = response.statusCode || 500
   return response
 })

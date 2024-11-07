@@ -69,7 +69,6 @@ async function uploadImage(event: Event) {
         path: '[ArtImage]',
         seed: null,
         steps: null,
-        channelId: null,
         galleryId: 21,
         promptId: null,
         pitchId: null,

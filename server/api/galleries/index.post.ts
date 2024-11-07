@@ -54,9 +54,6 @@ export default defineEventHandler(async (event): Promise<GalleryResponse> => {
       isMature: galleryData.isMature ?? false,
       isPublic: galleryData.isPublic ?? true,
       User: { connect: { id: userId } },
-      ...(galleryData.Channel?.connect?.id && {
-        Channel: { connect: { id: galleryData.Channel.connect.id } },
-      }),
     }
 
     // Create the gallery entry

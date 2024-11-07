@@ -117,9 +117,6 @@ export async function fetchUserById(id: number): Promise<Partial<User> | null> {
   try {
     return await prisma.user.findUnique({
       where: { id },
-      include: {
-        Channels: true, // Include Channels relation
-      },
     })
   } catch (error) {
     console.error(`Failed to fetch user by ID: ${errorHandler(error).message}`)

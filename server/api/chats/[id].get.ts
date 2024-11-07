@@ -1,49 +1,59 @@
 // /server/api/chats/[id].get.ts
-import { defineEventHandler, createError } from 'h3'
+import { defineEventHandler } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
+import type { Chat } from '@prisma/client'
 
-export default defineEventHandler(async (event) => {
-  let response
+type ChatResponse = {
+  success: boolean
+  message?: string
+  data?: Chat
+  statusCode?: number
+}
+
+export default defineEventHandler(async (event): Promise<ChatResponse> => {
+  let response: ChatResponse
+  const id = Number(event.context.params?.id)
+
+  if (isNaN(id) || id <= 0) {
+    return errorHandler({
+      error: new Error('Invalid Chat ID. It must be a positive integer.'),
+      context: 'Fetch Single Chat',
+      statusCode: 400,
+    })
+  }
 
   try {
-    const id = Number(event.context.params?.id)
+    // Fetch the chat by ID
+    const chat = await prisma.chat.findUnique({ where: { id } })
 
-    // Validate the chat exchange ID
-    if (isNaN(id) || id <= 0) {
-      throw createError({
-        statusCode: 400,
-        message: 'Invalid Chat Exchange ID. It must be a positive integer.',
-      })
-    }
-
-    // Fetch the chat exchange
-    const chatExchange = await prisma.chatExchange.findUnique({
-      where: { id },
-    })
-
-    if (!chatExchange) {
-      throw createError({
+    if (!chat) {
+      return errorHandler({
+        error: new Error(`Chat with ID ${id} not found.`),
+        context: 'Fetch Single Chat',
         statusCode: 404,
-        message: `Chat exchange with ID ${id} does not exist.`,
       })
     }
 
+    // Return success response with chat data
     response = {
       success: true,
-      data: {
-        chatExchange,
-      },
+      data: chat,
+      message: 'Chat fetched successfully.',
+      statusCode: 200,
     }
-    event.node.res.statusCode = 200
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
+  } catch (error) {
+    const handledError = errorHandler({
+      error,
+      context: 'Fetch Single Chat',
+    })
+
+    // Return standardized error response
     response = {
       success: false,
-      message: handledError.message || 'Failed to retrieve chat exchange.',
+      message: handledError.message || `Failed to fetch chat with ID ${id}.`,
       statusCode: handledError.statusCode || 500,
     }
-    event.node.res.statusCode = response.statusCode
   }
 
   return response

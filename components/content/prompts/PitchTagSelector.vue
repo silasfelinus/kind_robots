@@ -71,7 +71,6 @@ interface Pitch {
   isMature: boolean
   isPublic: boolean
   userId: number
-  channelId: number | null
 }
 
 const pitchStore = usePitchStore()

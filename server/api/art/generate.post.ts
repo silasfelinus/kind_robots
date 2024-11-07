@@ -38,8 +38,6 @@ type RequestData = {
   playerName?: string | null
   galleryId?: number | null
   galleryName?: string | null
-  channelId?: number | null
-  channelName?: string | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -303,7 +301,6 @@ async function validateAndLoadPitchId(
           isMature: data.isMature || false,
           isPublic: data.isPublic || true,
           userId: data.userId || null,
-          channelId: data.channelId || null,
         },
       })
       console.log(`✅ New pitch created: ${newPitch.id}`)

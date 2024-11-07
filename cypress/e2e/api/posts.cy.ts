@@ -27,7 +27,6 @@ describe('Post Management API Tests', () => {
         imagePath: '/images/test-post.jpg',
         isFavorite: true,
         botId: null,
-        channelId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -55,7 +54,6 @@ describe('Post Management API Tests', () => {
         imagePath: '/images/test-post.jpg',
         isFavorite: true,
         botId: null,
-        channelId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -81,7 +79,6 @@ describe('Post Management API Tests', () => {
         imagePath: '/images/test-post.jpg',
         isFavorite: true,
         botId: null,
-        channelId: null,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)

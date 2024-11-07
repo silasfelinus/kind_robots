@@ -1,35 +1,39 @@
 // /server/api/chats/index.get.ts
 import { defineEventHandler } from 'h3'
-import type { ChatExchange } from '@prisma/client'
-import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
+import type { Chat } from '@prisma/client'
 
-export default defineEventHandler(async () => {
-  let response
+type ChatsResponse = {
+  success: boolean
+  message?: string
+  data: Chat[]
+  statusCode?: number
+}
 
+export default defineEventHandler(async (): Promise<ChatsResponse> => {
+  let response: ChatsResponse
   try {
-    const chatExchanges = await fetchAllChatExchanges()
+    // Fetch all chats
+    const chats: Chat[] = await prisma.chat.findMany()
+
+    // Return success response with chats data
     response = {
       success: true,
-      data: {
-        chatExchanges,
-      },
-      message: 'Chat exchanges retrieved successfully.',
+      data: chats,
+      message: 'Chats fetched successfully.',
       statusCode: 200,
     }
-  } catch (error: unknown) {
+  } catch (error) {
+    // Use the errorHandler to handle and format the error
     const handledError = errorHandler(error)
     response = {
       success: false,
-      message: handledError.message || 'Failed to retrieve chat exchanges.',
+      data: [], // Ensure data is an empty array on failure
+      message: handledError.message || 'Failed to fetch chats.',
       statusCode: handledError.statusCode || 500,
     }
   }
 
   return response
 })
-
-// Function to fetch all Chat Exchanges
-export async function fetchAllChatExchanges(): Promise<ChatExchange[]> {
-  return await prisma.chatExchange.findMany()
-}

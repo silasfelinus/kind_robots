@@ -657,6 +657,8 @@ enum PitchType {
   BOT
   ARTGALLERY
   INSPIRATION
+  RANDOMLIST
+  TEXTPITCH
 }
 
 enum ReactionType {

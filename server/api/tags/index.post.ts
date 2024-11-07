@@ -6,7 +6,6 @@ import type { Prisma, Tag } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Validate authorization token
     const authorizationHeader = event.node.req.headers['authorization']
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
@@ -30,11 +29,8 @@ export default defineEventHandler(async (event) => {
     }
 
     const authenticatedUserId = user.id
-
-    // Read and validate the tag data from the request body
     const tagData = await readBody<Partial<Tag>>(event)
 
-    // Validate required fields
     if (!tagData.title || !tagData.label) {
       return {
         success: false,
@@ -44,16 +40,10 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Add the authenticated user's ID to the tag data
     tagData.userId = authenticatedUserId
 
-    // Create the tag
+    // Create the tag and ensure the response contains a 201 status
     const result = await addTag(tagData)
-
-    if (result.error) {
-      throw new Error(result.error)
-    }
-
     return {
       success: true,
       data: { tag: result.tag },
@@ -62,7 +52,6 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
-
     return {
       success: false,
       data: null,
@@ -84,6 +73,6 @@ export async function addTag(
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown database error'
-    return { tag: null, error: `Failed to create tag: ${errorMessage}` }
+    throw new Error(`Failed to create tag: ${errorMessage}`)
   }
 }

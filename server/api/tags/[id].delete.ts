@@ -22,9 +22,12 @@ export default defineEventHandler(async (event) => {
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
-        message: 'Invalid or expired token.',
+        message:
+          'Authorization token is required in the format "Bearer <token>".',
       })
     }
+
+    const userId = user.id
 
     // Validate Tag Existence and Ownership
     const tag = await prisma.tag.findUnique({
@@ -39,7 +42,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (tag.userId !== user.id) {
+    if (tag.userId !== userId) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to delete this tag.',
@@ -49,19 +52,21 @@ export default defineEventHandler(async (event) => {
     // Perform Deletion
     await prisma.tag.delete({ where: { id: tagId } })
 
-    // Success Response
+    // Successful deletion response
     response = {
       success: true,
-      message: `Tag with ID ${tagId} successfully deleted.`,
-      statusCode: 200,
+      data: { message: `Tag with ID ${tagId} successfully deleted.` },
     }
-  } catch (error) {
-    // Handle and respond with a standardized error format
+    event.node.res.statusCode = 200
+  } catch (error: unknown) {
     const handledError = errorHandler(error)
+    console.error('Error deleting tag:', handledError)
+
+    // Set the response and status code based on the handled error
+    event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
       message: handledError.message || `Failed to delete tag with ID ${tagId}.`,
-      statusCode: handledError.statusCode || 500,
     }
   }
 

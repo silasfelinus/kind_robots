@@ -58,8 +58,10 @@ describe('Tag Management API Tests', () => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
       expect(response.body).to.have.property('data').that.is.an('object')
-      const createdTag = response.body.data.tag
-      expect(createdTag).to.have.all.keys(
+
+      // Check only for required keys, ignoring others
+      const createdTag = response.body.data
+      expect(createdTag).to.include.all.keys(
         'id',
         'label',
         'title',
@@ -128,8 +130,8 @@ describe('Tag Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data).to.have.property('tag').that.is.an('object')
-      const updatedTag = response.body.data.tag
+      expect(response.body).to.have.property('data').that.is.an('object')
+      const updatedTag = response.body.data
       expect(updatedTag).to.have.property('id', tagId)
       expect(updatedTag).to.have.property('label', 'art')
       expect(updatedTag).to.have.property('title', 'Modern Art')

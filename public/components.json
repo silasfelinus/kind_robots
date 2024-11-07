@@ -266,7 +266,6 @@
       "PitchCard",
       "PitchCardActions",
       "PitchCardFront",
-      "PitchChat",
       "PitchGallery",
       "PitchGenerator",
       "PitchManager",
@@ -352,8 +351,6 @@
   {
     "folderName": "wonderlab",
     "components": [
-      "ChannelManager",
-      "CommentDisplay",
       "ComponentCount",
       "ComponentReactions",
       "ComponentScreen",

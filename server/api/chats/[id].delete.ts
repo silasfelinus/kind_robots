@@ -32,12 +32,12 @@ export default defineEventHandler(async (event) => {
     const userId = user.id
 
     // 3. Fetch the communication to verify ownership
-    const communication = await prisma.communication.findUnique({
+    const chat = await prisma.chat.findUnique({
       where: { id },
       select: { userId: true },
     })
 
-    if (!communication) {
+    if (!chat) {
       throw createError({
         statusCode: 404, // Not Found
         message: `Communication with ID ${id} does not exist.`,
@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // 4. Check if the logged-in user is the owner of the communication
-    if (communication.userId !== userId) {
+    if (chat.userId !== userId) {
       throw createError({
         statusCode: 403, // Forbidden
         message: 'You do not have permission to delete this communication.',
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // 5. Attempt to delete the communication
-    await prisma.communication.delete({ where: { id } })
+    await prisma.chat.delete({ where: { id } })
 
     console.log(`Communication with ID ${id} successfully deleted`)
     response = {

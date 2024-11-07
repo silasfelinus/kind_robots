@@ -54,10 +54,8 @@ model ArtImage {
   fileType       String    @default("png")
   botId          Int?      @unique
   componentId    Int?      @unique
-  messageId      Int?      @unique
   milestoneId    Int?      @unique
   pitchId        Int?      @unique
-  postId         Int?      @unique
   promptId       Int?      @unique
   reactionId     Int?      @unique
   resourceId     Int?      @unique
@@ -316,9 +314,7 @@ model Reaction {
   pitchId          Int?
   componentId      Int?
   botId            Int?
-  galleryId        Int?
-  messageId        Int?      
-  postId           Int?      
+  galleryId        Int?  
   promptId         Int?      
   resourceId       Int?     
   rewardId         Int?     

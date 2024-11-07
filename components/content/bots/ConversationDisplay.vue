@@ -46,10 +46,7 @@ const chat = computed(() => {
 // Build the conversation messages based on chat
 const chatMessages = computed(() => {
   if (chat.value) {
-    return [
-      { role: 'user', content: chat.value.userPrompt },
-      { role: 'bot', content: chat.value.botResponse },
-    ]
+    return [{ role: 'user', content: chat.value.content }]
   }
   return []
 })

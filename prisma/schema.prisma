@@ -67,6 +67,8 @@ model ArtImage {
   resourceId     Int?      @unique
   rewardId       Int?      @unique
   tagId          Int?      @unique
+  communicationId Int?     @unique
+  Communication Communication?      @relation(fields: [communicationId], references: [id])
   Art            Art?      @relation(fields: [artId], references: [id])
   Gallery        Gallery?  @relation(fields: [galleryId], references: [id])
   User           User?     @relation(fields: [userId], references: [id])
@@ -129,7 +131,8 @@ model Bot {
   Messages          Message[]
   Posts             Post[]
   Prompts           Prompt[]
-  Reactions   Reaction[]
+  Reactions         Reaction[]
+  Communications.   Communication[]
 
   @@index([userId], map: "Bot_userId_fkey")
 }
@@ -155,6 +158,7 @@ model Channel {
   Prompts     Prompt[]
   Reactions   Reaction[]
   Tags        Tag[]
+  Communications   Communication[]
 
   @@index([componentId], map: "Channel_componentId_fkey")
   @@index([userId], map: "Channel_userId_fkey")
@@ -184,6 +188,47 @@ model ChatExchange {
   @@index([promptId], map: "ChatExchange_promptId_fkey")
   @@index([userId], map: "ChatExchange_userId_fkey")
 }
+
+model Communication {
+  id              Int                @id @default(autoincrement())
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime?          @default(now()) @updatedAt
+  type            CommunicationType
+  sender          String             @db.VarChar(255)
+  recipient       String?            @db.VarChar(255)
+  content         String             @db.Text
+  title           String?            @db.VarChar(255)
+  label           String?            @db.VarChar(255)
+  isPublic        Boolean            @default(false)
+  isFavorite      Boolean            @default(false)
+  previousEntryId Int?
+  imagePath       String?            @db.VarChar(255)
+  userId          Int?
+  botId           Int?
+  recipientId			Int?
+  channelId       Int?
+  artImageId      Int?
+  promptId        Int?
+  botName         String?            @db.VarChar(255)
+  Reactions       Reaction[]
+  ArtImage        ArtImage?          @relation(fields: [artImageId], references: [id])
+  Bot             Bot?               @relation(fields: [botId], references: [id])
+  Channel         Channel?           @relation(fields: [channelId], references: [id])
+  Prompt          Prompt?            @relation(fields: [promptId], references: [id])
+  User            User?              @relation(fields: [userId], references: [id])
+
+}
+
+enum CommunicationType {
+  UserToBot
+  BotResponse
+  UserToForum
+  UserToUser
+}
+  
+
+
+
 
 model Component {
   id                Int        @id @default(autoincrement())
@@ -365,6 +410,7 @@ model Prompt {
   Art        Art[]
   Chats      ChatExchange[]
   Reactions  Reaction[]
+  Communications  Communication[]
   Bot        Bot?           @relation(fields: [botId], references: [id])
   Channel    Channel?       @relation(fields: [channelId], references: [id])
   Gallery    Gallery?       @relation(fields: [galleryId], references: [id])
@@ -412,6 +458,8 @@ model Reaction {
   reactionType     ReactionType
   reactionCategory ReactionCategory @default(ART)
   ArtImage         ArtImage?
+  communicationId  Int?
+  Communication    Communication?      @relation(fields: [communicationId], references: [id])
   Art              Art?             @relation(fields: [artId], references: [id])
   Channel          Channel?         @relation(fields: [channelId], references: [id])
   ChatExchange     ChatExchange?    @relation(fields: [chatExchangeId], references: [id])
@@ -542,6 +590,7 @@ model User {
   Bots           Bot[]
   Channels       Channel[]
   ChatExchanges  ChatExchange[]
+  Communications Communication[]
   Galleries      Gallery[]
   Logs           Log[]
   Messages       Message[]

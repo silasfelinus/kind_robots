@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
     const result = await addTag(tagData)
     return {
       success: true,
-      data: { tag: result.tag },
+      data: result.tag,
       message: 'Tag created successfully',
       statusCode: 201,
     }

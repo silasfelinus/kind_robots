@@ -1,27 +1,15 @@
 // /server/api/tags/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 import prisma from '../utils/prisma'
 import type { Prisma, Tag } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
+    // Use validateApiKey to authenticate
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -42,7 +30,7 @@ export default defineEventHandler(async (event) => {
 
     tagData.userId = authenticatedUserId
 
-    // Consolidate the tag creation here and set status code to 201
+    // Create the tag and ensure the response contains a 201 status
     const tag = await prisma.tag.create({
       data: tagData as Prisma.TagCreateInput,
     })

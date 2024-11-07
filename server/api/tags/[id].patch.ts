@@ -2,6 +2,7 @@
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 import type { Tag } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
@@ -17,22 +18,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Extract and Validate Authorization Token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-    if (!user) {
+    // Use validateApiKey to authenticate
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',

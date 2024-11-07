@@ -14,8 +14,7 @@ export default defineEventHandler(async () => {
     return {
       success: true,
       message: 'Usernames fetched successfully.',
-      data: usernames,
-      statusCode: 200,
+      data: usernames, // Returns usernames as an array
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
@@ -25,6 +24,7 @@ export default defineEventHandler(async () => {
       success: false,
       message: `Failed to fetch usernames. Reason: ${handledError.message}`,
       statusCode: handledError.statusCode || 500,
+      data: [], // Ensure data is always returned as an array, even on failure
     }
   }
 })

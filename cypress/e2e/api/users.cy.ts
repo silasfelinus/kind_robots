@@ -83,10 +83,8 @@ describe('User Management API Tests', () => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
         expect(response.body).to.have.property('message').that.is.a('string')
-        expect(response.body)
-          .to.have.property('data.usernames')
-          .that.is.an('array')
-        expect(response.body.data.usernames).to.include(uniqueUsername)
+        expect(response.body).to.have.property('data').that.is.an('array')
+        expect(response.body.data).to.include(uniqueUsername)
       })
     })
   })
@@ -107,7 +105,7 @@ describe('User Management API Tests', () => {
         expect(response.body).to.have.property('success', false)
         expect(response.body)
           .to.have.property('message')
-          .that.includes('Authorization header is missing')
+          .that.includes('Authorization token is required in the format')
       })
     })
 
@@ -118,7 +116,7 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${createdUserToken}`, // Use the correct token for created user
+          Authorization: `Bearer ${createdUserToken}`,
         },
         body: { username: newUsername },
       }).then((response) => {
@@ -127,9 +125,7 @@ describe('User Management API Tests', () => {
         expect(response.body)
           .to.have.property('message')
           .that.includes('User updated successfully')
-        expect(response.body.data.user.username).to.eq(newUsername)
-
-        // Update uniqueUsername to the new username to keep tests consistent
+        expect(response.body.data.username).to.eq(newUsername)
         uniqueUsername = newUsername
       })
     })
@@ -184,7 +180,7 @@ describe('User Management API Tests', () => {
         expect(response.body).to.have.property('success', false)
         expect(response.body)
           .to.have.property('message')
-          .that.includes('Authorization header is missing')
+          .that.includes('Authorization token is required in the format ')
       })
     })
 

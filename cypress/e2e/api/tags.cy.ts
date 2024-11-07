@@ -4,7 +4,7 @@ describe('Tag Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/tags'
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let tagId: number // Define tagId for further operations
+  let tagId: number // Capture tagId for further operations
 
   // Test to get all tags
   it('Get All Tags', () => {
@@ -17,14 +17,19 @@ describe('Tag Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.tags)
+      expect(response.body.data.tags) // Check data.tags array
         .to.be.an('array')
         .and.have.length.greaterThan(0)
+      response.body.data.tags.forEach((tag: Tag) => {
+        expect(tag).to.have.all.keys('id', 'createdAt', 'updatedAt', 'label')
+      })
     })
   })
 
   // Test to create a new tag with valid authentication
   it('Create New Tag with Authentication', () => {
+    const uniqueTitle = `Title-${Date.now()}` // Unique title for every test run
+
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -34,14 +39,23 @@ describe('Tag Management API Tests', () => {
       },
       body: {
         label: 'Tag',
-        title: 'Abstract Art',
+        title: uniqueTitle,
         userId: 9,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.tag).to.be.an('object')
-      tagId = response.body.tag.id // Capture created tag ID for future operations
+      expect(response.body.data).to.have.property('tag').that.is.an('object')
+      const createdTag = response.body.data.tag
+      expect(createdTag).to.have.all.keys(
+        'id',
+        'label',
+        'title',
+        'userId',
+        'createdAt',
+        'updatedAt',
+      )
+      tagId = createdTag.id // Capture created tag ID for further operations
     })
   })
 
@@ -102,7 +116,8 @@ describe('Tag Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      const updatedTag = response.body.tag
+      expect(response.body.data).to.have.property('tag').that.is.an('object')
+      const updatedTag = response.body.data.tag
       expect(updatedTag).to.have.property('id', tagId)
       expect(updatedTag).to.have.property('label', 'art')
       expect(updatedTag).to.have.property('title', 'Modern Art')

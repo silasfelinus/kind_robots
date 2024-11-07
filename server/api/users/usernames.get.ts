@@ -14,7 +14,7 @@ export default defineEventHandler(async () => {
     return {
       success: true,
       message: 'Usernames fetched successfully.',
-      data: { usernames }, // Ensure `data.usernames` structure
+      data: usernames,
       statusCode: 200,
     }
   } catch (error: unknown) {

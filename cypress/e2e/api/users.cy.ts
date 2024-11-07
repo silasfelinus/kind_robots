@@ -31,8 +31,8 @@ describe('User Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body).to.have.property('message').that.is.a('string')
-      createdUserId = response.body.data.id
-      createdUserToken = response.body.data.apiKey // Store the user-specific token
+      createdUserId = response.body.data.user.id
+      createdUserToken = response.body.data.user.apiKey // Store the user-specific token
     })
   })
 
@@ -61,7 +61,7 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
-          'x-api-key': apiKey,
+          Authorization: `Bearer ${createdUserToken}`,
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
@@ -77,6 +77,7 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/usernames`,
         headers: {
           Accept: 'application/json',
+          'x-api-key': apiKey,
         },
       }).then((response) => {
         expect(response.status).to.eq(200)

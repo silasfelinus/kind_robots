@@ -1,4 +1,4 @@
-// /server/api/communications/index.post.ts
+// /server/api/chats/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'

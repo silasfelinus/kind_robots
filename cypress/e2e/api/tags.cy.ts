@@ -167,7 +167,9 @@ describe('Tag Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized with invalid token
-      expect(response.body.message).to.include('Invalid or expired token')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 
@@ -184,7 +186,7 @@ describe('Tag Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body.message).to.include(
-        `Tag with ID ${tagId} deleted successfully`,
+        `Tag with ID ${tagId} successfully deleted`,
       )
     })
   })

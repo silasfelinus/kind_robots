@@ -139,7 +139,7 @@ Product: [id, createdAt, updatedAt, title, category, flavorText, description, co
 Resource: [id, createdAt, updatedAt, userId, name, customLabel, MediaPath, customUrl, civitaiUrl, huggingUrl, localPath, description, resourceType, isMature, galleryCount]
 Reward: [id, createdAt, updatedAt, icon, text, power, collection, rarity, label, Todo]
 Slogan: [id, contentType, purpose, url, characterLimit, content, likes, dislikes, hates, loves, isLiked, isLoved, wasKept, wasDiscarded, username, userId, model, kindRobot, botId, createdAt, updatedAt, Bot, User]
-Tag: [id, createdAt, updatedAt, label, title, userId, isPublic, channelId, flavorText, pitch, isMature, sloganId, postId]
+Tag: [id, createdAt, updatedAt, label, title, userId, isPublic, channelId, flavorText, pitch, isMature, sloganId]
 Todo: [id, task, category, completed, createdAt, userId, rewardId, updatedAt, Reward, User]
 User: [id, createdAt, updatedAt, Role, username, email, questPoints, emailVerified, name, address1, address2, avatarImage, bio, birthday, city, country, discordUrl, facebookUrl, instagramUrl, kindrobotsUrl, languages, phone, state, timezone, twitterUrl, apiKey, password, spotifyAccessToken, spotifyID, spotifyRefreshToken, karma, mana, clickRecord, matchRecord, Reaction, Customer, Game, Slogan, Todo]
 

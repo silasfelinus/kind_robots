@@ -68,7 +68,7 @@
         >
         <input
           id="customPrompt"
-          v-model="chatStore.currentPrompt"
+          v-model="promptStore.currentPrompt"
           type="text"
           class="w-full p-3 rounded-lg border"
           placeholder="Enter your custom prompt here"
@@ -79,7 +79,7 @@
     <!-- Submit Button -->
     <div class="w-full flex justify-center mt-6">
       <button
-        :disabled="loading || !chatStore.currentPrompt.trim()"
+        :disabled="loading || !promptStore.currentPrompt.trim()"
         class="btn btn-primary w-full sm:w-auto transition duration-300 ease-in-out"
         @click="submitCustomPrompt"
       >
@@ -136,7 +136,7 @@ function updateParsedUserPrompts() {
 async function sendPrompt(prompt: string) {
   if (!prompt) return console.warn('Prompt is empty, cannot send.')
 
-  chatStore.currentPrompt = prompt
+  promptStore.currentPrompt = prompt
   loading.value = true
 
   try {
@@ -150,14 +150,8 @@ async function sendPrompt(prompt: string) {
         throw new Error('Failed to generate a prompt ID.')
       }
 
-      await chatStore.addExchange(
-        prompt,
-        userId,
-        botId,
-        undefined,
-        newPrompt.id,
-      )
-      chatStore.currentPrompt = ''
+      await chatStore.addChat(prompt, userId, botId, undefined, newPrompt.id)
+      promptStore.currentPrompt = ''
     } else {
       console.warn('Missing user or bot ID, cannot proceed.')
     }
@@ -171,7 +165,7 @@ async function sendPrompt(prompt: string) {
 
 // Function to handle submitting a custom prompt
 async function submitCustomPrompt() {
-  const trimmedPrompt = chatStore.currentPrompt.trim()
+  const trimmedPrompt = promptStore.currentPrompt.trim()
   if (!trimmedPrompt) {
     errorMessage.value = 'Custom prompt is empty. Please enter text.'
     return
@@ -183,8 +177,8 @@ async function submitCustomPrompt() {
     const { id: botId } = botStore.currentBot || {}
 
     if (userId && botId) {
-      await chatStore.addExchange(trimmedPrompt, userId, botId)
-      chatStore.currentPrompt = ''
+      await chatStore.addChat(trimmedPrompt, userId, botId)
+      promptStore.currentPrompt = ''
     } else {
       errorMessage.value = 'Please select a bot and ensure you are logged in.'
     }

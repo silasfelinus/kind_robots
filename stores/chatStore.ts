@@ -95,23 +95,45 @@ export const useChatStore = defineStore({
         throw error
       }
     },
-
-    async fetchChatsByUserId(userId: number) {
+    async deleteChat(chatId: number): Promise<boolean> {
+      const userStore = useUserStore()
+      const currentUserId = userStore.user?.id
+    
+      if (!currentUserId) {
+        handleError(ErrorType.AUTH_ERROR, 'User not authenticated.')
+        return false
+      }
+    
+      const chat = this.chats.find((chat) => chat.id === chatId)
+      if (!chat) {
+        handleError(ErrorType.UNKNOWN_ERROR, 'Chat not found.')
+        return false
+      }
+    
+      if (chat.userId !== currentUserId) {
+        handleError(ErrorType.AUTH_ERROR, 'Unauthorized delete attempt.')
+        return false
+      }
+    
       try {
-        const response = await performFetch<{ userChats: Chat[] }>(
-          `/api/chats/user/${userId}`,
-        )
+        const response = await performFetch(`/api/chats/${chatId}`, {
+          method: 'DELETE',
+        })
+    
         if (response.success) {
-          this.chats = response.data?.userChats || []
+          // Remove from local state and update localStorage
+          this.chats = this.chats.filter((chat) => chat.id !== chatId)
           this.saveToLocalStorage()
+          return true
         } else {
-          handleError(ErrorType.NETWORK_ERROR, response.message)
+          throw new Error(response.message || 'Unknown error from API')
         }
       } catch (error) {
-        handleError(ErrorType.NETWORK_ERROR, `Failed to fetch chats: ${error}`)
+        handleError(ErrorType.NETWORK_ERROR, `Error deleting chat: ${error}`)
+        return false
       }
     },
-
+    
     async editChat(chatId: number, updatedData: Partial<Chat>) {
       try {
         const response = await performFetch<{ chat: Chat }>(
@@ -139,41 +161,19 @@ export const useChatStore = defineStore({
       }
     },
 
-    async deleteChat(chatId: number): Promise<boolean> {
-      const userStore = useUserStore()
-      const currentUserId = userStore.user?.id
-
-      if (!currentUserId) {
-        handleError(ErrorType.AUTH_ERROR, 'User not authenticated.')
-        return false
-      }
-
-      const chat = this.chats.find((chat) => chat.id === chatId)
-      if (!chat) {
-        handleError(ErrorType.UNKNOWN_ERROR, 'Chat not found.')
-        return false
-      }
-
-      if (chat.userId !== currentUserId) {
-        handleError(ErrorType.AUTH_ERROR, 'Unauthorized delete attempt.')
-        return false
-      }
-
+    async fetchChatsByUserId(userId: number) {
       try {
-        const response = await performFetch(`/api/chats/${chatId}`, {
-          method: 'DELETE',
-        })
-
+        const response = await performFetch<{ userChats: Chat[] }>(
+          `/api/chats/user/${userId}`,
+        )
         if (response.success) {
-          this.chats = this.chats.filter((chat) => chat.id !== chatId)
+          this.chats = response.data?.userChats || []
           this.saveToLocalStorage()
-          return true
         } else {
-          throw new Error(response.message || 'Unknown error from API')
+          handleError(ErrorType.NETWORK_ERROR, response.message)
         }
       } catch (error) {
-        handleError(ErrorType.NETWORK_ERROR, `Error deleting chat: ${error}`)
-        return false
+        handleError(ErrorType.NETWORK_ERROR, `Failed to fetch chats: ${error}`)
       }
     },
 

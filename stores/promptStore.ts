@@ -11,6 +11,7 @@ interface State {
   promptField: string
   isInitialized: boolean
   promptArray: string[]
+  currentPrompt: string
 }
 
 export const usePromptStore = defineStore('promptStore', {
@@ -22,6 +23,7 @@ export const usePromptStore = defineStore('promptStore', {
     promptField: 'kind robots',
     isInitialized: false,
     promptArray: [],
+    currentPrompt: ' ',
   }),
 
   getters: {

@@ -86,8 +86,8 @@ describe('Post Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
-      expect(response.body.data.post).to.be.an('object').that.is.not.empty
-      postId = response.body.data.post.id
+      expect(response.body.data).to.be.an('object').that.is.not.empty
+      postId = response.body.data.id
     })
   })
 

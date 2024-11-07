@@ -1,4 +1,4 @@
-// cypress/e2e/tags.cy.js
+// cypress/e2e/tags.cy.ts
 
 describe('Tag Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/tags'
@@ -17,11 +17,23 @@ describe('Tag Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.tags) // Check data.tags array
+      expect(response.body.data) // Check data array directly, if it's structured like this
         .to.be.an('array')
         .and.have.length.greaterThan(0)
-      response.body.data.tags.forEach((tag: Tag) => {
-        expect(tag).to.have.all.keys('id', 'createdAt', 'updatedAt', 'label')
+      response.body.data.forEach((tag: Tag) => {
+        expect(tag).to.have.all.keys(
+          'artImageId',
+          'createdAt',
+          'flavorText',
+          'id',
+          'isMature',
+          'isPublic',
+          'label',
+          'pitch',
+          'title',
+          'updatedAt',
+          'userId',
+        )
       })
     })
   })

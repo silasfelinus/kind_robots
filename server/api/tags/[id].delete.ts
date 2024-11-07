@@ -1,6 +1,7 @@
 // /server/api/tags/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
@@ -16,29 +17,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Validate Authorization Token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
+    // Use validateApiKey to authenticate
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
-    const userId = user.id
 
     // Validate Tag Existence and Ownership
     const tag = await prisma.tag.findUnique({
@@ -53,7 +39,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (tag.userId !== userId) {
+    if (tag.userId !== user.id) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to delete this tag.',

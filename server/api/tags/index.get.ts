@@ -5,10 +5,10 @@ import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async () => {
   try {
-    const tags = await prisma.tag.findMany()
+    const data = await prisma.tag.findMany()
     return {
       success: true,
-      data: tags,
+      data,
       statusCode: 200,
     }
   } catch (error: unknown) {

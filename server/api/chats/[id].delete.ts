@@ -55,6 +55,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: `Chat exchange with ID ${id} successfully deleted.`,
       data: {},
+      statusCode: 200, // Explicitly include statusCode
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {

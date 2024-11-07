@@ -5,16 +5,16 @@ import { errorHandler } from '../../utils/error'
 import type { Reaction } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
-  let chatExchangeId: number | null = null
+  let chatId: number | null = null
 
   try {
-    // Parse and validate the chatExchangeId from the URL params
-    chatExchangeId = Number(event.context.params?.id)
-    if (isNaN(chatExchangeId) || chatExchangeId <= 0) {
+    // Parse and validate the chatId from the URL params
+    chatId = Number(event.context.params?.id)
+    if (isNaN(chatId) || chatId <= 0) {
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
-        message: 'ChatExchange ID is required and must be a valid number.',
+        message: 'chat ID is required and must be a valid number.',
       })
     }
 
@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
     // Check if the reaction already exists for this user and chat exchange
     const existingReaction = await prisma.reaction.findFirst({
       where: {
-        chatExchangeId,
+        chatId,
         userId,
       },
     })
@@ -76,7 +76,7 @@ export default defineEventHandler(async (event) => {
       // Create a new reaction
       reaction = await prisma.reaction.create({
         data: {
-          chatExchangeId,
+          chatId,
           userId,
           reactionType: reactionData.reactionType,
           ...reactionData,
@@ -94,7 +94,7 @@ export default defineEventHandler(async (event) => {
       data: {
         message:
           handledError.message ||
-          `Failed to update/create reaction for chat exchange with ID ${chatExchangeId}.`,
+          `Failed to update/create reaction for chat exchange with ID ${chatId}.`,
       },
     }
   }

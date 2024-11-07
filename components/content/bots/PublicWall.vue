@@ -14,7 +14,6 @@
           <h3 class="text-lg font-semibold">
             {{ message.username }} (Bot: {{ message.botName }})
           </h3>
-
         </div>
         <p class="user-prompt mb-1 text-gray-600">{{ message.userPrompt }}</p>
         <p class="bot-response font-medium">{{ message.botResponse }}</p>
@@ -51,19 +50,18 @@ const userStore = useUserStore()
 
 // Computed property to get the user's own chat exchanges
 const userMessages = computed(() => {
-  return chatStore.chatExchanges.filter(
-    (exchange: ChatExchange) => exchange.userId === userStore.user?.id,
+  return chatStore.chats.filter(
+    (exchange: chat) => exchange.userId === userStore.user?.id,
   )
 })
 
 // Computed property to get other users' public chat exchanges
 const otherPublicMessages = computed(() => {
-  return chatStore.chatExchanges.filter(
-    (exchange: ChatExchange) =>
+  return chatStore.chats.filter(
+    (exchange: chat) =>
       exchange.isPublic && exchange.userId !== userStore.user?.id,
   )
 })
-
 </script>
 
 <style scoped>

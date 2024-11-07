@@ -6,7 +6,7 @@
     <p v-if="feedbackMessage" :class="feedbackClass" class="text-center mb-4">
       {{ feedbackMessage }}
     </p>
-    
+
     <!-- Add a new exchange -->
     <div class="mb-6">
       <label class="block mb-1 text-lg">New Exchange Prompt</label>
@@ -24,18 +24,17 @@
     <!-- Display existing exchanges or placeholder if none -->
     <div class="border-t pt-4">
       <h3 class="text-lg mb-2">Chat Exchanges</h3>
-      <ul v-if="Array.isArray(chatExchanges) && chatExchanges.length">
-        <li
-          v-for="exchange in chatExchanges"
-          :key="exchange.id"
-          class="p-3 border-b"
-        >
+      <ul v-if="Array.isArray(chats) && chats.length">
+        <li v-for="exchange in chats" :key="exchange.id" class="p-3 border-b">
           <div class="flex justify-between items-center">
             <div>
               <p><strong>User Prompt:</strong> {{ exchange.userPrompt }}</p>
               <p><strong>Bot Response:</strong> {{ exchange.botResponse }}</p>
               <p><strong>Exchange ID:</strong> {{ exchange.id }}</p>
-              <p><strong>Previous Entry ID:</strong> {{ exchange.previousEntryId || 'None' }}</p>
+              <p>
+                <strong>Previous Entry ID:</strong>
+                {{ exchange.previousEntryId || 'None' }}
+              </p>
             </div>
             <div class="space-x-2">
               <button
@@ -60,7 +59,9 @@
           </div>
         </li>
       </ul>
-      <p v-else class="text-center text-gray-500">No exchanges yet. Add one above to get started!</p>
+      <p v-else class="text-center text-gray-500">
+        No exchanges yet. Add one above to get started!
+      </p>
     </div>
   </div>
 </template>
@@ -85,19 +86,19 @@ const feedbackClass = ref('text-green-500')
 onMounted(async () => {
   try {
     await chatStore.initialize()
-    console.log("All stores initialized successfully.")
+    console.log('All stores initialized successfully.')
   } catch (error) {
-    showFeedback("Failed to initialize chat store.", true)
+    showFeedback('Failed to initialize chat store.', true)
     console.error(error)
   }
 })
 
 // Computed properties for chat exchanges with fallback to an empty array
-const chatExchanges = computed(() => {
+const chats = computed(() => {
   try {
-    return chatStore.chatExchanges || []
+    return chatStore.chats || []
   } catch (error) {
-    console.error("Error retrieving chat exchanges:", error)
+    console.error('Error retrieving chat exchanges:', error)
     return [] // Fallback to an empty array
   }
 })
@@ -111,7 +112,8 @@ function showFeedback(message: string, isError: boolean = false) {
 
 // Add a new exchange
 async function addNewExchange() {
-  if (!newPrompt.value.trim()) return showFeedback('Prompt cannot be empty.', true)
+  if (!newPrompt.value.trim())
+    return showFeedback('Prompt cannot be empty.', true)
 
   const userId = userStore.user?.id || 1 // Default user ID
   const botId = botStore.currentBot?.id || 1 // Default bot ID
@@ -148,19 +150,20 @@ async function editExchange(exchangeId: number, updatedPrompt: string) {
   }
 }
 
-
 async function deleteExchange(exchangeId: number) {
   try {
     const wasDeleted = await chatStore.deleteExchange(exchangeId)
     if (wasDeleted) {
       showFeedback('Exchange deleted successfully!')
     } else {
-      showFeedback('Failed to delete exchange due to authorization or other error.', true)
+      showFeedback(
+        'Failed to delete exchange due to authorization or other error.',
+        true,
+      )
     }
   } catch (error) {
     showFeedback('Failed to delete exchange.', true)
     console.error(error)
   }
 }
-
 </script>

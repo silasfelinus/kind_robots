@@ -12,7 +12,7 @@
       />
       <div>
         <p class="text-lg font-semibold">
-          {{ username }}
+          {{ senderName }}
           <span class="text-sm text-gray-500">to</span>
           {{ botName }}
         </p>
@@ -23,9 +23,9 @@
     <div class="message-thread mb-4">
       <div class="message p-2 mb-2 rounded-md bg-gray-100">
         <p class="text-sm text-gray-700"><strong>User:</strong></p>
-        <p class="text-base">{{ userPrompt }}</p>
+        <p class="text-base">{{ userMessage }}</p>
       </div>
-      <div class="message p-2 mb-2 rounded-md bg-gray-100">
+      <div v-if="botResponse" class="message p-2 mb-2 rounded-md bg-gray-100">
         <p class="text-sm text-gray-700"><strong>Bot:</strong></p>
         <p class="text-base">{{ botResponse }}</p>
       </div>
@@ -34,11 +34,11 @@
     <!-- Debug JSON Display (for development purposes) -->
     <pre class="bg-gray-100 p-3 rounded-md mt-4 text-xs overflow-auto">
 exchange:
-      {{ fullChatExchange }}
+      {{ fullChat }}
     </pre>
 
     <!-- Reactions and Sharing with ReactionCard component -->
-    <ReactionCard :chat-exchange-id="props.chatExchangeId" />
+    <ReactionCard :chat-exchange-id="props.chatId" />
 
     <!-- Reply Section -->
     <div v-if="showReply" class="reply-container mt-4">
@@ -60,7 +60,7 @@ import { useChatStore } from '@/stores/chatStore'
 import { useBotStore } from '@/stores/botStore'
 
 const props = defineProps({
-  chatExchangeId: {
+  chatId: {
     type: Number,
     required: true,
   },
@@ -75,28 +75,35 @@ const showReply = ref(false)
 const replyMessage = ref('')
 
 // Computed properties for chat exchange and messages
-const chatExchange = computed(() =>
-  chatStore.chatExchanges.find(
-    (exchange) => exchange.id === props.chatExchangeId,
-  ),
+const chat = computed(() =>
+  chatStore.chats.find((exchange) => exchange.id === props.chatId),
 )
 
-const fullChatExchange = computed(() =>
-  JSON.stringify(chatExchange.value, null, 2),
+const fullChat = computed(() => JSON.stringify(chat.value, null, 2))
+const userMessage = computed(
+  () => chat.value?.content || 'No message available',
 )
-const userPrompt = computed(
-  () => chatExchange.value?.userPrompt || 'No prompt available',
-)
-const botResponse = computed(() => chatExchange.value?.botResponse || '')
-const username = computed(() => chatExchange.value?.username || 'User')
-const botName = computed(() => chatExchange.value?.botName || 'Bot')
+const botResponse = computed(() => chat.value?.response || '') // Direct bot response field
+const senderName = computed(() => chat.value?.sender || 'User')
+const botName = computed(() => chat.value?.botName || 'Bot')
 const botAvatar = computed(() => botStore.currentBot?.avatarImage || '')
 
-// Send a reply
 const sendReply = async () => {
   if (replyMessage.value.trim()) {
     try {
-      await chatStore.continueExchange(props.chatExchangeId, replyMessage.value)
+      const originId = chat.value?.originId || chat.value?.id
+      const previousEntryId =
+        chatStore.chats.filter((c) => c.originId === originId).slice(-1)[0]
+          ?.id || chat.value?.id
+
+      await chatStore.addChat(
+        replyMessage.value,
+        chat.value?.userId || 0, // Provide a valid userId or handle this with a fallback
+        true, // isPublic set to true; adjust if needed
+        originId,
+        previousEntryId,
+      )
+
       replyMessage.value = ''
       showReply.value = false
     } catch (error) {

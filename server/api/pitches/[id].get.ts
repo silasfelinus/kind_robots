@@ -1,5 +1,5 @@
 import { defineEventHandler } from 'h3'
-import type { Pitch, Art, Channel } from '@prisma/client'
+import type { Pitch, Art } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
@@ -52,15 +52,9 @@ export async function fetchPitchById(id: number): Promise<PitchDetails | null> {
       return null
     }
 
-    // Fetch related data if pitch.channelId is present
-    const [art, channel] = await Promise.all([
-      fetchArtByPitchId(id),
-      pitch.channelId
-        ? fetchChannelByPitchId(pitch.channelId)
-        : Promise.resolve(null),
-    ])
+    const [art] = await Promise.all([fetchArtByPitchId(id)])
 
-    return { pitch, art, channel }
+    return { pitch, art }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     throw new Error(handledError.message)
@@ -79,23 +73,8 @@ async function fetchArtByPitchId(pitchId: number): Promise<Art[]> {
   }
 }
 
-// Fetch Channel related to the Pitch
-async function fetchChannelByPitchId(
-  channelId: number,
-): Promise<Channel | null> {
-  try {
-    return await prisma.channel.findUnique({
-      where: { id: channelId },
-    })
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    throw new Error(handledError.message)
-  }
-}
-
 // Define the PitchDetails type
 type PitchDetails = {
   pitch: Pitch
   art: Art[]
-  channel: Channel | null
 }

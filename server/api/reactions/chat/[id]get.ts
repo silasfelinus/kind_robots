@@ -4,20 +4,20 @@ import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
-  let chatExchangeId
+  let chatId
   try {
-    // Extract chatExchangeId from the route parameters
-    chatExchangeId = Number(event.context.params?.id)
+    // Extract chatId from the route parameters
+    chatId = Number(event.context.params?.id)
 
-    // Validate chatExchangeId
-    if (isNaN(chatExchangeId) || chatExchangeId <= 0) {
+    // Validate chatId
+    if (isNaN(chatId) || chatId <= 0) {
       event.node.res.statusCode = 400
-      throw new Error('A valid ChatExchange ID is required.')
+      throw new Error('A valid chat ID is required.')
     }
 
-    // Fetch reactions associated with the given chatExchangeId
+    // Fetch reactions associated with the given chatId
     const reactions = await prisma.reaction.findMany({
-      where: { chatExchangeId },
+      where: { chatId },
       include: {
         User: true, // Include the user who reacted
       },
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
       return {
         success: false,
         data: {
-          message: `No reactions found for chat exchange with ID ${chatExchangeId}.`,
+          message: `No reactions found for chat exchange with ID ${chatId}.`,
         },
       }
     }
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
       data: {
         message:
           handledError.message ||
-          `Failed to retrieve reactions for chat exchange with ID ${chatExchangeId}.`,
+          `Failed to retrieve reactions for chat exchange with ID ${chatId}.`,
       },
     }
   }

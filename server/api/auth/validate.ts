@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
           return {
             success: true,
             message: 'Token is valid.',
-            user: userData, // No Channels or Players here
+            user: userData,
           }
         }
         console.log('validate failed')

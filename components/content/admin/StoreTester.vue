@@ -9,7 +9,6 @@
     <StoreTest label="gallery-store" :load-store="loadGalleryStore" />
     <StoreTest label="component-store" :load-store="loadComponentStore" />
     <StoreTest label="tag-store" :load-store="loadTagStore" />
-    <StoreTest label="channel-store" :load-store="loadChannelStore" />
     <StoreTest label="chat-store" :load-store="loadChatStore" />
     <StoreTest label="dream-store" :load-store="loadDreamStore" />
     <StoreTest label="error-store" :load-store="loadErrorStore" />
@@ -32,7 +31,6 @@ import {
   loadGalleryStore,
   loadComponentStore,
   loadTagStore,
-  loadChannelStore,
   loadChatStore,
   loadDreamStore,
   loadErrorStore,

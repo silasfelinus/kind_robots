@@ -4,8 +4,6 @@ import prisma from './prisma'
 
 export async function backupDatabase() {
   try {
-    const channels = await prisma.channel.findMany()
-    const messages = await prisma.message.findMany()
     const tags = await prisma.tag.findMany()
     const art = await prisma.art.findMany()
     const Reactions = await prisma.reaction.findMany()
@@ -19,9 +17,7 @@ export async function backupDatabase() {
       Reactions,
       prompts,
       bots,
-      channels,
       galleries,
-      messages,
       tags,
       users,
     }

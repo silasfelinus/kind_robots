@@ -1,97 +1,86 @@
-// server/api/chats/[id].patch.ts
-import { defineEventHandler, createError, readBody } from 'h3'
+// /server/api/chats/[id].patch.ts
+import { defineEventHandler, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   let response
-  let chatId: number | null = null
+  const id = Number(event.context.params?.id)
+
+  if (isNaN(id) || id <= 0) {
+    return errorHandler({
+      error: new Error('Invalid Chat ID. It must be a positive integer.'),
+      context: 'Update Chat',
+      statusCode: 400,
+    })
+  }
 
   try {
-    // Parse and validate the Chat ID from the URL params
-    chatId = Number(event.context.params?.id)
-    if (isNaN(chatId) || chatId <= 0) {
-      throw createError({
-        statusCode: 400,
-        message: 'Invalid chat ID.',
-      })
-    }
-
-    // Extract and verify the authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      throw createError({
+    // Use the utility function to validate the API key
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
+      return errorHandler({
+        error: new Error('Invalid or expired token.'),
+        context: 'Update Chat',
         statusCode: 401,
-        message: 'Authorization token is required in the format "Bearer <token>".',
       })
     }
 
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
+    const userId = user.id
 
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
-    const userIdFromToken = user.id
-
-    // Fetch the chat entry to ensure it exists and verify ownership
-    const chat = await prisma.chatExchange.findUnique({
-      where: { id: chatId },
-    })
-
+    // Fetch the chat to verify ownership
+    const chat = await prisma.chat.findUnique({ where: { id } })
     if (!chat) {
-      throw createError({
+      return errorHandler({
+        error: new Error(`Chat with ID ${id} not found.`),
+        context: 'Update Chat',
         statusCode: 404,
-        message: `Chat with ID ${chatId} not found.`,
       })
     }
 
-    if (chat.userId !== userIdFromToken) {
-      throw createError({
+    if (chat.userId !== userId) {
+      return errorHandler({
+        error: new Error('You do not have permission to update this chat.'),
+        context: 'Update Chat',
         statusCode: 403,
-        message: 'You do not have permission to update this chat.',
       })
     }
 
-    // Parse and validate the update data
+    // Parse and validate the request body
     const updatedChatData = await readBody(event)
     if (!updatedChatData || Object.keys(updatedChatData).length === 0) {
-      throw createError({
+      return errorHandler({
+        error: new Error('No data provided for update.'),
+        context: 'Update Chat',
         statusCode: 400,
-        message: 'No data provided for update.',
       })
     }
 
-    // Update the chat entry with validated data
-    const updatedChat = await prisma.chatExchange.update({
-      where: { id: chatId },
+    // Update the chat
+    const updatedChat = await prisma.chat.update({
+      where: { id },
       data: updatedChatData,
     })
 
-    // Successful update response
     response = {
       success: true,
-      data: {
-        updatedChat,
-      },
-      message: `Chat with ID ${chatId} updated successfully.`,
+      message: `Chat with ID ${id} updated successfully.`,
+      data: { chat: updatedChat },
       statusCode: 200,
     }
     event.node.res.statusCode = 200
-  } catch (error) {
-    const handledError = errorHandler(error)
+  } catch (error: unknown) {
+    const handledError = errorHandler({
+      error,
+      context: 'Update Chat',
+    })
+
+    // Explicitly set the status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message:
-        handledError.message || `Failed to update chat with ID ${chatId}.`,
+      message: handledError.message || `Failed to update chat with ID ${id}.`,
       statusCode: event.node.res.statusCode,
     }
   }

@@ -53,16 +53,18 @@ export default defineEventHandler(async (event) => {
     await prisma.tag.delete({ where: { id: tagId } })
 
     // Successful deletion response
+    event.node.res.setHeader('Content-Type', 'application/json')
+    event.node.res.statusCode = 200
     response = {
       success: true,
       data: { message: `Tag with ID ${tagId} successfully deleted.` },
     }
-    event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.error('Error deleting tag:', handledError)
 
     // Set the response and status code based on the handled error
+    event.node.res.setHeader('Content-Type', 'application/json')
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

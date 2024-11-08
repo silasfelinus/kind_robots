@@ -65,12 +65,12 @@ export default defineEventHandler(async (event): Promise<ChatResponse> => {
     }
 
     // Create the chat entry
-    const newChat = await prisma.chat.create({ data: chatInput })
+    const data = await prisma.chat.create({ data: chatInput })
 
     // Successful creation response
     response = {
       success: true,
-      data: newChat,
+      data,
       message: 'chat created successfully.',
       statusCode: 201,
     }

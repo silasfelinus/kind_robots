@@ -1,28 +1,15 @@
 // /server/api/pitches/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import type { Pitch, Prisma } from '@prisma/client'
+import { validateApiKey } from '../utils/validateKey'
+import prisma from '../utils/prisma'
+import type { Prisma, Pitch } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Validate authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
+    // Use validateApiKey to authenticate
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -32,19 +19,21 @@ export default defineEventHandler(async (event) => {
     const authenticatedUserId = user.id
 
     // Read and validate pitch data from the request body
-    const pitchData = (await readBody(event)) as Partial<Pitch>
+    const pitchData = await readBody<Partial<Pitch>>(event)
 
     // Ensure required "pitch" field is provided and is a string
     if (!pitchData.pitch || typeof pitchData.pitch !== 'string') {
-      throw createError({
-        statusCode: 400,
+      event.node.res.statusCode = 400
+      return {
+        success: false,
+        data: null,
         message: 'The "pitch" field is required and must be a string.',
-      })
+      }
     }
 
-    // Optional fields are assigned only if they exist
+    // Prepare the pitch data
     const data: Prisma.PitchCreateInput = {
-      User: { connect: { id: authenticatedUserId } }, // Connect user relation
+      User: { connect: { id: authenticatedUserId } },
       pitch: pitchData.pitch,
       title: pitchData.title || null,
       designer: pitchData.designer || null,
@@ -59,25 +48,23 @@ export default defineEventHandler(async (event) => {
       artImageId: pitchData.artImageId || null,
     }
 
-    // Create the new pitch with the defined data
-    const createdPitch = await prisma.pitch.create({
-      data,
-    })
+    // Create the pitch and set status code to 201 for successful creation
+    const createdPitch = await prisma.pitch.create({ data })
+    event.node.res.statusCode = 201
 
-    // Return success response
     return {
       success: true,
       data: createdPitch,
       message: 'Pitch created successfully.',
-      statusCode: 201,
     }
   } catch (error: unknown) {
-    // Capture specific error message and status code from errorHandler
+    // Use errorHandler to standardize error response
     const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message,
-      statusCode,
+      data: null,
+      message: message || 'Failed to create pitch.',
     }
   }
 })

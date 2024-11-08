@@ -40,18 +40,18 @@ export default defineEventHandler(async (event) => {
 
     // Pass the validated userId to the botData
     botData.userId = user.id
-    const result = await addSingleBot(botData)
+    const data = await addSingleBot(botData)
 
-    if (result.error) {
+    if (data.error) {
       throw createError({
         statusCode: 500,
-        message: result.error,
+        message: data.error,
       })
     }
 
     // Successful bot creation
     event.node.res.statusCode = 201
-    return { success: true, data: { bot: result.bot } }
+    return { success: true, data }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500

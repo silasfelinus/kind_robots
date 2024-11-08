@@ -9,7 +9,7 @@ export default defineEventHandler(async () => {
     // Fetch all prompts and their related Art in a single consolidated function
     const prompts = await prisma.prompt.findMany()
 
-    const promptDetails = await Promise.all(
+    const data = await Promise.all(
       prompts.map(async (prompt) => {
         const art = await fetchArtByPromptId(prompt.id)
 
@@ -32,7 +32,7 @@ export default defineEventHandler(async () => {
     // Return success response with prompt details
     return {
       success: true,
-      data: { prompts: promptDetails },
+      data,
       message: 'Prompts fetched successfully.',
     }
   } catch (error: unknown) {

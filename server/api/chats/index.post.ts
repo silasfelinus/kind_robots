@@ -49,11 +49,17 @@ export default defineEventHandler(async (event): Promise<ChatResponse> => {
       recipient: chatData.recipient || null,
       content: chatData.content,
       title: chatData.title || null,
-      label: chatData.label || null,
-      isPublic: chatData.isPublic ?? false,
+      channel: chatData.channel || null,
+      isPublic: chatData.isPublic ?? true,
       isFavorite: chatData.isFavorite ?? false,
       previousEntryId: chatData.previousEntryId || null,
-      imagePath: chatData.imagePath || null,
+      originId: chatData.originId || null,
+      userId,
+      botId: chatData.botId || null,
+      recipientId: chatData.recipientId || null,
+      artImageId: chatData.artImageId || null,
+      promptId: chatData.promptId || null,
+      botName: chatData.botName || null,
       User: { connect: { id: userId } },
       ...(chatData.botId && { Bot: { connect: { id: chatData.botId } } }),
       ...(chatData.promptId && {
@@ -71,7 +77,7 @@ export default defineEventHandler(async (event): Promise<ChatResponse> => {
     response = {
       success: true,
       data,
-      message: 'chat created successfully.',
+      message: 'Chat created successfully.',
       statusCode: 201,
     }
   } catch (error) {

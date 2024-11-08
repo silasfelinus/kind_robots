@@ -1,15 +1,15 @@
 // /server/api/rewards/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import type { Reward } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
+import type { Reward } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
-  let response
   const rewardId = Number(event.context.params?.id)
 
   try {
-    // Validate the Reward ID
+    // Validate Reward ID
     if (isNaN(rewardId) || rewardId <= 0) {
       throw createError({
         statusCode: 400,
@@ -17,85 +17,65 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Extract and verify the authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
+    // Use validateApiKey to authenticate
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
+      event.node.res.statusCode = 401 // Set HTTP status code to 401 Unauthorized
+      return {
+        success: false,
         message: 'Invalid or expired token.',
-      })
+      }
     }
 
-    const userId = user.id
-
-    // Fetch the existing reward and verify ownership
+    // Verify Reward Ownership
     const existingReward = await prisma.reward.findUnique({
       where: { id: rewardId },
       select: { userId: true },
     })
-
     if (!existingReward) {
-      throw createError({
-        statusCode: 404,
+      event.node.res.statusCode = 404 // Set HTTP status code to 404 Not Found
+      return {
+        success: false,
         message: `Reward with ID ${rewardId} does not exist.`,
-      })
+      }
+    }
+    if (existingReward.userId !== user.id) {
+      event.node.res.statusCode = 403 // Set HTTP status code to 403 Forbidden
+      return {
+        success: false,
+        message: 'You do not have permission to update this reward.',
+      }
     }
 
-    if (existingReward.userId !== userId) {
-      throw createError({
-        statusCode: 403,
-        message: 'User is not authorized to update this reward.',
-      })
-    }
-
-    // Parse and validate the update data
-    const updatedRewardData: Partial<Reward> = await readBody(event)
-    if (!updatedRewardData || Object.keys(updatedRewardData).length === 0) {
-      throw createError({
-        statusCode: 400,
+    // Read and Validate Update Data
+    const rewardData: Partial<Reward> = await readBody(event)
+    if (!rewardData || Object.keys(rewardData).length === 0) {
+      event.node.res.statusCode = 400 // Set HTTP status code to 400 Bad Request
+      return {
+        success: false,
         message: 'No data provided for update.',
-      })
+      }
     }
 
-    // Update the reward in the database
-    const data = await prisma.reward.update({
+    // Perform Update
+    const updatedReward = await prisma.reward.update({
       where: { id: rewardId },
-      data: updatedRewardData,
+      data: rewardData,
     })
 
-    // Successful update response
-    response = {
-      success: true,
-      data,
-      statusCode: 200,
-    }
+    // Set Success Response Status Code to 200
     event.node.res.statusCode = 200
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    console.error(`Error updating reward with ID ${rewardId}:`, handledError)
-
-    response = {
-      success: false,
-      message:
-        handledError.message || `Failed to update reward with ID ${rewardId}.`,
-      statusCode: handledError.statusCode || 500,
+    return {
+      success: true,
+      data: updatedReward,
     }
-    event.node.res.statusCode = response.statusCode
+  } catch (error: unknown) {
+    // Process Error with Error Handler
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500 // Set appropriate error status code
+    return {
+      success: false,
+      message: message || `Failed to update reward with ID ${rewardId}.`,
+    }
   }
-
-  return response
 })

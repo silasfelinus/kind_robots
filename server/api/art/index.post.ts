@@ -21,10 +21,10 @@ export default defineEventHandler(async (event) => {
 
     // Validate required "promptString" field
     if (!artData.promptString) {
+      event.node.res.statusCode = 400
       return {
         success: false,
         message: '"promptString" is a required field.',
-        statusCode: 400, // Bad Request
       }
     }
 
@@ -37,7 +37,8 @@ export default defineEventHandler(async (event) => {
     // Attempt to create the art entry in the database
     const createdArt = await prisma.art.create({ data })
 
-    // Return success response
+    // Set status code to 201 for successful creation
+    event.node.res.statusCode = 201
     return {
       success: true,
       art: createdArt,
@@ -46,12 +47,12 @@ export default defineEventHandler(async (event) => {
     // Use the error handler to process the error
     const { message, statusCode } = errorHandler(error)
 
-    // Return the error response with the processed message and status code
+    // Set status code for error responses
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
       message: 'Failed to create a new art object',
       error: message || 'An unknown error occurred',
-      statusCode: statusCode || 500, // Default to 500 if no status code is provided
     }
   }
 })

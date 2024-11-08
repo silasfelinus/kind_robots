@@ -65,9 +65,9 @@ describe('Milestone Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data).to.have.property('milestone')
-      expect(response.body.data.milestone.label).to.eq('Artist!')
-      expect(response.body.data.milestone).to.have.property('isActive')
+      expect(response.body.data).to.have.property('id')
+      expect(response.body.data.label).to.eq('Artist!')
+      expect(response.body.data).to.have.property('isActive')
     })
   })
 
@@ -98,11 +98,9 @@ describe('Milestone Management API Tests', () => {
       }).then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body.success).to.be.true
-        expect(response.body.data.milestone.label).to.eq('Master Artist!')
-        expect(response.body.data.milestone.message).to.eq(
-          'You created a masterpiece!',
-        )
-        expect(response.body.data.milestone.karma).to.eq(20)
+        expect(response.body.data.label).to.eq('Master Artist!')
+        expect(response.body.data.message).to.eq('You created a masterpiece!')
+        expect(response.body.data.karma).to.eq(20)
       })
     })
   })

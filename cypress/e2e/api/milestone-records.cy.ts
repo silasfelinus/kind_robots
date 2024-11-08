@@ -145,8 +145,8 @@ describe('Milestone Record Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.message).to.include(
-        `Milestone record with ID ${milestoneRecordId} successfully deleted`,
+      expect(response.body.message).to.include(
+        `Milestone Record with ID ${milestoneRecordId} successfully deleted`,
       )
       cy.log('Deleted Milestone Record ID:', milestoneRecordId)
     })

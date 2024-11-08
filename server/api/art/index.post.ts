@@ -20,59 +20,38 @@ export default defineEventHandler(async (event) => {
     const artData = await readBody<Partial<Art>>(event)
 
     // Validate required "promptString" field
-    if (!artData.promptString || typeof artData.promptString !== 'string') {
-      event.node.res.statusCode = 400 // Bad Request
+    if (!artData.promptString) {
       return {
         success: false,
-        message: '"promptString" is a required field and must be a string.',
+        message: '"promptString" is a required field.',
+        statusCode: 400, // Bad Request
       }
     }
 
-    // Build the data object for Prisma with conditional inclusion of fields
+    // Add the authenticated user's ID to the data object
     const data: Prisma.ArtCreateInput = {
-      promptString: artData.promptString,
-      User: { connect: { id: authenticatedUserId } },
-      path: artData.path || 'UNDEFINED',
-      createdAt: artData.createdAt || new Date(),
-      updatedAt: artData.updatedAt || new Date(),
-      steps: artData.steps,
-      seed: artData.seed ?? -1,
-      cfg: artData.cfg ?? 3,
-      isPublic: artData.isPublic ?? false,
-      isMature: artData.isMature ?? false,
-      cfgHalf: artData.cfgHalf ?? false,
-      checkpoint: artData.checkpoint || null,
-      sampler: artData.sampler || null,
-      designer: artData.designer || null,
-      Gallery: artData.galleryId
-        ? { connect: { id: artData.galleryId } }
-        : undefined,
-      Prompt: artData.promptId
-        ? { connect: { id: artData.promptId } }
-        : undefined,
-      Pitch: artData.pitchId ? { connect: { id: artData.pitchId } } : undefined,
-      ArtImage: artData.artImageId
-        ? { connect: { id: artData.artImageId } }
-        : undefined,
-    }
+      ...artData,
+      userId: authenticatedUserId,
+    } as Prisma.ArtCreateInput
 
-    // Create the art entry in the database
+    // Attempt to create the art entry in the database
     const createdArt = await prisma.art.create({ data })
 
-    // Successful response
-    event.node.res.statusCode = 201
+    // Return success response
     return {
       success: true,
-      data: createdArt,
-      message: 'Art created successfully.',
+      art: createdArt,
     }
   } catch (error) {
+    // Use the error handler to process the error
     const { message, statusCode } = errorHandler(error)
-    event.node.res.statusCode = statusCode || 500
+
+    // Return the error response with the processed message and status code
     return {
       success: false,
-      message: 'Failed to create a new art object.',
+      message: 'Failed to create a new art object',
       error: message || 'An unknown error occurred',
+      statusCode: statusCode || 500, // Default to 500 if no status code is provided
     }
   }
 })

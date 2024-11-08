@@ -30,8 +30,8 @@ describe('Reaction Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data?.art).to.have.property('id')
-      artId = response.body.data?.art.id
+      expect(response.body.data).to.have.property('id')
+      artId = response.body.data.id
     })
   })
 

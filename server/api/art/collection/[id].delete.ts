@@ -71,9 +71,7 @@ export default defineEventHandler(async (event) => {
     // Successful deletion response
     response = {
       success: true,
-      data: {
-        message: `Collection with ID ${collectionId} deleted successfully.`,
-      },
+      message: `Collection with ID ${collectionId} deleted successfully.`,
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {

@@ -1,11 +1,11 @@
-// server/api/resources/[id].patch.ts
+// /server/api/resources/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 import type { Resource } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
-  let response
   const resourceId = Number(event.context.params?.id)
 
   try {
@@ -17,23 +17,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Validate the Authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
+    // Use validateApiKey to authenticate
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -62,33 +48,33 @@ export default defineEventHandler(async (event) => {
 
     // Parse and validate the request body data
     const resourceData: Partial<Resource> = await readBody(event)
+    if (!resourceData || Object.keys(resourceData).length === 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'No data provided for update.',
+      })
+    }
 
     // Perform the update operation
-    const updatedResource = await prisma.resource.update({
+    const data = await prisma.resource.update({
       where: { id: resourceId },
       data: resourceData,
     })
 
-    // Successful update response
-    response = {
+    // Return success response
+    event.node.res.statusCode = 200
+    return {
       success: true,
       message: `Resource with ID ${resourceId} updated successfully.`,
-      data: updatedResource,
-      statusCode: 200,
+      data,
     }
-    event.node.res.statusCode = 200
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+  } catch (error) {
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
+    return {
       success: false,
-      message:
-        handledError.message ||
-        `Failed to update resource with ID ${resourceId}.`,
+      message: message || `Failed to update resource with ID ${resourceId}.`,
       data: null,
-      statusCode: event.node.res.statusCode,
     }
   }
-
-  return response
 })

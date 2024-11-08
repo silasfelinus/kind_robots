@@ -79,9 +79,8 @@ export default defineEventHandler(async (event) => {
     // Successful deletion response
     response = {
       success: true,
-      data: {
-        message: `Reaction with ID ${reactionId} successfully deleted.`,
-      },
+      message: `Reaction with ID ${reactionId} successfully deleted.`,
+      data: {},
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {

@@ -11,15 +11,15 @@ export default defineEventHandler(async (event) => {
       throw new Error('A valid reaction ID is required.')
     }
 
-    const reaction = await fetchReactionById(id)
+    const data = await fetchReactionById(id)
 
-    if (!reaction) {
+    if (!data) {
       throw new Error(`Reaction with ID ${id} not found.`)
     }
 
     return {
       success: true,
-      data: { reaction },
+      data,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

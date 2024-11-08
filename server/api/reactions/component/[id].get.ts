@@ -16,14 +16,14 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch reactions associated with the given componentId
-    const reactions = await prisma.reaction.findMany({
+    const data = await prisma.reaction.findMany({
       where: { componentId },
       include: {
         User: true, // Include user data associated with the reaction
       },
     })
 
-    if (!reactions || reactions.length === 0) {
+    if (!data || data.length === 0) {
       event.node.res.statusCode = 404
       return {
         success: false,
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
     return {
       success: true,
-      data: { reactions },
+      data,
     }
   } catch (error: unknown) {
     console.error(

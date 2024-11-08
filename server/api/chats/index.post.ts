@@ -1,5 +1,5 @@
 // /server/api/chats/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { defineEventHandler, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
@@ -10,10 +10,11 @@ export default defineEventHandler(async (event) => {
     // Validate the API key
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
+      event.node.res.statusCode = 401
+      return {
+        success: false,
+        message: 'Authorization token is required or invalid.',
+      }
     }
 
     const authenticatedUserId = user.id
@@ -44,16 +45,14 @@ export default defineEventHandler(async (event) => {
       message: 'Chat created successfully.',
     }
   } catch (error) {
-    // Process the error with the error handler
+    // Use the error handler only for unexpected errors
     const { message, statusCode } = errorHandler(error)
 
-    // Set status code for error responses
     event.node.res.statusCode = statusCode || 500
     return {
       success: false,
       data: null,
-      message: 'Failed to create chat entry.',
-      error: message || 'An unknown error occurred',
+      message: message || 'Failed to create chat entry due to a server error.',
     }
   }
 })

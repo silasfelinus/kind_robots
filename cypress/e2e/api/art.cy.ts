@@ -122,8 +122,8 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
-      expect(response.body.data).to.be.an('object').that.is.not.empty
-      artId = response.body.data.id
+      expect(response.body.data.newArt).to.be.an('object').that.is.not.empty
+      artId = response.body.data.newArtid
     })
   })
 

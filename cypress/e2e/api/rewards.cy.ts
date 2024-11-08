@@ -167,7 +167,9 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body).to.be.an('array').and.have.length.greaterThan(0)
+      expect(response.body.data)
+        .to.be.an('array')
+        .and.have.length.greaterThan(0)
     })
   })
 

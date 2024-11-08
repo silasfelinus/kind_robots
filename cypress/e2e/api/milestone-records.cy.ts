@@ -35,7 +35,7 @@ describe('Milestone Record Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       createdUserId = response.body.data.id
-      createdUserToken = response.body.apiKey // Store the user-specific token
+      createdUserToken = response.body.data.apiKey // Store the user-specific token
     })
   })
 
@@ -97,7 +97,6 @@ describe('Milestone Record Management API Tests', () => {
       expect(response.body.success).to.be.true
       expect(response.body.data).to.be.an('object').that.is.not.empty
       milestoneRecordId = response.body.data.id
-      cy.log('Created Milestone Record ID:', milestoneRecordId)
     })
   })
 

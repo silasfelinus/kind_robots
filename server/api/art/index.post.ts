@@ -7,7 +7,7 @@ import type { Prisma, Art } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Use validateApiKey to authenticate
+    // Authenticate the user
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
       throw createError({
@@ -28,29 +28,40 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Build the data object for Prisma with conditional relationships
+    // Build the data object for Prisma with conditional inclusion of fields
     const data: Prisma.ArtCreateInput = {
       promptString: artData.promptString,
-      steps: artData.steps,
-      path: artData.path,
-      seed: artData.seed,
       User: { connect: { id: authenticatedUserId } },
-      // Include conditional relationships only if IDs are provided
-      ...(artData.promptId && {
-        Prompt: { connect: { id: artData.promptId } },
-      }),
-      ...(artData.galleryId && {
-        Gallery: { connect: { id: artData.galleryId } },
-      }),
-      ...(artData.pitchId && { Pitch: { connect: { id: artData.pitchId } } }),
+      path: artData.path || 'UNDEFINED',
+      createdAt: artData.createdAt || new Date(),
+      updatedAt: artData.updatedAt || new Date(),
+      steps: artData.steps,
+      seed: artData.seed ?? -1,
+      cfg: artData.cfg ?? 3,
+      isPublic: artData.isPublic ?? false,
+      isMature: artData.isMature ?? false,
+      cfgHalf: artData.cfgHalf ?? false,
+      checkpoint: artData.checkpoint || null,
+      sampler: artData.sampler || null,
+      designer: artData.designer || null,
+      ...(artData.galleryId
+        ? { Gallery: { connect: { id: artData.galleryId } } }
+        : {}),
+      ...(artData.promptId
+        ? { Prompt: { connect: { id: artData.promptId } } }
+        : {}),
+      ...(artData.pitchId
+        ? { Pitch: { connect: { id: artData.pitchId } } }
+        : {}),
+      ...(artData.artImageId
+        ? { ArtImage: { connect: { id: artData.artImageId } } }
+        : {}),
     }
 
-    // Create the art entry
-    const createdArt = await prisma.art.create({
-      data,
-    })
+    // Create the art entry in the database
+    const createdArt = await prisma.art.create({ data })
 
-    // Return success response with 201 status code
+    // Successful response
     event.node.res.statusCode = 201
     return {
       success: true,

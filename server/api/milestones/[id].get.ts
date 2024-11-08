@@ -19,9 +19,9 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch the milestone using the helper function
-    const milestone = await fetchMilestoneById(milestoneId)
-    
-    if (!milestone) {
+    const data = await fetchMilestoneById(milestoneId)
+
+    if (!data) {
       throw createError({
         statusCode: 404, // Not Found
         message: `Milestone with ID ${milestoneId} does not exist.`,
@@ -31,19 +31,24 @@ export default defineEventHandler(async (event) => {
     // Return success response
     response = {
       success: true,
-      milestone,
+      data,
       statusCode: 200,
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.error(`Error fetching milestone with ID ${milestoneId}:`, handledError)
+    console.error(
+      `Error fetching milestone with ID ${milestoneId}:`,
+      handledError,
+    )
 
     // Set the status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message: handledError.message || `Failed to fetch milestone with ID ${milestoneId}.`,
+      message:
+        handledError.message ||
+        `Failed to fetch milestone with ID ${milestoneId}.`,
       statusCode: event.node.res.statusCode,
     }
   }

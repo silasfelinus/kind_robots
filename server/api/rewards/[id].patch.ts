@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Update the reward in the database
-    const updatedReward = await prisma.reward.update({
+    const data = await prisma.reward.update({
       where: { id: rewardId },
       data: updatedRewardData,
     })
@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
     // Successful update response
     response = {
       success: true,
-      reward: updatedReward,
+      data,
       statusCode: 200,
     }
     event.node.res.statusCode = 200

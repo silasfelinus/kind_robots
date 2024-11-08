@@ -219,7 +219,7 @@ describe('Component Reactions API Tests', () => {
       expect(response.body.data.comment).to.eq(
         'Actually, I have second thoughts...',
       )
-      expect(response.body.data.reaction.rating).to.eq(2)
+      expect(response.body.data.rating).to.eq(2)
     })
   })
 

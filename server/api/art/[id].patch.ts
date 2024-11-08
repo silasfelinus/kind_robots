@@ -76,7 +76,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Update the art entry in the database
-    const updatedArt = await prisma.art.update({
+    const data = await prisma.art.update({
       where: { id },
       data: updatedArtData,
     })
@@ -85,7 +85,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
     return {
       success: true,
-      data: { updatedArt },
+      data,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

@@ -12,15 +12,15 @@ export default defineEventHandler(async (event) => {
       throw new Error('Invalid art ID.')
     }
 
-    const art = await fetchArtById(id)
+    const data = await fetchArtById(id)
 
-    if (!art) {
+    if (!data) {
       event.node.res.statusCode = 404
       throw new Error(`Art entry with ID ${id} not found.`)
     }
 
     // Wrap the fetched art in a data object
-    return { success: true, data: { art } }
+    return { success: true, data }
   } catch (error: unknown) {
     return errorHandler(error)
   }

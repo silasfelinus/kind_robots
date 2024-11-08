@@ -2,33 +2,19 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import { validateApiKey } from '../utils/validateKey'
 import type { Prisma, Resource } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
-  let response
-
   try {
-    // Validate authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
+    // Use validateApiKey for authentication
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
+      event.node.res.statusCode = 401 // Set HTTP status code to 401 Unauthorized
+      return {
+        success: false,
         message: 'Invalid or expired token.',
-      })
+      }
     }
 
     const authenticatedUserId = user.id
@@ -36,7 +22,7 @@ export default defineEventHandler(async (event) => {
     // Read and validate the request body
     const resourceData = await readBody<Partial<Resource>>(event)
 
-    // Validate required fields
+    // Validate required "name" field
     if (!resourceData.name || typeof resourceData.name !== 'string') {
       throw createError({
         statusCode: 400,
@@ -44,7 +30,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Exclude userId from the request input, as it’s handled by the authenticated user
+    // Exclude userId from request input, as it’s handled by the authenticated user
     const { userId, ...resourceInput } = resourceData
 
     // Create the resource with a connection to the authenticated user
@@ -55,24 +41,20 @@ export default defineEventHandler(async (event) => {
       } as Prisma.ResourceCreateInput,
     })
 
-    // Successful creation response
+    // Return a success response
     event.node.res.statusCode = 201
-    response = {
+    return {
       success: true,
       message: 'Resource created successfully.',
       data,
-      statusCode: 201,
     }
   } catch (error) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
+    return {
       success: false,
-      message: handledError.message || 'Failed to create a new resource.',
+      message: message || 'Failed to create a new resource.',
       data: null,
-      statusCode: handledError.statusCode || 500,
     }
   }
-
-  return response
 })

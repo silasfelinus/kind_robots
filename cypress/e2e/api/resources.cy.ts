@@ -92,7 +92,7 @@ describe('Resource Management API Tests', () => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data).to.be.an('object').that.is.not.empty
-      resourceId = response.body.resource.id
+      resourceId = response.body.data.id
     })
   })
 
@@ -152,7 +152,7 @@ describe('Resource Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.resource.name).to.eq(updatedResourceName)
+      expect(response.body.data.name).to.eq(updatedResourceName)
     })
   })
 
@@ -168,8 +168,8 @@ describe('Resource Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.resource).to.be.an('object')
-      expect(response.body.resource.name).to.eq(`Updated-${uniqueResourceName}`)
+      expect(response.body.data).to.be.an('object')
+      expect(response.body.data.name).to.eq(`Updated-${uniqueResourceName}`)
     })
   })
 
@@ -185,7 +185,7 @@ describe('Resource Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.resources)
+      expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -237,7 +237,7 @@ describe('Resource Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body.message).to.include(
-        `Resource with ID ${resourceId} deleted successfully`,
+        `Resource with ID ${resourceId} successfully deleted`,
       )
     })
   })

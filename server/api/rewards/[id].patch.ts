@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Perform Update
-    const updatedReward = await prisma.reward.update({
+    const data = await prisma.reward.update({
       where: { id: rewardId },
       data: rewardData,
     })
@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
     return {
       success: true,
-      data: updatedReward,
+      data,
     }
   } catch (error: unknown) {
     // Process Error with Error Handler

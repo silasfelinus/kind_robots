@@ -1,27 +1,24 @@
 // /server/api/prompts/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
-  let response
-  let id: number | undefined
+  const promptId = Number(event.context.params?.id)
 
   try {
-    // Validate and parse the prompt ID
-    id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+    // Validate Prompt ID
+    if (isNaN(promptId) || promptId <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid Prompt ID. It must be a positive integer.',
       })
     }
 
-    console.log(`Attempting to delete prompt with ID: ${id}`)
-
-    // Extract and verify the authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    // Authenticate API Key
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message:
@@ -29,30 +26,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
     const userId = user.id
 
-    // Check if the prompt exists and validate ownership
+    // Validate Prompt Existence and Ownership
     const prompt = await prisma.prompt.findUnique({
-      where: { id },
+      where: { id: promptId },
       select: { userId: true },
     })
+
     if (!prompt) {
       throw createError({
         statusCode: 404,
-        message: `Prompt with ID ${id} does not exist.`,
+        message: `Prompt with ID ${promptId} does not exist.`,
       })
     }
 
@@ -63,32 +48,27 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Proceed to delete the prompt
-    await prisma.prompt.delete({ where: { id } })
+    // Perform Deletion
+    await prisma.prompt.delete({ where: { id: promptId } })
 
-    console.log(`Successfully deleted prompt with ID: ${id}`)
-    response = {
-      success: true,
-      data: { message: `Prompt with ID ${id} successfully deleted.` },
-      statusCode: 200,
-    }
+    // Successful deletion response
+    event.node.res.setHeader('Content-Type', 'application/json')
     event.node.res.statusCode = 200
+    return {
+      success: true,
+      message: `Prompt with ID ${promptId} successfully deleted.`,
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.error('Error deleting prompt:', handledError)
 
-    // Use `id` if it exists; otherwise, provide a generic message
+    // Set the response and status code based on the handled error
+    event.node.res.setHeader('Content-Type', 'application/json')
     event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    return {
       success: false,
       message:
-        handledError.message ||
-        (id
-          ? `Failed to delete prompt with ID ${id}.`
-          : 'Failed to delete prompt.'),
-      statusCode: event.node.res.statusCode,
+        handledError.message || `Failed to delete prompt with ID ${promptId}.`,
     }
   }
-
-  return response
 })

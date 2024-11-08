@@ -149,7 +149,7 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data).to.have.property('bot')
+      expect(response.body.data).to.have.property('id')
       expect(response.body.data).to.include({
         description: 'Updated description for the test bot',
         tagline: 'Now with advanced features',

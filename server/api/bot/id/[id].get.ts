@@ -16,7 +16,9 @@ export default defineEventHandler(async (event) => {
       return { success: false, message: `Bot with id ${id} does not exist.` }
     }
 
-    return { success: true, data: { bot: botResponse.data.bot } }
+    const data = botResponse?.data?.bot
+
+    return { success: true, data }
   } catch (error: unknown) {
     console.error(
       `Failed to fetch bot with id ${id}:`,

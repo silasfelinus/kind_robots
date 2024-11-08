@@ -91,7 +91,7 @@ describe('Resource Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.resource).to.be.an('object').that.is.not.empty
+      expect(response.body.data).to.be.an('object').that.is.not.empty
       resourceId = response.body.resource.id
     })
   })

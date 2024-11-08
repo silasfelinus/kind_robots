@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     const { userId, ...resourceInput } = resourceData
 
     // Create the resource with a connection to the authenticated user
-    const newResource = await prisma.resource.create({
+    const data = await prisma.resource.create({
       data: {
         ...resourceInput,
         User: { connect: { id: authenticatedUserId } },
@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       message: 'Resource created successfully.',
-      data: { resource: newResource },
+      data,
       statusCode: 201,
     }
   } catch (error) {

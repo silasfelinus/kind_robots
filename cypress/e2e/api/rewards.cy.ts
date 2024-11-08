@@ -134,11 +134,11 @@ describe('Reward Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
 
-      // Check if `data` is an array and access the first element
-      expect(response.body.data)
-        .to.be.an('array')
-        .and.have.length.greaterThan(0)
-      expect(response.body.data[0].label).to.eq('Updated Test Label')
+      // Check that `data` is an object, not an array
+      expect(response.body.data).to.be.an('object')
+      expect(response.body.data.label).to.eq('Updated Test Label')
+      expect(response.body.data.text).to.eq('Updated Test Reward Text')
+      expect(response.body.data.rarity).to.eq(10)
     })
   })
 

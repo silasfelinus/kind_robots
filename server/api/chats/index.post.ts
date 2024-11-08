@@ -5,18 +5,9 @@ import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
 import type { Prisma, Chat } from '@prisma/client'
 
-type ChatResponse = {
-  success: boolean
-  message?: string
-  data?: Chat
-  statusCode?: number
-}
-
-export default defineEventHandler(async (event): Promise<ChatResponse> => {
-  let response: ChatResponse
-
+export default defineEventHandler(async (event) => {
   try {
-    // Validate the API key using the utility function
+    // Validate the API key
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
       throw createError({
@@ -25,72 +16,44 @@ export default defineEventHandler(async (event): Promise<ChatResponse> => {
       })
     }
 
-    const userId = user.id
-
-    // Read and validate the communication data from the request body
-    const chatData = await readBody(event)
+    const authenticatedUserId = user.id
+    const chatData = await readBody<Partial<Chat>>(event)
 
     // Check for required fields
-    const requiredFields = ['type', 'sender', 'content']
-    const missingFields = requiredFields.filter(
-      (field) => !chatData[field as keyof typeof chatData],
-    )
-    if (missingFields.length > 0) {
-      throw createError({
-        statusCode: 400,
-        message: `Missing required fields: ${missingFields.join(', ')}.`,
-      })
+    if (!chatData.type || !chatData.sender || !chatData.content) {
+      event.node.res.statusCode = 400
+      return {
+        success: false,
+        message: 'Missing required fields: "type", "sender", "content".',
+      }
     }
 
-    // Prepare input data for creating a new communication entry
-    const chatInput: Prisma.ChatCreateInput = {
-      type: chatData.type,
-      sender: chatData.sender,
-      recipient: chatData.recipient || null,
-      content: chatData.content,
-      title: chatData.title || null,
-      channel: chatData.channel || null,
-      isPublic: chatData.isPublic ?? true,
-      isFavorite: chatData.isFavorite ?? false,
-      previousEntryId: chatData.previousEntryId || null,
-      originId: chatData.originId || null,
-      userId,
-      botId: chatData.botId || null,
-      recipientId: chatData.recipientId || null,
-      artImageId: chatData.artImageId || null,
-      promptId: chatData.promptId || null,
-      botName: chatData.botName || null,
-      User: { connect: { id: userId } },
-      ...(chatData.botId && { Bot: { connect: { id: chatData.botId } } }),
-      ...(chatData.promptId && {
-        Prompt: { connect: { id: chatData.promptId } },
-      }),
-      ...(chatData.artImageId && {
-        ArtImage: { connect: { id: chatData.artImageId } },
-      }),
-    }
+    // Add authenticated user ID to chat data
+    chatData.userId = authenticatedUserId
 
     // Create the chat entry
-    const data = await prisma.chat.create({ data: chatInput })
+    const data = await prisma.chat.create({
+      data: chatData as Prisma.ChatCreateInput,
+    })
 
-    // Successful creation response
-    response = {
+    // Set status code to 201 for successful creation
+    event.node.res.statusCode = 201
+    return {
       success: true,
       data,
       message: 'Chat created successfully.',
-      statusCode: 201,
     }
   } catch (error) {
-    const handledError = errorHandler(error)
-    response = {
+    // Process the error with the error handler
+    const { message, statusCode } = errorHandler(error)
+
+    // Set status code for error responses
+    event.node.res.statusCode = statusCode || 500
+    return {
       success: false,
-      message: handledError.message || 'Failed to create chat entry.',
-      data: undefined, // Ensure `data` is undefined in case of error
-      statusCode: handledError.statusCode || 500,
+      data: null,
+      message: 'Failed to create chat entry.',
+      error: message || 'An unknown error occurred',
     }
   }
-
-  // Set the status code in the response object
-  event.node.res.statusCode = response.statusCode || 500
-  return response
 })

@@ -1,23 +1,24 @@
+// /server/api/art/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
+  const artId = Number(event.context.params?.id)
+
   try {
     // Validate the Art ID
-    const id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
+    if (isNaN(artId) || artId <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid Art ID. It must be a positive integer.',
       })
     }
 
-    // Extract and verify the authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
+    // Authenticate API Key
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message:
@@ -25,38 +26,22 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
-      event.node.res.statusCode = 401
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
     const userId = user.id
 
     // Fetch the art entry and verify ownership
     const artEntry = await prisma.art.findUnique({
-      where: { id },
+      where: { id: artId },
       select: { userId: true },
     })
 
     if (!artEntry) {
-      event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
-        message: `Art entry with ID ${id} does not exist.`,
+        message: `Art entry with ID ${artId} does not exist.`,
       })
     }
 
     if (artEntry.userId !== userId) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to delete this art entry.',
@@ -64,23 +49,25 @@ export default defineEventHandler(async (event) => {
     }
 
     // Attempt to delete the art entry
-    await prisma.art.delete({ where: { id } })
+    await prisma.art.delete({ where: { id: artId } })
 
     // Successful deletion response
+    event.node.res.setHeader('Content-Type', 'application/json')
     event.node.res.statusCode = 200
     return {
       success: true,
-      message: `Art entry with ID ${id} deleted successfully.`,
+      message: `Art entry with ID ${artId} deleted successfully.`,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.log('Error Handled:', handledError)
+    console.error('Error deleting art entry:', handledError)
 
     // Set the status code based on the handled error
+    event.node.res.setHeader('Content-Type', 'application/json')
     event.node.res.statusCode = handledError.statusCode || 500
     return {
       success: false,
-      message: handledError.message || 'Failed to process the request.',
+      message: handledError.message || 'Failed to delete art entry.',
     }
   }
 })

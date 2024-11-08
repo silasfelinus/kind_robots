@@ -28,20 +28,19 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Add the authenticated user's ID to the data object
-    const data: Prisma.ArtCreateInput = {
-      ...artData,
-      userId: authenticatedUserId,
-    } as Prisma.ArtCreateInput
+    artData.userId = authenticatedUserId
 
     // Attempt to create the art entry in the database
-    const createdArt = await prisma.art.create({ data })
+    const data = await prisma.art.create({
+      data: artData as Prisma.ArtCreateInput,
+    })
 
     // Set status code to 201 for successful creation
     event.node.res.statusCode = 201
     return {
       success: true,
-      art: createdArt,
+      data,
+      message: 'Art created successfully',
     }
   } catch (error) {
     // Use the error handler to process the error
@@ -51,6 +50,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = statusCode || 500
     return {
       success: false,
+      data: null,
       message: 'Failed to create a new art object',
       error: message || 'An unknown error occurred',
     }

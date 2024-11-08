@@ -2,17 +2,9 @@
 import { defineEventHandler } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import type { Chat } from '@prisma/client'
+import { validateApiKey } from '../utils/validateKey'
 
-type ChatResponse = {
-  success: boolean
-  message?: string
-  data?: Chat
-  statusCode?: number
-}
-
-export default defineEventHandler(async (event): Promise<ChatResponse> => {
-  let response: ChatResponse
+export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
 
   if (isNaN(id) || id <= 0) {
@@ -24,37 +16,44 @@ export default defineEventHandler(async (event): Promise<ChatResponse> => {
   }
 
   try {
-    // Fetch the chat by ID
-    const chat = await prisma.chat.findUnique({ where: { id } })
+    // Authenticate the request
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
+      return errorHandler({
+        error: new Error('Invalid or expired token.'),
+        context: 'Fetch Single Chat',
+        statusCode: 401,
+      })
+    }
+
+    // Fetch the chat by ID, including access control for user and public visibility
+    const chat = await prisma.chat.findFirst({
+      where: {
+        id,
+        OR: [{ userId: user.id }, { recipientId: user.id }, { isPublic: true }],
+      },
+    })
 
     if (!chat) {
       return errorHandler({
-        error: new Error(`Chat with ID ${id} not found.`),
+        error: new Error(`Chat with ID ${id} not found or access denied.`),
         context: 'Fetch Single Chat',
         statusCode: 404,
       })
     }
 
-    // Return success response with chat data
-    response = {
+    return {
       success: true,
       data: chat,
       message: 'Chat fetched successfully.',
-      statusCode: 200,
     }
   } catch (error) {
-    const handledError = errorHandler({
-      error,
-      context: 'Fetch Single Chat',
-    })
-
-    // Return standardized error response
-    response = {
+    const { message, statusCode } = errorHandler(error)
+    return {
       success: false,
-      message: handledError.message || `Failed to fetch chat with ID ${id}.`,
-      statusCode: handledError.statusCode || 500,
+      message,
+      data: null,
+      statusCode,
     }
   }
-
-  return response
 })

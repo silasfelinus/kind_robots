@@ -33,9 +33,9 @@ describe('Art Collection API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
-      expect(response.body.data.art).to.be.an('object').that.is.not.empty
+      expect(response.body.data).to.be.an('object').that.is.not.empty
 
-      artId = response.body.data.art.id
+      artId = response.body.data.id
       if (!artId) throw new Error('Failed to create art.')
     })
   })

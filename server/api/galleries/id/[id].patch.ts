@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Update the gallery
-    const updatedGallery = await prisma.gallery.update({
+    const data = await prisma.gallery.update({
       where: { id },
       data: updatedGalleryData,
     })
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       message: `Gallery with ID ${id} updated successfully.`,
-      data: { gallery: updatedGallery },
+      data,
       statusCode: 200,
     }
     event.node.res.statusCode = 200

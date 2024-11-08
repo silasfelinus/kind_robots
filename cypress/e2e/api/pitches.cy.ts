@@ -115,7 +115,7 @@ describe('Pitch Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.pitch.pitch).to.eq(updatedPitchName)
+      expect(response.body.data.pitch).to.eq(updatedPitchName)
     })
   })
 
@@ -148,7 +148,7 @@ describe('Pitch Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.pitches)
+      expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })

@@ -109,7 +109,7 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
-      reactionId = response.body.data.reaction.id
+      reactionId = response.body.data.id
       expect(reactionId).to.be.a('number')
     })
   })
@@ -128,7 +128,7 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.reactions)
+      expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -148,7 +148,7 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      const reaction = response.body.data.reaction
+      const reaction = response.body.data
       expect(reaction.id).to.eq(reactionId)
       expect(reaction.componentId).to.eq(componentId)
       expect(reaction.userId).to.eq(userId)
@@ -215,8 +215,8 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.reaction.reactionType).to.eq('BOOED')
-      expect(response.body.data.reaction.comment).to.eq(
+      expect(response.body.data.reactionType).to.eq('BOOED')
+      expect(response.body.data.comment).to.eq(
         'Actually, I have second thoughts...',
       )
       expect(response.body.data.reaction.rating).to.eq(2)
@@ -265,7 +265,7 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.message).to.include(
+      expect(response.body.message).to.include(
         `Reaction with ID ${reactionId} successfully deleted.`,
       )
     })

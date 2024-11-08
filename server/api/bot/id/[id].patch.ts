@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Update the bot in the database
-    const updatedBot = await prisma.bot.update({
+    const data = await prisma.bot.update({
       where: { id: botId },
       data: botData as Prisma.BotUpdateInput,
     })
@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
     // Successful update response
     response = {
       success: true,
-      data: { bot: updatedBot },
+      data,
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {

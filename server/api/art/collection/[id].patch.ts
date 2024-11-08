@@ -93,7 +93,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Update the collection with validated art items
-    const updatedCollection = await prisma.artCollection.update({
+    const data = await prisma.artCollection.update({
       where: { id: collectionId },
       data: {
         art: {
@@ -106,7 +106,7 @@ export default defineEventHandler(async (event) => {
     // Successful response with data wrapper
     response = {
       success: true,
-      data: { collection: updatedCollection },
+      data,
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {

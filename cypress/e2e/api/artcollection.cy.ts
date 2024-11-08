@@ -112,6 +112,7 @@ describe('Art Collection API Tests', () => {
     }).then((response) => {
       newArtId = response.body.data.id
       expect(newArtId).to.exist
+
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${collectionId}`,
@@ -121,11 +122,17 @@ describe('Art Collection API Tests', () => {
         body: {
           artIds: [...existingArtIds, newArtId],
         },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-        expect(response.body.success).to.be.true
-        const returnedArtIds = response.body.data.map((art: Art) => art.id)
+      }).then((patchResponse) => {
+        expect(patchResponse.status).to.eq(200)
+        expect(patchResponse.body.success).to.be.true
+
+        // Use `map` on `patchResponse.body.data.art`
+        const returnedArtIds = patchResponse.body.data.art.map(
+          (art: Art) => art.id,
+        )
         expect(returnedArtIds).to.include(newArtId)
+
+        // Update `existingArtIds` with the latest IDs from the response
         existingArtIds = returnedArtIds
       })
     })
@@ -145,8 +152,12 @@ describe('Art Collection API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
+
+      // Access the art array within data
       const returnedArtIds = response.body.data.art.map((art: Art) => art.id)
       expect(returnedArtIds).to.not.include(artIdToRemove)
+
+      // Update existingArtIds with the updated art list from the response
       existingArtIds = returnedArtIds
     })
   })

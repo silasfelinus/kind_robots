@@ -257,7 +257,9 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
-      expect(response.body.message).to.include('Invalid or expired token')
+      expect(response.body.message).to.include(
+        'Authorization token is required',
+      )
     })
   })
 

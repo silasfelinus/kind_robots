@@ -134,7 +134,7 @@ model Chat {
   recipient       String?            @db.VarChar(255)
   content         String             @db.Text
   title           String?            @db.VarChar(255)
-  channel         String?            @db.VarChar(255) @unique
+  channel         String?            @db.VarChar(255)
   isPublic        Boolean            @default(true)
   isFavorite      Boolean            @default(false)
   previousEntryId Int?

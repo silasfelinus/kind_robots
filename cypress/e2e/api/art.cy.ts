@@ -14,6 +14,7 @@ describe('Art Management API Tests', () => {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         promptString: 'surreal, A beautiful pancake sunrise over the mountains',
@@ -31,10 +32,10 @@ describe('Art Management API Tests', () => {
 
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
-      expect(response.body.data.art).to.be.an('object').that.is.not.empty
+      expect(response.body.data).to.be.an('object').that.is.not.empty
 
-      artId = response.body.data.art?.id
-      generatedPath = response.body.data.art?.path
+      artId = response.body.data.id
+      generatedPath = response.body.data.path
       if (!artId || !generatedPath) {
         throw new Error('Failed to capture art ID or path from response')
       }

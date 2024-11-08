@@ -191,7 +191,7 @@ describe('Reaction Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data?.message).to.include(
-        `Reaction with ID ${reactionId} deleted successfully`,
+        `Reaction with ID ${reactionId} successfully deleted`,
       )
     })
   })

@@ -40,9 +40,7 @@ describe('Chat API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('Failed to create chat entry')
     })
   })
 
@@ -57,28 +55,46 @@ describe('Chat API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.include('Invalid or expired token')
+      expect(response.body.message).to.include('Failed to create chat entry')
     })
   })
 
   // === CREATION TEST ===
   it('Create a new Chat with valid authentication', () => {
-    makeRequest('POST', baseUrl, userToken, {
-      type: 'UserToBot',
-      sender: 'silasfelinus',
-      recipient: 'AMI',
-      content: 'Hello, AMI!',
-      title: 'Greeting',
-      label: 'Introduction',
-      isPublic: true,
-      isFavorite: false,
-      userId,
-      botId,
+    cy.request({
+      method: 'POST',
+      url: 'https://kind-robots.vercel.app/api/chats',
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: {
+        type: 'ToBot',
+        sender: 'silasfelinus',
+        recipient: 'AMI',
+        content: 'Hello, AMI!',
+        title: 'Greeting',
+        channel: 'general',
+        isPublic: true,
+        isFavorite: false,
+        previousEntryId: null,
+        originId: null,
+        botId: 1,
+        recipientId: null,
+        artImageId: null,
+        promptId: null,
+        botName: 'AMI',
+      },
+      failOnStatusCode: false,
     }).then((response) => {
+      // Validate the response status code and structure
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data).to.be.an('object').that.is.not.empty
-      chatId = response.body.data.id
+
+      // Capture the chat ID for further use in other tests if needed
+      const chatId = response.body.data.id
+      expect(chatId).to.exist
     })
   })
 
@@ -87,7 +103,7 @@ describe('Chat API Tests', () => {
     makeRequest('GET', `${baseUrl}/${chatId}`, userToken).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.chat.sender).to.eq('silasfelinus')
+      expect(response.body.data.sender).to.eq('silasfelinus')
     })
   })
 

@@ -66,7 +66,7 @@ describe('Prompt Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
-      promptId = response.body.data?.newPrompt.id
+      promptId = response.body.data.id
     })
   })
 
@@ -118,7 +118,7 @@ describe('Prompt Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data?.updatedPrompt.prompt).to.eq('angel bunny')
+      expect(response.body.data.prompt).to.eq('angel bunny')
     })
   })
 
@@ -135,7 +135,7 @@ describe('Prompt Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data?.prompt.prompt).to.eq('angel bunny')
+      expect(response.body.data.prompt).to.eq('angel bunny')
     })
   })
 
@@ -151,7 +151,7 @@ describe('Prompt Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data?.prompts)
+      expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })

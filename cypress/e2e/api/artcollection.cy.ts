@@ -55,10 +55,8 @@ describe('Art Collection API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
-      collectionId = response.body.data.collection.id
-      existingArtIds = response.body.data.collection.art.map(
-        (art: Art) => art.id,
-      )
+      collectionId = response.body.data.id
+      existingArtIds = response.body.data.art.map((art: Art) => art.id)
     })
   })
 
@@ -126,9 +124,7 @@ describe('Art Collection API Tests', () => {
       }).then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body.success).to.be.true
-        const returnedArtIds = response.body.data.collection.art.map(
-          (art: Art) => art.id,
-        )
+        const returnedArtIds = response.body.data.art.map((art: Art) => art.id)
         expect(returnedArtIds).to.include(newArtId)
         existingArtIds = returnedArtIds
       })
@@ -149,9 +145,7 @@ describe('Art Collection API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      const returnedArtIds = response.body.data.collection.art.map(
-        (art: Art) => art.id,
-      )
+      const returnedArtIds = response.body.data.art.map((art: Art) => art.id)
       expect(returnedArtIds).to.not.include(artIdToRemove)
       existingArtIds = returnedArtIds
     })
@@ -196,7 +190,7 @@ describe('Art Collection API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.message).to.include(
+      expect(response.body.message).to.include(
         `Collection with ID ${collectionId} deleted successfully`,
       )
     })

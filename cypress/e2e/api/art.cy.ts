@@ -138,10 +138,10 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.art.path).to.include('cafefred')
-      expect(response.body.data.art.path).to.match(/\.webp$/)
-      expect(response.body.data.art.cfg).to.eq(7)
-      expect(response.body.data.art).to.include.keys(['createdAt', 'updatedAt'])
+      expect(response.body.data.path).to.include('cafefred')
+      expect(response.body.data.path).to.match(/\.webp$/)
+      expect(response.body.data.cfg).to.eq(7)
+      expect(response.body.data).to.include.keys(['createdAt', 'updatedAt'])
     })
   })
 
@@ -156,7 +156,7 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.artEntries)
+      expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -178,7 +178,7 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.updatedArt).to.include({
+      expect(response.body.data).to.include({
         id: artId,
         designer: 'updatedDesigner',
         isPublic: true,

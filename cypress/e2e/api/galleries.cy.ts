@@ -173,7 +173,7 @@ describe('Gallery Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.gallery.description).to.eq(
+      expect(response.body.data.description).to.eq(
         'Updated description for the gallery',
       )
     })
@@ -217,7 +217,7 @@ describe('Gallery Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.message).to.include(
+      expect(response.body.message).to.include(
         `Gallery with ID ${galleryId} successfully deleted`,
       )
     })

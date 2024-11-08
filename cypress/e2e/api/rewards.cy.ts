@@ -116,7 +116,6 @@ describe('Reward Management API Tests', () => {
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
-
   // Step 6: Update the reward with valid authentication
   it('Update Reward with Authentication', () => {
     cy.request({
@@ -134,7 +133,12 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.label).to.eq('Updated Test Label')
+
+      // Check if `data` is an array and access the first element
+      expect(response.body.data)
+        .to.be.an('array')
+        .and.have.length.greaterThan(0)
+      expect(response.body.data[0].label).to.eq('Updated Test Label')
     })
   })
 
@@ -167,6 +171,8 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+
+      // Check that `data` is an array and contains rewards
       expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)

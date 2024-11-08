@@ -77,8 +77,8 @@ describe('Chat API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.chat).to.be.an('object').that.is.not.empty
-      chatId = response.body.data.chat.id
+      expect(response.body.data).to.be.an('object').that.is.not.empty
+      chatId = response.body.data.id
     })
   })
 
@@ -95,7 +95,7 @@ describe('Chat API Tests', () => {
     makeRequest('GET', baseUrl, userToken).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.chats)
+      expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -106,7 +106,7 @@ describe('Chat API Tests', () => {
       (response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
-        expect(response.body.data.userChats)
+        expect(response.body.data)
           .to.be.an('array')
           .and.have.length.greaterThan(0)
       },
@@ -118,7 +118,7 @@ describe('Chat API Tests', () => {
       (response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
-        expect(response.body.data.botChats)
+        expect(response.body.data)
           .to.be.an('array')
           .and.have.length.greaterThan(0)
       },
@@ -133,7 +133,7 @@ describe('Chat API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.chat.isFavorite).to.eq(true)
+      expect(response.body.data.isFavorite).to.eq(true)
     })
   })
 

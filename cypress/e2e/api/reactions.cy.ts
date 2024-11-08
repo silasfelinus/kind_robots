@@ -140,7 +140,6 @@ describe('Reaction Management API Tests', () => {
       )
     })
   })
-
   // Step 5: Attempt to delete reaction without authentication
   it('Attempt to Delete Reaction without Authentication (expect failure)', () => {
     cy.wrap(reactionId).should('exist')
@@ -152,6 +151,7 @@ describe('Reaction Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('message').and.to.be.a('string')
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
@@ -172,6 +172,7 @@ describe('Reaction Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('message').and.to.be.a('string')
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
@@ -190,7 +191,8 @@ describe('Reaction Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data?.message).to.include(
+      expect(response.body.data).to.be.an('array').and.to.have.length(0)
+      expect(response.body.message).to.include(
         `Reaction with ID ${reactionId} successfully deleted`,
       )
     })
@@ -210,7 +212,8 @@ describe('Reaction Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data?.message).to.include(
+      expect(response.body.data).to.be.an('array').and.to.have.length(0)
+      expect(response.body.message).to.include(
         `Art piece with ID ${artId} deleted successfully`,
       )
     })

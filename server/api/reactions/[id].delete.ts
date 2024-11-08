@@ -1,4 +1,3 @@
-// /server/api/reactions/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
@@ -16,7 +15,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Use validateApiKey to authenticate
+    // Authenticate API key
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
       throw createError({
@@ -24,8 +23,6 @@ export default defineEventHandler(async (event) => {
         message: 'Invalid or expired token.',
       })
     }
-
-    const userId = user.id
 
     // Check Reaction existence and ownership
     const reaction = await prisma.reaction.findUnique({
@@ -40,7 +37,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (reaction.userId !== userId) {
+    if (reaction.userId !== user.id) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to delete this reaction.',

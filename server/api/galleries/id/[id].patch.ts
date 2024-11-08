@@ -1,59 +1,55 @@
 // /server/api/galleries/[id].patch.ts
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
-  let response
   const id = Number(event.context.params?.id)
 
+  // Check if ID is valid
   if (isNaN(id) || id <= 0) {
-    return errorHandler({
-      error: new Error('Invalid Gallery ID. It must be a positive integer.'),
-      context: 'Update Gallery',
+    return {
+      success: false,
+      message: 'Invalid Gallery ID. It must be a positive integer.',
       statusCode: 400,
-    })
+    }
   }
 
   try {
-    // Use the utility function to validate the API key
+    // Authenticate user via API key
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
-      return errorHandler({
-        error: new Error('Invalid or expired token.'),
-        context: 'Update Gallery',
+      throw createError({
         statusCode: 401,
+        message: 'Invalid or expired token.',
       })
     }
 
     const userId = user.id
 
-    // Fetch the gallery to verify ownership
+    // Find the gallery to verify ownership
     const gallery = await prisma.gallery.findUnique({ where: { id } })
     if (!gallery) {
-      return errorHandler({
-        error: new Error(`Gallery with ID ${id} not found.`),
-        context: 'Update Gallery',
+      throw createError({
         statusCode: 404,
+        message: `Gallery with ID ${id} not found.`,
       })
     }
 
     if (gallery.userId !== userId) {
-      return errorHandler({
-        error: new Error('You do not have permission to update this gallery.'),
-        context: 'Update Gallery',
+      throw createError({
         statusCode: 403,
+        message: 'You do not have permission to update this gallery.',
       })
     }
 
-    // Parse and validate the request body
+    // Read and validate the request body
     const updatedGalleryData = await readBody(event)
     if (!updatedGalleryData || Object.keys(updatedGalleryData).length === 0) {
-      return errorHandler({
-        error: new Error('No data provided for update.'),
-        context: 'Update Gallery',
+      throw createError({
         statusCode: 400,
+        message: 'No data provided for update.',
       })
     }
 
@@ -63,28 +59,20 @@ export default defineEventHandler(async (event) => {
       data: updatedGalleryData,
     })
 
-    response = {
+    // Successful update response
+    event.node.res.statusCode = 200
+    return {
       success: true,
       message: `Gallery with ID ${id} updated successfully.`,
       data,
-      statusCode: 200,
     }
-    event.node.res.statusCode = 200
-  } catch (error: unknown) {
-    const handledError = errorHandler({
-      error,
-      context: 'Update Gallery',
-    })
-
-    // Explicitly set the status code based on the handled error
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+  } catch (error) {
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
+    return {
       success: false,
-      message:
-        handledError.message || `Failed to update gallery with ID ${id}.`,
+      message: message || `Failed to update gallery with ID ${id}.`,
       statusCode: event.node.res.statusCode,
     }
   }
-
-  return response
 })

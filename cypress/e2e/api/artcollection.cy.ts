@@ -112,7 +112,7 @@ describe('Art Collection API Tests', () => {
         userId: 9,
       },
     }).then((response) => {
-      newArtId = response.body.data.art.id
+      newArtId = response.body.data.id
       expect(newArtId).to.exist
       cy.request({
         method: 'PATCH',

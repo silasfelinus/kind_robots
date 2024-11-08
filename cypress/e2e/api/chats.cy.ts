@@ -70,7 +70,7 @@ describe('Chat API Tests', () => {
       },
       body: {
         type: 'ToBot',
-        sender: 'silasfelinus',
+        sender: 'testtesterton',
         recipient: 'AMI',
         content: 'Hello, AMI!',
         title: 'Greeting',
@@ -80,10 +80,11 @@ describe('Chat API Tests', () => {
         previousEntryId: null,
         originId: null,
         botId: 1,
-        recipientId: null,
+        recipientId: 1,
         artImageId: null,
         promptId: null,
         botName: 'AMI',
+        userId: 9,
       },
       failOnStatusCode: false,
     }).then((response) => {

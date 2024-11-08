@@ -5,10 +5,10 @@ import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
-    const artEntries = await fetchAllArt()
+    const data = await fetchAllArt()
 
     // Wrap the fetched art entries in a data object
-    return { success: true, data: { artEntries } }
+    return { success: true, data }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500

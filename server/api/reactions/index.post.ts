@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    const reaction = existingReaction
+    const data = existingReaction
       ? await prisma.reaction.update({
           where: { id: existingReaction.id },
           data: reactionData as Prisma.ReactionUpdateInput,
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
         })
 
     event.node.res.statusCode = 201 // Created
-    response = { success: true, data: { reaction } } // Wrapped reaction in data
+    response = { success: true, data } // Wrapped reaction in data
   } catch (error) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500

@@ -109,8 +109,8 @@ describe('Reaction Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data?.reaction).to.have.property('id')
-      reactionId = response.body.data?.reaction.id
+      expect(response.body.data).to.have.property('id')
+      reactionId = response.body.data.id
     })
   })
 
@@ -134,8 +134,8 @@ describe('Reaction Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data?.reaction).to.have.property('rating', 4)
-      expect(response.body.data?.reaction.comment).to.eq(
+      expect(response.body.data).to.have.property('rating', 4)
+      expect(response.body.data.comment).to.eq(
         'Actually, clapping for this artwork!',
       )
     })

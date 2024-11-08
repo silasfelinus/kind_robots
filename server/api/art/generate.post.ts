@@ -178,9 +178,9 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 201
     return {
       success: true,
+      message: 'Art and image saved successfully!',
       data: {
-        message: 'Art and image saved successfully!',
-        art: newArt,
+        newArt,
         imageId,
       },
     }

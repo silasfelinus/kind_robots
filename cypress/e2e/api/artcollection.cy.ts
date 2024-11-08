@@ -124,7 +124,7 @@ describe('Art Collection API Tests', () => {
       }).then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body.success).to.be.true
-        const returnedArtIds = response.body.data.art.map((art: Art) => art.id)
+        const returnedArtIds = response.body.data.map((art: Art) => art.id)
         expect(returnedArtIds).to.include(newArtId)
         existingArtIds = returnedArtIds
       })

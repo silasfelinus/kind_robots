@@ -28,19 +28,33 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Set authenticated user ID
-    artData.userId = authenticatedUserId
+    // Build the data object for Prisma with conditional relationships
+    const data: Prisma.ArtCreateInput = {
+      promptString: artData.promptString,
+      steps: artData.steps,
+      path: artData.path,
+      seed: artData.seed,
+      User: { connect: { id: authenticatedUserId } },
+      // Include conditional relationships only if IDs are provided
+      ...(artData.promptId && {
+        Prompt: { connect: { id: artData.promptId } },
+      }),
+      ...(artData.galleryId && {
+        Gallery: { connect: { id: artData.galleryId } },
+      }),
+      ...(artData.pitchId && { Pitch: { connect: { id: artData.pitchId } } }),
+    }
 
     // Create the art entry
-    const data = await prisma.art.create({
-      data: artData as Prisma.ArtCreateInput,
+    const createdArt = await prisma.art.create({
+      data,
     })
 
     // Return success response with 201 status code
     event.node.res.statusCode = 201
     return {
       success: true,
-      data,
+      data: createdArt,
       message: 'Art created successfully.',
     }
   } catch (error) {

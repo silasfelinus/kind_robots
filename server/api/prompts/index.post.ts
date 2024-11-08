@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Create the new prompt with the authenticated user ID
-    const newPrompt = await prisma.prompt.create({
+    const data = await prisma.prompt.create({
       data: {
         userId: authenticatedUserId,
         prompt: promptData.prompt,
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
     // Return success response
     return {
       success: true,
-      data: { newPrompt },
+      data,
       message: 'Prompt created successfully.',
       statusCode: 201,
     }

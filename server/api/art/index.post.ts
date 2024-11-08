@@ -44,18 +44,16 @@ export default defineEventHandler(async (event) => {
       checkpoint: artData.checkpoint || null,
       sampler: artData.sampler || null,
       designer: artData.designer || null,
-      ...(artData.galleryId
-        ? { Gallery: { connect: { id: artData.galleryId } } }
-        : {}),
-      ...(artData.promptId
-        ? { Prompt: { connect: { id: artData.promptId } } }
-        : {}),
-      ...(artData.pitchId
-        ? { Pitch: { connect: { id: artData.pitchId } } }
-        : {}),
-      ...(artData.artImageId
-        ? { ArtImage: { connect: { id: artData.artImageId } } }
-        : {}),
+      Gallery: artData.galleryId
+        ? { connect: { id: artData.galleryId } }
+        : undefined,
+      Prompt: artData.promptId
+        ? { connect: { id: artData.promptId } }
+        : undefined,
+      Pitch: artData.pitchId ? { connect: { id: artData.pitchId } } : undefined,
+      ArtImage: artData.artImageId
+        ? { connect: { id: artData.artImageId } }
+        : undefined,
     }
 
     // Create the art entry in the database

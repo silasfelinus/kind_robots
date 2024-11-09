@@ -72,26 +72,27 @@ export const useUserStore = defineStore({
     },
 
     async fetchUserDataByToken(token: string): Promise<void> {
-      console.log(`Fetching user data by token: ${token}`)
-      try {
-        const response = await performFetch<User>('/api/auth/validate', {
-          method: 'POST',
-          body: JSON.stringify({ type: 'token', data: { token } }),
-        })
-        if (response.success && response.data) {
-          await this.setUser(response.data)
-          console.log('User data successfully set from token')
-        } else {
-          console.warn('Failed to fetch user data by token:', response.message)
-          handleError(
-            new Error(response.message || 'Unknown error'),
-            'fetching user data by token',
-          )
-        }
-      } catch (error) {
-        handleError(error, 'fetching user data by token')
-      }
-    },
+  console.log(`Fetching user data by token: ${token}`);
+  try {
+    const response = await performFetch<User>('/api/auth/validate', {
+      method: 'POST',
+      body: JSON.stringify({ type: 'token', data: { token } }),
+    });
+
+    if (response.success && response.user) {
+      await this.setUser(response.user);
+      console.log('User data successfully set from token');
+    } else {
+      console.warn('Failed to fetch user data by token:', response.message);
+      handleError(
+        new Error(response.message || 'Unknown error'),
+        'fetching user data by token'
+      );
+    }
+  } catch (error) {
+    handleError(error, 'fetching user data by token');
+  }
+},
 
     async fetchUserByApiKey(): Promise<void> {
       try {

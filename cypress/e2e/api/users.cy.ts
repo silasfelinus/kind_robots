@@ -3,7 +3,7 @@
 
 describe('User Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/users'
-  const authUrl = 'https://kind-robots.vercel.app/api/auth/login'
+  const authUrl = 'https://kind-robots.vercel.app/api/auth'
   const apiKey = Cypress.env('API_KEY') // bearer apiKey for test user
   let createdUserId: number | undefined
   let uniqueUsername: string
@@ -137,7 +137,7 @@ describe('User Management API Tests', () => {
     it('User Authentication with Correct Credentials', () => {
       cy.request({
         method: 'POST',
-        url: authUrl,
+        url: `${authUrl}/login`,
         headers: { 'Content-Type': 'application/json' },
         body: {
           username: uniqueUsername,
@@ -147,7 +147,7 @@ describe('User Management API Tests', () => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
         expect(response.body).to.have.property('data').that.is.an('object')
-        expect(response.body).to.have.property('data.token')
+        expect(response.body.data).to.have.property('token')
         authToken = response.body.data.token
       })
     })
@@ -155,7 +155,7 @@ describe('User Management API Tests', () => {
     it('User Authentication with Incorrect Credentials', () => {
       cy.request({
         method: 'POST',
-        url: authUrl,
+        url: `${authUrl}/login`,
         headers: { 'Content-Type': 'application/json' },
         body: {
           username: uniqueUsername,

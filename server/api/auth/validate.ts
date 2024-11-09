@@ -4,6 +4,7 @@ import { fetchUserById } from '../users'
 import { validateUserCredentials, verifyJwtToken, validateApiKey } from '.'
 
 export default defineEventHandler(async (event) => {
+console.log("validating....")
   try {
     const { type, data } = await readBody(event)
     if (!type || !data) {

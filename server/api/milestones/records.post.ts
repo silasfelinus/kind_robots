@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Create a new milestone record
-    const newRecord = await prisma.milestoneRecord.create({
+    const data = await prisma.milestoneRecord.create({
       data: {
         milestoneId,
         userId,
@@ -86,7 +86,7 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       message: 'Milestone record created successfully.',
-      data: newRecord, // Include created record in data field
+      data, // Include created record in data field
       statusCode: 201, // Created
     }
     event.node.res.statusCode = 201

@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Update the chat
-    const updatedChat = await prisma.chat.update({
+    const data = await prisma.chat.update({
       where: { id },
       data: updatedChatData,
     })
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       message: `Chat with ID ${id} updated successfully.`,
-      data: { chat: updatedChat },
+      data,
       statusCode: 200,
     }
     event.node.res.statusCode = 200

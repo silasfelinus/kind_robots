@@ -7,9 +7,7 @@
       @click="toggleMinimize"
     >
       <img
-        :src="
-          page.image ? `/images/${page.image}` : '/images/default-image.webp'
-        "
+        :src="page.image ? `/images/${page.image}` : '/images/backtree.webp'"
         alt="Chat Avatar"
         class="rounded-full w-14 h-14"
       />

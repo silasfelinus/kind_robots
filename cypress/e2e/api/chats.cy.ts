@@ -194,15 +194,4 @@ describe('Chat API Tests', () => {
       },
     )
   })
-
-  after(() => {
-    // Clean up in case chat was not deleted
-    if (chatId) {
-      makeRequest('DELETE', `${baseUrl}/${chatId}`, userToken).then(
-        (response) => {
-          expect(response.status).to.eq(200)
-        },
-      )
-    }
-  })
 })

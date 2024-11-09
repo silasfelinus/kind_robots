@@ -7,13 +7,13 @@ export default defineEventHandler(async () => {
   let response
 
   try {
-    const records = await prisma.milestoneRecord.findMany()
+    const data = await prisma.milestoneRecord.findMany()
 
     // Prepare the success response
     response = {
       success: true,
       message: 'Milestone records fetched successfully.',
-      data: records, // Wrap records in a data field
+      data, // Wrap records in a data field
       statusCode: 200,
     }
   } catch (error: unknown) {

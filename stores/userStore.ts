@@ -68,35 +68,35 @@ export const useUserStore = defineStore({
       }
       if (stayLoggedIn && storedToken) {
         console.log('Token found, attempting to fetch user data with token.')
-        this.fetchUserDataByToken(storedToken)
+        this.validateAndFetchUserData()
       }
     },
 
-    async fetchUserDataByToken(token: string): Promise<void> {
-      console.log(`Fetching user data by token: ${token}`)
-      try {
-        const response = await performFetch<User>('/api/auth/validate', {
-          method: 'POST',
-          body: JSON.stringify({ type: 'token', data: { token } }),
-        })
-        console.log('received response of:', response)
+    async validateAndFetchUserData(): Promise<boolean> {
+      console.log('Validating and fetching user data by token.')
 
-        if (response.success && response.user) {
-          await this.setUser(response.user)
-          this.token = response.token ?? undefined
-          if (this.stayLoggedIn && this.token) {
-            this.saveToLocalStorage('token', this.token)
-          }
+      try {
+        const response = await performFetch<User>('/api/auth/validate/token', {
+          method: 'POST',
+          body: JSON.stringify({ token: this.token }),
+        })
+        console.log('Received response:', response)
+
+        if (response.success && response.data) {
+          await this.setUser(response.data)
           console.log('User data successfully set from token')
+          return true
         } else {
-          console.warn('Failed to fetch user data by token:', response.message)
+          console.warn('User validation failed:', response.message)
           handleError(
-            new Error(response.message || 'Unknown error'),
-            'fetching user data by token',
+            new Error(response.message || 'Invalid token'),
+            'validating user',
           )
+          return false
         }
       } catch (error) {
-        handleError(error, 'fetching user data by token')
+        handleError(error, 'validating user')
+        return false
       }
     },
 
@@ -213,17 +213,17 @@ export const useUserStore = defineStore({
       password?: string
     }): Promise<{ success: boolean; message?: string }> {
       this.startLoading()
+
       try {
-        const response = await performFetch<User>('/api/auth/validate', {
+        const response = await performFetch<User>('/api/auth/login', {
           method: 'POST',
-          body: JSON.stringify({
-            type: 'credentials', // Ensure type is correctly set
-            data: credentials, // Pass credentials under data
-          }),
+          body: JSON.stringify(credentials), // Send credentials directly
         })
-        if (response.success && response.user) {
-          await this.setUser(response.user)
-          this.token = response.token ?? undefined
+
+        if (response.success && response.data) {
+          await this.setUser(response.data)
+          this.token = response.data.token ?? undefined
+
           if (this.stayLoggedIn && this.token) {
             this.saveToLocalStorage('token', this.token)
           }
@@ -253,34 +253,6 @@ export const useUserStore = defineStore({
       this.removeFromLocalStorage('stayLoggedIn')
       this.setStayLoggedIn(false)
     },
-
-    async validate(): Promise<boolean> {
-      console.log('Validating user with current token or API key.')
-      try {
-        const credentials = this.token
-          ? { type: 'token', data: { token: this.token } }
-          : { type: 'apiKey', data: { apiKey: this.apiKey } }
-        const response = await performFetch<User>('/api/auth/validate', {
-          method: 'POST',
-          body: JSON.stringify(credentials),
-        })
-        if (response.success && response.data) {
-          await this.setUser(response.data)
-          return true
-        } else {
-          console.warn('User validation failed:', response.message)
-          handleError(
-            new Error(response.message || 'Invalid token or API key'),
-            'validating user',
-          )
-          return false
-        }
-      } catch (error) {
-        handleError(error, 'validating user')
-        return false
-      }
-    },
-
     async updateKarmaAndMana(): Promise<{ success: boolean; message: string }> {
       try {
         const milestoneStore = useMilestoneStore()

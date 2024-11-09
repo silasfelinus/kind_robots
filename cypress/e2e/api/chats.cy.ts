@@ -189,7 +189,7 @@ describe('Chat API Tests', () => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
         expect(response.body.message).to.include(
-          `Chat with ID ${chatId} successfully deleted`,
+          `Communication with ID ${chatId} successfully deleted`,
         )
       },
     )

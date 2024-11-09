@@ -74,15 +74,12 @@ export const useUserStore = defineStore({
     async fetchUserDataByToken(token: string): Promise<void> {
       console.log(`Fetching user data by token: ${token}`)
       try {
-        const response = await performFetch<{ user: User }>(
-          '/api/auth/validate',
-          {
-            method: 'POST',
-            body: JSON.stringify({ type: 'token', data: { token } }),
-          },
-        )
+        const response = await performFetch<User>('/api/auth/validate', {
+          method: 'POST',
+          body: JSON.stringify({ type: 'token', data: { token } }),
+        })
         if (response.success && response.data) {
-          await this.setUser(response.data.user)
+          await this.setUser(response.data)
           console.log('User data successfully set from token')
         } else {
           console.warn('Failed to fetch user data by token:', response.message)
@@ -95,13 +92,12 @@ export const useUserStore = defineStore({
         handleError(error, 'fetching user data by token')
       }
     },
+
     async fetchUserByApiKey(): Promise<void> {
       try {
-        const response = await performFetch<{ success: boolean; user: User }>(
-          '/api/user',
-        )
-        if (response.success && response.user) {
-          this.setUser(response.user) // Ensure we're accessing the correct property
+        const response = await performFetch<User>('/api/user')
+        if (response.success && response.data) {
+          this.setUser(response.data)
         } else {
           throw new Error(response.message || 'Failed to fetch user')
         }
@@ -112,11 +108,17 @@ export const useUserStore = defineStore({
 
     async setUser(userData: User): Promise<void> {
       this.user = userData
+      this.token = userData.apiKey ?? undefined // Use nullish coalescing to set undefined if null
+      if (this.stayLoggedIn && this.token) {
+        this.saveToLocalStorage('token', this.token)
+      }
     },
+
     setStayLoggedIn(value: boolean) {
       this.saveToLocalStorage('stayLoggedIn', value.toString())
       this.stayLoggedIn = value
     },
+
     async fetchUsernameById(userId: number): Promise<string | null> {
       try {
         const response = await performFetch<{ username: string }>(
@@ -140,6 +142,7 @@ export const useUserStore = defineStore({
         return []
       }
     },
+
     async updateUserInfo(
       updatedUserInfo: Partial<User>,
     ): Promise<{ success: boolean; message?: string }> {
@@ -152,16 +155,18 @@ export const useUserStore = defineStore({
           this.setUser(response.data)
           return { success: true, message: 'User info updated successfully' }
         } else {
+          handleError(
+            new Error(response.message || 'Unknown error'),
+            'updating user info',
+          )
           return { success: false, message: response.message }
         }
       } catch (error) {
         handleError(error, 'updating user info')
-        return {
-          success: false,
-          message: this.lastError || 'An unknown error occurred',
-        }
+        return { success: false, message: 'An unknown error occurred' }
       }
     },
+
     async register(userData: {
       username: string
       email?: string
@@ -180,8 +185,7 @@ export const useUserStore = defineStore({
         })
         console.log('Registration response:', response)
         if (response.success && response.data) {
-          this.setUser(response.data)
-          this.token = response.data.apiKey || undefined
+          await this.setUser(response.data)
           return {
             success: true,
             user: response.data,
@@ -197,50 +201,7 @@ export const useUserStore = defineStore({
         }
       } catch (error) {
         handleError(error, 'registering user')
-        return {
-          success: false,
-          message: this.lastError || 'An unknown error occurred',
-        }
-      }
-    },
-
-    logout(): void {
-      console.log('Logging out user.')
-      this.user = null
-      this.token = undefined
-      this.removeFromLocalStorage('token')
-      this.removeFromLocalStorage('user')
-      this.removeFromLocalStorage('stayLoggedIn')
-      this.setStayLoggedIn(false)
-    },
-    async validate(): Promise<boolean> {
-      console.log('Validating user with current token or API key.')
-      try {
-        const credentials = this.token
-          ? { token: this.token }
-          : { apiKey: this.apiKey }
-        const response = await performFetch<{ success: boolean; user: User }>(
-          '/api/auth/validate',
-          {
-            method: 'POST',
-            body: JSON.stringify(credentials),
-          },
-        )
-        console.log('Validation response received:', response)
-        if (response.success && response.user) {
-          this.setUser(response.user)
-          return true
-        } else {
-          console.warn('User validation failed:', response.message)
-          handleError(
-            new Error(response.message || 'Invalid token or API key'),
-            'validating user',
-          )
-          return false
-        }
-      } catch (error) {
-        handleError(error, 'validating user')
-        return false
+        return { success: false, message: 'An unknown error occurred' }
       }
     },
 
@@ -257,13 +218,7 @@ export const useUserStore = defineStore({
         })
         console.log('Login response:', response)
         if (response.success && response.data) {
-          this.setUser(response.data)
-          this.token = response.data.apiKey || undefined
-          if (this.stayLoggedIn) {
-            this.saveToLocalStorage('token', this.token || '')
-          }
-          this.stopLoading()
-          console.log('Login successful, user data set.')
+          await this.setUser(response.data)
           return { success: true }
         } else {
           console.warn('Login failed:', response.message)
@@ -271,17 +226,50 @@ export const useUserStore = defineStore({
             new Error(response.message || 'Unknown login error'),
             'logging in',
           )
-          this.stopLoading()
           return { success: false, message: response.message }
         }
       } catch (error) {
         handleError(error, 'logging in')
+        return { success: false, message: 'An unknown error occurred' }
+      } finally {
         this.stopLoading()
-        console.error('Login error:', error)
-        return {
-          success: false,
-          message: this.lastError || 'An unknown error occurred',
+      }
+    },
+
+    logout(): void {
+      console.log('Logging out user.')
+      this.user = null
+      this.token = undefined
+      this.removeFromLocalStorage('token')
+      this.removeFromLocalStorage('user')
+      this.removeFromLocalStorage('stayLoggedIn')
+      this.setStayLoggedIn(false)
+    },
+
+    async validate(): Promise<boolean> {
+      console.log('Validating user with current token or API key.')
+      try {
+        const credentials = this.token
+          ? { token: this.token }
+          : { apiKey: this.apiKey }
+        const response = await performFetch<User>('/api/auth/validate', {
+          method: 'POST',
+          body: JSON.stringify(credentials),
+        })
+        if (response.success && response.data) {
+          await this.setUser(response.data)
+          return true
+        } else {
+          console.warn('User validation failed:', response.message)
+          handleError(
+            new Error(response.message || 'Invalid token or API key'),
+            'validating user',
+          )
+          return false
         }
+      } catch (error) {
+        handleError(error, 'validating user')
+        return false
       }
     },
 
@@ -317,44 +305,43 @@ export const useUserStore = defineStore({
             message: 'Successfully updated karma and mana.',
           }
         } else {
-          console.warn('Failed to update karma and mana:', response.message)
           handleError(
-            new Error(response.message || 'Unknown error'),
+            new Error(response.message || 'Failed to update karma and mana.'),
             'updating karma and mana',
           )
-          return {
-            success: false,
-            message: response.message || 'Failed to update karma and mana.',
-          }
+          return { success: false, message: 'Failed to update karma and mana.' }
         }
       } catch (error) {
         handleError(error, 'updating karma and mana')
-        return {
-          success: false,
-          message: this.lastError || 'An unknown error occurred',
-        }
+        return { success: false, message: 'An unknown error occurred' }
       }
     },
+
     setToken(newToken: string): void {
       this.token = newToken || undefined
       this.saveToLocalStorage('token', newToken)
     },
+
     startLoading() {
       this.loading = true
     },
+
     stopLoading() {
       this.loading = false
     },
+
     saveToLocalStorage(key: string, value: string) {
       if (typeof window !== 'undefined') {
         localStorage.setItem(key, value)
       }
     },
+
     removeFromLocalStorage(key: string) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem(key)
       }
     },
+
     getFromLocalStorage(key: string): string | null {
       return typeof window !== 'undefined' ? localStorage.getItem(key) : null
     },

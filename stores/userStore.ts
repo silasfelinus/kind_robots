@@ -83,7 +83,7 @@ export const useUserStore = defineStore({
 
         if (response.success && response.user) {
           await this.setUser(response.user)
-          this.token = token ?? undefined // Ensure `undefined` for null values
+          this.token = response.token ?? undefined
           if (this.stayLoggedIn && this.token) {
             this.saveToLocalStorage('token', this.token)
           }
@@ -221,8 +221,12 @@ export const useUserStore = defineStore({
             data: credentials, // Pass credentials under data
           }),
         })
-        if (response.success && response.data) {
-          await this.setUser(response.data)
+        if (response.success && response.user) {
+          await this.setUser(response.user)
+          this.token = response.token ?? undefined
+          if (this.stayLoggedIn && this.token) {
+            this.saveToLocalStorage('token', this.token)
+          }
           return { success: true }
         } else {
           console.warn('Login failed:', response.message)

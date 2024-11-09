@@ -191,7 +191,6 @@ export async function createUserWithAuth(
     return { success: false, message: errorHandler(error).message }
   }
 }
-
 export async function validateUserCredentials(
   username: string,
   password?: string,
@@ -203,6 +202,7 @@ export async function validateUserCredentials(
       console.log('Debug: User not found')
       return null
     }
+    console.log('User found, validating', user)
 
     if (user.password && password) {
       const isPasswordValid = await bcryptCompare(password, user.password)
@@ -214,8 +214,7 @@ export async function validateUserCredentials(
     }
 
     const token = await createToken(user, user.apiKey ?? '')
-    // Return all user fields and token directly
-    return { success: true, token, ...user }
+    return { user, token }
   } catch (error: unknown) {
     console.error(
       `Failed to validate user credentials: ${errorHandler(error).message}`,

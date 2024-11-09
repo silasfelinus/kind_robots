@@ -4,10 +4,11 @@
 describe('User Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/users'
   const authUrl = 'https://kind-robots.vercel.app/api/auth/login'
-  const apiKey = Cypress.env('API_KEY') // Global API key
+  const apiKey = Cypress.env('API_KEY') // bearer apiKey for test user
   let createdUserId: number | undefined
   let uniqueUsername: string
   let createdUserToken: string // This will store the specific token for the created user
+  let authToken: string //the auth token is the user.token. the bearer token is user.apiKey
 
   // Create a user once before all tests
   before(() => {
@@ -145,7 +146,9 @@ describe('User Management API Tests', () => {
       }).then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
-        expect(response.body).to.have.property('user').that.is.an('object')
+        expect(response.body).to.have.property('data').that.is.an('object')
+        expect(response.body).to.have.property('data.token')
+        authToken = response.body.data.token
       })
     })
 
@@ -163,6 +166,39 @@ describe('User Management API Tests', () => {
         expect(response.status).to.eq(401)
         expect(response.body).to.have.property('success', false)
         expect(response.body).to.have.property('message', 'Invalid credentials')
+      })
+    })
+    it('Token Validation', () => {
+      cy.request({
+        method: 'POST',
+        url: `${authUrl}/validateToken`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: {
+          token: authToken, // Use the user-specific token
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body).to.have.property('success', true)
+        expect(response.body).to.have.property('data').that.is.an('object')
+      })
+    })
+
+    it('API Key Validation', () => {
+      cy.request({
+        method: 'POST',
+        url: `${authUrl}/validateApiKey`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: {
+          apiKey: apiKey, // Use the global API key
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body).to.have.property('success', true)
+        expect(response.body).to.have.property('data').that.is.an('object')
       })
     })
   })

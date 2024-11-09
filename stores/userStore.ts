@@ -210,13 +210,14 @@ export const useUserStore = defineStore({
       password?: string
     }): Promise<{ success: boolean; message?: string }> {
       this.startLoading()
-      console.log('Attempting to log in with credentials:', credentials)
       try {
-        const response = await performFetch<User>('/api/auth/login', {
+        const response = await performFetch<User>('/api/auth/validate', {
           method: 'POST',
-          body: JSON.stringify(credentials),
+          body: JSON.stringify({
+            type: 'credentials', // Ensure type is correctly set
+            data: credentials, // Pass credentials under data
+          }),
         })
-        console.log('Login response:', response)
         if (response.success && response.data) {
           await this.setUser(response.data)
           return { success: true }

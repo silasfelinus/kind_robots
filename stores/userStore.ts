@@ -61,30 +61,24 @@ export const useUserStore = defineStore({
     initializeUser() {
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
-      console.log('initializing user, token is :', storedToken)
       this.setStayLoggedIn(stayLoggedIn)
       if (storedToken) {
         this.token = storedToken
       }
       if (stayLoggedIn && storedToken) {
-        console.log('Token found, attempting to fetch user data with token.')
         this.validateAndFetchUserData()
       }
     },
 
     async validateAndFetchUserData(): Promise<boolean> {
-      console.log('Validating and fetching user data by token.')
-
       try {
         const response = await performFetch<User>('/api/auth/validate/token', {
           method: 'POST',
           body: JSON.stringify({ token: this.token }),
         })
-        console.log('Received response:', response)
 
         if (response.success && response.data) {
           await this.setUser(response.data)
-          console.log('User data successfully set from token')
           return true
         } else {
           console.warn('User validation failed:', response.message)

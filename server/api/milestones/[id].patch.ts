@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     const milestoneData: Partial<Milestone> = await readBody(event)
 
     // Update the milestone in the database
-    const updatedMilestone = await prisma.milestone.update({
+    const data = await prisma.milestone.update({
       where: { id: milestoneId },
       data: milestoneData,
     })
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     // Return success response
     response = {
       success: true,
-      milestone: updatedMilestone,
+      data,
       statusCode: 200,
     }
     event.node.res.statusCode = 200

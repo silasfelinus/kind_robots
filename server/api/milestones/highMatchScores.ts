@@ -1,4 +1,4 @@
-// /server/api/milestones/fetchHighClickScores.get.ts
+// /server/api/milestones/highMatchScores.get.ts
 
 import { defineEventHandler } from 'h3'
 import prisma from '../utils/prisma'
@@ -8,37 +8,37 @@ export default defineEventHandler(async () => {
   let response
 
   try {
-    // Fetch users with a clickRecord greater than 0, ordered by clickRecord descending
-    const users = await prisma.user.findMany({
+    // Fetch users with a matchRecord greater than 0, ordered by matchRecord descending
+    const data = await prisma.user.findMany({
       where: {
-        clickRecord: {
+        matchRecord: {
           gt: 0,
         },
       },
       orderBy: {
-        clickRecord: 'desc',
+        matchRecord: 'desc',
       },
       select: {
         id: true,
         username: true,
-        clickRecord: true,
+        matchRecord: true,
       },
     })
 
     // Return success response with user data
     response = {
       success: true,
-      users,
+      data,
       statusCode: 200,
     }
   } catch (error: unknown) {
     // Handle error and set appropriate response
     const handledError = errorHandler(error)
-    console.error('Error fetching high click scores:', handledError)
+    console.error('Error fetching high match scores:', handledError)
 
     response = {
       success: false,
-      message: handledError.message || 'Failed to fetch high click scores.',
+      message: handledError.message || 'Failed to fetch high match scores.',
       statusCode: handledError.statusCode || 500,
     }
   }

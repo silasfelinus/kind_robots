@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
 
     switch (type) {
       case 'credentials': {
+        console.log("now validating by credentials")
         const { username, password } = data
         if (!username || !password) {
           throw new Error(
@@ -38,6 +39,7 @@ export default defineEventHandler(async (event) => {
       }
 
       case 'token': {
+console.log("now validating by token")
         const { token } = data
         if (!token) {
           throw new Error('Token is required for token validation.')
@@ -63,6 +65,7 @@ export default defineEventHandler(async (event) => {
       }
 
       case 'apiKey': {
+console.log("now validating by apikey")
         const { apiKey } = data
         if (!apiKey) {
           throw new Error('API key is required for validation.')

@@ -207,7 +207,6 @@ export const useUserStore = defineStore({
         return { success: false, message: 'An unknown error occurred' }
       }
     },
-
     async login(credentials: {
       username: string
       password?: string
@@ -224,9 +223,16 @@ export const useUserStore = defineStore({
           await this.setUser(response.data)
           this.token = response.data.token ?? undefined
 
+          // Save the token if it's the first login or stayLoggedIn is true
           if (this.stayLoggedIn && this.token) {
             this.saveToLocalStorage('token', this.token)
           }
+
+          // Update the user's database entry with the token if it's missing
+          if (!response.data.token && this.token) {
+            await this.updateUserToken(this.token)
+          }
+
           return { success: true }
         } else {
           console.warn('Login failed:', response.message)
@@ -241,6 +247,27 @@ export const useUserStore = defineStore({
         return { success: false, message: 'An unknown error occurred' }
       } finally {
         this.stopLoading()
+      }
+    },
+    // Helper method to update the token in the database
+    async updateUserToken(newToken: string): Promise<void> {
+      try {
+        const response = await performFetch<User>(`/api/users/${this.userId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ token: newToken }),
+        })
+
+        if (response.success && response.data) {
+          console.log('User token successfully updated in the database.')
+        } else {
+          console.warn('Failed to update user token:', response.message)
+          handleError(
+            new Error(response.message || 'Error updating token'),
+            'updating user token',
+          )
+        }
+      } catch (error) {
+        handleError(error, 'updating user token')
       }
     },
 

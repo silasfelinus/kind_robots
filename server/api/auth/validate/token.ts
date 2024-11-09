@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     const verificationResult = await verifyJwtToken(token)
     if (verificationResult && verificationResult.userId) {
       const data = await fetchUserById(verificationResult.userId)
-      if (userData) {
+      if (data) {
         console.log('Token validation succeeded.')
         return {
           success: true,

@@ -61,7 +61,7 @@ export const useUserStore = defineStore({
     initializeUser() {
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
-      console.log("initializing user, token is :", storedToken)
+      console.log('initializing user, token is :', storedToken)
       this.setStayLoggedIn(stayLoggedIn)
       if (storedToken) {
         this.token = storedToken
@@ -73,28 +73,32 @@ export const useUserStore = defineStore({
     },
 
     async fetchUserDataByToken(token: string): Promise<void> {
-  console.log(`Fetching user data by token: ${token}`);
-  try {
-    const response = await performFetch<User>('/api/auth/validate', {
-      method: 'POST',
-      body: JSON.stringify({ type: 'token', data: { token } }),
-    });
-    console.log("received response of:", response)
+      console.log(`Fetching user data by token: ${token}`)
+      try {
+        const response = await performFetch<User>('/api/auth/validate', {
+          method: 'POST',
+          body: JSON.stringify({ type: 'token', data: { token } }),
+        })
+        console.log('received response of:', response)
 
-    if (response.success && response.user) {
-      await this.setUser(response.user);
-      console.log('User data successfully set from token');
-    } else {
-      console.warn('Failed to fetch user data by token:', response.message);
-      handleError(
-        new Error(response.message || 'Unknown error'),
-        'fetching user data by token'
-      );
-    }
-  } catch (error) {
-    handleError(error, 'fetching user data by token');
-  }
-},
+        if (response.success && response.user) {
+          await this.setUser(response.user)
+          this.token = token ?? undefined // Ensure `undefined` for null values
+          if (this.stayLoggedIn && this.token) {
+            this.saveToLocalStorage('token', this.token)
+          }
+          console.log('User data successfully set from token')
+        } else {
+          console.warn('Failed to fetch user data by token:', response.message)
+          handleError(
+            new Error(response.message || 'Unknown error'),
+            'fetching user data by token',
+          )
+        }
+      } catch (error) {
+        handleError(error, 'fetching user data by token')
+      }
+    },
 
     async fetchUserByApiKey(): Promise<void> {
       try {
@@ -111,10 +115,6 @@ export const useUserStore = defineStore({
 
     async setUser(userData: User): Promise<void> {
       this.user = userData
-      this.token = userData.apiKey ?? undefined // Ensure `undefined` for null values
-      if (this.stayLoggedIn && this.token) {
-        this.saveToLocalStorage('token', this.token)
-      }
     },
 
     setStayLoggedIn(value: boolean) {

@@ -108,7 +108,7 @@ export const useUserStore = defineStore({
 
     async setUser(userData: User): Promise<void> {
       this.user = userData
-      this.token = userData.apiKey ?? undefined // Use nullish coalescing to set undefined if null
+      this.token = userData.apiKey ?? undefined // Ensure `undefined` for null values
       if (this.stayLoggedIn && this.token) {
         this.saveToLocalStorage('token', this.token)
       }
@@ -251,8 +251,8 @@ export const useUserStore = defineStore({
       console.log('Validating user with current token or API key.')
       try {
         const credentials = this.token
-          ? { token: this.token }
-          : { apiKey: this.apiKey }
+          ? { type: 'token', data: { token: this.token } }
+          : { type: 'apiKey', data: { apiKey: this.apiKey } }
         const response = await performFetch<User>('/api/auth/validate', {
           method: 'POST',
           body: JSON.stringify(credentials),

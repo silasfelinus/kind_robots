@@ -39,31 +39,40 @@ console.log("validating....")
         }
       }
 
-      case 'token': {
-console.log("now validating by token")
-        const { token } = data
-        if (!token) {
-          throw new Error('Token is required for token validation.')
-        }
-        const verificationResult = await verifyJwtToken(token)
+case 'token': {
+  console.log("now validating by token")
+  const { token } = data
+  if (!token) {
+    throw new Error('Token is required for token validation.')
+  }
 
-        if (verificationResult && verificationResult.userId) {
-          const userData = await fetchUserById(verificationResult.userId)
-          if (userData) {
-            console.log('Token validation succeeded.')
-            return {
-              success: true,
-              message: 'Token is valid.',
-              user: userData,
-            }
-          }
-        }
-        console.log('Token validation failed.')
-        return {
-          success: false,
-          message: 'Invalid token or user not found.',
-        }
+  // Check if the token structure is valid (should have two dots for three parts)
+  if (token.split('.').length !== 3) {
+    console.log('Invalid token format')
+    return {
+      success: false,
+      message: 'Token format is invalid.',
+    }
+  }
+
+  const verificationResult = await verifyJwtToken(token)
+  if (verificationResult && verificationResult.userId) {
+    const userData = await fetchUserById(verificationResult.userId)
+    if (userData) {
+      console.log('Token validation succeeded.')
+      return {
+        success: true,
+        message: 'Token is valid.',
+        user: userData,
       }
+    }
+  }
+  console.log('Token validation failed.')
+  return {
+    success: false,
+    message: 'Invalid token or user not found.',
+  }
+}
 
       case 'apiKey': {
 console.log("now validating by apikey")

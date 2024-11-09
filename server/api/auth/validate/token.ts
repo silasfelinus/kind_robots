@@ -1,8 +1,8 @@
 // src/api/auth/validateByToken.js
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error'
-import { fetchUserById } from '../users'
-import { verifyJwtToken } from '.'
+import { errorHandler } from '../../utils/error'
+import { fetchUserById } from '../../users'
+import { verifyJwtToken } from '..'
 
 export default defineEventHandler(async (event) => {
   console.log('validating by token...')

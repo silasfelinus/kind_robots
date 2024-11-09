@@ -1,7 +1,7 @@
 // src/api/auth/validateByApiKey.js
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '.'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '..'
 
 export default defineEventHandler(async (event) => {
   console.log('validating by API key...')

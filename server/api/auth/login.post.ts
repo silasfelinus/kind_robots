@@ -1,91 +1,34 @@
-import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error'
-import { fetchUserById } from '../users'
-import { validateUserCredentials, verifyJwtToken, validateApiKey } from '.'
+//server/api/auth/login.post.ts
+import { defineEventHandler, readBody, sendError } from 'h3'
+import { validateUserCredentials } from '.'
 
 export default defineEventHandler(async (event) => {
   try {
-    const { type, data } = await readBody(event)
-    if (!type || !data) {
-      throw new Error('Validation type and data are required.')
+    // Read and destructure the body from the event
+    const { username, password } = await readBody<{
+      username: string
+      password: string
+    }>(event)
+
+    // Validate the user credentials
+    const result = await validateUserCredentials(username, password)
+    if (result) {
+      // Return success response if credentials are valid
+      return { success: true, user: result.user, token: result.token }
+    } else {
+      // Throw an error if credentials are invalid
+      event.res.statusCode = 401 // Set status to 401 Unauthorized
+      return { success: false, message: 'Invalid credentials' }
     }
+  } catch (error: unknown) {
+    // Log the error and return a failure response
+    console.error('Error during login:', error)
 
-    switch (type) {
-      case 'credentials': {
-        const { username, password } = data
-        if (!username || !password) {
-          throw new Error(
-            'Both username and password must be provided for credentials validation.',
-          )
-        }
-        const validationResponse = await validateUserCredentials(
-          username,
-          password,
-        )
+    // Safely handle unknown errors
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error occurred'
 
-        if (validationResponse) {
-          return {
-            success: true,
-            message: 'Credentials are valid.',
-            data: { ...validationResponse },
-          }
-        } else {
-          return {
-            success: false,
-            message: 'Invalid username or password.',
-          }
-        }
-      }
-
-      case 'token': {
-        const { token } = data
-        if (!token) {
-          throw new Error('Token is required for token validation.')
-        }
-        const verificationResult = await verifyJwtToken(token)
-
-        if (verificationResult && verificationResult.userId) {
-          const userData = await fetchUserById(verificationResult.userId)
-          if (userData) {
-            return {
-              success: true,
-              message: 'Token is valid.',
-              data: { ...userData, token }, // Spread user data and include token
-            }
-          }
-        }
-        return {
-          success: false,
-          message: 'Invalid token or user not found.',
-        }
-      }
-
-      case 'apiKey': {
-        const { apiKey } = data
-        if (!apiKey) {
-          throw new Error('API key is required for validation.')
-        }
-        const isApiKeyValid = await validateApiKey(apiKey)
-
-        return isApiKeyValid
-          ? {
-              success: true,
-              message: 'API key is valid.',
-            }
-          : {
-              success: false,
-              message: 'Invalid API key.',
-            }
-      }
-
-      default:
-        return {
-          success: false,
-          message: 'Invalid validation type provided.',
-        }
-    }
-  } catch (error) {
-    const { message } = errorHandler(error)
-    return { success: false, message: `Validation error: ${message}` }
+    // Use sendError to set an appropriate status code if not already set
+    return sendError(event, new Error(errorMessage))
   }
 })

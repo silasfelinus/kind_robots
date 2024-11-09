@@ -26,7 +26,7 @@
       class="components-section flex-grow w-full max-w-4xl overflow-y-auto p-2 md:p-4 lg:p-6"
     >
       <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
-      <lazy-rebel-button />
+      <lazy-rebel-button v-if="choice === 'rebel-button'" />
       <lazy-jellybean-counter v-if="choice === 'jellybean-counter'" />
       <lazy-about-page v-if="choice === 'about-page'" />
       <lazy-sponsor-page v-if="choice === 'sponsor-page'" />

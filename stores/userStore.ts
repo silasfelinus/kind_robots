@@ -61,6 +61,7 @@ export const useUserStore = defineStore({
     initializeUser() {
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
+      console.log("initializing user, token is :", storedToken)
       this.setStayLoggedIn(stayLoggedIn)
       if (storedToken) {
         this.token = storedToken
@@ -78,6 +79,7 @@ export const useUserStore = defineStore({
       method: 'POST',
       body: JSON.stringify({ type: 'token', data: { token } }),
     });
+    console.log("received response of:", response)
 
     if (response.success && response.user) {
       await this.setUser(response.user);

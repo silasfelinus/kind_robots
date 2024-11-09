@@ -295,8 +295,7 @@ export const useUserStore = defineStore({
         const updatedMana = milestoneCount
         const response = await performFetch<{
           success: boolean
-          karma: number
-          mana: number
+          data: User
         }>(`/api/users/${this.userId}`, {
           method: 'PATCH',
           body: JSON.stringify({ karma: updatedKarma, mana: updatedMana }),

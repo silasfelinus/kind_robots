@@ -275,6 +275,25 @@ export const useMilestoneStore = defineStore({
       }
     },
 
+    async clearAllMilestoneRecords() {
+      try {
+        const response = await performFetch(`/api/milestones/records/clear/`, {
+          method: 'DELETE',
+        })
+
+        if (response.success) {
+          // Clear local milestone records
+          this.milestoneRecords = []
+          this.saveMilestoneRecordsToLocalStorage()
+          console.log(response.message)
+        } else {
+          console.warn(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'clearing all milestone records')
+      }
+    },
+
     async addMilestoneRecord(record: Partial<MilestoneRecord>) {
       try {
         const response = await performFetch<MilestoneRecord>(

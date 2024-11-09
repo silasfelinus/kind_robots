@@ -1,11 +1,11 @@
-// /server/api/chats/user/[userId].get.ts
+// /server/api/chats/user/[id].get.ts
 import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
-  const userId = Number(event.context.params?.userId)
+  const userId = Number(event.context.params?.id)
 
   if (isNaN(userId) || userId <= 0) {
     return errorHandler({

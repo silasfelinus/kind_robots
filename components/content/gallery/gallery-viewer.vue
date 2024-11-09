@@ -8,7 +8,7 @@
     >
       <div class="gallery-card">
         <img
-          :src="gallery.highlightImage || '/images/default.png'"
+          :src="gallery.highlightImage || '/images/backtree.webp'"
           alt="Highlight Image"
         />
         <h3>{{ gallery.name }}</h3>
@@ -22,7 +22,7 @@
       <div v-if="selectedGallery !== null" class="gallery-modal">
         <h2>{{ selectedGallery.name }}</h2>
         <img
-          :src="selectedGallery.highlightImage || '/images/default.png'"
+          :src="selectedGallery.highlightImage || '/images/backtree.webp'"
           alt="Highlight Image"
         />
         <p>{{ selectedGallery.description }}</p>

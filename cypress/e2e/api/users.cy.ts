@@ -171,7 +171,7 @@ describe('User Management API Tests', () => {
     it('Token Validation', () => {
       cy.request({
         method: 'POST',
-        url: `${authUrl}/validateToken`,
+        url: `${authUrl}/validate/token`,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -188,12 +188,12 @@ describe('User Management API Tests', () => {
     it('API Key Validation', () => {
       cy.request({
         method: 'POST',
-        url: `${authUrl}/validateApiKey`,
+        url: `${authUrl}/validate/api`,
         headers: {
           'Content-Type': 'application/json',
         },
         body: {
-          apiKey: apiKey, // Use the global API key
+          apiKey: apiKey, // Use the user's test key
         },
       }).then((response) => {
         expect(response.status).to.eq(200)

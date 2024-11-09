@@ -217,7 +217,7 @@ export const useUserStore = defineStore({
       try {
         const response = await performFetch<User>('/api/auth/login', {
           method: 'POST',
-          body: JSON.stringify(credentials), // Send credentials directly
+          body: JSON.stringify(credentials),
         })
 
         if (response.success && response.data) {

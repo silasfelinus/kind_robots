@@ -430,6 +430,7 @@ model User {
   timezone       String?           @db.VarChar(255)
   twitterUrl     String?           @db.Text
   apiKey         String?           @db.Text
+  token          String?           @db.Text
   password       String?           @db.Text
   karma          Int               @default(0)
   mana           Int               @default(0)

@@ -214,7 +214,8 @@ export async function validateUserCredentials(
     }
 
     const token = await createToken(user, user.apiKey ?? '')
-    return { user, token }
+    // Return all user fields and token directly
+    return { success: true, token, ...user }
   } catch (error: unknown) {
     console.error(
       `Failed to validate user credentials: ${errorHandler(error).message}`,

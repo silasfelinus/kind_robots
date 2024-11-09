@@ -80,15 +80,15 @@ export const getUserDataByToken = async (token: string) => {
       return { success: false, message: 'Invalid token.', statusCode: 403 }
     }
 
-    const user = await prisma.user.findUnique({
+    const data = await prisma.user.findUnique({
       where: { id: userId },
     })
 
-    if (!user) {
+    if (!data) {
       return { success: false, message: 'User not found.', statusCode: 404 }
     }
 
-    return { success: true, user }
+    return { success: true, data }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
     return {

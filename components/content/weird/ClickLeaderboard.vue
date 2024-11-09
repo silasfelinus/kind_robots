@@ -33,7 +33,7 @@ interface LeaderboardUser {
 const leaderboard = ref<LeaderboardUser[]>([])
 
 onMounted(async () => {
-  const response = await fetch('/api/milestones/fetchHighClickScores')
+  const response = await fetch('/api/milestones/highClickScores')
   const data = await response.json()
   if (data.success) {
     leaderboard.value = data.users

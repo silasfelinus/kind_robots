@@ -50,14 +50,6 @@
             Logout
           </button>
         </div>
-        <div v-else>
-          <button
-            class="bg-primary p-2 rounded-lg text-white text-lg"
-            @click="showLogin = true"
-          >
-            Login
-          </button>
-        </div>
       </div>
       <login-form v-if="showLogin" @close="showLogin = false" />
       <div class="flex flex-row">
@@ -79,13 +71,11 @@
           <span>{{ user?.mana || 0 }}</span>
         </div>
         <button
-          :class="[
-            'rounded-lg text-white text-lg',
-            isLoggedIn ? 'bg-warning' : 'bg-primary',
-          ]"
+          v-if="isLoggedIn"
+          class="bg-warning rounded-lg text-white text-lg"
           @click.stop="handleButtonClick"
         >
-          {{ isLoggedIn ? 'Logout' : 'Login' }}
+          Logout
         </button>
         <theme-toggle class="flex flex-row" />
       </div>
@@ -103,7 +93,7 @@ const errorStore = useErrorStore()
 const user = computed(() => userStore.user)
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 
-const showLogin = ref(false)
+const showLogin = ref(!isLoggedIn.value)
 const isMinimized = ref(false)
 const isLoading = ref(false)
 const errorMessage = ref('')
@@ -113,9 +103,7 @@ const toggleMinimize = () => {
 }
 
 watch(isLoggedIn, (newValue) => {
-  if (newValue) {
-    showLogin.value = false
-  }
+  showLogin.value = !newValue
 })
 
 const handleButtonClick = async () => {
@@ -123,7 +111,6 @@ const handleButtonClick = async () => {
     try {
       await userStore.logout()
     } catch (error: unknown) {
-      // Using the error store to handle errors
       errorStore.setError(
         ErrorType.AUTH_ERROR,
         error instanceof Error

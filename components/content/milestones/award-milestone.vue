@@ -1,21 +1,19 @@
 
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useUserStore } from '@/stores/userStore'
+import { ref, onMounted } from 'vue'
 import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const props = defineProps<{ id: number }>()
-const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
+const userStore = useUserStore()
 const errorStore = useErrorStore()
-
-const milestoneAchieved = ref(false)
 
 const checkAndRecordMilestone = async () => {
   try {
-    // Fetch the milestone by ID
+    // Fetch milestone data by ID
     const response = await milestoneStore.fetchMilestoneById(props.id)
     if (!response.success || !response.data) {
       throw new Error(response.message || 'Milestone not found')
@@ -25,30 +23,26 @@ const checkAndRecordMilestone = async () => {
 
     // Check if the user already has this milestone
     if (milestoneStore.hasMilestone(userStore.userId, milestone.id)) {
-      console.log('Milestone already rewarded.')
-      milestoneAchieved.value = true
+      console.log('Milestone already achieved.')
       return
     }
 
-    // Record the milestone for the user
+    // Record the milestone if not already achieved
     const recordResult = await milestoneStore.recordMilestone(
       userStore.userId,
       milestone.id
     )
     if (recordResult.success) {
-      console.log('Milestone successfully recorded.')
-      milestoneAchieved.value = true
+      console.log('Milestone recorded successfully.')
     } else {
       throw new Error(recordResult.message || 'Failed to record milestone')
     }
   } catch (error) {
     errorStore.setError(ErrorType.GENERAL_ERROR, error)
-    console.error('Error recording milestone:', errorStore.message)
+    console.error('Error handling milestone:', errorStore.message)
   }
 }
 
-onMounted(() => {
-  // Automatically check and record milestone on mount if desired
-  checkAndRecordMilestone()
-})
+// Optionally, run on mount
+onMounted(() => checkAndRecordMilestone())
 </script>

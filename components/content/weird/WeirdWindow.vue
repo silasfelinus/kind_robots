@@ -24,7 +24,7 @@
         >
           Teleport
         </button>
-        <milestone-reward v-if="shouldShowMilestoneCheck" :id="3" />
+        <award-milestone v-if="shouldShowMilestoneCheck" :id="3" />
       </div>
     </div>
   </div>

@@ -23,7 +23,7 @@
           aria-label="Close popup"
           @click="closePopup"
         >
-          <Icon name="close" />
+          <Icon name="kind-icon:close" />
         </button>
       </div>
       <p class="text-gray-700">
@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useUserStore } from '@/stores/userStore'
 import type { Milestone } from '@prisma/client'
@@ -50,6 +50,33 @@ const showPopup = ref(false)
 const currentMilestone = ref<Milestone | null>(null)
 const queueLimit = 5 // Limit the number of milestones queued
 
+// Computed property to get unconfirmed milestones for the current user
+const unconfirmedMilestones = computed(() => {
+  const userId = userStore.userId
+  return milestoneStore.milestoneRecords.filter(
+    (record) => record.userId === userId && !record.isConfirmed
+  )
+})
+
+// Process unconfirmed milestones
+watchEffect(async () => {
+  for (const record of unconfirmedMilestones.value) {
+    const response = await milestoneStore.fetchMilestoneById(record.milestoneId)
+    if (response.success && response.data) {
+      if (popupQueue.value.length < queueLimit) {
+        popupQueue.value.push(response.data)
+      }
+      record.isConfirmed = true
+    } else {
+      console.warn(`Could not fetch milestone with ID ${record.milestoneId}`)
+    }
+  }
+
+  if (!showPopup.value) nextMilestone()
+  milestoneStore.saveMilestoneRecordsToLocalStorage()
+})
+
+// Display the next milestone in the queue
 const nextMilestone = () => {
   if (popupQueue.value.length > 0) {
     currentMilestone.value = popupQueue.value.shift()!
@@ -57,34 +84,7 @@ const nextMilestone = () => {
   }
 }
 
-watch(
-  () => milestoneStore.milestoneRecords,
-  async (newRecords) => {
-    const userId = userStore.userId
-    const unconfirmedRecords = newRecords.filter(
-      (record) => record.userId === userId && !record.isConfirmed,
-    )
-
-    for (const record of unconfirmedRecords) {
-      const response = await milestoneStore.fetchMilestoneById(
-        record.milestoneId,
-      )
-      if (response.success && response.data) {
-        if (popupQueue.value.length < queueLimit) {
-          popupQueue.value.push(response.data)
-        }
-        record.isConfirmed = true
-      } else {
-        console.warn(`Could not fetch milestone with ID ${record.milestoneId}`)
-      }
-    }
-
-    if (!showPopup.value) nextMilestone()
-    milestoneStore.saveMilestoneRecordsToLocalStorage()
-  },
-  { immediate: true, deep: true },
-)
-
+// Close the popup and check if there are more milestones to display
 const closePopup = () => {
   showPopup.value = false
   currentMilestone.value = null

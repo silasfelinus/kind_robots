@@ -2,7 +2,7 @@
   <transition name="fade-scale" mode="out-in">
     <div
       v-if="showPopup"
-      class="fixed left-4 top-1/4 bg-white shadow-lg rounded-2xl border border-gray-300 p-6 sm:max-w-[66%] md:max-w-[33%] w-full"
+      class="fixed left-4 top-1/4 bg-white shadow-lg rounded-2xl border z-50 border-gray-300 p-6 sm:max-w-[66%] md:max-w-[33%] w-full"
       role="dialog"
       aria-live="assertive"
       tabindex="-1"

@@ -72,10 +72,13 @@ export const useUserStore = defineStore({
 
     async validateAndFetchUserData(): Promise<boolean> {
       try {
-        const response = await performFetch<User>('/api/auth/validate/token', {
-          method: 'POST',
-          body: JSON.stringify({ token: this.token }),
-        })
+        const response = await performFetch<{ data: User }>(
+          '/api/auth/validate/token',
+          {
+            method: 'POST',
+            body: JSON.stringify({ token: this.token }),
+          }
+        )
 
         if (response.success && response.data) {
           await this.setUser(response.data)
@@ -84,7 +87,7 @@ export const useUserStore = defineStore({
           console.warn('User validation failed:', response.message)
           handleError(
             new Error(response.message || 'Invalid token'),
-            'validating user',
+            'validating user'
           )
           return false
         }
@@ -96,9 +99,9 @@ export const useUserStore = defineStore({
 
     async fetchUserByApiKey(): Promise<void> {
       try {
-        const response = await performFetch<User>('/api/user')
+        const response = await performFetch<{ data: User }>('/api/user')
         if (response.success && response.data) {
-          this.setUser(response.data)
+          await this.setUser(response.data)
         } else {
           throw new Error(response.message || 'Failed to fetch user')
         }
@@ -178,37 +181,8 @@ export const useUserStore = defineStore({
     async setUser(userData: User): Promise<void> {
       this.user = userData
     },
-  },
-    setStayLoggedIn(value: boolean) {
-      this.saveToLocalStorage('stayLoggedIn', value.toString())
-      this.stayLoggedIn = value
-    },
 
-    async fetchUsernameById(userId: number): Promise<string | null> {
-      try {
-        const response = await performFetch<{ username: string }>(
-          `/api/users/${userId}`,
-        )
-        return response.success ? response.data?.username || 'Unknown' : null
-      } catch (error) {
-        handleError(error, 'fetching username by ID')
-        return null
-      }
-    },
-
-    async getUsernames(): Promise<string[]> {
-      try {
-        const data = await performFetch<{ usernames: string[] }>(
-          '/api/users/usernames',
-        )
-        return data.success ? data.data?.usernames || [] : []
-      } catch (error) {
-        handleError(error, 'fetching usernames')
-        return []
-      }
-    },
-
-async updateUserInfo(
+    async updateUserInfo(
       updatedUserInfo: Partial<User>
     ): Promise<{ success: boolean; message?: string }> {
       try {
@@ -235,43 +209,6 @@ async updateUserInfo(
       }
     },
 
-    async register(userData: {
-      username: string
-      email?: string
-      password?: string
-    }): Promise<{
-      success: boolean
-      user?: User
-      token?: string
-      message?: string
-    }> {
-      console.log('Attempting to register user:', userData)
-      try {
-        const response = await performFetch<User>('/api/users/register', {
-          method: 'POST',
-          body: JSON.stringify(userData),
-        })
-        console.log('Registration response:', response)
-        if (response.success && response.data) {
-          await this.setUser(response.data)
-          return {
-            success: true,
-            user: response.data,
-            token: this.token,
-          }
-        } else {
-          console.warn('Registration failed:', response.message)
-          handleError(
-            new Error(response.message || 'Unknown registration error'),
-            'registering user',
-          )
-          return { success: false, message: response.message }
-        }
-      } catch (error) {
-        handleError(error, 'registering user')
-        return { success: false, message: 'An unknown error occurred' }
-      }
-    },
     async login(credentials: {
       username: string
       password?: string
@@ -279,10 +216,13 @@ async updateUserInfo(
       this.startLoading()
 
       try {
-        const response = await performFetch<User>('/api/auth/login', {
-          method: 'POST',
-          body: JSON.stringify(credentials),
-        })
+        const response = await performFetch<{ data: User }>(
+          '/api/auth/login',
+          {
+            method: 'POST',
+            body: JSON.stringify(credentials),
+          }
+        )
 
         if (response.success && response.data) {
           await this.setUser(response.data)
@@ -303,7 +243,7 @@ async updateUserInfo(
           console.warn('Login failed:', response.message)
           handleError(
             new Error(response.message || 'Unknown login error'),
-            'logging in',
+            'logging in'
           )
           return { success: false, message: response.message }
         }
@@ -314,7 +254,6 @@ async updateUserInfo(
         this.stopLoading()
       }
     },
-    
 
     logout(): void {
       console.log('Logging out user.')
@@ -325,7 +264,6 @@ async updateUserInfo(
       this.removeFromLocalStorage('stayLoggedIn')
       this.setStayLoggedIn(false)
     },
-    
 
     setToken(newToken: string): void {
       this.token = newToken || undefined

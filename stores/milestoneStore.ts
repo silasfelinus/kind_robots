@@ -90,6 +90,19 @@ export const useMilestoneStore = defineStore({
 
       this.isInitialized = true
     },
+    async confirmMilestone(milestoneId: number) {
+      const userId = useUserStore().userId
+      const record = this.milestoneRecords.find(
+        (r) => r.userId === userId && r.milestoneId === milestoneId,
+      )
+
+      if (record) {
+        record.isConfirmed = true
+        this.saveMilestoneRecordsToLocalStorage()
+      } else {
+        console.warn(`Milestone record not found for user: ${userId}`)
+      }
+    },
 
     async fetchHighClickScores() {
       try {

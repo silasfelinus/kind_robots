@@ -1,107 +1,131 @@
 <template>
-  <transition name="fade-scale" mode="out-in">
+  <div class="flex justify-center items-center bg-base-400">
+    <!-- Button to Toggle Popup -->
+    <button
+      v-if="!showPopup"
+      class="bg-primary text-white rounded-2xl p-4 m-4 border"
+      @click="togglePopup"
+    >
+      <Icon :name="milestone?.icon ?? 'kind-icon:map'" class="h-16 w-16" />
+    </button>
+
+    <!-- Popup Content -->
     <div
       v-if="showPopup"
-      class="fixed left-1/2 bottom-2 bg-white shadow-lg rounded-2xl border z-50 border-gray-300 p-6 sm:max-w-[66%] md:max-w-[33%] w-full"
-      role="dialog"
-      aria-live="assertive"
-      tabindex="-1"
+      class="fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-50"
     >
-      <div class="flex justify-between items-center mb-2">
-        <h2 class="text-xl font-semibold text-accent flex items-center space-x-2">
-          <Icon v-if="currentMilestone?.icon" :name="currentMilestone.icon" class="text-2xl" />
-          <span>🎉 Congratulations!</span>
+      <div
+        class="bg-base-400 rounded-2xl p-10 text-center relative max-w-lg mx-auto shadow-xl"
+      >
+        <h2 class="text-3xl font-semibold mb-6">
+          Congratulations, {{ userStore.username }}!
         </h2>
-        <button class="text-gray-500 hover:text-gray-700" aria-label="Close popup" @click="closePopup">
-          <Icon name="kind-icon:close" />
-        </button>
+        <div v-if="milestone">
+          <Icon
+            :name="milestone.icon ?? 'kind-icon:map'"
+            class="h-20 w-20 mx-auto mb-6 text-primary"
+          />
+          <p class="text-xl font-medium mb-4">
+            🌟 You earned the {{ milestone.label }} milestone! 🌟
+          </p>
+          <p class="my-4 text-gray-700">{{ milestone.message }}</p>
+          <div class="karma-award flex flex-col items-center">
+            <p class="text-lg font-semibold">Bonus: +{{ milestone.karma }}</p>
+            <p class="text-lg mb-4">You Found 1 Jellybean!</p>
+            <Icon
+              name="kind-icon:jellybean"
+              class="p-2 h-16 w-16 text-accent"
+            />
+          </div>
+          <button
+            class="bg-primary text-white rounded-2xl border px-6 py-3 mt-6 hover:bg-primary-focus transition"
+            @click="togglePopup"
+          >
+            Yay! (Close)
+          </button>
+        </div>
       </div>
-      <p class="text-gray-700">
-        You've achieved a new milestone:
-
-        <span class="font-bold">{{ currentMilestone?.label }}</span>
-      </p>
-{{ currentMilestone?.icon }}
-      <p class="text-gray-500 text-sm mt-2">
-        {{ currentMilestone?.message }}
-      </p>
     </div>
-  </transition>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watchEffect, onMounted } from 'vue'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import type { Milestone } from '@prisma/client'
+import { useMilestoneStore, type Milestone } from '@/stores/milestoneStore'
+import { useErrorStore } from '@/stores/errorStore'
+import { useConfetti } from '@/utils/useConfetti'
 
-const milestoneStore = useMilestoneStore()
+const props = defineProps<{ id: number }>()
+const { triggerConfetti } = useConfetti()
 const userStore = useUserStore()
-const popupQueue = ref<Milestone[]>([])
+const milestoneStore = useMilestoneStore()
+const errorStore = useErrorStore()
+const milestone = ref<Milestone | null>(null)
 const showPopup = ref(false)
-const currentMilestone = ref<Milestone | null>(null)
-const queueLimit = 5 // Limit the number of milestones queued
-let isInitialized = ref(false) // Track initialization state
 
-// Computed property to get unconfirmed milestones for the current user
-const unconfirmedMilestones = computed(() => {
-  const userId = userStore.userId
-  return milestoneStore.milestoneRecords.filter(
-    (record) => record.userId === userId && !record.isConfirmed
-  )
-})
-
-// Function to display the next milestone in the queue
-const nextMilestone = () => {
-  if (popupQueue.value.length > 0) {
-    currentMilestone.value = popupQueue.value.shift()!
-    showPopup.value = true
+const togglePopup = () => {
+  showPopup.value = !showPopup.value
+  if (showPopup.value) {
+    triggerConfetti()
   }
 }
 
-// Process unconfirmed milestones only after initialization
-watchEffect(async () => {
-  if (!isInitialized.value) return
-
-  for (const record of unconfirmedMilestones.value) {
-    const response = await milestoneStore.fetchMilestoneById(record.milestoneId)
-    if (response.success && response.data) {
-      if (popupQueue.value.length < queueLimit) {
-        popupQueue.value.push(response.data)
-      }
-      record.isConfirmed = true
-    } else {
-      console.warn(`Could not fetch milestone with ID ${record.milestoneId}`)
+const validateMilestoneRecord = async () => {
+  try {
+    if (
+      milestone.value &&
+      milestoneStore.hasMilestone(userStore.userId, milestone.value.id)
+    ) {
+      console.log('Milestone already rewarded, closing popup.')
+      showPopup.value = false
+      return 'success'
     }
+
+    if (milestone.value) {
+      triggerConfetti()
+      console.log('Attempting to record milestone...')
+
+      const result = await milestoneStore.recordMilestone(
+        userStore.userId,
+        milestone.value.id,
+      )
+
+      if (result.success) {
+        console.log('Milestone successfully recorded.')
+      } else {
+        throw new Error(result.message || 'Failed to record milestone')
+      }
+    }
+  } catch (error: unknown) {
+    errorStore.setError(ErrorType.GENERAL_ERROR, error)
+    console.error('Failed to validate milestone', errorStore.message)
   }
-
-  if (!showPopup.value) nextMilestone()
-  milestoneStore.saveMilestoneRecordsToLocalStorage()
-})
-
-// Close the popup and check if there are more milestones to display
-const closePopup = () => {
-  showPopup.value = false
-  currentMilestone.value = null
-  if (popupQueue.value.length > 0) setTimeout(nextMilestone, 300)
 }
 
-// Initialize the component
-onMounted(() => {
-  isInitialized.value = true
+const validateUserRecord = async () => {
+  try {
+    const result = await userStore.updateKarmaAndMana()
+    if (!result.success) throw new Error(result.message)
+  } catch (error: unknown) {
+    errorStore.setError(ErrorType.GENERAL_ERROR, error)
+    console.error('Failed to validate user record', errorStore.message)
+  }
+}
+
+onMounted(async () => {
+  const response = await milestoneStore.fetchMilestoneById(props.id || 10)
+
+  if (response.success && response.data) {
+    milestone.value = response.data
+  } else {
+    milestone.value = null
+    errorStore.setError(ErrorType.GENERAL_ERROR, response.message)
+  }
+
+  showPopup.value = true
+  if (userStore.userId !== 0) {
+    await Promise.all([validateMilestoneRecord(), validateUserRecord()])
+  }
 })
 </script>
-
-<style>
-.fade-scale-enter-active,
-.fade-scale-leave-active {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
-}
-.fade-scale-enter,
-.fade-scale-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
-</style>

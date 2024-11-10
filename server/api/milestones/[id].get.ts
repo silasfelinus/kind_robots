@@ -60,7 +60,8 @@ export default defineEventHandler(async (event) => {
 export async function fetchMilestoneById(
   id: number,
 ): Promise<Milestone | null> {
-  return await prisma.milestone.findUnique({
+  const data = await prisma.milestone.findUnique({
     where: { id },
   })
+  return data
 }

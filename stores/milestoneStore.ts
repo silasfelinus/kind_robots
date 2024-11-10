@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import type { Milestone, MilestoneRecord } from '@prisma/client'
 import { useUserStore } from './userStore'
 import { milestoneData } from './../training/milestoneData'
-import { performFetch, handleError } from './utils'
+import { performFetch, handleError, type ApiResponse } from './utils'
 
 type UserScore = {
   id: number
@@ -141,26 +141,36 @@ export const useMilestoneStore = defineStore({
       }
     },
 
-    async fetchMilestoneById(id: number) {
+    async fetchMilestoneById(
+      milestoneId: number,
+    ): Promise<ApiResponse<Milestone>> {
       try {
-        const response = await performFetch<{ milestone: Milestone }>(
-          `/api/milestones/${id}`,
+        const response = await performFetch<Milestone>(
+          `/api/pitches/${milestoneId}`,
         )
+
         if (response.success && response.data) {
           return {
             success: true,
-            message: 'Milestone fetched successfully',
+            message: 'Milestone recovered',
             data: response.data,
           }
         } else {
           return {
             success: false,
-            message: response.message || 'Failed to fetch milestone by ID',
+            message: response.message || 'Pitch not found',
           }
         }
       } catch (error) {
-        handleError(error, `fetching milestone by ID ${id}`)
-        return { success: false, message: 'An error occurred' }
+        console.error(`Error fetching pitch by ID: ${milestoneId}`, error)
+
+        return {
+          success: false,
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Unknown error occurred while fetching milestone',
+        }
       }
     },
 

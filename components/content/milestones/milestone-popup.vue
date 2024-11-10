@@ -61,19 +61,21 @@ watch(
   () => milestoneStore.milestoneRecords,
   async (newRecords) => {
     const userId = userStore.userId
-    const newMilestones = newRecords.filter(
+    const unconfirmedRecords = newRecords.filter(
       (record) => record.userId === userId && !record.isConfirmed,
     )
 
-    for (const record of newMilestones) {
-      const milestone = await milestoneStore.fetchMilestoneById(
+    for (const record of unconfirmedRecords) {
+      const response = await milestoneStore.fetchMilestoneById(
         record.milestoneId,
       )
-      if (milestone?.success && milestone.data) {
+      if (response.success && response.data) {
         if (popupQueue.value.length < queueLimit) {
-          popupQueue.value.push(milestone.data.milestone)
+          popupQueue.value.push(response.data)
         }
         record.isConfirmed = true
+      } else {
+        console.warn(`Could not fetch milestone with ID ${record.milestoneId}`)
       }
     }
 

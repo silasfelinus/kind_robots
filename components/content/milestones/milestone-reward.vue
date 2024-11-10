@@ -108,7 +108,7 @@ onMounted(async () => {
   const response = await milestoneStore.fetchMilestoneById(props.id || 10)
 
   if (response.success && response.data) {
-    milestone.value = response.data.milestone
+    milestone.value = response.data
   } else {
     milestone.value = null
     errorStore.setError(ErrorType.GENERAL_ERROR, response.message)

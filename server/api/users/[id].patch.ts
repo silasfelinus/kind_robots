@@ -34,18 +34,18 @@ export default defineEventHandler(async (event) => {
     console.log(`Update data received:`, updateData)
 
     // Update the user in the database
-    const updatedUser = await prisma.user.update({
+    const data = await prisma.user.update({
       where: { id: userId },
       data: updateData,
     })
-    console.log(`User updated successfully:`, updatedUser)
+    console.log(`User updated successfully:`, data)
 
     // Successful update response
     event.node.res.statusCode = 200
     return {
       success: true,
       message: 'User updated successfully.',
-      data: updatedUser,
+      data,
     }
   } catch (error) {
     const handledError = errorHandler(error)

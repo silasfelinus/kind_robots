@@ -36,7 +36,7 @@
           Start New Game
         </button>
 
-        <milestone-reward v-if="shouldShowMilestoneCheck" :id="5" />
+        <award-milestone v-if="shouldShowMilestoneCheck" :id="5" />
       </div>
     </div>
 

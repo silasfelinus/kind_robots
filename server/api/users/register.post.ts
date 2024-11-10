@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
         success: true,
         message:
           '🌟 Welcome to our cosmic family, brave explorer! Your account has been created.',
-        data: result.user,
+        data: result.user as User,
         statusCode: 201,
       }
     }

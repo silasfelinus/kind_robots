@@ -12,7 +12,7 @@
     <!-- Popup Content -->
     <div
       v-if="showPopup"
-      class="fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-10"
+      class="fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-90"
     >
       <div
         class="bg-base-400 rounded-2xl p-10 text-center relative max-w-lg mx-auto shadow-xl"

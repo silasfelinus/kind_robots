@@ -6,10 +6,7 @@
       class="bg-primary text-white rounded-2xl p-4 m-4 border"
       @click="togglePopup"
     >
-      <Icon
-        :name="milestone?.icon ?? 'kind-icon:default-icon'"
-        class="h-16 w-16"
-      />
+      <Icon :name="milestone?.icon ?? 'kind-icon:map'" class="h-16 w-16" />
     </button>
 
     <!-- Popup Content -->
@@ -25,7 +22,7 @@
         </h2>
         <div v-if="milestone">
           <Icon
-            :name="milestone.icon ?? 'kind-icon:default-icon'"
+            :name="milestone.icon ?? 'kind-icon:map'"
             class="h-16 w-16 mx-auto mb-4"
           />
           <p class="text-xl font-medium">

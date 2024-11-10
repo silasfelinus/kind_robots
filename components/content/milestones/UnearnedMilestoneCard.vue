@@ -5,7 +5,10 @@
   >
     <div class="text-center flex flex-col items-center">
       <!-- Milestone Icon -->
-      <Icon name="milestone.icon" class="Icon-extra-large mb-2" />
+      <Icon
+        :name="props.milestone.icon ?? 'kind-icon:map'"
+        class="Icon-extra-large mb-2"
+      />
       <!-- Milestone Label -->
       <div class="text-xl font-bold text-gray-700">
         {{ milestone.label }}
@@ -14,17 +17,27 @@
       <div class="text-sm text-gray-500">
         {{ milestone.subtleHint }}
       </div>
-      <!-- Tooltip -->
-      <div class="mt-4">
-        <div @click="toggleTooltip">
-          <Icon
-            v-if="!revealTooltip"
-            name="ph:question-bold"
-            class="text-accent text-2xl"
-          />
-          <div v-else class="text-sm">
-            {{ milestone.tooltip }}
-          </div>
+      <!-- Tooltip Toggle -->
+      <div
+        class="mt-4 relative"
+        role="button"
+        tabindex="0"
+        aria-expanded="false"
+        @click="toggleTooltip"
+      >
+        <Icon
+          v-if="!revealTooltip"
+          name="ph:question-bold"
+          class="text-accent text-2xl"
+          aria-label="Click for hint"
+        />
+        <div
+          v-else
+          class="text-sm p-2 absolute bg-base-200 rounded-lg shadow-lg top-full mt-2 text-gray-700"
+          role="tooltip"
+          aria-live="polite"
+        >
+          {{ milestone.tooltip }}
         </div>
       </div>
     </div>
@@ -35,33 +48,25 @@
 import { ref } from 'vue'
 import type { Milestone } from './../../../stores/milestoneStore'
 
-// Define props and destructure them
 const props = defineProps<{
   milestone: Milestone
 }>()
-const { milestone } = props
 
-// State to toggle tooltip visibility
+// State for tooltip visibility
 const revealTooltip = ref(false)
 
-// Variable to hold the timer ID
+// Tooltip timer
 let timerId: ReturnType<typeof setTimeout> | null = null
 
-// Function to toggle tooltip and set a timer to revert it back to '?'
+// Toggle tooltip with timer to auto-hide
 const toggleTooltip = () => {
-  // Clear any existing timer
-  if (timerId) {
-    clearTimeout(timerId)
-  }
-
-  // Toggle the tooltip
+  if (timerId) clearTimeout(timerId)
   revealTooltip.value = !revealTooltip.value
 
-  // Set a new timer if the tooltip is revealed
   if (revealTooltip.value) {
     timerId = setTimeout(() => {
       revealTooltip.value = false
-    }, 1200) // Reverts back to '?' after 3 seconds
+    }, 1200) // Tooltip closes after 1.2 seconds
   }
 }
 </script>

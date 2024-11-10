@@ -80,13 +80,21 @@ const validateMilestoneRecord = async () => {
       showPopup.value = false
       return 'success'
     }
+
     if (milestone.value) {
       triggerConfetti()
+      console.log('Attempting to record milestone...')
+
       const result = await milestoneStore.recordMilestone(
         userStore.userId,
         milestone.value.id,
       )
-      if (!result.success) throw new Error(result.message)
+
+      if (result.success) {
+        console.log('Milestone successfully recorded.')
+      } else {
+        throw new Error(result.message || 'Failed to record milestone')
+      }
     }
   } catch (error: unknown) {
     errorStore.setError(ErrorType.GENERAL_ERROR, error)

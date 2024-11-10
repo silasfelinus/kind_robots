@@ -8,8 +8,11 @@
         class="card bg-base-300 rounded-2xl p-4 transition duration-300 ease-in-out relative"
       >
         <div class="text-center">
-          <!-- Milestone Icon -->
-          <Icon name="milestone.Icon" class="text-6xl mb-2" />
+          <!-- Milestone Icon with fallback -->
+          <Icon
+            :name="milestone.icon ?? 'default-icon'"
+            class="text-6xl mb-2"
+          />
           <!-- Milestone Label -->
           <div class="text-xl font-bold text-gray-700">
             {{ milestone.label }}
@@ -32,8 +35,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useMilestoneStore } from './../../../stores/milestoneStore'
-import { useUserStore } from './../../../stores/userStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useUserStore } from '@/stores/userStore'
 
 const milestoneStore = useMilestoneStore()
 const userStore = useUserStore()

@@ -1,22 +1,33 @@
 <template>
-  <div
-    v-if="showPopup"
-    class="fixed left-4 top-1/4 bg-white shadow-lg rounded-2xl border border-gray-300 p-6 max-w-md"
-  >
-    <div class="flex justify-between items-center mb-2">
-      <h2 class="text-xl font-semibold text-gray-800">🎉 Congratulations!</h2>
-      <button class="text-gray-500 hover:text-gray-700" @click="closePopup">
-        <span class="material-icons">close</span>
-      </button>
+  <transition name="fade" mode="out-in">
+    <div
+      v-if="showPopup"
+      class="fixed left-4 top-1/4 bg-white shadow-lg rounded-2xl border border-gray-300 p-6 sm:max-w-[66%] md:max-w-[33%] w-full"
+    >
+      <div class="flex justify-between items-center mb-2">
+        <h2
+          class="text-xl font-semibold text-gray-800 flex items-center space-x-2"
+        >
+          <Icon
+            v-if="currentMilestone?.icon"
+            :name="currentMilestone.icon"
+            class="text-2xl"
+          />
+          <span>🎉 Congratulations!</span>
+        </h2>
+        <button class="text-gray-500 hover:text-gray-700" @click="closePopup">
+          <Icon name="close" />
+        </button>
+      </div>
+      <p class="text-gray-700">
+        You've achieved a new milestone:
+        <span class="font-bold">{{ currentMilestone?.label }}</span>
+      </p>
+      <p class="text-gray-500 text-sm mt-2">
+        {{ currentMilestone?.message }}
+      </p>
     </div>
-    <p class="text-gray-700">
-      You've achieved a new milestone:
-      <span class="font-bold">{{ newMilestone?.label }}</span>
-    </p>
-    <p class="text-gray-500 text-sm mt-2">
-      {{ newMilestone?.message }}
-    </p>
-  </div>
+  </transition>
 </template>
 
 <script setup lang="ts">
@@ -27,39 +38,55 @@ import type { Milestone } from '@prisma/client'
 
 const milestoneStore = useMilestoneStore()
 const userStore = useUserStore()
+const popupQueue = ref<Milestone[]>([])
 const showPopup = ref(false)
-const newMilestone = ref<Milestone | null>(null)
+const currentMilestone = ref<Milestone | null>(null)
 
-// Watch milestone records for new achievements
+const nextMilestone = () => {
+  if (popupQueue.value.length > 0) {
+    currentMilestone.value = popupQueue.value.shift()!
+    showPopup.value = true
+  }
+}
+
 watch(
   () => milestoneStore.milestoneRecords,
   async (newRecords) => {
     const userId = userStore.userId
-    const latestRecord = newRecords.find(
+    const newMilestones = newRecords.filter(
       (record) => record.userId === userId && !record.isConfirmed,
     )
 
-    if (latestRecord) {
-      // Fetch the full milestone details using the milestoneId
+    for (const record of newMilestones) {
       const milestone = await milestoneStore.fetchMilestoneById(
-        latestRecord.milestoneId,
+        record.milestoneId,
       )
       if (milestone?.success && milestone.data) {
-        newMilestone.value = milestone.data.milestone
-        showPopup.value = true
-
-        // Mark the milestone as confirmed to avoid re-triggering
-        latestRecord.isConfirmed = true
-        milestoneStore.saveMilestoneRecordsToLocalStorage()
+        popupQueue.value.push(milestone.data.milestone)
+        record.isConfirmed = true
       }
     }
+
+    if (!showPopup.value) nextMilestone()
+    milestoneStore.saveMilestoneRecordsToLocalStorage()
   },
   { immediate: true, deep: true },
 )
 
-// Close popup function
 const closePopup = () => {
   showPopup.value = false
-  newMilestone.value = null
+  currentMilestone.value = null
+  if (popupQueue.value.length > 0) setTimeout(nextMilestone, 300)
 }
 </script>
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

@@ -2,7 +2,7 @@
   <transition name="fade-scale" mode="out-in">
     <div
       v-if="showPopup"
-      class="fixed left-4 top-1/4 bg-white shadow-lg rounded-2xl border z-50 border-gray-300 p-6 sm:max-w-[66%] md:max-w-[33%] w-full"
+      class="fixed left-1/2 bottom-2 bg-white shadow-lg rounded-2xl border z-50 border-gray-300 p-6 sm:max-w-[66%] md:max-w-[33%] w-full"
       role="dialog"
       aria-live="assertive"
       tabindex="-1"
@@ -18,8 +18,10 @@
       </div>
       <p class="text-gray-700">
         You've achieved a new milestone:
+
         <span class="font-bold">{{ currentMilestone?.label }}</span>
       </p>
+{{ currentMilestone?.icon }}
       <p class="text-gray-500 text-sm mt-2">
         {{ currentMilestone?.message }}
       </p>

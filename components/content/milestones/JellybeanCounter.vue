@@ -1,9 +1,18 @@
 <template>
   <div class="bg-base-300 rounded-2xl border m-2 p-2 mx-auto max-w-screen-xl">
-    <!-- Header -->
-    <div class="text-center bg-primary text-white border p-2 m-2 rounded-2xl">
+    <!-- Header with Reset Button -->
+    <div
+      class="text-center bg-primary text-white border p-2 m-2 rounded-2xl flex justify-between items-center"
+    >
       <h1 class="text-2xl">{{ userStore.username }}'s Milestones</h1>
+      <button
+        class="bg-accent text-white rounded-xl px-4 py-2 hover:bg-accent-focus transition"
+        @click="resetMilestones"
+      >
+        Reset Milestones
+      </button>
     </div>
+
     <milestone-reward :id="10" />
 
     <!-- Milestones Data -->
@@ -60,11 +69,9 @@ const milestoneStore = useMilestoneStore()
 const userStore = useUserStore()
 
 const milestones = computed(() => milestoneStore.milestones)
-
 const unlockedMilestones = computed(() => milestoneStore.milestoneRecords)
 
 const earnedMilestones = computed(() => {
-  // Filter milestones that are unlocked by the current user
   const filteredMilestones = milestones.value.filter((milestone: Milestone) => {
     return unlockedMilestones.value.some((record: MilestoneRecord) => {
       return (
@@ -74,7 +81,6 @@ const earnedMilestones = computed(() => {
     })
   })
 
-  // Map the filtered milestones to include the acquiredAt field
   return filteredMilestones.map((milestone: Milestone) => {
     const record = unlockedMilestones.value.find(
       (r: MilestoneRecord) => r.milestoneId === milestone.id,
@@ -82,7 +88,6 @@ const earnedMilestones = computed(() => {
 
     let acquiredAt: string | null = null
 
-    // Check if record?.createdAt is an instance of Date or a string and convert it to ISO string
     if (record?.createdAt instanceof Date) {
       acquiredAt = record.createdAt.toISOString()
     } else if (typeof record?.createdAt === 'string') {
@@ -93,6 +98,7 @@ const earnedMilestones = computed(() => {
     return { ...milestone, acquiredAt }
   })
 })
+
 const unearnedMilestones = computed(() => {
   return milestones.value.filter(
     (milestone) =>
@@ -103,4 +109,9 @@ const unearnedMilestones = computed(() => {
       ),
   )
 })
+
+// Reset milestones function
+const resetMilestones = () => {
+  milestoneStore.clearAllMilestoneRecords()
+}
 </script>

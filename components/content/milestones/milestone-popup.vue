@@ -1,12 +1,15 @@
 <template>
-  <transition name="fade" mode="out-in">
+  <transition name="fade-scale" mode="out-in">
     <div
       v-if="showPopup"
       class="fixed left-4 top-1/4 bg-white shadow-lg rounded-2xl border border-gray-300 p-6 sm:max-w-[66%] md:max-w-[33%] w-full"
+      role="dialog"
+      aria-live="assertive"
+      tabindex="-1"
     >
       <div class="flex justify-between items-center mb-2">
         <h2
-          class="text-xl font-semibold text-gray-800 flex items-center space-x-2"
+          class="text-xl font-semibold text-accent flex items-center space-x-2"
         >
           <Icon
             v-if="currentMilestone?.icon"
@@ -15,7 +18,11 @@
           />
           <span>🎉 Congratulations!</span>
         </h2>
-        <button class="text-gray-500 hover:text-gray-700" @click="closePopup">
+        <button
+          class="text-gray-500 hover:text-gray-700"
+          aria-label="Close popup"
+          @click="closePopup"
+        >
           <Icon name="close" />
         </button>
       </div>
@@ -41,6 +48,7 @@ const userStore = useUserStore()
 const popupQueue = ref<Milestone[]>([])
 const showPopup = ref(false)
 const currentMilestone = ref<Milestone | null>(null)
+const queueLimit = 5 // Limit the number of milestones queued
 
 const nextMilestone = () => {
   if (popupQueue.value.length > 0) {
@@ -62,7 +70,9 @@ watch(
         record.milestoneId,
       )
       if (milestone?.success && milestone.data) {
-        popupQueue.value.push(milestone.data.milestone)
+        if (popupQueue.value.length < queueLimit) {
+          popupQueue.value.push(milestone.data.milestone)
+        }
         record.isConfirmed = true
       }
     }
@@ -81,12 +91,15 @@ const closePopup = () => {
 </script>
 
 <style>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
-.fade-enter,
-.fade-leave-to {
+.fade-scale-enter,
+.fade-scale-leave-to {
   opacity: 0;
+  transform: scale(0.95);
 }
 </style>

@@ -15,7 +15,7 @@
             v-if="state.topScore >= 100"
             class="bg-base-300 p-4 rounded-lg shadow-lg"
           >
-            <milestone-reward v-if="state.pressCount >= 100" :id="6" />
+            <award-milestone v-if="state.pressCount >= 100" :id="6" />
           </div>
         </transition>
         <transition name="slide-fade">

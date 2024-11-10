@@ -48,21 +48,24 @@
     </div>
   </div>
 </template>
-
+// milestonePopup.vue
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { useMilestoneStore, type Milestone } from '@/stores/milestoneStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useErrorStore } from '@/stores/errorStore'
 import { useConfetti } from '@/utils/useConfetti'
 
-const props = defineProps<{ id: number }>()
 const { triggerConfetti } = useConfetti()
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 const errorStore = useErrorStore()
-const milestone = ref<Milestone | null>(null)
 const showPopup = ref(false)
+
+// Access the first unconfirmed milestone using a computed property
+const milestone = computed(
+  () => milestoneStore.unconfirmedMilestones[0] || null,
+)
 
 const togglePopup = () => {
   showPopup.value = !showPopup.value
@@ -85,47 +88,26 @@ const validateMilestoneRecord = async () => {
     if (milestone.value) {
       triggerConfetti()
       console.log('Attempting to record milestone...')
-
       const result = await milestoneStore.recordMilestone(
         userStore.userId,
         milestone.value.id,
       )
-
-      if (result.success) {
-        console.log('Milestone successfully recorded.')
-      } else {
+      if (!result.success)
         throw new Error(result.message || 'Failed to record milestone')
-      }
+      console.log('Milestone successfully recorded.')
     }
-  } catch (error: unknown) {
+  } catch (error) {
     errorStore.setError(ErrorType.GENERAL_ERROR, error)
     console.error('Failed to validate milestone', errorStore.message)
   }
 }
 
-const validateUserRecord = async () => {
-  try {
-    const result = await userStore.updateKarmaAndMana()
-    if (!result.success) throw new Error(result.message)
-  } catch (error: unknown) {
-    errorStore.setError(ErrorType.GENERAL_ERROR, error)
-    console.error('Failed to validate user record', errorStore.message)
-  }
-}
-
 onMounted(async () => {
-  const response = await milestoneStore.fetchMilestoneById(props.id || 10)
-
-  if (response.success && response.data) {
-    milestone.value = response.data
+  if (milestone.value) {
+    showPopup.value = true
+    await validateMilestoneRecord()
   } else {
-    milestone.value = null
-    errorStore.setError(ErrorType.GENERAL_ERROR, response.message)
-  }
-
-  showPopup.value = true
-  if (userStore.userId !== 0) {
-    await Promise.all([validateMilestoneRecord(), validateUserRecord()])
+    showPopup.value = false
   }
 })
 </script>

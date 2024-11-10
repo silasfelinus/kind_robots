@@ -6,7 +6,7 @@
     <div class="text-2xl font-bold mb-4 w-full text-center">Choose Theme:</div>
 
     <!-- Milestone reward (conditionally shown) -->
-    <milestone-reward v-if="themeChanged" :id="9" />
+    <award-milestone v-if="themeChanged" :id="9" />
 
     <!-- Theme list, scrollable if too many items -->
     <div

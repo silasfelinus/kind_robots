@@ -35,7 +35,7 @@
     </div>
 
     <!-- Milestone Reward Check -->
-    <milestone-reward v-if="shouldShowMilestoneCheck" :id="11" />
+    <award-milestone v-if="shouldShowMilestoneCheck" :id="11" />
 
     <!-- Display Created Art -->
     <div v-for="(art, index) in createdArts" :key="index" class="mt-4">

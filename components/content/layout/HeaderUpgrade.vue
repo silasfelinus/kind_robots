@@ -25,20 +25,20 @@
       class="flex flex-col justify-center items-center text-center flex-grow w-1/4 h-full"
     >
       <h1
-        class="text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold max-w-full text-ellipsis whitespace-nowrap"
+        class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold max-w-full text-ellipsis whitespace-nowrap"
       >
         The {{ page.title || 'Room' }} Room
       </h1>
       <h2
-        class="text-md md:text-lg lg:text-xl xl:text-2xl italic max-w-full text-ellipsis whitespace-nowrap lg:mt-0"
+        class="text-sm md:text-md lg:text-lg xl:text-xl italic max-w-full text-ellipsis whitespace-nowrap lg:mt-0"
       >
         {{ subtitle }}
       </h2>
     </div>
 
     <!-- Right Section: Icons and Login -->
-    <div class="flex items-center justify-end space-x-4 w-1/2">
-      <login-path class="w-1/3" />
+    <div class="flex items-center justify-end space-x-2 w-1/2">
+      <login-path class="w-1/3 space-x-4" />
       <theme-icon class="w-1/3" />
       <swarm-icon class="w-1/3" />
     </div>

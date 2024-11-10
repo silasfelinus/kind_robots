@@ -107,10 +107,78 @@ export const useUserStore = defineStore({
       }
     },
 
+    async updateUserToken(newToken: string): Promise<void> {
+      try {
+        const response = await performFetch<{ data: User }>(
+          `/api/users/${this.userId}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify({ token: newToken }),
+          }
+        )
+        if (response.success && response.data) {
+          await this.setUser(response.data)
+          console.log('User token successfully updated in the database.')
+        } else {
+          console.warn('Failed to update user token:', response.message)
+          handleError(
+            new Error(response.message || 'Error updating token'),
+            'updating user token'
+          )
+        }
+      } catch (error) {
+        handleError(error, 'updating user token')
+      }
+    },
+
+    async updateKarmaAndMana(): Promise<{ success: boolean; message: string }> {
+      try {
+        const milestoneStore = useMilestoneStore()
+        await Promise.all([
+          milestoneStore.fetchMilestones(),
+          milestoneStore.fetchMilestoneRecords(),
+        ])
+        const milestoneCount = milestoneStore.getMilestoneCountForUser(
+          this.userId
+        )
+        const updatedKarma = milestoneCount * 1000
+        const updatedMana = milestoneCount
+
+        const response = await performFetch<{ data: User }>(
+          `/api/users/${this.userId}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify({ karma: updatedKarma, mana: updatedMana }),
+          }
+        )
+
+        if (response.success && response.data) {
+          this.user = {
+            ...response.data, // Use the updated user data from response
+            karma: updatedKarma,
+            mana: updatedMana,
+          } as User
+          return {
+            success: true,
+            message: 'Successfully updated karma and mana.',
+          }
+        } else {
+          handleError(
+            new Error(response.message || 'Failed to update karma and mana.'),
+            'updating karma and mana'
+          )
+          return { success: false, message: 'Failed to update karma and mana.' }
+        }
+      } catch (error) {
+        handleError(error, 'updating karma and mana')
+        return { success: false, message: 'An unknown error occurred' }
+      }
+    },
+
     async setUser(userData: User): Promise<void> {
       this.user = userData
     },
-
+  },
     setStayLoggedIn(value: boolean) {
       this.saveToLocalStorage('stayLoggedIn', value.toString())
       this.stayLoggedIn = value
@@ -140,21 +208,24 @@ export const useUserStore = defineStore({
       }
     },
 
-    async updateUserInfo(
-      updatedUserInfo: Partial<User>,
+async updateUserInfo(
+      updatedUserInfo: Partial<User>
     ): Promise<{ success: boolean; message?: string }> {
       try {
-        const response = await performFetch<User>('/api/users', {
-          method: 'PATCH',
-          body: JSON.stringify(updatedUserInfo),
-        })
+        const response = await performFetch<{ data: User }>(
+          `/api/users/${this.userId}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify(updatedUserInfo),
+          }
+        )
         if (response.success && response.data) {
-          this.setUser(response.data)
+          await this.setUser(response.data)
           return { success: true, message: 'User info updated successfully' }
         } else {
           handleError(
             new Error(response.message || 'Unknown error'),
-            'updating user info',
+            'updating user info'
           )
           return { success: false, message: response.message }
         }
@@ -243,27 +314,7 @@ export const useUserStore = defineStore({
         this.stopLoading()
       }
     },
-    // Helper method to update the token in the database
-    async updateUserToken(newToken: string): Promise<void> {
-      try {
-        const response = await performFetch<User>(`/api/users/${this.userId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ token: newToken }),
-        })
-
-        if (response.success && response.data) {
-          console.log('User token successfully updated in the database.')
-        } else {
-          console.warn('Failed to update user token:', response.message)
-          handleError(
-            new Error(response.message || 'Error updating token'),
-            'updating user token',
-          )
-        }
-      } catch (error) {
-        handleError(error, 'updating user token')
-      }
-    },
+    
 
     logout(): void {
       console.log('Logging out user.')
@@ -274,48 +325,7 @@ export const useUserStore = defineStore({
       this.removeFromLocalStorage('stayLoggedIn')
       this.setStayLoggedIn(false)
     },
-    async updateKarmaAndMana(): Promise<{ success: boolean; message: string }> {
-      try {
-        const milestoneStore = useMilestoneStore()
-        await Promise.all([
-          milestoneStore.fetchMilestones(),
-          milestoneStore.fetchMilestoneRecords(),
-        ])
-        const milestoneCount = milestoneStore.getMilestoneCountForUser(
-          this.userId,
-        )
-        const updatedKarma = milestoneCount * 1000
-        const updatedMana = milestoneCount
-        const response = await performFetch<{
-          success: boolean
-          data: User
-        }>(`/api/users/${this.userId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ karma: updatedKarma, mana: updatedMana }),
-        })
-
-        if (response.success && response.data) {
-          this.user = {
-            ...this.data,
-            karma: updatedKarma,
-            mana: updatedMana,
-          } as User
-          return {
-            success: true,
-            message: 'Successfully updated karma and mana.',
-          }
-        } else {
-          handleError(
-            new Error(response.message || 'Failed to update karma and mana.'),
-            'updating karma and mana',
-          )
-          return { success: false, message: 'Failed to update karma and mana.' }
-        }
-      } catch (error) {
-        handleError(error, 'updating karma and mana')
-        return { success: false, message: 'An unknown error occurred' }
-      }
-    },
+    
 
     setToken(newToken: string): void {
       this.token = newToken || undefined

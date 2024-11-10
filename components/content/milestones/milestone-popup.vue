@@ -39,7 +39,7 @@
           </div>
           <button
             class="bg-primary text-white rounded-2xl border px-6 py-3 mt-6 hover:bg-primary-focus transition"
-            @click="togglePopup"
+            @click="confirmMilestone"
           >
             Yay! (Close)
           </button>
@@ -48,18 +48,17 @@
     </div>
   </div>
 </template>
+
 // milestonePopup.vue
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useErrorStore } from '@/stores/errorStore'
 import { useConfetti } from '@/utils/useConfetti'
 
 const { triggerConfetti } = useConfetti()
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
-const errorStore = useErrorStore()
 const showPopup = ref(false)
 
 // Access the first unconfirmed milestone using a computed property
@@ -74,38 +73,17 @@ const togglePopup = () => {
   }
 }
 
-const validateMilestoneRecord = async () => {
-  try {
-    if (
-      milestone.value &&
-      milestoneStore.hasMilestone(userStore.userId, milestone.value.id)
-    ) {
-      console.log('Milestone already rewarded, closing popup.')
-      showPopup.value = false
-      return 'success'
-    }
-
-    if (milestone.value) {
-      triggerConfetti()
-      console.log('Attempting to record milestone...')
-      const result = await milestoneStore.recordMilestone(
-        userStore.userId,
-        milestone.value.id,
-      )
-      if (!result.success)
-        throw new Error(result.message || 'Failed to record milestone')
-      console.log('Milestone successfully recorded.')
-    }
-  } catch (error) {
-    errorStore.setError(ErrorType.GENERAL_ERROR, error)
-    console.error('Failed to validate milestone', errorStore.message)
+const confirmMilestone = () => {
+  if (milestone.value) {
+    milestoneStore.confirmMilestone(milestone.value.id)
+    showPopup.value = false
   }
 }
 
-onMounted(async () => {
+onMounted(() => {
   if (milestone.value) {
     showPopup.value = true
-    await validateMilestoneRecord()
+    triggerConfetti()
   } else {
     showPopup.value = false
   }

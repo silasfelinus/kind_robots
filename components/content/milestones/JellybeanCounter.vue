@@ -1,7 +1,9 @@
 <template>
   <div class="bg-base-300 rounded-2xl border m-2 p-2 mx-auto max-w-screen-xl">
     <!-- Header with Reset Button -->
-    <div class="text-center bg-primary text-white border p-2 m-2 rounded-2xl flex justify-between items-center">
+    <div
+      class="text-center bg-primary text-white border p-2 m-2 rounded-2xl flex justify-between items-center"
+    >
       <h1 class="text-2xl">{{ userStore.username }}'s Milestones</h1>
       <button
         class="bg-accent text-white rounded-xl px-4 py-2 hover:bg-accent-focus transition"
@@ -29,7 +31,9 @@
     <!-- Milestones Data -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
       <!-- Earned Milestones Column -->
-      <div class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2">
+      <div
+        class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"
+      >
         <h2 class="text-lg font-bold">Earned Milestones</h2>
         <div class="grid grid-cols-1 gap-4 w-full">
           <EarnedMilestoneCard
@@ -42,12 +46,16 @@
       </div>
 
       <!-- Leaderboard Column -->
-      <div class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2">
+      <div
+        class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"
+      >
         <milestone-leaderboard />
       </div>
 
       <!-- Undiscovered Milestones Column -->
-      <div class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2">
+      <div
+        class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"
+      >
         <h2 class="text-lg font-bold">Undiscovered Milestones</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
           <UnearnedMilestoneCard
@@ -63,11 +71,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import {
-  useMilestoneStore,
-  type Milestone,
-  type MilestoneRecord,
-} from './../../../stores/milestoneStore'
+import { useMilestoneStore } from './../../../stores/milestoneStore'
 import { useUserStore } from './../../../stores/userStore'
 
 const milestoneStore = useMilestoneStore()
@@ -90,8 +94,8 @@ const earnedMilestones = computed(() => {
           record.createdAt instanceof Date
             ? record.createdAt.toISOString()
             : typeof record.createdAt === 'string'
-            ? new Date(record.createdAt).toISOString()
-            : null
+              ? new Date(record.createdAt).toISOString()
+              : null
         return { ...milestone, acquiredAt }
       }
       return null

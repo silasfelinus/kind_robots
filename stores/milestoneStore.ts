@@ -146,7 +146,7 @@ export const useMilestoneStore = defineStore({
     ): Promise<ApiResponse<Milestone>> {
       try {
         const response = await performFetch<Milestone>(
-          `/api/pitches/${milestoneId}`,
+          `/api/milestones/${milestoneId}`,
         )
 
         if (response.success && response.data) {
@@ -158,7 +158,7 @@ export const useMilestoneStore = defineStore({
         } else {
           return {
             success: false,
-            message: response.message || 'Pitch not found',
+            message: response.message || 'Milestone not found',
           }
         }
       } catch (error) {

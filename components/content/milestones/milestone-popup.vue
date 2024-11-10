@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center items-center bg-base-400">
+  <div class="z-50 flex justify-center items-center bg-base-400">
     <!-- Button to Toggle Popup -->
     <button
       v-if="!showPopup"

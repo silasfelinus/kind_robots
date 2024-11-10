@@ -294,9 +294,9 @@ export const useUserStore = defineStore({
           body: JSON.stringify({ karma: updatedKarma, mana: updatedMana }),
         })
 
-        if (response.success) {
+        if (response.success && response.data) {
           this.user = {
-            ...this.user,
+            ...this.data,
             karma: updatedKarma,
             mana: updatedMana,
           } as User

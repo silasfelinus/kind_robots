@@ -239,6 +239,8 @@
       "LockedMilestones",
       "MilestoneLeaderboard",
       "UnearnedMilestoneCard",
+      "award-milestone",
+      "milestone-popup",
       "milestone-reward"
     ]
   },

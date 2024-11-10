@@ -9,12 +9,12 @@ export default defineEventHandler(async () => {
 
     // Default to an empty array if `users` is missing or not an array
     const users = Array.isArray(response.users) ? response.users : []
-    const usernames = users.map((user) => user.username).filter(Boolean) // Filter out undefined or null usernames
+    const data = users.map((user) => user.username).filter(Boolean) // Filter out undefined or null usernames
 
     return {
       success: true,
       message: 'Usernames fetched successfully.',
-      data: usernames, // Returns usernames as an array
+      data, // Returns usernames as an array
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

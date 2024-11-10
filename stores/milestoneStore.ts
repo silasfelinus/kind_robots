@@ -31,6 +31,17 @@ export const useMilestoneStore = defineStore({
 
       return count
     },
+    unconfirmedMilestones: (state) => {
+      const userId = useUserStore().userId
+      return state.milestones.filter((milestone) =>
+        state.milestoneRecords.some(
+          (record) =>
+            record.userId === userId &&
+            record.milestoneId === milestone.id &&
+            !record.isConfirmed, // Only unconfirmed milestones
+        ),
+      )
+    },
 
     milestoneSummary: (state) => {
       const summary = state.milestones.map((milestone) => ({

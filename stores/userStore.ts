@@ -69,16 +69,68 @@ export const useUserStore = defineStore({
         this.validateAndFetchUserData()
       }
     },
+    async getUsernames(): Promise<string[]> {
+      try {
+        const response = await performFetch<{ usernames: string[] }>(
+          '/api/users/usernames',
+        )
+        if (response.success && response.data) {
+          return response.data.usernames // Access `usernames` directly
+        } else {
+          handleError(
+            new Error(response.message || 'Failed to fetch usernames'),
+            'fetching usernames',
+          )
+          return []
+        }
+      } catch (error) {
+        handleError(error, 'fetching usernames')
+        return []
+      }
+    },
+
+    async register(userData: {
+      username: string
+      email?: string
+      password?: string
+    }) {
+      try {
+        const response = await performFetch<User>('/api/user/register', {
+          method: 'POST',
+          body: JSON.stringify(userData),
+        })
+
+        if (response.success && response.user) {
+          this.user = response.user
+          return {
+            success: true,
+            user: response.data,
+            token: this.token,
+          }
+        } else {
+          console.warn('Registration failed:', response.message)
+          handleError(
+            new Error(response.message || 'Unknown registration error'),
+            'registering user',
+          )
+          return { success: false, message: response.message }
+        }
+      } catch (error) {
+        handleError(error, 'registering user')
+        return { success: false, message: 'An unknown error occurred' }
+      }
+    },
+    setStayLoggedIn(value: boolean) {
+      this.stayLoggedIn = value
+      this.saveToLocalStorage('stayLoggedIn', value.toString())
+    },
 
     async validateAndFetchUserData(): Promise<boolean> {
       try {
-        const response = await performFetch<{ data: User }>(
-          '/api/auth/validate/token',
-          {
-            method: 'POST',
-            body: JSON.stringify({ token: this.token }),
-          }
-        )
+        const response = await performFetch<User>('/api/auth/validate/token', {
+          method: 'POST',
+          body: JSON.stringify({ token: this.token }),
+        })
 
         if (response.success && response.data) {
           await this.setUser(response.data)
@@ -87,7 +139,7 @@ export const useUserStore = defineStore({
           console.warn('User validation failed:', response.message)
           handleError(
             new Error(response.message || 'Invalid token'),
-            'validating user'
+            'validating user',
           )
           return false
         }
@@ -99,7 +151,7 @@ export const useUserStore = defineStore({
 
     async fetchUserByApiKey(): Promise<void> {
       try {
-        const response = await performFetch<{ data: User }>('/api/user')
+        const response = await performFetch<User>('/api/user')
         if (response.success && response.data) {
           await this.setUser(response.data)
         } else {
@@ -112,13 +164,10 @@ export const useUserStore = defineStore({
 
     async updateUserToken(newToken: string): Promise<void> {
       try {
-        const response = await performFetch<{ data: User }>(
-          `/api/users/${this.userId}`,
-          {
-            method: 'PATCH',
-            body: JSON.stringify({ token: newToken }),
-          }
-        )
+        const response = await performFetch<User>(`/api/users/${this.userId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ token: newToken }),
+        })
         if (response.success && response.data) {
           await this.setUser(response.data)
           console.log('User token successfully updated in the database.')
@@ -126,7 +175,7 @@ export const useUserStore = defineStore({
           console.warn('Failed to update user token:', response.message)
           handleError(
             new Error(response.message || 'Error updating token'),
-            'updating user token'
+            'updating user token',
           )
         }
       } catch (error) {
@@ -142,18 +191,15 @@ export const useUserStore = defineStore({
           milestoneStore.fetchMilestoneRecords(),
         ])
         const milestoneCount = milestoneStore.getMilestoneCountForUser(
-          this.userId
+          this.userId,
         )
         const updatedKarma = milestoneCount * 1000
         const updatedMana = milestoneCount
 
-        const response = await performFetch<{ data: User }>(
-          `/api/users/${this.userId}`,
-          {
-            method: 'PATCH',
-            body: JSON.stringify({ karma: updatedKarma, mana: updatedMana }),
-          }
-        )
+        const response = await performFetch<User>(`/api/users/${this.userId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ karma: updatedKarma, mana: updatedMana }),
+        })
 
         if (response.success && response.data) {
           this.user = {
@@ -168,7 +214,7 @@ export const useUserStore = defineStore({
         } else {
           handleError(
             new Error(response.message || 'Failed to update karma and mana.'),
-            'updating karma and mana'
+            'updating karma and mana',
           )
           return { success: false, message: 'Failed to update karma and mana.' }
         }
@@ -183,23 +229,20 @@ export const useUserStore = defineStore({
     },
 
     async updateUserInfo(
-      updatedUserInfo: Partial<User>
+      updatedUserInfo: Partial<User>,
     ): Promise<{ success: boolean; message?: string }> {
       try {
-        const response = await performFetch<{ data: User }>(
-          `/api/users/${this.userId}`,
-          {
-            method: 'PATCH',
-            body: JSON.stringify(updatedUserInfo),
-          }
-        )
+        const response = await performFetch<User>(`/api/users/${this.userId}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updatedUserInfo),
+        })
         if (response.success && response.data) {
           await this.setUser(response.data)
           return { success: true, message: 'User info updated successfully' }
         } else {
           handleError(
             new Error(response.message || 'Unknown error'),
-            'updating user info'
+            'updating user info',
           )
           return { success: false, message: response.message }
         }
@@ -208,7 +251,6 @@ export const useUserStore = defineStore({
         return { success: false, message: 'An unknown error occurred' }
       }
     },
-
     async login(credentials: {
       username: string
       password?: string
@@ -216,13 +258,10 @@ export const useUserStore = defineStore({
       this.startLoading()
 
       try {
-        const response = await performFetch<{ data: User }>(
-          '/api/auth/login',
-          {
-            method: 'POST',
-            body: JSON.stringify(credentials),
-          }
-        )
+        const response = await performFetch<User>('/api/auth/login', {
+          method: 'POST',
+          body: JSON.stringify(credentials),
+        })
 
         if (response.success && response.data) {
           await this.setUser(response.data)
@@ -243,7 +282,7 @@ export const useUserStore = defineStore({
           console.warn('Login failed:', response.message)
           handleError(
             new Error(response.message || 'Unknown login error'),
-            'logging in'
+            'logging in',
           )
           return { success: false, message: response.message }
         }

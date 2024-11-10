@@ -8,21 +8,11 @@
       tabindex="-1"
     >
       <div class="flex justify-between items-center mb-2">
-        <h2
-          class="text-xl font-semibold text-accent flex items-center space-x-2"
-        >
-          <Icon
-            v-if="currentMilestone?.icon"
-            :name="currentMilestone.icon"
-            class="text-2xl"
-          />
+        <h2 class="text-xl font-semibold text-accent flex items-center space-x-2">
+          <Icon v-if="currentMilestone?.icon" :name="currentMilestone.icon" class="text-2xl" />
           <span>🎉 Congratulations!</span>
         </h2>
-        <button
-          class="text-gray-500 hover:text-gray-700"
-          aria-label="Close popup"
-          @click="closePopup"
-        >
+        <button class="text-gray-500 hover:text-gray-700" aria-label="Close popup" @click="closePopup">
           <Icon name="kind-icon:close" />
         </button>
       </div>
@@ -38,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watchEffect } from 'vue'
+import { ref, computed, watchEffect, onMounted } from 'vue'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useUserStore } from '@/stores/userStore'
 import type { Milestone } from '@prisma/client'
@@ -49,6 +39,7 @@ const popupQueue = ref<Milestone[]>([])
 const showPopup = ref(false)
 const currentMilestone = ref<Milestone | null>(null)
 const queueLimit = 5 // Limit the number of milestones queued
+let isInitialized = ref(false) // Track initialization state
 
 // Computed property to get unconfirmed milestones for the current user
 const unconfirmedMilestones = computed(() => {
@@ -58,8 +49,18 @@ const unconfirmedMilestones = computed(() => {
   )
 })
 
-// Process unconfirmed milestones
+// Function to display the next milestone in the queue
+const nextMilestone = () => {
+  if (popupQueue.value.length > 0) {
+    currentMilestone.value = popupQueue.value.shift()!
+    showPopup.value = true
+  }
+}
+
+// Process unconfirmed milestones only after initialization
 watchEffect(async () => {
+  if (!isInitialized.value) return
+
   for (const record of unconfirmedMilestones.value) {
     const response = await milestoneStore.fetchMilestoneById(record.milestoneId)
     if (response.success && response.data) {
@@ -76,20 +77,17 @@ watchEffect(async () => {
   milestoneStore.saveMilestoneRecordsToLocalStorage()
 })
 
-// Display the next milestone in the queue
-const nextMilestone = () => {
-  if (popupQueue.value.length > 0) {
-    currentMilestone.value = popupQueue.value.shift()!
-    showPopup.value = true
-  }
-}
-
 // Close the popup and check if there are more milestones to display
 const closePopup = () => {
   showPopup.value = false
   currentMilestone.value = null
   if (popupQueue.value.length > 0) setTimeout(nextMilestone, 300)
 }
+
+// Initialize the component
+onMounted(() => {
+  isInitialized.value = true
+})
 </script>
 
 <style>

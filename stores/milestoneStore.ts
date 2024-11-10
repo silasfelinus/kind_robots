@@ -187,10 +187,19 @@ export const useMilestoneStore = defineStore({
 
     async fetchMilestoneRecords() {
       try {
-        const response = await performFetch<{ records: MilestoneRecord[] }>(
-          '/api/milestones/records',
-        )
-        this.milestoneRecords = response.data?.records ?? [] // Access `records` inside `data`
+        const response = await performFetch<{
+          success: boolean
+          data: MilestoneRecord[]
+        }>('/api/milestones/records')
+
+        // Check if response is successful and `data` is properly populated
+        if (response.success && Array.isArray(response.data)) {
+          this.milestoneRecords = response.data
+        } else {
+          this.milestoneRecords = [] // Fallback in case data is null or undefined
+        }
+
+        console.log('Fetched milestone records:', this.milestoneRecords)
         this.saveMilestoneRecordsToLocalStorage()
       } catch (error) {
         handleError(error, 'fetching milestone records')

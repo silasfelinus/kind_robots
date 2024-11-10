@@ -1,9 +1,7 @@
 <template>
   <div class="bg-base-300 rounded-2xl border m-2 p-2 mx-auto max-w-screen-xl">
     <!-- Header with Reset Button -->
-    <div
-      class="text-center bg-primary text-white border p-2 m-2 rounded-2xl flex justify-between items-center"
-    >
+    <div class="text-center bg-primary text-white border p-2 m-2 rounded-2xl flex justify-between items-center">
       <h1 class="text-2xl">{{ userStore.username }}'s Milestones</h1>
       <button
         class="bg-accent text-white rounded-xl px-4 py-2 hover:bg-accent-focus transition"
@@ -13,14 +11,25 @@
       </button>
     </div>
 
-    <award-milestone :id="10" />
+    <!-- Displaying All Records for Debugging -->
+    <div class="p-4 m-2 border bg-gray-100 rounded">
+      <h3 class="font-bold text-center">All Milestone Records (Debug)</h3>
+      <ul>
+        <li
+          v-for="record in unlockedMilestones"
+          :key="record.id"
+          class="text-sm text-gray-700"
+        >
+          Milestone ID: {{ record.milestoneId }}, User ID: {{ record.userId }},
+          Confirmed: {{ record.isConfirmed }}
+        </li>
+      </ul>
+    </div>
 
     <!-- Milestones Data -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
       <!-- Earned Milestones Column -->
-      <div
-        class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"
-      >
+      <div class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2">
         <h2 class="text-lg font-bold">Earned Milestones</h2>
         <div class="grid grid-cols-1 gap-4 w-full">
           <EarnedMilestoneCard
@@ -33,16 +42,12 @@
       </div>
 
       <!-- Leaderboard Column -->
-      <div
-        class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"
-      >
+      <div class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2">
         <milestone-leaderboard />
       </div>
 
       <!-- Undiscovered Milestones Column -->
-      <div
-        class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"
-      >
+      <div class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2">
         <h2 class="text-lg font-bold">Undiscovered Milestones</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
           <UnearnedMilestoneCard
@@ -68,41 +73,37 @@ import { useUserStore } from './../../../stores/userStore'
 const milestoneStore = useMilestoneStore()
 const userStore = useUserStore()
 
-const milestones = computed(() => milestoneStore.milestones)
+// Directly access milestone records from the store
 const unlockedMilestones = computed(() => milestoneStore.milestoneRecords)
 
+// Compute earned milestones based on records with matching user ID
 const earnedMilestones = computed(() => {
-  const filteredMilestones = milestones.value.filter((milestone: Milestone) => {
-    return unlockedMilestones.value.some((record: MilestoneRecord) => {
-      return (
-        record.milestoneId === milestone.id &&
-        record.userId === userStore.userId
+  return milestoneStore.milestoneRecords
+    .filter((record) => record.userId === userStore.userId)
+    .map((record) => {
+      const milestone = milestoneStore.milestones.find(
+        (milestone) => milestone.id === record.milestoneId,
       )
+      if (milestone) {
+        // Format acquiredAt if present
+        const acquiredAt =
+          record.createdAt instanceof Date
+            ? record.createdAt.toISOString()
+            : typeof record.createdAt === 'string'
+            ? new Date(record.createdAt).toISOString()
+            : null
+        return { ...milestone, acquiredAt }
+      }
+      return null
     })
-  })
-
-  return filteredMilestones.map((milestone: Milestone) => {
-    const record = unlockedMilestones.value.find(
-      (r: MilestoneRecord) => r.milestoneId === milestone.id,
-    )
-
-    let acquiredAt: string | null = null
-
-    if (record?.createdAt instanceof Date) {
-      acquiredAt = record.createdAt.toISOString()
-    } else if (typeof record?.createdAt === 'string') {
-      const date = new Date(record.createdAt)
-      acquiredAt = date.toISOString()
-    }
-
-    return { ...milestone, acquiredAt }
-  })
+    .filter((milestone) => milestone !== null) // Remove nulls from the list
 })
 
+// Calculate unearned milestones based on the absence of records for the current user
 const unearnedMilestones = computed(() => {
-  return milestones.value.filter(
+  return milestoneStore.milestones.filter(
     (milestone) =>
-      !unlockedMilestones.value.some(
+      !milestoneStore.milestoneRecords.some(
         (record) =>
           record.milestoneId === milestone.id &&
           record.userId === userStore.userId,

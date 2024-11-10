@@ -17,7 +17,7 @@
 
     <!-- Milestones Data -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-      <!-- Earned Milestones -->
+      <!-- Earned Milestones Column -->
       <div
         class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"
       >
@@ -32,14 +32,14 @@
         </div>
       </div>
 
-      <!-- Leaderboard -->
+      <!-- Leaderboard Column -->
       <div
         class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"
       >
         <milestone-leaderboard />
       </div>
 
-      <!-- Unearned Milestones -->
+      <!-- Undiscovered Milestones Column -->
       <div
         class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"
       >

@@ -133,22 +133,38 @@ function updateParsedUserPrompts() {
 }
 
 async function sendPrompt(prompt: string) {
-  if (!prompt) return console.warn('Prompt is empty, cannot send.')
+  if (!prompt) {
+    console.warn('Prompt is empty, cannot send.')
+    return
+  }
 
   promptStore.currentPrompt = prompt
   loading.value = true
 
   try {
     const { id: userId } = userStore.user || {}
+    if (!userId) {
+      throw new Error('User ID is missing.')
+    }
+
     const { id: botId } = botStore.currentBot || {}
+    if (!botId) {
+      throw new Error('Bot ID is missing.')
+    }
 
-    if (userId && botId) {
-      const newPrompt = await promptStore.addPrompt(prompt, userId, botId)
+    let newPrompt
+    try {
+      newPrompt = await promptStore.addPrompt(prompt, userId, botId)
+    } catch (error) {
+      console.error('Error generating prompt in promptStore:', error)
+      throw new Error('Failed to add prompt to the prompt store.')
+    }
 
-      if (!newPrompt || !newPrompt.id) {
-        throw new Error('Failed to generate a prompt ID.')
-      }
+    if (!newPrompt || !newPrompt.id) {
+      throw new Error('Failed to generate a prompt ID.')
+    }
 
+    try {
       await chatStore.addChat({
         content: prompt,
         userId,
@@ -156,13 +172,15 @@ async function sendPrompt(prompt: string) {
         recipientId: botId,
         promptId: newPrompt.id,
       })
-      promptStore.currentPrompt = ''
-    } else {
-      console.warn('Missing user or bot ID, cannot proceed.')
+    } catch (error) {
+      console.error('Error adding chat in chatStore:', error)
+      throw new Error('Failed to add chat to the chat store.')
     }
+
+    promptStore.currentPrompt = ''
   } catch (error) {
-    errorMessage.value = 'An error occurred while sending the prompt.'
-    console.error('Error sending prompt:', error)
+    errorMessage.value = error.message
+    console.error('Error in sendPrompt function:', error)
   } finally {
     loading.value = false
   }

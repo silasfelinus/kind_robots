@@ -87,13 +87,13 @@ export const useBotStore = defineStore({
     async updateBot(id: number): Promise<void> {
       try {
         const botData = { ...this.botForm, avatarImage: this.currentImagePath }
-        const response = await performFetch<{ bot: Bot }>(`/api/bot/id/${id}`, {
+        const response = await performFetch<Bot>(`/api/bot/id/${id}`, {
           method: 'PATCH',
           body: JSON.stringify(botData),
         })
 
         if (response.success) {
-          const updatedBot = response.data?.bot
+          const updatedBot = response.data
           if (updatedBot) {
             const botIndex = this.bots.findIndex((bot) => bot.id === id)
             if (botIndex !== -1) {
@@ -150,13 +150,13 @@ export const useBotStore = defineStore({
 
     async addBots(botsData: Partial<Bot>[]): Promise<Bot[]> {
       try {
-        const response = await performFetch<{ bots: Bot[] }>('/api/bots', {
+        const response = await performFetch<Bot[]>('/api/bots', {
           method: 'POST',
           body: JSON.stringify(botsData),
         })
 
         if (response.success) {
-          const addedBots = response.data?.bots || []
+          const addedBots = response.data || []
           this.bots = [...this.bots, ...addedBots]
           return addedBots
         } else {
@@ -171,13 +171,13 @@ export const useBotStore = defineStore({
 
     async addBot(botData: Partial<Bot>): Promise<Bot | null> {
       try {
-        const response = await performFetch<{ bot: Bot }>('/api/bot', {
+        const response = await performFetch<Bot>('/api/bot', {
           method: 'POST',
           body: JSON.stringify(botData),
         })
 
         if (response.success) {
-          const newBot = response.data?.bot
+          const newBot = response.data
           if (newBot) {
             this.bots = [...this.bots, newBot]
             return newBot
@@ -193,10 +193,10 @@ export const useBotStore = defineStore({
 
     async getBotById(id: number): Promise<void> {
       try {
-        const response = await performFetch<{ bot: Bot }>(`/api/bot/id/${id}`)
+        const response = await performFetch<Bot>(`/api/bot/id/${id}`)
 
         if (response.success) {
-          const bot = response.data?.bot
+          const bot = response.data
           if (bot) {
             this.currentBot = bot
             this.botForm = { ...bot }

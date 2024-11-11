@@ -6,7 +6,6 @@ import { resourceData } from './../stores/seeds/seedResources'
 interface ResourceStoreState {
   resources: Resource[]
   currentResource: Resource | null
-  errors: string[]
   isInitialized: boolean
 }
 
@@ -15,7 +14,6 @@ export const useResourceStore = defineStore({
   state: (): ResourceStoreState => ({
     resources: [],
     currentResource: null,
-    errors: [],
     isInitialized: false,
   }),
 
@@ -35,9 +33,7 @@ export const useResourceStore = defineStore({
 
     async getResources(): Promise<void> {
       return handleError(async () => {
-        const response = await performFetch<Resource[]>(
-          '/api/resources',
-        )
+        const response = await performFetch<Resource[]>('/api/resources')
         if (response.success) {
           this.resources = response.data || []
         } else {
@@ -55,9 +51,7 @@ export const useResourceStore = defineStore({
 
     async getResourceById(id: number): Promise<void> {
       return handleError(async () => {
-        const response = await performFetch<Resource>(
-          `/api/resources/${id}`,
-        )
+        const response = await performFetch<Resource>(`/api/resources/${id}`)
         if (response.success && response.data) {
           this.currentResource = response.data
         } else {
@@ -74,7 +68,6 @@ export const useResourceStore = defineStore({
         })
         if (response.success && response.data) {
           this.resources = [...this.resources, ...response.data]
-          this.errors = response.data.errors || []
         } else {
           throw new Error(response.message || 'Failed to add resources')
         }
@@ -83,13 +76,10 @@ export const useResourceStore = defineStore({
 
     async updateResource(id: number, data: Partial<Resource>): Promise<void> {
       return handleError(async () => {
-        const response = await performFetch<Resource>(
-          `/api/resources/${id}`,
-          {
-            method: 'PATCH',
-            body: JSON.stringify(data),
-          },
-        )
+        const response = await performFetch<Resource>(`/api/resources/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(data),
+        })
         if (response.success && response.data) {
           this.currentResource = response.data
           await this.getResources() // Refresh after updating

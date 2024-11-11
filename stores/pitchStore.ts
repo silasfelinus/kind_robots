@@ -1,9 +1,12 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
+import { usePromptStore } from './promptStore'
 import { performFetch, handleError } from './utils'
 import type { Pitch, Art } from '@prisma/client'
 
 const isClient = typeof window !== 'undefined'
+
+const promptStore = usePromptStore()
 
 export enum PitchTypeEnum {
   ARTPITCH = 'Art Pitch',
@@ -95,28 +98,30 @@ export const usePitchStore = defineStore('pitch', {
       }, 'fetching random pitches')
     },
 
- async fetchBrainstormPitches() {
-  return handleError(async () => {
-    const response = await performFetch<String[]>('/api/botcafe/brainstorm', {
-      method: 'POST',
-      body: JSON.stringify({
-        n: 5,
-        content: '1 more original brainstorm.',
-        max_tokens: 500,
-      }),
-    })
+    async fetchBrainstormPitches() {
+      return handleError(async () => {
+        const response = await performFetch<Pitch[]>(
+          '/api/botcafe/brainstorm',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              n: 5,
+              content: promptStore.currentPrompt,
+              max_tokens: 500,
+            }),
+          },
+        )
 
-    if (response.success && response.data) {
-      const newIdeas = response.data
-      this.addPitches(newIdeas)
-    } else {
-      throw new Error(
-        response.message || 'Failed to fetch brainstorm pitches',
-      )
-    }
-  }, 'fetching brainstorm pitches')
-},
-
+        if (response.success && response.data) {
+          const newIdeas = response.data
+          this.addPitches(newIdeas)
+        } else {
+          throw new Error(
+            response.message || 'Failed to fetch brainstorm pitches',
+          )
+        }
+      }, 'fetching brainstorm pitches')
+    },
 
     addPitches(newPitches: Pitch[]) {
       this.pitches.push(
@@ -142,9 +147,7 @@ export const usePitchStore = defineStore('pitch', {
 
     async fetchPitches() {
       return handleError(async () => {
-        const response = await performFetch<Pitch[]>(
-          '/api/pitches',
-        )
+        const response = await performFetch<Pitch[]>('/api/pitches')
         if (response.success && response.data) {
           this.pitches = response.data
           if (isClient)
@@ -157,9 +160,7 @@ export const usePitchStore = defineStore('pitch', {
 
     async fetchPitchById(pitchId: number) {
       return handleError(async () => {
-        const response = await performFetch<Pitch>(
-          `/api/pitches/${pitchId}`,
-        )
+        const response = await performFetch<Pitch>(`/api/pitches/${pitchId}`)
         if (response.success && response.data) {
           this.pitches.push(response.data)
           if (isClient)
@@ -195,23 +196,31 @@ export const usePitchStore = defineStore('pitch', {
 
     async updatePitch(pitchId: number, updates: Partial<Pitch>) {
       return handleError(async () => {
-        const response = await performFetch<Pitch>(
-          `/api/pitches/${pitchId}`,
-          {
-            method: 'PATCH',
-            body: JSON.stringify(updates),
-          },
-        )
+        const response = await performFetch<Pitch>(`/api/pitches/${pitchId}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updates),
+        })
+
         const index = this.pitches.findIndex((pitch) => pitch.id === pitchId)
-        if (response.success && response.data?.pitch && index !== -1) {
+
+        if (
+          response.success &&
+          typeof response.data === 'object' &&
+          index !== -1 &&
+          typeof this.pitches[index] === 'object'
+        ) {
           this.pitches[index] = {
             ...this.pitches[index],
-            ...response.data.pitch,
+            ...response.data,
           }
-          if (isClient)
+
+          if (isClient) {
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
+          }
+
           return { success: true, message: 'Pitch updated successfully' }
         }
+
         throw new Error(response.message || 'Pitch update failed')
       }, `updating pitch ID: ${pitchId}`)
     },

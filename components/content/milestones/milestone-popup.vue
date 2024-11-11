@@ -1,9 +1,10 @@
 <template>
   <!-- Popup Content -->
-  <div
-    v-if="showPopup"
-    class="fixed inset-0 flex justify-center items-center z-50"
-  >
+<div
+  v-if="showPopup"
+  class="fixed inset-0 flex justify-center items-center border border-red-500 z-50"
+>
+
     <div class="rounded-2xl p-10 text-center relative border-accent rounded-2xl bg-base-100 max-w-lg mx-auto shadow-xl">
       <h2 class="text-3xl font-semibold mb-6">
         Congratulations, {{ userStore.username }}!

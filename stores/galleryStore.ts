@@ -129,12 +129,12 @@ export const useGalleryStore = defineStore({
 
     async fetchGalleries() {
       try {
-        const response = await performFetch<{ galleries: Gallery[] }>(
+        const response = await performFetch<Gallery[]>(
           '/api/galleries',
         )
 
         if (response.success && response.data) {
-          this.galleries = response.data.galleries
+          this.galleries = response.data
           localStorage.setItem('galleries', JSON.stringify(this.galleries))
 
           if (!this.currentGallery && this.galleries.length > 0) {

@@ -95,9 +95,25 @@ export const usePitchStore = defineStore('pitch', {
         }
       }, 'fetching random pitches')
     },
-
     async fetchBrainstormPitches() {
       const promptStore = usePromptStore()
+      const exampleContent =
+        promptStore.currentPrompt ||
+        'slogans for our anti-malaria fundraiser at http://againstmalaria.com/amibot'
+
+      // Construct the examples array based on selectedPitches
+      const examples = this.selectedPitches.length
+        ? this.selectedPitches.map((pitch) => ({
+            input: `Topic: ${pitch.title || 'Creative Idea'}`,
+            output: `Idea: ${pitch.description || 'A sample pitch description for the topic.'}`,
+          }))
+        : [
+            {
+              input: 'Topic: Anti-malaria fundraiser',
+              output: 'Idea: A creative slogan for malaria awareness',
+            },
+          ]
+
       return handleError(async () => {
         const response = await performFetch<Pitch[]>(
           '/api/botcafe/brainstorm',
@@ -105,8 +121,9 @@ export const usePitchStore = defineStore('pitch', {
             method: 'POST',
             body: JSON.stringify({
               n: 5,
-              content: promptStore.currentPrompt,
+              content: `Please send an idea for a creative brainstorm for this topic: ${exampleContent}`,
               max_tokens: 500,
+              examples: examples, // Add the examples array to the request
             }),
           },
         )

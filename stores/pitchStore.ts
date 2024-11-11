@@ -95,28 +95,28 @@ export const usePitchStore = defineStore('pitch', {
       }, 'fetching random pitches')
     },
 
-    async fetchBrainstormPitches() {
-      return handleError(async () => {
-        const response = await performFetch<String[]>('/api/botcafe/brainstorm', {
-          method: 'POST',
-          body: JSON.stringify({
-            n: 5,
-            content: '1 more original brainstorm.',
-            max_tokens: 500,
-          }),
-        })
+ async fetchBrainstormPitches() {
+  return handleError(async () => {
+    const response = await performFetch<String[]>('/api/botcafe/brainstorm', {
+      method: 'POST',
+      body: JSON.stringify({
+        n: 5,
+        content: '1 more original brainstorm.',
+        max_tokens: 500,
+      }),
+    })
 
-        if (response.success && response.data) {
-          const newIdeas = response.data
-          )
-          this.addPitches(newIdeas)
-        } else {
-          throw new Error(
-            response.message || 'Failed to fetch brainstorm pitches',
-          )
-        }
-      }, 'fetching brainstorm pitches')
-    },
+    if (response.success && response.data) {
+      const newIdeas = response.data
+      this.addPitches(newIdeas)
+    } else {
+      throw new Error(
+        response.message || 'Failed to fetch brainstorm pitches',
+      )
+    }
+  }, 'fetching brainstorm pitches')
+},
+
 
     addPitches(newPitches: Pitch[]) {
       this.pitches.push(

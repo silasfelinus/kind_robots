@@ -1,11 +1,12 @@
 <template>
   <!-- Popup Content -->
-<div
-  v-if="showPopup"
-  class="fixed inset-0 flex justify-center items-center border border-red-500 z-50"
->
-
-    <div class="rounded-2xl p-10 text-center relative border-accent rounded-2xl bg-base-100 max-w-lg mx-auto shadow-xl">
+  <div
+    v-if="showPopup"
+    class="fixed inset-0 flex justify-center items-center border border-red-500 z-50"
+  >
+    <div
+      class="rounded-2xl p-10 text-center relative border-accent bg-base-100 max-w-lg mx-auto shadow-xl"
+    >
       <h2 class="text-3xl font-semibold mb-6">
         Congratulations, {{ userStore.username }}!
       </h2>
@@ -21,10 +22,7 @@
         <div class="karma-award flex flex-col items-center">
           <p class="text-lg font-semibold">Bonus: +{{ milestone.karma }}</p>
           <p class="text-lg mb-4">You Found 1 Jellybean!</p>
-          <Icon
-            name="kind-icon:jellybean"
-            class="p-2 h-16 w-16 text-accent"
-          />
+          <Icon name="kind-icon:jellybean" class="p-2 h-16 w-16 text-accent" />
         </div>
         <button
           class="bg-primary text-white rounded-2xl border px-6 py-3 mt-6 hover:bg-primary-focus transition"
@@ -38,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watchEffect } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useConfetti } from '@/utils/useConfetti'
@@ -49,18 +47,19 @@ const milestoneStore = useMilestoneStore()
 const showPopup = ref(false)
 
 // Computed property to access the first unconfirmed milestone
-const milestone = computed(() => milestoneStore.unconfirmedMilestones[0] || null)
+const milestone = computed(
+  () => milestoneStore.unconfirmedMilestones[0] || null,
+)
 
 watchEffect(() => {
-  console.log('Milestone:', milestone.value); // Log for debugging
+  console.log('Milestone:', milestone.value) // Log for debugging
   if (milestone.value) {
     showPopup.value = true
     triggerConfetti()
   } else {
     showPopup.value = false
   }
-});
-
+})
 
 // Function to confirm the milestone and close the popup
 const confirmMilestone = () => {

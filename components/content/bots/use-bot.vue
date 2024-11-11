@@ -179,7 +179,6 @@ async function sendPrompt(prompt: string) {
 
     promptStore.currentPrompt = ''
   } catch (error) {
-    errorMessage.value = error.message
     console.error('Error in sendPrompt function:', error)
   } finally {
     loading.value = false

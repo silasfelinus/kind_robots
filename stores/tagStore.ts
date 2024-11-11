@@ -43,9 +43,9 @@ export const useTagStore = defineStore({
 
     async fetchTags() {
       await handleError(async () => {
-        const response = await performFetch<{ tags: Tag[] }>('/api/tags')
+        const response = await performFetch<Tag[]>('/api/tags')
         if (response.success) {
-          this.tags = response.data?.tags || []
+          this.tags = response.data || []
           if (isClient) {
             localStorage.setItem('tags', JSON.stringify(this.tags))
           }
@@ -57,15 +57,15 @@ export const useTagStore = defineStore({
 
     async createTag(label: string, title: string, userId: number) {
       await handleError(async () => {
-        const response = await performFetch<{ tag: Tag }>('/api/tags', {
+        const response = await performFetch<Tag>('/api/tags', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ label, title, userId, isPublic: false }),
         })
-        if (response.success && response.data?.tag) {
-          this.tags.push(response.data.tag)
+        if (response.success && response.data) {
+          this.tags.push(response.data)
           if (isClient) {
             localStorage.setItem('tags', JSON.stringify(this.tags))
           }
@@ -77,15 +77,15 @@ export const useTagStore = defineStore({
 
     async editTag(id: number, updates: Partial<Tag>) {
       await handleError(async () => {
-        const response = await performFetch<{ tag: Tag }>(`/api/tags/${id}`, {
+        const response = await performFetch<Tag>(`/api/tags/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updates),
         })
-        if (response.success && response.data?.tag) {
+        if (response.success && response.data) {
           const index = this.tags.findIndex((tag) => tag.id === id)
           if (index !== -1) {
-            this.tags[index] = { ...this.tags[index], ...response.data.tag }
+            this.tags[index] = { ...this.tags[index], ...response.data }
             if (isClient) {
               localStorage.setItem('tags', JSON.stringify(this.tags))
             }

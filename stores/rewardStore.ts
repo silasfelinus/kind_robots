@@ -43,11 +43,11 @@ export const useRewardStore = defineStore({
     async fetchRewards() {
       this.isLoading = true
       await handleError(async () => {
-        const response = await performFetch<{ rewards: Reward[] }>(
+        const response = await performFetch<Reward[]>(
           '/api/rewards',
         )
         if (response.success) {
-          this.rewards = response.data?.rewards || []
+          this.rewards = response.data || []
         } else {
           throw new Error(response.message || 'Failed to fetch rewards')
         }
@@ -57,17 +57,14 @@ export const useRewardStore = defineStore({
 
     async editReward(id: number, updatedData: Partial<Reward>) {
       await handleError(async () => {
-        const response = await performFetch<{
-          success: boolean
-          reward: Reward
-        }>(`/api/rewards/${id}`, {
+        const response = await performFetch<Reward>(`/api/rewards/${id}`, {
           method: 'PATCH',
           body: JSON.stringify(updatedData),
         })
-        if (response.success && response.data?.reward) {
+        if (response.success && response.data) {
           const index = this.rewards.findIndex((reward) => reward.id === id)
           if (index !== -1) {
-            this.rewards[index] = response.data.reward
+            this.rewards[index] = response.data
           }
         } else {
           throw new Error(response.message || 'Failed to edit reward')
@@ -81,15 +78,15 @@ export const useRewardStore = defineStore({
 
     async createReward(newReward: Partial<Reward>) {
       await handleError(async () => {
-        const response = await performFetch<{ reward: Reward }>(
+        const response = await performFetch<Reward>(
           '/api/rewards',
           {
             method: 'POST',
             body: JSON.stringify(newReward),
           },
         )
-        if (response.success && response.data?.reward) {
-          this.rewards.push(response.data.reward)
+        if (response.success && response.data) {
+          this.rewards.push(response.data)
         } else {
           throw new Error(response.message || 'Failed to create reward')
         }
@@ -98,17 +95,17 @@ export const useRewardStore = defineStore({
 
     async updateRewardById(id: number, updatedReward: Partial<Reward>) {
       await handleError(async () => {
-        const response = await performFetch<{ updatedReward: Reward }>(
+        const response = await performFetch<Reward>(
           `/api/rewards/${id}`,
           {
             method: 'PATCH',
             body: JSON.stringify(updatedReward),
           },
         )
-        if (response.success && response.data?.updatedReward) {
+        if (response.success && response.data) {
           const index = this.rewards.findIndex((reward) => reward.id === id)
           if (index !== -1) {
-            this.rewards[index] = response.data.updatedReward
+            this.rewards[index] = response.data
           }
         } else {
           throw new Error(response.message || 'Failed to update reward')
@@ -131,15 +128,15 @@ export const useRewardStore = defineStore({
 
     async createRewardsBatch(newRewards: Partial<Reward>[]) {
       await handleError(async () => {
-        const response = await performFetch<{ rewards: Reward[] }>(
+        const response = await performFetch<Reward[]>(
           '/api/rewards/batch',
           {
             method: 'POST',
             body: JSON.stringify(newRewards),
           },
         )
-        if (response.success && response.data?.rewards) {
-          this.rewards.push(...response.data.rewards)
+        if (response.success && response.data) {
+          this.rewards.push(...response.data)
         } else {
           throw new Error(
             response.message || 'Failed to create rewards in batch',

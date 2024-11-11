@@ -52,13 +52,13 @@ export const useReactionStore = defineStore('reactionStore', {
       this.loading = true
       this.error = null
       try {
-        const response = await performFetch<{ reactions: Reaction[] }>(
+        const response = await performFetch<Reaction[]>(
           `/api/reactions/art/${artId}`,
         )
         if (!response.success) throw new Error(response.message)
         this.reactions = [
           ...this.reactions,
-          ...(response.data?.reactions || []),
+          ...(response.data || []),
         ]
       } catch (error) {
         handleError(error, 'fetching reactions by art ID')
@@ -71,11 +71,11 @@ export const useReactionStore = defineStore('reactionStore', {
       this.loading = true
       this.error = null
       try {
-        const response = await performFetch<{ reactions: Reaction[] }>(
+        const response = await performFetch<Reaction[]>(
           `/api/components/${componentId}/reactions`,
         )
         if (!response.success) throw new Error(response.message)
-        this.reactions = response.data?.reactions || []
+        this.reactions = response.data || []
       } catch (error) {
         handleError(error, 'fetching reactions by component ID')
       } finally {
@@ -87,11 +87,11 @@ export const useReactionStore = defineStore('reactionStore', {
       this.loading = true
       this.error = null
       try {
-        const response = await performFetch<{ reactions: Reaction[] }>(
+        const response = await performFetch<Reaction[]>(
           '/api/reactions',
         )
         if (!response.success) throw new Error(response.message)
-        this.reactions = response.data?.reactions || []
+        this.reactions = response.data || []
       } catch (error) {
         handleError(error, 'fetching all reactions')
       } finally {
@@ -135,7 +135,7 @@ export const useReactionStore = defineStore('reactionStore', {
       reactionCategory?: ReactionCategoryEnum
     }) {
       try {
-        const response = await performFetch<{ reaction: Reaction }>(
+        const response = await performFetch<Reaction>(
           '/api/reactions',
           {
             method: 'POST',
@@ -160,7 +160,7 @@ export const useReactionStore = defineStore('reactionStore', {
           },
         )
         if (!response.success) throw new Error(response.message)
-        const newReaction = response.data?.reaction
+        const newReaction = response.data
         if (newReaction) this.reactions.push(newReaction)
         return newReaction
       } catch (error) {
@@ -178,7 +178,7 @@ export const useReactionStore = defineStore('reactionStore', {
       },
     ) {
       try {
-        const response = await performFetch<{ reaction: Reaction }>(
+        const response = await performFetch<Reaction>(
           `/api/reactions/${reactionId}`,
           {
             method: 'PATCH',
@@ -186,7 +186,7 @@ export const useReactionStore = defineStore('reactionStore', {
           },
         )
         if (!response.success) throw new Error(response.message)
-        const updatedReaction = response.data?.reaction
+        const updatedReaction = response.data
         const index = this.reactions.findIndex((r) => r.id === reactionId)
         if (index !== -1 && updatedReaction)
           this.reactions[index] = updatedReaction

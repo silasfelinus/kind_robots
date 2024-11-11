@@ -8,10 +8,6 @@ interface Example {
   pitch: string
 }
 
-interface Choice {
-  text: string
-}
-
 const savedPitches: Pitch[] = [] // Store submitted pitches for demonstration purposes
 
 const creativePrompts: Example[] = [
@@ -73,11 +69,8 @@ export default defineEventHandler(async (event) => {
     // Validate API Key
     const { isValid } = await validateApiKey(event)
     if (!isValid) {
-      event.node.res.statusCode = 401 // Set HTTP status code to 401 Unauthorized
-      return {
-        success: false,
-        message: 'Invalid or expired token.',
-      }
+      event.node.res.statusCode = 401
+      return { success: false, message: 'Invalid or expired token.' }
     }
 
     const body = await readBody(event)
@@ -93,29 +86,32 @@ export default defineEventHandler(async (event) => {
 
     const { n = 5, title = 'Creative Ideas', examples = [] } = body
 
-    // Format examples for OpenAI request
+    // Format examples into content for OpenAI message
     const formattedExamples = examples.length
-      ? examples.map((ex: Example) => ({
-          input: `Topic: ${ex.title || 'Sample Topic'}`,
-          output: `Pitch: ${ex.pitch || 'Sample pitch description for this topic.'}`,
-        }))
-      : creativePrompts.map(({ title, pitch }) => ({
-          input: `Topic: ${title}`,
-          output: `Pitch: ${pitch}`,
-        }))
+      ? examples
+          .map(
+            (ex: Example) =>
+              `Topic: ${ex.title || 'Sample Topic'}, Pitch: ${ex.pitch || 'Sample pitch description for this topic.'}`,
+          )
+          .join('\n')
+      : creativePrompts
+          .map(({ title, pitch }) => `Topic: ${title}, Pitch: ${pitch}`)
+          .join('\n')
+
+    // Create message content including title and examples
+    const content = `Generate ideas based on this topic: ${title}. Here are some examples:\n${formattedExamples}`
 
     // Construct OpenAI request data
     const pitchRequest = {
       model: body.model || 'gpt-4o-mini',
-      prompt: `Generate ideas based on this topic: ${title}`,
+      messages: [{ role: 'user', content }],
       temperature: body.temperature || 0.7,
       max_tokens: body.maxTokens || 150,
       n,
-      examples: formattedExamples,
       stream: body.stream || false,
     }
 
-    const post = body.post || 'https://api.openai.com/v1/completions'
+    const post = body.post || 'https://api.openai.com/v1/chat/completions'
 
     // Call OpenAI API
     const response = await fetch(post, {
@@ -137,20 +133,17 @@ export default defineEventHandler(async (event) => {
 
     const responseData = await response.json()
     const data: Partial<Pitch>[] = responseData.choices.map(
-      (choice: Choice) => ({
-        title: title,
-        pitch: choice.text.trim(),
-      }),
+      (choice: { message: { content: string } }) => {
+        const content = choice.message.content.trim()
+        const [title, pitch] = content.split(', Pitch: ')
+        return { title: title.replace('Topic: ', ''), pitch: pitch || '' }
+      },
     )
 
     // Save generated pitches for demonstration
     savedPitches.push(...(data as Pitch[]))
 
-    return {
-      success: true,
-      message: 'Pitches generated successfully.',
-      data,
-    }
+    return { success: true, message: 'Pitches generated successfully.', data }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500

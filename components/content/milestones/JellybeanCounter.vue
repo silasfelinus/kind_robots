@@ -14,23 +14,8 @@
       </button>
     </div>
 
-    <!-- Displaying All Records for Debugging -->
-    <div class="p-4 m-2 border bg-gray-100 rounded">
-      <h3 class="font-bold text-center">All Milestone Records (Debug)</h3>
-      <ul>
-        <li
-          v-for="record in unlockedMilestones"
-          :key="record.id"
-          class="text-sm text-gray-700"
-        >
-          Milestone ID: {{ record.milestoneId }}, User ID: {{ record.userId }},
-          Confirmed: {{ record.isConfirmed }}
-        </li>
-      </ul>
-    </div>
-
     <!-- Milestones Data -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:p-2">
       <!-- Earned Milestones Column -->
       <div
         class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"

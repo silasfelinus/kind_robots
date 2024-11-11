@@ -35,11 +35,11 @@ export const useResourceStore = defineStore({
 
     async getResources(): Promise<void> {
       return handleError(async () => {
-        const response = await performFetch<{ resources: Resource[] }>(
+        const response = await performFetch<Resource[]>(
           '/api/resources',
         )
         if (response.success) {
-          this.resources = response.data?.resources || []
+          this.resources = response.data || []
         } else {
           throw new Error(response.message || 'Failed to fetch resources')
         }
@@ -55,11 +55,11 @@ export const useResourceStore = defineStore({
 
     async getResourceById(id: number): Promise<void> {
       return handleError(async () => {
-        const response = await performFetch<{ resource: Resource }>(
+        const response = await performFetch<Resource>(
           `/api/resources/${id}`,
         )
-        if (response.success && response.data?.resource) {
-          this.currentResource = response.data.resource
+        if (response.success && response.data) {
+          this.currentResource = response.data
         } else {
           throw new Error(response.message || 'Failed to fetch resource by ID')
         }
@@ -68,15 +68,12 @@ export const useResourceStore = defineStore({
 
     async addResources(resourceData: Partial<Resource>[]): Promise<void> {
       return handleError(async () => {
-        const response = await performFetch<{
-          resources: Resource[]
-          errors: string[]
-        }>('/api/resources', {
+        const response = await performFetch<Resource[]>('/api/resources', {
           method: 'POST',
           body: JSON.stringify(resourceData),
         })
-        if (response.success && response.data?.resources) {
-          this.resources = [...this.resources, ...response.data.resources]
+        if (response.success && response.data) {
+          this.resources = [...this.resources, ...response.data]
           this.errors = response.data.errors || []
         } else {
           throw new Error(response.message || 'Failed to add resources')
@@ -86,15 +83,15 @@ export const useResourceStore = defineStore({
 
     async updateResource(id: number, data: Partial<Resource>): Promise<void> {
       return handleError(async () => {
-        const response = await performFetch<{ updatedResource: Resource }>(
+        const response = await performFetch<Resource>(
           `/api/resources/${id}`,
           {
             method: 'PATCH',
             body: JSON.stringify(data),
           },
         )
-        if (response.success && response.data?.updatedResource) {
-          this.currentResource = response.data.updatedResource
+        if (response.success && response.data) {
+          this.currentResource = response.data
           await this.getResources() // Refresh after updating
         } else {
           throw new Error(response.message || 'Failed to update resource')

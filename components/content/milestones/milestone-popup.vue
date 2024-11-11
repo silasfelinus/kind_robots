@@ -50,15 +50,16 @@ const showPopup = ref(false)
 // Computed property to access the first unconfirmed milestone
 const milestone = computed(() => milestoneStore.unconfirmedMilestones[0] || null)
 
-// Watch for changes in the milestone to trigger the popup and confetti
 watchEffect(() => {
+  console.log('Milestone:', milestone.value); // Log for debugging
   if (milestone.value) {
     showPopup.value = true
     triggerConfetti()
   } else {
     showPopup.value = false
   }
-})
+});
+
 
 // Function to confirm the milestone and close the popup
 const confirmMilestone = () => {

@@ -4,7 +4,7 @@
     v-if="showPopup"
     class="fixed inset-0 flex justify-center items-center z-50"
   >
-    <div class="rounded-2xl p-10 text-center relative border-accent rounded-2xl bg-primary max-w-lg mx-auto shadow-xl">
+    <div class="rounded-2xl p-10 text-center relative border-accent rounded-2xl bg-base-100 max-w-lg mx-auto shadow-xl">
       <h2 class="text-3xl font-semibold mb-6">
         Congratulations, {{ userStore.username }}!
       </h2>

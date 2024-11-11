@@ -75,11 +75,11 @@ export const useArtStore = defineStore({
 
     async fetchCollectedArt(userId: number): Promise<void> {
       try {
-        const response = await performFetch<{ collectedArt: Art[] }>(
+        const response = await performFetch<Art[]>(
           `/api/art/user/${userId}/collected`,
         )
         if (response.success) {
-          this.collectedArt = response.data?.collectedArt || []
+          this.collectedArt = response.data || []
           if (isClient)
             localStorage.setItem(
               'collectedArt',
@@ -172,13 +172,9 @@ export const useArtStore = defineStore({
 
     async fetchAllArt(): Promise<void> {
       try {
-        const response = await performFetch<{
-          artEntries: Art[]
-          totalArtCount: number
-        }>('/api/art')
+        const response = await performFetch<Art[]>('/api/art')
         if (response.success) {
-          this.art = response.data?.artEntries || []
-          this.totalArtCount = response.data?.totalArtCount || 0
+          this.art = response.data || []
           if (isClient) localStorage.setItem('art', JSON.stringify(this.art))
         } else {
           throw new Error(response.message)
@@ -293,10 +289,10 @@ export const useArtStore = defineStore({
 
     async fetchArtByUserId(userId: number): Promise<void> {
       try {
-        const response = await performFetch<{ art: Art[] }>(
+        const response = await performFetch<Art[]>(
           `/api/art/user/${userId}`,
         )
-        if (response.success) this.art = response.data?.art || []
+        if (response.success) this.art = response.data || []
         else throw new Error(response.message)
       } catch (error) {
         handleError(error, 'fetching art by user ID')
@@ -319,7 +315,7 @@ export const useArtStore = defineStore({
 
     async fetchArtById(id: number): Promise<Art | null> {
       try {
-        const response = await performFetch<{ art: Art }>(`/api/art/${id}`)
+        const response = await performFetch<Art>(`/api/art/${id}`)
         if (response.success) return response.data?.art || null
         else throw new Error(response.message)
       } catch (error) {
@@ -339,12 +335,12 @@ export const useArtStore = defineStore({
 
     async fetchArtImageById(id: number): Promise<ArtImage | null> {
       try {
-        const response = await performFetch<{ artImage: ArtImage }>(
+        const response = await performFetch<ArtImage>(
           `/api/art/image/${id}`,
         )
         if (response.success && response.data) {
-          this.artImages.push(response.data.artImage)
-          return response.data.artImage
+          this.artImages.push(response.data)
+          return response.data
         }
         throw new Error(response.message)
       } catch (error) {
@@ -355,7 +351,7 @@ export const useArtStore = defineStore({
 
     async uploadImage(formData: FormData): Promise<void> {
       try {
-        const response = await performFetch<{ artImage: ArtImage }>(
+        const response = await performFetch<ArtImage>(
           '/api/art/upload',
           {
             method: 'POST',
@@ -364,7 +360,7 @@ export const useArtStore = defineStore({
         )
 
         if (response.success && response.data)
-          this.artImages.push(response.data.artImage)
+          this.artImages.push(response.data)
         else throw new Error(response.message)
       } catch (error) {
         handleError(error, 'uploading image')

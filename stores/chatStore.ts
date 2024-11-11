@@ -98,13 +98,13 @@ export const useChatStore = defineStore({
           promptId,
         }
 
-        const response = await performFetch<{ newChat: Chat }>('/api/chats', {
+        const response = await performFetch<Chat>('/api/chats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(chat),
         })
 
-        const newChat = response.data?.newChat
+        const newChat = response.data
         if (!newChat) throw new Error('Failed to create new chat.')
 
         this.chats.push(newChat)
@@ -117,7 +117,7 @@ export const useChatStore = defineStore({
     },
     async deleteChat(chatId: number): Promise<boolean> {
       const userStore = useUserStore()
-      const currentUserId = userStore.user?.id
+      const currentUserId = userStore.userId
 
       if (!currentUserId) {
         handleError(ErrorType.AUTH_ERROR, 'User not authenticated.')
@@ -155,7 +155,7 @@ export const useChatStore = defineStore({
 
     async editChat(chatId: number, updatedData: Partial<Chat>) {
       try {
-        const response = await performFetch<{ chat: Chat }>(
+        const response = await performFetch<Chat>(
           `/api/chats/${chatId}`,
           {
             method: 'PATCH',
@@ -164,7 +164,7 @@ export const useChatStore = defineStore({
           },
         )
 
-        const updatedChat = response.data?.chat
+        const updatedChat = response.data
         if (updatedChat) {
           this.chats = this.chats.map((chat) =>
             chat.id === chatId ? updatedChat : chat,
@@ -182,11 +182,11 @@ export const useChatStore = defineStore({
 
     async fetchChatsByUserId(userId: number) {
       try {
-        const response = await performFetch<{ userChats: Chat[] }>(
+        const response = await performFetch<Chat[]>(
           `/api/chats/user/${userId}`,
         )
         if (response.success) {
-          this.chats = response.data?.userChats || []
+          this.chats = response.data || []
           this.saveToLocalStorage()
         } else {
           handleError(ErrorType.NETWORK_ERROR, response.message)

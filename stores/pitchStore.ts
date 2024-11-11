@@ -84,11 +84,11 @@ export const usePitchStore = defineStore('pitch', {
 
     async fetchRandomPitches(count: number) {
       return handleError(async () => {
-        const response = await performFetch<{ pitches?: Pitch[] }>(
+        const response = await performFetch<Pitch[]>(
           '/api/pitches/random?count=' + count,
         )
-        if (response.success && response.data?.pitches) {
-          this.selectedPitches = response.data.pitches
+        if (response.success && response.data) {
+          this.selectedPitches = response.data
         } else {
           throw new Error(response.message || 'Failed to fetch random pitches')
         }
@@ -97,22 +97,17 @@ export const usePitchStore = defineStore('pitch', {
 
     async fetchBrainstormPitches() {
       return handleError(async () => {
-        const response = await performFetch<{
-          choices?: { message?: { content?: string } }[]
-        }>('/api/botcafe/brainstorm', {
+        const response = await performFetch<String[]>('/api/botcafe/brainstorm', {
           method: 'POST',
           body: JSON.stringify({
             n: 5,
-            messages: [
-              { role: 'user', content: '1 more original brainstorm.' },
-            ],
+            content: '1 more original brainstorm.',
             max_tokens: 500,
           }),
         })
 
-        if (response.success && response.data?.choices?.[0]?.message?.content) {
-          const newIdeas = this.parseIdeasFromAPI(
-            response.data.choices[0].message.content,
+        if (response.success && response.data) {
+          const newIdeas = response.data,
           )
           this.addPitches(newIdeas)
         } else {
@@ -121,26 +116,6 @@ export const usePitchStore = defineStore('pitch', {
           )
         }
       }, 'fetching brainstorm pitches')
-    },
-
-    parseIdeasFromAPI(rawContent: string): Pitch[] {
-      return rawContent
-        .split('\n')
-        .filter((line) => /^\d+\./.test(line))
-        .map((item, index) => {
-          const cleanItem = item.replace(/^\d+\.\s/, '')
-          const [title, pitch] = cleanItem.split(' - ')
-          return {
-            id: this.pitches.length + index + 1,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            title: title || `Idea ${index + 1}`,
-            pitch: pitch || cleanItem,
-            PitchType: 'BRAINSTORM',
-            isPublic: true,
-            userId: 1,
-          } as Pitch
-        })
     },
 
     addPitches(newPitches: Pitch[]) {
@@ -167,11 +142,11 @@ export const usePitchStore = defineStore('pitch', {
 
     async fetchPitches() {
       return handleError(async () => {
-        const response = await performFetch<{ pitches?: Pitch[] }>(
-          '/api/pitches/batch',
+        const response = await performFetch<Pitch[]>(
+          '/api/pitches',
         )
-        if (response.success && response.data?.pitches) {
-          this.pitches = response.data.pitches
+        if (response.success && response.data) {
+          this.pitches = response.data
           if (isClient)
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
         } else {
@@ -182,14 +157,14 @@ export const usePitchStore = defineStore('pitch', {
 
     async fetchPitchById(pitchId: number) {
       return handleError(async () => {
-        const response = await performFetch<{ pitch?: Pitch }>(
+        const response = await performFetch<Pitch>(
           `/api/pitches/${pitchId}`,
         )
-        if (response.success && response.data?.pitch) {
-          this.pitches.push(response.data.pitch)
+        if (response.success && response.data) {
+          this.pitches.push(response.data)
           if (isClient)
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
-          return response.data.pitch
+          return response.data
         }
         throw new Error(response.message || 'Pitch not found')
       }, `fetching pitch by ID: ${pitchId}`)
@@ -199,12 +174,12 @@ export const usePitchStore = defineStore('pitch', {
       newPitch: Partial<Pitch>,
     ): Promise<{ success: boolean; message: string }> {
       try {
-        const response = await performFetch<{ pitch?: Pitch }>('/api/pitches', {
+        const response = await performFetch<Pitch>('/api/pitches', {
           method: 'POST',
           body: JSON.stringify(newPitch),
         })
-        if (response.success && response.data?.pitch) {
-          this.pitches.push(response.data.pitch)
+        if (response.success && response.data) {
+          this.pitches.push(response.data)
           if (isClient) {
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
           }
@@ -220,7 +195,7 @@ export const usePitchStore = defineStore('pitch', {
 
     async updatePitch(pitchId: number, updates: Partial<Pitch>) {
       return handleError(async () => {
-        const response = await performFetch<{ pitch?: Pitch }>(
+        const response = await performFetch<Pitch>(
           `/api/pitches/${pitchId}`,
           {
             method: 'PATCH',
@@ -258,11 +233,11 @@ export const usePitchStore = defineStore('pitch', {
 
     async fetchArtForPitch(pitchId: number) {
       return handleError(async () => {
-        const response = await performFetch<{ artEntries?: Art[] }>(
+        const response = await performFetch<Art[]>(
           `/api/pitches/art/${pitchId}`,
         )
-        if (response.success && response.data?.artEntries) {
-          this.galleryArt = response.data.artEntries
+        if (response.success && response.data) {
+          this.galleryArt = response.data
         } else {
           throw new Error(response.message || 'Failed to fetch art for pitch')
         }

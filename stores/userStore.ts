@@ -71,11 +71,11 @@ export const useUserStore = defineStore({
     },
     async getUsernames(): Promise<string[]> {
       try {
-        const response = await performFetch<{ usernames: string[] }>(
+        const response = await performFetch<string[]>(
           '/api/users/usernames',
         )
         if (response.success && response.data) {
-          return response.data.usernames // Access `usernames` directly
+          return response.data // Access `usernames` directly
         } else {
           handleError(
             new Error(response.message || 'Failed to fetch usernames'),
@@ -100,12 +100,13 @@ export const useUserStore = defineStore({
           body: JSON.stringify(userData),
         })
 
-        if (response.success && response.user) {
-          this.user = response.user
+        if (response.success && response.user && response.token) {
+          this.user = response.data
+          this.token = response.token
           return {
             success: true,
-            user: response.data,
-            token: this.token,
+            data,
+            token: response.token,
           }
         } else {
           console.warn('Registration failed:', response.message)

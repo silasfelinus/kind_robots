@@ -5,7 +5,7 @@
     <!-- Loaders -->
     <kind-loader />
     <animation-loader />
-    <<milestone-popup />
+    <milestone-popup />
 
     <!-- Header -->
     <header

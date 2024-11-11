@@ -1,5 +1,6 @@
 <template>
   <div class="bg-base-300 rounded-2xl border p-2 mx-auto max-w-screen-xl">
+<award-milestone :id="10" />
     <!-- Header with Reset Button -->
     <div
       class="text-center bg-primary text-white border p-2 m-2 rounded-2xl flex justify-between items-center"

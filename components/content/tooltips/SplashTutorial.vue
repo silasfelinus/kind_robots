@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col h-full w-full overflow-hidden shadow-lg border-4 rounded-2xl box-border bg-base-300 z-10"
+    class="relative flex flex-col h-full w-full overflow-hidden shadow-lg border-0 md:border-4 rounded-2xl box-border bg-base-300 z-10"
   >
     <!-- Under Construction Icon -->
     <div

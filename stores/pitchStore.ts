@@ -107,7 +107,7 @@ export const usePitchStore = defineStore('pitch', {
         })
 
         if (response.success && response.data) {
-          const newIdeas = response.data,
+          const newIdeas = response.data
           )
           this.addPitches(newIdeas)
         } else {

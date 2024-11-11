@@ -6,8 +6,6 @@ import type { Pitch, Art } from '@prisma/client'
 
 const isClient = typeof window !== 'undefined'
 
-const promptStore = usePromptStore()
-
 export enum PitchTypeEnum {
   ARTPITCH = 'Art Pitch',
   BRAINSTORM = 'Brainstorm',
@@ -99,6 +97,7 @@ export const usePitchStore = defineStore('pitch', {
     },
 
     async fetchBrainstormPitches() {
+      const promptStore = usePromptStore()
       return handleError(async () => {
         const response = await performFetch<Pitch[]>(
           '/api/botcafe/brainstorm',

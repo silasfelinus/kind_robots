@@ -2,9 +2,9 @@
   <!-- Popup Content -->
   <div
     v-if="showPopup"
-    class="fixed inset-0 flex justify-center items-center border-accent rounded-2xl bg-base-500 z-50"
+    class="fixed inset-0 flex justify-center items-center border-accent rounded-2xl bg-base z-50"
   >
-    <div class="bg-base-400 rounded-2xl p-10 text-center relative max-w-lg mx-auto shadow-xl">
+    <div class="rounded-2xl p-10 text-center relative max-w-lg mx-auto shadow-xl">
       <h2 class="text-3xl font-semibold mb-6">
         Congratulations, {{ userStore.username }}!
       </h2>

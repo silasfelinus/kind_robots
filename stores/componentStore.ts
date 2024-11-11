@@ -27,12 +27,12 @@ export const useComponentStore = defineStore('componentStore', {
     async initializeComponents() {
       try {
         console.log('Initializing components from API...')
-        const response = await performFetch<{ components: Component[] }>(
+        const response = await performFetch<Component[]>(
           '/api/components',
         )
 
         if (response.success && response.data) {
-          this.components = response.data.components
+          this.components = response.data
           console.log('Components initialized from API:', this.components)
         } else {
           throw new Error('Failed to fetch components from API.')
@@ -63,7 +63,7 @@ export const useComponentStore = defineStore('componentStore', {
         }
         const folderData = folderDataResponse.data
 
-        const apiResponse = await performFetch<{ components: Component[] }>(
+        const apiResponse = await performFetch<Component[]>(
           '/api/components',
         )
         if (!apiResponse.success || !apiResponse.data) {
@@ -71,7 +71,7 @@ export const useComponentStore = defineStore('componentStore', {
             apiResponse.message || 'Failed to fetch components from API',
           )
         }
-        const apiComponents = apiResponse.data.components
+        const apiComponents = apiResponse.data
 
         const componentsFromJson = folderData.flatMap((folder) =>
           folder.components.map((componentName) => ({

@@ -1,6 +1,7 @@
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
-import type { Pitch } from '@prisma/client' // Assuming Pitch type is imported from your database types
+import { validateApiKey } from '../utils/validateKey'
+import type { Pitch } from '@prisma/client'
 
 interface Example {
   title: string
@@ -69,13 +70,25 @@ const creativePrompts: Example[] = [
 
 export default defineEventHandler(async (event) => {
   try {
+    // Validate API Key
+    const { isValid } = await validateApiKey(event)
+    if (!isValid) {
+      event.node.res.statusCode = 401 // Set HTTP status code to 401 Unauthorized
+      return {
+        success: false,
+        message: 'Invalid or expired token.',
+      }
+    }
+
     const body = await readBody(event)
     const apiKey = process.env.OPENAI_API_KEY
 
     if (!apiKey) {
-      throw new Error(
-        'API key is missing. Please provide a valid OpenAI API key.',
-      )
+      throw createError({
+        statusCode: 500,
+        message:
+          'Server API key is missing. Please provide a valid OpenAI API key.',
+      })
     }
 
     const { n = 5, title = 'Creative Ideas', examples = [] } = body
@@ -92,7 +105,7 @@ export default defineEventHandler(async (event) => {
         }))
 
     // Construct OpenAI request data
-    const data = {
+    const pitchRequest = {
       model: body.model || 'gpt-4o-mini',
       prompt: `Generate ideas based on this topic: ${title}`,
       temperature: body.temperature || 0.7,
@@ -111,18 +124,19 @@ export default defineEventHandler(async (event) => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(pitchRequest),
     })
 
     if (!response.ok) {
       const errorData = await response.json()
-      throw new Error(
-        `Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`,
-      )
+      throw createError({
+        statusCode: response.status,
+        message: `Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`,
+      })
     }
 
     const responseData = await response.json()
-    const generatedPitches: Partial<Pitch>[] = responseData.choices.map(
+    const data: Partial<Pitch>[] = responseData.choices.map(
       (choice: Choice) => ({
         title: title,
         pitch: choice.text.trim(),
@@ -130,18 +144,20 @@ export default defineEventHandler(async (event) => {
     )
 
     // Save generated pitches for demonstration
-    savedPitches.push(...(generatedPitches as Pitch[]))
+    savedPitches.push(...(data as Pitch[]))
 
     return {
       success: true,
       message: 'Pitches generated successfully.',
-      pitches: generatedPitches,
+      data,
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
-    throw createError({
-      statusCode: statusCode || 500,
-      statusMessage: message,
-    })
+    event.node.res.statusCode = statusCode || 500
+    return {
+      success: false,
+      message: message || 'Failed to generate pitches.',
+      pitches: null,
+    }
   }
 })

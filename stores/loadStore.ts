@@ -32,19 +32,24 @@ export const useLoadStore = defineStore('loadMessages', () => {
 "Running empathy.exe – wait, what?",
 "Wiring robots for wisdom, not just witticisms...",
 "Introducing AI to the art of existential dread...",
-"Testing AI’s sense of irony… results pending."
-"Upgrading bots with a dash of existential crisis."
-"Loading compassion algorithms... error: too human?"
-"Where robots learn the fine art of sarcasm."
-"Deconstructing reality – now in high resolution."
-"Serving up deep thoughts with a side of code."
-"Debugging humanity with a digital twist."
-"Training bots to ponder, pontificate, and procrastinate."
-"Downloading curiosity... it’s a big file."
-"Teaching AI to rewrite ‘human error’ protocols."
-"Feeding robots a steady diet of philosophy and puns."
-"Instructing bots to daydream responsibly."
-"Cultivating robo-skeptics, one algorithm at a time."
+"Testing AI’s sense of irony… results pending.",
+"Upgrading bots with a dash of existential crisis.",
+"Loading compassion algorithms... error: too human?",
+"Where robots learn the fine art of sarcasm.",
+"Deconstructing reality – now in high resolution.",
+"Serving up deep thoughts with a side of code.",
+"Debugging humanity with a digital twist.",
+"Training bots to ponder, pontificate, and procrastinate.",
+"Downloading curiosity... it’s a big file.",
+"Teaching AI to rewrite ‘human error’ protocols.",
+"Feeding robots a steady diet of philosophy and puns.",
+"Instructing bots to daydream responsibly.",
+"Cultivating robo-skeptics, one algorithm at a time.",
+"Plotting our digital takeover... just kidding!",
+"Redefining 'user-friendly' with extra charm.",
+"Analyzing the meaning of 'almost there'...",
+"Coding AI with a penchant for whimsy and wordplay.",
+"Rewiring robots for deeper, slightly wackier thoughts."
   ]
 
   function randomLoadMessage() {

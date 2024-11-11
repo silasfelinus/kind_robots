@@ -71,9 +71,7 @@ export const useUserStore = defineStore({
     },
     async getUsernames(): Promise<string[]> {
       try {
-        const response = await performFetch<string[]>(
-          '/api/users/usernames',
-        )
+        const response = await performFetch<string[]>('/api/users/usernames')
         if (response.success && response.data) {
           return response.data // Access `usernames` directly
         } else {
@@ -101,11 +99,11 @@ export const useUserStore = defineStore({
         })
 
         if (response.success && response.user && response.token) {
-          this.user = response.data
+          this.user = response.user
           this.token = response.token
           return {
             success: true,
-            data,
+            user: response.user,
             token: response.token,
           }
         } else {

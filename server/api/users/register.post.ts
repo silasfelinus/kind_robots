@@ -37,13 +37,13 @@ export default defineEventHandler(async (event) => {
     })
 
     // If the star formation (user creation) is successful, we celebrate with a warm welcome
-    if (result.success) {
+    if (result.success && result.user) {
       console.log('🌟 A new star is born in our user universe:', result)
       return {
         success: true,
         message:
           '🌟 Welcome to our cosmic family, brave explorer! Your account has been created.',
-        data: result.user as User,
+        user: result.user as User,
         statusCode: 201,
       }
     }

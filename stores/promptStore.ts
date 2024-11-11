@@ -58,10 +58,10 @@ export const usePromptStore = defineStore('promptStore', {
 
     async fetchPrompts() {
       try {
-        const response = await performFetch<{ prompts: Prompt[] }>(
+        const response = await performFetch<Prompt[]>(
           '/api/prompts/',
         )
-        this.prompts = response.data?.prompts || []
+        this.prompts = response.data || []
       } catch (error) {
         handleError(error, 'fetching prompts')
       }
@@ -83,7 +83,7 @@ export const usePromptStore = defineStore('promptStore', {
 
     async addPrompt(newPrompt: string, userId: number, botId: number) {
       try {
-        const response = await performFetch<{ newPrompt?: Prompt }>(
+        const response = await performFetch<Prompt>(
           '/api/prompts',
           {
             method: 'POST',
@@ -91,7 +91,7 @@ export const usePromptStore = defineStore('promptStore', {
           },
         )
 
-        const createdPrompt = response.data?.newPrompt || null
+        const createdPrompt = response.data || null
         if (createdPrompt) {
           this.prompts.push(createdPrompt)
         }
@@ -104,10 +104,10 @@ export const usePromptStore = defineStore('promptStore', {
     async fetchPromptById(promptId: number): Promise<Prompt | null> {
       if (this.fetchedPrompts[promptId]) return this.fetchedPrompts[promptId]
       try {
-        const response = await performFetch<{ prompt?: Prompt }>(
+        const response = await performFetch<Prompt>(
           `/api/prompts/${promptId}`,
         )
-        const fetchedPrompt = response.data?.prompt || null
+        const fetchedPrompt = response.data || null
         this.fetchedPrompts[promptId] = fetchedPrompt
         return fetchedPrompt
       } catch (error) {
@@ -119,10 +119,10 @@ export const usePromptStore = defineStore('promptStore', {
 
     async fetchArtByPromptId(promptId: number) {
       try {
-        const response = await performFetch<{ art: Art[] }>(
+        const response = await performFetch<Art[]>(
           `/api/art/prompt/${promptId}`,
         )
-        this.artByPromptId = response.data?.art || []
+        this.artByPromptId = response.data || []
       } catch (error) {
         handleError(error, 'fetching art by prompt ID')
       }

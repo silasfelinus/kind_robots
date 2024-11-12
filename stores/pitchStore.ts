@@ -2,48 +2,23 @@ import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
 import { usePromptStore } from './promptStore'
 import { performFetch, handleError } from './utils'
-import type { Pitch, Art } from '@prisma/client'
+import { type Pitch, type Art, PitchType } from '@prisma/client'
 
 const isClient = typeof window !== 'undefined'
-
-export enum PitchTypeEnum {
-  ARTPITCH = 'Art Pitch',
-  BRAINSTORM = 'Brainstorm',
-  BOT = 'Bot',
-  ARTGALLERY = 'Art Gallery',
-  INSPIRATION = 'Inspiration',
-  RANDOMLIST = 'Random List',
-  TEXTPITCH = 'Text Pitch',
-  TITLE = 'Title',
-}
-
-
-export const pitchTypeMap: Record<string, PitchTypeEnum> = {
-  ARTPITCH: PitchTypeEnum.ARTPITCH,
-  BRAINSTORM: PitchTypeEnum.BRAINSTORM,
-  BOT: PitchTypeEnum.BOT,
-  ARTGALLERY: PitchTypeEnum.ARTGALLERY,
-  INSPIRATION: PitchTypeEnum.INSPIRATION,
-  RANDOMLIST: PitchTypeEnum.RANDOMLIST,
-  TEXTPITCH: PitchTypeEnum.TEXTPITCH,
-  TITLE: PitchTypeEnum.TITLE,
-}
-
 
 export const usePitchStore = defineStore('pitch', {
   state: () => ({
     pitches: [] as Pitch[],
     selectedPitches: [] as Pitch[],
-    selectedPitchType: null as PitchTypeEnum | null,
+    selectedPitchType: null as PitchType | null,
     isInitialized: false,
     galleryArt: [] as Art[],
-    selectedTitle: null as Pitch,
-    brainstormResponse: {} as { success: boolean; data: Pitch[] | null; message: string | null }, // Updated to an object for development access
- 
+    selectedTitle: null as Pitch | null,
+    newestPitches: [] as Pitch[], // New array to hold the latest pitches received
   }),
 
   getters: {
-    pitchTypes: () => Object.values(PitchTypeEnum),
+    pitchTypes: () => Object.values(PitchType),
     selectedPitch: (state) => state.selectedPitches[0] || null,
     selectedPitchId: (state) => state.selectedPitches[0]?.id || null,
     getPitchesByType: (state) => (pitchType: PitchTypeEnum) =>
@@ -59,8 +34,8 @@ export const usePitchStore = defineStore('pitch', {
         : [],
     brainstormPitches: (state) =>
       state.pitches.filter((pitch) => pitch.PitchType === 'BRAINSTORM'),
-  titles: (state) =>
-    state.pitches.filter((pitch) => pitch.PitchType === PitchTypeEnum.TITLE),
+    titles: (state) =>
+      state.pitches.filter((pitch) => pitch.PitchType === PitchTypeEnum.TITLE),
 
     pitchesByTitle: (state) =>
       state.pitches.reduce((grouped: Record<string, Pitch[]>, pitch) => {
@@ -78,22 +53,43 @@ export const usePitchStore = defineStore('pitch', {
           pitch.userId === 0,
       )
     },
+    selectedTitlePitches: (state) =>
+      state.selectedTitle
+        ? state.pitches.filter(
+            (pitch) => pitch.title === state.selectedTitle?.title,
+          )
+        : [],
 
-  // 3. Selected Title Pitches: Fetch all pitches associated with the selected title
-  selectedTitlePitches: (state) =>
-    state.selectedTitle
-      ? state.pitches.filter((pitch) => pitch.title === state.selectedTitle.title)
-      : [],
-
-  // 4. Highlighted Return Pitches: Style returned pitches differently
-  highlightedReturnPitches: (state) =>
-    state.selectedPitches.map((pitch) => ({
-      ...pitch,
-      isHighlighted: true,
-    })),
+    // 4. Newest Pitches: Style returned newest pitches differently
+    newestPitchesDisplay: (state) =>
+      state.newestPitches.map((pitch) => ({
+        ...pitch,
+        isNewest: true,
+      })),
   },
 
   actions: {
+    async addTitle(newTitleData: { title: string; PitchType: PitchType }) {
+      try {
+        const response = await performFetch<Pitch>('/api/pitches', {
+          method: 'POST',
+          body: JSON.stringify(newTitleData),
+        })
+
+        if (response.success && response.data) {
+          this.pitches.push(response.data)
+          return { success: true, message: 'Title created successfully' }
+        } else {
+          return {
+            success: false,
+            message: response.message || 'Failed to create title',
+          }
+        }
+      } catch (error) {
+        handleError(error, 'creating title')
+        return { success: false, message: 'Failed to create title' }
+      }
+    },
     async initializePitches() {
       if (isClient && !this.isInitialized) {
         await this.fetchPitches()
@@ -122,6 +118,24 @@ export const usePitchStore = defineStore('pitch', {
         }
       }, 'fetching random pitches')
     },
+    setTitle(titleId: number | null) {
+      if (titleId === null) {
+        this.selectedTitle = null
+      } else {
+        const title = this.pitches.find(
+          (pitch) =>
+            pitch.id === titleId && pitch.PitchType === PitchTypeEnum.TITLE,
+        )
+        if (title) {
+          this.selectedTitle = title
+        } else {
+          console.warn(
+            `Title with ID ${titleId} not found or is not of type TITLE`,
+          )
+        }
+      }
+    },
+
     async fetchBrainstormPitches() {
       const promptStore = usePromptStore()
       const exampleContent =
@@ -155,22 +169,20 @@ export const usePitchStore = defineStore('pitch', {
         )
 
         if (response.success && response.data) {
-          this.brainstormResponse = { success: true, data: response.data, message: null }
-          this.addPitches(response.data, true)  // Pass true to mark as highlighted
+          this.newestPitches = response.data // Store new pitches in newestPitches
+          this.addPitches(response.data) // Add new pitches to the main pitches array
         } else {
-          this.brainstormResponse = { success: false, data: null, message: response.message || 'Failed to fetch brainstorm pitches' }
-          throw new Error(this.brainstormResponse.message)
+          throw new Error(
+            response.message || 'Failed to fetch brainstorm pitches',
+          )
         }
       }, 'fetching brainstorm pitches')
     },
 
-    addPitches(newPitches: Pitch[], highlight = false) {
-      const pitchesToAdd = newPitches
-        .filter((newPitch) => !this.pitches.find((pitch) => pitch.id === newPitch.id))
-        .map((pitch) => ({
-          ...pitch,
-          isHighlighted: highlight,  // Add a highlighted flag if specified
-        }))
+    addPitches(newPitches: Pitch[]) {
+      const pitchesToAdd = newPitches.filter(
+        (newPitch) => !this.pitches.find((pitch) => pitch.id === newPitch.id),
+      )
 
       this.pitches.push(...pitchesToAdd)
 
@@ -178,11 +190,15 @@ export const usePitchStore = defineStore('pitch', {
         .filter((pitch) => pitch.PitchType === 'BRAINSTORM')
         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
 
+      // Do not auto-select new pitches; update selectedPitches only with the latest brainstorm pitches
       this.selectedPitches = brainstormPitches.slice(0, 5)
 
       if (isClient) {
         localStorage.setItem('pitches', JSON.stringify(this.pitches))
-        localStorage.setItem('selectedPitches', JSON.stringify(this.selectedPitches))
+        localStorage.setItem(
+          'selectedPitches',
+          JSON.stringify(this.selectedPitches),
+        )
       }
     },
 

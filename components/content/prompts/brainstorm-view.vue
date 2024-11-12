@@ -19,9 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import TitleMenu from './TitleMenu.vue'
-import TitleMaker from './TitleMaker.vue'
-import PitchDisplay from './PitchDisplay.vue'
+
 import { usePitchStore } from '~/stores/pitchStore'
 
 const pitchStore = usePitchStore()

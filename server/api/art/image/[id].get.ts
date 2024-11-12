@@ -12,16 +12,16 @@ export default defineEventHandler(async (event) => {
       throw new Error('Invalid ID provided.')
     }
 
-    const artImage = await prisma.artImage.findUnique({
+    const data = await prisma.artImage.findUnique({
       where: { id },
     })
 
-    if (!artImage) {
+    if (!data) {
       throw new Error(`ArtImage with ID ${id} not found.`)
     }
 
     // Return the found ArtImage, wrapped in a data object
-    return { success: true, data: { artImage } }
+    return { success: true, data }
   } catch (error) {
     // Handle errors through errorHandler
     return errorHandler(error)

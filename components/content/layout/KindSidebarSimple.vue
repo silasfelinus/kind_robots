@@ -67,7 +67,6 @@ const hardcodedLinks = [
     icon: 'kind-icon:brain',
   },
   { title: 'Wonder Lab', path: '/wonderlab', icon: 'kind-icon:gearhammer' },
-  { title: 'Dash', path: '/dashboard', icon: 'kind-icon:settings' },
   {
     title: 'Weird Land',
     path: '/weirdlandia',

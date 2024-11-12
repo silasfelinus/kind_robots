@@ -199,25 +199,33 @@ async function generateMemoryGameImages() {
     isLoading.value = true
     gameWon.value = false
 
+    // Fetch images
     const response = await fetch(
       `/api/galleries/random/count/${pairsNeeded.value}`,
       {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       },
     )
-
     const data = await response.json()
 
+    // Log full response for better visibility
+    console.log('API Response:', data)
+
+    // Check response success and image data
     if (!data.success || !Array.isArray(data.images)) {
-      throw new Error(data.message || 'Failed to fetch images.')
+      const message =
+        data.message || 'Failed to fetch images or invalid response format.'
+      console.error('Error:', message)
+      throw new Error(message)
     }
 
+    // Validate image count
     if (data.images.length !== pairsNeeded.value) {
+      console.error('Error: Incorrect number of images received.')
       throw new Error('Received an unexpected number of images.')
     }
 
+    // Map and duplicate images for memory game
     galleryImages.value = [...data.images, ...data.images]
       .map((image, index) => ({
         id: index,
@@ -231,22 +239,14 @@ async function generateMemoryGameImages() {
     isLoading.value = false
   } catch (error) {
     isLoading.value = false
-
-    // Type guard to check if the error is an instance of Error
-    if (error instanceof Error) {
-      console.error('Error generating images:', error.message)
-      notification.value = {
-        type: 'error',
-        message:
-          error.message || 'Error generating images. Please try again later.',
-      }
-    } else {
-      console.error('Unknown error occurred:', error)
-      notification.value = {
-        type: 'error',
-        message: 'An unknown error occurred. Please try again later.',
-      }
+    notification.value = {
+      type: 'error',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'An unknown error occurred. Please try again later.',
     }
+    console.error('Error generating images:', error)
   }
 }
 

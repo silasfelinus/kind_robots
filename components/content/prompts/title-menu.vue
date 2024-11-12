@@ -3,7 +3,7 @@
     <h2>Select a Title</h2>
     <ul>
       <li
-        v-for="title in pitchStore.titles"
+        v-for="title in titles"
         :key="title.id"
         @click="setSelectedTitle(title.id)"
         :class="{ 'selected': pitchStore.selectedTitle?.id === title.id }"
@@ -18,9 +18,7 @@
 import { usePitchStore } from '~/stores/pitchStore'
 const pitchStore = usePitchStore()
 
-onMounted(() => {
-  pitchStore.fetchTitles()
-})
+const titles = computed (()=> pitchStore.titles)
 
 function setSelectedTitle(titleId: number) {
   pitchStore.setSelectedTitle(titleId)

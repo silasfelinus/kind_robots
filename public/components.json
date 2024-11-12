@@ -276,7 +276,11 @@
       "PitchTags",
       "PitchTypeSelector",
       "PitchViewer",
-      "PromptFactory"
+      "PromptFactory",
+      "brainstorm-view",
+      "pitch-display",
+      "title-maker",
+      "title-menu"
     ]
   },
   {

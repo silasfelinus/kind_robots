@@ -5,8 +5,11 @@
       <li
         v-for="pitch in pitchStore.selectedTitlePitches"
         :key="pitch.id"
+        :class="{
+          newest: pitchStore.newestPitches.includes(pitch),
+          selected: pitchStore.selectedPitches.includes(pitch),
+        }"
         @click="toggleSelectedPitch(pitch)"
-        :class="{ 'highlighted': pitch.isHighlighted, 'selected': pitchStore.selectedPitches.includes(pitch) }"
       >
         {{ pitch.pitch }}
       </li>
@@ -17,9 +20,11 @@
 
 <script setup lang="ts">
 import { usePitchStore } from '~/stores/pitchStore'
+import type { Pitch } from '@prisma/client'
+
 const pitchStore = usePitchStore()
 
-function toggleSelectedPitch(pitch) {
+function toggleSelectedPitch(pitch: Pitch) {
   const index = pitchStore.selectedPitches.indexOf(pitch)
   if (index === -1) {
     pitchStore.selectedPitches.push(pitch)
@@ -32,3 +37,13 @@ async function fetchMoreExamples() {
   await pitchStore.fetchBrainstormPitches()
 }
 </script>
+
+<style scoped>
+.newest {
+  background-color: #ffeb3b; /* Highlight for newest pitches */
+}
+.selected {
+  font-weight: bold;
+  color: #007bff; /* Different color for selected pitches */
+}
+</style>

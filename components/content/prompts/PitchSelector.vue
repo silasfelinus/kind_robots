@@ -43,29 +43,22 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore } from './../../../stores/pitchStore'
+import { usePitchStore, PitchType } from './../../../stores/pitchStore'
 
-// Initialize pitch store
 const pitchStore = usePitchStore()
 
 // Fetch pitches by selected pitch type
 const filteredPitches = computed(() => pitchStore.getPitchesBySelectedType)
 
-const updateSelectedPitchType = (type: string) => {
-  const selectedType = pitchTypeMap[type] // Use pitchTypeMap to get the correct enum value
-  if (selectedType) {
-    pitchStore.setSelectedPitchType(selectedType)
-  } else {
-    pitchStore.setSelectedPitchType(null)
-  }
+// Define update function with keyof PitchType
+const updateSelectedPitchType = (type: keyof typeof PitchType) => {
+  const selectedType = PitchType[type] // Correctly typed access to PitchType enum
+  pitchStore.setSelectedPitchType(selectedType || null)
 }
 
+// Handle pitch selection
 const updateSelectedPitch = (pitchId: number) => {
-  const selectedPitch = pitchStore.selectedPitch
-  if (selectedPitch && selectedPitch.id === pitchId) {
-    // Pitch is already selected
-    return
-  }
+  if (pitchStore.selectedPitch?.id === pitchId) return
   pitchStore.setSelectedPitch(pitchId)
 }
 </script>

@@ -31,7 +31,9 @@ export const usePitchStore = defineStore('pitch', {
     selectedPitchType: null as PitchTypeEnum | null,
     isInitialized: false,
     galleryArt: [] as Art[],
-    selectedTitle: null as Pitch
+    selectedTitle: null as Pitch,
+    brainstormResponse: {} as { success: boolean; data: Pitch[] | null; message: string | null }, // Updated to an object for development access
+ 
   }),
 
   getters: {
@@ -51,6 +53,9 @@ export const usePitchStore = defineStore('pitch', {
         : [],
     brainstormPitches: (state) =>
       state.pitches.filter((pitch) => pitch.PitchType === 'BRAINSTORM'),
+  titles: (state) =>
+    state.pitches.filter((pitch) => pitch.PitchType === PitchTypeEnum.TITLE),
+
     pitchesByTitle: (state) =>
       state.pitches.reduce((grouped: Record<string, Pitch[]>, pitch) => {
         const title = pitch.title || 'Untitled'
@@ -67,6 +72,19 @@ export const usePitchStore = defineStore('pitch', {
           pitch.userId === 0,
       )
     },
+
+  // 3. Selected Title Pitches: Fetch all pitches associated with the selected title
+  selectedTitlePitches: (state) =>
+    state.selectedTitle
+      ? state.pitches.filter((pitch) => pitch.title === state.selectedTitle.title)
+      : [],
+
+  // 4. Highlighted Return Pitches: Style returned pitches differently
+  highlightedReturnPitches: (state) =>
+    state.selectedPitches.map((pitch) => ({
+      ...pitch,
+      isHighlighted: true,
+    })),
   },
 
   actions: {
@@ -104,7 +122,6 @@ export const usePitchStore = defineStore('pitch', {
         promptStore.currentPrompt ||
         'slogans for our anti-malaria fundraiser at http://againstmalaria.com/amibot'
 
-      // Construct the examples array based on selectedPitches
       const examples = this.selectedPitches.length
         ? this.selectedPitches.map((pitch) => ({
             input: `Topic: ${pitch.title || 'Creative Idea'}`,
@@ -126,28 +143,30 @@ export const usePitchStore = defineStore('pitch', {
               n: 5,
               content: `Please send an idea for a creative brainstorm for this topic: ${exampleContent}`,
               max_tokens: 500,
-              examples: examples, // Add the examples array to the request
+              examples: examples,
             }),
           },
         )
 
         if (response.success && response.data) {
-          const newIdeas = response.data
-          this.addPitches(newIdeas)
+          this.brainstormResponse = { success: true, data: response.data, message: null }
+          this.addPitches(response.data, true)  // Pass true to mark as highlighted
         } else {
-          throw new Error(
-            response.message || 'Failed to fetch brainstorm pitches',
-          )
+          this.brainstormResponse = { success: false, data: null, message: response.message || 'Failed to fetch brainstorm pitches' }
+          throw new Error(this.brainstormResponse.message)
         }
       }, 'fetching brainstorm pitches')
     },
 
-    addPitches(newPitches: Pitch[]) {
-      this.pitches.push(
-        ...newPitches.filter(
-          (newPitch) => !this.pitches.find((pitch) => pitch.id === newPitch.id),
-        ),
-      )
+    addPitches(newPitches: Pitch[], highlight = false) {
+      const pitchesToAdd = newPitches
+        .filter((newPitch) => !this.pitches.find((pitch) => pitch.id === newPitch.id))
+        .map((pitch) => ({
+          ...pitch,
+          isHighlighted: highlight,  // Add a highlighted flag if specified
+        }))
+
+      this.pitches.push(...pitchesToAdd)
 
       const brainstormPitches = this.pitches
         .filter((pitch) => pitch.PitchType === 'BRAINSTORM')
@@ -157,10 +176,7 @@ export const usePitchStore = defineStore('pitch', {
 
       if (isClient) {
         localStorage.setItem('pitches', JSON.stringify(this.pitches))
-        localStorage.setItem(
-          'selectedPitches',
-          JSON.stringify(this.selectedPitches),
-        )
+        localStorage.setItem('selectedPitches', JSON.stringify(this.selectedPitches))
       }
     },
 

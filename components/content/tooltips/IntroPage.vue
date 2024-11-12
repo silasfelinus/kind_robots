@@ -37,7 +37,7 @@
             class="bg-primary p-3 rounded-lg text-white"
           >
             <!-- NuxtLink for Finish -->
-            <NuxtLink to="/" class="text-white">Finish</NuxtLink>
+            <NuxtLink to="/register" class="text-white">Finish</NuxtLink>
           </button>
           <button
             v-else

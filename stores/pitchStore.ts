@@ -312,4 +312,4 @@ export const usePitchStore = defineStore('pitch', {
   },
 })
 
-export type { Pitch }
+export type { Pitch, PitchType }

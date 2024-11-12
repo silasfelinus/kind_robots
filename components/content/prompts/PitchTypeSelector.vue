@@ -7,11 +7,11 @@
       class="p-2 border rounded-lg"
     >
       <option
-        v-for="type in pitchTypes"
+        v-for="(label, type) in pitchTypeOptions"
         :key="type"
         :value="type"
       >
-        {{ type }}
+        {{ label }}
       </option>
     </select>
   </div>
@@ -19,16 +19,22 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore, PitchTypeEnum } from '~/stores/pitchStore'
+import { usePitchStore } from '~/stores/pitchStore'
+import { PitchType } from '@prisma/client' // This should be the enum imported from Prisma
 
 const pitchStore = usePitchStore()
 
-// Use a computed property to bind the selectedPitchType to the store
+// Bind selectedPitchType directly to the store
 const selectedPitchType = computed({
   get: () => pitchStore.selectedPitchType,
-  set: (value: PitchTypeEnum | null) => pitchStore.setSelectedPitchType(value),
+  set: (value: PitchType | null) => pitchStore.setSelectedPitchType(value),
 })
 
-// Create a computed property to dynamically fetch pitch types from the enum
-const pitchTypes = computed(() => Object.values(PitchTypeEnum))
+// Map enum values to more readable labels if needed
+const pitchTypeOptions = computed(() =>
+  Object.values(PitchType).map((type) => ({
+    type,
+    label: type.replace(/_/g, ' '), // Adjust label formatting if necessary
+  })),
+)
 </script>

@@ -12,6 +12,7 @@ export enum PitchTypeEnum {
   BOT = 'Bot',
   ARTGALLERY = 'Art Gallery',
   INSPIRATION = 'Inspiration',
+  TITLE = 'Title',
 }
 
 export const pitchTypeMap: Record<string, PitchTypeEnum> = {
@@ -20,6 +21,7 @@ export const pitchTypeMap: Record<string, PitchTypeEnum> = {
   BOT: PitchTypeEnum.BOT,
   ARTGALLERY: PitchTypeEnum.ARTGALLERY,
   INSPIRATION: PitchTypeEnum.INSPIRATION,
+  TITLE: PitchTypeEnum.TITLE,
 }
 
 export const usePitchStore = defineStore('pitch', {
@@ -29,6 +31,7 @@ export const usePitchStore = defineStore('pitch', {
     selectedPitchType: null as PitchTypeEnum | null,
     isInitialized: false,
     galleryArt: [] as Art[],
+    selectedTitle: null as Pitch
   }),
 
   getters: {

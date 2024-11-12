@@ -213,17 +213,12 @@ export const useArtStore = defineStore({
       }
     },
 
-    async generateArt(artData?: GenerateArtData): Promise<{
-      success: boolean
-      message?: string
-      newArt?: Art
-      newArtImage?: ArtImage
-    }> {
+    async generateArt(artData?: GenerateArtData): Promise<ApiResponse<Art>> {
       const promptStore = usePromptStore()
       const userStore = useUserStore()
       this.loading = true
 
-      const data = {
+      const data: GenerateArtData = {
         promptString: artData?.promptString || promptStore.promptField,
         pitch: artData?.pitch || this.extractPitch(promptStore.promptField),
         userId: artData?.userId || userStore.user?.id || 10,
@@ -243,31 +238,28 @@ export const useArtStore = defineStore({
       }
 
       try {
-        const response = await performFetch<{ art: Art; artImage: ArtImage }>(
+        // Call `performFetch` directly, returning its result
+        const response = await performFetch<Art>(
           '/api/art/generate',
-          {
-            method: 'POST',
-            body: JSON.stringify(data),
-          },
+          { method: 'POST', body: JSON.stringify(data) },
+          3,
+          20000,
         )
 
-        if (response.success) {
-          const { art, artImage } = response.data || {}
-          if (art) {
-            this.art.push(art)
-            this.generatedArt.push(art)
-            if (isClient) {
-              localStorage.setItem('art', JSON.stringify(this.art))
-              localStorage.setItem(
-                'generatedArt',
-                JSON.stringify(this.generatedArt),
-              )
-            }
-            if (artImage) this.artImages.push(artImage)
+        if (response.success && response.data) {
+          this.art.push(response.data)
+          this.generatedArt.push(response.data)
+
+          if (isClient) {
+            localStorage.setItem('art', JSON.stringify(this.art))
+            localStorage.setItem(
+              'generatedArt',
+              JSON.stringify(this.generatedArt),
+            )
           }
-          return { success: true, newArt: art, newArtImage: artImage }
         }
-        throw new Error(response.message)
+
+        return response // Directly return the response from performFetch
       } catch (error) {
         handleError(error, 'generating art')
         return {

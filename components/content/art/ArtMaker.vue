@@ -47,13 +47,9 @@
     </div>
 
     <!-- Generated Art Display -->
-    <div v-if="generatedArtWithImages.length > 0" class="mt-8">
-      <div
-        v-for="item in generatedArtWithImages"
-        :key="item.art.id"
-        class="mb-6"
-      >
-        <ArtCard :art="item.art" :image-data="item.artImage" />
+    <div v-if="generatedArt.length > 0" class="mt-8">
+      <div v-for="art in generatedArt" :key="art.id" class="mb-6">
+        <ArtCard :art="art" />
       </div>
     </div>
   </div>
@@ -96,15 +92,7 @@ const savePrompt = () => {
   promptStore.savePromptField()
 }
 
-const generatedArtWithImages = computed(() => {
-  return artStore.generatedArt.map((art) => {
-    const artImage = artStore.getArtImageById(art.id)
-    return {
-      art,
-      artImage,
-    }
-  })
-})
+const generatedArt = computed(() => artStore.generatedArt) // Simplified
 
 const generateArt = async () => {
   localError.value = null

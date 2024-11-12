@@ -39,13 +39,13 @@ export default defineEventHandler(async (event) => {
     let remainingGalleryIDs = initialGalleryIDs
       .sort(() => 0.5 - Math.random())
       .map((g) => g.id)
-    const selectedImages: string[] = []
+    const data: string[] = []
 
     // Collect images until reaching the desired count or exhausting available galleries
-    while (selectedImages.length < count && remainingGalleryIDs.length > 0) {
+    while (data.length < count && remainingGalleryIDs.length > 0) {
       const batchSize = Math.min(
         remainingGalleryIDs.length,
-        count - selectedImages.length,
+        count - data.length,
       )
       const selectedBatchIDs = remainingGalleryIDs.slice(0, batchSize)
       remainingGalleryIDs = remainingGalleryIDs.slice(batchSize)
@@ -65,16 +65,16 @@ export default defineEventHandler(async (event) => {
         if (galleryImages.length > 0) {
           const randomImage =
             galleryImages[Math.floor(Math.random() * galleryImages.length)]
-          selectedImages.push(randomImage)
+          data.push(randomImage)
         }
       })
     }
 
     // Check if we have the required number of images
-    if (selectedImages.length < count) {
+    if (data.length < count) {
       return {
         success: false,
-        message: `Could not fetch the required number of random images. Requested: ${count}, Received: ${selectedImages.length}`,
+        message: `Could not fetch the required number of random images. Requested: ${count}, Received: ${data.length}`,
         error: 'Insufficient images',
         statusCode: 206, // Partial content
       }
@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
     // Return a successful response with the selected images
     response = {
       success: true,
-      data: { images: selectedImages },
+      data,
       message: 'Random images retrieved successfully.',
       statusCode: 200,
     }

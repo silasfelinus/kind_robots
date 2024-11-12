@@ -199,7 +199,6 @@ async function generateMemoryGameImages() {
     isLoading.value = true
     gameWon.value = false
 
-    // Fetch images
     const response = await fetch(
       `/api/galleries/random/count/${pairsNeeded.value}`,
       {
@@ -208,25 +207,13 @@ async function generateMemoryGameImages() {
     )
     const data = await response.json()
 
-    // Log full response for better visibility
-    console.log('API Response:', data)
-
-    // Check response success and image data
-    if (!data.success || !Array.isArray(data.images)) {
-      const message =
-        data.message || 'Failed to fetch images or invalid response format.'
-      console.error('Error:', message)
-      throw new Error(message)
+    // Check for success and that data is an array
+    if (!data.success || !Array.isArray(data.data)) {
+      throw new Error(data.message || 'Failed to fetch images.')
     }
 
-    // Validate image count
-    if (data.images.length !== pairsNeeded.value) {
-      console.error('Error: Incorrect number of images received.')
-      throw new Error('Received an unexpected number of images.')
-    }
-
-    // Map and duplicate images for memory game
-    galleryImages.value = [...data.images, ...data.images]
+    // Use the data array directly
+    galleryImages.value = [...data.data, ...data.data]
       .map((image, index) => ({
         id: index,
         galleryName: '',

@@ -25,6 +25,8 @@
     <div
       class="components-section flex-grow w-full max-w-4xl overflow-y-auto p-2 md:p-4 lg:p-6"
     >
+      <lazy-intro-page v-if="choice === 'intro-page'" />
+      <lazy-navigation-trimmed v-if="choice === 'navigation-trimmed'" />
       <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
       <lazy-rebel-button v-if="choice === 'rebel-button'" />
       <lazy-jellybean-counter v-if="choice === 'jellybean-counter'" />
@@ -39,6 +41,8 @@ import { ref } from 'vue'
 
 // Tabs setup for Dashboard Chooser
 const tabs = [
+  { name: 'intro-page', label: 'Welcome!' },
+  { name: 'navigation-trimmed', label: 'Site Navigation' },
   { name: 'user-dashboard', label: 'User Dashboard' },
   { name: 'rebel-button', label: 'Rebel Button' },
   { name: 'jellybean-counter', label: 'Jellybean Counter' },

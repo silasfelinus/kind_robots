@@ -121,9 +121,9 @@ const generateArt = async () => {
     // Use the artStore to generate art
     const response = await artStore.generateArt(generateArtData)
 
-    if (response.success && response.newArt) {
+    if (response.success && response.data) {
       shouldShowMilestoneCheck.value = true
-      console.log('Art generated successfully:', response.newArt)
+      console.log('Art generated successfully:', response.data)
     } else {
       errorStore.setError(
         ErrorType.NETWORK_ERROR,

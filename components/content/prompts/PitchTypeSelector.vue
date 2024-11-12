@@ -19,22 +19,21 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore } from '~/stores/pitchStore'
-import { PitchType } from '@prisma/client' // This should be the enum imported from Prisma
+import { PitchType, usePitchStore } from '~/stores/pitchStore'
 
 const pitchStore = usePitchStore()
 
-// Bind selectedPitchType directly to the store
+// Bind selectedPitchType directly to the store's state
 const selectedPitchType = computed({
   get: () => pitchStore.selectedPitchType,
-  set: (value: PitchType | null) => pitchStore.setSelectedPitchType(value),
+  set: (value) => pitchStore.setSelectedPitchType(value),
 })
 
-// Map enum values to more readable labels if needed
+// Generate pitch type options with labels
 const pitchTypeOptions = computed(() =>
-  Object.values(PitchType).map((type) => ({
+  Object.entries(PitchType).map(([type, label]) => ({
     type,
-    label: type.replace(/_/g, ' '), // Adjust label formatting if necessary
+    label: label.replace(/_/g, ' '), // Replace underscores for readability
   })),
 )
 </script>

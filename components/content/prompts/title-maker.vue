@@ -17,7 +17,10 @@ const newTitle = ref('')
 const errorMessage = ref('')
 
 async function createTitle() {
-  const { success, message } = await pitchStore.createTitle({ title: newTitle.value, PitchType: 'TITLE' })
+  const { success, message } = await pitchStore.addTitle({
+    title: newTitle.value,
+    PitchType: 'TITLE',
+  })
   if (!success) {
     errorMessage.value = message
   } else {

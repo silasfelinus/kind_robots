@@ -30,6 +30,7 @@
       <LazyPitchGallery v-if="activeTab === 'pitch-gallery'" />
       <LazyAddPitch v-if="activeTab === 'add-pitch'" />
       <LazyBrainstormGame v-if="activeTab === 'brainstorm-game'" />
+      <LazyBrainstormView v-if="activeTab === 'brainstorm-view'" />
     </div>
   </div>
 </template>
@@ -39,9 +40,11 @@ import { ref } from 'vue'
 
 // Tabs setup for Prompt Factory
 const tabs = [
+{ name: 'brainstorm-view', label: 'Brainstorm2' },
   { name: 'pitch-gallery', label: 'Pitch Gallery' },
   { name: 'add-pitch', label: 'Add Pitch' },
   { name: 'brainstorm-game', label: 'Brainstorm!' },
+  
 ]
 
 const activeTab = ref('pitch-gallery') // Default to the first tab

@@ -12,8 +12,11 @@ export enum PitchTypeEnum {
   BOT = 'Bot',
   ARTGALLERY = 'Art Gallery',
   INSPIRATION = 'Inspiration',
+  RANDOMLIST = 'Random List',
+  TEXTPITCH = 'Text Pitch',
   TITLE = 'Title',
 }
+
 
 export const pitchTypeMap: Record<string, PitchTypeEnum> = {
   ARTPITCH: PitchTypeEnum.ARTPITCH,
@@ -21,8 +24,11 @@ export const pitchTypeMap: Record<string, PitchTypeEnum> = {
   BOT: PitchTypeEnum.BOT,
   ARTGALLERY: PitchTypeEnum.ARTGALLERY,
   INSPIRATION: PitchTypeEnum.INSPIRATION,
+  RANDOMLIST: PitchTypeEnum.RANDOMLIST,
+  TEXTPITCH: PitchTypeEnum.TEXTPITCH,
   TITLE: PitchTypeEnum.TITLE,
 }
+
 
 export const usePitchStore = defineStore('pitch', {
   state: () => ({

@@ -48,7 +48,6 @@
         <div>
           <h4 class="text-md md:text-lg font-semibold">{{ idea.title }}</h4>
           <p class="text-xs md:text-sm">{{ idea.pitch }}</p>
-          
         </div>
       </div>
     </transition-group>
@@ -69,7 +68,7 @@
       v-if="errorStore.message"
       class="bg-warning text-white py-4 px-6 rounded-full mt-6 text-center"
     >
-      <Icon name="error" class="text-lg" /> {{ errorStore.message }}
+      <Icon name="kind-icon:error" class="text-lg" /> {{ errorStore.message }}
     </div>
   </div>
 </template>
@@ -94,7 +93,6 @@ const handlePitchCreated = (pitch: Pitch) => {
     selectedPitches.value.pop()
   }
 }
-
 
 const selectPitch = (pitch: Pitch) => {
   selectedPitches.value = selectedPitches.value.filter(
@@ -137,12 +135,14 @@ const submitTopPitches = async () => {
     selectedPitches.value = [null, null, null, null, null]
   } catch (error: unknown) {
     const err = error as Error
-    errorStore.setError(ErrorType.NETWORK_ERROR, err || 'Failed to submit top 5 pitches')
+    errorStore.setError(
+      ErrorType.NETWORK_ERROR,
+      err || 'Failed to submit top 5 pitches',
+    )
   } finally {
     isSubmitting.value = false
   }
 }
-
 </script>
 
 <style scoped>

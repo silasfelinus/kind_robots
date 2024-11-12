@@ -21,21 +21,18 @@ export const usePitchStore = defineStore('pitch', {
     pitchTypes: () => Object.values(PitchType),
     selectedPitch: (state) => state.selectedPitches[0] || null,
     selectedPitchId: (state) => state.selectedPitches[0]?.id || null,
-    getPitchesByType: (state) => (pitchType: PitchTypeEnum) =>
-      state.pitches.filter(
-        (pitch) => pitchTypeMap[pitch.PitchType] === pitchType,
-      ),
+    getPitchesByType: (state) => (pitchType: PitchType) =>
+      state.pitches.filter((pitch) => PitchType[pitch.PitchType] === pitchType),
     getPitchesBySelectedType: (state) =>
       state.selectedPitchType
         ? state.pitches.filter(
-            (pitch) =>
-              pitchTypeMap[pitch.PitchType] === state.selectedPitchType,
+            (pitch) => PitchType[pitch.PitchType] === state.selectedPitchType,
           )
         : [],
     brainstormPitches: (state) =>
       state.pitches.filter((pitch) => pitch.PitchType === 'BRAINSTORM'),
     titles: (state) =>
-      state.pitches.filter((pitch) => pitch.PitchType === PitchTypeEnum.TITLE),
+      state.pitches.filter((pitch) => pitch.PitchType === PitchType.TITLE),
 
     pitchesByTitle: (state) =>
       state.pitches.reduce((grouped: Record<string, Pitch[]>, pitch) => {
@@ -102,7 +99,7 @@ export const usePitchStore = defineStore('pitch', {
       if (pitch) this.selectedPitches = [pitch]
     },
 
-    setSelectedPitchType(pitchType: PitchTypeEnum | null) {
+    setSelectedPitchType(pitchType: PitchType | null) {
       this.selectedPitchType = pitchType
     },
 
@@ -124,7 +121,7 @@ export const usePitchStore = defineStore('pitch', {
       } else {
         const title = this.pitches.find(
           (pitch) =>
-            pitch.id === titleId && pitch.PitchType === PitchTypeEnum.TITLE,
+            pitch.id === titleId && pitch.PitchType === PitchType.TITLE,
         )
         if (title) {
           this.selectedTitle = title
@@ -312,4 +309,4 @@ export const usePitchStore = defineStore('pitch', {
   },
 })
 
-export type { Pitch, PitchType }
+export { type Pitch, PitchType }

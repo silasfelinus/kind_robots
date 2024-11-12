@@ -1,32 +1,35 @@
 <template>
   <div class="container mx-auto p-4">
     <div class="flex flex-col items-center">
-      <!-- Toggle Button for Showing Add/Edit Form -->
+      <!-- Toggle Button for Form Visibility -->
       <button
         class="mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         @click="toggleForm"
       >
-        {{ isEditing ? 'Edit Pitch' : 'Add Pitch' }}
+        {{ showForm ? 'Close Form' : 'Add New Pitch' }}
       </button>
 
       <!-- Pitch Form -->
-      <div v-if="showForm" class="w-full max-w-lg">
+      <div v-if="showForm" class="w-full max-w-lg mb-6">
         <form
-          class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-          @submit.prevent="createOrUpdatePitch"
+          class="bg-white shadow-md rounded px-8 pt-6 pb-8"
+          @submit.prevent="handleFormSubmit"
         >
+          <h2 class="text-center text-lg font-bold mb-4">
+            {{ isEditing ? 'Edit Pitch' : 'Create Pitch' }}
+          </h2>
+
           <!-- Title Input -->
           <div class="mb-4">
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
               for="title"
+              >Title</label
             >
-              Title
-            </label>
             <input
               id="title"
-              v-model="newPitch.title"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              v-model="formState.title"
+              class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="Pitch Title"
               required
@@ -38,68 +41,16 @@
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
               for="pitch"
+              >Pitch Description</label
             >
-              Pitch Description
-            </label>
             <textarea
               id="pitch"
-              v-model="newPitch.pitch"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              v-model="formState.pitch"
+              class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               placeholder="Describe your pitch"
               rows="3"
               required
             ></textarea>
-          </div>
-
-          <!-- Designer Input -->
-          <div class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="designer"
-            >
-              Designer Name
-            </label>
-            <input
-              id="designer"
-              v-model="newPitch.designer"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              type="text"
-              placeholder="Designer Name"
-            />
-          </div>
-
-          <!-- Flavor Text Input -->
-          <div class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="flavorText"
-            >
-              Flavor Text (Optional)
-            </label>
-            <textarea
-              id="flavorText"
-              v-model="newPitch.flavorText"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Flavor Text"
-              rows="2"
-            ></textarea>
-          </div>
-
-          <!-- Highlight Image Input -->
-          <div class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="highlightImage"
-            >
-              Highlight Image URL (Optional)
-            </label>
-            <input
-              id="highlightImage"
-              v-model="newPitch.highlightImage"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              type="text"
-              placeholder="Highlight Image URL"
-            />
           </div>
 
           <!-- Pitch Type Select -->
@@ -107,16 +58,15 @@
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
               for="pitchType"
+              >Pitch Type</label
             >
-              Pitch Type
-            </label>
             <select
               id="pitchType"
-              v-model="newPitch.PitchType"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              v-model="formState.PitchType"
+              class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             >
               <option
-                v-for="(label, type) in PitchType"
+                v-for="(label, type) in pitchTypes"
                 :key="type"
                 :value="type"
               >
@@ -125,44 +75,44 @@
             </select>
           </div>
 
-          <!-- Public/Private Toggle -->
+          <!-- Public Toggle -->
           <div class="mb-4 flex items-center">
             <input
               id="isPublic"
-              v-model="newPitch.isPublic"
+              v-model="formState.isPublic"
               type="checkbox"
-              class="mr-2 leading-tight"
+              class="mr-2"
             />
             <label for="isPublic" class="text-sm">Make Pitch Public</label>
           </div>
 
-          <!-- Submit/Cancel Buttons -->
+          <!-- Submit and Cancel Buttons -->
           <div class="flex items-center justify-between">
             <button
               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit"
-              :disabled="!newPitch.title || !newPitch.pitch || isSubmitting"
+              :disabled="!formState.title || !formState.pitch || isSubmitting"
             >
               {{
                 isSubmitting
                   ? 'Submitting...'
                   : isEditing
                     ? 'Update Pitch'
-                    : 'Submit Pitch'
+                    : 'Create Pitch'
               }}
             </button>
             <button
               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="button"
-              @click="toggleForm"
+              @click="cancelEdit"
             >
               Cancel
             </button>
           </div>
 
           <!-- Error Message -->
-          <p v-if="errorStore.message" class="text-red-500 mt-4">
-            {{ errorStore.message }}
+          <p v-if="errorMessage" class="text-red-500 mt-4">
+            {{ errorMessage }}
           </p>
         </form>
       </div>
@@ -170,7 +120,7 @@
       <!-- Pitch List -->
       <div class="w-full max-w-2xl">
         <div
-          v-for="pitch in pitches"
+          v-for="pitch in pitchStore.pitches"
           :key="pitch.id"
           class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex justify-between items-center"
         >
@@ -202,102 +152,103 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import {
-  usePitchStore,
-  PitchTypeEnum as PitchType,
-  type Pitch,
-} from './../../../stores/pitchStore'
-import { useUserStore } from './../../../stores/userStore'
-import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import { usePitchStore } from '~/stores/pitchStore'
+import { useUserStore } from '~/stores/userStore'
+import type { Pitch } from '@prisma/client'
+import { PitchType } from '@prisma/client'
 
-// Initialize stores
+// Stores
 const pitchStore = usePitchStore()
 const userStore = useUserStore()
-const errorStore = useErrorStore()
 
-const { updatePitch, deletePitch } = pitchStore
-const pitches = computed(() => pitchStore.pitches)
-const user = computed(() => userStore.user)
-
+// Local State
 const showForm = ref(false)
 const isEditing = ref(false)
 const isSubmitting = ref(false)
+const errorMessage = ref('')
 
-const newPitch = ref<Partial<Pitch>>({
+// Define formState with full type matching Pitch and default empty values
+const formState = ref<Partial<Pitch>>({
+  id: undefined,
   title: '',
   pitch: '',
-  designer: user.value?.username || 'kindguest',
-  flavorText: '',
-  highlightImage: '',
-  PitchType: 'ARTPITCH',
-  isMature: false,
+  PitchType: PitchType.ARTPITCH, // Ensure this is the enum type
   isPublic: true,
-  userId: user.value?.id || 1, // Fallback userId
 })
 
+// Computed properties for pitch types and current user
+const pitchTypes = computed(() => Object.entries(PitchType))
+const user = computed(() => userStore.user)
+
+// Toggle Form
 const toggleForm = () => {
   showForm.value = !showForm.value
-  if (!showForm.value) resetForm() // Reset the form when closing
+  if (!showForm.value) resetForm()
 }
 
-const editPitch = (pitch: Pitch) => {
-  newPitch.value = { ...pitch }
-  isEditing.value = true
-  showForm.value = true
-}
-
-const resetForm = () => {
-  isEditing.value = false
-  newPitch.value = {
-    title: '',
-    pitch: '',
-    designer: user.value?.username || 'kindguest',
-    flavorText: '',
-    highlightImage: '',
-    PitchType: 'ARTPITCH',
-    isMature: false,
-    isPublic: true,
-    userId: user.value?.id || 1,
-  }
-}
-
+// Permission Checks
 const canEdit = (pitch: Pitch) =>
   user.value?.id === pitch.userId || user.value?.Role === 'ADMIN'
 const canDelete = (pitch: Pitch) =>
   user.value?.id === pitch.userId || user.value?.Role === 'ADMIN'
 
-const createOrUpdatePitch = async () => {
-  if (!newPitch.value.title || !newPitch.value.pitch) {
-    errorStore.setError(
-      ErrorType.VALIDATION_ERROR,
-      'Title and pitch description are required.',
-    )
-    return
-  }
-
+// Form Actions
+const handleFormSubmit = async () => {
   isSubmitting.value = true
-  errorStore.clearError()
+  errorMessage.value = ''
 
   try {
     let result
-    if (isEditing.value && newPitch.value.id) {
-      result = await updatePitch(newPitch.value.id, newPitch.value) // Update existing pitch
+    if (isEditing.value && formState.value.id) {
+      result = await pitchStore.updatePitch(formState.value.id, formState.value)
     } else {
-      const { id, ...pitchData } = newPitch.value // Omit id for new pitch
-      result = await pitchStore.createPitch(pitchData)
+      result = await pitchStore.createPitch(formState.value)
     }
 
-    if (result && result.success) {
+    if (result?.success) {
       resetForm()
-      toggleForm()
+      showForm.value = false
     } else {
-      throw new Error(result?.message || 'Failed to submit pitch')
+      errorMessage.value = result?.message || 'Error submitting pitch'
     }
-  } catch (error) {
-    const errorMessage = (error as Error).message || 'Failed to submit pitch'
-    errorStore.setError(ErrorType.NETWORK_ERROR, errorMessage)
+  } catch {
+    errorMessage.value = 'Failed to submit pitch'
   } finally {
     isSubmitting.value = false
   }
+}
+
+// Edit Pitch
+const editPitch = (pitch: Pitch) => {
+  formState.value = { ...pitch }
+  isEditing.value = true
+  showForm.value = true
+}
+
+// Delete Pitch
+const deletePitch = async (pitchId: number) => {
+  try {
+    await pitchStore.deletePitch(pitchId)
+  } catch (error) {
+    console.error('Failed to delete pitch', error)
+  }
+}
+
+// Reset Form
+const resetForm = () => {
+  isEditing.value = false
+  formState.value = {
+    id: undefined,
+    title: '',
+    pitch: '',
+    PitchType: PitchType.ARTPITCH,
+    isPublic: true,
+  }
+}
+
+// Cancel Editing
+const cancelEdit = () => {
+  resetForm()
+  showForm.value = false
 }
 </script>

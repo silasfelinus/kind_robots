@@ -7,11 +7,11 @@
       class="p-2 border rounded-lg"
     >
       <option
-        v-for="(label, type) in pitchTypeOptions"
+        v-for="type in pitchTypes"
         :key="type"
         :value="type"
       >
-        {{ label }}
+        {{ type }}
       </option>
     </select>
   </div>
@@ -19,25 +19,16 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import {
-  usePitchStore,
-  PitchTypeEnum as PitchType,
-} from './../../../stores/pitchStore'
+import { usePitchStore, PitchTypeEnum } from '~/stores/pitchStore'
 
-// Initialize the pitch store
 const pitchStore = usePitchStore()
-
-const pitchTypeOptions = {
-  [PitchType.ARTPITCH]: 'Art Pitch',
-  [PitchType.BRAINSTORM]: 'Brainstorm',
-  [PitchType.BOT]: 'Bot',
-  [PitchType.ARTGALLERY]: 'Art Gallery',
-  [PitchType.INSPIRATION]: 'Inspiration',
-}
 
 // Use a computed property to bind the selectedPitchType to the store
 const selectedPitchType = computed({
   get: () => pitchStore.selectedPitchType,
-  set: (value: PitchType | null) => pitchStore.setSelectedPitchType(value),
+  set: (value: PitchTypeEnum | null) => pitchStore.setSelectedPitchType(value),
 })
+
+// Create a computed property to dynamically fetch pitch types from the enum
+const pitchTypes = computed(() => Object.values(PitchTypeEnum))
 </script>

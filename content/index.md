@@ -15,4 +15,4 @@ category: settings
 sort: highlight
 ---
 
-:navigation-trimmed
+:dashboard-chooser

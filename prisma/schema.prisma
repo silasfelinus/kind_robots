@@ -509,6 +509,7 @@ enum PitchType {
   INSPIRATION
   RANDOMLIST
   TEXTPITCH
+  TITLE
 }
 
 enum ReactionType {

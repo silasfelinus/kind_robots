@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto flex flex-col h-full space-y-4">
+  <div class="container mx-auto flex flex-col h-full space-y-4 no-scrollbar">
     <!-- Top Section: Leaderboard and Difficulty Selection -->
     <div class="flex justify-between w-full">
       <!-- Leaderboard Section -->

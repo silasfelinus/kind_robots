@@ -18,8 +18,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch the pitch by ID and its related data
-    const pitchDetails = await fetchPitchById(id)
-    if (!pitchDetails) {
+    const data = await fetchPitchById(id)
+    if (!data) {
       return {
         success: false,
         message: 'Pitch not found',
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       message: 'Pitch details fetched successfully.',
-      data: pitchDetails, // Return the pitch details under data
+      data, // Return the pitch details under data
       statusCode: 200,
     }
     event.node.res.statusCode = response.statusCode

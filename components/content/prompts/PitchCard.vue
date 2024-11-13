@@ -80,8 +80,6 @@
     />
   </div>
 </template>
-
-
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { usePitchStore, PitchType } from '~/stores/pitchStore'
@@ -91,6 +89,9 @@ import type { Pitch } from '~/stores/pitchStore'
 const props = defineProps<{
   pitch: Pitch
 }>()
+
+// Define emits for toggle-edit, save, cancel, and delete
+const emit = defineEmits(['toggle-edit', 'save', 'cancel', 'delete'])
 
 const pitchStore = usePitchStore()
 const userStore = useUserStore()
@@ -121,6 +122,7 @@ const saveChanges = async () => {
   if (!editablePitch.value) return
   const response = await pitchStore.updatePitch(props.pitch.id, editablePitch.value)
   if (response && response.success) {
+    emit('save') // Emit the save event
     isEditing.value = false
   } else {
     console.error('Failed to save changes') // Handle error (display message or log)
@@ -130,6 +132,7 @@ const saveChanges = async () => {
 // Cancel editing
 const cancelEdit = () => {
   isEditing.value = false
+  emit('cancel') // Emit the cancel event
   editablePitch.value = { ...props.pitch } // Reset changes
 }
 
@@ -140,7 +143,9 @@ const deletePitch = async () => {
     return
   }
   const response = await pitchStore.deletePitch(props.pitch.id)
-  if (!response.success) {
+  if (response.success) {
+    emit('delete') // Emit the delete event
+  } else {
     console.error('Failed to delete pitch') // Handle error (display message or log)
   }
 }

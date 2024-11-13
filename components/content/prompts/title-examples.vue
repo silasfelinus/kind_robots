@@ -2,11 +2,12 @@
   <div>
     <h2 class="text-lg font-medium mb-2">Title Examples</h2>
 
-    <!-- Display each example with an input and delete button -->
+    <!-- Display each example with an input, reorder, select, and delete buttons -->
     <div
       v-for="(example, index) in currentExamples"
       :key="index"
-      class="flex items-center space-x-4 mb-4"
+      :class="{ 'bg-yellow-100': selectedExamples.includes(index) }"
+      class="flex items-center space-x-4 mb-4 p-2 rounded-lg border"
     >
       <input
         v-model="currentExamples[index]"
@@ -15,6 +16,17 @@
         placeholder="Enter example"
         @input="updateExampleString"
       />
+
+      <!-- Select Example Toggle -->
+      <button @click="toggleSelectExample(index)" class="text-green-500">
+        <Icon :name="selectedExamples.includes(index) ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'" class="w-6 h-6" />
+      </button>
+
+      <!-- Reorder Buttons -->
+      <button @click="moveExample(index, -1)" class="text-gray-500" :disabled="index === 0">⬆️</button>
+      <button @click="moveExample(index, 1)" class="text-gray-500" :disabled="index === currentExamples.length - 1">⬇️</button>
+
+      <!-- Delete Button -->
       <button class="text-red-500" @click="removeExample(index)">
         <Icon name="kind-icon:trash" class="w-6 h-6" />
       </button>
@@ -24,16 +36,11 @@
     <button class="btn btn-primary mt-4" @click="addExample">
       Add New Example
     </button>
-
-    <!-- Button to reorder examples -->
-    <button class="btn btn-secondary mt-4" @click="reorderExamples">
-      Reorder Examples
-    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { usePitchStore } from '~/stores/pitchStore'
 
 const pitchStore = usePitchStore()
@@ -43,9 +50,21 @@ const currentExamples = ref<string[]>(
   pitchStore.exampleString ? pitchStore.exampleString.split('|') : []
 )
 
-// Update the store whenever currentExamples changes
+// Track selected examples
+const selectedExamples = ref<number[]>([])
+
+// Update exampleString in the store whenever currentExamples changes
 function updateExampleString() {
   pitchStore.exampleString = currentExamples.value.join('|')
+}
+
+// Toggle the selection of an example
+function toggleSelectExample(index: number) {
+  if (selectedExamples.value.includes(index)) {
+    selectedExamples.value = selectedExamples.value.filter((i) => i !== index)
+  } else {
+    selectedExamples.value.push(index)
+  }
 }
 
 // Add a new empty example
@@ -57,12 +76,25 @@ function addExample() {
 // Remove an example at a specific index
 function removeExample(index: number) {
   currentExamples.value.splice(index, 1)
+  selectedExamples.value = selectedExamples.value.filter((i) => i !== index) // Update selectedExamples if necessary
   updateExampleString()
 }
 
-// Reorder examples and update the store (e.g., a simple reverse order)
-function reorderExamples() {
-  currentExamples.value.reverse()
-  updateExampleString()
+// Move an example up or down within the list
+function moveExample(index: number, direction: number) {
+  const newIndex = index + direction
+  if (newIndex >= 0 && newIndex < currentExamples.value.length) {
+    const temp = currentExamples.value[index]
+    currentExamples.value[index] = currentExamples.value[newIndex]
+    currentExamples.value[newIndex] = temp
+    updateExampleString()
+  }
 }
 </script>
+
+<style scoped>
+/* Style for selected examples */
+.bg-yellow-100 {
+  background-color: rgba(255, 223, 88, 0.3); /* Highlight color */
+}
+</style>

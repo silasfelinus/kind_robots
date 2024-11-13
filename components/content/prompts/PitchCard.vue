@@ -36,11 +36,16 @@
       <p v-else>{{ pitch.description }}</p>
     </div>
 
-    <!-- Editable Examples List -->
+    <!-- Editable Examples List with Penetration Highlighting and Reordering -->
     <div class="mb-4">
-      <label class="block text-sm font-semibold mb-2">Examples:</label>
+      <label class="block text-sm font-semibold mb-2">Examples (Up to {{ pitchStore.penetration }}):</label>
       <ul class="space-y-2">
-        <li v-for="(example, index) in editableExamples" :key="index" class="flex items-center space-x-2">
+        <li
+          v-for="(example, index) in editableExamples"
+          :key="index"
+          :class="{'highlighted': index + 1 === pitchStore.penetration}"
+          class="flex items-center space-x-2"
+        >
           <input
             v-if="isEditing"
             v-model="editableExamples[index]"
@@ -50,6 +55,8 @@
           />
           <p v-else>{{ example }}</p>
           <button v-if="isEditing" @click="removeExample(index)" class="text-red-500">✕</button>
+          <button v-if="isEditing" @click="moveExample(index, -1)" class="text-gray-500" :disabled="index === 0">⬆️</button>
+          <button v-if="isEditing" @click="moveExample(index, 1)" class="text-gray-500" :disabled="index === editableExamples.length - 1">⬇️</button>
         </li>
       </ul>
       <button v-if="isEditing" @click="addExample" class="mt-2 text-blue-500">+ Add Example</button>
@@ -126,6 +133,17 @@ const removeExample = (index: number) => {
   isChanged.value = true
 }
 
+// Move an example up or down within the list
+const moveExample = (index: number, direction: number) => {
+  const newIndex = index + direction
+  if (newIndex >= 0 && newIndex < editableExamples.value.length) {
+    const temp = editableExamples.value[index]
+    editableExamples.value[index] = editableExamples.value[newIndex]
+    editableExamples.value[newIndex] = temp
+    isChanged.value = true
+  }
+}
+
 // Save changes to the pitch, including updated examples
 const saveChanges = async () => {
   if (!editablePitch.value) return
@@ -178,3 +196,10 @@ const deletePitch = async () => {
   }
 }
 </script>
+
+<style scoped>
+.highlighted {
+  font-weight: bold;
+  background-color: rgba(255, 223, 88, 0.3); /* Highlight color */
+}
+</style>

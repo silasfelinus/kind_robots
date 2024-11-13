@@ -56,16 +56,20 @@
       <p v-else>{{ pitch.description }}</p>
     </div>
 
-    <!-- Examples (Displayed or Editable as Title Examples) -->
+    <!-- Examples Displayed as Separate Lines -->
     <div v-if="editablePitch.PitchType === PitchType.TITLE" class="mb-4">
-      <label v-if="isEditing" class="block text-sm font-semibold mb-2">Title Examples</label>
+      <label class="block text-sm font-semibold mb-2">Examples:</label>
+      <ul v-if="!isEditing" class="list-disc pl-5 space-y-1">
+        <li v-for="(example, index) in formattedExamples" :key="index">
+          {{ example }}
+        </li>
+      </ul>
       <textarea
         v-if="isEditing"
         v-model="editablePitch.examples"
         class="w-full bg-transparent border p-2 rounded-md"
         placeholder="Edit Examples (separate by '|')"
       ></textarea>
-      <p v-else>{{ pitch.examples?.split('|').join(', ') }}</p>
     </div>
 
     <!-- Actions -->
@@ -97,6 +101,9 @@ const emit = defineEmits(['toggle-edit', 'save', 'cancel', 'delete'])
 const pitchStore = usePitchStore()
 const userStore = useUserStore()
 
+// Check if the user has the CHILD role
+const isChildRole = computed(() => userStore.userRole === 'CHILD')
+
 // Check if the user is allowed to edit or delete (matches user ID or has ADMIN role)
 const isUserAllowedToEdit = computed(() =>
   props.pitch.userId === userStore.userId || userStore.userRole === 'ADMIN'
@@ -105,6 +112,11 @@ const isUserAllowedToEdit = computed(() =>
 // Editing state and editable copy of the pitch
 const isEditing = ref(false)
 const editablePitch = ref({ ...props.pitch })
+
+// Computed property to format examples
+const formattedExamples = computed(() =>
+  props.pitch.examples ? props.pitch.examples.split('|') : []
+)
 
 // Toggle editing mode with user check
 const toggleEdit = () => {

@@ -21,7 +21,10 @@
 
           <!-- Pitch Type Select -->
           <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="pitchType">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="pitchType"
+            >
               Pitch Type
             </label>
             <select
@@ -42,7 +45,10 @@
 
           <!-- Title Input -->
           <div v-if="!isTitleType || !titleDropdownVisible" class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="title"
+            >
               Title
             </label>
             <input
@@ -57,7 +63,10 @@
 
           <!-- Title Dropdown (For Brainstorm Type) -->
           <div v-if="titleDropdownVisible" class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="titleSelect">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="titleSelect"
+            >
               Select Existing Title
             </label>
             <select
@@ -65,7 +74,11 @@
               v-model="formState.title"
               class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             >
-              <option v-for="title in availableTitles" :key="title" :value="title">
+              <option
+                v-for="title in availableTitles"
+                :key="title || 'default-key'"
+                :value="title"
+              >
                 {{ title }}
               </option>
             </select>
@@ -73,7 +86,10 @@
 
           <!-- Pitch Description (Hidden for Title Type) -->
           <div v-if="!isTitleType" class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="pitch">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="pitch"
+            >
               Pitch Description
             </label>
             <textarea
@@ -102,7 +118,11 @@
             <button
               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit"
-              :disabled="!formState.title || (!formState.pitch && !isTitleType) || isSubmitting"
+              :disabled="
+                !formState.title ||
+                (!formState.pitch && !isTitleType) ||
+                isSubmitting
+              "
             >
               {{
                 isSubmitting
@@ -134,11 +154,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { type Pitch, usePitchStore, PitchType } from '~/stores/pitchStore'
-import { useUserStore } from '~/stores/userStore'
 
 // Stores
 const pitchStore = usePitchStore()
-const userStore = useUserStore()
 
 // Local State
 const showForm = ref(false)
@@ -163,10 +181,16 @@ const pitchTypeOptions = computed(() =>
     label: key.replace(/([A-Z])/g, ' $1').trim(), // Improve label readability
   })),
 )
-const availableTitles = computed(() => pitchStore.pitches.filter(p => p.PitchType === PitchType.TITLE).map(p => p.title))
+const availableTitles = computed(() =>
+  pitchStore.pitches
+    .filter((p) => p.PitchType === PitchType.TITLE)
+    .map((p) => p.title),
+)
 
 // Type-based computed values
-const isTitleType = computed(() => formState.value.PitchType === PitchType.TITLE)
+const isTitleType = computed(
+  () => formState.value.PitchType === PitchType.TITLE,
+)
 
 // Form toggle and reset
 const toggleForm = () => {
@@ -188,9 +212,11 @@ const resetForm = () => {
 
 // Pitch Type change handling
 const handlePitchTypeChange = () => {
-  titleDropdownVisible.value = formState.value.PitchType === PitchType.BRAINSTORM
+  titleDropdownVisible.value =
+    formState.value.PitchType === PitchType.BRAINSTORM
+
   if (isTitleType.value) {
-    formState.value.pitch = formState.value.title // Sync title and pitch for TITLE type
+    formState.value.pitch = formState.value.title || '' // Default to an empty string if title is null
   }
 }
 
@@ -218,6 +244,11 @@ const handleFormSubmit = async () => {
   } finally {
     isSubmitting.value = false
   }
+}
+
+const cancelEdit = () => {
+  resetForm()
+  showForm.value = false
 }
 
 // Edit and delete functions remain the same

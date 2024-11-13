@@ -1,7 +1,5 @@
 <template>
   <div>
-    <!-- Pitch Type Selector Component -->
-
     <!-- Display Title if Selected -->
     <h2 v-if="pitchStore.selectedTitle">
       Pitches for {{ pitchStore.selectedTitle.title }}
@@ -18,20 +16,22 @@
         :pitch="pitch"
         :class="{
           newest: pitchStore.newestPitches.includes(pitch),
-          selected: pitchStore.selectedPitches.includes(pitch),
+          selected: pitchStore.selectedPitches.includes(pitch) ||
+                    (pitchStore.selectedTitle && pitchStore.selectedTitle.id === pitch.id),
         }"
-        @select="toggleSelectedPitch"
+        @select="toggleSelectedPitch(pitch)"
       />
     </div>
 
     <!-- Request More Examples Button -->
-    <button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded" @click="fetchMoreExamples">
+    <button
+      class="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+      @click="fetchMoreExamples"
+    >
       Request More Examples
     </button>
   </div>
 </template>
-
-
 
 <script setup lang="ts">
 import { computed } from 'vue'
@@ -57,26 +57,26 @@ const displayedPitches = computed(() => {
   }
 })
 
+// Toggle pitch selection based on PitchType
 function toggleSelectedPitch(pitch: Pitch) {
-  const index = pitchStore.selectedPitches.indexOf(pitch)
-  if (index === -1) {
-    pitchStore.selectedPitches.push(pitch)
-  } else {
-    pitchStore.selectedPitches.splice(index, 1)
+  if (pitch.PitchType === 'TITLE') {
+    // For TITLE type, set selectedTitle in the store
+    pitchStore.selectedTitle = pitch
+    pitchStore.selectedPitches = [] // Clear any brainstorm selections
+  } else if (pitch.PitchType === 'BRAINSTORM') {
+    // For BRAINSTORM type, allow multiple selections
+    const index = pitchStore.selectedPitches.indexOf(pitch)
+    if (index === -1) {
+      pitchStore.selectedPitches.push(pitch)
+    } else {
+      pitchStore.selectedPitches.splice(index, 1)
+    }
+    pitchStore.selectedTitle = null // Clear selectedTitle for brainstorm selections
   }
 }
 
+// Function to fetch additional examples
 async function fetchMoreExamples() {
   await pitchStore.fetchBrainstormPitches()
 }
 </script>
-
-<style scoped>
-.newest {
-  background-color: #ffeb3b; /* Highlight for newest pitches */
-}
-.selected {
-  font-weight: bold;
-  color: #007bff; /* Different color for selected pitches */
-}
-</style>

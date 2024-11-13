@@ -70,14 +70,17 @@
 
     <!-- Actions -->
     <pitch-card-actions
+      v-if="isUserAllowedToEdit"
       :pitch="pitch"
       :is-editing="isEditing"
       @toggle-edit="toggleEdit"
       @save="saveChanges"
       @cancel="cancelEdit"
+      @delete="deletePitch"
     />
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
@@ -92,8 +95,10 @@ const props = defineProps<{
 const pitchStore = usePitchStore()
 const userStore = useUserStore()
 
-// Check if the user is allowed to edit (matches user ID)
-const isUserAllowedToEdit = computed(() => props.pitch.userId === userStore.userId)
+// Check if the user is allowed to edit or delete (matches user ID or has ADMIN role)
+const isUserAllowedToEdit = computed(() =>
+  props.pitch.userId === userStore.userId || userStore.userRole === 'ADMIN'
+)
 
 // Editing state and editable copy of the pitch
 const isEditing = ref(false)
@@ -116,7 +121,6 @@ const saveChanges = async () => {
   if (!editablePitch.value) return
   const response = await pitchStore.updatePitch(props.pitch.id, editablePitch.value)
   if (response && response.success) {
-    // Ensure response is handled correctly
     isEditing.value = false
   } else {
     console.error('Failed to save changes') // Handle error (display message or log)
@@ -127,5 +131,17 @@ const saveChanges = async () => {
 const cancelEdit = () => {
   isEditing.value = false
   editablePitch.value = { ...props.pitch } // Reset changes
+}
+
+// Delete the pitch
+const deletePitch = async () => {
+  if (!isUserAllowedToEdit.value) {
+    console.warn('User not authorized to delete this pitch')
+    return
+  }
+  const response = await pitchStore.deletePitch(props.pitch.id)
+  if (!response.success) {
+    console.error('Failed to delete pitch') // Handle error (display message or log)
+  }
 }
 </script>

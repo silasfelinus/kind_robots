@@ -36,18 +36,31 @@
       <p v-else>{{ pitch.description }}</p>
     </div>
 
-    <!-- Display Examples (Read-only) or Edit Examples -->
-    <div class="mb-4">
-      <label class="block text-sm font-semibold mb-2">Examples</label>
-      <div v-if="isEditing">
-        <title-examples />
-      </div>
-      <ul v-else class="space-y-1">
-        <li v-for="(example, index) in displayExamples" :key="index" class="text-sm text-gray-600">
-          {{ example }}
+    <!-- Title Examples Component with Selection -->
+    <div v-if="!isEditing">
+      <h3 class="text-md font-semibold mb-2">Examples:</h3>
+      <ul class="space-y-1">
+        <li
+          v-for="(example, index) in exampleList"
+          :key="index"
+          :class="{ 'bg-yellow-200': selectedExamples.includes(example) }"
+          class="flex items-center space-x-2 p-2 rounded-md"
+        >
+          <span>{{ example }}</span>
+          <button
+            class="text-green-500 hover:text-green-700 transform transition-transform duration-200 hover:scale-110"
+            @click="toggleSelectExample(example)"
+          >
+            <Icon
+              :name="selectedExamples.includes(example) ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'"
+              class="w-6 h-6"
+            />
+          </button>
         </li>
       </ul>
     </div>
+
+    <title-examples v-if="isEditing" />
 
     <!-- Actions -->
     <pitch-card-actions
@@ -98,10 +111,27 @@ const isEditing = ref(false)
 const editablePitch = ref({ ...props.pitch })
 const isChanged = ref(false)
 
-// Computed property to split examples for display in read-only mode
-const displayExamples = computed(() =>
-  props.pitch.examples ? props.pitch.examples.split('|') : [],
+// Examples to display in non-edit mode
+const exampleList = computed(() =>
+  pitchStore.exampleString ? pitchStore.exampleString.split('|') : [],
 )
+
+// Selected examples to be sent as exampleString
+const selectedExamples = ref<string[]>([])
+
+// Update exampleString in store whenever selectedExamples changes
+watch(selectedExamples, (newSelection) => {
+  pitchStore.exampleString = newSelection.join('|')
+})
+
+// Toggle the selection of an example
+function toggleSelectExample(example: string) {
+  if (selectedExamples.value.includes(example)) {
+    selectedExamples.value = selectedExamples.value.filter((e) => e !== example)
+  } else {
+    selectedExamples.value.push(example)
+  }
+}
 
 // Save changes to the pitch
 const saveChanges = async () => {
@@ -112,11 +142,11 @@ const saveChanges = async () => {
     editablePitch.value,
   )
   if (response && response.success) {
-    emit('save') // Emit the save event
+    emit('save')
     isChanged.value = false
     isEditing.value = false
   } else {
-    console.error('Failed to save changes') // Handle error (display message or log)
+    console.error('Failed to save changes')
   }
 }
 
@@ -128,7 +158,7 @@ const toggleEdit = () => {
   }
   isEditing.value = !isEditing.value
   if (isEditing.value) {
-    editablePitch.value = { ...props.pitch } // Create a fresh copy for editing
+    editablePitch.value = { ...props.pitch }
   }
 }
 
@@ -136,8 +166,8 @@ const toggleEdit = () => {
 const cancelEdit = () => {
   isEditing.value = false
   isChanged.value = false
-  editablePitch.value = { ...props.pitch } // Reset changes
-  emit('cancel') // Emit the cancel event
+  editablePitch.value = { ...props.pitch }
+  emit('cancel')
 }
 
 // Delete the pitch
@@ -148,16 +178,9 @@ const deletePitch = async () => {
   }
   const response = await pitchStore.deletePitch(props.pitch.id)
   if (response.success) {
-    emit('delete') // Emit the delete event
+    emit('delete')
   } else {
-    console.error('Failed to delete pitch') // Handle error (display message or log)
+    console.error('Failed to delete pitch')
   }
 }
 </script>
-
-<style scoped>
-.highlighted {
-  font-weight: bold;
-  background-color: rgba(255, 223, 88, 0.3); /* Highlight color */
-}
-</style>

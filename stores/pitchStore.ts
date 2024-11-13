@@ -31,8 +31,13 @@ export const usePitchStore = defineStore('pitch', {
     pitchTypes: () => Object.values(PitchType),
     selectedPitch: (state) => state.selectedPitches[0] || null,
     selectedPitchId: (state) => state.selectedPitches[0]?.id || null,
-    getPitchesByType: (state) => (pitchType: PitchType) =>
-      state.pitches.filter((pitch) => pitch.PitchType === pitchType),
+    getPitchesByType: (state) => (pitchType: PitchType) => {
+      console.log('Filtering by PitchType:', pitchType)
+      return state.pitches.filter((pitch) => {
+        console.log('PitchType in pitch:', pitch.PitchType)
+        return pitch.PitchType === pitchType
+      })
+    },
     getPitchesBySelectedType: (state) =>
       state.selectedPitchType
         ? state.pitches.filter(
@@ -225,8 +230,13 @@ export const usePitchStore = defineStore('pitch', {
       return handleError(async () => {
         const response = await performFetch<Pitch[]>('/api/pitches')
         if (response.success && response.data) {
-          this.pitches = response.data
-          console.log('fetched pitches: ', this.pitches)
+          // Normalize PitchType to ensure compatibility with the enum
+          this.pitches = response.data.map((pitch) => ({
+            ...pitch,
+            PitchType:
+              PitchType[pitch.PitchType as keyof typeof PitchType] ||
+              pitch.PitchType,
+          }))
           if (isClient)
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
         } else {

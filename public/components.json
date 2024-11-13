@@ -277,8 +277,10 @@
       "PitchTypeSelector",
       "PitchViewer",
       "PromptFactory",
+      "brainstorm-image",
       "brainstorm-view",
       "pitch-display",
+      "title-examples",
       "title-maker",
       "title-menu"
     ]

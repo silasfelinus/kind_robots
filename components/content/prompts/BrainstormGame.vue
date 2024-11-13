@@ -15,7 +15,7 @@
 
     <add-pitch @pitch-created="handlePitchCreated"></add-pitch>
 
-    <!-- Top 5 Selected Pitches (Responsive) -->
+    <!-- Top 5 Selected Pitches -->
     <div
       class="flex flex-wrap justify-center sm:justify-around mb-6 w-full max-w-full overflow-hidden"
     >
@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <!-- Display All Brainstorm Ideas (Responsive Grid with Editing) -->
+    <!-- Display All Brainstorm Ideas (Responsive Grid) -->
     <transition-group
       name="list"
       tag="div"
@@ -42,7 +42,7 @@
         v-for="idea in brainstormPitches"
         :key="idea.id"
         class="bg-base-300 shadow-md rounded-lg p-4 cursor-pointer hover:bg-base-300 transition duration-300"
-        @click="selectPitch(idea)"
+        @click="togglePitchSelection(idea)"
       >
         <!-- Basic Pitch Display -->
         <div>
@@ -52,15 +52,13 @@
       </div>
     </transition-group>
 
-    <!-- Button to Submit the Top 5 Selected Pitches -->
+    <!-- Floating Submit Button -->
     <button
-      class="bg-primary hover:bg-primary-focus text-white py-2 sm:py-3 px-6 rounded-full text-base sm:text-lg mt-6 transition-all duration-300"
-      :disabled="
-        selectedPitches.filter((p) => p !== null).length < 5 || isSubmitting
-      "
+      class="fixed bottom-4 right-4 bg-primary hover:bg-primary-focus text-white p-3 rounded-full shadow-lg transition-all duration-300"
+      :disabled="selectedPitches.filter((p) => p !== null).length < 5 || isSubmitting"
       @click="submitTopPitches"
     >
-      {{ isSubmitting ? 'Submitting...' : 'Submit Top 5 Pitches' }}
+      <Icon name="kind-icon:brain" class="w-6 h-6" />
     </button>
 
     <!-- Error Message if Any -->
@@ -86,22 +84,36 @@ const selectedPitches = ref<(Pitch | null)[]>([null, null, null, null, null])
 // Computed brainstorm pitches
 const brainstormPitches = computed(() => pitchStore.brainstormPitches)
 
+// Update exampleString in pitchStore whenever selectedPitches change
+const updateExampleString = () => {
+  const exampleString = selectedPitches.value
+    .filter((pitch) => pitch !== null)
+    .map((pitch) => pitch!.pitch)
+    .join(' | ')
+  pitchStore.exampleString = exampleString
+}
+
 // Event handler for when a custom pitch is created
 const handlePitchCreated = (pitch: Pitch) => {
   selectedPitches.value.unshift(pitch)
   if (selectedPitches.value.length > 5) {
     selectedPitches.value.pop()
   }
+  updateExampleString()
 }
 
-const selectPitch = (pitch: Pitch) => {
-  selectedPitches.value = selectedPitches.value.filter(
-    (p) => p?.id !== pitch.id,
-  )
-  selectedPitches.value.unshift(pitch)
-  if (selectedPitches.value.length > 5) {
-    selectedPitches.value.pop()
+// Toggle selection of a pitch
+const togglePitchSelection = (pitch: Pitch) => {
+  const existingIndex = selectedPitches.value.findIndex((p) => p?.id === pitch.id)
+  if (existingIndex !== -1) {
+    selectedPitches.value[existingIndex] = null
+  } else {
+    selectedPitches.value.unshift(pitch)
+    if (selectedPitches.value.length > 5) {
+      selectedPitches.value.pop()
+    }
   }
+  updateExampleString()
 }
 
 const isSubmitting = ref(false)
@@ -133,6 +145,7 @@ const submitTopPitches = async () => {
 
     alert('Top 5 pitches submitted successfully!')
     selectedPitches.value = [null, null, null, null, null]
+    updateExampleString()
   } catch (error: unknown) {
     const err = error as Error
     errorStore.setError(
@@ -166,5 +179,11 @@ const submitTopPitches = async () => {
 
 .bg-accent {
   background-color: var(--bg-accent) !important;
+}
+
+button.fixed.bottom-4.right-4 {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
 }
 </style>

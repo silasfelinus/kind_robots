@@ -250,32 +250,64 @@ export const usePitchStore = defineStore('pitch', {
         throw new Error(response.message || 'Pitch not found')
       }, `fetching pitch by ID: ${pitchId}`)
     },
-    async createPitch(
-      newPitch: Partial<Pitch>,
-    ): Promise<{ success: boolean; message: string }> {
+    async createPitch({
+      userId = 1,
+      title = 'Untitled Pitch',
+      pitch = 'This is a sample pitch text',
+      PitchType = 'ARTPITCH',
+      designer = null,
+      flavorText = null,
+      highlightImage = null,
+      isMature = false,
+      isPublic = true,
+      imagePrompt = null,
+      description = null,
+      examples = null,
+      artImageId = null,
+    }: Partial<Pitch>) {
       try {
-        // If PitchType is TITLE, set `pitch` to match `title`
-        if (newPitch.PitchType === PitchType.TITLE && newPitch.title) {
-          newPitch.pitch = newPitch.title
+        const newPitch = {
+          userId,
+          title,
+          pitch,
+          PitchType,
+          designer,
+          flavorText,
+          highlightImage,
+          isMature,
+          isPublic,
+          imagePrompt,
+          description,
+          examples,
+          artImageId,
         }
-    
+
         const response = await performFetch<Pitch>('/api/pitches', {
           method: 'POST',
           body: JSON.stringify(newPitch),
         })
-    
+
         if (response.success && response.data) {
+          // Add the newly created pitch to the store
           this.pitches.push(response.data)
-          if (isClient) {
-            localStorage.setItem('pitches', JSON.stringify(this.pitches))
-          }
+          this.clearLocalStorage() // Update local storage after data modification
           return { success: true, message: 'Pitch created successfully' }
         } else {
-          throw new Error(response.message || 'Pitch creation failed')
+          useErrorStore().setError(
+            ErrorType.NETWORK_ERROR,
+            response.message || 'Failed to create pitch',
+          )
+          return {
+            success: false,
+            message: response.message || 'Failed to create pitch',
+          }
         }
-      } catch (err) {
-        handleError(err, 'creating pitch')
-        return { success: false, message: 'Pitch creation failed' }
+      } catch (error) {
+        handleError(error, 'creating pitch')
+        return {
+          success: false,
+          message: 'An error occurred while creating pitch',
+        }
       }
     },
 

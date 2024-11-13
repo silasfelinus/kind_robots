@@ -2,8 +2,18 @@ import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
 import { usePromptStore } from './promptStore'
 import { performFetch, handleError } from './utils'
-import { type Pitch, type Art, PitchType } from '@prisma/client' // Import as type
+import type { Pitch, Art } from '@prisma/client' // Import as type
 
+export enum PitchType {
+  ARTPITCH = 'ARTPITCH',
+  BRAINSTORM = 'BRAINSTORM',
+  BOT = 'BOT',
+  ARTGALLERY = 'ARTGALLERY',
+  INSPIRATION = 'INSPIRATION',
+  RANDOMLIST = 'RANDOMLIST',
+  TEXTPITCH = 'TEXTPITCH',
+  TITLE = 'TITLE',
+}
 const isClient = typeof window !== 'undefined'
 
 export const usePitchStore = defineStore('pitch', {
@@ -217,7 +227,9 @@ export const usePitchStore = defineStore('pitch', {
         const response = await performFetch<Pitch>(`/api/pitches/${pitchId}`)
         if (response.success && response.data) {
           // Avoid duplicates by checking if the pitch already exists
-          const existingPitch = this.pitches.find((pitch) => pitch.id === pitchId)
+          const existingPitch = this.pitches.find(
+            (pitch) => pitch.id === pitchId,
+          )
           if (!existingPitch) {
             this.pitches.push(response.data)
           }
@@ -295,7 +307,9 @@ export const usePitchStore = defineStore('pitch', {
 
     async fetchArtForPitch(pitchId: number) {
       return handleError(async () => {
-        const response = await performFetch<Art[]>(`/api/pitches/art/${pitchId}`)
+        const response = await performFetch<Art[]>(
+          `/api/pitches/art/${pitchId}`,
+        )
         if (response.success && response.data) {
           this.galleryArt = response.data
         } else {
@@ -310,10 +324,13 @@ export const usePitchStore = defineStore('pitch', {
         localStorage.removeItem('pitches')
         localStorage.removeItem('selectedPitches')
         localStorage.setItem('pitches', JSON.stringify(this.pitches))
-        localStorage.setItem('selectedPitches', JSON.stringify(this.selectedPitches))
+        localStorage.setItem(
+          'selectedPitches',
+          JSON.stringify(this.selectedPitches),
+        )
       }
     },
   },
 })
 
-export { type Pitch, PitchType }
+export { type Pitch }

@@ -37,7 +37,7 @@
             />
           </div>
           <div v-else class="mb-4">
-            <TitleSelector v-model:title="formState.title" />
+            <TitleMenu v-model:title="formState.title" />
           </div>
 
           <!-- Prompt or Description (hidden for TITLE type) -->

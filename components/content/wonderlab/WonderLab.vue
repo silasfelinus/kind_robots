@@ -1,96 +1,77 @@
 <template>
   <div>
     <!-- Loading State -->
-    <div v-if="isLoading" class="flex justify-center items-center h-full">
+    <div v-if="isLoading" class="flex justify-center items-center h-screen">
       <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />
       Loading...
     </div>
 
-    <!-- Show content when not loading and no errors -->
-    <transition name="flip">
-      <div v-if="!isLoading && !errorMessages.length" class="flex h-screen">
-        <!-- Left 2/3 for the welcome message or component screen -->
-        <div class="w-2/3 p-4 flex justify-center items-center">
-          <!-- Welcome message when no component is selected -->
-          <div
-            v-if="!componentStore.selectedComponent"
-            class="welcome-screen text-center"
-          >
-            <h1 class="text-4xl font-bold">Welcome to the WonderLab</h1>
-            <p class="text-lg mt-4">
-              Select a folder to view components or interact with them!
-            </p>
+    <!-- Main WonderLab Layout -->
+    <div v-if="!isLoading && !errorMessages.length" class="flex h-screen">
+      <!-- Left Section for Component Screen (full height) -->
+      <div class="w-2/3 h-full p-4 flex justify-center items-center">
+        <div v-if="!componentStore.selectedComponent" class="welcome-screen">
+          <h1 class="text-4xl font-bold">Welcome to the WonderLab</h1>
+          <p class="text-lg mt-4">
+            Select a folder to view or interact with components!
+          </p>
+        </div>
+
+        <div v-else class="w-full h-full overflow-auto">
+          <component-screen
+            :component="componentStore.selectedComponent"
+            class="component-screen w-full h-full"
+            @close="handleComponentClose"
+          />
+        </div>
+      </div>
+
+      <!-- Right Section: Folder View on top, Reactions at the bottom -->
+      <div class="w-1/3 h-full flex flex-col">
+        <!-- Folder View (expands as needed) -->
+        <div class="folder-view flex-grow p-4 bg-gray-100 overflow-y-auto">
+          <div v-if="componentStore.selectedFolder" class="text-lg px-4">
+            Viewing components in folder: {{ componentStore.selectedFolder }}
           </div>
 
-          <!-- Component Screen when a component is selected -->
-          <div v-else class="w-full h-full overflow-auto">
-            <component-screen
-              :component="componentStore.selectedComponent"
-              class="component-screen w-full h-full"
-              @close="handleComponentClose"
+          <div v-if="!componentStore.selectedFolder" class="lab-gallery">
+            <lab-gallery @select-folder="handleFolderSelect" />
+          </div>
+
+          <div
+            v-if="componentStore.selectedFolder"
+            class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 h-full overflow-auto"
+          >
+            <component-card
+              v-for="component in folderComponents"
+              :key="component.id"
+              :component="component"
+              class="component-card p-4 bg-white shadow rounded-lg"
+              @select="handleComponentSelect"
             />
           </div>
         </div>
 
-        <!-- Right 1/3, split into top 1/2 for folder view and bottom 1/2 for count/reactions -->
-        <div class="w-1/3 flex flex-col">
-          <!-- Folder view in the top half -->
-          <div class="folder-view h-1/2 p-4 bg-gray-100 overflow-y-auto">
-            <div v-if="componentStore.selectedFolder" class="text-lg px-4">
-              Viewing components in folder: {{ componentStore.selectedFolder }}
-            </div>
-
-            <!-- Folder gallery when no folder is selected -->
-            <div
-              v-if="!componentStore.selectedFolder"
-              class="lab-gallery h-full"
-            >
-              <lab-gallery @select-folder="handleFolderSelect" />
-            </div>
-
-            <!-- Folder components -->
-            <div
-              v-if="componentStore.selectedFolder"
-              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4 h-full overflow-auto"
-            >
-              <component-card
-                v-for="component in folderComponents"
-                :key="component.id"
-                :component="component"
-                class="component-card p-4 bg-white shadow rounded-lg transition-transform transform hover:scale-105 hover:shadow-lg"
-                @select="handleComponentSelect"
-              />
-            </div>
+        <!-- Reactions or Component Counter (fixed height at bottom) -->
+        <div class="p-4 bg-gray-200 h-1/3">
+          <div
+            v-if="!componentStore.selectedComponent"
+            class="component-counter flex justify-center items-center h-full"
+          >
+            <component-count />
           </div>
 
-          <!-- Component count or reactions in the bottom half -->
-          <div class="h-1/2 p-4 bg-gray-200">
-            <transition name="flip">
-              <!-- Component Count (when no component is selected) -->
-              <div
-                v-if="!componentStore.selectedComponent"
-                class="component-counter flex justify-center items-center h-full"
-              >
-                <component-count />
-              </div>
-
-              <!-- Reactions (when a component is selected) -->
-              <div
-                v-else
-                class="reactions-screen bg-base-200 h-full overflow-auto"
-              >
-                <h2 class="text-2xl font-semibold">
-                  Reactions for {{ componentStore.selectedComponent.title }}
-                </h2>
-                <component-reactions
-                  :component="componentStore.selectedComponent"
-                />
-              </div>
-            </transition>
+          <div v-else class="reactions-screen h-full overflow-auto">
+            <h2 class="text-2xl font-semibold">
+              Reactions for {{ componentStore.selectedComponent.title }}
+            </h2>
+            <component-reactions
+              :component="componentStore.selectedComponent"
+            />
           </div>
         </div>
       </div>
-    </transition>
+    </div>
 
     <!-- Error Reporting -->
     <div v-if="errorMessages.length" class="col-span-3 text-red-500 mt-4">

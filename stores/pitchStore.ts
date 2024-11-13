@@ -82,7 +82,9 @@ export const usePitchStore = defineStore('pitch', {
   actions: {
     // Add this to the actions section
     async initializePitches() {
+console.log("initializing")
       if (isClient && !this.isInitialized) {
+console.log("running fetch pitches, as we are client and not initialized")
         await this.fetchPitches()
         this.isInitialized = true
       }
@@ -227,6 +229,7 @@ export const usePitchStore = defineStore('pitch', {
     },
 
     async fetchPitches() {
+console.log("nowinsidefetch pitches")
       return handleError(async () => {
         const response = await performFetch<Pitch[]>('/api/pitches')
 console.log(response)

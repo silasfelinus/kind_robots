@@ -262,7 +262,6 @@ export const usePitchStore = defineStore('pitch', {
       }, `fetching pitch by ID: ${pitchId}`)
     },
     async createPitch({
-      userId = 1,
       title = 'Untitled Pitch',
       pitch = 'This is a sample pitch text',
       PitchType = 'ARTPITCH',
@@ -277,8 +276,10 @@ export const usePitchStore = defineStore('pitch', {
       artImageId = null,
     }: Partial<Pitch>) {
       try {
+        const userStore = useUserStore()
+
         const newPitch = {
-          userId,
+          userId: userStore.userId | 10,
           title,
           pitch,
           PitchType,

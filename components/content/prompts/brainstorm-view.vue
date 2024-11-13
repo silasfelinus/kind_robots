@@ -2,9 +2,7 @@
   <div>
     <brainstorm-image />
 <brainstorm-selector />
-    <TitleMenu />
-    <TitleMaker />
-    <PitchDisplay />
+    <add-pitch />
 
     <!-- Section for Newest Pitches using PitchCard components -->
     <section v-if="pitchStore.newestPitches.length" class="mt-6">

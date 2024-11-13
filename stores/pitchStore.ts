@@ -25,6 +25,7 @@ export const usePitchStore = defineStore('pitch', {
     galleryArt: [] as Art[],
     selectedTitle: null as Pitch | null,
     newestPitches: [] as Pitch[], // New array to hold the latest pitches received
+    loading: false,
   }),
 
   getters: {
@@ -134,18 +135,6 @@ export const usePitchStore = defineStore('pitch', {
       this.selectedPitchType = pitchType
     },
 
-    async fetchRandomPitches(count: number) {
-      return handleError(async () => {
-        const response = await performFetch<Pitch[]>(
-          '/api/pitches/random?count=' + count,
-        )
-        if (response.success && response.data) {
-          this.selectedPitches = response.data
-        } else {
-          throw new Error(response.message || 'Failed to fetch random pitches')
-        }
-      }, 'fetching random pitches')
-    },
     setTitle(titleId: number | null) {
       if (titleId === null) {
         this.selectedTitle = null
@@ -164,25 +153,38 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    async fetchBrainstormPitches() {
+    async fetchRandomPitches(count: number): Promise<void> {
+      try {
+        console.log('Starting fetchRandomPitches...')
+        const response = await performFetch<Pitch[]>(
+          `/api/pitches/random?count=${count}`,
+        )
+
+        if (response.success) {
+          this.selectedPitches = response.data || []
+        } else {
+          console.warn('Failed to fetch random pitches:', response.message)
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        console.error('Error in fetchRandomPitches:', error)
+        handleError(error, 'fetching random pitches')
+      } finally {
+        console.log('fetchRandomPitches completed.')
+      }
+    },
+
+    async fetchBrainstormPitches(): Promise<void> {
       const promptStore = usePromptStore()
       const exampleContent =
-        promptStore.currentPrompt ||
-        'slogans for our anti-malaria fundraiser at http://againstmalaria.com/amibot'
+        promptStore.currentPrompt || 'slogans for our anti-malaria fundraiser'
+      const examples = this.selectedPitches.map((pitch) => ({
+        input: `Topic: ${pitch.title || 'Creative Idea'}`,
+        output: `Idea: ${pitch.description || 'Sample description for the topic.'}`,
+      }))
 
-      const examples = this.selectedPitches.length
-        ? this.selectedPitches.map((pitch) => ({
-            input: `Topic: ${pitch.title || 'Creative Idea'}`,
-            output: `Idea: ${pitch.description || 'A sample pitch description for the topic.'}`,
-          }))
-        : [
-            {
-              input: 'Topic: Anti-malaria fundraiser',
-              output: 'Idea: A creative slogan for malaria awareness',
-            },
-          ]
-
-      return handleError(async () => {
+      try {
+        console.log('Starting fetchBrainstormPitches...')
         const response = await performFetch<Pitch[]>(
           '/api/botcafe/brainstorm',
           {
@@ -191,20 +193,24 @@ export const usePitchStore = defineStore('pitch', {
               n: 5,
               content: `Please send an idea for a creative brainstorm for this topic: ${exampleContent}`,
               max_tokens: 500,
-              examples: examples,
+              examples,
             }),
           },
         )
 
-        if (response.success && response.data) {
-          this.newestPitches = response.data // Store new pitches in newestPitches
-          this.addPitches(response.data) // Add new pitches to the main pitches array
+        if (response.success) {
+          this.newestPitches = response.data || []
+          this.addPitches(response.data || [])
         } else {
-          throw new Error(
-            response.message || 'Failed to fetch brainstorm pitches',
-          )
+          console.warn('Failed to fetch brainstorm pitches:', response.message)
+          throw new Error(response.message)
         }
-      }, 'fetching brainstorm pitches')
+      } catch (error) {
+        console.error('Error in fetchBrainstormPitches:', error)
+        handleError(error, 'fetching brainstorm pitches')
+      } finally {
+        console.log('fetchBrainstormPitches completed.')
+      }
     },
 
     addPitches(newPitches: Pitch[]) {
@@ -230,43 +236,38 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    async fetchPitches() {
-      console.log('Starting fetchPitches...')
+    async fetchPitches(): Promise<void> {
+      if (this.isInitialized) return
+      this.loading = true
 
-      return handleError(async () => {
-        try {
-          console.log('Attempting to fetch pitches from /api/pitches')
-          const response = await performFetch<Pitch[]>('/api/pitches')
+      try {
+        console.log('Starting fetchPitches...')
+        const response = await performFetch<Pitch[]>('/api/pitches')
 
-          // Log the raw response for debugging
-          console.log('Raw fetchPitches response:', response)
-
-          // Check if response exists and has the expected data
-          if (!response) {
-            throw new Error('No response received from fetchPitches request')
-          }
-
-          if (response.success && response.data) {
-            console.log('Pitches fetched successfully:', response.data)
-
-            // Normalize PitchType to ensure compatibility with the enum
-            this.pitches = response.data.map((pitch) => ({
+        if (response.success) {
+          console.log('Pitches fetched successfully:', response.data)
+          this.pitches =
+            response.data?.map((pitch) => ({
               ...pitch,
               PitchType:
                 PitchType[pitch.PitchType as keyof typeof PitchType] ||
                 pitch.PitchType,
-            }))
-            if (isClient) {
-              localStorage.setItem('pitches', JSON.stringify(this.pitches))
-            }
-          } else {
-            throw new Error(response.message || 'Failed to fetch pitches')
+            })) || []
+          this.isInitialized = true
+          if (isClient) {
+            localStorage.setItem('pitches', JSON.stringify(this.pitches))
           }
-        } catch (error) {
-          console.error('Error in fetchPitches:', error)
-          throw error // Re-throw to allow handleError to capture it
+        } else {
+          console.warn('Failed to fetch pitches:', response.message)
+          throw new Error(response.message)
         }
-      }, 'fetching pitches')
+      } catch (error) {
+        console.error('Error in fetchPitches:', error)
+        handleError(error, 'fetching pitches')
+      } finally {
+        this.loading = false
+        console.log('fetchPitches completed.')
+      }
     },
 
     async fetchPitchById(pitchId: number) {

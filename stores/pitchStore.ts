@@ -28,7 +28,8 @@ export const usePitchStore = defineStore('pitch', {
   }),
 
   getters: {
-    pitchTypes: () => Object.values(PitchType), // Enum values as an array
+    
+    pitchTypes: () => Object.values(PitchType),
     selectedPitch: (state) => state.selectedPitches[0] || null,
     selectedPitchId: (state) => state.selectedPitches[0]?.id || null,
     getPitchesByType: (state) => (pitchType: PitchType) =>

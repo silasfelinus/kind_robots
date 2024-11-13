@@ -241,11 +241,11 @@ export const usePitchStore = defineStore('pitch', {
       this.loading = true
 
       try {
-        console.log('Starting fetchPitches...')
+        
         const response = await performFetch<Pitch[]>('/api/pitches')
 
         if (response.success) {
-          console.log('Pitches fetched successfully:', response.data)
+          
           this.pitches =
             response.data?.map((pitch) => ({
               ...pitch,
@@ -266,14 +266,14 @@ export const usePitchStore = defineStore('pitch', {
         handleError(error, 'fetching pitches')
       } finally {
         this.loading = false
-        console.log('fetchPitches completed.')
+        
       }
     },
     async fetchPitchById(
       pitchId: number,
     ): Promise<{ success: boolean; data?: Pitch; message?: string }> {
       try {
-        console.log(`Starting fetchPitchById for pitchId: ${pitchId}`)
+        
         const response = await performFetch<Pitch>(`/api/pitches/${pitchId}`)
 
         if (response.success && response.data) {
@@ -285,7 +285,7 @@ export const usePitchStore = defineStore('pitch', {
             this.pitches.push(response.data)
           }
 
-          console.log(`Pitch fetched successfully: pitchId ${pitchId}`)
+          
           return { success: true, data: response.data }
         } else {
           console.warn(`Failed to fetch pitch by ID: ${response.message}`)

@@ -1,6 +1,6 @@
 <template>
   <nuxt-img
-    src="/images/brainstorm.webp"
+    src="/images/avatars/brain1.webp"
     alt="Brainstorm"
     class="w-full h-auto object-cover rounded-lg"
   />

@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Update the pitch in the database
-    const updatedPitch = await prisma.pitch.update({
+    const data = await prisma.pitch.update({
       where: { id },
       data: pitchData,
     })
@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       message: 'Pitch updated successfully.',
-      data: updatedPitch,
+      data,
       statusCode: 200,
     }
     event.node.res.statusCode = 200

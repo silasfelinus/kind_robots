@@ -1,6 +1,6 @@
 <template>
   <div class="pitch-selector flex flex-col items-center space-y-4">
-    <!-- PitchTypeSelector Component (as buttons instead of a dropdown) -->
+    <!-- PitchTypeSelector Component as Buttons -->
     <div class="pitch-type-buttons grid grid-cols-3 gap-2">
       <button
         v-for="type in pitchStore.pitchTypes"
@@ -17,25 +17,23 @@
       </button>
     </div>
 
-    <!-- Display Pitches based on the selected PitchType -->
-    <div v-if="filteredPitches.length" class="pitch-list grid gap-4">
-      <button
+    <!-- Display Pitches based on the selected PitchType using PitchCard components -->
+    <div v-if="filteredPitches.length" class="pitch-list grid gap-4 mt-4 w-full">
+      <PitchCard
         v-for="pitch in filteredPitches"
         :key="pitch.id"
+        :pitch="pitch"
         :class="[
-          'rounded-lg border p-3',
+          'border rounded-lg shadow p-4',
           pitchStore.selectedPitch && pitchStore.selectedPitch.id === pitch.id
-            ? 'bg-primary text-white'
+            ? 'bg-primary text-white border-primary'
             : 'bg-base-300 hover:bg-primary hover:text-white',
         ]"
         @click="updateSelectedPitch(pitch.id)"
-      >
-        <h3 class="font-bold">{{ pitch.title || 'Untitled' }}</h3>
-        <p>{{ pitch.pitch }}</p>
-      </button>
+      />
     </div>
 
-    <p v-else class="text-sm text-gray-500">
+    <p v-else class="text-sm text-gray-500 mt-4">
       No pitches available for the selected type.
     </p>
   </div>
@@ -43,20 +41,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore, type PitchType } from './../../../stores/pitchStore'
-
 const pitchStore = usePitchStore()
 
 // Fetch pitches by selected pitch type
 const filteredPitches = computed(() => pitchStore.getPitchesBySelectedType)
 
 // Update selected pitch type directly with PitchType values
-const updateSelectedPitchType = (type: PitchType) => {
+const updateSelectedPitchType = (type) => {
   pitchStore.setSelectedPitchType(type)
 }
 
 // Handle pitch selection
-const updateSelectedPitch = (pitchId: number) => {
+const updateSelectedPitch = (pitchId) => {
   if (pitchStore.selectedPitch?.id === pitchId) return
   pitchStore.setSelectedPitch(pitchId)
 }

@@ -26,6 +26,8 @@ export const usePitchStore = defineStore('pitch', {
     selectedTitle: null as Pitch | null,
     newestPitches: [] as Pitch[], // New array to hold the latest pitches received
     loading: false,
+    numberOfRequests: 5,
+    temperature: 0.9,
   }),
 
   getters: {
@@ -176,34 +178,34 @@ export const usePitchStore = defineStore('pitch', {
 
  async fetchBrainstormPitches(): Promise<void> {
   const promptStore = usePromptStore()
+  const numberOfRequests = this.numberOfRequests || 5 // default to 5 if not set
 
-  // Compile the content request
+  // Compile content from selectedTitle and selectedPitches or examples
   let compiledContent = ''
   if (this.selectedTitle) {
     console.log('Selected title found:', this.selectedTitle.title)
     compiledContent += `Title: ${this.selectedTitle.title}\n`
     compiledContent += `Description: ${this.selectedTitle.description || ''}\n`
-    
-    // Use examples from selected pitches or fallback to title examples
+
     const examples = this.selectedPitches.length
       ? this.selectedPitches.map((pitch) => pitch.pitch)
       : this.selectedTitle.examples?.split('|') || []
 
     compiledContent += `Examples:\n${examples.map((example, i) => `Example ${i + 1}: ${example}`).join('\n')}`
   } else {
-    console.warn('No selected title found.')
+    console.warn('No selected title found. Exiting fetchBrainstormPitches.')
     return
   }
 
-  // Define brainstorm request data
   const requestBody = {
-    n: 5, // Number of brainstorm results requested
+    n: numberOfRequests, // Dynamic number of requests
     content: `Please generate brainstorm ideas for:\n${compiledContent}`,
     max_tokens: 500,
+    temperature: this.temperature,
   }
 
   try {
-    console.log('Sending brainstorm request with compiled content:', requestBody)
+    console.log('Sending brainstorm request:', requestBody)
     const response = await performFetch<Pitch[]>('/api/botcafe/brainstorm', {
       method: 'POST',
       body: JSON.stringify(requestBody),

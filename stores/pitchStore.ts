@@ -261,67 +261,70 @@ export const usePitchStore = defineStore('pitch', {
         throw new Error(response.message || 'Pitch not found')
       }, `fetching pitch by ID: ${pitchId}`)
     },
-    async createPitch({
-      title = 'Untitled Pitch',
-      pitch = 'This is a sample pitch text',
-      PitchType = 'ARTPITCH',
-      designer = null,
-      flavorText = null,
-      highlightImage = null,
-      isMature = false,
-      isPublic = true,
-      imagePrompt = null,
-      description = null,
-      examples = null,
-      artImageId = null,
-    }: Partial<Pitch>) {
-      try {
-        const userStore = useUserStore()
+async createPitch({
+  title = 'Untitled Pitch',
+  pitch = 'This is a sample pitch text',
+  designer = null,
+  flavorText = null,
+  highlightImage = null,
+  isMature = false,
+  isPublic = true,
+  imagePrompt = null,
+  description = null,
+  examples = null,
+  artImageId = null,
+}: Partial<Pitch>) {
+  try {
+    const userStore = useUserStore()
 
-        const newPitch = {
-          userId: userStore.userId | 10,
-          title,
-          pitch,
-          PitchType,
-          designer,
-          flavorText,
-          highlightImage,
-          isMature,
-          isPublic,
-          imagePrompt,
-          description,
-          examples,
-          artImageId,
-        }
+    // Use the current pitch type from the store
+    const PitchType = this.selectedPitchType || 'ARTPITCH'
 
-        const response = await performFetch<Pitch>('/api/pitches', {
-          method: 'POST',
-          body: JSON.stringify(newPitch),
-        })
+    const newPitch = {
+      userId: userStore.userId || 10,
+      title,
+      pitch,
+      PitchType,
+      designer,
+      flavorText,
+      highlightImage,
+      isMature,
+      isPublic,
+      imagePrompt,
+      description,
+      examples,
+      artImageId,
+    }
 
-        if (response.success && response.data) {
-          // Add the newly created pitch to the store
-          this.pitches.push(response.data)
-          this.clearLocalStorage() // Update local storage after data modification
-          return { success: true, message: 'Pitch created successfully' }
-        } else {
-          useErrorStore().setError(
-            ErrorType.NETWORK_ERROR,
-            response.message || 'Failed to create pitch',
-          )
-          return {
-            success: false,
-            message: response.message || 'Failed to create pitch',
-          }
-        }
-      } catch (error) {
-        handleError(error, 'creating pitch')
-        return {
-          success: false,
-          message: 'An error occurred while creating pitch',
-        }
+    const response = await performFetch<Pitch>('/api/pitches', {
+      method: 'POST',
+      body: JSON.stringify(newPitch),
+    })
+
+    if (response.success && response.data) {
+      // Add the newly created pitch to the store
+      this.pitches.push(response.data)
+      this.clearLocalStorage() // Update local storage after data modification
+      return { success: true, message: 'Pitch created successfully' }
+    } else {
+      useErrorStore().setError(
+        ErrorType.NETWORK_ERROR,
+        response.message || 'Failed to create pitch',
+      )
+      return {
+        success: false,
+        message: response.message || 'Failed to create pitch',
       }
-    },
+    }
+  } catch (error) {
+    handleError(error, 'creating pitch')
+    return {
+      success: false,
+      message: 'An error occurred while creating pitch',
+    }
+  }
+},
+
 
     async updatePitch(pitchId: number, updates: Partial<Pitch>) {
       return handleError(async () => {

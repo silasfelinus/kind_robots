@@ -102,8 +102,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { usePitchStore, PitchType } from '~/stores/pitchStore'
-import PitchTypeSelector from './PitchTypeSelector.vue'
-import TitleSelector from './TitleSelector.vue' // Make sure this path is correct
+
 
 // Stores
 const pitchStore = usePitchStore()

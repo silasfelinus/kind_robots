@@ -11,27 +11,27 @@
       Pitches for Type: {{ pitchStore.selectedPitchType || 'All Types' }}
     </h2>
 
-    <!-- Filtered Pitches List -->
-    <ul>
-      <li
+    <!-- Filtered Pitches List using PitchCard components -->
+    <div class="pitches-list grid gap-4 mt-4">
+      <PitchCard
         v-for="pitch in displayedPitches"
         :key="pitch.id"
+        :pitch="pitch"
         :class="{
           newest: pitchStore.newestPitches.includes(pitch),
           selected: pitchStore.selectedPitches.includes(pitch),
         }"
-        @click="toggleSelectedPitch(pitch)"
-      >
-        {{ pitch.pitch }}
-      </li>
-    </ul>
+        @select="toggleSelectedPitch"
+      />
+    </div>
 
     <!-- Request More Examples Button -->
-    <button @click="fetchMoreExamples">Request More Examples</button>
-
-    
+    <button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded" @click="fetchMoreExamples">
+      Request More Examples
+    </button>
   </div>
 </template>
+
 
 
 <script setup lang="ts">

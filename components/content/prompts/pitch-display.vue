@@ -1,7 +1,6 @@
 <template>
   <div>
     <!-- Pitch Type Selector Component -->
-    <PitchTypeSelector />
 
     <!-- Display Title if Selected -->
     <h2 v-if="pitchStore.selectedTitle">

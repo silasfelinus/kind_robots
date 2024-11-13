@@ -1,39 +1,63 @@
 <template>
-  <div class="pitch-type-selector">
-    <label for="pitchType" class="text-lg">Select Pitch Type:</label>
-    <select
-      id="pitchType"
-      v-model="selectedPitchType"
-      class="p-2 border rounded-lg"
-    >
-      <option
-        v-for="(label, type) in pitchTypeOptions"
+  <div class="pitch-selector flex flex-col items-center space-y-4">
+    <!-- PitchTypeSelector Component (as buttons instead of a dropdown) -->
+    <div class="pitch-type-buttons grid grid-cols-3 gap-2">
+      <button
+        v-for="type in pitchStore.pitchTypes"
         :key="type"
-        :value="type"
+        :class="[
+          'py-2 px-4 rounded-lg border',
+          pitchStore.selectedPitchType === type
+            ? 'bg-primary text-white border-primary'
+            : 'bg-base-300 hover:bg-primary hover:text-white border-base-200',
+        ]"
+        @click="updateSelectedPitchType(type)"
       >
-        {{ label }}
-      </option>
-    </select>
+        {{ type }}
+      </button>
+    </div>
+
+    <!-- Display Pitches based on the selected PitchType -->
+    <div v-if="filteredPitches.length" class="pitch-list grid gap-4">
+      <button
+        v-for="pitch in filteredPitches"
+        :key="pitch.id"
+        :class="[
+          'rounded-lg border p-3',
+          pitchStore.selectedPitch && pitchStore.selectedPitch.id === pitch.id
+            ? 'bg-primary text-white'
+            : 'bg-base-300 hover:bg-primary hover:text-white',
+        ]"
+        @click="updateSelectedPitch(pitch.id)"
+      >
+        <h3 class="font-bold">{{ pitch.title || 'Untitled' }}</h3>
+        <p>{{ pitch.pitch }}</p>
+      </button>
+    </div>
+
+    <p v-else class="text-sm text-gray-500">
+      No pitches available for the selected type.
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { PitchType, usePitchStore } from '~/stores/pitchStore'
+import { usePitchStore, PitchType } from './../../../stores/pitchStore'
 
 const pitchStore = usePitchStore()
 
-// Bind selectedPitchType directly to the store's state
-const selectedPitchType = computed({
-  get: () => pitchStore.selectedPitchType,
-  set: (value) => pitchStore.setSelectedPitchType(value),
-})
+// Fetch pitches by selected pitch type
+const filteredPitches = computed(() => pitchStore.getPitchesBySelectedType)
 
-// Generate pitch type options with simplified labels
-const pitchTypeOptions = computed(() =>
-  Object.entries(PitchType).map(([type, label]) => ({
-    type,
-    label, // Directly use label for a clean display
-  })),
-)
+// Update selected pitch type directly with PitchType values
+const updateSelectedPitchType = (type: PitchType) => {
+  pitchStore.setSelectedPitchType(type)
+}
+
+// Handle pitch selection
+const updateSelectedPitch = (pitchId: number) => {
+  if (pitchStore.selectedPitch?.id === pitchId) return
+  pitchStore.setSelectedPitch(pitchId)
+}
 </script>

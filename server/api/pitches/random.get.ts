@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const count = Number(event.context.query?.count) || 5
 
     // Fetch random pitches
-    const pitches = await prisma.pitch.findMany({
+    const data = await prisma.pitch.findMany({
       take: count, // Limit to the count requested
       orderBy: { createdAt: 'desc' }, // Optional: Order by createdAt or any other field
     })
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Random pitches fetched successfully.',
-      data: pitches, // Return pitches in data field
+      data, // Return pitches in data field
       statusCode: 200,
     }
   } catch (error: unknown) {

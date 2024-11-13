@@ -29,19 +29,7 @@
     <!-- Request More Examples Button -->
     <button @click="fetchMoreExamples">Request More Examples</button>
 
-    <!-- Display All Pitches (Unfiltered) at the Bottom -->
-    <div class="mt-8">
-      <h3>All Pitches (Unfiltered)</h3>
-      <ul>
-        <li
-          v-for="pitch in pitchStore.pitches"
-          :key="pitch.id"
-          class="py-2 border-b border-gray-200"
-        >
-          <strong>{{ pitch.title }}</strong>: {{ pitch.pitch }}
-        </li>
-      </ul>
-    </div>
+    
   </div>
 </template>
 

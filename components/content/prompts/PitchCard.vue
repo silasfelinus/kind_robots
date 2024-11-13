@@ -1,5 +1,8 @@
 <template>
-  <div v-if="selectedPitch" class="pitch-card bg-base-300 rounded-2xl p-4 shadow-lg">
+  <div
+    v-if="selectedPitch"
+    class="pitch-card bg-base-300 rounded-2xl p-4 shadow-lg"
+  >
     <!-- Header: Title and Designer -->
     <div class="header flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold">
@@ -38,15 +41,23 @@
 
     <!-- PitchType and Description -->
     <div class="mb-4">
-      <label v-if="isEditing" class="block text-sm font-semibold mb-2">Pitch Type</label>
-      <select v-if="isEditing" v-model="editablePitch.PitchType" class="mb-4 p-2 rounded-md">
+      <label v-if="isEditing" class="block text-sm font-semibold mb-2"
+        >Pitch Type</label
+      >
+      <select
+        v-if="isEditing"
+        v-model="editablePitch.PitchType"
+        class="mb-4 p-2 rounded-md"
+      >
         <option v-for="type in pitchStore.pitchTypes" :key="type" :value="type">
           {{ type }}
         </option>
       </select>
       <p v-else class="text-sm text-gray-500">{{ selectedPitch.PitchType }}</p>
 
-      <label v-if="isEditing" class="block text-sm font-semibold mb-2">Description</label>
+      <label v-if="isEditing" class="block text-sm font-semibold mb-2"
+        >Description</label
+      >
       <textarea
         v-if="isEditing"
         v-model="editablePitch.description"
@@ -57,8 +68,10 @@
     </div>
 
     <!-- Examples (Displayed or Editable as Title Examples) -->
-    <div v-if="editablePitch.PitchType === pitchStore.PitchType.TITLE" class="mb-4">
-      <label v-if="isEditing" class="block text-sm font-semibold mb-2">Title Examples</label>
+    <div v-if="editablePitch.PitchType === PitchType.TITLE" class="mb-4">
+      <label v-if="isEditing" class="block text-sm font-semibold mb-2"
+        >Title Examples</label
+      >
       <textarea
         v-if="isEditing"
         v-model="editablePitch.examples"
@@ -72,7 +85,7 @@
     <pitch-card-actions
       :pitch="selectedPitch"
       :is-editing="isEditing"
-      @toggleEdit="toggleEdit"
+      @toggle-edit="toggleEdit"
       @save="saveChanges"
       @cancel="cancelEdit"
     />
@@ -81,21 +94,28 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePitchStore } from '../../../stores/pitchStore'
+import { usePitchStore, PitchType } from '../../../stores/pitchStore'
+import { useUserStore } from '../../../stores/userStore'
 
 const pitchStore = usePitchStore()
-const selectedPitch = computed(() => pitchStore.selectedPitch)
 const userStore = useUserStore()
+const selectedPitch = computed(() => pitchStore.selectedPitch)
 
 // Check if the user is allowed to edit (matches user ID)
-const isUserAllowedToEdit = computed(() => selectedPitch.value?.userId === userStore.userId)
+const isUserAllowedToEdit = computed(
+  () => selectedPitch.value?.userId === userStore.userId,
+)
 
 // Editing state and editable copy of the pitch
 const isEditing = ref(false)
 const editablePitch = ref({ ...selectedPitch.value })
 
-// Toggle editing mode
+// Toggle editing mode with user check
 const toggleEdit = () => {
+  if (!isUserAllowedToEdit.value) {
+    console.warn('User not authorized to edit this pitch')
+    return
+  }
   isEditing.value = !isEditing.value
   if (isEditing.value) {
     editablePitch.value = { ...selectedPitch.value } // Create a fresh copy for editing
@@ -105,11 +125,15 @@ const toggleEdit = () => {
 // Save changes to the pitch
 const saveChanges = async () => {
   if (!editablePitch.value) return
-  const response = await pitchStore.updatePitch(selectedPitch.value.id, editablePitch.value)
-  if (response.success) {
+  const response = await pitchStore.updatePitch(
+    selectedPitch.value.id,
+    editablePitch.value,
+  )
+  if (response && response.success) {
+    // Ensure response is handled correctly
     isEditing.value = false
   } else {
-    // Handle error (display message or log)
+    console.error('Failed to save changes') // Handle error (display message or log)
   }
 }
 

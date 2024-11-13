@@ -44,7 +44,7 @@ export const useArtStore = defineStore({
   }),
 
   actions: {
- async initialize() {
+    async initialize() {
       if (this.isInitialized) return
       this.loading = true
 
@@ -67,11 +67,16 @@ export const useArtStore = defineStore({
           const storedCollectedArt = localStorage.getItem('collectedArt')
           const storedGeneratedArt = localStorage.getItem('generatedArt')
 
-          if (storedArt) this.art = JSON.parse(storedArt)
-          if (storedCollectedArt)
+          // Verify and parse only if the item exists in localStorage
+          if (storedArt && storedArt !== 'undefined') {
+            this.art = JSON.parse(storedArt)
+          }
+          if (storedCollectedArt && storedCollectedArt !== 'undefined') {
             this.collectedArt = JSON.parse(storedCollectedArt)
-          if (storedGeneratedArt)
+          }
+          if (storedGeneratedArt && storedGeneratedArt !== 'undefined') {
             this.generatedArt = JSON.parse(storedGeneratedArt)
+          }
         }
       } catch (error) {
         handleError(error, 'loading local data')
@@ -90,7 +95,6 @@ export const useArtStore = defineStore({
         handleError(error, 'loading remote data')
       }
     },
-
 
     async fetchCollectedArt(userId: number): Promise<void> {
       try {

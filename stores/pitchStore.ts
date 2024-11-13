@@ -28,6 +28,7 @@ export const usePitchStore = defineStore('pitch', {
     loading: false,
     numberOfRequests: 5,
     temperature: 0.9,
+     penetration: 5,
   }),
 
   getters: {
@@ -94,6 +95,66 @@ export const usePitchStore = defineStore('pitch', {
         this.isInitialized = true
       }
     },
+async fetchCustomBrainstorm(): Promise<void> {
+  const promptStore = usePromptStore()
+
+  if (!this.selectedTitle) {
+    console.warn('No selected title found. Exiting fetchCustomBrainstorm.')
+    return
+  }
+
+  // Step 1: Prepare the selected examples up to the penetration number
+  const examples = this.selectedPitches.length
+    ? this.selectedPitches.map((pitch) => pitch.pitch)
+    : this.selectedTitle.examples?.split('|') || []
+
+  const orderedExamples = examples.slice(0, this.penetration).map((example, index) => ({
+    example,
+    isHighlighted: index + 1 === this.penetration, // Highlight based on penetration order
+  }))
+
+  const examplesText = orderedExamples
+    .map(({ example, isHighlighted }, i) => `Example ${i + 1}: ${isHighlighted ? '**' : ''}${example}${isHighlighted ? '**' : ''}`)
+    .join('\n')
+
+  const compiledContent = `
+    Title: ${this.selectedTitle.title}
+    Description: ${this.selectedTitle.description || ''}
+    Examples:
+    ${examplesText}
+  `
+
+  // Step 2: Define request body for brainstorm API
+  const requestBody = {
+    n: this.numberOfRequests,
+    content: `Generate ideas based on:\n${compiledContent}`,
+    max_tokens: 500,
+    temperature: this.temperature,
+  }
+
+  try {
+    console.log('Sending custom brainstorm request:', requestBody)
+    const response = await performFetch<Pitch[]>('/api/botcafe/custom-brainstorm', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+    })
+
+    if (response.success) {
+      console.log('Custom brainstorm fetch successful. Parsing response...')
+      const newPitches = response.data || []
+      this.addPitches(newPitches)
+      console.log('New pitches added:', newPitches)
+    } else {
+      console.warn('Custom brainstorm fetch failed:', response.message)
+      throw new Error(response.message)
+    }
+  } catch (error) {
+    console.error('Error during fetchCustomBrainstorm:', error)
+    handleError(error, 'fetching custom brainstorm pitches')
+  } finally {
+    console.log('fetchCustomBrainstorm operation completed.')
+  }
+},
 
     async addTitle(newTitleData: {
       title: string

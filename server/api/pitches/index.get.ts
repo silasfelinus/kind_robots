@@ -1,13 +1,18 @@
 // /server/api/pitches/index.get.ts
 import { defineEventHandler } from 'h3'
-import type { Pitch } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async () => {
+  console.log('Starting pitch retrieval...')
+
   try {
+    console.log('Fetching pitches from the database')
+
     // Fetch all pitches from the database
     const data = await prisma.pitch.findMany()
+
+    console.log('Pitches fetched successfully:', data)
 
     return {
       success: true,
@@ -16,8 +21,15 @@ export default defineEventHandler(async () => {
       statusCode: 200,
     }
   } catch (error: unknown) {
-    console.error('Error fetching pitches:', error) // Debugging line
+    console.error('Error occurred while fetching pitches:', error)
+
+    // Use errorHandler to get the structured error response
     const { success, message, statusCode } = errorHandler(error)
+    console.log('Error details after handling:', {
+      success,
+      message,
+      statusCode,
+    })
 
     return {
       success,
@@ -26,14 +38,3 @@ export default defineEventHandler(async () => {
     }
   }
 })
-
-// Function to fetch all Pitches
-export async function fetchAllPitches(): Promise<Pitch[]> {
-  try {
-    const pitches = await prisma.pitch.findMany()
-    return pitches
-  } catch (error: unknown) {
-    console.error('Error in fetchAllPitches:', error) // Debugging line
-    throw error
-  }
-}

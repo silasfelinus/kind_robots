@@ -82,9 +82,11 @@ export const usePitchStore = defineStore('pitch', {
   actions: {
     // Add this to the actions section
     async initializePitches() {
-console.log("initializing")
+      console.log('initializing')
       if (isClient && !this.isInitialized) {
-console.log("running fetch pitches, as we are client and not initialized")
+        console.log(
+          'running fetch pitches, as we are client and not initialized',
+        )
         await this.fetchPitches()
         this.isInitialized = true
       }
@@ -229,22 +231,40 @@ console.log("running fetch pitches, as we are client and not initialized")
     },
 
     async fetchPitches() {
-console.log("nowinsidefetch pitches")
+      console.log('Starting fetchPitches...')
+
       return handleError(async () => {
-        const response = await performFetch<Pitch[]>('/api/pitches')
-console.log(response)
-        if (response.success && response.data) {
-          // Normalize PitchType to ensure compatibility with the enum
-          this.pitches = response.data.map((pitch) => ({
-            ...pitch,
-            PitchType:
-              PitchType[pitch.PitchType as keyof typeof PitchType] ||
-              pitch.PitchType,
-          }))
-          if (isClient)
-            localStorage.setItem('pitches', JSON.stringify(this.pitches))
-        } else {
-          throw new Error(response.message || 'Failed to fetch pitches')
+        try {
+          console.log('Attempting to fetch pitches from /api/pitches')
+          const response = await performFetch<Pitch[]>('/api/pitches')
+
+          // Log the raw response for debugging
+          console.log('Raw fetchPitches response:', response)
+
+          // Check if response exists and has the expected data
+          if (!response) {
+            throw new Error('No response received from fetchPitches request')
+          }
+
+          if (response.success && response.data) {
+            console.log('Pitches fetched successfully:', response.data)
+
+            // Normalize PitchType to ensure compatibility with the enum
+            this.pitches = response.data.map((pitch) => ({
+              ...pitch,
+              PitchType:
+                PitchType[pitch.PitchType as keyof typeof PitchType] ||
+                pitch.PitchType,
+            }))
+            if (isClient) {
+              localStorage.setItem('pitches', JSON.stringify(this.pitches))
+            }
+          } else {
+            throw new Error(response.message || 'Failed to fetch pitches')
+          }
+        } catch (error) {
+          console.error('Error in fetchPitches:', error)
+          throw error // Re-throw to allow handleError to capture it
         }
       }, 'fetching pitches')
     },

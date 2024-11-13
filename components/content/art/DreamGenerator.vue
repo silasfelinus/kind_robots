@@ -43,7 +43,7 @@
     </div>
 
     <!-- Milestone Reward -->
-    <award-milestone v-if="shouldShowMilestoneCheck" :id="11" />
+    <award-milestone v-if="shouldShowMilestoneCheck" :id="15" />
 
     <!-- Display Created Art -->
     <div v-for="art in createdArts" :key="art.id" class="mt-4">

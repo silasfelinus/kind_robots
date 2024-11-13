@@ -77,6 +77,14 @@ export const usePitchStore = defineStore('pitch', {
   },
 
   actions: {
+  // Add this to the actions section
+async initializePitches() {
+  if (isClient && !this.isInitialized) {
+    await this.fetchPitches()
+    this.isInitialized = true
+  }
+},
+
     async addTitle(newTitleData: {
       title: string
       PitchType: PitchType

@@ -174,44 +174,58 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    async fetchBrainstormPitches(): Promise<void> {
-      const promptStore = usePromptStore()
-      const exampleContent =
-        promptStore.currentPrompt || 'slogans for our anti-malaria fundraiser'
-      const examples = this.selectedPitches.map((pitch) => ({
-        input: `Topic: ${pitch.title || 'Creative Idea'}`,
-        output: `Idea: ${pitch.description || 'Sample description for the topic.'}`,
-      }))
+ async fetchBrainstormPitches(): Promise<void> {
+  const promptStore = usePromptStore()
 
-      try {
-        console.log('Starting fetchBrainstormPitches...')
-        const response = await performFetch<Pitch[]>(
-          '/api/botcafe/brainstorm',
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              n: 5,
-              content: `Please send an idea for a creative brainstorm for this topic: ${exampleContent}`,
-              max_tokens: 500,
-              examples,
-            }),
-          },
-        )
+  // Compile the content request
+  let compiledContent = ''
+  if (this.selectedTitle) {
+    console.log('Selected title found:', this.selectedTitle.title)
+    compiledContent += `Title: ${this.selectedTitle.title}\n`
+    compiledContent += `Description: ${this.selectedTitle.description || ''}\n`
+    
+    // Use examples from selected pitches or fallback to title examples
+    const examples = this.selectedPitches.length
+      ? this.selectedPitches.map((pitch) => pitch.pitch)
+      : this.selectedTitle.examples?.split('|') || []
 
-        if (response.success) {
-          this.newestPitches = response.data || []
-          this.addPitches(response.data || [])
-        } else {
-          console.warn('Failed to fetch brainstorm pitches:', response.message)
-          throw new Error(response.message)
-        }
-      } catch (error) {
-        console.error('Error in fetchBrainstormPitches:', error)
-        handleError(error, 'fetching brainstorm pitches')
-      } finally {
-        console.log('fetchBrainstormPitches completed.')
-      }
-    },
+    compiledContent += `Examples:\n${examples.map((example, i) => `Example ${i + 1}: ${example}`).join('\n')}`
+  } else {
+    console.warn('No selected title found.')
+    return
+  }
+
+  // Define brainstorm request data
+  const requestBody = {
+    n: 5, // Number of brainstorm results requested
+    content: `Please generate brainstorm ideas for:\n${compiledContent}`,
+    max_tokens: 500,
+  }
+
+  try {
+    console.log('Sending brainstorm request with compiled content:', requestBody)
+    const response = await performFetch<Pitch[]>('/api/botcafe/brainstorm', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+    })
+
+    if (response.success) {
+      console.log('Brainstorm fetch successful. Parsing response...')
+      const newPitches = response.data || []
+      this.addPitches(newPitches)
+      console.log('New pitches added:', newPitches)
+    } else {
+      console.warn('Brainstorm fetch failed:', response.message)
+      throw new Error(response.message)
+    }
+  } catch (error) {
+    console.error('Error during fetchBrainstormPitches:', error)
+    handleError(error, 'fetching brainstorm pitches')
+  } finally {
+    console.log('fetchBrainstormPitches operation completed.')
+  }
+},
+
 
     addPitches(newPitches: Pitch[]) {
       const pitchesToAdd = newPitches.filter(

@@ -29,11 +29,11 @@ const selectedPitchType = computed({
   set: (value) => pitchStore.setSelectedPitchType(value),
 })
 
-// Generate pitch type options with labels
+// Generate pitch type options with simplified labels
 const pitchTypeOptions = computed(() =>
   Object.entries(PitchType).map(([type, label]) => ({
     type,
-    label: label.replace(/_/g, ' '), // Replace underscores for readability
+    label, // Directly use label for a clean display
   })),
 )
 </script>

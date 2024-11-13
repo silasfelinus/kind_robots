@@ -13,7 +13,7 @@
       <input
         v-model="currentExamples[index]"
         type="text"
-        class="w-full p-3 text-base lg:text-lg rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-primary"
+        class="w-full p-3 lg:text-lg rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-primary"
         placeholder="Enter example"
         @input="updateExampleString"
       />

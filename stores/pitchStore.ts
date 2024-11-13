@@ -229,6 +229,7 @@ export const usePitchStore = defineStore('pitch', {
     async fetchPitches() {
       return handleError(async () => {
         const response = await performFetch<Pitch[]>('/api/pitches')
+console.log(response)
         if (response.success && response.data) {
           // Normalize PitchType to ensure compatibility with the enum
           this.pitches = response.data.map((pitch) => ({

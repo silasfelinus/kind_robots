@@ -37,7 +37,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePitchStore, type Pitch } from '~/stores/pitchStore'
-import PitchTypeSelector from './PitchTypeSelector.vue' // Ensure correct path
 
 const pitchStore = usePitchStore()
 

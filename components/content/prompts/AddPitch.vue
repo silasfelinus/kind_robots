@@ -19,31 +19,10 @@
             {{ isEditing ? 'Edit Pitch' : 'Create Pitch' }}
           </h2>
 
-          <!-- Pitch Type Select -->
-          <div class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="pitchType"
-            >
-              Pitch Type
-            </label>
-            <select
-              id="pitchType"
-              v-model="formState.PitchType"
-              class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              @change="handlePitchTypeChange"
-            >
-              <option
-                v-for="(label, type) in pitchTypeOptions"
-                :key="type"
-                :value="type"
-              >
-                {{ label }}
-              </option>
-            </select>
-          </div>
+          <!-- Pitch Type Selector Component -->
+          <pitch-type-selector />
 
-          <!-- Title Input -->
+          <!-- Title Input or Dropdown -->
           <div v-if="!isTitleType || !titleDropdownVisible" class="mb-4">
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
@@ -61,7 +40,6 @@
             />
           </div>
 
-          <!-- Title Dropdown (For Brainstorm Type) -->
           <div v-if="titleDropdownVisible" class="mb-4">
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
@@ -84,19 +62,19 @@
             </select>
           </div>
 
-          <!-- Pitch Description (Hidden for Title Type) -->
+          <!-- Pitch Prompt (Hidden for Title Type) -->
           <div v-if="!isTitleType" class="mb-4">
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
-              for="pitch"
+              for="prompt"
             >
-              Pitch Description
+              Prompt
             </label>
             <textarea
-              id="pitch"
+              id="prompt"
               v-model="formState.pitch"
               class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Describe your pitch"
+              placeholder="Describe your prompt"
               rows="3"
               required
             ></textarea>
@@ -153,7 +131,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { type Pitch, usePitchStore, PitchType } from '~/stores/pitchStore'
+import { usePitchStore, PitchType } from '~/stores/pitchStore'
+import PitchTypeSelector from './PitchTypeSelector.vue'
 
 // Stores
 const pitchStore = usePitchStore()
@@ -166,30 +145,23 @@ const errorMessage = ref('')
 const titleDropdownVisible = ref(false)
 
 // Form state with default values
-const formState = ref<Partial<Pitch>>({
+const formState = ref({
   id: undefined,
   title: '',
   pitch: '',
-  PitchType: PitchType.ARTPITCH,
   isPublic: true,
 })
 
 // Computed values
-const pitchTypeOptions = computed(() =>
-  Object.entries(PitchType).map(([key, value]) => ({
-    type: value,
-    label: key.replace(/([A-Z])/g, ' $1').trim(), // Improve label readability
-  })),
-)
 const availableTitles = computed(() =>
   pitchStore.pitches
     .filter((p) => p.PitchType === PitchType.TITLE)
     .map((p) => p.title),
 )
 
-// Type-based computed values
+// Computed based on selected type
 const isTitleType = computed(
-  () => formState.value.PitchType === PitchType.TITLE,
+  () => pitchStore.selectedPitchType === PitchType.TITLE,
 )
 
 // Form toggle and reset
@@ -205,18 +177,7 @@ const resetForm = () => {
     id: undefined,
     title: '',
     pitch: '',
-    PitchType: PitchType.ARTPITCH,
     isPublic: true,
-  }
-}
-
-// Pitch Type change handling
-const handlePitchTypeChange = () => {
-  titleDropdownVisible.value =
-    formState.value.PitchType === PitchType.BRAINSTORM
-
-  if (isTitleType.value) {
-    formState.value.pitch = formState.value.title || '' // Default to an empty string if title is null
   }
 }
 
@@ -250,6 +211,4 @@ const cancelEdit = () => {
   resetForm()
   showForm.value = false
 }
-
-// Edit and delete functions remain the same
 </script>

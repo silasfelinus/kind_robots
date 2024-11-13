@@ -62,7 +62,7 @@ export const useArtStore = defineStore({
         }
 
         const userStore = useUserStore()
-        const userId = userStore.user?.id || 10
+        const userId = userStore.userId || 10
         await this.fetchCollectedArt(userId)
         this.fetchAllArt()
         this.isInitialized = true

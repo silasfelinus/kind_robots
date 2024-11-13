@@ -176,13 +176,16 @@ const resetForm = () => {
   }
 }
 
-// Submit handling
 const handleFormSubmit = async () => {
   isSubmitting.value = true
   errorMessage.value = ''
-  console.log(formState.value.examples)
 
   try {
+    // Duplicate title to pitch if it is a title-only pitch
+    if (isTitleType.value) {
+      formState.value.pitch = formState.value.title
+    }
+
     // Prepare the payload for creating/updating pitch
     const payload = {
       ...formState.value,
@@ -208,6 +211,7 @@ const handleFormSubmit = async () => {
     isSubmitting.value = false
   }
 }
+
 
 const cancelEdit = () => {
   resetForm()

@@ -269,10 +269,13 @@ export const usePitchStore = defineStore('pitch', {
         console.log('fetchPitches completed.')
       }
     },
-
-    async fetchPitchById(pitchId: number) {
-      return handleError(async () => {
+    async fetchPitchById(
+      pitchId: number,
+    ): Promise<{ success: boolean; data?: Pitch; message?: string }> {
+      try {
+        console.log(`Starting fetchPitchById for pitchId: ${pitchId}`)
         const response = await performFetch<Pitch>(`/api/pitches/${pitchId}`)
+
         if (response.success && response.data) {
           // Avoid duplicates by checking if the pitch already exists
           const existingPitch = this.pitches.find(
@@ -281,11 +284,25 @@ export const usePitchStore = defineStore('pitch', {
           if (!existingPitch) {
             this.pitches.push(response.data)
           }
-          return response.data
+
+          console.log(`Pitch fetched successfully: pitchId ${pitchId}`)
+          return { success: true, data: response.data }
+        } else {
+          console.warn(`Failed to fetch pitch by ID: ${response.message}`)
+          throw new Error(response.message || 'Pitch not found')
         }
-        throw new Error(response.message || 'Pitch not found')
-      }, `fetching pitch by ID: ${pitchId}`)
+      } catch (error) {
+        console.error(`Error in fetchPitchById for pitchId ${pitchId}:`, error)
+        handleError(error, 'fetching pitch by ID')
+        return {
+          success: false,
+          message: `Failed to fetch pitch: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        }
+      } finally {
+        console.log(`fetchPitchById completed for pitchId: ${pitchId}`)
+      }
     },
+
     async createPitch({
       title = 'Untitled Pitch',
       pitch = 'This is a sample pitch text',
@@ -383,33 +400,60 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    async deletePitch(pitchId: number) {
-      return handleError(async () => {
+    async deletePitch(
+      pitchId: number,
+    ): Promise<{ success: boolean; message: string }> {
+      try {
+        console.log(`Starting deletePitch for pitchId: ${pitchId}`)
         const response = await performFetch(`/api/pitches/${pitchId}`, {
           method: 'DELETE',
         })
+
         if (response.success) {
+          // Update the pitches array to exclude the deleted pitch
           this.pitches = this.pitches.filter((pitch) => pitch.id !== pitchId)
+
           if (isClient) {
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
           }
+
+          console.log(`Pitch deleted successfully: pitchId ${pitchId}`)
           return { success: true, message: 'Pitch deleted successfully' }
+        } else {
+          console.warn(`Failed to delete pitch: ${response.message}`)
+          throw new Error(response.message || 'Pitch delete failed')
         }
-        throw new Error(response.message || 'Pitch delete failed')
-      }, `deleting pitch ID: ${pitchId}`)
+      } catch (error) {
+        console.error(`Error in deletePitch for pitchId ${pitchId}:`, error)
+        handleError(error, 'deleting pitch')
+        return {
+          success: false,
+          message: `Failed to delete pitch: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        }
+      } finally {
+        console.log(`deletePitch completed for pitchId: ${pitchId}`)
+      }
     },
 
-    async fetchArtForPitch(pitchId: number) {
-      return handleError(async () => {
+    async fetchArtForPitch(pitchId: number): Promise<void> {
+      try {
+        console.log(`Starting fetchArtForPitch for pitchId: ${pitchId}`)
         const response = await performFetch<Art[]>(
           `/api/pitches/art/${pitchId}`,
         )
-        if (response.success && response.data) {
-          this.galleryArt = response.data
+
+        if (response.success) {
+          this.galleryArt = response.data || [] // Fallback to an empty array if response.data is undefined
         } else {
-          throw new Error(response.message || 'Failed to fetch art for pitch')
+          console.warn('Failed to fetch art for pitch:', response.message)
+          throw new Error(response.message)
         }
-      }, 'fetching art for pitch')
+      } catch (error) {
+        console.error('Error in fetchArtForPitch:', error)
+        handleError(error, 'fetching art for pitch')
+      } finally {
+        console.log(`fetchArtForPitch completed for pitchId: ${pitchId}`)
+      }
     },
 
     // New utility function for clearing local storage when data changes

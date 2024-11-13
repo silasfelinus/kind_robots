@@ -26,9 +26,7 @@
       </p>
       <p v-else>{{ pitch.pitch }}</p>
 
-      <label v-if="isEditing" class="block text-sm font-semibold mb-2"
-        >Description</label
-      >
+      <label v-if="isEditing" class="block text-sm font-semibold mb-2">Description</label>
       <textarea
         v-if="isEditing"
         v-model="editablePitch.description"
@@ -38,8 +36,18 @@
       <p v-else>{{ pitch.description }}</p>
     </div>
 
-    <!-- Title Examples Component -->
-    <title-examples v-if="isEditing" />
+    <!-- Display Examples (Read-only) or Edit Examples -->
+    <div class="mb-4">
+      <label class="block text-sm font-semibold mb-2">Examples</label>
+      <div v-if="isEditing">
+        <title-examples />
+      </div>
+      <ul v-else class="space-y-1">
+        <li v-for="(example, index) in displayExamples" :key="index" class="text-sm text-gray-600">
+          {{ example }}
+        </li>
+      </ul>
+    </div>
 
     <!-- Actions -->
     <pitch-card-actions
@@ -89,6 +97,11 @@ const isUserAllowedToEdit = computed(
 const isEditing = ref(false)
 const editablePitch = ref({ ...props.pitch })
 const isChanged = ref(false)
+
+// Computed property to split examples for display in read-only mode
+const displayExamples = computed(() =>
+  props.pitch.examples ? props.pitch.examples.split('|') : [],
+)
 
 // Save changes to the pitch
 const saveChanges = async () => {

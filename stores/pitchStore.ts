@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
 import { usePromptStore } from './promptStore'
 import { performFetch, handleError } from './utils'
-import { type Pitch, type Art, PitchType } from '@prisma/client'
+import { type Pitch, type Art, PitchType } from '@prisma/client' // Import as type
 
 const isClient = typeof window !== 'undefined'
 
@@ -18,19 +18,19 @@ export const usePitchStore = defineStore('pitch', {
   }),
 
   getters: {
-    pitchTypes: () => Object.values(PitchType),
+    pitchTypes: () => Object.values(PitchType), // Enum values as an array
     selectedPitch: (state) => state.selectedPitches[0] || null,
     selectedPitchId: (state) => state.selectedPitches[0]?.id || null,
     getPitchesByType: (state) => (pitchType: PitchType) =>
-      state.pitches.filter((pitch) => PitchType[pitch.PitchType] === pitchType),
+      state.pitches.filter((pitch) => pitch.PitchType === pitchType),
     getPitchesBySelectedType: (state) =>
       state.selectedPitchType
         ? state.pitches.filter(
-            (pitch) => PitchType[pitch.PitchType] === state.selectedPitchType,
+            (pitch) => pitch.PitchType === state.selectedPitchType,
           )
         : [],
     brainstormPitches: (state) =>
-      state.pitches.filter((pitch) => pitch.PitchType === 'BRAINSTORM'),
+      state.pitches.filter((pitch) => pitch.PitchType === PitchType.BRAINSTORM),
     titles: (state) =>
       state.pitches.filter((pitch) => pitch.PitchType === PitchType.TITLE),
 
@@ -184,7 +184,7 @@ export const usePitchStore = defineStore('pitch', {
       this.pitches.push(...pitchesToAdd)
 
       const brainstormPitches = this.pitches
-        .filter((pitch) => pitch.PitchType === 'BRAINSTORM')
+        .filter((pitch) => pitch.PitchType === PitchType.BRAINSTORM)
         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
 
       // Do not auto-select new pitches; update selectedPitches only with the latest brainstorm pitches
@@ -216,9 +216,11 @@ export const usePitchStore = defineStore('pitch', {
       return handleError(async () => {
         const response = await performFetch<Pitch>(`/api/pitches/${pitchId}`)
         if (response.success && response.data) {
-          this.pitches.push(response.data)
-          if (isClient)
-            localStorage.setItem('pitches', JSON.stringify(this.pitches))
+          // Avoid duplicates by checking if the pitch already exists
+          const existingPitch = this.pitches.find((pitch) => pitch.id === pitchId)
+          if (!existingPitch) {
+            this.pitches.push(response.data)
+          }
           return response.data
         }
         throw new Error(response.message || 'Pitch not found')
@@ -234,6 +236,7 @@ export const usePitchStore = defineStore('pitch', {
           body: JSON.stringify(newPitch),
         })
         if (response.success && response.data) {
+          // Add the new pitch to the list and save locally
           this.pitches.push(response.data)
           if (isClient) {
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
@@ -244,7 +247,7 @@ export const usePitchStore = defineStore('pitch', {
         }
       } catch (err) {
         handleError(err, 'creating pitch')
-        return { success: false, message: 'Pitch creation failed' } // Provide failure response
+        return { success: false, message: 'Pitch creation failed' }
       }
     },
 
@@ -257,12 +260,7 @@ export const usePitchStore = defineStore('pitch', {
 
         const index = this.pitches.findIndex((pitch) => pitch.id === pitchId)
 
-        if (
-          response.success &&
-          typeof response.data === 'object' &&
-          index !== -1 &&
-          typeof this.pitches[index] === 'object'
-        ) {
+        if (response.success && response.data && index !== -1) {
           this.pitches[index] = {
             ...this.pitches[index],
             ...response.data,
@@ -286,8 +284,9 @@ export const usePitchStore = defineStore('pitch', {
         })
         if (response.success) {
           this.pitches = this.pitches.filter((pitch) => pitch.id !== pitchId)
-          if (isClient)
+          if (isClient) {
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
+          }
           return { success: true, message: 'Pitch deleted successfully' }
         }
         throw new Error(response.message || 'Pitch delete failed')
@@ -296,15 +295,23 @@ export const usePitchStore = defineStore('pitch', {
 
     async fetchArtForPitch(pitchId: number) {
       return handleError(async () => {
-        const response = await performFetch<Art[]>(
-          `/api/pitches/art/${pitchId}`,
-        )
+        const response = await performFetch<Art[]>(`/api/pitches/art/${pitchId}`)
         if (response.success && response.data) {
           this.galleryArt = response.data
         } else {
           throw new Error(response.message || 'Failed to fetch art for pitch')
         }
       }, 'fetching art for pitch')
+    },
+
+    // New utility function for clearing local storage when data changes
+    clearLocalStorage() {
+      if (isClient) {
+        localStorage.removeItem('pitches')
+        localStorage.removeItem('selectedPitches')
+        localStorage.setItem('pitches', JSON.stringify(this.pitches))
+        localStorage.setItem('selectedPitches', JSON.stringify(this.selectedPitches))
+      }
     },
   },
 })

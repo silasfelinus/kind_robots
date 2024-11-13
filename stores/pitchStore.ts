@@ -76,8 +76,20 @@ export const usePitchStore = defineStore('pitch', {
   },
 
   actions: {
-    async addTitle(newTitleData: { title: string; PitchType: PitchType }) {
+    async addTitle(newTitleData: {
+      title: string
+      PitchType: PitchType
+      pitch?: string
+    }) {
       try {
+        // Set `pitch` to match `title` for TITLE-type pitches
+        if (newTitleData.PitchType === PitchType.TITLE) {
+          newTitleData = {
+            ...newTitleData,
+            pitch: newTitleData.title, // Ensure `pitch` holds the same value as `title`
+          }
+        }
+
         const response = await performFetch<Pitch>('/api/pitches', {
           method: 'POST',
           body: JSON.stringify(newTitleData),
@@ -97,13 +109,6 @@ export const usePitchStore = defineStore('pitch', {
         return { success: false, message: 'Failed to create title' }
       }
     },
-    async initializePitches() {
-      if (isClient && !this.isInitialized) {
-        await this.fetchPitches()
-        this.isInitialized = true
-      }
-    },
-
     setSelectedPitch(pitchId: number) {
       const pitch = this.pitches.find((p) => p.id === pitchId)
       if (pitch) this.selectedPitches = [pitch]
@@ -238,17 +243,21 @@ export const usePitchStore = defineStore('pitch', {
         throw new Error(response.message || 'Pitch not found')
       }, `fetching pitch by ID: ${pitchId}`)
     },
-
     async createPitch(
       newPitch: Partial<Pitch>,
     ): Promise<{ success: boolean; message: string }> {
       try {
+        // Set `pitch` to match `title` if the PitchType is TITLE
+        if (newPitch.PitchType === PitchType.TITLE && newPitch.title) {
+          newPitch.pitch = newPitch.title
+        }
+
         const response = await performFetch<Pitch>('/api/pitches', {
           method: 'POST',
           body: JSON.stringify(newPitch),
         })
+
         if (response.success && response.data) {
-          // Add the new pitch to the list and save locally
           this.pitches.push(response.data)
           if (isClient) {
             localStorage.setItem('pitches', JSON.stringify(this.pitches))

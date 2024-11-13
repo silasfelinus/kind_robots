@@ -36,31 +36,8 @@
       <p v-else>{{ pitch.description }}</p>
     </div>
 
-    <!-- Editable Examples List with Penetration Highlighting and Reordering -->
-    <div class="mb-4">
-      <label class="block text-sm font-semibold mb-2">Examples (Up to {{ pitchStore.penetration }}):</label>
-      <ul class="space-y-2">
-        <li
-          v-for="(example, index) in editableExamples"
-          :key="index"
-          :class="{'highlighted': index + 1 === pitchStore.penetration}"
-          class="flex items-center space-x-2"
-        >
-          <input
-            v-if="isEditing"
-            v-model="editableExamples[index]"
-            class="w-full bg-transparent border p-2 rounded-md"
-            placeholder="Edit Example"
-            @input="markAsChanged"
-          />
-          <p v-else>{{ example }}</p>
-          <button v-if="isEditing" @click="removeExample(index)" class="text-red-500">✕</button>
-          <button v-if="isEditing" @click="moveExample(index, -1)" class="text-gray-500" :disabled="index === 0">⬆️</button>
-          <button v-if="isEditing" @click="moveExample(index, 1)" class="text-gray-500" :disabled="index === editableExamples.length - 1">⬇️</button>
-        </li>
-      </ul>
-      <button v-if="isEditing" @click="addExample" class="mt-2 text-blue-500">+ Add Example</button>
-    </div>
+    <!-- Title Examples Component -->
+    <title-examples v-if="isEditing" />
 
     <!-- Actions -->
     <pitch-card-actions
@@ -86,7 +63,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { usePitchStore, PitchType } from '~/stores/pitchStore'
+import { usePitchStore } from '~/stores/pitchStore'
 import { useUserStore } from '~/stores/userStore'
 import type { Pitch } from '~/stores/pitchStore'
 
@@ -100,9 +77,6 @@ const emit = defineEmits(['toggle-edit', 'save', 'cancel', 'delete'])
 const pitchStore = usePitchStore()
 const userStore = useUserStore()
 
-// Check if the user has the CHILD role
-const isChildRole = computed(() => userStore.userRole === 'CHILD')
-
 // Check if the user is allowed to edit or delete (matches user ID or has ADMIN role)
 const isUserAllowedToEdit = computed(() =>
   props.pitch.userId === userStore.userId || userStore.userRole === 'ADMIN'
@@ -111,9 +85,6 @@ const isUserAllowedToEdit = computed(() =>
 // Editing state and editable copy of the pitch
 const isEditing = ref(false)
 const editablePitch = ref({ ...props.pitch })
-
-// Editable list of examples and change detection
-const editableExamples = ref<string[]>(props.pitch.examples ? props.pitch.examples.split('|') : [])
 const isChanged = ref(false)
 
 // Watch for changes in examples to mark `isChanged` as true
@@ -121,35 +92,10 @@ const markAsChanged = () => {
   isChanged.value = true
 }
 
-// Add a new example
-const addExample = () => {
-  editableExamples.value.push('')
-  isChanged.value = true
-}
-
-// Remove an example at a specific index
-const removeExample = (index: number) => {
-  editableExamples.value.splice(index, 1)
-  isChanged.value = true
-}
-
-// Move an example up or down within the list
-const moveExample = (index: number, direction: number) => {
-  const newIndex = index + direction
-  if (newIndex >= 0 && newIndex < editableExamples.value.length) {
-    const temp = editableExamples.value[index]
-    editableExamples.value[index] = editableExamples.value[newIndex]
-    editableExamples.value[newIndex] = temp
-    isChanged.value = true
-  }
-}
-
-// Save changes to the pitch, including updated examples
+// Save changes to the pitch
 const saveChanges = async () => {
   if (!editablePitch.value) return
 
-  // Join examples back into a single string with '|' separator
-  editablePitch.value.examples = editableExamples.value.join('|')
   const response = await pitchStore.updatePitch(props.pitch.id, editablePitch.value)
   if (response && response.success) {
     emit('save') // Emit the save event
@@ -169,7 +115,6 @@ const toggleEdit = () => {
   isEditing.value = !isEditing.value
   if (isEditing.value) {
     editablePitch.value = { ...props.pitch } // Create a fresh copy for editing
-    editableExamples.value = props.pitch.examples ? props.pitch.examples.split('|') : []
   }
 }
 
@@ -178,7 +123,6 @@ const cancelEdit = () => {
   isEditing.value = false
   isChanged.value = false
   editablePitch.value = { ...props.pitch } // Reset changes
-  editableExamples.value = props.pitch.examples ? props.pitch.examples.split('|') : []
   emit('cancel') // Emit the cancel event
 }
 

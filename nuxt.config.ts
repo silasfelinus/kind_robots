@@ -64,7 +64,7 @@ icon: {
 
   // Control over Nuxt devtools
   devtools: {
-    enabled: true, // Disable devtools in production
+    enabled: false, // Disable devtools in production
   },
 
   // Adding the build hook to run the script

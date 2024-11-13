@@ -1,6 +1,7 @@
 <template>
   <div>
     <brainstorm-image />
+<brainstorm-selector />
     <TitleMenu />
     <TitleMaker />
     <PitchDisplay />

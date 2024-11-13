@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { usePitchStore } from '~/stores/pitchStore'
+import { usePitchStore, PitchType } from '~/stores/pitchStore'
 
 const pitchStore = usePitchStore()
 
@@ -19,7 +19,7 @@ const errorMessage = ref('')
 async function createTitle() {
   const { success, message } = await pitchStore.addTitle({
     title: newTitle.value,
-    PitchType: 'TITLE',
+    PitchType: PitchType.TITLE,
   })
   if (!success) {
     errorMessage.value = message

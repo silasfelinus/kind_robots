@@ -20,14 +20,11 @@
           </h2>
 
           <!-- Pitch Type Selector Component -->
-          <pitch-type-selector />
+          <PitchTypeSelector />
 
-          <!-- Title Input or Dropdown -->
-          <div v-if="!isTitleType || !titleDropdownVisible" class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="title"
-            >
+          <!-- Title or TitleSelector based on PitchType -->
+          <div v-if="isTitleType" class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
               Title
             </label>
             <input
@@ -39,36 +36,14 @@
               required
             />
           </div>
-
-          <div v-if="titleDropdownVisible" class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="titleSelect"
-            >
-              Select Existing Title
-            </label>
-            <select
-              id="titleSelect"
-              v-model="formState.title"
-              class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            >
-              <option
-                v-for="title in availableTitles"
-                :key="title || 'default-key'"
-                :value="title"
-              >
-                {{ title }}
-              </option>
-            </select>
+          <div v-else class="mb-4">
+            <TitleSelector v-model:title="formState.title" />
           </div>
 
-          <!-- Pitch Prompt (Hidden for Title Type) -->
+          <!-- Prompt or Description (hidden for TITLE type) -->
           <div v-if="!isTitleType" class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="prompt"
-            >
-              Prompt
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="prompt">
+              Description
             </label>
             <textarea
               id="prompt"
@@ -82,12 +57,7 @@
 
           <!-- Public Toggle -->
           <div class="mb-4 flex items-center">
-            <input
-              id="isPublic"
-              v-model="formState.isPublic"
-              type="checkbox"
-              class="mr-2"
-            />
+            <input id="isPublic" v-model="formState.isPublic" type="checkbox" class="mr-2" />
             <label for="isPublic" class="text-sm">Make Pitch Public</label>
           </div>
 
@@ -133,6 +103,7 @@
 import { ref, computed } from 'vue'
 import { usePitchStore, PitchType } from '~/stores/pitchStore'
 import PitchTypeSelector from './PitchTypeSelector.vue'
+import TitleSelector from './TitleSelector.vue' // Make sure this path is correct
 
 // Stores
 const pitchStore = usePitchStore()
@@ -142,7 +113,6 @@ const showForm = ref(false)
 const isEditing = ref(false)
 const isSubmitting = ref(false)
 const errorMessage = ref('')
-const titleDropdownVisible = ref(false)
 
 // Form state with default values
 const formState = ref({
@@ -151,13 +121,6 @@ const formState = ref({
   pitch: '',
   isPublic: true,
 })
-
-// Computed values
-const availableTitles = computed(() =>
-  pitchStore.pitches
-    .filter((p) => p.PitchType === PitchType.TITLE)
-    .map((p) => p.title),
-)
 
 // Computed based on selected type
 const isTitleType = computed(
@@ -172,7 +135,6 @@ const toggleForm = () => {
 
 const resetForm = () => {
   isEditing.value = false
-  titleDropdownVisible.value = false
   formState.value = {
     id: undefined,
     title: '',

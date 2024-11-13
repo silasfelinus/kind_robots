@@ -226,6 +226,7 @@ export const usePitchStore = defineStore('pitch', {
         const response = await performFetch<Pitch[]>('/api/pitches')
         if (response.success && response.data) {
           this.pitches = response.data
+          console.log('fetched pitches: ', this.pitches)
           if (isClient)
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
         } else {

@@ -15,7 +15,7 @@
       <p class="text-sm text-gray-500">{{ pitch.designer }}</p>
     </div>
 
-    <!-- Pitch and Flavor Text -->
+    <!-- Pitch and Description -->
     <div class="mb-4">
       <p v-if="isEditing">
         <textarea
@@ -25,26 +25,6 @@
         ></textarea>
       </p>
       <p v-else>{{ pitch.pitch }}</p>
-
-      <p v-if="isEditing">
-        <textarea
-          v-model="editablePitch.flavorText"
-          class="w-full bg-transparent border p-2 rounded-md"
-          placeholder="Edit Flavor Text"
-        ></textarea>
-      </p>
-      <p v-else>{{ pitch.flavorText }}</p>
-    </div>
-
-    <!-- PitchType and Description -->
-    <div class="mb-4">
-      <label v-if="isEditing" class="block text-sm font-semibold mb-2">Pitch Type</label>
-      <select v-if="isEditing" v-model="editablePitch.PitchType" class="mb-4 p-2 rounded-md">
-        <option v-for="type in pitchStore.pitchTypes" :key="type" :value="type">
-          {{ type }}
-        </option>
-      </select>
-      <p v-else class="text-sm text-gray-500">{{ pitch.PitchType }}</p>
 
       <label v-if="isEditing" class="block text-sm font-semibold mb-2">Description</label>
       <textarea
@@ -56,20 +36,23 @@
       <p v-else>{{ pitch.description }}</p>
     </div>
 
-    <!-- Examples Displayed as Separate Lines -->
-    <div v-if="editablePitch.PitchType === PitchType.TITLE" class="mb-4">
+    <!-- Editable Examples List -->
+    <div class="mb-4">
       <label class="block text-sm font-semibold mb-2">Examples:</label>
-      <ul v-if="!isEditing" class="list-disc pl-5 space-y-1">
-        <li v-for="(example, index) in formattedExamples" :key="index">
-          {{ example }}
+      <ul class="space-y-2">
+        <li v-for="(example, index) in editableExamples" :key="index" class="flex items-center space-x-2">
+          <input
+            v-if="isEditing"
+            v-model="editableExamples[index]"
+            class="w-full bg-transparent border p-2 rounded-md"
+            placeholder="Edit Example"
+            @input="markAsChanged"
+          />
+          <p v-else>{{ example }}</p>
+          <button v-if="isEditing" @click="removeExample(index)" class="text-red-500">✕</button>
         </li>
       </ul>
-      <textarea
-        v-if="isEditing"
-        v-model="editablePitch.examples"
-        class="w-full bg-transparent border p-2 rounded-md"
-        placeholder="Edit Examples (separate by '|')"
-      ></textarea>
+      <button v-if="isEditing" @click="addExample" class="mt-2 text-blue-500">+ Add Example</button>
     </div>
 
     <!-- Actions -->
@@ -82,11 +65,20 @@
       @cancel="cancelEdit"
       @delete="deletePitch"
     />
+    
+    <!-- Save Button (Visible when changes are detected) -->
+    <button
+      v-if="isChanged"
+      @click="saveChanges"
+      class="fixed bottom-4 right-4 bg-green-500 text-white p-3 rounded-full shadow-lg"
+    >
+      <Icon name="mdi:content-save" class="w-6 h-6" />
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { usePitchStore, PitchType } from '~/stores/pitchStore'
 import { useUserStore } from '~/stores/userStore'
 import type { Pitch } from '~/stores/pitchStore'
@@ -113,10 +105,42 @@ const isUserAllowedToEdit = computed(() =>
 const isEditing = ref(false)
 const editablePitch = ref({ ...props.pitch })
 
-// Computed property to format examples
-const formattedExamples = computed(() =>
-  props.pitch.examples ? props.pitch.examples.split('|') : []
-)
+// Editable list of examples and change detection
+const editableExamples = ref<string[]>(props.pitch.examples ? props.pitch.examples.split('|') : [])
+const isChanged = ref(false)
+
+// Watch for changes in examples to mark `isChanged` as true
+const markAsChanged = () => {
+  isChanged.value = true
+}
+
+// Add a new example
+const addExample = () => {
+  editableExamples.value.push('')
+  isChanged.value = true
+}
+
+// Remove an example at a specific index
+const removeExample = (index: number) => {
+  editableExamples.value.splice(index, 1)
+  isChanged.value = true
+}
+
+// Save changes to the pitch, including updated examples
+const saveChanges = async () => {
+  if (!editablePitch.value) return
+
+  // Join examples back into a single string with '|' separator
+  editablePitch.value.examples = editableExamples.value.join('|')
+  const response = await pitchStore.updatePitch(props.pitch.id, editablePitch.value)
+  if (response && response.success) {
+    emit('save') // Emit the save event
+    isChanged.value = false
+    isEditing.value = false
+  } else {
+    console.error('Failed to save changes') // Handle error (display message or log)
+  }
+}
 
 // Toggle editing mode with user check
 const toggleEdit = () => {
@@ -127,26 +151,17 @@ const toggleEdit = () => {
   isEditing.value = !isEditing.value
   if (isEditing.value) {
     editablePitch.value = { ...props.pitch } // Create a fresh copy for editing
+    editableExamples.value = props.pitch.examples ? props.pitch.examples.split('|') : []
   }
 }
 
-// Save changes to the pitch
-const saveChanges = async () => {
-  if (!editablePitch.value) return
-  const response = await pitchStore.updatePitch(props.pitch.id, editablePitch.value)
-  if (response && response.success) {
-    emit('save') // Emit the save event
-    isEditing.value = false
-  } else {
-    console.error('Failed to save changes') // Handle error (display message or log)
-  }
-}
-
-// Cancel editing
+// Cancel editing and reset changes
 const cancelEdit = () => {
   isEditing.value = false
-  emit('cancel') // Emit the cancel event
+  isChanged.value = false
   editablePitch.value = { ...props.pitch } // Reset changes
+  editableExamples.value = props.pitch.examples ? props.pitch.examples.split('|') : []
+  emit('cancel') // Emit the cancel event
 }
 
 // Delete the pitch

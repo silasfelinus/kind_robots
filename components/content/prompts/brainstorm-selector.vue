@@ -9,7 +9,7 @@
             ? 'bg-primary text-white border-primary'
             : 'bg-base-300 hover:bg-primary hover:text-white border-base-200',
         ]"
-        @click="updateSelectedPitchType('TITLE')"
+        @click="updateSelectedPitchType(PitchType.TITLE)"
       >
         Title
       </button>
@@ -20,14 +20,17 @@
             ? 'bg-primary text-white border-primary'
             : 'bg-base-300 hover:bg-primary hover:text-white border-base-200',
         ]"
-        @click="updateSelectedPitchType('BRAINSTORM')"
+        @click="updateSelectedPitchType(PitchType.BRAINSTORM)"
       >
         Brainstorm
       </button>
     </div>
 
     <!-- Display Pitches based on the selected PitchType using PitchCard components -->
-    <div v-if="filteredPitches.length" class="pitch-list grid gap-4 mt-4 w-full">
+    <div
+      v-if="filteredPitches.length"
+      class="pitch-list grid gap-4 mt-4 w-full"
+    >
       <PitchCard
         v-for="pitch in filteredPitches"
         :key="pitch.id"
@@ -57,17 +60,17 @@ const filteredPitches = computed(() =>
   pitchStore.pitches.filter(
     (pitch) =>
       pitch.PitchType === pitchStore.selectedPitchType &&
-      (pitch.PitchType === 'TITLE' || pitch.PitchType === 'BRAINSTORM')
-  )
+      (pitch.PitchType === 'TITLE' || pitch.PitchType === 'BRAINSTORM'),
+  ),
 )
 
 // Update selected pitch type to either TITLE or BRAINSTORM
-const updateSelectedPitchType = (type) => {
+const updateSelectedPitchType = (type: PitchType) => {
   pitchStore.setSelectedPitchType(type)
 }
 
 // Handle pitch selection
-const updateSelectedPitch = (pitchId) => {
+const updateSelectedPitch = (pitchId: number) => {
   if (pitchStore.selectedPitch?.id === pitchId) return
   pitchStore.setSelectedPitch(pitchId)
 }

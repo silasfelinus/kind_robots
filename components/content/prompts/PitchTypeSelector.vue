@@ -18,7 +18,10 @@
     </div>
 
     <!-- Display Pitches based on the selected PitchType using PitchCard components -->
-    <div v-if="filteredPitches.length" class="pitch-list grid gap-4 mt-4 w-full">
+    <div
+      v-if="filteredPitches.length"
+      class="pitch-list grid gap-4 mt-4 w-full"
+    >
       <PitchCard
         v-for="pitch in filteredPitches"
         :key="pitch.id"
@@ -47,12 +50,12 @@ const pitchStore = usePitchStore()
 const filteredPitches = computed(() => pitchStore.getPitchesBySelectedType)
 
 // Update selected pitch type directly with PitchType values
-const updateSelectedPitchType = (type) => {
+const updateSelectedPitchType = (type: PitchType) => {
   pitchStore.setSelectedPitchType(type)
 }
 
 // Handle pitch selection
-const updateSelectedPitch = (pitchId) => {
+const updateSelectedPitch = (pitchId: number) => {
   if (pitchStore.selectedPitch?.id === pitchId) return
   pitchStore.setSelectedPitch(pitchId)
 }

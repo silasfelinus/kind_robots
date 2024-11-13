@@ -26,7 +26,9 @@
       </p>
       <p v-else>{{ pitch.pitch }}</p>
 
-      <label v-if="isEditing" class="block text-sm font-semibold mb-2">Description</label>
+      <label v-if="isEditing" class="block text-sm font-semibold mb-2"
+        >Description</label
+      >
       <textarea
         v-if="isEditing"
         v-model="editablePitch.description"
@@ -49,12 +51,12 @@
       @cancel="cancelEdit"
       @delete="deletePitch"
     />
-    
+
     <!-- Save Button (Visible when changes are detected) -->
     <button
       v-if="isChanged"
-      @click="saveChanges"
       class="fixed bottom-4 right-4 bg-green-500 text-white p-3 rounded-full shadow-lg"
+      @click="saveChanges"
     >
       <Icon name="mdi:content-save" class="w-6 h-6" />
     </button>
@@ -62,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { usePitchStore } from '~/stores/pitchStore'
 import { useUserStore } from '~/stores/userStore'
 import type { Pitch } from '~/stores/pitchStore'
@@ -78,8 +80,9 @@ const pitchStore = usePitchStore()
 const userStore = useUserStore()
 
 // Check if the user is allowed to edit or delete (matches user ID or has ADMIN role)
-const isUserAllowedToEdit = computed(() =>
-  props.pitch.userId === userStore.userId || userStore.userRole === 'ADMIN'
+const isUserAllowedToEdit = computed(
+  () =>
+    props.pitch.userId === userStore.userId || userStore.user?.Role === 'ADMIN',
 )
 
 // Editing state and editable copy of the pitch
@@ -87,16 +90,14 @@ const isEditing = ref(false)
 const editablePitch = ref({ ...props.pitch })
 const isChanged = ref(false)
 
-// Watch for changes in examples to mark `isChanged` as true
-const markAsChanged = () => {
-  isChanged.value = true
-}
-
 // Save changes to the pitch
 const saveChanges = async () => {
   if (!editablePitch.value) return
 
-  const response = await pitchStore.updatePitch(props.pitch.id, editablePitch.value)
+  const response = await pitchStore.updatePitch(
+    props.pitch.id,
+    editablePitch.value,
+  )
   if (response && response.success) {
     emit('save') // Emit the save event
     isChanged.value = false

@@ -78,22 +78,7 @@
             ></textarea>
           </div>
 
-          <!-- Examples Field (shown only for Title Type) -->
-          <div v-if="isTitleType" class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="examples"
-            >
-              Examples
-            </label>
-            <textarea
-              id="examples"
-              v-model="formState.examples"
-              class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Optional examples for Title-type pitches"
-              rows="2"
-            ></textarea>
-          </div>
+          <TitleExamples v-model:examples="formState.examples" />
 
           <!-- Public Toggle -->
           <div class="mb-4 flex items-center">
@@ -195,6 +180,7 @@ const resetForm = () => {
 const handleFormSubmit = async () => {
   isSubmitting.value = true
   errorMessage.value = ''
+  console.log(formState.value.examples)
 
   try {
     // Prepare the payload for creating/updating pitch

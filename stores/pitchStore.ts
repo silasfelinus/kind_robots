@@ -28,7 +28,6 @@ export const usePitchStore = defineStore('pitch', {
   }),
 
   getters: {
-    
     pitchTypes: () => Object.values(PitchType),
     selectedPitch: (state) => state.selectedPitches[0] || null,
     selectedPitchId: (state) => state.selectedPitches[0]?.id || null,
@@ -44,7 +43,6 @@ export const usePitchStore = defineStore('pitch', {
       state.pitches.filter((pitch) => pitch.PitchType === PitchType.BRAINSTORM),
     titles: (state) =>
       state.pitches.filter((pitch) => pitch.PitchType === PitchType.TITLE),
-
     pitchesByTitle: (state) =>
       state.pitches.reduce((grouped: Record<string, Pitch[]>, pitch) => {
         const title = pitch.title || 'Untitled'
@@ -77,13 +75,13 @@ export const usePitchStore = defineStore('pitch', {
   },
 
   actions: {
-  // Add this to the actions section
-async initializePitches() {
-  if (isClient && !this.isInitialized) {
-    await this.fetchPitches()
-    this.isInitialized = true
-  }
-},
+    // Add this to the actions section
+    async initializePitches() {
+      if (isClient && !this.isInitialized) {
+        await this.fetchPitches()
+        this.isInitialized = true
+      }
+    },
 
     async addTitle(newTitleData: {
       title: string
@@ -256,16 +254,16 @@ async initializePitches() {
       newPitch: Partial<Pitch>,
     ): Promise<{ success: boolean; message: string }> {
       try {
-        // Set `pitch` to match `title` if the PitchType is TITLE
+        // If PitchType is TITLE, set `pitch` to match `title`
         if (newPitch.PitchType === PitchType.TITLE && newPitch.title) {
           newPitch.pitch = newPitch.title
         }
-
+    
         const response = await performFetch<Pitch>('/api/pitches', {
           method: 'POST',
           body: JSON.stringify(newPitch),
         })
-
+    
         if (response.success && response.data) {
           this.pitches.push(response.data)
           if (isClient) {

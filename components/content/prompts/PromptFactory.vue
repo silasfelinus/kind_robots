@@ -2,8 +2,6 @@
   <div
     class="prompt-factory-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
   >
-    
-
     <!-- Tabs for toggling components -->
     <div
       class="flex justify-center space-x-1 md:space-x-3 lg:space-x-5 w-full mb-3"
@@ -27,7 +25,7 @@
     <div
       class="components-section flex-grow w-full max-w-4xl overflow-y-auto p-2 md:p-4 lg:p-6"
     >
-      <LazyPitchGallery v-if="activeTab === 'pitch-gallery'" />
+      <LazyPitchDisplay v-if="activeTab === 'pitch-display'" />
       <LazyAddPitch v-if="activeTab === 'add-pitch'" />
       <LazyBrainstormGame v-if="activeTab === 'brainstorm-game'" />
       <LazyBrainstormView v-if="activeTab === 'brainstorm-view'" />
@@ -40,12 +38,11 @@ import { ref } from 'vue'
 
 // Tabs setup for Prompt Factory
 const tabs = [
-{ name: 'brainstorm-view', label: 'Brainstorm2' },
-  { name: 'pitch-gallery', label: 'Pitch Gallery' },
+  { name: 'brainstorm-view', label: 'Brainstorm2' },
+  { name: 'pitch-display', label: 'Pitch Display' },
   { name: 'add-pitch', label: 'Add Pitch' },
   { name: 'brainstorm-game', label: 'Brainstorm!' },
-  
 ]
 
-const activeTab = ref('pitch-gallery') // Default to the first tab
+const activeTab = ref('brainstorm-view') // Default to the first tab
 </script>

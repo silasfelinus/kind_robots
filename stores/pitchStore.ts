@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
-import { usePromptStore } from './promptStore'
 import { performFetch, handleError } from './utils'
 import type { Pitch, Art } from '@prisma/client' // Import as type
 
@@ -97,7 +96,6 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-
     async addTitle(newTitleData: {
       title: string
       PitchType: PitchType
@@ -179,56 +177,57 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
- async fetchBrainstormPitches(): Promise<void> {
-  const promptStore = usePromptStore()
-  const numberOfRequests = this.numberOfRequests || 5 // Default to 5 if not set
+    async fetchBrainstormPitches(): Promise<void> {
+      const numberOfRequests = this.numberOfRequests || 5 // Default to 5 if not set
 
-  // Compile content from selectedTitle and exampleString
-  let compiledContent = ''
-  if (this.selectedTitle) {
-    console.log('Selected title found:', this.selectedTitle.title)
-    compiledContent += `Title: ${this.selectedTitle.title}\n`
-    compiledContent += `Description: ${this.selectedTitle.description || ''}\n`
+      // Compile content from selectedTitle and exampleString
+      let compiledContent = ''
+      if (this.selectedTitle) {
+        console.log('Selected title found:', this.selectedTitle.title)
+        compiledContent += `Title: ${this.selectedTitle.title}\n`
+        compiledContent += `Description: ${this.selectedTitle.description || ''}\n`
 
-    // Use exampleString directly, splitting it by '|'
-    const examples = this.exampleString ? this.exampleString.split('|') : []
-    compiledContent += `Examples:\n${examples.map((example, i) => `Example ${i + 1}: ${example}`).join('\n')}`
-  } else {
-    console.warn('No selected title found. Exiting fetchBrainstormPitches.')
-    return
-  }
+        // Use exampleString directly, splitting it by '|'
+        const examples = this.exampleString ? this.exampleString.split('|') : []
+        compiledContent += `Examples:\n${examples.map((example, i) => `Example ${i + 1}: ${example}`).join('\n')}`
+      } else {
+        console.warn('No selected title found. Exiting fetchBrainstormPitches.')
+        return
+      }
 
-  const requestBody = {
-    n: numberOfRequests, // Dynamic number of requests
-    content: `Please generate brainstorm ideas for:\n${compiledContent}`,
-    max_tokens: 500,
-    temperature: this.temperature,
-  }
+      const requestBody = {
+        n: numberOfRequests, // Dynamic number of requests
+        content: `Please generate brainstorm ideas for:\n${compiledContent}`,
+        max_tokens: 500,
+        temperature: this.temperature,
+      }
 
-  try {
-    console.log('Sending brainstorm request:', requestBody)
-    const response = await performFetch<Pitch[]>('/api/botcafe/brainstorm', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-    })
+      try {
+        console.log('Sending brainstorm request:', requestBody)
+        const response = await performFetch<Pitch[]>(
+          '/api/botcafe/brainstorm',
+          {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+          },
+        )
 
-    if (response.success) {
-      console.log('Brainstorm fetch successful. Parsing response...')
-      const newPitches = response.data || []
-      this.addPitches(newPitches)
-      console.log('New pitches added:', newPitches)
-    } else {
-      console.warn('Brainstorm fetch failed:', response.message)
-      throw new Error(response.message)
-    }
-  } catch (error) {
-    console.error('Error during fetchBrainstormPitches:', error)
-    handleError(error, 'fetching brainstorm pitches')
-  } finally {
-    console.log('fetchBrainstormPitches operation completed.')
-  }
-},
-
+        if (response.success) {
+          console.log('Brainstorm fetch successful. Parsing response...')
+          const newPitches = response.data || []
+          this.addPitches(newPitches)
+          console.log('New pitches added:', newPitches)
+        } else {
+          console.warn('Brainstorm fetch failed:', response.message)
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        console.error('Error during fetchBrainstormPitches:', error)
+        handleError(error, 'fetching brainstorm pitches')
+      } finally {
+        console.log('fetchBrainstormPitches operation completed.')
+      }
+    },
 
     addPitches(newPitches: Pitch[]) {
       const pitchesToAdd = newPitches.filter(
@@ -258,11 +257,9 @@ export const usePitchStore = defineStore('pitch', {
       this.loading = true
 
       try {
-        
         const response = await performFetch<Pitch[]>('/api/pitches')
 
         if (response.success) {
-          
           this.pitches =
             response.data?.map((pitch) => ({
               ...pitch,
@@ -283,14 +280,12 @@ export const usePitchStore = defineStore('pitch', {
         handleError(error, 'fetching pitches')
       } finally {
         this.loading = false
-        
       }
     },
     async fetchPitchById(
       pitchId: number,
     ): Promise<{ success: boolean; data?: Pitch; message?: string }> {
       try {
-        
         const response = await performFetch<Pitch>(`/api/pitches/${pitchId}`)
 
         if (response.success && response.data) {
@@ -302,7 +297,6 @@ export const usePitchStore = defineStore('pitch', {
             this.pitches.push(response.data)
           }
 
-          
           return { success: true, data: response.data }
         } else {
           console.warn(`Failed to fetch pitch by ID: ${response.message}`)

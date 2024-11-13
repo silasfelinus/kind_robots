@@ -18,13 +18,32 @@
       />
 
       <!-- Select Example Toggle -->
-      <button @click="toggleSelectExample(index)" class="text-green-500">
-        <Icon :name="selectedExamples.includes(index) ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'" class="w-6 h-6" />
+      <button class="text-green-500" @click="toggleSelectExample(index)">
+        <Icon
+          :name="
+            selectedExamples.includes(index)
+              ? 'mdi:checkbox-marked'
+              : 'mdi:checkbox-blank-outline'
+          "
+          class="w-6 h-6"
+        />
       </button>
 
       <!-- Reorder Buttons -->
-      <button @click="moveExample(index, -1)" class="text-gray-500" :disabled="index === 0">⬆️</button>
-      <button @click="moveExample(index, 1)" class="text-gray-500" :disabled="index === currentExamples.length - 1">⬇️</button>
+      <button
+        class="text-gray-500"
+        :disabled="index === 0"
+        @click="moveExample(index, -1)"
+      >
+        ⬆️
+      </button>
+      <button
+        class="text-gray-500"
+        :disabled="index === currentExamples.length - 1"
+        @click="moveExample(index, 1)"
+      >
+        ⬇️
+      </button>
 
       <!-- Delete Button -->
       <button class="text-red-500" @click="removeExample(index)">
@@ -40,14 +59,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { usePitchStore } from '~/stores/pitchStore'
 
 const pitchStore = usePitchStore()
 
 // Initialize current examples from the store's example string
 const currentExamples = ref<string[]>(
-  pitchStore.exampleString ? pitchStore.exampleString.split('|') : []
+  pitchStore.exampleString ? pitchStore.exampleString.split('|') : [],
 )
 
 // Track selected examples

@@ -3,6 +3,7 @@
     <TitleMenu />
     <TitleMaker />
     <PitchDisplay />
+<pitch-card />
     <section v-if="pitchStore.newestPitches">
       <h3>New Pitches</h3>
       <ul>

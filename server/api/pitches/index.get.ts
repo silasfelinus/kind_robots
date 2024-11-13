@@ -1,4 +1,4 @@
-// /server/api/pitches/batch.get.ts
+// /server/api/pitches/index.get.ts
 import { defineEventHandler } from 'h3'
 import type { Pitch } from '@prisma/client'
 import prisma from '../utils/prisma'

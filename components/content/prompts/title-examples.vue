@@ -13,6 +13,7 @@
         type="text"
         class="w-full p-2 rounded-lg border"
         placeholder="Enter example"
+        @input="updateExampleString"
       />
       <button class="text-red-500" @click="removeExample(index)">
         <Icon name="kind-icon:trash" class="w-6 h-6" />
@@ -23,33 +24,45 @@
     <button class="btn btn-primary mt-4" @click="addExample">
       Add New Example
     </button>
+
+    <!-- Button to reorder examples -->
+    <button class="btn btn-secondary mt-4" @click="reorderExamples">
+      Reorder Examples
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
+import { usePitchStore } from '~/stores/pitchStore'
 
-// Set up emit for parent updates
-const emit = defineEmits(['update:examples'])
+const pitchStore = usePitchStore()
 
-// Manage examples as a list of strings
-const currentExamples = ref<string[]>([])
+// Initialize current examples from the store's example string
+const currentExamples = ref<string[]>(
+  pitchStore.exampleString ? pitchStore.exampleString.split('|') : []
+)
 
-// Computed property that joins examples with '|'
-const finalExamplesString = computed(() => currentExamples.value.join(' | '))
-
-// Watch for changes to the examples and emit updated string
-watch(finalExamplesString, (newString) => {
-  emit('update:examples', newString) // Send final string to parent
-})
-
-// Method to add an empty example input
-function addExample() {
-  currentExamples.value.push('')
+// Update the store whenever currentExamples changes
+function updateExampleString() {
+  pitchStore.exampleString = currentExamples.value.join('|')
 }
 
-// Method to remove a specific example by index
+// Add a new empty example
+function addExample() {
+  currentExamples.value.push('')
+  updateExampleString()
+}
+
+// Remove an example at a specific index
 function removeExample(index: number) {
   currentExamples.value.splice(index, 1)
+  updateExampleString()
+}
+
+// Reorder examples and update the store (e.g., a simple reverse order)
+function reorderExamples() {
+  currentExamples.value.reverse()
+  updateExampleString()
 }
 </script>

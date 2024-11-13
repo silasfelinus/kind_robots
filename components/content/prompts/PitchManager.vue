@@ -9,10 +9,6 @@
       <div class="col-span-1">
         <add-pitch />
       </div>
-      <!-- Pitch Card -->
-      <div class="col-span-1">
-        <pitch-card />
-      </div>
 
       <!-- Pitch Gallery -->
       <div class="col-span-1 md:col-span-2 lg:col-span-2">

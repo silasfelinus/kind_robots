@@ -24,7 +24,10 @@
 
           <!-- Title or TitleSelector based on PitchType -->
           <div v-if="isTitleType" class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="title"
+            >
               Title
             </label>
             <input
@@ -42,7 +45,10 @@
 
           <!-- Prompt or Description (hidden for TITLE type) -->
           <div v-if="!isTitleType" class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="prompt">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="prompt"
+            >
               Description
             </label>
             <textarea
@@ -55,9 +61,48 @@
             ></textarea>
           </div>
 
+          <!-- Optional Description Field -->
+          <div class="mb-4">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="description"
+            >
+              Optional Description
+            </label>
+            <textarea
+              id="description"
+              v-model="formState.description"
+              class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="Optional: add a description"
+              rows="2"
+            ></textarea>
+          </div>
+
+          <!-- Examples Field (shown only for Title Type) -->
+          <div v-if="isTitleType" class="mb-4">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="examples"
+            >
+              Examples
+            </label>
+            <textarea
+              id="examples"
+              v-model="formState.examples"
+              class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="Optional examples for Title-type pitches"
+              rows="2"
+            ></textarea>
+          </div>
+
           <!-- Public Toggle -->
           <div class="mb-4 flex items-center">
-            <input id="isPublic" v-model="formState.isPublic" type="checkbox" class="mr-2" />
+            <input
+              id="isPublic"
+              v-model="formState.isPublic"
+              type="checkbox"
+              class="mr-2"
+            />
             <label for="isPublic" class="text-sm">Make Pitch Public</label>
           </div>
 
@@ -98,14 +143,14 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { usePitchStore, PitchType } from '~/stores/pitchStore'
-
+import { useUserStore } from '~/stores/userStore'
 
 // Stores
 const pitchStore = usePitchStore()
+const userStore = useUserStore()
 
 // Local State
 const showForm = ref(false)
@@ -118,6 +163,8 @@ const formState = ref({
   id: undefined,
   title: '',
   pitch: '',
+  description: '',
+  examples: '',
   isPublic: true,
 })
 
@@ -138,6 +185,8 @@ const resetForm = () => {
     id: undefined,
     title: '',
     pitch: '',
+    description: '',
+    examples: '',
     isPublic: true,
   }
 }
@@ -148,11 +197,17 @@ const handleFormSubmit = async () => {
   errorMessage.value = ''
 
   try {
+    // Prepare the payload for creating/updating pitch
+    const payload = {
+      ...formState.value,
+      designer: userStore.username, // Automatically set designer from userStore
+    }
+
     let result
     if (isEditing.value && formState.value.id) {
-      result = await pitchStore.updatePitch(formState.value.id, formState.value)
+      result = await pitchStore.updatePitch(formState.value.id, payload)
     } else {
-      result = await pitchStore.createPitch(formState.value)
+      result = await pitchStore.createPitch(payload)
     }
 
     if (result?.success) {

@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Prepare the pitch data
-    const data: Prisma.PitchCreateInput = {
+    const pitchData: Prisma.PitchCreateInput = {
       User: { connect: { id: authenticatedUserId } },
       pitch: pitchData.pitch,
       title: pitchData.title || null,
@@ -49,12 +49,12 @@ export default defineEventHandler(async (event) => {
     }
 
     // Create the pitch and set status code to 201 for successful creation
-    const createdPitch = await prisma.pitch.create({ data })
+    const data = await prisma.pitch.create({ pitchData })
     event.node.res.statusCode = 201
 
     return {
       success: true,
-      data: createdPitch,
+      data,
       message: 'Pitch created successfully.',
     }
   } catch (error: unknown) {

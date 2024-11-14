@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="text-xl text-black font-semibold mb-4">Title Examples</h2>
+    <h2 class="text-xl font-semibold mb-4">Title Examples</h2>
 
     <!-- Toggle Edit Mode Button -->
     <button
@@ -23,7 +23,7 @@
         v-if="isEditing"
         v-model="editableExamples[index]"
         type="text"
-        class="w-full p-3 lg:text-lg text-black rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-primary"
+        class="w-full p-3 lg:text-lg rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-primary bg-gray-100 text-gray-800"
         placeholder="Enter example"
       />
       <!-- Non-Edit Mode Display -->

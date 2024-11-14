@@ -157,9 +157,10 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
     async fetchTitleStormPitches(): Promise<void> {
-      const numberOfRequests = this.numberOfRequests || 5 // Default to 5 if not set
+      const numberOfRequests = this.numberOfRequests || 5
+      const maxTokens = this.maxTokens || 500
+      const temperature = this.temperature || 0.5
 
-      // Compile content from selectedTitle and exampleString
       let compiledContent = ''
       if (this.selectedTitle) {
         console.log('Selected title found:', this.selectedTitle.title)
@@ -173,8 +174,8 @@ export const usePitchStore = defineStore('pitch', {
       const requestBody = {
         n: 1,
         content: `Please generate ${numberOfRequests} ideas for:\n${compiledContent}\nSeparate examples by a | delimiter using this response format: "||${this.exampleString}||"`,
-        max_tokens: 500,
-        temperature: this.temperature,
+        max_tokens: maxTokens,
+        temperature: temperature,
       }
 
       try {
@@ -192,11 +193,8 @@ export const usePitchStore = defineStore('pitch', {
             'Title storm fetch successful. Parsing response...',
             response,
           )
-
-          // Expecting a single string wrapped in "|| ||"
           this.apiResponse = response.data?.data || ' '
-
-          console.log('New examles received:', this.apiResponse)
+          console.log('New examples received:', this.apiResponse)
         } else {
           console.warn('Title storm fetch failed:', response.message)
           throw new Error(response.message)
@@ -231,20 +229,19 @@ export const usePitchStore = defineStore('pitch', {
     },
 
     async fetchBrainstormPitches(): Promise<void> {
-      const numberOfRequests = this.numberOfRequests || 5 // Default to 5 if not set
+      const numberOfRequests = this.numberOfRequests || 5
+      const maxTokens = this.maxTokens || 500
+      const temperature = this.temperature || 0.5
 
-      // Compile content from selectedTitle and exampleString
       let compiledContent = ''
       if (this.selectedTitle) {
         console.log('Selected title found:', this.selectedTitle.title)
         compiledContent += `Title: ${this.selectedTitle.title}\n`
         compiledContent += `Description: ${this.selectedTitle.description || ''}\n`
-        compiledContent += `Please give ${numberOfRequests} examples separated by | delimiters`
+        compiledContent += `Please provide ${numberOfRequests} examples separated by | delimiters`
 
-        // Use exampleString directly, splitting it by '|'
         if (this.exampleString) {
-          const examples = this.exampleString
-          compiledContent += `Examples:||${examples}||`
+          compiledContent += `\nExamples: ||${this.exampleString}||`
         }
       } else {
         console.warn('No selected title found. Exiting fetchBrainstormPitches.')
@@ -252,10 +249,10 @@ export const usePitchStore = defineStore('pitch', {
       }
 
       const requestBody = {
-        n: numberOfRequests, // Dynamic number of requests
+        n: numberOfRequests,
         content: `Please generate brainstorm ideas for:\n${compiledContent}`,
-        max_tokens: 500,
-        temperature: this.temperature,
+        max_tokens: maxTokens,
+        temperature: temperature,
       }
 
       try {

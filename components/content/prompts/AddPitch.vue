@@ -19,10 +19,8 @@
             {{ isEditing ? 'Edit Pitch' : 'Create Pitch' }}
           </h2>
 
-          <!-- Pitch Type Selector Component -->
           <PitchTypeSelector />
 
-          <!-- Title or TitleSelector based on PitchType -->
           <div v-if="isTitleType" class="mb-4">
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
@@ -43,7 +41,6 @@
             <TitleMenu v-model:title="formState.title" />
           </div>
 
-          <!-- Prompt or Description (hidden for TITLE type) -->
           <div v-if="!isTitleType" class="mb-4">
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
@@ -61,7 +58,6 @@
             ></textarea>
           </div>
 
-          <!-- Optional Description Field -->
           <div class="mb-4">
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
@@ -78,9 +74,9 @@
             ></textarea>
           </div>
 
-          <TitleExamples v-model:examples="formState.examples" />
+          <!-- Pass formState as pitch to TitleExamples -->
+          <TitleExamples :pitch="formState" :is-editing="isEditing" />
 
-          <!-- Public Toggle -->
           <div class="mb-4 flex items-center">
             <input
               id="isPublic"
@@ -91,7 +87,6 @@
             <label for="isPublic" class="text-sm">Make Pitch Public</label>
           </div>
 
-          <!-- Submit and Cancel Buttons -->
           <div class="flex items-center justify-between">
             <button
               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -119,7 +114,6 @@
             </button>
           </div>
 
-          <!-- Error Message -->
           <p v-if="errorMessage" class="text-red-500 mt-4">
             {{ errorMessage }}
           </p>
@@ -128,6 +122,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { usePitchStore, PitchType } from '~/stores/pitchStore'
@@ -211,7 +206,6 @@ const handleFormSubmit = async () => {
     isSubmitting.value = false
   }
 }
-
 
 const cancelEdit = () => {
   resetForm()

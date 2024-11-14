@@ -15,10 +15,7 @@
       v-for="(example, index) in isEditing ? editableExamples : displayExamples"
       :key="index"
       class="flex items-center space-x-3 mb-3 p-3 rounded-lg border border-gray-300 shadow-md"
-      :class="{
-        'bg-blue-200': !isEditing && selectedExamples.includes(index),
-        'cursor-pointer': !isEditing,
-      }"
+      :class="{ 'bg-blue-200': !isEditing && selectedExamples.includes(index) }"
       @click="!isEditing && toggleExampleSelection(index)"
     >
       <!-- Edit Mode Input for Editing Examples -->
@@ -32,24 +29,24 @@
       <!-- Non-Edit Mode Display -->
       <span v-else>{{ example }}</span>
 
-      <!-- Buttons for Editing Mode -->
+      <!-- Edit Mode Controls -->
       <template v-if="isEditing">
         <button
-          class="text-gray-500 hover:text-gray-700 transform transition-transform duration-200 hover:scale-110"
+          class="text-gray-500 hover:text-gray-700"
           :disabled="index === 0"
           @click="moveExample(index, -1)"
         >
           ⬆️
         </button>
         <button
-          class="text-gray-500 hover:text-gray-700 transform transition-transform duration-200 hover:scale-110"
+          class="text-gray-500 hover:text-gray-700"
           :disabled="index === editableExamples.length - 1"
           @click="moveExample(index, 1)"
         >
           ⬇️
         </button>
         <button
-          class="text-red-500 hover:text-red-700 transform transition-transform duration-200 hover:scale-110"
+          class="text-red-500 hover:text-red-700"
           @click="removeExample(index)"
         >
           <Icon name="kind-icon:trash" class="w-6 h-6" />
@@ -57,17 +54,17 @@
       </template>
     </div>
 
-    <!-- Add New Example and Save Buttons for Editing Mode -->
+    <!-- Add and Save Buttons in Edit Mode -->
     <button
       v-if="isEditing"
-      class="btn btn-secondary mt-4 hover:scale-105 transform transition-transform duration-200"
+      class="btn btn-secondary mt-4"
       @click="addExample"
     >
       Add New Example
     </button>
     <button
       v-if="isEditing"
-      class="btn btn-success mt-4 hover:scale-105 transform transition-transform duration-200"
+      class="btn btn-success mt-4"
       @click="saveEditedExamples"
     >
       Save Edited Examples
@@ -76,75 +73,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { usePitchStore, type Pitch } from '~/stores/pitchStore'
+import { ref, computed } from 'vue'
+import { usePitchStore } from '~/stores/pitchStore'
+import type { Pitch } from '~/stores/pitchStore'
 
-const props = defineProps<{ pitch?: Partial<Pitch> }>()
+const props = defineProps<{ pitch: Pitch }>()
 const pitchStore = usePitchStore()
 
-// Local State for Edit Mode
-const isEditing = ref(false) // Track edit mode locally
-const editableExamples = ref<string[]>([]) // Track editable examples only when in edit mode
-const exampleString = ref<string>('') // Main example string updated by selections in non-edit mode
-const selectedExamples = ref<number[]>([]) // Track selected example indices in non-edit mode
+// State
+const isEditing = ref(false)
+const selectedExamples = ref<number[]>([])
+const editableExamples = ref<string[]>([])
 
-// Initialize Examples for Non-Edit Mode and Edit Mode Separately
-function initializeExamples() {
-  if (props.pitch) {
-    // Use pitch.examples for non-edit display and editableExamples for editing
-    exampleString.value = props.pitch.examples || ''
-    editableExamples.value = exampleString.value.split('|') // Only for editing
-    selectedExamples.value = [] // Reset selections on initialization
-  }
-}
-initializeExamples()
-
-// Watch for changes to pitch examples when props update
-watch(() => props.pitch?.examples, initializeExamples)
-
-// Non-Edit Mode Display Examples (directly from pitch.examples)
-const displayExamples = computed(() => {
-  return props.pitch?.examples?.split('|') || []
-})
+// Computed for Non-Edit Mode Display
+const displayExamples = computed(() => props.pitch.examples.split('|'))
 
 // Toggle Edit Mode
 function toggleEditMode() {
   isEditing.value = !isEditing.value
-  if (!isEditing.value) {
-    saveEditedExamples() // Save edits to exampleString on toggle exit
+  if (isEditing.value) {
+    editableExamples.value = [...displayExamples.value] // Initialize edit array
+  } else {
+    saveEditedExamples() // Save edits when exiting edit mode
   }
 }
 
-// Toggle example selection in non-edit mode
+// Select/Deselect Examples in Non-Edit Mode
 function toggleExampleSelection(index: number) {
   const selectedIndex = selectedExamples.value.indexOf(index)
   if (selectedIndex === -1) {
-    selectedExamples.value.push(index) // Select example
+    selectedExamples.value.push(index)
   } else {
-    selectedExamples.value.splice(selectedIndex, 1) // Deselect example
+    selectedExamples.value.splice(selectedIndex, 1)
   }
-  updateExampleStringFromSelection()
 }
 
-// Update exampleString based on selected examples in non-edit mode
-function updateExampleStringFromSelection() {
-  // Join selected examples by '|' to form a single string
-  const selectedStrings = selectedExamples.value
-    .map((i) => displayExamples.value[i])
-    .join('|')
-  exampleString.value = selectedStrings
-}
-
-// Save Edited Examples back to PitchStore when finishing editing
+// Save Edited Examples to PitchStore
 async function saveEditedExamples() {
-  const pitchId = props.pitch?.id ?? 0
-  if (pitchId) {
-    // Use editableExamples as an array for pitchStore update
-    exampleString.value = editableExamples.value.join('|') // Update exampleString for display
-    await pitchStore.updatePitchExamples(pitchId, editableExamples.value) // Pass as an array
-  } else {
-    console.warn("Can't save examples: pitch ID is missing.")
-  }
+  await pitchStore.updatePitchExamples(props.pitch.id, editableExamples.value)
 }
 
 // Add, Remove, and Reorder Examples in Edit Mode

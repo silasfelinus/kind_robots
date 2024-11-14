@@ -6,14 +6,14 @@
         <span v-if="isTitleEditing">
           <input
             v-model="editablePitch.title"
-            class="bg-transparent border-b-2 focus:outline-none"
+            class="bg-transparent border-b border-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-content rounded-md p-1"
             placeholder="Edit Title"
           />
         </span>
         <span v-else>Title: {{ pitch.title }}</span>
         <button
           v-if="isUserAllowedToEdit"
-          class="ml-2 text-gray-500 hover:text-gray-700 transition-transform duration-200"
+          class="ml-2 text-black transition-transform duration-200"
           @click="toggleTitleEdit"
         >
           <Icon
@@ -22,7 +22,7 @@
           />
         </button>
       </h2>
-      <p class="text-sm text-gray-500">{{ pitch.designer }}</p>
+      <p class="text-sm text-black">{{ pitch.designer }}</p>
     </div>
 
     <!-- Conditionally Display Pitch Section -->
@@ -30,14 +30,14 @@
       <p v-if="isPitchEditing">
         <textarea
           v-model="editablePitch.pitch"
-          class="w-full bg-transparent border p-2 rounded-md"
+          class="w-full bg-transparent border border-gray-400 p-2 rounded-md focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-content"
           placeholder="Edit Pitch"
         ></textarea>
       </p>
       <p v-else>Pitch: {{ pitch.pitch }}</p>
       <button
         v-if="isUserAllowedToEdit"
-        class="ml-2 text-gray-500 hover:text-gray-700 transition-transform duration-200"
+        class="ml-2 text-black transition-transform duration-200"
         @click="togglePitchEdit"
       >
         <Icon
@@ -52,14 +52,14 @@
       <p v-if="isDescriptionEditing">
         <textarea
           v-model="editablePitch.description"
-          class="w-full bg-transparent border p-2 rounded-md"
+          class="w-full bg-transparent border border-gray-400 p-2 rounded-md focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-content"
           placeholder="Edit Description"
         ></textarea>
       </p>
       <p v-else>Instructions: {{ pitch.description }}</p>
       <button
         v-if="isUserAllowedToEdit"
-        class="ml-2 text-gray-500 hover:text-gray-700 transition-transform duration-200"
+        class="ml-2 text-black transition-transform duration-200"
         @click="toggleDescriptionEdit"
       >
         <Icon
@@ -82,7 +82,7 @@
     <!-- Global Save Button -->
     <button
       v-if="isChanged"
-      class="fixed bottom-4 right-4 bg-green-500 text-white p-3 rounded-full shadow-lg"
+      class="fixed bottom-4 right-4 bg-green-500 text-black p-3 rounded-full shadow-lg"
       @click="saveChanges"
     >
       <Icon name="mdi:content-save" class="w-6 h-6" />

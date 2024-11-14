@@ -164,8 +164,8 @@ export const usePitchStore = defineStore('pitch', {
       let compiledContent = ''
       if (this.selectedTitle) {
         console.log('Selected title found:', this.selectedTitle.title)
-        compiledContent += `Title: ${this.selectedTitle.title}\n`
-        compiledContent += `Description: ${this.selectedTitle.description || ''}\n`
+        compiledContent += `${this.selectedTitle.title}. `
+        compiledContent += `${this.selectedTitle.description || ''} `
       } else {
         console.warn('No selected title found. Exiting fetchTitleStormPitches.')
         return
@@ -173,7 +173,7 @@ export const usePitchStore = defineStore('pitch', {
 
       const requestBody = {
         n: 1,
-        content: `Please generate ${numberOfRequests} ideas for:\n${compiledContent}\nSeparate examples by a | delimiter using this response format: "||${this.exampleString}||"`,
+        content: `Please generate ${numberOfRequests} ideas for: ${compiledContent}. Separate examples by a | delimiter and fully bookkended by two delimiters, using this response format: EXAMPLES:||${this.exampleString}||"`,
         max_tokens: maxTokens,
         temperature: temperature,
       }

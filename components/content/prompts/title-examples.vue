@@ -138,9 +138,9 @@ function updateExampleStringFromSelection() {
 async function saveEditedExamples() {
   const pitchId = props.pitch?.id ?? 0
   if (pitchId) {
-    // Join editableExamples into exampleString after editing
-    exampleString.value = editableExamples.value.join('|')
-    await pitchStore.updatePitchExamples(pitchId, exampleString.value)
+    // Use editableExamples as an array for pitchStore update
+    exampleString.value = editableExamples.value.join('|') // Update exampleString for display
+    await pitchStore.updatePitchExamples(pitchId, editableExamples.value) // Pass as an array
   } else {
     console.warn("Can't save examples: pitch ID is missing.")
   }

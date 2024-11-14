@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="text-xl font-semibold mb-4 text-primary">Title Examples</h2>
+    <h2 class="text-xl font-semibold mb-4">Title Examples</h2>
 
     <!-- Display Examples in Edit or Non-Edit Mode -->
     <div
@@ -47,7 +47,7 @@
     <!-- Add New Example and Save Buttons for Editing Mode -->
     <button
       v-if="isEditing"
-      class="btn btn-primary mt-4 hover:scale-105 transform transition-transform duration-200"
+      class="btn btn-secondary mt-4 hover:scale-105 transform transition-transform duration-200"
       @click="addExample"
     >
       Add New Example

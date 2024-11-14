@@ -4,13 +4,8 @@
     :style="{ height: displayStore.headerHeight }"
   >
     <!-- Left Section: Avatar -->
-    <div
-      class="flex items-center justify-center w-1/4 h-full relative rounded-2xl"
-    >
-      <avatar-image
-        alt="User Avatar"
-        class="w-full h-full rounded-2xl object-cover"
-      />
+    <div class="flex items-center justify-center w-1/4 h-full relative rounded-2xl">
+      <avatar-image alt="User Avatar" class="w-full h-full rounded-2xl object-cover" />
       <!-- Special Overlay: Shows viewportSize, positioned inside avatar-image -->
       <div
         v-if="isAdmin"
@@ -22,25 +17,29 @@
 
     <!-- Middle Section: Title and Subtitle -->
     <div
-      class="flex flex-col justify-center items-center text-center flex-grow w-1/4 h-full"
+      class="flex flex-col justify-center items-center text-center flex-grow h-full sm:w-3/4"
     >
       <h1
-        class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold max-w-full text-ellipsis whitespace-nowrap"
+        class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold max-w-full text-ellipsis whitespace-nowrap sm:order-first"
       >
         The {{ page.title || 'Room' }} Room
       </h1>
-      <h2
-        class="text-sm md:text-md lg:text-lg xl:text-xl italic max-w-full text-ellipsis whitespace-nowrap lg:mt-0"
-      >
-        {{ subtitle }}
-      </h2>
-    </div>
 
-    <!-- Right Section: Icons and Login -->
-    <div class="flex items-center justify-end md:space-x-2 w:1/4 md:w-1/2">
-      <login-path class="w-1/3 space-x-1 md:space-x-4" />
-      <theme-icon class="w-1/3" />
-      <swarm-icon class="w-1/3" />
+      <div class="flex flex-col sm:flex-row sm:justify-between w-full">
+        <!-- Subtitle Section -->
+        <h2
+          class="text-sm md:text-md lg:text-lg xl:text-xl italic max-w-full text-ellipsis whitespace-nowrap lg:mt-0 sm:w-1/2"
+        >
+          {{ subtitle }}
+        </h2>
+
+        <!-- Icons Section -->
+        <div class="flex items-center justify-end space-x-1 sm:space-x-2 sm:w-1/2">
+          <login-path class="w-1/3" />
+          <theme-icon class="w-1/3" />
+          <swarm-icon class="w-1/3" />
+        </div>
+      </div>
     </div>
   </header>
 </template>
@@ -57,7 +56,5 @@ const isAdmin = computed(() => userStore.user?.Role === 'ADMIN')
 
 // Access page content and subtitle
 const { page } = useContent()
-const subtitle = computed(
-  () => page.value?.subtitle ?? 'Welcome to Kind Robots',
-)
+const subtitle = computed(() => page.value?.subtitle ?? 'Welcome to Kind Robots')
 </script>

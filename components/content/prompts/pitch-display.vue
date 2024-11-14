@@ -30,6 +30,8 @@
     >
       Request More Examples
     </button>
+
+<div> {{newestPitches}} </div>
   </div>
 </template>
 
@@ -38,6 +40,8 @@ import { computed } from 'vue'
 import { usePitchStore, type Pitch } from '~/stores/pitchStore'
 
 const pitchStore = usePitchStore()
+const newestPitches = computed(() => pitchStore.newestPitches)
+
 
 // Computed property for filtering displayed pitches
 const displayedPitches = computed(() => {

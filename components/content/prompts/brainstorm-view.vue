@@ -1,6 +1,6 @@
 <template>
   <div>
-    <brainstorm-image class="h-1/2" />
+    <brainstorm-image />
     <brainstorm-selector />
     <add-pitch />
 

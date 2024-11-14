@@ -71,6 +71,7 @@
 
     <!-- Title Examples Component -->
     <title-examples :pitch="pitch" />
+<api-response />
 
     <!-- Actions Component -->
     <pitch-card-actions

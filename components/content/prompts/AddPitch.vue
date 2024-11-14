@@ -22,10 +22,7 @@
           <PitchTypeSelector />
 
           <div v-if="isTitleType" class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="title"
-            >
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
               Title
             </label>
             <input
@@ -42,10 +39,7 @@
           </div>
 
           <div v-if="!isTitleType" class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="prompt"
-            >
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="prompt">
               Description
             </label>
             <textarea
@@ -59,10 +53,7 @@
           </div>
 
           <div class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="description"
-            >
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
               Optional Description
             </label>
             <textarea
@@ -74,8 +65,46 @@
             ></textarea>
           </div>
 
-          <!-- Pass formState as pitch to TitleExamples -->
-          <TitleExamples :pitch="formState" :is-editing="true" />
+          <!-- Embedded Examples Management -->
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">
+              Examples
+            </label>
+            <div v-for="(example, index) in examples" :key="index" class="flex items-center mb-2">
+              <input
+                v-model="examples[index]"
+                type="text"
+                class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline mr-2"
+                placeholder="Enter example"
+              />
+              <button
+                class="text-gray-500 hover:text-red-700"
+                @click="removeExample(index)"
+              >
+                <Icon name="kind-icon:trash" class="w-5 h-5" />
+              </button>
+              <button
+                v-if="index > 0"
+                class="text-gray-500 hover:text-gray-700"
+                @click="moveExample(index, -1)"
+              >
+                ⬆️
+              </button>
+              <button
+                v-if="index < examples.length - 1"
+                class="text-gray-500 hover:text-gray-700"
+                @click="moveExample(index, 1)"
+              >
+                ⬇️
+              </button>
+            </div>
+            <button
+              class="text-blue-500 hover:underline"
+              @click="addExample"
+            >
+              + Add New Example
+            </button>
+          </div>
 
           <div class="mb-4 flex items-center">
             <input
@@ -137,6 +166,7 @@ const showForm = ref(false)
 const isEditing = ref(false)
 const isSubmitting = ref(false)
 const errorMessage = ref('')
+const examples = ref<string[]>([])
 
 // Form state with default values
 const formState = ref({
@@ -169,8 +199,22 @@ const resetForm = () => {
     examples: '',
     isPublic: true,
   }
+  examples.value = []
 }
 
+// Add example management functions
+const addExample = () => examples.value.push('')
+const removeExample = (index: number) => examples.value.splice(index, 1)
+const moveExample = (index: number, direction: number) => {
+  const newIndex = index + direction
+  if (newIndex >= 0 && newIndex < examples.value.length) {
+    const temp = examples.value[index]
+    examples.value[index] = examples.value[newIndex]
+    examples.value[newIndex] = temp
+  }
+}
+
+// Form submission handling
 const handleFormSubmit = async () => {
   isSubmitting.value = true
   errorMessage.value = ''
@@ -180,6 +224,9 @@ const handleFormSubmit = async () => {
     if (isTitleType.value) {
       formState.value.pitch = formState.value.title
     }
+
+    // Join examples into a single |-delimited string
+    formState.value.examples = examples.value.join('|')
 
     // Prepare the payload for creating/updating pitch
     const payload = {

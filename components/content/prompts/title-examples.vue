@@ -62,17 +62,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { usePitchStore, type Pitch } from '~/stores/pitchStore'
 
 const props = defineProps<{ pitch?: Partial<Pitch>; isEditing: boolean }>()
-
 const pitchStore = usePitchStore()
-const currentExamples = ref<string[]>(props.pitch?.examples?.split('|') || [])
+
+const currentExamples = ref<string[]>([])
 const selectedExamples = ref<string[]>([])
 
+// Initialize currentExamples based on pitch examples
+function initializeExamples() {
+  currentExamples.value = props.pitch?.examples?.split('|') || []
+}
+
+initializeExamples()
+
+// Watch for changes in isEditing to reset currentExamples when entering edit mode
+watch(
+  () => props.isEditing,
+  (newEditingStatus) => {
+    if (newEditingStatus) {
+      initializeExamples() // Reset examples when entering edit mode
+    }
+  },
+)
+
+// Update exampleString in pitchStore and sync selectedExamples
 function updateExampleString() {
   pitchStore.exampleString = currentExamples.value.join('|')
+  selectedExamples.value = [...currentExamples.value] // Sync selectedExamples
 }
 
 function addExample() {

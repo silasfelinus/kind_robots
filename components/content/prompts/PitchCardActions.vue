@@ -93,17 +93,25 @@ const props = defineProps<{
   isEditing: boolean
 }>()
 
-// Define emits for actions
 const emit = defineEmits(['toggle-edit', 'save', 'delete'])
 
-// Emit functions for actions
-const emitToggleEdit = () => emit('toggle-edit')
-const emitSave = () => emit('save')
+const pitchStore = usePitchStore()
+const errorStore = useErrorStore()
 
-// Show or hide delete confirmation dialog
 const showDeleteConfirmation = ref(false)
 
+const emitToggleEdit = () => {
+  if (props.pitch) pitchStore.setSelectedTitle(props.pitch.id)
+  emit('toggle-edit')
+}
+
+const emitSave = () => {
+  if (props.pitch) pitchStore.setSelectedTitle(props.pitch.id)
+  emit('save')
+}
+
 const confirmDelete = () => {
+  if (props.pitch) pitchStore.setSelectedTitle(props.pitch.id)
   showDeleteConfirmation.value = true
 }
 
@@ -111,21 +119,17 @@ const cancelDelete = () => {
   showDeleteConfirmation.value = false
 }
 
-// Finalize delete action if confirmed
 const emitDelete = () => {
+  if (props.pitch) pitchStore.setSelectedTitle(props.pitch.id)
   emit('delete')
   showDeleteConfirmation.value = false
 }
 
-// Store references
-const pitchStore = usePitchStore()
-const errorStore = useErrorStore()
-
-// Toggle mature content visibility
 const toggleMature = async () => {
   errorStore.clearError()
   try {
     if (!props.pitch) throw new Error('Pitch data is not available.')
+    pitchStore.setSelectedTitle(props.pitch.id)
     await pitchStore.updatePitch(props.pitch.id, {
       isMature: !props.pitch.isMature,
     })
@@ -135,11 +139,11 @@ const toggleMature = async () => {
   }
 }
 
-// Toggle public visibility
 const togglePublic = async () => {
   errorStore.clearError()
   try {
     if (!props.pitch) throw new Error('Pitch data is not available.')
+    pitchStore.setSelectedTitle(props.pitch.id)
     await pitchStore.updatePitch(props.pitch.id, {
       isPublic: !props.pitch.isPublic,
     })
@@ -149,10 +153,10 @@ const togglePublic = async () => {
   }
 }
 
-// Request more brainstorm ideas
 const getMoreBrainstorms = async () => {
   errorStore.clearError()
   try {
+    if (props.pitch) pitchStore.setSelectedTitle(props.pitch.id)
     await pitchStore.fetchBrainstormPitches()
   } catch (error) {
     errorStore.setError(ErrorType.UNKNOWN_ERROR, (error as Error).message)

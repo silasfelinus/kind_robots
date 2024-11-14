@@ -414,6 +414,10 @@ export const usePitchStore = defineStore('pitch', {
       const updatedString = examplesArray.join('|')
       await this.updatePitch(pitchId, { examples: updatedString })
     },
+    setSelectedTitle(pitchId: number) {
+      this.selectedTitle =
+        this.pitches.find((pitch) => pitch.id === pitchId) || null
+    },
 
     async deletePitch(
       pitchId: number,

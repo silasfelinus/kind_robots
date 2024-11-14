@@ -112,7 +112,7 @@ const isUserAllowedToEdit = computed(
 )
 
 // Check if pitch type is TITLE
-const isTitleType = computed(() => props.pitch.type === PitchType.TITLE)
+const isTitleType = computed(() => props.pitch.PitchType === PitchType.TITLE)
 
 // Local editing states for each section
 const isTitleEditing = ref(false)

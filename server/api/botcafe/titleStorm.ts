@@ -1,9 +1,6 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
-import type { Pitch } from '@prisma/client'
-
-const savedPitches: Pitch[] = [] // Store submitted pitches for demonstration purposes
 
 export default defineEventHandler(async (event) => {
   try {
@@ -20,7 +17,8 @@ export default defineEventHandler(async (event) => {
     if (!apiKey) {
       throw createError({
         statusCode: 500,
-        message: 'Server API key is missing. Please provide a valid OpenAI API key.',
+        message:
+          'Server API key is missing. Please provide a valid OpenAI API key.',
       })
     }
 
@@ -65,14 +63,17 @@ export default defineEventHandler(async (event) => {
 
     if (data) {
       // Correct format: Split by '|' and trim each entry
-      const parsedData = extractedContent.split('|').map(entry => entry.trim())
-      savedPitches.push(...parsedData.map((pitch) => ({ title: pitch, pitch })))
-      return { success: true, message: 'Examples generated successfully.', data }
+      return {
+        success: true,
+        message: 'Examples generated successfully.',
+        data,
+      }
     } else {
       // Incorrect format: Return the raw content with a warning message
       return {
         success: false,
-        message: 'Unexpected response format. Please check the response content.',
+        message:
+          'Unexpected response format. Please check the response content.',
         data: rawContent,
       }
     }

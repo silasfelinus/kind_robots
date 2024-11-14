@@ -5,6 +5,13 @@
   >
     <!-- Left Section: Avatar -->
     <div class="flex items-center justify-center w-1/4 h-full relative rounded-2xl">
+      <avatar-image<template>
+  <header
+    class="flex items-center justify-between bg-base-300 rounded-2xl border-4 p-1 max-w-full box-border"
+    :style="{ height: displayStore.headerHeight }"
+  >
+    <!-- Left Section: Avatar -->
+    <div class="flex items-center justify-center w-1/4 h-full relative rounded-2xl">
       <avatar-image alt="User Avatar" class="w-full h-full rounded-2xl object-cover" />
       <!-- Special Overlay: Shows viewportSize, positioned inside avatar-image -->
       <div
@@ -17,18 +24,18 @@
 
     <!-- Middle Section: Title and Subtitle -->
     <div
-      class="flex flex-col justify-center items-center text-center flex-grow h-full sm:w-3/4"
+      class="flex flex-col justify-center items-center text-center flex-grow h-full sm:w-3/4 space-y-0 sm:space-y-2"
     >
       <h1
-        class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold max-w-full text-ellipsis whitespace-nowrap sm:order-first"
+        class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold max-w-full text-ellipsis whitespace-nowrap sm:order-first mt-0"
       >
         The {{ page.title || 'Room' }} Room
       </h1>
 
-      <div class="flex flex-col sm:flex-row sm:justify-between w-full">
+      <div class="flex flex-col sm:flex-row sm:justify-between w-full space-y-0 sm:space-y-2">
         <!-- Subtitle Section -->
         <h2
-          class="text-sm md:text-md lg:text-lg xl:text-xl italic max-w-full text-ellipsis whitespace-nowrap lg:mt-0 sm:w-1/2"
+          class="text-sm md:text-md lg:text-lg xl:text-xl italic max-w-full text-ellipsis whitespace-nowrap mt-0 sm:mt-1 sm:w-1/2"
         >
           {{ subtitle }}
         </h2>
@@ -43,6 +50,7 @@
     </div>
   </header>
 </template>
+
 
 <script setup lang="ts">
 import { computed } from 'vue'

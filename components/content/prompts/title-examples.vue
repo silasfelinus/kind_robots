@@ -12,7 +12,7 @@
 
     <!-- Display Examples in Edit or Non-Edit Mode -->
     <div
-      v-for="(example, index) in isEditing ? currentExamples : nonEditExamples"
+      v-for="(example, index) in isEditing ? editableExamples : nonEditExamples"
       :key="index"
       class="flex items-center space-x-3 mb-3 p-3 rounded-lg border border-gray-300 shadow-md"
       :class="{
@@ -24,7 +24,7 @@
       <!-- Edit Mode Input for Editing Examples -->
       <input
         v-if="isEditing"
-        v-model="currentExamples[index]"
+        v-model="editableExamples[index]"
         type="text"
         class="w-full p-3 lg:text-lg rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-primary"
         placeholder="Enter example"
@@ -43,7 +43,7 @@
         </button>
         <button
           class="text-gray-500 hover:text-gray-700 transform transition-transform duration-200 hover:scale-110"
-          :disabled="index === currentExamples.length - 1"
+          :disabled="index === editableExamples.length - 1"
           @click="moveExample(index, 1)"
         >
           ⬇️
@@ -68,9 +68,9 @@
     <button
       v-if="isEditing"
       class="btn btn-success mt-4 hover:scale-105 transform transition-transform duration-200"
-      @click="saveSelectedExamples"
+      @click="saveEditedExamples"
     >
-      Save Selected Examples
+      Save Edited Examples
     </button>
   </div>
 </template>
@@ -84,36 +84,33 @@ const pitchStore = usePitchStore()
 
 // Local State for Edit Mode
 const isEditing = ref(false) // Track edit mode locally
-const currentExamples = ref<string[]>([])
-const exampleString = ref<string>('')
-const selectedExamples = ref<number[]>([]) // Track selected example indices
+const editableExamples = ref<string[]>([]) // Track editable examples only when in edit mode
+const exampleString = ref<string>('') // Main example string updated in non-edit mode
+const selectedExamples = ref<number[]>([]) // Track selected example indices in non-edit mode
 
-// Initialize Examples for Edit and Non-Edit Modes
+// Initialize Examples for Non-Edit Mode and Edit Mode Separately
 function initializeExamples() {
   if (props.pitch) {
-    // Populate currentExamples for edit mode, fallback in non-edit mode
-    currentExamples.value = props.pitch.examples?.split('|') || []
+    // Populate exampleString for non-edit mode display
     exampleString.value = props.pitch.examples || ''
+    editableExamples.value = exampleString.value.split('|') // Only for editing
     selectedExamples.value = [] // Reset selections on initialization
   }
 }
 initializeExamples()
 
-// Non-Edit Mode Examples - Fallback to Example String or Delimiter-Joined Selected Examples
+// Non-Edit Mode Display Examples (computed from exampleString)
 const nonEditExamples = computed(() => {
-  // If exampleString has selections, split by delimiter; otherwise, use fallback
-  return exampleString.value
-    ? exampleString.value.split('|')
-    : currentExamples.value
+  return exampleString.value.split('|')
 })
 
 // Toggle Edit Mode
 function toggleEditMode() {
   isEditing.value = !isEditing.value
   if (isEditing.value) {
-    initializeExamples() // Reset examples for editing mode
+    editableExamples.value = exampleString.value.split('|') // Initialize editable list
   } else {
-    selectedExamples.value = [] // Clear selections when exiting edit mode
+    saveEditedExamples() // Save edits to exampleString on toggle exit
   }
 }
 
@@ -125,29 +122,25 @@ function toggleExampleSelection(index: number) {
   } else {
     selectedExamples.value.splice(selectedIndex, 1) // Deselect example
   }
-  updatePitchExamples()
+  updateExampleStringFromSelection()
 }
 
-// Call `updatePitchExamples` on selection changes
-async function updatePitchExamples() {
+// Update exampleString based on selected examples in non-edit mode
+function updateExampleStringFromSelection() {
   // Join selected examples by '|' to form a single string
   const selectedStrings = selectedExamples.value
     .map((i) => nonEditExamples.value[i])
     .join('|')
-  pitchStore.exampleString = selectedStrings
-
-  // Use `props.pitch?.id ?? 0` to avoid passing undefined values
-  const pitchId = props.pitch?.id ?? 0
-  await pitchStore.updatePitchExamples(pitchId, [selectedStrings]) // Pass as array
+  exampleString.value = selectedStrings
 }
 
-// Save Examples to PitchStore and Update Selected Title
-async function saveSelectedExamples() {
-  const pitchId = props.pitch?.id ?? 0 // Provide default to avoid undefined error
+// Save Edited Examples back to PitchStore when finishing editing
+async function saveEditedExamples() {
+  const pitchId = props.pitch?.id ?? 0
   if (pitchId) {
-    const joinedExamples = currentExamples.value.join('|')
-    pitchStore.exampleString = joinedExamples
-    await pitchStore.updatePitchExamples(pitchId, [joinedExamples]) // Pass as array
+    // Join editableExamples into exampleString after editing
+    exampleString.value = editableExamples.value.join('|')
+    await pitchStore.updatePitchExamples(pitchId, exampleString.value)
   } else {
     console.warn("Can't save examples: pitch ID is missing.")
   }
@@ -155,17 +148,17 @@ async function saveSelectedExamples() {
 
 // Add, Remove, and Reorder Examples in Edit Mode
 function addExample() {
-  currentExamples.value.push('')
+  editableExamples.value.push('')
 }
 function removeExample(index: number) {
-  currentExamples.value.splice(index, 1)
+  editableExamples.value.splice(index, 1)
 }
 function moveExample(index: number, direction: number) {
   const newIndex = index + direction
-  if (newIndex >= 0 && newIndex < currentExamples.value.length) {
-    const temp = currentExamples.value[index]
-    currentExamples.value[index] = currentExamples.value[newIndex]
-    currentExamples.value[newIndex] = temp
+  if (newIndex >= 0 && newIndex < editableExamples.value.length) {
+    const temp = editableExamples.value[index]
+    editableExamples.value[index] = editableExamples.value[newIndex]
+    editableExamples.value[newIndex] = temp
   }
 }
 </script>

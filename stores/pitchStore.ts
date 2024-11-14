@@ -213,7 +213,7 @@ export const usePitchStore = defineStore('pitch', {
         )
 
         if (response.success) {
-          console.log('Brainstorm fetch successful. Parsing response...')
+          console.log('Brainstorm fetch successful. Parsing response...', response)
           const newPitches = response.data || []
           this.addPitches(newPitches)
           console.log('New pitches added:', newPitches)

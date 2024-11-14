@@ -1,8 +1,8 @@
 <template>
-  <div v-if="props.pitch" class="flex space-x-4">
+  <div v-if="props.pitch" class="flex flex-wrap gap-4">
     <!-- Mature Toggle -->
     <button
-      class="rounded-full p-2 bg-blue-500 hover:bg-blue-600 text-white"
+      class="rounded-full p-3 bg-blue-500 hover:bg-blue-600 text-white transition-transform transform hover:scale-110"
       aria-label="Toggle Mature Content"
       @click="toggleMature"
     >
@@ -11,26 +11,17 @@
 
     <!-- Public Toggle -->
     <button
-      class="rounded-full p-2 bg-blue-500 hover:bg-blue-600 text-white"
+      class="rounded-full p-3 bg-blue-500 hover:bg-blue-600 text-white transition-transform transform hover:scale-110"
       aria-label="Toggle Public Visibility"
       @click="togglePublic"
     >
       <Icon name="kind-icon:eye" class="w-6 h-6" />
     </button>
 
-    <!-- Edit Button -->
+    <!-- Save Button (appears when changes are ready to be saved) -->
     <button
-      class="rounded-full p-2 bg-blue-500 hover:bg-blue-600 text-white"
-      aria-label="Edit Pitch"
-      @click="emitToggleEdit"
-    >
-      <Icon name="mdi:pencil" class="w-6 h-6" />
-    </button>
-
-    <!-- Save Button (appears only in editing mode) -->
-    <button
-      v-if="isEditing"
-      class="rounded-full p-2 bg-green-500 hover:bg-green-600 text-white"
+      v-if="isChanged"
+      class="rounded-full p-3 bg-green-500 hover:bg-green-600 text-white transition-transform transform hover:scale-110"
       aria-label="Save Changes"
       @click="emitSave"
     >
@@ -39,7 +30,7 @@
 
     <!-- Delete Button with Confirmation -->
     <button
-      class="rounded-full p-2 bg-red-500 hover:bg-red-600 text-white"
+      class="rounded-full p-3 bg-red-500 hover:bg-red-600 text-white transition-transform transform hover:scale-110"
       aria-label="Delete Pitch"
       @click="confirmDelete"
     >
@@ -48,7 +39,7 @@
 
     <!-- Get More Brainstorms Button -->
     <button
-      class="rounded-full p-2 bg-yellow-500 hover:bg-yellow-600 text-white"
+      class="rounded-full p-3 bg-yellow-500 hover:bg-yellow-600 text-white transition-transform transform hover:scale-110"
       aria-label="Get More Brainstorms"
       @click="getMoreBrainstorms"
     >
@@ -64,7 +55,7 @@
         <p class="text-lg font-semibold mb-4">
           Are you sure you want to delete this pitch?
         </p>
-        <div class="flex justify-end space-x-4">
+        <div class="flex justify-end gap-4">
           <button
             class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
             @click="cancelDelete"
@@ -89,25 +80,21 @@ import { usePitchStore, type Pitch } from '../../../stores/pitchStore'
 import { useErrorStore, ErrorType } from '../../../stores/errorStore'
 
 const props = defineProps<{
-  pitch?: Pitch // Make it optional
-  isEditing: boolean
+  pitch?: Pitch
 }>()
 
-const emit = defineEmits(['toggle-edit', 'save', 'delete'])
+const emit = defineEmits(['save', 'delete'])
 
 const pitchStore = usePitchStore()
 const errorStore = useErrorStore()
 
 const showDeleteConfirmation = ref(false)
-
-const emitToggleEdit = () => {
-  if (props.pitch) pitchStore.setSelectedTitle(props.pitch.id)
-  emit('toggle-edit')
-}
+const isChanged = ref(false) // Tracks unsaved changes
 
 const emitSave = () => {
   if (props.pitch) pitchStore.setSelectedTitle(props.pitch.id)
   emit('save')
+  isChanged.value = false // Reset change state after saving
 }
 
 const confirmDelete = () => {
@@ -125,6 +112,7 @@ const emitDelete = () => {
   showDeleteConfirmation.value = false
 }
 
+// Toggle functions set `isChanged` to true when modified
 const toggleMature = async () => {
   errorStore.clearError()
   try {
@@ -133,6 +121,7 @@ const toggleMature = async () => {
     await pitchStore.updatePitch(props.pitch.id, {
       isMature: !props.pitch.isMature,
     })
+    isChanged.value = true
   } catch (error) {
     errorStore.setError(ErrorType.UNKNOWN_ERROR, (error as Error).message)
     console.error('Error updating pitch:', error)
@@ -147,6 +136,7 @@ const togglePublic = async () => {
     await pitchStore.updatePitch(props.pitch.id, {
       isPublic: !props.pitch.isPublic,
     })
+    isChanged.value = true
   } catch (error) {
     errorStore.setError(ErrorType.UNKNOWN_ERROR, (error as Error).message)
     console.error('Error updating pitch:', error)

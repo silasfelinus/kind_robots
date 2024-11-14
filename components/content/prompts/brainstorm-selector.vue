@@ -52,8 +52,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
+import { usePitchStore, PitchType } from '../../../stores/pitchStore'
+
 const pitchStore = usePitchStore()
+
+// Auto-select "Title" pitch type on component mount
+onMounted(() => {
+  if (!pitchStore.selectedPitchType) {
+    updateSelectedPitchType(PitchType.TITLE)
+  }
+})
 
 // Filter pitches by selected pitch type (TITLE or BRAINSTORM)
 const filteredPitches = computed(() =>

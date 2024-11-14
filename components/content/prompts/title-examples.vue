@@ -69,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { usePitchStore } from '~/stores/pitchStore'
 import type { Pitch } from '~/stores/pitchStore'
 
@@ -82,7 +82,22 @@ const selectedExamples = ref<number[]>([])
 const editableExamples = ref<string[]>([])
 
 // Computed for Non-Edit Mode Display
-const displayExamples = computed(() => props.pitch?.examples?.split('|') || ' ')
+const displayExamples = computed(() => {
+  const examples = props.pitch?.examples?.split('|')
+  return examples && Array.isArray(examples) ? examples : []
+})
+
+// Computed exampleString for selected or all examples
+const exampleString = computed(() => {
+  return selectedExamples.value.length
+    ? selectedExamples.value.map((i) => displayExamples.value[i]).join('|')
+    : displayExamples.value.join('|')
+})
+
+// Watch selected examples to update exampleString in pitchStore
+watch(exampleString, () => {
+  pitchStore.exampleString = exampleString.value
+})
 
 // Toggle Edit Mode
 function toggleEditMode() {

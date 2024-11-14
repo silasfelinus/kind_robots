@@ -10,7 +10,7 @@
             placeholder="Edit Title"
           />
         </span>
-        <span v-else>{{ pitch.title }}</span>
+        <span v-else>Title: {{ pitch.title }}</span>
         <button
           v-if="isUserAllowedToEdit"
           class="ml-2 text-gray-500 hover:text-gray-700 transition-transform duration-200"
@@ -34,7 +34,7 @@
           placeholder="Edit Pitch"
         ></textarea>
       </p>
-      <p v-else>{{ pitch.pitch }}</p>
+      <p v-else>Pitch: {{ pitch.pitch }}</p>
       <button
         v-if="isUserAllowedToEdit"
         class="ml-2 text-gray-500 hover:text-gray-700 transition-transform duration-200"
@@ -56,7 +56,7 @@
           placeholder="Edit Description"
         ></textarea>
       </p>
-      <p v-else>{{ pitch.description }}</p>
+      <p v-else>Instructions: {{ pitch.description }}</p>
       <button
         v-if="isUserAllowedToEdit"
         class="ml-2 text-gray-500 hover:text-gray-700 transition-transform duration-200"
@@ -69,7 +69,7 @@
       </button>
     </div>
 
-    <!-- Title Examples Component (No need for global isEditing) -->
+    <!-- Title Examples Component -->
     <title-examples :pitch="pitch" />
 
     <!-- Actions Component -->

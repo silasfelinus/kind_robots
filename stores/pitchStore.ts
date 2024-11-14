@@ -25,7 +25,7 @@ export const usePitchStore = defineStore('pitch', {
     selectedTitle: null as Pitch | null,
     newestPitches: [] as Pitch[], // New array to hold the latest pitches received
     loading: false,
-    numberOfRequests: 5,
+    numberOfRequests: 1,
     temperature: 0.9,
     penetration: 5,
     exampleString: ' ',
@@ -188,8 +188,7 @@ export const usePitchStore = defineStore('pitch', {
         compiledContent += `Description: ${this.selectedTitle.description || ''}\n`
 
         // Use exampleString directly, splitting it by '|'
-        const examples = this.exampleString ? this.exampleString.split('|') : []
-        compiledContent += `Examples:\n${examples.map((example, i) => `Example ${i + 1}: ${example}`).join('\n')}`
+        const examples = "EXAMPLES: " + this.exampleString
       } else {
         console.warn('No selected title found. Exiting fetchBrainstormPitches.')
         return

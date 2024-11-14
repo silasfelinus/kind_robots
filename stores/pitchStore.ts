@@ -160,6 +160,7 @@ export const usePitchStore = defineStore('pitch', {
       const numberOfRequests = this.numberOfRequests || 5
       const maxTokens = this.maxTokens || 500
       const temperature = this.temperature || 0.5
+      const exampleString = this.exampleString || this.selectedTitle?.examples
 
       let compiledContent = ''
       if (this.selectedTitle) {
@@ -173,27 +174,24 @@ export const usePitchStore = defineStore('pitch', {
 
       const requestBody = {
         n: 1,
-        content: `Please generate ${numberOfRequests} ideas for: ${compiledContent}. Separate examples by a | delimiter and fully bookkended by two delimiters, using this response format: EXAMPLES:||${this.exampleString}||"`,
+        content: `Please generate ${numberOfRequests} ideas for: ${compiledContent}. Separate examples by a | delimiter and fully bookkended by two delimiters, using this response format: EXAMPLES:||${exampleString}||"`,
         max_tokens: maxTokens,
         temperature: temperature,
       }
 
       try {
         console.log('Sending title storm request:', requestBody)
-        const response = await performFetch<{ data: string }>(
-          '/api/botcafe/titleStorm',
-          {
-            method: 'POST',
-            body: JSON.stringify(requestBody),
-          },
-        )
+        const response = await performFetch<string>('/api/botcafe/titleStorm', {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+        })
 
         if (response.success) {
           console.log(
             'Title storm fetch successful. Parsing response...',
             response,
           )
-          this.apiResponse = response.data?.data || ' '
+          this.apiResponse = response.data || 'No response'
           console.log('New examples received:', this.apiResponse)
         } else {
           console.warn('Title storm fetch failed:', response.message)

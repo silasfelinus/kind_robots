@@ -1,6 +1,19 @@
 <template>
-  <div>
-    <brainstorm-image />
+  <div class="container mx-auto p-4 space-y-6">
+    <!-- Responsive layout for Brainstorm Image and Temperature Slider -->
+    <div class="flex flex-col md:flex-row md:space-x-4">
+      <!-- Image occupies half width on medium and larger screens -->
+      <div class="w-full md:w-1/2 mb-4 md:mb-0">
+        <brainstorm-image />
+      </div>
+
+      <!-- Temperature slider occupies the other half width on medium and larger screens -->
+      <div class="w-full md:w-1/2">
+        <temperature-slider />
+      </div>
+    </div>
+
+    <!-- Other Components Below the Main Row -->
     <brainstorm-selector />
     <add-pitch />
 
@@ -23,5 +36,7 @@
 </template>
 
 <script setup lang="ts">
+import { usePitchStore } from '~/stores/pitchStore'
+
 const pitchStore = usePitchStore()
 </script>

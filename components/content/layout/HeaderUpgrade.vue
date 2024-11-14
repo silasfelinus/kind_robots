@@ -5,13 +5,6 @@
   >
     <!-- Left Section: Avatar -->
     <div class="flex items-center justify-center w-1/4 h-full relative rounded-2xl">
-      <avatar-image<template>
-  <header
-    class="flex items-center justify-between bg-base-300 rounded-2xl border-4 p-1 max-w-full box-border"
-    :style="{ height: displayStore.headerHeight }"
-  >
-    <!-- Left Section: Avatar -->
-    <div class="flex items-center justify-center w-1/4 h-full relative rounded-2xl">
       <avatar-image alt="User Avatar" class="w-full h-full rounded-2xl object-cover" />
       <!-- Special Overlay: Shows viewportSize, positioned inside avatar-image -->
       <div

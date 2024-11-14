@@ -13,7 +13,6 @@
         type="text"
         class="w-full p-3 lg:text-lg rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-primary"
         placeholder="Enter example"
-        @input="updateExampleString"
       />
       <span v-else>{{ example }}</span>
 
@@ -69,16 +68,14 @@ const props = defineProps<{ pitch?: Partial<Pitch>; isEditing: boolean }>()
 const pitchStore = usePitchStore()
 
 const currentExamples = ref<string[]>([])
-const selectedExamples = ref<string[]>([])
 
-// Initialize currentExamples based on pitch examples
+// Initialize currentExamples from selectedTitle examples
 function initializeExamples() {
   currentExamples.value = props.pitch?.examples?.split('|') || []
 }
 
+// Call initializeExamples on component mount and whenever `isEditing` changes
 initializeExamples()
-
-// Watch for changes in isEditing to reset currentExamples when entering edit mode
 watch(
   () => props.isEditing,
   (newEditingStatus) => {
@@ -88,20 +85,13 @@ watch(
   },
 )
 
-// Update exampleString in pitchStore and sync selectedExamples
-function updateExampleString() {
-  pitchStore.exampleString = currentExamples.value.join('|')
-  selectedExamples.value = [...currentExamples.value] // Sync selectedExamples
-}
-
+// Edit actions
 function addExample() {
   currentExamples.value.push('')
-  updateExampleString()
 }
 
 function removeExample(index: number) {
   currentExamples.value.splice(index, 1)
-  updateExampleString()
 }
 
 function moveExample(index: number, direction: number) {
@@ -110,13 +100,15 @@ function moveExample(index: number, direction: number) {
     const temp = currentExamples.value[index]
     currentExamples.value[index] = currentExamples.value[newIndex]
     currentExamples.value[newIndex] = temp
-    updateExampleString()
   }
 }
 
+// Save to selectedTitle on save
 async function saveSelectedExamples() {
   if (props.pitch?.id) {
-    await pitchStore.updatePitchExamples(props.pitch.id, selectedExamples.value)
+    // Save examples back to pitchStore as a string with | delimiter
+    pitchStore.exampleString = currentExamples.value.join('|')
+    await pitchStore.updatePitchExamples(props.pitch.id, currentExamples.value)
   } else {
     console.warn("Can't save examples: pitch ID is missing.")
   }

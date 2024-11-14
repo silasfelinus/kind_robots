@@ -32,6 +32,7 @@
     </button>
 
 <div> {{newestPitches}} </div>
+<div> {{lastResponse}}</div>
   </div>
 </template>
 
@@ -41,6 +42,7 @@ import { usePitchStore, type Pitch } from '~/stores/pitchStore'
 
 const pitchStore = usePitchStore()
 const newestPitches = computed(() => pitchStore.newestPitches)
+const lastResponse = computed(() => pitchStore.apiResponse)
 
 
 // Computed property for filtering displayed pitches

@@ -21,12 +21,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue'
+import { computed } from 'vue'
+import { usePitchStore } from '~/stores/pitchStore'
 
-const leftLabel: string = 'Consistency'
-const rightLabel: string = 'Creativity'
+const pitchStore = usePitchStore()
 
-const temperature = ref()
+// Labels for slider
+const leftLabel = 'Consistency'
+const rightLabel = 'Creativity'
+
+// Computed property to get/set pitchStore.temperature directly
+const temperature = computed({
+  get: () => pitchStore.temperature,
+  set: (value) => (pitchStore.temperature = value),
+})
+
+// Descriptions based on temperature levels
 const descriptions = [
   '0.0: Consistently Consistent',
   '0.1: Nearly consistent.',
@@ -40,14 +50,15 @@ const descriptions = [
   '0.9: Prone to Flights of Fancy',
   '1.0: Maximum Creativity!',
 ]
-const description = ref('')
 
-watchEffect(() => {
-  description.value = descriptions[Math.round(temperature.value * 10)]
-})
+// Description dynamically updates based on temperature
+const description = computed(
+  () => descriptions[Math.round(temperature.value * 10)],
+)
 </script>
 
 <style scoped>
+/* Styling for the slider */
 .slider {
   -webkit-appearance: none;
   appearance: none;

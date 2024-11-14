@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Pre-created content for the request
-    const content = "Please generate title brainstorm ideas in the format ||{{exampleString}}||."
+    const content = body.content
 
     // Construct the request data for OpenAI
     const pitchRequest = {
@@ -61,13 +61,13 @@ export default defineEventHandler(async (event) => {
 
     // Extract and parse the response data within the "|| ||" delimiters
     const rawContent = responseData.choices[0].message.content.trim()
-    const extractedContent = rawContent.match(/\|\|(.*?)\|\|/)?.[1]
+    const data = rawContent.match(/\|\|(.*?)\|\|/)?.[1]
 
-    if (extractedContent) {
+    if (data) {
       // Correct format: Split by '|' and trim each entry
       const parsedData = extractedContent.split('|').map(entry => entry.trim())
       savedPitches.push(...parsedData.map((pitch) => ({ title: pitch, pitch })))
-      return { success: true, message: 'Pitches generated successfully.', data: parsedData }
+      return { success: true, message: 'Examples generated successfully.', data }
     } else {
       // Incorrect format: Return the raw content with a warning message
       return {

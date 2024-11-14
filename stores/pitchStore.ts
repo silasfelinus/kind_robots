@@ -156,6 +156,65 @@ export const usePitchStore = defineStore('pitch', {
         }
       }
     },
+  async fetchTitleStormPitches(): Promise<void> {
+  const numberOfRequests = this.numberOfRequests || 5 // Default to 5 if not set
+
+  // Compile content from selectedTitle and exampleString
+  let compiledContent = ''
+  if (this.selectedTitle) {
+    console.log('Selected title found:', this.selectedTitle.title)
+    compiledContent += `Title: ${this.selectedTitle.title}\n`
+    compiledContent += `Description: ${this.selectedTitle.description || ''}\n`
+
+    // Use exampleString directly, and instruct the format with "||" wrapping
+    const examples = `EXAMPLES: ||${this.exampleString}||`
+    compiledContent += examples
+  } else {
+    console.warn('No selected title found. Exiting fetchTitleStormPitches.')
+    return
+  }
+
+  const requestBody = {
+    n: numberOfRequests,
+    content: `Please generate title brainstorm ideas for:\n${compiledContent}\nResponse format: "Example: ||{{exampleString}}||"`,
+    max_tokens: 500,
+    temperature: this.temperature,
+  }
+
+  try {
+    console.log('Sending title storm request:', requestBody)
+    const response = await performFetch<{ data: string }>(
+      '/api/botcafe/titleStorm',
+      {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+      },
+    )
+
+    if (response.success) {
+      console.log('Title storm fetch successful. Parsing response...', response)
+      
+      // Expecting a single string wrapped in "|| ||"
+      const apiResponse = response.data || ''
+      this.apiResponse = apiResponse
+      
+      // Extract content within "|| ||" and split by the delimiter inside
+      const extractedContent = apiResponse.match(/\|\|(.*?)\|\|/)?.[1] || ''
+      this.newestTitles = extractedContent.split('|').map(entry => entry.trim())
+      console.log('New titles added:', this.newestTitles)
+      
+    } else {
+      console.warn('Title storm fetch failed:', response.message)
+      throw new Error(response.message)
+    }
+  } catch (error) {
+    console.error('Error during fetchTitleStormPitches:', error)
+    handleError(error, 'fetching title storm pitches')
+  } finally {
+    console.log('fetchTitleStormPitches operation completed.')
+  }
+},
+
 
     async fetchRandomPitches(count: number): Promise<void> {
       try {

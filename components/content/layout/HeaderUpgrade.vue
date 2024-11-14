@@ -37,8 +37,8 @@
     </div>
 
     <!-- Right Section: Icons and Login -->
-    <div class="flex items-center justify-end space-x-2 w-1/2">
-      <login-path class="w-1/3 space-x-4" />
+    <div class="flex items-center justify-end md:space-x-2 w:1/4 md:w-1/2">
+      <login-path class="w-1/3 space-x-1 md:space-x-4" />
       <theme-icon class="w-1/3" />
       <swarm-icon class="w-1/3" />
     </div>

@@ -165,18 +165,14 @@ export const usePitchStore = defineStore('pitch', {
         console.log('Selected title found:', this.selectedTitle.title)
         compiledContent += `Title: ${this.selectedTitle.title}\n`
         compiledContent += `Description: ${this.selectedTitle.description || ''}\n`
-
-        // Use exampleString directly, and instruct the format with "||" wrapping
-        const examples = `EXAMPLES: ||${this.exampleString}||`
-        compiledContent += examples
       } else {
         console.warn('No selected title found. Exiting fetchTitleStormPitches.')
         return
       }
 
       const requestBody = {
-        n: numberOfRequests,
-        content: `Please generate title brainstorm ideas for:\n${compiledContent}\nResponse format: "Example: ||{{exampleString}}||"`,
+        n: 1,
+        content: `Please generate ${numberOfRequests} ideas for:\n${compiledContent}\nSeparate examples by a | delimiter using this response format: "||${this.exampleString}||"`,
         max_tokens: 500,
         temperature: this.temperature,
       }
@@ -200,7 +196,7 @@ export const usePitchStore = defineStore('pitch', {
           // Expecting a single string wrapped in "|| ||"
           this.apiResponse = response.data?.data || ' '
 
-          console.log('New titles added:', this.apiResponse)
+          console.log('New examles received:', this.apiResponse)
         } else {
           console.warn('Title storm fetch failed:', response.message)
           throw new Error(response.message)

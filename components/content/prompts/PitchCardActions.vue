@@ -147,7 +147,7 @@ const getMoreBrainstorms = async () => {
   errorStore.clearError()
   try {
     if (props.pitch) pitchStore.setSelectedTitle(props.pitch.id)
-    await pitchStore.fetchBrainstormPitches()
+    await pitchStore.fetchTitleStormPitches()
   } catch (error) {
     errorStore.setError(ErrorType.UNKNOWN_ERROR, (error as Error).message)
     console.error('Error fetching brainstorm pitches:', error)

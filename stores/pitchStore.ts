@@ -410,6 +410,10 @@ export const usePitchStore = defineStore('pitch', {
         }
       }
     },
+    async updatePitchExamples(pitchId: number, examplesArray: string[]) {
+      const updatedString = examplesArray.join('|')
+      await this.updatePitch(pitchId, { examples: updatedString })
+    },
 
     async deletePitch(
       pitchId: number,

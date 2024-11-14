@@ -27,9 +27,9 @@ export const usePitchStore = defineStore('pitch', {
     loading: false,
     numberOfRequests: 1,
     temperature: 0.9,
-    penetration: 5,
     exampleString: ' ',
     apiResponse: ' ',
+    maxTokens: 500,
   }),
 
   getters: {

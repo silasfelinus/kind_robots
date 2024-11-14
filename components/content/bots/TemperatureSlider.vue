@@ -1,22 +1,61 @@
 <template>
   <div>
-    <p class="text-sm text-center text-base-content">
-      {{ description }}
-    </p>
-    <div class="mt-1 relative rounded-md shadow-sm">
-      <input
-        id="slider"
-        v-model="temperature"
-        type="range"
-        step="0.1"
-        min="0"
-        max="1"
-        class="slider bg-accent h-1 w-full overflow-hidden cursor-pointer rounded-full"
-      />
+    <!-- Temperature Slider -->
+    <div class="mb-6">
+      <p class="text-sm text-center text-base-content">
+        {{ temperatureDescription }}
+      </p>
+      <div class="mt-1 relative rounded-md shadow-sm">
+        <input
+          id="temperature-slider"
+          v-model="temperature"
+          type="range"
+          step="0.1"
+          min="0"
+          max="1"
+          class="slider bg-accent h-1 w-full overflow-hidden cursor-pointer rounded-full"
+        />
+      </div>
+      <p class="text-md text-base-content">Consistency ---- Creativity</p>
     </div>
-    <p class="text-md text-base-content">
-      {{ leftLabel }} ---- {{ rightLabel }}
-    </p>
+
+    <!-- Number of Requests Slider -->
+    <div class="mb-6">
+      <p class="text-sm text-center text-base-content">
+        Number of Requests: {{ numberOfRequests }}
+      </p>
+      <div class="mt-1 relative rounded-md shadow-sm">
+        <input
+          id="requests-slider"
+          v-model="numberOfRequests"
+          type="range"
+          step="1"
+          min="1"
+          max="50"
+          class="slider bg-accent h-1 w-full overflow-hidden cursor-pointer rounded-full"
+        />
+      </div>
+      <p class="text-md text-base-content">Few Requests ---- Many Requests</p>
+    </div>
+
+    <!-- Max Tokens Slider -->
+    <div class="mb-6">
+      <p class="text-sm text-center text-base-content">
+        Max Tokens: {{ maxTokens }}
+      </p>
+      <div class="mt-1 relative rounded-md shadow-sm">
+        <input
+          id="tokens-slider"
+          v-model="maxTokens"
+          type="range"
+          step="25"
+          min="25"
+          max="1000"
+          class="slider bg-accent h-1 w-full overflow-hidden cursor-pointer rounded-full"
+        />
+      </div>
+      <p class="text-md text-base-content">Fewer Tokens ---- More Tokens</p>
+    </div>
   </div>
 </template>
 
@@ -26,18 +65,14 @@ import { usePitchStore } from '~/stores/pitchStore'
 
 const pitchStore = usePitchStore()
 
-// Labels for slider
-const leftLabel = 'Consistency'
-const rightLabel = 'Creativity'
-
-// Computed property to get/set pitchStore.temperature directly
+// Temperature slider bindings
 const temperature = computed({
   get: () => pitchStore.temperature,
   set: (value) => (pitchStore.temperature = value),
 })
 
 // Descriptions based on temperature levels
-const descriptions = [
+const temperatureDescriptions = [
   '0.0: Consistently Consistent',
   '0.1: Nearly consistent.',
   '0.2: Strongly consistent.',
@@ -50,11 +85,21 @@ const descriptions = [
   '0.9: Prone to Flights of Fancy',
   '1.0: Maximum Creativity!',
 ]
-
-// Description dynamically updates based on temperature
-const description = computed(
-  () => descriptions[Math.round(temperature.value * 10)],
+const temperatureDescription = computed(
+  () => temperatureDescriptions[Math.round(temperature.value * 10)],
 )
+
+// Number of Requests slider bindings
+const numberOfRequests = computed({
+  get: () => pitchStore.numberOfRequests,
+  set: (value) => (pitchStore.numberOfRequests = value),
+})
+
+// Max Tokens slider bindings
+const maxTokens = computed({
+  get: () => pitchStore.maxTokens,
+  set: (value) => (pitchStore.maxTokens = value),
+})
 </script>
 
 <style scoped>

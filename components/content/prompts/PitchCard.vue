@@ -25,8 +25,8 @@
       <p class="text-sm text-gray-500">{{ pitch.designer }}</p>
     </div>
 
-    <!-- Pitch Section with Local Editing Toggle -->
-    <div class="mb-4">
+    <!-- Conditionally Display Pitch Section -->
+    <div v-if="!isTitleType" class="mb-4">
       <p v-if="isPitchEditing">
         <textarea
           v-model="editablePitch.pitch"
@@ -92,7 +92,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePitchStore } from '~/stores/pitchStore'
+import { usePitchStore, PitchType } from '~/stores/pitchStore'
 import { useUserStore } from '~/stores/userStore'
 import type { Pitch } from '~/stores/pitchStore'
 
@@ -105,10 +105,14 @@ const emit = defineEmits(['save', 'delete', 'cancel'])
 const pitchStore = usePitchStore()
 const userStore = useUserStore()
 
+// Determine if the user is allowed to edit the pitch
 const isUserAllowedToEdit = computed(
   () =>
     props.pitch.userId === userStore.userId || userStore.user?.Role === 'ADMIN',
 )
+
+// Check if pitch type is TITLE
+const isTitleType = computed(() => props.pitch.type === PitchType.TITLE)
 
 // Local editing states for each section
 const isTitleEditing = ref(false)

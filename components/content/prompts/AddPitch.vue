@@ -75,7 +75,7 @@
           </div>
 
           <!-- Pass formState as pitch to TitleExamples -->
-          <TitleExamples :pitch="formState" :is-editing="isEditing" />
+          <TitleExamples :pitch="formState" :is-editing="true" />
 
           <div class="mb-4 flex items-center">
             <input

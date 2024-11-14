@@ -2,7 +2,7 @@
   <nuxt-img
     src="/images/avatars/brain1.webp"
     alt="Brainstorm"
-    class="w-full h-auto object-cover rounded-lg"
+    class="w-1/2 h-auto object-cover rounded-lg"
   />
 </template>
 

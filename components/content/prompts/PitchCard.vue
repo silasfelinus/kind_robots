@@ -1,7 +1,7 @@
 <template>
   <div class="pitch-card bg-base-300 rounded-2xl p-4 shadow-lg">
     <div class="header flex justify-between items-center mb-4">
-      <h2 class="text-lg font-semibold">
+      <h2 class="text-lg font-semibold flex items-center">
         <!-- Title Section with Local Editing Toggle -->
         <span v-if="isTitleEditing">
           <input
@@ -13,10 +13,13 @@
         <span v-else>{{ pitch.title }}</span>
         <button
           v-if="isUserAllowedToEdit"
-          class="ml-2"
+          class="ml-2 text-gray-500 hover:text-gray-700 transition-transform duration-200"
           @click="toggleTitleEdit"
         >
-          {{ isTitleEditing ? 'Save' : 'Edit' }}
+          <Icon
+            :name="isTitleEditing ? 'mdi:check' : 'mdi:pencil'"
+            class="w-5 h-5"
+          />
         </button>
       </h2>
       <p class="text-sm text-gray-500">{{ pitch.designer }}</p>
@@ -32,29 +35,37 @@
         ></textarea>
       </p>
       <p v-else>{{ pitch.pitch }}</p>
-      <button v-if="isUserAllowedToEdit" class="ml-2" @click="togglePitchEdit">
-        {{ isPitchEditing ? 'Save' : 'Edit' }}
-      </button>
-
-      <!-- Description Section with Local Editing Toggle -->
-      <label
-        v-if="isDescriptionEditing"
-        class="block text-sm font-semibold mb-2"
-        >Description</label
+      <button
+        v-if="isUserAllowedToEdit"
+        class="ml-2 text-gray-500 hover:text-gray-700 transition-transform duration-200"
+        @click="togglePitchEdit"
       >
-      <textarea
-        v-if="isDescriptionEditing"
-        v-model="editablePitch.description"
-        class="w-full bg-transparent border p-2 rounded-md"
-        placeholder="Edit Description"
-      ></textarea>
+        <Icon
+          :name="isPitchEditing ? 'mdi:check' : 'mdi:pencil'"
+          class="w-5 h-5"
+        />
+      </button>
+    </div>
+
+    <!-- Description Section with Local Editing Toggle -->
+    <div class="mb-4">
+      <p v-if="isDescriptionEditing">
+        <textarea
+          v-model="editablePitch.description"
+          class="w-full bg-transparent border p-2 rounded-md"
+          placeholder="Edit Description"
+        ></textarea>
+      </p>
       <p v-else>{{ pitch.description }}</p>
       <button
         v-if="isUserAllowedToEdit"
-        class="ml-2"
+        class="ml-2 text-gray-500 hover:text-gray-700 transition-transform duration-200"
         @click="toggleDescriptionEdit"
       >
-        {{ isDescriptionEditing ? 'Save' : 'Edit' }}
+        <Icon
+          :name="isDescriptionEditing ? 'mdi:check' : 'mdi:pencil'"
+          class="w-5 h-5"
+        />
       </button>
     </div>
 

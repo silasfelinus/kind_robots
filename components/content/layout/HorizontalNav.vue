@@ -44,9 +44,12 @@ const hardcodedLinks = ref([
     icon: 'kind-icon:chatbubble',
   },
   { title: 'Art Lab', path: '/artmaker', icon: 'kind-icon:easel' },
-  { title: 'Memory Match', path: '/memory', icon: 'kind-icon:brain' },
+  {
+    title: 'Memory Match',
+    path: '/memory',
+    icon: 'kind-icon:brain',
+  },
   { title: 'Wonder Lab', path: '/wonderlab', icon: 'kind-icon:gearhammer' },
-  { title: 'Dash', path: '/dashboard', icon: 'kind-icon:settings' },
   {
     title: 'Weird Land',
     path: '/weirdlandia',

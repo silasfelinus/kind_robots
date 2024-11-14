@@ -17,6 +17,7 @@
           class="border border-orange-500 rounded-lg shadow-md"
         />
       </div>
+      <api-response />
     </section>
   </div>
 </template>

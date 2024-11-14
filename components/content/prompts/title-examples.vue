@@ -55,11 +55,7 @@
     </div>
 
     <!-- Add and Save Buttons in Edit Mode -->
-    <button
-      v-if="isEditing"
-      class="btn btn-secondary mt-4"
-      @click="addExample"
-    >
+    <button v-if="isEditing" class="btn btn-secondary mt-4" @click="addExample">
       Add New Example
     </button>
     <button
@@ -86,7 +82,7 @@ const selectedExamples = ref<number[]>([])
 const editableExamples = ref<string[]>([])
 
 // Computed for Non-Edit Mode Display
-const displayExamples = computed(() => props.pitch.examples.split('|'))
+const displayExamples = computed(() => props.pitch?.examples?.split('|') || ' ')
 
 // Toggle Edit Mode
 function toggleEditMode() {

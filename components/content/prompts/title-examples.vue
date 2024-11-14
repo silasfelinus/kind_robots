@@ -12,7 +12,7 @@
 
     <!-- Display Examples in Edit or Non-Edit Mode -->
     <div
-      v-for="(example, index) in isEditing ? editableExamples : nonEditExamples"
+      v-for="(example, index) in isEditing ? editableExamples : displayExamples"
       :key="index"
       class="flex items-center space-x-3 mb-3 p-3 rounded-lg border border-gray-300 shadow-md"
       :class="{
@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { usePitchStore, type Pitch } from '~/stores/pitchStore'
 
 const props = defineProps<{ pitch?: Partial<Pitch> }>()
@@ -85,13 +85,13 @@ const pitchStore = usePitchStore()
 // Local State for Edit Mode
 const isEditing = ref(false) // Track edit mode locally
 const editableExamples = ref<string[]>([]) // Track editable examples only when in edit mode
-const exampleString = ref<string>('') // Main example string updated in non-edit mode
+const exampleString = ref<string>('') // Main example string updated by selections in non-edit mode
 const selectedExamples = ref<number[]>([]) // Track selected example indices in non-edit mode
 
 // Initialize Examples for Non-Edit Mode and Edit Mode Separately
 function initializeExamples() {
   if (props.pitch) {
-    // Populate exampleString for non-edit mode display
+    // Use pitch.examples for non-edit display and editableExamples for editing
     exampleString.value = props.pitch.examples || ''
     editableExamples.value = exampleString.value.split('|') // Only for editing
     selectedExamples.value = [] // Reset selections on initialization
@@ -99,17 +99,18 @@ function initializeExamples() {
 }
 initializeExamples()
 
-// Non-Edit Mode Display Examples (computed from exampleString)
-const nonEditExamples = computed(() => {
-  return exampleString.value.split('|')
+// Watch for changes to pitch examples when props update
+watch(() => props.pitch?.examples, initializeExamples)
+
+// Non-Edit Mode Display Examples (directly from pitch.examples)
+const displayExamples = computed(() => {
+  return props.pitch?.examples?.split('|') || []
 })
 
 // Toggle Edit Mode
 function toggleEditMode() {
   isEditing.value = !isEditing.value
-  if (isEditing.value) {
-    editableExamples.value = exampleString.value.split('|') // Initialize editable list
-  } else {
+  if (!isEditing.value) {
     saveEditedExamples() // Save edits to exampleString on toggle exit
   }
 }
@@ -129,7 +130,7 @@ function toggleExampleSelection(index: number) {
 function updateExampleStringFromSelection() {
   // Join selected examples by '|' to form a single string
   const selectedStrings = selectedExamples.value
-    .map((i) => nonEditExamples.value[i])
+    .map((i) => displayExamples.value[i])
     .join('|')
   exampleString.value = selectedStrings
 }

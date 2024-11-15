@@ -56,9 +56,9 @@ const hardcodedLinks = [
   { title: 'Home', path: '/', icon: 'kind-icon:home' },
   { title: 'Bot Cafe', path: '/botcafe', icon: 'kind-icon:addbot' },
   {
-    title: 'Prompt Factory',
-    path: '/pitch',
-    icon: 'kind-icon:chatbubble',
+    title: 'Brainstorm!',
+    path: '/brainstorm',
+    icon: 'kind-icon:brain',
   },
   { title: 'Art Lab', path: '/artmaker', icon: 'kind-icon:easel' },
   {

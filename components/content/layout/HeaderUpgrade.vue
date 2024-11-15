@@ -29,7 +29,7 @@
       <div class="flex-row justify-between h-2/3 w-full">
         <!-- Subtitle Section -->
         <h2
-          class="text-sm md:text-md lg:text-lg xl:text-xl italic text-ellipsis w-1/2"
+          class="text-sm md:text-md flex-row lg:text-lg xl:text-xl italic text-ellipsis w-1/2"
         >
           {{ subtitle }}
         </h2>

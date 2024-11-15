@@ -188,33 +188,29 @@ export const usePitchStore = defineStore('pitch', {
 
         if (response.success) {
           console.log(
-            'Title storm fetch successful. Parsing response...',
+            'Title storm fetch successful. Storing response...',
             response,
           )
           this.apiResponse = response.data || 'No response'
           console.log('New examples received:', this.apiResponse)
 
-          // Process the received examples
-          const newExamples = this.apiResponse
-            .split('|')
-            .map((example) => example.trim())
+          // Create a single new pitch using the full response as examples
+          const newPitchData: Partial<Pitch> = {
+            title: this.selectedTitle?.title || 'Untitled',
+            description: this.selectedTitle?.description || '',
+            examples: this.apiResponse,
+            PitchType: PitchType.BRAINSTORM,
+            pitch: this.apiResponse, // Store the entire AI response as the pitch content
+          }
 
-          // Reset newestPitches with the new batch of examples
-          this.newestPitches = []
-
-          // Map each example to a new pitch object and add to pitches and newestPitches
-          for (const example of newExamples) {
-            if (example) {
-              const newPitch = await this.createPitch({
-                title: this.selectedTitle?.title || 'Untitled',
-                description: this.selectedTitle?.description || '',
-                pitch: example,
-                PitchType: PitchType.TITLE,
-              })
-              if (newPitch && newPitch.success && newPitch.data) {
-                this.newestPitches.push(newPitch.data) // Only push if newPitch.data is defined
-              }
-            }
+          // Call createPitch to add the new pitch to the store
+          const createdPitch = await this.createPitch(newPitchData)
+          if (createdPitch && createdPitch.success && createdPitch.data) {
+            // Update newestPitches with the newly created pitch
+            this.newestPitches = [createdPitch.data]
+            console.log('New brainstorm pitch added:', createdPitch.data)
+          } else {
+            console.warn('Failed to create pitch from title storm response.')
           }
         } else {
           console.warn('Title storm fetch failed:', response.message)
@@ -227,6 +223,7 @@ export const usePitchStore = defineStore('pitch', {
         console.log('fetchTitleStormPitches operation completed.')
       }
     },
+
     async fetchRandomPitches(count: number): Promise<void> {
       try {
         console.log('Starting fetchRandomPitches...')
@@ -249,71 +246,77 @@ export const usePitchStore = defineStore('pitch', {
     },
 
     async fetchBrainstormPitches(): Promise<void> {
-  const numberOfRequests = this.numberOfRequests || 5
-  const maxTokens = this.maxTokens || 500
-  const temperature = this.temperature || 0.5
+      const numberOfRequests = this.numberOfRequests || 5
+      const maxTokens = this.maxTokens || 500
+      const temperature = this.temperature || 0.5
 
-  let compiledContent = ''
-  if (this.selectedTitle) {
-    console.log('Selected title found:', this.selectedTitle.title)
-    compiledContent += `Title: ${this.selectedTitle.title}\n`
-    compiledContent += `Description: ${this.selectedTitle.description || ''}\n`
-    compiledContent += `Please provide ${numberOfRequests} examples separated by | delimiters`
+      let compiledContent = ''
+      if (this.selectedTitle) {
+        console.log('Selected title found:', this.selectedTitle.title)
+        compiledContent += `Title: ${this.selectedTitle.title}\n`
+        compiledContent += `Description: ${this.selectedTitle.description || ''}\n`
+        compiledContent += `Please provide ${numberOfRequests} examples separated by | delimiters`
 
-    if (this.exampleString) {
-      compiledContent += `\nExamples: ||${this.exampleString}||`
-    }
-  } else {
-    console.warn('No selected title found. Exiting fetchBrainstormPitches.')
-    return
-  }
+        if (this.exampleString) {
+          compiledContent += `\nExamples: ||${this.exampleString}||`
+        }
+      } else {
+        console.warn('No selected title found. Exiting fetchBrainstormPitches.')
+        return
+      }
 
-  const requestBody = {
-    n: numberOfRequests,
-    content: `Please generate brainstorm ideas for:\n${compiledContent}`,
-    max_tokens: maxTokens,
-    temperature: temperature,
-  }
+      const requestBody = {
+        n: numberOfRequests,
+        content: `Please generate brainstorm ideas for:\n${compiledContent}`,
+        max_tokens: maxTokens,
+        temperature: temperature,
+      }
 
-  try {
-    console.log('Sending brainstorm request:', requestBody)
-    const response = await performFetch<{ data: string }>(
-      '/api/botcafe/brainstorm',
-      {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-      },
-    )
+      try {
+        console.log('Sending brainstorm request:', requestBody)
+        const response = await performFetch<string>('/api/botcafe/brainstorm', {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+        })
 
-    if (response.success) {
-      console.log('Brainstorm fetch successful. Parsing response...', response)
+        if (response.success) {
+          console.log(
+            'Brainstorm fetch successful. Storing response...',
+            response,
+          )
 
-      // Expecting a single string with entries separated by '|'
-      const apiResponse = response.data || ''
-      this.apiResponse = apiResponse
-      
-      // Split by '|' and create Pitch objects with PitchType as 'BRAINSTORM'
-      const newPitches = apiResponse.split('|').map(entry => ({
-        title: entry.trim(),
-        pitch: entry.trim(),
-        PitchType: 'BRAINSTORM', // Setting PitchType for each pitch
-      }))
-      
-      this.newestPitches = newPitches
-      this.addPitches(newPitches)
-      console.log('New pitches added:', newPitches)
-    } else {
-      console.warn('Brainstorm fetch failed:', response.message)
-      throw new Error(response.message)
-    }
-  } catch (error) {
-    console.error('Error during fetchBrainstormPitches:', error)
-    handleError(error, 'fetching brainstorm pitches')
-  } finally {
-    console.log('fetchBrainstormPitches operation completed.')
-  }
-},
+          // Extract the response data for the examples field
+          const apiResponse = response.data || ''
+          this.apiResponse = apiResponse
 
+          // Create a partial pitch and send to createPitch
+          const newPitchData: Partial<Pitch> = {
+            title: this.selectedTitle?.title || 'Untitled Pitch',
+            description: this.selectedTitle?.description || '',
+            examples: apiResponse,
+            PitchType: PitchType.BRAINSTORM,
+            pitch: apiResponse, // Storing full API response as pitch content for now
+          }
+
+          // Use createPitch to handle the new pitch
+          const createdPitch = await this.createPitch(newPitchData)
+          if (createdPitch && createdPitch.success && createdPitch.data) {
+            this.newestPitches = [createdPitch.data]
+            console.log('New pitch added:', createdPitch.data)
+          } else {
+            console.warn('Failed to create pitch from brainstorm response.')
+          }
+        } else {
+          console.warn('Brainstorm fetch failed:', response.message)
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        console.error('Error during fetchBrainstormPitches:', error)
+        handleError(error, 'fetching brainstorm pitches')
+      } finally {
+        console.log('fetchBrainstormPitches operation completed.')
+      }
+    },
 
     addPitches(newPitches: Pitch[]) {
       const pitchesToAdd = newPitches.filter(
@@ -412,12 +415,10 @@ export const usePitchStore = defineStore('pitch', {
       description = null,
       examples = null,
       artImageId = null,
-      PitchType = this.selectedPitchType || 'ARTPITCH',
+      PitchType = 'TITLE',
     }: Partial<Pitch>) {
       try {
         const userStore = useUserStore()
-
-        
 
         const newPitch = {
           userId: userStore.userId || 10,

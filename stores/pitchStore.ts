@@ -174,7 +174,7 @@ export const usePitchStore = defineStore('pitch', {
 
       const requestBody = {
         n: 1,
-        content: `Please generate ${numberOfRequests} ideas for: ${compiledContent}. Separate examples by a | delimiter and fully bookkended by two delimiters, using this response format: EXAMPLES:||${exampleString}||"`,
+        content: `Please generate ${numberOfRequests} new and original examples for: ${compiledContent}. Separate examples by a | delimiter, and fully bookend with two delimiters, using this response format: EXAMPLES:||${exampleString}||"`,
         max_tokens: maxTokens,
         temperature: temperature,
       }
@@ -193,6 +193,29 @@ export const usePitchStore = defineStore('pitch', {
           )
           this.apiResponse = response.data || 'No response'
           console.log('New examples received:', this.apiResponse)
+
+          // Process the received examples
+          const newExamples = this.apiResponse
+            .split('|')
+            .map((example) => example.trim())
+
+          // Reset newestPitches with the new batch of examples
+          this.newestPitches = []
+
+          // Map each example to a new pitch object and add to pitches and newestPitches
+          for (const example of newExamples) {
+            if (example) {
+              const newPitch = await this.createPitch({
+                title: this.selectedTitle?.title || 'Untitled',
+                description: this.selectedTitle?.description || '',
+                pitch: example,
+                PitchType: PitchType.TITLE,
+              })
+              if (newPitch && newPitch.success && newPitch.data) {
+                this.newestPitches.push(newPitch.data) // Only push if newPitch.data is defined
+              }
+            }
+          }
         } else {
           console.warn('Title storm fetch failed:', response.message)
           throw new Error(response.message)
@@ -204,7 +227,6 @@ export const usePitchStore = defineStore('pitch', {
         console.log('fetchTitleStormPitches operation completed.')
       }
     },
-
     async fetchRandomPitches(count: number): Promise<void> {
       try {
         console.log('Starting fetchRandomPitches...')
@@ -412,8 +434,9 @@ export const usePitchStore = defineStore('pitch', {
         if (response.success && response.data) {
           // Add the newly created pitch to the store
           this.pitches.push(response.data)
+          const data = response.data
           this.clearLocalStorage() // Update local storage after data modification
-          return { success: true, message: 'Pitch created successfully' }
+          return { success: true, message: 'Pitch created successfully', data }
         } else {
           useErrorStore().setError(
             ErrorType.NETWORK_ERROR,

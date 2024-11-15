@@ -2,18 +2,19 @@
   <div class="api-response-container">
     <h2 class="text-xl font-semibold mb-4 text-black">API Response Debug</h2>
     <!-- Display raw apiResponse for debugging -->
-    <pre class="bg-gray-100 p-4 rounded mb-4">
+    <pre class="bg-gray-100 p-4 rounded mb-4 text-black">
 Responses:
-{{ pitchStore.apiResponse }}</pre
-    >
+{{ pitchStore.apiResponse }}
+    </pre>
 
-    <h2 class="text-lg font-semibold mb-2">Parsed Examples</h2>
+    <h2 class="text-lg font-semibold mb-2 text-black">Parsed Examples</h2>
     <div v-if="parsedExamples.length" class="example-list space-y-3">
       <div
         v-for="(example, index) in parsedExamples"
         :key="index"
         class="flex items-center space-x-3 p-3 rounded-lg border border-gray-300 shadow-md"
       >
+        <!-- Checkbox for selecting/unselecting examples -->
         <input
           v-model="selectedIndices"
           type="checkbox"
@@ -23,7 +24,7 @@ Responses:
         <input
           v-model="parsedExamples[index]"
           type="text"
-          class="w-full p-2 border rounded focus:outline-none focus:ring"
+          class="w-full p-2 border rounded focus:outline-none focus:ring text-black"
         />
         <button
           class="text-red-500 hover:text-red-700 transform transition-transform duration-200 hover:scale-110"
@@ -63,6 +64,11 @@ watch(
 // Track selected example indices
 const selectedIndices = ref<number[]>([])
 
+// Observe changes to selectedIndices to debug selection/unselection
+watch(selectedIndices, (newSelection) => {
+  console.log('Selected Indices:', newSelection)
+})
+
 // Remove example by index
 function removeExample(index: number) {
   parsedExamples.value.splice(index, 1)
@@ -92,14 +98,3 @@ function addSelectedExamplesToTitle() {
   }
 }
 </script>
-
-<style scoped>
-.api-response-container {
-  max-width: 600px;
-  margin: 0 auto;
-}
-.example-list {
-  display: flex;
-  flex-direction: column;
-}
-</style>

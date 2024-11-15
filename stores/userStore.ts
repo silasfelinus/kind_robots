@@ -3,6 +3,7 @@ import type { User } from '@prisma/client'
 import { performFetch, handleError } from './utils'
 import { useMilestoneStore } from './milestoneStore'
 
+
 interface UserState {
   user: User | null
   token?: string

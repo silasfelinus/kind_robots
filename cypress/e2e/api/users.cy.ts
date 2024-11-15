@@ -32,8 +32,8 @@ describe('User Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body).to.have.property('message').that.is.a('string')
-      createdUserId = response.body.data.id
-      createdUserToken = response.body.data.apiKey // Store the user-specific token
+      createdUserId = response.body.user.id
+      createdUserToken = response.body.user.apiKey // Store the user-specific token
     })
   })
 

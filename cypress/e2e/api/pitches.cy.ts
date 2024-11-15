@@ -132,7 +132,7 @@ describe('Pitch Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.pitch.pitch).to.eq(`Updated-${uniquePitchName}`)
+      expect(response.body.data.pitch).to.eq(`Updated-${uniquePitchName}`)
     })
   })
 
@@ -140,7 +140,7 @@ describe('Pitch Management API Tests', () => {
   it('Retrieve All Pitches', () => {
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/batch`,
+      url: `${baseUrl}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,

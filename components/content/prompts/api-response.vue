@@ -1,12 +1,6 @@
 <template>
   <div class="api-response-container">
-    <h2 class="text-xl font-semibold mb-4 text-black">API Response Debug</h2>
-    <!-- Display raw apiResponse for debugging -->
-    <pre class="bg-gray-100 p-4 rounded mb-4 text-black">
-Responses:
-{{ pitchStore.apiResponse }}
-    </pre>
-
+    
     <h2 class="text-lg font-semibold mb-2 text-black">Parsed Examples</h2>
     <div v-if="parsedExamples.length" class="example-list space-y-3">
       <div

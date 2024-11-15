@@ -29,8 +29,8 @@
       <!-- Right Section: Folder View on top, Reactions at the bottom -->
       <div class="w-1/3 h-full flex flex-col">
         <!-- Folder View (expands as needed) -->
-        <div class="folder-view flex-grow p-4 bg-gray-100 overflow-y-auto">
-          <div v-if="componentStore.selectedFolder" class="text-lg px-4">
+        <div class="folder-view flex-grow p-1 bg-gray-100 overflow-y-auto">
+          <div v-if="componentStore.selectedFolder" class="text-lg px-1">
             Viewing components in folder: {{ componentStore.selectedFolder }}
           </div>
 
@@ -40,20 +40,20 @@
 
           <div
             v-if="componentStore.selectedFolder"
-            class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 h-full overflow-auto"
+            class="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full overflow-auto"
           >
             <component-card
               v-for="component in folderComponents"
               :key="component.id"
               :component="component"
-              class="component-card p-4 bg-white shadow rounded-lg"
+              class="component-card bg-white shadow rounded-lg"
               @select="handleComponentSelect"
             />
           </div>
         </div>
 
         <!-- Reactions or Component Counter (fixed height at bottom) -->
-        <div class="p-4 bg-gray-200 h-1/3">
+        <div class="bg-gray-200 h-1/3">
           <div
             v-if="!componentStore.selectedComponent"
             class="component-counter flex justify-center items-center h-full"
@@ -62,9 +62,7 @@
           </div>
 
           <div v-else class="reactions-screen h-full overflow-auto">
-            <h2 class="text-2xl font-semibold">
-              Reactions for {{ componentStore.selectedComponent.title }}
-            </h2>
+     
             <component-reactions
               :component="componentStore.selectedComponent"
             />

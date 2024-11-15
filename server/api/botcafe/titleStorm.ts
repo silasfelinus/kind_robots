@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     const pitchRequest = {
       model: body.model || 'gpt-4o-mini',
       messages: [{ role: 'user', content }],
-      temperature: body.temperature || 0.7,
+      temperature: body.temperature.toString || 0.7,
       max_tokens: body.maxTokens || 150,
       n: body.n || 5,
       stream: body.stream || false,

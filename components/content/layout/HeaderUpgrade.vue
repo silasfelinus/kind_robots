@@ -1,11 +1,11 @@
 <template>
   <header
-    class="flex flex-col md:flex-row items-center justify-between bg-base-300 rounded-2xl border-1 md:border-2 lg:border-3 xl:border-4 max-w-full box-border"
+    class="flex md:flex-row flex-wrap sm:flex-nowrap items-center justify-between bg-base-300 rounded-2xl border-1 md:border-2 lg:border-3 xl:border-4 max-w-full box-border"
     :style="{ height: displayStore.headerHeight }"
   >
     <!-- Section 1: Avatar -->
     <div
-      class="flex items-center justify-center w-1/5 h-full relative rounded-2xl"
+      class="flex items-center justify-center w-1/5 sm:w-1/6 h-full relative rounded-2xl"
     >
       <avatar-image
         alt="User Avatar"
@@ -19,35 +19,37 @@
         {{ displayStore.viewportSize }}
       </div>
     </div>
-    <!-- Title Section -->
-    <div
-      class="flex flex-col md:w-3/5 w-full justify-center items-center text-center order-1 md:order-none"
-    >
-      <h1
-        class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold w-full text-ellipsis"
-      >
-        The {{ page.title || 'Room' }} Room
-      </h1>
-    </div>
 
-    <!-- Icons Section -->
+    <!-- Right Section: Title, Icons, and Subtitle -->
     <div
-      class="flex justify-around items-center w-full md:w-1/5 h-auto order-2 md:order-none my-2 md:my-0"
+      class="flex flex-col sm:flex-1 w-full h-full justify-between sm:justify-center sm:items-center sm:text-center space-y-2 sm:space-y-0"
     >
-      <login-path class="flex" />
-      <theme-icon class="flex" />
-      <swarm-icon class="flex" />
-    </div>
+      <!-- Title -->
+      <div class="flex justify-center sm:justify-start sm:text-center">
+        <h1
+          class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold text-ellipsis w-full sm:w-auto"
+        >
+          The {{ page.title || 'Room' }} Room
+        </h1>
+      </div>
 
-    <!-- Subtitle Section -->
-    <div
-      class="flex flex-col md:w-3/5 w-full justify-center items-center text-center order-3 md:order-none"
-    >
-      <h2
-        class="text-sm md:text-md lg:text-lg xl:text-xl italic text-ellipsis w-full"
+      <!-- Icons -->
+      <div
+        class="flex justify-around items-center w-full sm:w-auto sm:justify-center"
       >
-        {{ subtitle }}
-      </h2>
+        <login-path class="flex" />
+        <theme-icon class="flex" />
+        <swarm-icon class="flex" />
+      </div>
+
+      <!-- Subtitle -->
+      <div class="flex justify-center sm:justify-start sm:text-center">
+        <h2
+          class="text-sm md:text-md lg:text-lg xl:text-xl italic text-ellipsis w-full sm:w-auto"
+        >
+          {{ subtitle }}
+        </h2>
+      </div>
     </div>
   </header>
 </template>

@@ -1,12 +1,12 @@
 <template>
   <div class="pitch-card bg-base-300 rounded-2xl p-4 shadow-lg">
-    <div class="header flex justify-between items-center mb-4">
+    <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold flex items-center">
         <!-- Title Section with Local Editing Toggle -->
         <span v-if="isTitleEditing">
           <input
             v-model="editablePitch.title"
-            class="bg-transparent border-b border-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-content rounded-md p-1"
+            class="bg-transparent border-b border-gray-400 focus:border-primary focus:outline-none focus:ring-2 rounded-md p-1"
             placeholder="Edit Title"
           />
         </span>
@@ -30,7 +30,7 @@
       <p v-if="isPitchEditing">
         <textarea
           v-model="editablePitch.pitch"
-          class="w-full bg-transparent border border-gray-400 p-2 rounded-md focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-content"
+          class="w-full bg-transparent border border-gray-400 p-2 rounded-md focus:border-primary focus:outline-none focus:ring-2"
           placeholder="Edit Pitch"
         ></textarea>
       </p>
@@ -52,7 +52,7 @@
       <p v-if="isDescriptionEditing">
         <textarea
           v-model="editablePitch.description"
-          class="w-full bg-transparent border border-gray-400 p-2 rounded-md focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-content"
+          class="w-full bg-transparent border border-gray-400 p-2 rounded-md focus:border-primary focus:outline-none focus:ring-2"
           placeholder="Edit Description"
         ></textarea>
       </p>
@@ -71,7 +71,7 @@
 
     <!-- Title Examples Component -->
     <title-examples :pitch="pitch" />
-<api-response />
+    <api-response />
 
     <!-- Actions Component -->
     <pitch-card-actions

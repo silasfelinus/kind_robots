@@ -1,9 +1,11 @@
 <template>
   <div class="api-response-container">
-    <h2 class="text-xl font-semibold mb-4">API Response Debug</h2>
+    <h2 class="text-xl font-semibold mb-4 text-black">API Response Debug</h2>
     <!-- Display raw apiResponse for debugging -->
-    <pre class="bg-gray-100 p-4 rounded mb-4">Responses:
-{{ pitchStore.apiResponse }}</pre>
+    <pre class="bg-gray-100 p-4 rounded mb-4">
+Responses:
+{{ pitchStore.apiResponse }}</pre
+    >
 
     <h2 class="text-lg font-semibold mb-2">Parsed Examples</h2>
     <div v-if="parsedExamples.length" class="example-list space-y-3">
@@ -31,7 +33,7 @@
         </button>
       </div>
     </div>
-    <p v-else class="text-sm text-gray-500 mt-2">No examples available.</p>
+    <p v-else class="text-sm text-black mt-2">No examples available.</p>
 
     <button
       class="btn btn-secondary mt-4 hover:scale-105 transform transition-transform duration-200"

@@ -1,12 +1,16 @@
 <template>
-  <div class="pitch-card bg-base-300 rounded-2xl p-4 shadow-lg">
+  <div
+    class="pitch-card bg-base-100 rounded-2xl p-4 shadow-lg"
+    :class="{ 'border-primary': isSelected, 'border-gray-400': !isSelected }"
+    @click="selectTitle"
+  >
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold flex items-center">
         <!-- Title Section with Local Editing Toggle -->
         <span v-if="isTitleEditing">
           <input
             v-model="editablePitch.title"
-            class="bg-transparent border-b border-gray-400 focus:border-primary focus:outline-none focus:ring-2 rounded-md p-1"
+            class="border-b border-gray-400 rounded-md p-1"
             placeholder="Edit Title"
           />
         </span>
@@ -30,7 +34,7 @@
       <p v-if="isPitchEditing">
         <textarea
           v-model="editablePitch.pitch"
-          class="w-full bg-transparent border border-gray-400 p-2 rounded-md focus:border-primary focus:outline-none focus:ring-2"
+          class="w-full border border-gray-400 p-2 rounded-md"
           placeholder="Edit Pitch"
         ></textarea>
       </p>
@@ -52,7 +56,7 @@
       <p v-if="isDescriptionEditing">
         <textarea
           v-model="editablePitch.description"
-          class="w-full bg-transparent border border-gray-400 p-2 rounded-md focus:border-primary focus:outline-none focus:ring-2"
+          class="w-full border border-gray-400 p-2 rounded-md"
           placeholder="Edit Description"
         ></textarea>
       </p>
@@ -114,6 +118,14 @@ const isUserAllowedToEdit = computed(
 
 // Check if pitch type is TITLE
 const isTitleType = computed(() => props.pitch.PitchType === PitchType.TITLE)
+const isSelected = computed(
+  () => pitchStore.selectedTitle === props.pitch.title,
+)
+
+// Function to set selected title in the store
+const selectTitle = () => {
+  pitchStore.selectedTitle = props.pitch
+}
 
 // Local editing states for each section
 const isTitleEditing = ref(false)

@@ -30,8 +30,7 @@
       <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
       <lazy-rebel-button v-if="choice === 'rebel-button'" />
       <lazy-jellybean-counter v-if="choice === 'jellybean-counter'" />
-      <lazy-about-page v-if="choice === 'about-page'" />
-      <lazy-sponsor-page v-if="choice === 'sponsor-page'" />
+  
     </div>
   </div>
 </template>
@@ -46,8 +45,7 @@ const tabs = [
   { name: 'user-dashboard', label: 'User Dashboard' },
   { name: 'rebel-button', label: 'Rebel Button' },
   { name: 'jellybean-counter', label: 'Jellybean Counter' },
-  { name: 'about-page', label: 'About Page' },
-  { name: 'sponsor-page', label: 'Sponsor Page' },
+  
 ]
 
 const choice = ref('user-dashboard') // Default to the first tab

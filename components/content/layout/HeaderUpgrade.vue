@@ -15,30 +15,30 @@
       </div>
     </div>
 
-    <!-- Title -->
+    <!-- Title and subtitle  -->
     <div
-      class="flex flex-col justify-center items-center text-center h-1/3 w-full"
+      class="flex flex-col justify-center items-center text-center h-full w-1/2"
     >
       <h1
-        class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold w-full text-ellipsis sm:order-first"
+        class="flex text-md md:text-lg lg:text-xl xl:text-2xl font-semibold w-full h-1/2 text-ellipsis sm:order-first"
       >
         The {{ page.title || 'Room' }} Room
       </h1>
-    </div>
-
-      <div class="flex-row justify-between h-2/3 w-full">
-        <!-- Subtitle Section -->
         <h2
-          class="text-sm md:text-md flex-row lg:text-lg xl:text-xl italic text-ellipsis w-1/2"
+          class="text-sm md:text-md flex lg:text-lg xl:text-xl italic text-ellipsis w-full h-1/2"
         >
           {{ subtitle }}
         </h2>
+    </div>
+
+      <div class="flex justify-between h-full w-1/4">
+        
 
         <!-- Icons Section -->
-        <div class="flex items-center justify-end w-1/2">
-          <login-path class="w-1/3" />
-          <theme-icon class="w-1/3" />
-          <swarm-icon class="w-1/3" />
+        <div class="flex-row items-center justify-end">
+          <login-path class="flex w-1/3" />
+          <theme-icon class="flex w-1/3" />
+          <swarm-icon class="flex w-1/3" />
         </div>
 
     </div>

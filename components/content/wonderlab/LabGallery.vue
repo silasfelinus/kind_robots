@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 bg-base-300 min-h-screen">
+  <div class="bg-base-300 min-h-screen">
     <!-- Folder View -->
     <div
       v-if="folderNames.length && !selectedComponents.length"
@@ -8,7 +8,7 @@
       <div
         v-for="folder in folderNames"
         :key="folder"
-        class="p-4 rounded-lg hover:bg-primary hover:text-default cursor-pointer transition-transform transform hover:scale-105"
+        class="rounded-lg hover:bg-primary hover:text-default cursor-pointer transition-transform transform hover:scale-105"
         @click="fetchComponentsFromFolder(folder)"
       >
         <div class="text-center">

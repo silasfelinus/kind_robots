@@ -597,7 +597,8 @@ async initializePitches() {
         localStorage.setItem('selectedTitle', JSON.stringify(this.selectedTitle))
         localStorage.setItem('newestPitches', JSON.stringify(this.newestPitches))
         localStorage.setItem('numberOfRequests', JSON.stringify(this.numberOfRequests))
-        localStorage.setItem('temperature', JSON.stringify(this.temperature))
+        localStorage.setItem('temperature', String(this.temperature))
+
         localStorage.setItem('exampleString', this.exampleString)
         localStorage.setItem('apiResponse', this.apiResponse)
         localStorage.setItem('maxTokens', JSON.stringify(this.maxTokens))

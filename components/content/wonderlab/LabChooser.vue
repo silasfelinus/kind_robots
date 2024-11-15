@@ -43,5 +43,5 @@ const tabs = [
   { name: 'wonder-lab', label: 'Wonder Lab' },
 ]
 
-const activeTab = ref('store-tester') // Default to the first tab
+const activeTab = ref('wonder-lab') // Default to the first tab
 </script>

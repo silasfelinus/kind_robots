@@ -4,17 +4,17 @@
     :class="{ 'border-primary': isSelected, 'border-gray-400': !isSelected }"
     @click="selectTitle"
   >
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-center mb-4 bg-base-100 text-black">
       <h2 class="text-lg font-semibold flex items-center">
         <!-- Title Section with Local Editing Toggle -->
         <span v-if="isTitleEditing">
           <input
             v-model="editablePitch.title"
-            class="border-b border-gray-400 rounded-md p-1"
+            class="border-b border-gray-400 rounded-md p-1 text-black"
             placeholder="Edit Title"
           />
         </span>
-        <span v-else>Title: {{ pitch.title }}</span>
+        <span v-else>{{ pitch.title }}</span>
         <button
           v-if="isUserAllowedToEdit"
           class="ml-2 text-black transition-transform duration-200"
@@ -30,7 +30,7 @@
     </div>
 
     <!-- Conditionally Display Pitch Section -->
-    <div v-if="!isTitleType" class="mb-4">
+    <div v-if="!isTitleType" class="mb-4 text-black">
       <p v-if="isPitchEditing">
         <textarea
           v-model="editablePitch.pitch"
@@ -52,7 +52,7 @@
     </div>
 
     <!-- Description Section with Local Editing Toggle -->
-    <div class="mb-4">
+    <div class="mb-4 text-black">
       <p v-if="isDescriptionEditing">
         <textarea
           v-model="editablePitch.description"

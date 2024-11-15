@@ -110,7 +110,7 @@ async initializePitches() {
         this.selectedTitle = savedState.selectedTitle ? JSON.parse(savedState.selectedTitle) : null
         this.newestPitches = savedState.newestPitches ? JSON.parse(savedState.newestPitches) : []
         this.numberOfRequests = savedState.numberOfRequests ? JSON.parse(savedState.numberOfRequests) : 1
-        this.temperature = savedState.temperature ? JSON.parse(savedState.temperature) : 0.9
+        this.temperature = savedState.temperature ? Number(JSON.parse(savedState.temperature)) : 0.9
         this.exampleString = savedState.exampleString || ' '
         this.apiResponse = savedState.apiResponse || ' '
         this.maxTokens = savedState.maxTokens ? JSON.parse(savedState.maxTokens) : 500

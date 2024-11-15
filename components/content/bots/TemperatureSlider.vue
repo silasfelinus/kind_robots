@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { usePitchStore } from '~/stores/pitchStore'
 
 const pitchStore = usePitchStore()
@@ -100,6 +100,12 @@ const maxTokens = computed({
   get: () => pitchStore.maxTokens,
   set: (value) => (pitchStore.maxTokens = value),
 })
+
+
+// Watch for changes to each slider value and save to local storage
+watch(temperature, pitchStore.saveStateToLocalStorage)
+watch(numberOfRequests, pitchStore.saveStateToLocalStorage)
+watch(maxTokens, pitchStore.saveStateToLocalStorage)
 </script>
 
 <style scoped>

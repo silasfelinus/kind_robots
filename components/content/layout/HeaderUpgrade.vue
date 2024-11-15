@@ -30,18 +30,15 @@
           {{ subtitle }}
         </h2>
     </div>
-
-      <div class="flex justify-between h-full w-1/4">
+<!-- Icons Section -->
+      <div class="flex flex-row justify-between h-full w-1/4">
         
 
-        <!-- Icons Section -->
-        <div class="flex-row items-center justify-end">
+        
           <login-path class="flex w-1/3" />
           <theme-icon class="flex w-1/3" />
           <swarm-icon class="flex w-1/3" />
         </div>
-
-    </div>
   </header>
 </template>
 

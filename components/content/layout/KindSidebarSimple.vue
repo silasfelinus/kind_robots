@@ -64,7 +64,7 @@ const hardcodedLinks = [
   {
     title: 'Memory Match',
     path: '/memory',
-    icon: 'kind-icon:brain',
+    icon: 'kind-icon:question',
   },
   { title: 'Wonder Lab', path: '/wonderlab', icon: 'kind-icon:gearhammer' },
   {

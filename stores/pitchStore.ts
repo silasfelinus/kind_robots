@@ -85,14 +85,36 @@ export const usePitchStore = defineStore('pitch', {
   },
 
   actions: {
-    // Add this to the actions section
-    async initializePitches() {
-      console.log('initializing')
+async initializePitches() {
+      console.log('Initializing pitches...')
       if (isClient && !this.isInitialized) {
-        console.log(
-          'running fetch pitches, as we are client and not initialized',
-        )
-        await this.fetchPitches()
+        const savedState = {
+          pitches: localStorage.getItem('pitches'),
+          selectedPitches: localStorage.getItem('selectedPitches'),
+          selectedPitchType: localStorage.getItem('selectedPitchType'),
+          galleryArt: localStorage.getItem('galleryArt'),
+          selectedTitle: localStorage.getItem('selectedTitle'),
+          newestPitches: localStorage.getItem('newestPitches'),
+          numberOfRequests: localStorage.getItem('numberOfRequests'),
+          temperature: localStorage.getItem('temperature'),
+          exampleString: localStorage.getItem('exampleString'),
+          apiResponse: localStorage.getItem('apiResponse'),
+          maxTokens: localStorage.getItem('maxTokens'),
+        }
+
+        // Load saved state if available
+        this.pitches = savedState.pitches ? JSON.parse(savedState.pitches) : []
+        this.selectedPitches = savedState.selectedPitches ? JSON.parse(savedState.selectedPitches) : []
+        this.selectedPitchType = savedState.selectedPitchType ? JSON.parse(savedState.selectedPitchType) : null
+        this.galleryArt = savedState.galleryArt ? JSON.parse(savedState.galleryArt) : []
+        this.selectedTitle = savedState.selectedTitle ? JSON.parse(savedState.selectedTitle) : null
+        this.newestPitches = savedState.newestPitches ? JSON.parse(savedState.newestPitches) : []
+        this.numberOfRequests = savedState.numberOfRequests ? JSON.parse(savedState.numberOfRequests) : 1
+        this.temperature = savedState.temperature ? JSON.parse(savedState.temperature) : 0.9
+        this.exampleString = savedState.exampleString || ' '
+        this.apiResponse = savedState.apiResponse || ' '
+        this.maxTokens = savedState.maxTokens ? JSON.parse(savedState.maxTokens) : 500
+
         this.isInitialized = true
       }
     },
@@ -118,6 +140,7 @@ export const usePitchStore = defineStore('pitch', {
 
         if (response.success && response.data) {
           this.pitches.push(response.data)
+          this.saveStateToLocalStorage()
           return { success: true, message: 'Title created successfully' }
         } else {
           return {
@@ -133,10 +156,12 @@ export const usePitchStore = defineStore('pitch', {
     setSelectedPitch(pitchId: number) {
       const pitch = this.pitches.find((p) => p.id === pitchId)
       if (pitch) this.selectedPitches = [pitch]
+      this.saveStateToLocalStorage()
     },
 
     setSelectedPitchType(pitchType: PitchType | null) {
       this.selectedPitchType = pitchType
+      this.saveStateToLocalStorage()
     },
 
     setTitle(titleId: number | null) {
@@ -149,6 +174,7 @@ export const usePitchStore = defineStore('pitch', {
         )
         if (title) {
           this.selectedTitle = title
+           this.saveStateToLocalStorage()
         } else {
           console.warn(
             `Title with ID ${titleId} not found or is not of type TITLE`,
@@ -208,6 +234,7 @@ export const usePitchStore = defineStore('pitch', {
           if (createdPitch && createdPitch.success && createdPitch.data) {
             // Update newestPitches with the newly created pitch
             this.newestPitches = [createdPitch.data]
+             this.saveStateToLocalStorage()
             console.log('New brainstorm pitch added:', createdPitch.data)
           } else {
             console.warn('Failed to create pitch from title storm response.')
@@ -233,6 +260,7 @@ export const usePitchStore = defineStore('pitch', {
 
         if (response.success) {
           this.selectedPitches = response.data || []
+          this.saveStateToLocalStorage()
         } else {
           console.warn('Failed to fetch random pitches:', response.message)
           throw new Error(response.message)
@@ -302,6 +330,7 @@ export const usePitchStore = defineStore('pitch', {
           const createdPitch = await this.createPitch(newPitchData)
           if (createdPitch && createdPitch.success && createdPitch.data) {
             this.newestPitches = [createdPitch.data]
+            this.saveStateToLocalStorage()
             console.log('New pitch added:', createdPitch.data)
           } else {
             console.warn('Failed to create pitch from brainstorm response.')
@@ -332,13 +361,7 @@ export const usePitchStore = defineStore('pitch', {
       // Do not auto-select new pitches; update selectedPitches only with the latest brainstorm pitches
       this.selectedPitches = brainstormPitches.slice(0, 5)
 
-      if (isClient) {
-        localStorage.setItem('pitches', JSON.stringify(this.pitches))
-        localStorage.setItem(
-          'selectedPitches',
-          JSON.stringify(this.selectedPitches),
-        )
-      }
+      this.saveStateToLocalStorage()
     },
 
     async fetchPitches(): Promise<void> {
@@ -357,9 +380,7 @@ export const usePitchStore = defineStore('pitch', {
                 pitch.PitchType,
             })) || []
           this.isInitialized = true
-          if (isClient) {
-            localStorage.setItem('pitches', JSON.stringify(this.pitches))
-          }
+          this.saveStateToLocalStorage()
         } else {
           console.warn('Failed to fetch pitches:', response.message)
           throw new Error(response.message)
@@ -384,8 +405,9 @@ export const usePitchStore = defineStore('pitch', {
           )
           if (!existingPitch) {
             this.pitches.push(response.data)
+            
           }
-
+          this.saveStateToLocalStorage()
           return { success: true, data: response.data }
         } else {
           console.warn(`Failed to fetch pitch by ID: ${response.message}`)
@@ -445,7 +467,7 @@ export const usePitchStore = defineStore('pitch', {
           // Add the newly created pitch to the store
           this.pitches.push(response.data)
           const data = response.data
-          this.clearLocalStorage() // Update local storage after data modification
+          this.saveStateToLocalStorage()
           return { success: true, message: 'Pitch created successfully', data }
         } else {
           useErrorStore().setError(
@@ -466,7 +488,7 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    // In pitchStore.ts
+    
     async updatePitch(
       pitchId: number,
       updates: Partial<Pitch>,
@@ -501,10 +523,12 @@ export const usePitchStore = defineStore('pitch', {
     async updatePitchExamples(pitchId: number, examplesArray: string[]) {
       const updatedString = examplesArray.join('|')
       await this.updatePitch(pitchId, { examples: updatedString })
+      this.saveStateToLocalStorage()
     },
     setSelectedTitle(pitchId: number) {
       this.selectedTitle =
         this.pitches.find((pitch) => pitch.id === pitchId) || null
+      this.saveStateToLocalStorage()
     },
 
     async deletePitch(
@@ -563,16 +587,36 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
 
-    // New utility function for clearing local storage when data changes
+       // Watchers to save updates to local storage whenever properties change
+    saveStateToLocalStorage() {
+      if (isClient) {
+        localStorage.setItem('pitches', JSON.stringify(this.pitches))
+        localStorage.setItem('selectedPitches', JSON.stringify(this.selectedPitches))
+        localStorage.setItem('selectedPitchType', JSON.stringify(this.selectedPitchType))
+        localStorage.setItem('galleryArt', JSON.stringify(this.galleryArt))
+        localStorage.setItem('selectedTitle', JSON.stringify(this.selectedTitle))
+        localStorage.setItem('newestPitches', JSON.stringify(this.newestPitches))
+        localStorage.setItem('numberOfRequests', JSON.stringify(this.numberOfRequests))
+        localStorage.setItem('temperature', JSON.stringify(this.temperature))
+        localStorage.setItem('exampleString', this.exampleString)
+        localStorage.setItem('apiResponse', this.apiResponse)
+        localStorage.setItem('maxTokens', JSON.stringify(this.maxTokens))
+      }
+    },
+
     clearLocalStorage() {
       if (isClient) {
         localStorage.removeItem('pitches')
         localStorage.removeItem('selectedPitches')
-        localStorage.setItem('pitches', JSON.stringify(this.pitches))
-        localStorage.setItem(
-          'selectedPitches',
-          JSON.stringify(this.selectedPitches),
-        )
+        localStorage.removeItem('selectedPitchType')
+        localStorage.removeItem('galleryArt')
+        localStorage.removeItem('selectedTitle')
+        localStorage.removeItem('newestPitches')
+        localStorage.removeItem('numberOfRequests')
+        localStorage.removeItem('temperature')
+        localStorage.removeItem('exampleString')
+        localStorage.removeItem('apiResponse')
+        localStorage.removeItem('maxTokens')
       }
     },
   },

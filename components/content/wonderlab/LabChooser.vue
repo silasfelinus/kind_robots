@@ -28,6 +28,9 @@
       <LazyWonderLab v-if="activeTab === 'wonder-lab'" />
       <LazyStoreTester v-if="activeTab === 'store-tester'" />
       <LazyAnimationTester v-if="activeTab === 'animation-tester'" />
+<lazy-rebel-button v-if="choice === 'rebel-button'" />
+      
+      
       <lazy-about-page v-if="activeTab === 'about-page'" />
       <lazy-sponsor-page v-if="activeTab === 'sponsor-page'" />
     </div>
@@ -46,6 +49,7 @@ const tabs = [
   { name: 'wonder-lab', label: 'Wonder Lab' },
   { name: 'animation-tester', label: 'Animation Tester' },
   { name: 'store-tester', label: 'Store Tester', requiresAdmin: true },
+  { name: 'rebel-button', label: 'Rebel Button' },
   { name: 'about-page', label: 'About Page' },
   { name: 'sponsor-page', label: 'Sponsor Page' },
 ]

@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex items-center justify-between bg-base-300 rounded-2xl border-4 p-1 max-w-full box-border"
+    class="flex items-center justify-between bg-base-300 rounded-2xl border-1 md:border-2 lg:border-3 xl:border-4 max-w-full box-border"
     :style="{ height: displayStore.headerHeight }"
   >
     <!-- Left Section: Avatar -->
@@ -15,31 +15,32 @@
       </div>
     </div>
 
-    <!-- Middle Section: Title and Subtitle -->
+    <!-- Title -->
     <div
-      class="flex flex-col justify-center items-center text-center flex-grow h-full sm:w-3/4 space-y-0 sm:space-y-2"
+      class="flex flex-col justify-center items-center text-center h-1/3 w-full"
     >
       <h1
-        class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold max-w-full text-ellipsis whitespace-nowrap sm:order-first mt-0"
+        class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold w-full text-ellipsis sm:order-first"
       >
         The {{ page.title || 'Room' }} Room
       </h1>
+    </div>
 
-      <div class="flex flex-col sm:flex-row sm:justify-between w-full space-y-0 sm:space-y-2">
+      <div class="flex-row justify-between h-2/3 w-full">
         <!-- Subtitle Section -->
         <h2
-          class="text-sm md:text-md lg:text-lg xl:text-xl italic max-w-full text-ellipsis whitespace-nowrap mt-0 sm:mt-1 sm:w-1/2"
+          class="text-sm md:text-md lg:text-lg xl:text-xl italic text-ellipsis w-1/2"
         >
           {{ subtitle }}
         </h2>
 
         <!-- Icons Section -->
-        <div class="flex items-center justify-end space-x-1 sm:space-x-2 sm:w-1/2">
+        <div class="flex items-center justify-end w-1/2">
           <login-path class="w-1/3" />
           <theme-icon class="w-1/3" />
           <swarm-icon class="w-1/3" />
         </div>
-      </div>
+
     </div>
   </header>
 </template>

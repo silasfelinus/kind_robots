@@ -29,8 +29,8 @@
       <!-- Right Section: Folder View on top, Reactions at the bottom -->
       <div class="w-1/3 h-full flex flex-col">
         <!-- Folder View (expands as needed) -->
-        <div class="folder-view flex-grow p-1 bg-gray-100 overflow-y-auto">
-          <div v-if="componentStore.selectedFolder" class="text-lg px-1">
+        <div class="folder-view flex-grow bg-gray-100 overflow-y-auto">
+          <div v-if="componentStore.selectedFolder" class="text-lg">
             Viewing components in folder: {{ componentStore.selectedFolder }}
           </div>
 
@@ -152,8 +152,6 @@ const handleComponentClose = () => {
 /* Reactions Section */
 .reactions-screen {
   background-color: #f3f4f6;
-  padding: 1rem;
-  border-radius: 0.5rem;
 }
 
 /* Transition for title and reactions */
@@ -181,6 +179,5 @@ const handleComponentClose = () => {
 .lab-gallery {
   max-height: 75vh;
   overflow-y: auto;
-  padding: 1rem;
 }
 </style>

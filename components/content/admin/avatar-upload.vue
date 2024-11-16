@@ -10,7 +10,7 @@
     <div v-if="isUploading">Uploading image...</div>
 
     <div v-if="newArt" class="mt-6">
-      <art-card :art="newArt" :art-image="userAvatarImage" />
+      <art-card :art="newArt" :art-image="userAvatarImage || undefined" />
     </div>
   </div>
 </template>
@@ -29,8 +29,9 @@ const userId = computed(() => userStore.userId)
 const username = computed(() => userStore.username)
 
 // State
-const newArt = ref(null)
-const userAvatarImage = ref(null)
+const newArt = ref<Art | null | undefined>(undefined)
+const userAvatarImage = ref<ArtImage | null | undefined>(undefined)
+
 const isUploading = ref(false)
 
 // Allowed file types
@@ -58,7 +59,7 @@ async function uploadAvatar(event: Event) {
     try {
       // Upload image
       await artStore.uploadImage(formData)
-      userAvatarImage.value = artStore.artImages.at(-1)
+      userAvatarImage.value = artStore.artImages.at(-1) || undefined
 
       // Create art
       if (userAvatarImage.value?.id) {
@@ -68,15 +69,21 @@ async function uploadAvatar(event: Event) {
           userId: userId.value,
           designer: username.value || 'Kind Guest',
           artImageId: userAvatarImage.value.id,
+          seed: null,
+          steps: null,
+          galleryId: null,
+          promptId: null,
+          pitchId: null,
         }
         newArt.value = await artStore.createArt(newArtData)
 
-        // Add to collection directly via artStore
-        await artStore.addArtToCollection({
-          userId: userId.value,
-          artId: newArt.value.id,
-          label: 'avatars',
-        })
+        if (newArt.value?.id) {
+          await artStore.addArtToCollection({
+            userId: userId.value,
+            artId: newArt.value.id,
+            label: 'avatars',
+          })
+        }
 
         // Update user profile
         await userStore.updateUserInfo({

@@ -341,6 +341,29 @@ export const useArtStore = defineStore({
       return promptString.split(',')[0].trim() || 'Untitled Pitch'
     },
 
+    async addArtToCollection({
+      userId,
+      artId,
+      label,
+    }: {
+      userId: number
+      artId: number
+      label: string
+    }): Promise<void> {
+      try {
+        const response = await performFetch(`/api/art/collection`, {
+          method: 'POST',
+          body: JSON.stringify({ userId, artId, label }),
+        })
+
+        if (!response.success) {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'adding art to collection')
+      }
+    },
+
     validatePromptString(prompt: string): boolean {
       const validPattern = /^[a-zA-Z0-9 ,]+$/
       return validPattern.test(prompt)

@@ -15,17 +15,14 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
-import { useCollectionStore } from '@/stores/collectionStore'
 
 // Stores
 const artStore = useArtStore()
 const userStore = useUserStore()
-const collectionStore = useCollectionStore()
 
 // User data
 const userId = computed(() => userStore.userId)
@@ -47,7 +44,9 @@ async function uploadAvatar(event: Event) {
   if (uploadedFile) {
     // Check file type
     if (!allowedFileTypes.includes(uploadedFile.type)) {
-      console.error('Unsupported file type. Please upload a PNG, JPEG, or WebP image.')
+      console.error(
+        'Unsupported file type. Please upload a PNG, JPEG, or WebP image.',
+      )
       return
     }
 
@@ -72,15 +71,18 @@ async function uploadAvatar(event: Event) {
         }
         newArt.value = await artStore.createArt(newArtData)
 
-        // Update ArtCollection
-        await collectionStore.addToCollection({
+        // Add to collection directly via artStore
+        await artStore.addArtToCollection({
           userId: userId.value,
           artId: newArt.value.id,
           label: 'avatars',
         })
 
         // Update user profile
-        await userStore.updateUserInfo({ id: userId.value, artImageId: userAvatarImage.value.id })
+        await userStore.updateUserInfo({
+          id: userId.value,
+          artImageId: userAvatarImage.value.id,
+        })
       }
     } catch (error) {
       console.error('Error uploading avatar:', error)

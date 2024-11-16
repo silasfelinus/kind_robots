@@ -79,16 +79,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Validate that all provided artIds exist
     const validArtItems = await prisma.art.findMany({
       where: { id: { in: artIds } },
     })
 
     if (validArtItems.length !== artIds.length) {
+      const missingArtIds = artIds.filter(
+        (id) => !validArtItems.some((art) => art.id === id),
+      )
       event.node.res.statusCode = 404
       throw createError({
         statusCode: 404,
-        message: 'One or more art IDs do not exist.',
+        message: `The following art IDs were not found: ${missingArtIds.join(', ')}`,
       })
     }
 

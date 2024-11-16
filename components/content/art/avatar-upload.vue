@@ -25,8 +25,8 @@ const artStore = useArtStore()
 const userStore = useUserStore()
 
 // Computed values for user data
-const userId = computed(() => userStore.user?.id)
-const username = computed(() => userStore.user?.username)
+const userId = computed(() => userStore.userid)
+const username = computed(() => userStore.username)
 
 // Refs to store new art and image data
 const newArt = ref<(typeof artStore.art)[0] | undefined>(undefined)

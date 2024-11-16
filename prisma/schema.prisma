@@ -87,6 +87,7 @@ model ArtCollection {
   userId    Int       @default(10)
   User      User      @relation(fields: [userId], references: [id])
   art       Art[]     @relation("ArtToArtCollection")
+  label     String?
 
   @@index([userId], map: "ArtCollection_userId_fkey")
 }

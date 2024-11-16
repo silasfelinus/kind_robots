@@ -24,9 +24,7 @@
       class="flex-1 h-full flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0"
     >
       <!-- Medium Screens: Title and Subtitle Stacked -->
-      <div
-        class="flex flex-col items-center md:items-start text-center md:text-left"
-      >
+      <div class="flex flex-col items-center md:items-start text-center">
         <!-- Title -->
         <h1
           class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold text-ellipsis"
@@ -42,7 +40,7 @@
       </div>
 
       <!-- Icons -->
-      <div class="flex justify-end items-center space-x-4">
+      <div class="flex justify-end md:justify-center items-center space-x-4">
         <login-path class="flex" />
         <theme-icon class="flex" />
         <swarm-icon class="flex" />

@@ -150,7 +150,7 @@ model Chat {
   Bot             Bot?               @relation(fields: [botId], references: [id])
   Prompt          Prompt?            @relation(fields: [promptId], references: [id])
   User            User?              @relation(fields: [userId], references: [id])
-
+  botResponse     String?
 }
 
 enum ChatType {
@@ -159,8 +159,6 @@ enum ChatType {
   ToForum
   ToUser
 }
-  
-
 
 
 

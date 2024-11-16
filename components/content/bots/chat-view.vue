@@ -67,7 +67,7 @@ import { useBotStore } from '@/stores/botStore'
 const chatContent = ref('')
 const recipientId = ref<number | null>(null)
 const loading = ref(false)
-const chats = ref([])
+const chats = ref<Chat[]>([])
 const chatStore = useChatStore()
 const userStore = useUserStore()
 const botStore = useBotStore()

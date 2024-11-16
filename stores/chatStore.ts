@@ -54,7 +54,7 @@ export const useChatStore = defineStore({
       userId,
       botId = null,
       botName = null,
-      recipientId,
+      recipientId = null,
       isPublic = true,
       originId = null,
       previousEntryId = null,
@@ -65,7 +65,7 @@ export const useChatStore = defineStore({
       userId: number
       botId?: number | null
       botName?: string | null
-      recipientId: number
+      recipientId: number | null
       isPublic?: boolean
       originId?: number | null
       previousEntryId?: number | null
@@ -81,13 +81,23 @@ export const useChatStore = defineStore({
         const sender = isUserMessage ? username : botName
         const recipient = isUserMessage ? botName : username
 
+        // If this is a continuation, set originId and previousEntryId
+        if (previousEntryId) {
+          const lastChat = this.chats.find(
+            (chat) => chat.id === previousEntryId,
+          )
+          if (lastChat) {
+            originId = originId || lastChat.originId || lastChat.id
+          }
+        }
+
         const chat: Omit<Chat, 'id' | 'createdAt' | 'updatedAt'> = {
           content,
           userId,
           sender: sender || 'Unknown',
           recipient: recipient || 'Unknown',
           isPublic,
-          type: isUserMessage ? 'ToBot' : 'BotResponse',
+          type: 'ToBot', // All continued chats are user messages
           recipientId,
           botId,
           botName,
@@ -151,7 +161,7 @@ export const useChatStore = defineStore({
                 const content = parsed.choices?.[0]?.delta?.content
 
                 if (content) {
-                  this.appendChatContent(chatId, content)
+                  this.appendBotResponse(chatId, content)
                 }
               } catch (err) {
                 console.error('Error parsing chunk:', err)
@@ -166,10 +176,10 @@ export const useChatStore = defineStore({
       }
     },
 
-    appendChatContent(chatId: number, content: string) {
+    appendBotResponse(chatId: number, botResponse: string) {
       const chat = this.chats.find((c) => c.id === chatId)
       if (chat) {
-        chat.content += content
+        chat.botResponse = (chat.botResponse || '') + botResponse
         this.saveToLocalStorage()
       }
     },

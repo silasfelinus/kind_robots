@@ -1,6 +1,6 @@
 <template>
   <header
-    class="relative flex items-center justify-center bg-base-300 rounded-2xl border-1 md:border-2 lg:border-3 xl:border-4 max-w-full box-border"
+    class="relative flex items-center justify-between bg-base-300 rounded-2xl border-1 md:border-2 lg:border-3 xl:border-4 max-w-full box-border"
     :style="{ height: displayStore.headerHeight }"
   >
     <!-- Avatar and Viewport Size -->
@@ -19,19 +19,19 @@
       </div>
     </div>
 
-    <!-- Responsive Layout -->
+    <!-- Title and Subtitle Section -->
     <div
-      class="flex-1 h-full flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0"
+      class="flex-1 h-full flex flex-col items-center justify-center md:justify-between text-center md:flex-row space-y-2 md:space-y-0 px-4"
     >
-      <!-- Medium Screens: Title and Subtitle Stacked -->
-      <div class="flex flex-col items-center md:items-start text-center">
-        <!-- Title -->
+      <!-- Title and Subtitle -->
+      <div
+        class="flex flex-col items-center md:items-start text-center md:text-left flex-1"
+      >
         <h1
           class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold text-ellipsis"
         >
           The {{ page.title || 'Room' }} Room
         </h1>
-        <!-- Subtitle -->
         <h2
           class="text-sm md:text-md lg:text-lg xl:text-xl italic text-ellipsis"
         >
@@ -40,7 +40,7 @@
       </div>
 
       <!-- Icons -->
-      <div class="flex justify-end md:justify-center items-center space-x-4">
+      <div class="flex justify-center items-center space-x-4 flex-shrink-0">
         <login-path class="flex" />
         <theme-icon class="flex" />
         <swarm-icon class="flex" />

@@ -25,22 +25,24 @@
     >
       <!-- Title and Subtitle -->
       <div
-        class="flex flex-col items-center md:items-start text-center md:text-left flex-1"
+        class="flex flex-col lg:flex-row items-center md:items-start text-center md:text-left flex-1"
       >
         <h1
-          class="text-md md:text-lg lg:text-xl xl:text-2xl font-semibold text-ellipsis"
+          class="text-md md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-ellipsis"
         >
           The {{ page.title || 'Room' }} Room
         </h1>
         <h2
-          class="text-sm md:text-md lg:text-lg xl:text-xl italic text-ellipsis"
+          class="text-sm md:text-lg lg:text-xl xl:text-2xl italic text-ellipsis"
         >
           {{ subtitle }}
         </h2>
       </div>
 
       <!-- Icons -->
-      <div class="flex justify-center items-center space-x-4 flex-shrink-0">
+      <div
+        class="flex justify-center items-center md:ml-5 md:mr-5 flex-shrink-0"
+      >
         <login-path class="flex" />
         <theme-icon class="flex" />
         <swarm-icon class="flex" />

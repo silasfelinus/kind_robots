@@ -15,83 +15,77 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
+import { useCollectionStore } from '@/stores/collectionStore'
 
-// Initialize the stores
+// Stores
 const artStore = useArtStore()
 const userStore = useUserStore()
+const collectionStore = useCollectionStore()
 
-// Computed values for user data
+// User data
 const userId = computed(() => userStore.userId)
 const username = computed(() => userStore.username)
 
-// Refs to store new art and image data
-const newArt = ref<(typeof artStore.art)[0] | undefined>(undefined)
-const userAvatarImage = ref<(typeof artStore.artImages)[0] | undefined>(
-  undefined,
-)
+// State
+const newArt = ref(null)
+const userAvatarImage = ref(null)
 const isUploading = ref(false)
 
 // Allowed file types
 const allowedFileTypes = ['image/png', 'image/jpeg', 'image/webp']
 
-// Handle the avatar image upload
+// Upload avatar handler
 async function uploadAvatar(event: Event) {
   const input = event.target as HTMLInputElement
   const uploadedFile = input?.files?.[0]
 
   if (uploadedFile) {
-    // Check if the file type is valid
+    // Check file type
     if (!allowedFileTypes.includes(uploadedFile.type)) {
-      console.error(
-        'Unsupported file type. Please upload a PNG, JPEG, or WebP image.',
-      )
+      console.error('Unsupported file type. Please upload a PNG, JPEG, or WebP image.')
       return
     }
 
-    // Create a new FormData object
     const formData = new FormData()
     formData.append('image', uploadedFile)
 
-    isUploading.value = true // Set uploading state to true
+    isUploading.value = true
 
     try {
-      // Step 1: Upload the image
+      // Upload image
       await artStore.uploadImage(formData)
+      userAvatarImage.value = artStore.artImages.at(-1)
 
-      // After uploading, assign the last item from the store as the user's avatar image
-      userAvatarImage.value = artStore.artImages[artStore.artImages.length - 1]
-
-      // Step 2: Create the Art object
+      // Create art
       if (userAvatarImage.value?.id) {
         const newArtData = {
           promptString: '[AvatarImage]',
           path: '[AvatarImage]',
-          seed: null,
-          steps: null,
-          galleryId: null,
-          promptId: null,
-          pitchId: null,
-          userId: userId.value ?? 10, // Default userId if undefined
-          designer: username.value ?? 'Kind Guest', // Default designer if undefined
+          userId: userId.value,
+          designer: username.value || 'Kind Guest',
           artImageId: userAvatarImage.value.id,
         }
-
         newArt.value = await artStore.createArt(newArtData)
 
-        // Step 3: Update the user's profile with the new artImageId
-        await userStore.updateUserInfo({
-          id: userId.value,
-          artImageId: userAvatarImage.value.id,
+        // Update ArtCollection
+        await collectionStore.addToCollection({
+          userId: userId.value,
+          artId: newArt.value.id,
+          label: 'avatars',
         })
+
+        // Update user profile
+        await userStore.updateUserInfo({ id: userId.value, artImageId: userAvatarImage.value.id })
       }
     } catch (error) {
-      console.error('Error uploading avatar image or creating art:', error)
+      console.error('Error uploading avatar:', error)
     } finally {
-      isUploading.value = false // Set uploading state back to false
+      isUploading.value = false
     }
   }
 }

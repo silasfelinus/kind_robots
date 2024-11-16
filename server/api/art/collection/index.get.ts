@@ -3,11 +3,11 @@ import { defineEventHandler } from 'h3'
 import prisma from './../../utils/prisma'
 import { errorHandler } from './../../utils/error'
 
-export default defineEventHandler(async () => { 
+export default defineEventHandler(async () => {
   try {
-    const collections = await fetchAllCollections()
-    
-    if (!collections || collections.length === 0) {
+    const data = await fetchAllCollections()
+
+    if (!data || data.length === 0) {
       return {
         success: false,
         message: 'No art collections found.',
@@ -15,7 +15,7 @@ export default defineEventHandler(async () => {
     }
 
     // Wrap collections in a data object for consistent response format
-    return { success: true, data: { collections } }
+    return { success: true, data }
   } catch (error) {
     return errorHandler(error)
   }
@@ -24,7 +24,7 @@ export default defineEventHandler(async () => {
 export async function fetchAllCollections() {
   return await prisma.artCollection.findMany({
     include: {
-      art: true,  
+      art: true,
     },
   })
 }

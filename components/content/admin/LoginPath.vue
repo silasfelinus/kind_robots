@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex items-center space-x-4 lg:ml-10 box-border">
+  <div class="relative flex flex-col items-start space-y-2 lg:ml-10 box-border">
     <!-- User Avatar and Jellybean Count -->
     <div v-if="isLoggedIn" class="flex items-center space-x-2">
       <user-picture class="h-10 w-10 rounded-full border border-base-300" />

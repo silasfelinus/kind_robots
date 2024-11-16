@@ -16,7 +16,7 @@
         placeholder="Type your prompt here"
         class="w-full p-2 border rounded-md mb-2"
       />
-      <button class="btn btn-primary w-full" @click="addChat">
+      <button class="btn btn-primary w-full" @click="addChatWithStream">
         Add New Exchange
       </button>
     </div>
@@ -31,9 +31,8 @@
               <p><strong>User Prompt:</strong> {{ exchange.content }}</p>
               <p>
                 <strong>Bot Response:</strong>
-                <!-- Display bot reply here, if needed -->
+                {{ exchange.botResponse || 'Awaiting response...' }}
               </p>
-
               <p><strong>Exchange ID:</strong> {{ exchange.id }}</p>
               <p>
                 <strong>Previous Entry ID:</strong>
@@ -68,126 +67,72 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useChatStore } from '@/stores/chatStore'
-import { useUserStore } from '@/stores/userStore'
-import { useBotStore } from '@/stores/botStore'
+import { ref, onMounted, computed } from 'vue';
+import { useChatStore } from '@/stores/chatStore';
+import { useUserStore } from '@/stores/userStore';
+import { useBotStore } from '@/stores/botStore';
 
-// Store references
-const chatStore = useChatStore()
-const userStore = useUserStore()
-const botStore = useBotStore()
+const chatStore = useChatStore();
+const userStore = useUserStore();
+const botStore = useBotStore();
 
-// Local state
-const newPrompt = ref('')
-const feedbackMessage = ref<string | null>(null)
-const feedbackClass = ref('text-green-500')
+const newPrompt = ref('');
+const feedbackMessage = ref<string | null>(null);
+const feedbackClass = ref('text-green-500');
 
-// Initialize chatStore on component mount
 onMounted(async () => {
   try {
-    await chatStore.initialize()
-    console.log('All stores initialized successfully.')
+    await chatStore.initialize();
+    console.log('All stores initialized successfully.');
   } catch (error) {
-    showFeedback('Failed to initialize chat store.', true)
-    console.error(error)
+    showFeedback('Failed to initialize chat store.', true);
+    console.error(error);
   }
-})
+});
 
-// Computed properties for chat exchanges with fallback to an empty array
-const chats = computed(() => {
-  try {
-    return chatStore.chats || []
-  } catch (error) {
-    console.error('Error retrieving chat exchanges:', error)
-    return [] // Fallback to an empty array
-  }
-})
+const chats = computed(() => chatStore.chats || []);
 
-// Function to display feedback
 function showFeedback(message: string, isError: boolean = false) {
-  feedbackMessage.value = message
-  feedbackClass.value = isError ? 'text-red-500' : 'text-green-500'
-  setTimeout(() => (feedbackMessage.value = null), 3000)
+  feedbackMessage.value = message;
+  feedbackClass.value = isError ? 'text-red-500' : 'text-green-500';
+  setTimeout(() => (feedbackMessage.value = null), 3000);
 }
 
-async function addChat() {
-  if (!newPrompt.value.trim())
-    return showFeedback('Prompt cannot be empty.', true)
+async function addChatWithStream() {
+  if (!newPrompt.value.trim()) {
+    return showFeedback('Prompt cannot be empty.', true);
+  }
 
-  const userId = userStore.user?.id || 1 // Default user ID
-  const botId = botStore.currentBot?.id || null
-  const botName = botStore.currentBot?.name || 'Unknown Bot'
-  const recipientId = botId || 1 // Assuming bot is the recipient
+  const userId = userStore.user?.id || 1;
+  const botId = botStore.currentBot?.id || null;
+  const botName = botStore.currentBot?.name || 'Unknown Bot';
+  const recipientId = botId || 1;
 
   try {
-    await chatStore.addChat({
+    const newChat = await chatStore.addChat({
       content: newPrompt.value,
       userId,
       botId,
       botName,
       recipientId,
-    })
-    showFeedback('Chat added successfully!')
-  } catch (error) {
-    showFeedback('Failed to add chat.', true)
-    console.error(error)
-  }
-  newPrompt.value = ''
-}
+    });
 
-async function continueChat(chatId: number) {
-  const existingContent = 'Continuing conversation!'
-  const botId = botStore.currentBot?.id || null
-  const botName = botStore.currentBot?.name || 'Unknown Bot'
-  const userId = userStore.user?.id || 1 // Default user ID
-  const recipientId = botId || 1 // Assuming bot is the recipient
+    showFeedback('Chat added successfully! Streaming response...');
+    await chatStore.streamResponse(newChat.id);
 
-  try {
-    const previousEntry = chatStore.chats.find((chat) => chat.id === chatId)
-    if (!previousEntry) throw new Error('Chat not found')
+    const updatedChat = await chatStore.updateChat(newChat.id, {
+      botResponse: chatStore.chats.find((chat) => chat.id === newChat.id)
+        ?.content,
+    });
 
-    await chatStore.addChat({
-      content: existingContent,
-      userId,
-      botId,
-      botName,
-      recipientId,
-      originId: previousEntry.originId ?? previousEntry.id,
-      previousEntryId: previousEntry.id,
-    })
-    showFeedback('Continued conversation successfully!')
-  } catch (error) {
-    showFeedback('Failed to continue chat.', true)
-    console.error(error)
-  }
-}
-
-// Edit an existing exchange
-async function editExchange(exchangeId: number, updatedPrompt: string) {
-  try {
-    await chatStore.editChat(exchangeId, { content: updatedPrompt })
-    showFeedback('Exchange edited successfully!')
-  } catch (error) {
-    showFeedback('Failed to edit exchange.', true)
-    console.error(error)
-  }
-}
-
-async function deleteChat(exchangeId: number) {
-  try {
-    const wasDeleted = await chatStore.deleteChat(exchangeId)
-    if (wasDeleted) {
-      showFeedback('Chat deleted successfully!')
-    } else {
-      showFeedback(
-        'Failed to delete exchange due to authorization or other error.',
-        true,
-      )
+    if (updatedChat) {
+      showFeedback('Response received and chat updated successfully!');
     }
   } catch (error) {
-    showFeedback('Failed to delete exchange.', true)
-    console.error(error)
+    showFeedback('Failed to add or update chat.', true);
+    console.error(error);
   }
+
+  newPrompt.value = '';
 }
 </script>

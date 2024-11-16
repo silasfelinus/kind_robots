@@ -13,6 +13,7 @@
       <h1 class="text-2xl font-semibold ml-6">User Dashboard</h1>
       <div class="relative flex justify-center items-center">
         <user-avatar />
+<avatar-upload />
         <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
           <h2 class="text-lg font-semibold bg-base-300 border-accent rounded-2xl border p-2 pt-1 pb-1">
             {{ user?.username || 'Kind Guest' }}

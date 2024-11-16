@@ -56,27 +56,27 @@ export const useDisplayStore = defineStore('display', {
 
   getters: {
     sectionPadding(): string {
-      return '10px'
+      return '6px'
     },
 
     sectionPaddingVh(): number {
       if (typeof window !== 'undefined' && window.innerHeight) {
-        const vh = (10 / window.innerHeight) * 100
+        const vh = (6 / window.innerHeight) * 100
         return parseFloat(vh.toFixed(2)) // Convert to a number
       }
-      return 10
+      return 6
     },
 
     sectionPaddingVw(): number {
       if (typeof window !== 'undefined' && window.innerWidth) {
-        const vw = (10 / window.innerWidth) * 100
+        const vw = (6 / window.innerWidth) * 100
         return parseFloat(vw.toFixed(2)) // Convert to a number
       }
-      return 10
+      return 6
     },
 
     sectionPaddingInteger(): number {
-      return 10
+      return 6
     },
 
     footerMultiplier(state): number {

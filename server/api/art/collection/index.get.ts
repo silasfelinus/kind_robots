@@ -5,7 +5,11 @@ import { errorHandler } from './../../utils/error'
 
 export default defineEventHandler(async () => {
   try {
-    const data = await fetchAllCollections()
+    const data = await prisma.artCollection.findMany({
+      include: {
+        art: true,
+      },
+    })
 
     if (!data || data.length === 0) {
       return {
@@ -20,11 +24,3 @@ export default defineEventHandler(async () => {
     return errorHandler(error)
   }
 })
-
-export async function fetchAllCollections() {
-  return await prisma.artCollection.findMany({
-    include: {
-      art: true,
-    },
-  })
-}

@@ -67,46 +67,46 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useChatStore } from '@/stores/chatStore';
-import { useUserStore } from '@/stores/userStore';
-import { useBotStore } from '@/stores/botStore';
+import { ref, onMounted, computed } from 'vue'
+import { useChatStore } from '@/stores/chatStore'
+import { useUserStore } from '@/stores/userStore'
+import { useBotStore } from '@/stores/botStore'
 
-const chatStore = useChatStore();
-const userStore = useUserStore();
-const botStore = useBotStore();
+const chatStore = useChatStore()
+const userStore = useUserStore()
+const botStore = useBotStore()
 
-const newPrompt = ref('');
-const feedbackMessage = ref<string | null>(null);
-const feedbackClass = ref('text-green-500');
+const newPrompt = ref('')
+const feedbackMessage = ref<string | null>(null)
+const feedbackClass = ref('text-green-500')
 
 onMounted(async () => {
   try {
-    await chatStore.initialize();
-    console.log('All stores initialized successfully.');
+    await chatStore.initialize()
+    console.log('All stores initialized successfully.')
   } catch (error) {
-    showFeedback('Failed to initialize chat store.', true);
-    console.error(error);
+    showFeedback('Failed to initialize chat store.', true)
+    console.error(error)
   }
-});
+})
 
-const chats = computed(() => chatStore.chats || []);
+const chats = computed(() => chatStore.chats || [])
 
 function showFeedback(message: string, isError: boolean = false) {
-  feedbackMessage.value = message;
-  feedbackClass.value = isError ? 'text-red-500' : 'text-green-500';
-  setTimeout(() => (feedbackMessage.value = null), 3000);
+  feedbackMessage.value = message
+  feedbackClass.value = isError ? 'text-red-500' : 'text-green-500'
+  setTimeout(() => (feedbackMessage.value = null), 3000)
 }
 
 async function addChatWithStream() {
   if (!newPrompt.value.trim()) {
-    return showFeedback('Prompt cannot be empty.', true);
+    return showFeedback('Prompt cannot be empty.', true)
   }
 
-  const userId = userStore.user?.id || 1;
-  const botId = botStore.currentBot?.id || null;
-  const botName = botStore.currentBot?.name || 'Unknown Bot';
-  const recipientId = botId || 1;
+  const userId = userStore.user?.id || 1
+  const botId = botStore.currentBot?.id || null
+  const botName = botStore.currentBot?.name || 'Unknown Bot'
+  const recipientId = botId || 1
 
   try {
     const newChat = await chatStore.addChat({
@@ -115,24 +115,24 @@ async function addChatWithStream() {
       botId,
       botName,
       recipientId,
-    });
+    })
 
-    showFeedback('Chat added successfully! Streaming response...');
-    await chatStore.streamResponse(newChat.id);
+    showFeedback('Chat added successfully! Streaming response...')
+    await chatStore.streamResponse(newChat.id)
 
-    const updatedChat = await chatStore.updateChat(newChat.id, {
+    const updatedChat = await chatStore.editChat(newChat.id, {
       botResponse: chatStore.chats.find((chat) => chat.id === newChat.id)
         ?.content,
-    });
+    })
 
     if (updatedChat) {
-      showFeedback('Response received and chat updated successfully!');
+      showFeedback('Response received and chat updated successfully!')
     }
   } catch (error) {
-    showFeedback('Failed to add or update chat.', true);
-    console.error(error);
+    showFeedback('Failed to add or update chat.', true)
+    console.error(error)
   }
 
-  newPrompt.value = '';
+  newPrompt.value = ''
 }
 </script>

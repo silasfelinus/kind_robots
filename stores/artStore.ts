@@ -6,6 +6,15 @@ import { useUserStore } from './userStore'
 
 const isClient = typeof window !== 'undefined'
 
+export interface ArtCollection {
+  id: number
+  createdAt: Date
+  updatedAt: Date | null
+  userId: number
+  label: string | null
+  art: Art[] // Add this line to include the `art` array
+}
+
 export interface GenerateArtData {
   title?: string
   promptString: string
@@ -41,6 +50,8 @@ export const useArtStore = defineStore({
     currentPage: 1,
     totalArtCount: 0,
     pageSize: 100,
+    collections: [] as ArtCollection[],
+    uncollectedArt: [] as Art[],
   }),
 
   actions: {
@@ -56,6 +67,43 @@ export const useArtStore = defineStore({
         handleError(error, 'initializing art store')
       } finally {
         this.loading = false
+      }
+    },
+    async fetchUncollectedArt() {
+      const userStore = useUserStore()
+      const userId = userStore.userId
+
+      // Extract art IDs from the user's collections
+      const collectedArtIds = this.collections
+        .filter((collection: ArtCollection) => collection.userId === userId)
+        .flatMap((collection: ArtCollection) =>
+          collection.art.map((art: Art) => art.id),
+        )
+
+      // Filter and return uncollected art
+      return this.art.filter(
+        (art) => art.userId === userId && !collectedArtIds.includes(art.id),
+      )
+    },
+    // Action: Get a user's art
+    async getUserArt(userId: number): Promise<Art[]> {
+      try {
+        return this.art.filter((art) => art.userId === userId)
+      } catch (error) {
+        handleError(error, 'Getting user art')
+        return []
+      }
+    },
+
+    // Action: Get a user's art collections
+    async getUserCollections(userId: number): Promise<ArtCollection[]> {
+      try {
+        return this.collections.filter(
+          (collection) => collection.userId === userId,
+        )
+      } catch (error) {
+        handleError(error, 'Getting user collections')
+        return []
       }
     },
 
@@ -86,13 +134,109 @@ export const useArtStore = defineStore({
     // Fetching remote data in a separate function with explicit error handling
     async loadRemoteData() {
       try {
-        const userStore = useUserStore()
-        const userId = userStore.userId || 10
-
-        await this.fetchCollectedArt(userId)
+        await this.fetchCollections()
         await this.fetchAllArt()
       } catch (error) {
         handleError(error, 'loading remote data')
+      }
+    },
+    async fetchCollections() {
+      try {
+        const response = await performFetch<ArtCollection[]>(
+          '/api/art/collections',
+        )
+        if (response.success && response.data) {
+          this.collections = response.data as ArtCollection[] // Explicit type assertion
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'Fetching collections')
+      }
+    },
+
+    async createCollection(label: string) {
+      try {
+        const response = await performFetch<ArtCollection>(
+          '/api/art/collections',
+          {
+            method: 'POST',
+            body: JSON.stringify({ label }),
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+
+        if (response.success && response.data) {
+          this.collections.push(response.data) // Push the new collection into the state
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'Creating collection')
+      }
+    },
+
+    // Delete a collection
+    async deleteCollection(collectionId: number) {
+      try {
+        const response = await performFetch(
+          `/api/art/collections/${collectionId}`,
+          {
+            method: 'DELETE',
+          },
+        )
+        if (response.success) {
+          this.collectedArt = this.collectedArt.filter(
+            (col) => col.id !== collectionId,
+          )
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'Deleting collection')
+      }
+    },
+
+    // Add art to a collection
+    async addArtToCollection({
+      artId,
+      label,
+    }: {
+      artId: number
+      label: string
+    }) {
+      try {
+        const response = await performFetch('/api/art/collection', {
+          method: 'POST',
+          body: JSON.stringify({ artId, label }),
+          headers: { 'Content-Type': 'application/json' },
+        })
+        if (response.success) {
+          await this.fetchCollections() // Refresh collections
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'Adding art to collection')
+      }
+    },
+
+    // Remove art from a collection
+    async removeArtFromCollection(artId: number, collectionId: number) {
+      try {
+        const response = await performFetch(
+          `/api/art/collection/${collectionId}/${artId}`,
+          {
+            method: 'DELETE',
+          },
+        )
+        if (response.success) {
+          await this.fetchCollections() // Refresh collections
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'Removing art from collection')
       }
     },
 
@@ -340,30 +484,6 @@ export const useArtStore = defineStore({
     extractPitch(promptString: string): string {
       return promptString.split(',')[0].trim() || 'Untitled Pitch'
     },
-
-    async addArtToCollection({
-      userId,
-      artId,
-      label,
-    }: {
-      userId: number
-      artId: number
-      label: string
-    }): Promise<void> {
-      try {
-        const response = await performFetch(`/api/art/collection`, {
-          method: 'POST',
-          body: JSON.stringify({ userId, artId, label }),
-        })
-
-        if (!response.success) {
-          throw new Error(response.message)
-        }
-      } catch (error) {
-        handleError(error, 'adding art to collection')
-      }
-    },
-
     validatePromptString(prompt: string): boolean {
       const validPattern = /^[a-zA-Z0-9 ,]+$/
       return validPattern.test(prompt)

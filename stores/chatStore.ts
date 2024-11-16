@@ -115,6 +115,65 @@ export const useChatStore = defineStore({
         throw error
       }
     },
+     async streamResponse(chatId: number) {
+      try {
+        const chat = this.chats.find((c) => c.id === chatId);
+        if (!chat) throw new Error('Chat not found.');
+
+        this.activeStreamId = chatId;
+
+        const response = await fetch(`/api/chats/${chatId}/stream`);
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        if (response.body) {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+
+            let boundary;
+            while ((boundary = buffer.indexOf('\n\n')) >= 0) {
+              const chunk = buffer.slice(0, boundary).trim();
+              buffer = buffer.slice(boundary + 2);
+
+              if (!chunk || chunk === '[DONE]') continue;
+
+              try {
+                const parsed = JSON.parse(chunk);
+                const content = parsed.choices?.[0]?.delta?.content;
+
+                if (content) {
+                  this.appendChatContent(chatId, content);
+                }
+              } catch (err) {
+                console.error('Error parsing chunk:', err);
+              }
+            }
+          }
+        } else {
+          throw new Error('Streaming response not supported.');
+        }
+      } catch (error) {
+        handleError(ErrorType.NETWORK_ERROR, `Streaming failed: ${error}`);
+      } finally {
+        this.activeStreamId = null;
+      }
+    },
+
+    appendChatContent(chatId: number, content: string) {
+      const chat = this.chats.find((c) => c.id === chatId);
+      if (chat) {
+        chat.content += content;
+        this.saveToLocalStorage();
+      }
+    },
     async deleteChat(chatId: number): Promise<boolean> {
       const userStore = useUserStore()
       const currentUserId = userStore.userId

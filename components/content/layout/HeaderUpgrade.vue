@@ -1,11 +1,11 @@
 <template>
   <header
-    class="relative flex items-center justify-between bg-base-300 rounded-2xl border-1 md:border-2 lg:border-3 xl:border-4 max-w-full box-border"
+    class="relative flex items-center justify-center bg-base-300 rounded-2xl border-1 md:border-2 lg:border-3 xl:border-4 max-w-full box-border"
     :style="{ height: displayStore.headerHeight }"
   >
     <!-- Avatar and Viewport Size -->
     <div
-      class="flex items-center justify-center w-1/5 sm:w-1/6 h-full relative rounded-2xl"
+      class="flex items-center justify-left w-1/5 sm:w-1/6 h-full relative rounded-2xl"
     >
       <avatar-image
         alt="User Avatar"

@@ -48,7 +48,7 @@
               </button>
               <button
                 class="btn btn-info"
-                @click="editExchange(exchange.id, 'Updated prompt text')"
+                @click="editChat(exchange.id, 'Updated prompt text')"
               >
                 Edit
               </button>
@@ -75,6 +75,32 @@ import { useBotStore } from '@/stores/botStore'
 const chatStore = useChatStore()
 const userStore = useUserStore()
 const botStore = useBotStore()
+
+async function continueChat(chatId: number) {
+  const currentChat = chatStore.chats.find((chat) => chat.id === chatId)
+  if (!currentChat) return
+
+  const newChat = await chatStore.addChat({
+    content: 'User reply content here...',
+    userId: userStore.userId,
+    botId: botStore.currentBot?.id,
+    botName: botStore.currentBot?.name,
+    recipientId: currentChat.recipientId,
+    previousEntryId: currentChat.id,
+    originId: currentChat.originId || currentChat.id,
+  })
+
+  // Optionally stream bot response for the new chat
+  await chatStore.streamResponse(newChat.id)
+}
+
+async function editChat(chatId: number, newContent: string) {
+  await chatStore.editChat(chatId, { content: newContent }) // Pass a valid Partial<Chat> object
+}
+
+async function deleteChat(chatId: number) {
+  await chatStore.deleteChat(chatId)
+}
 
 const newPrompt = ref('')
 const feedbackMessage = ref<string | null>(null)
@@ -106,7 +132,7 @@ async function addChatWithStream() {
   const userId = userStore.user?.id || 1
   const botId = botStore.currentBot?.id || null
   const botName = botStore.currentBot?.name || 'Unknown Bot'
-  const recipientId = botId || 1
+  const recipientId = botId || null
 
   try {
     const newChat = await chatStore.addChat({

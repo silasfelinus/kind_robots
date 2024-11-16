@@ -25,12 +25,14 @@ const artStore = useArtStore()
 const userStore = useUserStore()
 
 // Computed values for user data
-const userId = computed(() => userStore.userid)
+const userId = computed(() => userStore.userId)
 const username = computed(() => userStore.username)
 
 // Refs to store new art and image data
 const newArt = ref<(typeof artStore.art)[0] | undefined>(undefined)
-const userAvatarImage = ref<(typeof artStore.artImages)[0] | undefined>(undefined)
+const userAvatarImage = ref<(typeof artStore.artImages)[0] | undefined>(
+  undefined,
+)
 const isUploading = ref(false)
 
 // Allowed file types
@@ -81,7 +83,7 @@ async function uploadAvatar(event: Event) {
         newArt.value = await artStore.createArt(newArtData)
 
         // Step 3: Update the user's profile with the new artImageId
-        await userStore.updateUser({
+        await userStore.updateUserInfo({
           id: userId.value,
           artImageId: userAvatarImage.value.id,
         })

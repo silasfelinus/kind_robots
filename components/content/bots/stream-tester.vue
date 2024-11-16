@@ -12,7 +12,9 @@
 
     <!-- Prompt Input -->
     <div class="mb-6">
-      <label for="prompt" class="block text-lg font-medium mb-2">Enter Prompt:</label>
+      <label for="prompt" class="block text-lg font-medium mb-2"
+        >Enter Prompt:</label
+      >
       <input
         id="prompt"
         v-model="prompt"
@@ -30,7 +32,11 @@
         @click="submitPrompt"
       >
         <span v-if="!loading">Submit Prompt</span>
-        <span v-else class="spinner-border spinner-border-sm" role="status"></span>
+        <span
+          v-else
+          class="spinner-border spinner-border-sm"
+          role="status"
+        ></span>
       </button>
     </div>
 
@@ -48,25 +54,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useChatStore } from '@/stores/chatStore';
+import { ref } from 'vue'
+import { useChatStore } from '@/stores/chatStore'
 
-const chatStore = useChatStore();
+const chatStore = useChatStore()
 
-const prompt = ref('');
-const responseText = ref('');
-const loading = ref(false);
-const errorMessage = ref('');
-const useStreaming = ref(false);
+const prompt = ref('')
+const responseText = ref('')
+const loading = ref(false)
+const errorMessage = ref('')
+const useStreaming = ref(false)
 
 async function submitPrompt() {
-  if (!prompt.value.trim()) return;
+  if (!prompt.value.trim()) return
 
-  loading.value = true;
-  errorMessage.value = '';
-  responseText.value = `You: ${prompt.value}\n\n`;
+  loading.value = true
+  errorMessage.value = ''
+  responseText.value = `You: ${prompt.value}\n\n`
 
-  let newChat;
+  let newChat
 
   try {
     // Step 1: Create a new chat object in the database
@@ -75,9 +81,9 @@ async function submitPrompt() {
       userId: 1, // Replace with actual user ID
       botId: 1, // Replace with actual bot ID
       recipientId: 1, // Replace with actual recipient ID
-    });
+    })
 
-    const apiEndpoint = '/api/botcafe/chat';
+    const apiEndpoint = '/api/botcafe/chat'
 
     const requestOptions = {
       method: 'POST',
@@ -91,74 +97,78 @@ async function submitPrompt() {
         max_tokens: 300,
         stream: useStreaming.value,
       }),
-    };
+    }
 
     if (useStreaming.value) {
-      await fetchStream(apiEndpoint, requestOptions, newChat.id);
+      await fetchStream(apiEndpoint, requestOptions, newChat.id)
     } else {
-      const response = await fetch(apiEndpoint, requestOptions);
+      const response = await fetch(apiEndpoint, requestOptions)
       if (!response.ok) {
-        errorMessage.value = `Error ${response.status}: ${response.statusText}`;
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+        errorMessage.value = `Error ${response.status}: ${response.statusText}`
+        throw new Error(`Error ${response.status}: ${response.statusText}`)
       }
-      const data = await response.json();
-      responseText.value += data.choices?.[0]?.message?.content || 'No response received';
+      const data = await response.json()
+      responseText.value +=
+        data.choices?.[0]?.message?.content || 'No response received'
 
       // Step 3: Update the chat object with the response
-      await chatStore.updateChat(newChat.id, {
+      await chatStore.editChat(newChat.id, {
         botResponse: data.choices?.[0]?.message?.content,
-      });
+      })
     }
   } catch (error) {
-    errorMessage.value = error instanceof Error ? error.message : 'An unknown error occurred';
-    console.error('Error during API request:', error);
+    errorMessage.value =
+      error instanceof Error ? error.message : 'An unknown error occurred'
+    console.error('Error during API request:', error)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
 async function fetchStream(url: string, options: RequestInit, chatId: number) {
-  const response = await fetch(url, options);
+  const response = await fetch(url, options)
   if (!response.ok) {
-    errorMessage.value = `Error ${response.status}: ${response.statusText}`;
-    throw new Error(`Error ${response.status}: ${response.statusText}`);
+    errorMessage.value = `Error ${response.status}: ${response.statusText}`
+    throw new Error(`Error ${response.status}: ${response.statusText}`)
   }
 
   if (response.body) {
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
 
     while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+      const { done, value } = await reader.read()
+      if (done) break
 
-      buffer += decoder.decode(value, { stream: true });
+      buffer += decoder.decode(value, { stream: true })
 
-      let boundary;
+      let boundary
       while ((boundary = buffer.indexOf('\n\n')) >= 0) {
-        const chunk = buffer.slice(0, boundary).trim();
-        buffer = buffer.slice(boundary + 2);
+        const chunk = buffer.slice(0, boundary).trim()
+        buffer = buffer.slice(boundary + 2)
 
-        if (!chunk || chunk === '[DONE]') continue;
+        if (!chunk || chunk === '[DONE]') continue
 
         try {
-          const parsed = JSON.parse(chunk);
-          const content = parsed.choices[0]?.delta?.content;
+          const parsed = JSON.parse(chunk)
+          const content = parsed.choices[0]?.delta?.content
 
           if (content) {
-            responseText.value += content;
+            responseText.value += content
 
             // Update chat object in real-time
-            await chatStore.updateChat(chatId, { botResponse: responseText.value });
+            await chatStore.editChat(chatId, {
+              botResponse: responseText.value,
+            })
           }
         } catch (err) {
-          console.error('Error parsing chunk:', err);
+          console.error('Error parsing chunk:', err)
         }
       }
     }
   } else {
-    throw new Error('Stream not supported in response');
+    throw new Error('Stream not supported in response')
   }
 }
 </script>

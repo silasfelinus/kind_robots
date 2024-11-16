@@ -59,6 +59,7 @@ export const useChatStore = defineStore({
       originId = null,
       previousEntryId = null,
       promptId = null,
+      botResponse = null,
     }: {
       content: string
       userId: number
@@ -69,6 +70,7 @@ export const useChatStore = defineStore({
       originId?: number | null
       previousEntryId?: number | null
       promptId?: number | null
+      botResponse?: string | null
     }) {
       try {
         const userStore = useUserStore()
@@ -96,6 +98,7 @@ export const useChatStore = defineStore({
           channel: null,
           isFavorite: false,
           promptId,
+          botResponse,
         }
 
         const response = await performFetch<Chat>('/api/chats', {
@@ -115,63 +118,59 @@ export const useChatStore = defineStore({
         throw error
       }
     },
-     async streamResponse(chatId: number) {
+    async streamResponse(chatId: number) {
       try {
-        const chat = this.chats.find((c) => c.id === chatId);
-        if (!chat) throw new Error('Chat not found.');
+        const chat = this.chats.find((c) => c.id === chatId)
+        if (!chat) throw new Error('Chat not found.')
 
-        this.activeStreamId = chatId;
-
-        const response = await fetch(`/api/chats/${chatId}/stream`);
+        const response = await fetch(`/api/chats/${chatId}/stream`)
         if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
+          throw new Error(`Error ${response.status}: ${response.statusText}`)
         }
 
         if (response.body) {
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = '';
+          const reader = response.body.getReader()
+          const decoder = new TextDecoder()
+          let buffer = ''
 
           while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+            const { done, value } = await reader.read()
+            if (done) break
 
-            buffer += decoder.decode(value, { stream: true });
+            buffer += decoder.decode(value, { stream: true })
 
-            let boundary;
+            let boundary
             while ((boundary = buffer.indexOf('\n\n')) >= 0) {
-              const chunk = buffer.slice(0, boundary).trim();
-              buffer = buffer.slice(boundary + 2);
+              const chunk = buffer.slice(0, boundary).trim()
+              buffer = buffer.slice(boundary + 2)
 
-              if (!chunk || chunk === '[DONE]') continue;
+              if (!chunk || chunk === '[DONE]') continue
 
               try {
-                const parsed = JSON.parse(chunk);
-                const content = parsed.choices?.[0]?.delta?.content;
+                const parsed = JSON.parse(chunk)
+                const content = parsed.choices?.[0]?.delta?.content
 
                 if (content) {
-                  this.appendChatContent(chatId, content);
+                  this.appendChatContent(chatId, content)
                 }
               } catch (err) {
-                console.error('Error parsing chunk:', err);
+                console.error('Error parsing chunk:', err)
               }
             }
           }
         } else {
-          throw new Error('Streaming response not supported.');
+          throw new Error('Streaming response not supported.')
         }
       } catch (error) {
-        handleError(ErrorType.NETWORK_ERROR, `Streaming failed: ${error}`);
-      } finally {
-        this.activeStreamId = null;
+        handleError(ErrorType.NETWORK_ERROR, `Streaming failed: ${error}`)
       }
     },
 
     appendChatContent(chatId: number, content: string) {
-      const chat = this.chats.find((c) => c.id === chatId);
+      const chat = this.chats.find((c) => c.id === chatId)
       if (chat) {
-        chat.content += content;
-        this.saveToLocalStorage();
+        chat.content += content
+        this.saveToLocalStorage()
       }
     },
     async deleteChat(chatId: number): Promise<boolean> {
@@ -214,14 +213,11 @@ export const useChatStore = defineStore({
 
     async editChat(chatId: number, updatedData: Partial<Chat>) {
       try {
-        const response = await performFetch<Chat>(
-          `/api/chats/${chatId}`,
-          {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedData),
-          },
-        )
+        const response = await performFetch<Chat>(`/api/chats/${chatId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData),
+        })
 
         const updatedChat = response.data
         if (updatedChat) {
@@ -241,9 +237,7 @@ export const useChatStore = defineStore({
 
     async fetchChatsByUserId(userId: number) {
       try {
-        const response = await performFetch<Chat[]>(
-          `/api/chats/user/${userId}`,
-        )
+        const response = await performFetch<Chat[]>(`/api/chats/user/${userId}`)
         if (response.success) {
           this.chats = response.data || []
           this.saveToLocalStorage()

@@ -27,10 +27,12 @@
       "WelcomeMessage",
       "avatar-banner",
       "avatar-header",
+      "avatar-upload",
       "coming-soon",
       "karma-tracker",
       "user-navigation",
-      "user-panel"
+      "user-panel",
+      "user-picture"
     ]
   },
   {
@@ -91,6 +93,7 @@
       "carousel-working",
       "chat-card",
       "chat-test",
+      "chat-view",
       "generate-avatar",
       "prompt-creator",
       "reaction-card",

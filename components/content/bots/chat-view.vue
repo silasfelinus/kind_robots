@@ -4,7 +4,9 @@
 
     <!-- Chat Input -->
     <div class="mb-6">
-      <label for="chatContent" class="block text-lg font-medium mb-2">Enter Message:</label>
+      <label for="chatContent" class="block text-lg font-medium mb-2"
+        >Enter Message:</label
+      >
       <input
         id="chatContent"
         v-model="chatContent"
@@ -16,7 +18,9 @@
 
     <!-- Recipient Input -->
     <div class="mb-6">
-      <label for="recipientId" class="block text-lg font-medium mb-2">Recipient ID:</label>
+      <label for="recipientId" class="block text-lg font-medium mb-2"
+        >Recipient ID:</label
+      >
       <input
         id="recipientId"
         v-model.number="recipientId"
@@ -34,7 +38,11 @@
         @click="createChat"
       >
         <span v-if="!loading">Create Chat</span>
-        <span v-else class="spinner-border spinner-border-sm" role="status"></span>
+        <span
+          v-else
+          class="spinner-border spinner-border-sm"
+          role="status"
+        ></span>
       </button>
     </div>
 
@@ -51,40 +59,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useChatStore } from '@/stores/chatStore';
+import { ref } from 'vue'
+import { useChatStore } from '@/stores/chatStore'
+import { useUserStore } from '@/stores/userStore'
+import { useBotStore } from '@/stores/botStore'
 
-const chatContent = ref('');
-const recipientId = ref<number | null>(null);
-const loading = ref(false);
-const chats = ref([]);
-const chatStore = useChatStore();
+const chatContent = ref('')
+const recipientId = ref<number | null>(null)
+const loading = ref(false)
+const chats = ref([])
+const chatStore = useChatStore()
+const userStore = useUserStore()
+const botStore = useBotStore()
 
 async function createChat() {
-  if (!chatContent.value.trim() || !recipientId.value) return;
+  if (!chatContent.value.trim() || !recipientId.value) return
 
-  loading.value = true;
+  loading.value = true
 
   try {
     // Add new chat
     const newChat = await chatStore.addChat({
       content: chatContent.value,
-      userId: chatStore.$state.userId,
-      botId: 1, // Replace with actual botId logic
+      userId: userStore.userId,
+      botId: botStore.currentBot?.id || null, // Replace with actual botId logic
       recipientId: recipientId.value,
-    });
+    })
 
     // Stream response for the created chat
-    await chatStore.streamResponse(newChat.id);
+    await chatStore.streamResponse(newChat.id)
 
     // Add new chat to the displayed chats
-    chats.value.push(newChat);
+    chats.value.push(newChat)
   } catch (error) {
-    console.error('Error creating chat:', error);
+    console.error('Error creating chat:', error)
   } finally {
-    chatContent.value = '';
-    recipientId.value = null;
-    loading.value = false;
+    chatContent.value = ''
+    recipientId.value = null
+    loading.value = false
   }
 }
 </script>

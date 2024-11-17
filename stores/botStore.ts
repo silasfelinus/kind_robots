@@ -211,6 +211,15 @@ export const useBotStore = defineStore({
       }
     },
 
+    botImage(botId: number): string {
+      const bot = this.bots.find((b) => b.id === botId)
+      if (!bot || !bot.artImageId) return '/images/bot.webp' // Fallback to default image
+
+      const artStore = useArtStore()
+      const artImage = artStore.getArtImageById(bot.artImageId)
+      return artImage?.imageData || '/images/bot.webp'
+    },
+
     async seedBots(): Promise<void> {
       try {
         await this.addBots(botData)

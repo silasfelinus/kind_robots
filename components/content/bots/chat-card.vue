@@ -1,19 +1,36 @@
 <template>
   <div
-    class="chat-card p-6 bg-base-200 rounded-xl shadow-md w-full max-w-lg mx-auto mt-6"
+    class="chat-card p-6 bg-base-200 rounded-xl shadow-lg w-full max-w-lg mx-auto mt-6 relative border border-primary hover:border-accent transition"
   >
-    <!-- Header with User and Bot Details -->
-    <div class="header flex items-center mb-4">
+    <!-- Top Right Delete Icon -->
+    <button
+      class="absolute top-4 right-4 text-error hover:text-error-content transition"
+      @click="deleteChat"
+    >
+      <icon name="trash" class="w-6 h-6" />
+    </button>
+
+    <!-- Header with User and Bot Images -->
+    <div v-if="chat.userId" class="header flex items-center mb-4 gap-4">
+      <img
+        :src="userStore.userImage(chat.userId)"
+        alt="User Avatar"
+        class="w-12 h-12 rounded-full border-2 border-primary"
+      />
       <div>
-        <p class="text-lg font-semibold">
+        <p class="text-lg font-bold text-gray-800">
           {{ chat.sender || 'User' }}
           <span class="text-sm text-gray-500">to</span>
           {{ chat.botName || 'Bot' }}
         </p>
-        <p class="text-sm text-gray-400">
-          {{ formatDate(chat.createdAt) }}
-        </p>
+        <p class="text-sm text-gray-400">{{ formatDate(chat.createdAt) }}</p>
       </div>
+      <img
+        v-if="chat.botId"
+        :src="botStore.botImage(chat.botId)"
+        alt="Bot Avatar"
+        class="w-12 h-12 rounded-full border-2 border-secondary ml-auto"
+      />
     </div>
 
     <!-- Message Thread -->
@@ -21,50 +38,42 @@
       <div
         v-for="message in threadMessages"
         :key="message.id"
-        class="message p-2 mb-2 rounded-md"
-        :class="message.sender === chat.sender ? 'bg-gray-100' : 'bg-blue-100'"
+        class="message p-3 mb-2 rounded-lg flex items-start gap-4"
+        :class="{
+          'bg-gray-900 text-gray-100': message.sender === chat.sender,
+          'bg-blue-900 text-blue-100': message.sender !== chat.sender,
+        }"
       >
-        <p class="text-sm text-gray-700">
-          <strong>{{ message.sender }}:</strong>
-        </p>
+        <p class="text-sm font-bold">{{ message.sender }}:</p>
         <p class="text-base">{{ message.content }}</p>
       </div>
     </div>
 
     <!-- Bot Response -->
-    <div class="bot-response p-4 rounded-md bg-blue-100">
-      <p class="text-sm text-gray-700 font-semibold">Bot Response:</p>
-      <p class="text-base">
-        {{ chat.botResponse || 'Awaiting response...' }}
-      </p>
+    <div class="bot-response p-4 rounded-lg bg-accent">
+      <p class="text-sm font-semibold text-accent-content">Bot Response:</p>
+      <p class="text-base">{{ chat.botResponse || 'Awaiting response...' }}</p>
     </div>
-
-    <!-- Debug JSON Display (optional) -->
-    <pre class="bg-gray-100 p-3 rounded-md mt-4 text-xs overflow-auto">
-exchange:
-{{ JSON.stringify(chat, null, 2) }}
-    </pre>
-
-    <!-- Reactions and Sharing -->
-    <ReactionCard :chat-exchange-id="chat.id" />
 
     <!-- Reply Section -->
     <div v-if="showReply" class="reply-container mt-4">
       <textarea
         v-model="replyMessage"
         placeholder="Type your reply here..."
-        class="w-full p-3 border rounded-md mb-2"
+        class="w-full p-3 border rounded-lg bg-base-100"
       />
-      <button class="btn btn-primary w-full" @click="sendReply">
+      <button class="btn btn-primary w-full mt-2" @click="sendReply">
         Send Reply
       </button>
     </div>
+
+    <!-- Reactions and Sharing -->
+    <ReactionCard :chat-exchange-id="chat.id" />
 
     <!-- Controls -->
     <div class="flex gap-2 mt-4 justify-end">
       <button class="btn btn-secondary" @click="continueChat">Continue</button>
       <button class="btn btn-info" @click="editChat">Edit</button>
-      <button class="btn btn-error" @click="deleteChat">Delete</button>
     </div>
   </div>
 </template>
@@ -73,6 +82,7 @@ exchange:
 import { computed, ref } from 'vue'
 import { useChatStore, type Chat } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
+import { useBotStore } from '@/stores/botStore'
 
 // Props
 const props = defineProps({
@@ -91,6 +101,7 @@ const replyMessage = ref('')
 // Stores
 const chatStore = useChatStore()
 const userStore = useUserStore()
+const botStore = useBotStore()
 
 // Computed properties
 const threadMessages = computed(() =>
@@ -172,8 +183,5 @@ const deleteChat = async () => {
 <style scoped>
 .reply-container textarea {
   resize: vertical;
-}
-.bot-response {
-  background-color: #ebf8ff;
 }
 </style>

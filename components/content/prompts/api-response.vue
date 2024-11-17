@@ -1,6 +1,5 @@
 <template>
   <div class="api-response-container">
-    
     <h2 class="text-lg font-semibold mb-2 text-black">Parsed Examples</h2>
     <div v-if="parsedExamples.length" class="example-list space-y-3">
       <div
@@ -68,7 +67,6 @@ function removeExample(index: number) {
   parsedExamples.value.splice(index, 1)
 }
 
-// Add selected examples to selectedTitle.examples
 function addSelectedExamplesToTitle() {
   if (pitchStore.selectedTitle) {
     const selectedExamples = selectedIndices.value.map(
@@ -84,6 +82,13 @@ function addSelectedExamplesToTitle() {
     // Update pitch examples with an array of strings
     pitchStore.updatePitchExamples(pitchStore.selectedTitle.id, updatedExamples)
     console.log('Added examples to title:', updatedExamples)
+
+    // Remove selected examples from parsedExamples
+    selectedIndices.value
+      .sort((a, b) => b - a) // Sort indices in descending order to avoid reindexing issues
+      .forEach((index) => {
+        parsedExamples.value.splice(index, 1)
+      })
 
     // Clear selections after adding
     selectedIndices.value = []

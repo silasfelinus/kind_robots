@@ -75,7 +75,7 @@
 
     <!-- Title Examples Component -->
     <title-examples :pitch="pitch" />
-    <api-response />
+    <api-response v-if="pitchStore.selectedTitle?.id === pitch.id" />
 
     <!-- Actions Component -->
     <pitch-card-actions

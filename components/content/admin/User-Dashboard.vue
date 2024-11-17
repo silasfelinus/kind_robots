@@ -1,5 +1,7 @@
 <template>
-  <div :class="['bg-base-300 p-2 rounded-2xl relative', { 'h-32': isMinimized }]">
+  <div
+    :class="['bg-base-300 p-2 rounded-2xl relative', { 'h-32': isMinimized }]"
+  >
     <button
       v-if="!isMinimized"
       class="absolute top-1 left-1 z-10"
@@ -7,15 +9,21 @@
     >
       <Icon name="kind-icon:expand" class="text-lg" />
     </button>
-    <span class="absolute top-2 right-2">Role: {{ user?.Role || 'Guest' }}</span>
+    <span class="absolute top-2 right-2"
+      >Role: {{ user?.Role || 'Guest' }}</span
+    >
 
     <div v-if="!isMinimized">
       <h1 class="text-2xl font-semibold ml-6">User Dashboard</h1>
       <div class="relative flex justify-center items-center">
         <user-avatar />
-<avatar-upload />
-        <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
-          <h2 class="text-lg font-semibold bg-base-300 border-accent rounded-2xl border p-2 pt-1 pb-1">
+        <avatar-upload />
+        <div
+          class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2"
+        >
+          <h2
+            class="text-lg font-semibold bg-base-300 border-accent rounded-2xl border p-2 pt-1 pb-1"
+          >
             {{ user?.username || 'Kind Guest' }}
           </h2>
         </div>
@@ -24,12 +32,13 @@
         <div>
           <p class="text-lg font-medium m-2 mt-4 p-1 pb-0">
             Welcome, {{ user?.username || 'Guest' }}
-            <span v-if="!isLoggedIn" class="text-sm text-gray-500 ml-2">(Not logged in)</span>
+            <span v-if="!isLoggedIn" class="text-sm text-gray-500 ml-2"
+              >(Not logged in)</span
+            >
           </p>
           <div class="flex space-x-4 mt-2">
             <div class="flex items-center space-x-2">
-              <Icon name="kind-icon:jellybean" class="text-lg" />
-              <span>Jellybeans: {{ user?.mana || 0 }}</span>
+              <jellybean-count />
             </div>
           </div>
         </div>
@@ -84,7 +93,6 @@
     </div>
   </div>
 </template>
-
 
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue'

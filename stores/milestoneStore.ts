@@ -81,12 +81,9 @@ export const useMilestoneStore = defineStore({
         }
       }
 
-      if (!this.milestones.length) {
-        await this.fetchMilestones()
-      }
-      if (!this.milestoneRecords.length) {
-        await this.fetchMilestoneRecords()
-      }
+      await this.fetchMilestones()
+
+      await this.fetchMilestoneRecords()
 
       this.isInitialized = true
     },

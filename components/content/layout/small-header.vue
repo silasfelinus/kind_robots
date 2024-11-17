@@ -14,7 +14,7 @@
       <theme-icon class="flex" />
       <swarm-icon class="flex" />
     </div>
-  </div>
+
   </div>
 </template>
 

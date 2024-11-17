@@ -1,6 +1,6 @@
 <template>
   <div
-    class="pitch-card bg-base-100 rounded-2xl p-4 shadow-lg"
+    class="pitch-card bg-base-100 rounded-2xl p-4 shadow-lg w-75%"
     :class="{ 'border-primary': isSelected, 'border-gray-400': !isSelected }"
     @click="selectTitle"
   >

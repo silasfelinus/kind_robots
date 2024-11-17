@@ -2,15 +2,10 @@
   <div class="relative flex flex-col items-start space-y-2 lg:ml-10 box-border">
     <!-- User Avatar and Jellybean Count -->
     <div v-if="isLoggedIn" class="flex items-center space-x-2">
-      <user-picture class="h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full border border-base-300" />
-      <jellybean-count />
-    </div>
-
-    <!-- Username (Visible only on md and above) -->
-    <div v-if="isLoggedIn" class="hidden md:block">
       <router-link to="/dashboard" class="cursor-pointer hover:underline">
-        {{ username }}!
-      </router-link>
+      <user-picture class="h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full border border-base-300" />
+        </router-link>
+    <jellybean-count />
     </div>
 
     <!-- Guest Login Button -->

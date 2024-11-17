@@ -8,7 +8,7 @@
 
     <!-- Conditionally show the full text or just the count -->
     <div class="flex items-center">
-      <span class="whitespace-nowrap mr-1"> {{ user?.mana || 0 }} /9 </span>
+      <span class="whitespace-nowrap mr-1"> {{ beanCount || 0 }} /9 </span>
     </div>
   </router-link>
 </template>
@@ -16,8 +16,12 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 
+const milestoneStore = useMilestoneStore()
 const userStore = useUserStore()
-const user = computed(() => userStore.user)
+
+const beanCount = computed(() =>
+  milestoneStore.getMilestoneCountForUser(userStore.userId),
+)
 </script>
 <style scoped>
 .router-link {

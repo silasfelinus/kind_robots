@@ -10,7 +10,7 @@
       <icon name="trash" class="w-6 h-6" />
     </button>
 
-    <!-- Header with User and Bot Images -->
+    <!-- Header -->
     <div v-if="chat.userId" class="header flex items-center mb-4 gap-4">
       <img
         :src="userStore.userImage(chat.userId)"
@@ -38,25 +38,33 @@
       <div
         v-for="message in threadMessages"
         :key="message.id"
-        class="message p-3 mb-2 rounded-lg flex items-start gap-4"
+        class="message p-3 mb-2 rounded-lg flex gap-4"
         :class="{
-          'bg-gray-900 text-gray-100': message.sender === chat.sender,
-          'bg-blue-900 text-blue-100': message.sender !== chat.sender,
+          'flex-row-reverse bg-gray-900 text-gray-100':
+            message.sender === chat.sender,
+          'flex-row bg-blue-900 text-blue-100': message.sender !== chat.sender,
         }"
       >
-        <p class="text-sm font-bold">{{ message.sender }}:</p>
-        <p class="text-base">{{ message.content }}</p>
+        <img
+          :src="getImage(message.sender)"
+          alt="Avatar"
+          class="w-8 h-8 rounded-full border"
+        />
+        <div>
+          <p class="text-sm font-bold">{{ message.sender }}:</p>
+          <p class="text-base">{{ message.content }}</p>
+        </div>
       </div>
     </div>
 
     <!-- Bot Response -->
-    <div class="bot-response p-4 rounded-lg bg-accent">
+    <div class="bot-response p-4 rounded-lg bg-accent mb-4">
       <p class="text-sm font-semibold text-accent-content">Bot Response:</p>
       <p class="text-base">{{ chat.botResponse || 'Awaiting response...' }}</p>
     </div>
 
-    <!-- Reply Section -->
-    <div v-if="showReply" class="reply-container mt-4">
+    <!-- Continue Section -->
+    <div v-if="showReply" class="continue-container mt-4">
       <textarea
         v-model="replyMessage"
         placeholder="Type your reply here..."
@@ -67,13 +75,12 @@
       </button>
     </div>
 
-    <!-- Reactions and Sharing -->
-    <ReactionCard :chat-exchange-id="chat.id" />
+    <!-- Reactions -->
+    <ReactionCard :chat-exchange-id="chat.id" class="mt-6" />
 
     <!-- Controls -->
     <div class="flex gap-2 mt-4 justify-end">
-      <button class="btn btn-secondary" @click="continueChat">Continue</button>
-      <button class="btn btn-info" @click="editChat">Edit</button>
+      <button class="btn btn-secondary" @click="toggleReply">Continue</button>
     </div>
   </div>
 </template>
@@ -116,14 +123,20 @@ const formatDate = (date: Date | string | null) => {
   return new Date(date).toLocaleString()
 }
 
-// Methods
+// Get image based on sender
+const getImage = (sender: string) => {
+  return sender === chat.sender
+    ? userStore.userImage(chat.userId || 9)
+    : botStore.botImage(chat.botId || 1)
+}
+
 const sendReply = async () => {
   if (replyMessage.value.trim()) {
     try {
       const newChat = await chatStore.addChat({
         content: replyMessage.value,
-        userId: chat.userId || userStore.userId || 9,
-        recipientId: chat.recipientId || 0,
+        userId: chat.userId || userStore.userId || 9, // Ensure a default number is used
+        recipientId: chat.recipientId || 0, // Fallback to 0 or another default
         isPublic: chat.isPublic,
         originId: chat.originId || chat.id,
         previousEntryId: chat.id,
@@ -142,33 +155,8 @@ const sendReply = async () => {
   }
 }
 
-const continueChat = async () => {
-  try {
-    const newChat = await chatStore.addChat({
-      content: 'User continuation message...',
-      userId: chat.userId || userStore.user?.id || 9,
-      recipientId: chat.recipientId || 0,
-      isPublic: chat.isPublic,
-      originId: chat.originId || chat.id,
-      previousEntryId: chat.id,
-      botId: chat.botId,
-      botName: chat.botName,
-    })
-
-    // Stream the response for the continued chat
-    await chatStore.streamResponse(newChat.id)
-  } catch (error) {
-    console.error('Error continuing chat:', error)
-  }
-}
-
-const editChat = async () => {
-  try {
-    const updatedContent = 'Updated message content'
-    await chatStore.editChat(chat.id, { content: updatedContent })
-  } catch (error) {
-    console.error('Error editing chat:', error)
-  }
+const toggleReply = () => {
+  showReply.value = !showReply.value
 }
 
 const deleteChat = async () => {

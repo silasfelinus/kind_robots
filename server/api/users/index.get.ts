@@ -1,7 +1,6 @@
 // /server/api/users/index.get.ts
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
-import auth from '../../middleware/auth'
 import { fetchUsers } from '.'
 
 export default defineEventHandler(async (event) => {
@@ -10,7 +9,6 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Perform authentication
-    await auth(event)
 
     // Fetch users with pagination logic
     const fetchResponse = await fetchUsers()

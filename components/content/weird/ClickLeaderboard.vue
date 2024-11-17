@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import {useMilestoneStore} from '@/stores/milestoneStore'
 
 // Define the type for the leaderboard
 interface LeaderboardUser {
@@ -30,13 +31,7 @@ interface LeaderboardUser {
   clickRecord: number
 }
 
-const leaderboard = ref<LeaderboardUser[]>([])
+const leaderboard = computed(()=> milestoneStore.clickRecord as LeaderboardUser[])
 
-onMounted(async () => {
-  const response = await fetch('/api/milestones/highClickScores')
-  const data = await response.json()
-  if (data.success) {
-    leaderboard.value = data.users
-  }
-})
+
 </script>

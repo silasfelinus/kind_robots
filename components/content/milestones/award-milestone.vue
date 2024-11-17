@@ -1,7 +1,5 @@
-
-
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
@@ -14,7 +12,7 @@ const errorStore = useErrorStore()
 const checkAndRecordMilestone = async () => {
   try {
     // Fetch milestone data by ID
-    const response = await milestoneStore.fetchMilestoneById(props.id)
+    const response = await milestoneStore.fetchMilestoneById(props.id || 10)
     if (!response.success || !response.data) {
       throw new Error(response.message || 'Milestone not found')
     }
@@ -30,7 +28,7 @@ const checkAndRecordMilestone = async () => {
     // Record the milestone if not already achieved
     const recordResult = await milestoneStore.recordMilestone(
       userStore.userId,
-      milestone.id
+      milestone.id,
     )
     if (recordResult.success) {
       console.log('Milestone recorded successfully.')

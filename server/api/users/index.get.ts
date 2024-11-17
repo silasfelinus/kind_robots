@@ -3,12 +3,8 @@ import { defineEventHandler } from 'h3'
 import { errorHandler } from '../utils/error'
 import { fetchUsers } from '.'
 
-export default defineEventHandler(async (event) => {
-  
-
+export default defineEventHandler(async () => {
   try {
-    
-
     // Fetch users with pagination logic
     const fetchResponse = await fetchUsers()
 

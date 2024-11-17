@@ -1,46 +1,45 @@
 <template>
-<div
-  class="relative bg-primary bg-opacity-30 border border-accent rounded-2xl p-2 m-2 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer flex flex-col justify-between h-full"
-  @click="selectArt"
->
-  <!-- Delete Icon -->
-  <div v-if="!confirmingDelete" class="absolute top-2 right-2">
-    <button
-      v-if="canDelete"
-      class="bg-error text-white p-2 rounded-full hover:bg-error-content transition-all"
-      @click.stop="confirmDelete"
-      title="Delete Image"
-    >
-      <Icon name="kind-icon:delete" class="w-4 h-4" />
-    </button>
-  </div>
-
   <div
-  v-if="confirmingDelete"
-  class="absolute top-2 right-2 bg-base-100 border border-warning rounded-lg shadow-lg p-2 w-40 sm:w-48"
->
-  <p class="text-xs sm:text-sm mb-2 text-warning">Confirm delete?</p>
-  <div class="flex flex-row gap-2">
-    <button
-      class="bg-error text-white rounded-md px-3 py-1 hover:bg-error-content transition-all"
-      @click.stop="deleteImage"
-    >
-      Yes
-    </button>
-    <button
-      class="bg-base-200 text-gray-700 rounded-md px-3 py-1 hover:bg-base-300 transition-all"
-      @click.stop="cancelDelete"
-    >
-      No
-    </button>
-  </div>
-</div>
+    class="relative bg-primary bg-opacity-30 border border-accent rounded-2xl p-2 m-2 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer flex flex-col justify-between h-full"
+    @click="selectArt"
+  >
+    <!-- Delete Icon -->
+    <div v-if="!confirmingDelete" class="absolute top-2 right-2">
+      <button
+        v-if="canDelete"
+        class="bg-error text-white p-2 rounded-full hover:bg-error-content transition-all"
+        title="Delete Image"
+        @click.stop="confirmDelete"
+      >
+        <Icon name="kind-icon:delete" class="w-4 h-4" />
+      </button>
+    </div>
 
+    <div
+      v-if="confirmingDelete"
+      class="absolute top-2 right-2 bg-base-100 border border-warning rounded-lg shadow-lg p-2 w-40 sm:w-48"
+    >
+      <p class="text-xs sm:text-sm mb-2 text-warning">Confirm delete?</p>
+      <div class="flex flex-row gap-2">
+        <button
+          class="bg-error text-white rounded-md px-3 py-1 hover:bg-error-content transition-all"
+          @click.stop="deleteImage"
+        >
+          Yes
+        </button>
+        <button
+          class="bg-base-200 text-gray-700 rounded-md px-3 py-1 hover:bg-base-300 transition-all"
+          @click.stop="cancelDelete"
+        >
+          No
+        </button>
+      </div>
+    </div>
 
-  <!-- Art Information -->
-  <h3 class="text-lg font-semibold mb-2 truncate text-center" title="Prompt">
-    {{ art?.promptString || 'No prompt available' }}
-  </h3>
+    <!-- Art Information -->
+    <h3 class="text-lg font-semibold mb-2 truncate text-center" title="Prompt">
+      {{ art?.promptString || 'No prompt available' }}
+    </h3>
 
     <!-- Image Section -->
     <div
@@ -107,6 +106,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
+import { useUserStore } from '@/stores/userStore'
 import { useReactionStore } from '@/stores/reactionStore'
 
 const props = defineProps<{
@@ -119,6 +119,8 @@ const localArtImage = ref<ArtImage | null>(null)
 const showArtImage = ref(false)
 const fullscreenMode = ref(false)
 const showDetails = ref(false)
+
+const userStore = useUserStore()
 
 const confirmingDelete = ref(false)
 
@@ -141,6 +143,11 @@ const deleteImage = async () => {
     confirmingDelete.value = false
   }
 }
+
+// Determine if the current user can delete the art
+const canDelete = computed(() => {
+  return props.art.userId === userStore.userId || userStore.role === 'Admin'
+})
 
 // Check if we have an art image locally or via props
 const hasImage = computed(

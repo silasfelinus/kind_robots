@@ -218,6 +218,7 @@
       "expandable.container",
       "footer-icon",
       "info-block",
+      "large-header",
       "navbar-toggle",
       "navigation-row",
       "navigation-trimmed",
@@ -225,6 +226,7 @@
       "sidefoot-toggle",
       "site-footer",
       "site-header",
+      "small-header",
       "special-container",
       "theme-icon",
       "theme-menu",
@@ -369,7 +371,8 @@
       "ComponentScreen",
       "LabChooser",
       "LabGallery",
-      "WonderLab"
+      "WonderLab",
+      "comfy-frontend"
     ]
   }
 ]

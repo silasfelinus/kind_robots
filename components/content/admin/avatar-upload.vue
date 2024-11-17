@@ -9,7 +9,9 @@
 
     <div v-if="isUploading" class="text-info">Uploading image...</div>
     <div v-else-if="uploadError" class="text-error">{{ uploadError }}</div>
-    <div v-else-if="uploadSuccess" class="text-success">{{ uploadSuccess }}</div>
+    <div v-else-if="uploadSuccess" class="text-success">
+      {{ uploadSuccess }}
+    </div>
 
     <div v-if="newArt" class="mt-6">
       <art-card :art="newArt" :art-image="userAvatarImage || undefined" />
@@ -51,9 +53,10 @@ async function uploadAvatar(event: Event) {
     // Check file type
     if (!allowedFileTypes.includes(uploadedFile.type)) {
       console.error(
-        'Unsupported file type. Please upload a PNG, JPEG, or WebP image.'
+        'Unsupported file type. Please upload a PNG, JPEG, or WebP image.',
       )
-      uploadError.value = 'Unsupported file type. Only PNG, JPEG, or WebP allowed.'
+      uploadError.value =
+        'Unsupported file type. Only PNG, JPEG, or WebP allowed.'
       return
     }
 
@@ -93,7 +96,6 @@ async function uploadAvatar(event: Event) {
         if (newArt.value?.id) {
           console.log('Adding new art to collection...')
           await artStore.addArtToCollection({
-            userId: userId.value,
             artId: newArt.value.id,
             label: 'avatars',
           })
@@ -111,13 +113,15 @@ async function uploadAvatar(event: Event) {
       uploadSuccess.value = 'Avatar uploaded and profile updated successfully!'
     } catch (error) {
       console.error('Error during upload process:', error)
-      uploadError.value = 'An error occurred while uploading your avatar. Please try again.'
+      uploadError.value =
+        'An error occurred while uploading your avatar. Please try again.'
     } finally {
       isUploading.value = false
     }
   } else {
     console.error('No file selected.')
-    uploadError.value = 'No file selected. Please choose an image file to upload.'
+    uploadError.value =
+      'No file selected. Please choose an image file to upload.'
   }
 }
 </script>

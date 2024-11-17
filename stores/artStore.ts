@@ -206,9 +206,11 @@ export const useArtStore = defineStore({
       label: string
     }) {
       try {
+        const userStore = useUserStore()
+        const userId = computed(() => userStore.userId)
         const response = await performFetch('/api/art/collection', {
           method: 'POST',
-          body: JSON.stringify({ artId, label }),
+          body: JSON.stringify({ artId, label, userId }),
           headers: { 'Content-Type': 'application/json' },
         })
         if (response.success) {

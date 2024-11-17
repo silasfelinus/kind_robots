@@ -25,6 +25,7 @@
       class="components-section flex-grow w-full max-w-4xl overflow-y-auto p-2 md:p-4 lg:p-6"
     >
       <lazy-art-maker v-if="choice === 'art-maker'" />
+       <lazy-comfy-frontend v-if="choice === 'comfy-frontend'" />
       <lazy-art-collection v-if="choice === 'art-collection'" />
       <lazy-art-gallery v-if="choice === 'art-gallery'" />
    
@@ -38,6 +39,7 @@ import { ref } from 'vue'
 // Tabs setup for Art Lab
 const tabs = [
   { name: 'art-maker', label: 'Art Maker' },
+{ name: 'comfy-frontend', label: 'Comfy' },
   { name: 'art-collection', label: 'Art Collection' },
   { name: 'art-gallery', label: 'Art Gallery' },
 ]

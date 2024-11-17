@@ -1,12 +1,46 @@
 <template>
+<div
+  class="relative bg-primary bg-opacity-30 border border-accent rounded-2xl p-2 m-2 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer flex flex-col justify-between h-full"
+  @click="selectArt"
+>
+  <!-- Delete Icon -->
+  <div v-if="!confirmingDelete" class="absolute top-2 right-2">
+    <button
+      v-if="canDelete"
+      class="bg-error text-white p-2 rounded-full hover:bg-error-content transition-all"
+      @click.stop="confirmDelete"
+      title="Delete Image"
+    >
+      <Icon name="kind-icon:delete" class="w-4 h-4" />
+    </button>
+  </div>
+
   <div
-    class="bg-primary bg-opacity-30 border border-accent rounded-2xl p-2 m-2 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer flex flex-col justify-between h-full"
-    @click="selectArt"
-  >
-    <!-- Art Information -->
-    <h3 class="text-lg font-semibold mb-2 truncate text-center" title="Prompt">
-      {{ art?.promptString || 'No prompt available' }}
-    </h3>
+  v-if="confirmingDelete"
+  class="absolute top-2 right-2 bg-base-100 border border-warning rounded-lg shadow-lg p-2 w-40 sm:w-48"
+>
+  <p class="text-xs sm:text-sm mb-2 text-warning">Confirm delete?</p>
+  <div class="flex flex-row gap-2">
+    <button
+      class="bg-error text-white rounded-md px-3 py-1 hover:bg-error-content transition-all"
+      @click.stop="deleteImage"
+    >
+      Yes
+    </button>
+    <button
+      class="bg-base-200 text-gray-700 rounded-md px-3 py-1 hover:bg-base-300 transition-all"
+      @click.stop="cancelDelete"
+    >
+      No
+    </button>
+  </div>
+</div>
+
+
+  <!-- Art Information -->
+  <h3 class="text-lg font-semibold mb-2 truncate text-center" title="Prompt">
+    {{ art?.promptString || 'No prompt available' }}
+  </h3>
 
     <!-- Image Section -->
     <div
@@ -85,6 +119,28 @@ const localArtImage = ref<ArtImage | null>(null)
 const showArtImage = ref(false)
 const fullscreenMode = ref(false)
 const showDetails = ref(false)
+
+const confirmingDelete = ref(false)
+
+const confirmDelete = () => {
+  confirmingDelete.value = true
+}
+
+const cancelDelete = () => {
+  confirmingDelete.value = false
+}
+
+const deleteImage = async () => {
+  try {
+    await artStore.deleteArt(props.art.id)
+    console.log(`Art with ID ${props.art.id} deleted successfully.`)
+    confirmingDelete.value = false
+  } catch (error) {
+    console.error('Error deleting art:', error)
+    alert('Failed to delete the art. Please try again later.')
+    confirmingDelete.value = false
+  }
+}
 
 // Check if we have an art image locally or via props
 const hasImage = computed(

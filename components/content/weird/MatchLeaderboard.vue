@@ -1,19 +1,19 @@
 <template>
   <div class="rounded-2xl border p-3 m-3 bg-base-300 text-center">
-    <h1>Global Match Leaderboard</h1>
-    <table>
+    <h1 class="text-xl font-bold mb-4">Global Match Leaderboard</h1>
+    <table class="table-auto w-full border-collapse border border-gray-300 rounded-lg">
       <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Username</th>
-          <th>Score</th>
+        <tr class="bg-gray-200">
+          <th class="px-4 py-2 border border-gray-300">Rank</th>
+          <th class="px-4 py-2 border border-gray-300">Username</th>
+          <th class="px-4 py-2 border border-gray-300">Match Record</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(user, index) in leaderboard" :key="user.id">
-          <td>{{ index + 1 }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.matchRecord }}</td>
+        <tr v-for="(user, index) in leaderboard" :key="user.id" class="hover:bg-gray-100">
+          <td class="px-4 py-2 border border-gray-300 text-center">{{ index + 1 }}</td>
+          <td class="px-4 py-2 border border-gray-300">{{ user.username }}</td>
+          <td class="px-4 py-2 border border-gray-300 text-center">{{ user.matchRecord ?? 'N/A' }}</td>
         </tr>
       </tbody>
     </table>
@@ -21,22 +21,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useMilestoneStore } from '@/stores/milestoneStore'
 
-// Define the type for the leaderboard
-interface LeaderboardUser {
-  id: number
-  username: string
-  matchRecord: number
-}
+// Define the type for UserScore
+import type { UserScore } from '@/stores/milestoneStore'
 
-const leaderboard = ref<LeaderboardUser[]>([])
+// Access the milestone store
+const milestoneStore = useMilestoneStore()
+
+// Fetch match leaderboard data
+const leaderboard = computed(() => milestoneStore.highMatchScores)
 
 onMounted(async () => {
-  const response = await fetch('/api/milestones/highMatchScores')
-  const data = await response.json()
-  if (data.success) {
-    leaderboard.value = data.users
+  if (!milestoneStore.highMatchScores.length) {
+    await milestoneStore.fetchHighMatchScores()
   }
 })
 </script>

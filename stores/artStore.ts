@@ -143,7 +143,7 @@ export const useArtStore = defineStore({
     async fetchCollections() {
       try {
         const response = await performFetch<ArtCollection[]>(
-          '/api/art/collections',
+          '/api/art/collection',
         )
         if (response.success && response.data) {
           this.collections = response.data as ArtCollection[] // Explicit type assertion
@@ -158,7 +158,7 @@ export const useArtStore = defineStore({
     async createCollection(label: string) {
       try {
         const response = await performFetch<ArtCollection>(
-          '/api/art/collections',
+          '/api/art/collection',
           {
             method: 'POST',
             body: JSON.stringify({ label }),
@@ -180,7 +180,7 @@ export const useArtStore = defineStore({
     async deleteCollection(collectionId: number) {
       try {
         const response = await performFetch(
-          `/api/art/collections/${collectionId}`,
+          `/api/art/collection/${collectionId}`,
           {
             method: 'DELETE',
           },

@@ -3,7 +3,6 @@ import type { User } from '@prisma/client'
 import { performFetch, handleError } from './utils'
 import { useMilestoneStore } from './milestoneStore'
 
-
 interface UserState {
   user: User | null
   token?: string
@@ -11,6 +10,7 @@ interface UserState {
   lastError: string | null
   stayLoggedIn: boolean
   milestones: number[]
+  users: User[]
 }
 
 export const useUserStore = defineStore({
@@ -22,6 +22,7 @@ export const useUserStore = defineStore({
     lastError: null,
     stayLoggedIn: true,
     milestones: [],
+    users: [],
   }),
   getters: {
     karma(state): number {
@@ -59,15 +60,30 @@ export const useUserStore = defineStore({
     },
   },
   actions: {
-    initializeUser() {
+    async initializeUser() {
+      await this.fetchUsers()
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
       this.setStayLoggedIn(stayLoggedIn)
       if (storedToken) {
         this.token = storedToken
       }
+
       if (stayLoggedIn && storedToken) {
         this.validateAndFetchUserData()
+      }
+    },
+    async fetchUsers(): Promise<void> {
+      try {
+        const response = await performFetch<User[]>('/api/users')
+        if (response.success && response.data) {
+          this.users = response.data
+        } else {
+          throw new Error(response.message || 'Failed to fetch users')
+        }
+      } catch (error) {
+        handleError(error, 'fetching users')
+        this.users = [] // Reset to empty if there's an error
       }
     },
     async getUsernames(): Promise<string[]> {
@@ -327,6 +343,15 @@ export const useUserStore = defineStore({
       if (typeof window !== 'undefined') {
         localStorage.removeItem(key)
       }
+    },
+
+    userImage(userId: number): string {
+      const user = this.users.find((u) => u.id === userId)
+      if (!user || !user.artImageId) return '/images/kindart.webp' // Fallback to default image
+
+      const artStore = useArtStore()
+      const artImage = artStore.getArtImageById(user.artImageId)
+      return artImage?.imageData || '/images/default-avatar.png'
     },
 
     getFromLocalStorage(key: string): string | null {

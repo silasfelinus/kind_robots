@@ -52,6 +52,7 @@ export const useArtStore = defineStore({
     pageSize: 100,
     collections: [] as ArtCollection[],
     uncollectedArt: [] as Art[],
+    currentCollection: null as ArtCollection | null,
   }),
 
   actions: {
@@ -167,7 +168,8 @@ export const useArtStore = defineStore({
         )
 
         if (response.success && response.data) {
-          this.collections.push(response.data) // Push the new collection into the state
+          this.collections.push(response.data)
+          this.currentCollection = response.data // Set the current collection
         } else {
           throw new Error(response.message)
         }
@@ -197,24 +199,30 @@ export const useArtStore = defineStore({
       }
     },
 
-    // Add art to a collection
     async addArtToCollection({
       artId,
-      label,
+      collectionId,
+      label = ' ',
     }: {
       artId: number
-      label: string
+      collectionId: number
+      label: string | undefined
     }) {
       try {
-        const userStore = useUserStore()
-        const userId = computed(() => userStore.userId)
         const response = await performFetch('/api/art/collection', {
           method: 'POST',
-          body: JSON.stringify({ artId, label, userId }),
+          body: JSON.stringify({ artId, collectionId, label }),
           headers: { 'Content-Type': 'application/json' },
         })
+
         if (response.success) {
-          await this.fetchCollections() // Refresh collections
+          const collection = this.collections.find(
+            (collection) => collection.id === collectionId,
+          )
+          if (collection) {
+            const art = this.art.find((art) => art.id === artId)
+            if (art) collection.art.push(art) // Add art to collection locally
+          }
         } else {
           throw new Error(response.message)
         }

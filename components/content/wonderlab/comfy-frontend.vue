@@ -1,21 +1,51 @@
-<script setup>
-import { ref } from 'vue';
+<template>
+  <div
+    class="flex flex-col items-center space-y-6 p-6 max-w-lg mx-auto bg-base-200 rounded-lg shadow"
+  >
+    <h1 class="text-xl font-bold">Generate Art with ComfyUI</h1>
+    <input
+      v-model="prompt"
+      type="text"
+      placeholder="Enter your art prompt..."
+      class="input input-bordered w-full"
+    />
+    <button
+      :disabled="isLoading"
+      class="btn btn-primary w-full"
+      @click="generateArt"
+    >
+      {{ isLoading ? 'Generating...' : 'Generate Art' }}
+    </button>
+    <p v-if="error" class="text-error">{{ error }}</p>
+    <div v-if="generatedImage" class="mt-4">
+      <h2 class="text-lg font-semibold">Generated Image:</h2>
+      <img
+        :src="generatedImage"
+        alt="Generated Art"
+        class="rounded-lg shadow mt-2"
+      />
+    </div>
+  </div>
+</template>
 
-const comfyUrl = 'https://comfy.acrocatranch.com';
-const prompt = ref('');
-const generatedImage = ref('');
-const isLoading = ref(false);
-const error = ref('');
+<script setup>
+import { ref } from 'vue'
+
+const comfyUrl = '/'
+const prompt = ref('')
+const generatedImage = ref('')
+const isLoading = ref(false)
+const error = ref('')
 
 const generateArt = async () => {
   if (!prompt.value) {
-    error.value = 'Please enter a prompt.';
-    return;
+    error.value = 'Please enter a prompt.'
+    return
   }
 
-  error.value = '';
-  generatedImage.value = '';
-  isLoading.value = true;
+  error.value = ''
+  generatedImage.value = ''
+  isLoading.value = true
 
   const graph = {
     nodes: [
@@ -44,51 +74,26 @@ const generateArt = async () => {
         },
       },
     ],
-  };
+  }
 
   try {
-    const response = await fetch(`${comfyUrl}/prompt`, {
+    const response = await fetch('/api/utils/comfy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(graph),
-    });
+    })
 
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse.message || 'Failed to generate art.');
+    const result = await response.json()
+
+    if (!response.ok || !result.image_path) {
+      throw new Error(result.message || 'Failed to generate art.')
     }
 
-    const result = await response.json();
-    // Assuming the result includes a direct URL to the generated image
-    generatedImage.value = `${comfyUrl}/${result.image_path}`;
+    generatedImage.value = `${comfyUrl}/${result.image_path}`
   } catch (err) {
-    error.value = err.message;
+    error.value = err.message
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 </script>
-
-<template>
-  <div class="flex flex-col items-center space-y-6 p-6 max-w-lg mx-auto bg-base-200 rounded-lg shadow">
-    <h1 class="text-xl font-bold">Generate Art with ComfyUI</h1>
-    <input
-      v-model="prompt"
-      type="text"
-      placeholder="Enter your art prompt..."
-      class="input input-bordered w-full"
-    />
-    <button @click="generateArt" :disabled="isLoading" class="btn btn-primary w-full">
-      {{ isLoading ? 'Generating...' : 'Generate Art' }}
-    </button>
-    <p v-if="error" class="text-error">{{ error }}</p>
-    <div v-if="generatedImage" class="mt-4">
-      <h2 class="text-lg font-semibold">Generated Image:</h2>
-      <img :src="generatedImage" alt="Generated Art" class="rounded-lg shadow mt-2" />
-    </div>
-  </div>
-</template>
-
-<style scoped>
-/* You can customize your styles here if needed */
-</style>

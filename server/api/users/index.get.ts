@@ -4,22 +4,21 @@ import { errorHandler } from '../utils/error'
 import { fetchUsers } from '.'
 
 export default defineEventHandler(async (event) => {
-  console.log('index.get API route invoked. Setting auth to true.')
-  event.context.route = { auth: true }
+  
 
   try {
-    // Perform authentication
+    
 
     // Fetch users with pagination logic
     const fetchResponse = await fetchUsers()
 
     // Ensure users is an array in the response
-    const users = Array.isArray(fetchResponse.users) ? fetchResponse.users : []
+    const data = Array.isArray(fetchResponse.users) ? fetchResponse.users : []
 
     return {
       success: fetchResponse.success,
       message: fetchResponse.message || 'Users fetched successfully.',
-      data: { users }, // Only `users` array is returned
+      data, // Only `users` array is returned
       statusCode: 200,
     }
   } catch (error) {

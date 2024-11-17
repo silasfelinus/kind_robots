@@ -13,7 +13,12 @@ export async function saveImage(
 ): Promise<{ id: number; fileName: string }> {
   try {
     const timestamp = Date.now()
-    const fileName = `${galleryName}-${timestamp}.webp`
+    const isProduction = process.env.APP_ENV === 'production'
+
+    // Set the fileName dynamically based on environment
+    const fileName = isProduction
+      ? `ArtImageUpload`
+      : `${galleryName}-${timestamp}.webp`
 
     // Always save to the database
     const savedImage = await prisma.artImage.create({
@@ -26,7 +31,7 @@ export async function saveImage(
     })
 
     // Optionally save to the local filesystem in development
-    if (process.env.APP_ENV !== 'production') {
+    if (!isProduction) {
       const dirPath = path.join(
         process.env.IMAGES_PATH || './public/images',
         galleryName,

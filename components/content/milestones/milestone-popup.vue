@@ -52,8 +52,8 @@ const milestone = computed(
 )
 
 watchEffect(() => {
-  console.log('Milestone:', milestone.value) // Log for debugging
   if (milestone.value) {
+    console.log('Awarding Milestone:', milestone.value) // Log for debugging
     showPopup.value = true
     triggerConfetti()
   } else {

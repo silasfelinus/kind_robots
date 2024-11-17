@@ -21,8 +21,11 @@
 
           <PitchTypeSelector />
 
-          <div v-if="isTitleType" class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+          <div class="mb-4">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="title"
+            >
               Title
             </label>
             <input
@@ -34,13 +37,13 @@
               required
             />
           </div>
-          <div v-else class="mb-4">
-            <TitleMenu v-model:title="formState.title" />
-          </div>
 
-          <div v-if="!isTitleType" class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="prompt">
-              Description
+          <div class="mb-4">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="prompt"
+            >
+              Prompt
             </label>
             <textarea
               id="prompt"
@@ -53,8 +56,11 @@
           </div>
 
           <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
-              Optional Description
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="description"
+            >
+              Description (Optional)
             </label>
             <textarea
               id="description"
@@ -70,7 +76,11 @@
             <label class="block text-gray-700 text-sm font-bold mb-2">
               Examples
             </label>
-            <div v-for="(example, index) in examples" :key="index" class="flex items-center mb-2">
+            <div
+              v-for="(example, index) in examples"
+              :key="index"
+              class="flex items-center mb-2"
+            >
               <input
                 v-model="examples[index]"
                 type="text"
@@ -98,10 +108,7 @@
                 ⬇️
               </button>
             </div>
-            <button
-              class="text-blue-500 hover:underline"
-              @click="addExample"
-            >
+            <button class="text-blue-500 hover:underline" @click="addExample">
               + Add New Example
             </button>
           </div>

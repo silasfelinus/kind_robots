@@ -17,7 +17,7 @@ export async function saveImage(
 
     // Set the fileName dynamically based on environment
     const fileName = isProduction
-      ? `ArtImageUpload`
+      ? `ArtImageUpload-${timestamp}`
       : `${galleryName}-${timestamp}.webp`
 
     // Always save to the database

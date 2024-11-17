@@ -39,12 +39,26 @@
 
     <!-- Get More Brainstorms Button -->
     <button
-      class="rounded-full p-3 bg-yellow-500 hover:bg-yellow-600 text-white transition-transform transform hover:scale-110"
+      :disabled="isFetching"
+      class="rounded-full p-3 bg-yellow-500 hover:bg-yellow-600 text-white transition-transform transform hover:scale-110 disabled:bg-gray-400 disabled:cursor-not-allowed"
       aria-label="Get More Brainstorms"
       @click="getMoreBrainstorms"
     >
-      <Icon name="kind-icon:brain" class="w-6 h-6" />
+      <Icon v-if="!isFetching" name="kind-icon:brain" class="w-6 h-6" />
+      <span v-else>
+        <Icon name="mdi:loading" class="animate-spin w-6 h-6" />
+      </span>
     </button>
+
+    <!-- Success Animation -->
+    <div
+      v-if="showSuccessAnimation"
+      class="absolute inset-0 flex items-center justify-center"
+    >
+      <p class="text-3xl text-green-500 font-bold animate-pulse">
+        ✨ New Brainstorms Added! ✨
+      </p>
+    </div>
 
     <!-- Confirmation Dialog -->
     <div
@@ -90,6 +104,8 @@ const errorStore = useErrorStore()
 
 const showDeleteConfirmation = ref(false)
 const isChanged = ref(false) // Tracks unsaved changes
+const isFetching = ref(false) // Tracks loading state
+const showSuccessAnimation = ref(false) // Tracks success animation
 
 const emitSave = () => {
   if (props.pitch) pitchStore.setSelectedTitle(props.pitch.id)
@@ -145,12 +161,19 @@ const togglePublic = async () => {
 
 const getMoreBrainstorms = async () => {
   errorStore.clearError()
+  isFetching.value = true
   try {
     if (props.pitch) pitchStore.setSelectedTitle(props.pitch.id)
     await pitchStore.fetchTitleStormPitches()
+
+    // Show success animation
+    showSuccessAnimation.value = true
+    setTimeout(() => (showSuccessAnimation.value = false), 2000)
   } catch (error) {
     errorStore.setError(ErrorType.UNKNOWN_ERROR, (error as Error).message)
     console.error('Error fetching brainstorm pitches:', error)
+  } finally {
+    isFetching.value = false
   }
 }
 </script>

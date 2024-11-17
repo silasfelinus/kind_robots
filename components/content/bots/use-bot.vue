@@ -95,11 +95,12 @@
     <!-- Active Chat Cards -->
     <div v-if="activeChatCards.length" class="mt-8 w-full grid gap-4">
       <chat-card
-        v-for="(exchange, index) in activeChatCards"
+        v-for="(chat, index) in activeChatCards"
         :key="index"
-        :chat-id="exchange.id"
+        :chat="chat"
       />
     </div>
+
     <p v-else class="text-center text-gray-600 mt-6">No active chats yet.</p>
   </div>
 </template>

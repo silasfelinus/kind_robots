@@ -4,7 +4,9 @@
     :style="{ height: displayStore.headerHeight }"
   >
     <!-- Avatar and Viewport -->
-    <div class="flex items-center justify-left w-1/5 sm:w-1/6 h-full relative rounded-2xl">
+    <div
+      class="flex items-center justify-left w-1/5 sm:w-1/6 h-full relative rounded-2xl"
+    >
       <avatar-image
         alt="User Avatar"
         class="w-full h-full rounded-2xl object-cover"
@@ -19,7 +21,7 @@
 
     <!-- Conditional Header Content -->
     <div class="flex-1 h-full">
-      <SmallHeader v-if="displayStore.isSmallDisplay" />
+      <SmallHeader v-if="isSmallDisplay" />
       <LargeHeader v-else />
     </div>
   </header>
@@ -30,9 +32,9 @@ import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useUserStore } from '@/stores/userStore'
 
-
 // Access stores
 const displayStore = useDisplayStore()
 const userStore = useUserStore()
 const isAdmin = computed(() => userStore.user?.Role === 'ADMIN')
+const isSmallDisplay = computed(() => displayStore.viewportSize === 'small')
 </script>

@@ -27,7 +27,7 @@
       <lazy-art-maker v-if="choice === 'art-maker'" />
       <lazy-art-collection v-if="choice === 'art-collection'" />
       <lazy-art-gallery v-if="choice === 'art-gallery'" />
-      <lazy-art-challenge v-if="choice === 'art-challenge'" />
+   
     </div>
   </div>
 </template>
@@ -40,7 +40,6 @@ const tabs = [
   { name: 'art-maker', label: 'Art Maker' },
   { name: 'art-collection', label: 'Art Collection' },
   { name: 'art-gallery', label: 'Art Gallery' },
-  { name: 'art-challenge', label: 'Art Challenge' },
 ]
 
 const choice = ref('art-maker') // Default to the first tab

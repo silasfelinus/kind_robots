@@ -22,10 +22,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useMilestoneStore, type UserScore } from '@/stores/milestoneStore'
 
-// Define the type for UserScore
-import type { UserScore } from '@/stores/milestoneStore'
 
 // Access the milestone store
 const milestoneStore = useMilestoneStore()

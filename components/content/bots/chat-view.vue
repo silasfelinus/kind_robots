@@ -51,7 +51,7 @@
       <chat-card
         v-for="chat in chats"
         :key="chat.id"
-        :chat-id="chat.id"
+        :chat="chat"
         class="border p-4 rounded-lg"
       />
     </div>

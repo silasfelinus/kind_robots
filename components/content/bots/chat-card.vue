@@ -4,17 +4,14 @@
   >
     <!-- Header with User and Bot Details -->
     <div class="header flex items-center mb-4">
-      <img
-        v-if="botAvatar"
-        :src="botAvatar"
-        alt="Bot Avatar"
-        class="w-10 h-10 rounded-full mr-3"
-      />
       <div>
         <p class="text-lg font-semibold">
-          {{ senderName }}
+          {{ chat.sender || 'User' }}
           <span class="text-sm text-gray-500">to</span>
-          {{ botName }}
+          {{ chat.botName || 'Bot' }}
+        </p>
+        <p class="text-sm text-gray-400">
+          {{ formatDate(chat.createdAt) }}
         </p>
       </div>
     </div>
@@ -25,7 +22,7 @@
         v-for="message in threadMessages"
         :key="message.id"
         class="message p-2 mb-2 rounded-md"
-        :class="message.sender === senderName ? 'bg-gray-100' : 'bg-blue-100'"
+        :class="message.sender === chat.sender ? 'bg-gray-100' : 'bg-blue-100'"
       >
         <p class="text-sm text-gray-700">
           <strong>{{ message.sender }}:</strong>
@@ -34,14 +31,22 @@
       </div>
     </div>
 
-    <!-- Debug JSON Display (for development purposes) -->
+    <!-- Bot Response -->
+    <div class="bot-response p-4 rounded-md bg-blue-100">
+      <p class="text-sm text-gray-700 font-semibold">Bot Response:</p>
+      <p class="text-base">
+        {{ chat.botResponse || 'Awaiting response...' }}
+      </p>
+    </div>
+
+    <!-- Debug JSON Display (optional) -->
     <pre class="bg-gray-100 p-3 rounded-md mt-4 text-xs overflow-auto">
 exchange:
-      {{ fullChat }}
+{{ JSON.stringify(chat, null, 2) }}
     </pre>
 
-    <!-- Reactions and Sharing with ReactionCard component -->
-    <ReactionCard :chat-exchange-id="props.chatId" />
+    <!-- Reactions and Sharing -->
+    <ReactionCard :chat-exchange-id="chat.id" />
 
     <!-- Reply Section -->
     <div v-if="showReply" class="reply-container mt-4">
@@ -54,70 +59,112 @@ exchange:
         Send Reply
       </button>
     </div>
+
+    <!-- Controls -->
+    <div class="flex gap-2 mt-4 justify-end">
+      <button class="btn btn-secondary" @click="continueChat">Continue</button>
+      <button class="btn btn-info" @click="editChat">Edit</button>
+      <button class="btn btn-error" @click="deleteChat">Delete</button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useChatStore } from '@/stores/chatStore'
-import { useBotStore } from '@/stores/botStore'
+import { computed, ref } from 'vue'
+import { useChatStore, type Chat } from '@/stores/chatStore'
+import { useUserStore } from '@/stores/userStore'
 
+// Props
 const props = defineProps({
-  chatId: {
-    type: Number,
+  chat: {
+    type: Object as () => Chat,
     required: true,
   },
 })
 
-// Stores
-const chatStore = useChatStore()
-const botStore = useBotStore()
+const chat = props.chat
 
 // Local state
 const showReply = ref(false)
 const replyMessage = ref('')
 
-// Computed properties for chat exchange and messages
-const chat = computed(() =>
-  chatStore.chats.find((exchange) => exchange.id === props.chatId),
-)
+// Stores
+const chatStore = useChatStore()
+const userStore = useUserStore()
 
-const fullChat = computed(() => JSON.stringify(chat.value, null, 2))
-const senderName = computed(() => chat.value?.sender || 'User')
-const botName = computed(() => chat.value?.botName || 'Bot')
-const botAvatar = computed(() => botStore.currentBot?.avatarImage || '')
-
-// Threaded messages (all messages with the same originId)
+// Computed properties
 const threadMessages = computed(() =>
   chatStore.chats.filter(
-    (message) =>
-      message.originId === chat.value?.originId || message.id === props.chatId,
+    (message) => message.originId === chat.originId || message.id === chat.id,
   ),
 )
 
-// Send a reply
+// Utility method for formatting dates
+const formatDate = (date: Date | string | null) => {
+  if (!date) return 'Unknown Date'
+  return new Date(date).toLocaleString()
+}
+
+// Methods
 const sendReply = async () => {
   if (replyMessage.value.trim()) {
     try {
-      const originId = chat.value?.originId || chat.value?.id
-      const previousEntryId =
-        chatStore.chats.filter((c) => c.originId === originId).slice(-1)[0]
-          ?.id || chat.value?.id
-
-      await chatStore.addChat({
+      const newChat = await chatStore.addChat({
         content: replyMessage.value,
-        userId: chat.value?.userId || 0,
-        recipientId: chat.value?.recipientId || 0, // Add a valid recipientId here
-        isPublic: true, // Adjust if needed
-        originId,
-        previousEntryId,
+        userId: chat.userId || userStore.userId || 9,
+        recipientId: chat.recipientId || 0,
+        isPublic: chat.isPublic,
+        originId: chat.originId || chat.id,
+        previousEntryId: chat.id,
+        botId: chat.botId,
+        botName: chat.botName,
       })
 
       replyMessage.value = ''
       showReply.value = false
+
+      // Optionally, stream the response
+      await chatStore.streamResponse(newChat.id)
     } catch (error) {
       console.error('Error sending reply:', error)
     }
+  }
+}
+
+const continueChat = async () => {
+  try {
+    const newChat = await chatStore.addChat({
+      content: 'User continuation message...',
+      userId: chat.userId || userStore.user?.id || 9,
+      recipientId: chat.recipientId || 0,
+      isPublic: chat.isPublic,
+      originId: chat.originId || chat.id,
+      previousEntryId: chat.id,
+      botId: chat.botId,
+      botName: chat.botName,
+    })
+
+    // Stream the response for the continued chat
+    await chatStore.streamResponse(newChat.id)
+  } catch (error) {
+    console.error('Error continuing chat:', error)
+  }
+}
+
+const editChat = async () => {
+  try {
+    const updatedContent = 'Updated message content'
+    await chatStore.editChat(chat.id, { content: updatedContent })
+  } catch (error) {
+    console.error('Error editing chat:', error)
+  }
+}
+
+const deleteChat = async () => {
+  try {
+    await chatStore.deleteChat(chat.id)
+  } catch (error) {
+    console.error('Error deleting chat:', error)
   }
 }
 </script>
@@ -125,5 +172,8 @@ const sendReply = async () => {
 <style scoped>
 .reply-container textarea {
   resize: vertical;
+}
+.bot-response {
+  background-color: #ebf8ff;
 }
 </style>

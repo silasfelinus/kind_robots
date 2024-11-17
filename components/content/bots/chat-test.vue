@@ -24,41 +24,16 @@
     <!-- Display existing exchanges or placeholder if none -->
     <div class="border-t pt-4">
       <h3 class="text-lg mb-2">Chat Exchanges</h3>
-      <ul v-if="Array.isArray(chats) && chats.length">
-        <li v-for="exchange in chats" :key="exchange.id" class="p-3 border-b">
-          <div class="flex justify-between items-center">
-            <div>
-              <p><strong>User Prompt:</strong> {{ exchange.content }}</p>
-              <p>
-                <strong>Bot Response:</strong>
-                {{ exchange.botResponse || 'Awaiting response...' }}
-              </p>
-              <p><strong>Exchange ID:</strong> {{ exchange.id }}</p>
-              <p>
-                <strong>Previous Entry ID:</strong>
-                {{ exchange.previousEntryId || 'None' }}
-              </p>
-            </div>
-            <div class="space-x-2">
-              <button
-                class="btn btn-secondary"
-                @click="continueChat(exchange.id)"
-              >
-                Continue
-              </button>
-              <button
-                class="btn btn-info"
-                @click="editChat(exchange.id, 'Updated prompt text')"
-              >
-                Edit
-              </button>
-              <button class="btn btn-error" @click="deleteChat(exchange.id)">
-                Delete
-              </button>
-            </div>
-          </div>
-        </li>
-      </ul>
+      <div v-if="Array.isArray(chats) && chats.length" class="space-y-4">
+        <chat-card
+          v-for="chat in chats"
+          :key="chat.id"
+          :chat="chat"
+          @continue="continueChat"
+          @edit="editChat"
+          @delete="deleteChat"
+        />
+      </div>
       <p v-else class="text-center text-gray-500">
         No exchanges yet. Add one above to get started!
       </p>
@@ -76,30 +51,26 @@ const chatStore = useChatStore()
 const userStore = useUserStore()
 const botStore = useBotStore()
 
-async function continueChat(chatId: number) {
-  const currentChat = chatStore.chats.find((chat) => chat.id === chatId)
-  if (!currentChat) return
-
+async function continueChat(chat: Chat) {
   const newChat = await chatStore.addChat({
     content: 'User reply content here...',
     userId: userStore.userId,
     botId: botStore.currentBot?.id,
     botName: botStore.currentBot?.name,
-    recipientId: currentChat.recipientId,
-    previousEntryId: currentChat.id,
-    originId: currentChat.originId || currentChat.id,
+    recipientId: chat.recipientId,
+    previousEntryId: chat.id,
+    originId: chat.originId || chat.id,
   })
 
-  // Optionally stream bot response for the new chat
   await chatStore.streamResponse(newChat.id)
 }
 
-async function editChat(chatId: number, newContent: string) {
-  await chatStore.editChat(chatId, { content: newContent }) // Pass a valid Partial<Chat> object
+async function editChat(chat: Chat, newContent: string) {
+  await chatStore.editChat(chat.id, { content: newContent })
 }
 
-async function deleteChat(chatId: number) {
-  await chatStore.deleteChat(chatId)
+async function deleteChat(chat: Chat) {
+  await chatStore.deleteChat(chat.id)
 }
 
 const newPrompt = ref('')
@@ -145,17 +116,8 @@ async function addChatWithStream() {
 
     showFeedback('Chat added successfully! Streaming response...')
     await chatStore.streamResponse(newChat.id)
-
-    const updatedChat = await chatStore.editChat(newChat.id, {
-      botResponse: chatStore.chats.find((chat) => chat.id === newChat.id)
-        ?.content,
-    })
-
-    if (updatedChat) {
-      showFeedback('Response received and chat updated successfully!')
-    }
   } catch (error) {
-    showFeedback('Failed to add or update chat.', true)
+    showFeedback('Failed to add chat.', true)
     console.error(error)
   }
 

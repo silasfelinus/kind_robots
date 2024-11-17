@@ -7,7 +7,7 @@
       class="absolute top-4 right-4 text-error hover:text-error-content transition"
       @click="deleteChat"
     >
-      <icon name="trash" class="w-6 h-6" />
+    <Icon name="kind-icon:delete" class="w-4 h-4" />
     </button>
 
     <!-- Header -->

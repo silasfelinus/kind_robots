@@ -8,7 +8,7 @@
     <component
       :is="currentComponent"
       v-if="currentComponent"
-      class="absolute inset-0 z-[100]"
+      class="absolute inset-0 z-50"
     />
   </div>
 </template>

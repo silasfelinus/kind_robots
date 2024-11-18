@@ -46,12 +46,13 @@
       </ul>
     </div>
 
-    <!-- Generated Art Display -->
-    <div v-if="generatedArt.length > 0" class="mt-8">
-      <div v-for="art in generatedArt" :key="art.id" class="mb-6">
-        <ArtCard :art="art" />
-      </div>
-    </div>
+<!-- Generated Art Display -->
+<div v-if="artCollection.length > 0" class="mt-8">
+  <div v-for="art in artCollection" :key="art.id" class="mb-6">
+    <ArtCard :art="art" />
+  </div>
+</div>
+
   </div>
 </template>
 
@@ -67,6 +68,8 @@ const artStore = useArtStore()
 const promptStore = usePromptStore()
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
+const artCollection = computed(() => artStore.artCollection)
+
 
 const localError = ref<string | null>(null)
 const logs = ref<string[]>([]) // Store for logs

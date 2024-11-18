@@ -16,6 +16,12 @@
     >
       <h2 class="text-xl font-semibold mb-4">The Story Continues...</h2>
       <p class="mb-6">{{ story.text }}</p>
+      <p class="text-sm text-info mb-2">
+        <strong>Progress:</strong> {{ progress }}
+      </p>
+      <p class="text-sm text-warning mb-4">
+        <strong>Narrative Stage:</strong> {{ narrativeStage }}
+      </p>
 
       <div class="flex flex-col gap-4">
         <button
@@ -69,19 +75,19 @@
         />
       </div>
 
-      <!-- Debug Rewards Display -->
+      <!-- Rounds Selection -->
       <div class="mb-4">
-        <p class="text-lg font-semibold mb-2">Your Starting Item</p>
+        <p class="text-lg font-semibold mb-2">Choose Rounds</p>
         <div class="flex gap-4">
-          <div
-            v-for="(reward, index) in randomRewards"
-            :key="index"
-            class="bg-secondary p-4 rounded-lg shadow"
+          <button
+            v-for="option in ['3', '4', '5', 'infinite']"
+            :key="option"
+            :class="{ 'btn-primary': rounds === option }"
+            class="btn btn-lg"
+            @click="rounds = option"
           >
-            <p class="text-center">{{ reward.text }}</p>
-            <p class="text-sm text-center">{{ reward.power }}</p>
-            <p class="text-xs text-center text-gray-500">{{ reward.label }}</p>
-          </div>
+            {{ option }}
+          </button>
         </div>
       </div>
 
@@ -123,12 +129,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRewardStore } from '@/stores/rewardStore'
 
 // Form states
 const username = ref('')
 const selectedGenres = ref<string[]>([])
+const rounds = ref('infinite')
+const roundsCompleted = ref(0)
 const customChoice = ref('')
 
 // Special Item and API Response
@@ -142,6 +150,25 @@ const story = ref<{ text: string; choices: string[] }>({
   choices: [],
 })
 const debug = ref<string | null>(null)
+
+// Computed values for progress and narrative stage
+const progress = computed(() =>
+  rounds.value === 'infinite'
+    ? 'An endless journey awaits.'
+    : `${roundsCompleted.value}/${rounds.value} (${Math.round(
+        (roundsCompleted.value / +rounds.value) * 100,
+      )}%)`,
+)
+
+const narrativeStage = computed(() => {
+  if (rounds.value === 'infinite') return 'The adventure continues...'
+  if (roundsCompleted.value === 0) return 'Introduction: Setting the stage.'
+  if (roundsCompleted.value < +rounds.value / 2)
+    return 'Rising Action: Building drama and stakes.'
+  if (roundsCompleted.value < +rounds.value)
+    return 'Climax: An unexpected twist!'
+  return 'Resolution: Wrapping up the journey.'
+})
 
 // Available genres
 const genres = ['Fantasy', 'Sci-Fi', 'Mystery', 'Horror', 'Comedy']
@@ -165,8 +192,9 @@ onMounted(async () => {
 const startGame = async () => {
   const payload = {
     username: username.value,
-    selectedGenres: selectedGenres.value,
-    rewards: randomRewards.value,
+    genre: selectedGenres.value,
+    rounds: rounds.value,
+    roundsCompleted: roundsCompleted.value,
   }
 
   // API Call
@@ -178,8 +206,9 @@ const startGame = async () => {
     })
 
     const data = await response.json()
-    story.value.text = data.text
-    story.value.choices = data.choices
+    story.value.text = data.data.text
+    story.value.choices = data.data.choices
+    roundsCompleted.value = 0
     debug.value = JSON.stringify(data, null, 2) // Display debug information
   } catch (error) {
     console.error('Error starting game:', error)
@@ -190,22 +219,24 @@ const startGame = async () => {
 // Submit a choice
 const submitChoice = async (choice: string) => {
   const payload = {
-    choice,
     username: username.value,
-    specialItem: specialItem.value,
+    text: choice,
+    rounds: rounds.value,
+    roundsCompleted: roundsCompleted.value + 1,
   }
 
   // API Call
   try {
-    const response = await fetch('/api/continueGame', {
+    const response = await fetch('/api/botcafe/weirdlandia', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     })
 
     const data = await response.json()
-    story.value.text = data.text
-    story.value.choices = data.choices
+    story.value.text = data.data.text
+    story.value.choices = data.data.choices
+    roundsCompleted.value += 1
     debug.value = JSON.stringify(data, null, 2) // Display debug information
   } catch (error) {
     console.error('Error continuing game:', error)

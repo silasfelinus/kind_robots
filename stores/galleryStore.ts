@@ -73,9 +73,9 @@ export const useGalleryStore = defineStore({
           this.currentImage = storedCurrentImage
         }
 
-        if (!this.galleries.length) {
+        
           await this.fetchGalleries()
-        }
+    
       }
     },
 

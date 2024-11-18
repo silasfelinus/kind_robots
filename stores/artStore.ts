@@ -409,40 +409,40 @@ async getOrCreateGeneratedArtCollection(userId: number): Promise<ArtCollection> 
       }
     },
 
-    async generateArt(artData?: GenerateArtData): Promise<ApiResponse<Art>> {
-      const promptStore = usePromptStore()
-      const userStore = useUserStore()
-      this.loading = true
+  async generateArt(artData?: GenerateArtData): Promise<ApiResponse<Art>> {
+  const promptStore = usePromptStore()
+  const userStore = useUserStore()
+  this.loading = true
 
-      const data: GenerateArtData = {
-        promptString: artData?.promptString || promptStore.promptField,
-        pitch: artData?.pitch || this.extractPitch(promptStore.promptField),
-        userId: artData?.userId || userStore.user?.id || 10,
-        galleryId: artData?.galleryId,
-        checkpoint: artData?.checkpoint || 'stable-diffusion-v1-4',
-        sampler: artData?.sampler || 'k_lms',
-        steps: artData?.steps || 50,
-        designer: artData?.designer || 'AI Art Designer',
-        cfg: artData?.cfg || 7,
-        cfgHalf: artData?.cfgHalf || false,
-        isMature: artData?.isMature || false,
-        isPublic: artData?.isPublic || true,
-      }
+  const data: GenerateArtData = {
+    promptString: artData?.promptString || promptStore.promptField,
+    pitch: artData?.pitch || this.extractPitch(promptStore.promptField),
+    userId: artData?.userId || userStore.user?.id || 10,
+    galleryId: artData?.galleryId,
+    checkpoint: artData?.checkpoint || 'stable-diffusion-v1-4',
+    sampler: artData?.sampler || 'k_lms',
+    steps: artData?.steps || 50,
+    designer: artData?.designer || 'AI Art Designer',
+    cfg: artData?.cfg || 7,
+    cfgHalf: artData?.cfgHalf || false,
+    isMature: artData?.isMature || false,
+    isPublic: artData?.isPublic || true,
+  }
 
-      if (!this.validatePromptString(data.promptString)) {
-        return { success: false, message: 'Invalid prompt' }
-      }
+  if (!this.validatePromptString(data.promptString)) {
+    return { success: false, message: 'Invalid prompt' }
+  }
 
-      try {
-        // Call `performFetch` directly, returning its result
-        const response = await performFetch<Art>(
-          '/api/art/generate',
-          { method: 'POST', body: JSON.stringify(data) },
-          3,
-          20000,
-        )
+  try {
+    // Call `performFetch` directly, returning its result
+    const response = await performFetch<Art>(
+      '/api/art/generate',
+      { method: 'POST', body: JSON.stringify(data) },
+      3,
+      20000,
+    )
 
-        if (response.success && response.data) {
+    if (response.success && response.data) {
       const userId = data.userId || 10
       const collection = await this.getOrCreateGeneratedArtCollection(userId)
 
@@ -455,28 +455,18 @@ async getOrCreateGeneratedArtCollection(userId: number): Promise<ArtCollection> 
         localStorage.setItem('collections', JSON.stringify(this.collections))
       }
     }
-}
-}
 
-        return response // Directly return the response from performFetch
-      } catch (error) {
-        handleError(error, 'generating art')
-        return {
-          success: false,
-          message: error instanceof Error ? error.message : 'Unknown error',
-        }
-      } finally {
-        this.loading = false
-      }
-    },
-
-    selectArt(artId: number) {
-      const foundArt = this.art.find((art: Art) => art.id === artId)
-      this.currentArt = foundArt || null
-      if (!foundArt) {
-        console.warn(`Art with id ${artId} not found.`)
-      }
-    },
+    return response // Directly return the response from performFetch
+  } catch (error) {
+    handleError(error, 'generating art')
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error',
+    }
+  } finally {
+    this.loading = false
+  }
+},
 
     async fetchArtByUserId(userId: number): Promise<void> {
       try {

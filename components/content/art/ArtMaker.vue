@@ -24,7 +24,8 @@
       :disabled="loading || !promptStore.promptField"
       @click="generateArt"
     >
-      <span v-if="loading">🖌️ Making Art...</span>
+      <span v-if="loading">🖌️ Making Art...
+<award-milestone :id=11 /></span>
       <span v-else>🖌️ Create Art</span>
     </button>
 

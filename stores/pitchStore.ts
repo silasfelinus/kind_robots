@@ -114,7 +114,8 @@ async initializePitches() {
         this.exampleString = savedState.exampleString || ' '
         this.apiResponse = savedState.apiResponse || ' '
         this.maxTokens = savedState.maxTokens ? JSON.parse(savedState.maxTokens) : 500
-
+        
+        this.fetchPitches()
         this.isInitialized = true
       }
     },

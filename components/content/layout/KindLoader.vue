@@ -13,6 +13,7 @@ import { useMilestoneStore } from './../../../stores/milestoneStore'
 import { useDisplayStore } from './../../../stores/displayStore'
 import { usePitchStore } from './../../../stores/pitchStore'
 import { usePromptStore } from './../../../stores/promptStore'
+import { useReactionStore } from './../../../stores/reactionStore'
 
 // Stores
 const errorStore = useErrorStore()
@@ -24,6 +25,7 @@ const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
+const reactionStore = useReactionStore()
 
 // State management
 const isReady = ref(false)
@@ -50,6 +52,7 @@ pitchStore.initializePitches?.(),
 artStore.initialize?.(),
       botStore.loadStore?.(),
       themeStore.initTheme?.(),
+      reactionStore.initializeReactions?.(),
       
       
     ])

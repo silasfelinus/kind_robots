@@ -10,6 +10,7 @@ export const useChatStore = defineStore({
   state: () => ({
     chats: [] as Chat[],
     isInitialized: false,
+    unreadMessages: [] as Chat[],
   }),
 
   getters: {

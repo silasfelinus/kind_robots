@@ -63,33 +63,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
-const showPopup = ref(true)
-const milestone = milestoneStore.currentMilestone // Example binding to the current milestone
+
+const milestone = computed(() => milestoneStore.currentMilestone) // Dynamically bind to the current milestone
 const checkboxChecked = ref(false) // Tracks the checkbox state
 
+// Only show the popup if there is a milestone
+const showPopup = computed(() => Boolean(milestone.value))
+
 const confirmMilestone = async () => {
-  if (milestone) {
+  if (milestone.value) {
     try {
       // Update isConfirmed for the milestone
       await milestoneStore.updateMilestoneRecord({
-        id: milestone.id,
+        id: milestone.value.id,
         isConfirmed: true,
       })
 
       // Close the popup
-      showPopup.value = false
+      // No need to explicitly set `showPopup` because it's bound to `milestone`
     } catch (error) {
       console.error(error) // Log error to error store
     }
   }
 }
 </script>
+
 
 <style scoped>
 /* Transition styling for the popup */

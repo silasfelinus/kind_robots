@@ -4,7 +4,7 @@
     class="transition-all duration-300 bg-base-300 border-2 rounded-2xl left-0 h-full overflow-y-auto no-scrollbar flex flex-col justify-between flex-grow box-border"
   >
     <!-- Sidebar Links with Icons and Titles -->
-    <div class="flex flex-col justify-between flex-grow">
+    <div class="flex flex-col justify-between flex-grow mt-5">
       <div
         v-for="link in hardcodedLinks"
         :key="link.title"
@@ -13,7 +13,7 @@
         <!-- Navigation click event -->
         <a
           v-if="displayStore.sidebarLeftState !== 'hidden'"
-          class="flex flex-col items-center cursor-pointer w-full"
+          class="flex flex-col items-center cursor-pointer w-full mt-10"
           @click.prevent="navigate(link.path)"
         >
           <!-- Show icon in all states except hidden -->

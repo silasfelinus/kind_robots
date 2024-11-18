@@ -14,6 +14,7 @@ import { useDisplayStore } from './../../../stores/displayStore'
 import { usePitchStore } from './../../../stores/pitchStore'
 import { usePromptStore } from './../../../stores/promptStore'
 import { useReactionStore } from './../../../stores/reactionStore'
+import { useRewardStore } from './../../../stores/rewardStore'
 
 // Stores
 const errorStore = useErrorStore()
@@ -26,6 +27,7 @@ const milestoneStore = useMilestoneStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
+const rewardStore = useRewardStore()
 
 // State management
 const isReady = ref(false)
@@ -47,12 +49,13 @@ onMounted(async () => {
     await Promise.all([
       userStore.initializeUser?.(),
       milestoneStore.initializeMilestones?.(),
-pitchStore.initializePitches?.(),
+      pitchStore.initializePitches?.(),
       promptStore.initialize?.(),
-artStore.initialize?.(),
+      artStore.initialize?.(),
       botStore.loadStore?.(),
       themeStore.initTheme?.(),
       reactionStore.initializeReactions?.(),
+      rewardStore.initializeStore?.()
       
       
     ])

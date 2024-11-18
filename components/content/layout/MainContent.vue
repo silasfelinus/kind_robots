@@ -1,6 +1,6 @@
 <template>
   <!-- Main container -->
-  <div class="h-full flex flex-col">
+  <div class="h-full flex flex-col relative z-10">
     <!-- Mobile View (no flip card) -->
     <div v-if="isMobile" class="flex-grow overflow-y-auto">
       <SplashTutorial

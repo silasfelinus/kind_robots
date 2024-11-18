@@ -42,27 +42,40 @@ export const useRewardStore = defineStore({
   actions: {
     async fetchRewards() {
       this.isLoading = true
-      await handleError(async () => {
+      try {
         const response = await performFetch<Reward[]>('/api/rewards')
-        if (response.success) {
-          this.rewards = response.data || []
-          localStorage.setItem('rewards', JSON.stringify(this.rewards))
-        } else {
-          throw new Error(response.message || 'Failed to fetch rewards')
+        if (!response.success || !Array.isArray(response.data)) {
+          throw new Error(
+            response.message || 'Invalid response format from the server',
+          )
         }
-      }, 'fetching rewards')
-      this.isLoading = false
+
+        const validRewards = response.data.filter((reward) => {
+          return reward.id && reward.text && reward.power
+        })
+
+        if (!validRewards.length) {
+          throw new Error('No valid rewards found')
+        }
+
+        this.rewards = validRewards
+        localStorage.setItem('rewards', JSON.stringify(this.rewards))
+      } catch (error) {
+        this.error = `Failed to fetch rewards: ${error}`
+        console.error(this.error)
+      } finally {
+        this.isLoading = false
+      }
     },
-initializeStore() {
+
+    initializeStore() {
       this.isLoading = true
       try {
-        // Load from local storage
         const storedRewards = localStorage.getItem('rewards')
         if (storedRewards) {
           this.rewards = JSON.parse(storedRewards)
         }
 
-        // Fetch from the server
         this.fetchRewards()
       } catch (error) {
         this.error = `Failed to initialize store: ${error}`
@@ -71,7 +84,6 @@ initializeStore() {
         this.isLoading = false
       }
     },
-
 
     async editReward(id: number, updatedData: Partial<Reward>) {
       await handleError(async () => {
@@ -95,16 +107,12 @@ initializeStore() {
       this.startingRewardId = id
     },
 
-
     async createReward(newReward: Partial<Reward>) {
       await handleError(async () => {
-        const response = await performFetch<Reward>(
-          '/api/rewards',
-          {
-            method: 'POST',
-            body: JSON.stringify(newReward),
-          },
-        )
+        const response = await performFetch<Reward>('/api/rewards', {
+          method: 'POST',
+          body: JSON.stringify(newReward),
+        })
         if (response.success && response.data) {
           this.rewards.push(response.data)
           localStorage.setItem('rewards', JSON.stringify(this.rewards))
@@ -114,15 +122,12 @@ initializeStore() {
       }, 'creating reward')
     },
 
-async updateRewardById(id: number, updatedReward: Partial<Reward>) {
+    async updateRewardById(id: number, updatedReward: Partial<Reward>) {
       await handleError(async () => {
-        const response = await performFetch<Reward>(
-          `/api/rewards/${id}`,
-          {
-            method: 'PATCH',
-            body: JSON.stringify(updatedReward),
-          },
-        )
+        const response = await performFetch<Reward>(`/api/rewards/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updatedReward),
+        })
         if (response.success && response.data) {
           const index = this.rewards.findIndex((reward) => reward.id === id)
           if (index !== -1) {
@@ -151,13 +156,10 @@ async updateRewardById(id: number, updatedReward: Partial<Reward>) {
 
     async createRewardsBatch(newRewards: Partial<Reward>[]) {
       await handleError(async () => {
-        const response = await performFetch<Reward[]>(
-          '/api/rewards/batch',
-          {
-            method: 'POST',
-            body: JSON.stringify(newRewards),
-          },
-        )
+        const response = await performFetch<Reward[]>('/api/rewards/batch', {
+          method: 'POST',
+          body: JSON.stringify(newRewards),
+        })
         if (response.success && response.data) {
           this.rewards.push(...response.data)
           localStorage.setItem('rewards', JSON.stringify(this.rewards))

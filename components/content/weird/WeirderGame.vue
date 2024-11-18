@@ -9,6 +9,92 @@
       class="h-48 w-auto mb-8"
     />
 
+    <!-- Reward Selection -->
+    <div v-if="!story.text && !gameComplete" class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Choose Your Starting Reward</h2>
+      <div class="grid grid-cols-3 gap-4">
+        <label
+          v-for="reward in randomRewards"
+          :key="reward.id"
+          class="label cursor-pointer"
+        >
+          <input
+            v-model="selectedRewardId"
+            type="radio"
+            :value="reward.id"
+            class="radio radio-primary"
+          />
+          <div class="bg-secondary p-4 rounded-lg shadow">
+            <p class="text-center font-bold">{{ reward.text }}</p>
+            <p class="text-center text-sm">{{ reward.power }}</p>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Name, Genre, and Rounds Selection -->
+    <div v-if="!story.text && !gameComplete" class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Enter Your Details</h2>
+      <!-- Name Input -->
+      <div class="mb-4">
+        <label for="username" class="block text-lg font-semibold mb-2"
+          >Name:</label
+        >
+        <input
+          id="username"
+          v-model="username"
+          type="text"
+          class="input input-lg input-bordered w-full"
+          placeholder="Enter your name"
+        />
+      </div>
+
+      <!-- Genre Selection -->
+      <div class="mb-4">
+        <p class="text-lg font-semibold mb-2">Choose Genres</p>
+        <div class="grid grid-cols-2 gap-4">
+          <label
+            v-for="genre in genres"
+            :key="genre"
+            class="label cursor-pointer"
+          >
+            <input
+              v-model="selectedGenres"
+              type="checkbox"
+              :value="genre"
+              class="checkbox checkbox-primary"
+            />
+            <span class="label-text ml-2">{{ genre }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Rounds Selection -->
+      <div class="mb-4">
+        <p class="text-lg font-semibold mb-2">Number of Rounds</p>
+        <div class="flex gap-4">
+          <button
+            v-for="option in roundOptions"
+            :key="option"
+            class="btn"
+            :class="{ 'btn-primary': rounds === option }"
+            @click="rounds = option"
+          >
+            {{ option }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Start Button -->
+      <button
+        class="btn btn-primary btn-lg w-full mt-4"
+        :disabled="!selectedRewardId || !username"
+        @click="setStartingRewardAndStartGame"
+      >
+        Start Game
+      </button>
+    </div>
+
     <!-- Story Display -->
     <div
       v-if="story.text"
@@ -16,13 +102,6 @@
     >
       <h2 class="text-xl font-semibold mb-4">The Story Continues...</h2>
       <p class="mb-6">{{ story.text }}</p>
-      <p class="text-sm text-info mb-2">
-        <strong>Progress:</strong> {{ progress }}
-      </p>
-      <p class="text-sm text-warning mb-4">
-        <strong>Narrative Stage:</strong> {{ narrativeStage }}
-      </p>
-
       <div class="flex flex-col gap-4">
         <button
           v-for="(choice, index) in story.choices"
@@ -33,7 +112,7 @@
           {{ choice }}
         </button>
 
-        <!-- Special Item Button -->
+        <!-- Use Special Item -->
         <button
           v-if="rewardStore.currentReward"
           class="btn btn-lg btn-accent"
@@ -59,36 +138,6 @@
       </div>
     </div>
 
-    <!-- Reward Selection -->
-    <div v-if="!story.text && !gameComplete">
-      <h2 class="text-xl font-semibold mb-4">Choose Your Starting Reward</h2>
-      <div class="grid grid-cols-3 gap-4">
-        <label
-          v-for="reward in randomRewards"
-          :key="reward.id"
-          class="label cursor-pointer"
-        >
-          <input
-            v-model="selectedRewardId"
-            type="radio"
-            :value="reward.id"
-            class="radio radio-primary"
-          />
-          <div class="bg-secondary p-4 rounded-lg shadow">
-            <p class="text-center font-bold">{{ reward.text }}</p>
-            <p class="text-center text-sm">{{ reward.power }}</p>
-          </div>
-        </label>
-      </div>
-      <button
-        class="btn btn-primary btn-lg mt-4"
-        :disabled="selectedRewardId === null"
-        @click="setStartingRewardAndStartGame"
-      >
-        Start Game with Selected Reward
-      </button>
-    </div>
-
     <!-- Debug Display -->
     <div
       v-if="debug"
@@ -99,55 +148,43 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRewardStore } from '@/stores/rewardStore'
-import type { Reward } from '@prisma/client' // Import Reward type
+import type { Reward } from '@prisma/client'
 
-// Form states
-const username = ref<string>('')
+// State
+const username = ref('')
 const selectedGenres = ref<string[]>([])
+const genres = ['Fantasy', 'Sci-Fi', 'Mystery', 'Horror', 'Comedy']
 const rounds = ref<'3' | '4' | '5' | 'infinite'>('infinite')
-const roundsCompleted = ref<number>(0)
 const customChoice = ref<string>('')
+const roundsCompleted = ref<number>(0) // Define roundsCompleted
 
-// Rewards and Store
-const rewardStore = useRewardStore()
-const randomRewards = ref<Reward[]>([]) // Explicitly type as Reward[]
-const selectedRewardId = ref<number | null>(null) // ID of the selected reward
+// Ensure button options match the type
+const roundOptions: Array<'3' | '4' | '5' | 'infinite'> = [
+  '3',
+  '4',
+  '5',
+  'infinite',
+]
 
-// Story State
+const randomRewards = ref<Reward[]>([])
+const selectedRewardId = ref<number | null>(null)
 const story = ref<{ text: string; choices: string[] }>({
   text: '',
   choices: [],
 })
-const gameComplete = ref<boolean>(false)
+const gameComplete = ref(false)
 const debug = ref<string | null>(null)
 
-// Computed Properties
-const progress = computed(() =>
-  rounds.value === 'infinite'
-    ? 'An endless journey awaits.'
-    : `${roundsCompleted.value}/${rounds.value} (${Math.round(
-        (roundsCompleted.value / +rounds.value) * 100,
-      )}%)`,
-)
+// Reward Store
+const rewardStore = useRewardStore()
 
-const narrativeStage = computed(() => {
-  if (rounds.value === 'infinite') return 'The adventure continues...'
-  if (roundsCompleted.value === 0) return 'Introduction: Setting the stage.'
-  if (roundsCompleted.value < +rounds.value / 2)
-    return 'Rising Action: Building drama and stakes.'
-  if (roundsCompleted.value < +rounds.value)
-    return 'Climax: An unexpected twist!'
-  return 'Resolution: Wrapping up the journey.'
-})
-
-// Fetch rewards on mount
+// Fetch Rewards
 onMounted(async () => {
   await rewardStore.fetchRewards()
-  randomRewards.value = rewardStore.rewards.slice(0, 3) // Limit to 3 options
+  randomRewards.value = rewardStore.rewards.slice(0, 3)
 })
 
 // Set Starting Reward and Start Game
@@ -156,7 +193,6 @@ const setStartingRewardAndStartGame = async () => {
     rewardStore.setStartingRewardId(selectedRewardId.value)
     rewardStore.setRewardById(selectedRewardId.value)
   }
-
   await startGame()
 }
 
@@ -166,7 +202,6 @@ const startGame = async () => {
     username: username.value,
     genre: selectedGenres.value,
     rounds: rounds.value,
-    roundsCompleted: roundsCompleted.value,
   }
 
   try {
@@ -175,20 +210,16 @@ const startGame = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     })
-
     const data = await response.json()
     story.value.text = data.data.text
     story.value.choices = data.data.choices
-    roundsCompleted.value = 0
-    debug.value = JSON.stringify(data, null, 2)
   } catch (error) {
-    console.error('Error starting game:', error)
     debug.value = `Error: ${error}`
   }
 }
 
-// Submit a Choice
 const submitChoice = async (choice: string) => {
+  // Ensure you use 'choice' in this function
   const payload = {
     username: username.value,
     text: choice,
@@ -207,10 +238,7 @@ const submitChoice = async (choice: string) => {
     const data = await response.json()
     story.value.text = data.data.text
     story.value.choices = data.data.choices
-    roundsCompleted.value += 1
-    debug.value = JSON.stringify(data, null, 2)
   } catch (error) {
-    console.error('Error continuing game:', error)
     debug.value = `Error: ${error}`
   }
 }

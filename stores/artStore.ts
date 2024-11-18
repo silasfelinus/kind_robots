@@ -456,6 +456,7 @@ async getOrCreateGeneratedArtCollection(userId: number): Promise<ArtCollection> 
       }
     }
 }
+}
 
         return response // Directly return the response from performFetch
       } catch (error) {

@@ -54,6 +54,25 @@ export const useRewardStore = defineStore({
       }, 'fetching rewards')
       this.isLoading = false
     },
+initializeStore() {
+      this.isLoading = true
+      try {
+        // Load from local storage
+        const storedRewards = localStorage.getItem('rewards')
+        if (storedRewards) {
+          this.rewards = JSON.parse(storedRewards)
+        }
+
+        // Fetch from the server
+        this.fetchRewards()
+      } catch (error) {
+        this.error = `Failed to initialize store: ${error}`
+        console.error(this.error)
+      } finally {
+        this.isLoading = false
+      }
+    },
+
 
     async editReward(id: number, updatedData: Partial<Reward>) {
       await handleError(async () => {

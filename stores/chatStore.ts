@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { ErrorType } from './errorStore'
 import { useUserStore } from './userStore'
 import { performFetch, handleError } from './utils'
-import type { Chat } from '@prisma/client'
+import type { Chat, ChatType } from '@prisma/client'
 
 export const useChatStore = defineStore({
   id: 'chat',
@@ -61,6 +61,7 @@ export const useChatStore = defineStore({
       previousEntryId = null,
       promptId = null,
       botResponse = null,
+      type = 'ToBot',
     }: {
       content: string
       userId: number
@@ -72,6 +73,7 @@ export const useChatStore = defineStore({
       previousEntryId?: number | null
       promptId?: number | null
       botResponse?: string | null
+      type: ChatType
     }) {
       try {
         const userStore = useUserStore()
@@ -98,7 +100,7 @@ export const useChatStore = defineStore({
           sender: sender || 'Unknown',
           recipient: recipient || 'Unknown',
           isPublic,
-          type: 'ToBot', // All continued chats are user messages
+          type,
           recipientId,
           botId,
           botName,

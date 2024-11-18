@@ -19,13 +19,21 @@
           class="h-20 w-20 mx-auto mb-6 text-primary"
         />
         <p class="text-xl font-medium mb-4 text-gray-800">
-          🌟 You earned the <span class="font-bold">{{ milestone.label }}</span> milestone! 🌟
+          🌟 You earned the
+          <span class="font-bold">{{ milestone.label }}</span> milestone! 🌟
         </p>
         <p class="my-4 text-gray-700">{{ milestone.message }}</p>
-        <div class="karma-award flex flex-col items-center bg-accent bg-opacity-10 p-4 rounded-xl">
-          <p class="text-lg font-semibold text-accent">Bonus: +{{ milestone.karma }}</p>
+        <div
+          class="karma-award flex flex-col items-center bg-accent bg-opacity-10 p-4 rounded-xl"
+        >
+          <p class="text-lg font-semibold text-accent">
+            Bonus: +{{ milestone.karma }}
+          </p>
           <div class="flex items-center mt-2">
-            <Icon name="kind-icon:jellybean" class="p-2 h-12 w-12 text-accent" />
+            <Icon
+              name="kind-icon:jellybean"
+              class="p-2 h-12 w-12 text-accent"
+            />
             <p class="text-lg ml-2">You Found 1 Jellybean!</p>
           </div>
         </div>
@@ -33,11 +41,13 @@
         <!-- Checkbox -->
         <label class="flex items-center space-x-2 mt-6 cursor-pointer">
           <input
-            type="checkbox"
             v-model="checkboxChecked"
+            type="checkbox"
             class="checkbox checkbox-primary"
           />
-          <span class="text-sm text-gray-700">Do not show this popup again</span>
+          <span class="text-sm text-gray-700"
+            >Do not show this popup again</span
+          >
         </label>
 
         <!-- Confirm Button -->
@@ -56,11 +66,9 @@
 import { ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useErrorStore } from '@/stores/errorStore'
 
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
-const errorStore = useErrorStore()
 const showPopup = ref(true)
 const milestone = milestoneStore.currentMilestone // Example binding to the current milestone
 const checkboxChecked = ref(false) // Tracks the checkbox state
@@ -69,20 +77,15 @@ const confirmMilestone = async () => {
   if (milestone) {
     try {
       // Update isConfirmed for the milestone
-      await milestoneStore.updateMilestone({
+      await milestoneStore.updateMilestoneRecord({
         id: milestone.id,
         isConfirmed: true,
       })
 
-      // Update user preferences if "Do not show again" is checked
-      if (checkboxChecked.value) {
-        await userStore.updatePreferences({ hideMilestonePopups: true })
-      }
-
       // Close the popup
       showPopup.value = false
     } catch (error) {
-      errorStore.logError(error) // Log error to error store
+      console.error(error) // Log error to error store
     }
   }
 }
@@ -92,7 +95,9 @@ const confirmMilestone = async () => {
 /* Transition styling for the popup */
 .fade-scale-enter-active,
 .fade-scale-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 .fade-scale-enter,
 .fade-scale-leave-to {

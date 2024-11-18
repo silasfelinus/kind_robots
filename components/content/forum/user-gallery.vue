@@ -7,13 +7,17 @@
     >
       <div class="flex flex-col items-center p-4">
         <user-picture :id="user.id" class="rounded-full w-24 h-24 mb-2" />
-        <h3 class="text-lg font-bold">{{ user.designerName || user.username }}</h3>
+        <h3 class="text-lg font-bold">
+          {{ user.designerName || user.username }}
+        </h3>
         <div class="flex gap-2 mt-4">
           <button
             class="btn btn-primary btn-sm"
             @click="toggleCollection(user.id)"
           >
-            {{ selectedUserId === user.id ? 'Hide Collection' : 'View Collection' }}
+            {{
+              selectedUserId === user.id ? 'Hide Collection' : 'View Collection'
+            }}
           </button>
           <button
             class="btn btn-secondary btn-sm relative"
@@ -33,7 +37,10 @@
       <!-- Inline Collection -->
       <div v-if="selectedUserId === user.id" class="p-4">
         <h4 class="text-lg font-semibold">Art Collection</h4>
-        <div v-if="userCollections[user.id]?.length > 0" class="grid grid-cols-2 gap-2 mt-2">
+        <div
+          v-if="userCollections[user.id]?.length > 0"
+          class="grid grid-cols-2 gap-2 mt-2"
+        >
           <div
             v-for="art in userCollections[user.id]"
             :key="art.id"
@@ -44,7 +51,7 @@
               alt="Art"
               class="w-full h-24 object-cover rounded-md"
             />
-            <p class="text-sm mt-1">{{ art.title || 'Untitled' }}</p>
+            <p class="text-sm mt-1">{{ art.path || 'Untitled' }}</p>
           </div>
         </div>
         <p v-else class="text-gray-500 mt-2">No items in collection.</p>
@@ -90,14 +97,21 @@ function getArtImage(artId: number): string {
 
 // Send message to user
 function sendMessage(userId: number) {
-  chatStore.createChat({
+  chatStore.addChat({
     type: 'ToUser',
     recipientId: userId,
+    content: 'Hello!', // Example default content
+    userId: userStore.user?.id || 0, // Sender user ID
+    isPublic: false, // Private message
+    originId: null, // Optional for threading
+    previousEntryId: null, // Optional for threading
   })
 }
 
 // Check if there are unread messages from this user
 function hasUnreadMessages(userId: number): boolean {
-  return chatStore.unreadMessages.some((message) => message.senderId === userId)
+  return chatStore.unreadMessages.some(
+    (message) => message.recipientId === userId,
+  )
 }
 </script>

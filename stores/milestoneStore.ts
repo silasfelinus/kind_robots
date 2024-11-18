@@ -368,6 +368,27 @@ export const useMilestoneStore = defineStore({
       return hasMilestone
     },
 
+    async updateMilestoneRecord(record: Partial<MilestoneRecord>) {
+      try {
+        const response = await performFetch<MilestoneRecord>(
+          `/api/milestones/records/${record.id}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify(record),
+          },
+        )
+
+        if (!response.success || !response.data) {
+          throw new Error(
+            response.message || 'Failed to update milestone record',
+          )
+        }
+      } catch (error) {
+        console.error(`Failed to update milestone record: ${error}`)
+        throw error
+      }
+    },
+
     getMilestoneCountForUser(userId: number) {
       const count = this.milestoneRecords.filter(
         (record) => record.userId === userId,

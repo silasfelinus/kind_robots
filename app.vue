@@ -19,7 +19,7 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed z-50 box-border rounded-2xl transition-all duration-300 ease-in-out overflow-visible"
+      class="fixed z-10box-border rounded-2xl transition-all duration-300 ease-in-out overflow-visible"
       :style="leftSidebarStyle"
       style="background-color: rgba(0, 0, 0, 0.1)"
     >
@@ -48,7 +48,7 @@
 
       <!-- Right Toggle (Top-right corner of the sidebar) -->
       <div
-        class="absolute -top-8 right-0 p-1 z-50 rounded-2xl border-1 border-accent"
+        class="absolute top-2 right-0 p-1 z-50 rounded-2xl border-1 border-accent"
       >
         <right-toggle />
       </div>
@@ -56,7 +56,7 @@
 
     <!-- Footer -->
     <footer
-      class="fixed z-50 box-border overflow-visible transition-all duration-600 ease-in-out"
+      class="fixed z-10 box-border overflow-visible transition-all duration-600 ease-in-out"
       :style="footerStyle"
       style="background-color: rgba(0, 0, 0, 0.2)"
     >

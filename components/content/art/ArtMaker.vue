@@ -38,14 +38,6 @@
       </p>
     </div>
 
-    <!-- Logs -->
-    <div class="mt-4 p-4 bg-gray-100 rounded">
-      <h2 class="text-lg font-semibold">Live Logs:</h2>
-      <ul class="text-sm text-gray-700">
-        <li v-for="log in logs" :key="log" class="mb-1">{{ log }}</li>
-      </ul>
-    </div>
-
     <!-- Generated Art Display -->
     <div v-if="generatedArt.length > 0" class="mt-8">
       <div v-for="art in generatedArt" :key="art.id" class="mb-6">
@@ -68,16 +60,6 @@ const promptStore = usePromptStore()
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 
-// Logs for debugging
-const logs = ref<string[]>([])
-const originalConsoleLog = console.log
-console.log = function (...args) {
-  originalConsoleLog.apply(console, args)
-  logs.value.push(args.join(' '))
-}
-watch(logs, (newLogs) => {
-  if (newLogs.length > 20) logs.value = logs.value.slice(-20)
-})
 
 // States and computed properties
 const localError = ref<string | null>(null)

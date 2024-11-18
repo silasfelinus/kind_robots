@@ -7,10 +7,7 @@
         v-if="showTutorial"
         class="h-full w-full z-10 rounded-2xl border-4"
       />
-      <NuxtPage
-        v-else
-        class="h-full w-full z-10 no-scrollbar rounded-2xl bg-base-300"
-      />
+      <NuxtPage v-else class="h-full w-full z-10 no-scrollbar rounded-2xl" />
     </div>
 
     <!-- Fullscreen Mode (Desktop) -->
@@ -18,9 +15,7 @@
       v-else
       class="h-full w-full overflow-y-auto no-scrollbar z-10 flex-grow"
     >
-      <NuxtPage
-        class="h-full w-full rounded-2xl bg-base-300"
-      />
+      <NuxtPage class="h-full w-full rounded-2xl" />
     </div>
   </div>
 </template>

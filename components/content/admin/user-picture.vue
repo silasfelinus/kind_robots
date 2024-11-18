@@ -3,17 +3,15 @@
     <nuxt-img
       v-if="avatarImage"
       :src="avatarImage"
-      class="rounded-full object-cover"
+      class="rounded-full object-cover h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 transition-transform transform hover:scale-110 duration-300 ease-in-out"
       :alt="'User Avatar'"
-      :width="size"
-      :height="size"
     />
     <div
       v-else
       class="flex items-center justify-center rounded-full bg-base-300"
       :style="{ width: size + 'px', height: size + 'px' }"
     >
-      <Icon name="kind-icon:person" class="w-1/2 h-1/2 text-accent" />
+      <Icon name="kind-icon:person" class="w-full h-full text-accent" />
     </div>
   </nuxt-link>
 </template>

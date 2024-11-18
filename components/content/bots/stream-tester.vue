@@ -81,6 +81,7 @@ async function submitPrompt() {
       userId: 1, // Replace with actual user ID
       botId: 1, // Replace with actual bot ID
       recipientId: 1, // Replace with actual recipient ID
+      type: 'ToBot',
     })
 
     const apiEndpoint = '/api/botcafe/chat'

@@ -172,6 +172,7 @@ async function sendPrompt(prompt: string) {
         botId,
         recipientId: botId,
         promptId: newPrompt.id,
+        type: 'ToBot',
       })
     } catch (error) {
       console.error('Error adding chat in chatStore:', error)
@@ -204,6 +205,7 @@ async function submitCustomPrompt() {
         userId,
         botId,
         recipientId: botId,
+        type: 'ToBot',
       })
       promptStore.currentPrompt = ''
     } else {

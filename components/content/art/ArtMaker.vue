@@ -46,13 +46,12 @@
       </ul>
     </div>
 
-<!-- Generated Art Display -->
-<div v-if="artCollection.length > 0" class="mt-8">
-  <div v-for="art in artCollection" :key="art.id" class="mb-6">
-    <ArtCard :art="art" />
-  </div>
-</div>
-
+    <!-- Generated Art Display -->
+    <div v-if="generatedArt.length > 0" class="mt-8">
+      <div v-for="art in generatedArt" :key="art.id" class="mb-6">
+        <ArtCard :art="art" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -68,26 +67,20 @@ const artStore = useArtStore()
 const promptStore = usePromptStore()
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
-const artCollection = computed(() => artStore.artCollection)
 
-
-const localError = ref<string | null>(null)
-const logs = ref<string[]>([]) // Store for logs
-const originalConsoleLog = console.log // Save original console.log function
-
-// Hijack the console.log function
+// Logs for debugging
+const logs = ref<string[]>([])
+const originalConsoleLog = console.log
 console.log = function (...args) {
-  originalConsoleLog.apply(console, args) // Still call original log
-  logs.value.push(args.join(' ')) // Add the log to the UI logs
+  originalConsoleLog.apply(console, args)
+  logs.value.push(args.join(' '))
 }
-
-// Watch for log overflow and trim if necessary
 watch(logs, (newLogs) => {
-  if (newLogs.length > 20) {
-    logs.value = logs.value.slice(-20) // Keep only the last 20 logs
-  }
+  if (newLogs.length > 20) logs.value = logs.value.slice(-20)
 })
 
+// States and computed properties
+const localError = ref<string | null>(null)
 const loading = computed(() => artStore.loading)
 const lastError = computed(() => errorStore.getError)
 
@@ -95,7 +88,14 @@ const savePrompt = () => {
   promptStore.savePromptField()
 }
 
-const generatedArt = computed(() => artStore.generatedArt) // Simplified
+// Fetch the "Generated Art" collection and its art
+const generatedArtCollection = computed(() =>
+  artStore.collections.find((c) => c.label === 'Generated Art')
+)
+
+const generatedArt = computed(() =>
+  generatedArtCollection.value ? generatedArtCollection.value.art : []
+)
 
 const generateArt = async () => {
   localError.value = null
@@ -132,7 +132,8 @@ const generateArt = async () => {
 
 onMounted(async () => {
   await artStore.initialize()
-  await promptStore.initialize()
+  console.log('Fetching Generated Art collection...')
+  await artStore.fetchCollections()
   console.log('ArtStore and PromptStore initialized')
 })
 </script>

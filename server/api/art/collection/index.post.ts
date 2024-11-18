@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { artIds = [] } = body
+    const { artIds = [], label } = body
     if (!Array.isArray(artIds) || artIds.some((id) => typeof id !== 'number')) {
       throw createError({
         statusCode: 400,
@@ -51,6 +51,7 @@ export default defineEventHandler(async (event) => {
     const data = await prisma.artCollection.create({
       data: {
         userId,
+        label,
         art: {
           connect: artList.map((art) => ({ id: art.id })),
         },

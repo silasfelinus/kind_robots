@@ -43,11 +43,10 @@ export const useRewardStore = defineStore({
     async fetchRewards() {
       this.isLoading = true
       await handleError(async () => {
-        const response = await performFetch<Reward[]>(
-          '/api/rewards',
-        )
+        const response = await performFetch<Reward[]>('/api/rewards')
         if (response.success) {
           this.rewards = response.data || []
+          localStorage.setItem('rewards', JSON.stringify(this.rewards))
         } else {
           throw new Error(response.message || 'Failed to fetch rewards')
         }
@@ -84,6 +83,7 @@ initializeStore() {
           const index = this.rewards.findIndex((reward) => reward.id === id)
           if (index !== -1) {
             this.rewards[index] = response.data
+            localStorage.setItem('rewards', JSON.stringify(this.rewards))
           }
         } else {
           throw new Error(response.message || 'Failed to edit reward')
@@ -94,6 +94,7 @@ initializeStore() {
     setStartingRewardId(id: number | null) {
       this.startingRewardId = id
     },
+
 
     async createReward(newReward: Partial<Reward>) {
       await handleError(async () => {
@@ -106,13 +107,14 @@ initializeStore() {
         )
         if (response.success && response.data) {
           this.rewards.push(response.data)
+          localStorage.setItem('rewards', JSON.stringify(this.rewards))
         } else {
           throw new Error(response.message || 'Failed to create reward')
         }
       }, 'creating reward')
     },
 
-    async updateRewardById(id: number, updatedReward: Partial<Reward>) {
+async updateRewardById(id: number, updatedReward: Partial<Reward>) {
       await handleError(async () => {
         const response = await performFetch<Reward>(
           `/api/rewards/${id}`,
@@ -125,6 +127,7 @@ initializeStore() {
           const index = this.rewards.findIndex((reward) => reward.id === id)
           if (index !== -1) {
             this.rewards[index] = response.data
+            localStorage.setItem('rewards', JSON.stringify(this.rewards))
           }
         } else {
           throw new Error(response.message || 'Failed to update reward')
@@ -139,6 +142,7 @@ initializeStore() {
         })
         if (response.success) {
           this.rewards = this.rewards.filter((reward) => reward.id !== id)
+          localStorage.setItem('rewards', JSON.stringify(this.rewards))
         } else {
           throw new Error(response.message || 'Failed to delete reward')
         }
@@ -156,6 +160,7 @@ initializeStore() {
         )
         if (response.success && response.data) {
           this.rewards.push(...response.data)
+          localStorage.setItem('rewards', JSON.stringify(this.rewards))
         } else {
           throw new Error(
             response.message || 'Failed to create rewards in batch',

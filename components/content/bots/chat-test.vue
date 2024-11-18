@@ -60,6 +60,7 @@ async function continueChat(chat: Chat) {
     recipientId: chat.recipientId,
     previousEntryId: chat.id,
     originId: chat.originId || chat.id,
+    type: chat.type,
   })
 
   await chatStore.streamResponse(newChat.id)
@@ -112,6 +113,7 @@ async function addChatWithStream() {
       botId,
       botName,
       recipientId,
+      type: 'ToBot',
     })
 
     showFeedback('Chat added successfully! Streaming response...')

@@ -7,7 +7,7 @@
       class="absolute top-4 right-4 text-error hover:text-error-content transition"
       @click="deleteChat"
     >
-    <Icon name="kind-icon:delete" class="w-4 h-4" />
+      <Icon name="kind-icon:delete" class="w-4 h-4" />
     </button>
 
     <!-- Header -->
@@ -142,6 +142,7 @@ const sendReply = async () => {
         previousEntryId: chat.id,
         botId: chat.botId,
         botName: chat.botName,
+        type: chat.type,
       })
 
       replyMessage.value = ''

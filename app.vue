@@ -19,11 +19,11 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed z-10box-border rounded-2xl transition-all duration-300 ease-in-out overflow-visible"
+      class="fixed z-10 box-border rounded-2xl transition-all duration-300 ease-in-out overflow-visible"
       :style="leftSidebarStyle"
       style="background-color: rgba(0, 0, 0, 0.1)"
     >
-      <kind-sidebar-simple v-if="sidebarLeftOpen" class="h-full w-full z-10" />
+      <kind-sidebar-simple v-if="sidebarLeftOpen" class="h-full rounded-2xl w-full z-10" />
       <div
         class="absolute -top-2 left-0 p-1 z-50 rounded-2xl border-1 border-accent"
       >
@@ -41,7 +41,7 @@
 
     <!-- Right Sidebar -->
     <aside
-      class="fixed z-10 box-border transition-all duration-600 ease-in-out"
+      class="fixed z-10 box-border transition-all duration-600 rounded-2xl ease-in-out"
       :style="rightSidebarStyle"
     >
       <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full z-10" />
@@ -56,7 +56,7 @@
 
     <!-- Footer -->
     <footer
-      class="fixed z-10 box-border overflow-visible transition-all duration-600 ease-in-out"
+      class="fixed z-10 box-border rounded-2xl overflow-visible transition-all duration-600 ease-in-out"
       :style="footerStyle"
       style="background-color: rgba(0, 0, 0, 0.2)"
     >

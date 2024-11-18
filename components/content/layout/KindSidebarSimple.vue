@@ -13,7 +13,7 @@
         <!-- Navigation click event -->
         <a
           v-if="displayStore.sidebarLeftState !== 'hidden'"
-          class="flex flex-col items-center cursor-pointer w-full"
+          class="flex flex-col items-center cursor-pointer w-full mt-10"
           @click.prevent="navigate(link.path)"
         >
           <!-- Show icon in all states except hidden -->

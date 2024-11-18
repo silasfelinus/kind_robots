@@ -25,7 +25,7 @@ export async function saveImage(
       data: {
         galleryId,
         imageData: base64Image, // store base64 image
-        fileName: fileName ?? 'default-filename.webp', // Ensure fileName is never null
+        fileName: fileName ?? 'Kind Image', // Ensure fileName is never null
         userId,
       },
     })
@@ -55,7 +55,7 @@ export async function saveImage(
     // Return the saved image ID and fileName from the database (just the file name, not a path)
     return {
       id: savedImage.id,
-      fileName: savedImage.fileName ?? 'default-filename.webp',
+      fileName: savedImage.fileName ?? 'Kind Image',
     } // Fallback value
   } catch (error: unknown) {
     throw errorHandler(error)

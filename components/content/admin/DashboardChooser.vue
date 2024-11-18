@@ -28,6 +28,7 @@
       <lazy-intro-page v-if="choice === 'intro-page'" />
       <lazy-navigation-trimmed v-if="choice === 'navigation-trimmed'" />
       <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
+     <lazy-user-gallery v-if="choice === 'user-gallery'" />
       <lazy-jellybean-counter v-if="choice === 'jellybean-counter'" />
   
     </div>
@@ -42,6 +43,7 @@ const tabs = [
   { name: 'intro-page', label: 'Welcome!' },
   { name: 'navigation-trimmed', label: 'Site Navigation' },
   { name: 'user-dashboard', label: 'User Dashboard' },
+  { name: 'user-gallery', label: 'User Gallery' },
  
   { name: 'jellybean-counter', label: 'Jellybean Counter' },
   

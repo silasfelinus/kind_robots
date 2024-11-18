@@ -22,9 +22,7 @@
     </div>
 
     <!-- Components section with scrollable content -->
-    <div
-      class="flex-grow w-full max-w-4xl overflow-y-auto p-2 md:p-4 lg:p-6 h-full"
-    >
+    <div class="flex-grow w-full overflow-y-auto h-full">
       <LazyWonderLab v-if="activeTab === 'wonder-lab'" />
       <LazyStoreTester v-if="activeTab === 'store-tester'" />
       <LazyAnimationTester v-if="activeTab === 'animation-tester'" />

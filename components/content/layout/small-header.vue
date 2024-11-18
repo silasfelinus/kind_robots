@@ -14,17 +14,19 @@
     </div>
 
     <!-- Subtitle Section -->
-    <div class="h-1/3 flex items-end justify-end">
-      <h2 class="text-sm italic text-right text-ellipsis">
+    <div class="relative h-1/3">
+      <h2 class="absolute top-0 w-full text-sm italic text-right text-ellipsis">
         {{ subtitle }}
       </h2>
     </div>
 
     <!-- Icons Section -->
-    <div class="h-2/3 flex items-end justify-end gap-2">
-      <login-path />
-      <theme-icon />
-      <swarm-icon />
+    <div class="relative h-2/3">
+      <div class="absolute bottom-0 right-0 flex gap-2">
+        <login-path />
+        <theme-icon />
+        <swarm-icon />
+      </div>
     </div>
   </div>
 </template>

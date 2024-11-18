@@ -1,7 +1,7 @@
 <template>
   <router-link
     to="/milestones"
-    class="flex items-center space-x-2 no-underline text-current"
+    class="flex items-center space-x-2 no-underline text-current h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 transition-transform transform hover:scale-110 duration-300 ease-in-out"
   >
     <!-- Always Show Jellybean Icon -->
     <Icon name="kind-icon:jellybean" />

@@ -28,9 +28,8 @@
       <LazyWonderLab v-if="activeTab === 'wonder-lab'" />
       <LazyStoreTester v-if="activeTab === 'store-tester'" />
       <LazyAnimationTester v-if="activeTab === 'animation-tester'" />
-<lazy-rebel-button v-if="choice === 'rebel-button'" />
-      
-      
+      <lazy-rebel-button v-if="activeTab === 'rebel-button'" />
+
       <lazy-about-page v-if="activeTab === 'about-page'" />
       <lazy-sponsor-page v-if="activeTab === 'sponsor-page'" />
     </div>
@@ -56,7 +55,7 @@ const tabs = [
 
 // Filter tabs based on user role
 const visibleTabs = computed(() =>
-  tabs.filter(tab => !tab.requiresAdmin || userStore.Role === 'ADMIN')
+  tabs.filter((tab) => !tab.requiresAdmin || userStore.Role === 'ADMIN'),
 )
 
 // Default to the first visible tab

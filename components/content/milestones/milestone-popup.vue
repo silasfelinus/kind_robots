@@ -24,6 +24,18 @@
           <p class="text-lg mb-4">You Found 1 Jellybean!</p>
           <Icon name="kind-icon:jellybean" class="p-2 h-16 w-16 text-accent" />
         </div>
+
+        <!-- Checkbox -->
+        <label class="flex items-center space-x-2 mt-4">
+          <input
+            type="checkbox"
+            v-model="checkboxChecked"
+            class="checkbox checkbox-primary"
+          />
+          <span class="text-sm">Do not show this popup again</span>
+        </label>
+
+        <!-- Confirm Button -->
         <button
           class="bg-primary text-white rounded-2xl border px-6 py-3 mt-6 hover:bg-primary-focus transition"
           @click="confirmMilestone"
@@ -35,62 +47,37 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import confetti from 'canvas-confetti'
-import { useLoadStore } from './../../../stores/loadStore'
+import { ref } from 'vue'
+import { useUserStore } from './../../../stores/userStore' // Assuming this is the store
+import { useMilestoneStore } from './../../../stores/milestoneStore'
 
-const { randomLoadMessage } = useLoadStore()
-const currentMessage = ref('Building Kind Robots...')
+const userStore = useUserStore()
+const milestoneStore = useMilestoneStore()
+const showPopup = ref(true)
+const milestone = milestoneStore.currentMilestone // Example binding to the current milestone
+const checkboxChecked = ref(false) // Tracks the checkbox state
 
-const butterflyCount = ref(20)
-const fadeOut = ref(false)
-const butterflyFadeOut = ref(false)
-const pageReady = ref(false)
+const confirmMilestone = () => {
+  if (milestone) {
+    // Update isConfirmed
+    milestoneStore.updateMilestone({
+      id: milestone.id,
+      isConfirmed: true,
+    })
 
-const startFadeOut = () => {
-  fadeOut.value = true
-}
+    // If checkbox is checked, set a flag in the user store
+    if (checkboxChecked.value) {
+      userStore.updatePreferences({ hideMilestonePopups: true })
+    }
 
-const startButterflyFadeOut = () => {
-  butterflyFadeOut.value = true
-  launchConfetti() // Trigger confetti at the start of butterfly fade-out
-}
-
-const updateMessage = () => {
-  currentMessage.value = randomLoadMessage()
-}
-
-const launchConfetti = () => {
-  confetti({
-    particleCount: 100,
-    spread: 70,
-    origin: { x: 0.5, y: 0.5 }, // Center of the screen
-  })
-}
-
-let intervalId: NodeJS.Timeout
-onMounted(() => {
-  setTimeout(() => {
-    currentMessage.value = randomLoadMessage()
-    intervalId = setInterval(updateMessage, 1700)
-  }, 100)
-
-  setTimeout(startFadeOut, 1300)
-
-  setTimeout(startButterflyFadeOut, 10000)
-})
-
-onUnmounted(() => {
-  clearInterval(intervalId)
-})
-
-const handleTransitionEnd = () => {
-  if (fadeOut.value) {
-    pageReady.value = true
+    // Close the popup
+    showPopup.value = false
   }
 }
 </script>
+
 
 <style>
 /* Full-screen overlay styling */

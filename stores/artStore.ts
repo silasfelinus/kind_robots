@@ -70,30 +70,46 @@ export const useArtStore = defineStore({
         this.loading = false
       }
     },
-async getOrCreateGeneratedArtCollection(userId: number): Promise<ArtCollection> {
-  try {
-    let collection = this.collections.find(
-      (c) => c.userId === userId && c.label === 'Generated Art'
-    )
-    if (!collection) {
-      const response = await performFetch<ArtCollection>('/api/art/collection', {
-        method: 'POST',
-        body: JSON.stringify({ label: 'Generated Art', userId }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-      if (response.success && response.data) {
-        collection = response.data
-        this.collections.push(collection)
-      } else {
-        throw new Error(response.message)
+    async getOrCreateGeneratedArtCollection(
+      userId: number,
+    ): Promise<ArtCollection> {
+      try {
+        let collection = this.collections.find(
+          (c) => c.userId === userId && c.label === 'Generated Art',
+        )
+        if (!collection) {
+          const response = await performFetch<ArtCollection>(
+            '/api/art/collection',
+            {
+              method: 'POST',
+              body: JSON.stringify({ label: 'Generated Art', userId }),
+              headers: { 'Content-Type': 'application/json' },
+            },
+          )
+          if (response.success && response.data) {
+            collection = response.data
+            this.collections.push(collection)
+          } else {
+            throw new Error(response.message)
+          }
+        }
+        return collection
+      } catch (error) {
+        handleError(error, 'getting or creating Generated Art collection')
+        throw error
       }
-    }
-    return collection
-  } catch (error) {
-    handleError(error, 'getting or creating Generated Art collection')
-    throw error
-  }
-},
+    },
+    selectArt(artId: number): void {
+      const selectedArt = this.art.find((art) => art.id === artId)
+      if (selectedArt) {
+        this.currentArt = selectedArt
+      } else {
+        handleError(
+          new Error(`Art with ID ${artId} not found`),
+          'selecting art',
+        )
+      }
+    },
 
     async fetchUncollectedArt() {
       const userStore = useUserStore()
@@ -135,22 +151,22 @@ async getOrCreateGeneratedArtCollection(userId: number): Promise<ArtCollection> 
 
     // Loading data from localStorage in a separate function to isolate any errors here
     async loadLocalData() {
-  try {
-    if (isClient) {
-      const storedArt = localStorage.getItem('art')
-      const storedCollections = localStorage.getItem('collections')
+      try {
+        if (isClient) {
+          const storedArt = localStorage.getItem('art')
+          const storedCollections = localStorage.getItem('collections')
 
-      if (storedArt && storedArt !== 'undefined') {
-        this.art = JSON.parse(storedArt)
+          if (storedArt && storedArt !== 'undefined') {
+            this.art = JSON.parse(storedArt)
+          }
+          if (storedCollections && storedCollections !== 'undefined') {
+            this.collections = JSON.parse(storedCollections)
+          }
+        }
+      } catch (error) {
+        handleError(error, 'loading local data')
       }
-      if (storedCollections && storedCollections !== 'undefined') {
-        this.collections = JSON.parse(storedCollections)
-      }
-    }
-  } catch (error) {
-    handleError(error, 'loading local data')
-  }
-},
+    },
     // Fetching remote data in a separate function with explicit error handling
     async loadRemoteData() {
       try {
@@ -221,27 +237,69 @@ async getOrCreateGeneratedArtCollection(userId: number): Promise<ArtCollection> 
     async addArtToCollection({
       artId,
       collectionId,
-      label = ' ',
+      label = '',
     }: {
       artId: number
-      collectionId: number
-      label: string | undefined
+      collectionId?: number
+      label?: string
     }) {
       try {
+        // Determine the collection
+        let targetCollection: ArtCollection | undefined
+
+        // If a collection ID is provided, find the collection
+        if (collectionId) {
+          targetCollection = this.collections.find(
+            (collection) => collection.id === collectionId,
+          )
+        } else {
+          // Search for a collection with the given label for the current user
+          const userStore = useUserStore()
+          const userId = userStore.userId
+          targetCollection = this.collections.find(
+            (collection) =>
+              collection.userId === userId && collection.label === label,
+          )
+
+          // If no matching collection is found, create a new one
+          if (!targetCollection) {
+            const response = await performFetch<ArtCollection>(
+              '/api/art/collection',
+              {
+                method: 'POST',
+                body: JSON.stringify({ label, userId }),
+                headers: { 'Content-Type': 'application/json' },
+              },
+            )
+
+            if (response.success && response.data) {
+              targetCollection = response.data
+              this.collections.push(targetCollection) // Add to local state
+            } else {
+              throw new Error(response.message)
+            }
+          }
+        }
+
+        // Ensure we have a valid target collection
+        if (!targetCollection) {
+          throw new Error('Failed to find or create a target collection.')
+        }
+
+        // Add the art to the collection
         const response = await performFetch('/api/art/collection', {
           method: 'POST',
-          body: JSON.stringify({ artId, collectionId, label }),
+          body: JSON.stringify({
+            artId,
+            collectionId: targetCollection.id,
+            label: targetCollection.label,
+          }),
           headers: { 'Content-Type': 'application/json' },
         })
 
         if (response.success) {
-          const collection = this.collections.find(
-            (collection) => collection.id === collectionId,
-          )
-          if (collection) {
-            const art = this.art.find((art) => art.id === artId)
-            if (art) collection.art.push(art) // Add art to collection locally
-          }
+          const art = this.art.find((art) => art.id === artId)
+          if (art) targetCollection.art.push(art) // Add art to collection locally
         } else {
           throw new Error(response.message)
         }
@@ -409,64 +467,68 @@ async getOrCreateGeneratedArtCollection(userId: number): Promise<ArtCollection> 
       }
     },
 
-  async generateArt(artData?: GenerateArtData): Promise<ApiResponse<Art>> {
-  const promptStore = usePromptStore()
-  const userStore = useUserStore()
-  this.loading = true
+    async generateArt(artData?: GenerateArtData): Promise<ApiResponse<Art>> {
+      const promptStore = usePromptStore()
+      const userStore = useUserStore()
+      this.loading = true
 
-  const data: GenerateArtData = {
-    promptString: artData?.promptString || promptStore.promptField,
-    pitch: artData?.pitch || this.extractPitch(promptStore.promptField),
-    userId: artData?.userId || userStore.user?.id || 10,
-    galleryId: artData?.galleryId,
-    checkpoint: artData?.checkpoint || 'stable-diffusion-v1-4',
-    sampler: artData?.sampler || 'k_lms',
-    steps: artData?.steps || 50,
-    designer: artData?.designer || 'AI Art Designer',
-    cfg: artData?.cfg || 7,
-    cfgHalf: artData?.cfgHalf || false,
-    isMature: artData?.isMature || false,
-    isPublic: artData?.isPublic || true,
-  }
-
-  if (!this.validatePromptString(data.promptString)) {
-    return { success: false, message: 'Invalid prompt' }
-  }
-
-  try {
-    // Call `performFetch` directly, returning its result
-    const response = await performFetch<Art>(
-      '/api/art/generate',
-      { method: 'POST', body: JSON.stringify(data) },
-      3,
-      20000,
-    )
-
-    if (response.success && response.data) {
-      const userId = data.userId || 10
-      const collection = await this.getOrCreateGeneratedArtCollection(userId)
-
-      // Add to local state
-      this.art.push(response.data)
-      collection.art.push(response.data) // Add to "Generated Art" collection
-
-      if (isClient) {
-        localStorage.setItem('art', JSON.stringify(this.art))
-        localStorage.setItem('collections', JSON.stringify(this.collections))
+      const data: GenerateArtData = {
+        promptString: artData?.promptString || promptStore.promptField,
+        pitch: artData?.pitch || this.extractPitch(promptStore.promptField),
+        userId: artData?.userId || userStore.user?.id || 10,
+        galleryId: artData?.galleryId,
+        checkpoint: artData?.checkpoint || 'stable-diffusion-v1-4',
+        sampler: artData?.sampler || 'k_lms',
+        steps: artData?.steps || 50,
+        designer: artData?.designer || 'AI Art Designer',
+        cfg: artData?.cfg || 7,
+        cfgHalf: artData?.cfgHalf || false,
+        isMature: artData?.isMature || false,
+        isPublic: artData?.isPublic || true,
       }
-    }
 
-    return response // Directly return the response from performFetch
-  } catch (error) {
-    handleError(error, 'generating art')
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : 'Unknown error',
-    }
-  } finally {
-    this.loading = false
-  }
-},
+      if (!this.validatePromptString(data.promptString)) {
+        return { success: false, message: 'Invalid prompt' }
+      }
+
+      try {
+        // Call `performFetch` directly, returning its result
+        const response = await performFetch<Art>(
+          '/api/art/generate',
+          { method: 'POST', body: JSON.stringify(data) },
+          3,
+          20000,
+        )
+
+        if (response.success && response.data) {
+          const userId = data.userId || 10
+          const collection =
+            await this.getOrCreateGeneratedArtCollection(userId)
+
+          // Add to local state
+          this.art.push(response.data)
+          collection.art.push(response.data) // Add to "Generated Art" collection
+
+          if (isClient) {
+            localStorage.setItem('art', JSON.stringify(this.art))
+            localStorage.setItem(
+              'collections',
+              JSON.stringify(this.collections),
+            )
+          }
+        }
+
+        return response // Directly return the response from performFetch
+      } catch (error) {
+        handleError(error, 'generating art')
+        return {
+          success: false,
+          message: error instanceof Error ? error.message : 'Unknown error',
+        }
+      } finally {
+        this.loading = false
+      }
+    },
 
     async fetchArtByUserId(userId: number): Promise<void> {
       try {

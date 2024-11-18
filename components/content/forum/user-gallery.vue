@@ -58,7 +58,6 @@ import { ref, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 import { useChatStore } from '@/stores/chatStore'
-import UserPicture from '@/components/UserPicture.vue'
 
 const userStore = useUserStore()
 const artStore = useArtStore()

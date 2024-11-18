@@ -45,7 +45,7 @@ let intervalId: NodeJS.Timeout
 onMounted(() => {
   setTimeout(() => {
     currentMessage.value = randomLoadMessage()
-    intervalId = setInterval(updateMessage, 1300)
+    intervalId = setInterval(updateMessage, 1700)
   }, 100)
   
   setTimeout(startFadeOut, 1300) // Fade out the message after 2 seconds

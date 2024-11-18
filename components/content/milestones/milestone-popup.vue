@@ -36,36 +36,58 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watchEffect } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useConfetti } from '@/utils/useConfetti'
+import { ref, onMounted, onUnmounted } from 'vue'
+import confetti from 'canvas-confetti'
+import { useLoadStore } from './../../../stores/loadStore'
 
-const { triggerConfetti } = useConfetti()
-const userStore = useUserStore()
-const milestoneStore = useMilestoneStore()
-const showPopup = ref(false)
+const { randomLoadMessage } = useLoadStore()
+const currentMessage = ref('Building Kind Robots...')
 
-// Computed property to access the first unconfirmed milestone
-const milestone = computed(
-  () => milestoneStore.unconfirmedMilestones[0] || null,
-)
+const butterflyCount = ref(20)
+const fadeOut = ref(false)
+const butterflyFadeOut = ref(false)
+const pageReady = ref(false)
 
-watchEffect(() => {
-  if (milestone.value) {
-    console.log('Awarding Milestone:', milestone.value) // Log for debugging
-    showPopup.value = true
-    triggerConfetti()
-  } else {
-    showPopup.value = false
-  }
+const startFadeOut = () => {
+  fadeOut.value = true
+}
+
+const startButterflyFadeOut = () => {
+  butterflyFadeOut.value = true
+  launchConfetti() // Trigger confetti at the start of butterfly fade-out
+}
+
+const updateMessage = () => {
+  currentMessage.value = randomLoadMessage()
+}
+
+const launchConfetti = () => {
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { x: 0.5, y: 0.5 }, // Center of the screen
+  })
+}
+
+let intervalId: NodeJS.Timeout
+onMounted(() => {
+  setTimeout(() => {
+    currentMessage.value = randomLoadMessage()
+    intervalId = setInterval(updateMessage, 1700)
+  }, 100)
+
+  setTimeout(startFadeOut, 1300)
+
+  setTimeout(startButterflyFadeOut, 10000)
 })
 
-// Function to confirm the milestone and close the popup
-const confirmMilestone = () => {
-  if (milestone.value) {
-    milestoneStore.confirmMilestone(milestone.value.id)
-    showPopup.value = false
+onUnmounted(() => {
+  clearInterval(intervalId)
+})
+
+const handleTransitionEnd = () => {
+  if (fadeOut.value) {
+    pageReady.value = true
   }
 }
 </script>

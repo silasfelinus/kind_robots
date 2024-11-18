@@ -12,15 +12,17 @@ function validGalleryId(galleryId: string | undefined): boolean {
 
 export default defineEventHandler(async (event) => {
   try {
-    // Parse the multipart form data
+    console.log('Received request at /api/art/upload')
+
     const form = await readMultipartFormData(event)
+    console.log('Parsed Form Data:', form)
 
     if (!form) {
-      event.node.res.statusCode = 400 // Bad Request
+      event.node.res.statusCode = 400
+      console.error('No form data received')
       return { success: false, message: 'No form data received' }
     }
 
-    // Extract the image file and form fields
     const imageFile = form.find((file) => file.name === 'image')
     const galleryName =
       form.find((field) => field.name === 'galleryName')?.data.toString() ||
@@ -32,38 +34,50 @@ export default defineEventHandler(async (event) => {
     const fileType =
       form.find((field) => field.name === 'fileType')?.data.toString() || 'png'
 
-    // Ensure required fields are present and valid
+    console.log('Extracted Fields:', {
+      imageFile,
+      galleryName,
+      userId,
+      galleryId,
+      fileType,
+    })
+
     if (
       !imageFile?.data ||
       !validUserId(userId) ||
       !validGalleryId(galleryId)
     ) {
-      event.node.res.statusCode = 400 // Bad Request
+      event.node.res.statusCode = 400
+      console.error('Validation failed:', {
+        imageFile: !!imageFile?.data,
+        userId: validUserId(userId),
+        galleryId: validGalleryId(galleryId),
+      })
       return {
         success: false,
         message: 'Missing required fields or invalid data',
       }
     }
 
-    // Call the uploadArtImage function
+    console.log('Calling uploadArtImage...')
     const data = await uploadArtImage(
       {
-        data: imageFile.data, // file data as Buffer
-        filename: imageFile.filename || 'Kind Image', // fallback filename if missing
+        data: imageFile.data,
+        filename: imageFile.filename || 'Kind Image',
       },
       galleryName,
       Number(userId),
       Number(galleryId),
       fileType,
     )
+    console.log('uploadArtImage result:', data)
 
-    event.node.res.statusCode = 201 // Created
+    event.node.res.statusCode = 201
     return { success: true, data }
   } catch (error: unknown) {
-    // Use errorHandler for consistent error handling
     const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500 // Default to 500 if no status code is provided
-
+    console.error('Error in upload handler:', handledError)
+    event.node.res.statusCode = handledError.statusCode || 500
     return {
       success: false,
       message: 'Error uploading the art image',

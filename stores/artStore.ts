@@ -589,15 +589,23 @@ export const useArtStore = defineStore({
 
     async uploadImage(formData: FormData): Promise<void> {
       try {
+        console.log('Starting upload with formData:', [...formData.entries()])
+
         const response = await performFetch<ArtImage>('/api/art/upload', {
           method: 'POST',
           body: formData,
         })
 
-        if (response.success && response.data)
+        console.log('Server response:', response)
+
+        if (response.success && response.data) {
           this.artImages.push(response.data)
-        else throw new Error(response.message)
+          console.log('Art image added to store:', response.data)
+        } else {
+          throw new Error(response.message)
+        }
       } catch (error) {
+        console.error('Error in uploadImage:', error)
         handleError(error, 'uploading image')
       }
     },

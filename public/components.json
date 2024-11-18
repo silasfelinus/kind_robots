@@ -131,7 +131,6 @@
   {
     "folderName": "forum",
     "components": [
-      "user-collection",
       "user-gallery"
     ]
   },

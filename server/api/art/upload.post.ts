@@ -46,10 +46,10 @@ export default defineEventHandler(async (event) => {
     }
 
     // Call the uploadArtImage function
-    const artImage = await uploadArtImage(
+    const data = await uploadArtImage(
       {
         data: imageFile.data, // file data as Buffer
-        filename: imageFile.filename || 'default-filename.webp', // fallback filename if missing
+        filename: imageFile.filename || 'Kind Image', // fallback filename if missing
       },
       galleryName,
       Number(userId),
@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
     )
 
     event.node.res.statusCode = 201 // Created
-    return { success: true, data: { artImage } }
+    return { success: true, data }
   } catch (error: unknown) {
     // Use errorHandler for consistent error handling
     const handledError = errorHandler(error)

@@ -3,10 +3,12 @@
     class="main-layout h-screen w-screen relative bg-primary overflow-hidden box-border"
   >
     <!-- Loaders -->
+<div class="fixed z-50" >
     <kind-loader />
+
     <animation-loader />
     <milestone-popup />
-
+</div>
     <!-- Header -->
     <header
       class="fixed z-10 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out"

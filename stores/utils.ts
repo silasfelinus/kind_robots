@@ -11,7 +11,6 @@ export type ApiResponse<T> = {
   apiKey?: string
   usernames?: string[]
 }
-
 export async function performFetch<T>(
   url: string,
   options: RequestInit = {},
@@ -22,12 +21,13 @@ export async function performFetch<T>(
   const userStore = useUserStore()
   const apiKey = userStore?.apiKey
 
-  // Setup headers, ensuring Authorization and Content-Type are set correctly
+  // Setup headers conditionally
+  const isFormData = options.body instanceof FormData
   const headers: HeadersInit = {
     ...(options.headers || {}),
-    'Content-Type': 'application/json',
     ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
     ...(userStore.token ? { 'X-User-Token': userStore.token } : {}),
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }), // Skip setting Content-Type for FormData
   }
 
   // Nested function to handle request with timeout

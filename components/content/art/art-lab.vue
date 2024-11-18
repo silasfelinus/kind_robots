@@ -9,7 +9,7 @@
       <button
         v-for="tab in tabs"
         :key="tab.name"
-        class="flex-1 px-4 py-2 text-lg font-semibold border-accent rounded-lg text-center"
+        class="flex-1 px-1 py-1 md:px-4 md:py-2 text-sm md:text-lg font-semibold border-accent rounded-lg text-center"
         :class="{
           'bg-primary text-white': tab.name === choice,
           'bg-accent hover:bg-secondary text-white': tab.name !== choice,
@@ -22,7 +22,7 @@
 
     <!-- Components section with scrollable content -->
     <div
-      class="components-section flex-grow w-full max-w-4xl overflow-y-auto p-2 md:p-4 lg:p-6"
+      class="components-section flex-grow w-full overflow-y-auto"
     >
       <lazy-art-maker v-if="choice === 'art-maker'" />
        <lazy-comfy-frontend v-if="choice === 'comfy-frontend'" />

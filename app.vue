@@ -27,19 +27,19 @@
         v-if="sidebarLeftOpen"
         class="relative z-10 h-full rounded-2xl w-full"
       />
-      <div
-        class="absolute -top-2 left-0 p-1 z-50 rounded-2xl border-1 border-accent"
-      >
-        <left-toggle />
-      </div>
     </aside>
 
     <!-- Main Content -->
     <main
-      class="fixed z-10 border-1 rounded-2xl overflow-hidden box-border bg-base-300 transition-all duration-600 ease-in-out"
+      class="fixed z-10 rounded-2xl overflow-hidden box-border transition-all duration-600 ease-in-out"
       :style="mainContentStyle"
     >
       <main-content />
+      <div
+        class="absolute top-0 left-0 p-1 z-50 rounded-2xl border-1 border-accent"
+      >
+        <left-toggle />
+      </div>
     </main>
 
     <!-- Right Sidebar -->

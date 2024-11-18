@@ -8,14 +8,21 @@ import fs from 'fs/promises'
 const prisma = new PrismaClient()
 
 export async function uploadArtImage(
-  uploadedFile: { data: Buffer; filename: string }, // Adjusted for Nuxt's file handling
+  uploadedFile: { data: Buffer; filename: string },
   galleryName: string = 'userUpload',
   userId: number = 10,
   galleryId: number = 21,
-  fileType: string = 'png', // Assuming fileType is already validated and sent
+  fileType: string = 'png',
 ): Promise<{ artImage: ArtImage }> {
   try {
-    // Ensure fileType has a valid value and sanitize input
+    console.log('uploadArtImage called with:', {
+      uploadedFile,
+      galleryName,
+      userId,
+      galleryId,
+      fileType,
+    })
+
     const validExtensions = ['png', 'jpeg', 'jpg', 'webp']
     if (!validExtensions.includes(fileType.toLowerCase())) {
       throw new Error(
@@ -25,8 +32,8 @@ export async function uploadArtImage(
 
     const timestamp = Date.now()
     const fileName = `${galleryName}-${timestamp}.${fileType}`
+    console.log('Generated fileName:', fileName)
 
-    // Save to the local filesystem (if not in production)
     if (process.env.APP_ENV !== 'production') {
       const dirPath = path.join(
         process.env.IMAGES_PATH || './public/images',
@@ -34,34 +41,32 @@ export async function uploadArtImage(
       )
       const filePath = path.join(dirPath, fileName)
 
-      // Ensure the gallery directory exists
       try {
         await fs.access(dirPath)
       } catch {
+        console.log(`Creating directory: ${dirPath}`)
         await fs.mkdir(dirPath, { recursive: true })
       }
 
-      // Save the image to the local filesystem
+      console.log('Saving image to:', filePath)
       await fs.writeFile(filePath, uploadedFile.data)
-
-      // Optionally return the local file path for development
-      console.log(`Image saved to: ${filePath}`)
     }
 
-    // Save the image data to the database, including fileType
+    console.log('Saving image to database...')
     const artImage = await prisma.artImage.create({
       data: {
         galleryId,
-        imageData: uploadedFile.data.toString('base64'), // Store the image in base64 format
+        imageData: uploadedFile.data.toString('base64'),
         fileName,
-        fileType: `.${fileType}`, // Ensure proper file extension format (e.g., ".png")
+        fileType: `.${fileType}`,
         userId,
       },
     })
 
-    // Return the image object from the database as 'artImage'
+    console.log('Database save successful:', artImage)
     return { artImage }
   } catch (error: unknown) {
+    console.error('Error in uploadArtImage:', error)
     throw errorHandler(error)
   }
 }

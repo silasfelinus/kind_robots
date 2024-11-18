@@ -62,6 +62,12 @@ async function uploadAvatar(event: Event) {
 
     const formData = new FormData()
     formData.append('image', uploadedFile)
+    formData.append('galleryName', 'userUpload')
+    formData.append('userId', userId.value?.toString() || '10')
+    formData.append('galleryId', '21') // Replace with dynamic if applicable
+    formData.append('fileType', uploadedFile.type)
+
+    console.log('FormData:', [...formData.entries()])
 
     isUploading.value = true
     uploadError.value = null

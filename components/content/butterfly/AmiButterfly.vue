@@ -41,7 +41,7 @@ const butterfly = reactive<Butterfly>({
   rotation: 110,
   speed: randomRange(1, 3),
   status: 'random',
-  goal: { x: randomRange(0, window.innerWidth), y: randomRange(0, window.innerHeight) },
+  goal: { x: 0, y: 0 }, // Initialized with default values
   hasReachedGoal: false,
   wingSpeed: Math.floor(randomRange(0, 3)),
   scale: randomRange(0.75, 1.25),
@@ -52,8 +52,10 @@ const noise2D = makeNoise2D(Date.now());
 let animationFrameId: number;
 
 const handleResize = () => {
-  windowSize.width = window.innerWidth;
-  windowSize.height = window.innerHeight;
+  if (typeof window !== 'undefined') {
+    windowSize.width = window.innerWidth;
+    windowSize.height = window.innerHeight;
+  }
 };
 
 const updatePosition = () => {
@@ -77,8 +79,12 @@ const animate = () => {
 
 onMounted(() => {
   hydrated.value = true;
-  windowSize.width = window.innerWidth;
-  windowSize.height = window.innerHeight;
+
+  // Set initial window size and butterfly goal after mounting
+  handleResize();
+  butterfly.goal.x = randomRange(0, windowSize.width);
+  butterfly.goal.y = randomRange(0, windowSize.height);
+
   window.addEventListener('resize', handleResize);
   animate();
 });
@@ -88,6 +94,7 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
 });
 </script>
+
 
 
 

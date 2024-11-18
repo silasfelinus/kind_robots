@@ -70,6 +70,31 @@ export const useArtStore = defineStore({
         this.loading = false
       }
     },
+async getOrCreateGeneratedArtCollection(userId: number): Promise<ArtCollection> {
+  try {
+    let collection = this.collections.find(
+      (c) => c.userId === userId && c.label === 'Generated Art'
+    )
+    if (!collection) {
+      const response = await performFetch<ArtCollection>('/api/art/collection', {
+        method: 'POST',
+        body: JSON.stringify({ label: 'Generated Art', userId }),
+        headers: { 'Content-Type': 'application/json' },
+      })
+      if (response.success && response.data) {
+        collection = response.data
+        this.collections.push(collection)
+      } else {
+        throw new Error(response.message)
+      }
+    }
+    return collection
+  } catch (error) {
+    handleError(error, 'getting or creating Generated Art collection')
+    throw error
+  }
+},
+
     async fetchUncollectedArt() {
       const userStore = useUserStore()
       const userId = userStore.userId
@@ -110,28 +135,22 @@ export const useArtStore = defineStore({
 
     // Loading data from localStorage in a separate function to isolate any errors here
     async loadLocalData() {
-      try {
-        if (isClient) {
-          const storedArt = localStorage.getItem('art')
-          const storedCollectedArt = localStorage.getItem('collectedArt')
-          const storedGeneratedArt = localStorage.getItem('generatedArt')
+  try {
+    if (isClient) {
+      const storedArt = localStorage.getItem('art')
+      const storedCollections = localStorage.getItem('collections')
 
-          // Verify and parse only if the item exists in localStorage
-          if (storedArt && storedArt !== 'undefined') {
-            this.art = JSON.parse(storedArt)
-          }
-          if (storedCollectedArt && storedCollectedArt !== 'undefined') {
-            this.collectedArt = JSON.parse(storedCollectedArt)
-          }
-          if (storedGeneratedArt && storedGeneratedArt !== 'undefined') {
-            this.generatedArt = JSON.parse(storedGeneratedArt)
-          }
-        }
-      } catch (error) {
-        handleError(error, 'loading local data')
+      if (storedArt && storedArt !== 'undefined') {
+        this.art = JSON.parse(storedArt)
       }
-    },
-
+      if (storedCollections && storedCollections !== 'undefined') {
+        this.collections = JSON.parse(storedCollections)
+      }
+    }
+  } catch (error) {
+    handleError(error, 'loading local data')
+  }
+},
     // Fetching remote data in a separate function with explicit error handling
     async loadRemoteData() {
       try {
@@ -424,17 +443,19 @@ export const useArtStore = defineStore({
         )
 
         if (response.success && response.data) {
-          this.art.push(response.data)
-          this.generatedArt.push(response.data)
+      const userId = data.userId || 10
+      const collection = await this.getOrCreateGeneratedArtCollection(userId)
 
-          if (isClient) {
-            localStorage.setItem('art', JSON.stringify(this.art))
-            localStorage.setItem(
-              'generatedArt',
-              JSON.stringify(this.generatedArt),
-            )
-          }
-        }
+      // Add to local state
+      this.art.push(response.data)
+      collection.art.push(response.data) // Add to "Generated Art" collection
+
+      if (isClient) {
+        localStorage.setItem('art', JSON.stringify(this.art))
+        localStorage.setItem('collections', JSON.stringify(this.collections))
+      }
+    }
+}
 
         return response // Directly return the response from performFetch
       } catch (error) {

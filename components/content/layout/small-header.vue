@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full px-4">
+  <div class="flex h-full px-2">
     <!-- Title Section (1/3 Width) -->
     <div class="flex flex-col justify-start w-1/3">
       <h1 class="text-lg font-semibold text-left leading-none">

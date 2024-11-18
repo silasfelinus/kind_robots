@@ -59,7 +59,7 @@ function removeBubble(bubbleId: number) {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  z-index: 0;
+  z-index: 40;
 }
 
 .bubble {
@@ -72,7 +72,7 @@ function removeBubble(bubbleId: number) {
     rgba(255, 255, 255, 0) 100%
   );
   animation: floatBubble linear infinite;
-  z-index: 0;
+  z-index: 40;
 }
 .bubble-container,
 .bubble {

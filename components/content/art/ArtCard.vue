@@ -165,7 +165,7 @@ const computedArtImage = computed(() => {
   } else if (props.artImage?.imageData) {
     console.log('returning props image data')
     return `data:image/${props.artImage.fileType};base64,${props.artImage.imageData}`
-  } else if (props.art.path) {
+  } else if (props.art?.path) {
     console.log('returning path')
     return props.art.path
   }

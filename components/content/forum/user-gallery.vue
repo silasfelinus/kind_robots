@@ -8,7 +8,7 @@
       <div class="flex flex-col items-center p-4">
         <user-avatar :id="user.id" class="rounded-full w-24 h-24 mb-2" />
         <h3 class="text-lg font-bold">
-          {{ user.designerName || user.username }}
+          {{ user.designerName || user.username || 'Unknown User' }}
         </h3>
         <div class="flex gap-2 mt-4">
           <button
@@ -51,7 +51,9 @@
               alt="Art"
               class="w-full h-24 object-cover rounded-md"
             />
-            <p class="text-sm mt-1">{{ art.path || 'Untitled' }}</p>
+            <p class="text-sm mt-1">
+              {{ shouldShowPath(art) ? art.path : 'Untitled' }}
+            </p>
           </div>
         </div>
         <p v-else class="text-gray-500 mt-2">No items in collection.</p>
@@ -59,7 +61,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
@@ -70,7 +71,7 @@ const userStore = useUserStore()
 const artStore = useArtStore()
 const chatStore = useChatStore()
 
-const users = computed(() => userStore.users)
+const users = computed(() => userStore.users || [])
 const selectedUserId = ref<number | null>(null)
 const userCollections = ref<Record<number, Art[]>>({})
 
@@ -82,11 +83,17 @@ async function toggleCollection(userId: number) {
   }
 
   selectedUserId.value = userId
+
   if (!userCollections.value[userId]) {
     const collections = await artStore.getUserCollections(userId)
-    const userArt = collections.flatMap((collection) => collection.art)
+    const userArt = collections.flatMap((collection) => collection.art || [])
     userCollections.value = { ...userCollections.value, [userId]: userArt }
   }
+}
+
+// Determine if art path should be displayed
+function shouldShowPath(art: Art): boolean {
+  return !art.artImageId && !!art.path
 }
 
 // Get art image URL

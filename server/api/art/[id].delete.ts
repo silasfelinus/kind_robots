@@ -55,6 +55,10 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+if (user.Role !== 'ADMIN') {
+   console.log("user is not admin", user)
+    }
+
     if (artEntry.userId !== userId) {
       throw createError({
         statusCode: 403,

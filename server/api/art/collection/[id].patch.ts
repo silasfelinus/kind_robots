@@ -71,6 +71,10 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const { artIds } = body
 
+
+
+
+
     if (!Array.isArray(artIds) || artIds.length === 0) {
       event.node.res.statusCode = 400
       throw createError({
@@ -78,6 +82,13 @@ export default defineEventHandler(async (event) => {
         message: 'artIds must be a non-empty array.',
       })
     }
+
+if (!artIds.every(Number.isInteger)) {
+  throw createError({
+    statusCode: 400,
+    message: 'All artIds must be valid integers.',
+  });
+}
 
     const validArtItems = await prisma.art.findMany({
       where: { id: { in: artIds } },

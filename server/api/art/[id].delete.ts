@@ -26,6 +26,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+
+        // Check if user is an admin
+    if (user.Role === 'admin') {
+      // Admin bypass: Delete the art entry directly
+      await prisma.art.delete({ where: { id: artId } })
+      return {
+        success: true,
+        message: `Art entry with ID ${artId} deleted successfully by admin.`,
+      }
+    }
+
+
     const userId = user.id
 
     // Fetch the art entry and verify ownership

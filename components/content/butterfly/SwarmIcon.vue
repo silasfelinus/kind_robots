@@ -2,14 +2,14 @@
   <div class="relative flex items-center justify-center h-full">
     <!-- Butterfly Icon Box with toggle -->
     <div
-      class="Icon-box flex items-center justify-center h-full w-full transition-transform transform hover:scale-125 cursor-pointer rounded-full hover:bg-accent-200"
+      class="Icon-box flex items-center justify-center h-full w-full rounded-full hover:bg-accent-200"
       @click="toggleAmiSwarm"
     >
       <Icon
         name="kind-icon:butterfly"
         title="Kind Butterflies"
         :class="{ glow: showSwarm }"
-        class="w-auto min-w-8 min-h-8 h-full max-h-full cursor-pointer transform transition-transform ease-in-out hover:scale-110"
+        class="h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 transition-transform transform hover:scale-110 duration-300 ease-in-out cursor-pointer"
       />
     </div>
 
@@ -51,9 +51,7 @@ const toggleAmiSwarm = () => {
 
 /* Full-screen style for butterfly swarm */
 .full-page {
-  position: fixed;
   width: 100vw;
   height: 100vh;
-  pointer-events: none;
 }
 </style>

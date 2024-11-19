@@ -1,15 +1,15 @@
 <template>
-  <div class="relative">
+  <div class="relative flex items-center justify-center h-full">
     <!-- Butterfly Icon Box with toggle -->
     <div
-      class="Icon-box transition-transform transform hover:scale-125 cursor-pointer rounded-full hover:bg-accent-200"
+      class="Icon-box flex items-center justify-center h-full w-full transition-transform transform hover:scale-125 cursor-pointer rounded-full hover:bg-accent-200"
       @click="toggleAmiSwarm"
     >
       <Icon
         name="kind-icon:butterfly"
         title="Kind Butterflies"
         :class="{ glow: showSwarm }"
-        class="w-auto h-full cursor-pointer transform transition-transform ease-in-out hover:scale-110"
+        class="w-auto h-full max-h-full cursor-pointer transform transition-transform ease-in-out hover:scale-110"
       />
     </div>
 

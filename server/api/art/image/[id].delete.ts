@@ -27,9 +27,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1]
+
     const user = await prisma.user.findFirst({
       where: { apiKey: token },
-      select: { id: true },
+      select: { id: true, Role: true },
     })
 
     if (!user) {
@@ -52,7 +53,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-     // Check if user is an admin
+    // Check if user is an admin
     if (user.Role === 'ADMIN') {
       // Admin bypass: Delete the art entry directly
       await prisma.artImage.delete({ where: { id: imageId } })
@@ -61,7 +62,6 @@ export default defineEventHandler(async (event) => {
         message: `Art Image with ID ${imageId} deleted successfully by admin.`,
       }
     }
-
 
     if (artImage.userId !== userId) {
       throw createError({

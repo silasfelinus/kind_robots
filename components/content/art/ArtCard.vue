@@ -159,13 +159,26 @@ const setAsAvatar = async () => {
 }
 
 const computedArtImage = computed(() => {
+  // Prioritize localArtImage if it exists
   if (localArtImage.value?.imageData) {
     console.log('returning local image data')
     return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`
-  } else if (props.artImage?.imageData) {
+  }
+
+  // Use props.artImage if no localArtImage is available
+  if (props.artImage?.imageData) {
     console.log('returning props image data')
     return `data:image/${props.artImage.fileType};base64,${props.artImage.imageData}`
   }
+
+  // Check art.path only if artImageId is missing
+  if (!props.art.artImageId && props.art?.path) {
+    console.log('returning path')
+    return props.art.path
+  }
+
+  // Fallback to a default image
+  console.log('returning default image')
   return '/images/backtree.webp'
 })
 </script>

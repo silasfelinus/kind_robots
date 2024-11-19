@@ -6,7 +6,7 @@
       class="card rounded-xl shadow bg-base-200 relative"
     >
       <div class="flex flex-col items-center p-4">
-        <user-picture :id="user.id" class="rounded-full w-24 h-24 mb-2" />
+        <user-avatar :id="user.id" class="rounded-full w-24 h-24 mb-2" />
         <h3 class="text-lg font-bold">
           {{ user.designerName || user.username }}
         </h3>

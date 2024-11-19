@@ -111,15 +111,18 @@ export function generateApiKey(): string {
 
 export async function validateApiKey(apiKey: string) {
   try {
-    const user = await prisma.user.findFirst({ where: { apiKey } })
+    const user = await prisma.user.findFirst({
+      where: { apiKey },
+    })
 
     if (user) {
       return {
         success: true,
+        user, // Return the full user object
         message: '🚀 API key is valid. You are good to go!',
       }
     } else {
-      return { success: false, message: 'API key is invalid or not found.' }
+      return { success: false, user: null, message: 'API key is invalid or not found.' }
     }
   } catch (error: unknown) {
     console.error(
@@ -127,6 +130,7 @@ export async function validateApiKey(apiKey: string) {
     )
     return {
       success: false,
+      user: null,
       message: `🚀 Mission abort! ${errorHandler(error).message}`,
     }
   }

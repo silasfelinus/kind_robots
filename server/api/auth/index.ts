@@ -116,6 +116,7 @@ export async function validateApiKey(apiKey: string) {
     })
 
     if (user) {
+console.log("user valid", user)
       return {
         success: true,
         user, // Return the full user object

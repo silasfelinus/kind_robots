@@ -42,6 +42,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+ 
+
     const userId = user.id
 
     // Fetch the collection entry and verify ownership
@@ -56,6 +58,17 @@ export default defineEventHandler(async (event) => {
         message: `Collection with ID ${collectionId} does not exist.`,
       })
     }
+
+       // Check if user is an admin
+    if (user.Role === 'ADMIN') {
+      // Admin bypass: Delete the art entry directly
+      await prisma.artCollection.delete({ where: { id: collectionId } })
+      return {
+        success: true,
+        message: `Art Collection with ID ${collectionId} deleted successfully by admin.`,
+      }
+    }
+
 
     if (collection.userId !== userId) {
       event.node.res.statusCode = 403

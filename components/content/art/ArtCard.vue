@@ -122,11 +122,22 @@ const fetchArtImage = async () => {
 
 const deleteImage = async () => {
   try {
+    // First, delete the associated artImage if it exists
+    if (props.art.artImageId) {
+      await artStore.deleteArtImage(props.art.artImageId)
+    }
+
+    // Then, delete the art itself
     await artStore.deleteArt(props.art.id)
+
+    // Reset the state after successful deletion
     confirmingDelete.value = false
+
+    alert('Art and its associated image have been deleted successfully!')
   } catch (error) {
-    console.error('Error deleting art:', error)
+    console.error('Error deleting art or art image:', error)
     confirmingDelete.value = false
+    alert('Failed to delete the art or its associated image. Please try again.')
   }
 }
 

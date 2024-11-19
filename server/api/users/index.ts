@@ -102,6 +102,7 @@ export async function fetchUsers(): Promise<{
           mana: true,
           clickRecord: true,
           matchRecord: true,
+          artImageId: true,
         },
       })) || [] // Fallback to empty array if findMany returns null/undefined
 

@@ -41,10 +41,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-// Check if user is an admin
+    // Check if user is an admin
     if (user.Role === 'ADMIN') {
       // Admin bypass: Delete the tag entry directly
-      await prisma.tag.delete({ where: { tagId } })
+      await prisma.tag.delete({ where: { id: tagId } })
       return {
         success: true,
         message: `Tag with ID ${tagId} deleted successfully by admin.`,

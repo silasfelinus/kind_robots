@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     const token = authorizationHeader.split(' ')[1]
     const user = await prisma.user.findFirst({
       where: { apiKey: token },
-      select: { id: true },
+      select: { id: true, Role: true },
     })
 
     if (!user) {
@@ -61,10 +61,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-// Check if user is an admin
+    // Check if user is an admin
     if (user.Role === 'ADMIN') {
       // Admin bypass: Delete the reward entry directly
-      await prisma.reward.delete({ where: { rewardId } })
+      await prisma.reward.delete({ where: { id: rewardId } })
       return {
         success: true,
         message: `Reward entry with ID ${rewardId} deleted successfully by admin.`,

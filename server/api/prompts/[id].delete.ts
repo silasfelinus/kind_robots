@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
 // Check if user is an admin
     if (user.Role === 'ADMIN') {
       // Admin bypass: Delete the prompt entry directly
-      await prisma.prompt.delete({ where: { promptId } })
+      await prisma.prompt.delete({ where: { id:promptId } })
       return {
         success: true,
         message: `Prompt entry with ID ${promptId} deleted successfully by admin.`,

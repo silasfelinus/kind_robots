@@ -4,7 +4,10 @@ import prisma from './prisma'
 
 export async function validateApiKey(event: H3Event): Promise<{
   isValid: boolean
-  user?: { id: number }
+  user?: {
+    Role: string
+    id: number
+  }
 }> {
   // Extract authorization header
   const authorizationHeader = event.node.req.headers['authorization']
@@ -28,7 +31,7 @@ export async function validateApiKey(event: H3Event): Promise<{
       select: { id: true, Role: true },
     })) ?? undefined // Convert null to undefined for compatibility
 
-console.log("sending user", user)
+  console.log('sending user', user)
   // Return user and validation flag based on match
   return { isValid: !!user, user }
 }

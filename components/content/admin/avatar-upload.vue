@@ -106,17 +106,20 @@ async function uploadAvatar(event: Event) {
             label: 'avatars',
           })
           console.log('Art added to collection successfully.')
+
+          console.log('Updating user profile with new avatar image...')
+          await userStore.updateUserInfo({
+            id: userId.value,
+            artImageId: userAvatarImage.value.id,
+          })
+          console.log('User profile updated successfully.')
+
+          uploadSuccess.value =
+            'Avatar uploaded and profile updated successfully!'
+        } else {
+          throw new Error('New art creation failed.')
         }
-
-        console.log('Updating user profile with new avatar image...')
-        await userStore.updateUserInfo({
-          id: userId.value,
-          artImageId: userAvatarImage.value.id,
-        })
-        console.log('User profile updated successfully.')
       }
-
-      uploadSuccess.value = 'Avatar uploaded and profile updated successfully!'
     } catch (error) {
       console.error('Error during upload process:', error)
       uploadError.value =

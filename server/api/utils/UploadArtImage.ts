@@ -13,7 +13,7 @@ export async function uploadArtImage(
   userId: number = 10,
   galleryId: number = 21,
   fileType: string = 'png',
-): Promise<{ artImage: ArtImage }> {
+): Promise<ArtImage> {
   try {
     console.log('uploadArtImage called with:', {
       uploadedFile,
@@ -55,7 +55,7 @@ export async function uploadArtImage(
     }
 
     console.log('Saving image to database...')
-    const artImage = await prisma.artImage.create({
+    const data = await prisma.artImage.create({
       data: {
         galleryId,
         imageData: uploadedFile.data.toString('base64'),
@@ -65,8 +65,8 @@ export async function uploadArtImage(
       },
     })
 
-    console.log('Database save successful:', artImage)
-    return { artImage }
+    console.log('Database save successful:', data)
+    return data
   } catch (error: unknown) {
     console.error('Error in uploadArtImage:', error)
     throw errorHandler(error)

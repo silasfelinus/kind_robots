@@ -1,8 +1,10 @@
 <template>
-  <div class="relative flex flex-col bg-primary bg-opacity-30 border border-accent rounded-2xl p-2 m-2 hover:shadow-lg transition-all">
+  <div
+    class="relative flex flex-col bg-primary bg-opacity-30 border border-accent rounded-2xl p-2 m-2 hover:shadow-lg transition-all"
+  >
     <!-- Prompt at the top -->
     <h3 class="text-lg font-semibold truncate" title="Prompt">
-      {{ art.prompt || 'No Prompt Available' }}
+      {{ art.promptString || 'No Prompt Available' }}
     </h3>
 
     <!-- Delete Button -->
@@ -76,94 +78,94 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useArtStore } from '@/stores/artStore';
-import { useUserStore } from '@/stores/userStore';
+import { ref, computed, onMounted } from 'vue'
+import { useArtStore } from '@/stores/artStore'
+import { useUserStore } from '@/stores/userStore'
 
 const props = defineProps<{
-  art: Art;
-  artImage?: ArtImage;
-}>();
+  art: Art
+  artImage?: ArtImage
+}>()
 
-const showDetails = ref(false);
-const confirmingDelete = ref(false);
-const localArtImage = ref<ArtImage | null>(null);
+const showDetails = ref(false)
+const confirmingDelete = ref(false)
+const localArtImage = ref<ArtImage | null>(null)
 
 const hasImage = computed(
   () => !!(localArtImage.value || props.artImage?.imageData),
-);
+)
 
-const artStore = useArtStore();
-const userStore = useUserStore();
+const artStore = useArtStore()
+const userStore = useUserStore()
 
 const canDelete = computed(() => {
-  return props.art.userId === userStore.userId || userStore.isAdmin;
-});
+  return props.art.userId === userStore.userId || userStore.isAdmin
+})
 
 const confirmDelete = () => {
-  confirmingDelete.value = true;
-};
+  confirmingDelete.value = true
+}
 
 onMounted(() => {
   if (props.art.artImageId && !props.artImage?.imageData) {
-    fetchArtImage();
+    fetchArtImage()
   } else if (props.artImage?.imageData) {
-    localArtImage.value = props.artImage;
+    localArtImage.value = props.artImage
   }
-});
+})
 
 const fetchArtImage = async () => {
   if (props.art.artImageId) {
-    localArtImage.value = await artStore.fetchArtImageById(props.art.artImageId);
+    localArtImage.value = await artStore.fetchArtImageById(props.art.artImageId)
   }
-};
+}
 
 const deleteImage = async () => {
   try {
     if (props.art.artImageId) {
-      await artStore.deleteArtImage(props.art.artImageId);
+      await artStore.deleteArtImage(props.art.artImageId)
     }
-    await artStore.deleteArt(props.art.id);
-    confirmingDelete.value = false;
-    alert('Art and its associated image have been deleted successfully!');
+    await artStore.deleteArt(props.art.id)
+    confirmingDelete.value = false
+    alert('Art and its associated image have been deleted successfully!')
   } catch (error) {
-    console.error('Error deleting art or art image:', error);
-    confirmingDelete.value = false;
-    alert('Failed to delete the art or its associated image. Please try again.');
+    console.error('Error deleting art or art image:', error)
+    confirmingDelete.value = false
+    alert('Failed to delete the art or its associated image. Please try again.')
   }
-};
+}
 
 const cancelDelete = () => {
-  confirmingDelete.value = false;
-};
+  confirmingDelete.value = false
+}
 
 const toggleDetails = () => {
-  showDetails.value = !showDetails.value;
-};
+  showDetails.value = !showDetails.value
+}
 
 const setAsAvatar = async () => {
   try {
     await userStore.updateUserInfo({
       artImageId: props.art.artImageId,
-    });
+    })
     await artStore.addArtToCollection({
       artId: props.art.id,
       label: 'avatars',
-    });
-    alert('Avatar updated successfully!');
+    })
+    alert('Avatar updated successfully!')
   } catch (error) {
-    console.error('Error setting avatar:', error);
+    console.error('Error setting avatar:', error)
   }
-};
+}
 
 const computedArtImage = computed(() => {
   if (localArtImage.value?.imageData) {
-    return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`;
+    return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`
   } else if (props.artImage?.imageData) {
-    return `data:image/${props.artImage.fileType};base64,${props.artImage.imageData}`;
+    return `data:image/${props.artImage.fileType};base64,${props.artImage.imageData}`
   } else if (props.art.path) {
-    return props.art.path;
+    return props.art.path
   }
-  return '/images/backtree.webp';
-});
+  return '/images/backtree.webp'
+})
 </script>

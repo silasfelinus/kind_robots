@@ -353,6 +353,7 @@ export const useUserStore = defineStore({
 
     userImage(userId: number): string {
       const user = this.users.find((u) => u.id === userId)
+console.log("retrieved user: ", user)
       if (!user || !user.artImageId)
         return user?.avatarImage || '/images/kindart.webp' // Fallback to default image
 

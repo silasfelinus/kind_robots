@@ -44,6 +44,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+// Check if user is an admin
+    if (user.Role === 'ADMIN') {
+      // Admin bypass: Delete the pitch entry directly
+      await prisma.pitch.delete({ where: { id } })
+      return {
+        success: true,
+        message: `Pitch entry with ID ${id} deleted successfully by admin.`,
+      }
+    }
+
     if (pitch.userId !== userId) {
       throw createError({
         statusCode: 403,

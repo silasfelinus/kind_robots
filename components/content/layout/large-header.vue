@@ -1,10 +1,10 @@
 <template>
   <div
-    class="flex flex-col md:flex-row items-center justify-between h-full text-center md:text-left space-y-2 md:space-y-0 px-4"
+    class="flex flex-row items-center justify-between h-full w-full text-left px-4"
   >
     <!-- Title and Subtitle Section -->
     <div
-      class="flex flex-col lg:flex-row items-center lg:items-start lg:justify-between flex-grow space-y-2 lg:space-y-0 lg:space-x-6"
+      class="flex flex-col items-start justify-between flex-grow w-1/3 h-full"
     >
       <h1 class="text-2xl lg:text-3xl xl:text-4xl font-semibold text-ellipsis">
         The {{ page.title || 'Room' }} Room
@@ -17,12 +17,10 @@
     </div>
 
     <!-- Icons Section -->
-    <div
-      class="flex justify-center items-center lg:space-x-20 flex-shrink-0 lg:w-1/3"
-    >
-      <login-path class="flex" />
-      <theme-icon class="flex" />
-      <swarm-icon class="flex" />
+    <div class="flex flex-row justify-center items-center h-full w-2/3">
+      <login-path class="flex w-1/3" />
+      <theme-icon class="flex w-2/3" />
+      <swarm-icon class="flex w-2/3" />
     </div>
   </div>
 </template>

@@ -46,6 +46,9 @@ export const useUserStore = defineStore({
     role(state): string {
       return state.user?.Role || 'USER'
     },
+    isAdmin(state): boolean {
+      return state.user?.Role === 'ADMIN'
+    },
     apiKey(state): string | null {
       return state.user?.apiKey || null
     },

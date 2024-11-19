@@ -4,7 +4,7 @@
     @click="selectArt"
   >
     <!-- Delete Icon -->
-    <div v-if="!confirmingDelete" class="absolute top-2 right-2">
+    <div v-if="!confirmingDelete" class="absolute top-2 right-2 z-20">
       <button
         v-if="canDelete"
         class="bg-error text-white p-2 rounded-full hover:bg-error-content transition-all"
@@ -15,9 +15,11 @@
       </button>
     </div>
 
+    <!-- Confirm Delete Modal -->
     <div
       v-if="confirmingDelete"
-      class="absolute top-2 right-2 bg-base-100 border border-warning rounded-lg shadow-lg p-2 w-40 sm:w-48"
+      class="absolute top-2 right-2 bg-base-100 border border-warning rounded-lg shadow-lg p-2 w-40 sm:w-48 z-30"
+      @click.stop
     >
       <p class="text-xs sm:text-sm mb-2 text-warning">Confirm delete?</p>
       <div class="flex flex-row gap-2">
@@ -46,7 +48,6 @@
       class="relative flex-grow flex justify-center items-center overflow-hidden"
       :class="fullscreenMode ? 'h-screen' : 'max-h-[50vh]'"
     >
-      <!-- Display artImage.imageData (base64) or art.path -->
       <img
         :src="computedArtImage"
         alt="Artwork"
@@ -59,14 +60,12 @@
       />
     </div>
 
-    <!-- Display if showing art-image or art-path -->
+    <!-- Metadata -->
     <div class="text-center mt-2">
       <span class="text-sm text-info">
         Displaying: {{ showArtImage ? 'Art Image (Base64)' : 'Art Path' }}
       </span>
     </div>
-
-    <!-- Art Metadata -->
     <div class="mt-2 flex flex-col items-center">
       <p class="text-base truncate" title="Pitch">
         {{ art?.pitchId || 'No pitch available' }}
@@ -80,7 +79,7 @@
       </div>
     </div>
 
-    <!-- Toggle Button for Art Details -->
+    <!-- Toggle Button for Details -->
     <div class="mt-4 flex justify-center">
       <button
         class="bg-secondary text-white rounded-lg px-4 py-2"
@@ -90,19 +89,19 @@
       </button>
     </div>
 
-    <!-- Art Details Toggle Section -->
+    <!-- Art Details -->
     <div
       v-if="showDetails"
       class="mt-4 p-4 bg-base-200 overflow-y-auto rounded-xl"
     >
       <pre class="text-sm whitespace-pre-wrap">{{ props.art }}</pre>
-      <!-- Show artImage details if available -->
-      <pre v-if="hasImage" class="text-sm whitespace-pre-wrap">{{
-        localArtImage
-      }}</pre>
+      <pre v-if="hasImage" class="text-sm whitespace-pre-wrap">
+        {{ localArtImage }}
+      </pre>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
@@ -146,7 +145,7 @@ const deleteImage = async () => {
 
 // Determine if the current user can delete the art
 const canDelete = computed(() => {
-  return props.art.userId === userStore.userId || userStore.role === 'ADMIN'
+  return props.art.userId === userStore.userId || userStore.isAdmin
 })
 
 // Check if we have an art image locally or via props
@@ -242,5 +241,9 @@ const selectArt = () => {
   max-width: 100vw;
   max-height: 100vh;
   object-fit: contain;
+}
+
+.absolute {
+  z-index: 10;
 }
 </style>

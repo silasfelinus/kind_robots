@@ -9,7 +9,7 @@
         name="kind-icon:butterfly"
         title="Kind Butterflies"
         :class="{ glow: showSwarm }"
-        class="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 cursor-pointer transform transition-transform ease-in-out hover:scale-110"
+        class="w-auto h-full cursor-pointer transform transition-transform ease-in-out hover:scale-110"
       />
     </div>
 

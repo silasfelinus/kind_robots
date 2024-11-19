@@ -246,6 +246,10 @@ export const useArtStore = defineStore({
       try {
         let targetCollection: ArtCollection | undefined
 
+        // Fetch user info
+        const userStore = useUserStore()
+        const userId = userStore.userId
+
         // Determine the collection
         if (collectionId) {
           targetCollection = this.collections.find(
@@ -255,17 +259,15 @@ export const useArtStore = defineStore({
             throw new Error(`Collection with ID ${collectionId} not found.`)
           }
         } else {
-          const userStore = useUserStore()
-          const userId = userStore.userId
-
+          // Find collection by label and userId
           targetCollection = this.collections.find(
             (collection) =>
               collection.userId === userId && collection.label === label,
           )
 
-          // Create a new collection if none is found
+          // Create a new collection if none exists
           if (!targetCollection) {
-            const response = await performFetch<ArtCollection>(
+            const createResponse = await performFetch<ArtCollection>(
               '/api/art/collection',
               {
                 method: 'POST',
@@ -274,47 +276,54 @@ export const useArtStore = defineStore({
               },
             )
 
-            if (response.success && response.data) {
-              targetCollection = response.data
-              this.collections.push(targetCollection)
+            if (createResponse.success && createResponse.data) {
+              targetCollection = createResponse.data
+              this.collections.push(targetCollection) // Update local store
             } else {
-              throw new Error(response.message)
+              throw new Error(
+                createResponse.message || 'Failed to create a new collection.',
+              )
             }
           }
         }
 
         if (!targetCollection) {
-          throw new Error('Failed to find or create a target collection.')
+          throw new Error('Failed to find or create the target collection.')
         }
 
         // Add art to the collection
-        const response = await performFetch('/api/art/collection', {
+        const addResponse = await performFetch('/api/art/collection', {
           method: 'POST',
           body: JSON.stringify({
             artId,
             collectionId: targetCollection.id,
-            label: targetCollection.label,
           }),
           headers: { 'Content-Type': 'application/json' },
         })
 
-        if (response.success) {
-          // Confirm art is in the collection
-          const isArtAdded = targetCollection.art.some(
-            (art) => art.id === artId,
+        if (!addResponse.success) {
+          throw new Error(
+            addResponse.message || 'Failed to add art to the collection.',
           )
-          if (!isArtAdded) {
-            throw new Error(
-              'Art addition failed. Art not found in the collection.',
-            )
-          }
-        } else {
-          throw new Error(response.message)
         }
+
+        // Confirm art is added to the collection locally
+        const isArtInCollection = targetCollection.art?.some(
+          (art) => art.id === artId,
+        )
+        if (!isArtInCollection) {
+          targetCollection.art = targetCollection.art || []
+          targetCollection.art.push({ id: artId } as Art) // Add locally
+        }
+
+        console.log(
+          `Art with ID ${artId} successfully added to collection "${targetCollection.label}".`,
+        )
       } catch (error) {
         handleError(error, 'Adding art to collection')
       }
     },
+
     // Remove art from a collection
     async removeArtFromCollection(artId: number, collectionId: number) {
       try {

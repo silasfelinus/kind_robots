@@ -28,6 +28,7 @@ export async function validateApiKey(event: H3Event): Promise<{
       select: { id: true, Role: true },
     })) ?? undefined // Convert null to undefined for compatibility
 
+console.log("sending user", user)
   // Return user and validation flag based on match
   return { isValid: !!user, user }
 }

@@ -2,30 +2,40 @@
   <div>
     <img
       :src="avatarUrl"
-      :alt="username + ' avatar'"
-      class="min-w-8 min-h-8 rounded-full"
+      :alt="`${username}'s avatar`"
+      class="h-full w-auto rounded-full"
       @error="setDefaultAvatar"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from './../../../stores/userStore'
+import { ref, computed } from 'vue'
+import { useUserStore } from '../../../stores/userStore'
+
+// Props
+const props = defineProps<{ userId?: number }>()
 
 const userStore = useUserStore()
-const username = ref(userStore.username)
 
-const defaultAvatar = '/images/kindart.webp' // Replace with your default avatar path
-const initialAvatarUrl = computed(() => userStore.avatarImage || defaultAvatar)
-const avatarUrl = ref(initialAvatarUrl.value)
+// Determine the user to fetch
+const effectiveUserId = computed(() => props.userId ?? userStore.user?.id)
+
+// Computed Properties
+const username = computed(() => {
+  if (effectiveUserId.value === undefined) return 'User'
+  const user = userStore.getUserById(effectiveUserId.value)
+  return user?.username || 'User'
+})
+
+// Ref for Avatar URL with a fallback on error
+const avatarUrl = ref(
+  effectiveUserId.value !== undefined
+    ? userStore.userImage(effectiveUserId.value)
+    : '/images/kindart.webp',
+)
 
 const setDefaultAvatar = () => {
-  avatarUrl.value = defaultAvatar
+  avatarUrl.value = '/images/kindart.webp'
 }
-
-onMounted(() => {
-  username.value = userStore.username
-  avatarUrl.value = initialAvatarUrl.value
-})
 </script>

@@ -103,6 +103,9 @@ export const useUserStore = defineStore({
         return []
       }
     },
+    getUserById(userId: number) {
+      return this.users.find((user) => user.id === userId) || null
+    },
 
     async register(userData: {
       username: string
@@ -347,11 +350,12 @@ export const useUserStore = defineStore({
 
     userImage(userId: number): string {
       const user = this.users.find((u) => u.id === userId)
-      if (!user || !user.artImageId) return '/images/kindart.webp' // Fallback to default image
+      if (!user || !user.artImageId)
+        return user?.avatarImage || '/images/kindart.webp' // Fallback to default image
 
       const artStore = useArtStore()
       const artImage = artStore.getArtImageById(user.artImageId)
-      return artImage?.imageData || '/images/default-avatar.png'
+      return artImage?.imageData || '/images/kindart.webp'
     },
 
     getFromLocalStorage(key: string): string | null {

@@ -29,7 +29,7 @@ const avatarImage = computed(() => {
   const user = userStore.user
   if (user?.artImageId) {
     const artImage = artStore.getArtImageById(user.artImageId)
-    return artImage?.imageData || null
+    return artImage?.imageData || user.avatarImage || null
   }
   return user?.avatarImage || null
 })

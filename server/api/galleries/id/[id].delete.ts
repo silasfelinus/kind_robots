@@ -44,6 +44,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+// Check if user is an admin
+    if (user.Role === 'ADMIN') {
+      // Admin bypass: Delete the gallery entry directly
+      await prisma.gallery.delete({ where: { id } })
+      return {
+        success: true,
+        message: `Gallery entry with ID ${id} deleted successfully by admin.`,
+      }
+    }
+
     // 4. Check if the logged-in user is the owner of the gallery
     if (gallery.userId !== userId) {
       throw createError({

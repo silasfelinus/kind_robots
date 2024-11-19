@@ -61,6 +61,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+// Check if user is an admin
+    if (user.Role === 'ADMIN') {
+      // Admin bypass: Delete the reward entry directly
+      await prisma.reward.delete({ where: { rewardId } })
+      return {
+        success: true,
+        message: `Reward entry with ID ${rewardId} deleted successfully by admin.`,
+      }
+    }
+
     // Ensure the requesting user is the creator of the reward
     if (reward.userId !== userId) {
       event.node.res.statusCode = 403

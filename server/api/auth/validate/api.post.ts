@@ -1,4 +1,4 @@
-// src/api/auth/validate/apiKey.js
+// src/api/auth/validate/api.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '..'

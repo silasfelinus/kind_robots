@@ -203,7 +203,7 @@ export const useArtStore = defineStore({
         )
 
         if (response.success && response.data) {
-          this.collections.push(response.data)
+          this.collections.push(response.data) // Add the new collection to local state
           this.currentCollection = response.data // Set the current collection
         } else {
           throw new Error(response.message)
@@ -244,24 +244,26 @@ export const useArtStore = defineStore({
       label?: string
     }) {
       try {
-        // Determine the collection
         let targetCollection: ArtCollection | undefined
 
-        // If a collection ID is provided, find the collection
+        // Determine the collection
         if (collectionId) {
           targetCollection = this.collections.find(
             (collection) => collection.id === collectionId,
           )
+          if (!targetCollection) {
+            throw new Error(`Collection with ID ${collectionId} not found.`)
+          }
         } else {
-          // Search for a collection with the given label for the current user
           const userStore = useUserStore()
           const userId = userStore.userId
+
           targetCollection = this.collections.find(
             (collection) =>
               collection.userId === userId && collection.label === label,
           )
 
-          // If no matching collection is found, create a new one
+          // Create a new collection if none is found
           if (!targetCollection) {
             const response = await performFetch<ArtCollection>(
               '/api/art/collection',
@@ -274,19 +276,18 @@ export const useArtStore = defineStore({
 
             if (response.success && response.data) {
               targetCollection = response.data
-              this.collections.push(targetCollection) // Add to local state
+              this.collections.push(targetCollection)
             } else {
               throw new Error(response.message)
             }
           }
         }
 
-        // Ensure we have a valid target collection
         if (!targetCollection) {
           throw new Error('Failed to find or create a target collection.')
         }
 
-        // Add the art to the collection
+        // Add art to the collection
         const response = await performFetch('/api/art/collection', {
           method: 'POST',
           body: JSON.stringify({
@@ -298,8 +299,15 @@ export const useArtStore = defineStore({
         })
 
         if (response.success) {
-          const art = this.art.find((art) => art.id === artId)
-          if (art) targetCollection.art.push(art) // Add art to collection locally
+          // Confirm art is in the collection
+          const isArtAdded = targetCollection.art.some(
+            (art) => art.id === artId,
+          )
+          if (!isArtAdded) {
+            throw new Error(
+              'Art addition failed. Art not found in the collection.',
+            )
+          }
         } else {
           throw new Error(response.message)
         }
@@ -307,7 +315,6 @@ export const useArtStore = defineStore({
         handleError(error, 'Adding art to collection')
       }
     },
-
     // Remove art from a collection
     async removeArtFromCollection(artId: number, collectionId: number) {
       try {

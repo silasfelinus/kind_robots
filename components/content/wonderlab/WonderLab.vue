@@ -28,8 +28,8 @@
 
       <!-- Right Section: Folder View on top, Reactions at the bottom -->
       <div class="w-1/3 h-full flex flex-col">
-        <!-- Folder View (expands as needed) -->
-        <div class="folder-view flex-grow bg-gray-100 overflow-y-auto">
+        <!-- Folder View (Top Half) -->
+        <div class="h-1/2 bg-gray-100 overflow-y-auto p-4">
           <div v-if="componentStore.selectedFolder" class="text-lg">
             Viewing components in folder: {{ componentStore.selectedFolder }}
           </div>
@@ -52,8 +52,8 @@
           </div>
         </div>
 
-        <!-- Reactions or Component Counter (fixed height at bottom) -->
-        <div class="bg-gray-200 h-1/3">
+        <!-- Reactions or Component Counter (Bottom Half) -->
+        <div class="h-1/2 bg-gray-200">
           <div
             v-if="!componentStore.selectedComponent"
             class="component-counter flex justify-center items-center h-full"
@@ -62,7 +62,6 @@
           </div>
 
           <div v-else class="reactions-screen h-full overflow-auto">
-     
             <component-reactions
               :component="componentStore.selectedComponent"
             />

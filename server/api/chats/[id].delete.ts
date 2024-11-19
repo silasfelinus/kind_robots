@@ -44,6 +44,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+// Check if user is an admin
+    if (user.Role === 'ADMIN') {
+      // Admin bypass: Delete the chat entry directly
+      await prisma.chat.delete({ where: { id } })
+      return {
+        success: true,
+        message: `Chat entry with ID ${id} deleted successfully by admin.`,
+      }
+    }
+
     // 4. Check if the logged-in user is the owner of the communication
     if (chat.userId !== userId) {
       throw createError({

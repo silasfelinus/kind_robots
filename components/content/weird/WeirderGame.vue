@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-primary via-secondary to-primary"
+    class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-primary to-base-300"
   >
     <!-- Splash Image -->
     <img

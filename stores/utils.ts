@@ -19,13 +19,14 @@ export async function performFetch<T>(
 ): Promise<ApiResponse<T>> {
   const errorStore = useErrorStore()
   const userStore = useUserStore()
-  const apiKey = userStore?.apiKey
 
   // Setup headers conditionally
   const isFormData = options.body instanceof FormData
   const headers: HeadersInit = {
     ...(options.headers || {}),
-    ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+    ...(userStore.apiKey
+      ? { Authorization: `Bearer ${userStore.apiKey}` }
+      : {}),
     ...(userStore.token ? { 'X-User-Token': userStore.token } : {}),
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }), // Skip setting Content-Type for FormData
   }

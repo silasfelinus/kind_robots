@@ -24,14 +24,16 @@ export async function uploadArtImage(
     })
 
     const validExtensions = ['png', 'jpeg', 'jpg', 'webp']
-    if (!validExtensions.includes(fileType.toLowerCase())) {
+    const normalizedFileType = fileType.replace('image/', '').toLowerCase()
+
+    if (!validExtensions.includes(normalizedFileType)) {
       throw new Error(
         `Unsupported file type: ${fileType}. Accepted types are ${validExtensions.join(', ')}`,
       )
     }
 
     const timestamp = Date.now()
-    const fileName = `${galleryName}-${timestamp}.${fileType}`
+    const fileName = `${galleryName}-${timestamp}.${normalizedFileType}`
     console.log('Generated fileName:', fileName)
 
     if (process.env.APP_ENV !== 'production') {
@@ -58,7 +60,7 @@ export async function uploadArtImage(
         galleryId,
         imageData: uploadedFile.data.toString('base64'),
         fileName,
-        fileType: `.${fileType}`,
+        fileType: `.${normalizedFileType}`,
         userId,
       },
     })

@@ -146,7 +146,7 @@ const deleteImage = async () => {
 
 // Determine if the current user can delete the art
 const canDelete = computed(() => {
-  return props.art.userId === userStore.userId || userStore.role === 'Admin'
+  return props.art.userId === userStore.userId || userStore.role === 'ADMIN'
 })
 
 // Check if we have an art image locally or via props

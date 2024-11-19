@@ -27,15 +27,7 @@ export default defineEventHandler(async (event) => {
     }
 
 
-        // Check if user is an admin
-    if (user.Role === 'admin') {
-      // Admin bypass: Delete the art entry directly
-      await prisma.art.delete({ where: { id: artId } })
-      return {
-        success: true,
-        message: `Art entry with ID ${artId} deleted successfully by admin.`,
-      }
-    }
+        
 
 
     const userId = user.id
@@ -51,6 +43,16 @@ export default defineEventHandler(async (event) => {
         statusCode: 404,
         message: `Art entry with ID ${artId} does not exist.`,
       })
+    }
+
+// Check if user is an admin
+    if (user.Role === 'ADMIN') {
+      // Admin bypass: Delete the art entry directly
+      await prisma.art.delete({ where: { id: artId } })
+      return {
+        success: true,
+        message: `Art entry with ID ${artId} deleted successfully by admin.`,
+      }
     }
 
     if (artEntry.userId !== userId) {

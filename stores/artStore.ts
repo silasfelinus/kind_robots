@@ -233,6 +233,22 @@ export const useArtStore = defineStore({
         handleError(error, 'Deleting collection')
       }
     },
+    async deleteArtImage(artImageId: number): Promise<void> {
+      try {
+        const response = await performFetch(`/api/art/image/${artImageId}`, {
+          method: 'DELETE',
+        })
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to delete the art image.')
+        }
+
+        // Optionally, remove the art image from local state if needed
+        this.artImages = this.artImages.filter((img) => img.id !== artImageId)
+      } catch (error) {
+        console.error('Error deleting art image:', error)
+        throw error
+      }
+    },
 
     async addArtToCollection({
       artId,

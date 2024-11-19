@@ -25,7 +25,7 @@ export async function validateApiKey(event: H3Event): Promise<{
   const user =
     (await prisma.user.findFirst({
       where: { apiKey: token },
-      select: { id: true },
+      select: { id: true, Role: true },
     })) ?? undefined // Convert null to undefined for compatibility
 
   // Return user and validation flag based on match

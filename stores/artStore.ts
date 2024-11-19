@@ -213,26 +213,37 @@ export const useArtStore = defineStore({
       }
     },
 
-    // Delete a collection
-    async deleteCollection(collectionId: number) {
-      try {
-        const response = await performFetch(
-          `/api/art/collection/${collectionId}`,
-          {
-            method: 'DELETE',
-          },
-        )
-        if (response.success) {
-          this.collectedArt = this.collectedArt.filter(
-            (col) => col.id !== collectionId,
-          )
-        } else {
-          throw new Error(response.message)
-        }
-      } catch (error) {
-        handleError(error, 'Deleting collection')
+async deleteCollection(collectionId: number) {
+  try {
+    // Perform the delete request to the server
+    const response = await performFetch(`/api/art/collection/${collectionId}`, {
+      method: 'DELETE',
+    });
+
+    if (response.success) {
+      // Remove the collection locally
+      this.collections = this.collections.filter(
+        (collection) => collection.id !== collectionId,
+      );
+
+      // Optionally, update `collectedArt` or any other references
+      this.collectedArt = this.collectedArt.filter(
+        (art) => art.id !== collectionId,
+      );
+
+      // Update localStorage if applicable
+      if (isClient) {
+        localStorage.setItem('collections', JSON.stringify(this.collections));
+        localStorage.setItem('collectedArt', JSON.stringify(this.collectedArt));
       }
-    },
+    } else {
+      throw new Error(response.message);
+    }
+  } catch (error) {
+    handleError(error, 'Deleting collection');
+  }
+},
+
     async deleteArtImage(artImageId: number): Promise<void> {
       try {
         const response = await performFetch(`/api/art/image/${artImageId}`, {

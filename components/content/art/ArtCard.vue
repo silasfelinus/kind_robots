@@ -1,10 +1,14 @@
 <template>
   <div
-    class="relative bg-primary bg-opacity-30 border border-accent rounded-2xl p-2 m-2 transition-all duration-300 ease-in-out hover:shadow-lg cursor-pointer flex flex-col justify-between h-full"
-    @click="selectArt"
+    class="relative flex flex-col bg-primary bg-opacity-30 border border-accent rounded-2xl p-2 m-2 hover:shadow-lg transition-all"
   >
-    <!-- Delete Icon -->
-    <div v-if="!confirmingDelete" class="absolute top-2 right-2 z-20">
+    <!-- Filename at the top -->
+    <h3 class="text-lg font-semibold truncate" title="Filename">
+      {{ artImage?.fileName || 'Unnamed Art' }}
+    </h3>
+
+    <!-- Delete Button -->
+    <div class="absolute top-2 right-2 z-20">
       <button
         v-if="canDelete"
         class="bg-error text-white p-2 rounded-full hover:bg-error-content transition-all"
@@ -22,7 +26,7 @@
       @click.stop
     >
       <p class="text-xs sm:text-sm mb-2 text-warning">Confirm delete?</p>
-      <div class="flex flex-row gap-2">
+      <div class="flex gap-2">
         <button
           class="bg-error text-white rounded-md px-3 py-1 hover:bg-error-content transition-all"
           @click.stop="deleteImage"
@@ -38,66 +42,36 @@
       </div>
     </div>
 
-    <!-- Art Information -->
-    <h3 class="text-lg font-semibold mb-2 truncate text-center" title="Prompt">
-      {{ art?.promptString || 'No prompt available' }}
-    </h3>
-
-    <!-- Image Section -->
+    <!-- Image Display -->
     <div
-      class="relative flex-grow flex justify-center items-center overflow-hidden"
-      :class="fullscreenMode ? 'h-screen' : 'max-h-[50vh]'"
+      class="relative flex justify-center items-center overflow-hidden cursor-pointer"
+      @click="toggleDetails"
     >
       <img
         :src="computedArtImage"
         alt="Artwork"
-        class="rounded-2xl transition-transform ease-in-out hover:scale-105 w-full object-cover cursor-pointer"
-        :class="
-          fullscreenMode ? 'h-auto w-auto max-h-screen max-w-screen' : 'h-auto'
-        "
+        class="rounded-2xl transition-transform hover:scale-105 w-full h-auto object-cover"
         loading="lazy"
-        @click.stop="toggleFullscreenMode"
       />
     </div>
 
-    <!-- Metadata -->
-    <div class="text-center mt-2">
-      <span class="text-sm text-info">
-        Displaying: {{ showArtImage ? 'Art Image (Base64)' : 'Art Path' }}
-      </span>
-    </div>
-    <div class="mt-2 flex flex-col items-center">
-      <p class="text-base truncate" title="Pitch">
-        {{ art?.pitchId || 'No pitch available' }}
-      </p>
-      <div class="flex justify-between items-center w-full mt-2 px-4">
-        <p class="text-base">Claps: {{ reactions.length || 0 }}</p>
-        <p class="text-base">
-          isPublic?:
-          <span class="font-semibold">{{ art.isPublic ? 'Yes' : 'No' }}</span>
-        </p>
-      </div>
-    </div>
-
-    <!-- Toggle Button for Details -->
-    <div class="mt-4 flex justify-center">
-      <button
-        class="bg-secondary text-white rounded-lg px-4 py-2"
-        @click="toggleDetails"
-      >
-        {{ showDetails ? 'Hide' : 'Show' }} Details
-      </button>
-    </div>
-
-    <!-- Art Details -->
+    <!-- Art Details Panel -->
     <div
       v-if="showDetails"
-      class="mt-4 p-4 bg-base-200 overflow-y-auto rounded-xl"
+      class="absolute top-0 right-0 h-full w-2/3 bg-base-100 border-l border-accent p-4 rounded-r-2xl overflow-y-auto z-30"
     >
-      <pre class="text-sm whitespace-pre-wrap">{{ props.art }}</pre>
+      <h4 class="text-lg font-bold mb-2">Art Details</h4>
+      <pre class="text-sm whitespace-pre-wrap">{{ art }}</pre>
       <pre v-if="hasImage" class="text-sm whitespace-pre-wrap">
         {{ localArtImage }}
       </pre>
+      <!-- Set as Avatar Button -->
+      <button
+        class="bg-accent text-white rounded-lg px-4 py-2 mt-4"
+        @click="setAsAvatar"
+      >
+        Set as Avatar
+      </button>
     </div>
   </div>
 </template>
@@ -106,143 +80,96 @@
 import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
-import { useReactionStore } from '@/stores/reactionStore'
 
 const props = defineProps<{
   art: Art
   artImage?: ArtImage
 }>()
 
-// Local state to store fetched art image and track whether to show art image or path
-const localArtImage = ref<ArtImage | null>(null)
-const showArtImage = ref(false)
-const fullscreenMode = ref(false)
+// Local state
 const showDetails = ref(false)
-
-const userStore = useUserStore()
-
 const confirmingDelete = ref(false)
+const localArtImage = ref<ArtImage | null>(null)
+const hasImage = computed(
+  () => !!(localArtImage.value || props.artImage?.imageData),
+)
 
 const confirmDelete = () => {
   confirmingDelete.value = true
+}
+
+const artStore = useArtStore()
+const userStore = useUserStore()
+
+const canDelete = computed(() => {
+  return props.art.userId === userStore.userId || userStore.isAdmin
+})
+
+// Fetch art image
+onMounted(() => {
+  if (props.art.artImageId && !props.artImage?.imageData) {
+    fetchArtImage()
+  } else if (props.artImage?.imageData) {
+    localArtImage.value = props.artImage
+  }
+})
+
+const fetchArtImage = async () => {
+  if (props.art.artImageId) {
+    localArtImage.value = await artStore.fetchArtImageById(props.art.artImageId)
+  }
+}
+
+const deleteImage = async () => {
+  try {
+    await artStore.deleteArt(props.art.id)
+    confirmingDelete.value = false
+  } catch (error) {
+    console.error('Error deleting art:', error)
+    confirmingDelete.value = false
+  }
 }
 
 const cancelDelete = () => {
   confirmingDelete.value = false
 }
 
-const deleteImage = async () => {
-  try {
-    await artStore.deleteArt(props.art.id)
-    console.log(`Art with ID ${props.art.id} deleted successfully.`)
-    confirmingDelete.value = false
-  } catch (error) {
-    console.error('Error deleting art:', error)
-    alert('Failed to delete the art. Please try again later.')
-    confirmingDelete.value = false
-  }
-}
-
-// Determine if the current user can delete the art
-const canDelete = computed(() => {
-  return props.art.userId === userStore.userId || userStore.isAdmin
-})
-
-// Check if we have an art image locally or via props
-const hasImage = computed(
-  () => !!(localArtImage.value || props.artImage?.imageData),
-)
-
-const artStore = useArtStore()
-const reactionStore = useReactionStore()
-
-// Reactions associated with the art
-const reactions = computed(() =>
-  reactionStore.reactions.filter((r) => r.artId === props.art.id),
-)
-
-// Computed property to decide whether to display art image or art path
-const computedArtImage = computed(() => {
-  if (localArtImage.value?.imageData) {
-    // Return art image as base64 if available locally
-    return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`
-  } else if (props.artImage?.imageData) {
-    // Return art image from props if available
-    return `data:image/${props.artImage.fileType};base64,${props.artImage.imageData}`
-  } else if (props.art.path) {
-    // Fallback to art path if no image is available
-    return props.art.path
-  }
-  return '/images/backtree.webp' // Default image if nothing is available
-})
-
-// Fetch art image by artImageId on component mount
-onMounted(() => {
-  if (props.art.artImageId && !props.artImage?.imageData) {
-    fetchArtImage()
-  } else if (props.artImage?.imageData) {
-    // If image data exists in props, use it directly
-    localArtImage.value = props.artImage
-    showArtImage.value = true
-  }
-})
-
-const fetchArtImage = async () => {
-  try {
-    if (props.art.artImageId) {
-      const artImage = await artStore.fetchArtImageById(props.art.artImageId)
-      if (artImage) {
-        console.log('Art image fetched:', artImage)
-        localArtImage.value = artImage
-        showArtImage.value = true
-      } else {
-        console.warn(
-          `No art image found for artImageId ${props.art.artImageId}`,
-        )
-      }
-    } else {
-      console.warn('No artImageId available, trying to search by artId')
-      const artImage = await artStore.fetchArtImageByArtId(props.art.id)
-      if (artImage) {
-        console.log('Art image fetched on second attempt:', artImage)
-        localArtImage.value = artImage
-        showArtImage.value = true
-
-        // Update artImageId in artStore if it was found via artId
-        await artStore.updateArtImageId(props.art.id, artImage.id)
-        console.log(`ArtImageId updated to ${artImage.id}`)
-      } else {
-        console.warn('No art image found for this art item.')
-      }
-    }
-  } catch (error) {
-    console.error('Error fetching art image:', error)
-  }
-}
-
-// Toggle fullscreen mode for the image
-const toggleFullscreenMode = () => {
-  fullscreenMode.value = !fullscreenMode.value
-}
-
-// Toggle detailed view section
 const toggleDetails = () => {
   showDetails.value = !showDetails.value
 }
 
-// Select art when clicked
-const selectArt = () => {
-  artStore.selectArt(props.art.id)
+const setAsAvatar = async () => {
+  try {
+    // Update user's avatar
+    await userStore.updateUserInfo({
+      artImageId: props.art.artImageId,
+    })
+
+    // Add to avatars collection
+    await artStore.addArtToCollection({
+      artId: props.art.id,
+      label: 'avatars',
+    })
+
+    alert('Avatar updated successfully!')
+  } catch (error) {
+    console.error('Error setting avatar:', error)
+  }
 }
+
+const computedArtImage = computed(() => {
+  if (localArtImage.value?.imageData) {
+    return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`
+  } else if (props.artImage?.imageData) {
+    return `data:image/${props.artImage.fileType};base64,${props.artImage.imageData}`
+  } else if (props.art.path) {
+    return props.art.path
+  }
+  return '/images/backtree.webp'
+})
 </script>
 
 <style scoped>
-.fullscreen-img {
-  max-width: 100vw;
-  max-height: 100vh;
-  object-fit: contain;
-}
-
 .absolute {
   z-index: 10;
 }

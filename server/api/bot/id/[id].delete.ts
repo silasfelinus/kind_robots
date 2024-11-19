@@ -54,6 +54,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+// Check if user is an admin
+    if (user.Role === 'ADMIN') {
+      // Admin bypass: Delete the bot entry directly
+      await prisma.bot.delete({ where: { id: botId } })
+      return {
+        success: true,
+        message: `Bot entry with ID ${botId} deleted successfully by admin.`,
+      }
+    }
+
     if (bot.userId !== userId) {
       throw createError({
         statusCode: 403,

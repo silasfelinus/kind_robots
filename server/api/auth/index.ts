@@ -9,6 +9,12 @@ import type { User } from '@prisma/client'
 const config = useRuntimeConfig()
 const JWT_SECRET = config.private.JWT_SECRET
 
+export interface ValidateApiKeyResult {
+  success: boolean
+  user?: { id: number; Role: string }
+  message: string
+}
+
 if (!JWT_SECRET) {
   throw new Error('JWT_SECRET is not configured.')
 }
@@ -109,31 +115,43 @@ export function generateApiKey(): string {
   }
 }
 
-export async function validateApiKey(apiKey: string) {
+export async function validateApiKey(apiKey: string): Promise<ValidateApiKeyResult> {
   try {
+    if (!apiKey) {
+      throw createError({
+        statusCode: 400,
+        message: 'API key is required.',
+      });
+    }
+
+    // Fetch the user by API key with relevant fields
     const user = await prisma.user.findFirst({
       where: { apiKey },
-    })
+      select: { id: true, Role: true }, // Add fields as needed
+    });
 
-    if (user) {
-console.log("user valid", user)
+    if (!user) {
       return {
-        success: true,
-        user, // Return the full user object
-        message: '🚀 API key is valid. You are good to go!',
-      }
-    } else {
-      return { success: false, user: null, message: 'API key is invalid or not found.' }
+        success: false,
+        message: 'Invalid API key. No user found.',
+      };
     }
+
+    console.log('User valid:', user);
+
+    return {
+      success: true,
+      user, // Pass the validated user object
+      message: '🚀 API key is valid. You are good to go!',
+    };
   } catch (error: unknown) {
-    console.error(
-      `🔥 Failed to validate API key: ${errorHandler(error).message}`,
-    )
+    const errorMessage = `🔥 Failed to validate API key: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    console.error(errorMessage);
+
     return {
       success: false,
-      user: null,
-      message: `🚀 Mission abort! ${errorHandler(error).message}`,
-    }
+      message: errorMessage,
+    };
   }
 }
 

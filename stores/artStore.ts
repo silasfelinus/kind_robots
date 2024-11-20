@@ -149,33 +149,46 @@ export const useArtStore = defineStore({
       }
     },
 
-    // Loading data from localStorage in a separate function to isolate any errors here
     async loadLocalData() {
       try {
         if (isClient) {
-          const storedArt = localStorage.getItem('art')
-          const storedCollections = localStorage.getItem('collections')
-
-          if (storedArt && storedArt !== 'undefined') {
-            this.art = JSON.parse(storedArt)
-          }
-          if (storedCollections && storedCollections !== 'undefined') {
-            this.collections = JSON.parse(storedCollections)
+          const storedArtImages = localStorage.getItem('artImages')
+          if (storedArtImages && storedArtImages !== 'undefined') {
+            this.artImages = JSON.parse(storedArtImages)
           }
         }
       } catch (error) {
         handleError(error, 'loading local data')
       }
     },
-    // Fetching remote data in a separate function with explicit error handling
     async loadRemoteData() {
       try {
-        await this.fetchCollections()
-        await this.fetchAllArt()
+        await Promise.all([
+          this.fetchCollections(),
+          this.fetchAllArt(),
+          this.fetchAllArtImages(),
+        ])
       } catch (error) {
         handleError(error, 'loading remote data')
       }
     },
+
+    async fetchAllArtImages() {
+      try {
+        const response = await performFetch<ArtImage[]>('/api/art/images')
+        if (response.success) {
+          this.artImages = response.data || []
+          if (isClient) {
+            localStorage.setItem('artImages', JSON.stringify(this.artImages))
+          }
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'fetching all art images')
+      }
+    },
+
     async fetchCollections() {
       try {
         const response = await performFetch<ArtCollection[]>(
@@ -213,36 +226,45 @@ export const useArtStore = defineStore({
       }
     },
 
-async deleteCollection(collectionId: number) {
-  try {
-    // Perform the delete request to the server
-    const response = await performFetch(`/api/art/collection/${collectionId}`, {
-      method: 'DELETE',
-    });
+    async deleteCollection(collectionId: number) {
+      try {
+        // Perform the delete request to the server
+        const response = await performFetch(
+          `/api/art/collection/${collectionId}`,
+          {
+            method: 'DELETE',
+          },
+        )
 
-    if (response.success) {
-      // Remove the collection locally
-      this.collections = this.collections.filter(
-        (collection) => collection.id !== collectionId,
-      );
+        if (response.success) {
+          // Remove the collection locally
+          this.collections = this.collections.filter(
+            (collection) => collection.id !== collectionId,
+          )
 
-      // Optionally, update `collectedArt` or any other references
-      this.collectedArt = this.collectedArt.filter(
-        (art) => art.id !== collectionId,
-      );
+          // Optionally, update `collectedArt` or any other references
+          this.collectedArt = this.collectedArt.filter(
+            (art) => art.id !== collectionId,
+          )
 
-      // Update localStorage if applicable
-      if (isClient) {
-        localStorage.setItem('collections', JSON.stringify(this.collections));
-        localStorage.setItem('collectedArt', JSON.stringify(this.collectedArt));
+          // Update localStorage if applicable
+          if (isClient) {
+            localStorage.setItem(
+              'collections',
+              JSON.stringify(this.collections),
+            )
+            localStorage.setItem(
+              'collectedArt',
+              JSON.stringify(this.collectedArt),
+            )
+          }
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'Deleting collection')
       }
-    } else {
-      throw new Error(response.message);
-    }
-  } catch (error) {
-    handleError(error, 'Deleting collection');
-  }
-},
+    },
 
     async deleteArtImage(artImageId: number): Promise<void> {
       try {
@@ -262,94 +284,96 @@ async deleteCollection(collectionId: number) {
     },
 
     async addArtToCollection({
-  artId,
-  collectionId,
-  label = '',
-}: {
-  artId: number;
-  collectionId?: number;
-  label?: string;
-}) {
-  try {
-    let targetCollection: ArtCollection | undefined;
+      artId,
+      collectionId,
+      label = '',
+    }: {
+      artId: number
+      collectionId?: number
+      label?: string
+    }) {
+      try {
+        let targetCollection: ArtCollection | undefined
 
-    // Fetch user info
-    const userStore = useUserStore();
-    const userId = userStore.userId;
+        // Fetch user info
+        const userStore = useUserStore()
+        const userId = userStore.userId
 
-    // Determine the collection
-    if (collectionId) {
-      targetCollection = this.collections.find(
-        (collection) => collection.id === collectionId,
-      );
-      if (!targetCollection) {
-        throw new Error(`Collection with ID ${collectionId} not found.`);
-      }
-    } else {
-      // Find collection by label and userId
-      targetCollection = this.collections.find(
-        (collection) =>
-          collection.userId === userId && collection.label === label,
-      );
+        // Determine the collection
+        if (collectionId) {
+          targetCollection = this.collections.find(
+            (collection) => collection.id === collectionId,
+          )
+          if (!targetCollection) {
+            throw new Error(`Collection with ID ${collectionId} not found.`)
+          }
+        } else {
+          // Find collection by label and userId
+          targetCollection = this.collections.find(
+            (collection) =>
+              collection.userId === userId && collection.label === label,
+          )
 
-      // Create a new collection if none exists
-      if (!targetCollection) {
-        const createResponse = await performFetch<ArtCollection>(
-          '/api/art/collection',
+          // Create a new collection if none exists
+          if (!targetCollection) {
+            const createResponse = await performFetch<ArtCollection>(
+              '/api/art/collection',
+              {
+                method: 'POST',
+                body: JSON.stringify({ label, userId }),
+                headers: { 'Content-Type': 'application/json' },
+              },
+            )
+
+            if (createResponse.success && createResponse.data) {
+              targetCollection = createResponse.data
+              this.collections.push(targetCollection) // Update local store
+            } else {
+              throw new Error(
+                createResponse.message || 'Failed to create a new collection.',
+              )
+            }
+          }
+        }
+
+        if (!targetCollection) {
+          throw new Error('Failed to find or create the target collection.')
+        }
+
+        // **Ensure the artId is sent as an array**:
+        const addResponse = await performFetch(
+          `/api/art/collection/${targetCollection.id}`,
           {
-            method: 'POST',
-            body: JSON.stringify({ label, userId }),
+            method: 'PATCH',
+            body: JSON.stringify({
+              artIds: [artId], // Wrap the artId in an array
+            }),
             headers: { 'Content-Type': 'application/json' },
           },
-        );
+        )
 
-        if (createResponse.success && createResponse.data) {
-          targetCollection = createResponse.data;
-          this.collections.push(targetCollection); // Update local store
-        } else {
+        if (!addResponse.success) {
           throw new Error(
-            createResponse.message || 'Failed to create a new collection.',
-          );
+            addResponse.message || 'Failed to add art to the collection.',
+          )
         }
+
+        // Confirm art is added to the collection locally
+        const isArtInCollection = targetCollection.art?.some(
+          (art) => art.id === artId,
+        )
+        if (!isArtInCollection) {
+          targetCollection.art = targetCollection.art || []
+          targetCollection.art.push({ id: artId } as Art) // Add locally
+        }
+
+        console.log(
+          `Art with ID ${artId} successfully added to collection "${targetCollection.label}".`,
+        )
+      } catch (error) {
+        handleError(error, 'Adding art to collection')
       }
-    }
-
-    if (!targetCollection) {
-      throw new Error('Failed to find or create the target collection.');
-    }
-
-    // **Ensure the artId is sent as an array**:
-    const addResponse = await performFetch(`/api/art/collection/${targetCollection.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        artIds: [artId], // Wrap the artId in an array
-      }),
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!addResponse.success) {
-      throw new Error(
-        addResponse.message || 'Failed to add art to the collection.',
-      );
-    }
-
-    // Confirm art is added to the collection locally
-    const isArtInCollection = targetCollection.art?.some(
-      (art) => art.id === artId,
-    );
-    if (!isArtInCollection) {
-      targetCollection.art = targetCollection.art || [];
-      targetCollection.art.push({ id: artId } as Art); // Add locally
-    }
-
-    console.log(
-      `Art with ID ${artId} successfully added to collection "${targetCollection.label}".`,
-    );
-  } catch (error) {
-    handleError(error, 'Adding art to collection');
-  }
-},
-
+    },
 
     // Remove art from a collection
     async removeArtFromCollection(artId: number, collectionId: number) {
@@ -389,40 +413,67 @@ async deleteCollection(collectionId: number) {
         handleError(error, 'fetching collected art')
       }
     },
-    getArtImageById(id: number): ArtImage | undefined {
-      return this.artImages.find((image: ArtImage) => image.id === id)
+    async getArtImageById(id: number): Promise<ArtImage | undefined> {
+      // Check local state first
+      const artImage = this.artImages.find((image) => image.id === id)
+      if (artImage) {
+        return artImage
+      }
+
+      // Fetch from API if not found locally
+      try {
+        const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
+        if (response.success && response.data) {
+          this.artImages.push(response.data)
+          if (isClient) {
+            localStorage.setItem('artImages', JSON.stringify(this.artImages))
+          }
+          return response.data
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'fetching art image by ID')
+        return undefined
+      }
     },
-    // Updating the art image and the art relationship
+
     async updateArtImageWithArtId(
       artImageId: number,
       artId: number,
     ): Promise<void> {
-      const errorStore = useErrorStore()
-
-      return errorStore.handleError(
-        async () => {
-          const response = await fetch('/api/art/image/${artImageId}', {
+      try {
+        const response = await performFetch<ArtImage>(
+          `/api/art/image/${artImageId}`,
+          {
             method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ artId }), // Update the artId in the ArtImage
-          })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ artId }),
+          },
+        )
 
-          if (response.ok) {
-            // Update the art entity with the new artImageId
-            const art = this.art.find((art: Art) => art.id === artId)
-            if (art) {
-              art.artImageId = artImageId
-            }
+        if (response.success && response.data) {
+          // Update artImages in local state
+          const index = this.artImages.findIndex(
+            (image) => image.id === artImageId,
+          )
+          if (index !== -1) {
+            this.artImages.splice(index, 1, response.data)
           } else {
-            const errorResponse = await response.json()
-            throw new Error(errorResponse.message)
+            this.artImages.push(response.data)
           }
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to update ArtImage with artId.',
-      )
+
+          // Update the related art entity
+          const art = this.art.find((a) => a.id === artId)
+          if (art) {
+            art.artImageId = artImageId
+          }
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, 'updating artImageId')
+      }
     },
 
     // Get a single ArtImage for a given artId from the local state
@@ -632,23 +683,20 @@ async deleteCollection(collectionId: number) {
 
     async uploadImage(formData: FormData): Promise<void> {
       try {
-        console.log('Starting upload with formData:', [...formData.entries()])
-
         const response = await performFetch<ArtImage>('/api/art/upload', {
           method: 'POST',
           body: formData,
         })
 
-        console.log('Server response:', response)
-
         if (response.success && response.data) {
           this.artImages.push(response.data)
-          console.log('Art image added to store:', response.data)
+          if (isClient) {
+            localStorage.setItem('artImages', JSON.stringify(this.artImages))
+          }
         } else {
           throw new Error(response.message)
         }
       } catch (error) {
-        console.error('Error in uploadImage:', error)
         handleError(error, 'uploading image')
       }
     },

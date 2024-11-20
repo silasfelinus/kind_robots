@@ -362,7 +362,7 @@ export const useUserStore = defineStore({
       }
     },
 
-    userImage(userId: number): string {
+    async userImage(userId: number): Promise<string> {
       const user = this.users.find((u) => u.id === userId)
 
       if (!user || !user.artImageId) {
@@ -373,11 +373,14 @@ export const useUserStore = defineStore({
       console.log('artImageId: ', user.artImageId)
 
       const artStore = useArtStore()
-      const artImage = artStore.getArtImageById(user.artImageId)
-
-      console.log('art image result: ', artImage)
-
-      return artImage?.imageData || '/images/kindart.webp'
+      try {
+        const artImage = await artStore.getArtImageById(user.artImageId) // Await the Promise
+        console.log('art image result: ', artImage)
+        return artImage?.imageData || '/images/kindart.webp' // Access imageData after the Promise resolves
+      } catch (error) {
+        console.error('Error fetching art image:', error)
+        return '/images/kindart.webp' // Fallback in case of error
+      }
     },
 
     getFromLocalStorage(key: string): string | null {

@@ -389,8 +389,8 @@ async deleteCollection(collectionId: number) {
         handleError(error, 'fetching collected art')
       }
     },
-    getArtImageById(artId: number): ArtImage | undefined {
-      return this.artImages.find((image: ArtImage) => image.artId === artId)
+    getArtImageById(id: number): ArtImage | undefined {
+      return this.artImages.find((image: ArtImage) => image.id === id)
     },
     // Updating the art image and the art relationship
     async updateArtImageWithArtId(

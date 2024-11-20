@@ -3,14 +3,12 @@
     "folderName": "admin",
     "components": [
       "AdminPage",
-      "DashboardChooser",
       "DebugLauncher",
       "GithubButton",
       "KindPrompts",
       "LoginButton",
       "LoginForm",
       "LoginIcon",
-      "LoginPath",
       "LoginToggle",
       "LoginWindow",
       "Mana-Counter",
@@ -22,17 +20,11 @@
       "StoreDebug",
       "StoreTest",
       "StoreTester",
-      "User-Dashboard",
-      "UserAvatar",
       "WelcomeMessage",
       "avatar-banner",
       "avatar-header",
-      "avatar-upload",
       "coming-soon",
-      "karma-tracker",
-      "user-navigation",
-      "user-panel",
-      "user-picture"
+      "karma-tracker"
     ]
   },
   {
@@ -131,7 +123,15 @@
   {
     "folderName": "forum",
     "components": [
-      "user-gallery"
+      "DashboardChooser",
+      "LoginPath",
+      "User-Dashboard",
+      "UserAvatar",
+      "avatar-upload",
+      "user-gallery",
+      "user-navigation",
+      "user-panel",
+      "user-picture"
     ]
   },
   {

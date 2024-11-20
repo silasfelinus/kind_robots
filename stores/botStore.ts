@@ -210,13 +210,18 @@ export const useBotStore = defineStore({
       }
     },
 
-    botImage(botId: number): string {
+    async botImage(botId: number): Promise<string> {
       const bot = this.bots.find((b) => b.id === botId)
       if (!bot || !bot.artImageId) return '/images/bot.webp' // Fallback to default image
 
       const artStore = useArtStore()
-      const artImage = artStore.getArtImageById(bot.artImageId)
-      return artImage?.imageData || '/images/bot.webp'
+      try {
+        const artImage = await artStore.getArtImageById(bot.artImageId)
+        return artImage?.imageData || '/images/bot.webp'
+      } catch (error) {
+        console.error('Error fetching art image:', error)
+        return '/images/bot.webp' // Return fallback image on error
+      }
     },
 
     async seedBots(): Promise<void> {

@@ -8,6 +8,7 @@
     />
   </div>
 </template>
+
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '../../../stores/userStore'
@@ -23,6 +24,11 @@ const avatarUrl = ref('/images/kindart.webp') // Default avatar
 const effectiveUserId = computed(() => props.userId ?? userStore.userId)
 const username = computed(() => userStore.username || 'Guest')
 
+// Helper to determine if the image is base64 or raw data
+const isImageData = (data: string): boolean => {
+  return data.startsWith('data:image/') || /^[A-Za-z0-9+/]+={0,2}$/.test(data)
+}
+
 // Fetch the avatar URL
 const fetchAvatar = async () => {
   if (!effectiveUserId.value) {
@@ -32,7 +38,14 @@ const fetchAvatar = async () => {
 
   try {
     const userImage = await userStore.userImage(effectiveUserId.value)
-    avatarUrl.value = userImage || '/images/kindart.webp'
+
+    // Check if the userImage is raw data or a URL
+    if (userImage && isImageData(userImage)) {
+      avatarUrl.value = `data:image/png;base64,${userImage}`
+    } else {
+      avatarUrl.value = userImage || '/images/kindart.webp'
+    }
+
     console.debug(
       `[Avatar Component] Fetched avatar for userId: ${effectiveUserId.value}`,
     )

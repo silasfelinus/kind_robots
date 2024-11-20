@@ -3,7 +3,7 @@
     <!-- User Avatar and Jellybean Count -->
     <div v-if="isLoggedIn" class="flex items-center space-x-2">
       <router-link to="/dashboard" class="cursor-pointer hover:underline">
-        <user-picture class="h-full rounded-full border border-base-300" />
+        <user-avatar class="h-full rounded-full border border-base-300" />
       </router-link>
       <jellybean-count />
     </div>

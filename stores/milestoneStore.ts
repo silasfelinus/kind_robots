@@ -209,7 +209,6 @@ export const useMilestoneStore = defineStore({
           this.milestones = [] // Fallback in case data is null or undefined
         }
 
-        console.log('Fetched milestones:', this.milestones)
         this.saveMilestonesToLocalStorage()
       } catch (error) {
         handleError(error, 'fetching milestones')
@@ -230,7 +229,6 @@ export const useMilestoneStore = defineStore({
           this.milestoneRecords = [] // Fallback in case data is null or undefined
         }
 
-        console.log('Fetched milestone records:', this.milestoneRecords)
         this.saveMilestoneRecordsToLocalStorage()
       } catch (error) {
         handleError(error, 'fetching milestone records')

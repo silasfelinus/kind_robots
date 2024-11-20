@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useUserStore } from '../../../stores/userStore'
 
 // Props

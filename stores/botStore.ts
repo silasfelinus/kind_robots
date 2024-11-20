@@ -67,7 +67,6 @@ export const useBotStore = defineStore({
         handleError(error, 'fetching bots')
       } finally {
         this.loading = false
-        console.log('fetchBots completed.')
       }
     },
 

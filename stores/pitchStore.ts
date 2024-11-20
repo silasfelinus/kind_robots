@@ -85,8 +85,7 @@ export const usePitchStore = defineStore('pitch', {
   },
 
   actions: {
-async initializePitches() {
-      console.log('Initializing pitches...')
+    async initializePitches() {
       if (isClient && !this.isInitialized) {
         const savedState = {
           pitches: localStorage.getItem('pitches'),
@@ -104,17 +103,33 @@ async initializePitches() {
 
         // Load saved state if available
         this.pitches = savedState.pitches ? JSON.parse(savedState.pitches) : []
-        this.selectedPitches = savedState.selectedPitches ? JSON.parse(savedState.selectedPitches) : []
-        this.selectedPitchType = savedState.selectedPitchType ? JSON.parse(savedState.selectedPitchType) : null
-        this.galleryArt = savedState.galleryArt ? JSON.parse(savedState.galleryArt) : []
-        this.selectedTitle = savedState.selectedTitle ? JSON.parse(savedState.selectedTitle) : null
-        this.newestPitches = savedState.newestPitches ? JSON.parse(savedState.newestPitches) : []
-        this.numberOfRequests = savedState.numberOfRequests ? JSON.parse(savedState.numberOfRequests) : 1
-        this.temperature = savedState.temperature ? Number(JSON.parse(savedState.temperature)) : 0.9
+        this.selectedPitches = savedState.selectedPitches
+          ? JSON.parse(savedState.selectedPitches)
+          : []
+        this.selectedPitchType = savedState.selectedPitchType
+          ? JSON.parse(savedState.selectedPitchType)
+          : null
+        this.galleryArt = savedState.galleryArt
+          ? JSON.parse(savedState.galleryArt)
+          : []
+        this.selectedTitle = savedState.selectedTitle
+          ? JSON.parse(savedState.selectedTitle)
+          : null
+        this.newestPitches = savedState.newestPitches
+          ? JSON.parse(savedState.newestPitches)
+          : []
+        this.numberOfRequests = savedState.numberOfRequests
+          ? JSON.parse(savedState.numberOfRequests)
+          : 1
+        this.temperature = savedState.temperature
+          ? Number(JSON.parse(savedState.temperature))
+          : 0.9
         this.exampleString = savedState.exampleString || ' '
         this.apiResponse = savedState.apiResponse || ' '
-        this.maxTokens = savedState.maxTokens ? JSON.parse(savedState.maxTokens) : 500
-        
+        this.maxTokens = savedState.maxTokens
+          ? JSON.parse(savedState.maxTokens)
+          : 500
+
         this.fetchPitches()
         this.isInitialized = true
       }
@@ -175,7 +190,7 @@ async initializePitches() {
         )
         if (title) {
           this.selectedTitle = title
-           this.saveStateToLocalStorage()
+          this.saveStateToLocalStorage()
         } else {
           console.warn(
             `Title with ID ${titleId} not found or is not of type TITLE`,
@@ -235,7 +250,7 @@ async initializePitches() {
           if (createdPitch && createdPitch.success && createdPitch.data) {
             // Update newestPitches with the newly created pitch
             this.newestPitches = [createdPitch.data]
-             this.saveStateToLocalStorage()
+            this.saveStateToLocalStorage()
             console.log('New brainstorm pitch added:', createdPitch.data)
           } else {
             console.warn('Failed to create pitch from title storm response.')
@@ -406,7 +421,6 @@ async initializePitches() {
           )
           if (!existingPitch) {
             this.pitches.push(response.data)
-            
           }
           this.saveStateToLocalStorage()
           return { success: true, data: response.data }
@@ -489,7 +503,6 @@ async initializePitches() {
       }
     },
 
-    
     async updatePitch(
       pitchId: number,
       updates: Partial<Pitch>,
@@ -588,16 +601,31 @@ async initializePitches() {
       }
     },
 
-       // Watchers to save updates to local storage whenever properties change
+    // Watchers to save updates to local storage whenever properties change
     saveStateToLocalStorage() {
       if (isClient) {
         localStorage.setItem('pitches', JSON.stringify(this.pitches))
-        localStorage.setItem('selectedPitches', JSON.stringify(this.selectedPitches))
-        localStorage.setItem('selectedPitchType', JSON.stringify(this.selectedPitchType))
+        localStorage.setItem(
+          'selectedPitches',
+          JSON.stringify(this.selectedPitches),
+        )
+        localStorage.setItem(
+          'selectedPitchType',
+          JSON.stringify(this.selectedPitchType),
+        )
         localStorage.setItem('galleryArt', JSON.stringify(this.galleryArt))
-        localStorage.setItem('selectedTitle', JSON.stringify(this.selectedTitle))
-        localStorage.setItem('newestPitches', JSON.stringify(this.newestPitches))
-        localStorage.setItem('numberOfRequests', JSON.stringify(this.numberOfRequests))
+        localStorage.setItem(
+          'selectedTitle',
+          JSON.stringify(this.selectedTitle),
+        )
+        localStorage.setItem(
+          'newestPitches',
+          JSON.stringify(this.newestPitches),
+        )
+        localStorage.setItem(
+          'numberOfRequests',
+          JSON.stringify(this.numberOfRequests),
+        )
         localStorage.setItem('temperature', String(this.temperature))
 
         localStorage.setItem('exampleString', this.exampleString)

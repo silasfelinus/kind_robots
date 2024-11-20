@@ -109,6 +109,14 @@ export const useUserStore = defineStore({
     getUserById(userId: number) {
       return this.users.find((user) => user.id === userId) || null
     },
+    updateUserInList(updatedUser: User) {
+      const index = this.users.findIndex((user) => user.id === updatedUser.id)
+      if (index !== -1) {
+        this.users.splice(index, 1, updatedUser) // Replace the user in the array
+      } else {
+        console.warn('User not found in the list to update:', updatedUser.id)
+      }
+    },
 
     async register(userData: {
       username: string
@@ -229,6 +237,10 @@ export const useUserStore = defineStore({
             karma: updatedKarma,
             mana: updatedMana,
           } as User
+          this.updateUserFields(this.userId, {
+            karma: updatedKarma,
+            mana: updatedMana,
+          })
           return {
             success: true,
             message: 'Successfully updated karma and mana.',
@@ -248,31 +260,30 @@ export const useUserStore = defineStore({
 
     async setUser(userData: User): Promise<void> {
       this.user = userData
+      this.updateUserInList(userData) // Ensure the users array stays updated
     },
 
-    async updateUserInfo(
-      updatedUserInfo: Partial<User>,
-    ): Promise<{ success: boolean; message?: string }> {
-      try {
-        const response = await performFetch<User>(`/api/users/${this.userId}`, {
-          method: 'PATCH',
-          body: JSON.stringify(updatedUserInfo),
-        })
-        if (response.success && response.data) {
-          await this.setUser(response.data)
-          return { success: true, message: 'User info updated successfully' }
-        } else {
-          handleError(
-            new Error(response.message || 'Unknown error'),
-            'updating user info',
-          )
-          return { success: false, message: response.message }
-        }
-      } catch (error) {
-        handleError(error, 'updating user info')
-        return { success: false, message: 'An unknown error occurred' }
+    async updateUserInfo(updatedUserInfo: Partial<User>) {
+      const response = await performFetch<User>(`/api/users/${this.userId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updatedUserInfo),
+      })
+      if (response.success && response.data) {
+        await this.setUser(response.data)
+        this.updateUserInList(response.data)
+        await this.fetchUsers() // Refresh the users array
       }
     },
+    updateUserFields(userId: number, fields: Partial<User>) {
+      const index = this.users.findIndex((user) => user.id === userId)
+      if (index !== -1) {
+        const updatedUser = { ...this.users[index], ...fields }
+        this.users.splice(index, 1, updatedUser)
+      } else {
+        console.warn('User not found in list for partial update:', userId)
+      }
+    },
+
     async login(credentials: {
       username: string
       password?: string

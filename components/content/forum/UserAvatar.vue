@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useUserStore } from '../../../stores/userStore'
 
 // Props
@@ -20,7 +20,7 @@ const props = defineProps<{ userId?: number }>()
 const userStore = useUserStore()
 
 // State
-const avatarUrl = ref('/images/kindart.webp') // Default avatar
+const defaultAvatar = '/images/kindart.webp'
 const effectiveUserId = computed(() => props.userId ?? userStore.userId)
 const username = computed(() => userStore.username || 'Guest')
 
@@ -29,30 +29,23 @@ const isImageData = (data: string): boolean => {
   return data.startsWith('data:image/') || /^[A-Za-z0-9+/]+={0,2}$/.test(data)
 }
 
-// Fetch the avatar URL
-const fetchAvatar = async () => {
-  if (!effectiveUserId.value) {
-    console.warn(`[Avatar Component] No valid userId. Using default avatar.`)
-    return
+// Computed property for avatar URL
+const avatarUrl = computed(() => {
+  const artImageId = userStore.user.artImageId
+
+  if (!artImageId || !effectiveUserId.value) {
+    console.warn(`[Avatar Component] No valid artImageId or userId.`)
+    return defaultAvatar
   }
 
-  try {
-    const userImage = await userStore.userImage(effectiveUserId.value)
+  const userImage = userStore.userImage(effectiveUserId.value)
 
-    // Check if the userImage is raw data or a URL
-    if (userImage && isImageData(userImage)) {
-      avatarUrl.value = `data:image/png;base64,${userImage}`
-    } else {
-      avatarUrl.value = userImage || '/images/kindart.webp'
-    }
-
-    console.debug(
-      `[Avatar Component] Fetched avatar for userId: ${effectiveUserId.value}`,
-    )
-  } catch (error) {
-    console.error(`[Avatar Component] Failed to fetch avatar:`, error)
+  if (userImage && isImageData(userImage)) {
+    return `data:image/png;base64,${userImage}`
   }
-}
+
+  return userImage || defaultAvatar
+})
 
 // Handle avatar loading errors
 const handleAvatarError = (event: Event) => {
@@ -60,9 +53,6 @@ const handleAvatarError = (event: Event) => {
   console.warn(
     `[Avatar Component] Failed to load avatar. Setting default avatar.`,
   )
-  imgElement.src = '/images/kindart.webp'
+  imgElement.src = defaultAvatar
 }
-
-// Lifecycle Hook
-onMounted(fetchAvatar)
 </script>

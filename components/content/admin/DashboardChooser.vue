@@ -12,7 +12,7 @@
         :class="[
           'px-2 md:px-4 lg:px-6 text-lg font-semibold border-accent rounded-lg',
           tab.name === choice
-            ? 'bg-primary text-white'
+            ? 'bg-info text-white'
             : 'bg-accent hover:bg-secondary text-white',
         ]"
         @click="choice = tab.name"
@@ -28,9 +28,8 @@
       <lazy-intro-page v-if="choice === 'intro-page'" />
       <lazy-navigation-trimmed v-if="choice === 'navigation-trimmed'" />
       <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
-     <lazy-user-gallery v-if="choice === 'user-gallery'" />
+      <lazy-user-gallery v-if="choice === 'user-gallery'" />
       <lazy-jellybean-counter v-if="choice === 'jellybean-counter'" />
-  
     </div>
   </div>
 </template>
@@ -44,9 +43,8 @@ const tabs = [
   { name: 'navigation-trimmed', label: 'Site Navigation' },
   { name: 'user-dashboard', label: 'User Dashboard' },
   { name: 'user-gallery', label: 'User Gallery' },
- 
+
   { name: 'jellybean-counter', label: 'Jellybean Counter' },
-  
 ]
 
 const choice = ref('user-dashboard') // Default to the first tab

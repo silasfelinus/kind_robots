@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
         id: true,
         username: true,
         emailVerified: true,
-        /* other fields you want to include */
+        artImageId: true,
         ...(includeSensitiveInfo && { apiKey: true }), // Conditionally include apiKey
       },
     })

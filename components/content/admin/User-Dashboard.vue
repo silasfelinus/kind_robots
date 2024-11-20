@@ -9,14 +9,17 @@
     >
       <Icon name="kind-icon:expand" class="text-lg" />
     </button>
-    <span class="absolute top-2 right-2">Role: {{ user?.Role || 'Guest' }}</span>
+    <span class="absolute top-2 right-2"
+      >Role: {{ user?.Role || 'Guest' }}</span
+    >
 
     <div v-if="!isMinimized">
       <h1 class="text-2xl font-semibold ml-6">User Dashboard</h1>
       <div class="relative flex flex-col justify-center items-center">
         <!-- Rounded Avatar -->
         <user-avatar class="w-24 h-24 rounded-full border-2 border-accent" />
-        
+        {{ user }}
+
         <!-- Smaller Avatar Upload -->
         <avatar-upload class="w-16 h-16 mt-2" />
 
@@ -98,60 +101,60 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue';
-import { useUserStore } from './../../../stores/userStore';
-import { useErrorStore } from './../../../stores/errorStore';
+import { ref, computed, watch } from 'vue'
+import { useUserStore } from './../../../stores/userStore'
+import { useErrorStore } from './../../../stores/errorStore'
 
-const userStore = useUserStore();
-const errorStore = useErrorStore();
-const user = computed(() => userStore.user);
-const isLoggedIn = computed(() => userStore.isLoggedIn);
+const userStore = useUserStore()
+const errorStore = useErrorStore()
+const user = computed(() => userStore.user)
+const isLoggedIn = computed(() => userStore.isLoggedIn)
 
-const showLogin = ref(!isLoggedIn.value);
-const isMinimized = ref(false);
-const isLoading = ref(false);
-const errorMessage = ref('');
+const showLogin = ref(!isLoggedIn.value)
+const isMinimized = ref(false)
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 const toggleMinimize = () => {
-  isMinimized.value = !isMinimized.value;
-};
+  isMinimized.value = !isMinimized.value
+}
 
 watch(isLoggedIn, (newValue) => {
-  showLogin.value = !newValue;
-});
+  showLogin.value = !newValue
+})
 
 const handleButtonClick = async () => {
   if (isLoggedIn.value) {
     try {
-      await userStore.logout();
+      await userStore.logout()
     } catch (error: unknown) {
       errorStore.setError(
         ErrorType.AUTH_ERROR,
         error instanceof Error
           ? error.message
-          : 'Failed to logout. Please try again.'
-      );
+          : 'Failed to logout. Please try again.',
+      )
     }
   } else {
-    showLogin.value = true;
+    showLogin.value = true
     if (isMinimized.value) {
-      toggleMinimize();
+      toggleMinimize()
     }
   }
-};
+}
 
 const logout = async () => {
   try {
-    isLoading.value = true;
-    await userStore.logout();
+    isLoading.value = true
+    await userStore.logout()
   } catch (error: unknown) {
     if (error instanceof Error) {
-      errorMessage.value = `Failed to logout. ${error.message}`;
+      errorMessage.value = `Failed to logout. ${error.message}`
     } else {
-      errorMessage.value = 'Failed to logout. Please try again.';
+      errorMessage.value = 'Failed to logout. Please try again.'
     }
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 </script>

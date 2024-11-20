@@ -71,10 +71,6 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const { artIds } = body
 
-
-
-
-
     if (!Array.isArray(artIds) || artIds.length === 0) {
       event.node.res.statusCode = 400
       throw createError({
@@ -83,12 +79,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-if (!artIds.every(Number.isInteger)) {
-  throw createError({
-    statusCode: 400,
-    message: 'All artIds must be valid integers.',
-  });
-}
+    if (!artIds.every(Number.isInteger)) {
+      throw createError({
+        statusCode: 400,
+        message: 'All artIds must be valid integers.',
+      })
+    }
 
     const validArtItems = await prisma.art.findMany({
       where: { id: { in: artIds } },
@@ -105,12 +101,12 @@ if (!artIds.every(Number.isInteger)) {
       })
     }
 
-    // Update the collection with validated art items
+    // Update the collection with validated art items using `connect`
     const data = await prisma.artCollection.update({
       where: { id: collectionId },
       data: {
         art: {
-          set: validArtItems.map((art) => ({ id: art.id })),
+          connect: validArtItems.map((art) => ({ id: art.id })), // Add new art items
         },
       },
       include: { art: true },

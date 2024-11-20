@@ -77,16 +77,6 @@ const profileFields = {
     type: 'textarea',
     placeholder: 'Tell us about yourself',
   },
-  address1: {
-    label: 'Address Line 1',
-    type: 'text',
-    placeholder: 'Enter your address',
-  },
-  address2: {
-    label: 'Address Line 2',
-    type: 'text',
-    placeholder: 'Enter your address',
-  },
   city: { label: 'City', type: 'text', placeholder: 'Enter your city' },
   state: { label: 'State', type: 'text', placeholder: 'Enter your state' },
   country: {
@@ -130,7 +120,7 @@ const profileFields = {
     placeholder: 'Enter your Instagram profile URL',
   },
   twitterUrl: {
-    label: 'Twitter URL',
+    label: 'Twitter/X URL',
     type: 'url',
     placeholder: 'Enter your Twitter profile URL',
   },

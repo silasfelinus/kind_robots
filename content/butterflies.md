@@ -1,6 +1,6 @@
 ---
-title: Butterfly Sanctuary
-subtitle: rainbow butterflies for world harmony
+title: Butterfly
+subtitle: butterflies for world harmony
 description: Play around with AMIs digital recreations.
 image: backtree.webp
 gallery: weirdlandia

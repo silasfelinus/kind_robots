@@ -12,8 +12,8 @@
         :class="[
           'px-2 md:px-4 lg:px-6 text-lg font-semibold border-accent rounded-lg',
           tab.name === activeTab
-            ? 'bg-primary text-white'
-            : 'bg-info hover:bg-secondary text-white',
+            ? 'bg-info text-white'
+            : 'bg-accent hover:bg-secondary text-white',
         ]"
         @click="activeTab = tab.name"
       >

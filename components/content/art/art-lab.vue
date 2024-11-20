@@ -11,7 +11,7 @@
         :key="tab.name"
         class="flex-1 px-1 py-1 md:px-4 md:py-2 text-sm md:text-lg font-semibold border-accent rounded-lg text-center"
         :class="{
-          'bg-primary text-white': tab.name === choice,
+          'bg-info text-white': tab.name === choice,
           'bg-accent hover:bg-secondary text-white': tab.name !== choice,
         }"
         @click="choice = tab.name"
@@ -21,14 +21,11 @@
     </div>
 
     <!-- Components section with scrollable content -->
-    <div
-      class="components-section flex-grow w-full overflow-y-auto"
-    >
+    <div class="components-section flex-grow w-full overflow-y-auto">
       <lazy-art-maker v-if="choice === 'art-maker'" />
-       <lazy-comfy-frontend v-if="choice === 'comfy-frontend'" />
+      <lazy-comfy-frontend v-if="choice === 'comfy-frontend'" />
       <lazy-art-collection v-if="choice === 'art-collection'" />
       <lazy-art-gallery v-if="choice === 'art-gallery'" />
-   
     </div>
   </div>
 </template>
@@ -39,7 +36,7 @@ import { ref } from 'vue'
 // Tabs setup for Art Lab
 const tabs = [
   { name: 'art-maker', label: 'Art Maker' },
-{ name: 'comfy-frontend', label: 'Comfy' },
+  { name: 'comfy-frontend', label: 'Comfy' },
   { name: 'art-collection', label: 'Art Collection' },
   { name: 'art-gallery', label: 'Art Gallery' },
 ]

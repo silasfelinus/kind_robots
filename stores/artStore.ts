@@ -175,7 +175,7 @@ export const useArtStore = defineStore({
 
     async fetchAllArtImages() {
       try {
-        const response = await performFetch<ArtImage[]>('/api/art/images')
+        const response = await performFetch<ArtImage[]>('/api/art/image')
         if (response.success) {
           this.artImages = response.data || []
           if (isClient) {

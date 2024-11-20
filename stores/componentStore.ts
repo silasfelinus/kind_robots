@@ -13,6 +13,7 @@ export const useComponentStore = defineStore('componentStore', {
     components: [] as Component[],
     selectedComponent: null as Component | null,
     selectedFolder: null as string | null,
+    isInitialized: false, // Tracks initialization state
   }),
 
   getters: {
@@ -21,23 +22,23 @@ export const useComponentStore = defineStore('componentStore', {
       return state.components
     },
     getSelectedFolder: (state) => state.selectedFolder,
+    getIsInitialized: (state) => state.isInitialized, // Getter for initialization state
   },
 
   actions: {
     async initializeComponents() {
       try {
-        console.log('Initializing components from API...')
-        const response = await performFetch<Component[]>(
-          '/api/components',
-        )
+        const response = await performFetch<Component[]>('/api/components')
 
         if (response.success && response.data) {
           this.components = response.data
-          console.log('Components initialized from API:', this.components)
+          this.isInitialized = true // Mark as initialized
+          console.log('Components initialized successfully')
         } else {
           throw new Error('Failed to fetch components from API.')
         }
       } catch (error) {
+        this.isInitialized = false // Ensure it resets on failure
         handleError(error, 'Error fetching components from API')
       }
     },
@@ -63,9 +64,7 @@ export const useComponentStore = defineStore('componentStore', {
         }
         const folderData = folderDataResponse.data
 
-        const apiResponse = await performFetch<Component[]>(
-          '/api/components',
-        )
+        const apiResponse = await performFetch<Component[]>('/api/components')
         if (!apiResponse.success || !apiResponse.data) {
           throw new Error(
             apiResponse.message || 'Failed to fetch components from API',

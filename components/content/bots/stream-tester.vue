@@ -174,8 +174,12 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
             if (content) {
               responseText.value += content;
 
-              // Update the chat object locally in real time
-              chat.value = { ...chat.value, botResponse: responseText.value };
+              // **Sanitize `chat.value` to avoid circular references**
+              const sanitizedChat = JSON.parse(JSON.stringify(chat.value || {}));
+              sanitizedChat.botResponse = responseText.value;
+
+              // Update the reactive `chat` value
+              chat.value = sanitizedChat;
             }
           } catch (err) {
             console.error('Error parsing JSON chunk:', err);
@@ -193,4 +197,5 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
     throw new Error('Stream not supported in response');
   }
 }
+
 </script>

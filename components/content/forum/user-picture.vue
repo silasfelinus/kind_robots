@@ -4,7 +4,7 @@
     <nuxt-img
       v-if="avatarImage"
       :src="avatarImage"
-      class="rounded-full object-cover h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 transition-transform transform hover:scale-110 duration-300 ease-in-out"
+      class="rounded-full object-cover border-1 border-accent h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 transition-transform transform hover:scale-110 duration-300 ease-in-out"
       :alt="'User Avatar'"
     />
     <!-- Fallback to icon if no avatar image -->

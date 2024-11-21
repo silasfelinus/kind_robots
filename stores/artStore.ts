@@ -663,9 +663,9 @@ export const useArtStore = defineStore({
       return promptString.split(',')[0].trim() || 'Untitled Pitch'
     },
     validatePromptString(prompt: string): boolean {
-      const validPattern = /^[a-zA-Z0-9 ,]+$/
-      return validPattern.test(prompt)
-    },
+  const validPattern = /^[a-zA-Z0-9 ,_<>:]+$/;
+  return validPattern.test(prompt);
+},
 
     async fetchArtImageById(id: number): Promise<ArtImage | null> {
       try {

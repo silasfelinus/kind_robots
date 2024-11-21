@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 
@@ -29,17 +29,23 @@ const artStore = useArtStore()
 // Reactive size
 const size = 40
 
-// Compute avatar image dynamically
-const avatarImage = computed(() => {
+// Reactive avatar image
+const avatarImage = ref<string | null>(null)
+
+// Watch and fetch avatar image dynamically
+watchEffect(async () => {
   const user = userStore.user
 
-  // Check for art image if artImageId exists
   if (user?.artImageId) {
-    const artImage = artStore.getArtImageById(user.artImageId)
-    return artImage?.imageData || user.avatarImage || null
+    try {
+      const artImage = await artStore.getArtImageById(user.artImageId)
+      avatarImage.value = artImage?.imageData || user.avatarImage || null
+    } catch (error) {
+      console.error('Failed to fetch art image:', error)
+      avatarImage.value = user.avatarImage || null
+    }
+  } else {
+    avatarImage.value = user?.avatarImage || null
   }
-
-  // Fallback to user's default avatar image
-  return user?.avatarImage || null
 })
 </script>

@@ -12,34 +12,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useComponentStore } from '@/stores/componentStore'
+import { ref } from 'vue';
+import { useComponentStore } from '@/stores/componentStore';
 
-const componentStore = useComponentStore()
-const isSyncing = ref(false)
-const progressMessage = ref('')
-const syncMessage = ref('')
-const syncError = ref('')
+const componentStore = useComponentStore();
+const isSyncing = ref(false);
+const progressMessage = ref('');
+const syncMessage = ref('');
+const syncError = ref('');
 
 const handleSync = async () => {
-  isSyncing.value = true
-  syncMessage.value = ''
-  syncError.value = ''
-  progressMessage.value = 'Initializing sync...'
+  isSyncing.value = true;
+  syncMessage.value = '';
+  syncError.value = '';
+  progressMessage.value = 'Initializing sync...';
 
   try {
     await componentStore.syncComponents(
-      (progress) => (progressMessage.value = progress),
-    )
-    syncMessage.value = 'Components synced successfully!'
-  } catch (error) {
-    syncError.value = error.message || 'Failed to sync components.'
+      (progress) => (progressMessage.value = progress)
+    );
+    syncMessage.value = 'Components synced successfully!';
+  } catch (error: any) {
+    syncError.value =
+      error.message || 'An unexpected error occurred during the sync process.';
   } finally {
-    isSyncing.value = false
-    progressMessage.value = ''
+    isSyncing.value = false;
+    progressMessage.value = '';
   }
-}
+};
 </script>
+
 
 <style scoped>
 .text-info {

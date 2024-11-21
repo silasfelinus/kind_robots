@@ -160,7 +160,12 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
         let boundary;
         while ((boundary = buffer.indexOf('\n\n')) >= 0) {
           let chunk = buffer.slice(0, boundary).trim();
-          buffer = buffer.slice(boundary + 2); // Remove processed chunk
+          buffer = buffer.slice(boundary + 2); // Move past the current chunk
+
+          // Remove multiple "data:" prefixes if they exist
+          if (chunk.startsWith('data:')) {
+            chunk = chunk.replace(/^data:\s*/, '').replace(/^data:\s*/, '');
+          }
 
           // Skip empty chunks and "[DONE]"
           if (!chunk || chunk === '[DONE]') continue;
@@ -174,12 +179,11 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
             if (content) {
               responseText.value += content;
 
-              // **Sanitize `chat.value` to avoid circular references**
-              const sanitizedChat = JSON.parse(JSON.stringify(chat.value || {}));
-              sanitizedChat.botResponse = responseText.value;
-
-              // Update the reactive `chat` value
-              chat.value = sanitizedChat;
+              // Update the `chat.value` with a sanitized plain object
+              chat.value = {
+                ...JSON.parse(JSON.stringify(chat.value || {})), // Strip reactivity
+                botResponse: responseText.value,
+              };
             }
           } catch (err) {
             console.error('Error parsing JSON chunk:', err);

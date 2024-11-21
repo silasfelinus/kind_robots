@@ -8,16 +8,22 @@
     <h2 class="count-number text-6xl font-bold text-red-500 font-mono">
       {{ componentCount }}
     </h2>
+    <component-sync v-if="isAdmin" class="mt-8" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useComponentStore } from './../../../stores/componentStore'
+import { useComponentStore } from '@/stores/componentStore'
+import { useUserStore } from '@/stores/userStore'
 
-// Access the component store
+// Access the component and user stores
 const componentStore = useComponentStore()
+const userStore = useUserStore()
 
 // Compute the total number of components
 const componentCount = computed(() => componentStore.allComponents.length)
+
+// Check if the user is an admin
+const isAdmin = computed(() => userStore.isAdmin)
 </script>

@@ -87,7 +87,7 @@ async function submitPrompt() {
     // Step 1: Create a new chat object in the database
     const newChat = await chatStore.addChat({
       content: prompt.value,
-      userId,
+      userId: userId.value,
       botId: 1,  // Replace with actual bot ID
       recipientId: 1, // Replace with actual recipient ID
       type: 'ToBot',

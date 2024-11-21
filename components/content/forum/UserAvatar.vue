@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useUserStore } from '../../../stores/userStore'
 
 // Props
@@ -20,27 +20,39 @@ const props = defineProps<{ userId?: number }>()
 const userStore = useUserStore()
 
 // State
-const defaultAvatar = '/images/kindart.webp'
+const avatarUrl = ref('/images/kindart.webp') // Default avatar
 const effectiveUserId = computed(() => props.userId ?? userStore.userId)
 const username = computed(() => userStore.username || 'Guest')
 
-// Computed boolean to check if the user has an art image
-const hasArtImage = computed(() => {
-  const user = userStore.users.find((u) => u.id === effectiveUserId.value)
-  return !!user?.artImageId
-})
+// Helper to determine if the image is base64 or raw data
+const isImageData = (data: string): boolean => {
+  return data.startsWith('data:image/') || /^[A-Za-z0-9+/]+={0,2}$/.test(data)
+}
 
-// Computed property for avatar URL
-const avatarUrl = computed(() => {
-  if (hasArtImage.value) {
-    const user = userStore.users.find((u) => u.id === effectiveUserId.value)
-    return user?.artImageId // Replace with logic to fetch the actual art image if needed
+// Fetch the avatar URL
+const fetchAvatar = async () => {
+  if (!effectiveUserId.value) {
+    console.warn(`[Avatar Component] No valid userId. Using default avatar.`)
+    return
   }
 
-  // Fallback to user's avatarImage or default avatar
-  const user = userStore.users.find((u) => u.id === effectiveUserId.value)
-  return user?.avatarImage || defaultAvatar
-})
+  try {
+    const userImage = await userStore.userImage(effectiveUserId.value)
+
+    // Check if the userImage is raw data or a URL
+    if (userImage && isImageData(userImage)) {
+      avatarUrl.value = `data:image/png;base64,${userImage}`
+    } else {
+      avatarUrl.value = userImage || '/images/kindart.webp'
+    }
+
+    console.debug(
+      `[Avatar Component] Fetched avatar for userId: ${effectiveUserId.value}`,
+    )
+  } catch (error) {
+    console.error(`[Avatar Component] Failed to fetch avatar:`, error)
+  }
+}
 
 // Handle avatar loading errors
 const handleAvatarError = (event: Event) => {
@@ -48,6 +60,20 @@ const handleAvatarError = (event: Event) => {
   console.warn(
     `[Avatar Component] Failed to load avatar. Setting default avatar.`,
   )
-  imgElement.src = defaultAvatar
+  imgElement.src = '/images/kindart.webp'
 }
+
+// Watch for changes in user.artImageId
+watch(
+  () => userStore.user.artImageId, // Watched value
+  async (newValue, oldValue) => {
+    console.info(
+      `[Avatar Component] Detected artImageId change: ${oldValue} -> ${newValue}`,
+    )
+    await fetchAvatar() // Refetch avatar whenever the artImageId changes
+  },
+)
+
+// Lifecycle Hook
+onMounted(fetchAvatar)
 </script>

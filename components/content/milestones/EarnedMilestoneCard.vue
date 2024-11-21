@@ -8,6 +8,7 @@
       <Icon name="ph:star-bold" class="text-yellow-400 text-4xl" />
     </div>
     <div class="text-center">
+   id: {{ milestone.id }}
       <!-- Milestone Icon -->
       <Icon
         :name="milestone.icon ?? 'kind-icon:map'"

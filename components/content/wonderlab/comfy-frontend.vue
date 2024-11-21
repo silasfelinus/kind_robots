@@ -12,7 +12,7 @@
     <button
       :disabled="isLoading"
       class="btn btn-primary w-full"
-      @click="generateArt"
+      @click="handleGenerateArt"
     >
       {{ isLoading ? 'Generating...' : 'Generate Art' }}
     </button>
@@ -37,17 +37,25 @@ const generatedImage = ref('')
 const isLoading = ref(false)
 const error = ref('')
 
-const generateArt = async () => {
-  if (!prompt.value) {
-    error.value = 'Please enter a prompt.'
-    return
+// Utility function for API requests with error handling
+const performRequest = async (url, options, errorMessage) => {
+  try {
+    const response = await fetch(url, options)
+    const result = await response.json()
+
+    if (!response.ok) {
+      throw new Error(result.message || errorMessage)
+    }
+
+    return result
+  } catch (err) {
+    throw new Error(err.message || errorMessage)
   }
+}
 
-  error.value = ''
-  generatedImage.value = ''
-  isLoading.value = true
-
-  const graph = {
+// Function to build the graph object
+const buildGraph = () => {
+  return {
     nodes: [
       {
         id: 'load_model',
@@ -75,23 +83,39 @@ const generateArt = async () => {
       },
     ],
   }
+}
+
+// Main handler for generating art
+const handleGenerateArt = async () => {
+  if (!prompt.value) {
+    error.value = 'Please enter a prompt.'
+    return
+  }
+
+  isLoading.value = true
+  error.value = ''
+  generatedImage.value = ''
 
   try {
-    const response = await fetch('/api/utils/comfy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(graph),
-    })
+    const graph = buildGraph()
 
-    const result = await response.json()
+    const result = await performRequest(
+      '/api/utils/comfy',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(graph),
+      },
+      'Failed to generate art. Please try again later.'
+    )
 
-    if (!response.ok || !result.image_path) {
-      throw new Error(result.message || 'Failed to generate art.')
+    if (!result.image_path) {
+      throw new Error('Image path is missing in the response.')
     }
 
     generatedImage.value = `${comfyUrl}/${result.image_path}`
   } catch (err) {
-    error.value = err.message
+    error.value = `Error: ${err.message}`
   } finally {
     isLoading.value = false
   }

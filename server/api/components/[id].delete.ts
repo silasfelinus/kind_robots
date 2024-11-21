@@ -32,7 +32,8 @@ export default defineEventHandler(async (event) => {
     // Successful deletion response
     response = {
       success: true,
-      data: { message: `Component with ID ${componentId} deleted successfully.` },
+      message: `Component with ID ${componentId} deleted successfully.`
+      data: {},
       statusCode: 200,
     }
     event.node.res.statusCode = 200

@@ -138,40 +138,48 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
     const decoder = new TextDecoder()
     let buffer = ''
 
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
 
-      buffer += decoder.decode(value, { stream: true })
+        buffer += decoder.decode(value, { stream: true })
 
-      let boundary
-      while ((boundary = buffer.indexOf('\n\n')) >= 0) {
-        const chunk = buffer.slice(0, boundary).trim()
-        buffer = buffer.slice(boundary + 2)
+        // Process chunks line by line
+        let boundary
+        while ((boundary = buffer.indexOf('\n')) >= 0) {
+          const chunk = buffer.slice(0, boundary).trim()
+          buffer = buffer.slice(boundary + 1)
 
-        if (!chunk || chunk === '[DONE]') continue
+          if (chunk === '[DONE]') break
+          if (!chunk) continue
 
-        try {
-          const parsed = JSON.parse(chunk)
-          const content = parsed.choices[0]?.delta?.content
+          try {
+            const parsed = JSON.parse(chunk)
+            const content = parsed.choices?.[0]?.delta?.content
 
-          if (content) {
-            responseText.value += content
+            if (content) {
+              responseText.value += content
 
-            // Update chat object in real-time
-            await chatStore.editChat(chatId, {
-              botResponse: responseText.value,
-            })
+              // Update chat object in real-time
+              await chatStore.editChat(chatId, {
+                botResponse: responseText.value,
+              })
+            }
+          } catch (err) {
+            console.error('Error parsing chunk:', err)
           }
-        } catch (err) {
-          console.error('Error parsing chunk:', err)
         }
       }
+    } catch (err) {
+      console.error('Error during streaming:', err)
+      throw new Error('Streaming failed.')
     }
   } else {
-    throw new Error('Stream not supported in response')
+    throw new Error('Stream not supported in response.')
   }
 }
+
 </script>
 
 <style scoped>

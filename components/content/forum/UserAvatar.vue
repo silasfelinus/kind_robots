@@ -3,10 +3,11 @@
     <img
       :src="avatarUrl"
       :alt="`${username}'s avatar`"
-      class="h-full w-auto rounded-full"
+      class="h-full w-auto rounded-full border-1 border-accent"
       @error="handleAvatarError"
     />
   </div>
+  {{ username }}
 </template>
 
 <script lang="ts" setup>

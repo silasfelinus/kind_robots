@@ -2,13 +2,13 @@
   <div class="container mx-auto p-4 relative h-full flex flex-col">
     <!-- Main container for the rain effect -->
     <div class="flex flex-col md:flex-row flex-grow">
-      <div class="flex-grow p-2 rounded-2xl m-2 z-50 relative">
+      <div class="flex-grow p-2 rounded-2xl m-2 relative">
         <!-- Rain Effect Area -->
         <div class="rain-container absolute inset-0 overflow-hidden">
           <div
             v-for="drop in rainDrops"
             :key="drop.id"
-            class="rain-drop absolute rounded-full bg-white/80 pointer-events-none"
+            class="rain-drop absolute z-50 rounded-full bg-white/80 pointer-events-none"
             :style="rainDropStyle(drop)"
           />
         </div>

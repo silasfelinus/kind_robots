@@ -31,12 +31,12 @@ export default defineEventHandler(async (event) => {
     }
 
     // Extract component names from the result
-    const componentList = components.map((component) => component.componentName)
+    const data = components.map((component) => component.componentName)
 
     // Return the list of component names
     response = {
       success: true,
-      data: { components: componentList },
+      data,
       message: 'Component list fetched successfully.',
       statusCode: 200,
     }

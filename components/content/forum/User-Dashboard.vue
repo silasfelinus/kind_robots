@@ -18,7 +18,7 @@
       <div class="relative flex flex-col justify-center items-center">
         <!-- Rounded Avatar -->
         <user-avatar class="w-24 h-24 rounded-full border-2 border-accent" />
-        {{ user?.artImageId }}
+        {{ user?.username }}
 
         <!-- Smaller Avatar Upload -->
         <avatar-upload class="w-16 h-16 mt-2" />

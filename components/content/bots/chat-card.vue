@@ -96,7 +96,8 @@ const props = defineProps({
   },
 })
 
-const chat = props.chat
+
+const chat = reactive({ ...props.chat }) 
 
 // Local state
 const showReply = ref(false)
@@ -111,7 +112,7 @@ const artStore = useArtStore()
 // Computed properties
 const threadMessages = computed(() =>
   chatStore.chats.filter(
-    (message) => message.originId === chat.originId || message.id === chat.id,
+    (message) => message.originId === chat.id || message.id === chat.id,
   ),
 )
 

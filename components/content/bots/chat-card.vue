@@ -13,10 +13,17 @@
     <!-- Header -->
     <div v-if="hasUser" class="header flex items-center mb-4 gap-4">
       <img
-        :src="userImage"
+        :src="userImage || '/images/default-user.png'"
         alt="User Avatar"
         class="w-12 h-12 rounded-full border-2 border-primary"
       />
+      <img
+        v-if="hasBot"
+        :src="botImage || '/images/bot1.png'"
+        alt="Bot Avatar"
+        class="w-12 h-12 rounded-full border-2 border-secondary ml-auto"
+      />
+
       <div>
         <p class="text-lg font-bold text-gray-800">
           {{ senderName }}
@@ -25,12 +32,6 @@
         </p>
         <p class="text-sm text-gray-400">{{ formattedDate }}</p>
       </div>
-      <img
-        v-if="hasBot"
-        :src="botImage"
-        alt="Bot Avatar"
-        class="w-12 h-12 rounded-full border-2 border-secondary ml-auto"
-      />
     </div>
 
     <!-- Message Thread -->
@@ -82,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref, reactive, computed, watchEffect } from 'vue'
 import { useChatStore, type Chat } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
@@ -96,12 +97,13 @@ const props = defineProps({
   },
 })
 
-
-const chat = reactive({ ...props.chat }) 
+const chat = reactive({ ...props.chat })
 
 // Local state
 const showReply = ref(false)
 const replyMessage = ref('')
+const userImage = ref<string | undefined>(undefined)
+const botImage = ref<string | undefined>(undefined)
 
 // Stores
 const chatStore = useChatStore()
@@ -110,38 +112,51 @@ const botStore = useBotStore()
 const artStore = useArtStore()
 
 // Computed properties
+const hasUser = computed(() => !!userStore.getUserById(chat.userId ?? -1))
+
+const hasBot = computed(() => !!botStore.getBotById(chat.botId ?? -1))
 const threadMessages = computed(() =>
   chatStore.chats.filter(
     (message) => message.originId === chat.id || message.id === chat.id,
   ),
 )
-
-const formattedDate = computed(() => {
-  if (!chat.createdAt) return 'Unknown Date'
-  return new Date(chat.createdAt).toLocaleString()
-})
-
+const formattedDate = computed(() =>
+  chat.createdAt ? new Date(chat.createdAt).toLocaleString() : 'Unknown Date',
+)
 const botResponse = computed(() => chat.botResponse || 'Awaiting response...')
 const senderName = computed(() => chat.sender || 'User')
 const botName = computed(() => chat.botName || 'Bot')
 
-// Compute user avatar image dynamically
-const userImage = computed(() => {
+// Inside the watchEffect
+watchEffect(async () => {
   const user = userStore.getUserById(chat.userId)
   if (user?.artImageId) {
-    const artImage = artStore.getArtImageById(user.artImageId)
-    return artImage?.imageData || user.avatarImage || null
-  }
-  return user?.avatarImage || null
-})
+    try {
+      // Explicitly await and type the result
+      const artImage = await artStore.getArtImageById(user.artImageId)
 
-const botImage = computed(() => {
-  const bot = botStore.getBotById(chat.botId)
-  if (bot?.artImageId) {
-    const artImage = artStore.getArtImageById(bot.artImageId)
-    return artImage?.imageData || bot.avatarImage || null
+      userImage.value = artImage?.imageData || user.avatarImage || undefined
+    } catch {
+      userImage.value = user?.avatarImage || undefined
+    }
+  } else {
+    userImage.value = user?.avatarImage || undefined
   }
-  return bot?.avatarImage || null
+
+  if (chat.botId !== null) {
+    const bot = await botStore.getBotById(chat.botId)
+
+    if (bot?.artImageId) {
+      try {
+        const artImage = await artStore.getArtImageById(bot.artImageId)
+        botImage.value = artImage?.imageData || bot.avatarImage || undefined
+      } catch {
+        botImage.value = bot?.avatarImage || undefined
+      }
+    } else {
+      botImage.value = bot?.avatarImage || undefined
+    }
+  }
 })
 
 // Utility functions
@@ -160,20 +175,19 @@ const sendReply = async () => {
     try {
       const newChat = await chatStore.addChat({
         content: replyMessage.value,
-        userId: chat.userId || userStore.userId || 9,
-        recipientId: chat.recipientId || 0,
+        userId: chat.userId ?? userStore.userId ?? 0,
+        recipientId: chat.recipientId ?? 0,
         isPublic: chat.isPublic,
-        originId: chat.originId || chat.id,
+        originId: chat.originId ?? chat.id,
         previousEntryId: chat.id,
-        botId: chat.botId,
-        botName: chat.botName,
+        botId: chat.botId ?? 0,
+        botName: chat.botName ?? '',
         type: chat.type,
       })
 
       replyMessage.value = ''
       showReply.value = false
 
-      // Optionally, stream the response
       await chatStore.streamResponse(newChat.id)
     } catch (error) {
       console.error('Error sending reply:', error)
@@ -193,4 +207,3 @@ const deleteChat = async () => {
   }
 }
 </script>
-

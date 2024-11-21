@@ -189,8 +189,7 @@ export const useBotStore = defineStore({
         return null
       }
     },
-
-    async getBotById(id: number): Promise<void> {
+    async getBotById(id: number): Promise<Bot | null> {
       try {
         const response = await performFetch<Bot>(`/api/bot/id/${id}`)
 
@@ -200,6 +199,7 @@ export const useBotStore = defineStore({
             this.currentBot = bot
             this.botForm = { ...bot }
             this.currentImagePath = bot.avatarImage ?? ''
+            return bot
           }
         } else {
           throw new Error(response.message)
@@ -208,6 +208,8 @@ export const useBotStore = defineStore({
         console.error('Error in getBotById:', error)
         handleError(error, 'fetching bot by id')
       }
+
+      return null // Return null if no bot is found or on error
     },
 
     async botImage(botId: number): Promise<string> {

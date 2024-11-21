@@ -17,12 +17,12 @@ export default defineEventHandler(async () => {
     })
 
     // Map the result to extract folder names
-    const folderNames = folders.map((folder) => folder.folderName)
+    const data = folders.map((folder) => folder.folderName)
 
     // Return consistent response structure
     response = {
       success: true,
-      data: { folderNames },
+      data,
       statusCode: 200,
     }
   } catch (error: unknown) {

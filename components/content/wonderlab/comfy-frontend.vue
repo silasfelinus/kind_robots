@@ -110,7 +110,7 @@ const handleGenerateArt = async () => {
     )
 
     if (!result.image_path) {
-      throw new Error('Image path is missing in the response.')
+      throw new Error('Image path is missing in the response.', result)
     }
 
     generatedImage.value = `${comfyUrl}/${result.image_path}`

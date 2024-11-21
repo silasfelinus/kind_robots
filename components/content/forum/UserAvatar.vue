@@ -31,18 +31,21 @@ const isImageData = (data: string): boolean => {
 
 const avatarUrl = computed(() => {
   const artImageId = userStore.user.artImageId
+  const userId = effectiveUserId.value
 
-  if (!artImageId || !effectiveUserId.value) {
+  if (!artImageId || !userId) {
     console.warn(`[Avatar Component] No valid artImageId or userId.`)
     return defaultAvatar
   }
 
-  const userImage = userStore.userImage(effectiveUserId.value) || ''
+  const userImage = userStore.userImage(userId)
+  console.log(`[Avatar Component] userImage:`, userImage)
 
-  if (isImageData(userImage)) {
+  if (userImage && isImageData(userImage)) {
     return `data:image/png;base64,${userImage}`
   }
 
+  console.warn(`[Avatar Component] Invalid or missing user image.`)
   return userImage || defaultAvatar
 })
 

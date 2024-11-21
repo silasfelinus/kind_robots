@@ -151,9 +151,9 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
           const chunk = buffer.slice(0, boundary).trim()
           buffer = buffer.slice(boundary + 1)
 
-          if (chunk === '[DONE]') break
-          if (!chunk) continue
+          if (!chunk || chunk === '[DONE]') continue
 
+          // Parse only valid JSON chunks
           try {
             const parsed = JSON.parse(chunk)
             const content = parsed.choices?.[0]?.delta?.content
@@ -167,7 +167,7 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
               })
             }
           } catch (err) {
-            console.error('Error parsing chunk:', err)
+            console.error('Error parsing chunk:', chunk, err)
           }
         }
       }

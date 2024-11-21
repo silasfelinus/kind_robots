@@ -130,8 +130,8 @@ async function submitPrompt() {
 async function fetchStream(url: string, options: RequestInit) {
   const response = await fetch(url, options);
   if (!response.ok) {
-    errorMessage.value = Error ${response.status}: ${response.statusText};
-    throw new Error(Error ${response.status}: ${response.statusText});
+    errorMessage.value = `Error ${response.status}: ${response.statusText}`;
+    throw new Error(`Error ${response.status}: ${response.statusText}`);
   }
 
   if (response.body) {

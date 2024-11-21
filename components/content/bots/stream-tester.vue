@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useChatStore } from '@/stores/chatStore';
-import ChatCard from '@/components/ChatCard.vue'; // Import the chat-card component
+
 
 const chatStore = useChatStore();
 

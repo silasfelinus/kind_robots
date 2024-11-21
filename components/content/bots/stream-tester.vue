@@ -127,7 +127,6 @@ async function submitPrompt() {
   }
 }
 
-// Streaming fetch function
 async function fetchStream(url: string, options: RequestInit, chatId: number) {
   const response = await fetch(url, options);
   if (!response.ok) {
@@ -140,39 +139,52 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
     const decoder = new TextDecoder();
     let buffer = ''; // Accumulate partial data from chunks
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      // Decode current chunk and add to the buffer
-      buffer += decoder.decode(value, { stream: true });
+        // Decode current chunk and add to the buffer
+        buffer += decoder.decode(value, { stream: true });
 
-      let boundary;
-      while ((boundary = buffer.indexOf('\n\n')) >= 0) {
-        let chunk = buffer.slice(0, boundary).trim();
-        buffer = buffer.slice(boundary + 2); // Move past the current chunk
+        let boundary;
+        while ((boundary = buffer.indexOf('\n')) >= 0) {
+          let chunk = buffer.slice(0, boundary).trim();
+          buffer = buffer.slice(boundary + 1); // Remove processed chunk
 
-        // Skip empty chunks and "[DONE]"
-        if (!chunk || chunk === '[DONE]') continue;
+          // Skip empty chunks
+          if (!chunk) continue;
 
-        try {
-          // Parse the JSON and extract the content
-          const parsed = JSON.parse(chunk);
-          const content = parsed.choices?.[0]?.delta?.content;
-
-          // Append content to response text
-          if (content) {
-            responseText.value += content;
-
-            // Update the chat object in real-time
-            await chatStore.editChat(chatId, {
-              botResponse: responseText.value,
-            });
+          // Handle the "data:" prefix
+          if (chunk.startsWith('data:')) {
+            chunk = chunk.slice(5).trim(); // Remove "data:" and any leading/trailing whitespace
           }
-        } catch (err) {
-          console.error('Error parsing chunk:', err);
+
+          // Skip "[DONE]" marker
+          if (chunk === '[DONE]') break;
+
+          try {
+            // Parse the JSON and extract the content
+            const parsed = JSON.parse(chunk);
+            const content = parsed.choices?.[0]?.delta?.content;
+
+            // Append content to response text
+            if (content) {
+              responseText.value += content;
+
+              // Update the chat object in real-time
+              await chatStore.editChat(chatId, {
+                botResponse: responseText.value,
+              });
+            }
+          } catch (err) {
+            console.error('Error parsing JSON chunk:', chunk, err);
+          }
         }
       }
+    } catch (err) {
+      console.error('Error during streaming:', err);
+      throw new Error('Streaming failed.');
     }
   } else {
     throw new Error('Stream not supported in response');

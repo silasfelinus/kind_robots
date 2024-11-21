@@ -53,6 +53,7 @@
   </div>
 </template>
 
+<script setup lang="ts">
 import { ref } from 'vue';
 import { useChatStore } from '@/stores/chatStore';
 
@@ -178,6 +179,7 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
   }
 }
 
+</script>
 
 <style scoped>
 .spinner-border {

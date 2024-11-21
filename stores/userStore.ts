@@ -106,9 +106,13 @@ export const useUserStore = defineStore({
         return []
       }
     },
-    getUserById(userId: number) {
+    getUserById(userId: number | null): User | null {
+      if (userId === null) {
+        return null
+      }
       return this.users.find((user) => user.id === userId) || null
     },
+
     updateUserInList(updatedUser: User) {
       const index = this.users.findIndex((user) => user.id === updatedUser.id)
       if (index !== -1) {

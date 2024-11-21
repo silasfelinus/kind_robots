@@ -47,9 +47,10 @@
             class="item rounded-md shadow-sm p-2 bg-base-200"
           >
             <img
-              :src="getArtImage(art.id)"
+              :src="artImages[art.id] || '/images/loading-placeholder.png'"
               alt="Art"
               class="w-full h-24 object-cover rounded-md"
+              @error="handleImageError(art.id)"
             />
             <p class="text-sm mt-1">
               {{ shouldShowPath(art) ? art.path : 'Untitled' }}
@@ -61,6 +62,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
@@ -74,6 +76,7 @@ const chatStore = useChatStore()
 const users = computed(() => userStore.users || [])
 const selectedUserId = ref<number | null>(null)
 const userCollections = ref<Record<number, Art[]>>({})
+const artImages = ref<Record<number, string>>({})
 
 // Fetch user's art collection on toggle
 async function toggleCollection(userId: number) {
@@ -88,18 +91,41 @@ async function toggleCollection(userId: number) {
     const collections = await artStore.getUserCollections(userId)
     const userArt = collections.flatMap((collection) => collection.art || [])
     userCollections.value = { ...userCollections.value, [userId]: userArt }
+
+    // Fetch all art images for the collection
+    const artIds = userArt.map((art) => art.id)
+    await fetchArtImages(artIds)
   }
+}
+
+// Fetch images for a list of art IDs
+async function fetchArtImages(artIds: number[]) {
+  for (const artId of artIds) {
+    if (!artImages.value[artId]) {
+      artImages.value[artId] = await getArtImage(artId)
+    }
+  }
+}
+
+// Get art image URL
+async function getArtImage(artId: number): Promise<string> {
+  try {
+    const artImage = await artStore.getArtImageById(artId)
+    return artImage?.imageData || '/images/default-art.png'
+  } catch (error) {
+    console.error(`Failed to fetch art image for artId: ${artId}`, error)
+    return '/images/default-art.png' // Fallback to default image
+  }
+}
+
+// Handle image loading errors
+function handleImageError(artId: number) {
+  artImages.value[artId] = '/images/default-art.png'
 }
 
 // Determine if art path should be displayed
 function shouldShowPath(art: Art): boolean {
   return !art.artImageId && !!art.path
-}
-
-// Get art image URL
-function getArtImage(artId: number): string {
-  const artImage = artStore.getArtImageById(artId)
-  return artImage?.imageData || '/images/default-art.png'
 }
 
 // Send message to user

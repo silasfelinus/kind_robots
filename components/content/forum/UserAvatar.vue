@@ -65,7 +65,7 @@ const handleAvatarError = (event: Event) => {
 
 // Watch for changes in user.artImageId
 watch(
-  () => userStore.user.artImageId, // Watched value
+  () => userStore.user?.artImageId, // Watched value
   async (newValue, oldValue) => {
     console.info(
       `[Avatar Component] Detected artImageId change: ${oldValue} -> ${newValue}`,

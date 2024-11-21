@@ -53,7 +53,7 @@ const tabs = [
 
 // Filter tabs based on user role
 const visibleTabs = computed(() =>
-  tabs.filter((tab) => !tab.requiresAdmin || userStore.Role === 'ADMIN'),
+  tabs.filter((tab) => !tab.requiresAdmin || userStore.isAdmin),
 )
 
 // Default to the first visible tab

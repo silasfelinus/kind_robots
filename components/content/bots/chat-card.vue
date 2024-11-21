@@ -82,7 +82,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useChatStore, type Chat } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
@@ -135,7 +134,6 @@ const userImage = computed(() => {
   return user?.avatarImage || null
 })
 
-// Compute bot avatar image dynamically
 const botImage = computed(() => {
   const bot = botStore.getBotById(chat.botId)
   if (bot?.artImageId) {
@@ -194,3 +192,4 @@ const deleteChat = async () => {
   }
 }
 </script>
+

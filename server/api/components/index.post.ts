@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     const tags = componentData.Tags || []
 
     // Use the `upsert` method to either create or update an existing component
-    const upsertedComponent = await prisma.component.upsert({
+    const data = await prisma.component.upsert({
       where: {
         componentName: componentData.componentName, // Assuming componentName is unique in the schema
       },
@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
     // Set the success response with the upserted component data
     response = {
       success: true,
-      data: { component: upsertedComponent },
+      data,
       statusCode: 200,
     }
   } catch (error: unknown) {

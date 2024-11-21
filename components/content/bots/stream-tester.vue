@@ -53,38 +53,38 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useChatStore } from '@/stores/chatStore'
+import { ref } from 'vue';
+import { useChatStore } from '@/stores/chatStore';
 
-const chatStore = useChatStore()
+const chatStore = useChatStore();
 
-const prompt = ref('')
-const responseText = ref('')
-const loading = ref(false)
-const errorMessage = ref('')
-const useStreaming = ref(false)
+const prompt = ref('');
+const responseText = ref('');
+const loading = ref(false);
+const errorMessage = ref('');
+const useStreaming = ref(false);
 
+// Function to submit the prompt to the /api/botcafe/chat endpoint
 async function submitPrompt() {
-  if (!prompt.value.trim()) return
+  if (!prompt.value.trim()) return;
 
-  loading.value = true
-  errorMessage.value = ''
-  responseText.value = `You: ${prompt.value}\n\n`
+  loading.value = true;
+  errorMessage.value = '';
+  responseText.value = `You: ${prompt.value}\n\n`; // Display the prompt
 
-  let newChat
+  let newChat;
 
   try {
     // Step 1: Create a new chat object in the database
     newChat = await chatStore.addChat({
       content: prompt.value,
       userId: 1, // Replace with actual user ID
-      botId: 1, // Replace with actual bot ID
+      botId: 1,  // Replace with actual bot ID
       recipientId: 1, // Replace with actual recipient ID
       type: 'ToBot',
-    })
+    });
 
-    const apiEndpoint = '/api/botcafe/chat'
+    const apiEndpoint = '/api/botcafe/chat';
 
     const requestOptions = {
       method: 'POST',
@@ -98,89 +98,86 @@ async function submitPrompt() {
         max_tokens: 300,
         stream: useStreaming.value,
       }),
-    }
+    };
 
+    // Handle Streaming and Non-Streaming
     if (useStreaming.value) {
-      await fetchStream(apiEndpoint, requestOptions, newChat.id)
+      await fetchStream(apiEndpoint, requestOptions, newChat.id);
     } else {
-      const response = await fetch(apiEndpoint, requestOptions)
+      const response = await fetch(apiEndpoint, requestOptions);
       if (!response.ok) {
-        errorMessage.value = `Error ${response.status}: ${response.statusText}`
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
+        errorMessage.value = `Error ${response.status}: ${response.statusText}`;
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
-      const data = await response.json()
-      responseText.value +=
-        data.choices?.[0]?.message?.content || 'No response received'
+      const data = await response.json();
+      const botResponse = data.choices?.[0]?.message?.content || 'No response received';
+      responseText.value += botResponse;
 
-      // Step 3: Update the chat object with the response
+      // Update the chat object with the bot response
       await chatStore.editChat(newChat.id, {
-        botResponse: data.choices?.[0]?.message?.content,
-      })
+        botResponse,
+      });
     }
   } catch (error) {
-    errorMessage.value =
-      error instanceof Error ? error.message : 'An unknown error occurred'
-    console.error('Error during API request:', error)
+    errorMessage.value = error instanceof Error ? error.message : 'An unknown error occurred';
+    console.error('Error during API request:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
+// Streaming fetch function
 async function fetchStream(url: string, options: RequestInit, chatId: number) {
-  const response = await fetch(url, options)
+  const response = await fetch(url, options);
   if (!response.ok) {
-    errorMessage.value = `Error ${response.status}: ${response.statusText}`
-    throw new Error(`Error ${response.status}: ${response.statusText}`)
+    errorMessage.value = `Error ${response.status}: ${response.statusText}`;
+    throw new Error(`Error ${response.status}: ${response.statusText}`);
   }
 
   if (response.body) {
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = ''; // Accumulate partial data from chunks
 
-    try {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-        buffer += decoder.decode(value, { stream: true })
+      // Decode current chunk and add to the buffer
+      buffer += decoder.decode(value, { stream: true });
 
-        // Process chunks line by line
-        let boundary
-        while ((boundary = buffer.indexOf('\n')) >= 0) {
-          const chunk = buffer.slice(0, boundary).trim()
-          buffer = buffer.slice(boundary + 1)
+      let boundary;
+      while ((boundary = buffer.indexOf('\n\n')) >= 0) {
+        let chunk = buffer.slice(0, boundary).trim();
+        buffer = buffer.slice(boundary + 2); // Move past the current chunk
 
-          if (!chunk || chunk === '[DONE]') continue
+        // Skip empty chunks and "[DONE]"
+        if (!chunk || chunk === '[DONE]') continue;
 
-          // Parse only valid JSON chunks
-          try {
-            const parsed = JSON.parse(chunk)
-            const content = parsed.choices?.[0]?.delta?.content
+        try {
+          // Parse the JSON and extract the content
+          const parsed = JSON.parse(chunk);
+          const content = parsed.choices?.[0]?.delta?.content;
 
-            if (content) {
-              responseText.value += content
+          // Append content to response text
+          if (content) {
+            responseText.value += content;
 
-              // Update chat object in real-time
-              await chatStore.editChat(chatId, {
-                botResponse: responseText.value,
-              })
-            }
-          } catch (err) {
-            console.error('Error parsing chunk:', chunk, err)
+            // Update the chat object in real-time
+            await chatStore.editChat(chatId, {
+              botResponse: responseText.value,
+            });
           }
+        } catch (err) {
+          console.error('Error parsing chunk:', err);
         }
       }
-    } catch (err) {
-      console.error('Error during streaming:', err)
-      throw new Error('Streaming failed.')
     }
   } else {
-    throw new Error('Stream not supported in response.')
+    throw new Error('Stream not supported in response');
   }
 }
 
-</script>
 
 <style scoped>
 .spinner-border {

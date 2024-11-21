@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" fill="none">
+  <!-- Background Cube -->
+  <rect x="10" y="10" width="180" height="180" rx="15" ry="15" fill="#C6C6C6" stroke="#888" stroke-width="4"/>
+  <!-- Outer Circle -->
+  <circle cx="100" cy="100" r="60" fill="#F2F2F2" stroke="#888" stroke-width="4"/>
+  <!-- Butterfly Wings -->
+  <path d="M100 100c-15 0-35-25-35-40s15-25 35-15c20-10 35 5 35 15s-20 40-35 40z" fill="#FF8FA3"/>
+  <path d="M100 100c15 0 35-25 35-40s-15-25-35-15c-20-10-35 5-35 15s20 40 35 40z" fill="#FF8FA3"/>
+  <!-- Butterfly Body -->
+  <rect x="95" y="85" width="10" height="30" rx="5" fill="#FF6680"/>
+  <!-- Butterfly Antennae -->
+  <path d="M95 85c-5-10-15-15-15-20s10-10 15-5" stroke="#FF6680" stroke-width="2" fill="none"/>
+  <path d="M105 85c5-10 15-15 15-20s-10-10-15-5" stroke="#FF6680" stroke-width="2" fill="none"/>
+  <!-- Corner Details -->
+  <circle cx="40" cy="40" r="20" fill="#C6C6C6" stroke="#888" stroke-width="4"/>
+  <circle cx="160" cy="40" r="20" fill="#C6C6C6" stroke="#888" stroke-width="4"/>
+  <circle cx="40" cy="160" r="20" fill="#C6C6C6" stroke="#888" stroke-width="4"/>
+  <circle cx="160" cy="160" r="20" fill="#C6C6C6" stroke="#888" stroke-width="4"/>
+  <!-- Corner Highlights -->
+  <circle cx="40" cy="40" r="12" fill="#F2F2F2"/>
+  <circle cx="160" cy="40" r="12" fill="#F2F2F2"/>
+  <circle cx="40" cy="160" r="12" fill="#F2F2F2"/>
+  <circle cx="160" cy="160" r="12" fill="#F2F2F2"/>
+</svg>

@@ -2,9 +2,7 @@
   {
     "folderName": "admin",
     "components": [
-      "AdminPage",
       "DebugLauncher",
-      "GithubButton",
       "KindPrompts",
       "LoginButton",
       "LoginForm",

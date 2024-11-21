@@ -69,8 +69,8 @@ const buildGraph = () => {
         type: 'Sampler',
         parameters: {
           prompt: prompt.value,
-          steps: 50,
-          cfg_scale: 7.5,
+          steps: 15,
+          cfg_scale: 3,
         },
       },
       {

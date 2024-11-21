@@ -61,7 +61,7 @@ const buildGraph = () => {
         id: 'load_model',
         type: 'LoadCheckpoint',
         parameters: {
-          model_path: 'models/StableDiffusion/your-model.ckpt', // Replace with your actual model
+          model_path: 'realcartoonPony_v1.safetensors',
         },
       },
       {

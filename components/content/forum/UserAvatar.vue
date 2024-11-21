@@ -24,29 +24,32 @@ const defaultAvatar = '/images/kindart.webp'
 const effectiveUserId = computed(() => props.userId ?? userStore.userId)
 const username = computed(() => userStore.username || 'Guest')
 
-// Helper to determine if the image is base64 or raw data
-const isImageData = (data: string): boolean => {
+// Helper to determine if the image is raw data or a URL
+const isImageData = (data: string | null): boolean => {
+  if (!data) return false
   return data.startsWith('data:image/') || /^[A-Za-z0-9+/]+={0,2}$/.test(data)
 }
 
+// Computed property for avatar URL
 const avatarUrl = computed(() => {
-  const artImageId = userStore.user.artImageId
-  const userId = effectiveUserId.value
-
-  if (!artImageId || !userId) {
-    console.warn(`[Avatar Component] No valid artImageId or userId.`)
+  if (!effectiveUserId.value) {
+    console.warn(`[Avatar Component] No valid userId. Using default avatar.`)
     return defaultAvatar
   }
 
-  const userImage = userStore.userImage(userId)
-  console.log(`[Avatar Component] userImage:`, userImage)
+  const userImage = userStore.userImage(effectiveUserId.value)
 
-  if (userImage && isImageData(userImage)) {
-    return `data:image/png;base64,${userImage}`
+  if (userImage) {
+    if (isImageData(userImage)) {
+      // Handle raw image data (e.g., base64-encoded)
+      return `data:image/png;base64,${userImage}`
+    }
+    // Handle valid URL
+    return userImage
   }
 
-  console.warn(`[Avatar Component] Invalid or missing user image.`)
-  return userImage || defaultAvatar
+  // Fallback to default avatar
+  return defaultAvatar
 })
 
 // Handle avatar loading errors

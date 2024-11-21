@@ -375,7 +375,6 @@ export const useUserStore = defineStore({
       const artStore = useArtStore()
       try {
         const artImage = await artStore.getArtImageById(user.artImageId) // Await the Promise
-        console.log('art image result: ', artImage)
         return artImage?.imageData || '/images/kindart.webp' // Access imageData after the Promise resolves
       } catch (error) {
         console.error('Error fetching art image:', error)

@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch the component from the database
-    const component = await prisma.component.findUnique({
+    const data = await prisma.component.findUnique({
       where: { id: componentId },
     })
 
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     // Return the component data in the expected response format
     response = {
       success: true,
-      data: { component },
+      data,
       statusCode: 200,
     }
     event.node.res.statusCode = 200

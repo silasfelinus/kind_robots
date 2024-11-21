@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Update the component in the database
-    const updatedComponent = await prisma.component.update({
+    const data = await prisma.component.update({
       where: { id: componentId },
       data: updatedComponentData,
     })
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
     // Return the updated component in the expected response format
     response = {
       success: true,
-      data: { component: updatedComponent },
+      data,
       statusCode: 200, // OK
     }
     event.node.res.statusCode = 200

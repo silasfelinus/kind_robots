@@ -61,9 +61,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useChatStore } from '@/stores/chatStore';
-import ChatCard from '@/components/ChatCard.vue'; // Import the chat-card component
+import { useUserStore } from '@/stores/userStore';
+
 
 const chatStore = useChatStore();
+const userStore = useUserStore()
+
+const userId = computed(()=> userStore.userId)
 
 const prompt = ref('');
 const responseText = ref('');
@@ -83,7 +87,7 @@ async function submitPrompt() {
     // Step 1: Create a new chat object in the database
     const newChat = await chatStore.addChat({
       content: prompt.value,
-      userId: 1, // Replace with actual user ID
+      userId,
       botId: 1,  // Replace with actual bot ID
       recipientId: 1, // Replace with actual recipient ID
       type: 'ToBot',

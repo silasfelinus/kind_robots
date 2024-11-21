@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch components from the database where the folderName matches the given name
-    const components = await prisma.component.findMany({
+    const data = await prisma.component.findMany({
       where: {
         folderName,
       },
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     // Return success response with components
     response = {
       success: true,
-      data: { components },
+      data,
       message: 'Components retrieved successfully.',
       statusCode: 200,
     }

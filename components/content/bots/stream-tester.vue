@@ -40,9 +40,15 @@
       </button>
     </div>
 
-    <!-- Display Bot Response -->
+    <!-- Display Chat Card -->
+    <div v-if="chat">
+      <h2 class="text-xl font-semibold mb-4">Chat Card:</h2>
+      <chat-card :chat="chat" />
+    </div>
+
+    <!-- Display Raw Bot Response -->
     <div v-if="responseText" class="mt-6 p-4 bg-gray-100 rounded-lg">
-      <h2 class="text-xl font-semibold mb-2">Bot Response:</h2>
+      <h2 class="text-xl font-semibold mb-2">Raw Bot Response:</h2>
       <p>{{ responseText }}</p>
     </div>
 
@@ -52,10 +58,10 @@
     </p>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useChatStore } from '@/stores/chatStore';
+import ChatCard from '@/components/ChatCard.vue'; // Import the chat-card component
 
 const chatStore = useChatStore();
 
@@ -64,8 +70,8 @@ const responseText = ref('');
 const loading = ref(false);
 const errorMessage = ref('');
 const useStreaming = ref(false);
+const chat = ref(null); // Store the current chat object
 
-// Function to submit the prompt to the /api/botcafe/chat endpoint
 async function submitPrompt() {
   if (!prompt.value.trim()) return;
 
@@ -73,17 +79,16 @@ async function submitPrompt() {
   errorMessage.value = '';
   responseText.value = `You: ${prompt.value}\n\n`; // Display the prompt
 
-  let newChat;
-
   try {
     // Step 1: Create a new chat object in the database
-    newChat = await chatStore.addChat({
+    const newChat = await chatStore.addChat({
       content: prompt.value,
       userId: 1, // Replace with actual user ID
       botId: 1,  // Replace with actual bot ID
       recipientId: 1, // Replace with actual recipient ID
       type: 'ToBot',
     });
+    chat.value = newChat; // Store the created chat object
 
     const apiEndpoint = '/api/botcafe/chat';
 
@@ -118,6 +123,9 @@ async function submitPrompt() {
       await chatStore.editChat(newChat.id, {
         botResponse,
       });
+
+      // Update the stored chat object with the bot response
+      chat.value = { ...newChat, botResponse };
     }
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -127,7 +135,7 @@ async function submitPrompt() {
   }
 }
 
-async function fetchStream(url: string, options: RequestInit) {
+async function fetchStream(url: string, options: RequestInit, chatId: number) {
   const response = await fetch(url, options);
   if (!response.ok) {
     errorMessage.value = `Error ${response.status}: ${response.statusText}`;
@@ -149,12 +157,7 @@ async function fetchStream(url: string, options: RequestInit) {
       let boundary;
       while ((boundary = buffer.indexOf('\n\n')) >= 0) {
         let chunk = buffer.slice(0, boundary).trim();
-        buffer = buffer.slice(boundary + 2); // Move past the current chunk
-
-        // Remove multiple "data:" prefixes if they exist
-        if (chunk.startsWith('data:')) {
-          chunk = chunk.replace(/^data:\s*/, '').replace(/^data:\s*/, '');
-        }
+        buffer = buffer.slice(boundary + 2); // Remove processed chunk
 
         // Skip empty chunks and "[DONE]"
         if (!chunk || chunk === '[DONE]') continue;
@@ -167,6 +170,14 @@ async function fetchStream(url: string, options: RequestInit) {
           // Append content to response text
           if (content) {
             responseText.value += content;
+
+            // Update the chat object in real-time
+            await chatStore.editChat(chatId, {
+              botResponse: responseText.value,
+            });
+
+            // Update the stored chat object
+            chat.value = { ...chat.value, botResponse: responseText.value };
           }
         } catch (err) {
           console.error('Error parsing chunk:', err);
@@ -177,24 +188,4 @@ async function fetchStream(url: string, options: RequestInit) {
     throw new Error('Stream not supported in response');
   }
 }
-
-
 </script>
-
-<style scoped>
-.spinner-border {
-  border-width: 2px;
-  width: 1rem;
-  height: 1rem;
-  border-color: white;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
-}
-
-@keyframes spin {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-</style>

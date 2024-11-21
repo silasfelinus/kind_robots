@@ -63,6 +63,8 @@ export default defineEventHandler(async (event) => {
       data: updatedChatData,
     })
 
+console.log("updated chat with: ", data)
+
     response = {
       success: true,
       message: `Chat with ID ${id} updated successfully.`,

@@ -29,7 +29,6 @@ const isImageData = (data: string): boolean => {
   return data.startsWith('data:image/') || /^[A-Za-z0-9+/]+={0,2}$/.test(data)
 }
 
-// Computed property for avatar URL
 const avatarUrl = computed(() => {
   const artImageId = userStore.user.artImageId
 
@@ -38,9 +37,9 @@ const avatarUrl = computed(() => {
     return defaultAvatar
   }
 
-  const userImage = userStore.userImage(effectiveUserId.value)
+  const userImage = userStore.userImage(effectiveUserId.value) || ''
 
-  if (userImage && isImageData(userImage)) {
+  if (isImageData(userImage)) {
     return `data:image/png;base64,${userImage}`
   }
 

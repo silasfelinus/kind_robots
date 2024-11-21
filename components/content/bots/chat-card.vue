@@ -11,23 +11,23 @@
     </button>
 
     <!-- Header -->
-    <div v-if="chat.userId" class="header flex items-center mb-4 gap-4">
+    <div v-if="hasUser" class="header flex items-center mb-4 gap-4">
       <img
-        :src="userStore.userImage(chat.userId)"
+        :src="userImage"
         alt="User Avatar"
         class="w-12 h-12 rounded-full border-2 border-primary"
       />
       <div>
         <p class="text-lg font-bold text-gray-800">
-          {{ chat.sender || 'User' }}
+          {{ senderName }}
           <span class="text-sm text-gray-500">to</span>
-          {{ chat.botName || 'Bot' }}
+          {{ botName }}
         </p>
-        <p class="text-sm text-gray-400">{{ formatDate(chat.createdAt) }}</p>
+        <p class="text-sm text-gray-400">{{ formattedDate }}</p>
       </div>
       <img
-        v-if="chat.botId"
-        :src="botStore.botImage(chat.botId)"
+        v-if="hasBot"
+        :src="botImage"
         alt="Bot Avatar"
         class="w-12 h-12 rounded-full border-2 border-secondary ml-auto"
       />
@@ -39,11 +39,7 @@
         v-for="message in threadMessages"
         :key="message.id"
         class="message p-3 mb-2 rounded-lg flex gap-4"
-        :class="{
-          'flex-row-reverse bg-gray-900 text-gray-100':
-            message.sender === chat.sender,
-          'flex-row bg-blue-900 text-blue-100': message.sender !== chat.sender,
-        }"
+        :class="messageClass(message)"
       >
         <img
           :src="getImage(message.sender)"
@@ -60,7 +56,7 @@
     <!-- Bot Response -->
     <div class="bot-response p-4 rounded-lg bg-accent mb-4">
       <p class="text-sm font-semibold text-accent-content">Bot Response:</p>
-      <p class="text-base">{{ chat.botResponse || 'Awaiting response...' }}</p>
+      <p class="text-base">{{ botResponse }}</p>
     </div>
 
     <!-- Continue Section -->
@@ -117,26 +113,36 @@ const threadMessages = computed(() =>
   ),
 )
 
-// Utility method for formatting dates
-const formatDate = (date: Date | string | null) => {
-  if (!date) return 'Unknown Date'
-  return new Date(date).toLocaleString()
+const formattedDate = computed(() => {
+  if (!chat.createdAt) return 'Unknown Date'
+  return new Date(chat.createdAt).toLocaleString()
+})
+
+const botResponse = computed(() => chat.botResponse || 'Awaiting response...')
+const senderName = computed(() => chat.sender || 'User')
+const botName = computed(() => chat.botName || 'Bot')
+const userImage = computed(() => userStore.userImage(chat.userId || 9))
+const botImage = computed(() => botStore.botImage(chat.botId || 1))
+const hasUser = computed(() => !!chat.userId)
+const hasBot = computed(() => !!chat.botId)
+
+// Utility functions
+const getImage = (sender: string) => {
+  return sender === chat.sender ? userImage.value : botImage.value
 }
 
-// Get image based on sender
-const getImage = (sender: string) => {
-  return sender === chat.sender
-    ? userStore.userImage(chat.userId || 9)
-    : botStore.botImage(chat.botId || 1)
-}
+const messageClass = (message: { sender: string }) => ({
+  'flex-row-reverse bg-gray-900 text-gray-100': message.sender === chat.sender,
+  'flex-row bg-blue-900 text-blue-100': message.sender !== chat.sender,
+})
 
 const sendReply = async () => {
   if (replyMessage.value.trim()) {
     try {
       const newChat = await chatStore.addChat({
         content: replyMessage.value,
-        userId: chat.userId || userStore.userId || 9, // Ensure a default number is used
-        recipientId: chat.recipientId || 0, // Fallback to 0 or another default
+        userId: chat.userId || userStore.userId || 9,
+        recipientId: chat.recipientId || 0,
         isPublic: chat.isPublic,
         originId: chat.originId || chat.id,
         previousEntryId: chat.id,
@@ -168,9 +174,3 @@ const deleteChat = async () => {
   }
 }
 </script>
-
-<style scoped>
-.reply-container textarea {
-  resize: vertical;
-}
-</style>

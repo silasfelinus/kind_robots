@@ -82,10 +82,12 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useChatStore, type Chat } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
+import { useArtStore } from '@/stores/artStore'
 
 // Props
 const props = defineProps({
@@ -105,6 +107,7 @@ const replyMessage = ref('')
 const chatStore = useChatStore()
 const userStore = useUserStore()
 const botStore = useBotStore()
+const artStore = useArtStore()
 
 // Computed properties
 const threadMessages = computed(() =>
@@ -121,10 +124,26 @@ const formattedDate = computed(() => {
 const botResponse = computed(() => chat.botResponse || 'Awaiting response...')
 const senderName = computed(() => chat.sender || 'User')
 const botName = computed(() => chat.botName || 'Bot')
-const userImage = computed(() => userStore.userImage(chat.userId || 9))
-const botImage = computed(() => botStore.botImage(chat.botId || 1))
-const hasUser = computed(() => !!chat.userId)
-const hasBot = computed(() => !!chat.botId)
+
+// Compute user avatar image dynamically
+const userImage = computed(() => {
+  const user = userStore.getUserById(chat.userId)
+  if (user?.artImageId) {
+    const artImage = artStore.getArtImageById(user.artImageId)
+    return artImage?.imageData || user.avatarImage || null
+  }
+  return user?.avatarImage || null
+})
+
+// Compute bot avatar image dynamically
+const botImage = computed(() => {
+  const bot = botStore.getBotById(chat.botId)
+  if (bot?.artImageId) {
+    const artImage = artStore.getArtImageById(bot.artImageId)
+    return artImage?.imageData || bot.avatarImage || null
+  }
+  return bot?.avatarImage || null
+})
 
 // Utility functions
 const getImage = (sender: string) => {
@@ -136,6 +155,7 @@ const messageClass = (message: { sender: string }) => ({
   'flex-row bg-blue-900 text-blue-100': message.sender !== chat.sender,
 })
 
+// Actions
 const sendReply = async () => {
   if (replyMessage.value.trim()) {
     try {

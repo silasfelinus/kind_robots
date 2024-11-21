@@ -51,12 +51,11 @@ export const useComponentStore = defineStore('componentStore', {
       this.selectedFolder = null
     },
 
-    async syncComponents() {
+    async syncComponents(progressCallback?: (message: string) => void) {
       try {
-        console.log('Syncing components from components.json...')
+        if (progressCallback) progressCallback('Fetching components.json...')
         const folderDataResponse =
           await performFetch<Folder[]>('/components.json')
-
         if (!folderDataResponse.success || !folderDataResponse.data) {
           throw new Error(
             folderDataResponse.message || 'Failed to fetch components.json',
@@ -64,6 +63,8 @@ export const useComponentStore = defineStore('componentStore', {
         }
         const folderData = folderDataResponse.data
 
+        if (progressCallback)
+          progressCallback('Fetching components from the API...')
         const apiResponse = await performFetch<Component[]>('/api/components')
         if (!apiResponse.success || !apiResponse.data) {
           throw new Error(
@@ -72,6 +73,7 @@ export const useComponentStore = defineStore('componentStore', {
         }
         const apiComponents = apiResponse.data
 
+        if (progressCallback) progressCallback('Synchronizing components...')
         const componentsFromJson = folderData.flatMap((folder) =>
           folder.components.map((componentName) => ({
             componentName,
@@ -79,21 +81,23 @@ export const useComponentStore = defineStore('componentStore', {
           })),
         )
 
+        // Delete components not in components.json
         for (const apiComponent of apiComponents) {
           const existsInJson = componentsFromJson.some(
             (jsonComp) =>
               jsonComp.componentName === apiComponent.componentName &&
               jsonComp.folderName === apiComponent.folderName,
           )
-
           if (!existsInJson) {
-            console.log(
-              `Deleting component: ${apiComponent.componentName} from folder: ${apiComponent.folderName}`,
-            )
+            if (progressCallback)
+              progressCallback(
+                `Deleting component: ${apiComponent.componentName}`,
+              )
             await this.deleteComponent(apiComponent.id)
           }
         }
 
+        // Add or update components from components.json
         for (const folder of folderData) {
           for (const componentName of folder.components) {
             const existingComponent = apiComponents.find(
@@ -116,16 +120,19 @@ export const useComponentStore = defineStore('componentStore', {
               artImageId: existingComponent?.artImageId || null,
             }
 
-            await this.createOrUpdateComponent(
-              componentData,
-              existingComponent ? 'update' : 'create',
-            )
+            const action = existingComponent ? 'update' : 'create'
+            if (progressCallback)
+              progressCallback(
+                `${action === 'create' ? 'Creating' : 'Updating'} component: ${componentName}`,
+              )
+            await this.createOrUpdateComponent(componentData, action)
           }
         }
 
-        console.log('Components synced from components.json to the API.')
+        if (progressCallback) progressCallback('Sync complete!')
       } catch (error) {
         handleError(error, 'Error syncing components from components.json')
+        throw error
       }
     },
 

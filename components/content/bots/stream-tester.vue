@@ -78,10 +78,11 @@ async function submitPrompt() {
   loading.value = true;
   errorMessage.value = '';
   responseText.value = `You: ${prompt.value}\n\n`; // Display the prompt
+  let newChat;
 
   try {
     // Step 1: Create a new chat object in the database
-    const newChat = await chatStore.addChat({
+    newChat = await chatStore.addChat({
       content: prompt.value,
       userId: 1, // Replace with actual user ID
       botId: 1,  // Replace with actual bot ID
@@ -119,13 +120,11 @@ async function submitPrompt() {
       const botResponse = data.choices?.[0]?.message?.content || 'No response received';
       responseText.value += botResponse;
 
-      // Update the chat object with the bot response
-      await chatStore.editChat(newChat.id, {
-        botResponse,
-      });
+      // Update the chat object locally
+      chat.value = { ...chat.value, botResponse };
 
-      // Update the stored chat object with the bot response
-      chat.value = { ...newChat, botResponse };
+      // Save final response to the database
+      await chatStore.editChat(newChat.id, { botResponse });
     }
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -147,42 +146,45 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
     const decoder = new TextDecoder();
     let buffer = ''; // Accumulate partial data from chunks
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      // Decode current chunk and add to the buffer
-      buffer += decoder.decode(value, { stream: true });
+        // Decode current chunk and add to the buffer
+        buffer += decoder.decode(value, { stream: true });
 
-      let boundary;
-      while ((boundary = buffer.indexOf('\n\n')) >= 0) {
-        let chunk = buffer.slice(0, boundary).trim();
-        buffer = buffer.slice(boundary + 2); // Remove processed chunk
+        let boundary;
+        while ((boundary = buffer.indexOf('\n\n')) >= 0) {
+          let chunk = buffer.slice(0, boundary).trim();
+          buffer = buffer.slice(boundary + 2); // Remove processed chunk
 
-        // Skip empty chunks and "[DONE]"
-        if (!chunk || chunk === '[DONE]') continue;
+          // Skip empty chunks and "[DONE]"
+          if (!chunk || chunk === '[DONE]') continue;
 
-        try {
-          // Parse the JSON and extract the content
-          const parsed = JSON.parse(chunk);
-          const content = parsed.choices[0]?.delta?.content;
+          try {
+            // Parse the JSON and extract the content
+            const parsed = JSON.parse(chunk);
+            const content = parsed.choices[0]?.delta?.content;
 
-          // Append content to response text
-          if (content) {
-            responseText.value += content;
+            // Append content to response text
+            if (content) {
+              responseText.value += content;
 
-            // Update the chat object in real-time
-            await chatStore.editChat(chatId, {
-              botResponse: responseText.value,
-            });
-
-            // Update the stored chat object
-            chat.value = { ...chat.value, botResponse: responseText.value };
+              // Update the chat object locally in real time
+              chat.value = { ...chat.value, botResponse: responseText.value };
+            }
+          } catch (err) {
+            console.error('Error parsing JSON chunk:', err);
           }
-        } catch (err) {
-          console.error('Error parsing chunk:', err);
         }
       }
+
+      // Save final bot response to the database after streaming is complete
+      await chatStore.editChat(chatId, { botResponse: responseText.value });
+    } catch (err) {
+      console.error('Error during streaming:', err);
+      throw new Error('Streaming failed.');
     }
   } else {
     throw new Error('Stream not supported in response');

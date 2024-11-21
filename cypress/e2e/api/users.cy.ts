@@ -51,7 +51,7 @@ describe('User Management API Tests', () => {
         expect(response.body).to.have.property('success', true)
         expect(response.body).to.have.property('message').that.is.a('string')
         expect(response.body)
-          .to.have.nested.property('data.users')
+          .to.have.nested.property('data')
           .that.is.an('array').that.is.not.empty
       })
     })

@@ -101,12 +101,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Update the collection with validated art items using `connect`
+    // Disconnect all currently connected art items and replace with new ones
     const data = await prisma.artCollection.update({
       where: { id: collectionId },
       data: {
         art: {
-          connect: validArtItems.map((art) => ({ id: art.id })), // Add new art items
+          set: validArtItems.map((art) => ({ id: art.id })), // Replace the entire list
         },
       },
       include: { art: true },

@@ -52,89 +52,82 @@ export const useComponentStore = defineStore('componentStore', {
     },
 
     async syncComponents(progressCallback?: (message: string) => void) {
-      try {
-        if (progressCallback) progressCallback('Fetching components.json...')
-        const folderDataResponse =
-          await performFetch<Folder[]>('/components.json')
-        if (!folderDataResponse.success || !folderDataResponse.data) {
-          throw new Error(
-            folderDataResponse.message || 'Failed to fetch components.json',
-          )
-        }
-        const folderData = folderDataResponse.data
+  try {
+    if (progressCallback) progressCallback('Fetching components.json...');
+    const folderDataResponse = await performFetch<Folder[]>('/components.json');
+    if (!folderDataResponse.success || !folderDataResponse.data) {
+      throw new Error(folderDataResponse.message || 'Failed to load components.json');
+    }
+    const folderData = folderDataResponse.data;
 
+    if (progressCallback) progressCallback('Fetching components from the API...');
+    const apiResponse = await performFetch<Component[]>('/api/components');
+    if (!apiResponse.success || !apiResponse.data) {
+      throw new Error(apiResponse.message || 'Failed to fetch API components');
+    }
+    const apiComponents = apiResponse.data;
+
+    if (progressCallback) progressCallback('Synchronizing components...');
+    const componentsFromJson = folderData.flatMap((folder) =>
+      folder.components.map((componentName) => ({
+        componentName,
+        folderName: folder.folderName,
+      }))
+    );
+
+    for (const apiComponent of apiComponents) {
+      const existsInJson = componentsFromJson.some(
+        (jsonComp) =>
+          jsonComp.componentName === apiComponent.componentName &&
+          jsonComp.folderName === apiComponent.folderName
+      );
+      if (!existsInJson) {
         if (progressCallback)
-          progressCallback('Fetching components from the API...')
-        const apiResponse = await performFetch<Component[]>('/api/components')
-        if (!apiResponse.success || !apiResponse.data) {
-          throw new Error(
-            apiResponse.message || 'Failed to fetch components from API',
-          )
-        }
-        const apiComponents = apiResponse.data
-
-        if (progressCallback) progressCallback('Synchronizing components...')
-        const componentsFromJson = folderData.flatMap((folder) =>
-          folder.components.map((componentName) => ({
-            componentName,
-            folderName: folder.folderName,
-          })),
-        )
-
-        // Delete components not in components.json
-        for (const apiComponent of apiComponents) {
-          const existsInJson = componentsFromJson.some(
-            (jsonComp) =>
-              jsonComp.componentName === apiComponent.componentName &&
-              jsonComp.folderName === apiComponent.folderName,
-          )
-          if (!existsInJson) {
-            if (progressCallback)
-              progressCallback(
-                `Deleting component: ${apiComponent.componentName}`,
-              )
-            await this.deleteComponent(apiComponent.id)
-          }
-        }
-
-        // Add or update components from components.json
-        for (const folder of folderData) {
-          for (const componentName of folder.components) {
-            const existingComponent = apiComponents.find(
-              (comp) =>
-                comp.componentName === componentName &&
-                comp.folderName === folder.folderName,
-            )
-
-            const componentData: Component = {
-              id: existingComponent ? existingComponent.id : 0,
-              componentName,
-              folderName: folder.folderName,
-              createdAt: existingComponent?.createdAt || new Date(),
-              updatedAt: new Date(),
-              isWorking: existingComponent?.isWorking || true,
-              underConstruction: existingComponent?.underConstruction || false,
-              isBroken: existingComponent?.isBroken || false,
-              title: existingComponent?.title || null,
-              notes: existingComponent?.notes || null,
-              artImageId: existingComponent?.artImageId || null,
-            }
-
-            const action = existingComponent ? 'update' : 'create'
-            if (progressCallback)
-              progressCallback(
-                `${action === 'create' ? 'Creating' : 'Updating'} component: ${componentName}`,
-              )
-            await this.createOrUpdateComponent(componentData, action)
-          }
-        }
-
-        if (progressCallback) progressCallback('Sync complete!')
-      } catch (error) {
-        handleError(error, 'Error syncing components from components.json')
-        throw error
+          progressCallback(`Deleting component: ${apiComponent.componentName}`);
+        await this.deleteComponent(apiComponent.id);
       }
-    },
+    }
+
+    for (const folder of folderData) {
+      for (const componentName of folder.components) {
+        const existingComponent = apiComponents.find(
+          (comp) =>
+            comp.componentName === componentName &&
+            comp.folderName === folder.folderName
+        );
+
+        const componentData: Component = {
+          id: existingComponent ? existingComponent.id : 0,
+          componentName,
+          folderName: folder.folderName,
+          createdAt: existingComponent?.createdAt || new Date(),
+          updatedAt: new Date(),
+          isWorking: existingComponent?.isWorking || true,
+          underConstruction: existingComponent?.underConstruction || false,
+          isBroken: existingComponent?.isBroken || false,
+          title: existingComponent?.title || null,
+          notes: existingComponent?.notes || null,
+          artImageId: existingComponent?.artImageId || null,
+        };
+
+        const action = existingComponent ? 'update' : 'create';
+        if (progressCallback)
+          progressCallback(
+            `${action === 'create' ? 'Creating' : 'Updating'} component: ${componentName}`
+          );
+        await this.createOrUpdateComponent(componentData, action);
+      }
+    }
+
+    if (progressCallback) progressCallback('Sync complete!');
+  } catch (error: any) {
+    // Log detailed error for debugging
+    console.error('SyncComponents Error:', error);
+    // Provide user-friendly message
+    throw new Error(error.message || 'An unexpected error occurred during sync.');
+  }
+},
+
 
     async fetchComponentById(id: number) {
       try {

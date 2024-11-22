@@ -1,16 +1,14 @@
 <template>
-  <div class="bg-base-300 flex flex-col items-center p-4 rounded-2xl">
-    <h1 class="text-3xl font-bold text-primary mb-4">Kind Robots</h1>
+  <div class="bg-base-300 flex flex-col items-center p-4 rounded-2xl h-full">
+    <h1 class="text-3xl font-bold mb-4">Kind Robots</h1>
     <div v-if="isLoggedIn" class="text-lg text-info mb-4">
       You are already logged in. Would you like to
-      <a href="/dashboard" class="text-accent">go to the dashboard</a> or
-      <a href="#" class="text-warning" @click="userStore.logout">log out</a>?
+      <a href="/dashboard" class="text-info">go to the dashboard</a> or
+      <a href="#" class="text-info" @click="userStore.logout">log out</a>?
     </div>
     <form class="space-y-4 w-full max-w-sm" @submit.prevent="register">
       <div v-if="step === 1">
-        <h1 class="text-4xl font-bold text-primary mb-4">
-          Pick a Cool Username
-        </h1>
+        <h1 class="text-4xl font-bold mb-4">Pick a Cool Username</h1>
         <div class="relative mb-4">
           <input
             v-model="username"

@@ -32,20 +32,25 @@ export default defineEventHandler(async (event) => {
     // Successful deletion response
     response = {
       success: true,
-      message: `Component with ID ${componentId} deleted successfully.`
+      message: `Component with ID ${componentId} deleted successfully.`,
       data: {},
       statusCode: 200,
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.error(`Error deleting component with ID "${componentId}":`, handledError)
+    console.error(
+      `Error deleting component with ID "${componentId}":`,
+      handledError,
+    )
 
     // Set the appropriate status code and response based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message: handledError.message || `Failed to delete component with ID ${componentId}.`,
+      message:
+        handledError.message ||
+        `Failed to delete component with ID ${componentId}.`,
       statusCode: event.node.res.statusCode,
     }
   }

@@ -56,7 +56,6 @@ import { computed } from 'vue'
 import { usePitchStore } from './../../../stores/pitchStore'
 import { useUserStore } from './../../../stores/userStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
-import { useFilterStore } from './../../../stores/filterStore'
 
 // Define pitch type with attributes matching the schema
 interface Pitch {
@@ -76,7 +75,6 @@ interface Pitch {
 const pitchStore = usePitchStore()
 const userStore = useUserStore()
 const errorStore = useErrorStore()
-const filterStore = useFilterStore()
 
 const showPublicPitches = ref(true)
 
@@ -92,7 +90,7 @@ const filteredPitches = computed(() => {
   return pitches.value.filter((pitch) => {
     if (userStore.userId === pitch.userId) return true
     if (showPublicPitches.value && pitch.isPublic) return true
-    if (filterStore.showMature && pitch.isMature) return true
+    if (userStore.showMature && pitch.isMature) return true
     return false
   })
 })

@@ -3,16 +3,18 @@
     <img
       :src="avatarUrl"
       :alt="`${username}'s avatar`"
-      class="rounded-full border-2 border-accent object-cover"
+      class="rounded-full border-2 min-h-6 min-w-6 border-accent object-cover"
       @error="handleAvatarError"
     />
   </div>
-  <div class="text-center mt-2">{{ username }}</div>
+  <!-- Only show the username if not on a mobile viewport -->
+  <div v-if="!isMobileViewport" class="text-center mt-2">{{ username }}</div>
 </template>
 
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useUserStore } from '../../../stores/userStore'
+import { useDisplayStore } from '../../../stores/displayStore'
 
 // Props
 const props = defineProps<{ userId?: number }>()
@@ -20,10 +22,14 @@ const props = defineProps<{ userId?: number }>()
 // User Store
 const userStore = useUserStore()
 
+// Display Store
+const displayStore = useDisplayStore()
+
 // State
 const avatarUrl = ref('/images/kindart.webp') // Default avatar
 const effectiveUserId = computed(() => props.userId ?? userStore.userId)
 const username = computed(() => userStore.username || 'Guest')
+const isMobileViewport = computed(() => displayStore.isMobileViewport)
 
 // Helper to determine if the image is base64 or raw data
 const isImageData = (data: string): boolean => {

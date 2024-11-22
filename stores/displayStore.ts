@@ -55,7 +55,22 @@ export const useDisplayStore = defineStore('display', {
   }),
 
   getters: {
- ng in pixels (string)
+
+sectionPaddingSizes(state): Record<'small' | 'medium' | 'large' | 'extraLarge', number> {
+    return {
+      small: 2,
+      medium: 4,
+      large: 6,
+      extraLarge: 8,
+    }
+  },
+
+  // Numeric section padding based on viewport size
+  sectionPaddingNumeric(state): number {
+    const sizes = this.sectionPaddingSizes
+    return sizes[state.viewportSize] || 6
+  },
+
   sectionPadding(state): string {
     return `${this.sectionPaddingNumeric}px`
   },

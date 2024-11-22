@@ -82,7 +82,6 @@ onMounted(fetchAvatar)
 <style scoped>
 img {
   height: auto;
-  max-width: 50%; /* Ensures image is no more than 50% of its container */
   aspect-ratio: 1 / 1; /* Maintains a perfect circle */
 }
 </style>

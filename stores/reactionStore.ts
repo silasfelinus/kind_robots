@@ -56,10 +56,7 @@ export const useReactionStore = defineStore('reactionStore', {
           `/api/reactions/art/${artId}`,
         )
         if (!response.success) throw new Error(response.message)
-        this.reactions = [
-          ...this.reactions,
-          ...(response.data || []),
-        ]
+        this.reactions = [...this.reactions, ...(response.data || [])]
       } catch (error) {
         handleError(error, 'fetching reactions by art ID')
       } finally {
@@ -72,7 +69,7 @@ export const useReactionStore = defineStore('reactionStore', {
       this.error = null
       try {
         const response = await performFetch<Reaction[]>(
-          `/api/components/${componentId}/reactions`,
+          `/api/reactions/component/${componentId}`,
         )
         if (!response.success) throw new Error(response.message)
         this.reactions = response.data || []
@@ -87,9 +84,7 @@ export const useReactionStore = defineStore('reactionStore', {
       this.loading = true
       this.error = null
       try {
-        const response = await performFetch<Reaction[]>(
-          '/api/reactions',
-        )
+        const response = await performFetch<Reaction[]>('/api/reactions')
         if (!response.success) throw new Error(response.message)
         this.reactions = response.data || []
       } catch (error) {
@@ -135,30 +130,27 @@ export const useReactionStore = defineStore('reactionStore', {
       reactionCategory?: ReactionCategoryEnum
     }) {
       try {
-        const response = await performFetch<Reaction>(
-          '/api/reactions',
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              userId,
-              reactionType,
-              rating,
-              comment,
-              artId,
-              artImageId,
-              pitchId,
-              componentId,
-              chatId,
-              botId,
-              galleryId,
-              promptId,
-              resourceId,
-              reactionCategory,
-              rewardId,
-              tagId,
-            }),
-          },
-        )
+        const response = await performFetch<Reaction>('/api/reactions', {
+          method: 'POST',
+          body: JSON.stringify({
+            userId,
+            reactionType,
+            rating,
+            comment,
+            artId,
+            artImageId,
+            pitchId,
+            componentId,
+            chatId,
+            botId,
+            galleryId,
+            promptId,
+            resourceId,
+            reactionCategory,
+            rewardId,
+            tagId,
+          }),
+        })
         if (!response.success) throw new Error(response.message)
         const newReaction = response.data
         if (newReaction) this.reactions.push(newReaction)

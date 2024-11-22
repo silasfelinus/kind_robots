@@ -376,7 +376,8 @@
       "LabChooser",
       "LabGallery",
       "WonderLab",
-      "comfy-frontend"
+      "comfy-frontend",
+      "component-sync"
     ]
   }
 ]

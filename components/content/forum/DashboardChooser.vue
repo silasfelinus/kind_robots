@@ -43,11 +43,6 @@ import { useDisplayStore } from '~/stores/displayStore'
 // Access the display store
 const displayStore = useDisplayStore()
 
-// Ensure displayStore initializes and stays updated
-onMounted(() => {
-  displayStore.initialize()
-})
-
 // Tabs setup for Dashboard Chooser
 const tabs = [
   { name: 'intro-page', label: 'Welcome!' },
@@ -57,8 +52,8 @@ const tabs = [
   { name: 'jellybean-counter', label: 'Jellybean Counter' },
 ]
 
-// Default to the first tab
-const choice = ref(tabs[0]?.name || 'user-dashboard')
+// Default to `null` initially to ensure it's set in `onMounted`
+const choice = ref<string | null>(null)
 
 // Dynamically compute the main content area size
 const mainContentStyle = computed(() => ({
@@ -70,4 +65,10 @@ const mainContentStyle = computed(() => ({
 function handleIntroPageLeave() {
   choice.value = 'user-dashboard' // Set the default tab
 }
+
+// Initialize the starting tab based on `displayStore.showIntro`
+onMounted(() => {
+  displayStore.initialize()
+  choice.value = displayStore.showIntro ? 'intro-page' : 'user-dashboard'
+})
 </script>

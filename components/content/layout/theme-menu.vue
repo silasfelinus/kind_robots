@@ -17,11 +17,17 @@
         :key="theme"
         :data-theme="theme"
         class="theme-container p-4 rounded-xl border shadow-sm transition-all cursor-pointer flex flex-col items-center justify-between"
+        :class="
+          theme === themeStore.currentTheme
+            ? 'ring-4 ring-accent'
+            : 'border-base-300'
+        "
         @click="handleThemeChange(theme)"
-        :class="theme === themeStore.currentTheme ? 'ring-4 ring-accent' : 'border-base-300'"
       >
         <!-- Button Preview -->
-        <button class="theme-preview w-full h-16 rounded-lg flex items-center justify-center text-lg font-serif">
+        <button
+          class="theme-preview w-full h-16 rounded-lg flex items-center justify-center text-lg font-serif"
+        >
           {{ theme }}
         </button>
 
@@ -30,7 +36,7 @@
           <div
             v-for="color in ['primary', 'secondary', 'accent']"
             :key="color"
-            :class="`bg-${theme}-${color} w-8 h-8 rounded-full border border-base-content`"
+            :class="`bg-${color} w-8 h-8 rounded-full border border-base-content`"
           ></div>
         </div>
       </div>
@@ -49,7 +55,7 @@ onMounted(() => {
   try {
     themeStore.initTheme()
   } catch (error) {
-    console.error("Error initializing theme store:", error)
+    console.error('Error initializing theme store:', error)
   }
 })
 
@@ -61,7 +67,7 @@ const handleThemeChange = (theme: string) => {
   try {
     themeStore.changeTheme(theme)
   } catch (error) {
-    console.error("Error changing theme:", error)
+    console.error('Error changing theme:', error)
   }
 }
 </script>

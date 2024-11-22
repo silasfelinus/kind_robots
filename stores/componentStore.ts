@@ -192,32 +192,47 @@ export const useComponentStore = defineStore('componentStore', {
           body: JSON.stringify(component),
         })
 
-        if (response.success && response.data) {
-          if (action === 'create') {
-            this.components.push(response.data)
-            console.log(
-              `Component ${response.data.componentName} created successfully with ID: ${response.data.id}`,
-            )
-            return response.data
+        // Validate the response
+        if (!response.success || !response.data) {
+          throw new Error(
+            `API failed to ${action} component: ${component.componentName}. Response: ${JSON.stringify(response)}`,
+          )
+        }
+
+        const serverComponent = response.data
+
+        if (action === 'create') {
+          // Add new component to state
+          this.components.push(serverComponent)
+          console.log(
+            `Component "${serverComponent.componentName}" created successfully with ID: ${serverComponent.id}`,
+          )
+          return serverComponent
+        } else {
+          // Update existing component in state
+          const index = this.components.findIndex(
+            (comp) => comp.id === component.id,
+          )
+          if (index !== -1) {
+            this.components[index] = serverComponent
           } else {
-            const index = this.components.findIndex(
-              (comp) => comp.id === component.id,
-            )
-            if (index !== -1) {
-              this.components[index] = response.data
-            }
-            console.log(
-              `Component ${component.componentName} updated successfully`,
+            // Log a sync issue if the updated component is missing locally
+            console.warn(
+              `Component "${component.componentName}" updated on server but not found in local state.`,
             )
           }
-        } else {
-          throw new Error(response.message || `Failed to ${action} component`)
+          console.log(
+            `Component "${component.componentName}" updated successfully.`,
+          )
         }
       } catch (error) {
+        // Ensure proper error handling and detailed messages
         handleError(
           error,
-          `Error ${action === 'create' ? 'creating' : 'updating'} component`,
+          `Error while trying to ${action} component: ${component.componentName} (${component.id || 'new'})`,
         )
+        // Optional: Rethrow the error if the calling method needs to handle it
+        throw error
       }
     },
 

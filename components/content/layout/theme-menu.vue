@@ -1,41 +1,30 @@
 <template>
-  <div
-    class="theme-toggle relative flex flex-col items-center justify-center bg-base-300 p-4 rounded-2xl text-lg w-full h-full border shadow-lg overflow-auto"
+  <button
+    @click="themeStore.changeTheme(theme)"
+    class="theme-button relative flex flex-col items-center justify-between p-4 rounded-xl transition-all cursor-pointer text-lg border shadow-sm"
+    :class="[
+      theme === themeStore.currentTheme ? 'ring-4 ring-accent' : 'border-base-300',
+      `bg-${theme}-base`,
+      `text-${theme}-primary`
+    ]"
   >
-    <!-- Title -->
-    <div class="text-2xl font-bold mb-4 w-full text-center">Choose Theme:</div>
-
-    <!-- Milestone reward (conditionally shown) -->
-    <award-milestone v-if="themeChanged" :id="9" />
-
-    <!-- Theme list, scrollable if too many items -->
-    <div
-      class="theme-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full overflow-y-auto h-full px-4"
-    >
+    <!-- Theme Colors Swatches -->
+    <div class="swatches flex gap-2 w-full justify-center mb-2">
       <div
-        v-for="(theme, index) in themeStore.themes"
-        :key="index"
-        class="theme-item flex items-center justify-center cursor-pointer p-4 rounded-lg hover:bg-base-200 transition-all"
-        :class="theme === themeStore.currentTheme ? 'ring-2 ring-accent' : ''"
-        @click="themeStore.changeTheme(theme)"
-      >
-        <div class="text-lg w-full text-center">
-          {{ theme }}
-        </div>
-      </div>
+        v-for="color in ['primary', 'secondary', 'accent']"
+        :key="color"
+        :class="`bg-${theme}-${color} h-8 w-8 rounded-full`"
+        class="transition-transform hover:scale-110"
+      ></div>
     </div>
-  </div>
+
+    <!-- Theme Title -->
+    <span class="font-serif text-lg">{{ theme }}</span>
+  </button>
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
 import { useThemeStore } from '../../../stores/themeStore'
 
 const themeStore = useThemeStore()
-
-onMounted(() => {
-  themeStore.initTheme()
-})
-
-const themeChanged = computed(() => themeStore.firstThemeChanged)
 </script>

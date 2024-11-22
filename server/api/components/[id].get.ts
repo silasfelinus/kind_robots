@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
       where: { id: componentId },
     })
 
-    if (!component) {
+    if (!data) {
       throw createError({
         statusCode: 404, // Not Found
         message: `Component with ID ${componentId} does not exist.`,
@@ -38,13 +38,18 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.error(`Error fetching component with ID "${componentId}":`, handledError)
+    console.error(
+      `Error fetching component with ID "${componentId}":`,
+      handledError,
+    )
 
     // Set the appropriate status code and response based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message: handledError.message || `Failed to fetch component with ID ${componentId}.`,
+      message:
+        handledError.message ||
+        `Failed to fetch component with ID ${componentId}.`,
       statusCode: event.node.res.statusCode,
     }
   }

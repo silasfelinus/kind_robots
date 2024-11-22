@@ -24,6 +24,15 @@
         <button class="theme-preview w-full h-16 rounded-lg flex items-center justify-center text-lg font-serif">
           {{ theme }}
         </button>
+
+        <!-- Circular Color Swatches -->
+        <div class="color-swatches flex gap-2 mt-4">
+          <div
+            v-for="color in ['primary', 'secondary', 'accent']"
+            :key="color"
+            :class="`bg-${theme}-${color} w-8 h-8 rounded-full border border-base-content`"
+          ></div>
+        </div>
       </div>
     </div>
   </div>

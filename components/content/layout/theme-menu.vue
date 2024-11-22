@@ -10,7 +10,7 @@
 
     <!-- Theme list -->
     <div
-      class="theme-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full overflow-y-auto h-full px-4"
+      class="theme-list grid grid-cols-3 gap-6 w-full overflow-y-auto h-full px-4"
     >
       <div
         v-for="theme in themeStore.themes"

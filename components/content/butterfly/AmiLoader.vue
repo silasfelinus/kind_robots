@@ -5,17 +5,19 @@
     @transitionend="handleTransitionEnd"
     @click="startFadeOut"
   >
+    <!-- Bubble Loader - Enlarged and Centered -->
+    <Icon name="kind-icon:bubble-loading" class="bubble-loader" />
     <!-- Dynamic Loading Message -->
     <div class="loading-message">{{ currentMessage }}</div>
 
-    <!-- Bubble Loader - Enlarged and Centered -->
-    <Icon name="kind-icon:bubble-loading" class="bubble-loader" />
-
     <!-- Multiple Butterflies with Animation Delay -->
-    <ami-butterfly v-for="i in butterflyCount" :key="i" :class="{ 'butterfly-fade-out': butterflyFadeOut }" />
+    <ami-butterfly
+      v-for="i in butterflyCount"
+      :key="i"
+      :class="{ 'butterfly-fade-out': butterflyFadeOut }"
+    />
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
@@ -47,9 +49,9 @@ onMounted(() => {
     currentMessage.value = randomLoadMessage()
     intervalId = setInterval(updateMessage, 2500)
   }, 100)
-  
+
   setTimeout(startFadeOut, 1300) // Fade out the message after 2 seconds
-  
+
   setTimeout(startButterflyFadeOut, 10000) // Butterflies fade out after 5 seconds
 })
 
@@ -114,5 +116,4 @@ const handleTransitionEnd = () => {
 .nuxt-wrapper.fade-in {
   opacity: 1;
 }
-
 </style>

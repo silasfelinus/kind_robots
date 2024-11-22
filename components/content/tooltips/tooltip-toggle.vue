@@ -32,7 +32,7 @@ const toggleInfo = () => {
 
 const toggleIcon = computed(() => {
   // Access showInfo from contentStore
-  return contentStore.showInfo ? 'kind-icon:chat-outline' : 'kind-icon:chat-off'
+  return contentStore.showInfo ? 'kind-icon:chatbubbles' : 'kind-icon:chat-off'
 })
 
 const tooltipText = computed(() => {

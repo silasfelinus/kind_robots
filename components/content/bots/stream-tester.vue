@@ -109,26 +109,29 @@ async function submitPrompt() {
       }),
     }
 
-    // Handle Streaming and Non-Streaming
     if (useStreaming.value) {
-      await fetchStream(apiEndpoint, requestOptions, newChat.id)
-    } else {
-      const response = await fetch(apiEndpoint, requestOptions)
-      if (!response.ok) {
-        errorMessage.value = `Error ${response.status}: ${response.statusText}`
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
-      }
-      const data = await response.json()
-      const botResponse =
-        data.choices?.[0]?.message?.content || 'No response received'
-      responseText.value += botResponse
+  await fetchStream(apiEndpoint, requestOptions, newChat.id)
+} else {
+  const response = await fetch(apiEndpoint, requestOptions)
+  if (!response.ok) {
+    errorMessage.value = `Error ${response.status}: ${response.statusText}`
+    throw new Error(`Error ${response.status}: ${response.statusText}`)
+  }
+  const data = await response.json()
+  const botResponse =
+    data.choices?.[0]?.message?.content || 'No response received'
+  responseText.value += botResponse
 
-      // Update the chat object locally
-      chat.value = { ...newChat, botResponse }
+  // Update the chat object locally
+  chat.value = { ...newChat, botResponse }
 
-      // Save final response to the database
-      await chatStore.editChat(newChat.id, { botResponse })
-    }
+  // Update the chat in the store
+  chatStore.updateChat(newChat.id, { botResponse })
+
+  // Save final response to the database
+  await chatStore.editChat(newChat.id, { botResponse })
+}
+
   } catch (error) {
     errorMessage.value =
       error instanceof Error ? error.message : 'An unknown error occurred'
@@ -148,44 +151,57 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
   if (response.body) {
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
-    let buffer = '' // Accumulate partial data from chunks
+    let buffer = ''
 
     try {
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
 
-        // Decode current chunk and add to the buffer
         buffer += decoder.decode(value, { stream: true })
 
         let boundary
         while ((boundary = buffer.indexOf('\n\n')) >= 0) {
-          let chunk = buffer.slice(0, boundary).trim()
-          buffer = buffer.slice(boundary + 2) // Move past the current chunk
+          let chunk = buffer.slice(0, boundary)
+          buffer = buffer.slice(boundary + 2)
 
-          // Remove multiple "data:" prefixes if they exist
           if (chunk.startsWith('data:')) {
-            chunk = chunk.replace(/^data:\s*/, '').replace(/^data:\s*/, '')
+            chunk = cleanDataChunk(chunk)
           }
 
-          // Skip empty chunks and "[DONE]"
           if (!chunk || chunk === '[DONE]') continue
 
           try {
-            // Parse the JSON and extract the content
             const parsed = JSON.parse(chunk)
             const content = parsed.choices[0]?.delta?.content
 
-            // Append content to response text
             if (content) {
               responseText.value += content
-
-              // Update the `chat.value` with a sanitized plain object
-              chat.value = {
-                ...JSON.parse(JSON.stringify(chat.value || {})), // Strip reactivity
+              const updatedChat = {
+                ...JSON.parse(JSON.stringify(chat.value || {})),
                 botResponse: responseText.value,
               }
+              chat.value = updatedChat
+              debouncedUpdateChat(chatId, responseText.value)
             }
+          } catch (err) {
+            console.error('Error parsing JSON chunk:', err)
+          }
+        }
+      }
+
+      // Final update to database
+      await chatStore.editChat(chatId, { botResponse: responseText.value })
+    } catch (err) {
+      console.error('Error during streaming:', err)
+      throw new Error('Streaming failed.')
+    }
+  } else {
+    throw new Error('Stream not supported in response')
+  }
+}
+
+
           } catch (err) {
             console.error('Error parsing JSON chunk:', err)
           }

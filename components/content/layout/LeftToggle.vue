@@ -34,7 +34,7 @@ const iconText = computed(() => {
 
 const toggleSidebarLeft = () => {
   if (displayStore.sidebarLeftState === 'open') {
-    displayStore.sidebarLeftState = 'compact'
+    displayStore.sidebarLeftState = 'hidden'
   } else if (displayStore.sidebarLeftState === 'compact') {
     displayStore.sidebarLeftState = 'hidden'
   } else {

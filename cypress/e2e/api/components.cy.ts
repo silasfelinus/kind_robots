@@ -18,7 +18,7 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.folderNames)
+      expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
@@ -44,7 +44,7 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      componentId = response.body.data.component.id
+      componentId = response.body.data.id
     })
   })
 
@@ -74,7 +74,7 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      const components = response.body.data.components as Array<{
+      const components = response.body.data as Array<{
         componentName: string
       }>
       const componentNames = components.map(
@@ -94,7 +94,7 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      const component = response.body.data.component
+      const component = response.body.data
       expect(component.id).to.eq(componentId)
       expect(component.componentName).to.eq(uniqueComponentName)
       expect(component.folderName).to.eq(uniqueFolderName)
@@ -121,7 +121,7 @@ describe('Component Management API Tests', () => {
       cy.log(JSON.stringify(response.body))
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      const updatedComponent = response.body.data.component
+      const updatedComponent = response.body.data
       expect(updatedComponent.isWorking).to.be.false
       expect(updatedComponent.underConstruction).to.be.true
       expect(updatedComponent.title).to.eq('Updated Test Component')
@@ -139,7 +139,7 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.message).to.include(
+      expect(response.body.message).to.include(
         `Component with ID ${componentId} deleted successfully`,
       )
     })

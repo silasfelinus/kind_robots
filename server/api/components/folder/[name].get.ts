@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    if (!components.length) {
+    if (!data.length) {
       return {
         success: false,
         message: `No components found in the folder "${folderName}".`,

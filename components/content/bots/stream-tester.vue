@@ -76,7 +76,8 @@ const useStreaming = ref(false)
 const chat = ref<Chat | null>(null)
 
 async function submitPrompt() {
-  if (!prompt.value.trim()) return
+if (!prompt.value.trim()) return
+
 
   loading.value = true
   errorMessage.value = ''
@@ -139,6 +140,10 @@ async function submitPrompt() {
   } finally {
     loading.value = false
   }
+}
+
+function cleanDataChunk(chunk: string): string {
+  return chunk.replace(/^data:\s*/, '').trim()
 }
 
 async function fetchStream(url: string, options: RequestInit, chatId: number) {

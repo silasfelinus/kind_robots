@@ -47,7 +47,7 @@
             class="item rounded-md shadow-sm p-2 bg-base-200"
           >
             <img
-              :src="artImages[art.id] || '/images/loading-placeholder.png'"
+              :src="artImages[art.id] || '/images/kindtitle.webp'"
               alt="Art"
               class="w-full h-24 object-cover rounded-md"
               @error="handleImageError(art.id)"
@@ -111,7 +111,7 @@ async function fetchArtImages(artIds: number[]) {
 async function getArtImage(artId: number): Promise<string> {
   try {
     const artImage = await artStore.getArtImageById(artId)
-    return artImage?.imageData || '/images/default-art.png'
+    return artImage?.imageData || '/images/kindtitle.webp'
   } catch (error) {
     console.error(`Failed to fetch art image for artId: ${artId}`, error)
     return '/images/default-art.png' // Fallback to default image
@@ -120,7 +120,7 @@ async function getArtImage(artId: number): Promise<string> {
 
 // Handle image loading errors
 function handleImageError(artId: number) {
-  artImages.value[artId] = '/images/default-art.png'
+  artImages.value[artId] = '/images/kindtitle.webp'
 }
 
 // Determine if art path should be displayed

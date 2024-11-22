@@ -51,7 +51,7 @@
 
       <!-- Fast-forward button with Skip label -->
       <NuxtLink
-        to="/"
+        to="/dashboard"
         class="absolute bottom-4 right-4 bg-accent p-4 rounded-full text-white shadow-lg hover:bg-accent-focus z-60 flex flex-col items-center"
       >
         <Icon name="kind-icon:fast-forward" class="w-6 h-6" />

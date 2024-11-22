@@ -31,9 +31,9 @@
       </div>
 
       <!-- Right Section: Folder View & Reactions -->
-      <div class="w-1/3 h-full flex flex-col">
+      <div class="w-1/3 h-full flex flex-col rounded-2xl">
         <!-- Folder View (Top Half) -->
-        <div class="flex-grow bg-gray-100 overflow-y-auto">
+        <div class="flex-grow bg-gray-100 overflow-y-auto rounded-2xl">
           <div
             v-if="componentStore.selectedFolder"
             class="text-sm md:text-md lg:text-lg xl:text-xl mb-2"

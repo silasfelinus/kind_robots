@@ -36,7 +36,7 @@
           <div
             v-for="color in ['primary', 'secondary', 'accent']"
             :key="color"
-            :class="`bg-${color} w-8 h-8 rounded-full border border-base-content`"
+            :class="`bg-${theme}-${color} w–4 h–4 md:h–6 md:w–6 lg:w-8 lg:h-8 xl:w–10 xl–h–10 rounded-full border border-base-content`"
           ></div>
         </div>
       </div>

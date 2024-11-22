@@ -97,7 +97,7 @@ const props = defineProps({
   },
 })
 
-const chat = reactive({ ...props.chat })
+const chat = ref(props.chat);
 
 // Local state
 const showReply = ref(false)

@@ -201,21 +201,4 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
   }
 }
 
-
-          } catch (err) {
-            console.error('Error parsing JSON chunk:', err)
-          }
-        }
-      }
-
-      // Save final bot response to the database after streaming is complete
-      await chatStore.editChat(chatId, { botResponse: responseText.value })
-    } catch (err) {
-      console.error('Error during streaming:', err)
-      throw new Error('Streaming failed.')
-    }
-  } else {
-    throw new Error('Stream not supported in response')
-  }
-}
 </script>

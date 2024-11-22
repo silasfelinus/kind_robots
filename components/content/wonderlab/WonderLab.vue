@@ -9,7 +9,7 @@
     <!-- Main WonderLab Layout -->
     <div v-if="!isLoading && !errorMessages.length" class="flex h-screen">
       <!-- Left Section for Component Screen -->
-      <div class="w-2/3 h-full p-4 flex justify-center items-center">
+      <div class="w-2/3 h-full flex justify-center items-center">
         <div v-if="!componentStore.selectedComponent" class="text-center max-w-full">
           <component-count class="mb-4" />
           <h1 class="text-4xl font-bold">Welcome to the WonderLab</h1>
@@ -30,8 +30,8 @@
       <!-- Right Section: Folder View & Reactions -->
       <div class="w-1/3 h-full flex flex-col">
         <!-- Folder View (Top Half) -->
-        <div class="flex-grow bg-gray-100 overflow-y-auto p-4">
-          <div v-if="componentStore.selectedFolder" class="text-lg mb-2">
+        <div class="flex-grow bg-gray-100 overflow-y-auto">
+          <div v-if="componentStore.selectedFolder" class="text-sm md:text-md lg:text-lg xl:text-xl mb-2">
             Viewing components in folder: {{ componentStore.selectedFolder }}
           </div>
           <div v-if="!componentStore.selectedFolder">
@@ -39,7 +39,7 @@
           </div>
           <div
             v-if="componentStore.selectedFolder"
-            class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2"
           >
             <component-card
               v-for="component in folderComponents"

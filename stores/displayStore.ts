@@ -55,45 +55,46 @@ export const useDisplayStore = defineStore('display', {
   }),
 
   getters: {
+    sectionPaddingSizes(): Record<
+      'small' | 'medium' | 'large' | 'extraLarge',
+      number
+    > {
+      return {
+        small: 2,
+        medium: 4,
+        large: 6,
+        extraLarge: 8,
+      }
+    },
 
-sectionPaddingSizes(state): Record<'small' | 'medium' | 'large' | 'extraLarge', number> {
-    return {
-      small: 2,
-      medium: 4,
-      large: 6,
-      extraLarge: 8,
-    }
-  },
+    // Numeric section padding based on viewport size
+    sectionPaddingNumeric(state): number {
+      const sizes = this.sectionPaddingSizes
+      return sizes[state.viewportSize] || 6
+    },
 
-  // Numeric section padding based on viewport size
-  sectionPaddingNumeric(state): number {
-    const sizes = this.sectionPaddingSizes
-    return sizes[state.viewportSize] || 6
-  },
+    sectionPadding(): string {
+      return `${this.sectionPaddingNumeric}px`
+    },
 
-  sectionPadding(state): string {
-    return `${this.sectionPaddingNumeric}px`
-  },
+    // Section padding as a percentage of viewport height
+    sectionPaddingVh(): number {
+      if (typeof window !== 'undefined' && window.innerHeight) {
+        const padding = this.sectionPaddingNumeric
+        return (padding / window.innerHeight) * 100
+      }
+      return 6
+    },
 
-  // Section padding as a percentage of viewport height
-  sectionPaddingVh(state): number {
-    if (typeof window !== 'undefined' && window.innerHeight) {
-      const padding = this.sectionPaddingNumeric
-      return (padding / window.innerHeight) * 100
-    }
-    return 6
-  },
+    // Section padding as a percentage of viewport width
+    sectionPaddingVw(): number {
+      if (typeof window !== 'undefined' && window.innerWidth) {
+        const padding = this.sectionPaddingNumeric
+        return (padding / window.innerWidth) * 100
+      }
+      return 6
+    },
 
-  // Section padding as a percentage of viewport width
-  sectionPaddingVw(state): number {
-    if (typeof window !== 'undefined' && window.innerWidth) {
-      const padding = this.sectionPaddingNumeric
-      return (padding / window.innerWidth) * 100
-    }
-    return 6
-  },
-
-    
     footerMultiplier(state): number {
       return state.footerState === 'open' ? 2 : 1
     },

@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watchEffect } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import { useChatStore, type Chat } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
@@ -97,7 +97,7 @@ const props = defineProps({
   },
 })
 
-const chat = ref(props.chat);
+const chat = ref(props.chat)
 
 // Local state
 const showReply = ref(false)
@@ -112,24 +112,29 @@ const botStore = useBotStore()
 const artStore = useArtStore()
 
 // Computed properties
-const hasUser = computed(() => !!userStore.getUserById(chat.userId ?? -1))
+const hasUser = computed(() => !!userStore.getUserById(chat.value.userId ?? -1))
 
-const hasBot = computed(() => !!botStore.getBotById(chat.botId ?? -1))
+const hasBot = computed(() => !!botStore.getBotById(chat.value.botId ?? -1))
 const threadMessages = computed(() =>
   chatStore.chats.filter(
-    (message) => message.originId === chat.id || message.id === chat.id,
+    (message) =>
+      message.originId === chat.value.id || message.id === chat.value.id,
   ),
 )
 const formattedDate = computed(() =>
-  chat.createdAt ? new Date(chat.createdAt).toLocaleString() : 'Unknown Date',
+  chat.value.createdAt
+    ? new Date(chat.value.createdAt).toLocaleString()
+    : 'Unknown Date',
 )
-const botResponse = computed(() => chat.botResponse || 'Awaiting response...')
-const senderName = computed(() => chat.sender || 'User')
-const botName = computed(() => chat.botName || 'Bot')
+const botResponse = computed(
+  () => chat.value.botResponse || 'Awaiting response...',
+)
+const senderName = computed(() => chat.value.sender || 'User')
+const botName = computed(() => chat.value.botName || 'Bot')
 
 // Inside the watchEffect
 watchEffect(async () => {
-  const user = userStore.getUserById(chat.userId)
+  const user = userStore.getUserById(chat.value.userId)
   if (user?.artImageId) {
     try {
       // Explicitly await and type the result
@@ -143,8 +148,8 @@ watchEffect(async () => {
     userImage.value = user?.avatarImage || undefined
   }
 
-  if (chat.botId !== null) {
-    const bot = await botStore.getBotById(chat.botId)
+  if (chat.value.botId !== null) {
+    const bot = await botStore.getBotById(chat.value.botId)
 
     if (bot?.artImageId) {
       try {
@@ -161,12 +166,13 @@ watchEffect(async () => {
 
 // Utility functions
 const getImage = (sender: string) => {
-  return sender === chat.sender ? userImage.value : botImage.value
+  return sender === chat.value.sender ? userImage.value : botImage.value
 }
 
 const messageClass = (message: { sender: string }) => ({
-  'flex-row-reverse bg-gray-900 text-gray-100': message.sender === chat.sender,
-  'flex-row bg-blue-900 text-blue-100': message.sender !== chat.sender,
+  'flex-row-reverse bg-gray-900 text-gray-100':
+    message.sender === chat.value.sender,
+  'flex-row bg-blue-900 text-blue-100': message.sender !== chat.value.sender,
 })
 
 // Actions
@@ -175,14 +181,14 @@ const sendReply = async () => {
     try {
       const newChat = await chatStore.addChat({
         content: replyMessage.value,
-        userId: chat.userId ?? userStore.userId ?? 0,
-        recipientId: chat.recipientId ?? 0,
-        isPublic: chat.isPublic,
-        originId: chat.originId ?? chat.id,
-        previousEntryId: chat.id,
-        botId: chat.botId ?? 0,
-        botName: chat.botName ?? '',
-        type: chat.type,
+        userId: chat.value.userId ?? userStore.userId ?? 0,
+        recipientId: chat.value.recipientId ?? 0,
+        isPublic: chat.value.isPublic,
+        originId: chat.value.originId ?? chat.value.id,
+        previousEntryId: chat.value.id,
+        botId: chat.value.botId ?? 0,
+        botName: chat.value.botName ?? '',
+        type: chat.value.type,
       })
 
       replyMessage.value = ''
@@ -201,7 +207,7 @@ const toggleReply = () => {
 
 const deleteChat = async () => {
   try {
-    await chatStore.deleteChat(chat.id)
+    await chatStore.deleteChat(chat.value.id)
   } catch (error) {
     console.error('Error deleting chat:', error)
   }

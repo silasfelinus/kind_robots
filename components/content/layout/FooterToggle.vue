@@ -1,7 +1,7 @@
 <template>
   <div class="z-50 p-1">
     <button
-      class="w-6 h-6 rounded-2xl font-semibold text-transparent flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out"
+      class="w-6 h-6 rounded-2xl bg-info font-semibold text-transparent flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out"
       @click="toggleFooter"
     >
       <span

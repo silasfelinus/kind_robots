@@ -33,8 +33,13 @@ const handleSync = async () => {
     )
     syncMessage.value = 'Components synced successfully!'
   } catch (error) {
+    console.error('Sync error:', error)
     syncError.value =
-      error.message || 'An unexpected error occurred during the sync process.'
+      error instanceof Error
+        ? error.message
+        : typeof error === 'string'
+          ? error
+          : 'An unexpected error occurred during the sync process.'
   } finally {
     isSyncing.value = false
     progressMessage.value = ''

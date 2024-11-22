@@ -1,29 +1,25 @@
 <template>
   <div class="relative flex flex-col items-start space-y-2 lg:ml-10 box-border">
-    <!-- User Avatar and Jellybean Count -->
-    <div v-if="isLoggedIn" class="flex items-center space-x-2">
-      <router-link to="/dashboard" class="cursor-pointer hover:underline">
+    <!-- User Avatar and Login Button -->
+    <router-link :to="dashboardRoute" class="flex items-center space-x-2">
+      <template v-if="isLoggedIn">
         <user-avatar class="h-10 w-10 rounded-full border border-base-300" />
-      </router-link>
-      <jellybean-count />
-    </div>
-
-    <!-- Guest Login Button -->
-    <div v-else class="relative group">
-      <router-link to="/dashboard">
+      </template>
+      <template v-else>
         <button class="flex items-center justify-center space-x-2">
           <Icon name="kind-icon:person" class="w-5 h-5" />
           <span class="hidden md:block">Login</span>
         </button>
-      </router-link>
-    </div>
+      </template>
+    </router-link>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useUserStore } from './../../../stores/userStore'
+import { useUserStore } from '~/stores/userStore'
 
 const userStore = useUserStore()
 const isLoggedIn = computed(() => userStore.isLoggedIn)
+const dashboardRoute = '/dashboard'
 </script>

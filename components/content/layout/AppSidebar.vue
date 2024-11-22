@@ -51,7 +51,7 @@
           <h1>Welcome to Kind Robots</h1>
           <bot-selector />
           <div class="carousel-container">
-            <bot-carousel />
+            <bot-carousel2 />
           </div>
         </div>
       </div>

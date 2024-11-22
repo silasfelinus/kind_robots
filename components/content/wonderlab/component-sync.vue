@@ -1,4 +1,4 @@
-// /components/component-sync.vue
+// /components/content/wonderlab/component-sync.vue
 <template>
   <div class="flex flex-col items-center p-4 bg-base-200 rounded-lg shadow-md">
     <h2 class="text-lg font-bold mb-4">Component Sync</h2>

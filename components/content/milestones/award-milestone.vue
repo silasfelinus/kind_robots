@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { watch } from 'vue'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
@@ -41,6 +41,14 @@ const checkAndRecordMilestone = async () => {
   }
 }
 
-// Optionally, run on mount
-onMounted(() => checkAndRecordMilestone())
+// Watch for login status and trigger the check
+watch(
+  () => userStore.isLoggedIn,
+  (isLoggedIn) => {
+    if (isLoggedIn) {
+      checkAndRecordMilestone()
+    }
+  },
+  { immediate: true },
+)
 </script>

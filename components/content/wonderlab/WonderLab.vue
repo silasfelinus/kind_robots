@@ -1,13 +1,13 @@
 <template>
   <div>
     <!-- Loading State -->
-    <div v-if="isLoading" class="flex justify-center items-center h-screen">
+    <div v-if="isLoading" class="flex justify-center items-center h-full">
       <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />
       Loading...
     </div>
 
     <!-- Main WonderLab Layout -->
-    <div v-if="!isLoading && !errorMessages.length" class="flex h-screen">
+    <div v-if="!isLoading && !errorMessages.length" class="flex h-full">
       <!-- Left Section for Component Screen -->
       <div class="w-2/3 h-full flex justify-center items-center">
         <div

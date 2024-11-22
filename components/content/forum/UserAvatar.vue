@@ -1,13 +1,13 @@
 <template>
-  <div>
+  <div class="flex items-center justify-center">
     <img
       :src="avatarUrl"
       :alt="`${username}'s avatar`"
-      class="h-full w-auto rounded-full border-1 border-accent"
+      class="rounded-full border-2 border-accent object-cover"
       @error="handleAvatarError"
     />
   </div>
-  {{ username }}
+  <div class="text-center mt-2">{{ username }}</div>
 </template>
 
 <script lang="ts" setup>
@@ -78,3 +78,11 @@ watch(
 // Lifecycle Hook
 onMounted(fetchAvatar)
 </script>
+
+<style scoped>
+img {
+  height: auto;
+  max-width: 50%; /* Ensures image is no more than 50% of its container */
+  aspect-ratio: 1 / 1; /* Maintains a perfect circle */
+}
+</style>

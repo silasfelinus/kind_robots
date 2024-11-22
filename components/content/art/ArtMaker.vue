@@ -1,4 +1,3 @@
-
 <template>
   <div
     class="bg-base-300 shadow-xl rounded-3xl border overflow-y-auto border-base-200 z-10 p-6 text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105"
@@ -20,12 +19,16 @@
 
     <!-- Generate Art Button -->
     <button
-      :class="isGenerating ? 'bg-secondary text-white' : 'bg-primary text-white'"
+      :class="
+        isGenerating ? 'bg-secondary text-white' : 'bg-primary text-white'
+      "
       class="font-semibold rounded-3xl p-4 w-full transition-all duration-300 ease-in-out hover:bg-info hover:shadow-lg active:bg-secondary focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed"
       :disabled="isGenerating || !promptStore.promptField"
       @click="generateArt"
     >
-      <span v-if="isGenerating">🖌️ Making Art... <award-milestone :id="11" /></span>
+      <span v-if="isGenerating"
+        >🖌️ Making Art... <award-milestone :id="11"
+      /></span>
       <span v-else>🖌️ Create Art</span>
     </button>
 
@@ -48,9 +51,8 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -74,11 +76,11 @@ const savePrompt = () => {
 
 // Fetch the "Generated Art" collection and its art
 const generatedArtCollection = computed(() =>
-  artStore.collections.find((c) => c.label === 'Generated Art')
+  artStore.collections.find((c) => c.label === 'Generated Art'),
 )
 
 const generatedArt = computed(() =>
-  generatedArtCollection.value ? generatedArtCollection.value.art : []
+  generatedArtCollection.value ? generatedArtCollection.value.art : [],
 )
 
 const generateArt = async () => {
@@ -123,5 +125,3 @@ onMounted(async () => {
   console.log('ArtStore and PromptStore initialized')
 })
 </script>
-
-

@@ -19,7 +19,7 @@
       />
       <img
         v-if="hasBot"
-        :src="botImage || '/images/bot1.png'"
+        :src="botImage || '/images/bot.webp'"
         alt="Bot Avatar"
         class="w-12 h-12 rounded-full border-2 border-secondary ml-auto"
       />

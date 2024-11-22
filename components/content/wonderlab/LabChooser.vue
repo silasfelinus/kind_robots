@@ -1,6 +1,7 @@
 <template>
   <div
-    class="button-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
+    class="button-container flex flex-col items-center overflow-hidden p-4"
+    :style="mainContentStyle"
   >
     <!-- Section Buttons -->
     <div
@@ -27,7 +28,6 @@
       <LazyStoreTester v-if="activeTab === 'store-tester'" />
       <LazyAnimationTester v-if="activeTab === 'animation-tester'" />
       <lazy-rebel-button v-if="activeTab === 'rebel-button'" />
-
       <lazy-about-page v-if="activeTab === 'about-page'" />
       <lazy-sponsor-page v-if="activeTab === 'sponsor-page'" />
     </div>
@@ -37,9 +37,16 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useUserStore } from '~/stores/userStore'
+import { useDisplayStore } from '~/stores/displayStore'
 
-// Access the user store to check role
+// Access the user and display stores
 const userStore = useUserStore()
+const displayStore = useDisplayStore()
+
+// Ensure displayStore initializes and stays updated
+onMounted(() => {
+  displayStore.initialize()
+})
 
 // Define all tabs, including permissions
 const tabs = [
@@ -58,4 +65,10 @@ const visibleTabs = computed(() =>
 
 // Default to the first visible tab
 const activeTab = ref(visibleTabs.value[0]?.name || 'wonder-lab')
+
+// Dynamically compute the main content area size
+const mainContentStyle = computed(() => ({
+  height: `calc(${displayStore.mainVh}vh)`,
+  width: `calc(${displayStore.mainVw}vw)`,
+}))
 </script>

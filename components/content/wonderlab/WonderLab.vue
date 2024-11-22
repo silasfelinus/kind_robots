@@ -10,7 +10,10 @@
     <div v-if="!isLoading && !errorMessages.length" class="flex h-screen">
       <!-- Left Section for Component Screen -->
       <div class="w-2/3 h-full flex justify-center items-center">
-        <div v-if="!componentStore.selectedComponent" class="text-center max-w-full">
+        <div
+          v-if="!componentStore.selectedComponent"
+          class="text-center max-w-full"
+        >
           <component-count class="mb-4" />
           <h1 class="text-4xl font-bold">Welcome to the WonderLab</h1>
           <p class="text-lg mt-4">
@@ -28,10 +31,13 @@
       </div>
 
       <!-- Right Section: Folder View & Reactions -->
-      <div class="w-1/3 h-full flex flex-col">
+      <div class="w-1/3 h-2/3 flex flex-col">
         <!-- Folder View (Top Half) -->
         <div class="flex-grow bg-gray-100 overflow-y-auto">
-          <div v-if="componentStore.selectedFolder" class="text-sm md:text-md lg:text-lg xl:text-xl mb-2">
+          <div
+            v-if="componentStore.selectedFolder"
+            class="text-sm md:text-md lg:text-lg xl:text-xl mb-2"
+          >
             Viewing components in folder: {{ componentStore.selectedFolder }}
           </div>
           <div v-if="!componentStore.selectedFolder">
@@ -54,7 +60,7 @@
         <!-- Reactions (Bottom Half) -->
         <div
           v-if="componentStore.selectedComponent"
-          class="h-1/2 max-h-[50vh] bg-gray-200 flex justify-center items-center"
+          class="h-2/3 max-h-[50vh] bg-gray-200 flex justify-center items-center"
         >
           <div class="h-full w-full overflow-auto bg-gray-50 p-4">
             <component-reactions

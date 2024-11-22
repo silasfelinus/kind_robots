@@ -55,30 +55,47 @@ export const useDisplayStore = defineStore('display', {
   }),
 
   getters: {
-    sectionPadding(): string {
-      return '6px'
-    },
+  sectionPadding(state): string {
+    const sizes = {
+      small: '2px',
+      medium: '4px',
+      large: '6px',
+      extraLarge: '8px',
+    }
 
-    sectionPaddingVh(): number {
-      if (typeof window !== 'undefined' && window.innerHeight) {
-        const vh = (6 / window.innerHeight) * 100
-        return parseFloat(vh.toFixed(2)) // Convert to a number
-      }
-      return 6
-    },
+    // Return padding based on viewportSize
+    return sizes[state.viewportSize] || '6px'
+  },
 
-    sectionPaddingVw(): number {
-      if (typeof window !== 'undefined' && window.innerWidth) {
-        const vw = (6 / window.innerWidth) * 100
-        return parseFloat(vw.toFixed(2)) // Convert to a number
-      }
-      return 6
-    },
+  sectionPaddingInteger(state): number {
+    const sizes = {
+      small: 2,
+      medium: 4,
+      large: 6,
+      extraLarge: 8,
+    }
 
-    sectionPaddingInteger(): number {
-      return 6
-    },
+    // Return numeric padding based on viewportSize
+    return sizes[state.viewportSize] || 6
+  },
 
+  sectionPaddingVh(state): number {
+    if (typeof window !== 'undefined' && window.innerHeight) {
+      const padding = this.sectionPaddingInteger
+      return (padding / window.innerHeight) * 100
+    }
+    return 6
+  },
+
+  sectionPaddingVw(state): number {
+    if (typeof window !== 'undefined' && window.innerWidth) {
+      const padding = this.sectionPaddingInteger
+      return (padding / window.innerWidth) * 100
+    }
+    return 6
+  },
+
+    
     footerMultiplier(state): number {
       return state.footerState === 'open' ? 2 : 1
     },

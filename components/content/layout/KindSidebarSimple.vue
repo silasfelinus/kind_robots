@@ -1,7 +1,7 @@
 <template>
   <!-- Left Sidebar -->
   <div
-    class="transition-all duration-300 bg-base-300 border-2 rounded-2xl left-0 h-full overflow-y-auto no-scrollbar flex flex-col justify-between flex-grow box-border"
+    class="transition-all duration-300 bg-base-300 border-1 border-accent rounded-2xl left-0 h-full overflow-y-auto no-scrollbar flex flex-col justify-between flex-grow box-border"
   >
     <!-- Sidebar Links with Icons and Titles -->
     <div class="flex flex-col justify-between flex-grow">

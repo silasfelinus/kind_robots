@@ -27,7 +27,7 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      componentId = response.body.data.component.id
+      componentId = response.body.data.id
       expect(componentId).to.be.a('number')
     })
   })

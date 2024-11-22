@@ -24,7 +24,10 @@
 
     <!-- Components section with scrollable content -->
     <div class="flex-grow w-full overflow-y-auto h-full">
-      <lazy-intro-page v-if="choice === 'intro-page'" />
+      <lazy-intro-page
+        v-if="choice === 'intro-page'"
+        @leave="handleIntroPageLeave"
+      />
       <lazy-navigation-trimmed v-if="choice === 'navigation-trimmed'" />
       <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
       <lazy-user-gallery v-if="choice === 'user-gallery'" />
@@ -62,4 +65,9 @@ const mainContentStyle = computed(() => ({
   height: `calc(${displayStore.mainVh}vh)`,
   width: `calc(${displayStore.mainVw}vw)`,
 }))
+
+// Reset `choice` after intro-page is visited
+function handleIntroPageLeave() {
+  choice.value = 'user-dashboard' // Set the default tab
+}
 </script>

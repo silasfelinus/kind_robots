@@ -35,8 +35,8 @@
           <button
             v-if="currentStep === steps.length - 1"
             class="bg-primary p-3 rounded-lg text-white"
+            @click.stop="finishIntro"
           >
-            <!-- NuxtLink for Finish -->
             <NuxtLink to="/register" class="text-white">Finish</NuxtLink>
           </button>
           <button
@@ -53,6 +53,7 @@
       <NuxtLink
         to="/"
         class="absolute bottom-4 right-4 bg-accent p-4 rounded-full text-white shadow-lg hover:bg-accent-focus z-60 flex flex-col items-center"
+        @click.stop="skipIntro"
       >
         <Icon name="kind-icon:fast-forward" class="w-6 h-6" />
         <span class="text-sm mt-1">Skip</span>
@@ -63,20 +64,37 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useDisplayStore } from '~/stores/displayStore'
 import { steps } from '@/training/steps.js'
 
+// Access the display store
+const displayStore = useDisplayStore()
+
+// Track the current step
 const currentStep = ref(0)
 
+// Navigate to the next step
 const nextStep = () => {
   if (currentStep.value < steps.length - 1) {
     currentStep.value++
   }
 }
 
+// Navigate to the previous step
 const previousStep = () => {
   if (currentStep.value > 0) {
     currentStep.value--
   }
+}
+
+// Mark intro as finished and set `showIntro` to false
+const finishIntro = () => {
+  displayStore.showIntro = false
+}
+
+// Skip the intro and set `showIntro` to false
+const skipIntro = () => {
+  displayStore.showIntro = false
 }
 </script>
 

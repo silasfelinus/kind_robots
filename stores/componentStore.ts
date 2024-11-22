@@ -59,14 +59,13 @@ export const useComponentStore = defineStore('componentStore', {
         }
 
         logProgress('Fetching components.json...')
-        const folderDataResponse =
-          await performFetch<Folder[]>('/components.json')
-        if (!folderDataResponse.success || !folderDataResponse.data) {
+        const folderDataResponse = await fetch('/components.json')
+        if (!folderDataResponse.ok) {
           throw new Error(
-            folderDataResponse.message || 'Failed to load components.json',
+            `Failed to load components.json: ${folderDataResponse.statusText}`,
           )
         }
-        const folderData = folderDataResponse.data
+        const folderData: Folder[] = await folderDataResponse.json()
 
         logProgress('Fetching components from the API...')
         const apiResponse = await performFetch<Component[]>('/api/components')

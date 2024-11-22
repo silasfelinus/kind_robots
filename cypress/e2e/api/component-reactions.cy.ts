@@ -1,5 +1,3 @@
-// cypress/e2e/component-reactions.cy.ts
-
 describe('Component Reactions API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api'
   const userToken = Cypress.env('USER_TOKEN')
@@ -8,6 +6,17 @@ describe('Component Reactions API Tests', () => {
   let reactionId: number | undefined
   const userId: number = 9
 
+  const createdComponents: number[] = []
+  const createdReactions: number[] = []
+
+  // Helper function to assert and use IDs
+  const assertDefined = <T>(value: T | undefined, name: string): T => {
+    if (value === undefined) {
+      throw new Error(`${name} is undefined. Test setup failed.`)
+    }
+    return value
+  }
+
   // Step 1: Create a new component before the tests
   before(() => {
     cy.request({
@@ -15,6 +24,7 @@ describe('Component Reactions API Tests', () => {
       url: `${baseUrl}/components`,
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         folderName: 'test-folder',
@@ -29,6 +39,7 @@ describe('Component Reactions API Tests', () => {
       expect(response.body).to.have.property('success', true)
       componentId = response.body.data.id
       expect(componentId).to.be.a('number')
+      createdComponents.push(assertDefined(componentId, 'componentId'))
     })
   })
 
@@ -271,21 +282,40 @@ describe('Component Reactions API Tests', () => {
     })
   })
 
-  // Step 7: Delete the created component
+  // Cleanup logic after the test suite
   after(() => {
-    cy.wrap(componentId).should('exist')
+    // Delete created reactions
+    if (createdReactions.length > 0) {
+      createdReactions.forEach((id) => {
+        cy.request({
+          method: 'DELETE',
+          url: `${baseUrl}/reactions/${id}`,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${userToken}`,
+          },
+          failOnStatusCode: false,
+        }).then((response) => {
+          expect(response.status).to.be.oneOf([200, 404]) // 200 if deleted, 404 if already removed
+        })
+      })
+    }
 
-    // Delete component with valid token
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/components/${componentId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-    })
+    // Delete created components
+    if (createdComponents.length > 0) {
+      createdComponents.forEach((id) => {
+        cy.request({
+          method: 'DELETE',
+          url: `${baseUrl}/components/${id}`,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${userToken}`,
+          },
+          failOnStatusCode: false,
+        }).then((response) => {
+          expect(response.status).to.be.oneOf([200, 404]) // 200 if deleted, 404 if already removed
+        })
+      })
+    }
   })
 })

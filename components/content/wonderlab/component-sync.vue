@@ -28,12 +28,13 @@ const handleSync = async () => {
   progressMessage.value = 'Initializing sync...'
 
   try {
-    await componentStore.syncComponents(
-      (progress) => (progressMessage.value = progress),
-    )
+    await componentStore.syncComponents((progress) => {
+      console.log('[ComponentSync] Progress:', progress)
+      progressMessage.value = progress
+    })
     syncMessage.value = 'Components synced successfully!'
   } catch (error) {
-    console.error('Sync error:', error)
+    console.error('[ComponentSync] Sync error:', error)
     syncError.value =
       error instanceof Error
         ? error.message

@@ -53,7 +53,12 @@ export const useComponentStore = defineStore('componentStore', {
 
     async syncComponents(progressCallback?: (message: string) => void) {
       try {
-        if (progressCallback) progressCallback('Fetching components.json...')
+        const logProgress = (message: string) => {
+          console.log(`[SyncComponents] ${message}`)
+          if (progressCallback) progressCallback(message)
+        }
+
+        logProgress('Fetching components.json...')
         const folderDataResponse =
           await performFetch<Folder[]>('/components.json')
         if (!folderDataResponse.success || !folderDataResponse.data) {
@@ -63,8 +68,7 @@ export const useComponentStore = defineStore('componentStore', {
         }
         const folderData = folderDataResponse.data
 
-        if (progressCallback)
-          progressCallback('Fetching components from the API...')
+        logProgress('Fetching components from the API...')
         const apiResponse = await performFetch<Component[]>('/api/components')
         if (!apiResponse.success || !apiResponse.data) {
           throw new Error(
@@ -73,7 +77,7 @@ export const useComponentStore = defineStore('componentStore', {
         }
         const apiComponents = apiResponse.data
 
-        if (progressCallback) progressCallback('Synchronizing components...')
+        logProgress('Synchronizing components...')
         const componentsFromJson = folderData.flatMap((folder) =>
           folder.components.map((componentName) => ({
             componentName,
@@ -88,10 +92,7 @@ export const useComponentStore = defineStore('componentStore', {
               jsonComp.folderName === apiComponent.folderName,
           )
           if (!existsInJson) {
-            if (progressCallback)
-              progressCallback(
-                `Deleting component: ${apiComponent.componentName}`,
-              )
+            logProgress(`Deleting component: ${apiComponent.componentName}`)
             await this.deleteComponent(apiComponent.id)
           }
         }
@@ -119,17 +120,15 @@ export const useComponentStore = defineStore('componentStore', {
             }
 
             const action = existingComponent ? 'update' : 'create'
-            if (progressCallback)
-              progressCallback(
-                `${action === 'create' ? 'Creating' : 'Updating'} component: ${componentName}`,
-              )
+            logProgress(
+              `${action === 'create' ? 'Creating' : 'Updating'} component: ${componentName}`,
+            )
             await this.createOrUpdateComponent(componentData, action)
           }
         }
 
-        if (progressCallback) progressCallback('Sync complete!')
+        logProgress('Sync complete!')
       } catch (error: unknown) {
-        // Use handleError to log the error
         const errorMessage =
           error instanceof Error
             ? error.message
@@ -137,6 +136,7 @@ export const useComponentStore = defineStore('componentStore', {
               ? error
               : 'An unexpected error occurred during sync.'
 
+        console.error('[SyncComponents] Error:', errorMessage)
         handleError(
           errorMessage,
           'Error syncing components from components.json',

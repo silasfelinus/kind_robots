@@ -76,12 +76,11 @@ const useStreaming = ref(false)
 const chat = ref<Chat | null>(null)
 
 async function submitPrompt() {
-if (!prompt.value.trim()) return
+  if (!prompt.value.trim()) return;
 
-
-  loading.value = true
-  errorMessage.value = ''
-  responseText.value = `You: ${prompt.value}\n\n` // Display the prompt
+  loading.value = true;
+  errorMessage.value = '';
+  responseText.value = `You: ${prompt.value}\n\n`; // Display the prompt
 
   try {
     // Step 1: Create a new chat object in the database
@@ -91,10 +90,10 @@ if (!prompt.value.trim()) return
       botId: 1, // Replace with actual bot ID
       recipientId: 1, // Replace with actual recipient ID
       type: 'ToBot',
-    })
-    chat.value = newChat // Store the created chat object
+    });
+    chat.value = newChat; // Store the created chat object
 
-    const apiEndpoint = '/api/botcafe/chat'
+    const apiEndpoint = '/api/botcafe/chat';
 
     const requestOptions = {
       method: 'POST',
@@ -108,39 +107,39 @@ if (!prompt.value.trim()) return
         max_tokens: 300,
         stream: useStreaming.value,
       }),
-    }
+    };
 
     if (useStreaming.value) {
-  await fetchStream(apiEndpoint, requestOptions, newChat.id)
-} else {
-  const response = await fetch(apiEndpoint, requestOptions)
-  if (!response.ok) {
-    errorMessage.value = `Error ${response.status}: ${response.statusText}`
-    throw new Error(`Error ${response.status}: ${response.statusText}`)
-  }
-  const data = await response.json()
-  const botResponse =
-    data.choices?.[0]?.message?.content || 'No response received'
-  responseText.value += botResponse
+      await fetchStream(apiEndpoint, requestOptions, newChat.id);
+    } else {
+      const response = await fetch(apiEndpoint, requestOptions);
+      if (!response.ok) {
+        errorMessage.value = `Error ${response.status}: ${response.statusText}`;
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      const botResponse =
+        data.choices?.[0]?.message?.content || 'No response received';
+      responseText.value += botResponse;
 
-  // Update the chat object locally
-  chat.value = { ...newChat, botResponse }
+      // Update the chat object locally
+      chat.value = { ...newChat, botResponse };
 
-  // Update the chat in the store
-  chatStore.updateChat(newChat.id, { botResponse })
+      // Update the chat in the store
+      chatStore.updateChat(newChat.id, { botResponse });
 
-  // Save final response to the database
-  await chatStore.editChat(newChat.id, { botResponse })
-}
-
+      // Save final response to the database
+      await chatStore.editChat(newChat.id, { botResponse });
+    }
   } catch (error) {
     errorMessage.value =
-      error instanceof Error ? error.message : 'An unknown error occurred'
-    console.error('Error during API request:', error)
+      error instanceof Error ? error.message : 'An unknown error occurred';
+    console.error('Error during API request:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
+
 async function fetchStream(url: string, options: RequestInit, chatId: number) {
   const response = await fetch(url, options);
   if (!response.ok) {
@@ -184,11 +183,9 @@ async function fetchStream(url: string, options: RequestInit, chatId: number) {
               responseText.value += content;
 
               // Update the chat object locally
-              const updatedChat = {
-                ...JSON.parse(JSON.stringify(chat.value || {})), // Strip reactivity
-                botResponse: responseText.value,
-              };
-              chat.value = updatedChat;
+              if (chat.value) {
+                chat.value.botResponse = responseText.value;
+              }
 
               // Update the chat in the store
               chatStore.updateChat(chatId, { botResponse: responseText.value });

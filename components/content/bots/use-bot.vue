@@ -218,13 +218,12 @@ async function submitCustomPrompt() {
     loading.value = false
   }
 }
-
-// Computed property for active chat cards for the current bot
 const activeChatCards = computed(() => {
-  return botStore.currentBot
-    ? chatStore.activeChatsByBotId(botStore.currentBot.id)
-    : []
-})
+  if (!botStore.currentBot) return [];
+  const chats = chatStore.activeChatsByBotId(botStore.currentBot.id);
+  return [...chats].reverse(); // Ensure immutability by cloning before reversing
+});
+
 
 // Initialize stores and parsed prompts on load
 onMounted(async () => {

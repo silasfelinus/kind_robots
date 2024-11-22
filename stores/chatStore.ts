@@ -131,6 +131,13 @@ export const useChatStore = defineStore({
         throw error
       }
     },
+  updateChat(chatId: number, updatedFields: Partial<Chat>) {
+  const chatIndex = this.chats.findIndex(chat => chat.id === chatId)
+  if (chatIndex !== -1) {
+    this.chats[chatIndex] = { ...this.chats[chatIndex], ...updatedFields }
+  }
+},
+
     async streamResponse(chatId: number) {
       try {
         const chat = this.chats.find((c) => c.id === chatId)

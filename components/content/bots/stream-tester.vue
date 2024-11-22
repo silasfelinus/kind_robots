@@ -141,70 +141,72 @@ if (!prompt.value.trim()) return
     loading.value = false
   }
 }
-
-function cleanDataChunk(chunk: string): string {
-  return chunk.replace(/^data:\s*/, '').trim()
-}
-
 async function fetchStream(url: string, options: RequestInit, chatId: number) {
-  const response = await fetch(url, options)
+  const response = await fetch(url, options);
   if (!response.ok) {
-    errorMessage.value = `Error ${response.status}: ${response.statusText}`
-    throw new Error(`Error ${response.status}: ${response.statusText}`)
+    errorMessage.value = `Error ${response.status}: ${response.statusText}`;
+    throw new Error(`Error ${response.status}: ${response.statusText}`);
   }
 
   if (response.body) {
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = ''; // Accumulate partial data from chunks
 
     try {
       while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
+        const { done, value } = await reader.read();
+        if (done) break;
 
-        buffer += decoder.decode(value, { stream: true })
+        // Decode current chunk and add to the buffer
+        buffer += decoder.decode(value, { stream: true });
 
-        let boundary
+        let boundary;
         while ((boundary = buffer.indexOf('\n\n')) >= 0) {
-          let chunk = buffer.slice(0, boundary)
-          buffer = buffer.slice(boundary + 2)
+          let chunk = buffer.slice(0, boundary).trim();
+          buffer = buffer.slice(boundary + 2); // Move past the current chunk
 
+          // Remove multiple "data:" prefixes if they exist
           if (chunk.startsWith('data:')) {
-            chunk = cleanDataChunk(chunk)
+            chunk = chunk.replace(/^data:\s*/, '').replace(/^data:\s*/, '');
           }
 
-          if (!chunk || chunk === '[DONE]') continue
+          // Skip empty chunks and "[DONE]"
+          if (!chunk || chunk === '[DONE]') continue;
 
           try {
-            const parsed = JSON.parse(chunk)
-            const content = parsed.choices[0]?.delta?.content
+            // Parse the JSON and extract the content
+            const parsed = JSON.parse(chunk);
+            const content = parsed.choices[0]?.delta?.content;
 
+            // Append content to response text
             if (content) {
-              responseText.value += content
+              responseText.value += content;
+
+              // Update the chat object locally
               const updatedChat = {
-                ...JSON.parse(JSON.stringify(chat.value || {})),
+                ...JSON.parse(JSON.stringify(chat.value || {})), // Strip reactivity
                 botResponse: responseText.value,
-              }
-              chat.value = updatedChat
-              debouncedUpdateChat(chatId, responseText.value)
+              };
+              chat.value = updatedChat;
+
               // Update the chat in the store
-              chatStore.updateChat(newChat.id, { botResponse:responseText.value })
+              chatStore.updateChat(chatId, { botResponse: responseText.value });
+
+              // Save the updated response to the database
+              await chatStore.editChat(chatId, { botResponse: responseText.value });
             }
           } catch (err) {
-            console.error('Error parsing JSON chunk:', err)
+            console.error('Error parsing JSON chunk:', err);
           }
         }
       }
-
-      // Final update to database
-      await chatStore.editChat(chatId, { botResponse: responseText.value })
     } catch (err) {
-      console.error('Error during streaming:', err)
-      throw new Error('Streaming failed.')
+      console.error('Error during streaming:', err);
+      throw new Error('Streaming failed.');
     }
   } else {
-    throw new Error('Stream not supported in response')
+    throw new Error('Stream not supported in response');
   }
 }
 

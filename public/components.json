@@ -116,9 +116,7 @@
     "folderName": "gallery",
     "components": [
       "Gallery-Manager",
-      "GalleryManager2",
       "GallerySelector",
-      "MakeArt",
       "RandomGallery",
       "RandomImage",
       "TeleportWindow",

@@ -175,6 +175,7 @@ export const useArtStore = defineStore({
 
     async fetchAllArtImages() {
       try {
+        console.log('fetching all art images')
         const response = await performFetch<ArtImage[]>('/api/art/image')
         if (response.success) {
           this.artImages = response.data || []
@@ -422,6 +423,7 @@ export const useArtStore = defineStore({
 
       // Fetch from API if not found locally
       try {
+        console.log('fetching all art images from getArtImageById')
         const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
         if (response.success && response.data) {
           // Prevent duplicates before pushing
@@ -455,6 +457,7 @@ export const useArtStore = defineStore({
       artId: number,
     ): Promise<void> {
       try {
+        console.log('updatingArtImagewithArtId')
         const response = await performFetch<ArtImage>(
           `/api/art/image/${artImageId}`,
           {
@@ -710,6 +713,7 @@ export const useArtStore = defineStore({
 
     async fetchArtImageById(id: number): Promise<ArtImage | null> {
       try {
+        console.log('fetching art image by id')
         const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
         if (response.success && response.data) {
           this.artImages.push(response.data)

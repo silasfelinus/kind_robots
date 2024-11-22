@@ -13,7 +13,7 @@
     <!-- Header -->
     <div v-if="hasUser" class="header flex items-center mb-4 gap-4">
       <img
-        :src="userImage || '/images/default-user.png'"
+        :src="userImage || '/images/kindtitle.webp'"
         alt="User Avatar"
         class="w-12 h-12 rounded-full border-2 border-primary"
       />

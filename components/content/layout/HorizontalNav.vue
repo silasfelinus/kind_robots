@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex justify-center bg-base-300 border-1 rounded-2xl max-w-full overflow-hidden"
+    class="relative flex justify-center bg-base-300 border-1 border-accent rounded-2xl max-w-full overflow-hidden"
   >
     <div
       class="flex flex-wrap justify-center w-full space-y-2 space-x-0 md:space-x-4 items-stretch"
@@ -17,7 +17,7 @@
         >
           <icon
             :name="item.icon"
-            class="w-6 h-6 text-black transition-transform group-hover:scale-110"
+            class="w-6 h-6 text-info transition-transform group-hover:scale-110"
           />
 
           <span

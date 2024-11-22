@@ -1,19 +1,20 @@
 <template>
   <div
-    class="button-container flex flex-col items-center min-h-screen w-full overflow-hidden p-4"
+    class="button-container flex flex-col items-center overflow-hidden p-4"
+    :style="mainContentStyle"
   >
     <!-- Section Buttons -->
     <div
-      class="flex justify-center space-x-1 md:space-x-3 lg:space-x-5 w-full mb-3"
+      class="flex justify-center flex-wrap gap-2 md:gap-3 lg:gap-4 w-full mb-3"
     >
       <button
         v-for="tab in tabs"
         :key="tab.name"
+        class="flex-1 min-w-[45%] max-w-[30%] md:min-w-[25%] lg:min-w-[15%] px-3 py-2 text-sm md:text-md lg:text-lg font-semibold border border-accent rounded-lg transition-all duration-300"
         :class="[
-          'px-2 md:px-4 lg:px-6 text-lg font-semibold border-accent rounded-lg',
           tab.name === choice
-            ? 'bg-info text-white'
-            : 'bg-accent hover:bg-secondary text-white',
+            ? 'bg-primary text-white'
+            : 'bg-secondary hover:bg-accent text-white',
         ]"
         @click="choice = tab.name"
       >
@@ -22,9 +23,7 @@
     </div>
 
     <!-- Components section with scrollable content -->
-    <div
-      class="components-section flex-grow w-full max-w-4xl overflow-y-auto p-2 md:p-4 lg:p-6"
-    >
+    <div class="flex-grow w-full overflow-y-auto h-full">
       <lazy-intro-page v-if="choice === 'intro-page'" />
       <lazy-navigation-trimmed v-if="choice === 'navigation-trimmed'" />
       <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
@@ -35,7 +34,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useDisplayStore } from '~/stores/displayStore'
+
+// Access the display store
+const displayStore = useDisplayStore()
+
+// Ensure displayStore initializes and stays updated
+onMounted(() => {
+  displayStore.initialize()
+})
 
 // Tabs setup for Dashboard Chooser
 const tabs = [
@@ -43,9 +51,15 @@ const tabs = [
   { name: 'navigation-trimmed', label: 'Site Navigation' },
   { name: 'user-dashboard', label: 'User Dashboard' },
   { name: 'user-gallery', label: 'User Gallery' },
-
   { name: 'jellybean-counter', label: 'Jellybean Counter' },
 ]
 
-const choice = ref('user-dashboard') // Default to the first tab
+// Default to the first tab
+const choice = ref(tabs[0]?.name || 'user-dashboard')
+
+// Dynamically compute the main content area size
+const mainContentStyle = computed(() => ({
+  height: `calc(${displayStore.mainVh}vh)`,
+  width: `calc(${displayStore.mainVw}vw)`,
+}))
 </script>

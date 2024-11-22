@@ -32,8 +32,11 @@
 
       <!-- Right Section: Folder View & Reactions -->
       <div class="w-1/3 h-full flex flex-col rounded-2xl">
-        <!-- Folder View (Top Half) -->
-        <div class="flex-grow bg-gray-100 overflow-y-auto rounded-2xl">
+        <!-- Folder View -->
+        <div
+          class="bg-gray-100 overflow-y-auto rounded-2xl transition-all duration-300"
+          :style="{ height: galleryHeight }"
+        >
           <div
             v-if="componentStore.selectedFolder"
             class="text-sm md:text-md lg:text-lg xl:text-xl mb-2"
@@ -57,8 +60,11 @@
           </div>
         </div>
 
-        <!-- Reactions (Bottom Half) -->
-        <div class="h-1/2 bg-gray-200 flex justify-center items-center">
+        <!-- Reactions -->
+        <div
+          class="bg-gray-200 flex justify-center items-center transition-all duration-300"
+          :style="{ height: reactionsHeight }"
+        >
           <div class="h-full w-full overflow-auto bg-gray-50 p-4">
             <component-reactions
               :component="componentStore.selectedComponent"
@@ -77,10 +83,10 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useComponentStore } from './../../../stores/componentStore'
+import { useDisplayStore } from '~/stores/displayStore'
 import LabGallery from './LabGallery.vue'
 import ComponentScreen from './ComponentScreen.vue'
 import type { KindComponent as Component } from './../../../stores/componentStore'
@@ -89,8 +95,9 @@ import type { KindComponent as Component } from './../../../stores/componentStor
 const isLoading = ref(true)
 const errorMessages = ref<string[]>([])
 
-// Access the component store
+// Access the stores
 const componentStore = useComponentStore()
+const displayStore = useDisplayStore()
 
 // Computed value for folder-specific components
 const folderComponents = computed(() => {
@@ -100,11 +107,25 @@ const folderComponents = computed(() => {
   )
 })
 
+// Heights based on displayStore values
+const galleryHeight = computed(() =>
+  componentStore.selectedComponent
+    ? `calc(${displayStore.mainVh}vh * 0.6)`
+    : `calc(${displayStore.mainVh}vh)`,
+)
+
+const reactionsHeight = computed(() =>
+  componentStore.selectedComponent
+    ? `calc(${displayStore.mainVh}vh * 0.4)`
+    : '0px',
+)
+
 // Initialize components on mount
 onMounted(async () => {
   isLoading.value = true
   try {
     await componentStore.initializeComponents()
+    displayStore.initialize()
   } catch (error) {
     errorMessages.value.push('Failed to initialize components')
     console.error('Error during initialization:', error)

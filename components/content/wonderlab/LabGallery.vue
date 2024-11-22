@@ -22,7 +22,7 @@
     <div v-if="selectedComponents.length">
       <!-- Back Button -->
       <button
-        class="mb-4 bg-primary text-default px-4 py-2 rounded hover:bg-secondary transition"
+        class="mb-4 bg-primary text-default py-2 rounded hover:bg-secondary transition"
         @click="goBackToFolders"
       >
         Back to Folders
@@ -32,7 +32,7 @@
         <div
           v-for="component in selectedComponents"
           :key="component.id"
-          class="p-4 rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition-transform transform hover:scale-105"
+          class="rounded-lg hover:bg-secondary hover:text-default cursor-pointer transition-transform transform hover:scale-105"
           @click="selectComponent(component)"
         >
           <div class="text-center">

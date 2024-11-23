@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex flex-col items-start space-y-2 lg:ml-10 box-border">
+  <div class="relative flex flex-col items-start box-border">
     <!-- User Avatar and Login Button -->
     <router-link :to="dashboardRoute" class="flex items-center space-x-2">
       <template v-if="isLoggedIn">

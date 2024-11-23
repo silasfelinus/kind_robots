@@ -28,7 +28,7 @@ const handleSync = async () => {
   progressMessage.value = 'Initializing sync...'
 
   try {
-    await componentStore.syncComponents((progress) => {
+    await componentStore.syncComponents((progress: string) => {
       console.log('[ComponentSync] Progress:', progress)
       progressMessage.value = progress
     })

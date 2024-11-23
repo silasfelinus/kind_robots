@@ -203,7 +203,7 @@ export const useComponentStore = defineStore('componentStore', {
       }
     },
 
-    async updateComponent(component: Component) {
+async updateComponent(component: Component) {
   try {
     // Pre-validate the data before sending
     if (!/^[a-zA-Z0-9\s-]+$/.test(component.componentName)) {
@@ -213,7 +213,7 @@ export const useComponentStore = defineStore('componentStore', {
       throw new Error(`Invalid folderName: ${component.folderName}`);
     }
 
-    const response = await performFetch<Component>('/api/components', {
+    const response = await performFetch<Component>(`/api/components/${component.id}`, {
       method: 'PATCH',
       body: JSON.stringify({
         ...component,
@@ -234,8 +234,8 @@ export const useComponentStore = defineStore('componentStore', {
   } catch (error) {
     console.error(`Error updating component "${component.componentName}":`, error);
     throw error;
-}
-  },
+  }
+},
 
     findComponentByName(componentName: string) {
       const foundComponent = this.components.find(

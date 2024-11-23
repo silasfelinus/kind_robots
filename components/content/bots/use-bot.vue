@@ -119,19 +119,18 @@ const promptStore = usePromptStore()
 
 const loading = ref(false)
 const errorMessage = ref<string | undefined>()
-const parsedUserPrompts = ref<{ text: string; id: number }[]>([])
 
-// Function to parse and update user prompts based on bot userIntro
-function updateParsedUserPrompts() {
-  const newUserIntro = botStore.currentBot?.userIntro
-
-  parsedUserPrompts.value = newUserIntro
-    ? newUserIntro.split('|').map((text, index) => ({
-        text: text.trim(),
-        id: index + 1,
-      }))
-    : []
-}
+// Computed property to parse user prompts
+const parsedUserPrompts = computed(() => {
+  const userPrompts = botStore.currentBot?.userPrompts || ''
+  return userPrompts
+    .split('|')
+    .filter((text) => text.trim()) // Ensure no empty strings
+    .map((text, index) => ({
+      text: text.trim(),
+      id: index + 1,
+    }))
+})
 
 async function sendPrompt(prompt: string) {
   if (!prompt) {
@@ -218,35 +217,16 @@ async function submitCustomPrompt() {
     loading.value = false
   }
 }
+
 const activeChatCards = computed(() => {
-  if (!botStore.currentBot) return [];
-  const chats = chatStore.activeChatsByBotId(botStore.currentBot.id);
-  return [...chats].reverse(); // Ensure immutability by cloning before reversing
-});
+  if (!botStore.currentBot) return []
+  const chats = chatStore.activeChatsByBotId(botStore.currentBot.id)
+  return [...chats].reverse() // Ensure immutability by cloning before reversing
+})
 
-
-// Initialize stores and parsed prompts on load
+// Initialize stores on load
 onMounted(async () => {
   await botStore.loadStore()
   await chatStore.initialize()
-  updateParsedUserPrompts() // Populate parsed prompts initially
 })
 </script>
-
-<style scoped>
-.spinner-border {
-  border-width: 2px;
-  width: 1rem;
-  height: 1rem;
-  border-color: white;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
-}
-
-@keyframes spin {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-</style>

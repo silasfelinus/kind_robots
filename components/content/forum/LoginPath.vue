@@ -1,9 +1,12 @@
 <template>
   <div class="relative flex flex-col items-start box-border">
     <!-- User Avatar and Login Button -->
-    <router-link :to="dashboardRoute" class="flex items-center space-x-2">
+    <router-link :to="dashboardRoute" class="flex items-center md:flex-col md:items-center md:space-x-0">
       <template v-if="isLoggedIn">
-        <user-avatar class="h-5 w-5 md:h-8 md:w-8 lg:w-10 lg:w-10 xl:w:12 xl:h-12 rounded-full border border-base-300" />
+        <div class="flex flex-col items-center">
+          <user-avatar class="h-7 w-7 sm:h-10 sm:w-10 lg:w-12 lg:h-12 xl:w-20 xl:h-20 rounded-full border border-1 border-base-300" />
+          <span class="hidden sm:block text-sm md:text-base mt-2">Username</span>
+        </div>
       </template>
       <template v-else>
         <button class="flex items-center justify-center space-x-2">

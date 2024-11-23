@@ -129,7 +129,7 @@ async syncComponents() {
     ErrorType.GENERAL_ERROR,
     'Error syncing components from components.json',
   );
-}
+},
 
 
     async fetchComponentById(id: number) {

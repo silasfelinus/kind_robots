@@ -32,12 +32,12 @@
         </button>
 
         <!-- Circular Color Swatches -->
-        <div class="color-swatches flex gap-2 mt-4">
+        <div class="color-swatches flex gap-1 mt-4">
           <div
             v-for="color in ['primary', 'secondary', 'accent']"
             :key="color"
-            :class="`bg-${theme}-${color} rounded-full border border-base-content`"
-            class="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 lg:h-12 lg:w-12"
+            :class="`bg-${color} rounded-full border border-base-content`"
+            class="h-5 w-5 md:h-6 md:w-6 lg:h-12 lg:w-12"
           ></div>
         </div>
       </div>

@@ -24,7 +24,7 @@
         <div class="text-primary font-semibold text-5xl text-center mb-2">
           <adjective-flipper />
         </div>
-        <h2 class="text-xl text-center mb-6">username.</h2>
+        <h2 class="text-4xl text-center mb-6">username.</h2>
 
         <div class="relative mb-6">
           <input

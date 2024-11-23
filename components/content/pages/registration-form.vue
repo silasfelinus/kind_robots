@@ -1,5 +1,7 @@
 <template>
-  <div class="bg-base-300 flex flex-col items-center rounded-2xl h-full p-4 sm:p-8">
+  <div
+    class="bg-base-300 flex flex-col items-center rounded-2xl h-full p-4 sm:p-8"
+  >
     <h1 class="text-6xl font-bold mb-6 text-center">Kind Robots</h1>
     <div v-if="isLoggedIn" class="text-lg mb-6 text-center">
       You are already logged in. Would you like to
@@ -12,20 +14,17 @@
         class="text-info underline hover:text-info-focus"
         @click="userStore.logout"
       >
-        log out
-      </a>?
+        log out </a
+      >?
     </div>
     <form class="space-y-6 w-full max-w-md mx-auto" @submit.prevent="register">
       <div v-if="step === 1">
-        <!-- Updated Pick a Username Layout -->
-        <h1 class="text-4xl font-bold mb-4 text-center">
-          Pick a
-        </h1>
+        <!-- Pick a Username Section -->
+        <h1 class="text-4xl font-bold mb-4 text-center">Pick a</h1>
         <div class="text-primary font-semibold text-5xl text-center mb-2">
           <adjective-flipper />
         </div>
         <h2 class="text-4xl text-center mb-6">username.</h2>
-
         <div class="relative mb-6">
           <input
             v-model="username"
@@ -55,6 +54,7 @@
       </div>
 
       <div v-if="step === 2">
+        <!-- Password and Confirmation Section -->
         <h2 class="text-3xl font-semibold text-primary mb-4 text-center">
           Welcome, {{ username }}!
         </h2>
@@ -98,13 +98,38 @@
               @click="togglePasswordVisibility"
             />
           </div>
-          <p
-            v-if="passwordError"
-            class="text-sm text-warning right-2 bottom-2 absolute"
-          >
+          <p v-if="passwordError" class="text-sm text-warning mt-2">
             {{ passwordError }}
           </p>
         </div>
+
+        <div class="relative group mb-4">
+          <input
+            v-model="confirmPassword"
+            :type="showConfirmPassword ? 'text' : 'password'"
+            placeholder="Confirm Password"
+            class="w-full p-4 border rounded-lg text-lg bg-base-200 placeholder-base-content"
+            aria-label="Confirm Password"
+            autocomplete="new-password"
+            @input="validateConfirmPassword"
+          />
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+            <Icon
+              name="kind-icon:eye"
+              :class="
+                showConfirmPassword
+                  ? 'text-base-300 cursor-pointer hover:text-warning'
+                  : 'text-base-300 cursor-pointer hover:text-success'
+              "
+              title="Show/Hide Confirm Password"
+              @click="toggleConfirmPasswordVisibility"
+            />
+          </div>
+          <p v-if="confirmPasswordError" class="text-sm text-warning mt-2">
+            {{ confirmPasswordError }}
+          </p>
+        </div>
+
         <button
           type="submit"
           :disabled="!isFormValid || isLoading"
@@ -117,7 +142,6 @@
     </form>
   </div>
 </template>
-
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
@@ -138,6 +162,7 @@ const status = ref('')
 const error = ref('')
 const isLoading = ref(false)
 const statusMessage = ref('')
+const confirmPasswordError = ref('')
 
 const showPassword = ref(false)
 const passwordError = ref('')

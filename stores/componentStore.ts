@@ -204,47 +204,37 @@ export const useComponentStore = defineStore('componentStore', {
     },
 
     async updateComponent(component: Component) {
-      try {
-        console.log('Payload sent to API:', JSON.stringify(component))
-        const response = await performFetch<Component>('/api/components', {
-          method: 'PATCH',
-          body: JSON.stringify(component),
-        })
+  try {
+    // Pre-validate the data before sending
+    if (!/^[a-zA-Z0-9\s-]+$/.test(component.componentName)) {
+      throw new Error(`Invalid componentName: ${component.componentName}`);
+    }
+    if (!/^[a-z0-9-]+$/.test(component.folderName)) {
+      throw new Error(`Invalid folderName: ${component.folderName}`);
+    }
 
-        // Validate the response
-        if (!response.success || !response.data) {
-          throw new Error(
-            `API failed to update component: ${component.componentName}. Response: ${JSON.stringify(response)}`,
-          )
-        }
+    const response = await performFetch<Component>('/api/components', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        ...component,
+        notes: component.notes || '', // Replace null with empty string
+        artImageId: component.artImageId || null,
+      }),
+    });
 
-        const serverComponent = response.data
+    if (!response.success || !response.data) {
+      throw new Error(
+        `API failed to update component: ${component.componentName}. Response: ${JSON.stringify(response)}`,
+      );
+    }
 
-        // Update the existing component in the state
-        const index = this.components.findIndex(
-          (comp) => comp.id === component.id,
-        )
-        if (index !== -1) {
-          this.components[index] = serverComponent
-        } else {
-          // Log a sync issue if the updated component is missing locally
-          console.warn(
-            `Component "${component.componentName}" updated on server but not found in local state.`,
-          )
-        }
-        console.log(
-          `Component "${component.componentName}" updated successfully.`,
-        )
-      } catch (error) {
-        // Handle the error and provide detailed messages
-        handleError(
-          error,
-          `Error while trying to update component: ${component.componentName} (${component.id || 'new'})`,
-        )
-        // Optional: Rethrow the error if the calling method needs to handle it
-        throw error
-      }
-    },
+    console.log(
+      `Component "${component.componentName}" updated successfully.`,
+    );
+  } catch (error) {
+    console.error(`Error updating component "${component.componentName}":`, error);
+    throw error;
+  },
 
     findComponentByName(componentName: string) {
       const foundComponent = this.components.find(

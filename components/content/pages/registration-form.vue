@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base-300 flex flex-col items-center p-4 rounded-2xl h-full">
+  <div class="bg-base-300 flex flex-col items-center rounded-2xl h-full">
     <h1 class="text-3xl font-bold mb-4">Kind Robots</h1>
     <div v-if="isLoggedIn" class="text-lg text-info mb-4">
       You are already logged in. Would you like to
@@ -18,12 +18,12 @@
         log out </a
       >?
     </div>
-    <form class="space-y-4 w-full max-w-sm" @submit.prevent="register">
+    <form class="space-y-4 w-full" @submit.prevent="register">
       <div v-if="step === 1">
         <h1 class="text-4xl font-bold mb-4 flex items-center gap-2">
           <span>Pick a</span>
           <span
-            class="text-primary font-semibold text-xl relative inline-block"
+            class="text-primary font-semibold text-6xl relative inline-block"
           >
             <adjective-flipper />
           </span>

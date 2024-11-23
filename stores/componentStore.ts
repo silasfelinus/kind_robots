@@ -51,7 +51,7 @@ export const useComponentStore = defineStore('componentStore', {
       this.selectedFolder = null
     },
 
- async syncComponents() {
+async syncComponents() {
   const errorStore = useErrorStore();
 
   return errorStore.handleError(
@@ -80,7 +80,6 @@ export const useComponentStore = defineStore('componentStore', {
 
       console.log('Raw API response:', apiData);
 
-      // Ensure response has `data` property containing the components
       if (!apiData.success || !Array.isArray(apiData.data)) {
         throw new Error(
           'Invalid data format: API response must contain a data array',
@@ -88,38 +87,13 @@ export const useComponentStore = defineStore('componentStore', {
       }
 
       const apiComponents: Component[] = apiData.data;
-      console.log('Fetched components from API:', apiComponents);
-
-      // Identify and delete components in the database not in components.json
-      const componentsFromJson = folderData.flatMap((folder) =>
-        folder.components.map((componentName) => ({
-          componentName,
-          folderName: folder.folderName,
-        })),
-      );
-
-      for (const apiComponent of apiComponents) {
-        const existsInJson = componentsFromJson.some(
-          (jsonComp) =>
-            jsonComp.componentName === apiComponent.componentName &&
-            jsonComp.folderName === apiComponent.folderName,
-        );
-
-        if (!existsInJson) {
-          console.log(
-            `Deleting component: ${apiComponent.componentName} from folder: ${apiComponent.folderName}`,
-          );
-          await this.deleteComponent(apiComponent.id);
-        }
-      }
 
       // Sync (Upsert) components from components.json to the database
       for (const folder of folderData) {
         for (const componentName of folder.components) {
           const existingComponent = apiComponents.find(
             (comp) =>
-              comp.componentName === componentName &&
-              comp.folderName === folder.folderName,
+              comp.componentName === componentName,
           );
 
           const componentData: Component = {
@@ -138,8 +112,13 @@ export const useComponentStore = defineStore('componentStore', {
           };
 
           if (existingComponent) {
-            await this.updateComponent(componentData);
+            // Update by name
+            await performFetch(`/api/components/name/${componentName}`, {
+              method: 'PATCH',
+              body: JSON.stringify(componentData),
+            });
           } else {
+            // Create the component
             await this.createComponent(componentData);
           }
         }
@@ -150,7 +129,8 @@ export const useComponentStore = defineStore('componentStore', {
     ErrorType.GENERAL_ERROR,
     'Error syncing components from components.json',
   );
-},
+}
+
 
     async fetchComponentById(id: number) {
       try {

@@ -13,24 +13,20 @@ import { ref, onMounted, computed } from 'vue'
 // List of adjectives without requiring "an"
 const adjectives = [
   'cool',
-  'unique',
   'epic',
-  'stellar',
-  'rad',
   'creative',
   'snazzy',
   'quirky',
-  'brilliant',
   'smart',
   'impressive',
   'bold',
   'charming',
-  'savvy',
   'witty',
   'fun',
   'catchy',
   'classy',
   'legendary',
+    'unique',
 ]
 
 // Rainbow colors for rotating

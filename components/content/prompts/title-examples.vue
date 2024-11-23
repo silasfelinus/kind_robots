@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="text-xl font-semibold mb-4">Title Examples</h2>
+    <h2 class="text-xl text-black font-semibold mb-4">Title Examples</h2>
 
     <!-- Toggle Edit Mode Button -->
     <button
@@ -27,7 +27,7 @@
         placeholder="Enter example"
       />
       <!-- Non-Edit Mode Display -->
-      <span v-else>{{ example }}</span>
+      <span v-else class="text-black">{{ example }}</span>
 
       <!-- Edit Mode Controls -->
       <template v-if="isEditing">

@@ -80,8 +80,11 @@ const generatedArtCollection = computed(() =>
 )
 
 const generatedArt = computed(() =>
-  generatedArtCollection.value ? generatedArtCollection.value.art : [],
+  generatedArtCollection.value
+    ? [...generatedArtCollection.value.art].reverse()
+    : [],
 )
+
 
 const generateArt = async () => {
   localError.value = null

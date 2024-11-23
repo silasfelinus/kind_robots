@@ -20,13 +20,16 @@
     </div>
     <form class="space-y-4 w-full max-w-sm" @submit.prevent="register">
       <div v-if="step === 1">
-        <h1 class="text-4xl font-bold mb-4">
-          <span>Pick a </span>
-          <span class="text-primary font-semibold text-xl">
+        <h1 class="text-4xl font-bold mb-4 flex items-center gap-2">
+          <span>Pick a</span>
+          <span
+            class="text-primary font-semibold text-xl relative inline-block"
+          >
             <adjective-flipper />
           </span>
-          <span class="text-base-content"> username.</span>
+          <span class="text-base-content">username.</span>
         </h1>
+
         <div class="relative mb-4">
           <input
             v-model="username"

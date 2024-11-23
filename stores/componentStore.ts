@@ -51,107 +51,106 @@ export const useComponentStore = defineStore('componentStore', {
       this.selectedFolder = null
     },
 
-    // Sync components from components.json to the database
-    async syncComponents() {
-      const errorStore = useErrorStore()
+ async syncComponents() {
+  const errorStore = useErrorStore();
 
-      return errorStore.handleError(
-        async () => {
-          console.log('Syncing components from components.json...')
+  return errorStore.handleError(
+    async () => {
+      console.log('Syncing components from components.json...');
 
-          // Fetch folder and component names from components.json
-          const response = await fetch('/components.json')
-          if (!response.ok) {
-            throw new Error('Failed to fetch components.json')
+      // Fetch folder and component names from components.json
+      const response = await fetch('/components.json');
+      if (!response.ok) {
+        throw new Error('Failed to fetch components.json');
+      }
+
+      const folderData: Folder[] = await response.json();
+
+      if (!Array.isArray(folderData)) {
+        throw new Error(
+          'Invalid data format: components.json must be an array',
+        );
+      }
+
+      console.log('Fetched components.json:', folderData);
+
+      // Fetch existing components from the API
+      const apiResponse = await fetch('/api/components');
+      const apiData = await apiResponse.json();
+
+      console.log('Raw API response:', apiData);
+
+      // Ensure response has `data` property containing the components
+      if (!apiData.success || !Array.isArray(apiData.data)) {
+        throw new Error(
+          'Invalid data format: API response must contain a data array',
+        );
+      }
+
+      const apiComponents: Component[] = apiData.data;
+      console.log('Fetched components from API:', apiComponents);
+
+      // Identify and delete components in the database not in components.json
+      const componentsFromJson = folderData.flatMap((folder) =>
+        folder.components.map((componentName) => ({
+          componentName,
+          folderName: folder.folderName,
+        })),
+      );
+
+      for (const apiComponent of apiComponents) {
+        const existsInJson = componentsFromJson.some(
+          (jsonComp) =>
+            jsonComp.componentName === apiComponent.componentName &&
+            jsonComp.folderName === apiComponent.folderName,
+        );
+
+        if (!existsInJson) {
+          console.log(
+            `Deleting component: ${apiComponent.componentName} from folder: ${apiComponent.folderName}`,
+          );
+          await this.deleteComponent(apiComponent.id);
+        }
+      }
+
+      // Sync (Upsert) components from components.json to the database
+      for (const folder of folderData) {
+        for (const componentName of folder.components) {
+          const existingComponent = apiComponents.find(
+            (comp) =>
+              comp.componentName === componentName &&
+              comp.folderName === folder.folderName,
+          );
+
+          const componentData: Component = {
+            id: existingComponent?.id || 0,
+            componentName,
+            folderName: folder.folderName,
+            createdAt: existingComponent?.createdAt || new Date(),
+            updatedAt: new Date(),
+            isWorking: existingComponent?.isWorking || true,
+            underConstruction:
+              existingComponent?.underConstruction || false,
+            isBroken: existingComponent?.isBroken || false,
+            title: existingComponent?.title || null,
+            notes: existingComponent?.notes || null,
+            artImageId: existingComponent?.artImageId || null,
+          };
+
+          if (existingComponent) {
+            await this.updateComponent(componentData);
+          } else {
+            await this.createComponent(componentData);
           }
+        }
+      }
 
-          const folderData: Folder[] = await response.json()
-
-          if (!Array.isArray(folderData)) {
-            throw new Error(
-              'Invalid data format: components.json must be an array',
-            )
-          }
-
-          console.log('Fetched components.json:', folderData)
-
-          // Fetch existing components from the API
-          const apiResponse = await fetch('/api/components')
-          if (!apiResponse.ok) {
-            throw new Error('Failed to fetch components from API')
-          }
-
-          const apiData = await apiResponse.json()
-          if (!apiData.success || !Array.isArray(apiData.components)) {
-            throw new Error(
-              'Invalid data format: API response must contain a components array',
-            )
-          }
-
-          const apiComponents: Component[] = apiData.components
-
-          // Identify and delete components in the database not in components.json
-          const componentsFromJson = folderData.flatMap((folder) =>
-            folder.components.map((componentName) => ({
-              componentName,
-              folderName: folder.folderName,
-            })),
-          )
-
-          for (const apiComponent of apiComponents) {
-            const existsInJson = componentsFromJson.some(
-              (jsonComp) =>
-                jsonComp.componentName === apiComponent.componentName &&
-                jsonComp.folderName === apiComponent.folderName,
-            )
-
-            if (!existsInJson) {
-              console.log(
-                `Deleting component: ${apiComponent.componentName} from folder: ${apiComponent.folderName}`,
-              )
-              await this.deleteComponent(apiComponent.id)
-            }
-          }
-
-          // Sync (Upsert) components from components.json to the database
-          for (const folder of folderData) {
-            for (const componentName of folder.components) {
-              const existingComponent = apiComponents.find(
-                (comp) =>
-                  comp.componentName === componentName &&
-                  comp.folderName === folder.folderName,
-              )
-
-              const componentData: Component = {
-                id: existingComponent?.id || 0, // Ensure id is always defined for updates
-                componentName,
-                folderName: folder.folderName,
-                createdAt: existingComponent?.createdAt || new Date(),
-                updatedAt: new Date(),
-                isWorking: existingComponent?.isWorking || true,
-                underConstruction:
-                  existingComponent?.underConstruction || false,
-                isBroken: existingComponent?.isBroken || false,
-                title: existingComponent?.title || null,
-                notes: existingComponent?.notes || null,
-                artImageId: existingComponent?.artImageId || null,
-              }
-
-              if (existingComponent) {
-                // Update existing component
-                await this.updateComponent(componentData)
-              } else {
-                await this.createComponent(componentData)
-              }
-            }
-          }
-
-          console.log('Components synced from components.json to the API.')
-        },
-        ErrorType.GENERAL_ERROR,
-        'Error syncing components from components.json',
-      )
+      console.log('Components synced from components.json to the API.');
     },
+    ErrorType.GENERAL_ERROR,
+    'Error syncing components from components.json',
+  );
+},
 
     async fetchComponentById(id: number) {
       try {

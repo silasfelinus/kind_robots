@@ -51,86 +51,85 @@ export const useComponentStore = defineStore('componentStore', {
       this.selectedFolder = null
     },
 
-async syncComponents() {
-  const errorStore = useErrorStore();
+    async syncComponents(progressCallback?: (message: string) => void) {
+      const errorStore = useErrorStore()
 
-  return errorStore.handleError(
-    async () => {
-      console.log('Syncing components from components.json...');
-
-      // Fetch folder and component names from components.json
-      const response = await fetch('/components.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch components.json');
-      }
-
-      const folderData: Folder[] = await response.json();
-
-      if (!Array.isArray(folderData)) {
-        throw new Error(
-          'Invalid data format: components.json must be an array',
-        );
-      }
-
-      console.log('Fetched components.json:', folderData);
-
-      // Fetch existing components from the API
-      const apiResponse = await fetch('/api/components');
-      const apiData = await apiResponse.json();
-
-      console.log('Raw API response:', apiData);
-
-      if (!apiData.success || !Array.isArray(apiData.data)) {
-        throw new Error(
-          'Invalid data format: API response must contain a data array',
-        );
-      }
-
-      const apiComponents: Component[] = apiData.data;
-
-      // Sync (Upsert) components from components.json to the database
-      for (const folder of folderData) {
-        for (const componentName of folder.components) {
-          const existingComponent = apiComponents.find(
-            (comp) =>
-              comp.componentName === componentName,
-          );
-
-          const componentData: Component = {
-            id: existingComponent?.id || 0,
-            componentName,
-            folderName: folder.folderName,
-            createdAt: existingComponent?.createdAt || new Date(),
-            updatedAt: new Date(),
-            isWorking: existingComponent?.isWorking || true,
-            underConstruction:
-              existingComponent?.underConstruction || false,
-            isBroken: existingComponent?.isBroken || false,
-            title: existingComponent?.title || null,
-            notes: existingComponent?.notes || null,
-            artImageId: existingComponent?.artImageId || null,
-          };
-
-          if (existingComponent) {
-            // Update by name
-            await performFetch(`/api/components/name/${componentName}`, {
-              method: 'PATCH',
-              body: JSON.stringify(componentData),
-            });
-          } else {
-            // Create the component
-            await this.createComponent(componentData);
+      return errorStore.handleError(
+        async () => {
+          const logProgress = (message: string) => {
+            console.log(`[SyncComponents] ${message}`)
+            if (progressCallback) progressCallback(message)
           }
-        }
-      }
 
-      console.log('Components synced from components.json to the API.');
+          logProgress('Fetching components.json...')
+          const response = await fetch('/components.json')
+          if (!response.ok) {
+            throw new Error('Failed to fetch components.json')
+          }
+
+          const folderData: Folder[] = await response.json()
+          if (!Array.isArray(folderData)) {
+            throw new Error(
+              'Invalid data format: components.json must be an array',
+            )
+          }
+
+          logProgress('Fetched components.json.')
+
+          logProgress('Fetching existing components from the API...')
+          const apiResponse = await fetch('/api/components')
+          const apiData = await apiResponse.json()
+
+          if (!apiData.success || !Array.isArray(apiData.data)) {
+            throw new Error(
+              'Invalid data format: API response must contain a data array',
+            )
+          }
+
+          const apiComponents: Component[] = apiData.data
+          logProgress('Fetched components from the API.')
+
+          logProgress('Synchronizing components...')
+          for (const folder of folderData) {
+            for (const componentName of folder.components) {
+              const existingComponent = apiComponents.find(
+                (comp) => comp.componentName === componentName,
+              )
+
+              const componentData: Component = {
+                id: existingComponent?.id || 0,
+                componentName,
+                folderName: folder.folderName,
+                createdAt: existingComponent?.createdAt || new Date(),
+                updatedAt: new Date(),
+                isWorking: existingComponent?.isWorking || true,
+                underConstruction:
+                  existingComponent?.underConstruction || false,
+                isBroken: existingComponent?.isBroken || false,
+                title: existingComponent?.title || null,
+                notes: existingComponent?.notes || null,
+                artImageId: existingComponent?.artImageId || null,
+              }
+
+              if (existingComponent) {
+                logProgress(`Updating component: ${componentName}`)
+                await performFetch(`/api/components/name/${componentName}`, {
+                  method: 'PATCH',
+                  body: JSON.stringify(componentData),
+                })
+              } else {
+                logProgress(`Creating component: ${componentName}`)
+                await this.createComponent(componentData)
+              }
+            }
+          }
+
+          logProgress('Synchronization complete.')
+        },
+        ErrorType.GENERAL_ERROR,
+        'Error syncing components from components.json',
+      )
     },
-    ErrorType.GENERAL_ERROR,
-    'Error syncing components from components.json',
-  );
-},
-
 
     async fetchComponentById(id: number) {
       try {
@@ -183,39 +182,45 @@ async syncComponents() {
       }
     },
 
-async updateComponent(component: Component) {
-  try {
-    // Pre-validate the data before sending
-    if (!/^[a-zA-Z0-9\s-]+$/.test(component.componentName)) {
-      throw new Error(`Invalid componentName: ${component.componentName}`);
-    }
-    if (!/^[a-z0-9-]+$/.test(component.folderName)) {
-      throw new Error(`Invalid folderName: ${component.folderName}`);
-    }
+    async updateComponent(component: Component) {
+      try {
+        // Pre-validate the data before sending
+        if (!/^[a-zA-Z0-9\s-]+$/.test(component.componentName)) {
+          throw new Error(`Invalid componentName: ${component.componentName}`)
+        }
+        if (!/^[a-z0-9-]+$/.test(component.folderName)) {
+          throw new Error(`Invalid folderName: ${component.folderName}`)
+        }
 
-    const response = await performFetch<Component>(`/api/components/${component.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        ...component,
-        notes: component.notes || '', // Replace null with empty string
-        artImageId: component.artImageId || null,
-      }),
-    });
+        const response = await performFetch<Component>(
+          `/api/components/${component.id}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify({
+              ...component,
+              notes: component.notes || '', // Replace null with empty string
+              artImageId: component.artImageId || null,
+            }),
+          },
+        )
 
-    if (!response.success || !response.data) {
-      throw new Error(
-        `API failed to update component: ${component.componentName}. Response: ${JSON.stringify(response)}`,
-      );
-    }
+        if (!response.success || !response.data) {
+          throw new Error(
+            `API failed to update component: ${component.componentName}. Response: ${JSON.stringify(response)}`,
+          )
+        }
 
-    console.log(
-      `Component "${component.componentName}" updated successfully.`,
-    );
-  } catch (error) {
-    console.error(`Error updating component "${component.componentName}":`, error);
-    throw error;
-  }
-},
+        console.log(
+          `Component "${component.componentName}" updated successfully.`,
+        )
+      } catch (error) {
+        console.error(
+          `Error updating component "${component.componentName}":`,
+          error,
+        )
+        throw error
+      }
+    },
 
     findComponentByName(componentName: string) {
       const foundComponent = this.components.find(

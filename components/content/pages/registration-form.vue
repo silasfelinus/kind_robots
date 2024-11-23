@@ -1,18 +1,15 @@
 <template>
   <div class="bg-base-300 flex flex-col items-center rounded-2xl h-full">
-    <h1 class="text-3xl font-bold mb-4">Kind Robots</h1>
-    <div v-if="isLoggedIn" class="text-lg text-info mb-4">
+    <h1 class="text-6xl font-bold mb-4">Kind Robots</h1>
+    <div v-if="isLoggedIn" class="text-lg mb-4">
       You are already logged in. Would you like to
-      <a
-        href="/dashboard"
-        class="text-secondary underline hover:text-secondary-focus"
-      >
+      <a href="/dashboard" class="text-info underline hover:text-info-focus">
         go to the dashboard
       </a>
       or
       <a
         href="#"
-        class="text-secondary underline hover:text-secondary-focus"
+        class="text-info underline hover:text-info-focus"
         @click="userStore.logout"
       >
         log out </a
@@ -20,7 +17,7 @@
     </div>
     <form class="space-y-4 w-full" @submit.prevent="register">
       <div v-if="step === 1">
-        <h1 class="text-4xl font-bold mb-4 flex items-center gap-2">
+        <h1 class="text-4xl font-bold mb-4 flex items-center text-center gap-2">
           <span>Pick a</span>
           <span
             class="text-primary font-semibold text-6xl relative inline-block"
@@ -30,7 +27,7 @@
           <span class="text-base-content">username.</span>
         </h1>
 
-        <div class="relative mb-4">
+        <div class="relative mb-4 items-center max-w-md">
           <input
             v-model="username"
             type="text"

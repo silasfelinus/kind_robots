@@ -3,7 +3,7 @@
     <img
       :src="avatarUrl"
       :alt="`${username}'s avatar`"
-      class="rounded-full border-2 min-h-6 min-w-6 border-accent object-cover"
+      class="rounded-full border-1 w-full h-full border-accent object-cover"
       @error="handleAvatarError"
     />
   </div>

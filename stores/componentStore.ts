@@ -203,6 +203,7 @@ export const useComponentStore = defineStore('componentStore', {
 
     async updateComponent(component: Component) {
       try {
+        console.log('Payload sent to API:', JSON.stringify(component));
         const response = await performFetch<Component>('/api/components', {
           method: 'PATCH',
           body: JSON.stringify(component),

@@ -36,7 +36,7 @@
 
         <h3
           v-if="page && page.description"
-          class="text-sm md:text-md lg:text-lg xl-text-xl font-medium px-4"
+          class="text-sm md:text-lg lg:text-xl xl-text-2xl font-medium px-4"
         >
           {{ page.description }}
         </h3>

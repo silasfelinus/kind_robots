@@ -122,8 +122,8 @@ export const useComponentStore = defineStore('componentStore', {
                   comp.folderName === folder.folderName,
               )
 
-              const componentData = {
-                id: existingComponent ? existingComponent.id : 0, // Use 0 for new components
+              const componentData: Component = {
+                id: existingComponent?.id || 0, // Ensure id is always defined for updates
                 componentName,
                 folderName: folder.folderName,
                 createdAt: existingComponent?.createdAt || new Date(),
@@ -134,12 +134,15 @@ export const useComponentStore = defineStore('componentStore', {
                 isBroken: existingComponent?.isBroken || false,
                 title: existingComponent?.title || null,
                 notes: existingComponent?.notes || null,
+                artImageId: existingComponent?.artImageId || null,
               }
 
-              await this.createOrUpdateComponent(
-                componentData as Component,
-                existingComponent ? 'update' : 'create',
-              )
+              if (existingComponent) {
+                // Update existing component
+                await this.updateComponent(componentData)
+              } else {
+                await this.createComponent(componentData)
+              }
             }
           }
 

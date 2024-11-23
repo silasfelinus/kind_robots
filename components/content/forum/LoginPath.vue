@@ -3,7 +3,7 @@
     <!-- User Avatar and Login Button -->
     <router-link :to="dashboardRoute" class="flex items-center space-x-2">
       <template v-if="isLoggedIn">
-        <user-avatar class="h-10 w-10 rounded-full border border-base-300" />
+        <user-avatar class="h-5 w-5 md:h-8 md:w-8 lg:w-10 lg:w-10 xl:w:12 xl:h-12 rounded-full border border-base-300" />
       </template>
       <template v-else>
         <button class="flex items-center justify-center space-x-2">

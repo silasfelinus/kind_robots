@@ -37,21 +37,21 @@ import { useRouter } from 'vue-router'
 // Hardcoded sidebar links
 const hardcodedLinks = ref([
   { title: 'Home', path: '/', icon: 'kind-icon:home' },
-  { title: 'Bot Cafe', path: '/botcafe', icon: 'kind-icon:addbot' },
+  { title: 'Bots', path: '/botcafe', icon: 'kind-icon:addbot' },
   {
-    title: 'Brainstorm!',
+    title: 'Brainstorm',
     path: '/brainstorm',
     icon: 'kind-icon:brain',
   },
   { title: 'Art Lab', path: '/artmaker', icon: 'kind-icon:easel' },
   {
-    title: 'Memory Match',
+    title: 'Memory',
     path: '/memory',
     icon: 'kind-icon:question',
   },
-  { title: 'Wonder Lab', path: '/wonderlab', icon: 'kind-icon:gearhammer' },
+  { title: 'WonderLab', path: '/wonderlab', icon: 'kind-icon:gearhammer' },
   {
-    title: 'Weird Land',
+    title: 'WeirdLand',
     path: '/weirdlandia',
     icon: 'kind-icon:alien',
   },

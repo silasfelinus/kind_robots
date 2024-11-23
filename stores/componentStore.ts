@@ -234,6 +234,7 @@ export const useComponentStore = defineStore('componentStore', {
   } catch (error) {
     console.error(`Error updating component "${component.componentName}":`, error);
     throw error;
+}
   },
 
     findComponentByName(componentName: string) {

@@ -40,26 +40,20 @@
       v-if="botStore.currentBot"
       class="flex flex-col gap-4 items-center mt-6 w-full"
     >
-      <div class="flex flex-wrap gap-2 justify-center">
-        <div
-          v-for="prompt in parsedUserPrompts"
-          :key="prompt.id"
-          class="w-auto"
-        >
-          <button
-            :disabled="loading"
-            class="btn btn-outline btn-info rounded-full px-4 py-2 transition duration-300 ease-in-out"
-            @click="sendPrompt(prompt.text)"
-          >
-            <span v-if="!loading">{{ prompt.text }}</span>
-            <span
-              v-else
-              class="spinner-border spinner-border-sm"
-              role="status"
-            ></span>
-          </button>
-        </div>
-      </div>
+   <div v-for="prompt in parsedUserPrompts" :key="prompt.id" class="w-auto">
+  <button
+    :disabled="loading"
+    class="btn btn-outline btn-info rounded-full px-4 py-2 transition duration-300 ease-in-out"
+    @click="sendPrompt(prompt.text)"
+  >
+    <span v-if="!loading">{{ prompt.text }}</span>
+    <span
+      v-else
+      class="spinner-border spinner-border-sm"
+      role="status"
+    ></span>
+  </button>
+</div>
 
       <!-- Custom Prompt Input -->
       <div class="flex flex-col w-full sm:w-1/2 mt-6">
@@ -120,17 +114,17 @@ const promptStore = usePromptStore()
 const loading = ref(false)
 const errorMessage = ref<string | undefined>()
 
-// Computed property to parse user prompts
 const parsedUserPrompts = computed(() => {
   const userPrompts = botStore.currentBot?.userPrompts || ''
   return userPrompts
-    .split('|')
-    .filter((text) => text.trim()) // Ensure no empty strings
+    .split('|') // Split string into an array
+    .filter((text) => text.trim()) // Remove empty or whitespace-only entries
     .map((text, index) => ({
-      text: text.trim(),
-      id: index + 1,
+      id: index + 1, // Add a unique ID for each entry
+      text: text.trim(), // Ensure the prompt text is trimmed
     }))
 })
+n
 
 async function sendPrompt(prompt: string) {
   if (!prompt) {

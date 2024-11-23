@@ -10,7 +10,11 @@
 
     <!-- Theme list -->
     <div
-      class="theme-list grid grid-cols-3 gap-6 w-full overflow-y-auto h-full px-4"
+      class="theme-list grid gap-6 w-full overflow-y-auto h-full px-4"
+      :class="{
+        'grid-cols-1 sm:grid-cols-[1fr_1fr] sm:grid-rows-[auto_auto]': true,
+        'place-items-center': true,
+      }"
     >
       <div
         v-for="theme in themeStore.themes"
@@ -44,6 +48,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'

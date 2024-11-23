@@ -1,13 +1,13 @@
 <template>
-  <div class="relative w-full max-w-3xl bg-white p-6 rounded-lg shadow-md">
+  <div class="relative w-full bg-white rounded-lg shadow-md">
     <!-- Display component information dynamically -->
-    <h2 v-if="selectedComponent" class="text-2xl font-semibold">
-      Edit Component: {{ selectedComponent?.componentName }}
+    <h2 v-if="selectedComponent" class="text-xl font-semibold">
+      {{ selectedComponent?.componentName }}
     </h2>
     <p v-else class="text-lg">Loading component...</p>
 
     <!-- Display form fields for title, notes, and boolean toggles -->
-    <div v-if="selectedComponent" class="mt-4">
+    <div v-if="selectedComponent" class="mt-2">
       <label class="block mb-2 text-sm font-medium">Title:</label>
       <input
         v-model="selectedComponent.title"

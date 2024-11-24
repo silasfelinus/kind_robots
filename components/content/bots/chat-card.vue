@@ -57,6 +57,12 @@
     <!-- Bot Response -->
     <div class="bot-response p-4 rounded-lg bg-accent mb-4">
       <p class="text-sm font-semibold text-accent-content">Bot Response:</p>
+      <img
+        v-if="hasBot"
+        :src="botImage || '/images/bot.webp'"
+        alt="Bot Avatar"
+        class="w-12 h-12 rounded-full border-2 border-secondary ml-auto"
+      />
       <p class="text-base">{{ botResponse }}</p>
     </div>
 

@@ -82,8 +82,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRuntimeConfig } from '#app'
+import { useUserStore } from '@/stores/userStore'
 
-const userIsAdmin = ref(false) // Replace with your admin check logic.
+const userStore = useUserStore()
+
+const userIsAdmin = computed(() => userStore.isAdmin)
 const apiKey = ref('')
 const messages = ref<string[]>([])
 const isConnected = ref(false)

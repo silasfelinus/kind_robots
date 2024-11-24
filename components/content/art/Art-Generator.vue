@@ -123,7 +123,6 @@ const generateArt = async () => {
 
     if (response.success && response.data) {
       shouldShowMilestoneCheck.value = true
-      console.log('Art generated successfully:', response.data)
     } else {
       errorStore.setError(
         ErrorType.NETWORK_ERROR,

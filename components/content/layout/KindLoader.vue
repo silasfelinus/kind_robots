@@ -9,6 +9,7 @@ import { useUserStore } from './../../../stores/userStore'
 import { useArtStore } from './../../../stores/artStore'
 import { useThemeStore } from './../../../stores/themeStore'
 import { useBotStore } from './../../../stores/botStore'
+import { useChatStore } from './../../../stores/chatStore'
 import { useMilestoneStore } from './../../../stores/milestoneStore'
 import { useDisplayStore } from './../../../stores/displayStore'
 import { usePitchStore } from './../../../stores/pitchStore'
@@ -28,6 +29,7 @@ const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
 const rewardStore = useRewardStore()
+const chatStore = useChatStore()
 
 // State management
 const isReady = ref(false)
@@ -53,11 +55,10 @@ onMounted(async () => {
       promptStore.initialize?.(),
       artStore.initialize?.(),
       botStore.loadStore?.(),
+      chatStore.initialize?.(),
       themeStore.initTheme?.(),
       reactionStore.initializeReactions?.(),
-      rewardStore.initializeStore?.()
-      
-      
+      rewardStore.initializeStore?.(),
     ])
 
     console.log('All stores initialized successfully.')

@@ -112,7 +112,6 @@ const closeForm = () => {
 }
 
 const handleLogin = async () => {
-  console.log('handleLogin triggered')
   errorMessage.value = ''
   userNotFound.value = false
   try {
@@ -120,13 +119,10 @@ const handleLogin = async () => {
       username: login.value,
       password: password.value || undefined,
     }
-    console.log(login.value + ' is trying to log in!')
     const result = await store.login(credentials)
-    console.log(result)
     if (result.success) {
       store.setStayLoggedIn(store.stayLoggedIn)
     } else {
-      console.log('login failed', result)
       errorMessage.value = result.message || 'Login failed'
       userNotFound.value = result.message?.includes('User not found') || false
     }

@@ -81,7 +81,6 @@ const feedbackClass = ref('text-green-500')
 onMounted(async () => {
   try {
     await chatStore.initialize()
-    console.log('All stores initialized successfully.')
   } catch (error) {
     showFeedback('Failed to initialize chat store.', true)
     console.error(error)

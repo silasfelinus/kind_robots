@@ -374,8 +374,6 @@ export const useUserStore = defineStore({
         return user?.avatarImage || '/images/kindart.webp' // Fallback to default image
       }
 
-      console.log('artImageId: ', user.artImageId)
-
       const artStore = useArtStore()
       try {
         const artImage = await artStore.getArtImageById(user.artImageId) // Await the Promise

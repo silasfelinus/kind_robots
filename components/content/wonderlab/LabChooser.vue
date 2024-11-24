@@ -41,7 +41,6 @@
       <lazy-rebel-button v-if="activeTab === 'rebel-button'" />
       <lazy-about-page v-if="activeTab === 'about-page'" />
       <lazy-sponsor-page v-if="activeTab === 'sponsor-page'" />
-      <lazy-whisper-chat v-if="activeTab === 'whisper-chat'" />
     </div>
   </div>
 </template>
@@ -68,7 +67,6 @@ const tabs = [
   { name: 'rebel-button', label: 'Rebel Button' },
   { name: 'about-page', label: 'About Page' },
   { name: 'sponsor-page', label: 'Sponsor Page' },
-  { name: 'whisper-chat', label: 'Whisper' },
 ]
 
 // Filter tabs based on user role

@@ -5,8 +5,11 @@
     </h1>
 
     <!-- API Key Input -->
-    <div v-if="!isConnected" class="bg-base-100 p-6 shadow-lg rounded-lg">
-      <p class="text-sm text-warning mb-4">
+    <div
+      v-if="!isConnected && !userIsAdmin"
+      class="bg-base-100 p-6 shadow-lg rounded-lg"
+    >
+      <p class="text-md text-warning mb-4">
         To use this chat, you must provide a valid OpenAI API key. Whisper
         requires an active OpenAI account (it may require payment). You are
         responsible for tracking and paying any costs incurred while using
@@ -25,7 +28,7 @@
       />
       <button
         class="btn btn-primary w-full"
-        :disabled="!apiKey && !userIsAdmin"
+        :disabled="!apiKey"
         aria-label="Connect to Whisper API"
         @click="connectToWhisper"
       >
@@ -73,9 +76,8 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRuntimeConfig } from '#app'
 
 const userIsAdmin = ref(false) // Replace with your admin check logic.
@@ -89,9 +91,9 @@ const socket = ref<WebSocket | null>(null)
 const connectToWhisper = () => {
   const config = useRuntimeConfig()
 
-  if (!apiKey.value && !userIsAdmin.value) return
+  const keyToUse = userIsAdmin.value ? config.OPENAI_API_KEY : apiKey.value
 
-  const keyToUse = apiKey.value || config.OPENAI_API_KEY
+  if (!keyToUse) return // Prevent connection if no API key is available
 
   isLoading.value = true // Start loading state
   socket.value = new WebSocket('wss://api.openai.com/v1/realtime')
@@ -151,6 +153,13 @@ const sendMessage = () => {
   ;(messages.value as string[]).push(`You: ${userInput.value}`) // Correctly push message
   userInput.value = ''
 }
+
+// Automatically connect for admin users
+onMounted(() => {
+  if (userIsAdmin.value) {
+    connectToWhisper()
+  }
+})
 </script>
 
 <style>

@@ -5,7 +5,7 @@
   >
     <!-- Toggle Button -->
     <button
-      class="toggle-button px-4 py-2 mb-3 text-white bg-accent rounded-lg"
+      class="toggle-button px-4 py-2 mb-3  bg-accent rounded-lg"
       @click="toggleVisibility"
     >
       {{ areButtonsVisible ? 'Hide Sections' : 'Show Sections' }}
@@ -23,8 +23,8 @@
           class="flex-1 min-w-[45%] max-w-[30%] md:min-w-[25%] lg:min-w-[15%] px-3 py-2 text-sm md:text-md lg:text-lg font-semibold border border-accent rounded-lg transition-all duration-300"
           :class="[
             tab.name === choice
-              ? 'bg-primary text-white'
-              : 'bg-secondary hover:bg-accent text-white',
+              ? 'bg-primary text-black'
+              : 'bg-secondary hover:bg-accent text-black',
           ]"
           @click="selectTab(tab.name)"
         >

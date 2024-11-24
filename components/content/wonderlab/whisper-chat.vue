@@ -1,7 +1,7 @@
 <template>
   <div class="p-6 max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6 text-center text-primary">
-      AI Voice Chat Interface
+    <h1 class="text-3xl font-bold mb-6 text-center">
+      AI Voice Chat Interface (Under Construction)
     </h1>
 
     <!-- API Key Input -->

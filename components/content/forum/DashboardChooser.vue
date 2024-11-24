@@ -104,14 +104,21 @@ onMounted(() => {
 .slide-up-leave-active {
   transition: all 0.3s ease-in-out;
 }
-.slide-up-enter-from,
-.slide-up-leave-to {
-  transform: translateY(0);
-  opacity: 1;
-}
-.slide-up-leave-from,
-.slide-up-enter-to {
+.slide-up-enter-from {
   transform: translateY(-100%);
   opacity: 0;
 }
+.slide-up-enter-to {
+  transform: translateY(0);
+  opacity: 1;
+}
+.slide-up-leave-from {
+  transform: translateY(0);
+  opacity: 1;
+}
+.slide-up-leave-to {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
 </style>

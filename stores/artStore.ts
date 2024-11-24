@@ -177,6 +177,7 @@ export const useArtStore = defineStore({
       try {
         console.log('fetching all art images')
         const response = await performFetch<ArtImage[]>('/api/art/image')
+        console.log('fetched art images')
         if (response.success) {
           this.artImages = response.data || []
           if (isClient) {
@@ -269,6 +270,7 @@ export const useArtStore = defineStore({
 
     async deleteArtImage(artImageId: number): Promise<void> {
       try {
+        console.log('deleting image ', artImageId)
         const response = await performFetch(`/api/art/image/${artImageId}`, {
           method: 'DELETE',
         })

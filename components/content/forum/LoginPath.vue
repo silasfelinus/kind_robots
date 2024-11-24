@@ -1,11 +1,15 @@
 <template>
   <div class="relative flex flex-col items-start box-border">
     <!-- User Avatar and Login Button -->
-    <router-link :to="dashboardRoute" class="flex items-center md:flex-col md:items-center md:space-x-0">
+    <router-link
+      :to="dashboardRoute"
+      class="flex items-center md:flex-col md:items-center md:space-x-0"
+    >
       <template v-if="isLoggedIn">
         <div class="flex flex-col items-center">
-          <user-avatar class="h-6 w-6 md:h-7 md:w-7 lg:w-9 lg:h-9 xl:w-12 xl:h-12 rounded-full border border-1 border-base-300" />
-          <span class="hidden sm:block text-sm md:text-base mt-2">Username</span>
+          <user-avatar
+            class="h-6 w-6 md:h-7 md:w-7 lg:w-9 lg:h-9 xl:w-12 xl:h-12 rounded-full border border-1 border-base-300"
+          />
         </div>
       </template>
       <template v-else>

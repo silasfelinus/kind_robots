@@ -5,17 +5,24 @@ import { errorHandler } from './../../utils/error'
 
 export default defineEventHandler(async () => {
   try {
-    const artImages = await fetchAllArtImages()
+    console.log('inside art images fetch')
+    const data = await prisma.artImage.findMany({
+      include: {
+        Art: true, // Include the associated Art model in the results
+      },
+    })
 
-    if (!artImages || artImages.length === 0) {
+    if (!data || data.length === 0) {
       return {
         success: false,
         message: 'No art images found.',
       }
     }
 
+    console.log('finished fetch')
+
     // Return the found art images wrapped in a data object
-    return { success: true, data: { artImages } }
+    return { success: true, data }
   } catch (error) {
     return errorHandler(error)
   }

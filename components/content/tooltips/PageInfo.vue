@@ -131,8 +131,8 @@ const router = useRouter()
 // Computed property for the store interaction
 const showInfoInStore = computed({
   get: () => displayStore.showIntro,
-  set: (value: boolean) => {
-    displayStore.showIntro = value
+  set: () => {
+    displayStore.toggleIntro()
   },
 })
 

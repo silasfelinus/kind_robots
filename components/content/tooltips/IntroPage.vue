@@ -89,12 +89,12 @@ const previousStep = () => {
 
 // Mark intro as finished and set `showIntro` to false
 const finishIntro = () => {
-  displayStore.showIntro = false
+  displayStore.toggleIntro()
 }
 
 // Skip the intro and set `showIntro` to false
 const skipIntro = () => {
-  displayStore.showIntro = false
+  displayStore.toggleIntro()
 }
 </script>
 

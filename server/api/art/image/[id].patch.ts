@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Update the art image with validated data
-    const updatedArtImage = await prisma.artImage.update({
+    const data = await prisma.artImage.update({
       where: { id: imageId },
       data: {
         imageData: imageData ?? artImage.imageData,
@@ -91,7 +91,8 @@ export default defineEventHandler(async (event) => {
     // Successful response with updated art image wrapped in a data object
     response = {
       success: true,
-      data: { artImage: updatedArtImage },
+      data,
+      message: 'Successfully retrieved art image',
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {

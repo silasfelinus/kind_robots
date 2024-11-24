@@ -4,7 +4,7 @@
     <router-link :to="dashboardRoute" class="flex items-center md:flex-col md:items-center md:space-x-0">
       <template v-if="isLoggedIn">
         <div class="flex flex-col items-center">
-          <user-avatar class="h-7 w-7 md:h-9 md:w-9 lg:w-12 lg:h-12 xl:w-15 xl:h-15 rounded-full border border-1 border-base-300" />
+          <user-avatar class="h-6 w-6 md:h-7 md:w-7 lg:w-9 lg:h-9 xl:w-12 xl:h-12 rounded-full border border-1 border-base-300" />
           <span class="hidden sm:block text-sm md:text-base mt-2">Username</span>
         </div>
       </template>

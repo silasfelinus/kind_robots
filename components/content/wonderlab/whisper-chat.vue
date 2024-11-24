@@ -111,11 +111,12 @@ const connectToWhisper = () => {
     isConnected.value = true
     isLoading.value = false
 
-    // Send initial connection payload with API key
+    // Send an initial greeting message
     socket.value?.send(
       JSON.stringify({
         api_key: keyToUse,
         action: 'connect',
+        greeting: 'Hello! How can I assist you today?', // Greeting message
       }),
     )
   }
@@ -123,11 +124,12 @@ const connectToWhisper = () => {
   socket.value.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data)
-      if (data.text) {
+      if (data.audio) {
+        // If the response contains audio, play it
+        playAudioResponse(data.audio)
+      } else if (data.text) {
+        // Display text responses in the chat
         messages.value.push(data.text)
-        playAudioResponse(data.audio) // Play the audio response
-      } else {
-        messages.value.push('Received data without text.')
       }
     } catch (error) {
       messages.value.push('Error parsing data from API.')

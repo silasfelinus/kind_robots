@@ -19,12 +19,12 @@ export default defineEventHandler(async (event) => {
     }
 
     // Query the ArtImage by artId
-    const artImage = await prisma.artImage.findUnique({
+    const data = await prisma.artImage.findUnique({
       where: { artId },
     })
 
     // If no artImage is found, return a 404 error
-    if (!artImage) {
+    if (!data) {
       return errorHandler({
         success: false,
         message: `ArtImage with artId ${artId} not found`,
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     // Return the found ArtImage wrapped in a data object
     return {
       success: true,
-      data: { artImage },
+      data,
     }
   } catch (error) {
     // Handle any unexpected errors

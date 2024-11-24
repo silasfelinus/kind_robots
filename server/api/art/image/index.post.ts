@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Create the new art image with provided partial model data
-    const newArtImage = await prisma.artImage.create({
+    const data = await prisma.artImage.create({
       data: {
         ...imageData,
         artId,
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
 
     // Return the new art image wrapped in a data object
     event.node.res.statusCode = 201
-    return { success: true, data: { artImage: newArtImage } }
+    return { success: true, data }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500

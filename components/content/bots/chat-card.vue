@@ -38,11 +38,15 @@
         class="message p-3 mb-2 rounded-lg flex gap-4"
         :class="messageClass(message)"
       >
-        <img
-          :src="getImage(message.sender)"
-          alt="Avatar"
-          class="w-8 h-8 rounded-full border"
-        />
+        <div v-if="userId" class="header flex items-center mb-4 gap-4">
+          <user-avatar :user-id="userId" />
+          <img
+            v-if="hasBot"
+            :src="botImage || '/images/bot.webp'"
+            alt="Bot Avatar"
+            class="w-12 h-12 rounded-full border-2 border-secondary ml-auto"
+          />
+        </div>
         <div>
           <p class="text-sm font-bold">{{ message.sender }}:</p>
           <p class="text-base">{{ message.content }}</p>
@@ -158,11 +162,6 @@ watchEffect(async () => {
     }
   }
 })
-
-// Utility functions
-const getImage = (sender: string) => {
-  return sender === chat.value.sender ? userImage.value : botImage.value
-}
 
 const messageClass = (message: { sender: string }) => ({
   'flex-row-reverse bg-gray-900 text-gray-100':

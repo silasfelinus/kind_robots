@@ -11,12 +11,8 @@
     </button>
 
     <!-- Header -->
-    <div v-if="hasUser" class="header flex items-center mb-4 gap-4">
-      <img
-        :src="userImage || '/images/kindtitle.webp'"
-        alt="User Avatar"
-        class="w-12 h-12 rounded-full border-2 border-primary"
-      />
+    <div v-if="userId" class="header flex items-center mb-4 gap-4">
+      <user-avatar :user-id="userId" />
       <img
         v-if="hasBot"
         :src="botImage || '/images/bot.webp'"
@@ -111,8 +107,7 @@ const userStore = useUserStore()
 const botStore = useBotStore()
 const artStore = useArtStore()
 
-// Computed properties
-const hasUser = computed(() => !!userStore.getUserById(chat.value.userId ?? -1))
+const userId = computed(() => chat.value.userId)
 
 const hasBot = computed(() => !!botStore.getBotById(chat.value.botId ?? -1))
 const threadMessages = computed(() =>

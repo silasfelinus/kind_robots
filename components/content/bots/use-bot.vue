@@ -40,20 +40,20 @@
       v-if="botStore.currentBot"
       class="flex flex-col gap-4 items-center mt-6 w-full"
     >
-   <div v-for="prompt in parsedUserPrompts" :key="prompt.id" class="w-auto">
-  <button
-    :disabled="loading"
-    class="btn btn-outline btn-info rounded-full px-4 py-2 transition duration-300 ease-in-out"
-    @click="sendPrompt(prompt.text)"
-  >
-    <span v-if="!loading">{{ prompt.text }}</span>
-    <span
-      v-else
-      class="spinner-border spinner-border-sm"
-      role="status"
-    ></span>
-  </button>
-</div>
+      <div v-for="prompt in parsedUserPrompts" :key="prompt.id" class="w-auto">
+        <button
+          :disabled="loading"
+          class="btn btn-outline btn-info rounded-full px-4 py-2 transition duration-300 ease-in-out"
+          @click="sendPrompt(prompt.text)"
+        >
+          <span v-if="!loading">{{ prompt.text }}</span>
+          <span
+            v-else
+            class="spinner-border spinner-border-sm"
+            role="status"
+          ></span>
+        </button>
+      </div>
 
       <!-- Custom Prompt Input -->
       <div class="flex flex-col w-full sm:w-1/2 mt-6">
@@ -115,7 +115,7 @@ const loading = ref(false)
 const errorMessage = ref<string | undefined>()
 
 const parsedUserPrompts = computed(() => {
-  const userPrompts = botStore.currentBot?.userPrompts || ''
+  const userPrompts = botStore.currentBot?.userIntro || ''
   return userPrompts
     .split('|') // Split string into an array
     .filter((text) => text.trim()) // Remove empty or whitespace-only entries
@@ -124,7 +124,6 @@ const parsedUserPrompts = computed(() => {
       text: text.trim(), // Ensure the prompt text is trimmed
     }))
 })
-n
 
 async function sendPrompt(prompt: string) {
   if (!prompt) {

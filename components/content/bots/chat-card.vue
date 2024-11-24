@@ -12,7 +12,7 @@
 
     <!-- Header -->
     <div v-if="userId" class="header flex items-center mb-4 gap-4">
-      <user-avatar :user-id="userId" />
+      <user-avatar :user-id="userId" class="max-h-8 max-w-8" />
       <img
         v-if="hasBot"
         :src="botImage || '/images/bot.webp'"
@@ -40,12 +40,6 @@
       >
         <div v-if="userId" class="header flex items-center mb-4 gap-4">
           <user-avatar :user-id="userId" />
-          <img
-            v-if="hasBot"
-            :src="botImage || '/images/bot.webp'"
-            alt="Bot Avatar"
-            class="w-12 h-12 rounded-full border-2 border-secondary ml-auto"
-          />
         </div>
         <div>
           <p class="text-sm font-bold">{{ message.sender }}:</p>
@@ -61,7 +55,7 @@
         v-if="hasBot"
         :src="botImage || '/images/bot.webp'"
         alt="Bot Avatar"
-        class="w-12 h-12 rounded-full border-2 border-secondary ml-auto"
+        class="w-12 h-12 rounded-full border-2 border-secondary mr-auto"
       />
       <p class="text-base">{{ botResponse }}</p>
     </div>

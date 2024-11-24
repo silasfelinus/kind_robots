@@ -1,19 +1,32 @@
 <template>
   <div class="p-6 max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">AI Chat Interface</h1>
+    <h1 class="text-3xl font-bold mb-6 text-center text-primary">
+      AI Chat Interface
+    </h1>
 
     <!-- API Key Input -->
-    <div v-if="!isConnected">
-      <label class="block text-lg mb-2">Enter your OpenAI API Key:</label>
+    <div v-if="!isConnected" class="bg-base-100 p-6 shadow-lg rounded-lg">
+      <p class="text-sm text-warning mb-4">
+        To use this chat, you must provide a valid OpenAI API key. Whisper
+        requires an active OpenAI account (it may require payment). You are
+        responsible for tracking and paying any costs incurred while using
+        Whisper through this website.
+      </p>
+      <label for="api-key" class="block text-lg font-semibold mb-2"
+        >Enter your OpenAI API Key:</label
+      >
       <input
+        id="api-key"
         v-model="apiKey"
         type="password"
         placeholder="API Key"
-        class="w-full p-3 border rounded mb-4"
+        class="w-full p-3 border rounded mb-4 bg-base-200 text-base-content"
+        aria-label="OpenAI API Key"
       />
       <button
         class="btn btn-primary w-full"
         :disabled="!apiKey && !userIsAdmin"
+        aria-label="Connect to Whisper API"
         @click="connectToWhisper"
       >
         Connect to Whisper API
@@ -21,21 +34,41 @@
     </div>
 
     <!-- Chat Interface -->
-    <div v-else class="chat-interface mt-6">
-      <div class="messages bg-base-200 p-4 h-80 overflow-y-scroll rounded">
-        <div v-for="(message, index) in messages" :key="index" class="mb-3">
+    <div
+      v-else
+      class="chat-interface mt-6 bg-base-100 p-6 shadow-lg rounded-lg"
+    >
+      <div v-if="isLoading" class="loading text-center mb-4">
+        <p class="text-info">Connecting to Whisper API...</p>
+      </div>
+
+      <div
+        class="messages bg-base-200 p-4 h-80 overflow-y-scroll rounded mb-4 shadow-inner"
+      >
+        <div
+          v-for="(message, index) in messages"
+          :key="index"
+          class="mb-3 bg-accent text-accent-content p-2 rounded"
+        >
           <p>{{ message }}</p>
         </div>
       </div>
 
-      <div class="input mt-4 flex items-center">
+      <div class="input flex items-center">
         <input
           v-model="userInput"
           type="text"
           placeholder="Type a message..."
-          class="flex-grow p-3 border rounded mr-2"
+          class="flex-grow p-3 border rounded mr-2 bg-base-200 text-base-content"
+          aria-label="Type your message"
         />
-        <button class="btn btn-accent" @click="sendMessage">Send</button>
+        <button
+          class="btn btn-accent"
+          aria-label="Send message"
+          @click="sendMessage"
+        >
+          Send
+        </button>
       </div>
     </div>
   </div>
@@ -50,19 +83,23 @@ const apiKey = ref('')
 const messages = ref<string[]>([]) // Ensure correct typing as ref array
 const userInput = ref('')
 const isConnected = ref(false)
+const isLoading = ref(false) // Added isLoading state
 const socket = ref<WebSocket | null>(null)
 
 const connectToWhisper = () => {
   const config = useRuntimeConfig()
+
   if (!apiKey.value && !userIsAdmin.value) return
 
   const keyToUse = apiKey.value || config.OPENAI_API_KEY
 
+  isLoading.value = true // Start loading state
   socket.value = new WebSocket('wss://api.openai.com/v1/realtime')
 
   socket.value.onopen = () => {
     console.log('Connected to Whisper API')
     isConnected.value = true
+    isLoading.value = false // Stop loading state
 
     // Send initial connection payload with API key
     socket.value?.send(
@@ -90,10 +127,12 @@ const connectToWhisper = () => {
   socket.value.onclose = () => {
     console.log('Disconnected from Whisper API')
     isConnected.value = false
+    isLoading.value = false // Stop loading on close
   }
 
   socket.value.onerror = (error) => {
     console.error('Error with Whisper API:', error)
+    isLoading.value = false // Stop loading on error
   }
 }
 
@@ -118,6 +157,11 @@ const sendMessage = () => {
 .chat-interface {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+}
+
+.loading p {
+  font-size: 1.25rem;
+  color: var(--color-info);
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="p-6 max-w-4xl mx-auto">
     <h1 class="text-3xl font-bold mb-6 text-center text-primary">
-      AI Chat Interface
+      AI Voice Chat Interface
     </h1>
 
     <!-- API Key Input -->
@@ -15,9 +15,9 @@
         responsible for tracking and paying any costs incurred while using
         Whisper through this website.
       </p>
-      <label for="api-key" class="block text-lg font-semibold mb-2"
-        >Enter your OpenAI API Key:</label
-      >
+      <label for="api-key" class="block text-lg font-semibold mb-2">
+        Enter your OpenAI API Key:
+      </label>
       <input
         id="api-key"
         v-model="apiKey"
@@ -36,17 +36,36 @@
       </button>
     </div>
 
-    <!-- Chat Interface -->
+    <!-- Voice Chat Interface -->
     <div
       v-else
-      class="chat-interface mt-6 bg-base-100 p-6 shadow-lg rounded-lg"
+      class="voice-chat-interface mt-6 bg-base-100 p-6 shadow-lg rounded-lg"
     >
       <div v-if="isLoading" class="loading text-center mb-4">
         <p class="text-info">Connecting to Whisper API...</p>
       </div>
 
+      <div class="controls flex items-center justify-center gap-4">
+        <button
+          class="btn btn-accent"
+          aria-label="Start Recording"
+          :disabled="isRecording"
+          @click="startRecording"
+        >
+          Start Recording
+        </button>
+        <button
+          class="btn btn-secondary"
+          aria-label="Stop Recording"
+          :disabled="!isRecording"
+          @click="stopRecording"
+        >
+          Stop Recording
+        </button>
+      </div>
+
       <div
-        class="messages bg-base-200 p-4 h-80 overflow-y-scroll rounded mb-4 shadow-inner"
+        class="messages bg-base-200 p-4 h-80 overflow-y-scroll rounded mt-4 shadow-inner"
       >
         <div
           v-for="(message, index) in messages"
@@ -56,59 +75,43 @@
           <p>{{ message }}</p>
         </div>
       </div>
-
-      <div class="input flex items-center">
-        <input
-          v-model="userInput"
-          type="text"
-          placeholder="Type a message..."
-          class="flex-grow p-3 border rounded mr-2 bg-base-200 text-base-content"
-          aria-label="Type your message"
-        />
-        <button
-          class="btn btn-accent"
-          aria-label="Send message"
-          @click="sendMessage"
-        >
-          Send
-        </button>
-      </div>
     </div>
   </div>
 </template>
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRuntimeConfig } from '#app'
-import { useUserStore } from '@/stores/userStore'
 
-const userStore = useUserStore()
-const userIsAdmin = computed(() => userStore.isAdmin)
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRuntimeConfig } from '#app'
+
+const userIsAdmin = ref(false) // Replace with your admin check logic.
 const apiKey = ref('')
-const messages = ref<string[]>([]) // Ensure correct typing as ref array
-const userInput = ref('')
+const messages = ref<string[]>([])
 const isConnected = ref(false)
-const isLoading = ref(false) // Added isLoading state
+const isLoading = ref(false)
+const isRecording = ref(false)
 const socket = ref<WebSocket | null>(null)
+let mediaRecorder: MediaRecorder | null = null
+let audioChunks: Blob[] = []
 
 const connectToWhisper = () => {
   const config = useRuntimeConfig()
 
-  const keyToUse = userIsAdmin.value ? config.OPENAI_API_KEY : apiKey.value
+  if (!apiKey.value && !userIsAdmin.value) return
 
-  if (!keyToUse) return // Prevent connection if no API key is available
+  const keyToUse = apiKey.value || config.OPENAI_API_KEY
 
-  isLoading.value = true // Start loading state
+  isLoading.value = true
   socket.value = new WebSocket('wss://api.openai.com/v1/realtime')
 
   socket.value.onopen = () => {
     console.log('Connected to Whisper API')
     isConnected.value = true
-    isLoading.value = false // Stop loading state
+    isLoading.value = false
 
     // Send initial connection payload with API key
     socket.value?.send(
       JSON.stringify({
-        api_key: keyToUse, // Use keyToUse here
+        api_key: keyToUse,
         action: 'connect',
       }),
     )
@@ -118,12 +121,13 @@ const connectToWhisper = () => {
     try {
       const data = JSON.parse(event.data)
       if (data.text) {
-        ;(messages.value as string[]).push(data.text) // Ensure messages is treated as array
+        messages.value.push(data.text)
+        playAudioResponse(data.audio) // Play the audio response
       } else {
-        ;(messages.value as string[]).push('Received data without text.')
+        messages.value.push('Received data without text.')
       }
     } catch (error) {
-      ;(messages.value as string[]).push('Error parsing data from API.')
+      messages.value.push('Error parsing data from API.')
       console.error('Error parsing WebSocket message:', error)
     }
   }
@@ -131,41 +135,74 @@ const connectToWhisper = () => {
   socket.value.onclose = () => {
     console.log('Disconnected from Whisper API')
     isConnected.value = false
-    isLoading.value = false // Stop loading on close
+    isLoading.value = false
   }
 
   socket.value.onerror = (error) => {
     console.error('Error with Whisper API:', error)
-    isLoading.value = false // Stop loading on error
+    isLoading.value = false
   }
 }
 
-const sendMessage = () => {
-  if (userInput.value.trim() === '' || !isConnected.value) return
+const startRecording = () => {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert('Your browser does not support audio recording.')
+    return
+  }
 
-  const config = useRuntimeConfig()
-  const keyToUse = apiKey.value || config.OPENAI_API_KEY
-
-  socket.value?.send(
-    JSON.stringify({
-      api_key: keyToUse, // Use keyToUse consistently
-      input: userInput.value,
-    }),
-  )
-  ;(messages.value as string[]).push(`You: ${userInput.value}`) // Correctly push message
-  userInput.value = ''
+  navigator.mediaDevices
+    .getUserMedia({ audio: true })
+    .then((stream) => {
+      mediaRecorder = new MediaRecorder(stream)
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunks.push(event.data)
+      }
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+        audioChunks = []
+        sendAudioMessage(audioBlob)
+      }
+      mediaRecorder.start()
+      isRecording.value = true
+    })
+    .catch((err) => {
+      console.error('Error accessing microphone:', err)
+    })
 }
 
-// Automatically connect for admin users
-onMounted(() => {
-  if (userIsAdmin.value) {
-    connectToWhisper()
+const stopRecording = () => {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop()
+    isRecording.value = false
   }
-})
+}
+
+const sendAudioMessage = (audioBlob: Blob) => {
+  if (!isConnected.value) return
+
+  const reader = new FileReader()
+  reader.onloadend = () => {
+    const base64AudioMessage = reader.result?.toString().split(',')[1]
+    if (base64AudioMessage) {
+      socket.value?.send(
+        JSON.stringify({
+          audio: base64AudioMessage,
+        }),
+      )
+      messages.value.push('You sent a voice message.')
+    }
+  }
+  reader.readAsDataURL(audioBlob)
+}
+
+const playAudioResponse = (base64Audio: string) => {
+  const audio = new Audio(`data:audio/wav;base64,${base64Audio}`)
+  audio.play()
+}
 </script>
 
 <style>
-.chat-interface {
+.voice-chat-interface {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;

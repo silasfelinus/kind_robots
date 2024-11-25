@@ -96,12 +96,11 @@
         >
           {{ isLoggedIn ? 'Logout' : 'Login' }}
         </button>
-cache clear: 
-<cache-clear />
-theme toggle: 
+
         <theme-toggle class="flex flex-row" />
       </div>
     </div>
+<cache-clear />
   </div>
 </template>
 

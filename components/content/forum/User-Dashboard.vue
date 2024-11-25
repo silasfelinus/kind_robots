@@ -72,7 +72,6 @@
         <theme-toggle class="flex flex-row" />
       </div>
     </div>
-<cache-clear />
 
     <div v-else class="flex flex-row items-center justify-between h-full">
       <div
@@ -97,6 +96,8 @@
         >
           {{ isLoggedIn ? 'Logout' : 'Login' }}
         </button>
+<cache-clear />
+
         <theme-toggle class="flex flex-row" />
       </div>
     </div>

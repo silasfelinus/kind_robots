@@ -100,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
@@ -217,9 +217,5 @@ const activeChatCards = computed(() => {
   return [...chats].reverse() // Ensure immutability by cloning before reversing
 })
 
-// Initialize stores on load
-onMounted(async () => {
-  await botStore.loadStore()
-  await chatStore.initialize()
-})
+
 </script>

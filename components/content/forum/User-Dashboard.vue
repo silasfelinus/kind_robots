@@ -65,12 +65,14 @@
           </button>
         </div>
       </div>
+
       <login-form v-if="showLogin" @close="showLogin = false" />
       <user-panel v-if="isLoggedIn" />
       <div class="flex flex-row">
         <theme-toggle class="flex flex-row" />
       </div>
     </div>
+<cache-clear />
 
     <div v-else class="flex flex-row items-center justify-between h-full">
       <div

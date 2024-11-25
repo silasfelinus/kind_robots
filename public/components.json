@@ -106,6 +106,7 @@
       "User-Dashboard",
       "UserAvatar",
       "avatar-upload",
+      "cache-clear",
       "user-gallery",
       "user-navigation",
       "user-panel",
@@ -346,7 +347,8 @@
       "LabGallery",
       "WonderLab",
       "comfy-frontend",
-      "component-sync"
+      "component-sync",
+      "whisper-chat"
     ]
   }
 ]

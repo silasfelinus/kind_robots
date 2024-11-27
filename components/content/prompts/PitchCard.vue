@@ -15,6 +15,7 @@
           />
         </span>
         <span v-else>{{ pitch.title }}</span>
+        <span>{{ pitch.PitchType }}</span>
         <button
           v-if="isUserAllowedToEdit"
           class="ml-2 text-black transition-transform duration-200"

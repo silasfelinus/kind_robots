@@ -221,7 +221,6 @@ const moveExample = (index: number, direction: number) => {
   }
 }
 
-// Form submission handling
 const handleFormSubmit = async () => {
   isSubmitting.value = true
   errorMessage.value = ''
@@ -239,6 +238,7 @@ const handleFormSubmit = async () => {
     const payload = {
       ...formState.value,
       designer: userStore.username, // Automatically set designer from userStore
+      PitchType: pitchStore.selectedPitchType, // Include selectedPitchType
     }
 
     let result
@@ -260,6 +260,7 @@ const handleFormSubmit = async () => {
     isSubmitting.value = false
   }
 }
+
 
 const cancelEdit = () => {
   resetForm()

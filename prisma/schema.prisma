@@ -504,7 +504,7 @@ model RewardToUser {
 enum PitchType {
   ARTPITCH
   BRAINSTORM
-  ARTGALLERY
+  WEIRDLANDIA
   RANDOMLIST
   TITLE
 }

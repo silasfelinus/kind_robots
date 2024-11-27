@@ -47,8 +47,10 @@ export const usePitchStore = defineStore('pitch', {
           )
         : [],
     randomListPitches: (state) => {
-    return state.pitches.filter((pitch) => pitch.PitchType === PitchType.RANDOMLIST);
-  },
+      return state.pitches.filter(
+        (pitch) => pitch.PitchType === PitchType.RANDOMLIST,
+      )
+    },
     brainstormPitches: (state) =>
       state.pitches.filter((pitch) => pitch.PitchType === PitchType.BRAINSTORM),
     titles: (state) =>
@@ -199,25 +201,51 @@ export const usePitchStore = defineStore('pitch', {
       }
     },
     randomEntry(pitchName: string): string {
-  const pitch = this.pitches.find(
-    (p) => p.title.toLowerCase() === pitchName.toLowerCase() && p.PitchType === PitchType.RANDOMLIST
-  );
+      // Ensure pitches array exists
+      if (!this.pitches || !Array.isArray(this.pitches)) {
+        console.error('Pitches array is not defined or invalid.')
+        return pitchName
+      }
 
-  if (!pitch) {
-    console.warn(`No matching RANDOMLIST pitch found for "${pitchName}". Returning input as-is.`);
-    return pitchName;
-  }
+      // Find the matching pitch
+      const pitch = this.pitches.find(
+        (p) =>
+          typeof p.title === 'string' &&
+          p.title.toLowerCase() === pitchName.toLowerCase() &&
+          p.PitchType === PitchType.RANDOMLIST,
+      )
 
-  if (!pitch.examples) {
-    console.warn(`Pitch "${pitchName}" has no examples defined. Returning input as-is.`);
-    return pitchName;
-  }
+      if (!pitch) {
+        console.warn(
+          `No matching RANDOMLIST pitch found for "${pitchName}". Returning input as-is.`,
+        )
+        return pitchName
+      }
 
-  const examples = pitch.examples.split('|').map((example) => example.trim());
-  const randomIndex = Math.floor(Math.random() * examples.length);
+      // Validate examples property
+      if (!pitch.examples || typeof pitch.examples !== 'string') {
+        console.warn(
+          `Pitch "${pitchName}" has no valid examples defined. Returning input as-is.`,
+        )
+        return pitchName
+      }
 
-  return examples[randomIndex];
-},
+      // Split examples and pick a random one
+      const examples = pitch.examples
+        .split('|')
+        .map((example) => example.trim())
+      if (examples.length === 0) {
+        console.warn(
+          `Pitch "${pitchName}" has no examples after splitting. Returning input as-is.`,
+        )
+        return pitchName
+      }
+
+      const randomIndex = Math.floor(Math.random() * examples.length)
+
+      return examples[randomIndex]
+    },
+
     async fetchTitleStormPitches(): Promise<void> {
       const numberOfRequests = this.numberOfRequests || 5
       const maxTokens = this.maxTokens || 500

@@ -43,7 +43,7 @@
         </div>
         <div>
           <p class="text-sm font-bold">{{ message.sender }}:</p>
-          <p class="text-black">{{ message.content }}</p>
+          <p>{{ message.content }}</p>
         </div>
       </div>
     </div>
@@ -57,7 +57,7 @@
         alt="Bot Avatar"
         class="w-12 h-12 rounded-full border-2 border-secondary mr-auto"
       />
-      <p class="text-base">{{ botResponse }}</p>
+      <p>{{ botResponse }}</p>
     </div>
 
     <!-- Continue Section -->

@@ -504,13 +504,11 @@ model RewardToUser {
 enum PitchType {
   ARTPITCH
   BRAINSTORM
-  BOT
   ARTGALLERY
-  INSPIRATION
   RANDOMLIST
-  TEXTPITCH
   TITLE
 }
+
 
 enum ReactionType {
   LOVED

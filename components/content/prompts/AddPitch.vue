@@ -224,6 +224,7 @@ const moveExample = (index: number, direction: number) => {
 const handleFormSubmit = async () => {
   isSubmitting.value = true
   errorMessage.value = ''
+console.log('Submitting form:', formState.value);
 
   try {
     // Duplicate title to pitch if it is a title-only pitch

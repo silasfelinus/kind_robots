@@ -1,6 +1,6 @@
 <template>
   <div class="brainstorm-selector flex flex-col items-center space-y-4">
-    <!-- Toggle Buttons for Title and Brainstorm PitchTypes -->
+    <!-- Toggle Buttons for Pitch Types -->
     <div class="pitch-type-buttons flex space-x-2">
       <button
         :class="[
@@ -24,9 +24,31 @@
       >
         Brainstorm
       </button>
+      <button
+        :class="[
+          'py-2 px-4 rounded-lg border',
+          pitchStore.selectedPitchType === 'RANDOMLIST'
+            ? 'bg-primary text-white border-primary'
+            : 'bg-base-300 hover:bg-primary hover:text-white border-base-200',
+        ]"
+        @click="updateSelectedPitchType(PitchType.RANDOMLIST)"
+      >
+        Randomizer
+      </button>
+      <button
+        :class="[
+          'py-2 px-4 rounded-lg border',
+          pitchStore.selectedPitchType === 'WEIRDLANDIA'
+            ? 'bg-primary text-white border-primary'
+            : 'bg-base-300 hover:bg-primary hover:text-white border-base-200',
+        ]"
+        @click="updateSelectedPitchType(PitchType.WEIRDLANDIA)"
+      >
+        Weirdland
+      </button>
     </div>
 
-    <!-- Display Pitches based on the selected PitchType using PitchCard components -->
+    <!-- Display Pitches based on the selected PitchType -->
     <div
       v-if="filteredPitches.length"
       class="pitch-list grid gap-4 mt-4 w-full"
@@ -37,7 +59,7 @@
         :pitch="pitch"
         :class="[
           'border rounded-lg shadow p-4',
-          pitchStore.selectedPitch && pitchStore.selectedPitch.id === pitch.id
+          pitchStore.selectedPitch?.id === pitch.id
             ? 'bg-primary text-white border-primary'
             : 'bg-base-300 hover:bg-primary hover:text-white',
         ]"
@@ -64,16 +86,14 @@ onMounted(() => {
   }
 })
 
-// Filter pitches by selected pitch type (TITLE or BRAINSTORM)
+// Filter pitches by selected pitch type
 const filteredPitches = computed(() =>
   pitchStore.pitches.filter(
-    (pitch) =>
-      pitch.PitchType === pitchStore.selectedPitchType &&
-      (pitch.PitchType === 'TITLE' || pitch.PitchType === 'BRAINSTORM'),
+    (pitch) => pitch.PitchType === pitchStore.selectedPitchType,
   ),
 )
 
-// Update selected pitch type to either TITLE or BRAINSTORM
+// Update selected pitch type
 const updateSelectedPitchType = (type: PitchType) => {
   pitchStore.setSelectedPitchType(type)
 }

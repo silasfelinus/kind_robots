@@ -221,10 +221,10 @@ const moveExample = (index: number, direction: number) => {
   }
 }
 
-// Form submission handling
 const handleFormSubmit = async () => {
   isSubmitting.value = true
   errorMessage.value = ''
+console.log('Submitting form:', formState.value);
 
   try {
     // Duplicate title to pitch if it is a title-only pitch
@@ -239,6 +239,7 @@ const handleFormSubmit = async () => {
     const payload = {
       ...formState.value,
       designer: userStore.username, // Automatically set designer from userStore
+      PitchType: pitchStore.selectedPitchType, // Include selectedPitchType
     }
 
     let result
@@ -260,6 +261,7 @@ const handleFormSubmit = async () => {
     isSubmitting.value = false
   }
 }
+
 
 const cancelEdit = () => {
   resetForm()

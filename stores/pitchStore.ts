@@ -6,12 +6,9 @@ import type { Pitch, Art } from '@prisma/client' // Import as type
 export enum PitchType {
   ARTPITCH = 'ARTPITCH',
   BRAINSTORM = 'BRAINSTORM',
-  BOT = 'BOT',
-  ARTGALLERY = 'ARTGALLERY',
-  INSPIRATION = 'INSPIRATION',
   RANDOMLIST = 'RANDOMLIST',
-  TEXTPITCH = 'TEXTPITCH',
   TITLE = 'TITLE',
+  WEIRDLANDIA = 'WEIRDLANDIA',
 }
 const isClient = typeof window !== 'undefined'
 

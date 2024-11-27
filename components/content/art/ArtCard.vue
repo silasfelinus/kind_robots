@@ -89,7 +89,7 @@ const props = defineProps<{
 
 const showDetails = ref(false)
 const confirmingDelete = ref(false)
-const localArtImage = ref<ArtImage | null>(null)
+const localArtImage = ref<ArtImage | null | undefined>(null)
 
 const hasImage = computed(
   () => !!(localArtImage.value || props.artImage?.imageData),
@@ -116,7 +116,7 @@ onMounted(() => {
 
 const fetchArtImage = async () => {
   if (props.art.artImageId) {
-    localArtImage.value = await artStore.fetchArtImageById(props.art.artImageId)
+    localArtImage.value = await artStore.getArtImageById(props.art.artImageId)
   }
 }
 

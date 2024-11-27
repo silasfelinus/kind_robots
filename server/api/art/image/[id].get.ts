@@ -7,6 +7,8 @@ export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
 
   try {
+    console.log(`[API] Fetching ArtImage with ID: ${id}`)
+
     // Validate the ID
     if (isNaN(id) || id <= 0) {
       throw new Error('Invalid ID provided.')

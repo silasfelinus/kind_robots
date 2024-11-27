@@ -28,7 +28,8 @@
       "DreamGenerator",
       "ImageUpload",
       "art-collection",
-      "art-lab"
+      "art-lab",
+      "random-selector"
     ]
   },
   {

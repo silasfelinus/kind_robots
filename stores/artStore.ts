@@ -154,9 +154,13 @@ export const useArtStore = defineStore({
     async loadLocalData() {
       try {
         if (isClient) {
-          const storedArtImages = localStorage.getItem('artImages')
-          if (storedArtImages && storedArtImages !== 'undefined') {
-            this.artImages = JSON.parse(storedArtImages)
+          const storedArt = localStorage.getItem('art')
+          const storedCollections = localStorage.getItem('collections')
+          if (storedArt && storedArt !== 'undefined') {
+            this.art = JSON.parse(storedArt)
+          }
+          if (storedCollections && storedCollections !== 'undefined') {
+            this.collections = JSON.parse(storedCollections)
           }
         }
       } catch (error) {
@@ -180,9 +184,6 @@ export const useArtStore = defineStore({
         const response = await performFetch<ArtImage[]>('/api/art/image')
         if (response.success) {
           this.artImages = response.data || []
-          if (isClient) {
-            localStorage.setItem('artImages', JSON.stringify(this.artImages))
-          }
         } else {
           throw new Error(response.message)
         }
@@ -230,34 +231,20 @@ export const useArtStore = defineStore({
 
     async deleteCollection(collectionId: number) {
       try {
-        // Perform the delete request to the server
         const response = await performFetch(
           `/api/art/collection/${collectionId}`,
           {
             method: 'DELETE',
           },
         )
-
         if (response.success) {
-          // Remove the collection locally
           this.collections = this.collections.filter(
             (collection) => collection.id !== collectionId,
           )
-
-          // Optionally, update `collectedArt` or any other references
-          this.collectedArt = this.collectedArt.filter(
-            (art) => art.id !== collectionId,
-          )
-
-          // Update localStorage if applicable
           if (isClient) {
             localStorage.setItem(
               'collections',
               JSON.stringify(this.collections),
-            )
-            localStorage.setItem(
-              'collectedArt',
-              JSON.stringify(this.collectedArt),
             )
           }
         } else {
@@ -396,57 +383,17 @@ export const useArtStore = defineStore({
       }
     },
 
-    async fetchCollectedArt(userId: number): Promise<void> {
-      try {
-        const response = await performFetch<Art[]>(
-          `/api/art/user/${userId}/collected`,
-        )
-        if (response.success) {
-          this.collectedArt = response.data || []
-          if (isClient)
-            localStorage.setItem(
-              'collectedArt',
-              JSON.stringify(this.collectedArt),
-            )
-        } else {
-          throw new Error(response.message)
-        }
-      } catch (error) {
-        handleError(error, 'fetching collected art')
-      }
-    },
     async getArtImageById(id: number): Promise<ArtImage | undefined> {
-      // Check local state first
-      const existingArtImage = this.artImages.find((image) => image.id === id)
-      if (existingArtImage) {
-        return existingArtImage
-      }
+      const cachedImage = this.artImages.find((image) => image.id === id)
+      if (cachedImage) return cachedImage
 
-      // Fetch from API if not found locally
       try {
-        console.log('Fetching art image for ID:', id)
-
         const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
         if (response.success && response.data) {
-          // Prevent duplicates before pushing
-          const isAlreadyCached = this.artImages.some(
-            (image) => image.id === id,
-          )
-          if (!isAlreadyCached) {
-            this.artImages.push(response.data)
-          }
-
-          // Cache in localStorage if running on the client
-          if (isClient) {
-            localStorage.setItem('artImages', JSON.stringify(this.artImages))
-          }
-
+          this.artImages.push(response.data)
           return response.data
         } else {
-          console.warn(
-            `[ArtStore] Failed to fetch art image: ${response.message}`,
-          )
-          return undefined
+          throw new Error(response.message)
         }
       } catch (error) {
         handleError(error, 'fetching art image by ID')
@@ -615,7 +562,6 @@ export const useArtStore = defineStore({
       }
 
       try {
-        // Call `performFetch` directly to generate art
         const response = await performFetch<Art>(
           '/api/art/generate',
           { method: 'POST', body: JSON.stringify(data) },
@@ -670,7 +616,7 @@ export const useArtStore = defineStore({
           throw new Error(response.message || 'Failed to generate art.')
         }
 
-        return response // Directly return the response from performFetch
+        return response
       } catch (error) {
         handleError(error, 'generating art')
         return {
@@ -681,17 +627,6 @@ export const useArtStore = defineStore({
         this.loading = false
       }
     },
-
-    async fetchArtByUserId(userId: number): Promise<void> {
-      try {
-        const response = await performFetch<Art[]>(`/api/art/user/${userId}`)
-        if (response.success) this.art = response.data || []
-        else throw new Error(response.message)
-      } catch (error) {
-        handleError(error, 'fetching art by user ID')
-      }
-    },
-
     async deleteArt(id: number) {
       try {
         const response = await performFetch(`/api/art/${id}`, {
@@ -703,17 +638,6 @@ export const useArtStore = defineStore({
         } else throw new Error(response.message)
       } catch (error) {
         handleError(error, 'deleting art')
-      }
-    },
-
-    async fetchArtById(id: number): Promise<Art | null> {
-      try {
-        const response = await performFetch<Art>(`/api/art/${id}`)
-        if (response.success) return response.data || null
-        else throw new Error(response.message)
-      } catch (error) {
-        handleError(error, 'fetching art by ID')
-        return null
       }
     },
 
@@ -734,9 +658,6 @@ export const useArtStore = defineStore({
 
         if (response.success && response.data) {
           this.artImages.push(response.data)
-          if (isClient) {
-            localStorage.setItem('artImages', JSON.stringify(this.artImages))
-          }
         } else {
           throw new Error(response.message)
         }

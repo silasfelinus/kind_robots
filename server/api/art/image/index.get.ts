@@ -5,12 +5,8 @@ import { errorHandler } from './../../utils/error'
 
 export default defineEventHandler(async () => {
   try {
-    console.log('inside art images fetch')
-    const data = await prisma.artImage.findMany({
-      include: {
-        Art: true, // Include the associated Art model in the results
-      },
-    })
+    console.log('inside art images global  fetch')
+    const data = await prisma.artImage.findMany()
 
     if (!data || data.length === 0) {
       return {
@@ -27,11 +23,3 @@ export default defineEventHandler(async () => {
     return errorHandler(error)
   }
 })
-
-export async function fetchAllArtImages() {
-  return await prisma.artImage.findMany({
-    include: {
-      Art: true, // Include the associated Art model in the results
-    },
-  })
-}

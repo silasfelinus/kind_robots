@@ -49,6 +49,9 @@ export const usePitchStore = defineStore('pitch', {
             (pitch) => pitch.PitchType === state.selectedPitchType,
           )
         : [],
+    randomListPitches: (state) => {
+    return state.pitches.filter((pitch) => pitch.PitchType === PitchType.RANDOMLIST);
+  },
     brainstormPitches: (state) =>
       state.pitches.filter((pitch) => pitch.PitchType === PitchType.BRAINSTORM),
     titles: (state) =>
@@ -198,6 +201,26 @@ export const usePitchStore = defineStore('pitch', {
         }
       }
     },
+    randomEntry(pitchName: string): string {
+  const pitch = this.pitches.find(
+    (p) => p.title.toLowerCase() === pitchName.toLowerCase() && p.PitchType === PitchType.RANDOMLIST
+  );
+
+  if (!pitch) {
+    console.warn(`No matching RANDOMLIST pitch found for "${pitchName}". Returning input as-is.`);
+    return pitchName;
+  }
+
+  if (!pitch.examples) {
+    console.warn(`Pitch "${pitchName}" has no examples defined. Returning input as-is.`);
+    return pitchName;
+  }
+
+  const examples = pitch.examples.split('|').map((example) => example.trim());
+  const randomIndex = Math.floor(Math.random() * examples.length);
+
+  return examples[randomIndex];
+},
     async fetchTitleStormPitches(): Promise<void> {
       const numberOfRequests = this.numberOfRequests || 5
       const maxTokens = this.maxTokens || 500

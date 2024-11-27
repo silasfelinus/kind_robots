@@ -6,34 +6,17 @@
       🎨 Welcome to the Art-Maker
     </h1>
 
-    <!-- Random Selector -->
-    <RandomSelector />
+    <random-selector />
 
     <!-- Prompt Input -->
     <div class="mb-6">
-      <div
-        class="rounded-3xl p-4 w-full text-lg bg-base-200 placeholder-gray-500 focus:ring-4 focus:ring-info focus:outline-none shadow-inner transition-all flex flex-wrap gap-2"
-      >
-        <!-- Processed Prompt with Styled Placeholders -->
-        <template v-for="(chunk, index) in styledPromptChunks" :key="index">
-          <span
-            v-if="chunk.type === 'placeholder'"
-            class="bg-accent text-accent-content rounded-lg px-2 py-1"
-          >
-            {{ chunk.content }}
-          </span>
-          <span v-else>{{ chunk.content }}</span>
-        </template>
-
-        <!-- Input for Editing Prompt -->
-        <input
-          v-model="promptStore.promptField"
-          placeholder="Enter your creative prompt..."
-          class="flex-grow bg-transparent focus:outline-none"
-          :disabled="loading"
-          @input="savePrompt"
-        />
-      </div>
+      <input
+        v-model="promptStore.promptField"
+        placeholder="Enter your creative prompt..."
+        class="rounded-3xl p-4 w-full text-lg bg-base-200 placeholder-gray-500 focus:ring-4 focus:ring-info focus:outline-none shadow-inner transition-all"
+        :disabled="loading"
+        @input="savePrompt"
+      />
     </div>
 
     <!-- Generate Art Button -->
@@ -103,34 +86,6 @@ const generatedArt = computed(() =>
     ? [...generatedArtCollection.value.art].reverse()
     : [],
 )
-
-// Split prompt into chunks for styling placeholders
-const styledPromptChunks = computed(() => {
-  const prompt = promptStore.promptField;
-  const regex = /__(.*?)__/g;
-  const chunks = [];
-  let lastIndex = 0;
-  let match;
-
-  while ((match = regex.exec(prompt)) !== null) {
-    // Add text before the match
-    if (match.index > lastIndex) {
-      chunks.push({ type: 'text', content: prompt.slice(lastIndex, match.index) });
-    }
-
-    // Add the placeholder (without underscores)
-    chunks.push({ type: 'placeholder', content: match[1] });
-
-    lastIndex = regex.lastIndex;
-  }
-
-  // Add remaining text after the last match
-  if (lastIndex < prompt.length) {
-    chunks.push({ type: 'text', content: prompt.slice(lastIndex) });
-  }
-
-  return chunks;
-});
 
 const generateArt = async () => {
   localError.value = null

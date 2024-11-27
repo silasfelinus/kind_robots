@@ -24,7 +24,33 @@
       >
         Brainstorm
       </button>
+ 
+
+      <button
+        :class="[
+          'py-2 px-4 rounded-lg border',
+          pitchStore.selectedPitchType === 'RANDOMLIST'
+            ? 'bg-primary text-white border-primary'
+            : 'bg-base-300 hover:bg-primary hover:text-white border-base-200',
+        ]"
+        @click="updateSelectedPitchType(PitchType.RANDOMLIST)"
+      >
+        Randomizer
+      </button>
+
+      <button
+        :class="[
+          'py-2 px-4 rounded-lg border',
+          pitchStore.selectedPitchType === 'WEIRDLANDIA'
+            ? 'bg-primary text-white border-primary'
+            : 'bg-base-300 hover:bg-primary hover:text-white border-base-200',
+        ]"
+        @click="updateSelectedPitchType(PitchType.WEIRDLANDIA)"
+      >
+         Weirdland
+      </button>
     </div>
+   </div>
 
     <!-- Display Pitches based on the selected PitchType using PitchCard components -->
     <div

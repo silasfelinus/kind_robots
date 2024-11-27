@@ -16,7 +16,7 @@
 
     <!-- Add New Prompt (Visible to Admins) -->
     <div
-      v-if="userRole === 'admin'"
+      v-if="userRole === 'ADMIN'"
       class="flex flex-col items-center space-y-2"
     >
       <input

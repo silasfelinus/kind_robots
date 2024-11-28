@@ -1,6 +1,6 @@
 <template>
   <div
-    class="prompt-factory-container flex flex-col items-center overflow-hidden p-4"
+    class="prompt-factory-container flex flex-col items-center overflow-y-auto"
     :style="mainContentStyle"
   >
     <!-- Toggle Button -->

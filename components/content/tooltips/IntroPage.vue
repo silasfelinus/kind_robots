@@ -34,7 +34,7 @@
           <!-- Next or Finish button -->
           <NuxtLink
             v-if="currentStep === steps.length - 1"
-            :to="redirectPath"
+            to="/register"
             class="bg-primary p-3 rounded-lg text-white"
             @click="finishIntro"
           >
@@ -52,7 +52,7 @@
 
       <!-- Fast-forward button with Skip label -->
       <NuxtLink
-        :to="redirectPath"
+        to="/register"
         class="absolute bottom-4 right-4 bg-accent p-4 rounded-full text-white shadow-lg hover:bg-accent-focus z-60 flex flex-col items-center"
         @click="skipIntro"
       >
@@ -64,18 +64,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useDisplayStore } from '~/stores/displayStore'
-import { useUserStore } from '~/stores/userStore'
 import { steps } from '@/training/steps.js'
 
 const displayStore = useDisplayStore()
-const userStore = useUserStore()
 const currentStep = ref(0)
-
-const redirectPath = computed(() => {
-  return userStore.isLoggedIn ? '/dashboard' : '/register'
-})
 
 const nextStep = () => {
   if (currentStep.value < steps.length - 1) {

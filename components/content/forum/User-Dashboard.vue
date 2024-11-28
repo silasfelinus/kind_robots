@@ -1,7 +1,5 @@
 <template>
-  <div
-    :class="['bg-base-300 p-2 rounded-2xl relative', { 'h-32': isMinimized }]"
-  >
+  <div :class="['bg-base-300 rounded-2xl relative', { 'h-32': isMinimized }]">
     <button
       v-if="!isMinimized"
       class="absolute top-1 left-1 z-10"
@@ -100,7 +98,7 @@
         <theme-toggle class="flex flex-row" />
       </div>
     </div>
-<cache-clear />
+    <cache-clear />
   </div>
 </template>
 

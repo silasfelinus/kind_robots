@@ -5,14 +5,14 @@
       class="absolute top-0 left-0 w-full h-full z-50"
       :class="steps[currentStep].bgClass"
     >
-      <!-- Background Image, filling the entire height -->
+      <!-- Background Image -->
       <img
         :src="steps[currentStep].image"
         :alt="steps[currentStep].altText"
         class="absolute top-0 left-0 w-full h-full object-cover"
       />
 
-      <!-- Centered Text and Buttons at the lower part of the screen -->
+      <!-- Centered Text and Buttons -->
       <div
         class="absolute inset-x-0 bottom-0 mb-12 flex flex-col justify-center items-center text-center p-8 bg-base-300 bg-opacity-70 rounded-xl max-w-lg mx-auto"
         style="width: 80%; transform: translateY(-50%)"
@@ -32,13 +32,14 @@
             Back
           </button>
           <!-- Next or Finish button -->
-          <button
+          <NuxtLink
             v-if="currentStep === steps.length - 1"
+            :to="redirectPath"
             class="bg-primary p-3 rounded-lg text-white"
-            @click.stop="finishIntro"
+            @click="finishIntro"
           >
-            <NuxtLink to="/register" class="text-white">Finish</NuxtLink>
-          </button>
+            Finish
+          </NuxtLink>
           <button
             v-else
             class="bg-primary p-3 rounded-lg text-white"
@@ -51,9 +52,9 @@
 
       <!-- Fast-forward button with Skip label -->
       <NuxtLink
-        to="/register"
+        :to="redirectPath"
         class="absolute bottom-4 right-4 bg-accent p-4 rounded-full text-white shadow-lg hover:bg-accent-focus z-60 flex flex-col items-center"
-        @click.stop="skipIntro"
+        @click="skipIntro"
       >
         <Icon name="kind-icon:fast-forward" class="w-6 h-6" />
         <span class="text-sm mt-1">Skip</span>
@@ -63,61 +64,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useDisplayStore } from '~/stores/displayStore'
+import { useUserStore } from '~/stores/userStore'
 import { steps } from '@/training/steps.js'
 
-// Access the display store
 const displayStore = useDisplayStore()
-
-// Track the current step
+const userStore = useUserStore()
 const currentStep = ref(0)
 
-// Navigate to the next step
+const redirectPath = computed(() => {
+  return userStore.isLoggedIn ? '/dashboard' : '/register'
+})
+
 const nextStep = () => {
   if (currentStep.value < steps.length - 1) {
     currentStep.value++
   }
 }
 
-// Navigate to the previous step
 const previousStep = () => {
   if (currentStep.value > 0) {
     currentStep.value--
   }
 }
 
-// Mark intro as finished and set `showIntro` to false
 const finishIntro = () => {
   displayStore.toggleIntro()
 }
 
-// Skip the intro and set `showIntro` to false
 const skipIntro = () => {
   displayStore.toggleIntro()
 }
 </script>
-
-<style scoped>
-.object-cover {
-  object-fit: cover; /* Ensures the image fits the full height and width while maintaining aspect ratio */
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.text-shadow-lg {
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
-}
-
-.text-shadow-md {
-  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
-}
-</style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 m-4 mx-auto max-w-screen-lg bg-base-200 rounded-2xl border">
+  <div class="mx-auto max-w-screen-lg bg-base-200 rounded-2xl border">
     <h1 class="text-4xl text-center mb-6">Stream Tester</h1>
 
     <!-- Toggle for Streaming -->
@@ -80,7 +80,7 @@ async function submitPrompt() {
 
   loading.value = true;
   errorMessage.value = '';
-  responseText.value = ''; // Display the prompt
+  responseText.value = '';
 
   try {
     // Step 1: Create a new chat object in the database
@@ -91,10 +91,9 @@ async function submitPrompt() {
       recipientId: 1, // Replace with actual recipient ID
       type: 'ToBot',
     });
-    chat.value = newChat; // Store the created chat object
+    chat.value = newChat;
 
     const apiEndpoint = '/api/botcafe/chat';
-
     const requestOptions = {
       method: 'POST',
       headers: {
@@ -110,26 +109,11 @@ async function submitPrompt() {
     };
 
     if (useStreaming.value) {
+      // Streaming Mode
       await fetchStream(apiEndpoint, requestOptions, newChat.id);
     } else {
-      const response = await fetch(apiEndpoint, requestOptions);
-      if (!response.ok) {
-        errorMessage.value = `Error ${response.status}: ${response.statusText}`;
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      const data = await response.json();
-      const botResponse =
-        data.choices?.[0]?.message?.content || 'No response received';
-      responseText.value += botResponse;
-
-      // Update the chat object locally
-      chat.value = { ...newChat, botResponse };
-
-      // Update the chat in the store
-      chatStore.updateChat(newChat.id, { botResponse });
-
-      // Save final response to the database
-      await chatStore.editChat(newChat.id, { botResponse });
+      // Non-Streaming Mode with Progressive Updates
+      await fetchNonStream(apiEndpoint, requestOptions, newChat.id);
     }
   } catch (error) {
     errorMessage.value =
@@ -139,6 +123,38 @@ async function submitPrompt() {
     loading.value = false;
   }
 }
+
+async function fetchNonStream(url: string, options: RequestInit, chatId: number) {
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      errorMessage.value = `Error ${response.status}: ${response.statusText}`;
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const botResponse = data.choices?.[0]?.message?.content || 'No response received';
+
+    // Simulate progressive updates for non-streaming
+    for (let i = 0; i < botResponse.length; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 50)); // Simulate delay
+      responseText.value += botResponse[i];
+
+      // Update the chat object locally and in the store
+      if (chat.value) {
+        chat.value.botResponse = responseText.value;
+      }
+      chatStore.updateChat(chatId, { botResponse: responseText.value });
+    }
+
+    // Save final response to the database
+    await chatStore.editChat(chatId, { botResponse });
+  } catch (error) {
+    console.error('Error during non-streaming fetch:', error);
+    throw error;
+  }
+}
+
 
 async function fetchStream(url: string, options: RequestInit, chatId: number) {
   const response = await fetch(url, options);

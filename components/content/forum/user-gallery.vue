@@ -87,34 +87,31 @@ async function toggleCollection(userId: number) {
 
   selectedUserId.value = userId
 
+  // Fetch user collection only if it hasn't been loaded yet
   if (!userCollections.value[userId]) {
     const collections = await artStore.getUserCollections(userId)
     const userArt = collections.flatMap((collection) => collection.art || [])
     userCollections.value = { ...userCollections.value, [userId]: userArt }
 
-    // Fetch all art images for the collection
+    // Fetch missing art images in bulk
     const artIds = userArt.map((art) => art.id)
     await fetchArtImages(artIds)
   }
 }
 
-// Fetch images for a list of art IDs
+// Batch fetch images for a list of art IDs
 async function fetchArtImages(artIds: number[]) {
-  for (const artId of artIds) {
-    if (!artImages.value[artId]) {
-      artImages.value[artId] = await getArtImage(artId)
-    }
-  }
-}
+  const uncachedIds = artIds.filter((id) => !artImages.value[id])
+  if (uncachedIds.length === 0) return
 
-// Get art image URL
-async function getArtImage(artId: number): Promise<string> {
   try {
-    const artImage = await artStore.getArtImageById(artId)
-    return artImage?.imageData || '/images/kindtitle.webp'
+    const response = await artStore.fetchArtImagesByIds(uncachedIds) // Batch fetch
+    response.forEach((artImage) => {
+      artImages.value[artImage.id] =
+        artImage.imageData || '/images/kindtitle.webp'
+    })
   } catch (error) {
-    console.error(`Failed to fetch art image for artId: ${artId}`, error)
-    return '/images/default-art.png' // Fallback to default image
+    console.error('Failed to fetch batch art images', error)
   }
 }
 

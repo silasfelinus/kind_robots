@@ -8,7 +8,7 @@
         v-if="isMobile"
         key="mobile-view"
         class="flex-grow overflow-y-auto"
-        :style="mobileViewStyle"
+        :style="viewStyle"
       >
         <SplashTutorial
           v-if="showTutorial"
@@ -25,7 +25,7 @@
         v-else
         key="desktop-view"
         class="h-full w-full overflow-y-auto no-scrollbar z-10 flex-grow"
-        :style="desktopViewStyle"
+        :style="viewStyle"
       >
         <NuxtPage
           class="h-full w-full rounded-2xl box-border bg-base-300 border-1 border-accent"
@@ -46,16 +46,11 @@ const displayStore = useDisplayStore()
 const isMobile = computed(() => displayStore.isMobileViewport)
 const showTutorial = computed(() => displayStore.showTutorial)
 
-// Compute styles dynamically using displayStore values
-const mobileViewStyle = computed(() => ({
-  height: `calc(100vh - ${displayStore.headerHeight} - ${displayStore.footerHeight})`,
-  padding: displayStore.sectionPadding,
+const viewStyle = computed(() => ({
+  height: displayStore.centerHeight, // Use the specific field from the store
+  padding: `${displayStore.sectionPaddingNumeric}px`, // Consistent padding
 }))
 
-const desktopViewStyle = computed(() => ({
-  height: `calc(100vh - ${displayStore.headerHeight} - ${displayStore.footerHeight})`,
-  padding: `${displayStore.sectionPadding}`,
-}))
 </script>
 
 <style scoped>

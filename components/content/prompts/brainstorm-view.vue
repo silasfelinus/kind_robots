@@ -18,13 +18,13 @@
     <add-pitch />
 
     <!-- Section for Newest Pitches using PitchCard components -->
-    <section v-if="pitchStore.newestPitches.length" class="mt-6">
-      <h3 class="text-xl font-bold mb-4">New Pitches</h3>
+    <section v-if="pitches.length" class="mt-6">
+      <h3 class="text-xl font-bold mb-4">Pitches</h3>
       <div
         class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
       >
         <PitchCard
-          v-for="pitch in pitchStore.newestPitches"
+          v-for="pitch in pitches"
           :key="pitch.id"
           :pitch="pitch"
           class="border border-orange-500 rounded-lg shadow-md"
@@ -38,4 +38,6 @@
 import { usePitchStore } from '~/stores/pitchStore'
 
 const pitchStore = usePitchStore()
+
+const pitches = computed (()=> pitchStore.pitches)
 </script>

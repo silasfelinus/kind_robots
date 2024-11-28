@@ -431,6 +431,7 @@ console.log("pitchStore initialized ")
     },
 
     async fetchPitches(): Promise<void> {
+console.log("fetching pitches")
       if (this.isInitialized) return
       this.loading = true
 
@@ -447,6 +448,7 @@ console.log("pitchStore initialized ")
             })) || []
           this.isInitialized = true
           this.saveStateToLocalStorage()
+.log(" pitches fetched: ", this.pitches)
         } else {
           console.warn('Failed to fetch pitches:', response.message)
           throw new Error(response.message)

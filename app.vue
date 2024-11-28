@@ -36,13 +36,13 @@
     >
       <main-content />
       <div
-        class="absolute top-0 left-0 p-1 z-50 rounded-2xl border-1 border-accent"
+        class="absolute top-0 left-0 m-1 z-50 rounded-2xl border-1 border-accent"
       >
         <left-toggle />
       </div>
       <!-- Right Toggle (Top-right corner of the sidebar) -->
       <div
-        class="absolute top-0 right-0 p-1 z-50 rounded-2xl border-1 border-accent"
+        class="absolute top-0 right-0 m-1 z-50 rounded-2xl border-1 border-accent"
       >
         <right-toggle />
       </div>
@@ -66,7 +66,7 @@
     </footer>
 
     <!-- Footer Toggle (Fixed to the bottom center of the screen) -->
-    <div class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 p-1">
+    <div class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 m-1">
       <footer-toggle />
     </div>
   </div>

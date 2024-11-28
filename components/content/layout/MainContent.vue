@@ -54,7 +54,7 @@ const mobileViewStyle = computed(() => ({
 
 const desktopViewStyle = computed(() => ({
   height: `calc(100vh - ${displayStore.headerHeight} - ${displayStore.footerHeight})`,
-  margin: `${displayStore.sectionPadding}`,
+  padding: `${displayStore.sectionPadding}`,
 }))
 </script>
 

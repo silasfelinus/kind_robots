@@ -59,6 +59,7 @@ export const useArtStore = defineStore({
 
   actions: {
     async initialize() {
+      console.log('beginning art store load')
       if (this.isInitialized) return
       this.loading = true
 
@@ -66,6 +67,7 @@ export const useArtStore = defineStore({
         await this.loadLocalData()
         await this.loadRemoteData()
         this.isInitialized = true
+        console.log('art store loaded')
       } catch (error) {
         handleError(error, 'initializing art store')
       } finally {
@@ -169,11 +171,7 @@ export const useArtStore = defineStore({
     },
     async loadRemoteData() {
       try {
-        await Promise.all([
-          this.fetchCollections(),
-          this.fetchAllArt(),
-          this.fetchAllArtImages(),
-        ])
+        await Promise.all([this.fetchCollections(), this.fetchAllArt()])
       } catch (error) {
         handleError(error, 'loading remote data')
       }
@@ -461,6 +459,41 @@ export const useArtStore = defineStore({
       } catch (error) {
         handleError(error, 'fetching art image by art ID')
         return null
+      }
+    },
+    async fetchArtImagesByIds(imageIds: number[]): Promise<ArtImage[]> {
+      // Filter out already cached art images
+      const uncachedIds = imageIds.filter(
+        (id) => !this.artImages.some((image) => image.id === id),
+      )
+
+      // Return cached images if all requested images are already available
+      if (uncachedIds.length === 0) {
+        return this.artImages.filter((image) => imageIds.includes(image.id))
+      }
+
+      try {
+        // Fetch missing art images in a batch
+        const response = await performFetch<ArtImage[]>('/api/art/image', {
+          method: 'POST',
+          body: JSON.stringify({ ids: uncachedIds }),
+          headers: { 'Content-Type': 'application/json' },
+        })
+
+        if (response.success && response.data) {
+          // Add new images to the store
+          this.artImages.push(...response.data)
+
+          // Return a merged list of cached and newly fetched images
+          return [
+            ...this.artImages.filter((image) => imageIds.includes(image.id)),
+          ]
+        } else {
+          throw new Error(response.message || 'Failed to fetch art images.')
+        }
+      } catch (error) {
+        handleError(error, 'fetching art images by IDs')
+        return [] // Return an empty array on error
       }
     },
 

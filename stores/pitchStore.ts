@@ -88,6 +88,7 @@ export const usePitchStore = defineStore('pitch', {
 
   actions: {
     async initializePitches() {
+console.log("starting pitchStore initialization ")
       if (isClient && !this.isInitialized) {
         const savedState = {
           pitches: localStorage.getItem('pitches'),
@@ -134,6 +135,7 @@ export const usePitchStore = defineStore('pitch', {
 
         this.fetchPitches()
         this.isInitialized = true
+console.log("pitchStore initialized ")
       }
     },
 

@@ -37,7 +37,6 @@
     <div class="flex-grow w-full overflow-y-auto h-full">
       <lazy-add-bot v-if="activeTab === 'add-bot'" />
       <lazy-use-bot v-if="activeTab === 'use-bot'" />
-      <lazy-chat-test v-if="activeTab === 'chat-test'" />
       <lazy-stream-tester v-if="activeTab === 'stream-tester'" />
     </div>
   </div>
@@ -54,7 +53,6 @@ const displayStore = useDisplayStore()
 const tabs = [
   { name: 'add-bot', label: 'Add Bot' },
   { name: 'use-bot', label: 'Use Bot' },
-  { name: 'chat-test', label: 'Chat Test' },
   { name: 'stream-tester', label: 'Stream Tester' },
 ]
 

@@ -80,7 +80,7 @@ async function submitPrompt() {
 
   loading.value = true;
   errorMessage.value = '';
-  responseText.value = `You: ${prompt.value}\n\n`; // Display the prompt
+  responseText.value = ''; // Display the prompt
 
   try {
     // Step 1: Create a new chat object in the database

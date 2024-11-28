@@ -22,12 +22,7 @@
       <button
         v-for="pitch in filteredPitches"
         :key="pitch.id"
-        :class="[
-          'rounded-lg border p-3',
-          pitchStore.selectedPitch && pitchStore.selectedPitch.id === pitch.id
-            ? 'bg-primary text-white'
-            : 'bg-base-300 hover:bg-primary hover:text-white',
-        ]"
+        class="rounded-lg border p-3 bg-base-300 hover:bg-primary hover:text-white",
         @click="updateSelectedPitch(pitch.id)"
       >
         <h3 class="font-bold">{{ pitch.title || 'Untitled' }}</h3>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="button-container flex flex-col items-center overflow-hidden p-4"
+    class="button-container flex flex-col items-center overflow-hidden"
     :style="mainContentStyle"
   >
     <!-- Toggle Button -->

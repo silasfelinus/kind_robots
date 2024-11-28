@@ -1,11 +1,11 @@
 <template>
   <div
-    class="button-container flex flex-col items-center overflow-hidden p-4"
+    class="button-container flex flex-col items-center overflow-hidden"
     :style="mainContentStyle"
   >
     <!-- Toggle Button -->
     <button
-      class="toggle-button px-4 py-2 mb-3  bg-accent rounded-lg"
+      class="toggle-button px-4 py-2 mb-3 bg-accent rounded-lg"
       @click="toggleVisibility"
     >
       {{ areButtonsVisible ? 'Hide Sections' : 'Show Sections' }}

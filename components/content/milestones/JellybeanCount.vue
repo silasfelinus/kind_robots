@@ -1,7 +1,7 @@
 <template>
   <router-link
     to="/milestones"
-    class="flex flex-col items-center justify-center no-underline text-info w-full h-full"
+    class="flex flex-col items-center justify-center no-underline w-full h-full"
   >
     <!-- Centered Jellybean Icon -->
     <Icon

@@ -448,7 +448,7 @@ console.log("fetching pitches")
             })) || []
           this.isInitialized = true
           this.saveStateToLocalStorage()
-.log(" pitches fetched: ", this.pitches)
+console.log(" pitches fetched: ", this.pitches)
         } else {
           console.warn('Failed to fetch pitches:', response.message)
           throw new Error(response.message)

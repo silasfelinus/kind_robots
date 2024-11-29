@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 // Access layout-related data and state from displayStore
@@ -50,11 +50,12 @@ const displayStore = useDisplayStore()
 const isMobile = computed(() => displayStore.isMobileViewport)
 const showTutorial = computed(() => displayStore.showTutorial)
 
-// Fullscreen state
-const isFullscreen = ref(false)
+// Fullscreen state from store
+const isFullscreen = computed(() => displayStore.isFullScreen)
 
+// Toggle fullscreen with enforced layout adjustments
 const toggleFullscreen = () => {
-  isFullscreen.value = !isFullscreen.value
+  displayStore.toggleFullscreen()
 }
 
 // Dynamic styles and classes

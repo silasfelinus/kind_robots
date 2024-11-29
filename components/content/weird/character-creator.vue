@@ -1,117 +1,122 @@
 <template>
-  <div class="flex h-screen w-full">
-    <!-- Character Sheet -->
-    <div class="w-4/5 p-6 bg-gray-100 overflow-auto">
-      <h1 class="text-3xl font-bold mb-4">Character Sheet</h1>
-
-      <!-- Character Image -->
-      <div class="mb-6">
-        <div class="flex items-center">
-          <div
-            class="w-24 h-24 rounded bg-gray-300 flex items-center justify-center"
-          >
-            <img
-              v-if="character.artImageId"
-              :src="`/images/${character.artImageId}.jpg`"
-              alt="Character Image"
-              class="object-cover w-full h-full rounded"
-            />
-            <span v-else class="text-xs text-gray-500">No Image</span>
-          </div>
-          <div class="ml-4">
-            <label class="font-bold block">Art Prompt:</label>
-            <textarea
-              v-model="character.artPrompt"
-              placeholder="Enter art description"
-              class="border p-2 w-96"
-            ></textarea>
-            <button
-              class="mt-2 bg-blue-500 text-white py-1 px-3 rounded text-sm"
-            >
-              Generate Image
-            </button>
-          </div>
+  <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto">
+    <!-- Top Section: Name, Alignment, Level, and Save/Load/Delete -->
+    <div class="flex items-center justify-between h-[10%] bg-accent rounded-lg shadow-md px-4 py-2">
+      <!-- Character Name and Class -->
+      <div class="flex flex-col flex-grow">
+        <h1 class="text-4xl font-bold text-white truncate">
+          {{ character.name || 'Unnamed Hero' }}
+          <span v-if="character.class" class="text-2xl font-light text-gray-200">
+            the {{ character.class }}
+          </span>
+        </h1>
+        <div class="flex space-x-6 text-sm text-gray-200 mt-1">
+          <span>Alignment: {{ character.alignment || 'Neutral' }}</span>
+          <span>Level: {{ character.level || 1 }}</span>
         </div>
       </div>
 
-      <!-- Name -->
-      <div class="mb-4">
-        <label class="font-bold">Name:</label>
-        <div class="flex items-center">
-          <input
-            v-model="character.name"
-            type="text"
-            placeholder="Enter character name"
-            class="border p-2 w-full"
-          />
-          <PreserveToggle :value="character.name" />
-        </div>
-      </div>
-
-      <!-- Class and Alignment -->
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <label class="font-bold">Class:</label>
-          <div class="flex items-center">
-            <input
-              v-model="character.class"
-              type="text"
-              placeholder="Enter class"
-              class="border p-2 w-full"
-            />
-            <PreserveToggle :value="character.class" />
-          </div>
-        </div>
-        <div>
-          <label class="font-bold">Alignment:</label>
-          <div class="flex items-center">
-            <input
-              v-model="character.alignment"
-              type="text"
-              placeholder="Enter alignment"
-              class="border p-2 w-full"
-            />
-            <PreserveToggle :value="character.alignment" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="mb-4">
-        <label class="font-bold">Stats:</label>
-        <div v-for="i in 6" :key="'stat' + i" class="flex items-center mb-2">
-          <input
-            v-model="character[`statName${i}`]"
-            type="text"
-            :placeholder="'Stat ' + i + ' Name'"
-            class="border p-2 w-1/2 mr-2"
-            disabled
-          />
-          <input
-            v-model.number="character[`statValue${i}`]"
-            type="number"
-            :placeholder="'Stat ' + i + ' Value'"
-            class="border p-2 w-1/4 mr-2"
-            min="1"
-            max="18"
-          />
-          <PreserveToggle :value="character[`statValue${i}`]" />
-        </div>
+      <!-- Save, Load, Delete Buttons -->
+      <div class="flex space-x-2">
+        <button
+          class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg shadow-md text-sm"
+          @click="saveCharacter"
+        >
+          Save
+        </button>
+        <button
+          class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg shadow-md text-sm"
+          @click="loadCharacter"
+        >
+          Load
+        </button>
+        <button
+          class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg shadow-md text-sm"
+          @click="deleteCharacter"
+        >
+          Delete
+        </button>
       </div>
     </div>
 
-    <!-- Ubermaintenance Section -->
-    <div class="w-1/5 bg-gray-200 p-4 flex flex-col">
-      <h2 class="text-lg font-bold mb-4">Ubermaintenance</h2>
-      <button class="mb-2 bg-green-500 text-white py-1 px-2 rounded text-sm">
-        Save
-      </button>
-      <button class="mb-2 bg-blue-500 text-white py-1 px-2 rounded text-sm">
-        Load
-      </button>
-      <button class="mb-2 bg-red-500 text-white py-1 px-2 rounded text-sm">
-        Delete
-      </button>
+    <!-- Middle Section: Backstory and Portrait -->
+    <div class="flex flex-row justify-between items-start h-[40%] mt-4 space-x-4">
+      <!-- Backstory Section -->
+      <div class="w-[70%] bg-base-300 border border-gray-400 rounded-lg shadow-md p-4">
+        <h2 class="text-lg font-bold text-gray-700 mb-2">Backstory</h2>
+        <p class="text-sm text-gray-500 overflow-y-auto h-full">
+          {{ character.backstory || 'No backstory provided.' }}
+        </p>
+      </div>
+
+      <!-- Portrait Section -->
+      <div
+        class="w-[30%] bg-gray-800 flex items-center justify-center rounded-lg shadow-md"
+      >
+        <img
+          v-if="character.artImageId"
+          :src="`/images/${character.artImageId}.jpg`"
+          alt="Character Portrait"
+          class="object-cover w-full h-full rounded-lg"
+        />
+        <img
+          v-else
+          src="/images/bot.webp"
+          alt="Default Portrait"
+          class="object-cover w-full h-full rounded-lg"
+        />
+      </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="flex flex-row justify-between items-center mt-4 h-[15%] bg-base-200 rounded-lg shadow-md px-4 py-2">
+      <div
+        v-for="i in statKeys.length"
+        :key="'stat' + i"
+        class="flex flex-col items-center justify-center w-[15%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
+      >
+        <span class="text-sm font-bold uppercase text-gray-700">
+          {{ character[`statName${i}`] || `Stat ${i}` }}
+        </span>
+        <span class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2">
+          {{ character[`statValue${i}`] || 0 }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Bottom Section: Quirks, Skills, Inventory, Drive -->
+    <div class="flex flex-col mt-4 space-y-4 h-[35%] overflow-y-auto">
+      <!-- Quirks Section -->
+      <div class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md">
+        <h2 class="text-lg font-bold text-gray-700">Quirks</h2>
+        <p class="text-sm text-gray-500 mt-2">
+          {{ character.quirks || 'No quirks specified.' }}
+        </p>
+      </div>
+
+      <!-- Skills Section -->
+      <div class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md">
+        <h2 class="text-lg font-bold text-gray-700">Skills</h2>
+        <p class="text-sm text-gray-500 mt-2">
+          {{ character.skills || 'No skills specified.' }}
+        </p>
+      </div>
+
+      <!-- Inventory Section -->
+      <div class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md">
+        <h2 class="text-lg font-bold text-gray-700">Inventory</h2>
+        <p class="text-sm text-gray-500 mt-2">
+          {{ character.inventory || 'No inventory specified.' }}
+        </p>
+      </div>
+
+      <!-- Drive Section -->
+      <div class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md">
+        <h2 class="text-lg font-bold text-gray-700">Drive</h2>
+        <p class="text-sm text-gray-500 mt-2">
+          {{ character.drive || 'No drive specified.' }}
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -121,24 +126,42 @@ import { reactive } from 'vue'
 
 const character = reactive({
   name: '',
-  class: '',
   alignment: '',
+  class: '',
+  level: 1,
+  artImageId: null,
   backstory: '',
   quirks: '',
   skills: '',
-  genre: '',
-  artPrompt: '',
-  statName1: 'Luck',
-  statValue1: 9,
-  statName2: 'Swol',
-  statValue2: 9,
-  statName3: 'Wits',
-  statValue3: 9,
-  statName4: 'Durability',
-  statValue4: 9,
-  statName5: 'Rizz',
-  statValue5: 9,
-  statName6: 'Skibidi',
-  statValue6: 9,
+  inventory: '',
+  drive: '',
+  statName1: 'Strength',
+  statValue1: 10,
+  statName2: 'Dexterity',
+  statValue2: 10,
+  statName3: 'Constitution',
+  statValue3: 10,
+  statName4: 'Intelligence',
+  statValue4: 10,
+  statName5: 'Wisdom',
+  statValue5: 10,
+  statName6: 'Charisma',
+  statValue6: 10,
 })
+
+// Dynamically get the stat keys for rendering
+const statKeys = [1, 2, 3, 4, 5, 6]
+
+// Handlers for Save, Load, and Delete
+function saveCharacter() {
+  console.log('Saving character:', character)
+}
+
+function loadCharacter() {
+  console.log('Loading character...')
+}
+
+function deleteCharacter() {
+  console.log('Deleting character...')
+}
 </script>

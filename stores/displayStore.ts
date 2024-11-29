@@ -7,12 +7,6 @@ export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 export type FullscreenState = 'nuxt' | 'fullscreen' | 'splash'
 
 interface DisplayStoreState {
-  previousStates: Partial<{
-    headerState: DisplayState
-    sidebarLeftState: DisplayState
-    sidebarRightState: DisplayState
-    footerState: DisplayState
-  }>
   headerState: DisplayState
   sidebarLeftState: DisplayState
   sidebarRightState: DisplayState
@@ -30,6 +24,7 @@ interface DisplayStoreState {
   currentAnimation: string
   resizeTimeout: ReturnType<typeof setTimeout> | null
   fullscreenState: FullscreenState
+  bigMode: boolean
 }
 
 // Define the valid effect IDs
@@ -42,7 +37,6 @@ export type EffectId =
 export const useDisplayStore = defineStore('display', {
   state: (): DisplayStoreState => ({
     headerState: 'open',
-    previousStates: {},
     sidebarLeftState: 'compact',
     sidebarRightState: 'hidden',
     footerState: 'hidden',
@@ -59,6 +53,7 @@ export const useDisplayStore = defineStore('display', {
     currentAnimation: '',
     resizeTimeout: null,
     fullscreenState: 'nuxt',
+    bigMode: false,
   }),
 
   getters: {
@@ -234,6 +229,25 @@ export const useDisplayStore = defineStore('display', {
       const errorStore = useErrorStore()
       errorStore.setError(ErrorType.GENERAL_ERROR, error)
     },
+    toggleBigMode() {
+      this.bigMode = !this.bigMode
+
+      if (this.bigMode) {
+        // Actions to take when entering BigMode
+        this.headerState = 'hidden'
+        this.sidebarLeftState = 'hidden'
+        this.sidebarRightState = 'hidden'
+        this.footerState = 'hidden'
+      } else {
+        // Actions to restore previous states or defaults when exiting BigMode
+        this.headerState = 'open'
+        this.sidebarLeftState = 'compact'
+        this.sidebarRightState = 'hidden'
+        this.footerState = 'compact'
+      }
+
+      this.saveState() // Persist the updated state
+    },
     initialize() {
       if (this.isInitialized) {
         return
@@ -285,17 +299,7 @@ export const useDisplayStore = defineStore('display', {
     },
 
     toggleFullscreen() {
-      const defaultStates = {
-        headerState: this.headerState,
-        sidebarLeftState: this.sidebarLeftState,
-        sidebarRightState: this.sidebarRightState,
-        footerState: this.footerState,
-      }
-
       if (this.fullscreenState === 'nuxt') {
-        // Save current states for restoration
-        this.previousStates = { ...defaultStates }
-
         // Switch to fullscreen
         this.fullscreenState = 'fullscreen'
         this.isFullScreen = true
@@ -309,18 +313,6 @@ export const useDisplayStore = defineStore('display', {
         // Restore previous states
         this.fullscreenState = 'nuxt'
         this.isFullScreen = false
-
-        // Restore states if previously saved, else revert to defaults
-        this.headerState =
-          this.previousStates?.headerState || defaultStates.headerState
-        this.sidebarLeftState =
-          this.previousStates?.sidebarLeftState ||
-          defaultStates.sidebarLeftState
-        this.sidebarRightState =
-          this.previousStates?.sidebarRightState ||
-          defaultStates.sidebarRightState
-        this.footerState =
-          this.previousStates?.footerState || defaultStates.footerState
       }
 
       this.saveState()

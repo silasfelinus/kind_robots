@@ -165,6 +165,7 @@ model Character {
   alignment       String?        @db.VarChar(256)
   experience      Int?           @default(0)
   level           Int?           @default(1)
+  artPrompt       String?
   class           String?        @db.VarChar(764)
   gender          String?        @db.VarChar(764)
   species         String?        @db.VarChar(764)
@@ -191,7 +192,6 @@ model Character {
   isPublic        Boolean        @default(false)
   userId          Int           @default(10)
   User            User          @relation(fields: [userId], references: [id])
-
 }
 
 

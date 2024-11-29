@@ -1,5 +1,5 @@
 	<template>
-  <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto">
+  <div class="h-screen w-full bg-base-300 flex flex-col overflow-y-auto">
     <!-- Top Section: Name, Alignment, Level, and Save/Load/Delete -->
     <div class="flex items-center justify-between h-[10%] bg-accent rounded-lg shadow-md px-4 py-2">
       <!-- Character Name and Class -->

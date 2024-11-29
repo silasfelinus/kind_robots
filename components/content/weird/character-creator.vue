@@ -59,12 +59,9 @@
             :key="'stat' + i"
             class="flex flex-col items-center justify-center w-[15%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
           >
-            <input
-              v-model="character[`statName${i}`]"
-              type="text"
-              class="text-sm font-bold uppercase text-center text-gray-700 bg-transparent border-none outline-none"
-              :placeholder="'Stat ' + i"
-            />
+            <span class="text-sm font-bold uppercase text-center text-gray-700">
+              {{ character[`statName${i}`] || `Stat ${i}` }}
+            </span>
             <span
               class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2"
             >
@@ -85,8 +82,8 @@
         class="w-[30%] bg-gray-800 flex flex-col items-center justify-start rounded-lg shadow-md p-4"
       >
         <img
-          v-if="character.artImageId"
-          :src="`/images/${character.artImageId}.jpg`"
+          v-if="artImage"
+          :src="artImage.imageData"
           alt="Character Portrait"
           class="object-cover w-full h-2/3 rounded-lg mb-4"
         />
@@ -178,17 +175,34 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { computed } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
+import { useArtStore } from '@/stores/artStore'
 
+// Initialize Stores
 const characterStore = useCharacterStore()
+const artStore = useArtStore()
 
+// Current Character and Art Image
 const character = computed(() => characterStore.newCharacter)
+const artImage = computed(() =>
+  character.value.artImageId
+    ? artStore.getArtImageById(character.value.artImageId)
+    : null,
+)
 
-const statKeys = [1, 2, 3, 4, 5, 6]
+// Stat Keys Using Default Names
+const statKeys = [
+  'statName1',
+  'statName2',
+  'statName3',
+  'statName4',
+  'statName5',
+  'statName6',
+]
 
+// Arrays for Display
 const quirksArray = computed(() =>
   character.value.quirks ? character.value.quirks.split('|!') : [],
 )
@@ -199,6 +213,7 @@ const inventoryArray = computed(() =>
   character.value.inventory ? character.value.inventory.split('|!') : [],
 )
 
+// Functions
 function rerollStats() {
   characterStore.rerollStats()
 }

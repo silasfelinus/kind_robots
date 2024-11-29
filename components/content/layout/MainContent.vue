@@ -1,9 +1,9 @@
 <template>
   <!-- Main container -->
   <div class="h-full flex flex-col relative z-10">
-    <!-- Fullscreen Toggle Icon -->
+    <!-- Fullscreen Toggle Icon (always visible) -->
     <div
-      class="absolute top-2 left-2 z-20 cursor-pointer bg-base-200 p-2 rounded-full shadow-md hover:bg-base-300 transition"
+      class="fixed top-2 left-2 z-40 cursor-pointer bg-base-200 p-2 rounded-full shadow-md hover:bg-base-300 transition"
       @click="toggleBigMode"
     >
       <icon v-if="!isBigMode" name="expand" class="text-xl" />
@@ -34,7 +34,7 @@
         <!-- Optional Content to Show in BigMode -->
         <div
           v-if="bigModeExtrasVisible"
-          class="absolute inset-0 z-40 flex items-center justify-center"
+          class="absolute inset-0 z-30 flex items-center justify-center"
         >
           <p class="text-2xl text-white bg-opacity-75 bg-black p-4 rounded-lg">
             Extra Content in BigMode

@@ -326,18 +326,19 @@
   {
     "folderName": "weird",
     "components": [
-      "ClickLeaderboard",
-      "GameScreen",
-      "MatchLeaderboard",
-      "MemoryGame",
-      "NewEyeball",
-      "WeirdWindow",
-      "WeirderGame",
-      "WeirdlandiaGame",
       "action-toggle",
       "character-creator",
+      "click-leaderboard",
       "game-screen-old",
-      "rebel-button"
+      "game-screen",
+      "match-leaderboard",
+      "memory-game",
+      "new-eyeball",
+      "rebel-button",
+      "weird-lab",
+      "weird-window",
+      "weirder-game",
+      "weirdlandia-game"
     ]
   },
   {

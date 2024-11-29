@@ -37,7 +37,7 @@
       <main-content />
       <!-- Right Toggle (Top-right corner of the sidebar) -->
       <div
-        class="absolute -top-7 right-0 z-50 rounded-2xl border-1 border-accent"
+        class="absolute top-0 right-0 z-50 rounded-2xl border-1 border-accent"
       >
         <right-toggle />
       </div>

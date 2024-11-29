@@ -118,7 +118,6 @@
 
 <script setup>
 import { reactive } from 'vue'
-import PreserveToggle from './PreserveToggle.vue'
 
 const character = reactive({
   name: '',

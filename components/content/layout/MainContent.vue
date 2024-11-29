@@ -31,16 +31,6 @@
 
       <!-- Desktop View -->
       <div v-else key="desktop-view" :class="containerClass" :style="viewStyle">
-        <!-- Optional Content to Show in BigMode -->
-        <div
-          v-if="bigModeExtrasVisible"
-          class="absolute inset-0 z-30 flex items-center justify-center"
-        >
-          <p class="text-2xl text-white bg-opacity-75 bg-black p-4 rounded-lg">
-            Extra Content in BigMode
-          </p>
-        </div>
-
         <NuxtPage
           class="h-full w-full rounded-2xl box-border bg-base-300 border-1 border-accent"
         />
@@ -62,7 +52,6 @@ const showTutorial = computed(() => displayStore.showTutorial)
 
 // BigMode state from store
 const isBigMode = computed(() => displayStore.bigMode)
-const bigModeExtrasVisible = computed(() => isBigMode.value)
 
 // Toggle BigMode state with adjustments
 const toggleBigMode = () => {

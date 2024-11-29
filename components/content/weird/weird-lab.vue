@@ -35,10 +35,10 @@
 
     <!-- Section Content -->
     <div class="flex-grow w-full overflow-y-auto h-full">
-      <lazy-weirdlandia-view v-if="activeTab === 'weirdlandia-view'" />
+      <lazy-weirder-game v-if="activeTab === 'weirdlandia-view'" />
       <lazy-character-creator v-if="activeTab === 'character-creator'" />
       <lazy-add-reward v-if="activeTab === 'add-reward'" />
-      <lazy-reward-gallery v-if="activeTab === 'reward-gallery'" />
+      <lazy-rewards-gallery v-if="activeTab === 'reward-gallery'" />
     </div>
   </div>
 </template>

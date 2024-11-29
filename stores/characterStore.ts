@@ -1,214 +1,186 @@
 import { defineStore } from 'pinia'
-import { performFetch, handleError } from './utils'
 import type { Character } from '@prisma/client'
+import { performFetch, handleError } from './../stores/utils'
 
 export const useCharacterStore = defineStore({
   id: 'characterStore',
+
   state: () => ({
-    characters: [] as Character[], // Array of all fetched characters
+    characters: JSON.parse(localStorage.getItem('characters') || '[]') as Character[], // All fetched characters
+    newCharacter: null as Partial<Character> | null, // A new character being created
     selectedCharacter: null as Character | null, // Currently selected character
-    characterForm: {} as Partial<Character>, // Character being modified in a form
-    newCharacter: {} as Partial<Character>, // New character creation placeholder
+    characterForm: null as Partial<Character> | null, // Temporary character edits or drafts
     loading: false,
     error: '',
-    isInitialized: false,
   }),
+
   actions: {
-    // Initialize the store
-    async initialize() {
-      console.log('Initializing character store...')
-      if (this.isInitialized) return
-      this.loading = true
+    syncToLocalStorage() {
       try {
-        await this.loadLocalData()
-        await this.fetchCharacters()
-        this.isInitialized = true
-        console.log('Character store initialized.')
+        localStorage.setItem('characters', JSON.stringify(this.characters))
       } catch (error) {
-        handleError(error, 'initializing character store')
-      } finally {
-        this.loading = false
+        console.error('Error syncing to localStorage:', error)
       }
     },
 
-    // Fetch all characters from the server
+    async initialize() {
+      console.log('Initializing character store...')
+      try {
+        await this.fetchCharacters()
+        console.log('Character store initialized successfully.')
+      } catch (error) {
+        handleError(error, 'initializing character store')
+      }
+    },
+
     async fetchCharacters() {
       try {
-        const response = await performFetch<{ data: Character[] }>('/api/characters')
+        this.loading = true
+        const response = await performFetch<{ data: Character[] }>(
+          '/api/characters',
+        )
         if (response.success && response.data) {
           this.characters = response.data
-          this.saveToLocalStorage() // Save to local storage
+          console.log('Fetched characters:', this.characters)
+          this.syncToLocalStorage()
         } else {
           throw new Error(response.message)
         }
       } catch (error) {
         handleError(error, 'fetching characters')
+      } finally {
+        this.loading = false
       }
     },
 
-    // Save a new character
-    async saveCharacter(character: Partial<Character>) {
+    selectCharacter(id: number) {
+      const character = this.characters.find((c) => c.id === id) || null
+      if (!character) {
+        console.warn(`Character with ID ${id} not found.`)
+      }
+      this.selectedCharacter = character
+    },
+
+    async fetchCharacterById(id: number) {
       try {
-        const response = await performFetch<Character>('/api/characters', {
-          method: 'POST',
-          body: JSON.stringify(character),
-          headers: { 'Content-Type': 'application/json' },
-        })
+        this.loading = true
+        const response = await performFetch<{ data: Character }>(
+          `/api/characters/${id}`,
+        )
+        if (response.success && response.data) {
+          this.selectedCharacter = response.data
+          console.log(`Fetched character with ID ${id}:`, this.selectedCharacter)
+        } else {
+          throw new Error(response.message)
+        }
+      } catch (error) {
+        handleError(error, `fetching character with ID ${id}`)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async createCharacter(character: Partial<Character>) {
+      try {
+        this.loading = true
+        const response = await performFetch<{ data: Character }>(
+          '/api/characters',
+          {
+            method: 'POST',
+            body: JSON.stringify(character),
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
         if (response.success && response.data) {
           this.characters.push(response.data)
-          this.selectedCharacter = response.data
-          this.saveToLocalStorage() // Update local storage
+          console.log('Character created successfully:', response.data)
+          this.syncToLocalStorage()
         } else {
           throw new Error(response.message)
         }
       } catch (error) {
-        handleError(error, 'saving character')
+        handleError(error, 'creating character')
+      } finally {
+        this.loading = false
       }
     },
 
-    // Load a single character by ID
-    async loadCharacter(id: number) {
+    async updateCharacter(id: number, characterUpdates: Partial<Character>) {
       try {
-        const response = await performFetch<Character>(`/api/characters/${id}`)
+        this.loading = true
+        const response = await performFetch<{ data: Character }>(
+          `/api/characters/${id}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify(characterUpdates),
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
         if (response.success && response.data) {
-          this.selectedCharacter = response.data
+          const index = this.characters.findIndex((c) => c.id === id)
+          if (index !== -1) {
+            this.characters[index] = response.data
+          }
+          console.log(`Character with ID ${id} updated successfully.`)
+          this.syncToLocalStorage()
         } else {
           throw new Error(response.message)
         }
       } catch (error) {
-        handleError(error, 'loading character')
+        handleError(error, `updating character with ID ${id}`)
+      } finally {
+        this.loading = false
       }
     },
 
-    // Delete a character
     async deleteCharacter(id: number) {
       try {
+        this.loading = true
         const response = await performFetch(`/api/characters/${id}`, {
           method: 'DELETE',
         })
         if (response.success) {
-          this.characters = this.characters.filter(
-            (character) => character.id !== id,
-          )
-          if (this.selectedCharacter?.id === id) {
-            this.selectedCharacter = null
-          }
-          this.saveToLocalStorage() // Update local storage
+          this.characters = this.characters.filter((c) => c.id !== id)
+          console.log(`Character with ID ${id} deleted successfully.`)
+          this.syncToLocalStorage()
         } else {
           throw new Error(response.message)
         }
       } catch (error) {
-        handleError(error, 'deleting character')
+        handleError(error, `deleting character with ID ${id}`)
+      } finally {
+        this.loading = false
       }
     },
 
-    // Patch a character (partial update)
-    async patchCharacter(id: number, updates: Partial<Character>) {
+    async generateCharacterImage(id: number, artPrompt: string) {
       try {
-        const response = await performFetch<Character>(`/api/characters/${id}`, {
-          method: 'PATCH',
-          body: JSON.stringify(updates),
-          headers: { 'Content-Type': 'application/json' },
-        })
+        this.loading = true
+        const response = await performFetch<{ data: Character }>(
+          `/api/characters/${id}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify({ artPrompt }),
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
         if (response.success && response.data) {
-          this.characters = this.characters.map((char) =>
-            char.id === id ? response.data : char,
-          )
-          if (this.selectedCharacter?.id === id) {
-            this.selectedCharacter = response.data
+          const index = this.characters.findIndex((c) => c.id === id)
+          if (index !== -1) {
+            this.characters[index] = response.data
           }
-          this.saveToLocalStorage() // Update local storage
-        } else {
-          throw new Error(response.message)
-        }
-      } catch (error) {
-        handleError(error, 'patching character')
-      }
-    },
-
-    // Generate a character image
-    async generateCharacterImage(characterId: number, prompt: string) {
-      const artStore = useArtStore()
-      try {
-        const generatedArt = await artStore.generateArt({ promptString: prompt })
-        if (generatedArt.success && generatedArt.data) {
-          await this.patchCharacter(characterId, {
-            artImageId: generatedArt.data.artImageId,
-          })
-        } else {
-          throw new Error('Failed to generate character image.')
-        }
-      } catch (error) {
-        handleError(error, 'generating character image')
-      }
-    },
-
-    // Update a character with a submission
-    async updateCharacterWithSubmission(
-      baseCharacter: Character,
-      updates: Partial<Character>,
-    ) {
-      try {
-        // Create a new character with the updated properties
-        const newSubmission = { ...baseCharacter, ...updates }
-        delete newSubmission.id // Remove ID to create a new character
-
-        const response = await performFetch<Character>('/api/characters', {
-          method: 'POST',
-          body: JSON.stringify(newSubmission),
-          headers: { 'Content-Type': 'application/json' },
-        })
-
-        if (response.success && response.data) {
-          this.characters.push(response.data)
-          this.selectedCharacter = response.data
-          this.saveToLocalStorage() // Update local storage
-        } else {
-          throw new Error(response.message)
-        }
-      } catch (error) {
-        handleError(error, 'updating character with submission')
-      }
-    },
-
-    // Load data from localStorage
-    loadLocalData() {
-      try {
-        const storedCharacters = localStorage.getItem('characters')
-        if (storedCharacters) {
-          this.characters = JSON.parse(storedCharacters)
-        }
-        const storedSelectedCharacter = localStorage.getItem('selectedCharacter')
-        if (storedSelectedCharacter) {
-          this.selectedCharacter = JSON.parse(storedSelectedCharacter)
-        }
-      } catch (error) {
-        handleError(error, 'loading local data')
-      }
-    },
-
-    // Save data to localStorage
-    saveToLocalStorage() {
-      try {
-        localStorage.setItem('characters', JSON.stringify(this.characters))
-        if (this.selectedCharacter) {
-          localStorage.setItem(
-            'selectedCharacter',
-            JSON.stringify(this.selectedCharacter),
+          console.log(
+            `Character image for ID ${id} updated successfully with prompt: "${artPrompt}"`,
           )
+          this.syncToLocalStorage()
+        } else {
+          throw new Error(response.message)
         }
       } catch (error) {
-        handleError(error, 'saving to local data')
+        handleError(error, `generating character image for ID ${id}`)
+      } finally {
+        this.loading = false
       }
-    },
-
-    // Form management
-    setCharacterForm(character: Partial<Character>) {
-      this.characterForm = { ...character }
-    },
-
-    clearCharacterForm() {
-      this.characterForm = {}
     },
   },
 })

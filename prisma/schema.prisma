@@ -48,6 +48,7 @@ model ArtImage {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime? @default(now()) @updatedAt
   artId          Int?      @unique
+  characterId    Int?
   galleryId      Int?      @default(21)
   userId         Int?      @default(10)
   fileName       String?   @db.VarChar(764)
@@ -67,6 +68,7 @@ model ArtImage {
   Gallery        Gallery?  @relation(fields: [galleryId], references: [id])
   User           User?     @relation(fields: [userId], references: [id])
   Bot            Bot?      @relation(fields: [botId], references: [id])       
+  Character      Character?    @relation(fields: [characterId], references: [id])
   Component      Component?          @relation(fields: [componentId], references: [id])
   Milestone      Milestone?           @relation(fields: [milestoneId], references: [id])
   Pitch          Pitch?           @relation(fields: [pitchId], references: [id])
@@ -153,6 +155,32 @@ model Chat {
   User            User?              @relation(fields: [userId], references: [id])
   botResponse     String?
 }
+
+model Character {
+  id              Int            @id @default(autoincrement())
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime?      @default(now()) @updatedAt
+  name            String         @db.VarChar(256)
+  class           String?        @db.VarChar(764)
+  gender          String?        @db.VarChar(764)
+  species         String?        @db.VarChar(764)
+  backstory       String?        @db.VarChar(2048)
+  drive           String?        @db.VarChar(764)
+  inventory       String?        @db.VarChar(2048)
+  stats           Json
+  quirks          String?        @db.VarChar(2048) // Stored as a delimiter-separated string
+  skills          String?        @db.VarChar(2048) // Stored as a delimiter-separated string
+  genre           String?        @db.VarChar(256)  // Thematic genre, e.g., Sci-fi, Fantasy
+  artImageId      Int? 
+  ArtImage        ArtImage?     
+  isPublic        Boolean        @default(false)
+  userId          Int           @default(10)
+  User            User          @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Character_userId_fkey")
+  @@index([artImageId], map: "Character_artImageId_fkey")
+}
+
 
 enum ChatType {
   ToBot
@@ -444,6 +472,7 @@ model User {
   ArtCollections ArtCollection[]
   ArtImages      ArtImage[]
   Bots           Bot[]
+  Characters     Character[]
   Chats          Chat[]
   Galleries      Gallery[]
   Logs           Log[]

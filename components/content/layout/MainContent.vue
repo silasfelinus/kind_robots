@@ -4,9 +4,9 @@
     <!-- Fullscreen Toggle Icon -->
     <div
       class="absolute top-2 left-2 z-20 cursor-pointer bg-base-200 p-2 rounded-full shadow-md hover:bg-base-300 transition"
-      @click="toggleFullscreen"
+      @click="toggleBigMode"
     >
-      <icon v-if="!isFullscreen" name="expand" class="text-xl" />
+      <icon v-if="!isBigMode" name="expand" class="text-xl" />
       <icon v-else name="contract" class="text-xl" />
     </div>
 
@@ -29,8 +29,18 @@
         />
       </div>
 
-      <!-- Fullscreen Mode (Desktop) -->
+      <!-- Desktop View -->
       <div v-else key="desktop-view" :class="containerClass" :style="viewStyle">
+        <!-- Optional Content to Show in BigMode -->
+        <div
+          v-if="bigModeExtrasVisible"
+          class="absolute inset-0 z-40 flex items-center justify-center"
+        >
+          <p class="text-2xl text-white bg-opacity-75 bg-black p-4 rounded-lg">
+            Extra Content in BigMode
+          </p>
+        </div>
+
         <NuxtPage
           class="h-full w-full rounded-2xl box-border bg-base-300 border-1 border-accent"
         />
@@ -50,22 +60,23 @@ const displayStore = useDisplayStore()
 const isMobile = computed(() => displayStore.isMobileViewport)
 const showTutorial = computed(() => displayStore.showTutorial)
 
-// Fullscreen state from store
-const isFullscreen = computed(() => displayStore.isFullScreen)
+// BigMode state from store
+const isBigMode = computed(() => displayStore.bigMode)
+const bigModeExtrasVisible = computed(() => isBigMode.value)
 
-// Toggle fullscreen with enforced layout adjustments
-const toggleFullscreen = () => {
-  displayStore.toggleFullscreen()
+// Toggle BigMode state with adjustments
+const toggleBigMode = () => {
+  displayStore.toggleBigMode()
 }
 
 // Dynamic styles and classes
 const viewStyle = computed(() => ({
-  height: isFullscreen.value ? '100vh' : displayStore.centerHeight,
-  padding: isFullscreen.value ? '0' : `${displayStore.sectionPaddingNumeric}px`,
+  height: isBigMode.value ? '100vh' : displayStore.centerHeight,
+  padding: isBigMode.value ? '0' : `${displayStore.sectionPaddingNumeric}px`,
 }))
 
 const containerClass = computed(() =>
-  isFullscreen.value
+  isBigMode.value
     ? 'fixed top-0 left-0 h-screen w-screen z-30 bg-base-200'
     : 'relative flex-grow',
 )

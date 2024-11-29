@@ -167,7 +167,6 @@ model Character {
   level           Int?           @default(1)
   artPrompt       String?
   class           String?        @db.VarChar(764)
-  gender          String?        @db.VarChar(764)
   species         String?        @db.VarChar(764)
   backstory       String?        @db.VarChar(2048)
   drive           String?        @db.VarChar(764)

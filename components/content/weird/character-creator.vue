@@ -43,19 +43,30 @@
     <!-- Middle Section: Stats and Portrait -->
     <div class="flex flex-row justify-between items-start h-[40%] mt-4 space-x-4">
       <!-- Stats Section -->
-      <div class="w-[70%] flex flex-row justify-between bg-base-300 border border-gray-400 rounded-lg shadow-md p-4">
-        <div
-          v-for="i in statKeys.length"
-          :key="'stat' + i"
-          class="flex flex-col items-center justify-center w-[15%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
-        >
-          <span class="text-sm font-bold uppercase text-gray-700">
-            {{ character[`statName${i}`] || `Stat ${i}` }}
-          </span>
-          <span class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2">
-            {{ character[`statValue${i}`] || 0 }}
-          </span>
+      <div class="w-[70%] flex flex-col bg-base-300 border border-gray-400 rounded-lg shadow-md p-4">
+        <div class="flex flex-row justify-between">
+          <div
+            v-for="i in statKeys.length"
+            :key="'stat' + i"
+            class="flex flex-col items-center justify-center w-[15%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
+          >
+            <input
+              v-model="character[`statName${i}`]"
+              type="text"
+              class="text-sm font-bold uppercase text-center text-gray-700 bg-transparent border-none outline-none"
+              :placeholder="'Stat ' + i"
+            />
+            <span class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2">
+              {{ character[`statValue${i}`] || 0 }}
+            </span>
+          </div>
         </div>
+        <button
+          class="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-1 px-4 rounded-lg shadow-md self-center"
+          @click="rerollStats"
+        >
+          Re-roll Stats
+        </button>
       </div>
 
       <!-- Portrait Section -->
@@ -178,6 +189,16 @@ const skillsArray = computed(() => (character.skills ? character.skills.split('|
 const inventoryArray = computed(() =>
   character.inventory ? character.inventory.split('|!') : []
 )
+
+function rerollStats() {
+  statKeys.forEach((key) => {
+    character[`statValue${key}`] = roll3d6()
+  })
+}
+
+function roll3d6() {
+  return Math.floor(Math.random() * 6 + 1) + Math.floor(Math.random() * 6 + 1) + Math.floor(Math.random() * 6 + 1)
+}
 
 function saveCharacter() {
   console.log('Saving character:', character)

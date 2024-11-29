@@ -1,15 +1,6 @@
 <template>
   <!-- Main container -->
   <div class="h-full flex flex-col relative z-10">
-    <!-- Fullscreen Toggle Icon (always visible) -->
-    <div
-      class="fixed top-2 left-2 z-20 cursor-pointer bg-base-200 p-2 rounded-full shadow-md hover:bg-base-300 transition"
-      @click="toggleBigMode"
-    >
-      <icon v-if="!isBigMode" name="expand" class="text-xl" />
-      <icon v-else name="contract" class="text-xl" />
-    </div>
-
     <!-- Transition Wrapper -->
     <transition name="flip" mode="out-in">
       <!-- Mobile View (no flip card) -->
@@ -52,11 +43,6 @@ const showTutorial = computed(() => displayStore.showTutorial)
 
 // BigMode state from store
 const isBigMode = computed(() => displayStore.bigMode)
-
-// Toggle BigMode state with adjustments
-const toggleBigMode = () => {
-  displayStore.toggleBigMode()
-}
 
 // Dynamic styles and classes
 const viewStyle = computed(() => ({

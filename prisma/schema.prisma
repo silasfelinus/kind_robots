@@ -172,18 +172,31 @@ model Character {
   backstory       String?        @db.VarChar(2048)
   drive           String?        @db.VarChar(764)
   inventory       String?        @db.VarChar(2048)
-  statName1				String?        @default("Luck")
-  statValue1		  Int?        @default(9)
-  statName2				String?        @default("Swol")
-  statValue2		  Int?        @default(9)
-  statName3				String?        @default("Wits")
-  statValue3		  Int?        @default(9)
-  statName4				String?        @default("Durability")
-  statValue4		  Int?        @default(9)
-  statName5				String?        @default("Rizz")
-  statValue5		  Int?        @default(9)
-  statName6				String?        @default("Skibidi")
-  statValue6		  Int?        @default(9)
+
+  // Main Stats
+  statName1       String?        @default("Luck")
+  statValue1      Int?           @default(9)
+  statName2       String?        @default("Swol")
+  statValue2      Int?           @default(9)
+  statName3       String?        @default("Wits")
+  statValue3      Int?           @default(9)
+  statName4       String?        @default("Durability")
+  statValue4      Int?           @default(9)
+  statName5       String?        @default("Rizz")
+  statValue5      Int?           @default(9)
+  statName6       String?        @default("Skibidi")
+  statValue6      Int?           @default(9)
+
+  // Goal Stats
+  goalStat1Name   String?        @default("Principled|Chaotic")
+  goalStat1Value  Int?           @default(0)
+  goalStat2Name   String?        @default("Introvert|Extrovert")
+  goalStat2Value  Int?           @default(0)
+  goalStat3Name   String?        @default("Passive|Aggressive")
+  goalStat3Value  Int?           @default(0)
+  goalStat4Name   String?        @default("Optimist|Pessimist")
+  goalStat4Value  Int?           @default(0)
+
   quirks          String?        @db.VarChar(2048) 
   skills          String?        @db.VarChar(2048) 
   genre           String?        @db.VarChar(256) 
@@ -192,7 +205,9 @@ model Character {
   isPublic        Boolean        @default(false)
   userId          Int           @default(10)
   User            User          @relation(fields: [userId], references: [id])
+  Rewards         Reward[]
 }
+
 
 
 enum ChatType {
@@ -420,6 +435,7 @@ model Reward {
   ArtImage   ArtImage?
   User       User?     @relation(fields: [userId], references: [id])
   Reactions  Reaction[]
+  Characters Character[]
 
   @@index([userId], map: "Reward_userId_fkey")
 }

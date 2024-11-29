@@ -2,21 +2,50 @@ import { defineEventHandler } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
-export default defineEventHandler(async () => {
-  console.log('Starting character retrieval...')
-
+export default defineEventHandler(async (event) => {
   try {
-    console.log('Fetching characters from the database')
+    const id = event.context.params?.id ? Number(event.context.params.id) : null
 
-    // Fetch all characters from the database
-    const data = await prisma.character.findMany()
+    // Validate the ID if provided
+    if (id !== null && (isNaN(id) || id <= 0)) {
+      return {
+        success: false,
+        message: 'Invalid ID. It must be a positive integer.',
+        statusCode: 400,
+      }
+    }
 
-    console.log('Characters fetched successfully:', data)
+    let data
+
+    if (id !== null) {
+      // Fetch a specific character by ID
+      console.log(`Fetching character with ID: ${id}`)
+      data = await prisma.character.findUnique({
+        where: { id },
+      })
+
+      if (!data) {
+        return {
+          success: false,
+          message: `Character with ID ${id} not found.`,
+          statusCode: 404,
+        }
+      }
+
+      console.log(`Character with ID ${id} fetched successfully.`)
+    } else {
+      // Fetch all characters
+      console.log('Fetching all characters from the database')
+      data = await prisma.character.findMany()
+      console.log('All characters fetched successfully.')
+    }
 
     return {
       success: true,
-      message: 'Characters fetched successfully.',
-      data, // Return characters in the data field
+      message: id
+        ? `Character with ID ${id} fetched successfully.`
+        : 'All characters fetched successfully.',
+      data,
       statusCode: 200,
     }
   } catch (error: unknown) {

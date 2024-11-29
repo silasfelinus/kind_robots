@@ -93,7 +93,10 @@
           placeholder="Enter image prompt"
           class="border p-2 w-full rounded-md text-sm"
         ></textarea>
-        <button class="bg-green-500 text-white py-1 px-4 rounded-md text-sm mt-2">
+        <button
+          class="bg-green-500 text-white py-1 px-4 rounded-md text-sm mt-2"
+          @click="generateCharacterImage"
+        >
           Generate from Prompt
         </button>
       </div>
@@ -153,8 +156,11 @@
 
 <script setup>
 import { reactive, computed } from 'vue'
+import { useCharacterStore } from '@/stores/characterStore'
 
-const character = reactive({
+const characterStore = useCharacterStore()
+
+const character = reactive(characterStore.newCharacter || {
   name: '',
   alignment: '',
   class: '',
@@ -200,15 +206,23 @@ function roll3d6() {
   return Math.floor(Math.random() * 6 + 1) + Math.floor(Math.random() * 6 + 1) + Math.floor(Math.random() * 6 + 1)
 }
 
+async function generateCharacterImage() {
+  try {
+    await characterStore.generateCharacterImage(character.artImageId, character.artPrompt)
+  } catch (error) {
+    console.error('Error generating character image:', error)
+  }
+}
+
 function saveCharacter() {
-  console.log('Saving character:', character)
+  characterStore.createCharacter(character)
 }
 
 function loadCharacter() {
-  console.log('Loading character...')
+  characterStore.fetchCharacterById(character.artImageId)
 }
 
 function deleteCharacter() {
-  console.log('Deleting character...')
+  characterStore.deleteCharacter(character.artImageId)
 }
 </script>

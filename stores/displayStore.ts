@@ -7,6 +7,12 @@ export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 export type FullscreenState = 'nuxt' | 'fullscreen' | 'splash'
 
 interface DisplayStoreState {
+  previousStates: Partial<{
+    headerState: DisplayState
+    sidebarLeftState: DisplayState
+    sidebarRightState: DisplayState
+    footerState: DisplayState
+  }>
   headerState: DisplayState
   sidebarLeftState: DisplayState
   sidebarRightState: DisplayState
@@ -36,6 +42,7 @@ export type EffectId =
 export const useDisplayStore = defineStore('display', {
   state: (): DisplayStoreState => ({
     headerState: 'open',
+    previousStates: {},
     sidebarLeftState: 'compact',
     sidebarRightState: 'hidden',
     footerState: 'hidden',
@@ -277,25 +284,43 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    toggleFullScreen() {
+    toggleFullscreen() {
+      const defaultStates = {
+        headerState: this.headerState,
+        sidebarLeftState: this.sidebarLeftState,
+        sidebarRightState: this.sidebarRightState,
+        footerState: this.footerState,
+      }
+
       if (this.fullscreenState === 'nuxt') {
-        // Move to fullscreen state
+        // Save current states for restoration
+        this.previousStates = { ...defaultStates }
+
+        // Switch to fullscreen
         this.fullscreenState = 'fullscreen'
         this.isFullScreen = true
-        this.sidebarRightState = 'open'
-        this.showTutorial = true
-      } else if (this.fullscreenState === 'fullscreen') {
-        // Move to splash state
-        this.fullscreenState = 'splash'
+
+        // Close other elements
+        this.headerState = 'hidden'
+        this.sidebarLeftState = 'hidden'
         this.sidebarRightState = 'hidden'
-        this.isFullScreen = false
-        this.showTutorial = true
+        this.footerState = 'hidden'
       } else {
-        // Move back to nuxt state
+        // Restore previous states
         this.fullscreenState = 'nuxt'
         this.isFullScreen = false
-        this.sidebarRightState = 'hidden'
-        this.showTutorial = false
+
+        // Restore states if previously saved, else revert to defaults
+        this.headerState =
+          this.previousStates?.headerState || defaultStates.headerState
+        this.sidebarLeftState =
+          this.previousStates?.sidebarLeftState ||
+          defaultStates.sidebarLeftState
+        this.sidebarRightState =
+          this.previousStates?.sidebarRightState ||
+          defaultStates.sidebarRightState
+        this.footerState =
+          this.previousStates?.footerState || defaultStates.footerState
       }
 
       this.saveState()

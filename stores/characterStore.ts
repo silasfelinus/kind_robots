@@ -6,10 +6,45 @@ export const useCharacterStore = defineStore({
   id: 'characterStore',
 
   state: () => ({
-    characters: JSON.parse(
-      localStorage.getItem('characters') || '[]',
-    ) as Character[], // All fetched characters
-    newCharacter: null as Partial<Character> | null, // A new character being created
+    characters: [] as Character[],
+    newCharacter: {
+      name: 'Spaghetti-Man',
+      alignment: 'Chaotic Neutral',
+      class: 'Cryptid Accountant',
+      level: 1,
+      experience: 0,
+      artPrompt: '',
+      artImageId: null,
+      species: 'Ethereal Cryptid',
+      backstory:
+        'Once a myth whispered in laundromats, Spaghetti-Man emerged to ensure socks never form pairs in the universe.',
+      drive: 'Stealing socks to balance cosmic accounts',
+      inventory:
+        'Single socks of all colors and textures, a balance sheet from beyond',
+      quirks: 'Steals socks|Only eats spaghetti|Talks in riddles',
+      skills: 'Sock Snatching|Ghostly Calculations|Cosmic Disruptions',
+      genre: 'Fantasy/Comedy',
+      statName1: 'Luck',
+      statValue1: 12,
+      statName2: 'Swol',
+      statValue2: 9,
+      statName3: 'Wits',
+      statValue3: 15,
+      statName4: 'Durability',
+      statValue4: 8,
+      statName5: 'Rizz',
+      statValue5: 11,
+      statName6: 'Skibidi',
+      statValue6: 10,
+      goalStat1Name: 'Principled|Chaotic',
+      goalStat1Value: 5,
+      goalStat2Name: 'Introvert|Extrovert',
+      goalStat2Value: -3,
+      goalStat3Name: 'Passive|Aggressive',
+      goalStat3Value: 2,
+      goalStat4Name: 'Optimist|Pessimist',
+      goalStat4Value: -1,
+    } as Character,
     selectedCharacter: null as Character | null, // Currently selected character
     characterForm: null as Partial<Character> | null, // Temporary character edits or drafts
     loading: false,

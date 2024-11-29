@@ -3,7 +3,7 @@
   <div class="h-full flex flex-col relative z-10">
     <!-- Fullscreen Toggle Icon (always visible) -->
     <div
-      class="fixed top-2 left-2 z-40 cursor-pointer bg-base-200 p-2 rounded-full shadow-md hover:bg-base-300 transition"
+      class="fixed top-2 left-2 z-20 cursor-pointer bg-base-200 p-2 rounded-full shadow-md hover:bg-base-300 transition"
       @click="toggleBigMode"
     >
       <icon v-if="!isBigMode" name="expand" class="text-xl" />
@@ -25,14 +25,14 @@
         />
         <NuxtPage
           v-else
-          class="h-full w-full z-10 no-scrollbar rounded-2xl box-border bg-base-300 border-1 border-accent"
+          class="relative h-full w-full z-10 no-scrollbar rounded-2xl box-border bg-base-300 border-1 border-accent"
         />
       </div>
 
       <!-- Desktop View -->
       <div v-else key="desktop-view" :class="containerClass" :style="viewStyle">
         <NuxtPage
-          class="h-full w-full rounded-2xl box-border bg-base-300 border-1 border-accent"
+          class="relative h-full w-full rounded-2xl box-border bg-base-300 border-1 border-accent z-10"
         />
       </div>
     </transition>

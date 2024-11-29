@@ -40,7 +40,7 @@
   <button
     v-if="isLargeViewport"
     class="bg-primary text-base-200 rounded-lg shadow-md hover:bg-primary-focus transition duration-300 z-40 p-1 ml-4"
-    @click="displayStore.toggleFullScreen"
+    @click="displayStore.toggleBigMode"
   >
     {{ displayStore.isFullScreen ? 'Two Columns' : 'Full Screen' }}
   </button>
@@ -97,7 +97,7 @@ const fullScreenButtonText = computed(() =>
 
 // Toggle full screen mode
 const toggleFullScreen = () => {
-  displayStore.toggleFullScreen()
+  displayStore.toggleBigMode()
 }
 </script>
 

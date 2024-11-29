@@ -30,7 +30,7 @@ const displayStore = useDisplayStore()
 const isFullScreen = computed(() => displayStore.isFullScreen)
 
 const toggleFullScreen = () => {
-  displayStore.toggleFullScreen()
+  displayStore.toggleBigMode()
 }
 </script>
 

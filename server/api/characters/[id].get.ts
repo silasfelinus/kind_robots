@@ -1,5 +1,4 @@
 import { defineEventHandler } from 'h3'
-import type { Character } from '@prisma/client'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
 
@@ -18,7 +17,9 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch the character by ID
-    const data = await fetchCharacterById(id)
+    const data = prisma.character.findUnique({
+      where: { id },
+    })
     if (!data) {
       return {
         success: false,
@@ -40,17 +41,3 @@ export default defineEventHandler(async (event) => {
 
   return response
 })
-
-export async function fetchCharacterById(id: number): Promise<Character | null> {
-  try {
-    // Fetch the character by ID without including related data
-    const character = await prisma.character.findUnique({
-      where: { id },
-    })
-
-    return character || null
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    throw new Error(handledError.message)
-  }
-}

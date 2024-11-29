@@ -6,7 +6,9 @@ export const useCharacterStore = defineStore({
   id: 'characterStore',
 
   state: () => ({
-    characters: JSON.parse(localStorage.getItem('characters') || '[]') as Character[], // All fetched characters
+    characters: JSON.parse(
+      localStorage.getItem('characters') || '[]',
+    ) as Character[], // All fetched characters
     newCharacter: null as Partial<Character> | null, // A new character being created
     selectedCharacter: null as Character | null, // Currently selected character
     characterForm: null as Partial<Character> | null, // Temporary character edits or drafts
@@ -36,15 +38,14 @@ export const useCharacterStore = defineStore({
     async fetchCharacters() {
       try {
         this.loading = true
-        const response = await performFetch<{ data: Character[] }>(
-          '/api/characters',
-        )
-        if (response.success && response.data) {
-          this.characters = response.data
+        const response = await performFetch<Character[]>('/api/characters')
+
+        if (response?.success && response.data) {
+          this.characters = response.data // Correctly extract and assign `data`
           console.log('Fetched characters:', this.characters)
           this.syncToLocalStorage()
         } else {
-          throw new Error(response.message)
+          throw new Error(response?.message || 'Error fetching characters')
         }
       } catch (error) {
         handleError(error, 'fetching characters')
@@ -64,14 +65,16 @@ export const useCharacterStore = defineStore({
     async fetchCharacterById(id: number) {
       try {
         this.loading = true
-        const response = await performFetch<{ data: Character }>(
-          `/api/characters/${id}`,
-        )
-        if (response.success && response.data) {
-          this.selectedCharacter = response.data
-          console.log(`Fetched character with ID ${id}:`, this.selectedCharacter)
+        const response = await performFetch<Character>(`/api/characters/${id}`)
+
+        if (response?.success && response.data) {
+          this.selectedCharacter = response.data // Correctly extract and assign `data`
+          console.log(
+            `Fetched character with ID ${id}:`,
+            this.selectedCharacter,
+          )
         } else {
-          throw new Error(response.message)
+          throw new Error(response?.message || 'Error fetching character by ID')
         }
       } catch (error) {
         handleError(error, `fetching character with ID ${id}`)
@@ -83,20 +86,18 @@ export const useCharacterStore = defineStore({
     async createCharacter(character: Partial<Character>) {
       try {
         this.loading = true
-        const response = await performFetch<{ data: Character }>(
-          '/api/characters',
-          {
-            method: 'POST',
-            body: JSON.stringify(character),
-            headers: { 'Content-Type': 'application/json' },
-          },
-        )
-        if (response.success && response.data) {
-          this.characters.push(response.data)
+        const response = await performFetch<Character>('/api/characters', {
+          method: 'POST',
+          body: JSON.stringify(character),
+          headers: { 'Content-Type': 'application/json' },
+        })
+
+        if (response?.success && response.data) {
+          this.characters.push(response.data) // Correctly extract and assign `data`
           console.log('Character created successfully:', response.data)
           this.syncToLocalStorage()
         } else {
-          throw new Error(response.message)
+          throw new Error(response?.message || 'Error creating character')
         }
       } catch (error) {
         handleError(error, 'creating character')
@@ -108,7 +109,7 @@ export const useCharacterStore = defineStore({
     async updateCharacter(id: number, characterUpdates: Partial<Character>) {
       try {
         this.loading = true
-        const response = await performFetch<{ data: Character }>(
+        const response = await performFetch<Character>(
           `/api/characters/${id}`,
           {
             method: 'PATCH',
@@ -116,15 +117,16 @@ export const useCharacterStore = defineStore({
             headers: { 'Content-Type': 'application/json' },
           },
         )
-        if (response.success && response.data) {
+
+        if (response?.success && response.data) {
           const index = this.characters.findIndex((c) => c.id === id)
           if (index !== -1) {
-            this.characters[index] = response.data
+            this.characters[index] = response.data // Correctly extract and assign `data`
           }
           console.log(`Character with ID ${id} updated successfully.`)
           this.syncToLocalStorage()
         } else {
-          throw new Error(response.message)
+          throw new Error(response?.message || 'Error updating character')
         }
       } catch (error) {
         handleError(error, `updating character with ID ${id}`)
@@ -136,15 +138,19 @@ export const useCharacterStore = defineStore({
     async deleteCharacter(id: number) {
       try {
         this.loading = true
-        const response = await performFetch(`/api/characters/${id}`, {
+        const response = await performFetch<{
+          success: boolean
+          message?: string
+        }>(`/api/characters/${id}`, {
           method: 'DELETE',
         })
-        if (response.success) {
+
+        if (response?.success) {
           this.characters = this.characters.filter((c) => c.id !== id)
           console.log(`Character with ID ${id} deleted successfully.`)
           this.syncToLocalStorage()
         } else {
-          throw new Error(response.message)
+          throw new Error(response?.message || 'Error deleting character')
         }
       } catch (error) {
         handleError(error, `deleting character with ID ${id}`)
@@ -156,7 +162,7 @@ export const useCharacterStore = defineStore({
     async generateCharacterImage(id: number, artPrompt: string) {
       try {
         this.loading = true
-        const response = await performFetch<{ data: Character }>(
+        const response = await performFetch<Character>(
           `/api/characters/${id}`,
           {
             method: 'PATCH',
@@ -164,17 +170,20 @@ export const useCharacterStore = defineStore({
             headers: { 'Content-Type': 'application/json' },
           },
         )
-        if (response.success && response.data) {
+
+        if (response?.success && response.data) {
           const index = this.characters.findIndex((c) => c.id === id)
           if (index !== -1) {
-            this.characters[index] = response.data
+            this.characters[index] = response.data // Correctly extract and assign `data`
           }
           console.log(
             `Character image for ID ${id} updated successfully with prompt: "${artPrompt}"`,
           )
           this.syncToLocalStorage()
         } else {
-          throw new Error(response.message)
+          throw new Error(
+            response?.message || 'Error generating character image',
+          )
         }
       } catch (error) {
         handleError(error, `generating character image for ID ${id}`)

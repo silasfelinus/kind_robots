@@ -38,7 +38,6 @@ export default defineEventHandler(async (event) => {
       level: characterData.level || 1,
       experience: characterData.experience || 0,
       class: characterData.class || null,
-      gender: characterData.gender || null,
       species: characterData.species || null,
       backstory: characterData.backstory || null,
       drive: characterData.drive || null,

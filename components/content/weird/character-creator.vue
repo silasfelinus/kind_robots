@@ -1,12 +1,17 @@
 <template>
   <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto">
     <!-- Top Section: Name, Alignment, Level, and Save/Load/Delete -->
-    <div class="flex items-center justify-between h-[10%] bg-accent rounded-lg shadow-md px-4 py-2">
+    <div
+      class="flex items-center justify-between h-[10%] bg-accent rounded-lg shadow-md px-4 py-2"
+    >
       <!-- Character Name and Class -->
       <div class="flex flex-col flex-grow">
         <h1 class="text-4xl font-bold text-white truncate">
           {{ character.name || 'Unnamed Hero' }}
-          <span v-if="character.class" class="text-2xl font-light text-gray-200">
+          <span
+            v-if="character.class"
+            class="text-2xl font-light text-gray-200"
+          >
             the {{ character.class }}
           </span>
         </h1>
@@ -41,9 +46,13 @@
     </div>
 
     <!-- Middle Section: Stats and Portrait -->
-    <div class="flex flex-row justify-between items-start h-[40%] mt-4 space-x-4">
+    <div
+      class="flex flex-row justify-between items-start h-[40%] mt-4 space-x-4"
+    >
       <!-- Stats Section -->
-      <div class="w-[70%] flex flex-col bg-base-300 border border-gray-400 rounded-lg shadow-md p-4">
+      <div
+        class="w-[70%] flex flex-col bg-base-300 border border-gray-400 rounded-lg shadow-md p-4"
+      >
         <div class="flex flex-row justify-between">
           <div
             v-for="i in statKeys.length"
@@ -56,7 +65,9 @@
               class="text-sm font-bold uppercase text-center text-gray-700 bg-transparent border-none outline-none"
               :placeholder="'Stat ' + i"
             />
-            <span class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2">
+            <span
+              class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2"
+            >
               {{ character[`statValue${i}`] || 0 }}
             </span>
           </div>
@@ -85,7 +96,9 @@
           alt="Default Portrait"
           class="object-cover w-full h-2/3 rounded-lg mb-4"
         />
-        <button class="bg-blue-500 text-white py-1 px-4 rounded-md text-sm mb-2">
+        <button
+          class="bg-blue-500 text-white py-1 px-4 rounded-md text-sm mb-2"
+        >
           Upload Image
         </button>
         <textarea
@@ -106,14 +119,18 @@
     <div class="flex flex-row justify-between h-[50%] mt-4 space-x-4">
       <!-- Left Column: Quirks, Skills -->
       <div class="w-1/2 flex flex-col space-y-4">
-        <div class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md">
+        <div
+          class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md"
+        >
           <h2 class="text-lg font-bold text-gray-700">Quirks</h2>
           <ul class="list-disc ml-4 text-sm text-gray-500">
             <li v-for="quirk in quirksArray" :key="quirk">{{ quirk }}</li>
             <li v-if="quirksArray.length === 0">No quirks specified.</li>
           </ul>
         </div>
-        <div class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md">
+        <div
+          class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md"
+        >
           <h2 class="text-lg font-bold text-gray-700">Skills</h2>
           <ul class="list-disc ml-4 text-sm text-gray-500">
             <li v-for="skill in skillsArray" :key="skill">{{ skill }}</li>
@@ -124,26 +141,34 @@
 
       <!-- Right Column: Inventory, Drive, Species, Genre -->
       <div class="w-1/2 flex flex-col space-y-4">
-        <div class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md">
+        <div
+          class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md"
+        >
           <h2 class="text-lg font-bold text-gray-700">Inventory</h2>
           <ul class="list-disc ml-4 text-sm text-gray-500">
             <li v-for="item in inventoryArray" :key="item">{{ item }}</li>
             <li v-if="inventoryArray.length === 0">No inventory specified.</li>
           </ul>
         </div>
-        <div class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md">
+        <div
+          class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md"
+        >
           <h2 class="text-lg font-bold text-gray-700">Drive</h2>
           <p class="text-sm text-gray-500">
             {{ character.drive || 'No drive specified.' }}
           </p>
         </div>
-        <div class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md">
+        <div
+          class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md"
+        >
           <h2 class="text-lg font-bold text-gray-700">Species</h2>
           <p class="text-sm text-gray-500">
             {{ character.species || 'No species specified.' }}
           </p>
         </div>
-        <div class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md">
+        <div
+          class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md"
+        >
           <h2 class="text-lg font-bold text-gray-700">Genre</h2>
           <p class="text-sm text-gray-500">
             {{ character.genre || 'No genre specified.' }}
@@ -160,13 +185,19 @@ import { useCharacterStore } from '@/stores/characterStore'
 
 const characterStore = useCharacterStore()
 
-const character = computed(() => characterStore.newCharacter || characterStore.createEmptyCharacter())
+const character = computed(() => characterStore.newCharacter)
 
 const statKeys = [1, 2, 3, 4, 5, 6]
 
-const quirksArray = computed(() => (character.value.quirks ? character.value.quirks.split('|!') : []))
-const skillsArray = computed(() => (character.value.skills ? character.value.skills.split('|!') : []))
-const inventoryArray = computed(() => (character.value.inventory ? character.value.inventory.split('|!') : []))
+const quirksArray = computed(() =>
+  character.value.quirks ? character.value.quirks.split('|!') : [],
+)
+const skillsArray = computed(() =>
+  character.value.skills ? character.value.skills.split('|!') : [],
+)
+const inventoryArray = computed(() =>
+  character.value.inventory ? character.value.inventory.split('|!') : [],
+)
 
 function rerollStats() {
   characterStore.rerollStats()

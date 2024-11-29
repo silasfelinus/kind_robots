@@ -155,74 +155,37 @@
 </template>
 
 <script setup>
-import { reactive, computed } from 'vue'
+import { computed } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 
 const characterStore = useCharacterStore()
 
-const character = reactive(characterStore.newCharacter || {
-  name: '',
-  alignment: '',
-  class: '',
-  level: 1,
-  experience: 0,
-  artImageId: null,
-  artPrompt: '',
-  quirks: '',
-  skills: '',
-  inventory: '',
-  drive: '',
-  species: '',
-  genre: '',
-  statName1: 'Strength',
-  statValue1: 10,
-  statName2: 'Dexterity',
-  statValue2: 10,
-  statName3: 'Constitution',
-  statValue3: 10,
-  statName4: 'Intelligence',
-  statValue4: 10,
-  statName5: 'Wisdom',
-  statValue5: 10,
-  statName6: 'Charisma',
-  statValue6: 10,
-})
+const character = computed(() => characterStore.newCharacter || characterStore.createEmptyCharacter())
 
 const statKeys = [1, 2, 3, 4, 5, 6]
 
-const quirksArray = computed(() => (character.quirks ? character.quirks.split('|!') : []))
-const skillsArray = computed(() => (character.skills ? character.skills.split('|!') : []))
-const inventoryArray = computed(() =>
-  character.inventory ? character.inventory.split('|!') : []
-)
+const quirksArray = computed(() => (character.value.quirks ? character.value.quirks.split('|!') : []))
+const skillsArray = computed(() => (character.value.skills ? character.value.skills.split('|!') : []))
+const inventoryArray = computed(() => (character.value.inventory ? character.value.inventory.split('|!') : []))
 
 function rerollStats() {
-  statKeys.forEach((key) => {
-    character[`statValue${key}`] = roll3d6()
-  })
-}
-
-function roll3d6() {
-  return Math.floor(Math.random() * 6 + 1) + Math.floor(Math.random() * 6 + 1) + Math.floor(Math.random() * 6 + 1)
-}
-
-async function generateCharacterImage() {
-  try {
-    await characterStore.generateCharacterImage(character.artImageId, character.artPrompt)
-  } catch (error) {
-    console.error('Error generating character image:', error)
-  }
+  characterStore.rerollStats()
 }
 
 function saveCharacter() {
-  characterStore.createCharacter(character)
+  characterStore.saveNewCharacter()
 }
 
 function loadCharacter() {
-  characterStore.fetchCharacterById(character.artImageId)
+  characterStore.loadCharacterById(character.value.id)
 }
 
 function deleteCharacter() {
-  characterStore.deleteCharacter(character.artImageId)
+  characterStore.deleteCharacter(character.value.id)
+}
+
+async function generateCharacterImage() {
+  if (!character.value.artPrompt) return
+  await characterStore.generateCharacterImage(character.value.artPrompt)
 }
 </script>

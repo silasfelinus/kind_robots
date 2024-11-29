@@ -1,7 +1,7 @@
 <template>
-  <div class="flex h-screen w-full">
+  <div class="flex h-full w-full">
     <!-- Character Sheet -->
-    <div class="w-4/5 p-6 bg-gray-100 overflow-auto">
+    <div class="bg-gray-100 overflow-auto">
       <h1 class="text-3xl font-bold mb-4">Character Sheet</h1>
 
       <!-- Character Image -->

@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto">
+  <div class="container mx-auto overflow-y-auto">
     <!-- Responsive layout for Brainstorm Image and Temperature Slider -->
     <div class="flex flex-col md:flex-row md:space-x-4">
       <!-- Image occupies half width on medium and larger screens -->

@@ -31,18 +31,18 @@
 
     <!-- Main Content -->
     <main
-      class="fixed z-10 rounded-2xl overflow-hidden box-border transition-all duration-600 ease-in-out"
+      class="fixed z-10 rounded-2xl box-border transition-all duration-600 ease-in-out"
       :style="mainContentStyle"
     >
       <main-content />
       <!-- Right Toggle (Top-right corner of the sidebar) -->
       <div
-        class="absolute top-2 left-0 m-1 z-50 rounded-2xl border-1 border-accent"
+        class="absolute top-1 left-0 m-1 z-50 rounded-2xl border-1 border-accent"
       >
         <big-toggle />
       </div>
       <div
-        class="absolute top-2 right-0 z-50 rounded-2xl border-1 border-accent"
+        class="absolute top-1 right-0 z-50 rounded-2xl border-1 border-accent"
       >
         <right-toggle />
       </div>

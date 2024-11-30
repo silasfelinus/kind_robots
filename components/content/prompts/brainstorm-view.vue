@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto overflow-y-auto">
+  <div class="container mx-auto">
     <!-- Responsive layout for Brainstorm Image and Temperature Slider -->
     <div class="flex flex-col md:flex-row md:space-x-4">
       <!-- Image occupies half width on medium and larger screens -->
@@ -21,7 +21,7 @@
     <section v-if="pitches.length" class="mt-6">
       <h3 class="text-xl font-bold mb-4">Pitches</h3>
       <div
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto"
       >
         <PitchCard
           v-for="pitch in pitches"

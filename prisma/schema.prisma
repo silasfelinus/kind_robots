@@ -161,6 +161,7 @@ model Character {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime?      @default(now()) @updatedAt
   name            String         @db.VarChar(256)
+  honorific      String?        @default("adventurer")
   achievements    String?        @db.VarChar(256)
   alignment       String?        @db.VarChar(256)
   experience      Int?           @default(0)

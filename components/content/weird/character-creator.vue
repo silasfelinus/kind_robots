@@ -5,14 +5,14 @@
       <!-- Character Name and Class -->
       <div class="flex flex-col flex-grow">
         <h1 class="text-4xl font-bold text-white truncate">
-          {{ character.name || 'Unnamed Hero' }}
+          {{ character.name || 'Kind Hero' }}
           <span v-if="character.class" class="text-2xl font-light text-gray-200">
-            the {{ character.class }}
+            the {{ character.honorific }}
           </span>
         </h1>
         <div class="flex space-x-6 text-sm text-gray-200 mt-1">
           <span>Alignment: {{ character.alignment || 'Neutral' }}</span>
-          <span>Level: {{ character.level || 1 }}</span>
+          <span>level: {{ character.level || 1 }}</span>
         </div>
       </div>
 
@@ -134,7 +134,7 @@ import { reactive } from 'vue'
 
 const character = reactive({
   name: '',
-  alignment: '',
+  honorific: ''
   class: '',
   level: 1,
   artImageId: null,
@@ -145,18 +145,20 @@ const character = reactive({
   inventory: '',
   drive: '',
   genre: '',
-  statName1: 'Strength',
+  artPrompt: '',
+  statName1: 'Luck',
   statValue1: 10,
-  statName2: 'Dexterity',
+  statName2: 'Swol',
   statValue2: 10,
-  statName3: 'Constitution',
+  statName3: 'Brains',
   statValue3: 10,
-  statName4: 'Intelligence',
+  statName4: 'Fortitude',
   statValue4: 10,
-  statName5: 'Wisdom',
+  statName5: 'Rizz',
   statValue5: 10,
-  statName6: 'Charisma',
+  statName6: 'Athletics',
   statValue6: 10,
+  isPublic: true,
 })
 
 // Handlers for Save, Load, and Delete

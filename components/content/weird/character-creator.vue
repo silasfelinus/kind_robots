@@ -130,7 +130,7 @@
 
 <script setup>
 import { reactive } from 'vue'
-import ImageSection from './ImageSection.vue'
+
 
 const character = reactive({
   name: '',

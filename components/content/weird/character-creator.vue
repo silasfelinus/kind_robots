@@ -39,40 +39,48 @@
       </div>
     </div>
 
-    <!-- Middle Section: Stats in Two Rows -->
-    <div class="flex flex-col items-center mt-4 h-[25%] bg-base-200 rounded-lg shadow-md p-4">
-      <div class="flex flex-row justify-between w-full">
-        <div
-          v-for="i in 3"
-          :key="'stat-row1-' + i"
-          class="flex flex-col items-center justify-center w-[30%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
-        >
-          <span class="text-sm font-bold uppercase text-gray-700">
-            {{ character[`statName${i}`] || `Stat ${i}` }}
-          </span>
-          <span class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2">
-            {{ character[`statValue${i}`] || 0 }}
-          </span>
+    <!-- Middle Section: Stats and Image -->
+    <div class="flex flex-row justify-between items-start h-[40%] mt-4 space-x-4">
+      <!-- Stats Section -->
+      <div class="w-[70%] flex flex-col items-center bg-base-200 rounded-lg shadow-md p-4">
+        <div class="flex flex-row justify-between w-full">
+          <div
+            v-for="i in 3"
+            :key="'stat-row1-' + i"
+            class="flex flex-col items-center justify-center w-[30%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
+          >
+            <span class="text-sm font-bold uppercase text-gray-700">
+              {{ character[`statName${i}`] || `Stat ${i}` }}
+            </span>
+            <span class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2">
+              {{ character[`statValue${i}`] || 0 }}
+            </span>
+          </div>
+        </div>
+        <div class="flex flex-row justify-between w-full mt-4">
+          <div
+            v-for="i in [4, 5, 6]"
+            :key="'stat-row2-' + i"
+            class="flex flex-col items-center justify-center w-[30%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
+          >
+            <span class="text-sm font-bold uppercase text-gray-700">
+              {{ character[`statName${i}`] || `Stat ${i}` }}
+            </span>
+            <span class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2">
+              {{ character[`statValue${i}`] || 0 }}
+            </span>
+          </div>
         </div>
       </div>
-      <div class="flex flex-row justify-between w-full mt-4">
-        <div
-          v-for="i in [4, 5, 6]"
-          :key="'stat-row2-' + i"
-          class="flex flex-col items-center justify-center w-[30%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
-        >
-          <span class="text-sm font-bold uppercase text-gray-700">
-            {{ character[`statName${i}`] || `Stat ${i}` }}
-          </span>
-          <span class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2">
-            {{ character[`statValue${i}`] || 0 }}
-          </span>
-        </div>
+
+      <!-- Image Section -->
+      <div class="w-[30%]">
+        <ImageSection :imageId="character.artImageId" />
       </div>
     </div>
 
     <!-- Bottom Section: Balanced Layout -->
-    <div class="flex flex-row justify-between items-start mt-4 h-[55%] space-x-4">
+    <div class="flex flex-row justify-between items-start mt-4 h-[50%] space-x-4">
       <!-- Left Column -->
       <div class="w-[48%] flex flex-col space-y-4">
         <div class="bg-base-300 border border-gray-400 rounded-lg p-4 shadow-md">
@@ -122,6 +130,7 @@
 
 <script setup>
 import { reactive } from 'vue'
+import ImageSection from './ImageSection.vue'
 
 const character = reactive({
   name: '',
@@ -136,22 +145,19 @@ const character = reactive({
   inventory: '',
   drive: '',
   genre: '',
-  statName1: 'Luck',
+  statName1: 'Strength',
   statValue1: 10,
-  statName2: 'Swol',
+  statName2: 'Dexterity',
   statValue2: 10,
-  statName3: 'Wits',
+  statName3: 'Constitution',
   statValue3: 10,
-  statName4: 'Fortitude',
+  statName4: 'Intelligence',
   statValue4: 10,
-  statName5: 'Rizz',
+  statName5: 'Wisdom',
   statValue5: 10,
-  statName6: 'Empathy',
+  statName6: 'Charisma',
   statValue6: 10,
 })
-
-// Dynamically get the stat keys for rendering
-const statKeys = [1, 2, 3, 4, 5, 6]
 
 // Handlers for Save, Load, and Delete
 function saveCharacter() {

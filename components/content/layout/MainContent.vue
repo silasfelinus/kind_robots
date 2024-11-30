@@ -16,14 +16,14 @@
         />
         <NuxtPage
           v-else
-          class="relative h-full w-full z-10 no-scrollbar rounded-2xl box-border bg-base-300 border-1 border-accent"
+          class="relative h-full w-full z-10 no-scrollbar overflow-y-auto rounded-2xl box-border bg-base-300 border-1 border-accent"
         />
       </div>
 
       <!-- Desktop View -->
       <div v-else key="desktop-view" :class="containerClass" :style="viewStyle">
         <NuxtPage
-          class="relative h-full w-full rounded-2xl box-border bg-base-300 border-1 border-accent z-10"
+          class="relative h-full w-full rounded-2xl overflow-y-auto box-border bg-base-300 border-1 border-accent z-10"
         />
       </div>
     </transition>

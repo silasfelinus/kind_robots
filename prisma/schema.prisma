@@ -180,11 +180,11 @@ model Character {
   statValue2      Int?           @default(9)
   statName3       String?        @default("Wits")
   statValue3      Int?           @default(9)
-  statName4       String?        @default("Durability")
+  statName4       String?        @default("Fortitude")
   statValue4      Int?           @default(9)
   statName5       String?        @default("Rizz")
   statValue5      Int?           @default(9)
-  statName6       String?        @default("Skibidi")
+  statName6       String?        @default("Empathy")
   statValue6      Int?           @default(9)
 
   // Goal Stats

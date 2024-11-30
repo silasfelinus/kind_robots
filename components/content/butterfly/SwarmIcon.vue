@@ -25,20 +25,16 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
 
-const router = useRouter()
-const route = useRoute()
+
+
 
 // Reactive variable for toggling the swarm
 const showSwarm = ref(false)
 
 // Toggle the butterfly swarm on and off
 const toggleAmiSwarm = () => {
-  if (route.path !== '/butterflies' && showSwarm.value === false) {
-    router.push('/butterflies') // Navigate to /butterflies if not already there
-  }
-
+  
   showSwarm.value = !showSwarm.value // Toggle the swarm
 }
 </script>

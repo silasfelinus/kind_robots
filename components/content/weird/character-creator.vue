@@ -157,7 +157,7 @@
       ></textarea>
 
       <!-- Other Fields -->
-      <div class="flex flex-row justify-between space-x-4 h-[50%]">
+      <div class="flex flex-row justify-between space-x-4 p-2 h-[50%]">
         <textarea v-model="character.quirks" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Quirks..."></textarea>
         <textarea v-model="character.inventory" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Inventory..."></textarea>
         <textarea v-model="character.skills" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Skills..."></textarea>

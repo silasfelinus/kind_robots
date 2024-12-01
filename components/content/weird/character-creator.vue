@@ -130,7 +130,20 @@
           alt="Default Portrait"
           class="object-cover w-full h-60 rounded-lg"
         />
-        <character-uploader @uploaded="setArtImageId" />
+        <textarea
+          v-model="character.artPrompt"
+          placeholder="Describe your character to generate art..."
+          class="w-full bg-base-200 text-white p-3 rounded-lg h-32 focus:outline-none"
+        ></textarea>
+        <div class="flex space-x-2">
+          <button
+            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg"
+            @click="generateArtImage"
+          >
+            Generate Art
+          </button>
+          <character-uploader @uploaded="setArtImageId" />
+        </div>
       </div>
     </div>
 
@@ -210,6 +223,15 @@ function rerollStats() {
       Math.floor(Math.random() * 6 + 1) +
       Math.floor(Math.random() * 6 + 1) +
       Math.floor(Math.random() * 6 + 1);
+  }
+}
+
+async function generateArtImage() {
+  try {
+    const artImageId = await artStore.generateArtImage(character.artPrompt);
+    character.artImageId = artImageId;
+  } catch (error) {
+    console.error('Error generating art image:', error);
   }
 }
 

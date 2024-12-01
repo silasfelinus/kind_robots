@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch the character by ID
-    const data = prisma.character.findUnique({
+    const data = await prisma.character.findUnique({
       where: { id },
     })
     if (!data) {

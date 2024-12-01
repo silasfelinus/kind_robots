@@ -48,6 +48,7 @@ export const useCharacterStore = defineStore({
     selectedCharacter: null as Character | null, // Currently selected character
     characterForm: null as Partial<Character> | null, // Temporary character edits or drafts
     loading: false,
+    isInitialized: false,
     error: '',
   }),
 
@@ -62,11 +63,16 @@ export const useCharacterStore = defineStore({
 
     async initialize() {
       console.log('Initializing character store...')
+      if (this.isInitialized) {
+        console.log('Character store is already initialized.')
+        return
+      }
       try {
         await this.fetchCharacters()
         console.log('Character store initialized successfully.')
+        this.isInitialized = true
       } catch (error) {
-        handleError(error, 'initializing character store')
+        handleError(error, 'Error while initializing the character store')
       }
     },
 

@@ -7,6 +7,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import { useUserStore } from './../../../stores/userStore'
 import { useArtStore } from './../../../stores/artStore'
+import { useCharacterStore } from './../../../stores/characterStore'
 import { useThemeStore } from './../../../stores/themeStore'
 import { useBotStore } from './../../../stores/botStore'
 import { useChatStore } from './../../../stores/chatStore'
@@ -30,6 +31,7 @@ const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
 const rewardStore = useRewardStore()
 const chatStore = useChatStore()
+const characterStore = useCharacterStore()
 
 // State management
 const isReady = ref(false)
@@ -59,6 +61,7 @@ onMounted(async () => {
       themeStore.initTheme?.(),
       reactionStore.initializeReactions?.(),
       rewardStore.initializeStore?.(),
+      characterStore.initialize?.(),
     ])
 
     console.log('All stores initialized successfully.')

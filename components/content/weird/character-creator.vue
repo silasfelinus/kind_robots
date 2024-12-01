@@ -50,14 +50,13 @@
       <!-- Level, Is Public, and Buttons -->
       <div class="flex flex-col items-end space-y-2">
         <div class="flex items-center space-x-2">
-     <label class="flex items-center text-white space-x-2">
+          <label class="flex items-center text-white space-x-2">
             <span>Public</span>
             <input type="checkbox" v-model="character.isPublic" class="checkbox checkbox-primary" />
           </label>
           <div class="bg-gray-900 text-white text-center rounded-lg px-4 py-2">
             <strong>Level:</strong> {{ character.level }}
           </div>
-     
         </div>
         <div class="flex space-x-2">
           <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg shadow-md text-sm" @click="saveCharacter">
@@ -131,20 +130,7 @@
           alt="Default Portrait"
           class="object-cover w-full h-60 rounded-lg"
         />
-        <textarea
-          v-model="character.artPrompt"
-          placeholder="Describe your character to generate art..."
-          class="w-full bg-base-200 text-white p-3 rounded-lg h-32 focus:outline-none"
-        ></textarea>
-        <div class="flex space-x-2">
-          <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg" @click="generateImage">
-            Generate
-          </button>
-          <label class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-lg cursor-pointer">
-            Upload
-            <input type="file" class="hidden" @change="uploadImage" />
-          </label>
-        </div>
+        <character-uploader @uploaded="setArtImageId" />
       </div>
     </div>
 
@@ -168,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
+import { computed, reactive, onMounted } from 'vue';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useArtStore } from '@/stores/artStore';
 
@@ -191,20 +177,24 @@ const character = reactive({
   inventory: '',
   backstory: '',
   statName1: 'Luck',
-  statValue1: 9,
+  statValue1: 0,
   statName2: 'Swol',
-  statValue2: 9,
+  statValue2: 0,
   statName3: 'Wits',
-  statValue3: 9,
+  statValue3: 0,
   statName4: 'Fortitude',
-  statValue4: 9,
+  statValue4: 0,
   statName5: 'Rizz',
-  statValue5: 9,
+  statValue5: 0,
   statName6: 'Empathy',
-  statValue6: 9,
+  statValue6: 0,
 });
 
 const artImage = computed(() => artStore.getArtImageById(character.artImageId));
+
+onMounted(() => {
+  rerollStats(); // Generate random stats on load
+});
 
 function saveCharacter() {
   characterStore.saveCharacter(character);
@@ -223,14 +213,7 @@ function rerollStats() {
   }
 }
 
-function generateImage() {
-  console.log('Generating image with prompt:', character.artPrompt);
-}
-
-function uploadImage(event) {
-  const file = event.target.files[0];
-  if (file) {
-    console.log('Uploading image:', file);
-  }
+function setArtImageId(artImageId: number) {
+  character.artImageId = artImageId;
 }
 </script>

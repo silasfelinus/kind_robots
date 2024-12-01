@@ -1,7 +1,7 @@
 <template>
-  <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto">
+  <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto space-y-4">
     <!-- Top Section: Name, Honorific, Species, Class, Genre, Level, Is Public, and Save/Generate -->
-    <div class="flex items-center justify-between h-[15%] bg-accent rounded-lg shadow-md px-4 py-2">
+    <div class="flex items-center justify-between bg-accent rounded-lg shadow-md px-4 py-2">
       <!-- Character Info -->
       <div class="flex flex-col flex-grow space-y-2">
         <h1 class="text-4xl font-bold text-white truncate">
@@ -59,10 +59,17 @@
           </div>
         </div>
         <div class="flex space-x-2">
-          <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg shadow-md text-sm" @click="saveCharacter">
-            Save
+          <button
+            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg shadow-md text-sm"
+            :disabled="isSaving"
+            @click="saveCharacter"
+          >
+            {{ isSaving ? 'Saving...' : 'Save' }}
           </button>
-          <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg shadow-md text-sm" @click="generateCharacter">
+          <button
+            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg shadow-md text-sm"
+            @click="generateCharacter"
+          >
             Generate
           </button>
         </div>
@@ -70,9 +77,9 @@
     </div>
 
     <!-- Middle Section: Stats and Image -->
-    <div class="flex flex-row justify-between items-start h-[50%] mt-4 space-x-4">
+    <div class="flex flex-row justify-between items-start space-x-4">
       <!-- Stats Section -->
-      <div class="w-[60%] flex flex-col items-center bg-base-200 rounded-lg shadow-md p-4">
+      <div class="w-[60%] flex flex-col items-center bg-base-200 rounded-lg shadow-md p-4 space-y-4">
         <div class="flex flex-row justify-between w-full">
           <div
             v-for="i in [1, 2, 3]"
@@ -92,7 +99,7 @@
             </span>
           </div>
         </div>
-        <div class="flex flex-row justify-between w-full mt-4">
+        <div class="flex flex-row justify-between w-full">
           <div
             v-for="i in [4, 5, 6]"
             :key="'stat-' + i"
@@ -111,13 +118,13 @@
             </span>
           </div>
         </div>
-        <button class="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-md" @click="rerollStats">
+        <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-md" @click="rerollStats">
           Reroll Stats
         </button>
       </div>
 
       <!-- Portrait and ArtPrompt Section -->
-      <div class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md">
+      <div class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md space-y-4 p-4">
         <img
           v-if="artImage"
           :src="artImage"
@@ -138,9 +145,10 @@
         <div class="flex space-x-2">
           <button
             class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg"
+            :disabled="isGeneratingArt"
             @click="generateArtImage"
           >
-            Generate Art
+            {{ isGeneratingArt ? 'Generating...' : 'Generate Art' }}
           </button>
           <character-uploader @uploaded="setArtImageId" />
         </div>
@@ -148,16 +156,16 @@
     </div>
 
     <!-- Bottom Section: Backstory and Other Fields -->
-    <div class="flex flex-col h-[35%]">
+    <div class="flex flex-col space-y-4">
       <!-- Backstory -->
       <textarea
         v-model="character.backstory"
-        class="bg-base-200 p-4 rounded-lg shadow-md h-[50%]"
+        class="bg-base-200 p-4 rounded-lg shadow-md"
         placeholder="Backstory..."
       ></textarea>
 
       <!-- Other Fields -->
-      <div class="flex flex-row justify-between space-x-4 p-2 h-[50%]">
+      <div class="flex flex-row justify-between space-x-4">
         <textarea v-model="character.quirks" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Quirks..."></textarea>
         <textarea v-model="character.inventory" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Inventory..."></textarea>
         <textarea v-model="character.skills" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Skills..."></textarea>
@@ -167,7 +175,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, onMounted } from 'vue';
+import { computed, reactive, ref, onMounted } from 'vue';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useArtStore } from '@/stores/artStore';
 
@@ -203,18 +211,40 @@ const character = reactive({
   statValue6: 0,
 });
 
-const artImage = computed(() => artStore.getArtImageById(character.artImageId));
+const isSaving = ref(false);
+const isGeneratingArt = ref(false);
+
+const artImage = computed(() => {
+  if (!character.artImageId) return null;
+  return artStore.getArtImageById(character.artImageId);
+});
 
 onMounted(() => {
   rerollStats(); // Generate random stats on load
 });
 
-function saveCharacter() {
-  characterStore.saveCharacter(character);
+async function saveCharacter() {
+  isSaving.value = true;
+  try {
+    await characterStore.saveCharacter(character);
+    alert('Character saved successfully!');
+  } catch (error) {
+    console.error('Error saving character:', error);
+  } finally {
+    isSaving.value = false;
+  }
 }
 
-function generateCharacter() {
-  characterStore.generateCharacter(character);
+async function generateArtImage() {
+  isGeneratingArt.value = true;
+  try {
+    const artImageId = await artStore.generateArtImage(character.artPrompt);
+    character.artImageId = artImageId;
+  } catch (error) {
+    console.error('Error generating art image:', error);
+  } finally {
+    isGeneratingArt.value = false;
+  }
 }
 
 function rerollStats() {
@@ -223,15 +253,6 @@ function rerollStats() {
       Math.floor(Math.random() * 6 + 1) +
       Math.floor(Math.random() * 6 + 1) +
       Math.floor(Math.random() * 6 + 1);
-  }
-}
-
-async function generateArtImage() {
-  try {
-    const artImageId = await artStore.generateArtImage(character.artPrompt);
-    character.artImageId = artImageId;
-  } catch (error) {
-    console.error('Error generating art image:', error);
   }
 }
 

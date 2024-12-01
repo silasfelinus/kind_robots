@@ -124,7 +124,7 @@
       </div>
 
       <!-- Portrait and ArtPrompt Section -->
-      <div class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md space-y-4 p-4">
+      <div class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md p-4">
         <img
           v-if="artImage"
           :src="artImage"
@@ -137,20 +137,15 @@
           alt="Default Portrait"
           class="object-cover w-full h-60 rounded-lg"
         />
-        <textarea
-          v-model="character.artPrompt"
-          placeholder="Describe your character to generate art..."
-          class="w-full bg-base-200 text-white p-3 rounded-lg h-32 focus:outline-none"
-        ></textarea>
-        <div class="flex space-x-2">
+        <div class="flex w-full space-x-2 mt-4">
           <button
-            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg"
+            class="bg-blue-500 hover:bg-blue-600 text-white w-1/2 px-3 py-1 rounded-lg"
             :disabled="isGeneratingArt"
             @click="generateArtImage"
           >
             {{ isGeneratingArt ? 'Generating...' : 'Generate Art' }}
           </button>
-          <character-uploader @uploaded="setArtImageId" />
+          <character-uploader class="w-1/2" @uploaded="setArtImageId" />
         </div>
       </div>
     </div>

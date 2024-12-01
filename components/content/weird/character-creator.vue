@@ -67,10 +67,24 @@
         </div>
       </div>
 
-      <!-- Image Section -->
-      <div class="w-[30%]">
-        <ImageSection :imageId="character.artImageId" />
+<!-- Portrait Section -->
+      <div
+        class="w-[30%] bg-gray-800 flex items-center justify-center rounded-lg shadow-md"
+      >
+        <img
+          v-if="character.artImageId"
+          :src="`/images/${character.artImageId}.jpg`"
+          alt="Character Portrait"
+          class="object-cover w-full h-full rounded-lg"
+        />
+        <img
+          v-else
+          src="/images/bot.webp"
+          alt="Default Portrait"
+          class="object-cover w-full h-full rounded-lg"
+        />
       </div>
+    
     </div>
 
     <!-- Bottom Section: Additional Fields -->

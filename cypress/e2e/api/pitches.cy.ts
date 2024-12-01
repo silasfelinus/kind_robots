@@ -19,7 +19,7 @@ describe('Pitch Management API Tests', () => {
       },
       body: {
         pitch: uniquePitchName,
-        PitchType: 'INSPIRATION',
+        PitchType: 'BRAINSTORM',
         userId: 9,
       },
       failOnStatusCode: false,
@@ -41,7 +41,7 @@ describe('Pitch Management API Tests', () => {
       },
       body: {
         pitch: uniquePitchName,
-        PitchType: 'INSPIRATION',
+        PitchType: 'BRAINSTORM',
         userId: 9,
       },
       failOnStatusCode: false,
@@ -61,7 +61,7 @@ describe('Pitch Management API Tests', () => {
       },
       body: {
         pitch: uniquePitchName,
-        PitchType: 'INSPIRATION',
+        PitchType: 'BRAINSTORM',
         userId: 9,
       },
     }).then((response) => {

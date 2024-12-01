@@ -97,14 +97,14 @@
             class="flex flex-col items-center justify-center w-[30%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
           >
             <input
-              v-model="character[`statName${i}`]"
+              v-model="character[`statName${i}` as keyof Character]"
               class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
             />
             <span
               class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2"
             >
               <input
-                v-model.number="character[`statValue${i}`]"
+                v-model.number="character[`statValue${i}` as keyof Character]"
                 type="number"
                 class="w-full bg-transparent text-center text-4xl font-bold focus:outline-none"
               />
@@ -118,14 +118,14 @@
             class="flex flex-col items-center justify-center w-[30%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
           >
             <input
-              v-model="character[`statName${i}`]"
+              v-model="character[`statName${i}` as keyof Character]"
               class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
             />
             <span
               class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2"
             >
               <input
-                v-model.number="character[`statValue${i}`]"
+                v-model.number="character[`statValue${i}` as keyof Character]"
                 type="number"
                 class="w-full bg-transparent text-center text-4xl font-bold focus:outline-none"
               />
@@ -203,9 +203,11 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useCharacterStore, type Character } from '@/stores/characterStore'
 import { useArtStore } from '@/stores/artStore'
+import { useUserStore } from '@/stores/userStore'
 
 const characterStore = useCharacterStore()
 const artStore = useArtStore()
+const userStore = useUserStore()
 
 const character = reactive<Partial<Character>>({
   name: '',
@@ -247,7 +249,7 @@ const artImage = computed(() => {
 })
 
 onMounted(() => {
-  rerollStats() // Generate random stats on load
+  rerollStats()
 })
 
 async function saveCharacter() {
@@ -274,8 +276,36 @@ async function generateCharacter() {
 async function generateArtImage() {
   isGeneratingArt.value = true
   try {
-    const artImageId = await artStore.generateArt(character.artPrompt)
-    character.artImageId = artImageId
+    if (!character.artPrompt) {
+      throw new Error('Art prompt is required to generate art.')
+    }
+
+    // Construct the GenerateArtData object
+    const artData: GenerateArtData = {
+      collection: 'characters',
+      isPublic: character.isPublic || true,
+      designer: userStore.username || 'Kind Designer',
+      title: `${character.name} the ${character.honorific}`,
+      promptString: character.artPrompt,
+      userId: userStore.userId || 10, // Default user ID if not available
+      galleryId: 21, // Default gallery ID
+      checkpoint: 'stable-diffusion-v1-4', // Default checkpoint
+      sampler: 'k_lms', // Default sampler
+      steps: 20, // Default steps
+      cfg: 2, // Default CFG scale
+      cfgHalf: false, // Default CFG Half setting
+    }
+
+    // Call generateArt with the constructed data
+    const response = await artStore.generateArt(artData)
+
+    // Handle response
+    if (response.success && response.data) {
+      character.artImageId = response.data.artImageId
+      alert('Art generation successful!')
+    } else {
+      throw new Error(response.message || 'Failed to generate art.')
+    }
   } catch (error) {
     console.error('Error generating art image:', error)
   } finally {
@@ -284,12 +314,35 @@ async function generateArtImage() {
 }
 
 function rerollStats() {
-  for (let i = 1; i <= 6; i++) {
-    character[`statValue${i}`] =
-      Math.floor(Math.random() * 6 + 1) +
-      Math.floor(Math.random() * 6 + 1) +
-      Math.floor(Math.random() * 6 + 1)
-  }
+  character.statValue1 =
+    Math.floor(Math.random() * 6 + 1) +
+    Math.floor(Math.random() * 6 + 1) +
+    Math.floor(Math.random() * 6 + 1)
+
+  character.statValue2 =
+    Math.floor(Math.random() * 6 + 1) +
+    Math.floor(Math.random() * 6 + 1) +
+    Math.floor(Math.random() * 6 + 1)
+
+  character.statValue3 =
+    Math.floor(Math.random() * 6 + 1) +
+    Math.floor(Math.random() * 6 + 1) +
+    Math.floor(Math.random() * 6 + 1)
+
+  character.statValue4 =
+    Math.floor(Math.random() * 6 + 1) +
+    Math.floor(Math.random() * 6 + 1) +
+    Math.floor(Math.random() * 6 + 1)
+
+  character.statValue5 =
+    Math.floor(Math.random() * 6 + 1) +
+    Math.floor(Math.random() * 6 + 1) +
+    Math.floor(Math.random() * 6 + 1)
+
+  character.statValue6 =
+    Math.floor(Math.random() * 6 + 1) +
+    Math.floor(Math.random() * 6 + 1) +
+    Math.floor(Math.random() * 6 + 1)
 }
 
 function setArtImageId(artImageId: number) {

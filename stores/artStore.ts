@@ -32,6 +32,7 @@ export interface GenerateArtData {
   isPublic?: boolean
   pitch?: string
   artImageId?: number
+  collection?: string
 }
 
 export const useArtStore = defineStore({

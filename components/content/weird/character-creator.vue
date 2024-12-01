@@ -50,13 +50,14 @@
       <!-- Level, Is Public, and Buttons -->
       <div class="flex flex-col items-end space-y-2">
         <div class="flex items-center space-x-2">
-          <div class="bg-gray-900 text-white text-center rounded-lg px-4 py-2">
-            <strong>Level:</strong> {{ character.level }}
-          </div>
-          <label class="flex items-center text-white space-x-2">
+     <label class="flex items-center text-white space-x-2">
             <span>Public</span>
             <input type="checkbox" v-model="character.isPublic" class="checkbox checkbox-primary" />
           </label>
+          <div class="bg-gray-900 text-white text-center rounded-lg px-4 py-2">
+            <strong>Level:</strong> {{ character.level }}
+          </div>
+     
         </div>
         <div class="flex space-x-2">
           <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg shadow-md text-sm" @click="saveCharacter">
@@ -117,7 +118,7 @@
       </div>
 
       <!-- Portrait and ArtPrompt Section -->
-      <div class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md p-4 space-y-4">
+      <div class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md">
         <img
           v-if="artImage"
           :src="artImage"
@@ -148,7 +149,7 @@
     </div>
 
     <!-- Bottom Section: Backstory and Other Fields -->
-    <div class="flex flex-col h-[35%] mt-4 space-y-4">
+    <div class="flex flex-col h-[35%]">
       <!-- Backstory -->
       <textarea
         v-model="character.backstory"
@@ -161,7 +162,6 @@
         <textarea v-model="character.quirks" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Quirks..."></textarea>
         <textarea v-model="character.inventory" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Inventory..."></textarea>
         <textarea v-model="character.skills" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Skills..."></textarea>
-        <textarea v-model="character.drive" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Drive..."></textarea>
       </div>
     </div>
   </div>
@@ -189,7 +189,6 @@ const character = reactive({
   quirks: '',
   skills: '',
   inventory: '',
-  drive: '',
   backstory: '',
   statName1: 'Luck',
   statValue1: 9,

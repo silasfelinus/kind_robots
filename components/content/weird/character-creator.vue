@@ -6,7 +6,7 @@
         <h1 class="text-4xl font-bold text-white truncate">
           <input
             v-model="character.name"
-            placeholder="Kind Hero"
+            placeholder="Unnamed"
             class="bg-transparent border-none text-4xl font-bold text-white w-full focus:outline-none"
           />
           <span v-if="character.honorific" class="text-2xl font-light text-gray-200">
@@ -139,7 +139,7 @@ import { useCharacterStore } from '@/stores/characterStore';
 const characterStore = useCharacterStore();
 const character = reactive({
   name: '',
-  honorific: 'Adventurer',
+  honorific: 'Kind Hero',
   alignment: 'Neutral',
   level: 1,
   artImageId: null,

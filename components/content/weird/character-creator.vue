@@ -1,44 +1,64 @@
 <template>
   <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto">
-    <!-- Top Section: Name, Alignment, Level, and Save/Generate -->
-    <div class="flex items-center justify-between h-[10%] bg-accent rounded-lg shadow-md px-4 py-2">
-      <div class="flex flex-col flex-grow">
+    <!-- Top Section: Name, Honorific, Species, Class, Level, and Save/Generate -->
+    <div class="flex items-center justify-between h-[15%] bg-accent rounded-lg shadow-md px-4 py-2">
+      <!-- Character Info -->
+      <div class="flex flex-col flex-grow space-y-2">
         <h1 class="text-4xl font-bold text-white truncate">
           <input
             v-model="character.name"
-            placeholder="Unnamed"
+            placeholder="Kind Hero"
             class="bg-transparent border-none text-4xl font-bold text-white w-full focus:outline-none"
           />
-          <span v-if="character.honorific" class="text-2xl font-light text-gray-200">
-            the <input v-model="character.honorific" class="bg-transparent border-none text-2xl font-light text-gray-200 w-auto focus:outline-none" />
-          </span>
         </h1>
-        <div class="flex space-x-6 text-sm text-gray-200 mt-1">
+        <div class="flex space-x-4 text-sm text-gray-200">
           <span>
-            Alignment: 
+            Honorific: 
             <input
-              v-model="character.alignment"
-              placeholder="Neutral"
+              v-model="character.honorific"
+              placeholder="Adventurer"
               class="bg-transparent border-none text-sm text-gray-200 focus:outline-none"
             />
           </span>
-          <span>Level: {{ character.level }}</span>
+          <span>
+            Species: 
+            <input
+              v-model="character.species"
+              placeholder="Human"
+              class="bg-transparent border-none text-sm text-gray-200 focus:outline-none"
+            />
+          </span>
+          <span>
+            Class: 
+            <input
+              v-model="character.class"
+              placeholder="Warrior"
+              class="bg-transparent border-none text-sm text-gray-200 focus:outline-none"
+            />
+          </span>
         </div>
       </div>
 
-      <div class="flex space-x-2">
-        <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg shadow-md text-sm" @click="saveCharacter">
-          Save
-        </button>
-        <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg shadow-md text-sm" @click="generateCharacter">
-          Generate
-        </button>
+      <!-- Level and Buttons -->
+      <div class="flex flex-col items-end space-y-2">
+        <div class="bg-gray-900 text-white text-center rounded-lg px-4 py-2">
+          Level {{ character.level }}
+        </div>
+        <div class="flex space-x-2">
+          <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg shadow-md text-sm" @click="saveCharacter">
+            Save
+          </button>
+          <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg shadow-md text-sm" @click="generateCharacter">
+            Generate
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Middle Section: Stats and Image -->
-    <div class="flex flex-row justify-between items-start h-[40%] mt-4 space-x-4">
-      <div class="w-[70%] flex flex-col items-center bg-base-200 rounded-lg shadow-md p-4">
+    <div class="flex flex-row justify-between items-start h-[50%] mt-4 space-x-4">
+      <!-- Stats Section -->
+      <div class="w-[60%] flex flex-col items-center bg-base-200 rounded-lg shadow-md p-4">
         <div class="flex flex-row justify-between w-full">
           <div
             v-for="i in [1, 2, 3]"
@@ -82,26 +102,26 @@
         </button>
       </div>
 
-      <!-- Portrait Section -->
-      <div class="w-[30%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md p-4">
+      <!-- Portrait and ArtPrompt Section -->
+      <div class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md p-4 space-y-4">
         <img
           v-if="character.artImageId"
           :src="`/images/${character.artImageId}.jpg`"
           alt="Character Portrait"
-          class="object-cover w-full h-40 rounded-lg mb-4"
+          class="object-cover w-full h-60 rounded-lg"
         />
         <img
           v-else
           src="/images/bot.webp"
           alt="Default Portrait"
-          class="object-cover w-full h-40 rounded-lg mb-4"
+          class="object-cover w-full h-60 rounded-lg"
         />
-        <input
+        <textarea
           v-model="character.artPrompt"
-          placeholder="Describe your character..."
-          class="bg-base-200 text-white w-full p-2 rounded-lg focus:outline-none"
-        />
-        <div class="flex space-x-2 mt-4">
+          placeholder="Describe your character to generate art..."
+          class="w-full bg-base-200 text-white p-3 rounded-lg h-24 focus:outline-none"
+        ></textarea>
+        <div class="flex space-x-2">
           <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg" @click="generateImage">
             Generate
           </button>
@@ -114,19 +134,14 @@
     </div>
 
     <!-- Bottom Section: Additional Fields -->
-    <div class="flex flex-row justify-between items-start mt-4 h-[50%] space-x-4">
-      <!-- Left Column -->
+    <div class="flex flex-row justify-between items-start mt-4 h-[35%] space-x-4">
       <div class="w-[48%] flex flex-col space-y-4">
-        <textarea v-model="character.species" class="bg-base-200 p-4 rounded-lg shadow-md" placeholder="Species..."></textarea>
         <textarea v-model="character.quirks" class="bg-base-200 p-4 rounded-lg shadow-md" placeholder="Quirks..."></textarea>
         <textarea v-model="character.inventory" class="bg-base-200 p-4 rounded-lg shadow-md" placeholder="Inventory..."></textarea>
       </div>
-
-      <!-- Right Column -->
       <div class="w-[48%] flex flex-col space-y-4">
-        <textarea v-model="character.drive" class="bg-base-200 p-4 rounded-lg shadow-md" placeholder="Drive..."></textarea>
         <textarea v-model="character.skills" class="bg-base-200 p-4 rounded-lg shadow-md" placeholder="Skills..."></textarea>
-        <textarea v-model="character.genre" class="bg-base-200 p-4 rounded-lg shadow-md" placeholder="Genre..."></textarea>
+        <textarea v-model="character.drive" class="bg-base-200 p-4 rounded-lg shadow-md" placeholder="Drive..."></textarea>
       </div>
     </div>
   </div>
@@ -139,17 +154,17 @@ import { useCharacterStore } from '@/stores/characterStore';
 const characterStore = useCharacterStore();
 const character = reactive({
   name: '',
-  honorific: 'Kind Hero',
+  honorific: 'Adventurer',
+  species: '',
+  class: '',
   alignment: 'Neutral',
   level: 1,
   artImageId: null,
   artPrompt: '',
-  species: '',
   quirks: '',
   skills: '',
   inventory: '',
   drive: '',
-  genre: '',
   statName1: 'Luck',
   statValue1: 9,
   statName2: 'Swol',
@@ -174,9 +189,13 @@ function generateCharacter() {
 
 function rerollStats() {
   for (let i = 1; i <= 6; i++) {
-    character[`statValue${i}`] = Math.floor(Math.random() * 18) + 3; // Simulates rolling 3d6
+    character[`statValue${i}`] = 
+      Math.floor(Math.random() * 6 + 1) + // Roll 1d6
+      Math.floor(Math.random() * 6 + 1) + // Roll 2d6
+      Math.floor(Math.random() * 6 + 1);  // Roll 3d6
   }
 }
+
 
 function generateImage() {
   console.log('Generating image with prompt:', character.artPrompt);

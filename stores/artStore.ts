@@ -381,22 +381,24 @@ export const useArtStore = defineStore({
       }
     },
 
-    async getArtImageById(id: number): Promise<ArtImage | undefined> {
+    async getArtImageById(id: number): Promise<void> {
       const cachedImage = this.artImages.find((image) => image.id === id)
-      if (cachedImage) return cachedImage
-
-      try {
-        const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
-        if (response.success && response.data) {
-          this.artImages.push(response.data)
-          return response.data
-        } else {
-          throw new Error(response.message)
+      if (!cachedImage) {
+        try {
+          const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
+          if (response.success && response.data) {
+            this.artImages.push(response.data)
+          } else {
+            throw new Error(response.message)
+          }
+        } catch (error) {
+          handleError(error, 'fetching art image by ID')
         }
-      } catch (error) {
-        handleError(error, 'fetching art image by ID')
-        return undefined
       }
+    },
+
+    getCachedArtImageById(id: number): ArtImage | undefined {
+      return this.artImages.find((image) => image.id === id)
     },
 
     async updateArtImageWithArtId(

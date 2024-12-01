@@ -228,3 +228,5 @@ export const useCharacterStore = defineStore({
     },
   },
 })
+
+export type { Character }

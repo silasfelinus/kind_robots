@@ -172,6 +172,9 @@ model Character {
   backstory       String?        @db.VarChar(2048)
   drive           String?        @db.VarChar(764)
   inventory       String?        @db.VarChar(2048)
+  quirks          String?        @db.VarChar(2048) 
+  skills          String?        @db.VarChar(2048) 
+  genre           String?        @db.VarChar(256) 
 
   // Main Stats
   statName1       String?        @default("Luck")
@@ -197,9 +200,6 @@ model Character {
   goalStat4Name   String?        @default("Optimist|Pessimist")
   goalStat4Value  Int?           @default(0)
 
-  quirks          String?        @db.VarChar(2048) 
-  skills          String?        @db.VarChar(2048) 
-  genre           String?        @db.VarChar(256) 
   artImageId      Int? 
   ArtImage        ArtImage?     
   isPublic        Boolean        @default(false)

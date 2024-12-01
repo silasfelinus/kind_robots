@@ -1,7 +1,11 @@
 <template>
-  <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto space-y-4">
+  <div
+    class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto space-y-4"
+  >
     <!-- Top Section: Name, Honorific, Species, Class, Genre, Level, Is Public, and Save/Generate -->
-    <div class="flex items-center justify-between bg-accent rounded-lg shadow-md px-4 py-2">
+    <div
+      class="flex items-center justify-between bg-accent rounded-lg shadow-md px-4 py-2"
+    >
       <!-- Character Info -->
       <div class="flex flex-col flex-grow space-y-2">
         <h1 class="text-4xl font-bold text-white truncate">
@@ -13,7 +17,7 @@
         </h1>
         <div class="flex flex-wrap space-x-4 text-base text-white">
           <span>
-            Honorific: 
+            Honorific:
             <input
               v-model="character.honorific"
               placeholder="Adventurer"
@@ -21,7 +25,7 @@
             />
           </span>
           <span>
-            Species: 
+            Species:
             <input
               v-model="character.species"
               placeholder="Human"
@@ -29,7 +33,7 @@
             />
           </span>
           <span>
-            Class: 
+            Class:
             <input
               v-model="character.class"
               placeholder="Warrior"
@@ -37,7 +41,7 @@
             />
           </span>
           <span>
-            Genre: 
+            Genre:
             <input
               v-model="character.genre"
               placeholder="Fantasy"
@@ -52,7 +56,11 @@
         <div class="flex items-center space-x-2">
           <label class="flex items-center text-white space-x-2">
             <span>Public</span>
-            <input type="checkbox" v-model="character.isPublic" class="checkbox checkbox-primary" />
+            <input
+              v-model="character.isPublic"
+              type="checkbox"
+              class="checkbox checkbox-primary"
+            />
           </label>
           <div class="bg-gray-900 text-white text-center rounded-lg px-4 py-2">
             <strong>Level:</strong> {{ character.level }}
@@ -79,7 +87,9 @@
     <!-- Middle Section: Stats and Image -->
     <div class="flex flex-row justify-between items-start space-x-4">
       <!-- Stats Section -->
-      <div class="w-[60%] flex flex-col items-center bg-base-200 rounded-lg shadow-md p-4 space-y-4">
+      <div
+        class="w-[60%] flex flex-col items-center bg-base-200 rounded-lg shadow-md p-4 space-y-4"
+      >
         <div class="flex flex-row justify-between w-full">
           <div
             v-for="i in [1, 2, 3]"
@@ -90,10 +100,12 @@
               v-model="character[`statName${i}`]"
               class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
             />
-            <span class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2">
+            <span
+              class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2"
+            >
               <input
-                type="number"
                 v-model.number="character[`statValue${i}`]"
+                type="number"
                 class="w-full bg-transparent text-center text-4xl font-bold focus:outline-none"
               />
             </span>
@@ -109,22 +121,29 @@
               v-model="character[`statName${i}`]"
               class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
             />
-            <span class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2">
+            <span
+              class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2"
+            >
               <input
-                type="number"
                 v-model.number="character[`statValue${i}`]"
+                type="number"
                 class="w-full bg-transparent text-center text-4xl font-bold focus:outline-none"
               />
             </span>
           </div>
         </div>
-        <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-md" @click="rerollStats">
+        <button
+          class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-md"
+          @click="rerollStats"
+        >
           Reroll Stats
         </button>
       </div>
 
       <!-- Portrait and ArtPrompt Section -->
-      <div class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md p-4">
+      <div
+        class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md p-4"
+      >
         <img
           v-if="artImage"
           :src="artImage"
@@ -161,23 +180,34 @@
 
       <!-- Other Fields -->
       <div class="flex flex-row justify-between space-x-4">
-        <textarea v-model="character.quirks" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Quirks..."></textarea>
-        <textarea v-model="character.inventory" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Inventory..."></textarea>
-        <textarea v-model="character.skills" class="bg-base-200 p-4 rounded-lg shadow-md flex-1" placeholder="Skills..."></textarea>
+        <textarea
+          v-model="character.quirks"
+          class="bg-base-200 p-4 rounded-lg shadow-md flex-1"
+          placeholder="Quirks..."
+        ></textarea>
+        <textarea
+          v-model="character.inventory"
+          class="bg-base-200 p-4 rounded-lg shadow-md flex-1"
+          placeholder="Inventory..."
+        ></textarea>
+        <textarea
+          v-model="character.skills"
+          class="bg-base-200 p-4 rounded-lg shadow-md flex-1"
+          placeholder="Skills..."
+        ></textarea>
       </div>
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { computed, reactive, ref, onMounted } from 'vue';
-import { useCharacterStore } from '@/stores/characterStore';
-import { useArtStore } from '@/stores/artStore';
+import { reactive, ref, computed, onMounted } from 'vue'
+import { useCharacterStore, type Character } from '@/stores/characterStore'
+import { useArtStore } from '@/stores/artStore'
 
-const characterStore = useCharacterStore();
-const artStore = useArtStore();
+const characterStore = useCharacterStore()
+const artStore = useArtStore()
 
-const character = reactive({
+const character = reactive<Partial<Character>>({
   name: '',
   honorific: 'Adventurer',
   species: '',
@@ -204,41 +234,52 @@ const character = reactive({
   statValue5: 0,
   statName6: 'Empathy',
   statValue6: 0,
-});
+})
 
-const isSaving = ref(false);
-const isGeneratingArt = ref(false);
+const isSaving = ref(false)
+const isGeneratingArt = ref(false)
 
 const artImage = computed(() => {
-  if (!character.artImageId) return null;
-  return artStore.getArtImageById(character.artImageId);
-});
+  if (!character.artImageId) return null
+  const image = artStore.getCachedArtImageById(character.artImageId)
+  if (!image) return null
+  return `data:image/${image.fileType};base64,${image.imageData}`
+})
 
 onMounted(() => {
-  rerollStats(); // Generate random stats on load
-});
+  rerollStats() // Generate random stats on load
+})
 
 async function saveCharacter() {
-  isSaving.value = true;
+  isSaving.value = true
   try {
-    await characterStore.saveCharacter(character);
-    alert('Character saved successfully!');
+    if (character.id) {
+      await characterStore.updateCharacter(character.id, character)
+    } else {
+      await characterStore.createCharacter(character)
+    }
+    alert('Character saved successfully!')
   } catch (error) {
-    console.error('Error saving character:', error);
+    console.error('Error saving character:', error)
   } finally {
-    isSaving.value = false;
+    isSaving.value = false
   }
 }
 
+async function generateCharacter() {
+  Object.assign(character, characterStore.newCharacter)
+  rerollStats()
+}
+
 async function generateArtImage() {
-  isGeneratingArt.value = true;
+  isGeneratingArt.value = true
   try {
-    const artImageId = await artStore.generateArtImage(character.artPrompt);
-    character.artImageId = artImageId;
+    const artImageId = await artStore.generateArt(character.artPrompt)
+    character.artImageId = artImageId
   } catch (error) {
-    console.error('Error generating art image:', error);
+    console.error('Error generating art image:', error)
   } finally {
-    isGeneratingArt.value = false;
+    isGeneratingArt.value = false
   }
 }
 
@@ -247,11 +288,11 @@ function rerollStats() {
     character[`statValue${i}`] =
       Math.floor(Math.random() * 6 + 1) +
       Math.floor(Math.random() * 6 + 1) +
-      Math.floor(Math.random() * 6 + 1);
+      Math.floor(Math.random() * 6 + 1)
   }
 }
 
 function setArtImageId(artImageId: number) {
-  character.artImageId = artImageId;
+  character.artImageId = artImageId
 }
 </script>

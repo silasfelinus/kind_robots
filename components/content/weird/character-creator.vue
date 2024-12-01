@@ -8,20 +8,20 @@
     >
       <!-- Character Info -->
       <div class="flex flex-col flex-grow space-y-2">
-        <h1 class="text-4xl font-bold text-white truncate">
+        <h1 class="text-4xl font-bold truncate">
           <input
             v-model="character.name"
             placeholder="Kind Hero"
-            class="bg-transparent border-none text-4xl font-bold text-white w-full focus:outline-none"
+            class="bg-transparent border-none text-4xl font-bold w-full focus:outline-none"
           />
         </h1>
-        <div class="flex flex-wrap space-x-4 text-base text-white">
+        <div class="flex flex-wrap space-x-4">
           <span>
             Honorific:
             <input
               v-model="character.honorific"
               placeholder="Adventurer"
-              class="bg-transparent border-none text-base text-white focus:outline-none"
+              class="bg-transparent border-none focus:outline-none"
             />
           </span>
           <span>
@@ -29,7 +29,7 @@
             <input
               v-model="character.species"
               placeholder="Human"
-              class="bg-transparent border-none text-base text-white focus:outline-none"
+              class="bg-transparent border-none focus:outline-none"
             />
           </span>
           <span>
@@ -37,7 +37,7 @@
             <input
               v-model="character.class"
               placeholder="Warrior"
-              class="bg-transparent border-none text-base text-white focus:outline-none"
+              class="bg-transparent border-none focus:outline-none"
             />
           </span>
           <span>
@@ -45,7 +45,7 @@
             <input
               v-model="character.genre"
               placeholder="Fantasy"
-              class="bg-transparent border-none text-base text-white focus:outline-none"
+              class="bg-transparent border-none focus:outline-none"
             />
           </span>
         </div>
@@ -54,7 +54,7 @@
       <!-- Level, Is Public, and Buttons -->
       <div class="flex flex-col items-end space-y-2">
         <div class="flex items-center space-x-2">
-          <label class="flex items-center text-white space-x-2">
+          <label class="flex items-center space-x-2">
             <span>Public</span>
             <input
               v-model="character.isPublic"
@@ -62,20 +62,20 @@
               class="checkbox checkbox-primary"
             />
           </label>
-          <div class="bg-gray-900 text-white text-center rounded-lg px-4 py-2">
+          <div class="bg-gray-900 text-center rounded-lg px-4 py-2">
             <strong>Level:</strong> {{ character.level }}
           </div>
         </div>
         <div class="flex space-x-2">
           <button
-            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg shadow-md text-sm"
+            class="bg-green-500 hover:bg-green-600 px-3 py-1 rounded-lg shadow-md text-sm"
             :disabled="isSaving"
             @click="saveCharacter"
           >
             {{ isSaving ? 'Saving...' : 'Save' }}
           </button>
           <button
-            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg shadow-md text-sm"
+            class="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-lg shadow-md text-sm"
             @click="generateCharacter"
           >
             Generate
@@ -101,7 +101,7 @@
               class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
             />
             <span
-              class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2"
+              class="text-4xl font-bold text-gray-900 bg-base-200 rounded-full px-4 py-2 mt-2"
             >
               <input
                 v-model.number="character[`statValue${i}` as keyof Character]"
@@ -122,7 +122,7 @@
               class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
             />
             <span
-              class="text-4xl font-bold text-gray-800 bg-base-200 rounded-full px-4 py-2 mt-2"
+              class="text-4xl font-bold text-gray-900 bg-base-200 rounded-full px-4 py-2 mt-2"
             >
               <input
                 v-model.number="character[`statValue${i}` as keyof Character]"
@@ -144,6 +144,7 @@
       <div
         class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md p-4"
       >
+        <!-- Character Image -->
         <img
           v-if="artImage"
           :src="artImage"
@@ -156,6 +157,15 @@
           alt="Default Portrait"
           class="object-cover w-full h-60 rounded-lg"
         />
+
+        <!-- Art Prompt Textbox -->
+        <textarea
+          v-model="character.artPrompt"
+          placeholder="Describe your character's appearance or a scene for art generation..."
+          class="bg-base-200 mt-4 p-4 rounded-lg shadow-md w-full h-32 text-sm resize-none"
+        ></textarea>
+
+        <!-- Buttons Section -->
         <div class="flex w-full space-x-2 mt-4">
           <button
             class="bg-blue-500 hover:bg-blue-600 text-white w-1/2 px-3 py-1 rounded-lg"

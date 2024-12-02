@@ -227,18 +227,42 @@
         ></textarea>
         <div class="flex items-center space-x-2">
           <input v-model="keepField[field]" type="checkbox" title="Freeze Field" />
-          <button
-            v-if="newCharacter[field]"
-            class="bg-gray-700 px-2 py-1 rounded text-sm"
-            @click="toggleField(field)"
+    
+ <!-- Bottom Section -->
+    <div class="flex flex-col space-y-4">
+      <template v-for="field in ['backstory', 'quirks', 'inventory', 'skills']" :key="field">
+        <div class="relative group">
+          <div
+            class="absolute left-0 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 flex items-center space-x-2 transition-opacity"
+            v-if="character[field]"
           >
-            {{ useGenerated[field] ? 'Generated' : 'Original' }}
-          </button>
+            <input
+              v-model="keepField[field]"
+              type="checkbox"
+              title="Freeze Field"
+              class="checkbox checkbox-sm"
+            />
+            <button
+              v-if="newCharacter[field]"
+              class="bg-gray-700 px-2 py-1 rounded text-sm"
+              @click="toggleField(field)"
+            >
+              {{ useGenerated[field] ? 'Generated' : 'Original' }}
+            </button>
+          </div>
+          <textarea
+            :value="useGenerated[field] ? newCharacter[field] : character[field]"
+            placeholder="..."
+            class="bg-base-200 p-4 rounded-lg shadow-md w-full"
+            :disabled="keepField[field]"
+            @input="(event) => updateField(field, event)"
+          ></textarea>
         </div>
       </template>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useCharacterStore, type Character } from '@/stores/characterStore'

@@ -1,15 +1,12 @@
 <template>
-  <div
-    class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto space-y-4"
-  >
-    <!-- Top Section: Name, Honorific, Species, Class, Genre, Is Public, and Save/Generate -->
-    <div
-      class="flex items-center justify-between bg-accent rounded-lg shadow-md px-4 py-2"
-    >
+  <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto space-y-4">
+    <!-- Top Section -->
+    <div class="flex items-center justify-between bg-accent rounded-lg shadow-md px-4 py-2">
       <!-- Character Info -->
       <div class="flex flex-col flex-grow space-y-2">
         <h1 class="text-4xl font-bold truncate">
           <div class="flex items-center space-x-2">
+            <label>Name:</label>
             <input
               :value="useGenerated.name ? newCharacter.name : character.name"
               placeholder="Kind Hero"
@@ -26,10 +23,7 @@
           </div>
         </h1>
         <div class="flex flex-wrap space-x-4">
-          <template
-            v-for="field in ['honorific', 'species', 'class', 'genre']"
-            :key="field"
-          >
+          <template v-for="field in ['honorific', 'species', 'class', 'genre']" :key="field">
             <span class="flex items-center space-x-2">
               <label>
                 {{ field.charAt(0).toUpperCase() + field.slice(1) }}:
@@ -65,6 +59,7 @@
               v-model="character.isPublic"
               type="checkbox"
               class="checkbox checkbox-primary"
+              checked
             />
           </label>
         </div>
@@ -86,7 +81,7 @@
       </div>
     </div>
 
-    <!-- Middle Section: Stats and ArtPrompt -->
+    <!-- Middle Section -->
     <div class="flex flex-row justify-between items-start space-x-4">
       <!-- Stats Section -->
       <div
@@ -114,7 +109,7 @@
                 <input
                   v-model="keepField[`statName${i}`]"
                   type="checkbox"
-                  title="Freeze Stat"
+                  title="Freeze Stat Name"
                   class="checkbox checkbox-primary"
                 />
               </div>
@@ -177,9 +172,9 @@
     </div>
 
     <!-- Bottom Section -->
-    <div class="flex flex-col space-y-4">
-      <template v-for="field in ['backstory', 'quirks', 'inventory', 'skills']" :key="field">
-        <div class="relative group">
+    <div class="flex flex-row space-x-4">
+      <template v-for="field in ['quirks', 'inventory', 'skills']" :key="field">
+        <div class="relative w-[33%]">
           <label class="block text-gray-700 font-bold mb-2">
             {{ field.charAt(0).toUpperCase() + field.slice(1) }}
           </label>
@@ -190,11 +185,36 @@
             :disabled="keepField[field]"
             @input="(event) => updateField(field, event)"
           ></textarea>
+          <input
+            v-model="keepField[field]"
+            type="checkbox"
+            title="Freeze Field"
+            class="absolute top-0 right-0 mt-2 mr-2 checkbox checkbox-primary"
+          />
         </div>
       </template>
     </div>
+
+    <!-- Backstory -->
+    <div class="flex flex-col space-y-4">
+      <label class="block text-gray-700 font-bold mb-2">Backstory</label>
+      <textarea
+        :value="useGenerated.backstory ? newCharacter.backstory : character.backstory"
+        placeholder="..."
+        class="bg-base-200 p-4 rounded-lg shadow-md w-full"
+        :disabled="keepField.backstory"
+        @input="(event) => updateField('backstory', event)"
+      ></textarea>
+      <input
+        v-model="keepField.backstory"
+        type="checkbox"
+        title="Freeze Backstory"
+        class="checkbox checkbox-primary"
+      />
+    </div>
   </div>
 </template>
+
 
 
 <script setup lang="ts">

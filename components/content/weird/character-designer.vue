@@ -2,7 +2,7 @@
   <div
     class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto space-y-4"
   >
-    <!-- Top Section: Name, Honorific, Species, Class, Genre, Level, Is Public, and Save/Generate -->
+    <!-- Top Section: Name, Honorific, Species, Class, Genre, Is Public, and Save/Generate -->
     <div
       class="flex items-center justify-between bg-accent rounded-lg shadow-md px-4 py-2"
     >
@@ -17,19 +17,12 @@
               :disabled="keepField.name"
               @input="(event) => updateField('name', event)"
             />
-
             <input
               v-model="keepField.name"
               type="checkbox"
               title="Freeze this field"
+              class="checkbox checkbox-primary"
             />
-            <button
-              v-if="newCharacter.name"
-              class="text-sm bg-gray-700 px-2 py-1 rounded"
-              @click="toggleField('name')"
-            >
-              {{ useGenerated.name ? 'Generated' : 'Original' }}
-            </button>
           </div>
         </h1>
         <div class="flex flex-wrap space-x-4">
@@ -38,7 +31,9 @@
             :key="field"
           >
             <span class="flex items-center space-x-2">
-              {{ field.charAt(0).toUpperCase() + field.slice(1) }}:
+              <label>
+                {{ field.charAt(0).toUpperCase() + field.slice(1) }}:
+              </label>
               <input
                 :value="
                   useGenerated[field]
@@ -50,25 +45,18 @@
                 :disabled="keepField[field as keyof Character]"
                 @input="updateField(field as keyof Character, $event)"
               />
-
               <input
                 v-model="keepField[field]"
                 type="checkbox"
                 title="Freeze this field"
+                class="checkbox checkbox-primary"
               />
-              <button
-                v-if="newCharacter[field as keyof Character]"
-                class="text-sm bg-gray-700 px-2 py-1 rounded"
-                @click="toggleField(field)"
-              >
-                {{ useGenerated[field] ? 'Generated' : 'Original' }}
-              </button>
             </span>
           </template>
         </div>
       </div>
 
-      <!-- Level, Is Public, and Buttons -->
+      <!-- Is Public and Buttons -->
       <div class="flex flex-col items-end space-y-2">
         <div class="flex items-center space-x-2">
           <label class="flex items-center space-x-2">
@@ -79,9 +67,6 @@
               class="checkbox checkbox-primary"
             />
           </label>
-          <div class="bg-gray-900 text-center rounded-lg px-4 py-2">
-            <strong>Level:</strong> {{ character.level }}
-          </div>
         </div>
         <div class="flex space-x-2">
           <button
@@ -112,51 +97,44 @@
             <div
               class="flex flex-col items-center justify-center w-[30%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
             >
-              <input
-                :value="
-                  useGenerated[`statName${i}`]
-                    ? newCharacter[`statName${i}` as keyof Character]
-                    : character[`statName${i}` as keyof Character]
-                "
-                class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
-                :disabled="keepField[`statName${i}`]"
-                @input="
-                  (event) =>
-                    updateField(`statName${i}` as keyof Character, event)
-                "
-              />
-
+              <div class="flex items-center space-x-2">
+                <input
+                  :value="
+                    useGenerated[`statName${i}`]
+                      ? newCharacter[`statName${i}` as keyof Character]
+                      : character[`statName${i}` as keyof Character]
+                  "
+                  class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
+                  :disabled="keepField[`statName${i}`]"
+                  @input="
+                    (event) =>
+                      updateField(`statName${i}` as keyof Character, event)
+                  "
+                />
+                <input
+                  v-model="keepField[`statName${i}`]"
+                  type="checkbox"
+                  title="Freeze Stat"
+                  class="checkbox checkbox-primary"
+                />
+              </div>
               <input
                 :value="
                   useGenerated[`statValue${i}`]
                     ? newCharacter[`statValue${i}` as keyof Character]
                     : character[`statValue${i}` as keyof Character]
                 "
-                class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
+                class="bg-transparent border-none text-4xl font-bold text-center focus:outline-none"
                 :disabled="keepField[`statValue${i}`]"
                 @input="
                   (event) =>
                     updateField(`statValue${i}` as keyof Character, event)
                 "
               />
-
-              <input
-                v-model="keepField[`statName${i}`]"
-                type="checkbox"
-                title="Freeze Stat"
-                class="mt-2"
-              />
-              <button
-                v-if="newCharacter[`statName${i}` as keyof Character]"
-                class="text-sm bg-gray-700 px-2 py-1 rounded mt-2"
-                @click="toggleField(`statName${i}` as keyof Character)"
-              >
-                {{ useGenerated[`statName${i}`] ? 'Generated' : 'Original' }}
-              </button>
             </div>
           </template>
         </div>
-<button
+        <button
           class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-md"
           @click="rerollStats"
         >
@@ -168,7 +146,6 @@
       <div
         class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md p-4"
       >
-        <!-- Character Image -->
         <img
           v-if="artImage"
           :src="artImage"
@@ -185,24 +162,7 @@
           v-model="computedArtPrompt"
           placeholder="Describe your character's appearance or a scene for art generation..."
           class="bg-base-200 mt-4 p-4 rounded-lg shadow-md w-full h-32 text-sm resize-none"
-          :disabled="keepField.artPrompt"
         ></textarea>
-
-        <div class="flex w-full space-x-2 mt-4">
-          <input
-            v-model="keepField.artPrompt"
-            type="checkbox"
-            title="Freeze Art Prompt"
-          />
-          <button
-            v-if="newCharacter.artPrompt"
-            class="bg-gray-700 px-2 py-1 rounded text-sm"
-            @click="toggleField('artPrompt')"
-          >
-            {{ useGenerated.artPrompt ? 'Generated' : 'Original' }}
-          </button>
-        </div>
-        <!-- Buttons Section -->
         <div class="flex w-full space-x-2 mt-4">
           <button
             class="bg-blue-500 hover:bg-blue-600 text-white w-1/2 px-3 py-1 rounded-lg"
@@ -216,41 +176,26 @@
       </div>
     </div>
 
-    
-<!-- Bottom Section -->
-<div class="flex flex-col space-y-4">
-  <template v-for="field in ['backstory', 'quirks', 'inventory', 'skills']" :key="field">
-    <div class="relative group">
-      <textarea
-        :value="useGenerated[field] ? newCharacter[field] : character[field]"
-        placeholder="..."
-        class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-        :disabled="keepField[field]"
-        @input="(event) => updateField(field, event)"
-      ></textarea>
-      <div
-        class="absolute left-0 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 flex items-center space-x-2 transition-opacity"
-      >
-        <input
-          v-model="keepField[field]"
-          type="checkbox"
-          title="Freeze Field"
-          class="checkbox checkbox-sm"
-        />
-        <button
-          v-if="newCharacter[field]"
-          class="bg-gray-700 px-2 py-1 rounded text-sm"
-          @click="toggleField(field)"
-        >
-          {{ useGenerated[field] ? 'Generated' : 'Original' }}
-        </button>
-      </div>
+    <!-- Bottom Section -->
+    <div class="flex flex-col space-y-4">
+      <template v-for="field in ['backstory', 'quirks', 'inventory', 'skills']" :key="field">
+        <div class="relative group">
+          <label class="block text-gray-700 font-bold mb-2">
+            {{ field.charAt(0).toUpperCase() + field.slice(1) }}
+          </label>
+          <textarea
+            :value="useGenerated[field] ? newCharacter[field] : character[field]"
+            placeholder="..."
+            class="bg-base-200 p-4 rounded-lg shadow-md w-full"
+            :disabled="keepField[field]"
+            @input="(event) => updateField(field, event)"
+          ></textarea>
+        </div>
+      </template>
     </div>
-  </template>
-</div>
-
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted } from 'vue'

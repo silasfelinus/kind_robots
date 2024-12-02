@@ -1,7 +1,11 @@
 <template>
-  <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto space-y-4">
+  <div
+    class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto space-y-4"
+  >
     <!-- Top Section -->
-    <div class="flex items-center justify-between bg-accent rounded-lg shadow-md px-4 py-2">
+    <div
+      class="flex items-center justify-between bg-accent rounded-lg shadow-md px-4 py-2"
+    >
       <!-- Character Info -->
       <div class="flex flex-col flex-grow space-y-2">
         <h1 class="text-4xl font-bold truncate">
@@ -20,10 +24,20 @@
               :disabled="keepField.name"
               @input="(event) => updateField('name', event)"
             />
+            <button
+              v-if="newCharacter.name"
+              class="text-sm bg-gray-700 px-2 py-1 rounded"
+              @click="toggleField('name')"
+            >
+              {{ useGenerated.name ? 'Generated' : 'Original' }}
+            </button>
           </div>
         </h1>
         <div class="flex flex-wrap space-x-4">
-          <template v-for="field in ['honorific', 'species', 'class', 'genre']" :key="field">
+          <template
+            v-for="field in ['honorific', 'species', 'class', 'genre']"
+            :key="field"
+          >
             <span class="flex items-center space-x-2">
               <input
                 v-model="keepField[field]"
@@ -31,9 +45,9 @@
                 title="Freeze this field"
                 class="checkbox checkbox-primary"
               />
-              <label>
-                {{ field.charAt(0).toUpperCase() + field.slice(1) }}:
-              </label>
+              <label
+                >{{ field.charAt(0).toUpperCase() + field.slice(1) }}:</label
+              >
               <input
                 :value="
                   useGenerated[field]
@@ -45,6 +59,13 @@
                 :disabled="keepField[field as keyof Character]"
                 @input="updateField(field as keyof Character, $event)"
               />
+              <button
+                v-if="newCharacter[field as keyof Character]"
+                class="text-sm bg-gray-700 px-2 py-1 rounded"
+                @click="toggleField(field as keyof Character)"
+              >
+                {{ useGenerated[field] ? 'Generated' : 'Original' }}
+              </button>
             </span>
           </template>
         </div>
@@ -52,17 +73,14 @@
 
       <!-- Is Public and Buttons -->
       <div class="flex flex-col items-end space-y-2">
-        <div class="flex items-center space-x-2">
-          <label class="flex items-center space-x-2">
-            <input
-              v-model="character.isPublic"
-              type="checkbox"
-              class="checkbox checkbox-primary"
-              checked
-            />
-            <span>Public</span>
-          </label>
-        </div>
+        <label class="flex items-center space-x-2">
+          <input
+            v-model="character.isPublic"
+            type="checkbox"
+            class="checkbox checkbox-primary"
+          />
+          <span>Public</span>
+        </label>
         <div class="flex space-x-2">
           <button
             class="bg-green-500 hover:bg-green-600 px-3 py-1 rounded-lg shadow-md text-sm"
@@ -151,93 +169,53 @@
           alt="Default Portrait"
           class="object-cover w-full h-60 rounded-lg"
         />
-       <textarea
-  v-model="computedArtPrompt"
-  placeholder="Describe your character's appearance or a scene for art generation..."
-  class="bg-base-200 mt-4 p-4 rounded-lg shadow-md w-full h-32 text-sm resize-none"
-></textarea>
-<div class="flex w-full space-x-2 mt-4">
-  <button
-    class="relative bg-blue-500 hover:bg-blue-600 text-white w-1/2 py-1 rounded-lg flex justify-center items-center"
-    :disabled="isGeneratingArt"
-    @click="generateArtImage"
-  >
-    <span v-if="!isGeneratingArt">Generate Art</span>
-    <span v-else>
-      <svg
-        class="animate-spin h-5 w-5 text-white"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <circle
-          class="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          stroke-width="4"
-        ></circle>
-        <path
-          class="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-        ></path>
-      </svg>
-    </span>
-  </button>
-  <character-uploader class="w-1/2" @uploaded="setArtImageId" />
-</div>
-
+        <textarea
+          v-model="computedArtPrompt"
+          placeholder="Describe your character's appearance or a scene for art generation..."
+          class="bg-base-200 mt-4 p-4 rounded-lg shadow-md w-full h-32 text-sm resize-none"
+        ></textarea>
+        <div class="flex w-full space-x-2 mt-4">
+          <button
+            class="bg-blue-500 hover:bg-blue-600 text-white w-1/2 px-3 py-1 rounded-lg"
+            :disabled="isGeneratingArt"
+            @click="generateArtImage"
+          >
+            {{ isGeneratingArt ? 'Generating...' : 'Generate Art' }}
+          </button>
+          <character-uploader class="w-1/2" @uploaded="setArtImageId" />
+        </div>
       </div>
     </div>
 
     <!-- Bottom Section -->
     <div class="flex flex-col space-y-4">
-      <div class="flex items-center space-x-2">
-        <label class="block text-gray-700 font-bold">Backstory</label>
-        <input
-          v-model="keepField.backstory"
-          type="checkbox"
-          title="Freeze Backstory"
-          class="checkbox checkbox-primary"
-        />
-      </div>
-      <textarea
-        :value="useGenerated.backstory ? newCharacter.backstory : character.backstory"
-        placeholder="..."
-        class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-        :disabled="keepField.backstory"
-        @input="(event) => updateField('backstory', event)"
-      ></textarea>
-    </div>
-    <div class="flex flex-row space-x-4">
-      <template v-for="field in ['quirks', 'inventory', 'skills']" :key="field">
-        <div class="relative w-[33%]">
+      <template
+        v-for="field in ['backstory', 'quirks', 'inventory', 'skills']"
+        :key="field"
+      >
+        <div class="relative w-full">
           <label class="block text-gray-700 font-bold mb-2">
             {{ field.charAt(0).toUpperCase() + field.slice(1) }}
           </label>
           <textarea
-            :value="useGenerated[field] ? newCharacter[field] : character[field]"
+            :value="getFieldValue(field as keyof Character)"
             placeholder="..."
             class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-            :disabled="keepField[field]"
-            @input="(event) => updateField(field, event)"
+            :disabled="keepField[field as keyof Character]"
+            @input="(event) => updateField(field as keyof Character, event)"
           ></textarea>
-          <input
-            v-model="keepField[field]"
-            type="checkbox"
-            title="Freeze Field"
-            class="absolute top-0 right-0 mt-2 mr-2 checkbox checkbox-primary"
-          />
+          <button
+            v-if="newCharacter[field as keyof Character]"
+            class="absolute top-0 right-0 mt-2 mr-2 bg-gray-700 px-2 py-1 text-sm rounded"
+            @click="toggleField(field as keyof Character)"
+          >
+            {{ useGenerated[field] ? 'Generated' : 'Original' }}
+          </button>
         </div>
       </template>
     </div>
   </div>
 </template>
-
-
-
 
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted } from 'vue'
@@ -248,6 +226,11 @@ import { useUserStore } from '@/stores/userStore'
 const characterStore = useCharacterStore()
 const artStore = useArtStore()
 const userStore = useUserStore()
+
+function getFieldValue(field: keyof Character) {
+  const value = useGenerated[field] ? newCharacter[field] : character[field]
+  return typeof value === 'string' ? value : ''
+}
 
 const computedArtPrompt = computed({
   get() {
@@ -271,7 +254,7 @@ const character = reactive<Partial<Character>>({
   genre: '',
   alignment: 'Neutral',
   level: 1,
-  isPublic: false,
+  isPublic: true,
   artImageId: null,
   artPrompt: '',
   quirks: '',
@@ -453,8 +436,11 @@ async function generateArtImage() {
   }
 }
 
-// Toggle between original and generated values
-function toggleField(field: string) {
+function toggleField(field: keyof Character) {
+  if (!newCharacter[field] || !character[field]) {
+    console.warn(`Field "${field}" does not exist in one of the data sources.`)
+    return
+  }
   useGenerated[field] = !useGenerated[field]
 }
 

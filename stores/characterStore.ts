@@ -47,6 +47,7 @@ export const useCharacterStore = defineStore({
     } as Character,
     selectedCharacter: null as Character | null, // Currently selected character
     characterForm: null as Partial<Character> | null, // Temporary character edits or drafts
+    generatedCharacter: null as Partial<Character> | null,
     loading: false,
     isInitialized: false,
     error: '',
@@ -58,6 +59,51 @@ export const useCharacterStore = defineStore({
         localStorage.setItem('characters', JSON.stringify(this.characters))
       } catch (error) {
         console.error('Error syncing to localStorage:', error)
+      }
+    },
+    async generateCharacterUpdate(
+      character: Partial<Character>,
+      fieldsToUpgrade: string[],
+      instructions?: string,
+    ) {
+      try {
+        this.loading = true
+
+        const requestBody: {
+          character: Partial<Character>
+          fieldsToUpgrade: string[]
+          instructions?: string
+        } = {
+          character,
+          fieldsToUpgrade,
+        }
+
+        if (instructions) {
+          requestBody.instructions = instructions
+        }
+
+        // Send request to API
+        const response = await performFetch<Partial<Character>>(
+          '/api/character/generate',
+          {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+
+        if (response?.success && response.data) {
+          this.generatedCharacter = response.data // Store the new partial character
+          console.log('Generated character data:', this.generatedCharacter)
+        } else {
+          throw new Error(
+            response?.message || 'Error generating character update',
+          )
+        }
+      } catch (error) {
+        handleError(error, 'generating character update')
+      } finally {
+        this.loading = false
       }
     },
 

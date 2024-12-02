@@ -36,7 +36,7 @@
     <!-- Section Content -->
     <div class="flex-grow w-full overflow-y-auto h-full">
       <lazy-weirder-game v-if="activeTab === 'weirdlandia-view'" />
-      <lazy-character-creator v-if="activeTab === 'character-creator'" />
+      
       <lazy-character-designer v-if="activeTab === 'character-designer'" />
       <lazy-character-gallery v-if="activeTab === 'character-gallery'" />
       <lazy-add-reward v-if="activeTab === 'add-reward'" />
@@ -55,7 +55,7 @@ const displayStore = useDisplayStore()
 // Tabs setup for Weirdlandia
 const tabs = [
   { name: 'weirdlandia-view', label: 'Weirdlandia View' },
-  { name: 'character-creator', label: 'Character Creator' },
+  
   { name: 'character-designer', label: 'Character Designer' },
   { name: 'character-gallery', label: 'Character Gallery' },
   { name: 'add-reward', label: 'Add Reward' },

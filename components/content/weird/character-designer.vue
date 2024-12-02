@@ -6,6 +6,12 @@
       <div class="flex flex-col flex-grow space-y-2">
         <h1 class="text-4xl font-bold truncate">
           <div class="flex items-center space-x-2">
+            <input
+              v-model="keepField.name"
+              type="checkbox"
+              title="Freeze this field"
+              class="checkbox checkbox-primary"
+            />
             <label>Name:</label>
             <input
               :value="useGenerated.name ? newCharacter.name : character.name"
@@ -14,17 +20,17 @@
               :disabled="keepField.name"
               @input="(event) => updateField('name', event)"
             />
-            <input
-              v-model="keepField.name"
-              type="checkbox"
-              title="Freeze this field"
-              class="checkbox checkbox-primary"
-            />
           </div>
         </h1>
         <div class="flex flex-wrap space-x-4">
           <template v-for="field in ['honorific', 'species', 'class', 'genre']" :key="field">
             <span class="flex items-center space-x-2">
+              <input
+                v-model="keepField[field]"
+                type="checkbox"
+                title="Freeze this field"
+                class="checkbox checkbox-primary"
+              />
               <label>
                 {{ field.charAt(0).toUpperCase() + field.slice(1) }}:
               </label>
@@ -39,12 +45,6 @@
                 :disabled="keepField[field as keyof Character]"
                 @input="updateField(field as keyof Character, $event)"
               />
-              <input
-                v-model="keepField[field]"
-                type="checkbox"
-                title="Freeze this field"
-                class="checkbox checkbox-primary"
-              />
             </span>
           </template>
         </div>
@@ -54,13 +54,13 @@
       <div class="flex flex-col items-end space-y-2">
         <div class="flex items-center space-x-2">
           <label class="flex items-center space-x-2">
-            <span>Public</span>
             <input
               v-model="character.isPublic"
               type="checkbox"
               class="checkbox checkbox-primary"
               checked
             />
+            <span>Public</span>
           </label>
         </div>
         <div class="flex space-x-2">
@@ -90,29 +90,27 @@
         <div class="flex flex-wrap justify-between w-full">
           <template v-for="i in 6" :key="'stat-' + i">
             <div
-              class="flex flex-col items-center justify-center w-[30%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
+              class="relative flex flex-col items-center justify-center w-[30%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
             >
-              <div class="flex items-center space-x-2">
-                <input
-                  :value="
-                    useGenerated[`statName${i}`]
-                      ? newCharacter[`statName${i}` as keyof Character]
-                      : character[`statName${i}` as keyof Character]
-                  "
-                  class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
-                  :disabled="keepField[`statName${i}`]"
-                  @input="
-                    (event) =>
-                      updateField(`statName${i}` as keyof Character, event)
-                  "
-                />
-                <input
-                  v-model="keepField[`statName${i}`]"
-                  type="checkbox"
-                  title="Freeze Stat Name"
-                  class="checkbox checkbox-primary"
-                />
-              </div>
+              <input
+                v-model="keepField[`statName${i}`]"
+                type="checkbox"
+                title="Freeze Stat"
+                class="absolute top-1 right-1 checkbox checkbox-primary"
+              />
+              <input
+                :value="
+                  useGenerated[`statName${i}`]
+                    ? newCharacter[`statName${i}` as keyof Character]
+                    : character[`statName${i}` as keyof Character]
+                "
+                class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
+                :disabled="keepField[`statName${i}`]"
+                @input="
+                  (event) =>
+                    updateField(`statName${i}` as keyof Character, event)
+                "
+              />
               <input
                 :value="
                   useGenerated[`statValue${i}`]
@@ -172,6 +170,24 @@
     </div>
 
     <!-- Bottom Section -->
+    <div class="flex flex-col space-y-4">
+      <div class="flex items-center space-x-2">
+        <label class="block text-gray-700 font-bold">Backstory</label>
+        <input
+          v-model="keepField.backstory"
+          type="checkbox"
+          title="Freeze Backstory"
+          class="checkbox checkbox-primary"
+        />
+      </div>
+      <textarea
+        :value="useGenerated.backstory ? newCharacter.backstory : character.backstory"
+        placeholder="..."
+        class="bg-base-200 p-4 rounded-lg shadow-md w-full"
+        :disabled="keepField.backstory"
+        @input="(event) => updateField('backstory', event)"
+      ></textarea>
+    </div>
     <div class="flex flex-row space-x-4">
       <template v-for="field in ['quirks', 'inventory', 'skills']" :key="field">
         <div class="relative w-[33%]">
@@ -194,26 +210,9 @@
         </div>
       </template>
     </div>
-
-    <!-- Backstory -->
-    <div class="flex flex-col space-y-4">
-      <label class="block text-gray-700 font-bold mb-2">Backstory</label>
-      <textarea
-        :value="useGenerated.backstory ? newCharacter.backstory : character.backstory"
-        placeholder="..."
-        class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-        :disabled="keepField.backstory"
-        @input="(event) => updateField('backstory', event)"
-      ></textarea>
-      <input
-        v-model="keepField.backstory"
-        type="checkbox"
-        title="Freeze Backstory"
-        class="checkbox checkbox-primary"
-      />
-    </div>
   </div>
 </template>
+
 
 
 

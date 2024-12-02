@@ -156,6 +156,12 @@
             </div>
           </template>
         </div>
+<button
+          class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-md"
+          @click="rerollStats"
+        >
+          Reroll Stats
+        </button>
       </div>
 
       <!-- ArtPrompt Section -->
@@ -208,6 +214,28 @@
           <character-uploader class="w-1/2" @uploaded="setArtImageId" />
         </div>
       </div>
+    </div>
+<!-- Bottom Section -->
+    <div class="flex flex-col space-y-4">
+      <template v-for="field in ['backstory', 'quirks', 'inventory', 'skills']" :key="field">
+        <textarea
+          :value="useGenerated[field] ? newCharacter[field] : character[field]"
+          placeholder="..."
+          class="bg-base-200 p-4 rounded-lg shadow-md"
+          :disabled="keepField[field]"
+          @input="(event) => updateField(field, event)"
+        ></textarea>
+        <div class="flex items-center space-x-2">
+          <input v-model="keepField[field]" type="checkbox" title="Freeze Field" />
+          <button
+            v-if="newCharacter[field]"
+            class="bg-gray-700 px-2 py-1 rounded text-sm"
+            @click="toggleField(field)"
+          >
+            {{ useGenerated[field] ? 'Generated' : 'Original' }}
+          </button>
+        </div>
+      </template>
     </div>
   </div>
 </template>

@@ -215,18 +215,7 @@
         </div>
       </div>
     </div>
-<!-- Bottom Section -->
-    <div class="flex flex-col space-y-4">
-      <template v-for="field in ['backstory', 'quirks', 'inventory', 'skills']" :key="field">
-        <textarea
-          :value="useGenerated[field] ? newCharacter[field] : character[field]"
-          placeholder="..."
-          class="bg-base-200 p-4 rounded-lg shadow-md"
-          :disabled="keepField[field]"
-          @input="(event) => updateField(field, event)"
-        ></textarea>
-        <div class="flex items-center space-x-2">
-          <input v-model="keepField[field]" type="checkbox" title="Freeze Field" />
+
     
 <!-- Bottom Section -->
 <div class="flex flex-col space-y-4">

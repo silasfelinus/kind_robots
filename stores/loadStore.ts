@@ -10,7 +10,7 @@ export const useLoadStore = defineStore('loadMessages', () => {
     'Creating your next favorite digital memory...',
     'Composing the symphony of tomorrow...',
     'Loading creativity...',
-    'Messaging Greta Thunberg about AI's impact on the environment...',
+    "Messaging Greta Thunberg about AI's impact on the environment...",
     'Prank calling Elon Musk...',
     'Debating deontology versus digital determinism...',
     'Redefining ethics in the age of algorithms...',

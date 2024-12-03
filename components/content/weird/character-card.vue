@@ -1,18 +1,20 @@
 <template>
-  <div class="bg-base-200 border border-gray-400 rounded-lg shadow-md p-4 flex flex-col">
+  <div
+    class="bg-base-200 border border-gray-400 rounded-lg shadow-md p-4 flex flex-col"
+  >
     <!-- Character Image -->
     <div class="w-full h-32 bg-gray-800 rounded-lg mb-4 overflow-hidden">
       <img
-        v-if="character.artImageId"
-        :src="`/images/${character.artImageId}.jpg`"
+        v-if="artImage"
+        :src="artImage"
         alt="Character Portrait"
-        class="object-cover w-full h-full"
+        class="object-cover w-full h-60 rounded-lg"
       />
       <img
         v-else
         src="/images/bot.webp"
         alt="Default Portrait"
-        class="object-cover w-full h-full"
+        class="object-cover w-full h-60 rounded-lg"
       />
     </div>
 
@@ -30,7 +32,9 @@
     </div>
 
     <!-- Stats -->
-    <div class="flex flex-row justify-between items-center bg-base-300 rounded-lg shadow-inner p-2">
+    <div
+      class="flex flex-row justify-between items-center bg-base-300 rounded-lg shadow-inner p-2"
+    >
       <div
         v-for="i in statKeys.length"
         :key="'stat-' + i"
@@ -60,6 +64,14 @@ defineProps({
     type: String,
     required: true,
   },
+})
+
+// Computed property for the art image
+const artImage = computed(() => {
+  if (!character.artImageId) return null
+  const image = artStore.getCachedArtImageById(character.artImageId)
+  if (!image) return null
+  return `data:image/${image.fileType};base64,${image.imageData}`
 })
 
 // Dynamically get stat keys for rendering

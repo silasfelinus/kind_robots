@@ -36,7 +36,7 @@
       class="flex flex-row justify-between items-center bg-base-300 rounded-lg shadow-inner p-2"
     >
       <div
-        v-for="i in statKeys.length"
+        v-for="i in statKeys"
         :key="'stat-' + i"
         class="flex flex-col items-center w-[16%] bg-base-200 border border-gray-500 rounded-md p-1"
       >
@@ -53,6 +53,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useArtStore } from '@/stores/artStore'
 
 // Props for the character card
 defineProps({
@@ -65,6 +66,9 @@ defineProps({
     required: true,
   },
 })
+
+// Art store for fetching image data
+const artStore = useArtStore()
 
 // Computed property for the art image
 const artImage = computed(() => {

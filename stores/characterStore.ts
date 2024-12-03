@@ -7,47 +7,12 @@ export const useCharacterStore = defineStore({
 
   state: () => ({
     characters: [] as Character[],
-    newCharacter: {
-      name: 'Spaghetti-Man',
-      alignment: 'Chaotic Neutral',
-      class: 'Cryptid Accountant',
-      level: 1,
-      experience: 0,
-      artPrompt: '',
-      artImageId: null,
-      species: 'Ethereal Cryptid',
-      backstory:
-        'Once a myth whispered in laundromats, Spaghetti-Man emerged to ensure socks never form pairs in the universe.',
-      drive: 'Stealing socks to balance cosmic accounts',
-      inventory:
-        'Single socks of all colors and textures, a balance sheet from beyond',
-      quirks: 'Steals socks|Only eats spaghetti|Talks in riddles',
-      skills: 'Sock Snatching|Ghostly Calculations|Cosmic Disruptions',
-      genre: 'Fantasy/Comedy',
-      statName1: 'Luck',
-      statValue1: 12,
-      statName2: 'Swol',
-      statValue2: 9,
-      statName3: 'Wits',
-      statValue3: 15,
-      statName4: 'Durability',
-      statValue4: 8,
-      statName5: 'Rizz',
-      statValue5: 11,
-      statName6: 'Skibidi',
-      statValue6: 10,
-      goalStat1Name: 'Principled|Chaotic',
-      goalStat1Value: 5,
-      goalStat2Name: 'Introvert|Extrovert',
-      goalStat2Value: -3,
-      goalStat3Name: 'Passive|Aggressive',
-      goalStat3Value: 2,
-      goalStat4Name: 'Optimist|Pessimist',
-      goalStat4Value: -1,
-    } as Character,
-    selectedCharacter: null as Character | null, // Currently selected character
-    characterForm: null as Partial<Character> | null, // Temporary character edits or drafts
+    newCharacter: {} as Partial<Character>,
+    selectedCharacter: null as Character | null,
     generatedCharacter: null as Partial<Character> | null,
+    keepField: {} as Record<string, boolean>,
+    useGenerated: {} as Record<string, boolean>,
+    isSaving: false,
     loading: false,
     isInitialized: false,
     error: '',
@@ -61,61 +26,14 @@ export const useCharacterStore = defineStore({
         console.error('Error syncing to localStorage:', error)
       }
     },
-    async generateCharacterUpdate(
-      character: Partial<Character>,
-      fieldsToUpgrade: string[],
-      instructions?: string,
-    ) {
-      try {
-        this.loading = true
-
-        const requestBody: {
-          character: Partial<Character>
-          fieldsToUpgrade: string[]
-          instructions?: string
-        } = {
-          character,
-          fieldsToUpgrade,
-        }
-
-        if (instructions) {
-          requestBody.instructions = instructions
-        }
-
-        // Send request to API
-        const response = await performFetch<Partial<Character>>(
-          '/api/character/generate',
-          {
-            method: 'POST',
-            body: JSON.stringify(requestBody),
-            headers: { 'Content-Type': 'application/json' },
-          },
-        )
-
-        if (response?.success && response.data) {
-          this.generatedCharacter = response.data // Store the new partial character
-          console.log('Generated character data:', this.generatedCharacter)
-        } else {
-          throw new Error(
-            response?.message || 'Error generating character update',
-          )
-        }
-      } catch (error) {
-        handleError(error, 'generating character update')
-      } finally {
-        this.loading = false
-      }
-    },
 
     async initialize() {
-      console.log('Initializing character store...')
       if (this.isInitialized) {
         console.log('Character store is already initialized.')
         return
       }
       try {
         await this.fetchCharacters()
-        console.log('Character store initialized successfully.')
         this.isInitialized = true
       } catch (error) {
         handleError(error, 'Error while initializing the character store')
@@ -126,10 +44,8 @@ export const useCharacterStore = defineStore({
       try {
         this.loading = true
         const response = await performFetch<Character[]>('/api/characters')
-
         if (response?.success && response.data) {
-          this.characters = response.data // Correctly extract and assign `data`
-          console.log('Fetched characters:', this.characters)
+          this.characters = response.data
           this.syncToLocalStorage()
         } else {
           throw new Error(response?.message || 'Error fetching characters')
@@ -142,29 +58,68 @@ export const useCharacterStore = defineStore({
     },
 
     selectCharacter(id: number) {
-      const character = this.characters.find((c) => c.id === id) || null
-      if (!character) {
+      this.selectedCharacter = this.characters.find((c) => c.id === id) || null
+      if (!this.selectedCharacter) {
         console.warn(`Character with ID ${id} not found.`)
       }
-      this.selectedCharacter = character
     },
+    async generateFields() {
+      // Ensure selectedCharacter is not null
+      const selectedCharacter = this.selectedCharacter
+      if (!selectedCharacter) {
+        console.warn('No character selected for field generation.')
+        return
+      }
 
-    async fetchCharacterById(id: number) {
+      // Use type assertion or create a temporary variable
+      const fieldsToUpgrade = Object.keys(selectedCharacter).filter(
+        (key) =>
+          !this.keepField[key] &&
+          typeof selectedCharacter[key as keyof Character] === 'string',
+      )
+
       try {
-        this.loading = true
-        const response = await performFetch<Character>(`/api/characters/${id}`)
-
-        if (response?.success && response.data) {
-          this.selectedCharacter = response.data // Correctly extract and assign `data`
-          console.log(
-            `Fetched character with ID ${id}:`,
-            this.selectedCharacter,
-          )
-        } else {
-          throw new Error(response?.message || 'Error fetching character by ID')
+        await this.generateCharacterUpdate(selectedCharacter, fieldsToUpgrade)
+        if (this.generatedCharacter) {
+          Object.assign(this.newCharacter, this.generatedCharacter)
         }
       } catch (error) {
-        handleError(error, `fetching character with ID ${id}`)
+        handleError(error, 'generating fields')
+      }
+    },
+
+    async generateCharacterUpdate(
+      character: Partial<Character>,
+      fieldsToUpgrade: string[],
+      instructions?: string,
+    ) {
+      try {
+        this.loading = true
+
+        const requestBody = {
+          character,
+          fieldsToUpgrade,
+          instructions,
+        }
+
+        const response = await performFetch<Partial<Character>>(
+          '/api/character/generate',
+          {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+
+        if (response?.success && response.data) {
+          this.generatedCharacter = response.data
+        } else {
+          throw new Error(
+            response?.message || 'Error generating character update',
+          )
+        }
+      } catch (error) {
+        handleError(error, 'generating character update')
       } finally {
         this.loading = false
       }
@@ -180,8 +135,7 @@ export const useCharacterStore = defineStore({
         })
 
         if (response?.success && response.data) {
-          this.characters.push(response.data) // Correctly extract and assign `data`
-          console.log('Character created successfully:', response.data)
+          this.characters.push(response.data)
           this.syncToLocalStorage()
         } else {
           throw new Error(response?.message || 'Error creating character')
@@ -193,7 +147,7 @@ export const useCharacterStore = defineStore({
       }
     },
 
-    async updateCharacter(id: number, characterUpdates: Partial<Character>) {
+    async patchCharacter(id: number, characterUpdates: Partial<Character>) {
       try {
         this.loading = true
         const response = await performFetch<Character>(
@@ -208,9 +162,8 @@ export const useCharacterStore = defineStore({
         if (response?.success && response.data) {
           const index = this.characters.findIndex((c) => c.id === id)
           if (index !== -1) {
-            this.characters[index] = response.data // Correctly extract and assign `data`
+            this.characters[index] = response.data
           }
-          console.log(`Character with ID ${id} updated successfully.`)
           this.syncToLocalStorage()
         } else {
           throw new Error(response?.message || 'Error updating character')
@@ -222,61 +175,23 @@ export const useCharacterStore = defineStore({
       }
     },
 
-    async deleteCharacter(id: number) {
-      try {
-        this.loading = true
-        const response = await performFetch<{
-          success: boolean
-          message?: string
-        }>(`/api/characters/${id}`, {
-          method: 'DELETE',
-        })
-
-        if (response?.success) {
-          this.characters = this.characters.filter((c) => c.id !== id)
-          console.log(`Character with ID ${id} deleted successfully.`)
-          this.syncToLocalStorage()
-        } else {
-          throw new Error(response?.message || 'Error deleting character')
-        }
-      } catch (error) {
-        handleError(error, `deleting character with ID ${id}`)
-      } finally {
-        this.loading = false
+    rerollStats() {
+      if (!this.selectedCharacter) {
+        console.warn('No character selected to reroll stats.')
+        return
       }
-    },
 
-    async generateCharacterImage(id: number, artPrompt: string) {
-      try {
-        this.loading = true
-        const response = await performFetch<Character>(
-          `/api/characters/${id}`,
-          {
-            method: 'PATCH',
-            body: JSON.stringify({ artPrompt }),
-            headers: { 'Content-Type': 'application/json' },
-          },
-        )
+      const rollDice = () =>
+        Math.floor(Math.random() * 6 + 1) +
+        Math.floor(Math.random() * 6 + 1) +
+        Math.floor(Math.random() * 6 + 1)
 
-        if (response?.success && response.data) {
-          const index = this.characters.findIndex((c) => c.id === id)
-          if (index !== -1) {
-            this.characters[index] = response.data // Correctly extract and assign `data`
-          }
-          console.log(
-            `Character image for ID ${id} updated successfully with prompt: "${artPrompt}"`,
-          )
-          this.syncToLocalStorage()
-        } else {
-          throw new Error(
-            response?.message || 'Error generating character image',
-          )
-        }
-      } catch (error) {
-        handleError(error, `generating character image for ID ${id}`)
-      } finally {
-        this.loading = false
-      }
+      this.selectedCharacter.statValue1 = rollDice()
+      this.selectedCharacter.statValue2 = rollDice()
+      this.selectedCharacter.statValue3 = rollDice()
+      this.selectedCharacter.statValue4 = rollDice()
+      this.selectedCharacter.statValue5 = rollDice()
+      this.selectedCharacter.statValue6 = rollDice()
     },
   },
 })

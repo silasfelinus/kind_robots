@@ -368,7 +368,7 @@ async function saveCharacter() {
 
     // Save character
     if (character.id) {
-      await characterStore.updateCharacter(character.id, characterToSave)
+      await characterStore.patchCharacter(character.id, characterToSave)
     } else {
       await characterStore.createCharacter(characterToSave)
     }

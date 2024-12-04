@@ -44,7 +44,7 @@
         @click="selectReward(reward)"
       >
         <div class="text-center">
-          <Icon name="kind-icon:open-treasure-chest" class="text-6xl" />
+          <Icon :name="reward.icon" class="text-6xl" />
           <p class="mt-2 text-lg">
             {{ reward.text }}
           </p>

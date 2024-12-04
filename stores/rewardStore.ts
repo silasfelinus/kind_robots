@@ -8,6 +8,7 @@ interface RewardState {
   error: string | null
   startingRewardId: number | null
   isLoading: boolean
+  randomRewards: Reward[] | null
 }
 
 export const useRewardStore = defineStore({
@@ -19,6 +20,7 @@ export const useRewardStore = defineStore({
     error: null,
     startingRewardId: null,
     isLoading: false,
+    randomRewards: [],
   }),
 
   getters: {
@@ -59,6 +61,7 @@ export const useRewardStore = defineStore({
         }
 
         this.rewards = validRewards
+        this.refreshRandomRewards()
         localStorage.setItem('rewards', JSON.stringify(this.rewards))
       } catch (error) {
         this.error = `Failed to fetch rewards: ${error}`
@@ -66,6 +69,10 @@ export const useRewardStore = defineStore({
       } finally {
         this.isLoading = false
       }
+    },
+    refreshRandomRewards() {
+      const shuffled = [...this.rewards].sort(() => 0.5 - Math.random())
+      this.randomRewards = shuffled.slice(0, 5)
     },
 
     initializeStore() {

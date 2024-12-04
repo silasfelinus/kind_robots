@@ -16,9 +16,33 @@ export const useCharacterStore = defineStore({
     loading: false,
     isInitialized: false,
     error: '',
+    generationMode: false,
+    creatorMode: true,
   }),
 
+  getters: {
+    // Computed states
+    isInGenerationMode: (state) => state.generationMode,
+    isInCreatorMode: (state) => state.creatorMode,
+    getSelectedCharacter: (state) => state.selectedCharacter,
+    getGeneratedCharacter: (state) => state.generatedCharacter,
+  },
+
   actions: {
+    setGenerationMode(value: boolean) {
+      this.generationMode = value
+    },
+    toggleGenerationMode() {
+      this.generationMode = !this.generationMode
+    },
+
+    setCreatorMode(value: boolean) {
+      this.creatorMode = value
+    },
+    toggleCreatorMode() {
+      this.creatorMode = !this.creatorMode
+    },
+
     syncToLocalStorage() {
       try {
         localStorage.setItem('characters', JSON.stringify(this.characters))
@@ -37,54 +61,6 @@ export const useCharacterStore = defineStore({
         this.isInitialized = true
       } catch (error) {
         handleError(error, 'Error while initializing the character store')
-      }
-    },
-
-    async fetchCharacters() {
-      try {
-        this.loading = true
-        const response = await performFetch<Character[]>('/api/characters')
-        if (response?.success && response.data) {
-          this.characters = response.data
-          this.syncToLocalStorage()
-        } else {
-          throw new Error(response?.message || 'Error fetching characters')
-        }
-      } catch (error) {
-        handleError(error, 'fetching characters')
-      } finally {
-        this.loading = false
-      }
-    },
-
-    selectCharacter(id: number) {
-      this.selectedCharacter = this.characters.find((c) => c.id === id) || null
-      if (!this.selectedCharacter) {
-        console.warn(`Character with ID ${id} not found.`)
-      }
-    },
-    async generateFields() {
-      // Ensure selectedCharacter is not null
-      const selectedCharacter = this.selectedCharacter
-      if (!selectedCharacter) {
-        console.warn('No character selected for field generation.')
-        return
-      }
-
-      // Use type assertion or create a temporary variable
-      const fieldsToUpgrade = Object.keys(selectedCharacter).filter(
-        (key) =>
-          !this.keepField[key] &&
-          typeof selectedCharacter[key as keyof Character] === 'string',
-      )
-
-      try {
-        await this.generateCharacterUpdate(selectedCharacter, fieldsToUpgrade)
-        if (this.generatedCharacter) {
-          Object.assign(this.newCharacter, this.generatedCharacter)
-        }
-      } catch (error) {
-        handleError(error, 'generating fields')
       }
     },
 
@@ -125,6 +101,65 @@ export const useCharacterStore = defineStore({
       }
     },
 
+    async fetchCharacters() {
+      try {
+        this.loading = true
+        const response = await performFetch<Character[]>('/api/characters')
+        if (response?.success && response.data) {
+          this.characters = response.data
+          this.syncToLocalStorage()
+        } else {
+          throw new Error(response?.message || 'Error fetching characters')
+        }
+      } catch (error) {
+        handleError(error, 'fetching characters')
+      } finally {
+        this.loading = false
+      }
+    },
+
+    selectCharacter(id: number) {
+      this.selectedCharacter = this.characters.find((c) => c.id === id) || null
+      if (!this.selectedCharacter) {
+        console.warn(`Character with ID ${id} not found.`)
+      }
+    },
+
+    createNewCharacter() {
+      const newCharacter: Partial<Character> = {
+        name: 'New Character',
+        honorific: 'Adventurer',
+        experience: 0,
+        level: 1,
+        statName1: 'Luck',
+        statValue1: 9,
+        statName2: 'Swol',
+        statValue2: 9,
+        statName3: 'Wits',
+        statValue3: 9,
+        statName4: 'Fortitude',
+        statValue4: 9,
+        statName5: 'Rizz',
+        statValue5: 9,
+        statName6: 'Empathy',
+        statValue6: 9,
+        goalStat1Name: 'Principled|Chaotic',
+        goalStat1Value: 0,
+        goalStat2Name: 'Introvert|Extrovert',
+        goalStat2Value: 0,
+        goalStat3Name: 'Passive|Aggressive',
+        goalStat3Value: 0,
+        goalStat4Name: 'Optimist|Pessimist',
+        goalStat4Value: 0,
+        artImageId: null,
+        isPublic: false,
+        userId: 10,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      this.selectedCharacter = newCharacter as Character
+    },
+
     async createCharacter(character: Partial<Character>) {
       try {
         this.loading = true
@@ -137,6 +172,7 @@ export const useCharacterStore = defineStore({
         if (response?.success && response.data) {
           this.characters.push(response.data)
           this.syncToLocalStorage()
+          this.selectedCharacter = response.data // Select the newly created character
         } else {
           throw new Error(response?.message || 'Error creating character')
         }
@@ -163,6 +199,7 @@ export const useCharacterStore = defineStore({
           const index = this.characters.findIndex((c) => c.id === id)
           if (index !== -1) {
             this.characters[index] = response.data
+            this.selectedCharacter = response.data // Update the selected character
           }
           this.syncToLocalStorage()
         } else {
@@ -172,6 +209,39 @@ export const useCharacterStore = defineStore({
         handleError(error, `updating character with ID ${id}`)
       } finally {
         this.loading = false
+      }
+    },
+    updateField(field: keyof Character, value: string | number | null) {
+      if (this.useGenerated[field]) {
+        this.generatedCharacter = {
+          ...this.generatedCharacter,
+          [field]: value,
+        }
+      } else if (this.selectedCharacter) {
+        this.selectedCharacter = {
+          ...this.selectedCharacter,
+          [field]: value,
+        }
+      }
+    },
+
+    async deleteCharacter(id: number) {
+      try {
+        const response = await performFetch(`/api/characters/${id}`, {
+          method: 'DELETE',
+        })
+
+        if (response?.success) {
+          this.characters = this.characters.filter((c) => c.id !== id)
+          if (this.selectedCharacter?.id === id) {
+            this.selectedCharacter = null
+          }
+          this.syncToLocalStorage()
+        } else {
+          throw new Error(response?.message || 'Error deleting character')
+        }
+      } catch (error) {
+        handleError(error, `deleting character with ID ${id}`)
       }
     },
 

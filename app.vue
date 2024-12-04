@@ -1,6 +1,6 @@
 <template>
   <div
-    class="main-layout h-screen w-screen relative bg-base-200 overflow-hidden box-border"
+    class="main-layout h-screen w-screen relative bg-base-300 overflow-hidden box-border"
   >
     <!-- Loaders -->
     <div class="fixed z-50">

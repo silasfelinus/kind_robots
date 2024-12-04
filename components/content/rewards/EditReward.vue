@@ -23,15 +23,25 @@
     </form>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref } from 'vue'
-import { type Reward, useRewardStore } from './../../../stores/rewardStore' // Import the Reward type
+import { ref, watch } from 'vue'
+import { useRewardStore } from './../../../stores/rewardStore'
 
 const rewardStore = useRewardStore()
-const editedReward = ref<Partial<Reward>>({}) // Define the type for editedReward
 
-// Form fields definition for better reusability and maintainability
+// Initialize editedReward as a ref based on currentReward
+const editedReward = ref({ ...rewardStore.currentReward })
+
+// Watch currentReward for changes and update editedReward
+watch(
+  () => rewardStore.currentReward,
+  (newReward) => {
+    editedReward.value = { ...newReward }
+  },
+  { immediate: true }, // Initialize on load
+)
+
+// Form fields definition for reusability
 const formFields = [
   { id: 'Icon', label: 'Icon', required: true },
   { id: 'text', label: 'Text', required: true },

@@ -45,7 +45,7 @@ const character = computed(() => characterStore.selectedCharacter)
 // Computed property for the art image
 const artImage = computed(() => {
   if (!character.value?.artImageId) return null
-  const image = artStore.getCachedArtImageById(character.value.artImageId)
+  const image = artStore.getArtImageById(character.value.artImageId)
   if (!image) return null
   return `data:image/${image.fileType};base64,${image.imageData}`
 })

@@ -1,20 +1,22 @@
 <template>
-  <div class="w-full flex flex-col space-y-4">
+  <div class="w-full flex flex-col space-y-4 p-4">
     <!-- Display Art Image -->
     <img
       v-if="artImage"
       :src="artImage"
       alt="Character Portrait"
-      class="object-cover w-full h-60 rounded-lg"
+      class="object-cover w-full max-h-60 rounded-lg shadow"
     />
+
     <!-- Art Prompt Textarea -->
     <textarea
       v-model="artPrompt"
       placeholder="Describe your character's appearance..."
-      class="bg-base-200 mt-4 p-4 rounded-lg shadow-md w-full h-32 text-sm resize-none"
+      class="bg-base-200 p-4 rounded-lg shadow-md w-full min-h-32 text-sm resize-none"
     ></textarea>
+
     <!-- Actions -->
-    <div class="flex space-x-2 mt-4">
+    <div class="flex flex-wrap space-x-2 mt-4">
       <button
         class="bg-blue-500 hover:bg-blue-600 text-white w-1/2 px-3 py-1 rounded-lg"
         :disabled="isGeneratingArt"
@@ -26,6 +28,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'

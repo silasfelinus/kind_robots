@@ -27,6 +27,7 @@ model Art {
   cfg           Int?            @default(3)
   cfgHalf       Boolean?        @default(false)
   artImageId    Int?
+  imagePath     String?
   Gallery       Gallery?        @relation(fields: [galleryId], references: [id])
   Pitch         Pitch?          @relation(fields: [pitchId], references: [id])
   Prompt        Prompt?         @relation(fields: [promptId], references: [id])

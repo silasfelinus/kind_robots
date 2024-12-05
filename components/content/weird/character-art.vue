@@ -57,7 +57,7 @@ watch(
     if (image) {
       resolvedArtImage.value = `data:image/${image.fileType};base64,${image.imageData}`
     } else {
-      resolvedArtImage.value = null
+      resolvedArtImage.value = '/images/bot.webp'
     }
   },
   { immediate: true },

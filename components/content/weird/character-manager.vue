@@ -1,7 +1,7 @@
 <template>
   <div
     ref="container"
-    class="h-screen w-full bg-base-200 p-6 flex flex-col space-y-6"
+    class="h-full w-full bg-base-200 flex flex-col"
   >
     <!-- Error Display -->
     <div
@@ -19,8 +19,7 @@
 
     <!-- Character Options (Top 8%) -->
     <div
-      class="flex justify-center items-center"
-      :style="{ height: `calc(${containerHeight * 0.08}px)` }"
+      class="flex justify-center items-center h-10%"
     >
       <character-options />
     </div>
@@ -29,8 +28,7 @@
     <div class="flex-grow flex flex-col">
       <!-- Title (20% Height) -->
       <div
-        class="flex justify-center items-center"
-        :style="{ height: `calc(${containerHeight * 0.2}px)` }"
+        class="flex justify-center items-center h-20%"
       >
         <character-title />
       </div>
@@ -39,11 +37,7 @@
       <div class="flex flex-row flex-grow">
         <!-- Stats and Goals (70% Width) -->
         <div
-          class="flex flex-col space-y-4"
-          :style="{
-            width: `calc(${containerWidth * 0.7}px)`,
-            height: `calc(${containerHeight * 0.5}px)`,
-          }"
+          class="flex flex-col space-y-4 w-2/3 h-1/2"
         >
           <character-stats />
           <character-rewards />
@@ -51,11 +45,8 @@
 
         <!-- Character Art (30% Width) -->
         <div
-          class="flex items-center justify-center"
-          :style="{
-            width: `calc(${containerWidth * 0.3}px)`,
-            height: `calc(${containerHeight * 0.5}px)`,
-          }"
+          class="flex items-center justify-center  w-1/3 h-1/2"
+          
         >
           <character-art />
         </div>
@@ -64,8 +55,8 @@
 
     <!-- Bottom Section (Remaining 25%) -->
     <div
-      class="flex justify-center items-center"
-      :style="{ height: `calc(${containerHeight * 0.25}px)` }"
+      class="flex justify-center items-center w-full h-auto"
+      
     >
       <character-bottom />
     </div>
@@ -73,11 +64,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref } from 'vue'
 
-const container = ref<HTMLElement | null>(null)
-const containerWidth = ref(0)
-const containerHeight = ref(0)
 
 // Error handling
 const error = ref<string | null>(null)
@@ -85,27 +73,5 @@ function clearError() {
   error.value = null
 }
 
-// Function to calculate container dimensions
-const calculateContainerDimensions = () => {
-  if (container.value) {
-    const rect = container.value.getBoundingClientRect()
-    containerWidth.value = rect.width
-    containerHeight.value = rect.height
-  }
-}
 
-// Watch for window resize
-const handleResize = () => {
-  calculateContainerDimensions()
-}
-
-// Initialize and set up event listeners
-onMounted(() => {
-  calculateContainerDimensions()
-  window.addEventListener('resize', handleResize)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
-})
 </script>

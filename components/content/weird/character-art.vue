@@ -18,50 +18,53 @@
     <!-- Actions -->
     <div class="flex flex-wrap space-x-2 mt-4">
       <button
-        class="bg-blue-500 hover:bg-blue-600 text-white w-1/2 px-3 py-1 rounded-lg"
+        class="bg-blue-500 hover:bg-blue-600 text-white w-1/3 px-3 py-1 rounded-lg"
         :disabled="isGeneratingArt"
         @click="generateArt"
       >
         {{ isGeneratingArt ? 'Generating...' : 'Generate Art' }}
       </button>
-      <character-uploader class="w-1/2" @uploaded="setArtImageId" />
+      <button
+        class="bg-green-500 hover:bg-green-600 text-white w-1/3 px-3 py-1 rounded-lg"
+        :disabled="isLoading"
+        @click="pickRandomImageFromGallery"
+      >
+        {{ isLoading ? 'Picking...' : 'Pick Random from Gallery' }}
+      </button>
+      <character-uploader class="w-1/3" @uploaded="setArtImageId" />
+    </div>
+
+    <!-- Gallery Selector -->
+    <div class="mt-4">
+      <gallery-selector @gallery-selected="setCurrentGallery" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useArtStore } from '@/stores/artStore'
+import { useGalleryStore } from '@/stores/galleryStore'
 
 // Access stores
 const characterStore = useCharacterStore()
 const artStore = useArtStore()
+const galleryStore = useGalleryStore()
 
 // Computed property for selected character
 const character = computed(() => characterStore.selectedCharacter)
 
-// Ref to store the resolved art image
-const resolvedArtImage = ref<string | null>(null)
+// Computed property for resolving the art image
+const resolvedArtImage = computed(() => {
+  if (!character.value?.imagePath) {
+    return null // No image path, return null
+  }
 
-// Watch for changes in `artImageId` and fetch the image
-watch(
-  () => character.value?.artImageId,
-  async (newArtImageId) => {
-    if (!newArtImageId) {
-      resolvedArtImage.value = null
-      return
-    }
-
-    const image = await artStore.getArtImageById(newArtImageId)
-    if (image) {
-      resolvedArtImage.value = `data:image/${image.fileType};base64,${image.imageData}`
-    } else {
-      resolvedArtImage.value = '/images/bot.webp'
-    }
-  },
-  { immediate: true },
-)
+  return character.value.imagePath
+    ? character.value.imagePath
+    : '/images/bot.webp' // Fallback to default image
+})
 
 // State for art prompt
 const artPrompt = computed({
@@ -76,8 +79,9 @@ const artPrompt = computed({
   },
 })
 
-// State for generating art
+// State for generating art and loading images
 const isGeneratingArt = ref(false)
+const isLoading = ref(false)
 
 // Generate art function
 async function generateArt() {
@@ -91,7 +95,7 @@ async function generateArt() {
       promptString: character.value.artPrompt,
       title: character.value.name || 'Unnamed Character',
       collection: 'characters',
-      userId: characterStore.selectedCharacter?.userId || 1,
+      userId: character.value?.userId || 1,
     })
     if (response.success && response.data) {
       characterStore.selectedCharacter = {
@@ -106,6 +110,36 @@ async function generateArt() {
   } finally {
     isGeneratingArt.value = false
   }
+}
+
+// Select a random image from the gallery
+async function pickRandomImageFromGallery() {
+  if (!galleryStore.currentGallery) {
+    alert('Please select a gallery first.')
+    return
+  }
+
+  isLoading.value = true
+  try {
+    const randomImage = await galleryStore.changeToRandomImage()
+    if (randomImage) {
+      characterStore.selectedCharacter = {
+        ...character.value,
+        imagePath: randomImage, // Update character's image path
+      }
+    } else {
+      alert('Failed to pick a random image from the gallery.')
+    }
+  } catch (error) {
+    console.error('Error picking random image:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Set the current gallery
+function setCurrentGallery(galleryId: number) {
+  galleryStore.setCurrentGallery(galleryId)
 }
 
 // Set art image ID after upload

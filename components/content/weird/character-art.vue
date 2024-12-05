@@ -2,8 +2,8 @@
   <div class="w-full flex flex-col space-y-4 p-4">
     <!-- Display Art Image -->
     <img
-      v-if="artImage"
-      :src="artImage"
+      v-if="resolvedArtImage"
+      :src="resolvedArtImage"
       alt="Character Portrait"
       class="object-cover w-full max-h-60 rounded-lg shadow"
     />
@@ -29,9 +29,8 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useArtStore } from '@/stores/artStore'
 
@@ -42,13 +41,27 @@ const artStore = useArtStore()
 // Computed property for selected character
 const character = computed(() => characterStore.selectedCharacter)
 
-// Computed property for the art image
-const artImage = computed(() => {
-  if (!character.value?.artImageId) return null
-  const image = artStore.getArtImageById(character.value.artImageId)
-  if (!image) return null
-  return `data:image/${image.fileType};base64,${image.imageData}`
-})
+// Ref to store the resolved art image
+const resolvedArtImage = ref<string | null>(null)
+
+// Watch for changes in `artImageId` and fetch the image
+watch(
+  () => character.value?.artImageId,
+  async (newArtImageId) => {
+    if (!newArtImageId) {
+      resolvedArtImage.value = null
+      return
+    }
+
+    const image = await artStore.getArtImageById(newArtImageId)
+    if (image) {
+      resolvedArtImage.value = `data:image/${image.fileType};base64,${image.imageData}`
+    } else {
+      resolvedArtImage.value = null
+    }
+  },
+  { immediate: true },
+)
 
 // State for art prompt
 const artPrompt = computed({

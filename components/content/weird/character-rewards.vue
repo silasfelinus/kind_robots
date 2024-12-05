@@ -13,13 +13,13 @@
         class="flex-none w-40 h-40 rounded-xl bg-base-200 flex items-center justify-center text-center cursor-pointer hover:bg-primary hover:text-default transition-all duration-300 ease-in-out"
         @click="selectReward(reward)"
       >
-        <img
+        <Icon
           v-if="reward.icon"
-          :src="reward.icon"
+          :name="reward.icon"
           alt="Reward Icon"
           class="w-24 h-24 object-contain"
         />
-        <span v-else class="text-lg text-gray-600 p-2">
+        <span class="text-lg text-gray-600 p-2">
           {{ reward.text }}
         </span>
       </div>

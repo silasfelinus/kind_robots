@@ -183,14 +183,26 @@ export const useCharacterStore = defineStore({
       }
     },
 
-    async patchCharacter(id: number, characterUpdates: Partial<Character>) {
+    async patchCharacter(
+      id: number,
+      characterUpdates: Partial<Character>,
+      rewardIds?: number[],
+    ) {
       try {
         this.loading = true
+
+        const data = {
+          ...characterUpdates,
+          Rewards: rewardIds
+            ? { set: rewardIds.map((id) => ({ id })) }
+            : undefined,
+        }
+
         const response = await performFetch<Character>(
           `/api/characters/${id}`,
           {
             method: 'PATCH',
-            body: JSON.stringify(characterUpdates),
+            body: JSON.stringify(data),
             headers: { 'Content-Type': 'application/json' },
           },
         )
@@ -199,9 +211,8 @@ export const useCharacterStore = defineStore({
           const index = this.characters.findIndex((c) => c.id === id)
           if (index !== -1) {
             this.characters[index] = response.data
-            this.selectedCharacter = response.data // Update the selected character
           }
-          this.syncToLocalStorage()
+          this.selectedCharacter = response.data // Update the selected character
         } else {
           throw new Error(response?.message || 'Error updating character')
         }

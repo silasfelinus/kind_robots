@@ -18,7 +18,9 @@ export default defineEventHandler(async (event) => {
     const authenticatedUserId = user.id
 
     // Read and validate character data from the request body
-    const characterData = await readBody<Partial<Character>>(event)
+    const characterData = await readBody<
+      Partial<Character> & { rewardIds?: number[] }
+    >(event)
 
     // Ensure required "name" field is provided and is a string
     if (!characterData.name || typeof characterData.name !== 'string') {
@@ -28,6 +30,12 @@ export default defineEventHandler(async (event) => {
         data: null,
         message: 'The "name" field is required and must be a string.',
       }
+    }
+
+    // Handle Rewards if provided
+    let rewardsConnect: Prisma.RewardWhereUniqueInput[] | undefined
+    if (characterData.rewardIds && Array.isArray(characterData.rewardIds)) {
+      rewardsConnect = characterData.rewardIds.map((id) => ({ id }))
     }
 
     // Prepare the full character data
@@ -67,10 +75,15 @@ export default defineEventHandler(async (event) => {
       genre: characterData.genre || null,
       artPrompt: characterData.artPrompt || null,
       artImageId: characterData.artImageId || null,
+      Rewards: rewardsConnect ? { connect: rewardsConnect } : undefined, // Add rewards
     }
 
     // Create the character and return a success response
-    const data = await prisma.character.create({ data: fullData })
+    const data = await prisma.character.create({
+      data: fullData,
+      include: { Rewards: true }, // Include rewards in the response
+    })
+
     event.node.res.statusCode = 201
 
     return {

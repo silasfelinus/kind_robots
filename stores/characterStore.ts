@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Character } from '@prisma/client'
 import { performFetch, handleError } from './../stores/utils'
+import { useRewardStore } from './../stores/rewardStore'
 
 export const useCharacterStore = defineStore({
   id: 'characterStore',
@@ -163,9 +164,21 @@ export const useCharacterStore = defineStore({
     async createCharacter(character: Partial<Character>) {
       try {
         this.loading = true
+
+        const rewardStore = useRewardStore() // Access the rewardStore
+        const currentReward = rewardStore.currentReward
+
+        // Add the reward relationship if currentReward exists
+        const characterPayload = {
+          ...character,
+          Rewards: currentReward
+            ? { connect: [{ id: currentReward.id }] }
+            : undefined,
+        }
+
         const response = await performFetch<Character>('/api/characters', {
           method: 'POST',
-          body: JSON.stringify(character),
+          body: JSON.stringify(characterPayload),
           headers: { 'Content-Type': 'application/json' },
         })
 

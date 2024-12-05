@@ -1,5 +1,8 @@
 <template>
-  <div class="h-screen w-full bg-base-200 p-6 flex flex-col space-y-6">
+  <div
+    ref="container"
+    class="h-screen w-full bg-base-200 p-6 flex flex-col space-y-6"
+  >
     <!-- Error Display -->
     <div
       v-if="error"
@@ -17,20 +20,17 @@
     <!-- Character Options (Top 8%) -->
     <div
       class="flex justify-center items-center"
-      :style="{ height: `calc(${displayStore.mainVh * 0.08}vh)` }"
+      :style="{ height: `calc(${containerHeight * 0.08}px)` }"
     >
       <character-options />
     </div>
 
     <!-- Character Content -->
-    <div
-      class="flex-grow flex flex-col"
-      :style="{ height: `calc(${displayStore.mainVh}vh)` }"
-    >
+    <div class="flex-grow flex flex-col">
       <!-- Title (20% Height) -->
       <div
         class="flex justify-center items-center"
-        :style="{ height: `calc(${displayStore.mainVh * 0.2}vh)` }"
+        :style="{ height: `calc(${containerHeight * 0.2}px)` }"
       >
         <character-title />
       </div>
@@ -41,20 +41,20 @@
         <div
           class="flex flex-col space-y-4"
           :style="{
-            width: `calc(${displayStore.mainVw * 0.7}vw)`,
-            height: `calc(${displayStore.mainVh * 0.5}vh)`,
+            width: `calc(${containerWidth * 0.7}px)`,
+            height: `calc(${containerHeight * 0.5}px)`,
           }"
         >
           <character-stats />
-          <character-goals />
+          <character-rewards />
         </div>
 
         <!-- Character Art (30% Width) -->
         <div
           class="flex items-center justify-center"
           :style="{
-            width: `calc(${displayStore.mainVw * 0.3}vw)`,
-            height: `calc(${displayStore.mainVh * 0.5}vh)`,
+            width: `calc(${containerWidth * 0.3}px)`,
+            height: `calc(${containerHeight * 0.5}px)`,
           }"
         >
           <character-art />
@@ -65,7 +65,7 @@
     <!-- Bottom Section (Remaining 25%) -->
     <div
       class="flex justify-center items-center"
-      :style="{ height: `calc(${displayStore.mainVh * 0.25}vh)` }"
+      :style="{ height: `calc(${containerHeight * 0.25}px)` }"
     >
       <character-bottom />
     </div>
@@ -73,14 +73,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-const displayStore = useDisplayStore()
+const container = ref<HTMLElement | null>(null)
+const containerWidth = ref(0)
+const containerHeight = ref(0)
 
 // Error handling
 const error = ref<string | null>(null)
 function clearError() {
   error.value = null
 }
+
+// Function to calculate container dimensions
+const calculateContainerDimensions = () => {
+  if (container.value) {
+    const rect = container.value.getBoundingClientRect()
+    containerWidth.value = rect.width
+    containerHeight.value = rect.height
+  }
+}
+
+// Watch for window resize
+const handleResize = () => {
+  calculateContainerDimensions()
+}
+
+// Initialize and set up event listeners
+onMounted(() => {
+  calculateContainerDimensions()
+  window.addEventListener('resize', handleResize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+})
 </script>

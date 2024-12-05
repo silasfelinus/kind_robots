@@ -57,6 +57,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    if (Array.isArray(characterData.Rewards)) {
+      characterData.Rewards = {
+        set: (characterData.Rewards as Array<{ id: number }>).map((reward) => ({
+          id: reward.id,
+        })),
+      }
+    }
+
     // Update the character in the database
     const data = await prisma.character.update({
       where: { id },

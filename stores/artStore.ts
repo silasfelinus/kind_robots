@@ -60,7 +60,6 @@ export const useArtStore = defineStore({
 
   actions: {
     async initialize() {
-      console.log('beginning art store load')
       if (this.isInitialized) return
       this.loading = true
 
@@ -68,7 +67,6 @@ export const useArtStore = defineStore({
         await this.loadLocalData()
         await this.loadRemoteData()
         this.isInitialized = true
-        console.log('art store loaded')
       } catch (error) {
         handleError(error, 'initializing art store')
       } finally {
@@ -388,9 +386,9 @@ export const useArtStore = defineStore({
         try {
           const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
           if (response.success && response.data) {
-          const artImage = response.data
+            const artImage = response.data
             this.artImages.push(artImage)
-            return  artImage
+            return artImage
           } else {
             throw new Error(response.message)
           }

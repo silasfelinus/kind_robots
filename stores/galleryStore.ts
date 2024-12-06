@@ -73,9 +73,7 @@ export const useGalleryStore = defineStore({
           this.currentImage = storedCurrentImage
         }
 
-        
-          await this.fetchGalleries()
-    
+        await this.fetchGalleries()
       }
     },
 
@@ -129,9 +127,7 @@ export const useGalleryStore = defineStore({
 
     async fetchGalleries() {
       try {
-        const response = await performFetch<Gallery[]>(
-          '/api/galleries',
-        )
+        const response = await performFetch<Gallery[]>('/api/galleries')
 
         if (response.success && response.data) {
           this.galleries = response.data
@@ -146,6 +142,22 @@ export const useGalleryStore = defineStore({
       } catch (error) {
         handleError(error, 'fetching galleries')
       }
+    },
+    async setCurrentGallery(id: number) {
+      const gallery = this.galleries.find((g) => g.id === id)
+
+      if (!gallery) {
+        console.warn(`Gallery with ID ${id} not found.`)
+        return
+      }
+
+      this.currentGallery = gallery
+      this.currentImage = gallery.imagePaths?.split(',')[0] || '' // Set the first image as current
+      localStorage.setItem(
+        'currentGallery',
+        JSON.stringify(this.currentGallery),
+      )
+      localStorage.setItem('currentImage', this.currentImage)
     },
 
     setGalleryByName(name: string) {
@@ -172,26 +184,21 @@ export const useGalleryStore = defineStore({
       }
     },
 
-    async changeToRandomImage() {
-      try {
-        if (!this.currentGallery || !this.currentGallery.imagePaths) {
-          throw new Error(
-            'No gallery selected or no images available in the selected gallery.',
-          )
-        }
-
-        const imagePaths = this.currentGallery.imagePaths.split(',')
-        if (imagePaths.length === 0) {
-          throw new Error('No images available in the selected gallery.')
-        }
-
-        const randomImage =
-          imagePaths[Math.floor(Math.random() * imagePaths.length)]
-        this.currentImage = `/images/${this.currentGallery.name}/${randomImage}`
-        localStorage.setItem('currentImage', this.currentImage)
-      } catch (error) {
-        handleError(error, 'changing to random image')
+    async changeToRandomImage(): Promise<string | null> {
+      if (!this.currentGallery || !this.currentGallery.imagePaths) {
+        return null
       }
+
+      const imagePaths = this.currentGallery.imagePaths.split(',')
+      if (imagePaths.length === 0) {
+        return null
+      }
+
+      const randomImage =
+        imagePaths[Math.floor(Math.random() * imagePaths.length)]
+      this.currentImage = `/images/${this.currentGallery.name}/${randomImage}`
+      localStorage.setItem('currentImage', this.currentImage)
+      return this.currentImage // Ensure a value is returned
     },
   },
 })

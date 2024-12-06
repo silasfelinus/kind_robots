@@ -282,7 +282,6 @@
       "EditReward",
       "RewardPortal",
       "RewardsGallery",
-      "RewardsStore",
       "ShowReward"
     ]
   },
@@ -336,6 +335,7 @@
       "character-goals",
       "character-manager",
       "character-options",
+      "character-rewards",
       "character-stats",
       "character-title",
       "character-uploader",

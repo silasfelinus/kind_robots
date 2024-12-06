@@ -276,9 +276,16 @@ export const useCharacterStore = defineStore({
       }
 
       const rollDice = () =>
-        Math.floor(Math.random() * 6 + 1) +
-        Math.floor(Math.random() * 6 + 1) +
-        Math.floor(Math.random() * 6 + 1)
+        Math.floor(Math.random() * 10 + 1) +
+        Math.floor(Math.random() * 10 + 1) +
+        Math.floor(Math.random() * 10 + 1) +
+        Math.floor(Math.random() * 10 + 1) +
+        Math.floor(Math.random() * 10 + 1) +
+        Math.floor(Math.random() * 10 + 1) +
+        Math.floor(Math.random() * 10 + 1) +
+        Math.floor(Math.random() * 10 + 1) +
+        Math.floor(Math.random() * 10 + 1) +
+        Math.floor(Math.random() * 10 + 1)
 
       this.selectedCharacter.statValue1 = rollDice()
       this.selectedCharacter.statValue2 = rollDice()

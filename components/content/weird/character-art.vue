@@ -1,12 +1,31 @@
 <template>
-  <div class="w-full flex flex-col space-y-4 p-4">
-    <!-- Display Art Image -->
-    <img
-      v-if="resolvedArtImage"
-      :src="resolvedArtImage"
-      alt="Character Portrait"
-      class="object-cover w-full max-h-60 rounded-lg shadow"
+  <div
+    class="w-full max-w-2xl mx-auto mb-6 flex flex-col items-center space-y-4"
+  >
+    <!-- Avatar Image URL Input -->
+    <label for="avatarImageInput" class="block text-sm font-medium">
+      Avatar Image (URL):
+    </label>
+    <input
+      id="avatarImageInput"
+      v-model="avatarImage"
+      type="text"
+      class="w-full p-2 rounded-lg border mb-2"
+      placeholder="Enter a custom avatar image URL"
     />
+
+    <!-- Image Upload -->
+    <image-upload @uploaded="setArtImageId" />
+
+    <!-- Avatar Preview -->
+    <div class="mt-4 flex flex-col items-center space-y-2">
+      <img
+        :src="avatarImage"
+        alt="Character Avatar Preview"
+        class="w-40 h-40 object-cover rounded-full shadow-lg border-2 border-gray-300"
+      />
+      <p class="text-sm text-gray-500">Preview your avatar</p>
+    </div>
 
     <!-- Art Prompt Textarea -->
     <textarea
@@ -31,88 +50,104 @@
       >
         {{ isLoading ? 'Picking...' : 'Pick Random from Gallery' }}
       </button>
-      <character-uploader class="w-1/3" @uploaded="setArtImageId" />
-    </div>
-
-    <!-- Gallery Selector -->
-    <div class="mt-4">
       <gallery-selector @gallery-selected="setCurrentGallery" />
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useArtStore } from '@/stores/artStore'
 import { useGalleryStore } from '@/stores/galleryStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
-// Access stores
 const characterStore = useCharacterStore()
 const artStore = useArtStore()
 const galleryStore = useGalleryStore()
+const errorStore = useErrorStore()
 
-// Computed property for selected character
-const character = computed(() => characterStore.selectedCharacter)
+const isLoading = ref(false)
+const isGeneratingArt = ref(false)
+const defaultAvatar = '/images/bot.webp'
 
-// Computed property for resolving the art image
-const resolvedArtImage = computed(() => {
-  if (!character.value?.imagePath) {
-    return null // No image path, return null
-  }
-
-  return character.value.imagePath
-    ? character.value.imagePath
-    : '/images/bot.webp' // Fallback to default image
+// Bind avatarImage to character's imagePath
+const avatarImage = computed({
+  get() {
+    return characterStore.selectedCharacter?.imagePath || defaultAvatar
+  },
+  set(value) {
+    if (characterStore.selectedCharacter) {
+      characterStore.selectedCharacter = {
+        ...characterStore.selectedCharacter,
+        imagePath: value,
+      }
+    }
+  },
 })
 
-// State for art prompt
+// Art prompt
 const artPrompt = computed({
-  get: () => character.value?.artPrompt || '',
+  get: () => characterStore.selectedCharacter?.artPrompt || '',
   set: (value) => {
-    if (character.value) {
+    if (characterStore.selectedCharacter) {
       characterStore.selectedCharacter = {
-        ...character.value,
+        ...characterStore.selectedCharacter,
         artPrompt: value,
       }
     }
   },
 })
 
-// State for generating art and loading images
-const isGeneratingArt = ref(false)
-const isLoading = ref(false)
-
-// Generate art function
 async function generateArt() {
-  if (!character.value?.artPrompt) {
+  if (!artPrompt.value) {
     alert('Please provide an art prompt to generate art.')
     return
   }
+
   isGeneratingArt.value = true
   try {
     const response = await artStore.generateArt({
-      promptString: character.value.artPrompt,
-      title: character.value.name || 'Unnamed Character',
+      promptString: artPrompt.value,
+      title: characterStore.selectedCharacter?.name || 'Unnamed Character',
       collection: 'characters',
-      userId: character.value?.userId || 1,
+      userId: characterStore.selectedCharacter?.userId || 1,
     })
+
     if (response.success && response.data) {
-      characterStore.selectedCharacter = {
-        ...character.value,
-        artImageId: response.data.artImageId,
+      if (characterStore.selectedCharacter) {
+        characterStore.selectedCharacter = {
+          ...characterStore.selectedCharacter,
+          artImageId: response.data.artImageId,
+          id: characterStore.selectedCharacter.id || 0,
+          name: characterStore.selectedCharacter.name || 'Unnamed',
+          createdAt: characterStore.selectedCharacter.createdAt || new Date(),
+          updatedAt: new Date(),
+          honorific: characterStore.selectedCharacter.honorific || null,
+          achievements: characterStore.selectedCharacter.achievements || null,
+          alignment: characterStore.selectedCharacter.alignment || null,
+          experience: characterStore.selectedCharacter.experience || 0,
+          userId: characterStore.selectedCharacter.userId || 1,
+        }
+      } else {
+        console.error('Selected character is null or undefined.')
       }
     } else {
       alert('Art generation failed.')
     }
   } catch (error) {
-    console.error('Error generating art:', error)
+    if (error instanceof Error) {
+      errorStore.setError(
+        ErrorType.GENERAL_ERROR,
+        `Error generating art: ${error.message}`,
+      )
+    } else {
+      console.error('Unexpected error:', error)
+    }
   } finally {
     isGeneratingArt.value = false
   }
 }
 
-// Select a random image from the gallery
 async function pickRandomImageFromGallery() {
   if (!galleryStore.currentGallery) {
     alert('Please select a gallery first.')
@@ -123,15 +158,18 @@ async function pickRandomImageFromGallery() {
   try {
     const randomImage = await galleryStore.changeToRandomImage()
     if (randomImage) {
-      characterStore.selectedCharacter = {
-        ...character.value,
-        imagePath: randomImage, // Update character's image path
-      }
+      avatarImage.value = randomImage
     } else {
-      alert('Failed to pick a random image from the gallery.')
+      throw new Error('Failed to pick a random image from the gallery.')
     }
   } catch (error) {
-    console.error('Error picking random image:', error)
+    if (error instanceof Error) {
+      errorStore.setError(ErrorType.GENERAL_ERROR, error.message)
+      console.error('Error picking random image:', error.message)
+    } else {
+      errorStore.setError(ErrorType.GENERAL_ERROR, 'An unknown error occurred.')
+      console.error('Unexpected error:', error)
+    }
   } finally {
     isLoading.value = false
   }
@@ -144,9 +182,9 @@ function setCurrentGallery(galleryId: number) {
 
 // Set art image ID after upload
 function setArtImageId(artImageId: number) {
-  if (character.value) {
+  if (characterStore.selectedCharacter) {
     characterStore.selectedCharacter = {
-      ...character.value,
+      ...characterStore.selectedCharacter,
       artImageId,
     }
   }

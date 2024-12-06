@@ -56,7 +56,7 @@ import { computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 
 // Props for the character card
-defineProps({
+const { character, username } = defineProps({
   character: {
     type: Object,
     required: true,

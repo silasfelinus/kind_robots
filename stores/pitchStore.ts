@@ -34,9 +34,7 @@ export const usePitchStore = defineStore('pitch', {
     selectedPitch: (state) => state.selectedPitches[0] || null,
     selectedPitchId: (state) => state.selectedPitches[0]?.id || null,
     getPitchesByType: (state) => (pitchType: PitchType) => {
-      console.log('Filtering by PitchType:', pitchType)
       return state.pitches.filter((pitch) => {
-        console.log('PitchType in pitch:', pitch.PitchType)
         return pitch.PitchType === pitchType
       })
     },
@@ -88,7 +86,6 @@ export const usePitchStore = defineStore('pitch', {
 
   actions: {
     async initializePitches() {
-console.log("starting pitchStore initialization ")
       if (isClient && !this.isInitialized) {
         const savedState = {
           pitches: localStorage.getItem('pitches'),
@@ -135,7 +132,6 @@ console.log("starting pitchStore initialization ")
 
         this.fetchPitches()
         this.isInitialized = true
-console.log("pitchStore initialized ")
       }
     },
 
@@ -256,7 +252,6 @@ console.log("pitchStore initialized ")
 
       let compiledContent = ''
       if (this.selectedTitle) {
-        console.log('Selected title found:', this.selectedTitle.title)
         compiledContent += `${this.selectedTitle.title}. `
         compiledContent += `${this.selectedTitle.description || ''} `
       } else {
@@ -272,19 +267,13 @@ console.log("pitchStore initialized ")
       }
 
       try {
-        console.log('Sending title storm request:', requestBody)
         const response = await performFetch<string>('/api/botcafe/titleStorm', {
           method: 'POST',
           body: JSON.stringify(requestBody),
         })
 
         if (response.success) {
-          console.log(
-            'Title storm fetch successful. Storing response...',
-            response,
-          )
           this.apiResponse = response.data || 'No response'
-          console.log('New examples received:', this.apiResponse)
 
           // Create a single new pitch using the full response as examples
           const newPitchData: Partial<Pitch> = {
@@ -301,7 +290,6 @@ console.log("pitchStore initialized ")
             // Update newestPitches with the newly created pitch
             this.newestPitches = [createdPitch.data]
             this.saveStateToLocalStorage()
-            console.log('New brainstorm pitch added:', createdPitch.data)
           } else {
             console.warn('Failed to create pitch from title storm response.')
           }
@@ -312,14 +300,11 @@ console.log("pitchStore initialized ")
       } catch (error) {
         console.error('Error during fetchTitleStormPitches:', error)
         handleError(error, 'fetching title storm pitches')
-      } finally {
-        console.log('fetchTitleStormPitches operation completed.')
       }
     },
 
     async fetchRandomPitches(count: number): Promise<void> {
       try {
-        console.log('Starting fetchRandomPitches...')
         const response = await performFetch<Pitch[]>(
           `/api/pitches/random?count=${count}`,
         )
@@ -334,8 +319,6 @@ console.log("pitchStore initialized ")
       } catch (error) {
         console.error('Error in fetchRandomPitches:', error)
         handleError(error, 'fetching random pitches')
-      } finally {
-        console.log('fetchRandomPitches completed.')
       }
     },
 
@@ -346,7 +329,6 @@ console.log("pitchStore initialized ")
 
       let compiledContent = ''
       if (this.selectedTitle) {
-        console.log('Selected title found:', this.selectedTitle.title)
         compiledContent += `Title: ${this.selectedTitle.title}\n`
         compiledContent += `Description: ${this.selectedTitle.description || ''}\n`
         compiledContent += `Please provide ${numberOfRequests} examples separated by | delimiters`
@@ -367,18 +349,12 @@ console.log("pitchStore initialized ")
       }
 
       try {
-        console.log('Sending brainstorm request:', requestBody)
         const response = await performFetch<string>('/api/botcafe/brainstorm', {
           method: 'POST',
           body: JSON.stringify(requestBody),
         })
 
         if (response.success) {
-          console.log(
-            'Brainstorm fetch successful. Storing response...',
-            response,
-          )
-
           // Extract the response data for the examples field
           const apiResponse = response.data || ''
           this.apiResponse = apiResponse
@@ -397,7 +373,6 @@ console.log("pitchStore initialized ")
           if (createdPitch && createdPitch.success && createdPitch.data) {
             this.newestPitches = [createdPitch.data]
             this.saveStateToLocalStorage()
-            console.log('New pitch added:', createdPitch.data)
           } else {
             console.warn('Failed to create pitch from brainstorm response.')
           }
@@ -408,8 +383,6 @@ console.log("pitchStore initialized ")
       } catch (error) {
         console.error('Error during fetchBrainstormPitches:', error)
         handleError(error, 'fetching brainstorm pitches')
-      } finally {
-        console.log('fetchBrainstormPitches operation completed.')
       }
     },
 
@@ -431,7 +404,6 @@ console.log("pitchStore initialized ")
     },
 
     async fetchPitches(): Promise<void> {
-console.log("fetching pitches")
       if (this.isInitialized) return
       this.loading = true
 
@@ -448,7 +420,6 @@ console.log("fetching pitches")
             })) || []
           this.isInitialized = true
           this.saveStateToLocalStorage()
-console.log(" pitches fetched: ", this.pitches)
         } else {
           console.warn('Failed to fetch pitches:', response.message)
           throw new Error(response.message)
@@ -487,8 +458,6 @@ console.log(" pitches fetched: ", this.pitches)
           success: false,
           message: `Failed to fetch pitch: ${error instanceof Error ? error.message : 'Unknown error'}`,
         }
-      } finally {
-        console.log(`fetchPitchById completed for pitchId: ${pitchId}`)
       }
     },
 
@@ -601,7 +570,6 @@ console.log(" pitches fetched: ", this.pitches)
       pitchId: number,
     ): Promise<{ success: boolean; message: string }> {
       try {
-        console.log(`Starting deletePitch for pitchId: ${pitchId}`)
         const response = await performFetch(`/api/pitches/${pitchId}`, {
           method: 'DELETE',
         })
@@ -614,7 +582,6 @@ console.log(" pitches fetched: ", this.pitches)
             localStorage.setItem('pitches', JSON.stringify(this.pitches))
           }
 
-          console.log(`Pitch deleted successfully: pitchId ${pitchId}`)
           return { success: true, message: 'Pitch deleted successfully' }
         } else {
           console.warn(`Failed to delete pitch: ${response.message}`)
@@ -627,14 +594,11 @@ console.log(" pitches fetched: ", this.pitches)
           success: false,
           message: `Failed to delete pitch: ${error instanceof Error ? error.message : 'Unknown error'}`,
         }
-      } finally {
-        console.log(`deletePitch completed for pitchId: ${pitchId}`)
       }
     },
 
     async fetchArtForPitch(pitchId: number): Promise<void> {
       try {
-        console.log(`Starting fetchArtForPitch for pitchId: ${pitchId}`)
         const response = await performFetch<Art[]>(
           `/api/pitches/art/${pitchId}`,
         )

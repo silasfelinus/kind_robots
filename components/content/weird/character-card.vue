@@ -1,7 +1,22 @@
 <template>
   <div
-    class="bg-base-200 border border-gray-400 rounded-lg shadow-md p-4 flex flex-col"
+    :class="[
+      'bg-base-200 border border-gray-400 rounded-lg shadow-md p-4 flex flex-col cursor-pointer',
+      isSelected ? 'w-full h-auto' : 'w-64',
+    ]"
+    @click="selectCharacter"
   >
+    <!-- Delete Icon -->
+    <div class="relative">
+      <button
+        v-if="canDelete"
+        class="absolute top-1 right-1 text-error"
+        @click.stop="deleteCharacter"
+      >
+        <icon name="kind-icon:delete" class="w-5 h-5" />
+      </button>
+    </div>
+
     <!-- Character Image -->
     <div class="w-full h-32 bg-gray-800 rounded-lg mb-4 overflow-hidden">
       <img
@@ -19,15 +34,11 @@
     </div>
 
     <!-- Name and Class -->
-    <div class="flex justify-between items-center mb-4">
-      <div>
-        <h2 class="text-xl font-bold text-gray-800 truncate">
-          {{ character.name || 'Unnamed Hero' }}
-        </h2>
-        <p class="text-sm text-gray-600">
-          {{ character.class || 'Adventurer' }}
-        </p>
-      </div>
+    <div class="flex flex-col mb-4">
+      <h2 class="text-xl font-bold text-gray-800 truncate">
+        {{ displayName }}
+      </h2>
+      <p class="text-sm text-gray-600">{{ character.class || 'Adventurer' }}</p>
       <p class="text-sm text-gray-500">User: {{ displayUsername }}</p>
     </div>
 
@@ -48,13 +59,23 @@
         </span>
       </div>
     </div>
+
+    <!-- Additional Character Info -->
+    <div v-if="isSelected" class="mt-4 text-sm text-gray-600 space-y-2">
+      <p><strong>Alignment:</strong> {{ character.alignment || 'Unknown' }}</p>
+      <p><strong>Backstory:</strong> {{ character.backstory || 'Not shared yet.' }}</p>
+      <p><strong>Quirks:</strong> {{ character.quirks || 'None provided.' }}</p>
+      <p><strong>Skills:</strong> {{ character.skills || 'No skills listed.' }}</p>
+      <p><strong>Inventory:</strong> {{ character.inventory || 'Empty.' }}</p>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
+import { useCharacterStore } from '@/stores/characterStore'
 
 // Props for the character card
 const { character } = defineProps({
@@ -67,42 +88,50 @@ const { character } = defineProps({
 // User store
 const userStore = useUserStore()
 
-// Reactive username display
-const displayUsername = ref(character.designer || null)
+// Character store
+const characterStore = useCharacterStore()
 
-// Fetch username dynamically if designer is not provided
+// Reactive states
+const displayUsername = ref(character.designer || null)
+const artImage = ref(null)
+const isSelected = computed(() => characterStore.selectedCharacter?.id === character.id)
+const canDelete = computed(
+  () => userStore.isAdmin || userStore.userId === character.userId
+)
+
+// Display name in the format "character.name the character.honorific"
+const displayName = computed(() =>
+  character.name
+    ? `${character.name} the ${character.honorific || 'Adventurer'}`
+    : 'Unnamed Hero'
+)
+
+// On mounted: fetch the username if not provided and the art image
 onMounted(() => {
   if (!character.designer && character.userId) {
     const username = userStore.getUsernameByUserId(character.userId)
-    if (username) {
-      displayUsername.value = username
-    } else {
-      displayUsername.value = 'Unknown User'
-    }
+    displayUsername.value = username || 'Unknown User'
   }
-})
 
-// Art store for fetching image data
-const artStore = useArtStore()
-
-// Reactive art image URL
-const artImage = ref(null)
-
-// On mounted, fetch the art image
-onMounted(async () => {
   if (character.artImageId) {
-    const image = await artStore.getArtImageById(character.artImageId)
-    if (image) {
-      artImage.value = `data:image/${image.fileType};base64,${image.imageData}`
-      return
-    }
-  }
-
-  // Fallback to character imagePath if no artImageId or image not found
-  if (character.imagePath) {
+    artStore.getArtImageById(character.artImageId).then((image) => {
+      if (image) {
+        artImage.value = `data:image/${image.fileType};base64,${image.imageData}`
+      }
+    })
+  } else if (character.imagePath) {
     artImage.value = character.imagePath
   }
 })
+
+// Handlers
+const selectCharacter = () => {
+  characterStore.selectCharacter(character)
+}
+
+const deleteCharacter = () => {
+  characterStore.deleteCharacter(character.id)
+}
 
 // Dynamically get stat keys for rendering
 const statKeys = [1, 2, 3, 4, 5, 6]

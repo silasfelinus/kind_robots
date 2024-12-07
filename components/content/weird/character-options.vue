@@ -1,7 +1,7 @@
 <template>
-  <div class="flex items-center justify-between bg-gray-100 p-2 rounded-lg shadow">
+  <div class="flex items-center justify-between bg-gray-100 p-1 rounded-lg shadow-md">
     <!-- Character Selector -->
-    <select v-model="selectedCharacterId" class="select select-primary w-1/3">
+    <select v-model="selectedCharacterId" class="select select-primary w-1/3 text-sm">
       <option disabled value="">Select a character</option>
       <option
         v-for="character in characterStore.characters"
@@ -13,30 +13,22 @@
       <option value="new">+ Create New Character</option>
     </select>
 
-    <!-- Toggles -->
-    <div class="flex items-center space-x-4">
+    <!-- Display Mode Toggle -->
+    <div class="flex items-center space-x-2">
       <label class="flex items-center space-x-2">
-        <input
-          v-model="showKeepToggles"
-          type="checkbox"
-          class="checkbox checkbox-primary"
-        />
-        <span>Show Keep Toggles</span>
-      </label>
-      <label class="flex items-center space-x-2">
-        <input
-          v-model="showUpdateFields"
-          type="checkbox"
-          class="checkbox checkbox-primary"
-        />
-        <span>Show AI Suggestions</span>
+        <span class="text-sm">Mode:</span>
+        <select v-model="displayMode" class="select select-primary text-sm">
+          <option value="normal">Normal</option>
+          <option value="edit">Edit</option>
+          <option value="generate">Generate</option>
+        </select>
       </label>
     </div>
 
     <!-- Management Buttons -->
-    <div class="flex space-x-4">
+    <div class="flex space-x-2">
       <button
-        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 text-sm rounded-lg"
         :disabled="isSaving"
         @click="saveCharacter"
       >
@@ -46,7 +38,7 @@
       <!-- Delete Button -->
       <button
         v-if="selectedCharacterId !== 'new'"
-        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 text-sm rounded-lg"
         @click="deleteCharacter"
       >
         Delete
@@ -54,7 +46,7 @@
 
       <!-- Reset Button -->
       <button
-        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
+        class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 text-sm rounded-lg"
         @click="resetCharacter"
       >
         Reset
@@ -62,8 +54,6 @@
     </div>
   </div>
 </template>
-
-
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
@@ -84,9 +74,15 @@ const selectedCharacterId = computed({
   },
 })
 
-// State for toggles and saving
-const showKeepToggles = ref(false)
-const showUpdateFields = ref(false)
+// Computed property for display mode
+const displayMode = computed({
+  get: () => characterStore.currentDisplayMode,
+  set: (mode: 'normal' | 'edit' | 'generate') => {
+    characterStore.setDisplayMode(mode)
+  },
+})
+
+// State for saving
 const isSaving = ref(false)
 
 // Save Character
@@ -96,10 +92,7 @@ async function saveCharacter() {
     const { selectedCharacter } = characterStore
     if (selectedCharacter) {
       if (selectedCharacter.id) {
-        await characterStore.patchCharacter(
-          selectedCharacter.id,
-          selectedCharacter,
-        )
+        await characterStore.patchCharacter(selectedCharacter.id, selectedCharacter)
       } else {
         await characterStore.createCharacter(selectedCharacter)
       }

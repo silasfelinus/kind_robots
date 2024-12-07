@@ -5,7 +5,7 @@
       :key="'stat-' + i"
       class="relative flex flex-col items-center justify-center w-[30%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
     >
-      <!-- Freeze Stat Checkbox -->
+      <!-- Freeze Stat Checkbox (Only in Generate Mode) -->
       <input
         v-if="characterStore.currentDisplayMode === 'generator'"
         :checked="keepField[`statName${i}`]"
@@ -32,7 +32,7 @@
           v-else
           :value="getStatValue(`statValue${i}`)"
           class="bg-transparent border-none text-4xl font-bold text-center focus:outline-none"
-          :disabled="characterStore.currentDisplayMode === 'generator' && keepField[`statValue${i}`]"
+          :disabled="characterStore.currentDisplayMode === 'generator' || keepField[`statValue${i}`]"
           @input="updateField(`statValue${i}`, $event)"
         />
       </div>
@@ -61,15 +61,44 @@ type StatKey = `statName${number}` | `statValue${number}`
 // Access the store
 const characterStore = useCharacterStore()
 
+// Default stat names and values
+const defaultStats = {
+  statName1: 'Luck',
+  statName2: 'Swol',
+  statName3: 'Wits',
+  statName4: 'Fortitude',
+  statName5: 'Rizz',
+  statName6: 'Empathy',
+  statValue1: 9,
+  statValue2: 9,
+  statValue3: 9,
+  statValue4: 9,
+  statValue5: 9,
+  statValue6: 9,
+}
+
 // Computed properties
 const selectedCharacter = computed<Character | null>(
   () => characterStore.selectedCharacter,
 )
+const generatedCharacter = computed(() => characterStore.generatedCharacter)
 const keepField = computed(() => characterStore.keepField)
 
 // Helper function to get stat value
 function getStatValue(field: StatKey) {
-  if (!selectedCharacter.value) return '' // Handle null character case
+  if (!selectedCharacter.value) {
+    // Return default value if no character is selected
+    return defaultStats[field] || ''
+  }
+
+  if (
+    characterStore.currentDisplayMode === 'generator' &&
+    generatedCharacter.value &&
+    characterStore.useGenerated[field]
+  ) {
+    return generatedCharacter.value[field as keyof Character] || ''
+  }
+
   return selectedCharacter.value[field as keyof Character] || ''
 }
 
@@ -91,6 +120,8 @@ function updateField(field: StatKey, event: Event) {
 
 // Trigger stat reroll for `edit` mode
 function rerollStats() {
-  characterStore.rerollStats() // Call store's reroll logic
+  if (characterStore.currentDisplayMode === 'edit') {
+    characterStore.rerollStats() // Call store's reroll logic
+  }
 }
 </script>

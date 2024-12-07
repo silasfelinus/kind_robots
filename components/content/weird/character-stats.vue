@@ -7,7 +7,7 @@
     >
       <!-- Freeze Stat Checkbox (Only in Generate Mode) -->
       <input
-        v-if="characterStore.currentDisplayMode === 'generator'"
+        v-if="characterStore.generationMode"
         :checked="keepField[`statName${i}`]"
         type="checkbox"
         title="Freeze Stat"
@@ -19,13 +19,13 @@
       <input
         :value="getStatValue(`statName${i}`)"
         class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
-        :disabled="characterStore.currentDisplayMode === 'normal'"
+        :disabled="!characterStore.generationMode"
         @input="updateField(`statName${i}`, $event)"
       />
 
       <!-- Stat Value -->
       <div class="text-4xl font-bold text-center">
-        <span v-if="characterStore.currentDisplayMode === 'normal'">
+        <span v-if="!characterStore.generationMode">
           {{ getStatValue(`statValue${i}`) }}
         </span>
         <input
@@ -33,8 +33,7 @@
           :value="getStatValue(`statValue${i}`)"
           class="bg-transparent border-none text-4xl font-bold text-center focus:outline-none"
           :disabled="
-            characterStore.currentDisplayMode === 'generator' ||
-            keepField[`statValue${i}`]
+            characterStore.generationMode || keepField[`statValue${i}`]
           "
           @input="updateField(`statValue${i}`, $event)"
         />
@@ -44,7 +43,7 @@
     <!-- Reroll Button -->
     <div class="w-full mt-4 flex justify-center">
       <button
-        v-if="characterStore.currentDisplayMode === 'edit'"
+        v-if="characterStore.generationMode"
         class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
         @click="rerollStats"
       >
@@ -96,7 +95,7 @@ function getStatValue(field: StatKey) {
   }
 
   if (
-    characterStore.currentDisplayMode === 'generator' &&
+    characterStore.generationMode &&
     generatedCharacter.value &&
     characterStore.useGenerated[field]
   ) {
@@ -138,8 +137,6 @@ function updateField(field: StatKey, event: Event) {
 
 // Trigger stat reroll for `edit` mode
 function rerollStats() {
-  if (characterStore.currentDisplayMode === 'edit') {
-    characterStore.rerollStats() // Call store's reroll logic
-  }
+  characterStore.rerollStats() // Call store's reroll logic
 }
 </script>

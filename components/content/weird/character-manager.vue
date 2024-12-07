@@ -15,7 +15,7 @@
     </div>
 
     <!-- Character Options (Top Section) -->
-    <div class="flex justify-center items-center h-[8%] sm:h-auto">
+    <div class="flex justify-center items-center h-[6%] sm:h-auto">
       <character-options />
     </div>
 
@@ -42,18 +42,18 @@
     </div>
 
     <!-- Bottom Section -->
-    <div class="flex justify-center items-center w-full h-[25%] sm:h-auto">
+    <div class="flex justify-center items-center w-full h-[27%] sm:h-auto">
       <character-bottom />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref } from 'vue'
 
 // Error handling
-const error = ref<string | null>(null);
+const error = ref<string | null>(null)
 function clearError() {
-  error.value = null;
+  error.value = null
 }
 </script>

@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex items-center justify-between bg-gray-100 p-2 rounded-lg shadow"
-  >
+  <div class="flex items-center justify-between bg-gray-100 p-2 rounded-lg shadow">
     <!-- Character Selector -->
     <select v-model="selectedCharacterId" class="select select-primary w-1/3">
       <option disabled value="">Select a character</option>
@@ -44,15 +42,28 @@
       >
         {{ isSaving ? 'Saving...' : 'Save' }}
       </button>
+
+      <!-- Delete Button -->
       <button
+        v-if="selectedCharacterId !== 'new'"
         class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
         @click="deleteCharacter"
       >
         Delete
       </button>
+
+      <!-- Reset Button -->
+      <button
+        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
+        @click="resetCharacter"
+      >
+        Reset
+      </button>
     </div>
   </div>
 </template>
+
+
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
@@ -117,5 +128,13 @@ async function deleteCharacter() {
       alert(err instanceof Error ? err.message : 'Failed to delete character.')
     }
   }
+}
+
+// Reset Character
+function resetCharacter() {
+  characterStore.setDisplayMode('normal') // Revert to normal mode
+  characterStore.selectedCharacter = null
+  characterStore.generatedCharacter = null
+  alert('Character reset to defaults.')
 }
 </script>

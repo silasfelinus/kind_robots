@@ -147,7 +147,7 @@
         </div>
         <button
           class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-md"
-          @click="characterStore.rerollStats"
+          @click="rerollStats"
         >
           Reroll Stats
         </button>
@@ -329,7 +329,7 @@ const artImage = computed(() => {
 })
 
 onMounted(() => {
-  characterStore.rerollStats()
+  rerollStats()
 })
 
 function updateField(field: keyof Character, event: Event) {
@@ -442,6 +442,32 @@ function toggleField(field: keyof Character) {
     return
   }
   useGenerated[field] = !useGenerated[field]
+}
+
+// Reroll stats for the character
+function rerollStats() {
+  character.statValue1 = rollDice()
+  character.statValue2 = rollDice()
+  character.statValue3 = rollDice()
+  character.statValue4 = rollDice()
+  character.statValue5 = rollDice()
+  character.statValue6 = rollDice()
+}
+
+// Helper function to roll dice
+function rollDice() {
+  return (
+    Math.floor(Math.random() * 10 + 1) +
+    Math.floor(Math.random() * 10 + 1) +
+    Math.floor(Math.random() * 10 + 1) +
+    Math.floor(Math.random() * 10 + 1) +
+    Math.floor(Math.random() * 10 + 1) +
+    Math.floor(Math.random() * 10 + 1) +
+    Math.floor(Math.random() * 10 + 1) +
+    Math.floor(Math.random() * 10 + 1) +
+    Math.floor(Math.random() * 10 + 1) +
+    Math.floor(Math.random() * 10 + 1)
+  )
 }
 
 // Set the art image ID after upload

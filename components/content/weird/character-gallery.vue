@@ -50,7 +50,7 @@
         v-for="character in filteredCharacters"
         :key="character.id"
         :character="character"
-        :username="getUsername(character.userId)"
+        
       />
     </div>
   </div>
@@ -98,9 +98,5 @@ const filteredCharacters = computed(() => {
   return characters
 })
 
-// Get username based on userId
-const getUsername = (userId) => {
-  const user = userStore.users.find((u) => u.id === userId)
-  return user ? user.username : 'Unknown User'
-}
+
 </script>

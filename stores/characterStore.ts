@@ -6,43 +6,43 @@ import { useRewardStore } from './../stores/rewardStore'
 export const useCharacterStore = defineStore({
   id: 'characterStore',
 
-  state: () => ({
-    characters: [] as Character[],
-    newCharacter: {} as Partial<Character>,
-    selectedCharacter: null as Character | null,
-    generatedCharacter: null as Partial<Character> | null,
-    keepField: {} as Record<string, boolean>,
-    useGenerated: {} as Record<string, boolean>,
-    isSaving: false,
-    loading: false,
-    isInitialized: false,
-    error: '',
-    generationMode: false,
-    creatorMode: true,
-  }),
+state: () => ({
+  characters: [] as Character[],
+  newCharacter: {} as Partial<Character>,
+  selectedCharacter: null as Character | null,
+  generatedCharacter: null as Partial<Character> | null,
+  keepField: {} as Record<string, boolean>,
+  useGenerated: {} as Record<string, boolean>,
+  isSaving: false,
+  loading: false,
+  isInitialized: false,
+  error: '',
+  currentDisplayMode: 'normal' as 'normal' | 'edit' | 'generator', // Tracks the current mode
+}),
+
 
   getters: {
     // Computed states
-    isInGenerationMode: (state) => state.generationMode,
-    isInCreatorMode: (state) => state.creatorMode,
+    
     getSelectedCharacter: (state) => state.selectedCharacter,
     getGeneratedCharacter: (state) => state.generatedCharacter,
   },
 
   actions: {
-    setGenerationMode(value: boolean) {
-      this.generationMode = value
-    },
-    toggleGenerationMode() {
-      this.generationMode = !this.generationMode
-    },
+    setDisplayMode(mode: 'normal' | 'edit' | 'generator') {
+    this.currentDisplayMode = mode
+    this.generationMode = mode === 'generator'
+    this.creatorMode = mode === 'edit' || mode === 'generator'
+  },
 
-    setCreatorMode(value: boolean) {
-      this.creatorMode = value
-    },
-    toggleCreatorMode() {
-      this.creatorMode = !this.creatorMode
-    },
+  toggleGenerationMode() {
+    this.setDisplayMode(this.generationMode ? 'edit' : 'generator')
+  },
+
+  exitToNormalMode() {
+    this.setDisplayMode('normal')
+    this.generatedCharacter = null
+  },
 
     syncToLocalStorage() {
       try {
@@ -66,41 +66,46 @@ export const useCharacterStore = defineStore({
     },
 
     async generateCharacterUpdate(
-      character: Partial<Character>,
-      fieldsToUpgrade: string[],
-      instructions?: string,
-    ) {
-      try {
-        this.loading = true
+  character: Partial<Character>,
+  fieldsToUpgrade: string[],
+  instructions?: string
+) {
+  try {
+    this.loading = true
 
-        const requestBody = {
-          character,
-          fieldsToUpgrade,
-          instructions,
-        }
+    const safeFields = Object.keys(this.keepField).filter(
+      (field) => this.keepField[field]
+    )
 
-        const response = await performFetch<Partial<Character>>(
-          '/api/character/generate',
-          {
-            method: 'POST',
-            body: JSON.stringify(requestBody),
-            headers: { 'Content-Type': 'application/json' },
-          },
-        )
+    const requestBody = {
+      character,
+      fieldsToUpgrade,
+      safeFields,
+      instructions,
+    }
 
-        if (response?.success && response.data) {
-          this.generatedCharacter = response.data
-        } else {
-          throw new Error(
-            response?.message || 'Error generating character update',
-          )
-        }
-      } catch (error) {
-        handleError(error, 'generating character update')
-      } finally {
-        this.loading = false
+    const response = await performFetch<Partial<Character>>(
+      '/api/character/generate',
+      {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+        headers: { 'Content-Type': 'application/json' },
       }
-    },
+    )
+
+    if (response?.success && response.data) {
+      this.generatedCharacter = response.data
+    } else {
+      throw new Error(
+        response?.message || 'Error generating character update'
+      )
+    }
+  } catch (error) {
+    handleError(error, 'generating character update')
+  } finally {
+    this.loading = false
+  }
+},
 
     async fetchCharacters() {
       try {
@@ -248,6 +253,24 @@ export const useCharacterStore = defineStore({
         }
       }
     },
+toggleSafeField(field: string) {
+    this.keepField[field] = !this.keepField[field]
+  },
+
+  confirmGeneratedUpdates() {
+    if (!this.generatedCharacter) return
+
+    this.selectedCharacter = {
+      ...this.selectedCharacter,
+      ...Object.fromEntries(
+        Object.entries(this.generatedCharacter).filter(
+          ([key]) => this.useGenerated[key]
+        )
+      ),
+    }
+
+    this.exitToNormalMode() // Reset after confirmation
+  },
 
     async deleteCharacter(id: number) {
       try {
@@ -270,30 +293,21 @@ export const useCharacterStore = defineStore({
     },
 
     rerollStats() {
-      if (!this.selectedCharacter) {
-        console.warn('No character selected to reroll stats.')
-        return
-      }
+  if (!this.selectedCharacter) {
+    console.warn('No character selected to reroll stats.')
+    return
+  }
 
-      const rollDice = () =>
-        Math.floor(Math.random() * 10 + 1) +
-        Math.floor(Math.random() * 10 + 1) +
-        Math.floor(Math.random() * 10 + 1) +
-        Math.floor(Math.random() * 10 + 1) +
-        Math.floor(Math.random() * 10 + 1) +
-        Math.floor(Math.random() * 10 + 1) +
-        Math.floor(Math.random() * 10 + 1) +
-        Math.floor(Math.random() * 10 + 1) +
-        Math.floor(Math.random() * 10 + 1) +
-        Math.floor(Math.random() * 10 + 1)
+  const rollDice = () => Array.from({ length: 10 }, () => Math.floor(Math.random() * 10 + 1)).reduce((a, b) => a + b)
 
-      this.selectedCharacter.statValue1 = rollDice()
-      this.selectedCharacter.statValue2 = rollDice()
-      this.selectedCharacter.statValue3 = rollDice()
-      this.selectedCharacter.statValue4 = rollDice()
-      this.selectedCharacter.statValue5 = rollDice()
-      this.selectedCharacter.statValue6 = rollDice()
-    },
+  this.selectedCharacter.statValue1 = rollDice()
+  this.selectedCharacter.statValue2 = rollDice()
+  this.selectedCharacter.statValue3 = rollDice()
+  this.selectedCharacter.statValue4 = rollDice()
+  this.selectedCharacter.statValue5 = rollDice()
+  this.selectedCharacter.statValue6 = rollDice()
+},
+
   },
 })
 

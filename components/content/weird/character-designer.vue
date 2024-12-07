@@ -153,6 +153,8 @@
         </button>
       </div>
 
+      <character-rewards />
+
       <!-- ArtPrompt Section -->
       <div
         class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md p-4"

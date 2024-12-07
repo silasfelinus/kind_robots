@@ -19,23 +19,20 @@
         <div class="flex items-center w-full lg:w-2/3">
           <input
             :value="
-              characterStore.currentDisplayMode === 'generator'
+              characterStore.generationMode
                 ? generatedCharacter?.[field] || character?.[field]
                 : character?.[field]
             "
             :placeholder="`Enter ${fieldLabels[field]}`"
             class="input input-bordered flex-grow"
-            :disabled="
-              characterStore.currentDisplayMode === 'generator' &&
-              keepField[field]
-            "
+            :disabled="characterStore.generationMode && keepField[field]"
             @input="(event) => updateField(field, event)"
           />
         </div>
 
         <!-- Generated Area (Visible in Generator Mode) -->
         <div
-          v-if="characterStore.currentDisplayMode === 'generator'"
+          v-if="characterStore.generationMode"
           class="flex items-center w-full lg:w-2/3 lg:ml-auto"
         >
           <span class="text-gray-600 text-sm">
@@ -53,14 +50,14 @@
       <!-- Action Buttons -->
       <div class="w-full mt-4 flex justify-center space-x-4">
         <button
-          v-if="characterStore.currentDisplayMode === 'generator'"
+          v-if="characterStore.generationMode"
           class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
           @click="applyGeneratedFields"
         >
           Apply Generated Fields
         </button>
         <button
-          v-if="characterStore.currentDisplayMode === 'generator'"
+          v-if="characterStore.generationMode"
           class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
           @click="resetGeneratedFields"
         >

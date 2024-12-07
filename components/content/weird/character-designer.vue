@@ -10,11 +10,11 @@
       <div class="flex flex-col flex-grow space-y-2">
         <h1 class="text-4xl font-bold truncate">
           <div class="flex items-center space-x-2">
-            <input
+            <CheckboxToggle
+              v-if="characterStore.generationMode"
               v-model="keepField.name"
-              type="checkbox"
-              title="Freeze this field"
-              class="checkbox checkbox-primary"
+              label="Name"
+              title="Freeze Name"
             />
             <label>Name:</label>
             <input
@@ -39,11 +39,11 @@
             :key="field"
           >
             <span class="flex items-center space-x-2">
-              <input
+              <CheckboxToggle
+                v-if="characterStore.generationMode"
                 v-model="keepField[field]"
-                type="checkbox"
-                title="Freeze this field"
-                class="checkbox checkbox-primary"
+                :label="field.charAt(0).toUpperCase() + field.slice(1)"
+                :title="'Freeze ' + field"
               />
               <label
                 >{{ field.charAt(0).toUpperCase() + field.slice(1) }}:</label
@@ -74,12 +74,11 @@
       <!-- Is Public and Buttons -->
       <div class="flex flex-col items-end space-y-2">
         <label class="flex items-center space-x-2">
-          <input
+          <CheckboxToggle
             v-model="character.isPublic"
-            type="checkbox"
-            class="checkbox checkbox-primary"
+            label="Public"
+            title="Toggle public visibility"
           />
-          <span>Public</span>
         </label>
         <div class="flex space-x-2">
           <button
@@ -103,45 +102,21 @@
     <div class="flex flex-row justify-between items-start space-x-4">
       <!-- Stats Section -->
       <div
-        class="w-[60%] flex flex-col items-center bg-base-200 rounded-lg shadow-md p-4 space-y-4"
+        class="w-[50%] flex flex-col items-center bg-base-200 rounded-lg shadow-md p-4 space-y-4"
       >
         <div class="flex flex-wrap justify-between w-full">
           <template v-for="i in 6" :key="'stat-' + i">
             <div
               class="relative flex flex-col items-center justify-center w-[30%] bg-base-300 border-2 border-gray-500 rounded-lg shadow-md p-2"
             >
-              <input
-                v-model="keepField[`statName${i}`]"
-                type="checkbox"
-                title="Freeze Stat"
-                class="absolute top-1 right-1 checkbox checkbox-primary"
-              />
-              <input
-                :value="
-                  useGenerated[`statName${i}`]
-                    ? newCharacter[`statName${i}` as keyof Character]
-                    : character[`statName${i}` as keyof Character]
-                "
-                class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
-                :disabled="keepField[`statName${i}`]"
-                @input="
-                  (event) =>
-                    updateField(`statName${i}` as keyof Character, event)
-                "
-              />
-              <input
-                :value="
-                  useGenerated[`statValue${i}`]
-                    ? newCharacter[`statValue${i}` as keyof Character]
-                    : character[`statValue${i}` as keyof Character]
-                "
-                class="bg-transparent border-none text-4xl font-bold text-center focus:outline-none"
-                :disabled="keepField[`statValue${i}`]"
-                @input="
-                  (event) =>
-                    updateField(`statValue${i}` as keyof Character, event)
-                "
-              />
+              <span
+                class="text-sm font-bold uppercase text-gray-700 text-center"
+              >
+                {{ character[`statName${i}` as keyof Character] }}
+              </span>
+              <span class="text-4xl font-bold text-center">
+                {{ character[`statValue${i}` as keyof Character] }}
+              </span>
             </div>
           </template>
         </div>
@@ -153,24 +128,27 @@
         </button>
       </div>
 
-      <character-rewards />
+      <!-- Rewards Section -->
+      <character-rewards class="w-[50%]" />
 
       <!-- ArtPrompt Section -->
       <div
-        class="w-[40%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md p-4"
+        class="w-[50%] flex flex-col items-center bg-gray-800 rounded-lg shadow-md p-4"
       >
-        <img
-          v-if="artImage"
-          :src="artImage"
-          alt="Character Portrait"
-          class="object-cover w-full h-60 rounded-lg"
-        />
-        <img
-          v-else
-          src="/images/bot.webp"
-          alt="Default Portrait"
-          class="object-cover w-full h-60 rounded-lg"
-        />
+        <div class="aspect-[3/4] w-full h-auto">
+          <img
+            v-if="artImage"
+            :src="artImage"
+            alt="Character Portrait"
+            class="object-cover w-full rounded-lg"
+          />
+          <img
+            v-else
+            src="/images/bot.webp"
+            alt="Default Portrait"
+            class="object-cover w-full rounded-lg"
+          />
+        </div>
         <textarea
           v-model="computedArtPrompt"
           placeholder="Describe your character's appearance or a scene for art generation..."
@@ -196,9 +174,11 @@
         :key="field"
       >
         <div class="relative w-full">
-          <label class="block text-gray-700 font-bold mb-2">
-            {{ field.charAt(0).toUpperCase() + field.slice(1) }}
-          </label>
+          <CheckboxToggle
+            v-if="characterStore.generationMode"
+            v-model="keepField[field]"
+            :label="`Freeze ${field}`"
+          />
           <textarea
             :value="getFieldValue(field as keyof Character)"
             placeholder="..."
@@ -206,13 +186,6 @@
             :disabled="keepField[field as keyof Character]"
             @input="(event) => updateField(field as keyof Character, event)"
           ></textarea>
-          <button
-            v-if="newCharacter[field as keyof Character]"
-            class="absolute top-0 right-0 mt-2 mr-2 bg-gray-700 px-2 py-1 text-sm rounded"
-            @click="toggleField(field as keyof Character)"
-          >
-            {{ useGenerated[field] ? 'Generated' : 'Original' }}
-          </button>
         </div>
       </template>
     </div>

@@ -4,9 +4,12 @@
     <div class="w-full">
       <label class="block text-gray-700 font-bold mb-2">Backstory</label>
       <textarea
-        v-model="backstory"
+        :value="backstory"
         class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-        :disabled="keepField.backstory || characterStore.currentDisplayMode === 'normal'"
+        :disabled="
+          keepField.backstory || characterStore.currentDisplayMode === 'normal'
+        "
+        @input="(event) => updateField('backstory', event)"
       ></textarea>
 
       <!-- Generated Backstory -->
@@ -22,6 +25,7 @@
           type="checkbox"
           class="checkbox checkbox-primary"
           title="Use generated backstory"
+          @change="toggleField('backstory')"
         />
       </div>
     </div>
@@ -32,9 +36,12 @@
       <div class="w-1/3">
         <label class="block text-gray-700 font-bold mb-2">Quirks</label>
         <textarea
-          v-model="quirks"
+          :value="quirks"
           class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-          :disabled="keepField.quirks || characterStore.currentDisplayMode === 'normal'"
+          :disabled="
+            keepField.quirks || characterStore.currentDisplayMode === 'normal'
+          "
+          @input="(event) => updateField('quirks', event)"
         ></textarea>
 
         <!-- Generated Quirks -->
@@ -50,6 +57,7 @@
             type="checkbox"
             class="checkbox checkbox-primary"
             title="Use generated quirks"
+            @change="toggleField('quirks')"
           />
         </div>
       </div>
@@ -58,9 +66,13 @@
       <div class="w-1/3">
         <label class="block text-gray-700 font-bold mb-2">Inventory</label>
         <textarea
-          v-model="inventory"
+          :value="inventory"
           class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-          :disabled="keepField.inventory || characterStore.currentDisplayMode === 'normal'"
+          :disabled="
+            keepField.inventory ||
+            characterStore.currentDisplayMode === 'normal'
+          "
+          @input="(event) => updateField('inventory', event)"
         ></textarea>
 
         <!-- Generated Inventory -->
@@ -76,6 +88,7 @@
             type="checkbox"
             class="checkbox checkbox-primary"
             title="Use generated inventory"
+            @change="toggleField('inventory')"
           />
         </div>
       </div>
@@ -84,9 +97,12 @@
       <div class="w-1/3">
         <label class="block text-gray-700 font-bold mb-2">Skills</label>
         <textarea
-          v-model="skills"
+          :value="skills"
           class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-          :disabled="keepField.skills || characterStore.currentDisplayMode === 'normal'"
+          :disabled="
+            keepField.skills || characterStore.currentDisplayMode === 'normal'
+          "
+          @input="(event) => updateField('skills', event)"
         ></textarea>
 
         <!-- Generated Skills -->
@@ -102,13 +118,13 @@
             type="checkbox"
             class="checkbox checkbox-primary"
             title="Use generated skills"
+            @change="toggleField('skills')"
           />
         </div>
       </div>
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -117,7 +133,9 @@ import { useCharacterStore } from '@/stores/characterStore'
 const characterStore = useCharacterStore()
 
 const selectedCharacter = computed(() => characterStore.selectedCharacter)
-const generatedCharacter = computed(() => characterStore.generatedCharacter || {})
+const generatedCharacter = computed(
+  () => characterStore.generatedCharacter || {},
+)
 const keepField = computed(() => characterStore.keepField)
 const useGenerated = computed(() => characterStore.useGenerated)
 
@@ -178,16 +196,26 @@ const skills = computed<string>({
   },
 })
 
-// Update a field value
 function updateField(field: keyof typeof useGenerated.value, event: Event) {
   const target = event.target as HTMLTextAreaElement
   if (!target) return
+
   const value = target.value
 
   if (useGenerated.value[field]) {
-    generatedCharacter.value[field] = value
+    // Ensure the field exists on generatedCharacter and is assignable
+    if (generatedCharacter.value && field in generatedCharacter.value) {
+      ;(generatedCharacter.value[
+        field as keyof typeof generatedCharacter.value
+      ] as unknown as string) = value
+    }
   } else if (selectedCharacter.value) {
-    selectedCharacter.value[field] = value
+    // Ensure the field exists on selectedCharacter and is assignable
+    if (field in selectedCharacter.value) {
+      ;(selectedCharacter.value[
+        field as keyof typeof selectedCharacter.value
+      ] as unknown as string) = value
+    }
   }
 }
 

@@ -28,7 +28,7 @@
           {{ character.class || 'Adventurer' }}
         </p>
       </div>
-      <p class="text-sm text-gray-500">User: {{ username }}</p>
+      <p class="text-sm text-gray-500">User: {{ displayUsername }}</p>
     </div>
 
     <!-- Stats -->
@@ -52,30 +52,56 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
+import { useUserStore } from '@/stores/userStore'
 
 // Props for the character card
-const { character, username } = defineProps({
+const { character } = defineProps({
   character: {
     type: Object,
     required: true,
   },
-  username: {
-    type: String,
-    required: true,
-  },
+})
+
+// User store
+const userStore = useUserStore()
+
+// Reactive username display
+const displayUsername = ref(character.designer || null)
+
+// Fetch username dynamically if designer is not provided
+onMounted(() => {
+  if (!character.designer && character.userId) {
+    const username = userStore.getUsernameByUserId(character.userId)
+    if (username) {
+      displayUsername.value = username
+    } else {
+      displayUsername.value = 'Unknown User'
+    }
+  }
 })
 
 // Art store for fetching image data
 const artStore = useArtStore()
 
-// Computed property for the art image
-const artImage = computed(() => {
-  if (!character.artImageId) return null
-  const image = artStore.getCachedArtImageById(character.artImageId)
-  if (!image) return null
-  return `data:image/${image.fileType};base64,${image.imageData}`
+// Reactive art image URL
+const artImage = ref(null)
+
+// On mounted, fetch the art image
+onMounted(async () => {
+  if (character.artImageId) {
+    const image = await artStore.getArtImageById(character.artImageId)
+    if (image) {
+      artImage.value = `data:image/${image.fileType};base64,${image.imageData}`
+      return
+    }
+  }
+
+  // Fallback to character imagePath if no artImageId or image not found
+  if (character.imagePath) {
+    artImage.value = character.imagePath
+  }
 })
 
 // Dynamically get stat keys for rendering

@@ -6,15 +6,13 @@
       <textarea
         :value="backstory"
         class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-        :disabled="
-          keepField.backstory || characterStore.currentDisplayMode === 'normal'
-        "
+        :disabled="keepField.backstory || !characterStore.generationMode"
         @input="(event) => updateField('backstory', event)"
       ></textarea>
 
       <!-- Generated Backstory -->
       <div
-        v-if="characterStore.currentDisplayMode === 'generator'"
+        v-if="characterStore.generationMode"
         class="mt-2 flex items-center space-x-4"
       >
         <span class="text-sm text-gray-500">
@@ -38,15 +36,13 @@
         <textarea
           :value="quirks"
           class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-          :disabled="
-            keepField.quirks || characterStore.currentDisplayMode === 'normal'
-          "
+          :disabled="keepField.quirks || !characterStore.generationMode"
           @input="(event) => updateField('quirks', event)"
         ></textarea>
 
         <!-- Generated Quirks -->
         <div
-          v-if="characterStore.currentDisplayMode === 'generator'"
+          v-if="characterStore.generationMode"
           class="mt-2 flex items-center space-x-4"
         >
           <span class="text-sm text-gray-500">
@@ -68,16 +64,13 @@
         <textarea
           :value="inventory"
           class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-          :disabled="
-            keepField.inventory ||
-            characterStore.currentDisplayMode === 'normal'
-          "
+          :disabled="keepField.inventory || !characterStore.generationMode"
           @input="(event) => updateField('inventory', event)"
         ></textarea>
 
         <!-- Generated Inventory -->
         <div
-          v-if="characterStore.currentDisplayMode === 'generator'"
+          v-if="characterStore.generationMode"
           class="mt-2 flex items-center space-x-4"
         >
           <span class="text-sm text-gray-500">
@@ -99,15 +92,13 @@
         <textarea
           :value="skills"
           class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-          :disabled="
-            keepField.skills || characterStore.currentDisplayMode === 'normal'
-          "
+          :disabled="keepField.skills || characterStore.generationMode"
           @input="(event) => updateField('skills', event)"
         ></textarea>
 
         <!-- Generated Skills -->
         <div
-          v-if="characterStore.currentDisplayMode === 'generator'"
+          v-if="characterStore.generationMode"
           class="mt-2 flex items-center space-x-4"
         >
           <span class="text-sm text-gray-500">

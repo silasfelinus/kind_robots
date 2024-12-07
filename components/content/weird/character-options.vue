@@ -22,11 +22,12 @@
     <div class="flex items-center space-x-2">
       <label class="flex items-center space-x-2">
         <span class="text-sm">Mode:</span>
-        <select v-model="displayMode" class="select select-primary text-sm">
-          <option value="normal">Normal</option>
-          <option value="edit">Edit</option>
-          <option value="generate">Generate</option>
-        </select>
+        <input
+          v-model="generationMode"
+          type="checkbox"
+          class="checkbox checkbox-primary"
+        />
+        <span class="text-sm">Enable Generation Mode</span>
       </label>
     </div>
 
@@ -79,11 +80,11 @@ const selectedCharacterId = computed({
   },
 })
 
-// Computed property for display mode
-const displayMode = computed({
-  get: () => characterStore.currentDisplayMode,
-  set: (mode: 'normal' | 'edit' | 'generator') => {
-    characterStore.setDisplayMode(mode)
+// Computed property for generation mode
+const generationMode = computed({
+  get: () => characterStore.generationMode,
+  set: (value: boolean) => {
+    characterStore.generationMode = value
   },
 })
 
@@ -133,7 +134,7 @@ async function deleteCharacter() {
 
 // Reset Character
 function resetCharacter() {
-  characterStore.setDisplayMode('normal') // Revert to normal mode
+  characterStore.generationMode = false
   characterStore.selectedCharacter = null
   characterStore.generatedCharacter = null
   alert('Character reset to defaults.')

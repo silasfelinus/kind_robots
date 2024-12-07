@@ -89,6 +89,13 @@ export const useUserStore = defineStore({
         this.users = [] // Reset to empty if there's an error
       }
     },
+   getUsernameByUserId(userId: number | null): string | null {
+      if (userId === null) {
+        return null
+      }
+      const user = this.users.find((user) => user.id === userId)
+      return user ? user.username : null
+    },
     async getUsernames(): Promise<string[]> {
       try {
         const response = await performFetch<string[]>('/api/users/usernames')

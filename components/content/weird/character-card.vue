@@ -13,7 +13,7 @@
         class="absolute top-1 right-1 text-error"
         @click.stop="deleteCharacter"
       >
-        <icon name="kind-icon:delete" class="w-5 h-5" />
+        <Icon name="kind-icon:delete" class="w-5 h-5" />
       </button>
     </div>
 

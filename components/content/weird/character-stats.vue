@@ -7,28 +7,46 @@
     >
       <!-- Freeze Stat Checkbox -->
       <input
+        v-if="characterStore.currentDisplayMode === 'generator'"
         :checked="keepField[`statName${i}`]"
         type="checkbox"
         title="Freeze Stat"
         class="absolute top-1 right-1 checkbox checkbox-primary"
-        @change="updateKeepField(`statName${i}` as StatKey, $event)"
+        @change="updateKeepField(`statName${i}`, $event)"
       />
 
       <!-- Stat Name -->
       <input
-        :value="getStatValue(`statName${i}` as StatKey)"
+        :value="getStatValue(`statName${i}`)"
         class="bg-transparent border-none text-sm font-bold uppercase text-gray-700 text-center focus:outline-none"
-        :disabled="keepField[`statName${i}`]"
-        @input="updateField(`statName${i}` as StatKey, $event)"
+        :disabled="characterStore.currentDisplayMode === 'normal'"
+        @input="updateField(`statName${i}`, $event)"
       />
 
       <!-- Stat Value -->
-      <input
-        :value="getStatValue(`statValue${i}` as StatKey)"
-        class="bg-transparent border-none text-4xl font-bold text-center focus:outline-none"
-        :disabled="keepField[`statValue${i}`]"
-        @input="updateField(`statValue${i}` as StatKey, $event)"
-      />
+      <div class="text-4xl font-bold text-center">
+        <span v-if="characterStore.currentDisplayMode === 'normal'">
+          {{ getStatValue(`statValue${i}`) }}
+        </span>
+        <input
+          v-else
+          :value="getStatValue(`statValue${i}`)"
+          class="bg-transparent border-none text-4xl font-bold text-center focus:outline-none"
+          :disabled="characterStore.currentDisplayMode === 'generator' && keepField[`statValue${i}`]"
+          @input="updateField(`statValue${i}`, $event)"
+        />
+      </div>
+    </div>
+
+    <!-- Reroll Button -->
+    <div class="w-full mt-4 flex justify-center">
+      <button
+        v-if="characterStore.currentDisplayMode === 'edit'"
+        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+        @click="rerollStats"
+      >
+        Reroll Stats
+      </button>
     </div>
   </div>
 </template>
@@ -37,7 +55,7 @@
 import { computed } from 'vue'
 import { useCharacterStore, type Character } from '@/stores/characterStore'
 
-// Extend Character type for dynamic keys
+// Define dynamic stat key type
 type StatKey = `statName${number}` | `statValue${number}`
 
 // Access the store
@@ -48,17 +66,14 @@ const selectedCharacter = computed<Character | null>(
   () => characterStore.selectedCharacter,
 )
 const keepField = computed(() => characterStore.keepField)
-const useGenerated = computed(() => characterStore.useGenerated)
 
 // Helper function to get stat value
 function getStatValue(field: StatKey) {
   if (!selectedCharacter.value) return '' // Handle null character case
-  return useGenerated.value[field]
-    ? selectedCharacter.value[field as keyof Character] || ''
-    : selectedCharacter.value[field as keyof Character] || ''
+  return selectedCharacter.value[field as keyof Character] || ''
 }
 
-// Emit events to update keepField or stats
+// Update the `keepField` in the store
 function updateKeepField(field: StatKey, event: Event) {
   const target = event.target as HTMLInputElement | null
   if (target) {
@@ -66,10 +81,16 @@ function updateKeepField(field: StatKey, event: Event) {
   }
 }
 
+// Update stat names or values in the store
 function updateField(field: StatKey, event: Event) {
   const target = event.target as HTMLInputElement | null
   if (target && selectedCharacter.value) {
-    selectedCharacter.value[field as keyof Character] = target.value as never // Cast to `never` for dynamic assignment
+    characterStore.updateField(field, target.value) // Use store action to update
   }
+}
+
+// Trigger stat reroll for `edit` mode
+function rerollStats() {
+  characterStore.rerollStats() // Call store's reroll logic
 }
 </script>

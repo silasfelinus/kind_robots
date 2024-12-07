@@ -63,9 +63,14 @@
     <!-- Additional Character Info -->
     <div v-if="isSelected" class="mt-4 text-sm text-gray-600 space-y-2">
       <p><strong>Alignment:</strong> {{ character.alignment || 'Unknown' }}</p>
-      <p><strong>Backstory:</strong> {{ character.backstory || 'Not shared yet.' }}</p>
+      <p>
+        <strong>Backstory:</strong>
+        {{ character.backstory || 'Not shared yet.' }}
+      </p>
       <p><strong>Quirks:</strong> {{ character.quirks || 'None provided.' }}</p>
-      <p><strong>Skills:</strong> {{ character.skills || 'No skills listed.' }}</p>
+      <p>
+        <strong>Skills:</strong> {{ character.skills || 'No skills listed.' }}
+      </p>
       <p><strong>Inventory:</strong> {{ character.inventory || 'Empty.' }}</p>
     </div>
   </div>
@@ -90,20 +95,23 @@ const userStore = useUserStore()
 
 // Character store
 const characterStore = useCharacterStore()
+const artStore = useArtStore()
 
 // Reactive states
 const displayUsername = ref(character.designer || null)
 const artImage = ref(null)
-const isSelected = computed(() => characterStore.selectedCharacter?.id === character.id)
+const isSelected = computed(
+  () => characterStore.selectedCharacter?.id === character.id,
+)
 const canDelete = computed(
-  () => userStore.isAdmin || userStore.userId === character.userId
+  () => userStore.isAdmin || userStore.userId === character.userId,
 )
 
 // Display name in the format "character.name the character.honorific"
 const displayName = computed(() =>
   character.name
     ? `${character.name} the ${character.honorific || 'Adventurer'}`
-    : 'Unnamed Hero'
+    : 'Unnamed Hero',
 )
 
 // On mounted: fetch the username if not provided and the art image

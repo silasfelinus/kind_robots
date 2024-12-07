@@ -126,6 +126,7 @@ export const useGalleryStore = defineStore({
     },
 
     async fetchGalleries() {
+console.log("fetching galleries")
       try {
         const response = await performFetch<Gallery[]>('/api/galleries')
 
@@ -136,6 +137,7 @@ export const useGalleryStore = defineStore({
           if (!this.currentGallery && this.galleries.length > 0) {
             this.setGalleryByName(this.galleries[0].name)
           }
+console.log("fetched ", this.galleries)
         } else {
           throw new Error(response.message || 'Failed to fetch galleries')
         }

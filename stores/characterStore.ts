@@ -138,7 +138,7 @@ state: () => ({
         experience: 0,
         level: 1,
         statName1: 'Luck',
-        statValue1: 9,
+        statValue1: 50,
         statName2: 'Swol',
         statValue2: 9,
         statName3: 'Wits',

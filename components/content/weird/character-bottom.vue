@@ -6,16 +6,24 @@
       <textarea
         v-model="backstory"
         class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-        :disabled="keepField.backstory || !selectedCharacter"
-        @input="(event) => updateField('backstory', event)"
+        :disabled="keepField.backstory || characterStore.currentDisplayMode === 'normal'"
       ></textarea>
-      <button
-        v-if="newCharacter.backstory"
-        class="absolute top-0 right-0 mt-2 mr-2 bg-gray-700 px-2 py-1 text-sm rounded"
-        @click="toggleField('backstory')"
+
+      <!-- Generated Backstory -->
+      <div
+        v-if="characterStore.currentDisplayMode === 'generator'"
+        class="mt-2 flex items-center space-x-4"
       >
-        {{ useGenerated.backstory ? 'Generated' : 'Original' }}
-      </button>
+        <span class="text-sm text-gray-500">
+          Generated: {{ generatedCharacter.backstory || 'N/A' }}
+        </span>
+        <input
+          v-model="useGenerated.backstory"
+          type="checkbox"
+          class="checkbox checkbox-primary"
+          title="Use generated backstory"
+        />
+      </div>
     </div>
 
     <!-- Quirks, Inventory, Skills -->
@@ -26,16 +34,24 @@
         <textarea
           v-model="quirks"
           class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-          :disabled="keepField.quirks || !selectedCharacter"
-          @input="(event) => updateField('quirks', event)"
+          :disabled="keepField.quirks || characterStore.currentDisplayMode === 'normal'"
         ></textarea>
-        <button
-          v-if="newCharacter.quirks"
-          class="absolute top-0 right-0 mt-2 mr-2 bg-gray-700 px-2 py-1 text-sm rounded"
-          @click="toggleField('quirks')"
+
+        <!-- Generated Quirks -->
+        <div
+          v-if="characterStore.currentDisplayMode === 'generator'"
+          class="mt-2 flex items-center space-x-4"
         >
-          {{ useGenerated.quirks ? 'Generated' : 'Original' }}
-        </button>
+          <span class="text-sm text-gray-500">
+            Generated: {{ generatedCharacter.quirks || 'N/A' }}
+          </span>
+          <input
+            v-model="useGenerated.quirks"
+            type="checkbox"
+            class="checkbox checkbox-primary"
+            title="Use generated quirks"
+          />
+        </div>
       </div>
 
       <!-- Inventory -->
@@ -44,16 +60,24 @@
         <textarea
           v-model="inventory"
           class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-          :disabled="keepField.inventory || !selectedCharacter"
-          @input="(event) => updateField('inventory', event)"
+          :disabled="keepField.inventory || characterStore.currentDisplayMode === 'normal'"
         ></textarea>
-        <button
-          v-if="newCharacter.inventory"
-          class="absolute top-0 right-0 mt-2 mr-2 bg-gray-700 px-2 py-1 text-sm rounded"
-          @click="toggleField('inventory')"
+
+        <!-- Generated Inventory -->
+        <div
+          v-if="characterStore.currentDisplayMode === 'generator'"
+          class="mt-2 flex items-center space-x-4"
         >
-          {{ useGenerated.inventory ? 'Generated' : 'Original' }}
-        </button>
+          <span class="text-sm text-gray-500">
+            Generated: {{ generatedCharacter.inventory || 'N/A' }}
+          </span>
+          <input
+            v-model="useGenerated.inventory"
+            type="checkbox"
+            class="checkbox checkbox-primary"
+            title="Use generated inventory"
+          />
+        </div>
       </div>
 
       <!-- Skills -->
@@ -62,16 +86,24 @@
         <textarea
           v-model="skills"
           class="bg-base-200 p-4 rounded-lg shadow-md w-full"
-          :disabled="keepField.skills || !selectedCharacter"
-          @input="(event) => updateField('skills', event)"
+          :disabled="keepField.skills || characterStore.currentDisplayMode === 'normal'"
         ></textarea>
-        <button
-          v-if="newCharacter.skills"
-          class="absolute top-0 right-0 mt-2 mr-2 bg-gray-700 px-2 py-1 text-sm rounded"
-          @click="toggleField('skills')"
+
+        <!-- Generated Skills -->
+        <div
+          v-if="characterStore.currentDisplayMode === 'generator'"
+          class="mt-2 flex items-center space-x-4"
         >
-          {{ useGenerated.skills ? 'Generated' : 'Original' }}
-        </button>
+          <span class="text-sm text-gray-500">
+            Generated: {{ generatedCharacter.skills || 'N/A' }}
+          </span>
+          <input
+            v-model="useGenerated.skills"
+            type="checkbox"
+            class="checkbox checkbox-primary"
+            title="Use generated skills"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -85,23 +117,19 @@ import { useCharacterStore } from '@/stores/characterStore'
 const characterStore = useCharacterStore()
 
 const selectedCharacter = computed(() => characterStore.selectedCharacter)
-const newCharacter = computed(() => characterStore.generatedCharacter || {})
+const generatedCharacter = computed(() => characterStore.generatedCharacter || {})
 const keepField = computed(() => characterStore.keepField)
 const useGenerated = computed(() => characterStore.useGenerated)
-const character = computed(() => characterStore.selectedCharacter)
-const generatedCharacter = computed(
-  () => characterStore.generatedCharacter || {},
-)
 
 // Computed properties for each field
 const backstory = computed<string>({
   get: () =>
     useGenerated.value.backstory
-      ? newCharacter.value.backstory || ''
+      ? generatedCharacter.value.backstory || ''
       : selectedCharacter.value?.backstory || '',
   set: (value) => {
     if (useGenerated.value.backstory) {
-      newCharacter.value.backstory = value
+      generatedCharacter.value.backstory = value
     } else if (selectedCharacter.value) {
       selectedCharacter.value.backstory = value
     }
@@ -111,11 +139,11 @@ const backstory = computed<string>({
 const quirks = computed<string>({
   get: () =>
     useGenerated.value.quirks
-      ? newCharacter.value.quirks || ''
+      ? generatedCharacter.value.quirks || ''
       : selectedCharacter.value?.quirks || '',
   set: (value) => {
     if (useGenerated.value.quirks) {
-      newCharacter.value.quirks = value
+      generatedCharacter.value.quirks = value
     } else if (selectedCharacter.value) {
       selectedCharacter.value.quirks = value
     }
@@ -125,11 +153,11 @@ const quirks = computed<string>({
 const inventory = computed<string>({
   get: () =>
     useGenerated.value.inventory
-      ? newCharacter.value.inventory || ''
+      ? generatedCharacter.value.inventory || ''
       : selectedCharacter.value?.inventory || '',
   set: (value) => {
     if (useGenerated.value.inventory) {
-      newCharacter.value.inventory = value
+      generatedCharacter.value.inventory = value
     } else if (selectedCharacter.value) {
       selectedCharacter.value.inventory = value
     }
@@ -139,38 +167,32 @@ const inventory = computed<string>({
 const skills = computed<string>({
   get: () =>
     useGenerated.value.skills
-      ? newCharacter.value.skills || ''
+      ? generatedCharacter.value.skills || ''
       : selectedCharacter.value?.skills || '',
   set: (value) => {
     if (useGenerated.value.skills) {
-      newCharacter.value.skills = value
+      generatedCharacter.value.skills = value
     } else if (selectedCharacter.value) {
       selectedCharacter.value.skills = value
     }
   },
 })
 
-// Update field values
-function updateField(field: keyof Character, event: Event) {
-  const target = event.target as HTMLInputElement
-  if (!target || !character.value) return
-
+// Update a field value
+function updateField(field: keyof typeof useGenerated.value, event: Event) {
+  const target = event.target as HTMLTextAreaElement
+  if (!target) return
   const value = target.value
+
   if (useGenerated.value[field]) {
-    characterStore.generatedCharacter = {
-      ...generatedCharacter.value,
-      [field]: value,
-    }
-  } else {
-    characterStore.selectedCharacter = {
-      ...character.value,
-      [field]: value,
-    }
+    generatedCharacter.value[field] = value
+  } else if (selectedCharacter.value) {
+    selectedCharacter.value[field] = value
   }
 }
 
+// Toggle between generated and original values
 function toggleField(field: keyof typeof useGenerated.value) {
-  if (!selectedCharacter.value || !newCharacter.value) return
   useGenerated.value[field] = !useGenerated.value[field]
 }
 </script>

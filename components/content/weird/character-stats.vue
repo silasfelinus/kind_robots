@@ -32,7 +32,10 @@
           v-else
           :value="getStatValue(`statValue${i}`)"
           class="bg-transparent border-none text-4xl font-bold text-center focus:outline-none"
-          :disabled="characterStore.currentDisplayMode === 'generator' || keepField[`statValue${i}`]"
+          :disabled="
+            characterStore.currentDisplayMode === 'generator' ||
+            keepField[`statValue${i}`]
+          "
           @input="updateField(`statValue${i}`, $event)"
         />
       </div>
@@ -62,19 +65,19 @@ type StatKey = `statName${number}` | `statValue${number}`
 const characterStore = useCharacterStore()
 
 // Default stat names and values
-const defaultStats = {
+const defaultStats: Record<StatKey, string | number> = {
   statName1: 'Luck',
   statName2: 'Swol',
   statName3: 'Wits',
   statName4: 'Fortitude',
   statName5: 'Rizz',
   statName6: 'Empathy',
-  statValue1: 9,
-  statValue2: 9,
-  statValue3: 9,
-  statValue4: 9,
-  statValue5: 9,
-  statValue6: 9,
+  statValue1: 50,
+  statValue2: 50,
+  statValue3: 50,
+  statValue4: 50,
+  statValue5: 50,
+  statValue6: 50,
 }
 
 // Computed properties
@@ -83,6 +86,7 @@ const selectedCharacter = computed<Character | null>(
 )
 const generatedCharacter = computed(() => characterStore.generatedCharacter)
 const keepField = computed(() => characterStore.keepField)
+const useGenerated = computed(() => characterStore.useGenerated) // Add this to fix the undefined issue
 
 // Helper function to get stat value
 function getStatValue(field: StatKey) {
@@ -99,7 +103,11 @@ function getStatValue(field: StatKey) {
     return generatedCharacter.value[field as keyof Character] || ''
   }
 
-  return selectedCharacter.value[field as keyof Character] || ''
+  if (field in selectedCharacter.value) {
+    return selectedCharacter.value[field as keyof Character] || ''
+  }
+
+  return ''
 }
 
 // Update the `keepField` in the store
@@ -113,8 +121,18 @@ function updateKeepField(field: StatKey, event: Event) {
 // Update stat names or values in the store
 function updateField(field: StatKey, event: Event) {
   const target = event.target as HTMLInputElement | null
-  if (target && selectedCharacter.value) {
-    characterStore.updateField(field, target.value) // Use store action to update
+  if (!target) return
+
+  const value = target.value
+
+  if (useGenerated.value[field] && generatedCharacter.value) {
+    if (field in generatedCharacter.value) {
+      generatedCharacter.value[field as keyof Character] = value as never
+    }
+  } else if (selectedCharacter.value) {
+    if (field in selectedCharacter.value) {
+      selectedCharacter.value[field as keyof Character] = value as never
+    }
   }
 }
 

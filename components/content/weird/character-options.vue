@@ -1,7 +1,12 @@
 <template>
-  <div class="flex items-center justify-between bg-gray-100 p-1 rounded-lg shadow-md">
+  <div
+    class="flex items-center justify-between bg-gray-100 p-1 rounded-lg shadow-md"
+  >
     <!-- Character Selector -->
-    <select v-model="selectedCharacterId" class="select select-primary w-1/3 text-sm">
+    <select
+      v-model="selectedCharacterId"
+      class="select select-primary w-1/3 text-sm"
+    >
       <option disabled value="">Select a character</option>
       <option
         v-for="character in characterStore.characters"
@@ -77,7 +82,7 @@ const selectedCharacterId = computed({
 // Computed property for display mode
 const displayMode = computed({
   get: () => characterStore.currentDisplayMode,
-  set: (mode: 'normal' | 'edit' | 'generate') => {
+  set: (mode: 'normal' | 'edit' | 'generator') => {
     characterStore.setDisplayMode(mode)
   },
 })
@@ -92,7 +97,10 @@ async function saveCharacter() {
     const { selectedCharacter } = characterStore
     if (selectedCharacter) {
       if (selectedCharacter.id) {
-        await characterStore.patchCharacter(selectedCharacter.id, selectedCharacter)
+        await characterStore.patchCharacter(
+          selectedCharacter.id,
+          selectedCharacter,
+        )
       } else {
         await characterStore.createCharacter(selectedCharacter)
       }

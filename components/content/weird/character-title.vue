@@ -9,7 +9,9 @@
         class="flex flex-col lg:flex-row items-center space-y-2 lg:space-y-0 lg:space-x-2 w-full lg:w-1/2 p-2"
       >
         <!-- Label -->
-        <label class="font-bold text-sm lg:text-base w-full lg:w-1/3 text-right">
+        <label
+          class="font-bold text-sm lg:text-base w-full lg:w-1/3 text-right"
+        >
           {{ fieldLabels[field] }}:
         </label>
 
@@ -23,7 +25,10 @@
             "
             :placeholder="`Enter ${fieldLabels[field]}`"
             class="input input-bordered flex-grow"
-            :disabled="characterStore.currentDisplayMode === 'generator' && keepField[field]"
+            :disabled="
+              characterStore.currentDisplayMode === 'generator' &&
+              keepField[field]
+            "
             @input="(event) => updateField(field, event)"
           />
         </div>
@@ -92,17 +97,23 @@ const keepField = computed(() => characterStore.keepField)
 // Update a field using the store's method
 function updateField(field: keyof typeof fieldLabels, event: Event) {
   const target = event.target as HTMLInputElement | null
-  if (!target) return
-  characterStore.updateField(field, target.value)
+  if (!target || !character.value) return // Ensure character is not null
+  const value = target.value
+
+  characterStore.updateField(field, value)
 }
 
-// Apply generated fields to the character
 function applyGeneratedFields() {
-  if (!generatedCharacter.value || !character.value) return
+  const currentCharacter = character.value
+  const currentGeneratedCharacter = generatedCharacter.value
+
+  // Ensure both are non-null before proceeding
+  if (!currentCharacter || !currentGeneratedCharacter) return
 
   fields.forEach((field) => {
     if (useGenerated.value[field]) {
-      character.value[field] = generatedCharacter.value[field] || character.value[field]
+      currentCharacter[field] =
+        currentGeneratedCharacter[field] ?? currentCharacter[field] ?? ''
     }
   })
 

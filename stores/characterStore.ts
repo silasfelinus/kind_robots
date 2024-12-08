@@ -87,6 +87,7 @@ async generateRandomCharacter() {
         ...randomCharacterData,
         ...randomStats,
         imagePath: randomGalleryImage || '/images/bot.webp', // Fallback to a default image
+        isPublic: true,
       }
 
       this.generatedCharacter = { ...this.characterForm } // Save to generatedCharacter for reference

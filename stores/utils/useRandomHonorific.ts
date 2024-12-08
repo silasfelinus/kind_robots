@@ -1,4 +1,4 @@
-export function useRandomHonorifics() {
+export function useRandomHonorific() {
   const honorifics = [
     // Noble and Regal
     'Brave',

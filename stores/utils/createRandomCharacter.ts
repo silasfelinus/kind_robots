@@ -2,6 +2,7 @@ import { useRandomName } from './useRandomName'
 import { useRandomHonorific } from './useRandomHonorific'
 import { useRandomClass } from './useRandomClass'
 import { useRandomGenre } from './useRandomGenre'
+import { useRandomSpecies } from './useRandomSpecies'
 import { useRandomBackstory } from './useRandomBackstory'
 import { useRandomInventory } from './useRandomInventory'
 import { useRandomQuirk } from './useRandomQuirks'
@@ -14,6 +15,7 @@ export function useRandomCharacterData() {
   const { randomHonorific } = useRandomHonorific()
   const { randomClass } = useRandomClass()
   const { randomGenre } = useRandomGenre()
+  const { randomSpecies } = useRandomSpecies()
   const { randomBackstory } = useRandomBackstory()
   const { randomInventory } = useRandomInventory()
   const { randomQuirk } = useRandomQuirk()
@@ -27,6 +29,7 @@ export function useRandomCharacterData() {
       honorific: randomHonorific(),
       class: randomClass(),
       genre: randomGenre(),
+      species: randomSpecies(),
       backstory: randomBackstory(),
       inventory: randomInventory(),
       quirks: randomQuirk(),

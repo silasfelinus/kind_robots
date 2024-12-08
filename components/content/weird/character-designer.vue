@@ -101,7 +101,7 @@
             />
             <img
               v-else
-              src="/images/placeholder-portrait.webp"
+              src="/images/bot.webp"
               alt="Default Portrait"
               class="object-cover w-48 h-64 rounded-lg"
             />

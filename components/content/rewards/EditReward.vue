@@ -6,7 +6,7 @@
       <div class="flex justify-center mb-6">
         <Icon
           :name="editedReward.icon || 'default-icon'"
-          class="text-[12rem] mb-4" <!-- Increased size -->
+          class="text-[12rem] mb-4" 
         />
       </div>
 
@@ -34,6 +34,7 @@
     </form>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'

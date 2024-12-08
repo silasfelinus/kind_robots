@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center space-x-2">
+  <div v-if="shouldDisplay" class="flex items-center space-x-2">
     <input
       v-model="checked"
       type="checkbox"
@@ -13,6 +13,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useCharacterStore } from '@/stores/characterStore'
 
 // Props
 const props = defineProps({
@@ -32,6 +33,12 @@ const props = defineProps({
 
 // Emits
 const emit = defineEmits(['update:modelValue'])
+
+// Access the character store
+const characterStore = useCharacterStore()
+
+// Determine if the toggle should be displayed
+const shouldDisplay = computed(() => characterStore.generationMode)
 
 // Computed property for checkbox state
 const checked = computed({

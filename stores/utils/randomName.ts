@@ -1,4 +1,4 @@
-export function useRandomName() {
+export function randomName() {
   const names = [
     // Classic
     'Alexander',

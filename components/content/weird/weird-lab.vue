@@ -38,7 +38,7 @@
       <lazy-weirder-game v-if="activeTab === 'weirdlandia-view'" />
 
       <lazy-character-designer v-if="activeTab === 'character-designer'" />
-      <lazy-character-manager v-if="activeTab === 'character-manager'" />
+      
       <lazy-character-gallery v-if="activeTab === 'character-gallery'" />
       <lazy-add-reward v-if="activeTab === 'add-reward'" />
       <lazy-rewards-gallery v-if="activeTab === 'reward-gallery'" />
@@ -58,7 +58,7 @@ const tabs = [
   { name: 'weirdlandia-view', label: 'Weirdlandia View' },
 
   { name: 'character-designer', label: 'Character Designer' },
-  { name: 'character-manager', label: 'Character Manager' },
+  
   { name: 'character-gallery', label: 'Character Gallery' },
   { name: 'add-reward', label: 'Add Reward' },
   { name: 'reward-gallery', label: 'Reward Gallery' },

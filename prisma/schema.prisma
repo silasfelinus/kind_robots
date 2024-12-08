@@ -178,6 +178,7 @@ model Character {
   genre           String?        @db.VarChar(256) 
   imagePath       String?        @db.VarChar(256) 
   designer        String?
+  personality   String?
 
   // Main Stats
   statName1       String?        @default("Luck")

@@ -67,50 +67,11 @@
     <div class="flex flex-wrap w-full mt-4">
       <!-- Left: Art Section -->
       <div class="w-full md:w-1/2 p-4">
-        <h2 class="text-lg font-medium flex justify-between items-center">
-          Character Art
-          <gallery-selector class="w-auto" @gallery-selected="setGallery" />
-        </h2>
-        <div class="grid gap-4">
-          <CheckboxToggle
-            v-model="characterStore.keepField.artPrompt"
-            label="Freeze Art Prompt"
-          />
-          <div class="flex justify-center">
-            <img
-              v-if="characterStore.characterForm.imagePath"
-              :src="characterStore.characterForm.imagePath"
-              alt="Character Portrait"
-              class="object-cover w-48 h-64 rounded-lg"
-            />
-            <img
-              v-else
-              src="/images/bot.webp"
-              alt="Default Portrait"
-              class="object-cover w-48 h-64 rounded-lg"
-            />
-          </div>
-          <button class="btn btn-accent w-full" @click="galleryStore.changeToRandomImage">
-            Get Random Image
-          </button>
-          <character-uploader class="w-full mt-2" @uploaded="setArtImageId" />
-          <textarea
-            v-model="characterStore.characterForm.artPrompt"
-            placeholder="Describe your character's appearance or a scene..."
-            class="w-full p-3 rounded-lg border"
-            :disabled="characterStore.keepField.artPrompt"
-          ></textarea>
-          <button
-            class="btn btn-primary w-full"
-            :disabled="characterStore.isGeneratingArt"
-            @click="generateArtImage"
-          >
-            {{ characterStore.isGeneratingArt ? 'Generating...' : 'Generate Art' }}
-          </button>
+        <character-art />
         </div>
       </div>
 
-      <!-- Right: Stats Section -->
+      <!-- Right: Stats Section and Rewards-->
       <div class="w-full md:w-1/2 p-4">
         <h2 class="text-lg font-medium">Stats</h2>
         <div class="grid grid-cols-2 gap-4">
@@ -140,6 +101,7 @@
           Reroll Stats
         </button>
       </div>
+<character-rewards />
     </div>
 
     <!-- Bottom Section -->
@@ -236,14 +198,6 @@ const designerName = computed(() =>
 
 function toggleVisibility(value: boolean) {
   characterStore.characterForm.isPublic = value
-}
-
-function setArtImageId(id: number) {
-  characterStore.setArtImageId(id)
-}
-
-async function generateArtImage() {
-  await characterStore.generateArtImage()
 }
 
 async function handleSubmit() {

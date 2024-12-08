@@ -4,8 +4,8 @@ import { useRandomClass } from './useRandomClass'
 import { useRandomGenre } from './useRandomGenre'
 import { useRandomBackstory } from './useRandomBackstory'
 import { useRandomInventory } from './useRandomInventory'
-import { useRandomQuirks } from './useRandomQuirks'
-import { useRandomSkills } from './useRandomSkills'
+import { useRandomQuirk } from './useRandomQuirks'
+import { useRandomSkill } from './useRandomSkills'
 import { useRandomStats } from './useRandomStats'
 
 export function useRandomCharacterData() {
@@ -16,8 +16,8 @@ export function useRandomCharacterData() {
   const { randomGenre } = useRandomGenre()
   const { randomBackstory } = useRandomBackstory()
   const { randomInventory } = useRandomInventory()
-  const { randomQuirk } = useRandomQuirks()
-  const { randomSkills } = useRandomSkills()
+  const { randomQuirk } = useRandomQuirk()
+  const { randomSkill } = useRandomSkill()
   const { generateStats } = useRandomStats()
 
   // Generate a complete random character
@@ -30,7 +30,7 @@ export function useRandomCharacterData() {
       backstory: randomBackstory(),
       inventory: randomInventory(),
       quirks: randomQuirk(),
-      skills: randomSkills(),
+      skills: randomSkill(),
       ...generateStats(), // Include stats as flat fields
     }
   }

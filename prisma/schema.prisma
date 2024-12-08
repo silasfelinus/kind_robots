@@ -187,7 +187,7 @@ model Character {
   statValue2      Int?           @default(9)
   statName3       String?        @default("Wits")
   statValue3      Int?           @default(9)
-  statName4       String?        @default("Fortitude")
+  statName4       String?        @default("Flexibilty")
   statValue4      Int?           @default(9)
   statName5       String?        @default("Rizz")
   statValue5      Int?           @default(9)

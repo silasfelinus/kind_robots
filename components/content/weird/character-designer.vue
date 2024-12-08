@@ -11,7 +11,6 @@
           <CheckboxToggle
             v-model="characterStore.keepField.name"
             label="Freeze Name"
-            title="Prevent changes to name"
           />
           <input
             v-model="characterStore.characterForm.name"
@@ -24,7 +23,6 @@
           <CheckboxToggle
             v-model="characterStore.keepField.honorific"
             label="Freeze Honorific"
-            title="Prevent changes to honorific"
           />
           <input
             v-model="characterStore.characterForm.honorific"
@@ -38,7 +36,6 @@
           <CheckboxToggle
             v-model="characterStore.keepField.class"
             label="Freeze Class"
-            title="Prevent changes to class"
           />
           <input
             v-model="characterStore.characterForm.class"
@@ -70,12 +67,14 @@
     <div class="flex flex-wrap w-full mt-4">
       <!-- Left: Art Section -->
       <div class="w-full md:w-1/2 p-4">
-        <h2 class="text-lg font-medium">Character Art</h2>
+        <h2 class="text-lg font-medium flex justify-between items-center">
+          Character Art
+          <gallery-selector class="w-auto" @gallery-selected="setGallery" />
+        </h2>
         <div class="grid gap-4">
           <CheckboxToggle
             v-model="characterStore.keepField.artPrompt"
             label="Freeze Art Prompt"
-            title="Prevent changes to art prompt"
           />
           <div class="flex justify-center">
             <img
@@ -91,23 +90,23 @@
               class="object-cover w-48 h-64 rounded-lg"
             />
           </div>
+          <button class="btn btn-accent w-full" @click="galleryStore.changeToRandomImage">
+            Get Random Image
+          </button>
+          <character-uploader class="w-full mt-2" @uploaded="setArtImageId" />
           <textarea
             v-model="characterStore.characterForm.artPrompt"
             placeholder="Describe your character's appearance or a scene..."
             class="w-full p-3 rounded-lg border"
             :disabled="characterStore.keepField.artPrompt"
           ></textarea>
-          <div class="flex space-x-2">
-            <button
-              class="btn btn-primary w-1/2"
-              :disabled="characterStore.isGeneratingArt"
-              @click="generateArtImage"
-            >
-              {{ characterStore.isGeneratingArt ? 'Generating...' : 'Generate Art' }}
-            </button>
-            <character-uploader class="w-1/2" @uploaded="setArtImageId" />
-            <gallery-selector class="w-1/2" @gallery-selected="setGallery" />
-          </div>
+          <button
+            class="btn btn-primary w-full"
+            :disabled="characterStore.isGeneratingArt"
+            @click="generateArtImage"
+          >
+            {{ characterStore.isGeneratingArt ? 'Generating...' : 'Generate Art' }}
+          </button>
         </div>
       </div>
 
@@ -116,36 +115,28 @@
         <h2 class="text-lg font-medium">Stats</h2>
         <div class="grid grid-cols-2 gap-4">
           <template v-for="i in 6" :key="'stat-' + i">
-            <div class="relative">
-              <CheckboxToggle
-                v-model="characterStore.keepField[`statName${i}`]"
-                :label="'Freeze ' + characterStore.characterForm[`statName${i}`]"
-                :title="'Prevent changes to ' + characterStore.characterForm[`statName${i}`]"
-              />
+            <div>
               <label
-                :for="'statName' + i"
                 class="block text-sm font-bold uppercase"
+                :for="'statName' + i"
               >
-                {{
-                  characterStore.characterForm[`statName${i}` as keyof Character] ||
-                    'Stat'
-                }}
+                <input
+                  v-model="characterStore.characterForm[`statName${i}`]"
+                  type="text"
+                  class="w-full p-2 rounded-lg border"
+                />
               </label>
               <input
                 :id="'statValue' + i"
-                v-model="
-                  characterStore.characterForm[`statValue${i}` as keyof Character]
-                "
+                :value="characterStore.characterForm[`statValue${i}`]"
                 type="number"
                 class="w-full p-2 rounded-lg border text-center"
+                disabled
               />
             </div>
           </template>
         </div>
-        <button
-          class="btn btn-secondary mt-2"
-          @click="characterStore.rerollStats"
-        >
+        <button class="btn btn-secondary mt-2" @click="characterStore.rerollStats">
           Reroll Stats
         </button>
       </div>
@@ -158,7 +149,6 @@
         <CheckboxToggle
           v-model="characterStore.keepField.backstory"
           label="Freeze Backstory"
-          title="Prevent changes to backstory"
         />
         <h2 class="text-lg font-medium">Backstory</h2>
         <textarea
@@ -170,14 +160,14 @@
         ></textarea>
       </div>
 
-      <!-- Additional Details: Quirks, Inventory, Skills -->
+      <!-- Quirks, Inventory, Skills -->
       <div class="grid grid-cols-3 gap-4">
         <div>
           <CheckboxToggle
             v-model="characterStore.keepField.quirks"
             label="Freeze Quirks"
-            title="Prevent changes to quirks"
           />
+          <h3 class="text-sm font-bold">Quirks</h3>
           <textarea
             v-model="characterStore.characterForm.quirks"
             class="w-full p-3 rounded-lg border"
@@ -190,8 +180,8 @@
           <CheckboxToggle
             v-model="characterStore.keepField.inventory"
             label="Freeze Inventory"
-            title="Prevent changes to inventory"
           />
+          <h3 class="text-sm font-bold">Inventory</h3>
           <textarea
             v-model="characterStore.characterForm.inventory"
             class="w-full p-3 rounded-lg border"
@@ -204,8 +194,8 @@
           <CheckboxToggle
             v-model="characterStore.keepField.skills"
             label="Freeze Skills"
-            title="Prevent changes to skills"
           />
+          <h3 class="text-sm font-bold">Skills</h3>
           <textarea
             v-model="characterStore.characterForm.skills"
             class="w-full p-3 rounded-lg border"
@@ -216,8 +206,16 @@
         </div>
       </div>
     </div>
+
+    <!-- Save Button -->
+    <div class="text-center mt-4">
+      <button class="btn btn-primary" @click="handleSubmit">
+        Save Character
+      </button>
+    </div>
   </div>
 </template>
+
 
 
 <script setup lang="ts">

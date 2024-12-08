@@ -39,11 +39,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
-import CharacterTitle from '@/components/CharacterTitle.vue'
-import CharacterArt from '@/components/CharacterArt.vue'
-import CharacterStats from '@/components/CharacterStats.vue'
-import CharacterRewards from '@/components/CharacterRewards.vue'
-import CharacterBottom from '@/components/CharacterBottom.vue'
+
 
 const characterStore = useCharacterStore()
 const userStore = useUserStore()

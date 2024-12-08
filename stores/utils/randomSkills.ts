@@ -1,8 +1,8 @@
-import { useRandomAnimal } from './useRandomAnimal'
+import { useRandomAnimal } from './randomAnimal'
 
 export function useRandomSkill() {
   const animalGenerator = useRandomAnimal() // Get access to randomAnimal()
-  
+
   const skills = [
     'Expert swordsmanship',
     'Master of stealth',

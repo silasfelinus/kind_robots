@@ -82,7 +82,7 @@
           />
           <img
             v-else
-            src="/images/character-placeholder.webp"
+            src="/images/bot.webp"
             alt="Default Art"
             class="object-cover w-full h-60 rounded-lg"
           />

@@ -1,4 +1,4 @@
-export function useRandomItems() {
+export function useRandomItem() {
   const items = [
     // Practical Items
     'Leather satchel',

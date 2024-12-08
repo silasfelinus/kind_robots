@@ -40,7 +40,7 @@
       <lazy-character-designer v-if="activeTab === 'character-designer'" />
       
       <lazy-character-gallery v-if="activeTab === 'character-gallery'" />
-      <lazy-add-reward v-if="activeTab === 'add-reward'" />
+  
       <lazy-rewards-gallery v-if="activeTab === 'reward-gallery'" />
     </div>
   </div>
@@ -60,7 +60,7 @@ const tabs = [
   { name: 'character-designer', label: 'Character Designer' },
   
   { name: 'character-gallery', label: 'Character Gallery' },
-  { name: 'add-reward', label: 'Add Reward' },
+  
   { name: 'reward-gallery', label: 'Reward Gallery' },
 ]
 

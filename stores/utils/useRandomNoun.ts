@@ -1,4 +1,4 @@
-export function useRandomNouns() {
+export function useRandomNoun() {
   const nouns = [
     'apple',
     'balloon',

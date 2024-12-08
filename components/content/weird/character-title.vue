@@ -1,130 +1,103 @@
 <template>
-  <div class="flex flex-col space-y-4">
-    <!-- Character Header -->
-    <div class="flex flex-wrap items-center bg-accent rounded-lg shadow-md p-4">
-      <!-- Field Rows -->
-      <div
-        v-for="field in fields"
-        :key="field"
-        class="flex flex-col lg:flex-row items-center space-y-2 lg:space-y-0 lg:space-x-2 w-full lg:w-1/2 p-2"
+  <div class="w-full lg:w-1/2 space-y-4">
+    <h2 class="text-lg font-medium">Character Info</h2>
+
+    <!-- Name and Honorific -->
+    <div class="flex items-center space-x-2">
+      <CheckboxToggle
+        v-model="characterStore.keepField.name"
+        label="Freeze Name"
+      />
+      <label for="character-name" class="sr-only">Name</label>
+      <input
+        id="character-name"
+        v-model="characterStore.characterForm.name"
+        type="text"
+        class="w-full p-3 rounded-lg border"
+        placeholder="Name"
+        :disabled="characterStore.keepField.name"
+      />
+      <span>The</span>
+      <CheckboxToggle
+        v-model="characterStore.keepField.honorific"
+        label="Freeze Honorific"
+      />
+      <label for="character-honorific" class="sr-only">Honorific</label>
+      <input
+        id="character-honorific"
+        v-model="characterStore.characterForm.honorific"
+        type="text"
+        class="w-full p-3 rounded-lg border"
+        placeholder="Honorific"
+        :disabled="characterStore.keepField.honorific"
+      />
+    </div>
+
+    <!-- Species -->
+    <div class="flex items-center space-x-2">
+      <CheckboxToggle
+        v-model="characterStore.keepField.species"
+        label="Freeze Species"
+      />
+      <label for="character-species" class="block text-sm font-medium">
+        Species
+      </label>
+      <input
+        id="character-species"
+        v-model="characterStore.characterForm.species"
+        type="text"
+        class="w-full p-3 rounded-lg border"
+        placeholder="Species"
+        :disabled="characterStore.keepField.species"
+      />
+    </div>
+
+    <!-- Class -->
+    <div class="flex items-center space-x-2">
+      <CheckboxToggle
+        v-model="characterStore.keepField.class"
+        label="Freeze Class"
+      />
+      <label for="character-class" class="block text-sm font-medium">
+        Class
+      </label>
+      <input
+        id="character-class"
+        v-model="characterStore.characterForm.class"
+        type="text"
+        class="w-full p-3 rounded-lg border"
+        placeholder="Class"
+        :disabled="characterStore.keepField.class"
+      />
+    </div>
+
+    <!-- Controls -->
+    <div class="flex flex-wrap justify-start space-x-4 mt-4">
+      <generation-toggle />
+      <button
+        class="btn btn-primary"
+        :class="{ 'btn-active': characterStore.characterForm.isPublic }"
+        @click="toggleVisibility(!characterStore.characterForm.isPublic)"
       >
-        <!-- Label -->
-        <label
-          class="font-bold text-sm lg:text-base w-full lg:w-1/3 text-right"
-        >
-          {{ fieldLabels[field] }}:
-        </label>
-
-        <!-- Editable Input -->
-        <div class="flex items-center w-full lg:w-2/3">
-          <input
-            :value="
-              characterStore.generationMode
-                ? generatedCharacter?.[field] || character?.[field]
-                : character?.[field]
-            "
-            :placeholder="`Enter ${fieldLabels[field]}`"
-            class="input input-bordered flex-grow"
-            :disabled="characterStore.generationMode && keepField[field]"
-            @input="(event) => updateField(field, event)"
-          />
-        </div>
-
-        <!-- Generated Area (Visible in Generator Mode) -->
-        <div
-          v-if="characterStore.generationMode"
-          class="flex items-center w-full lg:w-2/3 lg:ml-auto"
-        >
-          <span class="text-gray-600 text-sm">
-            Generated: {{ generatedCharacter?.[field] || 'N/A' }}
-          </span>
-          <input
-            v-model="useGenerated[field]"
-            type="checkbox"
-            class="checkbox checkbox-primary ml-2"
-            title="Use generated value"
-          />
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="w-full mt-4 flex justify-center space-x-4">
-        <button
-          v-if="characterStore.generationMode"
-          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-          @click="applyGeneratedFields"
-        >
-          Apply Generated Fields
-        </button>
-        <button
-          v-if="characterStore.generationMode"
-          class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
-          @click="resetGeneratedFields"
-        >
-          Reset to Standard
-        </button>
-      </div>
+        {{ characterStore.characterForm.isPublic ? 'Public' : 'Private' }}
+      </button>
+      <button class="btn btn-secondary" @click="refreshCharacter">
+        Refresh Character
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 
-// Access store
 const characterStore = useCharacterStore()
 
-// Define field keys and labels
-const fields = ['name', 'honorific', 'species', 'class', 'genre'] as const
-const fieldLabels = {
-  name: 'Name',
-  honorific: 'Honorific',
-  species: 'Species',
-  class: 'Class',
-  genre: 'Genre',
-} as const
-
-// Computed properties
-const character = computed(() => characterStore.selectedCharacter)
-const generatedCharacter = computed(() => characterStore.generatedCharacter)
-const useGenerated = computed(() => characterStore.useGenerated)
-const keepField = computed(() => characterStore.keepField)
-
-// Update a field using the store's method
-function updateField(field: keyof typeof fieldLabels, event: Event) {
-  const target = event.target as HTMLInputElement | null
-  if (!target || !character.value) return // Ensure character is not null
-  const value = target.value
-
-  characterStore.updateField(field, value)
+function toggleVisibility(value: boolean) {
+  characterStore.characterForm.isPublic = value
 }
 
-function applyGeneratedFields() {
-  const currentCharacter = character.value
-  const currentGeneratedCharacter = generatedCharacter.value
-
-  // Ensure both are non-null before proceeding
-  if (!currentCharacter || !currentGeneratedCharacter) return
-
-  fields.forEach((field) => {
-    if (useGenerated.value[field]) {
-      currentCharacter[field] =
-        currentGeneratedCharacter[field] ?? currentCharacter[field] ?? ''
-    }
-  })
-
-  alert('Generated fields applied to the character!')
-}
-
-// Reset all fields to original character values
-function resetGeneratedFields() {
-  if (!character.value) return
-
-  fields.forEach((field) => {
-    useGenerated.value[field] = false
-  })
-
-  alert('All fields reset to original values!')
+function refreshCharacter() {
+  characterStore.generateRandomCharacter()
 }
 </script>

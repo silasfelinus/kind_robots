@@ -50,7 +50,7 @@
         </div>
       </div>
 
-      <!-- Mode Toggle and Visibility -->
+      <!-- Mode Toggle, Visibility, and Refresh -->
       <div class="w-full lg:w-1/2 flex items-center space-x-4">
         <generation-toggle />
         <button
@@ -59,6 +59,9 @@
           @click="toggleVisibility(!characterStore.characterForm.isPublic)"
         >
           {{ characterStore.characterForm.isPublic ? 'Public' : 'Private' }}
+        </button>
+        <button class="btn btn-secondary" @click="refreshCharacter">
+          Refresh Character
         </button>
       </div>
     </div>
@@ -100,9 +103,7 @@
               :disabled="characterStore.isGeneratingArt"
               @click="generateArtImage"
             >
-              {{
-                characterStore.isGeneratingArt ? 'Generating...' : 'Generate Art'
-              }}
+              {{ characterStore.isGeneratingArt ? 'Generating...' : 'Generate Art' }}
             </button>
             <character-uploader class="w-1/2" @uploaded="setArtImageId" />
             <gallery-selector class="w-1/2" @gallery-selected="setGallery" />
@@ -118,25 +119,22 @@
             <div class="relative">
               <CheckboxToggle
                 v-model="characterStore.keepField[`statName${i}`]"
-                :label="'Freeze Stat ' + i"
-                :title="'Prevent changes to Stat ' + i"
+                :label="'Freeze ' + characterStore.characterForm[`statName${i}`]"
+                :title="'Prevent changes to ' + characterStore.characterForm[`statName${i}`]"
               />
               <label
                 :for="'statName' + i"
                 class="block text-sm font-bold uppercase"
               >
                 {{
-                  characterStore.characterForm[
-                    `statName${i}` as keyof Character
-                  ] || 'Stat'
+                  characterStore.characterForm[`statName${i}` as keyof Character] ||
+                    'Stat'
                 }}
               </label>
               <input
                 :id="'statValue' + i"
                 v-model="
-                  characterStore.characterForm[
-                    `statValue${i}` as keyof Character
-                  ]
+                  characterStore.characterForm[`statValue${i}` as keyof Character]
                 "
                 type="number"
                 class="w-full p-2 rounded-lg border text-center"
@@ -155,12 +153,6 @@
 
     <!-- Bottom Section -->
     <div class="grid gap-4 mt-4">
-      <!-- Rewards -->
-      <div>
-        <h2 class="text-lg font-medium">Choose Reward:</h2>
-        <character-rewards />
-      </div>
-
       <!-- Backstory -->
       <div>
         <CheckboxToggle
@@ -178,41 +170,52 @@
         ></textarea>
       </div>
 
-      <!-- Additional Details -->
-      <div>
-        <h2 class="text-lg font-medium">Other Details</h2>
-        <p>Quirks, Inventory, Skills</p>
+      <!-- Additional Details: Quirks, Inventory, Skills -->
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <CheckboxToggle
+            v-model="characterStore.keepField.quirks"
+            label="Freeze Quirks"
+            title="Prevent changes to quirks"
+          />
+          <textarea
+            v-model="characterStore.characterForm.quirks"
+            class="w-full p-3 rounded-lg border"
+            placeholder="Enter character's quirks..."
+            rows="4"
+            :disabled="characterStore.keepField.quirks"
+          ></textarea>
+        </div>
+        <div>
+          <CheckboxToggle
+            v-model="characterStore.keepField.inventory"
+            label="Freeze Inventory"
+            title="Prevent changes to inventory"
+          />
+          <textarea
+            v-model="characterStore.characterForm.inventory"
+            class="w-full p-3 rounded-lg border"
+            placeholder="Enter character's inventory..."
+            rows="4"
+            :disabled="characterStore.keepField.inventory"
+          ></textarea>
+        </div>
+        <div>
+          <CheckboxToggle
+            v-model="characterStore.keepField.skills"
+            label="Freeze Skills"
+            title="Prevent changes to skills"
+          />
+          <textarea
+            v-model="characterStore.characterForm.skills"
+            class="w-full p-3 rounded-lg border"
+            placeholder="Enter character's skills..."
+            rows="4"
+            :disabled="characterStore.keepField.skills"
+          ></textarea>
+        </div>
       </div>
     </div>
-
-    <!-- Submit Button -->
-    <form
-      class="bg-white shadow-md rounded-xl p-6 w-full mt-4"
-      @submit.prevent="handleSubmit"
-    >
-      <div v-if="isLoading" class="loading loading-ring loading-lg mt-4"></div>
-      <div v-if="errorMessage" class="text-red-500 mt-2">
-        {{ errorMessage }}
-      </div>
-      <div v-if="successMessage" class="text-green-500 mt-2">
-        {{ successMessage }}
-      </div>
-
-      <div class="flex flex-col md:flex-row md:space-x-4 mt-6">
-        <button
-          type="submit"
-          class="btn btn-primary w-full md:w-auto"
-          :disabled="isLoading"
-        >
-          <span v-if="isLoading">Saving...</span>
-          <span v-else>{{
-            characterStore.selectedCharacter
-              ? 'Update Character'
-              : 'Create New Character'
-          }}</span>
-        </button>
-      </div>
-    </form>
   </div>
 </template>
 

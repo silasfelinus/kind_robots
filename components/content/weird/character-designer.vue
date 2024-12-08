@@ -68,40 +68,13 @@
       <!-- Left: Art Section -->
       <div class="w-full md:w-1/2 p-4">
         <character-art />
-        </div>
       </div>
 
-      <!-- Right: Stats Section and Rewards-->
+      <!-- Right: Stats Section -->
       <div class="w-full md:w-1/2 p-4">
-        <h2 class="text-lg font-medium">Stats</h2>
-        <div class="grid grid-cols-2 gap-4">
-          <template v-for="i in 6" :key="'stat-' + i">
-            <div>
-              <label
-                class="block text-sm font-bold uppercase"
-                :for="'statName' + i"
-              >
-                <input
-                  v-model="characterStore.characterForm[`statName${i}`]"
-                  type="text"
-                  class="w-full p-2 rounded-lg border"
-                />
-              </label>
-              <input
-                :id="'statValue' + i"
-                :value="characterStore.characterForm[`statValue${i}`]"
-                type="number"
-                class="w-full p-2 rounded-lg border text-center"
-                disabled
-              />
-            </div>
-          </template>
-        </div>
-        <button class="btn btn-secondary mt-2" @click="characterStore.rerollStats">
-          Reroll Stats
-        </button>
+        <character-stats />
+        <character-rewards />
       </div>
-<character-rewards />
     </div>
 
     <!-- Bottom Section -->
@@ -124,6 +97,7 @@
 
       <!-- Quirks, Inventory, Skills -->
       <div class="grid grid-cols-3 gap-4">
+        <!-- Quirks -->
         <div>
           <CheckboxToggle
             v-model="characterStore.keepField.quirks"
@@ -138,6 +112,7 @@
             :disabled="characterStore.keepField.quirks"
           ></textarea>
         </div>
+        <!-- Inventory -->
         <div>
           <CheckboxToggle
             v-model="characterStore.keepField.inventory"
@@ -152,6 +127,7 @@
             :disabled="characterStore.keepField.inventory"
           ></textarea>
         </div>
+        <!-- Skills -->
         <div>
           <CheckboxToggle
             v-model="characterStore.keepField.skills"
@@ -178,12 +154,13 @@
   </div>
 </template>
 
-
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
+import CharacterArt from '@/components/CharacterArt.vue'
+import CharacterStats from '@/components/CharacterStats.vue'
+import CharacterRewards from '@/components/CharacterRewards.vue'
 
 const characterStore = useCharacterStore()
 const userStore = useUserStore()

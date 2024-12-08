@@ -69,19 +69,30 @@ export const useCharacterStore = defineStore({
   }
 },
 
-generateRandomCharacter() {
-    const randomCharacterData = useRandomCharacterData().generateRandomCharacter() // Call the utility composable
-    const randomStats = this.rerollStats() // Get randomized stats
+async generateRandomCharacter() {
+    try {
+      // Generate random fields using a utility function
+      const randomCharacterData = useRandomCharacterData().generateRandomCharacter()
 
-    // Combine random character data and stats into the form
-    this.characterForm = {
-      ...randomCharacterData,
-      ...randomStats,
+      // Fetch a random image from the selected gallery via artStore
+      const artStore = useArtStore()
+      const randomGalleryImage = await artStore.getRandomGalleryImage()
+
+      // Generate random stats
+      const randomStats = this.rerollStats()
+
+      // Combine all data into the character form
+      this.characterForm = {
+        ...randomCharacterData,
+        ...randomStats,
+        imagePath: randomGalleryImage || '/images/default-character.webp', // Fallback to a default image
+      }
+
+      this.generatedCharacter = { ...this.characterForm } // Save to generatedCharacter for reference
+    } catch (error) {
+      handleError(error, 'generating random character')
     }
-
-    this.generatedCharacter = { ...this.characterForm } // Store in generatedCharacter for reference
   },
-
 
     syncToLocalStorage() {
       try {

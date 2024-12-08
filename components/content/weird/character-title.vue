@@ -33,10 +33,10 @@
       />
     </div>
 
-    <!-- Species, Class, and Genre -->
+    <!-- Species and Class -->
     <div class="flex items-center space-x-4">
       <!-- Species -->
-      <div class="flex flex-col w-1/3">
+      <div class="flex flex-col w-1/2">
         <CheckboxToggle
           v-model="characterStore.keepField.species"
           label="Freeze Species"
@@ -55,7 +55,7 @@
       </div>
 
       <!-- Class -->
-      <div class="flex flex-col w-1/3">
+      <div class="flex flex-col w-1/2">
         <CheckboxToggle
           v-model="characterStore.keepField.class"
           label="Freeze Class"
@@ -72,9 +72,31 @@
           :disabled="characterStore.keepField.class"
         />
       </div>
+    </div>
+
+    <!-- Personality and Genre -->
+    <div class="flex items-center space-x-4">
+      <!-- Personality -->
+      <div class="flex flex-col w-1/2">
+        <CheckboxToggle
+          v-model="characterStore.keepField.personality"
+          label="Freeze Personality"
+        />
+        <label for="character-personality" class="block text-sm font-medium">
+          Personality
+        </label>
+        <input
+          id="character-personality"
+          v-model="characterStore.characterForm.personality"
+          type="text"
+          class="w-full p-3 rounded-lg border"
+          placeholder="Personality"
+          :disabled="characterStore.keepField.personality"
+        />
+      </div>
 
       <!-- Genre -->
-      <div class="flex flex-col w-1/3">
+      <div class="flex flex-col w-1/2">
         <CheckboxToggle
           v-model="characterStore.keepField.genre"
           label="Freeze Genre"
@@ -109,7 +131,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { useCharacterStore } from '@/stores/characterStore'

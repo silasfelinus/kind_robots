@@ -52,11 +52,7 @@
 
       <!-- Mode Toggle and Visibility -->
       <div class="w-full lg:w-1/2 flex items-center space-x-4">
-        <CheckboxToggle
-          v-model="characterStore.generationMode"
-          label="Generation Mode"
-          title="Enable or disable generation mode"
-        />
+        <generation-toggle />
         <button
           class="btn btn-primary"
           :class="{ 'btn-active': characterStore.characterForm.isPublic }"

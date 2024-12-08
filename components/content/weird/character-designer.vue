@@ -1,16 +1,10 @@
 <template>
-  <div
-    class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-4 grid-cols-1"
-  >
-    <h1 class="text-4xl text-center col-span-full">
-      Create or Edit a Character
-    </h1>
+  <div class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-4 grid-cols-1">
+    <h1 class="text-4xl text-center col-span-full">Create or Edit a Character</h1>
 
     <!-- Top Section -->
-    <div
-      class="flex flex-wrap justify-between items-center col-span-full gap-4"
-    >
-      <!-- Title, Honorific, and Class -->
+    <div class="flex flex-wrap justify-between items-center col-span-full gap-4">
+      <!-- Name and Honorific -->
       <div class="w-full lg:w-1/2 space-y-2">
         <h2 class="text-lg font-medium">Character Info</h2>
         <div class="flex items-center space-x-2">
@@ -56,7 +50,7 @@
         </div>
       </div>
 
-      <!-- Mode and Public Toggle -->
+      <!-- Mode Toggle and Visibility -->
       <div class="w-full lg:w-1/2 flex items-center space-x-4">
         <CheckboxToggle
           v-model="characterStore.generationMode"
@@ -65,19 +59,11 @@
         />
         <button
           class="btn btn-primary"
-          :class="{
-            'btn-active': characterStore.characterForm.isPublic,
-          }"
+          :class="{ 'btn-active': characterStore.characterForm.isPublic }"
           @click="toggleVisibility(!characterStore.characterForm.isPublic)"
         >
           {{ characterStore.characterForm.isPublic ? 'Public' : 'Private' }}
         </button>
-      </div>
-
-      <!-- Designer -->
-      <div class="w-full lg:w-auto">
-        <label class="block text-sm font-medium">Designer:</label>
-        <p>{{ designerName }}</p>
       </div>
     </div>
 
@@ -94,8 +80,8 @@
           />
           <div class="flex justify-center">
             <img
-              v-if="characterStore.artImagePath"
-              :src="characterStore.artImagePath"
+              v-if="characterStore.characterForm.imagePath"
+              :src="characterStore.characterForm.imagePath"
               alt="Character Portrait"
               class="object-cover w-48 h-64 rounded-lg"
             />
@@ -119,17 +105,16 @@
               @click="generateArtImage"
             >
               {{
-                characterStore.isGeneratingArt
-                  ? 'Generating...'
-                  : 'Generate Art'
+                characterStore.isGeneratingArt ? 'Generating...' : 'Generate Art'
               }}
             </button>
             <character-uploader class="w-1/2" @uploaded="setArtImageId" />
+            <gallery-selector class="w-1/2" @gallery-selected="setGallery" />
           </div>
         </div>
       </div>
 
-      <!-- Right: Stats -->
+      <!-- Right: Stats Section -->
       <div class="w-full md:w-1/2 p-4">
         <h2 class="text-lg font-medium">Stats</h2>
         <div class="grid grid-cols-2 gap-4">
@@ -197,7 +182,7 @@
         ></textarea>
       </div>
 
-      <!-- Additional Fields -->
+      <!-- Additional Details -->
       <div>
         <h2 class="text-lg font-medium">Other Details</h2>
         <p>Quirks, Inventory, Skills</p>
@@ -234,6 +219,7 @@
     </form>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'

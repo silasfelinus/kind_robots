@@ -1,9 +1,15 @@
 <template>
-  <div class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-4 grid-cols-1">
-    <h1 class="text-4xl text-center col-span-full">Create or Edit a Character</h1>
+  <div
+    class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-4 grid-cols-1"
+  >
+    <h1 class="text-4xl text-center col-span-full">
+      Create or Edit a Character
+    </h1>
 
     <!-- Top Section -->
-    <div class="flex flex-wrap justify-between items-center col-span-full gap-4">
+    <div
+      class="flex flex-wrap justify-between items-center col-span-full gap-4"
+    >
       <character-title />
     </div>
 
@@ -36,21 +42,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
-import { useUserStore } from '@/stores/userStore'
-
 
 const characterStore = useCharacterStore()
-const userStore = useUserStore()
 
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
-
-const designerName = computed(() =>
-  userStore.getUsernameByUserId(characterStore.selectedCharacter?.userId || 10),
-)
 
 async function handleSubmit() {
   isLoading.value = true

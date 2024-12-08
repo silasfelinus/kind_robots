@@ -69,6 +69,20 @@ export const useCharacterStore = defineStore({
   }
 },
 
+generateRandomCharacter() {
+    const randomCharacterData = useRandomCharacterData().generateRandomCharacter() // Call the utility composable
+    const randomStats = this.rerollStats() // Get randomized stats
+
+    // Combine random character data and stats into the form
+    this.characterForm = {
+      ...randomCharacterData,
+      ...randomStats,
+    }
+
+    this.generatedCharacter = { ...this.characterForm } // Store in generatedCharacter for reference
+  },
+
+
     syncToLocalStorage() {
       try {
         localStorage.setItem('characters', JSON.stringify(this.characters))

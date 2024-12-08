@@ -1,15 +1,15 @@
 // /composables/useRandomCharacterData.ts
-import { useRandomName } from './useRandomName'
-import { useRandomHonorific } from './useRandomHonorific'
-import { useRandomClass } from './useRandomClass'
-import { useRandomGenre } from './useRandomGenre'
-import { useRandomSpecies } from './useRandomSpecies'
-import { useRandomBackstory } from './useRandomBackstory'
-import { useRandomInventory } from './useRandomInventory'
-import { useRandomQuirk } from './useRandomQuirks'
-import { useRandomSkill } from './useRandomSkills'
-import { useRandomStats } from './useRandomStats'
-import { useRandomPersonality } from './useRandomPersonality'
+import { useRandomName } from './randomName'
+import { useRandomHonorific } from './randomHonorific'
+import { useRandomClass } from './randomClass'
+import { useRandomGenre } from './randomGenre'
+import { useRandomSpecies } from './randomSpecies'
+import { useRandomBackstory } from './randomBackstory'
+import { useRandomInventory } from './randomInventory'
+import { useRandomQuirk } from './randomQuirks'
+import { useRandomSkill } from './randomSkills'
+import { useRandomStats } from './randomStats'
+import { useRandomPersonality } from './randomPersonality'
 
 export function useRandomCharacterData() {
   const { randomName } = useRandomName()

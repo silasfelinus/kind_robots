@@ -2,7 +2,7 @@
   <div class="w-full md:w-1/2 p-4">
     <h2 class="text-lg font-medium flex justify-between items-center">
       Character Art
-      <gallery-selector class="w-auto" @gallery-selected="setGallery" />
+      <gallery-selector class="w-auto" />
     </h2>
     <div class="grid gap-4">
       <!-- Freeze Art Prompt Toggle -->
@@ -128,11 +128,5 @@ async function generateArtImage() {
   } finally {
     isGeneratingArt.value = false
   }
-}
-
-// Function to handle gallery selection
-function setGallery(selectedGallery: string) {
-  galleryStore.selectGallery(selectedGallery)
-  console.log('Gallery selected:', selectedGallery)
 }
 </script>

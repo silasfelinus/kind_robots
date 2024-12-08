@@ -221,7 +221,7 @@
 
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -264,4 +264,12 @@ async function handleSubmit() {
     isLoading.value = false
   }
 }
+
+function refreshCharacter() {
+  characterStore.generateRandomCharacter()
+}
+
+onMounted(() => {
+  characterStore.generateRandomCharacter()
+})
 </script>

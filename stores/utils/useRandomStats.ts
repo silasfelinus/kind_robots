@@ -3,7 +3,7 @@ export function useRandomStats() {
     statName1: 'Luck',
     statName2: 'Swol',
     statName3: 'Wits',
-    statName4: 'Fortitude',
+    statName4: 'Flexibility',
     statName5: 'Rizz',
     statName6: 'Empathy',
   }

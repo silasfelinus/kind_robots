@@ -47,7 +47,7 @@
       </button>
 
       <!-- Gallery Selector -->
-      <gallery-selector  />
+      <gallery-selector />
     </div>
   </div>
 </template>
@@ -159,7 +159,6 @@ function updateSelectedCharacter(updates: Partial<Character>) {
     console.warn('No character selected.')
   }
 }
-
 
 // Set Art Image ID
 function setArtImageId(artImageId: number) {

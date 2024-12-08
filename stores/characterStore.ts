@@ -11,6 +11,7 @@ export const useCharacterStore = defineStore({
     characters: [] as Character[],
     selectedCharacter: null as Character | null,
     characterForm: {} as Partial<Character>,
+    generatedCharacter: {} as Partial<Character> | null, // New state for generated character
     artImagePath: ref(''), // Path for the selected character's art image
     useGenerated: reactive<Record<string, boolean>>({}),
     keepField: reactive<Record<string, boolean>>({}),
@@ -141,8 +142,59 @@ export const useCharacterStore = defineStore({
         this.isSaving = false
       }
     },
+    updateField<K extends keyof Character>(field: K, value: Character[K]) {
+      if (this.selectedCharacter) {
+        this.selectedCharacter[field] = value
+      } else {
+        this.characterForm[field] = value
+      }
+    },
+    async patchCharacter(id: number, updates: Partial<Character>) {
+      try {
+        const response = await performFetch<Character>(
+          `/api/characters/${id}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify(updates),
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
 
-    async createCharacter(character: Partial<Character>) {
+        if (response.success && response.data) {
+          const index = this.characters.findIndex((c) => c.id === id)
+          if (index !== -1) {
+            this.characters[index] = response.data
+            if (this.selectedCharacter?.id === id) {
+              this.selectedCharacter = response.data
+            }
+          }
+        } else {
+          throw new Error(response.message || 'Failed to update character.')
+        }
+      } catch (error) {
+        handleError(error, 'patching character')
+      }
+    },
+    async deleteCharacter(id: number) {
+      try {
+        const response = await performFetch(`/api/characters/${id}`, {
+          method: 'DELETE',
+        })
+
+        if (response.success) {
+          this.characters = this.characters.filter((c) => c.id !== id)
+          if (this.selectedCharacter?.id === id) {
+            this.selectedCharacter = null
+          }
+        } else {
+          throw new Error(response.message || 'Failed to delete character.')
+        }
+      } catch (error) {
+        handleError(error, 'deleting character')
+      }
+    },
+
+    async createCharacter(character: Partial<Character> = {}) {
       try {
         const response = await performFetch<Character>('/api/characters', {
           method: 'POST',
@@ -152,9 +204,9 @@ export const useCharacterStore = defineStore({
 
         if (response.success && response.data) {
           this.characters.push(response.data)
-          this.syncToLocalStorage()
+          this.selectedCharacter = response.data // Select the newly created character
         } else {
-          throw new Error(response.message || 'Failed to create character')
+          throw new Error(response.message || 'Failed to create character.')
         }
       } catch (error) {
         handleError(error, 'creating character')
@@ -188,11 +240,22 @@ export const useCharacterStore = defineStore({
       }
     },
 
-    toggleGenerated(field: string) {
-      if (field in this.useGenerated) {
-        this.useGenerated[field] = !this.useGenerated[field]
+    async generateCharacter() {
+      try {
+        const response = await performFetch<Partial<Character>>(
+          '/api/characters/generate',
+          { method: 'POST', body: JSON.stringify(this.characterForm) },
+        )
+        if (response.success && response.data) {
+          this.generatedCharacter = response.data // Populate the generatedCharacter object
+        } else {
+          throw new Error(response.message || 'Failed to generate character')
+        }
+      } catch (error) {
+        handleError(error, 'generating character')
       }
     },
+
     async generateFields(fieldsToUpgrade: string[]) {
       try {
         const response = await performFetch<Partial<Character>>(

@@ -1,7 +1,7 @@
 <template>
-  <div class="w-full md:w-1/2 p-4">
+  <div class="w-full md:w-1/2 p-1 md:p-2 lg:p-3 xl:p-4">
     <h2 class="text-lg font-medium">Stats</h2>
-    <div class="grid grid-cols-2 gap-6">
+    <div class="grid grid-cols-2 gap-1 md:gap-6">
       <!-- Increased gap for spacing -->
       <template v-for="i in 6" :key="'stat-' + i">
         <div>
@@ -15,7 +15,7 @@
                 characterStore.characterForm[`statName${i}` as keyof Character]
               "
               type="text"
-              class="w-full p-4 rounded-lg border text-lg"
+              class="w-full p-1 md:p-4 rounded-lg border text-lg"
             />
           </label>
           <!-- Stat Value Input -->
@@ -25,13 +25,13 @@
               characterStore.characterForm[`statValue${i}` as keyof Character]
             "
             type="number"
-            class="w-full p-4 rounded-lg border text-center text-lg"
+            class="w-full p-1 md:p-4 rounded-lg border text-center text-lg"
             disabled
           />
         </div>
       </template>
     </div>
-    <button class="btn btn-secondary mt-4" @click="rerollStats">
+    <button class="btn btn-secondary mt-1 md:mt-4" @click="rerollStats">
       Reroll Stats
     </button>
   </div>

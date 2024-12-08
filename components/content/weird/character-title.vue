@@ -33,42 +33,64 @@
       />
     </div>
 
-    <!-- Species -->
-    <div class="flex items-center space-x-2">
-      <CheckboxToggle
-        v-model="characterStore.keepField.species"
-        label="Freeze Species"
-      />
-      <label for="character-species" class="block text-sm font-medium">
-        Species
-      </label>
-      <input
-        id="character-species"
-        v-model="characterStore.characterForm.species"
-        type="text"
-        class="w-full p-3 rounded-lg border"
-        placeholder="Species"
-        :disabled="characterStore.keepField.species"
-      />
-    </div>
+    <!-- Species, Class, and Genre -->
+    <div class="flex items-center space-x-4">
+      <!-- Species -->
+      <div class="flex flex-col w-1/3">
+        <CheckboxToggle
+          v-model="characterStore.keepField.species"
+          label="Freeze Species"
+        />
+        <label for="character-species" class="block text-sm font-medium">
+          Species
+        </label>
+        <input
+          id="character-species"
+          v-model="characterStore.characterForm.species"
+          type="text"
+          class="w-full p-3 rounded-lg border"
+          placeholder="Species"
+          :disabled="characterStore.keepField.species"
+        />
+      </div>
 
-    <!-- Class -->
-    <div class="flex items-center space-x-2">
-      <CheckboxToggle
-        v-model="characterStore.keepField.class"
-        label="Freeze Class"
-      />
-      <label for="character-class" class="block text-sm font-medium">
-        Class
-      </label>
-      <input
-        id="character-class"
-        v-model="characterStore.characterForm.class"
-        type="text"
-        class="w-full p-3 rounded-lg border"
-        placeholder="Class"
-        :disabled="characterStore.keepField.class"
-      />
+      <!-- Class -->
+      <div class="flex flex-col w-1/3">
+        <CheckboxToggle
+          v-model="characterStore.keepField.class"
+          label="Freeze Class"
+        />
+        <label for="character-class" class="block text-sm font-medium">
+          Class
+        </label>
+        <input
+          id="character-class"
+          v-model="characterStore.characterForm.class"
+          type="text"
+          class="w-full p-3 rounded-lg border"
+          placeholder="Class"
+          :disabled="characterStore.keepField.class"
+        />
+      </div>
+
+      <!-- Genre -->
+      <div class="flex flex-col w-1/3">
+        <CheckboxToggle
+          v-model="characterStore.keepField.genre"
+          label="Freeze Genre"
+        />
+        <label for="character-genre" class="block text-sm font-medium">
+          Genre
+        </label>
+        <input
+          id="character-genre"
+          v-model="characterStore.characterForm.genre"
+          type="text"
+          class="w-full p-3 rounded-lg border"
+          placeholder="Genre"
+          :disabled="characterStore.keepField.genre"
+        />
+      </div>
     </div>
 
     <!-- Controls -->
@@ -87,6 +109,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { useCharacterStore } from '@/stores/characterStore'

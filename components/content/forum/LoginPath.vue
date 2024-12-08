@@ -8,7 +8,7 @@
       <template v-if="isLoggedIn">
         <div class="flex flex-col items-center">
           <user-avatar
-            class="h-4 w-4 md:h-7 md:w-7 lg:w-9 lg:h-9 xl:w-12 xl:h-12 rounded-full border border-1 border-base-300"
+            class="h-10 w-10 md:h-13 md:w-13 lg:w-16 lg:h-16 xl:w-20 xl:h-20 rounded-full border border-1 border-base-300"
           />
         </div>
       </template>

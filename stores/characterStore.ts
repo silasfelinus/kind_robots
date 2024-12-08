@@ -3,6 +3,8 @@ import { reactive, ref } from 'vue'
 import type { Character } from '@prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
+import { useRandomCharacterData } from './utils/createRandomCharacter'
+
 
 export const useCharacterStore = defineStore({
   id: 'characterStore',
@@ -31,31 +33,41 @@ export const useCharacterStore = defineStore({
 
   actions: {
     async initialize() {
-      if (this.isInitialized) return
-      this.loading = true
-      try {
-        const savedState = localStorage.getItem('characters')
-        const savedForm = localStorage.getItem('characterForm')
-        const savedGenerated = localStorage.getItem('useGenerated')
+  if (this.isInitialized) return
+  this.loading = true
+  try {
+    const savedState = localStorage.getItem('characters')
+    const savedForm = localStorage.getItem('characterForm')
+    const savedGenerated = localStorage.getItem('useGenerated')
 
-        if (savedState) {
-          this.characters = JSON.parse(savedState) as Character[]
-        }
-        if (savedForm) {
-          this.characterForm = JSON.parse(savedForm)
-        }
-        if (savedGenerated) {
-          this.useGenerated = JSON.parse(savedGenerated)
-        }
+    // Restore characters from local storage
+    if (savedState) {
+      this.characters = JSON.parse(savedState) as Character[]
+    }
 
-        await this.fetchCharacters()
-        this.isInitialized = true
-      } catch (error) {
-        handleError(error, 'initializing character store')
-      } finally {
-        this.loading = false
-      }
-    },
+    // Restore character form from local storage
+    if (savedForm) {
+      this.characterForm = JSON.parse(savedForm)
+    } else {
+      // Generate default randomized character if no saved form exists
+      Object.assign(this.characterForm, useRandomCharacterData().generateRandomCharacter())
+    }
+
+    // Restore "useGenerated" state
+    if (savedGenerated) {
+      this.useGenerated = JSON.parse(savedGenerated)
+    }
+
+    // Fetch characters from API (ensures state is updated with server data)
+    await this.fetchCharacters()
+
+    this.isInitialized = true
+  } catch (error) {
+    handleError(error, 'initializing character store')
+  } finally {
+    this.loading = false
+  }
+},
 
     syncToLocalStorage() {
       try {

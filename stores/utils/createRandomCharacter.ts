@@ -9,6 +9,7 @@ export function useRandomCharacterData() {
       inventory: randomInventory(),
       quirks: randomQuirks(),
       skills: randomSkills(),
+      ...generateDefaultStats(), // Include stats as flat fields
     }
   }
 
@@ -46,6 +47,18 @@ export function useRandomCharacterData() {
   }
   function randomSkills() {
     return 'Expert swordsmanship, master of stealth, proficient in alchemy.'
+  }
+
+  // Generate default stats as flat fields
+  function generateDefaultStats() {
+    return {
+      statName1: 'Luck',
+      statName2: 'Swol',
+      statName3: 'Wits',
+      statName4: 'Fortitude',
+      statName5: 'Rizz',
+      statName6: 'Empathy',
+    }
   }
 
   return { generateRandomCharacter }

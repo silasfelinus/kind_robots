@@ -45,7 +45,7 @@ export function useRandomCharacterData() {
         'Proficient in ancient languages',
         'Skilled in combat and survival',
       ]),
-      imagePath: `/images/character-${Math.floor(Math.random() * 10) + 1}.webp`, // Placeholder image paths
+      
     }),
   }
 }

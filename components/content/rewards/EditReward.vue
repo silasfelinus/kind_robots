@@ -1,28 +1,40 @@
 <template>
   <div class="bg-base-300 p-4 rounded">
-    <h2 class="text-xl mb-2">Edit Reward</h2>
+    <h2 class="text-xl mb-4 font-bold">Edit Reward</h2>
     <form @submit.prevent="editReward">
+      <!-- Large Icon Preview -->
+      <div class="flex justify-center mb-6">
+        <Icon
+          :name="editedReward.icon || 'default-icon'"
+          class="text-[12rem] mb-4" <!-- Increased size -->
+        />
+      </div>
+
       <!-- Form Fields -->
-      <div v-for="field in formFields" :key="field.id" class="mb-2">
+      <div v-for="field in formFields" :key="field.id" class="mb-4">
         <label
           :for="field.id"
-          class="block text-sm font-medium text-gray-600"
-          >{{ field.label }}</label
+          class="block text-sm font-medium text-gray-600 mb-1"
         >
+          {{ field.label }}
+        </label>
         <input
           :id="field.id"
           v-model="editedReward[field.id as keyof typeof editedReward]"
           :required="field.required"
           :type="field.type || 'text'"
-          class="p-2 rounded bg-base-300"
+          class="p-2 rounded bg-base-200 w-full"
         />
       </div>
-      <button type="submit" class="bg-primary text-default p-2 rounded">
+
+      <!-- Update Button -->
+      <button type="submit" class="bg-primary text-default p-3 rounded w-full">
         Update Reward
       </button>
     </form>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRewardStore } from './../../../stores/rewardStore'

@@ -38,7 +38,7 @@
       <!-- Art Prompt Textarea -->
       <textarea
         v-model="artPrompt"
-        placeholder="Describe your character's appearance or a scene..."
+        placeholder="Describe your character's appearance..."
         class="w-full p-3 rounded-lg border"
         :disabled="characterStore.keepField.artPrompt || isGeneratingArt"
       ></textarea>

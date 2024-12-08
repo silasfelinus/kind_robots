@@ -1,5 +1,5 @@
 // /composables/useRandomCharacterData.ts
-import { useRandomName } from './randomName'
+import { randomName } from './randomName'
 import { useRandomHonorific } from './randomHonorific'
 import { useRandomClass } from './randomClass'
 import { useRandomGenre } from './randomGenre'
@@ -12,7 +12,6 @@ import { useRandomStats } from './randomStats'
 import { useRandomPersonality } from './randomPersonality'
 
 export function useRandomCharacterData() {
-  const { randomName } = useRandomName()
   const { randomHonorific } = useRandomHonorific()
   const { randomClass } = useRandomClass()
   const { randomGenre } = useRandomGenre()

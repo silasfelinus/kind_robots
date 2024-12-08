@@ -1,7 +1,7 @@
 export function useRandomAnimal() {
   const animals = [
     'sloth',
-    'water bear (tardigrade)',
+    'water bear',
     'flamingo',
     'raccoon',
     'platypus',

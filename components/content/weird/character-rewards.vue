@@ -4,6 +4,7 @@
     <div v-if="rewardStore.error" class="text-red-500">
       🚨 {{ rewardStore.error }}
     </div>
+<h2>Choose a starting reward:</h2>
 
     <!-- Rewards Horizontal Scroll -->
     <div class="flex overflow-x-auto space-x-4 items-center scrollbar-hide">

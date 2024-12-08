@@ -1,53 +1,56 @@
 <template>
-  <div
-    class="w-full max-w-2xl mx-auto mb-6 flex flex-col items-center space-y-6"
-  >
-    <!-- Avatar Preview -->
-    <div class="flex flex-col items-center space-y-2">
-      <img
-        :src="resolvedActiveImage"
-        alt="Character Avatar Preview"
-        class="w-40 h-40 object-cover rounded-full shadow-lg border-2 border-gray-300"
+  <div class="w-full md:w-1/2 p-4">
+    <h2 class="text-lg font-medium flex justify-between items-center">
+      Character Art
+      <gallery-selector class="w-auto" @gallery-selected="setGallery" />
+    </h2>
+    <div class="grid gap-4">
+      <!-- Freeze Art Prompt Toggle -->
+      <CheckboxToggle
+        v-model="characterStore.keepField.artPrompt"
+        label="Freeze Art Prompt"
       />
-      <p class="text-sm text-gray-500">Preview your avatar</p>
-    </div>
 
-    <!-- Image Upload -->
-    <image-upload @uploaded="setArtImageId" />
+      <!-- Character Image Preview -->
+      <div class="flex justify-center">
+        <img
+          v-if="resolvedActiveImage"
+          :src="resolvedActiveImage"
+          alt="Character Portrait"
+          class="object-cover w-48 h-64 rounded-lg"
+        />
+        <img
+          v-else
+          src="/images/bot.webp"
+          alt="Default Portrait"
+          class="object-cover w-48 h-64 rounded-lg"
+        />
+      </div>
 
-    <!-- Art Prompt Section -->
-    <div class="w-full">
-      <label class="block text-gray-700 font-bold mb-2">Art Prompt</label>
+      <!-- Random Image Button -->
+      <button class="btn btn-accent w-full" @click="changeToRandomImage">
+        Get Random Image
+      </button>
+
+      <!-- Character Image Uploader -->
+      <character-uploader class="w-full mt-2" @uploaded="setArtImageId" />
+
+      <!-- Art Prompt Textarea -->
       <textarea
         v-model="artPrompt"
-        placeholder="Describe your character's appearance..."
-        class="bg-base-200 p-4 rounded-lg shadow-md w-full min-h-32 text-sm resize-none"
-        :disabled="isGeneratingArt || isLoading"
+        placeholder="Describe your character's appearance or a scene..."
+        class="w-full p-3 rounded-lg border"
+        :disabled="characterStore.keepField.artPrompt || isGeneratingArt"
       ></textarea>
-    </div>
 
-    <!-- Actions -->
-    <div class="flex flex-wrap justify-center space-x-4 mt-4">
-      <!-- Generate Art -->
+      <!-- Generate Art Button -->
       <button
-        class="bg-blue-500 hover:bg-blue-600 text-white w-1/3 px-3 py-1 rounded-lg"
+        class="btn btn-primary w-full"
         :disabled="isGeneratingArt"
-        @click="generateArt"
+        @click="generateArtImage"
       >
         {{ isGeneratingArt ? 'Generating...' : 'Generate Art' }}
       </button>
-
-      <!-- Pick Random Image -->
-      <button
-        class="bg-green-500 hover:bg-green-600 text-white w-1/3 px-3 py-1 rounded-lg"
-        :disabled="isLoading"
-        @click="pickRandomImageFromGallery"
-      >
-        {{ isLoading ? 'Picking...' : 'Pick Random from Gallery' }}
-      </button>
-
-      <!-- Gallery Selector -->
-      <gallery-selector />
     </div>
   </div>
 </template>
@@ -55,51 +58,51 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
-import { useArtStore } from '@/stores/artStore'
 import { useGalleryStore } from '@/stores/galleryStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import { useArtStore } from '@/stores/artStore'
 
 const characterStore = useCharacterStore()
-const artStore = useArtStore()
 const galleryStore = useGalleryStore()
-const errorStore = useErrorStore()
+const artStore = useArtStore()
 
-const isLoading = ref(false)
 const isGeneratingArt = ref(false)
 const defaultAvatar = '/images/bot.webp'
 
-// Computed: Selected character
-const character = computed(() => characterStore.selectedCharacter)
-
-// Computed: Resolved avatar image
+// Computed property for resolving the character's active image
 const resolvedActiveImage = computed(() => {
-  if (!character.value) return defaultAvatar
-  if (character.value.artImageId) {
-    const artImage = artStore.artImages.find(
-      (image) => image.id === character.value!.artImageId,
-    )
-    return artImage?.imageData || defaultAvatar
-  }
-  return character.value.imagePath || defaultAvatar
+  const character = characterStore.characterForm
+  return character.imagePath || defaultAvatar
 })
 
-// Art Prompt (editable or generatable field)
+// Computed property for the art prompt
 const artPrompt = computed({
-  get: () => character.value?.artPrompt || '',
+  get: () => characterStore.characterForm.artPrompt || '',
   set: (value) => {
-    if (character.value) {
-      characterStore.selectedCharacter = {
-        ...character.value,
-        artPrompt: value,
-      }
-    } else {
-      console.warn('No character selected.')
-    }
+    characterStore.characterForm.artPrompt = value
   },
 })
 
-// Generate Art
-async function generateArt() {
+// Function to set the uploaded image ID
+function setArtImageId(id: number) {
+  characterStore.setArtImageId(id)
+}
+
+// Function to pick a random image from the gallery
+async function changeToRandomImage() {
+  try {
+    const randomImage = await galleryStore.changeToRandomImage()
+    if (randomImage) {
+      characterStore.characterForm.imagePath = randomImage
+    } else {
+      console.error('Failed to pick a random image.')
+    }
+  } catch (error) {
+    console.error('Error picking random image:', error)
+  }
+}
+
+// Function to generate art based on the current art prompt
+async function generateArtImage() {
   if (!artPrompt.value) {
     alert('Please provide an art prompt to generate art.')
     return
@@ -109,68 +112,27 @@ async function generateArt() {
   try {
     const response = await artStore.generateArt({
       promptString: artPrompt.value,
-      title: character.value?.name || 'Unnamed Character',
+      title: characterStore.characterForm.name || 'Unnamed Character',
       collection: 'characters',
-      userId: character.value?.userId || 1,
+      userId: characterStore.characterForm.userId || 1,
     })
 
     if (response.success && response.data) {
-      updateSelectedCharacter({ artImageId: response.data.artImageId, imagePath: null })
+      characterStore.characterForm.imagePath = null
+      characterStore.characterForm.artImageId = response.data.artImageId
     } else {
       throw new Error('Art generation failed.')
     }
   } catch (error) {
-    handleError(error, 'Error generating art')
+    console.error('Error generating art:', error)
   } finally {
     isGeneratingArt.value = false
   }
 }
 
-// Pick Random Image from Gallery
-async function pickRandomImageFromGallery() {
-  if (!galleryStore.currentGallery) {
-    alert('Please select a gallery first.')
-    return
-  }
-
-  isLoading.value = true
-  try {
-    const randomImage = await galleryStore.changeToRandomImage()
-    if (randomImage) {
-      updateSelectedCharacter({ artImageId: null, imagePath: randomImage })
-    } else {
-      throw new Error('Failed to pick a random image from the gallery.')
-    }
-  } catch (error) {
-    handleError(error, 'Error picking random image from gallery')
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// Update Character's Art Fields
-function updateSelectedCharacter(updates: Partial<Character>) {
-  if (character.value) {
-    characterStore.selectedCharacter = {
-      ...character.value,
-      ...updates,
-    }
-  } else {
-    console.warn('No character selected.')
-  }
-}
-
-// Set Art Image ID
-function setArtImageId(artImageId: number) {
-  updateSelectedCharacter({ artImageId, imagePath: null })
-}
-
-// Handle Errors
-function handleError(error: unknown, message: string) {
-  if (error instanceof Error) {
-    errorStore.setError(ErrorType.GENERAL_ERROR, `${message}: ${error.message}`)
-  } else {
-    errorStore.setError(ErrorType.GENERAL_ERROR, message)
-  }
+// Function to handle gallery selection
+function setGallery(selectedGallery: string) {
+  galleryStore.selectGallery(selectedGallery)
+  console.log('Gallery selected:', selectedGallery)
 }
 </script>

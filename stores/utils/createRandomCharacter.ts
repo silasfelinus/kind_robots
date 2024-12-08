@@ -1,3 +1,4 @@
+// /composables/useRandomCharacterData.ts
 import { useRandomName } from './useRandomName'
 import { useRandomHonorific } from './useRandomHonorific'
 import { useRandomClass } from './useRandomClass'
@@ -8,9 +9,9 @@ import { useRandomInventory } from './useRandomInventory'
 import { useRandomQuirk } from './useRandomQuirks'
 import { useRandomSkill } from './useRandomSkills'
 import { useRandomStats } from './useRandomStats'
+import { useRandomPersonality } from './useRandomPersonality'
 
 export function useRandomCharacterData() {
-  // Import random generators from individual composables
   const { randomName } = useRandomName()
   const { randomHonorific } = useRandomHonorific()
   const { randomClass } = useRandomClass()
@@ -21,8 +22,8 @@ export function useRandomCharacterData() {
   const { randomQuirk } = useRandomQuirk()
   const { randomSkill } = useRandomSkill()
   const { generateStats } = useRandomStats()
+  const { randomPersonality } = useRandomPersonality()
 
-  // Generate a complete random character
   function generateRandomCharacter() {
     return {
       name: randomName(),
@@ -30,11 +31,12 @@ export function useRandomCharacterData() {
       class: randomClass(),
       genre: randomGenre(),
       species: randomSpecies(),
+      personality: randomPersonality(), // Add personality here
       backstory: randomBackstory(),
       inventory: randomInventory(),
       quirks: randomQuirk(),
       skills: randomSkill(),
-      ...generateStats(), // Include stats as flat fields
+      ...generateStats(),
     }
   }
 

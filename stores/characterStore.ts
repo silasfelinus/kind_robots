@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue'
 import type { Character } from '@prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
+import {useGalleryStore } from '@/stores/galleryStore'
 import { useRandomCharacterData } from './utils/createRandomCharacter'
 
 
@@ -75,8 +76,8 @@ async generateRandomCharacter() {
       const randomCharacterData = useRandomCharacterData().generateRandomCharacter()
 
       // Fetch a random image from the selected gallery via artStore
-      const artStore = useArtStore()
-      const randomGalleryImage = await artStore.getRandomGalleryImage()
+      const galleryStore = useGalleryStore()
+      const randomGalleryImage = await galleryStore.changeToRandomImage()
 
       // Generate random stats
       const randomStats = this.rerollStats()
@@ -85,7 +86,7 @@ async generateRandomCharacter() {
       this.characterForm = {
         ...randomCharacterData,
         ...randomStats,
-        imagePath: randomGalleryImage || '/images/default-character.webp', // Fallback to a default image
+        imagePath: randomGalleryImage || '/images/bot.webp', // Fallback to a default image
       }
 
       this.generatedCharacter = { ...this.characterForm } // Save to generatedCharacter for reference

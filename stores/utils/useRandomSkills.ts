@@ -1,6 +1,6 @@
 import { useRandomAnimal } from './useRandomAnimal'
 
-export function useRandomSkills() {
+export function useRandomSkill() {
   const animalGenerator = useRandomAnimal() // Get access to randomAnimal()
   
   const skills = [

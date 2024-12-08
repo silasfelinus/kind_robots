@@ -121,9 +121,5 @@ export function randomName() {
     'Neo',
   ]
 
-  function randomName() {
-    return names[Math.floor(Math.random() * names.length)]
-  }
-
-  return { randomName }
+  return names[Math.floor(Math.random() * names.length)]
 }

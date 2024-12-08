@@ -68,12 +68,15 @@ import { useCharacterStore } from '@/stores/characterStore'
 // Access the store
 const characterStore = useCharacterStore()
 
-// Computed property for selected character ID
 const selectedCharacterId = computed({
   get: () => characterStore.selectedCharacter?.id || 'new',
   set: (value: string | number) => {
     if (value === 'new') {
-      characterStore.createNewCharacter()
+      characterStore.createCharacter({
+        name: 'New Character',
+        honorific: '',
+        isPublic: false,
+      })
     } else {
       characterStore.selectCharacter(Number(value))
     }
@@ -134,9 +137,9 @@ async function deleteCharacter() {
 
 // Reset Character
 function resetCharacter() {
-  characterStore.generationMode = false
   characterStore.selectedCharacter = null
   characterStore.generatedCharacter = null
+  characterStore.generationMode = false
   alert('Character reset to defaults.')
 }
 </script>

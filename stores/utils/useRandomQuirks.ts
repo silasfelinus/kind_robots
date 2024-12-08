@@ -1,4 +1,4 @@
-export function useRandomQuirks() {
+export function useRandomQuirk() {
   const quirks = [
     'Always speaks in riddles.',
     'Has an uncanny sense of direction but only in forests.',

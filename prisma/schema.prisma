@@ -155,6 +155,8 @@ model Chat {
   Prompt          Prompt?            @relation(fields: [promptId], references: [id])
   User            User?              @relation(fields: [userId], references: [id])
   botResponse     String?
+  characterId     Int?
+  Character       Character?          @relation(fields: [characterId], references: [id])
 }
 
 model Character {
@@ -210,6 +212,7 @@ model Character {
   userId          Int           @default(10)
   User            User          @relation(fields: [userId], references: [id])
   Rewards         Reward[]
+  Chats           Chat[]
 }
 
 
@@ -219,6 +222,7 @@ enum ChatType {
   BotResponse
   ToForum
   ToUser
+  ToCharacter
 }
 
 

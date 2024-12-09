@@ -78,7 +78,7 @@
 
       <!-- Details Panel -->
       <div
-        v-if="showDetails"
+        
         class="absolute top-0 right-0 h-full w-2/3 bg-base-100 border-l border-accent p-4 rounded-r-2xl overflow-y-auto z-30"
       >
         <h4 class="text-lg font-bold mb-2">Character Details</h4>
@@ -112,7 +112,7 @@ const artStore = useArtStore()
 
 // State
 const artImage = ref(null)
-const showDetails = ref(false)
+
 const canDelete = computed(
   () => userStore.isAdmin || userStore.userId === character.userId,
 )
@@ -121,7 +121,6 @@ const isSelected = computed(
 )
 const statKeys = [1, 2, 3, 4, 5, 6]
 
-// Computed
 const displayName = computed(() =>
   character.name
     ? `${character.name} ${character.honorific || ''}`.trim()
@@ -140,7 +139,7 @@ const computedCharacterImage = computed(() => {
 // Methods
 const selectCharacter = () => characterStore.selectCharacter(character)
 const deleteCharacter = () => characterStore.deleteCharacter(character.id)
-const toggleDetails = () => (showDetails.value = !showDetails.value)
+
 const chat = () => alert('Chat feature coming soon!')
 const adventure = () => alert('Adventure feature coming soon!')
 

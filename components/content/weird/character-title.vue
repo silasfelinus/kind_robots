@@ -162,6 +162,7 @@ async function handleSubmit() {
   } finally {
     isLoading.value = false
   }
+}
 
 function refreshCharacter() {
   characterStore.generateRandomCharacter()

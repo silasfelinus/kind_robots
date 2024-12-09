@@ -138,7 +138,7 @@ const computedCharacterImage = computed(() => {
   if (character.imagePath) {
     return character.imagePath
   }
-  return '/images/default-character.jpg'
+  return '/images/bot.webp'
 })
 
 // Methods

@@ -46,7 +46,7 @@
           id="character-species"
           v-model="characterStore.characterForm.species"
           type="text"
-          class="w-full p-3 rounded-lg border"
+          class="w-full p-2 rounded-lg border"
           placeholder="Species"
           :disabled="characterStore.keepField.species"
         />
@@ -65,7 +65,7 @@
           id="character-class"
           v-model="characterStore.characterForm.class"
           type="text"
-          class="w-full p-3 rounded-lg border"
+          class="w-full p-2 rounded-lg border"
           placeholder="Class"
           :disabled="characterStore.keepField.class"
         />
@@ -87,7 +87,7 @@
           id="character-personality"
           v-model="characterStore.characterForm.personality"
           type="text"
-          class="w-full p-3 rounded-lg border"
+          class="w-full p-2 rounded-lg border"
           placeholder="Personality"
           :disabled="characterStore.keepField.personality"
         />
@@ -106,7 +106,7 @@
           id="character-genre"
           v-model="characterStore.characterForm.genre"
           type="text"
-          class="w-full p-3 rounded-lg border"
+          class="w-full p-2 rounded-lg border"
           placeholder="Genre"
           :disabled="characterStore.keepField.genre"
         />
@@ -114,7 +114,7 @@
     </div>
 
     <!-- Controls -->
-    <div class="flex flex-wrap justify-start space-x-4 mt-4">
+    <div class="flex flex-wrap justify-start space-x-2 mt-4">
       <generation-toggle />
       <button
         class="btn btn-primary"
@@ -124,7 +124,7 @@
         {{ characterStore.characterForm.isPublic ? 'Public' : 'Private' }}
       </button>
       <button class="btn btn-secondary" @click="refreshCharacter">
-        Refresh Character
+        Refresh
       </button>
     </div>
   </div>

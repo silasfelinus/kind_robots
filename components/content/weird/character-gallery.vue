@@ -50,13 +50,12 @@
         v-for="character in filteredCharacters"
         :key="character.id"
         :character="character"
-        
       />
     </div>
   </div>
 </template>
 <script setup>
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -68,13 +67,6 @@ const userStore = useUserStore()
 const selectedUser = ref('all')
 const searchQuery = ref('')
 const isLoading = ref(true)
-
-// Simulate fetching characters
-watchEffect(async () => {
-  isLoading.value = true
-  await characterStore.fetchCharacters() // Assuming this method exists
-  isLoading.value = false
-})
 
 // Computed: Filtered and searched characters
 const filteredCharacters = computed(() => {
@@ -97,6 +89,4 @@ const filteredCharacters = computed(() => {
 
   return characters
 })
-
-
 </script>

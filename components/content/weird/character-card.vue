@@ -4,7 +4,7 @@
       'relative flex flex-col bg-base-200 border rounded-2xl p-4 m-2 hover:shadow-lg transition-all cursor-pointer',
       isSelected ? 'border-primary bg-primary/10' : 'border-gray-400',
     ]"
-    @click="selectCharacter"
+    @click="selectCharacter(character.id)"
   >
     <!-- Delete Button -->
     <div class="absolute top-2 right-2 z-20">
@@ -36,9 +36,15 @@
       <h2 class="text-xl font-bold text-gray-800 truncate">
         {{ displayName }}
       </h2>
-      <p class="text-sm text-gray-600">Class: {{ character.class || 'Unknown' }}</p>
-      <p class="text-sm text-gray-600">Species: {{ character.species || 'Unknown' }}</p>
-      <p class="text-sm text-gray-600">Genre: {{ character.genre || 'Unknown' }}</p>
+      <p class="text-sm text-gray-600">
+        Class: {{ character.class || 'Unknown' }}
+      </p>
+      <p class="text-sm text-gray-600">
+        Species: {{ character.species || 'Unknown' }}
+      </p>
+      <p class="text-sm text-gray-600">
+        Genre: {{ character.genre || 'Unknown' }}
+      </p>
     </div>
 
     <!-- Stats Section -->
@@ -59,7 +65,6 @@
 
     <!-- Buttons and Details -->
     <div v-if="isSelected" class="mt-4 space-y-4">
-is selected!
       <div class="flex justify-between items-center">
         <button
           class="btn btn-primary flex items-center space-x-2"
@@ -79,7 +84,6 @@ is selected!
 
       <!-- Details Panel -->
       <div
-        
         class="absolute top-0 right-0 h-full w-2/3 bg-base-100 border-l border-accent p-4 rounded-r-2xl overflow-y-auto z-30"
       >
         <h4 class="text-lg font-bold mb-2">Character Details</h4>

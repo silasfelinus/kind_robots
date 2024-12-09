@@ -64,7 +64,7 @@
     </div>
 
     <!-- Buttons and Details -->
-    <div v-if="isSelected" class="mt-4 space-y-4">
+    <div class="mt-4 space-y-4">
       <div class="flex justify-between items-center">
         <button
           class="btn btn-primary flex items-center space-x-2"

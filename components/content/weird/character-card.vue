@@ -1,46 +1,41 @@
 <template>
   <div
-    :class="[
-      'bg-base-200 border border-gray-400 rounded-lg shadow-md p-4 flex flex-col cursor-pointer relative',
-      isSelected ? 'border-primary bg-primary/10 w-full h-auto' : 'w-64',
-    ]"
+    class="relative flex flex-col bg-base-200 border border-gray-400 rounded-2xl p-4 m-2 hover:shadow-lg transition-all"
     @click="selectCharacter"
   >
-    <!-- Delete Icon -->
-    <div class="absolute top-1 right-1">
-      <button v-if="canDelete" class="text-error" @click.stop="deleteCharacter">
-        <Icon name="kind-icon:delete" class="w-5 h-5" />
+    <!-- Delete Button -->
+    <div class="absolute top-2 right-2 z-20">
+      <button
+        v-if="canDelete"
+        class="bg-error text-white p-2 rounded-full hover:bg-error-content transition-all"
+        title="Delete Character"
+        @click.stop="deleteCharacter"
+      >
+        <Icon name="mdi:delete-outline" class="w-4 h-4" />
       </button>
     </div>
 
     <!-- Character Image -->
-    <div class="w-full h-40 bg-gray-800 rounded-lg mb-4 overflow-hidden">
+    <div
+      class="relative flex justify-center items-center overflow-hidden rounded-lg cursor-pointer"
+      @click.stop="toggleDetails"
+    >
       <img
-        v-if="artImage"
-        :src="artImage"
+        :src="computedCharacterImage"
         alt="Character Portrait"
-        class="object-cover w-full h-full rounded-lg"
-      />
-      <img
-        v-else
-        src="/images/bot.webp"
-        alt="Default Portrait"
-        class="object-cover w-full h-full rounded-lg"
+        class="rounded-2xl transition-transform hover:scale-105 w-full h-40 object-cover"
+        loading="lazy"
       />
     </div>
 
-    <!-- Name and Class -->
-    <div class="flex flex-col mb-4">
+    <!-- Name and Summary -->
+    <div class="flex flex-col mt-4 mb-4">
       <h2 class="text-xl font-bold text-gray-800 truncate">
         {{ displayName }}
       </h2>
       <p class="text-sm text-gray-600">Class: {{ character.class }}</p>
       <p class="text-sm text-gray-600">Species: {{ character.species }}</p>
       <p class="text-sm text-gray-600">Genre: {{ character.genre }}</p>
-      <p class="text-sm text-gray-600">
-        Personality: {{ character.personality }}
-      </p>
-      <p class="text-sm text-gray-500">User: {{ displayUsername }}</p>
     </div>
 
     <!-- Stats Section -->
@@ -59,36 +54,35 @@
       </div>
     </div>
 
-    <!-- Buttons and JSON Display -->
+    <!-- Buttons and Details -->
     <div v-if="isSelected" class="mt-4 space-y-4">
       <div class="flex justify-between items-center">
         <button
           class="btn btn-primary flex items-center space-x-2"
           @click.stop="chat"
         >
-          <Icon name="kind-icon:chat" class="w-5 h-5" />
+          <Icon name="mdi:message-outline" class="w-5 h-5" />
           <span>Chat</span>
         </button>
         <button
           class="btn btn-secondary flex items-center space-x-2"
           @click.stop="adventure"
         >
-          <Icon name="kind-icon:adventure" class="w-5 h-5" />
+          <Icon name="mdi:compass-outline" class="w-5 h-5" />
           <span>Adventure</span>
         </button>
       </div>
 
-      <!-- Display JSON -->
-      <div>
-        <button class="btn btn-ghost btn-sm" @click.stop="toggleJson">
-          {{ showJson ? 'Hide' : 'Show' }} JSON
-        </button>
-        <pre
-          v-if="showJson"
-          class="text-xs bg-gray-100 rounded p-2 overflow-auto"
-        >
-          {{ character }}
-        </pre>
+      <!-- Details Panel -->
+      <div
+        v-if="showDetails"
+        class="absolute top-0 right-0 h-full w-2/3 bg-base-100 border-l border-accent p-4 rounded-r-2xl overflow-y-auto z-30"
+      >
+        <h4 class="text-lg font-bold mb-2">Character Details</h4>
+        <p><strong>Backstory:</strong> {{ character.backstory || 'None' }}</p>
+        <p><strong>Quirks:</strong> {{ character.quirks || 'None' }}</p>
+        <p><strong>Skills:</strong> {{ character.skills || 'None' }}</p>
+        <p><strong>Inventory:</strong> {{ character.inventory || 'None' }}</p>
       </div>
     </div>
   </div>
@@ -96,9 +90,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useArtStore } from '@/stores/artStore'
-import { useUserStore } from '@/stores/userStore'
 import { useCharacterStore } from '@/stores/characterStore'
+import { useUserStore } from '@/stores/userStore'
+import { useArtStore } from '@/stores/artStore'
 
 // Props
 const { character } = defineProps({
@@ -109,21 +103,19 @@ const { character } = defineProps({
 })
 
 // Stores
-const userStore = useUserStore()
 const characterStore = useCharacterStore()
+const userStore = useUserStore()
 const artStore = useArtStore()
 
 // State
-const displayUsername = ref(character.designer || null)
-const artImage = ref(null)
-const rewards = ref([])
-const isSelected = computed(
-  () => characterStore.selectedCharacter?.id === character.id,
-)
+const showDetails = ref(false)
 const canDelete = computed(
   () => userStore.isAdmin || userStore.userId === character.userId,
 )
-const showJson = ref(false)
+const isSelected = computed(
+  () => characterStore.selectedCharacter?.id === character.id,
+)
+const artImage = ref(null)
 
 // Computed
 const displayName = computed(() =>
@@ -133,10 +125,25 @@ const displayName = computed(() =>
 )
 const statKeys = [1, 2, 3, 4, 5, 6]
 
+const computedCharacterImage = computed(() => {
+  // Use artImage if fetched
+  if (artImage.value) {
+    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
+  }
+
+  // Fallback to character.imagePath
+  if (character.imagePath) {
+    return character.imagePath
+  }
+
+  // Default placeholder
+  return '/images/default-character.jpg'
+})
+
 // Methods
 const selectCharacter = () => characterStore.selectCharacter(character)
 const deleteCharacter = () => characterStore.deleteCharacter(character.id)
-const toggleJson = () => (showJson.value = !showJson.value)
+const toggleDetails = () => (showDetails.value = !showDetails.value)
 
 // Placeholder actions
 const chat = () => alert('Chat feature coming soon!')
@@ -144,22 +151,8 @@ const adventure = () => alert('Adventure feature coming soon!')
 
 // On Mounted
 onMounted(async () => {
-  if (!character.designer && character.userId) {
-    const username = userStore.getUsernameByUserId(character.userId)
-    displayUsername.value = username || 'Unknown User'
-  }
-
   if (character.artImageId) {
-    const image = await artStore.getArtImageById(character.artImageId)
-    if (image) {
-      artImage.value = `data:image/${image.fileType};base64,${image.imageData}`
-    }
-  } else if (character.imagePath) {
-    artImage.value = character.imagePath
-  }
-
-  if (character.id) {
-    rewards.value = await characterStore.fetchCharacterRewards(character.id)
+    artImage.value = await artStore.getArtImageById(character.artImageId)
   }
 })
 </script>

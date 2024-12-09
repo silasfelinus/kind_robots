@@ -1,7 +1,5 @@
 <template>
   <div class="w-full lg:w-1/2 space-y-4">
-    <h2 class="text-lg font-medium">Character Info</h2>
-
     <!-- Name and Honorific -->
     <div class="flex items-center space-x-2">
       <CheckboxToggle

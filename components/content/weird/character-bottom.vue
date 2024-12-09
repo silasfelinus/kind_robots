@@ -1,5 +1,5 @@
 <template>
-  <div class="grid gap-4">
+  <div class="grid gap1 md:gap-4">
     <!-- Backstory -->
     <div>
       <CheckboxToggle
@@ -17,7 +17,7 @@
     </div>
 
     <!-- Quirks, Inventory, Skills -->
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-3 gap-1 md:gap-4">
       <!-- Quirks -->
       <div>
         <CheckboxToggle
@@ -27,7 +27,7 @@
         <h3 class="text-sm font-bold">Quirks</h3>
         <textarea
           v-model="characterStore.characterForm.quirks"
-          class="w-full p-3 rounded-lg border"
+          class="w-full p-1 md:p-3 rounded-lg border"
           placeholder="Enter character's quirks..."
           rows="4"
           :disabled="characterStore.keepField.quirks"
@@ -42,7 +42,7 @@
         <h3 class="text-sm font-bold">Inventory</h3>
         <textarea
           v-model="characterStore.characterForm.inventory"
-          class="w-full p-3 rounded-lg border"
+          class="w-full p-1 md:p-3 rounded-lg border"
           placeholder="Enter character's inventory..."
           rows="4"
           :disabled="characterStore.keepField.inventory"
@@ -57,7 +57,7 @@
         <h3 class="text-sm font-bold">Skills</h3>
         <textarea
           v-model="characterStore.characterForm.skills"
-          class="w-full p-3 rounded-lg border"
+          class="w-full p-1 md:p-3 rounded-lg border"
           placeholder="Enter character's skills..."
           rows="4"
           :disabled="characterStore.keepField.skills"

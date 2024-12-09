@@ -38,7 +38,7 @@
       <h2 class="text-xl font-bold text-gray-800 truncate">
         {{ displayName }}
       </h2>
-      <p class="text-sm text-gray-600">{{ character.class || 'Adventurer' }}</p>
+      <p class="text-sm text-gray-600">{{ character.class }}</p>
       <p class="text-sm text-gray-500">User: {{ displayUsername }}</p>
     </div>
 

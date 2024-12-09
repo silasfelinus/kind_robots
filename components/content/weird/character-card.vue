@@ -18,6 +18,7 @@
     <!-- Character Image -->
     <div
       class="relative flex justify-center items-center overflow-hidden rounded-lg cursor-pointer"
+      @click.stop="toggleDetails"
     >
       <img
         :src="computedCharacterImage"
@@ -32,15 +33,9 @@
       <h2 class="text-xl font-bold text-gray-800 truncate">
         {{ displayName }}
       </h2>
-      <p class="text-sm text-gray-600">
-        Class: {{ character.class || 'Unknown' }}
-      </p>
-      <p class="text-sm text-gray-600">
-        Species: {{ character.species || 'Unknown' }}
-      </p>
-      <p class="text-sm text-gray-600">
-        Genre: {{ character.genre || 'Unknown' }}
-      </p>
+      <p class="text-sm text-gray-600">Class: {{ character.class }}</p>
+      <p class="text-sm text-gray-600">Species: {{ character.species }}</p>
+      <p class="text-sm text-gray-600">Genre: {{ character.genre }}</p>
     </div>
 
     <!-- Stats Section -->
@@ -59,22 +54,39 @@
       </div>
     </div>
 
-    <!-- Buttons -->
-    <div class="mt-4 space-y-2">
-      <button
-        class="btn btn-primary flex items-center justify-center w-full"
-        @click.stop="chat"
+    <!-- Buttons and Details -->
+    <div v-if="isSelected" class="mt-4 space-y-4">
+      <div class="flex justify-between items-center">
+        <button
+          class="btn btn-primary flex items-center space-x-2"
+          @click.stop="chat"
+        >
+          <Icon name="mdi:message-outline" class="w-5 h-5" />
+          <span>Chat</span>
+        </button>
+        <button
+          class="btn btn-secondary flex items-center space-x-2"
+          @click.stop="adventure"
+        >
+          <Icon name="mdi:compass-outline" class="w-5 h-5" />
+          <span>Adventure</span>
+        </button>
+      </div>
+
+      <!-- Details Panel -->
+      <div
+        v-if="showDetails"
+        class="absolute top-0 right-0 h-full w-2/3 bg-base-100 border-l border-accent p-4 rounded-r-2xl overflow-y-auto z-30"
       >
-        <Icon name="mdi:message-outline" class="w-5 h-5 mr-2" />
-        Chat
-      </button>
-      <button
-        class="btn btn-secondary flex items-center justify-center w-full"
-        @click.stop="adventure"
-      >
-        <Icon name="mdi:compass-outline" class="w-5 h-5 mr-2" />
-        Adventure
-      </button>
+        <h4 class="text-lg font-bold mb-2">Character Details</h4>
+        <pre class="text-sm whitespace-pre-wrap bg-gray-100 p-2 rounded">
+          {{ character }}
+        </pre>
+        <p><strong>Backstory:</strong> {{ character.backstory || 'None' }}</p>
+        <p><strong>Quirks:</strong> {{ character.quirks || 'None' }}</p>
+        <p><strong>Skills:</strong> {{ character.skills || 'None' }}</p>
+        <p><strong>Inventory:</strong> {{ character.inventory || 'None' }}</p>
+      </div>
     </div>
   </div>
 </template>

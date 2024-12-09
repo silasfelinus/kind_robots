@@ -95,6 +95,20 @@ async generateRandomCharacter() {
       handleError(error, 'generating random character')
     }
   },
+  async fetchCharacterRewards(characterId: number) {
+    try {
+      const response = await performFetch(`/api/rewards/character/${characterId}`)
+      if (response.success && response.data) {
+        return response.data // Return the fetched rewards
+      } else {
+        throw new Error(response.message || 'Failed to fetch character rewards.')
+      }
+    } catch (error) {
+      handleError(error, 'fetching character rewards')
+      return [] // Return an empty array in case of failure
+    }
+  },
+  
 
     syncToLocalStorage() {
       try {

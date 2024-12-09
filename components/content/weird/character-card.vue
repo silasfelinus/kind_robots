@@ -62,7 +62,7 @@
 
     <!-- Additional Character Info -->
     <div v-if="isSelected" class="mt-4 text-sm text-gray-600 space-y-2">
-      <p><strong>Alignment:</strong> {{ character.alignment || 'Unknown' }}</p>
+      <p><strong>Class:</strong> {{ character.class || 'Unknown' }}</p>
       <p>
         <strong>Backstory:</strong>
         {{ character.backstory || 'Not shared yet.' }}
@@ -72,10 +72,21 @@
         <strong>Skills:</strong> {{ character.skills || 'No skills listed.' }}
       </p>
       <p><strong>Inventory:</strong> {{ character.inventory || 'Empty.' }}</p>
+
+      <!-- Rewards -->
+      <div>
+        <strong>Rewards:</strong>
+        <ul v-if="rewards.length" class="list-disc list-inside">
+          <li v-for="reward in rewards" :key="reward.id">
+            <strong>{{ reward.name }}</strong
+            >: {{ reward.description }}
+          </li>
+        </ul>
+        <p v-else>No rewards assigned yet.</p>
+      </div>
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
@@ -100,6 +111,7 @@ const artStore = useArtStore()
 // Reactive states
 const displayUsername = ref(character.designer || null)
 const artImage = ref(null)
+const rewards = ref([]) // Store fetched rewards
 const isSelected = computed(
   () => characterStore.selectedCharacter?.id === character.id,
 )
@@ -114,8 +126,8 @@ const displayName = computed(() =>
     : 'Unnamed Hero',
 )
 
-// On mounted: fetch the username if not provided and the art image
-onMounted(() => {
+// On mounted: fetch the username if not provided, the art image, and the rewards
+onMounted(async () => {
   if (!character.designer && character.userId) {
     const username = userStore.getUsernameByUserId(character.userId)
     displayUsername.value = username || 'Unknown User'
@@ -129,6 +141,11 @@ onMounted(() => {
     })
   } else if (character.imagePath) {
     artImage.value = character.imagePath
+  }
+
+  // Fetch rewards for the character
+  if (character.id) {
+    rewards.value = await characterStore.fetchCharacterRewards(character.id)
   }
 })
 

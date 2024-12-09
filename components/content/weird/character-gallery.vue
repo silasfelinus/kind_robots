@@ -50,7 +50,7 @@
         v-for="character in filteredCharacters"
         :key="character.id"
         :character="character"
-        :username="getUsername(character.userId)"
+   
       />
     </div>
   </div>

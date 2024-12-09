@@ -33,23 +33,14 @@
     <div class="grid gap-1 md:gap-4 mt-1 md:mt-2 lg:mt-3">
       <character-bottom />
     </div>
-
-    <!-- Save Button -->
-    <div class="text-center mt-1 md:mt-4">
-      <button class="btn btn-primary" @click="handleSubmit">
-        Save Character
-      </button>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 
 const characterStore = useCharacterStore()
-
-
 
 onMounted(() => {
   characterStore.generateRandomCharacter()

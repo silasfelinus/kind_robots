@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen w-full bg-base-300 p-4 flex flex-col">
+  <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto">
     <h1 class="text-3xl font-bold text-gray-700 mb-4">Character Gallery</h1>
 
     <!-- Filter and Search -->
@@ -50,12 +50,14 @@
         v-for="character in filteredCharacters"
         :key="character.id"
         :character="character"
+        :username="getUsername(character.userId)"
       />
     </div>
   </div>
 </template>
+
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -67,6 +69,24 @@ const userStore = useUserStore()
 const selectedUser = ref('all')
 const searchQuery = ref('')
 const isLoading = ref(true)
+
+// Simulate fetching characters
+watchEffect(async () => {
+  isLoading.value = true
+  try {
+    await Promise.all([
+      characterStore.fetchCharacters(),
+      userStore.initialize(),
+    ])
+  } catch (error) {
+    console.error(
+      'Error fetching characters or initializing user store:',
+      error,
+    )
+  } finally {
+    isLoading.value = false
+  }
+})
 
 // Computed: Filtered and searched characters
 const filteredCharacters = computed(() => {
@@ -89,4 +109,10 @@ const filteredCharacters = computed(() => {
 
   return characters
 })
+
+// Get username based on userId
+const getUsername = (userId) => {
+  const user = userStore.users.find((u) => u.id === userId)
+  return user ? user.username : 'Unknown User'
+}
 </script>

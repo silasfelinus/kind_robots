@@ -20,14 +20,14 @@
 
     <!-- Character Image -->
     <div
-      class="relative flex justify-center items-center overflow-hidden rounded-lg cursor-pointer"
-      @click.stop="toggleDetails"
+      class="relative flex justify-center items-center overflow-hidden rounded-lg"
     >
       <img
         :src="computedCharacterImage"
         alt="Character Portrait"
         class="rounded-2xl transition-transform hover:scale-105 w-full h-40 object-cover"
         loading="lazy"
+        @click.stop="toggleDetails"
       />
     </div>
 
@@ -36,9 +36,9 @@
       <h2 class="text-xl font-bold text-gray-800 truncate">
         {{ displayName }}
       </h2>
-      <p class="text-sm text-gray-600">Class: {{ character.class }}</p>
-      <p class="text-sm text-gray-600">Species: {{ character.species }}</p>
-      <p class="text-sm text-gray-600">Genre: {{ character.genre }}</p>
+      <p class="text-sm text-gray-600">Class: {{ character.class || 'Unknown' }}</p>
+      <p class="text-sm text-gray-600">Species: {{ character.species || 'Unknown' }}</p>
+      <p class="text-sm text-gray-600">Genre: {{ character.genre || 'Unknown' }}</p>
     </div>
 
     <!-- Stats Section -->
@@ -112,8 +112,12 @@ const artStore = useArtStore()
 
 // State
 const artImage = ref(null)
+const showDetails = ref(false)
 const canDelete = computed(
   () => userStore.isAdmin || userStore.userId === character.userId,
+)
+const isSelected = computed(
+  () => characterStore.selectedCharacter?.id === character.id,
 )
 const statKeys = [1, 2, 3, 4, 5, 6]
 
@@ -136,6 +140,7 @@ const computedCharacterImage = computed(() => {
 // Methods
 const selectCharacter = () => characterStore.selectCharacter(character)
 const deleteCharacter = () => characterStore.deleteCharacter(character.id)
+const toggleDetails = () => (showDetails.value = !showDetails.value)
 const chat = () => alert('Chat feature coming soon!')
 const adventure = () => alert('Adventure feature coming soon!')
 

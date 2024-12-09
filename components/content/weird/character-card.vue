@@ -1,6 +1,9 @@
 <template>
   <div
-    class="relative flex flex-col bg-base-200 border border-gray-400 rounded-2xl p-4 m-2 hover:shadow-lg transition-all"
+    :class="[
+      'relative flex flex-col bg-base-200 border rounded-2xl p-4 m-2 hover:shadow-lg transition-all cursor-pointer',
+      isSelected ? 'border-primary bg-primary/10' : 'border-gray-400',
+    ]"
     @click="selectCharacter"
   >
     <!-- Delete Button -->
@@ -79,9 +82,6 @@
         class="absolute top-0 right-0 h-full w-2/3 bg-base-100 border-l border-accent p-4 rounded-r-2xl overflow-y-auto z-30"
       >
         <h4 class="text-lg font-bold mb-2">Character Details</h4>
-        <pre class="text-sm whitespace-pre-wrap bg-gray-100 p-2 rounded">
-          {{ character }}
-        </pre>
         <p><strong>Backstory:</strong> {{ character.backstory || 'None' }}</p>
         <p><strong>Quirks:</strong> {{ character.quirks || 'None' }}</p>
         <p><strong>Skills:</strong> {{ character.skills || 'None' }}</p>

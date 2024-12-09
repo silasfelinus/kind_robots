@@ -34,6 +34,22 @@
       </p>
     </div>
 
+    <!-- Stats Section -->
+    <div class="grid grid-cols-3 gap-2 bg-base-300 rounded-lg shadow-inner p-3 mt-4">
+      <div
+        v-for="i in statKeys"
+        :key="'stat-' + i"
+        class="flex flex-col items-center bg-base-200 border border-gray-300 rounded-md p-2 hover:shadow-md"
+      >
+        <span class="text-xs font-bold uppercase text-gray-700">
+          {{ character[`statName${i}`] || `Stat ${i}` }}
+        </span>
+        <span class="text-lg font-extrabold text-gray-800">
+          {{ character[`statValue${i}`] || 0 }}
+        </span>
+      </div>
+    </div>
+
     <!-- Buttons -->
     <div class="flex justify-between items-center mt-4">
       <button
@@ -52,13 +68,13 @@
       </button>
     </div>
 
-    <!-- Toggle Plain Character Details -->
+    <!-- Toggle Plain Character Object -->
     <div class="mt-4">
       <button
         class="btn btn-accent w-full"
         @click.stop="togglePlainDetails"
       >
-        {{ showPlainDetails ? 'Hide Details' : 'Show Character Object' }}
+        {{ showPlainDetails ? 'Hide Raw Character Object' : 'Show Raw Character Object' }}
       </button>
       <pre
         v-if="showPlainDetails"
@@ -68,16 +84,13 @@
       </pre>
     </div>
 
-    
-    <div class="mt-4">
-     
-      <div class="mt-4 bg-base-100 rounded-lg p-4">
-        <h4 class="text-lg font-bold mb-2">Character Details</h4>
-        <p class="text-sm text-gray-600"><strong>Backstory:</strong> {{ character.backstory || 'None' }}</p>
-        <p class="text-sm text-gray-600"><strong>Quirks:</strong> {{ character.quirks || 'None' }}</p>
-        <p class="text-sm text-gray-600"><strong>Skills:</strong> {{ character.skills || 'None' }}</p>
-        <p class="text-sm text-gray-600"><strong>Inventory:</strong> {{ character.inventory || 'None' }}</p>
-      </div>
+    <!-- Always-Visible Character Details -->
+    <div class="mt-4 bg-base-100 rounded-lg p-4">
+      <h4 class="text-lg font-bold mb-2">Character Details</h4>
+      <p class="text-sm text-gray-600"><strong>Backstory:</strong> {{ character.backstory || 'None' }}</p>
+      <p class="text-sm text-gray-600"><strong>Quirks:</strong> {{ character.quirks || 'None' }}</p>
+      <p class="text-sm text-gray-600"><strong>Skills:</strong> {{ character.skills || 'None' }}</p>
+      <p class="text-sm text-gray-600"><strong>Inventory:</strong> {{ character.inventory || 'None' }}</p>
     </div>
   </div>
 </template>
@@ -106,7 +119,6 @@ const artStore = useArtStore()
 // State
 const artImage = ref(null)
 const showPlainDetails = ref(false)
-const showDetails = ref(false)
 
 const canDelete = computed(
   () => userStore.isAdmin || userStore.userId === character.userId,
@@ -133,7 +145,6 @@ const computedCharacterImage = computed(() => {
 const selectCharacter = () => characterStore.selectCharacter(character)
 const deleteCharacter = () => characterStore.deleteCharacter(character.id)
 const togglePlainDetails = () => (showPlainDetails.value = !showPlainDetails.value)
-const toggleDetails = () => (showDetails.value = !showDetails.value)
 
 const chat = () => alert('Chat feature coming soon!')
 const adventure = () => alert('Adventure feature coming soon!')

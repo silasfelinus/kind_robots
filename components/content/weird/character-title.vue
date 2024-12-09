@@ -126,6 +126,10 @@
       <button class="btn btn-secondary" @click="refreshCharacter">
         Refresh
       </button>
+      <button class="btn btn-primary" @click="handleSubmit">
+        Save Character
+      </button>
+   
     </div>
   </div>
 </template>

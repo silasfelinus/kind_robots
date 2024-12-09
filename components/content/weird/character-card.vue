@@ -18,7 +18,6 @@
     <!-- Character Image -->
     <div
       class="relative flex justify-center items-center overflow-hidden rounded-lg cursor-pointer"
-      @click.stop="toggleDetails"
     >
       <img
         :src="computedCharacterImage"
@@ -33,9 +32,15 @@
       <h2 class="text-xl font-bold text-gray-800 truncate">
         {{ displayName }}
       </h2>
-      <p class="text-sm text-gray-600">Class: {{ character.class }}</p>
-      <p class="text-sm text-gray-600">Species: {{ character.species }}</p>
-      <p class="text-sm text-gray-600">Genre: {{ character.genre }}</p>
+      <p class="text-sm text-gray-600">
+        Class: {{ character.class || 'Unknown' }}
+      </p>
+      <p class="text-sm text-gray-600">
+        Species: {{ character.species || 'Unknown' }}
+      </p>
+      <p class="text-sm text-gray-600">
+        Genre: {{ character.genre || 'Unknown' }}
+      </p>
     </div>
 
     <!-- Stats Section -->
@@ -54,36 +59,22 @@
       </div>
     </div>
 
-    <!-- Buttons and Details -->
-    <div v-if="isSelected" class="mt-4 space-y-4">
-      <div class="flex justify-between items-center">
-        <button
-          class="btn btn-primary flex items-center space-x-2"
-          @click.stop="chat"
-        >
-          <Icon name="mdi:message-outline" class="w-5 h-5" />
-          <span>Chat</span>
-        </button>
-        <button
-          class="btn btn-secondary flex items-center space-x-2"
-          @click.stop="adventure"
-        >
-          <Icon name="mdi:compass-outline" class="w-5 h-5" />
-          <span>Adventure</span>
-        </button>
-      </div>
-
-      <!-- Details Panel -->
-      <div
-        v-if="showDetails"
-        class="absolute top-0 right-0 h-full w-2/3 bg-base-100 border-l border-accent p-4 rounded-r-2xl overflow-y-auto z-30"
+    <!-- Buttons -->
+    <div class="mt-4 space-y-2">
+      <button
+        class="btn btn-primary flex items-center justify-center w-full"
+        @click.stop="chat"
       >
-        <h4 class="text-lg font-bold mb-2">Character Details</h4>
-        <p><strong>Backstory:</strong> {{ character.backstory || 'None' }}</p>
-        <p><strong>Quirks:</strong> {{ character.quirks || 'None' }}</p>
-        <p><strong>Skills:</strong> {{ character.skills || 'None' }}</p>
-        <p><strong>Inventory:</strong> {{ character.inventory || 'None' }}</p>
-      </div>
+        <Icon name="mdi:message-outline" class="w-5 h-5 mr-2" />
+        Chat
+      </button>
+      <button
+        class="btn btn-secondary flex items-center justify-center w-full"
+        @click.stop="adventure"
+      >
+        <Icon name="mdi:compass-outline" class="w-5 h-5 mr-2" />
+        Adventure
+      </button>
     </div>
   </div>
 </template>
@@ -108,44 +99,31 @@ const userStore = useUserStore()
 const artStore = useArtStore()
 
 // State
-const showDetails = ref(false)
+const artImage = ref(null)
 const canDelete = computed(
   () => userStore.isAdmin || userStore.userId === character.userId,
 )
-const isSelected = computed(
-  () => characterStore.selectedCharacter?.id === character.id,
-)
-const artImage = ref(null)
+const statKeys = [1, 2, 3, 4, 5, 6]
 
 // Computed
 const displayName = computed(() =>
   character.name
-    ? `${character.name} the ${character.honorific}`
+    ? `${character.name} ${character.honorific || ''}`.trim()
     : 'Unnamed Hero',
 )
-const statKeys = [1, 2, 3, 4, 5, 6]
-
 const computedCharacterImage = computed(() => {
-  // Use artImage if fetched
   if (artImage.value) {
     return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
   }
-
-  // Fallback to character.imagePath
   if (character.imagePath) {
     return character.imagePath
   }
-
-  // Default placeholder
   return '/images/default-character.jpg'
 })
 
 // Methods
 const selectCharacter = () => characterStore.selectCharacter(character)
 const deleteCharacter = () => characterStore.deleteCharacter(character.id)
-const toggleDetails = () => (showDetails.value = !showDetails.value)
-
-// Placeholder actions
 const chat = () => alert('Chat feature coming soon!')
 const adventure = () => alert('Adventure feature coming soon!')
 

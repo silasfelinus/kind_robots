@@ -68,15 +68,10 @@
       </pre>
     </div>
 
-    <!-- Toggle Full Details -->
+    
     <div class="mt-4">
-      <button
-        class="btn btn-info w-full"
-        @click.stop="toggleDetails"
-      >
-        {{ showDetails ? 'Hide Full Details' : 'Show Full Details' }}
-      </button>
-      <div v-if="showDetails" class="mt-4 bg-base-100 rounded-lg p-4">
+     
+      <div class="mt-4 bg-base-100 rounded-lg p-4">
         <h4 class="text-lg font-bold mb-2">Character Details</h4>
         <p class="text-sm text-gray-600"><strong>Backstory:</strong> {{ character.backstory || 'None' }}</p>
         <p class="text-sm text-gray-600"><strong>Quirks:</strong> {{ character.quirks || 'None' }}</p>

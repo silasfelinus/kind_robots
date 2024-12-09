@@ -49,25 +49,7 @@ import { useCharacterStore } from '@/stores/characterStore'
 
 const characterStore = useCharacterStore()
 
-const isLoading = ref(false)
-const errorMessage = ref<string | null>(null)
-const successMessage = ref<string | null>(null)
 
-async function handleSubmit() {
-  isLoading.value = true
-  errorMessage.value = null
-  successMessage.value = null
-
-  try {
-    await characterStore.saveCharacter()
-    successMessage.value = characterStore.selectedCharacter
-      ? 'Character updated successfully!'
-      : 'New character created successfully!'
-  } catch (error) {
-    errorMessage.value = `Error: ${error}`
-  } finally {
-    isLoading.value = false
-  }
 }
 
 onMounted(() => {

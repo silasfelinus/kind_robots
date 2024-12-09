@@ -50,7 +50,6 @@ import { useCharacterStore } from '@/stores/characterStore'
 const characterStore = useCharacterStore()
 
 
-}
 
 onMounted(() => {
   characterStore.generateRandomCharacter()

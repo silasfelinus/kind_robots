@@ -122,7 +122,7 @@ const canDelete = computed(
 // Display name in the format "character.name the character.honorific"
 const displayName = computed(() =>
   character.name
-    ? `${character.name} the ${character.honorific || 'Adventurer'}`
+    ? `${character.name} the ${character.honorific}`
     : 'Unnamed Hero',
 )
 

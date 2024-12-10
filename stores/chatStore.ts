@@ -62,6 +62,7 @@ export const useChatStore = defineStore({
       promptId = null,
       botResponse = null,
       type = 'ToBot',
+      characterId = null,
     }: {
       content: string
       userId: number
@@ -74,6 +75,7 @@ export const useChatStore = defineStore({
       promptId?: number | null
       botResponse?: string | null
       type: ChatType
+      characterId: number | null
     }) {
       try {
         const userStore = useUserStore()
@@ -112,6 +114,7 @@ export const useChatStore = defineStore({
           isFavorite: false,
           promptId,
           botResponse,
+          characterId,
         }
 
         const response = await performFetch<Chat>('/api/chats', {
@@ -131,12 +134,12 @@ export const useChatStore = defineStore({
         throw error
       }
     },
-  updateChat(chatId: number, updatedFields: Partial<Chat>) {
-  const chatIndex = this.chats.findIndex(chat => chat.id === chatId)
-  if (chatIndex !== -1) {
-    this.chats[chatIndex] = { ...this.chats[chatIndex], ...updatedFields }
-  }
-},
+    updateChat(chatId: number, updatedFields: Partial<Chat>) {
+      const chatIndex = this.chats.findIndex((chat) => chat.id === chatId)
+      if (chatIndex !== -1) {
+        this.chats[chatIndex] = { ...this.chats[chatIndex], ...updatedFields }
+      }
+    },
 
     async streamResponse(chatId: number) {
       try {

@@ -6,6 +6,16 @@
     ]"
     @click="selectCharacter(character.id)"
   >
+    <!-- Delete Button -->
+    <button
+      v-if="canDelete"
+      class="absolute top-2 right-2 bg-error text-white p-2 rounded-full hover:bg-error-content transition-transform hover:scale-110 z-20"
+      title="Delete Character"
+      @click.stop="deleteCharacter"
+    >
+      <Icon name="mdi:delete-outline" class="w-4 h-4" />
+    </button>
+
     <!-- Character Image -->
     <div
       class="relative flex justify-center items-center overflow-hidden rounded-lg"
@@ -13,7 +23,7 @@
       <img
         :src="computedCharacterImage"
         alt="Character Portrait"
-        class="rounded-2xl w-full h-40 object-cover"
+        class="rounded-2xl w-full h-40 object-cover transition-transform hover:scale-105"
         loading="lazy"
       />
     </div>
@@ -35,7 +45,9 @@
     </div>
 
     <!-- Stats Section -->
-    <div class="grid grid-cols-3 gap-2 bg-base-300 rounded-lg shadow-inner p-3 mt-4">
+    <div
+      class="grid grid-cols-3 gap-2 bg-base-300 rounded-lg shadow-inner p-3 mt-4"
+    >
       <div
         v-for="i in statKeys"
         :key="'stat-' + i"
@@ -50,7 +62,7 @@
       </div>
     </div>
 
-    <!-- Buttons -->
+    <!-- Action Buttons -->
     <div class="flex justify-between items-center mt-4">
       <button
         class="btn btn-primary flex items-center space-x-2"
@@ -68,34 +80,40 @@
       </button>
     </div>
 
-    <!-- Toggle Plain Character Object -->
+    <!-- Toggle Raw Character Object -->
     <div class="mt-4">
-      <button
-        class="btn btn-accent w-full"
-        @click.stop="togglePlainDetails"
-      >
-        {{ showPlainDetails ? 'Hide Raw Character Object' : 'Show Raw Character Object' }}
+      <button class="btn btn-accent w-full" @click.stop="togglePlainDetails">
+        {{
+          showPlainDetails
+            ? 'Hide Raw Character Object'
+            : 'Show Raw Character Object'
+        }}
       </button>
       <pre
         v-if="showPlainDetails"
         class="bg-base-100 rounded-lg p-2 mt-2 text-sm overflow-x-auto"
-      >
-{{ character }}
+        >{{ character }}
       </pre>
     </div>
 
     <!-- Always-Visible Character Details -->
-    <div class="mt-4 bg-base-100 rounded-lg p-4">
-      <h4 class="text-lg font-bold mb-2">Character Details</h4>
-      <p class="text-sm text-gray-600"><strong>Backstory:</strong> {{ character.backstory || 'None' }}</p>
-      <p class="text-sm text-gray-600"><strong>Quirks:</strong> {{ character.quirks || 'None' }}</p>
-      <p class="text-sm text-gray-600"><strong>Skills:</strong> {{ character.skills || 'None' }}</p>
-      <p class="text-sm text-gray-600"><strong>Inventory:</strong> {{ character.inventory || 'None' }}</p>
+    <div class="mt-4 bg-base-100 rounded-lg p-4 shadow-md">
+      <h4 class="text-lg font-bold text-primary mb-2">Character Details</h4>
+      <p class="text-sm text-gray-600">
+        <strong>Backstory:</strong> {{ character.backstory || 'None' }}
+      </p>
+      <p class="text-sm text-gray-600">
+        <strong>Quirks:</strong> {{ character.quirks || 'None' }}
+      </p>
+      <p class="text-sm text-gray-600">
+        <strong>Skills:</strong> {{ character.skills || 'None' }}
+      </p>
+      <p class="text-sm text-gray-600">
+        <strong>Inventory:</strong> {{ character.inventory || 'None' }}
+      </p>
     </div>
   </div>
 </template>
-
----
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
@@ -144,7 +162,8 @@ const computedCharacterImage = computed(() => {
 // Methods
 const selectCharacter = () => characterStore.selectCharacter(character)
 const deleteCharacter = () => characterStore.deleteCharacter(character.id)
-const togglePlainDetails = () => (showPlainDetails.value = !showPlainDetails.value)
+const togglePlainDetails = () =>
+  (showPlainDetails.value = !showPlainDetails.value)
 
 const chat = () => alert('Chat feature coming soon!')
 const adventure = () => alert('Adventure feature coming soon!')

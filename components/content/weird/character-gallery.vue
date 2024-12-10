@@ -50,8 +50,8 @@
         v-for="character in filteredCharacters"
         :key="character.id"
         :character="character"
-        :isSelected="characterStore.selectedCharacter?.id === character.id"
-        @selectCharacter="characterStore.selectCharacter"
+        :is-selected="characterStore.selectedCharacter?.id === character.id"
+        @select-character="characterStore.selectCharacter"
       />
     </div>
   </div>

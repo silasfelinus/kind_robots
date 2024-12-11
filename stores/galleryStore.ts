@@ -184,6 +184,28 @@ export const useGalleryStore = defineStore({
       }
     },
 
+    async getRandomImageFromGallery(galleryId: number): Promise<string | null> {
+      try {
+        // Perform fetch to retrieve a random image from the given gallery
+        const response = await performFetch<{ imagePath: string }>(
+          `/api/galleries/random/id/${galleryId}`,
+          {
+            method: 'GET',
+          },
+        )
+
+        if (response.success && response.data) {
+          return response.data.imagePath // Return the random image path
+        } else {
+          console.error(response.message || 'Failed to retrieve random image.')
+          return null
+        }
+      } catch (error) {
+        console.error('Error fetching random image:', error)
+        return null
+      }
+    },
+
     async changeToRandomImage(): Promise<string | null> {
       if (!this.currentGallery || !this.currentGallery.imagePaths) {
         return null

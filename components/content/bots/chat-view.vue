@@ -85,6 +85,7 @@ async function createChat() {
       botId: botStore.currentBot?.id || null, // Replace with actual botId logic
       recipientId: recipientId.value,
       type: 'ToBot',
+      characterId: null,
     })
 
     // Stream response for the created chat

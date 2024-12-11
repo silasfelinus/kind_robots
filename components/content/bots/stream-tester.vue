@@ -76,11 +76,11 @@ const useStreaming = ref(false)
 const chat = ref<Chat | null>(null)
 
 async function submitPrompt() {
-  if (!prompt.value.trim()) return;
+  if (!prompt.value.trim()) return
 
-  loading.value = true;
-  errorMessage.value = '';
-  responseText.value = '';
+  loading.value = true
+  errorMessage.value = ''
+  responseText.value = ''
 
   try {
     // Step 1: Create a new chat object in the database
@@ -90,10 +90,11 @@ async function submitPrompt() {
       botId: 1, // Replace with actual bot ID
       recipientId: 1, // Replace with actual recipient ID
       type: 'ToBot',
-    });
-    chat.value = newChat;
+      characterId: null,
+    })
+    chat.value = newChat
 
-    const apiEndpoint = '/api/botcafe/chat';
+    const apiEndpoint = '/api/botcafe/chat'
     const requestOptions = {
       method: 'POST',
       headers: {
@@ -106,122 +107,126 @@ async function submitPrompt() {
         max_tokens: 300,
         stream: useStreaming.value,
       }),
-    };
+    }
 
     if (useStreaming.value) {
       // Streaming Mode
-      await fetchStream(apiEndpoint, requestOptions, newChat.id);
+      await fetchStream(apiEndpoint, requestOptions, newChat.id)
     } else {
       // Non-Streaming Mode with Progressive Updates
-      await fetchNonStream(apiEndpoint, requestOptions, newChat.id);
+      await fetchNonStream(apiEndpoint, requestOptions, newChat.id)
     }
   } catch (error) {
     errorMessage.value =
-      error instanceof Error ? error.message : 'An unknown error occurred';
-    console.error('Error during API request:', error);
+      error instanceof Error ? error.message : 'An unknown error occurred'
+    console.error('Error during API request:', error)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
-async function fetchNonStream(url: string, options: RequestInit, chatId: number) {
+async function fetchNonStream(
+  url: string,
+  options: RequestInit,
+  chatId: number,
+) {
   try {
-    const response = await fetch(url, options);
+    const response = await fetch(url, options)
     if (!response.ok) {
-      errorMessage.value = `Error ${response.status}: ${response.statusText}`;
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
+      errorMessage.value = `Error ${response.status}: ${response.statusText}`
+      throw new Error(`Error ${response.status}: ${response.statusText}`)
     }
 
-    const data = await response.json();
-    const botResponse = data.choices?.[0]?.message?.content || 'No response received';
+    const data = await response.json()
+    const botResponse =
+      data.choices?.[0]?.message?.content || 'No response received'
 
     // Simulate progressive updates for non-streaming
     for (let i = 0; i < botResponse.length; i++) {
-      await new Promise((resolve) => setTimeout(resolve, 50)); // Simulate delay
-      responseText.value += botResponse[i];
+      await new Promise((resolve) => setTimeout(resolve, 50)) // Simulate delay
+      responseText.value += botResponse[i]
 
       // Update the chat object locally and in the store
       if (chat.value) {
-        chat.value.botResponse = responseText.value;
+        chat.value.botResponse = responseText.value
       }
-      chatStore.updateChat(chatId, { botResponse: responseText.value });
+      chatStore.updateChat(chatId, { botResponse: responseText.value })
     }
 
     // Save final response to the database
-    await chatStore.editChat(chatId, { botResponse });
+    await chatStore.editChat(chatId, { botResponse })
   } catch (error) {
-    console.error('Error during non-streaming fetch:', error);
-    throw error;
+    console.error('Error during non-streaming fetch:', error)
+    throw error
   }
 }
 
-
 async function fetchStream(url: string, options: RequestInit, chatId: number) {
-  const response = await fetch(url, options);
+  const response = await fetch(url, options)
   if (!response.ok) {
-    errorMessage.value = `Error ${response.status}: ${response.statusText}`;
-    throw new Error(`Error ${response.status}: ${response.statusText}`);
+    errorMessage.value = `Error ${response.status}: ${response.statusText}`
+    throw new Error(`Error ${response.status}: ${response.statusText}`)
   }
 
   if (response.body) {
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = ''; // Accumulate partial data from chunks
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = '' // Accumulate partial data from chunks
 
     try {
       while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        const { done, value } = await reader.read()
+        if (done) break
 
         // Decode current chunk and add to the buffer
-        buffer += decoder.decode(value, { stream: true });
+        buffer += decoder.decode(value, { stream: true })
 
-        let boundary;
+        let boundary
         while ((boundary = buffer.indexOf('\n\n')) >= 0) {
-          let chunk = buffer.slice(0, boundary).trim();
-          buffer = buffer.slice(boundary + 2); // Move past the current chunk
+          let chunk = buffer.slice(0, boundary).trim()
+          buffer = buffer.slice(boundary + 2) // Move past the current chunk
 
           // Remove multiple "data:" prefixes if they exist
           if (chunk.startsWith('data:')) {
-            chunk = chunk.replace(/^data:\s*/, '').replace(/^data:\s*/, '');
+            chunk = chunk.replace(/^data:\s*/, '').replace(/^data:\s*/, '')
           }
 
           // Skip empty chunks and "[DONE]"
-          if (!chunk || chunk === '[DONE]') continue;
+          if (!chunk || chunk === '[DONE]') continue
 
           try {
             // Parse the JSON and extract the content
-            const parsed = JSON.parse(chunk);
-            const content = parsed.choices[0]?.delta?.content;
+            const parsed = JSON.parse(chunk)
+            const content = parsed.choices[0]?.delta?.content
 
             // Append content to response text
             if (content) {
-              responseText.value += content;
+              responseText.value += content
 
               // Update the chat object locally
               if (chat.value) {
-                chat.value.botResponse = responseText.value;
+                chat.value.botResponse = responseText.value
               }
 
               // Update the chat in the store
-              chatStore.updateChat(chatId, { botResponse: responseText.value });
+              chatStore.updateChat(chatId, { botResponse: responseText.value })
 
               // Save the updated response to the database
-              await chatStore.editChat(chatId, { botResponse: responseText.value });
+              await chatStore.editChat(chatId, {
+                botResponse: responseText.value,
+              })
             }
           } catch (err) {
-            console.error('Error parsing JSON chunk:', err);
+            console.error('Error parsing JSON chunk:', err)
           }
         }
       }
     } catch (err) {
-      console.error('Error during streaming:', err);
-      throw new Error('Streaming failed.');
+      console.error('Error during streaming:', err)
+      throw new Error('Streaming failed.')
     }
   } else {
-    throw new Error('Stream not supported in response');
+    throw new Error('Stream not supported in response')
   }
 }
-
-
 </script>

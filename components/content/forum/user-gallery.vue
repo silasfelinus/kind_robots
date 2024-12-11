@@ -135,6 +135,7 @@ function sendMessage(userId: number) {
     isPublic: false, // Private message
     originId: null, // Optional for threading
     previousEntryId: null, // Optional for threading
+    characterId: null,
   })
 }
 

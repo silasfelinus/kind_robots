@@ -165,6 +165,7 @@ async function sendPrompt(prompt: string) {
         recipientId: botId,
         promptId: newPrompt.id,
         type: 'ToBot',
+        characterId: null,
       })
     } catch (error) {
       console.error('Error adding chat in chatStore:', error)
@@ -198,6 +199,7 @@ async function submitCustomPrompt() {
         botId,
         recipientId: botId,
         type: 'ToBot',
+        characterId: null,
       })
       promptStore.currentPrompt = ''
     } else {
@@ -216,6 +218,4 @@ const activeChatCards = computed(() => {
   const chats = chatStore.activeChatsByBotId(botStore.currentBot.id)
   return [...chats].reverse() // Ensure immutability by cloning before reversing
 })
-
-
 </script>

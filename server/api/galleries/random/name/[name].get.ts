@@ -1,63 +1,63 @@
-// ~/server/api/galleries/random/[name].get.ts
+//server/api/galleries/random/name/[name].get.ts
 import { defineEventHandler } from 'h3'
 import { getRandomImageByGalleryName } from '../..'
 import { errorHandler } from '../../../utils/error'
 
 interface RandomImageResponse {
   success: boolean
-  message?: string
-  data?: {
-    image: string
-  }
-  error?: string
+  message: string
+  data?: string // Direct string path for the image
+  statusCode: number
 }
 
-export default defineEventHandler(
-  async (event): Promise<RandomImageResponse> => {
-    let response: RandomImageResponse
-    const galleryName = String(event.context.params?.name)
+export default defineEventHandler(async (event): Promise<RandomImageResponse> => {
+  const galleryName = String(event.context.params?.name).trim()
 
-    if (!galleryName) {
+  if (!galleryName) {
+    return {
+      success: false,
+      message: 'Invalid gallery name.',
+      statusCode: 400, // Bad Request
+    }
+  }
+
+  try {
+    // Fetch a random image path from the specified gallery
+    const imagePath = await getRandomImageByGalleryName(galleryName)
+
+    if (!imagePath) {
       return {
         success: false,
-        message: 'Invalid gallery name.',
+        message: `No images found in gallery with name: ${galleryName}.`,
+        statusCode: 404, // Not Found
       }
     }
 
-    try {
-      const image = await getRandomImageByGalleryName(galleryName)
+    // Compose the final image path
+    const data = `/images/${galleryName}/${imagePath}`
 
-      if (!image) {
-        return {
-          success: false,
-          message: `No images found in gallery with name: ${galleryName}`,
-        }
-      }
-
-      // Return success response with the fetched image
-      response = {
-        success: true,
-        message: `Random image fetched from gallery: ${galleryName}.`,
-        data: { image },
-      }
-    } catch (error: unknown) {
-      // Handle the error using the centralized error handler
-      const handledError = errorHandler(error)
-      console.error(
-        `Error fetching random image for gallery "${galleryName}":`,
-        handledError,
-      )
-
-      // Set the response based on the handled error
-      response = {
-        success: false,
-        message:
-          handledError.message ||
-          `Failed to get random image for gallery name ${galleryName}.`,
-        error: handledError.message,
-      }
+    // Return success response with the composed image path
+    return {
+      success: true,
+      message: `Random image fetched successfully from gallery: ${galleryName}.`,
+      data,
+      statusCode: 200, // OK
     }
+  } catch (error: unknown) {
+    // Handle the error using the centralized error handler
+    const handledError = errorHandler(error)
+    console.error(
+      `Error fetching random image for gallery "${galleryName}":`,
+      handledError,
+    )
 
-    return response
-  },
-)
+    // Return a formatted error response
+    return {
+      success: false,
+      message:
+        handledError.message ||
+        `Failed to get random image for gallery name: ${galleryName}.`,
+      statusCode: handledError.statusCode || 500, // Internal Server Error
+    }
+  }
+})

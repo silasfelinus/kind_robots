@@ -197,14 +197,14 @@ model Character {
   statValue6      Int?           @default(9)
 
   // Goal Stats
-  goalStat1Name   String?        @default("Principled|Chaotic")
-  goalStat1Value  Int?           @default(0)
-  goalStat2Name   String?        @default("Introvert|Extrovert")
-  goalStat2Value  Int?           @default(0)
-  goalStat3Name   String?        @default("Passive|Aggressive")
-  goalStat3Value  Int?           @default(0)
-  goalStat4Name   String?        @default("Optimist|Pessimist")
-  goalStat4Value  Int?           @default(0)
+  goalStat1Name   String?        @default("Principled|Chaotic") //currently unused
+  goalStat1Value  Int?           @default(0)  //currently unused
+  goalStat2Name   String?        @default("Introvert|Extrovert")  //currently unused
+  goalStat2Value  Int?           @default(0)  //currently unused
+  goalStat3Name   String?        @default("Passive|Aggressive")  //currently unused
+  goalStat3Value  Int?           @default(0)  //currently unused
+  goalStat4Name   String?        @default("Optimist|Pessimist")  //currently unused
+  goalStat4Value  Int?           @default(0)  //currently unused
 
   artImageId      Int? 
   ArtImage        ArtImage?     
@@ -223,6 +223,7 @@ enum ChatType {
   ToForum
   ToUser
   ToCharacter
+  Weirdlandia
 }
 
 

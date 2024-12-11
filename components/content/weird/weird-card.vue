@@ -9,66 +9,30 @@
     <NewEyeball class="absolute bottom-0 right-0 w-8 h-8 rotate-180" />
 
     <!-- WeirdArt Section -->
-    <div
-      class="weird-art bg-accent text-white flex items-center justify-center rounded-lg"
-    >
-      <p class="text-lg font-bold">WeirdArt Section (Image)</p>
-      <p v-if="currentArt" class="text-sm mt-2">Art: {{ currentArt }}</p>
-      <p v-else class="text-sm mt-2">No art available</p>
-    </div>
+    <WeirdArt />
 
     <!-- Main Content -->
     <div class="weird-main-content flex flex-grow">
       <!-- WeirdSheet Section -->
-      <div
-        class="weird-sheet bg-primary text-white flex flex-col items-center justify-center rounded-lg w-1/2"
-      >
-        <p class="text-lg font-bold">WeirdSheet Section (Character Sheet)</p>
-        <p v-if="activeCharacter" class="text-sm mt-2">
-          Character: {{ activeCharacter.name || 'Unknown Character' }}
-        </p>
-        <p v-else class="text-sm mt-2">No character selected</p>
-      </div>
+      <WeirdSheet />
 
       <!-- Right Side (Adventure and Choices) -->
       <div class="weird-right flex flex-col w-1/2 space-y-4">
         <!-- WeirdAdventure Section -->
-        <div
-          class="weird-adventure bg-secondary text-white flex items-center justify-center rounded-lg flex-grow"
-        >
-          <p class="text-lg font-bold">WeirdAdventure Section (History)</p>
-          <p v-if="activeChat" class="text-sm mt-2">
-            Current Chat: {{ activeChat.content || 'No content' }}
-          </p>
-          <p v-else class="text-sm mt-2">No active chat</p>
-        </div>
+        <WeirdAdventure />
 
         <!-- WeirdChoices Section -->
-        <div
-          class="weird-choices bg-warning text-white flex items-center justify-center rounded-lg flex-grow"
-        >
-          <p class="text-lg font-bold">WeirdChoices Section (Options)</p>
-          <p v-if="currentSetting" class="text-sm mt-2">
-            Setting: {{ currentSetting }}
-          </p>
-          <p v-else class="text-sm mt-2">No setting defined</p>
-        </div>
+        <WeirdChoices />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useWeirdStore } from '@/stores/weirdStore'
-
-const weirdStore = useWeirdStore()
-
-// State placeholders from the store
-const activeCharacter = computed(() => weirdStore.activeCharacter)
-const activeChat = computed(() => weirdStore.activeChat)
-const currentSetting = computed(() => weirdStore.setting)
-const currentArt = computed(() => weirdStore.artImage)
+import WeirdArt from '@/components/WeirdArt.vue'
+import WeirdSheet from '@/components/WeirdSheet.vue'
+import WeirdAdventure from '@/components/WeirdAdventure.vue'
+import WeirdChoices from '@/components/WeirdChoices.vue'
 </script>
 
 <style scoped>

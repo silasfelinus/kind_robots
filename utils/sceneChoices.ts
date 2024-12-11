@@ -2,7 +2,7 @@ export const sceneChoices = [
   {
     title: "Serendipity",
     description: "An eclectic space where chaos meets opportunity. Expect surprises at every turn.",
-    image: "/images/serendipity.jpg",
+    image: "/images/settings/space.webp",
     intros: [
       "You find yourself in a kaleidoscopic bazaar where nothing is as it seems.",
       "The air hums with possibility as doors to countless worlds beckon you forward.",
@@ -12,7 +12,7 @@ export const sceneChoices = [
   {
     title: "Super Dungeon Coliseum",
     description: "A deadly dungeon-crawling coliseum where adventurers battle for fame and survival.",
-    image: "/images/super-dungeon.jpg",
+    image: "/images/settings/dungeon.webp",
     intros: [
       "The roar of the crowd greets you as you step into the massive arena.",
       "Chains rattle, gates creak open, and your name echoes across the coliseum.",
@@ -22,7 +22,7 @@ export const sceneChoices = [
   {
     title: "Absurd Musical Murder Mystery",
     description: "A whimsical murder mystery where everyone sings their alibis—and maybe their motives.",
-    image: "/images/musical-mystery.jpg",
+    image: "/images/settings/mystery.webp",
     intros: [
       "The scene opens with a crescendo as suspects burst into an accusatory melody.",
       "You arrive at the crime scene, greeted by an eccentric detective with a ukulele.",
@@ -32,7 +32,7 @@ export const sceneChoices = [
   {
     title: "Cartoon Crossroads",
     description: "A comical adventure in a cartoon world that sometimes spills into ours.",
-    image: "/images/cartoon-crossroads.jpg",
+    image: "/images/settings/cartoon.webp",
     intros: [
       "You slip on a banana peel and land in a world of talking animals and slapstick humor.",
       "A portal opens in your living room, and you’re pulled into a zany animated realm.",

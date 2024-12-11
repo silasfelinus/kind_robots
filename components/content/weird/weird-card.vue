@@ -28,13 +28,6 @@
   </div>
 </template>
 
-<script setup>
-import WeirdArt from '@/components/WeirdArt.vue'
-import WeirdSheet from '@/components/WeirdSheet.vue'
-import WeirdAdventure from '@/components/WeirdAdventure.vue'
-import WeirdChoices from '@/components/WeirdChoices.vue'
-</script>
-
 <style scoped>
 .weird-card-container {
   width: 100%;

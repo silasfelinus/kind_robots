@@ -4,6 +4,7 @@ import { useCharacterStore } from './characterStore'
 import { useUserStore } from './userStore'
 import { performFetch, handleError } from './utils'
 import type { Chat } from '@prisma/client'
+import { sceneChoices } from '@/utils/sceneChoices'
 
 export const useWeirdStore = defineStore({
   id: 'weird',
@@ -16,7 +17,8 @@ export const useWeirdStore = defineStore({
     mode: 'adventure' as 'adventure' | 'chat' | 'setting',
     loading: false,
     initialized: false,
-    currentOptions: [] as string[],
+    initialChoices: [] as typeof sceneChoices, // Predefined settings
+    currentOptions: [] as string[], // Current intro options
   }),
 
   getters: {
@@ -52,6 +54,14 @@ export const useWeirdStore = defineStore({
           await characterStore.initialize()
         }
 
+        if (this.initialChoices.length === 0) {
+          this.populateInitialChoices()
+        }
+
+        if (this.currentOptions.length === 0) {
+          this.populateCurrentOptions()
+        }
+
         this.initialized = true
       } catch (error) {
         handleError(
@@ -59,6 +69,20 @@ export const useWeirdStore = defineStore({
           (error as Error).message,
         )
       }
+    },
+
+    populateInitialChoices() {
+      this.initialChoices = sceneChoices
+      this.saveToLocalStorage()
+    },
+
+    populateCurrentOptions() {
+      if (this.initialChoices.length > 0) {
+        this.currentOptions = this.initialChoices.flatMap((choice) => choice.intros)
+      } else {
+        console.warn('No initial choices available to populate current options.')
+      }
+      this.saveToLocalStorage()
     },
 
     async startAdventure(characterId: number, setting: string) {
@@ -166,6 +190,7 @@ export const useWeirdStore = defineStore({
         }
       }
     },
+
     saveToLocalStorage() {
       if (typeof window !== 'undefined') {
         const stateToSave = {
@@ -175,6 +200,8 @@ export const useWeirdStore = defineStore({
           history: this.history ?? [],
           artImage: this.artImage ?? null,
           mode: this.mode ?? 'adventure',
+          initialChoices: this.initialChoices ?? [],
+          currentOptions: this.currentOptions ?? [],
         }
         localStorage.setItem('weirdState', JSON.stringify(stateToSave))
       }

@@ -208,7 +208,7 @@ export const useGalleryStore = defineStore({
 async getRandomImageFromGalleryName(galleryName: string): Promise<string | null> {
       try {
         // Perform fetch to retrieve a random image from the given gallery
-        const response = await performFetch<{ string }>(
+        const response = await performFetch<string>(
           `/api/galleries/random/name/${galleryName}`,
           {
             method: 'GET',

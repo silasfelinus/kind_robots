@@ -125,6 +125,7 @@ const sendMessage = async () => {
         botName,
         recipientId, // recipientId now has a default fallback
         type: 'ToBot',
+        characterId: null,
       })
       activeConversationIndex.value = newChat
         ? chatStore.chats.length - 1
@@ -141,6 +142,7 @@ const sendMessage = async () => {
         originId: previousChat.originId ?? previousChat.id,
         previousEntryId: previousChat.id,
         type: 'ToBot',
+        characterId: null,
       })
     }
 

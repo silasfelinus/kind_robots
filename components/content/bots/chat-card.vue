@@ -180,6 +180,7 @@ const sendReply = async () => {
         botId: chat.value.botId ?? 0,
         botName: chat.value.botName ?? '',
         type: chat.value.type,
+        characterId: chat.value.characterId,
       })
 
       replyMessage.value = ''

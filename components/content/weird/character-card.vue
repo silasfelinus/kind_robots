@@ -4,7 +4,6 @@
       'relative flex flex-col bg-base-200 border rounded-2xl p-4 m-2 hover:shadow-lg transition-all cursor-pointer',
       isSelected ? 'border-primary bg-primary/10' : 'border-gray-400',
     ]"
-    @click="selectCharacter(character.id)"
   >
     <!-- Delete Button -->
     <button
@@ -65,52 +64,57 @@
     <!-- Action Buttons -->
     <div class="flex justify-between items-center mt-4">
       <button
-        class="btn btn-primary flex items-center space-x-2"
-        @click.stop="chat"
+        class="btn flex items-center space-x-2 transition-transform hover:scale-105"
+        :class="{
+          'btn-primary shadow-lg': selectedMode === 'chat',
+          'btn-outline': selectedMode !== 'chat',
+        }"
+        @click.stop="toggleMode('chat')"
       >
         <Icon name="mdi:message-outline" class="w-5 h-5" />
         <span>Chat</span>
       </button>
       <button
-        class="btn btn-secondary flex items-center space-x-2"
-        @click.stop="adventure"
+        class="btn flex items-center space-x-2 transition-transform hover:scale-105"
+        :class="{
+          'btn-secondary shadow-lg': selectedMode === 'adventure',
+          'btn-outline': selectedMode !== 'adventure',
+        }"
+        @click.stop="toggleMode('adventure')"
       >
         <Icon name="mdi:compass-outline" class="w-5 h-5" />
         <span>Adventure</span>
       </button>
     </div>
 
+    <!-- Conditional Display for WeirdCard or WeirdChat -->
+    <div class="mt-4">
+      <WeirdCard
+        v-if="selectedMode === 'adventure'"
+        :character="character"
+        class="mt-4"
+      />
+      <WeirdChat
+        v-if="selectedMode === 'chat'"
+        :character="character"
+        class="mt-4"
+      />
+    </div>
+
     <!-- Toggle Raw Character Object -->
     <div class="mt-4">
-      <button class="btn btn-accent w-full" @click.stop="togglePlainDetails">
+      <button class="btn btn-accent w-full" @click="toggleRawDetails">
         {{
-          showPlainDetails
+          showRawDetails
             ? 'Hide Raw Character Object'
             : 'Show Raw Character Object'
         }}
       </button>
       <pre
-        v-if="showPlainDetails"
+        v-if="showRawDetails"
         class="bg-base-100 rounded-lg p-2 mt-2 text-sm overflow-x-auto"
         >{{ character }}
       </pre>
-    </div>
-
-    <!-- Always-Visible Character Details -->
-    <div class="mt-4 bg-base-100 rounded-lg p-4 shadow-md">
-      <h4 class="text-lg font-bold text-primary mb-2">Character Details</h4>
-      <p class="text-sm text-gray-600">
-        <strong>Backstory:</strong> {{ character.backstory || 'None' }}
-      </p>
-      <p class="text-sm text-gray-600">
-        <strong>Quirks:</strong> {{ character.quirks || 'None' }}
-      </p>
-      <p class="text-sm text-gray-600">
-        <strong>Skills:</strong> {{ character.skills || 'None' }}
-      </p>
-      <p class="text-sm text-gray-600">
-        <strong>Inventory:</strong> {{ character.inventory || 'None' }}
-      </p>
     </div>
   </div>
 </template>
@@ -136,8 +140,10 @@ const artStore = useArtStore()
 
 // State
 const artImage = ref(null)
-const showPlainDetails = ref(false)
+const selectedMode = ref(null) // 'chat' or 'adventure'
+const showRawDetails = ref(false) // Toggle raw character object display
 
+// Computed properties
 const canDelete = computed(
   () => userStore.isAdmin || userStore.userId === character.userId,
 )
@@ -160,13 +166,13 @@ const computedCharacterImage = computed(() => {
 })
 
 // Methods
-const selectCharacter = () => characterStore.selectCharacter(character)
+const toggleMode = (mode) => {
+  selectedMode.value = selectedMode.value === mode ? null : mode
+}
+const toggleRawDetails = () => {
+  showRawDetails.value = !showRawDetails.value
+}
 const deleteCharacter = () => characterStore.deleteCharacter(character.id)
-const togglePlainDetails = () =>
-  (showPlainDetails.value = !showPlainDetails.value)
-
-const chat = () => alert('Chat feature coming soon!')
-const adventure = () => alert('Adventure feature coming soon!')
 
 // On Mounted
 onMounted(async () => {

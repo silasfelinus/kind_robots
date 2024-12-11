@@ -16,6 +16,7 @@ export const useWeirdStore = defineStore({
     mode: 'adventure' as 'adventure' | 'chat' | 'setting',
     loading: false,
     initialized: false,
+    currentOptions: [] as string[],
   }),
 
   getters: {

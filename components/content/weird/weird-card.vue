@@ -61,7 +61,6 @@
 <script setup>
 import { computed } from 'vue'
 import { useWeirdStore } from '@/stores/weirdStore'
-import NewEyeball from '@/components/NewEyeball.vue'
 
 const weirdStore = useWeirdStore()
 

@@ -2,11 +2,10 @@
   <div
     class="weird-card-container bg-base-200 border border-gray-400 rounded-2xl shadow-lg p-4 flex flex-col space-y-4 relative"
   >
-    <!-- Eyeball Frames -->
-    <NewEyeball class="absolute top-0 left-0 w-8 h-8" />
-    <NewEyeball class="absolute top-0 right-0 w-8 h-8 rotate-90" />
-    <NewEyeball class="absolute bottom-0 left-0 w-8 h-8 -rotate-90" />
-    <NewEyeball class="absolute bottom-0 right-0 w-8 h-8 rotate-180" />
+    <!-- Single Eyeball at the Top -->
+    <div class="absolute top-2 left-1/2 transform -translate-x-1/2 w-10 h-10">
+      <NewEyeball class="w-full h-full" />
+    </div>
 
     <!-- WeirdArt Section -->
     <WeirdArt />
@@ -38,27 +37,33 @@
   flex-direction: column;
   position: relative;
 }
+
 .weird-art {
   height: 15%;
 }
+
 .weird-main-content {
   flex-grow: 1;
   display: flex;
 }
+
 .weird-sheet {
   flex: 1;
   margin-right: 8px;
 }
+
 .weird-right {
   flex: 1;
   display: flex;
   flex-direction: column;
   margin-left: 8px;
 }
+
 .weird-adventure {
   height: 50%;
   margin-bottom: 8px;
 }
+
 .weird-choices {
   height: 50%;
 }

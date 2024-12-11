@@ -1,21 +1,18 @@
-// /stores/weirdStore.ts
 import { defineStore } from 'pinia'
 import { useChatStore } from './chatStore'
 import { useCharacterStore } from './characterStore'
 import { useUserStore } from './userStore'
-import { useArtStore } from './artStore'
-import { useRewardStore } from './rewardStore'
 import { performFetch, handleError } from './utils'
-import type { Chat, Character } from '@prisma/client'
+import type { Chat } from '@prisma/client'
 
 export const useWeirdStore = defineStore({
   id: 'weird',
   state: () => ({
     activeChatId: null as number | null,
     activeCharacterId: null as number | null,
-    setting: null as string | null, // The story's current setting
-    history: [] as Chat[], // Stores the chat history for the adventure
-    artImage: null as string | null, // Art representing the current scene
+    setting: null as string | null,
+    history: [] as Chat[],
+    artImage: null as string | null,
     mode: 'adventure' as 'adventure' | 'chat' | 'setting',
     loading: false,
     initialized: false,
@@ -39,7 +36,6 @@ export const useWeirdStore = defineStore({
   },
 
   actions: {
-    // Initialize WeirdStore from localStorage
     async initialize() {
       if (this.initialized) return
       try {
@@ -57,11 +53,13 @@ export const useWeirdStore = defineStore({
 
         this.initialized = true
       } catch (error) {
-        handleError('WeirdStore Initialization Failed', error)
+        handleError(
+          new Error('WeirdStore Initialization Failed'),
+          (error as Error).message,
+        )
       }
     },
 
-    // Start a new adventure
     async startAdventure(characterId: number, setting: string) {
       try {
         this.loading = true
@@ -75,12 +73,13 @@ export const useWeirdStore = defineStore({
         const userStore = useUserStore()
         const chatStore = useChatStore()
 
-        const introContent = `You are ${character.name}, a ${character.species} ${character.class}, entering the setting: ${setting}.`
+        const introContent = `You are ${character.name ?? 'Unknown'}, a ${character.species ?? 'mysterious being'} ${character.class ?? 'adventurer'}, entering the setting: ${setting}.`
 
         const newChat = await chatStore.addChat({
           content: introContent,
           userId: userStore.user?.id ?? 0,
           characterId,
+          recipientId: null,
           type: 'Weirdlandia',
           isPublic: false,
         })
@@ -92,14 +91,21 @@ export const useWeirdStore = defineStore({
 
         this.saveToLocalStorage()
       } catch (error) {
-        handleError('Failed to start adventure', error)
+        handleError(
+          new Error('Failed to start adventure'),
+          (error as Error).message,
+        )
       } finally {
         this.loading = false
       }
     },
 
-    // Process user action
     async processAction(action: string) {
+      if (typeof action !== 'string' || !action.trim()) {
+        handleError(new Error('Invalid action'), 'Processing action')
+        return
+      }
+
       try {
         this.loading = true
         const chatStore = useChatStore()
@@ -122,72 +128,52 @@ export const useWeirdStore = defineStore({
           throw new Error(response.message || 'Failed to process action.')
         }
       } catch (error) {
-        handleError('Error processing action', error)
+        handleError(
+          new Error('Error processing action'),
+          (error as Error).message,
+        )
       } finally {
         this.loading = false
       }
     },
 
-    // Start a character chat session
-    async startCharacterChat(characterId: number) {
-      try {
-        this.mode = 'chat'
-        this.activeCharacterId = characterId
-
-        const characterStore = useCharacterStore()
-        const character = characterStore.characters.find(
-          (char) => char.id === characterId,
-        )
-        if (!character) throw new Error('Character not found.')
-
-        const userStore = useUserStore()
-        const chatStore = useChatStore()
-
-        const introContent = `You are now chatting with ${character.name}, a ${character.species} ${character.class}.`
-
-        const newChat = await chatStore.addChat({
-          content: introContent,
-          userId: userStore.user?.id ?? 0,
-          characterId,
-          type: 'ToCharacter',
-          isPublic: false,
-        })
-
-        this.activeChatId = newChat.id
-        this.history.push(newChat)
-
-        this.saveToLocalStorage()
-      } catch (error) {
-        handleError('Failed to start character chat', error)
-      }
-    },
-
-    // Update the setting using Weird-Space
     setSetting(setting: string) {
-      this.setting = setting
+      if (typeof setting !== 'string' || !setting.trim()) {
+        handleError(
+          new Error('Invalid setting value'),
+          'Setting adventure setting',
+        )
+        return
+      }
+      this.setting = setting.trim()
       this.saveToLocalStorage()
     },
 
-    // Load state from localStorage
-    loadFromLocalStorage() {
+    loadFromLocalStorage(this: typeof useWeirdStore.prototype) {
       if (typeof window === 'undefined') return
 
       const savedState = localStorage.getItem('weirdState')
       if (savedState) {
-        Object.assign(this, JSON.parse(savedState))
+        try {
+          const parsedState = JSON.parse(savedState) as Partial<typeof this>
+          Object.assign(this, parsedState)
+        } catch (error) {
+          handleError(
+            new Error('Failed to parse weirdState from localStorage'),
+            (error as Error).message,
+          )
+        }
       }
     },
-
-    // Save state to localStorage
     saveToLocalStorage() {
       if (typeof window !== 'undefined') {
         const stateToSave = {
-          activeChatId: this.activeChatId,
-          activeCharacterId: this.activeCharacterId,
-          setting: this.setting,
-          history: this.history,
-          artImage: this.artImage,
-          mode: this.mode,
+          activeChatId: this.activeChatId ?? null,
+          activeCharacterId: this.activeCharacterId ?? null,
+          setting: this.setting ?? '',
+          history: this.history ?? [],
+          artImage: this.artImage ?? null,
+          mode: this.mode ?? 'adventure',
         }
         localStorage.setItem('weirdState', JSON.stringify(stateToSave))
       }

@@ -24,18 +24,43 @@ export function useRandomCharacterData() {
   const { randomPersonality } = useRandomPersonality()
 
   function generateRandomCharacter() {
+    // Log each generated field for debugging
+    const generatedName = randomName()
+    const generatedHonorific = randomHonorific()
+    const generatedClass = randomClass()
+    const generatedGenre = randomGenre()
+    const generatedSpecies = randomSpecies()
+    const generatedPersonality = randomPersonality()
+    const generatedBackstory = randomBackstory()
+    const generatedInventory = randomInventory()
+    const generatedQuirks = randomQuirk()
+    const generatedSkills = randomSkill()
+    const generatedStats = generateStats()
+
+    console.log('Generated Name:', generatedName)
+    console.log('Generated Honorific:', generatedHonorific)
+    console.log('Generated Class:', generatedClass)
+    console.log('Generated Genre:', generatedGenre)
+    console.log('Generated Species:', generatedSpecies)
+    console.log('Generated Personality:', generatedPersonality)
+    console.log('Generated Backstory:', generatedBackstory)
+    console.log('Generated Inventory:', generatedInventory)
+    console.log('Generated Quirks:', generatedQuirks)
+    console.log('Generated Skills:', generatedSkills)
+    console.log('Generated Stats:', generatedStats)
+
     return {
-      name: randomName(),
-      honorific: randomHonorific(),
-      class: randomClass(),
-      genre: randomGenre(),
-      species: randomSpecies(),
-      personality: randomPersonality(), // Add personality here
-      backstory: randomBackstory(),
-      inventory: randomInventory(),
-      quirks: randomQuirk(),
-      skills: randomSkill(),
-      ...generateStats(),
+      name: generatedName,
+      honorific: generatedHonorific,
+      class: generatedClass,
+      genre: generatedGenre,
+      species: generatedSpecies,
+      personality: generatedPersonality,
+      backstory: generatedBackstory,
+      inventory: generatedInventory,
+      quirks: generatedQuirks,
+      skills: generatedSkills,
+      ...generatedStats,
     }
   }
 

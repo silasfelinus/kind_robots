@@ -29,7 +29,7 @@
           <!-- Show the link title below the icon in compact state -->
           <span
             v-if="displayStore.sidebarLeftState === 'compact' && !isMobile"
-            class="text-xs md:text-md lg:text-lg font-semibold mt-1 text-center px-2 py-1 rounded-lg"
+            class="text-xs md:text-md lg:text-lg font-semibold text-center px-2 rounded-lg"
           >
             {{ link.title }}
           </span>

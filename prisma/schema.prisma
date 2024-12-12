@@ -35,7 +35,7 @@ model Art {
   ArtImage      ArtImage?
   Reaction      Reaction[]
   ArtCollection ArtCollection[] @relation("ArtToArtCollection")
-
+  genres        String?
 
   @@index([galleryId], map: "Art_galleryId_fkey")
   @@index([pitchId], map: "Art_pitchId_fkey")
@@ -458,6 +458,7 @@ model Scenario {
   title         String
   description   String
   intros        String
+  genres        String?
   userId        Int
   User          User       @relation(fields: [userId], references: [id])
   Characters    Character[]
@@ -466,7 +467,6 @@ model Scenario {
   imagePath     String?
   locations     String?
   artPrompt     String?
-
 }
 
 model Tag {

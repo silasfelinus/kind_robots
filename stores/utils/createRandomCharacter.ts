@@ -24,7 +24,6 @@ export function useRandomCharacterData() {
   const { randomPersonality } = useRandomPersonality()
 
   function generateRandomCharacter() {
-    // Log each generated field for debugging
     const generatedName = randomName()
     const generatedHonorific = randomHonorific()
     const generatedClass = randomClass()
@@ -64,5 +63,18 @@ export function useRandomCharacterData() {
     }
   }
 
-  return { generateRandomCharacter }
+  return {
+    randomName,
+    randomHonorific,
+    randomClass,
+    randomGenre,
+    randomSpecies,
+    randomPersonality,
+    randomBackstory,
+    randomInventory,
+    randomQuirk,
+    randomSkill,
+    generateStats,
+    generateRandomCharacter,
+  }
 }

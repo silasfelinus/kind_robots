@@ -22,12 +22,17 @@ export function useRandomStats() {
    */
   function generateStats() {
     return {
-      ...defaultStats,
+      statName1: defaultStats.statName1,
       statValue1: roll10d10(),
+      statName2: defaultStats.statName2,
       statValue2: roll10d10(),
+      statName3: defaultStats.statName3,
       statValue3: roll10d10(),
+      statName4: defaultStats.statName4,
       statValue4: roll10d10(),
+      statName5: defaultStats.statName5,
       statValue5: roll10d10(),
+      statName6: defaultStats.statName6,
       statValue6: roll10d10(),
     }
   }

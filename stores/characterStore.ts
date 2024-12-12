@@ -3,9 +3,57 @@ import { reactive, ref } from 'vue'
 import type { Character } from '@prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
-import {useGalleryStore } from '@/stores/galleryStore'
+import { useGalleryStore } from '@/stores/galleryStore'
 import { useRandomCharacterData } from './utils/createRandomCharacter'
 
+type RandomizerKeys =
+  | 'name'
+  | 'honorific'
+  | 'class'
+  | 'genre'
+  | 'species'
+  | 'personality'
+  | 'backstory'
+  | 'inventory'
+  | 'quirks'
+  | 'skills'
+  | 'statName1'
+  | 'statName2'
+  | 'statName3'
+  | 'statName4'
+  | 'statName5'
+  | 'statName6'
+  | 'statValue1'
+  | 'statValue2'
+  | 'statValue3'
+  | 'statValue4'
+  | 'statValue5'
+  | 'statValue6'
+
+type RandomizerReturnType = {
+  name: string
+  honorific: string
+  class: string
+  genre: string
+  species: string
+  personality: string
+  backstory: string
+  inventory: string
+  quirks: string
+  skills: string
+  statName1: string
+  statName2: string
+  statName3: string
+  statName4: string
+  statName5: string
+  statName6: string
+  statValue1: number
+  statValue2: number
+  statValue3: number
+  statValue4: number
+  statValue5: number
+  statValue6: number
+}
 
 export const useCharacterStore = defineStore({
   id: 'characterStore',
@@ -33,82 +81,162 @@ export const useCharacterStore = defineStore({
   },
 
   actions: {
+    randomizerMap: {
+      name: () => useRandomCharacterData().randomName(),
+      honorific: () => useRandomCharacterData().randomHonorific(),
+      class: () => useRandomCharacterData().randomClass(),
+      genre: () => useRandomCharacterData().randomGenre(),
+      species: () => useRandomCharacterData().randomSpecies(),
+      personality: () => useRandomCharacterData().randomPersonality(),
+      backstory: () => useRandomCharacterData().randomBackstory(),
+      inventory: () => useRandomCharacterData().randomInventory(),
+      quirks: () => useRandomCharacterData().randomQuirk(),
+      skills: () => useRandomCharacterData().randomSkill(),
+      statName1: () => 'Luck',
+      statName2: () => 'Swol',
+      statName3: () => 'Wits',
+      statName4: () => 'Flexibility',
+      statName5: () => 'Rizz',
+      statName6: () => 'Empathy',
+      statValue1: () => Math.floor(Math.random() * 100),
+      statValue2: () => Math.floor(Math.random() * 100),
+      statValue3: () => Math.floor(Math.random() * 100),
+      statValue4: () => Math.floor(Math.random() * 100),
+      statValue5: () => Math.floor(Math.random() * 100),
+      statValue6: () => Math.floor(Math.random() * 100),
+    },
     async initialize() {
-  if (this.isInitialized) return
-  this.loading = true
-  try {
-    const savedState = localStorage.getItem('characters')
-    const savedForm = localStorage.getItem('characterForm')
-    const savedGenerated = localStorage.getItem('useGenerated')
+      if (this.isInitialized) return
+      this.loading = true
+      try {
+        const savedState = localStorage.getItem('characters')
+        const savedForm = localStorage.getItem('characterForm')
+        const savedGenerated = localStorage.getItem('useGenerated')
 
-    // Restore characters from local storage
-    if (savedState) {
-      this.characters = JSON.parse(savedState) as Character[]
-    }
+        // Restore characters from local storage
+        if (savedState) {
+          this.characters = JSON.parse(savedState) as Character[]
+        }
 
-    // Restore character form from local storage
-    if (savedForm) {
-      this.characterForm = JSON.parse(savedForm)
-    } else {
-      // Generate default randomized character if no saved form exists
-      Object.assign(this.characterForm, useRandomCharacterData().generateRandomCharacter())
-    }
+        // Restore character form from local storage
+        if (savedForm) {
+          this.characterForm = JSON.parse(savedForm)
+        } else {
+          // Generate default randomized character if no saved form exists
+          Object.assign(
+            this.characterForm,
+            useRandomCharacterData().generateRandomCharacter(),
+          )
+        }
 
-    // Restore "useGenerated" state
-    if (savedGenerated) {
-      this.useGenerated = JSON.parse(savedGenerated)
-    }
+        // Restore "useGenerated" state
+        if (savedGenerated) {
+          this.useGenerated = JSON.parse(savedGenerated)
+        }
 
-    // Fetch characters from API (ensures state is updated with server data)
-    await this.fetchCharacters()
+        // Fetch characters from API (ensures state is updated with server data)
+        await this.fetchCharacters()
 
-    this.isInitialized = true
-  } catch (error) {
-    handleError(error, 'initializing character store')
-  } finally {
-    this.loading = false
-  }
-},
+        this.isInitialized = true
+      } catch (error) {
+        handleError(error, 'initializing character store')
+      } finally {
+        this.loading = false
+      }
+    },
+    getRandomValue(
+      key: RandomizerKeys,
+    ): RandomizerReturnType[RandomizerKeys] | null {
+      const randomizers = useRandomCharacterData()
 
-async generateRandomCharacter() {
-    try {
-      // Generate random fields using a utility function
-      const randomCharacterData = useRandomCharacterData().generateRandomCharacter()
-
-      // Fetch a random image from the selected gallery via artStore
-      const galleryStore = useGalleryStore()
-      const randomGalleryImage = await galleryStore.changeToRandomImage()
-
-      // Generate random stats
-      const randomStats = this.rerollStats()
-
-      // Combine all data into the character form
-      this.characterForm = {
-        ...randomCharacterData,
-        ...randomStats,
-        imagePath: randomGalleryImage || '/images/bot.webp', // Fallback to a default image
-        isPublic: true,
+      const randomizerMap: Record<RandomizerKeys, () => string | number> = {
+        name: randomizers.randomName,
+        honorific: randomizers.randomHonorific,
+        class: randomizers.randomClass,
+        genre: randomizers.randomGenre,
+        species: randomizers.randomSpecies,
+        personality: randomizers.randomPersonality,
+        backstory: randomizers.randomBackstory,
+        inventory: randomizers.randomInventory,
+        quirks: randomizers.randomQuirk,
+        skills: randomizers.randomSkill,
+        statName1: () => 'Luck',
+        statName2: () => 'Swol',
+        statName3: () => 'Wits',
+        statName4: () => 'Flexibility',
+        statName5: () => 'Rizz',
+        statName6: () => 'Empathy',
+        statValue1: () => Math.floor(Math.random() * 100),
+        statValue2: () => Math.floor(Math.random() * 100),
+        statValue3: () => Math.floor(Math.random() * 100),
+        statValue4: () => Math.floor(Math.random() * 100),
+        statValue5: () => Math.floor(Math.random() * 100),
+        statValue6: () => Math.floor(Math.random() * 100),
       }
 
-      this.generatedCharacter = { ...this.characterForm } // Save to generatedCharacter for reference
-    } catch (error) {
-      handleError(error, 'generating random character')
-    }
-  },
-  async fetchCharacterRewards(characterId: number) {
-    try {
-      const response = await performFetch(`/api/rewards/character/${characterId}`)
-      if (response.success && response.data) {
-        return response.data // Return the fetched rewards
+      if (randomizerMap[key]) {
+        const randomValue = randomizerMap[key]()
+        console.log(`Randomized value for "${key}":`, randomValue)
+        return randomValue
       } else {
-        throw new Error(response.message || 'Failed to fetch character rewards.')
+        console.warn(`No randomizer found for key: "${key}"`)
+        return null
       }
-    } catch (error) {
-      handleError(error, 'fetching character rewards')
-      return [] // Return an empty array in case of failure
-    }
-  },
-  
+    },
+
+    updateFieldWithRandomValue<K extends RandomizerKeys>(field: K) {
+      if (!this.randomizerMap[field]) {
+        console.warn(`Randomizer for "${field}" is not defined.`)
+        return
+      }
+
+      const randomValue = this.randomizerMap[field]()
+      this.characterForm[field] = randomValue as Character[K]
+    },
+
+    async generateRandomCharacter() {
+      try {
+        // Generate random fields using a utility function
+        const randomCharacterData =
+          useRandomCharacterData().generateRandomCharacter()
+
+        // Fetch a random image from the selected gallery via artStore
+        const galleryStore = useGalleryStore()
+        const randomGalleryImage = await galleryStore.changeToRandomImage()
+
+        // Generate random stats
+        const randomStats = this.rerollStats()
+
+        // Combine all data into the character form
+        this.characterForm = {
+          ...randomCharacterData,
+          ...randomStats,
+          imagePath: randomGalleryImage || '/images/bot.webp', // Fallback to a default image
+          isPublic: true,
+        }
+
+        this.generatedCharacter = { ...this.characterForm } // Save to generatedCharacter for reference
+      } catch (error) {
+        handleError(error, 'generating random character')
+      }
+    },
+    async fetchCharacterRewards(characterId: number) {
+      try {
+        const response = await performFetch(
+          `/api/rewards/character/${characterId}`,
+        )
+        if (response.success && response.data) {
+          return response.data // Return the fetched rewards
+        } else {
+          throw new Error(
+            response.message || 'Failed to fetch character rewards.',
+          )
+        }
+      } catch (error) {
+        handleError(error, 'fetching character rewards')
+        return [] // Return an empty array in case of failure
+      }
+    },
 
     syncToLocalStorage() {
       try {

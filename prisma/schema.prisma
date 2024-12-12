@@ -185,17 +185,17 @@ model Character {
 
   // Main Stats
   statName1       String?        @default("Luck")
-  statValue1      Int?           @default(9)
+  statValue1      Int?           @default(59)
   statName2       String?        @default("Swol")
-  statValue2      Int?           @default(9)
+  statValue2      Int?           @default(49)
   statName3       String?        @default("Wits")
-  statValue3      Int?           @default(9)
+  statValue3      Int?           @default(72)
   statName4       String?        @default("Flexibilty")
-  statValue4      Int?           @default(9)
+  statValue4      Int?           @default(93)
   statName5       String?        @default("Rizz")
   statValue5      Int?           @default(9)
   statName6       String?        @default("Empathy")
-  statValue6      Int?           @default(9)
+  statValue6      Int?           @default(71)
 
   // Goal Stats
   goalStat1Name   String?        @default("Principled|Chaotic") //currently unused

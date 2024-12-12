@@ -4,7 +4,7 @@ import { useCharacterStore } from './characterStore'
 import { useUserStore } from './userStore'
 import { performFetch, handleError } from './utils'
 import type { Chat } from '@prisma/client'
-import { sceneChoices } from '@/utils/sceneChoices'
+import { scenenarios } from '@/utils/sceneChoices'
 
 export const useWeirdStore = defineStore({
   id: 'weird',

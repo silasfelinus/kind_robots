@@ -110,7 +110,14 @@ export function useRandomHonorific() {
   ]
 
   function randomHonorific() {
-    return honorifics[Math.floor(Math.random() * honorifics.length)]
+    const randomIndex = Math.floor(Math.random() * honorifics.length)
+    const selectedHonorific = honorifics[randomIndex]
+
+    // Log the random index and selected honorific for debugging
+    console.log('Random Honorific Index:', randomIndex)
+    console.log('Selected Honorific:', selectedHonorific)
+
+    return selectedHonorific
   }
 
   return { randomHonorific }

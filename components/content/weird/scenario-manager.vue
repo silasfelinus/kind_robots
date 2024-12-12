@@ -5,7 +5,9 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Scenario Maker -->
       <div class="bg-base-300 p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-600 mb-4">Create/Edit Scenario</h2>
+        <h2 class="text-xl font-bold text-gray-600 mb-4">
+          Create/Edit Scenario
+        </h2>
         <scenario-maker />
       </div>
 
@@ -32,9 +34,8 @@
 </template>
 
 <script setup>
-import { useScenarioStore } from '@/stores/scenarioStore';
-
+import { useScenarioStore } from '@/stores/scenarioStore'
 
 // Store
-const scenarioStore = useScenarioStore();
+const scenarioStore = useScenarioStore()
 </script>

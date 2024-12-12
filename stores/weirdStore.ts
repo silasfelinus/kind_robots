@@ -78,9 +78,13 @@ export const useWeirdStore = defineStore({
 
     populateCurrentOptions() {
       if (this.initialChoices.length > 0) {
-        this.currentOptions = this.initialChoices.flatMap((choice) => choice.intros)
+        this.currentOptions = this.initialChoices.flatMap(
+          (choice) => choice.intros,
+        )
       } else {
-        console.warn('No initial choices available to populate current options.')
+        console.warn(
+          'No initial choices available to populate current options.',
+        )
       }
       this.saveToLocalStorage()
     },
@@ -98,7 +102,7 @@ export const useWeirdStore = defineStore({
         const userStore = useUserStore()
         const chatStore = useChatStore()
 
-        const introContent = `You are ${character.name ?? 'Unknown'}, a ${character.species ?? 'mysterious being'} ${character.class ?? 'adventurer'}, entering the setting: ${setting}.`
+        const introContent = `You are ${character.name ?? 'Unknown'} the ${character.honorific}, a ${character.species ?? 'mysterious being'} ${character.class ?? 'adventurer'}, entering the setting: ${setting}.`
 
         const newChat = await chatStore.addChat({
           content: introContent,

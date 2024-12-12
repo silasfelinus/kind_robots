@@ -462,7 +462,7 @@ model Scenario {
   User          User       @relation(fields: [userId], references: [id])
   Characters    Character[]
   artImageId    Int?
-  ArtImage      ArtImage?
+  ArtImage      ArtImage?      @relation(fields: [artImageId], references: [id])
   imagePath     String?
   locations      String?
 

@@ -458,6 +458,7 @@ model Scenario {
   title         String
   description   String
   intros        String
+  genres        String?
   userId        Int
   User          User       @relation(fields: [userId], references: [id])
   Characters    Character[]
@@ -466,7 +467,6 @@ model Scenario {
   imagePath     String?
   locations     String?
   artPrompt     String?
-
 }
 
 model Tag {

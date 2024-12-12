@@ -1,3 +1,5 @@
+//utils/sceneChoices.ts
+
 export const scenarios = [
   {
     title: "Serendipity",

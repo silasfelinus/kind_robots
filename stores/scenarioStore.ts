@@ -4,11 +4,14 @@ import { reactive, ref } from 'vue';
 import type { Scenario } from '@prisma/client';
 import { performFetch, handleError } from '@/stores/utils';
 
+// Example seed data for `sceneChoices`
+import { sceneChoices } from '@/utils/sceneChoices';
+
 export const useScenarioStore = defineStore({
   id: 'scenarioStore',
 
   state: () => ({
-    scenarios: [] as Scenario[],
+    scenarios: [] as Scenario[], // This will be populated with either seed data or fetched data
     selectedScenario: null as Scenario | null,
     scenarioForm: {} as Partial<Scenario>,
     isSaving: false,
@@ -32,9 +35,14 @@ export const useScenarioStore = defineStore({
         const savedState = localStorage.getItem('scenarios');
         const savedForm = localStorage.getItem('scenarioForm');
 
-        // Restore scenarios from local storage
+        // Restore scenarios from local storage if available
         if (savedState) {
           this.scenarios = JSON.parse(savedState) as Scenario[];
+        }
+
+        // If no scenarios are found, populate with seed data
+        if (this.scenarios.length === 0) {
+          this.populateInitialScenarios();
         }
 
         // Restore scenario form from local storage
@@ -42,7 +50,7 @@ export const useScenarioStore = defineStore({
           this.scenarioForm = JSON.parse(savedForm);
         }
 
-        // Fetch scenarios from API
+        // Fetch scenarios from API if needed (e.g., for updating with real data)
         await this.fetchScenarios();
 
         this.isInitialized = true;
@@ -51,6 +59,17 @@ export const useScenarioStore = defineStore({
       } finally {
         this.loading = false;
       }
+    },
+
+    // Populate initial scenarios with seed data
+    populateInitialScenarios() {
+      this.scenarios = sceneChoices.map((choice) => ({
+        ...choice,
+        id: Math.floor(Math.random() * 10000), // Generate a random ID or replace with real IDs
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }));
+      this.syncToLocalStorage();
     },
 
     syncToLocalStorage() {

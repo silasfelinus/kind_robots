@@ -78,6 +78,7 @@ model ArtImage {
   Resource       Resource?           @relation(fields: [resourceId], references: [id])
   Reward         Reward?           @relation(fields: [rewardId], references: [id])
   Tag            Tag?          @relation(fields: [tagId], references: [id])
+  Scenarios      Scenario[]
 
   @@index([galleryId], map: "ArtImage_galleryId_fkey")
   @@index([userId], map: "ArtImage_userId_fkey")
@@ -213,6 +214,7 @@ model Character {
   User            User          @relation(fields: [userId], references: [id])
   Rewards         Reward[]
   Chats           Chat[]
+  Scenarios       Scenario[]
 }
 
 
@@ -449,6 +451,23 @@ model Reward {
   @@index([userId], map: "Reward_userId_fkey")
 }
 
+model Scenario {
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @default(now()) @updatedAt
+  title         String
+  description   String
+  intros        String
+  userId        Int
+  User          User       @relation(fields: [userId], references: [id])
+  Characters    Character[]
+  artImageId    Int?
+  ArtImage      ArtImage?
+  imagePath     String?
+  locations      String?
+
+}
+
 model Tag {
   id         Int         @id @default(autoincrement())
   createdAt  DateTime    @default(now())
@@ -521,6 +540,7 @@ model User {
   Resources      Resource[]
   Rewards        Reward[]
   Tags           Tag[]
+  Scenarios      Scenario[]
 }
 
 model ReactionToTag {

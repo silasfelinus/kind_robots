@@ -5,7 +5,7 @@ import type { Scenario } from '@prisma/client';
 import { performFetch, handleError } from '@/stores/utils';
 
 // Example seed data for `sceneChoices`
-import { sceneChoices } from '@/utils/sceneChoices';
+import { scenarios } from '@/utils/sceneChoices';
 
 export const useScenarioStore = defineStore({
   id: 'scenarioStore',
@@ -63,7 +63,7 @@ export const useScenarioStore = defineStore({
 
     // Populate initial scenarios with seed data
     populateInitialScenarios() {
-      this.scenarios = sceneChoices.map((choice) => ({
+      this.scenarios = scenarios.map((choice) => ({
         ...choice,
         id: Math.floor(Math.random() * 10000), // Generate a random ID or replace with real IDs
         createdAt: new Date(),

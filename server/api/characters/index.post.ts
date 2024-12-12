@@ -77,6 +77,7 @@ export default defineEventHandler(async (event) => {
       artPrompt: characterData.artPrompt || null,
       artImageId: characterData.artImageId || null,
       Rewards: rewardsConnect ? { connect: rewardsConnect } : undefined, // Add rewards
+      imagePath: characterData.imagePath || null,
     }
 
     // Create the character and return a success response

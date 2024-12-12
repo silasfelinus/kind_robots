@@ -23,6 +23,7 @@
       <h2 class="text-xl font-bold text-gray-600 mb-4">Selected Scenario</h2>
       <div class="flex flex-col md:flex-row md:items-center gap-4">
         <scenario-selector class="flex-1" />
+
         <scenario-card
           v-if="scenarioStore.selectedScenario"
           :scenario="scenarioStore.selectedScenario"

@@ -18,6 +18,7 @@ import { usePromptStore } from './../../../stores/promptStore'
 import { useReactionStore } from './../../../stores/reactionStore'
 import { useRewardStore } from './../../../stores/rewardStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
+import { useScenarioStore } from './../../../stores/scenarioStore'
 
 // Stores
 const errorStore = useErrorStore()
@@ -34,6 +35,7 @@ const rewardStore = useRewardStore()
 const chatStore = useChatStore()
 const characterStore = useCharacterStore()
 const galleryStore = useGalleryStore()
+const scenarioStore = useScenarioStore()
 
 // State management
 const isReady = ref(false)
@@ -64,7 +66,8 @@ onMounted(async () => {
       reactionStore.initializeReactions?.(),
       rewardStore.initializeStore?.(),
       characterStore.initialize?.(),
-galleryStore.initializeStore?.(),
+      galleryStore.initializeStore?.(),
+      scenarioStore.initialize?.(),
     ])
 
     console.log('All stores initialized successfully.')

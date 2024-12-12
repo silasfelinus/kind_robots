@@ -22,8 +22,10 @@ const galleryStore = useGalleryStore()
 // Local state for selected gallery
 const selectedGallery = ref<string>('')
 
-// Get all gallery names from the store
-const galleryNames = computed(() => galleryStore.allGalleryNames)
+// Filter out the gallery with ID 21 and get the names of all remaining galleries
+const galleryNames = computed(() =>
+  galleryStore.allGalleryNames.filter(gallery => gallery.id !== 21)
+)
 
 // When component is mounted, set the selectedGallery to the current one or default
 onMounted(() => {

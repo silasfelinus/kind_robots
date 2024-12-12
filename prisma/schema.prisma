@@ -464,7 +464,8 @@ model Scenario {
   artImageId    Int?
   ArtImage      ArtImage?      @relation(fields: [artImageId], references: [id])
   imagePath     String?
-  locations      String?
+  locations     String?
+  artPrompt     String?
 
 }
 

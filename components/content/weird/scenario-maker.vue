@@ -47,7 +47,7 @@
           />
           <img
             v-else
-            src="/images/scenario-placeholder.webp"
+            src="/images/scenarios/mystery.webp"
             alt="Default Scenario"
             class="object-cover w-48 h-64 rounded-lg"
           />

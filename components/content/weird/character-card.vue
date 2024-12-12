@@ -152,7 +152,7 @@ const isSelected = computed(
 )
 const displayName = computed(() =>
   character.name
-    ? `${character.name} ${character.honorific || ''}`.trim()
+    ? `${character.name} the ${character.honorific || ''}`.trim()
     : 'Unnamed Hero',
 )
 const computedCharacterImage = computed(() => {

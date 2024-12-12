@@ -4,7 +4,7 @@ import { useCharacterStore } from './characterStore'
 import { useUserStore } from './userStore'
 import { performFetch, handleError } from './utils'
 import type { Chat } from '@prisma/client'
-import { sceneChoices } from '@/utils/sceneChoices'
+import { scenarios } from '@/utils/sceneChoices'
 
 export const useWeirdStore = defineStore({
   id: 'weird',
@@ -17,7 +17,7 @@ export const useWeirdStore = defineStore({
     mode: 'adventure' as 'adventure' | 'chat' | 'setting',
     loading: false,
     initialized: false,
-    initialChoices: [] as typeof sceneChoices, // Predefined settings
+    initialChoices: [] as typeof scenarios, // Predefined settings
     currentOptions: [] as string[], // Current intro options
   }),
 
@@ -72,19 +72,17 @@ export const useWeirdStore = defineStore({
     },
 
     populateInitialChoices() {
-      this.initialChoices = sceneChoices
+      this.initialChoices = scenarios // Use the scenarios array
       this.saveToLocalStorage()
     },
 
     populateCurrentOptions() {
       if (this.initialChoices.length > 0) {
-        this.currentOptions = this.initialChoices.flatMap(
-          (choice) => choice.intros,
+        this.currentOptions = this.initialChoices.flatMap((choice) =>
+          JSON.parse(choice.intros) // Parse intros from JSON format
         )
       } else {
-        console.warn(
-          'No initial choices available to populate current options.',
-        )
+        console.warn('No initial choices available to populate current options.')
       }
       this.saveToLocalStorage()
     },
@@ -93,16 +91,17 @@ export const useWeirdStore = defineStore({
       try {
         this.loading = true
 
-        const characterStore = useCharacterStore()
-        const character = characterStore.characters.find(
-          (char) => char.id === characterId,
+        const selectedScenario = this.initialChoices.find(
+          (scenario) => scenario.title === setting,
         )
-        if (!character) throw new Error('Character not found.')
+        if (!selectedScenario) {
+          throw new Error('Selected scenario not found.')
+        }
+
+        const introContent = `Welcome to ${selectedScenario.title}. ${selectedScenario.description}`
 
         const userStore = useUserStore()
         const chatStore = useChatStore()
-
-        const introContent = `You are ${character.name ?? 'Unknown'} the ${character.honorific}, a ${character.species ?? 'mysterious being'} ${character.class ?? 'adventurer'}, entering the setting: ${setting}.`
 
         const newChat = await chatStore.addChat({
           content: introContent,
@@ -178,13 +177,21 @@ export const useWeirdStore = defineStore({
       this.saveToLocalStorage()
     },
 
-    loadFromLocalStorage(this: typeof useWeirdStore.prototype) {
+    loadFromLocalStorage() {
       if (typeof window === 'undefined') return
 
       const savedState = localStorage.getItem('weirdState')
       if (savedState) {
         try {
-          const parsedState = JSON.parse(savedState) as Partial<typeof this>
+          const parsedState = JSON.parse(savedState)
+          if (parsedState.initialChoices) {
+            parsedState.initialChoices = parsedState.initialChoices.map(
+              (choice: any) => ({
+                ...choice,
+                intros: JSON.stringify(choice.intros),
+              }),
+            )
+          }
           Object.assign(this, parsedState)
         } catch (error) {
           handleError(

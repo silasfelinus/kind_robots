@@ -32,10 +32,8 @@
       </h2>
       <div class="grid gap-4">
         <!-- Freeze Art Prompt Toggle -->
-        <CheckboxToggle
-          v-model="keepArtPrompt"
-          label="Freeze Art Prompt"
-        />
+        <CheckboxToggle v-model="keepArtPrompt" label="Freeze Art Prompt" />
+        <scenario-uploader @uploaded="handleUploadedArtImage" />
 
         <!-- Scenario Image Preview -->
         <div class="flex justify-center">
@@ -89,88 +87,98 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useScenarioStore } from '@/stores/scenarioStore';
-import { useGalleryStore } from '@/stores/galleryStore';
-import { useArtStore } from '@/stores/artStore';
+import { ref, computed } from 'vue'
+import { useScenarioStore } from '@/stores/scenarioStore'
+import { useGalleryStore } from '@/stores/galleryStore'
+import { useArtStore } from '@/stores/artStore'
 
-const scenarioStore = useScenarioStore();
-const galleryStore = useGalleryStore();
-const artStore = useArtStore();
+const scenarioStore = useScenarioStore()
+const galleryStore = useGalleryStore()
+const artStore = useArtStore()
 
-const isGeneratingArt = ref(false);
-const isSaving = ref(false);
-const keepArtPrompt = ref(false);
-const defaultPlaceholder = '/images/scenario-placeholder.webp';
+const isGeneratingArt = ref(false)
+const isSaving = ref(false)
+const keepArtPrompt = ref(false)
+const defaultPlaceholder = '/images/scenario-placeholder.webp'
 
-// Reactive form for scenario
-const scenarioForm = ref({
+const scenarioForm = ref<{
+  title: string
+  description: string
+  locations: string
+  artPrompt: string
+  imagePath: string | null
+  artImageId: number | null
+}>({
   title: '',
   description: '',
   locations: '',
   artPrompt: '',
   imagePath: null,
   artImageId: null,
-});
+})
 
 // Computed property for resolving the scenario's active image
 const resolvedActiveImage = computed(() => {
-  return scenarioForm.value.imagePath || defaultPlaceholder;
-});
+  return scenarioForm.value.imagePath || defaultPlaceholder
+})
 
 // Method: Generate art for the scenario
 async function generateArtImage() {
   if (!scenarioForm.value.artPrompt) {
-    alert('Please provide an art prompt to generate art.');
-    return;
+    alert('Please provide an art prompt to generate art.')
+    return
   }
 
-  isGeneratingArt.value = true;
+  isGeneratingArt.value = true
   try {
     const response = await artStore.generateArt({
       promptString: scenarioForm.value.artPrompt,
       title: scenarioForm.value.title || 'Untitled Scenario',
       collection: 'scenarios',
-    });
+    })
 
     if (response.success && response.data) {
-      scenarioForm.value.imagePath = null;
-      scenarioForm.value.artImageId = response.data.artImageId;
+      scenarioForm.value.imagePath = null
+      scenarioForm.value.artImageId = response.data.artImageId
     } else {
-      throw new Error('Art generation failed.');
+      throw new Error('Art generation failed.')
     }
   } catch (error) {
-    console.error('Error generating art:', error);
+    console.error('Error generating art:', error)
   } finally {
-    isGeneratingArt.value = false;
+    isGeneratingArt.value = false
   }
 }
 
 // Method: Select a random image from the gallery
 async function changeToRandomImage() {
   try {
-    const randomImage = await galleryStore.changeToRandomImage();
+    const randomImage = await galleryStore.changeToRandomImage()
     if (randomImage) {
-      scenarioForm.value.imagePath = randomImage;
+      scenarioForm.value.imagePath = randomImage
     } else {
-      console.error('Failed to pick a random image.');
+      console.error('Failed to pick a random image.')
     }
   } catch (error) {
-    console.error('Error picking random image:', error);
+    console.error('Error picking random image:', error)
   }
+}
+
+function handleUploadedArtImage(id: number) {
+  scenarioForm.value.artImageId = id
 }
 
 // Method: Save the scenario
 async function saveScenario() {
   if (!scenarioForm.value.title) {
-    alert('Please provide a title for the scenario.');
-    return;
+    alert('Please provide a title for the scenario.')
+    return
   }
 
-  isSaving.value = true;
+  isSaving.value = true
   try {
-    await scenarioStore.createScenario(scenarioForm.value);
-    alert('Scenario saved successfully!');
+    await scenarioStore.createScenario(scenarioForm.value)
+    alert('Scenario saved successfully!')
     scenarioForm.value = {
       title: '',
       description: '',
@@ -178,11 +186,11 @@ async function saveScenario() {
       artPrompt: '',
       imagePath: null,
       artImageId: null,
-    };
+    }
   } catch (error) {
-    console.error('Error saving scenario:', error);
+    console.error('Error saving scenario:', error)
   } finally {
-    isSaving.value = false;
+    isSaving.value = false
   }
 }
 </script>

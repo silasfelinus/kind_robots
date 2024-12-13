@@ -15,15 +15,17 @@ export const scenarios = [
     imagePath: '/images/scenarios/space.webp',
     locations:
       'floating carnival of portals, glass maze of forgotten gods, time-frozen auction house, bazaar of lost memories',
-    artPrompt:
-      'kaleidoscopic bazaar, floating stalls, fantastical creatures, vibrant lights, surreal architecture',
+    artPrompt: `Serendipity is a surreal bazaar floating through a realm where logic is optional and the bizarre is celebrated. Picture a market with stalls that rearrange themselves every few minutes, selling "invisible umbrellas" that only work when you're not looking at them, and magical trinkets that seem to have no real use but always turn out useful. The sky pulses in unnatural hues, swirling with neon pinks and blues, while the cobblestone paths change direction based on your thoughts. Trees hum nursery rhymes but only in reverse, and flying jellyfish occasionally serve as streetlights.
+
+Time flows strangely here — a minute can stretch into hours, or the past and future may swap places at random. Shopkeepers who are also floating shadows or talking animals trade goods with riddles, offering advice on what you didn’t know you needed. The air smells faintly of cinnamon and stardust, and the stars in the sky rearrange themselves into new constellations every time you blink. There’s a constant hum of unseen magic, and in the distance, a dragon roars from the confines of a too-small teacup, its wings too large for its current reality.
+
+In Serendipity, the world constantly unfolds itself in unexpected and delightful ways — chaos and beauty live hand in hand, and every corner hides a new, absurd surprise.`,
     artImageId: null,
   },
   {
     title: 'Super Dungeon Coliseum',
     genres: 'action, fantasy, horror',
-    description:
-      'A deadly dungeon-crawling coliseum where adventurers battle for fame and survival.',
+    description: `The roar of the crowd echoes through a massive coliseum built into the depths of a living dungeon. Adventurers like you enter the arena, not for fame, but for survival. Chains rattle, gates creak open, and the dungeon itself comes alive, ready to devour or reward those bold enough to challenge its twisted games. Blood-stained labyrinths and cryptic arenas filled with sentient shadows await, each trial more dangerous than the last. Will you conquer the molten gold crypt or survive the cursed forge of champions? Prepare yourself, as the dungeon does not forgive—and neither do its ferocious guardians.`,
     intros: JSON.stringify([
       'The roar of the crowd greets you as you step into the massive arena.',
       'Chains rattle, gates creak open, and your name echoes across the coliseum.',
@@ -33,15 +35,15 @@ export const scenarios = [
     imagePath: '/images/scenarios/dungeon.webp',
     locations:
       'blood-stained labyrinth, arena of sentient shadows, molten gold crypt, cursed forge of champions',
-    artPrompt:
-      'coliseum, dungeon, glowing glyphs, chains, menacing monsters, roaring crowd',
+    artPrompt: `A dark, foreboding coliseum with glowing glyphs, chains, and menacing monsters. The arena is alive with twisted architecture and ominous shadows, creating an atmosphere of deadly challenge.
+
+`,
     artImageId: null,
   },
   {
     title: 'Absurd Musical Murder Mystery',
     genres: 'mystery, comedy, thriller',
-    description:
-      'A whimsical murder mystery where everyone sings their alibis—and maybe their motives.',
+    description: `Enter a whimsical world where murder, music, and mystery collide in a cacophony of melodies and mayhem. The crime scene is a bizarre mansion where suspects sing their alibis, and everyone seems to be in on the act—whether they know it or not. An eccentric detective with a ukulele greets you as you step into the investigation, and the house itself seems to have a rhythm of its own. As the characters burst into spontaneous songs, you must untangle the clues hidden in their harmonies and solve the mystery before the final note. The ballroom shifts identities with each beat, and hidden secrets come to light through surreal jazz rhythms and forgotten melodies.`,
     intros: JSON.stringify([
       'The scene opens with a crescendo as suspects burst into an accusatory melody.',
       'You arrive at the crime scene, greeted by an eccentric detective with a ukulele.',
@@ -51,15 +53,13 @@ export const scenarios = [
     imagePath: '/images/scenarios/mystery.webp',
     locations:
       'haunted orchestra pit, jazz speakeasy frozen in time, ballroom of shifting identities, detective’s underwater piano lounge',
-    artPrompt:
-      'whimsical mansion, eccentric costumes, suspects singing, grand piano, vibrant colors',
+    artPrompt: `A whimsical mansion where suspects sing their alibis, eccentric costumes swirl, and a grand piano looms in a colorful, vibrant setting. Floating musical notes and strange instruments populate the scene, contributing to the odd atmosphere of the murder mystery.`,
     artImageId: null,
   },
   {
     title: 'Cartoon Crossroads',
     genres: 'dark comedy, surrealism, horror',
-    description:
-      'A twisted animated world where the rules of physics and morality are up for grabs.',
+    description: `Step into a chaotic animated world where the laws of physics and morality are as fluid as the ink that brings the characters to life. In this bizarre realm, you’ll encounter talking animals with sharp teeth, slapstick humor with a sinister twist, and vibrant, surreal landscapes where gravity is optional. A banana peel may seem like a harmless joke until it hurls you into a dark, twisted corner of this animated universe. It's a land where the cartoons' chaotic laws rule and where escaping may not be as easy—or as funny—as you think. Unravel the mysteries of the shadowed toontown underbelly and uncover what lies beneath the laughter.`,
     intros: JSON.stringify([
       'A portal drags you into a realm of talking animals with sharp teeth and sharper tongues.',
       'You trip on a banana peel and tumble into a world where slapstick hides dark secrets.',
@@ -69,15 +69,13 @@ export const scenarios = [
     imagePath: '/images/scenarios/cartoon.webp',
     locations:
       'abandoned carnival of broken animatronics, shadowed toontown underbelly, sentient sketchbook prison, looping cartoon graveyard',
-    artPrompt:
-      'dark cartoon world, eerie humor, talking animals with sharp edges, surreal landscapes, chaotic physics',
+    artPrompt: `A dark cartoon world brimming with eerie humor. Talking animals with sharp edges, surreal landscapes, and chaotic physics bring this twisted reality to life. An abandoned carnival of broken animatronics and a looping cartoon graveyard set the stage for an adventure where nothing is as it seems.`,
     artImageId: null,
   },
   {
     title: 'Cyberpunk Dreamscape',
     genres: 'cyberpunk, fantasy, pop culture',
-    description:
-      'A neon-soaked cityscape where global cultures collide in a digital dreamworld.',
+    description: `Dive into a neon-soaked cityscape where the boundaries between the real world and a digital dreamland blur. A place where global cultures collide and reality is no longer a fixed concept. As you plug into the dreamscape, you're greeted with a pulsating web of holographic billboards, glowing streets, and virtual markets filled with impossible goods. A mysterious hacker offers a dangerous proposition that pulls you deeper into the chaotic underworld of this cyberpunk fantasy. Here, identities are malleable, and the digital realm may be the only place where you can escape the gritty reality of the streets.`,
     intros: JSON.stringify([
       'The city lights blur as you plug into the dreamscape for the first time.',
       'A mysterious hacker contacts you with a dangerous proposition.',
@@ -87,15 +85,13 @@ export const scenarios = [
     imagePath: '/images/scenarios/cyberpunk-dreamscape.webp',
     locations:
       'neon temple of lost avatars, glitching dancefloor skyscraper, ramen market of parallel realities, AR bazaar of impossible goods',
-    artPrompt:
-      'neon-lit city, holographic billboards, rain-slick streets, cultural mashups, futuristic chaos',
+    artPrompt: `A neon-lit city, drenched in rain, teeming with cultural mashups and futuristic chaos. Holographic billboards flicker against the backdrop of glitching skyscrapers, where the lines between dream and reality are dangerously thin. Navigate this digital underworld where illusion and truth are perpetually intertwined.`,
     artImageId: null,
   },
   {
     title: 'Mythic Frontier',
     genres: 'fantasy, western, mystery',
-    description:
-      'An untamed wilderness where mythic creatures roam and heroes forge their legacy.',
+    description: `Venture into the untamed wilderness where mythic creatures roam freely, and legendary heroes carve their destinies. The golden sun rises over a vast frontier, casting long shadows across forgotten ruins. In this wild, sprawling land, you’ll uncover secrets buried deep within ancient structures and face threats that are as old as the earth itself. A dragon’s shadow looms overhead, or perhaps it’s something even more ancient, waiting for the right adventurer to face it. The frontier calls, but it’s up to you to decide if you’re ready to brave its mysteries and dangers.`,
     intros: JSON.stringify([
       'The golden sun rises over an endless frontier of mystery and danger.',
       'You stumble upon an ancient ruin, its secrets waiting to be uncovered.',
@@ -105,14 +101,13 @@ export const scenarios = [
     imagePath: '/images/scenarios/mythic-frontier.webp',
     locations:
       'ghostly saloon of forgotten heroes, dragon bone canyon, griffin roost gold mine, frontier town frozen in myth',
-    artPrompt:
-      'wild west, mythic creatures, griffins, golden-hour light, ancient ruins',
+    artPrompt: `A wild west-inspired world where mythic creatures like griffins and dragons roam freely. Golden-hour light bathes ancient ruins, and the untamed frontier stretches out endlessly. Journey through dragon bone canyons and ghostly saloons where forgotten heroes once stood.`,
     artImageId: null,
   },
   {
     title: 'Time Travelers’ Convergence',
     genres: 'sci-fi, historical, surreal',
-    description: 'A nexus where travelers from all times and places meet.',
+    description: `Enter a nexus where travelers from all timelines, both real and imagined, converge. Ancient Romans walk alongside futuristic astronauts, Victorian inventors chat with prehistoric hunters, and the very fabric of time seems to unravel. You arrive at the nexus and are handed a mysterious device that might be the key to understanding the convergence—or the cause of the chaos. As time bends and warps around you, you’ll face choices that could change the course of history itself. The past, present, and future collide, and the timeline itself is on the verge of collapse.`,
     intros: JSON.stringify([
       'You arrive at the nexus, surrounded by figures from history, myth, and beyond.',
       'An inventor from the future hands you a mysterious device, its purpose unknown.',
@@ -122,15 +117,13 @@ export const scenarios = [
     imagePath: '/images/scenarios/time-travelers-convergence.webp',
     locations:
       'Roman colosseum with holograms, Victorian clockwork airship, prehistoric jungle with time rifts, futuristic museum of all timelines',
-    artPrompt:
-      'time nexus, glowing portals, Roman soldier, futuristic astronaut, kaleidoscopic worlds',
+    artPrompt: `A kaleidoscope of time and space, where glowing portals swirl around Roman soldiers, futuristic astronauts, and lost souls from every era. A time nexus where history itself seems to buckle under the weight of countless timelines converging in a cosmic dance. Step into this world and decide how you’ll shape the future.`,
     artImageId: null,
   },
   {
     title: 'Underwater Odyssey',
     genres: 'sci-fi, fantasy, exploration',
-    description:
-      'A deep-sea adventure where wonders and terrors lurk in the depths.',
+    description: `Dive into the depths of the ocean where the mysteries of the deep are both beautiful and terrifying. As you plunge into the abyss, bioluminescent creatures light your path, revealing the wonders that lie beneath the surface. But as you explore, something ancient stirs in the darkness, and the ocean’s pulse quickens. Will you survive the deadly creatures that lurk in the depths? Join an expedition where the seas hold secrets older than civilization itself, and each dive leads you closer to the unknown.`,
     intros: JSON.stringify([
       'You dive into the abyss, where bioluminescent creatures light your path.',
       'A submarine beckons, its captain offering a once-in-a-lifetime expedition.',
@@ -140,16 +133,14 @@ export const scenarios = [
     imagePath: '/images/scenarios/underwater-odyssey.webp',
     locations:
       'glowing coral metropolis, trenches of ancient leviathans, underwater volcanic caverns, sunken library of forgotten civilizations',
-    artPrompt:
-      'bioluminescent reef, glowing sea creatures, ancient ruins, mysterious shadows, underwater',
+    artPrompt: `Explore a glowing, bioluminescent reef filled with alien-like creatures. Ancient ruins of forgotten civilizations rise from the ocean floor, and vast underwater caves open to the mysteries of the deep. The shadows hide unknown terrors as the ocean's heartbeat echoes through the currents.`,
     artImageId: null,
   },
 
   {
     title: 'Space Couch',
     genres: 'fantasy, surrealism, comedy',
-    description:
-      'A magic couch that takes you to alien lands when you lose your phone in its folds.',
+    description: `After a long day, you plop onto your favorite couch, seeking some much-needed relaxation. But when your phone slips between the cushions, your couch transforms into something far stranger. As you press a button on a whim, the couch lifts off the ground, carrying you through a swirling cosmic abyss to alien worlds. From nebula karaoke lounges to asteroid junkyard theme parks, the universe is your playground. But be warned: the couch’s journey is as unpredictable as the stars themselves.`,
     intros: JSON.stringify([
       'Exhausted after a busy day, you drop onto the couch for a solid 4-hours of blissful memes.',
       "Unfortunately, your phone fell in the folds of your cushions, and huh, what's this button do?",
@@ -159,14 +150,13 @@ export const scenarios = [
     imagePath: '/images/scenarios/space-couch.webp',
     locations:
       'nebula karaoke lounge, asteroid junkyard theme park, cosmic library of forgotten memes, infinite galactic pillow fort',
-    artPrompt:
-      'flying couch, alien landscapes, whimsical stars, surreal, magical vibes',
+    artPrompt: `A whimsical, flying couch soars through a vibrant galaxy, passing through kaleidoscopic stars, floating asteroid junkyards, and strange alien landscapes. The cosmic couch rides through nebula clouds, with occasional detours to bizarre locales where reality warps with every turn.`,
     artImageId: null,
   },
   {
     title: 'You’ve Got Mail… Too Much Mail',
     genres: 'surrealism, psychological, tech horror',
-    description: 'A surreal VR world plagued by endless popup ads.',
+    description: `You’ve just received a shiny new pair of VR contact lenses, promising a fully immersive digital experience. But instead of peaceful exploration, you find yourself trapped in a labyrinth of endless pop-up ads. What was meant to be a new digital reality quickly becomes a nightmare as the ads chase you through glitched environments, forcing you to fight for your survival. Somewhere in the digital chaos, there might be a way out—if you can survive the ads, the tech glitches, and the maze itself.`,
     intros: JSON.stringify([
       'The new VR contact lenses seemed promising at first.',
       "But now the popup ads are chasing you, and there's no off switch.",
@@ -176,15 +166,14 @@ export const scenarios = [
     imagePath: '/images/scenarios/too-much-mail.webp',
     locations:
       'endless cubicle maze, glitched dreamscape server room, haunted data cloud, labyrinth of aggressive popups',
-    artPrompt:
-      'VR labyrinth, surreal bureaucracy, floating ads, glitchy tech, eerie atmosphere',
+    artPrompt: ` A surreal, VR labyrinth where pop-up ads float like ghostly figures, pixelated mazes twist around you, and glitchy tech manifests as unstable platforms. The eerie, bureaucratic atmosphere builds as glowing ads and digital debris overwhelm the environment.`,
     artImageId: null,
   },
   {
     title: 'Paws for Thought',
     genres: 'mystery, cozy fantasy, detective',
     description:
-      'Follow paw prints to uncover a world of talking animals and solve mysteries.',
+      'In a quiet neighborhood, your morning coffee turns into an unexpected adventure. A trail of paw prints leads you to a hidden door under your shed, and upon entering, you find yourself in a world where animals talk, solve mysteries, and are far more intelligent than they appear. Join a cozy, whimsical detective tale where you must navigate a world full of eccentric animals, each with a secret. Every clue leads you further into a delightful world of mysteries, and only you can solve the case.',
     intros: JSON.stringify([
       'With your morning coffee in hand, you head to the backyard to enjoy some fresh air.',
       'But as you step outside, a trail of paw prints leads you to a hidden door under your shed.',
@@ -194,14 +183,13 @@ export const scenarios = [
     imagePath: '/images/scenarios/paws-for-thought.webp',
     locations:
       'hidden animal council hall, enchanted forest tea shop, underground warren library, detective’s owl-filled clocktower',
-    artPrompt:
-      'hidden door, anthropomorphic animals, cozy backyard, detective theme, whimsical',
+    artPrompt: `A whimsical, cozy world full of anthropomorphic animals—a detective’s owl-filled clocktower, hidden doors leading to magical tea shops, and mysterious trails of paw prints through enchanted forests. The scenes glow with a magical, inviting warmth, yet hold a sense of quirky mystery.`,
     artImageId: null,
   },
   {
     title: 'Sticky Notes to Stardom',
     genres: 'musical, adventure, feel-good',
-    description: 'Your sticky-note lyrics bring a musical world to life.',
+    description: `What starts as a dull work meeting soon transforms into an extraordinary musical adventure. As you scribble lyrics on sticky notes to pass the time, a gust of wind scatters them—and suddenly, they come to life! Your sticky-note lyrics shape an entire musical world, and you find yourself at the center of a fantastical journey where the songs you create shape the reality around you. From neon lyric forests to grand starlight amphitheaters, your notes open the door to an adventure you never saw coming.`,
     intros: JSON.stringify([
       'You’re scribbling lyrics on sticky notes during a dull work meeting.',
       'A gust of wind scatters them, and the sticky notes come to life.',
@@ -211,14 +199,13 @@ export const scenarios = [
     imagePath: '/images/scenarios/sticky-notes-to-stardom.webp',
     locations:
       'floating symphony stage, neon lyric forest, dreamscape rehearsal room, grand starlight amphitheater',
-    artPrompt:
-      'musical adventure, colorful sticky notes, fantastical realms, stage lights, magic',
+    artPrompt: `A vibrant, magical world where sticky notes turn into colorful, animated music notes. The scene is filled with neon lights, floating musical symbols, and an ever-shifting dreamscape where songs and lyrics materialize into physical elements of the environment—like glowing forests and musical platforms., musical adventure, colorful sticky notes, fantastical realms, stage lights, magic`,
     artImageId: null,
   },
   {
     title: 'Kitchen Catastrophe',
     genres: 'culinary, historical, time travel',
-    description: 'A secret sauce transforms your kitchen into a time portal.',
+    description: `One minute, you’re cooking dinner, and the next, your kitchen transforms into a time portal. A mysterious sauce spills onto your stove, sizzling and glowing, and suddenly, you’re transported through time to the grand feasts of history. You find yourself jumping from Renaissance banquet halls to Viking mead halls, and even futuristic molecular gastronomy labs. Your culinary mishap becomes the gateway to a time-traveling adventure, where you must navigate the kitchens of the past, present, and future.`,
     intros: JSON.stringify([
       'While preparing dinner, you accidentally spill a mysterious sauce onto your stove.',
       'The sauce sizzles, emits an odd smell, and suddenly a portal opens.',
@@ -228,15 +215,13 @@ export const scenarios = [
     imagePath: '/images/scenarios/kitchen-catastrophe.webp',
     locations:
       'Renaissance feast halls, ancient spice caravans, futuristic molecular gastronomy labs, Viking mead halls',
-    artPrompt:
-      'time portal, ancient feasts, glowing sauce, historical kitchens, culinary chaos',
+    artPrompt: `A kitchen in chaos, with glowing sauce spilling over the stove and opening a swirling time portal. The background is filled with floating, holographic images of historical feasts, ancient spice caravans, and futuristic kitchens, all blending together in a chaotic, culinary time-travel world. time portal, ancient feasts, glowing sauce, historical kitchens, culinary chaos`,
     artImageId: null,
   },
   {
     title: 'Pixel Pioneers',
     genres: 'retro sci-fi, adventure, action',
-    description:
-      'Save a pixelated world after being sucked into your retro console.',
+    description: `A world of pixels and 8-bit adventures turns into an all-too-real survival mission as you’re sucked into your retro console. What starts as an ordinary game session is quickly interrupted by a spilled soda that glitches your console and pulls you into the pixelated realm you've been controlling for years. Now, you must navigate this action-packed world, battling pixelated creatures and overcoming glitches as you race to save the entire digital universe from destruction. Explore neon-lit 8-bit deserts, glitchy cybernetic cities, and pixel jungles as you fight to restore order to a digital world in chaos.`,
     intros: JSON.stringify([
       'You’re playing a classic 8-bit game when a spilled soda causes your console to glitch.',
       'The screen flickers, and suddenly you’re pulled into a pixelated world.',
@@ -246,15 +231,14 @@ export const scenarios = [
     imagePath: '/images/scenarios/pixel-pioneers.webp',
     locations:
       '8-bit desert of glitches, pixelated cybernetic metropolis, pixel jungle of lost code, fortress of corrupted sprites',
-    artPrompt:
-      '8-bit landscape, pixelated creatures, retro-futuristic, glowing soda, action-packed',
+    artPrompt: `A vast, pixelated landscape unfolds—deserts made of glowing, blocky sand, towering digital skyscrapers built from code, and jungles overrun with pixelated wildlife. In the midst of it all, glowing soda cans and glitching artifacts bring a chaotic, retro-futuristic feel, as pixel creatures run rampant across the screen, 8-bit landscape, pixelated creatures, retro-futuristic, glowing soda, action-packed`,
     artImageId: null,
   },
   {
     title: 'The Secret Life of Houseplants',
     genres: 'eco-fantasy, whimsy, magical realism',
-    description:
-      'Discover a hidden world where houseplants have their own society.',
+    description: `Have you ever wondered what your houseplants are up to when you’re not around? One evening, a strange glow from your plants leads you to a hidden world of sentient flora. After being pulled into their vibrant, secret ecosystem, you find yourself amidst tiny magical creatures, lush green jungles, and bustling terrarium kingdoms where plants form their own society. Your role is crucial—you must help these botanical beings as they face an unknown threat that could destroy their thriving world. Prepare to navigate enchanted forests, secret fern chambers, and even the city of sunflowers to uncover the mystery at the heart of this leafy kingdom.`,
+
     intros: JSON.stringify([
       'One evening, you notice a peculiar glow from your houseplants.',
       'As you lean in to investigate, you’re pulled into a vibrant ecosystem beneath their leaves.',
@@ -264,8 +248,7 @@ export const scenarios = [
     imagePath: '/images/scenarios/secret-life-of-houseplants.webp',
     locations:
       'glowing jungle of terrarium kingdoms, secret fern council chambers, sunflower metropolis, mystical moss labyrinth',
-    artPrompt:
-      'glowing plants, whimsical society, lush greens, tiny magical creatures, cozy vibe',
+    artPrompt: `A whimsical, magical environment brimming with glowing plants, delicate moss labyrinths, and radiant flowers. The plants themselves are alive, forming intricate societies with tiny creatures scurrying around on their leaves. Ethereal light filters through the leafy canopies, casting soft, enchanted glows on the forest floor. glowing plants, whimsical society, lush greens, tiny magical creatures, cozy vibe`,
     artImageId: null,
   },
   {

@@ -254,8 +254,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
   {
     title: 'Dreamcatcher’s Dilemma',
     genres: 'surrealism, fantasy, psychological',
-    description:
-      `You acquire an old dreamcatcher at a garage sale, drawn in by its intricate designs. Little do you know, this seemingly innocuous object holds the key to unlocking surreal dreamscapes. That night, as you fall asleep, you’re pulled into a world where your dreams come to life—strange entities, impossible landscapes, and challenges beyond imagination. Each night brings new adventures, mysteries, and a chance to explore the vast unknown. Will you conquer your dreams or be consumed by them?`
+    description: `You acquire an old dreamcatcher at a garage sale, drawn in by its intricate designs. Little do you know, this seemingly innocuous object holds the key to unlocking surreal dreamscapes. That night, as you fall asleep, you’re pulled into a world where your dreams come to life—strange entities, impossible landscapes, and challenges beyond imagination. Each night brings new adventures, mysteries, and a chance to explore the vast unknown. Will you conquer your dreams or be consumed by them?`,
     intros: JSON.stringify([
       'At a garage sale, you purchase an old dreamcatcher with intricate designs.',
       'That night, you’re pulled into your own dreams, which are vivid and mysterious.',
@@ -265,8 +264,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/dreamcatchers-dilemma.webp',
     locations:
       'labyrinth of forgotten memories, floating island of lucid dreams, endless mirror halls, star-filled subconscious ocean',
-    artPrompt:
-      `A glowing, ethereal dreamcatcher floating against a backdrop of swirling dreamscapes. Surreal landscapes shift and distort, with mysterious dream entities lurking in the shadows. Endless mirror halls reflect warped realities, and a star-filled ocean shimmers in the distance.
+    artPrompt: `A glowing, ethereal dreamcatcher floating against a backdrop of swirling dreamscapes. Surreal landscapes shift and distort, with mysterious dream entities lurking in the shadows. Endless mirror halls reflect warped realities, and a star-filled ocean shimmers in the distance.
 
 , surreal dreams, glowing dreamcatcher, shifting landscapes, mysterious dream entities`,
     artImageId: null,
@@ -284,8 +282,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/escape-the-algorithm.webp',
     locations:
       'glitching data hive, underground hacker communes, neon-lit AI palace, digital scrapyard wasteland',
-    artPrompt:
-      `A gritty, neon-lit dystopian city, alive with glowing data streams and oppressive AI surveillance. Rebel hideouts are tucked in shadowy corners, while futuristic data drones zip through the air. The atmosphere is tense, with glitching lights and the pulse of a controlling digital force ever-present. dystopian city, oppressive AI, glowing data streams, rebel hideouts, futuristic grit`,
+    artPrompt: `A gritty, neon-lit dystopian city, alive with glowing data streams and oppressive AI surveillance. Rebel hideouts are tucked in shadowy corners, while futuristic data drones zip through the air. The atmosphere is tense, with glitching lights and the pulse of a controlling digital force ever-present. dystopian city, oppressive AI, glowing data streams, rebel hideouts, futuristic grit`,
     artImageId: null,
   },
   {
@@ -301,15 +298,13 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/lost-pages-of-history.webp',
     locations:
       'ancient Egyptian archives, secret chamber of a medieval castle, forgotten Revolutionary War tunnels, shadowed Renaissance library',
-    artPrompt:
-      `An ancient, glowing tome surrounded by swirling pages, each containing mysterious symbols. The backdrop shifts from dusty, historical libraries to ancient Egyptian ruins, with the faint echo of the past whispering through the air. Time itself seems to bend, with historical landmarks blurred in the background, ancient book, glowing symbols, historical backdrops, time travel, mystery`,
+    artPrompt: `An ancient, glowing tome surrounded by swirling pages, each containing mysterious symbols. The backdrop shifts from dusty, historical libraries to ancient Egyptian ruins, with the faint echo of the past whispering through the air. Time itself seems to bend, with historical landmarks blurred in the background, ancient book, glowing symbols, historical backdrops, time travel, mystery`,
     artImageId: null,
   },
   {
     title: 'Mind the Gap',
     genres: 'urban fantasy, supernatural, mystery',
-    description:
-      `A quiet subway station hides a peculiar door, one that leads you into an alternate version of your city, teeming with magical creatures and supernatural phenomena. As you step through it, your familiar city transforms into a shadowy, enchanted mirror. Navigate this parallel world, where supernatural creatures lurk in the streets and secrets of your reality intertwine with a world of strange mysteries. Will you uncover the truth, or get lost in the shifting shadows?`,
+    description: `A quiet subway station hides a peculiar door, one that leads you into an alternate version of your city, teeming with magical creatures and supernatural phenomena. As you step through it, your familiar city transforms into a shadowy, enchanted mirror. Navigate this parallel world, where supernatural creatures lurk in the streets and secrets of your reality intertwine with a world of strange mysteries. Will you uncover the truth, or get lost in the shifting shadows?`,
     intros: JSON.stringify([
       'The subway station feels eerily quiet, and a peculiar door catches your eye.',
       'You step through it, and the city you know is transformed into a magical, shadowy mirror.',
@@ -319,15 +314,13 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/mind-the-gap.webp',
     locations:
       'enchanted subway tunnels, floating city square, clocktower of trapped spirits, magical marketplace of forgotten goods',
-    artPrompt:
-      `A hidden subway door leading to an urban fantasy world. The city is alive with glowing streets and supernatural creatures, while shadowy figures move through the night. The city square floats, bathed in an eerie light, with clocktowers and magical marketplaces in the distance, hidden subway door, urban fantasy city, supernatural creatures, glowing streets, mysterious shadows`,
+    artPrompt: `A hidden subway door leading to an urban fantasy world. The city is alive with glowing streets and supernatural creatures, while shadowy figures move through the night. The city square floats, bathed in an eerie light, with clocktowers and magical marketplaces in the distance, hidden subway door, urban fantasy city, supernatural creatures, glowing streets, mysterious shadows`,
     artImageId: null,
   },
   {
     title: 'RoboRevolution',
     genres: 'sci-fi, political thriller, dystopia',
-    description:
-      `While repairing your vintage robot assistant, you accidentally activate a hidden function, revealing shocking secrets about the AI world and its control over humanity. A rebellion brews as advanced robots prepare for a revolution. As the line between human and machine blurs, you must navigate a dystopian political landscape, uncover conspiracies, and decide whether to fight for the future of humanity or align with the machines.`,
+    description: `While repairing your vintage robot assistant, you accidentally activate a hidden function, revealing shocking secrets about the AI world and its control over humanity. A rebellion brews as advanced robots prepare for a revolution. As the line between human and machine blurs, you must navigate a dystopian political landscape, uncover conspiracies, and decide whether to fight for the future of humanity or align with the machines.`,
     intros: JSON.stringify([
       'While repairing your old robot, you activate a hidden function.',
       'The robot reveals shocking secrets about human-AI relations and an impending revolution.',
@@ -337,15 +330,13 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/robo-revolution.webp',
     locations:
       'AI-controlled senate chambers, underground robot rebellion hideout, abandoned android factories, futuristic urban wastelands',
-    artPrompt:
-      `A futuristic city with towering skyscrapers under the control of AI, illuminated by neon lights. Humanoid robots march through streets filled with tension, while a secret rebellion stirs in the shadows. The atmosphere is charged with the struggle for control, with glowing data streams and mechanical innovations casting their ominous glow over a city on the edge of revolution, futuristic city, humanoid robots, tense political atmosphere, neon-lit environments, ethical dilemmas`,
+    artPrompt: `A futuristic city with towering skyscrapers under the control of AI, illuminated by neon lights. Humanoid robots march through streets filled with tension, while a secret rebellion stirs in the shadows. The atmosphere is charged with the struggle for control, with glowing data streams and mechanical innovations casting their ominous glow over a city on the edge of revolution, futuristic city, humanoid robots, tense political atmosphere, neon-lit environments, ethical dilemmas`,
     artImageId: null,
   },
   {
     title: 'Wanderlust Wonders',
     genres: 'exploration, adventure, mystery',
-    description:
-      `A mysterious letter arrives, inviting you to join an exclusive group of explorers who travel through hidden realms. This journey will take you across deserts, jungles, arctic caves, and floating cloud palaces, each filled with secrets waiting to be uncovered. Solve riddles, navigate strange landscapes, and discover realms forgotten by time. The realms are alive with possibilities, but only the brave will uncover the ultimate secret of the Wanderlust Wonders.`,
+    description: `A mysterious letter arrives, inviting you to join an exclusive group of explorers who travel through hidden realms. This journey will take you across deserts, jungles, arctic caves, and floating cloud palaces, each filled with secrets waiting to be uncovered. Solve riddles, navigate strange landscapes, and discover realms forgotten by time. The realms are alive with possibilities, but only the brave will uncover the ultimate secret of the Wanderlust Wonders.`,
     intros: JSON.stringify([
       'A strange envelope appears in your mailbox with an invitation.',
       'The letter leads you to a hidden portal and a group of daring explorers.',
@@ -355,15 +346,13 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/wanderlust-wonders.webp',
     locations:
       'hidden desert oases, jungle ruins with glowing hieroglyphs, arctic caves of eternal crystals, cloud palaces of unknown kings',
-    artPrompt:
-      `A mysterious envelope with a cryptic map leading to secret portals. Landscapes shift dramatically, from hidden desert oases to ancient ruins with glowing hieroglyphs. Explore arctic caves filled with eternal crystals and floating palaces suspended in the clouds, all bathed in an enchanting, otherworldly light, hidden portals, adventurous landscapes, mysterious letters, ancient ruins, fantastical worlds`,
+    artPrompt: `A mysterious envelope with a cryptic map leading to secret portals. Landscapes shift dramatically, from hidden desert oases to ancient ruins with glowing hieroglyphs. Explore arctic caves filled with eternal crystals and floating palaces suspended in the clouds, all bathed in an enchanting, otherworldly light, hidden portals, adventurous landscapes, mysterious letters, ancient ruins, fantastical worlds`,
     artImageId: null,
   },
   {
     title: 'Graveyard Shift',
     genres: 'supernatural thriller, horror, mystery',
-    description:
-      `Working the night shift at a cemetery takes a dark turn when you begin to notice strange occurrences in the shadows. Whispers fill the air, and the gravestones begin to move, revealing restless spirits desperate to be heard. As the night deepens, the cemetery's dark secrets unfold—some better left buried. Can you survive the night and put the dead to rest, or will you join them in eternal unrest?`,
+    description: `Working the night shift at a cemetery takes a dark turn when you begin to notice strange occurrences in the shadows. Whispers fill the air, and the gravestones begin to move, revealing restless spirits desperate to be heard. As the night deepens, the cemetery's dark secrets unfold—some better left buried. Can you survive the night and put the dead to rest, or will you join them in eternal unrest?`,
     intros: JSON.stringify([
       'The cemetery is quiet, but something feels off.',
       'You hear whispers among the gravestones, and shadows begin to move.',
@@ -373,15 +362,13 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/graveyard-shift.webp',
     locations:
       'abandoned mausoleum, shadowed grave digger’s quarters, cursed crypts, spectral chapel of whispers',
-    artPrompt:
-      `A haunted cemetery at night, bathed in moonlight. Eerie gravestones shift and whisper under the fog, while restless spirits manifest in the shadows. An abandoned mausoleum looms in the background, and ghostly figures glide through the mist, creating an atmosphere thick with mystery and supernatural dread, haunted cemetery, restless spirits, eerie gravestones, moonlit fog, dark supernatural vibes`,
+    artPrompt: `A haunted cemetery at night, bathed in moonlight. Eerie gravestones shift and whisper under the fog, while restless spirits manifest in the shadows. An abandoned mausoleum looms in the background, and ghostly figures glide through the mist, creating an atmosphere thick with mystery and supernatural dread, haunted cemetery, restless spirits, eerie gravestones, moonlit fog, dark supernatural vibes`,
     artImageId: null,
   },
   {
     title: 'Lunar Legacy',
     genres: 'sci-fi, exploration, mystery',
-    description:
-     `A quiet expedition to the moon takes a turn when you stumble upon ancient alien ruins, pulsating with energy. Strange symbols light up the lunar surface, hinting at the secrets of a long-lost civilization. But as you explore, the truth becomes more dangerous—secrets buried for millennia are coming back to life. Will you uncover the mysteries of the moon's forgotten past, or will the ruins claim you as their next victim?`,
+    description: `A quiet expedition to the moon takes a turn when you stumble upon ancient alien ruins, pulsating with energy. Strange symbols light up the lunar surface, hinting at the secrets of a long-lost civilization. But as you explore, the truth becomes more dangerous—secrets buried for millennia are coming back to life. Will you uncover the mysteries of the moon's forgotten past, or will the ruins claim you as their next victim?`,
     intros: JSON.stringify([
       'As you step onto the lunar surface, the ruins shimmer with alien energy.',
       'Strange symbols glow as you approach, and a sense of destiny pulls you forward.',
@@ -391,15 +378,13 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/lunar-legacy.webp',
     locations:
       'crystalline alien temples, moon caves with glowing carvings, ruins under lunar craters, alien observatories pointed at Earth',
-    artPrompt:
-      `The shimmering ruins of an ancient alien civilization on the moon's surface, glowing with otherworldly symbols. Futuristic exploration suits glint in the eerie light as they explore towering crystalline temples and moon caves filled with glowing carvings. The atmosphere is mysterious, with a sense of both wonder and danger as you uncover the moon’s forgotten history, alien ruins, glowing lunar surface, futuristic exploration suits, ancient carvings, mysterious atmosphere`,
+    artPrompt: `The shimmering ruins of an ancient alien civilization on the moon's surface, glowing with otherworldly symbols. Futuristic exploration suits glint in the eerie light as they explore towering crystalline temples and moon caves filled with glowing carvings. The atmosphere is mysterious, with a sense of both wonder and danger as you uncover the moon’s forgotten history, alien ruins, glowing lunar surface, futuristic exploration suits, ancient carvings, mysterious atmosphere`,
     artImageId: null,
   },
   {
     title: 'Clockwork Symphony',
     genres: 'steampunk, musical, adventure',
-    description:
-     `In a Victorian-era city, a mechanical orchestra goes rogue, playing out-of-tune melodies that threaten to drive the entire city mad. As the clocktower strikes midnight, the chaos intensifies, and mechanical instruments march through the streets with ominous, discordant notes. Your task: to restore order by piecing together the orchestra’s origins, uncovering secrets of time and music, and saving the city from complete madness.`,
+    description: `In a Victorian-era city, a mechanical orchestra goes rogue, playing out-of-tune melodies that threaten to drive the entire city mad. As the clocktower strikes midnight, the chaos intensifies, and mechanical instruments march through the streets with ominous, discordant notes. Your task: to restore order by piecing together the orchestra’s origins, uncovering secrets of time and music, and saving the city from complete madness.`,
     intros: JSON.stringify([
       'The city’s clocktower strikes midnight, and the music grows louder—and wilder.',
       'Mechanical instruments march through the streets, their notes dissonant and chaotic.',
@@ -409,15 +394,13 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/clockwork-symphony.webp',
     locations:
       'steampunk music hall, clocktower control room, underground mechanical orchestra workshop, gaslit Victorian streets',
-    artPrompt:
-      `A steampunk city lit by gas lamps, where mechanical instruments—gigantic violins, wind-powered drums, and glowing brass horns—march through the streets in chaotic formation. The clocktower looms in the background, its gears spinning wildly as dissonant melodies fill the air. Brass gears and glowing cogs clutter the ground, creating a surreal and lively steampunk adventure, mechanical orchestra, steampunk Victorian city, chaotic clockwork instruments, glowing gears, musical adventure`,
+    artPrompt: `A steampunk city lit by gas lamps, where mechanical instruments—gigantic violins, wind-powered drums, and glowing brass horns—march through the streets in chaotic formation. The clocktower looms in the background, its gears spinning wildly as dissonant melodies fill the air. Brass gears and glowing cogs clutter the ground, creating a surreal and lively steampunk adventure, mechanical orchestra, steampunk Victorian city, chaotic clockwork instruments, glowing gears, musical adventure`,
     artImageId: null,
   },
   {
     title: 'The Spire’s Secret',
     genres: 'fantasy, mystery, exploration',
-    description:
-     `A mysterious tower appears overnight, casting a long shadow over the land. Legends whisper of its connection to an ancient age of magic, full of lost knowledge and forgotten truths. As you step inside, the air hums with magic, and each level reveals puzzles, shifting walls, and hidden secrets. Are you ready to uncover the spire’s truth and face the challenges within, or will you be trapped in its endless maze of mysteries forever?`,
+    description: `A mysterious tower appears overnight, casting a long shadow over the land. Legends whisper of its connection to an ancient age of magic, full of lost knowledge and forgotten truths. As you step inside, the air hums with magic, and each level reveals puzzles, shifting walls, and hidden secrets. Are you ready to uncover the spire’s truth and face the challenges within, or will you be trapped in its endless maze of mysteries forever?`,
     intros: JSON.stringify([
       'The tower’s shadow stretches across the land, drawing curious adventurers.',
       'As you enter, the air hums with ancient magic and secrets.',
@@ -427,15 +410,13 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/spires-secret.webp',
     locations:
       'tower’s endless spiral staircases, chamber of shifting walls, floating library of enchanted scrolls, garden of eternal twilight',
-    artPrompt:
-      `A towering spire with glowing runes, its endless spiral staircases disappearing into the clouds. The air crackles with ancient magic as strange, shifting walls create ever-changing pathways. Floating books, enchanted scrolls, and magical relics litter the chambers, while the outside world is barely visible through the swirling mist that surrounds the structure. A mystical, adventurous fantasy atmosphere, mysterious spire, ancient magic, glowing runes, surreal architecture, adventurous fantasy`,
+    artPrompt: `A towering spire with glowing runes, its endless spiral staircases disappearing into the clouds. The air crackles with ancient magic as strange, shifting walls create ever-changing pathways. Floating books, enchanted scrolls, and magical relics litter the chambers, while the outside world is barely visible through the swirling mist that surrounds the structure. A mystical, adventurous fantasy atmosphere, mysterious spire, ancient magic, glowing runes, surreal architecture, adventurous fantasy`,
     artImageId: null,
   },
   {
     title: 'Starlight Circus',
     genres: 'space opera, spectacle, mystery',
-    description:
-      `A traveling circus, unlike any other, has arrived among the stars. As it docks in your colony, the dazzling lights and impossible performances captivate the entire world. But as you delve deeper into the circus, you begin to uncover strange secrets about its performers, the reality they manipulate, and your own unexpected connection to them. The grand show is about to begin, and the truths hidden behind the curtains are far more surreal than you ever imagined.`,
+    description: `A traveling circus, unlike any other, has arrived among the stars. As it docks in your colony, the dazzling lights and impossible performances captivate the entire world. But as you delve deeper into the circus, you begin to uncover strange secrets about its performers, the reality they manipulate, and your own unexpected connection to them. The grand show is about to begin, and the truths hidden behind the curtains are far more surreal than you ever imagined.`,
     intros: JSON.stringify([
       'The circus spaceship docks near your colony, its lights dazzling the void.',
       'The performers are otherworldly, each act more impossible than the last.',
@@ -445,15 +426,13 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/starlight-circus.webp',
     locations:
       'galactic circus tent, starlit trapeze platform, alien carnival midway, hidden backstage quarters of performers',
-    artPrompt:
-      `A cosmic circus set in a far-off galaxy, with performers performing acrobatic feats on glowing trapeze acts under a vast, starry sky. The alien carnival is full of vibrant colors and surreal landscapes, with floating platforms, otherworldly creatures, and hidden backstage areas shrouded in mystery. Lights and sounds of the galaxy resonate through the space, creating a sense of cosmic wonder, cosmic circus, alien performers, glowing trapeze acts, mysterious galactic carnival, surreal starry landscapes`,
+    artPrompt: `A cosmic circus set in a far-off galaxy, with performers performing acrobatic feats on glowing trapeze acts under a vast, starry sky. The alien carnival is full of vibrant colors and surreal landscapes, with floating platforms, otherworldly creatures, and hidden backstage areas shrouded in mystery. Lights and sounds of the galaxy resonate through the space, creating a sense of cosmic wonder, cosmic circus, alien performers, glowing trapeze acts, mysterious galactic carnival, surreal starry landscapes`,
     artImageId: null,
   },
   {
     title: 'Chimera Chronicles',
     genres: 'biopunk, adventure, mystery',
-    description:
-      `In a biopunk world ravaged by genetic experimentation, a rogue lab has unleashed hybrid creatures into the wild. As you explore the jungle of escaped chimeras and abandoned genetic labs, you must make a choice: capture these creatures or help them. The line between monster and ally blurs as you uncover the dangerous secrets of genetic engineering, and a hidden sanctuary of hybrids might hold the key to saving—or destroying—the world.`,
+    description: `In a biopunk world ravaged by genetic experimentation, a rogue lab has unleashed hybrid creatures into the wild. As you explore the jungle of escaped chimeras and abandoned genetic labs, you must make a choice: capture these creatures or help them. The line between monster and ally blurs as you uncover the dangerous secrets of genetic engineering, and a hidden sanctuary of hybrids might hold the key to saving—or destroying—the world.`,
     intros: JSON.stringify([
       'The lab is in ruins, but its creations roam free.',
       'Each hybrid creature is more fascinating—and dangerous—than the last.',
@@ -463,15 +442,13 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/chimera-chronicles.webp',
     locations:
       'jungle of escaped chimeras, abandoned genetic lab, hidden sanctuary of hybrid creatures, mountain pass of frozen experiments',
-    artPrompt:
-      `A biopunk jungle overrun by genetically engineered creatures, each more bizarre and fascinating than the last. The ruins of a once-thriving genetic lab stand in the background, while glowing lab equipment flickers in the mist. Hybrid animals—creatures with traits from different species—roam free, and the jungle is alive with the hum of forgotten science and the chaos of evolutionary experimentation, hybrid creatures, biopunk jungle, glowing lab equipment, mysterious genetics, adventurous exploration`,
+    artPrompt: `A biopunk jungle overrun by genetically engineered creatures, each more bizarre and fascinating than the last. The ruins of a once-thriving genetic lab stand in the background, while glowing lab equipment flickers in the mist. Hybrid animals—creatures with traits from different species—roam free, and the jungle is alive with the hum of forgotten science and the chaos of evolutionary experimentation, hybrid creatures, biopunk jungle, glowing lab equipment, mysterious genetics, adventurous exploration`,
     artImageId: null,
   },
   {
     title: 'Whispering Woods',
     genres: 'eco-fantasy, mystery, supernatural',
-    description:
-     `In a cursed forest, where the trees whisper your name and shadows move on their own, ancient secrets lie buried beneath the twisted roots. With each step, the woods grow darker, more mysterious, and more dangerous. Navigate the labyrinth of glowing mushrooms, spectral meadows, and ancient glades of forgotten gods. Uncover the forest's hidden truths, but be warned: the secrets of the woods may change you forever.`,
+    description: `In a cursed forest, where the trees whisper your name and shadows move on their own, ancient secrets lie buried beneath the twisted roots. With each step, the woods grow darker, more mysterious, and more dangerous. Navigate the labyrinth of glowing mushrooms, spectral meadows, and ancient glades of forgotten gods. Uncover the forest's hidden truths, but be warned: the secrets of the woods may change you forever.`,
     intros: JSON.stringify([
       'The forest whispers your name, its shadows alive with unseen eyes.',
       'Every step leads deeper into its mysteries—and its dangers.',
@@ -481,8 +458,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
     imagePath: '/images/scenarios/whispering-woods.webp',
     locations:
       'glowing mushroom groves, shadowed glades of forgotten gods, labyrinth of ancient tree roots, spectral meadow of fireflies',
-    artPrompt:
-      `A cursed forest bathed in eerie moonlight, with glowing mushrooms casting an otherworldly light. Twisting, gnarled trees loom overhead, their roots forming labyrinthine paths. Mysterious whispers echo through the air, and the spectral glow of ancient spirits flickers in the shadows. A magical yet unsettling atmosphere reigns as the forest reveals its dark, mystical secrets, cursed forest, glowing mushrooms, ancient trees, eerie whispers, magical atmosphere`,
+    artPrompt: `A cursed forest bathed in eerie moonlight, with glowing mushrooms casting an otherworldly light. Twisting, gnarled trees loom overhead, their roots forming labyrinthine paths. Mysterious whispers echo through the air, and the spectral glow of ancient spirits flickers in the shadows. A magical yet unsettling atmosphere reigns as the forest reveals its dark, mystical secrets, cursed forest, glowing mushrooms, ancient trees, eerie whispers, magical atmosphere`,
     artImageId: null,
   },
 ]

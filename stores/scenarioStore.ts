@@ -3,7 +3,6 @@ import { defineStore } from 'pinia'
 import type { Scenario } from '@prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 
-// Example seed data for `sceneChoices`
 import { scenarios } from '@/utils/sceneChoices'
 
 export const useScenarioStore = defineStore({
@@ -39,10 +38,7 @@ export const useScenarioStore = defineStore({
           this.scenarios = JSON.parse(savedState) as Scenario[]
         }
 
-        // If no scenarios are found, populate with seed data
-        if (this.scenarios.length === 0) {
-          this.populateInitialScenarios()
-        }
+        this.populateInitialScenarios()
 
         // Restore scenario form from local storage
         if (savedForm) {

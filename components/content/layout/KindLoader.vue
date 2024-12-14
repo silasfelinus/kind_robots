@@ -19,6 +19,7 @@ import { useReactionStore } from './../../../stores/reactionStore'
 import { useRewardStore } from './../../../stores/rewardStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
 import { useScenarioStore } from './../../../stores/scenarioStore'
+import { useWeirdStore } from './../../../stores/weirdStore'
 
 // Stores
 const errorStore = useErrorStore()
@@ -36,6 +37,7 @@ const chatStore = useChatStore()
 const characterStore = useCharacterStore()
 const galleryStore = useGalleryStore()
 const scenarioStore = useScenarioStore()
+const weirdStore = useWeirdStore()
 
 // State management
 const isReady = ref(false)
@@ -67,6 +69,7 @@ onMounted(async () => {
       rewardStore.initializeStore?.(),
       characterStore.initialize?.(),
       galleryStore.initializeStore?.(),
+      weirdStore.initialize?.(),
       scenarioStore.initialize?.(),
     ])
 

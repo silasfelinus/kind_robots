@@ -107,12 +107,18 @@ const computedScenarioImage = computed(() => {
   if (scenario.imagePath) {
     return scenario.imagePath;
   }
-  return '/images/scenario-placeholder.webp';
+  return '/images/scenarios/space.webp';
 });
 
-// Genres and Locations
+// Genres, Locations, and Intros
 const locationLinks = computed(() => scenario.locations?.split(',') || []);
-const introChoices = computed(() => scenario.intros?.split('|') || []);
+const introChoices = computed(() => {
+  try {
+    return JSON.parse(scenario.intros) || [];
+  } catch {
+    return [];
+  }
+});
 
 // Methods
 const deleteScenario = () => scenarioStore.deleteScenario(scenario.id);

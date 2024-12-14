@@ -13,7 +13,7 @@
       title="Delete Scenario"
       @click.stop="deleteScenario"
     >
-      <Icon name="mdi:delete-outline" class="w-4 h-4" />
+      <Icon name="mdi:delete" class="w-4 h-4" />
     </button>
 
     <!-- Scenario Image -->
@@ -32,20 +32,20 @@
     <div class="flex flex-col sm:w-2/3">
       <!-- Title and Description -->
       <h2 class="text-xl font-bold text-gray-800 truncate">
-        {{ scenario.title || 'Untitled Scenario' }}
+        {{ scenarioData.title || 'Untitled Scenario' }}
       </h2>
       <p class="text-sm text-gray-600">
-        {{ scenario.description || 'No description available.' }}
+        {{ scenarioData.description || 'No description available.' }}
       </p>
 
       <!-- Genres and Locations -->
       <div class="flex flex-wrap mt-2 gap-2">
         <!-- Genres -->
         <span
-          v-if="scenario.genres"
+          v-if="scenarioData.genres"
           class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full"
         >
-          {{ scenario.genres }}
+          {{ scenarioData.genres }}
         </span>
 
         <!-- Locations -->
@@ -89,6 +89,9 @@ defineProps({
   },
 })
 
+// Map prop to a computed property
+const scenarioData = computed(() => scenario)
+
 // Stores
 const scenarioStore = useScenarioStore()
 const userStore = useUserStore()
@@ -99,26 +102,26 @@ const artImage = ref(null)
 
 // Computed properties
 const canDelete = computed(
-  () => userStore.isAdmin || userStore.userId === scenario?.userId,
+  () => userStore.isAdmin || userStore.userId === scenarioData.value.userId,
 )
 const isSelected = computed(
-  () => scenarioStore.selectedScenario?.id === scenario?.id,
+  () => scenarioStore.selectedScenario?.id === scenarioData.value.id,
 )
 const computedScenarioImage = computed(() => {
   if (artImage.value) {
     return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
   }
-  if (scenario?.imagePath) {
-    return scenario.imagePath
+  if (scenarioData.value.imagePath) {
+    return scenarioData.value.imagePath
   }
   return '/images/scenarios/space.webp'
 })
 
 // Genres, Locations, and Intros
-const locationLinks = computed(() => scenario?.locations?.split(',') || [])
+const locationLinks = computed(() => scenarioData.value.locations?.split(',') || [])
 const introChoices = computed(() => {
   try {
-    return JSON.parse(scenario?.intros) || []
+    return JSON.parse(scenarioData.value.intros) || []
   } catch {
     return []
   }
@@ -126,7 +129,7 @@ const introChoices = computed(() => {
 
 // Methods
 const deleteScenario = () => {
-  if (scenario) scenarioStore.deleteScenario(scenario.id)
+  if (scenarioData.value) scenarioStore.deleteScenario(scenarioData.value.id)
 }
 const createChatRoom = (location) => {
   if (location) scenarioStore.createChatRoom(location)
@@ -137,8 +140,8 @@ const setCurrentChoice = (choice) => {
 
 // On Mounted
 onMounted(async () => {
-  if (scenario?.artImageId) {
-    artImage.value = await artStore.getArtImageById(scenario.artImageId)
+  if (scenarioData.value.artImageId) {
+    artImage.value = await artStore.getArtImageById(scenarioData.value.artImageId)
   }
 })
 </script>

@@ -99,36 +99,37 @@ const artImage = ref(null)
 
 // Computed properties
 const canDelete = computed(
-  () => userStore.isAdmin || userStore.userId === scenario.userId,
+  () => userStore.isAdmin || userStore.userId === scenario?.userId,
 )
 const isSelected = computed(
-  () => scenarioStore.selectedScenario?.id === scenario.id,
+  () => scenarioStore.selectedScenario?.id === scenario?.id,
 )
 const computedScenarioImage = computed(() => {
   if (artImage.value) {
     return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
   }
-  if (scenario.imagePath) {
+  if (scenario?.imagePath) {
     return scenario.imagePath
   }
   return '/images/scenarios/space.webp'
 })
 
 // Genres, Locations, and Intros
-const locationLinks = computed(() => scenario.locations?.split(',') || [])
+const locationLinks = computed(() => scenario?.locations?.split(',') || [])
 const introChoices = computed(() => {
   try {
-    return JSON.parse(scenario.intros) || []
+    return JSON.parse(scenario?.intros) || []
   } catch {
     return []
   }
 })
 
 // Methods
-const deleteScenario = () => scenarioStore.deleteScenario(scenario.id)
+const deleteScenario = () => {
+  if (scenario) scenarioStore.deleteScenario(scenario.id)
+}
 const createChatRoom = (location) => {
-  // Logic for creating a chat room at the given location
-  scenarioStore.createChatRoom(location)
+  if (location) scenarioStore.createChatRoom(location)
 }
 const setCurrentChoice = (choice) => {
   scenarioStore.currentChoice = choice
@@ -136,7 +137,7 @@ const setCurrentChoice = (choice) => {
 
 // On Mounted
 onMounted(async () => {
-  if (scenario.artImageId) {
+  if (scenario?.artImageId) {
     artImage.value = await artStore.getArtImageById(scenario.artImageId)
   }
 })

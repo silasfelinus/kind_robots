@@ -3,8 +3,9 @@
     :class="[
       'relative bg-base-200 border rounded-2xl p-4 m-2 hover:shadow-lg transition-all cursor-pointer',
       isSelected ? 'border-primary bg-primary/10' : 'border-gray-400',
-      'flex flex-col sm:flex-row sm:items-start gap-4',
+      'flex flex-col md:flex-row items-start gap-4',
     ]"
+    @click="selectScenario"
   >
     <!-- Delete Button -->
     <button
@@ -18,7 +19,7 @@
 
     <!-- Scenario Image -->
     <div
-      class="flex-shrink-0 relative flex justify-center items-center overflow-hidden rounded-lg sm:w-1/3"
+      class="flex-shrink-0 relative flex justify-center items-center overflow-hidden rounded-lg md:w-1/3"
     >
       <img
         :src="computedScenarioImage"
@@ -29,7 +30,7 @@
     </div>
 
     <!-- Scenario Details -->
-    <div class="flex flex-col sm:w-2/3">
+    <div class="flex flex-col md:w-2/3">
       <!-- Title and Description -->
       <h2 class="text-xl font-bold text-gray-800 truncate">
         {{ scenario.title || 'Untitled Scenario' }}
@@ -38,35 +39,31 @@
         {{ scenario.description || 'No description available.' }}
       </p>
 
-      <!-- Genres and Locations -->
+      <!-- Genres -->
       <div class="flex flex-wrap mt-2 gap-2">
-        <!-- Genres -->
         <span
           v-if="scenario.genres"
           class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full"
         >
           {{ scenario.genres }}
         </span>
+      </div>
 
-        <!-- Locations -->
-        <a
-          v-for="location in locationLinks"
-          :key="location"
-          href="#"
-          class="text-xs text-accent underline hover:no-underline"
-          @click.prevent="createChatRoom(location)"
-        >
-          {{ location }}
-        </a>
+      <!-- Locations -->
+      <div v-if="scenario.locations" class="mt-2 text-sm text-gray-600">
+        {{ scenario.locations }}
       </div>
 
       <!-- Intros (Selectable Buttons) -->
-      <div class="flex flex-wrap gap-2 mt-4">
+      <div
+        v-if="isSelected"
+        class="flex flex-wrap gap-2 mt-4"
+      >
         <button
           v-for="(intro, index) in introChoices"
           :key="index"
           class="btn btn-secondary btn-sm"
-          @click="setCurrentChoice(intro)"
+          @click.stop="setCurrentChoice(intro)"
         >
           {{ intro }}
         </button>
@@ -115,7 +112,6 @@ const computedScenarioImage = computed(() => {
 });
 
 // Genres, Locations, and Intros
-const locationLinks = computed(() => scenario.locations?.split(',') || []);
 const introChoices = computed(() => {
   try {
     return JSON.parse(scenario.intros) || [];
@@ -129,11 +125,11 @@ const introChoices = computed(() => {
 const deleteScenario = () => {
   if (scenario) scenarioStore.deleteScenario(scenario.id);
 };
-const createChatRoom = (location) => {
-  if (location) scenarioStore.createChatRoom(location);
-};
 const setCurrentChoice = (choice) => {
   scenarioStore.currentChoice = choice;
+};
+const selectScenario = () => {
+  scenarioStore.selectedScenario = scenario;
 };
 
 // On Mounted

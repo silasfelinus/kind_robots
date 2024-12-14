@@ -39,6 +39,7 @@ export const useScenarioStore = defineStore({
         }
 
         this.populateInitialScenarios()
+console.log("scenarios populated", this.scenarios)
 
         // Restore scenario form from local storage
         if (savedForm) {

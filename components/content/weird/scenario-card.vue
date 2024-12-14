@@ -90,7 +90,7 @@ defineProps({
 })
 
 // Map prop to a computed property
-const scenarioData = computed(() => scenario)
+const scenarioData = computed(() => props.scenario)
 
 // Stores
 const scenarioStore = useScenarioStore()
@@ -140,6 +140,8 @@ const setCurrentChoice = (choice) => {
 
 // On Mounted
 onMounted(async () => {
+console.log("loading scenario: ", scenario)
+console.log("scenarioData: ", scenarioData)
   if (scenarioData.value.artImageId) {
     artImage.value = await artStore.getArtImageById(scenarioData.value.artImageId)
   }

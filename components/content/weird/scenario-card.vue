@@ -3,7 +3,7 @@
     :class="[
       'relative bg-base-200 border rounded-2xl p-4 m-2 hover:shadow-lg transition-all cursor-pointer',
       isSelected ? 'border-primary bg-primary/10' : 'border-gray-400',
-      'flex flex-col sm:flex-row sm:items-start gap-4'
+      'flex flex-col sm:flex-row sm:items-start gap-4',
     ]"
   >
     <!-- Delete Button -->
@@ -53,8 +53,8 @@
           v-for="location in locationLinks"
           :key="location"
           href="#"
-          @click.prevent="createChatRoom(location)"
           class="text-xs text-accent underline hover:no-underline"
+          @click.prevent="createChatRoom(location)"
         >
           {{ location }}
         </a>
@@ -76,10 +76,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useScenarioStore } from '@/stores/scenarioStore';
-import { useUserStore } from '@/stores/userStore';
-import { useArtStore } from '@/stores/artStore';
+import { ref, computed, onMounted } from 'vue'
+import { useScenarioStore } from '@/stores/scenarioStore'
+import { useUserStore } from '@/stores/userStore'
+import { useArtStore } from '@/stores/artStore'
 
 // Props
 defineProps({
@@ -87,53 +87,57 @@ defineProps({
     type: Object,
     required: true,
   },
-});
+})
 
 // Stores
-const scenarioStore = useScenarioStore();
-const userStore = useUserStore();
-const artStore = useArtStore();
+const scenarioStore = useScenarioStore()
+const userStore = useUserStore()
+const artStore = useArtStore()
 
 // State
-const artImage = ref(null);
+const artImage = ref(null)
 
 // Computed properties
-const canDelete = computed(() => userStore.isAdmin || userStore.userId === scenario.userId);
-const isSelected = computed(() => scenarioStore.selectedScenario?.id === scenario.id);
+const canDelete = computed(
+  () => userStore.isAdmin || userStore.userId === scenario.userId,
+)
+const isSelected = computed(
+  () => scenarioStore.selectedScenario?.id === scenario.id,
+)
 const computedScenarioImage = computed(() => {
   if (artImage.value) {
-    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`;
+    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
   }
   if (scenario.imagePath) {
-    return scenario.imagePath;
+    return scenario.imagePath
   }
-  return '/images/scenarios/space.webp';
-});
+  return '/images/scenarios/space.webp'
+})
 
 // Genres, Locations, and Intros
-const locationLinks = computed(() => scenario.locations?.split(',') || []);
+const locationLinks = computed(() => scenario.locations?.split(',') || [])
 const introChoices = computed(() => {
   try {
-    return JSON.parse(scenario.intros) || [];
+    return JSON.parse(scenario.intros) || []
   } catch {
-    return [];
+    return []
   }
-});
+})
 
 // Methods
-const deleteScenario = () => scenarioStore.deleteScenario(scenario.id);
+const deleteScenario = () => scenarioStore.deleteScenario(scenario.id)
 const createChatRoom = (location) => {
   // Logic for creating a chat room at the given location
-  scenarioStore.createChatRoom(location);
-};
+  scenarioStore.createChatRoom(location)
+}
 const setCurrentChoice = (choice) => {
-  scenarioStore.currentChoice = choice;
-};
+  scenarioStore.currentChoice = choice
+}
 
 // On Mounted
 onMounted(async () => {
   if (scenario.artImageId) {
-    artImage.value = await artStore.getArtImageById(scenario.artImageId);
+    artImage.value = await artStore.getArtImageById(scenario.artImageId)
   }
-});
+})
 </script>

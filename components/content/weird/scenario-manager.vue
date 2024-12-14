@@ -8,7 +8,7 @@
         class="btn btn-accent rounded-full shadow-lg hover:shadow-xl"
         @click="toggleAddScenario"
       >
-        <icon name="plus" class="w-6 h-6" />
+        <Icon name="kind-icon:plus" class="w-6 h-6" />
       </button>
     </div>
 

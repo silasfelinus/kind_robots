@@ -1,7 +1,5 @@
 <template>
   <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto">
-    <h1 class="text-3xl font-bold text-gray-700 mb-4">Scenario Gallery</h1>
-
     <!-- Filter and Search -->
     <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
       <!-- User Filter -->
@@ -64,73 +62,72 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
-import { useScenarioStore } from '@/stores/scenarioStore';
-import { useUserStore } from '@/stores/userStore';
+import { computed, ref, onMounted } from 'vue'
+import { useScenarioStore } from '@/stores/scenarioStore'
+import { useUserStore } from '@/stores/userStore'
 
 // Stores
-const scenarioStore = useScenarioStore();
-const userStore = useUserStore();
+const scenarioStore = useScenarioStore()
+const userStore = useUserStore()
 
 // State
-const selectedUser = ref('all');
-const searchQuery = ref('');
-const isLoading = ref(true);
-const errorMessage = ref('');
+const selectedUser = ref('all')
+const searchQuery = ref('')
+const isLoading = ref(true)
+const errorMessage = ref('')
 
 // Lifecycle: Load Scenarios
 onMounted(async () => {
   try {
-    console.log('Loading scenarios...');
+    console.log('Loading scenarios...')
     if (!scenarioStore.scenarios.length) {
-      await scenarioStore.loadScenarios();
+      await scenarioStore.loadScenarios()
     }
-    console.log('Scenarios loaded:', scenarioStore.scenarios);
+    console.log('Scenarios loaded:', scenarioStore.scenarios)
   } catch (error) {
-    errorMessage.value = 'Failed to load scenarios. Please try again later.';
-    console.error('Error loading scenarios:', error);
+    errorMessage.value = 'Failed to load scenarios. Please try again later.'
+    console.error('Error loading scenarios:', error)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-});
+})
 
 // Computed: Filtered and searched scenarios
 const filteredScenarios = computed(() => {
   try {
-    let scenarios = scenarioStore.scenarios;
+    let scenarios = scenarioStore.scenarios
 
     // Filter by user
     if (selectedUser.value !== 'all') {
       scenarios = scenarios.filter(
-        (scenario) => scenario.userId === Number(selectedUser.value)
-      );
+        (scenario) => scenario.userId === Number(selectedUser.value),
+      )
     }
 
     // Search by title
     if (searchQuery.value.trim()) {
-      const query = searchQuery.value.trim().toLowerCase();
+      const query = searchQuery.value.trim().toLowerCase()
       scenarios = scenarios.filter((scenario) =>
-        scenario.title.toLowerCase().includes(query)
-      );
+        scenario.title.toLowerCase().includes(query),
+      )
     }
 
-    console.log('Filtered scenarios:', scenarios);
-    return scenarios;
+    console.log('Filtered scenarios:', scenarios)
+    return scenarios
   } catch (error) {
-    console.error('Error filtering scenarios:', error);
-    errorMessage.value = 'An error occurred while filtering scenarios.';
-    return [];
+    console.error('Error filtering scenarios:', error)
+    return []
   }
-});
+})
 
 // Methods
 function selectScenario(id) {
   try {
-    console.log('Selecting scenario:', id);
-    scenarioStore.selectScenario(id);
+    console.log('Selecting scenario:', id)
+    scenarioStore.selectScenario(id)
   } catch (error) {
-    console.error('Error selecting scenario:', error);
-    errorMessage.value = 'Failed to select scenario. Please try again.';
+    console.error('Error selecting scenario:', error)
+    errorMessage.value = 'Failed to select scenario. Please try again.'
   }
 }
 </script>

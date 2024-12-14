@@ -69,22 +69,6 @@ const userStore = useUserStore();
 // State
 const selectedUser = ref('all');
 const searchQuery = ref('');
-const isLoading = ref(true);
-
-// Simulate fetching scenarios
-watchEffect(async () => {
-  isLoading.value = true;
-  try {
-    await Promise.all([
-      scenarioStore.fetchScenarios(),
-      userStore.initialize(),
-    ]);
-  } catch (error) {
-    console.error('Error fetching scenarios or initializing user store:', error);
-  } finally {
-    isLoading.value = false;
-  }
-});
 
 // Computed: Filtered and searched scenarios
 const filteredScenarios = computed(() => {

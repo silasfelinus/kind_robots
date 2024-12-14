@@ -98,7 +98,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'A shadow passes overhead—a dragon, or something more ancient?',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/scene_97.webp',
+    imagePath: '/images/scenarios/scene_097.webp',
     locations:
       'ghostly saloon of forgotten heroes, dragon bone canyon, griffin roost gold mine, frontier town frozen in myth',
     artPrompt: `A wild west-inspired world where mythic creatures like griffins and dragons roam freely. Golden-hour light bathes ancient ruins, and the untamed frontier stretches out endlessly. Journey through dragon bone canyons and ghostly saloons where forgotten heroes once stood.`,

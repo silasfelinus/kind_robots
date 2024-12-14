@@ -32,20 +32,20 @@
     <div class="flex flex-col sm:w-2/3">
       <!-- Title and Description -->
       <h2 class="text-xl font-bold text-gray-800 truncate">
-        {{ scenarioData.title || 'Untitled Scenario' }}
+        {{ scenario.title || 'Untitled Scenario' }}
       </h2>
       <p class="text-sm text-gray-600">
-        {{ scenarioData.description || 'No description available.' }}
+        {{ scenario.description || 'No description available.' }}
       </p>
 
       <!-- Genres and Locations -->
       <div class="flex flex-wrap mt-2 gap-2">
         <!-- Genres -->
         <span
-          v-if="scenarioData.genres"
+          v-if="scenario.genres"
           class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full"
         >
-          {{ scenarioData.genres }}
+          {{ scenario.genres }}
         </span>
 
         <!-- Locations -->
@@ -76,74 +76,77 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useScenarioStore } from '@/stores/scenarioStore'
-import { useUserStore } from '@/stores/userStore'
-import { useArtStore } from '@/stores/artStore'
+import { ref, computed, onMounted } from 'vue';
+import { useScenarioStore } from '@/stores/scenarioStore';
+import { useUserStore } from '@/stores/userStore';
+import { useArtStore } from '@/stores/artStore';
 
 // Props
-defineProps({
+const { scenario } = defineProps({
   scenario: {
     type: Object,
     required: true,
   },
-})
-
-// Map prop to a computed property
-const scenarioData = computed(() => props.scenario)
+});
 
 // Stores
-const scenarioStore = useScenarioStore()
-const userStore = useUserStore()
-const artStore = useArtStore()
+const scenarioStore = useScenarioStore();
+const userStore = useUserStore();
+const artStore = useArtStore();
 
 // State
-const artImage = ref(null)
+const artImage = ref(null);
 
 // Computed properties
 const canDelete = computed(
-  () => userStore.isAdmin || userStore.userId === scenarioData.value.userId,
-)
+  () => userStore.isAdmin || userStore.userId === scenario.userId,
+);
 const isSelected = computed(
-  () => scenarioStore.selectedScenario?.id === scenarioData.value.id,
-)
+  () => scenarioStore.selectedScenario?.id === scenario.id,
+);
 const computedScenarioImage = computed(() => {
   if (artImage.value) {
-    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
+    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`;
   }
-  if (scenarioData.value.imagePath) {
-    return scenarioData.value.imagePath
+  if (scenario.imagePath) {
+    return scenario.imagePath;
   }
-  return '/images/scenarios/space.webp'
-})
+  return '/images/scenarios/space.webp';
+});
 
 // Genres, Locations, and Intros
-const locationLinks = computed(() => scenarioData.value.locations?.split(',') || [])
+const locationLinks = computed(() => scenario.locations?.split(',') || []);
 const introChoices = computed(() => {
   try {
-    return JSON.parse(scenarioData.value.intros) || []
+    return JSON.parse(scenario.intros) || [];
   } catch {
-    return []
+    console.error('Failed to parse intros:', scenario.intros);
+    return [];
   }
-})
+});
 
 // Methods
 const deleteScenario = () => {
-  if (scenarioData.value) scenarioStore.deleteScenario(scenarioData.value.id)
-}
+  if (scenario) scenarioStore.deleteScenario(scenario.id);
+};
 const createChatRoom = (location) => {
-  if (location) scenarioStore.createChatRoom(location)
-}
+  if (location) scenarioStore.createChatRoom(location);
+};
 const setCurrentChoice = (choice) => {
-  scenarioStore.currentChoice = choice
-}
+  scenarioStore.currentChoice = choice;
+};
 
 // On Mounted
 onMounted(async () => {
-console.log("loading scenario: ", scenario)
-console.log("scenarioData: ", scenarioData)
-  if (scenarioData.value.artImageId) {
-    artImage.value = await artStore.getArtImageById(scenarioData.value.artImageId)
+  console.log('Loading scenario:', scenario);
+
+  if (scenario.artImageId) {
+    try {
+      artImage.value = await artStore.getArtImageById(scenario.artImageId);
+      console.log('Art image loaded:', artImage.value);
+    } catch (error) {
+      console.error('Failed to load art image:', error);
+    }
   }
-})
+});
 </script>

@@ -17,16 +17,21 @@
       <Icon name="mdi:delete" class="w-4 h-4" />
     </button>
 
-    <!-- Scenario Image -->
-    <div
-      class="flex-shrink-0 relative flex justify-center items-center overflow-hidden rounded-lg md:w-1/3"
-    >
+    <!-- Scenario Image and Genres -->
+    <div class="flex-shrink-0 relative flex flex-col items-center md:w-1/3">
       <img
         :src="computedScenarioImage"
         alt="Scenario Image"
         class="rounded-2xl w-full h-40 object-cover transition-transform hover:scale-105"
         loading="lazy"
       />
+      <!-- Genres -->
+      <p
+        v-if="scenario.genres"
+        class="mt-2 text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full truncate"
+      >
+        {{ scenario.genres }}
+      </p>
     </div>
 
     <!-- Scenario Details -->
@@ -39,30 +44,15 @@
         {{ scenario.description || 'No description available.' }}
       </p>
 
-      <!-- Genres -->
-      <div class="flex flex-wrap mt-2 gap-2">
-        <span
-          v-if="scenario.genres"
-          class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full"
-        >
-          {{ scenario.genres }}
-        </span>
-      </div>
-
-      <!-- Locations -->
-      <div v-if="scenario.locations" class="mt-2 text-sm text-gray-600">
-        {{ scenario.locations }}
-      </div>
-
-      <!-- Intros (Selectable Buttons) -->
+      <!-- Intros -->
       <div
         v-if="isSelected"
-        class="flex flex-wrap gap-2 mt-4"
+        class="flex flex-col gap-2 mt-4"
       >
         <button
           v-for="(intro, index) in introChoices"
           :key="index"
-          class="btn btn-secondary btn-sm"
+          class="btn btn-secondary btn-sm text-left whitespace-normal"
           @click.stop="setCurrentChoice(intro)"
         >
           {{ intro }}
@@ -111,7 +101,7 @@ const computedScenarioImage = computed(() => {
   return '/images/scenarios/space.webp';
 });
 
-// Genres, Locations, and Intros
+// Intros
 const introChoices = computed(() => {
   try {
     return JSON.parse(scenario.intros) || [];

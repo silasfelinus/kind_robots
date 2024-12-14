@@ -78,11 +78,13 @@ export const useWeirdStore = defineStore({
 
     populateCurrentOptions() {
       if (this.initialChoices.length > 0) {
-        this.currentOptions = this.initialChoices.flatMap((choice) =>
-          JSON.parse(choice.intros) // Parse intros from JSON format
+        this.currentOptions = this.initialChoices.flatMap(
+          (choice) => JSON.parse(choice.intros), // Parse intros from JSON format
         )
       } else {
-        console.warn('No initial choices available to populate current options.')
+        console.warn(
+          'No initial choices available to populate current options.',
+        )
       }
       this.saveToLocalStorage()
     },
@@ -186,7 +188,7 @@ export const useWeirdStore = defineStore({
           const parsedState = JSON.parse(savedState)
           if (parsedState.initialChoices) {
             parsedState.initialChoices = parsedState.initialChoices.map(
-              (choice: any) => ({
+              (choice: Scenario) => ({
                 ...choice,
                 intros: JSON.stringify(choice.intros),
               }),

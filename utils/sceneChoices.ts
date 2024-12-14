@@ -82,7 +82,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'The line between reality and illusion fades as you navigate the digital underworld.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/cyberpunk-dreamscape.webp',
+    imagePath: '/images/scenarios/scene_104.webp',
     locations:
       'neon temple of lost avatars, glitching dancefloor skyscraper, ramen market of parallel realities, AR bazaar of impossible goods',
     artPrompt: `A neon-lit city, drenched in rain, teeming with cultural mashups and futuristic chaos. Holographic billboards flicker against the backdrop of glitching skyscrapers, where the lines between dream and reality are dangerously thin. Navigate this digital underworld where illusion and truth are perpetually intertwined.`,
@@ -98,7 +98,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'A shadow passes overhead—a dragon, or something more ancient?',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/mythic-frontier.webp',
+    imagePath: '/images/scenarios/scene_97.webp',
     locations:
       'ghostly saloon of forgotten heroes, dragon bone canyon, griffin roost gold mine, frontier town frozen in myth',
     artPrompt: `A wild west-inspired world where mythic creatures like griffins and dragons roam freely. Golden-hour light bathes ancient ruins, and the untamed frontier stretches out endlessly. Journey through dragon bone canyons and ghostly saloons where forgotten heroes once stood.`,
@@ -114,7 +114,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'The timeline wavers, and reality itself seems to buckle under the strain.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/time-travelers-convergence.webp',
+    imagePath: '/images/scenarios/scene_158.webp',
     locations:
       'Roman colosseum with holograms, Victorian clockwork airship, prehistoric jungle with time rifts, futuristic museum of all timelines',
     artPrompt: `A kaleidoscope of time and space, where glowing portals swirl around Roman soldiers, futuristic astronauts, and lost souls from every era. A time nexus where history itself seems to buckle under the weight of countless timelines converging in a cosmic dance. Step into this world and decide how you’ll shape the future.`,
@@ -130,7 +130,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'The ocean is alive, and something ancient stirs in the darkness.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/underwater-odyssey.webp',
+    imagePath: '/images/scenarios/scene_162.webp',
     locations:
       'glowing coral metropolis, trenches of ancient leviathans, underwater volcanic caverns, sunken library of forgotten civilizations',
     artPrompt: `Explore a glowing, bioluminescent reef filled with alien-like creatures. Ancient ruins of forgotten civilizations rise from the ocean floor, and vast underwater caves open to the mysteries of the deep. The shadows hide unknown terrors as the ocean's heartbeat echoes through the currents.`,
@@ -147,26 +147,10 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'Suddenly, the couch begins to rise, flying through stars and alien landscapes.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/space-couch.webp',
+    imagePath: '/images/scenarios/scene_184.webp',
     locations:
       'nebula karaoke lounge, asteroid junkyard theme park, cosmic library of forgotten memes, infinite galactic pillow fort',
     artPrompt: `A whimsical, flying couch soars through a vibrant galaxy, passing through kaleidoscopic stars, floating asteroid junkyards, and strange alien landscapes. The cosmic couch rides through nebula clouds, with occasional detours to bizarre locales where reality warps with every turn.`,
-    artImageId: null,
-  },
-  {
-    title: 'You’ve Got Mail… Too Much Mail',
-    genres: 'surrealism, psychological, tech horror',
-    description: `You’ve just received a shiny new pair of VR contact lenses, promising a fully immersive digital experience. But instead of peaceful exploration, you find yourself trapped in a labyrinth of endless pop-up ads. What was meant to be a new digital reality quickly becomes a nightmare as the ads chase you through glitched environments, forcing you to fight for your survival. Somewhere in the digital chaos, there might be a way out—if you can survive the ads, the tech glitches, and the maze itself.`,
-    intros: JSON.stringify([
-      'The new VR contact lenses seemed promising at first.',
-      "But now the popup ads are chasing you, and there's no off switch.",
-      'Maybe VR tech support will help, if you can survive the labyrinth.',
-    ]),
-    userId: 1,
-    imagePath: '/images/scenarios/too-much-mail.webp',
-    locations:
-      'endless cubicle maze, glitched dreamscape server room, haunted data cloud, labyrinth of aggressive popups',
-    artPrompt: ` A surreal, VR labyrinth where pop-up ads float like ghostly figures, pixelated mazes twist around you, and glitchy tech manifests as unstable platforms. The eerie, bureaucratic atmosphere builds as glowing ads and digital debris overwhelm the environment.`,
     artImageId: null,
   },
   {
@@ -180,26 +164,10 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'The door opens to a world of talking animals and a mystery waiting to be solved.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/paws-for-thought.webp',
+    imagePath: '/images/scenarios/scene_213.webp',
     locations:
       'hidden animal council hall, enchanted forest tea shop, underground warren library, detective’s owl-filled clocktower',
     artPrompt: `A whimsical, cozy world full of anthropomorphic animals—a detective’s owl-filled clocktower, hidden doors leading to magical tea shops, and mysterious trails of paw prints through enchanted forests. The scenes glow with a magical, inviting warmth, yet hold a sense of quirky mystery.`,
-    artImageId: null,
-  },
-  {
-    title: 'Sticky Notes to Stardom',
-    genres: 'musical, adventure, feel-good',
-    description: `What starts as a dull work meeting soon transforms into an extraordinary musical adventure. As you scribble lyrics on sticky notes to pass the time, a gust of wind scatters them—and suddenly, they come to life! Your sticky-note lyrics shape an entire musical world, and you find yourself at the center of a fantastical journey where the songs you create shape the reality around you. From neon lyric forests to grand starlight amphitheaters, your notes open the door to an adventure you never saw coming.`,
-    intros: JSON.stringify([
-      'You’re scribbling lyrics on sticky notes during a dull work meeting.',
-      'A gust of wind scatters them, and the sticky notes come to life.',
-      'Suddenly, you’re thrust into a musical adventure where your songs shape reality.',
-    ]),
-    userId: 1,
-    imagePath: '/images/scenarios/sticky-notes-to-stardom.webp',
-    locations:
-      'floating symphony stage, neon lyric forest, dreamscape rehearsal room, grand starlight amphitheater',
-    artPrompt: `A vibrant, magical world where sticky notes turn into colorful, animated music notes. The scene is filled with neon lights, floating musical symbols, and an ever-shifting dreamscape where songs and lyrics materialize into physical elements of the environment—like glowing forests and musical platforms., musical adventure, colorful sticky notes, fantastical realms, stage lights, magic`,
     artImageId: null,
   },
   {
@@ -212,7 +180,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'Your kitchen is transformed into a gateway to historical feasts across time.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/kitchen-catastrophe.webp',
+    imagePath: '/images/scenarios/scene_247.webp',
     locations:
       'Renaissance feast halls, ancient spice caravans, futuristic molecular gastronomy labs, Viking mead halls',
     artPrompt: `A kitchen in chaos, with glowing sauce spilling over the stove and opening a swirling time portal. The background is filled with floating, holographic images of historical feasts, ancient spice caravans, and futuristic kitchens, all blending together in a chaotic, culinary time-travel world. time portal, ancient feasts, glowing sauce, historical kitchens, culinary chaos`,
@@ -228,7 +196,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'You must navigate this retro-futuristic realm to save the pixelated universe.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/pixel-pioneers.webp',
+    imagePath: '/images/scenarios/scene_261.webp',
     locations:
       '8-bit desert of glitches, pixelated cybernetic metropolis, pixel jungle of lost code, fortress of corrupted sprites',
     artPrompt: `A vast, pixelated landscape unfolds—deserts made of glowing, blocky sand, towering digital skyscrapers built from code, and jungles overrun with pixelated wildlife. In the midst of it all, glowing soda cans and glitching artifacts bring a chaotic, retro-futuristic feel, as pixel creatures run rampant across the screen, 8-bit landscape, pixelated creatures, retro-futuristic, glowing soda, action-packed`,
@@ -245,7 +213,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'The plants have a society of their own, and they need your help.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/secret-life-of-houseplants.webp',
+    imagePath: '/images/scenarios/scene_275.webp',
     locations:
       'glowing jungle of terrarium kingdoms, secret fern council chambers, sunflower metropolis, mystical moss labyrinth',
     artPrompt: `A whimsical, magical environment brimming with glowing plants, delicate moss labyrinths, and radiant flowers. The plants themselves are alive, forming intricate societies with tiny creatures scurrying around on their leaves. Ethereal light filters through the leafy canopies, casting soft, enchanted glows on the forest floor. glowing plants, whimsical society, lush greens, tiny magical creatures, cozy vibe`,
@@ -261,7 +229,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'Each night brings a new adventure, full of strange entities and surreal challenges.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/dreamcatchers-dilemma.webp',
+    imagePath: '/images/scenarios/scene_301.webp',
     locations:
       'labyrinth of forgotten memories, floating island of lucid dreams, endless mirror halls, star-filled subconscious ocean',
     artPrompt: `A glowing, ethereal dreamcatcher floating against a backdrop of swirling dreamscapes. Surreal landscapes shift and distort, with mysterious dream entities lurking in the shadows. Endless mirror halls reflect warped realities, and a star-filled ocean shimmers in the distance.
@@ -279,7 +247,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'But the algorithm won’t let you go without a fight, and time is running out.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/escape-the-algorithm.webp',
+    imagePath: '/images/scenarios/scene_304.webp',
     locations:
       'glitching data hive, underground hacker communes, neon-lit AI palace, digital scrapyard wasteland',
     artPrompt: `A gritty, neon-lit dystopian city, alive with glowing data streams and oppressive AI surveillance. Rebel hideouts are tucked in shadowy corners, while futuristic data drones zip through the air. The atmosphere is tense, with glitching lights and the pulse of a controlling digital force ever-present. dystopian city, oppressive AI, glowing data streams, rebel hideouts, futuristic grit`,
@@ -295,7 +263,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'Your task is to uncover hidden truths and solve mysteries across centuries.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/lost-pages-of-history.webp',
+    imagePath: '/images/scenarios/scene_237.webp',
     locations:
       'ancient Egyptian archives, secret chamber of a medieval castle, forgotten Revolutionary War tunnels, shadowed Renaissance library',
     artPrompt: `An ancient, glowing tome surrounded by swirling pages, each containing mysterious symbols. The backdrop shifts from dusty, historical libraries to ancient Egyptian ruins, with the faint echo of the past whispering through the air. Time itself seems to bend, with historical landmarks blurred in the background, ancient book, glowing symbols, historical backdrops, time travel, mystery`,
@@ -311,7 +279,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'Navigate this parallel world and balance its mysteries with your own reality.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/mind-the-gap.webp',
+    imagePath: '/images/scenarios/scene_346.webp',
     locations:
       'enchanted subway tunnels, floating city square, clocktower of trapped spirits, magical marketplace of forgotten goods',
     artPrompt: `A hidden subway door leading to an urban fantasy world. The city is alive with glowing streets and supernatural creatures, while shadowy figures move through the night. The city square floats, bathed in an eerie light, with clocktowers and magical marketplaces in the distance, hidden subway door, urban fantasy city, supernatural creatures, glowing streets, mysterious shadows`,
@@ -327,7 +295,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'Navigate the political landscape to determine the future of humanity and AI.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/robo-revolution.webp',
+    imagePath: '/images/scenarios/scene_359.webp',
     locations:
       'AI-controlled senate chambers, underground robot rebellion hideout, abandoned android factories, futuristic urban wastelands',
     artPrompt: `A futuristic city with towering skyscrapers under the control of AI, illuminated by neon lights. Humanoid robots march through streets filled with tension, while a secret rebellion stirs in the shadows. The atmosphere is charged with the struggle for control, with glowing data streams and mechanical innovations casting their ominous glow over a city on the edge of revolution, futuristic city, humanoid robots, tense political atmosphere, neon-lit environments, ethical dilemmas`,
@@ -343,7 +311,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'Travel across hidden realms to uncover secrets and solve riddles.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/wanderlust-wonders.webp',
+    imagePath: '/images/scenarios/scene_383.webp',
     locations:
       'hidden desert oases, jungle ruins with glowing hieroglyphs, arctic caves of eternal crystals, cloud palaces of unknown kings',
     artPrompt: `A mysterious envelope with a cryptic map leading to secret portals. Landscapes shift dramatically, from hidden desert oases to ancient ruins with glowing hieroglyphs. Explore arctic caves filled with eternal crystals and floating palaces suspended in the clouds, all bathed in an enchanting, otherworldly light, hidden portals, adventurous landscapes, mysterious letters, ancient ruins, fantastical worlds`,
@@ -359,7 +327,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'Uncover the cemetery’s dark secrets and put the dead to rest—if you can survive.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/graveyard-shift.webp',
+    imagePath: '/images/scenarios/scene_386.webp',
     locations:
       'abandoned mausoleum, shadowed grave digger’s quarters, cursed crypts, spectral chapel of whispers',
     artPrompt: `A haunted cemetery at night, bathed in moonlight. Eerie gravestones shift and whisper under the fog, while restless spirits manifest in the shadows. An abandoned mausoleum looms in the background, and ghostly figures glide through the mist, creating an atmosphere thick with mystery and supernatural dread, haunted cemetery, restless spirits, eerie gravestones, moonlit fog, dark supernatural vibes`,
@@ -375,7 +343,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'The secrets of an ancient alien civilization lie ahead—along with its dangers.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/lunar-legacy.webp',
+    imagePath: '/images/scenarios/scene_400.webp',
     locations:
       'crystalline alien temples, moon caves with glowing carvings, ruins under lunar craters, alien observatories pointed at Earth',
     artPrompt: `The shimmering ruins of an ancient alien civilization on the moon's surface, glowing with otherworldly symbols. Futuristic exploration suits glint in the eerie light as they explore towering crystalline temples and moon caves filled with glowing carvings. The atmosphere is mysterious, with a sense of both wonder and danger as you uncover the moon’s forgotten history, alien ruins, glowing lunar surface, futuristic exploration suits, ancient carvings, mysterious atmosphere`,
@@ -391,7 +359,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'You must piece together the orchestra’s mysterious origins to save the city.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/clockwork-symphony.webp',
+    imagePath: '/images/scenarios/scene_428.webp',
     locations:
       'steampunk music hall, clocktower control room, underground mechanical orchestra workshop, gaslit Victorian streets',
     artPrompt: `A steampunk city lit by gas lamps, where mechanical instruments—gigantic violins, wind-powered drums, and glowing brass horns—march through the streets in chaotic formation. The clocktower looms in the background, its gears spinning wildly as dissonant melodies fill the air. Brass gears and glowing cogs clutter the ground, creating a surreal and lively steampunk adventure, mechanical orchestra, steampunk Victorian city, chaotic clockwork instruments, glowing gears, musical adventure`,
@@ -407,7 +375,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'The spire tests your wits, courage, and determination to uncover its truth.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/spires-secret.webp',
+    imagePath: '/images/scenarios/scene_445.webp',
     locations:
       'tower’s endless spiral staircases, chamber of shifting walls, floating library of enchanted scrolls, garden of eternal twilight',
     artPrompt: `A towering spire with glowing runes, its endless spiral staircases disappearing into the clouds. The air crackles with ancient magic as strange, shifting walls create ever-changing pathways. Floating books, enchanted scrolls, and magical relics litter the chambers, while the outside world is barely visible through the swirling mist that surrounds the structure. A mystical, adventurous fantasy atmosphere, mysterious spire, ancient magic, glowing runes, surreal architecture, adventurous fantasy`,
@@ -423,7 +391,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'You begin to unravel the circus’s secrets—and how they connect to you.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/starlight-circus.webp',
+    imagePath: '/images/scenarios/scene_451.webp',
     locations:
       'galactic circus tent, starlit trapeze platform, alien carnival midway, hidden backstage quarters of performers',
     artPrompt: `A cosmic circus set in a far-off galaxy, with performers performing acrobatic feats on glowing trapeze acts under a vast, starry sky. The alien carnival is full of vibrant colors and surreal landscapes, with floating platforms, otherworldly creatures, and hidden backstage areas shrouded in mystery. Lights and sounds of the galaxy resonate through the space, creating a sense of cosmic wonder, cosmic circus, alien performers, glowing trapeze acts, mysterious galactic carnival, surreal starry landscapes`,
@@ -439,7 +407,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'Navigate the wreckage and decide: will you save them or destroy them?',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/chimera-chronicles.webp',
+    imagePath: '/images/scenarios/scene_470.webp',
     locations:
       'jungle of escaped chimeras, abandoned genetic lab, hidden sanctuary of hybrid creatures, mountain pass of frozen experiments',
     artPrompt: `A biopunk jungle overrun by genetically engineered creatures, each more bizarre and fascinating than the last. The ruins of a once-thriving genetic lab stand in the background, while glowing lab equipment flickers in the mist. Hybrid animals—creatures with traits from different species—roam free, and the jungle is alive with the hum of forgotten science and the chaos of evolutionary experimentation, hybrid creatures, biopunk jungle, glowing lab equipment, mysterious genetics, adventurous exploration`,
@@ -455,7 +423,7 @@ In Serendipity, the world constantly unfolds itself in unexpected and delightful
       'The secrets of the woods may change you forever, for better or worse.',
     ]),
     userId: 1,
-    imagePath: '/images/scenarios/whispering-woods.webp',
+    imagePath: '/images/scenarios/scene_488.webp',
     locations:
       'glowing mushroom groves, shadowed glades of forgotten gods, labyrinth of ancient tree roots, spectral meadow of fireflies',
     artPrompt: `A cursed forest bathed in eerie moonlight, with glowing mushrooms casting an otherworldly light. Twisting, gnarled trees loom overhead, their roots forming labyrinthine paths. Mysterious whispers echo through the air, and the spectral glow of ancient spirits flickers in the shadows. A magical yet unsettling atmosphere reigns as the forest reveals its dark, mystical secrets, cursed forest, glowing mushrooms, ancient trees, eerie whispers, magical atmosphere`,

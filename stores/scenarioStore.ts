@@ -26,57 +26,48 @@ export const useScenarioStore = defineStore({
 
   actions: {
     async initialize() {
-  if (this.isInitialized) return
-  this.loading = true
+      if (this.isInitialized) return
 
-  try {
-    // Restore from localStorage first
-    const savedState = localStorage.getItem('scenarios')
-    const savedForm = localStorage.getItem('scenarioForm')
+      try {
+        // Restore from localStorage first
+        const savedState = localStorage.getItem('scenarios')
+        const savedForm = localStorage.getItem('scenarioForm')
 
-    if (savedState) {
-      this.scenarios = JSON.parse(savedState) as Scenario[]
-    } else {
-      // Populate seed data only if no local data
-      this.populateInitialScenarios()
-    }
+        if (savedState) {
+          this.scenarios = JSON.parse(savedState) as Scenario[]
+        }
 
-    // Restore scenario form from localStorage
-    if (savedForm) {
-      this.scenarioForm = JSON.parse(savedForm)
-    }
+        // Restore scenario form from localStorage
+        if (savedForm) {
+          this.scenarioForm = JSON.parse(savedForm)
+        }
 
-    console.log('Before fetchScenarios:', this.scenarios)
+        // Initialize with scene choices
+        this.scenarios = scenarios.map((choice) => ({
+          ...choice,
+          id: Math.floor(Math.random() * 10000), // Generate a random ID or replace with real IDs
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }))
 
-    // Fetch scenarios from API to update
-    const fetchedScenarios = await this.fetchScenarios()
+        // Fetch scenarios from API to update
+        const fetchedScenarios = await this.fetchScenarios()
 
-    // Only overwrite scenarios if API fetch returns data
-    if (fetchedScenarios && fetchedScenarios.length) {
-      this.scenarios = fetchedScenarios
-      this.syncToLocalStorage()
-    }
+        // Supplement existing scenarios with fetched data (avoid overwriting)
+        if (fetchedScenarios && fetchedScenarios.length) {
+          // Merge and avoid duplicates by checking the id
+          const fetchedScenarioIds = new Set(fetchedScenarios.map((s) => s.id))
+          this.scenarios = [
+            ...this.scenarios,
+            ...fetchedScenarios.filter((s) => !fetchedScenarioIds.has(s.id)),
+          ]
+          this.syncToLocalStorage()
+        }
 
-    console.log('After fetchScenarios:', this.scenarios)
-
-    this.isInitialized = true
-  } catch (error) {
-    handleError(error, 'initializing scenario store')
-  } finally {
-    this.loading = false
-  }
-},
-
-
-    // Populate initial scenarios with seed data
-    populateInitialScenarios() {
-      this.scenarios = scenarios.map((choice) => ({
-        ...choice,
-        id: Math.floor(Math.random() * 10000), // Generate a random ID or replace with real IDs
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }))
-      this.syncToLocalStorage()
+        this.isInitialized = true
+      } catch (error) {
+        handleError(error, 'initializing scenario store')
+      }
     },
 
     syncToLocalStorage() {
@@ -89,24 +80,22 @@ export const useScenarioStore = defineStore({
     },
 
     async fetchScenarios(): Promise<Scenario[]> {
-  this.loading = true
+      this.loading = true
 
-  try {
-    const response = await performFetch<Scenario[]>('/api/scenarios')
-    if (response.success && response.data) {
-      console.log('Fetched scenarios from API:', response.data)
-      return response.data // Return fetched data to the caller
-    } else {
-      throw new Error(response.message || 'Failed to fetch scenarios.')
-    }
-  } catch (error) {
-    handleError(error, 'fetching scenarios')
-    return [] // Return empty array on failure to avoid overwriting
-  } finally {
-    this.loading = false
-  }
-},
-
+      try {
+        const response = await performFetch<Scenario[]>('/api/scenarios')
+        if (response.success && response.data) {
+          return response.data // Return fetched data to the caller
+        } else {
+          throw new Error(response.message || 'Failed to fetch scenarios.')
+        }
+      } catch (error) {
+        handleError(error, 'fetching scenarios')
+        return [] // Return empty array on failure to avoid overwriting
+      } finally {
+        this.loading = false
+      }
+    },
 
     async selectScenario(scenarioId: number) {
       const scenario = this.scenarios.find((s) => s.id === scenarioId)

@@ -15,7 +15,7 @@ export const scenarios = [
     userId: 1,
     imagePath: '/images/scenarios/space.webp',
     locations:
-      `Wormhole Longue, All-Gender All-Species Omnirestroom, World Market, Smuggler's Warehouse`,
+      `Wormhole Lounge, All-Gender All-Species Omnirestroom, World Market, Smuggler's Warehouse`,
     artPrompt: `Serendipity Space Bar is a bustling, neon-lit haven for intergalactic travelers. Picture a classic sci-fi bar with a retro-futuristic twist: curved chrome counters, floating drink trays, and walls lined with glowing alien artifacts that hum faintly with energy.
 
 The main room is alive with chatter, laughter, and the occasional universal translator malfunction, as a diverse crowd of patrons mingles: tentacled diplomats, holographic musicians, and cyborg bounty hunters nursing drinks in mismatched glasses. The bar's centerpiece is a massive, suspended aquarium filled with bioluminescent jellyfish-like creatures that pulse in time with the music.

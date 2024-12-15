@@ -23,6 +23,178 @@ The main room is alive with chatter, laughter, and the occasional universal tran
 The lighting is a mix of blues and purples, occasionally interrupted by the flash of a teleportation booth or the crackle of an unruly plasma drink. Drinks are served in glasses that hover, bubble, or shift colors depending on the mood of the drinker. And in the corner, a battered jukebox plays hits from stars both distant and dead.`,
     artImageId: null,
   },
+{
+  title: 'I Am a New Intern and I Will Shatter the Glass Ceiling with My Giant Sledgehammer',
+  genres: 'comedy, office satire, adventure',
+  inspirations: 'The Office, Dilbert, She-Hulk, Power Fantasy',
+  description:
+    `You’re the newest intern at OverCorp, the soul-sucking megacorporation that practically owns the world. Armed with your trusty sledgehammer and unyielding determination, you’re not just here to fetch coffee—you’re here to smash hierarchies, take names, and maybe even become CEO. Can you survive the corporate grind (and HR)?`,
+  intros: JSON.stringify([
+    `YOUR FIRST DAY: The breakroom coffee tastes like burnt despair, your badge won’t open half the doors, and your boss just asked you to file their sentient tax forms. But hey, at least you’ve got your sledgehammer.`,
+    `HR NIGHTMARE: It’s the weekly team-building seminar, and you’re two minutes away from testing how well glass ceilings shatter. Luckily, no one’s noticed the sparks flying off your “motivation” yet.`,
+    `THE CEO SUMMONS YOU: You’ve made waves—both figuratively and literally (that accounting water feature never stood a chance). Now you’re face to face with the CEO. Do you bring the sledgehammer or play it cool?`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/office.webp',
+  locations: `Breakroom of Despair, Cubicle City, Rooftop Garden of Secrets, Elevator to Nowhere`,
+  artPrompt: `A dystopian corporate office with flickering fluorescent lights, endless rows of cubicles, and motivational posters that seem to mock the workers. The main character stands out: a fiery-eyed intern gripping a comically oversized sledgehammer, ready to disrupt the monotony. Papers fly, a vending machine sparks, and the background is a mix of grim office hues with vibrant bursts of rebellious energy.`,
+  artImageId: null,
+},
+{
+  title: 'Why Do People Keep Attacking My Dungeon?',
+  genres: 'fantasy, comedy, adventure',
+  inspirations: 'Dungeon Keeper, Overlord, One Punch Man',
+  description:
+    `As the proud (and long-suffering) owner of a mid-tier dungeon, you’re constantly fending off adventurers looking for loot, glory, or just a good brawl. Between rebuilding traps and calming your hired goblins, you’re starting to wonder: why does everyone think you’re the villain here?`,
+  intros: JSON.stringify([
+    `UNWANTED GUESTS: Another day, another party of adventurers kicking down your door. You’d send the minions, but they’re still on their union-mandated lunch break.`,
+    `NEW TRAP TESTING: “Welcome to the newest addition to our dungeon defenses: The Spike Carousel™. Please keep arms, legs, and swords inside at all times—or don’t. Your choice.”`,
+    `FINAL BOSS TIME: After hours of chaos, you sigh and roll up your sleeves. If you want something done right, you’ve got to do it yourself. Cue the boss music.`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/dungeon.webp',
+  locations: `The Slime Pits, Gold-Laden Treasure Room, Hall of Traps, Goblin Staff Break Room`,
+  artPrompt: `A chaotic dungeon scene with piles of broken weapons, confused goblins carrying paperwork, and the dungeon master—a weary figure in battle-worn robes—fixing a broken trap. The setting is dimly lit with glowing crystals, but the atmosphere is more comedic than ominous, with quirky details like a "No Adventurers Allowed" sign.`,
+  artImageId: null,
+},
+{
+  title: 'High School Octopus Dating Simulator',
+  genres: 'romantic comedy, absurdist, slice-of-life',
+  inspirations: 'Hatoful Boyfriend, Doki Doki Literature Club, Octodad',
+  description:
+    `You’re the only human transfer student at Deep Sea Academy, a high school for aquatic life. Your classmates range from charming octopi to shy jellyfish and even a brooding shark or two. Can you navigate romance, exams, and underwater drama?`,
+  intros: JSON.stringify([
+    `TRANSFER STUDENT BLUES: You’re the only human in class, and your deskmate just suctioned your homework. Welcome to Deep Sea Academy!`,
+    `THE CLASS PRESIDENT: Octavia, the charismatic octopus student body president, notices you. Is it admiration, curiosity, or something more?`,
+    `PROM NIGHT: The big dance is coming up, and you’re drowning in choices. Will you ask the shy squid, the sporty dolphin, or go solo?`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/underwater.webp',
+  locations: `The Coral Cafeteria, Kelp Library, Tidepool Gymnasium, The Principal's Reef`,
+  artPrompt: `A colorful underwater high school setting with desks made of coral, glowing jellyfish lamps, and octopus students mingling with other sea creatures. The human protagonist stands awkwardly in the middle, holding a soggy notebook and looking both excited and overwhelmed.`,
+  artImageId: null,
+},
+{
+  title: 'It’s My Birthday So I Kidnapped a Princess and Today We’re Getting Married',
+  genres: 'comedy, fantasy, romance',
+  inspirations: 'Shrek, The Princess Bride, Disenchantment',
+  description:
+    `You’re an unconventional villain who’s decided to take matters of romance into your own hands. Sure, kidnapping a princess is frowned upon, but what better birthday present could you ask for? The only problem: your dungeon’s a mess, the guests are arriving, and the princess isn’t exactly thrilled.`,
+  intros: JSON.stringify([
+    `PRE-WEDDING CHAOS: “The cake is on fire, the goblins are arguing over seating, and the princess just climbed out the window. Other than that, it’s going great!”`,
+    `ROYAL BACKLASH: The kingdom’s knights are at your door. You grab the nearest enchanted sword and yell, “Can we at least cut the cake first?”`,
+    `LOVE IS HARD: Between dodging assassins and arguing over vows, you wonder if true love is really worth the trouble. Spoiler: it is.`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/wedding.webp',
+  locations: `The Overgrown Courtyard, Dungeon Wedding Hall, Lava Moat, Tower of Cold Feet`,
+  artPrompt: `A comedic dungeon-turned-wedding venue with mismatched decorations: streamers made of chains, a lopsided cake, and goblin waitstaff in ill-fitting tuxedos. The princess stands at the altar, arms crossed, while the villain looks both proud and frazzled. Guests include skeleton knights, fairies, and a dragon trying to eat the buffet.`,
+  artImageId: null,
+},
+{
+  title: 'Alien Zookeeper',
+  genres: 'sci-fi, humor, management sim',
+  inspirations: 'Zoo Tycoon, Men in Black, Hitchhiker’s Guide to the Galaxy',
+  description:
+    `Congratulations! You’ve been hired as the newest zookeeper at the galaxy’s most chaotic wildlife sanctuary. With creatures ranging from telepathic squids to gravity-defying giraffes, it’s your job to keep the peace, feed the beasts, and avoid becoming lunch.`,
+  intros: JSON.stringify([
+    `FIRST DAY: The alien giraffe just turned itself inside out again, the sentient moss is in the ventilation system, and your boss keeps calling you “meatbag.” Welcome aboard!`,
+    `FEEDING TIME: “Do NOT under any circumstances feed the Chrono-Lions after sundown,” the manual says. Too bad they forgot to mention which one is the Chrono-Lion.`,
+    `ESCAPE ALERT: A black hole hamster escapes its cage. You’ve got ten minutes before it consumes half the park. Good luck!`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/zoo.webp',
+  locations: `The Anti-Gravity Aviary, Goo Habitat, Predator Row, Space Mammal Enclosure`,
+  artPrompt: `A sprawling alien zoo with shimmering containment fields, floating pathways, and exhibits housing bizarre creatures like jellyfish that glow in binary and enormous beasts with stars in their fur. The zookeeper—wearing an overwhelmed expression—is surrounded by chaos: a tiny alien chewing on their clipboard, glowing trails left by an escaped critter, and a telepathic squid trying to talk.`,
+  artImageId: null,
+},
+{
+  title: 'Zombie Necromancer Pet Shop',
+  genres: 'dark comedy, fantasy, management sim',
+  inspirations: 'Tim Burton, The Sims, Stardew Valley',
+  description:
+    `You run a quaint little pet shop specializing in undead companions. From skeletal kittens to zombie parrots, your shop is beloved by ghouls and necromancers alike. Just try not to lose track of inventory when the full moon rolls around.`,
+  intros: JSON.stringify([
+    `CUSTOMER COMPLAINT: “The skeleton puppy you sold me keeps chewing through walls!” Well, at least it’s happy?`,
+    `FULL MOON: All the zombie pets are restless, the banshee cats won’t stop howling, and the lich next door just filed a noise complaint. Business as usual.`,
+    `AN UNEXPECTED DELIVERY: A mysterious crate arrives. Inside, a “pet” that’s much bigger—and much angrier—than expected. You might need a bigger cage.`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/petshop.webp',
+  locations: `Bone Birdcages, Crypt Cattery, Ghoul Grooming Station, Potion-Filled Aquariums`,
+  artPrompt: `A dimly lit pet shop filled with whimsical undead creatures: skeletal puppies wagging their tails, zombie parrots squawking half-spelled curses, and tanks of ghostly fish floating serenely. The shopkeeper—a quirky necromancer in a worn-out robe—holds a clipboard, looking both proud and stressed as a banshee cat claws at the counter.`,
+  artImageId: null,
+},
+{
+  title: 'Fantasy Convenience Store Employee',
+  genres: 'comedy, fantasy, slice-of-life',
+  inspirations: 'Clerks, Terry Pratchett, Stardew Valley',
+  description:
+    `Welcome to Ye Olde Quick-Stop, the most popular convenience store in the kingdom. You sell potions, enchanted snacks, and emergency armor polish to adventurers, dragons, and the occasional wizard in need of midnight snacks.`,
+  intros: JSON.stringify([
+    `AFTER-HOURS SHIFT: The dragon who’s been loitering for an hour finally approaches. “Do you guys sell gold-flavored energy drinks?” he asks, setting the counter on fire in the process.`,
+    `IMPOSSIBLE CUSTOMERS: A knight walks in demanding “a sword that slays everything, including boredom.” You smile through gritted teeth and suggest a crossword puzzle.`,
+    `STOCK NIGHTMARE: A mislabeling error leads to explosive apples in the produce aisle. You’re starting to think the wizard supplier is messing with you.`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/store.webp',
+  locations: `Potion Aisle, Magical Snack Bar, Armor Polish Shelf, Enchanted Broom Closet`,
+  artPrompt: `A medieval convenience store with shelves stocked with glowing potions, enchanted snacks, and strange trinkets. The employee—a tired but resourceful clerk in a simple tunic—is trying to manage an argument between a hungry dragon and a wizard holding a suspiciously smoking bag of chips.`,
+  artImageId: null,
+},
+{
+  title: 'My Boss is a Gorgon: Greek Mythology Personal Assistant Simulator',
+  genres: 'comedy, fantasy, workplace satire',
+  inspirations: 'The Devil Wears Prada, Greek Myths, Good Omens',
+  description:
+    `Being a personal assistant to Medusa is no small feat. Between managing her social calendar, dodging stares that could literally kill, and keeping the other gods from ruining her day, you’ve got your hands full. Can you survive the ultimate trial of the ancient world: a 9-to-5 job?`,
+  intros: JSON.stringify([
+    `FIRST TASK: “Pick up my dry cleaning,” Medusa says, tossing you a bag of stone clothes. “And try not to petrify the tailor this time.”`,
+    `IMPOSSIBLE DEADLINES: Zeus demands his thunderbolt back, Hermes is late for a meeting, and Medusa’s snakes need a spa day. All before lunch.`,
+    `GORGON NETWORKING: It’s the annual Mount Olympus mixer. Your job? Stop Medusa from turning the Pantheon into statues before dessert.`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/office-gorgon.webp',
+  locations: `Medusa’s Office, Mount Olympus Boardroom, The Eternal Watercooler, Tartarus HR`,
+  artPrompt: `A sleek, mythological office with marble desks, golden stationery, and an intimidating gorgon boss with snakes for hair. The assistant—holding a stack of papers and looking exhausted—is trying to calm down a feuding Hermes and Apollo while Medusa glares from her luxurious stone chair.`,
+  artImageId: null,
+},
+{
+  title: `I’m a 200-Foot Kaiju and I’m Hungry`,
+  genres: 'comedy, monster mayhem, survival',
+  inspirations: 'Godzilla, Rampage, Pacific Rim',
+  description:
+    `You’re a giant kaiju, awake after a millennia-long nap—and starving. The city below is your buffet, but those pesky humans and their mechs keep getting in the way. Can you eat your fill without getting zapped?`,
+  intros: JSON.stringify([
+    `MORNING HUNGER: You yawn, stretch, and accidentally knock over a skyscraper. Breakfast smells good, but why is it shooting lasers at you?`,
+    `MID-BATTLE SNACKS: The humans bring out the big guns, but jokes on them—you just grabbed a taco truck. Let’s see how they like fighting hangry.`,
+    `MEAL PLANNING: Sushi? Skyscrapers? Mech piloted by some kid with an attitude problem? Decisions, decisions.`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/kaiju.webp',
+  locations: `City Center Buffet, Offshore Snack Zone, Military Dessert Table, Nuclear Reactor Diner`,
+  artPrompt: `A massive kaiju towering over a city, holding a taco truck in one claw and eyeing a sushi boat in the harbor. The background features panicked citizens, mechs trying to attack, and a skyline illuminated by fires and glowing neon signs. Despite the destruction, the kaiju looks more hungry than menacing.`,
+  artImageId: null,
+},
+{
+  title: 'God Simulator',
+  genres: 'comedy, strategy, cosmic chaos',
+  inspirations: 'Black & White, The Sims, The Good Place',
+  description:
+    `Congratulations, you’re a new deity! The universe is your sandbox, and your worshippers are (mostly) loyal. Shape worlds, perform miracles, and deal with the occasional smiting request—but watch out, because other gods are watching, and they don’t play fair.`,
+  intros: JSON.stringify([
+    `FIRST PRAYER: “Oh great one,” a tiny worshipper whispers. “Should I plant turnips or potatoes?” You create a thunderstorm just to stall for time.`,
+    `DIVINE RIVALRIES: Another god challenges you to a duel. Your weapon? A lightning bolt shaped like a very annoyed chicken.`,
+    `MORTAL MISCHIEF: Your followers built a statue of you—but it’s, uh, not flattering. Do you fix it, smite them, or start an earthquake for laughs?`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/god.webp',
+  locations: `Celestial Workshop, Mortal Realms, Heaven’s Complaint Department, Cosmic Arena`,
+  artPrompt: `A cosmic throne room with glowing stars and swirling galaxies, where a deity oversees a vibrant world below. The god looks mischievous, holding a tiny planet in one hand while creating storms, miracles, and chaos. Surrounding them are other deities watching and occasionally interfering.`,
+  artImageId: null,
+},
+
+
   {
     title: 'Super Dungeon Coliseum',
     genres: 'action, fantasy, horror',

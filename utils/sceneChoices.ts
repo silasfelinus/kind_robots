@@ -4,7 +4,7 @@ export const scenarios = [
   {
     title: 'Serendipity',
     genres: 'sci-fi, adventure, humor',
-    inspirations: `Douglas Adams, Spider Robinson, Space Quest, Hitchhiker's Guide to the Galaxy, Myth Adventures`
+    inspirations: `Douglas Adams, Spider Robinson, Space Quest, Hitchhiker's Guide to the Galaxy, Myth Adventures`,
     description:
       `The universe is a dangerous place! Best take a breather at the top oasis between worlds: Serendipity Space Bar. Whether you're a Gasproundian bounty hunter or an escapee from the Helium mines, everyone is welcome at Serendipity! Remember, no vaporizing paying guests while on the premises!`,
     intros: JSON.stringify([
@@ -26,6 +26,7 @@ The lighting is a mix of blues and purples, occasionally interrupted by the flas
   {
     title: 'Super Dungeon Coliseum',
     genres: 'action, fantasy, horror',
+    inspirations: `Grimtooth Traps, Tunnels and Trolls, Dungeons and Dragons, SmashTV`,
     description: `The roar of the crowd echoes through a massive coliseum built into the depths of a living dungeon. Adventurers like you enter the arena, not for fame, but for survival. Chains rattle, gates creak open, and the dungeon itself comes alive, ready to devour or reward those bold enough to challenge its twisted games. Blood-stained labyrinths and cryptic arenas filled with sentient shadows await, each trial more dangerous than the last. Will you conquer the molten gold crypt or survive the cursed forge of champions? Prepare yourself, as the dungeon does not forgive—and neither do its ferocious guardians.`,
     intros: JSON.stringify([
       'The roar of the crowd greets you as you step into the massive arena.',

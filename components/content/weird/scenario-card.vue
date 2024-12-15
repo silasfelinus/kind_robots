@@ -32,6 +32,14 @@
       >
         {{ scenario.genres }}
       </p>
+
+      <!-- Inspirations -->
+      <p
+        v-if="scenario.inspirations"
+        class="mt-2 text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full truncate"
+      >
+        {{ scenario.inspirations }}
+      </p>
     </div>
 
     <!-- Scenario Details -->
@@ -40,7 +48,7 @@
       <h2 class="text-xl font-bold text-gray-800 truncate">
         {{ scenario.title || 'Untitled Scenario' }}
       </h2>
-      <p class="text-sm text-gray-600">
+      <p class="text-lg text-gray-600 mt-2">
         {{ scenario.description || 'No description available.' }}
       </p>
 

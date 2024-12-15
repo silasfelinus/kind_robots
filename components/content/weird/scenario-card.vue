@@ -19,11 +19,19 @@
 
     <!-- Scenario Image and Genres -->
     <div class="flex-shrink-0 relative flex flex-col items-center md:w-1/3">
+      <!-- Image with aspect ratio control -->
       <img
         :src="computedScenarioImage"
         alt="Scenario Image"
-        class="rounded-2xl w-full h-40 object-cover transition-transform hover:scale-105"
+        class="rounded-2xl object-cover transition-all duration-300"
+        :class="{
+          'h-40': !isSelected,
+          'h-full': isSelected,
+          'w-40': !isSelected,
+          'w-full': isSelected,
+        }"
         loading="lazy"
+        style="aspect-ratio: 1 / 1"
       />
       <!-- Genres -->
       <p
@@ -38,7 +46,7 @@
         v-if="scenario.inspirations"
         class="mt-2 text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full truncate"
       >
-        {{ scenario.inspirations }}
+        Inspirations: {{ scenario.inspirations }}
       </p>
     </div>
 

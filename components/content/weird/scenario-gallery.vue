@@ -81,7 +81,7 @@ onMounted(async () => {
   try {
     console.log('Loading scenarios...')
     if (!scenarioStore.scenarios.length) {
-      await scenarioStore.loadScenarios()
+      await scenarioStore.fetchScenarios()
     }
     console.log('Scenarios loaded:', scenarioStore.scenarios)
   } catch (error) {

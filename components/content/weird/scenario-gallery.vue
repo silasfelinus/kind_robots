@@ -79,11 +79,9 @@ const errorMessage = ref('')
 // Lifecycle: Load Scenarios
 onMounted(async () => {
   try {
-    console.log('Loading scenarios...')
     if (!scenarioStore.scenarios.length) {
       await scenarioStore.fetchScenarios()
     }
-    console.log('Scenarios loaded:', scenarioStore.scenarios)
   } catch (error) {
     errorMessage.value = 'Failed to load scenarios. Please try again later.'
     console.error('Error loading scenarios:', error)
@@ -112,7 +110,6 @@ const filteredScenarios = computed(() => {
       )
     }
 
-    console.log('Filtered scenarios:', scenarios)
     return scenarios
   } catch (error) {
     console.error('Error filtering scenarios:', error)
@@ -123,7 +120,6 @@ const filteredScenarios = computed(() => {
 // Methods
 function selectScenario(id) {
   try {
-    console.log('Selecting scenario:', id)
     scenarioStore.selectScenario(id)
   } catch (error) {
     console.error('Error selecting scenario:', error)

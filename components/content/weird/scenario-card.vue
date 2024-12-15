@@ -129,12 +129,9 @@ const selectScenario = () => {
 
 // On Mounted
 onMounted(async () => {
-  console.log('Loading scenario:', scenario)
-
   if (scenario.artImageId) {
     try {
       artImage.value = await artStore.getArtImageById(scenario.artImageId)
-      console.log('Art image loaded:', artImage.value)
     } catch (error) {
       console.error('Failed to load art image:', error)
     }

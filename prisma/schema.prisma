@@ -467,6 +467,7 @@ model Scenario {
   imagePath     String?
   locations     String?
   artPrompt     String?
+  inspirations  String?
 }
 
 model Tag {

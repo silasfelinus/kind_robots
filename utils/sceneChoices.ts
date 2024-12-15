@@ -4,6 +4,7 @@ export const scenarios = [
   {
     title: 'Serendipity',
     genres: 'sci-fi, adventure, humor',
+    inspirations: `Douglas Adams, Spider Robinson, Space Quest, Hitchhiker's Guide to the Galaxy, Myth Adventures`
     description:
       `The universe is a dangerous place! Best take a breather at the top oasis between worlds: Serendipity Space Bar. Whether you're a Gasproundian bounty hunter or an escapee from the Helium mines, everyone is welcome at Serendipity! Remember, no vaporizing paying guests while on the premises!`,
     intros: JSON.stringify([

@@ -3,23 +3,23 @@
 export const scenarios = [
   {
     title: 'Serendipity',
-    genres: 'fantasy, mystery, surrealism',
+    genres: 'sci-fi, adventure, humor',
     description:
-      'An eclectic space where chaos meets opportunity. Expect surprises at every turn.',
+      `The universe is a dangerous place! Best take a breather at the top oasis between worlds: Serendipity Space Bar. Whether you're a Gasproundian bounty hunter or an escapee from the Helium mines, everyone is welcome at Serendipity! Remember, no vaporizing paying guests while on the premises!`,
     intros: JSON.stringify([
-      'You find yourself in a kaleidoscopic bazaar where nothing is as it seems.',
-      'The air hums with possibility as doors to countless worlds beckon you forward.',
-      'An inexplicable pull draws you into a realm of boundless curiosity.',
+      `SPACE JANITOR: Day one at Serendipity's Space Bar. The job posting said 'janitorial services,' but it didn’t mention cleaning up spilled sentience goo or mediating disputes between time-traveling versions of the same customer. Turns out, the only thing more chaotic than the bar itself are the stories that come with it.`,
+      'MYSTERIOUS PATRON: You step into Serendipity, and the first thing you notice is the smell: ozone, burnt cinnamon, and just a hint of regret. The bar hums with the noise of a hundred worlds, from the low grumbles of a furry behemoth nursing his drink to the tinkling laughter of what might be sentient crystals. One thing’s clear: you’ve found the only place in the galaxy where the improbable is on tap.',
+      `BARTENDER: It’s just another night at Serendipity, where the drinks are stiff, the customers are stranger, and the intergalactic health inspectors are—thankfully—rare. Your job is to keep the peace (and the bar intact) while dispensing drinks, wisdom, and the occasional emergency portal to a less hostile dimension.`,
     ]),
     userId: 1,
     imagePath: '/images/scenarios/space.webp',
     locations:
-      'floating carnival of portals, glass maze of forgotten gods, time-frozen auction house, bazaar of lost memories',
-    artPrompt: `Serendipity is a surreal bazaar floating through a realm where logic is optional and the bizarre is celebrated. Picture a market with stalls that rearrange themselves every few minutes, selling "invisible umbrellas" that only work when you're not looking at them, and magical trinkets that seem to have no real use but always turn out useful. The sky pulses in unnatural hues, swirling with neon pinks and blues, while the cobblestone paths change direction based on your thoughts. Trees hum nursery rhymes but only in reverse, and flying jellyfish occasionally serve as streetlights.
+      `Wormhole Longue, All-Gender All-Species Omnirestroom, World Market, Smuggler's Warehouse,
+    artPrompt: `Serendipity Space Bar is a bustling, neon-lit haven for intergalactic travelers. Picture a classic sci-fi bar with a retro-futuristic twist: curved chrome counters, floating drink trays, and walls lined with glowing alien artifacts that hum faintly with energy.
 
-Time flows strangely here — a minute can stretch into hours, or the past and future may swap places at random. Shopkeepers who are also floating shadows or talking animals trade goods with riddles, offering advice on what you didn’t know you needed. The air smells faintly of cinnamon and stardust, and the stars in the sky rearrange themselves into new constellations every time you blink. There’s a constant hum of unseen magic, and in the distance, a dragon roars from the confines of a too-small teacup, its wings too large for its current reality.
+The main room is alive with chatter, laughter, and the occasional universal translator malfunction, as a diverse crowd of patrons mingles: tentacled diplomats, holographic musicians, and cyborg bounty hunters nursing drinks in mismatched glasses. The bar's centerpiece is a massive, suspended aquarium filled with bioluminescent jellyfish-like creatures that pulse in time with the music.
 
-In Serendipity, the world constantly unfolds itself in unexpected and delightful ways — chaos and beauty live hand in hand, and every corner hides a new, absurd surprise.`,
+The lighting is a mix of blues and purples, occasionally interrupted by the flash of a teleportation booth or the crackle of an unruly plasma drink. Drinks are served in glasses that hover, bubble, or shift colors depending on the mood of the drinker. And in the corner, a battered jukebox plays hits from stars both distant and dead.`,
     artImageId: null,
   },
   {

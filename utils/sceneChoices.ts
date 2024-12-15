@@ -24,8 +24,79 @@ The lighting is a mix of blues and purples, occasionally interrupted by the flas
     artImageId: null,
   },
 {
+  title: `I’m a Sea Anemone and I WILL Take Over the World`,
+  genres: 'comedy, strategy, absurdist',
+  inspirations: 'Pinky and the Brain, Finding Nemo, The Tick',
+  description:
+    `You’re a sea anemone with psychic powers and a goal: world domination. With your loyal (if not very bright) assistant, Dewy the Dugong, you’ll plot, scheme, and monologue your way to success. Can you rise above the waves, or will meddling humans and rival sea creatures foil your plans?`,
+  intros: JSON.stringify([
+    `EVIL MASTERPLAN: “Dewy! Today we will turn all the dolphins into mindless servants, and then… THE WORLD!”`,
+    `THE HUMAN MEDDLER: A scuba diver discovers your lair. Will you mesmerize them, trap them, or recruit them into your undersea army?`,
+    `RESISTANCE STRIKES BACK: The crustaceans of Crab Ridge form a rebellion. Time to teach them why YOU are the ultimate ruler of the ocean.`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/anemone.webp',
+  locations: `The Coral Fortress, Kelp Forest of Mystery, Submarine Graveyard, Human Research Facility`,
+  artPrompt: `A quirky underwater lair filled with oversized clamshell computers, glowing seaweed, and a psychic sea anemone perched atop a throne of coral. Dewy the Dugong hovers nervously nearby, holding a map of the world. Schools of fish flee in panic, while human divers cautiously approach the lair.`,
+  artImageId: null,
+},
+{
+  title: 'Cthulhu for President',
+  genres: 'comedy, political satire, eldritch horror',
+  inspirations: 'The Onion, Parks and Recreation, Lovecraft',
+  description:
+    `The Great Old One is running for office, and it’s your job to ensure their campaign doesn’t fall apart. Whether you’re a campaign manager, a rival candidate trying to stop this madness, or a voter just trying to survive the chaos, one thing’s clear: politics will never be the same.`,
+  intros: JSON.stringify([
+    `THE CAMPAIGN MANAGER: “Sir, I’m not sure ‘Bow to Madness’ is a winning slogan.” Cthulhu growls, “It’s focus-tested.”`,
+    `RIVAL CANDIDATE: As the only person standing between Cthulhu and total domination, you’re armed with… a charming smile and zero eldritch powers. Good luck.`,
+    `DEBATE NIGHT: “We must focus on the economy,” the human candidate says. Cthulhu responds by summoning a tornado of screaming souls. The crowd goes wild.`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/cthulhu.webp',
+  locations: `The Campaign Bus, Eldritch Press Conference, Town Hall Debate, The Endless Abyss of Polling`,
+  artPrompt: `A surreal political rally featuring Cthulhu in a perfectly tailored suit, standing at a podium with "MADNESS 2024" banners in the background. The crowd is a mix of terrified humans, cultists waving signs, and eldritch horrors applauding with their tentacles. The lighting is eerie yet patriotic.`,
+  artImageId: null,
+},
+{
+  title: 'Space Casino',
+  genres: 'sci-fi, adventure, heist',
+  inspirations: `Ocean’s Eleven, Star Wars Cantina, The Hunger Games`,
+  description:
+    `Welcome to Vega Prime, the galaxy’s most luxurious (and deadly) casino. Whether you’re planning a heist, competing in high-stakes alien games, or just trying to escape with your life, this is the ultimate test of luck and skill. Will you walk out rich or in pieces?`,
+  intros: JSON.stringify([
+    `CASINO HEIST: The plan is perfect: sneak past the security droids, crack the vault, and grab the 1,000,000 credits. What could possibly go wrong?`,
+    `DEADLY TOURNAMENT: “Win the jackpot,” the alien dealer hisses, “or face the plasma mines.” You gulp and roll the dice.`,
+    `THE GAMES DEALER: As the casino’s top dealer, you’ve seen it all: cheating smugglers, desperate bounty hunters, and now… someone who might actually beat the house.`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/casino.webp',
+  locations: `The Neon Floor, High-Stakes Lounge, Vault of Credits, Tournament Arena`,
+  artPrompt: `A sprawling space casino illuminated by pulsating neon lights, with alien patrons gambling at holographic tables. Suspicious figures lurk in the shadows while the main floor is alive with clinking chips, floating drinks, and flashy displays of cosmic wealth. The centerpiece is a massive roulette wheel suspended in midair, spinning ominously.`,
+  artImageId: null,
+},
+{
+  title: 'Zuzu, Koala Assassin',
+  genres: 'action, western, revenge',
+  inspirations: 'Yojimbo, Seven Samurai, Kung Fu Panda',
+  description:
+    `You are Zuzu, a deadly koala assassin wandering into a strange town with a dark secret. Or, play as a young samurai determined to avenge your family, hunting Zuzu through the dangerous frontier. With blades flashing and loyalties shifting, can either of you survive this tale of revenge and redemption?`,
+  intros: JSON.stringify([
+    `ZUZU ARRIVES: The town falls silent as the tiny koala, clad in a tattered cloak, rides in on a dusty lizard mount. Everyone knows his name. Few survive his visits.`,
+    `THE SAMURAI’S VOW: “I’ll stop him, even if it kills me,” you whisper, gripping your sword. The town’s elders watch as you march toward certain doom.`,
+    `FINAL SHOWDOWN: The air is heavy with tension. Zuzu eyes you from across the town square, his tiny claw resting on the hilt of his blade.`
+  ]),
+  userId: 1,
+  imagePath: '/images/scenarios/koala.webp',
+  locations: `Dusty Frontier Town, Samurai Village, The Hidden Canyon, Duel at Sunset`,
+  artPrompt: `A dramatic scene featuring Zulu, a koala assassin with a weathered cloak and a gleaming katana, perched on the back of a giant lizard. The setting is a dusty, desolate frontier town with a saloon and a setting sun casting long shadows. Opposite Zulu stands a young samurai, their sword raised, prepared for battle.`,
+  artImageId: null,
+},
+
+
+
+{
   title: 'I Am a New Intern and I Will Shatter the Glass Ceiling with My Giant Sledgehammer',
-  genres: 'comedy, office satire, adventure',
+  genres: 'comedy, office satire, anime, feminist dialectic',
   inspirations: 'The Office, Dilbert, She-Hulk, Power Fantasy',
   description:
     `You’re the newest intern at OverCorp, the soul-sucking megacorporation that practically owns the world. Armed with your trusty sledgehammer and unyielding determination, you’re not just here to fetch coffee—you’re here to smash hierarchies, take names, and maybe even become CEO. Can you survive the corporate grind (and HR)?`,

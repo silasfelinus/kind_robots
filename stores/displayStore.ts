@@ -5,7 +5,7 @@ import { useErrorStore, ErrorType } from './errorStore'
 export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 export type FullscreenState = 'nuxt' | 'fullscreen' | 'splash'
-export type displayModeState =  'scenario' | 'character' |'reward' | 'chat'| 'bot'|'pitch'|'art'|'collection'
+export type displayModeState =  'scenario' | 'character' |'reward' | 'user' | 'chat'| 'bot'|'pitch'|'art'|'collection'
 export type displayActionState = 'gallery' | 'card' | 'add' | 'edit' | 'generate'| 'interact'
 
 interface DisplayStoreState {

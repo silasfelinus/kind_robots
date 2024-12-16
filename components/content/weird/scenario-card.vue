@@ -85,13 +85,15 @@
       >
         {{ scenario.title || 'Untitled Scenario' }}
       </h2>
-      <!-- Description -->
-      <p
-        class="text-lg text-gray-600 mt-2"
-        :class="isSelected ? 'whitespace-normal' : 'truncate'"
-      >
-        {{ scenario.description || 'No description available.' }}
-      </p>
+     <!-- Description -->
+<p
+  :class="[
+    'mt-2',
+    isSelected ? 'text-lg text-gray-700 whitespace-normal' : 'text-sm text-gray-500 truncate'
+  ]"
+>
+  {{ scenario.description || 'No description available.' }}
+</p>
 
       <!-- Intros -->
       <div v-if="isSelected" class="flex flex-col gap-2 mt-4">

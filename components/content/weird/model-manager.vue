@@ -1,0 +1,76 @@
+<template>
+  <div class="flex flex-col h-full gap-6 p-4">
+    <!-- File Folder Modes Section -->
+    <div class="flex flex-wrap gap-2 border-b-2 border-base-300">
+      <div
+        v-for="mode in modes"
+        :key="mode.name"
+        @click="displayStore.mode = mode.name"
+        :class="[
+          'flex items-center gap-2 px-4 py-2 cursor-pointer border rounded-t-lg transition-all duration-300',
+          mode.name === displayStore.mode
+            ? 'bg-base-200 text-primary border-primary border-b-transparent scale-105 shadow-md'
+            : 'bg-base-100 text-base-content hover:bg-base-200 hover:scale-105 hover:shadow-lg border-base-300'
+        ]"
+      >
+        <Icon :name="mode.icon" class="w-8 h-8" />
+        <span class="text-lg font-semibold">{{ mode.label }}</span>
+      </div>
+    </div>
+
+    <!-- Dynamic Component -->
+    <div class="flex-grow flex items-center justify-center bg-base-200 rounded-xl p-6 overflow-hidden">
+      <component
+        :is="`${displayStore.action}-${displayStore.mode}`"
+        :action="displayStore.action"
+      />
+    </div>
+
+    <!-- Actions Section -->
+    <div class="flex flex-wrap justify-center gap-4">
+      <button
+        v-for="action in actions"
+        :key="action.name"
+        @click="displayStore.action = action.name"
+        :class="[
+          'btn btn-lg flex items-center gap-2 transition-all duration-300 w-full md:w-auto',
+          action.name === displayStore.action
+            ? 'btn-primary scale-110 shadow-md'
+            : 'btn-secondary hover:scale-105 hover:shadow-lg'
+        ]"
+      >
+        <Icon :name="action.icon" class="w-6 h-6" />
+        <span class="text-lg font-semibold">{{ action.label }}</span>
+      </button>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useDisplayStore } from '@/stores/displayStore';
+
+// Display Store
+const displayStore = useDisplayStore();
+
+// Modes and Actions
+const modes = [
+  { name: 'scenario', icon: 'scenario', label: 'Scenario' },
+  { name: 'character', icon: 'character', label: 'Character' },
+  { name: 'reward', icon: 'reward', label: 'Reward' },
+  { name: 'chat', icon: 'chat', label: 'Chat' },
+  { name: 'bot', icon: 'bot', label: 'Bot' },
+  { name: 'pitch', icon: 'pitch', label: 'Pitch' },
+  { name: 'art', icon: 'art', label: 'Art' },
+  { name: 'collection', icon: 'collection', label: 'Collection' },
+  { name: 'user', icon: 'user', label: 'User' },
+];
+
+const actions = [
+  { name: 'gallery', icon: 'gallery', label: 'Gallery' },
+  { name: 'card', icon: 'card', label: 'Card' },
+  { name: 'add', icon: 'add', label: 'Add' },
+  { name: 'edit', icon: 'edit', label: 'Edit' },
+  { name: 'generate', icon: 'generate', label: 'Generate' },
+  { name: 'interact', icon: 'interact', label: 'Interact' },
+];
+</script>

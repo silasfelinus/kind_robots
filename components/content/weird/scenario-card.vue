@@ -7,28 +7,46 @@
     ]"
     @click="selectScenario"
   >
-    <!-- Delete Button -->
-    <button
-      v-if="canDelete"
-      class="absolute top-2 right-2 text-error p-2 rounded-full hover:bg-error-content transition-transform hover:scale-110 z-20"
-      title="Delete Scenario"
-      @click.stop="deleteScenario"
-    >
-      <Icon name="mdi:delete" class="w-4 h-4" />
-    </button>
+    <!-- Action Buttons -->
+    <div v-if="isSelected" class="absolute top-2 right-2 flex items-center gap-2 z-20">
+      <!-- Delete Button -->
+      <button
+        v-if="canDelete"
+        class="text-error p-2 rounded-full hover:bg-error-content transition-transform hover:scale-110"
+        title="Delete Scenario"
+        @click.stop="deleteScenario"
+      >
+        <Icon name="mdi:delete" class="w-4 h-4" />
+      </button>
+      <!-- Edit Button -->
+      <button
+        v-if="canDelete"
+        class="text-primary p-2 rounded-full hover:bg-primary-content transition-transform hover:scale-110"
+        title="Edit Scenario"
+        @click.stop="editScenario"
+      >
+        <Icon name="mdi:pencil" class="w-4 h-4" />
+      </button>
+      <!-- Clone Button -->
+      <button
+        class="text-secondary p-2 rounded-full hover:bg-secondary-content transition-transform hover:scale-110"
+        title="Clone Scenario"
+        @click.stop="cloneScenario"
+      >
+        <Icon name="mdi:content-copy" class="w-4 h-4" />
+      </button>
+    </div>
 
     <!-- Scenario Image and Genres -->
     <div class="flex-shrink-0 relative flex flex-col items-center md:w-1/3">
-      <!-- Image with aspect ratio control -->
+      <!-- Image -->
       <img
         :src="computedScenarioImage"
         alt="Scenario Image"
         class="rounded-2xl object-cover transition-all duration-300"
         :class="{
-          'h-40': !isSelected,
-          'h-full': isSelected,
-          'w-40': !isSelected,
-          'w-full': isSelected,
+          'h-40 w-40': !isSelected,
+          'h-full w-full': isSelected,
         }"
         loading="lazy"
         style="aspect-ratio: 1 / 1"
@@ -36,7 +54,10 @@
       <!-- Genres -->
       <p
         v-if="scenario.genres"
-        class="mt-2 text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full truncate"
+        :class="[
+          'mt-2 text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full',
+          isSelected ? 'text-sm bg-primary/20' : 'truncate',
+        ]"
       >
         {{ scenario.genres }}
       </p>
@@ -44,7 +65,10 @@
       <!-- Inspirations -->
       <p
         v-if="scenario.inspirations"
-        class="mt-2 text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full truncate"
+        :class="[
+          'mt-2 text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full',
+          isSelected ? 'text-sm bg-primary/20' : 'truncate',
+        ]"
       >
         Inspirations: {{ scenario.inspirations }}
       </p>
@@ -52,11 +76,20 @@
 
     <!-- Scenario Details -->
     <div class="flex flex-col md:w-2/3">
-      <!-- Title and Description -->
-      <h2 class="text-xl font-bold text-gray-800 truncate">
+      <!-- Title -->
+      <h2
+        :class="[
+          'text-xl font-bold text-gray-800',
+          isSelected ? 'whitespace-normal' : 'truncate',
+        ]"
+      >
         {{ scenario.title || 'Untitled Scenario' }}
       </h2>
-      <p class="text-lg text-gray-600 mt-2">
+      <!-- Description -->
+      <p
+        class="text-lg text-gray-600 mt-2"
+        :class="isSelected ? 'whitespace-normal' : 'truncate'"
+      >
         {{ scenario.description || 'No description available.' }}
       </p>
 
@@ -78,6 +111,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
+import { useDisplayStore } from '@/stores/displayStore'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 
@@ -91,6 +125,7 @@ const { scenario } = defineProps({
 
 // Stores
 const scenarioStore = useScenarioStore()
+const displayStore = useDisplayStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
 
@@ -127,6 +162,14 @@ const introChoices = computed(() => {
 // Methods
 const deleteScenario = () => {
   if (scenario) scenarioStore.deleteScenario(scenario.id)
+}
+const editScenario = () => {
+  displayStore.displayMode = 'scenario'
+  displayStore.displayAction = 'edit'
+}
+const cloneScenario = () => {
+  displayStore.displayMode = 'scenario'
+  displayStore.displayAction = 'add'
 }
 const setCurrentChoice = (choice) => {
   scenarioStore.currentChoice = choice

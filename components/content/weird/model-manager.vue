@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-6 p-4">
+  <div class="flex flex-col h-full gap-6 p-4">
     <!-- File Folder Modes Section -->
     <div class="flex gap-2 border-b-2 border-base-300">
       <div

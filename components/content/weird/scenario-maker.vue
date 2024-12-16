@@ -99,7 +99,7 @@ const artStore = useArtStore()
 const isGeneratingArt = ref(false)
 const isSaving = ref(false)
 const keepArtPrompt = ref(false)
-const defaultPlaceholder = '/images/scenario-placeholder.webp'
+const defaultPlaceholder = '/images/scenarios/space.webp'
 
 const scenarioForm = ref<{
   title: string

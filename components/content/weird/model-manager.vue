@@ -5,13 +5,13 @@
       <div
         v-for="mode in modes"
         :key="mode.name"
-        @click="displayStore.mode = mode.name"
         :class="[
           'flex items-center gap-2 px-4 py-2 cursor-pointer border rounded-t-lg transition-all duration-300',
-          mode.name === displayStore.mode
+          mode.name === displayStore.displayMode
             ? 'bg-base-200 text-primary border-primary border-b-transparent scale-105 shadow-md'
-            : 'bg-base-100 text-base-content hover:bg-base-200 hover:scale-105 hover:shadow-lg border-base-300'
+            : 'bg-base-100 text-base-content hover:bg-base-200 hover:scale-105 hover:shadow-lg border-base-300',
         ]"
+        @click="displayStore.setMode(mode.name as displayModeState)"
       >
         <Icon :name="mode.icon" class="w-8 h-8" />
         <span class="text-lg font-semibold">{{ mode.label }}</span>
@@ -19,10 +19,12 @@
     </div>
 
     <!-- Dynamic Component -->
-    <div class="flex-grow flex items-center justify-center bg-base-200 rounded-xl p-6 overflow-hidden">
+    <div
+      class="flex-grow flex items-center justify-center bg-base-200 rounded-xl p-6 overflow-hidden"
+    >
       <component
-        :is="`${displayStore.action}-${displayStore.mode}`"
-        :action="displayStore.action"
+        :is="`${displayStore.displayAction}-${displayStore.displayMode}`"
+        :action="displayStore.displayAction"
       />
     </div>
 
@@ -31,13 +33,13 @@
       <button
         v-for="action in actions"
         :key="action.name"
-        @click="displayStore.action = action.name"
         :class="[
           'btn btn-lg flex items-center gap-2 transition-all duration-300 w-full md:w-auto',
-          action.name === displayStore.action
+          action.name === displayStore.displayAction
             ? 'btn-primary scale-110 shadow-md'
-            : 'btn-secondary hover:scale-105 hover:shadow-lg'
+            : 'btn-secondary hover:scale-105 hover:shadow-lg',
         ]"
+        @click="displayStore.setAction(action.name as displayActionState)"
       >
         <Icon :name="action.icon" class="w-6 h-6" />
         <span class="text-lg font-semibold">{{ action.label }}</span>
@@ -47,10 +49,10 @@
 </template>
 
 <script setup lang="ts">
-import { useDisplayStore } from '@/stores/displayStore';
+import { useDisplayStore } from '@/stores/displayStore'
 
 // Display Store
-const displayStore = useDisplayStore();
+const displayStore = useDisplayStore()
 
 // Modes and Actions
 const modes = [
@@ -63,7 +65,7 @@ const modes = [
   { name: 'art', icon: 'art', label: 'Art' },
   { name: 'collection', icon: 'collection', label: 'Collection' },
   { name: 'user', icon: 'user', label: 'User' },
-];
+]
 
 const actions = [
   { name: 'gallery', icon: 'gallery', label: 'Gallery' },
@@ -71,6 +73,6 @@ const actions = [
   { name: 'add', icon: 'add', label: 'Add' },
   { name: 'edit', icon: 'edit', label: 'Edit' },
   { name: 'generate', icon: 'generate', label: 'Generate' },
-  { name: 'interact', icon: 'interact', label: 'Interact' },
-];
+  { name: 'interact', icon: 'interact', label: 'Interact' }, // Ensure "interact" matches the store type
+]
 </script>

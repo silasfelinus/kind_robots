@@ -5,8 +5,23 @@ import { useErrorStore, ErrorType } from './errorStore'
 export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 export type FullscreenState = 'nuxt' | 'fullscreen' | 'splash'
-export type displayModeState =  'scenario' | 'character' |'reward' | 'user' | 'chat'| 'bot'|'pitch'|'art'|'collection'
-export type displayActionState = 'gallery' | 'card' | 'add' | 'edit' | 'generate'| 'interact'
+export type displayModeState =
+  | 'scenario'
+  | 'character'
+  | 'reward'
+  | 'user'
+  | 'chat'
+  | 'bot'
+  | 'pitch'
+  | 'art'
+  | 'collection'
+export type displayActionState =
+  | 'gallery'
+  | 'card'
+  | 'add'
+  | 'edit'
+  | 'generate'
+  | 'interact'
 
 interface DisplayStoreState {
   headerState: DisplayState
@@ -29,7 +44,6 @@ interface DisplayStoreState {
   bigMode: boolean
   displayMode: displayModeState
   displayAction: displayActionState
-
 }
 
 // Define the valid effect IDs
@@ -59,9 +73,8 @@ export const useDisplayStore = defineStore('display', {
     resizeTimeout: null,
     fullscreenState: 'nuxt',
     bigMode: false,
-    displayMode: 'scenario',
-    displayAction: 'gallery',
-
+    displayMode: 'scenario' as displayModeState,
+    displayAction: 'gallery' as displayActionState,
   }),
 
   getters: {
@@ -332,11 +345,11 @@ export const useDisplayStore = defineStore('display', {
       this.currentAnimation = animationId
     },
 
-    setMode(mode: DisplayModeState) {
-      this.mode = mode;
+    setMode(mode: displayModeState) {
+      this.displayMode = mode
     },
-    setAction(action: DisplayActionState) {
-      this.action = action;
+    setAction(action: displayActionState) {
+      this.displayAction = action
     },
 
     // Function to toggle a random animation

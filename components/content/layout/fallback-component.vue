@@ -1,4 +1,4 @@
-<!-- /components/fallback-component.vue -->
+
 <template>
   <div class="text-center">
     <Icon name="error" class="text-error text-5xl" />

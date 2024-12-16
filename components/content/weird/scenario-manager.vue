@@ -2,7 +2,7 @@
   <div class="w-full h-screen bg-base-200 p-4 flex flex-col overflow-y-auto relative">
     <!-- Title Bar -->
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-gray-700">Scenario Manager</h1>
+      <h1 class="text-3xl font-bold text-center text-white rounded-2xl bg-red p-1">Choose Your Own Weird Adventure</h1>
       <!-- Floating Add Scenario Button -->
       <button
         class="btn btn-accent rounded-full shadow-lg hover:shadow-xl"

@@ -25,6 +25,9 @@ interface DisplayStoreState {
   resizeTimeout: ReturnType<typeof setTimeout> | null
   fullscreenState: FullscreenState
   bigMode: boolean
+  displayMode: 'scenario' | 'character' |'reward' | 'chat'| 'bot'|'pitch'|'art'|'collection'
+  displayAction: 'gallery' | 'card' | 'add' | 'edit' | 'generate'| 'interact'
+
 }
 
 // Define the valid effect IDs
@@ -54,6 +57,9 @@ export const useDisplayStore = defineStore('display', {
     resizeTimeout: null,
     fullscreenState: 'nuxt',
     bigMode: false,
+    displayMode: 'scenario',
+    displayAction: 'gallery',
+
   }),
 
   getters: {

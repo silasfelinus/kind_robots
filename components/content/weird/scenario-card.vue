@@ -98,7 +98,7 @@
         <button
           v-for="(intro, index) in introChoices"
           :key="index"
-          class="btn btn-secondary btn-sm text-left whitespace-normal"
+          class="btn btn-secondary btn-sm text-left whitespace-normal px-4 py-2 leading-relaxed max-w-full break-words rounded-md"
           @click.stop="setCurrentChoice(intro)"
         >
           {{ intro }}
@@ -107,6 +107,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
@@ -162,17 +163,23 @@ const introChoices = computed(() => {
 // Methods
 const deleteScenario = () => {
   if (scenario) scenarioStore.deleteScenario(scenario.id)
+  displayStore.displayMode = 'scenario'
+  displayStore.displayAction = 'gallery'
 }
 const editScenario = () => {
+  scenarioStore.scenarioForm = { ...scenario }
   displayStore.displayMode = 'scenario'
   displayStore.displayAction = 'edit'
 }
 const cloneScenario = () => {
+  scenarioStore.scenarioForm = { ...scenario }
   displayStore.displayMode = 'scenario'
   displayStore.displayAction = 'add'
 }
 const setCurrentChoice = (choice) => {
   scenarioStore.currentChoice = choice
+  displayStore.displayMode = 'scenario'
+  displayStore.displayAction = 'interact'
 }
 const selectScenario = () => {
   scenarioStore.selectedScenario = scenario

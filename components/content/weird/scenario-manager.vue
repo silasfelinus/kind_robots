@@ -28,19 +28,6 @@
         <h2 class="text-xl font-bold text-gray-600 mb-4">Scenario Gallery</h2>
         <scenario-gallery />
       </div>
-
-      <!-- Selected Scenario Preview -->
-      <div class="bg-base-300 p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-600 mb-4">Selected Scenario</h2>
-        <div class="flex flex-col md:flex-row md:items-center gap-4">
-          <scenario-selector class="flex-1" />
-          <scenario-card
-            v-if="selectedScenario"
-            :scenario="selectedScenario"
-            class="w-full md:w-1/2"
-          />
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -53,9 +40,6 @@ const scenarioStore = useScenarioStore();
 
 // Local state for add scenario toggle
 const showAddScenario = ref(false);
-
-// Computed property for selected scenario from the store
-const selectedScenario = computed(() => scenarioStore.selectedScenario);
 
 // Toggle add scenario visibility
 function toggleAddScenario() {

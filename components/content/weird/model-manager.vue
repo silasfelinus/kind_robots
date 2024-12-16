@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full gap-6 p-4">
     <!-- File Folder Modes Section -->
-    <div class="flex gap-2 border-b-2 border-base-300">
+    <div class="flex flex-wrap gap-2 border-b-2 border-base-300">
       <div
         v-for="mode in modes"
         :key="mode.name"
@@ -19,7 +19,7 @@
     </div>
 
     <!-- Dynamic Component -->
-    <div class="flex-grow flex items-center justify-center bg-base-200 rounded-xl p-6">
+    <div class="flex-grow flex items-center justify-center bg-base-200 rounded-xl p-6 overflow-hidden">
       <component
         :is="`${displayStore.action}-${displayStore.mode}`"
         :action="displayStore.action"
@@ -27,13 +27,13 @@
     </div>
 
     <!-- Actions Section -->
-    <div class="flex justify-center gap-4">
+    <div class="flex flex-wrap justify-center gap-4">
       <button
         v-for="action in actions"
         :key="action.name"
         @click="displayStore.action = action.name"
         :class="[
-          'btn btn-lg flex items-center gap-2 transition-all duration-300',
+          'btn btn-lg flex items-center gap-2 transition-all duration-300 w-full md:w-auto',
           action.name === displayStore.action
             ? 'btn-primary scale-110 shadow-md'
             : 'btn-secondary hover:scale-105 hover:shadow-lg'

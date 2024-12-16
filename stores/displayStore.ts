@@ -5,6 +5,8 @@ import { useErrorStore, ErrorType } from './errorStore'
 export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
 export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 export type FullscreenState = 'nuxt' | 'fullscreen' | 'splash'
+export type displayModeState =  'scenario' | 'character' |'reward' | 'chat'| 'bot'|'pitch'|'art'|'collection'
+export type displayActionState = 'gallery' | 'card' | 'add' | 'edit' | 'generate'| 'interact'
 
 interface DisplayStoreState {
   headerState: DisplayState
@@ -25,8 +27,8 @@ interface DisplayStoreState {
   resizeTimeout: ReturnType<typeof setTimeout> | null
   fullscreenState: FullscreenState
   bigMode: boolean
-  displayMode: 'scenario' | 'character' |'reward' | 'chat'| 'bot'|'pitch'|'art'|'collection'
-  displayAction: 'gallery' | 'card' | 'add' | 'edit' | 'generate'| 'interact'
+  displayMode: displayModeState
+  displayAction: displayActionState
 
 }
 

@@ -21,7 +21,7 @@
     <!-- Dynamic Component -->
     <div class="flex-grow flex items-center justify-center bg-base-200 rounded-xl p-6">
       <component
-        :is="asyncComponents[displayStore.mode] || FallbackComponent"
+        :is="`${displayStore.action}-${displayStore.mode}`"
         :action="displayStore.action"
       />
     </div>
@@ -47,23 +47,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue';
 import { useDisplayStore } from '@/stores/displayStore';
 
-
-// Define async components for lazy loading
-const asyncComponents: Record<string, any> = {
-  scenario: defineAsyncComponent(() => import('@/components/mode-scenario.vue')),
-  character: defineAsyncComponent(() => import('@/components/mode-character.vue')),
-  reward: defineAsyncComponent(() => import('@/components/mode-reward.vue')),
-  chat: defineAsyncComponent(() => import('@/components/mode-chat.vue')),
-  bot: defineAsyncComponent(() => import('@/components/mode-bot.vue')),
-  pitch: defineAsyncComponent(() => import('@/components/mode-pitch.vue')),
-  art: defineAsyncComponent(() => import('@/components/mode-art.vue')),
-  collection: defineAsyncComponent(() => import('@/components/mode-collection.vue')),
-  user: defineAsyncComponent(() => import('@/components/mode-user.vue')),
-};
-
+// Display Store
 const displayStore = useDisplayStore();
 
 // Modes and Actions

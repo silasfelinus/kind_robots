@@ -8,6 +8,7 @@
       alt="Weirdlandia"
       class="h-48 w-auto mb-8"
     />
+    <weird-launch />
 
     <!-- Reward Selection -->
     <div v-if="!story.text && !gameComplete" class="mb-8">

@@ -1,8 +1,14 @@
 <template>
-  <div class="w-full h-screen bg-base-200 p-4 flex flex-col overflow-y-auto relative">
+  <div
+    class="w-full h-screen bg-base-200 p-4 flex flex-col overflow-y-auto relative"
+  >
     <!-- Title Bar -->
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-gray-700">Scenario Manager</h1>
+      <h1
+        class="text-3xl font-bold rounded-2xl bg-#e92b2b text-center text-white"
+      >
+        Choose your Own Weird Adventure
+      </h1>
       <!-- Floating Add Scenario Button -->
       <button
         class="btn btn-accent rounded-full shadow-lg hover:shadow-xl"
@@ -46,19 +52,19 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useScenarioStore } from '@/stores/scenarioStore';
+import { ref, computed } from 'vue'
+import { useScenarioStore } from '@/stores/scenarioStore'
 
-const scenarioStore = useScenarioStore();
+const scenarioStore = useScenarioStore()
 
 // Local state for add scenario toggle
-const showAddScenario = ref(false);
+const showAddScenario = ref(false)
 
 // Computed property for selected scenario from the store
-const selectedScenario = computed(() => scenarioStore.selectedScenario);
+const selectedScenario = computed(() => scenarioStore.selectedScenario)
 
 // Toggle add scenario visibility
 function toggleAddScenario() {
-  showAddScenario.value = !showAddScenario.value;
+  showAddScenario.value = !showAddScenario.value
 }
 </script>

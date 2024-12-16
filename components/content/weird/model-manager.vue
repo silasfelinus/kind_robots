@@ -7,30 +7,23 @@
         :key="mode.name"
         @click="displayStore.mode = mode.name"
         :class="[
-          'flex items-center gap-2 px-4 py-2 cursor-pointer border rounded-t-lg',
+          'flex items-center gap-2 px-4 py-2 cursor-pointer border rounded-t-lg transition-all duration-300',
           mode.name === displayStore.mode
-            ? 'bg-base-200 text-primary border-primary border-b-transparent'
-            : 'bg-base-100 text-base-content hover:bg-base-200 border-base-300'
+            ? 'bg-base-200 text-primary border-primary border-b-transparent scale-105 shadow-md'
+            : 'bg-base-100 text-base-content hover:bg-base-200 hover:scale-105 hover:shadow-lg border-base-300'
         ]"
       >
-        <Icon :name="mode.icon" class="w-6 h-6" />
+        <Icon :name="mode.icon" class="w-8 h-8" />
         <span class="text-lg font-semibold">{{ mode.label }}</span>
       </div>
     </div>
 
     <!-- Dynamic Component -->
     <div class="flex-grow flex items-center justify-center bg-base-200 rounded-xl p-6">
-      <Suspense>
-        <template #default>
-          <component :is="getDynamicComponent(displayStore.mode)" :action="displayStore.action" />
-        </template>
-        <template #fallback>
-          <div class="text-center">
-            <Icon name="error" class="text-error text-5xl" />
-            <p class="text-lg font-semibold mt-4">Unable to load component for mode: {{ displayStore.mode }}</p>
-          </div>
-        </template>
-      </Suspense>
+      <component
+        :is="asyncComponents[displayStore.mode] || FallbackComponent"
+        :action="displayStore.action"
+      />
     </div>
 
     <!-- Actions Section -->
@@ -39,20 +32,41 @@
         v-for="action in actions"
         :key="action.name"
         @click="displayStore.action = action.name"
-        :class="['btn btn-lg', action.name === displayStore.action ? 'btn-primary' : 'btn-secondary']"
+        :class="[
+          'btn btn-lg flex items-center gap-2 transition-all duration-300',
+          action.name === displayStore.action
+            ? 'btn-primary scale-110 shadow-md'
+            : 'btn-secondary hover:scale-105 hover:shadow-lg'
+        ]"
       >
         <Icon :name="action.icon" class="w-6 h-6" />
-        <span class="ml-2">{{ action.label }}</span>
+        <span class="text-lg font-semibold">{{ action.label }}</span>
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { defineAsyncComponent } from 'vue';
 import { useDisplayStore } from '@/stores/displayStore';
+
+
+// Define async components for lazy loading
+const asyncComponents: Record<string, any> = {
+  scenario: defineAsyncComponent(() => import('@/components/mode-scenario.vue')),
+  character: defineAsyncComponent(() => import('@/components/mode-character.vue')),
+  reward: defineAsyncComponent(() => import('@/components/mode-reward.vue')),
+  chat: defineAsyncComponent(() => import('@/components/mode-chat.vue')),
+  bot: defineAsyncComponent(() => import('@/components/mode-bot.vue')),
+  pitch: defineAsyncComponent(() => import('@/components/mode-pitch.vue')),
+  art: defineAsyncComponent(() => import('@/components/mode-art.vue')),
+  collection: defineAsyncComponent(() => import('@/components/mode-collection.vue')),
+  user: defineAsyncComponent(() => import('@/components/mode-user.vue')),
+};
 
 const displayStore = useDisplayStore();
 
+// Modes and Actions
 const modes = [
   { name: 'scenario', icon: 'scenario', label: 'Scenario' },
   { name: 'character', icon: 'character', label: 'Character' },
@@ -73,19 +87,4 @@ const actions = [
   { name: 'generate', icon: 'generate', label: 'Generate' },
   { name: 'interact', icon: 'interact', label: 'Interact' },
 ];
-
-// Helper to check if an icon exists (mocked for this example)
-function isValidIcon(iconName: string): boolean {
-  const availableIcons = ['scenario', 'character', 'reward', 'chat', 'bot', 'pitch', 'art', 'collection', 'user', 'gallery', 'card', 'add', 'edit', 'generate', 'interact'];
-  return availableIcons.includes(iconName);
-}
-
-// Get the dynamic component name and provide a fallback
-function getDynamicComponent(mode: string): string {
-  try {
-    return `mode-${mode}`;
-  } catch {
-    return 'fallback-component';
-  }
-}
 </script>

@@ -39,16 +39,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useScenarioStore } from '@/stores/scenarioStore'
-
-const scenarioStore = useScenarioStore()
+import { ref } from 'vue'
 
 // Local state for add scenario toggle
 const showAddScenario = ref(false)
-
-// Computed property for selected scenario from the store
-const selectedScenario = computed(() => scenarioStore.selectedScenario)
 
 // Toggle add scenario visibility
 function toggleAddScenario() {

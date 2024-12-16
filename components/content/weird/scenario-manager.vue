@@ -5,9 +5,9 @@
     <!-- Title Bar -->
     <div class="flex justify-between items-center mb-6">
       <h1
-        class="text-3xl font-bold rounded-2xl bg-#e92b2b text-center text-white"
+        class="text-3xl font-bold bg-red-600 text-white rounded-2xl text-center py-2 px-4"
       >
-        Choose your Own Weird Adventure
+        Choose Your Own Weird Adventure
       </h1>
       <!-- Floating Add Scenario Button -->
       <button

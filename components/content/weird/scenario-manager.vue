@@ -3,15 +3,17 @@
     class="w-full h-screen bg-base-200 p-4 flex flex-col overflow-y-auto relative"
   >
     <!-- Title Bar -->
-    <div class="flex justify-between items-center mb-6">
-      <h1
-        class="text-3xl font-bold bg-red-600 text-white rounded-2xl text-center py-2 px-4"
-      >
-        Choose Your Own Weird Adventure
-      </h1>
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex-1 text-center">
+        <h1
+          class="text-3xl font-bold bg-red-600 text-white rounded-2xl inline-block py-2 px-4"
+        >
+          Choose Your Own Weird Adventure
+        </h1>
+      </div>
       <!-- Floating Add Scenario Button -->
       <button
-        class="btn btn-accent rounded-full shadow-lg hover:shadow-xl"
+        class="btn btn-accent rounded-full shadow-lg hover:shadow-xl ml-4"
         @click="toggleAddScenario"
       >
         <Icon name="kind-icon:plus" class="w-6 h-6" />

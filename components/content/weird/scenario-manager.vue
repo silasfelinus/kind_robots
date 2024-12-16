@@ -6,7 +6,7 @@
     <div class="flex items-center justify-between mb-6">
       <div class="flex-1 text-center">
         <h1
-          class="text-3xl font-bold bg-red-600 text-white rounded-2xl inline-block py-2 px-4"
+          class="text-3xl font-bold bg-primary text-white rounded-2xl inline-block py-1 px-2"
         >
           Choose Your Own Weird Adventure
         </h1>

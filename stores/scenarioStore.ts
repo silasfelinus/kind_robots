@@ -15,7 +15,7 @@ export const useScenarioStore = defineStore({
     isSaving: false,
     isInitialized: false,
     loading: false,
-  }),
+      }),
 
   getters: {
     totalScenarios: (state) => state.scenarios.length,

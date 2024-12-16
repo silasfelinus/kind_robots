@@ -35,6 +35,8 @@
 
     <!-- Section Content -->
     <div class="flex-grow w-full overflow-y-auto h-full">
+
+      <lazy-model-manager v-if="activeTab === 'model-manager'" />
       
       <lazy-scenario-manager v-if="activeTab === 'scenario-manager'" />
       <lazy-character-designer v-if="activeTab === 'character-designer'" />
@@ -55,7 +57,7 @@ const displayStore = useDisplayStore()
 
 // Tabs setup for Weirdlandia
 const tabs = [
-  
+  { name: 'model-manager', label: ' Model Manager' },
 { name: 'scenario-manager', label: 'Scenario Manager' },
 
   { name: 'character-designer', label: 'Character Designer' },

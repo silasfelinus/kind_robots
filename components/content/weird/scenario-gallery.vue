@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto">
+  <div class="h-full w-full bg-base-300 p-1 md-p-4 flex flex-col overflow-y-auto">
     <!-- Filter and Search -->
     <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
       <!-- User Filter -->

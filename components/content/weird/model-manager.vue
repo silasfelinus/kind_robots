@@ -1,49 +1,58 @@
 <template>
-  <div class="flex flex-col h-full gap-6 p-4">
-    <!-- File Folder Modes Section -->
-    <div class="flex flex-wrap gap-2 border-b-2 border-base-300">
+  <div class="flex flex-col h-full gap-4 p-4">
+    <!-- Modes Section: Always at the Top -->
+    <div class="flex flex-wrap gap-2 justify-start border-b-2 border-base-300">
       <div
         v-for="mode in modes"
         :key="mode.name"
+        @click="displayStore.setMode(mode.name as displayModeState)"
         :class="[
           'flex items-center gap-2 px-4 py-2 cursor-pointer border rounded-t-lg transition-all duration-300',
           mode.name === displayStore.displayMode
             ? 'bg-base-200 text-primary border-primary border-b-transparent scale-105 shadow-md'
             : 'bg-base-100 text-base-content hover:bg-base-200 hover:scale-105 hover:shadow-lg border-base-300',
         ]"
-        @click="displayStore.setMode(mode.name as displayModeState)"
       >
-        <Icon :name="mode.icon" class="w-8 h-8" />
-        <span class="text-lg font-semibold">{{ mode.label }}</span>
+        <Icon
+          :name="mode.icon"
+          class="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12"
+        />
+        <span class="text-base md:text-lg lg:text-xl font-semibold">
+          {{ mode.label }}
+        </span>
       </div>
     </div>
 
-    <!-- Dynamic Component -->
+    <!-- Dynamic Component Section with Fallback -->
     <div
-      class="flex-grow flex items-center justify-center bg-base-200 rounded-xl p-6 overflow-hidden"
+      class="flex-grow flex items-center justify-center bg-base-200 rounded-xl p-4 sm:p-6 lg:p-8 overflow-hidden"
     >
       <component
-        :is="
-          getComponentName(displayStore.displayMode, displayStore.displayAction)
-        "
+        :is="resolveComponentName(displayStore.displayMode, displayStore.displayAction)"
       />
     </div>
 
-    <!-- Actions Section -->
-    <div class="flex flex-wrap justify-center gap-4">
+    <!-- Actions Section: Single Line at the Bottom -->
+    <div class="flex flex-wrap md:flex-nowrap gap-2 justify-center items-center">
       <button
         v-for="action in actions"
         :key="action.name"
-        :class="[
-          'flex items-center gap-2 transition-all duration-300 w-full md:w-auto',
-          action.name === displayStore.displayAction
-            ? 'btn-primary scale-110 shadow-md text-base md:text-sm'
-            : 'btn-secondary hover:scale-105 hover:shadow-lg text-base md:text-sm',
-        ]"
         @click="displayStore.setAction(action.name as displayActionState)"
+        :class="[
+          'btn flex items-center justify-center gap-2 transition-all duration-300',
+          'w-full md:w-auto px-4 py-2 sm:px-6 sm:py-3 lg:px-8 lg:py-4',
+          action.name === displayStore.displayAction
+            ? 'btn-primary scale-105 shadow-md'
+            : 'btn-secondary hover:scale-105 hover:shadow-lg',
+        ]"
       >
-        <Icon :name="action.icon" class="w-6 h-6" />
-        <span class="font-semibold">{{ action.label }}</span>
+        <Icon
+          :name="action.icon"
+          class="w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
+        />
+        <span class="text-base md:text-sm lg:text-lg font-semibold">
+          {{ action.label }}
+        </span>
       </button>
     </div>
   </div>
@@ -64,9 +73,7 @@ const modes = [
   { name: 'bot', icon: 'kind-icon:bot', label: 'Bot' },
   { name: 'pitch', icon: 'kind-icon:pitch', label: 'Pitch' },
   { name: 'art', icon: 'kind-icon:art', label: 'Art' },
-  { name: 'collection', icon: 'kind-icon:collection', label: 'Collection' },
-  { name: 'user', icon: 'kind-icon:user', label: 'User' },
-]
+   ]
 
 const actions = [
   { name: 'gallery', icon: 'kind-icon:gallery', label: 'Gallery' },
@@ -78,15 +85,19 @@ const actions = [
 ]
 
 /**
- * Dynamically resolves the component name based on action and mode.
- * If the action is 'gallery' or 'card', format is 'mode-action'.
- * Otherwise, format is 'action-mode'.
+ * Resolves the dynamic component name and falls back if the component doesn't exist.
  */
-function getComponentName(mode: string, action: string): string {
+function resolveComponentName(mode: string, action: string) {
   const reversedActions = ['gallery', 'card']
-  if (reversedActions.includes(action)) {
-    return `${mode}-${action}`
-  }
-  return `${action}-${mode}`
+  const componentName = reversedActions.includes(action)
+    ? `${mode}-${action}`
+    : `${action}-${mode}`
+
+  const availableComponents = import.meta.glob('@/components/**/*.vue', { eager: true })
+  const isComponentAvailable = Object.keys(availableComponents).some((path) =>
+    path.includes(`${componentName}.vue`)
+  )
+
+  return isComponentAvailable ? componentName : 'FallbackComponent'
 }
 </script>

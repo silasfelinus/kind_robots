@@ -52,14 +52,77 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
+// Access the displayStore for managing the layout state
 const displayStore = useDisplayStore()
 
-// Use computed properties as in app.vue for styles
-const headerStyle = computed(() => ({ ... }))
-const leftSidebarStyle = computed(() => ({ ... }))
-const mainContentStyle = computed(() => ({ ... }))
-const footerStyle = computed(() => ({ ... }))
+// Computed properties to access displayStore values
+const headerHeight = computed(() => displayStore.headerHeight)
+const footerWidth = computed(() => displayStore.footerWidth)
+const sectionPadding = computed(() => displayStore.sectionPadding)
+const centerHeight = computed(() => displayStore.centerHeight)
+const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
+const centerWidth = computed(() => displayStore.centerWidth)
+const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
+const footerHeight = computed(() => displayStore.footerHeight)
 
+// Pre-calculated properties for commonly used calculations
+const headerAndPaddingHeight = computed(
+  () => calc(${headerHeight.value} + (${sectionPadding.value} * 2)),
+)
+const sidebarRightWidthWithPadding = computed(
+  () => calc(${sidebarRightWidth.value} + (${sectionPadding.value} * 2)),
+)
+
+// Sidebar and footer states
 const footerOpen = computed(() => displayStore.footerState === 'open')
-const sidebarLeftOpen = computed(() => ...)
+const sidebarLeftOpen = computed(
+  () =>
+    displayStore.sidebarLeftState !== 'hidden' &&
+    displayStore.sidebarLeftState !== 'disabled',
+)
+const sidebarRightOpen = computed(
+  () =>
+    displayStore.sidebarRightState !== 'hidden' &&
+    displayStore.sidebarRightState !== 'disabled',
+)
+
+// Computed styles for layout elements
+const headerStyle = computed(() => ({
+  height: headerHeight.value,
+  width: footerWidth.value,
+  top: sectionPadding.value,
+  left: sectionPadding.value,
+  right: sectionPadding.value,
+}))
+
+const leftSidebarStyle = computed(() => ({
+  height: centerHeight.value,
+  width: sidebarLeftWidth.value,
+  top: headerAndPaddingHeight.value,
+  left: sectionPadding.value,
+}))
+
+const mainContentStyle = computed(() => ({
+  height: centerHeight.value,
+  width: centerWidth.value,
+  top: headerAndPaddingHeight.value,
+  right: sidebarRightOpen.value
+    ? sidebarRightWidthWithPadding.value
+    : sectionPadding.value,
+}))
+
+const rightSidebarStyle = computed(() => ({
+  height: centerHeight.value,
+  width: sidebarRightWidth.value,
+  top: headerAndPaddingHeight.value,
+  right: sectionPadding.value,
+}))
+
+const footerStyle = computed(() => ({
+  height: footerHeight.value,
+  width: calc(100vw - (${sectionPadding.value} * 2)),
+  bottom: sectionPadding.value,
+  left: sectionPadding.value,
+  right: sectionPadding.value,
+}))
 </script>

@@ -1,56 +1,56 @@
 <template>
-  <div class="flex flex-col h-full gap-4 p-4">
-    <!-- Modes Section: Always at the Top -->
-    <div class="flex flex-wrap gap-2 justify-start border-b-2 border-base-300">
+  <div class="flex flex-col h-full gap-2 p-2">
+    <!-- Modes Section: Compact at the Top -->
+    <div class="flex gap-1 flex-wrap border-b border-base-300">
       <div
         v-for="mode in modes"
         :key="mode.name"
         @click="displayStore.setMode(mode.name as displayModeState)"
         :class="[
-          'flex items-center gap-2 px-4 py-2 cursor-pointer border rounded-t-lg transition-all duration-300',
+          'flex items-center gap-1 px-2 py-1 cursor-pointer border rounded-t-md transition-all duration-200',
           mode.name === displayStore.displayMode
-            ? 'bg-base-200 text-primary border-primary border-b-transparent scale-105 shadow-md'
-            : 'bg-base-100 text-base-content hover:bg-base-200 hover:scale-105 hover:shadow-lg border-base-300',
+            ? 'bg-base-200 text-primary border-primary border-b-transparent scale-105 shadow-sm'
+            : 'bg-base-100 text-base-content hover:bg-base-200 hover:scale-105 hover:shadow',
         ]"
       >
         <Icon
           :name="mode.icon"
-          class="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12"
+          class="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
         />
-        <span class="text-base md:text-lg lg:text-xl font-semibold">
+        <span class="text-sm md:text-base font-semibold">
           {{ mode.label }}
         </span>
       </div>
     </div>
 
-    <!-- Dynamic Component Section with Fallback -->
-    <div
-      class="flex-grow flex items-center justify-center bg-base-200 rounded-xl p-4 sm:p-6 lg:p-8 overflow-hidden"
-    >
+    <!-- Dynamic Component Section -->
+    <div class="flex-grow flex items-center justify-center bg-base-200 rounded-lg p-2 sm:p-3 overflow-hidden">
       <component
         :is="resolveComponentName(displayStore.displayMode, displayStore.displayAction)"
       />
     </div>
 
-    <!-- Actions Section: Single Line at the Bottom -->
-    <div class="flex flex-wrap md:flex-nowrap gap-2 justify-center items-center">
+    <!-- Actions Section: Single Row at Bottom -->
+    <div
+      class="flex justify-between gap-1 items-center mt-auto"
+    >
       <button
         v-for="action in actions"
         :key="action.name"
         @click="displayStore.setAction(action.name as displayActionState)"
         :class="[
-          'btn flex items-center justify-center gap-2 transition-all duration-300',
-          'w-full md:w-auto px-4 py-2 sm:px-6 sm:py-3 lg:px-8 lg:py-4',
+          'btn flex items-center justify-center gap-1 transition-all duration-200',
+          'px-2 py-1 sm:px-3 sm:py-2 lg:px-4 lg:py-2 text-sm md:text-xs lg:text-sm',
           action.name === displayStore.displayAction
-            ? 'btn-primary scale-105 shadow-md'
-            : 'btn-secondary hover:scale-105 hover:shadow-lg',
+            ? 'btn-primary scale-105 shadow'
+            : 'btn-secondary hover:scale-105 hover:shadow',
         ]"
       >
         <Icon
           :name="action.icon"
-          class="w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
+          class="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6"
         />
-        <span class="text-base md:text-sm lg:text-lg font-semibold">
+        <span class="hidden sm:inline font-medium">
           {{ action.label }}
         </span>
       </button>
@@ -73,7 +73,7 @@ const modes = [
   { name: 'bot', icon: 'kind-icon:bot', label: 'Bot' },
   { name: 'pitch', icon: 'kind-icon:pitch', label: 'Pitch' },
   { name: 'art', icon: 'kind-icon:art', label: 'Art' },
-   ]
+]
 
 const actions = [
   { name: 'gallery', icon: 'kind-icon:gallery', label: 'Gallery' },

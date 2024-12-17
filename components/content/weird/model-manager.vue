@@ -22,9 +22,7 @@
     <div
       class="flex-grow flex items-center justify-center bg-base-200 rounded-xl p-6 overflow-hidden"
     >
-      <component
-        :is="`${displayStore.displayAction}-${displayStore.displayMode}`"
-      />
+      <component :is="getComponentName(displayStore.displayMode, displayStore.displayAction)" />
     </div>
 
     <!-- Actions Section -->
@@ -33,25 +31,25 @@
         v-for="action in actions"
         :key="action.name"
         :class="[
-          'btn btn-lg flex items-center gap-2 transition-all duration-300 w-full md:w-auto',
+          'flex items-center gap-2 transition-all duration-300 w-full md:w-auto',
           action.name === displayStore.displayAction
-            ? 'btn-primary scale-110 shadow-md'
-            : 'btn-secondary hover:scale-105 hover:shadow-lg',
+            ? 'btn-primary scale-110 shadow-md text-base md:text-sm'
+            : 'btn-secondary hover:scale-105 hover:shadow-lg text-base md:text-sm',
         ]"
         @click="displayStore.setAction(action.name as displayActionState)"
       >
         <Icon :name="action.icon" class="w-6 h-6" />
-        <span class="text-lg font-semibold">{{ action.label }}</span>
+        <span class="font-semibold">{{ action.label }}</span>
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useDisplayStore } from '@/stores/displayStore'
+import { useDisplayStore } from '@/stores/displayStore';
 
 // Display Store
-const displayStore = useDisplayStore()
+const displayStore = useDisplayStore();
 
 // Modes and Actions
 const modes = [
@@ -74,4 +72,17 @@ const actions = [
   { name: 'generate', icon: 'kind-icon:generate', label: 'Generate' },
   { name: 'interact', icon: 'kind-icon:interact', label: 'Interact' },
 ];
+
+/**
+ * Dynamically resolves the component name based on action and mode.
+ * If the action is 'gallery' or 'card', format is 'mode-action'.
+ * Otherwise, format is 'action-mode'.
+ */
+function getComponentName(mode: string, action: string): string {
+  const reversedActions = ['gallery', 'card'];
+  if (reversedActions.includes(action)) {
+    return `${mode}-${action}`;
+  }
+  return `${action}-${mode}`;
+}
 </script>

@@ -24,12 +24,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
-import { useLayoutStore } from './../../../stores/layoutStore'
 import { useErrorStore } from './../../../stores/errorStore'
 import { useDisplayStore } from './../../../stores/displayStore'
 
 // Stores
-const layoutStore = useLayoutStore()
 const errorStore = useErrorStore()
 const displayStore = useDisplayStore() // Add displayStore to handle the sidebar and tutorial toggles
 const flipped = ref(false)
@@ -62,9 +60,6 @@ const handleAvatarClick = () => {
     // Toggle the sidebar and tutorial using displayStore
     displayStore.toggleSidebar('sidebarLeftState')
     displayStore.toggleTutorial()
-
-    // Optionally, if you still need to toggle other things in layoutStore
-    layoutStore.toggleSidebar()
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Failed to toggle sidebar'

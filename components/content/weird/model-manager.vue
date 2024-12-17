@@ -24,7 +24,6 @@
     >
       <component
         :is="`${displayStore.displayAction}-${displayStore.displayMode}`"
-        :action="displayStore.displayAction"
       />
     </div>
 
@@ -56,23 +55,23 @@ const displayStore = useDisplayStore()
 
 // Modes and Actions
 const modes = [
-  { name: 'scenario', icon: 'scenario', label: 'Scenario' },
-  { name: 'character', icon: 'character', label: 'Character' },
-  { name: 'reward', icon: 'reward', label: 'Reward' },
-  { name: 'chat', icon: 'chat', label: 'Chat' },
-  { name: 'bot', icon: 'bot', label: 'Bot' },
-  { name: 'pitch', icon: 'pitch', label: 'Pitch' },
-  { name: 'art', icon: 'art', label: 'Art' },
-  { name: 'collection', icon: 'collection', label: 'Collection' },
-  { name: 'user', icon: 'user', label: 'User' },
-]
+  { name: 'scenario', icon: 'kind-icon:scenario', label: 'Scenario' },
+  { name: 'character', icon: 'kind-icon:character', label: 'Character' },
+  { name: 'reward', icon: 'kind-icon:reward', label: 'Reward' },
+  { name: 'chat', icon: 'kind-icon:chat', label: 'Chat' },
+  { name: 'bot', icon: 'kind-icon:bot', label: 'Bot' },
+  { name: 'pitch', icon: 'kind-icon:pitch', label: 'Pitch' },
+  { name: 'art', icon: 'kind-icon:art', label: 'Art' },
+  { name: 'collection', icon: 'kind-icon:collection', label: 'Collection' },
+  { name: 'user', icon: 'kind-icon:user', label: 'User' },
+];
 
 const actions = [
-  { name: 'gallery', icon: 'gallery', label: 'Gallery' },
-  { name: 'card', icon: 'card', label: 'Card' },
-  { name: 'add', icon: 'add', label: 'Add' },
-  { name: 'edit', icon: 'edit', label: 'Edit' },
-  { name: 'generate', icon: 'generate', label: 'Generate' },
-  { name: 'interact', icon: 'interact', label: 'Interact' }, // Ensure "interact" matches the store type
-]
+  { name: 'gallery', icon: 'kind-icon:gallery', label: 'Gallery' },
+  { name: 'card', icon: 'kind-icon:card', label: 'Card' },
+  { name: 'add', icon: 'kind-icon:add', label: 'Add' },
+  { name: 'edit', icon: 'kind-icon:edit', label: 'Edit' },
+  { name: 'generate', icon: 'kind-icon:generate', label: 'Generate' },
+  { name: 'interact', icon: 'kind-icon:interact', label: 'Interact' },
+];
 </script>

@@ -67,10 +67,10 @@ const footerHeight = computed(() => displayStore.footerHeight)
 
 // Pre-calculated properties for commonly used calculations
 const headerAndPaddingHeight = computed(
-  () => calc(${headerHeight.value} + (${sectionPadding.value} * 2)),
+  () => `calc(${headerHeight.value} + (${sectionPadding.value} * 2))`,
 )
 const sidebarRightWidthWithPadding = computed(
-  () => calc(${sidebarRightWidth.value} + (${sectionPadding.value} * 2)),
+  () => `calc(${sidebarRightWidth.value} + (${sectionPadding.value} * 2))`,
 )
 
 // Sidebar and footer states
@@ -120,7 +120,7 @@ const rightSidebarStyle = computed(() => ({
 
 const footerStyle = computed(() => ({
   height: footerHeight.value,
-  width: calc(100vw - (${sectionPadding.value} * 2)),
+  width: `calc(100vw - (${sectionPadding.value} * 2))`,
   bottom: sectionPadding.value,
   left: sectionPadding.value,
   right: sectionPadding.value,

@@ -27,7 +27,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 
 // Dynamic icon text for the button
-const iconText = computed(() => (displayStore.bigMode ? '-' : '+'))
+const iconText = computed(() => (displayStore.bigMode ? '+' : '-'))
 
 // Toggle BigMode in the displayStore
 const toggleBigMode = () => {

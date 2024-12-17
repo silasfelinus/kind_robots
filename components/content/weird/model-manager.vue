@@ -22,7 +22,11 @@
     <div
       class="flex-grow flex items-center justify-center bg-base-200 rounded-xl p-6 overflow-hidden"
     >
-      <component :is="getComponentName(displayStore.displayMode, displayStore.displayAction)" />
+      <component
+        :is="
+          getComponentName(displayStore.displayMode, displayStore.displayAction)
+        "
+      />
     </div>
 
     <!-- Actions Section -->
@@ -46,10 +50,10 @@
 </template>
 
 <script setup lang="ts">
-import { useDisplayStore } from '@/stores/displayStore';
+import { useDisplayStore } from '@/stores/displayStore'
 
 // Display Store
-const displayStore = useDisplayStore();
+const displayStore = useDisplayStore()
 
 // Modes and Actions
 const modes = [
@@ -62,7 +66,7 @@ const modes = [
   { name: 'art', icon: 'kind-icon:art', label: 'Art' },
   { name: 'collection', icon: 'kind-icon:collection', label: 'Collection' },
   { name: 'user', icon: 'kind-icon:user', label: 'User' },
-];
+]
 
 const actions = [
   { name: 'gallery', icon: 'kind-icon:gallery', label: 'Gallery' },
@@ -71,7 +75,7 @@ const actions = [
   { name: 'edit', icon: 'kind-icon:edit', label: 'Edit' },
   { name: 'generate', icon: 'kind-icon:generate', label: 'Generate' },
   { name: 'interact', icon: 'kind-icon:interact', label: 'Interact' },
-];
+]
 
 /**
  * Dynamically resolves the component name based on action and mode.
@@ -79,10 +83,10 @@ const actions = [
  * Otherwise, format is 'action-mode'.
  */
 function getComponentName(mode: string, action: string): string {
-  const reversedActions = ['gallery', 'card'];
+  const reversedActions = ['gallery', 'card']
   if (reversedActions.includes(action)) {
-    return `${mode}-${action}`;
+    return `${mode}-${action}`
   }
-  return `${action}-${mode}`;
+  return `${action}-${mode}`
 }
 </script>

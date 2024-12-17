@@ -30,7 +30,7 @@ interface LayoutState {
 
 export const useLayoutStore = defineStore('layoutStore', {
   state: (): LayoutState => ({
-    currentLayout: getStoredLayout(LayoutKey.Dashboard),
+    currentLayout: getStoredLayout(LayoutKey.Default),
     isSidebarOpen: true,
   }),
 
@@ -53,7 +53,7 @@ export const useLayoutStore = defineStore('layoutStore', {
       }
     },
     initializeStore() {
-      this.currentLayout = getStoredLayout(LayoutKey.Dashboard)
+      this.currentLayout = getStoredLayout(LayoutKey.Default)
     },
   },
 

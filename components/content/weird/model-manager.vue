@@ -43,7 +43,7 @@
 
   <!-- Dynamic Component Section -->
   <div
-    class="flex-grow flex items-center justify-center bg-base-200 rounded-lg p-2 sm:p-3 overflow-hidden"
+    class="flex-grow flex items-center justify-center bg-base-200 rounded-lg overflow-hidden"
   >
     <component
       :is="

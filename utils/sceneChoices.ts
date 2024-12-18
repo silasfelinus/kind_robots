@@ -22,6 +22,30 @@ The lighting is a mix of blues and purples, occasionally interrupted by the flas
     artImageId: null,
   },
   {
+    title: 'Freefall',
+    genres: 'action, humor, surreal adventure',
+    inspirations:
+      'Terry Pratchett, Monty Python, Portal, XKCD, Calvin and Hobbes',
+    description:
+      'Falling isn’t the problem—it’s the landing. Freefall is the high-stakes, gravity-optional adventure where quick thinking and sheer audacity might save your skin. Trapped in an infinite descent through the bizarre strata of reality, you’ll encounter everything from airborne tea parties to falling cities, with no shortage of absurdity along the way. Choose wisely; the ground is never as far away as you think.',
+    intros: [
+      'THE BACKPACK GAMBIT: You were certain this was a parachute. The salesperson even smiled knowingly when they handed it over. But as the wind roars past, you realize it’s just a hiking backpack… or is it? There’s still time to dig through its contents, but do you trust your freefalling hands to pull out anything useful? (Spoiler: there’s a sandwich in there.)',
+      "MID-AIR NEGOTIATIONS: A skydiver without a parachute is one thing, but a sentient pigeon flying alongside you offering advice? Now that’s new. It claims to be a certified 'Sky-Lawyer,' whatever that means, and it’s willing to help… for a price. Do you hear it out, or just scream into the void until something happens?",
+      'REALITY TEARS ITSELF OPEN: Midway through your plunge, gravity seems to get bored and wanders off. Instead of falling down, you’re falling… sideways? Upward? Into what looks suspiciously like a giant floating tea party hosted by polite sentient clouds? One of them offers you a scone. Is this salvation or just another distraction?',
+      "WINGING IT (LITERALLY): Remember that one time you told yourself you’d learn to fly 'when you really needed to'? Well, it’s time to cash that in. Arms out, mental focus activated—what’s the worst that could happen? No, don’t answer that.",
+      "HAILED OBJECTS: Falling alongside you is a grand piano, a rubber duck, and a fridge with glowing runes etched into its sides. Any of them could be useful—or dangerous. They’re picking up speed. Quick! Which one do you grab? And please don’t say 'the duck.'",
+      'FALLING FOR INFINITY: You’ve been falling for what feels like hours, passing increasingly absurd landmarks: a mid-air orchestra playing Flight of the Bumblebee, a giant tumbleweed of squirrels, and what might have been a floating laundromat. The ground is still nowhere in sight, but you suspect it’s lurking nearby, waiting to strike. What’s your next move?',
+      "PHYSICS REASSURES YOU: You hear a calm, British-sounding voice narrating your descent. 'Ah, yes, terminal velocity,' it remarks cheerily. 'A fascinating phenomenon, though entirely useless without a plan.' The voice claims to be the laws of physics and offers a few suggestions. Do you listen, argue, or ignore it entirely?",
+    ],
+    userId: 1,
+    imagePath: '/images/scenarios/freefall.webp',
+    locations:
+      'Sky-Tea Social Club, The Infinite Plummet Mall, Freefalling Carnival, The Terminal Velocity Bandstand',
+    artPrompt:
+      'Imagine an endless, surreal descent through the skies of an alternate dimension. Layers of bizarre scenery pass by: a floating tea party hosted by polite cloud-people, skywhales singing mournful tunes, and sprawling cities perched on invisible platforms that somehow crumble as you approach. The lighting is ethereal and constantly shifting: a soft dawn glow at one moment, a kaleidoscope of neon rainbows the next. Objects tumble past—a grand piano, a glowing fridge, or a flock of arguing rubber ducks—all rendered with a mix of dreamlike surrealism and absurd humor. A lone figure plummets through it all, arms outstretched, suspended between panic and awe.',
+    artImageId: null,
+  },
+  {
     title: `I’m a Sea Anemone and I WILL Take Over the World`,
     genres: 'comedy, strategy, absurdist',
     inspirations: 'Pinky and the Brain, Finding Nemo, The Tick',

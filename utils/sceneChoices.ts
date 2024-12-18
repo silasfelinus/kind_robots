@@ -2,26 +2,6 @@
 
 export const scenarios = [
   {
-    title: 'Serendipity',
-    genres: 'sci-fi, adventure, humor',
-    inspirations: `Douglas Adams, Spider Robinson, Space Quest, Hitchhiker's Guide to the Galaxy, Myth Adventures`,
-    description: `The universe is a dangerous place! Best take a breather at the top oasis between worlds: Serendipity Space Bar. Whether you're a Gasproundian bounty hunter or an escapee from the Helium mines, everyone is welcome at Serendipity! Remember, no vaporizing paying guests while on the premises!`,
-    intros: JSON.stringify([
-      `SPACE JANITOR: Day one at Serendipity's Space Bar. The job posting said 'janitorial services,' but it didn’t mention cleaning up spilled sentience goo or mediating disputes between time-traveling versions of the same customer. Turns out, the only thing more chaotic than the bar itself are the stories that come with it.`,
-      'MYSTERIOUS PATRON: You step into Serendipity, and the first thing you notice is the smell: ozone, burnt cinnamon, and just a hint of regret. The bar hums with the noise of a hundred worlds, from the low grumbles of a furry behemoth nursing his drink to the tinkling laughter of what might be sentient crystals. One thing’s clear: you’ve found the only place in the galaxy where the improbable is on tap.',
-      `BARTENDER: It’s just another night at Serendipity, where the drinks are stiff, the customers are stranger, and the intergalactic health inspectors are—thankfully—rare. Your job is to keep the peace (and the bar intact) while dispensing drinks, wisdom, and the occasional emergency portal to a less hostile dimension.`,
-    ]),
-    userId: 1,
-    imagePath: '/images/scenarios/space.webp',
-    locations: `Wormhole Lounge, All-Gender All-Species Omnirestroom, World Market, Smuggler's Warehouse`,
-    artPrompt: `Serendipity Space Bar is a bustling, neon-lit haven for intergalactic travelers. Picture a classic sci-fi bar with a retro-futuristic twist: curved chrome counters, floating drink trays, and walls lined with glowing alien artifacts that hum faintly with energy.
-
-The main room is alive with chatter, laughter, and the occasional universal translator malfunction, as a diverse crowd of patrons mingles: tentacled diplomats, holographic musicians, and cyborg bounty hunters nursing drinks in mismatched glasses. The bar's centerpiece is a massive, suspended aquarium filled with bioluminescent jellyfish-like creatures that pulse in time with the music.
-
-The lighting is a mix of blues and purples, occasionally interrupted by the flash of a teleportation booth or the crackle of an unruly plasma drink. Drinks are served in glasses that hover, bubble, or shift colors depending on the mood of the drinker. And in the corner, a battered jukebox plays hits from stars both distant and dead.`,
-    artImageId: null,
-  },
-  {
     title: 'Freefall',
     genres: 'action, humor, surreal adventure',
     inspirations:
@@ -43,6 +23,26 @@ The lighting is a mix of blues and purples, occasionally interrupted by the flas
       'Sky-Tea Social Club, The Infinite Plummet Mall, Freefalling Carnival, The Terminal Velocity Bandstand',
     artPrompt:
       'Imagine an endless, surreal descent through the skies of an alternate dimension. Layers of bizarre scenery pass by: a floating tea party hosted by polite cloud-people, skywhales singing mournful tunes, and sprawling cities perched on invisible platforms that somehow crumble as you approach. The lighting is ethereal and constantly shifting: a soft dawn glow at one moment, a kaleidoscope of neon rainbows the next. Objects tumble past—a grand piano, a glowing fridge, or a flock of arguing rubber ducks—all rendered with a mix of dreamlike surrealism and absurd humor. A lone figure plummets through it all, arms outstretched, suspended between panic and awe.',
+    artImageId: null,
+  },
+  {
+    title: 'Serendipity',
+    genres: 'sci-fi, adventure, humor',
+    inspirations: `Douglas Adams, Spider Robinson, Space Quest, Hitchhiker's Guide to the Galaxy, Myth Adventures`,
+    description: `The universe is a dangerous place! Best take a breather at the top oasis between worlds: Serendipity Space Bar. Whether you're a Gasproundian bounty hunter or an escapee from the Helium mines, everyone is welcome at Serendipity! Remember, no vaporizing paying guests while on the premises!`,
+    intros: JSON.stringify([
+      `SPACE JANITOR: Day one at Serendipity's Space Bar. The job posting said 'janitorial services,' but it didn’t mention cleaning up spilled sentience goo or mediating disputes between time-traveling versions of the same customer. Turns out, the only thing more chaotic than the bar itself are the stories that come with it.`,
+      'MYSTERIOUS PATRON: You step into Serendipity, and the first thing you notice is the smell: ozone, burnt cinnamon, and just a hint of regret. The bar hums with the noise of a hundred worlds, from the low grumbles of a furry behemoth nursing his drink to the tinkling laughter of what might be sentient crystals. One thing’s clear: you’ve found the only place in the galaxy where the improbable is on tap.',
+      `BARTENDER: It’s just another night at Serendipity, where the drinks are stiff, the customers are stranger, and the intergalactic health inspectors are—thankfully—rare. Your job is to keep the peace (and the bar intact) while dispensing drinks, wisdom, and the occasional emergency portal to a less hostile dimension.`,
+    ]),
+    userId: 1,
+    imagePath: '/images/scenarios/space.webp',
+    locations: `Wormhole Lounge, All-Gender All-Species Omnirestroom, World Market, Smuggler's Warehouse`,
+    artPrompt: `Serendipity Space Bar is a bustling, neon-lit haven for intergalactic travelers. Picture a classic sci-fi bar with a retro-futuristic twist: curved chrome counters, floating drink trays, and walls lined with glowing alien artifacts that hum faintly with energy.
+
+The main room is alive with chatter, laughter, and the occasional universal translator malfunction, as a diverse crowd of patrons mingles: tentacled diplomats, holographic musicians, and cyborg bounty hunters nursing drinks in mismatched glasses. The bar's centerpiece is a massive, suspended aquarium filled with bioluminescent jellyfish-like creatures that pulse in time with the music.
+
+The lighting is a mix of blues and purples, occasionally interrupted by the flash of a teleportation booth or the crackle of an unruly plasma drink. Drinks are served in glasses that hover, bubble, or shift colors depending on the mood of the drinker. And in the corner, a battered jukebox plays hits from stars both distant and dead.`,
     artImageId: null,
   },
   {

@@ -35,9 +35,10 @@
 
     <!-- Section Content -->
     <div class="flex-grow w-full overflow-y-auto h-full">
+   <lazy-scenario-manager v-if="activeTab === 'scenario-manager'" />
       <lazy-model-manager v-if="activeTab === 'model-manager'" />
 
-      <lazy-scenario-manager v-if="activeTab === 'scenario-manager'" />
+   
       <lazy-add-character v-if="activeTab === 'add-character'" />
 
       <lazy-character-gallery v-if="activeTab === 'character-gallery'" />

@@ -264,7 +264,7 @@ export const useDisplayStore = defineStore('display', {
         this.headerState = 'open'
         this.sidebarLeftState = 'compact'
         this.sidebarRightState = 'hidden'
-        this.footerState = 'compact'
+        this.footerState = 'hidden'
       }
 
       this.saveState() // Persist the updated state
@@ -283,36 +283,14 @@ export const useDisplayStore = defineStore('display', {
         this.handleError(error)
       }
     },
-
     loadState() {
       try {
         if (typeof window !== 'undefined' && window.localStorage) {
-          const storedSidebarLeft = localStorage.getItem(
-            'sidebarLeftState',
-          ) as DisplayState
-          const storedSidebarRight = localStorage.getItem(
-            'sidebarRightState',
-          ) as DisplayState
-          const storedHeaderState = localStorage.getItem(
-            'headerState',
-          ) as DisplayState
-          const storedFooterState = localStorage.getItem(
-            'footerState',
-          ) as DisplayState
-          const storedShowTutorial = localStorage.getItem('showTutorial')
-          const storedShowIntro = localStorage.getItem('showIntro')
-          const storedFullScreen = localStorage.getItem('isFullScreen')
-          const storedFlipState = localStorage.getItem('flipState') as FlipState
-
-          if (storedFlipState) this.flipState = storedFlipState
-          if (storedSidebarLeft) this.sidebarLeftState = storedSidebarLeft
-          if (storedSidebarRight) this.sidebarRightState = storedSidebarRight
-          if (storedHeaderState) this.headerState = storedHeaderState
-          if (storedFooterState) this.footerState = storedFooterState
-          if (storedShowTutorial)
-            this.showTutorial = storedShowTutorial === 'true'
-          if (storedFullScreen) this.isFullScreen = storedFullScreen === 'true'
-          if (storedShowIntro) this.showIntro = storedShowIntro === 'true'
+          const savedState = localStorage.getItem('displayStoreState')
+          if (savedState) {
+            const parsedState = JSON.parse(savedState)
+            this.$patch(parsedState) // Merge the saved state with the current one
+          }
         }
       } catch (error) {
         this.handleError(error)
@@ -537,14 +515,13 @@ export const useDisplayStore = defineStore('display', {
     saveState() {
       try {
         if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.setItem('sidebarLeftState', this.sidebarLeftState)
-          localStorage.setItem('sidebarRightState', this.sidebarRightState)
-          localStorage.setItem('headerState', this.headerState)
-          localStorage.setItem('footerState', this.footerState)
-          localStorage.setItem('showTutorial', String(this.showTutorial))
-          localStorage.setItem('isFullScreen', String(this.isFullScreen))
-          localStorage.setItem('showIntro', String(this.showIntro))
-          localStorage.setItem('flipState', this.flipState)
+          const stateToSave = {
+            ...this.$state,
+            resizeTimeout: null, // Exclude transient properties
+            isAnimating: false,
+            currentAnimation: '',
+          }
+          localStorage.setItem('displayStoreState', JSON.stringify(stateToSave))
         }
       } catch (error) {
         this.handleError(error)

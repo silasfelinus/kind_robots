@@ -21,7 +21,6 @@
     <aside
       class="fixed z-10 box-border rounded-2xl transition-all duration-300 ease-in-out overflow-visible"
       :style="leftSidebarStyle"
-      style="background-color: rgba(0, 0, 0, 0.1)"
     >
       <kind-sidebar-simple
         v-if="sidebarLeftOpen"

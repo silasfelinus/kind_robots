@@ -26,7 +26,7 @@
       class="bg-base-300 p-4 rounded-lg shadow-md mb-6"
     >
       <h2 class="text-xl font-bold text-gray-600 mb-4">Create/Edit Scenario</h2>
-      <scenario-maker />
+      <add-scenario />
     </div>
 
     <!-- Scenario Gallery and Selected Scenario -->

@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col h-full gap-2 p-2">
-    <!-- Modes Section: Compact at the Top -->
+    <!-- Modes Section: Compact Tabs at the Top -->
     <div class="flex gap-1 flex-wrap border-b border-base-300">
       <div
         v-for="mode in modes"
@@ -20,6 +20,26 @@
       </div>
     </div>
 
+    <!-- Actions Section: Below Tabs -->
+    <div class="flex justify-start gap-2 items-center bg-base-200 rounded-md p-2">
+      <button
+        v-for="action in actions"
+        :key="action.name"
+        :class="[
+          'btn btn-sm sm:btn-md flex items-center gap-1 px-3 py-1 transition-all duration-200',
+          action.name === displayStore.displayAction
+            ? 'btn-primary scale-105 shadow'
+            : 'btn-secondary hover:scale-105 hover:shadow',
+        ]"
+        @click="displayStore.setAction(action.name as displayActionState)"
+      >
+        <Icon :name="action.icon" class="w-4 h-4 sm:w-5 sm:h-5" />
+        <span class="hidden sm:inline font-medium">
+          {{ action.label }}
+        </span>
+      </button>
+    </div>
+
     <!-- Dynamic Component Section -->
     <div
       class="flex-grow flex items-center justify-center bg-base-200 rounded-lg p-2 sm:p-3 overflow-hidden"
@@ -32,27 +52,6 @@
           )
         "
       />
-    </div>
-
-    <!-- Actions Section: Single Row at Bottom -->
-    <div class="flex justify-between gap-1 items-center mt-auto">
-      <button
-        v-for="action in actions"
-        :key="action.name"
-        :class="[
-          'btn flex items-center justify-center gap-1 transition-all duration-200',
-          'px-2 py-1 sm:px-3 sm:py-2 lg:px-4 lg:py-2 text-sm md:text-xs lg:text-sm',
-          action.name === displayStore.displayAction
-            ? 'btn-primary scale-105 shadow'
-            : 'btn-secondary hover:scale-105 hover:shadow',
-        ]"
-        @click="displayStore.setAction(action.name as displayActionState)"
-      >
-        <Icon :name="action.icon" class="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
-        <span class="hidden sm:inline font-medium">
-          {{ action.label }}
-        </span>
-      </button>
     </div>
   </div>
 </template>
@@ -76,7 +75,6 @@ const modes = [
 
 const actions = [
   { name: 'gallery', icon: 'kind-icon:gallery', label: 'Gallery' },
-  { name: 'card', icon: 'kind-icon:card', label: 'Card' },
   { name: 'add', icon: 'kind-icon:add', label: 'Add' },
   { name: 'edit', icon: 'kind-icon:edit', label: 'Edit' },
   { name: 'generate', icon: 'kind-icon:generate', label: 'Generate' },

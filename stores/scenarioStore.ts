@@ -15,7 +15,7 @@ export const useScenarioStore = defineStore({
     isSaving: false,
     isInitialized: false,
     loading: false,
-      }),
+  }),
 
   getters: {
     totalScenarios: (state) => state.scenarios.length,
@@ -42,12 +42,12 @@ export const useScenarioStore = defineStore({
           this.scenarioForm = JSON.parse(savedForm)
         }
 
-        // Initialize with scene choices
         this.scenarios = scenarios.map((choice) => ({
           ...choice,
           id: Math.floor(Math.random() * 10000), // Generate a random ID or replace with real IDs
           createdAt: new Date(),
           updatedAt: new Date(),
+          intros: JSON.stringify(choice.intros), // Ensure intros is stored as a string
         }))
 
         // Fetch scenarios from API to update

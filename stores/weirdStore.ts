@@ -70,17 +70,23 @@ export const useWeirdStore = defineStore({
         )
       }
     },
-
     populateInitialChoices() {
-      this.initialChoices = scenarios // Use the scenarios array
+      this.initialChoices = scenarios.map((choice) => ({
+        ...choice,
+        intros: JSON.stringify(choice.intros), // Convert intros to string
+      }))
       this.saveToLocalStorage()
     },
 
     populateCurrentOptions() {
       if (this.initialChoices.length > 0) {
-        this.currentOptions = this.initialChoices.flatMap(
-          (choice) => JSON.parse(choice.intros), // Parse intros from JSON format
-        )
+        this.currentOptions = this.initialChoices.flatMap((choice) => {
+          const intros =
+            typeof choice.intros === 'string'
+              ? JSON.parse(choice.intros)
+              : choice.intros
+          return Array.isArray(intros) ? intros : []
+        })
       } else {
         console.warn(
           'No initial choices available to populate current options.',

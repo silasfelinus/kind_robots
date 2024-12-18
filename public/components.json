@@ -329,6 +329,7 @@
     "components": [
       "action-toggle",
       "add-character",
+      "add-scenario",
       "character-art",
       "character-bottom",
       "character-card",
@@ -354,7 +355,6 @@
       "rebel-button",
       "scenario-card",
       "scenario-gallery",
-      "add-scenario",
       "scenario-manager",
       "scenario-selector",
       "scenario-uploader",

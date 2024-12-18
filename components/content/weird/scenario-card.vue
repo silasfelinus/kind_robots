@@ -54,10 +54,7 @@
       <!-- Genres -->
       <p
         v-if="scenario.genres"
-        :class="[
-          'mt-2 text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full',
-          isSelected ? 'text-sm bg-primary/20' : 'truncate',
-        ]"
+        class="mt-2 text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full truncate"
       >
         {{ scenario.genres }}
       </p>
@@ -65,10 +62,7 @@
       <!-- Inspirations -->
       <p
         v-if="scenario.inspirations"
-        :class="[
-          'mt-2 text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full',
-          isSelected ? 'text-sm bg-primary/20' : 'truncate',
-        ]"
+        class="mt-2 text-xs text-gray-500 px-3 py-2 bg-gray-200 rounded-md text-left whitespace-pre-wrap w-full"
       >
         Inspirations: {{ scenario.inspirations }}
       </p>
@@ -85,23 +79,24 @@
       >
         {{ scenario.title || 'Untitled Scenario' }}
       </h2>
-<!-- Description -->
-<p
-  :class="[
-    'mt-2',
-    isSelected ? 'text-lg text-gray-700' : 'text-sm text-gray-500'
-  ]"
->
-  {{ scenario.description || 'No description available.' }}
-</p>
 
+      <!-- Description -->
+      <p
+        :class="[
+          'mt-2',
+          isSelected ? 'text-lg text-gray-700' : 'text-sm text-gray-500',
+        ]"
+      >
+        {{ scenario.description || 'No description available.' }}
+      </p>
 
       <!-- Intros -->
-      <div v-if="isSelected" class="flex flex-col gap-2 mt-4">
+      <div v-if="isSelected" class="flex flex-wrap gap-2 mt-4">
         <button
           v-for="(intro, index) in introChoices"
           :key="index"
-          class="btn btn-secondary btn-sm text-left whitespace-normal px-4 py-2 leading-relaxed max-w-full break-words rounded-md"
+          class="btn btn-secondary text-left whitespace-normal px-4 py-3 leading-snug break-words rounded-md w-auto"
+          style="min-height: 3rem; flex-grow: 1;"
           @click.stop="setCurrentChoice(intro)"
         >
           {{ intro }}
@@ -111,8 +106,7 @@
   </div>
 </template>
 
-
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -120,7 +114,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 
 // Props
-const { scenario } = defineProps({
+defineProps({
   scenario: {
     type: Object,
     required: true,

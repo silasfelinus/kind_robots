@@ -325,9 +325,11 @@ export const useDisplayStore = defineStore('display', {
 
     setMode(mode: displayModeState) {
       this.displayMode = mode
+      this.saveState()
     },
     setAction(action: displayActionState) {
       this.displayAction = action
+      this.saveState()
     },
 
     // Function to toggle a random animation

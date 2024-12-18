@@ -328,10 +328,10 @@
     "folderName": "weird",
     "components": [
       "action-toggle",
+      "add-character",
       "character-art",
       "character-bottom",
       "character-card",
-      "character-designer",
       "character-gallery",
       "character-goals",
       "character-options",

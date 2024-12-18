@@ -1,6 +1,6 @@
 <template>
   <!-- Main container -->
-  <div class="h-full flex flex-col relative z-10">
+  <div class="h-full flex flex-col rounded-2xl relative z-10">
     <!-- Transition Wrapper -->
     <transition name="flip" mode="out-in">
       <!-- Mobile View (no flip card) -->

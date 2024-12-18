@@ -1,58 +1,60 @@
 <template>
-  <!-- Modes Section: Compact Tabs at the Top -->
-  <div
-    class="section-container flex flex-col h-full w-full items-center overflow-auto"
-  >
-    <div
-      v-for="mode in modes"
-      :key="mode.name"
-      :class="[
-        'flex items-center gap-1 px-2 py-1 cursor-pointer border rounded-t-md transition-all duration-200',
-        mode.name === displayStore.displayMode
-          ? 'bg-base-200 text-primary border-primary border-b-transparent scale-105 shadow-sm'
-          : 'bg-base-100 text-base-content hover:bg-base-200 hover:scale-105 hover:shadow',
-      ]"
-      @click="displayStore.setMode(mode.name as displayModeState)"
-    >
-      <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
-      <span class="text-sm md:text-base font-semibold">
-        {{ mode.label }}
-      </span>
+  <div class="flex flex-col h-full gap-2 p-2">
+    <!-- Modes Section: Compact Tabs at the Top -->
+    <div class="section-container flex flex-col items-center overflow-hidden">
+      <div
+        v-for="mode in modes"
+        :key="mode.name"
+        :class="[
+          'flex items-center gap-1 px-2 py-1 cursor-pointer border rounded-t-md transition-all duration-200',
+          mode.name === displayStore.displayMode
+            ? 'bg-base-200 text-primary border-primary border-b-transparent scale-105 shadow-sm'
+            : 'bg-base-100 text-base-content hover:bg-base-200 hover:scale-105 hover:shadow',
+        ]"
+        @click="displayStore.setMode(mode.name as displayModeState)"
+      >
+        <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
+        <span class="text-sm md:text-base font-semibold">
+          {{ mode.label }}
+        </span>
+      </div>
     </div>
-  </div>
 
-  <!-- Actions Section: Below Tabs -->
-  <div class="flex justify-start gap-2 items-center bg-base-200 rounded-md p-2">
-    <button
-      v-for="action in actions"
-      :key="action.name"
-      :class="[
-        'btn btn-sm sm:btn-md flex items-center gap-1 px-3 py-1 transition-all duration-200',
-        action.name === displayStore.displayAction
-          ? 'btn-primary scale-105 shadow'
-          : 'btn-secondary hover:scale-105 hover:shadow',
-      ]"
-      @click="displayStore.setAction(action.name as displayActionState)"
+    <!-- Actions Section: Below Tabs -->
+    <div
+      class="flex justify-start gap-2 items-center bg-base-200 rounded-md p-2"
     >
-      <Icon :name="action.icon" class="w-4 h-4 sm:w-5 sm:h-5" />
-      <span class="hidden sm:inline font-medium">
-        {{ action.label }}
-      </span>
-    </button>
-  </div>
+      <button
+        v-for="action in actions"
+        :key="action.name"
+        :class="[
+          'btn btn-sm sm:btn-md flex items-center gap-1 px-3 py-1 transition-all duration-200',
+          action.name === displayStore.displayAction
+            ? 'btn-primary scale-105 shadow'
+            : 'btn-secondary hover:scale-105 hover:shadow',
+        ]"
+        @click="displayStore.setAction(action.name as displayActionState)"
+      >
+        <Icon :name="action.icon" class="w-4 h-4 sm:w-5 sm:h-5" />
+        <span class="hidden sm:inline font-medium">
+          {{ action.label }}
+        </span>
+      </button>
+    </div>
 
-  <!-- Dynamic Component Section -->
-  <div
-    class="flex-grow flex items-center justify-center bg-base-200 rounded-lg overflow-hidden"
-  >
-    <component
-      :is="
-        resolveComponentName(
-          displayStore.displayMode,
-          displayStore.displayAction,
-        )
-      "
-    />
+    <!-- Dynamic Component Section -->
+    <div
+      class="flex-grow flex items-center justify-center bg-base-200 rounded-lg p-2 sm:p-3 overflow-hidden"
+    >
+      <component
+        :is="
+          resolveComponentName(
+            displayStore.displayMode,
+            displayStore.displayAction,
+          )
+        "
+      />
+    </div>
   </div>
 </template>
 

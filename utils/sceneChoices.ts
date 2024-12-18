@@ -1,6 +1,24 @@
 //utils/sceneChoices.ts
 
 export const scenarios = [
+{
+  "title": "Fairy Theft",
+  "genres": "dark humor, surreal fantasy, absurd adventure",
+  "inspirations": "Grimm's Fairy Tales, Neil Gaiman, Terry Gilliam, Tim Burton",
+  "description": "As a mischievous fairy, your latest assignment is... unconventional. The fairy court has tasked you with 'recovering' a human infant from a village. What they didn't mention is that fairies don't exactly know how babies work. Will you pick the right child, return it when it cries, or improvise when it inevitably starts demanding food? Every decision spirals deeper into a weirdly heartfelt, hilariously bizarre adventure. Can you keep up with this odd, human Tamagotchi?",
+  "intros": [
+    "TAMAGOTCHI FAIRY: They didn’t tell you babies were so… loud. Or slimy. Or *human*. But now you’re stuck with it, flitting through the forest as it wails louder than a banshee. Do you stuff it full of mushrooms and hope for the best? Build a crib out of spider silk? Or maybe this was all a mistake, and you return to the village with a heartfelt (and hasty) apology?",
+    "CHANGELING CHAOS: The fairy court didn’t specify which baby you were supposed to steal, so now you’re standing in a nursery with three suspiciously identical infants. One is suspiciously quiet, one is suspiciously loud, and the third is… glowing? No one mentioned glowing. Choose carefully, because once you pick, there’s no going back.",
+    "MISTAKEN IDENTITY: Congratulations! You’ve kidnapped the baby—wait, that’s a very small goat. Whoops. Do you try to return it before the humans notice? Keep it as a companion? Or trade it for something shiny in the goblin market? Either way, this is not going to end well.",
+    "FEEDING TIME FIASCO: What do human babies eat? You’ve tried berries, flowers, and even a piece of enchanted honeycomb, but all you’ve gotten is a mess and a very upset infant. Do you risk a trip to the village for supplies, consult the ancient fairy lore, or just… wing it?",
+    "ESCAPE PLAN: The villagers are on your trail, pitchforks in hand. The baby is crying, you’re low on magic, and the fairy court isn’t answering your calls. Do you use your remaining pixie dust to fly away, disguise the baby as a mushroom, or try to negotiate with the angry mob?"
+  ],
+  "userId": 1,
+  "imagePath": "/images/scenarios/fairytheft.webp",
+  "locations": "Enchanted Forest, Goblin Market, Shimmering Fairy Court, Human Village",
+  "artPrompt": "A mischievous fairy carrying a crying human baby through a dark and whimsical enchanted forest. The fairy is small, glowing, and surrounded by a trail of sparkling pixie dust. The baby looks confused and is wrapped in a makeshift blanket made of spider silk and leaves. The forest is full of eerie, oversized mushrooms, glowing flowers, and watchful animal eyes peeking from the shadows. The scene is surreal, with a blend of dark humor and whimsical fantasy.",
+  "artImageId": null
+},
   {
     title: 'Freefall',
     genres: 'action, humor, surreal adventure',

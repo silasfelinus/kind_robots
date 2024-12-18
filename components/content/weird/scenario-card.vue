@@ -94,7 +94,14 @@
       </p>
 
       <!-- Intros -->
-      <div v-if="isSelected" class="flex flex-wrap gap-2 mt-4">
+      <div
+        v-if="isSelected"
+        class="flex flex-wrap gap-2 mt-4"
+        :class="[
+          'flex-col', // Default: vertical stacking for sm and md
+          'lg:flex-row', // Row layout on large and xl screens
+        ]"
+      >
         <button
           v-for="(intro, index) in introChoices"
           :key="index"

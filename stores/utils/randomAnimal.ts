@@ -43,6 +43,7 @@ export function useRandomAnimal() {
     'Tasmanian Devil',
     'Meerkat',
     'Kinkajou',
+    'Millillillillipede',
     'Yak',
     'Alpaca',
     'Llama',

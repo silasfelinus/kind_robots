@@ -82,9 +82,7 @@ const modes = [
 const actions = [
   { name: 'gallery', icon: 'kind-icon:gallery', label: 'Gallery' },
   { name: 'add', icon: 'kind-icon:add', label: 'Add' },
-  { name: 'edit', icon: 'kind-icon:edit', label: 'Edit' },
-  { name: 'generate', icon: 'kind-icon:generate', label: 'Generate' },
-  { name: 'interact', icon: 'kind-icon:interact', label: 'Interact' },
+  
 ]
 
 /**

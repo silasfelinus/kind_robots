@@ -8,7 +8,10 @@
     @click="selectScenario"
   >
     <!-- Action Buttons -->
-    <div v-if="isSelected" class="absolute top-2 right-2 flex items-center gap-2 z-20">
+    <div
+      v-if="isSelected"
+      class="absolute top-2 right-2 flex items-center gap-2 z-20"
+    >
       <!-- Delete Button -->
       <button
         v-if="canDelete"
@@ -96,7 +99,7 @@
           v-for="(intro, index) in introChoices"
           :key="index"
           class="btn btn-secondary text-left whitespace-normal px-4 py-3 leading-snug break-words rounded-md w-auto"
-          style="min-height: 3rem; flex-grow: 1;"
+          style="min-height: 3rem; flex-grow: 1"
           @click.stop="setCurrentChoice(intro)"
         >
           {{ intro }}
@@ -106,7 +109,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -114,7 +117,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 
 // Props
-defineProps({
+const { scenario } = defineProps({
   scenario: {
     type: Object,
     required: true,

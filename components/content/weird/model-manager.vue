@@ -1,24 +1,25 @@
 <template>
-  <div class="flex flex-col h-full gap-2 p-2 overflow-hidden">
+  <div class="flex flex-col h-full gap-2 p-2 overflow-hidden relative">
     <!-- Modes Section: Compact Tabs at the Top -->
     <div
       class="section-container flex flex-row items-center overflow-hidden gap-x-2"
     >
-      <div
-        v-for="mode in modes"
-        :key="mode.name"
-        :class="[
-          'flex items-center gap-1 px-1 sm:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
-          mode.name === displayStore.displayMode
-            ? 'border-primary border-b-0 z-10 scale-102 shadow-sm'
-            : 'border-base-300 hover:scale-102 hover:shadow',
-        ]"
-        @click="displayStore.setMode(mode.name as displayModeState)"
-      >
-        <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
-        <span class="text-sm md:text-base font-semibold">
-          {{ mode.label }}
-        </span>
+      <div v-for="mode in modes" :key="mode.name" class="relative">
+        <div
+          :class="[
+            'flex items-center gap-1 px-1 sm:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
+            mode.name === displayStore.displayMode
+              ? 'border-primary border-b-0 z-10 scale-102 shadow-sm'
+              : 'border-base-300 hover:scale-102 hover:shadow',
+          ]"
+          style="transform-origin: center"
+          @click="displayStore.setMode(mode.name as displayModeState)"
+        >
+          <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
+          <span class="text-sm md:text-base font-semibold">
+            {{ mode.label }}
+          </span>
+        </div>
       </div>
     </div>
 
@@ -46,7 +47,8 @@
 
     <!-- Dynamic Component Section -->
     <div
-      class="flex-grow flex items-center justify-center bg-base-200 rounded-lg p-2 sm:p-3 overflow-hidden max-w-full max-h-full"
+      class="flex-grow flex items-center justify-center bg-base-200 rounded-lg p-2 sm:p-3 overflow-hidden max-w-full max-h-full relative"
+      style="max-height: calc(100% - 4rem); max-width: 100%"
     >
       <component
         :is="

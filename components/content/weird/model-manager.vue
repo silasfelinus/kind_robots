@@ -1,8 +1,7 @@
 <template>
   <!-- Modes Section: Compact Tabs at the Top -->
   <div
-    class="section-container flex flex-col items-center overflow-auto"
-    :style="mainContentStyle"
+    class="section-container flex flex-col h-full w-full items-center overflow-auto"
   >
     <div
       v-for="mode in modes"
@@ -81,12 +80,6 @@ const actions = [
   { name: 'generate', icon: 'kind-icon:generate', label: 'Generate' },
   { name: 'interact', icon: 'kind-icon:interact', label: 'Interact' },
 ]
-
-// Dynamically compute the main content area size
-const mainContentStyle = computed(() => ({
-  height: `calc(${displayStore.mainVh}vh)`,
-  width: `calc(${displayStore.mainVw}vw)`,
-}))
 
 /**
  * Resolves the dynamic component name and falls back if the component doesn't exist.

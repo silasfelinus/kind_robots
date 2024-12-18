@@ -2,6 +2,24 @@
 
 export const scenarios = [
 {
+  "title": "Zombie Fashion Runway",
+  "genres": "horror, comedy, high fashion",
+  "inspirations": "Zoolander, Resident Evil, Project Runway",
+  "description": "The apocalypse has never looked so chic. Zombies have taken over Fashion Week, and they’re here to *slay*—literally. As the last human designer, you must out-style the undead horde with bold designs, quick thinking, and a killer catwalk. Glitter bombs and couture have never been so essential.",
+  "intros": [
+    "FABULOUS OR DEAD: The spotlight hits your model zombie mid-runway, and just as the crowd starts clapping, it lets out a guttural groan and lunges toward the judges. Do you distract the audience with a daring new outfit or use the chaos as your escape plan?",
+    "STITCHED TO KILL: A rival zombie designer challenges you to a sudden-death style-off. You’re armed with fabric scraps, safety pins, and a glue gun that’s seen better days. Who will reign supreme?",
+    "RUNWAY ESCAPE: The only way out of the venue is down the catwalk. Zombies are closing in, and the music has started. You’ve got one shot to deliver a walk so fierce it leaves them stunned—or at least distracted long enough for you to bolt.",
+    "BRAND UNDEAD: A luxury zombie brand wants to collaborate. They’ve got the materials (some of them still twitching), but their terms include permanent servitude. Do you sign the contract, sabotage their show, or create your own counter-brand?",
+    "MAKEUP MELTDOWN: Your zombie model is literally falling apart, and the show starts in five minutes. Do you glue them back together, reanimate a new model, or go avant-garde with an 'undone' look?"
+  ],
+  "userId": 1,
+  "imagePath": "/images/scenarios/zombiefashion.webp",
+  "locations": "Underground Fashion Week Venue, Zombie Designer Headquarters, Catwalk of Chaos",
+  "artPrompt": "A post-apocalyptic runway show filled with stylish zombies. The catwalk is lined with flickering spotlights and covered in torn red carpet. Zombies strut down the runway in high-fashion outfits made of scrap metal, tattered fabrics, and glittering jewelry. The audience is an eerie mix of humans and the undead, with some judges wearing protective gear while scribbling notes. In the background, a massive screen displays distorted images of glamorous undead models.",
+  "artImageId": null
+},
+{
   "title": "Fairy Theft",
   "genres": "dark humor, surreal fantasy, absurd adventure",
   "inspirations": "Grimm's Fairy Tales, Neil Gaiman, Terry Gilliam, Tim Burton",

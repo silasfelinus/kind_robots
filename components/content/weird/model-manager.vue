@@ -81,7 +81,7 @@ const actions = [
 ]
 
 function resolveComponentName(mode: string, action: string) {
-  const reversedActions = ['gallery', 'card']
+  const reversedActions = ['gallery']
   const componentName = reversedActions.includes(action)
     ? `${mode}-${action}`
     : `${action}-${mode}`

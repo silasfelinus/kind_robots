@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -76,35 +76,8 @@ const searchQuery = ref('')
 const isLoading = ref(true)
 const errorMessage = ref('')
 
-// Scroll to Top
-function scrollToTop() {
-  const container = document.querySelector('.overflow-y-auto') // Adjust selector as needed
-  if (container) container.scrollTo({ top: 0, behavior: 'smooth' })
-}
 
-// Lifecycle: Load Scenarios
-onMounted(async () => {
-  try {
-    if (!scenarioStore.scenarios.length) {
-      await scenarioStore.fetchScenarios()
-    }
-    scrollToTop()
-  } catch (error) {
-    errorMessage.value = 'Failed to load scenarios. Please try again later.'
-    console.error('Error loading scenarios:', error)
-  } finally {
-    isLoading.value = false
-  }
-})
 
-// Watchers
-watch(filteredScenarios, () => {
-  scrollToTop()
-})
-
-watch(isLoading, (newVal) => {
-  if (!newVal) scrollToTop()
-})
 
 // Computed: Filtered and searched scenarios
 const filteredScenarios = computed(() => {

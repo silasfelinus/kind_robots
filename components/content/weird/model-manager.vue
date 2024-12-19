@@ -37,10 +37,19 @@
 
     <!-- Add Action Toggle (Floating Above) -->
     <div
-      class="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg cursor-pointer hover:shadow-xl"
+      class="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg cursor-pointer hover:shadow-xl relative"
       @click="toggleAction"
     >
-      <Icon :name="'kind-icon:add'" class="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+      <!-- Active Icon -->
+      <Icon
+        :name="displayStore.displayAction === 'add' ? 'kind-icon:add' : 'kind-icon:gallery'"
+        class="w-6 h-6 sm:w-8 sm:h-8 text-white z-10"
+      />
+      <!-- Background Icon (Unselected) -->
+      <Icon
+        :name="displayStore.displayAction === 'add' ? 'kind-icon:gallery' : 'kind-icon:add'"
+        class="w-4 h-4 sm:w-6 sm:h-6 text-gray-400 absolute z-0"
+      />
     </div>
 
     <!-- Dynamic Component Container -->

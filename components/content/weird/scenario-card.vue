@@ -96,6 +96,7 @@
             :class="[
               'mt-2',
               isSelected ? 'text-lg text-gray-700' : 'text-sm text-gray-500',
+              'md:text-sm', // Reduce size on medium screens
             ]"
           >
             {{ scenario.description || 'No description available.' }}
@@ -117,7 +118,7 @@
         <button
           v-for="(intro, index) in introChoices"
           :key="index"
-          class="btn btn-secondary text-left whitespace-normal px-6 py-4 leading-snug break-words rounded-lg"
+          class="btn btn-secondary text-left px-6 py-4 leading-snug break-words whitespace-normal rounded-lg"
           style="min-height: 3.5rem;"
           @click.stop="setCurrentChoice(intro)"
         >
@@ -127,9 +128,6 @@
     </template>
   </div>
 </template>
-
-
-
 
 
 

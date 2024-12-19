@@ -46,7 +46,7 @@
     </div>
 
     <!-- Dynamic Component Section -->
-    <div class="flex-grow bg-base-200 rounded-lg p-4 overflow-hidden relative">
+    <div class="flex-grow bg-base-200 rounded-lg overflow-hidden relative">
       <component
         :is="
           resolveComponentName(

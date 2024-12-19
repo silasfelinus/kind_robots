@@ -88,7 +88,7 @@
         <!-- Right Column: Title, Description -->
         <div class="flex flex-col md:w-2/3">
           <!-- Title -->
-          <h2 class="text-xl font-bold text-gray-800 whitespace-normal leading-tight">
+          <h2 class="text-xl font-bold text-gray-800 whitespace-normal leading-tight mt-6">
             {{ scenario.title || 'Untitled Scenario' }}
           </h2>
           <!-- Description -->
@@ -106,12 +106,18 @@
       <!-- Choices Section -->
       <div
         v-if="isSelected && introChoices.length"
-        class="flex flex-wrap gap-3 mt-6 w-full"
+        class="grid gap-4 mt-6 w-full px-4 py-2"
+        :class="[
+          'grid-cols-1', 
+          'md:grid-cols-2', 
+          'lg:grid-cols-3', 
+          'xl:grid-cols-4'
+        ]"
       >
         <button
           v-for="(intro, index) in introChoices"
           :key="index"
-          class="btn btn-secondary text-left whitespace-normal px-5 py-4 leading-snug break-words rounded-lg w-full lg:w-auto"
+          class="btn btn-secondary text-left whitespace-normal px-6 py-4 leading-snug break-words rounded-lg"
           style="min-height: 3.5rem;"
           @click.stop="setCurrentChoice(intro)"
         >
@@ -121,6 +127,7 @@
     </template>
   </div>
 </template>
+
 
 
 

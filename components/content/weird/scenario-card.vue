@@ -4,7 +4,6 @@
       'relative bg-base-200 border rounded-2xl p-4 m-2 hover:shadow-lg transition-all cursor-pointer',
       isSelected ? 'border-primary bg-primary/10' : 'border-gray-400',
       'flex flex-col gap-4',
-      'md:flex-row items-start md:gap-6',
     ]"
     @click="selectScenario"
   >
@@ -107,7 +106,7 @@
       <!-- Choices Section -->
       <div
         v-if="isSelected && introChoices.length"
-        class="flex flex-wrap gap-3 mt-4 w-full"
+        class="flex flex-wrap gap-3 mt-6 w-full"
       >
         <button
           v-for="(intro, index) in introChoices"
@@ -122,6 +121,7 @@
     </template>
   </div>
 </template>
+
 
 
 

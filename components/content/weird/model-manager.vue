@@ -2,7 +2,7 @@
   <div class="flex flex-col h-full bg-base-100">
     <!-- Add Action Toggle (Floating Above) -->
     <div
-      class="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg cursor-pointer hover:shadow-xl"
+      class="fixed top-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg cursor-pointer hover:shadow-xl"
       @click="toggleAction"
     >
       <!-- Active Icon -->
@@ -18,7 +18,7 @@
     </div>
 
     <!-- Modes Section with Left/Right Toggles -->
-    <div class="flex items-center justify-between px-4 py-2 gap-2">
+    <div class="fixed top-16 left-0 right-0 flex items-center justify-between px-4 py-2 gap-2 bg-base-100 shadow-md">
       <!-- Left Toggle -->
       <left-toggle />
 
@@ -47,11 +47,19 @@
       </div>
 
       <!-- Right Toggle -->
-      <right-toggle />
+      <div class="flex items-center gap-2">
+        <!-- Plus Icon -->
+        <Icon
+          v-if="displayStore.displayAction === 'add'"
+          name="kind-icon:plus"
+          class="w-5 h-5 md:w-6 md:h-6 text-primary"
+        />
+        <right-toggle />
+      </div>
     </div>
 
     <!-- Dynamic Component Container -->
-    <div class="flex-grow mt-6 overflow-y-auto p-4">
+    <div class="flex-grow mt-24 overflow-y-auto p-4">
       <component
         :is="
           resolveComponentName(
@@ -66,6 +74,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { computed } from 'vue'

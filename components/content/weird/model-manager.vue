@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-col h-full gap-2 relative">
+  <div class="flex flex-col h-full relative">
     <!-- Modes Section -->
     <div
-      class="flex flex-row items-center bg-base-300 p-2 rounded-t-md flex-shrink-0 sticky top-0 z-20"
+      class="flex flex-row items-center rounded-2xl flex-shrink-0 sticky top-0 z-20"
     >
       <div v-for="mode in modes" :key="mode.name" class="relative">
         <div

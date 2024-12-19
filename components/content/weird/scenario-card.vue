@@ -82,10 +82,7 @@
             {{ scenario.title || 'Untitled Scenario' }}
           </h2>
           <p
-            :class="[
-              'mt-2',
-              isSelected ? 'text-sm md:text-md lg:text-lg xl:text-xl' : 'text-md md:text-lg lg:text-xl xl:text-2xl',
-            ]"
+            class="mt-2 text-sm md:text-md lg:text-lg xl:text-xl"
           >
             {{ scenario.description || 'No description available.' }}
           </p>

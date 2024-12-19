@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center px-4 py-2 gap-2 bg-base-100 shadow-md">
-    <!-- Left Toggle -->
-    <left-toggle />
+    
+    <big-toggle />
 
     <!-- Modes Tabs (First Group) -->
     <div class="flex flex-row items-center gap-2 flex-grow justify-end">

@@ -46,7 +46,7 @@
 
     <!-- Dynamic Component Section -->
     <div class="flex-grow bg-base-200 rounded-lg overflow-hidden relative">
-      <template v-if="currentComponent !== 'FallbackComponent'">
+      <template v-if="currentComponent !== 'fallback-component'">
         <component
           :is="
             resolveComponentName(

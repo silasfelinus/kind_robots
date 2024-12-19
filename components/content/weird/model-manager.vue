@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full gap-2 p-2 overflow-scroll relative">
+  <div class="flex flex-col h-full gap-2 p-2 overflow-auto relative">
     <!-- Modes Section: File Folder Tabs -->
     <div
       class="flex flex-row items-center bg-base-300 rounded-t-md p-1 md:p-2 flex-shrink-0"

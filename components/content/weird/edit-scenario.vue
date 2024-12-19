@@ -5,19 +5,19 @@
     <!-- Scenario Details -->
     <div class="grid gap-4 mb-6">
       <input
-        v-model="scenarioForm.title"
+        v-model="selectedScenario.title"
         type="text"
         placeholder="Scenario Title"
         class="w-full p-3 rounded-lg border"
       />
       <textarea
-        v-model="scenarioForm.description"
+        v-model="selectedScenario.description"
         placeholder="Describe your scenario..."
         class="w-full p-3 rounded-lg border"
         rows="4"
       ></textarea>
       <textarea
-        v-model="scenarioForm.locations"
+        v-model="selectedScenario.locations"
         placeholder="Enter scenario locations (comma-separated)..."
         class="w-full p-3 rounded-lg border"
         rows="2"
@@ -58,7 +58,7 @@
 
         <!-- Art Prompt Textarea -->
         <textarea
-          v-model="scenarioForm.artPrompt"
+          v-model="selectedScenario.artPrompt"
           placeholder="Describe your scenario's appearance..."
           class="w-full p-3 rounded-lg border"
           :disabled="keepArtPrompt || isGeneratingArt"
@@ -101,18 +101,17 @@ const isSaving = ref(false)
 const keepArtPrompt = ref(false)
 const defaultPlaceholder = '/images/scenarios/space.webp'
 
-const scenarioForm = ref({
-  ...scenarioStore.scenarioForm,
-})
+// Use the selected scenario directly from the store
+const selectedScenario = computed(() => scenarioStore.selectedScenario)
 
 // Computed property for resolving the scenario's active image
 const resolvedActiveImage = computed(() => {
-  return scenarioForm.value.imagePath || defaultPlaceholder
+  return selectedScenario.value?.imagePath || defaultPlaceholder
 })
 
 // Method: Generate art for the scenario
 async function generateArtImage() {
-  if (!scenarioForm.value.artPrompt) {
+  if (!selectedScenario.value?.artPrompt) {
     alert('Please provide an art prompt to generate art.')
     return
   }
@@ -120,14 +119,14 @@ async function generateArtImage() {
   isGeneratingArt.value = true
   try {
     const response = await artStore.generateArt({
-      promptString: scenarioForm.value.artPrompt,
-      title: scenarioForm.value.title || 'Untitled Scenario',
+      promptString: selectedScenario.value.artPrompt,
+      title: selectedScenario.value.title || 'Untitled Scenario',
       collection: 'scenarios',
     })
 
     if (response.success && response.data) {
-      scenarioForm.value.imagePath = null
-      scenarioForm.value.artImageId = response.data.artImageId
+      selectedScenario.value.imagePath = null
+      selectedScenario.value.artImageId = response.data.artImageId
     } else {
       throw new Error('Art generation failed.')
     }
@@ -143,7 +142,7 @@ async function changeToRandomImage() {
   try {
     const randomImage = await galleryStore.changeToRandomImage()
     if (randomImage) {
-      scenarioForm.value.imagePath = randomImage
+      selectedScenario.value.imagePath = randomImage
     } else {
       console.error('Failed to pick a random image.')
     }
@@ -153,19 +152,19 @@ async function changeToRandomImage() {
 }
 
 function handleUploadedArtImage(id: number) {
-  scenarioForm.value.artImageId = id
+  selectedScenario.value.artImageId = id
 }
 
 // Method: Save the scenario
 async function saveScenario() {
-  if (!scenarioForm.value.title) {
+  if (!selectedScenario.value?.title) {
     alert('Please provide a title for the scenario.')
     return
   }
 
   isSaving.value = true
   try {
-    await scenarioStore.updateScenario(scenarioForm.value)
+    await scenarioStore.updateScenario(selectedScenario.value)
     alert('Scenario updated successfully!')
   } catch (error) {
     console.error('Error updating scenario:', error)

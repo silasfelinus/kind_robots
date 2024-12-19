@@ -7,7 +7,7 @@
       <div v-for="mode in modes" :key="mode.name" class="relative">
         <div
           :class="[
-            'flex items-center gap-2 px-3 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
+            'flex items-center gap-2 md:gap-4 px-1 md:px-4 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
             mode.name === displayStore.displayMode
               ? 'border-primary border-b-0 z-10 shadow-md'
               : 'border-base-300 hover:shadow',

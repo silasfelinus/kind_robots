@@ -2,7 +2,7 @@
   <div class="flex flex-col h-full relative">
     <!-- Modes Section -->
     <div
-      class="flex flex-row items-center rounded-2xl flex-shrink-0 sticky top-0 z-20"
+      class="flex flex-row items-center rounded-2xl flex-shrink-0 sticky top-0 z-20 bg-base-100"
     >
       <div v-for="mode in modes" :key="mode.name" class="relative">
         <div
@@ -24,7 +24,7 @@
 
     <!-- Actions Section -->
     <div
-      class="flex justify-center gap-4 items-center bg-base-300 py-2 rounded-md flex-shrink-0 sticky top-[3rem] z-20"
+      class="flex justify-center gap-4 items-center bg-base-300 py-2 rounded-md flex-shrink-0 sticky top-[3.5rem] z-10"
     >
       <div
         v-for="action in actions"
@@ -45,7 +45,7 @@
     </div>
 
     <!-- Dynamic Component Section -->
-    <div class="flex-grow bg-base-200 rounded-lg overflow-y-auto">
+    <div class="flex-grow bg-base-200 rounded-lg overflow-y-auto mt-4">
       <template v-if="currentComponent !== 'fallback-component'">
         <component
           :is="
@@ -60,14 +60,14 @@
         <!-- Fallback Section -->
         <div class="flex items-center justify-center h-full">
           <p class="text-lg font-bold text-gray-600">
-            
-<fallback-component />
+            <fallback-component />
           </p>
         </div>
       </template>
     </div>
   </div>
 </template>
+
 
 
 <script setup lang="ts">

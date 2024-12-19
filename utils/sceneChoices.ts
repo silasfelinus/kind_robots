@@ -7,13 +7,13 @@ export const scenarios = [
     inspirations: 'Zoolander, Resident Evil, Project Runway',
     description:
       'The apocalypse has never looked so chic. Zombies have taken over Fashion Week, and they’re here to *slay*—literally. As the last human designer, you must out-style the undead horde with bold designs, quick thinking, and a killer catwalk. Glitter bombs and couture have never been so essential.',
-    intros: [
+    intros: JSON.stringify([
       'FABULOUS OR DEAD: The spotlight hits your model zombie mid-runway, and just as the crowd starts clapping, it lets out a guttural groan and lunges toward the judges. Do you distract the audience with a daring new outfit or use the chaos as your escape plan?',
       'STITCHED TO KILL: A rival zombie designer challenges you to a sudden-death style-off. You’re armed with fabric scraps, safety pins, and a glue gun that’s seen better days. Who will reign supreme?',
       'RUNWAY ESCAPE: The only way out of the venue is down the catwalk. Zombies are closing in, and the music has started. You’ve got one shot to deliver a walk so fierce it leaves them stunned—or at least distracted long enough for you to bolt.',
       'BRAND UNDEAD: A luxury zombie brand wants to collaborate. They’ve got the materials (some of them still twitching), but their terms include permanent servitude. Do you sign the contract, sabotage their show, or create your own counter-brand?',
       "MAKEUP MELTDOWN: Your zombie model is literally falling apart, and the show starts in five minutes. Do you glue them back together, reanimate a new model, or go avant-garde with an 'undone' look?",
-    ],
+    ]),
 
     userId: 1,
     imagePath: '/images/scenarios/zombiefashion.webp',
@@ -30,13 +30,13 @@ export const scenarios = [
       'Studio Ghibli, Redwall, The Little Prince, Japanese folklore',
     description:
       'In a hidden world of enchanted forests and ancient magic, foxes rule as guardians of nature and tricksters of legend. You are the Fox Prince, a cunning shapeshifter tasked with protecting your realm from greedy humans, rival animal clans, and ancient curses. Will you uphold the balance of nature, or seize the throne and rewrite the rules of your kingdom?',
-    intros: [
+    intros: JSON.stringify([
       "THE CROWN'S BURDEN: As the Fox Prince, you’ve inherited the legendary Nine-Tail Crown, a relic of immense power. But your first trial is already here: a village of humans has encroached on your sacred woods, cutting down trees and stealing your magic. Do you trick them, negotiate, or unleash the wrath of the forest?",
       "TRICKSTER'S CHALLENGE: The Raccoon Clan has dared to challenge your rule, claiming you’ve gone soft. To settle the dispute, they propose a trickster duel: whoever fools the most humans wins. Do you accept, risk losing your crown, or find another way to outwit your rivals?",
       "A KITSUNE'S HEART: A mysterious human has stumbled into your woods, and they’re not like the others. They’re kind, curious, and oddly resistant to your magic. Do you befriend them, send them away, or lure them into your schemes?",
       'THE CELESTIAL FOX: An ancient constellation of fox spirits watches over your kingdom, but now the stars are fading. A celestial fox descends from the heavens with a prophecy: unite the animal clans or face extinction. Do you follow the stars, defy their warnings, or carve your own path?',
       'FOX FIRE AND FURY: A powerful artifact, the Fox Fire Lantern, has been stolen by a band of rogue squirrels. Without it, your magic grows weaker by the day. Do you launch an all-out attack on their hidden fortress, trick them into returning it, or broker a dangerous deal?',
-    ],
+    ]),
     userId: 1,
     imagePath: '/images/scenarios/foxprince.webp',
     locations:
@@ -51,13 +51,13 @@ export const scenarios = [
     inspirations: "Grimm's Fairy Tales, Neil Gaiman, Terry Gilliam, Tim Burton",
     description:
       "As a mischievous fairy, your latest assignment is... unconventional. The fairy court has tasked you with 'recovering' a human infant from a village. What they didn't mention is that fairies don't exactly know how babies work. Will you pick the right child, return it when it cries, or improvise when it inevitably starts demanding food? Every decision spirals deeper into a weirdly heartfelt, hilariously bizarre adventure. Can you keep up with this odd, human Tamagotchi?",
-    intros: [
+    intros: JSON.stringify([
       'TAMAGOTCHI FAIRY: They didn’t tell you babies were so… loud. Or slimy. Or *human*. But now you’re stuck with it, flitting through the forest as it wails louder than a banshee. Do you stuff it full of mushrooms and hope for the best? Build a crib out of spider silk? Or maybe this was all a mistake, and you return to the village with a heartfelt (and hasty) apology?',
       'CHANGELING CHAOS: The fairy court didn’t specify which baby you were supposed to steal, so now you’re standing in a nursery with three suspiciously identical infants. One is suspiciously quiet, one is suspiciously loud, and the third is… glowing? No one mentioned glowing. Choose carefully, because once you pick, there’s no going back.',
       'MISTAKEN IDENTITY: Congratulations! You’ve kidnapped the baby—wait, that’s a very small goat. Whoops. Do you try to return it before the humans notice? Keep it as a companion? Or trade it for something shiny in the goblin market? Either way, this is not going to end well.',
       'FEEDING TIME FIASCO: What do human babies eat? You’ve tried berries, flowers, and even a piece of enchanted honeycomb, but all you’ve gotten is a mess and a very upset infant. Do you risk a trip to the village for supplies, consult the ancient fairy lore, or just… wing it?',
       'ESCAPE PLAN: The villagers are on your trail, pitchforks in hand. The baby is crying, you’re low on magic, and the fairy court isn’t answering your calls. Do you use your remaining pixie dust to fly away, disguise the baby as a mushroom, or try to negotiate with the angry mob?',
-    ],
+    ]),
     userId: 1,
     imagePath: '/images/scenarios/fairytheft.webp',
     locations:
@@ -73,7 +73,7 @@ export const scenarios = [
       'Terry Pratchett, Monty Python, Portal, XKCD, Calvin and Hobbes',
     description:
       'Falling isn’t the problem—it’s the landing. Freefall is the high-stakes, gravity-optional adventure where quick thinking and sheer audacity might save your skin. Trapped in an infinite descent through the bizarre strata of reality, you’ll encounter everything from airborne tea parties to falling cities, with no shortage of absurdity along the way. Choose wisely; the ground is never as far away as you think.',
-    intros: [
+    intros: JSON.stringify([
       'THE BACKPACK GAMBIT: You were certain this was a parachute. The salesperson even smiled knowingly when they handed it over. But as the wind roars past, you realize it’s just a hiking backpack… or is it? There’s still time to dig through its contents, but do you trust your freefalling hands to pull out anything useful? (Spoiler: there’s a sandwich in there.)',
       "MID-AIR NEGOTIATIONS: A skydiver without a parachute is one thing, but a sentient pigeon flying alongside you offering advice? Now that’s new. It claims to be a certified 'Sky-Lawyer,' whatever that means, and it’s willing to help… for a price. Do you hear it out, or just scream into the void until something happens?",
       'REALITY TEARS ITSELF OPEN: Midway through your plunge, gravity seems to get bored and wanders off. Instead of falling down, you’re falling… sideways? Upward? Into what looks suspiciously like a giant floating tea party hosted by polite sentient clouds? One of them offers you a scone. Is this salvation or just another distraction?',
@@ -81,7 +81,7 @@ export const scenarios = [
       "HAILED OBJECTS: Falling alongside you is a grand piano, a rubber duck, and a fridge with glowing runes etched into its sides. Any of them could be useful—or dangerous. They’re picking up speed. Quick! Which one do you grab? And please don’t say 'the duck.'",
       'FALLING FOR INFINITY: You’ve been falling for what feels like hours, passing increasingly absurd landmarks: a mid-air orchestra playing Flight of the Bumblebee, a giant tumbleweed of squirrels, and what might have been a floating laundromat. The ground is still nowhere in sight, but you suspect it’s lurking nearby, waiting to strike. What’s your next move?',
       "PHYSICS REASSURES YOU: You hear a calm, British-sounding voice narrating your descent. 'Ah, yes, terminal velocity,' it remarks cheerily. 'A fascinating phenomenon, though entirely useless without a plan.' The voice claims to be the laws of physics and offers a few suggestions. Do you listen, argue, or ignore it entirely?",
-    ],
+    ]),
     userId: 1,
     imagePath: '/images/scenarios/freefall.webp',
     locations:

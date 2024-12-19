@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-col h-full bg-base-100">
+  <div class="flex flex-col h-full bg-base-100 relative">
     <!-- Add Action Toggle (Floating Above) -->
     <div
-      class="fixed top-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg cursor-pointer hover:shadow-xl"
+      class="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg cursor-pointer hover:shadow-xl"
       @click="toggleAction"
     >
       <!-- Active Icon -->
@@ -18,7 +18,7 @@
     </div>
 
     <!-- Modes Section with Left/Right Toggles -->
-    <div class="fixed top-16 left-0 right-0 flex items-center justify-between px-4 py-2 gap-2 bg-base-100 shadow-md">
+    <div class="absolute top-16 left-0 right-0 flex items-center justify-between px-4 py-2 gap-2 bg-base-100 shadow-md">
       <!-- Left Toggle -->
       <left-toggle />
 
@@ -74,6 +74,7 @@
     </div>
   </div>
 </template>
+
 
 
 <script setup lang="ts">

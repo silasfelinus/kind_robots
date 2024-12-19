@@ -7,22 +7,18 @@
     ]"
     @click="selectScenario"
   >
-    <!-- Conditional Displays -->
-    <template v-if="displayStore.displayAction === 'edit'">
+    <!-- Conditional Action: Edit/Add -->
+    <div v-if="displayStore.displayAction === 'edit'">
       <edit-scenario />
-    </template>
-    <template v-else-if="displayStore.displayAction === 'add'">
+    </div>
+    <div v-else-if="displayStore.displayAction === 'add'">
       <add-scenario />
-    </template>
-    <template v-else>
-      <!-- Default Scenario Display -->
+    </div>
 
+    <!-- Default Display -->
+    <div v-else>
       <!-- Action Buttons -->
-      <div
-        v-if="isSelected"
-        class="absolute top-2 right-2 flex items-center gap-3 z-20"
-      >
-        <!-- Delete Button -->
+      <div v-if="isSelected" class="absolute top-2 right-2 flex items-center gap-3 z-20">
         <button
           v-if="canDelete"
           class="text-error p-3 rounded-full hover:bg-error-content transition-transform hover:scale-110"
@@ -31,7 +27,6 @@
         >
           <Icon name="mdi:delete" class="w-5 h-5" />
         </button>
-        <!-- Edit Button -->
         <button
           v-if="canDelete"
           class="text-primary p-3 rounded-full hover:bg-primary-content transition-transform hover:scale-110"
@@ -40,7 +35,6 @@
         >
           <Icon name="mdi:pencil" class="w-5 h-5" />
         </button>
-        <!-- Clone Button -->
         <button
           class="text-secondary p-3 rounded-full hover:bg-secondary-content transition-transform hover:scale-110"
           title="Clone Scenario"
@@ -50,11 +44,10 @@
         </button>
       </div>
 
-      <!-- Main Content -->
-      <div class="flex flex-col md:flex-row md:items-start w-full gap-4">
-        <!-- Left Column: Image, Genres, Inspirations -->
+      <!-- Scenario Content -->
+      <div class="flex flex-col md:flex-row w-full gap-4">
+        <!-- Left Column -->
         <div class="flex-shrink-0 flex flex-col items-center md:items-start md:w-1/3 gap-4">
-          <!-- Image -->
           <img
             :src="computedScenarioImage"
             alt="Scenario Image"
@@ -66,14 +59,12 @@
             loading="lazy"
             style="aspect-ratio: 1 / 1"
           />
-          <!-- Genres -->
           <p
             v-if="scenario.genres"
             class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full"
           >
             {{ scenario.genres }}
           </p>
-          <!-- Inspirations -->
           <div
             v-if="scenario.inspirations"
             class="px-3 py-2 bg-gray-100 rounded-md w-full text-left"
@@ -85,18 +76,15 @@
           </div>
         </div>
 
-        <!-- Right Column: Title, Description -->
+        <!-- Right Column -->
         <div class="flex flex-col md:w-2/3">
-          <!-- Title -->
-          <h2 class="text-xl font-bold text-gray-800 whitespace-normal leading-tight mt-6">
+          <h2 class="text-xl font-bold text-gray-800 whitespace-normal leading-tight">
             {{ scenario.title || 'Untitled Scenario' }}
           </h2>
-          <!-- Description -->
           <p
             :class="[
               'mt-2',
               isSelected ? 'text-lg text-gray-700' : 'text-sm text-gray-500',
-              'md:text-sm', // Reduce size on medium screens
             ]"
           >
             {{ scenario.description || 'No description available.' }}
@@ -104,39 +92,36 @@
         </div>
       </div>
 
-<!-- Choices Section -->
-<div
-  v-if="isSelected && introChoices.length"
-  class="grid gap-4 mt-6 w-full px-4 py-2"
-  :class="[
-    'grid-cols-1', 
-    'md:grid-cols-2', 
-    'lg:grid-cols-3', 
-    'xl:grid-cols-4'
-  ]"
->
-  <button
-    v-for="(intro, index) in introChoices"
-    :key="index"
-    class="btn btn-secondary text-left px-8 py-6 leading-relaxed break-words whitespace-normal rounded-lg w-full"
-    @click.stop="setCurrentChoice(intro)"
-    style="
-      word-wrap: break-word;
-      white-space: normal; 
-      overflow-wrap: anywhere; /* Better support for long words */
-    "
-  >
-    {{ intro }}
-  </button>
-</div>
-
-    </template>
+      <!-- Choices Section -->
+      <div
+        v-if="isSelected && introChoices.length"
+        class="grid gap-4 mt-6 w-full"
+        :class="[
+          'grid-cols-1',
+          'md:grid-cols-2',
+          'lg:grid-cols-3',
+          'xl:grid-cols-4',
+        ]"
+      >
+        <button
+          v-for="(intro, index) in introChoices"
+          :key="index"
+          class="btn btn-secondary text-left px-8 py-6 leading-relaxed break-words whitespace-normal rounded-lg w-full"
+          style="
+            height: auto;
+            min-height: 4rem;
+            max-height: none;
+            overflow-wrap: anywhere;
+            white-space: normal;
+          "
+          @click.stop="setCurrentChoice(intro)"
+        >
+          {{ intro }}
+        </button>
+      </div>
+    </div>
   </div>
 </template>
-
-
-
-
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
@@ -147,10 +132,7 @@ import { useArtStore } from '@/stores/artStore'
 
 // Props
 const { scenario } = defineProps({
-  scenario: {
-    type: Object,
-    required: true,
-  },
+  scenario: { type: Object, required: true },
 })
 
 // Stores
@@ -162,64 +144,49 @@ const artStore = useArtStore()
 // State
 const artImage = ref(null)
 
-// Computed properties
-const canDelete = computed(
-  () => userStore.isAdmin || userStore.userId === scenario.userId,
-)
+// Computed
 const isSelected = computed(
-  () => scenarioStore.selectedScenario?.id === scenario.id,
+  () => scenarioStore.selectedScenario?.id === scenario.id
 )
-const computedScenarioImage = computed(() => {
-  if (artImage.value) {
-    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
-  }
-  if (scenario.imagePath) {
-    return scenario.imagePath
-  }
-  return '/images/scenarios/space.webp'
-})
-
+const canDelete = computed(
+  () => userStore.isAdmin || userStore.userId === scenario.userId
+)
+const computedScenarioImage = computed(() =>
+  artImage.value
+    ? `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
+    : scenario.imagePath || '/images/scenarios/space.webp'
+)
 const introChoices = computed(() => {
   try {
-    return JSON.parse(scenario.intros || '[]') // Parse only when needed
+    return JSON.parse(scenario.intros || '[]')
   } catch {
-    return [] // Fallback to an empty array in case of parsing errors
+    return []
   }
 })
 
 // Methods
-const deleteScenario = () => {
-  if (scenario) scenarioStore.deleteScenario(scenario.id)
-  displayStore.displayMode = 'scenario'
-  displayStore.displayAction = 'gallery'
-}
-
-const editScenario = () => {
-  // Update scenarioForm with the current scenario
-  scenarioStore.scenarioForm = { ...scenario }
-  displayStore.displayAction = 'edit' // Switch to edit mode
-}
-
-const cloneScenario = () => {
-  // Clone the current scenario and preload it into scenarioForm
-  const clonedScenario = {
-    ...scenario,
-    id: null, // Clear the ID to create a new scenario
-    title: `Copy of ${scenario.title || 'Untitled Scenario'}`,
-  }
-  scenarioStore.scenarioForm = clonedScenario
-  displayStore.displayAction = 'add' // Switch to add mode
-}
-
-
-const setCurrentChoice = (choice) => {
-  scenarioStore.currentChoice = choice
-  displayStore.displayMode = 'scenario'
-  displayStore.displayAction = 'interact'
-}
-
 const selectScenario = () => {
   scenarioStore.selectedScenario = scenario
+}
+const deleteScenario = () => {
+  scenarioStore.deleteScenario(scenario.id)
+  displayStore.displayAction = 'gallery'
+}
+const editScenario = () => {
+  scenarioStore.scenarioForm = { ...scenario }
+  displayStore.displayAction = 'edit'
+}
+const cloneScenario = () => {
+  scenarioStore.scenarioForm = {
+    ...scenario,
+    id: null,
+    title: `Copy of ${scenario.title || 'Untitled Scenario'}`,
+  }
+  displayStore.displayAction = 'add'
+}
+const setCurrentChoice = (choice) => {
+  scenarioStore.currentChoice = choice
+  displayStore.displayAction = 'interact'
 }
 
 // On Mounted

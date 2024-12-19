@@ -10,37 +10,37 @@
     <!-- Action Buttons -->
     <div
       v-if="isSelected"
-      class="absolute top-2 right-2 flex items-center gap-2 z-20"
+      class="absolute top-2 right-2 flex items-center gap-3 z-20"
     >
       <!-- Delete Button -->
       <button
         v-if="canDelete"
-        class="text-error p-2 rounded-full hover:bg-error-content transition-transform hover:scale-110"
+        class="text-error p-3 rounded-full hover:bg-error-content transition-transform hover:scale-110"
         title="Delete Scenario"
         @click.stop="deleteScenario"
       >
-        <Icon name="mdi:delete" class="w-4 h-4" />
+        <Icon name="mdi:delete" class="w-5 h-5" />
       </button>
       <!-- Edit Button -->
       <button
         v-if="canDelete"
-        class="text-primary p-2 rounded-full hover:bg-primary-content transition-transform hover:scale-110"
+        class="text-primary p-3 rounded-full hover:bg-primary-content transition-transform hover:scale-110"
         title="Edit Scenario"
         @click.stop="editScenario"
       >
-        <Icon name="mdi:pencil" class="w-4 h-4" />
+        <Icon name="mdi:pencil" class="w-5 h-5" />
       </button>
       <!-- Clone Button -->
       <button
-        class="text-secondary p-2 rounded-full hover:bg-secondary-content transition-transform hover:scale-110"
+        class="text-secondary p-3 rounded-full hover:bg-secondary-content transition-transform hover:scale-110"
         title="Clone Scenario"
         @click.stop="cloneScenario"
       >
-        <Icon name="mdi:content-copy" class="w-4 h-4" />
+        <Icon name="mdi:content-copy" class="w-5 h-5" />
       </button>
     </div>
 
-    <!-- Scenario Image and Genres -->
+    <!-- Scenario Image and Labels -->
     <div class="flex-shrink-0 relative flex flex-col items-center md:w-1/3">
       <!-- Image -->
       <img
@@ -63,12 +63,15 @@
       </p>
 
       <!-- Inspirations -->
-      <p
+      <div
         v-if="scenario.inspirations"
-        class="mt-2 text-xs text-gray-500 px-3 py-2 bg-gray-200 rounded-md text-left whitespace-pre-wrap w-full"
+        class="mt-2 px-3 py-2 bg-gray-100 rounded-md w-full text-left"
       >
-        Inspirations: {{ scenario.inspirations }}
-      </p>
+        <span class="font-bold text-gray-700 block mb-1">Inspirations:</span>
+        <p class="text-xs text-gray-500 whitespace-pre-wrap">
+          {{ scenario.inspirations }}
+        </p>
+      </div>
     </div>
 
     <!-- Scenario Details -->
@@ -76,8 +79,7 @@
       <!-- Title -->
       <h2
         :class="[
-          'text-xl font-bold text-gray-800',
-          isSelected ? 'whitespace-normal' : 'truncate',
+          'text-xl font-bold text-gray-800 whitespace-normal leading-tight',
         ]"
       >
         {{ scenario.title || 'Untitled Scenario' }}
@@ -96,7 +98,7 @@
       <!-- Intros -->
       <div
         v-if="isSelected"
-        class="flex flex-wrap gap-2 mt-4"
+        class="flex flex-wrap gap-3 mt-4"
         :class="[
           'flex-col', // Default: vertical stacking for sm and md
           'lg:flex-row', // Row layout on large and xl screens
@@ -105,8 +107,8 @@
         <button
           v-for="(intro, index) in introChoices"
           :key="index"
-          class="btn btn-secondary text-left whitespace-normal px-4 py-3 leading-snug break-words rounded-md w-auto"
-          style="min-height: 3rem; flex-grow: 1"
+          class="btn btn-secondary text-left whitespace-normal px-5 py-4 leading-snug break-words rounded-lg w-full lg:w-auto"
+          style="min-height: 3.5rem; flex-grow: 1"
           @click.stop="setCurrentChoice(intro)"
         >
           {{ intro }}
@@ -115,6 +117,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'

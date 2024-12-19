@@ -61,6 +61,7 @@
         <div class="flex items-center justify-center h-full">
           <p class="text-lg font-bold text-gray-600">
             No component loaded. Please select a mode and action.
+<fallback-component />
           </p>
         </div>
       </template>

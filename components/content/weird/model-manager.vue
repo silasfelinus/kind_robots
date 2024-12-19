@@ -41,7 +41,7 @@
     <!-- Dynamic Component Section -->
     <div
       class="flex-grow flex items-center justify-center bg-base-200 rounded-lg p-4 overflow-hidden relative"
-      style="max-height: calc(100% - 6rem);" <!-- Deduct space for modes and actions -->
+      style="max-height: calc(100% - 6rem);"
     >
       <component
         :is="

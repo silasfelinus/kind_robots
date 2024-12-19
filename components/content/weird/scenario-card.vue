@@ -118,16 +118,19 @@
         <button
           v-for="(intro, index) in introChoices"
           :key="index"
-          class="btn btn-secondary text-left px-6 py-4 leading-snug break-words whitespace-normal rounded-lg"
-          style="min-height: 3.5rem;"
+          class="btn btn-secondary text-left px-6 py-4 leading-snug break-words rounded-lg text-sm"
+          style="min-height: 3.5rem; word-wrap: break-word;"
           @click.stop="setCurrentChoice(intro)"
         >
-          {{ intro }}
+          <span class="block truncate text-ellipsis">
+            {{ intro }}
+          </span>
         </button>
       </div>
     </template>
   </div>
 </template>
+
 
 
 

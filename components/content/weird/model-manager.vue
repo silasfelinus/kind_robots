@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-col h-full gap-2 p-2 overflow-auto relative">
+  <div class="flex flex-col h-full gap-2 p-2 overflow-hidden relative">
     <!-- Modes Section: File Folder Tabs -->
     <div
-      class="flex flex-row items-center bg-base-300 rounded-t-md p-1 md:p-2 flex-shrink-0"
+      class="flex flex-row items-center bg-base-300 rounded-t-md p-1 md:p-2 flex-shrink-0 sticky top-0 z-20"
     >
       <div v-for="mode in modes" :key="mode.name" class="relative">
         <div
@@ -12,7 +12,6 @@
               ? 'border-primary border-b-0 z-10 scale-102 shadow-md'
               : 'border-base-300 hover:scale-102 hover:shadow',
           ]"
-          style="transform-origin: center"
           @click="displayStore.setMode(mode.name as displayModeState)"
         >
           <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
@@ -25,7 +24,7 @@
 
     <!-- Actions Section: Compact Icons -->
     <div
-      class="flex justify-center gap-4 items-center bg-base-300 rounded-md py-2 flex-shrink-0"
+      class="flex justify-center gap-4 items-center bg-base-300 rounded-md py-2 flex-shrink-0 sticky top-12 z-20"
     >
       <div
         v-for="action in actions"
@@ -47,19 +46,30 @@
 
     <!-- Dynamic Component Section -->
     <div class="flex-grow bg-base-200 rounded-lg overflow-hidden relative">
-      <component
-        :is="
-          resolveComponentName(
-            displayStore.displayMode,
-            displayStore.displayAction,
-          )
-        "
-      />
+      <template v-if="currentComponent !== 'FallbackComponent'">
+        <component
+          :is="
+            resolveComponentName(
+              displayStore.displayMode,
+              displayStore.displayAction,
+            )
+          "
+        />
+      </template>
+      <template v-else>
+        <!-- Special Fallback Section -->
+        <div class="flex items-center justify-center h-full">
+          <p class="text-lg font-bold text-gray-600">
+            No component loaded. Please select a mode and action.
+          </p>
+        </div>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
@@ -92,6 +102,12 @@ function resolveComponentName(mode: string, action: string) {
     path.includes(`${componentName}.vue`),
   )
 
-  return isComponentAvailable ? componentName : 'FallbackComponent'
+  return isComponentAvailable ? componentName : 'fallback-component'
 }
+
+// Computed: Current Component Name
+const currentComponent = computed(() =>
+  resolveComponentName(displayStore.displayMode, displayStore.displayAction),
+)
 </script>
+

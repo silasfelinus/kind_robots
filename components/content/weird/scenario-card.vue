@@ -10,10 +10,10 @@
   >
     <!-- Conditional Displays -->
     <template v-if="displayStore.displayAction === 'edit'">
-      <edit-scenario :scenario="scenarioStore.scenarioForm" />
+      <edit-scenario />
     </template>
     <template v-else-if="displayStore.displayAction === 'add'">
-      <add-scenario :scenario="scenarioStore.scenarioForm" />
+      <add-scenario />
     </template>
     <template v-else>
       <!-- Default Scenario Display -->
@@ -125,6 +125,7 @@
 
 
 
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
@@ -182,19 +183,22 @@ const deleteScenario = () => {
 }
 
 const editScenario = () => {
-  // Pass current scenario to edit-scenario component
+  // Update scenarioForm with the current scenario
   scenarioStore.scenarioForm = { ...scenario }
-  displayStore.displayMode = 'scenario'
-  displayStore.displayAction = 'edit'
+  displayStore.displayAction = 'edit' // Switch to edit mode
 }
 
 const cloneScenario = () => {
-  // Pass current scenario to add-scenario component with preloaded settings
-  const clonedScenario = { ...scenario, title: `Copy of ${scenario.title}` }
+  // Clone the current scenario and preload it into scenarioForm
+  const clonedScenario = {
+    ...scenario,
+    id: null, // Clear the ID to create a new scenario
+    title: `Copy of ${scenario.title || 'Untitled Scenario'}`,
+  }
   scenarioStore.scenarioForm = clonedScenario
-  displayStore.displayMode = 'scenario'
-  displayStore.displayAction = 'add'
+  displayStore.displayAction = 'add' // Switch to add mode
 }
+
 
 const setCurrentChoice = (choice) => {
   scenarioStore.currentChoice = choice

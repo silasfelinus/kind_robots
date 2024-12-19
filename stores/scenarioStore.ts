@@ -44,10 +44,10 @@ export const useScenarioStore = defineStore({
 
         this.scenarios = scenarios.map((choice) => ({
           ...choice,
-          id: Math.floor(Math.random() * 10000), // Generate a random ID or replace with real IDs
+          id: Math.floor(Math.random() * 10000), // Generate a random ID
           createdAt: new Date(),
           updatedAt: new Date(),
-          intros: JSON.stringify(choice.intros), // Ensure intros is stored as a string
+          intros: choice.intros,
         }))
 
         // Fetch scenarios from API to update

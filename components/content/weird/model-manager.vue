@@ -22,46 +22,40 @@
       </div>
     </div>
 
-    <!-- Actions Section -->
+    <!-- Add Action Toggle (Floating) -->
     <div
-      class="flex justify-center items-center bg-base-300 py-2 rounded-md flex-shrink-0 sticky top-[3.5rem] z-10"
+      class="absolute top-4 right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg cursor-pointer hover:shadow-xl"
+      @click="toggleAction"
     >
-      <div
-        :class="[
-          'flex items-center justify-center w-10 h-10 rounded-full bg-base-200 transition-all duration-200 hover:shadow-md',
-          displayStore.displayAction === 'add'
-            ? 'bg-primary shadow-lg'
-            : 'hover:bg-base-300',
-        ]"
-        @click="toggleAction"
-      >
-        <Icon :name="'kind-icon:add'" class="w-6 h-6 sm:w-8 sm:h-8" />
-      </div>
+      <Icon :name="'kind-icon:add'" class="w-6 h-6 sm:w-8 sm:h-8 text-white" />
     </div>
 
-    <!-- Dynamic Component Section -->
-    <div class="flex-grow bg-base-200 rounded-lg overflow-y-auto mt-16">
-      <template v-if="currentComponent !== 'fallback-component'">
-        <component
-          :is="
-            resolveComponentName(
-              displayStore.displayMode,
-              displayStore.displayAction,
-            )
-          "
-        />
-      </template>
-      <template v-else>
-        <!-- Fallback Section -->
-        <div class="flex items-center justify-center h-full">
-          <p class="text-lg font-bold text-gray-600">
-            <fallback-component />
-          </p>
-        </div>
-      </template>
+    <!-- Dynamic Component Container -->
+    <div class="flex-grow mt-4 bg-base-200 rounded-lg overflow-y-auto">
+      <div class="p-4">
+        <template v-if="currentComponent !== 'fallback-component'">
+          <component
+            :is="
+              resolveComponentName(
+                displayStore.displayMode,
+                displayStore.displayAction,
+              )
+            "
+          />
+        </template>
+        <template v-else>
+          <!-- Fallback Section -->
+          <div class="flex items-center justify-center h-full">
+            <p class="text-lg font-bold text-gray-600">
+              <fallback-component />
+            </p>
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { computed } from 'vue'

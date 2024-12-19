@@ -1,9 +1,24 @@
 <template>
-  <div class="flex flex-col h-full relative">
-    <!-- Modes Section with Left/Right Toggles -->
+  <div class="flex flex-col h-full bg-base-100">
+    <!-- Add Action Toggle (Floating Above) -->
     <div
-      class="flex items-center rounded-2xl flex-shrink-0 sticky top-0 z-20 bg-base-100 px-4 py-2 gap-2"
+      class="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg cursor-pointer hover:shadow-xl"
+      @click="toggleAction"
     >
+      <!-- Active Icon -->
+      <Icon
+        :name="displayStore.displayAction === 'add' ? 'kind-icon:add' : 'kind-icon:gallery'"
+        class="w-6 h-6 sm:w-8 sm:h-8 text-white z-10"
+      />
+      <!-- Background Icon (Unselected) -->
+      <Icon
+        :name="displayStore.displayAction === 'add' ? 'kind-icon:gallery' : 'kind-icon:add'"
+        class="w-4 h-4 sm:w-6 sm:h-6 text-gray-400 absolute z-0"
+      />
+    </div>
+
+    <!-- Modes Section with Left/Right Toggles -->
+    <div class="flex items-center justify-between px-4 py-2 gap-2">
       <!-- Left Toggle -->
       <left-toggle />
 
@@ -35,25 +50,8 @@
       <right-toggle />
     </div>
 
-    <!-- Add Action Toggle (Floating Above) -->
-    <div
-      class="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg cursor-pointer hover:shadow-xl relative"
-      @click="toggleAction"
-    >
-      <!-- Active Icon -->
-      <Icon
-        :name="displayStore.displayAction === 'add' ? 'kind-icon:add' : 'kind-icon:gallery'"
-        class="w-6 h-6 sm:w-8 sm:h-8 text-white z-10"
-      />
-      <!-- Background Icon (Unselected) -->
-      <Icon
-        :name="displayStore.displayAction === 'add' ? 'kind-icon:gallery' : 'kind-icon:add'"
-        class="w-4 h-4 sm:w-6 sm:h-6 text-gray-400 absolute z-0"
-      />
-    </div>
-
     <!-- Dynamic Component Container -->
-    <div class="flex-grow bg-base-200 rounded-lg overflow-y-auto mt-[4.5rem] p-4">
+    <div class="flex-grow mt-6 overflow-y-auto p-4">
       <component
         :is="
           resolveComponentName(

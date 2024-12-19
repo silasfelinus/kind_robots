@@ -77,6 +77,7 @@ const searchQuery = ref('')
 const isLoading = ref(true)
 const errorMessage = ref('')
 
+
 // Computed: Filtered and searched scenarios
 const filteredScenarios = computed(() => {
   try {
@@ -103,6 +104,7 @@ const filteredScenarios = computed(() => {
     return []
   }
 })
+
 
 // Methods
 function selectScenario(id) {

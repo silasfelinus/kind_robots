@@ -29,7 +29,7 @@
 
     <!-- Plus/Gallery Toggle -->
     <div
-      class="flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg cursor-pointer hover:shadow-xl mx-2"
+      class="flex items-center justify-center w-12 h-12 rounded-full shadow-lg cursor-pointer hover:shadow-xl mx-2"
       @click="toggleAction"
     >
       <Icon

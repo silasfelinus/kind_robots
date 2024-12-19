@@ -24,28 +24,23 @@
 
     <!-- Actions Section -->
     <div
-      class="flex justify-center gap-4 items-center bg-base-300 py-2 rounded-md flex-shrink-0 sticky top-[3.5rem] z-10"
+      class="flex justify-center items-center bg-base-300 py-2 rounded-md flex-shrink-0 sticky top-[3.5rem] z-10"
     >
       <div
-        v-for="action in actions"
-        :key="action.name"
         :class="[
           'flex items-center justify-center w-10 h-10 rounded-full bg-base-200 transition-all duration-200 hover:shadow-md',
-          action.name === displayStore.displayAction
+          displayStore.displayAction === 'add'
             ? 'bg-primary shadow-lg'
             : 'hover:bg-base-300',
         ]"
-        @click="displayStore.setAction(action.name as displayActionState)"
+        @click="toggleAction"
       >
-        <Icon :name="action.icon" class="w-6 h-6 sm:w-8 sm:h-8" />
-        <span class="text-xs font-medium hidden md:inline mt-1">{{
-          action.label
-        }}</span>
+        <Icon :name="'kind-icon:add'" class="w-6 h-6 sm:w-8 sm:h-8" />
       </div>
     </div>
 
     <!-- Dynamic Component Section -->
-    <div class="flex-grow bg-base-200 rounded-lg overflow-y-auto mt-4">
+    <div class="flex-grow bg-base-200 rounded-lg overflow-y-auto mt-16">
       <template v-if="currentComponent !== 'fallback-component'">
         <component
           :is="
@@ -68,8 +63,6 @@
   </div>
 </template>
 
-
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -86,10 +79,11 @@ const modes = [
   { name: 'art', icon: 'kind-icon:art', label: 'Art' },
 ]
 
-const actions = [
-  { name: 'gallery', icon: 'kind-icon:gallery', label: 'Gallery' },
-  { name: 'add', icon: 'kind-icon:add', label: 'Add' },
-]
+function toggleAction() {
+  displayStore.setAction(
+    displayStore.displayAction === 'add' ? 'gallery' : 'add'
+  )
+}
 
 function resolveComponentName(mode: string, action: string) {
   const reversedActions = ['gallery']
@@ -112,4 +106,3 @@ const currentComponent = computed(() =>
   resolveComponentName(displayStore.displayMode, displayStore.displayAction),
 )
 </script>
-

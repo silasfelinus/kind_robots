@@ -1,8 +1,7 @@
 <template>
-  <div class="h-full w-full bg-base-300 p-1 md:p-4 flex flex-col overflow-hidden">
+  <div class="w-full bg-base-300 p-1 md:p-4 flex flex-col">
     <!-- Filter and Search -->
-    <div class="mb-4 flex flex-wrap items-center justify-between gap-4 flex-shrink-0">
-      <!-- User Filter -->
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center">
         <label class="mr-2 text-sm font-bold text-gray-600">Filter by User:</label>
         <select
@@ -20,7 +19,6 @@
         </select>
       </div>
 
-      <!-- Search Bar -->
       <div class="flex items-center w-full md:w-1/2">
         <input
           v-model="searchQuery"
@@ -33,7 +31,7 @@
     </div>
 
     <!-- Scenario Grid -->
-    <div class="flex-grow overflow-y-auto">
+    <div class="min-h-0 overflow-auto">
       <div v-if="isLoading" class="flex justify-center items-center h-full">
         <span class="loading loading-spinner loading-lg"></span>
       </div>
@@ -54,13 +52,14 @@
           v-for="scenario in filteredScenarios"
           :key="scenario.id"
           :scenario="scenario"
-          :is-selected="scenarioStore.selectedScenario?.id === scenario.id"
+          class="h-auto"
           @click="selectScenario(scenario.id)"
         />
       </div>
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { computed, ref, onMounted, watch } from 'vue'

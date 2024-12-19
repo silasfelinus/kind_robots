@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full w-full bg-base-300 p-1 md-p-4 flex flex-col overflow-hidden">
+  <div class="h-full w-full bg-base-300 p-1 md:p-4 flex flex-col overflow-hidden">
     <!-- Filter and Search -->
     <div class="mb-4 flex flex-wrap items-center justify-between gap-4 flex-shrink-0">
       <!-- User Filter -->
@@ -34,18 +34,18 @@
 
     <!-- Scenario Grid -->
     <div class="flex-grow overflow-y-auto">
-      <div v-if="isLoading" class="flex justify-center items-center flex-grow">
+      <div v-if="isLoading" class="flex justify-center items-center h-full">
         <span class="loading loading-spinner loading-lg"></span>
       </div>
       <div
         v-else-if="errorMessage"
-        class="flex justify-center items-center flex-grow text-center"
+        class="flex justify-center items-center h-full text-center"
       >
         <p class="text-lg font-bold text-red-600">{{ errorMessage }}</p>
       </div>
       <div
         v-else-if="filteredScenarios.length === 0"
-        class="flex justify-center items-center flex-grow"
+        class="flex justify-center items-center h-full"
       >
         <p class="text-lg font-bold text-gray-600">No scenarios found.</p>
       </div>
@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -77,6 +77,18 @@ const searchQuery = ref('')
 const isLoading = ref(true)
 const errorMessage = ref('')
 
+// Fetch Scenarios on Mount
+onMounted(async () => {
+  try {
+    isLoading.value = true
+    await scenarioStore.fetchScenarios()
+    isLoading.value = false
+  } catch (error) {
+    console.error('Failed to load scenarios:', error)
+    errorMessage.value = 'Failed to load scenarios. Please try again.'
+    isLoading.value = false
+  }
+})
 
 // Computed: Filtered and searched scenarios
 const filteredScenarios = computed(() => {
@@ -105,6 +117,13 @@ const filteredScenarios = computed(() => {
   }
 })
 
+// Watch Computed Results
+watch(
+  () => filteredScenarios.value,
+  (newFilteredScenarios) => {
+    console.log('Filtered scenarios:', newFilteredScenarios)
+  }
+)
 
 // Methods
 function selectScenario(id) {

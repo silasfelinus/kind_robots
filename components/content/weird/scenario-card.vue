@@ -3,7 +3,8 @@
     :class="[
       'relative bg-base-200 border rounded-2xl p-4 m-2 hover:shadow-lg transition-all cursor-pointer',
       isSelected ? 'border-primary bg-primary/10' : 'border-gray-400',
-      'flex flex-col md:flex-row items-start gap-4',
+      'flex flex-col gap-4',
+      'md:flex-row items-start md:gap-6',
     ]"
     @click="selectScenario"
   >
@@ -40,80 +41,73 @@
       </button>
     </div>
 
-    <!-- Scenario Image and Labels -->
-    <div class="flex-shrink-0 relative flex flex-col items-center md:w-1/3">
-      <!-- Image -->
-      <img
-        :src="computedScenarioImage"
-        alt="Scenario Image"
-        class="rounded-2xl object-cover transition-all duration-300"
-        :class="{
-          'h-40 w-40': !isSelected,
-          'h-full w-full': isSelected,
-        }"
-        loading="lazy"
-        style="aspect-ratio: 1 / 1"
-      />
-      <!-- Genres -->
-      <p
-        v-if="scenario.genres"
-        class="mt-2 text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full truncate"
-      >
-        {{ scenario.genres }}
-      </p>
+    <!-- Main Content -->
+    <div class="flex flex-col md:flex-row md:items-start w-full gap-4">
+      <!-- Left Column: Image, Genres, Inspirations -->
+      <div class="flex-shrink-0 flex flex-col items-center md:items-start md:w-1/3 gap-4">
+        <!-- Image -->
+        <img
+          :src="computedScenarioImage"
+          alt="Scenario Image"
+          class="rounded-2xl object-cover transition-all duration-300"
+          :class="{
+            'h-40 w-40': !isSelected,
+            'h-full w-full': isSelected,
+          }"
+          loading="lazy"
+          style="aspect-ratio: 1 / 1"
+        />
+        <!-- Genres -->
+        <p
+          v-if="scenario.genres"
+          class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full truncate"
+        >
+          {{ scenario.genres }}
+        </p>
+        <!-- Inspirations -->
+        <div
+          v-if="scenario.inspirations"
+          class="px-3 py-2 bg-gray-100 rounded-md w-full text-left"
+        >
+          <span class="font-bold text-gray-700 block mb-1">Inspirations:</span>
+          <p class="text-xs text-gray-500 whitespace-pre-wrap">
+            {{ scenario.inspirations }}
+          </p>
+        </div>
+      </div>
 
-      <!-- Inspirations -->
-      <div
-        v-if="scenario.inspirations"
-        class="mt-2 px-3 py-2 bg-gray-100 rounded-md w-full text-left"
-      >
-        <span class="font-bold text-gray-700 block mb-1">Inspirations:</span>
-        <p class="text-xs text-gray-500 whitespace-pre-wrap">
-          {{ scenario.inspirations }}
+      <!-- Right Column: Title, Description -->
+      <div class="flex flex-col md:w-2/3">
+        <!-- Title -->
+        <h2 class="text-xl font-bold text-gray-800 whitespace-normal leading-tight">
+          {{ scenario.title || 'Untitled Scenario' }}
+        </h2>
+        <!-- Description -->
+        <p
+          :class="[
+            'mt-2',
+            isSelected ? 'text-lg text-gray-700' : 'text-sm text-gray-500',
+          ]"
+        >
+          {{ scenario.description || 'No description available.' }}
         </p>
       </div>
     </div>
 
-    <!-- Scenario Details -->
-    <div class="flex flex-col md:w-2/3">
-      <!-- Title -->
-      <h2
-        :class="[
-          'text-xl font-bold text-gray-800 whitespace-normal leading-tight',
-        ]"
+    <!-- Choices Section -->
+    <div
+      v-if="isSelected && introChoices.length"
+      class="flex flex-wrap gap-3 mt-4 w-full"
+    >
+      <button
+        v-for="(intro, index) in introChoices"
+        :key="index"
+        class="btn btn-secondary text-left whitespace-normal px-5 py-4 leading-snug break-words rounded-lg w-full lg:w-auto"
+        style="min-height: 3.5rem;"
+        @click.stop="setCurrentChoice(intro)"
       >
-        {{ scenario.title || 'Untitled Scenario' }}
-      </h2>
-
-      <!-- Description -->
-      <p
-        :class="[
-          'mt-2',
-          isSelected ? 'text-lg text-gray-700' : 'text-sm text-gray-500',
-        ]"
-      >
-        {{ scenario.description || 'No description available.' }}
-      </p>
-
-      <!-- Intros -->
-      <div
-        v-if="isSelected"
-        class="flex flex-wrap gap-3 mt-4"
-        :class="[
-          'flex-col', // Default: vertical stacking for sm and md
-          'lg:flex-row', // Row layout on large and xl screens
-        ]"
-      >
-        <button
-          v-for="(intro, index) in introChoices"
-          :key="index"
-          class="btn btn-secondary text-left whitespace-normal px-5 py-4 leading-snug break-words rounded-lg w-full lg:w-auto"
-          style="min-height: 3.5rem; flex-grow: 1"
-          @click.stop="setCurrentChoice(intro)"
-        >
-          {{ intro }}
-        </button>
-      </div>
+        {{ intro }}
+      </button>
     </div>
   </div>
 </template>

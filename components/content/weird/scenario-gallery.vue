@@ -1,12 +1,10 @@
 <template>
-  <div class="h-full w-full bg-base-300 p-1 md-p-4 flex flex-col overflow-y-auto">
+  <div class="h-full w-full bg-base-300 p-1 md-p-4 flex flex-col overflow-hidden">
     <!-- Filter and Search -->
-    <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-4 flex-shrink-0">
       <!-- User Filter -->
       <div class="flex items-center">
-        <label class="mr-2 text-sm font-bold text-gray-600"
-          >Filter by User:</label
-        >
+        <label class="mr-2 text-sm font-bold text-gray-600">Filter by User:</label>
         <select
           v-model="selectedUser"
           class="bg-base-200 border border-gray-400 rounded-lg p-2"
@@ -27,6 +25,7 @@
         <input
           v-model="searchQuery"
           type="text"
+          aria-label="Search scenarios by title"
           placeholder="Search scenarios by title..."
           class="bg-base-200 border border-gray-400 rounded-lg p-2 w-full"
         />
@@ -34,29 +33,31 @@
     </div>
 
     <!-- Scenario Grid -->
-    <div v-if="isLoading" class="flex justify-center items-center h-96">
-      <span class="loading loading-spinner loading-lg"></span>
-    </div>
-    <div
-      v-else-if="errorMessage"
-      class="flex justify-center items-center h-96 text-center"
-    >
-      <p class="text-lg font-bold text-red-600">{{ errorMessage }}</p>
-    </div>
-    <div
-      v-else-if="filteredScenarios.length === 0"
-      class="flex justify-center items-center h-96"
-    >
-      <p class="text-lg font-bold text-gray-600">No scenarios found.</p>
-    </div>
-    <div v-else class="grid grid-cols-1 gap-6">
-      <ScenarioCard
-        v-for="scenario in filteredScenarios"
-        :key="scenario.id"
-        :scenario="scenario"
-        :is-selected="scenarioStore.selectedScenario?.id === scenario.id"
-        @click="selectScenario(scenario.id)"
-      />
+    <div class="flex-grow overflow-y-auto">
+      <div v-if="isLoading" class="flex justify-center items-center flex-grow">
+        <span class="loading loading-spinner loading-lg"></span>
+      </div>
+      <div
+        v-else-if="errorMessage"
+        class="flex justify-center items-center flex-grow text-center"
+      >
+        <p class="text-lg font-bold text-red-600">{{ errorMessage }}</p>
+      </div>
+      <div
+        v-else-if="filteredScenarios.length === 0"
+        class="flex justify-center items-center flex-grow"
+      >
+        <p class="text-lg font-bold text-gray-600">No scenarios found.</p>
+      </div>
+      <div v-else class="grid grid-cols-1 gap-6 p-4">
+        <ScenarioCard
+          v-for="scenario in filteredScenarios"
+          :key="scenario.id"
+          :scenario="scenario"
+          :is-selected="scenarioStore.selectedScenario?.id === scenario.id"
+          @click="selectScenario(scenario.id)"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -75,9 +76,6 @@ const selectedUser = ref('all')
 const searchQuery = ref('')
 const isLoading = ref(true)
 const errorMessage = ref('')
-
-
-
 
 // Computed: Filtered and searched scenarios
 const filteredScenarios = computed(() => {

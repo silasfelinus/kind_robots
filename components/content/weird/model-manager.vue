@@ -16,7 +16,7 @@
           @click="displayStore.setMode(mode.name as displayModeState)"
         >
           <Icon :name="mode.icon" class="w-6 h-6 lg:w-7 lg:h-7" />
-          <span class="text-sm md:text-base font-semibold hidden lg:inline">
+          <span class="text-sm md:text-base font-semibold hidden md:inline">
             {{ mode.label }}
           </span>
         </div>
@@ -44,12 +44,8 @@
       style="max-height: calc(100% - 6rem);"
     >
       <component
-        :is="
-          resolveComponentName(
-            displayStore.displayMode,
-            displayStore.displayAction,
-          )
-        "
+        :is="resolveComponentName(displayStore.displayMode, displayStore.displayAction)"
+        @mounted="scrollToTop"
       />
     </div>
   </div>
@@ -94,5 +90,13 @@ function resolveComponentName(mode: string, action: string) {
   )
 
   return isComponentAvailable ? componentName : 'FallbackComponent'
+}
+
+/**
+ * Scrolls the dynamic container to the top when a new component is loaded.
+ */
+function scrollToTop() {
+  const container = document.querySelector('.flex-grow')
+  if (container) container.scrollTo({ top: 0, behavior: 'smooth' })
 }
 </script>

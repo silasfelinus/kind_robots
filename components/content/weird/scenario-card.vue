@@ -84,7 +84,7 @@
           <p
             :class="[
               'mt-2',
-              isSelected ? 'text-lg text-gray-700' : 'text-sm text-gray-500',
+              isSelected ? 'text-sm md:text-md lg:text-lg xl:text-xl' : 'text-sm',
             ]"
           >
             {{ scenario.description || 'No description available.' }}

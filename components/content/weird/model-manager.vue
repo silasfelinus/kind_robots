@@ -54,7 +54,6 @@
             displayStore.displayAction,
           )
         "
-        @mounted="scrollToTop"
       />
     </div>
   </div>
@@ -94,10 +93,5 @@ function resolveComponentName(mode: string, action: string) {
   )
 
   return isComponentAvailable ? componentName : 'FallbackComponent'
-}
-
-function scrollToTop() {
-  const container = document.querySelector('.flex-grow')
-  if (container) container.scrollTo({ top: 0, behavior: 'smooth' })
 }
 </script>

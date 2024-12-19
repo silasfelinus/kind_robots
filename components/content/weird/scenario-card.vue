@@ -157,8 +157,13 @@ const computedScenarioImage = computed(() => {
   return '/images/scenarios/space.webp'
 })
 
-const introChoices = computed(() => scenario.intros || []);
-
+const introChoices = computed(() => {
+  try {
+    return JSON.parse(scenario.intros || '[]') // Parse only when needed
+  } catch {
+    return [] // Fallback to an empty array in case of parsing errors
+  }
+})
 
 // Methods
 const deleteScenario = () => {

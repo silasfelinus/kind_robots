@@ -1,13 +1,13 @@
 <template>
-  <div class="flex flex-col h-full gap-2 p-2 overflow-hidden relative">
+  <div class="flex flex-col h-full gap-2 p-2 overflow-scroll relative">
     <!-- Modes Section: File Folder Tabs -->
     <div
-      class="flex flex-row items-center gap-x-2 bg-base-300 rounded-t-md p-2 flex-shrink-0"
+      class="flex flex-row items-center bg-base-300 rounded-t-md p-1 md:p-2 flex-shrink-0"
     >
       <div v-for="mode in modes" :key="mode.name" class="relative">
         <div
           :class="[
-            'flex items-center gap-1 px-3 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
+            'flex items-center gap-1 p-1 lg:px-3 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
             mode.name === displayStore.displayMode
               ? 'border-primary border-b-0 z-10 scale-102 shadow-md'
               : 'border-base-300 hover:scale-102 hover:shadow',
@@ -16,7 +16,7 @@
           @click="displayStore.setMode(mode.name as displayModeState)"
         >
           <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
-          <span class="text-sm md:text-base font-semibold hidden md:inline">
+          <span class="text-sm lg:text-md xl:text-lg font-semibold hidden md:inline">
             {{ mode.label }}
           </span>
         </div>

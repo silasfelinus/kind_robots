@@ -8,112 +8,124 @@
     ]"
     @click="selectScenario"
   >
-    <!-- Action Buttons -->
-    <div
-      v-if="isSelected"
-      class="absolute top-2 right-2 flex items-center gap-3 z-20"
-    >
-      <!-- Delete Button -->
-      <button
-        v-if="canDelete"
-        class="text-error p-3 rounded-full hover:bg-error-content transition-transform hover:scale-110"
-        title="Delete Scenario"
-        @click.stop="deleteScenario"
-      >
-        <Icon name="mdi:delete" class="w-5 h-5" />
-      </button>
-      <!-- Edit Button -->
-      <button
-        v-if="canDelete"
-        class="text-primary p-3 rounded-full hover:bg-primary-content transition-transform hover:scale-110"
-        title="Edit Scenario"
-        @click.stop="editScenario"
-      >
-        <Icon name="mdi:pencil" class="w-5 h-5" />
-      </button>
-      <!-- Clone Button -->
-      <button
-        class="text-secondary p-3 rounded-full hover:bg-secondary-content transition-transform hover:scale-110"
-        title="Clone Scenario"
-        @click.stop="cloneScenario"
-      >
-        <Icon name="mdi:content-copy" class="w-5 h-5" />
-      </button>
-    </div>
+    <!-- Conditional Displays -->
+    <template v-if="displayStore.displayAction === 'edit'">
+      <edit-scenario :scenario="scenarioStore.scenarioForm" />
+    </template>
+    <template v-else-if="displayStore.displayAction === 'add'">
+      <add-scenario :scenario="scenarioStore.scenarioForm" />
+    </template>
+    <template v-else>
+      <!-- Default Scenario Display -->
 
-    <!-- Main Content -->
-    <div class="flex flex-col md:flex-row md:items-start w-full gap-4">
-      <!-- Left Column: Image, Genres, Inspirations -->
-      <div class="flex-shrink-0 flex flex-col items-center md:items-start md:w-1/3 gap-4">
-        <!-- Image -->
-        <img
-          :src="computedScenarioImage"
-          alt="Scenario Image"
-          class="rounded-2xl object-cover transition-all duration-300"
-          :class="{
-            'h-40 w-40': !isSelected,
-            'h-full w-full': isSelected,
-          }"
-          loading="lazy"
-          style="aspect-ratio: 1 / 1"
-        />
-        <!-- Genres -->
-        <p
-          v-if="scenario.genres"
-          class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full truncate"
+      <!-- Action Buttons -->
+      <div
+        v-if="isSelected"
+        class="absolute top-2 right-2 flex items-center gap-3 z-20"
+      >
+        <!-- Delete Button -->
+        <button
+          v-if="canDelete"
+          class="text-error p-3 rounded-full hover:bg-error-content transition-transform hover:scale-110"
+          title="Delete Scenario"
+          @click.stop="deleteScenario"
         >
-          {{ scenario.genres }}
-        </p>
-        <!-- Inspirations -->
-        <div
-          v-if="scenario.inspirations"
-          class="px-3 py-2 bg-gray-100 rounded-md w-full text-left"
+          <Icon name="mdi:delete" class="w-5 h-5" />
+        </button>
+        <!-- Edit Button -->
+        <button
+          v-if="canDelete"
+          class="text-primary p-3 rounded-full hover:bg-primary-content transition-transform hover:scale-110"
+          title="Edit Scenario"
+          @click.stop="editScenario"
         >
-          <span class="font-bold text-gray-700 block mb-1">Inspirations:</span>
-          <p class="text-xs text-gray-500 whitespace-pre-wrap">
-            {{ scenario.inspirations }}
+          <Icon name="mdi:pencil" class="w-5 h-5" />
+        </button>
+        <!-- Clone Button -->
+        <button
+          class="text-secondary p-3 rounded-full hover:bg-secondary-content transition-transform hover:scale-110"
+          title="Clone Scenario"
+          @click.stop="cloneScenario"
+        >
+          <Icon name="mdi:content-copy" class="w-5 h-5" />
+        </button>
+      </div>
+
+      <!-- Main Content -->
+      <div class="flex flex-col md:flex-row md:items-start w-full gap-4">
+        <!-- Left Column: Image, Genres, Inspirations -->
+        <div class="flex-shrink-0 flex flex-col items-center md:items-start md:w-1/3 gap-4">
+          <!-- Image -->
+          <img
+            :src="computedScenarioImage"
+            alt="Scenario Image"
+            class="rounded-2xl object-cover transition-all duration-300"
+            :class="{
+              'h-40 w-40': !isSelected,
+              'h-full w-full': isSelected,
+            }"
+            loading="lazy"
+            style="aspect-ratio: 1 / 1"
+          />
+          <!-- Genres -->
+          <p
+            v-if="scenario.genres"
+            class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full truncate"
+          >
+            {{ scenario.genres }}
+          </p>
+          <!-- Inspirations -->
+          <div
+            v-if="scenario.inspirations"
+            class="px-3 py-2 bg-gray-100 rounded-md w-full text-left"
+          >
+            <span class="font-bold text-gray-700 block mb-1">Inspirations:</span>
+            <p class="text-xs text-gray-500 whitespace-pre-wrap">
+              {{ scenario.inspirations }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Right Column: Title, Description -->
+        <div class="flex flex-col md:w-2/3">
+          <!-- Title -->
+          <h2 class="text-xl font-bold text-gray-800 whitespace-normal leading-tight">
+            {{ scenario.title || 'Untitled Scenario' }}
+          </h2>
+          <!-- Description -->
+          <p
+            :class="[
+              'mt-2',
+              isSelected ? 'text-lg text-gray-700' : 'text-sm text-gray-500',
+            ]"
+          >
+            {{ scenario.description || 'No description available.' }}
           </p>
         </div>
       </div>
 
-      <!-- Right Column: Title, Description -->
-      <div class="flex flex-col md:w-2/3">
-        <!-- Title -->
-        <h2 class="text-xl font-bold text-gray-800 whitespace-normal leading-tight">
-          {{ scenario.title || 'Untitled Scenario' }}
-        </h2>
-        <!-- Description -->
-        <p
-          :class="[
-            'mt-2',
-            isSelected ? 'text-lg text-gray-700' : 'text-sm text-gray-500',
-          ]"
-        >
-          {{ scenario.description || 'No description available.' }}
-        </p>
-      </div>
-    </div>
-
-    <!-- Choices Section -->
-    <div
-      v-if="isSelected && introChoices.length"
-      class="flex flex-wrap gap-3 mt-4 w-full"
-    >
-      <button
-        v-for="(intro, index) in introChoices"
-        :key="index"
-        class="btn btn-secondary text-left whitespace-normal px-5 py-4 leading-snug break-words rounded-lg w-full lg:w-auto"
-        style="min-height: 3.5rem;"
-        @click.stop="setCurrentChoice(intro)"
+      <!-- Choices Section -->
+      <div
+        v-if="isSelected && introChoices.length"
+        class="flex flex-wrap gap-3 mt-4 w-full"
       >
-        {{ intro }}
-      </button>
-    </div>
+        <button
+          v-for="(intro, index) in introChoices"
+          :key="index"
+          class="btn btn-secondary text-left whitespace-normal px-5 py-4 leading-snug break-words rounded-lg w-full lg:w-auto"
+          style="min-height: 3.5rem;"
+          @click.stop="setCurrentChoice(intro)"
+        >
+          {{ intro }}
+        </button>
+      </div>
+    </template>
   </div>
 </template>
 
 
-<script setup>
+
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -168,21 +180,28 @@ const deleteScenario = () => {
   displayStore.displayMode = 'scenario'
   displayStore.displayAction = 'gallery'
 }
+
 const editScenario = () => {
+  // Pass current scenario to edit-scenario component
   scenarioStore.scenarioForm = { ...scenario }
   displayStore.displayMode = 'scenario'
   displayStore.displayAction = 'edit'
 }
+
 const cloneScenario = () => {
-  scenarioStore.scenarioForm = { ...scenario }
+  // Pass current scenario to add-scenario component with preloaded settings
+  const clonedScenario = { ...scenario, title: `Copy of ${scenario.title}` }
+  scenarioStore.scenarioForm = clonedScenario
   displayStore.displayMode = 'scenario'
   displayStore.displayAction = 'add'
 }
+
 const setCurrentChoice = (choice) => {
   scenarioStore.currentChoice = choice
   displayStore.displayMode = 'scenario'
   displayStore.displayAction = 'interact'
 }
+
 const selectScenario = () => {
   scenarioStore.selectedScenario = scenario
 }

@@ -1,38 +1,38 @@
 <template>
-  <div class="flex flex-col h-full gap-2 p-2 overflow-hidden relative">
-    <!-- Modes Section: File Folder Tabs -->
+  <div class="flex flex-col h-full gap-2 relative">
+    <!-- Modes Section -->
     <div
-      class="flex flex-row items-center bg-base-300 rounded-t-md p-1 md:p-2 flex-shrink-0 sticky top-0 z-20"
+      class="flex flex-row items-center bg-base-300 p-2 rounded-t-md flex-shrink-0 sticky top-0 z-20"
     >
       <div v-for="mode in modes" :key="mode.name" class="relative">
         <div
           :class="[
-            'flex items-center gap-1 p-1 lg:px-3 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
+            'flex items-center gap-2 px-3 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
             mode.name === displayStore.displayMode
-              ? 'border-primary border-b-0 z-10 scale-102 shadow-md'
-              : 'border-base-300 hover:scale-102 hover:shadow',
+              ? 'border-primary border-b-0 z-10 shadow-md'
+              : 'border-base-300 hover:shadow',
           ]"
           @click="displayStore.setMode(mode.name as displayModeState)"
         >
           <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
-          <span class="text-sm lg:text-md xl:text-lg font-semibold hidden md:inline">
+          <span class="text-sm lg:text-md font-semibold hidden md:inline">
             {{ mode.label }}
           </span>
         </div>
       </div>
     </div>
 
-    <!-- Actions Section: Compact Icons -->
+    <!-- Actions Section -->
     <div
-      class="flex justify-center gap-4 items-center bg-base-300 rounded-md py-2 flex-shrink-0 sticky top-12 z-20"
+      class="flex justify-center gap-4 items-center bg-base-300 py-2 rounded-md flex-shrink-0 sticky top-[3rem] z-20"
     >
       <div
         v-for="action in actions"
         :key="action.name"
         :class="[
-          'flex items-center justify-center w-10 h-10 rounded-full bg-base-200 transition-all duration-200 hover:scale-110 hover:shadow-md',
+          'flex items-center justify-center w-10 h-10 rounded-full bg-base-200 transition-all duration-200 hover:shadow-md',
           action.name === displayStore.displayAction
-            ? 'bg-primary scale-110 shadow-lg'
+            ? 'bg-primary shadow-lg'
             : 'hover:bg-base-300',
         ]"
         @click="displayStore.setAction(action.name as displayActionState)"
@@ -45,7 +45,7 @@
     </div>
 
     <!-- Dynamic Component Section -->
-    <div class="flex-grow bg-base-200 rounded-lg overflow-hidden relative">
+    <div class="flex-grow bg-base-200 rounded-lg overflow-y-auto">
       <template v-if="currentComponent !== 'fallback-component'">
         <component
           :is="
@@ -57,7 +57,7 @@
         />
       </template>
       <template v-else>
-        <!-- Special Fallback Section -->
+        <!-- Fallback Section -->
         <div class="flex items-center justify-center h-full">
           <p class="text-lg font-bold text-gray-600">
             No component loaded. Please select a mode and action.
@@ -67,6 +67,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { computed } from 'vue'

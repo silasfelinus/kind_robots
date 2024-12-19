@@ -1,61 +1,64 @@
 <template>
   <div class="flex flex-col h-full relative">
-    <!-- Modes Section -->
+    <!-- Modes Section with Left/Right Toggles -->
     <div
-      class="flex flex-row items-center rounded-2xl flex-shrink-0 sticky top-0 z-20 bg-base-100"
+      class="flex items-center rounded-2xl flex-shrink-0 sticky top-0 z-20 bg-base-100 px-4 py-2 gap-2"
     >
-      <div v-for="mode in modes" :key="mode.name" class="relative">
+      <!-- Left Toggle -->
+      <left-toggle />
+
+      <!-- Modes Tabs -->
+      <div class="flex flex-row items-center gap-2 flex-grow">
         <div
-          :class="[
-            'flex items-center gap-2 px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
-            mode.name === displayStore.displayMode
-              ? 'border-primary border-b-0 z-10 shadow-md'
-              : 'border-base-300 hover:shadow',
-          ]"
-          @click="displayStore.setMode(mode.name as displayModeState)"
+          v-for="mode in modes"
+          :key="mode.name"
+          class="relative"
         >
-          <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
-          <span class="text-sm lg:text-md font-semibold hidden md:inline">
-            {{ mode.label }}
-          </span>
+          <div
+            :class="[
+              'flex items-center gap-2 px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
+              mode.name === displayStore.displayMode
+                ? 'border-primary border-b-0 z-10 shadow-md'
+                : 'border-base-300 hover:shadow',
+            ]"
+            @click="displayStore.setMode(mode.name as displayModeState)"
+          >
+            <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
+            <span class="text-sm lg:text-md font-semibold hidden md:inline">
+              {{ mode.label }}
+            </span>
+          </div>
         </div>
       </div>
+
+      <!-- Right Toggle -->
+      <right-toggle />
     </div>
 
-    <!-- Add Action Toggle (Floating) -->
+    <!-- Add Action Toggle (Floating Above) -->
     <div
-      class="absolute top-4 right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg cursor-pointer hover:shadow-xl"
+      class="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg cursor-pointer hover:shadow-xl"
       @click="toggleAction"
     >
       <Icon :name="'kind-icon:add'" class="w-6 h-6 sm:w-8 sm:h-8 text-white" />
     </div>
 
     <!-- Dynamic Component Container -->
-    <div class="flex-grow mt-4 bg-base-200 rounded-lg overflow-y-auto">
-      <div class="p-4">
-        <template v-if="currentComponent !== 'fallback-component'">
-          <component
-            :is="
-              resolveComponentName(
-                displayStore.displayMode,
-                displayStore.displayAction,
-              )
-            "
-          />
-        </template>
-        <template v-else>
-          <!-- Fallback Section -->
-          <div class="flex items-center justify-center h-full">
-            <p class="text-lg font-bold text-gray-600">
-              <fallback-component />
-            </p>
-          </div>
-        </template>
-      </div>
+    <div class="flex-grow bg-base-200 rounded-lg overflow-y-auto mt-[4.5rem] p-4">
+      <component
+        :is="
+          resolveComponentName(
+            displayStore.displayMode,
+            displayStore.displayAction,
+          )
+        "
+      >
+        <!-- Fallback Section -->
+        <fallback-component v-if="currentComponent === 'fallback-component'" />
+      </component>
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { computed } from 'vue'

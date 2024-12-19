@@ -69,7 +69,7 @@
           <!-- Genres -->
           <p
             v-if="scenario.genres"
-            class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full truncate"
+            class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded-full text-center w-full"
           >
             {{ scenario.genres }}
           </p>
@@ -104,27 +104,32 @@
         </div>
       </div>
 
-      <!-- Choices Section -->
-      <div
-        v-if="isSelected && introChoices.length"
-        class="grid gap-4 mt-6 w-full px-4 py-2"
-        :class="[
-          'grid-cols-1', 
-          'md:grid-cols-2', 
-          'lg:grid-cols-3', 
-          'xl:grid-cols-4'
-        ]"
-      >
-        <button
-          v-for="(intro, index) in introChoices"
-          :key="index"
-          class="btn btn-secondary text-left px-8 py-6 leading-relaxed break-words whitespace-normal rounded-lg w-full"
-          style="word-wrap: break-word;"
-          @click.stop="setCurrentChoice(intro)"
-        >
-          {{ intro }}
-        </button>
-      </div>
+<!-- Choices Section -->
+<div
+  v-if="isSelected && introChoices.length"
+  class="grid gap-4 mt-6 w-full px-4 py-2"
+  :class="[
+    'grid-cols-1', 
+    'md:grid-cols-2', 
+    'lg:grid-cols-3', 
+    'xl:grid-cols-4'
+  ]"
+>
+  <button
+    v-for="(intro, index) in introChoices"
+    :key="index"
+    class="btn btn-secondary text-left px-8 py-6 leading-relaxed break-words whitespace-normal rounded-lg w-full"
+    @click.stop="setCurrentChoice(intro)"
+    style="
+      word-wrap: break-word;
+      white-space: normal; 
+      overflow-wrap: anywhere; /* Better support for long words */
+    "
+  >
+    {{ intro }}
+  </button>
+</div>
+
     </template>
   </div>
 </template>

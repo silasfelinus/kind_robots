@@ -121,7 +121,7 @@ const mainContentStyle = computed(() => ({
     : sectionPadding.value,
 }))
 
-const modeRowHeight = computed(() => `calc(${centerHeight.value} * 0.08)`)
+const modeRowHeight = computed(() => `calc(${centerHeight.value} * 0.05)`)
 
 const rightSidebarStyle = computed(() => ({
   height: `calc(${centerHeight.value} - ${modeRowHeight.value})`,

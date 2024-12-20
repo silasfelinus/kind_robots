@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full md:w-3/4 p-4 mx-auto">
+  <div class="w-full md:w-3/4 p-4 mx-auto overflw-y-auto">
     <h1 class="text-2xl font-bold text-gray-700 mb-4">Create a New Scenario</h1>
 
     <!-- Scenario Details -->

@@ -3,11 +3,11 @@
   <div class="h-full flex flex-col rounded-2xl relative z-10">
     <!-- Wrapper for mode-row and transition content -->
     <div :class="wrapperClass" :style="viewStyle">
-      <!-- Mode Row: Fixed height of 10% -->
-      <mode-row class="z-30 w-full flex-shrink-0" style="height: 8%;" />
+      
+      <mode-row class="z-30 w-full flex-shrink-0" style="height: 5%;" />
 
-      <!-- Transaction Wrapper occupies remaining 92% -->
-      <div class="flex-grow" style="height: 92%;">
+      
+      <div class="flex-grow" style="height: 95%;">
         <transition name="flip" mode="out-in">
           <!-- Mobile View (no flip card) -->
           <div v-if="isMobile" key="mobile-view" class="h-full w-full">

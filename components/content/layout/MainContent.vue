@@ -1,33 +1,35 @@
 <template>
   <!-- Main container -->
   <div class="h-full flex flex-col rounded-2xl relative z-10">
-    <mode-row class="w-full flex-shrink-0" />
-    <!-- Transition Wrapper -->
-    <transition name="flip" mode="out-in">
-      <!-- Mobile View (no flip card) -->
-      <div
-        v-if="isMobile"
-        key="mobile-view"
-        :class="containerClass"
-        :style="viewStyle"
-      >
-        <SplashTutorial
-          v-if="showTutorial"
-          class="h-full w-full z-10 rounded-2xl border-4"
-        />
-        <NuxtPage
-          v-else
-          class="relative h-full w-full z-10 no-scrollbar overflow-y-auto rounded-2xl box-border bg-base-300 border-1 border-accent"
-        />
-      </div>
+    <!-- Wrapper for mode-row and transition content -->
+    <div :class="wrapperClass" :style="viewStyle">
+      <!-- Mode Row: Part of the resizable container -->
+      <mode-row class="w-full flex-shrink-0" />
 
-      <!-- Desktop View -->
-      <div v-else key="desktop-view" :class="containerClass" :style="viewStyle">
-        <NuxtPage
-          class="relative h-full w-full rounded-2xl overflow-y-auto box-border bg-base-300 border-1 border-accent z-10"
-        />
+      <!-- Transaction Wrapper -->
+      <div class="flex-grow">
+        <transition name="flip" mode="out-in">
+          <!-- Mobile View (no flip card) -->
+          <div v-if="isMobile" key="mobile-view" class="h-full w-full">
+            <SplashTutorial
+              v-if="showTutorial"
+              class="h-full w-full z-10 rounded-2xl border-4"
+            />
+            <NuxtPage
+              v-else
+              class="relative h-full w-full z-10 no-scrollbar overflow-y-auto rounded-2xl bg-base-300 border-1 border-accent"
+            />
+          </div>
+
+          <!-- Desktop View -->
+          <div v-else key="desktop-view" class="h-full w-full">
+            <NuxtPage
+              class="relative h-full w-full rounded-2xl overflow-y-auto bg-base-300 border-1 border-accent z-10"
+            />
+          </div>
+        </transition>
       </div>
-    </transition>
+    </div>
   </div>
 </template>
 
@@ -48,13 +50,12 @@ const isBigMode = computed(() => displayStore.bigMode)
 // Dynamic styles and classes
 const viewStyle = computed(() => ({
   height: isBigMode.value ? '100vh' : displayStore.centerHeight,
-  padding: isBigMode.value ? '0' : `${displayStore.sectionPaddingNumeric}px`,
 }))
 
-const containerClass = computed(() =>
+const wrapperClass = computed(() =>
   isBigMode.value
     ? 'fixed top-0 left-0 h-screen w-screen z-30 bg-base-200'
-    : 'relative flex-grow',
+    : 'relative flex flex-col flex-grow',
 )
 </script>
 

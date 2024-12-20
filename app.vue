@@ -121,12 +121,15 @@ const mainContentStyle = computed(() => ({
     : sectionPadding.value,
 }))
 
+const modeRowHeight = computed(() => `calc(${centerHeight.value} * 0.08)`)
+
 const rightSidebarStyle = computed(() => ({
-  height: centerHeight.value,
+  height: `calc(${centerHeight.value} - ${modeRowHeight.value})`,
   width: sidebarRightWidth.value,
-  top: headerAndPaddingHeight.value,
+  top: `calc(${headerAndPaddingHeight.value} + ${modeRowHeight.value})`,
   right: sectionPadding.value,
 }))
+
 
 const footerStyle = computed(() => ({
   height: footerHeight.value,

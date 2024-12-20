@@ -80,7 +80,7 @@
           />
           <img
             v-else
-            src="/images/rewards/default.webp"
+            src="/images/titlefgghg.webp"
             alt="Default Reward"
             class="object-cover w-48 h-64 rounded-lg"
           />

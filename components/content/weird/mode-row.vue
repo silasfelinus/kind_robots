@@ -1,10 +1,9 @@
 <template>
-  <div class="flex items-center px-1 md:px-2 lg:px-4 py-2 gap-1 md:gap-2 bg-base-100 z-30 shadow-md">
-    
+  <div class="flex items-center px-1 md:px-2 lg:px-4 py-2 bg-base-100 z-30 shadow-md relative">
     <big-toggle />
 
     <!-- Modes Tabs (First Group) -->
-    <div class="flex flex-row items-center gap-1 md:gap-2 flex-grow justify-end">
+    <div class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-end">
       <div
         v-for="mode in firstGroupModes"
         :key="mode.name"
@@ -12,12 +11,12 @@
       >
         <div
           :class="[
-            'flex items-center gap-1 px-1 md:gap-2 md:px-2 z-30 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
+            'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
             mode.name === displayStore.displayMode
               ? 'border-primary border-b-0 z-10 shadow-md'
               : 'border-base-300 hover:shadow',
           ]"
-          @click="displayStore.setMode(mode.name as displayModeState)"
+          @click="handleModeChange(mode.name)"
         >
           <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
           <span class="text-sm lg:text-md font-semibold hidden md:inline">
@@ -39,7 +38,7 @@
     </div>
 
     <!-- Modes Tabs (Second Group) -->
-    <div class="flex flex-row items-center gap-2 flex-grow justify-start">
+    <div class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-start">
       <div
         v-for="mode in secondGroupModes"
         :key="mode.name"
@@ -47,12 +46,12 @@
       >
         <div
           :class="[
-            'flex items-center gap-2 px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
+            'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
             mode.name === displayStore.displayMode
               ? 'border-primary border-b-0 z-10 shadow-md'
               : 'border-base-300 hover:shadow',
           ]"
-          @click="displayStore.setMode(mode.name as displayModeState)"
+          @click="handleModeChange(mode.name)"
         >
           <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
           <span class="text-sm lg:text-md font-semibold hidden md:inline">
@@ -69,8 +68,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
+const router = useRouter()
+const route = useRoute()
 const displayStore = useDisplayStore()
 
 const modes = [
@@ -87,9 +89,20 @@ const modes = [
 const firstGroupModes = computed(() => modes.slice(0, 3))
 const secondGroupModes = computed(() => modes.slice(3))
 
+function handleModeChange(modeName: string) {
+  // Change the display mode
+  displayStore.setMode(modeName as displayModeState)
+
+  // Navigate to /weirdlandia if not already there
+  if (route.path !== '/weirdlandia') {
+    router.push('/weirdlandia')
+  }
+}
+
 function toggleAction() {
   displayStore.setAction(
     displayStore.displayAction === 'add' ? 'gallery' : 'add'
   )
 }
 </script>
+

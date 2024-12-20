@@ -34,17 +34,7 @@
       :style="mainContentStyle"
     >
       <main-content />
-      <!-- Right Toggle (Top-right corner of the sidebar) -->
-      <div
-        class="absolute top-0 -left-1 m-1 z-50 rounded-2xl border-1 border-accent"
-      >
-        <big-toggle />
-      </div>
-      <div
-        class="absolute top-0 -right-1 z-50 rounded-2xl border-1 border-accent"
-      >
-        <right-toggle />
-      </div>
+      
     </main>
 
     <!-- Right Sidebar -->

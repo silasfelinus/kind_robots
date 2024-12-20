@@ -10,6 +10,7 @@
         placeholder="Scenario Title"
         class="w-full p-3 rounded-lg border"
       />
+
       <textarea
         v-model="selectedScenario.description"
         placeholder="Describe your scenario..."
@@ -101,8 +102,18 @@ const isSaving = ref(false)
 const keepArtPrompt = ref(false)
 const defaultPlaceholder = '/images/scenarios/space.webp'
 
-// Use the selected scenario directly from the store
-const selectedScenario = computed(() => scenarioStore.selectedScenario)
+const selectedScenario = computed(
+  () =>
+    scenarioStore.selectedScenario ?? {
+      id: null,
+      title: '',
+      description: '',
+      locations: '',
+      artPrompt: '',
+      imagePath: '',
+      artImageId: null,
+    },
+)
 
 // Computed property for resolving the scenario's active image
 const resolvedActiveImage = computed(() => {
@@ -155,16 +166,28 @@ function handleUploadedArtImage(id: number) {
   selectedScenario.value.artImageId = id
 }
 
-// Method: Save the scenario
 async function saveScenario() {
-  if (!selectedScenario.value?.title) {
+  if (!selectedScenario.value?.id) {
+    console.error('No scenario selected or invalid ID.')
+    return
+  }
+
+  if (!selectedScenario.value.title) {
     alert('Please provide a title for the scenario.')
     return
   }
 
   isSaving.value = true
   try {
-    await scenarioStore.updateScenario(selectedScenario.value)
+    // Pass the ID and the updates object to the updateScenario method
+    await scenarioStore.updateScenario(selectedScenario.value.id, {
+      title: selectedScenario.value.title,
+      description: selectedScenario.value.description,
+      locations: selectedScenario.value.locations,
+      artPrompt: selectedScenario.value.artPrompt,
+      imagePath: selectedScenario.value.imagePath,
+      artImageId: selectedScenario.value.artImageId,
+    })
     alert('Scenario updated successfully!')
   } catch (error) {
     console.error('Error updating scenario:', error)

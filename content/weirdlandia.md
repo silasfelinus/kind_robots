@@ -14,4 +14,4 @@ dottitip: AMI, is the simulation room prepared? We've let visitors pick items bu
 layout: 'default'
 ---
 
-:scenario-gallery
+:selected-view

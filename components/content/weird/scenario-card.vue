@@ -18,7 +18,10 @@
     <!-- Default Display -->
     <div v-else>
       <!-- Action Buttons -->
-      <div v-if="isSelected" class="absolute top-2 right-2 flex items-center gap-3 z-20">
+      <div
+        v-if="isSelected"
+        class="absolute top-2 right-2 flex items-center gap-3 z-20"
+      >
         <button
           v-if="canDelete"
           class="text-error p-3 rounded-full hover:bg-error-content transition-transform hover:scale-110"
@@ -47,7 +50,9 @@
       <!-- Scenario Content -->
       <div class="flex flex-col md:flex-row w-full gap-4">
         <!-- Left Column -->
-        <div class="flex-shrink-0 flex flex-col items-center md:items-start md:w-1/3 gap-4">
+        <div
+          class="flex-shrink-0 flex flex-col items-center md:items-start md:w-1/3 gap-4"
+        >
           <img
             :src="computedScenarioImage"
             alt="Scenario Image"
@@ -69,7 +74,9 @@
             v-if="scenario.inspirations"
             class="px-3 py-2 bg-gray-100 rounded-md w-full text-left"
           >
-            <span class="font-bold text-gray-700 block mb-1">Inspirations:</span>
+            <span class="font-bold text-gray-700 block mb-1"
+              >Inspirations:</span
+            >
             <p class="text-xs text-gray-500 whitespace-pre-wrap">
               {{ scenario.inspirations }}
             </p>
@@ -78,12 +85,12 @@
 
         <!-- Right Column -->
         <div class="flex flex-col md:w-2/3">
-          <h2 class="text-xl font-bold text-gray-800 whitespace-normal leading-tight">
+          <h2
+            class="text-xl font-bold text-gray-800 whitespace-normal leading-tight"
+          >
             {{ scenario.title || 'Untitled Scenario' }}
           </h2>
-          <p
-            class="mt-2 text-sm md:text-md lg:text-lg xl:text-xl"
-          >
+          <p class="mt-2 text-sm md:text-md lg:text-lg xl:text-xl">
             {{ scenario.description || 'No description available.' }}
           </p>
         </div>
@@ -125,7 +132,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useUserStore } from '@/stores/userStore'
-import { useArtStore } from '@/stores/artStore'
+import { useArtStore, type ArtImage } from '@/stores/artStore'
 
 // Props
 const { scenario } = defineProps({
@@ -138,20 +145,19 @@ const displayStore = useDisplayStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
 
-// State
-const artImage = ref(null)
+const artImage = ref<ArtImage | null>(null)
 
 // Computed
 const isSelected = computed(
-  () => scenarioStore.selectedScenario?.id === scenario.id
+  () => scenarioStore.selectedScenario?.id === scenario.id,
 )
 const canDelete = computed(
-  () => userStore.isAdmin || userStore.userId === scenario.userId
+  () => userStore.isAdmin || userStore.userId === scenario.userId,
 )
 const computedScenarioImage = computed(() =>
   artImage.value
     ? `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
-    : scenario.imagePath || '/images/scenarios/space.webp'
+    : scenario.imagePath || '/images/scenarios/space.webp',
 )
 const introChoices = computed(() => {
   try {
@@ -161,10 +167,8 @@ const introChoices = computed(() => {
   }
 })
 
-// Methods
-const selectScenario = () => {
-  scenarioStore.selectedScenario = scenario
-}
+const selectScenario = () => scenarioStore.selectScenario(scenario.id)
+
 const deleteScenario = () => {
   scenarioStore.deleteScenario(scenario.id)
   displayStore.displayAction = 'gallery'
@@ -176,21 +180,23 @@ const editScenario = () => {
 const cloneScenario = () => {
   scenarioStore.scenarioForm = {
     ...scenario,
-    id: null,
+    id: undefined,
     title: `Copy of ${scenario.title || 'Untitled Scenario'}`,
   }
   displayStore.displayAction = 'add'
 }
-const setCurrentChoice = (choice) => {
+const setCurrentChoice = (choice: string) => {
   scenarioStore.currentChoice = choice
   displayStore.displayAction = 'interact'
 }
 
-// On Mounted
 onMounted(async () => {
   if (scenario.artImageId) {
     try {
-      artImage.value = await artStore.getArtImageById(scenario.artImageId)
+      const result = await artStore.getArtImageById(scenario.artImageId)
+      if (result) {
+        artImage.value = result
+      }
     } catch (error) {
       console.error('Failed to load art image:', error)
     }

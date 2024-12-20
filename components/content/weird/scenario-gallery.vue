@@ -1,9 +1,11 @@
 <template>
-  <div class="w-full h-full relative bg-base-300 p-1 md:p-4 flex flex-col">
+  <div class="w-full h-full relative bg-base-300 flex flex-col">
     <!-- Filter and Search -->
     <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center">
-        <label class="mr-2 text-sm font-bold text-gray-600">Filter by User:</label>
+        <label class="mr-2 text-sm font-bold text-gray-600"
+          >Filter by User:</label
+        >
         <select
           v-model="selectedUser"
           class="bg-base-200 border border-gray-400 rounded-lg p-2"
@@ -59,7 +61,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup>
 import { computed, ref, onMounted, watch } from 'vue'
@@ -121,7 +122,7 @@ watch(
   () => filteredScenarios.value,
   (newFilteredScenarios) => {
     console.log('Filtered scenarios:', newFilteredScenarios)
-  }
+  },
 )
 
 // Methods

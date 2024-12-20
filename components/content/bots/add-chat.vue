@@ -1,6 +1,6 @@
 <template>
   <div class="mx-auto max-w-screen-lg bg-base-200 rounded-2xl border">
-    <h1 class="text-4xl text-center mb-6">Stream Tester</h1>
+    <h1 class="text-4xl text-center mb-6">Chat Manager</h1>
 
     <!-- Toggle for Streaming -->
     <div class="mb-4 flex justify-center">
@@ -145,7 +145,6 @@ const recipientName = computed(() => {
   return null
 })
 
-// Submit Prompt Function
 async function submitPrompt() {
   if (!prompt.value.trim() || !recipientId.value) return
 
@@ -154,46 +153,55 @@ async function submitPrompt() {
   responseText.value = ''
 
   try {
-    // Step 1: Create a new chat object in the database
-    const newChat = await chatStore.addChat({
-      content: prompt.value,
-      userId: userStore.userId,
-      botId: recipientType.value === 'bot' ? recipientId.value : null,
-      characterId: recipientType.value === 'character' ? recipientId.value : null,
-      recipientId: recipientType.value === 'user' ? recipientId.value : null,
-      type:
-        recipientType.value === 'bot'
-          ? 'ToBot'
-          : recipientType.value === 'character'
-          ? 'ToCharacter'
-          : 'ToUser',
-    })
-    chat.value = newChat
-
-    const apiEndpoint = '/api/botcafe/chat'
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: prompt.value }],
-        temperature: 1,
-        max_tokens: 300,
-        stream: useStreaming.value,
-      }),
-    }
-
-    if (useStreaming.value) {
-      await fetchStream(apiEndpoint, requestOptions, newChat.id)
+    // If the chat is to a user, skip botCafe and just create the chat
+    if (recipientType.value === 'user') {
+      const newChat = await chatStore.addChat({
+        content: prompt.value,
+        userId: userStore.userId,
+        botId: null,
+        characterId: null,
+        recipientId: recipientId.value, // This corresponds to userStore.recipient.id
+        type: 'ToUser',
+      })
+      chat.value = newChat
+      responseText.value = `Message sent to user ${userStore.recipient?.username || 'Unknown'}.`
     } else {
-      await fetchNonStream(apiEndpoint, requestOptions, newChat.id)
+      // Handle bot or character chats via botCafe
+      const newChat = await chatStore.addChat({
+        content: prompt.value,
+        userId: userStore.userId,
+        botId: recipientType.value === 'bot' ? recipientId.value : null,
+        characterId: recipientType.value === 'character' ? recipientId.value : null,
+        recipientId: null,
+        type: recipientType.value === 'bot' ? 'ToBot' : 'ToCharacter',
+      })
+      chat.value = newChat
+
+      const apiEndpoint = '/api/botcafe/chat'
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: prompt.value }],
+          temperature: 1,
+          max_tokens: 300,
+          stream: useStreaming.value,
+        }),
+      }
+
+      if (useStreaming.value) {
+        await fetchStream(apiEndpoint, requestOptions, newChat.id)
+      } else {
+        await fetchNonStream(apiEndpoint, requestOptions, newChat.id)
+      }
     }
   } catch (error) {
     errorMessage.value =
       error instanceof Error ? error.message : 'An unknown error occurred'
-    console.error('Error during API request:', error)
+    console.error('Error during chat creation:', error)
   } finally {
     loading.value = false
   }

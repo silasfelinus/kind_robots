@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center px-4 py-2 gap-2 bg-base-100 shadow-md">
+  <div class="flex items-center px-1 md:px-2 lg:px-4 py-2 gap-1 md:gap-2 bg-base-100 shadow-md">
     
     <big-toggle />
 
@@ -34,7 +34,7 @@
     >
       <Icon
         :name="displayStore.displayAction === 'add' ? 'kind-icon:gallery' : 'kind-icon:add'"
-        class="w-6 h-6 sm:w-8 sm:h-8 text-white z-10"
+        class="w-6 h-6 md:w-8 md:h-8 text-white z-10"
       />
     </div>
 

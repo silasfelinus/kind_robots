@@ -6,9 +6,7 @@
     ]"
     @click="selectReward"
   >
-    <!-- Art/Image or Icon -->
     <div class="relative flex justify-center items-center mb-4">
-      <!-- Show Art Image if Available -->
       <img
         v-if="artImage"
         :src="`data:image/${artImage.fileType};base64,${artImage.imageData}`"
@@ -16,28 +14,22 @@
         class="rounded-lg object-cover w-full h-40"
         loading="lazy"
       />
-      <!-- Fallback to Large Icon -->
       <Icon
         v-else
         :name="reward.icon || 'default-icon'"
         class="text-6xl text-gray-400"
       />
-
-      <!-- Always Visible Small Icon -->
       <Icon
         :name="reward.icon || 'default-icon'"
         class="absolute top-2 right-2 text-2xl bg-white p-1 rounded-full shadow"
       />
     </div>
-
-    <!-- Reward Details -->
     <h2 class="text-lg font-bold text-gray-800 text-center mb-2">
       {{ reward.text }}
     </h2>
     <p class="text-sm text-gray-600 text-center">
       🔥 Power: {{ reward.power }}
     </p>
-   
     <p class="text-sm text-gray-600 text-center">
       📚 Collection: {{ reward.collection }}
     </p>
@@ -47,31 +39,24 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
+import { useRewardStore } from '@/stores/rewardStore'
 
-// Props
-const {reward} = defineProps({
+const { reward } = defineProps({
   reward: {
     type: Object,
     required: true,
   },
 })
 
-// Stores
 const artStore = useArtStore()
-
-// State
 const artImage = ref<ArtImage | null>(null)
-
-// Computed
 const isSelected = computed(() => reward.isSelected || false)
 
-// Methods
 const selectReward = () => {
-  // Emit event to select this reward
-  emit('select', reward)
+  const rewardStore = useRewardStore()
+  rewardStore.setRewardById(reward.id)
 }
 
-// Load Art Image if artImageId is present
 onMounted(async () => {
   if (reward.artImageId) {
     try {

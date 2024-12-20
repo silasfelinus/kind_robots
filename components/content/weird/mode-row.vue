@@ -29,12 +29,12 @@
 
     <!-- Plus/Gallery Toggle -->
     <div
-      class="flex items-center justify-center w-12 h-12 rounded-full cursor-pointer hover:shadow-xl mx-2"
+      class="flex items-center justify-center w-12 h-12 border-accent border-1 rounded-full cursor-pointer hover:shadow-xl mx-1 md:mx-2"
       @click="toggleAction"
     >
       <Icon
         :name="displayStore.displayAction === 'add' ? 'kind-icon:gallery' : 'kind-icon:add'"
-        class="w-6 h-6 md:w-8 md:h-8 text-white z-10"
+        class="w-8 h-8 md:w-10 md:h-10 text-white z-10"
       />
     </div>
 

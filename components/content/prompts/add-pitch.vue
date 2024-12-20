@@ -1,16 +1,9 @@
 <template>
   <div class="container mx-auto p-4">
     <div class="flex flex-col items-center">
-      <!-- Toggle Button for Form Visibility -->
-      <button
-        class="mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        @click="toggleForm"
-      >
-        {{ showForm ? 'Close Form' : 'Add New Pitch' }}
-      </button>
-
+    
       <!-- Pitch Form -->
-      <div v-if="showForm" class="w-full max-w-lg mb-6">
+      <div class="w-full max-w-lg mb-6">
         <form
           class="bg-white shadow-md rounded px-8 pt-6 pb-8"
           @submit.prevent="handleFormSubmit"
@@ -169,7 +162,7 @@ const pitchStore = usePitchStore()
 const userStore = useUserStore()
 
 // Local State
-const showForm = ref(false)
+
 const isEditing = ref(false)
 const isSubmitting = ref(false)
 const errorMessage = ref('')
@@ -190,11 +183,7 @@ const isTitleType = computed(
   () => pitchStore.selectedPitchType === PitchType.TITLE,
 )
 
-// Form toggle and reset
-const toggleForm = () => {
-  showForm.value = !showForm.value
-  if (!showForm.value) resetForm()
-}
+
 
 const resetForm = () => {
   isEditing.value = false
@@ -251,7 +240,7 @@ const handleFormSubmit = async () => {
 
     if (result?.success) {
       resetForm()
-      showForm.value = false
+      
     } else {
       errorMessage.value = result?.message || 'Error submitting pitch'
     }
@@ -262,8 +251,5 @@ const handleFormSubmit = async () => {
   }
 }
 
-const cancelEdit = () => {
-  resetForm()
-  showForm.value = false
-}
+
 </script>

@@ -80,7 +80,7 @@
           />
           <img
             v-else
-            src="/images/titlefgghg.webp"
+            src="/images/chest1.webp"
             alt="Default Reward"
             class="object-cover w-48 h-64 rounded-lg"
           />
@@ -129,7 +129,7 @@ const artStore = useArtStore()
 const isGeneratingArt = ref(false)
 const isSaving = ref(false)
 
-const defaultPlaceholder = '/images/rewards/default.webp'
+const defaultPlaceholder = '/images/chest1.webp'
 
 const rewardForm = ref<{
   text: string

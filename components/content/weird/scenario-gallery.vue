@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-base-300 p-1 md:p-4 flex flex-col">
+  <div class="w-full h-full relative bg-base-300 p-1 md:p-4 flex flex-col">
     <!-- Filter and Search -->
     <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center">
@@ -43,11 +43,11 @@
       </div>
       <div
         v-else-if="filteredScenarios.length === 0"
-        class="flex justify-center items-center h-full"
+        class="flex w-full overflow-y-auto h-full"
       >
         <p class="text-lg font-bold text-gray-600">No scenarios found.</p>
       </div>
-      <div v-else class="grid grid-cols-1 gap-6 p-4">
+      <div v-else class="grid grid-cols-1 gap-4">
         <ScenarioCard
           v-for="scenario in filteredScenarios"
           :key="scenario.id"

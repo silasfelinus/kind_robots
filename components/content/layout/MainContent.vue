@@ -4,7 +4,7 @@
     <!-- Wrapper for mode-row and transition content -->
     <div :class="wrapperClass" :style="viewStyle">
       <!-- Mode Row: Fixed height of 10% -->
-      <mode-row class="w-full flex-shrink-0" style="height: 10%;" />
+      <mode-row class="z-30 w-full flex-shrink-0" style="height: 10%;" />
 
       <!-- Transaction Wrapper occupies remaining 90% -->
       <div class="flex-grow" style="height: 90%;">

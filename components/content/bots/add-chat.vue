@@ -45,15 +45,14 @@
       <div class="mt-4">
         <bot-selector
           v-if="recipientType === 'bot'"
-          v-model="recipientId"
+      
         />
         <character-selector
           v-else-if="recipientType === 'character'"
-          v-model="recipientId"
+          
         />
-        <user-selector
+        <recipient-selector
           v-else-if="recipientType === 'user'"
-          v-model="recipientId"
         />
       </div>
     </div>

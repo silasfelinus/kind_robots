@@ -1,9 +1,9 @@
 <template>
   <div
-    class="relative flex justify-center bg-base-300 border-1 border-accent rounded-2xl max-w-full overflow-hidden"
+    class="relative flex justify-center bg-base-300 border border-accent rounded-2xl max-w-full overflow-hidden"
   >
     <div
-      class="flex flex-wrap justify-center w-full space-y-2 space-x-0 md:space-x-4 items-stretch"
+      class="flex flex-nowrap justify-center w-full items-center space-x-2 md:space-x-4"
     >
       <div
         v-for="(item, index) in hardcodedLinks"
@@ -19,9 +19,8 @@
             :name="item.icon"
             class="w-6 h-6 transition-transform group-hover:scale-110"
           />
-
           <span
-            class="text-xs md:text-sm lg:text-md font-semibold mt-1 text-center bg-secondary px-2 py-1 rounded-lg"
+            class="text-xs md:text-sm lg:text-md font-semibold mt-1 text-center bg-secondary px-1 py-1 rounded-lg"
           >
             {{ item.title }}
           </span>

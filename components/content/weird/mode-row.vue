@@ -4,7 +4,7 @@
     <big-toggle />
 
     <!-- Modes Tabs (First Group) -->
-    <div class="flex flex-row items-center gap-2 flex-grow justify-end">
+    <div class="flex flex-row items-center gap-1 md:gap-2 flex-grow justify-end">
       <div
         v-for="mode in firstGroupModes"
         :key="mode.name"
@@ -12,7 +12,7 @@
       >
         <div
           :class="[
-            'flex items-center gap-2 px-2 z-30 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
+            'flex items-center gap-1 px-1 md:gap-2 md:px-2 z-30 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
             mode.name === displayStore.displayMode
               ? 'border-primary border-b-0 z-10 shadow-md'
               : 'border-base-300 hover:shadow',

@@ -178,9 +178,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useBotStore } from './../../../stores/botStore'
-import { useGalleryStore } from './../../../stores/galleryStore'
-import { useUserStore } from './../../../stores/userStore'
+import { useBotStore } from '../../../stores/botStore'
+import { useGalleryStore } from '../../../stores/galleryStore'
+import { useUserStore } from '../../../stores/userStore'
 
 const botStore = useBotStore()
 const galleryStore = useGalleryStore()

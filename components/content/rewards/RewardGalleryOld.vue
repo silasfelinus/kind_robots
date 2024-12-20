@@ -22,23 +22,30 @@
         <h1 class="text-4xl mb-2">
           {{ rewardStore.currentReward.text }}
         </h1>
-        <p class="text-xl mb-1">🔥 Power: {{ rewardStore.currentReward.power }}</p>
+        <p class="text-xl mb-1">
+          🔥 Power: {{ rewardStore.currentReward.power }}
+        </p>
         <p class="text-xl mb-1">
           📚 Collection: {{ rewardStore.currentReward.collection }}
         </p>
-        <p class="text-xl mb-4">🌟 Rarity: {{ rewardStore.currentReward.rarity }}</p>
+        <p class="text-xl mb-4">
+          🌟 Rarity: {{ rewardStore.currentReward.rarity }}
+        </p>
         <div class="flex gap-4">
           <button class="bg-primary p-2 rounded-lg" @click="endReward">
             <Icon name="kind-icon:back-arrow" class="text-2xl" />
           </button>
-          <button class="bg-accent p-2 rounded-lg" @click="showEditReward = true">
+          <button
+            class="bg-accent p-2 rounded-lg"
+            @click="showEditReward = true"
+          >
             ✏️ Edit
           </button>
         </div>
       </div>
 
       <!-- Edit Reward Form -->
-      <div v-else-if="showEditReward && rewardStore.currentReward" class="mt-4">
+      <div v-else-if="showEditReward" class="mt-4">
         <edit-reward
           :reward="rewardStore.currentReward"
           @updated="showEditReward = false"
@@ -46,7 +53,10 @@
       </div>
 
       <!-- Rewards Grid -->
-      <div v-else class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 border-t border-base-100 pt-6">
+      <div
+        v-else
+        class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 border-t border-base-100 pt-6"
+      >
         <div
           v-for="reward in rewardStore.rewards"
           :key="reward.id"
@@ -70,10 +80,9 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { ref, onMounted, type Ref } from 'vue'
-import { type Reward, useRewardStore } from './../../../stores/rewardStore'
+import { type Reward, useRewardStore } from '../../../stores/rewardStore'
 
 const rewardStore = useRewardStore()
 const showAddReward: Ref<boolean> = ref(false)

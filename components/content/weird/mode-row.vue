@@ -3,7 +3,7 @@
     <big-toggle />
 
     <!-- Modes Tabs (First Group) -->
-    <div class="flex flex-row items-center flex-grow justify-end">
+    <div class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-end">
       <div
         v-for="mode in firstGroupModes"
         :key="mode.name"
@@ -11,7 +11,7 @@
       >
         <div
           :class="[
-            'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-none bg-base-200 transition-all duration-200',
+            'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
             mode.name === displayStore.displayMode
               ? 'border-primary border-b-0 z-10 shadow-md'
               : 'border-base-300 hover:shadow',
@@ -38,7 +38,7 @@
     </div>
 
     <!-- Modes Tabs (Second Group) -->
-    <div class="flex flex-row items-center flex-grow justify-start">
+    <div class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-start">
       <div
         v-for="mode in secondGroupModes"
         :key="mode.name"
@@ -46,7 +46,7 @@
       >
         <div
           :class="[
-            'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-none bg-base-200 transition-all duration-200',
+            'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
             mode.name === displayStore.displayMode
               ? 'border-primary border-b-0 z-10 shadow-md'
               : 'border-base-300 hover:shadow',

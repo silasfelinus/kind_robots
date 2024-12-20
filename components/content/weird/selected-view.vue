@@ -1,24 +1,16 @@
 <template>
   <div class="flex-grow overflow-y-auto p-4">
-    <Suspense>
-      <template #default>
-        <component :is="lazyComponent">
-          <fallback-component v-if="lazyComponent === 'fallback-component'" />
-        </component>
-      </template>
-      <template #fallback>
-        <div>Loading...</div>
-      </template>
-    </Suspense>
+    <component :is="lazyComponent" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Suspense } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
+// Function to resolve component names based on mode and action
 function resolveComponentName(mode: string, action: string) {
   const reversedActions = ['gallery']
   const componentName = reversedActions.includes(action)
@@ -36,11 +28,12 @@ function resolveComponentName(mode: string, action: string) {
   return isComponentAvailable ? componentName : 'fallback-component'
 }
 
+// Computed to determine the current component name
 const currentComponentName = computed(() =>
   resolveComponentName(displayStore.displayMode, displayStore.displayAction),
 )
 
-// Dynamically import the component
+// Lazy load the component dynamically using defineAsyncComponent
 const lazyComponent = computed(() => {
   const components = import.meta.glob('@/components/**/*.vue', {
     eager: false, // Lazy loading
@@ -52,10 +45,10 @@ const lazyComponent = computed(() => {
   )
 
   if (matchingComponentPath) {
-    return () => components[matchingComponentPath]()
+    return defineAsyncComponent(() => components[matchingComponentPath]())
   }
 
-  // Fallback to static fallback-component
+  // Fallback to static fallback-component if no match found
   return 'fallback-component'
 })
 </script>

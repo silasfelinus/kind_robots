@@ -1,7 +1,6 @@
 <template>
   <div class="container mx-auto p-4">
     <div class="flex flex-col items-center">
-    
       <!-- Pitch Form -->
       <div class="w-full max-w-lg mb-6">
         <form
@@ -134,13 +133,6 @@
                     : 'Create Pitch'
               }}
             </button>
-            <button
-              class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="button"
-              @click="cancelEdit"
-            >
-              Cancel
-            </button>
           </div>
 
           <p v-if="errorMessage" class="text-red-500 mt-4">
@@ -182,8 +174,6 @@ const formState = ref({
 const isTitleType = computed(
   () => pitchStore.selectedPitchType === PitchType.TITLE,
 )
-
-
 
 const resetForm = () => {
   isEditing.value = false
@@ -240,7 +230,6 @@ const handleFormSubmit = async () => {
 
     if (result?.success) {
       resetForm()
-      
     } else {
       errorMessage.value = result?.message || 'Error submitting pitch'
     }
@@ -250,6 +239,4 @@ const handleFormSubmit = async () => {
     isSubmitting.value = false
   }
 }
-
-
 </script>

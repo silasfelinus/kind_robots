@@ -7,11 +7,7 @@
       @change="updateRecipient"
     >
       <option value="">-- No Recipient --</option>
-      <option
-        v-for="user in users"
-        :key="user.id"
-        :value="user.id"
-      >
+      <option v-for="user in users" :key="user.id" :value="String(user.id)">
         {{ user.username }}
       </option>
     </select>
@@ -25,7 +21,9 @@ import { useUserStore } from '@/stores/userStore'
 const userStore = useUserStore()
 
 // State for the selected user ID
-const selectedUserId = ref<number | null>(userStore.recipient?.id || null)
+const selectedUserId = ref<string | null>(
+  userStore.recipient?.id?.toString() || null,
+)
 
 // Fetch the list of users
 const users = computed(() => userStore.users)
@@ -34,14 +32,14 @@ const users = computed(() => userStore.users)
 watch(
   selectedUserId,
   (newUserId) => {
-    if (newUserId === null || newUserId === '') {
+    if (!newUserId) {
       userStore.recipient = null // Set to no recipient
     } else {
       const selectedUser = userStore.getUserById(Number(newUserId))
       userStore.recipient = selectedUser || null
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 // Method to handle selection updates

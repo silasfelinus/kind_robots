@@ -16,7 +16,7 @@
               ? 'border-primary border-b-0 z-10 shadow-md'
               : 'border-base-300 hover:shadow',
           ]"
-          @click="displayStore.setMode(mode.name as displayModeState)"
+          @click="handleModeChange(mode.name)"
         >
           <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
           <span class="text-sm lg:text-md font-semibold hidden md:inline">
@@ -51,7 +51,7 @@
               ? 'border-primary border-b-0 z-10 shadow-md'
               : 'border-base-300 hover:shadow',
           ]"
-          @click="displayStore.setMode(mode.name as displayModeState)"
+          @click="handleModeChange(mode.name)"
         >
           <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
           <span class="text-sm lg:text-md font-semibold hidden md:inline">
@@ -68,8 +68,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
+const router = useRouter()
+const route = useRoute()
 const displayStore = useDisplayStore()
 
 const modes = [
@@ -86,9 +89,20 @@ const modes = [
 const firstGroupModes = computed(() => modes.slice(0, 3))
 const secondGroupModes = computed(() => modes.slice(3))
 
+function handleModeChange(modeName: string) {
+  // Change the display mode
+  displayStore.setMode(modeName as displayModeState)
+
+  // Navigate to /weirdlandia if not already there
+  if (route.path !== '/weirdlandia') {
+    router.push('/weirdlandia')
+  }
+}
+
 function toggleAction() {
   displayStore.setAction(
     displayStore.displayAction === 'add' ? 'gallery' : 'add'
   )
 }
 </script>
+

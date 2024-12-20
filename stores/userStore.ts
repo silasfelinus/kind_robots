@@ -11,6 +11,7 @@ interface UserState {
   stayLoggedIn: boolean
   milestones: number[]
   users: User[]
+  recipient: User | null
 }
 
 export const useUserStore = defineStore({
@@ -23,6 +24,7 @@ export const useUserStore = defineStore({
     stayLoggedIn: true,
     milestones: [],
     users: [],
+    recipient: null,
   }),
   getters: {
     karma(state): number {

@@ -37,9 +37,7 @@
     <p class="text-sm text-gray-600 text-center">
       🔥 Power: {{ reward.power }}
     </p>
-    <p class="text-sm text-gray-600 text-center">
-      🌟 Rarity: {{ reward.rarity }}
-    </p>
+   
     <p class="text-sm text-gray-600 text-center">
       📚 Collection: {{ reward.collection }}
     </p>

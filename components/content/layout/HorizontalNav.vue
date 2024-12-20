@@ -20,7 +20,7 @@
             class="w-6 h-6 transition-transform group-hover:scale-110"
           />
           <span
-            class="text-xs md:text-sm lg:text-md font-semibold mt-1 text-center bg-secondary px-1 py-1 rounded-lg"
+            class="text-xs md:text-sm lg:text-md font-semibold mt-1 text-center bg-secondary px-1 rounded-lg"
           >
             {{ item.title }}
           </span>

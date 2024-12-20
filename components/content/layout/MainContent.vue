@@ -3,11 +3,11 @@
   <div class="h-full flex flex-col rounded-2xl relative z-10">
     <!-- Wrapper for mode-row and transition content -->
     <div :class="wrapperClass" :style="viewStyle">
-      <!-- Mode Row: Part of the resizable container -->
-      <mode-row class="w-full flex-shrink-0" />
+      <!-- Mode Row: Fixed height of 10% -->
+      <mode-row class="w-full flex-shrink-0" style="height: 10%;" />
 
-      <!-- Transaction Wrapper -->
-      <div class="flex-grow">
+      <!-- Transaction Wrapper occupies remaining 90% -->
+      <div class="flex-grow" style="height: 90%;">
         <transition name="flip" mode="out-in">
           <!-- Mobile View (no flip card) -->
           <div v-if="isMobile" key="mobile-view" class="h-full w-full">
@@ -54,8 +54,8 @@ const viewStyle = computed(() => ({
 
 const wrapperClass = computed(() =>
   isBigMode.value
-    ? 'fixed top-0 left-0 h-screen w-screen z-30 bg-base-200'
-    : 'relative flex flex-col flex-grow',
+    ? 'fixed top-0 left-0 h-screen w-screen z-30 bg-base-200 flex flex-col'
+    : 'relative flex flex-col flex-grow'
 )
 </script>
 

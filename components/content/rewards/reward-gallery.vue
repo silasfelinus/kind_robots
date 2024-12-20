@@ -16,11 +16,14 @@
     </div>
 
     <!-- Detailed Reward View -->
-    <div v-if="rewardStore.currentReward" class="p-6 bg-white rounded-lg shadow-lg">
+    <div
+      v-if="rewardStore.currentReward"
+      class="p-6 bg-white rounded-lg shadow-lg"
+    >
       <div class="text-center mb-4">
         <img
           v-if="rewardStore.currentReward.artImageId"
-          :src="rewardStore.currentReward.ArtImage.url"
+          :src="rewardStore.currentReward.imagePath"
           alt="Reward Image"
           class="rounded-lg shadow-md w-48 h-48 object-cover mx-auto mb-4"
         />

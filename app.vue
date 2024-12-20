@@ -29,11 +29,10 @@
     </aside>
 
     <main
-      class="relative flex flex-col z-10 rounded-2xl box-border transition-all duration-600 ease-in-out"
+      class="fixed z-10 box-border transition-all duration-600 rounded-2xl ease-in-out"
       :style="mainContentStyle"
     >
-      <mode-row class="w-full flex-shrink-0" />
-      <main-content class="w-full flex-grow overflow-auto" />
+      <main-content />
     </main>
 
     <!-- Right Sidebar -->

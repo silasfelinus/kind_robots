@@ -1,95 +1,109 @@
 <template>
-  <!-- Art Gallery Container -->
-  <div class="relative bg-base-300 rounded-2xl m-1 p-0">
-    <h1>Pitch Gallery</h1>
-    <!-- View Control Icons -->
-    <div
-      class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-lg"
-    >
-      <div class="flex space-x-2">
-        <Icon
-          name="kind-icon:grid"
-          class="text-2xl cursor-pointer"
-          @click="setView('fourRow')"
-        />
-        <Icon
-          name="kind-icon:dashboard"
-          class="text-2xl cursor-pointer"
-          @click="setView('threeRow')"
-        />
-        <Icon
-          name="ion:grid-outline"
-          class="text-2xl cursor-pointer"
-          @click="setView('twoRow')"
-        />
-        <Icon
-          name="kind-icon:fullscreen"
-          class="text-2xl cursor-pointer"
-          @click="setView('single')"
+  <div class="w-full h-full relative bg-base-300 flex flex-col">
+    <!-- Pitch Type Selector -->
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
+      <pitch-type-selector
+        v-model="selectedPitchType"
+        :options="pitchTypes"
+        class="w-full md:w-1/3"
+      />
+      <div class="flex items-center w-full md:w-1/2">
+        <input
+          v-model="searchQuery"
+          type="text"
+          aria-label="Search pitches by title"
+          placeholder="Search pitches by title..."
+          class="bg-base-200 border border-gray-400 rounded-lg p-2 w-full"
         />
       </div>
     </div>
-    <!-- Art Cards -->
-    <div class="flex flex-wrap">
-      <ArtCard
-        v-for="art in filteredArtAssets"
-        :key="art.id"
-        :art="art"
-        :class="itemClass"
-      />
+
+    <!-- Pitch Grid -->
+    <div class="min-h-0 overflow-auto">
+      <div v-if="isLoading" class="flex justify-center items-center h-full">
+        <span class="loading loading-spinner loading-lg"></span>
+      </div>
+      <div
+        v-else-if="errorMessage"
+        class="flex justify-center items-center h-full text-center"
+      >
+        <p class="text-lg font-bold text-red-600">{{ errorMessage }}</p>
+      </div>
+      <div
+        v-else-if="filteredPitches.length === 0"
+        class="flex w-full overflow-y-auto h-full"
+      >
+        <p class="text-lg font-bold text-gray-600">No pitches found.</p>
+      </div>
+      <div v-else class="grid grid-cols-1 gap-4">
+        <PitchCard
+          v-for="pitch in filteredPitches"
+          :key="pitch.id"
+          :pitch="pitch"
+          class="h-auto"
+          @click="selectPitch(pitch.id)"
+        />
+      </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue'
-import { useArtStore } from '../../../stores/artStore'
-import { usePitchStore } from '../../../stores/pitchStore'
+<script setup>
+import { computed, ref, onMounted } from 'vue'
+import { usePitchStore } from '@/stores/pitchStore'
 
-// Initialize stores
-const artStore = useArtStore()
+// Store
 const pitchStore = usePitchStore()
 
-// Fetch all art assets
-const artArray = computed(() => Array.from(artStore.art.values()))
+// State
+const selectedPitchType = ref(null)
+const searchQuery = ref('')
+const isLoading = ref(true)
+const errorMessage = ref('')
 
-// Filter art assets based on the selected pitch from pitchStore
-const filteredArtAssets = computed(() => {
-  const selectedPitch = pitchStore.selectedPitch
-  if (selectedPitch) {
-    return artArray.value.filter((art) => art.pitchId === selectedPitch.id)
-  }
-  return []
-})
+// Computed: Dynamic Pitch Types from the Store
+const pitchTypes = computed(() => pitchStore.pitchTypes)
 
-// View control logic
-const view = ref('twoRow')
-const itemClass = ref('w-1/2 p-4')
-
-// Load saved view from local storage on mount
-onMounted(() => {
-  const savedView = window.localStorage.getItem('view')
-  if (savedView) {
-    view.value = savedView
+// Fetch Pitches on Mount
+onMounted(async () => {
+  try {
+    isLoading.value = true
+    await pitchStore.fetchPitches()
+    isLoading.value = false
+  } catch (error) {
+    console.error('Failed to load pitches:', error)
+    errorMessage.value = 'Failed to load pitches. Please try again.'
+    isLoading.value = false
   }
 })
 
-// Update view and save to local storage
-const setView = (newView: string) => {
-  view.value = newView
-  window.localStorage.setItem('view', newView)
+// Computed: Filtered and searched pitches
+const filteredPitches = computed(() => {
+  let pitches = pitchStore.pitches
+
+  // Filter by pitch type
+  if (selectedPitchType.value) {
+    pitches = pitchStore.getPitchesByType(selectedPitchType.value)
+  }
+
+  // Search by title
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.trim().toLowerCase()
+    pitches = pitches.filter((pitch) =>
+      (pitch.title || '').toLowerCase().includes(query),
+    )
+  }
+
+  return pitches
+})
+
+// Methods
+function selectPitch(id) {
+  try {
+    pitchStore.setSelectedPitch(id)
+  } catch (error) {
+    console.error('Error selecting pitch:', error)
+    errorMessage.value = 'Failed to select pitch. Please try again.'
+  }
 }
-
-// Update item class based on the selected view
-watch(view, (newView) => {
-  if (newView === 'twoRow') {
-    itemClass.value = 'w-1/2 p-4'
-  } else if (newView === 'fourRow') {
-    itemClass.value = 'w-1/4 p-4'
-  } else if (newView === 'single') {
-    itemClass.value = 'w-full p-4'
-  } else {
-    itemClass.value = 'w-1/3 p-4'
-  }
-})
 </script>

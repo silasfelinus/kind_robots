@@ -1,116 +1,103 @@
 <template>
-  <div class="bg-base-300 p-6">
+  <div class="bg-base-300 p-6 min-h-screen">
     <!-- Error Message -->
     <div v-if="rewardStore.error" class="text-red-500 mb-4">
       🚨 {{ rewardStore.error }}
     </div>
-    <!-- Add New Reward Button -->
-    <div v-else>
-      <div class="flex justify-end mb-4">
-        <button class="bg-primary p-3 rounded-lg" @click="showAddReward = true">
-          ➕ Add New Reward
-        </button>
-      </div>
 
-      <!-- Detailed Reward View -->
-      <div v-if="rewardStore.currentReward" :class="{ pixelate: pixelate }">
-        <Icon
-          v-if="rewardStore.currentReward.icon"
-          :name="rewardStore.currentReward.icon"
-          class="text-12xl mb-4 transition-all duration-500 ease-in-out"
+    <!-- Add New Reward Button -->
+    <div class="flex justify-end mb-4">
+      <button
+        class="bg-primary text-white p-3 rounded-lg hover:bg-primary-focus transition"
+        @click="showAddReward = true"
+      >
+        ➕ Add New Reward
+      </button>
+    </div>
+
+    <!-- Detailed Reward View -->
+    <div v-if="rewardStore.currentReward" class="p-6 bg-white rounded-lg shadow-lg">
+      <div class="text-center mb-4">
+        <img
+          v-if="rewardStore.currentReward.artImageId"
+          :src="rewardStore.currentReward.ArtImage.url"
+          alt="Reward Image"
+          class="rounded-lg shadow-md w-48 h-48 object-cover mx-auto mb-4"
         />
-        <h1 class="text-4xl mb-2">
+        <Icon
+          v-else
+          :name="rewardStore.currentReward.icon || 'default-icon'"
+          class="text-8xl text-primary mb-4"
+        />
+        <h1 class="text-3xl font-bold mb-2">
           {{ rewardStore.currentReward.text }}
         </h1>
-        <p class="text-xl mb-1">
+        <p class="text-lg text-gray-600 mb-2">
           🔥 Power: {{ rewardStore.currentReward.power }}
         </p>
-        <p class="text-xl mb-1">
+        <p class="text-lg text-gray-600 mb-2">
           📚 Collection: {{ rewardStore.currentReward.collection }}
         </p>
-        <p class="text-xl mb-4">
+        <p class="text-lg text-gray-600">
           🌟 Rarity: {{ rewardStore.currentReward.rarity }}
         </p>
-        <div class="flex gap-4">
-          <button class="bg-primary p-2 rounded-lg" @click="endReward">
-            <Icon name="kind-icon:back-arrow" class="text-2xl" />
-          </button>
-          <button
-            class="bg-accent p-2 rounded-lg"
-            @click="showEditReward = true"
-          >
-            ✏️ Edit
-          </button>
-        </div>
       </div>
-
-      <!-- Edit Reward Form -->
-      <div v-else-if="showEditReward" class="mt-4">
-        <edit-reward
-          :reward="rewardStore.currentReward"
-          @updated="showEditReward = false"
-        />
-      </div>
-
-      <!-- Rewards Grid -->
-      <div
-        v-else
-        class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 border-t border-base-100 pt-6"
-      >
-        <div
-          v-for="reward in rewardStore.rewards"
-          :key="reward.id"
-          class="p-4 rounded-lg hover:bg-primary hover:text-base-300 cursor-pointer transition duration-300 ease-in-out shadow"
-          @click="selectReward(reward)"
+      <div class="flex justify-center gap-4 mt-4">
+        <button
+          class="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-secondary-focus transition"
+          @click="endReward"
         >
-          <div class="text-center">
-            <Icon :name="reward.icon || 'default-icon'" class="text-6xl mb-2" />
-            <p class="text-lg">
-              {{ reward.text }}
-            </p>
-          </div>
-        </div>
+          Back
+        </button>
+        <button
+          class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent-focus transition"
+          @click="showEditReward = true"
+        >
+          ✏️ Edit
+        </button>
       </div>
+    </div>
 
-      <!-- Add New Reward Form -->
-      <div v-if="showAddReward" class="mt-6">
-        <add-reward @added="showAddReward = false" />
-      </div>
+    <!-- Add New Reward Form -->
+    <div v-if="showAddReward" class="mt-6">
+      <add-reward @added="showAddReward = false" />
+    </div>
+
+    <!-- Rewards Grid -->
+    <div
+      v-else
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mt-6"
+    >
+      <reward-card
+        v-for="reward in rewardStore.rewards"
+        :key="reward.id"
+        :reward="reward"
+        @select="selectReward"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, type Ref } from 'vue'
-import { type Reward, useRewardStore } from '../../../stores/rewardStore'
+import { ref, onMounted } from 'vue'
+import { useRewardStore, type Reward } from '@/stores/rewardStore'
 
+// Store
 const rewardStore = useRewardStore()
-const showAddReward: Ref<boolean> = ref(false)
-const showEditReward: Ref<boolean> = ref(false)
-const pixelate: Ref<boolean> = ref(false)
+const showAddReward = ref(false)
+const showEditReward = ref(false)
 
-// Fetch rewards on mounted
-onMounted(() => {
-  rewardStore.fetchRewards()
-})
-
+// Methods
 const endReward = () => {
   rewardStore.clearCurrentReward()
 }
 
 const selectReward = (reward: Reward) => {
-  console.log(`Selecting reward with ID: ${reward.id}`) // Debugging line
-  pixelate.value = true
-  setTimeout(() => {
-    rewardStore.setRewardById(reward.id)
-    pixelate.value = false
-  }, 500)
+  rewardStore.setRewardById(reward.id)
 }
-</script>
 
-<style scoped>
-.pixelate {
-  filter: pixelate(20);
-  transition: filter 0.5s ease-in-out;
-}
-</style>
+// Fetch rewards on mount
+onMounted(() => {
+  rewardStore.fetchRewards()
+})
+</script>

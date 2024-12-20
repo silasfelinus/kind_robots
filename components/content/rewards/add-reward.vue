@@ -4,30 +4,60 @@
 
     <!-- Reward Details -->
     <div class="grid gap-4 mb-6">
+      <!-- Reward Name -->
       <input
         v-model="rewardForm.text"
         type="text"
         placeholder="Reward Name"
         class="w-full p-3 rounded-lg border"
+        required
       />
+
+      <!-- Reward Power -->
       <input
         v-model="rewardForm.power"
         type="text"
         placeholder="Power (e.g., '10 Attack')"
         class="w-full p-3 rounded-lg border"
+        required
       />
+
+      <!-- Collection Name -->
       <input
         v-model="rewardForm.collection"
         type="text"
         placeholder="Collection Name"
         class="w-full p-3 rounded-lg border"
       />
-      <input
-        v-model.number="rewardForm.rarity"
-        type="number"
-        placeholder="Rarity (0-100)"
-        class="w-full p-3 rounded-lg border"
-      />
+
+      <!-- Icon Selection -->
+      <div>
+        <label for="icon" class="block text-sm font-medium text-gray-600">
+          Icon
+        </label>
+        <select
+          id="icon"
+          v-model="rewardForm.icon"
+          required
+          class="p-2 rounded-lg bg-base-300 w-full"
+        >
+          <option
+            v-for="(name, label) in IconMap"
+            :key="label"
+            :value="name"
+          >
+            {{ label }} - {{ name }}
+          </option>
+        </select>
+        <a
+          href="https://icon-sets.iconify.design/game-icons/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-500 underline text-sm mt-1 block"
+        >
+          Explore more icons
+        </a>
+      </div>
     </div>
 
     <!-- Reward Art Section -->
@@ -89,6 +119,7 @@
 import { ref, computed } from 'vue'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useArtStore } from '@/stores/artStore'
+import IconMap from '@/training/iconMap'
 
 // Stores
 const rewardStore = useRewardStore()
@@ -104,7 +135,7 @@ const rewardForm = ref<{
   text: string
   power: string
   collection: string
-  rarity: number
+  icon: string
   artPrompt: string
   imagePath: string | null
   artImageId: number | null
@@ -112,7 +143,7 @@ const rewardForm = ref<{
   text: '',
   power: '',
   collection: '',
-  rarity: 0,
+  icon: '',
   artPrompt: '',
   imagePath: null,
   artImageId: null,
@@ -123,7 +154,12 @@ const resolvedActiveImage = computed(() => {
   return rewardForm.value.imagePath || defaultPlaceholder
 })
 
-// Method: Generate art for the reward
+// Handle uploaded art image
+function handleUploadedArtImage(id: number) {
+  rewardForm.value.artImageId = id
+}
+
+// Generate art for the reward
 async function generateArtImage() {
   if (!rewardForm.value.artPrompt) {
     alert('Please provide an art prompt to generate art.')
@@ -151,15 +187,10 @@ async function generateArtImage() {
   }
 }
 
-// Method: Handle uploaded art image
-function handleUploadedArtImage(id: number) {
-  rewardForm.value.artImageId = id
-}
-
-// Method: Save the reward
+// Save the reward
 async function saveReward() {
-  if (!rewardForm.value.text) {
-    alert('Please provide a name for the reward.')
+  if (!rewardForm.value.text || !rewardForm.value.icon) {
+    alert('Please fill in all required fields.')
     return
   }
 
@@ -171,13 +202,14 @@ async function saveReward() {
       text: '',
       power: '',
       collection: '',
-      rarity: 0,
+      icon: '',
       artPrompt: '',
       imagePath: null,
       artImageId: null,
     }
   } catch (error) {
     console.error('Error saving reward:', error)
+    alert('Failed to save reward. Please try again.')
   } finally {
     isSaving.value = false
   }

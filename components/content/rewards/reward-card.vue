@@ -1,39 +1,89 @@
 <template>
   <div
-    class="p-4 bg-white rounded-lg shadow-lg hover:shadow-xl hover:bg-primary hover:text-white cursor-pointer transition duration-300 ease-in-out"
-    @click="$emit('select', reward)"
+    :class="[
+      'relative bg-base-200 border rounded-2xl p-4 m-2 hover:shadow-lg transition-all cursor-pointer',
+      isSelected ? 'border-primary bg-primary/10' : 'border-gray-400',
+    ]"
+    @click="selectReward"
   >
-    <div class="relative text-center">
+    <!-- Art/Image or Icon -->
+    <div class="relative flex justify-center items-center mb-4">
       <!-- Show Art Image if Available -->
       <img
-        v-if="reward.artImageId && reward.ArtImage"
-        :src="reward.ArtImage.url"
+        v-if="artImage"
+        :src="`data:image/${artImage.fileType};base64,${artImage.imageData}`"
         alt="Reward Art"
-        class="rounded-lg shadow-md w-full h-48 object-cover mb-2"
+        class="rounded-lg object-cover w-full h-40"
+        loading="lazy"
       />
-      <!-- Fallback Icon -->
+      <!-- Fallback to Large Icon -->
       <Icon
         v-else
         :name="reward.icon || 'default-icon'"
-        class="text-6xl mb-2"
+        class="text-6xl text-gray-400"
       />
-      <!-- Small Icon Always Visible -->
+
+      <!-- Always Visible Small Icon -->
       <Icon
         :name="reward.icon || 'default-icon'"
         class="absolute top-2 right-2 text-2xl bg-white p-1 rounded-full shadow"
       />
-      <p class="text-lg font-semibold mt-2">{{ reward.text }}</p>
     </div>
+
+    <!-- Reward Details -->
+    <h2 class="text-lg font-bold text-gray-800 text-center mb-2">
+      {{ reward.text }}
+    </h2>
+    <p class="text-sm text-gray-600 text-center">
+      🔥 Power: {{ reward.power }}
+    </p>
+    <p class="text-sm text-gray-600 text-center">
+      🌟 Rarity: {{ reward.rarity }}
+    </p>
+    <p class="text-sm text-gray-600 text-center">
+      📚 Collection: {{ reward.collection }}
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { Reward } from '@/stores/rewardStore'
+import { ref, computed, onMounted } from 'vue'
+import { useArtStore, type ArtImage } from '@/stores/artStore'
 
-defineProps({
+// Props
+const {reward} = defineProps({
   reward: {
-    type: Object as () => Reward,
+    type: Object,
     required: true,
   },
+})
+
+// Stores
+const artStore = useArtStore()
+
+// State
+const artImage = ref<ArtImage | null>(null)
+
+// Computed
+const isSelected = computed(() => reward.isSelected || false)
+
+// Methods
+const selectReward = () => {
+  // Emit event to select this reward
+  emit('select', reward)
+}
+
+// Load Art Image if artImageId is present
+onMounted(async () => {
+  if (reward.artImageId) {
+    try {
+      const result = await artStore.getArtImageById(reward.artImageId)
+      if (result) {
+        artImage.value = result
+      }
+    } catch (error) {
+      console.error('Failed to load art image:', error)
+    }
+  }
 })
 </script>

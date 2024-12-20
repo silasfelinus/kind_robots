@@ -35,6 +35,13 @@
       <main-content />
     </main>
 
+    <!-- Right Sidebar -->
+    <aside
+      class="fixed z-10 box-border transition-all duration-600 rounded-2xl ease-in-out"
+      :style="rightSidebarStyle"
+    >
+      <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full z-10" />
+    </aside>
 
     <!-- Footer -->
     <footer

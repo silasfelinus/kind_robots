@@ -6,7 +6,7 @@
       aria-label="Toggle Leaderboard"
       class="flex items-center justify-center w-12 h-12 rounded-full bg-accent text-info hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
     >
-      <icon :name="'kind-icon:leaderboard'" class="w-6 h-6" />
+      <Icon name="'kind-icon:leaderboard'" class="w-6 h-6" />
     </button>
 
     <!-- Leaderboard (conditionally rendered) -->

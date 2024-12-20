@@ -110,13 +110,16 @@
 import { ref, computed } from 'vue'
 import { useChatStore, type Chat } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
+import { useBotStore } from '@/stores/botStore'
+import { useCharacterStore } from '@/stores/characterStore'
 
 const chatStore = useChatStore()
 const userStore = useUserStore()
+const botStore = useBotStore()
+const characterStore = useCharacterStore()
 
 // State
 const recipientType = ref<'bot' | 'character' | 'user'>('bot')
-const recipientId = ref<number | null>(null)
 const prompt = ref('')
 const responseText = ref('')
 const loading = ref(false)
@@ -124,7 +127,23 @@ const errorMessage = ref('')
 const useStreaming = ref(false)
 const chat = ref<Chat | null>(null)
 
-const userId = computed(() => userStore.userId)
+// Dynamically determine recipientId based on recipientType
+const recipientId = computed(() => {
+  if (recipientType.value === 'bot') return botStore.currentBot?.id || null
+  if (recipientType.value === 'character')
+    return characterStore.selectedCharacter?.id || null
+  if (recipientType.value === 'user') return userStore.recipient?.id || null
+  return null
+})
+
+// Dynamically determine recipient name (optional, if needed for display purposes)
+const recipientName = computed(() => {
+  if (recipientType.value === 'bot') return botStore.currentBot?.name || 'Bot'
+  if (recipientType.value === 'character')
+    return characterStore.selectedCharacter?.name || 'Character'
+  if (recipientType.value === 'user') return userStore.recipient?.username || 'User'
+  return null
+})
 
 // Submit Prompt Function
 async function submitPrompt() {
@@ -138,11 +157,16 @@ async function submitPrompt() {
     // Step 1: Create a new chat object in the database
     const newChat = await chatStore.addChat({
       content: prompt.value,
-      userId: userId.value,
+      userId: userStore.userId,
       botId: recipientType.value === 'bot' ? recipientId.value : null,
       characterId: recipientType.value === 'character' ? recipientId.value : null,
       recipientId: recipientType.value === 'user' ? recipientId.value : null,
-      type: recipientType.value === 'bot' ? 'ToBot' : 'ToUser',
+      type:
+        recipientType.value === 'bot'
+          ? 'ToBot'
+          : recipientType.value === 'character'
+          ? 'ToCharacter'
+          : 'ToUser',
     })
     chat.value = newChat
 
@@ -174,4 +198,5 @@ async function submitPrompt() {
     loading.value = false
   }
 }
+
 </script>

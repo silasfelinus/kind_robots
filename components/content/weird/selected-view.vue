@@ -33,7 +33,6 @@ const currentComponentName = computed(() =>
   resolveComponentName(displayStore.displayMode, displayStore.displayAction),
 )
 
-// Lazy load the component dynamically using defineAsyncComponent
 const lazyComponent = computed(() => {
   const components = import.meta.glob('@/components/**/*.vue', {
     eager: false, // Lazy loading
@@ -45,7 +44,12 @@ const lazyComponent = computed(() => {
   )
 
   if (matchingComponentPath) {
-    return defineAsyncComponent(() => components[matchingComponentPath]())
+    return defineAsyncComponent(() =>
+      components[matchingComponentPath]().then((mod) => {
+        const component = mod as { default: ReturnType<typeof defineComponent> }
+        return component.default
+      }),
+    )
   }
 
   // Fallback to static fallback-component if no match found

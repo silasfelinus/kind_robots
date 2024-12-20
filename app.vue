@@ -33,6 +33,7 @@
       class="fixed z-10 rounded-2xl box-border transition-all duration-600 ease-in-out"
       :style="mainContentStyle"
     >
+<mode-row />
       <main-content />
       
     </main>

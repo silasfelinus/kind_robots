@@ -447,7 +447,7 @@ model Reward {
   User       User?     @relation(fields: [userId], references: [id])
   Reactions  Reaction[]
   Characters Character[]
-  imagePath String?
+  imagePath  String?
 
   @@index([userId], map: "Reward_userId_fkey")
 }

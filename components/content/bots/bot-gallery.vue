@@ -21,12 +21,17 @@
           class="w-24 h-24 rounded-full"
         />
         <h2 class="text-xl font-semibold mt-4 text-gray-700">{{ bot.name }}</h2>
-        <p class="text-sm text-gray-500 mt-2 text-center">{{ bot.description }}</p>
+        <p class="text-sm text-gray-500 mt-2 text-center">
+          {{ bot.description }}
+        </p>
       </div>
     </div>
 
     <!-- Active Bot Display -->
-    <div v-if="currentBot" class="fixed bottom-0 w-full bg-gray-100 p-4 shadow-md">
+    <div
+      v-if="currentBot"
+      class="fixed bottom-0 w-full bg-gray-100 p-4 shadow-md"
+    >
       <div class="flex items-center justify-between">
         <div class="flex items-center">
           <img
@@ -64,20 +69,11 @@ const bots = computed(() => botStore.bots)
 const currentBot = computed(() => botStore.currentBot)
 
 // Methods
-const selectBot = (bot) => {
-  botStore.setCurrentBot(bot)
+const selectBot = (bot: Bot) => {
+  botStore.selectBot(bot.id)
 }
 
 const clearCurrentBot = () => {
-  botStore.clearCurrentBot()
+  botStore.currentBot = null
 }
-
-// On Mount: Load Bots
-onMounted(async () => {
-  try {
-    await botStore.loadBots()
-  } catch (error) {
-    console.error('Error loading bots:', error)
-  }
-})
 </script>

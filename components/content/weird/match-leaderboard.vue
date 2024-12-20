@@ -2,11 +2,11 @@
   <div class="relative">
     <!-- Toggle Icon -->
     <button
-      @click="isOpen = !isOpen"
       aria-label="Toggle Leaderboard"
       class="flex items-center justify-center w-12 h-12 rounded-full bg-accent text-info hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+      @click="isOpen = !isOpen"
     >
-      <Icon name="'kind-icon:leaderboard'" class="w-6 h-6" />
+      <Icon name="kind-icon:leaderboard" class="w-6 h-6" />
     </button>
 
     <!-- Leaderboard (conditionally rendered) -->
@@ -15,7 +15,9 @@
       class="rounded-2xl border p-3 m-3 mt-4 bg-base-300 text-center transition-all duration-300"
     >
       <h1 class="text-xl font-bold mb-4">Global Match Leaderboard</h1>
-      <table class="table-auto w-full border-collapse border border-gray-300 rounded-lg">
+      <table
+        class="table-auto w-full border-collapse border border-gray-300 rounded-lg"
+      >
         <thead>
           <tr class="bg-gray-200">
             <th class="px-4 py-2 border border-gray-300">Rank</th>
@@ -32,7 +34,9 @@
             <td class="px-4 py-2 border border-gray-300 text-center">
               {{ index + 1 }}
             </td>
-            <td class="px-4 py-2 border border-gray-300">{{ user.username }}</td>
+            <td class="px-4 py-2 border border-gray-300">
+              {{ user.username }}
+            </td>
             <td class="px-4 py-2 border border-gray-300 text-center">
               {{ user.matchRecord ?? 'N/A' }}
             </td>

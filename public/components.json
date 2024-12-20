@@ -22,12 +22,14 @@
     "components": [
       "Art-Generator",
       "ArtCard",
-      "ArtGallery",
       "ArtMaker",
       "ArtPrompts",
       "DreamGenerator",
       "ImageUpload",
+      "add-art",
       "art-collection",
+      "art-gallery-old",
+      "art-gallery",
       "art-lab",
       "random-selector"
     ]
@@ -35,7 +37,7 @@
   {
     "folderName": "bots",
     "components": [
-      "AddBot",
+      "AddBotOld",
       "BotBubble",
       "BotCafe",
       "BotCard",
@@ -53,16 +55,20 @@
       "ShareButtons",
       "StreamTest",
       "TemperatureSlider",
+      "add-bot",
+      "add-chat",
       "avatar-image",
       "bot-carousel2",
       "bot-details",
       "bot-factory",
+      "bot-gallery-old",
       "bot-gallery",
       "bot-prompt",
       "bot-spinner",
       "card-back",
       "card-front",
       "chat-card",
+      "chat-gallery",
       "chat-test",
       "chat-view",
       "generate-avatar",
@@ -111,7 +117,8 @@
       "user-gallery",
       "user-navigation",
       "user-panel",
-      "user-picture"
+      "user-picture",
+      "user-selector"
     ]
   },
   {
@@ -249,7 +256,7 @@
   {
     "folderName": "prompts",
     "components": [
-      "AddPitch",
+      "AddPitchOld",
       "BrainstormCard",
       "BrainstormGame",
       "BubblePrompt",
@@ -257,7 +264,7 @@
       "PitchCard",
       "PitchCardActions",
       "PitchCardFront",
-      "PitchGallery",
+      "PitchGalleryOld",
       "PitchGenerator",
       "PitchManager",
       "PitchSelector",
@@ -266,11 +273,13 @@
       "PitchTypeSelector",
       "PitchViewer",
       "PromptFactory",
+      "add-pitch",
       "api-response",
       "brainstorm-image",
       "brainstorm-selector",
       "brainstorm-view",
       "pitch-display",
+      "pitch-gallery",
       "title-examples",
       "title-maker",
       "title-menu"
@@ -279,11 +288,13 @@
   {
     "folderName": "rewards",
     "components": [
-      "AddReward",
+      "AddRewardOld",
       "EditReward",
+      "RewardGalleryOld",
       "RewardPortal",
-      "RewardsGallery",
-      "ShowReward"
+      "ShowReward",
+      "add-reward",
+      "reward-gallery"
     ]
   },
   {

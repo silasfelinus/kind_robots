@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full md:w-3/4 p-4 mx-auto overflw-y-auto">
+  <div class="w-full md:w-3/4 p-4 mx-auto overflow-y-auto">
     <h1 class="text-2xl font-bold text-gray-700 mb-4">Create a New Scenario</h1>
 
     <!-- Scenario Details -->
@@ -22,6 +22,56 @@
         class="w-full p-3 rounded-lg border"
         rows="2"
       ></textarea>
+      <textarea
+        v-model="scenarioForm.genres"
+        placeholder="Enter genres (comma-separated)..."
+        class="w-full p-3 rounded-lg border"
+        rows="2"
+      ></textarea>
+      <textarea
+        v-model="scenarioForm.inspirations"
+        placeholder="Enter inspirations (comma-separated)..."
+        class="w-full p-3 rounded-lg border"
+        rows="2"
+      ></textarea>
+    </div>
+
+    <!-- Intros Section -->
+    <div class="mb-6">
+      <h2 class="text-lg font-medium">Scenario Intros</h2>
+      <div class="grid gap-2 mb-4">
+        <input
+          v-model="introTitle"
+          type="text"
+          placeholder="Intro Title (in caps)..."
+          class="w-full p-3 rounded-lg border"
+        />
+        <textarea
+          v-model="introPrompt"
+          placeholder="Enter intro prompt..."
+          class="w-full p-3 rounded-lg border"
+          rows="2"
+        ></textarea>
+        <button class="btn btn-primary w-full" @click="addIntro">
+          Add Intro
+        </button>
+      </div>
+
+      <div v-if="scenarioForm.intros.length" class="space-y-2">
+        <div
+          v-for="(intro, index) in scenarioForm.intros"
+          :key="index"
+          class="p-3 rounded-lg border bg-gray-100 flex justify-between items-center"
+        >
+          <span>{{ intro }}</span>
+          <button
+            class="btn btn-error"
+            @click="removeIntro(index)"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Scenario Art Section -->
@@ -105,6 +155,9 @@ const scenarioForm = ref<{
   title: string
   description: string
   locations: string
+  genres: string
+  inspirations: string
+  intros: string[]
   artPrompt: string
   imagePath: string | null
   artImageId: number | null
@@ -112,17 +165,44 @@ const scenarioForm = ref<{
   title: '',
   description: '',
   locations: '',
+  genres: '',
+  inspirations: '',
+  intros: [],
   artPrompt: '',
   imagePath: null,
   artImageId: null,
 })
+
+// Temporary intro fields
+const introTitle = ref('')
+const introPrompt = ref('')
 
 // Computed property for resolving the scenario's active image
 const resolvedActiveImage = computed(() => {
   return scenarioForm.value.imagePath || defaultPlaceholder
 })
 
-// Method: Generate art for the scenario
+// Add intro to the scenario
+function addIntro() {
+  if (!introTitle.value || !introPrompt.value) {
+    alert('Please provide both an intro title and prompt.')
+    return
+  }
+
+  const formattedIntro = `${introTitle.value.toUpperCase()}: ${introPrompt.value}`
+  scenarioForm.value.intros.push(formattedIntro)
+
+  // Reset fields
+  introTitle.value = ''
+  introPrompt.value = ''
+}
+
+// Remove intro by index
+function removeIntro(index: number) {
+  scenarioForm.value.intros.splice(index, 1)
+}
+
+// Generate art for the scenario
 async function generateArtImage() {
   if (!scenarioForm.value.artPrompt) {
     alert('Please provide an art prompt to generate art.')
@@ -150,7 +230,7 @@ async function generateArtImage() {
   }
 }
 
-// Method: Select a random image from the gallery
+// Select a random image from the gallery
 async function changeToRandomImage() {
   try {
     const randomImage = await galleryStore.changeToRandomImage()
@@ -168,7 +248,7 @@ function handleUploadedArtImage(id: number) {
   scenarioForm.value.artImageId = id
 }
 
-// Method: Save the scenario
+// Save the scenario
 async function saveScenario() {
   if (!scenarioForm.value.title) {
     alert('Please provide a title for the scenario.')
@@ -177,12 +257,19 @@ async function saveScenario() {
 
   isSaving.value = true
   try {
-    await scenarioStore.createScenario(scenarioForm.value)
+    const userId = userStore.userId() // Dynamically fetch the userId
+    await scenarioStore.createScenario({
+      ...scenarioForm.value,
+      userId, // Include the fetched userId
+    })
     alert('Scenario saved successfully!')
     scenarioForm.value = {
       title: '',
       description: '',
       locations: '',
+      genres: '',
+      inspirations: '',
+      intros: [],
       artPrompt: '',
       imagePath: null,
       artImageId: null,
@@ -193,4 +280,5 @@ async function saveScenario() {
     isSaving.value = false
   }
 }
+
 </script>

@@ -12,7 +12,7 @@ const displayStore = useDisplayStore()
 
 // Function to resolve component names based on mode and action
 function resolveComponentName(mode: string, action: string) {
-  const reversedActions = ['gallery']
+  const reversedActions = ['gallery', 'interact']
   const componentName = reversedActions.includes(action)
     ? `${mode}-${action}`
     : `${action}-${mode}`

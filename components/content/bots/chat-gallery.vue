@@ -88,21 +88,9 @@ const characterStore = useCharacterStore()
 const selectedFilter = ref('all')
 const filterValue = ref('all')
 const searchQuery = ref('')
-const isLoading = ref(true)
 const errorMessage = ref('')
 
-// Fetch Chats on Mount
-onMounted(async () => {
-  try {
-    isLoading.value = true
-    await chatStore.fetchChats()
-    isLoading.value = false
-  } catch (error) {
-    console.error('Failed to load chats:', error)
-    errorMessage.value = 'Failed to load chats. Please try again.'
-    isLoading.value = false
-  }
-})
+
 
 // Computed: Filter Options and Label
 const filterOptions = computed(() => {

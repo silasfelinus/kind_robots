@@ -23,10 +23,11 @@
       <div class="text-center mb-4">
         <img
           v-if="rewardStore.currentReward.artImageId"
-          :src="rewardStore.currentReward.imagePath"
+          :src="rewardStore.currentReward.imagePath || ''"
           alt="Reward Image"
           class="rounded-lg shadow-md w-48 h-48 object-cover mx-auto mb-4"
         />
+
         <Icon
           v-else
           :name="rewardStore.currentReward.icon || 'default-icon'"

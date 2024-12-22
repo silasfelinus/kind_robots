@@ -16,7 +16,7 @@ export const useScenarioStore = defineStore({
     isInitialized: false,
     loading: false,
     currentChoice: '',
-    storyHistory: [] as String[],
+    storyHistory: [] as string[],
   }),
 
   getters: {

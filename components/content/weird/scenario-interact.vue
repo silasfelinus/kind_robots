@@ -1,155 +1,133 @@
 <template>
-  <div class="flex flex-col items-center p-6 bg-base-200 rounded-2xl max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-8 text-center">Storyteller: Create Your Adventure</h1>
+  <div
+    class="flex flex-col items-center p-6 bg-base-200 rounded-2xl max-w-4xl mx-auto"
+  >
+    <h1 class="text-3xl font-bold mb-8 text-center">
+      Storyteller: Create Your Adventure
+    </h1>
 
     <!-- Section for Each Store -->
-    <section
-      v-for="(store, key) in stores"
-      :key="key"
-      class="w-full mb-6"
-      @click="store.selectedObject ? toggleDetails(key) : (activeSelector = key)"
-    >
-      <!-- Card Layout -->
-      <div
-        :class="[
-          'flex items-center justify-between p-4 border rounded-2xl bg-base-100 hover:shadow-lg transition-all cursor-pointer',
-          store.selectedObject ? 'border-primary' : 'border-gray-400',
-        ]"
-      >
-        <div class="flex items-center gap-4">
-          <!-- Image and Label -->
-          <img
-            :src="store.selectedObject?.image || '/images/chest1.webp'"
-            alt="Object image"
-            class="h-16 w-16 object-cover rounded-lg"
-          />
-          <div>
-            <p class="text-lg font-semibold">
-              {{ store.label }}:
-              <span class="text-primary">{{ store.selectedObject?.name || 'None Selected' }}</span>
-            </p>
-            <p v-if="!store.selectedObject" class="text-sm text-gray-500">
-              Click to select a {{ store.label.toLowerCase() }}.
-            </p>
-          </div>
-        </div>
-
-        <!-- Toggle Button for Details -->
-        <div v-if="store.selectedObject" class="text-gray-500 text-sm">
-          {{ detailsVisible[key] ? 'Hide' : 'Show' }} Details
-        </div>
+    <section v-for="(store, key) in stores" :key="key" class="w-full mb-6">
+      <div v-if="store.selectedObject?.value">
+        <!-- Preview Component for Selected Object -->
+        <component
+          :is="store.previewComponent"
+          :[key]="store.selectedObject.value"
+        />
+        <!-- Deselect Button -->
+        <button
+          class="mt-2 text-sm text-error underline hover:no-underline"
+          @click="store.deselect"
+        >
+          Deselect {{ store.label }}
+        </button>
       </div>
-
-      <!-- Debugging Details -->
-      <div
-        v-if="detailsVisible[key] && store.selectedObject"
-        class="mt-4 bg-base-200 border rounded-lg p-4 text-sm"
-      >
-        <h3 class="font-semibold mb-2">Debugging Info:</h3>
-        <pre class="whitespace-pre-wrap text-gray-600">
-          {{ JSON.stringify(store.selectedObject, null, 2) }}
-        </pre>
-      </div>
-
-      <!-- Specific Selector Components -->
-      <scenario-selector
-        v-if="activeSelector === 'scenario' && key === 'scenario'"
-        @close="activeSelector = null"
-      />
-      <character-selector
-        v-if="activeSelector === 'character' && key === 'character'"
-        @close="activeSelector = null"
-      />
-      <reward-selector
-        v-if="activeSelector === 'reward' && key === 'reward'"
-        @close="activeSelector = null"
-      />
-      <chat-selector
-        v-if="activeSelector === 'chat' && key === 'chat'"
-        @close="activeSelector = null"
-      />
+      <!-- Selector Component -->
+      <component :is="store.selectorComponent" v-else />
     </section>
 
-    <!-- Start Story Button -->
-    <button
-      class="w-full py-4 mt-6 text-lg rounded-full bg-success text-white hover:bg-success-focus"
-      :disabled="!canStartStory"
-      @click="startStory"
-    >
-      Start Story
-    </button>
+    <!-- Chat Preview -->
+    <chat-preview />
+
+    <!-- Start and Stop Story Buttons -->
+    <div class="flex gap-4 mt-6">
+      <button
+        class="w-full py-4 text-lg rounded-full bg-success text-white hover:bg-success-focus"
+        :disabled="storyRunning"
+        @click="startStory"
+      >
+        Start Story
+      </button>
+      <button
+        v-if="storyRunning"
+        class="w-full py-4 text-lg rounded-full bg-error text-white hover:bg-error-focus"
+        @click="stopStory"
+      >
+        Stop Story
+      </button>
+    </div>
+
+    <!-- Weird Chat Display -->
+    <div v-if="storyRunning" class="mt-6 w-full">
+      <weird-chat />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
-import { useScenarioStore } from '@/stores/scenarioStore';
-import { useCharacterStore } from '@/stores/characterStore';
-import { useRewardStore } from '@/stores/rewardStore';
-import { useChatStore } from '@/stores/chatStore';
+import { ref, computed } from 'vue'
+import { useScenarioStore } from '@/stores/scenarioStore'
+import { useCharacterStore } from '@/stores/characterStore'
+import { useRewardStore } from '@/stores/rewardStore'
+import { useChatStore } from '@/stores/chatStore'
 
 // Stores
-const scenarioStore = useScenarioStore();
-const characterStore = useCharacterStore();
-const rewardStore = useRewardStore();
-const chatStore = useChatStore();
+const scenarioStore = useScenarioStore()
+const characterStore = useCharacterStore()
+const rewardStore = useRewardStore()
+const chatStore = useChatStore()
+
+const storyRunning = ref(false)
 
 // Store Mapping
 const stores = {
   scenario: {
     label: 'Scenario',
     selectedObject: computed(() => scenarioStore.selectedScenario),
+    selectorComponent: 'scenario-selector',
+    previewComponent: 'ScenarioPreview',
+    deselect: () => (scenarioStore.selectedScenario = null),
   },
   character: {
     label: 'Character',
     selectedObject: computed(() => characterStore.selectedCharacter),
+    selectorComponent: 'character-selector',
+    previewComponent: 'CharacterPreview',
+    deselect: () => (characterStore.selectedCharacter = null),
   },
   reward: {
     label: 'Reward',
     selectedObject: computed(() => rewardStore.selectedReward),
+    selectorComponent: 'reward-selector',
+    previewComponent: 'RewardPreview',
+    deselect: () => (rewardStore.selectedReward = null),
   },
-  chat: {
-    label: 'Chat',
-    selectedObject: computed(() => chatStore.selectedChat),
-  },
-};
+}
 
-// Debugging Details Toggle
-const detailsVisible = ref({
-  scenario: false,
-  character: false,
-  reward: false,
-  chat: false,
-});
-
-const toggleDetails = (key: string) => {
-  detailsVisible.value[key] = !detailsVisible.value[key];
-};
-
-// Active Selector Management
-const activeSelector = ref<string | null>(null);
-
-// Validation for Starting the Story
-const canStartStory = computed(() =>
-  Object.values(stores).every(store => store.selectedObject.value)
-);
-
-// Start Story Handler
+// Start Story
 const startStory = async () => {
-  try {
-    const response = await chatStore.createChat({
-      scenario: scenarioStore.selectedScenario,
-      character: characterStore.selectedCharacter,
-      reward: rewardStore.selectedReward,
-    });
+  const scenario = scenarioStore.selectedScenario
+  const character = characterStore.selectedCharacter
+  const reward = rewardStore.selectedReward
 
-    if (response.success) {
-      chatStore.revealWeirdChat();
+  if (!scenario || !character || !reward) {
+    console.error('Cannot start story: all elements must be selected.')
+    return
+  }
+
+  try {
+    const chat = await chatStore.addChat({
+      content: `In this story, we begin with the scenario: "${scenario.description}". The character, "${character.name} the ${character.honorific || 'Unremarkable'}", faces a choice: "${scenarioStore.currentChoice || 'None'}". The reward at stake is "${reward.text}" with a power of ${reward.power}. Please generate a branching narrative with multiple choice options.`,
+      userId: character.userId,
+      type: 'Weirdlandia',
+      characterId: character.id,
+      recipientId: null,
+    })
+
+    if (chat) {
+      chatStore.selectedChat = chat
+      storyRunning.value = true
     } else {
-      console.error(response.message);
+      console.error('Failed to create chat.')
     }
   } catch (error) {
-    console.error('Error starting the story:', error);
+    console.error('Error starting the story:', error)
   }
-};
+}
+
+// Stop Story
+const stopStory = () => {
+  chatStore.selectedChat = null
+  storyRunning.value = false
+}
 </script>

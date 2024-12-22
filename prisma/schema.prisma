@@ -448,6 +448,7 @@ model Reward {
   Reactions  Reaction[]
   Characters Character[]
   imagePath  String?
+  imagePrompt String?
 
   @@index([userId], map: "Reward_userId_fkey")
 }

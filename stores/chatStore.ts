@@ -11,7 +11,7 @@ export const useChatStore = defineStore({
     chats: [] as Chat[],
     isInitialized: false,
     unreadMessages: [] as Chat[],
-    selectedChat: null as Chat
+    selectedChat: null as Chat | null,
   }),
 
   getters: {

@@ -64,10 +64,7 @@
           class="p-3 rounded-lg border bg-gray-100 flex justify-between items-center"
         >
           <span>{{ intro }}</span>
-          <button
-            class="btn btn-error"
-            @click="removeIntro(index)"
-          >
+          <button class="btn btn-error" @click="removeIntro(index)">
             Remove
           </button>
         </div>
@@ -141,15 +138,19 @@ import { ref, computed } from 'vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useGalleryStore } from '@/stores/galleryStore'
 import { useArtStore } from '@/stores/artStore'
+import { useUserStore } from '@/stores/userStore'
 
 const scenarioStore = useScenarioStore()
 const galleryStore = useGalleryStore()
 const artStore = useArtStore()
+const userStore = useUserStore()
 
 const isGeneratingArt = ref(false)
 const isSaving = ref(false)
 const keepArtPrompt = ref(false)
 const defaultPlaceholder = '/images/scenarios/space.webp'
+
+const userId = computed(() => userStore.userId)
 
 const scenarioForm = ref<{
   title: string
@@ -248,7 +249,6 @@ function handleUploadedArtImage(id: number) {
   scenarioForm.value.artImageId = id
 }
 
-// Save the scenario
 async function saveScenario() {
   if (!scenarioForm.value.title) {
     alert('Please provide a title for the scenario.')
@@ -257,10 +257,10 @@ async function saveScenario() {
 
   isSaving.value = true
   try {
-    const userId = userStore.userId() // Dynamically fetch the userId
     await scenarioStore.createScenario({
       ...scenarioForm.value,
-      userId, // Include the fetched userId
+      intros: scenarioForm.value.intros.join('\n'), // Convert array to string
+      userId: userId.value || 10,
     })
     alert('Scenario saved successfully!')
     scenarioForm.value = {
@@ -280,5 +280,4 @@ async function saveScenario() {
     isSaving.value = false
   }
 }
-
 </script>

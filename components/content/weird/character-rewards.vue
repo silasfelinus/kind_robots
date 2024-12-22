@@ -4,7 +4,7 @@
     <div v-if="rewardStore.error" class="text-red-500">
       🚨 {{ rewardStore.error }}
     </div>
-<h2>Choose a starting reward:</h2>
+    <h2>Choose a starting reward:</h2>
 
     <!-- Rewards Horizontal Scroll -->
     <div class="flex overflow-x-auto space-x-4 items-center scrollbar-hide">
@@ -35,10 +35,10 @@
     </button>
 
     <!-- Selected Reward Details -->
-    <div v-if="rewardStore.currentReward" class="mt-4">
-      <h1 class="text-2xl">{{ rewardStore.currentReward.text }}</h1>
-      <p>🔥 Power: {{ rewardStore.currentReward.power }}</p>
-      <p>🌟 Rarity: {{ rewardStore.currentReward.rarity }}</p>
+    <div v-if="rewardStore.selectedReward" class="mt-4">
+      <h1 class="text-2xl">{{ rewardStore.selectedReward.text }}</h1>
+      <p>🔥 Power: {{ rewardStore.selectedReward.power }}</p>
+      <p>🌟 Rarity: {{ rewardStore.selectedReward.rarity }}</p>
       <button class="bg-primary p-2 rounded mt-2" @click="endReward">
         Back to Gallery
       </button>
@@ -67,7 +67,7 @@ const refreshRewards = () => {
 
 // Clear current reward selection
 const endReward = () => {
-  rewardStore.clearCurrentReward()
+  rewardStore.clearselectedReward()
 }
 
 // Select a reward

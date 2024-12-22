@@ -12,6 +12,7 @@
         <strong>{{ entry.sender }}:</strong> {{ entry.content }}
       </li>
     </ul>
+<chat-button />
   </div>
 </template>
 

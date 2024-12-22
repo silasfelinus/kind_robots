@@ -28,7 +28,7 @@
 
         <!-- Reward Info -->
         <div class="flex-grow">
-          <h2 class="text-xl font-bold text-gray-800">Reward</h2>
+          <h2 class="text-xl font-bold text-gray-800">Magic Item</h2>
           <p class="mt-2 text-sm">
             <span class="font-bold">Text:</span>
             {{ reward.value.text || 'No text' }}

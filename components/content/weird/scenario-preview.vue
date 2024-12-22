@@ -41,7 +41,6 @@
         </p>
       </div>
 
-
       <!-- Debugging Details Toggle -->
       <button
         class="mt-4 text-sm text-primary underline hover:no-underline"
@@ -127,9 +126,18 @@ const loadArtImage = async () => {
 // Deselect Scenario
 const deselectScenario = () => {
   scenarioStore.selectedScenario = null
-  scenarioStore.currentChoice = ''
+  scenarioStore.currentChoice = '' // Reset choice on deselect
 }
 
 // Watch Scenario for Changes
-watch(scenario, loadArtImage, { immediate: true })
+watch(
+  scenario,
+  (newVal, oldVal) => {
+    if (!newVal?.value) {
+      scenarioStore.currentChoice = '' // Reset choice when scenario becomes null
+    }
+    loadArtImage()
+  },
+  { immediate: true }
+)
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center px-1 md:px-2 lg:px-4 py-2 bg-base-100 z-30 shadow-md relative">
+  <div class="flex items-center px-1 md:px-2 lg:px-4 py-2 bg-base-100 z-30 shadow-md rounded relative">
     <big-toggle />
 
     <!-- Modes Tabs (First Group) -->

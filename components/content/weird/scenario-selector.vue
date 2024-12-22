@@ -15,7 +15,16 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from 'vue';
 import { useScenarioStore } from '@/stores/scenarioStore';
 
 const scenarioStore = useScenarioStore();
+
+// Watch for scenario selection changes
+watch(
+  () => scenarioStore.selectedScenario,
+  () => {
+    scenarioStore.currentChoice = ''; // Reset currentChoice when a new scenario is selected
+  },
+);
 </script>

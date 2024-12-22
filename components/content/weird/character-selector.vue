@@ -5,7 +5,7 @@
       :key="character.id"
       :value="character"
     >
-      {{ character.name }}
+      {{ character.name }} the {{character.honorific}}
     </option>
   </select>
 </template>

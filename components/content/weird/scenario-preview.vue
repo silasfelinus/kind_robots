@@ -1,5 +1,9 @@
 <template>
   <div class="w-full mb-6">
+    <!-- Scenario Selector -->
+    <scenario-selector class="mb-4" />
+
+    <!-- Scenario Details -->
     <div
       v-if="scenario?.value"
       class="p-4 border rounded-2xl bg-base-100 hover:shadow-lg transition-all"
@@ -56,16 +60,18 @@
       >
         <h3 class="font-semibold mb-2">Debugging Info:</h3>
         <pre class="whitespace-pre-wrap text-gray-600">
-            {{ JSON.stringify(scenario.value, null, 2) }}
-          </pre
-        >
+          {{ JSON.stringify(scenario.value, null, 2) }}
+        </pre>
       </div>
     </div>
 
-    <!-- Scenario Selector -->
-    <scenario-selector v-else />
+    <!-- Fallback Message -->
+    <div v-else class="text-sm text-gray-500 p-4 bg-base-100 border rounded-2xl">
+      No scenario selected. Please select a scenario above.
+    </div>
   </div>
 </template>
+
 
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue'

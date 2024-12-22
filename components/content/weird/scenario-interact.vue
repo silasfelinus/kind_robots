@@ -49,7 +49,7 @@
 
     <!-- Weird Chat Display -->
     <div v-if="storyRunning" class="mt-6 w-full">
-      <weird-chat />
+      <weird-adventure />
     </div>
   </div>
 </template>
@@ -60,12 +60,14 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useChatStore } from '@/stores/chatStore'
+import { useWeirdStore } from '@/stores/weirdStore'
 
 // Stores
 const scenarioStore = useScenarioStore()
 const characterStore = useCharacterStore()
 const rewardStore = useRewardStore()
 const chatStore = useChatStore()
+const weirdStore = useWeirdStore()
 
 const storyRunning = ref(false)
 
@@ -106,8 +108,10 @@ const startStory = async () => {
   }
 
   try {
+    const content = `In this story, we begin with the scenario: "${scenario.description}". The character, "${character.name} the ${character.honorific || 'Unremarkable'}", faces a choice: "${scenarioStore.currentChoice || 'None'}". The reward at stake is "${reward.text}" with a power of ${reward.power}. Please generate a branching narrative with multiple choice options.`
+
     const chat = await chatStore.addChat({
-      content: `In this story, we begin with the scenario: "${scenario.description}". The character, "${character.name} the ${character.honorific || 'Unremarkable'}", faces a choice: "${scenarioStore.currentChoice || 'None'}". The reward at stake is "${reward.text}" with a power of ${reward.power}. Please generate a branching narrative with multiple choice options.`,
+      content,
       userId: character.userId,
       type: 'Weirdlandia',
       characterId: character.id,
@@ -117,6 +121,9 @@ const startStory = async () => {
     if (chat) {
       chatStore.selectedChat = chat
       storyRunning.value = true
+
+      // Update the Weird Store History
+      weirdStore.history.push(chat)
     } else {
       console.error('Failed to create chat.')
     }
@@ -127,7 +134,12 @@ const startStory = async () => {
 
 // Stop Story
 const stopStory = () => {
-  chatStore.selectedChat = null
+  // Update the Weird Store History
+  if (chatStore.selectedChat) {
+    const currentResponse = chatStore.selectedChat.botResponse || ''
+    chatStore.selectedChat.botResponse = `${currentResponse} The adventure has come to an end.`
+    chatStore.selectedChat = null
+  }
   storyRunning.value = false
 }
 </script>

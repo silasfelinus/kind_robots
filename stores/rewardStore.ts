@@ -4,7 +4,7 @@ import { performFetch } from './utils'
 
 interface RewardState {
   rewards: Reward[]
-  currentReward: Reward | null
+  selectedReward: Reward | null
   error: string | null
   startingRewardId: number | null
   isLoading: boolean
@@ -16,7 +16,7 @@ export const useRewardStore = defineStore({
 
   state: (): RewardState => ({
     rewards: [],
-    currentReward: null,
+    selectedReward: null,
     error: null,
     startingRewardId: null,
     isLoading: false,
@@ -24,20 +24,20 @@ export const useRewardStore = defineStore({
   }),
 
   getters: {
-    currentRewardIcon(): string | null {
-      return this.currentReward?.icon || null
+    selectedRewardIcon(): string | null {
+      return this.selectedReward?.icon || null
     },
-    currentRewardText(): string | null {
-      return this.currentReward?.text || null
+    selectedRewardText(): string | null {
+      return this.selectedReward?.text || null
     },
-    currentRewardPower(): string | null {
-      return this.currentReward?.power || null
+    selectedRewardPower(): string | null {
+      return this.selectedReward?.power || null
     },
-    currentRewardCollection(): string | null {
-      return this.currentReward?.collection || null
+    selectedRewardCollection(): string | null {
+      return this.selectedReward?.collection || null
     },
-    currentRewardRarity(): number | null {
-      return this.currentReward?.rarity || null
+    selectedRewardRarity(): number | null {
+      return this.selectedReward?.rarity || null
     },
   },
 
@@ -197,14 +197,14 @@ export const useRewardStore = defineStore({
       }
     },
 
-    clearCurrentReward() {
-      this.currentReward = null
+    clearselectedReward() {
+      this.selectedReward = null
     },
 
     setRewardById(id: number) {
       const selectedReward = this.rewards.find((reward) => reward.id === id)
       if (selectedReward) {
-        this.currentReward = selectedReward
+        this.selectedReward = selectedReward
       } else {
         this.error = `Reward with ID ${id} not found.`
         console.warn(this.error)

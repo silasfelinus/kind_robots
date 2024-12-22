@@ -151,14 +151,17 @@ const artImage = ref<ArtImage | null>(null)
 const isSelected = computed(
   () => scenarioStore.selectedScenario?.id === scenario.id,
 )
+
 const canDelete = computed(
   () => userStore.isAdmin || userStore.userId === scenario.userId,
 )
+
 const computedScenarioImage = computed(() =>
   artImage.value
     ? `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
     : scenario.imagePath || '/images/scenarios/space.webp',
 )
+
 const introChoices = computed(() => {
   try {
     return JSON.parse(scenario.intros || '[]')

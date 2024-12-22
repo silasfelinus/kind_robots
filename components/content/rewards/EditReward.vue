@@ -6,7 +6,7 @@
       <div class="flex justify-center mb-6">
         <Icon
           :name="editedReward.icon || 'default-icon'"
-          class="text-[12rem] mb-4" 
+          class="text-[12rem] mb-4"
         />
       </div>
 
@@ -35,19 +35,18 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRewardStore } from './../../../stores/rewardStore'
 
 const rewardStore = useRewardStore()
 
-// Initialize editedReward as a ref based on currentReward
-const editedReward = ref({ ...rewardStore.currentReward })
+// Initialize editedReward as a ref based on selectedReward
+const editedReward = ref({ ...rewardStore.selectedReward })
 
-// Watch currentReward for changes and update editedReward
+// Watch selectedReward for changes and update editedReward
 watch(
-  () => rewardStore.currentReward,
+  () => rewardStore.selectedReward,
   (newReward) => {
     editedReward.value = { ...newReward }
   },

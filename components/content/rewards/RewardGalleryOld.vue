@@ -13,23 +13,23 @@
       </div>
 
       <!-- Detailed Reward View -->
-      <div v-if="rewardStore.currentReward" :class="{ pixelate: pixelate }">
+      <div v-if="rewardStore.selectedReward" :class="{ pixelate: pixelate }">
         <Icon
-          v-if="rewardStore.currentReward.icon"
-          :name="rewardStore.currentReward.icon"
+          v-if="rewardStore.selectedReward.icon"
+          :name="rewardStore.selectedReward.icon"
           class="text-12xl mb-4 transition-all duration-500 ease-in-out"
         />
         <h1 class="text-4xl mb-2">
-          {{ rewardStore.currentReward.text }}
+          {{ rewardStore.selectedReward.text }}
         </h1>
         <p class="text-xl mb-1">
-          🔥 Power: {{ rewardStore.currentReward.power }}
+          🔥 Power: {{ rewardStore.selectedReward.power }}
         </p>
         <p class="text-xl mb-1">
-          📚 Collection: {{ rewardStore.currentReward.collection }}
+          📚 Collection: {{ rewardStore.selectedReward.collection }}
         </p>
         <p class="text-xl mb-4">
-          🌟 Rarity: {{ rewardStore.currentReward.rarity }}
+          🌟 Rarity: {{ rewardStore.selectedReward.rarity }}
         </p>
         <div class="flex gap-4">
           <button class="bg-primary p-2 rounded-lg" @click="endReward">
@@ -47,7 +47,7 @@
       <!-- Edit Reward Form -->
       <div v-else-if="showEditReward" class="mt-4">
         <edit-reward
-          :reward="rewardStore.currentReward"
+          :reward="rewardStore.selectedReward"
           @updated="showEditReward = false"
         />
       </div>
@@ -95,7 +95,7 @@ onMounted(() => {
 })
 
 const endReward = () => {
-  rewardStore.clearCurrentReward()
+  rewardStore.clearselectedReward()
 }
 
 const selectReward = (reward: Reward) => {

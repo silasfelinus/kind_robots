@@ -17,33 +17,33 @@
 
     <!-- Detailed Reward View -->
     <div
-      v-if="rewardStore.currentReward"
+      v-if="rewardStore.selectedReward"
       class="p-6 bg-white rounded-lg shadow-lg"
     >
       <div class="text-center mb-4">
         <img
-          v-if="rewardStore.currentReward.artImageId"
-          :src="rewardStore.currentReward.imagePath || ''"
+          v-if="rewardStore.selectedReward.artImageId"
+          :src="rewardStore.selectedReward.imagePath || ''"
           alt="Reward Image"
           class="rounded-lg shadow-md w-48 h-48 object-cover mx-auto mb-4"
         />
 
         <Icon
           v-else
-          :name="rewardStore.currentReward.icon || 'default-icon'"
+          :name="rewardStore.selectedReward.icon || 'default-icon'"
           class="text-8xl text-primary mb-4"
         />
         <h1 class="text-3xl font-bold mb-2">
-          {{ rewardStore.currentReward.text }}
+          {{ rewardStore.selectedReward.text }}
         </h1>
         <p class="text-lg text-gray-600 mb-2">
-          🔥 Power: {{ rewardStore.currentReward.power }}
+          🔥 Power: {{ rewardStore.selectedReward.power }}
         </p>
         <p class="text-lg text-gray-600 mb-2">
-          📚 Collection: {{ rewardStore.currentReward.collection }}
+          📚 Collection: {{ rewardStore.selectedReward.collection }}
         </p>
         <p class="text-lg text-gray-600">
-          🌟 Rarity: {{ rewardStore.currentReward.rarity }}
+          🌟 Rarity: {{ rewardStore.selectedReward.rarity }}
         </p>
       </div>
       <div class="flex justify-center gap-4 mt-4">
@@ -93,7 +93,7 @@ const showEditReward = ref(false)
 
 // Methods
 const endReward = () => {
-  rewardStore.clearCurrentReward()
+  rewardStore.clearselectedReward()
 }
 
 const selectReward = (reward: Reward) => {

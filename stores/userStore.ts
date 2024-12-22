@@ -91,7 +91,7 @@ export const useUserStore = defineStore({
         this.users = [] // Reset to empty if there's an error
       }
     },
-   getUsernameByUserId(userId: number | null): string | null {
+    getUserNameByUserId(userId: number | null): string | null {
       if (userId === null) {
         return null
       }

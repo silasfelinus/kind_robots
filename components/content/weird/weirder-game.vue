@@ -115,11 +115,11 @@
 
         <!-- Use Special Item -->
         <button
-          v-if="rewardStore.currentReward"
+          v-if="rewardStore.selectedReward"
           class="btn btn-lg btn-accent"
           @click="useSpecialItem"
         >
-          Use Special Item: {{ rewardStore.currentReward.text }}
+          Use Special Item: {{ rewardStore.selectedReward.text }}
         </button>
 
         <!-- Custom Input -->
@@ -224,7 +224,7 @@ const submitChoice = async (choice: string) => {
   const payload = {
     username: username.value,
     text: choice,
-    reward: rewardStore.currentReward,
+    reward: rewardStore.selectedReward,
     rounds: rounds.value,
     roundsCompleted: roundsCompleted.value + 1,
   }
@@ -246,8 +246,8 @@ const submitChoice = async (choice: string) => {
 
 // Use Special Item
 const useSpecialItem = () => {
-  if (rewardStore.currentReward) {
-    submitChoice(`Use ${rewardStore.currentReward.text}`)
+  if (rewardStore.selectedReward) {
+    submitChoice(`Use ${rewardStore.selectedReward.text}`)
   }
 }
 </script>

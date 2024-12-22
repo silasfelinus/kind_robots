@@ -153,11 +153,11 @@ async function submitUserResponse() {
   try {
     await chatStore.addChat({
       content: userResponse.value.trim(),
-      userId: chatStore.selectedChat?.userId || null,
+      userId: chatStore.selectedChat?.userId || 10,
       botId: null,
       characterId: null,
       recipientId: null,
-      type: 'UserResponse',
+      type: 'Weirdlandia',
     })
 
     // Clear input field

@@ -8,6 +8,15 @@
 
     <!-- Section for Each Store -->
     <section v-for="(store, key) in stores" :key="key" class="w-full mb-6">
+      <!-- Stylized Label -->
+      <h2
+        class="text-xl font-semibold text-primary mb-4 border-b pb-2"
+        :class="{ 'text-gray-400': !store.selectedObject?.value }"
+      >
+        {{ store.label }}
+      </h2>
+
+      <!-- Content -->
       <div v-if="store.selectedObject?.value">
         <!-- Preview Component for Selected Object -->
         <component

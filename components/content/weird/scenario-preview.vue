@@ -41,13 +41,6 @@
         </p>
       </div>
 
-      <!-- Current Choice -->
-      <div v-if="scenarioStore.currentChoice" class="mt-4">
-        <p class="text-sm">
-          <span class="font-bold">Current Choice:</span>
-          {{ scenarioStore.currentChoice }}
-        </p>
-      </div>
 
       <!-- Debugging Details Toggle -->
       <button
@@ -134,6 +127,7 @@ const loadArtImage = async () => {
 // Deselect Scenario
 const deselectScenario = () => {
   scenarioStore.selectedScenario = null
+  scenarioStore.currentChoice = ''
 }
 
 // Watch Scenario for Changes

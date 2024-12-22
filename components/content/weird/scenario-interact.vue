@@ -155,7 +155,7 @@ const stopStory = () => {
     const currentResponse = chatStore.selectedChat.botResponse || ''
     chatStore.selectedChat.botResponse = `${currentResponse} The adventure has come to an end.`
     chatStore.selectedChat = null
-    weirdStore.history = null
+    weirdStore.history = []
   }
   storyRunning.value = false
 }

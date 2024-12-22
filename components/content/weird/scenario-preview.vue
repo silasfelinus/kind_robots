@@ -66,12 +66,14 @@
     </div>
 
     <!-- Fallback Message -->
-    <div v-else class="text-sm text-gray-500 p-4 bg-base-100 border rounded-2xl">
+    <div
+      v-else
+      class="text-sm text-gray-500 p-4 bg-base-100 border rounded-2xl"
+    >
       No scenario selected. Please select a scenario above.
     </div>
   </div>
 </template>
-
 
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue'
@@ -138,12 +140,12 @@ const deselectScenario = () => {
 // Watch Scenario for Changes
 watch(
   scenario,
-  (newVal, oldVal) => {
+  (newVal) => {
     if (!newVal?.value) {
       scenarioStore.currentChoice = '' // Reset choice when scenario becomes null
     }
     loadArtImage()
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>

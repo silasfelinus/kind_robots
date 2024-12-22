@@ -134,16 +134,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useGalleryStore } from '@/stores/galleryStore'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
+import { useDisplayStore } from '@/stores/displayStore'
 
 const scenarioStore = useScenarioStore()
 const galleryStore = useGalleryStore()
 const artStore = useArtStore()
 const userStore = useUserStore()
+const displayStore = useDisplayStore()
 
 const isGeneratingArt = ref(false)
 const isSaving = ref(false)
@@ -173,6 +175,18 @@ const scenarioForm = ref<{
   imagePath: null,
   artImageId: null,
 })
+
+const defaultScenarioForm = {
+  title: '',
+  description: '',
+  locations: '',
+  genres: '',
+  inspirations: '',
+  intros: [] as string[],
+  artPrompt: '',
+  imagePath: null as string | null,
+  artImageId: null as number | null,
+}
 
 // Temporary intro fields
 const introTitle = ref('')
@@ -280,4 +294,47 @@ async function saveScenario() {
     isSaving.value = false
   }
 }
+
+onMounted(() => {
+  if (
+    displayStore.displayAction === 'add' ||
+    displayStore.displayAction === 'edit'
+  ) {
+    scenarioForm.value = {
+      ...defaultScenarioForm,
+      title: scenarioStore.scenarioForm.title || '',
+      description: scenarioStore.scenarioForm.description || '',
+      locations: scenarioStore.scenarioForm.locations || '',
+      genres: scenarioStore.scenarioForm.genres || '',
+      inspirations: scenarioStore.scenarioForm.inspirations || '',
+      intros: scenarioStore.scenarioForm.intros
+        ? scenarioStore.scenarioForm.intros.split('\n')
+        : [],
+      artPrompt: scenarioStore.scenarioForm.artPrompt || '',
+      imagePath: scenarioStore.scenarioForm.imagePath || null,
+      artImageId: scenarioStore.scenarioForm.artImageId || null,
+    }
+  }
+})
+
+watch(
+  () => scenarioStore.scenarioForm,
+  (newForm) => {
+    if (newForm) {
+      scenarioForm.value = {
+        ...defaultScenarioForm,
+        title: newForm.title || '',
+        description: newForm.description || '',
+        locations: newForm.locations || '',
+        genres: newForm.genres || '',
+        inspirations: newForm.inspirations || '',
+        intros: newForm.intros ? newForm.intros.split('\n') : [],
+        artPrompt: newForm.artPrompt || '',
+        imagePath: newForm.imagePath || null,
+        artImageId: newForm.artImageId || null,
+      }
+    }
+  },
+  { immediate: true },
+)
 </script>

@@ -137,15 +137,6 @@ const deselectScenario = () => {
   scenarioStore.currentChoice = '' // Reset choice on deselect
 }
 
-// Watch Scenario for Changes
-watch(
-  scenario,
-  (newVal) => {
-    if (!newVal?.value) {
-      scenarioStore.currentChoice = '' // Reset choice when scenario becomes null
-    }
-    loadArtImage()
-  },
-  { immediate: true },
-)
+
+
 </script>

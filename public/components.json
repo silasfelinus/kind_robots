@@ -295,7 +295,9 @@
       "ShowReward",
       "add-reward",
       "reward-card",
-      "reward-gallery"
+      "reward-gallery",
+      "reward-preview",
+      "reward-selector"
     ]
   },
   {
@@ -348,11 +350,13 @@
       "character-gallery",
       "character-goals",
       "character-options",
+      "character-preview",
       "character-rewards",
       "character-selector",
       "character-stats",
       "character-title",
       "character-uploader",
+      "chat-preview",
       "checkbox-toggle",
       "click-leaderboard",
       "edit-scenario",
@@ -372,6 +376,7 @@
       "scenario-gallery",
       "scenario-interact",
       "scenario-manager",
+      "scenario-preview",
       "scenario-selector",
       "scenario-uploader",
       "selected-view",

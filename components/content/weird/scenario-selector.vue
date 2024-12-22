@@ -1,7 +1,8 @@
 <template>
   <select
-    v-model="scenarioStore.selectedScenario"
+    v-model="selectedScenario"
     class="bg-base-200 border border-gray-400 rounded-lg p-2 w-full"
+    @change="handleScenarioChange"
   >
     <option disabled value="">Select a Scenario</option>
     <option
@@ -15,16 +16,20 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue';
+import { computed } from 'vue';
 import { useScenarioStore } from '@/stores/scenarioStore';
 
+// Store
 const scenarioStore = useScenarioStore();
 
-// Watch for scenario selection changes
-watch(
-  () => scenarioStore.selectedScenario,
-  () => {
-    scenarioStore.currentChoice = ''; // Reset currentChoice when a new scenario is selected
-  },
-);
+// Computed
+const selectedScenario = computed({
+  get: () => scenarioStore.selectedScenario,
+  set: (value) => (scenarioStore.selectedScenario = value),
+});
+
+// Method to handle scenario selection change
+const handleScenarioChange = () => {
+  scenarioStore.currentChoice = ''; // Reset currentChoice on scenario change
+};
 </script>

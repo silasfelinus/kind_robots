@@ -177,17 +177,23 @@ const deleteScenario = () => {
   displayStore.displayAction = 'gallery'
 }
 const editScenario = () => {
-  scenarioStore.scenarioForm = { ...scenario }
+  scenarioStore.scenarioForm = {
+    ...scenario,
+    intros: scenario.intros ? scenario.intros.split('\n') : [], // Split intros into an array
+  }
   displayStore.displayAction = 'edit'
 }
+
 const cloneScenario = () => {
   scenarioStore.scenarioForm = {
     ...scenario,
-    id: undefined,
+    id: undefined, // Remove ID for new scenario
     title: `Copy of ${scenario.title || 'Untitled Scenario'}`,
+    intros: scenario.intros ? scenario.intros.split('\n') : [], // Split intros into an array
   }
   displayStore.displayAction = 'add'
 }
+
 const setCurrentChoice = (choice: string) => {
   scenarioStore.currentChoice = choice
   displayStore.displayAction = 'interact'

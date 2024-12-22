@@ -1,6 +1,8 @@
 <template>
   <div class="w-full mb-6">
-    <div class="p-4 border rounded-2xl bg-base-100 hover:shadow-lg transition-all">
+    <div
+      class="p-4 border rounded-2xl bg-base-100 hover:shadow-lg transition-all"
+    >
       <h2 class="text-lg font-bold text-gray-800 mb-2">Select a Choice</h2>
 
       <!-- List of Choices -->
@@ -39,7 +41,16 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 const scenarioStore = useScenarioStore()
 
 // Choices
-const choices = computed(() => scenarioStore.selectedScenario?.choices || [])
+const choices = computed(() => {
+  const intros = scenarioStore.selectedScenario?.intros || '[]' // Default to empty array string
+  try {
+    return JSON.parse(intros) // Parse stringified JSON
+  } catch (error) {
+    console.error('Failed to parse choices JSON:', error)
+    return []
+  }
+})
+
 const currentChoice = computed(() => scenarioStore.currentChoice)
 
 // Methods
@@ -48,6 +59,6 @@ const selectChoice = (choice: string) => {
 }
 
 const clearChoice = () => {
-  scenarioStore.currentChoice = null
+  scenarioStore.currentChoice = ''
 }
 </script>

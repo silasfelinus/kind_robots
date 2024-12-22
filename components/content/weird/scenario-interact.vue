@@ -104,7 +104,7 @@ const stores = {
     deselect: () => (characterStore.selectedCharacter = null),
   },
   reward: {
-    label: 'Reward',
+    label: 'Special Item',
     selectedObject: computed(() => rewardStore.selectedReward),
     selectorComponent: 'reward-selector',
     previewComponent: 'reward-preview',
@@ -155,6 +155,7 @@ const stopStory = () => {
     const currentResponse = chatStore.selectedChat.botResponse || ''
     chatStore.selectedChat.botResponse = `${currentResponse} The adventure has come to an end.`
     chatStore.selectedChat = null
+    weirdStore.history = null
   }
   storyRunning.value = false
 }

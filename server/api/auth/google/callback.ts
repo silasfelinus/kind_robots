@@ -1,41 +1,65 @@
-import { defineEventHandler, getQuery } from 'h3';
-import prisma from '../../utils/prisma'; // Adjust the path to your Prisma utility
+import { defineEventHandler, getQuery } from 'h3'
+import prisma from '../../utils/prisma' // Adjust the path to your Prisma utility
+
+interface GoogleTokenResponse {
+  access_token: string
+  expires_in: number
+  refresh_token?: string
+  scope: string
+  token_type: string
+  id_token?: string
+}
+
+interface GoogleUserInfoResponse {
+  sub: string // Google ID
+  email: string
+  email_verified: boolean
+  name: string
+  picture: string
+  given_name: string
+  family_name: string
+  locale: string
+}
 
 export default defineEventHandler(async (event) => {
-  const { code } = getQuery(event); // Extract the `code` parameter from the query string
+  const { code } = getQuery(event) // Extract the `code` parameter from the query string
 
-  const clientId = process.env.GOOGLE_ID;
-  const clientSecret = process.env.GOOGLE_SECRET;
-  const redirectUri = 'https://kind-robots.vercel.app/api/auth/google/callback'; // Update to match your deployment URL
+  const clientId = process.env.GOOGLE_ID
+  const clientSecret = process.env.GOOGLE_SECRET
+  const redirectUri = 'https://kind-robots.vercel.app/api/auth/google/callback' // Update to match your deployment URL
 
   try {
-    // Exchange the code for access tokens
-    const tokenResponse = await $fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      body: {
-        code,
-        client_id: clientId,
-        client_secret: clientSecret,
-        redirect_uri: redirectUri,
-        grant_type: 'authorization_code',
+    const tokenResponse = await $fetch<GoogleTokenResponse>(
+      'https://oauth2.googleapis.com/token',
+      {
+        method: 'POST',
+        body: {
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code',
+        },
       },
-    });
+    )
 
-    const { access_token } = tokenResponse;
+    const { access_token } = tokenResponse // Now TypeScript knows access_token exists
 
-    // Fetch user info from Google using the access token
-    const userInfo = await $fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: { Authorization: `Bearer ${access_token}` },
-    });
+    const userInfo = await $fetch<GoogleUserInfoResponse>(
+      'https://www.googleapis.com/oauth2/v3/userinfo',
+      {
+        headers: { Authorization: `Bearer ${access_token}` },
+      },
+    )
 
-    const { sub: googleId, email, name, picture } = userInfo;
+    const { sub: googleId, email, name, picture } = userInfo // No more errors
 
     if (!email) {
-      throw new Error('Google account does not provide an email address');
+      throw new Error('Google account does not provide an email address')
     }
 
     // Check if a user with the given email exists
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findUnique({ where: { email } })
 
     if (existingUser) {
       // If the user exists, link the Google account if not already linked
@@ -43,14 +67,14 @@ export default defineEventHandler(async (event) => {
         await prisma.user.update({
           where: { email },
           data: { googleId, googleEmail: email },
-        });
+        })
       }
 
       return {
         success: true,
         message: 'Google account linked successfully',
         user: existingUser,
-      };
+      }
     }
 
     // If no user exists, create a new one
@@ -62,18 +86,18 @@ export default defineEventHandler(async (event) => {
         googleEmail: email,
         avatarImage: picture,
       },
-    });
+    })
 
     return {
       success: true,
       message: 'Account created successfully',
       user: newUser,
-    };
+    }
   } catch (error) {
-    console.error('Google Authentication Error:', error);
+    console.error('Google Authentication Error:', error)
     return {
       success: false,
       message: 'Authentication failed',
-    };
+    }
   }
-});
+})

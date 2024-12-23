@@ -1,5 +1,5 @@
 import { defineEventHandler, useQuery } from 'h3';
-import prisma from '../../../prisma'; // Adjust based on your Prisma setup
+import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   const { code } = useQuery(event);

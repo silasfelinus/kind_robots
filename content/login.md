@@ -15,3 +15,4 @@ sort: highlight
 ---
 
 :login-form
+:google-login

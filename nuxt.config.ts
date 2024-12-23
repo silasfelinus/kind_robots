@@ -50,7 +50,7 @@ icon: {
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,
       GITHUB_ID: process.env.GITHUB_ID,
       GITHUB_SECRET: process.env.GITHUB_SECRET,
-      GOOGLE_ID_KEY: process.env.GOOGLE_ID,
+      GOOGLE_ID: process.env.GOOGLE_ID,
       GOOGLE_SECRET: process.env.GOOGLE_SECRET,
       AUTH_SECRET: process.env.AUTH_SECRET,
       JWT_SECRET: process.env.JWT_SECRET,

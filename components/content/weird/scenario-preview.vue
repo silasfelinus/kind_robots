@@ -38,7 +38,8 @@
             <span class="font-bold">Genres:</span> {{ scenario.genres }}
           </p>
           <p v-if="scenario.inspirations" class="text-sm">
-            <span class="font-bold">Inspirations:</span> {{ scenario.inspirations }}
+            <span class="font-bold">Inspirations:</span>
+            {{ scenario.inspirations }}
           </p>
           <p v-if="scenario.description" class="text-sm mt-2">
             {{ scenario.description }}
@@ -76,9 +77,8 @@
   </div>
 </template>
 
-
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
@@ -139,6 +139,9 @@ const deselectScenario = () => {
   scenarioStore.currentChoice = '' // Reset choice on deselect
 }
 
+// Watch for changes in the selected scenario and load the art image
+watch(scenario, loadArtImage, { immediate: true })
 
-
+// Load art image on component mount
+onMounted(loadArtImage)
 </script>

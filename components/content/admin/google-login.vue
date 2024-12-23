@@ -8,9 +8,7 @@
 </template>
 
 <script setup>
-import { navigateTo } from 'nuxt/app';
-
 function loginWithGoogle() {
-  navigateTo('/api/auth/google');
+  window.location.href = '/api/auth/google'; // Perform a full redirect
 }
 </script>

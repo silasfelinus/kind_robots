@@ -10,7 +10,7 @@ icon: kind-icon:settings
 category: user
 tooltip: "login and registration link here"
 dottitip: 'Before you log in, you must solve a puzzle. One of us only lies, and—'
-amitip: "Kidding! We do the normal username-and-password thing here. No riddles required."
+amitip: "We're kidding! We do the normal username-and-password thing here. No riddles required."
 sort: highlight
 ---
 

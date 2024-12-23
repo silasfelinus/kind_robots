@@ -4,9 +4,9 @@ import prisma from '../../utils/prisma'; // Adjust the path to your Prisma utili
 export default defineEventHandler(async (event) => {
   const { code } = getQuery(event); // Extract the `code` parameter from the query string
 
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const redirectUri = 'http://localhost:3000/api/auth/google/callback'; // Update to match your deployment URL
+  const clientId = process.env.GOOGLE_ID;
+  const clientSecret = process.env.GOOGLE_SECRET;
+  const redirectUri = 'https://kind-robots.vercel.app/api/auth/google/callback'; // Update to match your deployment URL
 
   try {
     // Exchange the code for access tokens

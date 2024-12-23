@@ -7,6 +7,7 @@ const router = useRouter();
 const route = useRoute();
 
 onMounted(async () => {
+console.log("starting callback")
   const token = route.query.token;
 
   if (!token) {
@@ -19,7 +20,9 @@ onMounted(async () => {
     userStore.token = token;
 
     // Validate the token and fetch user data
+    console.log("validating callback")
     const isValid = await userStore.validateAndFetchUserData();
+    console.log("validation finished")
 
     if (isValid) {
       await router.push('/dashboard'); // Redirect to dashboard

@@ -545,6 +545,9 @@ model User {
   Rewards        Reward[]
   Tags           Tag[]
   Scenarios      Scenario[]
+  googleId    String? @unique
+  googleEmail String? @db.VarChar(255)
+
 }
 
 model ReactionToTag {

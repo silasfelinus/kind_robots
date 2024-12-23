@@ -14,6 +14,7 @@
       "StoreTester",
       "avatar-banner",
       "avatar-header",
+      "google-login",
       "karma-tracker"
     ]
   },

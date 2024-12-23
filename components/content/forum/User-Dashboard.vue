@@ -16,7 +16,7 @@
       <div class="relative flex flex-col justify-center items-center">
         <!-- Rounded Avatar -->
         <user-avatar
-          class="w-auto max-h-50 rounded-full border-2 border-accent"
+          class="w-auto max-h-25 rounded-full border-2 border-accent"
         />
 
         <!-- Smaller Avatar Upload -->
@@ -61,6 +61,7 @@
           >
             Login
           </button>
+<google-login />
         </div>
       </div>
 

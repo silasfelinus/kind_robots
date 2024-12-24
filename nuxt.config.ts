@@ -13,12 +13,12 @@ export default defineNuxtConfig({
   },
 
   modules: [
-  '@pinia/nuxt', 
-  '@nuxtjs/tailwindcss', 
-  '@nuxt/content', 
-  '@nuxt/eslint', 
-  '@nuxt/icon', 
-  '@nuxt/image'
+    '@pinia/nuxt',
+    '@nuxtjs/tailwindcss',
+    '@nuxt/content',
+    '@nuxt/eslint',
+    '@nuxt/icon',
+    '@nuxt/image',
   ],
 
   // Vite configuration, specifically aliasing
@@ -31,12 +31,11 @@ export default defineNuxtConfig({
   // Setting a compatibility date for Nuxt features
   compatibilityDate: '2024-08-13',
 
-
-icon: {
+  icon: {
     customCollections: [
       {
         prefix: 'kind-icon',
-        dir: './assets/icons'
+        dir: './assets/icons',
       },
     ],
   },
@@ -45,7 +44,6 @@ icon: {
 
   // Runtime configuration for sensitive keys and secrets
   runtimeConfig: {
-
     private: {
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,
       GITHUB_ID: process.env.GITHUB_ID,
@@ -64,7 +62,7 @@ icon: {
 
   // Control over Nuxt devtools
   devtools: {
-    enabled: false, // Disable devtools in production
+    enabled: true, // Disable devtools in production
   },
 
   // Adding the build hook to run the script

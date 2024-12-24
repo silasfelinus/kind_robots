@@ -91,7 +91,7 @@ export default defineEventHandler(async (event) => {
     // Redirect the user to the dashboard or callback with token
     return sendRedirect(
       event,
-      `/auth/callback?token=${newUser.token}&status=created`,
+      `/dashboard?token=${newUser.token}&status=created`,
     );
   } catch (error) {
     console.error('Google Authentication Error:', error);

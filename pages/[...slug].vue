@@ -10,6 +10,7 @@
 import { useHead } from '@vueuse/head';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
+import { useContent } from '@nuxt/content';
 
 const { page } = useContent();
 const userStore = useUserStore();

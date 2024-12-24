@@ -7,43 +7,49 @@
 </template>
 
 <script setup lang="ts">
-import { useHead } from '@vueuse/head';
-import { useRoute, useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/userStore';
+import { useHead } from '@vueuse/head'
+import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userStore'
 
+const { page } = useContent()
+const userStore = useUserStore()
+const router = useRouter()
+const route = useRoute()
 
-const { page } = useContent();
-const userStore = useUserStore();
-const router = useRouter();
-const route = useRoute();
-
-// Handle token in the query
 onMounted(async () => {
-  const token = route.query.token;
+  const token = route.query.token
 
-  if (token) {
-    console.log('Token found in query:', token);
+  if (Array.isArray(token)) {
+    console.warn('Multiple tokens found in query. Using the first one.')
+  }
+
+  const singleToken = Array.isArray(token) ? token[0] : token
+
+  if (typeof singleToken === 'string') {
+    console.log('Token found in query:', singleToken)
     try {
       // Save the token to the store
-      userStore.token = token;
+      userStore.token = singleToken
 
       // Validate the token and fetch user data
-      const isValid = await userStore.validateAndFetchUserData();
+      const isValid = await userStore.validateAndFetchUserData()
       if (isValid) {
-        console.log('Token validated. Redirecting to dashboard...');
-        await router.push('/dashboard');
+        console.log('Token validated. Redirecting to dashboard...')
+        await router.push('/dashboard')
       } else {
-        console.warn('Token validation failed. Redirecting to login...');
-        await router.push('/login');
+        console.warn('Token validation failed. Redirecting to login...')
+        await router.push('/login')
       }
     } catch (error) {
-      console.error('Error during token processing:', error);
-      await router.push('/login'); // Redirect on error
+      console.error('Error during token processing:', error)
+      await router.push('/login') // Redirect on error
     }
   } else {
-    console.log('No token found. Proceeding with normal content rendering.');
+    console.log(
+      'No valid token found. Proceeding with normal content rendering.',
+    )
   }
-});
+})
 
 // Set head metadata
 useHead({
@@ -62,5 +68,5 @@ useHead({
     { name: 'og:image', content: '/images/kindtitle.webp' },
     { name: 'twitter:card', content: 'summary_large_image' },
   ],
-});
+})
 </script>

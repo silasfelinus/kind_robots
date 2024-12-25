@@ -1,5 +1,7 @@
-import { defineEventHandler, getQuery, sendRedirect } from 'h3'
-import prisma from '../../utils/prisma' // Adjust the path to your Prisma utility
+//server/api/auth/google/callback.ts
+import { defineEventHandler, getQuery, sendRedirect, createError } from 'h3'
+import prisma from '../../utils/prisma'
+import { createToken, generateApiKey } from '..'
 
 interface GoogleTokenResponse {
   access_token: string
@@ -16,19 +18,24 @@ interface GoogleUserInfoResponse {
   email_verified: boolean
   name: string
   picture: string
-  given_name: string
-  family_name: string
-  locale: string
 }
 
 export default defineEventHandler(async (event) => {
-  const { code } = getQuery(event) // Extract the `code` parameter from the query string
+  const { code } = getQuery(event)
+
+  if (!code) {
+    throw createError({
+      statusCode: 400,
+      message: 'Authorization code is missing',
+    })
+  }
 
   const clientId = process.env.GOOGLE_ID
   const clientSecret = process.env.GOOGLE_SECRET
-  const redirectUri = 'https://kind-robots.vercel.app/api/auth/google/callback' // Update to match your deployment URL
+  const redirectUri = 'https://kind-robots.vercel.app/api/auth/google/callback'
 
   try {
+    // Exchange the code for a token
     const tokenResponse = await $fetch<GoogleTokenResponse>(
       'https://oauth2.googleapis.com/token',
       {
@@ -45,6 +52,7 @@ export default defineEventHandler(async (event) => {
 
     const { access_token } = tokenResponse
 
+    // Fetch user info from Google
     const userInfo = await $fetch<GoogleUserInfoResponse>(
       'https://www.googleapis.com/oauth2/v3/userinfo',
       {
@@ -52,52 +60,36 @@ export default defineEventHandler(async (event) => {
       },
     )
 
-    const { sub: googleId, email, name, picture } = userInfo
+    const { email, sub: googleId, name, picture } = userInfo
 
     if (!email) {
-      throw new Error('Google account does not provide an email address')
+      throw createError({ statusCode: 400, message: 'Email is required' })
     }
 
-    // Check if a user with the given email exists
-    const existingUser = await prisma.user.findUnique({ where: { email } })
+    // Check if the user exists
+    let user = await prisma.user.findUnique({ where: { email } })
 
-    if (existingUser) {
-      // If the user exists, link the Google account if not already linked
-      if (!existingUser.googleId) {
-        await prisma.user.update({
-          where: { email },
-          data: { googleId, googleEmail: email },
-        })
-      }
-
-      // Redirect the user to the dashboard or callback with token
-      return sendRedirect(
-        event,
-        `/dashboard?token=${existingUser.token}&status=linked`,
-      )
+    if (!user) {
+      // If the user doesn't exist, create a new one
+      const apiKey = generateApiKey()
+      user = await prisma.user.create({
+        data: {
+          email,
+          googleId,
+          username: name || `user-${googleId.substring(0, 8)}`,
+          avatarImage: picture,
+          apiKey,
+        },
+      })
     }
 
-    // If no user exists, create a new one
-    const newUser = await prisma.user.create({
-      data: {
-        username: name || `user-${googleId.substring(0, 8)}`, // Generate fallback username if name is unavailable
-        email,
-        googleId,
-        googleEmail: email,
-        avatarImage: picture,
-      },
-    })
+    // Generate a token for the user
+    const jwt = await createToken(user, user.apiKey || '')
 
-    // Redirect the user to the dashboard or callback with token
-    return sendRedirect(
-      event,
-      `/dashboard?token=${newUser.token}&status=created`,
-    )
+    // Redirect the user to the dashboard with the token
+    return sendRedirect(event, `/dashboard?token=${jwt}`)
   } catch (error) {
-    console.error('Google Authentication Error:', error)
-    return {
-      success: false,
-      message: 'Authentication failed',
-    }
+    console.error('Error during Google OAuth callback:', error)
+    throw createError({ statusCode: 500, message: 'Internal Server Error' })
   }
 })

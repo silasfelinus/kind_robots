@@ -16,37 +16,72 @@ const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
 
-onMounted(async () => {
-  const token = route.query.token
+interface GoogleTokenResponse {
+  access_token: string
+  expires_in: number
+  refresh_token?: string
+  scope: string
+  token_type: string
+  id_token?: string
+}
 
-  if (Array.isArray(token)) {
-    console.warn('Multiple tokens found in query. Using the first one.')
+onMounted(async () => {
+  const code = route.query.code
+
+  if (Array.isArray(code)) {
+    console.warn('Multiple codes found in query. Using the first one.')
   }
 
-  const singleToken = Array.isArray(token) ? token[0] : token
+  const singleCode = Array.isArray(code) ? code[0] : code
 
-  if (typeof singleToken === 'string') {
-    console.log('Token found in query:', singleToken)
+  if (typeof singleCode === 'string') {
+    console.log('Authorization code found in query:', singleCode)
     try {
-      // Save the token to the store
-      userStore.token = singleToken
+      // Exchange the code for a token with Google's API
+      const tokenResponse = await $fetch<GoogleTokenResponse>(
+        'https://oauth2.googleapis.com/token',
+        {
+          method: 'POST',
+          body: {
+            code: singleCode,
+            client_id: process.env.GOOGLE_ID,
+            client_secret: process.env.GOOGLE_SECRET,
+            redirect_uri:
+              'https://kind-robots.vercel.app/api/auth/google/callback', // Match your redirect URI
+            grant_type: 'authorization_code',
+          },
+        },
+      )
 
-      // Validate the token and fetch user data
-      const isValid = await userStore.validateAndFetchUserData()
-      if (isValid) {
-        console.log('Token validated. Redirecting to dashboard...')
-        await router.push('/dashboard')
+      const token = tokenResponse?.access_token
+
+      if (token) {
+        console.log('Token received:', token)
+        // Save the token to the store
+        userStore.token = token
+
+        // Validate the token and fetch user data
+        const isValid = await userStore.validateAndFetchUserData()
+        if (isValid) {
+          console.log('Token validated. Redirecting to dashboard...')
+          await router.push('/dashboard')
+        } else {
+          console.warn('Token validation failed. Redirecting to login...')
+          await router.push('/login')
+        }
       } else {
-        console.warn('Token validation failed. Redirecting to login...')
+        console.warn(
+          'Failed to exchange code for token. Redirecting to login...',
+        )
         await router.push('/login')
       }
     } catch (error) {
-      console.error('Error during token processing:', error)
+      console.error('Error during code exchange:', error)
       await router.push('/login') // Redirect on error
     }
   } else {
     console.log(
-      'No valid token found. Proceeding with normal content rendering.',
+      'No valid authorization code found. Proceeding with normal content rendering.',
     )
   }
 })

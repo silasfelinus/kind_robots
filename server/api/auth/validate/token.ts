@@ -1,4 +1,4 @@
-// src/api/auth/token.ts
+// server/api/auth/validate/token.ts
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { fetchUserById } from '../../users'

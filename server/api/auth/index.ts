@@ -1,3 +1,4 @@
+//server/api/auth/index.ts
 import crypto from 'crypto'
 import { hash as bcryptHash, compare as bcryptCompare } from 'bcrypt'
 import { jwtVerify, SignJWT } from 'jose'
@@ -115,43 +116,45 @@ export function generateApiKey(): string {
   }
 }
 
-export async function validateApiKey(apiKey: string): Promise<ValidateApiKeyResult> {
+export async function validateApiKey(
+  apiKey: string,
+): Promise<ValidateApiKeyResult> {
   try {
     if (!apiKey) {
       throw createError({
         statusCode: 400,
         message: 'API key is required.',
-      });
+      })
     }
 
     // Fetch the user by API key with relevant fields
     const user = await prisma.user.findFirst({
       where: { apiKey },
       select: { id: true, Role: true }, // Add fields as needed
-    });
+    })
 
     if (!user) {
       return {
         success: false,
         message: 'Invalid API key. No user found.',
-      };
+      }
     }
 
-    console.log('User valid:', user);
+    console.log('User valid:', user)
 
     return {
       success: true,
       user, // Pass the validated user object
       message: '🚀 API key is valid. You are good to go!',
-    };
+    }
   } catch (error: unknown) {
-    const errorMessage = `🔥 Failed to validate API key: ${error instanceof Error ? error.message : 'Unknown error'}`;
-    console.error(errorMessage);
+    const errorMessage = `🔥 Failed to validate API key: ${error instanceof Error ? error.message : 'Unknown error'}`
+    console.error(errorMessage)
 
     return {
       success: false,
       message: errorMessage,
-    };
+    }
   }
 }
 

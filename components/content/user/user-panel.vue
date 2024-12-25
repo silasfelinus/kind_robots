@@ -1,47 +1,54 @@
 <template>
-  <div class="user-panel p-4 bg-base-200 rounded-lg">
+  <div class="user-panel p-4 bg-base-200 rounded-lg max-w-2xl mx-auto">
     <h2 class="text-xl font-semibold mb-4">User Profile</h2>
     <form @submit.prevent="updateProfile">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div
           v-for="(field, key) in profileFields"
           :key="key"
-          class="form-group"
+          class="flex flex-col"
         >
-          <label :for="key" class="block text-sm font-medium mb-1">{{
-            field.label
-          }}</label>
+          <label
+            :for="key"
+            class="block text-sm font-medium mb-1 text-gray-700"
+          >
+            {{ field.label }}
+          </label>
           <input
             v-if="field.type !== 'textarea' && field.type !== 'date'"
             :id="key"
             v-model="userProfile[key]"
             :type="field.type"
             :placeholder="field.placeholder"
-            class="input input-bordered w-full"
+            class="input input-bordered w-full mt-1"
           />
-
           <textarea
             v-else-if="field.type === 'textarea'"
             :id="key"
             v-model="userProfile[key]"
             :placeholder="field.placeholder"
-            class="textarea textarea-bordered w-full"
+            class="textarea textarea-bordered w-full mt-1"
           ></textarea>
-
           <input
             v-else-if="field.type === 'date'"
             :id="key"
             v-model="userProfile[key]"
             type="date"
             :placeholder="field.placeholder"
-            class="input input-bordered w-full"
+            class="input input-bordered w-full mt-1"
           />
         </div>
       </div>
-      <button type="submit" class="btn btn-primary mt-4">Update Profile</button>
+      <button
+        type="submit"
+        class="btn btn-primary mt-4 w-full md:w-auto px-6 py-2"
+      >
+        Update Profile
+      </button>
     </form>
   </div>
 </template>
+
 
 <script lang="ts" setup>
 import { ref } from 'vue'

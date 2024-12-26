@@ -13,4 +13,4 @@ dottitip: If people register for an account, then we can customize their experie
 layout: 'default'
 ---
 
-:registration-form
+:registration-page

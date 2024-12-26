@@ -4,7 +4,6 @@
     "components": [
       "DebugLauncher",
       "KindPrompts",
-      "LoginForm",
       "Mana-Counter",
       "OpenAiKey",
       "PrivacyPolicy",
@@ -14,7 +13,6 @@
       "StoreTester",
       "avatar-banner",
       "avatar-header",
-      "google-login",
       "karma-tracker"
     ]
   },
@@ -104,22 +102,6 @@
       "butterfly-slider",
       "single-slider",
       "sponsor-page"
-    ]
-  },
-  {
-    "folderName": "forum",
-    "components": [
-      "DashboardChooser",
-      "LoginPath",
-      "User-Dashboard",
-      "UserAvatar",
-      "avatar-upload",
-      "cache-clear",
-      "user-gallery",
-      "user-navigation",
-      "user-panel",
-      "user-picture",
-      "user-selector"
     ]
   },
   {
@@ -337,6 +319,24 @@
       "new-tooltip",
       "tooltip-toggle",
       "tutorial-chat"
+    ]
+  },
+  {
+    "folderName": "user",
+    "components": [
+      "DashboardChooser",
+      "LoginForm",
+      "LoginPath",
+      "User-Dashboard",
+      "UserAvatar",
+      "avatar-upload",
+      "cache-clear",
+      "google-login",
+      "user-gallery",
+      "user-navigation",
+      "user-panel",
+      "user-picture",
+      "user-selector"
     ]
   },
   {

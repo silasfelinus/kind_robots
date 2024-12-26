@@ -155,7 +155,7 @@
 import { ref, computed } from 'vue';
 import { useUserStore } from '~/stores/userStore';
 import { useErrorStore, ErrorType } from '~/stores/errorStore';
-import { generateUsername } from '~/utils/usernameGenerator';
+import { generateUsername } from '~/utils/generateUsername';
 
 // Store setup
 const userStore = useUserStore();

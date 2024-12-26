@@ -8,17 +8,14 @@
 import { ref, onMounted, computed, onUnmounted } from 'vue'
 
 const adjectives = [
-  'cool',
   'epic',
   'creative',
   'snazzy',
   'quirky',
   'smart',
-  'impressive',
   'bold',
   'charming',
   'witty',
-  'fun',
   'catchy',
   'classy',
   'legendary',
@@ -33,7 +30,7 @@ const colors = [
   'text-accent',
 ]
 
-const totalDuration = 10_000
+const totalDuration = 20_000
 const baseInterval = Math.floor(totalDuration / adjectives.length)
 const pauseDuration = 200
 let currentSpeed = baseInterval

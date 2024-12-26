@@ -171,20 +171,21 @@ const confirmPassword = ref('');
 const usernameWarning = ref(false);
 const error = ref('');
 const isLoading = ref(false);
+const statusMessage = ref('');
 const confirmPasswordError = ref('');
 const showPassword = ref(false);
 const passwordError = ref('');
 const step = ref(1);
 const showConfirmPassword = ref(false);
 
-// Ensure the "Generate Username" button is responsive and auto-assign a username
+// Auto-generate username on load and validate uniqueness
 const generateUsernameHandler = async () => {
   try {
     isLoading.value = true;
     let newUsername = '';
     let isUnique = false;
 
-    // Retry until a unique username is found
+    // Keep generating until a unique username is found
     while (!isUnique) {
       newUsername = generateUsername();
       const usernames = await userStore.getUsernames();
@@ -205,12 +206,12 @@ const generateUsernameHandler = async () => {
   }
 };
 
-// Automatically assign a random username on component mount
+// Automatically generate a username when the component mounts
 onMounted(async () => {
   await generateUsernameHandler();
 });
 
-// Validation for username availability
+// Check if a username is already taken
 const checkUsernameAvailability = async () => {
   try {
     const usernames = await userStore.getUsernames();
@@ -230,7 +231,7 @@ const checkUsernameAvailability = async () => {
   }
 };
 
-// Validations for password strength and confirmation
+// Validate the strength of the password
 const validatePassword = () => {
   if (!password.value) {
     passwordError.value = '';
@@ -252,6 +253,7 @@ const validatePassword = () => {
   }
 };
 
+// Ensure password confirmation matches the original
 const validateConfirmPassword = () => {
   if (password.value && password.value !== confirmPassword.value) {
     confirmPasswordError.value = 'Passwords do not match';
@@ -260,30 +262,32 @@ const validateConfirmPassword = () => {
   }
 };
 
-// Navigation between steps
+// Navigate between steps in the form
 const goToStep = (nextStep: number) => {
   if (nextStep === 2) {
-    // Display a welcome message in step 2
     statusMessage.value = `Welcome, ${username.value}!`;
   }
   step.value = nextStep;
 };
 
-// Registration logic
+// Submit the registration form
 const register = async () => {
   if (!username.value || usernameWarning.value) return;
 
   isLoading.value = true;
+  statusMessage.value = 'Registering user...';
+
   try {
-    const response = await userStore.register({
+    // Register the user
+    const registerResponse = await userStore.register({
       username: username.value,
       email: email.value || undefined,
       password: password.value || undefined,
     });
 
-    if (!response.success) throw new Error(response.message || 'Registration failed.');
+    if (!registerResponse.success) throw new Error(registerResponse.message || 'Registration failed.');
 
-    // Log the user in
+    // Automatically log the user in after registration
     const loginResponse = await userStore.login({
       username: username.value,
       password: password.value || undefined,
@@ -301,7 +305,7 @@ const register = async () => {
   }
 };
 
-// Form validation
+// Check if the form is valid for submission
 const isFormValid = computed(() => {
   return (
     username.value &&
@@ -311,15 +315,15 @@ const isFormValid = computed(() => {
   );
 });
 
-// Toggle visibility of password fields
+// Toggle visibility for password fields
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value;
 };
 
 const toggleConfirmPasswordVisibility = () => {
-  showConfirmPassword.value = !showConfirmPasswordVisibility;
+  showConfirmPassword.value = !showConfirmPassword.value;
 };
 
-// Check if user is logged in
+// Computed property to check if the user is logged in
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 </script>

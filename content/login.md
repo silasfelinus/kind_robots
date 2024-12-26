@@ -14,5 +14,4 @@ amitip: "We're kidding! We do the normal username-and-password thing here. No ri
 sort: highlight
 ---
 
-:login-form
-:google-login
+:login-page

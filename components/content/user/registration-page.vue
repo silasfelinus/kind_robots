@@ -152,7 +152,7 @@
 
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useUserStore } from '~/stores/userStore';
 import { useErrorStore, ErrorType } from '~/stores/errorStore';
 import { generateUsername } from '~/utils/generateUsername';
@@ -169,57 +169,53 @@ const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const usernameWarning = ref(false);
-const status = ref('');
 const error = ref('');
 const isLoading = ref(false);
-const statusMessage = ref('');
 const confirmPasswordError = ref('');
 const showPassword = ref(false);
 const passwordError = ref('');
 const step = ref(1);
 const showConfirmPassword = ref(false);
-const firstPasswordValid = ref(false);
 
-// Validations
-const validatePassword = () => {
-  if (!password.value) {
-    passwordError.value = '';
-    firstPasswordValid.value = false;
-    return;
-  }
+// Ensure the "Generate Username" button is responsive and auto-assign a username
+const generateUsernameHandler = async () => {
+  try {
+    isLoading.value = true;
+    let newUsername = '';
+    let isUnique = false;
 
-  const minLength = /^.{8,}$/;
-  const hasNumber = /\d/;
-  const hasLetter = /[a-zA-Z]/;
+    // Retry until a unique username is found
+    while (!isUnique) {
+      newUsername = generateUsername();
+      const usernames = await userStore.getUsernames();
+      isUnique = !usernames.includes(newUsername);
+    }
 
-  if (!minLength.test(password.value)) {
-    passwordError.value = 'At least 8 characters';
-    firstPasswordValid.value = false;
-  } else if (!hasNumber.test(password.value)) {
-    passwordError.value = 'Include at least one number';
-    firstPasswordValid.value = false;
-  } else if (!hasLetter.test(password.value)) {
-    passwordError.value = 'Include at least one letter';
-    firstPasswordValid.value = false;
-  } else {
-    passwordError.value = '';
-    firstPasswordValid.value = true;
-  }
-};
-
-const validateConfirmPassword = () => {
-  if (password.value && password.value !== confirmPassword.value) {
-    confirmPasswordError.value = 'Passwords do not match';
-  } else {
-    confirmPasswordError.value = '';
+    username.value = newUsername;
+    usernameWarning.value = false;
+  } catch (e: unknown) {
+    const message =
+      e instanceof Error
+        ? `Error generating username: ${e.message}`
+        : 'An unknown error occurred during username generation.';
+    errorStore.setError(ErrorType.UNKNOWN_ERROR, message);
+    username.value = ''; // Clear username if generation fails
+  } finally {
+    isLoading.value = false;
   }
 };
 
-// Check username availability
+// Automatically assign a random username on component mount
+onMounted(async () => {
+  await generateUsernameHandler();
+});
+
+// Validation for username availability
 const checkUsernameAvailability = async () => {
   try {
     const usernames = await userStore.getUsernames();
     usernameWarning.value = usernames.includes(username.value);
+
     if (usernameWarning.value) {
       error.value = `Username "${username.value}" already exists.`;
     } else {
@@ -234,27 +230,75 @@ const checkUsernameAvailability = async () => {
   }
 };
 
-// Generate unique username
-const generateUsernameHandler = async () => {
-  let newUsername = '';
-  let isUnique = false;
-
-  while (!isUnique) {
-    newUsername = generateUsername();
-    const usernames = await userStore.getUsernames();
-    isUnique = !usernames.includes(newUsername);
+// Validations for password strength and confirmation
+const validatePassword = () => {
+  if (!password.value) {
+    passwordError.value = '';
+    return;
   }
 
-  username.value = newUsername;
-  usernameWarning.value = false;
+  const minLength = /^.{8,}$/;
+  const hasNumber = /\d/;
+  const hasLetter = /[a-zA-Z]/;
+
+  if (!minLength.test(password.value)) {
+    passwordError.value = 'At least 8 characters';
+  } else if (!hasNumber.test(password.value)) {
+    passwordError.value = 'Include at least one number';
+  } else if (!hasLetter.test(password.value)) {
+    passwordError.value = 'Include at least one letter';
+  } else {
+    passwordError.value = '';
+  }
+};
+
+const validateConfirmPassword = () => {
+  if (password.value && password.value !== confirmPassword.value) {
+    confirmPasswordError.value = 'Passwords do not match';
+  } else {
+    confirmPasswordError.value = '';
+  }
 };
 
 // Navigation between steps
 const goToStep = (nextStep: number) => {
   if (nextStep === 2) {
+    // Display a welcome message in step 2
     statusMessage.value = `Welcome, ${username.value}!`;
   }
   step.value = nextStep;
+};
+
+// Registration logic
+const register = async () => {
+  if (!username.value || usernameWarning.value) return;
+
+  isLoading.value = true;
+  try {
+    const response = await userStore.register({
+      username: username.value,
+      email: email.value || undefined,
+      password: password.value || undefined,
+    });
+
+    if (!response.success) throw new Error(response.message || 'Registration failed.');
+
+    // Log the user in
+    const loginResponse = await userStore.login({
+      username: username.value,
+      password: password.value || undefined,
+    });
+
+    if (!loginResponse.success) throw new Error(loginResponse.message || 'Login failed.');
+  } catch (e: unknown) {
+    const message =
+      e instanceof Error
+        ? `Registration or login failed: ${e.message}`
+        : 'An unknown error occurred.';
+    errorStore.setError(ErrorType.REGISTRATION_ERROR, message);
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 // Form validation
@@ -262,77 +306,18 @@ const isFormValid = computed(() => {
   return (
     username.value &&
     !usernameWarning.value &&
-    (step.value === 1 ||
-      ((!password.value || !passwordError.value) &&
-        password.value === confirmPassword.value))
+    (!password.value || !passwordError.value) &&
+    password.value === confirmPassword.value
   );
 });
 
-// Toggle visibility of password inputs
+// Toggle visibility of password fields
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value;
 };
 
 const toggleConfirmPasswordVisibility = () => {
-  showConfirmPassword.value = !showConfirmPassword.value;
-};
-
-// Clear user data from local storage
-const clearExistingUserData = () => {
-  localStorage.removeItem('api_key');
-  localStorage.removeItem('token');
-};
-
-// Registration function
-const register = async () => {
-  if (!isFormValid.value) return;
-
-  isLoading.value = true;
-  statusMessage.value = 'Registering user...';
-  try {
-    clearExistingUserData();
-
-    // Register user
-    const registerResponse = await userStore.register({
-      username: username.value,
-      password: password.value || undefined,
-      email: email.value || undefined,
-    });
-
-    if (registerResponse.success) {
-      statusMessage.value = 'Welcome to Kind Robots!';
-      status.value = 'Welcome to Kind Robots!';
-
-      // Automatically log in
-      try {
-        const credentials = {
-          username: username.value,
-          password: password.value || undefined,
-        };
-        const loginResponse = await userStore.login(credentials);
-
-        if (!loginResponse.success) {
-          throw new Error(loginResponse.message || 'Login failed');
-        }
-      } catch (e: unknown) {
-        const message =
-          e instanceof Error
-            ? `Login failed: ${e.message}`
-            : 'An unknown error occurred during login.';
-        errorStore.setError(ErrorType.AUTH_ERROR, message);
-      }
-    } else {
-      throw new Error('Registration failed. Please try again.');
-    }
-  } catch (e: unknown) {
-    const message =
-      e instanceof Error
-        ? `Registration failed: ${e.message}`
-        : 'An unknown error occurred during registration.';
-    errorStore.setError(ErrorType.REGISTRATION_ERROR, message);
-  } finally {
-    isLoading.value = false;
-  }
+  showConfirmPassword.value = !showConfirmPasswordVisibility;
 };
 
 // Check if user is logged in

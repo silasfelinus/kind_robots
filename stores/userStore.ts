@@ -12,6 +12,7 @@ interface UserState {
   milestones: number[]
   users: User[]
   recipient: User | null
+  googleLogin: boolean
 }
 
 export const useUserStore = defineStore({
@@ -25,6 +26,7 @@ export const useUserStore = defineStore({
     milestones: [],
     users: [],
     recipient: null,
+    googleLogin: false,
   }),
   getters: {
     karma(state): number {
@@ -163,35 +165,44 @@ export const useUserStore = defineStore({
         return { success: false, message: 'An unknown error occurred' }
       }
     },
-    setStayLoggedIn(value: boolean) {
-      this.stayLoggedIn = value
-      this.saveToLocalStorage('stayLoggedIn', value.toString())
-    },
+setStayLoggedIn(value: boolean) {
+  if (this.stayLoggedIn !== value) {
+    this.stayLoggedIn = value;
+    this.saveToLocalStorage('stayLoggedIn', value.toString());
+    console.log('Updated stayLoggedIn in localStorage:', value);
+  }
+},
 
     async validateAndFetchUserData(): Promise<boolean> {
-      try {
-        const response = await performFetch<User>('/api/auth/validate/token', {
-          method: 'POST',
-          body: JSON.stringify({ token: this.token }),
-        })
+  try {
+    const response = await performFetch<User>('/api/auth/validate/token', {
+      method: 'POST',
+      body: JSON.stringify({ token: this.token }),
+    });
 
-        if (response.success && response.data) {
-          await this.setUser(response.data)
-          return true
-        } else {
-          console.warn('User validation failed:', response.message)
-          handleError(
-            new Error(response.message || 'Invalid token'),
-            'validating user',
-          )
-          return false
-        }
-      } catch (error) {
-        handleError(error, 'validating user')
-        return false
+    if (response.success && response.data) {
+      await this.setUser(response.data);
+
+      // Save the token to localStorage if stayLoggedIn is true
+      if (this.stayLoggedIn && this.token) {
+        this.saveToLocalStorage('token', this.token);
+        console.log('Token saved to localStorage after successful validation.');
       }
-    },
 
+      return true;
+    } else {
+      console.warn('User validation failed:', response.message);
+      handleError(
+        new Error(response.message || 'Invalid token'),
+        'validating user',
+      );
+      return false;
+    }
+  } catch (error) {
+    handleError(error, 'validating user');
+    return false;
+  }
+},
     async fetchUserByApiKey(): Promise<void> {
       try {
         const response = await performFetch<User>('/api/user')
@@ -340,6 +351,12 @@ export const useUserStore = defineStore({
       }
     },
 
+setGoogleLogin(value: boolean) {
+      this.googleLogin = value;
+      this.saveToLocalStorage('googleLogin', value.toString());
+      console.log('Google login preference updated:', value);
+    },
+
     logout(): void {
       console.log('Logging out user.')
       this.user = null
@@ -348,6 +365,7 @@ export const useUserStore = defineStore({
       this.removeFromLocalStorage('user')
       this.removeFromLocalStorage('stayLoggedIn')
       this.setStayLoggedIn(false)
+      this.removeFromLocalStorage('googleLogin');
     },
 
     setToken(newToken: string): void {

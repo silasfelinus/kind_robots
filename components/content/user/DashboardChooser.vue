@@ -35,12 +35,12 @@
 
     <!-- Components Section -->
     <div class="flex-grow w-full overflow-y-auto h-full">
+   <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
       <lazy-navigation-trimmed v-if="choice === 'navigation-trimmed'" />
       <lazy-intro-page
         v-if="choice === 'intro-page'"
-        @leave="handleIntroPageLeave"
       />
-      <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
+   
       <lazy-user-gallery v-if="choice === 'user-gallery'" />
       <lazy-jellybean-counter v-if="choice === 'jellybean-counter'" />
     </div>
@@ -63,7 +63,7 @@ const tabs = [
   { name: 'jellybean-counter', label: 'Jellybean Counter' },
 ]
 
-// Default to `null` initially to ensure it's set in `onMounted`
+
 const choice = ref<string | null>(null)
 
 // Dynamically compute the main content area size
@@ -86,15 +86,13 @@ const selectTab = (tabName: string) => {
   areButtonsVisible.value = false
 }
 
-// Reset `choice` after intro-page is visited
-function handleIntroPageLeave() {
-  choice.value = 'user-dashboard' // Set the default tab
-}
-
-// Initialize the starting tab based on `displayStore.showIntro`
 onMounted(() => {
-  choice.value = displayStore.showIntro ? 'intro-page' : 'user-dashboard'
-})
+  // Default to 'user-dashboard' if no choice is made
+  if (!choice.value) {
+    choice.value = 'user-dashboard';
+  }
+});
+
 </script>
 
 <style>

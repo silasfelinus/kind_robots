@@ -32,7 +32,6 @@ interface DisplayStoreState {
   viewportSize: 'small' | 'medium' | 'large' | 'extraLarge'
   isTouchDevice: boolean
   showTutorial: boolean
-  showIntro: boolean
   isInitialized: boolean
   flipState: FlipState
   isFullScreen: boolean
@@ -63,7 +62,6 @@ export const useDisplayStore = defineStore('display', {
     viewportSize: 'large',
     isTouchDevice: false,
     showTutorial: true,
-    showIntro: true,
     isInitialized: false,
     flipState: 'tutorial',
     isFullScreen: false,
@@ -489,10 +487,6 @@ export const useDisplayStore = defineStore('display', {
       this.saveState()
     },
 
-    toggleIntro() {
-      this.showIntro = !this.showIntro
-      this.saveState()
-    },
 
     changeState(
       section:

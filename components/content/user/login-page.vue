@@ -55,16 +55,20 @@
           </button>
         </div>
 
-        <!-- Google Login Component -->
+        
+
+        
+      </form>
+<!-- Register Link -->
+        <div class="text-center mt-4">
+          <NuxtLink to="/register" class="text-accent underline">Register</NuxtLink>
+        </div>
+<!-- Google Login Component -->
         <div class="text-center mt-4">
           <GoogleLogin />
         </div>
 
-        <!-- Register Link -->
-        <div class="text-center mt-4">
-          <NuxtLink to="/register" class="text-accent underline">Register</NuxtLink>
-        </div>
-      </form>
+
 
       <!-- Error Message -->
       <div v-if="errorMessage" class="text-warning mt-4 text-center">

@@ -14,7 +14,7 @@
       </template>
       <template v-else>
         <button class="flex items-center justify-center space-x-2">
-          <Icon name="kind-icon:person" class="w-5 h-5" />
+          <Icon name="kind-icon:person" class="w-10 h-10" />
           <span class="hidden md:block">Login</span>
         </button>
       </template>

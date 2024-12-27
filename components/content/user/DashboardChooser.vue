@@ -35,11 +35,12 @@
 
     <!-- Components Section -->
     <div class="flex-grow w-full overflow-y-auto h-full">
+   <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
       <lazy-navigation-trimmed v-if="choice === 'navigation-trimmed'" />
       <lazy-intro-page
         v-if="choice === 'intro-page'"
       />
-      <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
+   
       <lazy-user-gallery v-if="choice === 'user-gallery'" />
       <lazy-jellybean-counter v-if="choice === 'jellybean-counter'" />
     </div>
@@ -85,6 +86,12 @@ const selectTab = (tabName: string) => {
   areButtonsVisible.value = false
 }
 
+onMounted(() => {
+  // Default to 'user-dashboard' if no choice is made
+  if (!choice.value) {
+    choice.value = 'user-dashboard';
+  }
+});
 
 </script>
 

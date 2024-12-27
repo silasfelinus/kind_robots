@@ -2,7 +2,7 @@
   <div class="relative flex flex-col items-start box-border">
     <!-- User Avatar and Login Button -->
     <router-link
-      :to="dashboardRoute"
+      :to="routeToNavigate"
       class="flex items-center md:flex-col md:items-center md:space-x-0"
     >
       <template v-if="isLoggedIn">
@@ -28,5 +28,7 @@ import { useUserStore } from '~/stores/userStore'
 
 const userStore = useUserStore()
 const isLoggedIn = computed(() => userStore.isLoggedIn)
-const dashboardRoute = '/dashboard'
+
+// Dynamically determine the route to navigate
+const routeToNavigate = computed(() => (isLoggedIn.value ? '/dashboard' : '/login'))
 </script>

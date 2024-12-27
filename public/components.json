@@ -332,6 +332,8 @@
       "avatar-upload",
       "cache-clear",
       "google-login",
+      "login-page",
+      "registration-page",
       "user-gallery",
       "user-navigation",
       "user-panel",

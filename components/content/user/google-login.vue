@@ -22,12 +22,16 @@
   </div>
 </template>
 
-import { ref } from 'vue';
+<script setup lang='ts'>
+import { ref, computed } from "vue";
 import { useUserStore } from '@/stores/userStore';
 
 const userStore = useUserStore();
-const googleLogin = ref(userStore.googleLogin); // Sync with store
 
+const googleLogin = computed({
+  get: () => userStore.googleLogin,
+  set: (value) => userStore.setGoogleLogin(value),
+});
 function toggleGoogleLogin() {
   userStore.setGoogleLogin(googleLogin.value); // Update store and save to localStorage
   console.log('Google login preference updated:', googleLogin.value);
@@ -36,3 +40,6 @@ function toggleGoogleLogin() {
 function loginWithGoogle() {
   window.location.href = '/api/auth/google'; // Perform a full redirect
 }
+
+
+</script>

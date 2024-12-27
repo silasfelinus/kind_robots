@@ -91,10 +91,7 @@ function handleIntroPageLeave() {
   choice.value = 'user-dashboard' // Set the default tab
 }
 
-// Initialize the starting tab based on `displayStore.showIntro`
-onMounted(() => {
-  choice.value = displayStore.showIntro ? 'intro-page' : 'user-dashboard'
-})
+
 </script>
 
 <style>

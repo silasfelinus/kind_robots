@@ -25,13 +25,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useContentStore } from './../../../stores/contentStore'
 
-const contentStore = useContentStore()
 const tooltipOpen = ref(false)
 
-// Destructure `page` from contentStore
-const { page } = contentStore
+const { page } = useContent()
 
 // Toggle tooltip visibility
 const toggleTooltip = () => {

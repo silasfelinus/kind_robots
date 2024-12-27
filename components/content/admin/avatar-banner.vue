@@ -136,7 +136,10 @@ const login = ref('')
 const password = ref('')
 const isVisible = ref(false)
 const isLoggedIn = computed(() => store.isLoggedIn)
-const stayLoggedIn = ref(true)
+const stayLoggedIn = computed({
+  get: () => store.stayLoggedIn,
+  set: (value: boolean) => (store.stayLoggedIn = value),
+})
 const errorMessage = ref<string | null>(null)
 const userNotFound = ref(false)
 
@@ -159,9 +162,7 @@ const handleLogin = async () => {
       password: password.value || undefined,
     }
     const result = await store.login(credentials)
-    if (result.success) {
-      store.setStayLoggedIn(store.stayLoggedIn)
-    } else {
+    if (!result.success) {
       errorMessage.value = result.message || 'Login failed'
       userNotFound.value = result.message?.includes('User not found') || false
     }
@@ -180,10 +181,6 @@ const handleLogout = async () => {
       ErrorType.AUTH_ERROR,
       'Failed to logout. Please try again.',
     )
-
-    if (!stayLoggedIn.value) {
-      localStorage.removeItem('user')
-    }
   } catch (error) {
     errorMessage.value = 'An error occurred during logout.'
     console.error(error) // Optionally log the error for debugging

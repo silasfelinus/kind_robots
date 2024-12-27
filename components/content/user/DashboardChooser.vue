@@ -38,7 +38,6 @@
       <lazy-navigation-trimmed v-if="choice === 'navigation-trimmed'" />
       <lazy-intro-page
         v-if="choice === 'intro-page'"
-        @leave="handleIntroPageLeave"
       />
       <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
       <lazy-user-gallery v-if="choice === 'user-gallery'" />
@@ -63,7 +62,7 @@ const tabs = [
   { name: 'jellybean-counter', label: 'Jellybean Counter' },
 ]
 
-// Default to `null` initially to ensure it's set in `onMounted`
+
 const choice = ref<string | null>(null)
 
 // Dynamically compute the main content area size
@@ -84,11 +83,6 @@ const toggleVisibility = () => {
 const selectTab = (tabName: string) => {
   choice.value = tabName
   areButtonsVisible.value = false
-}
-
-// Reset `choice` after intro-page is visited
-function handleIntroPageLeave() {
-  choice.value = 'user-dashboard' // Set the default tab
 }
 
 

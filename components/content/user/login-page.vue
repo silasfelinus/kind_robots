@@ -1,9 +1,14 @@
 <template>
   <div class="login-form-container">
-    <div class="login-form p-4 rounded-2xl bg-base-300 border shadow-lg w-full max-w-md">
+    <div
+      class="login-form p-4 rounded-2xl bg-base-300 border shadow-lg w-full max-w-md"
+    >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">
-        <Icon name="kind-icon:bubble-loading" class="animate-spin text-lg mb-2" />
+        <Icon
+          name="kind-icon:bubble-loading"
+          class="animate-spin text-lg mb-2"
+        />
         <div>Loading, please wait...</div>
       </div>
 
@@ -11,7 +16,7 @@
       <form
         v-if="!store.isLoggedIn"
         class="space-y-4"
-        :autocomplete="store.stayLoggedIn ? 'on' : 'off'"
+        :autocomplete="stayLoggedIn ? 'on' : 'off'"
         @submit.prevent="handleLogin"
       >
         <!-- Username Field -->
@@ -44,7 +49,7 @@
           <div>
             <input
               id="stayLoggedIn"
-              v-model="store.stayLoggedIn"
+              v-model="stayLoggedIn"
               type="checkbox"
               class="mr-2"
             />
@@ -54,27 +59,27 @@
             Login
           </button>
         </div>
-
-        
-
-        
       </form>
-<!-- Register Link -->
-        <div class="text-center mt-4">
-          <NuxtLink to="/register" class="text-accent underline">Register</NuxtLink>
-        </div>
-<!-- Google Login Component -->
-        <div class="text-center mt-4">
-          <GoogleLogin />
-        </div>
 
+      <!-- Register Link -->
+      <div class="text-center mt-4">
+        <NuxtLink to="/register" class="text-accent underline"
+          >Register</NuxtLink
+        >
+      </div>
 
+      <!-- Google Login Component -->
+      <div class="text-center mt-4">
+        <GoogleLogin />
+      </div>
 
       <!-- Error Message -->
       <div v-if="errorMessage" class="text-warning mt-4 text-center">
         {{ errorMessage }}
         <div v-if="userNotFound" class="mt-2">
-          <NuxtLink to="/register" class="text-accent underline">Register</NuxtLink>
+          <NuxtLink to="/register" class="text-accent underline"
+            >Register</NuxtLink
+          >
           or
           <button class="text-accent underline" @click="handleRetryLogin">
             Try Again
@@ -86,45 +91,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useUserStore } from '~/stores/userStore';
-import { useErrorStore, ErrorType } from '~/stores/errorStore';
+import { ref, computed } from 'vue'
+import { useUserStore } from '~/stores/userStore'
+import { useErrorStore, ErrorType } from '~/stores/errorStore'
 
-const store = useUserStore();
-const login = ref('');
-const password = ref('');
-const errorStore = useErrorStore();
-const errorMessage = ref('');
-const userNotFound = ref(false);
+const store = useUserStore()
+const login = ref('')
+const password = ref('')
+const errorStore = useErrorStore()
+const errorMessage = ref('')
+const userNotFound = ref(false)
+
+// Consolidate stayLoggedIn as a computed property
+const stayLoggedIn = computed({
+  get: () => store.stayLoggedIn,
+  set: (value: boolean) => (store.stayLoggedIn = value),
+})
 
 const handleLogin = async () => {
-  errorMessage.value = '';
-  userNotFound.value = false;
+  errorMessage.value = ''
+  userNotFound.value = false
   try {
     const credentials = {
       username: login.value,
       password: password.value || undefined,
-    };
-    const result = await store.login(credentials);
-    if (result.success) {
-      store.setStayLoggedIn(store.stayLoggedIn);
-    } else {
-      errorMessage.value = result.message || 'Login failed';
-      userNotFound.value = result.message?.includes('User not found') || false;
+    }
+    const result = await store.login(credentials)
+    if (!result.success) {
+      errorMessage.value = result.message || 'Login failed'
+      userNotFound.value = result.message?.includes('User not found') || false
     }
   } catch (error) {
-    errorStore.setError(ErrorType.AUTH_ERROR, error);
-    errorMessage.value = errorStore.message || 'An unexpected error occurred';
+    errorStore.setError(ErrorType.AUTH_ERROR, error)
+    errorMessage.value = errorStore.message || 'An unexpected error occurred'
   }
-};
+}
 
 const handleRetryLogin = () => {
-  login.value = '';
-  password.value = '';
-  errorMessage.value = '';
-  userNotFound.value = false;
-  errorStore.clearError();
-};
+  login.value = ''
+  password.value = ''
+  errorMessage.value = ''
+  userNotFound.value = false
+  errorStore.clearError()
+}
 </script>
 
 <style scoped>
@@ -148,7 +157,9 @@ const handleRetryLogin = () => {
 }
 
 button {
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 button:hover {

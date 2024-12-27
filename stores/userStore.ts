@@ -351,6 +351,12 @@ setStayLoggedIn(value: boolean) {
       }
     },
 
+setGoogleLogin(value: boolean) {
+      this.googleLogin = value;
+      this.saveToLocalStorage('googleLogin', value.toString());
+      console.log('Google login preference updated:', value);
+    },
+
     logout(): void {
       console.log('Logging out user.')
       this.user = null
@@ -359,6 +365,7 @@ setStayLoggedIn(value: boolean) {
       this.removeFromLocalStorage('user')
       this.removeFromLocalStorage('stayLoggedIn')
       this.setStayLoggedIn(false)
+      this.removeFromLocalStorage('googleLogin');
     },
 
     setToken(newToken: string): void {

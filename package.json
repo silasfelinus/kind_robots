@@ -2,7 +2,6 @@
   "name": "kind-robots",
   "private": true,
   "scripts": {
-    "prepare": "husky install",
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
     "test": "npx nuxi typecheck",
     "dev": "nuxt dev --host",
@@ -19,7 +18,7 @@
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate deploy",
     "prisma:migrate:dev": "npx prisma migrate dev",
-    "postinstall": "npm run prisma:generate && nuxt prepare",
+    "postinstall": "npm run prisma:generate",
     "backup": "ts-node server/utils/backupDatabase.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run"
@@ -36,7 +35,6 @@
     "eslint-config-flat-gitignore": "^0.3.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "husky": "^9.1.6",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.6",
     "prisma": "^6.0.1",

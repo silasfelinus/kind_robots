@@ -15,9 +15,7 @@
       <h1 class="text-2xl font-semibold ml-6">User Dashboard</h1>
       <div class="relative flex flex-col justify-center items-center">
         <!-- Rounded Avatar -->
-        <user-avatar
-          class="w-auto max-h-25 rounded-full border-2 border-accent"
-        />
+        <user-avatar class="w-auto h-1/2 rounded-full border-2 border-accent" />
 
         <!-- Smaller Avatar Upload -->
         <avatar-upload class="w-16 h-16 mt-2" />
@@ -61,7 +59,7 @@
           >
             Login
           </button>
-<google-login />
+          <google-login />
         </div>
       </div>
 

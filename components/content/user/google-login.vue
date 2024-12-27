@@ -3,10 +3,10 @@
     <div class="flex items-center space-x-2">
       <input
         id="googleLoginToggle"
-        type="checkbox"
         v-model="googleLogin"
-        @change="toggleGoogleLogin"
+        type="checkbox"
         class="checkbox checkbox-primary"
+        @change="toggleGoogleLogin"
       />
       <label for="googleLoginToggle" class="text-sm">
         Keep me logged in with Google
@@ -23,24 +23,22 @@
   </div>
 </template>
 
-<script setup lang='ts'>
-import { ref, computed } from "vue";
-import { useUserStore } from '@/stores/userStore';
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useUserStore } from '@/stores/userStore'
 
-const userStore = useUserStore();
+const userStore = useUserStore()
 
 const googleLogin = computed({
   get: () => userStore.googleLogin,
   set: (value) => userStore.setGoogleLogin(value),
-});
+})
 function toggleGoogleLogin() {
-  userStore.setGoogleLogin(googleLogin.value); // Update store and save to localStorage
-  console.log('Google login preference updated:', googleLogin.value);
+  userStore.setGoogleLogin(googleLogin.value) // Update store and save to localStorage
+  console.log('Google login preference updated:', googleLogin.value)
 }
 
 function loginWithGoogle() {
-  window.location.href = '/api/auth/google'; // Perform a full redirect
+  window.location.href = '/api/auth/google' // Perform a full redirect
 }
-
-
 </script>

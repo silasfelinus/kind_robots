@@ -15,7 +15,7 @@
       <form
         v-if="!store.isLoggedIn"
         class="space-y-4 w-full"
-        :autocomplete="store.stayLoggedIn ? 'on' : 'off'"
+        :autocomplete="stayLoggedIn ? 'on' : 'off'"
         @submit.prevent="handleLogin"
       >
         <div class="mb-2 relative group">
@@ -56,7 +56,7 @@
           <div>
             <input
               id="stayLoggedIn"
-              v-model="store.stayLoggedIn"
+              v-model="stayLoggedIn"
               type="checkbox"
               class="mr-2"
             />
@@ -93,8 +93,9 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useUserStore } from './../../../stores/userStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 
@@ -104,6 +105,12 @@ const password = ref('')
 const errorStore = useErrorStore()
 const errorMessage = ref('')
 const userNotFound = ref(false)
+
+// Consolidate stayLoggedIn as a computed property
+const stayLoggedIn = computed({
+  get: () => store.stayLoggedIn,
+  set: (value: boolean) => (store.stayLoggedIn = value),
+})
 
 const emit = defineEmits(['close'])
 
@@ -120,9 +127,7 @@ const handleLogin = async () => {
       password: password.value || undefined,
     }
     const result = await store.login(credentials)
-    if (result.success) {
-      store.setStayLoggedIn(store.stayLoggedIn)
-    } else {
+    if (!result.success) {
       errorMessage.value = result.message || 'Login failed'
       userNotFound.value = result.message?.includes('User not found') || false
     }

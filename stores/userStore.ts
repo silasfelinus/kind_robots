@@ -12,6 +12,7 @@ interface UserState {
   milestones: number[]
   users: User[]
   recipient: User | null
+  googleLogin: boolean
 }
 
 export const useUserStore = defineStore({
@@ -25,6 +26,7 @@ export const useUserStore = defineStore({
     milestones: [],
     users: [],
     recipient: null,
+    googleLogin: false,
   }),
   getters: {
     karma(state): number {

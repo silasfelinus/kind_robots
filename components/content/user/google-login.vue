@@ -31,7 +31,7 @@ const userStore = useUserStore()
 
 const googleToken = computed({
   get: () => userStore.googleToken,
-  set: (value) => userStore.setgoogleToken(value),
+  set: (value) => userStore.setGoogleToken(value),
 })
 function toggleGoogleToken() {
   userStore.setGoogleToken(googleToken.value) // Update store and save to localStorage

@@ -24,10 +24,10 @@ onMounted(async () => {
   }
 
   // Check for Google login flag and token in localStorage
-  const googleLogin = userStore.getFromLocalStorage('googleLogin') === 'true'
+  const googleToken = userStore.getFromLocalStorage('googleToken') === 'true'
   const token = userStore.getFromLocalStorage('token')
 
-  if (googleLogin && token) {
+  if (googleToken && token) {
     console.log('Google login detected. Redirecting to Google auth...')
     window.location.href = '/api/auth/google' // Redirect to Google login
     return

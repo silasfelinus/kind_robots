@@ -2,13 +2,13 @@
   <div class="flex flex-col items-start space-y-4">
     <div class="flex items-center space-x-2">
       <input
-        id="googleLoginToggle"
-        v-model="googleLogin"
+        id="googleTokenToggle"
+        v-model="googleToken"
         type="checkbox"
         class="checkbox checkbox-primary"
-        @change="toggleGoogleLogin"
+        @change="toggleGoogleToken"
       />
-      <label for="googleLoginToggle" class="text-sm">
+      <label for="googleTokenToggle" class="text-sm">
         Keep me logged in with Google
       </label>
     </div>
@@ -29,13 +29,13 @@ import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
 
-const googleLogin = computed({
-  get: () => userStore.googleLogin,
-  set: (value) => userStore.setGoogleLogin(value),
+const googleToken = computed({
+  get: () => userStore.googleToken,
+  set: (value) => userStore.setgoogleToken(value),
 })
-function toggleGoogleLogin() {
-  userStore.setGoogleLogin(googleLogin.value) // Update store and save to localStorage
-  console.log('Google login preference updated:', googleLogin.value)
+function toggleGoogleToken() {
+  userStore.setGoogleToken(googleToken.value) // Update store and save to localStorage
+  console.log('Google login preference updated:', googleToken.value)
 }
 
 function loginWithGoogle() {

@@ -55,7 +55,7 @@
         </div>
       </div>
     </div>
-    <login-form v-if="showLogin" @close="showLogin = false" />
+    <login-page v-if="showLogin" @close="showLogin = false" />
     <cache-clear />
   </div>
 </template>

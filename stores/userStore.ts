@@ -12,7 +12,7 @@ interface UserState {
   milestones: number[]
   users: User[]
   recipient: User | null
-  googleLogin: boolean
+  googleToken: boolean
 }
 
 export const useUserStore = defineStore({
@@ -26,7 +26,7 @@ export const useUserStore = defineStore({
     milestones: [],
     users: [],
     recipient: null,
-    googleLogin: false,
+    googleToken: false,
   }),
   getters: {
     karma(state): number {
@@ -71,9 +71,14 @@ export const useUserStore = defineStore({
       await this.fetchUsers()
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
+      const googleToken = this.getFromLocalStorage('googleToken') === 'true'
       this.setStayLoggedIn(stayLoggedIn)
       if (storedToken) {
         this.token = storedToken
+      }
+
+      if (googleToken) {
+        this.googleToken = googleToken
       }
 
       if (stayLoggedIn && storedToken) {
@@ -165,44 +170,46 @@ export const useUserStore = defineStore({
         return { success: false, message: 'An unknown error occurred' }
       }
     },
-setStayLoggedIn(value: boolean) {
-  if (this.stayLoggedIn !== value) {
-    this.stayLoggedIn = value;
-    this.saveToLocalStorage('stayLoggedIn', value.toString());
-    console.log('Updated stayLoggedIn in localStorage:', value);
-  }
-},
+    setStayLoggedIn(value: boolean) {
+      if (this.stayLoggedIn !== value) {
+        this.stayLoggedIn = value
+        this.saveToLocalStorage('stayLoggedIn', value.toString())
+        console.log('Updated stayLoggedIn in localStorage:', value)
+      }
+    },
 
     async validateAndFetchUserData(): Promise<boolean> {
-  try {
-    const response = await performFetch<User>('/api/auth/validate/token', {
-      method: 'POST',
-      body: JSON.stringify({ token: this.token }),
-    });
+      try {
+        const response = await performFetch<User>('/api/auth/validate/token', {
+          method: 'POST',
+          body: JSON.stringify({ token: this.token }),
+        })
 
-    if (response.success && response.data) {
-      await this.setUser(response.data);
+        if (response.success && response.data) {
+          await this.setUser(response.data)
 
-      // Save the token to localStorage if stayLoggedIn is true
-      if (this.stayLoggedIn && this.token) {
-        this.saveToLocalStorage('token', this.token);
-        console.log('Token saved to localStorage after successful validation.');
+          // Save the token to localStorage if stayLoggedIn is true
+          if (this.stayLoggedIn && this.token) {
+            this.saveToLocalStorage('token', this.token)
+            console.log(
+              'Token saved to localStorage after successful validation.',
+            )
+          }
+
+          return true
+        } else {
+          console.warn('User validation failed:', response.message)
+          handleError(
+            new Error(response.message || 'Invalid token'),
+            'validating user',
+          )
+          return false
+        }
+      } catch (error) {
+        handleError(error, 'validating user')
+        return false
       }
-
-      return true;
-    } else {
-      console.warn('User validation failed:', response.message);
-      handleError(
-        new Error(response.message || 'Invalid token'),
-        'validating user',
-      );
-      return false;
-    }
-  } catch (error) {
-    handleError(error, 'validating user');
-    return false;
-  }
-},
+    },
     async fetchUserByApiKey(): Promise<void> {
       try {
         const response = await performFetch<User>('/api/user')
@@ -351,10 +358,10 @@ setStayLoggedIn(value: boolean) {
       }
     },
 
-setGoogleLogin(value: boolean) {
-      this.googleLogin = value;
-      this.saveToLocalStorage('googleLogin', value.toString());
-      console.log('Google login preference updated:', value);
+    setGoogleToken(value: boolean) {
+      this.googleToken = value
+      this.saveToLocalStorage('googleToken', value.toString())
+      console.log('Google login preference updated:', value)
     },
 
     logout(): void {
@@ -365,7 +372,7 @@ setGoogleLogin(value: boolean) {
       this.removeFromLocalStorage('user')
       this.removeFromLocalStorage('stayLoggedIn')
       this.setStayLoggedIn(false)
-      this.removeFromLocalStorage('googleLogin');
+      this.removeFromLocalStorage('googleToken')
     },
 
     setToken(newToken: string): void {

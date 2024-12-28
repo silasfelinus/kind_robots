@@ -360,6 +360,7 @@ export const useUserStore = defineStore({
 
     setGoogleToken(value: boolean) {
       this.googleToken = value
+      this.setStayLoggedIn(true)
       this.saveToLocalStorage('googleToken', value.toString())
       console.log('Google login preference updated:', value)
     },

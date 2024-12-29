@@ -13,58 +13,63 @@ import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
 const { page } = useContent()
-const router = useRouter()
 const route = useRoute()
+const router = useRouter()
 
 onMounted(async () => {
-  // If the user is already logged in, skip this step
+  // If user already exists in the store, no need to validate
   if (userStore.user !== null) {
-    console.log('User already logged in. Skipping Google login.')
+    console.log('User already logged in. Skipping auth flow.')
     return
   }
 
-  // Check for Google login flag and token in localStorage
-  const googleToken = userStore.getFromLocalStorage('googleToken') === 'true'
+  // Check for a localStorage token
   const token = userStore.getFromLocalStorage('token')
-
-  if (googleToken && token) {
-    console.log('Google login detected. Redirecting to Google auth...')
-    window.location.href = '/api/auth/google' // Redirect to Google login
-    return
-  }
-
-  // Handle token or code from the query
-  const queryToken = route.query.token
-  const code = route.query.code
-
-  if (typeof queryToken === 'string') {
-    console.log('Token found in query:', queryToken)
+  if (token) {
     try {
-      // Save the token to the store
-      userStore.token = queryToken
-
-      // Validate the token and fetch user data
+      console.log('Validating token from localStorage...')
       const isValid = await userStore.validateAndFetchUserData()
       if (isValid) {
-        console.log('Token validated. Redirecting to dashboard...')
-        await router.push('/dashboard')
+        console.log('Token validated. User session set.')
+        // Stay on the current page; no need to redirect
+        return
       } else {
-        console.warn('Token validation failed. Redirecting to login...')
-        await router.push('/login')
+        console.warn('Invalid token. Clearing storage.')
+        userStore.clearLocalStorage()
+        // Stay on the current page; let the user access public content
       }
     } catch (error) {
-      console.error('Error during token processing:', error)
-      await router.push('/login') // Redirect on error
+      console.error('Error during token validation:', error)
+      userStore.clearLocalStorage()
     }
-  } else if (typeof code === 'string') {
-    console.log(
-      'Code found in query. Redirecting to backend for token exchange...',
-    )
+  }
+
+  // Handle query parameters for mandatory login
+  const queryToken = route.query.token as string
+  const code = route.query.code as string
+
+  if (queryToken) {
+    console.log('Processing query token...')
+    try {
+      userStore.token = queryToken
+      const isValid = await userStore.validateAndFetchUserData()
+      if (isValid) {
+        console.log('Query token validated. User session set.')
+        // No redirect; allow the user to stay on the current page
+        return
+      } else {
+        console.warn('Query token validation failed.')
+        await router.push('/login') // Redirect to login on failure
+      }
+    } catch (error) {
+      console.error('Error processing query token:', error)
+      await router.push('/login')
+    }
+  } else if (code) {
+    console.log('Code found. Redirecting for token exchange...')
     await router.push(`/api/auth/google/callback?code=${code}`)
   } else {
-    console.log(
-      'No token or code found. Proceeding with normal content rendering.',
-    )
+    console.log('No auth data found. Proceeding with content rendering.')
   }
 })
 </script>

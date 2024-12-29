@@ -27,11 +27,11 @@ export const usePitchStore = defineStore('pitch', {
     exampleString: ' ',
     apiResponse: ' ',
     maxTokens: 500,
+    selectedPitch: null as Pitch | null,
   }),
 
   getters: {
     pitchTypes: () => Object.values(PitchType),
-    selectedPitch: (state) => state.selectedPitches[0] || null,
     selectedPitchId: (state) => state.selectedPitches[0]?.id || null,
     getPitchesByType: (state) => (pitchType: PitchType) => {
       return state.pitches.filter((pitch) => {

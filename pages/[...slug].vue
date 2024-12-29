@@ -43,11 +43,11 @@ onMounted(async () => {
           console.log('Token validated. User session set.')
         } else {
           console.warn('Invalid token. Clearing storage.')
-          userStore.clearLocalStorage()
+          userStore.removeFromLocalStorage('token')
         }
       } catch (error) {
         console.error('Error during token validation:', error)
-        userStore.clearLocalStorage()
+        userStore.removeFromLocalStorage('token')
       }
     } else {
       console.log('No token found. Skipping authentication.')

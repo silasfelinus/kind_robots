@@ -69,6 +69,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 import { useChatStore } from '@/stores/chatStore'
 
+// Store references
 const userStore = useUserStore()
 const artStore = useArtStore()
 const chatStore = useChatStore()
@@ -126,23 +127,40 @@ function shouldShowPath(art: Art): boolean {
 }
 
 // Send message to user
-function sendMessage(userId: number) {
-  chatStore.addChat({
-    type: 'ToUser',
-    recipientId: userId,
-    content: 'Hello!', // Example default content
-    userId: userStore.user?.id || 0, // Sender user ID
-    isPublic: false, // Private message
-    originId: null, // Optional for threading
-    previousEntryId: null, // Optional for threading
-    characterId: null,
-  })
+async function sendMessage(userId: number) {
+  try {
+    const currentUser = userStore.user
+    if (!currentUser) {
+      console.error('No current user available for sending a message.')
+      return
+    }
+
+    const originChat = chatStore.chats.find(
+      (chat) =>
+        chat.userId === currentUser.id &&
+        chat.recipientId === userId &&
+        chat.originId,
+    )
+
+    await chatStore.addChat({
+      type: 'ToUser',
+      recipientId: userId,
+      content: 'Hello!', // Example default content
+      userId: currentUser.id, // Sender user ID
+      isPublic: false, // Private message
+      originId: originChat ? originChat.originId : null,
+      previousEntryId: originChat ? originChat.id : null,
+      characterId: null,
+    })
+  } catch (error) {
+    console.error('Failed to send message:', error)
+  }
 }
 
 // Check if there are unread messages from this user
 function hasUnreadMessages(userId: number): boolean {
   return chatStore.unreadMessages.some(
-    (message) => message.recipientId === userId,
+    (message) => message.recipientId === userId && !message.isRead,
   )
 }
 </script>

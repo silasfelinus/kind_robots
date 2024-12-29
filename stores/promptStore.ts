@@ -41,17 +41,19 @@ export const usePromptStore = defineStore('promptStore', {
       this.isInitialized = true
     },
     async selectPrompt(promptId: number) {
-  try {
-    if (this.currentPrompt?.id === promptId) return
-    const foundPrompt = this.prompts.find((prompt) => prompt.id === promptId)
-    if (!foundPrompt) throw new Error(`Prompt with ID ${promptId} not found`)
+      try {
+        if (this.selectedPrompt?.id === promptId) return
+        const foundPrompt = this.prompts.find(
+          (prompt) => prompt.id === promptId,
+        )
+        if (!foundPrompt)
+          throw new Error(`Prompt with ID ${promptId} not found`)
 
-    this.selectedPrompt = foundPrompt
-  } catch (error) {
-    handleError(error, 'selecting prompt')
-  }
-},
-
+        this.selectedPrompt = foundPrompt
+      } catch (error) {
+        handleError(error, 'selecting prompt')
+      }
+    },
 
     savePromptField() {
       if (typeof window !== 'undefined') {
@@ -70,9 +72,7 @@ export const usePromptStore = defineStore('promptStore', {
 
     async fetchPrompts() {
       try {
-        const response = await performFetch<Prompt[]>(
-          '/api/prompts/',
-        )
+        const response = await performFetch<Prompt[]>('/api/prompts/')
         this.prompts = response.data || []
       } catch (error) {
         handleError(error, 'fetching prompts')
@@ -95,13 +95,10 @@ export const usePromptStore = defineStore('promptStore', {
 
     async addPrompt(newPrompt: string, userId: number, botId: number) {
       try {
-        const response = await performFetch<Prompt>(
-          '/api/prompts',
-          {
-            method: 'POST',
-            body: JSON.stringify({ prompt: newPrompt, userId, botId }),
-          },
-        )
+        const response = await performFetch<Prompt>('/api/prompts', {
+          method: 'POST',
+          body: JSON.stringify({ prompt: newPrompt, userId, botId }),
+        })
 
         const createdPrompt = response.data || null
         if (createdPrompt) {
@@ -116,9 +113,7 @@ export const usePromptStore = defineStore('promptStore', {
     async fetchPromptById(promptId: number): Promise<Prompt | null> {
       if (this.fetchedPrompts[promptId]) return this.fetchedPrompts[promptId]
       try {
-        const response = await performFetch<Prompt>(
-          `/api/prompts/${promptId}`,
-        )
+        const response = await performFetch<Prompt>(`/api/prompts/${promptId}`)
         const fetchedPrompt = response.data || null
         this.fetchedPrompts[promptId] = fetchedPrompt
         return fetchedPrompt
@@ -176,10 +171,6 @@ export const usePromptStore = defineStore('promptStore', {
 
       prompt.prompt = value
       this.prompts[index] = prompt
-    },
-
-    selectPrompt(prompt: Prompt) {
-      this.selectedPrompt = prompt
     },
 
     clearPrompt() {

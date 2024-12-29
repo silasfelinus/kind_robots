@@ -527,6 +527,8 @@ model User {
   matchRecord    Int?              @default(0)
   showMature     Boolean           @default(false)
   Role           Role              @default(USER)
+  isPublic       Boolean           @default(true)
+  blockList      String?
   designerName   String?
   artImageId     Int?
   Art            Art[]

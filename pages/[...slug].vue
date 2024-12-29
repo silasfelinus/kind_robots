@@ -10,8 +10,10 @@
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
+import { useBotStore } from '@/stores/botStore'
 
 const userStore = useUserStore()
+const botStore = useBotStore()
 const { page } = useContent()
 const route = useRoute()
 const router = useRouter()
@@ -32,11 +34,9 @@ onMounted(async () => {
       if (isValid) {
         console.log('Token validated. User session set.')
         // Stay on the current page; no need to redirect
-        return
       } else {
         console.warn('Invalid token. Clearing storage.')
         userStore.clearLocalStorage()
-        // Stay on the current page; let the user access public content
       }
     } catch (error) {
       console.error('Error during token validation:', error)
@@ -44,10 +44,22 @@ onMounted(async () => {
     }
   }
 
-  // Handle query parameters for mandatory login
+  // Handle query parameters
   const queryToken = route.query.token as string
   const code = route.query.code as string
+  const botId = route.query.botId as string // New query parameter
 
+  // Handle bot selection
+  if (botId) {
+    try {
+      console.log(`Selecting bot with ID: ${botId}`)
+      botStore.selectBot(botId)
+    } catch (error) {
+      console.error(`Failed to select bot with ID ${botId}:`, error)
+    }
+  }
+
+  // Handle query token for mandatory login
   if (queryToken) {
     console.log('Processing query token...')
     try {
@@ -56,7 +68,6 @@ onMounted(async () => {
       if (isValid) {
         console.log('Query token validated. User session set.')
         // No redirect; allow the user to stay on the current page
-        return
       } else {
         console.warn('Query token validation failed.')
         await router.push('/login') // Redirect to login on failure

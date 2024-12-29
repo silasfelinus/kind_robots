@@ -44,7 +44,7 @@
         <div class="flex space-x-2">
           <button
             class="bg-info text-white py-1 px-3 rounded-lg hover:bg-info-dark"
-            @click="selectPrompt(prompt)"
+            @click="selectPrompt(prompt.id)"
           >
             Select
           </button>
@@ -133,7 +133,3 @@ const addNewPrompt = () => {
   }
 }
 </script>
-
-<style scoped>
-/* You can add custom styles here if needed */
-</style>

@@ -32,52 +32,40 @@ const route = useRoute()
 const router = useRouter()
 
 onMounted(async () => {
-  // If user already exists in the store, no need to validate
-  if (userStore.user !== null) {
-    console.log('User already logged in. Skipping auth flow.')
-    return
-  }
-
-  // Check for a localStorage token
+  // Handle user authentication
   const token = userStore.getFromLocalStorage('token')
-  if (token) {
-    try {
-      console.log('Validating token from localStorage...')
-      const isValid = await userStore.validateAndFetchUserData()
-      if (isValid) {
-        console.log('Token validated. User session set.')
-      } else {
-        console.warn('Invalid token. Clearing storage.')
-        userStore.removeFromLocalStorage('token')
+  if (userStore.user === null) {
+    if (token) {
+      try {
+        console.log('Validating token from localStorage...')
+        const isValid = await userStore.validateAndFetchUserData()
+        if (isValid) {
+          console.log('Token validated. User session set.')
+        } else {
+          console.warn('Invalid token. Clearing storage.')
+          userStore.clearLocalStorage()
+        }
+      } catch (error) {
+        console.error('Error during token validation:', error)
+        userStore.clearLocalStorage()
       }
-    } catch (error) {
-      console.error('Error during token validation:', error)
-      userStore.removeFromLocalStorage('token')
+    } else {
+      console.log('No token found. Skipping authentication.')
     }
+  } else {
+    console.log('User already logged in. Skipping authentication.')
   }
 
-  // Handle query parameters
+  // Handle query parameters (always process these)
   const queryToken = route.query.token as string
   const code = route.query.code as string
 
-  const botId = route.query.botId
-    ? parseInt(route.query.botId as string, 10)
-    : undefined
-  const characterId = route.query.characterId
-    ? parseInt(route.query.characterId as string, 10)
-    : undefined
-  const scenarioId = route.query.scenarioId
-    ? parseInt(route.query.scenarioId as string, 10)
-    : undefined
-  const chatId = route.query.chatId
-    ? parseInt(route.query.chatId as string, 10)
-    : undefined
-  const pitchId = route.query.pitchId
-    ? parseInt(route.query.pitchId as string, 10)
-    : undefined
-  const promptId = route.query.promptId
-    ? parseInt(route.query.promptId as string, 10)
-    : undefined
+  const botId = route.query.botId ? parseInt(route.query.botId as string, 10) : undefined
+const characterId = route.query.characterId ? parseInt(route.query.characterId as string, 10) : undefined
+const scenarioId = route.query.scenarioId ? parseInt(route.query.scenarioId as string, 10) : undefined
+const chatId = route.query.chatId ? parseInt(route.query.chatId as string, 10) : undefined
+const pitchId = route.query.pitchId ? parseInt(route.query.pitchId as string, 10) : undefined
+const promptId = route.query.promptId ? parseInt(route.query.promptId as string, 10) : undefined
 
   const displayMode = route.query.displayMode as displayModeState
   const displayAction = route.query.displayAction as displayActionState
@@ -100,7 +88,6 @@ onMounted(async () => {
     }
   }
 
-  // Handle store selections
   if (botId) {
     try {
       console.log(`Selecting bot with ID: ${botId}`)
@@ -178,4 +165,5 @@ onMounted(async () => {
     console.log('No auth data found. Proceeding with content rendering.')
   }
 })
+
 </script>

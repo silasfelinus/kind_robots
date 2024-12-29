@@ -40,6 +40,18 @@ export const usePromptStore = defineStore('promptStore', {
       await this.fetchPrompts()
       this.isInitialized = true
     },
+    async selectPrompt(promptId: number) {
+  try {
+    if (this.currentPrompt?.id === promptId) return
+    const foundPrompt = this.prompts.find((prompt) => prompt.id === promptId)
+    if (!foundPrompt) throw new Error(`Prompt with ID ${promptId} not found`)
+
+    this.selectedPrompt = foundPrompt
+  } catch (error) {
+    handleError(error, 'selecting prompt')
+  }
+},
+
 
     savePromptField() {
       if (typeof window !== 'undefined') {

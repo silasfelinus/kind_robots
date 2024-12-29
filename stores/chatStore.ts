@@ -12,6 +12,7 @@ export const useChatStore = defineStore({
     isInitialized: false,
     unreadMessages: [] as Chat[],
     selectedChat: null as Chat | null,
+    selectedRecipientId: null as number | null,
   }),
 
   getters: {
@@ -23,6 +24,12 @@ export const useChatStore = defineStore({
     chatsByUserId: (state) => {
       const userStore = useUserStore()
       return state.chats.filter((chat) => chat.userId === userStore.user?.id)
+    },
+    // New getter for unread message count by recipient
+    unreadCountByRecipient: (state) => {
+      return (recipientId: number) =>
+        state.unreadMessages.filter((chat) => chat.recipientId === recipientId)
+          .length
     },
     publicChats(state) {
       const userStore = useUserStore()
@@ -50,17 +57,37 @@ export const useChatStore = defineStore({
         handleError(ErrorType.NETWORK_ERROR, `Initialization failed: ${error}`)
       }
     },
-async selectChat(chatId: number) {
+    async selectChat(chatId: number) {
       try {
         if (this.selectedChat?.id === chatId) return
         const foundChat = this.chats.find((chat) => chat.id === chatId)
         if (!foundChat) throw new Error(`Chat with ID ${chatId} not found`)
 
         this.selectedChat = foundChat
-        
       } catch (error) {
         handleError(error, 'selecting chat')
       }
+    },
+    markMessagesAsRead(recipientId: number) {
+      const unreadMessages = this.unreadMessages.filter(
+        (chat) => chat.recipientId === recipientId,
+      )
+
+      unreadMessages.forEach(async (chat) => {
+        try {
+          chat.isRead = true
+          await performFetch(`/api/chats/${chat.id}/read`, { method: 'PUT' })
+        } catch (error) {
+          handleError(
+            ErrorType.NETWORK_ERROR,
+            `Failed to mark chat as read: ${error}`,
+          )
+        }
+      })
+
+      this.unreadMessages = this.unreadMessages.filter(
+        (chat) => chat.recipientId !== recipientId,
+      )
     },
 
     async addChat({
@@ -128,6 +155,7 @@ async selectChat(chatId: number) {
           promptId,
           botResponse,
           characterId,
+          isRead: false,
         }
 
         const response = await performFetch<Chat>('/api/chats', {
@@ -319,6 +347,11 @@ async selectChat(chatId: number) {
       } else {
         this.chats = []
       }
+    },
+
+    async selectRecipient(recipientId: number) {
+      this.selectedRecipientId = recipientId
+      this.markMessagesAsRead(recipientId)
     },
 
     saveToLocalStorage() {

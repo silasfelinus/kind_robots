@@ -50,6 +50,18 @@ export const useChatStore = defineStore({
         handleError(ErrorType.NETWORK_ERROR, `Initialization failed: ${error}`)
       }
     },
+async selectChat(chatId: number) {
+      try {
+        if (this.selectedChat?.id === chatId) return
+        const foundChat = this.chats.find((chat) => chat.id === chatId)
+        if (!foundChat) throw new Error(`Chat with ID ${chatId} not found`)
+
+        this.selectedChat = foundChat
+        
+      } catch (error) {
+        handleError(error, 'selecting chat')
+      }
+    },
 
     async addChat({
       content,

@@ -16,6 +16,9 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 import { useChatStore } from '@/stores/chatStore'
 import { usePitchStore } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
+import { useDisplayStore } from '@/stores/displayStore'
+
+const displayStore = useDisplayStore()
 
 const userStore = useUserStore()
 const botStore = useBotStore()
@@ -64,6 +67,26 @@ onMounted(async () => {
   const chatId = route.query.chatId as string
   const pitchId = route.query.pitchId as string
   const promptId = route.query.promptId as string
+  const displayMode = route.query.displayMode as displayModeState
+  const displayAction = route.query.displayAction as displayActionState
+
+  if (displayMode) {
+    try {
+      console.log(`Setting display mode: ${displayMode}`)
+      displayStore.displayMode = displayMode
+    } catch (error) {
+      console.error(`Failed to set display mode: ${displayMode}`, error)
+    }
+  }
+
+  if (displayAction) {
+    try {
+      console.log(`Setting display action: ${displayAction}`)
+      displayStore.displayAction = displayAction
+    } catch (error) {
+      console.error(`Failed to set display action: ${displayAction}`, error)
+    }
+  }
 
   // Handle store selections
   if (botId) {

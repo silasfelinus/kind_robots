@@ -48,11 +48,11 @@ onMounted(async () => {
         console.log('Token validated. User session set.')
       } else {
         console.warn('Invalid token. Clearing storage.')
-        userStore.clearLocalStorage()
+        userStore.removeFromLocalStorage('token')
       }
     } catch (error) {
       console.error('Error during token validation:', error)
-      userStore.clearLocalStorage()
+      userStore.removeFromLocalStorage('token')
     }
   }
 
@@ -60,13 +60,25 @@ onMounted(async () => {
   const queryToken = route.query.token as string
   const code = route.query.code as string
 
-  // Store-specific query parameters
-  const botId = route.query.botId as string
-  const characterId = route.query.characterId as string
-  const scenarioId = route.query.scenarioId as string
-  const chatId = route.query.chatId as string
-  const pitchId = route.query.pitchId as string
-  const promptId = route.query.promptId as string
+  const botId = route.query.botId
+    ? parseInt(route.query.botId as string, 10)
+    : undefined
+  const characterId = route.query.characterId
+    ? parseInt(route.query.characterId as string, 10)
+    : undefined
+  const scenarioId = route.query.scenarioId
+    ? parseInt(route.query.scenarioId as string, 10)
+    : undefined
+  const chatId = route.query.chatId
+    ? parseInt(route.query.chatId as string, 10)
+    : undefined
+  const pitchId = route.query.pitchId
+    ? parseInt(route.query.pitchId as string, 10)
+    : undefined
+  const promptId = route.query.promptId
+    ? parseInt(route.query.promptId as string, 10)
+    : undefined
+
   const displayMode = route.query.displayMode as displayModeState
   const displayAction = route.query.displayAction as displayActionState
 

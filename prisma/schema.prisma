@@ -158,6 +158,7 @@ model Chat {
   botResponse     String?
   characterId     Int?
   Character       Character?          @relation(fields: [characterId], references: [id])
+  isRead          Boolean           @default(false)
 }
 
 model Character {

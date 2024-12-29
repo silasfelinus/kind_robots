@@ -49,6 +49,20 @@ export const usePitchStore = defineStore('pitch', {
         (pitch) => pitch.PitchType === PitchType.RANDOMLIST,
       )
     },
+    async selectPitch(pitchId: number) {
+  try {
+    if (this.currentPitch?.id === pitchId) return
+    const foundPitch = this.pitches.find((pitch) => pitch.id === pitchId)
+    if (!foundPitch) throw new Error(`Pitch with ID ${pitchId} not found`)
+
+    this.selectedPitch = foundPitch
+    
+    
+  } catch (error) {
+    handleError(error, 'selecting pitch')
+  }
+},
+
     brainstormPitches: (state) =>
       state.pitches.filter((pitch) => pitch.PitchType === PitchType.BRAINSTORM),
     titles: (state) =>

@@ -31,13 +31,7 @@
           <jellybean-count />
         </div>
 
-        <button
-          class="bg-warning p-2 rounded-lg text-white text-lg"
-          @click="logout"
-        >
-          Logout
-        </button>
-
+     
         <div v-if="isLoggedIn" class="flex flex-wrap space-x-4">
           <button
             class="bg-warning p-2 rounded-lg text-white text-lg"

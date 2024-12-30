@@ -366,24 +366,24 @@ export const useUserStore = defineStore({
     },
 
     logout(): void {
-  console.log('Logging out user.');
-  this.user = null;
-  this.token = null; // Clear the in-memory token
+      console.log('Logging out user.')
+      this.user = null
+      this.token = undefined // Clear the in-memory token
 
-  // Log and clear localStorage keys
-  ['token', 'user', 'stayLoggedIn'].forEach((key) => {
-    const value = localStorage.getItem(key);
-    console.log(`${key} before clearing:`, value);
-    localStorage.removeItem(key);
-  });
+      // Log and clear localStorage keys
+      ;['token', 'user', 'stayLoggedIn'].forEach((key) => {
+        const value = localStorage.getItem(key)
+        console.log(`${key} before clearing:`, value)
+        localStorage.removeItem(key)
+      })
 
-  // Confirm localStorage is cleared
-  console.log('LocalStorage state after logout:', {
-    token: localStorage.getItem('token'),
-    user: localStorage.getItem('user'),
-    stayLoggedIn: localStorage.getItem('stayLoggedIn'),
-  });
-},
+      // Confirm localStorage is cleared
+      console.log('LocalStorage state after logout:', {
+        token: localStorage.getItem('token'),
+        user: localStorage.getItem('user'),
+        stayLoggedIn: localStorage.getItem('stayLoggedIn'),
+      })
+    },
 
     setToken(newToken: string): void {
       this.token = newToken || undefined
@@ -407,7 +407,7 @@ export const useUserStore = defineStore({
     removeFromLocalStorage(key: string) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem(key)
-console.log("removed ", key)
+        console.log('removed ', key)
       }
     },
 

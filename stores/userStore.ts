@@ -366,18 +366,24 @@ export const useUserStore = defineStore({
     },
 
     logout(): void {
-      console.log('Logging out user.')
-      this.user = null
-      this.token = undefined
-      this.removeFromLocalStorage('token')
-      this.removeFromLocalStorage('user')
-      this.removeFromLocalStorage('stayLoggedIn')
-      this.setStayLoggedIn(false)
-      this.removeFromLocalStorage('googleToken')
-       console.log('LocalStorage cleared:', {
+  console.log('Logging out user.');
+  this.user = null;
+  this.token = null; // Clear the in-memory token
+
+  // Log and clear localStorage keys
+  ['token', 'user', 'stayLoggedIn'].forEach((key) => {
+    const value = localStorage.getItem(key);
+    console.log(`${key} before clearing:`, value);
+    localStorage.removeItem(key);
+  });
+
+  // Confirm localStorage is cleared
+  console.log('LocalStorage state after logout:', {
     token: localStorage.getItem('token'),
-    user: localStorage.getItem('user')})
-    },
+    user: localStorage.getItem('user'),
+    stayLoggedIn: localStorage.getItem('stayLoggedIn'),
+  });
+},
 
     setToken(newToken: string): void {
       this.token = newToken || undefined

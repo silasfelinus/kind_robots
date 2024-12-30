@@ -253,28 +253,17 @@ export function validatePassword(password: string): {
   isValid: boolean
   message: string
 } {
-  const minLength = /^.{8,}$/
+  const minLength = /^.{6,}$/
   const hasNumber = /\d/
   const hasLetter = /[a-zA-Z]/
 
   if (!minLength.test(password)) {
     return {
       isValid: false,
-      message: 'Password must be at least 8 characters long.',
+      message: 'Password must be at least 6 characters long.',
     }
   }
-  if (!hasNumber.test(password)) {
-    return {
-      isValid: false,
-      message: 'Password must contain at least one number.',
-    }
-  }
-  if (!hasLetter.test(password)) {
-    return {
-      isValid: false,
-      message: 'Password must contain at least one letter.',
-    }
-  }
+  
 
   return { isValid: true, message: 'Password is valid.' }
 }

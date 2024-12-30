@@ -374,6 +374,9 @@ export const useUserStore = defineStore({
       this.removeFromLocalStorage('stayLoggedIn')
       this.setStayLoggedIn(false)
       this.removeFromLocalStorage('googleToken')
+console.log('LocalStorage cleared:', {
+    token: localStorage.getItem('token'),
+    user: localStorage.getItem('user'),}
     },
 
     setToken(newToken: string): void {

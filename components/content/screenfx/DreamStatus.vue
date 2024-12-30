@@ -1,8 +1,5 @@
 <template>
-  <transition
-    name="fade"
-    mode="out-in"
-  >
+  <transition name="fade" mode="out-in">
     <div
       :key="dream"
       class="dream-status text-default text-lg font-semibold text-center bg-primary p-4 border-accent shadow-lg transition-all duration-500 hover:scale-105"
@@ -13,7 +10,8 @@
   </transition>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
 import { useDreamStore } from '../../../stores/dreamStore'
 
 const dreamStore = useDreamStore()
@@ -25,13 +23,15 @@ const updateDream = () => {
   statusMessage.value = `Hold On...${dream.value}`
 }
 
-let intervalId = null
+// Explicitly typing intervalId as number
+let intervalId: number | null = null
+
 onMounted(() => {
-  intervalId = setInterval(updateDream, 20 * 1000)
+  intervalId = setInterval(updateDream, 20 * 1000) as unknown as number // Ensures it's typed as number
 })
 
 onUnmounted(() => {
-  if (intervalId) {
+  if (intervalId !== null) {
     clearInterval(intervalId)
   }
 })

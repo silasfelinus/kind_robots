@@ -1,86 +1,70 @@
 // /server/api/pitches/index.post.ts
-import { defineEventHandler, readBody } from 'h3'
-import type { Prisma, Pitch } from '@prisma/client'
+import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 import prisma from '../utils/prisma'
-import { useRandomName } from './../../../utils/useRandomName'
+import type { Prisma, Pitch } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    const pitchData = await readBody(event)
-
-    if (typeof pitchData !== 'object') {
-      return { success: false, message: 'Invalid JSON body. Expected an object.' }
+    // Use validateApiKey to authenticate
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
     }
 
-    const createdPitch = await prisma.pitch.create({
-      data: pitchData,
-    })
+    const authenticatedUserId = user.id
 
-    return { success: true, pitch: createdPitch }
-  }
-  catch (error: unknown) {
-    return errorHandler(error)
+    // Read and validate pitch data from the request body
+    const pitchData = await readBody<Partial<Pitch>>(event)
+
+    // Ensure required "pitch" field is provided and is a string
+    if (!pitchData.pitch || typeof pitchData.pitch !== 'string') {
+      event.node.res.statusCode = 400
+      return {
+        success: false,
+        data: null,
+        message: 'The "pitch" field is required and must be a string.',
+      }
+    }
+
+    // Prepare the pitch data
+    const fullData: Prisma.PitchCreateInput = {
+      User: { connect: { id: authenticatedUserId } },
+      pitch: pitchData.pitch,
+      title: pitchData.title || null,
+      designer: pitchData.designer || null,
+      flavorText: pitchData.flavorText || null,
+      highlightImage: pitchData.highlightImage || null,
+      PitchType: pitchData.PitchType || 'ARTPITCH',
+      isMature: pitchData.isMature ?? false,
+      isPublic: pitchData.isPublic ?? true,
+      imagePrompt: pitchData.imagePrompt || null,
+      description: pitchData.description || null,
+      examples: pitchData.examples || null,
+      artImageId: pitchData.artImageId || null,
+    }
+
+    // Create the pitch and set status code to 201 for successful creation
+    const data = await prisma.pitch.create({ data: fullData }) // Wrap fullData in data object
+    event.node.res.statusCode = 201
+
+    return {
+      success: true,
+      data,
+      message: 'Pitch created successfully.',
+    }
+  } catch (error: unknown) {
+    // Use errorHandler to standardize error response
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
+    return {
+      success: false,
+      data: null,
+      message: message || 'Failed to create pitch.',
+    }
   }
 })
-
-// Function to create a new Pitch
-export async function createPitch(
-  pitch: Omit<Partial<Pitch>, 'title' | 'pitch' | 'designer'> & {
-    userId: number
-    title: string
-    pitch: string
-    highlightImage: string
-  },
-): Promise<Pitch> {
-  try {
-    // Validate required fields
-    if (!pitch.title || !pitch.pitch || !pitch.userId) {
-      throw new Error('Title and pitch content must be provided')
-    }
-
-    // Generate a random designer name
-    const { value: designerName } = useRandomName()
-
-    // Create the new Pitch
-    return await prisma.pitch.create({
-      data: {
-        ...pitch,
-        highlightImage: "",
-        designer: designerName, // Set the designer name
-      },
-    })
-  }
-  catch (error: unknown) {
-    throw errorHandler(error)
-  }
-}
-
-// Function to create Pitches in batch
-export async function createPitchesBatch(
-  pitchesData: Partial<Pitch>[],
-): Promise<{ count: number, pitches: Pitch[], errors: string[] }> {
-  const errors: string[] = []
-
-  // Validate and filter the pitches
-  const data: Prisma.PitchCreateManyInput[] = pitchesData
-    .filter((pitchData) => {
-      if (!pitchData.title || !pitchData.pitch) {
-        errors.push(`Pitch with title ${pitchData.title} is incomplete.`)
-        return false
-      }
-      return true
-    })
-    .map(pitchData => pitchData as Prisma.PitchCreateManyInput)
-
-  // Create the pitches in a batch
-  const result = await prisma.pitch.createMany({
-    data,
-    skipDuplicates: true, // Skip duplicate records based on constraints
-  })
-
-  // Fetch the newly created pitches
-  const pitches = await prisma.pitch.findMany()
-
-  return { count: result.count, pitches, errors }
-}

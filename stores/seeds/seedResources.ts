@@ -1,16 +1,15 @@
 // ~/stores/seeds/seedResources.ts
 import type { Resource } from '@prisma/client'
-import { ResourceType } from '@prisma/client'
 
-// Current ResourceTypes
-//    CHECKPOINT
-//   EMBEDDING
-//   LORA
-//   LYCORIS
-//    HYPERNETWORK
-//   CONTROLNET
-//   URL
-
+export enum ResourceTypeEnum {
+CHECPOINT= 'CHECKPOINT',
+EMBEDDING = 'EMBEDDING',
+LORA = 'LORA',
+LYCORIS = 'LYCORIS',
+HYPERNETWORK = 'HYPERNETWORK',
+CONTROLNET = 'CONTROLNET',
+URL = 'URL'
+}
 export const resourceData: Partial<Resource>[] = [
   {
     name: 'Cafe Lola',
@@ -18,7 +17,7 @@ export const resourceData: Partial<Resource>[] = [
     MediaPath: '/images/avatars.bot1.jpg',
     localPath: 'https://lola.acrocatranch.com',
     description: 'private access only',
-    resourceType: ResourceType.URL,
+    resourceType: ResourceTypeEnum.URL,
   },
   {
     name: 'Cafe Fred',
@@ -26,6 +25,6 @@ export const resourceData: Partial<Resource>[] = [
     MediaPath: '/images/avatars/avatar1.jpg',
     localPath: 'https://lola.acrocatranch.com',
     description: 'private access only',
-    resourceType: ResourceType.URL,
+    resourceType: ResourceTypeEnum.URL,
   },
 ]

@@ -1,17 +1,35 @@
 // /server/api/milestones/index.get.ts
-import { defineEventHandler } from 'h3'
-import type { Milestone } from '@prisma/client' // Import the batch creation function
+import { defineEventHandler, setResponseStatus } from 'h3'
+import type { Milestone } from '@prisma/client'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+  let response
+
   try {
-    const milestones = await prisma.milestone.findMany()
-    return { success: true, milestones }
+    const data = await prisma.milestone.findMany()
+
+    // Set response for successful fetch
+    response = {
+      success: true,
+      message: 'Milestones fetched successfully.',
+      data,
+    }
+    setResponseStatus(event, 200)
+  } catch (error: unknown) {
+    const handledError = errorHandler(error)
+    console.error('Error fetching milestones:', handledError)
+
+    // Set error response with appropriate status code
+    setResponseStatus(event, handledError.statusCode || 500)
+    response = {
+      success: false,
+      message: handledError.message || 'Failed to fetch milestones.',
+    }
   }
-  catch (error: unknown) {
-    return errorHandler(error)
-  }
+
+  return response
 })
 
 // Function to fetch all Milestones

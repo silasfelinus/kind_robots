@@ -1,10 +1,10 @@
-export const defaultAction = 'I\'m contemplating the cosmos! 🌌'
+export const defaultAction = "I'm contemplating the cosmos! 🌌"
 
 export const randomActions = [
   'Cooking up some digital cookies! 🍪',
   'Doing butterfly yoga! 🧘‍♀️',
-  'Whistling the tune of Beethoven\'s 5th! 🎶',
-  'Browsing \'How to Train Your Human\' on WikiHow! 📖',
+  "Whistling the tune of Beethoven's 5th! 🎶",
+  "Browsing 'How to Train Your Human' on WikiHow! 📖",
   'Gazing at virtual stars! 🌠',
   'Deciphering cat meows! 🐱',
   'Practicing my stand-up routine! 🎤',

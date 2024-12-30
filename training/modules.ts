@@ -9,7 +9,8 @@ export interface ModuleData {
 
 export const moduleData: ModuleData = {
   ART: {
-    description: 'a collection of comma separated phrases and/or [Wildcards] for an art prompt.',
+    description:
+      'a collection of comma separated phrases and/or [Wildcards] for an art prompt.',
     example: '#ART Modeling shot, [ANIMAL], [PLACE], style of [ARTIST]',
   },
   SLOGAN: {
@@ -18,11 +19,13 @@ export const moduleData: ModuleData = {
   },
   CODE: {
     description: 'formatted code',
-    example: '#CODE "function helloWorld() { console.log(\'Hello, world!\'); }"',
+    example:
+      '#CODE "function helloWorld() { console.log(\'Hello, world!\'); }"',
   },
   POEM: {
     description: 'new line separated rhyming phrases',
-    example: '#POEM Roses are red,\nViolets are blue,\nPoems are sweet,\nAnd so are you.',
+    example:
+      '#POEM Roses are red,\nViolets are blue,\nPoems are sweet,\nAnd so are you.',
   },
   LIMERICK: {
     description: 'A Five Line Limerick separated by new lines',

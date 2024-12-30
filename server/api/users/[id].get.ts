@@ -1,57 +1,49 @@
-import type { User } from '@prisma/client'
-import { defineEventHandler } from 'h3'
+// /server/api/users/[id].get.ts
+import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import prisma from '../utils/prisma'
+import { validateApiKey } from '../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
+  console.log('Fetching user by ID with optional API key inclusion.')
+
   try {
-    // Extract the user ID from the query parameters
+    // Validate user ID from the request parameters
     const userId = Number(event.context.params?.id)
     if (isNaN(userId) || userId <= 0) {
-      return { success: false, message: 'Invalid User ID.' }
+      throw createError({ statusCode: 400, message: 'Invalid User ID.' })
     }
 
-    // Fetch the user by their ID
-    const user = await fetchUserById(userId)
-    if (!user) {
-      return { success: false, message: 'User not found.' }
-    }
+    // Validate the API key using the utility function
+    const { isValid, user } = await validateApiKey(event)
+    const includeSensitiveInfo = isValid && user?.id === userId
 
-    return { success: true, user }
-  } catch (error: unknown) {
-    const { message } = errorHandler(error)
-    return { success: false, message: `Failed to fetch user: ${message}` }
-  }
-})
-
-export async function fetchUserById(id: number): Promise<Partial<User> | null> {
-  try {
-    return await prisma.user.findUnique({
-      where: { id },
+    // Fetch the user data, including the apiKey if requested
+    const userData = await prisma.user.findUnique({
+      where: { id: userId },
       select: {
         id: true,
-        createdAt: true,
-        updatedAt: true,
-        Role: true,
         username: true,
-        // email: true, // Email is commented to exclude it from the response
         emailVerified: true,
-        clickRecord: true,
-        matchRecord: true,
-        name: true,
-        bio: true,
-        birthday: true,
-        city: true,
-        state: true,
-        country: true,
-        timezone: true,
-        avatarImage: true,
-        karma: true,
-        mana: true,
+        artImageId: true,
+        ...(includeSensitiveInfo && { apiKey: true }), // Conditionally include apiKey
       },
     })
+
+    if (!userData) {
+      throw createError({ statusCode: 404, message: 'User not found.' })
+    }
+
+    // Set a successful response with the user data
+    event.node.res.statusCode = 200
+    return {
+      success: true,
+      message: 'User fetched successfully.',
+      data: userData,
+    }
   } catch (error: unknown) {
-    console.error(`Failed to fetch user by ID: ${(error as Error).message}`)
-    throw new Error(errorHandler(error).message)
+    const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
+    return { success: false, message: handledError.message }
   }
-}
+})

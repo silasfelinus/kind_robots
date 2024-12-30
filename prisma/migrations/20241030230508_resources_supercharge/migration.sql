@@ -1,0 +1,38 @@
+-- AlterTable
+ALTER TABLE `Reaction` ADD COLUMN `botId` INTEGER NULL,
+    ADD COLUMN `galleryId` INTEGER NULL,
+    ADD COLUMN `messageId` INTEGER NULL,
+    ADD COLUMN `postId` INTEGER NULL,
+    ADD COLUMN `promptId` INTEGER NULL,
+    ADD COLUMN `resourceId` INTEGER NULL,
+    ADD COLUMN `rewardId` INTEGER NULL,
+    ADD COLUMN `tagId` INTEGER NULL,
+    ALTER COLUMN `userId` DROP DEFAULT,
+    ALTER COLUMN `channelId` DROP DEFAULT,
+    ALTER COLUMN `chatExchangeId` DROP DEFAULT,
+    MODIFY `reactionCategory` ENUM('ART', 'ART_IMAGE', 'PITCH', 'COMPONENT', 'CHANNEL', 'CHAT_EXCHANGE', 'BOT', 'GALLERY', 'MESSAGE', 'POST', 'PROMPT', 'RESOURCE', 'REWARD', 'TAG', 'TITLE') NOT NULL DEFAULT 'CHANNEL',
+    MODIFY `artImageId` INTEGER NULL DEFAULT 10;
+
+-- AddForeignKey
+ALTER TABLE `Reaction` ADD CONSTRAINT `Reaction_galleryId_fkey` FOREIGN KEY (`galleryId`) REFERENCES `Gallery`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Reaction` ADD CONSTRAINT `Reaction_botId_fkey` FOREIGN KEY (`botId`) REFERENCES `Bot`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Reaction` ADD CONSTRAINT `Reaction_messageId_fkey` FOREIGN KEY (`messageId`) REFERENCES `Message`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Reaction` ADD CONSTRAINT `Reaction_postId_fkey` FOREIGN KEY (`postId`) REFERENCES `Post`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Reaction` ADD CONSTRAINT `Reaction_promptId_fkey` FOREIGN KEY (`promptId`) REFERENCES `Prompt`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Reaction` ADD CONSTRAINT `Reaction_resourceId_fkey` FOREIGN KEY (`resourceId`) REFERENCES `Resource`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Reaction` ADD CONSTRAINT `Reaction_rewardId_fkey` FOREIGN KEY (`rewardId`) REFERENCES `Reward`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Reaction` ADD CONSTRAINT `Reaction_tagId_fkey` FOREIGN KEY (`tagId`) REFERENCES `Tag`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

@@ -1,0 +1,29 @@
+-- AlterTable
+ALTER TABLE `ArtImage` MODIFY `userId` INTEGER NULL DEFAULT 1;
+
+-- AlterTable
+ALTER TABLE `Bot` MODIFY `userId` INTEGER NULL DEFAULT 1;
+
+-- AlterTable
+ALTER TABLE `Channel` MODIFY `userId` INTEGER NULL DEFAULT 1;
+
+-- AlterTable
+ALTER TABLE `Customer` MODIFY `userId` INTEGER NULL DEFAULT 1;
+
+-- AlterTable
+ALTER TABLE `Gallery` MODIFY `userId` INTEGER NULL DEFAULT 1;
+
+-- AlterTable
+ALTER TABLE `Product` MODIFY `userId` INTEGER NULL DEFAULT 1;
+
+-- AlterTable
+ALTER TABLE `Prompt` MODIFY `userId` INTEGER NULL DEFAULT 1;
+
+-- AlterTable
+ALTER TABLE `Reaction` ADD COLUMN `IsHated` BOOLEAN NULL DEFAULT false,
+    ADD COLUMN `isBooed` BOOLEAN NULL DEFAULT false,
+    ADD COLUMN `isClapped` BOOLEAN NULL DEFAULT false,
+    ADD COLUMN `isLoved` BOOLEAN NULL DEFAULT false;
+
+-- AlterTable
+ALTER TABLE `Resource` MODIFY `userId` INTEGER NULL DEFAULT 1;

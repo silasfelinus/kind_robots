@@ -1,79 +1,156 @@
-// /server/api/botcafe/brainstorm.ts
-import { defineEventHandler, readBody } from 'h3';
-import { errorHandler } from '../utils/error';
-import { useRuntimeConfig, createError } from '#imports';
+import { defineEventHandler, readBody, createError } from 'h3'
+import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
+import type { Pitch } from '@prisma/client'
 
-const initialConversation = [
+interface Example {
+  title: string
+  pitch: string
+}
+
+const savedPitches: Pitch[] = [] // Store submitted pitches for demonstration purposes
+
+const creativePrompts: Example[] = [
+  { title: 'Haunted Fitness Tracker', pitch: 'Counts steps... to your grave.' },
   {
-    role: 'user',
-    content: `You're a creative copywriter. ***Give a numbered list of 5 darkly funny ideas - Include an amusing example*** Intro and outro outside the asterisks.`,
+    title: 'Reverse Life Insurance',
+    pitch:
+      'Pays out when you unexpectedly come back to life. Policy benefits include a complimentary zombie survival kit.',
   },
   {
-    role: 'assistant',
-    content: `You Betcha! ***1. Dark Nursery Rhymes - Jack and Jill went up the hill to fetch some existential dread. 2. Unexpected problems with superpowers - Superman keeps breaking his razors. 3. Pick-up lines at a funeral - So, now that you're single... 4. Terrible advice for new cat owners - Cats are a lot of work, but they make up for it by chipping in with rent. 5. Rejected comic books - Casper the Friendly Ghost Meets Cthulhu*** Hope these work!`,
+    title: 'Misfortune Cookies',
+    pitch:
+      "Crack one open to ruin your day with prophecies like 'Your socks will always be slightly damp.'",
   },
   {
-    role: 'user',
-    content: `Great, now five more like that!`,
+    title: 'The Procrastinator’s Alarm Clock',
+    pitch: 'Always runs a few minutes late, just like you.',
   },
   {
-    role: 'assistant',
-    content:
-      'Absolutely! ***1. Unfortunate superheroes and their useless powers - The Incredible Wallflower, who has the incredible ability to blend into wallpaper... but only in seedy motels. 2. Dark spin-off movies based on children\'s classics - "Alice in Wonderland: Through the Rabbit Hole of Existential Crisis." 3. Absurd product ideas for vampires - "Sunscreen for Vampires: Because even eternal beings need protection (and a bit of irony)." 4. Awkward situations with time travel - Going back in time to give yourself advice, only to realize that your younger self never pays attention... or listens. 5. Mischievous fortune cookies - "Your fortune: \'Bad luck and terrible puns will follow you for the rest of your days.*** Enjoy!',
+    title: 'Invisible Ink Tattoos',
+    pitch: 'Visible only under the scrutiny of disappointed parents.',
   },
-];
+  {
+    title: 'Eau de Despair Perfume',
+    pitch: 'The scent of looming deadlines mixed with broken dreams.',
+  },
+  {
+    title: 'Self-Help Books by Villains',
+    pitch: "Learn confidence from Darth Vader: 'Choke Your Way to the Top!'",
+  },
+  { title: 'Diet Water', pitch: 'Now with 30% less water!' },
+  { title: 'Gluten-Full Bread', pitch: 'Twice the gluten, double the regret.' },
+  {
+    title: 'Anti-Social Media App',
+    pitch: 'Connects you with people you’ll definitely dislike.',
+  },
+  {
+    title: 'Midlife Crisis Action Figures',
+    pitch: 'Comes with a convertible and questionable life choices.',
+  },
+  {
+    title: 'Doomsday Clock',
+    pitch:
+      'It’s always almost midnight. Brighten up your desk with the constant reminder of impending doom.',
+  },
+  {
+    title: 'Solar-Powered Flashlight',
+    pitch: "Only works when you don't need it.",
+  },
+  { title: 'Portable Potholes', pitch: 'Bring traffic chaos wherever you go.' },
+  {
+    title: 'Unsolicited Advice Generator',
+    pitch: 'Perfect for family gatherings. Dispenses advice nobody asked for.',
+  },
+]
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody(event);
-    let { OPENAI_API_KEY } = useRuntimeConfig();
-
-    // Check if user's key is provided in the request
-    if (body.user_openai_key) {
-      OPENAI_API_KEY = body.user_openai_key;
+    // Validate API Key
+    const { isValid } = await validateApiKey(event)
+    if (!isValid) {
+      event.node.res.statusCode = 401
+      return { success: false, message: 'Invalid or expired token.' }
     }
 
-    // Append new messages to the initial conversation
-    const fullConversation = [...initialConversation, ...body.messages];
+    const body = await readBody(event)
+    const apiKey = process.env.OPENAI_API_KEY
 
-    const data = {
-      model: body.model || 'gpt-3.5-turbo',
-      messages: fullConversation,
-      temperature: body.temperature,
-      max_tokens: body.maxTokens,
-      n: body.n,
+    if (!apiKey) {
+      throw createError({
+        statusCode: 500,
+        message:
+          'Server API key is missing. Please provide a valid OpenAI API key.',
+      })
+    }
+
+    const { n = 5, title = 'Creative Ideas', examples = [] } = body
+
+    // Format examples into content for OpenAI message
+    const formattedExamples = examples.length
+      ? examples
+          .map(
+            (ex: Example) =>
+              `Topic: ${ex.title || 'Sample Topic'}, Pitch: ${ex.pitch || 'Sample pitch description for this topic.'}`,
+          )
+          .join('\n')
+      : creativePrompts
+          .map(({ title, pitch }) => `Topic: ${title}, Pitch: ${pitch}`)
+          .join('\n')
+
+    // Create message content including title and examples
+    const content = `Generate ideas based on this topic: ${title}. Here are some examples:\n${formattedExamples}`
+
+    // Construct OpenAI request data
+    const pitchRequest = {
+      model: body.model || 'gpt-4o-mini',
+      messages: [{ role: 'user', content }],
+      temperature: body.temperature || 0.7,
+      max_tokens: body.maxTokens || 150,
+      n,
       stream: body.stream || false,
-    };
+    }
 
-    const post = body.post || 'https://api.openai.com/v1/chat/completions';
+    const post = body.post || 'https://api.openai.com/v1/chat/completions'
 
+    // Call OpenAI API
     const response = await fetch(post, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(data),
-    });
+      body: JSON.stringify(pitchRequest),
+    })
 
     if (!response.ok) {
-      throw new Error(`Server responded with ${response.status}`);
+      const errorData = await response.json()
+      throw createError({
+        statusCode: response.status,
+        message: `Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`,
+      })
     }
 
-    // Parse and format brainstorm responses
-    const parsedResponse = await parseBrainstormResponse(response);
-    return parsedResponse;
-  } catch (error) {
-    const { message, statusCode } = errorHandler(error);
-    throw createError({
-      statusCode: statusCode || 500,
-      statusMessage: message,
-    });
-  }
-});
+    const responseData = await response.json()
+    const data: Partial<Pitch>[] = responseData.choices.map(
+      (choice: { message: { content: string } }) => {
+        const content = choice.message.content.trim()
+        const [title, pitch] = content.split(', Pitch: ')
+        return { title: title.replace('Topic: ', ''), pitch: pitch || '' }
+      },
+    )
 
-const parseBrainstormResponse = async (response: Response) => {
-  // Custom logic to parse and format the brainstorm responses
-  const data = await response.json();
-  return data;
-};
+    // Save generated pitches for demonstration
+    savedPitches.push(...(data as Pitch[]))
+
+    return { success: true, message: 'Pitches generated successfully.', data }
+  } catch (error) {
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
+    return {
+      success: false,
+      message: message || 'Failed to generate pitches.',
+      pitches: null,
+    }
+  }
+})

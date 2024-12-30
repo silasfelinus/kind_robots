@@ -5,10 +5,7 @@
       :href="`https://twitter.com/intent/tweet?text=${text}&url=${url}`"
       target="_blank"
     >
-      <icon
-        name="simple-icons:x"
-        class="twitter-icon"
-      />
+      <Icon name="simple-Icons:x" class="twitter-Icon" />
     </a>
 
     <!-- Facebook Share Button -->
@@ -16,17 +13,12 @@
       :href="`https://www.facebook.com/sharer/sharer.php?u=${url}`"
       target="_blank"
     >
-      <icon
-        name="bi:facebook"
-        class="facebook-icon"
-      />
+      <Icon name="kind-icon:facebook" class="facebook-Icon" />
     </a>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
 const { url, text } = defineProps<{
   url: string
   text: string
@@ -40,8 +32,8 @@ const { url, text } = defineProps<{
   display: flex;
   gap: 1rem;
 }
-.twitter-icon,
-.facebook-icon {
+.twitter-Icon,
+.facebook-Icon {
   font-size: 1.5rem;
 }
 </style>

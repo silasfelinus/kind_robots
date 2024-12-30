@@ -7,15 +7,12 @@
         :src="'/images/' + page.image"
         alt="Main Image"
         class="rounded-2xl border shadow-md medium"
-      >
+      />
     </div>
     <!-- Title and Subtitle -->
     <div class="flex flex-col justify-center items-center">
       <room-title class="text-lg font-semibold m-2" />
-      <h2
-        v-if="page.subtitle"
-        class="text-md font-medium"
-      >
+      <h2 v-if="page.subtitle" class="text-md font-medium">
         {{ page.subtitle }}
       </h2>
     </div>

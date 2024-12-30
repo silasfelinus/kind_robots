@@ -1,54 +1,57 @@
 <template>
-  <div class="response-card">
-    <div class="message">
-      {{ messages && messages.length ? messages[messages.length - 1].content : '' }}
+  <div
+    class="response-card p-6 bg-base-200 rounded-xl shadow-md w-full max-w-lg mx-auto mt-6"
+  >
+    <!-- Message Thread -->
+    <div class="message-thread mb-4">
+      <div
+        v-for="(message, index) in messages"
+        :key="index"
+        class="message p-2 mb-2 rounded-md bg-gray-100"
+      >
+        <p class="text-sm text-gray-700">
+          <strong>{{ message.role }}:</strong>
+        </p>
+        <p class="text-base">{{ message.content }}</p>
+      </div>
     </div>
-    <div class="actions">
-      <button class="action-button save">
-        Save
-      </button>
-      <button class="action-button share-facebook">
+
+    <!-- Last message -->
+    <div class="message p-3 bg-gray-100 rounded-md mb-4">
+      {{ getLastMessageContent }}
+    </div>
+
+    <!-- Actions -->
+    <div class="actions flex justify-around mt-4">
+      <button class="btn btn-secondary" @click="saveMessage">Save</button>
+      <button class="btn btn-secondary" @click="share('facebook')">
         Share on Facebook
       </button>
-      <button class="action-button share-twitter">
+      <button class="btn btn-secondary" @click="share('twitter')">
         Share on Twitter
       </button>
-      <button class="action-button thumbs-up">
-        👍
-      </button>
-      <button class="action-button thumbs-down">
-        👎
-      </button>
-      <button class="action-button delete">
-        X
-      </button>
-      <button
-        class="action-button reply"
-        @click="toggleReply"
-      >
-        Reply
-      </button>
+      <button class="btn btn-secondary" @click="react('like')">👍</button>
+      <button class="btn btn-secondary" @click="react('dislike')">👎</button>
+      <button class="btn btn-error" @click="deleteMessage">X</button>
+      <button class="btn btn-accent" @click="toggleReply">Reply</button>
     </div>
-    <div
-      v-if="showReply"
-      class="reply-container"
-    >
+
+    <!-- Reply Section -->
+    <div v-if="showReply" class="reply-container mt-4">
       <textarea
         v-model="replyMessage"
         placeholder="Type your reply here..."
+        class="w-full p-3 border rounded-md mb-2"
       />
-      <button @click="sendReply">
+      <button class="btn btn-primary w-full" @click="sendReply">
         Send Reply
       </button>
-    </div>
-    <div class="message">
-      {{ getLastMessageContent }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 interface Message {
   role: string
@@ -61,7 +64,9 @@ const props = defineProps({
     default: () => [],
   },
   sendMessage: {
-    type: Function as unknown as () => (updatedMessages: Message[]) => Promise<void>,
+    type: Function as unknown as () => (
+      updatedMessages: Message[],
+    ) => Promise<void>,
     default: () => async () => {},
   },
 })
@@ -69,65 +74,56 @@ const props = defineProps({
 const showReply = ref(false)
 const replyMessage = ref('')
 
+// Toggle the reply box
 const toggleReply = () => {
   showReply.value = !showReply.value
 }
 
+// Get the content of the last message
 const getLastMessageContent = computed(() => {
-  return props.messages.length ? props.messages[props.messages.length - 1].content : ''
+  return props.messages.length
+    ? props.messages[props.messages.length - 1].content
+    : ''
 })
+
+// Send a reply
 const sendReply = async () => {
-  try {
-    const updatedMessages = [...props.messages, { role: 'user', content: replyMessage.value }]
+  if (replyMessage.value.trim()) {
+    const updatedMessages = [
+      ...props.messages,
+      { role: 'user', content: replyMessage.value },
+    ]
     await props.sendMessage(updatedMessages)
     replyMessage.value = ''
     showReply.value = false
   }
-  catch (err) {
-    console.error(err)
-  }
+}
+
+// Save message action
+const saveMessage = () => {
+  // Implement save logic here
+  console.log('Message saved!')
+}
+
+// Share message action
+const share = (platform: string) => {
+  // Implement sharing logic based on the platform
+  console.log(`Shared on ${platform}`)
+}
+
+// React to message
+const react = (reaction: string) => {
+  console.log(`Reacted with ${reaction}`)
+}
+
+// Delete message
+const deleteMessage = () => {
+  console.log('Message deleted!')
 }
 </script>
 
 <style scoped>
-.response-card {
-  padding: 16px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.message {
-  font-size: 16px;
-  margin-bottom: 16px;
-}
-
-.actions {
-  display: flex;
-  gap: 8px;
-}
-
-.action-button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.action-button:hover {
-  background-color: #eaeaea;
-}
-
-.reply-container {
-  margin-top: 16px;
-}
-
-textarea {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.reply-container textarea {
   resize: vertical;
 }
 </style>

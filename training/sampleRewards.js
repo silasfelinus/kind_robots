@@ -33,7 +33,8 @@ const sampleRewards = [
   {
     icon: '🤝',
     text: 'Handshake of Trust',
-    power: 'Win over any NPC to your side, no matter their initial disposition.',
+    power:
+      'Win over any NPC to your side, no matter their initial disposition.',
   },
   {
     icon: '💰',

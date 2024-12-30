@@ -165,7 +165,7 @@ export async function createToken(user: User, apiKey: string): Promise<string> {
     const token = await new SignJWT({
       id: user.id,
       username: user.username,
-      apiKey,
+      
     })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()

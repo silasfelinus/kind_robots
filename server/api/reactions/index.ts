@@ -1,85 +1,153 @@
-import type { ArtReaction } from '@prisma/client'
+import { defineEventHandler, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 
-// Function to create a new ArtReaction
-export async function createArtReaction(reaction: Partial<ArtReaction>) {
+// Define your enums directly in the code for validation
+enum ReactionType {
+  LOVED = 'LOVED',
+  CLAPPED = 'CLAPPED',
+  BOOED = 'BOOED',
+  HATED = 'HATED',
+  NEUTRAL = 'NEUTRAL',
+  FLAGGED = 'FLAGGED',
+}
+
+// Define the type for requestData
+interface RequestData {
+  userId: number
+  reactionType: string // Allow string input from client
+  artId?: number
+  componentId?: number
+  pitchId?: number
+  comment?: string
+}
+
+// Map string input to the ReactionType enum
+function mapReactionType(type: string): ReactionType | undefined {
+  const normalizedType = type.toUpperCase() as keyof typeof ReactionType
+  return ReactionType[normalizedType]
+}
+
+// Route handler for creating or updating a reaction
+export default defineEventHandler(async (event) => {
+  let requestData: RequestData | undefined
+
   try {
-    // Validate required fields
-    if (!reaction.userId || !reaction.artId) {
-      throw new Error('UserId and ArtId must be provided')
+    requestData = await readBody(event)
+
+    // Ensure requestData is defined
+    if (!requestData) throw new Error('Invalid request data.')
+
+    const {
+      userId,
+      reactionType, // reactionType is a string to be normalized
+      artId,
+      componentId,
+      pitchId,
+      comment,
+    } = requestData
+
+    // Ensure required fields are present
+    if (!userId || !reactionType) {
+      throw new Error('Missing required fields: userId or reactionType.')
     }
 
-    // Create the new ArtReaction
-    return await prisma.artReaction.create({
-      data: {
-        userId: reaction.userId,
-        artId: reaction.artId,
-        claps: reaction.claps || 0,
-        boos: reaction.boos || 0,
-        title: reaction.title || null,
-        reaction: reaction.reaction || null,
-        comment: reaction.comment || null,
+    // Map reactionType string to the enum value
+    const mappedReactionType = mapReactionType(reactionType)
+    if (!mappedReactionType) throw new Error('Invalid reactionType provided.')
+
+    // Define match condition based on reaction type
+    const matchCondition: { [key: string]: number | undefined } = {}
+    if (artId) {
+      matchCondition.artId = artId
+    } else if (componentId) {
+      matchCondition.componentId = componentId
+    } else if (pitchId) {
+      matchCondition.pitchId = pitchId
+    } else {
+      throw new Error('Invalid or missing identifier for reaction.')
+    }
+
+    // Check if a reaction already exists for this user and reaction type
+    const existingReaction = await prisma.reaction.findFirst({
+      where: {
+        userId,
+        reactionType: mappedReactionType,
+        ...matchCondition,
       },
     })
-  }
-  catch (error: unknown) {
-    throw errorHandler(error)
-  }
-}
 
-export async function updateArtReaction(
-  id: number,
-  updatedReaction: Partial<ArtReaction>,
-): Promise<ArtReaction | null> {
-  try {
-    const existingRecord = await prisma.artReaction.findUnique({ where: { id } })
-    if (!existingRecord) {
-      throw new Error('Record to update not found.')
+    if (existingReaction) {
+      // Update the existing reaction
+      const updatedReaction = await prisma.reaction.update({
+        where: { id: existingReaction.id },
+        data: {
+          comment,
+          reactionType: mappedReactionType,
+        },
+      })
+      return {
+        success: true,
+        reaction: updatedReaction,
+        message: 'Reaction updated successfully',
+      }
+    } else {
+      // Create a new reaction
+      const newReaction = await prisma.reaction.create({
+        data: {
+          userId,
+          reactionType: mappedReactionType,
+          ...matchCondition,
+          comment,
+        },
+      })
+      return {
+        success: true,
+        reaction: newReaction,
+        message: 'Reaction created successfully',
+      }
     }
-    return await prisma.artReaction.update({
-      where: { id },
-      data: updatedReaction,
+  } catch (error) {
+    return errorHandler({
+      error,
+      context: 'Reaction Management - POST',
     })
   }
-  catch (error: unknown) {
+})
+
+// Function to fetch all Reactions
+export async function fetchAllReactions() {
+  try {
+    return await prisma.reaction.findMany({
+      include: {
+        Art: true, // Include related Art data if needed
+        Pitch: true, // Include related Pitch data if needed
+        Component: true, // Include related Component data if needed
+      },
+    })
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
 
-// Function to delete an ArtReaction by ID
-export async function deleteArtReaction(id: number): Promise<boolean> {
+// Function to fetch a single Reaction by ID
+export async function fetchReactionById(id: number) {
   try {
-    const reactionExists = await prisma.artReaction.findUnique({ where: { id } })
+    const reaction = await prisma.reaction.findUnique({
+      where: { id },
+      include: {
+        Art: true, // Include related Art data if needed
+        Pitch: true, // Include related Pitch data if needed
+        Component: true, // Include related Component data if needed
+      },
+    })
 
-    if (!reactionExists) {
-      return false
+    if (!reaction) {
+      throw new Error(`Reaction with ID ${id} not found`)
     }
 
-    await prisma.$transaction([prisma.artReaction.delete({ where: { id } })])
-    return true
-  }
-  catch (error: unknown) {
+    return reaction
+  } catch (error: unknown) {
     throw errorHandler(error)
   }
 }
-// Function to fetch all ArtReactions
-export async function fetchAllArtReactions(): Promise<ArtReaction[]> {
-  return await prisma.artReaction.findMany()
-}
-
-// Function to fetch a single ArtReaction by ID
-export async function fetchArtReactionById(id: number): Promise<ArtReaction | null> {
-  return await prisma.artReaction.findUnique({
-    where: { id },
-  })
-}
-
-// Function to fetch ArtReactions by Art ID
-export async function fetchArtReactionsByArtId(artId: number): Promise<ArtReaction[]> {
-  return await prisma.artReaction.findMany({
-    where: { artId },
-  })
-}
-
-export type { ArtReaction }

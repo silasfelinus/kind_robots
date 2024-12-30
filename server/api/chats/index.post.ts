@@ -2,74 +2,57 @@
 import { defineEventHandler, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-
-// Define a TypeScript interface for the expected exchange data
-interface ExchangeData {
-  userId: number
-  botId: number
-  botName: string
-  username: string
-  userPrompt: string
-  botResponse: string
-  liked?: boolean
-  hated?: boolean
-  loved?: boolean
-  flagged?: boolean
-}
+import { validateApiKey } from '../utils/validateKey'
+import type { Prisma, Chat } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Read and validate the exchange data
-    const exchangeData: ExchangeData = await readBody(event)
-
-    // Validate required fields
-    if (
-      !exchangeData.userId
-      || !exchangeData.botId
-      || !exchangeData.botName
-      || !exchangeData.username
-      || !exchangeData.userPrompt
-      || !exchangeData.botResponse
-    ) {
-      throw new Error('Invalid exchange data. Missing required fields.')
+    // Validate the API key
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
+      event.node.res.statusCode = 401
+      return {
+        success: false,
+        message: 'Authorization token is required or invalid.',
+      }
     }
 
-    // Create the new chat exchange
-    const newExchange = await prisma.chatExchange.create({
-      data: {
-        userId: exchangeData.userId,
-        botId: exchangeData.botId,
-        botName: exchangeData.botName,
-        username: exchangeData.username,
-        userPrompt: exchangeData.userPrompt,
-        botResponse: exchangeData.botResponse,
-        liked: exchangeData.liked ?? false, // Default to false if not provided
-        hated: exchangeData.hated ?? false, // Default to false if not provided
-        loved: exchangeData.loved ?? false, // Default to false if not provided
-        flagged: exchangeData.flagged ?? false, // Default to false if not provided
-      },
+    const authenticatedUserId = user.id
+    const chatData = await readBody<Partial<Chat>>(event)
+
+    // Check for required fields
+    if (!chatData.type || !chatData.sender || !chatData.content) {
+      event.node.res.statusCode = 400
+      return {
+        success: false,
+        message: 'Missing required fields: "type", "sender", "content".',
+      }
+    }
+
+    // Add authenticated user ID to chat data
+    chatData.userId = authenticatedUserId
+
+    // Create the chat entry
+    const data = await prisma.chat.create({
+      data: chatData as Prisma.ChatCreateInput,
     })
 
+    // Set status code to 201 for successful creation
+    event.node.res.statusCode = 201
     return {
       success: true,
-      newExchange,
+      data,
+      message: 'Chat created successfully.',
     }
-  }
-  catch (error: unknown) {
-    // Type guard to narrow down error type
-    let message = 'An unknown error occurred.'
-    if (error instanceof Error) {
-      message = error.message
-    }
+  } catch (error) {
+    // Use the error handler only for unexpected errors
+    const { message, statusCode } = errorHandler(error)
 
-    // Log the error for debugging
-    console.error('Error in /server/api/chats/index.post.ts:', error)
-
-    // Use custom error handling
-    return errorHandler({
+    event.node.res.statusCode = statusCode || 500
+    return {
       success: false,
-      message,
-      statusCode: 500,
-    })
+      data: null,
+      message: message || 'Failed to create chat entry due to a server error.',
+    }
   }
 })

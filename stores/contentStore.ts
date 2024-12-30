@@ -1,90 +1,100 @@
-// ~/stores/contentStore.ts
 import { defineStore } from 'pinia'
-import { useErrorStore, ErrorType } from '../stores/errorStore'
-import { useStatusStore, StatusType } from '../stores/statusStore'
 
-interface Page {
-  _id?: string;
-  _path?: string;
-  title?: string;
-  content?: string;
-  // Add other properties as needed
+export interface Page {
+  _id?: string
+  _path?: string
+  title?: string
+  subtitle?: string
+  description?: string
+  layout?: string
+  image?: string
+  gallery?: string
+  tags?: string[]
+  icon?: string
+  tooltip?: string
+  amiold?: string
+  category?: string
+  sort?: string
+  dottitip?: string
+  amitip?: string
+  underConstruction?: boolean
+  [key: string]: unknown // For type safety
 }
 
 interface ContentState {
   page: Page
   pages: Page[]
+  showTooltip: boolean
+  showAmitip: boolean
+  showInfo: boolean
+  sidebarStatus: 'open' | 'close' | 'icon'
+  sidebarOrientation: 'vertical' | 'horizontal'
 }
 
 export const useContentStore = defineStore({
   id: 'content',
   state: (): ContentState => ({
-    page: {},
-    pages: [],
+    page: {} as Page,
+    pages: [] as Page[],
+    showTooltip: true,
+    showAmitip: false,
+    showInfo: true,
+    sidebarStatus:
+      typeof window !== 'undefined' && localStorage.getItem('sidebarStatus')
+        ? (localStorage.getItem('sidebarStatus') as 'open' | 'close' | 'icon')
+        : 'open',
+    sidebarOrientation:
+      typeof window !== 'undefined' &&
+      localStorage.getItem('sidebarOrientation')
+        ? (localStorage.getItem('sidebarOrientation') as
+            | 'vertical'
+            | 'horizontal')
+        : 'vertical',
   }),
+  getters: {
+    highlightPages(state): Page[] {
+      return state.pages.filter((page) => page.sort === 'highlight')
+    },
+    underConstructionPages(state): Page[] {
+      return state.pages.filter((page) => page.sort === 'underConstruction')
+    },
+    currentPage: (state): Page => state.page,
+    isSidebarOpen: (state): boolean => state.sidebarStatus === 'open',
+    isSidebarClosed: (state): boolean => state.sidebarStatus === 'close',
+
+    // Getter for filtering pages by tag and sort
+    pagesByTagAndSort:
+      (state) =>
+      (tag: string, sort: string): Page[] => {
+        return state.pages.filter(
+          (page) => page.tags?.includes(tag) && page.sort === sort,
+        )
+      },
+  },
   actions: {
-    async loadStore() {
-      const errorStore = useErrorStore()
-      const statusStore = useStatusStore()
-      statusStore.setStatus(StatusType.INFO, 'Initializing content store...')
+    toggleSidebar() {
+      this.sidebarStatus = this.sidebarStatus === 'open' ? 'close' : 'open'
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebarStatus', this.sidebarStatus)
+      }
+    },
 
-      await errorStore.handleError(
-        async () => {
-          const content = await useContent()
-          this.page = content.page as Page // Type assertion if needed
-          this.pages = (await queryContent().find()) as Page[] // Type assertion if needed
+    setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
+      this.sidebarOrientation = orientation
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebarOrientation', orientation)
+      }
+    },
 
-          statusStore.setStatus(StatusType.SUCCESS, 'Content store initialized successfully')
-          statusStore.clearStatus()
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to initialize content store',
-      )
+    setSidebarStatus(status: 'open' | 'close' | 'icon') {
+      this.sidebarStatus = status
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebarStatus', status)
+      }
     },
-    async getPageByTitle(title: string) {
-      const errorStore = useErrorStore()
-      await errorStore.handleError(
-        async () => {
-          const page = await queryContent().where({ title }).findOne() as Page // Type assertion if needed
-          this.page = page
-        },
-        ErrorType.NETWORK_ERROR,
-        `Failed to get page by title: ${title}`,
-      )
-    },
-    async getPages() {
-      const errorStore = useErrorStore()
-      await errorStore.handleError(
-        async () => {
-          const pages = await queryContent()
-            .where({ $not: { _path: '/' } })
-            .find() as Page[] // Type assertion if needed
-          this.pages = pages
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch pages',
-      )
-    },
-    async getCurrentPage(path: string) {
-      const errorStore = useErrorStore()
-      await errorStore.handleError(
-        async () => {
-          const page = await queryContent().where({ _path: path }).findOne() as Page // Type assertion if needed
-          this.page = page
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch current page',
-      )
-    },
-    async refreshContent() {
-      const errorStore = useErrorStore()
-      await errorStore.handleError(
-        async () => {
-          await this.loadStore()
-        },
-        ErrorType.NETWORK_ERROR,
-        'Failed to refresh content',
-      )
+
+    toggleInfo() {
+      this.showInfo = !this.showInfo
     },
   },
 })

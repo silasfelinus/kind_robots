@@ -1,25 +1,21 @@
 <template>
-  <div
-    class="flip-card"
-    @click="flipped = !flipped"
-  >
-    <div
-      class="flip-card-inner"
-      :class="{ 'is-flipped': flipped }"
-    >
-      <div class="flip-card-front">
-        <img
-          :src="selectImage"
-          alt="Avatar"
-          class="avatar-img rounded-xl"
-        >
-      </div>
-      <div class="flip-card-back">
-        <img
-          :src="currentBot?.avatarImage || selectImage"
-          alt="New Avatar"
-          class="avatar-img rounded-xl"
-        >
+  <div class="relative w-full h-full">
+    <div class="flip-card w-full h-full" @click="handleAvatarClick">
+      <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
+        <div class="flip-card-front">
+          <img
+            :src="selectImage"
+            alt="Avatar"
+            class="avatar-img shadow-lg hover:shadow-xl rounded-2xl object-cover w-full h-full"
+          />
+        </div>
+        <div class="flip-card-back">
+          <img
+            :src="currentBot?.avatarImage || selectImage"
+            alt="New Avatar"
+            class="avatar-img shadow-lg hover:shadow-xl rounded-2xl object-cover w-full h-full"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -27,56 +23,63 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { useBotStore } from '@/stores/botStore'
+import { useBotStore } from './../../../stores/botStore'
+import { useErrorStore } from './../../../stores/errorStore'
+import { useDisplayStore } from './../../../stores/displayStore'
+
+// Stores
+const errorStore = useErrorStore()
+const displayStore = useDisplayStore() // Add displayStore to handle the sidebar and tutorial toggles
+const flipped = ref(false)
 
 const { page } = useContent()
+
+// Bot store
 const botStore = useBotStore()
 const currentBot = computed(() => botStore.currentBot)
-const route = useRoute()
 
-const pageImage = computed(() => page.image)
-
-// Default image
-const defaultImage = computed(() => {
-  return route.path === '/botcafe'
-    ? currentBot.value
-      ? currentBot.value.avatarImage
-      : '/images/amibotsquare1.webp'
-    : '/images/' + pageImage.value
+// Watch for bot changes and flip the card if necessary
+watch(currentBot, (newBot, oldBot) => {
+  if (newBot && newBot !== oldBot) {
+    flipped.value = !flipped.value
+  }
 })
+
 const selectImage = computed(() => {
-  if (route.path === '/botcafe' && currentBot.value) {
-    return currentBot.value.avatarImage // Assuming bot is a reactive object containing the bot data
+  if (page && (page as unknown as { image?: string }).image) {
+    return (page as unknown as { image: string }).image
   }
+  return currentBot.value?.avatarImage || '/images/botcafe.webp'
+})
 
-  // Check if page.image exists and is not null or undefined
-  if (page && page.image) {
-    return '/images/' + page.image
+const handleAvatarClick = () => {
+  try {
+    // Flip the avatar image
+    flipped.value = !flipped.value
+
+    // Toggle the sidebar and tutorial using displayStore
+    displayStore.toggleSidebar('sidebarLeftState')
+    displayStore.toggleTutorial()
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to toggle sidebar'
+    errorStore.setError(ErrorType.INTERACTION_ERROR, errorMessage)
   }
-
-  // Default image if nothing matches
-  return '/images/botcafe.webp'
-})
-// Manage flipping state
-const flipped = ref(false)
-watch(currentBot, () => {
-  flipped.value = !flipped.value
-})
+}
 </script>
 
 <style scoped>
 .flip-card {
   perspective: 1000px;
-  width: 100px;
-  height: 100px;
+  aspect-ratio: 1; /* Ensure avatar remains square */
+  cursor: pointer;
 }
 
 .flip-card-inner {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s;
+  transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
 }
 
@@ -90,13 +93,6 @@ watch(currentBot, () => {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-}
-
-.avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
 }
 
 .flip-card-back {

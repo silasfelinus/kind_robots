@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Tag } from '@prisma/client'
-import { useErrorStore, ErrorType } from '@/stores/errorStore' // Import useErrorStore and ErrorType
-import { useUserStore } from '@/stores/userStore'
+import { performFetch } from './utils'
+import { useUserStore } from './userStore'
 
 const isClient = typeof window !== 'undefined'
 
@@ -11,181 +11,130 @@ export const useTagStore = defineStore({
   state: () => ({
     tags: [] as Tag[],
     isInitialized: false,
-    selectedPitch: null as Tag | null,
+    selectedTag: null as Tag | null,
+    error: null as string | null,
+    isLoading: false,
   }),
 
   getters: {
     activeAndPublicTags(): Tag[] {
       const userStore = useUserStore()
-      return this.tags.filter(tag => tag.isPublic || tag.userId === userStore.userId || tag.userId === 0)
-    },
-    pitches(): Tag[] {
-      return (this.tags ?? []).filter(tag => tag.label === 'pitch')
+      return this.tags.filter(
+        (tag) =>
+          tag.isPublic || tag.userId === userStore.userId || tag.userId === 0,
+      )
     },
   },
 
   actions: {
-    selectPitch(pitchId: number) {
-      const foundPitch = this.pitches.find(pitch => pitch.id === pitchId)
-      if (foundPitch) {
-        this.selectedPitch = foundPitch
+    selectTag(tagId: number) {
+      const foundTag = this.tags.find((tag) => tag.id === tagId)
+      if (foundTag) {
+        this.selectedTag = foundTag
       } else {
-        console.warn(`Pitch with id ${pitchId} not found.`)
+        console.warn(`Tag with id ${tagId} not found.`)
       }
     },
 
-    initializeTags() {
-      // Fetch tags if not already initialized
+    async initializeTags() {
       if (!this.isInitialized) {
-        this.fetchTags()
         this.isInitialized = true
+        await this.fetchTags()
       }
     },
 
     async fetchTags() {
-      const errorStore = useErrorStore() // Use errorStore
-
+      this.isLoading = true
       try {
-        const response = await fetch('/api/tags')
-        if (response.ok) {
-          const data = await response.json()
-          this.tags = data.tags
-          if (isClient) {
-            localStorage.setItem('tags', JSON.stringify(this.tags))
-          }
-        } else {
-          const errorText = await response.text()
-          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to fetch tags: ${errorText}`)
-          console.error('Failed to fetch tags:', errorStore.getErrors().slice(-1)[0]?.message)
+        const response = await performFetch<Tag[]>('/api/tags')
+        if (!response.success || !Array.isArray(response.data)) {
+          throw new Error(
+            response.message || 'Invalid response format from the server',
+          )
         }
-      } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error fetching tags')
-        console.error('Error fetching tags:', errorStore.getErrors().slice(-1)[0]?.message)
+
+        this.tags = response.data
+
+        if (isClient) {
+          localStorage.setItem('tags', JSON.stringify(this.tags))
+        }
+      } catch (error) {
+        this.error = `Failed to fetch tags: ${error}`
+        console.error(this.error)
+      } finally {
+        this.isLoading = false
       }
     },
 
     async createTag(label: string, title: string, userId: number) {
-      const errorStore = useErrorStore() // Use errorStore
-
       try {
-        const response = await fetch('/api/tags', {
+        const response = await performFetch<Tag>('/api/tags', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ label, title, userId, isPublic: false }), // isPublic set to false by default
+          body: JSON.stringify({ label, title, userId, isPublic: false }),
         })
 
-        if (response.ok) {
-          const newTag = await response.json()
-          this.tags.push(newTag)
+        if (response.success && response.data) {
+          this.tags.push(response.data)
+
           if (isClient) {
             localStorage.setItem('tags', JSON.stringify(this.tags))
           }
         } else {
-          const errorText = await response.text()
-          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to create tag: ${errorText}`)
-          console.error('Failed to create tag:', errorStore.getErrors().slice(-1)[0]?.message)
+          throw new Error(response.message || 'Failed to create tag')
         }
-      } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error creating tag')
-        console.error('Error creating tag:', errorStore.getErrors().slice(-1)[0]?.message)
+      } catch (error) {
+        this.error = `Failed to create tag: ${error}`
+        console.error(this.error)
       }
     },
 
     async editTag(id: number, updates: Partial<Tag>) {
-      const errorStore = useErrorStore() // Use errorStore
-
       try {
-        const response = await fetch(`/api/tags/${id}`, {
+        const response = await performFetch<Tag>(`/api/tags/${id}`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updates),
         })
 
-        if (response.ok) {
-          const data = await response.json()
-          const updatedTag = data.tag
-          const index = this.tags.findIndex(tag => tag.id === id)
+        if (response.success && response.data) {
+          const index = this.tags.findIndex((tag) => tag.id === id)
           if (index !== -1) {
-            this.tags[index] = { ...this.tags[index], ...updatedTag }
+            this.tags[index] = { ...this.tags[index], ...response.data }
+
             if (isClient) {
               localStorage.setItem('tags', JSON.stringify(this.tags))
             }
           }
         } else {
-          const errorText = await response.text()
-          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to edit tag: ${errorText}`)
-          console.error('Failed to edit tag:', errorStore.getErrors().slice(-1)[0]?.message)
+          throw new Error(response.message || 'Failed to edit tag')
         }
-      } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error editing tag')
-        console.error('Error editing tag:', errorStore.getErrors().slice(-1)[0]?.message)
+      } catch (error) {
+        this.error = `Failed to edit tag: ${error}`
+        console.error(this.error)
       }
     },
 
     async deleteTag(id: number) {
-      const errorStore = useErrorStore() // Use errorStore
-
       try {
-        const response = await fetch(`/api/tags/${id}`, {
+        const response = await performFetch(`/api/tags/${id}`, {
           method: 'DELETE',
         })
 
-        if (response.ok) {
-          const index = this.tags.findIndex(tag => tag.id === id)
-          if (index !== -1) {
-            this.tags.splice(index, 1)
-            if (isClient) {
-              localStorage.setItem('tags', JSON.stringify(this.tags))
-            }
+        if (response.success) {
+          this.tags = this.tags.filter((tag) => tag.id !== id)
+
+          if (isClient) {
+            localStorage.setItem('tags', JSON.stringify(this.tags))
           }
         } else {
-          const errorText = await response.text()
-          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to delete tag: ${errorText}`)
-          console.error('Failed to delete tag:', errorStore.getErrors().slice(-1)[0]?.message)
+          throw new Error(response.message || 'Failed to delete tag')
         }
-      } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error deleting tag')
-        console.error('Error deleting tag:', errorStore.getErrors().slice(-1)[0]?.message)
-      }
-    },
-
-    // Get all titles with label "pitch"
-    getPitchTitles(): string[] {
-      return this.pitches.map(pitch => pitch.title)
-    },
-
-    // Add a new pitch
-    async addPitch(title: string, userId: number) {
-      await this.createTag('pitch', title, userId)
-    },
-
-    // Delete a pitch by ID
-    async deletePitch(id: number) {
-      await this.deleteTag(id)
-    },
-
-    // Edit a pitch's title by ID
-    async editPitchTitle(id: number, newTitle: string) {
-      const pitch = this.tags.find(tag => tag.id === id && tag.label === 'pitch')
-      if (pitch) {
-        await this.editTag(id, { title: newTitle })
-      }
-    },
-
-    async updatePitch(id: number, updates: Partial<Tag>) {
-      const pitch = this.tags.find(tag => tag.id === id && tag.label === 'pitch')
-      if (pitch) {
-        try {
-          await this.editTag(id, updates)
-        } catch {
-          const errorStore = useErrorStore() // Use errorStore
-          errorStore.setError(ErrorType.NETWORK_ERROR, 'Error updating pitch')
-          console.error('Error updating pitch:', errorStore.getErrors().slice(-1)[0]?.message)
-        }
+      } catch (error) {
+        this.error = `Failed to delete tag: ${error}`
+        console.error(this.error)
       }
     },
   },

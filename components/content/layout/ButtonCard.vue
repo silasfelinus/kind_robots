@@ -4,25 +4,18 @@
     :class="cardColor"
     @click="handleClick"
   >
-    <div
-      v-if="label"
-      class="text-lg font-semibold mb-2"
-    >
+    <div v-if="label" class="text-lg font-semibold mb-2">
       {{ label }}
     </div>
     <div class="flex items-center justify-center">
-      <img
-        v-if="image"
-        :src="image"
-        class="h-16 w-16 mr-2"
-      >
+      <img v-if="image" :src="image" class="h-16 w-16 mr-2" />
       <div>{{ description }}</div>
       <slot />
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const props = defineProps({
   image: {
     type: String,
@@ -41,6 +34,9 @@ const props = defineProps({
     default: '',
   },
 })
+
+// Define the emit function
+const emit = defineEmits(['click'])
 
 const cardColor = computed(() => {
   const baseColors = ['bg-accent', 'bg-secondary', 'bg-accent', 'bg-warning']

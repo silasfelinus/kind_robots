@@ -1,12 +1,13 @@
+/* eslint-disable no-undef */
 // cypress/e2e/spec.cy.js
 describe('Dev Site Active', () => {
   it('passes', () => {
-    cy.visit('http://localhost:3000/')
+    cy.visit('http://kind-robots.vercel.app/')
   })
 })
 
 describe('kindrobots.org  Active', () => {
   it('passes', () => {
-    cy.visit('https://kindrobots.org/')
+    cy.visit('https://kind-robots.vercel.app/')
   })
 })

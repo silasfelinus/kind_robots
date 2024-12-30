@@ -1,47 +1,79 @@
-// /server/api/galleries/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3';
-import { addGalleries } from '..'; // Import the correct function
+// /server/api/galleries/name/[name].post.ts
+import type { H3Event } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
+import type { Gallery } from '@prisma/client'
 
-// Define the type for gallery items
-type GalleryItem = {
-  name: string;
-  content: string;
-  description?: string; // Optional
-  mediaId?: string | null; // Optional, based on your database schema
-  url?: string | null; // Optional
-  isMature?: boolean;
-  custodian?: string | null;
-  userId?: number | null;
-  highlightImage?: string | null;
-  imagePaths?: string | null;
-};
+export default defineEventHandler(async (event: H3Event) => {
+  let response
 
-// Define the type for gallery data
-type GalleryData = GalleryItem[];
-
-export default defineEventHandler(async (event) => {
   try {
-    // Read and validate the galleries data from the request body
-    const galleriesData: GalleryData = await readBody(event);
-
-    // Check if the data is an array
-    if (!Array.isArray(galleriesData)) {
+    // Use the utility function to validate the API key
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       throw createError({
-        statusCode: 400, // Bad Request
-        message: 'Expected an array of gallery objects.',
-      });
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
     }
 
-    // Add galleries to the database
-    const result = await addGalleries(galleriesData);
+    const userId = user.id
 
-    return { success: true, ...result };
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return {
+    // Extract and validate name from the URL path
+    const name = String(event.context.params?.name).trim()
+    if (!name) {
+      throw createError({
+        statusCode: 400,
+        message: 'Gallery name is required in the URL path.',
+      })
+    }
+
+    // Read and validate gallery data from the request body
+    const galleryData: Partial<Gallery> = await readBody(event)
+    if (!galleryData.content) {
+      throw createError({
+        statusCode: 400,
+        message: 'The "content" field is required for creating a gallery item.',
+      })
+    }
+
+    // Create the gallery entry, associating it with the authenticated user
+    const newGallery = await prisma.gallery.create({
+      data: {
+        name,
+        content: galleryData.content,
+        description: galleryData.description ?? null,
+        url: galleryData.url ?? null,
+        custodian: galleryData.custodian ?? null,
+        userId,
+        highlightImage: galleryData.highlightImage ?? null,
+        imagePaths: galleryData.imagePaths ?? null,
+        isMature: galleryData.isMature ?? false,
+      },
+    })
+
+    // Return a success response
+    event.node.res.statusCode = 201
+    response = {
+      success: true,
+      message: `Gallery '${name}' created successfully.`,
+      data: { gallery: newGallery },
+      statusCode: 201,
+    }
+  } catch (error) {
+    const handledError = errorHandler(error)
+    console.error('Error creating gallery:', handledError)
+
+    // Handle the error with consistent response format
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
       success: false,
-      message: 'Failed to create new galleries.',
-      error: errorMessage,
-    };
+      message: handledError.message || 'Failed to create gallery.',
+      statusCode: event.node.res.statusCode,
+    }
   }
-});
+
+  return response
+})

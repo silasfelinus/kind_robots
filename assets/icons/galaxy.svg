@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <!-- Background -->
+  <rect width="500" height="500" fill="black" />
+
+  <!-- Central Glow -->
+  <circle cx="250" cy="250" r="80" fill="rgba(255, 255, 255, 0.3)" />
+  <circle cx="250" cy="250" r="60" fill="rgba(255, 255, 255, 0.5)" />
+  <circle cx="250" cy="250" r="40" fill="white" />
+
+  <!-- Spiral Arms -->
+  <path d="M250 250 q100 -30 200 0 q-50 50 -200 -50 q-50 50 -200 -50" stroke="rgba(255, 255, 255, 0.2)" fill="none" stroke-width="2" />
+  <path d="M250 250 q80 -20 160 20 q-40 40 -160 -40 q-40 40 -160 -40" stroke="rgba(255, 255, 255, 0.15)" fill="none" stroke-width="2" />
+
+  <!-- Stars -->
+  <circle cx="100" cy="100" r="2" fill="white" />
+  <circle cx="400" cy="150" r="1.5" fill="white" />
+  <circle cx="350" cy="400" r="2.5" fill="white" />
+  <circle cx="150" cy="350" r="1.5" fill="white" />
+  <circle cx="300" cy="300" r="1" fill="white" />
+
+  <!-- Nebula -->
+  <ellipse cx="200" cy="200" rx="30" ry="20" fill="rgba(128, 0, 255, 0.3)" />
+  <ellipse cx="300" cy="300" rx="40" ry="25" fill="rgba(0, 255, 128, 0.3)" />
+</svg>

@@ -1,21 +1,14 @@
 <template>
-  <div class="flex flex-col w-full bg-base-200 rounded-2xl p-2">
-    <label
-      class="font-bold text-lg m-2"
-      for="bot-selector"
-    >🤖 Please Select your Bot:</label>
+  <div class="flex flex-col w-full max-w-100 bg-base-300 rounded-2xl p-2">
+    <label class="font-bold text-lg m-2" for="bot-selector">
+      🤖 Please Select your Bot:
+    </label>
     <select
       id="bot-selector"
-      v-model="selectedBot"
+      v-model="selectedBotId"
       class="form-select text-black bg-primary rounded"
-      @change="handleChange"
     >
-      <option
-        disabled
-        value=""
-      >
-        Please select a bot
-      </option>
+      <option value="">Make New Bot</option>
       <option
         v-for="bot in bots"
         :key="bot.id"
@@ -29,50 +22,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
-import { useBotStore, type Bot } from '../../../stores/botStore'
+import { onMounted, computed } from 'vue'
+import { useBotStore } from './../../../stores/botStore'
 
 const botStore = useBotStore()
-const selectedBot = ref('')
-const bots = computed<Bot[]>(() => botStore.bots)
-const currentBot = computed(() => botStore.currentBot)
 
+// Computed property for the list of bots
+const bots = computed(() => botStore.bots)
+
+// Computed property for the selected bot's ID
+const selectedBotId = computed({
+  get: () => botStore.currentBot?.id || '',
+  set: (id) => {
+    if (id) {
+      botStore.selectBot(Number(id)) // Convert ID to number and select the bot
+    } else {
+      botStore.deselectBot() // Deselect to create a new bot
+    }
+  },
+})
+
+// Load the bots on mount and set the default bot if available
 onMounted(async () => {
   try {
     await botStore.loadStore()
-    // Automatically select the first bot if available
-    if (bots.value.length > 0) {
-      selectedBot.value = bots.value[0].id.toString() // Convert to string
-      await botStore.getBotById(Number(selectedBot.value)) // Fetch the bot details
+    if (!selectedBotId.value && bots.value.length > 0) {
+      selectedBotId.value = bots.value[0].id
     }
-  }
-  catch (err) {
+  } catch (err) {
     console.error('🚨 Failed to load store', err)
   }
 })
-const handleChange = async () => {
-  await botStore.getBotById(Number(selectedBot.value))
-}
-
-watch(
-  () => currentBot.value,
-  (newCurrentBot) => {
-    if (newCurrentBot) {
-      const id = newCurrentBot.id
-      const botElement = document.getElementById(`bot-${id}`)
-      botElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
-  },
-)
-
-watch(
-  () => currentBot.value,
-  (newCurrentBot) => {
-    if (newCurrentBot) {
-      selectedBot.value = newCurrentBot.id.toString() // convert to string here
-    }
-  },
-)
 </script>
 
 <style scoped>

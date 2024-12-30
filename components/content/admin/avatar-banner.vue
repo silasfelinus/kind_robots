@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/html-self-closing -->
 <template>
-  <div class="flex items-center h-36 w-36 z-50">
+  <div class="flex items-center h-36 w-36 z-30">
     <!-- Welcome Message -->
     <div
       class="flex flex-col items-start cursor-pointer"
@@ -31,8 +31,8 @@
 
     <!-- Icon to Toggle Login -->
     <div class="ml-4">
-      <icon
-        name="tabler:user"
+      <Icon
+        name="kind-icon:person"
         class="text-base-200 text-2xl cursor-pointer"
         @click="toggleVisibility"
       />
@@ -41,11 +41,14 @@
     <!-- Login Dropdown -->
     <div
       v-if="isVisible"
-      class="flex flex-col items-center bg-base-200 p-4 rounded-2xl shadow-lg transition-all duration-300 absolute top-36 left-0"
+      class="flex flex-col items-center bg-base-300 p-4 rounded-2xl shadow-lg transition-all duration-300 absolute top-36 left-0"
     >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">
-        <icon name="tabler:loader" class="animate-spin text-lg mb-2" />
+        <Icon
+          name="kind-icon:bubble-loading"
+          class="animate-spin text-lg mb-2"
+        />
         <div>Loading, please wait...</div>
       </div>
 
@@ -67,7 +70,7 @@
       <!-- Login Form -->
       <form
         v-else
-        class="space-y-4 z-50"
+        class="space-y-4 z-5=30"
         :autocomplete="stayLoggedIn ? 'on' : 'off'"
         @submit.prevent="handleLogin"
       >
@@ -122,11 +125,10 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 
 const store = useUserStore()
 const errorStore = useErrorStore()
@@ -134,8 +136,12 @@ const login = ref('')
 const password = ref('')
 const isVisible = ref(false)
 const isLoggedIn = computed(() => store.isLoggedIn)
-const stayLoggedIn = ref(true)
+const stayLoggedIn = computed({
+  get: () => store.stayLoggedIn,
+  set: (value: boolean) => (store.stayLoggedIn = value),
+})
 const errorMessage = ref<string | null>(null)
+const userNotFound = ref(false)
 
 const welcomeMessage = computed(() => {
   return isLoggedIn.value
@@ -148,26 +154,21 @@ const toggleVisibility = () => {
 }
 
 const handleLogin = async () => {
-  errorStore.clearError() // Clear previous errors
-
+  errorMessage.value = ''
+  userNotFound.value = false
   try {
-    const result = await errorStore.handleError(
-      () => store.login({ username: login.value, password: password.value }),
-      ErrorType.AUTH_ERROR,
-      'Failed to login. Please try again.',
-    )
-
-    if (result.success) {
-      if (stayLoggedIn.value) {
-        localStorage.setItem('user', JSON.stringify({ username: login.value }))
-      }
-    } else {
-      errorStore.setError(ErrorType.AUTH_ERROR, result.message)
-      errorMessage.value = result.message
+    const credentials = {
+      username: login.value,
+      password: password.value || undefined,
+    }
+    const result = await store.login(credentials)
+    if (!result.success) {
+      errorMessage.value = result.message || 'Login failed'
+      userNotFound.value = result.message?.includes('User not found') || false
     }
   } catch (error) {
-    errorMessage.value = 'An error occurred during login.'
-    console.error(error) // Optionally log the error for debugging
+    errorStore.setError(ErrorType.AUTH_ERROR, error)
+    errorMessage.value = errorStore.message || 'An unexpected error occurred'
   }
 }
 
@@ -180,10 +181,6 @@ const handleLogout = async () => {
       ErrorType.AUTH_ERROR,
       'Failed to logout. Please try again.',
     )
-
-    if (!stayLoggedIn.value) {
-      localStorage.removeItem('user')
-    }
   } catch (error) {
     errorMessage.value = 'An error occurred during logout.'
     console.error(error) // Optionally log the error for debugging
@@ -197,7 +194,3 @@ onMounted(() => {
   }
 })
 </script>
-
-<style scoped>
-/* Your styles */
-</style>

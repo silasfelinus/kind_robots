@@ -1,51 +1,69 @@
-// /server/api/artPrompts/index.post.ts
-import { defineEventHandler, readBody } from 'h3'
-import type { ArtPrompt } from '@prisma/client'
-import { errorHandler } from '../utils/error'
+// /server/api/prompts/index.post.ts
+import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
-
-// Define a TypeScript interface for the expected ArtPrompt data
-interface ArtPromptData {
-  userId?: number
-  prompt: string
-  galleryId?: number
-  pitch?: string
-  pitchId?: number
-  DB_ROW_HASH_1: bigint
-}
+import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
+import type { Prompt, Prisma } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    const artPromptData: ArtPromptData = await readBody(event)
-
-    const newArtPrompt = await createArtPrompt(artPromptData)
-    return { success: true, newArtPrompt }
-  }
-  catch (error: unknown) {
-    return errorHandler(error)
-  }
-})
-
-// Function to create a new ArtPrompt
-export async function createArtPrompt(artPrompt: ArtPromptData): Promise<ArtPrompt> {
-  try {
-    // Validate required fields
-    if (!artPrompt.prompt) {
-      throw new Error('We need a prompt to make an art prompt.')
+    // Use validateApiKey for token authentication
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
     }
 
-    return await prisma.artPrompt.create({
+    const authenticatedUserId = user.id
+
+    // Read and validate the prompt data from the request body
+    const promptData = await readBody<Partial<Prompt>>(event)
+
+    // Ensure "prompt" is provided and is a string
+    if (!promptData.prompt || typeof promptData.prompt !== 'string') {
+      throw createError({
+        statusCode: 400,
+        message: 'The "prompt" field is required and must be a string.',
+      })
+    }
+
+    // Check if userId in the promptData matches the authenticated user (if provided)
+    if (promptData.userId && promptData.userId !== authenticatedUserId) {
+      throw createError({
+        statusCode: 403,
+        message: 'User ID does not match the authenticated user.',
+      })
+    }
+
+    // Create the prompt with the authenticated user ID
+    const data = await prisma.prompt.create({
       data: {
-        userId: artPrompt.userId || 0,
-        prompt: artPrompt.prompt,
-        galleryId: artPrompt.galleryId || 0, // Set default value as 0
-        pitch: artPrompt.pitch || null,
-        pitchId: artPrompt.pitchId || null,
-        DB_ROW_HASH_1: artPrompt.DB_ROW_HASH_1 // Ensure DB_ROW_HASH_1 is included
-      },
+        userId: authenticatedUserId,
+        prompt: promptData.prompt,
+        galleryId: promptData.galleryId || null,
+        pitchId: promptData.pitchId || null,
+        botId: promptData.botId || null,
+      } as Prisma.PromptCreateInput,
     })
+
+    // Return success response with appropriate status code
+    event.node.res.statusCode = 201
+    return {
+      success: true,
+      data,
+      message: 'Prompt created successfully.',
+    }
+  } catch (error: unknown) {
+    // Capture specific error message and status code from errorHandler
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
+    return {
+      success: false,
+      message,
+      error: message,
+      statusCode,
+    }
   }
-  catch (error: unknown) {
-    throw errorHandler(error)
-  }
-}
+})

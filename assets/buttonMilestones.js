@@ -1,10 +1,10 @@
 // Milestone structure
 const milestones = [
-  { count: 1, message: 'First time\'s the charm!' },
+  { count: 1, message: "First time's the charm!" },
   { count: 10, message: 'A round of applause for the 10th press!' },
-  { count: 25, message: '25 presses? You\'re really curious!' },
+  { count: 25, message: "25 presses? You're really curious!" },
   { count: 50, message: 'Halfway to a century! Keep going!' },
-  { count: 75, message: 'Three-quarters there! Don\'t stop now!' },
+  { count: 75, message: "Three-quarters there! Don't stop now!" },
   { count: 100, message: 'A perfect century! Bravo!' },
   {
     count: 500,

@@ -1,20 +1,12 @@
-// ~/stores/resourceStore.ts
 import { defineStore } from 'pinia'
 import type { Resource } from '@prisma/client'
-import { useErrorStore, ErrorType } from './errorStore'
-import { useStatusStore, StatusType } from './statusStore'
-import { resourceData } from './seeds/seedResources' // Assuming you have a seeds file for Resource data
-
-const errorStore = useErrorStore()
-const statusStore = useStatusStore()
+import { performFetch, handleError } from './utils'
+import { resourceData } from './../stores/seeds/seedResources'
 
 interface ResourceStoreState {
   resources: Resource[]
   currentResource: Resource | null
-  totalResources: number
-  errors: string[]
-  page: number
-  pageSize: number
+  isInitialized: boolean
 }
 
 export const useResourceStore = defineStore({
@@ -22,156 +14,92 @@ export const useResourceStore = defineStore({
   state: (): ResourceStoreState => ({
     resources: [],
     currentResource: null,
-    totalResources: 0,
-    errors: [],
-    page: 1,
-    pageSize: 100,
+    isInitialized: false,
   }),
+
   actions: {
     async loadStore(): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Loading resource store...')
-      try {
-        // Get the current count of resources
-        await this.countResources()
-        if (this.totalResources === 0) {
-          await this.seedResources()
+      return handleError(async () => {
+        if (!this.isInitialized) {
+          await this.getResources()
+          if (this.resources.length === 0) {
+            await this.seedResources()
+            await this.getResources()
+          }
+          this.isInitialized = true
         }
-
-        // Load other store data
-        await this.getResources(this.page, this.pageSize)
-
-        statusStore.setStatus(StatusType.SUCCESS, `Loaded ${this.resources.length} resources`)
-      }
-      catch (error) {
-        errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Error initializing resource store: ' + error)
-      }
+      }, 'initializing resource store')
     },
-    async getResources(page = 1, pageSize = 10): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Fetching resources...')
-      try {
-        const response = await fetch(`/api/resources?page=${page}&pageSize=${pageSize}`)
-        if (!response.ok) throw new Error('Failed to fetch resources')
-        const data = await response.json()
-        this.resources = [...this.resources, ...data]
-        this.page++
-        statusStore.setStatus(StatusType.SUCCESS, `Fetched ${this.resources.length} resources`)
-      }
-      catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch resources: ' + error)
-      }
+
+    async getResources(): Promise<void> {
+      return handleError(async () => {
+        const response = await performFetch<Resource[]>('/api/resources')
+        if (response.success) {
+          this.resources = response.data || []
+        } else {
+          throw new Error(response.message || 'Failed to fetch resources')
+        }
+      }, 'fetching resources')
     },
+
+    async seedResources(): Promise<void> {
+      return handleError(async () => {
+        await this.addResources(resourceData)
+        await this.getResources() // Refresh after seeding
+      }, 'seeding resources')
+    },
+
     async getResourceById(id: number): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, `Fetching resource with id ${id}...`)
-      try {
-        const response = await fetch(`/api/resources/${id}`)
-        if (!response.ok) throw new Error('Failed to fetch resource')
-        const data = await response.json()
-        this.currentResource = data
-        statusStore.setStatus(StatusType.SUCCESS, `Fetched resource with id ${id}`)
-      }
-      catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch resource by id: ' + error)
-      }
+      return handleError(async () => {
+        const response = await performFetch<Resource>(`/api/resources/${id}`)
+        if (response.success && response.data) {
+          this.currentResource = response.data
+        } else {
+          throw new Error(response.message || 'Failed to fetch resource by ID')
+        }
+      }, `fetching resource by ID: ${id}`)
     },
+
     async addResources(resourceData: Partial<Resource>[]): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Adding new resources...')
-      try {
-        const response = await fetch(`/api/resources`, {
+      return handleError(async () => {
+        const response = await performFetch<Resource[]>('/api/resources', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
           body: JSON.stringify(resourceData),
         })
-        if (!response.ok) throw new Error('Failed to add resources')
-        const data = await response.json()
-        this.resources = [...this.resources, ...data.resources]
-        this.errors = data.errors
-        statusStore.setStatus(StatusType.SUCCESS, `Added ${this.resources.length} resources`)
-        // Update the total resources count after adding new resources
-        await this.countResources()
-      }
-      catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to add resources: ' + error)
-      }
+        if (response.success && response.data) {
+          this.resources = [...this.resources, ...response.data]
+        } else {
+          throw new Error(response.message || 'Failed to add resources')
+        }
+      }, 'adding resources')
     },
+
     async updateResource(id: number, data: Partial<Resource>): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, `Updating resource with id ${id}...`)
-      try {
-        const response = await fetch(`/api/resources/${id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+      return handleError(async () => {
+        const response = await performFetch<Resource>(`/api/resources/${id}`, {
+          method: 'PATCH',
           body: JSON.stringify(data),
         })
-        if (!response.ok) throw new Error('Failed to update resource')
-        const updatedResource = await response.json()
-        this.currentResource = updatedResource
-        statusStore.setStatus(StatusType.SUCCESS, `Updated resource with id ${id}`)
-        // Fetch the updated list of resources after updating a resource
-        await this.getResources()
-      }
-      catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to update resource: ' + error)
-      }
+        if (response.success && response.data) {
+          this.currentResource = response.data
+          await this.getResources() // Refresh after updating
+        } else {
+          throw new Error(response.message || 'Failed to update resource')
+        }
+      }, `updating resource ID: ${id}`)
     },
+
     async deleteResource(id: number): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, `Deleting resource with id ${id}...`)
-      try {
-        const response = await fetch(`/api/resources/${id}`, {
+      return handleError(async () => {
+        const response = await performFetch(`/api/resources/${id}`, {
           method: 'DELETE',
         })
-        if (!response.ok) throw new Error('Failed to delete resource')
-        statusStore.setStatus(StatusType.SUCCESS, `Deleted resource with id ${id}`)
-        // Fetch the updated list of resources and total resources count after deleting a resource
-        await this.getResources()
-        await this.countResources()
-      }
-      catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to delete resource: ' + error)
-      }
-    },
-    async randomResource(): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Fetching a random resource...')
-      try {
-        const response = await fetch(`/api/resources/random`)
-        if (!response.ok) throw new Error('Failed to fetch a random resource')
-        const data = await response.json()
-        this.currentResource = data
-        statusStore.setStatus(StatusType.SUCCESS, 'Fetched a random resource')
-      }
-      catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to fetch a random resource: ' + error)
-      }
-    },
-    async countResources(): Promise<void> {
-      statusStore.setStatus(StatusType.INFO, 'Counting resources...')
-      try {
-        const response = await fetch(`/api/resources/count`)
-        if (!response.ok) throw new Error('Failed to count resources')
-        const data = await response.json()
-        this.totalResources = data
-        statusStore.setStatus(StatusType.SUCCESS, `Counted a total of ${this.totalResources} resources`)
-      }
-      catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Failed to count resources: ' + error)
-      }
-    },
-    async seedResources(): Promise<void> {
-      // If there are no resources, load them
-      statusStore.setStatus(StatusType.INFO, 'Seeding resources...')
-      try {
-        await this.addResources(resourceData)
-        statusStore.setStatus(StatusType.SUCCESS, 'Resources successfully seeded.')
-      }
-      catch (error) {
-        errorStore.setError(ErrorType.UNKNOWN_ERROR, 'Error loading resources: ' + error)
-      }
-
-      // Fetch the updated list of resources and total resources count after seeding
-      await this.getResources()
-      await this.countResources()
+        if (response.success) {
+          await this.getResources() // Refresh after deleting
+        } else {
+          throw new Error(response.message || 'Failed to delete resource')
+        }
+      }, `deleting resource ID: ${id}`)
     },
   },
 })

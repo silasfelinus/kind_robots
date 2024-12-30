@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center p-8 bg-base-200 rounded-lg shadow-lg">
+  <div class="flex flex-col items-center p-8 bg-base-300 rounded-lg shadow-lg">
     <!-- Minimized Avatar -->
     <div
       v-if="minimized"
@@ -7,10 +7,10 @@
       @click="toggleMinimize"
     >
       <img
-        :src="page.image ? `/images/${page.image}` : '/images/default-image.webp'"
+        :src="page.image ? `/images/${page.image}` : '/images/backtree.webp'"
         alt="Chat Avatar"
         class="rounded-full w-14 h-14"
-      >
+      />
       <!-- Ripple Effect -->
       <div class="ripple bg-primary opacity-50" />
     </div>
@@ -20,9 +20,7 @@
       v-else
       class="w-full mt-4 p-4 bg-secondary rounded-lg border-4 border-accent"
     >
-      <h3 class="text-lg font-semibold text-primary mb-2">
-        Silas Says...
-      </h3>
+      <h3 class="text-lg font-semibold text-primary mb-2">Silas Says...</h3>
 
       <!-- Text Container -->
       <div class="streaming-container bg-base rounded-lg p-4">
@@ -37,22 +35,29 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 
+// Define Page interface to include the expected properties like tooltip and image
+interface Page {
+  tooltip?: string | null
+  image?: string | null
+}
+
+// Get the page content and ensure it has the correct typing
+const { page } = useContent() as { page: Page }
+
 // Initialize reactive variables
 const streamingText = ref('')
 const minimized = ref(false)
-
-// Get the page content
-const { page } = useContent()
 
 // Function to toggle minimize state
 const toggleMinimize = () => {
   minimized.value = !minimized.value
   localStorage.setItem('tooltipMinimized', minimized.value.toString())
 }
+
 let interval: NodeJS.Timeout | null = null
+
 // Function to stream text
 const streamText = (text: string) => {
-  // Clear any existing interval
   if (interval) {
     clearTimeout(interval)
   }
@@ -66,20 +71,19 @@ const streamText = (text: string) => {
       streamingText.value += text.charAt(index)
       if (text.charAt(index) === '.' || text.charAt(index) === ',') {
         speed = 500
-      }
-      else {
+      } else {
         speed = 50
       }
       index++
       interval = setTimeout(appendChar, speed)
-    }
-    else {
+    } else {
       clearTimeout(interval as NodeJS.Timeout)
     }
   }
 
   appendChar()
 }
+
 // Lifecycle hooks and watchers
 onMounted(() => {
   minimized.value = localStorage.getItem('tooltipMinimized') === 'true'

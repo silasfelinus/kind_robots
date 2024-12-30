@@ -1,233 +1,211 @@
-// ~/stores/rewardStore.ts
 import { defineStore } from 'pinia'
 import type { Reward } from '@prisma/client'
+import { performFetch } from './utils'
 
 interface RewardState {
   rewards: Reward[]
-  currentReward: Reward | null
+  selectedReward: Reward | null
   error: string | null
   startingRewardId: number | null
   isLoading: boolean
+  randomRewards: Reward[] | null
 }
-
-interface ErrorResponse {
-  message?: string;
-}
-
 
 export const useRewardStore = defineStore({
   id: 'rewardStore',
 
   state: (): RewardState => ({
     rewards: [],
-    currentReward: null,
+    selectedReward: null,
     error: null,
     startingRewardId: null,
     isLoading: false,
+    randomRewards: [],
   }),
 
   getters: {
-    currentRewardIcon(): string | null {
-      return this.currentReward?.icon || null
+    selectedRewardIcon(): string | null {
+      return this.selectedReward?.icon || null
     },
-    currentRewardText(): string | null {
-      return this.currentReward?.text || null
+    selectedRewardText(): string | null {
+      return this.selectedReward?.text || null
     },
-    currentRewardPower(): string | null {
-      return this.currentReward?.power || null
+    selectedRewardPower(): string | null {
+      return this.selectedReward?.power || null
     },
-    currentRewardCollection(): string | null {
-      return this.currentReward?.collection || null
+    selectedRewardCollection(): string | null {
+      return this.selectedReward?.collection || null
     },
-    currentRewardRarity(): number | null {
-      return this.currentReward?.rarity || null
+    selectedRewardRarity(): number | null {
+      return this.selectedReward?.rarity || null
     },
   },
 
   actions: {
     async fetchRewards() {
-      this.isLoading = true;
+      this.isLoading = true
       try {
-        const response = await fetch('/api/rewards');
-        if (!response.ok) {
-          this.error = `Failed to fetch rewards: ${response.statusText}`;
-          return;
+        const response = await performFetch<Reward[]>('/api/rewards')
+        if (!response.success || !Array.isArray(response.data)) {
+          throw new Error(
+            response.message || 'Invalid response format from the server',
+          )
         }
-        const data = await response.json();
-        this.rewards = data.rewards; // Make sure the API returns an object with a "rewards" key
-      }
-      catch (err: unknown) {
-        if (err instanceof Error) {
-          this.error = `An error occurred: ${err.message}`;
-        } else {
-          this.error = 'An unknown error occurred.';
+
+        const validRewards = response.data.filter(
+          (reward) => reward.id && reward.text && reward.power,
+        )
+
+        if (!validRewards.length) {
+          throw new Error('No valid rewards found')
         }
+
+        this.rewards = validRewards
+        this.refreshRandomRewards()
+        localStorage.setItem('rewards', JSON.stringify(this.rewards))
+      } catch (error) {
+        this.error = `Failed to fetch rewards: ${error}`
+        console.error(this.error)
+      } finally {
+        this.isLoading = false
       }
-      finally {
-        this.isLoading = false;
+    },
+    refreshRandomRewards() {
+      const shuffled = [...this.rewards].sort(() => 0.5 - Math.random())
+      this.randomRewards = shuffled.slice(0, 5)
+    },
+
+    initializeStore() {
+      this.isLoading = true
+      try {
+        const storedRewards = localStorage.getItem('rewards')
+        if (storedRewards) {
+          this.rewards = JSON.parse(storedRewards)
+        }
+        this.fetchRewards()
+      } catch (error) {
+        this.error = `Failed to initialize store: ${error}`
+        console.error(this.error)
+      } finally {
+        this.isLoading = false
       }
-    }
-    ,
+    },
+
     async editReward(id: number, updatedData: Partial<Reward>) {
       try {
-        const response = await fetch(`/api/rewards/${id}`, {
+        const response = await performFetch<Reward>(`/api/rewards/${id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedData),
-        });
-    
-        if (!response.ok) {
-          const responseBody: ErrorResponse = await response.json();
-          this.error = `Failed to edit reward: ${response.statusText}. ${responseBody.message || ''}`;
-          console.error(this.error, response);
-          return;
-        }
-    
-        const { success, reward: updatedReward } = await response.json();
-        if (success) {
-          const index = this.rewards.findIndex(reward => reward.id === id);
+        })
+
+        if (response.success && response.data) {
+          const index = this.rewards.findIndex((reward) => reward.id === id)
           if (index !== -1) {
-            this.rewards[index] = updatedReward;
+            this.rewards[index] = response.data
+            localStorage.setItem('rewards', JSON.stringify(this.rewards))
           }
-        }
-      }
-      catch (err: unknown) {
-        if (err instanceof Error) {
-          this.error = `An error occurred: ${err.message}`;
-          console.error(this.error, err.stack);
         } else {
-          this.error = 'An unknown error occurred.';
-          console.error(this.error);
+          throw new Error(response.message || 'Failed to edit reward')
         }
+      } catch (error) {
+        this.error = `Failed to edit reward: ${error}`
+        console.error(this.error)
       }
-    }
-    ,
+    },
+
     setStartingRewardId(id: number | null) {
       this.startingRewardId = id
     },
+
     async createReward(newReward: Partial<Reward>) {
       try {
-        const response = await fetch('/api/rewards', {
+        const response = await performFetch<Reward>('/api/rewards', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newReward),
-        });
-    
-        if (!response.ok) {
-          const responseBody: ErrorResponse = await response.json();
-          this.error = `Failed to create reward: ${response.statusText}. ${responseBody.message || ''}`;
-          console.error(this.error, response);
-          return;
-        }
-    
-        const createdReward = await response.json();
-        this.rewards.push(createdReward);
-      }
-      catch (err: unknown) {
-        if (err instanceof Error) {
-          this.error = `An error occurred: ${err.message}`;
-          console.error(this.error, err.stack);
+        })
+
+        if (response.success && response.data) {
+          this.rewards.push(response.data)
+          localStorage.setItem('rewards', JSON.stringify(this.rewards))
         } else {
-          this.error = 'An unknown error occurred.';
-          console.error(this.error);
+          throw new Error(response.message || 'Failed to create reward')
         }
+      } catch (error) {
+        this.error = `Failed to create reward: ${error}`
+        console.error(this.error)
       }
     },
 
     async updateRewardById(id: number, updatedReward: Partial<Reward>) {
       try {
-        const response = await fetch(`/api/rewards/${id}`, {
+        const response = await performFetch<Reward>(`/api/rewards/${id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedReward),
-        });
-    
-        if (!response.ok) {
-          const responseBody: ErrorResponse = await response.json();
-          this.error = `Failed to update reward: ${response.statusText}. ${responseBody.message || ''}`;
-          console.error(this.error, response);
-          return;
-        }
-    
-        const updated = await response.json();
-        const index = this.rewards.findIndex(reward => reward.id === id);
-        if (index !== -1) {
-          this.rewards[index] = updated;
-        }
-      }
-      catch (err: unknown) {
-        if (err instanceof Error) {
-          this.error = `An error occurred: ${err.message}`;
-          console.error(this.error, err.stack);
+        })
+
+        if (response.success && response.data) {
+          const index = this.rewards.findIndex((reward) => reward.id === id)
+          if (index !== -1) {
+            this.rewards[index] = response.data
+            localStorage.setItem('rewards', JSON.stringify(this.rewards))
+          }
         } else {
-          this.error = 'An unknown error occurred.';
-          console.error(this.error);
+          throw new Error(response.message || 'Failed to update reward')
         }
+      } catch (error) {
+        this.error = `Failed to update reward: ${error}`
+        console.error(this.error)
       }
     },
 
     async deleteRewardById(id: number) {
       try {
-        const response = await fetch(`/api/rewards/${id}`, {
+        const response = await performFetch(`/api/rewards/${id}`, {
           method: 'DELETE',
-        });
-    
-        if (!response.ok) {
-          this.error = `Failed to delete reward: ${response.statusText}`;
-          return;
-        }
-    
-        const index = this.rewards.findIndex(reward => reward.id === id);
-        if (index !== -1) {
-          this.rewards.splice(index, 1);
-        }
-      }
-      catch (err: unknown) {
-        if (err instanceof Error) {
-          this.error = `An error occurred: ${err.message}`;
-          console.error(this.error);
+        })
+
+        if (response.success) {
+          this.rewards = this.rewards.filter((reward) => reward.id !== id)
+          localStorage.setItem('rewards', JSON.stringify(this.rewards))
         } else {
-          this.error = 'An unknown error occurred.';
-          console.error(this.error);
+          throw new Error(response.message || 'Failed to delete reward')
         }
+      } catch (error) {
+        this.error = `Failed to delete reward: ${error}`
+        console.error(this.error)
       }
     },
-    
+
     async createRewardsBatch(newRewards: Partial<Reward>[]) {
       try {
-        const response = await fetch('/api/rewards/batch', {
+        const response = await performFetch<Reward[]>('/api/rewards/batch', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newRewards),
-        });
-    
-        if (!response.ok) {
-          this.error = `Failed to create rewards in batch: ${response.statusText}`;
-          return;
-        }
-    
-        const { rewards } = await response.json();
-        this.rewards.push(...rewards);
-      }
-      catch (err: unknown) {
-        if (err instanceof Error) {
-          this.error = `An error occurred: ${err.message}`;
-          console.error(this.error);
+        })
+
+        if (response.success && response.data) {
+          this.rewards.push(...response.data)
+          localStorage.setItem('rewards', JSON.stringify(this.rewards))
         } else {
-          this.error = 'An unknown error occurred.';
-          console.error(this.error);
+          throw new Error(
+            response.message || 'Failed to create rewards in batch',
+          )
         }
+      } catch (error) {
+        this.error = `Failed to create rewards in batch: ${error}`
+        console.error(this.error)
       }
     },
-    clearCurrentReward() {
-      this.currentReward = null
+
+    clearselectedReward() {
+      this.selectedReward = null
     },
+
     setRewardById(id: number) {
-      const selectedReward = this.rewards.find(reward => reward.id === id)
+      const selectedReward = this.rewards.find((reward) => reward.id === id)
       if (selectedReward) {
-        this.currentReward = selectedReward
-      }
-      else {
+        this.selectedReward = selectedReward
+      } else {
         this.error = `Reward with ID ${id} not found.`
         console.warn(this.error)
       }

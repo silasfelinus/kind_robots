@@ -21,41 +21,59 @@ export function createReward(reward: Partial<Reward>): Promise<Reward> {
   })
 }
 
+export async function fetchRewardById(id: number): Promise<Reward | null> {
+  try {
+    const reward = await prisma.reward.findUnique({
+      where: { id },
+    })
+    return reward
+  } catch (error: unknown) {
+    throw new Error(`Failed to fetch reward by ID: ${(error as Error).message}`)
+  }
+}
+
+// Fetch all rewards
+export async function fetchAllRewards(): Promise<Reward[]> {
+  try {
+    return await prisma.reward.findMany()
+  } catch (error) {
+    throw new Error(`Failed to fetch rewards: ${(error as Error).message}`)
+  }
+}
+
+// Function to update a Reward by its ID using Prisma's built-in types
+export const updateRewardById = async (
+  id: number,
+  data: Prisma.RewardUpdateInput,
+) => {
+  try {
+    const reward = await prisma.reward.update({
+      where: { id },
+      data,
+    })
+    return reward
+  } catch (error) {
+    throw new Error(
+      `Error updating Reward with ID ${id}: ${(error as Error).message}`,
+    )
+  }
+}
+
 // Function to update an existing Reward by ID
-export function updateReward(id: number, updatedReward: Partial<Reward>): Promise<Reward | null> {
+export function updateReward(
+  id: number,
+  updatedReward: Prisma.RewardUpdateInput,
+): Promise<Reward | null> {
   return prisma.reward.update({
     where: { id },
     data: updatedReward,
   })
 }
 
-// Function to delete a Reward by ID
-export async function deleteReward(id: number): Promise<boolean> {
-  const rewardExists = await prisma.reward.findUnique({ where: { id } })
-
-  if (!rewardExists) {
-    return false
-  }
-
-  await prisma.reward.delete({ where: { id } })
-  return true
-}
-
-// Function to fetch all Rewards
-export function fetchAllRewards(): Promise<Reward[]> {
-  return prisma.reward.findMany()
-}
-
-// Function to fetch a single Reward by ID
-export function fetchRewardById(id: number): Promise<Reward | null> {
-  return prisma.reward.findUnique({
-    where: { id },
-  })
-}
-
+// Function to create multiple Rewards in a batch
 export async function createRewardsBatch(
   rewardsData: Partial<Reward>[],
-): Promise<{ count: number, rewards: Reward[], errors: string[] }> {
+): Promise<{ count: number; rewards: Reward[]; errors: string[] }> {
   const errors: string[] = []
 
   // Validate and filter the rewards
@@ -69,7 +87,7 @@ export async function createRewardsBatch(
       }
       return true
     })
-    .map(rewardData => rewardData as Prisma.RewardCreateManyInput)
+    .map((rewardData) => rewardData as Prisma.RewardCreateManyInput)
 
   // Create the rewards in a batch
   const result = await prisma.reward.createMany({

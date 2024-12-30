@@ -5,12 +5,9 @@
     <div :class="baseCardClasses">
       <!-- Card Header -->
       <div class="flex items-center justify-center mb-4">
-        <icon
-          :name="iconName"
-          class="mr-2 text-3xl"
-        />
+        <Icon :name="props.iconName" class="mr-2 text-3xl" />
         <h3 class="text-3xl font-semibold">
-          {{ title }}
+          {{ props.title }}
         </h3>
       </div>
       <!-- Card Content -->
@@ -18,7 +15,7 @@
         <!-- Use slot if available, otherwise use the content prop -->
         <slot v-if="$slots.default" />
         <div v-else>
-          {{ content }}
+          {{ props.content }}
         </div>
       </div>
     </div>
@@ -36,7 +33,7 @@ const props = defineProps({
   },
   iconName: {
     type: String,
-    default: 'mdi:robot',
+    default: 'kind-icon:robot-color',
   },
   content: {
     type: String,
@@ -47,7 +44,7 @@ const props = defineProps({
 // Break down long class strings for better readability and maintainability
 const baseCardClasses = computed(() =>
   [
-    'bg-base-200',
+    'bg-base-300',
     'border-xl',
     'p-8',
     'm-6',

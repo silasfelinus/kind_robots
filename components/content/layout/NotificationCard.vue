@@ -4,22 +4,22 @@
       v-if="isVisible"
       ref="notificationCard"
       class="notification-card fixed bottom-0 left-1/2 transform -translate-x-1/2 mb-4 px-6 py-4 rounded-lg shadow-xl bg-white text-center"
-      :class="{ 'bg-red-500 text-default': isError, 'bg-green-500 text-default': !isError }"
+      :class="{
+        'bg-red-500 text-default': isError,
+        'bg-green-500 text-default': !isError,
+      }"
     >
       <p class="text-lg">
         {{ message }}
       </p>
-      <button
-        class="absolute top-1 right-1 text-2xl"
-        @click="hideCard"
-      >
+      <button class="absolute top-1 right-1 text-2xl" @click="hideCard">
         ✕
       </button>
     </div>
   </transition>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watchEffect, onMounted } from 'vue'
 import interact from '@interactjs/interact'
 
@@ -39,7 +39,7 @@ const props = defineProps({
 })
 
 const isVisible = ref(!!props.message)
-const notificationCard = ref(null)
+const notificationCard = ref<HTMLElement | null>(null)
 
 watchEffect(() => {
   isVisible.value = !!props.message
@@ -55,26 +55,29 @@ const hideCard = () => {
 }
 
 onMounted(() => {
-  interact(notificationCard.value).draggable({
-    inertia: true,
-    modifiers: [
-      interact.modifiers.restrictRect({
-        restriction: 'parent',
-        endOnly: true,
-      }),
-    ],
-    autoScroll: true,
-    onmove: function (event) {
-      const target = event.target
-      const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
-      const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+  if (notificationCard.value) {
+    interact(notificationCard.value).draggable({
+      inertia: true,
+      modifiers: [
+        interact.modifiers.restrictRect({
+          restriction: 'parent',
+          endOnly: true,
+        }),
+      ],
+      autoScroll: true,
+      onmove: function (event) {
+        const target = event.target
+        const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+        const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
 
-      target.style.webkitTransform = target.style.transform = `translate(${x}px, ${y}px)`
+        target.style.webkitTransform =
+          target.style.transform = `translate(${x}px, ${y}px)`
 
-      target.setAttribute('data-x', x)
-      target.setAttribute('data-y', y)
-    },
-  })
+        target.setAttribute('data-x', x)
+        target.setAttribute('data-y', y)
+      },
+    })
+  }
 })
 </script>
 

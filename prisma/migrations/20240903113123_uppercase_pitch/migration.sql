@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Prompt` MODIFY `userId` INTEGER NULL DEFAULT 1;

@@ -1,5 +1,5 @@
 // butterflyPhrases.ts
-export const defaultPhrase = 'I\'m a free spirit! 🦋'
+export const defaultPhrase = "I'm a free spirit! 🦋"
 
 export const funPhrases = [
   'i felt cooped up in there! 🌈',

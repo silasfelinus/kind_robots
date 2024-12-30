@@ -1,39 +1,88 @@
-// server/api/pitches/[id].delete.ts
-import { defineEventHandler } from 'h3'
+// /server/api/pitches/[id].delete.ts
+import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 import prisma from '../utils/prisma'
 
 export default defineEventHandler(async (event) => {
-  try {
-    const id = Number(event.context.params?.id)
-    if (!id) throw new Error('Invalid tag ID.')
+  let response
+  let id
 
-    const existingPitch = await prisma.pitch.findUnique({ where: { id } })
-    if (!existingPitch) {
-      return { success: false, message: 'Pitch not found.' }
+  try {
+    // Validate and parse the pitch ID
+    id = Number(event.context.params?.id)
+    if (isNaN(id) || id <= 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid Pitch ID. It must be a positive integer.',
+      })
     }
 
+    console.log(`Attempting to delete Pitch with ID: ${id}`)
+
+    // Use validateApiKey to authenticate
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const userId = user.id
+
+    // Fetch the pitch entry and verify ownership
+    const pitch = await prisma.pitch.findUnique({
+      where: { id },
+      select: { userId: true },
+    })
+
+    if (!pitch) {
+      throw createError({
+        statusCode: 404,
+        message: `Pitch with ID ${id} does not exist.`,
+      })
+    }
+
+// Check if user is an admin
+    if (user.Role === 'ADMIN') {
+      // Admin bypass: Delete the pitch entry directly
+      await prisma.pitch.delete({ where: { id } })
+      return {
+        success: true,
+        message: `Pitch entry with ID ${id} deleted successfully by admin.`,
+      }
+    }
+
+    if (pitch.userId !== userId) {
+      throw createError({
+        statusCode: 403,
+        message: 'You are not authorized to delete this pitch.',
+      })
+    }
+
+    // Proceed to delete the pitch
     await prisma.pitch.delete({ where: { id } })
-    return { success: true, message: 'Pitch successfully deleted.' }
+
+    console.log(`Pitch with ID ${id} successfully deleted`)
+    response = {
+      success: true,
+      message: `Pitch with ID ${id} successfully deleted.`,
+      statusCode: 200,
+    }
+    event.node.res.statusCode = 200
+  } catch (error: unknown) {
+    const handledError = errorHandler(error)
+    console.error('Error while deleting Pitch:', handledError)
+
+    // Set the status code and response message based on the handled error
+    event.node.res.statusCode = handledError.statusCode || 500
+    response = {
+      success: false,
+      message: handledError.message || `Failed to delete Pitch with ID ${id}.`,
+      statusCode: event.node.res.statusCode,
+    }
   }
-  catch (error: unknown) {
-    return errorHandler(error)
-  }
+
+  return response
 })
-
-// Function to delete a Pitch by ID
-export async function deletePitch(id: number): Promise<boolean> {
-  try {
-    const pitchExists = await prisma.pitch.findUnique({ where: { id } })
-
-    if (!pitchExists) {
-      throw new Error('Pitch not found')
-    }
-
-    await prisma.pitch.delete({ where: { id } })
-    return true
-  }
-  catch (error: unknown) {
-    throw errorHandler(error)
-  }
-}

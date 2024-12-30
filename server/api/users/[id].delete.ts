@@ -1,55 +1,62 @@
-// server/api/users/[id].delete.ts
-import { defineEventHandler } from 'h3'
+// /server/api/users/[id].delete.ts
+import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
-import auth from '../../middleware/auth'
 import prisma from '../utils/prisma'
+import { validateApiKey } from '../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   try {
-    console.log('id.delete API route invoked. Setting auth to true.')
-    
-    // Validate the API key using the auth middleware
-    event.context.route = { auth: true } // This line sets the auth property
-    auth(event)
+    // Parse and validate the target User ID from the URL params
+    const targetUserId = Number(event.context.params?.id)
+    if (isNaN(targetUserId) || targetUserId <= 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid User ID. It must be a positive integer.',
+      })
+    }
 
-    // Extract and validate the user ID
-    const id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
-      return { success: false, message: 'Invalid User ID.' }
+    // Validate API key using the utility function
+    const { isValid, user } = await validateApiKey(event)
+    const requestingUserId = user?.id
+
+    // Check if the API key is valid and if the requesting user matches the target user
+    if (!isValid || requestingUserId !== targetUserId) {
+      throw createError({
+        statusCode: 403,
+        message: 'You do not have permission to delete this user.',
+      })
+    }
+
+    // Verify the target user exists before attempting deletion
+    const userExists = await prisma.user.findUnique({
+      where: { id: targetUserId },
+      select: { id: true },
+    })
+
+    if (!userExists) {
+      throw createError({
+        statusCode: 404,
+        message: `User with ID ${targetUserId} not found.`,
+      })
     }
 
     // Attempt to delete the user
-    const deleted = await deleteUser(id)
-    if (!deleted) {
-      return { success: false, message: `User with id ${id} does not exist.` }
-    }
+    await prisma.user.delete({ where: { id: targetUserId } })
 
-    return { success: true, message: `User with id ${id} successfully deleted.` }
-  } catch (error: unknown) {
-    if (error instanceof Error && error.message === 'Unauthorized') {
-      return { response: 'Unauthorized', statusCode: 401 }
+    // Successful deletion response
+    event.node.res.statusCode = 200
+    return {
+      success: true,
+      message: `User with ID ${targetUserId} successfully deleted.`,
     }
-    const { message } = errorHandler(error)
+  } catch (error: unknown) {
+    const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
     return {
       success: false,
-      message: `Failed to delete User. Reason: ${message}`,
+      message:
+        handledError.message ||
+        `Failed to delete user with ID ${event.context.params?.id}.`,
     }
   }
 })
-
-export async function deleteUser(id: number): Promise<boolean> {
-  try {
-    const user = await prisma.user.findUnique({ where: { id } })
-    if (!user) {
-      console.error(`User with id ${id} does not exist.`)
-      return false
-    }
-
-    await prisma.user.delete({ where: { id } })
-    return true
-  } catch (error: unknown) {
-    console.error(`Failed to delete user: ${(error as Error).message}`)
-    throw new Error(errorHandler(error).message)
-  }
-}
-

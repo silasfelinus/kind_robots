@@ -1,67 +1,82 @@
 // /server/api/galleries/index.post.ts
-import { defineEventHandler, readBody } from 'h3';
-import { addGalleries } from '.';
-import { errorHandler } from '../utils/error';
-import type { Prisma } from '@prisma/client';
+import { defineEventHandler, readBody, createError } from 'h3'
+import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
+import type { Prisma, Gallery } from '@prisma/client'
 
-// Define the type for gallery items according to Prisma.GalleryCreateManyInput
-type GalleryItem = {
-  name: string; // Required
-  content?: string; // Optional
-  description?: string; // Optional
-  mediaId?: string | null; // Optional
-  url?: string | null; // Optional
-  isMature?: boolean; // Optional
-  custodian?: string | null; // Optional
-  userId?: number | null; // Ensure this matches Prisma type
-  highlightImage?: string | null; // Optional
-  imagePaths?: string | null; // Optional
-};
+type GalleryResponse = {
+  success: boolean
+  message?: string
+  data?: Gallery
+  statusCode?: number
+}
 
-// Define GalleryData as an array of GalleryItem
-type GalleryData = GalleryItem[];
+export default defineEventHandler(async (event): Promise<GalleryResponse> => {
+  let response: GalleryResponse
 
-export default defineEventHandler(async (event) => {
   try {
-    // Read and parse gallery data from the request body
-    const galleryData: GalleryData = await readBody(event);
-
-    // Validate the format of galleryData
-    if (!Array.isArray(galleryData)) {
-      return {
-        success: false,
-        message: 'Expected the gallery data to be an array.',
-        error: 'Invalid data format',
-        statusCode: 400, // Bad Request
-      };
+    // Validate the API key using the utility function
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
     }
 
-    // Transform galleryData to match Prisma.GalleryCreateManyInput
-    const formattedData: Prisma.GalleryCreateManyInput[] = galleryData.map(item => ({
-      name: item.name,
-      content: item.content || '',
-      description: item.description || null,
-      mediaId: item.mediaId || null, // Ensure this is a string or null
-      url: item.url || null,
-      isMature: item.isMature || false,
-      custodian: item.custodian || null,
-      userId: item.userId !== undefined ? item.userId : null, // Ensure this is a number or null
-      highlightImage: item.highlightImage || null,
-      imagePaths: item.imagePaths || null,
-    }));
+    const userId = user.id
 
-    // Add galleries and handle the result
-    const result = await addGalleries(formattedData);
-    
-    return { success: true, ...result };
-  } catch (error: unknown) {
-    // Use the errorHandler for consistent error handling
-    const handledError = errorHandler(error);
-    return {
+    // Read and validate the gallery data from the request body
+    const galleryData = await readBody(event)
+
+    // Check for required fields
+    const requiredFields = ['name', 'content']
+    const missingFields = requiredFields.filter(
+      (field) => !galleryData[field as keyof typeof galleryData],
+    )
+    if (missingFields.length > 0) {
+      throw createError({
+        statusCode: 400,
+        message: `Missing required fields: ${missingFields.join(', ')}.`,
+      })
+    }
+
+    // Prepare input data with the authenticated user connected
+    const galleryInput: Prisma.GalleryCreateInput = {
+      name: galleryData.name,
+      content: galleryData.content,
+      description: galleryData.description || null,
+      highlightImage: galleryData.highlightImage || null,
+      url: galleryData.url || null,
+      custodian: galleryData.custodian || null,
+      imagePaths: galleryData.imagePaths || null,
+      isMature: galleryData.isMature ?? false,
+      isPublic: galleryData.isPublic ?? true,
+      User: { connect: { id: userId } },
+    }
+
+    // Create the gallery entry
+    const newGallery = await prisma.gallery.create({ data: galleryInput })
+
+    // Successful creation response
+    response = {
+      success: true,
+      data: newGallery,
+      message: 'Gallery created successfully.',
+      statusCode: 201,
+    }
+  } catch (error) {
+    const handledError = errorHandler(error)
+    response = {
       success: false,
-      message: 'Failed to create new galleries.',
-      error: handledError.message,
+      message: handledError.message || 'Failed to create gallery entry.',
+      data: undefined, // Ensure `data` is undefined in case of error
       statusCode: handledError.statusCode || 500,
-    };
+    }
   }
-});
+
+  // Set the status code in the response object
+  event.node.res.statusCode = response.statusCode || 500
+  return response
+})

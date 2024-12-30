@@ -1,157 +1,107 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, reactive } from 'vue'
-import { makeNoise2D } from 'open-simplex-noise'
-
-const initialized = ref(false)
-
-onMounted(() => {
-  initialized.value = true
-})
-
-const randomColor = (): string => {
-  const h = Math.floor(Math.random() * 360)
-  const s = Math.floor(Math.random() * 50 + 50) // keep saturation between 50 and 100
-  const l = Math.floor(Math.random() * 40 + 30) // keep lightness between 30 and 70
-  return `hsl(${h},${s}%,${l}%)`
-}
-
-// Analogous color generator
-const analogousColor = (hsl: string): string => {
-  const hslMatch = hsl.match(/\d+/g)
-  if (!hslMatch) {
-    throw new Error('Invalid color format')
-  }
-  const [h, s, l] = hslMatch.map(Number)
-  const newH = (h + 30) % 360
-  return `hsl(${newH},${s}%,${l}%)`
-}
-
-// Complementary color generator
-const complementaryColor = (color: string): string => {
-  const [h, s, l] = color.replace('hsl(', '').replace(')', '').split(',')
-  const newH = (parseInt(h) + 180) % 360
-  return `hsl(${newH},${s},${l})`
-}
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { makeNoise2D } from 'open-simplex-noise';
+import { randomColor, analogousColor, complementaryColor } from '@/stores/butterflyStore';
 
 interface Butterfly {
-  wingTopColor: string
-  wingBottomColor: string
-  rotation: number
-  speed: number
-  status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
-  goal: { x: number; y: number }
-  hasReachedGoal: boolean
-  sway: boolean
-  wingSpeed: number
-  scale: number
-  countdown: number
+  wingTopColor: string;
+  wingBottomColor: string;
+  rotation: number;
+  speed: number;
+  status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear';
+  goal: { x: number; y: number };
+  hasReachedGoal: boolean;
+  wingSpeed: number;
+  scale: number;
+  countdown: number;
 }
 
 interface WindowSize {
-  width: number
-  height: number
+  width: number;
+  height: number;
 }
 
-const windowSize = reactive<WindowSize>({
-  width: 0,
-  height: 0,
-})
+const hydrated = ref(false);
+const windowSize = reactive<WindowSize>({ width: 0, height: 0 });
 
-const wingColorType = Math.floor(Math.random() * 3) // 0:same, 1:complementary, 2:analogous
-const primaryColor = randomColor()
-let secondaryColor = primaryColor
-if (wingColorType === 1) {
-  secondaryColor = complementaryColor(primaryColor)
-} else if (wingColorType === 2) {
-  secondaryColor = analogousColor(primaryColor)
-}
+const randomRange = (min: number, max: number): number => Math.random() * (max - min) + min;
+
+const wingColorType = Math.floor(Math.random() * 3); // 0: same, 1: complementary, 2: analogous
+const primaryColor = randomColor();
+const secondaryColor =
+  wingColorType === 1
+    ? complementaryColor(primaryColor)
+    : wingColorType === 2
+    ? analogousColor(primaryColor)
+    : primaryColor;
 
 const butterfly = reactive<Butterfly>({
   wingTopColor: primaryColor,
   wingBottomColor: secondaryColor,
-  rotation: 110, // random initial rotation
-  speed: Math.random() * 2 + 1, // speed between 1 and 3
+  rotation: 110,
+  speed: randomRange(1, 3),
   status: 'random',
-  goal: {
-    x: Math.random() * windowSize.width,
-    y: Math.random() * windowSize.height,
-  },
+  goal: { x: 0, y: 0 }, // Initialized with default values
   hasReachedGoal: false,
-  sway: false,
-  wingSpeed: Math.floor(Math.random() * 3), // random initial wing speed
-  scale: Math.random() * 0.5 + 0.75, // random initial scale between 0.75 and 1.25
+  wingSpeed: Math.floor(randomRange(0, 3)),
+  scale: randomRange(0.75, 1.25),
   countdown: 0,
-})
+});
 
-const noise2D = makeNoise2D(Date.now())
-let t = 0
+const noise2D = makeNoise2D(Date.now());
+let animationFrameId: number;
 
-function updatePosition() {
-  t += 0.01
+const handleResize = () => {
+  if (typeof window !== 'undefined') {
+    windowSize.width = window.innerWidth;
+    windowSize.height = window.innerHeight;
+  }
+};
+
+const updatePosition = () => {
+  const t = Date.now() * 0.001;
   const angle =
-    noise2D(butterfly.goal.x * 0.01, butterfly.goal.y * 0.01 + t) * Math.PI * 2
-  const dx = Math.cos(angle) * butterfly.speed
-  const dy = Math.sin(angle) * butterfly.speed
+    noise2D(butterfly.goal.x * 0.01, butterfly.goal.y * 0.01 + t) * Math.PI * 2;
+  const dx = Math.cos(angle) * butterfly.speed;
+  const dy = Math.sin(angle) * butterfly.speed;
 
-  butterfly.goal.x += dx
-  butterfly.goal.y += dy
+  butterfly.goal.x = Math.max(0, Math.min(butterfly.goal.x + dx, windowSize.width - 100));
+  butterfly.goal.y = Math.max(0, Math.min(butterfly.goal.y + dy, windowSize.height - 100));
 
-  if (butterfly.goal.x < 0 || butterfly.goal.x > window.innerWidth - 100) {
-    butterfly.goal.x = Math.max(
-      Math.min(butterfly.goal.x, window.innerWidth - 100),
-      0,
-    )
-  }
+  butterfly.scale = 0.33 + (1 - (butterfly.goal.x / windowSize.width + butterfly.goal.y / windowSize.height) / 2) * 0.67;
+  butterfly.rotation = dx >= 0 ? 120 : 30;
+};
 
-  if (butterfly.goal.y < 0 || butterfly.goal.y > window.innerHeight - 100) {
-    butterfly.goal.y = Math.max(
-      Math.min(butterfly.goal.y, window.innerHeight - 100),
-      0,
-    )
-  }
-
-  // Change scale based on screen position
-  butterfly.scale =
-    0.33 +
-    ((2 -
-      (butterfly.goal.x / window.innerWidth +
-        butterfly.goal.y / window.innerHeight)) /
-      2) *
-      0.67
-
-  // Update the rotation based on the direction
-  butterfly.rotation = dx >= 0 ? 120 : 30
-}
-
-function animate() {
-  updatePosition()
-  requestAnimationFrame(animate)
-}
+const animate = () => {
+  updatePosition();
+  animationFrameId = requestAnimationFrame(animate);
+};
 
 onMounted(() => {
-  windowSize.width = window.innerWidth
-  windowSize.height = window.innerHeight
+  hydrated.value = true;
 
-  window.addEventListener('resize', () => {
-    windowSize.width = window.innerWidth
-    windowSize.height = window.innerHeight
-  })
+  // Set initial window size and butterfly goal after mounting
+  handleResize();
+  butterfly.goal.x = randomRange(0, windowSize.width);
+  butterfly.goal.y = randomRange(0, windowSize.height);
 
-  animate()
-})
+  window.addEventListener('resize', handleResize);
+  animate();
+});
 
 onUnmounted(() => {
-  window.removeEventListener('resize', () => {
-    windowSize.width = window.innerWidth
-    windowSize.height = window.innerHeight
-  })
-})
+  cancelAnimationFrame(animationFrameId);
+  window.removeEventListener('resize', handleResize);
+});
 </script>
+
+
+
 
 <template>
   <div
-    v-if="initialized"
-    class="butterfly"
+    v-if="hydrated"
+    class="butterfly z-50"
     :style="{
       left: butterfly.goal.x + 'px',
       top: butterfly.goal.y + 'px',
@@ -163,13 +113,19 @@ onUnmounted(() => {
         ')',
     }"
   >
-    <div class="left-wing">
-      <div class="top" :style="{ background: butterfly.wingTopColor }" />
-      <div class="bottom" :style="{ background: butterfly.wingBottomColor }" />
+    <div class="left-wing z-50">
+      <div class="top" :style="{ background: butterfly.wingTopColor }"></div>
+      <div
+        class="bottom"
+        :style="{ background: butterfly.wingBottomColor }"
+      ></div>
     </div>
-    <div class="right-wing">
-      <div class="top" :style="{ background: butterfly.wingTopColor }" />
-      <div class="bottom" :style="{ background: butterfly.wingBottomColor }" />
+    <div class="right-wing z-50">
+      <div class="top" :style="{ background: butterfly.wingTopColor }"></div>
+      <div
+        class="bottom"
+        :style="{ background: butterfly.wingBottomColor }"
+      ></div>
     </div>
   </div>
 </template>
@@ -239,22 +195,17 @@ body {
   pointer-events: none;
 }
 
-.left-wing .top {
-  right: 0;
-  pointer-events: none;
-}
-
 .top,
 .bottom {
   opacity: 0.7;
   position: absolute;
   pointer-events: none;
 }
+
 .top {
   width: 20px;
   height: 20px;
   border-radius: 10px;
-  pointer-events: none;
 }
 
 .bottom {
@@ -262,6 +213,5 @@ body {
   width: 24px;
   height: 24px;
   border-radius: 12px;
-  pointer-events: none;
 }
 </style>

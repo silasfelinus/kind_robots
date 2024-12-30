@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/html-self-closing -->
 <template>
-  <div class="bg-base-200 rounded-2xl p-8 text-lg">
+  <div class="bg-base-300 rounded-2xl p-8 text-lg">
     <h1 class="text-2xl mb-4">Dream-Generator</h1>
 
     <!-- Random Dream as Prompt -->
@@ -43,7 +43,7 @@
     </div>
 
     <!-- Milestone Reward -->
-    <milestone-reward v-if="shouldShowMilestoneCheck" :id="11" />
+    <award-milestone v-if="shouldShowMilestoneCheck" :id="11" />
 
     <!-- Display Created Art -->
     <div v-for="art in createdArts" :key="art.id" class="mt-4">
@@ -54,11 +54,11 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useDreamStore } from '@/stores/dreamStore'
-import { useErrorStore } from '@/stores/errorStore'
-import { useUserStore } from '@/stores/userStore'
-import { useLoadStore } from '@/stores/loadStore'
-import type { Art } from '@/stores/artStore'
+import { useDreamStore } from './../../../stores/dreamStore'
+import { useErrorStore } from './../../../stores/errorStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useLoadStore } from './../../../stores/loadStore'
+import type { Art } from './../../../stores/artStore'
 
 // Load stores
 const dreamStore = useDreamStore()
@@ -110,7 +110,6 @@ const generateArt = async () => {
         flavorText: flavorText.value,
         userId: userId.value,
         galleryId: 21,
-        channelName: 'dreamscapes',
       }),
     })
 

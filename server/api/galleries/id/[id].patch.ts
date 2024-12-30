@@ -1,45 +1,78 @@
 // /server/api/galleries/[id].patch.ts
-import { defineEventHandler, readBody, createError } from 'h3';
-import { fetchGalleryById, updateGallery } from '..';
-import { errorHandler } from '../../utils/error';
-import type { Prisma } from '@prisma/client'; // Ensure Prisma types are imported
+import { defineEventHandler, readBody, createError } from 'h3'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
-  // Extract and validate the ID from the request parameters
-  const id = Number(event.context.params?.id);
+  const id = Number(event.context.params?.id)
 
+  // Check if ID is valid
   if (isNaN(id) || id <= 0) {
-    throw createError({
-      statusCode: 400, // Bad Request
-      message: 'Invalid Gallery ID.',
-    });
+    return {
+      success: false,
+      message: 'Invalid Gallery ID. It must be a positive integer.',
+      statusCode: 400,
+    }
   }
 
   try {
-    // Fetch the Gallery from the database
-    const gallery = await fetchGalleryById(id);
-
-    if (!gallery) {
+    // Authenticate user via API key
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
       throw createError({
-        statusCode: 404, // Not Found
-        message: 'Gallery not found.',
-      });
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
     }
 
-    // Parse and validate the request body
-    const data: Prisma.GalleryUpdateInput = await readBody(event);
+    const userId = user.id
 
-    // Update only the provided fields
-    const updatedGallery = await updateGallery(id, data);
+    // Find the gallery to verify ownership
+    const gallery = await prisma.gallery.findUnique({ where: { id } })
+    if (!gallery) {
+      throw createError({
+        statusCode: 404,
+        message: `Gallery with ID ${id} not found.`,
+      })
+    }
 
-    return { success: true, gallery: updatedGallery };
-  } catch (error: unknown) {
-    // Use errorHandler to handle and format the error
-    const handledError = errorHandler(error);
+    if (gallery.userId !== userId) {
+      throw createError({
+        statusCode: 403,
+        message: 'You do not have permission to update this gallery.',
+      })
+    }
+
+    // Read and validate the request body
+    const updatedGalleryData = await readBody(event)
+    if (!updatedGalleryData || Object.keys(updatedGalleryData).length === 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'No data provided for update.',
+      })
+    }
+
+    // Update the gallery
+    const data = await prisma.gallery.update({
+      where: { id },
+      data: updatedGalleryData,
+    })
+
+    // Successful update response
+    event.node.res.statusCode = 200
+    return {
+      success: true,
+      message: `Gallery with ID ${id} updated successfully.`,
+      data,
+    }
+  } catch (error) {
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
-      message: handledError.message || `Failed to update Gallery with id ${id}.`,
-      statusCode: handledError.statusCode || 500, // Internal Server Error
-    };
+      message: message || `Failed to update gallery with ID ${id}.`,
+      statusCode: event.node.res.statusCode,
+    }
   }
-});
+})

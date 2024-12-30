@@ -1,22 +1,8 @@
 <template>
-  <div
-    class="flip-card"
-    @click="flipped = !flipped"
-  >
-    <div
-      class="flip-card-inner"
-      :class="{ 'is-flipped': flipped }"
-    >
-      <card-front
-        key="front"
-        class="flip-card-front"
-        :bot="currentBot"
-      />
-      <card-back
-        key="back"
-        class="flip-card-back"
-        :bot="currentBot"
-      />
+  <div class="flip-card" @click="flipped = !flipped">
+    <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
+      <card-front key="front" class="flip-card-front" :bot="currentBot" />
+      <card-back key="back" class="flip-card-back" :bot="currentBot" />
     </div>
   </div>
 </template>

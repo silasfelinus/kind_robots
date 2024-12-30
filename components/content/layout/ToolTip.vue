@@ -1,13 +1,15 @@
 <template>
   <!-- Main Container -->
-  <div class="flex flex-col items-center p-8 bg-base-200 rounded-lg shadow-lg relative w-64 h-64">
+  <div
+    class="flex flex-col items-center p-8 bg-base-300 rounded-lg shadow-lg relative w-64 h-64"
+  >
     <!-- Tip Toggles -->
     <div class="absolute bottom-0 right-0 mb-2 mr-2 flex flex-col items-end">
       <button
         v-if="page.tooltip && !tipStatus.Silas.seen"
         @click="toggleTip('Silas')"
       >
-        <icon
+        <Icon
           name="solar:cat-bold"
           class="text-3xl"
           :class="tipStatus.Silas.show ? 'text-accent flash' : 'text-default'"
@@ -17,7 +19,7 @@
         v-if="page.amitip && !tipStatus.Ami.seen"
         @click="toggleTip('Ami')"
       >
-        <icon
+        <Icon
           name="ph:butterfly-duotone"
           class="text-3xl"
           :class="tipStatus.Ami.show ? 'text-accent flash' : 'text-default'"
@@ -25,19 +27,12 @@
       </button>
     </div>
     <!-- Display Tip -->
-    <div
-      v-if="currentTip"
-      class="flex flex-col items-start w-full h-full"
-    >
-      <h3 class="text-lg font-semibold">
-        {{ currentTipType }} says:
-      </h3>
+    <div v-if="currentTip" class="flex flex-col items-start w-full h-full">
+      <h3 class="text-lg font-semibold">{{ currentTipType }} says:</h3>
       <p class="flex-1">
         {{ currentTip }}
       </p>
-      <button @click="clearTip">
-        Clear
-      </button>
+      <button @click="clearTip">Clear</button>
     </div>
   </div>
 </template>
@@ -45,12 +40,20 @@
 <script setup lang="ts">
 import { ref, computed, watch, reactive } from 'vue'
 
-// Fetching the page content
-const { page } = useContent()
+// Define the Page interface for expected page properties
+interface Page {
+  tooltip?: string | null
+  amitip?: string | null
+}
 
-const currentTipType = ref<string | null>(null)
+// Fetching the page content with proper typing
+const { page } = useContent() as { page: Page }
+
+const currentTipType = ref<'Ami' | 'Silas' | null>(null)
 const currentTip = computed(() => {
-  return currentTipType.value ? page[currentTipType.value.toLowerCase() + 'tip'] : null
+  if (currentTipType.value === 'Silas') return page.tooltip
+  if (currentTipType.value === 'Ami') return page.amitip
+  return null
 })
 
 // Tip status using reactive API
@@ -65,7 +68,7 @@ const toggleTip = (type: 'Ami' | 'Silas') => {
     tipStatus[key as 'Ami' | 'Silas'].show = false
   })
 
-  // Set the current tip to show and seen
+  // Set the current tip to show and mark it as seen
   tipStatus[type].show = true
   tipStatus[type].seen = true
   currentTipType.value = type
@@ -79,13 +82,13 @@ const clearTip = () => {
 watch(
   () => page.tooltip,
   (newTip) => {
-    tipStatus.Silas.seen = newTip === null
+    tipStatus.Silas.seen = !newTip
   },
 )
 watch(
   () => page.amitip,
   (newTip) => {
-    tipStatus.Ami.seen = newTip === null
+    tipStatus.Ami.seen = !newTip
   },
 )
 </script>

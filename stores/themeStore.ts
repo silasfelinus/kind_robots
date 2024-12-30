@@ -46,7 +46,9 @@ export const useThemeStore = defineStore('theme', {
     },
     changeTheme(theme: string) {
       if (!this.themes.includes(theme)) {
-        console.error(`Invalid theme: "${theme}". Please provide a valid theme.`)
+        console.error(
+          `Invalid theme: "${theme}". Please provide a valid theme.`,
+        )
         return
       }
       this.open = false
@@ -58,15 +60,23 @@ export const useThemeStore = defineStore('theme', {
       localStorage.setItem('theme', theme)
     },
     initTheme() {
+      if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+        // We're on the server, or localStorage is not available
+        return
+      }
+    
       const savedTheme = localStorage.getItem('theme')
       const defaultTheme = savedTheme || 'retro'
       if (!this.themes.includes(defaultTheme)) {
-        console.error(`Invalid theme: "${defaultTheme}" in local storage. Falling back to default theme.`)
+        console.error(
+          `Invalid theme: "${defaultTheme}" in local storage. Falling back to default theme.`,
+        )
         this.changeTheme('retro')
         return
       }
       this.changeTheme(defaultTheme)
     },
+    
     setBotOverride(value: boolean) {
       this.botOverride = value
     },
@@ -79,8 +89,7 @@ export const useThemeStore = defineStore('theme', {
       try {
         await this.initTheme()
         return `Loaded ${this.themes.length} themes`
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Error loading store:', error)
         throw error
       }

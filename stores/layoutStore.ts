@@ -1,37 +1,63 @@
 import { defineStore } from 'pinia'
 
-export const allowedLayouts = ['default']
+// Using enum for layout keys
+export enum LayoutKey {
+  Default = 'default',
+  Minimal = 'minimal',
+}
 
-const getStoredLayout = (key: string, defaultValue: string): string => {
-  const storedValue = localStorage.getItem(key)
-  return allowedLayouts.includes(storedValue ?? '') ? storedValue! : defaultValue
+const LOCAL_STORAGE_KEY = 'currentLayout'
+
+function getStoredLayout(defaultValue: LayoutKey): LayoutKey {
+  if (import.meta.client) {
+    try {
+      const storedValue = localStorage.getItem(LOCAL_STORAGE_KEY)
+      return Object.values(LayoutKey).includes(storedValue as LayoutKey)
+        ? (storedValue as LayoutKey)
+        : defaultValue
+    } catch (error) {
+      console.error('Error accessing localStorage:', error)
+      return defaultValue
+    }
+  }
+  return defaultValue
 }
 
 interface LayoutState {
-  currentLayout: string
+  currentLayout: LayoutKey
+  isSidebarOpen: boolean
 }
 
 export const useLayoutStore = defineStore('layoutStore', {
   state: (): LayoutState => ({
-    currentLayout: 'default', // Initialize with a default value
+    currentLayout: getStoredLayout(LayoutKey.Default),
+    isSidebarOpen: true,
   }),
 
   actions: {
-    setLayout(newLayout: string) {
-      if (allowedLayouts.includes(newLayout)) {
+    toggleSidebar() {
+      this.isSidebarOpen = !this.isSidebarOpen
+    },
+    setLayout(newLayout: LayoutKey) {
+      if (Object.values(LayoutKey).includes(newLayout)) {
         this.currentLayout = newLayout
-        localStorage.setItem('currentLayout', newLayout)
-      }
-      else {
+        if (import.meta.client) {
+          try {
+            localStorage.setItem(LOCAL_STORAGE_KEY, newLayout)
+          } catch (error) {
+            console.error('Failed to save layout to localStorage:', error)
+          }
+        }
+      } else {
         console.warn(`Invalid layout option: ${newLayout}`)
       }
     },
-
-    initialize() {
-      const storedLayout = getStoredLayout('currentLayout', 'default')
-      this.setLayout(storedLayout)
+    initializeStore() {
+      this.currentLayout = getStoredLayout(LayoutKey.Default)
     },
   },
-})
 
-export default useLayoutStore
+  getters: {
+    getCurrentLayout: (state) => state.currentLayout,
+  },
+})

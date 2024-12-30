@@ -1,36 +1,49 @@
 // server/api/galleries/[name].get.ts
-import { defineEventHandler, createError } from 'h3';
-import { fetchGalleryByName } from '..';
+import { defineEventHandler, createError } from 'h3'
+import { errorHandler } from '../../utils/error'
+import { fetchGalleryByName } from '..'
 
 export default defineEventHandler(async (event) => {
-  // Extract and validate the gallery name from the request parameters
-  const name = String(event.context.params?.name).trim();
+  const name = String(event.context.params?.name).trim()
 
   if (!name) {
-    throw createError({
+    return errorHandler({
+      error: new Error('Gallery name is required.'),
+      context: 'Fetch Gallery By Name',
       statusCode: 400, // Bad Request
-      message: 'Gallery name is required.',
-    });
+    })
   }
 
   try {
     // Fetch the gallery by name
-    const gallery = await fetchGalleryByName(name);
+    const gallery = await fetchGalleryByName(name)
 
     if (!gallery) {
-      throw createError({
+      return errorHandler({
+        error: new Error(`Gallery with name '${name}' does not exist.`),
+        context: 'Fetch Gallery By Name',
         statusCode: 404, // Not Found
-        message: `Gallery with name '${name}' does not exist.`,
-      });
+      })
     }
 
-    return { success: true, gallery };
+    return {
+      success: true,
+      message: `Gallery '${name}' fetched successfully.`,
+      data: { gallery },
+      statusCode: 200,
+    }
   } catch (error: unknown) {
-    // Use the error handler to provide a consistent error response
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    // Handle any unexpected errors
+    const handledError = errorHandler({
+      error,
+      context: 'Fetch Gallery By Name',
+    })
+
+    // Use standardized error response format
     return {
       success: false,
-      message: `Failed to fetch gallery with name '${name}'. Reason: ${errorMessage}`,
-    };
+      message: handledError.message || `Failed to fetch gallery with name '${name}'.`,
+      statusCode: handledError.statusCode || 500,
+    }
   }
-});
+})

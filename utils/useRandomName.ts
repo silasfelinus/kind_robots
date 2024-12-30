@@ -88,7 +88,8 @@ const titles = [
 ]
 
 export function generateSillyName() {
-  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)]
+  const randomAdjective =
+    adjectives[Math.floor(Math.random() * adjectives.length)]
   const randomNoun = nouns[Math.floor(Math.random() * nouns.length)]
   const randomTitle = titles[Math.floor(Math.random() * titles.length)]
 

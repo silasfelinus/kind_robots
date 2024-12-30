@@ -1,114 +1,66 @@
-import type { User } from '@prisma/client';
-import { defineEventHandler, readBody } from 'h3';
-import { hashPassword, validatePassword } from '../auth';
-import { errorHandler } from '../utils/error';
-import prisma from '../utils/prisma';
+// /server/api/users/[id].patch.ts
+import { defineEventHandler, createError, readBody } from 'h3'
+import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
-  const id = Number(event.context.params?.id);
-  if (!id) {
-    console.error('Invalid User ID.');
-    return {
-      success: false,
-      message: 'Invalid User ID.',
-    };
-  }
-
   try {
-    console.log(`Fetching user by ID: ${id}`);
-    const user = await fetchUserById(id);
-    const data = await readBody(event);
-
-    if (!user) {
-      console.error('User not found.');
-      return {
-        success: false,
-        message: 'User not found.',
-      };
+    // Parse and validate the User ID from the URL params
+    const userId = Number(event.context.params?.id)
+    if (isNaN(userId) || userId <= 0) {
+      throw createError({ statusCode: 400, message: 'Invalid User ID.' })
     }
 
-    console.log('User found, checking for password update.');
+    // Validate the API key using the utility function
+    const { isValid, user } = await validateApiKey(event)
 
-    let hashedPassword: string | undefined;
-    if (data.password) {
-      const passwordValidation = validatePassword(data.password);
-      if (!passwordValidation.isValid) {
-        console.error('Password validation failed:', passwordValidation.message);
-        return {
-          success: false,
-          message: passwordValidation.message,
-        };
-      }
-      hashedPassword = await hashPassword(data.password);
+    // Check if the token is valid and if the requesting user matches the target user
+    if (!isValid || user?.id !== userId) {
+      throw createError({
+        statusCode: 403,
+        message: 'You do not have permission to update this user.',
+      })
     }
 
-    // Destructure the password field from the data object to avoid updating it directly
-    const { password, ...restData } = data;
-
-    // If a hashed password is generated, add it to the data to be updated
-    if (hashedPassword) {
-      restData.password = hashedPassword;
+    // Parse and validate the update data
+    const updateData = await readBody(event)
+    if (!updateData || Object.keys(updateData).length === 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'No data provided for update.',
+      })
     }
+    console.log(`Update data received:`, updateData)
 
-    // Log the data to be updated in User model
-    console.log('Updating the following fields in User model:', JSON.stringify(restData, null, 2));
+    // Update the user in the database
+    const data = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    })
+    console.log(`User updated successfully:`, data)
 
-    // Update only the provided fields in User model
-    const updatedUser = await updateUser(id, restData);
-
-    console.log('User update successful.');
-    return { success: true, user: updatedUser };
-  } catch (error) {
-    const { message } = errorHandler(error);
-    console.error('Failed to update user:', message);
+    // Successful update response
+    event.node.res.statusCode = 200
     return {
-      success: false,
-      message: `Failed to update User with id ${id}. Reason: ${message}`,
-    };
-  }
-});
-
-export async function updateUser(id: number, data: Partial<User>): Promise<User | null> {
-  try {
-    return await prisma.user.update({
-      where: { id },
+      success: true,
+      message: 'User updated successfully.',
       data,
-    });
+    }
   } catch (error) {
-    const { message } = errorHandler(error);
-    console.error(`Failed to update user: ${message}`);
-    throw new Error(message);
-  }
-}
+    const handledError = errorHandler(error)
+    console.error(
+      `Error handling user update for ID ${event.context.params?.id}:`,
+      handledError,
+    )
 
-export async function fetchUserById(id: number): Promise<Partial<User> | null> {
-  try {
-    return await prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        createdAt: true,
-        updatedAt: true,
-        Role: true,
-        username: true,
-        emailVerified: true,
-        clickRecord: true,
-        matchRecord: true,
-        name: true,
-        bio: true,
-        birthday: true,
-        city: true,
-        state: true,
-        country: true,
-        timezone: true,
-        avatarImage: true,
-        karma: true,
-        mana: true,
-      },
-    });
-  } catch (error) {
-    const { message } = errorHandler(error);
-    console.error(`Failed to fetch user by ID: ${message}`);
-    throw new Error(message);
+    // Explicitly set the status code based on the handled error
+    event.node.res.statusCode = handledError.statusCode || 500
+    return {
+      success: false,
+      message:
+        handledError.message ||
+        `Failed to update user with ID ${event.context.params?.id}.`,
+    }
   }
-}
+})

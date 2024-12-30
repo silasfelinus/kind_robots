@@ -1,147 +1,182 @@
 import { defineStore } from 'pinia'
-import type { ArtPrompt, Art } from '@prisma/client'
-import { useErrorStore, ErrorType } from '@/stores/errorStore' // Import useErrorStore and ErrorType
+import type { Prompt, Art } from '@prisma/client'
+import { performFetch, handleError } from './utils'
+import { useUserStore } from './userStore'
 
 interface State {
-  artPrompts: ArtPrompt[]
+  prompts: Prompt[]
   artByPromptId: Art[]
-  activePrompt: ArtPrompt | null
+  selectedPrompt: Prompt | null
+  fetchedPrompts: Record<number, Prompt | null>
+  promptField: string
+  isInitialized: boolean
+  promptArray: string[]
+  currentPrompt: string
 }
 
 export const usePromptStore = defineStore('promptStore', {
-  // State
   state: (): State => ({
-    artPrompts: [],
+    prompts: [],
     artByPromptId: [],
-    activePrompt: null,
+    selectedPrompt: null,
+    fetchedPrompts: {},
+    promptField: 'kind robots',
+    isInitialized: false,
+    promptArray: [],
+    currentPrompt: ' ',
   }),
 
-  // Actions
-  actions: {
-    // Fetch all art prompts
-    async fetchArtPrompts() {
-      const errorStore = useErrorStore() // Use errorStore
+  getters: {
+    finalPromptString: (state): string =>
+      state.promptArray
+        .filter((prompt: string) => prompt.trim() !== '')
+        .join(' | '),
+  },
 
+  actions: {
+    async initialize() {
+      if (this.isInitialized) return
+      this.loadPromptField()
+      await this.fetchPrompts()
+      this.isInitialized = true
+    },
+    async selectPrompt(promptId: number) {
       try {
-        console.log('About to fetch data...') // Debugging line
-        const response = await fetch('/api/art/prompts/all')
-        console.log('Fetched data:', response) // Debugging line
-        if (response.ok) {
-          const data = await response.json()
-          this.artPrompts = data.artPrompts
-        } else {
-          const errorText = await response.text()
-          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to fetch art prompts: ${errorText}`)
-          console.error('Failed to fetch art prompts:', errorStore.getErrors().slice(-1)[0]?.message)
-        }
-      } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in fetchArtPrompts')
-        console.error('Error in fetchArtPrompts:', errorStore.getErrors().slice(-1)[0]?.message)
+        if (this.selectedPrompt?.id === promptId) return
+        const foundPrompt = this.prompts.find(
+          (prompt) => prompt.id === promptId,
+        )
+        if (!foundPrompt)
+          throw new Error(`Prompt with ID ${promptId} not found`)
+
+        this.selectedPrompt = foundPrompt
+      } catch (error) {
+        handleError(error, 'selecting prompt')
       }
     },
 
-    // Edit an art prompt
-    async editArtPrompt(id: number, newPrompt: string) {
-      const errorStore = useErrorStore() // Use errorStore
+    savePromptField() {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('promptField', this.promptField)
+      }
+    },
 
+    loadPromptField() {
+      if (typeof window !== 'undefined') {
+        const savedPrompt = localStorage.getItem('promptField')
+        if (savedPrompt) {
+          this.promptField = savedPrompt
+        }
+      }
+    },
+
+    async fetchPrompts() {
       try {
-        const response = await fetch('/api/art/prompts', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, prompt: newPrompt }),
+        const response = await performFetch<Prompt[]>('/api/prompts/')
+        this.prompts = response.data || []
+      } catch (error) {
+        handleError(error, 'fetching prompts')
+      }
+    },
+
+    addPromptToArray(prompt: string) {
+      this.promptArray.push(prompt)
+    },
+
+    removePromptFromArray(index: number) {
+      this.promptArray.splice(index, 1)
+    },
+
+    setPromptsFromString(finalString: string) {
+      this.promptArray = finalString
+        .split('|')
+        .map((prompt: string) => prompt.trim())
+    },
+
+    async addPrompt(newPrompt: string, userId: number, botId: number) {
+      try {
+        const response = await performFetch<Prompt>('/api/prompts', {
+          method: 'POST',
+          body: JSON.stringify({ prompt: newPrompt, userId, botId }),
         })
 
-        const data = await response.json()
-
-        if (data.success) {
-          // Update the local store
-          const index = this.artPrompts.findIndex(prompt => prompt.id === id)
-          if (index !== -1) {
-            this.artPrompts[index].prompt = newPrompt
-          }
-        } else {
-          throw new Error(data.message)
+        const createdPrompt = response.data || null
+        if (createdPrompt) {
+          this.prompts.push(createdPrompt)
         }
-      } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in editArtPrompt')
-        console.error('Error in editArtPrompt:', errorStore.getErrors().slice(-1)[0]?.message)
+        return createdPrompt
+      } catch (error) {
+        handleError(error, 'adding prompt')
       }
     },
 
-    // Fetch art by a specific prompt ID
+    async fetchPromptById(promptId: number): Promise<Prompt | null> {
+      if (this.fetchedPrompts[promptId]) return this.fetchedPrompts[promptId]
+      try {
+        const response = await performFetch<Prompt>(`/api/prompts/${promptId}`)
+        const fetchedPrompt = response.data || null
+        this.fetchedPrompts[promptId] = fetchedPrompt
+        return fetchedPrompt
+      } catch (error) {
+        handleError(error, 'fetching prompt by ID')
+        this.fetchedPrompts[promptId] = null
+        return null
+      }
+    },
+
     async fetchArtByPromptId(promptId: number) {
-      const errorStore = useErrorStore() // Use errorStore
+      try {
+        const response = await performFetch<Art[]>(
+          `/api/art/prompt/${promptId}`,
+        )
+        this.artByPromptId = response.data || []
+      } catch (error) {
+        handleError(error, 'fetching art by prompt ID')
+      }
+    },
+
+    async deletePrompt(promptId: number) {
+      const userStore = useUserStore()
+      const currentUserId = userStore.userId
+      const prompt = await this.fetchPromptById(promptId)
+      if (!prompt || prompt.userId !== currentUserId) {
+        handleError(
+          new Error('Unauthorized deletion attempt'),
+          'deleting prompt',
+        )
+        return
+      }
 
       try {
-        const response = await fetch(`/api/art/prompts/${promptId}`)
-        if (response.ok) {
-          this.artByPromptId = await response.json()
+        const response = await performFetch(`/api/prompts/${promptId}`, {
+          method: 'DELETE',
+        })
+        if (response.success) {
+          this.prompts = this.prompts.filter((prompt) => prompt.id !== promptId)
         } else {
-          const errorText = await response.text()
-          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to fetch art by prompt ID: ${errorText}`)
-          console.error('Failed to fetch art by prompt ID:', errorStore.getErrors().slice(-1)[0]?.message)
+          throw new Error(response.message)
         }
-      } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in fetchArtByPromptId')
-        console.error('Error in fetchArtByPromptId:', errorStore.getErrors().slice(-1)[0]?.message)
+      } catch (error) {
+        handleError(error, 'deleting prompt')
       }
     },
 
-    selectPrompt(prompt: ArtPrompt) {
-      this.activePrompt = prompt // Update the ref value directly
+    async updatePromptAtIndex(index: number, value: string) {
+      const userStore = useUserStore()
+      const prompt = this.prompts[index]
+      if (!prompt || prompt.userId !== userStore.userId) {
+        handleError(new Error('Unauthorized edit attempt'), 'updating prompt')
+        return
+      }
+
+      prompt.prompt = value
+      this.prompts[index] = prompt
     },
 
     clearPrompt() {
-      this.activePrompt = null // Update the ref value directly
-    },
-
-    // Create a new art prompt
-    async createArtPrompt(newPrompt: string) {
-      const errorStore = useErrorStore() // Use errorStore
-
-      try {
-        const response = await fetch('/api/art/prompts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ prompt: newPrompt }),
-        })
-        if (response.ok) {
-          const createdPrompt = await response.json()
-          this.artPrompts.push(createdPrompt)
-        } else {
-          const errorText = await response.text()
-          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to create art prompt: ${errorText}`)
-          console.error('Failed to create art prompt:', errorStore.getErrors().slice(-1)[0]?.message)
-        }
-      } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in createArtPrompt')
-        console.error('Error in createArtPrompt:', errorStore.getErrors().slice(-1)[0]?.message)
-      }
-    },
-
-    // Delete an art prompt by ID
-    async deleteArtPrompt(promptId: number) {
-      const errorStore = useErrorStore() // Use errorStore
-
-      try {
-        const response = await fetch(`/api/art/prompts/${promptId}`, {
-          method: 'DELETE',
-        })
-        if (response.ok) {
-          this.artPrompts = this.artPrompts.filter(prompt => prompt.id !== promptId)
-        } else {
-          const errorText = await response.text()
-          errorStore.setError(ErrorType.VALIDATION_ERROR, `Failed to delete art prompt: ${errorText}`)
-          console.error('Failed to delete art prompt:', errorStore.getErrors().slice(-1)[0]?.message)
-        }
-      } catch {
-        errorStore.setError(ErrorType.NETWORK_ERROR, 'Error in deleteArtPrompt')
-        console.error('Error in deleteArtPrompt:', errorStore.getErrors().slice(-1)[0]?.message)
-      }
+      this.selectedPrompt = null
     },
   },
 })
 
-export type { ArtPrompt }
+export type { Prompt }

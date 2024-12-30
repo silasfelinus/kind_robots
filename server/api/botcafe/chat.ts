@@ -1,58 +1,68 @@
-// server/api/botcafe/chat.ts
 import { defineEventHandler, readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {
-  try {
-    const body = await readBody(event)
-    let { OPENAI_API_KEY } = useRuntimeConfig()
+  const body = await readBody(event)
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
-    // Check if user's key is provided in the request
-    if (body.user_openai_key) {
-      OPENAI_API_KEY = body.user_openai_key
-    }
-
-    const data = {
-      model: body.model || 'gpt-3.5-turbo',
-      messages: body.messages || [{ role: 'user', content: 'write me a haiku about butterflies fighting malaria' }],
-      temperature: body.temperature,
-      max_tokens: body.maxTokens,
-      n: body.n,
-      stream: body.stream || false,
-    }
-    const post = body.post || 'https://api.openai.com/v1/chat/completions'
-    console.log('logging:', data)
-
-    const response = await fetch(post, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify(data),
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json()
-      console.error('Response:', response)
-      throw createError({
-        statusCode: response.status,
-        statusMessage: `Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`,
-      })
-    }
-
-    const responseData = await response.json()
-    return responseData
+  const data = {
+    model: body.model || 'gpt-4o-mini',
+    messages: body.messages,
+    temperature: body.temperature,
+    max_tokens: body.max_tokens,
+    stream: body.stream || false,
   }
-  catch (error) {
-    let errorMessage = 'An error occurred while creating the channel.'
-    
-    if (error instanceof Error) {
-      errorMessage += ` Details: ${error.message}`
-    }
 
-    throw createError({
-      statusCode: 500,
-      statusMessage: errorMessage,
-    })
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(`API Error: ${errorData.error.message}`)
+  }
+
+  if (data.stream) {
+    const reader = response.body?.getReader()
+    const decoder = new TextDecoder('utf-8')
+
+    event.node.res.setHeader('Content-Type', 'text/event-stream')
+    event.node.res.setHeader('Cache-Control', 'no-cache')
+    event.node.res.setHeader('Connection', 'keep-alive')
+
+    if (reader) {
+      let buffer = '' // Buffer to accumulate chunks until a complete JSON object is ready
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        buffer += chunk
+
+        // Process complete JSON chunks
+        let boundary
+        while ((boundary = buffer.indexOf('\n')) >= 0) {
+          const jsonChunk = buffer.slice(0, boundary).trim()
+          buffer = buffer.slice(boundary + 1)
+
+          // Only send non-empty chunks with a single data prefix
+          if (jsonChunk) {
+            event.node.res.write(`data: ${jsonChunk}\n\n`)
+          }
+        }
+      }
+      event.node.res.end()
+    } else {
+      throw new Error('Streaming not supported.')
+    }
+  } else {
+    // For non-streamed response
+    const jsonData = await response.json()
+    return jsonData
   }
 })

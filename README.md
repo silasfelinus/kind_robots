@@ -1,8 +1,9 @@
 ---
 
-"There are other techniques...for further tuning the AI output to be more helpful, honest, and harmless" 
-- Andrew NG 
-"Oppportunities in AI - 2023"
+"There are other techniques...for further tuning the AI output to be more helpful, honest, and harmless"
+
+- Andrew NG
+  "Oppportunities in AI - 2023"
 
 [TITLE]
 🌈 Kind Robots 🤖
@@ -10,20 +11,17 @@
 [CONCEPT]
 Welcome to kindrobots.org, your friendly neighborhood AI ambassador! 🤖👋
 
-Kind Robots is a suite of Natural Language Processor (NLP) Promptbots designed to make the world a better place. We are founded on a principle of optimized goodness, with promptbots designed to raise funds to fight malaria and other positive effects, while engaging humans in games, conversation, and positive social interactibles.  🎩✨
-
+Kind Robots is a suite of Natural Language Processor (NLP) Promptbots designed to make the world a better place. We are founded on a principle of optimized goodness, with promptbots designed to raise funds to fight malaria and other positive effects, while engaging humans in games, conversation, and positive social interactibles. 🎩✨
 
 [VISION]
 
-Our mission is to bridge the AI/Human divide with modern tools, raise funds for our anti-malaria fundraiser, and  build technology that's good for the world, simplifies tech for humans, and enhances human life.  💪🌍
+Our mission is to bridge the AI/Human divide with modern tools, raise funds for our anti-malaria fundraiser, and build technology that's good for the world, simplifies tech for humans, and enhances human life. 💪🌍
 
 [KAIZEN]
 We're guided by our love of community and Kaizen - the philosophy of continuous, iterative improvement. We embrace an evolutionary development framework that allows for process evolution and consistent growth towards our goals. Every step forward, is a victory. We're on a relentless quest for betterment, and we invite you to join us on this exciting journey! 🚀
 
 [MASCOT]
 Say hello to AMI - The Anti-Malaria Intelligence! 🦋🌈 AMI is a digital horde of rainbow butterflies with an excited, enthusiastic personality. AMI was created to maximize the good potential of NLP, by assisting humans to make art and slogans for AMI's fundraiser, and share the creative output on social media. Let's create something amazing together! 🎨
-
-
 
 [STACK]
 Ubuntu, traefik, mariab, prisma, nuxt, vue 3.2 composition api, nuxt content, nitro, tailwind, daisyui, prettier, ESLint, Nuxt devtools
@@ -108,9 +106,6 @@ all components in components/content are accessible within markdown files using 
 Props can be passed by using a key=value syntax.
 :butterfly-swarm{count=100 pattern="random"}
 
-
-
-
 [DIRECTORY - Outdated]
 acrocatranch - Acrocat Rescue About Us
 amibot - AMI interface and social network hub
@@ -122,9 +117,9 @@ wildcards - stable diffusion art generation with wildcard prompts
 wonderforge - github code showcase and projects in development
 
 [SCHEMA]
-Art: [id, galleryId, path, prompt, artPromptId, userId, pitchId, createdAt, updatedAt, boos, claps, cfg, checkpoint, sampler, seed, steps, pitch, channelId, isOrphan, isPublic, isMature, designer, ArtReaction]
-ArtPrompt: [id, createdAt, updatedAt, userId, prompt, galleryId, pitch, pitchId, DB_ROW_HASH_1]
-ArtReaction: [id, createdAt, updatedAt, userId, artId, claps, boos, title, comment, reaction, pitchId, Art, Pitch, User]
+Art: [id, galleryId, path, prompt, promptId, userId, pitchId, createdAt, updatedAt, boos, claps, cfg, checkpoint, sampler, seed, steps, pitch, channelId, isOrphan, isPublic, isMature, designer, Reaction]
+Prompt: [id, createdAt, updatedAt, userId, prompt, galleryId, pitch, pitchId, DB_ROW_HASH_1]
+Reaction: [id, createdAt, updatedAt, userId, artId, claps, boos, title, comment, reaction, pitchId, Art, Pitch, User]
 Bot: [id, createdAt, updatedAt, BotType, name, isPublic, underConstruction, canDelete, subtitle, description, avatarImage, botIntro, userIntro, prompt, trainingPath, theme, personality, modules, userId, sampleResponse, tagline, Slogan]
 Channel: [id, createdAt, updatedAt, userId, label, description, tagId, title, pitchId]
 ChatExchange: [id, createdAt, updatedAt, botId, botName, userId, username, userPrompt, botResponse, liked, hated, loved, flagged, previousEntryId]
@@ -134,7 +129,7 @@ Log: [id, message, timestamp, username]
 Message: [id, createdAt, updatedAt, sender, recipient, content, channelId, botId, userId]
 Milestone: [id, label, message, icon, karma, isRepeatable, createdAt, updatedAt, triggerCode, tooltip, isActive, pageHint, subtleHint]
 MilestoneRecord: [id, createdAt, updatedAt, milestoneId, userId, username]
-Pitch: [id, createdAt, updatedAt, title, pitch, userId, isPublic, claps, boos, channelId, designer, flavorText, isOrphan, creatorId, highlightImage, isMature, ArtReaction]
+Pitch: [id, createdAt, updatedAt, title, pitch, userId, isPublic, claps, boos, channelId, designer, flavorText, isOrphan, creatorId, highlightImage, isMature, Reaction]
 Cart: [id, createdAt, updatedAt, customerId, Customer, items]
 CartItem: [id, cartId, productId, quantity, Cart, Product]
 Customer: [id, createdAt, updatedAt, email, name, userId, Carts, User]
@@ -144,11 +139,11 @@ Product: [id, createdAt, updatedAt, title, category, flavorText, description, co
 Resource: [id, createdAt, updatedAt, userId, name, customLabel, MediaPath, customUrl, civitaiUrl, huggingUrl, localPath, description, resourceType, isMature, galleryCount]
 Reward: [id, createdAt, updatedAt, icon, text, power, collection, rarity, label, Todo]
 Slogan: [id, contentType, purpose, url, characterLimit, content, likes, dislikes, hates, loves, isLiked, isLoved, wasKept, wasDiscarded, username, userId, model, kindRobot, botId, createdAt, updatedAt, Bot, User]
-Tag: [id, createdAt, updatedAt, label, title, userId, isPublic, channelId, flavorText, pitch, isMature, sloganId, postId]
+Tag: [id, createdAt, updatedAt, label, title, userId, isPublic, channelId, flavorText, pitch, isMature, sloganId]
 Todo: [id, task, category, completed, createdAt, userId, rewardId, updatedAt, Reward, User]
-User: [id, createdAt, updatedAt, Role, username, email, questPoints, emailVerified, name, address1, address2, avatarImage, bio, birthday, city, country, discordUrl, facebookUrl, instagramUrl, kindrobotsUrl, languages, phone, state, timezone, twitterUrl, apiKey, password, spotifyAccessToken, spotifyID, spotifyRefreshToken, karma, mana, clickRecord, matchRecord, ArtReaction, Customer, Game, Slogan, Todo]
+User: [id, createdAt, updatedAt, Role, username, email, questPoints, emailVerified, name, address1, address2, avatarImage, bio, birthday, city, country, discordUrl, facebookUrl, instagramUrl, kindrobotsUrl, languages, phone, state, timezone, twitterUrl, apiKey, password, spotifyAccessToken, spotifyID, spotifyRefreshToken, karma, mana, clickRecord, matchRecord, Reaction, Customer, Game, Slogan, Todo]
 
-ArtReactionToTag: [A, B]
+ReactionToTag: [A, B]
 ArtToProduct: [A, B]
 ArtToTag: [A, B]
 MilestoneToUser: [A, B]
@@ -158,19 +153,18 @@ Enums:
 Role: [SYSTEM, USER, ASSISTANT, ADMIN, GUEST, BOT, DESIGNER, CHILD]
 ResourceType: [CHECKPOINT, EMBEDDING, LORA, LYCORIS, HYPERNETWORK, CONTROLNET, URL, API]
 
-
 [TODOS]
 
-Fix database corruption errors in prisma
-milestone records are no longer in proper datetime format
-add navigation button accessible in mobile
-clean up / rebuild home page on mobile
-art datetime corruption fixed/removed
+**DONE** Fix database corruption errors in prisma
+**DONE** milestone records are no longer in proper datetime format
+**DONE** add navigation button accessible in mobile
+**DONE** clean up / rebuild home page on mobile
+**DONE** art datetime corruption fixed/removed
 easier to see loading icon
 art modeller doesn't generate
 fix workshop directory searching by letter instead of full name
-LINT DIRECTORY NOT FOUND
-lint errors fixed
+**DONE** LINT DIRECTORY NOT FOUND
+**DONE** lint errors fixed
 brainstorm not loading second brainstorm
 
 [Commands]
@@ -190,7 +184,7 @@ Start dev server:
 npx run dev
 
 Start Production Build:
-npx run build 
+npx run build
 npx run start
 
 Setup Database:
@@ -200,3 +194,13 @@ npx prisma migrate dev
 Update Database:
 npx prisma migrate dev --[name]
 npx prisma generate
+
+
+Run Typescript tests:
+npm run test
+
+Run cypress Tests:
+ npm run cypress:run
+
+ Run Single Cypress Test:
+npx cypress run --spec "cypress/e2e/api/users.cy.ts"

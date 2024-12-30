@@ -12,15 +12,12 @@
         :src="avatarImage"
         alt="Avatar"
         class="w-16 h-16 object-cover rounded-xl border m-2"
-      >
+      />
     </div>
     <div class="flex-grow m-2 p-2 text-xl">
       <p>{{ content }}</p>
     </div>
-    <div
-      v-if="isAssistant"
-      class="flex-shrink-0"
-    >
+    <div v-if="isAssistant" class="flex-shrink-0">
       <share-buttons
         :url="shareUrl"
         :text="content"
@@ -44,6 +41,10 @@ const props = defineProps<{
 
 const isAssistant = computed(() => props.role === 'assistant')
 const isUser = computed(() => props.role === 'user')
-const roleClass = computed(() => (props.role === 'user' ? 'bg-primary text-default' : 'bg-secondary text-default'))
+const roleClass = computed(() =>
+  props.role === 'user'
+    ? 'bg-primary text-default'
+    : 'bg-secondary text-default',
+)
 const shareUrl = '/botcafe'
 </script>

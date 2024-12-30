@@ -14,7 +14,9 @@
     />
     <div class="flex flex-wrap items-center justify-center space-x-4 space-y-4">
       <!-- Invisible First Icon -->
-      <div class="relative flex flex-col items-center space-y-2 md:space-y-0 md:flex-row md:space-x-4 opacity-0">
+      <div
+        class="relative flex flex-col items-center space-y-2 md:space-y-0 md:flex-row md:space-x-4 opacity-0"
+      >
         <div class="flex flex-col items-center space-y-2" />
       </div>
       <!-- Visible Icons -->
@@ -35,13 +37,16 @@
         <div class="flex flex-col items-center space-y-2">
           <div
             class="flex items-center justify-center transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent"
-            :class="{ 'bg-accent': effect.isActive, 'bg-transluscent': !effect.isActive }"
+            :class="{
+              'bg-accent': effect.isActive,
+              'bg-transluscent': !effect.isActive,
+            }"
             @click="toggleEffect(effect.id)"
             @mouseover="hoveredEffect = effect.id"
             @mouseout="hoveredEffect = null"
           >
-            <icon
-              :name="effect.icon"
+            <Icon
+              :name="effect.Icon"
               :title="effect.label"
               :active="effect.isActive"
               :class="{ glow: effect.isActive }"
@@ -70,14 +75,14 @@ const componentsMap: ComponentMapType = {
   'bubble-effect': resolveComponent('LazyBubbleEffect'),
   'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
   'rain-effect': resolveComponent('LazyRainEffect'),
-  'talking-butterflies': resolveComponent('LazyTalkingButterflies'),
+  'buterfly-animation': resolveComponent('LazyButterflyAnimation'),
 }
 
 const effects = ref([
   {
     id: 'fizzy-bubbles',
     label: 'Fizzy Lifting',
-    icon: 'mdi:bottle-soda-classic-outline',
+    Icon: 'kind-icon:soda',
     tooltip: 'Float away with fizzy bubbles 🍾',
     reveal: 'Carbonation!',
     isActive: false,
@@ -85,7 +90,7 @@ const effects = ref([
   {
     id: 'bubble-effect',
     label: 'Bubble Fiesta',
-    icon: 'game-icons:bubbles',
+    Icon: 'kind-icon:bubbles',
     tooltip: 'rainbow clown bubbles 🌈',
     reveal: 'Bubble Overload!',
     isActive: false,
@@ -93,7 +98,7 @@ const effects = ref([
   {
     id: 'rain-effect',
     label: 'Rainmaker',
-    icon: 'line-md:paint-drop-twotone',
+    Icon: 'kind-icon:raindrop',
     tooltip: `Rain doesn't have to be sad`,
     route: 'Summon a rainstorm 🌧️',
     reveal: 'Just a drizzle',
@@ -102,17 +107,16 @@ const effects = ref([
   {
     id: 'talking-butterflies',
     label: 'Butterfly Scouts',
-    icon: 'ph:butterfly-light',
+    Icon: 'ph:butterfly-light',
     tooltip: 'Release AMI 🦋',
     reveal: 'Happy butterflies',
-    route: '/fundraiser',
     isActive: false,
   },
 ])
 
 const hoveredEffect = ref<string | null>(null)
 const toggleEffect = (effectId: string) => {
-  const effect = effects.value.find(e => e.id === effectId)
+  const effect = effects.value.find((e) => e.id === effectId)
   if (effect) {
     effect.isActive = !effect.isActive
   }
@@ -121,8 +125,8 @@ const toggleEffect = (effectId: string) => {
 // Computed property to get all active components
 const activeComponents = computed(() => {
   return effects.value
-    .filter(effect => effect.isActive)
-    .map(effect => ({
+    .filter((effect) => effect.isActive)
+    .map((effect) => ({
       id: effect.id,
       component: componentsMap[effect.id],
     }))

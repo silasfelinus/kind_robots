@@ -24,24 +24,12 @@ const butterfly = ref<Butterfly>({
 <template>
   <div class="butterfly">
     <div class="left-wing">
-      <div
-        class="top"
-        :style="{ background: butterfly.wingTopColor }"
-      />
-      <div
-        class="bottom"
-        :style="{ background: butterfly.wingBottomColor }"
-      />
+      <div class="top" :style="{ background: butterfly.wingTopColor }" />
+      <div class="bottom" :style="{ background: butterfly.wingBottomColor }" />
     </div>
     <div class="right-wing">
-      <div
-        class="top"
-        :style="{ background: butterfly.wingTopColor }"
-      />
-      <div
-        class="bottom"
-        :style="{ background: butterfly.wingBottomColor }"
-      />
+      <div class="top" :style="{ background: butterfly.wingTopColor }" />
+      <div class="bottom" :style="{ background: butterfly.wingBottomColor }" />
     </div>
   </div>
 </template>

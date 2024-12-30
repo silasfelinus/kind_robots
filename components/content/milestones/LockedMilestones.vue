@@ -1,18 +1,16 @@
 <template>
   <div>
-    <h2 class="text-xl font-bold mb-4">
-      Locked Milestones
-    </h2>
+    <h2 class="text-xl font-bold mb-4">Locked Milestones</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div
         v-for="milestone in lockedMilestones"
         :key="milestone.id"
-        class="card bg-base-200 rounded-2xl p-4 transition duration-300 ease-in-out relative"
+        class="card bg-base-300 rounded-2xl p-4 transition duration-300 ease-in-out relative"
       >
         <div class="text-center">
-          <!-- Milestone Icon -->
-          <icon
-            :name="milestone.icon"
+          <!-- Milestone Icon with fallback -->
+          <Icon
+            :name="milestone.icon ?? 'default-icon'"
             class="text-6xl mb-2"
           />
           <!-- Milestone Label -->
@@ -20,19 +18,13 @@
             {{ milestone.label }}
           </div>
           <!-- Subtle Hint -->
-          <div
-            v-if="milestone.subtleHint"
-            class="text-sm text-gray-500"
-          >
+          <div v-if="milestone.subtleHint" class="text-sm text-gray-500">
             {{ milestone.subtleHint }}
           </div>
           <!-- Question Mark Icon for Directions -->
           <div class="absolute top-2 right-2 z-6">
             <nuxt-link :to="milestone.pageHint || '#'">
-              <icon
-                name="ph:question-bold"
-                class="text-blue-500 text-2xl"
-              />
+              <Icon name="ph:question-bold" class="text-blue-500 text-2xl" />
             </nuxt-link>
           </div>
         </div>
@@ -52,6 +44,8 @@ const milestones = computed(() => milestoneStore.milestones)
 const userMilestones = computed(() => userStore.milestones)
 
 const lockedMilestones = computed(() => {
-  return milestones.value.filter(milestone => !userMilestones.value?.includes(milestone.id))
+  return milestones.value.filter(
+    (milestone) => !userMilestones.value?.includes(milestone.id),
+  )
 })
 </script>

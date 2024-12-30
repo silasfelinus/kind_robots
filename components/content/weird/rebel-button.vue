@@ -1,22 +1,21 @@
 <template>
-  <div class="hero flex flex-col items-center justify-center bg-base-200 rounded-2xl border m-2 h-full w-full">
+  <div
+    class="hero flex flex-col items-center justify-center bg-base-300 rounded-2xl border m-2 h-full w-full"
+  >
     <div
       class="flex flex-col md:flex-row items-center justify-center w-full h-full space-y-4 md:space-y-0 md:space-x-4"
     >
       <!-- Left Section -->
       <div class="flex flex-col items-center w-full md:w-1/3 space-y-4 m-2 p-2">
-        <div class="bg-base-200 p-4 rounded-lg shadow-lg">
+        <div class="bg-base-300 p-4 rounded-lg shadow-lg">
           <click-leaderboard class="rounded-2xl m-2 p-2" />
         </div>
         <transition name="slide-fade-slow">
           <div
             v-if="state.topScore >= 100"
-            class="bg-base-200 p-4 rounded-lg shadow-lg"
+            class="bg-base-300 p-4 rounded-lg shadow-lg"
           >
-            <milestone-reward
-              v-if="state.pressCount >= 100"
-              :id="6"
-            />
+            <award-milestone v-if="state.pressCount >= 100" :id="6" />
           </div>
         </transition>
         <transition name="slide-fade">
@@ -24,9 +23,7 @@
             v-if="state.topScore >= 20 && state.pressCount >= 1"
             class="bg-accent p-4 rounded-lg shadow-lg border m-2"
           >
-            <h2 class="text-xl">
-              Last Milestone
-            </h2>
+            <h2 class="text-xl">Last Milestone</h2>
             <p class="text-lg">
               {{ state.lastMilestone }}
             </p>
@@ -35,11 +32,9 @@
         <transition name="slide-fade-slow">
           <div
             v-if="state.topScore >= 21 && state.pressCount >= 1"
-            class="bg-base-200 p-4 rounded-lg shadow-lg border m-2"
+            class="bg-base-300 p-4 rounded-lg shadow-lg border m-2"
           >
-            <p class="text-lg">
-              Previous message: {{ state.previousMessage }}
-            </p>
+            <p class="text-lg">Previous message: {{ state.previousMessage }}</p>
           </div>
         </transition>
       </div>
@@ -55,10 +50,7 @@
         >
           {{ state.buttonText }}
         </div>
-        <div
-          v-if="state.pressed"
-          class="text-center"
-        >
+        <div v-if="state.pressed" class="text-center">
           <button
             class="text-blue-500 p-2 rounded-lg mb-4"
             @click="openResetPopup"
@@ -78,29 +70,26 @@
             v-if="state.showLeaderboard && state.topScore >= 10"
             class="bg-accent p-4 rounded-lg shadow-lg border m-2"
           >
-            <h2 class="text-2xl mb-2">
-              Leaderboard
-            </h2>
-            <p class="text-lg">
-              Top Score: {{ state.topScore }}
-            </p>
+            <h2 class="text-2xl mb-2">Leaderboard</h2>
+            <p class="text-lg">Top Score: {{ state.topScore }}</p>
           </div>
         </transition>
         <transition name="slide-fade-slow">
           <div
             v-if="state.topScore >= 30"
-            class="bg-base-200 p-4 rounded-lg shadow-lg border m-2"
+            class="bg-base-300 p-4 rounded-lg shadow-lg border m-2"
           >
             <!-- Butterfly Toggle Component -->
-            You've unlocked our mascot AMI - The Anti-Malaria Intelligence. AMI's job is to flutter around (for now),
-            but eventually she'll help raise funds to fight malaria.
+            You've unlocked our mascot AMI - The Anti-Malaria Intelligence.
+            AMI's job is to flutter around (for now), but eventually she'll help
+            raise funds to fight malaria.
             <butterfly-toggle />
           </div>
         </transition>
         <transition name="slide-fade-slow">
           <div
             v-if="state.topScore >= 40"
-            class="bg-base-200 p-4 rounded-lg shadow-lg border m-2"
+            class="bg-base-300 p-4 rounded-lg shadow-lg border m-2"
           >
             <!-- Theme Select -->
             Feel free to change the theme!
@@ -138,15 +127,17 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { reactive, onMounted, ref } from 'vue'
 import confetti from 'canvas-confetti'
 import responses from '../../../assets/buttonResponses'
 import milestones from '../../../assets/buttonMilestones'
-import { useUserStore } from '@/stores/userStore'
+import { useUserStore } from './../../../stores/userStore'
 
 const userStore = useUserStore()
-const username = computed(userStore.username)
+
+const milestoneStore = useMilestoneStore()
+
 const state = reactive({
   pressed: false,
   pressCount: 0,
@@ -158,24 +149,22 @@ const state = reactive({
   previousMessage: '',
   lastMilestone: '',
 })
-const shouldShowMilestoneCheck = ref(false)
-const buttonRef = ref(null)
+const buttonRef = ref<HTMLElement | null>(null)
 
 onMounted(() => {
   // Fetch the leaderboard if the user is logged in
   if (userStore.isLoggedIn) {
     // Fetch the user's click record from the store
-    const userClickRecord = userStore.clickRecord
-
-    // Fetch the locally stored high score
-    const localHighScore = parseInt(localStorage.getItem('topScore')) || 0
+    const userClickRecord = userStore.clickRecord ?? 0
+    const localHighScore =
+      parseInt(localStorage.getItem('topScore') ?? '0') || 0
 
     // Set both to the higher number
     const highestScore = Math.max(userClickRecord, localHighScore)
     state.topScore = highestScore
-    localStorage.setItem('Local TopScore', highestScore.toString())
+    localStorage.setItem('topScore', highestScore.toString()) // ensure consistent key naming
 
-    state.topScore = parseInt(localStorage.getItem('topScore')) || 0
+    state.topScore = parseInt(localStorage.getItem('topScore') ?? '0') || 0
   }
 })
 
@@ -184,9 +173,6 @@ watch(
   (newVal, oldVal) => {
     if (newVal !== oldVal && newVal === true) {
       // User has just logged in
-      const userClickRecord = userStore.clickRecord
-      const localHighScore = parseInt(localStorage.getItem('topScore')) || 0
-      const highestScore = Math.max(userClickRecord, localHighScore)
     }
   },
 )
@@ -203,7 +189,8 @@ const pressedButton = () => {
 
   // Save to localStorage every 10 clicks to optimize performance
   if (state.pressCount % 10 === 0) {
-    localStorage.setItem('topScore', state.topScore)
+    localStorage.setItem('topScore', state.topScore.toString())
+
     submitTopScore()
   }
 
@@ -225,21 +212,26 @@ const pressedButton = () => {
   state.previousMessage = tempMessage // Set the previous message after updating the buttonText
 }
 const submitTopScore = async () => {
-  const updateStatus = await userStore.updateClickRecord(state.topScore)
+  const updateStatus = await milestoneStore.updateClickRecord(state.topScore)
   if (updateStatus === 'Updated') {
     // Refresh the leaderboard
-    await userStore.fetchHighClickScores()
+    await milestoneStore.fetchHighClickScores()
   }
 }
-const triggerConfetti = () => {
-  const { top, left, width, height } = buttonRef.value.getBoundingClientRect()
-  confetti({
-    particleCount: 100 + state.pressCount * 10,
-    spread: 70,
-    origin: { y: top / window.innerHeight, x: (left + width / 2) / window.innerWidth },
-  })
-}
 
+const triggerConfetti = () => {
+  if (buttonRef.value) {
+    const { top, left, width } = buttonRef.value.getBoundingClientRect() // This will now work
+    confetti({
+      particleCount: 100 + state.pressCount * 10,
+      spread: 70,
+      origin: {
+        y: top / window.innerHeight,
+        x: (left + width / 2) / window.innerWidth,
+      },
+    })
+  }
+}
 const openResetPopup = () => {
   state.showResetPopup = true
 }

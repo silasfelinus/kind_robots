@@ -19,7 +19,10 @@
 }
 
 .base-card {
-  background-color: var(--bg-primary, rgba(255, 255, 255, 0.8)); /* Using DaisyUI bg-primary */
+  background-color: var(
+    --bg-primary,
+    rgba(255, 255, 255, 0.8)
+  ); /* Using DaisyUI bg-primary */
   border: 2px solid var(--bg-accent, rgba(255, 255, 255, 0.2)); /* Using DaisyUI bg-accent for the border */
   border-radius: 1rem;
   padding: 1.5rem;

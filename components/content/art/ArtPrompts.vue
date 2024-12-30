@@ -1,25 +1,32 @@
 <template>
-  <div class="art-prompts rounded-2xl border bg-base-200 flex flex-col m-4 p-4 text-lg">
-    <h1>Art Prompts</h1>
+  <div
+    class="art-prompts bg-base-300 rounded-2xl border flex flex-col m-4 p-4 space-y-4"
+  >
+    <h1 class="text-2xl font-semibold text-center">Art Prompts</h1>
 
     <!-- Fetch Button -->
-    <button @click="fetchArtPrompts">
-      Fetch Art Prompts
-    </button>
+    <div class="flex justify-center">
+      <button
+        class="bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-dark"
+        @click="fetchPrompts"
+      >
+        Fetch Art Prompts
+      </button>
+    </div>
 
     <!-- Add New Prompt (Visible to Admins) -->
     <div
-      v-if="userRole === 'admin'"
-      class="input-section"
+      v-if="userRole === 'ADMIN'"
+      class="flex flex-col items-center space-y-2"
     >
       <input
         v-model="newPrompt"
         placeholder="New Prompt"
-        class="input-styling"
-      >
+        class="border border-gray-300 rounded-lg p-2 w-full max-w-md"
+      />
       <button
         :disabled="!isValidPrompt"
-        class="add-button"
+        class="bg-accent text-white py-2 px-4 rounded-lg hover:bg-accent-dark"
         @click="addNewPrompt"
       >
         Add Prompt
@@ -27,71 +34,90 @@
     </div>
 
     <!-- List of Prompts -->
-    <ul>
+    <ul class="space-y-4">
       <li
-        v-for="prompt in artPrompts"
+        v-for="prompt in prompts"
         :key="prompt.id"
+        class="border-b p-4 flex justify-between items-center"
       >
-        {{ prompt.prompt }}
-        <button @click="selectPrompt(prompt)">
-          Select
-        </button>
+        <span>{{ prompt.prompt }}</span>
+        <div class="flex space-x-2">
+          <button
+            class="bg-info text-white py-1 px-3 rounded-lg hover:bg-info-dark"
+            @click="selectPrompt(prompt.id)"
+          >
+            Select
+          </button>
 
-        <!-- Edit and Delete (Visible to Admins) -->
-        <span v-if="userRole === 'ADMIN' && userStore.isLoggedIn">
-          <button
-            class="rounded-2xl border bg-base-200 flex p-2 m-2"
-            @click="startEditingPrompt(prompt)"
-          >Edit</button>
-          <button
-            class="rounded-2xl border bg-base-200 flex p-2 m-2"
-            @click="deletePrompt(prompt.id)"
-          >Delete</button>
-        </span>
+          <!-- Edit and Delete (Visible to Admins) -->
+          <div
+            v-if="userRole === 'ADMIN' && userStore.isLoggedIn"
+            class="flex space-x-2"
+          >
+            <button
+              class="bg-warning text-white py-1 px-3 rounded-lg hover:bg-warning-dark"
+              @click="startEditingPrompt(prompt)"
+            >
+              Edit
+            </button>
+            <button
+              class="bg-error text-white py-1 px-3 rounded-lg hover:bg-error-dark"
+              @click="deletePrompt(prompt.id)"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
       </li>
     </ul>
 
     <!-- Display Selected Prompt -->
-    <div v-if="activePrompt">
-      <h2>Selected Prompt: {{ activePrompt.prompt }}</h2>
+    <div v-if="selectedPrompt" class="border-t pt-4">
+      <h2 class="text-lg font-semibold">
+        Selected Prompt: {{ selectedPrompt.prompt }}
+      </h2>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { usePromptStore, type ArtPrompt } from '@/stores/promptStore'
-import { useUserStore } from '@/stores/userStore'
+import { ref, onMounted, computed } from 'vue'
+import { usePromptStore, type Prompt } from './../../../stores/promptStore'
+import { useUserStore } from './../../../stores/userStore'
+import { useGalleryStore } from './../../../stores/galleryStore'
 
 const promptStore = usePromptStore()
-const { fetchArtPrompts, selectPrompt, artPrompts, activePrompt, createArtPrompt, deleteArtPrompt } = promptStore
+const {
+  fetchPrompts,
+  selectPrompt,
+  prompts,
+  selectedPrompt,
+  addPrompt,
+  deletePrompt,
+} = promptStore
 
 const userStore = useUserStore()
+const galleryStore = useGalleryStore()
+const userId = computed(() => userStore.user?.id || 10)
+const galleryId = computed(() => galleryStore.currentGallery?.id || 21)
 
 // User role (this should come from your user management logic)
 const userRole = userStore.role
+
 // New prompt input
 const newPrompt = ref('')
 
-const editingPrompt = ref<ArtPrompt | null>(null)
+const editingPrompt = ref<Prompt | null>(null)
 
 // Start editing a prompt
-const startEditingPrompt = (prompt: ArtPrompt) => {
+const startEditingPrompt = (prompt: Prompt) => {
   editingPrompt.value = prompt
   newPrompt.value = prompt.prompt
 }
 
-// Edit a prompt
-const editPrompt = () => {
-  if (editingPrompt.value && isValidPrompt.value) {
-    promptStore.editArtPrompt(editingPrompt.value.id, newPrompt.value.trim())
-    newPrompt.value = ''
-    editingPrompt.value = null
-  }
-}
 // Fetch art prompts when the component is mounted
 onMounted(() => {
-  fetchArtPrompts()
+  fetchPrompts()
 })
 
 // Validation for new prompt
@@ -102,45 +128,8 @@ const isValidPrompt = computed(() => {
 // Add a new prompt
 const addNewPrompt = () => {
   if (isValidPrompt.value) {
-    createArtPrompt(newPrompt.value.trim())
+    addPrompt(newPrompt.value.trim(), userId.value, galleryId.value)
     newPrompt.value = ''
   }
 }
-
-// Delete a prompt
-const deletePrompt = (id: number) => {
-  deleteArtPrompt(id)
-}
 </script>
-
-<style scoped>
-.input-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.input-styling {
-  font-size: 1.5rem;
-  padding: 10px;
-  border-radius: 12px;
-  border: 2px solid bg-primary;
-  width: 100%;
-}
-
-.add-button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  font-size: 1.2rem;
-  border-radius: 12px;
-  background-color: bg-accent;
-  color: white;
-  cursor: pointer;
-}
-
-.add-button:disabled {
-  background-color: bg-warning;
-  cursor: not-allowed;
-}
-</style>

@@ -239,7 +239,7 @@ export async function validateUserCredentials(
       return null
     }
 
-    const token = await createToken(user, user.apiKey ?? '')
+    const token = await createToken(user)
     return { user, token }
   } catch (error: unknown) {
     console.error(

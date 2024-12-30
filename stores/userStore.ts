@@ -401,6 +401,7 @@ export const useUserStore = defineStore({
     removeFromLocalStorage(key: string) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem(key)
+console.log("removed ", key)
       }
     },
 

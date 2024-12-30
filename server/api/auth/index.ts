@@ -158,14 +158,13 @@ export async function validateApiKey(
   }
 }
 
-export async function createToken(user: User, apiKey: string): Promise<string> {
+export async function createToken(user: User): Promise<string> {
   try {
     const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET as string))
 
     const token = await new SignJWT({
       id: user.id,
       username: user.username,
-      
     })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
@@ -254,8 +253,6 @@ export function validatePassword(password: string): {
   message: string
 } {
   const minLength = /^.{6,}$/
-  const hasNumber = /\d/
-  const hasLetter = /[a-zA-Z]/
 
   if (!minLength.test(password)) {
     return {
@@ -263,7 +260,6 @@ export function validatePassword(password: string): {
       message: 'Password must be at least 6 characters long.',
     }
   }
-  
 
   return { isValid: true, message: 'Password is valid.' }
 }

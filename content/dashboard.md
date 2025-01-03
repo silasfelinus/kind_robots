@@ -1,5 +1,5 @@
 ---
-title: 'User Dashboard'
+title: 'User'
 subtitle: "User's Private Page"
 description: 'This is your space!'
 gallery: 'cafepurr'

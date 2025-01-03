@@ -1,5 +1,5 @@
 ---
-title: 'Login Page'
+title: 'Login'
 subtitle: "Login here"
 description: 'Login to get access to our suite of AI-enhanced tools.'
 gallery: 'cafepurr'

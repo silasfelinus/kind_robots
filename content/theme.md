@@ -1,5 +1,5 @@
 ---
-title: 'Theme Menu'
+title: 'Theme'
 subtitle: 'Your World, Your Palette'
 description: 'Select a theme that resonates with you, and make this space truly your own. With a plethora of choices, you are bound to find your vibe.'
 image: fantasycore/fantasycore-859.webp

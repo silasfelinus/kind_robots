@@ -1,5 +1,5 @@
 ---
-title: 'Memory Match!'
+title: 'Memory'
 subtitle: 'Art Meets Memory'
 description: Experience the serendipity of art and memory in this card match game. With 17 AI-generated galleries, no two games are ever the same!
 image: 'acrocats/acrocats-24.webp'

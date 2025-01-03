@@ -1,5 +1,5 @@
 ---
-title: Bot Cafe
+title: Bot
 subtitle: Chat with a Kind Robot
 description: View the many promptbots at Kind Robots
 image: botcafe/botcafe-268.webp

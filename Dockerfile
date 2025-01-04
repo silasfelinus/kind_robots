@@ -19,7 +19,6 @@ RUN npm install --omit=dev
 RUN npm install prisma
 
 COPY --link . .
-COPY --link ./node_modules/.prisma ./node_modules/.prisma
 
 RUN chown -R node:node /src
 

@@ -6,8 +6,8 @@
     <div class="fixed z-50">
       <kind-loader />
 
-      <animation-loader />
-      <milestone-popup />
+      <animation-loader class="fixed z-50" />
+      <milestone-popup class="fixed z-50"  />
     </div>
     <!-- Header -->
     <header
@@ -58,6 +58,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'

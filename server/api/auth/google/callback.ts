@@ -84,7 +84,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Generate a token for the user
-    const jwt = await createToken(user, user.apiKey || '')
+    const jwt = await createToken(user)
 
     // Redirect the user to the dashboard with the token
     return sendRedirect(event, `/dashboard?token=${jwt}`)

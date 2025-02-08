@@ -27,6 +27,11 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     ).length
   })
 
+  const getMilestoneCountForUser = (userId: number) => {
+    return milestoneRecords.value.filter((record) => record.userId === userId)
+      .length
+  }
+
   const unconfirmedMilestones = computed(() => {
     return milestones.value.filter((milestone) =>
       milestoneRecords.value.some(
@@ -322,8 +327,12 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     currentMilestone,
     highClickScores,
     highMatchScores,
+    getMilestoneCountForUser,
     updateMilestonesFromData,
     fetchHighClickScores,
+    fetchMilestones,
+    fetchMilestoneRecords,
+    fetchHighMatchScores,
     updateClickRecord,
     updateMatchRecord,
     milestoneCountForUser,

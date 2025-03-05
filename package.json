@@ -51,6 +51,7 @@
     "@stripe/stripe-js": "^5.8.0",
     "@types/node": "^22.7.3",
     "bcrypt": "^5.1.1",
+    "better-sqlite3": "^11.8.1",
     "canvas-confetti": "^1.9.3",
     "daisyui": "^4.12.10",
     "esbuild": "^0.25.0",

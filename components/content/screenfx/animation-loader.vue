@@ -4,7 +4,7 @@
     :class="{ 'fade-out': fadeOut }"
     :style="containerStyles"
   >
-    <!-- Loop over active components and render them dynamically based on currentAnimation -->
+    <!-- Dynamically render the active component -->
     <component
       :is="currentComponent"
       v-if="currentComponent"
@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, defineAsyncComponent } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import type { EffectId } from '@/stores/displayStore' // Ensure EffectId is correctly typed
 
@@ -23,28 +23,42 @@ const displayStore = useDisplayStore()
 
 const fadeOut = ref(false) // Controls fade-out for the container
 
+// Define async-loaded components
+const LazyBubbleEffect = defineAsyncComponent(
+  () => import('@/components/content/screenfx/BubbleEffect.vue'),
+)
+const LazyFizzyBubbles = defineAsyncComponent(
+  () => import('@/components/content/screenfx/FizzyBubbles.vue'),
+)
+const LazyRainEffect = defineAsyncComponent(
+  () => import('@/components/content/screenfx/RainEffect.vue'),
+)
+const LazyButterflyAnimation = defineAsyncComponent(
+  () => import('@/components/content/screenfx/butterfly-animation.vue'),
+)
+
 // Map of animation components and their corresponding display type (fullscreen or main)
 const componentsMap: Record<
   EffectId,
   {
-    component: string | ReturnType<typeof resolveComponent>
+    component: ReturnType<typeof defineAsyncComponent>
     isFullscreen: boolean
   }
 > = {
   'bubble-effect': {
-    component: resolveComponent('LazyBubbleEffect'),
+    component: LazyBubbleEffect,
     isFullscreen: true,
   },
   'fizzy-bubbles': {
-    component: resolveComponent('LazyFizzyBubbles'),
+    component: LazyFizzyBubbles,
     isFullscreen: true,
   },
   'rain-effect': {
-    component: resolveComponent('LazyRainEffect'),
+    component: LazyRainEffect,
     isFullscreen: true,
   },
   'butterfly-animation': {
-    component: resolveComponent('LazyButterflyAnimation'),
+    component: LazyButterflyAnimation,
     isFullscreen: false,
   },
 }

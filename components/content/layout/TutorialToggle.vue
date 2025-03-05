@@ -17,13 +17,34 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
+import { useAsyncData } from '#app'
 
 // Access the display store
 const displayStore = useDisplayStore()
 
-// Access the content, including page.icon
-const { page } = useContent()
+// Get the route params
+const route = useRoute()
+const name = route.params.name as string
 
+// Define expected content structure
+interface PageData {
+  title?: string
+  description?: string
+  subtitle?: string
+  image?: string
+  icon?: string
+  underConstruction?: boolean
+  dottitip?: string
+  amitip?: string
+  tooltip?: string
+  message?: string
+}
+
+// Fetch the page data using Nuxt Content v3
+const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
+  const result = await queryCollection('content').path(`${name}`).first()
+  return result || {}
+})
 // Compute the tutorial and icon state
 const showTutorial = computed(() => displayStore.showTutorial)
 

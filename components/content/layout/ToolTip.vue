@@ -6,7 +6,7 @@
     <!-- Tip Toggles -->
     <div class="absolute bottom-0 right-0 mb-2 mr-2 flex flex-col items-end">
       <button
-        v-if="page.tooltip && !tipStatus.Silas.seen"
+        v-if="page?.tooltip && !tipStatus.Silas.seen"
         @click="toggleTip('Silas')"
       >
         <Icon
@@ -16,7 +16,7 @@
         />
       </button>
       <button
-        v-if="page.amitip && !tipStatus.Ami.seen"
+        v-if="page?.amitip && !tipStatus.Ami.seen"
         @click="toggleTip('Ami')"
       >
         <Icon
@@ -39,21 +39,38 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, reactive } from 'vue'
+import { useRoute } from 'vue-router'
+import { useAsyncData } from '#app'
 
-// Define the Page interface for expected page properties
-interface Page {
-  tooltip?: string | null
-  amitip?: string | null
+// Get the route params
+const route = useRoute()
+const name = route.params.name as string
+
+// Define expected content structure
+interface PageData {
+  title?: string
+  description?: string
+  subtitle?: string
+  image?: string
+  icon?: string
+  underConstruction?: boolean
+  dottitip?: string
+  amitip?: string
+  tooltip?: string
+  message?: string
 }
 
-// Fetching the page content with proper typing
-const { page } = useContent() as { page: Page }
+// Fetch the page data using Nuxt Content v3
+const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
+  const result = await queryCollection('content').path(`${name}`).first()
+  return result || {}
+})
 
 const currentTipType = ref<'Ami' | 'Silas' | null>(null)
 const currentTip = computed(() => {
-  if (currentTipType.value === 'Silas') return page.tooltip
-  if (currentTipType.value === 'Ami') return page.amitip
-  return null
+  return currentTipType.value === 'Silas'
+    ? (page.value?.tooltip ?? '')
+    : (page.value?.amitip ?? '')
 })
 
 // Tip status using reactive API
@@ -80,13 +97,13 @@ const clearTip = () => {
 
 // Watchers for tooltip and amitip
 watch(
-  () => page.tooltip,
+  () => page.value?.tooltip,
   (newTip) => {
     tipStatus.Silas.seen = !newTip
   },
 )
 watch(
-  () => page.amitip,
+  () => page.value?.amitip,
   (newTip) => {
     tipStatus.Ami.seen = !newTip
   },

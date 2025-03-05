@@ -11,7 +11,7 @@
           image-src="/images/amibotsquare1.webp"
           alt-text="AMI"
           username="AMIbot"
-          :message="page.amitip"
+          :message="page?.amitip ?? ''"
           @remove-card="showAmiCard = false"
         />
         <MessageCard
@@ -21,7 +21,7 @@
           image-src="/images/avatars/dottie1.webp"
           alt-text="Dotti"
           username="DottiBot"
-          :message="page.dottitip"
+          :message="page?.dottitip ?? ''"
           @remove-card="showDottiCard = false"
         />
       </div>
@@ -36,10 +36,35 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useContentStore } from '../../../stores/contentStore'
+import { useRoute } from 'vue-router'
+import { useAsyncData } from '#app'
+
+// Get the route params
+const route = useRoute()
+const name = route.params.name as string
+
+// Define expected content structure
+interface PageData {
+  title?: string
+  description?: string
+  subtitle?: string
+  image?: string
+  icon?: string
+  underConstruction?: boolean
+  dottitip?: string
+  amitip?: string
+  tooltip?: string
+  message?: string
+}
+
+// Fetch the page data using Nuxt Content v3
+const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
+  const result = await queryCollection('content').path(`${name}`).first()
+  return result || {}
+})
 
 const contentStore = useContentStore()
 const showInfo = computed(() => contentStore.showInfo)
-const { page } = useContent()
 
 const showDottiCard = ref(false)
 const showAmiCard = ref(false)

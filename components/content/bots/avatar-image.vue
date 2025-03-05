@@ -22,34 +22,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useBotStore } from './../../../stores/botStore'
 import { useErrorStore } from './../../../stores/errorStore'
 import { useDisplayStore } from './../../../stores/displayStore'
+import { useAsyncData } from '#app'
 
 // Stores
 const errorStore = useErrorStore()
-const displayStore = useDisplayStore() // Add displayStore to handle the sidebar and tutorial toggles
+const displayStore = useDisplayStore() // Handles sidebar and tutorial toggles
 const flipped = ref(false)
 
-const { page } = useContent()
-
-// Bot store
+// Get bot name from store
 const botStore = useBotStore()
 const currentBot = computed(() => botStore.currentBot)
 
-// Watch for bot changes and flip the card if necessary
-watch(currentBot, (newBot, oldBot) => {
-  if (newBot && newBot !== oldBot) {
-    flipped.value = !flipped.value
-  }
-})
+// Get the route params
+const route = useRoute()
+const name = route.params.name as string
 
+// Define expected content structure
+interface PageData {
+  title?: string
+  description?: string
+  subtitle?: string
+  image?: string
+  icon?: string
+  underConstruction?: boolean
+  dottitip?: string
+  amitip?: string
+  tooltip?: string
+  message?: string
+}
+
+// Fetch the page data using Nuxt Content v3
+const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
+  const result = await queryCollection('content').path(`${name}`).first()
+  return result || {} // Ensure result is always an object to avoid null errors
+})
+// Compute the avatar image source
 const selectImage = computed(() => {
-  if (page && (page as unknown as { image?: string }).image) {
-    return (page as unknown as { image: string }).image
-  }
-  return currentBot.value?.avatarImage || '/images/botcafe.webp'
+  return (
+    page.value?.image || currentBot.value?.avatarImage || '/images/botcafe.webp'
+  )
 })
 
 const handleAvatarClick = () => {

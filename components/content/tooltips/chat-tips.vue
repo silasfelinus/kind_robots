@@ -1,12 +1,12 @@
 <template>
   <!-- Tips Area -->
   <div
-    v-if="page.tooltip || page.amitip"
+    v-if="page?.tooltip || page?.amitip"
     class="flex flex-col justify-center items-center md:flex-row gap-4"
   >
     <!-- Silas Section -->
     <div
-      v-if="page.tooltip"
+      v-if="page?.tooltip"
       class="flex flex-col items-center bg-base-300 rounded-2xl p-4"
     >
       <img
@@ -22,7 +22,7 @@
 
     <!-- AMI Section -->
     <div
-      v-if="page.amitip"
+      v-if="page?.amitip"
       class="flex flex-col items-center bg-base-300 rounded-2xl p-4"
     >
       <img
@@ -39,7 +39,32 @@
 </template>
 
 <script setup lang="ts">
-const { page } = useContent()
+import { useRoute } from 'vue-router'
+import { useAsyncData } from '#app'
+
+// Get the route params
+const route = useRoute()
+const name = route.params.name as string
+
+// Define expected content structure
+interface PageData {
+  title?: string
+  description?: string
+  subtitle?: string
+  image?: string
+  icon?: string
+  underConstruction?: boolean
+  dottitip?: string
+  amitip?: string
+  tooltip?: string
+  message?: string
+}
+
+// Fetch the page data using Nuxt Content v3
+const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
+  const result = await queryCollection('content').path(`${name}`).first()
+  return result || {}
+})
 </script>
 
 <style>

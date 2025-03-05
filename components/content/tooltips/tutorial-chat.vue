@@ -2,7 +2,7 @@
   <div class="flex flex-col h-full w-full">
     <!-- Messages Area -->
     <div class="flex items-center justify-center gap-2 h-[15vh] m-2">
-      <div v-if="page.tooltip" class="message-card bg-accent">
+      <div v-if="page?.tooltip" class="message-card bg-accent">
         <img src="/images/silasfelinus.webp" alt="Silas" class="rounded-full" />
         <div>
           <div class="text-sm font-semibold">silasfelinus</div>
@@ -11,7 +11,7 @@
           </div>
         </div>
       </div>
-      <div v-if="page.amitip" class="message-card bg-accent">
+      <div v-if="page?.amitip" class="message-card bg-accent">
         <img src="/images/amibotsquare1.webp" alt="AMI" class="rounded-full" />
         <div>
           <div class="text-sm font-semibold">AMIbot</div>
@@ -25,7 +25,27 @@
 </template>
 
 <script setup lang="ts">
-const { page } = useContent()
+import { useRoute } from 'vue-router'
+import { useAsyncData } from '#app'
+
+// Get the route params
+const route = useRoute()
+const name = route.params.name as string
+
+// Define expected content structure
+interface MessagePage {
+  tooltip?: string
+  amitip?: string
+}
+
+// Fetch the page data using Nuxt Content v3
+const { data: page } = await useAsyncData<MessagePage>(
+  `bot-${name}`,
+  async () => {
+    const result = await queryCollection('content').path(`/bot/${name}`).first()
+    return (result as MessagePage) || {}
+  },
+)
 </script>
 
 <style>

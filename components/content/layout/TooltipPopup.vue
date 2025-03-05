@@ -7,7 +7,7 @@
       @click="toggleMinimize"
     >
       <img
-        :src="page.image ? `/images/${page.image}` : '/images/backtree.webp'"
+        :src="page?.image ? `/images/${page.image}` : '/images/backtree.webp'"
         alt="Chat Avatar"
         class="rounded-full w-14 h-14"
       />
@@ -34,15 +34,32 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { useAsyncData } from '#app'
 
-// Define Page interface to include the expected properties like tooltip and image
-interface Page {
-  tooltip?: string | null
-  image?: string | null
+// Get the route params
+const route = useRoute()
+const name = route.params.name as string
+
+// Define expected content structure
+interface PageData {
+  title?: string
+  description?: string
+  subtitle?: string
+  image?: string
+  icon?: string
+  underConstruction?: boolean
+  dottitip?: string
+  amitip?: string
+  tooltip?: string
+  message?: string
 }
 
-// Get the page content and ensure it has the correct typing
-const { page } = useContent() as { page: Page }
+// Fetch the page data using Nuxt Content v3
+const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
+  const result = await queryCollection('content').path(`${name}`).first()
+  return result || {}
+})
 
 // Initialize reactive variables
 const streamingText = ref('')
@@ -87,11 +104,11 @@ const streamText = (text: string) => {
 // Lifecycle hooks and watchers
 onMounted(() => {
   minimized.value = localStorage.getItem('tooltipMinimized') === 'true'
-  streamText(page.tooltip || 'Hey there, welcome to KindRobots!')
+  streamText(page.value?.tooltip || 'Hey there, welcome to KindRobots!')
 })
 
 watch(
-  () => page.tooltip,
+  () => page.value?.tooltip,
   (newTooltip) => {
     streamText(newTooltip || 'Hey there, welcome to KindRobots!')
   },

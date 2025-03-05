@@ -1,14 +1,19 @@
 <template>
   <main>
-    <NuxtLayout :name="page?.layout || 'default'">
-      <ContentDoc />
+    <NuxtLayout :name="layout">
+      <ContentRenderer v-if="page" :value="page" />
+      <template v-else>
+        <p>Bot Not Found</p>
+      </template>
     </NuxtLayout>
   </main>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useAsyncData } from '#app'
+import type { LayoutKey } from '#build/types/layouts'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -16,10 +21,13 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 import { useChatStore } from '@/stores/chatStore'
 import { usePitchStore } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
-import { useDisplayStore } from '@/stores/displayStore'
+import {
+  useDisplayStore,
+  type displayActionState,
+  type displayModeState,
+} from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-
 const userStore = useUserStore()
 const botStore = useBotStore()
 const characterStore = useCharacterStore()
@@ -27,9 +35,28 @@ const scenarioStore = useScenarioStore()
 const chatStore = useChatStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
-const { page } = useContent()
+
+// Get the route params
 const route = useRoute()
 const router = useRouter()
+const name = route.params.name as string
+
+// Define the expected bot page structure
+interface BotPage {
+  layout?: string
+  title?: string
+  content?: string
+  subtitle?: string
+}
+
+// Fetch the bot's page data using the latest Nuxt Content v3 syntax
+const { data: page } = await useAsyncData<BotPage>(`bot-${name}`, async () => {
+  const result = await queryCollection('content').path(`/bot/${name}`).first()
+  return result || {}
+})
+
+// Compute the layout key properly
+const layout = computed(() => (page.value?.layout ?? 'default') as LayoutKey)
 
 onMounted(async () => {
   // Handle user authentication
@@ -39,9 +66,7 @@ onMounted(async () => {
       try {
         console.log('Validating token from localStorage...')
         const isValid = await userStore.validateAndFetchUserData()
-        if (isValid) {
-          console.log('Token validated. User session set.')
-        } else {
+        if (!isValid) {
           console.warn('Invalid token. Clearing storage.')
           userStore.removeFromLocalStorage('token')
         }
@@ -49,121 +74,49 @@ onMounted(async () => {
         console.error('Error during token validation:', error)
         userStore.removeFromLocalStorage('token')
       }
-    } else {
-      console.log('No token found. Skipping authentication.')
-    }
-  } else {
-    console.log('User already logged in. Skipping authentication.')
-  }
-
-  // Handle query parameters (always process these)
-  const queryToken = route.query.token as string
-  const code = route.query.code as string
-
-  const botId = route.query.botId ? parseInt(route.query.botId as string, 10) : undefined
-const characterId = route.query.characterId ? parseInt(route.query.characterId as string, 10) : undefined
-const scenarioId = route.query.scenarioId ? parseInt(route.query.scenarioId as string, 10) : undefined
-const chatId = route.query.chatId ? parseInt(route.query.chatId as string, 10) : undefined
-const pitchId = route.query.pitchId ? parseInt(route.query.pitchId as string, 10) : undefined
-const promptId = route.query.promptId ? parseInt(route.query.promptId as string, 10) : undefined
-
-  const displayMode = route.query.displayMode as displayModeState
-  const displayAction = route.query.displayAction as displayActionState
-
-  if (displayMode) {
-    try {
-      console.log(`Setting display mode: ${displayMode}`)
-      displayStore.displayMode = displayMode
-    } catch (error) {
-      console.error(`Failed to set display mode: ${displayMode}`, error)
     }
   }
 
-  if (displayAction) {
-    try {
-      console.log(`Setting display action: ${displayAction}`)
-      displayStore.displayAction = displayAction
-    } catch (error) {
-      console.error(`Failed to set display action: ${displayAction}`, error)
-    }
-  }
+  // Handle query parameters
+  const {
+    token: queryToken,
+    code,
+    botId,
+    characterId,
+    scenarioId,
+    chatId,
+    pitchId,
+    promptId,
+    displayMode,
+    displayAction,
+  } = route.query
 
-  if (botId) {
-    try {
-      console.log(`Selecting bot with ID: ${botId}`)
-      botStore.selectBot(botId)
-    } catch (error) {
-      console.error(`Failed to select bot with ID ${botId}:`, error)
-    }
-  }
+  if (displayMode) displayStore.displayMode = displayMode as displayModeState
+  if (displayAction)
+    displayStore.displayAction = displayAction as displayActionState
 
-  if (characterId) {
-    try {
-      console.log(`Selecting character with ID: ${characterId}`)
-      characterStore.selectCharacter(characterId)
-    } catch (error) {
-      console.error(`Failed to select character with ID ${characterId}:`, error)
-    }
-  }
+  if (botId) botStore.selectBot(parseInt(botId as string, 10))
+  if (characterId)
+    characterStore.selectCharacter(parseInt(characterId as string, 10))
+  if (scenarioId)
+    scenarioStore.selectScenario(parseInt(scenarioId as string, 10))
+  if (chatId) chatStore.selectChat(parseInt(chatId as string, 10))
+  if (pitchId) pitchStore.selectPitch(parseInt(pitchId as string, 10))
+  if (promptId) promptStore.selectPrompt(parseInt(promptId as string, 10))
 
-  if (scenarioId) {
-    try {
-      console.log(`Selecting scenario with ID: ${scenarioId}`)
-      scenarioStore.selectScenario(scenarioId)
-    } catch (error) {
-      console.error(`Failed to select scenario with ID ${scenarioId}:`, error)
-    }
-  }
-
-  if (chatId) {
-    try {
-      console.log(`Selecting chat with ID: ${chatId}`)
-      chatStore.selectChat(chatId)
-    } catch (error) {
-      console.error(`Failed to select chat with ID ${chatId}:`, error)
-    }
-  }
-
-  if (pitchId) {
-    try {
-      console.log(`Selecting pitch with ID: ${pitchId}`)
-      pitchStore.selectPitch(pitchId)
-    } catch (error) {
-      console.error(`Failed to select pitch with ID ${pitchId}:`, error)
-    }
-  }
-
-  if (promptId) {
-    try {
-      console.log(`Selecting prompt with ID: ${promptId}`)
-      promptStore.selectPrompt(promptId)
-    } catch (error) {
-      console.error(`Failed to select prompt with ID ${promptId}:`, error)
-    }
-  }
-
-  // Handle query token for mandatory login
   if (queryToken) {
     console.log('Processing query token...')
     try {
-      userStore.token = queryToken
+      userStore.token = queryToken as string
       const isValid = await userStore.validateAndFetchUserData()
-      if (isValid) {
-        console.log('Query token validated. User session set.')
-      } else {
-        console.warn('Query token validation failed.')
-        await router.push('/login') // Redirect to login on failure
-      }
+      if (!isValid) await router.push('/login')
     } catch (error) {
       console.error('Error processing query token:', error)
       await router.push('/login')
     }
   } else if (code) {
-    console.log('Code found. Redirecting for token exchange...')
+    console.log('Redirecting for token exchange...')
     await router.push(`/api/auth/google/callback?code=${code}`)
-  } else {
-    console.log('No auth data found. Proceeding with content rendering.')
   }
 })
-
 </script>

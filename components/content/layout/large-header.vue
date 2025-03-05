@@ -3,7 +3,7 @@
     <!-- Title and Subtitle Section -->
     <div class="flex flex-col justify-center flex-shrink-0 w-1/3">
       <h1 class="text-2xl lg:text-3xl xl:text-4xl font-semibold">
-        The {{ page.title || 'Room' }} Room
+        The {{ page?.title || 'Room' }} Room
       </h1>
       <h2 class="text-lg lg:text-xl xl:text-2xl italic mt-2">
         {{ subtitle }}
@@ -22,9 +22,31 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useAsyncData } from '#app'
 
-// Page and subtitle
-const { page } = useContent()
+// Get the route params
+const route = useRoute()
+const name = route.params.name as string
+
+// Define the expected structure (Manually define fields)
+interface RoomPage {
+  title?: string
+  subtitle?: string
+}
+
+// Fetch the page data using Nuxt Content v3
+const { data: page } = await useAsyncData<RoomPage>(
+  `room-${name}`,
+  async () => {
+    const result = await queryCollection('content')
+      .path(`/rooms/${name}`)
+      .first()
+    return result || {}
+  },
+)
+
+// Compute the subtitle properly
 const subtitle = computed(
   () => page.value?.subtitle ?? 'Welcome to Kind Robots',
 )

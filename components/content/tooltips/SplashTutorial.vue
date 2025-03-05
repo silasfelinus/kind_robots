@@ -4,7 +4,7 @@
   >
     <!-- Under Construction Icon -->
     <div
-      v-if="page && page.underConstruction"
+      v-if="page?.underConstruction"
       class="absolute top-2 left-2 z-20 opacity-90 md:w-12 md:h-12 lg:w-16 lg:h-16"
     >
       <Icon
@@ -19,7 +19,7 @@
     >
       <!-- Main Image -->
       <img
-        v-if="page && page.image"
+        v-if="page?.image"
         :src="'/images/' + page.image"
         alt="Main Image"
         class="rounded-2xl shadow-md object-contain w-full h-auto max-h-[50%]"
@@ -28,14 +28,14 @@
       <!-- Title, Description, and Subtitle -->
       <div class="text-center w-full space-y-4">
         <h1
-          v-if="page && page.title"
+          v-if="page?.title"
           class="text-2xl lg:text-4xl font-bold truncate bg-primary text-white rounded-xl p-2"
         >
           {{ page.title }}
         </h1>
 
         <h3
-          v-if="page && page.description"
+          v-if="page?.description"
           class="text-sm md:text-lg lg:text-xl xl-text-2xl font-medium px-4"
         >
           {{ page.description }}
@@ -44,7 +44,7 @@
 
       <!-- Floating Background Icon -->
       <div
-        v-if="page && page.icon"
+        v-if="page?.icon"
         class="flex justify-center items-center opacity-30"
       >
         <Icon
@@ -56,7 +56,7 @@
 
     <!-- Bot Messages Section -->
     <div
-      v-if="page && page.dottitip && page.amitip"
+      v-if="page?.dottitip && page?.amitip"
       class="flex flex-col w-full max-w-3xl px-2 md:px-4 py-0 md:py-1 lg:py-2 mx-auto"
     >
       <!-- DottiBot Message -->
@@ -91,5 +91,28 @@
 </template>
 
 <script setup lang="ts">
-const { page } = useContent()
+import { useRoute } from 'vue-router'
+import { useAsyncData } from '#app'
+
+// Get the route params
+const route = useRoute()
+const name = route.params.name as string
+
+// Define expected content structure
+interface PageData {
+  title?: string
+  description?: string
+  subtitle?: string
+  image?: string
+  icon?: string
+  underConstruction?: boolean
+  dottitip?: string
+  amitip?: string
+}
+
+// Fetch the page data using Nuxt Content v3
+const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
+  const result = await queryCollection('content').path(`${name}`).first()
+  return result || {}
+})
 </script>

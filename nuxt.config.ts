@@ -53,11 +53,6 @@ export default defineNuxtConfig({
       GOOGLE_SECRET: process.env.GOOGLE_SECRET || '',
       AUTH_SECRET: process.env.AUTH_SECRET || '',
       JWT_SECRET: process.env.JWT_SECRET || '',
-      STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || '', // ✅ No TypeScript issue
-      STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || '', // ✅ Correctly declared without casting
-    },
-    public: {
-      STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY || '', // ✅ Works correctly
     },
   },
 

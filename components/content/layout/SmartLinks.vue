@@ -1,16 +1,19 @@
 <template>
   <div class="smart-links-container flex justify-between items-center w-full">
-    <!-- Navigation Links with Icons and Labels -->
-    <NuxtLink v-if="prev" :to="prev._path" class="nav-link">
+    <!-- Previous Link -->
+    <NuxtLink v-if="prev" :to="prev._path" class="nav-link group">
       <Icon name="kind-icon:back-arrow" class="hover:scale-125" />
       <span class="nav-text">{{ prev.title }}</span>
     </NuxtLink>
-    <!-- Other Links... -->
-    <NuxtLink :to="randomHighlightPage._path" class="nav-link">
+
+    <!-- Random Highlight Link -->
+    <NuxtLink :to="randomHighlightPage?._path || '/'" class="nav-link group">
       <Icon name="kind-icon:galaxy" class="hover:scale-125" />
       <span class="nav-text">{{ randomLinkText }}</span>
     </NuxtLink>
-    <NuxtLink v-if="next" :to="next._path" class="nav-link">
+
+    <!-- Next Link -->
+    <NuxtLink v-if="next" :to="next._path" class="nav-link group">
       <Icon name="kind-icon:forward-arrow" class="hover:scale-125" />
       <span class="nav-text">{{ next.title }}</span>
     </NuxtLink>
@@ -19,38 +22,39 @@
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
+import { useRoute } from 'nuxt/app'
 import { useContentStore } from '../../../stores/contentStore'
 
-const { prev, next } = useContent()
+// Simulating `prev` and `next` manually if `useContent()` isn't available
+const route = useRoute()
 const contentStore = useContentStore()
 
-const randomHighlightPage = computed(
+const prev = computed(
   () =>
-    contentStore.highlightPages[
-      Math.floor(Math.random() * contentStore.highlightPages.length)
-    ] || {},
+    contentStore.pages.find((page) => page._path === route.meta.prev) || null,
 )
 
-// Use ref for reactive properties that will be set on the client-side
+const next = computed(
+  () =>
+    contentStore.pages.find((page) => page._path === route.meta.next) || null,
+)
+
+// Safe computed with fallback to prevent SSR errors
+const randomHighlightPage = computed(() => {
+  const pages = contentStore.highlightPages
+  return pages.length ? pages[Math.floor(Math.random() * pages.length)] : null
+})
+
+// Use ref for reactive properties set on client-side
 const randomLinkText = ref('Loading...')
-const homeLinkText = ref('Home...')
 
 onMounted(() => {
   const randomLinkTexts = ['Randomizer', 'Teleport!', 'Something else']
-  const homeLinkTexts = [
-    'HomeScreen',
-    'Take me home...',
-    'Home',
-    'Visual Contents',
-  ]
-
-  // Set randomized text only on client-side
   randomLinkText.value =
     randomLinkTexts[Math.floor(Math.random() * randomLinkTexts.length)]
-  homeLinkText.value =
-    homeLinkTexts[Math.floor(Math.random() * homeLinkTexts.length)]
 })
 </script>
+
 <style scoped>
 .nav-link {
   @apply flex flex-col items-center justify-center text-center transition-transform duration-300 ease-in-out hover:scale-110;
@@ -58,9 +62,6 @@ onMounted(() => {
 
 .nav-text {
   @apply text-sm md:text-base opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100;
-  position: absolute; /* Positioning the label */
-  bottom: -20px; /* Positioning below the Icon */
-  white-space: nowrap;
 }
 
 .smart-links-container {

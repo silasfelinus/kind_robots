@@ -11,7 +11,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import { useAsyncData } from '#app'
 import type { LayoutKey } from '#build/types/layouts'
 import { useUserStore } from '@/stores/userStore'
@@ -38,21 +37,8 @@ const promptStore = usePromptStore()
 
 // Get the route params
 const route = useRoute()
-const router = useRouter()
-const name = route.params.name as string
-
-// Define the expected bot page structure
-interface BotPage {
-  layout?: string
-  title?: string
-  content?: string
-  subtitle?: string
-}
-
-// Fetch the bot's page data using the latest Nuxt Content v3 syntax
-const { data: page } = await useAsyncData<BotPage>(`bot-${name}`, async () => {
-  const result = await queryCollection('content').path(`/bot/${name}`).first()
-  return result || {}
+const { data: page } = await useAsyncData(route.path, () => {
+  return queryCollection('docs').path(route.path).first()
 })
 
 // Compute the layout key properly

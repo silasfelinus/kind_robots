@@ -98,9 +98,24 @@ import { ref, computed } from 'vue'
 import confetti from 'canvas-confetti'
 import { useUserStore } from '../../../stores/userStore'
 import { useMilestoneStore } from '../../../stores/milestoneStore'
-import { useWindowSize } from '@vueuse/core'
 
-const { width, height } = useWindowSize()
+const windowSize = useState(() => ({
+  width: import.meta.client ? window.innerWidth : 0,
+  height: import.meta.client ? window.innerHeight : 0,
+}))
+
+if (import.meta.client) {
+  window.addEventListener('resize', () => {
+    windowSize.value = {
+      width: window.innerWidth,
+      height: window.innerHeight,
+    }
+  })
+}
+
+// Extract width and height for local usage
+const width = computed(() => windowSize.value.width)
+const height = computed(() => windowSize.value.height)
 
 const milestoneStore = useMilestoneStore()
 

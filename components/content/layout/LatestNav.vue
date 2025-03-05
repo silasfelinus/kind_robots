@@ -5,21 +5,21 @@
     >
       <div
         v-for="page in pages"
-        :key="page._id"
+        :key="page.path"
         class="flex flex-col rounded-2xl items-center justify-center my-4 drag-card"
       >
         <div
           class="rounded-2xl border-4 p-2 bg-base-300 shadow-md hover:shadow-lg transition-shadow duration-300"
         >
           <NuxtLink
-            :to="page._path"
+            :to="page.path"
             class="flex flex-col items-center justify-center"
-            @click="clicked = page._id"
+            @click="clicked = page.path"
           >
             <div
               :class="[
                 'w-20 sm:w-24 md:w-32 h-20 sm:h-24 md:h-32 rounded-full transition-all ease-in-out duration-500',
-                clicked === page._id ? 'scale-110' : '',
+                clicked === page.path ? 'scale-110' : '',
                 'hover:scale-105 hover:shadow-lg',
               ]"
             >
@@ -33,7 +33,7 @@
             <div
               class="mt-2 text-xs sm:text-sm md:text-base transition-colors ease-in-out duration-500 hover:text-accent"
               :style="
-                clicked === page._id ? 'font-weight: bold; color: green;' : ''
+                clicked === page.path ? 'font-weight: bold; color: green;' : ''
               "
             >
               {{ page.title }}
@@ -49,15 +49,29 @@
 </template>
 
 <script setup lang="ts">
-// TypeScript code remains the same
 import { ref } from 'vue'
+import { useAsyncData } from '#app'
 
 const clicked = ref<string | null>(null)
 
-const { find } = queryContent()
-  .where({ $not: { _path: '/' } })
-  .sort({ _id: 1 })
-const { data: pages } = await useAsyncData('pages-list', find)
+interface Page {
+  // Extend ContentCollectionItem for all default fields
+  path: string
+  title?: string
+  description?: string
+  subtitle?: string
+  image?: string // Make sure 'image' is included here
+  icon?: string
+  underConstruction?: boolean
+  dottitip?: string
+  amitip?: string
+  tooltip?: string
+  message?: string
+}
+const { data: pages } = await useAsyncData('pages-list', async () => {
+  const allPages = await queryCollection('content').all() // Use all() to fetch data
+  return (allPages as Page[]).filter((item: Page) => item.path !== '/')
+})
 </script>
 
 <style scoped>

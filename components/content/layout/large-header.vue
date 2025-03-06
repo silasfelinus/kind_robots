@@ -36,15 +36,10 @@ interface RoomPage {
 }
 
 // Fetch the page data using Nuxt Content v3
-const { data: page } = await useAsyncData<RoomPage>(
-  `room-${name}`,
-  async () => {
-    const result = await queryCollection('content')
-      .path(`/rooms/${name}`)
-      .first()
-    return result || {}
-  },
-)
+const { data: page } = await useAsyncData<RoomPage>(`${name}`, async () => {
+  const result = await queryCollection('content').path(`${name}`).first()
+  return result || {}
+})
 
 // Compute the subtitle properly
 const subtitle = computed(

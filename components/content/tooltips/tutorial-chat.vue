@@ -40,9 +40,9 @@ interface MessagePage {
 
 // Fetch the page data using Nuxt Content v3
 const { data: page } = await useAsyncData<MessagePage>(
-  `bot-${name}`,
+  `${name}`,
   async () => {
-    const result = await queryCollection('content').path(`/bot/${name}`).first()
+    const result = await queryCollection('content').path(`${name}`).first()
     return (result as MessagePage) || {}
   },
 )

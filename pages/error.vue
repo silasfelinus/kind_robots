@@ -32,8 +32,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-
 const router = useRouter()
 
 // Go back to the previous page

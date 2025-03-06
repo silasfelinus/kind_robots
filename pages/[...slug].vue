@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useAsyncData } from '#app'
+import { useAsyncData, useRouter } from '#app'
 import type { LayoutKey } from '#build/types/layouts'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
@@ -25,6 +25,8 @@ import {
   type displayActionState,
   type displayModeState,
 } from '@/stores/displayStore'
+
+const router = useRouter()
 
 const displayStore = useDisplayStore()
 const userStore = useUserStore()

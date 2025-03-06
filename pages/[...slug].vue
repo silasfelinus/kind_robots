@@ -38,7 +38,7 @@ const promptStore = usePromptStore()
 // Get the route params
 const route = useRoute()
 const { data: page } = await useAsyncData(route.path, () => {
-  return queryCollection('docs').path(route.path).first()
+  return queryCollection('content').path(route.path).first()
 })
 
 // Compute the layout key properly

@@ -91,7 +91,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
 import { useAsyncData } from '#app'
 
 // Get the route params

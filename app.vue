@@ -7,7 +7,7 @@
       <kind-loader />
 
       <animation-loader class="fixed z-50" />
-      <milestone-popup class="fixed z-50"  />
+      <milestone-popup class="fixed z-50" />
     </div>
     <!-- Header -->
     <header
@@ -130,7 +130,6 @@ const rightSidebarStyle = computed(() => ({
   top: `calc(${headerAndPaddingHeight.value} + ${modeRowHeight.value})`,
   right: sectionPadding.value,
 }))
-
 
 const footerStyle = computed(() => ({
   height: footerHeight.value,

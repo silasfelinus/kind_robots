@@ -68,7 +68,7 @@ interface Page {
   tooltip?: string
   message?: string
 }
-const { data: pages } = await useAsyncData('pages-list', async () => {
+const { data: pages } = await useAsyncData('pages', async () => {
   const allPages = await queryCollection('content').all() // Use all() to fetch data
   return (allPages as Page[]).filter((item: Page) => item.path !== '/')
 })

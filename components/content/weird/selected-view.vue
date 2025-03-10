@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-grow overflow-y-auto p-4">
+  <div class="flex-grow overflow-y-auto p-4 m-20">
     <component :is="lazyComponent" />
   </div>
 </template>

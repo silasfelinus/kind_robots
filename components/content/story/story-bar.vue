@@ -25,20 +25,24 @@
     <component :is="currentSectionComponent" class="mt-6" />
   </div>
 </template>
-
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useStoryMakerStore } from '@/stores/storyStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
+// Import Components
+import StoryCreator from '@/components/content/story/story-creator.vue'
+import CreditPurchase from '@/components//content/story/credit-purchase.vue'
+import StoryAbout from '@/components/content/story/story-about.vue'
+
 // Define valid section keys
 const sections = {
-  create: 'story-creator',
-  credits: 'credit-purchase',
-  about: 'story-about',
+  create: StoryCreator,
+  credits: CreditPurchase,
+  about: StoryAbout,
 } as const
 
-type SectionKey = keyof typeof sections // Ensures only valid section keys
+type SectionKey = keyof typeof sections
 
 // Store Setup
 const storyMakerStore = useStoryMakerStore()

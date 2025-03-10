@@ -42,8 +42,8 @@
 
       <lazy-character-gallery v-if="activeTab === 'character-gallery'" />
 
-      <lazy-rewards-gallery v-if="activeTab === 'reward-gallery'" />
-      <lazy-story-maker v-if="activeTab === 'story-maker'" />
+      <lazy-reward-gallery v-if="activeTab === 'reward-gallery'" />
+      <lazy-story-bar v-if="activeTab === 'story-bar'" />
     </div>
   </div>
 </template>
@@ -65,7 +65,7 @@ const tabs = [
   { name: 'character-gallery', label: 'Character Gallery' },
 
   { name: 'reward-gallery', label: 'Reward Gallery' },
-  { name: 'story-maker', label: 'Story Maker' },
+  { name: 'story-bar', label: 'Story Maker' },
 ]
 
 // State to manage the active tab

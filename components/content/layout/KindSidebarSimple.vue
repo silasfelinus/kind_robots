@@ -72,6 +72,11 @@ const hardcodedLinks = [
     path: '/weirdlandia',
     icon: 'kind-icon:alien',
   },
+  {
+    title: 'Story Maker',
+    path: '/story',
+    icon: 'kind-icon:book',
+  },
 ]
 
 // Access router to handle navigation

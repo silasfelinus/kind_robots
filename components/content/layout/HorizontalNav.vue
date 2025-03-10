@@ -42,6 +42,7 @@ const hardcodedLinks = ref([
   { title: 'Memory', path: '/memory', icon: 'kind-icon:question' },
   { title: 'WonderLab', path: '/wonderlab', icon: 'kind-icon:gearhammer' },
   { title: 'WeirdLand', path: '/weirdlandia', icon: 'kind-icon:alien' },
+  { title: 'Story Maker', path: '/story', icon: 'kind-icon:book' },
 ])
 
 // Access Vue Router for navigation

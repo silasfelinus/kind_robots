@@ -50,6 +50,8 @@
     "@prisma/client": "^6.0.1",
     "@stripe/stripe-js": "^5.8.0",
     "@types/node": "^22.7.3",
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "bcrypt": "^5.1.1",
     "better-sqlite3": "^11.8.1",
     "canvas-confetti": "^1.9.3",

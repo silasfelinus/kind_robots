@@ -15,7 +15,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
 import { useAsyncData } from '#app'
 
 // Get the route params
@@ -36,15 +35,9 @@ interface PageData {
   message?: string
 }
 
-const { data: page } = useAsyncData<PageData>(`${name.value}`, async () => {
+const { data: page } = await useAsyncData<PageData>(route.path, () => {
   console.log('Fetching Page Data for:', name.value) // Debugging
 
-  const query = queryCollection('content')
-  console.log('Query Collection:', query) // Debugging
-
-  const result = await query.path(name.value).first()
-  console.log('Fetched Page Data:', result) // Debugging
-
-  return result || {} // Ensure result is always an object to avoid null errors
+  return queryCollection('content').path(route.path).first()
 })
 </script>

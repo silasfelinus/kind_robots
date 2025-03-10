@@ -36,11 +36,15 @@ interface PageData {
   message?: string
 }
 
-// Fetch the page data using Nuxt Content
 const { data: page } = useAsyncData<PageData>(`${name.value}`, async () => {
   console.log('Fetching Page Data for:', name.value) // Debugging
-  const result = await queryCollection('content').path(name.value).first()
+
+  const query = queryCollection('content')
+  console.log('Query Collection:', query) // Debugging
+
+  const result = await query.path(name.value).first()
   console.log('Fetched Page Data:', result) // Debugging
+
   return result || {} // Ensure result is always an object to avoid null errors
 })
 </script>

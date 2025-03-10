@@ -109,9 +109,9 @@ interface PageData {
   amitip?: string
 }
 
-// Fetch the page data using Nuxt Content v3
 const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
   const result = await queryCollection('content').path(`${name}`).first()
+  console.log('Fetched Page Data:', result) // 🔍 Debugging step
   return result || {}
 })
 </script>

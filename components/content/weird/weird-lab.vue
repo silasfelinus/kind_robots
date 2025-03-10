@@ -35,15 +35,15 @@
 
     <!-- Section Content -->
     <div class="flex-grow w-full overflow-y-auto h-full">
-   <lazy-scenario-manager v-if="activeTab === 'scenario-manager'" />
+      <lazy-scenario-manager v-if="activeTab === 'scenario-manager'" />
       <lazy-model-decoy v-if="activeTab === 'model-decoy'" />
 
-   
       <lazy-add-character v-if="activeTab === 'add-character'" />
 
       <lazy-character-gallery v-if="activeTab === 'character-gallery'" />
 
       <lazy-rewards-gallery v-if="activeTab === 'reward-gallery'" />
+      <lazy-story-maker v-if="activeTab === 'story-maker'" />
     </div>
   </div>
 </template>
@@ -60,12 +60,12 @@ const tabs = [
   { name: 'scenario-manager', label: 'Scenario Manager' },
   { name: 'model-decoy', label: ' Model Decoy' },
 
-
   { name: 'add-character', label: 'Character Designer' },
 
   { name: 'character-gallery', label: 'Character Gallery' },
 
   { name: 'reward-gallery', label: 'Reward Gallery' },
+  { name: 'story-maker', label: 'Story Maker' },
 ]
 
 // State to manage the active tab

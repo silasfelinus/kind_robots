@@ -34,9 +34,9 @@ interface PageData {
   message?: string
 }
 
-// Fetch the page data using Nuxt Content v3
-const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
+const { data: page } = useAsyncData<PageData>(`${name}`, async () => {
   const result = await queryCollection('content').path(`${name}`).first()
-  return result || {} // Ensure result is always an object to avoid null errors
+  console.log('Fetched Page Data:', result) // Debugging step
+  return result || {}
 })
 </script>

@@ -46,9 +46,9 @@ const displayStore = useDisplayStore()
 
 // Navigation Links
 const links: { name: SectionKey; label: string; icon: string }[] = [
-  { name: 'create', label: 'Create Story', icon: 'pencil' },
-  { name: 'credits', label: 'Buy Credits', icon: 'dollar-sign' },
-  { name: 'about', label: 'About', icon: 'info' },
+  { name: 'create', label: 'Create Story', icon: 'kind-icon:pencil' },
+  { name: 'credits', label: 'Generate Credits', icon: 'kind-icon:generate' },
+  { name: 'about', label: 'About', icon: 'info-circle' },
 ]
 
 // Computed Properties

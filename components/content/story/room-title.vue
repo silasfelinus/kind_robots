@@ -19,7 +19,6 @@ import { useAsyncData } from '#app'
 
 // Get the route params
 const route = useRoute()
-const name = computed(() => (route.params.name as string) || 'default-name')
 
 // Define expected content structure
 interface PageData {
@@ -36,8 +35,6 @@ interface PageData {
 }
 
 const { data: page } = await useAsyncData<PageData>(route.path, () => {
-  console.log('Fetching Page Data for:', name.value) // Debugging
-
   return queryCollection('content').path(route.path).first()
 })
 </script>

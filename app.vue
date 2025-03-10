@@ -5,6 +5,7 @@
     <!-- Loaders -->
     <div class="fixed z-50">
       <kind-loader />
+      <Analytics />
 
       <animation-loader class="fixed z-50" />
       <milestone-popup class="fixed z-50" />
@@ -62,6 +63,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
+import { Analytics } from '@vercel/analytics/nuxt'
 
 // Access the displayStore for managing the layout state
 const displayStore = useDisplayStore()

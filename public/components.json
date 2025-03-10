@@ -293,6 +293,15 @@
     ]
   },
   {
+    "folderName": "story",
+    "components": [
+      "credit-purchase",
+      "story-about",
+      "story-bar",
+      "story-creator"
+    ]
+  },
+  {
     "folderName": "tooltips",
     "components": [
       "ChatBubble",
@@ -384,6 +393,7 @@
       "scenario-selector",
       "scenario-uploader",
       "selected-view",
+      "story-maker",
       "weird-adventure",
       "weird-art",
       "weird-card",

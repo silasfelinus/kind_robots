@@ -15,10 +15,14 @@
 </template>
 
 <script setup lang="ts">
+import type { ContentType } from '~/content.config'
+
 // Get the route params
 const route = useRoute()
 
-const { data: page } = await useAsyncData(route.path, () => {
-  return queryCollection('content').path(route.path).first()
+const { data: page } = await useAsyncData(route.path, async () => {
+  return (await queryCollection('content')
+    .path(route.path)
+    .first()) as ContentType | null
 })
 </script>

@@ -1,6 +1,7 @@
 <template>
   <main>
     <NuxtLayout :name="layout">
+      <SpeedInsights />
       <ContentRenderer v-if="page" :value="page" />
       <template v-else>
         <p>Bot Not Found</p>
@@ -25,6 +26,7 @@ import {
   type displayActionState,
   type displayModeState,
 } from '@/stores/displayStore'
+import { SpeedInsights } from '@vercel/speed-insights/vue'
 
 const router = useRouter()
 

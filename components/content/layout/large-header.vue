@@ -24,21 +24,15 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAsyncData } from '#app'
+import type { ContentType } from '~/content.config'
 
 // Get the route params
 const route = useRoute()
-const name = route.params.name as string
 
-// Define the expected structure (Manually define fields)
-interface RoomPage {
-  title?: string
-  subtitle?: string
-}
-
-// Fetch the page data using Nuxt Content v3
-const { data: page } = await useAsyncData<RoomPage>(`${name}`, async () => {
-  const result = await queryCollection('content').path(`${name}`).first()
-  return result || {}
+const { data: page } = await useAsyncData(route.path, async () => {
+  return (await queryCollection('content')
+    .path(route.path)
+    .first()) as ContentType | null
 })
 
 // Compute the subtitle properly

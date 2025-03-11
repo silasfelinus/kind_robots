@@ -2,7 +2,7 @@
 title: 'Story Maker'
 subtitle: Join a multiverse of Storytelling Possibilities'
 description: A surreal odyssey guided by chatGPT, this work-in-progress promises to whisk you away to far-flung corners of absurdity and wonder.
-image: weirdlandia/weird2.png
+image: story/story1.webp
 gallery: weirdlandia
 tags: ['home']
 category: wip

@@ -5,6 +5,7 @@ const contentSchema = z.object({
   title: z.string().optional(),
   path: z.string(),
   description: z.string().optional(),
+  underConstruction: z.boolean().optional(),
   seo: z
     .intersection(
       z.object({

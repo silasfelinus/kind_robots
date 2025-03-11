@@ -71,8 +71,6 @@ onMounted(async () => {
     }
   }
 
-  console.log(page.value?.amitip)
-
   // Handle query parameters
   const {
     token: queryToken,

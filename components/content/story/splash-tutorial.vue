@@ -92,26 +92,14 @@
 
 <script setup lang="ts">
 import { useAsyncData } from '#app'
+import type { ContentType } from '~/content.config'
 
 // Get the route params
 const route = useRoute()
-const name = route.params.name as string
 
-// Define expected content structure
-interface PageData {
-  title?: string
-  description?: string
-  subtitle?: string
-  image?: string
-  icon?: string
-  underConstruction?: boolean
-  dottitip?: string
-  amitip?: string
-}
-
-const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
-  const result = await queryCollection('content').path(`${name}`).first()
-  console.log('Fetched Page Data:', result) // 🔍 Debugging step
-  return result || {}
+const { data: page } = await useAsyncData(route.path, async () => {
+  return (await queryCollection('content')
+    .path(route.path)
+    .first()) as ContentType | null
 })
 </script>

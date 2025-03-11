@@ -15,26 +15,10 @@
 </template>
 
 <script setup lang="ts">
-import { useAsyncData } from '#app'
-
 // Get the route params
 const route = useRoute()
 
-// Define expected content structure
-interface PageData {
-  title?: string
-  description?: string
-  subtitle?: string
-  image?: string
-  icon?: string
-  underConstruction?: boolean
-  dottitip?: string
-  amitip?: string
-  tooltip?: string
-  message?: string
-}
-
-const { data: page } = await useAsyncData<PageData>(route.path, () => {
+const { data: page } = await useAsyncData(route.path, () => {
   return queryCollection('content').path(route.path).first()
 })
 </script>

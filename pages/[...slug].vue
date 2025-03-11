@@ -27,6 +27,7 @@ import {
   type displayModeState,
 } from '@/stores/displayStore'
 import { SpeedInsights } from '@vercel/speed-insights/vue'
+import type { ContentType } from '~/content.config'
 
 const router = useRouter()
 
@@ -41,8 +42,11 @@ const promptStore = usePromptStore()
 
 // Get the route params
 const route = useRoute()
-const { data: page } = await useAsyncData(route.path, () => {
-  return queryCollection('content').path(route.path).first()
+
+const { data: page } = await useAsyncData(route.path, async () => {
+  return (await queryCollection('content')
+    .path(route.path)
+    .first()) as ContentType | null
 })
 
 // Compute the layout key properly
@@ -67,7 +71,7 @@ onMounted(async () => {
     }
   }
 
-  console.log(page)
+  console.log(page.value?.amitip)
 
   // Handle query parameters
   const {

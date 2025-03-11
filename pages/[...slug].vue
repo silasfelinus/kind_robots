@@ -67,6 +67,8 @@ onMounted(async () => {
     }
   }
 
+  console.log(page)
+
   // Handle query parameters
   const {
     token: queryToken,

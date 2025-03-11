@@ -55,28 +55,15 @@ import { useUserStore } from './../../../stores/userStore' // Ensure to import y
 
 import { useRoute } from 'vue-router'
 import { useAsyncData } from '#app'
+import type { ContentType } from '~/content.config'
 
 // Get the route params
 const route = useRoute()
-const name = route.params.name as string
 
-// Define expected content structure
-interface PageData {
-  title?: string
-  description?: string
-  subtitle?: string
-  image?: string
-  icon?: string
-  underConstruction?: boolean
-  dottitip?: string
-  amitip?: string
-  tooltip?: string
-}
-
-// Fetch the page data using Nuxt Content v3
-const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
-  const result = await queryCollection('content').path(`${name}`).first()
-  return result || {}
+const { data: page } = await useAsyncData(route.path, async () => {
+  return (await queryCollection('content')
+    .path(route.path)
+    .first()) as ContentType | null
 })
 
 const avatarSize = ref('small')

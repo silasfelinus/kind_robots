@@ -36,12 +36,10 @@
     >
       <mode-row class="z-30 w-full flex-shrink-0" style="height: 5%" />
       <div class="flex-grow" style="height: 95%">
-        <transition name="flip" mode="out-in">
-          <NuxtPage
-            :key="$route.fullPath"
-            class="relative h-full w-full rounded-2xl overflow-y-auto bg-base-300 border-1 border-accent z-10"
-          />
-        </transition>
+        <NuxtPage
+          :key="$route.fullPath"
+          class="relative h-full w-full rounded-2xl overflow-y-auto bg-base-300 border-1 border-accent z-10"
+        />
       </div>
     </main>
 

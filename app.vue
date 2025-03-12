@@ -114,8 +114,37 @@ const mainContentStyle = computed(() => ({
   display: grid;
   grid-template-columns: auto 1fr auto;
   grid-template-rows: auto 1fr auto;
-  height: calc(100vh - var(--header-height));
+  height: 100%; /* Ensure it fully takes up space */
   width: 100%;
+}
+
+/* Right Sidebar */
+.sidebar.right {
+  grid-column: 3 / 4;
+  grid-row: 1 / 3;
+  z-index: 10;
+  height: 100%; /* Ensure it takes up the full row height */
+  transition: all 0.6s ease-in-out;
+  overflow: visible; /* Ensure no clipping */
+}
+
+/* Center Column */
+.center-column {
+  display: flex;
+  flex-direction: column;
+  grid-column: 2 / 3;
+  grid-row: 1 / 3;
+  width: 100%;
+  min-height: 0; /* Allow flexibility */
+}
+
+/* Main Content */
+.main-content {
+  flex-grow: 1;
+  z-index: 10;
+  transition: all 0.6s ease-in-out;
+  padding: 16px;
+  min-height: 0; /* Prevent unwanted overflow */
 }
 
 /* Left Sidebar */
@@ -126,37 +155,12 @@ const mainContentStyle = computed(() => ({
   transition: all 0.3s ease-in-out;
 }
 
-/* Right Sidebar */
-.sidebar.right {
-  grid-column: 3 / 4;
-  grid-row: 1 / 3;
-  z-index: 10;
-  transition: all 0.6s ease-in-out;
-}
-
-/* Center Column */
-.center-column {
-  display: flex;
-  flex-direction: column;
-  grid-column: 2 / 3;
-  grid-row: 1 / 3;
-  width: 100%;
-}
-
 /* ModeRow */
 .mode-row {
   display: flex;
   justify-content: center;
   z-index: 15;
   transition: all 0.5s ease-in-out;
-}
-
-/* Main Content */
-.main-content {
-  flex-grow: 1;
-  z-index: 10;
-  transition: all 0.6s ease-in-out;
-  padding: 16px;
 }
 
 /* Footer */

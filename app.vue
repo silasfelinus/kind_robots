@@ -34,21 +34,12 @@
       <kind-sidebar-simple class="relative z-10 h-full rounded-2xl w-full" />
     </aside>
 
-    <!-- Main Flip Animation Container -->
+    <!-- Main Content -->
     <main
-      class="flip-container fixed z-10 transition-all duration-600 rounded-2xl ease-in-out"
+      class="fixed z-10 transition-all duration-600 rounded-2xl ease-in-out"
       :style="mainContentStyle"
     >
-      <div class="flip-inner" :class="{ 'is-flipped': flipping }">
-        <!-- Front side: Current page -->
-        <div class="flip-page flip-front">
-          <NuxtPage :key="$route.fullPath" />
-        </div>
-        <!-- Back side: Previous page (during flip) -->
-        <div class="flip-page flip-back">
-          <NuxtPage v-if="previousRoute" :key="previousRoute" />
-        </div>
-      </div>
+      <NuxtPage :key="$route.fullPath" />
     </main>
 
     <!-- Right Sidebar -->
@@ -81,34 +72,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import { useRoute } from 'vue-router'
 
 const displayStore = useDisplayStore()
-const route = useRoute()
 
-const flipping = ref(false)
-const previousRoute = ref<string | null>(null)
-
-// Flip animation on route change
-watch(
-  () => route.fullPath,
-  (newPath, oldPath) => {
-    if (newPath !== oldPath) {
-      console.log(`[Flip] Transitioning from ${oldPath} to ${newPath}`)
-
-      previousRoute.value = oldPath // Store the previous route
-      flipping.value = true
-
-      setTimeout(() => {
-        flipping.value = false
-      }, 600) // Match transition duration
-    }
-  },
-)
-
-// Make store state reactive
+// Reactive store states
 const sidebarLeftVisible = computed(() => displayStore.sidebarLeftVisible)
 const sidebarRightVisible = computed(() => displayStore.sidebarRightVisible)
 const footerVisible = computed(() => displayStore.footerVisible)
@@ -126,42 +95,8 @@ const modeRowStyle = computed(() => ({
 </script>
 
 <style scoped>
-.flip-container {
-  perspective: 1200px;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-.flip-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s ease-in-out;
-  transform-style: preserve-3d;
-  transform-origin: center;
-}
-
-.flip-inner.is-flipped {
-  transform: rotateY(180deg);
-}
-
-.flip-page {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-}
-
-.flip-front {
-  transform: rotateY(0deg);
-  background: white;
-  z-index: 2;
-}
-
-.flip-back {
-  transform: rotateY(180deg);
-  background: white;
-  z-index: 1;
+.main-layout {
+  display: flex;
+  flex-direction: column;
 }
 </style>

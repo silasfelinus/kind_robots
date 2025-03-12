@@ -64,7 +64,7 @@
     </div>
 
     <!-- Milestone Popup (Ensure it's on top & renders last) -->
-    <milestone-popup class="fixed z-[9999]" />
+    <milestone-popup class="fixed z-50" />
   </div>
 </template>
 

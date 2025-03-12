@@ -1,12 +1,12 @@
 <template>
   <div class="flip-container">
     <div class="flip-inner" :class="{ 'is-flipped': flipping }">
-      <!-- Front side: Displays the current page -->
+      <!-- Front side: Displays the new page -->
       <div class="flip-page flip-front">
         <slot name="current"></slot>
       </div>
       <!-- Back side: Displays the previous page during flip -->
-      <div v-if="previousContent" class="flip-page flip-back">
+      <div class="flip-page flip-back">
         <slot name="previous"></slot>
       </div>
     </div>
@@ -19,7 +19,7 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const flipping = ref(false)
-const previousContent = ref<string | null>(null)
+const previousRoute = ref<string | null>(null)
 
 // Watch for route changes
 watch(
@@ -28,12 +28,11 @@ watch(
     if (newRoute !== oldRoute) {
       console.log(`[Flip] Transitioning from ${oldRoute} to ${newRoute}`)
 
-      previousContent.value = oldRoute // Keep previous route content
+      previousRoute.value = oldRoute // Store the previous route
       flipping.value = true
 
       setTimeout(() => {
         flipping.value = false
-        previousContent.value = null // Clear after flip
       }, 600) // Match transition duration
     }
   },
@@ -54,6 +53,7 @@ watch(
   height: 100%;
   transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
+  transform-origin: center;
 }
 
 .flip-inner.is-flipped {
@@ -70,10 +70,12 @@ watch(
 .flip-front {
   transform: rotateY(0deg);
   background: white;
+  z-index: 2; /* Ensure it's on top */
 }
 
 .flip-back {
   transform: rotateY(180deg);
   background: white;
+  z-index: 1;
 }
 </style>

@@ -93,4 +93,17 @@ watch(
     displayStore.previousRoute = newPath
   },
 )
+
+// Ensure visibility updates when sidebar/footer states change
+watch(
+  () => [
+    displayStore.sidebarLeftState,
+    displayStore.sidebarRightState,
+    displayStore.footerState,
+  ],
+  () => {
+    displayStore.updateVisibility()
+  },
+  { immediate: true }, // Run once on startup
+)
 </script>

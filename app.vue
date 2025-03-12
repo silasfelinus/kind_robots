@@ -19,7 +19,7 @@
 
     <!-- ModeRow -->
     <div
-      class="fixed w-full flex justify-center transition-all duration-500 ease-in-out"
+      class="w-full flex justify-center transition-all duration-500 ease-in-out"
       :style="modeRowStyle"
     >
       <mode-row class="relative z-10" />
@@ -83,7 +83,11 @@ const footerVisible = computed(() => displayStore.footerVisible)
 
 const headerStyle = computed(() => displayStore.headerStyle)
 const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
-const mainContentStyle = computed(() => displayStore.mainContentStyle)
+const mainContentStyle = computed(() => ({
+  marginTop: `calc(${displayStore.headerHeight} + ${displayStore.modeRowHeight} + 16px)`, // Push down
+  zIndex: 10,
+}))
+
 const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
 const footerStyle = computed(() => displayStore.footerStyle)
 

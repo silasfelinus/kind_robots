@@ -509,6 +509,15 @@ export const useDisplayStore = defineStore('display', {
       this.saveState()
     },
 
+    updateVisibility() {
+      this.sidebarLeftVisible =
+        this.sidebarLeftState === 'open' || this.sidebarLeftState === 'compact'
+      this.sidebarRightVisible =
+        this.sidebarRightState === 'open' ||
+        this.sidebarRightState === 'compact'
+      this.footerVisible = this.footerState === 'open'
+    },
+
     toggleFooter() {
       const stateCycle: Record<DisplayState, DisplayState> = {
         hidden: 'open',

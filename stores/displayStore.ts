@@ -44,9 +44,6 @@ interface DisplayStoreState {
   displayMode: displayModeState
   displayAction: displayActionState
   previousRoute: string
-  sidebarLeftVisible: boolean
-  sidebarRightVisible: boolean
-  footerVisible: boolean
 }
 
 // Define the valid effect IDs
@@ -75,15 +72,23 @@ export const useDisplayStore = defineStore('display', {
     resizeTimeout: null,
     fullscreenState: 'nuxt',
     bigMode: false,
-    displayMode: 'scenario' as displayModeState,
-    displayAction: 'gallery' as displayActionState,
-    sidebarLeftVisible: true,
-    sidebarRightVisible: false,
-    footerVisible: true,
+    displayMode: 'scenario',
+    displayAction: 'gallery',
     previousRoute: '',
   }),
 
   getters: {
+    sidebarLeftVisible(this: DisplayStoreState): boolean {
+      return this.sidebarLeftState === 'open' || this.sidebarLeftState === 'compact';
+    },
+
+    sidebarRightVisible(this: DisplayStoreState): boolean {
+      return this.sidebarRightState === 'open' || this.sidebarRightState === 'compact';
+    },
+
+    footerVisible(this: DisplayStoreState): boolean {
+      return this.footerState === 'open';
+    },
     headerStyle(): Record<string, string> {
       return {
         height: this.headerHeight,
@@ -509,14 +514,6 @@ export const useDisplayStore = defineStore('display', {
       this.saveState()
     },
 
-    updateVisibility() {
-      this.sidebarLeftVisible =
-        this.sidebarLeftState === 'open' || this.sidebarLeftState === 'compact'
-      this.sidebarRightVisible =
-        this.sidebarRightState === 'open' ||
-        this.sidebarRightState === 'compact'
-      this.footerVisible = this.footerState === 'open'
-    },
 
     toggleFooter() {
       const stateCycle: Record<DisplayState, DisplayState> = {

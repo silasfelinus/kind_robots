@@ -3,11 +3,11 @@
     <div class="flip-inner" :class="{ 'is-flipped': flipping }">
       <!-- Front side: Displays the current page -->
       <div class="flip-page flip-front">
-        <slot v-if="!flipping" name="current"></slot>
+        <slot name="current"></slot>
       </div>
       <!-- Back side: Displays the previous page during flip -->
-      <div class="flip-page flip-back">
-        <slot v-if="flipping" name="previous"></slot>
+      <div v-if="previousContent" class="flip-page flip-back">
+        <slot name="previous"></slot>
       </div>
     </div>
   </div>
@@ -19,24 +19,21 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const flipping = ref(false)
-const previousRoute = ref<string | null>(null)
+const previousContent = ref<string | null>(null)
 
-// Prevent double animation
-let isFlipping = false
-
+// Watch for route changes
 watch(
   () => route.fullPath,
   (newRoute, oldRoute) => {
-    if (newRoute !== oldRoute && !isFlipping) {
+    if (newRoute !== oldRoute) {
       console.log(`[Flip] Transitioning from ${oldRoute} to ${newRoute}`)
 
-      isFlipping = true
-      previousRoute.value = oldRoute // Store previous content
+      previousContent.value = oldRoute // Keep previous route content
       flipping.value = true
 
       setTimeout(() => {
         flipping.value = false
-        isFlipping = false
+        previousContent.value = null // Clear after flip
       }, 600) // Match transition duration
     }
   },

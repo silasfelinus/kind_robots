@@ -2,7 +2,7 @@
   <!-- Popup Content -->
   <div
     v-if="showPopup"
-    class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-[9999] backdrop-blur-sm"
+    class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 backdrop-blur-sm"
     aria-labelledby="milestone-popup"
     role="dialog"
     aria-modal="true"

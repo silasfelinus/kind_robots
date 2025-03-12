@@ -7,7 +7,13 @@
       <animation-loader class="fixed z-50" />
     </div>
 
-    <header class="header" :style="headerStyle"></header>
+    <!-- Header -->
+    <header
+      class="fixed z-20 flex items-center justify-center box-border transition-all duration-500 ease-in-out"
+      :style="headerStyle"
+    >
+      <header-upgrade class="flex-grow text-center" />
+    </header>
 
     <!-- Main Layout -->
     <div class="content-wrapper">
@@ -38,10 +44,10 @@
       <!-- Right Sidebar -->
       <aside
         v-show="sidebarRightVisible"
-        class="sidebar right"
+        class="fixed z-10 box-border transition-all duration-600 rounded-2xl ease-in-out"
         :style="rightSidebarStyle"
       >
-        <splash-tutorial class="h-full w-full" />
+        <splash-tutorial class="h-full w-full z-10" />
       </aside>
     </div>
 

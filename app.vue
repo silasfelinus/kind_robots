@@ -17,7 +17,7 @@
       <header-upgrade class="flex-grow text-center" />
     </header>
 
-    <!-- ModeRow (Now positioned between the header and NuxtPage) -->
+    <!-- ModeRow -->
     <div
       class="fixed w-full flex justify-center transition-all duration-500 ease-in-out"
       :style="modeRowStyle"
@@ -34,13 +34,21 @@
       <kind-sidebar-simple class="relative z-10 h-full rounded-2xl w-full" />
     </aside>
 
+    <!-- Main Flip Animation Container -->
     <main
-      class="fixed z-10 box-border transition-all duration-600 rounded-2xl ease-in-out"
+      class="flip-container fixed z-10 transition-all duration-600 rounded-2xl ease-in-out"
       :style="mainContentStyle"
     >
-      <FlipScreen>
-        <NuxtPage :key="$route.fullPath" />
-      </FlipScreen>
+      <div class="flip-inner" :class="{ 'is-flipped': flipping }">
+        <!-- Front side: Current page -->
+        <div class="flip-page flip-front">
+          <NuxtPage :key="$route.fullPath" />
+        </div>
+        <!-- Back side: Previous page (during flip) -->
+        <div class="flip-page flip-back">
+          <NuxtPage v-if="previousRoute" :key="previousRoute" />
+        </div>
+      </div>
     </main>
 
     <!-- Right Sidebar -->
@@ -67,42 +75,93 @@
       <footer-toggle />
     </div>
 
-    <!-- Milestone Popup (Ensure it's on top & renders last) -->
+    <!-- Milestone Popup -->
     <milestone-popup class="fixed z-50" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useRoute } from 'vue-router'
 
 const displayStore = useDisplayStore()
 const route = useRoute()
 
-// Ensure route change updates the previousRoute
+const flipping = ref(false)
+const previousRoute = ref<string | null>(null)
+
+// Flip animation on route change
 watch(
   () => route.fullPath,
-  (newPath) => {
-    displayStore.previousRoute = newPath
+  (newPath, oldPath) => {
+    if (newPath !== oldPath) {
+      console.log(`[Flip] Transitioning from ${oldPath} to ${newPath}`)
+
+      previousRoute.value = oldPath // Store the previous route
+      flipping.value = true
+
+      setTimeout(() => {
+        flipping.value = false
+      }, 600) // Match transition duration
+    }
   },
 )
 
-// Make store state reactive using computed properties
+// Make store state reactive
 const sidebarLeftVisible = computed(() => displayStore.sidebarLeftVisible)
 const sidebarRightVisible = computed(() => displayStore.sidebarRightVisible)
 const footerVisible = computed(() => displayStore.footerVisible)
 
-// Get styles from displayStore
 const headerStyle = computed(() => displayStore.headerStyle)
 const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
 const mainContentStyle = computed(() => displayStore.mainContentStyle)
 const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
 const footerStyle = computed(() => displayStore.footerStyle)
 
-// Add mode row positioning (between header and main content)
 const modeRowStyle = computed(() => ({
-  top: `calc(${displayStore.headerHeight} + 8px)`, // Adjust this value if needed
-  zIndex: 15, // Ensures it stays above content but below popups
+  top: `calc(${displayStore.headerHeight} + 8px)`,
+  zIndex: 15,
 }))
 </script>
+
+<style scoped>
+.flip-container {
+  perspective: 1200px;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s ease-in-out;
+  transform-style: preserve-3d;
+  transform-origin: center;
+}
+
+.flip-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+}
+
+.flip-front {
+  transform: rotateY(0deg);
+  background: white;
+  z-index: 2;
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+  background: white;
+  z-index: 1;
+}
+</style>

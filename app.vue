@@ -15,11 +15,15 @@
       :style="headerStyle"
     >
       <header-upgrade class="flex-grow text-center" />
-      <!-- Bottom Section: ModeRow -->
-      <div>
-        <mode-row />
-      </div>
     </header>
+
+    <!-- ModeRow (Now positioned between the header and NuxtPage) -->
+    <div
+      class="fixed w-full flex justify-center transition-all duration-500 ease-in-out"
+      :style="modeRowStyle"
+    >
+      <mode-row class="relative z-10" />
+    </div>
 
     <!-- Left Sidebar -->
     <aside
@@ -95,4 +99,10 @@ const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
 const mainContentStyle = computed(() => displayStore.mainContentStyle)
 const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
 const footerStyle = computed(() => displayStore.footerStyle)
+
+// Add mode row positioning (between header and main content)
+const modeRowStyle = computed(() => ({
+  top: `calc(${displayStore.headerHeight} + 8px)`, // Adjust this value if needed
+  zIndex: 15, // Ensures it stays above content but below popups
+}))
 </script>

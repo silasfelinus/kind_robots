@@ -37,7 +37,6 @@
     <div class="flex-grow w-full overflow-y-auto h-full">
       <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
       <lazy-navigation-trimmed v-if="choice === 'navigation-trimmed'" />
-      <lazy-intro-page v-if="choice === 'intro-page'" />
       <lazy-user-chat v-if="choice === 'user-chat'" />
 
       <lazy-user-gallery v-if="choice === 'user-gallery'" />
@@ -56,7 +55,6 @@ const displayStore = useDisplayStore()
 // Tabs setup for Dashboard Chooser
 const tabs = [
   { name: 'user-dashboard', label: 'User Dashboard' },
-  { name: 'intro-page', label: 'Welcome!' },
   { name: 'navigation-trimmed', label: 'Site Navigation' },
   { name: 'user-gallery', label: 'User Gallery' },
   { name: 'jellybean-counter', label: 'Jellybean Counter' },

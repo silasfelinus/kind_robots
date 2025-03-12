@@ -79,15 +79,30 @@ const nonNullableUserProfile = computed<
   if (!userProfile.value) {
     throw new Error('User profile is null')
   }
-  return userProfile.value
+
+  return {
+    ...userProfile.value,
+    birthday: userProfile.value.birthday
+      ? new Date(userProfile.value.birthday).toISOString().split('T')[0]
+      : '',
+  }
 })
 
-const updateUserProfile = (
-  key: keyof User,
-  value: User[keyof User] | undefined, // Include `undefined` explicitly
-) => {
-  if (nonNullableUserProfile.value) {
-    nonNullableUserProfile.value[key] = value
+const updateProfile = async () => {
+  if (!userProfile.value) {
+    alert('No user profile to update!')
+    return
+  }
+
+  try {
+    if (typeof userProfile.value.birthday === 'string') {
+      userProfile.value.birthday = new Date(userProfile.value.birthday)
+    }
+    await userStore.updateUserInfo(userProfile.value)
+    alert('Profile updated successfully!')
+  } catch (error) {
+    console.error('Failed to update profile:', error)
+    alert('An error occurred while updating your profile.')
   }
 }
 
@@ -159,22 +174,15 @@ const profileFields = {
   },
 }
 
-// Update profile logic
-const updateProfile = async () => {
-  if (!userProfile.value) {
-    alert('No user profile to update!')
-    return
-  }
-
-  try {
-    if (userProfile.value.birthday) {
-      userProfile.value.birthday = new Date(userProfile.value.birthday)
+const updateUserProfile = (
+  key: keyof User,
+  value: User[keyof User] | undefined,
+) => {
+  if (nonNullableUserProfile.value) {
+    if (key === 'birthday' && typeof value === 'string') {
+      value = new Date(value) as User[keyof User]
     }
-    await userStore.updateUserInfo(userProfile.value)
-    alert('Profile updated successfully!')
-  } catch (error) {
-    console.error('Failed to update profile:', error)
-    alert('An error occurred while updating your profile.')
+    nonNullableUserProfile.value[key] = value
   }
 }
 </script>

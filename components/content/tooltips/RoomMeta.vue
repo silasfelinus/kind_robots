@@ -27,9 +27,12 @@ import type { ContentType } from '~/content.config'
 // Get the route params
 const route = useRoute()
 
-const { data: page } = await useAsyncData(route.path, async () => {
-  return (await queryCollection('content')
-    .path(route.path)
-    .first()) as ContentType | null
+const page = computed(() => {
+  const { data } = useAsyncData(route.path, async () => {
+    return (await queryCollection('content')
+      .path(route.path)
+      .first()) as ContentType | null
+  })
+  return data.value
 })
 </script>

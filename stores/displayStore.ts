@@ -97,13 +97,15 @@ export const useDisplayStore = defineStore('display', {
       return this.footerState === 'open'
     },
     headerStyle(): Record<string, string> {
-      return {
-        height: this.headerHeight,
-        width: this.footerWidth,
-        top: this.sectionPadding,
-        left: this.sectionPadding,
-        right: this.sectionPadding,
-      }
+      return this.isFullScreen
+        ? { display: 'none' } // Completely hide the header
+        : {
+            height: this.headerHeight,
+            width: this.footerWidth,
+            top: this.sectionPadding,
+            left: this.sectionPadding,
+            right: this.sectionPadding,
+          }
     },
 
     leftSidebarStyle(): Record<string, string> {

@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref, watchEffect, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 
@@ -52,8 +52,22 @@ const milestoneStore = useMilestoneStore()
 const milestone = computed(() => milestoneStore.currentMilestone)
 const showPopup = ref(false)
 
+// Debugging: Log whenever a new milestone appears
 watchEffect(() => {
-  showPopup.value = !!milestone.value
+  console.log('Checking milestone:', milestone.value)
+
+  if (milestone.value) {
+    console.log('New milestone received:', milestone.value)
+    showPopup.value = true
+  }
+})
+
+// Fallback: Force popup to show when milestone updates
+watch(milestone, (newMilestone) => {
+  if (newMilestone) {
+    console.log('Milestone updated, showing popup:', newMilestone)
+    showPopup.value = true
+  }
 })
 </script>
 

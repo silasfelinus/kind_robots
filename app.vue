@@ -135,13 +135,13 @@ const modeRowStyle = computed(() => ({
   min-height: 0; /* Allow flexibility */
 }
 
-/* Main Content */
 .main-content {
   flex-grow: 1;
   z-index: 10;
-  transition: all 0.6s ease-in-out;
+  transition: all 0.3s ease-in-out;
   padding: 16px;
-  min-height: 0; /* Prevent unwanted overflow */
+  min-height: 0;
+  width: auto; /* Allow it to resize dynamically */
 }
 
 /* Left Sidebar */

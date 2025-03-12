@@ -6,10 +6,10 @@
     <div class="fixed z-50">
       <kind-loader />
       <Analytics />
-
       <animation-loader class="fixed z-50" />
       <milestone-popup class="fixed z-50" />
     </div>
+
     <!-- Header -->
     <header
       class="fixed z-10 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out"
@@ -20,45 +20,47 @@
 
     <!-- Left Sidebar -->
     <aside
+      v-if="sidebarLeftVisible"
       class="fixed z-10 box-border rounded-2xl transition-all duration-300 ease-in-out overflow-visible"
       :style="leftSidebarStyle"
     >
-      <kind-sidebar-simple
-        v-if="sidebarLeftOpen"
-        class="relative z-10 h-full rounded-2xl w-full"
-      />
+      <kind-sidebar-simple class="relative z-10 h-full rounded-2xl w-full" />
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main Content with Flip Effect -->
     <main
       class="fixed z-10 box-border transition-all duration-600 rounded-2xl ease-in-out"
       :style="mainContentStyle"
     >
       <mode-row class="z-30 w-full flex-shrink-0" style="height: 5%" />
-      <div class="flex-grow" style="height: 95%">
-        <transition name="fade" mode="out-in">
+      <FlipScreen>
+        <template #front>
           <NuxtPage
             :key="$route.fullPath"
             class="relative h-full w-full rounded-2xl overflow-y-auto bg-base-300 border-1 border-accent z-10"
-        /></transition>
-      </div>
+          />
+        </template>
+        <template #back></template>
+      </FlipScreen>
     </main>
 
     <!-- Right Sidebar -->
     <aside
+      v-if="sidebarRightVisible"
       class="fixed z-10 box-border transition-all duration-600 rounded-2xl ease-in-out"
       :style="rightSidebarStyle"
     >
-      <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full z-10" />
+      <splash-tutorial class="h-full w-full z-10" />
     </aside>
 
     <!-- Footer -->
     <footer
+      v-if="footerVisible"
       class="fixed z-10 box-border rounded-2xl overflow-visible transition-all duration-600 ease-in-out"
       :style="footerStyle"
       style="background-color: rgba(0, 0, 0, 0.2)"
     >
-      <horizontal-nav v-if="footerOpen" class="h-full w-full z-5" />
+      <horizontal-nav class="h-full w-full z-5" />
     </footer>
 
     <!-- Footer Toggle (Fixed to the bottom center of the screen) -->
@@ -73,10 +75,10 @@ import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { Analytics } from '@vercel/analytics/nuxt'
 
-// Access the displayStore for managing the layout state
+// Store
 const displayStore = useDisplayStore()
 
-// Computed properties to access displayStore values
+// Computed Properties
 const headerHeight = computed(() => displayStore.headerHeight)
 const footerWidth = computed(() => displayStore.footerWidth)
 const sectionPadding = computed(() => displayStore.sectionPadding)
@@ -86,28 +88,20 @@ const centerWidth = computed(() => displayStore.centerWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const footerHeight = computed(() => displayStore.footerHeight)
 
-// Pre-calculated properties for commonly used calculations
-const headerAndPaddingHeight = computed(
-  () => `calc(${headerHeight.value} + (${sectionPadding.value} * 2))`,
-)
-const sidebarRightWidthWithPadding = computed(
-  () => `calc(${sidebarRightWidth.value} + (${sectionPadding.value} * 2))`,
-)
-
-// Sidebar and footer states
-const footerOpen = computed(() => displayStore.footerState === 'open')
-const sidebarLeftOpen = computed(
+// Sidebar & Footer Visibility
+const sidebarLeftVisible = computed(
   () =>
     displayStore.sidebarLeftState !== 'hidden' &&
     displayStore.sidebarLeftState !== 'disabled',
 )
-const sidebarRightOpen = computed(
+const sidebarRightVisible = computed(
   () =>
     displayStore.sidebarRightState !== 'hidden' &&
     displayStore.sidebarRightState !== 'disabled',
 )
+const footerVisible = computed(() => displayStore.footerState === 'open')
 
-// Computed styles for layout elements
+// Computed Styles
 const headerStyle = computed(() => ({
   height: headerHeight.value,
   width: footerWidth.value,
@@ -119,25 +113,23 @@ const headerStyle = computed(() => ({
 const leftSidebarStyle = computed(() => ({
   height: centerHeight.value,
   width: sidebarLeftWidth.value,
-  top: headerAndPaddingHeight.value,
+  top: `calc(${headerHeight.value} + (${sectionPadding.value} * 2))`,
   left: sectionPadding.value,
 }))
 
 const mainContentStyle = computed(() => ({
   height: centerHeight.value,
   width: centerWidth.value,
-  top: headerAndPaddingHeight.value,
-  right: sidebarRightOpen.value
-    ? sidebarRightWidthWithPadding.value
+  top: `calc(${headerHeight.value} + (${sectionPadding.value} * 2))`,
+  right: sidebarRightVisible.value
+    ? `calc(${sidebarRightWidth.value} + (${sectionPadding.value} * 2))`
     : sectionPadding.value,
 }))
 
-const modeRowHeight = computed(() => `calc(${centerHeight.value} * 0.05)`)
-
 const rightSidebarStyle = computed(() => ({
-  height: `calc(${centerHeight.value} - ${modeRowHeight.value})`,
+  height: centerHeight.value,
   width: sidebarRightWidth.value,
-  top: `calc(${headerAndPaddingHeight.value} + ${modeRowHeight.value})`,
+  top: `calc(${headerHeight.value} + (${sectionPadding.value} * 2))`,
   right: sectionPadding.value,
 }))
 
@@ -149,22 +141,3 @@ const footerStyle = computed(() => ({
   right: sectionPadding.value,
 }))
 </script>
-
-<style>
-.flip-enter-active,
-.flip-leave-active {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
-}
-
-.flip-enter-from {
-  opacity: 0;
-  transform: translateY(10px); /* Ensures it enters visibly */
-}
-
-.flip-leave-to {
-  opacity: 0;
-  transform: translateY(-10px); /* Moves the old page away */
-}
-</style>

@@ -30,7 +30,6 @@
       class="fixed z-10 box-border transition-all duration-600 rounded-2xl ease-in-out"
       :style="mainContentStyle"
     >
-      <mode-row class="z-30 w-full flex-shrink-0" style="height: 5%" />
       <FlipScreen>
         <NuxtPage :key="$route.fullPath" />
       </FlipScreen>

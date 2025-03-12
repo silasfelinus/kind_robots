@@ -2,7 +2,7 @@
   <!-- Popup Content -->
   <div
     v-if="showPopup"
-    class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 backdrop-blur-sm"
+    class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-[9999] backdrop-blur-sm"
     aria-labelledby="milestone-popup"
     role="dialog"
     aria-modal="true"
@@ -63,37 +63,35 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 
-const milestone = computed(() => milestoneStore.currentMilestone) // Dynamically bind to the current milestone
-const checkboxChecked = ref(false) // Tracks the checkbox state
+const milestone = computed(() => milestoneStore.currentMilestone)
+const checkboxChecked = ref(false)
 
-// Only show the popup if there is a milestone
-const showPopup = computed(() => Boolean(milestone.value))
+// Ensure it updates on milestone change
+const showPopup = ref(false)
+watchEffect(() => {
+  showPopup.value = !!milestone.value // Convert to boolean
+})
 
 const confirmMilestone = async () => {
   if (milestone.value) {
     try {
-      // Update isConfirmed for the milestone
       await milestoneStore.updateMilestoneRecord({
         id: milestone.value.id,
         isConfirmed: true,
       })
-
-      // Close the popup
-      // No need to explicitly set `showPopup` because it's bound to `milestone`
     } catch (error) {
-      console.error(error) // Log error to error store
+      console.error(error)
     }
   }
 }
 </script>
-
 
 <style scoped>
 /* Transition styling for the popup */

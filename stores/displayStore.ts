@@ -43,6 +43,10 @@ interface DisplayStoreState {
   bigMode: boolean
   displayMode: displayModeState
   displayAction: displayActionState
+  previousRoute: string
+  sidebarLeftVisible: boolean
+  sidebarRightVisible: boolean
+  footerVisible: boolean
 }
 
 // Define the valid effect IDs
@@ -73,9 +77,61 @@ export const useDisplayStore = defineStore('display', {
     bigMode: false,
     displayMode: 'scenario' as displayModeState,
     displayAction: 'gallery' as displayActionState,
+    sidebarLeftVisible: false,
+    sidebarRightVisible: false,
+    footerVisible: false,
+    previousRoute: '',
   }),
 
   getters: {
+    headerStyle(): Record<string, string> {
+      return {
+        height: this.headerHeight,
+        width: this.footerWidth,
+        top: this.sectionPadding,
+        left: this.sectionPadding,
+        right: this.sectionPadding,
+      }
+    },
+
+    leftSidebarStyle(): Record<string, string> {
+      return {
+        height: this.centerHeight,
+        width: this.sidebarLeftWidth,
+        top: `calc(${this.headerHeight} + (${this.sectionPadding} * 2))`,
+        left: this.sectionPadding,
+      }
+    },
+
+    mainContentStyle(): Record<string, string> {
+      return {
+        height: this.centerHeight,
+        width: this.centerWidth,
+        top: `calc(${this.headerHeight} + (${this.sectionPadding} * 2))`,
+        right: this.sidebarRightVisible
+          ? `calc(${this.sidebarRightWidth} + (${this.sectionPadding} * 2))`
+          : this.sectionPadding,
+      }
+    },
+
+    rightSidebarStyle(): Record<string, string> {
+      return {
+        height: this.centerHeight,
+        width: this.sidebarRightWidth,
+        top: `calc(${this.headerHeight} + (${this.sectionPadding} * 2))`,
+        right: this.sectionPadding,
+      }
+    },
+
+    footerStyle(): Record<string, string> {
+      return {
+        height: this.footerHeight,
+        width: `calc(100vw - (${this.sectionPaddingVw} * 2))`,
+        bottom: this.sectionPadding,
+        left: this.sectionPadding,
+        right: this.sectionPadding,
+      }
+    },
     sectionPaddingSizes(): Record<
       'small' | 'medium' | 'large' | 'extraLarge',
       number
@@ -486,7 +542,6 @@ export const useDisplayStore = defineStore('display', {
 
       this.saveState()
     },
-
 
     changeState(
       section:

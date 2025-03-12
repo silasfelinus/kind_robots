@@ -44,6 +44,7 @@ interface DisplayStoreState {
   displayMode: displayModeState
   displayAction: displayActionState
   previousRoute: string
+  modeRowHeight: number
 }
 
 // Define the valid effect IDs
@@ -75,19 +76,25 @@ export const useDisplayStore = defineStore('display', {
     displayMode: 'scenario',
     displayAction: 'gallery',
     previousRoute: '',
+    modeRowHeight: 16,
   }),
 
   getters: {
     sidebarLeftVisible(this: DisplayStoreState): boolean {
-      return this.sidebarLeftState === 'open' || this.sidebarLeftState === 'compact';
+      return (
+        this.sidebarLeftState === 'open' || this.sidebarLeftState === 'compact'
+      )
     },
 
     sidebarRightVisible(this: DisplayStoreState): boolean {
-      return this.sidebarRightState === 'open' || this.sidebarRightState === 'compact';
+      return (
+        this.sidebarRightState === 'open' ||
+        this.sidebarRightState === 'compact'
+      )
     },
 
     footerVisible(this: DisplayStoreState): boolean {
-      return this.footerState === 'open';
+      return this.footerState === 'open'
     },
     headerStyle(): Record<string, string> {
       return {
@@ -513,7 +520,6 @@ export const useDisplayStore = defineStore('display', {
       this[side] = stateCycle[this[side]]
       this.saveState()
     },
-
 
     toggleFooter() {
       const stateCycle: Record<DisplayState, DisplayState> = {

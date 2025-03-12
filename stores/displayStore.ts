@@ -97,15 +97,12 @@ export const useDisplayStore = defineStore('display', {
       return this.footerState === 'open'
     },
     headerStyle(): Record<string, string> {
-      return this.isFullScreen
-        ? { display: 'none' } // Completely hide the header
-        : {
-            height: this.headerHeight,
-            width: this.footerWidth,
-            top: this.sectionPadding,
-            left: this.sectionPadding,
-            right: this.sectionPadding,
-          }
+      return {
+        height: this.headerState === 'hidden' ? '0px' : this.headerHeight,
+        opacity: this.headerState === 'hidden' ? '0' : '1',
+        overflow: 'hidden',
+        transition: 'height 0.3s ease-in-out, opacity 0.3s ease-in-out',
+      }
     },
 
     leftSidebarStyle(): Record<string, string> {
@@ -321,22 +318,17 @@ export const useDisplayStore = defineStore('display', {
     toggleBigMode() {
       this.bigMode = !this.bigMode
 
-      if (this.bigMode) {
-        // Actions to take when entering BigMode
-        this.headerState = 'hidden'
-        this.sidebarLeftState = 'hidden'
-        this.sidebarRightState = 'hidden'
-        this.footerState = 'hidden'
-      } else {
-        // Actions to restore previous states or defaults when exiting BigMode
-        this.headerState = 'open'
-        this.sidebarLeftState = 'compact'
-        this.sidebarRightState = 'hidden'
-        this.footerState = 'hidden'
-      }
+      this.$patch({
+        headerState: this.bigMode ? 'hidden' : 'open',
+        sidebarLeftState: this.bigMode ? 'hidden' : 'compact',
+        sidebarRightState: this.bigMode ? 'hidden' : 'hidden',
+        footerState: this.bigMode ? 'hidden' : 'hidden',
+      })
 
-      this.saveState() // Persist the updated state
+      console.log('Big Mode:', this.bigMode, 'Header State:', this.headerState)
+      this.saveState()
     },
+
     initialize() {
       if (this.isInitialized) {
         return

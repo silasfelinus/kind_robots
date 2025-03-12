@@ -67,7 +67,7 @@
     </div>
 
     <!-- Milestone Popup -->
-    <milestone-popup class="fixed z-50" />
+    <milestone-popup />
   </div>
 </template>
 
@@ -77,7 +77,6 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Reactive store states
 const sidebarLeftVisible = computed(() => displayStore.sidebarLeftVisible)
 const sidebarRightVisible = computed(() => displayStore.sidebarRightVisible)
 const footerVisible = computed(() => displayStore.footerVisible)

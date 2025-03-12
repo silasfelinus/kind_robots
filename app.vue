@@ -72,29 +72,15 @@ const sidebarRightVisible = computed(() => displayStore.sidebarRightVisible)
 const footerVisible = computed(() => displayStore.footerVisible)
 
 const headerStyle = computed(() => displayStore.headerStyle)
-const leftSidebarStyle = computed(() => ({
-  top: headerStyle.value.height, // Moves sidebar below header
-  height: `calc(100vh - ${headerStyle.value.height})`, // Adjusts height dynamically
-}))
-
-const rightSidebarStyle = computed(() => ({
-  top: headerStyle.value.height, // Moves sidebar below header
-  height: `calc(100vh - ${headerStyle.value.height})`, // Adjusts height dynamically
-}))
-
+const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
+const mainContentStyle = computed(() => displayStore.mainContentStyle)
+const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
 const footerStyle = computed(() => displayStore.footerStyle)
 
 const modeRowStyle = computed(() => ({
   marginTop: headerStyle.value.height, // Ensure mode-row sits below the header
   marginBottom: '16px',
   zIndex: 15,
-}))
-
-const mainContentStyle = computed(() => ({
-  marginTop: `calc(${headerStyle.value.height} + 48px)`, // 48px accounts for mode-row height
-  flexGrow: 1,
-  padding: '16px',
-  zIndex: 10,
 }))
 </script>
 

@@ -2,11 +2,21 @@
   <div class="flex h-full px-2">
     <!-- Title Section (1/3 Width) -->
     <div class="flex flex-col justify-start w-1/3">
-      <h1 class="text-lg font-semibold text-left leading-none">The</h1>
-      <h1 class="text-lg font-semibold text-left leading-none">
+      <h1
+        class="text-md md:text-lg font-semibold text-left leading-tight tracking-tight"
+      >
+        The
+      </h1>
+      <h1
+        class="text-md md:text-lg font-semibold text-left leading-tight tracking-tight"
+      >
         {{ page?.title || 'Room' }}
       </h1>
-      <h1 class="text-lg font-semibold text-left leading-none">Room</h1>
+      <h1
+        class="text-md md:text-lg font-semibold text-left leading-tight tracking-tight"
+      >
+        Room
+      </h1>
     </div>
 
     <!-- Right Side (2/3 Width) -->
@@ -14,7 +24,7 @@
       <!-- Subtitle Section (Top-Aligned) -->
       <div class="relative h-1/3">
         <h2
-          class="absolute top-0 w-full text-sm italic text-right text-ellipsis"
+          class="absolute top-0 w-full text-xs md:text-sm italic text-right text-ellipsis leading-tight"
         >
           {{ subtitle }}
         </h2>

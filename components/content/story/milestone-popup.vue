@@ -36,26 +36,6 @@
             <p class="text-lg ml-2">You Found 1 Jellybean!</p>
           </div>
         </div>
-
-        <!-- Checkbox -->
-        <label class="flex items-center space-x-2 mt-6 cursor-pointer">
-          <input
-            v-model="checkboxChecked"
-            type="checkbox"
-            class="checkbox checkbox-primary"
-          />
-          <span class="text-sm text-gray-700"
-            >Do not show this popup again</span
-          >
-        </label>
-
-        <!-- Confirm Button -->
-        <button
-          class="bg-primary text-white rounded-2xl border px-8 py-3 mt-8 hover:bg-primary-focus transition focus:ring focus:ring-primary-focus"
-          @click="confirmMilestone"
-        >
-          🎉 Yay! (Close)
-        </button>
       </div>
     </div>
   </div>
@@ -70,25 +50,11 @@ const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 
 const milestone = computed(() => milestoneStore.currentMilestone)
-const checkboxChecked = ref(false)
 const showPopup = ref(false)
 
 watchEffect(() => {
   showPopup.value = !!milestone.value
 })
-
-const confirmMilestone = async () => {
-  if (milestone.value) {
-    try {
-      await milestoneStore.updateMilestoneRecord({
-        id: milestone.value.id,
-        isConfirmed: true,
-      })
-    } catch (error) {
-      console.error(error)
-    }
-  }
-}
 </script>
 
 <style scoped>

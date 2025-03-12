@@ -16,7 +16,7 @@
     >
       <header-upgrade class="flex-grow text-center" />
       <!-- Bottom Section: ModeRow -->
-      <div class="mt-2">
+      <div>
         <mode-row />
       </div>
     </header>

@@ -27,18 +27,12 @@
         <LargeHeader v-else />
       </div>
     </div>
-
-    <!-- Bottom Section: ModeRow -->
-    <div class="mt-2">
-      <ModeRow />
-    </div>
   </header>
 </template>
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useUserStore } from '@/stores/userStore'
-
 
 // Access stores
 const displayStore = useDisplayStore()

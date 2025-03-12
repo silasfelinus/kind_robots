@@ -36,10 +36,11 @@
     >
       <mode-row class="z-30 w-full flex-shrink-0" style="height: 5%" />
       <div class="flex-grow" style="height: 95%">
-        <NuxtPage
-          :key="$route.fullPath"
-          class="relative h-full w-full rounded-2xl overflow-y-auto bg-base-300 border-1 border-accent z-10"
-        />
+        <transition name="fade" mode="out-in">
+          <NuxtPage
+            :key="$route.fullPath"
+            class="relative h-full w-full rounded-2xl overflow-y-auto bg-base-300 border-1 border-accent z-10"
+        /></transition>
       </div>
     </main>
 
@@ -148,3 +149,22 @@ const footerStyle = computed(() => ({
   right: sectionPadding.value,
 }))
 </script>
+
+<style>
+.flip-enter-active,
+.flip-leave-active {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.flip-enter-from {
+  opacity: 0;
+  transform: translateY(10px); /* Ensures it enters visibly */
+}
+
+.flip-leave-to {
+  opacity: 0;
+  transform: translateY(-10px); /* Moves the old page away */
+}
+</style>

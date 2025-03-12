@@ -77,9 +77,9 @@ export const useDisplayStore = defineStore('display', {
     bigMode: false,
     displayMode: 'scenario' as displayModeState,
     displayAction: 'gallery' as displayActionState,
-    sidebarLeftVisible: false,
+    sidebarLeftVisible: true,
     sidebarRightVisible: false,
-    footerVisible: false,
+    footerVisible: true,
     previousRoute: '',
   }),
 

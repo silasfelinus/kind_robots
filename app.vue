@@ -20,10 +20,10 @@
       <!-- Left Sidebar -->
       <aside
         v-show="sidebarLeftVisible"
-        class="sidebar left"
+        class="fixed z-10 box-border rounded-2xl transition-all duration-300 ease-in-out overflow-visible"
         :style="leftSidebarStyle"
       >
-        <kind-sidebar-simple class="h-full w-full" />
+        <kind-sidebar-simple class="relative z-10 h-full rounded-2xl w-full" />
       </aside>
 
       <!-- Center Column (ModeRow + NuxtPage + Footer) -->

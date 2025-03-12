@@ -9,7 +9,7 @@
 
     <!-- Header (only shown if header is not hidden) -->
     <header
-      v-if="!displayStore.isFullScreen"
+      v-if="displayStore.headerState != 'hidden'"
       class="header"
       :style="headerStyle"
     >

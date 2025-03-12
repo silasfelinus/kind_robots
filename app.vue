@@ -9,36 +9,33 @@
       <animation-loader class="fixed z-50" />
     </div>
 
-    <!-- Milestone Popup (Ensures it's on top) -->
-    <milestone-popup class="fixed z-[9999]" />
-
     <!-- Header -->
     <header
-      class="fixed z-10 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out"
-      :style="displayStore.headerStyle"
+      class="fixed z-20 flex items-center justify-center box-border transition-all duration-500 ease-in-out"
+      :style="headerStyle"
     >
       <header-upgrade class="flex-grow text-center" />
     </header>
 
     <!-- Left Sidebar -->
     <aside
-      v-if="displayStore.sidebarLeftVisible"
+      v-show="sidebarLeftVisible"
       class="fixed z-10 box-border rounded-2xl transition-all duration-300 ease-in-out overflow-visible"
-      :style="displayStore.leftSidebarStyle"
+      :style="leftSidebarStyle"
     >
       <kind-sidebar-simple class="relative z-10 h-full rounded-2xl w-full" />
     </aside>
 
-    <!-- Main Content with Flip Effect -->
+    <!-- Main Content -->
     <main
       class="fixed z-10 box-border transition-all duration-600 rounded-2xl ease-in-out"
-      :style="displayStore.mainContentStyle"
+      :style="mainContentStyle"
     >
       <mode-row class="z-30 w-full flex-shrink-0" style="height: 5%" />
       <FlipScreen>
         <template #old>
           <NuxtPage
-            :key="displayStore.previousRoute"
+            :key="previousRoute"
             class="relative h-full w-full rounded-2xl overflow-y-auto bg-base-300 border-1 border-accent z-10"
           />
         </template>
@@ -54,18 +51,18 @@
 
     <!-- Right Sidebar -->
     <aside
-      v-if="displayStore.sidebarRightVisible"
+      v-show="sidebarRightVisible"
       class="fixed z-10 box-border transition-all duration-600 rounded-2xl ease-in-out"
-      :style="displayStore.rightSidebarStyle"
+      :style="rightSidebarStyle"
     >
       <splash-tutorial class="h-full w-full z-10" />
     </aside>
 
     <!-- Footer -->
     <footer
-      v-if="displayStore.footerVisible"
+      v-show="footerVisible"
       class="fixed z-10 box-border rounded-2xl overflow-visible transition-all duration-600 ease-in-out"
-      :style="displayStore.footerStyle"
+      :style="footerStyle"
       style="background-color: rgba(0, 0, 0, 0.2)"
     >
       <horizontal-nav class="h-full w-full z-5" />
@@ -75,18 +72,21 @@
     <div class="fixed bottom-1 left-1/2 transform -translate-x-1/2 z-50">
       <footer-toggle />
     </div>
+
+    <!-- Milestone Popup (Ensure it's on top & renders last) -->
+    <milestone-popup class="fixed z-[9999]" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, watch } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useRoute } from 'vue-router'
-import { watch } from 'vue'
 
 const displayStore = useDisplayStore()
 const route = useRoute()
 
-// Track previous route for flip effect
+// Ensure route change updates the previousRoute
 watch(
   () => route.fullPath,
   (newPath) => {
@@ -94,16 +94,16 @@ watch(
   },
 )
 
-// Ensure visibility updates when sidebar/footer states change
-watch(
-  () => [
-    displayStore.sidebarLeftState,
-    displayStore.sidebarRightState,
-    displayStore.footerState,
-  ],
-  () => {
-    displayStore.updateVisibility()
-  },
-  { immediate: true }, // Run once on startup
-)
+// Make store state reactive using computed properties
+const sidebarLeftVisible = computed(() => displayStore.sidebarLeftVisible)
+const sidebarRightVisible = computed(() => displayStore.sidebarRightVisible)
+const footerVisible = computed(() => displayStore.footerVisible)
+const previousRoute = computed(() => displayStore.previousRoute)
+
+// Get styles from displayStore
+const headerStyle = computed(() => displayStore.headerStyle)
+const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
+const mainContentStyle = computed(() => displayStore.mainContentStyle)
+const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
+const footerStyle = computed(() => displayStore.footerStyle)
 </script>

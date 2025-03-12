@@ -1,17 +1,18 @@
 ---
 title: 'Memory'
-subtitle: 'Art Meets Memory'
-description: Experience the serendipity of art and memory in this card match game. With 17 AI-generated galleries, no two games are ever the same!
+subtitle: Match, Recall, Repeat—Now With AI Art!
+description: A card match game where art meets serendipity! With 17 AI-generated galleries, every round is a fresh visual adventure—test your memory and discover something new with every match!
 image: 'acrocats/acrocats-24.webp'
 gallery: 'memoryland'
 tags: ['games', 'art', 'AI']
 icon: kind-icon:question
 layout: 'default'
-tooltip: This uses AI art created with our art modelers.
-amitip: 🤖 These pictures are so pretty!
+tooltip: "AI-generated art + memory challenge = endless surprises!"
+dottitip: "AMI, I built a memory game! Simple card matching, but with art from our ArtBots—so every game is unique."
+amitip: "Brilliant! Pattern recognition and AI art appreciation? Finally, a game that exercises both memory and taste!"
 category: games
 sort: highlight
-dottitip: AMI, I made a game for the visitors. It's a simple card match game, but it uses art from our ArtBots so every game is unique.
+
 ---
 
 :memory-game

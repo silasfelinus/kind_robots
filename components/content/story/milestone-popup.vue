@@ -1,5 +1,4 @@
 <template>
-  <!-- Popup Content -->
   <div
     v-if="showPopup"
     class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 backdrop-blur-sm"
@@ -72,11 +71,10 @@ const milestoneStore = useMilestoneStore()
 
 const milestone = computed(() => milestoneStore.currentMilestone)
 const checkboxChecked = ref(false)
-
-// Ensure it updates on milestone change
 const showPopup = ref(false)
+
 watchEffect(() => {
-  showPopup.value = !!milestone.value // Convert to boolean
+  showPopup.value = !!milestone.value
 })
 
 const confirmMilestone = async () => {
@@ -94,7 +92,6 @@ const confirmMilestone = async () => {
 </script>
 
 <style scoped>
-/* Transition styling for the popup */
 .fade-scale-enter-active,
 .fade-scale-leave-active {
   transition:

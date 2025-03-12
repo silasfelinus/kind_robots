@@ -164,3 +164,23 @@ const footerStyle = computed(() => ({
   right: sectionPadding.value,
 }))
 </script>
+
+<style scoped>
+/* Flip transition effect */
+.flip-enter-active,
+.flip-leave-active {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.6s ease-in-out;
+}
+
+.flip-enter,
+.flip-leave-to {
+  transform: rotateY(90deg);
+}
+
+.flip-leave,
+.flip-enter-to {
+  transform: rotateY(0deg);
+}
+</style>

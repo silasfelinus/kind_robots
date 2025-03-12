@@ -26,26 +26,13 @@
       <kind-sidebar-simple class="relative z-10 h-full rounded-2xl w-full" />
     </aside>
 
-    <!-- Main Content -->
     <main
       class="fixed z-10 box-border transition-all duration-600 rounded-2xl ease-in-out"
       :style="mainContentStyle"
     >
       <mode-row class="z-30 w-full flex-shrink-0" style="height: 5%" />
       <FlipScreen>
-        <template #old>
-          <NuxtPage
-            :key="previousRoute"
-            class="relative h-full w-full rounded-2xl overflow-y-auto bg-base-300 border-1 border-accent z-10"
-          />
-        </template>
-
-        <template #new>
-          <NuxtPage
-            :key="$route.fullPath"
-            class="relative h-full w-full rounded-2xl overflow-y-auto bg-base-300 border-1 border-accent z-10"
-          />
-        </template>
+        <NuxtPage :key="$route.fullPath" />
       </FlipScreen>
     </main>
 
@@ -98,7 +85,6 @@ watch(
 const sidebarLeftVisible = computed(() => displayStore.sidebarLeftVisible)
 const sidebarRightVisible = computed(() => displayStore.sidebarRightVisible)
 const footerVisible = computed(() => displayStore.footerVisible)
-const previousRoute = computed(() => displayStore.previousRoute)
 
 // Get styles from displayStore
 const headerStyle = computed(() => displayStore.headerStyle)

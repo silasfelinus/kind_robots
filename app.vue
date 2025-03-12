@@ -7,14 +7,7 @@
       <animation-loader class="fixed z-50" />
     </div>
 
-    <!-- Header (only shown if header is not hidden) -->
-    <header
-      v-if="displayStore.headerState != 'hidden'"
-      class="header"
-      :style="headerStyle"
-    >
-      <header-upgrade class="flex-grow text-center" />
-    </header>
+    <header class="header" :style="headerStyle"></header>
 
     <!-- Main Layout -->
     <div class="content-wrapper">

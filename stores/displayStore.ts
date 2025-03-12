@@ -370,7 +370,7 @@ export const useDisplayStore = defineStore('display', {
         this.isFullScreen = true
 
         // Close other elements
-        this.headerState = 'hidden'
+        this.headerState = 'hidden' // Explicitly hide the header
         this.sidebarLeftState = 'hidden'
         this.sidebarRightState = 'hidden'
         this.footerState = 'hidden'

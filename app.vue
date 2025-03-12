@@ -7,8 +7,12 @@
       <animation-loader class="fixed z-50" />
     </div>
 
-    <!-- Header -->
-    <header class="header" :style="headerStyle">
+    <!-- Header (only shown if header is not hidden) -->
+    <header
+      v-if="!displayStore.isFullScreen"
+      class="header"
+      :style="headerStyle"
+    >
       <header-upgrade class="flex-grow text-center" />
     </header>
 

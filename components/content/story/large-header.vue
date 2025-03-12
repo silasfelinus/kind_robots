@@ -2,10 +2,10 @@
   <div class="flex h-full w-full px-4">
     <!-- Title and Subtitle Section -->
     <div class="flex flex-col justify-center flex-shrink-0 w-1/3">
-      <h1 class="text-2xl lg:text-3xl xl:text-4xl font-semibold">
+      <h1 class="text-lg lg:text-xl xl:text-2xl font-semibold">
         The {{ page?.title || 'Room' }} Room
       </h1>
-      <h2 class="text-lg lg:text-xl xl:text-2xl italic mt-2">
+      <h2 class="text-sm lg:text-md xl:text-lg italic mt-2">
         {{ subtitle }}
       </h2>
     </div>

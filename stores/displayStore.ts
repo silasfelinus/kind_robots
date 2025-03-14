@@ -98,11 +98,11 @@ export const useDisplayStore = defineStore('display', {
     },
     headerStyle(): Record<string, string> {
       return {
-        height:
-          this.headerState === 'hidden' ? '0px' : this.headerHeight || '56px', // Ensure a fallback height
-        opacity: this.headerState === 'hidden' ? '0' : '1',
-        overflow: 'hidden',
-        transition: 'height 0.3s ease-in-out, opacity 0.3s ease-in-out',
+        height: this.headerHeight,
+        width: this.footerWidth,
+        top: this.sectionPadding,
+        left: this.sectionPadding,
+        right: this.sectionPadding,
       }
     },
 

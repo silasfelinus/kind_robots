@@ -120,7 +120,7 @@ export const useDisplayStore = defineStore('display', {
       return {
         height: '56px',
         width: this.centerWidth,
-        top: '200px',
+        top: `calc(${this.headerAndPaddingHeight} + 16px)`, // Ensures it's not ignored
         right: this.sidebarRightVisible
           ? this.sidebarRightWidthWithPadding
           : this.sectionPadding,

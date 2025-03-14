@@ -96,6 +96,7 @@ export const useDisplayStore = defineStore('display', {
     footerVisible(this: DisplayStoreState): boolean {
       return this.footerState === 'open'
     },
+
     headerStyle(): Record<string, string> {
       return {
         height: this.headerHeight,
@@ -106,20 +107,11 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    modeRowStyle(): Record<string, string> {
-      return {
-        height: '56px',
-        overflow: 'hidden',
-        transition: 'height 0.3s ease-in-out, opacity 0.3s ease-in-out',
-        width: this.centerWidth,
-      }
-    },
-
     leftSidebarStyle(): Record<string, string> {
       return {
         height: this.centerHeight,
         width: this.sidebarLeftWidth,
-        top: `calc(${this.headerHeight} + (${this.sectionPadding} * 2))`,
+        top: this.headerAndPaddingHeight,
         left: this.sectionPadding,
       }
     },
@@ -151,6 +143,15 @@ export const useDisplayStore = defineStore('display', {
         bottom: this.sectionPadding,
         left: this.sectionPadding,
         right: this.sectionPadding,
+      }
+    },
+
+    modeRowStyle(): Record<string, string> {
+      return {
+        height: '56px',
+        overflow: 'hidden',
+        transition: 'height 0.3s ease-in-out, opacity 0.3s ease-in-out',
+        width: this.centerWidth,
       }
     },
     sectionPaddingSizes(): Record<
@@ -218,6 +219,9 @@ export const useDisplayStore = defineStore('display', {
 
       const value = sizes[state.headerState]
       return value !== undefined ? value : 6
+    },
+    headerAndPaddingHeight(): string {
+      return `calc(${this.headerHeight} + (${this.sectionPadding} * 2))`
     },
 
     footerVh(state): number {

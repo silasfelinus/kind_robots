@@ -109,6 +109,11 @@ const modeRowStyle = computed(() => displayStore.modeRowStyle)
   height: 100%; /* Ensure it fully takes up space */
   width: 100%;
 }
+.mode-row {
+  position: relative;
+  z-index: 15;
+  transition: all 0.5s ease-in-out;
+}
 
 /* Right Sidebar */
 .sidebar.right {
@@ -145,14 +150,6 @@ const modeRowStyle = computed(() => displayStore.modeRowStyle)
   grid-row: 1 / 3;
   z-index: 10;
   transition: all 0.3s ease-in-out;
-}
-
-/* ModeRow */
-.mode-row {
-  display: flex;
-  justify-content: center;
-  z-index: 15;
-  transition: all 0.5s ease-in-out;
 }
 
 /* Footer */

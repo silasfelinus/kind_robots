@@ -118,11 +118,11 @@ export const useDisplayStore = defineStore('display', {
 
     mainContentStyle(): Record<string, string> {
       return {
-        height: this.centerHeight,
+        height: `calc(${this.centerHeight} - 56px)`,
         width: this.centerWidth,
-        top: `calc(${this.headerHeight} + (${this.sectionPadding} * 2))`,
+        top: this.headerAndPaddingHeight,
         right: this.sidebarRightVisible
-          ? `calc(${this.sidebarRightWidth} + (${this.sectionPadding} * 2))`
+          ? this.sidebarRightWidthWithPadding
           : this.sectionPadding,
       }
     },
@@ -131,7 +131,7 @@ export const useDisplayStore = defineStore('display', {
       return {
         height: this.centerHeight,
         width: this.sidebarRightWidth,
-        top: `calc(${this.headerHeight} + (${this.sectionPadding} * 2))`,
+        top: this.headerAndPaddingHeight,
         right: this.sectionPadding,
       }
     },
@@ -149,9 +149,11 @@ export const useDisplayStore = defineStore('display', {
     modeRowStyle(): Record<string, string> {
       return {
         height: '56px',
-        overflow: 'hidden',
-        transition: 'height 0.3s ease-in-out, opacity 0.3s ease-in-out',
         width: this.centerWidth,
+        top: this.headerAndPaddingHeight,
+        right: this.sidebarRightVisible
+          ? this.sidebarRightWidthWithPadding
+          : this.sectionPadding,
       }
     },
     sectionPaddingSizes(): Record<
@@ -164,6 +166,10 @@ export const useDisplayStore = defineStore('display', {
         large: 6,
         extraLarge: 8,
       }
+    },
+
+    sidebarRightWidthWithPadding(): string {
+      return `calc(${this.sidebarRightWidth} + (${this.sectionPadding} * 2))`
     },
 
     // Numeric section padding based on viewport size

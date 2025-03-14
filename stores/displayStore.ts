@@ -116,11 +116,22 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
+    modeRowStyle(): Record<string, string> {
+      return {
+        height: '56px',
+        width: this.centerWidth,
+        top: this.headerAndPaddingHeight, // Directly below header
+        right: this.sidebarRightVisible
+          ? this.sidebarRightWidthWithPadding
+          : this.sectionPadding,
+      }
+    },
+
     mainContentStyle(): Record<string, string> {
       return {
-        height: `calc(${this.centerHeight} + 56px)`,
+        height: `calc(${this.centerHeight} - 56px)`, // Reduce height for mode row
         width: this.centerWidth,
-        top: this.headerAndPaddingHeight,
+        top: `calc(${this.headerAndPaddingHeight} + 56px)`, // Start below mode row
         right: this.sidebarRightVisible
           ? this.sidebarRightWidthWithPadding
           : this.sectionPadding,
@@ -146,16 +157,6 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
-    modeRowStyle(): Record<string, string> {
-      return {
-        height: '56px',
-        width: this.centerWidth,
-        top: this.headerAndPaddingHeight,
-        right: this.sidebarRightVisible
-          ? this.sidebarRightWidthWithPadding
-          : this.sectionPadding,
-      }
-    },
     sectionPaddingSizes(): Record<
       'small' | 'medium' | 'large' | 'extraLarge',
       number

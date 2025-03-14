@@ -1,5 +1,5 @@
 <template>
-  <div class="main-layout bg-primary">
+  <div class="flex flex-col h-screen w-screen bg-primary overflow-hidden">
     <!-- Loaders -->
     <div class="fixed z-50">
       <kind-loader />
@@ -9,50 +9,62 @@
 
     <!-- Header -->
     <header
-      class="fixed z-10 flex items-center justify-center box-border transition-all duration-500 ease-in-out"
-      :style="headerStyle"
+      class="flex items-center justify-center z-20 transition-all"
+      :class="headerHeight"
     >
       <header-upgrade class="flex-grow text-center" />
     </header>
 
     <!-- Main Layout -->
-    <div class="content-wrapper">
+    <div
+      class="grid grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] flex-grow w-full"
+    >
       <!-- Left Sidebar -->
       <aside
-        v-show="sidebarLeftVisible"
-        class="fixed z-20 box-border rounded-2xl transition-all duration-300 ease-in-out overflow-visible"
-        :style="leftSidebarStyle"
+        v-if="sidebarLeftVisible"
+        class="z-10 transition-all"
+        :class="leftSidebarWidth"
       >
-        <kind-sidebar-simple class="relative z-30 h-full rounded-2xl w-full" />
+        <kind-sidebar-simple class="h-full w-full" />
       </aside>
 
-      <!-- Center Column (ModeRow + NuxtPage + Footer) -->
-      <div class="center-column">
-        <div class="mode-row" :style="modeRowStyle">
+      <!-- Center Column -->
+      <div class="flex flex-col w-full">
+        <div
+          class="flex items-center justify-center z-15 transition-all"
+          :class="modeRowHeight"
+        >
           <mode-row />
         </div>
 
-        <main class="main-content" :style="mainContentStyle">
+        <main
+          class="flex-grow p-4 w-full transition-all"
+          :class="mainContentHeight"
+        >
           <NuxtPage :key="$route.fullPath" />
         </main>
 
-        <footer v-show="footerVisible" class="footer" :style="footerStyle">
+        <footer
+          v-if="footerVisible"
+          class="z-10 bg-black/20 transition-all"
+          :class="footerHeight"
+        >
           <horizontal-nav class="h-full w-full" />
         </footer>
       </div>
 
       <!-- Right Sidebar -->
       <aside
-        v-show="sidebarRightVisible"
-        class="fixed z-10 box-border transition-all duration-600 rounded-2xl ease-in-out"
-        :style="rightSidebarStyle"
+        v-if="sidebarRightVisible"
+        class="z-10 transition-all"
+        :class="rightSidebarWidth"
       >
-        <splash-tutorial class="h-full w-full z-10" />
+        <splash-tutorial class="h-full w-full" />
       </aside>
     </div>
 
     <!-- Footer Toggle -->
-    <div class="footer-toggle">
+    <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
       <footer-toggle />
     </div>
 
@@ -67,105 +79,20 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-const sidebarLeftVisible = computed(() => displayStore.sidebarLeftVisible)
-const sidebarRightVisible = computed(() => displayStore.sidebarRightVisible)
-const footerVisible = computed(() => displayStore.footerVisible)
+// Visibility Computed Properties
+const sidebarLeftVisible = computed(() =>
+  ['open', 'compact'].includes(displayStore.sidebarLeftState),
+)
+const sidebarRightVisible = computed(() =>
+  ['open', 'compact'].includes(displayStore.sidebarRightState),
+)
+const footerVisible = computed(() => displayStore.footerState === 'open')
 
-const headerStyle = computed(() => displayStore.headerStyle)
-const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
-const mainContentStyle = computed(() => displayStore.mainContentStyle)
-const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
-const footerStyle = computed(() => displayStore.footerStyle)
-const modeRowStyle = computed(() => displayStore.modeRowStyle)
+// Size Computed Properties (Derived from displayStore)
+const headerHeight = computed(() => `h-[${displayStore.headerVh}vh]`)
+const footerHeight = computed(() => `h-[${displayStore.footerVh}vh]`)
+const leftSidebarWidth = computed(() => `w-[${displayStore.sidebarLeftVw}vw]`)
+const rightSidebarWidth = computed(() => `w-[${displayStore.sidebarRightVw}vw]`)
+const modeRowHeight = computed(() => `h-[${displayStore.modeRowHeight}px]`)
+const mainContentHeight = computed(() => `h-[${displayStore.mainVh}vh]`)
 </script>
-
-<style scoped>
-/* Main Layout */
-.main-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-/* Header */
-.header {
-  position: relative;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  transition: all 0.5s ease-in-out;
-}
-
-/* Content Wrapper: Grid layout */
-.content-wrapper {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  grid-template-rows: auto 1fr auto;
-  height: 100%; /* Ensure it fully takes up space */
-  width: 100%;
-}
-.mode-row {
-  position: relative;
-  z-index: 15;
-  transition: all 0.5s ease-in-out;
-}
-
-/* Right Sidebar */
-.sidebar.right {
-  grid-column: 3 / 4;
-  grid-row: 1 / 3;
-  z-index: 10;
-  height: 100%; /* Ensure it takes up the full row height */
-  transition: all 0.6s ease-in-out;
-  overflow: visible; /* Ensure no clipping */
-}
-
-/* Center Column */
-.center-column {
-  display: flex;
-  flex-direction: column;
-  grid-column: 2 / 3;
-  grid-row: 1 / 3;
-  width: 100%;
-  min-height: 0; /* Allow flexibility */
-}
-
-.main-content {
-  flex-grow: 1;
-  z-index: 10;
-  transition: all 0.3s ease-in-out;
-  padding: 16px;
-  min-height: 0;
-  width: auto; /* Allow it to resize dynamically */
-}
-
-/* Left Sidebar */
-.sidebar.left {
-  grid-column: 1 / 2;
-  grid-row: 1 / 3;
-  z-index: 10;
-  transition: all 0.3s ease-in-out;
-}
-
-/* Footer */
-.footer {
-  z-index: 10;
-  box-sizing: border-box;
-  transition: all 0.6s ease-in-out;
-  background-color: rgba(0, 0, 0, 0.2);
-}
-
-/* Footer Toggle */
-.footer-toggle {
-  position: fixed;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 50;
-}
-</style>

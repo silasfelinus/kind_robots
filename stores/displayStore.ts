@@ -120,7 +120,7 @@ export const useDisplayStore = defineStore('display', {
       return {
         height: '56px',
         width: this.centerWidth,
-        top: `calc(${this.headerAndPaddingHeight} + 16px)`, // Ensures it's not ignored
+        top: `calc(${this.headerAndPaddingHeight} + 56px)`, // Ensures it's not ignored
         right: this.sidebarRightVisible
           ? this.sidebarRightWidthWithPadding
           : this.sectionPadding,
@@ -180,7 +180,7 @@ export const useDisplayStore = defineStore('display', {
     },
 
     sectionPadding(): string {
-      return `${this.sectionPaddingNumeric}px`
+      return `${this.sectionPaddingNumeric}px` // Ensures it always has "px"
     },
 
     // Section padding as a percentage of viewport height

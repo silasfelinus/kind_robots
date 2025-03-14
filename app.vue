@@ -10,7 +10,7 @@
     <!-- Header -->
     <header
       class="flex items-center justify-center z-20 transition-all"
-      :class="headerHeight"
+      :style="{ height: displayStore.headerHeight }"
     >
       <header-upgrade class="flex-grow text-center" />
     </header>
@@ -23,7 +23,7 @@
       <aside
         v-if="sidebarLeftVisible"
         class="z-10 transition-all"
-        :class="leftSidebarWidth"
+        :style="{ width: displayStore.sidebarLeftWidth }"
       >
         <kind-sidebar-simple class="h-full w-full" />
       </aside>
@@ -32,22 +32,19 @@
       <div class="flex flex-col w-full">
         <div
           class="flex items-center justify-center z-15 transition-all"
-          :class="modeRowHeight"
+          :style="{ height: `${displayStore.modeRowHeight}px` }"
         >
           <mode-row />
         </div>
 
-        <main
-          class="flex-grow p-4 w-full transition-all"
-          :class="mainContentHeight"
-        >
+        <main class="flex-grow p-4 w-full transition-all">
           <NuxtPage :key="$route.fullPath" />
         </main>
 
         <footer
           v-if="footerVisible"
           class="z-10 bg-black/20 transition-all"
-          :class="footerHeight"
+          :style="{ height: displayStore.footerHeight }"
         >
           <horizontal-nav class="h-full w-full" />
         </footer>
@@ -57,7 +54,7 @@
       <aside
         v-if="sidebarRightVisible"
         class="z-10 transition-all"
-        :class="rightSidebarWidth"
+        :style="{ width: displayStore.sidebarRightWidth }"
       >
         <splash-tutorial class="h-full w-full" />
       </aside>
@@ -79,20 +76,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// Visibility Computed Properties
-const sidebarLeftVisible = computed(() =>
-  ['open', 'compact'].includes(displayStore.sidebarLeftState),
-)
-const sidebarRightVisible = computed(() =>
-  ['open', 'compact'].includes(displayStore.sidebarRightState),
-)
-const footerVisible = computed(() => displayStore.footerState === 'open')
-
-// Size Computed Properties (Derived from displayStore)
-const headerHeight = computed(() => `h-[${displayStore.headerVh}vh]`)
-const footerHeight = computed(() => `h-[${displayStore.footerVh}vh]`)
-const leftSidebarWidth = computed(() => `w-[${displayStore.sidebarLeftVw}vw]`)
-const rightSidebarWidth = computed(() => `w-[${displayStore.sidebarRightVw}vw]`)
-const modeRowHeight = computed(() => `h-[${displayStore.modeRowHeight}px]`)
-const mainContentHeight = computed(() => `h-[${displayStore.mainVh}vh]`)
+const sidebarLeftVisible = computed(() => displayStore.sidebarLeftVisible)
+const sidebarRightVisible = computed(() => displayStore.sidebarRightVisible)
+const footerVisible = computed(() => displayStore.footerVisible)
 </script>

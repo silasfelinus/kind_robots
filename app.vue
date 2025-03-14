@@ -9,7 +9,7 @@
 
     <!-- Header -->
     <header
-      class="fixed z-20 flex items-center justify-center box-border transition-all duration-500 ease-in-out"
+      class="fixed z-10 flex items-center justify-center box-border transition-all duration-500 ease-in-out"
       :style="headerStyle"
     >
       <header-upgrade class="flex-grow text-center" />

@@ -76,7 +76,6 @@ const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
 const mainContentStyle = computed(() => displayStore.mainContentStyle)
 const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
 const footerStyle = computed(() => displayStore.footerStyle)
-
 const modeRowStyle = computed(() => displayStore.modeRowStyle)
 </script>
 

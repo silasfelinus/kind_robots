@@ -77,11 +77,7 @@ const mainContentStyle = computed(() => displayStore.mainContentStyle)
 const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
 const footerStyle = computed(() => displayStore.footerStyle)
 
-const modeRowStyle = computed(() => ({
-  marginTop: headerStyle.value.height, // Ensure mode-row sits below the header
-  marginBottom: '16px',
-  zIndex: 15,
-}))
+const modeRowStyle = computed(() => displayStore.modeRowStyle)
 </script>
 
 <style scoped>

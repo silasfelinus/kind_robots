@@ -106,6 +106,15 @@ export const useDisplayStore = defineStore('display', {
       }
     },
 
+    modeRowStyle(): Record<string, string> {
+      return {
+        height: '56px',
+        overflow: 'hidden',
+        transition: 'height 0.3s ease-in-out, opacity 0.3s ease-in-out',
+        width: this.centerWidth,
+      }
+    },
+
     leftSidebarStyle(): Record<string, string> {
       return {
         height: this.centerHeight,

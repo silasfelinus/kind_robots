@@ -118,7 +118,7 @@ export const useDisplayStore = defineStore('display', {
 
     mainContentStyle(): Record<string, string> {
       return {
-        height: `calc(${this.centerHeight} - 56px)`,
+        height: `calc(${this.centerHeight} + 56px)`,
         width: this.centerWidth,
         top: this.headerAndPaddingHeight,
         right: this.sidebarRightVisible

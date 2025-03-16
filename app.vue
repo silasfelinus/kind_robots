@@ -23,7 +23,6 @@
     >
       <!-- Left Sidebar -->
       <aside
-        v-if="sidebarLeftVisible"
         class="z-10 transition-all"
         :style="displayStore.sidebarLeftStyle"
       >
@@ -44,8 +43,7 @@
         </main>
 
         <footer
-          v-if="footerVisible"
-          class="z-10 bg-black/20 transition-all"
+          class="z-10 transition-all"
           :style="displayStore.footerStyle"
         >
           <horizontal-nav class="h-full w-full" />
@@ -54,7 +52,6 @@
 
       <!-- Right Sidebar -->
       <aside
-        v-if="sidebarRightVisible"
         class="z-10 transition-all"
         :style="displayStore.sidebarRightStyle"
       >

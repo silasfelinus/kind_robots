@@ -6,12 +6,13 @@
       <Analytics />
       <animation-loader class="fixed z-50" />
 <screen-debug />
+    <milestone-popup />
     </div>
 
     <!-- Header -->
     <header
       class="flex items-center justify-center z-20 transition-all"
-      :style="{ height: displayStore.headerHeight }"
+      :style=displayStore.headerStyle
     >
       <header-upgrade class="flex-grow text-center" />
     </header>
@@ -24,7 +25,7 @@
       <aside
         v-if="sidebarLeftVisible"
         class="z-10 transition-all"
-        :style="{ width: displayStore.sidebarLeftWidth }"
+        :style=displayStore.sidebarLeftStyle
       >
         <kind-sidebar-simple class="h-full w-full" />
       </aside>
@@ -33,7 +34,7 @@
       <div class="flex flex-col w-full">
         <div
           class="flex items-center justify-center z-15 transition-all"
-          :style="{ height: `${displayStore.modeRowHeight}px` }"
+          :style=displayStore.modeRowStyle
         >
           <mode-row />
         </div>
@@ -45,7 +46,7 @@
         <footer
           v-if="footerVisible"
           class="z-10 bg-black/20 transition-all"
-          :style="{ height: displayStore.footerHeight }"
+          :style=displayStore.footerStyle
         >
           <horizontal-nav class="h-full w-full" />
         </footer>
@@ -55,7 +56,7 @@
       <aside
         v-if="sidebarRightVisible"
         class="z-10 transition-all"
-        :style="{ width: displayStore.sidebarRightWidth }"
+        :style=displayStore.sidebarRightStyle
       >
         <splash-tutorial class="h-full w-full" />
       </aside>
@@ -66,8 +67,7 @@
       <footer-toggle />
     </div>
 
-    <!-- Milestone Popup -->
-    <milestone-popup />
+    
   </div>
 </template>
 

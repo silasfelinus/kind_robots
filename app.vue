@@ -5,6 +5,7 @@
       <kind-loader />
       <Analytics />
       <animation-loader class="fixed z-50" />
+<screen-debug />
     </div>
 
     <!-- Header -->

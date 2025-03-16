@@ -76,7 +76,5 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-const sidebarLeftVisible = computed(() => displayStore.sidebarLeftVisible)
-const sidebarRightVisible = computed(() => displayStore.sidebarRightVisible)
-const footerVisible = computed(() => displayStore.footerVisible)
+
 </script>

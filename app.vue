@@ -12,7 +12,7 @@
     <!-- Header -->
     <header
       class="flex items-center justify-center z-20 transition-all"
-      :style=displayStore.headerStyle
+      :style="displayStore.headerStyle"
     >
       <header-upgrade class="flex-grow text-center" />
     </header>
@@ -25,7 +25,7 @@
       <aside
         v-if="sidebarLeftVisible"
         class="z-10 transition-all"
-        :style=displayStore.sidebarLeftStyle
+        :style="displayStore.sidebarLeftStyle"
       >
         <kind-sidebar-simple class="h-full w-full" />
       </aside>
@@ -34,7 +34,7 @@
       <div class="flex flex-col w-full">
         <div
           class="flex items-center justify-center z-15 transition-all"
-          :style=displayStore.modeRowStyle
+          :style="displayStore.modeRowStyle"
         >
           <mode-row />
         </div>
@@ -46,7 +46,7 @@
         <footer
           v-if="footerVisible"
           class="z-10 bg-black/20 transition-all"
-          :style=displayStore.footerStyle
+          :style="displayStore.footerStyle"
         >
           <horizontal-nav class="h-full w-full" />
         </footer>
@@ -56,7 +56,7 @@
       <aside
         v-if="sidebarRightVisible"
         class="z-10 transition-all"
-        :style=displayStore.sidebarRightStyle
+        :style="displayStore.sidebarRightStyle"
       >
         <splash-tutorial class="h-full w-full" />
       </aside>

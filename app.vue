@@ -38,7 +38,9 @@
           <mode-row />
         </div>
 
-        <main class="flex-grow p-4 w-full transition-all">
+        <main class="flex-grow p-4 w-full transition-all"
+:style="mainContentStyle"
+>
           <NuxtPage :key="$route.fullPath" />
         </main>
 

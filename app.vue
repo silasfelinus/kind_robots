@@ -53,15 +53,14 @@
     <!-- Right Sidebar -->
     <aside
       class="fixed z-10 box-border transition-all duration-600 ease-in-out"
+      :style="displayStore.rightSidebarStyle"
     >
       <splash-tutorial class="h-full w-full" />
     </aside>
   </div>
 
   <!-- Footer Toggle -->
-  <div
-    class="fixed z-50 box-border overflow-visible transition-all duration-600 ease-in-out"
-  >
+  <div class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 p-1">
     <footer-toggle />
   </div>
 </template>

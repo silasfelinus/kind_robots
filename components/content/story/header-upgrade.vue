@@ -14,7 +14,6 @@
           class="w-full h-full rounded-2xl object-cover"
         />
         <div
-          v-if="isAdmin"
           class="absolute bottom-2 right-2 text-white bg-primary rounded-md text-xs md:text-sm p-1"
         >
           {{ displayStore.viewportSize }}
@@ -34,11 +33,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import { useUserStore } from '@/stores/userStore'
 
 // Access stores
 const displayStore = useDisplayStore()
-const userStore = useUserStore()
-const isAdmin = computed(() => userStore.user?.Role === 'ADMIN')
 const isSmallDisplay = computed(() => displayStore.viewportSize === 'small')
 </script>

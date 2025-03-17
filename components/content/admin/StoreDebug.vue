@@ -11,7 +11,7 @@
       class="content-area grid"
       :style="{
         gridTemplateColumns: `${displayStore.sidebarLeftWidth} 1fr ${displayStore.sidebarRightWidth}`,
-        height: displayStore.centerHeight,
+        height: displayStore.mainContentHeight,
       }"
     >
       <!-- Left Sidebar -->
@@ -38,8 +38,8 @@
             </p>
             <p>
               <span class="color-box bg-green-500"></span> Main Content ({{
-                displayStore.centerWidth
-              }}, {{ displayStore.centerHeight }})
+                displayStore.mainContentWidth
+              }}, {{ displayStore.mainContentHeight }})
             </p>
             <p>
               <span class="color-box bg-yellow-500"></span> Right Sidebar ({{

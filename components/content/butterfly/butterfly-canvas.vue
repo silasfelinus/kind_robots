@@ -18,7 +18,7 @@
         height: canvasHeight,
         width: canvasWidth,
         top: headerAndPaddingHeight,
-        right: sidebarRightOpen ? sidebarRightWidthWithPadding : sectionPadding,
+        right: sectionPadding,
       }"
     ></canvas>
   </div>
@@ -39,13 +39,7 @@ const canvasWidth = computed(() => displayStore.mainContentWidth)
 
 // Pre-calculated properties for layout
 const headerAndPaddingHeight = computed(() => displayStore.headerStyle.height)
-const sectionPadding = computed(() => displayStore.sectionPaddingVw)
-const sidebarRightWidthWithPadding = computed(() =>
-  displayStore.sidebarRightVisible
-    ? `calc(${displayStore.sidebarRightWidth} + ${sectionPadding.value})`
-    : sectionPadding.value,
-)
-const sidebarRightOpen = computed(() => displayStore.sidebarRightVisible)
+const sectionPadding = computed(() => displayStore.sectionPaddingSize)
 
 // Check if butterflies exist to toggle fallback message
 const butterfliesExist = computed(() => butterflyStore.butterflies.length > 0)

@@ -13,7 +13,7 @@
 
     <!-- Header (Always on Top) -->
     <header
-      class="fixed z-10 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed z-50 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
       <template v-if="displayStore.headerState === 'hidden'">
@@ -26,7 +26,7 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed z-50 box-border transition-all duration-300 ease-in-out overflow-visible"
+      class="fixed z-30 box-border transition-all duration-300 ease-in-out overflow-visible"
       :style="displayStore.leftSidebarStyle"
     >
       <kind-sidebar-simple class="h-full w-full" />

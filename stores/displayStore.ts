@@ -44,7 +44,7 @@ interface DisplayStoreState {
   displayMode: displayModeState
   displayAction: displayActionState
   previousRoute: string
-  modeRowHeight: number
+
 }
 
 // Define the valid effect IDs
@@ -172,7 +172,7 @@ export const useDisplayStore = defineStore('display', {
     
     mainContentStyle(): Record<string, string> {
       return {
-        height: `calc(var(--vh) * ${this.mainContentHeight} - var(--vh) * ${this.modeRowHeight})`,
+        height: `calc(var(--vh) * ${this.mainContentHeight})`,
         width: `calc(${this.mainContentWidth}vw - ${this.sectionPaddingSize * 2}vw)`,
         top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
         right:

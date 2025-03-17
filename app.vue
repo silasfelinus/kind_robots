@@ -16,7 +16,12 @@
       class="fixed z-10 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
-      <header-upgrade class="flex-grow text-center" />
+      <template v-if="displayStore.headerState === 'hidden'">
+        <mode-row class="flex-grow text-center" />
+      </template>
+      <template v-else>
+        <header-upgrade class="flex-grow text-center" />
+      </template>
     </header>
 
     <!-- Left Sidebar -->
@@ -30,7 +35,7 @@
     <!-- Center Column (Grows Fully) -->
     <div class="flex flex-col w-full h-full">
       <main
-        class="fixed z-10 border-4 rounded-2xl overflow-hidden box-border transition-all duration-600 ease-in-out"
+        class="fixed z-10 border-4 rounded-2xl overflow-scroll box-border transition-all duration-600 ease-in-out"
         :style="displayStore.mainContentStyle"
       >
         <NuxtPage :key="$route.fullPath" />

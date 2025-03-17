@@ -118,8 +118,7 @@ export const useDisplayStore = defineStore('display', {
           : 0) -
         (this.footerState !== 'hidden'
           ? this.footerHeight + 2 * this.sectionPaddingSize
-          : 0) -
-        this.modeRowHeight
+          : 0)
       )
     },
 

@@ -32,29 +32,22 @@ import { useDisplayStore } from '@/stores/displayStore'
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const butterflyStore = useButterflyStore()
 const displayStore = useDisplayStore()
-const headerHeight = computed(() => displayStore.headerHeight)
-const sectionPadding = computed(() => displayStore.sectionPadding)
-const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 
 // Canvas size based on display store
-const canvasHeight = computed(() => displayStore.centerHeight || '100vh')
-const canvasWidth = computed(() => displayStore.centerWidth || '100vw')
+const canvasHeight = computed(() => displayStore.mainContentHeight)
+const canvasWidth = computed(() => displayStore.mainContentWidth)
 
-// Pre-calculated properties for commonly used calculations
-const headerAndPaddingHeight = computed(
-  () => `calc(${headerHeight.value} + (${sectionPadding.value} * 2))`,
+// Pre-calculated properties for layout
+const headerAndPaddingHeight = computed(() => displayStore.headerStyle.height)
+const sectionPadding = computed(() => displayStore.sectionPaddingVw)
+const sidebarRightWidthWithPadding = computed(() =>
+  displayStore.sidebarRightVisible
+    ? `calc(${displayStore.sidebarRightWidth} + ${sectionPadding.value})`
+    : sectionPadding.value,
 )
-const sidebarRightWidthWithPadding = computed(
-  () => `calc(${sidebarRightWidth.value} + (${sectionPadding.value} * 2))`,
-)
+const sidebarRightOpen = computed(() => displayStore.sidebarRightVisible)
 
-const sidebarRightOpen = computed(
-  () =>
-    displayStore.sidebarRightState !== 'hidden' &&
-    displayStore.sidebarRightState !== 'disabled',
-)
-
-// Check if butterflies exist to toggle fallback image
+// Check if butterflies exist to toggle fallback message
 const butterfliesExist = computed(() => butterflyStore.butterflies.length > 0)
 
 // Render butterflies on canvas
@@ -69,10 +62,9 @@ const renderButterflies = () => {
 
   // Draw each butterfly
   butterflyStore.butterflies.forEach((butterfly) => {
-    // Simple example: Draw circle representing butterfly
     ctx.save()
     ctx.translate(butterfly.x, butterfly.y)
-    ctx.rotate(butterfly.rotation * (Math.PI / 180))
+    ctx.rotate((butterfly.rotation * Math.PI) / 180)
     ctx.scale(butterfly.scale, butterfly.scale)
     ctx.fillStyle = butterfly.wingTopColor
     ctx.beginPath()
@@ -86,7 +78,6 @@ const renderButterflies = () => {
 watch(() => butterflyStore.butterflies, renderButterflies, { deep: true })
 
 onMounted(() => {
-  // Initially render butterflies
   renderButterflies()
 })
 </script>

@@ -3,76 +3,60 @@
     <!-- Header -->
     <header
       class="header-overlay debug-box"
-      :style="{
-        height: displayStore.headerHeight,
-      }"
+      :style="{ height: displayStore.headerHeight }"
     ></header>
 
-    <!-- Main content area with sidebars and main content -->
+    <!-- Main content with sidebars -->
     <div
       class="content-area grid"
       :style="{
-        gridTemplateColumns: `${displayStore.sidebarLeftWidth} calc(100vw - ${displayStore.sidebarLeftWidth} - ${displayStore.sidebarRightWidth}) ${displayStore.sidebarRightWidth}`,
+        gridTemplateColumns: `${displayStore.sidebarLeftWidth} 1fr ${displayStore.sidebarRightWidth}`,
         height: displayStore.centerHeight,
       }"
     >
       <!-- Left Sidebar -->
       <aside
         class="sidebar-left-overlay debug-box"
-        :style="{
-          width: displayStore.sidebarLeftWidth,
-          height: displayStore.centerHeight,
-        }"
+        :style="{ width: displayStore.sidebarLeftWidth }"
       ></aside>
 
       <!-- Main Content -->
-      <main
-        class="main-content-overlay debug-box"
-        :style="{
-          height: displayStore.centerHeight,
-          width: `calc(100vw - ${displayStore.sidebarLeftWidth} - ${displayStore.sidebarRightWidth})`,
-        }"
-      >
-        <!-- Floating color-coded key in the center -->
+      <main class="main-content-overlay debug-box">
         <div
           class="color-key absolute inset-0 flex justify-center items-center"
         >
           <div class="key-container bg-white p-4 rounded-lg shadow-md">
             <p>
               <span class="color-box bg-red-500"></span> Header ({{
-                displayStore.headerVh
-              }}vh)
+                displayStore.headerHeight
+              }})
             </p>
             <p>
               <span class="color-box bg-blue-500"></span> Left Sidebar ({{
-                displayStore.sidebarLeftVw
-              }}vw)
+                displayStore.sidebarLeftWidth
+              }})
             </p>
             <p>
               <span class="color-box bg-green-500"></span> Main Content ({{
-                displayStore.mainVw
-              }}vw, {{ displayStore.mainVh }}vh)
+                displayStore.centerWidth
+              }}, {{ displayStore.centerHeight }})
             </p>
             <p>
               <span class="color-box bg-yellow-500"></span> Right Sidebar ({{
-                displayStore.sidebarRightVw
-              }}vw)
+                displayStore.sidebarRightWidth
+              }})
             </p>
             <p>
               <span class="color-box bg-orange-500"></span> Footer ({{
-                displayStore.footerVh
-              }}vh)
+                displayStore.footerHeight
+              }})
             </p>
-            <!-- Add detailed display state information -->
             <p>Header State: {{ displayStore.headerState }}</p>
-            <p>Left Sidebar State: {{ displayStore.sidebarLeftState }}</p>
-            <p>Right Sidebar State: {{ displayStore.sidebarRightState }}</p>
+            <p>Sidebar Left: {{ displayStore.sidebarLeftState }}</p>
+            <p>Sidebar Right: {{ displayStore.sidebarRightState }}</p>
             <p>Footer State: {{ displayStore.footerState }}</p>
-            <p>Viewport Size: {{ displayStore.viewportSize }}</p>
-            <p>Is Vertical: {{ displayStore.isVertical ? 'Yes' : 'No' }}</p>
-            <p>
-              Is Touch Device: {{ displayStore.isTouchDevice ? 'Yes' : 'No' }}
-            </p>
+            <p>Viewport: {{ displayStore.viewportSize }}</p>
+            <p>Touch Device: {{ displayStore.isTouchDevice ? 'Yes' : 'No' }}</p>
           </div>
         </div>
       </main>
@@ -80,22 +64,17 @@
       <!-- Right Sidebar -->
       <aside
         class="sidebar-right-overlay debug-box"
-        :style="{
-          width: displayStore.sidebarRightWidth,
-          height: displayStore.centerHeight,
-        }"
+        :style="{ width: displayStore.sidebarRightWidth }"
       ></aside>
     </div>
 
     <!-- Footer -->
     <footer
       class="footer-overlay debug-box"
-      :style="{
-        height: displayStore.footerHeight,
-      }"
+      :style="{ height: displayStore.footerHeight }"
     ></footer>
 
-    <!-- Tick Overlay for every 20vh/20vw -->
+    <!-- Tick Grid Overlay -->
     <div class="tick-overlay"></div>
   </div>
 </template>
@@ -104,10 +83,9 @@
 import { onMounted, onBeforeUnmount } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Initialize the display store
 const displayStore = useDisplayStore()
 
-// Function to set a custom --vh CSS variable to handle mobile devices like iPads
+// Function to set a custom --vh CSS variable for mobile
 const setCustomVh = () => {
   if (typeof window !== 'undefined') {
     const vh = window.innerHeight * 0.01
@@ -115,84 +93,66 @@ const setCustomVh = () => {
   }
 }
 
-// Initialize the viewport state and load previous states
 onMounted(() => {
-  setCustomVh() // Set custom vh on mount
-  window.addEventListener('resize', setCustomVh) // Update on resize
-  displayStore.initialize() // Initialize store settings
+  setCustomVh()
+  window.addEventListener('resize', setCustomVh)
+  displayStore.initialize()
 })
 
-// Remove the viewport watcher on component unmount
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', setCustomVh) // Clean up listener
+  window.removeEventListener('resize', setCustomVh)
 })
 </script>
 
 <style scoped>
-.screen-debug {
+.display-debug {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none; /* Prevent interaction with debug */
+  inset: 0;
+  pointer-events: none;
 }
 
 .content-area {
   display: grid;
-  grid-template-columns: 1fr; /* Dynamically handled by inline styles */
-}
-
-.header-overlay,
-.sidebar-left-overlay,
-.sidebar-right-overlay,
-.main-content-overlay,
-.footer-overlay {
-  position: relative;
-  text-align: center;
-  padding: 0;
-}
-
-.header-overlay {
-  background-color: rgba(255, 111, 97, 0.5); /* Red with 50% opacity */
-}
-
-.sidebar-left-overlay {
-  background-color: rgba(111, 168, 220, 0.5); /* Blue with 50% opacity */
-}
-
-.main-content-overlay {
-  background-color: rgba(118, 221, 113, 0.5); /* Green with 50% opacity */
-}
-
-.sidebar-right-overlay {
-  background-color: rgba(244, 208, 63, 0.5); /* Yellow with 50% opacity */
-}
-
-.footer-overlay {
-  background-color: rgba(243, 156, 18, 0.5); /* Orange with 50% opacity */
 }
 
 .debug-box {
   border: 2px dashed rgba(255, 255, 255, 0.8);
+  position: relative;
+  text-align: center;
 }
 
+.header-overlay {
+  background-color: rgba(255, 111, 97, 0.5); /* Red */
+}
+
+.sidebar-left-overlay {
+  background-color: rgba(111, 168, 220, 0.5); /* Blue */
+}
+
+.main-content-overlay {
+  background-color: rgba(118, 221, 113, 0.5); /* Green */
+}
+
+.sidebar-right-overlay {
+  background-color: rgba(244, 208, 63, 0.5); /* Yellow */
+}
+
+.footer-overlay {
+  background-color: rgba(243, 156, 18, 0.5); /* Orange */
+}
+
+/* Grid Overlay */
 .tick-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: linear-gradient(
-      to right,
-      rgba(255, 255, 255, 0.5) 1px,
-      transparent 1px
-    ),
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.5) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 1px, transparent 1px);
   background-size: 20vw 20vh;
   pointer-events: none;
 }
 
+/* Debug Key */
 .color-key {
   pointer-events: none;
 }
@@ -210,6 +170,7 @@ onBeforeUnmount(() => {
   vertical-align: middle;
 }
 
+/* Colors */
 .bg-red-500 {
   background-color: #ff6f61;
 }

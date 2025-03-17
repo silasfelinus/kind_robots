@@ -214,8 +214,8 @@ mainContentWidth(): string {
 
     headerStyle(): Record<string, string> {
   return {
-    height: this.headerHeight(),
-    width: `calc(100vw - (${this.sectionPaddingVw()} * 2))`, // Ensures padding is accounted for
+    height: this.headerVisible ? this.headerHeight() : '0px',
+    width: `calc(100vw - (${this.sectionPaddingVw()} * 2))`,
     top: this.sectionPaddingVh(),
     left: this.sectionPaddingVw(),
     right: this.sectionPaddingVw(),
@@ -223,20 +223,22 @@ mainContentWidth(): string {
 },
 
 leftSidebarStyle(): Record<string, string> {
-  return {
-    height: this.centerHeight(),
-    width: this.sidebarLeftWidth(),
-    top: `calc(${this.headerHeight()} + ${this.sectionPaddingVh()})`,
-    left: this.sectionPaddingVw(),
-  };
+  return this.sidebarLeftVisible
+    ? {
+        height: this.centerHeight(),
+        width: this.sidebarLeftWidth(),
+        top: `calc(${this.headerHeight()} + ${this.sectionPaddingVh()})`,
+        left: this.sectionPaddingVw(),
+      }
+    : { width: '0px', height: '0px' };
 },
 
 modeRowStyle(): Record<string, string> {
   return {
     height: this.modeRowHeight(),
-    width: `calc(${this.modeRowWidth()} - (${this.sectionPaddingVw()} * 2))`, // Adjusts for padding
+    width: `calc(${this.modeRowWidth()} - (${this.sectionPaddingVw()} * 2))`,
     top: `calc(${this.headerHeight()} + ${this.sectionPaddingVh()} + ${this.sectionPaddingVh()})`,
-    right: this.sidebarRightBase() > 0 ? `calc(${this.sidebarRightWidth()} + ${this.sectionPaddingVw()})` : this.sectionPaddingVw(),
+    right: this.sidebarRightVisible ? `calc(${this.sidebarRightWidth()} + ${this.sectionPaddingVw()})` : this.sectionPaddingVw(),
     left: this.sectionPaddingVw(),
   };
 },
@@ -244,30 +246,34 @@ modeRowStyle(): Record<string, string> {
 mainContentStyle(): Record<string, string> {
   return {
     height: this.mainContentHeight(),
-    width: `calc(${this.mainContentWidth()} - (${this.sectionPaddingVw()} * 2))`, // Ensures width is properly padded
+    width: `calc(${this.mainContentWidth()} - (${this.sectionPaddingVw()} * 2))`,
     top: `calc(${this.headerHeight()} + ${this.modeRowHeight()} + (${this.sectionPaddingVh()} * 2))`,
-    right: this.sidebarRightBase() > 0 ? `calc(${this.sidebarRightWidth()} + ${this.sectionPaddingVw()})` : this.sectionPaddingVw(),
-    left: this.sectionPaddingVw(),
+    right: this.sidebarRightVisible ? `calc(${this.sidebarRightWidth()} + ${this.sectionPaddingVw()})` : this.sectionPaddingVw(),
+    left: this.sidebarLeftVisible ? `calc(${this.sidebarLeftWidth()} + ${this.sectionPaddingVw()})` : this.sectionPaddingVw(),
   };
 },
 
 rightSidebarStyle(): Record<string, string> {
-  return {
-    height: this.centerHeight(),
-    width: this.sidebarRightWidth(),
-    top: `calc(${this.headerHeight()} + ${this.sectionPaddingVh()})`,
-    right: this.sectionPaddingVw(),
-  };
+  return this.sidebarRightVisible
+    ? {
+        height: this.centerHeight(),
+        width: this.sidebarRightWidth(),
+        top: `calc(${this.headerHeight()} + ${this.sectionPaddingVh()})`,
+        right: this.sectionPaddingVw(),
+      }
+    : { width: '0px', height: '0px' };
 },
 
 footerStyle(): Record<string, string> {
-  return {
-    height: this.footerHeight(),
-    width: `calc(100vw - (${this.sectionPaddingVw()} * 2))`,
-    bottom: this.sectionPaddingVh(),
-    left: this.sectionPaddingVw(),
-    right: this.sectionPaddingVw(),
-  };
+  return this.footerVisible
+    ? {
+        height: this.footerHeight(),
+        width: `calc(100vw - (${this.sectionPaddingVw()} * 2))`,
+        bottom: this.sectionPaddingVh(),
+        left: this.sectionPaddingVw(),
+        right: this.sectionPaddingVw(),
+      }
+    : { height: '0px', width: '0px' };
 },
 
     

@@ -36,10 +36,12 @@
         </div>
 
         <main
-          class="flex-grow p-1 w-full transition-all"
+          class="flex-grow p-1 w-full transition-all overflow-auto"
           :style="displayStore.mainContentStyle"
         >
-          <NuxtPage :key="$route.fullPath" />
+          <div class="h-full overflow-auto">
+            <NuxtPage :key="$route.fullPath" />
+          </div>
         </main>
 
         <!-- Footer (Properly Stays at the Bottom) -->

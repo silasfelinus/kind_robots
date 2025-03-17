@@ -5,129 +5,184 @@
   >
     <h2 class="text-lg font-bold">Debug Info</h2>
     <ul class="text-sm space-y-2">
-      <!-- Sidebar states -->
-      <li><strong>Sidebar Left State:</strong> {{ sidebarLeftState }}</li>
-      <li><strong>Sidebar Right State:</strong> {{ sidebarRightState }}</li>
-      <li><strong>Footer State:</strong> {{ footerState }}</li>
-      <li><strong>Flip State:</strong> {{ flipState }}</li>
-      <li><strong>Is Animating:</strong> {{ isAnimating }}</li>
-      <li><strong>Current Animation:</strong> {{ currentAnimation }}</li>
-      <li><strong>Is Mobile Viewport:</strong> {{ isMobile }}</li>
-
-      <!-- Dimensions -->
-      <li><strong>Main Width (num):</strong> {{ mainVw }}vw</li>
-      <li><strong>Main Width (str):</strong> {{ mainWidth }}</li>
-      <li><strong>Main Height (num):</strong> {{ mainVh }}vh</li>
-      <li><strong>Main Height (str):</strong> {{ mainHeight }}</li>
-
-      <li><strong>Sidebar Left Width (num):</strong> {{ sidebarLeftVw }}vw</li>
-      <li><strong>Sidebar Left Width (str):</strong> {{ sidebarLeftWidth }}</li>
-
+      <!-- Visibility States -->
       <li>
-        <strong>Sidebar Right Width (num):</strong> {{ sidebarRightVw }}vw
+        <strong>Sidebar Left Visible (boolean):</strong>
+        {{ sidebarLeftVisible }}
       </li>
       <li>
-        <strong>Sidebar Right Width (str):</strong> {{ sidebarRightWidth }}
+        <strong>Sidebar Right Visible (boolean):</strong>
+        {{ sidebarRightVisible }}
       </li>
+      <li><strong>Footer Visible (boolean):</strong> {{ footerVisible }}</li>
 
-      <li><strong>Header Height (num):</strong> {{ headerVh }}vh</li>
-      <li><strong>Header Height (str):</strong> {{ headerHeight }}</li>
-
-      <li><strong>Footer Height (num):</strong> {{ footerVh }}vh</li>
-      <li><strong>Footer Height (str):</strong> {{ footerHeight }}</li>
-
-      <!-- Padding and multipliers -->
-      <li><strong>Padding (px):</strong> {{ sectionPadding }}</li>
+      <!-- Header & Footer -->
+      <li><strong>Header Height (string):</strong> {{ headerHeight }}</li>
+      <li><strong>Footer Height (string):</strong> {{ footerHeight }}</li>
+      <li><strong>Footer Width (string):</strong> {{ footerWidth }}</li>
+      <li><strong>Header VH (number):</strong> {{ headerVh }}</li>
+      <li><strong>Footer VH (number):</strong> {{ footerVh }}</li>
       <li>
-        <strong>Left Sidebar Multiplier:</strong> {{ sidebarLeftMultiplier }}
+        <strong>Header and Padding Height (string):</strong>
+        {{ headerAndPaddingHeight }}
       </li>
-      <li>
-        <strong>Right Sidebar Multiplier:</strong> {{ sidebarRightMultiplier }}
-      </li>
+      <li><strong>Header Style (object):</strong> {{ headerStyle }}</li>
+      <li><strong>Footer Style (object):</strong> {{ footerStyle }}</li>
 
-      <!-- Toggle positions -->
-      <li><strong>Left Toggle Position:</strong> {{ leftTogglePosition }}</li>
-      <li><strong>Right Toggle Position:</strong> {{ rightTogglePosition }}</li>
+      <!-- Sidebar Dimensions -->
       <li>
-        <strong>Footer Toggle Position:</strong> {{ footerTogglePosition }}
+        <strong>Sidebar Left Width (string):</strong> {{ sidebarLeftWidth }}
       </li>
       <li>
-        <strong>Sidefoot Toggle Position:</strong> {{ sidefootTogglePosition }}
+        <strong>Sidebar Right Width (string):</strong> {{ sidebarRightWidth }}
       </li>
+      <li>
+        <strong>Sidebar Right Width with Padding (string):</strong>
+        {{ sidebarRightWidthWithPadding }}
+      </li>
+      <li><strong>Sidebar Left VW (number):</strong> {{ sidebarLeftVw }}</li>
+      <li><strong>Sidebar Right VW (number):</strong> {{ sidebarRightVw }}</li>
+      <li>
+        <strong>Sidebar Left Multiplier (number):</strong>
+        {{ sidebarLeftMultiplier }}
+      </li>
+      <li>
+        <strong>Sidebar Right Multiplier (number):</strong>
+        {{ sidebarRightMultiplier }}
+      </li>
+
+      <!-- Main Content -->
+      <li><strong>Center Height (string):</strong> {{ centerHeight }}</li>
+      <li><strong>Center Width (string):</strong> {{ centerWidth }}</li>
+      <li><strong>Main VH (number):</strong> {{ mainVh }}</li>
+      <li><strong>Main VW (number):</strong> {{ mainVw }}</li>
+      <li>
+        <strong>Main Content Style (object):</strong> {{ mainContentStyle }}
+      </li>
+      <li><strong>Mode Row Style (object):</strong> {{ modeRowStyle }}</li>
+      <li>
+        <strong>Left Sidebar Style (object):</strong> {{ leftSidebarStyle }}
+      </li>
+      <li>
+        <strong>Right Sidebar Style (object):</strong> {{ rightSidebarStyle }}
+      </li>
+
+      <!-- Padding Calculations -->
+      <li><strong>Section Padding (string):</strong> {{ sectionPadding }}</li>
+      <li>
+        <strong>Section Padding VW (number):</strong> {{ sectionPaddingVw }}
+      </li>
+      <li>
+        <strong>Section Padding VH (number):</strong> {{ sectionPaddingVh }}
+      </li>
+      <li>
+        <strong>Section Padding Multiplier (number):</strong>
+        {{ sectionPaddingMultiplier }}
+      </li>
+      <li>
+        <strong>Section Padding Sizes (object):</strong>
+        {{ sectionPaddingSizes }}
+      </li>
+      <li>
+        <strong>Section Padding Numeric (number):</strong>
+        {{ sectionPaddingNumeric }}
+      </li>
+
+      <!-- Animation & Effects -->
+      <li><strong>Is Animating (boolean):</strong> {{ isAnimating }}</li>
+      <li>
+        <strong>Current Animation (string):</strong> {{ currentAnimation }}
+      </li>
+
+      <!-- Viewport & Layout Info -->
+      <li><strong>Viewport Size (string):</strong> {{ viewportSize }}</li>
+      <li><strong>Is Touch Device (boolean):</strong> {{ isTouchDevice }}</li>
+      <li>
+        <strong>Is Mobile Viewport (boolean):</strong> {{ isMobileViewport }}
+      </li>
+      <li>
+        <strong>Is Large Viewport (boolean):</strong> {{ isLargeViewport }}
+      </li>
+      <li><strong>Fullscreen State (string):</strong> {{ fullscreenState }}</li>
+      <li><strong>Big Mode (boolean):</strong> {{ bigMode }}</li>
+      <li><strong>Flip State (string):</strong> {{ flipState }}</li>
+      <li><strong>Previous Route (string):</strong> {{ previousRoute }}</li>
+      <li><strong>Mode Row Height (number):</strong> {{ modeRowHeight }}</li>
+
+      <!-- Icon & UI Sizes -->
+      <li><strong>Icon Size (number):</strong> {{ iconSize }}</li>
     </ul>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-// Access the displayStore for the values to debug
 const displayStore = useDisplayStore()
 
-// Accessing the states
-const sidebarLeftState = computed(() => displayStore.sidebarLeftState)
-const sidebarRightState = computed(() => displayStore.sidebarRightState)
-const footerState = computed(() => displayStore.footerState)
-const flipState = computed(() => displayStore.flipState)
-const isAnimating = computed(() => displayStore.isAnimating)
-const currentAnimation = computed(() => displayStore.currentAnimation)
-const isMobile = computed(() => displayStore.isMobileViewport)
+// Visibility States
+const sidebarLeftVisible = computed(() => displayStore.sidebarLeftVisible)
+const sidebarRightVisible = computed(() => displayStore.sidebarRightVisible)
+const footerVisible = computed(() => displayStore.footerVisible)
 
-// Numerical values
-const mainVw = computed(() => displayStore.mainVw)
-const mainVh = computed(() => displayStore.mainVh)
-const sidebarLeftVw = computed(() => displayStore.sidebarLeftVw)
-const sidebarRightVw = computed(() => displayStore.sidebarRightVw)
-const headerVh = computed(() => displayStore.headerVh)
-const footerVh = computed(() => displayStore.footerVh)
-
-// String values for dimensions
-const mainWidth = computed(() => displayStore.centerWidth)
-const mainHeight = computed(() => displayStore.centerHeight)
-const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
-const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
+// Header & Footer
 const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
+const footerWidth = computed(() => displayStore.footerWidth)
+const headerVh = computed(() => displayStore.headerVh)
+const footerVh = computed(() => displayStore.footerVh)
+const headerAndPaddingHeight = computed(
+  () => displayStore.headerAndPaddingHeight,
+)
+const headerStyle = computed(() => displayStore.headerStyle)
+const footerStyle = computed(() => displayStore.footerStyle)
 
-// Padding and multipliers
-const sectionPadding = computed(() => displayStore.sectionPadding)
+// Sidebar Dimensions
+const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
+const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
+const sidebarRightWidthWithPadding = computed(
+  () => displayStore.sidebarRightWidthWithPadding,
+)
+const sidebarLeftVw = computed(() => displayStore.sidebarLeftVw)
+const sidebarRightVw = computed(() => displayStore.sidebarRightVw)
 const sidebarLeftMultiplier = computed(() => displayStore.sidebarLeftMultiplier)
 const sidebarRightMultiplier = computed(
   () => displayStore.sidebarRightMultiplier,
 )
-const footerMultiplier = computed(() => (footerState.value === 'open' ? 2 : 1))
 
-// Toggle element positions (including calculations)
-const leftTogglePosition = computed(() => {
-  return `Top: calc(${headerHeight.value} + ${sectionPadding.value} * 2), Left: calc(${sidebarLeftWidth.value} + ${sectionPadding.value} * ${sidebarLeftMultiplier.value})`
-})
+// Main Content Layout & Styles
+const centerHeight = computed(() => displayStore.centerHeight)
+const centerWidth = computed(() => displayStore.centerWidth)
+const mainVh = computed(() => displayStore.mainVh)
+const mainVw = computed(() => displayStore.mainVw)
+const mainContentStyle = computed(() => displayStore.mainContentStyle)
+const modeRowStyle = computed(() => displayStore.modeRowStyle)
+const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
+const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
 
-const rightTogglePosition = computed(() => {
-  return `Top: calc(${headerHeight.value} + ${sectionPadding.value} * 2), Right: calc(${sidebarRightWidth.value} + ${sectionPadding.value} * ${sidebarRightMultiplier.value})`
-})
+// Padding Calculations
+const sectionPadding = computed(() => displayStore.sectionPadding)
+const sectionPaddingVw = computed(() => displayStore.sectionPaddingVw)
+const sectionPaddingVh = computed(() => displayStore.sectionPaddingVh)
+const sectionPaddingMultiplier = computed(
+  () => displayStore.sectionPaddingMultiplier,
+)
+const sectionPaddingSizes = computed(() => displayStore.sectionPaddingSizes)
+const sectionPaddingNumeric = computed(() => displayStore.sectionPaddingNumeric)
 
-const footerTogglePosition = computed(() => {
-  return `Bottom: calc(${footerHeight.value} + ${sectionPadding.value} * ${footerMultiplier.value}), Left: calc(${sidebarLeftWidth.value} + ${sectionPadding.value})`
-})
+// Animation & Effects
+const isAnimating = computed(() => displayStore.isAnimating)
+const currentAnimation = computed(() => displayStore.currentAnimation)
 
-const sidefootTogglePosition = computed(() => {
-  return `Bottom: calc(${footerHeight.value} + ${sectionPadding.value} * ${footerMultiplier.value}), Right: calc(${sidebarRightWidth.value} + ${sectionPadding.value} * ${sidebarRightMultiplier.value})`
-})
+// Viewport & Layout Info
+const viewportSize = computed(() => displayStore.viewportSize)
+const isTouchDevice = computed(() => displayStore.isTouchDevice)
+const isMobileViewport = computed(() => displayStore.isMobileViewport)
+const isLargeViewport = computed(() => displayStore.isLargeViewport)
+const fullscreenState = computed(() => displayStore.fullscreenState)
+const bigMode = computed(() => displayStore.bigMode)
+const flipState = computed(() => displayStore.flipState)
+const previousRoute = computed(() => displayStore.previousRoute)
+const modeRowHeight = computed(() => displayStore.modeRowHeight)
+const iconSize = computed(() => displayStore.iconSize)
 </script>
-
-<style scoped>
-/* Minimal styles for better readability */
-ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-li {
-  padding: 4px 0;
-}
-.debug-panel {
-  max-height: 400px;
-  overflow-y: auto;
-}
-</style>

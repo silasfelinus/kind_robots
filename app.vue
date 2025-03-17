@@ -36,7 +36,7 @@
         </div>
 
         <main
-          class="flex-grow p-1 w-full transition-all overflow-auto"
+          class="flex-grow p-1 w-full transition-all"
           :style="displayStore.mainContentStyle"
         >
           <NuxtPage :key="$route.fullPath" />

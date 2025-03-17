@@ -44,7 +44,6 @@ interface DisplayStoreState {
   displayMode: displayModeState
   displayAction: displayActionState
   previousRoute: string
-
 }
 
 // Define the valid effect IDs
@@ -106,7 +105,7 @@ export const useDisplayStore = defineStore('display', {
     },
 
     sectionPaddingSize(): number {
-      const sizes = { small: 2, medium: 4, large: 6, extraLarge: 8 }
+      const sizes = { small: 1, medium: 1, large: 2, extraLarge: 2 }
       return sizes[this.viewportSize]
     },
 
@@ -168,7 +167,6 @@ export const useDisplayStore = defineStore('display', {
         : { width: '0px', height: '0px' }
     },
 
-    
     mainContentStyle(): Record<string, string> {
       return {
         height: `calc(var(--vh) * ${this.mainContentHeight})`,

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isAdmin" class="fixed top-4 right-4 z-50">
+  <div class="fixed top-4 right-4 z-50">
     <button
       class="bg-gray-700 text-white p-2 rounded-full"
       @click="toggleDebug"

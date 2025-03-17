@@ -76,7 +76,6 @@ export const useDisplayStore = defineStore('display', {
     displayMode: 'scenario',
     displayAction: 'gallery',
     previousRoute: '',
-    modeRowHeight: 6,
   }),
 
   getters: {
@@ -108,11 +107,6 @@ export const useDisplayStore = defineStore('display', {
 
     sectionPaddingSize(): number {
       const sizes = { small: 2, medium: 4, large: 6, extraLarge: 8 }
-      return sizes[this.viewportSize]
-    },
-
-    modeRowHeight(): number {
-      const sizes = { small: 5, medium: 6, large: 7, extraLarge: 8 }
       return sizes[this.viewportSize]
     },
 
@@ -175,20 +169,12 @@ export const useDisplayStore = defineStore('display', {
         : { width: '0px', height: '0px' }
     },
 
-    modeRowStyle(): Record<string, string> {
-      return {
-        height: `calc(var(--vh) * ${this.modeRowHeight})`,
-        width: `calc(${this.mainContentWidth}vw - ${this.sectionPaddingSize * 2}vw)`,
-        top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
-        left: `${this.sectionPaddingSize}vw`,
-      }
-    },
-
+    
     mainContentStyle(): Record<string, string> {
       return {
         height: `calc(var(--vh) * ${this.mainContentHeight} - var(--vh) * ${this.modeRowHeight})`,
         width: `calc(${this.mainContentWidth}vw - ${this.sectionPaddingSize * 2}vw)`,
-        top: `calc(var(--vh) * ${this.headerHeight} + var(--vh) * ${this.modeRowHeight} + ${this.sectionPaddingSize * 2}vh)`,
+        top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
         right:
           this.sidebarRightState !== 'hidden'
             ? `calc(${this.sidebarRightWidth}vw + ${this.sectionPaddingSize}vw)`

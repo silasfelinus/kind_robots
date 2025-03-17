@@ -1,14 +1,14 @@
 <template>
-  <div class="flex items-center px-1 md:px-2 lg:px-4 py-2 bg-base-100 z-30 shadow-md rounded relative">
+  <div
+    class="flex items-center px-1 md:px-2 lg:px-4 bg-base-100 z-30 shadow-md rounded relative"
+  >
     <big-toggle />
 
     <!-- Modes Tabs (First Group) -->
-    <div class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-end">
-      <div
-        v-for="mode in firstGroupModes"
-        :key="mode.name"
-        class="relative"
-      >
+    <div
+      class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-end"
+    >
+      <div v-for="mode in firstGroupModes" :key="mode.name" class="relative">
         <div
           :class="[
             'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
@@ -32,18 +32,20 @@
       @click="toggleAction"
     >
       <Icon
-        :name="displayStore.displayAction === 'add' ? 'kind-icon:gallery' : 'kind-icon:add'"
+        :name="
+          displayStore.displayAction === 'add'
+            ? 'kind-icon:gallery'
+            : 'kind-icon:add'
+        "
         class="w-8 h-8 md:w-10 md:h-10 text-white z-10"
       />
     </div>
 
     <!-- Modes Tabs (Second Group) -->
-    <div class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-start">
-      <div
-        v-for="mode in secondGroupModes"
-        :key="mode.name"
-        class="relative"
-      >
+    <div
+      class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-start"
+    >
+      <div v-for="mode in secondGroupModes" :key="mode.name" class="relative">
         <div
           :class="[
             'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
@@ -101,8 +103,7 @@ function handleModeChange(modeName: string) {
 
 function toggleAction() {
   displayStore.setAction(
-    displayStore.displayAction === 'add' ? 'gallery' : 'add'
+    displayStore.displayAction === 'add' ? 'gallery' : 'add',
   )
 }
 </script>
-

@@ -1,5 +1,7 @@
 <template>
-  <div class="flex flex-col h-screen w-screen bg-primary overflow-hidden">
+  <div
+    class="main-layout h-screen w-screen relative bg-primary overflow-hidden box-border"
+  >
     <!-- Loaders -->
     <div class="fixed z-50">
       <kind-loader />
@@ -11,55 +13,51 @@
 
     <!-- Header (Always on Top) -->
     <header
-      class="flex items-center justify-center z-20 transition-all"
+      class="fixed z-10 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
       <header-upgrade class="flex-grow text-center" />
     </header>
 
-    <!-- Main Layout -->
-    <div
-      class="grid grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] flex-grow w-full h-full"
+    <!-- Left Sidebar -->
+    <aside
+      class="fixed z-50 box-border transition-all duration-300 ease-in-out overflow-visible"
+      :style="displayStore.leftSidebarStyle"
     >
-      <!-- Left Sidebar -->
-      <aside class="z-10 transition-all" :style="displayStore.leftSidebarStyle">
-        <kind-sidebar-simple class="h-full w-full" />
-      </aside>
+      <kind-sidebar-simple class="h-full w-full" />
+    </aside>
 
-      <!-- Center Column (Grows Fully) -->
-      <div class="flex flex-col w-full h-full">
-  
-        <main
-          class="flex-grow p-1 w-full transition-all overflow-auto"
-          :style="displayStore.mainContentStyle"
-        >
-          <div class="h-full overflow-auto">
-            <NuxtPage :key="$route.fullPath" />
-          </div>
-        </main>
-
-        <!-- Footer (Properly Stays at the Bottom) -->
-        <footer
-          class="z-10 transition-all mt-auto"
-          :style="displayStore.footerStyle"
-        >
-          <horizontal-nav class="h-full w-full" />
-        </footer>
-      </div>
-
-      <!-- Right Sidebar -->
-      <aside
-        class="z-10 transition-all"
-        :style="displayStore.rightSidebarStyle"
+    <!-- Center Column (Grows Fully) -->
+    <div class="flex flex-col w-full h-full">
+      <main
+        class="fixed z-10 border-4 rounded-2xl overflow-hidden box-border transition-all duration-600 ease-in-out"
+        :style="displayStore.mainContentStyle"
       >
-        <splash-tutorial class="h-full w-full" />
-      </aside>
+        <NuxtPage :key="$route.fullPath" />
+      </main>
+
+      <!-- Footer (Properly Stays at the Bottom) -->
+      <footer
+        class="z-10 transition-all mt-auto"
+        :style="displayStore.footerStyle"
+      >
+        <horizontal-nav class="h-full w-full" />
+      </footer>
     </div>
 
-    <!-- Footer Toggle -->
-    <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-      <footer-toggle />
-    </div>
+    <!-- Right Sidebar -->
+    <aside
+      class="fixed z-10 box-border transition-all duration-600 ease-in-out"
+    >
+      <splash-tutorial class="h-full w-full" />
+    </aside>
+  </div>
+
+  <!-- Footer Toggle -->
+  <div
+    class="fixed z-50 box-border overflow-visible transition-all duration-600 ease-in-out"
+  >
+    <footer-toggle />
   </div>
 </template>
 

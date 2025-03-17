@@ -27,7 +27,7 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useUserStore } from '@/stores/userStore'
-import ModeRow from '@/components/ModeRow.vue'
+
 
 // Access stores
 const displayStore = useDisplayStore()

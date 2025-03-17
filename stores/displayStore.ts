@@ -95,12 +95,12 @@ export const useDisplayStore = defineStore('display', {
     },
 
     headerHeight(): number {
-      const sizes = { small: 10, medium: 12, large: 16, extraLarge: 18 }
+      const sizes = { small: 12, medium: 14, large: 16, extraLarge: 18 }
       return sizes[this.viewportSize]
     },
 
     footerHeight(): number {
-      const sizes = { small: 15, medium: 9, large: 12, extraLarge: 9 }
+      const sizes = { small: 8, medium: 10, large: 12, extraLarge: 14 }
       return sizes[this.viewportSize] * (this.footerState === 'open' ? 2 : 1)
     },
 
@@ -114,10 +114,10 @@ export const useDisplayStore = defineStore('display', {
         100 -
         (this.headerState !== 'hidden'
           ? this.headerHeight + 2 * this.sectionPaddingSize
-          : 5) -
+          : 5 + this.sectionPaddingSize) -
         (this.footerState !== 'hidden'
           ? this.footerHeight + 2 * this.sectionPaddingSize
-          : 0)
+          : this.sectionPaddingSize)
       )
     },
 
@@ -150,7 +150,11 @@ export const useDisplayStore = defineStore('display', {
         ? {
             height: `calc(var(--vh) * ${this.mainContentHeight})`,
             width: `${this.sidebarLeftWidth}vw`,
-            top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize}vh)`,
+            top: `calc(var(--vh) * ${this.headerHeight} + ${
+              this.headerState !== 'hidden'
+                ? 2 * this.sectionPaddingSize
+                : this.sectionPaddingSize
+            }vh)`,
             left: `${this.sectionPaddingSize}vw`,
           }
         : { width: '0px', height: '0px' }
@@ -161,7 +165,11 @@ export const useDisplayStore = defineStore('display', {
         ? {
             height: `calc(var(--vh) * ${this.mainContentHeight})`,
             width: `${this.sidebarRightWidth}vw`,
-            top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize}vh)`,
+            top: `calc(var(--vh) * ${this.headerHeight} + ${
+              this.headerState !== 'hidden'
+                ? 2 * this.sectionPaddingSize
+                : this.sectionPaddingSize
+            }vh)`,
             right: `${this.sectionPaddingSize}vw`,
           }
         : { width: '0px', height: '0px' }

@@ -80,120 +80,145 @@ export const useDisplayStore = defineStore('display', {
   }),
 
   getters: {
-sidebarLeftBase(): number {
-  const sizes = {
-    small: { open: 19, compact: 10, hidden: 0, disabled: 0 },
-    medium: { open: 14, compact: 9, hidden: 0, disabled: 0 },
-    large: { open: 13, compact: 10, hidden: 0, disabled: 0 },
-    extraLarge: { open: 8, compact: 6, hidden: 0, disabled: 0 },
-  };
-  return sizes[this.viewportSize]?.[this.sidebarLeftState] ?? 16;
-},
+    sidebarLeftBase(): number {
+      const sizes = {
+        small: { open: 19, compact: 10, hidden: 0, disabled: 0 },
+        medium: { open: 14, compact: 9, hidden: 0, disabled: 0 },
+        large: { open: 13, compact: 10, hidden: 0, disabled: 0 },
+        extraLarge: { open: 8, compact: 6, hidden: 0, disabled: 0 },
+      }
+      return sizes[this.viewportSize]?.[this.sidebarLeftState] ?? 16
+    },
 
-sidebarRightBase(): number {
-  const sizes = {
-    small: { open: 1, compact: 1, hidden: 0, disabled: 0 },
-    medium: { open: 33, compact: 1, hidden: 0, disabled: 0 },
-    large: { open: 25, compact: 1, hidden: 0, disabled: 0 },
-    extraLarge: { open: 30, compact: 1, hidden: 0, disabled: 0 },
-  };
-  return sizes[this.viewportSize]?.[this.sidebarRightState] ?? 2;
-},
+    sidebarRightBase(): number {
+      const sizes = {
+        small: { open: 1, compact: 1, hidden: 0, disabled: 0 },
+        medium: { open: 33, compact: 1, hidden: 0, disabled: 0 },
+        large: { open: 25, compact: 1, hidden: 0, disabled: 0 },
+        extraLarge: { open: 30, compact: 1, hidden: 0, disabled: 0 },
+      }
+      return sizes[this.viewportSize]?.[this.sidebarRightState] ?? 2
+    },
 
-headerBase(): number {
-  const sizes = {
-    small: { open: 9, compact: 6, hidden: 0, disabled: 0 },
-    medium: { open: 10, compact: 5, hidden: 0, disabled: 0 },
-    large: { open: 13, compact: 4, hidden: 0, disabled: 0 },
-    extraLarge: { open: 10, compact: 3, hidden: 0, disabled: 0 },
-  };
-  return sizes[this.viewportSize]?.[this.headerState] ?? 6;
-},
+    headerBase(): number {
+      const sizes = {
+        small: { open: 9, compact: 6, hidden: 0, disabled: 0 },
+        medium: { open: 10, compact: 5, hidden: 0, disabled: 0 },
+        large: { open: 13, compact: 4, hidden: 0, disabled: 0 },
+        extraLarge: { open: 10, compact: 3, hidden: 0, disabled: 0 },
+      }
+      return sizes[this.viewportSize]?.[this.headerState] ?? 6
+    },
 
-footerBase(): number {
-  const sizes = {
-    small: { open: 15, compact: 1, hidden: 0, disabled: 0 },
-    medium: { open: 9, compact: 1, hidden: 0, disabled: 0 },
-    large: { open: 12, compact: 1, hidden: 0, disabled: 0 },
-    extraLarge: { open: 9, compact: 1, hidden: 0, disabled: 0 },
-  };
-  return sizes[this.viewportSize]?.[this.footerState] ?? 3;
-},
+    footerBase(): number {
+      const sizes = {
+        small: { open: 15, compact: 1, hidden: 0, disabled: 0 },
+        medium: { open: 9, compact: 1, hidden: 0, disabled: 0 },
+        large: { open: 12, compact: 1, hidden: 0, disabled: 0 },
+        extraLarge: { open: 9, compact: 1, hidden: 0, disabled: 0 },
+      }
+      return sizes[this.viewportSize]?.[this.footerState] ?? 3
+    },
 
-sectionPaddingBase(): number {
-  const sizes = {
-    small: 2,
-    medium: 4,
-    large: 6,
-    extraLarge: 8,
-  };
-  return sizes[this.viewportSize] ?? 6;
-},
+    sectionPaddingBase(): number {
+      const sizes = {
+        small: 2,
+        medium: 4,
+        large: 6,
+        extraLarge: 8,
+      }
+      return sizes[this.viewportSize] ?? 6
+    },
 
-modeRowBase(): number {
-  const sizes = {
-    small: 48,
-    medium: 56,
-    large: 64,
-    extraLarge: 72,
-  };
-  return sizes[this.viewportSize] ?? 56;
-},
+    modeRowBase(): number {
+      const sizes = {
+        small: 48,
+        medium: 56,
+        large: 64,
+        extraLarge: 72,
+      }
+      return sizes[this.viewportSize] ?? 56
+    },
 
-headerHeight(): string {
-  return `calc(var(--vh) * ${this.headerBase()})`;
-},
+    headerHeight(): string {
+      return `calc(var(--vh) * ${this.headerBase})`
+    },
 
-footerHeight(): string {
-  return `calc(var(--vh) * ${this.footerBase()})`;
-},
+    footerHeight(): string {
+      return `calc(var(--vh) * ${this.footerBase})`
+    },
 
-centerHeight(): string {
-  return `calc(var(--vh) * ${this.baseMainHeight()})`;
-},
+    centerHeight(): string {
+      return `calc(var(--vh) * ${this.baseMainHeight})`
+    },
 
-centerWidth(): string {
-  return `${this.baseMainWidth()}vw`;
-},
+    centerWidth(): string {
+      return `${this.baseMainWidth}vw`
+    },
 
-sidebarLeftWidth(): string {
-  return `${this.sidebarLeftBase()}vw`;
-},
+    sidebarLeftWidth(): string {
+      return `${this.sidebarLeftBase}vw`
+    },
 
-sidebarRightWidth(): string {
-  return `${this.sidebarRightBase()}vw`;
-},
+    sidebarRightWidth(): string {
+      return `${this.sidebarRightBase}vw`
+    },
 
-// Adjust section padding to be viewport-based for consistency
-sectionPaddingVh(): string {
-  return `calc(var(--vh) * ${this.sectionPaddingBase()})`;
-},
+    baseMainHeight(): number {
+      return (
+        100 -
+        (this.headerVisible
+          ? this.headerBase + 2 * this.sectionPaddingBase
+          : this.headerBase + this.sectionPaddingBase) -
+        (this.footerVisible
+          ? this.footerBase + 2 * this.sectionPaddingBase
+          : this.footerBase + this.sectionPaddingBase) -
+        this.modeRowBase
+      )
+    },
 
-sectionPaddingVw(): string {
-  return `calc(1vw * ${this.sectionPaddingBase()})`;
-},
+    baseMainWidth(): number {
+      return (
+        100 -
+        (this.sidebarLeftVisible
+          ? this.sidebarLeftBase + this.sectionPaddingBase
+          : this.sidebarLeftBase) -
+        (this.sidebarRightVisible
+          ? this.sidebarRightBase + this.sectionPaddingBase
+          : this.sidebarRightBase)
+      )
+    },
 
-// Mode Row dimensions
-modeRowHeight(): string {
-  return `${this.modeRowBase()}px`;
-},
+    // Adjust section padding to be viewport-based for consistency
+    sectionPaddingVh(): string {
+      return `calc(var(--vh) * ${this.sectionPaddingBase})`
+    },
 
-modeRowWidth(): string {
-  return `${this.centerWidth()}`;
-},
+    sectionPaddingVw(): string {
+      return `calc(1vw * ${this.sectionPaddingBase})`
+    },
 
-// Main Content dimensions (adjusting for mode row height)
-mainContentHeight(): string {
-  return `calc(${this.centerHeight()} - ${this.modeRowHeight()})`;
-},
+    // Mode Row dimensions
+    modeRowHeight(): string {
+      return `${this.modeRowBase}px`
+    },
 
-mainContentWidth(): string {
-  return `${this.centerWidth()}`;
-},
+    modeRowWidth(): string {
+      return `${this.centerWidth}`
+    },
 
+    // Main Content dimensions (adjusting for mode row height)
+    mainContentHeight(): string {
+      return `calc(${this.centerHeight} - ${this.modeRowHeight})`
+    },
 
+    mainContentWidth(): string {
+      return `${this.centerWidth}`
+    },
 
-
+    headerVisible(): boolean {
+      return this.headerState === 'open' || this.headerState === 'compact'
+    },
 
     sidebarLeftVisible(this: DisplayStoreState): boolean {
       return (
@@ -213,71 +238,75 @@ mainContentWidth(): string {
     },
 
     headerStyle(): Record<string, string> {
-  return {
-    height: this.headerVisible ? this.headerHeight() : '0px',
-    width: `calc(100vw - (${this.sectionPaddingVw()} * 2))`,
-    top: this.sectionPaddingVh(),
-    left: this.sectionPaddingVw(),
-    right: this.sectionPaddingVw(),
-  };
-},
-
-leftSidebarStyle(): Record<string, string> {
-  return this.sidebarLeftVisible
-    ? {
-        height: this.centerHeight(),
-        width: this.sidebarLeftWidth(),
-        top: `calc(${this.headerHeight()} + ${this.sectionPaddingVh()})`,
-        left: this.sectionPaddingVw(),
+      return {
+        height: this.headerState != 'hidden' ? this.headerHeight : '0px',
+        width: `calc(100vw - (${this.sectionPaddingVw} * 2))`,
+        top: this.sectionPaddingVh,
+        left: this.sectionPaddingVw,
+        right: this.sectionPaddingVw,
       }
-    : { width: '0px', height: '0px' };
-},
+    },
 
-modeRowStyle(): Record<string, string> {
-  return {
-    height: this.modeRowHeight(),
-    width: `calc(${this.modeRowWidth()} - (${this.sectionPaddingVw()} * 2))`,
-    top: `calc(${this.headerHeight()} + ${this.sectionPaddingVh()} + ${this.sectionPaddingVh()})`,
-    right: this.sidebarRightVisible ? `calc(${this.sidebarRightWidth()} + ${this.sectionPaddingVw()})` : this.sectionPaddingVw(),
-    left: this.sectionPaddingVw(),
-  };
-},
+    leftSidebarStyle(): Record<string, string> {
+      return this.sidebarLeftVisible
+        ? {
+            height: this.centerHeight,
+            width: this.sidebarLeftWidth,
+            top: `calc(${this.headerHeight} + ${this.sectionPaddingVh})`,
+            left: this.sectionPaddingVw,
+          }
+        : { width: '0px', height: '0px' }
+    },
 
-mainContentStyle(): Record<string, string> {
-  return {
-    height: this.mainContentHeight(),
-    width: `calc(${this.mainContentWidth()} - (${this.sectionPaddingVw()} * 2))`,
-    top: `calc(${this.headerHeight()} + ${this.modeRowHeight()} + (${this.sectionPaddingVh()} * 2))`,
-    right: this.sidebarRightVisible ? `calc(${this.sidebarRightWidth()} + ${this.sectionPaddingVw()})` : this.sectionPaddingVw(),
-    left: this.sidebarLeftVisible ? `calc(${this.sidebarLeftWidth()} + ${this.sectionPaddingVw()})` : this.sectionPaddingVw(),
-  };
-},
-
-rightSidebarStyle(): Record<string, string> {
-  return this.sidebarRightVisible
-    ? {
-        height: this.centerHeight(),
-        width: this.sidebarRightWidth(),
-        top: `calc(${this.headerHeight()} + ${this.sectionPaddingVh()})`,
-        right: this.sectionPaddingVw(),
+    modeRowStyle(): Record<string, string> {
+      return {
+        height: this.modeRowHeight,
+        width: `calc(${this.modeRowWidth} - (${this.sectionPaddingVw} * 2))`,
+        top: `calc(${this.headerHeight} + ${this.sectionPaddingVh} + ${this.sectionPaddingVh})`,
+        right: this.sidebarRightVisible
+          ? `calc(${this.sidebarRightWidth} + ${this.sectionPaddingVw})`
+          : this.sectionPaddingVw,
+        left: this.sectionPaddingVw,
       }
-    : { width: '0px', height: '0px' };
-},
+    },
 
-footerStyle(): Record<string, string> {
-  return this.footerVisible
-    ? {
-        height: this.footerHeight(),
-        width: `calc(100vw - (${this.sectionPaddingVw()} * 2))`,
-        bottom: this.sectionPaddingVh(),
-        left: this.sectionPaddingVw(),
-        right: this.sectionPaddingVw(),
+    mainContentStyle(): Record<string, string> {
+      return {
+        height: this.mainContentHeight,
+        width: `calc(${this.mainContentWidth} - (${this.sectionPaddingVw} * 2))`,
+        top: `calc(${this.headerHeight} + ${this.modeRowHeight} + (${this.sectionPaddingVh} * 2))`,
+        right: this.sidebarRightVisible
+          ? `calc(${this.sidebarRightWidth} + ${this.sectionPaddingVw})`
+          : this.sectionPaddingVw,
+        left: this.sidebarLeftVisible
+          ? `calc(${this.sidebarLeftWidth} + ${this.sectionPaddingVw})`
+          : this.sectionPaddingVw,
       }
-    : { height: '0px', width: '0px' };
-},
+    },
 
-    
-    
+    rightSidebarStyle(): Record<string, string> {
+      return this.sidebarRightVisible
+        ? {
+            height: this.centerHeight,
+            width: this.sidebarRightWidth,
+            top: `calc(${this.headerHeight} + ${this.sectionPaddingVh})`,
+            right: this.sectionPaddingVw,
+          }
+        : { width: '0px', height: '0px' }
+    },
+
+    footerStyle(): Record<string, string> {
+      return this.footerVisible
+        ? {
+            height: this.footerHeight,
+            width: `calc(100vw - (${this.sectionPaddingVw} * 2))`,
+            bottom: this.sectionPaddingVh,
+            left: this.sectionPaddingVw,
+            right: this.sectionPaddingVw,
+          }
+        : { height: '0px', width: '0px' }
+    },
+
     footerMultiplier(state): number {
       return state.footerState === 'open' ? 2 : 1
     },
@@ -293,10 +322,6 @@ footerStyle(): Record<string, string> {
     sectionPaddingMultiplier(): number {
       return this.sidebarLeftMultiplier + this.sidebarRightMultiplier
     },
-    
-
-
-
 
     //everything after here is probably good
     isLargeViewport(state): boolean {
@@ -464,6 +489,12 @@ footerStyle(): Record<string, string> {
       }, 200) // 200ms debounce delay
     },
 
+    setCustomVh() {
+      if (typeof window !== 'undefined') {
+        const vh = window.innerHeight * 0.01
+        document.documentElement.style.setProperty('--vh', `${vh}px`)
+      }
+    },
 
     toggleFlipState() {
       // Manage the flip transition based on current state

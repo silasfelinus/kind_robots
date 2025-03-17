@@ -75,8 +75,8 @@ const selectTab = (tabName: string) => {
 
 // Dynamically compute the main content area size
 const mainContentStyle = computed(() => ({
-  height: `calc(${displayStore.mainVh}vh)`,
-  width: `calc(${displayStore.mainVw}vw)`,
+  height: displayStore.centerHeight,
+  width: displayStore.centerWidth,
 }))
 
 // Ensure displayStore initializes and stays updated
@@ -84,7 +84,8 @@ onMounted(() => {
   displayStore.initialize()
 })
 </script>
-<style>
+
+<style scoped>
 /* Slide Up Transition */
 .slide-up-enter-active,
 .slide-up-leave-active {

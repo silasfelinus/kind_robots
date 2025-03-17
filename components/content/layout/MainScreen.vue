@@ -8,20 +8,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
 // Compute the main content boundaries based on available space
 const interstitialStyle = computed(() => ({
-  height: `${displayStore.mainVh || 100}vh`, // Respect the main content height minus header/footer
-  width: `${displayStore.mainVw || 100}vw`, // Respect the width within available viewport space
+  height: `${displayStore.baseMainHeight}vh`, // Corrected height reference
+  width: `${displayStore.baseMainWidth}vw`, // Corrected width reference
 }))
-
-onMounted(() => {
-  displayStore.initialize()
-})
 </script>
 
 <style scoped>

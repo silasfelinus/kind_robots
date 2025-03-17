@@ -75,8 +75,8 @@ const selectTab = (tabName: string) => {
 
 // Dynamically compute the main content area size
 const mainContentStyle = computed(() => ({
-  height: `calc(${displayStore.mainVh}vh)`,
-  width: `calc(${displayStore.mainVw}vw)`,
+  height: displayStore.centerHeight,
+  width: displayStore.centerWidth,
 }))
 
 // Ensure displayStore initializes and stays updated

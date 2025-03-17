@@ -15,6 +15,7 @@
       <h2 class="text-lg font-bold">Debug Info</h2>
       <ul class="text-sm space-y-2">
         <!-- Visibility States -->
+        <li><strong>Header Visible (boolean):</strong> {{ headerVisible }}</li>
         <li>
           <strong>Sidebar Left Visible (boolean):</strong>
           {{ sidebarLeftVisible }}
@@ -26,20 +27,34 @@
         <li><strong>Footer Visible (boolean):</strong> {{ footerVisible }}</li>
 
         <!-- Header & Footer -->
+        <li><strong>Header State (string):</strong> {{ headerState }}</li>
+        <li><strong>Footer State (string):</strong> {{ footerState }}</li>
         <li><strong>Header Height (string):</strong> {{ headerHeight }}</li>
         <li><strong>Footer Height (string):</strong> {{ footerHeight }}</li>
-
+        <li><strong>Header Base (number):</strong> {{ headerBase }}</li>
+        <li><strong>Footer Base (number):</strong> {{ footerBase }}</li>
         <li><strong>Header Style (object):</strong> {{ headerStyle }}</li>
         <li><strong>Footer Style (object):</strong> {{ footerStyle }}</li>
 
         <!-- Sidebar Dimensions -->
+        <li>
+          <strong>Sidebar Left State (string):</strong> {{ sidebarLeftState }}
+        </li>
+        <li>
+          <strong>Sidebar Right State (string):</strong> {{ sidebarRightState }}
+        </li>
         <li>
           <strong>Sidebar Left Width (string):</strong> {{ sidebarLeftWidth }}
         </li>
         <li>
           <strong>Sidebar Right Width (string):</strong> {{ sidebarRightWidth }}
         </li>
-
+        <li>
+          <strong>Sidebar Left Base (number):</strong> {{ sidebarLeftBase }}
+        </li>
+        <li>
+          <strong>Sidebar Right Base (number):</strong> {{ sidebarRightBase }}
+        </li>
         <li>
           <strong>Sidebar Left Multiplier (number):</strong>
           {{ sidebarLeftMultiplier }}
@@ -48,15 +63,6 @@
           <strong>Sidebar Right Multiplier (number):</strong>
           {{ sidebarRightMultiplier }}
         </li>
-
-        <!-- Main Content -->
-        <li><strong>Center Height (string):</strong> {{ centerHeight }}</li>
-        <li><strong>Center Width (string):</strong> {{ centerWidth }}</li>
-
-        <li>
-          <strong>Main Content Style (object):</strong> {{ mainContentStyle }}
-        </li>
-        <li><strong>Mode Row Style (object):</strong> {{ modeRowStyle }}</li>
         <li>
           <strong>Left Sidebar Style (object):</strong> {{ leftSidebarStyle }}
         </li>
@@ -64,8 +70,23 @@
           <strong>Right Sidebar Style (object):</strong> {{ rightSidebarStyle }}
         </li>
 
-        <!-- Padding Calculations -->
+        <!-- Main Content -->
+        <li>
+          <strong>Base Main Height (number):</strong> {{ baseMainHeight }}
+        </li>
+        <li><strong>Base Main Width (number):</strong> {{ baseMainWidth }}</li>
+        <li><strong>Center Height (string):</strong> {{ centerHeight }}</li>
+        <li><strong>Center Width (string):</strong> {{ centerWidth }}</li>
+        <li>
+          <strong>Main Content Style (object):</strong> {{ mainContentStyle }}
+        </li>
+        <li><strong>Mode Row Style (object):</strong> {{ modeRowStyle }}</li>
 
+        <!-- Padding Calculations -->
+        <li>
+          <strong>Section Padding Base (number):</strong>
+          {{ sectionPaddingBase }}
+        </li>
         <li>
           <strong>Section Padding VW (number):</strong> {{ sectionPaddingVw }}
         </li>
@@ -106,6 +127,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -117,36 +139,45 @@ const toggleDebug = () => {
 }
 
 // Visibility States
+const headerVisible = computed(() => displayStore.headerVisible)
 const sidebarLeftVisible = computed(() => displayStore.sidebarLeftVisible)
 const sidebarRightVisible = computed(() => displayStore.sidebarRightVisible)
 const footerVisible = computed(() => displayStore.footerVisible)
 
 // Header & Footer
+const headerState = computed(() => displayStore.headerState)
+const footerState = computed(() => displayStore.footerState)
+const headerBase = computed(() => displayStore.headerBase)
+const footerBase = computed(() => displayStore.footerBase)
 const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
-
 const headerStyle = computed(() => displayStore.headerStyle)
 const footerStyle = computed(() => displayStore.footerStyle)
 
 // Sidebar Dimensions
+const sidebarLeftState = computed(() => displayStore.sidebarLeftState)
+const sidebarRightState = computed(() => displayStore.sidebarRightState)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-
+const sidebarLeftBase = computed(() => displayStore.sidebarLeftBase)
+const sidebarRightBase = computed(() => displayStore.sidebarRightBase)
 const sidebarLeftMultiplier = computed(() => displayStore.sidebarLeftMultiplier)
 const sidebarRightMultiplier = computed(
   () => displayStore.sidebarRightMultiplier,
 )
-
-// Main Content Layout & Styles
-const centerHeight = computed(() => displayStore.centerHeight)
-const centerWidth = computed(() => displayStore.centerWidth)
-
-const mainContentStyle = computed(() => displayStore.mainContentStyle)
-const modeRowStyle = computed(() => displayStore.modeRowStyle)
 const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
 const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
 
+// Main Content
+const baseMainHeight = computed(() => displayStore.baseMainHeight)
+const baseMainWidth = computed(() => displayStore.baseMainWidth)
+const centerHeight = computed(() => displayStore.centerHeight)
+const centerWidth = computed(() => displayStore.centerWidth)
+const mainContentStyle = computed(() => displayStore.mainContentStyle)
+const modeRowStyle = computed(() => displayStore.modeRowStyle)
+
 // Padding Calculations
+const sectionPaddingBase = computed(() => displayStore.sectionPaddingBase)
 const sectionPaddingVw = computed(() => displayStore.sectionPaddingVw)
 const sectionPaddingVh = computed(() => displayStore.sectionPaddingVh)
 const sectionPaddingMultiplier = computed(

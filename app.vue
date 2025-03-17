@@ -9,7 +9,7 @@
       <milestone-popup />
     </div>
 
-    <!-- Header -->
+    <!-- Header (Always on Top) -->
     <header
       class="flex items-center justify-center z-20 transition-all"
       :style="displayStore.headerStyle"
@@ -19,15 +19,15 @@
 
     <!-- Main Layout -->
     <div
-      class="grid grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] flex-grow w-full"
+      class="grid grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] flex-grow w-full h-full"
     >
       <!-- Left Sidebar -->
       <aside class="z-10 transition-all" :style="displayStore.leftSidebarStyle">
         <kind-sidebar-simple class="h-full w-full" />
       </aside>
 
-      <!-- Center Column -->
-      <div class="flex flex-col w-full">
+      <!-- Center Column (Grows Fully) -->
+      <div class="flex flex-col w-full h-full">
         <div
           class="flex items-center justify-center z-15 transition-all"
           :style="displayStore.modeRowStyle"
@@ -42,7 +42,11 @@
           <NuxtPage :key="$route.fullPath" />
         </main>
 
-        <footer class="z-10 transition-all" :style="displayStore.footerStyle">
+        <!-- Footer (Properly Stays at the Bottom) -->
+        <footer
+          class="z-10 transition-all mt-auto"
+          :style="displayStore.footerStyle"
+        >
           <horizontal-nav class="h-full w-full" />
         </footer>
       </div>

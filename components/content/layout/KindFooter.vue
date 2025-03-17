@@ -3,8 +3,8 @@
     v-if="displayStore.footerState !== 'hidden'"
     class="kind-footer w-full bg-primary text-white flex justify-center items-center transition-all duration-500"
     :style="{
-      height: `${displayStore.footerVh}vh`,
-      width: `100%`,
+      height: displayStore.footerHeight,
+      width: '100%',
     }"
   >
     <p class="text-center text-sm flex items-center space-x-2">
@@ -23,10 +23,11 @@ const displayStore = useDisplayStore()
 
 // Computed property to dynamically calculate the icon size based on the displayStore
 const iconClass = computed(() => {
+  const size = displayStore.iconSize
   return {
+    [`h-${size} w-${size}`]: size > 0, // Dynamically apply Tailwind class based on `iconSize`
     'h-6 w-6': displayStore.footerState === 'compact',
     'h-8 w-8': displayStore.footerState === 'open',
-    'h-auto w-auto': displayStore.iconSize === 0, // Fallback for default icon size
   }
 })
 </script>

@@ -7,7 +7,7 @@
     </div>
 
     <!-- Main WonderLab Layout -->
-    <div v-if="!isLoading && !errorMessages.length" class="flex h-full">
+    <div v-else-if="!errorMessages.length" class="flex h-full">
       <!-- Left Section for Component Screen -->
       <div class="w-2/3 h-full flex justify-center items-center">
         <div
@@ -43,7 +43,7 @@
           >
             Viewing components in folder: {{ componentStore.selectedFolder }}
           </div>
-          <div v-if="!componentStore.selectedFolder">
+          <div v-else>
             <lab-gallery class="h-full" @select-folder="handleFolderSelect" />
           </div>
           <div
@@ -62,6 +62,7 @@
 
         <!-- Reactions -->
         <div
+          v-if="componentStore.selectedComponent"
           class="bg-gray-200 flex justify-center items-center transition-all duration-300"
           :style="{ height: reactionsHeight }"
         >
@@ -83,13 +84,14 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useComponentStore } from './../../../stores/componentStore'
-import { useDisplayStore } from '~/stores/displayStore'
+import { useComponentStore } from '@/stores/componentStore'
+import { useDisplayStore } from '@/stores/displayStore'
 import LabGallery from './LabGallery.vue'
 import ComponentScreen from './ComponentScreen.vue'
-import type { KindComponent as Component } from './../../../stores/componentStore'
+import type { KindComponent as Component } from '@/stores/componentStore'
 
 // State variables
 const isLoading = ref(true)
@@ -100,23 +102,24 @@ const componentStore = useComponentStore()
 const displayStore = useDisplayStore()
 
 // Computed value for folder-specific components
-const folderComponents = computed(() => {
-  if (!componentStore.selectedFolder) return []
-  return componentStore.components.filter(
-    (component) => component.folderName === componentStore.selectedFolder,
-  )
-})
+const folderComponents = computed(() =>
+  componentStore.selectedFolder
+    ? componentStore.components.filter(
+        (component) => component.folderName === componentStore.selectedFolder,
+      )
+    : [],
+)
 
 // Heights based on displayStore values
 const galleryHeight = computed(() =>
   componentStore.selectedComponent
-    ? `calc(${displayStore.mainVh}vh * 0.3)`
-    : `calc(${displayStore.mainVh}vh)`,
+    ? `calc(${displayStore.mainContentHeight} - ${displayStore.modeRowHeight} * 0.3)`
+    : displayStore.mainContentHeight,
 )
 
 const reactionsHeight = computed(() =>
   componentStore.selectedComponent
-    ? `calc(${displayStore.mainVh}vh * 0.7)`
+    ? `calc(${displayStore.mainContentHeight} - ${displayStore.modeRowHeight} * 0.7)`
     : '0px',
 )
 

@@ -13,14 +13,14 @@
 
     <!-- Header (Always on Top) -->
     <header
-      class="fixed z-50 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed z-50 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out rounded-2xl"
       :style="displayStore.headerStyle"
     >
       <template v-if="displayStore.headerState === 'hidden'">
-        <mode-row class="flex-grow text-center" />
+        <mode-row class="flex-grow text-center rounded-xl" />
       </template>
       <template v-else>
-        <header-upgrade class="flex-grow text-center" />
+        <header-upgrade class="flex-grow text-center rounded-xl" />
       </template>
     </header>
 

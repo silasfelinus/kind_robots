@@ -126,10 +126,10 @@ export const useDisplayStore = defineStore('display', {
         100 -
         (this.sidebarLeftState !== 'hidden'
           ? this.sidebarLeftWidth + this.sectionPaddingSize
-          : 0) -
+          : this.sectionPaddingSize) -
         (this.sidebarRightState !== 'hidden'
           ? this.sidebarRightWidth + this.sectionPaddingSize
-          : 0)
+          : this.sectionPaddingSize)
       )
     },
 

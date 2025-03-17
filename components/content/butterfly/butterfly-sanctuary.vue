@@ -31,7 +31,6 @@
         Butterflies: {{ butterflyCount }}
       </div>
 
-
       <!-- Butterfly Demo Section ) -->
       <div class="w-full h-[90%] bg-info bg-opacity-80 rounded-md">
         <butterfly-demo />
@@ -50,8 +49,8 @@ const butterflyStore = useButterflyStore()
 
 // Access the display store for centerHeight and centerWidth
 const displayStore = useDisplayStore()
-const centerHeight = computed(() => displayStore.centerHeight)
-const centerWidth = computed(() => displayStore.centerWidth)
+const centerHeight = computed(() => displayStore.mainContentHeight)
+const centerWidth = computed(() => displayStore.mainContentWidth)
 
 // Get butterflies count from the store
 const butterflyCount = computed(() => butterflyStore.butterflies.length)

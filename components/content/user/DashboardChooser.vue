@@ -65,8 +65,8 @@ const choice = ref<string | null>(null)
 
 // Dynamically compute the main content area size
 const mainContentStyle = computed(() => ({
-  height: displayStore.centerHeight,
-  width: displayStore.centerWidth,
+  height: displayStore.mainContentHeight,
+  width: displayStore.mainContentWidth,
 }))
 
 // State to manage button visibility

@@ -15,8 +15,8 @@ const displayStore = useDisplayStore()
 
 // Compute the main content boundaries based on available space
 const interstitialStyle = computed(() => ({
-  height: `${displayStore.baseMainHeight}vh`, // Corrected height reference
-  width: `${displayStore.baseMainWidth}vw`, // Corrected width reference
+  height: displayStore.mainContentHeight, // Corrected height reference
+  width: displayStore.mainContentWidth, // Corrected height reference
 }))
 </script>
 

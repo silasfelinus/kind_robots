@@ -198,18 +198,6 @@ export const useDisplayStore = defineStore('display', {
     isLargeViewport(state): boolean {
       return ['large', 'extraLarge'].includes(state.viewportSize)
     },
-
-    iconSize(state): number {
-      const sizes = {
-        small: { open: 18, compact: 16, hidden: 14, disabled: 14 },
-        medium: { open: 24, compact: 20, hidden: 18, disabled: 18 },
-        large: { open: 28, compact: 24, hidden: 20, disabled: 20 },
-        extraLarge: { open: 32, compact: 28, hidden: 24, disabled: 24 },
-      }[state.viewportSize]
-
-      const value = sizes[state.headerState]
-      return value !== undefined ? value : 24
-    },
   },
 
   actions: {

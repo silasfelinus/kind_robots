@@ -68,7 +68,7 @@
         <li>
           <strong>Main Content Style (object):</strong> {{ mainContentStyle }}
         </li>
-        
+
         <!-- Padding Calculations -->
         <li>
           <strong>Section Padding (number):</strong>
@@ -96,9 +96,6 @@
         <li><strong>Big Mode (boolean):</strong> {{ bigMode }}</li>
         <li><strong>Flip State (string):</strong> {{ flipState }}</li>
         <li><strong>Previous Route (string):</strong> {{ previousRoute }}</li>
-       
-        <!-- Icon & UI Sizes -->
-        <li><strong>Icon Size (number):</strong> {{ iconSize }}</li>
       </ul>
     </div>
   </div>
@@ -147,7 +144,6 @@ const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
 
 const mainContentStyle = computed(() => displayStore.mainContentStyle)
 
-
 // Padding Calculations
 const sectionPadding = computed(() => displayStore.sectionPaddingSize)
 
@@ -164,6 +160,4 @@ const fullscreenState = computed(() => displayStore.fullscreenState)
 const bigMode = computed(() => displayStore.bigMode)
 const flipState = computed(() => displayStore.flipState)
 const previousRoute = computed(() => displayStore.previousRoute)
-
-const iconSize = computed(() => displayStore.iconSize)
 </script>

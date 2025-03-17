@@ -28,13 +28,7 @@
         <!-- Header & Footer -->
         <li><strong>Header Height (string):</strong> {{ headerHeight }}</li>
         <li><strong>Footer Height (string):</strong> {{ footerHeight }}</li>
-        <li><strong>Footer Width (string):</strong> {{ footerWidth }}</li>
-        <li><strong>Header VH (number):</strong> {{ headerVh }}</li>
-        <li><strong>Footer VH (number):</strong> {{ footerVh }}</li>
-        <li>
-          <strong>Header and Padding Height (string):</strong>
-          {{ headerAndPaddingHeight }}
-        </li>
+
         <li><strong>Header Style (object):</strong> {{ headerStyle }}</li>
         <li><strong>Footer Style (object):</strong> {{ footerStyle }}</li>
 
@@ -45,14 +39,7 @@
         <li>
           <strong>Sidebar Right Width (string):</strong> {{ sidebarRightWidth }}
         </li>
-        <li>
-          <strong>Sidebar Right Width with Padding (string):</strong>
-          {{ sidebarRightWidthWithPadding }}
-        </li>
-        <li><strong>Sidebar Left VW (number):</strong> {{ sidebarLeftVw }}</li>
-        <li>
-          <strong>Sidebar Right VW (number):</strong> {{ sidebarRightVw }}
-        </li>
+
         <li>
           <strong>Sidebar Left Multiplier (number):</strong>
           {{ sidebarLeftMultiplier }}
@@ -65,8 +52,7 @@
         <!-- Main Content -->
         <li><strong>Center Height (string):</strong> {{ centerHeight }}</li>
         <li><strong>Center Width (string):</strong> {{ centerWidth }}</li>
-        <li><strong>Main VH (number):</strong> {{ mainVh }}</li>
-        <li><strong>Main VW (number):</strong> {{ mainVw }}</li>
+
         <li>
           <strong>Main Content Style (object):</strong> {{ mainContentStyle }}
         </li>
@@ -79,7 +65,7 @@
         </li>
 
         <!-- Padding Calculations -->
-        <li><strong>Section Padding (string):</strong> {{ sectionPadding }}</li>
+
         <li>
           <strong>Section Padding VW (number):</strong> {{ sectionPaddingVw }}
         </li>
@@ -89,14 +75,6 @@
         <li>
           <strong>Section Padding Multiplier (number):</strong>
           {{ sectionPaddingMultiplier }}
-        </li>
-        <li>
-          <strong>Section Padding Sizes (object):</strong>
-          {{ sectionPaddingSizes }}
-        </li>
-        <li>
-          <strong>Section Padding Numeric (number):</strong>
-          {{ sectionPaddingNumeric }}
         </li>
 
         <!-- Animation & Effects -->
@@ -131,11 +109,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import { useUserStore } from '@/stores/userStore'
 
 const displayStore = useDisplayStore()
-const userStore = useUserStore()
-const isAdmin = computed(() => userStore.isAdmin)
 const isDebugVisible = ref(false)
 const toggleDebug = () => {
   isDebugVisible.value = !isDebugVisible.value
@@ -149,23 +124,14 @@ const footerVisible = computed(() => displayStore.footerVisible)
 // Header & Footer
 const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
-const footerWidth = computed(() => displayStore.footerWidth)
-const headerVh = computed(() => displayStore.headerVh)
-const footerVh = computed(() => displayStore.footerVh)
-const headerAndPaddingHeight = computed(
-  () => displayStore.headerAndPaddingHeight,
-)
+
 const headerStyle = computed(() => displayStore.headerStyle)
 const footerStyle = computed(() => displayStore.footerStyle)
 
 // Sidebar Dimensions
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-const sidebarRightWidthWithPadding = computed(
-  () => displayStore.sidebarRightWidthWithPadding,
-)
-const sidebarLeftVw = computed(() => displayStore.sidebarLeftVw)
-const sidebarRightVw = computed(() => displayStore.sidebarRightVw)
+
 const sidebarLeftMultiplier = computed(() => displayStore.sidebarLeftMultiplier)
 const sidebarRightMultiplier = computed(
   () => displayStore.sidebarRightMultiplier,
@@ -174,22 +140,18 @@ const sidebarRightMultiplier = computed(
 // Main Content Layout & Styles
 const centerHeight = computed(() => displayStore.centerHeight)
 const centerWidth = computed(() => displayStore.centerWidth)
-const mainVh = computed(() => displayStore.mainVh)
-const mainVw = computed(() => displayStore.mainVw)
+
 const mainContentStyle = computed(() => displayStore.mainContentStyle)
 const modeRowStyle = computed(() => displayStore.modeRowStyle)
 const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
 const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
 
 // Padding Calculations
-const sectionPadding = computed(() => displayStore.sectionPadding)
 const sectionPaddingVw = computed(() => displayStore.sectionPaddingVw)
 const sectionPaddingVh = computed(() => displayStore.sectionPaddingVh)
 const sectionPaddingMultiplier = computed(
   () => displayStore.sectionPaddingMultiplier,
 )
-const sectionPaddingSizes = computed(() => displayStore.sectionPaddingSizes)
-const sectionPaddingNumeric = computed(() => displayStore.sectionPaddingNumeric)
 
 // Animation & Effects
 const isAnimating = computed(() => displayStore.isAnimating)

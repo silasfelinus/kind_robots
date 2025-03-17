@@ -28,13 +28,7 @@
 
       <!-- Center Column (Grows Fully) -->
       <div class="flex flex-col w-full h-full">
-        <div
-          class="flex items-center justify-center z-15 transition-all"
-          :style="displayStore.modeRowStyle"
-        >
-          <mode-row />
-        </div>
-
+  
         <main
           class="flex-grow p-1 w-full transition-all overflow-auto"
           :style="displayStore.mainContentStyle"

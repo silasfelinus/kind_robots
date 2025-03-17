@@ -113,13 +113,13 @@ const folderComponents = computed(() =>
 // Heights based on displayStore values
 const galleryHeight = computed(() =>
   componentStore.selectedComponent
-    ? `calc(${displayStore.mainContentHeight} - ${displayStore.modeRowHeight} * 0.3)`
+    ? displayStore.mainContentHeight
     : displayStore.mainContentHeight,
 )
 
 const reactionsHeight = computed(() =>
   componentStore.selectedComponent
-    ? `calc(${displayStore.mainContentHeight} - ${displayStore.modeRowHeight} * 0.7)`
+    ? displayStore.mainContentHeight
     : '0px',
 )
 

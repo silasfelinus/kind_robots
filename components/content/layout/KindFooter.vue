@@ -23,7 +23,7 @@ const displayStore = useDisplayStore()
 
 // Computed property to dynamically calculate the icon size based on the displayStore
 const iconClass = computed(() => {
-  const size = displayStore.iconSize
+  const size = 15
   return {
     [`h-${size} w-${size}`]: size > 0, // Dynamically apply Tailwind class based on `iconSize`
     'h-6 w-6': displayStore.footerState === 'compact',

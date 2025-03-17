@@ -92,7 +92,7 @@ export const useDisplayStore = defineStore('display', {
 
     sidebarRightBase(): number {
       const sizes = {
-        small: { open: 1, compact: 1, hidden: 0, disabled: 0 },
+        small: { open: 20, compact: 1, hidden: 0, disabled: 0 },
         medium: { open: 33, compact: 1, hidden: 0, disabled: 0 },
         large: { open: 25, compact: 1, hidden: 0, disabled: 0 },
         extraLarge: { open: 30, compact: 1, hidden: 0, disabled: 0 },
@@ -132,12 +132,12 @@ export const useDisplayStore = defineStore('display', {
 
     modeRowBase(): number {
       const sizes = {
-        small: 48,
-        medium: 56,
-        large: 64,
-        extraLarge: 72,
+        small: 5,
+        medium: 6,
+        large: 7,
+        extraLarge: 8,
       }
-      return sizes[this.viewportSize] ?? 56
+      return sizes[this.viewportSize] ?? 6
     },
 
     headerHeight(): string {
@@ -198,9 +198,8 @@ export const useDisplayStore = defineStore('display', {
       return `calc(1vw * ${this.sectionPaddingBase})`
     },
 
-    // Mode Row dimensions
     modeRowHeight(): string {
-      return `${this.modeRowBase}px`
+      return `calc(var(--vh) * ${this.modeRowBase})`
     },
 
     modeRowWidth(): string {

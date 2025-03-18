@@ -1,7 +1,7 @@
 <template>
   <div
     class="button-container flex flex-col items-center overflow-hidden"
-    :style=displayStore.mainContentStyle
+    :style="displayStore.mainContentStyle"
   >
     <!-- Dynamic Component Section -->
     <div class="flex-grow w-full overflow-y-auto h-full">
@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from 'vue'
+import { computed, defineAsyncComponent, type Component } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
@@ -37,7 +37,6 @@ const currentComponentName = computed(() =>
   resolveComponentName(displayStore.displayMode, displayStore.displayAction),
 )
 
-// Load component dynamically
 const lazyComponent = computed(() => {
   const components = import.meta.glob('@/components/**/*.vue')
 
@@ -47,7 +46,12 @@ const lazyComponent = computed(() => {
   )
 
   return matchingComponentPath
-    ? defineAsyncComponent(() => components[matchingComponentPath]())
+    ? defineAsyncComponent(async () => {
+        const mod = (await components[matchingComponentPath]()) as {
+          default: Component
+        }
+        return mod.default
+      })
     : null
 })
 </script>

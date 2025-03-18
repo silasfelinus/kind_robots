@@ -7,7 +7,6 @@
       <kind-loader />
       <Analytics />
       <animation-loader class="fixed z-50" />
-      <screen-debug />
       <milestone-popup />
     </div>
 

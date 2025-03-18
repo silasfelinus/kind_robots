@@ -20,6 +20,8 @@
         </div>
       </div>
 
+      <screen-debug />
+
       <!-- Conditional Header Content -->
       <div class="flex flex-col flex-1 h-full">
         <SmallHeader v-if="isSmallDisplay" />

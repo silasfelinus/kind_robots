@@ -1,6 +1,12 @@
 <template>
-  <div class="flex-grow overflow-y-auto p-12 m-20">
-    <component :is="lazyComponent" />
+  <div
+    class="button-container flex flex-col items-center overflow-hidden"
+    :style="mainContentStyle"
+  >
+    <!-- Dynamic Component Section -->
+    <div class="flex-grow w-full overflow-y-auto h-full">
+      <component :is="lazyComponent" v-if="lazyComponent" />
+    </div>
   </div>
 </template>
 
@@ -17,42 +23,31 @@ function resolveComponentName(mode: string, action: string) {
     ? `${mode}-${action}`
     : `${action}-${mode}`
 
-  const availableComponents = import.meta.glob('@/components/**/*.vue', {
-    eager: false, // Lazy loading
-  })
+  const availableComponents = import.meta.glob('@/components/**/*.vue')
 
-  const isComponentAvailable = Object.keys(availableComponents).some((path) =>
+  return Object.keys(availableComponents).some((path) =>
     path.includes(`${componentName}.vue`),
   )
-
-  return isComponentAvailable ? componentName : 'fallback-component'
+    ? componentName
+    : 'fallback-component'
 }
 
-// Computed to determine the current component name
+// Computed property for resolving the component
 const currentComponentName = computed(() =>
   resolveComponentName(displayStore.displayMode, displayStore.displayAction),
 )
 
+// Load component dynamically
 const lazyComponent = computed(() => {
-  const components = import.meta.glob('@/components/**/*.vue', {
-    eager: false, // Lazy loading
-  })
+  const components = import.meta.glob('@/components/**/*.vue')
 
   const componentName = currentComponentName.value
   const matchingComponentPath = Object.keys(components).find((path) =>
     path.includes(`${componentName}.vue`),
   )
 
-  if (matchingComponentPath) {
-    return defineAsyncComponent(() =>
-      components[matchingComponentPath]().then((mod) => {
-        const component = mod as { default: ReturnType<typeof defineComponent> }
-        return component.default
-      }),
-    )
-  }
-
-  // Fallback to static fallback-component if no match found
-  return 'fallback-component'
+  return matchingComponentPath
+    ? defineAsyncComponent(() => components[matchingComponentPath]())
+    : null
 })
 </script>

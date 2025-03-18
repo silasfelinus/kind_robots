@@ -1,7 +1,7 @@
 <template>
   <div
     class="button-container flex flex-col items-center overflow-hidden"
-    :style="mainContentStyle"
+    :style=displayStore.mainContentStyle
   >
     <!-- Dynamic Component Section -->
     <div class="flex-grow w-full overflow-y-auto h-full">

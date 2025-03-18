@@ -82,7 +82,7 @@ export const useDisplayStore = defineStore('display', {
       const sizes = { small: 19, medium: 14, large: 13, extraLarge: 8 }
       return (
         sizes[this.viewportSize] *
-        (['open', 'compact'].includes(this.sidebarLeftState) ? 2 : 1)
+        (['open', 'compact'].includes(this.sidebarLeftState) ? 1 : 0)
       )
     },
 
@@ -90,7 +90,7 @@ export const useDisplayStore = defineStore('display', {
       const sizes = { small: 20, medium: 33, large: 25, extraLarge: 30 }
       return (
         sizes[this.viewportSize] *
-        (['open', 'compact'].includes(this.sidebarRightState) ? 2 : 1)
+        (['open', 'compact'].includes(this.sidebarRightState) ? 1 : 0)
       )
     },
 

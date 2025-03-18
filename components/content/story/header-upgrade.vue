@@ -7,12 +7,20 @@
     <div class="flex items-center justify-between w-full h-full">
       <!-- Avatar Section -->
       <div
-        class="flex items-center justify-left w-1/5 sm:w-1/6 h-full relative rounded-2xl"
+        class="relative flex items-center justify-left w-1/5 sm:w-1/6 h-full rounded-2xl pr-2"
       >
+        <!-- Image takes full height with no padding -->
         <avatar-image
           alt="User Avatar"
-          class="w-full h-full rounded-2xl object-cover"
+          class="h-full w-full rounded-2xl object-cover"
         />
+
+        <!-- Viewport Notice Overlay -->
+        <div
+          class="absolute bottom-2 left-2 text-white bg-primary/80 rounded-md text-xs md:text-sm p-1"
+        >
+          {{ displayStore.viewportSize }}
+        </div>
       </div>
 
       <screen-debug />
@@ -23,13 +31,6 @@
         <LargeHeader v-else />
         <ModeRow class="w-full" />
       </div>
-    </div>
-
-    <!-- Viewport Notice (Moved to Bottom of Parent Container) -->
-    <div
-      class="absolute bottom-2 left-2 text-white bg-primary rounded-md text-xs md:text-sm p-1"
-    >
-      {{ displayStore.viewportSize }}
     </div>
   </header>
 </template>

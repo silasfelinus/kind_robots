@@ -42,7 +42,7 @@
 
       <!-- Footer (Properly Stays at the Bottom) -->
       <footer
-        class="z-10 transition-all mt-auto"
+        class="z-10 mt-auto justify-center transition-all duration-500 ease-in-out"
         :style="displayStore.footerStyle"
       >
         <horizontal-nav class="h-full w-full" />

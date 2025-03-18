@@ -19,7 +19,7 @@
         <mode-row class="flex-grow text-center rounded-xl" />
       </template>
       <template v-else>
-        <header-upgrade class="flex-grow text-center rounded-xl" />
+        <kind-header class="flex-grow text-center rounded-xl" />
       </template>
     </header>
 

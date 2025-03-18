@@ -13,11 +13,6 @@
           alt="User Avatar"
           class="w-full h-full rounded-2xl object-cover"
         />
-        <div
-          class="absolute bottom-2 right-2 text-white bg-primary rounded-md text-xs md:text-sm p-1"
-        >
-          {{ displayStore.viewportSize }}
-        </div>
       </div>
 
       <screen-debug />
@@ -28,6 +23,13 @@
         <LargeHeader v-else />
         <ModeRow class="w-full" />
       </div>
+    </div>
+
+    <!-- Viewport Notice (Moved to Bottom of Parent Container) -->
+    <div
+      class="absolute bottom-2 left-2 text-white bg-primary rounded-md text-xs md:text-sm p-1"
+    >
+      {{ displayStore.viewportSize }}
     </div>
   </header>
 </template>

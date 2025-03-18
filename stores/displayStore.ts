@@ -196,7 +196,7 @@ export const useDisplayStore = defineStore('display', {
         ? {
             height: `calc(var(--vh) * ${this.footerHeight})`,
             width: `calc(100vw - ${this.sectionPaddingSize * 2}vw)`,
-            bottom: `${this.sectionPaddingSize}vh`,
+            bottom: `calc(var(--vh) * ${this.sectionPaddingSize}`,
             left: `${this.sectionPaddingSize}vw`,
           }
         : { height: '0px', width: '0px' }

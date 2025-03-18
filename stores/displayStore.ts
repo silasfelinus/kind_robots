@@ -178,15 +178,15 @@ export const useDisplayStore = defineStore('display', {
     mainContentStyle(): Record<string, string> {
       return {
         height: `calc(var(--vh) * ${this.mainContentHeight})`,
-        width: `calc(${this.mainContentWidth}vw - ${this.sectionPaddingSize * 2}vw)`,
+        width: `calc(${this.mainContentWidth}vw)`,
         top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
         right:
           this.sidebarRightState !== 'hidden'
-            ? `calc(${this.sidebarRightWidth}vw + ${this.sectionPaddingSize}vw)`
+            ? `calc(${this.sidebarRightWidth}vw + ${this.sectionPaddingSize * 2}vw)`
             : `${this.sectionPaddingSize}vw`,
         left:
           this.sidebarLeftState !== 'hidden'
-            ? `calc(${this.sidebarLeftWidth}vw + ${this.sectionPaddingSize}vw)`
+            ? `calc(${this.sidebarLeftWidth}vw + ${this.sectionPaddingSize * 2}vw)`
             : `${this.sectionPaddingSize}vw`,
       }
     },

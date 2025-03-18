@@ -100,8 +100,8 @@ export const useDisplayStore = defineStore('display', {
     },
 
     footerHeight(): number {
-      const sizes = { small: 8, medium: 10, large: 12, extraLarge: 14 }
-      return sizes[this.viewportSize] * (this.footerState === 'open' ? 2 : 1)
+      const sizes = { small: 6, medium: 7, large: 8, extraLarge: 9 }
+      return sizes[this.viewportSize] * (this.footerState === 'open' ? 1 : 0)
     },
 
     sectionPaddingSize(): number {

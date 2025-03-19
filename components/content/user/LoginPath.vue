@@ -12,7 +12,9 @@
       <template v-else>
         <button class="flex flex-col items-center space-y-1">
           <Icon name="kind-icon:person" class="w-10 h-10" />
-          <span class="text-sm md:text-base">Login</span>
+          <span v-if="displayStore.isLargeViewport" class="text-sm md:text-base"
+            >Login</span
+          >
         </button>
       </template>
     </router-link>
@@ -22,6 +24,9 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useUserStore } from '~/stores/userStore'
+import { useDisplayStore } from '@/stores/displayStore'
+
+const displayStore = useDisplayStore()
 
 const userStore = useUserStore()
 const isLoggedIn = computed(() => userStore.isLoggedIn)

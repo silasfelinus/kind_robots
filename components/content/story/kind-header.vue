@@ -7,11 +7,10 @@
     }"
   >
     <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
-    <div class="flex flex-wrap sm:flex-nowrap items-center justify-between w-full h-full">
+    <div class="flex items-center justify-between w-full h-full">
       <!-- Avatar Section with Viewport Overlay -->
       <div
-        class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl pr-2"
-        :class="{ 'h-full': displayStore.isLargeScreen, 'h-auto': !displayStore.isLargeScreen }"
+        class="relative flex items-center justify-center w-1/5 sm:w-1/6 md:w-1/5 h-full rounded-2xl"
       >
         <avatar-image
           alt="User Avatar"
@@ -28,8 +27,8 @@
       <screen-debug />
 
       <!-- Dynamic Header Content -->
-      <div class="flex flex-col flex-1 h-full">
-        <div class="flex flex-wrap items-center h-full w-full px-4">
+      <div class="flex flex-col flex-grow h-full w-full">
+        <div class="flex items-center h-full w-full px-4">
           <!-- Title and Subtitle Section -->
           <div
             class="flex flex-col justify-center w-full px-2 sm:w-1/3"
@@ -57,15 +56,17 @@
           </div>
         </div>
 
-        <!-- Mode Row (Always Aligned at Bottom) -->
-        <ModeRow class="w-full" />
+        <!-- Mode Row (Ensuring Full Width & Proper Alignment) -->
+        <div class="w-full flex justify-center">
+          <ModeRow class="w-full flex-grow" />
+        </div>
       </div>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useLazyAsyncData } from '#app'
 import type { ContentType } from '~/content.config'
@@ -73,10 +74,11 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 // Store for detecting screen size
 const displayStore = useDisplayStore()
+const isLargeScreen = ref(false)
 
-// Computed property to check screen size for layout changes
-const isLargeScreen = computed(() => {
-  return window.innerWidth >= 1024 // lg and above
+// Detect screen size dynamically
+onMounted(() => {
+  isLargeScreen.value = window.innerWidth >= 1024
 })
 
 // Get the route params

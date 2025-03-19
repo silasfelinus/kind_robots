@@ -1,12 +1,13 @@
 <template>
   <header
-    class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-accent max-w-full box-border h-24 sm:h-32"
+    class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-accent max-w-full box-border"
+    :style="{ height: displayStore.headerHeight }"
   >
     <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
     <div class="flex items-center justify-between w-full h-full">
       <!-- Avatar Section with Viewport Overlay -->
       <div
-        class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl overflow-visible"
+        class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl pr-2"
       >
         <avatar-image
           alt="User Avatar"
@@ -15,7 +16,7 @@
 
         <!-- Viewport Notice Overlay -->
         <div
-          class="absolute bottom-2 left-2 text-white bg-primary rounded-md text-xs md:text-sm"
+          class="absolute bottom-2 left-2 text-white bg-primary/80 rounded-md text-xs md:text-sm p-1"
         >
           {{ displayStore.viewportSize }}
         </div>
@@ -31,15 +32,14 @@
             class="flex flex-col justify-center flex-shrink-0"
             :class="{
               'w-full px-2': isSmallDisplay,
-              'w-1/3': !isSmallDisplay,
+              'w-1/3': !isSmallDisplay
             }"
           >
             <h1
               class="font-semibold"
               :class="{
-                'text-md md:text-lg leading-tight tracking-tight':
-                  isSmallDisplay,
-                'text-lg lg:text-xl xl:text-2xl': !isSmallDisplay,
+                'text-md md:text-lg leading-tight tracking-tight': isSmallDisplay,
+                'text-lg lg:text-xl xl:text-2xl': !isSmallDisplay
               }"
             >
               The {{ page?.title || 'Room' }} Room
@@ -48,9 +48,8 @@
             <h2
               class="italic"
               :class="{
-                'text-xs md:text-sm text-right text-ellipsis leading-tight mt-1':
-                  isSmallDisplay,
-                'text-sm lg:text-md xl:text-lg mt-2': !isSmallDisplay,
+                'text-xs md:text-sm text-right text-ellipsis leading-tight mt-1': isSmallDisplay,
+                'text-sm lg:text-md xl:text-lg mt-2': !isSmallDisplay
               }"
             >
               {{ subtitle }}
@@ -62,7 +61,7 @@
             class="flex gap-2"
             :class="{
               'w-full justify-end mt-2': isSmallDisplay,
-              'flex-row justify-around flex-grow space-x-4': !isSmallDisplay,
+              'flex-row justify-around flex-grow md:flex-space-x-1 space-x-4': !isSmallDisplay
             }"
           >
             <login-path class="flex max-w-[80px]" />
@@ -102,7 +101,5 @@ const page = computed(() => {
   return data.value
 })
 
-const subtitle = computed(
-  () => page.value?.subtitle ?? 'Welcome to Kind Robots',
-)
+const subtitle = computed(() => page.value?.subtitle ?? 'Welcome to Kind Robots')
 </script>

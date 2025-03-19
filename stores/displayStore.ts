@@ -114,7 +114,7 @@ export const useDisplayStore = defineStore('display', {
         100 -
         (this.headerState !== 'hidden'
           ? this.headerHeight + 2 * this.sectionPaddingSize
-          : 2 + this.sectionPaddingSize) -
+          : 4 + this.sectionPaddingSize) -
         (this.footerState !== 'hidden'
           ? this.footerHeight + 2 * this.sectionPaddingSize
           : this.sectionPaddingSize)
@@ -195,7 +195,7 @@ export const useDisplayStore = defineStore('display', {
       return this.footerState !== 'hidden'
         ? {
             height: `calc(var(--vh) * ${this.footerHeight})`,
-                width: `calc(100vw - ${this.sectionPaddingSize * 2}vw)`,
+            width: `calc(100vw - ${this.sectionPaddingSize * 2}vw)`,
             bottom: `calc(var(--vh) * ${this.sectionPaddingSize}`,
             left: `${this.sectionPaddingSize}vw`,
           }

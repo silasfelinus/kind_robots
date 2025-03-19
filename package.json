@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@interactjs/interact": "^1.10.27",
-    "@nuxt/content": "^3.2.2",
+    "@nuxt/content": "^3.3.0",
     "@nuxt/eslint": "^1.1.0",
     "@nuxt/image": "^1.8.0",
     "@pinia/nuxt": "^0.5.3",

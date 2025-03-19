@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed top-4 right-4 z-50">
+  <div class="fixed bottom-4 right-4 z-50">
     <button
       class="bg-gray-700 text-white p-2 rounded-full"
       @click="toggleDebug"
@@ -10,7 +10,7 @@
     <div
       v-if="isDebugVisible"
       class="fixed z-50 bg-opacity-90 bg-black text-white p-4 rounded-lg max-w-lg max-h-96 overflow-y-auto"
-      style="top: 50%; left: 50%; transform: translate(-50%, -50%)"
+      style="bottom: 50%; left: 50%; transform: translate(-50%, -50%)"
     >
       <h2 class="text-lg font-bold">Debug Info</h2>
       <ul class="text-sm space-y-2">

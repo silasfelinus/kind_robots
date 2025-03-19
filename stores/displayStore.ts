@@ -95,12 +95,12 @@ export const useDisplayStore = defineStore('display', {
     },
 
     headerHeight(): number {
-      const sizes = { small: 12, medium: 14, large: 18, extraLarge: 24 }
+      const sizes = { small: 12, medium: 14, large: 21, extraLarge: 24 }
       return sizes[this.viewportSize]
     },
 
     footerHeight(): number {
-      const sizes = { small: 20, medium: 12, large: 12, extraLarge: 14 }
+      const sizes = { small: 20, medium: 12, large: 10, extraLarge: 14 }
       return sizes[this.viewportSize] * (this.footerState === 'open' ? 1 : 0)
     },
 

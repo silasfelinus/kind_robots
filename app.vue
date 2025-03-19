@@ -12,7 +12,7 @@
 
     <!-- Header (Always on Top) -->
     <header
-      class="fixed z-50 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out rounded-2xl"
+      class="fixed z-40 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out rounded-2xl"
       :style="displayStore.headerStyle"
     >
       <template v-if="displayStore.headerState === 'hidden'">

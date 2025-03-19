@@ -100,12 +100,12 @@ export const useDisplayStore = defineStore('display', {
     },
 
     footerHeight(): number {
-      const sizes = { small: 12, medium: 14, large: 15, extraLarge: 16 }
+      const sizes = { small: 20, medium: 22, large: 24, extraLarge: 26 }
       return sizes[this.viewportSize] * (this.footerState === 'open' ? 1 : 0)
     },
 
     sectionPaddingSize(): number {
-      const sizes = { small: 1, medium: 1, large: 2, extraLarge: 2 }
+      const sizes = { small: 1, medium: 1, large: 1, extraLarge: 1 }
       return sizes[this.viewportSize]
     },
 
@@ -114,7 +114,7 @@ export const useDisplayStore = defineStore('display', {
         100 -
         (this.headerState !== 'hidden'
           ? this.headerHeight + 2 * this.sectionPaddingSize
-          : 5 + this.sectionPaddingSize) -
+          : 2 + this.sectionPaddingSize) -
         (this.footerState !== 'hidden'
           ? this.footerHeight + 2 * this.sectionPaddingSize
           : this.sectionPaddingSize)
@@ -195,7 +195,7 @@ export const useDisplayStore = defineStore('display', {
       return this.footerState !== 'hidden'
         ? {
             height: `calc(var(--vh) * ${this.footerHeight})`,
-            width: `calc(100vw - ${this.sectionPaddingSize * 2}vw)`,
+            width: `calc(${this.mainContentWidth}vw)`,
             bottom: `calc(var(--vh) * ${this.sectionPaddingSize}`,
             left: `${this.sectionPaddingSize}vw`,
           }

@@ -21,8 +21,6 @@
         </div>
       </div>
 
-      <screen-debug />
-
       <!-- Dynamic Header Content -->
       <div class="flex flex-col flex-1 h-full px-4">
         <div class="flex h-full w-full">
@@ -45,12 +43,14 @@
 
           <!-- Icons Section -->
           <div
-            class="flex gap-2 w-1/2 sm:w-2/3 justify-end sm:flex-row sm:justify-around sm:flex-grow sm:space-x-4"
+            class="flex gap-2 w-1/2 sm:w-2/3 justify-end sm:flex-row sm:justify-around sm:flex-grow sm:space-x-1 md:space-x-2"
           >
             <login-path class="flex max-w-[80px]" />
             <jellybean-count class="flex max-w-[80px]" />
             <theme-icon class="flex max-w-[80px]" />
             <swarm-icon class="flex max-w-[80px]" />
+
+            <screen-debug class="flex max-w-[80px]" />
           </div>
         </div>
 

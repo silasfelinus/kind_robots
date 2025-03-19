@@ -15,8 +15,8 @@
           }"
           @click="setActiveSection(link.name as SectionKey)"
         >
-          <icon v-if="isCompact" :name="link.icon" class="w-6 h-6" />
-          <span v-else>{{ link.label }}</span>
+          <icon :name="link.icon" class="w-6 h-6" />
+          <span class="hidden sm:inline">{{ link.label }}</span>
         </button>
       </div>
     </nav>
@@ -25,10 +25,10 @@
     <component :is="currentSectionComponent" class="mt-6" />
   </div>
 </template>
+
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useStoryMakerStore } from '@/stores/storyStore'
-import { useDisplayStore } from '@/stores/displayStore'
 
 // Import Components
 import StoryCreator from '@/components/content/story/story-creator.vue'
@@ -46,7 +46,6 @@ type SectionKey = keyof typeof sections
 
 // Store Setup
 const storyMakerStore = useStoryMakerStore()
-const displayStore = useDisplayStore()
 
 // Navigation Links
 const links: { name: SectionKey; label: string; icon: string }[] = [
@@ -62,7 +61,6 @@ const activeSection = computed(
 const setActiveSection = (section: SectionKey) => {
   storyMakerStore.activeSection = section
 }
-const isCompact = computed(() => displayStore.isMobileViewport)
 
 // Section Components Mapping
 const currentSectionComponent = computed(() => sections[activeSection.value])

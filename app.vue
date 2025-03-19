@@ -12,7 +12,7 @@
 
     <!-- Header (Always on Top) -->
     <header
-      class="fixed z-40 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out rounded-2xl"
+      class="fixed z-40 flex items-center justify-center box-border overflow-hidden transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
       <template v-if="displayStore.headerState === 'hidden'">
@@ -32,23 +32,13 @@
     </aside>
 
     <!-- Center Column (Grows Fully) -->
-<div class="flex flex-col w-full h-full">
-
-<main
-  class="flex-grow border-4 rounded-2xl overflow-scroll box-border transition-all duration-600 ease-in-out"
-  :style="displayStore.mainContentStyle"
->
-  <NuxtPage :key="$route.fullPath" />
-</main>
-
-
-      <footer
-  class="w-full flex justify-center items-center transition-all duration-500 ease-in-out mt-auto"
-  :style="displayStore.footerStyle"
->
-  <horizontal-nav class="h-full w-full" />
-</footer>
-
+    <div class="flex flex-col w-full h-full">
+      <main
+        class="fixed z-10 border-4 rounded-2xl overflow-hidden box-border transition-all duration-600 ease-in-out"
+        :style="displayStore.mainContentStyle"
+      >
+        <NuxtPage :key="$route.fullPath" />
+      </main>
     </div>
 
     <!-- Right Sidebar -->
@@ -60,6 +50,13 @@
     </aside>
   </div>
 
+  <footer
+    class="fixed z-50 box-border overflow-visible transition-all duration-600 ease-in-out"
+    :style="displayStore.footerStyle"
+  >
+    <horizontal-nav v-if="footerOpen" class="h-full w-full z-5" />
+  </footer>
+
   <!-- Footer Toggle -->
   <div class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 p-1">
     <footer-toggle />
@@ -70,4 +67,6 @@
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+
+const footerOpen = computed(() => displayStore.footerState === 'open')
 </script>

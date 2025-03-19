@@ -28,30 +28,16 @@
         <div class="flex h-full w-full px-4">
           <!-- Title and Subtitle Section -->
           <div
-            class="flex flex-col justify-center flex-shrink-0"
-            :class="{
-              'w-full px-2': isSmallDisplay,
-              'w-1/3': !isSmallDisplay,
-            }"
+            class="flex flex-col justify-center flex-shrink-0 w-full px-2 sm:w-1/3"
           >
             <h1
-              class="font-semibold"
-              :class="{
-                'text-md md:text-lg leading-tight tracking-tight':
-                  isSmallDisplay,
-                'text-lg lg:text-xl xl:text-2xl': !isSmallDisplay,
-              }"
+              class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
             >
               The {{ page?.title || 'Room' }} Room
             </h1>
 
             <h2
-              class="italic"
-              :class="{
-                'text-xs md:text-sm text-right text-ellipsis leading-tight mt-1':
-                  isSmallDisplay,
-                'text-sm lg:text-md xl:text-lg mt-2': !isSmallDisplay,
-              }"
+              class="italic text-xs md:text-sm lg:text-md xl:text-lg text-right text-ellipsis leading-tight mt-1 sm:mt-2"
             >
               {{ subtitle }}
             </h2>
@@ -59,11 +45,7 @@
 
           <!-- Icons Section -->
           <div
-            class="flex gap-2"
-            :class="{
-              'w-full justify-end mt-2': isSmallDisplay,
-              'flex-row justify-around flex-grow space-x-4': !isSmallDisplay,
-            }"
+            class="flex gap-2 w-full justify-end sm:flex-row sm:justify-around sm:flex-grow md:space-x-2"
           >
             <login-path class="flex max-w-[80px]" />
             <jellybean-count class="flex max-w-[80px]" />
@@ -88,7 +70,6 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 // Store for detecting screen size
 const displayStore = useDisplayStore()
-const isSmallDisplay = computed(() => displayStore.viewportSize === 'small')
 
 // Get the route params
 const route = useRoute()

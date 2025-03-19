@@ -28,7 +28,7 @@
       class="fixed z-30 box-border transition-all duration-300 ease-in-out overflow-visible"
       :style="displayStore.leftSidebarStyle"
     >
-      <kind-sidebar-simple class="h-full w-full" />
+      <kind-sidebar-simple v-if="sidebarLeftOpen" class="h-full w-full z-10" />
     </aside>
 
     <!-- Center Column (Grows Fully) -->
@@ -46,7 +46,7 @@
       class="fixed z-10 box-border transition-all duration-600 ease-in-out"
       :style="displayStore.rightSidebarStyle"
     >
-      <splash-tutorial class="h-full w-full" />
+      <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full z-10" />
     </aside>
   </div>
 
@@ -69,4 +69,16 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 
 const footerOpen = computed(() => displayStore.footerState === 'open')
+
+const sidebarLeftOpen = computed(
+  () =>
+    displayStore.sidebarLeftState !== 'hidden' &&
+    displayStore.sidebarLeftState !== 'disabled',
+)
+
+const sidebarRightOpen = computed(
+  () =>
+    displayStore.sidebarRightState !== 'hidden' &&
+    displayStore.sidebarRightState !== 'disabled',
+)
 </script>

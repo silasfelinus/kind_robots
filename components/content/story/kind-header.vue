@@ -6,7 +6,7 @@
     <div class="flex items-center justify-between w-full h-full">
       <!-- Avatar Section with Viewport Overlay -->
       <div
-        class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl pr-2 overflow-visible"
+        class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl overflow-visible"
       >
         <avatar-image
           alt="User Avatar"
@@ -15,7 +15,7 @@
 
         <!-- Viewport Notice Overlay -->
         <div
-          class="absolute bottom-2 left-2 text-white bg-primary rounded-md text-xs md:text-sm p-1"
+          class="absolute bottom-2 left-2 text-white bg-primary rounded-md text-xs md:text-sm"
         >
           {{ displayStore.viewportSize }}
         </div>

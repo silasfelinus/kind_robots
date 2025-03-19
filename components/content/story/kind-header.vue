@@ -49,7 +49,7 @@
             <theme-icon class="flex max-w-[80px]" />
             <swarm-icon class="flex max-w-[80px]" />
 
-            <screen-debug class="flex max-w-[40px]" />
+            <screen-debug />
           </div>
         </div>
 

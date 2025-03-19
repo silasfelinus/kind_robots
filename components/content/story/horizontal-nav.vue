@@ -3,7 +3,7 @@
     class="relative flex justify-center bg-base-300 border border-accent rounded-2xl max-w-full overflow-x-auto"
   >
     <div
-      class="flex flex-wrap justify-center w-full items-center gap-2 md:gap-4 p-2"
+      class="flex flex-wrap justify-center w-full items-center gap-2 md:gap-4"
     >
       <div
         v-for="(item, index) in hardcodedLinks"

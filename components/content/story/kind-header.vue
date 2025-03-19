@@ -1,6 +1,6 @@
 <template>
   <header
-    class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-accent max-w-full box-border h-24 sm:h-32"
+    class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-accent max-w-full box-border"
   >
     <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
     <div class="flex items-center justify-between w-full h-full">
@@ -50,7 +50,7 @@
             <theme-icon class="flex max-w-[80px]" />
             <swarm-icon class="flex max-w-[80px]" />
 
-            <screen-debug class="flex max-w-[80px]" />
+            <screen-debug class="flex max-w-[40px]" />
           </div>
         </div>
 

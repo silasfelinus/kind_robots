@@ -32,21 +32,23 @@
     </aside>
 
     <!-- Center Column (Grows Fully) -->
-    <div class="flex flex-col w-full h-full">
-      <main
-        class="fixed z-10 border-4 rounded-2xl overflow-scroll box-border transition-all duration-600 ease-in-out"
-        :style="displayStore.mainContentStyle"
-      >
-        <NuxtPage :key="$route.fullPath" />
-      </main>
+<div class="flex flex-col w-full h-full">
 
-      <!-- Footer (Properly Stays at the Bottom) -->
+<main
+  class="flex-grow border-4 rounded-2xl overflow-scroll box-border transition-all duration-600 ease-in-out"
+  :style="displayStore.mainContentStyle"
+>
+  <NuxtPage :key="$route.fullPath" />
+</main>
+
+
       <footer
-        class="z-10 justify-center transition-all duration-500 ease-in-out"
-        :style="displayStore.footerStyle"
-      >
-        <horizontal-nav class="h-full w-full" />
-      </footer>
+  class="w-full flex justify-center items-center transition-all duration-500 ease-in-out mt-auto"
+  :style="displayStore.footerStyle"
+>
+  <horizontal-nav class="h-full w-full" />
+</footer>
+
     </div>
 
     <!-- Right Sidebar -->

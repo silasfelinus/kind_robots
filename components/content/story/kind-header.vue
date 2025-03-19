@@ -1,12 +1,13 @@
 <template>
   <header
-    class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-accent max-w-full box-border h-24 sm:h-32"
+    class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-accent max-w-full box-border"
+    :style="{ height: displayStore.headerHeight }"
   >
     <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
     <div class="flex items-center justify-between w-full h-full">
       <!-- Avatar Section with Viewport Overlay -->
       <div
-        class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl overflow-visible"
+        class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl pr-2"
       >
         <avatar-image
           alt="User Avatar"
@@ -15,7 +16,7 @@
 
         <!-- Viewport Notice Overlay -->
         <div
-          class="absolute bottom-2 left-2 text-white bg-primary rounded-md text-xs md:text-sm"
+          class="absolute bottom-2 left-2 text-white bg-primary/80 rounded-md text-xs md:text-sm p-1"
         >
           {{ displayStore.viewportSize }}
         </div>

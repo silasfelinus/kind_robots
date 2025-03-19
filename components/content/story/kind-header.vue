@@ -24,11 +24,11 @@
       <screen-debug />
 
       <!-- Dynamic Header Content -->
-      <div class="flex flex-col flex-1 h-full">
-        <div class="flex h-full w-full px-4">
+      <div class="flex flex-col flex-1 h-full px-4">
+        <div class="flex h-full w-full">
           <!-- Title and Subtitle Section -->
           <div
-            class="flex flex-col justify-center flex-shrink-0 w-full px-2 sm:w-1/3"
+            class="flex flex-col justify-center flex-shrink-0 w-1/2 sm:w-1/3 pr-2"
           >
             <h1
               class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
@@ -45,7 +45,7 @@
 
           <!-- Icons Section -->
           <div
-            class="flex gap-2 w-full justify-end sm:flex-row sm:justify-around sm:flex-grow sm:space-x-4"
+            class="flex gap-2 w-1/2 sm:w-2/3 justify-end sm:flex-row sm:justify-around sm:flex-grow sm:space-x-4"
           >
             <login-path class="flex max-w-[80px]" />
             <jellybean-count class="flex max-w-[80px]" />

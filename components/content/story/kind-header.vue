@@ -1,16 +1,14 @@
 <template>
   <header
     class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-accent max-w-full box-border"
-    :class="{
-      'h-screen': displayStore.isLargeScreen,
-      'h-auto': !displayStore.isLargeScreen
-    }"
+    :class="{ 'h-screen': displayStore.isLargeScreen, 'h-auto': !displayStore.isLargeScreen }"
   >
-    <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
-    <div class="flex items-center justify-between w-full h-full">
-      <!-- Avatar Section with Viewport Overlay -->
+    <!-- Header Content Wrapper (Fills Available Space) -->
+    <div class="flex w-full h-full">
+      
+      <!-- Avatar Section (Takes Full Height in lg & xl) -->
       <div
-        class="relative flex items-center justify-center w-1/5 sm:w-1/6 md:w-1/5 h-full rounded-2xl"
+        class="relative flex items-center w-1/5 sm:w-1/6 md:w-1/5 h-full rounded-2xl"
       >
         <avatar-image
           alt="User Avatar"
@@ -24,15 +22,11 @@
         </div>
       </div>
 
-      <screen-debug />
-
-      <!-- Dynamic Header Content -->
-      <div class="flex flex-col flex-grow h-full w-full">
+      <!-- Main Content (Title, Subtitle, Icons) -->
+      <div class="flex flex-col flex-grow h-full w-full relative">
         <div class="flex items-center h-full w-full px-4">
-          <!-- Title and Subtitle Section -->
-          <div
-            class="flex flex-col justify-center w-full px-2 sm:w-1/3"
-          >
+          <!-- Title and Subtitle -->
+          <div class="flex flex-col justify-center w-full px-2 sm:w-1/3">
             <h1
               class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
             >
@@ -46,9 +40,7 @@
           </div>
 
           <!-- Icons Section -->
-          <div
-            class="flex flex-wrap justify-end gap-2 sm:flex-row sm:justify-around sm:flex-grow md:space-x-2"
-          >
+          <div class="flex flex-wrap justify-end gap-2 sm:flex-row sm:justify-around sm:flex-grow md:space-x-2">
             <login-path class="flex max-w-[80px]" />
             <jellybean-count class="flex max-w-[80px]" />
             <theme-icon class="flex max-w-[80px]" />
@@ -56,11 +48,12 @@
           </div>
         </div>
 
-        <!-- Mode Row (Ensuring Full Width & Proper Alignment) -->
-        <div class="w-full flex justify-center">
-          <ModeRow class="w-full flex-grow" />
+        <!-- ModeRow (Snaps to Bottom of Header) -->
+        <div class="absolute bottom-0 w-full">
+          <ModeRow class="w-full" />
         </div>
       </div>
+      
     </div>
   </header>
 </template>

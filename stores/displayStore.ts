@@ -79,7 +79,7 @@ export const useDisplayStore = defineStore('display', {
 
   getters: {
     sidebarLeftWidth(): number {
-      const sizes = { small: 16, medium: 12, large: 9, extraLarge: 7 }
+      const sizes = { small: 16, medium: 11, large: 9, extraLarge: 6 }
       return (
         sizes[this.viewportSize] *
         (['open', 'compact'].includes(this.sidebarLeftState) ? 1 : 0)
@@ -95,12 +95,12 @@ export const useDisplayStore = defineStore('display', {
     },
 
     headerHeight(): number {
-      const sizes = { small: 14, medium: 14, large: 23, extraLarge: 20 }
+      const sizes = { small: 12, medium: 14, large: 20, extraLarge: 18 }
       return sizes[this.viewportSize]
     },
 
     footerHeight(): number {
-      const sizes = { small: 20, medium: 12, large: 10, extraLarge: 14 }
+      const sizes = { small: 20, medium: 10, large: 9, extraLarge: 10 }
       return sizes[this.viewportSize] * (this.footerState === 'open' ? 1 : 0)
     },
 

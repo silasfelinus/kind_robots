@@ -1,10 +1,7 @@
 <template>
   <div class="relative flex flex-col items-start box-border">
     <!-- User Avatar and Login Button -->
-    <router-link
-      :to="routeToNavigate"
-      class="flex items-center md:flex-col md:items-center md:space-x-0"
-    >
+    <router-link :to="routeToNavigate" class="flex flex-col items-center">
       <template v-if="isLoggedIn">
         <div class="flex flex-col items-center">
           <user-avatar
@@ -13,9 +10,9 @@
         </div>
       </template>
       <template v-else>
-        <button class="flex items-center justify-center space-x-2">
+        <button class="flex flex-col items-center space-y-1">
           <Icon name="kind-icon:person" class="w-10 h-10" />
-          <span class="hidden md:block">Login</span>
+          <span class="text-sm md:text-base">Login</span>
         </button>
       </template>
     </router-link>
@@ -30,5 +27,7 @@ const userStore = useUserStore()
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 
 // Dynamically determine the route to navigate
-const routeToNavigate = computed(() => (isLoggedIn.value ? '/dashboard' : '/login'))
+const routeToNavigate = computed(() =>
+  isLoggedIn.value ? '/dashboard' : '/login',
+)
 </script>

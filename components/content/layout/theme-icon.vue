@@ -3,9 +3,6 @@
     class="relative transition-all flex flex-col items-center w-auto space-y-0"
     @click="goToThemePage"
   >
-    <!-- Theme Label (Visible on md and higher) -->
-    <span class="hidden md:block text-sm">Theme</span>
-
     <!-- Icon with Scale Hover Effect -->
     <Icon
       name="kind-icon:paintbrush"

@@ -13,9 +13,9 @@
           class="h-full w-full rounded-2xl object-cover"
         />
 
-        <!-- Viewport Notice Overlay -->
+        <!-- Viewport Notice Overlay - Tied to Container -->
         <div
-          class="absolute bottom-2 left-2 text-white bg-primary rounded-md text-xs md:text-sm"
+          class="absolute bottom-2 left-0 w-full flex justify-start px-2 text-white bg-primary rounded-md text-xs md:text-sm"
         >
           {{ displayStore.viewportSize }}
         </div>

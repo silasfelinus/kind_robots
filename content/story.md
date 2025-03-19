@@ -1,6 +1,6 @@
 ---
 title: 'Story Maker'
-subtitle: Join a multiverse of possibilities
+subtitle: A multiverse of possibilities
 description: A surreal odyssey powered by ChatGPT—craft worlds, weave narratives, and embrace the beautifully bizarre. A work-in-progress where the only limit is your imagination (and maybe physics).
 image: story/story1.webp
 gallery: weirdlandia

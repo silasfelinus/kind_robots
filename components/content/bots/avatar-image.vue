@@ -23,62 +23,36 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useBotStore } from './../../../stores/botStore'
-import { useErrorStore } from './../../../stores/errorStore'
-import { useDisplayStore } from './../../../stores/displayStore'
-import { useAsyncData } from '#app'
+import { usePageStore } from '@/stores/pageStore'
+import { useBotStore } from '@/stores/botStore'
+import { useErrorStore } from '@/stores/errorStore'
+import { useDisplayStore } from '@/stores/displayStore'
+import { ErrorType } from '@/stores/errorTypes' // Optional if using enums/constants
 
-// Stores
-const errorStore = useErrorStore()
-const displayStore = useDisplayStore() // Handles sidebar and tutorial toggles
 const flipped = ref(false)
 
-// Get bot name from store
+const displayStore = useDisplayStore()
 const botStore = useBotStore()
+const errorStore = useErrorStore()
+const pageStore = usePageStore()
+
 const currentBot = computed(() => botStore.currentBot)
+const pageImage = computed(() => pageStore.image)
 
-// Get the route params
-const route = useRoute()
-const name = route.params.name as string
-
-// Define expected content structure
-interface PageData {
-  title?: string
-  description?: string
-  subtitle?: string
-  image?: string
-  icon?: string
-  underConstruction?: boolean
-  dottitip?: string
-  amitip?: string
-  tooltip?: string
-  message?: string
-}
-
-// Fetch the page data using Nuxt Content v3
-const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
-  const result = await queryCollection('content').path(`${name}`).first()
-  return result || {} // Ensure result is always an object to avoid null errors
-})
-// Compute the avatar image source
+// Priority: page.image > currentBot.avatarImage > default fallback
 const selectImage = computed(() => {
-  return (
-    page.value?.image || currentBot.value?.avatarImage || '/images/botcafe.webp'
-  )
+  return pageImage.value || currentBot.value?.avatarImage || '/images/botcafe.webp'
 })
 
 const handleAvatarClick = () => {
   try {
-    // Flip the avatar image
     flipped.value = !flipped.value
-
-    // Toggle the sidebar and tutorial using displayStore
     displayStore.toggleSidebar('sidebarLeftState')
     displayStore.toggleTutorial()
   } catch (error) {
-    const errorMessage =
+    const message =
       error instanceof Error ? error.message : 'Failed to toggle sidebar'
-    errorStore.setError(ErrorType.INTERACTION_ERROR, errorMessage)
+    errorStore.setError(ErrorType.INTERACTION_ERROR, message)
   }
 }
 </script>
@@ -86,7 +60,7 @@ const handleAvatarClick = () => {
 <style scoped>
 .flip-card {
   perspective: 1000px;
-  aspect-ratio: 1; /* Ensure avatar remains square */
+  aspect-ratio: 1;
   cursor: pointer;
 }
 

@@ -13,7 +13,8 @@
           class="h-full w-full rounded-2xl object-cover"
         />
       </div>
-      <!-- Viewport Notice Overlay - Tied to Container -->
+
+      <!-- Viewport Notice Overlay -->
       <div
         class="absolute bottom-0 left-2 mb-1 px-2 py-1 text-white bg-primary rounded-md text-xs md:text-sm"
       >
@@ -23,16 +24,13 @@
       <!-- Dynamic Header Content -->
       <div class="flex flex-col flex-1 h-full px-4">
         <div class="flex h-full w-full">
-          <!-- Title and Subtitle Section -->
-          <div
-            class="flex flex-col justify-center flex-shrink-0 w-1/2 sm:w-1/3 pr-2"
-          >
+          <!-- Title and Subtitle -->
+          <div class="flex flex-col justify-center flex-shrink-0 w-1/2 sm:w-1/3 pr-2">
             <h1
               class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
             >
               The {{ page?.title || 'Room' }} Room
             </h1>
-
             <h2
               class="italic text-xs md:text-sm lg:text-md xl:text-lg text-right text-ellipsis leading-tight mt-1 sm:mt-2"
             >
@@ -40,7 +38,7 @@
             </h2>
           </div>
 
-          <!-- Icons Section -->
+          <!-- Icons -->
           <div
             class="flex gap-2 w-1/2 sm:w-2/3 justify-end sm:flex-row sm:justify-around sm:flex-grow sm:space-x-1 md:space-x-2"
           >
@@ -53,7 +51,7 @@
           </div>
         </div>
 
-        <!-- Mode Row (Always Aligned at Bottom) -->
+        <!-- Mode Row -->
         <ModeRow class="w-full" />
       </div>
     </div>
@@ -61,28 +59,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { useAsyncData } from '#app'
-import type { ContentType } from '~/content.config'
 import { useDisplayStore } from '@/stores/displayStore'
+import { usePageStore } from '@/stores/pageStore'
 
-// Store for detecting screen size
 const displayStore = useDisplayStore()
+const pageStore = usePageStore()
 
-// Get the route params
-const route = useRoute()
-
-const page = computed(() => {
-  const { data } = useAsyncData(route.path, async () => {
-    return (await queryCollection('content')
-      .path(route.path)
-      .first()) as ContentType | null
-  })
-  return data.value
-})
-
-const subtitle = computed(
-  () => page.value?.subtitle ?? 'Welcome to Kind Robots',
-)
+const { page, subtitle } = storeToRefs(pageStore)
 </script>

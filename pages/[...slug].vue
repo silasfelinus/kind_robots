@@ -57,6 +57,7 @@ onMounted(async () => {
   const token = userStore.getFromLocalStorage('token')
   if (userStore.user === null) {
     if (token) {
+userStore.token = token
       try {
         console.log('Validating token from localStorage...')
         const isValid = await userStore.validateAndFetchUserData()

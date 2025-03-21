@@ -32,9 +32,7 @@
             </div>
             <div
               class="mt-2 text-xs sm:text-sm md:text-base transition-colors ease-in-out duration-500 hover:text-accent"
-              :style="
-                clicked === page.path ? 'font-weight: bold; color: green;' : ''
-              "
+              :class="{ 'text-success font-bold': clicked === page.path }"
             >
               {{ page.title }}
             </div>
@@ -50,27 +48,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useAsyncData } from '#app'
+import { usePageStore } from '@/stores/pageStore'
 
-interface Page {
-  // Extend ContentCollectionItem for all default fields
-  path: string
-  title?: string
-  description?: string
-  subtitle?: string
-  image?: string // Make sure 'image' is included here
-  icon?: string
-  underConstruction?: boolean
-  dottitip?: string
-  amitip?: string
-  tooltip?: string
-  message?: string
-}
+const pageStore = usePageStore()
+const { pages } = storeToRefs(pageStore)
 
-const { data: pages } = await useAsyncData('pages', async () => {
-  const allPages = await queryCollection('content').all() // Use all() to fetch data
-  return (allPages as Page[]).filter((item: Page) => item.path !== '/')
-})
-// ✅ Define `clicked` as `path` instead of `_id` for consistency
 const clicked = ref<string | null>(null)
 </script>

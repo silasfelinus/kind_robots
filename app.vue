@@ -51,14 +51,14 @@
   </div>
 
   <footer
-    class="fixed z-50 box-border overflow-visible transition-all duration-600 ease-in-out"
+    class="fixed z-30 box-border overflow-visible transition-all duration-600 ease-in-out"
     :style="displayStore.footerStyle"
   >
     <horizontal-nav v-if="footerOpen" class="h-full w-full z-5" />
   </footer>
 
   <!-- Footer Toggle -->
-  <div class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 p-1">
+  <div class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-30 p-1">
     <footer-toggle />
   </div>
 </template>

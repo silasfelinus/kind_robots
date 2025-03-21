@@ -1,42 +1,42 @@
 <template>
-  <div class="fixed bottom-4 right-4 p-4 m-2">
-    <!-- Chat Icon -->
+  <div class="fixed bottom-4 right-4 p-4 m-2 z-50">
+    <!-- Chat Icon (Toggle Button) -->
     <div v-if="!chatOpen" class="cursor-pointer" @click="toggleChat">
       <Icon
-        :name="page?.Icon || 'Icon-park-twotone:butterfly'"
-        class="animate-pulse"
+        :name="icon || 'icon-park-twotone:butterfly'"
+        class="animate-pulse h-10 w-10 text-accent"
       />
     </div>
 
-    <!-- Chat Component -->
-    <div v-else class="p-4 rounded-lg bg-base-300">
+    <!-- Chat Panel -->
+    <div v-else class="p-4 rounded-lg bg-base-300 shadow-xl max-w-xs w-full">
       <!-- Chatbot Bubble -->
-      <div class="p-2 rounded-lg bg-primary mb-2">
-        {{ page?.title || 'Hello, Kind Guest!' }}
+      <div class="p-2 rounded-lg bg-primary text-white mb-2 font-bold">
+        {{ title || 'Hello, Kind Guest!' }}
       </div>
 
-      <!-- User Intro Bubble -->
-      <div class="p-2 rounded-lg bg-secondary mb-2">
-        {{ page?.description || 'Welcome to the chat!' }}
+      <!-- Description -->
+      <div class="p-2 rounded-lg bg-secondary text-white mb-2">
+        {{ description || 'Welcome to the chat!' }}
       </div>
 
       <!-- Suggestion Bubbles -->
-      <button class="p-2 rounded-lg bg-accent mb-2">
-        {{ page?.suggestion1 || 'Tell me more about this page.' }}
+      <button class="p-2 rounded-lg bg-accent mb-2 w-full text-left">
+        {{ suggestion1 || 'Tell me more about this page.' }}
       </button>
-      <button class="p-2 rounded-lg bg-accent mb-2">
-        {{ page?.suggestion2 || 'Tell me more about your fundraiser.' }}
+      <button class="p-2 rounded-lg bg-accent mb-2 w-full text-left">
+        {{ suggestion2 || 'Tell me more about your fundraiser.' }}
       </button>
 
-      <!-- Text Input -->
+      <!-- User Input -->
       <textarea
         v-model="userInput"
-        class="w-full p-2 rounded-lg mb-2"
+        class="w-full p-2 rounded-lg mb-2 bg-base-200 text-base-content"
         placeholder="Type your message..."
       />
 
-      <!-- User Avatar -->
-      <div>
+      <!-- Avatar / User Image -->
+      <div class="flex justify-end">
         <lazy-user-avatar />
       </div>
     </div>
@@ -45,34 +45,16 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
-import { useAsyncData } from '#app'
+import { usePageStore } from '@/stores/pageStore'
 
-// Get the route params
-const route = useRoute()
-const name = route.params.name as string
+const pageStore = usePageStore()
 
-// Define the expected page structure
-interface ChatPage {
-  title?: string
-  description?: string
-  suggestion1?: string
-  suggestion2?: string
-  Icon?: string
-}
+const { title, description, icon, page } = storeToRefs(pageStore)
 
-// Fetch the chat page data using Nuxt Content v3
-const { data: page } = await useAsyncData<ChatPage>(
-  `chat-${name}`,
-  async () => {
-    const result = await queryCollection('content')
-      .path(`/chat/${name}`)
-      .first()
-    return result || {}
-  },
-)
+// Use page-specific suggestions or fallbacks
+const suggestion1 = computed(() => page.value?.suggestion1)
+const suggestion2 = computed(() => page.value?.suggestion2)
 
-// Reactive state
 const chatOpen = ref(false)
 const userInput = ref('')
 

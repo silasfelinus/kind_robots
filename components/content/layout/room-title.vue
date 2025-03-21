@@ -15,17 +15,8 @@
 </template>
 
 <script setup lang="ts">
-import type { ContentType } from '~/content.config'
+import { usePageStore } from '@/stores/pageStore'
 
-// Get the route params
-const route = useRoute()
-
-const page = computed(() => {
-  const { data } = useAsyncData(route.path, async () => {
-    return (await queryCollection('content')
-      .path(route.path)
-      .first()) as ContentType | null
-  })
-  return data.value
-})
+const pageStore = usePageStore()
+const { page } = storeToRefs(pageStore)
 </script>

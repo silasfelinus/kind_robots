@@ -1,12 +1,11 @@
 <template>
-  <!-- Tips Area -->
   <div
-    v-if="page?.tooltip || page?.amitip"
+    v-if="tooltip || amitip"
     class="flex flex-col justify-center items-center md:flex-row gap-4"
   >
-    <!-- Silas Section -->
+    <!-- Silas Tooltip -->
     <div
-      v-if="page?.tooltip"
+      v-if="tooltip"
       class="flex flex-col items-center bg-base-300 rounded-2xl p-4"
     >
       <img
@@ -16,13 +15,13 @@
       />
       <div class="text-sm rounded-2xl border mb-2">silasfelinus</div>
       <div class="flex flex-col overflow-auto">
-        {{ page.tooltip }}
+        {{ tooltip }}
       </div>
     </div>
 
-    <!-- AMI Section -->
+    <!-- AMI Tip -->
     <div
-      v-if="page?.amitip"
+      v-if="amitip"
       class="flex flex-col items-center bg-base-300 rounded-2xl p-4"
     >
       <img
@@ -32,39 +31,17 @@
       />
       <div class="text-sm rounded-2xl border mb-2">AMIbot</div>
       <div class="flex flex-col overflow-auto">
-        {{ page.amitip }}
+        {{ amitip }}
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import { useAsyncData } from '#app'
+import { usePageStore } from '@/stores/pageStore'
 
-// Get the route params
-const route = useRoute()
-const name = route.params.name as string
-
-// Define expected content structure
-interface PageData {
-  title?: string
-  description?: string
-  subtitle?: string
-  image?: string
-  icon?: string
-  underConstruction?: boolean
-  dottitip?: string
-  amitip?: string
-  tooltip?: string
-  message?: string
-}
-
-// Fetch the page data using Nuxt Content v3
-const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
-  const result = await queryCollection('content').path(`${name}`).first()
-  return result || {}
-})
+const pageStore = usePageStore()
+const { tooltip, amitip } = storeToRefs(pageStore)
 </script>
 
 <style>

@@ -3,7 +3,7 @@
     <!-- Header -->
     <header
       ref="headerRef"
-      class="z-40 flex flex-col md:flex-row items-center overflow-x-hidden"
+      class="app-header z-40 flex flex-col md:flex-row items-center overflow-x-hidden"
     >
       <!-- Left: Avatar & Room Info -->
       <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto">
@@ -59,7 +59,6 @@ const headerRef = ref<HTMLElement | null>(null)
 onMounted(async () => {
   await nextTick()
   if (headerRef.value) {
-    // You can use this to offset page layout if needed
     const height = headerRef.value.clientHeight
     document.documentElement.style.setProperty('--header-height', `${height}px`)
   }
@@ -71,7 +70,7 @@ const toggleNav = () => {
 </script>
 
 <style scoped>
-header {
+.app-header {
   overflow-x: hidden;
   white-space: nowrap;
   z-index: 50;
@@ -82,15 +81,5 @@ header {
 }
 .navigation-trimmed.translate-y-0 {
   transform: translateY(0);
-}
-
-@media (max-width: 768px) {
-  header {
-    z-index: 50;
-  }
-
-  .fixed {
-    background-color: var(--color-primary);
-  }
 }
 </style>

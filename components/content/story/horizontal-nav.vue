@@ -6,7 +6,7 @@
       class="flex flex-wrap justify-center w-full items-center gap-1 md:gap-2 lg:gap-3 xl:gap-4"
     >
       <div
-        v-for="(item, index) in hardcodedLinks"
+        v-for="(item, index) in links"
         :key="index"
         class="group flex flex-col items-center justify-center min-w-[80px]"
       >
@@ -32,24 +32,13 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useLinkStore } from '@/stores/linkStore'
 
-// Hardcoded sidebar links
-const hardcodedLinks = ref([
-  { title: 'Home', path: '/', icon: 'kind-icon:home' },
-  { title: 'Bots', path: '/botcafe', icon: 'kind-icon:addbot' },
-  { title: 'Brainstorm', path: '/brainstorm', icon: 'kind-icon:brain' },
-  { title: 'Art Lab', path: '/artmaker', icon: 'kind-icon:easel' },
-  { title: 'Memory', path: '/memory', icon: 'kind-icon:question' },
-  { title: 'WonderLab', path: '/wonderlab', icon: 'kind-icon:gearhammer' },
-  { title: 'WeirdLand', path: '/weirdlandia', icon: 'kind-icon:alien' },
-  { title: 'Story Maker', path: '/story', icon: 'kind-icon:book' },
-])
-
-// Access Vue Router for navigation
 const router = useRouter()
+const linkStore = useLinkStore()
+const { allLinks: links } = storeToRefs(linkStore)
 
-// Navigation function
 const navigateTo = (path: string) => {
-  router.push(path) // Navigate using Vue Router
+  router.push(path)
 }
 </script>

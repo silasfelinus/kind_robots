@@ -27,7 +27,6 @@ import { usePageStore } from '@/stores/pageStore'
 import { useBotStore } from '@/stores/botStore'
 import { useErrorStore } from '@/stores/errorStore'
 import { useDisplayStore } from '@/stores/displayStore'
-import { ErrorType } from '@/stores/errorTypes' // Optional if using enums/constants
 
 const flipped = ref(false)
 
@@ -39,7 +38,6 @@ const pageStore = usePageStore()
 const currentBot = computed(() => botStore.currentBot)
 const pageImage = computed(() => pageStore.image)
 
-// Priority: page.image > currentBot.avatarImage > default fallback
 const selectImage = computed(() => {
   return pageImage.value || currentBot.value?.avatarImage || '/images/botcafe.webp'
 })
@@ -52,7 +50,7 @@ const handleAvatarClick = () => {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Failed to toggle sidebar'
-    errorStore.setError(ErrorType.INTERACTION_ERROR, message)
+    errorStore.setError('INTERACTION_ERROR', message)
   }
 }
 </script>

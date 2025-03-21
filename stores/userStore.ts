@@ -181,10 +181,12 @@ export const useUserStore = defineStore({
     async validateAndFetchUserData(): Promise<boolean> {
       try {
         const response = await performFetch<User>('/api/auth/validate/token', {
-          method: 'POST',
-          body: JSON.stringify({ token: this.token }),
-        })
-
+  method: 'POST',
+  body: JSON.stringify({ token: this.token }),
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
         if (response.success && response.data) {
           await this.setUser(response.data)
 

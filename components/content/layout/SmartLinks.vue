@@ -1,57 +1,72 @@
 <template>
   <div class="smart-links-container flex justify-between items-center w-full">
     <!-- Previous Link -->
-    <NuxtLink v-if="prev" :to="prev._path" class="nav-link group">
+    <NuxtLink v-if="prevPage" :to="prevPage.path" class="nav-link group">
       <Icon name="kind-icon:back-arrow" class="hover:scale-125" />
-      <span class="nav-text">{{ prev.title }}</span>
+      <span class="nav-text">{{ prevPage.title }}</span>
     </NuxtLink>
 
     <!-- Random Highlight Link -->
-    <NuxtLink :to="randomHighlightPage?._path || '/'" class="nav-link group">
+    <NuxtLink
+      :to="randomHighlight?.path || '/'"
+      class="nav-link group"
+      :aria-label="randomLinkText"
+    >
       <Icon name="kind-icon:galaxy" class="hover:scale-125" />
       <span class="nav-text">{{ randomLinkText }}</span>
     </NuxtLink>
 
     <!-- Next Link -->
-    <NuxtLink v-if="next" :to="next._path" class="nav-link group">
+    <NuxtLink v-if="nextPage" :to="nextPage.path" class="nav-link group">
       <Icon name="kind-icon:forward-arrow" class="hover:scale-125" />
-      <span class="nav-text">{{ next.title }}</span>
+      <span class="nav-text">{{ nextPage.title }}</span>
     </NuxtLink>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
-import { useRoute } from 'nuxt/app'
-import { useContentStore } from '../../../stores/contentStore'
+import { computed, ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { usePageStore } from '@/stores/pageStore'
 
-// Simulating `prev` and `next` manually if `useContent()` isn't available
+const pageStore = usePageStore()
 const route = useRoute()
-const contentStore = useContentStore()
 
-const prev = computed(
-  () =>
-    contentStore.pages.find((page) => page._path === route.meta.prev) || null,
+const pages = computed(() =>
+  pageStore.pages.filter((p) => !!p.path && !!p.title),
 )
 
-const next = computed(
-  () =>
-    contentStore.pages.find((page) => page._path === route.meta.next) || null,
+const currentIndex = computed(() =>
+  pages.value.findIndex((p) => p.path === route.path),
 )
 
-// Safe computed with fallback to prevent SSR errors
-const randomHighlightPage = computed(() => {
-  const pages = contentStore.highlightPages
-  return pages.length ? pages[Math.floor(Math.random() * pages.length)] : null
+const prevPage = computed(() => {
+  return currentIndex.value > 0 ? pages.value[currentIndex.value - 1] : null
 })
 
-// Use ref for reactive properties set on client-side
-const randomLinkText = ref('Loading...')
+const nextPage = computed(() => {
+  return currentIndex.value < pages.value.length - 1
+    ? pages.value[currentIndex.value + 1]
+    : null
+})
+
+const highlightPages = computed(() =>
+  pageStore.pages.filter((p) => p.sort === 'highlight'),
+)
+
+const randomHighlight = computed(() => {
+  const list = highlightPages.value
+  return list.length
+    ? list[Math.floor(Math.random() * list.length)]
+    : pages.value[Math.floor(Math.random() * pages.value.length)] || null
+})
+
+const randomLinkText = ref('Explore')
 
 onMounted(() => {
-  const randomLinkTexts = ['Randomizer', 'Teleport!', 'Something else']
+  const options = ['Randomizer', 'Teleport!', 'Try this one', 'Explore!']
   randomLinkText.value =
-    randomLinkTexts[Math.floor(Math.random() * randomLinkTexts.length)]
+    options[Math.floor(Math.random() * options.length)]
 })
 </script>
 

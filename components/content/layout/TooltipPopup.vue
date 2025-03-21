@@ -7,11 +7,10 @@
       @click="toggleMinimize"
     >
       <img
-        :src="page?.image ? `/images/${page.image}` : '/images/backtree.webp'"
+        :src="image ? `/images/${image}` : '/images/backtree.webp'"
         alt="Chat Avatar"
         class="rounded-full w-14 h-14"
       />
-      <!-- Ripple Effect -->
       <div class="ripple bg-primary opacity-50" />
     </div>
 
@@ -22,7 +21,6 @@
     >
       <h3 class="text-lg font-semibold text-primary mb-2">Silas Says...</h3>
 
-      <!-- Text Container -->
       <div class="streaming-container bg-base rounded-lg p-4">
         <div class="streaming-text text-base text-info">
           {{ streamingText || 'Hey there, welcome to KindRobots!' }}
@@ -34,85 +32,47 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { useAsyncData } from '#app'
+import { usePageStore } from '@/stores/pageStore'
 
-// Get the route params
-const route = useRoute()
-const name = route.params.name as string
+const pageStore = usePageStore()
+const { image, tooltip } = storeToRefs(pageStore)
 
-// Define expected content structure
-interface PageData {
-  title?: string
-  description?: string
-  subtitle?: string
-  image?: string
-  icon?: string
-  underConstruction?: boolean
-  dottitip?: string
-  amitip?: string
-  tooltip?: string
-  message?: string
-}
-
-// Fetch the page data using Nuxt Content v3
-const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
-  const result = await queryCollection('content').path(`${name}`).first()
-  return result || {}
-})
-
-// Initialize reactive variables
 const streamingText = ref('')
 const minimized = ref(false)
+let interval: NodeJS.Timeout | null = null
 
-// Function to toggle minimize state
 const toggleMinimize = () => {
   minimized.value = !minimized.value
   localStorage.setItem('tooltipMinimized', minimized.value.toString())
 }
 
-let interval: NodeJS.Timeout | null = null
-
-// Function to stream text
 const streamText = (text: string) => {
-  if (interval) {
-    clearTimeout(interval)
-  }
-
-  streamingText.value = '' // Reset the streaming text
+  if (interval) clearTimeout(interval)
+  streamingText.value = ''
   let index = 0
-  let speed = 50 // Default speed
 
   const appendChar = () => {
     if (index < text.length) {
       streamingText.value += text.charAt(index)
-      if (text.charAt(index) === '.' || text.charAt(index) === ',') {
-        speed = 500
-      } else {
-        speed = 50
-      }
+      const delay = ['.', ','].includes(text.charAt(index)) ? 500 : 50
       index++
-      interval = setTimeout(appendChar, speed)
+      interval = setTimeout(appendChar, delay)
     } else {
-      clearTimeout(interval as NodeJS.Timeout)
+      clearTimeout(interval!)
     }
   }
 
   appendChar()
 }
 
-// Lifecycle hooks and watchers
 onMounted(() => {
   minimized.value = localStorage.getItem('tooltipMinimized') === 'true'
-  streamText(page.value?.tooltip || 'Hey there, welcome to KindRobots!')
+  streamText(tooltip.value || 'Hey there, welcome to KindRobots!')
 })
 
-watch(
-  () => page.value?.tooltip,
-  (newTooltip) => {
-    streamText(newTooltip || 'Hey there, welcome to KindRobots!')
-  },
-)
+watch(tooltip, (newVal) => {
+  streamText(newVal || 'Hey there, welcome to KindRobots!')
+})
 </script>
 
 <style scoped>

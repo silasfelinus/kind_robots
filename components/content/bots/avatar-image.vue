@@ -25,7 +25,7 @@
 import { ref, computed } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useBotStore } from '@/stores/botStore'
-import { useErrorStore } from '@/stores/errorStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const flipped = ref(false)
@@ -39,7 +39,9 @@ const currentBot = computed(() => botStore.currentBot)
 const pageImage = computed(() => pageStore.image)
 
 const selectImage = computed(() => {
-  return pageImage.value || currentBot.value?.avatarImage || '/images/botcafe.webp'
+  return (
+    pageImage.value || currentBot.value?.avatarImage || '/images/botcafe.webp'
+  )
 })
 
 const handleAvatarClick = () => {
@@ -50,7 +52,7 @@ const handleAvatarClick = () => {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Failed to toggle sidebar'
-    errorStore.setError('INTERACTION_ERROR', message)
+    errorStore.setError(ErrorType.INTERACTION_ERROR, message)
   }
 }
 </script>

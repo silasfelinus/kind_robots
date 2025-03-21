@@ -52,8 +52,8 @@ const pageStore = usePageStore()
 const { title, description, icon, page } = storeToRefs(pageStore)
 
 // Use page-specific suggestions or fallbacks
-const suggestion1 = computed(() => page.value?.suggestion1)
-const suggestion2 = computed(() => page.value?.suggestion2)
+const suggestion1 = 'Test Suggestion 1'
+const suggestion2 = 'test Suggestion 2'
 
 const chatOpen = ref(false)
 const userInput = ref('')

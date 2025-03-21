@@ -5,6 +5,8 @@ import { useAsyncData } from '#app'
 import { computed } from 'vue'
 import type { ContentType } from '~/content.config'
 
+export type LayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
+
 export const usePageStore = defineStore('pageStore', () => {
   const route = useRoute()
 
@@ -26,8 +28,17 @@ export const usePageStore = defineStore('pageStore', () => {
   })
 
   const title = computed(() => page.value?.title ?? 'Kind Robots')
-  const subtitle = computed(() => page.value?.subtitle ?? 'Welcome to Kind Robots')
-  const layout = computed(() => page.value?.layout ?? 'default')
+  const subtitle = computed(
+    () => page.value?.subtitle ?? 'Welcome to Kind Robots',
+  )
+  const layout = computed<LayoutKey>(() => {
+    const validLayouts: LayoutKey[] = ['default', 'minimal', 'vertical-scroll']
+    const value = page.value?.layout
+    return validLayouts.includes(value as LayoutKey)
+      ? (value as LayoutKey)
+      : 'default'
+  })
+
   const description = computed(() => page.value?.description ?? '')
   const image = computed(() => page.value?.image ?? '')
   const tags = computed(() => page.value?.tags ?? [])
@@ -37,6 +48,9 @@ export const usePageStore = defineStore('pageStore', () => {
   const amitip = computed(() => page.value?.amitip ?? '')
   const category = computed(() => page.value?.category ?? '')
   const sort = computed(() => page.value?.sort ?? '')
+  const underConstruction = computed(
+    () => page.value?.underConstruction ?? true,
+  )
 
   return {
     // current page data
@@ -53,6 +67,7 @@ export const usePageStore = defineStore('pageStore', () => {
     amitip,
     category,
     sort,
+    underConstruction,
 
     // all pages
     pages,

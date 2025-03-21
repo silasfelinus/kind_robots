@@ -11,7 +11,7 @@
           image-src="/images/amibotsquare1.webp"
           alt-text="AMI"
           username="AMIbot"
-          :message="page?.amitip ?? ''"
+          :message="amitip"
           @remove-card="showAmiCard = false"
         />
         <MessageCard
@@ -21,7 +21,7 @@
           image-src="/images/avatars/dottie1.webp"
           alt-text="Dotti"
           username="DottiBot"
-          :message="page?.dottitip ?? ''"
+          :message="dottitip"
           @remove-card="showDottiCard = false"
         />
       </div>
@@ -34,53 +34,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useContentStore } from '../../../stores/contentStore'
-import { useRoute } from 'vue-router'
-import { useAsyncData } from '#app'
-
-// Get the route params
-const route = useRoute()
-const name = route.params.name as string
-
-// Define expected content structure
-interface PageData {
-  title?: string
-  description?: string
-  subtitle?: string
-  image?: string
-  icon?: string
-  underConstruction?: boolean
-  dottitip?: string
-  amitip?: string
-  tooltip?: string
-  message?: string
-}
-
-// Fetch the page data using Nuxt Content v3
-const { data: page } = await useAsyncData<PageData>(`${name}`, async () => {
-  const result = await queryCollection('content').path(`${name}`).first()
-  return result || {}
-})
+import { ref, watch, onMounted } from 'vue'
+import { useContentStore } from '@/stores/contentStore'
+import { usePageStore } from '@/stores/pageStore'
 
 const contentStore = useContentStore()
+const pageStore = usePageStore()
+
+const { dottitip, amitip } = storeToRefs(pageStore)
 const showInfo = computed(() => contentStore.showInfo)
 
 const showDottiCard = ref(false)
 const showAmiCard = ref(false)
 
-// Function to update showInfo based on the tooltips' visibility
 const updateShowInfo = () => {
   if (!showAmiCard.value && !showDottiCard.value && contentStore.showInfo) {
-    contentStore.toggleInfo() // Toggle off showInfo only if it's currently on
+    contentStore.toggleInfo()
   }
 }
 
-// Watch for changes in showAmiCard and showDottiCard
 watch(showAmiCard, updateShowInfo)
 watch(showDottiCard, updateShowInfo)
 
-// Watch for changes in showInfo
 watch(showInfo, (newVal) => {
   if (newVal) {
     showAmiCard.value = true
@@ -91,11 +66,11 @@ watch(showInfo, (newVal) => {
 onMounted(() => {
   setTimeout(() => {
     showDottiCard.value = true
-  }, 1000) // 1 second delay
+  }, 1000)
 
   setTimeout(() => {
     showAmiCard.value = true
-  }, 2000) // 2 seconds delay
+  }, 2000)
 })
 </script>
 
@@ -106,7 +81,8 @@ onMounted(() => {
     opacity 0.5s,
     bottom 0.5s ease-in-out;
 }
-.fade-slide-enter, .fade-slide-leave-to /* .fade-slide-leave-active in <2.1.8 */ {
+.fade-slide-enter,
+.fade-slide-leave-to {
   opacity: 0;
   bottom: -100px;
 }

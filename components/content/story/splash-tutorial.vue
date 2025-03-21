@@ -4,7 +4,7 @@
   >
     <!-- Under Construction Icon -->
     <div
-      v-if="page?.underConstruction"
+      v-if="underConstruction"
       class="absolute top-2 left-2 z-20 opacity-90 md:w-12 md:h-12 lg:w-16 lg:h-16"
     >
       <Icon
@@ -19,47 +19,41 @@
     >
       <!-- Main Image -->
       <img
-        v-if="page?.image"
-        :src="'/images/' + page.image"
+        v-if="image"
+        :src="`/images/${image}`"
         alt="Main Image"
         class="rounded-2xl shadow-md object-contain w-full h-auto max-h-[50%]"
       />
 
-      <!-- Title, Description, and Subtitle -->
+      <!-- Title, Description -->
       <div class="text-center w-full space-y-4">
         <h1
-          v-if="page?.title"
+          v-if="title"
           class="text-2xl lg:text-4xl font-bold truncate bg-primary text-white rounded-xl p-2"
         >
-          {{ page.title }}
+          {{ title }}
         </h1>
 
         <h3
-          v-if="page?.description"
+          v-if="description"
           class="text-sm md:text-lg lg:text-xl xl-text-2xl font-medium px-4"
         >
-          {{ page.description }}
+          {{ description }}
         </h3>
       </div>
 
       <!-- Floating Background Icon -->
-      <div
-        v-if="page?.icon"
-        class="flex justify-center items-center opacity-30"
-      >
-        <Icon
-          :name="page.icon"
-          class="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20"
-        />
+      <div v-if="icon" class="flex justify-center items-center opacity-30">
+        <Icon :name="icon" class="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20" />
       </div>
     </div>
 
     <!-- Bot Messages Section -->
     <div
-      v-if="page?.dottitip && page?.amitip"
+      v-if="dottitip && amitip"
       class="flex flex-col w-full max-w-3xl px-2 md:px-4 py-0 md:py-1 lg:py-2 mx-auto"
     >
-      <!-- DottiBot Message -->
+      <!-- DottiBot -->
       <div class="chat chat-start">
         <div class="chat-image avatar">
           <div
@@ -69,11 +63,11 @@
           </div>
         </div>
         <div class="chat-bubble chat-bubble-primary">
-          <span class="font-semibold">DottiBot:</span> {{ page.dottitip }}
+          <span class="font-semibold">DottiBot:</span> {{ dottitip }}
         </div>
       </div>
 
-      <!-- AMIbot Message -->
+      <!-- AMIbot -->
       <div class="chat chat-end">
         <div class="chat-image avatar">
           <div
@@ -83,7 +77,7 @@
           </div>
         </div>
         <div class="chat-bubble chat-bubble-secondary">
-          <span class="font-semibold">AMIbot:</span> {{ page.amitip }}
+          <span class="font-semibold">AMIbot:</span> {{ amitip }}
         </div>
       </div>
     </div>
@@ -91,18 +85,15 @@
 </template>
 
 <script setup lang="ts">
-import { useAsyncData } from '#app'
-import { computed } from 'vue'
-import type { ContentType } from '~/content.config'
+import { usePageStore } from '@/stores/pageStore'
 
-const route = useRoute()
-
-const page = computed(() => {
-  const { data } = useAsyncData(route.path, async () => {
-    return (await queryCollection('content')
-      .path(route.path)
-      .first()) as ContentType | null
-  })
-  return data.value
-})
+const {
+  title,
+  description,
+  image,
+  icon,
+  underConstruction,
+  dottitip,
+  amitip,
+} = storeToRefs(usePageStore())
 </script>

@@ -11,8 +11,7 @@
 </template>
 
 <script setup lang="ts">
-
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useRouter } from '#app'
 import { SpeedInsights } from '@vercel/speed-insights/vue'
 
@@ -78,10 +77,13 @@ onMounted(async () => {
   } = useRoute().query
 
   if (displayMode) displayStore.displayMode = displayMode as displayModeState
-  if (displayAction) displayStore.displayAction = displayAction as displayActionState
+  if (displayAction)
+    displayStore.displayAction = displayAction as displayActionState
   if (botId) botStore.selectBot(parseInt(botId as string, 10))
-  if (characterId) characterStore.selectCharacter(parseInt(characterId as string, 10))
-  if (scenarioId) scenarioStore.selectScenario(parseInt(scenarioId as string, 10))
+  if (characterId)
+    characterStore.selectCharacter(parseInt(characterId as string, 10))
+  if (scenarioId)
+    scenarioStore.selectScenario(parseInt(scenarioId as string, 10))
   if (chatId) chatStore.selectChat(parseInt(chatId as string, 10))
   if (pitchId) pitchStore.selectPitch(parseInt(pitchId as string, 10))
   if (promptId) promptStore.selectPrompt(parseInt(promptId as string, 10))

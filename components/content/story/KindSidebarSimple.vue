@@ -49,7 +49,7 @@ import { useLinkStore } from '@/stores/linkStore'
 const router = useRouter()
 const displayStore = useDisplayStore()
 const linkStore = useLinkStore()
-const { allLinks: links } = storeToRefs(linkStore)
+const { staticLinks: links } = storeToRefs(linkStore)
 
 const navigate = (path: string) => {
   router.push(path)

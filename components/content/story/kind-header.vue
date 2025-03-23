@@ -25,7 +25,9 @@
       <div class="flex flex-col flex-1 h-full px-4">
         <div class="flex h-full w-full">
           <!-- Title and Subtitle -->
-          <div class="flex flex-col justify-center flex-shrink-0 w-1/2 sm:w-1/3 pr-2">
+          <div
+            class="flex flex-col justify-center flex-shrink-0 w-1/2 sm:w-1/3 pr-2"
+          >
             <h1
               class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
             >
@@ -46,8 +48,6 @@
             <jellybean-count class="flex max-w-[80px]" />
             <theme-icon class="flex max-w-[80px]" />
             <swarm-icon class="flex max-w-[80px]" />
-
-            <screen-debug />
           </div>
         </div>
 

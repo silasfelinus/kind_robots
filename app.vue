@@ -5,7 +5,6 @@
     <!-- Loaders -->
     <div class="fixed z-50">
       <kind-loader />
-      <Analytics />
       <animation-loader class="fixed z-50" />
       <milestone-popup />
     </div>

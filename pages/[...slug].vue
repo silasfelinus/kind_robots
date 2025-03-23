@@ -1,7 +1,6 @@
 <template>
   <main>
     <NuxtLayout :name="layout">
-      <SpeedInsights />
       <ContentRenderer v-if="page" :value="page" />
       <template v-else>
         <p>Bot Not Found</p>

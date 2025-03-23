@@ -7,97 +7,109 @@
       {{ isDebugVisible ? '🛠️' : '📌' }}
     </button>
 
-    <div
-      v-if="isDebugVisible"
-      class="fixed z-50 bg-opacity-90 bg-black text-white p-4 rounded-lg max-w-lg max-h-96 overflow-y-auto"
-      style="bottom: 50%; left: 50%; transform: translate(-50%, -50%)"
-    >
-      <h2 class="text-lg font-bold">Debug Info</h2>
-      <ul class="text-sm space-y-2">
-        <!-- Visibility States -->
-        <li><strong>Header Visible (boolean):</strong> {{ headerVisible }}</li>
-        <li>
-          <strong>Sidebar Left Visible (boolean):</strong>
-          {{ sidebarLeftVisible }}
-        </li>
-        <li>
-          <strong>Sidebar Right Visible (boolean):</strong>
-          {{ sidebarRightVisible }}
-        </li>
-        <li><strong>Footer Visible (boolean):</strong> {{ footerVisible }}</li>
+    <client-only>
+      <div
+        v-if="isDebugVisible"
+        class="fixed z-50 bg-opacity-90 bg-black text-white p-4 rounded-lg max-w-lg max-h-96 overflow-y-auto"
+        style="bottom: 50%; left: 50%; transform: translate(-50%, -50%)"
+      >
+        <h2 class="text-lg font-bold">Debug Info</h2>
+        <ul class="text-sm space-y-2">
+          <!-- Visibility States -->
+          <li>
+            <strong>Header Visible (boolean):</strong> {{ headerVisible }}
+          </li>
+          <li>
+            <strong>Sidebar Left Visible (boolean):</strong>
+            {{ sidebarLeftVisible }}
+          </li>
+          <li>
+            <strong>Sidebar Right Visible (boolean):</strong>
+            {{ sidebarRightVisible }}
+          </li>
+          <li>
+            <strong>Footer Visible (boolean):</strong> {{ footerVisible }}
+          </li>
 
-        <!-- Header & Footer -->
-        <li><strong>Header State (string):</strong> {{ headerState }}</li>
-        <li><strong>Footer State (string):</strong> {{ footerState }}</li>
-        <li><strong>Header Height (string):</strong> {{ headerHeight }}</li>
-        <li><strong>Footer Height (string):</strong> {{ footerHeight }}</li>
-        <li><strong>Header Base (number):</strong> {{ headerBase }}</li>
-        <li><strong>Footer Base (number):</strong> {{ footerBase }}</li>
-        <li><strong>Header Style (object):</strong> {{ headerStyle }}</li>
-        <li><strong>Footer Style (object):</strong> {{ footerStyle }}</li>
+          <!-- Header & Footer -->
+          <li><strong>Header State (string):</strong> {{ headerState }}</li>
+          <li><strong>Footer State (string):</strong> {{ footerState }}</li>
+          <li><strong>Header Height (string):</strong> {{ headerHeight }}</li>
+          <li><strong>Footer Height (string):</strong> {{ footerHeight }}</li>
+          <li><strong>Header Base (number):</strong> {{ headerBase }}</li>
+          <li><strong>Footer Base (number):</strong> {{ footerBase }}</li>
+          <li><strong>Header Style (object):</strong> {{ headerStyle }}</li>
+          <li><strong>Footer Style (object):</strong> {{ footerStyle }}</li>
 
-        <!-- Sidebar Dimensions -->
-        <li>
-          <strong>Sidebar Left State (string):</strong> {{ sidebarLeftState }}
-        </li>
-        <li>
-          <strong>Sidebar Right State (string):</strong> {{ sidebarRightState }}
-        </li>
-        <li>
-          <strong>Sidebar Left Width (string):</strong> {{ sidebarLeftWidth }}
-        </li>
-        <li>
-          <strong>Sidebar Right Width (string):</strong> {{ sidebarRightWidth }}
-        </li>
-        <li>
-          <strong>Sidebar Left Base (number):</strong> {{ sidebarLeftBase }}
-        </li>
-        <li>
-          <strong>Sidebar Right Base (number):</strong> {{ sidebarRightBase }}
-        </li>
+          <!-- Sidebar Dimensions -->
+          <li>
+            <strong>Sidebar Left State (string):</strong> {{ sidebarLeftState }}
+          </li>
+          <li>
+            <strong>Sidebar Right State (string):</strong>
+            {{ sidebarRightState }}
+          </li>
+          <li>
+            <strong>Sidebar Left Width (string):</strong> {{ sidebarLeftWidth }}
+          </li>
+          <li>
+            <strong>Sidebar Right Width (string):</strong>
+            {{ sidebarRightWidth }}
+          </li>
+          <li>
+            <strong>Sidebar Left Base (number):</strong> {{ sidebarLeftBase }}
+          </li>
+          <li>
+            <strong>Sidebar Right Base (number):</strong> {{ sidebarRightBase }}
+          </li>
 
-        <li>
-          <strong>Left Sidebar Style (object):</strong> {{ leftSidebarStyle }}
-        </li>
-        <li>
-          <strong>Right Sidebar Style (object):</strong> {{ rightSidebarStyle }}
-        </li>
+          <li>
+            <strong>Left Sidebar Style (object):</strong> {{ leftSidebarStyle }}
+          </li>
+          <li>
+            <strong>Right Sidebar Style (object):</strong>
+            {{ rightSidebarStyle }}
+          </li>
 
-        <!-- Main Content -->
+          <!-- Main Content -->
 
-        <li>
-          <strong>Main Content Style (object):</strong> {{ mainContentStyle }}
-        </li>
+          <li>
+            <strong>Main Content Style (object):</strong> {{ mainContentStyle }}
+          </li>
 
-        <!-- Padding Calculations -->
-        <li>
-          <strong>Section Padding (number):</strong>
-          {{ sectionPadding }}
-        </li>
+          <!-- Padding Calculations -->
+          <li>
+            <strong>Section Padding (number):</strong>
+            {{ sectionPadding }}
+          </li>
 
-        <!-- Animation & Effects -->
-        <li><strong>Is Animating (boolean):</strong> {{ isAnimating }}</li>
-        <li>
-          <strong>Current Animation (string):</strong> {{ currentAnimation }}
-        </li>
+          <!-- Animation & Effects -->
+          <li><strong>Is Animating (boolean):</strong> {{ isAnimating }}</li>
+          <li>
+            <strong>Current Animation (string):</strong> {{ currentAnimation }}
+          </li>
 
-        <!-- Viewport & Layout Info -->
-        <li><strong>Viewport Size (string):</strong> {{ viewportSize }}</li>
-        <li><strong>Is Touch Device (boolean):</strong> {{ isTouchDevice }}</li>
-        <li>
-          <strong>Is Mobile Viewport (boolean):</strong> {{ isMobileViewport }}
-        </li>
-        <li>
-          <strong>Is Large Viewport (boolean):</strong> {{ isLargeViewport }}
-        </li>
-        <li>
-          <strong>Fullscreen State (string):</strong> {{ fullscreenState }}
-        </li>
-        <li><strong>Big Mode (boolean):</strong> {{ bigMode }}</li>
-        <li><strong>Flip State (string):</strong> {{ flipState }}</li>
-        <li><strong>Previous Route (string):</strong> {{ previousRoute }}</li>
-      </ul>
-    </div>
+          <!-- Viewport & Layout Info -->
+          <li><strong>Viewport Size (string):</strong> {{ viewportSize }}</li>
+          <li>
+            <strong>Is Touch Device (boolean):</strong> {{ isTouchDevice }}
+          </li>
+          <li>
+            <strong>Is Mobile Viewport (boolean):</strong>
+            {{ isMobileViewport }}
+          </li>
+          <li>
+            <strong>Is Large Viewport (boolean):</strong> {{ isLargeViewport }}
+          </li>
+          <li>
+            <strong>Fullscreen State (string):</strong> {{ fullscreenState }}
+          </li>
+          <li><strong>Big Mode (boolean):</strong> {{ bigMode }}</li>
+          <li><strong>Flip State (string):</strong> {{ flipState }}</li>
+          <li><strong>Previous Route (string):</strong> {{ previousRoute }}</li>
+        </ul>
+      </div>
+    </client-only>
   </div>
 </template>
 

@@ -58,7 +58,7 @@ export default defineNuxtConfig({
 
   // Control over Nuxt devtools
   devtools: {
-    enabled: false, // Disable devtools in production
+    enabled: true, // Disable devtools in production
   },
 
   // Adding the build hook to run the script

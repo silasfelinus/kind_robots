@@ -36,7 +36,7 @@ import { useLinkStore } from '@/stores/linkStore'
 
 const router = useRouter()
 const linkStore = useLinkStore()
-const { allLinks: links } = storeToRefs(linkStore)
+const { staticLinks: links } = storeToRefs(linkStore)
 
 const navigateTo = (path: string) => {
   router.push(path)

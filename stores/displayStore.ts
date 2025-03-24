@@ -182,7 +182,7 @@ export const useDisplayStore = defineStore('display', {
         top:
           this.headerState !== 'hidden'
             ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`
-            : `5vh`,
+            : `6vh`,
         right:
           this.sidebarRightState !== 'hidden'
             ? `calc(${this.sidebarRightWidth}vw + ${this.sectionPaddingSize * 2}vw)`

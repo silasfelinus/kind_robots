@@ -17,7 +17,6 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   const milestones = ref<Milestone[]>([])
   const milestoneRecords = ref<MilestoneRecord[]>([])
   const isInitialized = ref(false)
-  const currentMilestone = ref<Milestone | null>(null)
   const highClickScores = ref<UserScore[]>([])
   const highMatchScores = ref<UserScore[]>([])
 
@@ -27,9 +26,13 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     ).length
   })
 
-  const getMilestoneCountForUser = (userId: number) => {
-    return milestoneRecords.value.filter((record) => record.userId === userId)
-      .length
+  function persist() {
+    if (typeof window === 'undefined') return
+    localStorage.setItem('milestones', JSON.stringify(milestones.value))
+    localStorage.setItem(
+      'milestoneRecords',
+      JSON.stringify(milestoneRecords.value),
+    )
   }
 
   const unconfirmedMilestones = computed(() => {
@@ -276,10 +279,6 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     }
   }
 
-  function clearCurrentMilestone() {
-    currentMilestone.value = null
-  }
-
   async function clearAllMilestoneRecords() {
     try {
       const response = await performFetch(`/api/milestones/records/clear/`, {
@@ -326,31 +325,40 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
 
   return {
     milestones,
-    initializeMilestones,
-    confirmMilestone,
     milestoneRecords,
-    isInitialized,
-    currentMilestone,
-    highClickScores,
-    highMatchScores,
-    getMilestoneCountForUser,
-    updateMilestonesFromData,
-    fetchHighClickScores,
-    fetchMilestones,
-    fetchMilestoneRecords,
-    fetchHighMatchScores,
-    updateClickRecord,
-    updateMatchRecord,
-    milestoneCountForUser,
+    activeMilestones,
     unconfirmedMilestones,
     milestoneSummary,
-    activeMilestones,
+    highClickScores,
+    highMatchScores,
+    isInitialized,
+
+    // Milestone logic
+    initializeMilestones,
+    fetchMilestones,
+    fetchMilestoneRecords,
     fetchMilestoneById,
-    recordMilestone,
-    clearAllMilestoneRecords,
+    updateMilestone,
+    updateMilestonesFromData,
+
+    // Milestone record logic
     addMilestoneRecord,
-    hasMilestone,
+    confirmMilestone,
     updateMilestoneRecord,
+    recordMilestone,
+    hasMilestone,
+    clearAllMilestoneRecords,
+
+    // Leaderboard / game scores
+    fetchHighClickScores,
+    fetchHighMatchScores,
+
+    // Local persistence
+    saveMilestoneRecordsToLocalStorage,
+    saveMilestonesToLocalStorage,
+
+    // Debug
+    // debugMilestones,
   }
 })
 

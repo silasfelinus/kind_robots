@@ -55,13 +55,13 @@ const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 
 const milestone = computed(() => milestoneStore.activeMilestones[0])
-
 const acknowledgeMilestone = async () => {
-  await userStore.updateKarmaAndMana()
+  const currentMilestone = milestone.value
+  console.log('Acknowledging:', currentMilestone)
+  if (!currentMilestone) return
 
-  if (!milestone.value) return
-
   await userStore.updateKarmaAndMana()
-  await milestoneStore.confirmMilestone(milestone.value.id)
+  await milestoneStore.confirmMilestone(currentMilestone.id)
+  console.log('Milestone list after confirm:', milestoneStore.activeMilestones)
 }
 </script>

@@ -75,6 +75,11 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   }
 
   async function confirmMilestone(milestoneId: number) {
+    if (userStore.isGuest) {
+      console.warn('Guest users cannot confirm milestones.')
+      return
+    }
+
     const record = milestoneRecords.value.find(
       (r) => r.userId === userStore.userId && r.milestoneId === milestoneId,
     )
@@ -84,9 +89,25 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       return
     }
 
-    record.isConfirmed = true
-    await updateMilestoneRecord({ id: record.id, isConfirmed: true })
-    persist()
+    try {
+      record.isConfirmed = true
+      const result = await updateMilestoneRecord({
+        id: record.id,
+        isConfirmed: true,
+      })
+
+      if (result?.success === false) {
+        console.warn(
+          'Failed to update milestone record on server:',
+          result.message,
+        )
+        return
+      }
+
+      persist()
+    } catch (error) {
+      console.error('Error confirming milestone:', error)
+    }
   }
 
   async function fetchMilestones() {
@@ -197,7 +218,9 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       handleError(error, 'updating match record')
     }
   }
-  async function updateMilestoneRecord(record: Partial<MilestoneRecord>) {
+  async function updateMilestoneRecord(
+    record: Partial<MilestoneRecord>,
+  ): Promise<{ success: boolean; message?: string }> {
     try {
       const response = await performFetch<MilestoneRecord>(
         `/api/milestones/records/${record.id}`,
@@ -210,9 +233,11 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to update milestone record')
       }
+
+      return { success: true }
     } catch (error) {
       handleError(error, 'updating milestone record')
-      throw error
+      return { success: false, message: (error as Error).message }
     }
   }
 
@@ -236,7 +261,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   }
 
   async function recordMilestone(userId: number, milestoneId: number) {
-    if (!userId || userId === 10) {
+    if (useUserStore().isGuest) {
       return {
         success: true,
         message: 'Guest users cannot earn milestones.',
@@ -263,6 +288,12 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
         message: 'An error occurred while recording milestone',
       }
     }
+  }
+
+  function deactivateMilestone(id: number) {
+    const m = milestones.value.find((m) => m.id === id)
+    if (m) m.isActive = false
+    persist()
   }
 
   async function clearAllMilestoneRecords() {
@@ -326,6 +357,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     fetchMilestoneById,
     updateMilestone,
     updateMilestonesFromData,
+    deactivateMilestone,
 
     // Milestone record logic
     addMilestoneRecord,

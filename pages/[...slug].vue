@@ -10,10 +10,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
-import { useRouter } from '#app'
-import { SpeedInsights } from '@vercel/speed-insights/vue'
+import { onMounted } from 'vue'
+import { useRoute, useRouter } from '#app'
+import { storeToRefs } from 'pinia'
 
+import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -21,14 +22,13 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 import { useChatStore } from '@/stores/chatStore'
 import { usePitchStore } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
-import {
-  useDisplayStore,
-  type displayActionState,
-  type displayModeState,
+import { useDisplayStore } from '@/stores/displayStore'
+import type {
+  displayActionState,
+  displayModeState,
 } from '@/stores/displayStore'
 
-import { usePageStore } from '@/stores/pageStore'
-
+const route = useRoute()
 const router = useRouter()
 
 const displayStore = useDisplayStore()
@@ -44,24 +44,20 @@ const pageStore = usePageStore()
 const { page, layout } = storeToRefs(pageStore)
 
 onMounted(async () => {
-  // Load token from localStorage
+  await pageStore.loadPage(route.path)
+
   const token = userStore.getFromLocalStorage('token')
   if (userStore.user === null && token) {
     userStore.token = token
     try {
-      console.log('Validating token from localStorage...')
       const isValid = await userStore.validateAndFetchUserData()
-      if (!isValid) {
-        console.warn('Invalid token. Clearing storage.')
-        userStore.removeFromLocalStorage('token')
-      }
+      if (!isValid) userStore.removeFromLocalStorage('token')
     } catch (error) {
-      console.error('Error during token validation:', error)
+      console.error('Token validation error:', error)
       userStore.removeFromLocalStorage('token')
     }
   }
 
-  // Process query parameters
   const {
     token: queryToken,
     code,
@@ -73,32 +69,27 @@ onMounted(async () => {
     promptId,
     displayMode,
     displayAction,
-  } = useRoute().query
+  } = route.query
 
   if (displayMode) displayStore.displayMode = displayMode as displayModeState
   if (displayAction)
     displayStore.displayAction = displayAction as displayActionState
-  if (botId) botStore.selectBot(parseInt(botId as string, 10))
-  if (characterId)
-    characterStore.selectCharacter(parseInt(characterId as string, 10))
-  if (scenarioId)
-    scenarioStore.selectScenario(parseInt(scenarioId as string, 10))
-  if (chatId) chatStore.selectChat(parseInt(chatId as string, 10))
-  if (pitchId) pitchStore.selectPitch(parseInt(pitchId as string, 10))
-  if (promptId) promptStore.selectPrompt(parseInt(promptId as string, 10))
+  if (botId) botStore.selectBot(Number(botId))
+  if (characterId) characterStore.selectCharacter(Number(characterId))
+  if (scenarioId) scenarioStore.selectScenario(Number(scenarioId))
+  if (chatId) chatStore.selectChat(Number(chatId))
+  if (pitchId) pitchStore.selectPitch(Number(pitchId))
+  if (promptId) promptStore.selectPrompt(Number(promptId))
 
   if (queryToken) {
-    console.log('Processing query token...')
     try {
       userStore.token = queryToken as string
       const isValid = await userStore.validateAndFetchUserData()
       if (!isValid) await router.push('/login')
-    } catch (error) {
-      console.error('Error processing query token:', error)
+    } catch {
       await router.push('/login')
     }
   } else if (code) {
-    console.log('Redirecting for token exchange...')
     await router.push(`/api/auth/google/callback?code=${code}`)
   }
 })

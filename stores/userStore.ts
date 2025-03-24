@@ -29,6 +29,10 @@ export const useUserStore = defineStore({
     googleToken: false,
   }),
   getters: {
+    isGuest(state): boolean {
+      return state.user === null || state.user?.id === 10
+    },
+
     karma(state): number {
       return state.user ? state.user.karma : 1000
     },

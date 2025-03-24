@@ -2,29 +2,38 @@
 import { defineStore } from 'pinia'
 import { useRoute } from 'vue-router'
 import { useAsyncData } from '#app'
-import { computed } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import type { ContentType } from '~/content.config'
 
 export type LayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
 
 export const usePageStore = defineStore('pageStore', () => {
   const route = useRoute()
+  const page = ref<ContentType | null>(null)
+  const pages = ref<ContentType[]>([])
 
-  const page = computed(() => {
-    const { data } = useAsyncData(route.path, async () => {
+  // Load current page based on route
+  const loadPage = async () => {
+    const { data } = await useAsyncData(`page-${route.path}`, async () => {
       return (await queryCollection('content')
         .path(route.path)
         .first()) as ContentType | null
     })
-    return data.value
-  })
+    page.value = data.value || null
+  }
 
-  const pages = computed(() => {
-    const { data } = useAsyncData('all-pages', async () => {
+  // Load all pages once
+  const loadAllPages = async () => {
+    const { data } = await useAsyncData('all-pages', async () => {
       const results = await queryCollection('content').all()
       return results.filter((item) => item.path !== '/') as ContentType[]
     })
-    return data.value || []
+    pages.value = data.value || []
+  }
+
+  // Automatically watch for route change and load correct page
+  watchEffect(() => {
+    loadPage()
   })
 
   const title = computed(() => page.value?.title ?? 'Kind Robots')
@@ -38,9 +47,10 @@ export const usePageStore = defineStore('pageStore', () => {
       ? (value as LayoutKey)
       : 'default'
   })
-
   const description = computed(() => page.value?.description ?? '')
-  const image = computed(() => page.value?.image ?? '')
+  const image = computed(() =>
+    page.value?.image?.length ? page.value.image : '/images/botcafe.webp',
+  )
   const tags = computed(() => page.value?.tags ?? [])
   const icon = computed(() => page.value?.icon ?? 'mdi:robot-happy')
   const tooltip = computed(() => page.value?.tooltip ?? '')
@@ -53,8 +63,15 @@ export const usePageStore = defineStore('pageStore', () => {
   )
 
   return {
-    // current page data
+    // state
     page,
+    pages,
+
+    // loaders
+    loadPage,
+    loadAllPages,
+
+    // derived values
     title,
     subtitle,
     layout,
@@ -68,8 +85,5 @@ export const usePageStore = defineStore('pageStore', () => {
     category,
     sort,
     underConstruction,
-
-    // all pages
-    pages,
   }
 })

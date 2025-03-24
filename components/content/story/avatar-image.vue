@@ -39,9 +39,14 @@ const currentBot = computed(() => botStore.currentBot)
 const pageImage = computed(() => pageStore.image)
 
 const selectImage = computed(() => {
-  return (
-    pageImage.value || currentBot.value?.avatarImage || '/images/botcafe.webp'
-  )
+  return pageImage.value?.length
+    ? pageImage.value
+    : currentBot.value?.avatarImage || '/images/botcafe.webp'
+})
+watch(currentBot, (newBot, oldBot) => {
+  if (newBot && newBot !== oldBot) {
+    flipped.value = !flipped.value
+  }
 })
 
 const handleAvatarClick = () => {
@@ -60,6 +65,8 @@ const handleAvatarClick = () => {
 <style scoped>
 .flip-card {
   perspective: 1000px;
+  width: 100%;
+  max-width: 100px;
   aspect-ratio: 1;
   cursor: pointer;
 }

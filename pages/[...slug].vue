@@ -46,18 +46,6 @@ const { page, layout } = storeToRefs(pageStore)
 onMounted(async () => {
   await pageStore.loadPage(route.path)
 
-  const token = userStore.getFromLocalStorage('token')
-  if (userStore.user === null && token) {
-    userStore.token = token
-    try {
-      const isValid = await userStore.validateAndFetchUserData()
-      if (!isValid) userStore.removeFromLocalStorage('token')
-    } catch (error) {
-      console.error('Token validation error:', error)
-      userStore.removeFromLocalStorage('token')
-    }
-  }
-
   const {
     token: queryToken,
     code,
@@ -81,16 +69,31 @@ onMounted(async () => {
   if (pitchId) pitchStore.selectPitch(Number(pitchId))
   if (promptId) promptStore.selectPrompt(Number(promptId))
 
-  if (queryToken) {
+  if (code) {
+    await router.push(`/api/auth/google/callback?code=${code}`)
+    return
+  }
+
+  const storedToken = userStore.getFromLocalStorage('token')
+  const tokenToUse = queryToken || storedToken
+
+  if (userStore.user === null && tokenToUse) {
+    userStore.token = tokenToUse as string
     try {
-      userStore.token = queryToken as string
       const isValid = await userStore.validateAndFetchUserData()
-      if (!isValid) await router.push('/login')
-    } catch {
+      if (!isValid) {
+        userStore.removeFromLocalStorage('token')
+        await router.push('/login')
+      } else {
+        if (queryToken) {
+          userStore.saveToLocalStorage('token', queryToken as string)
+        }
+      }
+    } catch (error) {
+      console.error('Token validation error:', error)
+      userStore.removeFromLocalStorage('token')
       await router.push('/login')
     }
-  } else if (code) {
-    await router.push(`/api/auth/google/callback?code=${code}`)
   }
 })
 </script>

@@ -333,10 +333,13 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     recordMilestone,
     hasMilestone,
     clearAllMilestoneRecords,
+    milestoneCountForUser,
 
     // Leaderboard / game scores
     fetchHighClickScores,
     fetchHighMatchScores,
+    updateMatchRecord,
+    updateClickRecord,
 
     // Local persistence
     persist,

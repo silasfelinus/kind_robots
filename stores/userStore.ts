@@ -181,12 +181,12 @@ export const useUserStore = defineStore({
     async validateAndFetchUserData(): Promise<boolean> {
       try {
         const response = await performFetch<User>('/api/auth/validate/token', {
-  method: 'POST',
-  body: JSON.stringify({ token: this.token }),
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
+          method: 'POST',
+          body: JSON.stringify({ token: this.token }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
         if (response.success && response.data) {
           await this.setUser(response.data)
 
@@ -253,9 +253,7 @@ export const useUserStore = defineStore({
           milestoneStore.fetchMilestones(),
           milestoneStore.fetchMilestoneRecords(),
         ])
-        const milestoneCount = milestoneStore.getMilestoneCountForUser(
-          this.userId,
-        )
+        const milestoneCount = milestoneStore.milestoneCountForUser
         const updatedKarma = milestoneCount * 1000
         const updatedMana = milestoneCount
 

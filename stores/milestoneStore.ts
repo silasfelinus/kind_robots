@@ -274,6 +274,10 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     }
   }
 
+  function clearCurrentMilestone() {
+    currentMilestone.value = null
+  }
+
   async function clearAllMilestoneRecords() {
     try {
       const response = await performFetch(`/api/milestones/records/clear/`, {
@@ -345,6 +349,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     addMilestoneRecord,
     hasMilestone,
     updateMilestoneRecord,
+    clearCurrentMilestone,
   }
 })
 

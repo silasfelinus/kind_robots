@@ -57,11 +57,20 @@ const milestoneStore = useMilestoneStore()
 const milestone = computed(() => milestoneStore.activeMilestones[0])
 const acknowledgeMilestone = async () => {
   const currentMilestone = milestone.value
-  console.log('Acknowledging:', currentMilestone)
   if (!currentMilestone) return
 
   await userStore.updateKarmaAndMana()
+
   await milestoneStore.confirmMilestone(currentMilestone.id)
-  console.log('Milestone list after confirm:', milestoneStore.activeMilestones)
+
+  // If guest or something failed, manually deactivate as safety net
+  if (
+    userStore.isGuest ||
+    !milestoneStore.milestoneRecords.find(
+      (r) => r.milestoneId === currentMilestone.id,
+    )
+  ) {
+    milestoneStore.deactivateMilestone(currentMilestone.id)
+  }
 }
 </script>

@@ -77,6 +77,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   async function confirmMilestone(milestoneId: number) {
     if (userStore.isGuest) {
       console.warn('Guest users cannot confirm milestones.')
+      deactivateMilestone(milestoneId)
       return
     }
 

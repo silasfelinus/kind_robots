@@ -80,6 +80,9 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       return
     }
 
+    // 🛠 Ensure records are fresh
+    await fetchMilestoneRecords()
+
     const record = milestoneRecords.value.find(
       (r) => r.userId === userStore.userId && r.milestoneId === milestoneId,
     )

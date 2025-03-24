@@ -12,8 +12,6 @@ export default defineEventHandler(async () => {
     // Fetch all pitches from the database
     const data = await prisma.pitch.findMany()
 
-    console.log('Pitches fetched successfully:', data)
-
     return {
       success: true,
       message: 'Pitches fetched successfully.',

@@ -27,7 +27,7 @@
       class="fixed z-30 box-border transition-all duration-300 ease-in-out overflow-visible"
       :style="displayStore.leftSidebarStyle"
     >
-      <kind-sidebar-simple v-if="sidebarLeftOpen" class="h-full w-full z-10" />
+      <kind-sidebar v-if="sidebarLeftOpen" class="h-full w-full z-10" />
     </aside>
 
     <!-- Center Column (Grows Fully) -->

@@ -1,3 +1,4 @@
+// /components/milestone-popup.vue
 <template>
   <div
     v-if="showPopup"
@@ -7,11 +8,12 @@
     aria-modal="true"
   >
     <div
-      class="rounded-2xl p-10 text-center relative border border-accent bg-base-100 max-w-lg mx-auto shadow-xl transition-transform transform scale-100 fade-scale-enter"
+      class="rounded-2xl p-10 text-center border border-accent bg-base-100 max-w-lg mx-auto shadow-xl"
     >
       <h2 id="milestone-popup" class="text-3xl font-semibold mb-6 text-primary">
         🎉 Congratulations, {{ userStore.username }}!
       </h2>
+
       <div v-if="milestone">
         <Icon
           :name="milestone.icon ?? 'kind-icon:map'"
@@ -22,6 +24,7 @@
           <span class="font-bold">{{ milestone.label }}</span> milestone! 🌟
         </p>
         <p class="my-4 text-gray-700">{{ milestone.message }}</p>
+
         <div
           class="karma-award flex flex-col items-center bg-accent bg-opacity-10 p-4 rounded-xl"
         >
@@ -36,39 +39,74 @@
             <p class="text-lg ml-2">You Found 1 Jellybean!</p>
           </div>
         </div>
+
+        <button
+          class="mt-6 bg-primary text-white px-6 py-2 rounded-2xl border"
+          @click="closePopup"
+        >
+          Awesome! Close
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useErrorStore } from '@/stores/errorStore'
+import { useConfetti } from '@/utils/useConfetti'
 
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
+const errorStore = useErrorStore()
+const { triggerConfetti } = useConfetti()
 
-const milestone = computed(() => milestoneStore.currentMilestone)
+const milestone = ref(milestoneStore.currentMilestone)
 const showPopup = ref(false)
 
-// Debugging: Log whenever a new milestone appears
-watchEffect(() => {
-  console.log('Checking milestone:', milestone.value)
+const recordMilestone = async () => {
+  if (!milestone.value || userStore.userId === 0) return
 
-  if (milestone.value) {
-    console.log('New milestone received:', milestone.value)
-    showPopup.value = true
-  }
-})
+  const alreadyGotIt = milestoneStore.hasMilestone(
+    userStore.userId,
+    milestone.value.id,
+  )
+  if (alreadyGotIt) return
 
-// Fallback: Force popup to show when milestone updates
-watch(milestone, (newMilestone) => {
-  if (newMilestone) {
-    console.log('Milestone updated, showing popup:', newMilestone)
-    showPopup.value = true
+  try {
+    triggerConfetti()
+    const result = await milestoneStore.recordMilestone(
+      userStore.userId,
+      milestone.value.id,
+    )
+
+    if (!result.success) {
+      throw new Error(result.message)
+    }
+
+    await userStore.updateKarmaAndMana()
+  } catch (err: unknown) {
+    errorStore.setError(ErrorType.GENERAL_ERROR, err)
   }
-})
+}
+
+watch(
+  () => milestoneStore.currentMilestone,
+  (newMilestone) => {
+    if (newMilestone) {
+      milestone.value = newMilestone
+      showPopup.value = true
+    }
+  },
+)
+
+const closePopup = async () => {
+  await recordMilestone()
+  showPopup.value = false
+  milestoneStore.clearCurrentMilestone()
+}
 </script>
 
 <style scoped>

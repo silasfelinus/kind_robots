@@ -236,12 +236,13 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   }
 
   async function recordMilestone(userId: number, milestoneId: number) {
-    if (userId === 0) {
+    if (!userId || userId === 10) {
       return {
         success: true,
-        message: 'Guest accounts cannot record milestones.',
+        message: 'Guest users cannot earn milestones.',
       }
     }
+
     if (hasMilestone(userId, milestoneId)) {
       return {
         success: true,

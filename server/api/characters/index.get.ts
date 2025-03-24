@@ -35,7 +35,6 @@ export default defineEventHandler(async (event) => {
       console.log(`Character with ID ${id} fetched successfully.`)
     } else {
       // Fetch all characters
-      console.log('Fetching all characters from the database')
       data = await prisma.character.findMany()
       console.log('All characters fetched successfully.')
     }

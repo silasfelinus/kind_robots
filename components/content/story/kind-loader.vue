@@ -4,22 +4,22 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useErrorStore, ErrorType } from './../../../stores/errorStore'
-import { useUserStore } from './../../../stores/userStore'
-import { useArtStore } from './../../../stores/artStore'
-import { useCharacterStore } from './../../../stores/characterStore'
-import { useThemeStore } from './../../../stores/themeStore'
-import { useBotStore } from './../../../stores/botStore'
-import { useChatStore } from './../../../stores/chatStore'
-import { useMilestoneStore } from './../../../stores/milestoneStore'
-import { useDisplayStore } from './../../../stores/displayStore'
-import { usePitchStore } from './../../../stores/pitchStore'
-import { usePromptStore } from './../../../stores/promptStore'
-import { useReactionStore } from './../../../stores/reactionStore'
-import { useRewardStore } from './../../../stores/rewardStore'
-import { useGalleryStore } from './../../../stores/galleryStore'
-import { useScenarioStore } from './../../../stores/scenarioStore'
-import { useWeirdStore } from './../../../stores/weirdStore'
+import { useErrorStore, ErrorType } from '../../../stores/errorStore'
+import { useUserStore } from '../../../stores/userStore'
+import { useArtStore } from '../../../stores/artStore'
+import { useCharacterStore } from '../../../stores/characterStore'
+import { useThemeStore } from '../../../stores/themeStore'
+import { useBotStore } from '../../../stores/botStore'
+import { useChatStore } from '../../../stores/chatStore'
+import { useMilestoneStore } from '../../../stores/milestoneStore'
+import { useDisplayStore } from '../../../stores/displayStore'
+import { usePitchStore } from '../../../stores/pitchStore'
+import { usePromptStore } from '../../../stores/promptStore'
+import { useReactionStore } from '../../../stores/reactionStore'
+import { useRewardStore } from '../../../stores/rewardStore'
+import { useGalleryStore } from '../../../stores/galleryStore'
+import { useScenarioStore } from '../../../stores/scenarioStore'
+import { useWeirdStore } from '../../../stores/weirdStore'
 
 // Stores
 const errorStore = useErrorStore()
@@ -44,8 +44,6 @@ const isReady = ref(false)
 const emit = defineEmits(['pageReady'])
 
 onMounted(async () => {
-  console.log('Starting initialization process...')
-
   try {
     if (!displayStore.isInitialized) {
       await errorStore.handleError(

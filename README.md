@@ -188,6 +188,7 @@ npx run build
 npx run start
 
 Setup Database:
+npx prisma studio
 npx prisma db pull
 npx prisma migrate dev
 

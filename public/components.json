@@ -134,7 +134,6 @@
       "KindBanner",
       "KindButtons",
       "KindFooter",
-      "KindLoader",
       "LatestNav",
       "LayoutSelector",
       "LeftToggle",
@@ -206,8 +205,7 @@
       "LockedMilestones",
       "MilestoneLeaderboard",
       "UnearnedMilestoneCard",
-      "award-milestone",
-      "milestone-reward"
+      "award-milestone"
     ]
   },
   {
@@ -285,23 +283,24 @@
   {
     "folderName": "story",
     "components": [
-      "DashboardChooser",
-      "KindSidebarSimple",
-      "LabChooser",
-      "PromptFactory",
-      "ScreenDebug",
       "animation-loader",
       "art-lab",
       "avatar-image",
       "bot-factory",
       "chat-button",
       "credit-purchase",
+      "dashboard-chooser",
       "flip-screen",
       "horizontal-nav",
       "hot-link",
       "kind-header",
+      "kind-loader",
+      "kind-sidebar",
+      "lab-chooser",
       "milestone-popup",
       "mode-row",
+      "prompt-factory",
+      "screen-debug",
       "selected-view",
       "splash-tutorial",
       "story-about",

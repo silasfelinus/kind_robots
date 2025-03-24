@@ -43,8 +43,9 @@ export const useUserStore = defineStore({
       return state.user?.avatarImage || 'default'
     },
     isLoggedIn(state): boolean {
-      return Boolean(state.user)
+      return state.user !== null && state.user.id !== 10
     },
+
     userId(state): number {
       return state.user ? state.user.id : 10
     },

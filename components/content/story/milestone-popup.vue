@@ -58,7 +58,11 @@ const milestone = computed(() => milestoneStore.activeMilestones[0])
 
 const acknowledgeMilestone = async () => {
   await userStore.updateKarmaAndMana()
+
+  if (!milestone.value) return
+
   await milestoneStore.confirmMilestone(milestone.value.id)
-  milestone.value.isActive = false
+
+  milestone.value.isActive = false // hide from popup queue
 }
 </script>

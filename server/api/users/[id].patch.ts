@@ -31,14 +31,12 @@ export default defineEventHandler(async (event) => {
         message: 'No data provided for update.',
       })
     }
-    console.log(`Update data received:`, updateData)
 
     // Update the user in the database
     const data = await prisma.user.update({
       where: { id: userId },
       data: updateData,
     })
-    console.log(`User updated successfully:`, data)
 
     // Successful update response
     event.node.res.statusCode = 200

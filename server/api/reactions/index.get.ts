@@ -4,11 +4,8 @@ import { errorHandler } from '../utils/error'
 import { fetchAllReactions } from '.'
 
 export default defineEventHandler(async () => {
-  console.log('Starting to handle fetchAllReactions in API handler')
-
   try {
     const data = await fetchAllReactions()
-    console.log('Successfully fetched reactions:', data)
 
     return {
       success: true,

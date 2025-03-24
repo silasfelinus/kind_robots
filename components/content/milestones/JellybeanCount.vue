@@ -25,9 +25,7 @@ const milestoneStore = useMilestoneStore()
 const userStore = useUserStore()
 
 // Computed properties
-const beanCount = computed(() =>
-  milestoneStore.getMilestoneCountForUser(userStore.userId),
-)
+const beanCount = computed(() => milestoneStore.milestoneCountForUser)
 
 // Check if viewport size is small
 const isSmallDisplay = computed(() => displayStore.viewportSize === 'small')

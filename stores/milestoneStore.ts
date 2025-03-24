@@ -86,7 +86,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
 
     record.isConfirmed = true
     await updateMilestoneRecord({ id: record.id, isConfirmed: true })
-    saveMilestoneRecordsToLocalStorage()
+    persist()
   }
 
   async function fetchMilestones() {
@@ -97,7 +97,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       }>('/api/milestones/')
       milestones.value =
         response.success && Array.isArray(response.data) ? response.data : []
-      saveMilestonesToLocalStorage()
+      persist()
     } catch (error) {
       handleError(error, 'fetching milestones')
     }
@@ -111,24 +111,9 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       }>('/api/milestones/records')
       milestoneRecords.value =
         response.success && Array.isArray(response.data) ? response.data : []
-      saveMilestoneRecordsToLocalStorage()
+      persist()
     } catch (error) {
       handleError(error, 'fetching milestone records')
-    }
-  }
-
-  function saveMilestonesToLocalStorage() {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('milestones', JSON.stringify(milestones.value))
-    }
-  }
-
-  function saveMilestoneRecordsToLocalStorage() {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(
-        'milestoneRecords',
-        JSON.stringify(milestoneRecords.value),
-      )
     }
   }
 
@@ -286,7 +271,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       })
       if (response.success) {
         milestoneRecords.value = []
-        saveMilestoneRecordsToLocalStorage()
+        persist()
       } else {
         console.warn(response.message)
       }
@@ -306,7 +291,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       )
       if (response.success && response.data) {
         milestoneRecords.value.push(response.data)
-        saveMilestoneRecordsToLocalStorage()
+        persist()
         return { success: true, message: 'Milestone recorded successfully.' }
       }
       throw new Error(response.message || 'Unknown error occurred')
@@ -354,8 +339,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     fetchHighMatchScores,
 
     // Local persistence
-    saveMilestoneRecordsToLocalStorage,
-    saveMilestonesToLocalStorage,
+    persist,
 
     // Debug
     // debugMilestones,

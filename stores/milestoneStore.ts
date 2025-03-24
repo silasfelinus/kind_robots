@@ -51,6 +51,15 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     }))
   })
 
+  function acknowledgeFirstMilestone() {
+    const first = activeMilestones.value[0]
+    if (first) {
+      const target = milestones.value.find((m) => m.id === first.id)
+      if (target) target.isActive = false
+      saveMilestonesToLocalStorage()
+    }
+  }
+
   const activeMilestones = computed(() => {
     return milestones.value.filter((milestone) => milestone.isActive)
   })
@@ -350,6 +359,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     hasMilestone,
     updateMilestoneRecord,
     clearCurrentMilestone,
+    acknowledgeFirstMilestone,
   }
 })
 

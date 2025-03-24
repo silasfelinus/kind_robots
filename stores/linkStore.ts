@@ -14,7 +14,7 @@ interface LinkItem {
 export const useLinkStore = defineStore('linkStore', () => {
   const pageStore = usePageStore()
 
-  const staticLinks: LinkItem[] = [
+  const staticLinks = ref<LinkItem[]>([
     { title: 'Home', path: '/', icon: 'kind-icon:home' },
     { title: 'Bot Cafe', path: '/botcafe', icon: 'kind-icon:addbot' },
     { title: 'Brainstorm!', path: '/brainstorm', icon: 'kind-icon:brain' },
@@ -23,7 +23,7 @@ export const useLinkStore = defineStore('linkStore', () => {
     { title: 'Wonderlab', path: '/wonderlab', icon: 'kind-icon:gearhammer' },
     { title: 'WeirdLand', path: '/weirdlandia', icon: 'kind-icon:alien' },
     { title: 'Story Maker', path: '/story', icon: 'kind-icon:book' },
-  ]
+  ])
 
   const dynamicLinks = computed(() =>
     pageStore.pages
@@ -38,7 +38,7 @@ export const useLinkStore = defineStore('linkStore', () => {
   )
 
   const allLinks = computed<LinkItem[]>(() => [
-    ...staticLinks,
+    ...staticLinks.value,
     ...dynamicLinks.value,
   ])
 

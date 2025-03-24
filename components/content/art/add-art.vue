@@ -28,10 +28,7 @@
       :disabled="isGenerating || !promptStore.promptField"
       @click="generateArt"
     >
-      <span v-if="isGenerating"
-        >🖌️ Making Art... <award-milestone :id="11"
-      /></span>
-      <span v-else>🖌️ Create Art</span>
+      <span>🖌️ Create Art</span>
     </button>
 
     <!-- Local and Error Store Messages -->
@@ -59,12 +56,15 @@ import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+
 import ArtCard from './ArtCard.vue'
 
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
+const milestoneStore = useMilestoneStore()
 
 // States and computed properties
 const localError = ref<string | null>(null)
@@ -106,7 +106,10 @@ const generateArt = async () => {
     const result = await artStore.generateArt()
     console.log('Art generated result:', result)
 
-    if (!result.success) {
+    if (result.success) {
+      // 🏆 Reward milestone!
+      await milestoneStore.rewardMilestone(11)
+    } else {
       localError.value = result.message || 'Unknown error occurred.'
       errorStore.addError(ErrorType.GENERAL_ERROR, localError.value)
       console.log('Error:', localError.value)

@@ -398,6 +398,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     updateMilestone,
     updateMilestonesFromData,
     deactivateMilestone,
+    rewardMilestone,
 
     // Milestone record logic
     addMilestoneRecord,

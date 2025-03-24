@@ -51,15 +51,6 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     }))
   })
 
-  function acknowledgeFirstMilestone() {
-    const first = activeMilestones.value[0]
-    if (first) {
-      const target = milestones.value.find((m) => m.id === first.id)
-      if (target) target.isActive = false
-      saveMilestonesToLocalStorage()
-    }
-  }
-
   const activeMilestones = computed(() => {
     return milestones.value.filter((milestone) => milestone.isActive)
   })
@@ -85,12 +76,14 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       (r) => r.userId === userStore.userId && r.milestoneId === milestoneId,
     )
 
-    if (record) {
-      record.isConfirmed = true
-      saveMilestoneRecordsToLocalStorage()
-    } else {
+    if (!record) {
       console.warn(`Milestone record not found for user: ${userStore.userId}`)
+      return
     }
+
+    record.isConfirmed = true
+    await updateMilestoneRecord({ id: record.id, isConfirmed: true })
+    saveMilestoneRecordsToLocalStorage()
   }
 
   async function fetchMilestones() {
@@ -358,8 +351,6 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     addMilestoneRecord,
     hasMilestone,
     updateMilestoneRecord,
-    clearCurrentMilestone,
-    acknowledgeFirstMilestone,
   }
 })
 

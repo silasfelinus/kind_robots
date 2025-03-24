@@ -294,6 +294,42 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     }
   }
 
+  async function rewardMilestone(milestoneId: number) {
+    const userId = userStore.userId
+
+    // Prevent guests from getting milestones
+    if (userStore.isGuest) {
+      console.warn('Guest users cannot be rewarded milestones.')
+      return
+    }
+
+    const milestone = milestones.value.find((m) => m.id === milestoneId)
+    if (!milestone) {
+      const fetched = await fetchMilestoneById(milestoneId)
+      if (!fetched.success || !fetched.data) {
+        console.warn(`Milestone ${milestoneId} not found.`)
+        return
+      }
+      milestones.value.push(fetched.data)
+    }
+
+    if (!hasMilestone(userId, milestoneId)) {
+      const result = await recordMilestone(userId, milestoneId)
+      if (!result.success) {
+        console.warn(`Failed to record milestone: ${result.message}`)
+        return
+      }
+    }
+
+    const m = milestones.value.find((m) => m.id === milestoneId)
+    if (m && !m.isActive) {
+      m.isActive = true
+      persist()
+    }
+
+    console.log(`Milestone ${milestoneId} rewarded.`)
+  }
+
   function deactivateMilestone(id: number) {
     const m = milestones.value.find((m) => m.id === id)
     if (m) m.isActive = false

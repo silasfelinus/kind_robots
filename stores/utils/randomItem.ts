@@ -1,117 +1,130 @@
-export function useRandomItem() {
-  const items = [
-    // Practical Items
-    'Leather satchel',
-    'Pocket watch',
-    'Compass',
-    'Rope (50ft)',
-    'Lantern',
-    'Canteen of water',
-    'Notebook and pen',
-    'Magnifying glass',
-    'Set of lockpicks',
-    'Steel dagger',
+// stores/utils/randomItem.ts
 
-    // Whimsical
-    'Bag of glitter',
-    'Rainbow umbrella',
-    'Unicorn plushie',
-    'Box of mystery keys',
-    'Bubble-blowing pipe',
-    'Enchanted snow globe',
-    'Singing teapot',
-    'Pair of mismatched socks',
-    'Tiny bonsai tree',
-    'Jar of fireflies',
+const inventoryItems = [
+  // Practical Items
+  'Leather satchel',
+  'Pocket watch',
+  'Compass',
+  'Rope (50ft)',
+  'Lantern',
+  'Canteen of water',
+  'Notebook and pen',
+  'Magnifying glass',
+  'Set of lockpicks',
+  'Steel dagger',
 
-    // Fantasy
-    'Potion of healing',
-    'Dragon scale shield',
-    'Ring of invisibility',
-    'Crystal orb',
-    'Spellbook of illusions',
-    'Golden chalice',
-    'Phoenix feather quill',
-    'Magic carpet',
-    'Sword of light',
-    'Bag of holding',
+  // Whimsical
+  'Bag of glitter',
+  'Rainbow umbrella',
+  'Unicorn plushie',
+  'Box of mystery keys',
+  'Bubble-blowing pipe',
+  'Enchanted snow globe',
+  'Singing teapot',
+  'Pair of mismatched socks',
+  'Tiny bonsai tree',
+  'Jar of fireflies',
 
-    // Tech/Sci-Fi
-    'Holo projector',
-    'Plasma wrench',
-    'Anti-gravity boots',
-    'Neural uplink chip',
-    'Data crystal',
-    'Energy blade',
-    'Portable force field',
-    'Nano repair kit',
-    'Quantum compass',
-    'EMP grenade',
+  // Fantasy
+  'Potion of healing',
+  'Dragon scale shield',
+  'Ring of invisibility',
+  'Crystal orb',
+  'Spellbook of illusions',
+  'Golden chalice',
+  'Phoenix feather quill',
+  'Magic carpet',
+  'Sword of light',
+  'Bag of holding',
 
-    // Food Items
-    'Bag of trail mix',
-    'Golden apple',
-    'Mystery-flavored jellybeans',
-    'Box of donuts (half-eaten)',
-    'Bottle of honey mead',
-    'Spicy chili pepper',
-    'Carton of alien milk',
-    'Slice of glowing blue cake',
-    'Endless bag of popcorn',
-    'Chocolate dragon egg',
+  // Tech/Sci-Fi
+  'Holo projector',
+  'Plasma wrench',
+  'Anti-gravity boots',
+  'Neural uplink chip',
+  'Data crystal',
+  'Energy blade',
+  'Portable force field',
+  'Nano repair kit',
+  'Quantum compass',
+  'EMP grenade',
 
-    // Quirky Items
-    'Rubber chicken',
-    'Inflatable castle',
-    'Deck of cursed cards',
-    'Pair of x-ray glasses',
-    'Glow-in-the-dark yo-yo',
-    'Bag of counterfeit coins',
-    'Wind-up robot',
-    'Talking skull',
-    'Treasure map (missing pieces)',
-    'Squeaky hammer',
+  // Food Items
+  'Bag of trail mix',
+  'Golden apple',
+  'Mystery-flavored jellybeans',
+  'Box of donuts (half-eaten)',
+  'Bottle of honey mead',
+  'Spicy chili pepper',
+  'Carton of alien milk',
+  'Slice of glowing blue cake',
+  'Endless bag of popcorn',
+  'Chocolate dragon egg',
 
-    // Historical
-    'Ancient scroll',
-    'Roman coin',
-    'Samurai helmet',
-    'Viking drinking horn',
-    'Renaissance painting',
-    'Pirate flag',
-    'Victorian cameo brooch',
-    'Knights templar ring',
-    'Wooden telescope',
-    'Pharaoh’s amulet',
+  // Quirky Items
+  'Rubber chicken',
+  'Inflatable castle',
+  'Deck of cursed cards',
+  'Pair of x-ray glasses',
+  'Glow-in-the-dark yo-yo',
+  'Bag of counterfeit coins',
+  'Wind-up robot',
+  'Talking skull',
+  'Treasure map (missing pieces)',
+  'Squeaky hammer',
 
-    // Nature-Inspired
-    'Jar of moonlight',
-    'Seed pouch',
-    'Carved walking stick',
-    'Antique fishing rod',
-    'Stone arrowhead',
-    'Feather quill pen',
-    'Pressed flower book',
-    'Chunk of amber',
-    'Driftwood sculpture',
-    'Moss-covered rock',
+  // Historical
+  'Ancient scroll',
+  'Roman coin',
+  'Samurai helmet',
+  'Viking drinking horn',
+  'Renaissance painting',
+  'Pirate flag',
+  'Victorian cameo brooch',
+  'Knights templar ring',
+  'Wooden telescope',
+  'Pharaoh’s amulet',
 
-    // Miscellaneous
-    'Bag of marbles',
-    'Golden kazoo',
-    'Clockwork mouse',
-    'Crystal dice set',
-    'Box of forgotten letters',
-    'Pair of fuzzy earmuffs',
-    'Weathered treasure chest',
-    'Lucky rabbit’s foot',
-    'Tiny mechanical bird',
-    'Miniature cannon',
-  ]
+  // Nature-Inspired
+  'Jar of moonlight',
+  'Seed pouch',
+  'Carved walking stick',
+  'Antique fishing rod',
+  'Stone arrowhead',
+  'Feather quill pen',
+  'Pressed flower book',
+  'Chunk of amber',
+  'Driftwood sculpture',
+  'Moss-covered rock',
 
-  function randomItem() {
-    return items[Math.floor(Math.random() * items.length)]
+  // Miscellaneous
+  'Bag of marbles',
+  'Golden kazoo',
+  'Clockwork mouse',
+  'Crystal dice set',
+  'Box of forgotten letters',
+  'Pair of fuzzy earmuffs',
+  'Weathered treasure chest',
+  'Lucky rabbit’s foot',
+  'Tiny mechanical bird',
+  'Miniature cannon',
+]
+
+// 🎯 A generic utility for choosing random elements from any array
+export function randomItem<T>(list: T[]): T {
+  return list[Math.floor(Math.random() * list.length)]
+}
+
+// 🎒 A random inventory item from your curated list
+export function getRandomInventoryItem(): string {
+  return randomItem(inventoryItems)
+}
+
+// 🍱 For multiple items:
+export function getRandomInventory(count = 1): string[] {
+  const set = new Set<string>()
+  while (set.size < count) {
+    set.add(getRandomInventoryItem())
   }
-
-  return { randomItem }
+  return Array.from(set)
 }

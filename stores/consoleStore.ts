@@ -5,7 +5,7 @@ import { useUserStore } from './userStore'
 import { randomFunLine } from './utils/randomFunLine'
 import { randomQuote } from './utils/randomQuote'
 import { randomTrivia } from './utils/randomTrivia'
-import { dungeonEncounter } from './utils/randomDungeonEncounter'
+import { dungeonEncounter } from './utils/dungeonEncounter'
 import { randomEncounter } from './utils/randomEncounter'
 
 type ConsoleMessage = {

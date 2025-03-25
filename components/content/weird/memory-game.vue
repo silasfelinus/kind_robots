@@ -35,8 +35,6 @@
         >
           Start New Game
         </button>
-
-        <award-milestone v-if="shouldShowMilestoneCheck" :id="5" />
       </div>
     </div>
 
@@ -284,7 +282,7 @@ function handleGalleryClick(clickedGallery: GalleryImage) {
       }
 
       if (score.value >= 50) {
-        shouldShowMilestoneCheck.value = true
+        milestoneStore.rewardMilestone(5)
       }
 
       // Ensure highScore and matchRecord have default values for comparison

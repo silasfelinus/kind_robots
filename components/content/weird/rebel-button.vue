@@ -14,9 +14,7 @@
           <div
             v-if="state.topScore >= 100"
             class="bg-base-300 p-4 rounded-lg shadow-lg"
-          >
-            <award-milestone v-if="state.pressCount >= 100" :id="6" />
-          </div>
+          ></div>
         </transition>
         <transition name="slide-fade">
           <div
@@ -133,6 +131,7 @@ import confetti from 'canvas-confetti'
 import responses from '../../../assets/buttonResponses'
 import milestones from '../../../assets/buttonMilestones'
 import { useUserStore } from './../../../stores/userStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
 
 const userStore = useUserStore()
 
@@ -185,6 +184,10 @@ const pressedButton = () => {
   // Update the top score immediately on every click
   if (state.pressCount > state.topScore) {
     state.topScore = state.pressCount
+  }
+
+  if (state.pressCount == 100) {
+    milestoneStore.rewardMilestone(5)
   }
 
   // Save to localStorage every 10 clicks to optimize performance

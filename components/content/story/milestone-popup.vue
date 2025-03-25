@@ -1,7 +1,7 @@
 <!-- /components/milestone-popup.vue -->
 <template>
   <div
-    v-if="milestone"
+    v-if="milestone && !userStore.isGuest"
     class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 backdrop-blur-sm"
     aria-labelledby="milestone-popup"
     role="dialog"

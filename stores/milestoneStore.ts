@@ -59,7 +59,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   })
 
   async function initializeMilestones() {
-    if (isInitialized.value) return
+    if (!shouldRun() || isInitialized.value) return
 
     if (typeof window !== 'undefined') {
       const storedMilestones = localStorage.getItem('milestones')
@@ -295,6 +295,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   }
 
   async function rewardMilestone(milestoneId: number) {
+    if (!shouldRun()) return
     const userId = userStore.userId
 
     // Prevent guests from getting milestones
@@ -334,6 +335,10 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     const m = milestones.value.find((m) => m.id === id)
     if (m) m.isActive = false
     persist()
+  }
+
+  function shouldRun(): boolean {
+    return userStore.isLoggedIn && userStore.userId !== 10
   }
 
   async function clearAllMilestoneRecords() {

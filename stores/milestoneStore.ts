@@ -19,6 +19,10 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   const isInitialized = ref(false)
   const highClickScores = ref<UserScore[]>([])
   const highMatchScores = ref<UserScore[]>([])
+  const pendingGuestMilestones = ref<number[]>([])
+  const hasPendingGuestMilestones = computed(
+    () => pendingGuestMilestones.value.length > 0,
+  )
 
   const milestoneCountForUser = computed(() => {
     return milestoneRecords.value.filter(
@@ -59,7 +63,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   })
 
   async function initializeMilestones() {
-    if (!shouldRun() || isInitialized.value) return
+    if (isInitialized.value) return
 
     if (typeof window !== 'undefined') {
       const storedMilestones = localStorage.getItem('milestones')
@@ -72,6 +76,22 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     await fetchMilestones()
     await fetchMilestoneRecords()
     isInitialized.value = true
+
+    if (!userStore.isGuest && typeof window !== 'undefined') {
+      const storedPending = localStorage.getItem('pendingGuestMilestones')
+      if (storedPending) {
+        try {
+          const pendingIds = JSON.parse(storedPending) as number[]
+          for (const id of pendingIds) {
+            await rewardMilestone(id)
+          }
+          pendingGuestMilestones.value = []
+          localStorage.removeItem('pendingGuestMilestones')
+        } catch (error) {
+          console.warn('Failed to restore pending guest milestones:', error)
+        }
+      }
+    }
   }
 
   async function confirmMilestone(milestoneId: number) {
@@ -295,14 +315,28 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   }
 
   async function rewardMilestone(milestoneId: number) {
-    if (!shouldRun()) return
     const userId = userStore.userId
 
-    // Prevent guests from getting milestones
     if (userStore.isGuest) {
-      console.warn('Guest users cannot be rewarded milestones.')
+      try {
+        const current = JSON.parse(
+          localStorage.getItem('pendingGuestMilestones') || '[]',
+        )
+        if (!current.includes(milestoneId)) {
+          current.push(milestoneId)
+          localStorage.setItem(
+            'pendingGuestMilestones',
+            JSON.stringify(current),
+          )
+        }
+        pendingGuestMilestones.value = current
+      } catch (error) {
+        console.warn('Failed to store pending milestone:', error)
+      }
       return
     }
+
+    if (!shouldRun()) return
 
     const milestone = milestones.value.find((m) => m.id === milestoneId)
     if (!milestone) {
@@ -394,6 +428,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     highClickScores,
     highMatchScores,
     isInitialized,
+    hasPendingGuestMilestones,
 
     // Milestone logic
     initializeMilestones,

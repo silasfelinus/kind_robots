@@ -38,7 +38,7 @@ export const useConsoleStore = defineStore('consoleStore', {
   },
 
   actions: {
-    async init() {
+    async initialize() {
       const userStore = useUserStore()
       this.userId = userStore.user?.id || null
 

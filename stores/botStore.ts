@@ -70,7 +70,7 @@ export const useBotStore = defineStore({
       }
     },
 
-    async loadStore(): Promise<void> {
+    async initialize(): Promise<void> {
       if (this.isLoaded || this.loading) return
       this.loading = true
       try {

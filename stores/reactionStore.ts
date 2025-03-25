@@ -42,7 +42,7 @@ export const useReactionStore = defineStore('reactionStore', {
   },
 
   actions: {
-    async initializeReactions() {
+    async initialize() {
       if (!this.isInitialized) {
         await this.fetchReactions()
         this.isInitialized = true

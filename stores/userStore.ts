@@ -72,7 +72,7 @@ export const useUserStore = defineStore({
     },
   },
   actions: {
-    async initializeUser() {
+    async initialize() {
       await this.fetchUsers()
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')

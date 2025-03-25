@@ -50,7 +50,7 @@ export const useGalleryStore = defineStore({
   },
 
   actions: {
-    async initializeStore() {
+    async initialize() {
       if (typeof window !== 'undefined') {
         const storedGalleries = localStorage.getItem('galleries')
         const storedCurrentGallery = localStorage.getItem('currentGallery')
@@ -184,7 +184,9 @@ export const useGalleryStore = defineStore({
       }
     },
 
-    async getRandomImageFromGalleryId(galleryId: number): Promise<string | null> {
+    async getRandomImageFromGalleryId(
+      galleryId: number,
+    ): Promise<string | null> {
       try {
         // Perform fetch to retrieve a random image from the given gallery
         const response = await performFetch<{ imagePath: string }>(
@@ -205,7 +207,9 @@ export const useGalleryStore = defineStore({
         return null
       }
     },
-async getRandomImageFromGalleryName(galleryName: string): Promise<string | null> {
+    async getRandomImageFromGalleryName(
+      galleryName: string,
+    ): Promise<string | null> {
       try {
         // Perform fetch to retrieve a random image from the given gallery
         const response = await performFetch<string>(

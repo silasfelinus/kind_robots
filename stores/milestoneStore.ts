@@ -62,7 +62,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     return milestones.value.filter((milestone) => milestone.isActive)
   })
 
-  async function initializeMilestones() {
+  async function initialize() {
     if (isInitialized.value) return
 
     if (typeof window !== 'undefined') {
@@ -431,7 +431,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     hasPendingGuestMilestones,
 
     // Milestone logic
-    initializeMilestones,
+    initialize,
     fetchMilestones,
     fetchMilestoneRecords,
     fetchMilestoneById,

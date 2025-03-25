@@ -42,6 +42,21 @@ export const useRewardStore = defineStore({
   },
 
   actions: {
+    initialize() {
+      this.isLoading = true
+      try {
+        const storedRewards = localStorage.getItem('rewards')
+        if (storedRewards) {
+          this.rewards = JSON.parse(storedRewards)
+        }
+        this.fetchRewards()
+      } catch (error) {
+        this.error = `Failed to initialize store: ${error}`
+        console.error(this.error)
+      } finally {
+        this.isLoading = false
+      }
+    },
     async fetchRewards() {
       this.isLoading = true
       try {
@@ -75,21 +90,7 @@ export const useRewardStore = defineStore({
       this.randomRewards = shuffled.slice(0, 5)
     },
 
-    initializeStore() {
-      this.isLoading = true
-      try {
-        const storedRewards = localStorage.getItem('rewards')
-        if (storedRewards) {
-          this.rewards = JSON.parse(storedRewards)
-        }
-        this.fetchRewards()
-      } catch (error) {
-        this.error = `Failed to initialize store: ${error}`
-        console.error(this.error)
-      } finally {
-        this.isLoading = false
-      }
-    },
+
 
     async editReward(id: number, updatedData: Partial<Reward>) {
       try {

@@ -24,7 +24,6 @@
         >
           Teleport
         </button>
-        <award-milestone v-if="shouldShowMilestoneCheck" :id="3" />
       </div>
     </div>
   </div>
@@ -33,20 +32,22 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
 import type { CSSProperties } from 'vue' // Importing CSSProperties
+import { useMilestoneStore } from '@/stores/milestoneStore'
+
+const milestoneStore = useMilestoneStore()
 
 const src = ref('')
 const isPixelatingOut = ref(false)
 const isPixelatingIn = ref(false)
 
 const imageStyle = ref<CSSProperties>({}) // Explicitly typing imageStyle as CSSProperties
-const shouldShowMilestoneCheck = ref(false)
 
 watchEffect(() => {
   imageStyle.value = { backgroundImage: `url(${src.value})` }
 })
 
 const teleportButton = async () => {
-  shouldShowMilestoneCheck.value = true // This will make the milestone check appear
+  milestoneStore.rewardMilestone(3)
   await fetchImage()
 }
 

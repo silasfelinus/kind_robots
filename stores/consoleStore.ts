@@ -2,11 +2,16 @@
 
 import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
+import { randomFunLine } from './utils/randomFunLine'
+import { randomQuote } from './utils/randomQuote'
+import { randomTrivia } from './utils/randomTrivia'
+import { dungeonEncounter } from './utils/randomDungeonEncounter'
+import { randomEncounter } from './utils/randomEncounter'
 
 type ConsoleMessage = {
   id: number
   text: string
-  type: 'fun' | 'holiday' | 'story' | 'system'
+  type: 'fun' | 'quote' | 'trivia' | 'story' | 'system'
   timestamp: number
 }
 
@@ -50,7 +55,6 @@ export const useConsoleStore = defineStore('consoleStore', {
       }
 
       this.logRandomMessage()
-      this.logSeasonalMessage()
       this.incrementXP(10)
     },
 
@@ -102,31 +106,19 @@ export const useConsoleStore = defineStore('consoleStore', {
     },
 
     logRandomMessage() {
-      const funLines = [
-        '🛠️ Debugger gnomes deployed!',
-        '🐛 A bug got squashed. RIP.',
-        '🧠 Brain mode activated. You are now thinking in code.',
-        '⚡ Lightning struck your console… it got smarter.',
-        '😴 The hamsters powering your app fell asleep again!',
-        '🚀 You launched another log! Boom!',
+      const types = [
+        { type: 'fun', message: randomFunLine() },
+        { type: 'quote', message: randomQuote() },
+        { type: 'trivia', message: randomTrivia() },
+        (() => {
+          const encounter = randomEncounter()
+          this.incrementXP(encounter.xp)
+          return { type: 'story', message: encounter.message }
+        })(),
       ]
 
-      const random = funLines[Math.floor(Math.random() * funLines.length)]
-      this.logMessage(random, 'fun')
-    },
-
-    logSeasonalMessage() {
-      const now = new Date()
-      const month = now.getMonth()
-      const date = now.getDate()
-
-      if (month === 11 && date === 25) {
-        this.logMessage('🎄 Debug-mas cheer! All bugs on holiday.', 'holiday')
-      } else if (month === 9 && date === 31) {
-        this.logMessage('🎃 Boo! A spooky bug just escaped.', 'holiday')
-      } else if (month === 6 && date === 4) {
-        this.logMessage('🧨 Happy Independence Day of Debugging!', 'holiday')
-      }
+      const selected = types[Math.floor(Math.random() * types.length)]
+      this.logMessage(selected.message, selected.type as ConsoleMessage['type'])
     },
 
     incrementXP(amount: number) {

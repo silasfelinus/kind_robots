@@ -5,9 +5,6 @@
     <!-- Title -->
     <div class="text-2xl font-bold mb-4 w-full text-center">Choose Theme:</div>
 
-    <!-- Milestone reward (conditionally shown) -->
-    <award-milestone v-if="themeChanged" :id="9" />
-
     <!-- Theme list -->
     <div
       class="theme-list grid gap-6 w-full overflow-y-auto h-full px-4"
@@ -49,10 +46,11 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
 import { useThemeStore } from '../../../stores/themeStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+const milestoneStore = useMilestoneStore()
 
 const themeStore = useThemeStore()
 
@@ -72,6 +70,7 @@ const themeChanged = computed(() => themeStore.firstThemeChanged)
 const handleThemeChange = (theme: string) => {
   try {
     themeStore.changeTheme(theme)
+    milestoneStore.rewardMilestone(9)
   } catch (error) {
     console.error('Error changing theme:', error)
   }

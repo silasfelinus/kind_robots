@@ -34,9 +34,6 @@
       </div>
     </div>
 
-    <!-- Milestone Reward Check -->
-    <award-milestone v-if="shouldShowMilestoneCheck" :id="11" />
-
     <!-- Display Created Art -->
     <div v-for="(art, index) in createdArts" :key="index" class="mt-4">
       <art-card :art="art" />
@@ -56,6 +53,8 @@ import { useLoadStore } from './../../../stores/loadStore'
 import { usePitchStore } from './../../../stores/pitchStore'
 import { useGalleryStore } from './../../../stores/galleryStore'
 import { usePromptStore } from './../../../stores/promptStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+const milestoneStore = useMilestoneStore()
 
 // Load stores
 const artStore = useArtStore()
@@ -79,7 +78,6 @@ const flavorText = ref('')
 const isLoading = ref(false)
 const createdArts = computed(() => artStore.generatedArt) // Fetch generated art from the store
 const loadingMessage = ref<string | null>(null)
-const shouldShowMilestoneCheck = ref(false)
 const errorMessage = ref<string | null>(null)
 
 // Function to set a random prompt
@@ -122,7 +120,7 @@ const generateArt = async () => {
     const response = await artStore.generateArt(generateArtData)
 
     if (response.success && response.data) {
-      shouldShowMilestoneCheck.value = true
+      milestoneStore.rewardMilestone(11)
     } else {
       errorStore.setError(
         ErrorType.NETWORK_ERROR,

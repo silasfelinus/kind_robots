@@ -42,9 +42,6 @@
       </div>
     </div>
 
-    <!-- Milestone Reward -->
-    <award-milestone v-if="shouldShowMilestoneCheck" :id="11" />
-
     <!-- Display Created Art -->
     <div v-for="art in createdArts" :key="art.id" class="mt-4">
       <art-card :art="art" />
@@ -59,6 +56,8 @@ import { useErrorStore } from './../../../stores/errorStore'
 import { useUserStore } from './../../../stores/userStore'
 import { useLoadStore } from './../../../stores/loadStore'
 import type { Art } from './../../../stores/artStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+const milestoneStore = useMilestoneStore()
 
 // Load stores
 const dreamStore = useDreamStore()
@@ -92,6 +91,7 @@ const getRandomDream = () => {
 const generateArt = async () => {
   getLoadingMessage()
   isLoading.value = true
+  milestoneStore.rewardMilestone(11)
   try {
     const response = await fetch('/api/art/generate', {
       method: 'POST',

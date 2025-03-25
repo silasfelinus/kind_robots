@@ -28,10 +28,7 @@
       :disabled="isGenerating || !promptStore.promptField"
       @click="generateArt"
     >
-      <span v-if="isGenerating"
-        >🖌️ Making Art... <award-milestone :id="11"
-      /></span>
-      <span v-else>🖌️ Create Art</span>
+      <span>🖌️ Create Art</span>
     </button>
 
     <!-- Local and Error Store Messages -->
@@ -60,6 +57,9 @@ import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import ArtCard from './ArtCard.vue'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+
+const milestoneStore = useMilestoneStore()
 
 const artStore = useArtStore()
 const promptStore = usePromptStore()
@@ -91,6 +91,7 @@ const generateArt = async () => {
   localError.value = null
   isGenerating.value = true // Mark art generation as in progress
   displayStore.toggleRandomAnimation()
+  milestoneStore.rewardMilestone(11)
 
   console.log('Generating art with prompt:', promptStore.promptField)
 

@@ -20,6 +20,7 @@ import { useRewardStore } from '../../../stores/rewardStore'
 import { useGalleryStore } from '../../../stores/galleryStore'
 import { useScenarioStore } from '../../../stores/scenarioStore'
 import { useWeirdStore } from '../../../stores/weirdStore'
+import { useConsoleStore } from '../../../stores/consoleStore'
 
 // Stores
 const errorStore = useErrorStore()
@@ -38,6 +39,7 @@ const characterStore = useCharacterStore()
 const galleryStore = useGalleryStore()
 const scenarioStore = useScenarioStore()
 const weirdStore = useWeirdStore()
+const consoleStore = useConsoleStore()
 
 // State management
 const isReady = ref(false)
@@ -55,18 +57,19 @@ onMounted(async () => {
 
     // Initialize other stores in parallel
     await Promise.all([
-      userStore.initializeUser?.(),
-      milestoneStore.initializeMilestones?.(),
-      pitchStore.initializePitches?.(),
+      consoleStore.initialize?.(),
+      userStore.initialize?.(),
+      milestoneStore.initialize?.(),
+      pitchStore.initialize?.(),
       promptStore.initialize?.(),
       artStore.initialize?.(),
-      botStore.loadStore?.(),
+      botStore.initialize?.(),
       chatStore.initialize?.(),
-      themeStore.initTheme?.(),
-      reactionStore.initializeReactions?.(),
-      rewardStore.initializeStore?.(),
+      themeStore.initialize?.(),
+      reactionStore.initialize?.(),
+      rewardStore.initialize?.(),
       characterStore.initialize?.(),
-      galleryStore.initializeStore?.(),
+      galleryStore.initialize?.(),
       weirdStore.initialize?.(),
       scenarioStore.initialize?.(),
     ])

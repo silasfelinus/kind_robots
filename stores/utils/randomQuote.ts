@@ -34,7 +34,6 @@ const quotes = [
   '“AI: Artificial intelligence is no match for natural stupidity.” – Unknown',
   '“Programming isn’t about what you know; it’s about what you can figure out.” – Chris Pine',
   '“Software and cathedrals are much the same – first we build them, then we pray.” – Sam Redwine',
-  '“I see your point, but I still think you're wrong.” – Anonymous reviewer',
   '“Beware of bugs in the above code; I have only proved it correct, not tried it.” – Donald Knuth',
   '“In theory, there is no difference between theory and practice. But, in practice, there is.” – Jan L. A. van de Snepscheut',
   '“AI doesn’t have a soul. It has a sandbox.” – Unknown',

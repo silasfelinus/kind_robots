@@ -1,7 +1,7 @@
 // ~/stores/themeStore.ts
 import { defineStore } from 'pinia'
 
-export const useThemeStore = defineStore('theme', {
+export const useThemeStore = defineStore('themeStore', {
   state: () => ({
     currentTheme: 'retro', // default theme
     botOverride: true, // new botOverride state

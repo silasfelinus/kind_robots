@@ -8,9 +8,7 @@ interface GalleryState {
   currentImage: string
 }
 
-export const useGalleryStore = defineStore({
-  id: 'gallery',
-
+export const useGalleryStore = defineStore('galleryStore', {
   state: (): GalleryState => ({
     galleries: [],
     currentGallery: null,

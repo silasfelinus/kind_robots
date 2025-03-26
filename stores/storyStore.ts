@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-export const useStoryMakerStore = defineStore('storyMaker', {
+export const useStoryStore = defineStore('storyStore', {
   state: () => ({
     activeSection: 'create' as 'create' | 'credits' | 'about', // Ensure it's a valid section
     story: {

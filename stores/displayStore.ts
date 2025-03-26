@@ -53,7 +53,7 @@ export type EffectId =
   | 'rain-effect'
   | 'butterfly-animation'
 
-export const useDisplayStore = defineStore('display', {
+export const useDisplayStore = defineStore('displayStore', {
   state: (): DisplayStoreState => ({
     headerState: 'open',
     sidebarLeftState: 'compact',

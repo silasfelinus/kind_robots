@@ -31,8 +31,7 @@ interface ContentState {
   sidebarOrientation: 'vertical' | 'horizontal'
 }
 
-export const useContentStore = defineStore({
-  id: 'content',
+export const useContentStore = defineStore('contentStore', {
   state: (): ContentState => ({
     page: {} as Page,
     pages: [] as Page[],

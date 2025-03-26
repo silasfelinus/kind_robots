@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-export const useDreamStore = defineStore('dreams', () => {
+export const useDreamStore = defineStore('dreamStore', () => {
   const dreams = [
     'Walking on a rainbow bridge across the sky',
     'Floating in a bubble through a city in the clouds',

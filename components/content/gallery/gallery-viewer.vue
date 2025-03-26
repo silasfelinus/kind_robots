@@ -50,7 +50,7 @@ const galleryStore = useGalleryStore()
 // Assuming galleryStore.galleries is typed properly as Gallery[]
 const galleries = computed<Gallery[]>(() => galleryStore.galleries)
 const selectedGallery = ref<Gallery | null>(null)
-galleryStore.initializeStore()
+galleryStore.initialize()
 
 const galleryImages = ref<string[]>([])
 const isLoading = ref(false)

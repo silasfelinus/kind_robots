@@ -5,14 +5,21 @@ import { useUserStore } from './userStore'
 import { performFetch, handleError } from './utils'
 import type { Chat, ChatType } from '@prisma/client'
 
-export const useChatStore = defineStore({
-  id: 'chat',
-  state: () => ({
-    chats: [] as Chat[],
+interface ChatStoreState {
+  chats: Chat[]
+  isInitialized: boolean
+  unreadMessages: Chat[]
+  selectedChat: Chat | null
+  selectedRecipientId: number | null
+}
+
+export const useChatStore = defineStore('chatStore', {
+  state: (): ChatStoreState => ({
+    chats: [],
     isInitialized: false,
-    unreadMessages: [] as Chat[],
-    selectedChat: null as Chat | null,
-    selectedRecipientId: null as number | null,
+    unreadMessages: [],
+    selectedChat: null,
+    selectedRecipientId: null,
   }),
 
   getters: {

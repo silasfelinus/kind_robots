@@ -5,9 +5,7 @@ import { useUserStore } from './userStore'
 
 const isClient = typeof window !== 'undefined'
 
-export const useTagStore = defineStore({
-  id: 'tag',
-
+export const useTagStore = defineStore('tagStore', {
   state: () => ({
     tags: [] as Tag[],
     isInitialized: false,

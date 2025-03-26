@@ -35,27 +35,47 @@ export interface GenerateArtData {
   collection?: string
 }
 
-export const useArtStore = defineStore({
-  id: 'artStore',
-  state: () => ({
-    art: [] as Art[],
-    reactions: [] as Reaction[],
-    tags: [] as Tag[],
-    artImages: [] as ArtImage[],
+interface ArtStoreState {
+  art: Art[]
+  artImages: ArtImage[]
+  tags: Tag[]
+  reactions: Reaction[]
+  loading: boolean
+  error: string
+  isInitialized: boolean
+  currentArt: Art | null
+  processedArtPrompt: string
+  pitch: string
+  currentPage: number
+  totalArtCount: number
+  pageSize: number
+  collections: ArtCollection[]
+  collectedArt: Art[]
+  uncollectedArt: Art[]
+  currentCollection: ArtCollection | null
+  generatedArt: Art[]
+}
+
+export const useArtStore = defineStore('artStore', {
+  state: (): ArtStoreState => ({
+    art: [],
+    artImages: [],
+    tags: [],
+    reactions: [],
     loading: false,
     error: '',
-    currentArt: null as Art | null,
-    pitch: '',
-    collectedArt: [] as Art[],
     isInitialized: false,
-    generatedArt: [] as Art[],
+    currentArt: null,
+    processedArtPrompt: '',
+    pitch: '',
     currentPage: 1,
     totalArtCount: 0,
     pageSize: 100,
-    collections: [] as ArtCollection[],
-    uncollectedArt: [] as Art[],
-    currentCollection: null as ArtCollection | null,
-    processedArtPrompt: '',
+    collections: [],
+    collectedArt: [],
+    uncollectedArt: [],
+    currentCollection: null,
+    generatedArt: [],
   }),
 
   actions: {

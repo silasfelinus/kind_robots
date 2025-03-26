@@ -5,11 +5,9 @@ import { performFetch, handleError } from '@/stores/utils'
 
 import { scenarios } from '@/utils/sceneChoices'
 
-export const useScenarioStore = defineStore({
-  id: 'scenarioStore',
-
+export const useScenarioStore = defineStore('scenarioStore', {
   state: () => ({
-    scenarios: [] as Scenario[], // This will be populated with either seed data or fetched data
+    scenarios: [] as Scenario[],
     selectedScenario: null as Scenario | null,
     scenarioForm: {} as Partial<Scenario>,
     isSaving: false,

@@ -8,12 +8,19 @@ interface Folder {
   components: string[]
 }
 
+interface ComponentStoreState {
+  components: Component[]
+  selectedComponent: Component | null
+  selectedFolder: string | null
+  isInitialized: boolean
+}
+
 export const useComponentStore = defineStore('componentStore', {
-  state: () => ({
-    components: [] as Component[],
-    selectedComponent: null as Component | null,
-    selectedFolder: null as string | null,
-    isInitialized: false, // Tracks initialization state
+  state: (): ComponentStoreState => ({
+    components: [],
+    selectedComponent: null,
+    selectedFolder: null,
+    isInitialized: false,
   }),
 
   getters: {

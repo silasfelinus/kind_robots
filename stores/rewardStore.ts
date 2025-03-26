@@ -11,8 +11,7 @@ interface RewardState {
   randomRewards: Reward[] | null
 }
 
-export const useRewardStore = defineStore({
-  id: 'rewardStore',
+export const useRewardStore = defineStore( 'rewardStore' , {
 
   state: (): RewardState => ({
     rewards: [],

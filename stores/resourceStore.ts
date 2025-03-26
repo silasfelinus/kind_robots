@@ -9,8 +9,7 @@ interface ResourceStoreState {
   isInitialized: boolean
 }
 
-export const useResourceStore = defineStore({
-  id: 'resources',
+export const useResourceStore = defineStore('resourceStore', {
   state: (): ResourceStoreState => ({
     resources: [],
     currentResource: null,

@@ -15,8 +15,7 @@ interface UserState {
   googleToken: boolean
 }
 
-export const useUserStore = defineStore({
-  id: 'user',
+export const useUserStore = defineStore('userStore', {
   state: (): UserState => ({
     user: null,
     token: undefined,

@@ -55,17 +55,30 @@ type RandomizerReturnType = {
   statValue6: number
 }
 
-export const useCharacterStore = defineStore({
-  id: 'characterStore',
+interface CharacterStoreState {
+  characters: Character[]
+  selectedCharacter: Character | null
+  characterForm: Partial<Character>
+  generatedCharacter: Partial<Character> | null
+  artImagePath: string
+  useGenerated: Record<string, boolean>
+  keepField: Record<string, boolean>
+  isSaving: boolean
+  isGeneratingArt: boolean
+  isInitialized: boolean
+  loading: boolean
+  generationMode: boolean
+}
 
-  state: () => ({
-    characters: [] as Character[],
-    selectedCharacter: null as Character | null,
-    characterForm: {} as Partial<Character>,
-    generatedCharacter: {} as Partial<Character> | null, // New state for generated character
-    artImagePath: ref(''), // Path for the selected character's art image
-    useGenerated: reactive<Record<string, boolean>>({}),
-    keepField: reactive<Record<string, boolean>>({}),
+export const useCharacterStore = defineStore('characterStore', {
+  state: (): CharacterStoreState => ({
+    characters: [],
+    selectedCharacter: null,
+    characterForm: {},
+    generatedCharacter: null,
+    artImagePath: '',
+    useGenerated: {},
+    keepField: {},
     isSaving: false,
     isGeneratingArt: false,
     isInitialized: false,

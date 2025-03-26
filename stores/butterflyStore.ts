@@ -164,8 +164,7 @@ export const createNewButterfly = async (
   }
 }
 
-export const useButterflyStore = defineStore({
-  id: 'butterfly',
+export const useButterflyStore = defineStore('butterflyStore', {
   state: (): ButterflyState => ({
     butterflies: [],
     scaleModifier: 1,
@@ -174,8 +173,6 @@ export const useButterflyStore = defineStore({
     animationPaused: false,
     showNames: true,
     selectedButterflyId: '',
-
-    // Original settings for reset purposes
     originalButterflySettings: {
       sizeRange: { min: 0.5, max: 1.5 },
       speedRange: { min: 1, max: 3 },
@@ -185,7 +182,6 @@ export const useButterflyStore = defineStore({
       yRange: { min: 0, max: 100 },
       zIndexRange: { min: 0, max: 50 },
     },
-
     newButterflySettings: {
       sizeRange: { min: 0.5, max: 1.5 },
       speedRange: { min: 1, max: 3 },
@@ -199,6 +195,7 @@ export const useButterflyStore = defineStore({
     },
     presets: [],
   }),
+
   actions: {
     clearButterflies() {
       this.butterflies = []

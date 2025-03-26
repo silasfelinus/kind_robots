@@ -12,7 +12,7 @@ export enum PitchType {
 }
 const isClient = typeof window !== 'undefined'
 
-export const usePitchStore = defineStore('pitch', {
+export const usePitchStore = defineStore('pitchStore', {
   state: () => ({
     pitches: [] as Pitch[],
     selectedPitches: [] as Pitch[],

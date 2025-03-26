@@ -2,10 +2,17 @@ import { defineStore } from 'pinia'
 import type { Bot } from '@prisma/client'
 import { performFetch, handleError } from './utils'
 
-export const useBotStore = defineStore({
-  id: 'botStore',
+interface BotStoreState {
+  bots: Bot[]
+  currentBot: Bot | null
+  botForm: Partial<Bot>
+  currentImagePath: string
+  loading: boolean
+  isLoaded: boolean
+}
 
-  state: () => ({
+export const useBotStore = defineStore('botStore', {
+  state: (): BotStoreState => ({
     bots: [] as Bot[],
     currentBot: null as Bot | null,
     botForm: {} as Partial<Bot>,

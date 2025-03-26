@@ -6,8 +6,7 @@ import { performFetch, handleError } from './utils'
 import type { Chat } from '@prisma/client'
 import { scenarios } from '@/utils/sceneChoices'
 
-export const useWeirdStore = defineStore({
-  id: 'weird',
+export const useWeirdStore = defineStore('weirdStore', {
   state: () => ({
     activeChatId: null as number | null,
     activeCharacterId: null as number | null,

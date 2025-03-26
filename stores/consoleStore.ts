@@ -75,7 +75,10 @@ export const useConsoleStore = defineStore('consoleStore', {
     },
 
     saveMessagesToLocal() {
-      localStorage.setItem('consoleMessages', JSON.stringify(this.messages.slice(-100)))
+      localStorage.setItem(
+        'consoleMessages',
+        JSON.stringify(this.messages.slice(-100)),
+      )
     },
 
     loadMessagesFromLocal() {
@@ -136,7 +139,10 @@ export const useConsoleStore = defineStore('consoleStore', {
       this.xp += amount
       this.saveToLocalStorage()
 
-      while (this.level < LEVEL_THRESHOLDS.length && this.xp >= LEVEL_THRESHOLDS[this.level]) {
+      while (
+        this.level < LEVEL_THRESHOLDS.length &&
+        this.xp >= LEVEL_THRESHOLDS[this.level]
+      ) {
         this.levelUp()
       }
     },
@@ -150,7 +156,10 @@ export const useConsoleStore = defineStore('consoleStore', {
     tickStory() {
       const seconds = this.sessionDuration
       if (seconds === 60) {
-        this.logMessage('🕐 One minute into the void. Bugs are stirring...', 'story')
+        this.logMessage(
+          '🕐 One minute into the void. Bugs are stirring...',
+          'story',
+        )
       }
       if (seconds === 300) {
         this.logMessage('🍕 Five minutes in. Time for a snack break?', 'story')

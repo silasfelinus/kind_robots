@@ -26,7 +26,7 @@ interface ErrorState {
 
 const MAX_HISTORY = 100 // Limit the history to 100 errors for better memory management
 
-export const useErrorStore = defineStore('error', {
+export const useErrorStore = defineStore('errorStore', {
   state: (): ErrorState => ({
     message: null,
     type: null,

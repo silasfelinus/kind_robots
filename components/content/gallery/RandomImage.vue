@@ -53,7 +53,7 @@ const loadNewRandomImage = async () => {
 
     // Initialize the gallery store if not already initialized
     if (!galleryStore.galleries.length) {
-      await galleryStore.initializeStore()
+      await galleryStore.initialize()
     }
 
     // Set a random gallery and image

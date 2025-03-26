@@ -74,7 +74,7 @@ const setCurrentBot = (botId: number) => {
 // Load bots on mount and stop loading spinner
 onMounted(async () => {
   if (bots.value.length === 0) {
-    await botStore.loadStore()
+    await botStore.initialize()
   }
   isLoading.value = false
 })

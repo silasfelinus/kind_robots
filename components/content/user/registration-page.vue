@@ -150,132 +150,131 @@
   </div>
 </template>
 
-
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue';
-import { useUserStore } from '~/stores/userStore';
-import { useErrorStore, ErrorType } from '~/stores/errorStore';
-import { generateUsername } from '~/utils/generateUsername';
+import { ref, computed, onMounted } from 'vue'
+import { useUserStore } from '~/stores/userStore'
+import { useErrorStore, ErrorType } from '~/stores/errorStore'
+import { generateUsername } from '~/utils/generateUsername'
 
 // Store setup
-const userStore = useUserStore();
-const errorStore = useErrorStore();
+const userStore = useUserStore()
+const errorStore = useErrorStore()
 
-userStore.initializeUser();
+userStore.initialize()
 
 // Reactive state
-const username = ref('');
-const email = ref('');
-const password = ref('');
-const confirmPassword = ref('');
-const usernameWarning = ref(false);
-const error = ref('');
-const isLoading = ref(false);
-const statusMessage = ref('');
-const confirmPasswordError = ref('');
-const showPassword = ref(false);
-const passwordError = ref('');
-const step = ref(1);
-const showConfirmPassword = ref(false);
+const username = ref('')
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const usernameWarning = ref(false)
+const error = ref('')
+const isLoading = ref(false)
+const statusMessage = ref('')
+const confirmPasswordError = ref('')
+const showPassword = ref(false)
+const passwordError = ref('')
+const step = ref(1)
+const showConfirmPassword = ref(false)
 
 // Auto-generate username on load and validate uniqueness
 const generateUsernameHandler = async () => {
   try {
-    isLoading.value = true;
-    let newUsername = '';
-    let isUnique = false;
+    isLoading.value = true
+    let newUsername = ''
+    let isUnique = false
 
     // Keep generating until a unique username is found
     while (!isUnique) {
-      newUsername = generateUsername();
-      const usernames = await userStore.getUsernames();
-      isUnique = !usernames.includes(newUsername);
+      newUsername = generateUsername()
+      const usernames = await userStore.getUsernames()
+      isUnique = !usernames.includes(newUsername)
     }
 
-    username.value = newUsername;
-    usernameWarning.value = false;
+    username.value = newUsername
+    usernameWarning.value = false
   } catch (e: unknown) {
     const message =
       e instanceof Error
         ? `Error generating username: ${e.message}`
-        : 'An unknown error occurred during username generation.';
-    errorStore.setError(ErrorType.UNKNOWN_ERROR, message);
-    username.value = ''; // Clear username if generation fails
+        : 'An unknown error occurred during username generation.'
+    errorStore.setError(ErrorType.UNKNOWN_ERROR, message)
+    username.value = '' // Clear username if generation fails
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 
 // Automatically generate a username when the component mounts
 onMounted(async () => {
-  await generateUsernameHandler();
-});
+  await generateUsernameHandler()
+})
 
 // Check if a username is already taken
 const checkUsernameAvailability = async () => {
   try {
-    const usernames = await userStore.getUsernames();
-    usernameWarning.value = usernames.includes(username.value);
+    const usernames = await userStore.getUsernames()
+    usernameWarning.value = usernames.includes(username.value)
 
     if (usernameWarning.value) {
-      error.value = `Username "${username.value}" already exists.`;
+      error.value = `Username "${username.value}" already exists.`
     } else {
-      error.value = '';
+      error.value = ''
     }
   } catch (e: unknown) {
     const message =
       e instanceof Error
         ? `Error checking username availability: ${e.message}`
-        : 'An unknown error occurred while checking username availability.';
-    errorStore.setError(ErrorType.UNKNOWN_ERROR, message);
+        : 'An unknown error occurred while checking username availability.'
+    errorStore.setError(ErrorType.UNKNOWN_ERROR, message)
   }
-};
+}
 
 // Validate the strength of the password
 const validatePassword = () => {
   if (!password.value) {
-    passwordError.value = '';
-    return;
+    passwordError.value = ''
+    return
   }
 
-  const minLength = /^.{8,}$/;
-  const hasNumber = /\d/;
-  const hasLetter = /[a-zA-Z]/;
+  const minLength = /^.{8,}$/
+  const hasNumber = /\d/
+  const hasLetter = /[a-zA-Z]/
 
   if (!minLength.test(password.value)) {
-    passwordError.value = 'At least 8 characters';
+    passwordError.value = 'At least 8 characters'
   } else if (!hasNumber.test(password.value)) {
-    passwordError.value = 'Include at least one number';
+    passwordError.value = 'Include at least one number'
   } else if (!hasLetter.test(password.value)) {
-    passwordError.value = 'Include at least one letter';
+    passwordError.value = 'Include at least one letter'
   } else {
-    passwordError.value = '';
+    passwordError.value = ''
   }
-};
+}
 
 // Ensure password confirmation matches the original
 const validateConfirmPassword = () => {
   if (password.value && password.value !== confirmPassword.value) {
-    confirmPasswordError.value = 'Passwords do not match';
+    confirmPasswordError.value = 'Passwords do not match'
   } else {
-    confirmPasswordError.value = '';
+    confirmPasswordError.value = ''
   }
-};
+}
 
 // Navigate between steps in the form
 const goToStep = (nextStep: number) => {
   if (nextStep === 2) {
-    statusMessage.value = `Welcome, ${username.value}!`;
+    statusMessage.value = `Welcome, ${username.value}!`
   }
-  step.value = nextStep;
-};
+  step.value = nextStep
+}
 
 // Submit the registration form
 const register = async () => {
-  if (!username.value || usernameWarning.value) return;
+  if (!username.value || usernameWarning.value) return
 
-  isLoading.value = true;
-  statusMessage.value = 'Registering user...';
+  isLoading.value = true
+  statusMessage.value = 'Registering user...'
 
   try {
     // Register the user
@@ -283,27 +282,29 @@ const register = async () => {
       username: username.value,
       email: email.value || undefined,
       password: password.value || undefined,
-    });
+    })
 
-    if (!registerResponse.success) throw new Error(registerResponse.message || 'Registration failed.');
+    if (!registerResponse.success)
+      throw new Error(registerResponse.message || 'Registration failed.')
 
     // Automatically log the user in after registration
     const loginResponse = await userStore.login({
       username: username.value,
       password: password.value || undefined,
-    });
+    })
 
-    if (!loginResponse.success) throw new Error(loginResponse.message || 'Login failed.');
+    if (!loginResponse.success)
+      throw new Error(loginResponse.message || 'Login failed.')
   } catch (e: unknown) {
     const message =
       e instanceof Error
         ? `Registration or login failed: ${e.message}`
-        : 'An unknown error occurred.';
-    errorStore.setError(ErrorType.REGISTRATION_ERROR, message);
+        : 'An unknown error occurred.'
+    errorStore.setError(ErrorType.REGISTRATION_ERROR, message)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 
 // Check if the form is valid for submission
 const isFormValid = computed(() => {
@@ -312,18 +313,18 @@ const isFormValid = computed(() => {
     !usernameWarning.value &&
     (!password.value || !passwordError.value) &&
     password.value === confirmPassword.value
-  );
-});
+  )
+})
 
 // Toggle visibility for password fields
 const togglePasswordVisibility = () => {
-  showPassword.value = !showPassword.value;
-};
+  showPassword.value = !showPassword.value
+}
 
 const toggleConfirmPasswordVisibility = () => {
-  showConfirmPassword.value = !showConfirmPassword.value;
-};
+  showConfirmPassword.value = !showConfirmPassword.value
+}
 
 // Computed property to check if the user is logged in
-const isLoggedIn = computed(() => userStore.isLoggedIn);
+const isLoggedIn = computed(() => userStore.isLoggedIn)
 </script>

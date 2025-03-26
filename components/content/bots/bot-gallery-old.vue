@@ -65,7 +65,7 @@ const currentBot = computed(() => botStore.currentBot)
 
 onMounted(async () => {
   try {
-    await botStore.loadStore()
+    await botStore.initialize()
   } catch (err) {
     console.error('Failed to load store', err)
   }

@@ -5,39 +5,47 @@ import { dungeonEncounter } from './dungeonEncounter'
 import { spaceEncounter } from './spaceEncounter'
 import { noirEncounter } from './noirEncounter'
 
+type Genre = 'dungeon' | 'space' | 'noir'
+
 type Encounter = {
-  genre: 'dungeon' | 'space' | 'noir'
+  genre: Genre
   message: string
   xp: number
-  memoryKey: string
+  memoryKey: Genre
 }
 
 const encounterMemoryKey = 'encounterMemory'
 
-function loadMemory(): Record<string, number> {
-  if (typeof localStorage === 'undefined') return {}
+function loadMemory(): Record<Genre, number> {
+  if (typeof localStorage === 'undefined') return { dungeon: 0, space: 0, noir: 0 }
   return JSON.parse(localStorage.getItem(encounterMemoryKey) || '{}')
 }
 
-function saveMemory(memory: Record<string, number>) {
+function saveMemory(memory: Record<Genre, number>) {
   localStorage.setItem(encounterMemoryKey, JSON.stringify(memory))
 }
 
 export function randomEncounter(): Encounter {
   const memory = loadMemory()
-  const genres: Encounter['genre'][] = ['dungeon', 'space', 'noir']
+  const genres: Genre[] = ['dungeon', 'space', 'noir']
   const genre = randomItem(genres)
   const count = memory[genre] || 0
-
-  let message = ''
   const xp = 15 + count * 5
 
-  if (genre === 'dungeon') {
-    message = dungeonEncounter(count)
-  } else if (genre === 'space') {
-    message = spaceEncounter(count)
-  } else if (genre === 'noir') {
-    message = noirEncounter(count)
+  let message = ''
+
+  switch (genre) {
+    case 'dungeon':
+      message = dungeonEncounter(count)
+      break
+    case 'space':
+      message = spaceEncounter(count)
+      break
+    case 'noir':
+      message = noirEncounter(count)
+      break
+    default:
+      message = 'You wander into the void... nothing responds.'
   }
 
   memory[genre] = count + 1

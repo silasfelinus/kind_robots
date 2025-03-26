@@ -5,7 +5,6 @@ import { useUserStore } from './userStore'
 import { randomFunLine } from './utils/randomFunLine'
 import { randomQuote } from './utils/randomQuote'
 import { randomTrivia } from './utils/randomTrivia'
-import { dungeonEncounter } from './utils/dungeonEncounter'
 import { randomEncounter } from './utils/randomEncounter'
 
 type ConsoleMessage = {
@@ -46,9 +45,10 @@ export const useConsoleStore = defineStore('consoleStore', {
     async initialize() {
       const userStore = useUserStore()
       this.userId = userStore.user?.id || null
-
       this.loginStart = Date.now()
+
       this.loadFromLocalStorage()
+      this.loadMessagesFromLocal()
 
       if (!this.hasFetched) {
         await this.fetchConsoleData()
@@ -72,6 +72,15 @@ export const useConsoleStore = defineStore('consoleStore', {
         'consoleStore',
         JSON.stringify({ xp: this.xp, level: this.level }),
       )
+    },
+
+    saveMessagesToLocal() {
+      localStorage.setItem('consoleMessages', JSON.stringify(this.messages.slice(-100)))
+    },
+
+    loadMessagesFromLocal() {
+      const saved = localStorage.getItem('consoleMessages')
+      if (saved) this.messages = JSON.parse(saved)
     },
 
     async fetchConsoleData() {
@@ -99,6 +108,8 @@ export const useConsoleStore = defineStore('consoleStore', {
         timestamp: Date.now(),
       })
 
+      this.saveMessagesToLocal()
+
       console.log(
         `%c[Console XP] ${text}`,
         'color: limegreen; font-weight: bold',
@@ -106,7 +117,7 @@ export const useConsoleStore = defineStore('consoleStore', {
     },
 
     logRandomMessage() {
-      const types = [
+      const types: Array<{ type: ConsoleMessage['type']; message: string }> = [
         { type: 'fun', message: randomFunLine() },
         { type: 'quote', message: randomQuote() },
         { type: 'trivia', message: randomTrivia() },
@@ -118,14 +129,14 @@ export const useConsoleStore = defineStore('consoleStore', {
       ]
 
       const selected = types[Math.floor(Math.random() * types.length)]
-      this.logMessage(selected.message, selected.type as ConsoleMessage['type'])
+      this.logMessage(selected.message, selected.type)
     },
 
     incrementXP(amount: number) {
       this.xp += amount
       this.saveToLocalStorage()
 
-      if (this.xp >= LEVEL_THRESHOLDS[this.level]) {
+      while (this.level < LEVEL_THRESHOLDS.length && this.xp >= LEVEL_THRESHOLDS[this.level]) {
         this.levelUp()
       }
     },
@@ -139,10 +150,7 @@ export const useConsoleStore = defineStore('consoleStore', {
     tickStory() {
       const seconds = this.sessionDuration
       if (seconds === 60) {
-        this.logMessage(
-          '🕐 One minute into the void. Bugs are stirring...',
-          'story',
-        )
+        this.logMessage('🕐 One minute into the void. Bugs are stirring...', 'story')
       }
       if (seconds === 300) {
         this.logMessage('🍕 Five minutes in. Time for a snack break?', 'story')

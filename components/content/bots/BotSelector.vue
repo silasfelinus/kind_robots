@@ -45,7 +45,7 @@ const selectedBotId = computed({
 // Load the bots on mount and set the default bot if available
 onMounted(async () => {
   try {
-    await botStore.loadStore()
+    await botStore.initialize()
     if (!selectedBotId.value && bots.value.length > 0) {
       selectedBotId.value = bots.value[0].id
     }

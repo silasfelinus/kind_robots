@@ -242,8 +242,8 @@ function deselectCurrentBot() {
 }
 
 onMounted(async () => {
-  await botStore.loadStore()
+  await botStore.initialize()
 
-  await galleryStore.initializeStore()
+  await galleryStore.initialize()
 })
 </script>

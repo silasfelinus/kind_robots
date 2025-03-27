@@ -52,7 +52,7 @@ import { computed, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useErrorStore } from '@/stores/errorStore'
-import { confetti } from 'canvas-confetti'
+import confetti from 'canvas-confetti'
 
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
@@ -68,30 +68,36 @@ watch(milestone, async (newMilestone, oldMilestone) => {
       spread: 90,
       origin: { y: 0.6 },
     })
-    console.log(`[milestone-popup] Confetti triggered for ${newMilestone.label}`)
+    console.log(
+      `[milestone-popup] Confetti triggered for ${newMilestone.label}`,
+    )
   }
 })
 
 const acknowledgeMilestone = async () => {
   const current = milestone.value
   if (!current) {
-    console.warn('[milestone-popup] Tried to acknowledge, but no milestone found')
+    console.warn(
+      '[milestone-popup] Tried to acknowledge, but no milestone found',
+    )
     return
   }
 
-  console.log(`[milestone-popup] Acknowledging milestone: ${current.label} (id: ${current.id})`)
+  console.log(
+    `[milestone-popup] Acknowledging milestone: ${current.label} (id: ${current.id})`,
+  )
 
   try {
     await userStore.updateKarmaAndMana()
     await milestoneStore.confirmMilestone(current.id)
 
     const isRecorded = milestoneStore.milestoneRecords.some(
-      (r) => r.milestoneId === current.id
+      (r) => r.milestoneId === current.id,
     )
 
     if (userStore.isGuest || !isRecorded) {
       console.warn(
-        `[milestone-popup] Milestone not recorded properly. Deactivating manually. isGuest: ${userStore.isGuest}, isRecorded: ${isRecorded}`
+        `[milestone-popup] Milestone not recorded properly. Deactivating manually. isGuest: ${userStore.isGuest}, isRecorded: ${isRecorded}`,
       )
       milestoneStore.deactivateMilestone(current.id)
     }
@@ -101,5 +107,4 @@ const acknowledgeMilestone = async () => {
     milestoneStore.deactivateMilestone(current.id) // fallback to prevent loops
   }
 }
-
 </script>

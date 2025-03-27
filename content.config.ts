@@ -46,7 +46,15 @@ const contentSchema = z.object({
   sort: z.string().optional(),
 })
 
-export type ContentType = z.infer<typeof contentSchema>
+export type ContentType = z.infer<typeof contentSchema> & {
+  seo?: {
+    title?: string
+    description?: string
+    meta?: Record<string, any>[]
+    link?: Record<string, any>[]
+    [key: string]: any
+  }
+}
 
 export default defineContentConfig({
   collections: {

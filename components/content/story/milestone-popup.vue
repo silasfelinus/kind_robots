@@ -47,30 +47,52 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+// /components/milestone-popup.vue
+import { computed, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useErrorStore } from '@/stores/errorStore'
 
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
+const errorStore = useErrorStore()
 
 const milestone = computed(() => milestoneStore.activeMilestones[0])
+
+watch(milestone, (newVal) => {
+  if (newVal) {
+    console.info(`[milestone-popup] Showing milestone: ${newVal.label} (id: ${newVal.id})`)
+  }
+})
+
 const acknowledgeMilestone = async () => {
-  const currentMilestone = milestone.value
-  if (!currentMilestone) return
+  const current = milestone.value
+  if (!current) {
+    console.warn('[milestone-popup] Tried to acknowledge, but no milestone found')
+    return
+  }
 
-  await userStore.updateKarmaAndMana()
+  console.log(`[milestone-popup] Acknowledging milestone: ${current.label} (id: ${current.id})`)
 
-  await milestoneStore.confirmMilestone(currentMilestone.id)
+  try {
+    await userStore.updateKarmaAndMana()
+    await milestoneStore.confirmMilestone(current.id)
 
-  // If guest or something failed, manually deactivate as safety net
-  if (
-    userStore.isGuest ||
-    !milestoneStore.milestoneRecords.find(
-      (r) => r.milestoneId === currentMilestone.id,
+    const isRecorded = milestoneStore.milestoneRecords.some(
+      (r) => r.milestoneId === current.id
     )
-  ) {
-    milestoneStore.deactivateMilestone(currentMilestone.id)
+
+    if (userStore.isGuest || !isRecorded) {
+      console.warn(
+        `[milestone-popup] Milestone not recorded properly. Deactivating manually. isGuest: ${userStore.isGuest}, isRecorded: ${isRecorded}`
+      )
+      milestoneStore.deactivateMilestone(current.id)
+    }
+  } catch (err: any) {
+    errorStore.captureError(err)
+    console.error('[milestone-popup] Error acknowledging milestone:', err)
+    milestoneStore.deactivateMilestone(current.id) // fallback to prevent loops
   }
 }
+
 </script>

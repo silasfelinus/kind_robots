@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { storeToRefs } from 'pinia'
 
@@ -96,4 +96,12 @@ onMounted(async () => {
     }
   }
 })
+
+watch(
+  () => route.path,
+  async (newPath) => {
+    await pageStore.loadPage(newPath)
+  },
+  { immediate: true },
+)
 </script>

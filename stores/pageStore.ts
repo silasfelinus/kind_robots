@@ -1,7 +1,7 @@
 // /stores/pageStore.ts
 import { defineStore } from 'pinia'
 import { useAsyncData, useRoute } from '#app'
-import { ref, computed, watchEffect, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { ContentType } from '~/content.config'
 
 export type LayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
@@ -14,7 +14,7 @@ export const usePageStore = defineStore('pageStore', () => {
   const pageCache = ref<Record<string, ContentType>>({})
 
   // Load page cache from localStorage on client startup
-  if (process.client) {
+  if (import.meta.client) {
     const cached = localStorage.getItem(STORAGE_KEY)
     if (cached) {
       try {
@@ -26,7 +26,7 @@ export const usePageStore = defineStore('pageStore', () => {
   }
 
   // Persist page cache on change
-  if (process.client) {
+  if (import.meta.client) {
     watch(
       pageCache,
       (val) => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)),
@@ -38,20 +38,25 @@ export const usePageStore = defineStore('pageStore', () => {
     const route = useRoute()
     const resolvedPath = path || route.path
 
+    if (page.value?.path === resolvedPath) return
+
     if (pageCache.value[resolvedPath]) {
       page.value = pageCache.value[resolvedPath]
       return
     }
 
-    const { data } = await useAsyncData(`page-${resolvedPath}`, async () => {
-      return (await queryCollection('content')
-        .path(resolvedPath)
-        .first()) as ContentType | null
-    })
+    const { data } = await useAsyncData(`page-${resolvedPath}`, () =>
+      queryCollection('content').path(resolvedPath).first(),
+    )
 
     if (data.value) {
-      page.value = data.value
-      pageCache.value[resolvedPath] = data.value
+      const normalized = {
+        ...data.value,
+        seo: data.value.seo ?? {},
+      }
+
+      page.value = normalized as ContentType
+      pageCache.value[resolvedPath] = normalized as ContentType
     } else {
       page.value = null
     }

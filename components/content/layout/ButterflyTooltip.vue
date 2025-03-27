@@ -2,7 +2,7 @@
   <div class="fixed bottom-4 right-4" @click="toggleTooltip">
     <!-- Pulsing Butterfly Icon -->
     <div v-if="!tooltipOpen && tooltip" class="cursor-pointer">
-      <Icon name="ph:butterfly-duotone" class="text-3xl animate-pulse" />
+      <Icon name="kind-icon:butterfly" class="text-3xl animate-pulse" />
     </div>
 
     <!-- Tooltip Popup -->

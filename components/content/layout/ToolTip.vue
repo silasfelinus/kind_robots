@@ -14,12 +14,9 @@
           :class="tipStatus.Silas.show ? 'text-accent flash' : 'text-default'"
         />
       </button>
-      <button
-        v-if="amitip && !tipStatus.Ami.seen"
-        @click="toggleTip('Ami')"
-      >
+      <button v-if="amitip && !tipStatus.Ami.seen" @click="toggleTip('Ami')">
         <Icon
-          name="ph:butterfly-duotone"
+          name="kind-icon:butterfly"
           class="text-3xl"
           :class="tipStatus.Ami.show ? 'text-accent flash' : 'text-default'"
         />
@@ -47,9 +44,9 @@ const currentTipType = ref<'Ami' | 'Silas' | null>(null)
 
 const currentTip = computed(() => {
   return currentTipType.value === 'Silas'
-    ? tooltip.value ?? ''
+    ? (tooltip.value ?? '')
     : currentTipType.value === 'Ami'
-      ? amitip.value ?? ''
+      ? (amitip.value ?? '')
       : ''
 })
 
@@ -86,7 +83,8 @@ watch(amitip, (newTip) => {
 }
 
 @keyframes flash {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

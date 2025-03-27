@@ -107,7 +107,7 @@ const effects = ref([
   {
     id: 'talking-butterflies',
     label: 'Butterfly Scouts',
-    Icon: 'ph:butterfly-light',
+    Icon: 'kind-icon:butterfly',
     tooltip: 'Release AMI 🦋',
     reveal: 'Happy butterflies',
     isActive: false,

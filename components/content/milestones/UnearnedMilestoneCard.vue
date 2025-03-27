@@ -5,7 +5,7 @@
   >
     <div class="text-center flex flex-col items-center">
       <!-- Milestone Icon -->
-      id: {{milestone.id}}
+      id: {{ milestone.id }}
       <Icon
         :name="props.milestone.icon ?? 'kind-icon:map'"
         class="Icon-extra-large mb-2"
@@ -28,7 +28,7 @@
       >
         <Icon
           v-if="!revealTooltip"
-          name="ph:question-bold"
+          name="kind-icon:question"
           class="text-accent text-2xl"
           aria-label="Click for hint"
         />

@@ -3,7 +3,7 @@
     <!-- Chat Icon (Toggle Button) -->
     <div v-if="!chatOpen" class="cursor-pointer" @click="toggleChat">
       <Icon
-        :name="icon || 'icon-park-twotone:butterfly'"
+        :name="icon || 'kind-icon:butterfly'"
         class="animate-pulse h-10 w-10 text-accent"
       />
     </div>

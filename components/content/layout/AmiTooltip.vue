@@ -4,7 +4,7 @@
   >
     <!-- Butterfly Container -->
     <div class="flex-none w-10 h-10">
-      <Icon name="Icon-park-twotone:butterfly" class="text-2xl w-full h-full" />
+      <Icon name="kind-icon:butterfly" class="text-2xl w-full h-full" />
     </div>
     <!-- Text Container -->
     <div class="flex-grow ml-4">

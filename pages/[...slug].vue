@@ -60,15 +60,40 @@ const handleRouteChange = async () => {
     displayAction,
   } = route.query
 
-  if (displayMode) displayStore.displayMode = displayMode as displayModeState
-  if (displayAction)
+  if (displayMode && displayStore.displayMode !== displayMode) {
+    displayStore.displayMode = displayMode as displayModeState
+  }
+
+  if (displayAction && displayStore.displayAction !== displayAction) {
     displayStore.displayAction = displayAction as displayActionState
-  if (botId) botStore.selectBot(Number(botId))
-  if (characterId) characterStore.selectCharacter(Number(characterId))
-  if (scenarioId) scenarioStore.selectScenario(Number(scenarioId))
-  if (chatId) chatStore.selectChat(Number(chatId))
-  if (pitchId) pitchStore.selectPitch(Number(pitchId))
-  if (promptId) promptStore.selectPrompt(Number(promptId))
+  }
+
+  if (botId && botStore.selectedBot?.id !== Number(botId)) {
+    botStore.selectBot(Number(botId))
+  }
+
+  if (
+    characterId &&
+    characterStore.selectedCharacter?.id !== Number(characterId)
+  ) {
+    characterStore.selectCharacter(Number(characterId))
+  }
+
+  if (scenarioId && scenarioStore.selectedScenario?.id !== Number(scenarioId)) {
+    scenarioStore.selectScenario(Number(scenarioId))
+  }
+
+  if (chatId && chatStore.selectedChat?.id !== Number(chatId)) {
+    chatStore.selectChat(Number(chatId))
+  }
+
+  if (pitchId && pitchStore.selectedPitch?.id !== Number(pitchId)) {
+    pitchStore.selectPitch(Number(pitchId))
+  }
+
+  if (promptId && promptStore.selectedPrompt?.id !== Number(promptId)) {
+    promptStore.selectPrompt(Number(promptId))
+  }
 
   if (code) {
     await router.push(`/api/auth/google/callback?code=${code}`)
@@ -78,17 +103,19 @@ const handleRouteChange = async () => {
   const storedToken = userStore.getFromLocalStorage('token')
   const tokenToUse = queryToken || storedToken
 
-  if (userStore.user === null && tokenToUse) {
-    userStore.token = tokenToUse as string
+  if (!userStore.user && tokenToUse) {
+    if (userStore.token !== tokenToUse) {
+      userStore.token = tokenToUse as string
+    }
+
     try {
       const isValid = await userStore.validateAndFetchUserData()
+
       if (!isValid) {
         userStore.removeFromLocalStorage('token')
         await router.push('/login')
-      } else {
-        if (queryToken) {
-          userStore.saveToLocalStorage('token', queryToken as string)
-        }
+      } else if (queryToken) {
+        userStore.saveToLocalStorage('token', queryToken as string)
       }
     } catch (error) {
       console.error('Token validation error:', error)

@@ -51,7 +51,7 @@ const storyMakerStore = useStoryStore()
 const links: { name: SectionKey; label: string; icon: string }[] = [
   { name: 'create', label: 'Create Story', icon: 'kind-icon:pencil' },
   { name: 'credits', label: 'Generate Credits', icon: 'kind-icon:generate' },
-  { name: 'about', label: 'About', icon: 'info-circle' },
+  { name: 'about', label: 'About', icon: 'kind-icon:info-circle' },
 ]
 
 // Computed Properties

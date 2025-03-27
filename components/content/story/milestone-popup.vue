@@ -52,6 +52,7 @@ import { computed, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useErrorStore } from '@/stores/errorStore'
+import { confetti } from 'canvas-confetti'
 
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
@@ -59,6 +60,17 @@ const errorStore = useErrorStore()
 
 const milestone = computed(() => milestoneStore.unconfirmedMilestones[0])
 
+watch(milestone, async (newMilestone, oldMilestone) => {
+  if (newMilestone && !oldMilestone && !userStore.isGuest) {
+    await nextTick() // ensures DOM is updated before measuring
+    confetti({
+      particleCount: 150,
+      spread: 90,
+      origin: { y: 0.6 },
+    })
+    console.log(`[milestone-popup] Confetti triggered for ${newMilestone.label}`)
+  }
+})
 
 const acknowledgeMilestone = async () => {
   const current = milestone.value

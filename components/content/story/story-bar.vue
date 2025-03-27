@@ -28,7 +28,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useStoryMakerStore } from '@/stores/storyStore'
+import { useStoryStore } from '@/stores/storyStore'
 
 // Import Components
 import StoryCreator from '@/components/content/story/story-creator.vue'
@@ -45,7 +45,7 @@ const sections = {
 type SectionKey = keyof typeof sections
 
 // Store Setup
-const storyMakerStore = useStoryMakerStore()
+const storyMakerStore = useStoryStore()
 
 // Navigation Links
 const links: { name: SectionKey; label: string; icon: string }[] = [

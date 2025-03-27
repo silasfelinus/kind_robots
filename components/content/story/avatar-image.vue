@@ -39,15 +39,17 @@ const pageStore = usePageStore()
 const currentBot = computed(() => botStore.currentBot)
 const pageImage = computed(() => pageStore.image)
 
-// Fallback image
 const fallbackImage = '/images/botcafe.webp'
 
-// Hydration-safe image values (computed only after mount)
-const safeImage = ref(fallbackImage)
-const safeBackImage = ref(fallbackImage)
+const safeImage = ref(pageImage.value?.length ? pageImage.value : fallbackImage)
+
+const safeBackImage = ref(currentBot.value?.avatarImage || safeImage.value)
 
 onMounted(() => {
   hydrated.value = true
+
+  console.log('pageImage:', pageImage.value)
+  console.log('currentBot:', currentBot.value)
 
   safeImage.value =
     pageImage.value?.length > 0

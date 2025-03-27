@@ -1,10 +1,14 @@
 <template>
   <main>
     <NuxtLayout :name="layout">
-      <ContentRenderer v-if="hydrated && page" :value="page" />
-      <template v-else-if="hydrated">
-        <p>Bot Not Found</p>
-      </template>
+      <ClientOnly>
+        <template v-if="page && page.body">
+          <ContentRenderer :value="page" />
+        </template>
+        <template #fallback>
+          <p class="text-center text-base text-info p-4">Loading page...</p>
+        </template>
+      </ClientOnly>
     </NuxtLayout>
   </main>
 </template>
@@ -124,13 +128,10 @@ const handleRouteChange = async () => {
   }
 }
 
-const hydrated = ref(false)
-
 watch(
   () => route.fullPath,
   async () => {
     await handleRouteChange()
-    hydrated.value = true
   },
   { immediate: true },
 )

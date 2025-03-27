@@ -63,7 +63,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   })
 
   async function initialize() {
-console.log('[milestoneStore] Initializing...')
+    console.log('[milestoneStore] Initializing...')
     if (isInitialized.value) return
 
     if (typeof window !== 'undefined') {
@@ -77,13 +77,13 @@ console.log('[milestoneStore] Initializing...')
     await fetchMilestones()
     await fetchMilestoneRecords()
     isInitialized.value = true
-console.log("active milestones: ", this.activeMilestones)
+    console.log('active milestones: ', activeMilestones)
 
     if (!userStore.isGuest && typeof window !== 'undefined') {
       const storedPending = localStorage.getItem('pendingGuestMilestones')
       if (storedPending) {
         try {
-console.log("pending guest milestones: ", storePending)
+          console.log('pending guest milestones: ', storedPending)
           const pendingIds = JSON.parse(storedPending) as number[]
           for (const id of pendingIds) {
             await rewardMilestone(id)
@@ -97,7 +97,7 @@ console.log("pending guest milestones: ", storePending)
     }
   }
 
-async function confirmMilestone(milestoneId: number) {
+  async function confirmMilestone(milestoneId: number) {
     console.log(`[milestoneStore] Confirming milestone ${milestoneId}...`)
 
     if (userStore.isGuest) {

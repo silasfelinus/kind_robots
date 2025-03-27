@@ -77,7 +77,6 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     await fetchMilestones()
     await fetchMilestoneRecords()
     isInitialized.value = true
-    console.log('active milestones: ', activeMilestones)
 
     if (!userStore.isGuest && typeof window !== 'undefined') {
       const storedPending = localStorage.getItem('pendingGuestMilestones')

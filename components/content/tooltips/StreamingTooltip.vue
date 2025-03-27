@@ -22,7 +22,7 @@
         <div
           class="ami-chat bubble bg-secondary text-white p-4 rounded-2xl shadow-lg mb-2 flash-animation"
         >
-          <Icon name="ph:butterfly" class="text-white mr-2 text-2xl" />
+          <Icon name="kind-icon:butterfly" class="text-white mr-2 text-2xl" />
           <div :class="{ 'opacity-50': isGreyedOut }">
             Ami is {{ randomAction }}
           </div>
@@ -33,7 +33,10 @@
         <div
           class="ami-chat bubble bg-secondary text-white p-4 rounded-2xl shadow-lg mb-2"
         >
-          <Icon name="ph:butterfly" class="text-white mr-2 text-2xl" />Ami Says:
+          <Icon
+            name="kind-icon:butterfly"
+            class="text-white mr-2 text-2xl"
+          />Ami Says:
           <span class="text-xl block">{{ amiStream }}</span>
         </div>
       </div>

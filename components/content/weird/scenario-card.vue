@@ -28,7 +28,7 @@
           title="Delete Scenario"
           @click.stop="deleteScenario"
         >
-          <Icon name="mdi:delete" class="w-5 h-5" />
+          <Icon name="kind-icon:trash" class="w-5 h-5" />
         </button>
         <button
           v-if="canDelete"
@@ -36,14 +36,14 @@
           title="Edit Scenario"
           @click.stop="editScenario"
         >
-          <Icon name="mdi:pencil" class="w-5 h-5" />
+          <Icon name="kind-icon:pencil" class="w-5 h-5" />
         </button>
         <button
           class="text-secondary p-3 rounded-full hover:bg-secondary-content transition-transform hover:scale-110"
           title="Clone Scenario"
           @click.stop="cloneScenario"
         >
-          <Icon name="mdi:content-copy" class="w-5 h-5" />
+          <Icon name="kind-icon:copy" class="w-5 h-5" />
         </button>
       </div>
 

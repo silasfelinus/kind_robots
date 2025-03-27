@@ -25,7 +25,7 @@
       aria-label="Save Changes"
       @click="emitSave"
     >
-      <Icon name="mdi:content-save" class="w-6 h-6" />
+      <Icon name="kind-icon:save" class="w-6 h-6" />
     </button>
 
     <!-- Delete Button with Confirmation -->
@@ -34,7 +34,7 @@
       aria-label="Delete Pitch"
       @click="confirmDelete"
     >
-      <Icon name="mdi:delete" class="w-6 h-6" />
+      <Icon name="kind-icon:trash" class="w-6 h-6" />
     </button>
 
     <!-- Get More Brainstorms Button -->
@@ -46,7 +46,7 @@
     >
       <Icon v-if="!isFetching" name="kind-icon:brain" class="w-6 h-6" />
       <span v-else>
-        <Icon name="mdi:loading" class="animate-spin w-6 h-6" />
+        <Icon name="kind-icon:thumbup" class="animate-spin w-6 h-6" />
       </span>
     </button>
 

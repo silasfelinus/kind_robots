@@ -12,7 +12,7 @@
       title="Delete Character"
       @click.stop="deleteCharacter"
     >
-      <Icon name="mdi:delete-outline" class="w-4 h-4" />
+      <Icon name="kind-icon:trash-outline" class="w-4 h-4" />
     </button>
 
     <!-- Character Image -->
@@ -71,7 +71,7 @@
         }"
         @click.stop="toggleMode('chat')"
       >
-        <Icon name="mdi:message-outline" class="w-5 h-5" />
+        <Icon name="kind-icon:message" class="w-5 h-5" />
         <span>Chat</span>
       </button>
       <button
@@ -82,7 +82,7 @@
         }"
         @click.stop="toggleMode('adventure')"
       >
-        <Icon name="mdi:compass-outline" class="w-5 h-5" />
+        <Icon name="kind-icon:compass" class="w-5 h-5" />
         <span>Adventure</span>
       </button>
     </div>

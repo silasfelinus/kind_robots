@@ -29,7 +29,7 @@
         class="text-2xl bg-yellow-500 rounded-full w-12 h-12 flex items-center justify-center cursor-pointer"
         @click="setTab('front')"
       >
-        <Icon name="ph:butterfly-light" class="text-purple-600 text-3xl" />
+        <Icon name="kind-icon:butterfly" class="text-purple-600 text-3xl" />
       </div>
 
       <!-- Front to Back Icon -->
@@ -38,7 +38,7 @@
         class="text-2xl bg-green-500 rounded-full w-12 h-12 flex items-center justify-center cursor-pointer"
         @click="setTab('back')"
       >
-        <Icon name="ph:butterfly-fill" class="text-blue-600 text-3xl" />
+        <Icon name="kind:butterfly" class="text-blue-600 text-3xl" />
       </div>
     </div>
   </div>

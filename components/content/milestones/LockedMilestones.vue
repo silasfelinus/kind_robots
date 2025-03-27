@@ -24,7 +24,7 @@
           <!-- Question Mark Icon for Directions -->
           <div class="absolute top-2 right-2 z-6">
             <nuxt-link :to="milestone.pageHint || '#'">
-              <Icon name="ph:question-bold" class="text-blue-500 text-2xl" />
+              <Icon name="kind-icon:question" class="text-blue-500 text-2xl" />
             </nuxt-link>
           </div>
         </div>

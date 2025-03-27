@@ -23,7 +23,7 @@
         }"
         @click="toggleFullScreen"
       >
-        <Icon name="mdi-view-column" class="w-6 h-6" />
+        <Icon name="kind-icon:grid" class="w-6 h-6" />
       </button>
       <!-- One-column layout button -->
       <button
@@ -34,7 +34,7 @@
         }"
         @click="toggleFullScreen"
       >
-        <Icon name="mdi-monitor" class="w-6 h-6" />
+        <Icon name="kind-icon:fullscreen" class="w-6 h-6" />
       </button>
     </div>
   </div>

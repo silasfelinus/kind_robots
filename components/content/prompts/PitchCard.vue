@@ -22,7 +22,7 @@
           @click="toggleTitleEdit"
         >
           <Icon
-            :name="isTitleEditing ? 'mdi:check' : 'mdi:pencil'"
+            :name="isTitleEditing ? 'kind-icon:check' : 'kind-icon:pencil'"
             class="w-5 h-5"
           />
         </button>
@@ -46,7 +46,7 @@
         @click="togglePitchEdit"
       >
         <Icon
-          :name="isPitchEditing ? 'mdi:check' : 'mdi:pencil'"
+          :name="isPitchEditing ? 'kind-icon:check' : 'kind-icon:pencil'"
           class="w-5 h-5"
         />
       </button>
@@ -68,7 +68,7 @@
         @click="toggleDescriptionEdit"
       >
         <Icon
-          :name="isDescriptionEditing ? 'mdi:check' : 'mdi:pencil'"
+          :name="isDescriptionEditing ? 'kind-icon:check' : 'kind-icon:pencil'"
           class="w-5 h-5"
         />
       </button>
@@ -89,7 +89,7 @@
       class="fixed bottom-4 right-4 bg-green-500 text-black p-3 rounded-full shadow-lg"
       @click="saveChanges"
     >
-      <Icon name="mdi:content-save" class="w-6 h-6" />
+      <Icon name="kind-icon:save" class="w-6 h-6" />
     </button>
   </div>
 </template>
@@ -116,7 +116,9 @@ const isUserAllowedToEdit = computed(
 )
 
 // Check if pitch type is TITLE
-const isTitleType = computed(() => editablePitch.value.PitchType === PitchType.TITLE)
+const isTitleType = computed(
+  () => editablePitch.value.PitchType === PitchType.TITLE,
+)
 const isSelected = computed(
   () => pitchStore.selectedTitle === props.pitch.title,
 )

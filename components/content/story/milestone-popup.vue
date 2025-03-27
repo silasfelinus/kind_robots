@@ -87,24 +87,31 @@ const acknowledgeMilestone = async () => {
     `[milestone-popup] Acknowledging milestone: ${current.label} (id: ${current.id})`,
   )
 
-  try {
-    await userStore.updateKarmaAndMana()
-    await milestoneStore.confirmMilestone(current.id)
+  await errorStore.handleError(
+    async () => {
+      await userStore.updateKarmaAndMana()
+      await milestoneStore.confirmMilestone(current.id)
 
-    const isRecorded = milestoneStore.milestoneRecords.some(
-      (r) => r.milestoneId === current.id,
-    )
-
-    if (userStore.isGuest || !isRecorded) {
-      console.warn(
-        `[milestone-popup] Milestone not recorded properly. Deactivating manually. isGuest: ${userStore.isGuest}, isRecorded: ${isRecorded}`,
+      const isRecorded = milestoneStore.milestoneRecords.some(
+        (r) => r.milestoneId === current.id,
       )
-      milestoneStore.deactivateMilestone(current.id)
-    }
-  } catch (err: any) {
-    errorStore.captureError(err)
-    console.error('[milestone-popup] Error acknowledging milestone:', err)
-    milestoneStore.deactivateMilestone(current.id) // fallback to prevent loops
+
+      if (userStore.isGuest || !isRecorded) {
+        console.warn(
+          `[milestone-popup] Milestone not recorded properly. Deactivating manually. isGuest: ${userStore.isGuest}, isRecorded: ${isRecorded}`,
+        )
+        milestoneStore.deactivateMilestone(current.id)
+      }
+    },
+    ErrorType.INTERACTION_ERROR,
+    `[milestone-popup] Failed to acknowledge milestone: ${current.label}`,
+  )
+
+  // Optional fallback: safety net if errors are swallowed silently
+  if (
+    !milestoneStore.milestoneRecords.some((r) => r.milestoneId === current.id)
+  ) {
+    milestoneStore.deactivateMilestone(current.id)
   }
 }
 </script>

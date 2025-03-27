@@ -10,7 +10,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+// /pages/[slug].vue (or whatever your page file is)
+import { watch } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { storeToRefs } from 'pinia'
 
@@ -43,7 +44,7 @@ const pageStore = usePageStore()
 
 const { page, layout } = storeToRefs(pageStore)
 
-onMounted(async () => {
+const handleRouteChange = async () => {
   await pageStore.loadPage(route.path)
 
   const {
@@ -95,12 +96,12 @@ onMounted(async () => {
       await router.push('/login')
     }
   }
-})
+}
 
 watch(
-  () => route.path,
-  async (newPath) => {
-    await pageStore.loadPage(newPath)
+  () => route.fullPath,
+  async () => {
+    await handleRouteChange()
   },
   { immediate: true },
 )

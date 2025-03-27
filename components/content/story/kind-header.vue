@@ -1,5 +1,6 @@
 <template>
   <header
+    v-if="hydrated"
     class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-accent max-w-full box-border"
   >
     <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
@@ -59,11 +60,17 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
-
 const { page, subtitle } = storeToRefs(pageStore)
+
+const hydrated = ref(false)
+onMounted(() => {
+  hydrated.value = true
+})
 </script>

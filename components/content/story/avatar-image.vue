@@ -1,17 +1,17 @@
 <template>
-  <div class="relative w-full h-full">
+  <div v-if="hydrated" class="relative w-full h-full">
     <div class="flip-card" @click="handleAvatarClick">
       <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
         <div class="flip-card-front">
           <img
-            :src="selectImage"
+            :src="safeImage"
             alt="Avatar"
             class="avatar-img shadow-lg hover:shadow-xl rounded-2xl object-cover w-full h-full"
           />
         </div>
         <div class="flip-card-back">
           <img
-            :src="currentBot?.avatarImage || selectImage"
+            :src="safeBackImage"
             alt="New Avatar"
             class="avatar-img shadow-lg hover:shadow-xl rounded-2xl object-cover w-full h-full"
           />
@@ -22,13 +22,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useBotStore } from '@/stores/botStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const flipped = ref(false)
+const hydrated = ref(false)
 
 const displayStore = useDisplayStore()
 const botStore = useBotStore()
@@ -38,11 +39,24 @@ const pageStore = usePageStore()
 const currentBot = computed(() => botStore.currentBot)
 const pageImage = computed(() => pageStore.image)
 
-const selectImage = computed(() => {
-  return pageImage.value?.length
-    ? pageImage.value
-    : currentBot.value?.avatarImage || '/images/botcafe.webp'
+// Fallback image
+const fallbackImage = '/images/botcafe.webp'
+
+// Hydration-safe image values (computed only after mount)
+const safeImage = ref(fallbackImage)
+const safeBackImage = ref(fallbackImage)
+
+onMounted(() => {
+  hydrated.value = true
+
+  safeImage.value =
+    pageImage.value?.length > 0
+      ? pageImage.value
+      : currentBot.value?.avatarImage || fallbackImage
+
+  safeBackImage.value = currentBot.value?.avatarImage || safeImage.value
 })
+
 watch(currentBot, (newBot, oldBot) => {
   if (newBot && newBot !== oldBot) {
     flipped.value = !flipped.value

@@ -13,6 +13,7 @@ interface UserState {
   users: User[]
   recipient: User | null
   googleToken: boolean
+  initialized: boolean
 }
 
 export const useUserStore = defineStore('userStore', {
@@ -26,7 +27,9 @@ export const useUserStore = defineStore('userStore', {
     users: [],
     recipient: null,
     googleToken: false,
+    initialized: false,
   }),
+
   getters: {
     isGuest(state): boolean {
       return state.user === null || state.user?.id === 10
@@ -72,11 +75,17 @@ export const useUserStore = defineStore('userStore', {
   },
   actions: {
     async initialize() {
+      if (this.initialized) return
+      this.initialized = true
+
       await this.fetchUsers()
+
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
       const storedToken = this.getFromLocalStorage('token')
       const googleToken = this.getFromLocalStorage('googleToken') === 'true'
+
       this.setStayLoggedIn(stayLoggedIn)
+
       if (storedToken) {
         this.token = storedToken
       }
@@ -86,7 +95,7 @@ export const useUserStore = defineStore('userStore', {
       }
 
       if (stayLoggedIn && storedToken) {
-        this.validateAndFetchUserData()
+        await this.validateAndFetchUserData()
       }
     },
     async fetchUsers(): Promise<void> {
@@ -183,6 +192,8 @@ export const useUserStore = defineStore('userStore', {
     },
 
     async validateAndFetchUserData(): Promise<boolean> {
+      if (!this.token) return false
+
       try {
         const response = await performFetch<User>('/api/auth/validate/token', {
           method: 'POST',
@@ -191,62 +202,27 @@ export const useUserStore = defineStore('userStore', {
             'Content-Type': 'application/json',
           },
         })
+
         if (response.success && response.data) {
           await this.setUser(response.data)
 
-          // Save the token to localStorage if stayLoggedIn is true
           if (this.stayLoggedIn && this.token) {
             this.saveToLocalStorage('token', this.token)
-            console.log(
-              'Token saved to localStorage after successful validation.',
-            )
           }
 
           return true
         } else {
-          console.warn('User validation failed:', response.message)
           handleError(
             new Error(response.message || 'Invalid token'),
             'validating user',
           )
+          this.lastError = response.message || 'Invalid token'
           return false
         }
       } catch (error) {
         handleError(error, 'validating user')
+        this.lastError = 'An error occurred while validating user'
         return false
-      }
-    },
-    async fetchUserByApiKey(): Promise<void> {
-      try {
-        const response = await performFetch<User>('/api/user')
-        if (response.success && response.data) {
-          await this.setUser(response.data)
-        } else {
-          throw new Error(response.message || 'Failed to fetch user')
-        }
-      } catch (error) {
-        handleError(error, 'fetching user by API key')
-      }
-    },
-
-    async updateUserToken(newToken: string): Promise<void> {
-      try {
-        const response = await performFetch<User>(`/api/users/${this.userId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ token: newToken }),
-        })
-        if (response.success && response.data) {
-          await this.setUser(response.data)
-          console.log('User token successfully updated in the database.')
-        } else {
-          console.warn('Failed to update user token:', response.message)
-          handleError(
-            new Error(response.message || 'Error updating token'),
-            'updating user token',
-          )
-        }
-      } catch (error) {
-        handleError(error, 'updating user token')
       }
     },
 
@@ -359,6 +335,26 @@ export const useUserStore = defineStore('userStore', {
         return { success: false, message: 'An unknown error occurred' }
       } finally {
         this.stopLoading()
+      }
+    },
+    async updateUserToken(newToken: string): Promise<void> {
+      try {
+        const response = await performFetch<User>(`/api/users/${this.userId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ token: newToken }),
+        })
+
+        if (response.success && response.data) {
+          await this.setUser(response.data)
+          console.log('User token successfully updated in the database.')
+        } else {
+          handleError(
+            new Error(response.message || 'Error updating token'),
+            'updating user token',
+          )
+        }
+      } catch (error) {
+        handleError(error, 'updating user token')
       }
     },
 

@@ -57,13 +57,8 @@ const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 const errorStore = useErrorStore()
 
-const milestone = computed(() => milestoneStore.activeMilestones[0])
+const milestone = computed(() => milestoneStore.unconfirmedMilestones[0])
 
-watch(milestone, (newVal) => {
-  if (newVal) {
-    console.info(`[milestone-popup] Showing milestone: ${newVal.label} (id: ${newVal.id})`)
-  }
-})
 
 const acknowledgeMilestone = async () => {
   const current = milestone.value

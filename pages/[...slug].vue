@@ -68,7 +68,7 @@ const handleRouteChange = async () => {
     displayStore.displayAction = displayAction as displayActionState
   }
 
-  if (botId && botStore.selectedBot?.id !== Number(botId)) {
+  if (botId && botStore.selectedBotId !== Number(botId)) {
     botStore.selectBot(Number(botId))
   }
 

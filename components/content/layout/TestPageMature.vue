@@ -20,11 +20,11 @@ import { useUserStore } from '../../../stores/userStore'
 const userStore = useUserStore()
 const user = computed(() => userStore.user || null)
 
-const showMature = computed(() => userStore.showMature || false) // Remove parentheses, this should be a property not a method
+const showMature = computed(() => userStore.showMature || false)
 
 function refreshUserSettings() {
   userStore
-    .fetchUserByApiKey()
+    .validateAndFetchUserData()
     .then(() => {
       console.log('User data refreshed')
     })

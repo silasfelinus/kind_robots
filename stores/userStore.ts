@@ -247,7 +247,7 @@ export const useUserStore = defineStore('userStore', {
             ...response.data, // Use the updated user data from response
             karma: updatedKarma,
             mana: updatedMana,
-          } as User
+          }
           this.updateUserFields(this.userId, {
             karma: updatedKarma,
             mana: updatedMana,

@@ -63,6 +63,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   })
 
   async function initialize() {
+console.log('[milestoneStore] Initializing...')
     if (isInitialized.value) return
 
     if (typeof window !== 'undefined') {
@@ -76,11 +77,13 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     await fetchMilestones()
     await fetchMilestoneRecords()
     isInitialized.value = true
+console.log("active milestones: ", this.activeMilestones)
 
     if (!userStore.isGuest && typeof window !== 'undefined') {
       const storedPending = localStorage.getItem('pendingGuestMilestones')
       if (storedPending) {
         try {
+console.log("pending guest milestones: ", storePending)
           const pendingIds = JSON.parse(storedPending) as number[]
           for (const id of pendingIds) {
             await rewardMilestone(id)
@@ -94,14 +97,15 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     }
   }
 
-  async function confirmMilestone(milestoneId: number) {
+async function confirmMilestone(milestoneId: number) {
+    console.log(`[milestoneStore] Confirming milestone ${milestoneId}...`)
+
     if (userStore.isGuest) {
-      console.warn('Guest users cannot confirm milestones.')
+      console.warn('[milestoneStore] Guest cannot confirm. Deactivating.')
       deactivateMilestone(milestoneId)
       return
     }
 
-    // 🛠 Ensure records are fresh
     await fetchMilestoneRecords()
 
     const record = milestoneRecords.value.find(
@@ -109,7 +113,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     )
 
     if (!record) {
-      console.warn(`Milestone record not found for user: ${userStore.userId}`)
+      console.warn(`[milestoneStore] Record not found for ${milestoneId}`)
       return
     }
 
@@ -120,17 +124,12 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
         isConfirmed: true,
       })
 
-      if (result?.success === false) {
-        console.warn(
-          'Failed to update milestone record on server:',
-          result.message,
-        )
-        return
+      if (!result.success) {
+        console.warn(`[milestoneStore] Update failed: ${result.message}`)
       }
-
-      persist()
     } catch (error) {
-      console.error('Error confirming milestone:', error)
+      handleError(error, 'confirming milestone')
+      deactivateMilestone(milestoneId)
     }
   }
 

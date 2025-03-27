@@ -1,8 +1,8 @@
 <template>
   <main>
     <NuxtLayout :name="layout">
-      <ContentRenderer v-if="page" :value="page" />
-      <template v-else>
+      <ContentRenderer v-if="hydrated && page" :value="page" />
+      <template v-else-if="hydrated">
         <p>Bot Not Found</p>
       </template>
     </NuxtLayout>
@@ -10,7 +10,6 @@
 </template>
 
 <script setup lang="ts">
-// /pages/[slug].vue (or whatever your page file is)
 import { watch } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { storeToRefs } from 'pinia'
@@ -125,10 +124,13 @@ const handleRouteChange = async () => {
   }
 }
 
+const hydrated = ref(false)
+
 watch(
   () => route.fullPath,
   async () => {
     await handleRouteChange()
+    hydrated.value = true
   },
   { immediate: true },
 )

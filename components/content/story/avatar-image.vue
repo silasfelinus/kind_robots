@@ -1,6 +1,6 @@
 <template>
   <div class="relative w-full h-full">
-    <div class="flip-card w-full h-full" @click="handleAvatarClick">
+    <div class="flip-card" @click="handleAvatarClick">
       <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
         <div class="flip-card-front">
           <img

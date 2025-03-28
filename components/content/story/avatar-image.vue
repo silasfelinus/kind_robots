@@ -8,7 +8,6 @@
             alt="Avatar"
             class="avatar-img shadow-lg hover:shadow-xl rounded-2xl object-cover w-full h-full"
           />
-          <p class="text-xs text-warning mt-1">Image: {{ safeImage }}</p>
         </div>
         <div class="flip-card-back">
           <img
@@ -16,7 +15,6 @@
             alt="New Avatar"
             class="avatar-img shadow-lg hover:shadow-xl rounded-2xl object-cover w-full h-full"
           />
-          <p class="text-xs text-warning mt-1">Back: {{ safeBackImage }}</p>
         </div>
       </div>
     </div>

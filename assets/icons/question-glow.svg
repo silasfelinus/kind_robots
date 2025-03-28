@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="url(#glow)">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#f472b6" />
+    </radialGradient>
+  </defs>
+  <circle cx="12" cy="12" r="10" fill="none" stroke="url(#glow)" stroke-width="2" />
+  <path d="M9.09 9a3 3 0 0 1 5.91 1c0 2-3 2-3 4" stroke="#fff" fill="none" stroke-width="2"/>
+  <circle cx="12" cy="17" r="1" fill="#fff" />
+</svg>

@@ -58,9 +58,6 @@ const safeBackImage = computed(() => {
 
 onMounted(() => {
   hydrated.value = true
-
-  console.log('pageImage:', pageImage.value)
-  console.log('currentBot:', currentBot.value)
 })
 
 watch(currentBot, (newBot, oldBot) => {

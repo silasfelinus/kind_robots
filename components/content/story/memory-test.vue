@@ -120,7 +120,7 @@ const memoryStore = useMemoryStore()
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  transition: transform 0.7s;
+  transition: none;
   border-radius: 12px;
 }
 .card-front {

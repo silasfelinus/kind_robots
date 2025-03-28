@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center px-1 md:px-2 lg:px-4 bg-base-100 z-30 shadow-md rounded relative"
+    class="flex items-center px-1 md:px-2 lg:px-4 bg-base-300 z-30 shadow-md rounded-2xl relative"
   >
     <big-toggle />
 
@@ -11,7 +11,7 @@
       <div v-for="mode in firstGroupModes" :key="mode.name" class="relative">
         <div
           :class="[
-            'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
+            'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-100 transition-all duration-200',
             mode.name === displayStore.displayMode
               ? 'border-primary border-b-0 z-10 shadow-md'
               : 'border-base-300 hover:shadow',

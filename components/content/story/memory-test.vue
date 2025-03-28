@@ -54,22 +54,18 @@
           }"
           @click="memoryStore.handleGalleryClick(card)"
         >
-          <div
-            class="card-wrapper"
-            :class="{ flipped: card.flipped || card.matched }"
-          >
+          <div :class="{ flipped: card.flipped || card.matched }">
             <!-- Card Back -->
             <img
-              class="card-back"
+              class="card-back absolute inset-0 w-full h-full object-cover"
               src="/images/kindtitle.webp"
               alt="Memory Card"
             />
             <!-- Card Front -->
             <img
-              class="card-front"
+              class="card-front absolute inset-0 w-full h-full object-cover"
               :src="card.imagePath"
               :alt="card.galleryName"
-              @error="(e) => (e.target.src = '/images/fallback.webp')"
             />
           </div>
         </div>

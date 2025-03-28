@@ -33,7 +33,7 @@
     <!-- Center Column (Grows Fully) -->
     <div class="flex flex-col w-full h-full">
       <main
-        class="fixed z-10 border-3 rounded-2xl overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out p-1 m-1"
+        class="fixed z-10 border-3 rounded-2xl overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out"
         :style="displayStore.mainContentStyle"
       >
         <NuxtPage :key="$route.fullPath" />

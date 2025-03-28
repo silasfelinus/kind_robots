@@ -100,7 +100,7 @@ export const useDisplayStore = defineStore('displayStore', {
     },
 
     footerHeight(): number {
-      const sizes = { small: 20, medium: 10, large: 9, extraLarge: 9 }
+      const sizes = { small: 8, medium: 6, large: 7, extraLarge: 6 }
       return sizes[this.viewportSize] * (this.footerState === 'open' ? 1 : 0)
     },
 

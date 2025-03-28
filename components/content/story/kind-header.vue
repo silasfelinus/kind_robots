@@ -51,9 +51,6 @@
             <swarm-icon class="flex max-w-[80px]" />
           </div>
         </div>
-
-        <!-- Mode Row -->
-        <ModeRow class="w-full" />
       </div>
     </div>
   </header>

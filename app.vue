@@ -53,7 +53,7 @@
     class="fixed z-30 box-border border-3 overflow-visible transition-all duration-600 ease-in-out"
     :style="displayStore.footerStyle"
   >
-    <horizontal-nav v-if="footerOpen" class="h-full w-full z-5" />
+    <mode-row v-if="footerOpen" class="h-full w-full z-5" />
   </footer>
 
   <!-- Footer Toggle -->

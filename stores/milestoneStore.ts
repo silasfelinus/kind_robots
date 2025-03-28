@@ -63,7 +63,6 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   })
 
   async function initialize() {
-    console.log('[milestoneStore] Initializing...')
     if (isInitialized.value) return
 
     if (typeof window !== 'undefined') {

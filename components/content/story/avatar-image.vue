@@ -43,14 +43,19 @@ const pageImage = computed(() => pageStore.image)
 
 const fallbackImage = '/images/botcafe.webp'
 
+const resolveImage = (src?: string | null): string => {
+  if (typeof src !== 'string' || !src.length) return fallbackImage
+  return src.startsWith('/') ? src : `/images/${src}`
+}
+
 const safeImage = computed(() => {
-  return pageImage.value?.length
-    ? pageImage.value
-    : currentBot.value?.avatarImage || fallbackImage
+  return resolveImage(
+    pageImage.value?.length ? pageImage.value : currentBot.value?.avatarImage,
+  )
 })
 
 const safeBackImage = computed(() => {
-  return currentBot.value?.avatarImage || safeImage.value
+  return resolveImage(currentBot.value?.avatarImage || safeImage.value)
 })
 
 onMounted(() => {

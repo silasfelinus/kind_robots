@@ -100,7 +100,7 @@
     </div>
 
     <!-- Leaderboard Moved to Bottom -->
-    <div class="w-full px-2 pb-4">
+    <div ref="leaderboardRef" class="w-full px-2 pb-4 text-center">
       <h2 class="text-lg font-semibold mb-2">Leaderboard</h2>
       <match-leaderboard />
     </div>
@@ -109,8 +109,24 @@
 
 <script setup lang="ts">
 // /components/memory-game.vue
+import { onMounted, ref } from 'vue'
 import { useMemoryStore } from '@/stores/memoryStore'
 const memoryStore = useMemoryStore()
+
+const leaderboardRef = ref<HTMLElement | null>(null)
+
+function scrollToLeaderboard() {
+  setTimeout(() => {
+    leaderboardRef.value?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    })
+  }, 250)
+}
+
+onMounted(() => {
+  scrollToLeaderboard()
+})
 </script>
 
 <style scoped>

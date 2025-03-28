@@ -77,9 +77,10 @@ export const usePageStore = defineStore('pageStore', () => {
         return
       }
 
-      const { data } = await useAsyncData(page-${resolvedPath}, () =>
-        queryCollection('content').path(resolvedPath).first(),
-      )
+const { data } = await useAsyncData(`page-${resolvedPath}`, () =>
+  queryCollection('content').path(resolvedPath).first(),
+)
+
 
       if (data.value) {
         const normalized = normalizePage(data.value)

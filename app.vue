@@ -7,7 +7,6 @@
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />
-      <screen-debug />
     </div>
 
     <!-- Header (Always on Top) -->

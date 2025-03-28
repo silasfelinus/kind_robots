@@ -120,23 +120,32 @@ const memoryStore = useMemoryStore()
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  transition: none;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
   border-radius: 12px;
+  will-change: transform;
+  transition: none;
 }
+
 .card-front {
   transform: rotateY(180deg);
 }
+
 .card-back {
   transform: rotateY(0deg);
 }
+
 .flipped .card-front {
   transform: rotateY(0deg);
 }
+
 .flipped .card-back {
   transform: rotateY(-180deg);
 }
+
 .gallery-display {
   transform-style: preserve-3d;
+  transform: perspective(1000px);
 }
 
 .loader {
@@ -155,6 +164,12 @@ const memoryStore = useMemoryStore()
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 320px) {
+  .game-board {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 </style>

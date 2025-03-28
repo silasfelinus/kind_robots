@@ -65,7 +65,12 @@
           }"
           @click="memoryStore.handleGalleryClick(card)"
         >
-          <div :class="{ flipped: card.flipped || card.matched }">
+          <div
+            :class="{
+              flipped: card.flipped || card.matched,
+              'matched-card': card.matched,
+            }"
+          >
             <img
               class="card-back absolute inset-0 w-full h-full object-cover"
               src="/images/kindtitle.webp"
@@ -135,6 +140,23 @@ const memoryStore = useMemoryStore()
 .gallery-display {
   transform-style: preserve-3d;
 }
+
+.matched-card {
+  animation: pulseMatch 0.5s ease-in-out;
+}
+
+@keyframes pulseMatch {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .loader {
   display: inline-block;
   border: 4px solid rgba(255, 255, 255, 0.3);
@@ -144,6 +166,7 @@ const memoryStore = useMemoryStore()
   height: 40px;
   animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);

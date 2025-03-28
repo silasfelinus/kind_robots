@@ -8,6 +8,7 @@
             alt="Avatar"
             class="avatar-img shadow-lg hover:shadow-xl rounded-2xl object-cover w-full h-full"
           />
+          <p class="text-xs text-warning mt-1">Image: {{ safeImage }}</p>
         </div>
         <div class="flip-card-back">
           <img
@@ -15,6 +16,7 @@
             alt="New Avatar"
             class="avatar-img shadow-lg hover:shadow-xl rounded-2xl object-cover w-full h-full"
           />
+          <p class="text-xs text-warning mt-1">Back: {{ safeBackImage }}</p>
         </div>
       </div>
     </div>
@@ -41,22 +43,21 @@ const pageImage = computed(() => pageStore.image)
 
 const fallbackImage = '/images/botcafe.webp'
 
-const safeImage = ref(pageImage.value?.length ? pageImage.value : fallbackImage)
+const safeImage = computed(() => {
+  return pageImage.value?.length
+    ? pageImage.value
+    : currentBot.value?.avatarImage || fallbackImage
+})
 
-const safeBackImage = ref(currentBot.value?.avatarImage || safeImage.value)
+const safeBackImage = computed(() => {
+  return currentBot.value?.avatarImage || safeImage.value
+})
 
 onMounted(() => {
   hydrated.value = true
 
   console.log('pageImage:', pageImage.value)
   console.log('currentBot:', currentBot.value)
-
-  safeImage.value =
-    pageImage.value?.length > 0
-      ? pageImage.value
-      : currentBot.value?.avatarImage || fallbackImage
-
-  safeBackImage.value = currentBot.value?.avatarImage || safeImage.value
 })
 
 watch(currentBot, (newBot, oldBot) => {

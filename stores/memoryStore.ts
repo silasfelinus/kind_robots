@@ -67,11 +67,25 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   )
 
   const cardSize = computed(() => {
-    const baseSize = width.value > 768 ? 160 : 80
-    const minSize = width.value > 768 ? 100 : 60
-    const sizeReduction =
-      (selectedDifficulty.value.value / 8) * (width.value > 768 ? 8 : 4)
+    let baseSize = 80
+    let minSize = 60
+
+    if (width.value >= 1536) {
+      // xl screens
+      baseSize = 200
+      minSize = 120
+    } else if (width.value >= 1280) {
+      // lg screens
+      baseSize = 180
+      minSize = 100
+    } else if (width.value > 768) {
+      baseSize = 160
+      minSize = 100
+    }
+
+    const sizeReduction = (selectedDifficulty.value.value / 8) * 6
     const heightReduction = height.value < 600 ? 10 : 0
+
     return Math.max(minSize, baseSize - sizeReduction - heightReduction)
   })
 

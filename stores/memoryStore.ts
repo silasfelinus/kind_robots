@@ -34,7 +34,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     { label: 'Expert', value: 24 },
   ]
 
-  const selectedDifficulty = ref(difficulties[0])
+  const selectedDifficulty = ref<DifficultyOption>(difficulties[0])
   const galleryImages = ref<GalleryImage[]>([])
   const gameWon = ref(false)
   const isLoading = ref(true)
@@ -115,7 +115,12 @@ export const useMemoryStore = defineStore('memoryStore', () => {
         .map((image: string, index: number) => ({
           id: index,
           galleryName: '',
-          imagePath: image,
+          imagePath:
+            typeof image === 'string'
+              ? image.startsWith('http') || image.startsWith('/')
+                ? image
+                : `/images/gallery/${image}`
+              : '',
           flipped: false,
           matched: false,
         }))

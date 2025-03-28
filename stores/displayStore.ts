@@ -113,7 +113,7 @@ export const useDisplayStore = defineStore('displayStore', {
       return (
         100 -
         (this.headerState !== 'hidden'
-          ? this.headerHeight + 2 * this.sectionPaddingSize
+          ? this.headerHeight + (2 * this.sectionPaddingSize)
           : 4 + this.sectionPaddingSize) -
         (this.footerState !== 'hidden'
           ? this.footerHeight + 2 * this.sectionPaddingSize

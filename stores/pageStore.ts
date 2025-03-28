@@ -1,14 +1,17 @@
 // /stores/pageStore.ts
 import { defineStore } from 'pinia'
 import { useAsyncData, useRoute } from '#app'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import type { ContentType } from '~/content.config'
 
 export type LayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
 
+const STORAGE_KEY = 'kindrobots-pageCache'
+
 export const usePageStore = defineStore('pageStore', () => {
   const page = ref<ContentType | null>(null)
   const pages = ref<ContentType[]>([])
+  const pageCache = ref<Record<string, ContentType>>({})
   const routePath = ref('')
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -17,6 +20,25 @@ export const usePageStore = defineStore('pageStore', () => {
   onMounted(() => {
     hydrated.value = true
   })
+
+  // Load from localStorage
+  if (import.meta.client) {
+    const cached = localStorage.getItem(STORAGE_KEY)
+    if (cached) {
+      try {
+        pageCache.value = JSON.parse(cached)
+      } catch (err) {
+        console.warn('Failed to parse page cache:', err)
+      }
+    }
+
+    // Watch and persist cache
+    watch(
+      pageCache,
+      (val) => localStorage.setItem(STORAGE_KEY, JSON.stringify(val)),
+      { deep: true },
+    )
+  }
 
   const normalizePage = (data: Partial<ContentType>): ContentType => {
     return {
@@ -50,12 +72,19 @@ export const usePageStore = defineStore('pageStore', () => {
     error.value = null
 
     try {
-      const { data } = await useAsyncData(`page-${resolvedPath}`, () =>
+      if (pageCache.value[resolvedPath]) {
+        page.value = pageCache.value[resolvedPath]
+        return
+      }
+
+      const { data } = await useAsyncData(page-${resolvedPath}, () =>
         queryCollection('content').path(resolvedPath).first(),
       )
 
       if (data.value) {
-        page.value = normalizePage(data.value)
+        const normalized = normalizePage(data.value)
+        page.value = normalized
+        pageCache.value[resolvedPath] = normalized
       } else {
         page.value = null
       }
@@ -75,10 +104,16 @@ export const usePageStore = defineStore('pageStore', () => {
     })
 
     pages.value = data.value || []
+
+    for (const p of pages.value) {
+      if (p.path && !pageCache.value[p.path]) {
+        pageCache.value[p.path] = normalizePage(p)
+      }
+    }
   }
 
   const getPageByPath = (path: string): ContentType | undefined => {
-    return pages.value.find((p) => p.path === path)
+    return pageCache.value[path] || pages.value.find((p) => p.path === path)
   }
 
   const meta = computed(() => ({
@@ -107,12 +142,14 @@ export const usePageStore = defineStore('pageStore', () => {
     page,
     pages,
     routePath,
+    pageCache,
     loading,
     error,
     hydrated,
     layout,
     meta,
 
+    // Expose these directly for convenience
     title: computed(() => meta.value.title),
     subtitle: computed(() => meta.value.subtitle),
     description: computed(() => meta.value.description),

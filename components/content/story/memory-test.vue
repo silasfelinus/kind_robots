@@ -3,7 +3,7 @@
   <div
     class="container mx-auto flex flex-col h-full space-y-4 no-scrollbar px-2"
   >
-    <!-- Top Row: Title, Leaderboard, Controls -->
+    <!-- Top Row: Title and Controls -->
     <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
       <div class="text-center md:text-left">
         <h1 class="text-2xl font-bold">Kind Robots Memory Game</h1>
@@ -40,12 +40,6 @@
       </div>
     </div>
 
-    <!-- Leaderboard -->
-    <div class="w-full">
-      <h2 class="text-lg font-semibold mb-2">Leaderboard</h2>
-      <match-leaderboard />
-    </div>
-
     <!-- Game Board -->
     <div class="flex-1 overflow-y-auto flex justify-center items-center">
       <div
@@ -53,6 +47,7 @@
         :class="{
           'grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-9': true,
         }"
+        :style="{ minHeight: memoryStore.cardSize * 3 + 'px' }"
       >
         <div v-if="memoryStore.isLoading" class="loader"></div>
         <div
@@ -65,12 +60,7 @@
           }"
           @click="memoryStore.handleGalleryClick(card)"
         >
-          <div
-            :class="{
-              flipped: card.flipped || card.matched,
-              'matched-card': card.matched,
-            }"
-          >
+          <div :class="{ flipped: card.flipped || card.matched }">
             <img
               class="card-back absolute inset-0 w-full h-full object-cover"
               src="/images/kindtitle.webp"
@@ -94,8 +84,10 @@
       >
         {{ memoryStore.notification.message }}
       </div>
-      <div>Score: {{ memoryStore.score }}</div>
-      <div>High Score: {{ memoryStore.highScore }}</div>
+      <div class="text-lg font-semibold">Score: {{ memoryStore.score }}</div>
+      <div class="text-sm text-gray-500">
+        High Score: {{ memoryStore.highScore }}
+      </div>
       <div v-if="memoryStore.gameWon" class="mt-4">
         <p>Congratulations! You've won!</p>
         <button
@@ -105,6 +97,12 @@
           Play Again?
         </button>
       </div>
+    </div>
+
+    <!-- Leaderboard Moved to Bottom -->
+    <div class="w-full px-2 pb-4">
+      <h2 class="text-lg font-semibold mb-2">Leaderboard</h2>
+      <match-leaderboard />
     </div>
   </div>
 </template>
@@ -139,22 +137,6 @@ const memoryStore = useMemoryStore()
 }
 .gallery-display {
   transform-style: preserve-3d;
-}
-
-.matched-card {
-  animation: pulseMatch 0.5s ease-in-out;
-}
-
-@keyframes pulseMatch {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1);
-  }
 }
 
 .loader {

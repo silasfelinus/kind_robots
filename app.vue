@@ -12,7 +12,7 @@
 
     <!-- Header (Always on Top) -->
     <header
-      class="fixed z-40 flex items-center justify-center box-border border-1 border-black overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed z-40 border-3 flex items-center justify-center box-border border-1 border-black overflow-hidden transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
       <template v-if="displayStore.headerState === 'hidden'">
@@ -25,7 +25,7 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed z-30 box-border transition-all duration-300 ease-in-out overflow-visible"
+      class="fixed z-30 box-border border-3 transition-all duration-300 ease-in-out overflow-visible"
       :style="displayStore.leftSidebarStyle"
     >
       <kind-sidebar v-if="sidebarLeftOpen" class="h-full w-full z-10" />
@@ -34,7 +34,7 @@
     <!-- Center Column (Grows Fully) -->
     <div class="flex flex-col w-full h-full">
       <main
-        class="fixed z-10 border-4 rounded-2xl overflow-auto box-border transition-all duration-600 ease-in-out"
+        class="fixed z-10 border-3 rounded-2xl overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out"
         :style="displayStore.mainContentStyle"
       >
         <NuxtPage :key="$route.fullPath" />
@@ -43,7 +43,7 @@
 
     <!-- Right Sidebar -->
     <aside
-      class="fixed z-10 box-border transition-all duration-600 ease-in-out"
+      class="fixed z-10 border-3 box-border transition-all duration-600 ease-in-out"
       :style="displayStore.rightSidebarStyle"
     >
       <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full z-10" />
@@ -51,7 +51,7 @@
   </div>
 
   <footer
-    class="fixed z-30 box-border overflow-visible transition-all duration-600 ease-in-out"
+    class="fixed z-30 box-border border-3 overflow-visible transition-all duration-600 ease-in-out"
     :style="displayStore.footerStyle"
   >
     <horizontal-nav v-if="footerOpen" class="h-full w-full z-5" />

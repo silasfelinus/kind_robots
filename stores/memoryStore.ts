@@ -67,31 +67,22 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   )
 
   const cardSize = computed(() => {
-    let baseSize = 80
-    let minSize = 60
+    const maxBoardWidth = width.value * 0.9
+    const maxBoardHeight = height.value * 0.6
+    const columns = Math.min(numberOfCards.value, 9)
+    const rows = Math.ceil(numberOfCards.value / columns)
 
-    if (width.value >= 1536) {
-      // xl screens
-      baseSize = 200
-      minSize = 120
-    } else if (width.value >= 1280) {
-      // lg screens
-      baseSize = 180
-      minSize = 100
-    } else if (width.value > 768) {
-      baseSize = 160
-      minSize = 100
-    }
+    const cardWidth = Math.floor(maxBoardWidth / columns) - 8 // minus gap
+    const cardHeight = Math.floor(maxBoardHeight / rows) - 8
 
-    const sizeReduction = (selectedDifficulty.value.value / 8) * 6
-    const heightReduction = height.value < 600 ? 10 : 0
-
-    return Math.max(minSize, baseSize - sizeReduction - heightReduction)
+    return Math.max(50, Math.min(cardWidth, cardHeight))
   })
 
   const gameBoardStyle = computed(() => {
-    const columns = Math.min(selectedDifficulty.value.value, 4)
-    return { gridTemplateColumns: `repeat(${columns}, 1fr)` }
+    const columns = Math.min(numberOfCards.value, 9)
+    return {
+      gridTemplateColumns: `repeat(${columns}, 1fr)`,
+    }
   })
 
   const notificationClasses = computed(() => {

@@ -15,4 +15,4 @@ sort: highlight
 
 ---
 
-:memory-game
+:memory-test

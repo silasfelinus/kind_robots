@@ -1,4 +1,3 @@
-<!-- /components/content/memory-test.vue -->
 <template>
   <div
     class="container mx-auto flex flex-col h-screen overflow-hidden bg-base-200"
@@ -55,16 +54,19 @@
           }"
           @click="memoryStore.handleGalleryClick(card)"
         >
-          <div :class="{ flipped: card.flipped || card.matched }">
+          <div
+            class="card-wrapper"
+            :class="{ flipped: card.flipped || card.matched }"
+          >
             <!-- Card Back -->
             <img
-              class="card-back absolute inset-0 w-full h-full object-cover"
+              class="card-back"
               src="/images/kindtitle.webp"
               alt="Memory Card"
             />
             <!-- Card Front -->
             <img
-              class="card-front absolute inset-0 w-full h-full object-cover"
+              class="card-front"
               :src="card.imagePath"
               :alt="card.galleryName"
               @error="(e) => (e.target.src = '/images/fallback.webp')"

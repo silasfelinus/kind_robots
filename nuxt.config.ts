@@ -28,6 +28,12 @@ export default defineNuxtConfig({
     storesDirs: ['./stores/**'],
   },
 
+    components: {
+      global: true,
+      dirs: ['~/components/content'],
+    },
+
+
   // Setting a compatibility date for Nuxt features
   compatibilityDate: '2024-08-13',
 

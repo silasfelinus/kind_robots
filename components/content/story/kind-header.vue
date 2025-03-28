@@ -1,7 +1,7 @@
 <template>
   <header
     v-if="hydrated"
-    class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-accent max-w-full box-border"
+    class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-black max-w-full box-border"
   >
     <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
     <div class="flex items-center justify-between w-full h-full">

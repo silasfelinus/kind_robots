@@ -45,11 +45,9 @@ const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 const pageStore = usePageStore()
 
-const { layout } = storeToRefs(pageStore)
+const { page, layout } = storeToRefs(pageStore)
 
-const { page } = await useAsyncData(page-${resolvedPath}, () =>
-        queryCollection('content').path(resolvedPath).first(),
-      )
+
 
 const handleRouteChange = async () => {
   await pageStore.loadPage(route.path)

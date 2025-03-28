@@ -226,7 +226,6 @@ export const useDisplayStore = defineStore('displayStore', {
         footerState: this.bigMode ? 'hidden' : 'hidden',
       })
 
-      console.log('Big Mode:', this.bigMode, 'Header State:', this.headerState)
       this.saveState()
     },
 

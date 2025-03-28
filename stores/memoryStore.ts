@@ -34,7 +34,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     { label: 'Expert', value: 24 },
   ]
 
-  const selectedDifficulty = ref<DifficultyOption>(difficulties[0])
+  const selectedDifficulty = ref(difficulties[0])
   const galleryImages = ref<GalleryImage[]>([])
   const gameWon = ref(false)
   const isLoading = ref(true)
@@ -72,7 +72,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     const columns = Math.min(numberOfCards.value, 9)
     const rows = Math.ceil(numberOfCards.value / columns)
 
-    const cardWidth = Math.floor(maxBoardWidth / columns) - 8 // minus gap
+    const cardWidth = Math.floor(maxBoardWidth / columns) - 8
     const cardHeight = Math.floor(maxBoardHeight / rows) - 8
 
     return Math.max(50, Math.min(cardWidth, cardHeight))
@@ -150,7 +150,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
       score.value -= 5
       setTimeout(() => {
         card.flipped = false
-        firstSelected!.flipped = false
+        if (firstSelected) firstSelected.flipped = false
         firstSelected = null
       }, 500)
     }

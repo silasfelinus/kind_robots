@@ -1,27 +1,25 @@
 <!-- /components/content/memory-test.vue -->
 <template>
   <div
-    class="container mx-auto flex flex-col h-full space-y-4 no-scrollbar px-2"
+    class="container mx-auto flex flex-col h-screen overflow-hidden bg-base-200"
   >
-    <!-- Top Row: Title and Controls -->
-    <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-      <div class="text-center md:text-left">
-        <h1 class="text-2xl font-bold">Kind Robots Memory Game</h1>
-        <p class="text-sm text-gray-500 md:hidden">
-          Match the images and test your memory!
+    <!-- Header Section -->
+    <div
+      class="w-full flex flex-wrap md:flex-nowrap items-center justify-between gap-4 px-4 pt-6 pb-4"
+    >
+      <div>
+        <h1 class="text-3xl font-bold leading-tight">
+          🧠 Kind Robots Memory Game
+        </h1>
+        <p class="text-gray-500 hidden sm:block">
+          Match images, beat your score, challenge the board.
         </p>
       </div>
-
-      <div class="text-center hidden md:block">
-        <p class="text-gray-600">Match the images and test your memory!</p>
-      </div>
-
-      <div class="flex flex-col md:flex-row md:items-center justify-end gap-2">
-        <label for="difficulty" class="text-sm md:mr-2">Difficulty:</label>
+      <div class="flex flex-col md:flex-row gap-2 items-center">
+        <label class="text-sm font-medium">Difficulty:</label>
         <select
-          id="difficulty"
           v-model="memoryStore.selectedDifficulty"
-          class="p-2 border border-gray-300 rounded w-full md:w-auto"
+          class="p-2 border rounded"
         >
           <option
             v-for="difficulty in memoryStore.difficulties"
@@ -32,8 +30,8 @@
           </option>
         </select>
         <button
-          class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all w-full md:w-auto"
           @click="memoryStore.resetGame()"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
         >
           Start
         </button>
@@ -41,33 +39,29 @@
     </div>
 
     <!-- Game Board -->
-    <div class="flex-1 overflow-y-auto flex justify-center items-center">
+    <div class="flex-1 overflow-auto px-4 pb-8">
       <div
-        class="game-board grid gap-2 sm:gap-4"
-        :class="{
-          'grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-9': true,
-        }"
-        :style="{ minHeight: memoryStore.cardSize * 3 + 'px' }"
+        class="grid justify-center gap-2 sm:gap-4"
+        :style="memoryStore.gameBoardStyle"
       >
-        <div v-if="memoryStore.isLoading" class="loader"></div>
+        <div v-if="memoryStore.isLoading" class="loader mx-auto"></div>
         <div
           v-for="card in memoryStore.galleryImages"
           :key="card.id"
-          class="gallery-display hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer"
+          class="gallery-display relative cursor-pointer"
           :style="{
             width: memoryStore.cardSize + 'px',
             height: memoryStore.cardSize + 'px',
           }"
           @click="memoryStore.handleGalleryClick(card)"
         >
-          <div :class="{ flipped: card.flipped || card.matched }">
+          <div
+            class="card-wrapper"
+            :class="{ flipped: card.flipped || card.matched }"
+          >
+            <img class="card-back" src="/images/kindtitle.webp" alt="Back" />
             <img
-              class="card-back absolute inset-0 w-full h-full object-cover"
-              src="/images/kindtitle.webp"
-              alt="Memory Card"
-            />
-            <img
-              class="card-front absolute inset-0 w-full h-full object-cover"
+              class="card-front"
               :src="card.imagePath"
               :alt="card.galleryName"
             />
@@ -76,104 +70,77 @@
       </div>
     </div>
 
-    <!-- Score and Status -->
-    <div class="game-controls text-center p-4">
-      <div
-        v-if="memoryStore.notification"
-        :class="memoryStore.notificationClasses"
-      >
-        {{ memoryStore.notification.message }}
-      </div>
+    <!-- Footer / Score / Leaderboard Toggle -->
+    <div class="bg-base-300 px-4 py-3 text-center">
       <div class="text-lg font-semibold">Score: {{ memoryStore.score }}</div>
       <div class="text-sm text-gray-500">
         High Score: {{ memoryStore.highScore }}
       </div>
-      <div v-if="memoryStore.gameWon" class="mt-4">
-        <p>Congratulations! You've won!</p>
+      <div v-if="memoryStore.gameWon" class="mt-2">
+        <p class="font-medium">🎉 Congratulations! You've won!</p>
         <button
-          class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           @click="memoryStore.resetGame()"
+          class="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
           Play Again?
         </button>
       </div>
-    </div>
 
-    <!-- Leaderboard Moved to Bottom -->
-    <div ref="leaderboardRef" class="w-full px-2 pb-4 text-center">
-      <h2 class="text-lg font-semibold mb-2">Leaderboard</h2>
-      <div
-        class="rounded-2xl border p-3 m-3 mt-4 bg-base-300 text-center transition-all duration-300"
+      <button
+        class="mt-4 text-blue-500 underline text-sm"
+        @click="isOpen = !isOpen"
       >
-        <h1 class="text-xl font-bold mb-4">Global Match Leaderboard</h1>
-        <table
-          class="table-auto w-full border-collapse border border-gray-300 rounded-lg"
+        {{ isOpen ? 'Hide Leaderboard' : 'Show Leaderboard' }}
+      </button>
+
+      <transition name="fade-slide">
+        <div
+          v-if="isOpen"
+          class="mt-4 border rounded-xl bg-base-100 p-4 max-w-2xl mx-auto"
         >
-          <thead>
-            <tr class="bg-gray-200">
-              <th class="px-4 py-2 border border-gray-300">Rank</th>
-              <th class="px-4 py-2 border border-gray-300">Username</th>
-              <th class="px-4 py-2 border border-gray-300">Match Record</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(user, index) in leaderboard"
-              :key="user.id"
-              class="hover:bg-gray-100"
-            >
-              <td class="px-4 py-2 border border-gray-300 text-center">
-                {{ index + 1 }}
-              </td>
-              <td class="px-4 py-2 border border-gray-300">
-                {{ user.username }}
-              </td>
-              <td class="px-4 py-2 border border-gray-300 text-center">
-                {{ user.matchRecord ?? 'N/A' }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+          <h2 class="text-xl font-bold mb-3">Global Match Leaderboard</h2>
+          <table class="table-auto w-full text-sm">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="px-4 py-2">Rank</th>
+                <th class="px-4 py-2">Username</th>
+                <th class="px-4 py-2">Match Record</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(user, index) in leaderboard"
+                :key="user.id"
+                class="hover:bg-gray-50"
+              >
+                <td class="px-4 py-2 text-center">{{ index + 1 }}</td>
+                <td class="px-4 py-2">{{ user.username }}</td>
+                <td class="px-4 py-2 text-center">
+                  {{ user.matchRecord ?? 'N/A' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </transition>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// /components/memory-game.vue
 import { useMemoryStore } from '@/stores/memoryStore'
 import { computed, onMounted, ref } from 'vue'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 
-// Access the milestone store
 const milestoneStore = useMilestoneStore()
-
-// State for toggle
+const memoryStore = useMemoryStore()
 const isOpen = ref(false)
-
-// Fetch match leaderboard data
 const leaderboard = computed(() => milestoneStore.highMatchScores)
 
 onMounted(async () => {
   if (!milestoneStore.highMatchScores.length) {
     await milestoneStore.fetchHighMatchScores()
   }
-})
-const memoryStore = useMemoryStore()
-
-const leaderboardRef = ref<HTMLElement | null>(null)
-
-function scrollToLeaderboard() {
-  setTimeout(() => {
-    leaderboardRef.value?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    })
-  }, 250)
-}
-
-onMounted(() => {
-  scrollToLeaderboard()
 })
 </script>
 
@@ -183,33 +150,38 @@ onMounted(() => {
   position: absolute;
   width: 100%;
   height: 100%;
+  object-fit: cover;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transform-style: preserve-3d;
   border-radius: 12px;
-  will-change: transform;
-  transition: none;
+  transition: transform 0.6s ease-in-out;
+}
+
+.card-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease-in-out;
+}
+
+.flipped .card-wrapper {
+  transform: rotateY(180deg);
 }
 
 .card-front {
   transform: rotateY(180deg);
+  z-index: 2;
 }
 
 .card-back {
   transform: rotateY(0deg);
-}
-
-.flipped .card-front {
-  transform: rotateY(0deg);
-}
-
-.flipped .card-back {
-  transform: rotateY(-180deg);
+  z-index: 1;
 }
 
 .gallery-display {
   transform-style: preserve-3d;
-  transform: perspective(1000px);
+  perspective: 1000px;
 }
 
 .loader {
@@ -231,9 +203,13 @@ onMounted(() => {
   }
 }
 
-@media (max-width: 320px) {
-  .game-board {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.3s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

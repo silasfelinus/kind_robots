@@ -41,6 +41,15 @@
           <li><strong>Header Style (object):</strong> {{ headerStyle }}</li>
           <li><strong>Footer Style (object):</strong> {{ footerStyle }}</li>
 
+          <!--- Toggles -->
+          <li>
+            <strong>Left Toggle Style (object):</strong> {{ leftToggleStyle }}
+          </li>
+          <li>
+            <strong>Right Toggle Style (object):</strong>
+            {{ rightToggleStyle }}
+          </li>
+
           <!-- Sidebar Dimensions -->
           <li>
             <strong>Sidebar Left State (string):</strong> {{ sidebarLeftState }}
@@ -142,6 +151,10 @@ const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const headerStyle = computed(() => displayStore.headerStyle)
 const footerStyle = computed(() => displayStore.footerStyle)
+
+// Toggles
+const leftToggleStyle = computed(() => displayStore.leftToggleStyle)
+const rightToggleStyle = computed(() => displayStore.rightToggleStyle)
 
 // Sidebar Dimensions
 const sidebarLeftState = computed(() => displayStore.sidebarLeftState)

@@ -162,7 +162,7 @@ export const useDisplayStore = defineStore('displayStore', {
       return {
         bottom:
           this.footerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.footerHeight} + ${this.sectionPaddingSize * 2 + 5}vh)`
+            ? `calc(var(--vh) * ${this.footerHeight} + ${this.sectionPaddingSize}vh)`
             : `2vh`,
         left: '50%',
         transform: 'translateX(-50%)',
@@ -173,12 +173,9 @@ export const useDisplayStore = defineStore('displayStore', {
       return {
         top:
           this.headerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2 + 2}vh)`
-            : `2vh`,
-        right:
-          this.sidebarRightState !== 'hidden'
-            ? `calc(${this.sidebarRightWidth}vw + ${this.sectionPaddingSize * 2}vw)`
-            : `${this.sectionPaddingSize}vw`,
+            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2 + 1}vh)`
+            : `1.5vh`,
+        right: `${this.sectionPaddingSize}vw`,
       }
     },
 

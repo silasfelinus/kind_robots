@@ -34,7 +34,7 @@
 
     <right-toggle :style="rightToggleStyle" class="fixed z-40" />
 
-    <big-toggle :style="leftToggleStyle" class="fixed z-30" />
+    <big-toggle :style="leftToggleStyle" class="fixed z-40" />
 
     <!-- Center Column -->
     <div class="flex flex-col w-full h-full">
@@ -65,7 +65,7 @@
 
   <!-- Footer Toggle -->
   <div
-    class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-30 p-1"
+    class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-30"
     :style="displayStore.footerToggleStyle"
   >
     <footer-toggle />

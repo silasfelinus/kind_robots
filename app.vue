@@ -1,6 +1,8 @@
 <!-- /app.vue -->
 <template>
-  <div class="main-layout h-screen w-screen relative bg-primary overflow-hidden box-border">
+  <div
+    class="main-layout h-screen w-screen relative bg-primary overflow-hidden box-border"
+  >
     <!-- Loaders -->
     <div class="fixed z-50">
       <kind-loader />
@@ -29,8 +31,15 @@
       <kind-sidebar v-if="sidebarLeftOpen" class="h-full w-full z-10" />
     </aside>
 
-    <right-toggle :style="displayStore.rightToggleStyle" class="fixed z-40"/>
-<big-toggle :style="displayStore.leftToggleStyle" class="fixed z-30"/>
+    <right-toggle
+      :style="displayStore.rightToggleStyle"
+      class="fixed top-0 right-0 z-40"
+    />
+
+    <big-toggle
+      :style="displayStore.leftToggleStyle"
+      class="fixed top-0 left-0 z-40"
+    />
 
     <!-- Center Column -->
     <div class="flex flex-col w-full h-full">
@@ -86,6 +95,4 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'hidden' &&
     displayStore.sidebarRightState !== 'disabled',
 )
-
-
 </script>

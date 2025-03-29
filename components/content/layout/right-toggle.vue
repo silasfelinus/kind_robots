@@ -28,10 +28,6 @@ const handleClick = () => {
   isHighlighted.value = !isHighlighted.value
   displayStore.toggleTutorial()
 
-  if (!displayStore.isMobileViewport) {
-    const isHidden = displayStore.sidebarRightState === 'hidden'
-    displayStore.setSidebarRight(isHidden)
     displayStore.saveState()
-  }
 }
 </script>

@@ -32,11 +32,21 @@
 
     <!-- Center Column (Grows Fully) -->
     <div class="flex flex-col w-full h-full">
+      <!-- Fixed Toggles, aligned visually with main -->
+      <big-toggle
+        class="fixed top-1 right-4 z-30 pointer-events-auto"
+        :style="displayStore.mainContentStyle"
+      />
+      <right-toggle
+        class="fixed top-1 left-4 z-30 pointer-events-auto"
+        :style="displayStore.mainContentStyle"
+      />
+
+      <!-- Main Scrollable Content -->
       <main
         class="fixed z-10 border-3 rounded-2xl overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out"
         :style="displayStore.mainContentStyle"
       >
-        <big-toggle class="fixed top-1 right-2 z-20" />
         <NuxtPage :key="$route.fullPath" />
       </main>
     </div>

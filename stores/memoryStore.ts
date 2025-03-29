@@ -42,20 +42,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   const highScore = ref(0)
   const notification = ref<CustomNotification | null>(null)
   let firstSelected: GalleryImage | null = null
-
-  const windowSize = ref({ width: 0, height: 0 })
-  if (typeof window !== 'undefined') {
-    windowSize.value = { width: window.innerWidth, height: window.innerHeight }
-    window.addEventListener('resize', () => {
-      windowSize.value = {
-        width: window.innerWidth,
-        height: window.innerHeight,
-      }
-    })
-  }
-
-  const width = computed(() => windowSize.value.width)
-  const height = computed(() => windowSize.value.height)
+  const matchRecord = computed(() => userStore.matchRecord)
 
   const numberOfCards = computed(() => selectedDifficulty.value.value * 2)
 
@@ -67,15 +54,13 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   )
 
   const cardSize = computed(() => {
-    const maxBoardWidth = width.value * 0.9
-    const maxBoardHeight = height.value * 0.6
-    const columns = Math.min(numberOfCards.value, 9)
-    const rows = Math.ceil(numberOfCards.value / columns)
-
-    const cardWidth = Math.floor(maxBoardWidth / columns) - 8
-    const cardHeight = Math.floor(maxBoardHeight / rows) - 8
-
-    return Math.max(50, Math.min(cardWidth, cardHeight))
+    const sizeMap: Record<string, number> = {
+      Easy: 100,
+      Medium: 90,
+      Hard: 80,
+      Expert: 70,
+    }
+    return sizeMap[selectedDifficulty.value.label] || 100
   })
 
   const gameBoardStyle = computed(() => {
@@ -166,13 +151,16 @@ export const useMemoryStore = defineStore('memoryStore', () => {
       gameWon.value = true
       triggerConfetti()
 
+      const currentMatchRecord = matchRecord.value ?? 0
+
       if (score.value > (highScore.value ?? 0)) {
         highScore.value = score.value
-        localStorage.setItem('highScore', score.value.toString())
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('highScore', score.value.toString())
+        }
       }
 
-      const currentRecord = userStore.matchRecord ?? 0
-      if (score.value > currentRecord) {
+      if (score.value > currentMatchRecord) {
         milestoneStore.updateMatchRecord(score.value)
       }
 

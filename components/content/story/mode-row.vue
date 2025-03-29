@@ -60,9 +60,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Right Toggle -->
-    <right-toggle />
   </div>
 </template>
 

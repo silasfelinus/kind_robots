@@ -49,6 +49,10 @@
             <strong>Right Toggle Style (object):</strong>
             {{ rightToggleStyle }}
           </li>
+          <li>
+            <strong>Footer Toggle Style (object):</strong>
+            {{ footerToggleStyle }}
+          </li>
 
           <!-- Sidebar Dimensions -->
           <li>
@@ -155,6 +159,7 @@ const footerStyle = computed(() => displayStore.footerStyle)
 // Toggles
 const leftToggleStyle = computed(() => displayStore.leftToggleStyle)
 const rightToggleStyle = computed(() => displayStore.rightToggleStyle)
+const footerToggleStyle = computed(() => displayStore.footerToggleStyle)
 
 // Sidebar Dimensions
 const sidebarLeftState = computed(() => displayStore.sidebarLeftState)

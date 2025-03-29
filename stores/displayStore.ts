@@ -158,6 +158,17 @@ export const useDisplayStore = defineStore('displayStore', {
       }
     },
 
+    footerToggleStyle(): Record<string, string> {
+      return {
+        bottom:
+          this.footerState !== 'hidden'
+            ? `calc(var(--vh) * ${this.footerHeight} + ${this.sectionPaddingSize * 2 - 2}vh)`
+            : `2vh`,
+        left: '50%',
+        transform: 'translateX(-50%)',
+      }
+    },
+
     rightToggleStyle(): Record<string, string> {
       return {
         top:

@@ -26,8 +26,8 @@ const displayStore = useDisplayStore()
 
 const handleClick = () => {
   isHighlighted.value = !isHighlighted.value
-  displayStore.toggleTutorial()
+  displayStore.setSidebarRight(isHighlighted)
 
-    displayStore.saveState()
+ 
 }
 </script>

@@ -8,6 +8,7 @@
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />
+      <screen-debug />
     </div>
 
     <!-- Header -->
@@ -31,15 +32,9 @@
       <kind-sidebar v-if="sidebarLeftOpen" class="h-full w-full z-10" />
     </aside>
 
-    <right-toggle
-      :style="displayStore.rightToggleStyle"
-      class="fixed top-0 right-0 z-40"
-    />
+    <right-toggle :style="displayStore.leftToggleStyle" class="fixed z-40" />
 
-    <big-toggle
-      :style="displayStore.leftToggleStyle"
-      class="fixed top-0 left-0 z-40"
-    />
+    <big-toggle :style="displayStore.rightToggleStyle" class="fixed z-30" />
 
     <!-- Center Column -->
     <div class="flex flex-col w-full h-full">

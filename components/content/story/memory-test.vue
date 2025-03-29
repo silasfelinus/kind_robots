@@ -38,17 +38,15 @@
     </div>
 
     <!-- Game Board Section: Takes up remaining space -->
-    <div
-      class="game-board-container flex-1 overflow-y-auto flex justify-center items-center"
-    >
-      <div class="game-board grid gap-4" :style="memoryStore.gameBoardStyle">
+    <div class="flex-1 overflow-y-auto px-4 pb-4">
+      <div class="game-board flex flex-wrap justify-center gap-4">
         <div v-if="memoryStore.isLoading" class="loader"></div>
         <div
           v-for="galleryImage in memoryStore.galleryImages"
           :key="galleryImage.id"
           class="gallery-display hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer"
           :style="{
-            width: memoryStore.cardSize + 'px',
+            flexBasis: memoryStore.cardSize + 'px',
             height: memoryStore.cardSize + 'px',
           }"
           @click="memoryStore.handleGalleryClick(galleryImage)"
@@ -152,6 +150,13 @@ onMounted(async () => {
   display: grid;
   gap: 20px;
   width: 100%;
+}
+
+.game-board {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .card-front,

@@ -1,7 +1,6 @@
+<!-- /app.vue -->
 <template>
-  <div
-    class="main-layout h-screen w-screen relative bg-primary overflow-hidden box-border"
-  >
+  <div class="main-layout h-screen w-screen relative bg-primary overflow-hidden box-border">
     <!-- Loaders -->
     <div class="fixed z-50">
       <kind-loader />
@@ -9,7 +8,7 @@
       <milestone-popup />
     </div>
 
-    <!-- Header (Always on Top) -->
+    <!-- Header -->
     <header
       class="fixed z-40 border-3 flex items-center justify-center box-border border-1 border-black overflow-hidden transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
@@ -30,19 +29,14 @@
       <kind-sidebar v-if="sidebarLeftOpen" class="h-full w-full z-10" />
     </aside>
 
-    <!-- Center Column (Grows Fully) -->
-    <div class="flex flex-col w-full h-full">
-      <!-- Fixed Toggles, aligned visually with main -->
-      <big-toggle
-        class="fixed top-1 right-4 z-30 pointer-events-auto"
-        :style="displayStore.mainContentStyle"
-      />
-      <right-toggle
-        class="fixed top-1 left-4 z-30 pointer-events-auto"
-        :style="displayStore.mainContentStyle"
-      />
+    <!-- Fixed Toggles aligned with main content -->
+    <div class="fixed top-1 z-30 flex justify-between px-4" :style="mainToggleStyle">
+      <right-toggle />
+      <big-toggle />
+    </div>
 
-      <!-- Main Scrollable Content -->
+    <!-- Center Column -->
+    <div class="flex flex-col w-full h-full">
       <main
         class="fixed z-10 border-3 rounded-2xl overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out"
         :style="displayStore.mainContentStyle"
@@ -60,6 +54,7 @@
     </aside>
   </div>
 
+  <!-- Footer -->
   <footer
     class="fixed z-30 box-border border-3 overflow-visible transition-all duration-600 ease-in-out"
     :style="displayStore.footerStyle"
@@ -74,6 +69,9 @@
 </template>
 
 <script setup lang="ts">
+// /app.vue
+
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
@@ -91,4 +89,12 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'hidden' &&
     displayStore.sidebarRightState !== 'disabled',
 )
+
+const mainToggleStyle = computed(() => {
+  const style = displayStore.mainContentStyle
+  return {
+    left: style.left,
+    width: style.width,
+  }
+})
 </script>

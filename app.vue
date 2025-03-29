@@ -32,9 +32,9 @@
       <kind-sidebar v-if="sidebarLeftOpen" class="h-full w-full z-10" />
     </aside>
 
-    <right-toggle :style="displayStore.leftToggleStyle" class="fixed z-40" />
+    <right-toggle :style="rightToggleStyle" class="fixed z-40" />
 
-    <big-toggle :style="displayStore.rightToggleStyle" class="fixed z-30" />
+    <big-toggle :style="leftToggleStyle" class="fixed z-30" />
 
     <!-- Center Column -->
     <div class="flex flex-col w-full h-full">
@@ -78,6 +78,9 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 
 const footerOpen = computed(() => displayStore.footerState === 'open')
+
+const leftToggleStyle = computed(() => displayStore.leftToggleStyle)
+const rightToggleStyle = computed(() => displayStore.rightToggleStyle)
 
 const sidebarLeftOpen = computed(
   () =>

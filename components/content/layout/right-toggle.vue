@@ -1,31 +1,49 @@
-// /components/rightToggle.vue
 <template>
-  <div class="relative z-50 p-1">
+  <div class="z-50 p-1">
     <button
-      class="w-8 h-8 rounded-2xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 duration-300 ease-in-out"
-      :class="
-        isHighlighted ? 'bg-warning text-primary' : 'bg-primary text-secondary'
-      "
-      @click="toggleHighlight"
+      class="w-8 h-8 rounded-2xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 hover:rotate-12 duration-300 ease-in-out"
+      @click="toggleTutorialSidebar"
     >
-      <Icon
-        :name="
-          isHighlighted
-            ? 'kind-icon:question-glow'
-            : 'kind-icon:question-hollow'
+      <span
+        class="toggle-character text-primary font-bold text-info"
+        style="
+          background: linear-gradient(to bottom right, #f472b6, #fbbf24);
+          background-clip: text;
+          -webkit-background-clip: text;
+          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         "
-        class="w-6 h-6"
-      />
+      >
+        {{ rightIconText }}
+      </span>
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
 
-const isHighlighted = ref(false)
+const displayStore = useDisplayStore()
 
-const toggleHighlight = () => {
-  isHighlighted.value = !isHighlighted.value
+// Determine the icon text based on the right sidebar's state
+const rightIconText = computed(() => {
+  return displayStore.sidebarRightState === 'hidden'
+    ? 'kind-icon:question'
+    : 'kind-icon:question-glow'
+})
+
+// Toggle the right sidebar and tutorial
+const toggleTutorialSidebar = () => {
+  displayStore.toggleTutorial()
+
+  if (!displayStore.isMobileViewport) {
+    // Toggle between 'open' and 'hidden' state
+    if (displayStore.sidebarRightState === 'hidden') {
+      displayStore.setSidebarRight(true) // Open the sidebar
+    } else {
+      displayStore.setSidebarRight(false) // Close the sidebar
+    }
+    displayStore.saveState()
+  }
 }
 </script>

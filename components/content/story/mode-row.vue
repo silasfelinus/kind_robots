@@ -2,8 +2,6 @@
   <div
     class="flex items-center px-1 md:px-2 lg:px-4 bg-base-300 z-30 shadow-md rounded-2xl relative"
   >
-    <big-toggle />
-
     <!-- Modes Tabs (First Group) -->
     <div
       class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-end"

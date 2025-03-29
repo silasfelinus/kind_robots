@@ -29,11 +29,9 @@
       <kind-sidebar v-if="sidebarLeftOpen" class="h-full w-full z-10" />
     </aside>
 
-    <!-- Fixed Toggles aligned with main content -->
-    <div class="fixed top-1 z-30 flex justify-between px-4" :style="mainToggleStyle">
-      <right-toggle />
-      <big-toggle />
-    </div>
+    <right-toggle :style="displayStore.rightToggleStyle" />
+<big-toggle :style="displayStore.leftToggleStyle" />
+
 
     <!-- Center Column -->
     <div class="flex flex-col w-full h-full">
@@ -90,11 +88,5 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'disabled',
 )
 
-const mainToggleStyle = computed(() => {
-  const style = displayStore.mainContentStyle
-  return {
-    left: style.left,
-    width: style.width,
-  }
-})
+
 </script>

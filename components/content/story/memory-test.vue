@@ -37,24 +37,25 @@
       </div>
     </div>
 
-    <!-- Game Board -->
-    <div class="flex-1 overflow-auto px-4 pb-8">
-      <div
-        class="grid justify-center gap-2 sm:gap-4"
-        :style="memoryStore.gameBoardStyle"
-      >
-        <div v-if="memoryStore.isLoading" class="loader mx-auto"></div>
+    <!-- Game Board Section: Takes up remaining space -->
+    <div
+      class="game-board-container flex-1 overflow-y-auto flex justify-center items-center"
+    >
+      <div class="game-board grid gap-4" :style="memoryStore.gameBoardStyle">
+        <div v-if="memoryStore.isLoading" class="loader"></div>
         <div
-          v-for="card in memoryStore.galleryImages"
-          :key="card.id"
-          class="gallery-display relative cursor-pointer"
+          v-for="galleryImage in memoryStore.galleryImages"
+          :key="galleryImage.id"
+          class="gallery-display hover:scale-105 transform transition-transform duration-300 relative rounded-xl overflow-hidden cursor-pointer"
           :style="{
             width: memoryStore.cardSize + 'px',
             height: memoryStore.cardSize + 'px',
           }"
-          @click="memoryStore.handleGalleryClick(card)"
+          @click="memoryStore.handleGalleryClick(galleryImage)"
         >
-          <div :class="{ flipped: card.flipped || card.matched }">
+          <div
+            :class="{ flipped: galleryImage.flipped || galleryImage.matched }"
+          >
             <!-- Card Back -->
             <img
               class="card-back absolute inset-0 w-full h-full object-cover"
@@ -64,8 +65,8 @@
             <!-- Card Front -->
             <img
               class="card-front absolute inset-0 w-full h-full object-cover"
-              :src="card.imagePath"
-              :alt="card.galleryName"
+              :src="galleryImage.imagePath"
+              :alt="galleryImage.galleryName"
             />
           </div>
         </div>
@@ -147,43 +148,39 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.container {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+}
+
 .card-front,
 .card-back {
   position: absolute;
   width: 100%;
   height: 100%;
-  object-fit: cover;
   backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  transition: transform 0.7s;
   border-radius: 12px;
-  transition: transform 0.6s ease-in-out;
-}
-
-.card-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.6s ease-in-out;
-}
-
-.flipped .card-wrapper {
-  transform: rotateY(180deg);
 }
 
 .card-front {
   transform: rotateY(180deg);
-  z-index: 2;
 }
 
 .card-back {
   transform: rotateY(0deg);
-  z-index: 1;
 }
 
+.flipped .card-front {
+  transform: rotateY(0deg);
+}
+
+.flipped .card-back {
+  transform: rotateY(-180deg);
+}
 .gallery-display {
   transform-style: preserve-3d;
-  perspective: 1000px;
 }
 
 .loader {
@@ -203,15 +200,5 @@ onMounted(async () => {
   100% {
     transform: rotate(360deg);
   }
-}
-
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.3s ease;
-}
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
 }
 </style>

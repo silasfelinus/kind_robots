@@ -150,8 +150,8 @@ leftToggleStyle(): Record<string, string> {
     return {
       top:
           this.headerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`
-            : `6vh`,
+            ? `calc(var(--vh) * ${this.headerHeight} + ${(this.sectionPaddingSize * 2 -2)}vh)`
+            : `5vh`,
       left:
           this.sidebarLeftState !== 'hidden'
             ? `calc(${this.sidebarLeftWidth}vw + ${this.sectionPaddingSize * 2}vw)`
@@ -163,8 +163,8 @@ leftToggleStyle(): Record<string, string> {
     return {
       top:
           this.headerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`
-            : `6vh`,
+            ? `calc(var(--vh) * ${this.headerHeight} + ${(this.sectionPaddingSize * 2 -2)}vh)`
+            : `5vh`,
       right:
           this.sidebarRightState !== 'hidden'
             ? `calc(${this.sidebarRightWidth}vw + ${this.sectionPaddingSize * 2}vw)`

@@ -29,8 +29,8 @@
       <kind-sidebar v-if="sidebarLeftOpen" class="h-full w-full z-10" />
     </aside>
  <div>
-    <right-toggle :style="displayStore.rightToggleStyle" class="fixed z-20"/>
-<big-toggle :style="displayStore.leftToggleStyle" class="fixed z-20"/>
+    <right-toggle :style="displayStore.rightToggleStyle" class="fixed z-30"/>
+<big-toggle :style="displayStore.leftToggleStyle" class="fixed z-30"/>
 
 </div>
     <!-- Center Column -->

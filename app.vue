@@ -36,6 +36,7 @@
         class="fixed z-10 border-3 rounded-2xl overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out"
         :style="displayStore.mainContentStyle"
       >
+        <big-toggle class="relative top-1 right-1" />
         <NuxtPage :key="$route.fullPath" />
       </main>
     </div>

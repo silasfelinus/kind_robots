@@ -145,32 +145,31 @@ export const useDisplayStore = defineStore('displayStore', {
       }
     },
 
-leftToggleStyle(): Record<string, string> {
-    
-    return {
-      top:
+    leftToggleStyle(): Record<string, string> {
+      return {
+        top:
           this.headerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.headerHeight} + ${(this.sectionPaddingSize * 2 -2)}vh)`
+            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`
             : `5vh`,
-      left:
+        left:
           this.sidebarLeftState !== 'hidden'
             ? `calc(${this.sidebarLeftWidth}vw + ${this.sectionPaddingSize * 2}vw)`
             : `${this.sectionPaddingSize}vw`,
-    }
-  },
+      }
+    },
 
-  rightToggleStyle(): Record<string, string> {
-    return {
-      top:
+    rightToggleStyle(): Record<string, string> {
+      return {
+        top:
           this.headerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.headerHeight} + ${(this.sectionPaddingSize * 2 -2)}vh)`
+            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`
             : `5vh`,
-      right:
+        right:
           this.sidebarRightState !== 'hidden'
             ? `calc(${this.sidebarRightWidth}vw + ${this.sectionPaddingSize * 2}vw)`
             : `${this.sectionPaddingSize}vw`,
-    }
-  },
+      }
+    },
 
     leftSidebarStyle(): Record<string, string> {
       return this.sidebarLeftState !== 'hidden'

@@ -162,8 +162,8 @@ export const useDisplayStore = defineStore('displayStore', {
       return {
         bottom:
           this.footerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.footerHeight} + 1 + ${this.sectionPaddingSize}vh)`
-            : `3vh`,
+            ? `calc(var(--vh) * ${this.footerHeight} + 2 + ${this.sectionPaddingSize}vh)`
+            : `4vh`,
         left: '50%',
         transform: 'translateX(-50%)',
       }
@@ -256,8 +256,8 @@ export const useDisplayStore = defineStore('displayStore', {
       this.$patch({
         headerState: this.bigMode ? 'hidden' : 'open',
         sidebarLeftState: this.bigMode ? 'hidden' : 'compact',
-        sidebarRightState: this.bigMode ? 'hidden' : 'hidden',
-        footerState: this.bigMode ? 'hidden' : 'hidden',
+        sidebarRightState: this.bigMode ? 'hidden' : 'open',
+        footerState: this.bigMode ? 'hidden' : 'open',
       })
 
       this.saveState()

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col h-full w-full overflow-y-auto shadow-lg border-1 border-accent rounded-2xl box-border bg-base-300 z-10"
+    class="flex flex-col h-full w-full overflow-y-auto shadow-lg border-1 border-accent rounded-2xl box-border bg-base-300 z-10"
   >
     <!-- Under Construction Icon -->
     <div
@@ -87,13 +87,6 @@
 <script setup lang="ts">
 import { usePageStore } from '@/stores/pageStore'
 
-const {
-  title,
-  description,
-  image,
-  icon,
-  underConstruction,
-  dottitip,
-  amitip,
-} = storeToRefs(usePageStore())
+const { title, description, image, icon, underConstruction, dottitip, amitip } =
+  storeToRefs(usePageStore())
 </script>

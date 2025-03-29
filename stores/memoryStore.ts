@@ -4,6 +4,9 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useUserStore } from './userStore'
 import { useMilestoneStore } from './milestoneStore'
 import confetti from 'canvas-confetti'
+import { useDisplayStore } from './displayStore'
+
+const displayStore = useDisplayStore()
 
 interface GalleryImage {
   id: number
@@ -54,13 +57,40 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   )
 
   const cardSize = computed(() => {
-    const sizeMap: Record<string, number> = {
-      Easy: 100,
-      Medium: 90,
-      Hard: 80,
-      Expert: 70,
+    const screen = displayStore.viewportSize
+    const difficulty = selectedDifficulty.value.label
+
+    const sizeMap: Record<
+      string,
+      Record<'small' | 'medium' | 'large' | 'extraLarge', number>
+    > = {
+      Easy: {
+        small: 90,
+        medium: 100,
+        large: 110,
+        extraLarge: 130,
+      },
+      Medium: {
+        small: 80,
+        medium: 90,
+        large: 100,
+        extraLarge: 120,
+      },
+      Hard: {
+        small: 70,
+        medium: 80,
+        large: 90,
+        extraLarge: 110,
+      },
+      Expert: {
+        small: 60,
+        medium: 70,
+        large: 80,
+        extraLarge: 100,
+      },
     }
-    return sizeMap[selectedDifficulty.value.label] || 100
+
+    return sizeMap[difficulty]?.[screen] || 90
   })
 
   const gameBoardStyle = computed(() => {

@@ -22,15 +22,17 @@
         {{ displayStore.viewportSize }}
       </div>
 
-      <!-- Dynamic Header Content -->
-      <div class="flex flex-col flex-1 h-full px-4">
+      <!-- Main content wrapper -->
+      <div class="flex flex-col flex-1 px-4 py-2 w-full">
         <right-toggle :style="rightToggleStyle" class="fixed z-50" />
-
         <big-toggle :style="leftToggleStyle" class="fixed z-50" />
 
-        <div class="flex h-full w-full">
-          <!-- Title and Subtitle -->
-          <div class="flex flex-col justify-center w-full max-w-xl pr-2">
+        <!-- Flex container with responsive wrap -->
+        <div class="flex flex-wrap gap-4 items-center justify-between w-full">
+          <!-- Title/Subtitle -->
+          <div
+            class="flex flex-col justify-center flex-1 min-w-[200px] max-w-xl"
+          >
             <h1
               class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
             >
@@ -43,8 +45,8 @@
             </h2>
           </div>
 
-          <!-- Icons -->
-          <div class="flex gap-2 justify-end flex-wrap items-center ml-auto">
+          <!-- Icons with wrap and spacing -->
+          <div class="flex flex-wrap justify-end gap-2 max-w-full">
             <login-path class="flex max-w-[80px]" />
             <jellybean-count class="flex max-w-[80px]" />
             <theme-icon class="flex max-w-[80px]" />

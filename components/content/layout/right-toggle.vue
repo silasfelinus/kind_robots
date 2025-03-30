@@ -26,8 +26,6 @@ const displayStore = useDisplayStore()
 
 const handleClick = () => {
   isHighlighted.value = !isHighlighted.value
-  displayStore.setSidebarRight(isHighlighted)
-
- 
+  displayStore.setSidebarRight(isHighlighted.value)
 }
 </script>

@@ -1,129 +1,77 @@
 <template>
-  <div class="fixed bottom-4 right-4 z-50">
-    <button
-      class="bg-gray-700 text-white p-2 rounded-full"
-      @click="toggleDebug"
+  <teleport to="body">
+    <div
+      class="fixed z-50 inset-0 flex items-center justify-center pointer-events-none"
     >
-      {{ isDebugVisible ? '🛠️' : '📌' }}
-    </button>
-
-    <client-only>
-      <div
-        v-if="isDebugVisible"
-        class="fixed z-50 bg-opacity-90 bg-black text-white p-4 rounded-lg max-w-lg max-h-96 overflow-y-auto"
-        style="bottom: 50%; left: 50%; transform: translate(-50%, -50%)"
-      >
-        <h2 class="text-lg font-bold">Debug Info</h2>
-        <ul class="text-sm space-y-2">
-          <!-- Visibility States -->
-          <li>
-            <strong>Header Visible (boolean):</strong> {{ headerVisible }}
-          </li>
-          <li>
-            <strong>Sidebar Left Visible (boolean):</strong>
-            {{ sidebarLeftVisible }}
-          </li>
-          <li>
-            <strong>Sidebar Right Visible (boolean):</strong>
-            {{ sidebarRightVisible }}
-          </li>
-          <li>
-            <strong>Footer Visible (boolean):</strong> {{ footerVisible }}
-          </li>
-
-          <!-- Header & Footer -->
-          <li><strong>Header State (string):</strong> {{ headerState }}</li>
-          <li><strong>Footer State (string):</strong> {{ footerState }}</li>
-          <li><strong>Header Height (string):</strong> {{ headerHeight }}</li>
-          <li><strong>Footer Height (string):</strong> {{ footerHeight }}</li>
-          <li><strong>Header Base (number):</strong> {{ headerBase }}</li>
-          <li><strong>Footer Base (number):</strong> {{ footerBase }}</li>
-          <li><strong>Header Style (object):</strong> {{ headerStyle }}</li>
-          <li><strong>Footer Style (object):</strong> {{ footerStyle }}</li>
-
-          <!--- Toggles -->
-          <li>
-            <strong>Left Toggle Style (object):</strong> {{ leftToggleStyle }}
-          </li>
-          <li>
-            <strong>Right Toggle Style (object):</strong>
-            {{ rightToggleStyle }}
-          </li>
-          <li>
-            <strong>Footer Toggle Style (object):</strong>
-            {{ footerToggleStyle }}
-          </li>
-
-          <!-- Sidebar Dimensions -->
-          <li>
-            <strong>Sidebar Left State (string):</strong> {{ sidebarLeftState }}
-          </li>
-          <li>
-            <strong>Sidebar Right State (string):</strong>
-            {{ sidebarRightState }}
-          </li>
-          <li>
-            <strong>Sidebar Left Width (string):</strong> {{ sidebarLeftWidth }}
-          </li>
-          <li>
-            <strong>Sidebar Right Width (string):</strong>
-            {{ sidebarRightWidth }}
-          </li>
-          <li>
-            <strong>Sidebar Left Base (number):</strong> {{ sidebarLeftBase }}
-          </li>
-          <li>
-            <strong>Sidebar Right Base (number):</strong> {{ sidebarRightBase }}
-          </li>
-
-          <li>
-            <strong>Left Sidebar Style (object):</strong> {{ leftSidebarStyle }}
-          </li>
-          <li>
-            <strong>Right Sidebar Style (object):</strong>
-            {{ rightSidebarStyle }}
-          </li>
-
-          <!-- Main Content -->
-
-          <li>
-            <strong>Main Content Style (object):</strong> {{ mainContentStyle }}
-          </li>
-
-          <!-- Padding Calculations -->
-          <li>
-            <strong>Section Padding (number):</strong>
-            {{ sectionPadding }}
-          </li>
-
-          <!-- Animation & Effects -->
-          <li><strong>Is Animating (boolean):</strong> {{ isAnimating }}</li>
-          <li>
-            <strong>Current Animation (string):</strong> {{ currentAnimation }}
-          </li>
-
-          <!-- Viewport & Layout Info -->
-          <li><strong>Viewport Size (string):</strong> {{ viewportSize }}</li>
-          <li>
-            <strong>Is Touch Device (boolean):</strong> {{ isTouchDevice }}
-          </li>
-          <li>
-            <strong>Is Mobile Viewport (boolean):</strong>
-            {{ isMobileViewport }}
-          </li>
-          <li>
-            <strong>Is Large Viewport (boolean):</strong> {{ isLargeViewport }}
-          </li>
-          <li>
-            <strong>Fullscreen State (string):</strong> {{ fullscreenState }}
-          </li>
-          <li><strong>Big Mode (boolean):</strong> {{ bigMode }}</li>
-          <li><strong>Flip State (string):</strong> {{ flipState }}</li>
-          <li><strong>Previous Route (string):</strong> {{ previousRoute }}</li>
-        </ul>
+      <div class="absolute top-4 right-4 pointer-events-auto">
+        <button
+          class="bg-gray-700 text-white p-2 rounded-full shadow-md"
+          @click="toggleDebug"
+        >
+          {{ isDebugVisible ? '🛠️' : '📌' }}
+        </button>
       </div>
-    </client-only>
-  </div>
+
+      <client-only>
+        <div
+          v-if="isDebugVisible"
+          class="bg-black bg-opacity-90 text-white p-4 rounded-lg max-w-lg max-h-[90vh] overflow-y-auto shadow-xl pointer-events-auto"
+        >
+          <h2 class="text-lg font-bold mb-2">Debug Info</h2>
+          <ul class="text-sm space-y-2">
+            <!-- your debug info unchanged -->
+            <li><strong>Header Visible:</strong> {{ headerVisible }}</li>
+            <li>
+              <strong>Sidebar Left Visible:</strong> {{ sidebarLeftVisible }}
+            </li>
+            <li>
+              <strong>Sidebar Right Visible:</strong> {{ sidebarRightVisible }}
+            </li>
+            <li><strong>Footer Visible:</strong> {{ footerVisible }}</li>
+            <li><strong>Header State:</strong> {{ headerState }}</li>
+            <li><strong>Footer State:</strong> {{ footerState }}</li>
+            <li><strong>Header Height:</strong> {{ headerHeight }}</li>
+            <li><strong>Footer Height:</strong> {{ footerHeight }}</li>
+            <li><strong>Header Base:</strong> {{ headerBase }}</li>
+            <li><strong>Footer Base:</strong> {{ footerBase }}</li>
+            <li><strong>Header Style:</strong> {{ headerStyle }}</li>
+            <li><strong>Footer Style:</strong> {{ footerStyle }}</li>
+            <li><strong>Left Toggle Style:</strong> {{ leftToggleStyle }}</li>
+            <li><strong>Right Toggle Style:</strong> {{ rightToggleStyle }}</li>
+            <li>
+              <strong>Footer Toggle Style:</strong> {{ footerToggleStyle }}
+            </li>
+            <li><strong>Sidebar Left State:</strong> {{ sidebarLeftState }}</li>
+            <li>
+              <strong>Sidebar Right State:</strong> {{ sidebarRightState }}
+            </li>
+            <li><strong>Sidebar Left Width:</strong> {{ sidebarLeftWidth }}</li>
+            <li>
+              <strong>Sidebar Right Width:</strong> {{ sidebarRightWidth }}
+            </li>
+            <li><strong>Sidebar Left Base:</strong> {{ sidebarLeftBase }}</li>
+            <li><strong>Sidebar Right Base:</strong> {{ sidebarRightBase }}</li>
+            <li><strong>Left Sidebar Style:</strong> {{ leftSidebarStyle }}</li>
+            <li>
+              <strong>Right Sidebar Style:</strong> {{ rightSidebarStyle }}
+            </li>
+            <li><strong>Main Content Style:</strong> {{ mainContentStyle }}</li>
+            <li><strong>Section Padding:</strong> {{ sectionPadding }}</li>
+            <li><strong>Is Animating:</strong> {{ isAnimating }}</li>
+            <li><strong>Current Animation:</strong> {{ currentAnimation }}</li>
+            <li><strong>Viewport Size:</strong> {{ viewportSize }}</li>
+            <li><strong>Is Touch Device:</strong> {{ isTouchDevice }}</li>
+            <li><strong>Is Mobile Viewport:</strong> {{ isMobileViewport }}</li>
+            <li><strong>Is Large Viewport:</strong> {{ isLargeViewport }}</li>
+            <li><strong>Fullscreen State:</strong> {{ fullscreenState }}</li>
+            <li><strong>Big Mode:</strong> {{ bigMode }}</li>
+            <li><strong>Flip State:</strong> {{ flipState }}</li>
+            <li><strong>Previous Route:</strong> {{ previousRoute }}</li>
+          </ul>
+        </div>
+      </client-only>
+    </div>
+  </teleport>
 </template>
 
 <script setup lang="ts">

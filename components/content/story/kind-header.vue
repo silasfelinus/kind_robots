@@ -24,6 +24,10 @@
 
       <!-- Dynamic Header Content -->
       <div class="flex flex-col flex-1 h-full px-4">
+        <right-toggle :style="rightToggleStyle" class="fixed z-40" />
+
+        <big-toggle :style="leftToggleStyle" class="fixed z-40" />
+
         <div class="flex h-full w-full">
           <!-- Title and Subtitle -->
           <div
@@ -65,6 +69,9 @@ import { usePageStore } from '@/stores/pageStore'
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const { page, subtitle } = storeToRefs(pageStore)
+
+const leftToggleStyle = computed(() => displayStore.leftToggleStyle)
+const rightToggleStyle = computed(() => displayStore.rightToggleStyle)
 
 const hydrated = ref(false)
 onMounted(() => {

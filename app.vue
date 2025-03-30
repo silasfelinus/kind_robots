@@ -6,14 +6,14 @@
     <!-- Loaders -->
     <div class="fixed z-50">
       <kind-loader />
-      <animation-loader class="fixed z-50" />
+      <animation-loader class="fixed z-100" />
       <milestone-popup />
       <screen-debug />
     </div>
 
     <!-- Header -->
     <header
-      class="fixed z-40 border-3 flex items-center justify-center box-border border-1 border-black overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed -z-40 border-3 flex items-center justify-center box-border border-1 border-black overflow-hidden transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
       <template v-if="displayStore.headerState === 'hidden'">
@@ -35,7 +35,7 @@
     <!-- Center Column -->
     <div class="flex flex-col w-full h-full">
       <main
-        class="fixed z-10 border-3 rounded-2xl overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out"
+        class="fixed -z-10 border-3 rounded-2xl overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out"
         :style="displayStore.mainContentStyle"
       >
         <NuxtPage :key="$route.fullPath" />
@@ -53,7 +53,7 @@
 
   <!-- Footer -->
   <footer
-    class="fixed z-30 box-border border-3 overflow-visible transition-all duration-600 ease-in-out"
+    class="fixed -z-30 box-border border-3 overflow-visible transition-all duration-600 ease-in-out"
     :style="displayStore.footerStyle"
   >
     <mode-row v-if="footerOpen" class="h-full w-full z-5" />
@@ -61,7 +61,7 @@
 
   <!-- Footer Toggle -->
   <div
-    class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-40"
+    class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50"
     :style="displayStore.footerToggleStyle"
   >
     <footer-toggle />

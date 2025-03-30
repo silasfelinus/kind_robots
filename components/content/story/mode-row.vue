@@ -2,14 +2,14 @@
   <div
     class="flex items-center px-1 md:px-2 lg:px-4 bg-base-300 z-30 shadow-md rounded-2xl relative"
   >
-    <!-- Modes Tabs (First Group) -->
+    <!-- Modes Tabs (Second Group) - Now on the Left -->
     <div
-      class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-end"
+      class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-start"
     >
-      <div v-for="mode in firstGroupModes" :key="mode.name" class="relative">
+      <div v-for="mode in secondGroupModes" :key="mode.name" class="relative">
         <div
           :class="[
-            'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-100 transition-all duration-200',
+            'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
             mode.name === displayStore.displayMode
               ? 'border-primary border-b-0 z-10 shadow-md'
               : 'border-base-300 hover:shadow',
@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <!-- Plus/Gallery Toggle -->
+    <!-- Plus/Gallery Toggle (Center) -->
     <div
       class="flex items-center justify-center w-12 h-12 border-accent border-1 rounded-full cursor-pointer hover:shadow-xl mx-1 md:mx-2"
       @click="toggleAction"
@@ -39,14 +39,14 @@
       />
     </div>
 
-    <!-- Modes Tabs (Second Group) -->
+    <!-- Modes Tabs (First Group) - Now on the Right -->
     <div
-      class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-start"
+      class="flex flex-row items-center gap-0.5 md:gap-1 flex-grow justify-end"
     >
-      <div v-for="mode in secondGroupModes" :key="mode.name" class="relative">
+      <div v-for="mode in firstGroupModes" :key="mode.name" class="relative">
         <div
           :class="[
-            'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-200 transition-all duration-200',
+            'flex items-center px-1 md:px-2 py-1 cursor-pointer border-t border-l border-r rounded-t-md bg-base-100 transition-all duration-200',
             mode.name === displayStore.displayMode
               ? 'border-primary border-b-0 z-10 shadow-md'
               : 'border-base-300 hover:shadow',
@@ -73,13 +73,13 @@ const route = useRoute()
 const displayStore = useDisplayStore()
 
 const modes = [
-  { name: 'scenario', icon: 'kind-icon:scenario', label: 'Scenario' },
-  { name: 'character', icon: 'kind-icon:character', label: 'Character' },
-  { name: 'reward', icon: 'kind-icon:reward', label: 'Reward' },
-  { name: 'chat', icon: 'kind-icon:chat', label: 'Chat' },
-  { name: 'bot', icon: 'kind-icon:bot', label: 'Bot' },
-  { name: 'pitch', icon: 'kind-icon:pitch', label: 'Pitch' },
-  { name: 'art', icon: 'kind-icon:art', label: 'Art' },
+  { name: 'scenarios', icon: 'kind-icon:plus', label: 'Scenario' },
+  { name: 'characters', icon: 'kind-icon:plus', label: 'Character' },
+  { name: 'rewards', icon: 'kind-icon:plus', label: 'Reward' },
+  { name: 'chats', icon: 'kind-icon:plus', label: 'Chat' },
+  { name: 'bots', icon: 'kind-icon:plus', label: 'Bot' },
+  { name: 'pitches', icon: 'kind-icon:plus', label: 'Pitch' },
+  { name: 'art', icon: 'kind-icon:plus', label: 'Art' },
 ]
 
 // Split modes into two groups

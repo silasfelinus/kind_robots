@@ -13,7 +13,7 @@
 
     <!-- Header -->
     <header
-      class="fixed z-40 border-3 flex items-center justify-center box-border border-1 border-black overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed z-10 border-3 flex items-center justify-center box-border border-1 border-black overflow-hidden transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
       <kind-header class="flex-grow text-center rounded-xl" />
@@ -21,7 +21,7 @@
 
     <!-- Left Sidebar -->
     <aside
-      class="fixed z-30 box-border border-3 transition-all duration-300 ease-in-out overflow-visible"
+      class="fixed z-10 box-border border-3 transition-all duration-300 ease-in-out overflow-visible"
       :style="displayStore.leftSidebarStyle"
     >
       <kind-sidebar v-if="sidebarLeftOpen" class="h-full w-full z-10" />
@@ -48,15 +48,15 @@
 
   <!-- Footer -->
   <footer
-    class="fixed z-30 box-border border-3 overflow-visible transition-all duration-600 ease-in-out"
+    class="fixed z-20 box-border border-3 overflow-visible transition-all duration-600 ease-in-out"
     :style="displayStore.footerStyle"
   >
-    <mode-row v-if="footerOpen" class="h-full w-full z-5" />
+    <mode-row v-if="footerOpen" class="h-full w-full z-10" />
   </footer>
 
   <!-- Footer Toggle -->
   <div
-    class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-40"
+    class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50"
     :style="displayStore.footerToggleStyle"
   >
     <footer-toggle />

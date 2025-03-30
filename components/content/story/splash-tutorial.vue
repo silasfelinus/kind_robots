@@ -2,20 +2,11 @@
   <div
     class="flex flex-col h-full w-full overflow-y-auto shadow-lg border-1 border-accent rounded-2xl box-border bg-base-300 z-10"
   >
-    <!-- Under Construction Icon -->
-    <div
-      v-if="underConstruction"
-      class="absolute top-2 left-2 z-20 opacity-90 md:w-12 md:h-12 lg:w-16 lg:h-16"
-    >
-      <Icon
-        name="kind-icon:construction"
-        class="object-cover w-full h-full text-warning"
-      />
-    </div>
+
 
     <!-- Main Content Section -->
     <div
-      class="flex-1 flex flex-col items-center justify-between p-4 overflow-auto no-scrollbar"
+      class="flex-1 flex flex-col items-center justify-between p-1 overflow-auto no-scrollbar"
     >
       <!-- Main Image -->
       <img
@@ -87,6 +78,6 @@
 <script setup lang="ts">
 import { usePageStore } from '@/stores/pageStore'
 
-const { title, description, image, icon, underConstruction, dottitip, amitip } =
+const { title, description, image, icon, dottitip, amitip } =
   storeToRefs(usePageStore())
 </script>

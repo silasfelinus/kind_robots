@@ -149,16 +149,13 @@ export const useDisplayStore = defineStore('displayStore', {
       return {
         top:
           this.headerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2 -1 }vh)`
+            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2 - 1}vh)`
             : `2vh`,
-        left:
-          this.sidebarLeftState !== 'hidden'
-            ? `calc(${this.sidebarLeftWidth}vw + ${this.sectionPaddingSize * 2}vw)`
-            : `${this.sectionPaddingSize}vw`,
+        left: `${this.sectionPaddingSize}vw`,
       }
     },
 
-rightToggleStyle(): Record<string, string> {
+    rightToggleStyle(): Record<string, string> {
       return {
         top:
           this.headerState !== 'hidden'
@@ -178,8 +175,6 @@ rightToggleStyle(): Record<string, string> {
         transform: 'translateX(-50%)',
       }
     },
-
-    
 
     leftSidebarStyle(): Record<string, string> {
       return this.sidebarLeftState !== 'hidden'

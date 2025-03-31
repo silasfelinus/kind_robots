@@ -149,7 +149,7 @@ export const useDisplayStore = defineStore('displayStore', {
       return {
         top:
           this.headerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2 - 1}vh)`
+            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2 - 5}vh)`
             : `2vh`,
         left: `${this.sectionPaddingSize}vw`,
       }
@@ -159,7 +159,7 @@ export const useDisplayStore = defineStore('displayStore', {
       return {
         top:
           this.headerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`
+            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2 - 4}vh)`
             : `1.5vh`,
         right: `${this.sectionPaddingSize}vw`,
       }

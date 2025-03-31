@@ -4,9 +4,7 @@
     <button
       @click="handleClick"
       class="w-8 h-8 rounded-2xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 duration-300 ease-in-out"
-      :class="
-        isHighlighted ? 'bg-warning text-primary' : 'bg-primary text-secondary'
-      "
+      :class="isHighlighted ? 'text-primary' : 'text-secondary'"
     >
       <Icon
         :name="isHighlighted ? 'kind-icon:question-glow' : 'kind-icon:question'"

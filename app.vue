@@ -13,7 +13,7 @@
 
     <!-- Header -->
     <header
-      class="fixed z-50 border-3 flex items-center justify-center box-border border-1 border-black overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed z-10 border-3 flex items-center justify-center box-border border-1 border-black overflow-hidden transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
       <kind-header class="flex-grow text-center rounded-xl" />
@@ -56,7 +56,7 @@
 
   <!-- Footer Toggle -->
   <div
-    class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50"
+    class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-40"
     :style="displayStore.footerToggleStyle"
   >
     <footer-toggle />

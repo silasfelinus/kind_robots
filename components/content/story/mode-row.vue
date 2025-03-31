@@ -1,32 +1,35 @@
 <template>
-  <div class="flex flex-wrap items-center justify-between gap-2 px-2 md:px-4 bg-base-300 z-30 shadow-md rounded-2xl">
-    <!-- Mode Sections -->
-    <div class="flex flex-wrap gap-2 items-center">
+  <div class="flex flex-wrap gap-2 px-2 md:px-4 bg-base-300 z-30 shadow-md rounded-2xl">
+    <div
+      v-for="mode in modes"
+      :key="mode.name"
+      class="flex items-center overflow-hidden rounded-full bg-base-200 border border-base-300 shadow cursor-pointer transition hover:shadow-lg"
+    >
+      <!-- Mode Label: Gallery -->
       <div
-        v-for="mode in modes"
-        :key="mode.name"
-        class="flex items-center gap-1"
+        @click="handleGalleryMode(mode.name)"
+        class="flex items-center px-3 py-1 gap-1"
       >
-        <!-- Gallery Mode Title -->
-        <div
-          @click="handleGalleryMode(mode.name)"
-          class="flex items-center px-2 py-1 cursor-pointer rounded-md border transition-all duration-200 bg-base-200 hover:shadow text-sm md:text-md font-semibold"
-        >
-    
-          <span class="ml-1 hidden md:inline">{{ mode.label }}</span>
-        </div>
+        <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
+        <span class="text-sm md:text-md font-semibold hidden md:inline">
+          {{ mode.label }}
+        </span>
+      </div>
 
-        <!-- Add Button -->
-        <div
-          @click="handleAddMode(mode.name)"
-          class="flex items-center justify-center w-8 h-8 rounded-full bg-accent text-white shadow-md cursor-pointer hover:scale-105 transition-transform"
-        >
-          <Icon name="kind-icon:add" class="w-5 h-5" />
-        </div>
+      <!-- Diagonal Divider -->
+      <div class="w-px h-6 bg-base-300 rotate-[25deg] -ml-1 -mr-1"></div>
+
+      <!-- Add Button -->
+      <div
+        @click.stop="handleAddMode(mode.name)"
+        class="flex items-center justify-center px-2 py-1 bg-accent text-white rounded-r-full hover:scale-105 transition-transform"
+      >
+        <Icon name="kind-icon:add" class="w-5 h-5" />
       </div>
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 // /components/mode-tabs.vue

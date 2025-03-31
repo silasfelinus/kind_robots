@@ -16,7 +16,7 @@
       class="fixed z-40 transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
-      <kind-header />
+      <kind-header class="h-full w-full rounded-xl" />
     </header>
 
     <!-- Left Sidebar -->

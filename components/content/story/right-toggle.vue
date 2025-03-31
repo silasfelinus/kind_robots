@@ -19,11 +19,14 @@
 import { ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-const isHighlighted = ref(false)
 const displayStore = useDisplayStore()
+
+const isHighlighted = computed({
+  get: () => displayStore.sidebarRightState === 'open',
+  set: (val: boolean) => displayStore.setSidebarRight(val),
+})
 
 const handleClick = () => {
   isHighlighted.value = !isHighlighted.value
-  displayStore.setSidebarRight(isHighlighted.value)
 }
 </script>

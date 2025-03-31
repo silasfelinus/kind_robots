@@ -1,35 +1,62 @@
 <template>
-  <div class="flex flex-wrap gap-2 px-2 md:px-4 bg-base-300 z-30 shadow-md rounded-2xl">
-    <div
-      v-for="mode in modes"
-      :key="mode.name"
-      class="flex items-center overflow-hidden rounded-full bg-base-200 border border-base-300 shadow cursor-pointer transition hover:shadow-lg"
-    >
-      <!-- Mode Label: Gallery -->
+  <div class="flex items-center justify-between flex-wrap gap-2 px-2 md:px-4 bg-base-300 z-30 shadow-md rounded-2xl">
+    <!-- Left Modes (first 3) -->
+    <div class="flex flex-wrap gap-2">
       <div
-        @click="handleGalleryMode(mode.name)"
-        class="flex items-center px-3 py-1 gap-1"
+        v-for="mode in modes.slice(0, 3)"
+        :key="mode.name"
+        class="flex items-center overflow-hidden rounded-full bg-base-200 border border-base-300 shadow cursor-pointer transition hover:shadow-lg"
       >
-       
-        <span class="text-sm md:text-md font-semibold hidden md:inline">
-          {{ mode.label }}
-        </span>
+        <div
+          @click="handleGalleryMode(mode.name)"
+          class="flex items-center px-3 py-1 gap-1"
+        >
+<Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
+          <span class="text-sm md:text-md font-semibold hidden md:inline">
+            {{ mode.label }}
+          </span>
+        </div>
+        <div class="w-px h-6 bg-base-300 rotate-[25deg] -ml-1 -mr-1"></div>
+        <div
+          @click.stop="handleAddMode(mode.name)"
+          class="flex items-center justify-center px-2 py-1 text-white bg-accent rounded-r-full hover:scale-105 transition-transform"
+        >
+          <Icon name="kind-icon:add" class="w-5 h-5" />
+        </div>
       </div>
+    </div>
 
-      <!-- Diagonal Divider -->
-      <div class="w-px h-6 bg-base-300 rotate-[25deg] -ml-1 -mr-1"></div>
+    <!-- Center Toggle -->
+    <div>
+      <footer-toggle />
+    </div>
 
-      <!-- Add Button -->
+    <!-- Right Modes (last 4) -->
+    <div class="flex flex-wrap gap-2">
       <div
-        @click.stop="handleAddMode(mode.name)"
-        class="flex items-center justify-center px-2 py-1 text-white rounded-r-full hover:scale-105 transition-transform"
+        v-for="mode in modes.slice(3)"
+        :key="mode.name"
+        class="flex items-center overflow-hidden rounded-full bg-base-200 border border-base-300 shadow cursor-pointer transition hover:shadow-lg"
       >
-        <Icon name="kind-icon:add" class="w-5 h-5" />
+        <div
+          @click="handleGalleryMode(mode.name)"
+          class="flex items-center px-3 py-1 gap-1"
+        >
+          <span class="text-sm md:text-md font-semibold hidden md:inline">
+            {{ mode.label }}
+          </span>
+        </div>
+        <div class="w-px h-6 bg-base-300 rotate-[25deg] -ml-1 -mr-1"></div>
+        <div
+          @click.stop="handleAddMode(mode.name)"
+          class="flex items-center justify-center px-2 py-1 text-white bg-accent rounded-r-full hover:scale-105 transition-transform"
+        >
+          <Icon name="kind-icon:add" class="w-5 h-5" />
+        </div>
       </div>
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 // /components/mode-tabs.vue

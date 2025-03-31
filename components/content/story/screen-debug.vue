@@ -1,4 +1,4 @@
-<!-- /components/content/story/debug-panel.vue -->
+<!-- /components/content/story/screen-debug.vue -->
 <template>
   <teleport to="body">
     <div class="fixed z-50 inset-0 flex items-center justify-center pointer-events-none">

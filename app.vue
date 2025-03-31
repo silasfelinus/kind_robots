@@ -46,9 +46,7 @@
     </aside>
   </div>
 
-  <right-toggle :style="rightToggleStyle" class="fixed z-40" />
-
-  <big-toggle :style="leftToggleStyle" class="fixed z-40" />
+  
 
   <!-- Footer -->
   <footer
@@ -58,10 +56,7 @@
     <mode-row v-if="footerOpen" class="h-full w-full z-10" />
   </footer>
 
-  <!-- Footer Toggle -->
-  <div class="fixed z-40" :style="displayStore.footerToggleStyle">
-    <footer-toggle />
-  </div>
+  
 </template>
 
 <script setup lang="ts">
@@ -80,8 +75,8 @@ const sidebarLeftOpen = computed(
     displayStore.sidebarLeftState !== 'disabled',
 )
 
-const leftToggleStyle = computed(() => displayStore.leftToggleStyle)
-const rightToggleStyle = computed(() => displayStore.rightToggleStyle)
+
+
 
 const sidebarRightOpen = computed(
   () =>

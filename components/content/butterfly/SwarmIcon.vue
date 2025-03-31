@@ -16,7 +16,10 @@
     </div>
 
     <!-- Dynamic Label -->
-    <span class="mt-2 text-center text-sm md:block hidden">
+    <span
+      v-if="!displayStore.bigMode"
+      class="mt-2 text-center text-sm md:block hidden"
+    >
       {{ showSwarm ? swarmText : 'Swarm?' }}
     </span>
 
@@ -32,6 +35,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+
+const displayStore = useDisplayStore()
 
 const showSwarm = ref(false)
 const swarmText = ref("We're free!")

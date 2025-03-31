@@ -14,7 +14,9 @@
     <div
       class="absolute bottom-12 left-1/2 transform -translate-x-1/2 bg-base-200 text-sm rounded-lg p-2 shadow-lg z-50 hidden group-hover:block md:hidden"
     >
-      <span class="block text-center">Theme: {{ currentTheme }}</span>
+      <span v-if="!displayStore.bigMode" class="block text-center"
+        >Theme: {{ currentTheme }}</span
+      >
     </div>
   </button>
 </template>
@@ -23,6 +25,8 @@
 import { useThemeStore } from '@/stores/themeStore'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+
+const displayStore = useDisplayStore()
 
 const router = useRouter()
 const themeStore = useThemeStore()

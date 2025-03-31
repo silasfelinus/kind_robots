@@ -1,19 +1,20 @@
 <template>
-  <header
-    v-if="hydrated"
-    class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-black max-w-full max-h-full box-border"
-  >
-    <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
-    <div class="flex items-center justify-between w-full h-full">
-      <!-- Avatar Section with Viewport Overlay -->
-      <div
-        class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl overflow-visible"
-      >
-        <avatar-image
-          alt="User Avatar"
-          class="h-full w-full rounded-2xl object-cover"
-        />
-      </div>
+ <header
+  v-if="hydrated"
+  class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-black max-w-full box-border h-20 sm:h-24 md:h-28 lg:h-32"
+>
+  <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
+  <div class="flex items-center justify-between w-full h-full px-2 sm:px-4">
+    <!-- Avatar Section -->
+    <div
+      class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl overflow-hidden"
+    >
+      <avatar-image
+        alt="User Avatar"
+        class="h-full w-full rounded-2xl object-cover"
+      />
+    </div>
+
 
       <!-- Viewport Notice Overlay -->
       <div

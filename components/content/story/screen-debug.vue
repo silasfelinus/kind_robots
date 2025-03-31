@@ -1,8 +1,7 @@
+<!-- /components/content/story/debug-panel.vue -->
 <template>
   <teleport to="body">
-    <div
-      class="fixed z-50 inset-0 flex items-center justify-center pointer-events-none"
-    >
+    <div class="fixed z-50 inset-0 flex items-center justify-center pointer-events-none">
       <div class="absolute top-4 right-4 pointer-events-auto">
         <button
           class="bg-gray-700 text-white p-2 rounded-full shadow-md"
@@ -15,65 +14,88 @@
       <client-only>
         <div
           v-if="isDebugVisible"
-          class="bg-black bg-opacity-90 text-white p-4 rounded-lg max-w-lg max-h-[90vh] overflow-y-auto shadow-xl pointer-events-auto"
+          class="bg-black bg-opacity-90 text-white p-6 rounded-xl w-[90vw] max-w-7xl max-h-[90vh] overflow-y-auto shadow-2xl pointer-events-auto"
         >
-          <h2 class="text-lg font-bold mb-2">Debug Info</h2>
-          <ul class="text-sm space-y-2">
-            <!-- your debug info unchanged -->
-            <li><strong>Header Visible:</strong> {{ headerVisible }}</li>
-            <li>
-              <strong>Sidebar Left Visible:</strong> {{ sidebarLeftVisible }}
-            </li>
-            <li>
-              <strong>Sidebar Right Visible:</strong> {{ sidebarRightVisible }}
-            </li>
-            <li><strong>Footer Visible:</strong> {{ footerVisible }}</li>
-            <li><strong>Header State:</strong> {{ headerState }}</li>
-            <li><strong>Footer State:</strong> {{ footerState }}</li>
-            <li><strong>Header Height:</strong> {{ headerHeight }}</li>
-            <li><strong>Footer Height:</strong> {{ footerHeight }}</li>
-            <li><strong>Header Base:</strong> {{ headerBase }}</li>
-            <li><strong>Footer Base:</strong> {{ footerBase }}</li>
-            <li><strong>Header Style:</strong> {{ headerStyle }}</li>
-  <li><strong>Left Sidebar Style:</strong> {{ leftSidebarStyle }}</li>
-            <li>
-              <strong>Right Sidebar Style:</strong> {{ rightSidebarStyle }}
-            </li>
-            <li><strong>Main Content Style:</strong> {{ mainContentStyle }}</li>
-            <li><strong>Footer Style:</strong> {{ footerStyle }}</li>
-            <li><strong>Left Toggle Style:</strong> {{ leftToggleStyle }}</li>
-            <li><strong>Right Toggle Style:</strong> {{ rightToggleStyle }}</li>
-            <li>
-              <strong>Footer Toggle Style:</strong> {{ footerToggleStyle }}
-            </li>
-            <li><strong>Sidebar Left State:</strong> {{ sidebarLeftState }}</li>
-            <li>
-              <strong>Sidebar Right State:</strong> {{ sidebarRightState }}
-            </li>
-            <li><strong>Sidebar Left Width:</strong> {{ sidebarLeftWidth }}</li>
-            <li>
-              <strong>Sidebar Right Width:</strong> {{ sidebarRightWidth }}
-            </li>
-            <li><strong>Sidebar Left Base:</strong> {{ sidebarLeftBase }}</li>
-            <li><strong>Sidebar Right Base:</strong> {{ sidebarRightBase }}</li>
-          
-            <li><strong>Section Padding:</strong> {{ sectionPadding }}</li>
-            <li><strong>Is Animating:</strong> {{ isAnimating }}</li>
-            <li><strong>Current Animation:</strong> {{ currentAnimation }}</li>
-            <li><strong>Viewport Size:</strong> {{ viewportSize }}</li>
-            <li><strong>Is Touch Device:</strong> {{ isTouchDevice }}</li>
-            <li><strong>Is Mobile Viewport:</strong> {{ isMobileViewport }}</li>
-            <li><strong>Is Large Viewport:</strong> {{ isLargeViewport }}</li>
-            <li><strong>Fullscreen State:</strong> {{ fullscreenState }}</li>
-            <li><strong>Big Mode:</strong> {{ bigMode }}</li>
-            <li><strong>Flip State:</strong> {{ flipState }}</li>
-            <li><strong>Previous Route:</strong> {{ previousRoute }}</li>
-          </ul>
+          <h2 class="text-xl font-bold mb-4">🧪 Kind Robots Debug Panel</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Visibility & State -->
+            <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
+              <h3 class="text-lg font-semibold mb-2">State & Visibility</h3>
+              <div class="space-y-1 text-sm">
+                <div><strong>Header:</strong> {{ headerVisible }} ({{ headerState }})</div>
+                <div><strong>Sidebar Left:</strong> {{ sidebarLeftVisible }} ({{ sidebarLeftState }})</div>
+                <div><strong>Sidebar Right:</strong> {{ sidebarRightVisible }} ({{ sidebarRightState }})</div>
+                <div><strong>Footer:</strong> {{ footerVisible }} ({{ footerState }})</div>
+                <div><strong>Fullscreen:</strong> {{ fullscreenState }}</div>
+                <div><strong>Flip:</strong> {{ flipState }}</div>
+                <div><strong>Big Mode:</strong> {{ bigMode }}</div>
+              </div>
+            </div>
+
+            <!-- Dimensions -->
+            <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
+              <h3 class="text-lg font-semibold mb-2">Sizes & Bases</h3>
+              <div class="grid grid-cols-2 gap-2 text-sm">
+                <div><strong>Header H:</strong> {{ headerHeight }}</div>
+                <div><strong>Footer H:</strong> {{ footerHeight }}</div>
+                <div><strong>Left W:</strong> {{ sidebarLeftWidth }}</div>
+                <div><strong>Right W:</strong> {{ sidebarRightWidth }}</div>
+                <div><strong>Header Base:</strong> {{ headerBase }}</div>
+                <div><strong>Footer Base:</strong> {{ footerBase }}</div>
+                <div><strong>Left Base:</strong> {{ sidebarLeftBase }}</div>
+                <div><strong>Right Base:</strong> {{ sidebarRightBase }}</div>
+                <div><strong>Section Pad:</strong> {{ sectionPadding }}</div>
+              </div>
+            </div>
+
+            <!-- Styles -->
+            <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
+              <h3 class="text-lg font-semibold mb-2">Style Bindings</h3>
+              <div class="space-y-1 text-xs font-mono">
+                <div><strong>Header:</strong> {{ headerStyle }}</div>
+                <div><strong>Footer:</strong> {{ footerStyle }}</div>
+                <div><strong>Main:</strong> {{ mainContentStyle }}</div>
+                <div><strong>Left Sidebar:</strong> {{ leftSidebarStyle }}</div>
+                <div><strong>Right Sidebar:</strong> {{ rightSidebarStyle }}</div>
+                <div><strong>Left Toggle:</strong> {{ leftToggleStyle }}</div>
+                <div><strong>Right Toggle:</strong> {{ rightToggleStyle }}</div>
+                <div><strong>Footer Toggle:</strong> {{ footerToggleStyle }}</div>
+              </div>
+            </div>
+
+            <!-- Device + Viewport -->
+            <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
+              <h3 class="text-lg font-semibold mb-2">Device Info</h3>
+              <div class="space-y-1 text-sm">
+                <div><strong>Viewport:</strong> {{ viewportSize }}</div>
+                <div><strong>Mobile View:</strong> {{ isMobileViewport }}</div>
+                <div><strong>Large View:</strong> {{ isLargeViewport }}</div>
+                <div><strong>Touch Device:</strong> {{ isTouchDevice }}</div>
+              </div>
+            </div>
+
+            <!-- Animation -->
+            <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
+              <h3 class="text-lg font-semibold mb-2">Animation</h3>
+              <div class="space-y-1 text-sm">
+                <div><strong>Is Animating:</strong> {{ isAnimating }}</div>
+                <div><strong>Current Animation:</strong> {{ currentAnimation }}</div>
+              </div>
+            </div>
+
+            <!-- Routing -->
+            <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
+              <h3 class="text-lg font-semibold mb-2">Navigation</h3>
+              <div class="text-sm"><strong>Previous Route:</strong> {{ previousRoute }}</div>
+            </div>
+          </div>
         </div>
       </client-only>
     </div>
   </teleport>
 </template>
+
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'

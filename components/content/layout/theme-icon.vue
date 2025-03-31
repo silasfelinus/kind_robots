@@ -12,11 +12,10 @@
       {{ currentTheme }}
     </span>
     <div
+      v-if="!displayStore.bigMode"
       class="absolute bottom-12 left-1/2 transform -translate-x-1/2 bg-base-200 text-sm rounded-lg p-2 shadow-lg z-50 hidden group-hover:block md:hidden"
     >
-      <span v-if="!displayStore.bigMode" class="block text-center"
-        >Theme: {{ currentTheme }}</span
-      >
+      <span class="block text-center">Theme: {{ currentTheme }}</span>
     </div>
   </button>
 </template>

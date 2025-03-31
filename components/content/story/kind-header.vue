@@ -1,54 +1,80 @@
-<!-- /components/mode-tabs.vue -->
 <template>
-  <div
-    class="flex items-center justify-between px-2 md:px-4 bg-base-300 z-30 shadow-md rounded-2xl"
+  <header
+    v-if="hydrated"
+    class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-black max-w-full box-border"
   >
-    <!-- Left: Gallery Link -->
-    <NuxtLink
-      to="/weirdlandia/gallery"
-      class="flex items-center gap-2 px-3 py-1 rounded-xl transition-transform duration-200 hover:scale-105 hover:bg-base-100 border border-transparent hover:border-primary"
-    >
-      <Icon
-        :name="currentMode?.icon"
-        class="w-5 h-5 md:w-6 md:h-6 text-accent"
-      />
-      <span class="text-md md:text-lg font-semibold text-accent">
-        {{ pluralLabel }}
-      </span>
-    </NuxtLink>
+    <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
+    <div class="flex items-center justify-between w-full h-full">
+      <!-- Avatar Section with Viewport Overlay -->
+      <div
+        class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl overflow-visible"
+      >
+        <avatar-image
+          alt="User Avatar"
+          class="h-full w-full rounded-2xl object-cover"
+        />
+      </div>
 
-    <!-- Right: Add New Link -->
-    <NuxtLink
-      to="/weirdlandia/add"
-      class="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-accent text-accent transition-transform duration-200 hover:scale-110 hover:rotate-6 bg-base-100 shadow-md"
-    >
-      <Icon name="kind-icon:add" class="w-6 h-6 md:w-8 md:h-8" />
-    </NuxtLink>
-  </div>
+      <!-- Viewport Notice Overlay -->
+      <div
+        class="absolute bottom-0 left-2 mb-1 px-2 py-1 text-white bg-primary rounded-md text-xs md:text-sm"
+      >
+        {{ displayStore.viewportSize }}
+      </div>
+
+      <!-- Dynamic Header Content -->
+      <div class="flex flex-col flex-1 h-full px-4">
+        <right-toggle :style="rightToggleStyle" class="fixed z-40" />
+
+        <big-toggle :style="leftToggleStyle" class="fixed z-40" />
+
+        <div class="flex h-full w-full">
+          <!-- Title and Subtitle -->
+          <div
+            class="flex flex-col justify-center flex-shrink-0 w-1/2 sm:w-1/3 pr-2"
+          >
+            <h1
+              class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
+            >
+              The {{ page?.title || 'Room' }} Room
+            </h1>
+            <h2
+              class="italic text-xs md:text-sm lg:text-md xl:text-lg text-right text-ellipsis leading-tight mt-1 sm:mt-2"
+            >
+              {{ subtitle }}
+            </h2>
+          </div>
+
+          <!-- Icons -->
+          <div
+            class="flex gap-2 w-1/2 sm:w-2/3 justify-end sm:flex-row sm:justify-around sm:flex-grow sm:space-x-1 md:space-x-2"
+          >
+            <login-path class="flex max-w-[80px]" />
+            <jellybean-count class="flex max-w-[80px]" />
+            <theme-icon class="flex max-w-[80px]" />
+            <swarm-icon class="flex max-w-[80px]" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
 </template>
 
 <script setup lang="ts">
-// /components/mode-tabs.vue
-import { computed } from 'vue'
+import { ref, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useDisplayStore } from '@/stores/displayStore'
+import { usePageStore } from '@/stores/pageStore'
 
 const displayStore = useDisplayStore()
+const pageStore = usePageStore()
+const { page, subtitle } = storeToRefs(pageStore)
 
-const modes = [
-  { name: 'scenarios', icon: 'kind-icon:plus', label: 'Scenario' },
-  { name: 'characters', icon: 'kind-icon:plus', label: 'Character' },
-  { name: 'rewards', icon: 'kind-icon:plus', label: 'Reward' },
-  { name: 'chats', icon: 'kind-icon:plus', label: 'Chat' },
-  { name: 'bots', icon: 'kind-icon:plus', label: 'Bot' },
-  { name: 'pitches', icon: 'kind-icon:plus', label: 'Pitch' },
-  { name: 'art', icon: 'kind-icon:plus', label: 'Art' },
-]
+const leftToggleStyle = computed(() => displayStore.leftToggleStyle)
+const rightToggleStyle = computed(() => displayStore.rightToggleStyle)
 
-const currentMode = computed(() =>
-  modes.find((m) => m.name === displayStore.displayMode),
-)
-
-const pluralLabel = computed(() =>
-  currentMode.value ? currentMode.value.label + 's' : 'Items',
-)
+const hydrated = ref(false)
+onMounted(() => {
+  hydrated.value = true
+})
 </script>

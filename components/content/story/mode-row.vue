@@ -10,7 +10,7 @@
         @click="handleGalleryMode(mode.name)"
         class="flex items-center px-3 py-1 gap-1"
       >
-        <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
+       
         <span class="text-sm md:text-md font-semibold hidden md:inline">
           {{ mode.label }}
         </span>
@@ -41,12 +41,12 @@ const route = useRoute()
 const displayStore = useDisplayStore()
 
 const modes = [
-  { name: 'scenario', icon: 'kind-icon:plus', label: 'Scenario' },
-  { name: 'character', icon: 'kind-icon:plus', label: 'Character' },
-  { name: 'reward', icon: 'kind-icon:plus', label: 'Reward' },
-  { name: 'chat', icon: 'kind-icon:plus', label: 'Chat' },
-  { name: 'bot', icon: 'kind-icon:plus', label: 'Bot' },
-  { name: 'pitch', icon: 'kind-icon:plus', label: 'Pitch' },
+  { name: 'scenario', icon: 'kind-icon:plus', label: 'Scenarios' },
+  { name: 'character', icon: 'kind-icon:plus', label: 'Characters' },
+  { name: 'reward', icon: 'kind-icon:plus', label: 'Rewards' },
+  { name: 'chat', icon: 'kind-icon:plus', label: 'Chats' },
+  { name: 'bot', icon: 'kind-icon:plus', label: 'Bots' },
+  { name: 'pitch', icon: 'kind-icon:plus', label: 'Pitches' },
   { name: 'art', icon: 'kind-icon:plus', label: 'Art' },
 ]
 

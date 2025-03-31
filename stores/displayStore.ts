@@ -162,7 +162,7 @@ export const useDisplayStore = defineStore('displayStore', {
       return {
         bottom:
           this.footerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.footerHeight} + 2 + ${this.sectionPaddingSize}vh)`
+            ? `calc(var(--vh) * ${this.footerHeight} + ${this.sectionPaddingSize}vh)`
             : `4vh`,
         left: '50%',
         transform: 'translateX(-50%)',

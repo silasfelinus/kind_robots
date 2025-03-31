@@ -68,13 +68,13 @@ const route = useRoute()
 const displayStore = useDisplayStore()
 
 const modes = [
-  { name: 'scenario', icon: 'kind-icon:plus', label: 'Scenarios' },
-  { name: 'character', icon: 'kind-icon:plus', label: 'Characters' },
-  { name: 'reward', icon: 'kind-icon:plus', label: 'Rewards' },
-  { name: 'chat', icon: 'kind-icon:plus', label: 'Chats' },
-  { name: 'bot', icon: 'kind-icon:plus', label: 'Bots' },
-  { name: 'pitch', icon: 'kind-icon:plus', label: 'Pitches' },
-  { name: 'art', icon: 'kind-icon:plus', label: 'Art' },
+  { name: 'scenario', icon: 'kind-icon:acenario', label: 'Scenarios' },
+  { name: 'character', icon: 'kind-icon:character', label: 'Characters' },
+  { name: 'reward', icon: 'kind-icon:reward', label: 'Rewards' },
+  { name: 'chat', icon: 'kind-icon:chat', label: 'Chats' },
+  { name: 'bot', icon: 'kind-icon:bot', label: 'Bots' },
+  { name: 'pitch', icon: 'kind-icon:pitch', label: 'Pitches' },
+  { name: 'art', icon: 'kind-icon:art', label: 'Art' },
 ]
 
 function handleGalleryMode(modeName: string) {

@@ -48,7 +48,7 @@
       <div class="chat chat-start">
         <div class="chat-image avatar">
           <div
-            class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-primary"
+            class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-primary"
           >
             <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
           </div>
@@ -62,7 +62,7 @@
       <div class="chat chat-end">
         <div class="chat-image avatar">
           <div
-            class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-secondary"
+            class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-secondary"
           >
             <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
           </div>

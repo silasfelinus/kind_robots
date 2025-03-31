@@ -11,7 +11,7 @@
           @click="handleGalleryMode(mode.name)"
           class="flex items-center px-3 py-1 gap-1"
         >
-<Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
+
           <span class="text-sm md:text-md font-semibold hidden md:inline">
             {{ mode.label }}
           </span>

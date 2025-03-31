@@ -24,8 +24,6 @@
 
       <!-- Dynamic Header Content -->
       <div class="flex flex-col flex-1 h-full px-4">
-       
-
         <div class="flex h-full w-full">
           <!-- Title and Subtitle -->
           <div
@@ -37,7 +35,7 @@
               The {{ page?.title || 'Room' }} Room
             </h1>
             <h2
-              class="italic text-xs md:text-sm lg:text-md xl:text-lg text-right text-ellipsis leading-tight mt-1 sm:mt-2"
+              class="italic text-xs md:text-sm lg:text-md xl:text-lg text-ellipsis leading-tight mt-1 sm:mt-2"
             >
               {{ subtitle }}
             </h2>
@@ -67,8 +65,6 @@ import { usePageStore } from '@/stores/pageStore'
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const { page, subtitle } = storeToRefs(pageStore)
-
-
 
 const hydrated = ref(false)
 onMounted(() => {

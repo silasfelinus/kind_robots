@@ -1,7 +1,9 @@
 <!-- /components/content/story/screen-debug.vue -->
 <template>
   <teleport to="body">
-    <div class="fixed z-50 inset-0 flex items-center justify-center pointer-events-none">
+    <div
+      class="fixed z-50 inset-0 flex items-center justify-center pointer-events-none"
+    >
       <div class="absolute top-4 right-4 pointer-events-auto">
         <button
           class="bg-gray-700 text-white p-2 rounded-full shadow-md"
@@ -16,6 +18,64 @@
           v-if="isDebugVisible"
           class="bg-black bg-opacity-90 text-white p-6 rounded-xl w-[90vw] max-w-7xl max-h-[90vh] overflow-y-auto shadow-2xl pointer-events-auto"
         >
+          <!-- Ruler Overlay -->
+          <div class="fixed inset-0 z-40 pointer-events-none">
+            <!-- Vertical Ruler -->
+            <div
+              class="absolute left-0 top-0 h-full w-6 flex flex-col items-center text-[8px] text-white"
+            >
+              <template v-for="n in 101" :key="'vh-' + n">
+                <div
+                  class="w-full"
+                  :class="[
+                    n % 10 === 0
+                      ? 'h-[1px] bg-white relative'
+                      : n % 5 === 0
+                        ? 'h-[1px] bg-white/50'
+                        : n > 90 || n < 10
+                          ? 'h-[1px] bg-white/20'
+                          : 'h-[1px] bg-transparent',
+                  ]"
+                >
+                  <span
+                    v-if="n % 10 === 0"
+                    class="absolute left-6 -translate-y-1/2"
+                    >{{ n - 1 }}vh</span
+                  >
+                </div>
+              </template>
+            </div>
+
+            <!-- Horizontal Ruler -->
+            <div
+              class="absolute top-0 left-0 w-full h-6 flex text-[8px] text-white"
+            >
+              <template v-for="n in 101" :key="'vw-' + n">
+                <div
+                  class="relative"
+                  :class="[
+                    'h-full',
+                    'flex items-end',
+                    'justify-center',
+                    n % 10 === 0
+                      ? 'w-[1px] bg-white'
+                      : n % 5 === 0
+                        ? 'w-[1px] bg-white/50'
+                        : n > 90 || n < 10
+                          ? 'w-[1px] bg-white/20'
+                          : 'w-[1px] bg-transparent',
+                  ]"
+                >
+                  <span
+                    v-if="n % 10 === 0"
+                    class="absolute top-6 left-1 text-white"
+                    >{{ n - 1 }}vw</span
+                  >
+                </div>
+              </template>
+            </div>
+          </div>
+
           <h2 class="text-xl font-bold mb-4">🧪 Kind Robots Debug Panel</h2>
 
           <!-- Style Bindings Grid -->
@@ -24,7 +84,9 @@
               <h3 class="font-semibold mb-2">Header Style</h3>
               <p class="text-sm font-mono">{{ headerStyle }}</p>
             </div>
-            <div class="bg-secondary text-white p-4 rounded-2xl border shadow-md">
+            <div
+              class="bg-secondary text-white p-4 rounded-2xl border shadow-md"
+            >
               <h3 class="font-semibold mb-2">Footer Style</h3>
               <p class="text-sm font-mono">{{ footerStyle }}</p>
             </div>
@@ -48,7 +110,9 @@
               <h3 class="font-semibold mb-2">Right Toggle Style</h3>
               <p class="text-sm font-mono">{{ rightToggleStyle }}</p>
             </div>
-            <div class="bg-base-300 text-black p-4 rounded-2xl border shadow-md">
+            <div
+              class="bg-base-300 text-black p-4 rounded-2xl border shadow-md"
+            >
               <h3 class="font-semibold mb-2">Footer Toggle Style</h3>
               <p class="text-sm font-mono">{{ footerToggleStyle }}</p>
             </div>
@@ -59,17 +123,35 @@
             <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
               <h3 class="text-lg font-semibold mb-2">State & Visibility</h3>
               <div class="space-y-1 text-sm">
-                <div><strong>Header:</strong> {{ headerVisible }} ({{ headerState }})</div>
-                <div><strong>Sidebar Left:</strong> {{ sidebarLeftVisible }} ({{ sidebarLeftState }})</div>
-                <div><strong>Sidebar Right:</strong> {{ sidebarRightVisible }} ({{ sidebarRightState }})</div>
-                <div><strong>Footer:</strong> {{ footerVisible }} ({{ footerState }})</div>
+                <div>
+                  <strong>Header:</strong> {{ headerVisible }} ({{
+                    headerState
+                  }})
+                </div>
+                <div>
+                  <strong>Sidebar Left:</strong> {{ sidebarLeftVisible }} ({{
+                    sidebarLeftState
+                  }})
+                </div>
+                <div>
+                  <strong>Sidebar Right:</strong> {{ sidebarRightVisible }} ({{
+                    sidebarRightState
+                  }})
+                </div>
+                <div>
+                  <strong>Footer:</strong> {{ footerVisible }} ({{
+                    footerState
+                  }})
+                </div>
                 <div><strong>Fullscreen:</strong> {{ fullscreenState }}</div>
                 <div><strong>Flip:</strong> {{ flipState }}</div>
                 <div><strong>Big Mode:</strong> {{ bigMode }}</div>
               </div>
             </div>
 
-            <div class="bg-info text-white p-4 rounded-2xl border border-base-300">
+            <div
+              class="bg-info text-white p-4 rounded-2xl border border-base-300"
+            >
               <h3 class="text-lg font-semibold mb-2">Sizes & Bases</h3>
               <div class="grid grid-cols-2 gap-2 text-sm">
                 <div><strong>Header H:</strong> {{ headerHeight }}</div>
@@ -84,7 +166,9 @@
               </div>
             </div>
 
-            <div class="bg-secondary text-white p-4 rounded-2xl border border-base-300">
+            <div
+              class="bg-secondary text-white p-4 rounded-2xl border border-base-300"
+            >
               <h3 class="text-lg font-semibold mb-2">Device & Viewport</h3>
               <div class="space-y-1 text-sm">
                 <div><strong>Viewport:</strong> {{ viewportSize }}</div>
@@ -94,17 +178,25 @@
               </div>
             </div>
 
-            <div class="bg-accent text-white p-4 rounded-2xl border border-base-300">
+            <div
+              class="bg-accent text-white p-4 rounded-2xl border border-base-300"
+            >
               <h3 class="text-lg font-semibold mb-2">Animation</h3>
               <div class="space-y-1 text-sm">
                 <div><strong>Is Animating:</strong> {{ isAnimating }}</div>
-                <div><strong>Current Animation:</strong> {{ currentAnimation }}</div>
+                <div>
+                  <strong>Current Animation:</strong> {{ currentAnimation }}
+                </div>
               </div>
             </div>
 
-            <div class="bg-base-300 text-black p-4 rounded-2xl border border-base-300">
+            <div
+              class="bg-base-300 text-black p-4 rounded-2xl border border-base-300"
+            >
               <h3 class="text-lg font-semibold mb-2">Navigation</h3>
-              <div class="text-sm"><strong>Previous Route:</strong> {{ previousRoute }}</div>
+              <div class="text-sm">
+                <strong>Previous Route:</strong> {{ previousRoute }}
+              </div>
             </div>
           </div>
         </div>
@@ -112,8 +204,6 @@
     </div>
   </teleport>
 </template>
-
-
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'

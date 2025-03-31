@@ -1,5 +1,13 @@
 <template>
   <div v-if="hydrated" class="relative w-full h-full">
+    <div class="absolute top-1 left-1 z-10">
+      <Icon
+        name="kind-icon:minimize"
+        class="text-primary w-5 h-5 hover:opacity-80 cursor-pointer transition"
+        @click="handleAvatarClick"
+      />
+    </div>
+
     <div class="flip-card" @click="handleAvatarClick">
       <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
         <div class="flip-card-front">
@@ -20,6 +28,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'

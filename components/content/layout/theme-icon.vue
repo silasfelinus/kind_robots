@@ -8,7 +8,10 @@
       name="kind-icon:paintbrush"
       class="h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 transition-transform transform hover:scale-110 duration-300 ease-in-out"
     />
-    <span class="mt-2 text-center text-sm md:block hidden">
+    <span
+      v-if="!displayStore.bigMode"
+      class="mt-2 text-center text-sm md:block hidden"
+    >
       {{ currentTheme }}
     </span>
     <div

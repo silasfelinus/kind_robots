@@ -69,8 +69,7 @@ watch(currentBot, (newBot, oldBot) => {
 const handleAvatarClick = () => {
   try {
     flipped.value = !flipped.value
-    displayStore.toggleSidebar('sidebarLeftState')
-    displayStore.toggleTutorial()
+    displayStore.toggleBigMode()
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Failed to toggle sidebar'

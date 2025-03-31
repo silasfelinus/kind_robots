@@ -13,7 +13,7 @@
 
     <!-- Header -->
     <header
-      class="fixed z-10 border-3 flex items-center justify-center box-border border-1 border-black overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed z-40 border-3 flex items-center justify-center box-border border-1 border-black overflow-hidden transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
       <kind-header class="flex-grow text-center rounded-xl" />

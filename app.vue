@@ -46,6 +46,12 @@
     </aside>
   </div>
 
+ <right-toggle :style="rightToggleStyle" class="fixed z-40" />
+
+        <big-toggle :style="leftToggleStyle" class="fixed z-40" />
+
+
+
   <!-- Footer -->
   <footer
     class="fixed z-20 box-border border-3 overflow-visible transition-all duration-600 ease-in-out"
@@ -78,6 +84,9 @@ const sidebarLeftOpen = computed(
     displayStore.sidebarLeftState !== 'hidden' &&
     displayStore.sidebarLeftState !== 'disabled',
 )
+
+const leftToggleStyle = computed(() => displayStore.leftToggleStyle)
+const rightToggleStyle = computed(() => displayStore.rightToggleStyle)
 
 const sidebarRightOpen = computed(
   () =>

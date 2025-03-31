@@ -34,7 +34,7 @@ const route = useRoute()
 const displayStore = useDisplayStore()
 
 const modes = [
-  { name: 'scenario', icon: 'kind-icon:acenario', label: 'Scenarios' },
+  { name: 'scenario', icon: 'kind-icon:scenario', label: 'Scenarios' },
   { name: 'character', icon: 'kind-icon:character', label: 'Characters' },
   { name: 'reward', icon: 'kind-icon:reward', label: 'Rewards' },
   { name: 'chat', icon: 'kind-icon:chat', label: 'Chats' },

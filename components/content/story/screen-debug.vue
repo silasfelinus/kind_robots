@@ -73,43 +73,66 @@
 
           <h2 class="text-xl font-bold mb-4">🧪 Kind Robots Debug Panel</h2>
 
-          <!-- Style Bindings Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <div class="bg-primary text-white p-4 rounded-2xl border shadow-md">
-              <h3 class="font-semibold mb-2">Header Style</h3>
-              <p class="text-sm font-mono">{{ headerStyle }}</p>
+          <!-- Debug Style Bindings Grid -->
+          <div class="space-y-6 mb-6">
+            <!-- Row 1: Header -->
+            <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
+              <div
+                class="bg-primary text-white p-4 rounded-2xl border shadow-md"
+              >
+                <h3 class="font-semibold mb-2">Header Style</h3>
+                <p class="text-sm font-mono">{{ headerStyle }}</p>
+              </div>
             </div>
-            <div
-              class="bg-secondary text-white p-4 rounded-2xl border shadow-md"
-            >
-              <h3 class="font-semibold mb-2">Footer Style</h3>
-              <p class="text-sm font-mono">{{ footerStyle }}</p>
+
+            <!-- Row 2: Left / Main / Right -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="bg-info text-white p-4 rounded-2xl border shadow-md">
+                <h3 class="font-semibold mb-2">Left Sidebar Style</h3>
+                <p class="text-sm font-mono">{{ leftSidebarStyle }}</p>
+              </div>
+              <div
+                class="bg-accent text-white p-4 rounded-2xl border shadow-md"
+              >
+                <h3 class="font-semibold mb-2">Main Content Style</h3>
+                <p class="text-sm font-mono">{{ mainContentStyle }}</p>
+              </div>
+              <div
+                class="bg-warning text-white p-4 rounded-2xl border shadow-md"
+              >
+                <h3 class="font-semibold mb-2">Right Sidebar Style</h3>
+                <p class="text-sm font-mono">{{ rightSidebarStyle }}</p>
+              </div>
             </div>
-            <div class="bg-accent text-white p-4 rounded-2xl border shadow-md">
-              <h3 class="font-semibold mb-2">Main Content Style</h3>
-              <p class="text-sm font-mono">{{ mainContentStyle }}</p>
+
+            <!-- Row 3: Footer -->
+            <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
+              <div
+                class="bg-secondary text-white p-4 rounded-2xl border shadow-md"
+              >
+                <h3 class="font-semibold mb-2">Footer Style</h3>
+                <p class="text-sm font-mono">{{ footerStyle }}</p>
+              </div>
             </div>
-            <div class="bg-info text-white p-4 rounded-2xl border shadow-md">
-              <h3 class="font-semibold mb-2">Left Sidebar Style</h3>
-              <p class="text-sm font-mono">{{ leftSidebarStyle }}</p>
-            </div>
-            <div class="bg-warning text-white p-4 rounded-2xl border shadow-md">
-              <h3 class="font-semibold mb-2">Right Sidebar Style</h3>
-              <p class="text-sm font-mono">{{ rightSidebarStyle }}</p>
-            </div>
-            <div class="bg-success text-white p-4 rounded-2xl border shadow-md">
-              <h3 class="font-semibold mb-2">Left Toggle Style</h3>
-              <p class="text-sm font-mono">{{ leftToggleStyle }}</p>
-            </div>
-            <div class="bg-error text-white p-4 rounded-2xl border shadow-md">
-              <h3 class="font-semibold mb-2">Right Toggle Style</h3>
-              <p class="text-sm font-mono">{{ rightToggleStyle }}</p>
-            </div>
-            <div
-              class="bg-base-300 text-black p-4 rounded-2xl border shadow-md"
-            >
-              <h3 class="font-semibold mb-2">Footer Toggle Style</h3>
-              <p class="text-sm font-mono">{{ footerToggleStyle }}</p>
+
+            <!-- Row 4: Toggles -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div
+                class="bg-success text-white p-4 rounded-2xl border shadow-md"
+              >
+                <h3 class="font-semibold mb-2">Left Toggle Style</h3>
+                <p class="text-sm font-mono">{{ leftToggleStyle }}</p>
+              </div>
+              <div class="bg-error text-white p-4 rounded-2xl border shadow-md">
+                <h3 class="font-semibold mb-2">Right Toggle Style</h3>
+                <p class="text-sm font-mono">{{ rightToggleStyle }}</p>
+              </div>
+              <div
+                class="bg-base-300 text-black p-4 rounded-2xl border shadow-md"
+              >
+                <h3 class="font-semibold mb-2">Footer Toggle Style</h3>
+                <p class="text-sm font-mono">{{ footerToggleStyle }}</p>
+              </div>
             </div>
           </div>
 
@@ -170,27 +193,10 @@
                 <div><strong>Mobile View:</strong> {{ isMobileViewport }}</div>
                 <div><strong>Large View:</strong> {{ isLargeViewport }}</div>
                 <div><strong>Touch Device:</strong> {{ isTouchDevice }}</div>
-              </div>
-            </div>
-
-            <div
-              class="bg-accent text-white p-4 rounded-2xl border border-base-300"
-            >
-              <h3 class="text-lg font-semibold mb-2">Animation</h3>
-              <div class="space-y-1 text-sm">
                 <div><strong>Is Animating:</strong> {{ isAnimating }}</div>
                 <div>
                   <strong>Current Animation:</strong> {{ currentAnimation }}
                 </div>
-              </div>
-            </div>
-
-            <div
-              class="bg-base-300 text-black p-4 rounded-2xl border border-base-300"
-            >
-              <h3 class="text-lg font-semibold mb-2">Navigation</h3>
-              <div class="text-sm">
-                <strong>Previous Route:</strong> {{ previousRoute }}
               </div>
             </div>
           </div>
@@ -264,5 +270,4 @@ const isLargeViewport = computed(() => displayStore.isLargeViewport)
 const fullscreenState = computed(() => displayStore.fullscreenState)
 const bigMode = computed(() => displayStore.bigMode)
 const flipState = computed(() => displayStore.flipState)
-const previousRoute = computed(() => displayStore.previousRoute)
 </script>

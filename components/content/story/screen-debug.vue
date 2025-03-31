@@ -87,9 +87,10 @@ const toggleDebug = () => {
 
 // Visibility States
 const headerVisible = computed(() => displayStore.headerState == 'open')
-const sidebarLeftVisible = computed(
-  () => displayStore.sidebarLeftState == 'open',
+const sidebarLeftVisible = computed(() =>
+  ['open', 'compact'].includes(displayStore.sidebarLeftState),
 )
+
 const sidebarRightVisible = computed(
   () => displayStore.sidebarRightState == 'open',
 )

@@ -35,6 +35,11 @@
             <li><strong>Header Base:</strong> {{ headerBase }}</li>
             <li><strong>Footer Base:</strong> {{ footerBase }}</li>
             <li><strong>Header Style:</strong> {{ headerStyle }}</li>
+  <li><strong>Left Sidebar Style:</strong> {{ leftSidebarStyle }}</li>
+            <li>
+              <strong>Right Sidebar Style:</strong> {{ rightSidebarStyle }}
+            </li>
+            <li><strong>Main Content Style:</strong> {{ mainContentStyle }}</li>
             <li><strong>Footer Style:</strong> {{ footerStyle }}</li>
             <li><strong>Left Toggle Style:</strong> {{ leftToggleStyle }}</li>
             <li><strong>Right Toggle Style:</strong> {{ rightToggleStyle }}</li>
@@ -51,11 +56,7 @@
             </li>
             <li><strong>Sidebar Left Base:</strong> {{ sidebarLeftBase }}</li>
             <li><strong>Sidebar Right Base:</strong> {{ sidebarRightBase }}</li>
-            <li><strong>Left Sidebar Style:</strong> {{ leftSidebarStyle }}</li>
-            <li>
-              <strong>Right Sidebar Style:</strong> {{ rightSidebarStyle }}
-            </li>
-            <li><strong>Main Content Style:</strong> {{ mainContentStyle }}</li>
+          
             <li><strong>Section Padding:</strong> {{ sectionPadding }}</li>
             <li><strong>Is Animating:</strong> {{ isAnimating }}</li>
             <li><strong>Current Animation:</strong> {{ currentAnimation }}</li>

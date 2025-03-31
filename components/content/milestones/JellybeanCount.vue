@@ -1,17 +1,15 @@
+<!-- /components/content/milestones/jellybean-count.vue -->
 <template>
   <router-link
     to="/milestones"
-    class="flex flex-col items-center justify-center no-underline w-full h-full"
+    class="group flex flex-col items-center justify-center w-[80px] min-w-[72px] max-w-[90px] transition-all"
   >
-    <!-- Centered Jellybean Icon -->
     <Icon
       name="kind-icon:jellybean"
       class="h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 transition-transform transform hover:scale-110 duration-300 ease-in-out"
     />
-
-    <!-- Conditionally Show Jellybean Count -->
-    <div v-if="!isSmallDisplay" class="mt-2 text-center">
-      <span class="whitespace-nowrap"> {{ beanCount || 0 }} /11 </span>
+    <div class="mt-2 text-center text-sm md:block hidden">
+      {{ beanCount || 0 }} /11
     </div>
   </router-link>
 </template>

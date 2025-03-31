@@ -140,7 +140,7 @@ export const useDisplayStore = defineStore('displayStore', {
             ? `calc(var(--vh) * ${this.headerHeight})`
             : `calc(var(--vh) * 5)`,
         width: `calc(100vw - ${this.sectionPaddingSize * 2}vw)`,
-        top: `${this.sectionPaddingSize}vh`,
+        top: `calc(var(--vh) * ${this.sectionPaddingSize}`,
         left: `${this.sectionPaddingSize}vw`,
       }
     },

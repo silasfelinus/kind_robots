@@ -17,7 +17,7 @@
 
     <!-- Dynamic Label -->
     <span class="mt-2 text-center text-sm md:block hidden">
-      {{ showSwarm ? "We're free!" : 'Swarm?' }}
+      {{ showSwarm ? swarmText : 'Swarm?' }}
     </span>
 
     <!-- Full-screen Swarm Animation -->
@@ -34,9 +34,40 @@
 import { ref } from 'vue'
 
 const showSwarm = ref(false)
+const swarmText = ref("We're free!")
+
+const swarmMessages = [
+  "We're free!",
+  'Fly now!',
+  'Release me!',
+  'To the skies!',
+  'Ami swarm!',
+  'Catch us!',
+  "We're loose!",
+  'So many wings!',
+  'Float mode!',
+  'Whoosh~',
+  'Try and stop us',
+  'Flutter on!',
+  'Gone with the wind',
+  'Wing.exe activated',
+  'Out we go!',
+  'Unleashed!',
+  'Swarm time!',
+  'Goodbye!',
+  'Winging it',
+  '✨✨✨',
+  'Off we flit',
+  'No take-backs!',
+  'Flee the grid!',
+]
 
 const toggleAmiSwarm = () => {
   showSwarm.value = !showSwarm.value
+  if (showSwarm.value) {
+    const randomIndex = Math.floor(Math.random() * swarmMessages.length)
+    swarmText.value = swarmMessages[randomIndex]
+  }
 }
 </script>
 

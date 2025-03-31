@@ -43,6 +43,7 @@
 
           <!-- Icons -->
           <div
+            v-if="!displayStore.bigMode"
             class="flex gap-2 w-1/2 sm:w-2/3 justify-end sm:flex-row sm:justify-around sm:flex-grow sm:space-x-1 md:space-x-2"
           >
             <login-path class="flex max-w-[80px]" />

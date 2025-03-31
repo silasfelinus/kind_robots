@@ -18,8 +18,44 @@
         >
           <h2 class="text-xl font-bold mb-4">🧪 Kind Robots Debug Panel</h2>
 
+          <!-- Style Bindings Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div class="bg-primary text-white p-4 rounded-2xl border shadow-md">
+              <h3 class="font-semibold mb-2">Header Style</h3>
+              <p class="text-sm font-mono">{{ headerStyle }}</p>
+            </div>
+            <div class="bg-secondary text-white p-4 rounded-2xl border shadow-md">
+              <h3 class="font-semibold mb-2">Footer Style</h3>
+              <p class="text-sm font-mono">{{ footerStyle }}</p>
+            </div>
+            <div class="bg-accent text-white p-4 rounded-2xl border shadow-md">
+              <h3 class="font-semibold mb-2">Main Content Style</h3>
+              <p class="text-sm font-mono">{{ mainContentStyle }}</p>
+            </div>
+            <div class="bg-info text-white p-4 rounded-2xl border shadow-md">
+              <h3 class="font-semibold mb-2">Left Sidebar Style</h3>
+              <p class="text-sm font-mono">{{ leftSidebarStyle }}</p>
+            </div>
+            <div class="bg-warning text-white p-4 rounded-2xl border shadow-md">
+              <h3 class="font-semibold mb-2">Right Sidebar Style</h3>
+              <p class="text-sm font-mono">{{ rightSidebarStyle }}</p>
+            </div>
+            <div class="bg-success text-white p-4 rounded-2xl border shadow-md">
+              <h3 class="font-semibold mb-2">Left Toggle Style</h3>
+              <p class="text-sm font-mono">{{ leftToggleStyle }}</p>
+            </div>
+            <div class="bg-error text-white p-4 rounded-2xl border shadow-md">
+              <h3 class="font-semibold mb-2">Right Toggle Style</h3>
+              <p class="text-sm font-mono">{{ rightToggleStyle }}</p>
+            </div>
+            <div class="bg-base-300 text-black p-4 rounded-2xl border shadow-md">
+              <h3 class="font-semibold mb-2">Footer Toggle Style</h3>
+              <p class="text-sm font-mono">{{ footerToggleStyle }}</p>
+            </div>
+          </div>
+
+          <!-- Other Debug Info Grid -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Visibility & State -->
             <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
               <h3 class="text-lg font-semibold mb-2">State & Visibility</h3>
               <div class="space-y-1 text-sm">
@@ -33,8 +69,7 @@
               </div>
             </div>
 
-            <!-- Dimensions -->
-            <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
+            <div class="bg-info text-white p-4 rounded-2xl border border-base-300">
               <h3 class="text-lg font-semibold mb-2">Sizes & Bases</h3>
               <div class="grid grid-cols-2 gap-2 text-sm">
                 <div><strong>Header H:</strong> {{ headerHeight }}</div>
@@ -49,24 +84,8 @@
               </div>
             </div>
 
-            <!-- Styles -->
-            <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
-              <h3 class="text-lg font-semibold mb-2">Style Bindings</h3>
-              <div class="space-y-1 text-xs font-mono">
-                <div><strong>Header:</strong> {{ headerStyle }}</div>
-                <div><strong>Footer:</strong> {{ footerStyle }}</div>
-                <div><strong>Main:</strong> {{ mainContentStyle }}</div>
-                <div><strong>Left Sidebar:</strong> {{ leftSidebarStyle }}</div>
-                <div><strong>Right Sidebar:</strong> {{ rightSidebarStyle }}</div>
-                <div><strong>Left Toggle:</strong> {{ leftToggleStyle }}</div>
-                <div><strong>Right Toggle:</strong> {{ rightToggleStyle }}</div>
-                <div><strong>Footer Toggle:</strong> {{ footerToggleStyle }}</div>
-              </div>
-            </div>
-
-            <!-- Device + Viewport -->
-            <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
-              <h3 class="text-lg font-semibold mb-2">Device Info</h3>
+            <div class="bg-secondary text-white p-4 rounded-2xl border border-base-300">
+              <h3 class="text-lg font-semibold mb-2">Device & Viewport</h3>
               <div class="space-y-1 text-sm">
                 <div><strong>Viewport:</strong> {{ viewportSize }}</div>
                 <div><strong>Mobile View:</strong> {{ isMobileViewport }}</div>
@@ -75,8 +94,7 @@
               </div>
             </div>
 
-            <!-- Animation -->
-            <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
+            <div class="bg-accent text-white p-4 rounded-2xl border border-base-300">
               <h3 class="text-lg font-semibold mb-2">Animation</h3>
               <div class="space-y-1 text-sm">
                 <div><strong>Is Animating:</strong> {{ isAnimating }}</div>
@@ -84,8 +102,7 @@
               </div>
             </div>
 
-            <!-- Routing -->
-            <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
+            <div class="bg-base-300 text-black p-4 rounded-2xl border border-base-300">
               <h3 class="text-lg font-semibold mb-2">Navigation</h3>
               <div class="text-sm"><strong>Previous Route:</strong> {{ previousRoute }}</div>
             </div>
@@ -95,6 +112,7 @@
     </div>
   </teleport>
 </template>
+
 
 
 <script setup lang="ts">

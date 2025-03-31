@@ -22,7 +22,7 @@
       <!-- Add Button -->
       <div
         @click.stop="handleAddMode(mode.name)"
-        class="flex items-center justify-center px-2 py-1 bg-accent text-white rounded-r-full hover:scale-105 transition-transform"
+        class="flex items-center justify-center px-2 py-1 text-white rounded-r-full hover:scale-105 transition-transform"
       >
         <Icon name="kind-icon:add" class="w-5 h-5" />
       </div>

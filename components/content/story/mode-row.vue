@@ -1,51 +1,35 @@
 <template>
-  <div
-    class="flex items-center justify-between px-2 md:px-4 bg-base-300 z-30 shadow-md rounded-2xl"
-  >
-    <!-- Mode Tabs -->
-    <div class="flex items-center gap-1 md:gap-2 flex-wrap">
+  <div class="flex flex-wrap items-center justify-between gap-2 px-2 md:px-4 bg-base-300 z-30 shadow-md rounded-2xl">
+    <!-- Mode Sections -->
+    <div class="flex flex-wrap gap-2 items-center">
       <div
         v-for="mode in modes"
         :key="mode.name"
-        @click="handleModeChange(mode.name)"
-        :class="[
-          'flex items-center px-2 py-1 cursor-pointer rounded-t-md border transition-all duration-200',
-          mode.name === displayStore.displayMode
-            ? 'bg-base-100 border-primary border-b-0 z-10 shadow-md'
-            : 'bg-base-200 border-base-300 hover:shadow',
-        ]"
+        class="flex items-center gap-1"
       >
-        <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
-        <span class="ml-1 text-sm md:text-md font-semibold hidden md:inline">
-          {{ mode.label }}
-        </span>
+        <!-- Gallery Mode Title -->
+        <div
+          @click="handleGalleryMode(mode.name)"
+          class="flex items-center px-2 py-1 cursor-pointer rounded-md border transition-all duration-200 bg-base-200 hover:shadow text-sm md:text-md font-semibold"
+        >
+          <Icon :name="mode.icon" class="w-5 h-5 md:w-6 md:h-6" />
+          <span class="ml-1 hidden md:inline">{{ mode.label }}</span>
+        </div>
+
+        <!-- Add Button -->
+        <div
+          @click="handleAddMode(mode.name)"
+          class="flex items-center justify-center w-8 h-8 rounded-full bg-accent text-white shadow-md cursor-pointer hover:scale-105 transition-transform"
+        >
+          <Icon name="kind-icon:add" class="w-5 h-5" />
+        </div>
       </div>
     </div>
-
-    <!-- Dynamic Link: Add or Gallery -->
-    <NuxtLink
-      :to="
-        displayStore.displayAction === 'add'
-          ? '/weirdlandia/add'
-          : '/weirdlandia/gallery'
-      "
-      class="flex items-center gap-1 px-3 py-1 rounded-xl transition-transform duration-200 hover:scale-105 bg-accent text-white font-semibold shadow-md"
-    >
-      <Icon
-        v-if="displayStore.displayAction === 'add'"
-        name="kind-icon:add"
-        class="w-6 h-6 md:w-7 md:h-7"
-      />
-      <span v-else class="text-md md:text-lg">
-        {{ pluralLabel }}
-      </span>
-    </NuxtLink>
   </div>
 </template>
 
 <script setup lang="ts">
 // /components/mode-tabs.vue
-import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
@@ -54,22 +38,24 @@ const route = useRoute()
 const displayStore = useDisplayStore()
 
 const modes = [
-  { name: 'scenarios', icon: 'kind-icon:plus', label: 'Scenario' },
-  { name: 'characters', icon: 'kind-icon:plus', label: 'Character' },
-  { name: 'rewards', icon: 'kind-icon:plus', label: 'Reward' },
-  { name: 'chats', icon: 'kind-icon:plus', label: 'Chat' },
-  { name: 'bots', icon: 'kind-icon:plus', label: 'Bot' },
-  { name: 'pitches', icon: 'kind-icon:plus', label: 'Pitch' },
+  { name: 'scenario', icon: 'kind-icon:plus', label: 'Scenario' },
+  { name: 'character', icon: 'kind-icon:plus', label: 'Character' },
+  { name: 'reward', icon: 'kind-icon:plus', label: 'Reward' },
+  { name: 'chat', icon: 'kind-icon:plus', label: 'Chat' },
+  { name: 'bot', icon: 'kind-icon:plus', label: 'Bot' },
+  { name: 'pitch', icon: 'kind-icon:plus', label: 'Pitch' },
   { name: 'art', icon: 'kind-icon:plus', label: 'Art' },
 ]
 
-function handleModeChange(modeName: string) {
+function handleGalleryMode(modeName: string) {
   displayStore.setMode(modeName as displayModeState)
+  displayStore.setAction('gallery')
   if (route.path !== '/weirdlandia') router.push('/weirdlandia')
 }
 
-const pluralLabel = computed(() => {
-  const current = modes.find((m) => m.name === displayStore.displayMode)
-  return current ? current.label + 's' : 'Items'
-})
+function handleAddMode(modeName: string) {
+  displayStore.setMode(modeName as displayModeState)
+  displayStore.setAction('add')
+  if (route.path !== '/weirdlandia') router.push('/weirdlandia')
+}
 </script>

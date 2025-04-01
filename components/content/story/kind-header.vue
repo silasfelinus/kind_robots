@@ -36,6 +36,7 @@
               The {{ page?.title || 'Room' }} Room
             </h1>
             <h2
+              v-if="!displayStore.bigMode"
               class="italic text-xs md:text-sm lg:text-md xl:text-lg text-ellipsis leading-tight mt-1 sm:mt-2"
             >
               {{ subtitle }}

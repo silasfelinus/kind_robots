@@ -3,7 +3,7 @@
   <div
     class="transition-transform duration-500 ease-in-out origin-center"
     :class="{
-      'scale-[1.5]': displayStore.bigMode,
+      'scale-[1.3]': displayStore.bigMode,
       'scale-100': !displayStore.bigMode,
     }"
   >

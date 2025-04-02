@@ -27,14 +27,14 @@
     </aside>
 
     <!-- Center Column -->
-    <div class="flex flex-col w-full h-full">
+    <magic-container class="flex flex-col w-full h-full">
       <main
         class="fixed z-10 border-3 rounded-2xl overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out"
         :style="displayStore.mainContentStyle"
       >
         <NuxtPage :key="$route.fullPath" />
       </main>
-    </div>
+    </magic-container>
 
     <!-- Right Sidebar -->
     <aside
@@ -45,8 +45,6 @@
     </aside>
   </div>
 
-  
-
   <!-- Footer -->
   <footer
     class="fixed z-20 box-border border-3 overflow-visible transition-all duration-600 ease-in-out"
@@ -54,8 +52,6 @@
   >
     <mode-row v-if="footerOpen" class="h-full w-full z-10" />
   </footer>
-
-  
 </template>
 
 <script setup lang="ts">
@@ -73,9 +69,6 @@ const sidebarLeftOpen = computed(
     displayStore.sidebarLeftState !== 'hidden' &&
     displayStore.sidebarLeftState !== 'disabled',
 )
-
-
-
 
 const sidebarRightOpen = computed(
   () =>

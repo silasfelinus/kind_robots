@@ -13,7 +13,7 @@
         'place-items-center': true,
       }"
     >
-      <div
+      <magic-container
         v-for="theme in themeStore.themes"
         :key="theme"
         :data-theme="theme"
@@ -41,7 +41,7 @@
             class="h-5 w-5 md:h-6 md:w-6 lg:h-12 lg:w-12"
           ></div>
         </div>
-      </div>
+      </magic-container>
     </div>
   </div>
 </template>

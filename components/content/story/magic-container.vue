@@ -1,13 +1,15 @@
 // /components/content/story/magic-container.vue
 <template>
-  <div
-    class="transition-transform duration-500 ease-in-out origin-center"
-    :class="{
-      'scale-[1.3]': displayStore.bigMode,
-      'scale-100': !displayStore.bigMode,
-    }"
-  >
-    <slot />
+  <div class="relative inline-block">
+    <div
+      class="transition-transform duration-500 ease-in-out origin-center w-full h-full"
+      :class="{
+        'scale-[1.5]': displayStore.bigMode,
+        'scale-100': !displayStore.bigMode,
+      }"
+    >
+      <slot />
+    </div>
   </div>
 </template>
 

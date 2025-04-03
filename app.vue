@@ -27,14 +27,14 @@
     </aside>
 
     <!-- Center Column -->
-    <magic-container class="flex flex-col w-full h-full">
+    <div class="flex flex-col w-full h-full">
       <main
         class="fixed z-10 border-3 rounded-2xl overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out"
         :style="displayStore.mainContentStyle"
       >
         <NuxtPage :key="$route.fullPath" />
       </main>
-    </magic-container>
+    </div>
 
     <!-- Right Sidebar -->
     <aside

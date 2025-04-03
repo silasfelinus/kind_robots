@@ -56,42 +56,45 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     ),
   )
 
-  const cardSize = computed(() => {
-    const screen = displayStore.viewportSize
-    const difficulty = selectedDifficulty.value.label
+const cardSize = computed(() => {
+  const screen = displayStore.viewportSize
+  const difficulty = selectedDifficulty.value.label
+  const isBig = displayStore.bigMode
 
-    const sizeMap: Record<
-      string,
-      Record<'small' | 'medium' | 'large' | 'extraLarge', number>
-    > = {
-      Easy: {
-        small: 90,
-        medium: 100,
-        large: 110,
-        extraLarge: 130,
-      },
-      Medium: {
-        small: 80,
-        medium: 90,
-        large: 100,
-        extraLarge: 120,
-      },
-      Hard: {
-        small: 70,
-        medium: 80,
-        large: 90,
-        extraLarge: 110,
-      },
-      Expert: {
-        small: 60,
-        medium: 70,
-        large: 80,
-        extraLarge: 100,
-      },
-    }
+  const sizeMap: Record<
+    string,
+    Record<'small' | 'medium' | 'large' | 'extraLarge', number>
+  > = {
+    Easy: {
+      small: 90,
+      medium: 100,
+      large: 110,
+      extraLarge: 130,
+    },
+    Medium: {
+      small: 80,
+      medium: 90,
+      large: 100,
+      extraLarge: 120,
+    },
+    Hard: {
+      small: 70,
+      medium: 80,
+      large: 90,
+      extraLarge: 110,
+    },
+    Expert: {
+      small: 60,
+      medium: 70,
+      large: 80,
+      extraLarge: 100,
+    },
+  }
 
-    return sizeMap[difficulty]?.[screen] || 90
-  })
+  const baseSize = sizeMap[difficulty]?.[screen] || 90
+  return isBig ? Math.round(baseSize * 1.2) : baseSize
+})
+
 
   const gameBoardStyle = computed(() => {
     const columns = Math.min(numberOfCards.value, 9)

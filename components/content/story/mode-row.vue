@@ -1,6 +1,6 @@
 // /components/content/story/mode-row.vue
 <template>
-  <div class="flex flex-wrap gap-2 px-2 md:px-4 bg-base-300 z-30 shadow-md rounded-2xl justify-center">
+  <div class="flex flex-wrap gap-2 px-2 md:px-4 z-30 shadow-md rounded-2xl justify-center">
     <div
       v-for="mode in modes"
       :key="mode.name"

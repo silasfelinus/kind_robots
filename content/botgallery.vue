@@ -13,4 +13,4 @@ dottitip: 'Every bot here started as an idea.'
 amitip: 'And some of them now have cult followings and theme songs!'
 sort: gallery
 ---
-:botgallery
+:bot-gallery

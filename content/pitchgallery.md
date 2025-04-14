@@ -2,8 +2,8 @@
 title: 'Pitch Gallery'
 subtitle: 'Where ideas come to mingle, mutate, and maybe... manifest'
 description: 'See the sparks of inspiration submitted by our community.'
-gallery: 'pitchgallery'
-image: 'pitch/idea-grid.webp'
+gallery: 'story'
+image: 'story/pitchgallery.webp'
 tags: ['brainstorm']
 layout: 'default'
 icon: fa-solid:lightbulb

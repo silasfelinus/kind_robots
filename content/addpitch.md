@@ -2,8 +2,8 @@
 title: 'Add Pitch'
 subtitle: 'Submit an idea or a spark of genius'
 description: 'Pitches are the seeds that blossom into wild robot dreams.'
-gallery: 'pitchpool'
-image: 'pitch/pitch-ignite.webp'
+gallery: 'story'
+image: 'story/addpitch.webp'
 tags: ['brainstorm']
 layout: 'default'
 icon: fa-solid:lightbulb

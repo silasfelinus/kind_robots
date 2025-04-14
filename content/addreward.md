@@ -2,8 +2,8 @@
 title: 'Add Reward'
 subtitle: 'Invent a narrative twist disguised as a prize'
 description: 'Rewards aren’t just random items — they’re strange powers, weird items, and story-bending artifacts for our AI-powered adventures.'
-gallery: 'rewardshelf'
-image: 'rewards/weird-prism-token.webp'
+gallery: 'rewards'
+image: 'rewards/addrewards.webp'
 tags: ['narrative', 'creativity', 'story']
 layout: 'default'
 icon: fa-solid:gift

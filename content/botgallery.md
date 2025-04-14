@@ -3,7 +3,7 @@ title: 'Bot Gallery'
 subtitle: 'Meet the minds (and circuits) of our community'
 description: 'Browse user-made bots that power our chatrooms and creative chaos.'
 gallery: 'botgallery'
-image: 'wonderbot/wonderbot-1142.webp'
+image: 'botcafe/botgallery.webp'
 tags: ['community']
 layout: 'default'
 icon: fa-solid:robot

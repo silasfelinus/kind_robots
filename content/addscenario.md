@@ -2,8 +2,8 @@
 title: 'Add Scenario'
 subtitle: 'Build a branching world for bots and stories to collide'
 description: 'Scenarios are interactive, choose-your-own-adventure narratives. You design the world and key decisions — our bots and AI generate the possible outcomes.'
-gallery: 'scenariodeck'
-image: 'scenarios/urban-glow.webp'
+gallery: 'scenarios'
+image: 'scenarios/addscenario.webp'
 tags: ['interactive', 'narrative', 'ai']
 layout: 'default'
 icon: fa-solid:map

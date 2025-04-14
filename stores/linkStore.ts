@@ -21,7 +21,7 @@ export const useLinkStore = defineStore('linkStore', () => {
     { title: 'Art Lab', path: '/artmaker', icon: 'kind-icon:easel' },
     { title: 'Memory', path: '/memory', icon: 'kind-icon:question' },
     { title: 'Wonderlab', path: '/wonderlab', icon: 'kind-icon:gearhammer' },
-    { title: 'WeirdLand', path: '/weirdlandia', icon: 'kind-icon:alien' },
+    
     { title: 'Story Maker', path: '/story', icon: 'kind-icon:book' },
   ])
 

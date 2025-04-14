@@ -73,6 +73,6 @@
 <script setup lang="ts">
 import { usePageStore } from '@/stores/pageStore'
 
-const { title, description, image, icon, dottitip, amitip } =
+const { title, description, icon, dottitip, amitip } =
   storeToRefs(usePageStore())
 </script>

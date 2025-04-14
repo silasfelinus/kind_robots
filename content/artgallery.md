@@ -3,7 +3,7 @@ title: 'Private Art'
 subtitle: "User's personal art space"
 description: "This is your space for the artwork you've made with our modellers. Thanks for being a part of the Kind Community"
 gallery: 'cafepurr'
-image: 'botcat.webp'
+image: 'background/artgallery.webp'
 tags: ['home']
 layout: 'default'
 icon: kind-icon:easel

@@ -2,8 +2,8 @@
 title: 'Chat Gallery'
 subtitle: 'Echoes of wit, warmth, and weirdness'
 description: 'Scroll through curated messages and threads from across our digital domains.'
-gallery: 'chatgallery'
-image: 'chat/chat-cascade.webp'
+gallery: 'avatars'
+image: 'avatars/charactergallery.webp'
 tags: ['dialogue']
 layout: 'default'
 icon: fa-solid:comments

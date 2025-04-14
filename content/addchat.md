@@ -2,8 +2,8 @@
 title: 'Add Chat'
 subtitle: 'Say something worth responding to'
 description: 'Add a new chat prompt or message to spark AI dialogue.'
-gallery: 'chatlog'
-image: 'chat/chatroom-dreams.webp'
+gallery: 'botcafe'
+image: 'botcafe/addchat.webp'
 tags: ['dialogue']
 layout: 'default'
 icon: fa-solid:comments

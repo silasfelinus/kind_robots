@@ -9,12 +9,7 @@
       class="flex-1 flex flex-col items-center justify-between p-1 overflow-auto no-scrollbar"
     >
       <!-- Main Image -->
-      <img
-        v-if="image"
-        :src="`/images/${image}`"
-        alt="Main Image"
-        class="rounded-2xl shadow-md object-contain w-full h-auto max-h-[50%]"
-      />
+    <image-toggle />
 
       <!-- Title, Description -->
       <div class="text-center w-full space-y-4">

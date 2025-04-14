@@ -2,7 +2,7 @@
 title: 'Add Art'
 subtitle: 'Show us what your imagination looks like'
 description: 'Upload or generate artwork that adds color to our robot world.'
-gallery: 'artdrop'
+gallery: 'art'
 image: 'gallery/glimmerstorm.webp'
 tags: ['visual']
 layout: 'default'

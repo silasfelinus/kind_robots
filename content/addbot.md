@@ -2,8 +2,8 @@
 title: 'Add Bot'
 subtitle: 'Create a new kind robot'
 description: 'Create a new bot and share it with the community'
-gallery: 'botfactory'
-image: 'wonderbot/wonderbot-1448.webp'
+gallery: 'botcafe'
+image: 'botcafe/addbot.webp'
 tags: ['home']
 layout: 'default'
 icon: fa-solid:robot

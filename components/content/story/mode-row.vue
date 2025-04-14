@@ -46,12 +46,12 @@ const modes = [
 function handleGalleryMode(modeName: string) {
   displayStore.setMode(modeName as displayModeState)
   displayStore.setAction('gallery')
-  if (route.path !== '/weirdlandia') router.push('/weirdlandia')
+  router.push(`/${modeName}gallery`)
 }
 
 function handleAddMode(modeName: string) {
   displayStore.setMode(modeName as displayModeState)
   displayStore.setAction('add')
-  if (route.path !== '/weirdlandia') router.push('/weirdlandia')
+  router.push(`/add${modeName}`)
 }
 </script>

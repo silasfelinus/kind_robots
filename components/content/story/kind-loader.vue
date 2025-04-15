@@ -21,6 +21,7 @@ import { useGalleryStore } from '../../../stores/galleryStore'
 import { useScenarioStore } from '../../../stores/scenarioStore'
 import { useWeirdStore } from '../../../stores/weirdStore'
 import { useConsoleStore } from '../../../stores/consoleStore'
+import { useChoiceStore } from '../../../stores/choiceStore'
 
 // Stores
 const errorStore = useErrorStore()
@@ -40,6 +41,7 @@ const galleryStore = useGalleryStore()
 const scenarioStore = useScenarioStore()
 const weirdStore = useWeirdStore()
 const consoleStore = useConsoleStore()
+const choiceStore = useChoiceStore()
 
 // State management
 const isReady = ref(false)
@@ -72,6 +74,7 @@ onMounted(async () => {
       galleryStore.initialize?.(),
       weirdStore.initialize?.(),
       scenarioStore.initialize?.(),
+      choiceStore.initialize?.(),
     ])
 
     console.log('All stores initialized successfully.')

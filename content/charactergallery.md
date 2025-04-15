@@ -2,8 +2,8 @@
 title: 'Character Gallery'
 subtitle: 'These personalities aren’t just pretty code'
 description: 'Browse character profiles created by our community, each with their own quirks and quests.'
-gallery: 'charactergallery'
-image: 'avatars/ensemble-hall.webp'
+gallery: 'avatars'
+image: 'avatars/charactergallery.webp'
 tags: ['personality']
 layout: 'default'
 icon: fa-solid:mask

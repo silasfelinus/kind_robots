@@ -8,7 +8,7 @@
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />
-      <right-toggle />
+
     </div>
 
     <!-- Header -->
@@ -18,6 +18,10 @@
     >
       <kind-header class="h-full w-full rounded-xl" />
     </header>
+
+      <right-toggle
+     :style="displayStore.rightToggleStyle"
+ />
 
     <!-- Left Sidebar -->
     <aside

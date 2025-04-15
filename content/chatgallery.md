@@ -3,7 +3,7 @@ title: 'Chat Gallery'
 subtitle: 'Echoes of wit, warmth, and weirdness'
 description: 'Scroll through curated messages and threads from across our digital domains.'
 gallery: 'avatars'
-image: 'avatars/charactergallery.webp'
+image: 'botcafe/chatgallery.webp'
 tags: ['dialogue']
 layout: 'default'
 icon: fa-solid:comments

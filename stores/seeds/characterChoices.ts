@@ -1,4 +1,4 @@
-// /stores/seeds/characterSeeds.ts
+// /stores/seeds/characterChoices.ts
 import type { ChoiceEntry } from '@/stores/choiceStore'
 
 export const characterChoices: ChoiceEntry[] = [

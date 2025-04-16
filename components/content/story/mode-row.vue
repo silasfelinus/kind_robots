@@ -1,39 +1,39 @@
-<!-- /components/content/story/mode-row.vue -->
 <template>
-  <div
-    class="flex flex-wrap gap-2 px-2 md:px-4 z-30 shadow-md rounded-2xl justify-center"
-  >
+  <div class="flex flex-wrap items-center justify-center gap-2 w-full">
     <div
       v-for="mode in modes"
       :key="mode.name"
-      class="flex items-center overflow-hidden rounded-full bg-base-200 border border-base-300 shadow cursor-pointer transition hover:shadow-lg"
+      class="flex items-center justify-between bg-base-200 rounded-xl border border-base-300 shadow-sm hover:shadow-md transition group"
     >
+      <!-- Add Action (Icon acts as add) -->
       <div
-        @click="handleGalleryMode(mode.name)"
-        class="flex items-center px-3 gap-2"
+        @click="handleAddMode(mode.name as displayModeState)"
+        class="flex items-center justify-center p-2 cursor-pointer hover:bg-primary hover:text-white rounded-l-xl transition"
+        :title="`Add ${mode.label}`"
       >
-        <Icon :name="mode.icon" class="w-5 h-5 text-primary" />
-        <span class="text-sm md:text-md font-semibold hidden md:inline">
-          {{ mode.label }}
-        </span>
+        <Icon :name="mode.icon" class="w-5 h-5" />
       </div>
-      <div class="w-px h-6 bg-base-300 rotate-[25deg] -ml-1 -mr-1"></div>
+
+      <!-- Divider -->
+      <div class="w-px h-5 bg-base-300"></div>
+
+      <!-- Gallery Action (Label text) -->
       <div
-        @click.stop="handleAddMode(mode.name)"
-        class="flex items-center justify-center px-2 text-white rounded-r-full hover:scale-105 transition-transform"
+        @click="handleGalleryMode(mode.name as displayModeState)"
+        class="text-sm px-2 py-1 cursor-pointer font-medium text-center hover:text-primary transition"
+        :title="`${mode.label} Gallery`"
       >
-        <Icon name="kind-icon:add" class="w-5 h-5" />
+        {{ mode.label }}
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRoute } from 'vue-router'
-import { useDisplayStore } from '@/stores/displayStore'
+import { useRouter } from 'vue-router'
+import { useDisplayStore, type displayModeState } from '@/stores/displayStore'
 
 const router = useRouter()
-const route = useRoute()
 const displayStore = useDisplayStore()
 
 const modes = [
@@ -46,14 +46,14 @@ const modes = [
   { name: 'art', icon: 'kind-icon:art', label: 'Art' },
 ]
 
-function handleGalleryMode(modeName: string) {
-  displayStore.setMode(modeName as displayModeState)
+function handleGalleryMode(modeName: displayModeState) {
+  displayStore.setMode(modeName)
   displayStore.setAction('gallery')
   router.push(`/${modeName}gallery`)
 }
 
-function handleAddMode(modeName: string) {
-  displayStore.setMode(modeName as displayModeState)
+function handleAddMode(modeName: displayModeState) {
+  displayStore.setMode(modeName)
   displayStore.setAction('add')
   router.push(`/add${modeName}`)
 }

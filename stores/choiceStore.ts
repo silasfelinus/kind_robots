@@ -4,9 +4,13 @@ import { ref } from 'vue'
 import { allSeeds } from './../stores/seeds/seedChoices'
 
 export interface ChoiceOption {
-  text: string
-  image?: string
-  description?: string
+  text: string // Required: label
+  image?: string // Optional: visual reference
+  description?: string // Optional: flavor text
+  icon?: string // Optional: icon name (e.g. 'mdi:robot-happy')
+  imagePrompt?: string // Optional: used to generate or display related art
+  subtitle?: string // Optional: short note like "AI-Generated", "Rare", etc.
+  value?: string // Optional: override selected value (fallback to `text`)
 }
 
 export interface ChoiceEntry {
@@ -15,6 +19,9 @@ export interface ChoiceEntry {
   options: ChoiceOption[]
   selected: string | null
   custom: string
+  icon?: string // Optional: shown in tabs or UI header for the choice category
+  imagePrompt?: string // Optional: fallback image prompt for this label
+  groupTitle?: string // Optional: used to group/label similar entries (like tabs)
 }
 
 type SupportedModel =

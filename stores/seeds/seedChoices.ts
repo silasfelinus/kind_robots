@@ -1,11 +1,11 @@
 // /stores/seeds/seedChoices.ts
 import { useChoiceStore } from '@/stores/choiceStore'
 
-import { characterChoices } from './seedCharacters'
-import { botChoices } from './seedBots'
-import { scenarioChoices } from './seedScenarios'
-import { pitchChoices } from './seedPitches'
-import { rewardChoices } from './seedRewards'
+import { characterChoices } from './characterSeeds'
+import { botChoices } from './botSeeds'
+import { scenarioChoices } from './scenarioSeeds'
+import { pitchChoices } from './pitchSeeds'
+import { rewardChoices } from './rewardSeeds'
 
 const allSeeds = [
   ...characterChoices,

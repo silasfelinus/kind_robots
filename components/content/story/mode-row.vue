@@ -1,6 +1,8 @@
-// /components/content/story/mode-row.vue
+<!-- /components/content/story/mode-row.vue -->
 <template>
-  <div class="flex flex-wrap gap-2 px-2 md:px-4 z-30 shadow-md rounded-2xl justify-center">
+  <div
+    class="flex flex-wrap gap-2 px-2 md:px-4 z-30 shadow-md rounded-2xl justify-center"
+  >
     <div
       v-for="mode in modes"
       :key="mode.name"
@@ -8,8 +10,9 @@
     >
       <div
         @click="handleGalleryMode(mode.name)"
-        class="flex items-center px-3 gap-1"
+        class="flex items-center px-3 gap-2"
       >
+        <Icon :name="mode.icon" class="w-5 h-5 text-primary" />
         <span class="text-sm md:text-md font-semibold hidden md:inline">
           {{ mode.label }}
         </span>

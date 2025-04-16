@@ -12,7 +12,6 @@ tooltip: This is a collection of user art. It will hopefully springboard into a 
 dottitip: "People are asking if what we make counts as art."
 amitip: "If it makes you stop and look, have a conversation, or feel something new, I’d say it does it's job!"
 sort: highlight
-underConstruction: true
 ---
 
 :photo-launcher

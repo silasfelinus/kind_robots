@@ -1,4 +1,4 @@
-// /stores/seeds/seedScenarios.ts
+// /stores/seeds/scenarioSeeds.ts
 import type { ChoiceEntry } from '@/stores/choiceStore'
 
 export const scenarioChoices: ChoiceEntry[] = [

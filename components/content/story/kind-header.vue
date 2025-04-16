@@ -49,14 +49,24 @@
           </div>
 
           <!-- Icons -->
-          <div
-            v-if="!displayStore.bigMode"
-            class="w-full xl:w-1/3 flex justify-end gap-2"
-          >
-            <login-path class="flex max-w-[80px]" />
-            <jellybean-count class="flex max-w-[80px]" />
-            <theme-icon class="flex max-w-[80px]" />
-            <swarm-icon class="flex max-w-[80px]" />
+          <div class="w-full xl:w-1/3 flex justify-end gap-2 items-center">
+            <kind-icons :compact="displayStore.bigMode" />
+            <login-path
+              :compact="displayStore.bigMode"
+              class="flex max-w-[80px]"
+            />
+            <jellybean-count
+              :compact="displayStore.bigMode"
+              class="flex max-w-[80px]"
+            />
+            <theme-icon
+              :compact="displayStore.bigMode"
+              class="flex max-w-[80px]"
+            />
+            <swarm-icon
+              :compact="displayStore.bigMode"
+              class="flex max-w-[80px]"
+            />
           </div>
         </div>
       </div>

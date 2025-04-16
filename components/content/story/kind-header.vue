@@ -43,11 +43,6 @@
             </h2>
           </div>
 
-          <!-- Mode Row -->
-          <div class="w-full xl:w-1/3 flex justify-center">
-            <mode-row class="w-full max-w-xl" />
-          </div>
-
           <!-- Icons -->
           <div class="w-full xl:w-1/3 flex justify-end gap-2 items-center">
             <kind-icons :compact="displayStore.bigMode" />

@@ -1,146 +1,142 @@
 <template>
-  <div class="container mx-auto p-4">
-    <div class="flex flex-col items-center">
-      <!-- Pitch Form -->
-      <div class="w-full max-w-lg mb-6">
-        <form
-          class="bg-white shadow-md rounded px-8 pt-6 pb-8"
-          @submit.prevent="handleFormSubmit"
+  <div class="mx-auto max-w-3xl p-4 space-y-6 bg-base-200 border rounded-2xl">
+    <h2 class="text-2xl text-center font-bold">
+      {{ isEditing ? 'Edit Pitch' : 'Create Pitch' }}
+    </h2>
+
+    <form class="space-y-4" @submit.prevent="handleFormSubmit">
+      <PitchTypeSelector />
+
+      <!-- Title -->
+      <div>
+        <label for="title" class="block text-sm font-semibold mb-1"
+          >Title</label
         >
-          <h2 class="text-center text-lg font-bold mb-4">
-            {{ isEditing ? 'Edit Pitch' : 'Create Pitch' }}
-          </h2>
-
-          <PitchTypeSelector />
-
-          <div class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="title"
-            >
-              Title
-            </label>
-            <input
-              id="title"
-              v-model="formState.title"
-              class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              type="text"
-              placeholder="Pitch Title"
-              required
-            />
-          </div>
-
-          <div class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="prompt"
-            >
-              Prompt
-            </label>
-            <textarea
-              id="prompt"
-              v-model="formState.pitch"
-              class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Describe your prompt"
-              rows="3"
-              required
-            ></textarea>
-          </div>
-
-          <div class="mb-4">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="description"
-            >
-              Description (Optional)
-            </label>
-            <textarea
-              id="description"
-              v-model="formState.description"
-              class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Optional: add a description"
-              rows="2"
-            ></textarea>
-          </div>
-
-          <!-- Embedded Examples Management -->
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">
-              Examples
-            </label>
-            <div
-              v-for="(example, index) in examples"
-              :key="index"
-              class="flex items-center mb-2"
-            >
-              <input
-                v-model="examples[index]"
-                type="text"
-                class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline mr-2"
-                placeholder="Enter example"
-              />
-              <button
-                class="text-gray-500 hover:text-red-700"
-                @click="removeExample(index)"
-              >
-                <Icon name="kind-icon:trash" class="w-5 h-5" />
-              </button>
-              <button
-                v-if="index > 0"
-                class="text-gray-500 hover:text-gray-700"
-                @click="moveExample(index, -1)"
-              >
-                ⬆️
-              </button>
-              <button
-                v-if="index < examples.length - 1"
-                class="text-gray-500 hover:text-gray-700"
-                @click="moveExample(index, 1)"
-              >
-                ⬇️
-              </button>
-            </div>
-            <button class="text-blue-500 hover:underline" @click="addExample">
-              + Add New Example
-            </button>
-          </div>
-
-          <div class="mb-4 flex items-center">
-            <input
-              id="isPublic"
-              v-model="formState.isPublic"
-              type="checkbox"
-              class="mr-2"
-            />
-            <label for="isPublic" class="text-sm">Make Pitch Public</label>
-          </div>
-
-          <div class="flex items-center justify-between">
-            <button
-              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-              :disabled="
-                !formState.title ||
-                (!formState.pitch && !isTitleType) ||
-                isSubmitting
-              "
-            >
-              {{
-                isSubmitting
-                  ? 'Submitting...'
-                  : isEditing
-                    ? 'Update Pitch'
-                    : 'Create Pitch'
-              }}
-            </button>
-          </div>
-
-          <p v-if="errorMessage" class="text-red-500 mt-4">
-            {{ errorMessage }}
-          </p>
-        </form>
+        <input
+          id="title"
+          v-model="formState.title"
+          type="text"
+          class="input input-bordered w-full"
+          placeholder="Pitch title"
+          required
+        />
       </div>
-    </div>
+
+      <!-- Prompt -->
+      <div>
+        <label for="prompt" class="block text-sm font-semibold mb-1"
+          >Prompt</label
+        >
+        <textarea
+          id="prompt"
+          v-model="formState.pitch"
+          class="textarea textarea-bordered w-full"
+          placeholder="Describe your idea or concept"
+          rows="3"
+          :required="!isTitleType"
+        />
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label for="description" class="block text-sm font-semibold mb-1">
+          Description (optional)
+        </label>
+        <textarea
+          id="description"
+          v-model="formState.description"
+          class="textarea textarea-bordered w-full"
+          placeholder="Add extra context or flavor"
+          rows="2"
+        />
+      </div>
+
+      <!-- Examples -->
+      <div>
+        <label class="block text-sm font-semibold mb-1">Examples</label>
+        <div class="space-y-2">
+          <div
+            v-for="(example, index) in examples"
+            :key="index"
+            class="flex items-center gap-2"
+          >
+            <input
+              v-model="examples[index]"
+              type="text"
+              class="input input-bordered w-full"
+              placeholder="Example prompt"
+            />
+            <button
+              type="button"
+              class="btn btn-ghost text-error"
+              @click="removeExample(index)"
+            >
+              <Icon name="kind-icon:trash" class="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost"
+              v-if="index > 0"
+              @click="moveExample(index, -1)"
+            >
+              ⬆️
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost"
+              v-if="index < examples.length - 1"
+              @click="moveExample(index, 1)"
+            >
+              ⬇️
+            </button>
+          </div>
+          <button
+            type="button"
+            class="btn btn-link text-primary"
+            @click="addExample"
+          >
+            + Add New Example
+          </button>
+        </div>
+      </div>
+
+      <!-- Public Toggle -->
+      <div class="flex items-center gap-2">
+        <input
+          id="isPublic"
+          v-model="formState.isPublic"
+          type="checkbox"
+          class="checkbox"
+        />
+        <label for="isPublic" class="text-sm">Make this pitch public</label>
+      </div>
+
+      <!-- Submit -->
+      <div class="text-center">
+        <button
+          class="btn btn-primary"
+          type="submit"
+          :disabled="
+            !formState.title ||
+            (!formState.pitch && !isTitleType) ||
+            isSubmitting
+          "
+        >
+          {{
+            isSubmitting
+              ? 'Submitting...'
+              : isEditing
+                ? 'Update Pitch'
+                : 'Create Pitch'
+          }}
+        </button>
+      </div>
+
+      <!-- Error -->
+      <p v-if="errorMessage" class="text-error text-center">
+        {{ errorMessage }}
+      </p>
+    </form>
   </div>
 </template>
 
@@ -149,18 +145,14 @@ import { ref, computed } from 'vue'
 import { usePitchStore, PitchType } from '~/stores/pitchStore'
 import { useUserStore } from '~/stores/userStore'
 
-// Stores
 const pitchStore = usePitchStore()
 const userStore = useUserStore()
-
-// Local State
 
 const isEditing = ref(false)
 const isSubmitting = ref(false)
 const errorMessage = ref('')
 const examples = ref<string[]>([])
 
-// Form state with default values
 const formState = ref({
   id: undefined,
   title: '',
@@ -170,12 +162,11 @@ const formState = ref({
   isPublic: true,
 })
 
-// Computed based on selected type
 const isTitleType = computed(
   () => pitchStore.selectedPitchType === PitchType.TITLE,
 )
 
-const resetForm = () => {
+function resetForm() {
   isEditing.value = false
   formState.value = {
     id: undefined,
@@ -188,10 +179,13 @@ const resetForm = () => {
   examples.value = []
 }
 
-// Add example management functions
-const addExample = () => examples.value.push('')
-const removeExample = (index: number) => examples.value.splice(index, 1)
-const moveExample = (index: number, direction: number) => {
+function addExample() {
+  examples.value.push('')
+}
+function removeExample(index: number) {
+  examples.value.splice(index, 1)
+}
+function moveExample(index: number, direction: number) {
   const newIndex = index + direction
   if (newIndex >= 0 && newIndex < examples.value.length) {
     const temp = examples.value[index]
@@ -200,33 +194,27 @@ const moveExample = (index: number, direction: number) => {
   }
 }
 
-const handleFormSubmit = async () => {
+async function handleFormSubmit() {
   isSubmitting.value = true
   errorMessage.value = ''
-  console.log('Submitting form:', formState.value)
 
   try {
-    // Duplicate title to pitch if it is a title-only pitch
     if (isTitleType.value) {
       formState.value.pitch = formState.value.title
     }
 
-    // Join examples into a single |-delimited string
     formState.value.examples = examples.value.join('|')
 
-    // Prepare the payload for creating/updating pitch
     const payload = {
       ...formState.value,
-      designer: userStore.username, // Automatically set designer from userStore
-      PitchType: pitchStore.selectedPitchType || undefined, // Include selectedPitchType
+      designer: userStore.username,
+      PitchType: pitchStore.selectedPitchType || undefined,
     }
 
-    let result
-    if (isEditing.value && formState.value.id) {
-      result = await pitchStore.updatePitch(formState.value.id, payload)
-    } else {
-      result = await pitchStore.createPitch(payload)
-    }
+    const result =
+      isEditing.value && formState.value.id
+        ? await pitchStore.updatePitch(formState.value.id, payload)
+        : await pitchStore.createPitch(payload)
 
     if (result?.success) {
       resetForm()

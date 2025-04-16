@@ -8,24 +8,27 @@ export const characterChoices: ChoiceEntry[] = [
     options: [
       {
         text: 'Starborn Jellywitch',
-        image: '/images/choices/jellywitch.webp',
-        description: 'Translucent skin, floating tendrils, speaks in tide rhythms.'
+        icon: 'mdi:jellyfish',
+        description:
+          'Translucent skin, floating tendrils, speaks in tide rhythms.',
       },
       {
         text: 'Porcelain Centaur',
-        image: '/images/choices/porcelain-centaur.webp',
-        description: 'Ceramic body with crackled glaze and horse legs. Delicate but deadly.'
+        icon: 'mdi:horse-variant-fast',
+        description:
+          'Ceramic body with crackled glaze and horse legs. Delicate but deadly.',
       },
       {
         text: 'Quantum Lich',
-        image: '/images/choices/quantum-lich.webp',
-        description: 'Soul entangled across dimensions. Remembers every death.'
+        icon: 'mdi:skull-outline',
+        description: 'Soul entangled across dimensions. Remembers every death.',
       },
       {
         text: 'Sun-Forged Beetle Knight',
-        image: '/images/choices/beetle-knight.webp',
-        description: 'Iridescent chitin armor. Rides a solar wind. Probably honorable.'
-      }
+        icon: 'mdi:shield-bug',
+        description:
+          'Iridescent chitin armor. Rides a solar wind. Probably honorable.',
+      },
     ],
     selected: null,
     custom: '',
@@ -36,24 +39,27 @@ export const characterChoices: ChoiceEntry[] = [
     options: [
       {
         text: 'Chronomancer',
-        image: '/images/choices/chronomancer.webp',
-        description: 'Bends time like taffy. Shows up before the battle starts.'
+        icon: 'mdi:timeline-clock-outline',
+        description:
+          'Bends time like taffy. Shows up before the battle starts.',
       },
       {
         text: 'Gloom Gardener',
-        image: '/images/choices/gloomgardener.webp',
-        description: 'Plants sorrow. Harvests secrets. Blooms only under moonlight.'
+        icon: 'mdi:flower-outline',
+        description:
+          'Plants sorrow. Harvests secrets. Blooms only under moonlight.',
       },
       {
         text: 'Plague Bard',
-        image: '/images/choices/plaguebard.webp',
-        description: 'Sings the end. Brings a flute... and five kinds of pestilence.'
+        icon: 'mdi:music-circle-outline',
+        description:
+          'Sings the end. Brings a flute... and five kinds of pestilence.',
       },
       {
         text: 'Dumpster Paladin',
-        image: '/images/choices/dumpster-paladin.webp',
-        description: 'Fights for forgotten causes and abandoned furniture.'
-      }
+        icon: 'mdi:trash-can-outline',
+        description: 'Fights for forgotten causes and abandoned furniture.',
+      },
     ],
     selected: null,
     custom: '',
@@ -64,24 +70,24 @@ export const characterChoices: ChoiceEntry[] = [
     options: [
       {
         text: 'To prove my nemesis wrong—even if I must invent them first.',
-        image: '/images/choices/nemesis.webp',
-        description: 'The drama. The delusion. The delicious spite.'
+        icon: 'mdi:account-cancel-outline',
+        description: 'The drama. The delusion. The delicious spite.',
       },
       {
         text: 'To find the perfect soup.',
-        image: '/images/choices/soupquest.webp',
-        description: 'A broth-based journey across continents.'
+        icon: 'mdi:food-turkey',
+        description: 'A broth-based journey across continents.',
       },
       {
         text: 'To break the loop I accidentally caused.',
-        image: '/images/choices/time-loop.webp',
-        description: 'Déjà vu? Or just guilt on repeat?'
+        icon: 'mdi:infinity',
+        description: 'Déjà vu? Or just guilt on repeat?',
       },
       {
         text: 'To become a myth while still alive.',
-        image: '/images/choices/living-legend.webp',
-        description: 'Not content with legends after death. Wants theirs now.'
-      }
+        icon: 'mdi:book-open-variant',
+        description: 'Not content with legends after death. Wants theirs now.',
+      },
     ],
     selected: null,
     custom: '',
@@ -92,24 +98,26 @@ export const characterChoices: ChoiceEntry[] = [
     options: [
       {
         text: 'Can only speak in rhymes when angry.',
-        image: '/images/choices/rhyming-rage.webp',
-        description: '"You broke my wand, you blithering fool! Prepare thy doom—my wrath is cruel!"'
+        icon: 'mdi:emoticon-angry-outline',
+        description:
+          '"You broke my wand, you blithering fool! Prepare thy doom—my wrath is cruel!"',
       },
       {
         text: 'Refuses to eat round foods.',
-        image: '/images/choices/no-circles.webp',
-        description: 'No bagels. No donuts. Especially no tomatoes.'
+        icon: 'mdi:alpha-o-circle-outline',
+        description: 'No bagels. No donuts. Especially no tomatoes.',
       },
       {
         text: 'Collects names but refuses to use them.',
-        image: '/images/choices/name-thief.webp',
-        description: 'Keeps a ledger. Doesn’t speak a word.'
+        icon: 'mdi:book-lock-outline',
+        description: 'Keeps a ledger. Doesn’t speak a word.',
       },
       {
         text: 'Haunted by a ghost that gives terrible advice.',
-        image: '/images/choices/bad-ghost.webp',
-        description: '“Start a fire!” “Invest in cabbage futures!” The ghost is very confident.'
-      }
+        icon: 'mdi:ghost-outline',
+        description:
+          '“Start a fire!” “Invest in cabbage futures!” The ghost is very confident.',
+      },
     ],
     selected: null,
     custom: '',
@@ -120,24 +128,26 @@ export const characterChoices: ChoiceEntry[] = [
     options: [
       {
         text: 'Pastel Apocalyptic',
-        image: '/images/choices/pastel-apoc.webp',
-        description: 'Everything’s ruined. But cutely.'
+        icon: 'mdi:weather-sunset',
+        description: 'Everything’s ruined. But cutely.',
       },
       {
         text: 'Techno-Feudalism',
-        image: '/images/choices/techno-feudal.webp',
-        description: 'Drones above. Serfs below. Neon chainmail for all.'
+        icon: 'mdi:castle',
+        description: 'Drones above. Serfs below. Neon chainmail for all.',
       },
       {
         text: 'Carnival Noir',
-        image: '/images/choices/carnival-noir.webp',
-        description: 'Honking horns. Murky motives. Someone’s lying in the funhouse.'
+        icon: 'mdi:emoticon-confused-outline',
+        description:
+          'Honking horns. Murky motives. Someone’s lying in the funhouse.',
       },
       {
         text: 'Neo-Mythic Slice of Life',
-        image: '/images/choices/neo-mythic.webp',
-        description: 'Gods go to therapy. Demigods run cafés. Life, with drama.'
-      }
+        icon: 'mdi:book-heart-outline',
+        description:
+          'Gods go to therapy. Demigods run cafés. Life, with drama.',
+      },
     ],
     selected: null,
     custom: '',
@@ -148,24 +158,26 @@ export const characterChoices: ChoiceEntry[] = [
     options: [
       {
         text: 'Chaotic Wholesome',
-        image: '/images/choices/chaotic-wholesome.webp',
-        description: 'Loves everyone. Causes explosions while hugging.'
+        icon: 'mdi:emoticon-happy-outline',
+        description: 'Loves everyone. Causes explosions while hugging.',
       },
       {
         text: 'Grumpy Romantic',
-        image: '/images/choices/grumpy-romantic.webp',
-        description: 'Will argue with you while cooking your favorite meal.'
+        icon: 'mdi:heart-broken-outline',
+        description: 'Will argue with you while cooking your favorite meal.',
       },
       {
         text: 'Secretly a Villain',
-        image: '/images/choices/secret-villain.webp',
-        description: 'They’re nice. They’re helpful. They have a villain speech rehearsed.'
+        icon: 'mdi:emoticon-devil-outline',
+        description:
+          'They’re nice. They’re helpful. They have a villain speech rehearsed.',
       },
       {
         text: 'Hyper-empathetic Disaster',
-        image: '/images/choices/empathy-spiral.webp',
-        description: 'Cries during commercials. Accidentally adopted five strays. Bakes cookies.'
-      }
+        icon: 'mdi:emoticon-cry-outline',
+        description:
+          'Cries during commercials. Accidentally adopted five strays. Bakes cookies.',
+      },
     ],
     selected: null,
     custom: '',

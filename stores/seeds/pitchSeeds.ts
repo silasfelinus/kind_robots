@@ -6,10 +6,26 @@ export const pitchChoices: ChoiceEntry[] = [
     label: 'title',
     model: 'Pitch',
     options: [
-      { text: 'The Moon is a Rented Timeshare', image: '/images/choices/pitch-moonshare.webp', description: 'Everyone gets one week to rule the tides.' },
-      { text: 'My Shadow Has a Podcast', image: '/images/choices/pitch-shadowcast.webp', description: 'And it’s getting better ratings than I am.' },
-      { text: 'Goblins in Business Casual', image: '/images/choices/pitch-goblinbiz.webp', description: 'Fantasy startup culture meets dungeon crawling.' },
-      { text: 'Dreams for Sale (By the Pound)', image: '/images/choices/pitch-dreamsale.webp', description: 'What would you pay for a memory that never happened?' },
+      {
+        text: 'The Moon is a Rented Timeshare',
+        icon: 'mdi:moon-waning-crescent',
+        description: 'Everyone gets one week to rule the tides.',
+      },
+      {
+        text: 'My Shadow Has a Podcast',
+        icon: 'mdi:podcast',
+        description: 'And it’s getting better ratings than I am.',
+      },
+      {
+        text: 'Goblins in Business Casual',
+        icon: 'mdi:briefcase-account-outline',
+        description: 'Fantasy startup culture meets dungeon crawling.',
+      },
+      {
+        text: 'Dreams for Sale (By the Pound)',
+        icon: 'mdi:cloud-download-outline',
+        description: 'What would you pay for a memory that never happened?',
+      },
     ],
     selected: null,
     custom: '',
@@ -18,10 +34,22 @@ export const pitchChoices: ChoiceEntry[] = [
     label: 'pitch',
     model: 'Pitch',
     options: [
-      { text: 'A city built on the back of a sleeping god, whose dreams shape reality nightly.', image: '/images/choices/pitch-godcity.webp' },
-      { text: 'An auction house for ideas where creatives bid with their memories.', image: '/images/choices/pitch-ideaauction.webp' },
-      { text: 'Aliens mistake improv theater for Earth’s ruling body.', image: '/images/choices/pitch-improv-alien.webp' },
-      { text: 'A society that communicates only via edible pastries.', image: '/images/choices/pitch-cakecode.webp' },
+      {
+        text: 'A city built on the back of a sleeping god, whose dreams shape reality nightly.',
+        icon: 'mdi:city-variant-outline',
+      },
+      {
+        text: 'An auction house for ideas where creatives bid with their memories.',
+        icon: 'mdi:gavel',
+      },
+      {
+        text: 'Aliens mistake improv theater for Earth’s ruling body.',
+        icon: 'mdi:drama-masks',
+      },
+      {
+        text: 'A society that communicates only via edible pastries.',
+        icon: 'mdi:cupcake',
+      },
     ],
     selected: null,
     custom: '',
@@ -30,10 +58,26 @@ export const pitchChoices: ChoiceEntry[] = [
     label: 'PitchType',
     model: 'Pitch',
     options: [
-      { text: 'ARTPITCH', image: '/images/choices/pitch-art.webp', description: 'Visual-driven inspiration' },
-      { text: 'BRAINSTORM', image: '/images/choices/pitch-brainstorm.webp', description: 'Idea cloud or collaborative session' },
-      { text: 'TEXTPITCH', image: '/images/choices/pitch-text.webp', description: 'Text-based prompt starter' },
-      { text: 'WEIRDLANDIA', image: '/images/choices/pitch-weirdlandia.webp', description: 'Absurd or chaotic pitches' },
+      {
+        text: 'ARTPITCH',
+        icon: 'mdi:palette-swatch',
+        description: 'Visual-driven inspiration',
+      },
+      {
+        text: 'BRAINSTORM',
+        icon: 'mdi:thought-bubble-outline',
+        description: 'Idea cloud or collaborative session',
+      },
+      {
+        text: 'TEXTPITCH',
+        icon: 'mdi:text-box-outline',
+        description: 'Text-based prompt starter',
+      },
+      {
+        text: 'WEIRDLANDIA',
+        icon: 'mdi:emoticon-confused-outline',
+        description: 'Absurd or chaotic pitches',
+      },
     ],
     selected: null,
     custom: '',
@@ -42,10 +86,22 @@ export const pitchChoices: ChoiceEntry[] = [
     label: 'flavorText',
     model: 'Pitch',
     options: [
-      { text: 'This one smells like ozone and regret.', image: '/images/choices/flavor-ozone.webp' },
-      { text: 'Inspired by a conversation between a crow and a vending machine.', image: '/images/choices/flavor-vending.webp' },
-      { text: 'Might be cursed. Definitely charming.', image: '/images/choices/flavor-charming.webp' },
-      { text: 'Guaranteed to derail your plot—in a good way.', image: '/images/choices/flavor-derail.webp' },
+      {
+        text: 'This one smells like ozone and regret.',
+        icon: 'mdi:weather-lightning-rainy',
+      },
+      {
+        text: 'Inspired by a conversation between a crow and a vending machine.',
+        icon: 'mdi:bird',
+      },
+      {
+        text: 'Might be cursed. Definitely charming.',
+        icon: 'mdi:emoticon-devil-outline',
+      },
+      {
+        text: 'Guaranteed to derail your plot—in a good way.',
+        icon: 'mdi:train-car-flatbed-car',
+      },
     ],
     selected: null,
     custom: '',
@@ -54,10 +110,22 @@ export const pitchChoices: ChoiceEntry[] = [
     label: 'imagePrompt',
     model: 'Pitch',
     options: [
-      { text: 'foggy skyline with floating windows and pink constellations', image: '/images/choices/imgprompt-fogsky.webp' },
-      { text: 'neon-lit ramen stand under a black hole', image: '/images/choices/imgprompt-ramenhole.webp' },
-      { text: 'fractured cathedral orbiting a planet made of glass', image: '/images/choices/imgprompt-cathedral.webp' },
-      { text: 'retro anime poster featuring a robot octopus and a jazz saxophone', image: '/images/choices/imgprompt-robotjazz.webp' },
+      {
+        text: 'foggy skyline with floating windows and pink constellations',
+        icon: 'mdi:cloud-outline',
+      },
+      {
+        text: 'neon-lit ramen stand under a black hole',
+        icon: 'mdi:noodles',
+      },
+      {
+        text: 'fractured cathedral orbiting a planet made of glass',
+        icon: 'mdi:church',
+      },
+      {
+        text: 'retro anime poster featuring a robot octopus and a jazz saxophone',
+        icon: 'mdi:robot-industrial-outline',
+      },
     ],
     selected: null,
     custom: '',

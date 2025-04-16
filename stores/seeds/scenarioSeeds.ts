@@ -8,27 +8,27 @@ export const scenarioChoices: ChoiceEntry[] = [
     options: [
       {
         text: 'The Vending War',
-        image: '/images/choices/vending-war.webp',
+        icon: 'mdi:vending-machine',
         description:
-          'Two sentient vending machines wage an epic feud across a post-capitalist wasteland.',
+          'Two sentient vending machines feud across a post-capitalist wasteland.',
       },
       {
         text: 'Library of Regrets',
-        image: '/images/choices/library-regrets.webp',
+        icon: 'mdi:book-alert',
         description:
           'Every unwritten choice is cataloged. Your overdue books have teeth.',
       },
       {
         text: 'Beneath the Carousel City',
-        image: '/images/choices/carousel-city.webp',
+        icon: 'mdi:castle',
         description:
           'An underground society lives in the reflections of abandoned carnival mirrors.',
       },
       {
         text: 'Echoes of a Future That Never Was',
-        image: '/images/choices/altfuture.webp',
+        icon: 'mdi:robot-industrial-outline',
         description:
-          'Explore the ruins of a utopia scrapped by bad PR and worse algorithms.',
+          'Ruins of a utopia scrapped by bad PR and worse algorithms.',
       },
     ],
     selected: null,
@@ -39,20 +39,24 @@ export const scenarioChoices: ChoiceEntry[] = [
     model: 'Scenario',
     options: [
       {
-        text: 'You are a reluctant diplomat sent to negotiate peace between ghosts and machines.',
-        image: '/images/choices/diplomat.webp',
+        text: 'Negotiate peace between ghosts and machines.',
+        icon: 'mdi:ghost',
+        description: 'You don’t speak their language. Neither do they.',
       },
       {
-        text: 'The world resets every day at dawn, and only you remember.',
-        image: '/images/choices/time-reset.webp',
+        text: 'The world resets at dawn. Only you remember.',
+        icon: 'mdi:refresh-auto',
+        description: 'You’re trapped in a polite apocalypse.',
       },
       {
-        text: 'Everyone has forgotten your name—but they remember your scent.',
-        image: '/images/choices/forgotten.webp',
+        text: 'Everyone forgot your name—but remember your scent.',
+        icon: 'mdi:nose',
+        description: 'Lavender and existential dread.',
       },
       {
-        text: 'A celestial bar where timelines overlap. You owe someone a drink.',
-        image: '/images/choices/cosmic-bar.webp',
+        text: 'Celestial bar where timelines collide.',
+        icon: 'mdi:glass-cocktail',
+        description: 'One drink might change your entire fate.',
       },
     ],
     selected: null,
@@ -63,20 +67,24 @@ export const scenarioChoices: ChoiceEntry[] = [
     model: 'Scenario',
     options: [
       {
-        text: 'The sky cracked open like a soft-boiled egg, and destiny fell out drunk.',
-        image: '/images/choices/eggsky.webp',
+        text: 'The sky cracked like a soft-boiled egg. Destiny fell out drunk.',
+        icon: 'mdi:weather-lightning-rainy',
+        description: 'You could blame the sky. But you know better.',
       },
       {
-        text: 'You wake up to find your hands stained with stardust—and someone else’s signature.',
-        image: '/images/choices/stardust-hands.webp',
+        text: 'Hands stained with stardust. Someone else’s signature.',
+        icon: 'mdi:star-four-points-circle',
+        description: 'You woke up guilty. And glittery.',
       },
       {
-        text: 'A chime sounds in your dreams: “New user detected. Welcome, traveler.”',
-        image: '/images/choices/start-chime.webp',
+        text: '“New user detected,” whispers a chime in your dream.',
+        icon: 'mdi:bell-badge-outline',
+        description: 'Welcome to the strange app of fate.',
       },
       {
         text: 'Your reflection smirks first.',
-        image: '/images/choices/reflection-smirk.webp',
+        icon: 'mdi:mirror-variant',
+        description: 'Who’s the real protagonist here?',
       },
     ],
     selected: null,
@@ -88,13 +96,23 @@ export const scenarioChoices: ChoiceEntry[] = [
     options: [
       {
         text: 'Psychedelic Sci-Fi',
-        image: '/images/choices/psychedelic-sci-fi.webp',
+        icon: 'mdi:eye-circle',
+        description: 'Colorful brain-bending logic with glittering doom.',
       },
-      { text: 'Urban Wizardry', image: '/images/choices/urban-wizard.webp' },
-      { text: 'Post-Mythic Memoir', image: '/images/choices/post-mythic.webp' },
+      {
+        text: 'Urban Wizardry',
+        icon: 'mdi:wand',
+        description: 'Concrete rituals and spell-scribbled alleyways.',
+      },
+      {
+        text: 'Post-Mythic Memoir',
+        icon: 'mdi:book-open-page-variant-outline',
+        description: 'After the gods leave, who tells the story?',
+      },
       {
         text: 'Doomed Cozycore',
-        image: '/images/choices/doomed-cozycore.webp',
+        icon: 'mdi:tea',
+        description: 'Snacks. Blankets. Impending catastrophe.',
       },
     ],
     selected: null,

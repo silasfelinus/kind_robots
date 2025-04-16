@@ -114,10 +114,7 @@ export const useDisplayStore = defineStore('displayStore', {
         100 -
         (this.headerState !== 'hidden'
           ? this.headerHeight + 2 * this.sectionPaddingSize
-          : 4 + this.sectionPaddingSize) -
-        (this.footerState !== 'hidden'
-          ? this.footerHeight + 2 * this.sectionPaddingSize
-          : this.sectionPaddingSize)
+          : 4 + this.sectionPaddingSize)
       )
     },
 
@@ -167,10 +164,7 @@ export const useDisplayStore = defineStore('displayStore', {
 
     footerToggleStyle(): Record<string, string> {
       return {
-        bottom:
-          this.footerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.footerHeight} + ${this.sectionPaddingSize}vh)`
-            : `4vh`,
+        bottom: `4vh`,
         left: '50%',
         transform: 'translateX(-50%)',
       }
@@ -226,14 +220,7 @@ export const useDisplayStore = defineStore('displayStore', {
     },
 
     footerStyle(): Record<string, string> {
-      return this.footerState !== 'hidden'
-        ? {
-            height: `calc(var(--vh) * ${this.footerHeight})`,
-            width: `calc(100vw - ${this.sectionPaddingSize * 2}vw)`,
-            bottom: `calc(var(--vh) * ${this.sectionPaddingSize}`,
-            left: `${this.sectionPaddingSize}vw`,
-          }
-        : { height: '0px', width: '0px' }
+      return { height: '0px', width: '0px' }
     },
 
     //everything after here is probably good

@@ -1,4 +1,3 @@
-<!-- /app.vue -->
 <template>
   <div
     class="main-layout h-screen w-screen relative bg-primary overflow-hidden box-border"
@@ -18,24 +17,15 @@
       <kind-header class="h-full w-full rounded-xl" />
     </header>
 
-    <aside
-      class="fixed z-10 box-border border-3 transition-all duration-300 ease-in-out overflow-visible"
-      :style="displayStore.leftSidebarStyle"
+    <!-- Main Content -->
+    <main
+      class="fixed z-10 border-3 rounded-2xl p-1 overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out"
+      :style="displayStore.mainContentStyle"
     >
-      <kind-sidebar v-if="sidebarLeftOpen" class="h-full w-full z-10" />
-    </aside>
+      <NuxtPage :key="$route.fullPath" />
+    </main>
 
-    <!-- Center Column -->
-    <div class="flex flex-col w-full h-full">
-      <main
-        class="fixed z-10 border-3 rounded-2xl p-1 overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out"
-        :style="displayStore.mainContentStyle"
-      >
-        <NuxtPage :key="$route.fullPath" />
-      </main>
-    </div>
-
-    <!-- Move the toggle to bottom right -->
+    <!-- Right Toggle Button -->
     <right-toggle
       class="fixed bottom-4 right-4 z-50"
       :class="{
@@ -44,31 +34,27 @@
       }"
     />
 
-    <!-- Right Chat Popup -->
+    <!-- Right Chat Column -->
     <aside
       v-if="sidebarRightOpen"
-      class="fixed z-40 bottom-16 right-4 w-[90vw] max-w-md h-[60vh] bg-base-200 rounded-2xl shadow-xl border border-accent overflow-hidden transition-all duration-500 ease-in-out"
+      class="fixed z-40 bottom-16 right-4 w-[90vw] max-w-md h-[60vh] bg-base-200 rounded-2xl shadow-xl border border-accent overflow-hidden transition-all duration-500 ease-in-out flex flex-col"
     >
-      <splash-tutorial class="h-full w-full" />
+      <div class="h-[20%]">
+        <mode-row class="w-full h-full" />
+      </div>
+      <div class="h-[80%] overflow-hidden">
+        <splash-tutorial class="h-full w-full" />
+      </div>
     </aside>
   </div>
 </template>
 
 <script setup lang="ts">
 // /app.vue
-
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-
-const footerOpen = computed(() => displayStore.footerState === 'open')
-
-const sidebarLeftOpen = computed(
-  () =>
-    displayStore.sidebarLeftState !== 'hidden' &&
-    displayStore.sidebarLeftState !== 'disabled',
-)
 
 const sidebarRightOpen = computed(
   () =>

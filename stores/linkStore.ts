@@ -17,9 +17,7 @@ export const useLinkStore = defineStore('linkStore', () => {
 
   const staticLinks = ref<LinkItem[]>([
     // Navigation Icons
-    { title: 'Bot Cafe', path: '/botcafe', icon: 'kind-icon:addbot' },
     { title: 'Brainstorm!', path: '/brainstorm', icon: 'kind-icon:brain' },
-    { title: 'Art Lab', path: '/artmaker', icon: 'kind-icon:easel' },
     { title: 'Memory', path: '/memory', icon: 'kind-icon:question' },
     { title: 'Wonderlab', path: '/wonderlab', icon: 'kind-icon:gearhammer' },
     { title: 'Story Maker', path: '/story', icon: 'kind-icon:book' },

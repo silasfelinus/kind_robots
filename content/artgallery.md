@@ -14,5 +14,4 @@ amitip: "If it makes you stop and look, have a conversation, or feel something n
 sort: highlight
 ---
 
-:photo-launcher
-:user-galleries
+:art-gallery

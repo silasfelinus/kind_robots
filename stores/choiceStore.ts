@@ -1,7 +1,7 @@
 // /stores/choiceStore.ts
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { seedChoices } from './../stores/seeds/seedChoices'
+import { allSeeds } from './../stores/seeds/seedChoices'
 
 export interface ChoiceOption {
   text: string
@@ -30,11 +30,11 @@ export const useChoiceStore = defineStore('choiceStore', () => {
 
   function initialize() {
     try {
-      seedChoices.forEach(({ label, model, options }: ChoiceEntry) => {
+      allSeeds.forEach(({ label, model, options }: ChoiceEntry) => {
         registerChoice(label, model, options)
       })
     } catch (err) {
-      handleError(err, 'loading seed choices')
+      console.error('Error loading seed choices', err)
     }
   }
 

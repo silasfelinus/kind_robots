@@ -1,6 +1,4 @@
 // /stores/seeds/seedChoices.ts
-import { useChoiceStore } from '@/stores/choiceStore'
-
 import { characterChoices } from './characterSeeds'
 import { botChoices } from './botSeeds'
 import { scenarioChoices } from './scenarioSeeds'
@@ -8,7 +6,9 @@ import { pitchChoices } from './pitchSeeds'
 import { chatChoices } from './chatSeeds'
 import { rewardChoices } from './rewardSeeds'
 
-const allSeeds = [
+import type { ChoiceEntry } from '@/stores/choiceStore'
+
+export const allSeeds: ChoiceEntry[] = [
   ...characterChoices,
   ...botChoices,
   ...scenarioChoices,
@@ -17,8 +17,10 @@ const allSeeds = [
   ...rewardChoices,
 ]
 
-const choiceStore = useChoiceStore()
-
-allSeeds.forEach(({ label, model, options }) => {
-  choiceStore.registerChoice(label, model, options)
-})
+export function loadAllChoiceSeeds(
+  choiceStore: ReturnType<typeof useChoiceStore>,
+) {
+  allSeeds.forEach(({ label, model, options }) => {
+    choiceStore.registerChoice(label, model, options)
+  })
+}

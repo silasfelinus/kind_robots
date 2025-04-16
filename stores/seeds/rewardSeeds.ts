@@ -6,10 +6,26 @@ export const rewardChoices: ChoiceEntry[] = [
     label: 'text',
     model: 'Reward',
     options: [
-      { text: 'Wormhole-in-a-Jar', image: '/images/choices/wormhole-jar.webp', description: 'A mason jar containing a swirling spatial anomaly.' },
-      { text: 'Universal Remote', image: '/images/choices/universal-remote.webp', description: 'Controls reality. Sometimes switches languages instead.' },
-      { text: 'The Last Cookie', image: '/images/choices/last-cookie.webp', description: 'Crumbly. Cursed. Might be your grandma.' },
-      { text: 'Quantum Flip-Flops', image: '/images/choices/quantum-flops.webp', description: 'Teleport with every step. Only work when wet.' },
+      {
+        text: 'Wormhole-in-a-Jar',
+        icon: 'mdi:glass-jar',
+        description: 'A mason jar containing a swirling spatial anomaly.',
+      },
+      {
+        text: 'Universal Remote',
+        icon: 'mdi:remote-tv',
+        description: 'Controls reality. Sometimes switches languages instead.',
+      },
+      {
+        text: 'The Last Cookie',
+        icon: 'mdi:cookie-alert',
+        description: 'Crumbly. Cursed. Might be your grandma.',
+      },
+      {
+        text: 'Quantum Flip-Flops',
+        icon: 'mdi:flip-flop',
+        description: 'Teleport with every step. Only work when wet.',
+      },
     ],
     selected: null,
     custom: '',
@@ -18,10 +34,28 @@ export const rewardChoices: ChoiceEntry[] = [
     label: 'power',
     model: 'Reward',
     options: [
-      { text: 'Reverse the last major decision.', image: '/images/choices/rewind-power.webp', description: 'Rewinds the AI’s story by one choice tier.' },
-      { text: 'Summon an unlikely ally.', image: '/images/choices/summon-ally.webp', description: 'Brings in a character the story forgot existed.' },
-      { text: 'Flip the genre for 3 turns.', image: '/images/choices/genre-flip.webp', description: 'Your drama becomes a musical. Your noir becomes slapstick.' },
-      { text: 'Speak to inanimate objects.', image: '/images/choices/talking-things.webp', description: 'Unlocks dialogue trees with spoons, bricks, and vending machines.' },
+      {
+        text: 'Reverse the last major decision.',
+        icon: 'mdi:history',
+        description: 'Rewinds the AI’s story by one choice tier.',
+      },
+      {
+        text: 'Summon an unlikely ally.',
+        icon: 'mdi:account-group-outline',
+        description: 'Brings in a character the story forgot existed.',
+      },
+      {
+        text: 'Flip the genre for 3 turns.',
+        icon: 'mdi:drama-masks',
+        description:
+          'Your drama becomes a musical. Your noir becomes slapstick.',
+      },
+      {
+        text: 'Speak to inanimate objects.',
+        icon: 'mdi:comment-question-outline',
+        description:
+          'Unlocks dialogue trees with spoons, bricks, and vending machines.',
+      },
     ],
     selected: null,
     custom: '',
@@ -30,10 +64,26 @@ export const rewardChoices: ChoiceEntry[] = [
     label: 'collection',
     model: 'Reward',
     options: [
-      { text: 'Anomalous Artifacts', image: '/images/choices/anomalous.webp', description: 'Items that shouldn’t exist. But do.' },
-      { text: 'Cosmic Pranks', image: '/images/choices/cosmic-pranks.webp', description: 'Whimsical chaos designed to confuse the universe.' },
-      { text: 'Divine Glitches', image: '/images/choices/divine-glitch.webp', description: 'Items born from failed prophecies and overcooked code.' },
-      { text: 'Lost Toys of the Multiverse', image: '/images/choices/lost-toys.webp', description: 'Beloved, broken, or just really loud.' },
+      {
+        text: 'Anomalous Artifacts',
+        icon: 'mdi:creation',
+        description: 'Items that shouldn’t exist. But do.',
+      },
+      {
+        text: 'Cosmic Pranks',
+        icon: 'mdi:emoticon-devil-outline',
+        description: 'Whimsical chaos designed to confuse the universe.',
+      },
+      {
+        text: 'Divine Glitches',
+        icon: 'mdi:flash-alert',
+        description: 'Items born from failed prophecies and overcooked code.',
+      },
+      {
+        text: 'Lost Toys of the Multiverse',
+        icon: 'mdi:teddy-bear',
+        description: 'Beloved, broken, or just really loud.',
+      },
     ],
     selected: null,
     custom: '',

@@ -1,18 +1,14 @@
+// /components/content/story/add-bot.vue
 <template>
   <div
-    class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-4 grid-cols-1"
+    class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-6 grid-cols-1"
   >
     <h1 class="text-4xl text-center col-span-full">Create or Edit a Bot</h1>
 
-    <!-- Top section with Bot Selector, Designer, and Toggles -->
-    <div
-      class="flex flex-wrap justify-between items-center col-span-full gap-4"
-    >
-      <div class="w-full lg:w-auto">
-        <bot-selector />
-      </div>
+    <!-- Bot Selector and Designer -->
+    <div class="flex flex-wrap justify-between items-center gap-4">
+      <bot-selector />
 
-      <!-- Add Bot Icon (only shows if currentBot exists) -->
       <div v-if="botStore.currentBot" class="flex items-center">
         <button class="btn btn-icon" @click="deselectCurrentBot">
           <icon name="kind-icon:addbot" class="text-3xl" />
@@ -20,8 +16,7 @@
         <p class="ml-2">Create new bot</p>
       </div>
 
-      <!-- Designer Field -->
-      <div class="flex-grow w-1/4">
+      <div class="flex-grow max-w-xs">
         <label for="designer" class="block text-lg font-medium"
           >Designer:</label
         >
@@ -35,34 +30,35 @@
         <p v-else>{{ botStore.botForm.designer }}</p>
       </div>
 
-      <!-- Toggles for Public Visibility and Under Construction -->
-      <div class="flex gap-4">
+      <!-- Visibility & Construction Toggles -->
+      <div class="flex gap-6">
         <div>
-          <label class="block text-lg font-medium">Public Visibility:</label>
+          <label class="block text-lg font-medium">Visibility:</label>
           <div class="flex space-x-2">
             <button
               type="button"
-              :class="{
-                'btn btn-primary': botStore.botForm.isPublic,
-                'btn btn-grey-200': !botStore.botForm.isPublic,
-              }"
+              :class="
+                botStore.botForm.isPublic
+                  ? 'btn btn-primary'
+                  : 'btn btn-outline'
+              "
               @click="toggleVisibility(true)"
             >
               Public
             </button>
             <button
               type="button"
-              :class="{
-                'btn btn-primary': !botStore.botForm.isPublic,
-                'btn btn-grey-200': botStore.botForm.isPublic,
-              }"
+              :class="
+                !botStore.botForm.isPublic
+                  ? 'btn btn-primary'
+                  : 'btn btn-outline'
+              "
               @click="toggleVisibility(false)"
             >
               Private
             </button>
           </div>
         </div>
-
         <div class="flex items-center">
           <input
             id="underConstruction"
@@ -70,86 +66,45 @@
             type="checkbox"
             class="mr-2"
           />
-          <label for="underConstruction" class="block text-lg font-medium">
+          <label for="underConstruction" class="text-lg font-medium">
             Under construction
           </label>
         </div>
       </div>
     </div>
 
-    <!-- Middle section - Avatar Generator on the left, Bot Name & Details on the right -->
+    <!-- Avatar & Prompt Builder -->
     <div class="flex flex-wrap w-full mt-4">
-      <!-- Avatar Image and Generation Component -->
-      <div class="w-full md:w-1/2 lg:w-1/2 p-4">
+      <div class="w-full md:w-1/2 p-4">
         <generate-avatar />
       </div>
+      <div class="w-full md:w-1/2 p-4">
+        <choice-manager label="name" model="Bot" />
+        <choice-manager label="subtitle" model="Bot" />
+        <choice-manager label="description" model="Bot" />
+        <choice-manager label="personality" model="Bot" />
 
-      <!-- Bot Details: Name, Subtitle, Description, and Bot Intro -->
-      <div class="w-full md:w-1/2 lg:w-1/2 p-4">
-        <div class="grid gap-4">
-          <!-- Name Field -->
-          <div :class="highlightIfChanged('name')">
-            <label for="name" class="block text-lg font-medium">Name:</label>
-            <input
-              id="name"
-              v-model="botStore.botForm.name"
-              type="text"
-              class="w-full p-3 rounded-lg border"
-              required
-            />
-          </div>
+        <label for="botIntro" class="block text-lg font-medium mt-6"
+          >Bot Intro:</label
+        >
+        <textarea
+          id="botIntro"
+          v-model="botStore.botForm.botIntro"
+          rows="4"
+          class="w-full p-3 rounded-lg border"
+          placeholder="Enter the introduction sent to the language modeller"
+        ></textarea>
 
-          <!-- Subtitle Field -->
-          <div :class="highlightIfChanged('subtitle')">
-            <label for="subtitle" class="block text-lg font-medium"
-              >Subtitle:</label
-            >
-            <input
-              id="subtitle"
-              v-model="botStore.botForm.subtitle"
-              type="text"
-              class="w-full p-3 rounded-lg border"
-            />
-          </div>
-
-          <!-- Description Field -->
-          <div :class="highlightIfChanged('description')">
-            <label for="description" class="block text-lg font-medium"
-              >Description:</label
-            >
-            <input
-              id="description"
-              v-model="botStore.botForm.description"
-              class="w-full p-3 rounded-lg border"
-              placeholder="Enter a short description for the bot"
-            />
-          </div>
-
-          <!-- Bot Intro Field -->
-          <div :class="highlightIfChanged('botIntro')">
-            <label for="botIntro" class="block text-lg font-medium"
-              >Bot Intro:</label
-            >
-            <textarea
-              id="botIntro"
-              v-model="botStore.botForm.botIntro"
-              rows="4"
-              class="w-full p-3 rounded-lg border"
-              placeholder="Enter the introduction sent to the language modeller"
-            ></textarea>
-          </div>
-
-          <label for="userIntro" class="block text-lg font-medium"
-            >User Prompts:</label
-          >
-          <prompt-creator />
-        </div>
+        <label for="userIntro" class="block text-lg font-medium mt-4"
+          >User Prompts:</label
+        >
+        <prompt-creator />
       </div>
     </div>
 
-    <!-- Form for User Prompts and Submit Button -->
+    <!-- Submit Form -->
     <form
-      class="bg-white shadow-md rounded-xl p-6 w-full mt-4"
+      class="bg-white shadow-md rounded-xl p-6 w-full mt-6"
       @submit.prevent="handleSubmit"
     >
       <div v-if="isLoading" class="loading loading-ring loading-lg mt-4"></div>
@@ -160,54 +115,42 @@
         {{ successMessage }}
       </div>
 
-      <div class="flex flex-col md:flex-row md:space-x-4 mt-6">
-        <button
-          type="submit"
-          class="btn btn-primary w-full md:w-auto"
-          :disabled="isLoading"
-        >
-          <span v-if="isLoading">Saving...</span>
-          <span v-else>{{
-            botStore.selectedBotId ? 'Update Bot' : 'Create New Bot'
-          }}</span>
-        </button>
-      </div>
+      <button type="submit" class="btn btn-primary mt-4" :disabled="isLoading">
+        <span v-if="isLoading">Saving...</span>
+        <span v-else>{{
+          botStore.selectedBotId ? 'Update Bot' : 'Create New Bot'
+        }}</span>
+      </button>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
-import { useGalleryStore } from '../../../stores/galleryStore'
-import { useUserStore } from '../../../stores/userStore'
+import { useBotStore } from '@/stores/botStore'
+import { useGalleryStore } from '@/stores/galleryStore'
+import { useUserStore } from '@/stores/userStore'
+import { useChoiceStore } from '@/stores/choiceStore'
 
 const botStore = useBotStore()
 const galleryStore = useGalleryStore()
 const userStore = useUserStore()
+const choiceStore = useChoiceStore()
 
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
 
-const canEditDesigner = computed(
-  () => !botStore.selectedBotId || botStore.botForm.userId === userStore.userId,
-)
-
-function highlightIfChanged(field: string) {
-  const original = botStore.currentBot || {}
-  const currentFormValue =
-    botStore.botForm[field as keyof typeof botStore.botForm]
-  const originalValue = original[field as keyof typeof original]
-
-  if (currentFormValue !== originalValue) {
-    return 'border border-info'
-  }
-  return ''
-}
+const canEditDesigner = computed(() => {
+  return !botStore.selectedBotId || botStore.botForm.userId === userStore.userId
+})
 
 function toggleVisibility(value: boolean) {
   botStore.botForm.isPublic = value
+}
+
+function deselectCurrentBot() {
+  botStore.deselectBot()
 }
 
 async function handleSubmit() {
@@ -216,6 +159,12 @@ async function handleSubmit() {
   successMessage.value = null
 
   try {
+    // Sync choice store into botForm
+    const fields = ['name', 'description', 'personality', 'subtitle']
+    fields.forEach((field) => {
+      choiceStore.applyToForm(botStore.botForm, field, 'Bot')
+    })
+
     if (botStore.selectedBotId) {
       await botStore.updateBot(botStore.selectedBotId)
       successMessage.value = 'Bot updated successfully!'
@@ -237,13 +186,9 @@ async function handleSubmit() {
   }
 }
 
-function deselectCurrentBot() {
-  botStore.deselectBot()
-}
-
 onMounted(async () => {
   await botStore.initialize()
-
   await galleryStore.initialize()
+  choiceStore.initialize()
 })
 </script>

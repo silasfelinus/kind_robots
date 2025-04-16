@@ -13,4 +13,4 @@ dottitip: 'Rewards here aren’t static trophies. They’re story catalysts.'
 amitip: 'Some are poetic. Some are cursed. Some are sentient!'
 sort: gallery
 ---
-:rewardgallery
+:reward-gallery

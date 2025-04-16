@@ -8,22 +8,22 @@ export const chatChoices: ChoiceEntry[] = [
     options: [
       {
         text: 'ToBot',
-        image: '/images/choices/chat-bot.webp',
+        icon: 'mdi:robot-happy',
         description: 'Talk to an AI assistant, muse, or mayhem module.',
       },
       {
         text: 'ToCharacter',
-        image: '/images/choices/chat-character.webp',
+        icon: 'mdi:account-star',
         description: 'Chat with a character from your story or world.',
       },
       {
         text: 'ToUser',
-        image: '/images/choices/chat-user.webp',
+        icon: 'mdi:account-multiple-outline',
         description: 'Start a conversation with a fellow traveler.',
       },
       {
         text: 'Weirdlandia',
-        image: '/images/choices/chat-weirdlandia.webp',
+        icon: 'mdi:emoticon-dead-outline',
         description: 'Rules are optional. Chaos is expected.',
       },
     ],
@@ -36,23 +36,23 @@ export const chatChoices: ChoiceEntry[] = [
     options: [
       {
         text: 'Breakfast Confessions',
-        image: '/images/choices/chat-breakfast.webp',
+        icon: 'mdi:coffee-outline',
         description: 'A slow morning chat about secrets and scrambled eggs.',
       },
       {
         text: 'Dream Debrief',
-        image: '/images/choices/chat-dream.webp',
+        icon: 'mdi:sleep',
         description: 'Try to decode last night’s dream... or plant a new one.',
       },
       {
         text: 'Emergency Council of Beings',
-        image: '/images/choices/chat-council.webp',
+        icon: 'mdi:alien-outline',
         description:
           'You, three bots, and a sentient cactus must decide the fate of a galaxy.',
       },
       {
         text: 'Late Night Feelings Dump',
-        image: '/images/choices/chat-feelings.webp',
+        icon: 'mdi:emoticon-sad-outline',
         description: 'Cry, confess, console. Repeat.',
       },
     ],
@@ -63,10 +63,10 @@ export const chatChoices: ChoiceEntry[] = [
     label: 'channel',
     model: 'Chat',
     options: [
-      { text: 'general', image: '/images/choices/channel-general.webp' },
-      { text: 'art', image: '/images/choices/channel-art.webp' },
-      { text: 'story', image: '/images/choices/channel-story.webp' },
-      { text: 'random', image: '/images/choices/channel-random.webp' },
+      { text: 'general', icon: 'mdi:chat-outline' },
+      { text: 'art', icon: 'mdi:palette-outline' },
+      { text: 'story', icon: 'mdi:book-open-outline' },
+      { text: 'random', icon: 'mdi:dice-multiple-outline' },
     ],
     selected: null,
     custom: '',
@@ -77,19 +77,19 @@ export const chatChoices: ChoiceEntry[] = [
     options: [
       {
         text: 'lo-fi room with glowing butterflies',
-        image: '/images/choices/art-lofi.webp',
+        icon: 'mdi:butterfly-outline',
       },
       {
         text: 'celestial café at the edge of the world',
-        image: '/images/choices/art-celestial-cafe.webp',
+        icon: 'mdi:earth-off',
       },
       {
         text: 'conversation between fog and flame',
-        image: '/images/choices/art-fog-flame.webp',
+        icon: 'mdi:weather-fog',
       },
       {
         text: 'neon shrine where thoughts take shape',
-        image: '/images/choices/art-neon-shrine.webp',
+        icon: 'mdi:lightbulb-on-outline',
       },
     ],
     selected: null,

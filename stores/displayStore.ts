@@ -121,9 +121,6 @@ export const useDisplayStore = defineStore('displayStore', {
     mainContentWidth(): number {
       return (
         100 -
-        (this.sidebarLeftState !== 'hidden'
-          ? this.sidebarLeftWidth + this.sectionPaddingSize * 2
-          : this.sectionPaddingSize) -
         (this.sidebarRightState !== 'hidden'
           ? this.sidebarRightWidth + this.sectionPaddingSize * 2
           : this.sectionPaddingSize)
@@ -212,10 +209,7 @@ export const useDisplayStore = defineStore('displayStore', {
           this.sidebarRightState !== 'hidden'
             ? `calc(${this.sidebarRightWidth}vw + ${this.sectionPaddingSize * 2}vw)`
             : `${this.sectionPaddingSize}vw`,
-        left:
-          this.sidebarLeftState !== 'hidden'
-            ? `calc(${this.sidebarLeftWidth}vw + ${this.sectionPaddingSize * 2}vw)`
-            : `${this.sectionPaddingSize}vw`,
+        left: `${this.sectionPaddingSize}vw`,
       }
     },
 

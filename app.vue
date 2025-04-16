@@ -8,7 +8,6 @@
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />
-
     </div>
 
     <!-- Header -->
@@ -18,7 +17,6 @@
     >
       <kind-header class="h-full w-full rounded-xl" />
     </header>
-
 
     <aside
       class="fixed z-10 box-border border-3 transition-all duration-300 ease-in-out overflow-visible"
@@ -38,31 +36,22 @@
     </div>
 
     <!-- Move the toggle to bottom right -->
-<right-toggle
-  class="fixed bottom-4 right-4 z-50"
-  :class="{
-    'bg-accent text-white shadow-xl': sidebarRightOpen,
-    'bg-base-200 shadow': !sidebarRightOpen
-  }"
-/>
+    <right-toggle
+      class="fixed bottom-4 right-4 z-50"
+      :class="{
+        'bg-accent text-white shadow-xl': sidebarRightOpen,
+        'bg-base-200 shadow': !sidebarRightOpen,
+      }"
+    />
 
-<!-- Right Chat Popup -->
-<aside
-  v-if="sidebarRightOpen"
-  class="fixed z-40 bottom-16 right-4 w-[90vw] max-w-md h-[60vh] bg-base-200 rounded-2xl shadow-xl border border-accent overflow-hidden transition-all duration-500 ease-in-out"
->
-  <splash-tutorial class="h-full w-full" />
-</aside>
-
+    <!-- Right Chat Popup -->
+    <aside
+      v-if="sidebarRightOpen"
+      class="fixed z-40 bottom-16 right-4 w-[90vw] max-w-md h-[60vh] bg-base-200 rounded-2xl shadow-xl border border-accent overflow-hidden transition-all duration-500 ease-in-out"
+    >
+      <splash-tutorial class="h-full w-full" />
+    </aside>
   </div>
-
-  <!-- Footer -->
-  <footer
-    class="fixed z-20 box-border border-3 overflow-visible transition-all duration-600 ease-in-out"
-    :style="displayStore.footerStyle"
-  >
-    <mode-row v-if="footerOpen" class="h-full w-full z-10" />
-  </footer>
 </template>
 
 <script setup lang="ts">

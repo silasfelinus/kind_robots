@@ -4,9 +4,9 @@
     v-if="hydrated"
     class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-black max-w-full box-border"
   >
-    <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
+    <!-- Top Row -->
     <div class="flex items-center justify-between w-full h-full px-2 sm:px-4">
-      <!-- Avatar Section -->
+      <!-- Avatar -->
       <div
         class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl overflow-hidden"
       >
@@ -16,7 +16,7 @@
         />
       </div>
 
-      <!-- Viewport Notice Overlay -->
+      <!-- Viewport Label -->
       <div
         class="absolute bottom-0 left-2 mb-1 px-2 py-1 text-white bg-primary rounded-md text-xs md:text-sm"
       >
@@ -25,9 +25,11 @@
 
       <!-- Header Content -->
       <div class="flex flex-col flex-1 h-full px-4">
-        <div class="flex h-full w-full flex-wrap items-center gap-2">
-          <!-- Title and Subtitle -->
-          <div class="flex flex-col justify-center w-full sm:w-1/3 pr-2">
+        <div
+          class="flex flex-wrap xl:flex-nowrap w-full h-full items-center gap-2 xl:gap-4"
+        >
+          <!-- Title + Subtitle -->
+          <div class="flex flex-col justify-center w-full xl:w-1/3 pr-2">
             <h1
               class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
             >
@@ -42,14 +44,14 @@
           </div>
 
           <!-- Mode Row -->
-          <div class="w-full sm:w-1/3 flex justify-center">
-            <mode-row class="w-full max-w-xs" />
+          <div class="w-full xl:w-1/3 flex justify-center">
+            <mode-row class="w-full max-w-xl" />
           </div>
 
-          <!-- Icons Section -->
+          <!-- Icons -->
           <div
             v-if="!displayStore.bigMode"
-            class="w-full sm:w-1/3 flex justify-end gap-2"
+            class="w-full xl:w-1/3 flex justify-end gap-2"
           >
             <login-path class="flex max-w-[80px]" />
             <jellybean-count class="flex max-w-[80px]" />

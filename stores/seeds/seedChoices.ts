@@ -1,10 +1,10 @@
 // /stores/seeds/seedChoices.ts
-import { characterChoices } from './characterSeeds'
-import { botChoices } from './botSeeds'
-import { scenarioChoices } from './scenarioSeeds'
-import { pitchChoices } from './pitchSeeds'
-import { chatChoices } from './chatSeeds'
-import { rewardChoices } from './rewardSeeds'
+import { characterChoices } from './characterChoices'
+import { botChoices } from './botChoices'
+import { scenarioChoices } from './scenarioChoices'
+import { pitchChoices } from './pitchChoices'
+import { chatChoices } from './chatChoices'
+import { rewardChoices } from './rewardChoices'
 
 import type { ChoiceEntry } from '@/stores/choiceStore'
 

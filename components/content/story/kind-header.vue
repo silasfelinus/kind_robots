@@ -1,20 +1,20 @@
+<!-- /components/content/story/kind-header.vue -->
 <template>
- <header
-  v-if="hydrated"
-  class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-black max-w-full box-border"
->
-  <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
-  <div class="flex items-center justify-between w-full h-full px-2 sm:px-4">
-    <!-- Avatar Section -->
-    <div
-      class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl overflow-hidden"
-    >
-      <avatar-image
-        alt="User Avatar"
-        class="h-full w-full rounded-2xl object-cover"
-      />
-    </div>
-
+  <header
+    v-if="hydrated"
+    class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-black max-w-full box-border"
+  >
+    <!-- Top Section: Avatar, Viewport Notice, and Header Content -->
+    <div class="flex items-center justify-between w-full h-full px-2 sm:px-4">
+      <!-- Avatar Section -->
+      <div
+        class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl overflow-hidden"
+      >
+        <avatar-image
+          alt="User Avatar"
+          class="h-full w-full rounded-2xl object-cover"
+        />
+      </div>
 
       <!-- Viewport Notice Overlay -->
       <div
@@ -23,13 +23,11 @@
         {{ displayStore.viewportSize }}
       </div>
 
-      <!-- Dynamic Header Content -->
+      <!-- Header Content -->
       <div class="flex flex-col flex-1 h-full px-4">
-        <div class="flex h-full w-full">
+        <div class="flex h-full w-full flex-wrap items-center gap-2">
           <!-- Title and Subtitle -->
-          <div
-            class="flex flex-col justify-center flex-shrink-0 w-1/2 sm:w-1/3 pr-2"
-          >
+          <div class="flex flex-col justify-center w-full sm:w-1/3 pr-2">
             <h1
               class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
             >
@@ -43,10 +41,15 @@
             </h2>
           </div>
 
-          <!-- Icons -->
+          <!-- Mode Row -->
+          <div class="w-full sm:w-1/3 flex justify-center">
+            <mode-row class="w-full max-w-xs" />
+          </div>
+
+          <!-- Icons Section -->
           <div
             v-if="!displayStore.bigMode"
-            class="flex gap-2 w-1/2 sm:w-2/3 justify-end sm:flex-row sm:justify-around sm:flex-grow sm:space-x-1 md:space-x-2"
+            class="w-full sm:w-1/3 flex justify-end gap-2"
           >
             <login-path class="flex max-w-[80px]" />
             <jellybean-count class="flex max-w-[80px]" />
@@ -60,6 +63,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/story/kind-header.vue
 import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDisplayStore } from '@/stores/displayStore'

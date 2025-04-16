@@ -1,44 +1,66 @@
+<!-- /components/content/story/character-designer.vue -->
 <template>
   <div
-    class="rounded-2xl border p-2 md:p-4 mx-auto bg-base-200 grid gap-1 md:gap-4 grid-cols-1"
+    class="rounded-2xl border border-base-300 p-4 bg-base-200 mx-auto w-full max-w-7xl space-y-6"
   >
-    <h1
-      class="text-lg md:text-2xl lg:text-3xl xl:4xl text-center col-span-full"
-    >
-      Character Designer
-    </h1>
+    <!-- Header -->
+    <header class="text-center">
+      <h1 class="text-3xl md:text-4xl font-bold text-primary">
+        Character Designer
+      </h1>
+    </header>
 
-    <!-- Top Section -->
-    <div
-      class="flex flex-wrap justify-between items-center col-span-full gap-1 md:gap-4"
-    >
+    <!-- Character Title -->
+    <section class="w-full">
       <character-title />
-    </div>
+    </section>
 
-    <!-- Middle Section -->
-    <div class="flex flex-wrap w-full mt-1 md:mt-4">
-      <!-- Left: Art Section -->
-      <div class="w-full md:w-1/2 p-1 md:p-4">
+    <!-- Main Display: Art + Stats -->
+    <section class="flex flex-wrap gap-4">
+      <div class="w-full md:w-1/2 space-y-4">
         <character-art />
       </div>
-
-      <!-- Right: Stats Section -->
-      <div class="w-full md:w-1/2 p-1 md:p-4">
+      <div class="w-full md:w-1/2 space-y-4">
         <character-stats />
         <character-rewards />
       </div>
-    </div>
+    </section>
+
+    <!-- Choice Chapters -->
+    <section class="space-y-8">
+      <div
+        v-for="chapter in characterChapters"
+        :key="chapter.label"
+        class="rounded-xl p-4 bg-base-100 border border-base-300"
+      >
+        <h2 class="text-xl font-semibold flex items-center gap-2 mb-2">
+          <Icon :name="chapter.icon" class="w-5 h-5" />
+          {{ chapter.intro }}
+        </h2>
+
+        <div class="grid gap-4">
+          <choice-manager
+            v-for="choice of chapter.choices"
+            :key="choice"
+            :label="choice"
+            model="Character"
+          />
+        </div>
+      </div>
+    </section>
 
     <!-- Bottom Section -->
-    <div class="grid gap-1 md:gap-4 mt-1 md:mt-2 lg:mt-3">
+    <section>
       <character-bottom />
-    </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
+// /components/content/story/character-designer.vue
 import { onMounted } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
+import { characterChapters } from '@/stores/chapters/characterChapters'
 
 const characterStore = useCharacterStore()
 

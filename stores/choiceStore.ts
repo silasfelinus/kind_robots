@@ -17,7 +17,13 @@ export interface ChoiceEntry {
   custom: string
 }
 
-type SupportedModel = 'Character' | 'Bot' | 'Scenario' | 'Pitch' | 'Reward'
+type SupportedModel =
+  | 'Character'
+  | 'Bot'
+  | 'Scenario'
+  | 'Pitch'
+  | 'Reward'
+  | 'Chat'
 
 type ChoiceKey = `${SupportedModel}:${string}`
 

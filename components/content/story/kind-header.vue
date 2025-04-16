@@ -45,11 +45,11 @@
 
           <!-- Icons -->
           <div class="w-full xl:w-1/3 flex justify-end gap-2 items-center">
-            <kind-icons :compact="displayStore.bigMode" />
             <login-path
               :compact="displayStore.bigMode"
               class="flex max-w-[80px]"
             />
+            <kind-icons :compact="displayStore.bigMode" />
             <jellybean-count
               :compact="displayStore.bigMode"
               class="flex max-w-[80px]"

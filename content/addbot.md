@@ -13,4 +13,4 @@ dottitip: 'The more bots, the more our community grows.'
 amitip: 'I named one “SparkleMancer9000” and now she thinks she’s royalty.'
 sort: highlight
 ---
-add-bot
+:add-bot

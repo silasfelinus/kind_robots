@@ -5,6 +5,7 @@ import { characterChoices } from './characterSeeds'
 import { botChoices } from './botSeeds'
 import { scenarioChoices } from './scenarioSeeds'
 import { pitchChoices } from './pitchSeeds'
+import { chatChoices } from './chatSeeds'
 import { rewardChoices } from './rewardSeeds'
 
 const allSeeds = [
@@ -12,6 +13,7 @@ const allSeeds = [
   ...botChoices,
   ...scenarioChoices,
   ...pitchChoices,
+  ...chatChoices,
   ...rewardChoices,
 ]
 

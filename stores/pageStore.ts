@@ -77,10 +77,9 @@ export const usePageStore = defineStore('pageStore', () => {
         return
       }
 
-const { data } = await useAsyncData(`page-${resolvedPath}`, () =>
-  queryCollection('content').path(resolvedPath).first(),
-)
-
+      const { data } = await useAsyncData(`page-${resolvedPath}`, () =>
+        queryCollection('content').path(resolvedPath).first(),
+      )
 
       if (data.value) {
         const normalized = normalizePage(data.value)
@@ -130,6 +129,7 @@ const { data } = await useAsyncData(`page-${resolvedPath}`, () =>
     category: page.value?.category ?? '',
     sort: page.value?.sort ?? '',
     underConstruction: page.value?.underConstruction ?? true,
+    navComponent: page.value?.navComponent ?? '',
   }))
 
   const layout = computed<LayoutKey>(() => {
@@ -162,6 +162,7 @@ const { data } = await useAsyncData(`page-${resolvedPath}`, () =>
     category: computed(() => meta.value.category),
     sort: computed(() => meta.value.sort),
     underConstruction: computed(() => meta.value.underConstruction),
+    navComponent: computed(() => meta.value.navComponent),
 
     loadPage,
     loadAllPages,

@@ -1,14 +1,13 @@
-<!-- /components/content/story/splash-tutorial.vue -->
 <template>
-  <div class="relative w-full overflow-hidden rounded-2xl">
-    <!-- Background -->
-    <div class="absolute inset-0 z-0 pointer-events-none">
+  <div class="relative w-full h-full overflow-hidden rounded-2xl z-10">
+    <!-- Immersive Fullscreen Background Layer -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
       <image-toggle class="w-full h-full object-cover" />
     </div>
 
-    <!-- Foreground Content -->
+    <!-- Foreground Content Card (with local backdrop and blur) -->
     <div
-      class="relative z-10 container mx-auto px-4 py-6 space-y-6 backdrop-blur-md"
+      class="relative z-10 container mx-auto px-4 py-6 space-y-6 backdrop-blur-xl"
     >
       <!-- Title Block -->
       <div class="relative space-y-4">

@@ -35,9 +35,9 @@
     />
 
     <!-- Right Chat Column -->
-    <aside v-if="sidebarRightOpen" :style="displayStore.rightSidebarStyle">
+    <aside v-if="sidebarRightOpen">
       <div>
-        <splash-tutorial />
+        <splash-tutorial :style="displayStore.rightSidebarStyle" />
       </div>
     </aside>
   </div>

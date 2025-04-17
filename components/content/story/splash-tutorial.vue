@@ -1,66 +1,63 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
   <div class="relative w-full overflow-hidden rounded-2xl">
-    <!-- Fixed Background -->
+    <!-- Background -->
     <div class="absolute inset-0 z-0 pointer-events-none">
       <image-toggle class="w-full h-full object-cover" />
     </div>
 
-    <!-- Foreground Container -->
+    <!-- Foreground Content -->
     <div
-      class="relative z-10 container mx-auto flex flex-col justify-between min-h-[600px] px-4 py-6 space-y-6 backdrop-blur-md"
+      class="relative z-10 container mx-auto px-4 py-6 space-y-6 backdrop-blur-md"
     >
-      <!-- Top: Icon + Title + Description -->
-      <div class="space-y-4">
-        <!-- Icon -->
-        <div class="absolute top-4 right-4 z-30 max-w-[50%]">
-          <Icon :name="icon" class="w-full max-w-[100px] h-auto text-primary" />
+      <!-- Title Block -->
+      <div class="relative space-y-4">
+        <div class="absolute top-0 right-0 max-w-[100px] z-30">
+          <Icon :name="icon" class="w-full h-auto text-primary" />
         </div>
 
         <div
           v-if="title"
-          class="bg-primary/80 text-white text-3xl md:text-5xl font-bold px-4 py-2 rounded-xl max-w-[80%] animate-fade-in-up"
+          class="bg-primary/80 text-white text-3xl md:text-5xl font-bold px-4 py-2 rounded-xl inline-block animate-fade-in-up"
         >
           The {{ title }} Room
         </div>
+
         <div
           v-if="description"
-          class="self-end bg-base-100/70 text-base md:text-lg lg:text-xl font-medium px-3 py-1 rounded-md text-white max-w-[80%] animate-fade-in-up delay-200"
+          class="bg-base-100/70 text-white text-base md:text-lg lg:text-xl font-medium px-3 py-1 rounded-md inline-block animate-fade-in-up delay-200"
         >
           {{ description }}
         </div>
       </div>
 
-      <!-- Middle: Mode Nav -->
-      <div v-if="displayStore.displayMode">
-        <mode-nav class="w-full pointer-events-auto" />
-      </div>
+      <!-- Mode Nav -->
+      <mode-nav
+        v-if="displayStore.displayMode"
+        class="w-full pointer-events-auto"
+      />
 
-      <!-- Bottom: Tips -->
-      <div v-if="dottitip && amitip">
-        <div class="flex flex-col space-y-4 max-w-xl mx-auto w-full">
-          <!-- Dotti -->
-          <div class="chat chat-start animate-fade-in-up delay-300">
-            <div class="chat-image avatar">
-              <div class="w-10 h-10 rounded-full border-2 border-primary">
-                <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
-              </div>
-            </div>
-            <div class="chat-bubble chat-bubble-primary">
-              <span class="font-semibold">DottiBot:</span> {{ dottitip }}
+      <!-- Bot Tips -->
+      <div v-if="dottitip && amitip" class="max-w-xl mx-auto space-y-4">
+        <div class="chat chat-start animate-fade-in-up delay-300">
+          <div class="chat-image avatar">
+            <div class="w-10 h-10 rounded-full border-2 border-primary">
+              <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
             </div>
           </div>
+          <div class="chat-bubble chat-bubble-primary">
+            <span class="font-semibold">DottiBot:</span> {{ dottitip }}
+          </div>
+        </div>
 
-          <!-- AMI -->
-          <div class="chat chat-end animate-fade-in-up delay-500">
-            <div class="chat-image avatar">
-              <div class="w-10 h-10 rounded-full border-2 border-secondary">
-                <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
-              </div>
+        <div class="chat chat-end animate-fade-in-up delay-500">
+          <div class="chat-image avatar">
+            <div class="w-10 h-10 rounded-full border-2 border-secondary">
+              <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
             </div>
-            <div class="chat-bubble chat-bubble-secondary">
-              <span class="font-semibold">AMIbot:</span> {{ amitip }}
-            </div>
+          </div>
+          <div class="chat-bubble chat-bubble-secondary">
+            <span class="font-semibold">AMIbot:</span> {{ amitip }}
           </div>
         </div>
       </div>
@@ -94,7 +91,6 @@ const displayStore = useDisplayStore()
 .animate-fade-in-up {
   animation: fade-in-up 0.6s ease-out forwards;
 }
-
 .delay-200 {
   animation-delay: 0.2s;
 }

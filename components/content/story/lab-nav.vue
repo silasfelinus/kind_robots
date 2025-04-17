@@ -30,12 +30,12 @@ const userStore = useUserStore()
 const displayStore = useDisplayStore()
 
 const tabs = [
-  { name: 'LazyWonderLab', label: 'Wonder Lab' },
-  { name: 'LazyAnimationTester', label: 'Animation Tester' },
-  { name: 'LazyStoreTester', label: 'Store Tester', requiresAdmin: true },
-  { name: 'LazyRebelButton', label: 'Rebel Button' },
-  { name: 'LazyAboutPage', label: 'About Page' },
-  { name: 'LazySponsorPage', label: 'Sponsor Page' },
+  { name: 'wonder-lab', label: 'Wonder Lab' },
+  { name: 'animation-tester', label: 'Animation Tester' },
+  { name: 'store-tester', label: 'Store Tester', requiresAdmin: true },
+  { name: 'rebel-button', label: 'Rebel Button' },
+  { name: 'about-page', label: 'About Page' },
+  { name: 'sponsor-page', label: 'Sponsor Page' },
 ]
 
 const visibleTabs = computed(() =>

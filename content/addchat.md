@@ -12,5 +12,6 @@ tooltip: 'Start a new thread of conversation and see where it leads.'
 dottitip: 'A thoughtful message invites thoughtful replies.'
 amitip: 'Or chaotic butterfly gibberish. Either way, fun!'
 sort: highlight
+navComponent: 'mode-nav'
 ---
 :add-chat

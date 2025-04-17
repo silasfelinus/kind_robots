@@ -12,5 +12,6 @@ tooltip: 'Explore interactive stories that bend and twist based on your input.'
 dottitip: 'Scenarios show how our choices shape reality.'
 amitip: 'Unless the vending machine wins again. Then we try another scenario.'
 sort: gallery
+navComponent: 'mode-nav'
 ---
 :scenario-gallery

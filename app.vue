@@ -27,7 +27,7 @@
 
     <!-- Right Toggle Button -->
     <right-toggle
-      class="fixed bottom-4 right-4 z-50"
+      class="fixed bottom-4 right-4 z-40"
       :class="{
         'bg-accent text-white shadow-xl': sidebarRightOpen,
         'bg-base-200 shadow': !sidebarRightOpen,
@@ -37,7 +37,8 @@
     <!-- Right Chat Column -->
     <aside
       v-if="sidebarRightOpen"
-      class="fixed z-40 bottom-16 right-4 w-[90vw] max-w-md h-[60vh] bg-base-200 rounded-2xl shadow-xl border border-accent overflow-hidden transition-all duration-500 ease-in-out flex flex-col"
+      :width="displayStore.sidebarRightWidth"
+      class="fixed z-40 bottom-4 right-4 bg-base-200 rounded-2xl shadow-xl border border-accent overflow-hidden transition-all duration-500 ease-in-out flex flex-col"
     >
       <div class="h-[20%]">
         <mode-row class="w-full h-full" />

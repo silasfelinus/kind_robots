@@ -1,4 +1,3 @@
-<!-- /components/content/story/dashboard-nav.vue -->
 <template>
   <div class="w-full flex flex-col items-center">
     <div class="flex justify-center flex-wrap gap-2 md:gap-3 lg:gap-4 w-full mb-3">
@@ -18,9 +17,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useDisplayStore } from '~/stores/displayStore'
 
+const route = useRoute()
 const displayStore = useDisplayStore()
 
 const tabs = [
@@ -31,14 +32,20 @@ const tabs = [
   { name: 'user-chat', label: 'User Chat' },
 ]
 
-const selected = ref<string>('user-dashboard')
+const selected = ref('')
 
 const selectTab = (tabName: string) => {
   selected.value = tabName
   displayStore.setMainComponent(tabName)
 }
 
-onMounted(() => {
-  displayStore.setMainComponent(selected.value)
-})
+// Always reset to default tab on fresh navigation
+watch(
+  () => route.fullPath,
+  () => {
+    const defaultTab = tabs[0]?.name || ''
+    if (defaultTab) selectTab(defaultTab)
+  },
+  { immediate: true }
+)
 </script>

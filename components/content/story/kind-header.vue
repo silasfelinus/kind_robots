@@ -5,7 +5,7 @@
     class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-black max-w-full box-border"
   >
     <!-- Top Row -->
-    <div class="flex items-center justify-between w-full h-full px-2 sm:px-4">
+    <div class="flex items-center justify-between w-full h-full">
       <!-- Avatar -->
       <div
         class="relative flex items-center flex-shrink-0 w-1/5 sm:w-1/6 h-full rounded-2xl overflow-hidden"
@@ -18,13 +18,13 @@
 
       <!-- Viewport Label -->
       <div
-        class="absolute bottom-0 left-2 mb-1 px-2 py-1 text-white bg-primary rounded-md text-xs md:text-sm"
+        class="absolute bottom-0 left-2 text-white bg-primary rounded-md text-xs md:text-sm"
       >
         {{ displayStore.viewportSize }}
       </div>
 
       <!-- Header Content -->
-      <div class="flex flex-1 h-full px-2 sm:px-4">
+      <div class="flex flex-1 h-full">
         <div
           class="flex flex-wrap md:flex-nowrap w-full h-full items-center gap-2 xl:gap-4"
         >

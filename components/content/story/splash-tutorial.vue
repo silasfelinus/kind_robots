@@ -35,6 +35,7 @@
         :is="navComponent"
         class="w-full p-2 backdrop-blur-md bg-base-200/60 rounded-xl pointer-events-auto"
       />
+      <mode-row class="w-full h-full" />
 
       <!-- Remaining tappable area for hide -->
       <div class="flex-grow relative" @click="toggle">

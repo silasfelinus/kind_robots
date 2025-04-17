@@ -1,6 +1,6 @@
 <template>
   <div
-    class="main-layout h-screen w-screen relative bg-primary overflow-hidden box-border"
+    class="main-layout h-screen w-screen relative overflow-hidden box-border"
   >
     <!-- Loaders -->
     <div class="fixed z-50">
@@ -19,7 +19,7 @@
 
     <!-- Main Content -->
     <main
-      class="fixed z-10 border-3 rounded-2xl p-1 overflow-auto bg-base-300 box-border transition-all duration-600 ease-in-out"
+      class="fixed z-10 border-3 rounded-2xl p-1 overflow-auto box-border transition-all duration-600 ease-in-out"
       :style="displayStore.mainContentStyle"
     >
       <NuxtPage :key="$route.fullPath" />

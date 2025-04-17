@@ -12,5 +12,6 @@ tooltip: 'Explore and interact with the bots created by others.'
 dottitip: 'Every bot here started as an idea.'
 amitip: 'And some of them now have cult followings and theme songs!'
 sort: gallery
+navComponent: 'mode-nav'
 ---
 :bot-gallery

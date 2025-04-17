@@ -12,5 +12,6 @@ tooltip: 'Design special items or abilities that can creatively influence AI-gen
 dottitip: 'A reward should inspire a player to break the story… beautifully.'
 amitip: 'One time I gave someone a cosmic kazoo. The story never recovered.'
 sort: highlight
+navComponent: 'mode-nav'
 ---
 :add-reward

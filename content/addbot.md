@@ -12,5 +12,6 @@ tooltip: 'Create and manage bots that make our chatrooms lively and interactive.
 dottitip: 'The more bots, the more our community grows.'
 amitip: 'I named one “SparkleMancer9000” and now she thinks she’s royalty.'
 sort: highlight
+navComponent: 'mode-nav'
 ---
 :add-bot

@@ -12,5 +12,6 @@ tooltip: 'Create a dynamic narrative space with user choices and AI-driven branc
 dottitip: 'A scenario is a test… not with right answers, but with interesting ones.'
 amitip: 'I once made a scenario where every choice led to interpretive dance.'
 sort: highlight
+navComponent: 'mode-nav'
 ---
 :add-scenario

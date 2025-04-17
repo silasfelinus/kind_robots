@@ -40,7 +40,7 @@
       :style="displayStore.rightSidebarStyle"
       class="duration-500 ease-in-out flex flex-col"
     >
-      <div class="h-100 overflow-hidden">
+      <div>
         <splash-tutorial class="h-full w-full" />
       </div>
     </aside>

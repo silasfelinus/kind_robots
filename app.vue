@@ -19,7 +19,7 @@
 
     <!-- Main Content -->
     <main
-      class="fixed z-40 border-3 rounded-2xl p-1 overflow-auto box-border transition-all duration-600 ease-in-out"
+      class="fixed z-30 border-3 rounded-2xl p-1 overflow-auto box-border transition-all duration-600 ease-in-out"
       :style="displayStore.mainContentStyle"
     >
       <NuxtPage :key="$route.fullPath" />

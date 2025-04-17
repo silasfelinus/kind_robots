@@ -28,9 +28,9 @@
         </div>
       </div>
 
-      <!-- Mode Nav -->
-      <mode-nav
-        v-if="displayStore.displayMode"
+      <!-- Navigation Switcher -->
+      <component
+        :is="shouldShowModeNav ? 'mode-nav' : 'mode-row'"
         class="w-full pointer-events-auto"
       />
 
@@ -67,10 +67,20 @@
 import { storeToRefs } from 'pinia'
 import { usePageStore } from '@/stores/pageStore'
 import { useDisplayStore } from '@/stores/displayStore'
+import { useRoute } from 'vue-router'
 
 const { title, description, icon, dottitip, amitip } =
   storeToRefs(usePageStore())
 const displayStore = useDisplayStore()
+const route = useRoute()
+
+const shouldShowModeNav = computed(() => {
+  const path = route.path.toLowerCase()
+  return (
+    displayStore.displayMode &&
+    (path.startsWith('/add') || path.endsWith('/gallery'))
+  )
+})
 </script>
 
 <style scoped>

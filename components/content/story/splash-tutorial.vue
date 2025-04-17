@@ -2,14 +2,16 @@
   <div
     class="flex flex-col h-full w-full overflow-y-auto shadow-lg border-1 border-accent rounded-2xl box-border bg-base-300 z-10"
   >
-
+    <!-- Optional Nav Component -->
+    <component
+      v-if="navComponent"
+      :is="navComponent"
+      class="w-full"
+    />
 
     <!-- Main Content Section -->
-    <div
-      class="flex-1 flex flex-col items-center justify-between p-1 overflow-auto no-scrollbar"
-    >
-      <!-- Main Image -->
-    <image-toggle />
+    <div class="flex-1 flex flex-col items-center justify-between p-1 overflow-auto no-scrollbar">
+      <image-toggle />
 
       <!-- Title, Description -->
       <div class="text-center w-full space-y-4">
@@ -42,9 +44,7 @@
       <!-- DottiBot -->
       <div class="chat chat-start">
         <div class="chat-image avatar">
-          <div
-            class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-primary"
-          >
+          <div class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-primary">
             <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
           </div>
         </div>
@@ -56,9 +56,7 @@
       <!-- AMIbot -->
       <div class="chat chat-end">
         <div class="chat-image avatar">
-          <div
-            class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-secondary"
-          >
+          <div class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-secondary">
             <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
           </div>
         </div>
@@ -70,9 +68,10 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
 import { usePageStore } from '@/stores/pageStore'
 
-const { title, description, icon, dottitip, amitip } =
+const { title, description, icon, dottitip, navComponent, amitip } =
   storeToRefs(usePageStore())
 </script>

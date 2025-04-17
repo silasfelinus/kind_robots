@@ -1,18 +1,20 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
-  <div class="relative w-full h-full overflow-hidden rounded-2xl">
+  <div
+    class="relative w-full min-h-screen overflow-hidden rounded-2xl flex flex-col justify-between"
+  >
     <!-- Full Image Background -->
     <image-toggle
       class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
     />
 
-    <!-- Icon Top Right -->
-    <div class="absolute top-4 right-4 z-30 max-w-[50%]">
-      <Icon :name="icon" class="w-full max-w-[100px] h-auto text-primary" />
-    </div>
+    <!-- Top Section: Icon, Title, Description -->
+    <div class="relative z-20 px-4 pt-6 space-y-2">
+      <!-- Icon Top Right -->
+      <div class="absolute top-4 right-4 z-30 max-w-[50%]">
+        <Icon :name="icon" class="w-full max-w-[100px] h-auto text-primary" />
+      </div>
 
-    <!-- Title + Subtitle as Message Exchange -->
-    <div class="absolute top-0 z-20 w-full flex flex-col space-y-2 px-4 pt-6">
       <div
         v-if="title"
         class="self-start bg-primary/80 text-white text-3xl md:text-5xl font-bold px-4 py-2 rounded-xl max-w-[80%]"
@@ -27,16 +29,18 @@
       </div>
     </div>
 
-    <!-- Mode Navigation (between subtitle and chat) -->
-    <mode-nav
-      v-if="displayStore.displayMode"
-      class="absolute inset-x-0 top-[40%] z-30 w-full px-4 pointer-events-auto"
-    />
+    <!-- Middle: Mode Nav -->
+    <div class="relative z-30 w-full px-4 pt-4">
+      <mode-nav
+        v-if="displayStore.displayMode"
+        class="w-full pointer-events-auto"
+      />
+    </div>
 
-    <!-- Chat Tips (bottom half) -->
+    <!-- Bottom Section: Chat Tips -->
     <div
       v-if="dottitip && amitip"
-      class="absolute bottom-0 z-40 w-full h-1/2 flex items-end px-4 pb-4 pointer-events-none"
+      class="relative z-40 w-full px-4 pb-4 mt-auto"
     >
       <div class="flex flex-col space-y-2 max-w-xl mx-auto w-full">
         <!-- DottiBot -->

@@ -44,6 +44,7 @@ interface DisplayStoreState {
   displayMode: displayModeState
   displayAction: displayActionState
   previousRoute: string
+  mainComponent: string
 }
 
 // Define the valid effect IDs
@@ -75,6 +76,9 @@ export const useDisplayStore = defineStore('displayStore', {
     displayMode: 'scenario',
     displayAction: 'gallery',
     previousRoute: '',
+    mainComponent: '',
+
+  
   }),
 
   getters: {
@@ -240,6 +244,9 @@ export const useDisplayStore = defineStore('displayStore', {
 
       this.saveState()
     },
+    setMainComponent(component: string) {
+    mainComponent.value = component
+  },
 
     initialize() {
       if (this.isInitialized) {

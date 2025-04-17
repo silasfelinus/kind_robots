@@ -1,18 +1,20 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
   <div class="relative w-full h-full overflow-hidden rounded-2xl">
-    <!-- Full Background Image (BEHIND everything) -->
-    <div class="absolute inset-0 z-0">
-      <image-toggle class="w-full h-full object-cover min-w-full" />
-    </div>
+    <!-- Fullscreen Image sets height -->
+    <image-toggle
+      class="w-full h-full object-cover min-w-full absolute inset-0 z-0"
+    />
 
-    <!-- Icon Top Right -->
+    <!-- Overlay: Icon Top Right -->
     <div class="absolute top-2 right-2 z-30 max-w-[50%]">
       <Icon :name="icon" class="w-full max-w-[100px] h-auto text-primary" />
     </div>
 
-    <!-- Title and Subtitle -->
-    <div class="relative z-20 text-white text-center py-4 px-2 space-y-2">
+    <!-- Overlay: Title + Subtitle -->
+    <div
+      class="absolute top-4 w-full text-center z-20 text-white px-4 space-y-2"
+    >
       <h1
         v-if="title"
         class="text-3xl md:text-5xl font-bold bg-primary px-4 py-2 rounded-xl inline-block bg-opacity-80"
@@ -27,7 +29,7 @@
       </h3>
     </div>
 
-    <!-- Chat Tips Overlay -->
+    <!-- Overlay: Chat Tips Bottom -->
     <div
       v-if="dottitip && amitip"
       class="absolute bottom-0 w-full px-4 pb-4 z-40 pointer-events-none"

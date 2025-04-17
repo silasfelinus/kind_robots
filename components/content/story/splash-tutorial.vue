@@ -3,7 +3,7 @@
   <div class="relative w-full h-full overflow-hidden rounded-2xl">
     <!-- Full Image Background -->
     <image-toggle
-      class="absolute inset-0 z-0 w-full h-full object-cover min-w-full"
+      class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
     />
 
     <!-- Icon Top Right -->

@@ -3,7 +3,7 @@
   <div class="relative w-full h-full overflow-hidden">
     <!-- Immersive Background Bleed (Right Side Stretch) -->
     <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      <div class="absolute top-0 right-0 w-[4vw] h-full">
+      <div class="absolute top-0 right-0 h-full">
         <image-background />
       </div>
     </div>

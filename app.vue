@@ -37,8 +37,7 @@
     <!-- Right Chat Column -->
     <aside
       v-if="sidebarRightOpen"
-      :width="displayStore.sidebarRightWidth"
-      :height="displayStore.mainContentHeight"
+      :style="displayStore.rightSidebarStyle"
       class="fixed z-40 bottom-16 right-4 bg-base-200 border-4 rounded-2xl shadow-xl border-accent overflow-hidden transition-all duration-500 ease-in-out flex flex-col"
     >
       <div class="h-[20%]">

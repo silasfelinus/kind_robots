@@ -17,6 +17,7 @@ export interface Page {
   sort?: string
   dottitip?: string
   amitip?: string
+  navComponent?: string
   underConstruction?: boolean
   [key: string]: unknown // For type safety
 }

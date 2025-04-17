@@ -1,69 +1,69 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
-  <div
-    class="relative w-full min-h-screen overflow-hidden rounded-2xl flex flex-col justify-between"
-  >
-    <!-- Full Image Background -->
-    <image-toggle
-      class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
-    />
-
-    <!-- Top Section: Icon, Title, Description -->
-    <div class="relative z-20 px-4 pt-6 space-y-2">
-      <!-- Icon Top Right -->
-      <div class="absolute top-4 right-4 z-30 max-w-[50%]">
-        <Icon :name="icon" class="w-full max-w-[100px] h-auto text-primary" />
-      </div>
-
-      <div
-        v-if="title"
-        class="self-start bg-primary/80 text-white text-3xl md:text-5xl font-bold px-4 py-2 rounded-xl max-w-[80%]"
-      >
-        The {{ title }} Room
-      </div>
-      <div
-        v-if="description"
-        class="self-end bg-base-100/70 text-base md:text-lg lg:text-xl font-medium px-3 py-1 rounded-md text-white max-w-[80%]"
-      >
-        {{ description }}
-      </div>
+  <div class="relative w-full min-h-screen overflow-hidden rounded-2xl">
+    <!-- Fixed Background -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+      <image-toggle class="w-full h-full object-cover" />
     </div>
 
-    <!-- Middle: Mode Nav -->
-    <div class="relative z-30 w-full px-4 pt-4">
-      <mode-nav
-        v-if="displayStore.displayMode"
-        class="w-full pointer-events-auto"
-      />
-    </div>
-
-    <!-- Bottom Section: Chat Tips -->
+    <!-- Scrollable Foreground Content -->
     <div
-      v-if="dottitip && amitip"
-      class="relative z-40 w-full px-4 pb-4 mt-auto"
+      class="relative z-10 flex flex-col min-h-screen justify-between backdrop-blur-md"
     >
-      <div class="flex flex-col space-y-2 max-w-xl mx-auto w-full">
-        <!-- DottiBot -->
-        <div class="chat chat-start">
-          <div class="chat-image avatar">
-            <div class="w-10 h-10 rounded-full border-2 border-primary">
-              <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
-            </div>
-          </div>
-          <div class="chat-bubble chat-bubble-primary">
-            <span class="font-semibold">DottiBot:</span> {{ dottitip }}
-          </div>
+      <!-- Top: Icon + Title + Description -->
+      <div class="px-4 pt-6 space-y-2">
+        <!-- Icon Top Right -->
+        <div class="absolute top-4 right-4 z-30 max-w-[50%]">
+          <Icon :name="icon" class="w-full max-w-[100px] h-auto text-primary" />
         </div>
 
-        <!-- AMIbot -->
-        <div class="chat chat-end">
-          <div class="chat-image avatar">
-            <div class="w-10 h-10 rounded-full border-2 border-secondary">
-              <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
+        <div
+          v-if="title"
+          class="self-start bg-primary/80 text-white text-3xl md:text-5xl font-bold px-4 py-2 rounded-xl max-w-[80%] animate-fade-in-up"
+        >
+          The {{ title }} Room
+        </div>
+        <div
+          v-if="description"
+          class="self-end bg-base-100/70 text-base md:text-lg lg:text-xl font-medium px-3 py-1 rounded-md text-white max-w-[80%] animate-fade-in-up delay-200"
+        >
+          {{ description }}
+        </div>
+      </div>
+
+      <!-- Middle: Mode Nav -->
+      <div class="w-full px-4 pt-4">
+        <mode-nav
+          v-if="displayStore.displayMode"
+          class="w-full pointer-events-auto"
+        />
+      </div>
+
+      <!-- Bottom: Chat Tips -->
+      <div v-if="dottitip && amitip" class="w-full px-4 pb-4 mt-auto">
+        <div class="flex flex-col space-y-4 max-w-xl mx-auto w-full">
+          <!-- DottiBot -->
+          <div class="chat chat-start animate-fade-in-up delay-300">
+            <div class="chat-image avatar">
+              <div class="w-10 h-10 rounded-full border-2 border-primary">
+                <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
+              </div>
+            </div>
+            <div class="chat-bubble chat-bubble-primary">
+              <span class="font-semibold">DottiBot:</span> {{ dottitip }}
             </div>
           </div>
-          <div class="chat-bubble chat-bubble-secondary">
-            <span class="font-semibold">AMIbot:</span> {{ amitip }}
+
+          <!-- AMIbot -->
+          <div class="chat chat-end animate-fade-in-up delay-500">
+            <div class="chat-image avatar">
+              <div class="w-10 h-10 rounded-full border-2 border-secondary">
+                <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
+              </div>
+            </div>
+            <div class="chat-bubble chat-bubble-secondary">
+              <span class="font-semibold">AMIbot:</span> {{ amitip }}
+            </div>
           </div>
         </div>
       </div>
@@ -81,3 +81,30 @@ const { title, description, icon, dottitip, amitip } =
   storeToRefs(usePageStore())
 const displayStore = useDisplayStore()
 </script>
+
+<style scoped>
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+.delay-300 {
+  animation-delay: 0.3s;
+}
+.delay-500 {
+  animation-delay: 0.5s;
+}
+</style>

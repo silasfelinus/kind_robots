@@ -12,5 +12,6 @@ tooltip: 'Meet the characters behind the chaos.'
 dottitip: 'Characters give your bots depth and direction.'
 amitip: 'One of mine insists on being addressed as “Captain Marshmallow.”'
 sort: gallery
+navComponent: 'mode-nav'
 ---
 :character-gallery

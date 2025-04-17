@@ -1,25 +1,25 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
-  <div class="relative w-full min-h-screen overflow-hidden rounded-2xl">
+  <div class="relative w-full overflow-hidden rounded-2xl">
     <!-- Fixed Background -->
-    <div class="fixed inset-0 z-0 pointer-events-none">
+    <div class="absolute inset-0 z-0 pointer-events-none">
       <image-toggle class="w-full h-full object-cover" />
     </div>
 
-    <!-- Scrollable Foreground Content -->
+    <!-- Foreground Container -->
     <div
-      class="relative z-10 flex flex-col min-h-screen justify-between backdrop-blur-md"
+      class="relative z-10 container mx-auto flex flex-col justify-between min-h-[600px] px-4 py-6 space-y-6 backdrop-blur-md"
     >
       <!-- Top: Icon + Title + Description -->
-      <div class="px-4 pt-6 space-y-2">
-        <!-- Icon Top Right -->
+      <div class="space-y-4">
+        <!-- Icon -->
         <div class="absolute top-4 right-4 z-30 max-w-[50%]">
           <Icon :name="icon" class="w-full max-w-[100px] h-auto text-primary" />
         </div>
 
         <div
           v-if="title"
-          class="self-start bg-primary/80 text-white text-3xl md:text-5xl font-bold px-4 py-2 rounded-xl max-w-[80%] animate-fade-in-up"
+          class="bg-primary/80 text-white text-3xl md:text-5xl font-bold px-4 py-2 rounded-xl max-w-[80%] animate-fade-in-up"
         >
           The {{ title }} Room
         </div>
@@ -32,17 +32,14 @@
       </div>
 
       <!-- Middle: Mode Nav -->
-      <div class="w-full px-4 pt-4">
-        <mode-nav
-          v-if="displayStore.displayMode"
-          class="w-full pointer-events-auto"
-        />
+      <div v-if="displayStore.displayMode">
+        <mode-nav class="w-full pointer-events-auto" />
       </div>
 
-      <!-- Bottom: Chat Tips -->
-      <div v-if="dottitip && amitip" class="w-full px-4 pb-4 mt-auto">
+      <!-- Bottom: Tips -->
+      <div v-if="dottitip && amitip">
         <div class="flex flex-col space-y-4 max-w-xl mx-auto w-full">
-          <!-- DottiBot -->
+          <!-- Dotti -->
           <div class="chat chat-start animate-fade-in-up delay-300">
             <div class="chat-image avatar">
               <div class="w-10 h-10 rounded-full border-2 border-primary">
@@ -54,7 +51,7 @@
             </div>
           </div>
 
-          <!-- AMIbot -->
+          <!-- AMI -->
           <div class="chat chat-end animate-fade-in-up delay-500">
             <div class="chat-image avatar">
               <div class="w-10 h-10 rounded-full border-2 border-secondary">

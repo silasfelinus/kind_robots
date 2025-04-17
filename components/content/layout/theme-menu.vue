@@ -1,15 +1,16 @@
+<!-- /components/content/story/theme-toggle.vue -->
 <template>
   <div
-    class="theme-toggle relative flex flex-col items-center justify-center bg-base-300 p-4 rounded-2xl text-lg w-full h-full border shadow-lg overflow-auto"
+    class="theme-toggle relative flex flex-col items-center justify-start rounded-2xl text-lg w-full max-w-5xl mx-auto p-4 gap-4 border shadow-lg"
   >
     <!-- Title -->
-    <div class="text-2xl font-bold mb-4 w-full text-center">Choose Theme:</div>
+    <div class="text-2xl font-bold w-full text-center">Choose Theme:</div>
 
     <!-- Theme list -->
     <div
-      class="theme-list grid gap-6 w-full overflow-y-auto h-full px-4"
+      class="theme-list grid gap-6 w-full"
       :class="{
-        'grid-cols-1 sm:grid-cols-[1fr_1fr] sm:grid-rows-[auto_auto]': true,
+        'grid-cols-1 sm:grid-cols-2': true,
         'place-items-center': true,
       }"
     >
@@ -17,7 +18,7 @@
         v-for="theme in themeStore.themes"
         :key="theme"
         :data-theme="theme"
-        class="theme-container p-4 rounded-xl border shadow-sm transition-all cursor-pointer flex flex-col items-center justify-between"
+        class="theme-container p-4 rounded-xl border shadow-sm transition-all cursor-pointer flex flex-col items-center justify-between w-full max-w-sm"
         :class="
           theme === themeStore.currentTheme
             ? 'ring-4 ring-accent'
@@ -32,13 +33,13 @@
           {{ theme }}
         </button>
 
-        <!-- Circular Color Swatches -->
-        <div class="color-swatches flex gap-1 mt-4">
+        <!-- Color Swatches -->
+        <div class="color-swatches flex gap-2 mt-4">
           <div
             v-for="color in ['primary', 'secondary', 'accent']"
             :key="color"
             :class="`bg-${color} rounded-full border border-base-content`"
-            class="h-5 w-5 md:h-6 md:w-6 lg:h-12 lg:w-12"
+            class="h-6 w-6 lg:h-10 lg:w-10"
           ></div>
         </div>
       </magic-container>
@@ -47,14 +48,14 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/story/theme-toggle.vue
 import { onMounted, computed } from 'vue'
-import { useThemeStore } from '../../../stores/themeStore'
+import { useThemeStore } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-const milestoneStore = useMilestoneStore()
 
 const themeStore = useThemeStore()
+const milestoneStore = useMilestoneStore()
 
-// Initialize theme store
 onMounted(() => {
   try {
     themeStore.initTheme()
@@ -63,10 +64,8 @@ onMounted(() => {
   }
 })
 
-// Track if the theme has been changed
 const themeChanged = computed(() => themeStore.firstThemeChanged)
 
-// Handle theme change
 const handleThemeChange = (theme: string) => {
   try {
     themeStore.changeTheme(theme)

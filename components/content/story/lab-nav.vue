@@ -1,9 +1,7 @@
 <!-- /components/content/story/lab-nav.vue -->
 <template>
   <div class="w-full flex flex-col items-center">
-    <div
-      class="flex justify-center flex-wrap gap-2 md:gap-3 lg:gap-4 w-full mb-3"
-    >
+    <div class="flex justify-center flex-wrap gap-2 md:gap-3 lg:gap-4 w-full mb-3">
       <button
         v-for="tab in visibleTabs"
         :key="tab.name"
@@ -22,10 +20,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useUserStore } from '~/stores/userStore'
 import { useDisplayStore } from '~/stores/displayStore'
 
+const route = useRoute()
 const userStore = useUserStore()
 const displayStore = useDisplayStore()
 
@@ -42,10 +42,20 @@ const visibleTabs = computed(() =>
   tabs.filter((tab) => !tab.requiresAdmin || userStore.isAdmin)
 )
 
-const activeTab = ref(visibleTabs.value[0]?.name || 'LazyWonderLab')
+const activeTab = ref('')
 
 const selectTab = (tabName: string) => {
   activeTab.value = tabName
   displayStore.setMainComponent(tabName)
 }
+
+// Reset tab on route change or initial load
+watch(
+  () => route.fullPath,
+  () => {
+    const defaultTab = visibleTabs.value[0]?.name || ''
+    if (defaultTab) selectTab(defaultTab)
+  },
+  { immediate: true }
+)
 </script>

@@ -43,48 +43,13 @@
             </h2>
           </div>
 
- <!-- Toggle Button with Animated Indicator -->
-<div class="w-full xl:w-1/3 flex justify-end items-center">
-  <div class="relative bg-base-200 rounded-full p-1 flex gap-1 border border-base-300 shadow-inner">
-    <button
-      @click="showIcons = true"
-      class="relative z-10 px-3 py-1 text-xs rounded-full transition-all duration-300"
-      :class="showIcons ? 'text-white' : 'text-gray-400'"
-    >
-      Icons
-    </button>
-    <button
-      @click="showIcons = false"
-      class="relative z-10 px-3 py-1 text-xs rounded-full transition-all duration-300"
-      :class="!showIcons ? 'text-white' : 'text-gray-400'"
-    >
-      Modes
-    </button>
-
-    <!-- Animated Indicator -->
-    <span
-      class="absolute top-1 bottom-1 w-1/2 rounded-full bg-info transition-all duration-300 z-0"
-      :class="showIcons ? 'left-1' : 'left-1/2'"
-    />
-  </div>
-</div>
-
-
-<!-- Transitioned Icon/Mode Section -->
-<transition
-  name="fade-slide"
-  mode="out-in"
-  appear
->
-  <component
-    :is="showIcons ? 'kind-icons' : 'mode-row'"
-    :compact="displayStore.bigMode"
-    key="toggle-view"
-    class="w-full xl:w-1/3 flex justify-end gap-2 items-center"
-  />
-</transition>
-
-
+          <!-- Icons Section -->
+          <div class="w-full xl:w-1/3 flex justify-end items-center">
+            <kind-icons
+              :compact="displayStore.bigMode"
+              class="flex justify-end gap-2 items-center w-full"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -98,18 +63,15 @@ import { storeToRefs } from 'pinia'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 
-
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const { page, subtitle } = storeToRefs(pageStore)
 
 const hydrated = ref(false)
-const showIcons = ref(true)
 
 onMounted(() => {
   hydrated.value = true
 })
-
 </script>
 
 <style scoped>
@@ -126,7 +88,6 @@ onMounted(() => {
   transform: translateY(10px);
 }
 
-/* Shimmer effect on the indicator pill */
 .animated-indicator {
   background-image: linear-gradient(
     135deg,
@@ -147,5 +108,4 @@ onMounted(() => {
     background-position: 150% 0;
   }
 }
-
 </style>

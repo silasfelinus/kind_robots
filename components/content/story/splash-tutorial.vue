@@ -91,6 +91,7 @@ const { title, description, icon, dottitip, navComponent, amitip } =
 const displayStore = useDisplayStore()
 
 function toggle() {
-  displayStore.setSidebarRight(false)
+  const isOpen = displayStore.sidebarRightState === 'open'
+  displayStore.setSidebarRight(!isOpen)
 }
 </script>

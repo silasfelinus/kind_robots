@@ -35,10 +35,12 @@
     />
 
     <!-- Right Chat Column -->
-    <aside v-if="sidebarRightOpen">
-      <div>
-        <splash-tutorial :style="displayStore.rightSidebarStyle" />
-      </div>
+    <aside
+      v-if="sidebarRightOpen"
+      class="fixed z-30"
+      :style="displayStore.rightSidebarStyle"
+    >
+      <splash-tutorial />
     </aside>
   </div>
 </template>

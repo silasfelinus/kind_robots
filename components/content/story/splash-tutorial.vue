@@ -1,8 +1,17 @@
+<!-- /components/content/story/splash-tutorial.vue -->
 <template>
   <div class="relative h-full w-full overflow-hidden rounded-2xl z-0">
     <!-- Full Background Image -->
     <div class="absolute inset-0 z-0">
-      <image-toggle class="h-full w-full object-cover" />
+      <image-toggle class="h-full w-auto object-cover" />
+    </div>
+
+    <!-- Top-right Icon -->
+    <div v-if="icon" class="absolute top-2 right-2 z-20">
+      <Icon
+        :name="icon"
+        class="w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 opacity-80"
+      />
     </div>
 
     <!-- Foreground Content -->
@@ -16,35 +25,30 @@
         class="w-full h-[35%] min-h-[120px] backdrop-blur-md bg-base-300/60 rounded-xl p-2"
       />
 
-      <!-- Title, Description, Icon -->
+      <!-- Title + Description -->
       <div
-        class="flex flex-col items-center justify-evenly text-center backdrop-blur-md bg-base-200/60 rounded-xl p-4"
+        class="flex flex-col items-center justify-center text-center px-4"
         :class="navComponent ? 'h-[30%]' : 'h-[50%]'"
       >
         <h1
           v-if="title"
-          class="text-2xl lg:text-4xl font-bold bg-primary text-white px-3 py-2 rounded-xl"
+          class="text-2xl lg:text-4xl font-bold bg-primary text-white px-4 py-2 rounded-xl bg-opacity-70"
         >
-          {{ title }}
+          The {{ title }} Room
         </h1>
+
         <h3
           v-if="description"
-          class="text-sm md:text-lg lg:text-xl xl-text-2xl font-medium bg-base-300/80 rounded-md px-3 py-1 mt-2"
+          class="text-sm md:text-lg lg:text-xl xl-text-2xl font-medium mt-2 bg-base-300/60 px-3 py-1 rounded-md"
         >
           {{ description }}
         </h3>
-        <div v-if="icon" class="opacity-80 mt-2">
-          <Icon
-            :name="icon"
-            class="w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16"
-          />
-        </div>
       </div>
 
       <!-- Bot Chat -->
       <div
         v-if="dottitip && amitip"
-        class="flex flex-col justify-end w-full px-2 md:px-4 py-2 h-[35%] overflow-auto space-y-2 backdrop-blur-md bg-base-200/70 rounded-xl"
+        class="flex flex-col justify-end w-full px-2 md:px-4 py-2 h-[35%] overflow-y-auto space-y-2"
       >
         <!-- DottiBot -->
         <div class="chat chat-start">

@@ -11,28 +11,26 @@
       <Icon :name="icon" class="w-full max-w-[100px] h-auto text-primary" />
     </div>
 
-    <!-- Title + Subtitle -->
-    <div
-      class="absolute top-0 w-full z-20 text-white text-center py-6 px-4 pointer-events-none"
-    >
-      <h1
+    <!-- Title + Subtitle as Message Exchange -->
+    <div class="absolute top-0 z-20 w-full flex flex-col space-y-2 px-4 pt-6">
+      <div
         v-if="title"
-        class="inline-block text-3xl md:text-5xl font-bold px-4 py-2 rounded-xl bg-primary/80"
+        class="self-start bg-primary/80 text-white text-3xl md:text-5xl font-bold px-4 py-2 rounded-xl max-w-[80%]"
       >
         The {{ title }} Room
-      </h1>
-      <h3
+      </div>
+      <div
         v-if="description"
-        class="mt-2 inline-block text-base md:text-lg lg:text-xl font-medium px-3 py-1 rounded-md bg-base-100/70"
+        class="self-end bg-base-100/70 text-base md:text-lg lg:text-xl font-medium px-3 py-1 rounded-md text-white max-w-[80%]"
       >
         {{ description }}
-      </h3>
+      </div>
     </div>
 
-    <!-- Mode Navigation -->
+    <!-- Mode Navigation (between subtitle and chat) -->
     <mode-nav
       v-if="displayStore.displayMode"
-      class="absolute inset-x-0 top-1/3 z-30 w-full px-4 pointer-events-auto"
+      class="absolute inset-x-0 top-[40%] z-30 w-full px-4 pointer-events-auto"
     />
 
     <!-- Chat Tips (bottom half) -->

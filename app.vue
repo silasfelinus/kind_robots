@@ -41,7 +41,7 @@
       class="duration-500 ease-in-out flex flex-col"
     >
       <div>
-        <splash-tutorial class="h-full w-full" />
+        <splash-tutorial />
       </div>
     </aside>
   </div>

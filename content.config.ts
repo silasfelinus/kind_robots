@@ -44,6 +44,7 @@ const contentSchema = z.object({
   dottitip: z.string().optional(),
   amitip: z.string().optional(),
   sort: z.string().optional(),
+  navComponent: z.string().optional(),
 })
 
 export type ContentType = z.infer<typeof contentSchema> & {

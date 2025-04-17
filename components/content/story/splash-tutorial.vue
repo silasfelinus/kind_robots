@@ -1,40 +1,40 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
   <div class="relative w-full h-full overflow-hidden rounded-2xl">
-    <!-- Fullscreen Image sets height -->
+    <!-- Full Image as Background -->
     <image-toggle
-      class="w-full h-full object-cover min-w-full absolute inset-0 z-0"
+      class="absolute inset-0 z-0 w-full h-full object-cover min-w-full"
     />
 
-    <!-- Overlay: Icon Top Right -->
-    <div class="absolute top-2 right-2 z-30 max-w-[50%]">
+    <!-- Top-right Icon -->
+    <div class="absolute top-4 right-4 z-30 max-w-[50%]">
       <Icon :name="icon" class="w-full max-w-[100px] h-auto text-primary" />
     </div>
 
-    <!-- Overlay: Title + Subtitle -->
+    <!-- Centered Title/SubTitle -->
     <div
-      class="absolute top-4 w-full text-center z-20 text-white px-4 space-y-2"
+      class="absolute top-0 w-full z-20 text-white text-center py-6 px-4 pointer-events-none"
     >
       <h1
         v-if="title"
-        class="text-3xl md:text-5xl font-bold bg-primary px-4 py-2 rounded-xl inline-block bg-opacity-80"
+        class="inline-block text-3xl md:text-5xl font-bold px-4 py-2 rounded-xl bg-primary/80"
       >
         The {{ title }} Room
       </h1>
       <h3
         v-if="description"
-        class="text-base md:text-lg lg:text-xl font-medium bg-base-100/60 px-3 py-1 rounded-md inline-block"
+        class="mt-2 inline-block text-base md:text-lg lg:text-xl font-medium px-3 py-1 rounded-md bg-base-100/70"
       >
         {{ description }}
       </h3>
     </div>
 
-    <!-- Overlay: Chat Tips Bottom -->
+    <!-- Bottom Half Chat Tips -->
     <div
       v-if="dottitip && amitip"
-      class="absolute bottom-0 w-full px-4 pb-4 z-40 pointer-events-none"
+      class="absolute bottom-0 z-40 w-full h-1/2 flex items-end px-4 pb-4 pointer-events-none"
     >
-      <div class="flex flex-col space-y-2 max-w-xl mx-auto">
+      <div class="flex flex-col space-y-2 max-w-xl mx-auto w-full">
         <!-- DottiBot -->
         <div class="chat chat-start">
           <div class="chat-image avatar">

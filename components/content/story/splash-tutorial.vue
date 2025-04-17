@@ -28,10 +28,17 @@
         </h3>
       </div>
 
-      <!-- Spacer to push chats to the bottom -->
+      <!-- Optional Nav Component -->
+      <component
+        v-if="navComponent"
+        :is="navComponent"
+        class="w-full p-2 backdrop-blur-md bg-base-200/60 rounded-xl"
+      />
+
+      <!-- Spacer -->
       <div class="flex-grow" />
 
-      <!-- Overlayed Bot Chat (Floating at Bottom) -->
+      <!-- Overlayed Bot Chat -->
       <div
         v-if="dottitip && amitip"
         class="absolute bottom-0 w-full px-2 md:px-4 pb-4 z-20 space-y-2"

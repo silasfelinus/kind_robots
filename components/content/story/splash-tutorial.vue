@@ -1,6 +1,11 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
   <div class="relative w-full h-full overflow-hidden rounded-2xl">
+    <!-- Full Background Image (BEHIND everything) -->
+    <div class="absolute inset-0 z-0">
+      <image-toggle class="w-full h-full object-cover min-w-full" />
+    </div>
+
     <!-- Icon Top Right -->
     <div class="absolute top-2 right-2 z-30 max-w-[50%]">
       <Icon :name="icon" class="w-full max-w-[100px] h-auto text-primary" />
@@ -20,11 +25,6 @@
       >
         {{ description }}
       </h3>
-    </div>
-
-    <!-- Full Image -->
-    <div class="relative z-10 h-full w-full">
-      <image-toggle class="w-full h-full object-cover min-w-full" />
     </div>
 
     <!-- Chat Tips Overlay -->
@@ -65,7 +65,6 @@
 // /components/content/story/splash-tutorial.vue
 import { storeToRefs } from 'pinia'
 import { usePageStore } from '@/stores/pageStore'
-import { useDisplayStore } from '@/stores/displayStore'
 
 const { title, description, icon, dottitip, amitip } =
   storeToRefs(usePageStore())

@@ -25,10 +25,12 @@
 
       <!-- Header Content -->
       <div class="flex flex-1 h-full px-2 sm:px-4">
-        <div class="flex flex-wrap w-full h-full items-center gap-2 xl:gap-4">
+        <div
+          class="flex flex-wrap md:flex-nowrap w-full h-full items-center gap-2 xl:gap-4"
+        >
           <!-- Title + Subtitle -->
           <div
-            class="flex flex-col justify-center flex-grow basis-1/2 xl:basis-1/3 pr-2 min-w-[120px]"
+            class="flex flex-col justify-center flex-grow basis-full md:basis-1/2 xl:basis-1/3 min-w-0 pr-2"
           >
             <h1
               class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
@@ -45,11 +47,11 @@
 
           <!-- Icons Section -->
           <div
-            class="flex justify-end items-center flex-grow basis-1/2 xl:basis-2/3 min-w-[120px] max-w-full"
+            class="flex justify-end items-center flex-grow basis-full md:basis-1/2 xl:basis-2/3 min-w-0"
           >
             <kind-icons
               :compact="displayStore.bigMode"
-              class="flex flex-wrap justify-end items-center gap-2 w-full"
+              class="flex justify-end items-center gap-2 w-full"
             />
           </div>
         </div>

@@ -77,8 +77,6 @@ export const useDisplayStore = defineStore('displayStore', {
     displayAction: 'gallery',
     previousRoute: '',
     mainComponent: '',
-
-  
   }),
 
   getters: {
@@ -245,8 +243,8 @@ export const useDisplayStore = defineStore('displayStore', {
       this.saveState()
     },
     setMainComponent(component: string) {
-    mainComponent.value = component
-  },
+      this.mainComponent = component
+    },
 
     initialize() {
       if (this.isInitialized) {

@@ -6,9 +6,7 @@
     </div>
 
     <!-- Foreground Content Card (with local backdrop and blur) -->
-    <div
-      class="relative z-10 container mx-auto px-4 py-6 space-y-6 backdrop-blur-xl"
-    >
+    <div class="relative z-10 container backdrop-blur-xl">
       <!-- Title Block -->
       <div class="relative space-y-4">
         <div class="absolute top-0 right-0 max-w-[100px] z-30">

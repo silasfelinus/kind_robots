@@ -8,7 +8,7 @@
     <div class="flex items-center justify-between w-full h-full px-2 sm:px-4">
       <!-- Avatar -->
       <div
-        class="relative flex items-center w-1/5 sm:w-1/6 h-full rounded-2xl overflow-hidden"
+        class="relative flex items-center flex-shrink-0 w-1/5 sm:w-1/6 h-full rounded-2xl overflow-hidden"
       >
         <avatar-image
           alt="User Avatar"
@@ -24,12 +24,12 @@
       </div>
 
       <!-- Header Content -->
-      <div class="flex flex-col flex-1 h-full px-4">
-        <div
-          class="flex flex-wrap xl:flex-nowrap w-full h-full items-center gap-2 xl:gap-4"
-        >
+      <div class="flex flex-1 h-full px-2 sm:px-4">
+        <div class="flex flex-wrap w-full h-full items-center gap-2 xl:gap-4">
           <!-- Title + Subtitle -->
-          <div class="flex flex-col justify-center w-full xl:w-1/3 pr-2">
+          <div
+            class="flex flex-col justify-center flex-grow basis-1/2 xl:basis-1/3 pr-2 min-w-[120px]"
+          >
             <h1
               class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
             >
@@ -44,10 +44,12 @@
           </div>
 
           <!-- Icons Section -->
-          <div class="w-full xl:w-1/3 flex justify-end items-center">
+          <div
+            class="flex justify-end items-center flex-grow basis-1/2 xl:basis-2/3 min-w-[120px] max-w-full"
+          >
             <kind-icons
               :compact="displayStore.bigMode"
-              class="flex justify-end gap-2 items-center w-full"
+              class="flex flex-wrap justify-end items-center gap-2 w-full"
             />
           </div>
         </div>
@@ -73,39 +75,3 @@ onMounted(() => {
   hydrated.value = true
 })
 </script>
-
-<style scoped>
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.4s ease;
-}
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.animated-indicator {
-  background-image: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.2) 25%,
-    rgba(255, 255, 255, 0.4) 50%,
-    rgba(255, 255, 255, 0.2) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite linear;
-  opacity: 0.9;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -150% 0;
-  }
-  100% {
-    background-position: 150% 0;
-  }
-}
-</style>

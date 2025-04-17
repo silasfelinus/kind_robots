@@ -27,7 +27,7 @@
 
     <!-- Right Toggle Button -->
     <right-toggle
-      class="fixed bottom-4 right-4 z-40"
+      class="fixed bottom-4 right-4 z-30"
       :class="{
         'bg-accent text-white shadow-xl': sidebarRightOpen,
         'bg-base-200 shadow': !sidebarRightOpen,
@@ -35,11 +35,7 @@
     />
 
     <!-- Right Chat Column -->
-    <aside
-      v-if="sidebarRightOpen"
-      :style="displayStore.rightSidebarStyle"
-      class="duration-500 ease-in-out flex flex-col"
-    >
+    <aside v-if="sidebarRightOpen" :style="displayStore.rightSidebarStyle">
       <div>
         <splash-tutorial />
       </div>

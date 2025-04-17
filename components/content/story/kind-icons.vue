@@ -1,11 +1,11 @@
 <!-- /components/content/story/kind-icons.vue -->
 <template>
-  <div class="flex gap-2 items-center justify-end w-full">
+  <div class="flex gap-1 items-center justify-end w-full">
     <NuxtLink
       v-for="link in navLinks"
       :key="link.path"
       :to="link.path"
-      class="group flex flex-col items-center justify-center w-[80px] min-w-[72px] max-w-[90px] transition-all"
+      class="group flex flex-col items-center justify-center w-[80px] min-w-[12px] max-w-[90px] transition-all"
     >
       <Icon
         :name="link.icon"

@@ -1,14 +1,21 @@
 <template>
   <div class="relative w-full h-full overflow-hidden rounded-2xl z-10">
-    <!-- Fullscreen Background Layer -->
+    <!-- Background -->
     <div class="fixed inset-0 z-0 pointer-events-none">
-      <image-background class="h-full w-auto object-cover" />
+      <img
+        v-if="image"
+        :src="`/images/${image}`"
+        class="h-full w-auto object-cover"
+        alt="Ambient Background"
+      />
     </div>
 
-    <!-- Foreground Content Clickable Layer -->
+    <!-- Click-to-close overlay -->
+    <div class="absolute inset-0 z-10" @click="handleSidebarClose"></div>
+
+    <!-- Foreground Content -->
     <div
-      class="relative z-10 container px-4 py-6 space-y-8 backdrop-blur-xl max-w-4xl mx-auto"
-      @click="handleSidebarClose"
+      class="relative z-20 container px-4 py-6 space-y-8 backdrop-blur-xl max-w-4xl mx-auto"
     >
       <!-- Title Block -->
       <div class="relative space-y-2 text-center">
@@ -31,9 +38,14 @@
         </h2>
       </div>
 
-      <!-- Navigation Component (not clickable) -->
+      <!-- navComponent if defined -->
+      <div v-if="navComponent" @click.stop>
+        <component :is="navComponent" class="w-full pointer-events-auto" />
+      </div>
+
+      <!-- Always show mode-row -->
       <div @click.stop>
-        <component :is="navComponentToUse" class="w-full pointer-events-auto" />
+        <mode-row class="w-full pointer-events-auto" />
       </div>
 
       <!-- Bot Tips -->
@@ -65,24 +77,17 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/story/splash-tutorial.vue
 import { storeToRefs } from 'pinia'
 import { usePageStore } from '@/stores/pageStore'
 import { useDisplayStore } from '@/stores/displayStore'
-import { computed } from 'vue'
 
-const pageStore = usePageStore()
 const displayStore = useDisplayStore()
-const { title, description, icon, dottitip, amitip, navComponent } =
-  storeToRefs(pageStore)
+const { title, description, icon, dottitip, amitip, navComponent, image } =
+  storeToRefs(usePageStore())
 
 const handleSidebarClose = () => {
   displayStore.setSidebarRight(false)
 }
-
-const navComponentToUse = computed(() => {
-  return navComponent.value || 'mode-row'
-})
 </script>
 
 <style scoped>

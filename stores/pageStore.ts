@@ -58,6 +58,7 @@ export const usePageStore = defineStore('pageStore', () => {
       sort: data.sort ?? '',
       category: data.category ?? '',
       underConstruction: data.underConstruction ?? true,
+      navComponent: data.navComponent ?? '',
     } as ContentType
   }
 

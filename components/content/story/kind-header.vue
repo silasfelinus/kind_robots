@@ -47,11 +47,11 @@
 
           <!-- Icons Section -->
           <div
-            class="flex justify-end items-center flex-grow basis-full md:basis-1/2 xl:basis-2/3 min-w-0"
+            class="flex justify-end items-center flex-grow basis-2/3 min-w-0"
           >
             <kind-icons
               :compact="displayStore.bigMode"
-              class="flex justify-end items-center gap-2 w-full"
+              class="flex justify-end items-center gap-2 md:gap-6 w-full"
             />
           </div>
         </div>

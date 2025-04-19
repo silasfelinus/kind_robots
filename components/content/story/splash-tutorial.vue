@@ -1,14 +1,12 @@
 <template>
   <div class="relative w-full h-full overflow-hidden rounded-2xl z-10">
     <!-- Background -->
-    <div class="fixed inset-0 z-0 pointer-events-none">
-      <img
-        v-if="image"
-        :src="`/images/${image}`"
-        class="h-full w-auto object-cover"
-        alt="Ambient Background"
-      />
-    </div>
+    <img
+      v-if="image"
+      :src="`/images/${image}`"
+      class="h-full w-auto object-cover"
+      alt="Ambient Background"
+    />
 
     <!-- Click-to-close overlay -->
     <div class="absolute inset-0 z-10" @click="handleSidebarClose"></div>

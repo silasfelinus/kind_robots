@@ -27,7 +27,7 @@
 
     <!-- Right Toggle Button -->
     <right-toggle
-      class="fixed bottom-4 right-4 z-30"
+      class="fixed bottom-4 right-4 z-40"
       :class="{
         'bg-accent text-white shadow-xl': sidebarRightOpen,
         'bg-base-200 shadow': !sidebarRightOpen,

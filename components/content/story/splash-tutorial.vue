@@ -1,6 +1,6 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
-  <div class="relative w-full h-full overflow-hidden rounded-2xl z-40">
+  <div class="relative w-full h-full overflow-hidden rounded-2xl z-20">
     <!-- Background Image Click-to-Close -->
     <img
       v-if="image"

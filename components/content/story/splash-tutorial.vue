@@ -9,7 +9,10 @@
     />
 
     <!-- Click-to-close overlay -->
-    <div class="absolute inset-0 z-10" @click="handleSidebarClose"></div>
+    <div
+      class="absolute inset-0 z-10 bg-red-500/10"
+      @click="handleSidebarClose"
+    ></div>
 
     <!-- Foreground Content -->
     <div class="relative z-20 container px-4 py-6 space-y-8 max-w-4xl mx-auto">

@@ -97,7 +97,7 @@ export const useDisplayStore = defineStore('displayStore', {
     },
 
     headerHeight(): number {
-      const sizes = { small: 10, medium: 8, large: 12, extraLarge: 10 }
+      const sizes = { small: 14, medium: 8, large: 12, extraLarge: 10 }
       return sizes[this.viewportSize]
     },
 

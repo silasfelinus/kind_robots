@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex w-full items-center justify-end overflow-hidden flex-nowrap gap-2"
-  >
+  <div class="flex w-full items-center justify-end overflow-hidden flex-nowrap">
     <!-- All Icons Treated Equally -->
     <div
       v-for="link in navLinks"

@@ -30,16 +30,22 @@
         >
           <!-- Title + Subtitle -->
           <div
-            class="flex flex-col justify-center flex-grow basis-full md:basis-1/2 xl:basis-1/3 min-w-0 pr-2"
+            class="flex flex-wrap items-center justify-start flex-grow basis-full md:basis-1/2 xl:basis-1/3 min-w-0 pr-2 gap-x-2 gap-y-0"
           >
             <h1
-              class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
+              class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight whitespace-nowrap overflow-hidden text-ellipsis"
             >
               The {{ page?.title || 'Room' }} Room
             </h1>
             <h2
               v-if="!displayStore.bigMode"
-              class="italic text-xs md:text-sm lg:text-md xl:text-lg text-ellipsis leading-tight mt-1 sm:mt-2"
+              class="italic text-xs md:text-sm lg:text-md xl:text-lg leading-tight text-ellipsis whitespace-nowrap overflow-hidden hidden sm:inline"
+            >
+              – {{ subtitle }}
+            </h2>
+            <h2
+              v-if="!displayStore.bigMode"
+              class="italic text-xs md:text-sm lg:text-md xl:text-lg leading-tight text-ellipsis sm:hidden w-full"
             >
               {{ subtitle }}
             </h2>

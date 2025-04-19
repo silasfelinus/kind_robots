@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full h-full overflow-hidden rounded-2xl z-10">
+  <div class="relative w-full h-full overflow-hidden rounded-2xl z-40">
     <!-- Background -->
     <img
       v-if="image"

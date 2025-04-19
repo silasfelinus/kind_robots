@@ -14,9 +14,7 @@
     <div class="absolute inset-0 z-10" @click="handleSidebarClose"></div>
 
     <!-- Foreground Content -->
-    <div
-      class="relative z-20 container px-4 py-6 space-y-8 backdrop-blur-xl max-w-4xl mx-auto"
-    >
+    <div class="relative z-20 container px-4 py-6 space-y-8 max-w-4xl mx-auto">
       <!-- Title Block -->
       <div class="relative space-y-2 text-center">
         <div class="absolute top-0 right-0 max-w-[100px] z-30">
@@ -86,6 +84,7 @@ const { title, description, icon, dottitip, amitip, navComponent, image } =
   storeToRefs(usePageStore())
 
 const handleSidebarClose = () => {
+  console.log('clicked. pages navComponent is', navComponent)
   displayStore.setSidebarRight(false)
 }
 </script>

@@ -3,6 +3,7 @@
     class="relative h-full w-full rounded-2xl overflow-hidden bg-base-300 border border-accent"
   >
     <transition name="flip" mode="out-in">
+      <!-- Mobile View -->
       <div
         v-if="displayStore.isMobileViewport"
         key="mobile-view"
@@ -16,6 +17,7 @@
         />
       </div>
 
+      <!-- Desktop View -->
       <div v-else key="desktop-view" class="h-full w-full">
         <NuxtPage
           :key="$route.fullPath"
@@ -33,9 +35,9 @@
       }"
     />
 
-    <!-- Right Chat Column -->
+    <!-- Right Sidebar for Desktop -->
     <aside
-      v-if="sidebarRightOpen"
+      v-if="!displayStore.isMobileViewport && sidebarRightOpen"
       class="fixed z-30 rounded-2xl border-6 border-secondary"
       :style="displayStore.rightSidebarStyle"
     >

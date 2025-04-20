@@ -61,7 +61,6 @@
 
 <script setup lang="ts">
 // /components/content/story/kind-header.vue
-import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'

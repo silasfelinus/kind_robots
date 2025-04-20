@@ -7,6 +7,7 @@
     <div
       v-if="displayStore.isMobileViewport"
       class="relative h-full w-full"
+      :style="displayStore.mainContentStyle"
       key="mobile"
     >
       <transition name="flip" mode="out-in">

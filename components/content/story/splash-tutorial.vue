@@ -84,10 +84,9 @@
   </div>
 </template>
 
-<script setup lang="ts">
-// /components/content/story/splash-tutorial.vue
+<script setup lang="ts">// /components/content/story/splash-tutorial.vue
 import { useRoute } from 'vue-router'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const route = useRoute()
@@ -97,14 +96,21 @@ const debug = ref(false)
 const toggleDebug = () => (debug.value = !debug.value)
 
 const slug = route.params.slug || 'index'
+const page = ref<Record<string, any> | null>(null)
 
-const { data: page } = await queryCollection('content')
-  .where({ _path: `/${slug}` })
-  .findOne()
-
-onMounted(() => {
+onMounted(async () => {
   console.log('[splash-tutorial] mounted with slug:', slug)
-  console.log('[splash-tutorial] page data:', page.value)
+
+  try {
+    const { data } = await queryCollection('content')
+      .where({ _path: `/${slug}` })
+      .findOne()
+
+    page.value = data.value
+    console.log('[splash-tutorial] page data:', page.value)
+  } catch (err) {
+    console.error('[splash-tutorial] error loading page:', err)
+  }
 })
 </script>
 

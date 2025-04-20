@@ -9,32 +9,28 @@
       class="relative h-full w-full"
       key="mobile"
     >
-      <transition name="flip" mode="out-in">
-        <div
-          :key="sidebarRightOpen ? 'splash' : 'page'"
-          class="h-full w-full relative"
-        >
+      <!-- Mobile View: flip transition between splash and page -->
+      <div
+        v-if="displayStore.isMobileViewport"
+        class="relative h-full w-full"
+        key="mobile"
+      >
+        <div class="flip-card h-full w-full">
           <div
-            class="absolute inset-0 h-full w-full transition-opacity duration-500"
-            :class="{
-              'opacity-100 z-20': sidebarRightOpen,
-              'opacity-0 z-10 pointer-events-none': !sidebarRightOpen,
-            }"
+            class="flip-card-inner h-full w-full"
+            :class="{ 'is-flipped': sidebarRightOpen }"
           >
-            <splash-tutorial />
-          </div>
-
-          <div
-            class="absolute inset-0 h-full w-full overflow-y-auto transition-opacity duration-500"
-            :class="{
-              'opacity-100 z-20': !sidebarRightOpen,
-              'opacity-0 z-10 pointer-events-none': sidebarRightOpen,
-            }"
-          >
-            <NuxtPage :key="$route.fullPath" />
+            <div
+              class="flip-card-front absolute inset-0 h-full w-full overflow-y-auto"
+            >
+              <NuxtPage :key="$route.fullPath" />
+            </div>
+            <div class="flip-card-back absolute inset-0 h-full w-full">
+              <splash-tutorial />
+            </div>
           </div>
         </div>
-      </transition>
+      </div>
     </div>
 
     <!-- Desktop View: both shown at once -->
@@ -76,21 +72,32 @@ const sidebarRightOpen = computed(
 </script>
 
 <style scoped>
-/* Flip transition effect */
-.flip-enter-active,
-.flip-leave-active {
-  transform-style: preserve-3d;
+.flip-card {
   perspective: 1000px;
+}
+
+.flip-card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
   transition: transform 0.6s ease-in-out;
+  transform-style: preserve-3d;
 }
 
-.flip-enter,
-.flip-leave-to {
-  transform: rotateY(90deg);
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
 }
 
-.flip-leave,
-.flip-enter-to {
-  transform: rotateY(0deg);
+.flip-card-front,
+.flip-card-back {
+  backface-visibility: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
 }
 </style>

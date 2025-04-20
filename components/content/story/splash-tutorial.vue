@@ -34,12 +34,13 @@
 
       <!-- Optional Nav Component -->
       <component
-        v-if="page?.navComponent"
+        v-if="page?.navComponent && typeof page.navComponent === 'string'"
         :is="page.navComponent"
         class="w-full pointer-events-auto"
       />
 
-<mode-row />
+      <!-- Always Show Mode Row -->
+      <mode-row class="w-full pointer-events-auto" />
 
       <!-- Bot Tips -->
       <div v-if="page?.dottitip && page?.amitip" class="max-w-xl mx-auto space-y-4">
@@ -86,6 +87,7 @@
 <script setup lang="ts">
 // /components/content/story/splash-tutorial.vue
 import { useRoute } from 'vue-router'
+import { queryCollection } from '#content'
 import { ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 

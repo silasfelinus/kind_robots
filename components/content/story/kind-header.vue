@@ -1,7 +1,6 @@
 <!-- /components/content/story/kind-header.vue -->
 <template>
   <header
- 
     class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-black max-w-full box-border"
   >
     <!-- Top Row -->
@@ -30,19 +29,23 @@
         >
           <!-- Title + Subtitle -->
           <div
-            class="flex flex-col justify-center flex-grow basis-full md:basis-1/2 xl:basis-1/3 min-w-0 pr-2"
+            class="flex flex-col md:flex-col xl:flex-col justify-center flex-grow basis-full md:basis-1/2 xl:basis-1/3 min-w-0 pr-2"
           >
-            <h1
-              class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
+            <div
+              class="flex flex-row md:flex-col items-start md:items-start gap-1 md:gap-0 w-full min-w-0"
             >
-              The {{ page?.title || 'Room' }} Room
-            </h1>
-            <h2
-              v-if="!displayStore.bigMode"
-              class="italic text-xs md:text-sm lg:text-md xl:text-lg text-ellipsis leading-tight mt-1 sm:mt-2"
-            >
-              {{ subtitle }}
-            </h2>
+              <h1
+                class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight truncate"
+              >
+                The {{ page?.title || 'Room' }} Room
+              </h1>
+              <h2
+                v-if="!displayStore.bigMode"
+                class="italic text-xs md:text-sm lg:text-md xl:text-lg leading-tight truncate"
+              >
+                {{ subtitle }}
+              </h2>
+            </div>
           </div>
 
           <!-- Icons Section -->
@@ -70,6 +73,4 @@ import { usePageStore } from '@/stores/pageStore'
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const { page, subtitle } = storeToRefs(pageStore)
-
-
 </script>

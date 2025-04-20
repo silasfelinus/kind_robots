@@ -1,7 +1,7 @@
 <!-- /components/content/story/kind-header.vue -->
 <template>
   <header
-    v-if="hydrated"
+ 
     class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-black max-w-full box-border"
   >
     <!-- Top Row -->
@@ -71,9 +71,5 @@ const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const { page, subtitle } = storeToRefs(pageStore)
 
-const hydrated = ref(false)
 
-onMounted(() => {
-  hydrated.value = true
-})
 </script>

@@ -1,13 +1,12 @@
 <template>
   <div
-    class="main-layout h-screen w-screen relative overflow-hidden box-border"
+    class="main-layout bg-base-200 h-screen w-screen relative overflow-hidden box-border"
   >
     <!-- Loaders -->
     <div class="fixed z-50">
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />
-      <image-background />
     </div>
 
     <!-- Header -->

@@ -29,6 +29,7 @@
         >
           <!-- Title + Subtitle -->
           <div
+            v-if="!displayStore.bigMode"
             class="flex flex-col md:flex-col xl:flex-col justify-center flex-grow basis-full md:basis-1/2 xl:basis-1/3 min-w-0 pr-2"
           >
             <div
@@ -40,7 +41,6 @@
                 The {{ page?.title || 'Room' }} Room
               </h1>
               <h2
-                v-if="!displayStore.bigMode"
                 class="italic text-xs md:text-sm lg:text-md xl:text-lg leading-tight truncate"
               >
                 {{ subtitle }}

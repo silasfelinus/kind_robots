@@ -42,9 +42,7 @@
 
       <!-- Always show mode-row -->
       <div>
-        <mode-row
-          class="w-full min-h-[2.5rem] bg-primary pointer-events-auto"
-        />
+        <mode-row class="w-full min-h-[2.5rem] pointer-events-auto" />
       </div>
 
       <!-- Bot Tips (clickable to close) -->
@@ -59,7 +57,7 @@
               <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
             </div>
           </div>
-          <div class="chat-bubble text-white bg-primary/70">
+          <div class="chat-bubble text-white bg-primary">
             <span class="font-semibold">DottiBot:</span> {{ dottitip }}
           </div>
         </div>
@@ -70,7 +68,7 @@
               <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
             </div>
           </div>
-          <div class="chat-bubble text-white bg-secondary/70">
+          <div class="chat-bubble text-white bg-secondary">
             <span class="font-semibold">AMIbot:</span> {{ amitip }}
           </div>
         </div>

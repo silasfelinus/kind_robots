@@ -86,7 +86,6 @@
 <script setup lang="ts">
 // /components/content/story/splash-tutorial.vue
 import { useRoute } from 'vue-router'
-import { queryCollection } from '#content'
 import { ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 

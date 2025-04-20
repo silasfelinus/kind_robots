@@ -30,22 +30,18 @@
           <!-- Title + Subtitle -->
           <div
             v-if="!displayStore.bigMode"
-            class="flex flex-col md:flex-col xl:flex-col justify-center flex-grow basis-full md:basis-1/2 xl:basis-1/3 min-w-0 pr-2"
+            class="flex justify-between items-center w-full flex-grow basis-full md:basis-1/2 xl:basis-1/3 min-w-0 pr-2"
           >
-            <div
-              class="flex flex-row md:flex-col items-start md:items-start gap-1 md:gap-0 w-full min-w-0"
+            <h1
+              class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight truncate"
             >
-              <h1
-                class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight truncate"
-              >
-                The {{ page?.title || 'Room' }} Room
-              </h1>
-              <h2
-                class="italic text-xs md:text-sm lg:text-md xl:text-lg leading-tight truncate"
-              >
-                {{ subtitle }}
-              </h2>
-            </div>
+              The {{ page?.title || 'Room' }} Room
+            </h1>
+            <h2
+              class="italic text-xs md:text-sm lg:text-md xl:text-lg leading-tight text-right truncate"
+            >
+              {{ subtitle }}
+            </h2>
           </div>
 
           <!-- Icons Section -->

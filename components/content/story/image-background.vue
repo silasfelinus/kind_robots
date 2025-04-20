@@ -3,7 +3,7 @@
   <img
     v-if="image"
     :src="`/images/${image}`"
-    class="w-full h-full object-cover opacity-40"
+    class="w-full h-full object-cover opacity-40 z-0"
     alt="Ambient Background"
   />
 </template>

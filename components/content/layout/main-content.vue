@@ -12,11 +12,18 @@
           v-if="displayStore.showTutorial"
           class="h-full w-full"
         />
-        <NuxtPage v-else class="h-full w-full overflow-y-auto no-scrollbar" />
+        <NuxtPage
+          :key="$route.fullPath"
+          v-else
+          class="h-full w-full overflow-y-auto no-scrollbar"
+        />
       </div>
 
       <div v-else key="desktop-view" class="h-full w-full">
-        <NuxtPage class="h-full w-full overflow-y-auto" />
+        <NuxtPage
+          :key="$route.fullPath"
+          class="h-full w-full overflow-y-auto"
+        />
       </div>
     </transition>
   </div>

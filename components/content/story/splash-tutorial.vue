@@ -84,9 +84,10 @@
   </div>
 </template>
 
-<script setup lang="ts">// /components/content/story/splash-tutorial.vue
-import { useRoute } from 'vue-router'
-import { ref, onMounted } from 'vue'
+<script setup lang="ts">
+// /components/content/story/splash-tutorial.vue
+import { useRoute, useAsyncData } from '#app'
+import { ref, watch } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const route = useRoute()
@@ -96,22 +97,23 @@ const debug = ref(false)
 const toggleDebug = () => (debug.value = !debug.value)
 
 const slug = route.params.slug || 'index'
+const path = `/${slug}`
+
 const page = ref<Record<string, any> | null>(null)
 
-onMounted(async () => {
-  console.log('[splash-tutorial] mounted with slug:', slug)
+const { data, error } = await useAsyncData(() =>
+  queryCollection('content').path(path).first()
+)
 
-  try {
-    const { data } = await queryCollection('content')
-      .where({ _path: `/${slug}` })
-      .findOne()
+if (error.value) {
+  console.error('[splash-tutorial] error loading page:', error.value)
+}
 
-    page.value = data.value
-    console.log('[splash-tutorial] page data:', page.value)
-  } catch (err) {
-    console.error('[splash-tutorial] error loading page:', err)
-  }
+watch(data, (val) => {
+  page.value = val
+  console.log('[splash-tutorial] loaded page:', val)
 })
+
 </script>
 
 <style scoped>

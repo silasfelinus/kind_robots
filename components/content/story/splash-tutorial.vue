@@ -1,9 +1,9 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
   <div
-    class="relative w-full h-full overflow-hidden rounded-2xl border-2 border-secondaryz-20"
+    class="relative w-full h-full overflow-hidden rounded-2xl border-2 border-secondary z-20"
   >
-    <!-- Background Image Click-to-Close -->
+    <!-- Background Image -->
     <img
       v-if="image"
       :src="`/images/${image}`"
@@ -11,11 +11,13 @@
       alt="Ambient Background"
     />
 
-    <!-- Foreground Content -->
-    <div class="relative z-20 container px-4 py-6 space-y-8 max-w-4xl mx-auto">
-      <!-- Title Block (clickable to close) -->
+    <!-- Foreground Content Grid -->
+    <div
+      class="relative z-20 grid grid-rows-[auto_auto_1fr_auto] h-full max-w-4xl mx-auto px-4 py-6 space-y-0"
+    >
+      <!-- Title + Description Block -->
       <div
-        class="relative space-y-2 text-center cursor-pointer"
+        class="text-center space-y-2 cursor-pointer"
         @click="handleSidebarClose"
       >
         <div class="absolute top-0 right-0 max-w-[100px] z-30">
@@ -24,33 +26,36 @@
 
         <h1
           v-if="title"
-          class="text-white text-3xl md:text-5xl font-bold bg-secondary/30 animate-fade-in-up"
+          class="text-white text-3xl md:text-5xl font-bold bg-secondary/50 rounded-xl px-4 py-2 inline-block animate-fade-in-up"
         >
           The {{ title }} Room
         </h1>
 
         <h2
           v-if="description"
-          class="text-white text-base md:text-lg bg-secondary/30 lg:text-xl font-medium animate-fade-in-up delay-200"
+          class="text-white text-base md:text-lg lg:text-xl font-medium bg-secondary/40 rounded-lg px-3 py-1 inline-block animate-fade-in-up delay-200"
         >
           {{ description }}
         </h2>
       </div>
 
-      <!-- navComponent if defined  -->
-      <div v-if="navComponent">
-        <component :is="navComponent" class="w-full pointer-events-auto" />
-      </div>
-
-      <!-- Always show mode-row -->
-      <div>
+      <!-- navComponent + mode-row grouped in middle -->
+      <div class="flex flex-col items-center justify-center gap-4 py-4">
+        <component
+          v-if="navComponent"
+          :is="navComponent"
+          class="w-full pointer-events-auto"
+        />
         <mode-row class="w-full min-h-[2.5rem] pointer-events-auto" />
       </div>
 
-      <!-- Bot Tips (clickable to close) -->
+      <!-- Spacer to push chat to bottom -->
+      <div />
+
+      <!-- Bot Tips (pinned to bottom) -->
       <div
         v-if="dottitip && amitip"
-        class="space-y-6 max-w-2xl mx-auto cursor-pointer"
+        class="space-y-6 max-w-2xl mx-auto cursor-pointer pb-2"
         @click="handleSidebarClose"
       >
         <div class="chat chat-start animate-fade-in-up delay-300">

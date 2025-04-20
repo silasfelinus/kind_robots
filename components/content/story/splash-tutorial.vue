@@ -1,57 +1,64 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
-  <div class="relative w-full h-full overflow-hidden rounded-2xl z-10">
-    <!-- Fullscreen Background -->
-    <div class="fixed inset-0 z-0 pointer-events-none">
-      <image-toggle class="w-full h-full object-cover" />
-    </div>
+  <div class="relative w-full h-full overflow-hidden z-20">
+    <!-- Background Image Click-to-Close -->
+    <img
+      v-if="image"
+      :src="`/images/${image}`"
+      class="absolute inset-0 h-full w-auto object-cover z-0"
+      alt="Ambient Background"
+    />
 
     <!-- Foreground Content -->
-    <div class="relative z-10 container backdrop-blur-xl px-4 py-6 space-y-8 max-w-4xl mx-auto">
-      <!-- Title + Icon Block -->
-      <div class="relative space-y-4">
-        <button
-          class="absolute top-0 right-0 max-w-[100px] z-30"
-          @click="toggleDebug"
-        >
-          <Icon :name="page?.icon" class="w-full h-auto text-primary" />
-        </button>
-
-        <div
-          v-if="page?.title"
-          class="bg-primary/80 text-white text-3xl md:text-5xl font-bold px-4 py-2 rounded-xl inline-block animate-fade-in-up"
-        >
-          The {{ page.title }} Room
+    <div class="relative z-20 container px-4 py-6 space-y-8 max-w-4xl mx-auto">
+      <!-- Title Block (clickable to close) -->
+      <div
+        class="relative space-y-2 text-center cursor-pointer"
+        @click="handleSidebarClose"
+      >
+        <div class="absolute top-0 right-0 max-w-[100px] z-30">
+          <Icon :name="icon" class="w-full h-auto text-primary" />
         </div>
 
-        <div
-          v-if="page?.description"
-          class="bg-base-100/70 text-white text-base md:text-lg lg:text-xl font-medium px-3 py-1 rounded-md inline-block animate-fade-in-up delay-200"
+        <h1
+          v-if="title"
+          class="text-white text-3xl md:text-5xl font-bold bg-secondary/30 animate-fade-in-up"
         >
-          {{ page.description }}
-        </div>
+          The {{ title }} Room
+        </h1>
+
+        <h2
+          v-if="description"
+          class="text-white text-base md:text-lg bg-secondary/30 lg:text-xl font-medium animate-fade-in-up delay-200"
+        >
+          {{ description }}
+        </h2>
       </div>
 
-      <!-- Optional Nav Component -->
-      <component
-        v-if="page?.navComponent && typeof page.navComponent === 'string'"
-        :is="page.navComponent"
-        class="w-full pointer-events-auto"
-      />
+      <!-- navComponent if defined  -->
+      <div v-if="navComponent">
+        <component :is="navComponent" class="w-full pointer-events-auto" />
+      </div>
 
-      <!-- Always Show Mode Row -->
-      <mode-row class="w-full pointer-events-auto" />
+      <!-- Always show mode-row -->
+      <div>
+        <mode-row class="w-full min-h-[2.5rem] pointer-events-auto" />
+      </div>
 
-      <!-- Bot Tips -->
-      <div v-if="page?.dottitip && page?.amitip" class="max-w-xl mx-auto space-y-4">
+      <!-- Bot Tips (clickable to close) -->
+      <div
+        v-if="dottitip && amitip"
+        class="space-y-6 max-w-2xl mx-auto cursor-pointer"
+        @click="handleSidebarClose"
+      >
         <div class="chat chat-start animate-fade-in-up delay-300">
           <div class="chat-image avatar">
             <div class="w-10 h-10 rounded-full border-2 border-primary">
               <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
             </div>
           </div>
-          <div class="chat-bubble chat-bubble-primary">
-            <span class="font-semibold">DottiBot:</span> {{ page.dottitip }}
+          <div class="chat-bubble text-white bg-primary">
+            <span class="font-semibold">DottiBot:</span> {{ dottitip }}
           </div>
         </div>
 
@@ -61,59 +68,28 @@
               <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
             </div>
           </div>
-          <div class="chat-bubble chat-bubble-secondary">
-            <span class="font-semibold">AMIbot:</span> {{ page.amitip }}
+          <div class="chat-bubble text-white bg-secondary">
+            <span class="font-semibold">AMIbot:</span> {{ amitip }}
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Debug Overlay -->
-    <div
-      v-if="debug"
-      class="fixed inset-0 bg-black/70 z-50 text-white text-left p-6 overflow-auto"
-    >
-      <button
-        class="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-xl"
-        @click="toggleDebug"
-      >
-        Close Debug
-      </button>
-      <pre class="whitespace-pre-wrap break-words">{{ page }}</pre>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// /components/content/story/splash-tutorial.vue
-import { useRoute, useAsyncData } from '#app'
-import { ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { usePageStore } from '@/stores/pageStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
-const route = useRoute()
 const displayStore = useDisplayStore()
+const { title, description, icon, dottitip, amitip, navComponent, image } =
+  storeToRefs(usePageStore())
 
-const debug = ref(false)
-const toggleDebug = () => (debug.value = !debug.value)
-
-const slug = route.params.slug || 'index'
-const path = `/${slug}`
-
-const page = ref<Record<string, any> | null>(null)
-
-const { data, error } = await useAsyncData(() =>
-  queryCollection('content').path(path).first()
-)
-
-if (error.value) {
-  console.error('[splash-tutorial] error loading page:', error.value)
+const handleSidebarClose = () => {
+  console.log('Sidebar closing triggered')
+  displayStore.setSidebarRight(false)
 }
-
-watch(data, (val) => {
-  page.value = val
-  console.log('[splash-tutorial] loaded page:', val)
-})
-
 </script>
 
 <style scoped>

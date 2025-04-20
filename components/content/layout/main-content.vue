@@ -1,23 +1,43 @@
+<!-- /components/content/layout/main-content.vue -->
 <template>
   <div
     class="relative h-full w-full rounded-2xl overflow-hidden bg-base-300 border border-accent"
   >
-    <!-- Mobile View -->
+    <!-- Mobile View: flip transition between splash and page -->
     <div
       v-if="displayStore.isMobileViewport"
-      class="h-full w-full"
+      class="relative h-full w-full"
       key="mobile"
     >
       <transition name="flip" mode="out-in">
-        <component
-          :is="sidebarRightOpen ? 'splash-tutorial' : NuxtPage"
-          :key="sidebarRightOpen ? 'splash' : $route.fullPath"
-          class="h-full w-full overflow-y-auto"
-        />
+        <div
+          :key="sidebarRightOpen ? 'splash' : 'page'"
+          class="h-full w-full relative"
+        >
+          <div
+            class="absolute inset-0 h-full w-full transition-opacity duration-500"
+            :class="{
+              'opacity-100 z-20': sidebarRightOpen,
+              'opacity-0 z-10 pointer-events-none': !sidebarRightOpen,
+            }"
+          >
+            <splash-tutorial />
+          </div>
+
+          <div
+            class="absolute inset-0 h-full w-full overflow-y-auto transition-opacity duration-500"
+            :class="{
+              'opacity-100 z-20': !sidebarRightOpen,
+              'opacity-0 z-10 pointer-events-none': sidebarRightOpen,
+            }"
+          >
+            <NuxtPage :key="$route.fullPath" />
+          </div>
+        </div>
       </transition>
     </div>
 
-    <!-- Desktop View -->
+    <!-- Desktop View: both shown at once -->
     <div v-else class="h-full w-full" key="desktop">
       <NuxtPage :key="$route.fullPath" class="h-full w-full overflow-y-auto" />
     </div>
@@ -31,7 +51,7 @@
       }"
     />
 
-    <!-- Right Sidebar for Desktop -->
+    <!-- Desktop Sidebar -->
     <aside
       v-if="!displayStore.isMobileViewport && sidebarRightOpen"
       class="fixed z-30 rounded-2xl border-6 border-secondary"

@@ -2,29 +2,25 @@
   <div
     class="relative h-full w-full rounded-2xl overflow-hidden bg-base-300 border border-accent"
   >
-    <transition name="flip" mode="out-in">
-      <!-- Mobile View -->
-      <div
-        v-if="displayStore.isMobileViewport"
-        key="mobile-view"
-        class="h-full w-full"
-      >
-        <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full" />
-        <NuxtPage
-          :key="$route.fullPath"
-          v-else
-          class="h-full w-full overflow-y-auto no-scrollbar"
-        />
-      </div>
-
-      <!-- Desktop View -->
-      <div v-else key="desktop-view" class="h-full w-full">
-        <NuxtPage
-          :key="$route.fullPath"
+    <!-- Mobile View -->
+    <div
+      v-if="displayStore.isMobileViewport"
+      class="h-full w-full"
+      key="mobile"
+    >
+      <transition name="flip" mode="out-in">
+        <component
+          :is="sidebarRightOpen ? 'splash-tutorial' : NuxtPage"
+          :key="sidebarRightOpen ? 'splash' : $route.fullPath"
           class="h-full w-full overflow-y-auto"
         />
-      </div>
-    </transition>
+      </transition>
+    </div>
+
+    <!-- Desktop View -->
+    <div v-else class="h-full w-full" key="desktop">
+      <NuxtPage :key="$route.fullPath" class="h-full w-full overflow-y-auto" />
+    </div>
 
     <!-- Right Toggle Button -->
     <right-toggle

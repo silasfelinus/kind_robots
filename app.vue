@@ -24,37 +24,12 @@
     >
       <main-content />
     </main>
-
-    <!-- Right Toggle Button -->
-    <right-toggle
-      class="fixed bottom-4 right-4 z-40"
-      :class="{
-        'bg-accent text-white shadow-xl': sidebarRightOpen,
-        'bg-base-200 shadow': !sidebarRightOpen,
-      }"
-    />
-
-    <!-- Right Chat Column -->
-    <aside
-      v-if="sidebarRightOpen"
-      class="fixed z-30 rounded-2xl border-6 border-secondary"
-      :style="displayStore.rightSidebarStyle"
-    >
-      <splash-tutorial />
-    </aside>
   </div>
 </template>
 
 <script setup lang="ts">
 // /app.vue
-import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-
-const sidebarRightOpen = computed(
-  () =>
-    displayStore.sidebarRightState !== 'hidden' &&
-    displayStore.sidebarRightState !== 'disabled',
-)
 </script>

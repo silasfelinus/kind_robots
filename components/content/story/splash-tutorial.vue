@@ -101,6 +101,11 @@ const slug = route.params.slug || 'index'
 const { data: page } = await queryCollection('content')
   .where({ _path: `/${slug}` })
   .findOne()
+
+onMounted(() => {
+  console.log('[splash-tutorial] mounted with slug:', slug)
+  console.log('[splash-tutorial] page data:', page.value)
+})
 </script>
 
 <style scoped>

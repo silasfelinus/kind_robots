@@ -29,8 +29,8 @@
     <right-toggle
       class="fixed bottom-4 right-4 z-40"
       :class="{
-        'bg-accent text-white shadow-xl': sidebarRightOpen,
-        'bg-base-200 shadow': !sidebarRightOpen,
+        'bg-accent/20 text-white shadow-xl': sidebarRightOpen,
+        'bg-base-200/20 shadow': !sidebarRightOpen,
       }"
     />
 

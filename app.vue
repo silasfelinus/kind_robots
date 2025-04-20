@@ -11,7 +11,7 @@
 
     <!-- Header -->
     <header
-      class="fixed z-40 transition-all duration-500 ease-in-out"
+      class="fixed z-40 border-6 border-secondary transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
       <kind-header class="h-full w-full rounded-xl" />
@@ -19,7 +19,7 @@
 
     <!-- Main Content -->
     <main
-      class="fixed z-40 border-3 rounded-2xl p-1 overflow-auto box-border transition-all duration-600 ease-in-out"
+      class="fixed z-30 border-6 border-secondary rounded-2xl p-1 overflow-auto box-border transition-all duration-600 ease-in-out"
       :style="displayStore.mainContentStyle"
     >
       <NuxtPage :key="$route.fullPath" />
@@ -37,7 +37,7 @@
     <!-- Right Chat Column -->
     <aside
       v-if="sidebarRightOpen"
-      class="fixed z-30"
+      class="fixed z-30 rounded-2xl border-6 border-secondary"
       :style="displayStore.rightSidebarStyle"
     >
       <splash-tutorial />

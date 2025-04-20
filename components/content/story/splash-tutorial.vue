@@ -22,14 +22,14 @@
 
         <h1
           v-if="title"
-          class="text-white text-3xl md:text-5xl font-bold animate-fade-in-up"
+          class="text-white text-3xl md:text-5xl font-bold bg-secondary/30 animate-fade-in-up"
         >
           The {{ title }} Room
         </h1>
 
         <h2
           v-if="description"
-          class="text-white text-base md:text-lg lg:text-xl font-medium animate-fade-in-up delay-200"
+          class="text-white text-base md:text-lg bg-secondary/30 lg:text-xl font-medium animate-fade-in-up delay-200"
         >
           {{ description }}
         </h2>

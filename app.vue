@@ -23,7 +23,7 @@
       class="fixed z-30 border-6 border-secondary rounded-2xl p-1 overflow-auto box-border transition-all duration-600 ease-in-out"
       :style="displayStore.mainContentStyle"
     >
-      <NuxtPage :key="$route.fullPath" />
+      <main-content />
     </main>
 
     <!-- Right Toggle Button -->

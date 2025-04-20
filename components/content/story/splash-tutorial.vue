@@ -98,8 +98,8 @@ const toggleDebug = () => (debug.value = !debug.value)
 
 const slug = route.params.slug || 'index'
 
-const { data: page } = await queryCollection('pages')
-  .where({ _path: `/pages/${slug}` })
+const { data: page } = await queryCollection('content')
+  .where({ _path: `/${slug}` })
   .findOne()
 </script>
 

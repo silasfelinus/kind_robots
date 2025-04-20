@@ -8,10 +8,7 @@
         key="mobile-view"
         class="h-full w-full"
       >
-        <splash-tutorial
-          v-if="displayStore.showTutorial"
-          class="h-full w-full"
-        />
+        <splash-tutorial v-if="sidebarRightOpen" class="h-full w-full" />
         <NuxtPage
           :key="$route.fullPath"
           v-else
@@ -26,13 +23,38 @@
         />
       </div>
     </transition>
+
+    <!-- Right Toggle Button -->
+    <right-toggle
+      class="fixed bottom-4 right-4 z-40"
+      :class="{
+        'bg-accent text-white shadow-xl': sidebarRightOpen,
+        'bg-base-200 shadow': !sidebarRightOpen,
+      }"
+    />
+
+    <!-- Right Chat Column -->
+    <aside
+      v-if="sidebarRightOpen"
+      class="fixed z-30 rounded-2xl border-6 border-secondary"
+      :style="displayStore.rightSidebarStyle"
+    >
+      <splash-tutorial />
+    </aside>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useDisplayStore } from '@/stores/displayStore'
+import { computed } from 'vue'
 
 const displayStore = useDisplayStore()
+
+const sidebarRightOpen = computed(
+  () =>
+    displayStore.sidebarRightState !== 'hidden' &&
+    displayStore.sidebarRightState !== 'disabled',
+)
 </script>
 
 <style scoped>

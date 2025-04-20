@@ -5,9 +5,8 @@
     <img
       v-if="image"
       :src="`/images/${image}`"
-      class="absolute inset-0 h-full w-auto object-cover z-0 cursor-pointer"
+      class="absolute inset-0 h-full w-auto object-cover z-0"
       alt="Ambient Background"
-      @click="handleSidebarClose"
     />
 
     <!-- Foreground Content -->
@@ -36,13 +35,13 @@
         </h2>
       </div>
 
-      <!-- navComponent if defined (NOT clickable to close) -->
-      <div v-if="navComponent" @click.stop>
+      <!-- navComponent if defined  -->
+      <div v-if="navComponent">
         <component :is="navComponent" class="w-full pointer-events-auto" />
       </div>
 
       <!-- Always show mode-row -->
-      <div @click.stop>
+      <div>
         <mode-row
           class="w-full min-h-[2.5rem] bg-primary pointer-events-auto"
         />

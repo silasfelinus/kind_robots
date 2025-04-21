@@ -30,7 +30,7 @@
           <!-- Title + Subtitle -->
           <div
             v-if="!displayStore.bigMode"
-            class="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full flex-grow basis-full md:basis-1/4 min-w-0 gap-1 sm:gap-2 pr-2"
+            class="flex sm:flex-row md:flex-col lg:flex-row sm:justify-between sm:items-center w-full flex-grow basis-full md:basis-1/4 min-w-0 gap-1 pr-2"
           >
             <h1
               class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"

@@ -3,45 +3,32 @@
   <div
     class="relative h-full w-full rounded-2xl overflow-hidden bg-base-300 border border-accent"
   >
-    <!-- Mobile View: flip transition between splash and page -->
-    <div
-      v-if="displayStore.isMobileViewport"
-      class="relative h-full w-full"
-      key="mobile"
-    >
-      <!-- Mobile View: flip transition between splash and page -->
-      <div
-        v-if="displayStore.isMobileViewport"
-        class="relative h-full w-full"
-        key="mobile"
-      >
-        <div class="flip-card h-full w-full">
-          <div
-            class="flip-card-inner h-full w-full"
-            :class="{ 'is-flipped': sidebarRightOpen }"
-          >
-            <!-- NuxtPage as the front -->
-            <div
-              class="flip-card-front absolute inset-0 h-full w-full overflow-y-auto z-10"
-            >
-              <NuxtPage :key="$route.fullPath" />
-            </div>
-
-            <!-- SplashTutorial as the back -->
-            <div class="flip-card-back absolute inset-0 h-full w-full z-20">
-              <splash-tutorial />
-            </div>
+    <!-- Mobile Flip View -->
+    <div v-if="displayStore.isMobileViewport" class="relative h-full w-full">
+      <div class="flip-card h-full w-full">
+        <div
+          class="flip-card-inner"
+          :class="{ 'is-flipped': sidebarRightOpen }"
+        >
+          <div class="flip-card-front">
+            <NuxtPage
+              :key="$route.fullPath"
+              class="h-full w-full overflow-y-auto"
+            />
+          </div>
+          <div class="flip-card-back">
+            <splash-tutorial />
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Desktop View: both shown at once -->
+    <!-- Desktop: both shown -->
     <div v-else class="h-full w-full" key="desktop">
       <NuxtPage :key="$route.fullPath" class="h-full w-full overflow-y-auto" />
     </div>
 
-    <!-- Right Toggle Button -->
+    <!-- Toggle + Sidebar -->
     <right-toggle
       class="fixed bottom-4 right-4 z-40"
       :class="{
@@ -49,8 +36,6 @@
         'bg-base-200 shadow': !sidebarRightOpen,
       }"
     />
-
-    <!-- Desktop Sidebar -->
     <aside
       v-if="!displayStore.isMobileViewport && sidebarRightOpen"
       class="fixed z-30 rounded-2xl border-6 border-secondary"
@@ -62,8 +47,8 @@
 </template>
 
 <script setup lang="ts">
-import { useDisplayStore } from '@/stores/displayStore'
 import { computed } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
@@ -77,14 +62,17 @@ const sidebarRightOpen = computed(
 <style scoped>
 .flip-card {
   perspective: 1000px;
-}
-
-.flip-card-inner {
   width: 100%;
   height: 100%;
   position: relative;
-  transition: transform 0.6s ease-in-out;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
   transform-style: preserve-3d;
+  transition: transform 0.6s ease-in-out;
 }
 
 .flip-card-inner.is-flipped {
@@ -93,14 +81,21 @@ const sidebarRightOpen = computed(
 
 .flip-card-front,
 .flip-card-back {
-  backface-visibility: hidden;
   position: absolute;
   width: 100%;
   height: 100%;
+  backface-visibility: hidden;
+  top: 0;
+  left: 0;
   overflow: hidden;
+}
+
+.flip-card-front {
+  z-index: 2;
 }
 
 .flip-card-back {
   transform: rotateY(180deg);
+  z-index: 1;
 }
 </style>

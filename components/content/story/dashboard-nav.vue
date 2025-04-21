@@ -1,12 +1,16 @@
 <template>
   <div class="w-full flex flex-col items-center">
-    <div class="flex justify-center flex-wrap gap-2 md:gap-3 lg:gap-4 w-full mb-3">
+    <div
+      class="flex justify-center flex-wrap gap-2 md:gap-3 lg:gap-4 w-full mb-3"
+    >
       <button
         v-for="tab in tabs"
         :key="tab.name"
-        class="flex-1 min-w-[45%] max-w-[30%] md:min-w-[25%] lg:min-w-[15%] px-3 py-2 text-sm md:text-md lg:text-lg font-semibold border border-accent rounded-lg transition-all duration-300"
+        class="min-w-[45%] md:min-w-[33%] lg:min-w-[20%] px-4 py-2 text-sm md:text-md lg:text-lg font-semibold border border-accent rounded-lg whitespace-normal text-center"
         :class="[
-          tab.name === selected ? 'bg-primary text-black' : 'bg-secondary hover:bg-accent text-black',
+          tab.name === selected
+            ? 'bg-primary text-black'
+            : 'bg-secondary hover:bg-accent text-black',
         ]"
         @click="selectTab(tab.name)"
       >
@@ -46,6 +50,6 @@ watch(
     const defaultTab = tabs[0]?.name || ''
     if (defaultTab) selectTab(defaultTab)
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>

@@ -13,7 +13,7 @@
 
     <!-- Foreground Content Grid -->
     <div
-      class="relative z-20 h-full max-w-4xl mx-auto px-4 py-6 grid grid-rows-[auto_minmax(0,1fr)_auto] gap-4"
+      class="relative z-20 h-full max-w-4xl mx-auto px-4 py-2 grid grid-rows-[auto_minmax(0,1fr)_auto] gap-3"
     >
       <!-- Title + Description Block -->
       <div
@@ -26,14 +26,14 @@
 
         <h1
           v-if="title"
-          class="text-xl md:text-2xl lg:text-4xl xl:text-5xl font-bold bg-secondary/70 rounded-2xl px-4 py-2 inline-block animate-fade-in-up"
+          class="text-md md:text-lg lg:text-xl xl:text-2xl font-bold bg-secondary/80 rounded-2xl px-4 py-1 inline-block animate-fade-in-up"
         >
           The {{ title }} Room
         </h1>
 
         <h2
           v-if="description"
-          class="text-sm lg:text-md xl:text-lg font-medium bg-secondary/70 rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
+          class="text-sm lg:text-md xl:text-lg font-medium bg-secondary/80 rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
         >
           {{ description }}
         </h2>
@@ -41,14 +41,14 @@
 
       <!-- navComponent + mode-row in scrollable section -->
       <div
-        class="overflow-y-auto flex flex-col items-center justify-center gap-4"
+        class="overflow-y-auto flex flex-col items-center justify-center gap-2"
       >
         <component
           v-if="navComponent"
           :is="navComponent"
           class="w-full pointer-events-auto"
         />
-        <mode-row class="w-full min-h-[2.5rem] pointer-events-auto" />
+        <mode-row class="w-full min-h-[2 rem] pointer-events-auto" />
       </div>
 
       <!-- Bot Tips (anchored to bottom) -->

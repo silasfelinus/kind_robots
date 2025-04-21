@@ -33,7 +33,7 @@
 
         <h2
           v-if="description"
-          class="text-base md:text-lg lg:text-xl xl:text-2xl font-medium bg-secondary/70 rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
+          class="text-base text-sm md:text-md lg:text-lg xl:text-xl font-medium bg-secondary/70 rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
         >
           {{ description }}
         </h2>

@@ -65,7 +65,7 @@
             </div>
           </div>
           <div class="chat-bubble text-white bg-primary">
-            <span class="font-semibold">DottiBot:</span> {{ dottitip }}
+            <span class="font-semibold text-sm md:text-md lg:text-lg xl:text-xl">DottiBot:</span> {{ dottitip }}
           </div>
         </div>
 
@@ -76,7 +76,7 @@
             </div>
           </div>
           <div class="chat-bubble text-white bg-secondary">
-            <span class="font-semibold">AMIbot:</span> {{ amitip }}
+            <span class="font-semibold text-sm md:text-md lg:text-lg xl:text-xl">AMIbot:</span> {{ amitip }}
           </div>
         </div>
       </div>

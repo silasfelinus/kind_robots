@@ -33,7 +33,7 @@
 
         <h2
           v-if="description"
-          class="text-base text-sm md:text-md lg:text-lg xl:text-xl font-medium bg-secondary/70 rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
+          class="text-sm md:text-md lg:text-lg xl:text-xl font-medium bg-secondary/70 rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
         >
           {{ description }}
         </h2>
@@ -65,7 +65,10 @@
             </div>
           </div>
           <div class="chat-bubble text-white bg-primary">
-            <span class="font-semibold text-sm md:text-md lg:text-lg xl:text-xl">DottiBot:</span> {{ dottitip }}
+            <span class="font-semibold text-sm md:text-md lg:text-lg xl:text-xl"
+              >DottiBot:</span
+            >
+            {{ dottitip }}
           </div>
         </div>
 
@@ -76,7 +79,10 @@
             </div>
           </div>
           <div class="chat-bubble text-white bg-secondary">
-            <span class="font-semibold text-sm md:text-md lg:text-lg xl:text-xl">AMIbot:</span> {{ amitip }}
+            <span class="font-semibold text-sm md:text-md lg:text-lg xl:text-xl"
+              >AMIbot:</span
+            >
+            {{ amitip }}
           </div>
         </div>
       </div>

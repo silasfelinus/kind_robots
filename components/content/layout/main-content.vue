@@ -18,6 +18,7 @@
 
           <!-- Back Face: Splash Tutorial -->
           <div class="flip-card-back bg-pink-200">
+            <card-back />
             <splash-tutorial />
           </div>
         </div>

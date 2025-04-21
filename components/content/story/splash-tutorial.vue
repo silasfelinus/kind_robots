@@ -50,7 +50,7 @@
       </div>
 
       <!-- Spacer to push chat to bottom -->
-      <div />
+      <div></div>
 
       <!-- Bot Tips (pinned to bottom) -->
       <div

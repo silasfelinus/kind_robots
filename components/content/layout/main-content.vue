@@ -16,8 +16,13 @@
               class="h-full w-full overflow-y-auto"
             />
           </div>
+          <!-- Back face (Splash) -->
           <div class="flip-card-back">
-            <splash-tutorial />
+            <div
+              class="w-full h-full bg-pink-500/30 p-6 rounded-xl border-4 border-yellow-500"
+            >
+              <splash-tutorial />
+            </div>
           </div>
         </div>
       </div>
@@ -57,6 +62,16 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'hidden' &&
     displayStore.sidebarRightState !== 'disabled',
 )
+
+watchEffect(() => {
+  console.log('[main-content] sidebarRightOpen:', sidebarRightOpen.value)
+  if (displayStore.isMobileViewport) {
+    console.log(
+      '[main-content] flip state:',
+      sidebarRightOpen.value ? 'Flipping to Splash' : 'Flipping to Page',
+    )
+  }
+})
 </script>
 
 <style scoped>
@@ -65,6 +80,7 @@ const sidebarRightOpen = computed(
   width: 100%;
   height: 100%;
   position: relative;
+  overflow: visible;
 }
 
 .flip-card-inner {
@@ -84,18 +100,22 @@ const sidebarRightOpen = computed(
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
   top: 0;
   left: 0;
-  overflow: hidden;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .flip-card-front {
   z-index: 2;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .flip-card-back {
   transform: rotateY(180deg);
   z-index: 1;
+  background-color: rgba(255, 0, 0, 0.3); /* 🍓 RED DEBUG BACKGROUND */
 }
 </style>

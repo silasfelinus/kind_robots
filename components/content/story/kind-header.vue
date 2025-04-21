@@ -50,7 +50,7 @@
           >
             <kind-icons
               :compact="displayStore.bigMode"
-              class="flex justify-end items-center gap-2 pb-1 w-full"
+              class="flex justify-end items-center pb-1 w-full"
             />
           </div>
         </div>

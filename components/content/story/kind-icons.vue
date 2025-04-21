@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex w-full items-center justify-end overflow-hidden flex-nowrap gap-2"
+    class="flex w-full items-center justify-end overflow-hidden flex-nowrap gap-1 lg:gap-2"
   >
     <!-- All Icons Treated Equally -->
     <div
@@ -18,7 +18,7 @@
         />
         <div
           v-if="!compact"
-          class="mt-1 text-center text-xs md:text-sm hidden md:block truncate w-full"
+          class="mt-1 text-center text-xs lg:text-sm hidden md:block truncate w-full"
         >
           {{ link.title }}
         </div>

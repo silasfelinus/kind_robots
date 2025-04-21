@@ -20,12 +20,15 @@
             class="flip-card-inner h-full w-full"
             :class="{ 'is-flipped': sidebarRightOpen }"
           >
+            <!-- NuxtPage as the front -->
             <div
-              class="flip-card-front absolute inset-0 h-full w-full overflow-y-auto"
+              class="flip-card-front absolute inset-0 h-full w-full overflow-y-auto z-10"
             >
               <NuxtPage :key="$route.fullPath" />
             </div>
-            <div class="flip-card-back absolute inset-0 h-full w-full">
+
+            <!-- SplashTutorial as the back -->
+            <div class="flip-card-back absolute inset-0 h-full w-full z-20">
               <splash-tutorial />
             </div>
           </div>

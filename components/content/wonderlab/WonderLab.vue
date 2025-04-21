@@ -44,7 +44,10 @@
             Viewing components in folder: {{ componentStore.selectedFolder }}
           </div>
           <div v-else>
-            <lab-gallery class="h-full" @select-folder="handleFolderSelect" />
+            <lab-gallery
+              class="h-full overflow-y-auto"
+              @select-folder="handleFolderSelect"
+            />
           </div>
           <div
             v-if="componentStore.selectedFolder"
@@ -54,7 +57,7 @@
               v-for="component in folderComponents"
               :key="component.id"
               :component="component"
-              class="bg-white shadow rounded-lg transform transition-transform duration-200 hover:scale-105 hover:shadow-lg"
+              class="bg-white overflow-y-auto shadow rounded-lg transform transition-transform duration-200 hover:scale-105 hover:shadow-lg"
               @select="handleComponentSelect"
             />
           </div>
@@ -118,9 +121,7 @@ const galleryHeight = computed(() =>
 )
 
 const reactionsHeight = computed(() =>
-  componentStore.selectedComponent
-    ? displayStore.mainContentHeight
-    : '0px',
+  componentStore.selectedComponent ? displayStore.mainContentHeight : '0px',
 )
 
 // Initialize components on mount

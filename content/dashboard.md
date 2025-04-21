@@ -3,7 +3,7 @@ title: 'User'
 subtitle: "User's Private Page"
 description: 'This is your space!'
 gallery: 'cafepurr'
-image: 'botcat.webp'
+image: 'backtree.webp'
 tags: ['home']
 layout: 'default'
 icon: kind-icon:settings

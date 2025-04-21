@@ -27,21 +27,33 @@
         <div
           class="flex flex-wrap md:flex-nowrap w-full h-full items-center gap-2 xl:gap-4"
         >
-          <!-- Title + Subtitle -->
+          <!-- Mobile: Animated toggle between title and subtitle -->
           <div
-            v-if="!displayStore.bigMode"
-            class="flex sm:flex-row md:flex-col lg:flex-row sm:justify-between sm:items-center w-full flex-grow basis-full md:basis-1/4 min-w-0 gap-1 pr-2"
+            v-if="
+              ['small', 'medium'].includes(displayStore.viewportSize) &&
+              !displayStore.bigMode
+            "
+            class="w-full flex justify-center items-center text-center flex-grow basis-full md:basis-1/4 min-w-0 pr-2 relative"
           >
-            <h1
-              class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
-            >
-              The {{ page?.title || 'Room' }} Room
-            </h1>
-            <h2
-              class="italic text-xs md:text-sm lg:text-md xl:text-lg leading-tight text-right sm:text-end"
-            >
-              {{ subtitle }}
-            </h2>
+            <Transition name="fade-scale" mode="out-in" appear>
+              <h1
+                v-if="
+                  ['hidden', 'disabled'].includes(displayStore.sidebarLeftState)
+                "
+                key="title"
+                class="absolute font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight transition duration-300"
+              >
+                The {{ page?.title || 'Room' }} Room
+              </h1>
+
+              <h2
+                v-else
+                key="subtitle"
+                class="absolute italic text-xs md:text-sm lg:text-md xl:text-lg leading-tight text-primary transition duration-300"
+              >
+                {{ subtitle }}
+              </h2>
+            </Transition>
           </div>
 
           <!-- Icons Section -->
@@ -69,3 +81,22 @@ const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const { page, subtitle } = storeToRefs(pageStore)
 </script>
+
+<style scoped>
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+.fade-scale-enter-to,
+.fade-scale-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+</style>

@@ -3,7 +3,7 @@
     <!-- Folder View -->
     <div
       v-if="folderNames.length && !selectedComponents.length"
-      class="grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] gap-4"
+      class="overflow-y-auto grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] gap-4"
     >
       <div
         v-for="folder in folderNames"

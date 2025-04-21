@@ -1,8 +1,6 @@
 <!-- /components/content/layout/main-content.vue -->
 <template>
-  <div
-    class="relative h-full w-full rounded-2xl overflow-hidden bg-base-300 border border-accent"
-  >
+  <div class="relative h-full w-full rounded-2xl overflow-hidden bg-base-300">
     <!-- Mobile View: Flip between page and splash -->
     <div v-if="displayStore.isMobileViewport" class="h-full w-full">
       <div class="flip-card h-full w-full">
@@ -33,10 +31,10 @@
 
     <!-- Right Sidebar & Toggle -->
     <right-toggle
-      class="fixed bottom-4 right-4 z-40 bg-base-200"
+      class="fixed bottom-4 right-4 z-40 bg-base-300"
       :class="{
         'bg-accent text-white shadow-xl': sidebarRightOpen,
-        'bg-base shadow': !sidebarRightOpen,
+        'bg-base-300 shadow': !sidebarRightOpen,
       }"
     />
     <aside

@@ -13,7 +13,7 @@
 
     <!-- Foreground Content Grid -->
     <div
-      class="relative z-20 grid grid-rows-[auto_auto_1fr_auto] h-full max-w-4xl mx-auto px-4 py-6 space-y-0"
+      class="relative z-20 h-full max-w-4xl mx-auto px-4 py-6 grid grid-rows-[auto_minmax(0,1fr)_auto] gap-4"
     >
       <!-- Title + Description Block -->
       <div
@@ -33,14 +33,16 @@
 
         <h2
           v-if="description"
-          class="text-sm md:text-md lg:text-lg xl:text-xl font-medium bg-secondary/70 rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
+          class="text-sm lg:text-md xl:text-lg font-medium bg-secondary/70 rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
         >
           {{ description }}
         </h2>
       </div>
 
-      <!-- navComponent + mode-row grouped in middle -->
-      <div class="flex flex-col items-center justify-center gap-4 py-4">
+      <!-- navComponent + mode-row in scrollable section -->
+      <div
+        class="overflow-y-auto flex flex-col items-center justify-center gap-4"
+      >
         <component
           v-if="navComponent"
           :is="navComponent"
@@ -49,13 +51,10 @@
         <mode-row class="w-full min-h-[2.5rem] pointer-events-auto" />
       </div>
 
-      <!-- Spacer to push chat to bottom -->
-      <div></div>
-
-      <!-- Bot Tips (pinned to bottom) -->
+      <!-- Bot Tips (anchored to bottom) -->
       <div
         v-if="dottitip && amitip"
-        class="space-y-6 max-w-2xl mx-auto cursor-pointer pb-2"
+        class="space-y-6 max-w-2xl mx-auto pb-6 px-2"
         @click="handleSidebarClose"
       >
         <div class="chat chat-start animate-fade-in-up delay-300">
@@ -65,7 +64,7 @@
             </div>
           </div>
           <div class="chat-bubble text-white bg-primary">
-            <span class="font-semibold text-sm md:text-md lg:text-lg xl:text-xl"
+            <span class="font-semibold text-sm lg:text-md xl:text-lg"
               >DottiBot:</span
             >
             {{ dottitip }}
@@ -79,7 +78,7 @@
             </div>
           </div>
           <div class="chat-bubble text-white bg-secondary">
-            <span class="font-semibold text-sm md:text-md lg:text-lg xl:text-xl"
+            <span class="font-semibold text-sm lg:text-md xl:text-lg"
               >AMIbot:</span
             >
             {{ amitip }}
@@ -128,5 +127,12 @@ const handleSidebarClose = () => {
 }
 .delay-500 {
   animation-delay: 0.5s;
+}
+
+/* chat bubbles should wrap nicely and feel cozy */
+.chat-bubble {
+  line-height: 1.5;
+  max-width: 90%;
+  word-break: break-word;
 }
 </style>

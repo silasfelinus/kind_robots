@@ -1,6 +1,6 @@
 <!-- /components/content/layout/right-toggle.vue -->
 <template>
-  <div class="fixed p-1">
+  <div class="fixed p-1 bg-base-200">
     <button
       @click="handleClick"
       class="w-8 h-8 rounded-2xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-110 duration-300 ease-in-out"

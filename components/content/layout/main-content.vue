@@ -17,8 +17,7 @@
           </div>
 
           <!-- Back Face: Splash Tutorial -->
-          <div class="flip-card-back bg-pink-200">
-            <card-back />
+          <div class="flip-card-back">
             <splash-tutorial />
           </div>
         </div>
@@ -71,16 +70,16 @@ watchEffect(() => {
 <style scoped>
 .flip-card {
   perspective: 1000px;
-  width: 100%;
-  height: 100%;
+  width: 300px;
+  height: 500px;
 }
 
 .flip-card-inner {
   position: relative;
   width: 100%;
   height: 100%;
+  transition: transform 0.6s;
   transform-style: preserve-3d;
-  transition: transform 0.6s ease-in-out;
 }
 
 .flip-card-inner.is-flipped {
@@ -92,21 +91,12 @@ watchEffect(() => {
   position: absolute;
   width: 100%;
   height: 100%;
-  top: 0;
-  left: 0;
   backface-visibility: hidden;
-  overflow: hidden;
-  border-radius: 1rem;
-}
-
-.flip-card-front {
-  z-index: 2;
-  background-color: var(--bg-base);
+  border: 2px solid var(--bg-base);
+  border-radius: 5px;
 }
 
 .flip-card-back {
   transform: rotateY(180deg);
-  z-index: 1;
-  background-color: var(--bg-secondary);
 }
 </style>

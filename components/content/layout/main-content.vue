@@ -70,8 +70,8 @@ watchEffect(() => {
 <style scoped>
 .flip-card {
   perspective: 1000px;
-  width: 300px;
-  height: 500px;
+  width: 100%;
+  height: 100%;
 }
 
 .flip-card-inner {

@@ -19,7 +19,7 @@
     </div>
 
     <!-- Component List View -->
-    <div v-if="selectedComponents.length">
+    <div v-if="selectedComponents.length" class="flex flex-col h-[80vh]">
       <!-- Back Button -->
       <button
         class="mb-4 bg-primary text-default py-2 rounded hover:bg-secondary transition"
@@ -28,7 +28,10 @@
         Back to Folders
       </button>
 
-      <div class="grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] gap-4">
+      <!-- Scrollable Component Grid -->
+      <div
+        class="overflow-y-auto flex-grow grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] gap-4 pr-2"
+      >
         <div
           v-for="component in selectedComponents"
           :key="component.id"

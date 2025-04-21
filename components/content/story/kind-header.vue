@@ -30,7 +30,7 @@
           <!-- Title + Subtitle -->
           <div
             v-if="!displayStore.bigMode"
-            class="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full flex-grow basis-full md:basis-1/2 xl:basis-1/3 min-w-0 gap-1 sm:gap-2 pr-2"
+            class="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full flex-grow basis-full md:basis-1/3 min-w-0 gap-1 sm:gap-2 pr-2"
           >
             <h1
               class="font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight"
@@ -46,7 +46,7 @@
 
           <!-- Icons Section -->
           <div
-            class="flex justify-end items-center flex-grow basis-full md:basis-1/2 xl:basis-2/3 min-w-0"
+            class="flex justify-end items-center flex-grow basis-full md:basis-2/3 min-w-0"
           >
             <kind-icons
               :compact="displayStore.bigMode"

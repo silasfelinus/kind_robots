@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex w-full items-center justify-end overflow-hidden flex-nowrap gap-1 lg:gap-2"
+    class="flex w-full items-center justify-end flex-nowrap gap-1 lg:gap-2"
   >
     <!-- All Icons Treated Equally -->
     <div
@@ -14,11 +14,11 @@
       >
         <Icon
           :name="link.icon"
-          class="w-[clamp(1.5rem,4vw,3rem)] h-[clamp(1.5rem,4vw,3rem)] transition-transform hover:scale-110 duration-300 ease-in-out"
+          class="text-sm md:text-md lg:text-lg xl:text-xl transition-transform hover:scale-110 duration-300 ease-in-out"
         />
         <div
           v-if="!compact"
-          class="mt-1 text-center text-xs lg:text-sm hidden md:block truncate w-full"
+          class="mt-1 text-center text-xs lg:text-sm hidden md:block w-full"
         >
           {{ link.title }}
         </div>

@@ -27,13 +27,9 @@
         <div
           class="flex flex-wrap md:flex-nowrap w-full h-full items-center gap-2 xl:gap-4"
         >
-          <!-- Mobile: Animated toggle between title and subtitle -->
+          <!-- Title/Subtitle Toggle Across All Viewports -->
           <div
-            v-if="
-              ['small', 'medium'].includes(displayStore.viewportSize) &&
-              !displayStore.bigMode
-            "
-            class="w-full flex justify-center items-center text-center flex-grow basis-full md:basis-1/4 min-w-0 pr-2 relative"
+            class="w-full flex justify-center items-center text-center flex-grow basis-full md:basis-1/4 min-w-0 pr-2 relative min-h-[2.75rem]"
           >
             <Transition name="fade-scale" mode="out-in" appear>
               <h1
@@ -41,7 +37,7 @@
                   ['hidden', 'disabled'].includes(displayStore.sidebarLeftState)
                 "
                 key="title"
-                class="absolute font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight transition duration-300"
+                class="absolute inset-0 flex items-center justify-center font-semibold text-md md:text-lg lg:text-xl xl:text-2xl leading-tight tracking-tight transition duration-300"
               >
                 The {{ page?.title || 'Room' }} Room
               </h1>
@@ -49,7 +45,7 @@
               <h2
                 v-else
                 key="subtitle"
-                class="absolute italic text-xs md:text-sm lg:text-md xl:text-lg leading-tight text-primary transition duration-300"
+                class="absolute inset-0 flex items-center justify-center italic text-xs md:text-sm lg:text-md xl:text-lg leading-tight text-primary transition duration-300 drop-shadow-[0_0_6px_theme('colors.primary')]"
               >
                 {{ subtitle }}
               </h2>
@@ -87,16 +83,19 @@ const { page, subtitle } = storeToRefs(pageStore)
 .fade-scale-leave-active {
   transition:
     opacity 0.3s ease,
-    transform 0.3s ease;
+    transform 0.3s ease,
+    translate 0.3s ease;
 }
+
 .fade-scale-enter-from,
 .fade-scale-leave-to {
   opacity: 0;
-  transform: scale(0.9);
+  transform: scale(0.95) translateY(0.5rem);
 }
+
 .fade-scale-enter-to,
 .fade-scale-leave-from {
   opacity: 1;
-  transform: scale(1);
+  transform: scale(1) translateY(0);
 }
 </style>

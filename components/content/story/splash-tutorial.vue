@@ -20,20 +20,20 @@
         class="text-center space-y-2 cursor-pointer"
         @click="handleSidebarClose"
       >
-        <div class="absolute top-0 right-0 max-w-[100px] z-30">
+        <div class="absolute top-0 right-0 z-30">
           <Icon :name="icon" class="w-full h-auto text-primary" />
         </div>
 
         <h1
           v-if="title"
-          class="text-md md:text-lg lg:text-xl xl:text-2xl font-bold bg-secondary/80 rounded-2xl px-4 py-1 inline-block animate-fade-in-up"
+          class="text-md md:text-lg lg:text-xl xl:text-4xl font-bold bg-secondary/80 rounded-2xl px-4 py-1 inline-block animate-fade-in-up"
         >
           The {{ title }} Room
         </h1>
 
         <h2
           v-if="description"
-          class="text-sm lg:text-md xl:text-lg font-medium bg-secondary/80 rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
+          class="text-sm lg:text-md xl:text-2xl font-medium bg-secondary/80 rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
         >
           {{ description }}
         </h2>
@@ -64,7 +64,7 @@
             </div>
           </div>
           <div class="chat-bubble text-white bg-primary">
-            <span class="font-semibold text-sm lg:text-md xl:text-lg"
+            <span class="font-semibold text-sm lg:text-md xl:text-2xl"
               >DottiBot:</span
             >
             {{ dottitip }}
@@ -78,7 +78,7 @@
             </div>
           </div>
           <div class="chat-bubble text-white bg-secondary">
-            <span class="font-semibold text-sm lg:text-md xl:text-lg"
+            <span class="font-semibold text-sm lg:text-md xl:text-2xl"
               >AMIbot:</span
             >
             {{ amitip }}

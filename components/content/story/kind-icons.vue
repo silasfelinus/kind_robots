@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex w-full items-center justify-end flex-nowrap gap-1 lg:gap-2"
-  >
+  <div class="flex w-full items-center justify-end flex-nowrap gap-1 lg:gap-2">
     <!-- All Icons Treated Equally -->
     <div
       v-for="link in navLinks"
@@ -14,7 +12,7 @@
       >
         <Icon
           :name="link.icon"
-          class="text-sm md:text-md lg:text-lg xl:text-xl transition-transform hover:scale-110 duration-300 ease-in-out"
+          class="text-sm md:text-md lg:text-4xl xl:text-5xl transition-transform hover:scale-110 duration-300 ease-in-out"
         />
         <div
           v-if="!compact"

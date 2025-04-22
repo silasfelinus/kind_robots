@@ -30,7 +30,7 @@
               <h1
                 v-if="showTitle"
                 key="title"
-                class="absolute inset-0 flex items-center justify-center font-bold text-lg md:text-xl lg:text-2xl xl:text-3xl leading-tight tracking-tight text-white drop-shadow"
+                class="absolute inset-0 flex items-center justify-center font-bold text-lg md:text-xl lg:text-2xl xl:text-3xl leading-tight tracking-tight drop-shadow"
               >
                 The {{ page?.title || 'Room' }} Room
               </h1>
@@ -38,7 +38,7 @@
               <h2
                 v-else
                 key="subtitle"
-                class="absolute inset-0 flex items-center justify-center italic text-base md:text-lg lg:text-xl xl:text-2xl text-accent drop-shadow-md"
+                class="absolute inset-0 flex items-center justify-center md:text-lg lg:text-2xl xl:text-4xl drop-shadow-md"
               >
                 {{ subtitle }}
               </h2>

@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full relative bg-base-300 flex flex-col">
+  <div class="w-full h-[100dvh] relative bg-base-300 flex flex-col">
     <!-- Title -->
     <div class="p-6 text-center flex-shrink-0">
       <h1 class="text-3xl font-bold text-gray-700">Bot Gallery</h1>

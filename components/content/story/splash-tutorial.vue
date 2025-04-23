@@ -26,14 +26,14 @@
 
         <h1
           v-if="title"
-          class="text-md md:text-lg lg:text-xl xl:text-4xl font-bold bg-secondary/80 rounded-2xl px-4 py-1 inline-block animate-fade-in-up"
+          class="text-md md:text-lg lg:text-xl xl:text-4xl font-bold bg-secondary/80 rounded-2xl px-4 py-1 text-black inline-block animate-fade-in-up"
         >
           The {{ title }} Room
         </h1>
 
         <h2
           v-if="description"
-          class="text-sm lg:text-md xl:text-2xl font-medium bg-secondary/80 rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
+          class="text-sm lg:text-md xl:text-2xl font-medium bg-secondary/80 rounded-2xl px-3 py-1 text-black inline-block animate-fade-in-up delay-200"
         >
           {{ description }}
         </h2>
@@ -73,12 +73,15 @@
 
         <div class="chat chat-end animate-fade-in-up delay-500">
           <div class="chat-image avatar">
-            <div class="w-10 h-10 rounded-full border-2 border-secondary">
+            <div
+              class="w-10 h-10 rounded-full border-2 border-secondary text-black"
+            >
               <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
             </div>
           </div>
           <div class="chat-bubble bg-secondary">
-            <span class="font-semibold text-sm lg:text-md xl:text-2xl"
+            <span
+              class="font-semibold text-black text-sm lg:text-md xl:text-2xl"
               >AMIbot:</span
             >
             {{ amitip }}

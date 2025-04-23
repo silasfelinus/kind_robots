@@ -63,7 +63,7 @@
               <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
             </div>
           </div>
-          <div class="chat-bubble text-white bg-primary">
+          <div class="chat-bubble bg-primary">
             <span class="font-semibold text-sm lg:text-md xl:text-2xl"
               >DottiBot:</span
             >
@@ -77,7 +77,7 @@
               <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
             </div>
           </div>
-          <div class="chat-bubble text-white bg-secondary">
+          <div class="chat-bubble bg-secondary">
             <span class="font-semibold text-sm lg:text-md xl:text-2xl"
               >AMIbot:</span
             >

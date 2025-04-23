@@ -1,13 +1,13 @@
 <template>
-  <div class="w-full h-full relative bg-base-300 flex flex-col">
+  <div class="w-full h-[100dvh] relative bg-base-300 flex flex-col">
     <!-- Title -->
-    <div class="p-6 text-center">
+    <div class="p-6 text-center flex-shrink-0">
       <h1 class="text-3xl font-bold text-gray-700">Bot Gallery</h1>
       <p class="text-lg text-gray-500">Select a bot to activate it</p>
     </div>
 
-    <!-- Bot Cards -->
-    <div class="min-h-0 overflow-auto px-6 pb-6">
+    <!-- Scrollable Bot Cards -->
+    <div class="flex-1 overflow-y-auto px-6 pb-6">
       <div
         v-for="bot in bots"
         :key="bot.id"
@@ -56,6 +56,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'

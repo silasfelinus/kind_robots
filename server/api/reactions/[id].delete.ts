@@ -1,3 +1,4 @@
+// /server/api/reactions/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'

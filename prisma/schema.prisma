@@ -409,6 +409,24 @@ model Reaction {
   @@index([componentId], map: "Reaction_componentId_fkey")
 }
 
+model Resonate {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @default(now()) @updatedAt
+  title        String    @db.VarChar(255)
+  description  String?   @db.VarChar(512)
+  imagePath    String    @db.VarChar(764)
+  audioPath    String?   @db.VarChar(764)
+  userId       Int?      @default(10)
+  chapterData  String?   @db.LongText // JSON stringified array of chapters
+  isPublic     Boolean   @default(true)
+  genres       String?   @db.VarChar(512)
+  User         User?     @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Resonate_userId_fkey")
+}
+
+
 model Resource {
   id           Int          @id @default(autoincrement())
   createdAt    DateTime     @default(now())
@@ -548,6 +566,7 @@ model User {
   Rewards        Reward[]
   Tags           Tag[]
   Scenarios      Scenario[]
+  Resonates      Resonate[]
   googleId    String? @unique
   googleEmail String? @db.VarChar(255)
 

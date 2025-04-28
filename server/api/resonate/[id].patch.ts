@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const resonanceData: Prisma.resonanceUpdateInput = await readBody(event)
+    const resonanceData: Prisma.ResonanceUpdateInput = await readBody(event)
     if (!resonanceData || Object.keys(resonanceData).length === 0) {
       throw createError({
         statusCode: 400,

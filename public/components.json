@@ -250,11 +250,11 @@
     ]
   },
   {
-    "folderName": "resonate",
+    "folderName": "resonance",
     "components": [
-      "resonate-buttons",
-      "resonate-display",
-      "resonate-lab"
+      "resonance-buttons",
+      "resonance-display",
+      "resonance-lab"
     ]
   },
   {

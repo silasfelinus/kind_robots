@@ -3,7 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from './../utils/error'
 import { validateApiKey } from './../utils/validateKey'
 import prisma from './../utils/prisma'
-import type { Prisma, resonance } from '@prisma/client'
+import type { Prisma, Resonance } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 
     const authenticatedUserId = user.id
 
-    const resonanceData = await readBody<Partial<resonance>>(event)
+    const resonanceData = await readBody<Partial<Resonance>>(event)
 
     // Validate required fields
     if (!resonanceData.title || typeof resonanceData.title !== 'string') {
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const fullData: Prisma.resonanceCreateInput = {
+    const fullData: Prisma.ResonanceCreateInput = {
       User: { connect: { id: authenticatedUserId } },
       title: resonanceData.title,
       description: resonanceData.description || '',

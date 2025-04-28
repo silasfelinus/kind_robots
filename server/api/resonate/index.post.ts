@@ -1,9 +1,9 @@
-// /server/api/resonate/index.post.ts
+// /server/api/resonance/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from './../utils/error'
 import { validateApiKey } from './../utils/validateKey'
 import prisma from './../utils/prisma'
-import type { Prisma, Resonate } from '@prisma/client'
+import type { Prisma, resonance } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -17,10 +17,10 @@ export default defineEventHandler(async (event) => {
 
     const authenticatedUserId = user.id
 
-    const resonateData = await readBody<Partial<Resonate>>(event)
+    const resonanceData = await readBody<Partial<resonance>>(event)
 
     // Validate required fields
-    if (!resonateData.title || typeof resonateData.title !== 'string') {
+    if (!resonanceData.title || typeof resonanceData.title !== 'string') {
       event.node.res.statusCode = 400
       return {
         success: false,
@@ -29,7 +29,10 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    if (!resonateData.imagePath || typeof resonateData.imagePath !== 'string') {
+    if (
+      !resonanceData.imagePath ||
+      typeof resonanceData.imagePath !== 'string'
+    ) {
       event.node.res.statusCode = 400
       return {
         success: false,
@@ -38,18 +41,18 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const fullData: Prisma.ResonateCreateInput = {
+    const fullData: Prisma.resonanceCreateInput = {
       User: { connect: { id: authenticatedUserId } },
-      title: resonateData.title,
-      description: resonateData.description || '',
-      imagePath: resonateData.imagePath,
-      audioPath: resonateData.audioPath || '',
-      chapterData: resonateData.chapterData || '',
-      genres: resonateData.genres || '',
-      isPublic: resonateData.isPublic ?? true,
+      title: resonanceData.title,
+      description: resonanceData.description || '',
+      imagePath: resonanceData.imagePath,
+      audioPath: resonanceData.audioPath || '',
+      chapterData: resonanceData.chapterData || '',
+      genres: resonanceData.genres || '',
+      isPublic: resonanceData.isPublic ?? true,
     }
 
-    const data = await prisma.resonate.create({
+    const data = await prisma.resonance.create({
       data: fullData,
     })
 
@@ -58,7 +61,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       data,
-      message: 'Resonate created successfully.',
+      message: 'resonance created successfully.',
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
@@ -66,7 +69,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       data: null,
-      message: message || 'Failed to create resonate.',
+      message: message || 'Failed to create resonance.',
     }
   }
 })

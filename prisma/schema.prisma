@@ -34,6 +34,7 @@ model Art {
   User          User?           @relation(fields: [userId], references: [id])
   ArtImage      ArtImage?
   Reaction      Reaction[]
+  Resonances     Resonance[]
   ArtCollection ArtCollection[] @relation("ArtToArtCollection")
   genres        String?
 
@@ -216,6 +217,7 @@ model Character {
   Rewards         Reward[]
   Chats           Chat[]
   Scenarios       Scenario[]
+  Resonances      Resonance[]
 }
 
 
@@ -409,7 +411,7 @@ model Reaction {
   @@index([componentId], map: "Reaction_componentId_fkey")
 }
 
-model Resonate {
+model Resonance {
   id           Int       @id @default(autoincrement())
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @default(now()) @updatedAt
@@ -420,10 +422,14 @@ model Resonate {
   userId       Int?      @default(10)
   chapterData  String?   @db.LongText // JSON stringified array of chapters
   isPublic     Boolean   @default(true)
+  isPreset     Boolean   @default(false)
   genres       String?   @db.VarChar(512)
   User         User?     @relation(fields: [userId], references: [id])
+  Art          Art[]
+  Scenarios     Scenario[]
+  Characters    Character[]
 
-  @@index([userId], map: "Resonate_userId_fkey")
+  @@index([userId], map: "Resonance_userId_fkey")
 }
 
 
@@ -483,6 +489,7 @@ model Scenario {
   userId        Int
   User          User       @relation(fields: [userId], references: [id])
   Characters    Character[]
+  Resonances     Resonance[]
   artImageId    Int?
   ArtImage      ArtImage?      @relation(fields: [artImageId], references: [id])
   imagePath     String?
@@ -566,7 +573,7 @@ model User {
   Rewards        Reward[]
   Tags           Tag[]
   Scenarios      Scenario[]
-  Resonates      Resonate[]
+  Resonances      Resonance[]
   googleId    String? @unique
   googleEmail String? @db.VarChar(255)
 

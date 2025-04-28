@@ -1,4 +1,4 @@
-<!-- /components/content/resonate/resonate-display.vue -->
+<!-- /components/content/resonance/resonance-display.vue -->
 <template>
   <div
     class="relative w-full h-full flex flex-col items-center justify-center bg-base-200 rounded-2xl overflow-hidden"
@@ -45,20 +45,20 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/resonate/resonate-display.vue
+// /components/content/resonance/resonance-display.vue
 import { computed, ref } from 'vue'
-import { useResonateStore } from '@/stores/resonateStore'
+import { useresonanceStore } from '@/stores/resonanceStore'
 
-const resonateStore = useResonateStore()
+const resonanceStore = useresonanceStore()
 
 const debug = ref(false)
 
-const currentImage = computed(() => resonateStore.currentImage)
+const currentImage = computed(() => resonanceStore.currentImage)
 const currentChapterText = computed(
-  () => resonateStore.currentChapter.text || [],
+  () => resonanceStore.currentChapter.text || [],
 )
-const activeInputs = computed(() => resonateStore.activeInputs)
-const inputSource = computed(() => resonateStore.inputSource)
+const activeInputs = computed(() => resonanceStore.activeInputs)
+const inputSource = computed(() => resonanceStore.inputSource)
 </script>
 
 <style scoped>

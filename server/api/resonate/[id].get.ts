@@ -1,4 +1,4 @@
-// /server/api/resonate/[id].get.ts
+// /server/api/resonance/[id].get.ts
 import { defineEventHandler, createError } from 'h3'
 import prisma from './../utils/prisma'
 import { errorHandler } from './../utils/error'
@@ -12,24 +12,24 @@ export default defineEventHandler(async (event) => {
     if (isNaN(id) || id <= 0) {
       throw createError({
         statusCode: 400,
-        message: 'Invalid Resonate ID. It must be a positive integer.',
+        message: 'Invalid resonance ID. It must be a positive integer.',
       })
     }
 
-    const data = await prisma.resonate.findUnique({
+    const data = await prisma.resonance.findUnique({
       where: { id },
     })
 
     if (!data) {
       throw createError({
         statusCode: 404,
-        message: `Resonate with ID ${id} not found.`,
+        message: `resonance with ID ${id} not found.`,
       })
     }
 
     response = {
       success: true,
-      message: 'Resonate fetched successfully.',
+      message: 'resonance fetched successfully.',
       data,
       statusCode: 200,
     }
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
     response = {
       success: false,
       message:
-        handledError.message || `Failed to fetch resonate with ID ${id}.`,
+        handledError.message || `Failed to fetch resonance with ID ${id}.`,
       statusCode: event.node.res.statusCode,
     }
   }

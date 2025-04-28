@@ -1,4 +1,4 @@
-// /server/api/resonate/[id].delete.ts
+// /server/api/resonance/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from './../utils/error'
 import { validateApiKey } from './../utils/validateKey'
@@ -9,16 +9,16 @@ export default defineEventHandler(async (event) => {
   let id
 
   try {
-    // Validate and parse the resonate ID
+    // Validate and parse the resonance ID
     id = Number(event.context.params?.id)
     if (isNaN(id) || id <= 0) {
       throw createError({
         statusCode: 400,
-        message: 'Invalid Resonate ID. It must be a positive integer.',
+        message: 'Invalid resonance ID. It must be a positive integer.',
       })
     }
 
-    console.log(`Attempting to delete Resonate with ID: ${id}`)
+    console.log(`Attempting to delete resonance with ID: ${id}`)
 
     // Authenticate
     const { isValid, user } = await validateApiKey(event)
@@ -31,55 +31,55 @@ export default defineEventHandler(async (event) => {
 
     const userId = user.id
 
-    // Fetch the resonate entry and verify ownership
-    const resonate = await prisma.resonate.findUnique({
+    // Fetch the resonance entry and verify ownership
+    const resonance = await prisma.resonance.findUnique({
       where: { id },
       select: { userId: true },
     })
 
-    if (!resonate) {
+    if (!resonance) {
       throw createError({
         statusCode: 404,
-        message: `Resonate with ID ${id} does not exist.`,
+        message: `resonance with ID ${id} does not exist.`,
       })
     }
 
     // Admin bypass
     if (user.Role === 'ADMIN') {
-      await prisma.resonate.delete({ where: { id } })
+      await prisma.resonance.delete({ where: { id } })
       return {
         success: true,
-        message: `Resonate with ID ${id} deleted successfully by admin.`,
+        message: `resonance with ID ${id} deleted successfully by admin.`,
       }
     }
 
     // User must be the owner
-    if (resonate.userId !== userId) {
+    if (resonance.userId !== userId) {
       throw createError({
         statusCode: 403,
-        message: 'You are not authorized to delete this resonate.',
+        message: 'You are not authorized to delete this resonance.',
       })
     }
 
     // Proceed to delete
-    await prisma.resonate.delete({ where: { id } })
+    await prisma.resonance.delete({ where: { id } })
 
-    console.log(`Resonate with ID ${id} successfully deleted.`)
+    console.log(`resonance with ID ${id} successfully deleted.`)
     response = {
       success: true,
-      message: `Resonate with ID ${id} successfully deleted.`,
+      message: `resonance with ID ${id} successfully deleted.`,
       statusCode: 200,
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.error('Error while deleting Resonate:', handledError)
+    console.error('Error while deleting resonance:', handledError)
 
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
       message:
-        handledError.message || `Failed to delete Resonate with ID ${id}.`,
+        handledError.message || `Failed to delete resonance with ID ${id}.`,
       statusCode: event.node.res.statusCode,
     }
   }

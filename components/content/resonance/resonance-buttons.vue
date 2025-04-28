@@ -1,4 +1,4 @@
-<!-- /components/content/resonate/resonate-buttons.vue -->
+<!-- /components/content/resonance/resonance-buttons.vue -->
 <template>
   <div
     class="w-full flex flex-wrap justify-center gap-4 p-4 bg-base-300 rounded-2xl"
@@ -17,14 +17,14 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/resonate/resonate-buttons.vue
+// /components/content/resonance/resonance-buttons.vue
 import { ref, computed } from 'vue'
-import { useResonateStore } from '@/stores/resonateStore'
-import type { VisualizerCommand } from '@/stores/resonateStore'
+import { useresonanceStore } from '@/stores/resonanceStore'
+import type { VisualizerCommand } from '@/stores/resonanceStore'
 
-const resonateStore = useResonateStore()
+const resonanceStore = useresonanceStore()
 
-const availableCommands = computed(() => resonateStore.availableCommands)
+const availableCommands = computed(() => resonanceStore.availableCommands)
 const cooldowns = ref<string[]>([])
 
 const handleCommand = (command: VisualizerCommand) => {
@@ -43,24 +43,24 @@ const handleCommand = (command: VisualizerCommand) => {
 const executeCommand = (action: string) => {
   switch (action) {
     case 'changeImage':
-      resonateStore.currentImage = `/images/default-${Math.floor(Math.random() * 5)}.webp`
+      resonanceStore.currentImage = `/images/default-${Math.floor(Math.random() * 5)}.webp`
       break
     case 'addChapter':
-      resonateStore.addChapter('New Chapter')
+      resonanceStore.addChapter('New Chapter')
       break
     case 'addText':
-      resonateStore.addTextToChapter('A soft sound colors the air...')
+      resonanceStore.addTextToChapter('A soft sound colors the air...')
       break
     case 'addImage':
-      resonateStore.addImageToChapter(
+      resonanceStore.addImageToChapter(
         `/images/default-${Math.floor(Math.random() * 5)}.webp`,
       )
       break
     case 'saveStory':
-      resonateStore.saveStory()
+      resonanceStore.saveStory()
       break
     default:
-      console.warn(`[resonate-buttons] Unknown command: ${action}`)
+      console.warn(`[resonance-buttons] Unknown command: ${action}`)
       break
   }
 }

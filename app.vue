@@ -25,13 +25,13 @@
       <main-content />
     </main>
 
-    <!-- Resonate Button -->
+    <!-- resonance Button -->
     <nuxt-link
-      v-if="showResonate"
-      to="/resonate"
+      v-if="showresonance"
+      to="/resonance"
       class="fixed z-50 bottom-6 left-6 sm:bottom-8 sm:left-8 bg-primary text-white rounded-full p-4 sm:p-6 flex items-center justify-center shadow-lg hover:bg-secondary transition-all duration-700 opacity-0 animate-fade-in"
     >
-      <Icon name="kind-icon:resonate" class="w-6 h-6 sm:w-8 sm:h-8" />
+      <Icon name="kind-icon:resonance" class="w-6 h-6 sm:w-8 sm:h-8" />
     </nuxt-link>
   </div>
 </template>
@@ -42,11 +42,11 @@ import { ref, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-const showResonate = ref(false)
+const showresonance = ref(false)
 
 onMounted(() => {
   setTimeout(() => {
-    showResonate.value = true
+    showresonance.value = true
   }, 300) // slight delay for elegance
 })
 </script>

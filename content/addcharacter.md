@@ -9,7 +9,7 @@ layout: 'default'
 icon: fa-solid:mask
 category: user
 tooltip: 'Design characters that breathe life into our AI adventures.'
-dottitip: 'A well-written character resonates with others.'
+dottitip: 'A well-written character resonances with others.'
 amitip: 'I wrote one who only speaks in karaoke lyrics. She is doing great.'
 sort: highlight
 navComponent: 'mode-nav'

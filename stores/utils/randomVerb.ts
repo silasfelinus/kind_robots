@@ -52,7 +52,7 @@ export function useRandomVerb() {
     'propel',
     'radiate',
     'rejuvenate',
-    'resonate',
+    'resonance',
     'saunter',
     'scatter',
     'seep',

@@ -250,6 +250,14 @@
     ]
   },
   {
+    "folderName": "resonate",
+    "components": [
+      "resonate-buttons",
+      "resonate-display",
+      "resonate-lab"
+    ]
+  },
+  {
     "folderName": "rewards",
     "components": [
       "AddRewardOld",

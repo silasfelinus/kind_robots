@@ -1,20 +1,20 @@
-// /cypress/e2e/resonate.cy.ts
+// /cypress/e2e/resonance.cy.ts
 
-describe('Resonate Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/resonate'
+describe('resonance Management API Tests', () => {
+  const baseUrl = 'https://kind-robots.vercel.app/api/resonance'
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let resonateId: number | undefined
-  const uniqueResonateTitle = `Resonate-${Date.now()}`
+  let resonanceId: number | undefined
+  const uniqueresonanceTitle = `resonance-${Date.now()}`
 
-  // 1. Create resonate without auth (should fail)
-  it('should not allow creating a resonate without an authorization token', () => {
+  // 1. Create resonance without auth (should fail)
+  it('should not allow creating a resonance without an authorization token', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: { 'Content-Type': 'application/json' },
       body: {
-        title: uniqueResonateTitle,
+        title: uniqueresonanceTitle,
         data: { test: 'Testing content' },
       },
       failOnStatusCode: false,
@@ -26,8 +26,8 @@ describe('Resonate Management API Tests', () => {
     })
   })
 
-  // 2. Create resonate with invalid auth (should fail)
-  it('should not allow creating a resonate with an invalid authorization token', () => {
+  // 2. Create resonance with invalid auth (should fail)
+  it('should not allow creating a resonance with an invalid authorization token', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -36,7 +36,7 @@ describe('Resonate Management API Tests', () => {
         Authorization: `Bearer ${invalidToken}`,
       },
       body: {
-        title: uniqueResonateTitle,
+        title: uniqueresonanceTitle,
         data: { test: 'Testing content' },
       },
       failOnStatusCode: false,
@@ -46,8 +46,8 @@ describe('Resonate Management API Tests', () => {
     })
   })
 
-  // 3. Create resonate with valid auth (should succeed)
-  it('should allow creating a resonate with valid authentication', () => {
+  // 3. Create resonance with valid auth (should succeed)
+  it('should allow creating a resonance with valid authentication', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -56,32 +56,32 @@ describe('Resonate Management API Tests', () => {
         Authorization: `Bearer ${userToken}`,
       },
       body: {
-        title: uniqueResonateTitle,
+        title: uniqueresonanceTitle,
         data: { test: 'Testing content' },
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.have.property('id')
-      resonateId = response.body.data.id
+      resonanceId = response.body.data.id
     })
   })
 
-  // 4. Get resonate by ID
-  it('should retrieve a resonate by ID', () => {
-    cy.wrap(resonateId).should('exist')
+  // 4. Get resonance by ID
+  it('should retrieve a resonance by ID', () => {
+    cy.wrap(resonanceId).should('exist')
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/${resonateId}`,
+      url: `${baseUrl}/${resonanceId}`,
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.title).to.eq(uniqueResonateTitle)
+      expect(response.body.data.title).to.eq(uniqueresonanceTitle)
     })
   })
 
-  // 5. Get all resonates
-  it('should retrieve all resonates', () => {
+  // 5. Get all resonances
+  it('should retrieve all resonances', () => {
     cy.request({
       method: 'GET',
       url: `${baseUrl}`,
@@ -94,30 +94,30 @@ describe('Resonate Management API Tests', () => {
     })
   })
 
-  // 6. Patch resonate (update title)
-  it('should allow updating a resonate with valid authentication', () => {
-    const updatedResonateTitle = `Updated-${uniqueResonateTitle}`
+  // 6. Patch resonance (update title)
+  it('should allow updating a resonance with valid authentication', () => {
+    const updatedresonanceTitle = `Updated-${uniqueresonanceTitle}`
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/${resonateId}`,
+      url: `${baseUrl}/${resonanceId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
-      body: { title: updatedResonateTitle },
+      body: { title: updatedresonanceTitle },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.title).to.eq(updatedResonateTitle)
+      expect(response.body.data.title).to.eq(updatedresonanceTitle)
     })
   })
 
-  // 7. Delete resonate without auth (should fail)
-  it('should not allow deleting a resonate without authentication', () => {
-    cy.wrap(resonateId).should('exist')
+  // 7. Delete resonance without auth (should fail)
+  it('should not allow deleting a resonance without authentication', () => {
+    cy.wrap(resonanceId).should('exist')
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${resonateId}`,
+      url: `${baseUrl}/${resonanceId}`,
       headers: { 'Content-Type': 'application/json' },
       failOnStatusCode: false,
     }).then((response) => {
@@ -125,12 +125,12 @@ describe('Resonate Management API Tests', () => {
     })
   })
 
-  // 8. Delete resonate with invalid auth (should fail)
-  it('should not allow deleting a resonate with an invalid token', () => {
-    cy.wrap(resonateId).should('exist')
+  // 8. Delete resonance with invalid auth (should fail)
+  it('should not allow deleting a resonance with an invalid token', () => {
+    cy.wrap(resonanceId).should('exist')
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${resonateId}`,
+      url: `${baseUrl}/${resonanceId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${invalidToken}`,
@@ -141,12 +141,12 @@ describe('Resonate Management API Tests', () => {
     })
   })
 
-  // 9. Delete resonate with valid auth (should succeed)
-  it('should allow deleting a resonate with valid authentication', () => {
-    cy.wrap(resonateId).should('exist')
+  // 9. Delete resonance with valid auth (should succeed)
+  it('should allow deleting a resonance with valid authentication', () => {
+    cy.wrap(resonanceId).should('exist')
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${resonateId}`,
+      url: `${baseUrl}/${resonanceId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
@@ -155,7 +155,7 @@ describe('Resonate Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
       expect(response.body.message).to.include(
-        `Resonate with ID ${resonateId} successfully deleted`,
+        `resonance with ID ${resonanceId} successfully deleted`,
       )
     })
   })

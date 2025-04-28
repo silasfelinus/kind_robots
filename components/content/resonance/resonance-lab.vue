@@ -15,11 +15,11 @@
       </p>
     </div>
 
-    <!-- Resonate Display -->
-    <resonate-display class="flex-1 max-h-[65vh]" />
+    <!-- resonance Display -->
+    <resonance-display class="flex-1 max-h-[65vh]" />
 
     <!-- Command Buttons -->
-    <resonate-buttons />
+    <resonance-buttons />
 
     <!-- Action Buttons -->
     <div class="w-full flex flex-wrap justify-center gap-4 pt-6">
@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-// /pages/lab/resonate-lab.vue
+// /pages/lab/resonance-lab.vue
 import { useRouter } from 'vue-router'
 import { usePageStore } from '@/stores/pageStore'
 import { onMounted } from 'vue'

@@ -30,7 +30,7 @@ interface VisualizerCommand {
   cooldown?: number // prevent button spam
 }
 
-export const useResonateStore = defineStore('resonateStore', {
+export const useresonanceStore = defineStore('resonanceStore', {
   state: () => ({
     inputSource: 'microphone' as 'microphone' | 'file' | 'timer' | 'manual',
     currentImage: '',
@@ -55,7 +55,7 @@ export const useResonateStore = defineStore('resonateStore', {
     totalChapters: (state) => state.story.chapters.length,
     hasActiveInputs: (state) => state.activeInputs.length > 0,
     hasUnsavedChanges: (state) => {
-      const savedStory = localStorage.getItem('resonate-story')
+      const savedStory = localStorage.getItem('resonance-story')
       return savedStory !== JSON.stringify(state.story)
     },
   },
@@ -65,9 +65,9 @@ export const useResonateStore = defineStore('resonateStore', {
       if (this.isInitialized) return
 
       try {
-        const savedStory = localStorage.getItem('resonate-story')
-        const savedChapter = localStorage.getItem('resonate-chapter')
-        const savedCommands = localStorage.getItem('resonate-commands')
+        const savedStory = localStorage.getItem('resonance-story')
+        const savedChapter = localStorage.getItem('resonance-chapter')
+        const savedCommands = localStorage.getItem('resonance-commands')
 
         if (savedStory) {
           this.story = JSON.parse(savedStory) as Story
@@ -87,22 +87,22 @@ export const useResonateStore = defineStore('resonateStore', {
 
         this.isInitialized = true
       } catch (error) {
-        handleError(error, 'initializing resonate store')
+        handleError(error, 'initializing resonance store')
       }
     },
-    async saveResonateArt() {
+    async saveresonanceArt() {
       const artStore = useArtStore()
       const userStore = useUserStore()
 
       if (!this.currentImage) {
-        console.warn('[resonateStore] No current image to save.')
+        console.warn('[resonanceStore] No current image to save.')
         return
       }
 
       this.isSaving = true
       try {
         const artPayload = {
-          promptString: 'Generated from Resonate Lab',
+          promptString: 'Generated from resonance Lab',
           path: this.currentImage,
           seed: null,
           steps: null,
@@ -116,9 +116,9 @@ export const useResonateStore = defineStore('resonateStore', {
 
         const savedArt = await artStore.createArt(artPayload)
 
-        console.log('[resonateStore] Saved resonance to art:', savedArt)
+        console.log('[resonanceStore] Saved resonance to art:', savedArt)
       } catch (error) {
-        handleError(error, 'saving resonate art')
+        handleError(error, 'saving resonance art')
       } finally {
         this.isSaving = false
       }
@@ -159,13 +159,13 @@ export const useResonateStore = defineStore('resonateStore', {
 
     syncToLocalStorage() {
       try {
-        localStorage.setItem('resonate-story', JSON.stringify(this.story))
+        localStorage.setItem('resonance-story', JSON.stringify(this.story))
         localStorage.setItem(
-          'resonate-chapter',
+          'resonance-chapter',
           JSON.stringify(this.currentChapter),
         )
         localStorage.setItem(
-          'resonate-commands',
+          'resonance-commands',
           JSON.stringify(this.availableCommands),
         )
       } catch (error) {
@@ -236,7 +236,7 @@ export const useResonateStore = defineStore('resonateStore', {
         this.syncToLocalStorage()
         // Optional future external save goes here
       } catch (error) {
-        handleError(error, 'saving resonate story')
+        handleError(error, 'saving resonance story')
       } finally {
         this.isSaving = false
       }
@@ -244,7 +244,7 @@ export const useResonateStore = defineStore('resonateStore', {
 
     async loadStoryFromStorage() {
       try {
-        const saved = localStorage.getItem('resonate-story')
+        const saved = localStorage.getItem('resonance-story')
         if (saved) {
           this.story = JSON.parse(saved) as Story
           this.currentChapter = this.story.chapters[

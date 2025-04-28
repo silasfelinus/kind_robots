@@ -24,12 +24,46 @@
     >
       <main-content />
     </main>
+
+    <!-- Resonate Button -->
+    <nuxt-link
+      v-if="showResonate"
+      to="/resonate"
+      class="fixed z-50 bottom-6 left-6 sm:bottom-8 sm:left-8 bg-primary text-white rounded-full p-4 sm:p-6 flex items-center justify-center shadow-lg hover:bg-secondary transition-all duration-700 opacity-0 animate-fade-in"
+    >
+      <Icon name="kind-icon:resonate" class="w-6 h-6 sm:w-8 sm:h-8" />
+    </nuxt-link>
   </div>
 </template>
 
 <script setup lang="ts">
 // /app.vue
+import { ref, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+const showResonate = ref(false)
+
+onMounted(() => {
+  setTimeout(() => {
+    showResonate.value = true
+  }, 300) // slight delay for elegance
+})
 </script>
+
+<style scoped>
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+</style>

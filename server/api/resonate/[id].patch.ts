@@ -1,4 +1,4 @@
-// /server/api/resonate/[id].patch.ts
+// /server/api/resonance/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from './../utils/prisma'
 import { errorHandler } from './../utils/error'
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     if (isNaN(id) || id <= 0) {
       throw createError({
         statusCode: 400,
-        message: 'Invalid Resonate ID. It must be a positive integer.',
+        message: 'Invalid resonance ID. It must be a positive integer.',
       })
     }
 
@@ -28,37 +28,39 @@ export default defineEventHandler(async (event) => {
 
     const userId = user.id
 
-    const existingResonate = await prisma.resonate.findUnique({ where: { id } })
-    if (!existingResonate) {
+    const existingresonance = await prisma.resonance.findUnique({
+      where: { id },
+    })
+    if (!existingresonance) {
       throw createError({
         statusCode: 404,
-        message: 'Resonate not found.',
+        message: 'resonance not found.',
       })
     }
 
-    if (existingResonate.userId !== userId && user.Role !== 'ADMIN') {
+    if (existingresonance.userId !== userId && user.Role !== 'ADMIN') {
       throw createError({
         statusCode: 403,
-        message: 'You do not have permission to update this resonate.',
+        message: 'You do not have permission to update this resonance.',
       })
     }
 
-    const resonateData: Prisma.ResonateUpdateInput = await readBody(event)
-    if (!resonateData || Object.keys(resonateData).length === 0) {
+    const resonanceData: Prisma.resonanceUpdateInput = await readBody(event)
+    if (!resonanceData || Object.keys(resonanceData).length === 0) {
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
-    const data = await prisma.resonate.update({
+    const data = await prisma.resonance.update({
       where: { id },
-      data: resonateData,
+      data: resonanceData,
     })
 
     response = {
       success: true,
-      message: 'Resonate updated successfully.',
+      message: 'resonance updated successfully.',
       data,
       statusCode: 200,
     }
@@ -69,7 +71,7 @@ export default defineEventHandler(async (event) => {
     response = {
       success: false,
       message:
-        handledError.message || `Failed to update resonate with ID ${id}.`,
+        handledError.message || `Failed to update resonance with ID ${id}.`,
       statusCode: event.node.res.statusCode,
     }
   }

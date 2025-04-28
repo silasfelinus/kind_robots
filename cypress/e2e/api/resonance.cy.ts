@@ -57,7 +57,8 @@ describe('resonance Management API Tests', () => {
       },
       body: {
         title: uniqueresonanceTitle,
-        data: { test: 'Testing content' },
+        imagePath: '/images/test-resonance.png', // ✅ ADD THIS
+        data: { test: 'Testing content' }, // (your API doesn't care about this currently, but harmless to keep)
       },
     }).then((response) => {
       expect(response.status).to.eq(201)

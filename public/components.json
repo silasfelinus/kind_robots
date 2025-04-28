@@ -198,7 +198,6 @@
     "components": [
       "EarnedMilestoneCard",
       "JellybeanBag",
-      "JellybeanCount",
       "JellybeanCounter",
       "LockedMilestones",
       "MilestoneLeaderboard",
@@ -303,6 +302,7 @@
       "hot-link",
       "image-background",
       "image-toggle",
+      "jellybean-count",
       "kind-header",
       "kind-icons",
       "kind-loader",

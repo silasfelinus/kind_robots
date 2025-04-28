@@ -90,6 +90,39 @@ export const useResonateStore = defineStore('resonateStore', {
         handleError(error, 'initializing resonate store')
       }
     },
+    async saveResonateArt() {
+      const artStore = useArtStore()
+      const userStore = useUserStore()
+
+      if (!this.currentImage) {
+        console.warn('[resonateStore] No current image to save.')
+        return
+      }
+
+      this.isSaving = true
+      try {
+        const artPayload = {
+          promptString: 'Generated from Resonate Lab',
+          path: this.currentImage,
+          seed: null,
+          steps: null,
+          galleryId: 21,
+          promptId: null,
+          pitchId: null,
+          userId: userStore.userId || 10,
+          designer: userStore.username || 'Kind Designer',
+          artImageId: null, // Optional, handle later if needed
+        }
+
+        const savedArt = await artStore.createArt(artPayload)
+
+        console.log('[resonateStore] Saved resonance to art:', savedArt)
+      } catch (error) {
+        handleError(error, 'saving resonate art')
+      } finally {
+        this.isSaving = false
+      }
+    },
 
     loadDefaultCommands() {
       this.availableCommands = [

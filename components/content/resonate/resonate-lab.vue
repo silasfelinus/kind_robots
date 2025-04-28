@@ -1,4 +1,3 @@
-<!-- /pages/lab/resonate-lab.vue -->
 <template>
   <div
     class="w-full min-h-screen flex flex-col gap-8 p-4 sm:p-6 md:p-10 bg-base-200 rounded-2xl overflow-hidden"
@@ -22,23 +21,32 @@
     <!-- Command Buttons -->
     <resonate-buttons />
 
-    <!-- Optional: Return Navigation -->
-    <div class="w-full flex justify-center pt-6">
+    <!-- Action Buttons -->
+    <div class="w-full flex flex-wrap justify-center gap-4 pt-6">
       <nuxt-link to="/gallery" class="btn btn-secondary rounded-2xl text-lg">
         Return to Gallery
       </nuxt-link>
+      <button class="btn btn-accent rounded-2xl text-lg" @click="handleReset">
+        Reset Resonance
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // /pages/lab/resonate-lab.vue
+import { useRouter } from 'vue-router'
 import { usePageStore } from '@/stores/pageStore'
 import { onMounted } from 'vue'
 
 const pageStore = usePageStore()
+const router = useRouter()
 
 onMounted(async () => {
   await pageStore.loadPage()
 })
+
+const handleReset = () => {
+  router.push('/dashboard')
+}
 </script>

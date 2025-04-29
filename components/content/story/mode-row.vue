@@ -38,6 +38,7 @@ const displayStore = useDisplayStore()
 
 const modes = [
   { name: 'scenario', icon: 'kind-icon:scenario', label: 'Scenarios' },
+  { name: 'resonance', icon: 'kind-icon:resonance', label: 'Resonance' },
   { name: 'character', icon: 'kind-icon:character', label: 'Characters' },
   { name: 'reward', icon: 'kind-icon:reward', label: 'Rewards' },
   { name: 'chat', icon: 'kind-icon:chat', label: 'Chats' },

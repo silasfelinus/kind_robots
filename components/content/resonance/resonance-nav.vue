@@ -37,9 +37,9 @@ const router = useRouter()
 
 const resonanceNavItems = [
   {
-    title: 'Browse',
+    title: 'Gallery',
     subtitle: 'Explore all resonances',
-    route: '/resonancebrowser',
+    route: '/resonancegallery',
     icon: 'kind-icon:resonance',
   },
   {
@@ -51,19 +51,7 @@ const resonanceNavItems = [
   {
     title: 'Lab',
     subtitle: 'Tinker and experiment',
-    route: '/resonancelab',
-    icon: 'kind-icon:resonance',
-  },
-  {
-    title: 'Visualizer',
-    subtitle: 'Watch sound come alive',
-    route: '/resonanceaudio',
-    icon: 'kind-icon:resonance',
-  },
-  {
-    title: 'Chapters',
-    subtitle: 'Organize resonance flows',
-    route: '/resonancechapters',
+    route: '/resonance',
     icon: 'kind-icon:resonance',
   },
 ]

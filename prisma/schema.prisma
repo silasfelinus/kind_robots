@@ -417,6 +417,7 @@ model Resonance {
   updatedAt    DateTime? @default(now()) @updatedAt
   title        String    @db.VarChar(255)
   description  String?   @db.VarChar(512)
+  instruction   String?   @db.VarChar(512)
   userId       Int?      @default(10)
   isPublic     Boolean   @default(true)
   isPreset     Boolean   @default(false)

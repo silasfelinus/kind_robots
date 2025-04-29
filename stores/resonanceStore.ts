@@ -3,14 +3,20 @@ import { defineStore } from 'pinia'
 import { performFetch, handleError } from '@/stores/utils'
 import type { Resonance } from '@prisma/client'
 
+export interface ResonanceForm extends Partial<Resonance> {
+  artIds?: number[]
+  currentArtId?: number
+}
+
 export const useResonanceStore = defineStore('resonanceStore', {
   state: () => ({
     resonances: [] as Resonance[],
     selectedResonance: null as Resonance | null,
-    resonanceForm: {} as Partial<Resonance>,
+    resonanceForm: {} as ResonanceForm,
     isSaving: false,
     isInitialized: false,
     loading: false,
+    running: false,
   }),
 
   getters: {
@@ -147,6 +153,60 @@ export const useResonanceStore = defineStore('resonanceStore', {
       } finally {
         this.isSaving = false
       }
+    },
+
+    createNewResonance() {
+      this.resonanceForm = {
+        title: '',
+        description: '',
+        genres: '',
+        creativityRate: 50,
+        imageMask: 50,
+        iteration: 1000,
+        useMicrophone: false,
+        isPublic: true,
+        isMature: false,
+        seedText: '',
+        artIds: [],
+      }
+      this.selectedResonance = null
+      this.running = false
+      console.log('[resonanceStore] New Resonance initialized.')
+      this.syncToLocalStorage()
+    },
+    nextArtAsset() {
+      if (
+        !this.resonanceForm.artIds ||
+        this.resonanceForm.artIds.length === 0
+      ) {
+        console.warn('[resonanceStore] No Art assets linked to this Resonance.')
+        return
+      }
+
+      // Just cycle to the next artId (assume front-end uses currentArtId?)
+      const currentArtId =
+        this.resonanceForm.currentArtId || this.resonanceForm.artIds[0]
+      const index = this.resonanceForm.artIds.indexOf(currentArtId)
+
+      const nextIndex = (index + 1) % this.resonanceForm.artIds.length
+      this.resonanceForm.currentArtId = this.resonanceForm.artIds[nextIndex]
+
+      console.log(
+        '[resonanceStore] Switched to Art ID:',
+        this.resonanceForm.currentArtId,
+      )
+      this.syncToLocalStorage()
+    },
+
+    forceUpdateNow() {
+      console.log('[resonanceStore] Forcing immediate update...')
+      this.running = false
+
+      // Simulate quick transition: move to next art immediately
+      this.nextArtAsset()
+
+      // Optionally restart running (depending if Play mode was active)
+      this.running = true
     },
 
     async saveResonance(payload: {

@@ -1,10 +1,12 @@
 <!-- /components/content/story/resonance-nav.vue -->
 <template>
-  <div class="flex flex-wrap items-center justify-center gap-4 w-full p-4">
+  <div
+    class="flex items-center justify-center gap-4 w-full p-4 overflow-x-auto"
+  >
     <div
       v-for="nav in resonanceNavItems"
       :key="nav.route"
-      class="flex items-center justify-between bg-base-200 rounded-2xl border border-base-300 shadow-sm hover:shadow-md transition group max-w-xs w-full"
+      class="flex items-center bg-base-200 rounded-2xl border border-base-300 shadow-sm hover:shadow-md transition group flex-shrink-0 min-w-[220px] max-w-xs"
     >
       <!-- Icon Button -->
       <button

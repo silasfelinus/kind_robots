@@ -49,7 +49,7 @@
           <div
             class="flex justify-end items-center flex-grow basis-full md:basis-3/4 min-w-0"
           >
-            <kind-icons
+            <smart-icons
               :compact="bigMode"
               class="flex justify-end items-center pb-1 w-full"
             />

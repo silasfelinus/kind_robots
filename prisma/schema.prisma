@@ -558,6 +558,7 @@ model User {
   showMature     Boolean           @default(false)
   Role           Role              @default(USER)
   isPublic       Boolean           @default(true)
+  smartBar       String?
   blockList      String?
   designerName   String?
   artImageId     Int?

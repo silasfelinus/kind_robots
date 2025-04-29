@@ -1,6 +1,6 @@
 ---
 title: 'Resonance Gallery'
-subtitle: 'Dive into the ripples of a thousand dreams'
+subtitle: 'ripples of a thousand dreams'
 description: 'Browse the infinite echoes of worlds shaped by sound, thought, and whim. Each resonance tells a story vibrating just beneath reality.'
 gallery: 'resonances'
 image: 'resonance/browse.png'

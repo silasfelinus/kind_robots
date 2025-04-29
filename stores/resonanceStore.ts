@@ -164,6 +164,7 @@ export const useResonanceStore = defineStore('resonanceStore', {
         imageMask: 50,
         iteration: 1000,
         useMicrophone: false,
+        instructions: '',
         isPublic: true,
         isMature: false,
         seedText: '',

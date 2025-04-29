@@ -6,17 +6,18 @@
     <!-- Current Image -->
     <transition name="fade" mode="out-in">
       <img
-        v-if="currentImage"
-        :key="currentImage"
-        :src="currentImage"
+        v-if="currentImageUrl"
+        :key="currentImageUrl"
+        :src="currentImageUrl"
         alt="Current Resonance"
         class="w-full h-full object-cover rounded-2xl"
       />
     </transition>
 
-    <!-- Overlay: Story Text -->
+    <!-- Overlay: Seed Text (optional) -->
     <div
-      class="absolute inset-0 flex flex-col items-center justify-end bg-black/20 p-6 space-y-4 pointer-events-none"
+      v-if="seedText"
+      class="absolute inset-0 flex flex-col items-center justify-end bg-black/20 p-6 pointer-events-none"
     >
       <transition-group
         name="slide-up"
@@ -24,11 +25,10 @@
         class="space-y-2 w-full text-center"
       >
         <p
-          v-for="(line, index) in currentChapterText"
-          :key="index"
+          key="seedText"
           class="text-lg md:text-2xl text-white font-light drop-shadow-lg animate-pulse"
         >
-          {{ line }}
+          {{ seedText }}
         </p>
       </transition-group>
     </div>
@@ -38,27 +38,71 @@
       v-if="debug"
       class="absolute top-2 left-2 bg-black/40 text-xs text-white p-2 rounded-md"
     >
-      <div>Inputs: {{ activeInputs.join(', ') }}</div>
-      <div>Source: {{ inputSource }}</div>
+      <div>Running: {{ running ? 'Yes' : 'No' }}</div>
+      <div>Interval: {{ intervalMs }} ms</div>
+      <div>Mask: {{ imageMask }}</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // /components/content/resonance/resonance-display.vue
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useResonanceStore } from '@/stores/resonanceStore'
 
-const resonanceStore = useresonanceStore()
+const resonanceStore = useResonanceStore()
 
 const debug = ref(false)
+let intervalHandle: ReturnType<typeof setInterval> | null = null
 
-const currentImage = computed(() => resonanceStore.currentImage)
-const currentChapterText = computed(
-  () => resonanceStore.currentChapter.text || [],
+const currentImageUrl = computed(() => {
+  const artId = resonanceStore.resonanceForm.currentArtId
+  if (!artId) return null
+  return `/api/art/${artId}` // Example path — adjust if you serve images differently
+})
+
+const seedText = computed(() => resonanceStore.resonanceForm.seedText || '')
+const imageMask = computed(() => resonanceStore.resonanceForm.imageMask ?? 50)
+const running = computed(() => resonanceStore.running)
+const intervalMs = computed(
+  () => resonanceStore.resonanceForm.iteration || 5000,
 )
-const activeInputs = computed(() => resonanceStore.activeInputs)
-const inputSource = computed(() => resonanceStore.inputSource)
+
+// --- Auto-update Logic based on Running State ---
+const setupAutoAdvance = () => {
+  if (intervalHandle) clearInterval(intervalHandle)
+
+  if (running.value) {
+    intervalHandle = setInterval(() => {
+      console.log('[resonance-display] Auto advance triggered.')
+      resonanceStore.nextArtAsset()
+    }, intervalMs.value)
+  }
+}
+
+onMounted(() => {
+  setupAutoAdvance()
+
+  // Watch for running state changes
+  watch(running, (newRunning) => {
+    if (newRunning) {
+      setupAutoAdvance()
+    } else {
+      if (intervalHandle) clearInterval(intervalHandle)
+    }
+  })
+
+  // Watch if interval timing changes
+  watch(intervalMs, (newInterval) => {
+    if (running.value) {
+      setupAutoAdvance()
+    }
+  })
+})
+
+onUnmounted(() => {
+  if (intervalHandle) clearInterval(intervalHandle)
+})
 </script>
 
 <style scoped>

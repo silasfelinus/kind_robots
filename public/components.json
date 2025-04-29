@@ -251,9 +251,12 @@
   {
     "folderName": "resonance",
     "components": [
+      "add-resonance",
       "resonance-buttons",
       "resonance-display",
-      "resonance-lab"
+      "resonance-gallery",
+      "resonance-lab",
+      "resonance-nav"
     ]
   },
   {

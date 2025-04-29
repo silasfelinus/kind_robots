@@ -29,27 +29,20 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    if (
-      !resonanceData.imagePath ||
-      typeof resonanceData.imagePath !== 'string'
-    ) {
-      event.node.res.statusCode = 400
-      return {
-        success: false,
-        data: null,
-        message: 'The "imagePath" field is required and must be a string.',
-      }
-    }
-
     const fullData: Prisma.ResonanceCreateInput = {
       User: { connect: { id: authenticatedUserId } },
       title: resonanceData.title,
       description: resonanceData.description || '',
-      imagePath: resonanceData.imagePath,
-      audioPath: resonanceData.audioPath || '',
-      chapterData: resonanceData.chapterData || '',
+      instructions: resonanceData.instructions || '',
+      seedText: resonanceData.seedText || '',
       genres: resonanceData.genres || '',
       isPublic: resonanceData.isPublic ?? true,
+      isPreset: resonanceData.isPreset ?? false,
+      isMature: resonanceData.isMature ?? false,
+      iteration: resonanceData.iteration ?? 1000,
+      imageMask: resonanceData.imageMask ?? 50,
+      creativityRate: resonanceData.creativityRate ?? 50,
+      useMicrophone: resonanceData.useMicrophone ?? false,
     }
 
     const data = await prisma.resonance.create({
@@ -61,7 +54,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       data,
-      message: 'resonance created successfully.',
+      message: 'Resonance created successfully.',
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)

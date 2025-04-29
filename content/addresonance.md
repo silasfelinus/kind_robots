@@ -12,6 +12,6 @@ tooltip: 'Manifest new realities through sound.'
 dottitip: 'Every resonance starts with a single spark of imagination.'
 amitip: 'Or an accidental elbow slam into the soundboard. (It happens.)'
 sort: creation
-navComponent: 'mode-nav'
+navComponent: 'resonance-nav'
 ---
-:resonance-create
+:add-resonance

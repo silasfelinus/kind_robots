@@ -47,7 +47,7 @@
 <script setup lang="ts">
 // /components/content/resonance/resonance-display.vue
 import { computed, ref } from 'vue'
-import { useresonanceStore } from '@/stores/resonanceStore'
+import { useResonanceStore } from '@/stores/resonanceStore'
 
 const resonanceStore = useresonanceStore()
 

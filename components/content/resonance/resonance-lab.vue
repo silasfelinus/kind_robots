@@ -25,7 +25,7 @@
     <!-- Action Buttons -->
     <div class="w-full flex flex-wrap justify-center gap-4 pt-6">
       <NuxtLink
-        to="/gallery"
+        to="/resonance-gallery"
         class="btn btn-secondary rounded-2xl text-lg transition hover:scale-105"
       >
         Return to Gallery

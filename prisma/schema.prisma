@@ -417,12 +417,15 @@ model Resonance {
   updatedAt    DateTime? @default(now()) @updatedAt
   title        String    @db.VarChar(255)
   description  String?   @db.VarChar(512)
-  imagePath    String    @db.VarChar(764)
-  audioPath    String?   @db.VarChar(764)
   userId       Int?      @default(10)
-  chapterData  String?   @db.LongText // JSON stringified array of chapters
   isPublic     Boolean   @default(true)
   isPreset     Boolean   @default(false)
+  isMature     Boolean   @default(false)
+  iteration    Int      @default(1000)
+  imageMask    Int      @default(50)
+  seedText     String?
+  creativityRate  Int     @default(50)
+  useMicrophone Boolean  @default(false)
   genres       String?   @db.VarChar(512)
   User         User?     @relation(fields: [userId], references: [id])
   Art          Art[]

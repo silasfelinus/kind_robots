@@ -1,6 +1,6 @@
 ---
 title: 'resonance'
-subtitle: 'Where sound and dreams collide'
+subtitle: 'personal mood page'
 description: 'Experience dynamic stories that shift with sound, time, and your touch. Shape a living world one beat at a time.'
 gallery: 'resonances'
 image: 'resonance/resonance.png'

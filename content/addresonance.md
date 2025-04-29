@@ -1,6 +1,6 @@
 ---
-title: 'Create New Resonance'
-subtitle: 'Catch a vibration before it fades'
+title: 'New Resonance'
+subtitle: 'Catch a vibration'
 description: 'Capture a fleeting emotion, craft a beat, or weave a new world. Every resonance begins with a whisper... or a subwoofer.'
 gallery: 'resonances'
 image: 'resonance/create.png'

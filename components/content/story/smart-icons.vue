@@ -1,8 +1,7 @@
-<!-- /components/content/story/smart-icons.vue -->
 <template>
   <div class="flex w-full items-center justify-end flex-nowrap gap-1 lg:gap-2">
-    <!-- Normal SmartBar Icons -->
     <template v-if="filteredNavLinks.length > 0">
+      <!-- Render icons -->
       <div
         v-for="link in filteredNavLinks"
         :key="link.icon"
@@ -25,7 +24,7 @@
           </div>
         </NuxtLink>
 
-        <!-- Utility Links (without paths) -->
+        <!-- Utility components -->
         <component
           v-else
           :is="link.icon"
@@ -35,14 +34,16 @@
       </div>
     </template>
 
-    <!-- Fallback when no icons -->
+    <!-- Fallback: smartBar exists but icons not found -->
     <div
-      v-else
+      v-else-if="hasSmartBar"
       class="flex-1 flex flex-col items-center justify-center p-4 text-center text-sm text-base-content/60"
     >
-      <div>No SmartBar icons found.</div>
+      <div>No SmartBar icons matched.</div>
       <div class="text-xs mt-2 break-all">[{{ smartBarItems.join(', ') }}]</div>
     </div>
+
+    <!-- Default full bar fallback (handled automatically) -->
   </div>
 </template>
 
@@ -68,10 +69,16 @@ const smartBarItems = computed(
     [],
 )
 
-// Filter allLinks by smartBar selections
-const filteredNavLinks = computed(() =>
-  allLinks.value.filter((link) =>
+const hasSmartBar = computed(() => smartBarItems.value.length > 0)
+
+const filteredNavLinks = computed(() => {
+  if (!hasSmartBar.value) {
+    // No user smartBar at all -> show defaults
+    return allLinks.value
+  }
+  // User has smartBar -> filter strictly
+  return allLinks.value.filter((link) =>
     smartBarItems.value.includes(link.icon.toLowerCase()),
-  ),
-)
+  )
+})
 </script>

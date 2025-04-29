@@ -22,7 +22,7 @@ import { useScenarioStore } from '../../../stores/scenarioStore'
 import { useWeirdStore } from '../../../stores/weirdStore'
 import { useConsoleStore } from '../../../stores/consoleStore'
 import { useChoiceStore } from '../../../stores/choiceStore'
-import { useresonanceStore } from '../../../stores/resonanceStore'
+import { useResonanceStore } from '../../../stores/resonanceStore'
 
 // Stores
 const errorStore = useErrorStore()
@@ -43,7 +43,7 @@ const scenarioStore = useScenarioStore()
 const weirdStore = useWeirdStore()
 const consoleStore = useConsoleStore()
 const choiceStore = useChoiceStore()
-const resonanceStore = useresonanceStore()
+const resonanceStore = useResonanceStore()
 
 // State management
 const isReady = ref(false)

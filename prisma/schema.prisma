@@ -502,6 +502,27 @@ model Scenario {
   inspirations  String?
 }
 
+model SmartIcon {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? @default(now()) @updatedAt
+
+  title      String    @db.VarChar(255)
+  type       String    @db.VarChar(255)
+  designer   String?   @db.VarChar(255)
+  userId     Int?      @default(10)
+  icon       String?   @db.VarChar(255)
+  label      String?   @db.VarChar(255)
+  link       String?   @db.VarChar(512)
+  component  String?   @db.VarChar(255)
+  isPublic   Boolean   @default(true)
+
+  User       User?     @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "SmartIcon_userId_fkey")
+}
+
+
 model Tag {
   id         Int         @id @default(autoincrement())
   createdAt  DateTime    @default(now())
@@ -558,6 +579,7 @@ model User {
   showMature     Boolean           @default(false)
   Role           Role              @default(USER)
   isPublic       Boolean           @default(true)
+  customIcons    Boolean          @default(false)
   smartBar       String?
   blockList      String?
   designerName   String?
@@ -579,6 +601,7 @@ model User {
   Tags           Tag[]
   Scenarios      Scenario[]
   Resonances      Resonance[]
+  SmartIcons     SmartIcon[]
   googleId    String? @unique
   googleEmail String? @db.VarChar(255)
 

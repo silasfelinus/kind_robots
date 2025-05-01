@@ -4,7 +4,7 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
       <h1 class="text-3xl font-bold text-primary">Smart Icon Gallery</h1>
-      <NuxtLink to="/add-icon" class="btn btn-primary btn-sm rounded-xl">
+      <NuxtLink to="/addicon" class="btn btn-primary btn-sm rounded-xl">
         ➕ Add New Icon
       </NuxtLink>
     </div>

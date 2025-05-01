@@ -23,8 +23,9 @@
         @dragover.prevent
         @drop="onDrop(index)"
       >
+        <!-- Non-edit mode: Link-based nav icons -->
         <NuxtLink
-          v-if="!isEditing && icon.link"
+          v-if="!isEditing && icon.link && icon.type !== 'utility'"
           :to="icon.link"
           class="flex flex-col items-center"
         >
@@ -37,17 +38,30 @@
           </span>
         </NuxtLink>
 
-        <!-- Edit Mode View -->
-        <div v-else class="relative flex flex-col items-center">
+        <!-- Edit mode or utility: Display component or editable icon -->
+        <div v-else class="flex flex-col items-center relative">
+          <!-- Use dynamic component if utility -->
+          <component
+            v-if="icon.type === 'utility'"
+            :is="icon.component"
+            class="w-full"
+          />
+          <!-- Otherwise, show the icon -->
           <Icon
+            v-else
             :name="icon.icon || 'lucide:help-circle'"
             class="text-3xl lg:text-4xl xl:text-5xl"
           />
+
+          <!-- Label -->
           <span class="text-xs mt-1 hidden md:block text-center">
             {{ icon.label || icon.title }}
           </span>
+
+          <!-- Remove button (edit mode only) -->
           <button
-            class="absolute -top-2 -right-2 bg-red-500 rounded-full p-1 text-white text-xs"
+            v-if="isEditing"
+            class="mt-1 bg-red-500 rounded-full px-2 py-0.5 text-white text-xs"
             @click="removeIcon(index)"
             title="Remove"
           >

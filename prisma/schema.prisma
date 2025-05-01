@@ -510,6 +510,7 @@ model SmartIcon {
   title      String    @db.VarChar(255)
   type       String    @db.VarChar(255)
   designer   String?   @db.VarChar(255)
+  description String?  @db.VarChar(255)
   userId     Int?      @default(10)
   icon       String?   @db.VarChar(255)
   label      String?   @db.VarChar(255)

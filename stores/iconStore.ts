@@ -191,6 +191,7 @@ export const useIconStore = defineStore('iconStore', {
         icon: '',
         label: '',
         link: '',
+        description: '',
         component: '',
         isPublic: true,
       }

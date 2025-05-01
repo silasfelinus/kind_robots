@@ -1,0 +1,96 @@
+<template>
+  <div class="container mx-auto p-4 space-y-4">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <h1 class="text-3xl font-bold text-primary">Sample Model Gallery</h1>
+      <NuxtLink to="/add-sample" class="btn btn-primary btn-sm rounded-xl">
+        ➕ Add New Entry
+      </NuxtLink>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-4">
+      <select v-model="filterScope" class="select select-bordered rounded-lg">
+        <option value="all">All Entries</option>
+        <option value="user">My Entries</option>
+        <option value="public">Public Only</option>
+      </select>
+
+      <select v-model="filterType" class="select select-bordered rounded-lg">
+        <option value="">All Types</option>
+        <option value="nav">Navigation</option>
+        <option value="utility">Utility</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <!-- Entry Grid -->
+    <div class="grid grid-cols-[repeat(auto-fit,_minmax(140px,_1fr))] gap-6">
+      <div
+        v-for="entry in filteredEntries"
+        :key="entry.id"
+        class="relative group p-4 border rounded-2xl bg-base-100 shadow-md flex flex-col items-center gap-2"
+      >
+        <Icon :name="entry.icon || 'lucide:help-circle'" class="text-4xl" />
+        <div class="text-center text-sm font-medium">
+          {{ entry.label || entry.title }}
+        </div>
+
+        <button
+          class="btn btn-xs mt-1"
+          @click="toggleActive(entry.id)"
+          :class="{
+            'btn-secondary': isActive(entry.id),
+            'btn-outline': !isActive(entry.id),
+          }"
+        >
+          {{ isActive(entry.id) ? 'Remove' : 'Add' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useUserStore } from '@/stores/userStore'
+import { useSampleModelStore } from '@/stores/sampleModelStore'
+
+const userStore = useUserStore()
+const sampleStore = useSampleModelStore()
+
+const { user } = storeToRefs(userStore)
+const { items } = storeToRefs(sampleStore)
+
+const filterScope = ref<'all' | 'user' | 'public'>('all')
+const filterType = ref('')
+
+// Replace with your equivalent active ID array
+const activeIds = ref<number[]>([])
+
+onMounted(() => {
+  sampleStore.initialize()
+})
+
+const filteredEntries = computed(() =>
+  items.value.filter((entry) => {
+    if (filterScope.value === 'user' && entry.userId !== user.value?.id)
+      return false
+    if (filterScope.value === 'public' && !entry.isPublic) return false
+    if (filterType.value && entry.type !== filterType.value) return false
+    return true
+  }),
+)
+
+function isActive(id: number) {
+  return activeIds.value.includes(id)
+}
+
+function toggleActive(id: number) {
+  const updated = isActive(id)
+    ? activeIds.value.filter((x) => x !== id)
+    : [...activeIds.value, id]
+  activeIds.value = updated
+}
+</script>

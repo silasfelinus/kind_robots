@@ -1,8 +1,8 @@
 // /server/api/resonance/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
+import prisma from './../utils/prisma'
 import { errorHandler } from './../utils/error'
 import { validateApiKey } from './../utils/validateKey'
-import prisma from './../utils/prisma'
 import type { Prisma, Resonance } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
@@ -15,46 +15,88 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const authenticatedUserId = user.id
+    const body = await readBody<Partial<Resonance> | Partial<Resonance>[]>(
+      event,
+    )
 
-    const resonanceData = await readBody<Partial<Resonance>>(event)
+    const normalizeSingle = (
+      entry: Partial<Resonance>,
+    ): Prisma.ResonanceCreateInput => {
+      if (!entry.title || typeof entry.title !== 'string') {
+        throw createError({
+          statusCode: 400,
+          message: 'The "title" field is required and must be a string.',
+        })
+      }
 
-    // Validate required fields
-    if (!resonanceData.title || typeof resonanceData.title !== 'string') {
-      event.node.res.statusCode = 400
       return {
-        success: false,
-        data: null,
-        message: 'The "title" field is required and must be a string.',
+        User: { connect: { id: user.id } },
+        title: entry.title,
+        description: entry.description || '',
+        instructions: entry.instructions || '',
+        seedText: entry.seedText || '',
+        genres: entry.genres || '',
+        isPublic: entry.isPublic ?? true,
+        isPreset: entry.isPreset ?? false,
+        isMature: entry.isMature ?? false,
+        iteration: entry.iteration ?? 1000,
+        imageMask: entry.imageMask ?? 50,
+        creativityRate: entry.creativityRate ?? 50,
+        useMicrophone: entry.useMicrophone ?? false,
       }
     }
 
-    const fullData: Prisma.ResonanceCreateInput = {
-      User: { connect: { id: authenticatedUserId } },
-      title: resonanceData.title,
-      description: resonanceData.description || '',
-      instructions: resonanceData.instructions || '',
-      seedText: resonanceData.seedText || '',
-      genres: resonanceData.genres || '',
-      isPublic: resonanceData.isPublic ?? true,
-      isPreset: resonanceData.isPreset ?? false,
-      isMature: resonanceData.isMature ?? false,
-      iteration: resonanceData.iteration ?? 1000,
-      imageMask: resonanceData.imageMask ?? 50,
-      creativityRate: resonanceData.creativityRate ?? 50,
-      useMicrophone: resonanceData.useMicrophone ?? false,
+    const normalizeBatch = (
+      entry: Partial<Resonance>,
+    ): Prisma.ResonanceCreateManyInput => {
+      if (!entry.title || typeof entry.title !== 'string') {
+        throw createError({
+          statusCode: 400,
+          message: 'Each entry must have a "title" field.',
+        })
+      }
+
+      return {
+        userId: user.id,
+        title: entry.title,
+        description: entry.description || '',
+        instructions: entry.instructions || '',
+        seedText: entry.seedText || '',
+        genres: entry.genres || '',
+        isPublic: entry.isPublic ?? true,
+        isPreset: entry.isPreset ?? false,
+        isMature: entry.isMature ?? false,
+        iteration: entry.iteration ?? 1000,
+        imageMask: entry.imageMask ?? 50,
+        creativityRate: entry.creativityRate ?? 50,
+        useMicrophone: entry.useMicrophone ?? false,
+      }
     }
 
-    const data = await prisma.resonance.create({
-      data: fullData,
-    })
+    if (Array.isArray(body)) {
+      const entries = body.map(normalizeBatch)
+      const data = await prisma.resonance.createMany({
+        data: entries,
+        skipDuplicates: true,
+      })
 
-    event.node.res.statusCode = 201
+      event.node.res.statusCode = 201
+      return {
+        success: true,
+        data,
+        message: `Created ${data.count} Resonances.`,
+      }
+    } else {
+      const data = await prisma.resonance.create({
+        data: normalizeSingle(body),
+      })
 
-    return {
-      success: true,
-      data,
-      message: 'Resonance created successfully.',
+      event.node.res.statusCode = 201
+      return {
+        success: true,
+        data,
+        message: 'Resonance created successfully.',
+      }
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)

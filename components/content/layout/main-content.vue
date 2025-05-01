@@ -10,7 +10,9 @@
         >
           <!-- Front Face: Main Page -->
           <div class="flip-card-front">
-            <NuxtPage :key="$route.fullPath" class="h-full w-full" />
+            <div class="h-full w-full overflow-y-auto">
+              <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
+            </div>
           </div>
 
           <!-- Back Face: Splash Tutorial -->
@@ -23,7 +25,9 @@
 
     <!-- Desktop View: Always show both -->
     <div v-else class="h-full w-full" key="desktop">
-      <NuxtPage :key="$route.fullPath" class="h-full w-full" />
+      <div class="h-full w-full overflow-y-auto">
+        <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
+      </div>
     </div>
 
     <!-- Right Sidebar & Toggle -->

@@ -162,7 +162,7 @@
 // /components/content/story/smart-icons.vue
 import { ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useIconStore } from '@/stores/iconStore'
+import { useIconStore, type SmartIcon } from '@/stores/iconStore'
 import { useUserStore } from '@/stores/userStore'
 
 const iconStore = useIconStore()
@@ -173,10 +173,9 @@ const isEditing = ref(false)
 const editableIcons = ref([...activeIcons.value])
 
 const isAdmin = computed(() => userStore.isAdmin)
+const selectedIcon = ref<SmartIcon | null>(null)
 
-const selectedIcon = ref(null)
-
-function openEditModal(icon) {
+function openEditModal(icon: SmartIcon) {
   selectedIcon.value = icon
 }
 

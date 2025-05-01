@@ -81,33 +81,35 @@
       </NuxtLink>
 
       <!-- Edit/Save Controls -->
-      <div class="ml-4 flex items-center gap-2">
-        <template v-if="isEditing">
-          <button
-            class="btn btn-xs btn-success"
-            @click="confirmEdit"
-            title="Save"
-          >
-            Confirm
-          </button>
-          <button
-            class="btn btn-xs btn-outline"
-            @click="revertEdit"
-            title="Cancel"
-          >
-            Revert
-          </button>
-        </template>
-        <template v-else>
-          <label class="flex items-center gap-1 cursor-pointer">
-            <input
-              type="checkbox"
-              v-model="isEditing"
-              @change="handleEditToggle"
-            />
-            <span class="text-xs md:text-sm">Edit</span>
-          </label>
-        </template>
+      <div class="ml-4 flex items-center gap-2 min-w-[100px]">
+        <transition name="fade-slide" mode="out-in">
+          <div :key="isEditing ? 'edit-mode' : 'view-mode'">
+            <div v-if="isEditing" class="flex items-center gap-2">
+              <button
+                class="btn btn-xs btn-success"
+                @click="confirmEdit"
+                title="Save"
+              >
+                Confirm
+              </button>
+              <button
+                class="btn btn-xs btn-outline"
+                @click="revertEdit"
+                title="Cancel"
+              >
+                Revert
+              </button>
+            </div>
+            <div v-else class="flex items-center gap-1">
+              <input
+                type="checkbox"
+                v-model="isEditing"
+                @change="handleEditToggle"
+              />
+              <span class="text-xs md:text-sm">Edit</span>
+            </div>
+          </div>
+        </transition>
       </div>
     </div>
 
@@ -166,3 +168,20 @@ function handleEditToggle() {
   }
 }
 </script>
+
+<style scoped>
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.25s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+.fade-slide-enter-to,
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>

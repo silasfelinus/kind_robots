@@ -1,3 +1,8 @@
+// @ts-nocheck
+/* eslint-disable */
+// test-ignore
+
+//stores/[model]Store.ts
 import { defineStore } from 'pinia'
 import { performFetch, handleError } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'

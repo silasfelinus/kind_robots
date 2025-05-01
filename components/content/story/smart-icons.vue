@@ -83,36 +83,39 @@ class="text-xs mt-1 hidden md:block text-center">
       </NuxtLink>
 
       <!-- Edit/Save Controls -->
-      <div class="ml-4 flex items-center gap-2 min-w-[100px]">
-        <transition name="fade-slide" mode="out-in">
-          <div :key="isEditing ? 'edit-mode' : 'view-mode'">
-            <div v-if="isEditing" class="flex items-center gap-2">
-              <button
-                class="btn btn-xs btn-success"
-                @click="confirmEdit"
-                title="Save"
-              >
-                Confirm
-              </button>
-              <button
-                class="btn btn-xs btn-outline"
-                @click="revertEdit"
-                title="Cancel"
-              >
-                Revert
-              </button>
-            </div>
-            <div v-else class="flex items-center gap-1">
-              <input
-                type="checkbox"
-                v-model="isEditing"
-                @change="handleEditToggle"
-              />
-              <span class="text-xs md:text-sm">Edit</span>
-            </div>
-          </div>
-        </transition>
+<!-- Edit/Save Controls -->
+<div class="ml-auto w-[15%] flex justify-end">
+  <transition name="fade-slide" mode="out-in">
+    <div :key="isEditing ? 'edit-mode' : 'view-mode'">
+      <div v-if="isEditing" class="flex flex-col items-center gap-2">
+        <button
+          class="btn btn-xs btn-success w-full"
+          @click="confirmEdit"
+          title="Save"
+        >
+          Confirm
+        </button>
+        <button
+          class="btn btn-xs btn-outline w-full"
+          @click="revertEdit"
+          title="Cancel"
+        >
+          Revert
+        </button>
       </div>
+      <div v-else>
+        <button
+          class="btn btn-square btn-sm"
+          @click="isEditing = true"
+          title="Edit icons"
+        >
+          <Icon name="kind-icon:gear" class="text-xl" />
+        </button>
+      </div>
+    </div>
+  </transition>
+</div>
+
     </div>
 
     <!-- Optional scrollbar bar at bottom -->

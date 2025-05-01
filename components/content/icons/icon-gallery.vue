@@ -36,6 +36,15 @@
           {{ icon.label || icon.title }}
         </div>
 
+        <!-- Admin Edit -->
+        <button
+          v-if="isAdmin"
+          class="mt-1 text-[10px] underline text-blue-500 hover:text-blue-700"
+          @click="openEditModal(icon)"
+        >
+          Edit Details
+        </button>
+
         <button
           class="btn btn-xs mt-1"
           @click="toggleIcon(icon.id)"
@@ -48,6 +57,14 @@
         </button>
       </div>
     </div>
+    <!-- Edit Modal -->
+    <edit-icon
+      v-if="selectedIcon"
+      :icon="selectedIcon"
+      @close="selectedIcon = null"
+      class="fixed inset-0 z-50 bg-base-200 bg-opacity-90 backdrop-blur-md flex items-center justify-center p-4"
+      style="max-height: 95vh; overflow-y: auto"
+    />
   </div>
 </template>
 
@@ -60,11 +77,19 @@ import { useUserStore } from '@/stores/userStore'
 const iconStore = useIconStore()
 const userStore = useUserStore()
 
+const isAdmin = computed(() => userStore.isAdmin)
+
 const { icons, smartBarIds } = storeToRefs(iconStore)
 const { user } = storeToRefs(userStore)
 
+const selectedIcon = ref<SmartIcon | null>(null)
+
 const filterScope = ref<'all' | 'user' | 'public'>('all')
 const filterType = ref('')
+
+function openEditModal(icon: SmartIcon) {
+  selectedIcon.value = icon
+}
 
 // Fetch if not loaded
 onMounted(() => {

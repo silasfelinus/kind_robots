@@ -82,15 +82,6 @@
           >
             ✕
           </button>
-
-          <!-- Admin Edit -->
-          <button
-            v-if="isAdmin"
-            class="mt-1 text-[10px] underline text-blue-500 hover:text-blue-700"
-            @click="openEditModal(icon)"
-          >
-            Edit Details
-          </button>
         </div>
       </div>
 
@@ -147,15 +138,6 @@
     <!-- Optional scrollbar bar at bottom -->
     <div class="h-1 bg-primary rounded mt-1" />
   </div>
-
-  <!-- Edit Modal -->
-  <edit-icon
-    v-if="selectedIcon"
-    :icon="selectedIcon"
-    @close="selectedIcon = null"
-    class="fixed inset-0 z-50 bg-base-200 bg-opacity-90 backdrop-blur-md flex items-center justify-center p-4"
-    style="max-height: 95vh; overflow-y: auto"
-  />
 </template>
 
 <script setup lang="ts">
@@ -163,21 +145,13 @@
 import { ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useIconStore, type SmartIcon } from '@/stores/iconStore'
-import { useUserStore } from '@/stores/userStore'
 
 const iconStore = useIconStore()
-const userStore = useUserStore()
+
 const { activeIcons } = storeToRefs(iconStore)
 
 const isEditing = ref(false)
 const editableIcons = ref([...activeIcons.value])
-
-const isAdmin = computed(() => userStore.isAdmin)
-const selectedIcon = ref<SmartIcon | null>(null)
-
-function openEditModal(icon: SmartIcon) {
-  selectedIcon.value = icon
-}
 
 watch(
   activeIcons,
@@ -203,18 +177,14 @@ function removeIcon(index: number) {
 async function confirmEdit() {
   const ids = editableIcons.value.map((i) => i.id)
   await iconStore.updateSmartBar(ids)
+  await iconStore.fetchIcons()
+  editableIcons.value = [...iconStore.activeIcons]
   isEditing.value = false
 }
 
 function revertEdit() {
   editableIcons.value = [...activeIcons.value]
   isEditing.value = false
-}
-
-function handleEditToggle() {
-  if (!isEditing.value) {
-    confirmEdit()
-  }
 }
 </script>
 

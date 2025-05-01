@@ -14,7 +14,7 @@ export const useIconStore = defineStore('iconStore', {
     isSaving: false,
     isInitialized: false,
     loading: false,
-    defaultIconIds: [1, 2, 3], // Replace with real default IDs
+    defaultIconIds: [1, 2, 3, 4, 5, 6, 7, 8], // Replace with real default IDs
   }),
 
   getters: {

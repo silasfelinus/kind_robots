@@ -18,6 +18,12 @@
         class="input input-bordered w-full"
       />
       <input
+        v-model="form.description"
+        type="text"
+        placeholder="Description (optional)"
+        class="input input-bordered w-full"
+      />
+      <input
         v-model="form.icon"
         type="text"
         placeholder="Icon name (e.g. lucide:home)"
@@ -61,6 +67,7 @@ const form = reactive({
   icon: '',
   label: '',
   link: '',
+  description: '',
   component: '',
   isPublic: true,
 })

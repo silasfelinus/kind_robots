@@ -41,6 +41,7 @@ export default defineEventHandler(async (event) => {
         designer: entry.designer || '',
         icon: entry.icon || '',
         label: entry.label || '',
+        description: entry.description || '',
         link: entry.link || '',
         component: entry.component || '',
         isPublic: entry.isPublic ?? true,
@@ -72,6 +73,7 @@ export default defineEventHandler(async (event) => {
         icon: entry.icon || '',
         label: entry.label || '',
         link: entry.link || '',
+        description: entry.description || '',
         component: entry.component || '',
         isPublic: entry.isPublic ?? true,
         userId: user.id, // ✅ for batch

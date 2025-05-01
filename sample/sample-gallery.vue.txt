@@ -58,10 +58,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/stores/userStore'
-import { useSampleModelStore } from '@/stores/sampleModelStore'
+import { useSampleStore } from '@/stores/sampleStore'
 
 const userStore = useUserStore()
-const sampleStore = useSampleModelStore()
+const sampleStore = useSampleStore()
 
 const { user } = storeToRefs(userStore)
 const { items } = storeToRefs(sampleStore)

@@ -58,10 +58,10 @@
             {{ icon.label || icon.title }}
           </span>
 
-          <!-- Remove button (edit mode only) -->
+          <!-- Remove button: stable layout, edit mode only -->
           <button
             v-if="isEditing"
-            class="mt-1 bg-red-500 rounded-full px-2 py-0.5 text-white text-xs"
+            class="mt-1 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 leading-tight transition hover:bg-red-600"
             @click="removeIcon(index)"
             title="Remove"
           >
@@ -70,7 +70,7 @@
         </div>
       </div>
 
-      <!-- Add icon: only visible in edit mode -->
+      <!-- Add icon (edit mode only) -->
       <NuxtLink
         v-if="isEditing"
         to="/icongallery"
@@ -80,16 +80,34 @@
         <span class="text-xs mt-1 hidden md:block text-center">Add</span>
       </NuxtLink>
 
-      <!-- Edit Toggle / Save -->
-      <div class="ml-4">
-        <label class="flex items-center gap-1 cursor-pointer">
-          <input
-            type="checkbox"
-            v-model="isEditing"
-            @change="handleEditToggle"
-          />
-          <span class="text-xs md:text-sm">Edit</span>
-        </label>
+      <!-- Edit/Save Controls -->
+      <div class="ml-4 flex items-center gap-2">
+        <template v-if="isEditing">
+          <button
+            class="btn btn-xs btn-success"
+            @click="confirmEdit"
+            title="Save"
+          >
+            Confirm
+          </button>
+          <button
+            class="btn btn-xs btn-outline"
+            @click="revertEdit"
+            title="Cancel"
+          >
+            Revert
+          </button>
+        </template>
+        <template v-else>
+          <label class="flex items-center gap-1 cursor-pointer">
+            <input
+              type="checkbox"
+              v-model="isEditing"
+              @change="handleEditToggle"
+            />
+            <span class="text-xs md:text-sm">Edit</span>
+          </label>
+        </template>
       </div>
     </div>
 
@@ -98,10 +116,9 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 // /components/content/story/smart-icons.vue
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useIconStore } from '@/stores/iconStore'
 
@@ -116,7 +133,7 @@ watch(
   (val) => {
     if (!isEditing.value) editableIcons.value = [...val]
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 let dragIndex = -1
@@ -132,10 +149,20 @@ function removeIcon(index: number) {
   editableIcons.value.splice(index, 1)
 }
 
-async function handleEditToggle() {
+async function confirmEdit() {
+  const ids = editableIcons.value.map((i) => i.id)
+  await iconStore.updateSmartBar(ids)
+  isEditing.value = false
+}
+
+function revertEdit() {
+  editableIcons.value = [...activeIcons.value]
+  isEditing.value = false
+}
+
+function handleEditToggle() {
   if (!isEditing.value) {
-    const ids = editableIcons.value.map((i) => i.id)
-    await iconStore.updateSmartBar(ids)
+    confirmEdit()
   }
 }
 </script>

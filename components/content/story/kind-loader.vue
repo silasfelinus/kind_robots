@@ -23,6 +23,7 @@ import { useWeirdStore } from '../../../stores/weirdStore'
 import { useConsoleStore } from '../../../stores/consoleStore'
 import { useChoiceStore } from '../../../stores/choiceStore'
 import { useResonanceStore } from '../../../stores/resonanceStore'
+import { useIconStore } from '../../../stores/iconStore'
 
 // Stores
 const errorStore = useErrorStore()
@@ -44,6 +45,7 @@ const weirdStore = useWeirdStore()
 const consoleStore = useConsoleStore()
 const choiceStore = useChoiceStore()
 const resonanceStore = useResonanceStore()
+const iconStore = useIconStore()
 
 // State management
 const isReady = ref(false)
@@ -78,6 +80,7 @@ onMounted(async () => {
       scenarioStore.initialize?.(),
       choiceStore.initialize?.(),
       resonanceStore.initialize?.(),
+      iconStore.initialize?.(),
     ])
 
     console.log('All stores initialized successfully.')

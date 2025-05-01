@@ -1,3 +1,8 @@
+// @ts-nocheck
+/* eslint-disable */
+// test-ignore
+
+//cypress/e2e/[model].cy.ts
 describe('[Model] API Full CRUD + Ownership Tests', () => {
   const modelName = 'sample'
   const baseUrl = `https://your-app.com/api/${modelName}s`

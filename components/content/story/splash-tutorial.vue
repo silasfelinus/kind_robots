@@ -1,7 +1,7 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
   <div
-    class="relative w-full h-full overflow-hidden rounded-2xl border-2 border-secondary z-20"
+    class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-secondary z-20"
   >
     <!-- Background Image -->
     <img
@@ -57,7 +57,7 @@
         class="space-y-3 max-w-2xl mx-auto pb-3 px-2"
         @click="handleSidebarClose"
       >
-        <div class="chat chat-start animate-fade-in-up delay-300">
+        <div class="chat chat-end animate-fade-in-up delay-300">
           <div class="chat-image avatar">
             <div class="w-10 h-10 rounded-full border-2 border-primary">
               <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
@@ -71,7 +71,7 @@
           </div>
         </div>
 
-        <div class="chat chat-end animate-fade-in-up delay-500">
+        <div class="chat chat-start animate-fade-in-up delay-500">
           <div class="chat-image avatar">
             <div
               class="w-10 h-10 rounded-full border-2 border-secondary text-black"

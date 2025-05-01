@@ -47,8 +47,6 @@ const pageStore = usePageStore()
 
 const { page, layout } = storeToRefs(pageStore)
 
-
-
 const handleRouteChange = async () => {
   await pageStore.loadPage(route.path)
 

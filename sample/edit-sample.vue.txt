@@ -1,0 +1,65 @@
+// /components/content/sample/edit-sample.vue // @ts-nocheck /* eslint-disable
+*/ // test-ignore
+
+<template>
+  <div
+    class="bg-base-100 rounded-2xl p-6 w-full max-w-lg shadow-xl border border-base-content/10"
+  >
+    <h2 class="text-2xl font-bold mb-4 text-center">Edit Sample</h2>
+
+    <div class="grid gap-4">
+      <choice-manager label="title" model="SampleModel" />
+      <choice-manager label="label" model="SampleModel" />
+      <choice-manager label="type" model="SampleModel" />
+      <choice-manager label="icon" model="SampleModel" />
+      <choice-manager label="link" model="SampleModel" />
+      <choice-manager label="component" model="SampleModel" />
+
+      <label class="form-control">
+        <span class="label-text">Description</span>
+        <textarea
+          v-model="sampleStore.form.description"
+          class="textarea textarea-bordered"
+          rows="3"
+        />
+      </label>
+
+      <label class="form-control">
+        <span class="label-text">Designer</span>
+        <input
+          v-model="sampleStore.form.designer"
+          class="input input-bordered"
+        />
+      </label>
+    </div>
+
+    <div class="flex justify-end mt-6 gap-2">
+      <button class="btn btn-outline btn-sm" @click="$emit('close')">
+        Cancel
+      </button>
+      <button class="btn btn-primary btn-sm" @click="handleSave">Save</button>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useSampleStore } from '@/stores/sampleModelStore'
+import { useChoiceStore } from '@/stores/choiceStore'
+
+const sampleStore = useSampleModelStore()
+const choiceStore = useChoiceStore()
+
+const emit = defineEmits(['close'])
+
+async function handleSave() {
+  const fields = ['title', 'label', 'type', 'icon', 'link', 'component']
+  fields.forEach((field) => {
+    choiceStore.applyToForm(sampleStore.form, field, 'SampleModel')
+  })
+
+  const result = await sampleStore.save()
+  if (result.success) {
+    emit('close')
+  }
+}
+</script>

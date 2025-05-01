@@ -7,7 +7,9 @@
         class="flex flex-col items-center justify-center"
       >
         <Icon name="kind-icon:portal" class="text-4xl opacity-50" />
-        <span class="text-xs mt-1 hidden md:block text-center text-base-content/70">
+        <span
+          class="text-xs mt-1 hidden md:block text-center text-base-content/70"
+        >
           No icons
         </span>
       </div>
@@ -54,11 +56,22 @@
           />
 
           <!-- Label -->
-          <span 
-v-if="icon.type !== 'utility'"
-class="text-xs mt-1 hidden md:block text-center">
+          <span
+            v-if="icon.type !== 'utility'"
+            class="text-xs mt-1 hidden md:block text-center"
+          >
             {{ icon.label || icon.title }}
           </span>
+
+          <!-- Additional Info -->
+          <div
+            v-if="icon.type !== 'utility'"
+            class="mt-1 text-center text-[10px] text-base-content/70 space-y-0.5"
+          >
+            <div v-if="icon.description">{{ icon.description }}</div>
+            <div v-if="icon.designer">by {{ icon.designer }}</div>
+            <div class="capitalize">{{ icon.type }}</div>
+          </div>
 
           <!-- Remove button: stable layout, edit mode only -->
           <button
@@ -68,6 +81,15 @@ class="text-xs mt-1 hidden md:block text-center">
             title="Remove"
           >
             ✕
+          </button>
+
+          <!-- Admin Edit -->
+          <button
+            v-if="isAdmin"
+            class="mt-1 text-[10px] underline text-blue-500 hover:text-blue-700"
+            @click="openEditModal(icon)"
+          >
+            Edit Details
           </button>
         </div>
       </div>
@@ -82,48 +104,58 @@ class="text-xs mt-1 hidden md:block text-center">
         <span class="text-xs mt-1 hidden md:block text-center">Add</span>
       </NuxtLink>
 
-<!-- Edit/Save Controls -->
-<div class="ml-auto w-[15%] flex justify-end">
-  <transition name="fade-slide" mode="out-in">
-    <div :key="isEditing ? 'edit-mode' : 'view-mode'">
-      <!-- Edit Mode: Stack Confirm + Revert -->
-      <div class="flex flex-col items-center gap-2 w-full" v-if="isEditing">
-        <button
-          class="btn btn-xs btn-success w-full sm:w-auto"
-          @click="confirmEdit"
-          title="Save"
-        >
-          Confirm
-        </button>
-        <button
-          class="btn btn-xs btn-outline w-full sm:w-auto"
-          @click="revertEdit"
-          title="Cancel"
-        >
-          Revert
-        </button>
+      <!-- Edit/Save Controls -->
+      <div class="ml-auto w-[15%] flex justify-end">
+        <transition name="fade-slide" mode="out-in">
+          <div :key="isEditing ? 'edit-mode' : 'view-mode'">
+            <!-- Edit Mode: Stack Confirm + Revert -->
+            <div
+              class="flex flex-col items-center gap-2 w-full"
+              v-if="isEditing"
+            >
+              <button
+                class="btn btn-xs btn-success w-full sm:w-auto"
+                @click="confirmEdit"
+                title="Save"
+              >
+                Confirm
+              </button>
+              <button
+                class="btn btn-xs btn-outline w-full sm:w-auto"
+                @click="revertEdit"
+                title="Cancel"
+              >
+                Revert
+              </button>
+            </div>
+
+            <!-- View Mode: Gear Icon -->
+            <div v-else class="flex justify-end">
+              <button
+                class="btn btn-square btn-sm"
+                @click="isEditing = true"
+                title="Edit icons"
+              >
+                <Icon name="kind-icon:gear" class="text-xl" />
+              </button>
+            </div>
+          </div>
+        </transition>
       </div>
-
-      <!-- View Mode: Gear Icon -->
-      <div v-else class="flex justify-end">
-        <button
-          class="btn btn-square btn-sm"
-          @click="isEditing = true"
-          title="Edit icons"
-        >
-          <Icon name="kind-icon:gear" class="text-xl" />
-        </button>
-      </div>
-    </div>
-  </transition>
-</div>
-
-
     </div>
 
     <!-- Optional scrollbar bar at bottom -->
     <div class="h-1 bg-primary rounded mt-1" />
   </div>
+
+  <!-- Edit Modal -->
+  <edit-icon
+    v-if="selectedIcon"
+    :icon="selectedIcon"
+    @close="selectedIcon = null"
+    class="fixed inset-0 z-50 bg-base-200 bg-opacity-90 backdrop-blur-md flex items-center justify-center p-4"
+    style="max-height: 95vh; overflow-y: auto"
+  />
 </template>
 
 <script setup lang="ts">
@@ -131,19 +163,29 @@ class="text-xs mt-1 hidden md:block text-center">
 import { ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useIconStore } from '@/stores/iconStore'
+import { useUserStore } from '@/stores/userStore'
 
 const iconStore = useIconStore()
+const userStore = useUserStore()
 const { activeIcons } = storeToRefs(iconStore)
 
 const isEditing = ref(false)
 const editableIcons = ref([...activeIcons.value])
+
+const isAdmin = computed(() => userStore.isAdmin)
+
+const selectedIcon = ref(null)
+
+function openEditModal(icon) {
+  selectedIcon.value = icon
+}
 
 watch(
   activeIcons,
   (val) => {
     if (!isEditing.value) editableIcons.value = [...val]
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 let dragIndex = -1

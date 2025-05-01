@@ -290,6 +290,7 @@
   {
     "folderName": "story",
     "components": [
+      "add-icon",
       "animation-loader",
       "art-lab",
       "avatar-image",
@@ -303,6 +304,8 @@
       "flip-screen",
       "horizontal-nav",
       "hot-link",
+      "icon-gallery",
+      "icon-nav",
       "image-background",
       "image-toggle",
       "jellybean-count",

@@ -1,48 +1,50 @@
+// /components/content/sample/add-sample.vue
 // @ts-nocheck
 /* eslint-disable */
 // test-ignore
 
 <template>
-  <div class="rounded-2xl border p-4 m-4 mx-auto bg-base-200 grid gap-6 grid-cols-1">
-    <h1 class="text-4xl text-center col-span-full">Create or Edit a Sample Model</h1>
+  <div class="rounded-2xl border p-6 m-4 mx-auto bg-base-200 max-w-5xl space-y-6">
+    <h1 class="text-4xl text-center font-bold">Create or Edit a Sample</h1>
 
-    <!-- Select / Deselect -->
+    <!-- Selector + Designer -->
     <div class="flex flex-wrap justify-between items-center gap-4">
       <sample-selector />
 
       <div v-if="sampleStore.selectedItem" class="flex items-center">
         <button class="btn btn-icon" @click="deselectCurrentItem">
-          <icon name="mdi:close-box" class="text-3xl" />
+          <icon name="mdi:close-box" class="text-2xl" />
         </button>
-        <p class="ml-2">Create new entry</p>
+        <span class="ml-2 text-sm">Create new entry</span>
       </div>
 
       <div class="flex-grow max-w-xs">
-        <label for="designer" class="block text-lg font-medium">Designer:</label>
+        <label class="block text-sm font-semibold mb-1">Designer</label>
         <input
           v-if="canEditDesigner"
-          id="designer"
           v-model="sampleStore.form.designer"
           type="text"
-          class="w-full p-3 rounded-lg border"
+          class="input input-bordered w-full"
         />
-        <p v-else>{{ sampleStore.form.designer }}</p>
+        <p v-else class="text-sm text-base-content/70">{{ sampleStore.form.designer }}</p>
       </div>
 
-      <div class="flex gap-6">
+      <div class="flex gap-4">
         <div>
-          <label class="block text-lg font-medium">Visibility:</label>
+          <label class="block text-sm font-semibold mb-1">Visibility</label>
           <div class="flex space-x-2">
             <button
               type="button"
-              :class="sampleStore.form.isPublic ? 'btn btn-primary' : 'btn btn-outline'"
+              class="btn btn-sm"
+              :class="sampleStore.form.isPublic ? 'btn-primary' : 'btn-outline'"
               @click="sampleStore.form.isPublic = true"
             >
               Public
             </button>
             <button
               type="button"
-              :class="!sampleStore.form.isPublic ? 'btn btn-primary' : 'btn btn-outline'"
+              class="btn btn-sm"
+              :class="!sampleStore.form.isPublic ? 'btn-primary' : 'btn-outline'"
               @click="sampleStore.form.isPublic = false"
             >
               Private
@@ -67,14 +69,14 @@
     </div>
 
     <!-- Submit -->
-    <form @submit.prevent="handleSubmit" class="bg-white shadow-md rounded-xl p-6 w-full mt-6">
-      <div v-if="isLoading" class="loading loading-ring loading-lg mt-4"></div>
+    <form @submit.prevent="handleSubmit" class="pt-4">
+      <div v-if="isLoading" class="loading loading-ring loading-lg"></div>
       <div v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</div>
       <div v-if="successMessage" class="text-green-500 mt-2">{{ successMessage }}</div>
 
       <button type="submit" class="btn btn-primary mt-4" :disabled="isLoading">
         <span v-if="isLoading">Saving...</span>
-        <span v-else>{{ sampleStore.form.id ? 'Update Entry' : 'Create New Entry' }}</span>
+        <span v-else>{{ sampleStore.form.id ? 'Update Sample' : 'Create Sample' }}</span>
       </button>
     </form>
   </div>
@@ -82,17 +84,17 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useSampleModelStore } from '@/stores/sampleModelStore'
+import { useSampleStore } from '@/stores/sampleStore'
 import { useChoiceStore } from '@/stores/choiceStore'
 import { useUserStore } from '@/stores/userStore'
 
-const sampleStore = useSampleModelStore()
+const sampleStore = useSampleStore()
 const choiceStore = useChoiceStore()
 const userStore = useUserStore()
 
 const isLoading = ref(false)
-const errorMessage = ref<string | null>(null)
-const successMessage = ref<string | null>(null)
+const errorMessage = ref(null)
+const successMessage = ref(null)
 
 const canEditDesigner = computed(() =>
   !sampleStore.form.id || sampleStore.form.userId === userStore.userId
@@ -116,10 +118,10 @@ async function handleSubmit() {
     const result = await sampleStore.save()
     if (result.success) {
       successMessage.value = sampleStore.form.id
-        ? 'Entry updated successfully!'
-        : 'New entry created successfully!'
+        ? 'Sample updated successfully!'
+        : 'Sample created successfully!'
     } else {
-      errorMessage.value = result.message || 'Failed to save entry.'
+      errorMessage.value = result.message || 'Failed to save sample.'
     }
   } catch (error) {
     errorMessage.value = `Error: ${(error as Error).message}`

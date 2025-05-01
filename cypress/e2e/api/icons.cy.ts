@@ -130,7 +130,7 @@ describe('SmartIcon API Full CRUD + Ownership Tests', () => {
     }).then((res) => {
       expect(res.status).to.eq(403)
       expect(res.body.success).to.be.false
-      expect(res.body.message).to.include('not authorized')
+      expect(res.body.message).to.include('You do not have permission')
     })
   })
 

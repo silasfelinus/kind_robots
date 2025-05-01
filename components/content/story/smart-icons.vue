@@ -82,28 +82,30 @@ class="text-xs mt-1 hidden md:block text-center">
         <span class="text-xs mt-1 hidden md:block text-center">Add</span>
       </NuxtLink>
 
-      <!-- Edit/Save Controls -->
 <!-- Edit/Save Controls -->
 <div class="ml-auto w-[15%] flex justify-end">
   <transition name="fade-slide" mode="out-in">
     <div :key="isEditing ? 'edit-mode' : 'view-mode'">
-      <div v-if="isEditing" class="flex flex-col items-center gap-2">
+      <!-- Edit Mode: Stack Confirm + Revert -->
+      <div class="flex flex-col items-center gap-2 w-full" v-if="isEditing">
         <button
-          class="btn btn-xs btn-success w-full"
+          class="btn btn-xs btn-success w-full sm:w-auto"
           @click="confirmEdit"
           title="Save"
         >
           Confirm
         </button>
         <button
-          class="btn btn-xs btn-outline w-full"
+          class="btn btn-xs btn-outline w-full sm:w-auto"
           @click="revertEdit"
           title="Cancel"
         >
           Revert
         </button>
       </div>
-      <div v-else>
+
+      <!-- View Mode: Gear Icon -->
+      <div v-else class="flex justify-end">
         <button
           class="btn btn-square btn-sm"
           @click="isEditing = true"
@@ -115,6 +117,7 @@ class="text-xs mt-1 hidden md:block text-center">
     </div>
   </transition>
 </div>
+
 
     </div>
 

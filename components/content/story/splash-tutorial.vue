@@ -26,14 +26,14 @@
 
         <h1
           v-if="title"
-          class="text-md md:text-lg lg:text-xl xl:text-4xl font-bold bg-secondary rounded-2xl px-4 py-1 text-black inline-block animate-fade-in-up"
+          class="text-sm md:text-md lg:text-lg xl:text-2xl font-bold bg-secondary rounded-2xl px-4 py-1 text-black inline-block animate-fade-in-up"
         >
           The {{ title }} Room
         </h1>
 
         <h2
           v-if="description"
-          class="text-sm lg:text-md xl:text-2xl font-medium bg-secondary rounded-2xl px-3 py-1 text-black inline-block animate-fade-in-up delay-200"
+          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary rounded-2xl px-3 py-1 text-black inline-block animate-fade-in-up delay-200"
         >
           {{ description }}
         </h2>
@@ -54,7 +54,7 @@
       <!-- Bot Tips (anchored to bottom) -->
       <div
         v-if="dottitip && amitip"
-        class="space-y-6 max-w-2xl mx-auto pb-6 px-2"
+        class="space-y-3 max-w-2xl mx-auto pb-3 px-2"
         @click="handleSidebarClose"
       >
         <div class="chat chat-start animate-fade-in-up delay-300">
@@ -63,8 +63,8 @@
               <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
             </div>
           </div>
-          <div class="chat-bubble bg-primary">
-            <span class="font-semibold text-sm lg:text-md xl:text-2xl"
+          <div class="chat-bubble bg-primary text-black">
+            <span class="font-semibold text-xs md:text:sm lg:text-md xl:text-lg"
               >DottiBot:</span
             >
             {{ dottitip }}
@@ -79,9 +79,8 @@
               <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
             </div>
           </div>
-          <div class="chat-bubble bg-secondary">
-            <span
-              class="font-semibold text-black text-sm lg:text-md xl:text-2xl"
+          <div class="chat-bubble text-black bg-secondary">
+            <span class="font-semibold text-xs md:text:sm lg:text-md xl:text-lg"
               >AMIbot:</span
             >
             {{ amitip }}

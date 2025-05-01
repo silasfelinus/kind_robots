@@ -6,7 +6,7 @@ import type { SmartIcon } from '@prisma/client'
 
 export interface SmartIconForm extends Partial<SmartIcon> {}
 
-export const useSmartIconStore = defineStore('smartIconStore', {
+export const useIconStore = defineStore('iconStore', {
   state: () => ({
     icons: [] as SmartIcon[],
     selectedIcon: null as SmartIcon | null,

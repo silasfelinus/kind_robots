@@ -177,9 +177,9 @@ function removeIcon(index: number) {
 async function confirmEdit() {
   const ids = editableIcons.value.map((i) => i.id)
   await iconStore.updateSmartBar(ids)
+  isEditing.value = false
   await iconStore.fetchIcons()
   editableIcons.value = [...iconStore.activeIcons]
-  isEditing.value = false
 }
 
 function revertEdit() {

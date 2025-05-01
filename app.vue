@@ -19,7 +19,7 @@
 
     <!-- Main Content -->
     <main
-      class="fixed z-30 border-6 border-secondary rounded-2xl p-1 overflow-auto box-border transition-all duration-600 ease-in-out"
+      class="fixed z-30 border-6 border-secondary rounded-2xl p-1 box-border transition-all duration-600 ease-in-out"
       :style="displayStore.mainContentStyle"
     >
       <main-content />

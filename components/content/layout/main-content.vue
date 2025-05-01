@@ -10,10 +10,7 @@
         >
           <!-- Front Face: Main Page -->
           <div class="flip-card-front">
-            <NuxtPage
-              :key="$route.fullPath"
-              class="h-full w-full overflow-y-auto"
-            />
+            <NuxtPage :key="$route.fullPath" class="h-full w-full" />
           </div>
 
           <!-- Back Face: Splash Tutorial -->
@@ -26,7 +23,7 @@
 
     <!-- Desktop View: Always show both -->
     <div v-else class="h-full w-full" key="desktop">
-      <NuxtPage :key="$route.fullPath" class="h-full w-full overflow-y-auto" />
+      <NuxtPage :key="$route.fullPath" class="h-full w-full" />
     </div>
 
     <!-- Right Sidebar & Toggle -->
@@ -95,7 +92,6 @@ watchEffect(() => {
   backface-visibility: hidden;
   will-change: transform;
 }
-
 
 .flip-card-back {
   transform: rotateY(180deg);

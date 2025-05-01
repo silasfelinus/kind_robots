@@ -54,7 +54,9 @@
           />
 
           <!-- Label -->
-          <span class="text-xs mt-1 hidden md:block text-center">
+          <span 
+v-if="icon.type !== 'utility'"
+class="text-xs mt-1 hidden md:block text-center">
             {{ icon.label || icon.title }}
           </span>
 

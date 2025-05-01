@@ -18,19 +18,20 @@ export default defineEventHandler(async (event) => {
       event,
     )
 
-    const normalize = (
+    // SINGLE: SmartIconCreateInput
+    const normalizeSingle = (
       entry: Partial<SmartIcon>,
     ): Prisma.SmartIconCreateInput => {
       if (!entry.title || typeof entry.title !== 'string') {
         throw createError({
           statusCode: 400,
-          message: 'The "title" field is required and must be a string.',
+          message: 'The "title" field is required.',
         })
       }
       if (!entry.type || typeof entry.type !== 'string') {
         throw createError({
           statusCode: 400,
-          message: 'The "type" field is required and must be a string.',
+          message: 'The "type" field is required.',
         })
       }
 
@@ -43,34 +44,61 @@ export default defineEventHandler(async (event) => {
         link: entry.link || '',
         component: entry.component || '',
         isPublic: entry.isPublic ?? true,
-        User: { connect: { id: user.id } },
+        User: { connect: { id: user.id } }, // ✅ for single
       }
     }
 
-    let data
+    // BATCH: SmartIconCreateManyInput
+    const normalizeBatch = (
+      entry: Partial<SmartIcon>,
+    ): Prisma.SmartIconCreateManyInput => {
+      if (!entry.title || typeof entry.title !== 'string') {
+        throw createError({
+          statusCode: 400,
+          message: 'Each entry must have a "title"',
+        })
+      }
+      if (!entry.type || typeof entry.type !== 'string') {
+        throw createError({
+          statusCode: 400,
+          message: 'Each entry must have a "type"',
+        })
+      }
+
+      return {
+        title: entry.title,
+        type: entry.type,
+        designer: entry.designer || '',
+        icon: entry.icon || '',
+        label: entry.label || '',
+        link: entry.link || '',
+        component: entry.component || '',
+        isPublic: entry.isPublic ?? true,
+        userId: user.id, // ✅ for batch
+      }
+    }
 
     if (Array.isArray(body)) {
-      const entries = body.map(normalize)
-      data = await prisma.smartIcon.createMany({
-        data: entries.map((entry) => ({
-          ...entry,
-          userId: user.id, // Prisma createMany doesn't support relation objects
-        })),
+      const entries = body.map(normalizeBatch)
+      const data = await prisma.smartIcon.createMany({
+        data: entries,
         skipDuplicates: true,
+      })
+
+      event.node.res.statusCode = 201
+      return {
+        success: true,
+        data,
+        message: `Created ${data.count} SmartIcons.`,
+      }
+    } else {
+      const data = await prisma.smartIcon.create({
+        data: normalizeSingle(body),
       })
       event.node.res.statusCode = 201
       return {
         success: true,
         data,
-        message: `Batch created ${entries.length} SmartIcons.`,
-      }
-    } else {
-      const icon = normalize(body)
-      const created = await prisma.smartIcon.create({ data: icon })
-      event.node.res.statusCode = 201
-      return {
-        success: true,
-        data: created,
         message: 'SmartIcon created successfully.',
       }
     }

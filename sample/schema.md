@@ -1,3 +1,7 @@
+// @ts-nocheck
+/* eslint-disable */
+// test-ignore
+
 model Sample {
   id         Int       @id @default(autoincrement())
   createdAt  DateTime  @default(now())

@@ -29,7 +29,7 @@
     <nuxt-link
       v-if="showresonance"
       to="/resonance"
-      class="fixed z-50 bottom-6 left-6 sm:bottom-8 sm:left-8 bg-primary text-white rounded-full p-4 sm:p-6 flex items-center justify-center shadow-lg hover:bg-secondary transition-all duration-700 opacity-0 animate-fade-in"
+      class="fixed z-40 bottom-6 left-6 sm:bottom-8 sm:left-8 text-white rounded-full p-4 sm:p-6 flex items-center justify-center shadow-lg hover:bg-secondary transition-all duration-700 opacity-0 animate-fade-in"
     >
       <Icon name="kind-icon:resonance" class="w-6 h-6 sm:w-8 sm:h-8" />
     </nuxt-link>

@@ -294,6 +294,26 @@ export const useUserStore = defineStore('userStore', {
         console.warn('User not found in list for partial update:', userId)
       }
     },
+    async updateUser(fields: Partial<User>) {
+      if (!this.user) return
+
+      try {
+        const res = await performFetch(`/api/users/${this.user.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(fields),
+        })
+
+        if (res.success && res.data) {
+          this.user = { ...this.user, ...fields }
+          console.log('[userStore] Updated user fields:', fields)
+        } else {
+          throw new Error(res.message || 'Failed to update user')
+        }
+      } catch (error) {
+        handleError(error, 'userStore:updateUser')
+      }
+    },
 
     async login(credentials: {
       username: string

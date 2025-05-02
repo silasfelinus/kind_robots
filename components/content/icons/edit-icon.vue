@@ -1,44 +1,86 @@
 <!-- /components/content/story/edit-icon.vue -->
 <template>
   <div
-    class="bg-base-100 rounded-2xl p-6 w-full max-w-md shadow-xl border border-base-content/10"
+    class="bg-base-100 rounded-2xl p-6 w-full max-w-xl shadow-xl border border-base-content/10 space-y-4"
   >
-    <h2 class="text-xl font-bold mb-4">Edit Icon</h2>
+    <h2 class="text-2xl font-bold text-primary">Edit Icon</h2>
 
-    <label class="form-control mb-2">
+    <!-- Live Preview -->
+    <div class="flex items-center gap-3">
+      <Icon
+        :name="form.icon || 'lucide:help-circle'"
+        class="text-4xl text-base-content"
+      />
+      <span class="text-base-content/70 text-sm">
+        Preview: {{ form.icon || 'lucide:help-circle' }}
+      </span>
+    </div>
+
+    <!-- Title -->
+    <label class="form-control">
       <span class="label-text">Title</span>
-      <input v-model="form.title" class="input input-bordered" />
+      <input v-model="form.title" class="input input-bordered w-full" />
     </label>
 
-    <label class="form-control mb-2">
+    <!-- Label -->
+    <label class="form-control">
       <span class="label-text">Label</span>
-      <input v-model="form.label" class="input input-bordered" />
+      <input v-model="form.label" class="input input-bordered w-full" />
     </label>
 
-    <label class="form-control mb-2">
+    <!-- Description -->
+    <label class="form-control">
       <span class="label-text">Description</span>
       <textarea
         v-model="form.description"
-        class="textarea textarea-bordered"
-        rows="3"
+        class="textarea textarea-bordered w-full"
+        rows="2"
       />
     </label>
 
-    <label class="form-control mb-2">
+    <!-- Designer -->
+    <label class="form-control">
       <span class="label-text">Designer</span>
-      <input v-model="form.designer" class="input input-bordered" />
+      <input v-model="form.designer" class="input input-bordered w-full" />
     </label>
 
-    <div class="flex justify-end mt-4 gap-2">
-      <button class="btn btn-outline btn-sm" @click="$emit('close')">
-        Cancel
-      </button>
+    <!-- Icon Name -->
+    <label class="form-control">
+      <span class="label-text">Icon Name (e.g. lucide:home)</span>
+      <input v-model="form.icon" class="input input-bordered w-full" />
+    </label>
+
+    <!-- Link -->
+    <label class="form-control">
+      <span class="label-text">Link</span>
+      <input v-model="form.link" class="input input-bordered w-full" />
+    </label>
+
+    <!-- Type -->
+    <label class="form-control">
+      <span class="label-text">Type</span>
+      <select v-model="form.type" class="select select-bordered w-full">
+        <option value="nav">Navigation</option>
+        <option value="utility">Utility</option>
+      </select>
+    </label>
+
+    <!-- Public -->
+    <label class="form-control inline-flex items-center gap-2">
+      <input type="checkbox" v-model="form.isPublic" class="checkbox" />
+      <span class="label-text">Public</span>
+    </label>
+
+    <!-- Buttons -->
+    <div class="flex justify-end gap-2 pt-2">
+      <button class="btn btn-outline btn-sm" @click="$emit('close')">Cancel</button>
       <button class="btn btn-primary btn-sm" @click="save">Save</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// /components/content/story/edit-icon.vue
 import { ref, watch } from 'vue'
 import { useIconStore } from '@/stores/iconStore'
 import type { SmartIcon } from '@prisma/client'
@@ -58,16 +100,8 @@ watch(
 
 async function save() {
   if (!form.value.id) return
-
   const { success } = await iconStore.updateIcon(form.value.id, form.value)
-
   if (success) {
-    // Update the icon in the local store too (if needed)
-    const index = iconStore.icons.findIndex((i) => i.id === form.value.id)
-    if (index !== -1) {
-      iconStore.icons[index] = { ...form.value } as SmartIcon
-      iconStore.syncToLocalStorage()
-    }
     emit('close')
   }
 }

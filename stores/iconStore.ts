@@ -23,11 +23,20 @@ export const useIconStore = defineStore('iconStore', {
     },
     smartBarIds(): number[] {
       const raw = useUserStore().user?.smartBar
-      return raw?.split(',').map(Number).filter(n => !isNaN(n)) ?? []
+      return (
+        raw
+          ?.split(',')
+          .map(Number)
+          .filter((n) => !isNaN(n)) ?? []
+      )
     },
     activeIcons(): SmartIcon[] {
-      const ids = this.customIconsEnabled ? this.smartBarIds : this.defaultIconIds
-      return ids.map(id => this.icons.find(i => i.id === id)).filter(Boolean) as SmartIcon[]
+      const ids = this.customIconsEnabled
+        ? this.smartBarIds
+        : this.defaultIconIds
+      return ids
+        .map((id) => this.icons.find((i) => i.id === id))
+        .filter(Boolean) as SmartIcon[]
     },
   },
 
@@ -41,8 +50,11 @@ export const useIconStore = defineStore('iconStore', {
         if (savedForm) this.iconForm = JSON.parse(savedForm)
 
         const fetched = await this.fetchIcons()
-        const fetchedIds = new Set(fetched.map(i => i.id))
-        this.icons = [...this.icons.filter(i => !fetchedIds.has(i.id)), ...fetched]
+        const fetchedIds = new Set(fetched.map((i) => i.id))
+        this.icons = [
+          ...this.icons.filter((i) => !fetchedIds.has(i.id)),
+          ...fetched,
+        ]
         this.syncToLocalStorage()
         this.isInitialized = true
       } catch (error) {
@@ -80,15 +92,15 @@ export const useIconStore = defineStore('iconStore', {
     async fetchIconById(id: number): Promise<SmartIcon | null> {
       try {
         const res = await performFetch<SmartIcon>(`/api/icons/${id}`)
-        return res.success ? res.data : null
+        const icon = res.success ? (res.data ?? null) : null
+        return icon
       } catch (e) {
         handleError(e, 'fetch icon by ID')
         return null
       }
     },
-
     patchIconLocally(id: number, updates: Partial<SmartIcon>) {
-      const icon = this.icons.find(i => i.id === id)
+      const icon = this.icons.find((i) => i.id === id)
       if (!icon) return
       Object.assign(icon, updates)
       this.syncToLocalStorage()
@@ -118,7 +130,7 @@ export const useIconStore = defineStore('iconStore', {
           body: JSON.stringify(payload),
         })
         if (!res.success) throw new Error(res.message || 'Failed to create.')
-        this.icons.push(res.data)
+        this.icons.push(res.data as SmartIcon)
         this.syncToLocalStorage()
         return { success: true, data: res.data }
       } catch (e) {
@@ -128,7 +140,7 @@ export const useIconStore = defineStore('iconStore', {
     },
 
     async deleteIcon(id: number) {
-      this.icons = this.icons.filter(i => i.id !== id)
+      this.icons = this.icons.filter((i) => i.id !== id)
       this.syncToLocalStorage()
       try {
         const res = await performFetch(`/api/icons/${id}`, { method: 'DELETE' })
@@ -185,12 +197,12 @@ export const useIconStore = defineStore('iconStore', {
     },
 
     removeIconFromSmartBar(id: number) {
-      const ids = this.smartBarIds.filter(existing => existing !== id)
+      const ids = this.smartBarIds.filter((existing) => existing !== id)
       this.updateSmartBar(ids)
     },
 
     selectIcon(iconId: number) {
-      const icon = this.icons.find(i => i.id === iconId)
+      const icon = this.icons.find((i) => i.id === iconId)
       if (icon) {
         this.selectedIcon = icon
         this.iconForm = { ...icon }
@@ -217,3 +229,5 @@ export const useIconStore = defineStore('iconStore', {
     },
   },
 })
+
+export type { SmartIcon }

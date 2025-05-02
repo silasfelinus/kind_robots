@@ -72,7 +72,7 @@
 // /components/content/story/icon-gallery.vue
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useIconStore } from '@/stores/iconStore'
+import { useIconStore, type SmartIcon } from '@/stores/iconStore'
 import { useUserStore } from '@/stores/userStore'
 
 const iconStore = useIconStore()
@@ -100,7 +100,8 @@ onMounted(() => {
 
 const filteredIcons = computed(() =>
   icons.value.filter((i) => {
-    if (filterScope.value === 'user' && i.userId !== user.value?.id) return false
+    if (filterScope.value === 'user' && i.userId !== user.value?.id)
+      return false
     if (filterScope.value === 'public' && !i.isPublic) return false
     if (filterType.value && i.type !== filterType.value) return false
     return true

@@ -1,4 +1,4 @@
-<!-- /components/content/story/jellybean-count.vue -->
+<!-- /components/content/story/jellybean-icon.vue -->
 <template>
   <router-link
     to="/milestones"

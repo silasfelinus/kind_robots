@@ -2,15 +2,15 @@
 <template>
   <button
     @click="goToThemePage"
-    class="group flex flex-col items-center justify-center w-[80px] min-w-[72px] max-w-[90px] transition-all relative"
+    class="group flex flex-col items-center justify-center icon-container"
   >
     <Icon
       name="kind-icon:paintbrush"
-      class="h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 transition-transform transform hover:scale-110 duration-300 ease-in-out"
+      class="icon-size transition-transform transform hover:scale-110 duration-300 ease-in-out"
     />
     <span
       v-if="!displayStore.bigMode"
-      class="mt-2 text-center text-sm md:block hidden"
+      class="label-size mt-2 hidden md:block text-center"
     >
       {{ currentTheme }}
     </span>
@@ -25,17 +25,30 @@
 
 <script setup lang="ts">
 import { useThemeStore } from '@/stores/themeStore'
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { computed } from 'vue'
 
 const displayStore = useDisplayStore()
-
-const router = useRouter()
 const themeStore = useThemeStore()
+const router = useRouter()
 
 const currentTheme = computed(() => themeStore.currentTheme)
 
-const goToThemePage = () => {
+function goToThemePage() {
   router.push('/theme')
 }
 </script>
+
+<style scoped>
+.icon-container {
+  @apply w-[2.5rem] sm:w-[2.75rem] lg:w-[3rem] xl:w-[3.5rem]
+         min-w-[2.5rem] max-w-[3.5rem];
+}
+.icon-size {
+  @apply text-3xl lg:text-4xl xl:text-5xl
+         w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem];
+}
+.label-size {
+  @apply text-sm sm:text-sm md:text-md lg:text-lg xl:text-xl;
+}
+</style>

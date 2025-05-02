@@ -1,4 +1,4 @@
-<!-- /components/content/story/login-path.vue -->
+<!-- /components/content/story/login-icon.vue -->
 <template>
   <router-link
     :to="routeToNavigate"

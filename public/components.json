@@ -85,7 +85,6 @@
       "ButterflyMascot",
       "ButterflySwarm",
       "StoreButterfly",
-      "SwarmIcon",
       "butterfly-canvas",
       "butterfly-component",
       "butterfly-demo",
@@ -112,9 +111,12 @@
       "add-icon",
       "edit-icon",
       "icon-gallery",
+      "jellybean-icon",
       "kind-icons",
+      "login-icon",
       "smart-icons",
-      "smartbar-settings"
+      "swarm-icon",
+      "theme-icon"
     ]
   },
   {
@@ -198,7 +200,6 @@
       "site-header",
       "small-header",
       "special-container",
-      "theme-icon",
       "theme-menu",
       "theme-toggle",
       "title-image"
@@ -317,7 +318,6 @@
       "icon-nav",
       "image-background",
       "image-toggle",
-      "jellybean-count",
       "kind-header",
       "kind-loader",
       "kind-sidebar",
@@ -366,7 +366,6 @@
     "folderName": "user",
     "components": [
       "LoginForm",
-      "LoginPath",
       "User-Dashboard",
       "UserAvatar",
       "add-chat",

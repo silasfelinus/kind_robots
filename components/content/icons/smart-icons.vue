@@ -166,8 +166,9 @@ const { activeIcons } = storeToRefs(iconStore)
 
 const isEditing = ref(false)
 const editableIcons = ref([...activeIcons.value])
+const originalIcons = ref<SmartIcon[]>([]) // <-- stores snapshot for revert
 
-// Sync icons unless in edit mode
+// Sync icons unless editing
 watch(
   activeIcons,
   (val) => {
@@ -175,6 +176,12 @@ watch(
   },
   { immediate: true },
 )
+
+watch(isEditing, (editing) => {
+  if (editing) {
+    originalIcons.value = [...editableIcons.value]
+  }
+})
 
 let dragIndex = -1
 function onDragStart(index: number) {
@@ -190,17 +197,17 @@ function onDrop(index: number) {
 
 function removeIcon(index: number) {
   const removed = editableIcons.value.splice(index, 1)[0]
-  iconStore.removeIconFromSmartBar(removed.id) // update instantly
+  iconStore.removeIconFromSmartBar(removed.id)
 }
 
 async function confirmEdit() {
   const newIds = editableIcons.value.map((i) => i.id)
-  iconStore.setIconOrder(newIds) // instant update
+  iconStore.setIconOrder(newIds)
   isEditing.value = false
 }
 
 function revertEdit() {
-  editableIcons.value = [...activeIcons.value]
+  editableIcons.value = [...originalIcons.value] // <-- restore original state
   isEditing.value = false
 }
 </script>

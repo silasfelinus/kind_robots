@@ -1,3 +1,4 @@
+<!-- /components/content/story/smart-icons.vue -->
 <template>
   <div class="w-full overflow-x-auto">
     <div class="flex items-center gap-2 min-w-fit px-2">
@@ -6,9 +7,12 @@
         v-if="!editableIcons.length"
         class="flex flex-col items-center justify-center"
       >
-        <Icon name="kind-icon:portal" class="icon-size opacity-50" />
+        <Icon
+          name="kind-icon:portal"
+          class="opacity-50 text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem]"
+        />
         <span
-          class="label-size mt-1 hidden md:block text-center text-base-content/70"
+          class="mt-1 hidden md:block text-center text-base-content/70 text-sm sm:text-sm md:text-md lg:text-lg xl:text-xl"
         >
           No icons
         </span>
@@ -33,9 +37,9 @@
         >
           <Icon
             :name="icon.icon || 'lucide:help-circle'"
-            class="icon-size hover:scale-110 transition-transform"
+            class="hover:scale-110 transition-transform text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem]"
           />
-          <span class="label-size mt-1 hidden md:block text-center">
+          <span class="mt-1 hidden md:block text-center text-sm sm:text-sm md:text-md lg:text-lg xl:text-xl">
             {{ icon.label || icon.title }}
           </span>
         </NuxtLink>
@@ -45,7 +49,7 @@
           <!-- Utility Component -->
           <div
             v-if="icon.type === 'utility'"
-            class="icon-size flex items-center justify-center"
+            class="flex items-center justify-center text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem]"
           >
             <component :is="icon.component" />
           </div>
@@ -54,18 +58,18 @@
           <Icon
             v-else
             :name="icon.icon || 'lucide:help-circle'"
-            class="icon-size"
+            class="text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem]"
           />
 
           <!-- Label -->
           <span
             v-if="icon.type !== 'utility'"
-            class="label-size mt-1 hidden md:block text-center"
+            class="mt-1 hidden md:block text-center text-sm sm:text-sm md:text-md lg:text-lg xl:text-xl"
           >
             {{ icon.label || icon.title }}
           </span>
 
-          <!-- Additional Info (only in edit mode) -->
+          <!-- Additional Info (edit mode only) -->
           <div
             v-if="icon.type !== 'utility'"
             class="mt-1 text-center text-[10px] text-base-content/70 space-y-0.5"
@@ -75,7 +79,7 @@
             <div class="capitalize">{{ icon.type }}</div>
           </div>
 
-          <!-- Remove Button (edit mode only) -->
+          <!-- Remove Button -->
           <button
             v-if="isEditing"
             class="mt-1 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 leading-tight transition hover:bg-red-600"
@@ -93,17 +97,28 @@
         to="/icongallery"
         class="flex flex-col items-center justify-center hover:scale-110 transition-transform"
       >
-        <Icon name="kind-icon:plus" class="icon-size" />
-        <span class="label-size mt-1 hidden md:block text-center">Add</span>
+        <Icon
+          name="kind-icon:plus"
+          class="text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem]"
+        />
+        <span class="mt-1 hidden md:block text-center text-sm sm:text-sm md:text-md lg:text-lg xl:text-xl">Add</span>
       </NuxtLink>
 
       <!-- Edit / Save Controls -->
       <div class="ml-auto w-[15%] flex justify-end">
-        <transition name="fade-slide" mode="out-in">
+        <transition
+          enter-active-class="transition-all duration-200 ease-out"
+          leave-active-class="transition-all duration-200 ease-in"
+          enter-from-class="opacity-0 -translate-y-1"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 -translate-y-1"
+          mode="out-in"
+        >
           <div :key="isEditing ? 'edit-mode' : 'view-mode'">
             <div
-              class="flex flex-col items-center gap-2 w-full"
               v-if="isEditing"
+              class="flex flex-col items-center gap-2 w-full"
             >
               <button
                 class="btn btn-xs btn-success w-full sm:w-auto"
@@ -138,6 +153,7 @@
     <div class="h-1 bg-primary rounded mt-1" />
   </div>
 </template>
+
 
 <script setup lang="ts">
 // /components/content/story/smart-icons.vue
@@ -186,26 +202,3 @@ function revertEdit() {
 }
 </script>
 
-<style scoped>
-.icon-size {
-  @apply text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem];
-}
-.label-size {
-  @apply text-sm sm:text-sm md:text-md lg:text-lg xl:text-xl;
-}
-
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.25s ease;
-}
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-5px);
-}
-.fade-slide-enter-to,
-.fade-slide-leave-from {
-  opacity: 1;
-  transform: translateY(0);
-}
-</style>

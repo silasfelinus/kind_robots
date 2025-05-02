@@ -1,4 +1,4 @@
-<!-- /pages/add-icon.vue -->
+<!-- //components/content/icons/add-icon.vue -->
 <template>
   <div class="container mx-auto max-w-xl p-6 space-y-4">
     <h1 class="text-3xl font-bold text-primary">Create New Icon</h1>
@@ -49,17 +49,17 @@
 </template>
 
 <script setup lang="ts">
-// /pages/add-icon.vue
+// /components/content/icons/add-icon.vue
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useIconStore } from '@/stores/iconStore'
+import { useIconStore, type SmartIcon } from '@/stores/iconStore'
 
 const router = useRouter()
 const iconStore = useIconStore()
 
-const form = reactive({
+const form: Partial<SmartIcon> = reactive({
   title: '',
-  type: 'nav', // enforced
+  type: 'nav',
   icon: '',
   label: '',
   link: '',
@@ -69,13 +69,17 @@ const form = reactive({
 })
 
 async function handleSubmit() {
-  form.type = 'nav' // always enforced just in case
+  form.type = 'nav'
   if (!form.title || !form.icon) return
 
-  const { success, data } = await iconStore.createIcon(form)
-  if (success && data?.id) {
-    iconStore.addIconToSmartBar(data.id)
-    router.push('/icongallery')
+  const result = await iconStore.createIcon(form)
+
+  if (result.success) {
+    const data = result.data as SmartIcon
+    if (data?.id) {
+      iconStore.addIconToSmartBar(data.id)
+      router.push('/icongallery')
+    }
   }
 }
 </script>

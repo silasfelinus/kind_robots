@@ -36,24 +36,20 @@
         placeholder="Route or external link"
         class="input input-bordered w-full"
       />
-      <select
-        v-model="form.type"
-        class="select select-bordered w-full"
-        required
-      >
-        <option value="nav">Navigation</option>
-        <option value="utility">Utility</option>
-      </select>
+
+      <!-- Removed type selector: always "nav" -->
       <label class="flex items-center gap-2">
         <input type="checkbox" v-model="form.isPublic" class="checkbox" />
         Public
       </label>
+
       <button type="submit" class="btn btn-primary w-full">Save Icon</button>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
+// /pages/add-icon.vue
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useIconStore } from '@/stores/iconStore'
@@ -63,7 +59,7 @@ const iconStore = useIconStore()
 
 const form = reactive({
   title: '',
-  type: 'nav',
+  type: 'nav', // enforced
   icon: '',
   label: '',
   link: '',
@@ -73,8 +69,12 @@ const form = reactive({
 })
 
 async function handleSubmit() {
-  const { success } = await iconStore.createIcon(form)
-  if (success) {
+  form.type = 'nav' // always enforced just in case
+  if (!form.title || !form.icon) return
+
+  const { success, data } = await iconStore.createIcon(form)
+  if (success && data?.id) {
+    iconStore.addIconToSmartBar(data.id)
     router.push('/icongallery')
   }
 }

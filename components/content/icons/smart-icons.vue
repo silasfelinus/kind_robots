@@ -61,13 +61,17 @@
             class="text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem]"
           />
 
-          <!-- Label -->
-          <span
-            v-if="icon.type !== 'utility'"
-            class="mt-1 hidden md:block text-center text-sm sm:text-sm md:text-md lg:text-lg xl:text-xl"
-          >
-            {{ icon.label || icon.title }}
-          </span>
+<!-- Label: always available but only visible on hover for sm/md -->
+<span
+  v-if="icon.type !== 'utility'"
+  class="mt-1 text-center text-xs sm:text-sm md:text-md lg:text-lg xl:text-xl
+         opacity-0 group-hover:opacity-100 absolute top-full left-1/2 -translate-x-1/2 
+         bg-base-200 px-2 py-0.5 rounded shadow-md z-10 whitespace-nowrap
+         transition-opacity duration-200"
+>
+  {{ icon.label || icon.title }}
+</span>
+
 
           <!-- Additional Info (edit mode only) -->
           <div

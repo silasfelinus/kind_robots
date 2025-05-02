@@ -69,6 +69,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/story/icon-gallery.vue
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useIconStore } from '@/stores/iconStore'
@@ -87,19 +88,19 @@ const selectedIcon = ref<SmartIcon | null>(null)
 const filterScope = ref<'all' | 'user' | 'public'>('all')
 const filterType = ref('')
 
+// Modal logic
 function openEditModal(icon: SmartIcon) {
   selectedIcon.value = icon
 }
 
-// Fetch if not loaded
+// Load icons if needed
 onMounted(() => {
   if (!iconStore.isInitialized) iconStore.initialize()
 })
 
 const filteredIcons = computed(() =>
   icons.value.filter((i) => {
-    if (filterScope.value === 'user' && i.userId !== user.value?.id)
-      return false
+    if (filterScope.value === 'user' && i.userId !== user.value?.id) return false
     if (filterScope.value === 'public' && !i.isPublic) return false
     if (filterType.value && i.type !== filterType.value) return false
     return true
@@ -111,9 +112,10 @@ function isInSmartBar(id: number) {
 }
 
 function toggleIcon(id: number) {
-  const updated = isInSmartBar(id)
-    ? smartBarIds.value.filter((x) => x !== id)
-    : [...smartBarIds.value, id]
-  iconStore.updateSmartBar(updated)
+  if (isInSmartBar(id)) {
+    iconStore.removeIconFromSmartBar(id)
+  } else {
+    iconStore.addIconToSmartBar(id)
+  }
 }
 </script>

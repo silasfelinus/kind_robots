@@ -1,4 +1,3 @@
-<!-- /components/content/story/smart-icons.vue -->
 <template>
   <div class="relative w-full h-full">
     <!-- Scrollable Row with Sticky Controls -->
@@ -23,11 +22,14 @@
       <!-- Scrollable Area -->
       <div
         ref="scrollContainer"
-        class="overflow-x-auto scrollbar-hide w-full h-full"
+        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x"
         @scroll="checkScrollEdges"
+        @mousedown="startDrag"
+        @mousemove="onDrag"
+        @mouseup="endDrag"
+        @mouseleave="endDrag"
       >
-        <div class="flex items-center gap-2 min-w-fit px-2 h-full">
-          <!-- Icons -->
+        <div class="flex items-center gap-2 min-w-fit px-2 h-full select-none">
           <component
             v-for="(icon, index) in editableIcons"
             :key="icon.id"
@@ -37,16 +39,17 @@
       </div>
 
       <!-- Edit / Confirm / Revert Buttons -->
-      <div class="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2 pr-2">
-        <button
-          v-if="!isEditing"
-          class="btn btn-square btn-sm"
-          @click="isEditing = true"
-          title="Edit"
-        >
-          <Icon name="kind-icon:settings" />
-        </button>
-        <template v-else>
+      <div class="absolute right-0 top-1/2 -translate-y-1/2 z-30">
+        <div v-if="!isEditing" class="flex flex-col gap-2 pr-2">
+          <button
+            class="btn btn-square btn-sm"
+            @click="isEditing = true"
+            title="Edit"
+          >
+            <Icon name="kind-icon:settings" />
+          </button>
+        </div>
+        <div v-else class="flex flex-col gap-2 pr-2">
           <button
             class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"
             @click="confirmEdit"
@@ -55,20 +58,22 @@
             <Icon name="lucide:check" />
           </button>
           <button
+            v-if="hasChanges"
             class="btn btn-square btn-xs bg-base-200 text-error hover:bg-base-300"
             @click="revertEdit"
             title="Revert"
           >
             <Icon name="lucide:rotate-ccw" />
           </button>
-        </template>
+          <div v-else class="invisible btn btn-square btn-xs" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount, h } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, computed, h } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useIconStore, type SmartIcon } from '@/stores/iconStore'
 
@@ -89,6 +94,11 @@ watch(
 
 watch(isEditing, (editing) => {
   if (editing) originalIcons.value = [...editableIcons.value]
+})
+
+const hasChanges = computed(() => {
+  return JSON.stringify(editableIcons.value.map((i) => i.id)) !==
+    JSON.stringify(originalIcons.value.map((i) => i.id))
 })
 
 let dragIndex = -1
@@ -132,24 +142,29 @@ function checkScrollEdges() {
 }
 
 function scrollBy(px: number) {
-  if (scrollContainer.value) {
-    scrollContainer.value.scrollBy({ left: px, behavior: 'smooth' })
-  }
+  scrollContainer.value?.scrollBy({ left: px, behavior: 'smooth' })
 }
 
-let resizeObserver: ResizeObserver | null = null
+// Drag-to-scroll logic
+let isDragging = false
+let startX = 0
+let scrollStart = 0
 
-onMounted(() => {
-  checkScrollEdges()
-  resizeObserver = new ResizeObserver(checkScrollEdges)
-  if (scrollContainer.value) resizeObserver.observe(scrollContainer.value)
-})
+function startDrag(event: MouseEvent) {
+  isDragging = true
+  startX = event.clientX
+  scrollStart = scrollContainer.value?.scrollLeft || 0
+}
 
-onBeforeUnmount(() => {
-  if (resizeObserver && scrollContainer.value) {
-    resizeObserver.unobserve(scrollContainer.value)
-  }
-})
+function onDrag(event: MouseEvent) {
+  if (!isDragging || !scrollContainer.value) return
+  const dx = event.clientX - startX
+  scrollContainer.value.scrollLeft = scrollStart - dx
+}
+
+function endDrag() {
+  isDragging = false
+}
 
 // Inline render helper
 function renderIconComponent(icon: SmartIcon, index: number) {
@@ -221,6 +236,18 @@ function renderIconComponent(icon: SmartIcon, index: number) {
     },
   }
 }
+
+let resizeObserver: ResizeObserver | null = null
+onMounted(() => {
+  checkScrollEdges()
+  resizeObserver = new ResizeObserver(checkScrollEdges)
+  if (scrollContainer.value) resizeObserver.observe(scrollContainer.value)
+})
+onBeforeUnmount(() => {
+  if (resizeObserver && scrollContainer.value) {
+    resizeObserver.unobserve(scrollContainer.value)
+  }
+})
 </script>
 
 <style scoped>

@@ -5,7 +5,7 @@
       <!-- Scroll Buttons -->
       <button
         v-if="showLeft"
-        class="absolute left-0 z-20 h-full w-[1rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-l-xl"
+        class="absolute left-0 z-20 h-[3rem] w-[1rem] sm:h-[3.25rem] sm:w-[1.1rem] lg:h-[3.5rem] lg:w-[1.2rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-l-xl"
         @click="scrollBy(-100)"
       >
         <Icon name="lucide:chevron-left" class="text-lg" />
@@ -13,16 +13,16 @@
 
       <button
         v-if="showRight"
-        class="absolute right-[3rem] z-20 h-full w-[1rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-r-xl"
+        class="absolute right-[3rem] z-20 h-[3rem] w-[1rem] sm:h-[3.25rem] sm:w-[1.1rem] lg:h-[3.5rem] lg:w-[1.2rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-r-xl"
         @click="scrollBy(100)"
       >
         <Icon name="lucide:chevron-right" class="text-lg" />
       </button>
 
-      <!-- Scrollable Area -->
+      <!-- Scrollable Area (adds padding so icons don’t run under the controls) -->
       <div
         ref="scrollContainer"
-        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x pr-[3.5rem]"
+        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x pr-[4.5rem]"
         @scroll="checkScrollEdges"
         @mousedown="startDrag"
         @mousemove="onDrag"
@@ -30,11 +30,58 @@
         @mouseleave="endDrag"
       >
         <div class="flex items-center gap-2 min-w-fit px-2 h-full select-none">
-          <component
+          <div
             v-for="(icon, index) in editableIcons"
             :key="icon.id"
-            :is="renderIconComponent(icon, index)"
-          />
+            class="group relative flex flex-col items-center justify-center"
+            :class="{ 'cursor-move': isEditing }"
+            draggable="true"
+            @dragstart="onDragStart(index)"
+            @dragover.prevent
+            @drop="onDrop(index)"
+          >
+            <!-- Nav Icon -->
+            <NuxtLink
+              v-if="!isEditing && icon.type === 'nav' && icon.link"
+              :to="icon.link"
+              class="flex flex-col items-center"
+            >
+              <Icon
+                :name="icon.icon || 'lucide:help-circle'"
+                class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]"
+              />
+              <span
+                class="mt-1 text-center text-xs absolute top-full left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-base-200 shadow-md whitespace-nowrap z-10 transition-opacity duration-200"
+                :class="bigMode ? 'opacity-0 group-hover:opacity-100' : 'hidden md:block'"
+              >
+                {{ icon.label || icon.title }}
+              </span>
+            </NuxtLink>
+
+            <!-- Utility Component -->
+            <div
+              v-else-if="icon.type === 'utility'"
+              class="flex items-center justify-center text-3xl w-[3rem] h-[3rem]"
+            >
+              <component :is="icon.component" />
+            </div>
+
+            <!-- Fallback Static Icon -->
+            <Icon
+              v-else
+              :name="icon.icon || 'lucide:help-circle'"
+              class="text-3xl w-[3rem] h-[3rem]"
+            />
+
+            <!-- Remove Button -->
+            <button
+              v-if="isEditing"
+              class="mt-1 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600"
+              @click="removeIcon(index)"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       </div>
 
@@ -73,15 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ref,
-  watch,
-  onMounted,
-  onBeforeUnmount,
-  computed,
-  h,
-  resolveComponent,
-} from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useIconStore, type SmartIcon } from '@/stores/iconStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -94,8 +133,6 @@ const { activeIcons } = storeToRefs(iconStore)
 const isEditing = ref(false)
 const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
 const originalIcons = ref<SmartIcon[]>([])
-
-const Icon = resolveComponent('Icon')
 
 watch(
   activeIcons,
@@ -118,31 +155,27 @@ let dragIndex = -1
 function onDragStart(index: number) {
   dragIndex = index
 }
-
 function onDrop(index: number) {
   if (dragIndex < 0 || dragIndex === index) return
   const dragged = editableIcons.value.splice(dragIndex, 1)[0]
   editableIcons.value.splice(index, 0, dragged)
   dragIndex = -1
 }
-
 function removeIcon(index: number) {
   const removed = editableIcons.value.splice(index, 1)[0]
   iconStore.removeIconFromSmartBar(removed.id)
 }
-
 function confirmEdit() {
   const newIds = editableIcons.value.map((i) => i.id)
   iconStore.setIconOrder(newIds)
   isEditing.value = false
 }
-
 function revertEdit() {
   editableIcons.value = [...originalIcons.value]
   isEditing.value = false
 }
 
-// Scroll handling
+// Scroll and drag handling
 const scrollContainer = ref<HTMLElement | null>(null)
 const showLeft = ref(false)
 const showRight = ref(false)
@@ -153,105 +186,25 @@ function checkScrollEdges() {
   showLeft.value = el.scrollLeft > 5
   showRight.value = el.scrollWidth - el.clientWidth - el.scrollLeft > 5
 }
-
 function scrollBy(px: number) {
   scrollContainer.value?.scrollBy({ left: px, behavior: 'smooth' })
 }
 
-// Drag-to-scroll logic
 let isDragging = false
 let startX = 0
 let scrollStart = 0
-
 function startDrag(event: MouseEvent) {
   isDragging = true
   startX = event.clientX
   scrollStart = scrollContainer.value?.scrollLeft || 0
 }
-
 function onDrag(event: MouseEvent) {
   if (!isDragging || !scrollContainer.value) return
   const dx = event.clientX - startX
   scrollContainer.value.scrollLeft = scrollStart - dx
 }
-
 function endDrag() {
   isDragging = false
-}
-
-// Render helper with nav vs utility and bigMode hover behavior
-function renderIconComponent(icon: SmartIcon, index: number) {
-  return {
-    setup() {
-      return () =>
-        h(
-          'div',
-          {
-            class: [
-              'group relative flex flex-col items-center justify-center',
-              isEditing.value ? 'cursor-move' : '',
-            ],
-            draggable: isEditing.value,
-            onDragstart: () => onDragStart(index),
-            onDrop: () => onDrop(index),
-            onDragover: (e: Event) => e.preventDefault(),
-          },
-          [
-            icon.type === 'utility'
-              ? h(
-                  'div',
-                  {
-                    class:
-                      'flex items-center justify-center text-3xl w-[3rem] h-[3rem]',
-                  },
-                  [h(resolveComponent(icon.component))],
-                )
-              : !isEditing.value && icon.link
-              ? h(
-                  'NuxtLink',
-                  {
-                    to: icon.link,
-                    class: 'flex flex-col items-center',
-                  },
-                  [
-                    h(Icon, {
-                      name: icon.icon || 'lucide:help-circle',
-                      class:
-                        'hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]',
-                    }),
-                    h(
-                      'span',
-                      {
-                        class: [
-                          'mt-1 text-center text-xs absolute top-full left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-base-200 shadow-md whitespace-nowrap z-10 transition-opacity duration-200',
-                          bigMode.value
-                            ? 'opacity-0 group-hover:opacity-100'
-                            : 'hidden md:block',
-                        ],
-                      },
-                      icon.label || icon.title,
-                    ),
-                  ],
-                )
-              : h(Icon, {
-                  name: icon.icon || 'lucide:help-circle',
-                  class: 'text-3xl w-[3rem] h-[3rem]',
-                }),
-
-            isEditing.value &&
-              h(
-                'button',
-                {
-                  class:
-                    'mt-1 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600',
-                  onClick: () => removeIcon(index),
-                },
-                '✕',
-              ),
-          ],
-        )
-    },
-  }
 }
 
 let resizeObserver: ResizeObserver | null = null

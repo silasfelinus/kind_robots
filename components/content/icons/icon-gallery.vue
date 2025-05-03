@@ -35,6 +35,9 @@
         <div class="text-center text-sm font-medium">
           {{ icon.label || icon.title }}
         </div>
+        <div v-if="icon.description" class="text-center text-sm font-medium">
+          {{ icon.description }}
+        </div>
 
         <!-- Admin Edit -->
         <button

@@ -1,7 +1,7 @@
 ---
 title: 'Character Gallery'
 subtitle: 'These personalities aren’t just pretty code'
-description: 'Browse character profiles created by our community, each with their own quirks and quests.'
+description: 'Browse character profiles each with their own quirks and quests.'
 gallery: 'avatars'
 image: 'avatars/charactergallery.webp'
 tags: ['personality']

@@ -1,11 +1,11 @@
 <!-- /components/content/story/smart-icons.vue -->
 <template>
   <div class="relative w-full h-full max-h-[4rem] overflow-hidden">
-    <div class="relative w-full h-full flex items-center">
+    <div class="relative w-full h-full flex items-center pr-[4.5rem]">
       <!-- Scroll Buttons -->
       <button
         v-if="showLeft"
-        class="absolute left-0 z-20 h-[3rem] w-[1rem] sm:h-[3.25rem] sm:w-[1.1rem] lg:h-[3.5rem] lg:w-[1.2rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-l-xl"
+        class="absolute left-0 z-40 h-[3rem] w-[1rem] sm:h-[3.25rem] sm:w-[1.1rem] lg:h-[3.5rem] lg:w-[1.2rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-l-xl"
         @click="scrollBy(-100)"
       >
         <Icon name="lucide:chevron-left" class="text-lg" />
@@ -13,23 +13,23 @@
 
       <button
         v-if="showRight"
-        class="absolute right-[3rem] z-20 h-[3rem] w-[1rem] sm:h-[3.25rem] sm:w-[1.1rem] lg:h-[3.5rem] lg:w-[1.2rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-r-xl"
+        class="absolute right-[4.5rem] z-40 h-[3rem] w-[1rem] sm:h-[3.25rem] sm:w-[1.1rem] lg:h-[3.5rem] lg:w-[1.2rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-r-xl"
         @click="scrollBy(100)"
       >
         <Icon name="lucide:chevron-right" class="text-lg" />
       </button>
 
-      <!-- Scrollable Area (adds padding so icons don’t run under the controls) -->
+      <!-- Scrollable Area -->
       <div
         ref="scrollContainer"
-        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x pr-[4.5rem]"
+        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x"
         @scroll="checkScrollEdges"
         @mousedown="startDrag"
         @mousemove="onDrag"
         @mouseup="endDrag"
         @mouseleave="endDrag"
       >
-        <div class="flex items-center gap-2 min-w-fit px-2 h-full select-none">
+        <div class="flex items-center gap-6 min-w-fit px-2 h-full select-none">
           <div
             v-for="(icon, index) in editableIcons"
             :key="icon.id"
@@ -42,7 +42,7 @@
           >
             <!-- Nav Icon -->
             <NuxtLink
-              v-if="!isEditing && icon.type === 'nav' && icon.link"
+              v-if="!isEditing && icon.link && icon.type !== 'utility'"
               :to="icon.link"
               class="flex flex-col items-center"
             >
@@ -51,8 +51,12 @@
                 class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]"
               />
               <span
-                class="mt-1 text-center text-xs absolute top-full left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-base-200 shadow-md whitespace-nowrap z-10 transition-opacity duration-200"
-                :class="bigMode ? 'opacity-0 group-hover:opacity-100' : 'hidden md:block'"
+                class="mt-1 text-center text-xs absolute top-full left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-base-200 shadow-md whitespace-nowrap z-40 transition-opacity duration-200"
+                :class="
+                  bigMode
+                    ? 'opacity-0 group-hover:opacity-100'
+                    : 'hidden md:block'
+                "
               >
                 {{ icon.label || icon.title }}
               </span>
@@ -66,7 +70,7 @@
               <component :is="icon.component" />
             </div>
 
-            <!-- Fallback Static Icon -->
+            <!-- Fallback or edit-mode icon -->
             <Icon
               v-else
               :name="icon.icon || 'lucide:help-circle'"
@@ -86,7 +90,7 @@
       </div>
 
       <!-- Edit / Confirm / Revert Buttons -->
-      <div class="absolute right-0 top-1/2 -translate-y-1/2 z-30">
+      <div class="absolute right-0 top-1/2 -translate-y-1/2 z-40">
         <div v-if="!isEditing" class="flex flex-col gap-2 pr-2">
           <button
             class="btn btn-square btn-sm"
@@ -147,8 +151,10 @@ watch(isEditing, (editing) => {
 })
 
 const hasChanges = computed(() => {
-  return JSON.stringify(editableIcons.value.map((i) => i.id)) !==
+  return (
+    JSON.stringify(editableIcons.value.map((i) => i.id)) !==
     JSON.stringify(originalIcons.value.map((i) => i.id))
+  )
 })
 
 let dragIndex = -1
@@ -166,8 +172,7 @@ function removeIcon(index: number) {
   iconStore.removeIconFromSmartBar(removed.id)
 }
 function confirmEdit() {
-  const newIds = editableIcons.value.map((i) => i.id)
-  iconStore.setIconOrder(newIds)
+  iconStore.setIconOrder(editableIcons.value.map((i) => i.id))
   isEditing.value = false
 }
 function revertEdit() {
@@ -175,11 +180,10 @@ function revertEdit() {
   isEditing.value = false
 }
 
-// Scroll and drag handling
+// Scroll logic
 const scrollContainer = ref<HTMLElement | null>(null)
 const showLeft = ref(false)
 const showRight = ref(false)
-
 function checkScrollEdges() {
   const el = scrollContainer.value
   if (!el) return
@@ -190,6 +194,7 @@ function scrollBy(px: number) {
   scrollContainer.value?.scrollBy({ left: px, behavior: 'smooth' })
 }
 
+// Drag-to-scroll
 let isDragging = false
 let startX = 0
 let scrollStart = 0

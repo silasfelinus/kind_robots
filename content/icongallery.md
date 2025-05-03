@@ -1,7 +1,7 @@
 ---
 title: 'Icon Gallery'
-subtitle: 'Browse smart icons made by the community'
-description: 'Explore navigation and utility icons created by users, and customize your smart bar.'
+subtitle: 'Browse smart icons'
+description: 'Customize your smart bar.'
 gallery: 'smartbar'
 image: 'utility/icongallery.png'
 tags: ['interface']

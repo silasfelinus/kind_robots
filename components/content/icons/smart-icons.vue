@@ -1,7 +1,6 @@
 <template>
-  <div class="relative w-full h-full">
-    <!-- Scrollable Row with Sticky Controls -->
-    <div class="relative w-full h-full">
+  <div class="relative w-full h-full max-h-[4rem] overflow-hidden">
+    <div class="relative w-full h-full flex items-center">
       <!-- Scroll Buttons -->
       <button
         v-if="showLeft"
@@ -76,8 +75,11 @@
 import { ref, watch, onMounted, onBeforeUnmount, computed, h } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useIconStore, type SmartIcon } from '@/stores/iconStore'
+import { useDisplayStore } from '@/stores/displayStore'
 
 const iconStore = useIconStore()
+const displayStore = useDisplayStore()
+const { bigMode } = storeToRefs(displayStore)
 const { activeIcons } = storeToRefs(iconStore)
 
 const isEditing = ref(false)
@@ -166,7 +168,7 @@ function endDrag() {
   isDragging = false
 }
 
-// Inline render helper
+// Render helper with hover-labels in bigMode
 function renderIconComponent(icon: SmartIcon, index: number) {
   return {
     setup() {
@@ -200,8 +202,12 @@ function renderIconComponent(icon: SmartIcon, index: number) {
                     h(
                       'span',
                       {
-                        class:
-                          'mt-1 hidden md:block text-center text-sm whitespace-nowrap',
+                        class: [
+                          'mt-1 text-center text-xs absolute top-full left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-base-200 shadow-md whitespace-nowrap z-10 transition-opacity duration-200',
+                          bigMode.value
+                            ? 'opacity-0 group-hover:opacity-100'
+                            : 'hidden md:block',
+                        ],
                       },
                       icon.label || icon.title,
                     ),

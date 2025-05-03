@@ -1,5 +1,7 @@
 <template>
-  <header class="relative bg-base-300 rounded-2xl border border-black w-full h-full box-border">
+  <header
+    class="relative bg-base-300 rounded-2xl border border-black w-full h-full box-border"
+  >
     <div class="flex w-full h-full items-stretch">
       <!-- Avatar -->
       <div
@@ -19,38 +21,32 @@
       >
         <Transition name="fade-scale" mode="out-in" appear>
           <h1
-            v-if="showTitle"
             key="title"
             class="font-bold text-xl lg:text-2xl xl:text-3xl tracking-tight drop-shadow"
           >
-            The {{ page?.title || 'Room' }} Room
+            Kind {{ page?.title || 'Robots' }}
           </h1>
-          <h2
-            v-else
-            key="subtitle"
-            class="text-lg lg:text-2xl xl:text-3xl drop-shadow-md"
-          >
-            {{ subtitle }}
-          </h2>
         </Transition>
       </div>
 
       <!-- Smart Icons -->
-<div class="flex-grow h-full overflow-hidden px-2 flex items-center justify-end">
-  <smart-icons
-    class="w-full h-full max-h-[3.5rem] sm:max-h-[3.75rem] lg:max-h-[4rem] overflow-hidden"
-  />
-</div>
-
+      <div
+        class="flex-grow h-full overflow-hidden px-2 flex items-center justify-end"
+      >
+        <smart-icons
+          class="w-full h-full max-h-[3.5rem] sm:max-h-[3.75rem] lg:max-h-[4rem] overflow-hidden"
+        />
+      </div>
     </div>
 
     <!-- Debug Viewport -->
-    <div class="absolute bottom-0 left-2 text-white bg-primary rounded-md text-xs md:text-sm">
+    <div
+      class="absolute bottom-0 left-2 text-white bg-primary rounded-md text-xs md:text-sm"
+    >
       {{ viewportSize }}
     </div>
   </header>
 </template>
-
 
 <script setup lang="ts">
 // /components/content/story/kind-header.vue
@@ -63,11 +59,7 @@ const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
 const { page, subtitle } = storeToRefs(pageStore)
-const { sidebarLeftState, viewportSize, bigMode } = storeToRefs(displayStore)
-
-const showTitle = computed(() =>
-  ['hidden', 'disabled'].includes(sidebarLeftState.value),
-)
+const { viewportSize, bigMode } = storeToRefs(displayStore)
 </script>
 
 <style scoped>

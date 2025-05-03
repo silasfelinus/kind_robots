@@ -30,6 +30,12 @@
         >
           The {{ title }} Room
         </h1>
+        <h2
+          v-if="subtitle"
+          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary rounded-2xl px-3 py-1 text-black inline-block animate-fade-in-up delay-200"
+        >
+          {{ subtitle }}
+        </h2>
 
         <h2
           v-if="description"
@@ -97,8 +103,16 @@ import { usePageStore } from '@/stores/pageStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-const { title, description, icon, dottitip, amitip, navComponent, image } =
-  storeToRefs(usePageStore())
+const {
+  title,
+  subtitle,
+  description,
+  icon,
+  dottitip,
+  amitip,
+  navComponent,
+  image,
+} = storeToRefs(usePageStore())
 
 const handleSidebarClose = () => {
   console.log('Sidebar closing triggered')

@@ -97,7 +97,7 @@ export const useDisplayStore = defineStore('displayStore', {
     },
 
     headerHeight(): number {
-      const sizes = { small: 20, medium: 11, large: 12, extraLarge: 10 }
+      const sizes = { small: 10, medium: 11, large: 12, extraLarge: 10 }
       return sizes[this.viewportSize]
     },
 
@@ -134,7 +134,7 @@ export const useDisplayStore = defineStore('displayStore', {
         height:
           this.headerState !== 'hidden'
             ? `calc(var(--vh) * ${this.headerHeight})`
-            : `calc(var(--vh) * 5)`,
+            : `calc(var(--vh) * 7)`,
         width: `calc(100vw - ${this.sectionPaddingSize * 2}vw)`,
         top: `calc(var(--vh) * ${this.sectionPaddingSize}`,
         left: `${this.sectionPaddingSize}vw`,

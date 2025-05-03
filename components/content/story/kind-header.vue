@@ -1,20 +1,21 @@
 <template>
-  <header
-    class="relative bg-base-300 rounded-2xl border border-black w-full h-full box-border"
-  >
-    <div class="grid grid-cols-12 items-stretch h-full w-full">
-      <!-- Avatar: always 10% on lg+, full-width otherwise -->
-      <div class="col-span-12 lg:col-span-1 flex items-center justify-center overflow-hidden rounded-2xl">
+  <header class="relative bg-base-300 rounded-2xl border border-black w-full h-full box-border">
+    <div class="flex w-full h-full items-stretch">
+      <!-- Avatar -->
+      <div
+        class="flex items-center justify-center overflow-hidden rounded-2xl h-full"
+        :class="bigMode ? 'w-[8%]' : 'w-[10%]'"
+      >
         <avatar-image
           alt="User Avatar"
           class="h-full w-full object-cover rounded-2xl"
         />
       </div>
 
-      <!-- Title/Subtitle (only on lg+ and when not bigMode) -->
+      <!-- Title/Subtitle (lg+, hidden in bigMode) -->
       <div
         v-if="!bigMode"
-        class="hidden lg:flex flex-col justify-center items-center col-span-3 text-center px-2"
+        class="hidden lg:flex flex-col justify-center items-center text-center w-[25%] px-2"
       >
         <Transition name="fade-scale" mode="out-in" appear>
           <h1
@@ -34,11 +35,8 @@
         </Transition>
       </div>
 
-      <!-- Smart Icons -->
-      <div
-        class="col-span-12 lg:col-span-8 flex justify-end items-center px-4"
-        :class="{ 'pt-4': bigMode }"
-      >
+      <!-- Smart Icons (fills remaining space) -->
+      <div class="flex justify-end items-center h-full px-4 flex-grow">
         <smart-icons
           :compact="bigMode"
           class="w-full flex justify-end items-center"

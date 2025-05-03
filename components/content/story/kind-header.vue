@@ -1,64 +1,58 @@
 <template>
   <header
-    class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-black max-w-full box-border"
+    class="relative bg-base-300 rounded-2xl border border-black w-full h-full box-border"
   >
-    <div class="flex items-center justify-between w-full h-full">
-      <div
-        class="relative flex items-center flex-shrink-0 w-1/5 sm:w-1/6 h-full rounded-2xl overflow-hidden"
-      >
+    <div class="grid grid-cols-12 items-stretch h-full w-full">
+      <!-- Avatar: always 10% on lg+, full-width otherwise -->
+      <div class="col-span-12 lg:col-span-1 flex items-center justify-center overflow-hidden rounded-2xl">
         <avatar-image
           alt="User Avatar"
-          class="h-full w-full rounded-2xl object-cover"
+          class="h-full w-full object-cover rounded-2xl"
         />
       </div>
 
+      <!-- Title/Subtitle (only on lg+ and when not bigMode) -->
       <div
-        class="absolute bottom-0 left-2 text-white bg-primary rounded-md text-xs md:text-sm"
+        v-if="!bigMode"
+        class="hidden lg:flex flex-col justify-center items-center col-span-3 text-center px-2"
       >
-        {{ viewportSize }}
+        <Transition name="fade-scale" mode="out-in" appear>
+          <h1
+            v-if="showTitle"
+            key="title"
+            class="font-bold text-xl lg:text-2xl xl:text-3xl tracking-tight drop-shadow"
+          >
+            The {{ page?.title || 'Room' }} Room
+          </h1>
+          <h2
+            v-else
+            key="subtitle"
+            class="text-lg lg:text-2xl xl:text-3xl drop-shadow-md"
+          >
+            {{ subtitle }}
+          </h2>
+        </Transition>
       </div>
 
-      <div class="flex flex-1 h-full">
-        <div
-          class="flex flex-wrap md:flex-nowrap w-full h-full items-center gap-2 xl:gap-4"
-        >
-          <!-- Title/Sub Toggle -->
-          <div
-            class="w-full flex justify-center items-center text-center flex-grow basis-full md:basis-1/4 min-w-0 pr-2 relative min-h-[3rem]"
-          >
-            <Transition name="fade-scale" mode="out-in" appear>
-              <h1
-                v-if="showTitle"
-                key="title"
-                class="absolute inset-0 flex items-center justify-center font-bold text-lg md:text-xl lg:text-2xl xl:text-3xl leading-tight tracking-tight drop-shadow"
-              >
-                The {{ page?.title || 'Room' }} Room
-              </h1>
-
-              <h2
-                v-else
-                key="subtitle"
-                class="absolute inset-0 flex items-center justify-center md:text-lg lg:text-2xl xl:text-4xl drop-shadow-md"
-              >
-                {{ subtitle }}
-              </h2>
-            </Transition>
-          </div>
-
-          <!-- Icon Section -->
-          <div
-            class="flex justify-end items-center flex-grow basis-full md:basis-3/4 min-w-0"
-          >
-            <smart-icons
-              :compact="bigMode"
-              class="flex justify-end items-center pb-1 w-full"
-            />
-          </div>
-        </div>
+      <!-- Smart Icons -->
+      <div
+        class="col-span-12 lg:col-span-8 flex justify-end items-center px-4"
+        :class="{ 'pt-4': bigMode }"
+      >
+        <smart-icons
+          :compact="bigMode"
+          class="w-full flex justify-end items-center"
+        />
       </div>
+    </div>
+
+    <!-- Debug Viewport -->
+    <div class="absolute bottom-0 left-2 text-white bg-primary rounded-md text-xs md:text-sm">
+      {{ viewportSize }}
     </div>
   </header>
 </template>
+
 
 <script setup lang="ts">
 // /components/content/story/kind-header.vue

@@ -35,13 +35,13 @@
         </Transition>
       </div>
 
-      <!-- Smart Icons (fills remaining space) -->
-      <div class="flex justify-end items-center h-full px-4 flex-grow">
-        <smart-icons
-          :compact="bigMode"
-          class="w-full flex justify-end items-center"
-        />
-      </div>
+      <!-- Smart Icons -->
+<div class="flex-grow h-full overflow-hidden px-2 flex items-center justify-end">
+  <smart-icons
+    class="w-full h-full max-h-[3.5rem] sm:max-h-[3.75rem] lg:max-h-[4rem] overflow-hidden"
+  />
+</div>
+
     </div>
 
     <!-- Debug Viewport -->

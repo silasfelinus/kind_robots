@@ -1,27 +1,21 @@
+<!-- /components/content/story/smart-icons.vue -->
 <template>
   <div class="relative w-full h-full max-h-[4rem] overflow-hidden">
     <div class="relative w-full h-full flex items-center">
-      <!-- Scroll Buttons -->
+      <!-- Left Scroll Button -->
       <button
         v-if="showLeft"
-        class="absolute left-0 z-20 h-[3rem] w-[1rem] sm:h-[3.25rem] sm:w-[1.1rem] lg:h-[3.5rem] lg:w-[1.2rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-l-xl"
+        class="absolute left-0 z-20 h-full w-[1rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-l-xl"
         @click="scrollBy(-100)"
       >
         <Icon name="lucide:chevron-left" class="text-lg" />
       </button>
 
-      <button
-        v-if="showRight"
-        class="absolute right-[3rem] z-20 h-[3rem] w-[1rem] sm:h-[3.25rem] sm:w-[1.1rem] lg:h-[3.5rem] lg:w-[1.2rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-r-xl"
-        @click="scrollBy(100)"
-      >
-        <Icon name="lucide:chevron-right" class="text-lg" />
-      </button>
-
-      <!-- Scrollable Area -->
+      <!-- Scrollable Area (leaves room for right controls) -->
       <div
         ref="scrollContainer"
-        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x"
+        class="overflow-x-auto scrollbar-hide h-full touch-pan-x"
+        :style="{ width: 'calc(100% - 3.5rem)' }"
         @scroll="checkScrollEdges"
         @mousedown="startDrag"
         @mousemove="onDrag"
@@ -37,18 +31,18 @@
         </div>
       </div>
 
-      <!-- Edit / Confirm / Revert Buttons -->
-      <div class="absolute right-0 top-1/2 -translate-y-1/2 z-30">
-        <div v-if="!isEditing" class="flex flex-col gap-2 pr-2">
-          <button
-            class="btn btn-square btn-sm"
-            @click="isEditing = true"
-            title="Edit"
-          >
-            <Icon name="kind-icon:settings" />
-          </button>
-        </div>
-        <div v-else class="flex flex-col gap-2 pr-2">
+      <!-- Right Controls & Scroll Button -->
+      <div class="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2 pr-1">
+        <button
+          v-if="showRight"
+          class="btn btn-square btn-xs bg-base-300 hover:bg-base-200"
+          @click="scrollBy(100)"
+          title="Scroll right"
+        >
+          <Icon name="lucide:chevron-right" />
+        </button>
+
+        <template v-if="isEditing">
           <button
             class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"
             @click="confirmEdit"
@@ -65,22 +59,32 @@
             <Icon name="lucide:rotate-ccw" />
           </button>
           <div v-else class="invisible btn btn-square btn-xs" />
-        </div>
+        </template>
+
+        <button
+          v-else
+          class="btn btn-square btn-sm"
+          @click="isEditing = true"
+          title="Edit icons"
+        >
+          <Icon name="kind-icon:settings" />
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount, computed, h } from 'vue'
+// /components/content/story/smart-icons.vue
+import { ref, watch, onMounted, onBeforeUnmount, computed, h, resolveComponent } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useIconStore, type SmartIcon } from '@/stores/iconStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const iconStore = useIconStore()
 const displayStore = useDisplayStore()
-const { bigMode } = storeToRefs(displayStore)
 const { activeIcons } = storeToRefs(iconStore)
+const { bigMode } = storeToRefs(displayStore)
 
 const isEditing = ref(false)
 const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
@@ -103,6 +107,7 @@ const hasChanges = computed(() => {
     JSON.stringify(originalIcons.value.map((i) => i.id))
 })
 
+// Drag and Drop
 let dragIndex = -1
 function onDragStart(index: number) {
   dragIndex = index
@@ -131,7 +136,7 @@ function revertEdit() {
   isEditing.value = false
 }
 
-// Scroll handling
+// Scroll
 const scrollContainer = ref<HTMLElement | null>(null)
 const showLeft = ref(false)
 const showRight = ref(false)
@@ -147,20 +152,20 @@ function scrollBy(px: number) {
   scrollContainer.value?.scrollBy({ left: px, behavior: 'smooth' })
 }
 
-// Drag-to-scroll logic
+// Mouse drag scroll
 let isDragging = false
 let startX = 0
 let scrollStart = 0
 
-function startDrag(event: MouseEvent) {
+function startDrag(e: MouseEvent) {
   isDragging = true
-  startX = event.clientX
+  startX = e.clientX
   scrollStart = scrollContainer.value?.scrollLeft || 0
 }
 
-function onDrag(event: MouseEvent) {
+function onDrag(e: MouseEvent) {
   if (!isDragging || !scrollContainer.value) return
-  const dx = event.clientX - startX
+  const dx = e.clientX - startX
   scrollContainer.value.scrollLeft = scrollStart - dx
 }
 
@@ -168,7 +173,7 @@ function endDrag() {
   isDragging = false
 }
 
-// Render helper with hover-labels in bigMode
+// Dynamic Render
 function renderIconComponent(icon: SmartIcon, index: number) {
   return {
     setup() {
@@ -186,18 +191,15 @@ function renderIconComponent(icon: SmartIcon, index: number) {
             onDragover: (e: Event) => e.preventDefault(),
           },
           [
-            icon.link && !isEditing.value && icon.type !== 'utility'
+            // Nav icon link
+            icon.type === 'nav' && !isEditing.value
               ? h(
                   'NuxtLink',
-                  {
-                    to: icon.link,
-                    class: 'flex flex-col items-center',
-                  },
+                  { to: icon.link || '#', class: 'flex flex-col items-center' },
                   [
                     h('Icon', {
                       name: icon.icon || 'lucide:help-circle',
-                      class:
-                        'hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]',
+                      class: 'hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]',
                     }),
                     h(
                       'span',
@@ -213,20 +215,20 @@ function renderIconComponent(icon: SmartIcon, index: number) {
                     ),
                   ],
                 )
+              // Utility component
               : icon.type === 'utility'
               ? h(
                   'div',
-                  {
-                    class:
-                      'flex items-center justify-center text-3xl w-[3rem] h-[3rem]',
-                  },
+                  { class: 'flex items-center justify-center text-3xl w-[3rem] h-[3rem]' },
                   [h(resolveComponent(icon.component))],
                 )
+              // Static fallback icon
               : h('Icon', {
                   name: icon.icon || 'lucide:help-circle',
                   class: 'text-3xl w-[3rem] h-[3rem]',
                 }),
 
+            // Remove icon in edit mode
             isEditing.value &&
               h(
                 'button',
@@ -243,6 +245,7 @@ function renderIconComponent(icon: SmartIcon, index: number) {
   }
 }
 
+// Resize Observer
 let resizeObserver: ResizeObserver | null = null
 onMounted(() => {
   checkScrollEdges()

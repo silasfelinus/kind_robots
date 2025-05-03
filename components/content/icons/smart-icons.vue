@@ -1,174 +1,74 @@
+<!-- /components/content/story/smart-icons.vue -->
 <template>
   <div class="relative w-full h-full">
-    <!-- Scrollable Icon Row -->
-    <div
-      ref="scrollContainer"
-      class="w-full h-full overflow-x-auto scrollbar-hide"
-      @scroll="checkScrollEdges"
-    >
-      <div class="flex items-center gap-2 min-w-fit px-2 h-full">
-        <!-- Filler if no icons -->
-        <div
-          v-if="!editableIcons.length"
-          class="flex flex-col items-center justify-center"
-        >
-          <Icon
-            name="kind-icon:portal"
-            class="opacity-50 text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem]"
+    <!-- Scrollable Row with Sticky Controls -->
+    <div class="relative w-full h-full">
+      <!-- Scroll Buttons -->
+      <button
+        v-if="showLeft"
+        class="absolute left-0 z-20 h-[3rem] w-[1rem] sm:h-[3.25rem] sm:w-[1.1rem] lg:h-[3.5rem] lg:w-[1.2rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-l-xl"
+        @click="scrollBy(-100)"
+      >
+        <Icon name="lucide:chevron-left" class="text-lg" />
+      </button>
+
+      <button
+        v-if="showRight"
+        class="absolute right-[3rem] z-20 h-[3rem] w-[1rem] sm:h-[3.25rem] sm:w-[1.1rem] lg:h-[3.5rem] lg:w-[1.2rem] flex items-center justify-center bg-base-300 bg-opacity-80 rounded-r-xl"
+        @click="scrollBy(100)"
+      >
+        <Icon name="lucide:chevron-right" class="text-lg" />
+      </button>
+
+      <!-- Scrollable Area -->
+      <div
+        ref="scrollContainer"
+        class="overflow-x-auto scrollbar-hide w-full h-full"
+        @scroll="checkScrollEdges"
+      >
+        <div class="flex items-center gap-2 min-w-fit px-2 h-full">
+          <!-- Icons -->
+          <component
+            v-for="(icon, index) in editableIcons"
+            :key="icon.id"
+            :is="renderIconComponent(icon, index)"
           />
-          <span
-            class="mt-1 hidden md:block text-center text-base-content/70 text-sm sm:text-sm md:text-md lg:text-lg xl:text-xl"
-          >
-            No icons
-          </span>
-        </div>
-
-        <!-- Icon List -->
-        <div
-          v-for="(icon, index) in editableIcons"
-          :key="icon.id"
-          class="group relative flex flex-col items-center justify-center"
-          :class="{ 'cursor-move': isEditing }"
-          draggable="true"
-          @dragstart="onDragStart(index)"
-          @dragover.prevent
-          @drop="onDrop(index)"
-        >
-          <!-- Nav Icon -->
-          <NuxtLink
-            v-if="!isEditing && icon.link && icon.type !== 'utility'"
-            :to="icon.link"
-            class="flex flex-col items-center"
-          >
-            <Icon
-              :name="icon.icon || 'lucide:help-circle'"
-              class="hover:scale-110 transition-transform text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem]"
-            />
-            <span
-              class="mt-1 hidden md:block text-center text-sm sm:text-sm md:text-md lg:text-lg xl:text-xl"
-            >
-              {{ icon.label || icon.title }}
-            </span>
-          </NuxtLink>
-
-          <!-- Edit mode or Utility -->
-          <div v-else class="flex flex-col items-center relative">
-            <!-- Utility Component -->
-            <div
-              v-if="icon.type === 'utility'"
-              class="flex items-center justify-center text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem]"
-            >
-              <component :is="icon.component" />
-            </div>
-
-            <!-- Standard Icon -->
-            <Icon
-              v-else
-              :name="icon.icon || 'lucide:help-circle'"
-              class="text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem]"
-            />
-
-            <!-- Label -->
-            <span
-              v-if="icon.type !== 'utility'"
-              class="mt-1 text-center text-xs sm:text-sm md:text-md lg:text-lg xl:text-xl opacity-0 group-hover:opacity-100 absolute top-full left-1/2 -translate-x-1/2 bg-base-200 px-2 py-0.5 rounded shadow-md z-10 whitespace-nowrap transition-opacity duration-200"
-            >
-              {{ icon.label || icon.title }}
-            </span>
-
-            <!-- Additional Info (edit mode only) -->
-            <div
-              v-if="icon.type !== 'utility'"
-              class="mt-1 text-center text-[10px] text-base-content/70 space-y-0.5"
-            >
-              <div v-if="icon.description">{{ icon.description }}</div>
-              <div v-if="icon.designer">by {{ icon.designer }}</div>
-              <div class="capitalize">{{ icon.type }}</div>
-            </div>
-
-            <!-- Remove Button -->
-            <button
-              v-if="isEditing"
-              class="mt-1 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 leading-tight transition hover:bg-red-600"
-              @click="removeIcon(index)"
-              title="Remove"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-
-        <!-- Add icon -->
-        <NuxtLink
-          v-if="isEditing"
-          to="/icongallery"
-          class="flex flex-col items-center justify-center hover:scale-110 transition-transform"
-        >
-          <Icon
-            name="kind-icon:plus"
-            class="text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem]"
-          />
-          <span class="mt-1 hidden md:block text-center text-sm">Add</span>
-        </NuxtLink>
-
-        <!-- Edit / Save Controls -->
-        <div class="ml-auto w-[15%] flex justify-end">
-          <transition
-            enter-active-class="transition-all duration-200 ease-out"
-            leave-active-class="transition-all duration-200 ease-in"
-            enter-from-class="opacity-0 -translate-y-1"
-            enter-to-class="opacity-100 translate-y-0"
-            leave-from-class="opacity-100 translate-y-0"
-            leave-to-class="opacity-0 -translate-y-1"
-            mode="out-in"
-          >
-            <div :key="isEditing ? 'edit-mode' : 'view-mode'">
-              <div v-if="isEditing" class="flex flex-col items-center gap-2 w-full">
-                <button
-                  class="btn btn-xs btn-success w-full sm:w-auto"
-                  @click="confirmEdit"
-                  title="Save"
-                >
-                  Confirm
-                </button>
-                <button
-                  class="btn btn-xs btn-outline w-full sm:w-auto"
-                  @click="revertEdit"
-                  title="Cancel"
-                >
-                  Revert
-                </button>
-              </div>
-              <div v-else class="flex justify-end">
-                <button
-                  class="btn btn-square btn-sm"
-                  @click="isEditing = true"
-                  title="Edit icons"
-                >
-                  <Icon name="kind-icon:settings" class="text-xl" />
-                </button>
-              </div>
-            </div>
-          </transition>
         </div>
       </div>
-    </div>
 
-    <!-- Scroll Indicators -->
-    <div
-      v-show="showLeft"
-      class="pointer-events-none absolute top-0 left-0 h-full w-6 bg-gradient-to-r from-base-300 to-transparent z-10"
-    />
-    <div
-      v-show="showRight"
-      class="pointer-events-none absolute top-0 right-0 h-full w-6 bg-gradient-to-l from-base-300 to-transparent z-10"
-    />
+      <!-- Edit / Confirm / Revert Buttons -->
+      <div class="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2 pr-2">
+        <button
+          v-if="!isEditing"
+          class="btn btn-square btn-sm"
+          @click="isEditing = true"
+          title="Edit"
+        >
+          <Icon name="kind-icon:settings" />
+        </button>
+        <template v-else>
+          <button
+            class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"
+            @click="confirmEdit"
+            title="Confirm"
+          >
+            <Icon name="lucide:check" />
+          </button>
+          <button
+            class="btn btn-square btn-xs bg-base-200 text-error hover:bg-base-300"
+            @click="revertEdit"
+            title="Revert"
+          >
+            <Icon name="lucide:rotate-ccw" />
+          </button>
+        </template>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// /components/content/story/smart-icons.vue
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, h } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useIconStore, type SmartIcon } from '@/stores/iconStore'
 
@@ -176,7 +76,7 @@ const iconStore = useIconStore()
 const { activeIcons } = storeToRefs(iconStore)
 
 const isEditing = ref(false)
-const editableIcons = ref([...activeIcons.value])
+const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
 const originalIcons = ref<SmartIcon[]>([])
 
 watch(
@@ -188,9 +88,7 @@ watch(
 )
 
 watch(isEditing, (editing) => {
-  if (editing) {
-    originalIcons.value = [...editableIcons.value]
-  }
+  if (editing) originalIcons.value = [...editableIcons.value]
 })
 
 let dragIndex = -1
@@ -210,7 +108,7 @@ function removeIcon(index: number) {
   iconStore.removeIconFromSmartBar(removed.id)
 }
 
-async function confirmEdit() {
+function confirmEdit() {
   const newIds = editableIcons.value.map((i) => i.id)
   iconStore.setIconOrder(newIds)
   isEditing.value = false
@@ -221,7 +119,7 @@ function revertEdit() {
   isEditing.value = false
 }
 
-// Scroll awareness
+// Scroll handling
 const scrollContainer = ref<HTMLElement | null>(null)
 const showLeft = ref(false)
 const showRight = ref(false)
@@ -229,9 +127,14 @@ const showRight = ref(false)
 function checkScrollEdges() {
   const el = scrollContainer.value
   if (!el) return
+  showLeft.value = el.scrollLeft > 5
+  showRight.value = el.scrollWidth - el.clientWidth - el.scrollLeft > 5
+}
 
-  showLeft.value = el.scrollLeft > 0
-  showRight.value = el.scrollWidth > el.clientWidth + el.scrollLeft + 1
+function scrollBy(px: number) {
+  if (scrollContainer.value) {
+    scrollContainer.value.scrollBy({ left: px, behavior: 'smooth' })
+  }
 }
 
 let resizeObserver: ResizeObserver | null = null
@@ -247,6 +150,77 @@ onBeforeUnmount(() => {
     resizeObserver.unobserve(scrollContainer.value)
   }
 })
+
+// Inline render helper
+function renderIconComponent(icon: SmartIcon, index: number) {
+  return {
+    setup() {
+      return () =>
+        h(
+          'div',
+          {
+            class: [
+              'group relative flex flex-col items-center justify-center',
+              isEditing.value ? 'cursor-move' : '',
+            ],
+            draggable: isEditing.value,
+            onDragstart: () => onDragStart(index),
+            onDrop: () => onDrop(index),
+            onDragover: (e: Event) => e.preventDefault(),
+          },
+          [
+            icon.link && !isEditing.value && icon.type !== 'utility'
+              ? h(
+                  'NuxtLink',
+                  {
+                    to: icon.link,
+                    class: 'flex flex-col items-center',
+                  },
+                  [
+                    h('Icon', {
+                      name: icon.icon || 'lucide:help-circle',
+                      class:
+                        'hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]',
+                    }),
+                    h(
+                      'span',
+                      {
+                        class:
+                          'mt-1 hidden md:block text-center text-sm whitespace-nowrap',
+                      },
+                      icon.label || icon.title,
+                    ),
+                  ],
+                )
+              : icon.type === 'utility'
+              ? h(
+                  'div',
+                  {
+                    class:
+                      'flex items-center justify-center text-3xl w-[3rem] h-[3rem]',
+                  },
+                  [h(resolveComponent(icon.component))],
+                )
+              : h('Icon', {
+                  name: icon.icon || 'lucide:help-circle',
+                  class: 'text-3xl w-[3rem] h-[3rem]',
+                }),
+
+            isEditing.value &&
+              h(
+                'button',
+                {
+                  class:
+                    'mt-1 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600',
+                  onClick: () => removeIcon(index),
+                },
+                '✕',
+              ),
+          ],
+        )
+    },
+  }
+}
 </script>
 
 <style scoped>

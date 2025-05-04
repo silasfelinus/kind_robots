@@ -1,6 +1,6 @@
 <!-- /components/content/story/smart-icons.vue -->
 <template>
-  <div class="relative w-full h-full max-h-[4rem] overflow-hidden">
+  <div class="relative w-full h-full overflow-hidden">
     <div class="relative w-full h-full flex items-center pr-[4.5rem]">
       <!-- Scrollable Area -->
       <div
@@ -34,7 +34,7 @@
             >
               <Icon
                 :name="icon.icon || 'lucide:help-circle'"
-                class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[4rem]"
+                class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[5rem]"
               />
               <span
                 v-if="!bigMode"
@@ -47,7 +47,7 @@
             <!-- Utility Component -->
             <div
               v-else-if="icon.type === 'utility'"
-              class="flex flex-col items-center justify-center text-3xl w-[3rem] h-[4rem]"
+              class="flex flex-col items-center justify-center text-3xl w-[3rem] h-[5rem]"
             >
               <component :is="icon.component" />
         
@@ -58,14 +58,9 @@
               <Icon
                 v-if="!icon.link && icon.type !== 'utility'"
                 :name="icon.icon || 'lucide:help-circle'"
-                class="text-3xl w-[3rem] h-[3rem]"
+                class="text-3xl w-[3rem] h-[5rem]"
               />
-              <span
-                v-if="!bigMode"
-                class="text-xs text-center mt-1"
-              >
-                {{ icon.label || icon.title }}
-              </span>
+          
             </div>
 
             <!-- Remove Button -->
@@ -82,7 +77,7 @@
           <NuxtLink
             to="/icongallery"
             @click="isEditing && confirmEdit()"
-            class="group flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem] snap-start"
+            class="group flex flex-col items-center justify-center text-3xl w-[3rem] h-[5rem] snap-start"
           >
             <Icon name="lucide:plus-circle" class="hover:scale-110 transition-transform" />
             <span

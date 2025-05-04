@@ -18,7 +18,7 @@
 
     <!-- Label below the icon -->
     <span
-      v-if="!displayStore.bigMode"
+      v-if="!bigMode"
       class="mt-2 text-center text-sm md:block hidden"
     >
       {{ isLoggedIn ? username : 'Login?' }}
@@ -31,6 +31,8 @@ import { computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 
 const displayStore = useDisplayStore()
+const { bigMode } = storeToRefs(displayStore)
+
 const userStore = useUserStore()
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 const username = computed(() => userStore.user?.username || 'User')

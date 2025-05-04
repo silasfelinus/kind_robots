@@ -9,7 +9,7 @@
       class="h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 transition-transform transform hover:scale-110 duration-300 ease-in-out"
     />
     <div
-      v-if="!displayStore.bigMode"
+      v-if="!bigMode"
       class="mt-2 text-center text-sm md:block hidden"
     >
       {{ beanCount || 0 }} /11
@@ -22,6 +22,7 @@ import { computed } from 'vue'
 
 // Stores
 const displayStore = useDisplayStore()
+const { bigMode } = storeToRefs(displayStore)
 const milestoneStore = useMilestoneStore()
 
 // Computed properties

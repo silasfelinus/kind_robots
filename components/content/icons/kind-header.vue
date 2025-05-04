@@ -20,7 +20,7 @@
         </div>
       </div>
 
-      <!-- Title/Subtitle (lg+, hidden in bigMode) -->
+      <!-- Title/Subtitle -->
       <div
         v-if="!bigMode"
         class="hidden lg:flex flex-col justify-center items-center text-center w-[25%] px-2"
@@ -40,7 +40,7 @@
         class="flex-grow h-full overflow-hidden px-2 flex items-center justify-end"
       >
         <smart-icons
-          class="w-full h-full max-h-[3.5rem] sm:max-h-[3.75rem] lg:max-h-[4rem] overflow-hidden"
+          class="w-full h-full overflow-hidden"
         />
       </div>
     </div>

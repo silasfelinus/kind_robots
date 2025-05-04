@@ -1,14 +1,16 @@
+<!-- /components/content/story/avatar-image.vue -->
 <template>
   <div v-if="hydrated" class="relative w-full h-full">
-    <div class="absolute z-10">
+    <!-- Optional Top Icon -->
+    <div class="absolute top-1 left-1 z-10">
       <Icon
         name="kind-icon:minimize"
-        class="text-primary w-full h-full hover:opacity-80 cursor-pointer transition"
+        class="text-primary w-4 h-4 hover:opacity-80 cursor-pointer transition"
         @click="handleAvatarClick"
       />
     </div>
 
-    <div class="flip-card" @click="handleAvatarClick">
+    <div class="flip-card h-full w-full" @click="handleAvatarClick">
       <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
         <div class="flip-card-front">
           <img
@@ -28,7 +30,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
@@ -86,12 +87,12 @@ const handleAvatarClick = () => {
 }
 </script>
 
+
 <style scoped>
 .flip-card {
-  perspective: 1000px;
   width: 100%;
-  max-width: 100px;
-  aspect-ratio: 1;
+  height: 100%;
+  perspective: 1000px;
   cursor: pointer;
 }
 
@@ -113,6 +114,8 @@ const handleAvatarClick = () => {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
+  border-radius: 1rem;
+  overflow: hidden;
 }
 
 .flip-card-back {

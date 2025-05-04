@@ -5,7 +5,7 @@
       <!-- Scrollable Area -->
       <div
         ref="scrollContainer"
-        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x snap-x snap-mandatory"
+        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x snap-x snap-mandatory scroll-mx-[4.5rem]"
         @scroll="checkScrollEdges"
         @mousedown="startDrag"
         @mousemove="onDrag"
@@ -15,7 +15,7 @@
         @touchmove="onTouchMove"
         @touchend="endDrag"
       >
-        <div class="flex items-center gap-6 min-w-fit px-2 h-full select-none">
+        <div class="flex items-center gap-6 min-w-fit h-full select-none px-[4.5rem]">
           <div
             v-for="(icon, index) in editableIcons"
             :key="icon.id"
@@ -50,7 +50,6 @@
               class="flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem]"
             >
               <component :is="icon.component" />
-        
             </div>
 
             <!-- Fallback or edit-mode icon -->
@@ -60,7 +59,6 @@
                 :name="icon.icon || 'lucide:help-circle'"
                 class="text-3xl w-[3rem] h-[5rem]"
               />
-          
             </div>
 
             <!-- Remove Button -->

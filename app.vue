@@ -1,3 +1,4 @@
+<!-- /app.vue -->
 <template>
   <div
     class="main-layout bg-base-200 h-screen w-screen relative overflow-hidden box-border"
@@ -7,6 +8,14 @@
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />
+    </div>
+
+    <!-- Navigation Loader -->
+    <div
+      v-if="isNavigating"
+      class="fixed inset-0 z-40 bg-base-200 bg-opacity-70 flex items-center justify-center animate-fade-in"
+    >
+      <div class="loading loading-dots loading-lg text-primary" />
     </div>
 
     <!-- Header -->
@@ -29,13 +38,22 @@
 
 <script setup lang="ts">
 // /app.vue
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+const router = useRouter()
+const isNavigating = ref(false)
 
-
-
+router.beforeEach(() => {
+  isNavigating.value = true
+})
+router.afterEach(() => {
+  setTimeout(() => {
+    isNavigating.value = false
+  }, 400) // slight delay for smoother UX
+})
 </script>
 
 <style scoped>
@@ -51,6 +69,6 @@ const displayStore = useDisplayStore()
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.8s ease-out forwards;
+  animation: fadeIn 0.4s ease-out forwards;
 }
 </style>

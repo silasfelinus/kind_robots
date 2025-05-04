@@ -130,10 +130,7 @@ export const useDisplayStore = defineStore('displayStore', {
 
     headerStyle(): Record<string, string> {
       return {
-        height:
-          this.headerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.headerHeight})`
-            : `calc(var(--vh) * 7)`,
+        height: `calc(var(--vh) * ${this.headerHeight})`,
         width: `calc(100vw - ${this.sectionPaddingSize * 2}vw)`,
         top: `calc(var(--vh) * ${this.sectionPaddingSize}`,
         left: `${this.sectionPaddingSize}vw`,

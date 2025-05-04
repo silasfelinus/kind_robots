@@ -37,10 +37,10 @@
                 class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]"
               />
               <span
-                v-if="bigMode"
+                v-if="!bigMode"
                 class="text-xs text-center mt-1"
               >
-                {{ icon.label || icon.title }}
+                {{ icon.label }}
               </span>
             </NuxtLink>
 
@@ -50,12 +50,7 @@
               class="flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem]"
             >
               <component :is="icon.component" />
-              <span
-                v-if="bigMode"
-                class="text-xs text-center mt-1"
-              >
-                {{ icon.label || icon.title }}
-              </span>
+        
             </div>
 
             <!-- Fallback or edit-mode icon -->

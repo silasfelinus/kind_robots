@@ -8,12 +8,13 @@
           class="flip-card-inner"
           :class="{ 'is-flipped': sidebarRightOpen }"
         >
-          <!-- Front Face: Main Page -->
-          <div class="flip-card-front">
-            <div class="h-full w-full overflow-y-auto">
-              <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
-            </div>
-          </div>
+         <!-- Front Face: Main Page -->
+<div class="flip-card-front overflow-y-auto">
+  <div class="h-full w-full">
+    <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
+  </div>
+</div>
+
 
           <!-- Back Face: Splash Tutorial -->
           <div class="flip-card-back">

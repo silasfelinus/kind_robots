@@ -22,18 +22,21 @@
       <!-- Scrollable Area -->
       <div
         ref="scrollContainer"
-        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x"
+        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x snap-x snap-mandatory"
         @scroll="checkScrollEdges"
         @mousedown="startDrag"
         @mousemove="onDrag"
         @mouseup="endDrag"
         @mouseleave="endDrag"
+        @touchstart="startTouch"
+        @touchmove="onTouchMove"
+        @touchend="endDrag"
       >
         <div class="flex items-center gap-6 min-w-fit px-2 h-full select-none">
           <div
             v-for="(icon, index) in editableIcons"
             :key="icon.id"
-            class="group relative flex flex-col items-center justify-center"
+            class="group relative flex flex-col items-center justify-center snap-start"
             :class="{ 'cursor-move': isEditing }"
             draggable="true"
             @dragstart="onDragStart(index)"
@@ -51,12 +54,8 @@
                 class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]"
               />
               <span
-                class="mt-1 text-center text-xs absolute top-full left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-base-200 shadow-md whitespace-nowrap z-40 transition-opacity duration-200"
-                :class="
-                  bigMode
-                    ? 'opacity-0 group-hover:opacity-100'
-                    : 'hidden md:block'
-                "
+                class="fade-label"
+                :class="bigMode ? 'opacity-0 group-hover:opacity-100' : 'hidden md:block'"
               >
                 {{ icon.label || icon.title }}
               </span>
@@ -86,6 +85,21 @@
               ✕
             </button>
           </div>
+
+          <!-- Add Icon -->
+          <NuxtLink
+            to="/icongallery"
+            @click="isEditing && confirmEdit()"
+            class="group flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem] snap-start"
+          >
+            <Icon name="lucide:plus-circle" class="hover:scale-110 transition-transform" />
+            <span
+              class="fade-label"
+              :class="bigMode ? 'opacity-0 group-hover:opacity-100' : 'hidden md:block'"
+            >
+              Add Icon
+            </span>
+          </NuxtLink>
         </div>
       </div>
 
@@ -194,7 +208,7 @@ function scrollBy(px: number) {
   scrollContainer.value?.scrollBy({ left: px, behavior: 'smooth' })
 }
 
-// Drag-to-scroll
+// Drag-to-scroll & touch
 let isDragging = false
 let startX = 0
 let scrollStart = 0
@@ -210,6 +224,16 @@ function onDrag(event: MouseEvent) {
 }
 function endDrag() {
   isDragging = false
+}
+function startTouch(e: TouchEvent) {
+  isDragging = true
+  startX = e.touches[0].clientX
+  scrollStart = scrollContainer.value?.scrollLeft || 0
+}
+function onTouchMove(e: TouchEvent) {
+  if (!isDragging || !scrollContainer.value) return
+  const dx = e.touches[0].clientX - startX
+  scrollContainer.value.scrollLeft = scrollStart - dx
 }
 
 let resizeObserver: ResizeObserver | null = null
@@ -232,5 +256,9 @@ onBeforeUnmount(() => {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+.fade-label {
+  @apply absolute top-full left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-base-200 shadow-md text-xs text-center whitespace-nowrap z-40 transition-opacity duration-200;
+  pointer-events: none;
 }
 </style>

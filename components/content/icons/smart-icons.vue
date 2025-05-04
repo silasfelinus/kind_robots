@@ -2,9 +2,6 @@
 <template>
   <div class="relative w-full h-full max-h-[4rem] overflow-hidden">
     <div class="relative w-full h-full flex items-center pr-[4.5rem]">
-      <!-- Scroll Buttons -->
-      <!-- ... unchanged ... -->
-
       <!-- Scrollable Area -->
       <div
         ref="scrollContainer"
@@ -40,12 +37,8 @@
                 class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]"
               />
               <span
-                class="absolute top-full left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-base-200 shadow-md text-xs text-center whitespace-nowrap z-40 transition-opacity duration-200 pointer-events-none"
-                :class="
-                  bigMode
-                    ? 'opacity-0 group-hover:opacity-100'
-                    : 'hidden md:block'
-                "
+                v-if="bigMode"
+                class="text-xs text-center mt-1"
               >
                 {{ icon.label || icon.title }}
               </span>
@@ -54,17 +47,31 @@
             <!-- Utility Component -->
             <div
               v-else-if="icon.type === 'utility'"
-              class="flex items-center justify-center text-3xl w-[3rem] h-[3rem]"
+              class="flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem]"
             >
               <component :is="icon.component" />
+              <span
+                v-if="bigMode"
+                class="text-xs text-center mt-1"
+              >
+                {{ icon.label || icon.title }}
+              </span>
             </div>
 
             <!-- Fallback or edit-mode icon -->
-            <Icon
-              v-else
-              :name="icon.icon || 'lucide:help-circle'"
-              class="text-3xl w-[3rem] h-[3rem]"
-            />
+            <div class="flex flex-col items-center">
+              <Icon
+                v-if="!icon.link && icon.type !== 'utility'"
+                :name="icon.icon || 'lucide:help-circle'"
+                class="text-3xl w-[3rem] h-[3rem]"
+              />
+              <span
+                v-if="bigMode"
+                class="text-xs text-center mt-1"
+              >
+                {{ icon.label || icon.title }}
+              </span>
+            </div>
 
             <!-- Remove Button -->
             <button
@@ -82,17 +89,10 @@
             @click="isEditing && confirmEdit()"
             class="group flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem] snap-start"
           >
-            <Icon
-              name="lucide:plus-circle"
-              class="hover:scale-110 transition-transform"
-            />
+            <Icon name="lucide:plus-circle" class="hover:scale-110 transition-transform" />
             <span
-              class="absolute top-full left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-base-200 shadow-md text-xs text-center whitespace-nowrap z-40 transition-opacity duration-200 pointer-events-none"
-              :class="
-                bigMode
-                  ? 'opacity-0 group-hover:opacity-100'
-                  : 'hidden md:block'
-              "
+              v-if="bigMode"
+              class="text-xs text-center mt-1"
             >
               Add Icon
             </span>
@@ -113,13 +113,6 @@
         </div>
         <div v-else class="flex flex-col gap-2 pr-2">
           <button
-            class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"
-            @click="confirmEdit"
-            title="Confirm"
-          >
-            <Icon name="lucide:check" />
-          </button>
-          <button
             v-if="hasChanges"
             class="btn btn-square btn-xs bg-base-200 text-error hover:bg-base-300"
             @click="revertEdit"
@@ -127,12 +120,21 @@
           >
             <Icon name="lucide:rotate-ccw" />
           </button>
-          <div v-else class="invisible btn btn-square btn-xs" />
+          <button
+            class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"
+            @click="confirmEdit"
+            title="Confirm"
+          >
+            <Icon name="lucide:check" />
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+
+
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'

@@ -34,7 +34,7 @@
             >
               <Icon
                 :name="icon.icon || 'lucide:help-circle'"
-                class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]"
+                class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[4rem]"
               />
               <span
                 v-if="!bigMode"
@@ -47,7 +47,7 @@
             <!-- Utility Component -->
             <div
               v-else-if="icon.type === 'utility'"
-              class="flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem]"
+              class="flex flex-col items-center justify-center text-3xl w-[3rem] h-[4rem]"
             >
               <component :is="icon.component" />
         
@@ -61,7 +61,7 @@
                 class="text-3xl w-[3rem] h-[3rem]"
               />
               <span
-                v-if="bigMode"
+                v-if="!bigMode"
                 class="text-xs text-center mt-1"
               >
                 {{ icon.label || icon.title }}

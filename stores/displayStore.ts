@@ -97,7 +97,12 @@ export const useDisplayStore = defineStore('displayStore', {
     },
 
     headerHeight(): number {
-      const sizes = { small: 10, medium: 11, large: 12, extraLarge: 10 }
+      const sizes = {
+        small: this.bigMode ? 6 : 10,
+        medium: this.bigMode ? 6 : 11,
+        large: this.bigMode ? 7 : 12,
+        extraLarge: this.bigMode ? 6 : 10,
+      }
       return sizes[this.viewportSize]
     },
 
@@ -112,14 +117,8 @@ export const useDisplayStore = defineStore('displayStore', {
     },
 
     mainContentHeight(): number {
-      return (
-        100 -
-        (this.headerState !== 'hidden'
-          ? this.headerHeight + 2 * this.sectionPaddingSize
-          : 4 + this.sectionPaddingSize)
-      )
+      return 100 - (this.headerHeight + 2 * this.sectionPaddingSize)
     },
-
     mainContentWidth(): number {
       return (
         100 -
@@ -143,20 +142,14 @@ export const useDisplayStore = defineStore('displayStore', {
 
     leftToggleStyle(): Record<string, string> {
       return {
-        top:
-          this.headerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2 - 5}vh)`
-            : `2vh`,
+        top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
         left: `${this.sectionPaddingSize}vw`,
       }
     },
 
     rightToggleStyle(): Record<string, string> {
       return {
-        top:
-          this.headerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2 - 4}vh)`
-            : `1.5vh`,
+        top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
         right: `${this.sectionPaddingSize}vw`,
       }
     },
@@ -174,11 +167,7 @@ export const useDisplayStore = defineStore('displayStore', {
         ? {
             height: `calc(var(--vh) * ${this.mainContentHeight})`,
             width: `${this.sidebarLeftWidth}vw`,
-            top: `calc(var(--vh) * ${this.headerHeight} + ${
-              this.headerState !== 'hidden'
-                ? 2 * this.sectionPaddingSize
-                : this.sectionPaddingSize
-            }vh)`,
+            top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
             left: `${this.sectionPaddingSize}vw`,
           }
         : { width: '0px', height: '0px' }
@@ -189,11 +178,7 @@ export const useDisplayStore = defineStore('displayStore', {
         ? {
             height: `calc(var(--vh) * ${this.mainContentHeight})`,
             width: `${this.sidebarRightWidth}vw`,
-            top: `calc(var(--vh) * ${this.headerHeight} + ${
-              this.headerState !== 'hidden'
-                ? 2 * this.sectionPaddingSize
-                : this.sectionPaddingSize
-            }vh)`,
+            top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
             right: `${this.sectionPaddingSize}vw`,
           }
         : { width: '0px', height: '0px' }
@@ -203,10 +188,7 @@ export const useDisplayStore = defineStore('displayStore', {
       return {
         height: `calc(var(--vh) * ${this.mainContentHeight})`,
         width: `calc(${this.mainContentWidth}vw)`,
-        top:
-          this.headerState !== 'hidden'
-            ? `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`
-            : `6vh`,
+        top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
         right:
           this.sidebarRightState !== 'hidden'
             ? `calc(${this.sidebarRightWidth}vw + ${this.sectionPaddingSize * 2}vw)`

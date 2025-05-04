@@ -1,17 +1,23 @@
+<!-- /components/content/story/kind-header.vue -->
 <template>
   <header
     class="relative bg-base-300 rounded-2xl border border-black w-full h-full box-border"
   >
     <div class="flex w-full h-full items-stretch">
-      <!-- Avatar -->
+      <!-- Avatar with Overlay -->
       <div
-        class="flex items-center justify-center overflow-hidden rounded-2xl h-full"
+        class="relative flex items-center justify-center overflow-hidden rounded-2xl h-full"
         :class="bigMode ? 'w-[8%]' : 'w-[10%]'"
       >
         <avatar-image
           alt="User Avatar"
-          class="h-full w-full object-cover rounded-2xl"
+          class="h-full w-full object-cover object-center rounded-2xl"
         />
+        <div
+          class="absolute bottom-1 left-1/2 -translate-x-1/2 z-40 text-white bg-primary rounded-md px-1 text-[10px] sm:text-xs md:text-sm"
+        >
+          {{ viewportSize }}
+        </div>
       </div>
 
       <!-- Title/Subtitle (lg+, hidden in bigMode) -->
@@ -37,13 +43,6 @@
           class="w-full h-full max-h-[3.5rem] sm:max-h-[3.75rem] lg:max-h-[4rem] overflow-hidden"
         />
       </div>
-    </div>
-
-    <!-- Debug Viewport -->
-    <div
-      class="absolute bottom-0 left-2 text-white bg-primary rounded-md text-xs md:text-sm"
-    >
-      {{ viewportSize }}
     </div>
   </header>
 </template>

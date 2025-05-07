@@ -31,6 +31,7 @@ type SupportedModel =
   | 'Pitch'
   | 'Reward'
   | 'Chat'
+  | 'Blueprint'
 
 type ChoiceKey = `${SupportedModel}:${string}`
 

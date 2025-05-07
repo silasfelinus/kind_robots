@@ -1,8 +1,8 @@
-// /components/content/sample/add-sample.vue
 // @ts-nocheck
 /* eslint-disable */
 // test-ignore
 
+// /components/content/sample/add-sample.vue
 <template>
   <div class="rounded-2xl border p-6 m-4 mx-auto bg-base-200 max-w-5xl space-y-6">
     <h1 class="text-4xl text-center font-bold">Create or Edit a Sample</h1>

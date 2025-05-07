@@ -203,4 +203,4 @@ export const useBlueprintStore = defineStore('blueprintStore', {
   },
 })
 
-export type { Blueprint }
+export type { Blueprint, SupportedModel }

@@ -33,6 +33,7 @@ model Art {
   Prompt        Prompt?         @relation(fields: [promptId], references: [id])
   User          User?           @relation(fields: [userId], references: [id])
   ArtImage      ArtImage?
+  Blueprints    Blueprint[]
   Reaction      Reaction[]
   Resonances     Resonance[]
   ArtCollection ArtCollection[] @relation("ArtToArtCollection")
@@ -96,6 +97,29 @@ model ArtCollection {
 
   @@index([userId], map: "ArtCollection_userId_fkey")
 }
+
+model Blueprint {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  title      String
+  description String?
+  
+  userId     Int
+  User       User      @relation(fields: [userId], references: [id])
+
+  coverArtId Int?
+  coverArt   Art?      @relation(fields: [coverArtId], references: [id])
+
+  steps      Json      // 👈 this is your array of commands (as structured JSON)
+  isPublic   Boolean   @default(true)
+  isMature    Boolean  @default(false)
+  tags       Tag[]  
+}
+
+
+
 
 model Bot {
   id                Int            @id @default(autoincrement())
@@ -541,6 +565,7 @@ model Tag {
   Components Component[] @relation("ComponentToTag")
   Pitches    Pitch[]     @relation("PitchToTag")
   Reactions  Reaction[]
+  Blueprints  Blueprint[]
 
   @@index([userId], map: "Tag_userId_fkey")
 }
@@ -587,6 +612,7 @@ model User {
   artImageId     Int?
   Art            Art[]
   ArtCollections ArtCollection[]
+  Blueprints     Blueprint[]
   ArtImages      ArtImage[]
   Bots           Bot[]
   Characters     Character[]

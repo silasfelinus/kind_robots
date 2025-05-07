@@ -736,3 +736,19 @@ enum Role {
   DESIGNER
   CHILD
 }
+
+enum SupportedModel {
+  Pitch
+  Character
+  Bot
+  Scenario
+  Reward
+  Blueprint
+  Art
+  Prompt
+  Tag
+  Resource
+  Resonance
+  Chat
+}
+

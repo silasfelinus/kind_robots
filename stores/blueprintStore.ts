@@ -11,14 +11,6 @@ export interface BlueprintForm extends Partial<Blueprint> {
   designer?: string
 }
 
-export type SupportedModel =
-  | 'Pitch'
-  | 'Character'
-  | 'Bot'
-  | 'Scenario'
-  | 'Reward'
-  | 'Blueprint'
-
 export const useBlueprintStore = defineStore('blueprintStore', {
   state: () => ({
     items: [] as Blueprint[],

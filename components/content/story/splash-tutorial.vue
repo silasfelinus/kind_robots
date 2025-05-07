@@ -66,14 +66,15 @@
         class="space-y-3 max-w-2xl mx-auto pb-3 px-2"
         @click="handleSidebarClose"
       >
-        <div class="chat chat-end animate-fade-in-up delay-300">
+        <div class="chat chat-end animate-fade-in-up delay-300 text-black">
           <div class="chat-image avatar">
             <div class="w-10 h-10 rounded-full border-2 border-primary">
               <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
             </div>
           </div>
           <div class="chat-bubble bg-primary text-black border border-black">
-            <span class="font-semibold text-xs md:text:sm lg:text-md xl:text-lg"
+            <span
+              class="font-semibold text-xs md:text:sm lg:text-md xl:text-lg text-black"
               >DottiBot:</span
             >
             {{ dottitip }}
@@ -87,7 +88,8 @@
             </div>
           </div>
           <div class="chat-bubble bg-secondary text-black border border-black">
-            <span class="font-semibold text-xs md:text:sm lg:text-md xl:text-lg"
+            <span
+              class="font-semibold text-xs md:text:sm lg:text-md xl:text-lg text-black"
               >AMIbot:</span
             >
             {{ amitip }}

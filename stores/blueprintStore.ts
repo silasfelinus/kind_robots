@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { performFetch, handleError } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
-import type { Blueprint } from '@prisma/client'
+import type { Blueprint, SupportedModel } from '@prisma/client'
 
 export interface BlueprintForm extends Partial<Blueprint> {
   coverArtId?: number | null

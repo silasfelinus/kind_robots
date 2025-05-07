@@ -34,7 +34,10 @@
   {
     "folderName": "blueprints",
     "components": [
-      "add-blueprint"
+      "add-blueprint",
+      "blueprint-gallery",
+      "blueprint-nav",
+      "edit-blueprint"
     ]
   },
   {

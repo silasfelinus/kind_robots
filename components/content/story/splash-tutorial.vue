@@ -53,11 +53,17 @@
         class="overflow-y-auto flex flex-col items-center justify-center gap-2"
       >
         <component
-          v-if="navComponent"
-          :is="navComponent"
+          v-if="Array.isArray(parsedNavComponent)"
+          is="smart-nav"
+          :component-list="parsedNavComponent"
           class="w-full pointer-events-auto"
         />
-        <mode-row class="w-full min-h-[2rem] pointer-events-auto" />
+        <component
+          v-else-if="typeof parsedNavComponent === 'string'"
+          :is="parsedNavComponent"
+          class="w-full pointer-events-auto"
+        />
+        <mode-row v-else class="w-full min-h-[2rem] pointer-events-auto" />
       </div>
 
       <!-- Bot Tips (anchored to bottom) -->
@@ -105,6 +111,7 @@
 import { storeToRefs } from 'pinia'
 import { usePageStore } from '@/stores/pageStore'
 import { useDisplayStore } from '@/stores/displayStore'
+import { computed } from 'vue'
 
 const displayStore = useDisplayStore()
 const {
@@ -117,6 +124,19 @@ const {
   navComponent,
   image,
 } = storeToRefs(usePageStore())
+
+const parsedNavComponent = computed(() => {
+  try {
+    const raw = navComponent.value
+    if (typeof raw === 'string' && raw.trim().startsWith('[')) {
+      return JSON.parse(raw)
+    }
+    return raw
+  } catch (e) {
+    console.warn('Failed to parse navComponent:', e)
+    return null
+  }
+})
 
 const handleSidebarClose = () => {
   console.log('Sidebar closing triggered')

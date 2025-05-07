@@ -27,15 +27,17 @@ describe('[Blueprint] API Full CRUD + Ownership Tests', () => {
         },
       })
 
-    register(userA_name).then((res) => {
-      userA_id = res.body.user.id
-      userA_apiKey = res.body.user.apiKey
-    })
-
-    register(userB_name).then((res) => {
-      userB_id = res.body.user.id
-      userB_apiKey = res.body.user.apiKey
-    })
+    cy.wrap(null)
+      .then(() => register(userA_name))
+      .then((res) => {
+        userA_id = res.body.user.id
+        userA_apiKey = res.body.user.apiKey
+      })
+      .then(() => register(userB_name))
+      .then((res) => {
+        userB_id = res.body.user.id
+        userB_apiKey = res.body.user.apiKey
+      })
   })
 
   it('POST: User A creates a blueprint', () => {
@@ -137,9 +139,10 @@ describe('[Blueprint] API Full CRUD + Ownership Tests', () => {
         method: 'DELETE',
         url: `${userUrl}/${id}`,
         headers: { Authorization: `Bearer ${apiKey}` },
+        failOnStatusCode: false,
       })
 
-    deleteUser(userA_id, userA_apiKey)
-    deleteUser(userB_id, userB_apiKey)
+    if (userA_id && userA_apiKey) deleteUser(userA_id, userA_apiKey)
+    if (userB_id && userB_apiKey) deleteUser(userB_id, userB_apiKey)
   })
 })

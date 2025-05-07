@@ -3,7 +3,7 @@ title: 'Blueprint Gallery'
 subtitle: 'Browse your creative schematics'
 description: 'Explore, edit, or expand existing Blueprint entries used for AI-driven workflows.'
 gallery: 'blueprintvault'
-image: 'blueprint/blueprintgallery.webp'
+image: 'blueprints/blueprintgallery.png'
 tags: ['blueprint', 'gallery']
 layout: 'default'
 icon: kind-icon:blueprint

@@ -13,6 +13,7 @@ dottitip: 'Blueprints show where you’ve been—and hint at where you’re goin
 amitip: 'Mine include a vending machine heist. Don’t judge.'
 sort: highlight
 navComponent: 'blueprint-nav'
+model: 'blueprint'
 ---
 
 :blueprint-gallery

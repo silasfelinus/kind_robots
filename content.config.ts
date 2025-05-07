@@ -45,6 +45,7 @@ const contentSchema = z.object({
   amitip: z.string().optional(),
   sort: z.string().optional(),
   navComponent: z.string().optional(),
+  model: z.string().optional(),
 })
 
 export type ContentType = z.infer<typeof contentSchema> & {

@@ -24,7 +24,7 @@ export const useLinkStore = defineStore('linkStore', () => {
 
     // Utility Icons (no path; will be handled with components)
     { title: 'Login', icon: 'login-path', isUtility: true },
-    { title: 'Jellybeans', icon: 'jellybean-count', isUtility: true },
+    { title: 'Jellybeans', icon: 'jellybean-icon', isUtility: true },
     { title: 'Theme', icon: 'theme-icon', isUtility: true },
     { title: 'Swarm', icon: 'swarm-icon', isUtility: true },
   ])

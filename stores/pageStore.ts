@@ -50,6 +50,7 @@ export const usePageStore = defineStore('pageStore', () => {
       tooltip: data.tooltip ?? '',
       dottitip: data.dottitip ?? '',
       amitip: data.amitip ?? '',
+      model: data.model ?? '',
       layout: ['default', 'minimal', 'vertical-scroll'].includes(
         data.layout as string,
       )
@@ -130,6 +131,7 @@ export const usePageStore = defineStore('pageStore', () => {
     sort: page.value?.sort ?? '',
     underConstruction: page.value?.underConstruction ?? true,
     navComponent: page.value?.navComponent ?? '',
+    model: page.value?.model ?? '',
   }))
 
   const layout = computed<LayoutKey>(() => {

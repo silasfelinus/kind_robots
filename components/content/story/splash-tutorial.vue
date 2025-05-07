@@ -10,6 +10,10 @@
       class="absolute inset-0 h-full w-auto object-cover z-0"
       alt="Ambient Background"
     />
+    <!-- Bokeh Overlay -->
+    <div
+      class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-10 pointer-events-none"
+    />
 
     <!-- Foreground Content Grid -->
     <div
@@ -26,20 +30,19 @@
 
         <h1
           v-if="title"
-          class="text-sm md:text-md lg:text-lg xl:text-2xl font-bold bg-secondary rounded-2xl px-4 py-1 text-black inline-block animate-fade-in-up"
+          class="text-sm md:text-md lg:text-lg xl:text-2xl font-bold bg-secondary text-black border border-black rounded-2xl px-4 py-1 inline-block animate-fade-in-up"
         >
           The {{ title }} Room
         </h1>
         <h2
           v-if="subtitle"
-          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary rounded-2xl px-3 py-1 text-black inline-block animate-fade-in-up delay-200"
+          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
         >
           {{ subtitle }}
         </h2>
-
         <h2
           v-if="description"
-          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary rounded-2xl px-3 py-1 text-black inline-block animate-fade-in-up delay-200"
+          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-300"
         >
           {{ description }}
         </h2>
@@ -54,7 +57,7 @@
           :is="navComponent"
           class="w-full pointer-events-auto"
         />
-        <mode-row class="w-full min-h-[2 rem] pointer-events-auto" />
+        <mode-row class="w-full min-h-[2rem] pointer-events-auto" />
       </div>
 
       <!-- Bot Tips (anchored to bottom) -->
@@ -69,7 +72,7 @@
               <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
             </div>
           </div>
-          <div class="chat-bubble bg-primary text-black">
+          <div class="chat-bubble bg-primary text-black border border-black">
             <span class="font-semibold text-xs md:text:sm lg:text-md xl:text-lg"
               >DottiBot:</span
             >
@@ -79,13 +82,11 @@
 
         <div class="chat chat-start animate-fade-in-up delay-500">
           <div class="chat-image avatar">
-            <div
-              class="w-10 h-10 rounded-full border-2 border-secondary text-black"
-            >
+            <div class="w-10 h-10 rounded-full border-2 border-secondary">
               <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
             </div>
           </div>
-          <div class="chat-bubble text-black bg-secondary">
+          <div class="chat-bubble bg-secondary text-black border border-black">
             <span class="font-semibold text-xs md:text:sm lg:text-md xl:text-lg"
               >AMIbot:</span
             >
@@ -98,6 +99,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/story/splash-tutorial.vue
 import { storeToRefs } from 'pinia'
 import { usePageStore } from '@/stores/pageStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -145,10 +147,10 @@ const handleSidebarClose = () => {
   animation-delay: 0.5s;
 }
 
-/* chat bubbles should wrap nicely and feel cozy */
 .chat-bubble {
   line-height: 1.5;
   max-width: 90%;
   word-break: break-word;
+  border: 1px solid black;
 }
 </style>

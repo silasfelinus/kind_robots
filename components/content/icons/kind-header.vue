@@ -20,7 +20,7 @@
         </div>
       </div>
 
-      <!-- Title/Subtitle -->
+      <!-- Title / Subtitle -->
       <div
         v-if="!bigMode"
         class="hidden lg:flex flex-col justify-center items-center text-center w-[25%] px-2"
@@ -39,9 +39,7 @@
       <div
         class="flex-grow h-full overflow-hidden px-2 flex items-center justify-end"
       >
-        <smart-icons
-          class="w-full h-full overflow-hidden"
-        />
+        <smart-icons :big-mode="bigMode" />
       </div>
     </div>
   </header>
@@ -57,7 +55,7 @@ import { usePageStore } from '@/stores/pageStore'
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
-const { page, subtitle } = storeToRefs(pageStore)
+const { page } = storeToRefs(pageStore)
 const { viewportSize, bigMode } = storeToRefs(displayStore)
 </script>
 
@@ -69,13 +67,11 @@ const { viewportSize, bigMode } = storeToRefs(displayStore)
     transform 0.3s ease,
     translate 0.3s ease;
 }
-
 .fade-scale-enter-from,
 .fade-scale-leave-to {
   opacity: 0;
   transform: scale(0.95) translateY(0.5rem);
 }
-
 .fade-scale-enter-to,
 .fade-scale-leave-from {
   opacity: 1;

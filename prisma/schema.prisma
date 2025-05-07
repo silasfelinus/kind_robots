@@ -370,6 +370,14 @@ model Pitch {
   @@index([userId], map: "Pitch_userId_fkey")
 }
 
+enum PitchType {
+  ARTPITCH
+  BRAINSTORM
+  WEIRDLANDIA
+  RANDOMLIST
+  TITLE
+}
+
 
 model Prompt {
   id         Int            @id @default(autoincrement())
@@ -679,13 +687,7 @@ model RewardToUser {
   @@map("_RewardToUser")
 }
 
-enum PitchType {
-  ARTPITCH
-  BRAINSTORM
-  WEIRDLANDIA
-  RANDOMLIST
-  TITLE
-}
+
 
 
 enum ReactionType {

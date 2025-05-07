@@ -1,5 +1,7 @@
 // /stores/chapters/characterChapters.ts
 
+import type { SupportedModel } from '@prisma/client'
+
 export interface CharacterChapter {
   label: string
   intro: string
@@ -9,13 +11,12 @@ export interface CharacterChapter {
   allowCustom?: boolean
 }
 
-export type SupportedModel = 'Character' | 'Reward' | 'Bot' | 'Scenario' | 'Pitch'
-
 export const characterChapters: CharacterChapter[] = [
   {
     label: 'identity',
     icon: 'mdi:account-star',
-    intro: "Let’s name this magnificent being! Titles, honorifics, and vibes encouraged.",
+    intro:
+      'Let’s name this magnificent being! Titles, honorifics, and vibes encouraged.',
     choices: ['name', 'honorific'],
     model: 'Character',
     allowCustom: true,
@@ -31,7 +32,7 @@ export const characterChapters: CharacterChapter[] = [
   {
     label: 'being',
     icon: 'mdi:alien',
-    intro: "Species, essence, or unknowable cosmic form—what are they?",
+    intro: 'Species, essence, or unknowable cosmic form—what are they?',
     choices: ['species', 'personality'],
     model: 'Character',
     allowCustom: true,
@@ -39,7 +40,8 @@ export const characterChapters: CharacterChapter[] = [
   {
     label: 'story',
     icon: 'mdi:book-open-page-variant',
-    intro: "Every legend begins somewhere. Bonus points for dramatic childhood trauma.",
+    intro:
+      'Every legend begins somewhere. Bonus points for dramatic childhood trauma.',
     choices: ['backstory'],
     model: 'Character',
     allowCustom: true,
@@ -55,7 +57,8 @@ export const characterChapters: CharacterChapter[] = [
   {
     label: 'abilities',
     icon: 'mdi:arm-flex',
-    intro: "What can they actually *do*? Hurl fireballs? Bake muffins? Speak goat?",
+    intro:
+      'What can they actually *do*? Hurl fireballs? Bake muffins? Speak goat?',
     choices: ['skills'],
     model: 'Character',
     allowCustom: true,
@@ -63,7 +66,8 @@ export const characterChapters: CharacterChapter[] = [
   {
     label: 'destiny',
     icon: 'mdi:crystal-ball',
-    intro: "Choose one mysterious reward whispered by fate. May it help... or horribly backfire.",
+    intro:
+      'Choose one mysterious reward whispered by fate. May it help... or horribly backfire.',
     choices: ['rewardEssence'],
     model: 'Reward',
     allowCustom: false,

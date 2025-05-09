@@ -1,4 +1,4 @@
-<!-- /components/content/story/jellybean-icon.vue -->
+<!-- /components/content/icons/jellybean-icon.vue -->
 <template>
   <router-link
     to="/milestones"
@@ -8,8 +8,9 @@
       name="kind-icon:jellybean"
       class="h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 transition-transform transform hover:scale-110 duration-300 ease-in-out"
     />
+
     <div
-      v-if="!bigMode"
+      v-if="!isEditing && !bigMode"
       class="mt-2 text-center text-sm md:block hidden"
     >
       {{ beanCount || 0 }} /11
@@ -19,22 +20,17 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useDisplayStore } from '@/stores/displayStore'
+import { useIconStore } from '@/stores/iconStore'
 
-// Stores
-const displayStore = useDisplayStore()
-const { bigMode } = storeToRefs(displayStore)
 const milestoneStore = useMilestoneStore()
+const displayStore = useDisplayStore()
+const iconStore = useIconStore()
 
-// Computed properties
+const { bigMode } = storeToRefs(displayStore)
+const { isEditing } = storeToRefs(iconStore)
+
 const beanCount = computed(() => milestoneStore.milestoneCountForUser)
-
-// Check if viewport size is small
-const isSmallDisplay = computed(() => displayStore.viewportSize === 'small')
 </script>
-
-<style scoped>
-.router-link {
-  text-decoration: none; /* Removes underline */
-  color: inherit; /* Ensures it inherits the text color from its parent */
-}
-</style>

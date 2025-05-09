@@ -39,9 +39,6 @@
                   :name="icon.icon || 'lucide:help-circle'"
                   class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]"
                 />
-                <span v-if="!bigMode" class="text-xs text-center mt-1">
-                  {{ icon.label }}
-                </span>
               </NuxtLink>
 
               <div
@@ -57,17 +54,26 @@
                   class="text-3xl w-[3rem] h-[5rem]"
                 />
               </div>
+
+              <!-- Label or ✕ with fade -->
+              <transition name="fade" mode="out-in">
+                <span
+                  v-if="!isEditing"
+                  key="label"
+                  class="text-xs text-center mt-1"
+                >
+                  {{ icon.label }}
+                </span>
+                <button
+                  v-else
+                  key="delete"
+                  class="mt-1 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 z-50"
+                  @click="removeIcon(index)"
+                >
+                  ✕
+                </button>
+              </transition>
             </div>
-
-            <!-- Floating Remove Button: Just Below Icon -->
-<button
-  v-if="isEditing"
-  class="absolute top-full left-1/2 -translate-x-1/2 mt-1 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 opacity-90 group-hover:opacity-100 transition-all duration-200 z-[60]"
-  @click="removeIcon(index)"
->
-  ✕
-</button>
-
           </div>
 
           <!-- Add Icon -->
@@ -92,7 +98,7 @@
         <div v-if="!isEditing" class="flex flex-col gap-2 pr-2">
           <button
             class="btn btn-square btn-sm"
-            @click="isEditing = true"
+            @click="iconStore.isEditing = true"
             title="Edit"
           >
             <Icon name="kind-icon:settings" />
@@ -120,7 +126,6 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
 import { storeToRefs } from 'pinia'
@@ -130,9 +135,8 @@ import { useDisplayStore } from '@/stores/displayStore'
 const iconStore = useIconStore()
 const displayStore = useDisplayStore()
 const { bigMode } = storeToRefs(displayStore)
-const { activeIcons } = storeToRefs(iconStore)
+const { activeIcons, isEditing } = storeToRefs(iconStore)
 
-const isEditing = ref(false)
 const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
 const originalIcons = ref<SmartIcon[]>([])
 
@@ -171,11 +175,11 @@ function removeIcon(index: number) {
 }
 function confirmEdit() {
   iconStore.setIconOrder(editableIcons.value.map((i) => i.id))
-  isEditing.value = false
+  iconStore.isEditing = false
 }
 function revertEdit() {
   editableIcons.value = [...originalIcons.value]
-  isEditing.value = false
+  iconStore.isEditing = false
 }
 
 // Scroll logic
@@ -240,5 +244,14 @@ onBeforeUnmount(() => {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

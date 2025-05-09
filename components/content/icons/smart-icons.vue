@@ -60,7 +60,7 @@
   <span
     v-if="!isEditing && !bigMode"
     :key="`label-${icon.id}`"
-    class="absolute top-full mt-1 left-1/2 -translate-x-1/2 text-xs text-center pointer-events-none"
+    class="absolute top-full left-1/2 -translate-x-1/2 text-xs text-center pointer-events-none"
   >
     {{ icon.label }}
   </span>

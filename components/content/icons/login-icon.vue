@@ -16,9 +16,8 @@
       />
     </div>
 
-    <!-- Label below the icon -->
     <span
-      v-if="!bigMode"
+      v-if="!isEditing && !bigMode"
       class="mt-2 text-center text-sm md:block hidden"
     >
       {{ isLoggedIn ? username : 'Login?' }}
@@ -26,9 +25,12 @@
   </router-link>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useDisplayStore } from '@/stores/displayStore'
+import { useIconStore } from '@/stores/iconStore'
+import { storeToRefs } from 'pinia'
 
 const displayStore = useDisplayStore()
 const { bigMode } = storeToRefs(displayStore)
@@ -40,4 +42,7 @@ const username = computed(() => userStore.user?.username || 'User')
 const routeToNavigate = computed(() =>
   isLoggedIn.value ? '/dashboard' : '/login',
 )
+
+const iconStore = useIconStore()
+const { isEditing } = storeToRefs(iconStore)
 </script>

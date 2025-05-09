@@ -1,4 +1,3 @@
-<!-- /components/content/story/smart-icons.vue -->
 <template>
   <div class="relative w-full h-full overflow-hidden">
     <div class="relative w-full h-full flex items-center pr-[4.5rem]">
@@ -28,52 +27,55 @@
             @dragover.prevent
             @drop="onDrop(index)"
           >
-            <!-- Inner wrapper for icon -->
-            <div class="relative flex flex-col items-center justify-center">
+            <!-- Icon + label or ✕ wrapper -->
+            <div class="flex flex-col items-center justify-start w-full h-full relative">
+              <!-- Icon -->
               <NuxtLink
                 v-if="!isEditing && icon.link && icon.type !== 'utility'"
                 :to="icon.link"
-                class="flex flex-col items-center"
+                class="flex items-center justify-center w-[3rem] h-[3rem]"
               >
                 <Icon
                   :name="icon.icon || 'lucide:help-circle'"
-                  class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]"
+                  class="text-3xl hover:scale-110 transition-transform"
                 />
               </NuxtLink>
 
               <div
                 v-else-if="icon.type === 'utility'"
-                class="flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem]"
+                class="flex items-center justify-center w-[3rem] h-[3rem]"
               >
                 <component :is="icon.component" />
               </div>
 
-              <div v-else class="flex flex-col items-center">
+              <div
+                v-else
+                class="flex items-center justify-center w-[3rem] h-[3rem]"
+              >
                 <Icon
                   :name="icon.icon || 'lucide:help-circle'"
-                  class="text-3xl w-[3rem] h-[5rem]"
+                  class="text-3xl"
                 />
               </div>
 
-              <!-- Label or ✕ with fade -->
-<transition v-if="icon.type !== 'utility'" name="fade" mode="out-in">
-  <span
-    v-if="!isEditing && !bigMode"
-    :key="`label-${icon.id}`"
-    class="absolute top-full left-1/2 -translate-x-1/2 text-xs text-center pointer-events-none"
-  >
-    {{ icon.label }}
-  </span>
-  <button
-    v-else
-    :key="`delete-${icon.id}`"
-    class="absolute top-full mt-1 left-1/2 -translate-x-1/2 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 z-50"
-    @click="removeIcon(index)"
-  >
-    ✕
-  </button>
-</transition>
-
+              <!-- Label or ✕ (shared slot) -->
+              <div
+                class="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center justify-center h-[1.5rem] w-full pointer-events-none z-40"
+              >
+                <span
+                  v-if="!isEditing && !bigMode"
+                  class="text-xs text-center leading-none"
+                >
+                  {{ icon.label }}
+                </span>
+                <button
+                  v-else
+                  class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
+                  @click="removeIcon(index)"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           </div>
 
@@ -126,6 +128,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'

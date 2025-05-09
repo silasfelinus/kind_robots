@@ -15,57 +15,56 @@
         @touchmove="onTouchMove"
         @touchend="endDrag"
       >
-<!-- Icon Container -->
-<div
-  v-for="(icon, index) in editableIcons"
-  :key="icon.id"
-class="relative flex flex-col items-center justify-center snap-start h-[6rem] w-[4rem]"
+        <div class="flex items-center gap-6 min-w-fit px-[4.5rem] h-full select-none">
+          <!-- Icon Container -->
+          <div
+            v-for="(icon, index) in editableIcons"
+            :key="icon.id"
+            class="group relative flex flex-col items-center justify-center snap-start h-[6rem] w-[4rem]"
+            :class="{ 'cursor-move': isEditing }"
+            draggable="true"
+            @dragstart="onDragStart(index)"
+            @dragover.prevent
+            @drop="onDrop(index)"
+          >
+            <!-- Icon or Link -->
+            <NuxtLink
+              v-if="!isEditing && icon.link && icon.type !== 'utility'"
+              :to="icon.link"
+              class="flex flex-col items-center"
+            >
+              <Icon
+                :name="icon.icon || 'lucide:help-circle'"
+                class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]"
+              />
+              <span v-if="!bigMode" class="text-xs text-center mt-1">
+                {{ icon.label }}
+              </span>
+            </NuxtLink>
 
-  :class="{ 'cursor-move': isEditing }"
-  draggable="true"
-  @dragstart="onDragStart(index)"
-  @dragover.prevent
-  @drop="onDrop(index)"
->
-  <!-- Icon or Link -->
-  <NuxtLink
-    v-if="!isEditing && icon.link && icon.type !== 'utility'"
-    :to="icon.link"
-    class="flex flex-col items-center"
-  >
-    <Icon
-      :name="icon.icon || 'lucide:help-circle'"
-      class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]"
-    />
-    <span v-if="!bigMode" class="text-xs text-center mt-1">
-      {{ icon.label }}
-    </span>
-  </NuxtLink>
+            <div
+              v-else-if="icon.type === 'utility'"
+              class="flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem]"
+            >
+              <component :is="icon.component" />
+            </div>
 
-  <div
-    v-else-if="icon.type === 'utility'"
-    class="flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem]"
-  >
-    <component :is="icon.component" />
-  </div>
+            <div v-else class="flex flex-col items-center">
+              <Icon
+                :name="icon.icon || 'lucide:help-circle'"
+                class="text-3xl w-[3rem] h-[5rem]"
+              />
+            </div>
 
-  <div v-else class="flex flex-col items-center">
-    <Icon
-      :name="icon.icon || 'lucide:help-circle'"
-      class="text-3xl w-[3rem] h-[5rem]"
-    />
-  </div>
-
-  <!-- Floating Remove Button -->
-  <button
-    v-if="isEditing"
-    class="absolute bottom-[-0.5rem] text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 z-30"
-    @click="removeIcon(index)"
-  >
-    ✕
-  </button>
-</div>
-
+            <!-- Floating Remove Button -->
+            <button
+              v-if="isEditing"
+              class="absolute bottom-0 translate-y-full text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 opacity-90 group-hover:opacity-100 transition-opacity duration-200 z-30"
+              @click="removeIcon(index)"
+            >
+              ✕
+            </button>
+          </div>
 
           <!-- Add Icon -->
           <NuxtLink
@@ -116,14 +115,6 @@ class="relative flex flex-col items-center justify-center snap-start h-[6rem] w-
     </div>
   </div>
 </template>
-
-
-
-
-
-
-
-
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'

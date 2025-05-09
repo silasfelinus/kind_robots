@@ -15,6 +15,8 @@ export const useIconStore = defineStore('iconStore', {
     isInitialized: false,
     loading: false,
     defaultIconIds: [1, 2, 3, 4, 5, 6, 7, 8],
+    isEditing: false,
+
   }),
 
   getters: {
@@ -61,6 +63,10 @@ export const useIconStore = defineStore('iconStore', {
         handleError(error, 'initializing smartIcon store')
       }
     },
+toggleEditing() {
+  this.isEditing = !this.isEditing
+},
+
 
     syncToLocalStorage() {
       try {

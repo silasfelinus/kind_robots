@@ -9,12 +9,14 @@
       class="text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem] transition-transform transform hover:scale-110 duration-300 ease-in-out"
     />
 
-    <span
-      v-if="!isEditing && !displayStore.bigMode"
-      class="mt-2 hidden md:block text-center text-sm sm:text-sm md:text-md lg:text-lg xl:text-xl"
-    >
-      {{ currentTheme }}
-    </span>
+
+<span
+  v-if="!isEditing && !displayStore.bigMode"
+  class="absolute top-full mt-1 text-xs text-center pointer-events-none"
+>
+  {{ currentTheme }}
+</span>
+
 
   </button>
 </template>

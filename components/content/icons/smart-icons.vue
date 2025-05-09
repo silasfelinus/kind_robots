@@ -58,7 +58,7 @@
               <!-- Label or ✕ with fade -->
               <transition v-if="icon.type !== 'utility'" name="fade" mode="out-in">
                 <span
-                  v-if="!isEditing"
+                  v-if="!isEditing && !bigMode"
                   key="label"
                   class="text-xs text-center mt-1"
                 >

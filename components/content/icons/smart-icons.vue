@@ -19,14 +19,15 @@
 <div
   v-for="(icon, index) in editableIcons"
   :key="icon.id"
-  class="group relative flex flex-col items-center justify-center snap-start"
+class="relative flex flex-col items-center justify-center snap-start h-[6rem] w-[4rem]"
+
   :class="{ 'cursor-move': isEditing }"
   draggable="true"
   @dragstart="onDragStart(index)"
   @dragover.prevent
   @drop="onDrop(index)"
 >
-  <!-- Icon Display (link or component) -->
+  <!-- Icon or Link -->
   <NuxtLink
     v-if="!isEditing && icon.link && icon.type !== 'utility'"
     :to="icon.link"
@@ -48,9 +49,8 @@
     <component :is="icon.component" />
   </div>
 
-  <div class="flex flex-col items-center">
+  <div v-else class="flex flex-col items-center">
     <Icon
-      v-if="!icon.link && icon.type !== 'utility'"
       :name="icon.icon || 'lucide:help-circle'"
       class="text-3xl w-[3rem] h-[5rem]"
     />
@@ -59,7 +59,7 @@
   <!-- Floating Remove Button -->
   <button
     v-if="isEditing"
-    class="absolute -bottom-3 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 z-30"
+    class="absolute bottom-[-0.5rem] text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 z-30"
     @click="removeIcon(index)"
   >
     ✕

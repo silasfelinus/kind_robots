@@ -10,8 +10,8 @@
     />
 
     <div
-      v-if="!isEditing && !bigMode"
-      class="mt-2 text-center text-sm md:block hidden"
+        v-if="!isEditing && !displayStore.bigMode"
+  class="absolute top-full mt-1 text-xs text-center pointer-events-none"
     >
       {{ beanCount || 0 }} /11
     </div>

@@ -56,15 +56,14 @@
               />
             </div>
 
-            <!-- Floating Remove Button -->
-            <button
-              v-if="isEditing"
-              class="absolute bottom-0 translate-y-full text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 opacity-90 group-hover:opacity-100 transition-opacity duration-200 z-50"
-              @click="removeIcon(index)"
-            >
-              ✕
-            </button>
-          </div>
+<!-- Floating Remove Button: Centered over icon -->
+<button
+  v-if="isEditing"
+  class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 opacity-90 group-hover:opacity-100 transition-all duration-200 z-[60]"
+  @click="removeIcon(index)"
+>
+  ✕
+</button>
 
           <!-- Add Icon -->
           <NuxtLink

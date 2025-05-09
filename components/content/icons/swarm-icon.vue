@@ -15,9 +15,9 @@
       />
     </div>
 
-    <!-- Dynamic Label -->
+    <!-- Dynamic Label (shown only when not editing and not in bigMode) -->
     <span
-      v-if="!bigMode"
+      v-if="!isEditing && !bigMode"
       class="mt-2 text-center text-sm md:block hidden"
     >
       {{ showSwarm ? swarmText : 'Swarm?' }}
@@ -34,11 +34,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useDisplayStore } from '@/stores/displayStore'
+import { useIconStore } from '@/stores/iconStore'
 
 const displayStore = useDisplayStore()
+const iconStore = useIconStore()
 
 const { bigMode } = storeToRefs(displayStore)
+const { isEditing } = storeToRefs(iconStore)
 
 const showSwarm = ref(false)
 const swarmText = ref("We're free!")

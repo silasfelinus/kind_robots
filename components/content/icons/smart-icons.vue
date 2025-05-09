@@ -59,7 +59,7 @@
             <!-- Floating Remove Button -->
             <button
               v-if="isEditing"
-              class="absolute bottom-0 translate-y-full text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 opacity-90 group-hover:opacity-100 transition-opacity duration-200 z-30"
+              class="absolute bottom-0 translate-y-full text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 opacity-90 group-hover:opacity-100 transition-opacity duration-200 z-50"
               @click="removeIcon(index)"
             >
               ✕

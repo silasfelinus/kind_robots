@@ -56,23 +56,24 @@
               </div>
 
               <!-- Label or ✕ with fade -->
-              <transition v-if="icon.type !== 'utility'" name="fade" mode="out-in">
-                <span
-                  v-if="!isEditing && !bigMode"
-                  key="label"
-                  class="text-xs text-center mt-1"
-                >
-                  {{ icon.label }}
-                </span>
-                <button
-                  v-else
-                  key="delete"
-                  class="mt-1 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 z-50"
-                  @click="removeIcon(index)"
-                >
-                  ✕
-                </button>
-              </transition>
+<transition v-if="icon.type !== 'utility'" name="fade" mode="out-in">
+  <span
+    v-if="!isEditing && !bigMode"
+    :key="`label-${icon.id}`"
+    class="absolute top-full mt-1 left-1/2 -translate-x-1/2 text-xs text-center pointer-events-none"
+  >
+    {{ icon.label }}
+  </span>
+  <button
+    v-else
+    :key="`delete-${icon.id}`"
+    class="absolute top-full mt-1 left-1/2 -translate-x-1/2 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 z-50"
+    @click="removeIcon(index)"
+  >
+    ✕
+  </button>
+</transition>
+
             </div>
           </div>
 

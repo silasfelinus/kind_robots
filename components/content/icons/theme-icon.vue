@@ -16,12 +16,6 @@
       {{ currentTheme }}
     </span>
 
-    <div
-      v-if="!displayStore.bigMode"
-      class="absolute bottom-12 left-1/2 -translate-x-1/2 transform bg-base-200 text-sm rounded-lg p-2 shadow-lg z-50 hidden group-hover:block md:hidden"
-    >
-      <span class="block text-center">Theme: {{ currentTheme }}</span>
-    </div>
   </button>
 </template>
 

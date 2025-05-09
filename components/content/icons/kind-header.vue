@@ -7,7 +7,7 @@
       <!-- Avatar with Overlay -->
       <div
         class="relative flex items-center justify-center overflow-hidden rounded-2xl h-full"
-        :class="bigMode ? 'w-[12%]' : 'w-[18%]'"
+        :class="bigMode ? 'w-[15%]' : 'w-[25%]'"
       >
         <avatar-image
           alt="User Avatar"

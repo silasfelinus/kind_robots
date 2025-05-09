@@ -15,60 +15,66 @@
         @touchmove="onTouchMove"
         @touchend="endDrag"
       >
-        <div class="flex items-center gap-6 min-w-fit h-full select-none px-[4.5rem]">
+        <!-- Icon Row Container -->
+        <div class="flex items-center gap-6 min-w-fit px-[4.5rem] h-full select-none">
+          <!-- Icon Container -->
           <div
             v-for="(icon, index) in editableIcons"
             :key="icon.id"
-            class="group relative flex flex-col items-center justify-center snap-start"
+            class="group relative flex items-center justify-center snap-start h-[6rem] w-[4rem]"
             :class="{ 'cursor-move': isEditing }"
             draggable="true"
             @dragstart="onDragStart(index)"
             @dragover.prevent
             @drop="onDrop(index)"
           >
-            <!-- Nav Icon -->
-            <NuxtLink
-              v-if="!isEditing && icon.link && icon.type !== 'utility'"
-              :to="icon.link"
-              class="flex flex-col items-center"
-            >
-              <Icon
-                :name="icon.icon || 'lucide:help-circle'"
-                class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]"
-              />
-              <span
-                v-if="!bigMode"
-                class="text-xs text-center mt-1"
+            <!-- Inner wrapper for icon -->
+            <div class="relative flex flex-col items-center justify-center">
+              <NuxtLink
+                v-if="!isEditing && icon.link && icon.type !== 'utility'"
+                :to="icon.link"
+                class="flex flex-col items-center"
               >
-                {{ icon.label }}
-              </span>
-            </NuxtLink>
+                <Icon
+                  :name="icon.icon || 'lucide:help-circle'"
+                  class="hover:scale-110 transition-transform text-3xl w-[3rem] h-[3rem]"
+                />
+              </NuxtLink>
 
-            <!-- Utility Component -->
-            <div
-              v-else-if="icon.type === 'utility'"
-              class="flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem]"
-            >
-              <component :is="icon.component" />
+              <div
+                v-else-if="icon.type === 'utility'"
+                class="flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem]"
+              >
+                <component :is="icon.component" />
+              </div>
+
+              <div v-else class="flex flex-col items-center">
+                <Icon
+                  :name="icon.icon || 'lucide:help-circle'"
+                  class="text-3xl w-[3rem] h-[5rem]"
+                />
+              </div>
+
+              <!-- Label or ✕ with fade -->
+<transition v-if="icon.type !== 'utility'" name="fade" mode="out-in">
+  <span
+    v-if="!isEditing && !bigMode"
+    :key="`label-${icon.id}`"
+    class="absolute top-full left-1/2 -translate-x-1/2 text-xs text-center pointer-events-none"
+  >
+    {{ icon.label }}
+  </span>
+  <button
+    v-else
+    :key="`delete-${icon.id}`"
+    class="absolute top-full mt-1 left-1/2 -translate-x-1/2 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 z-50"
+    @click="removeIcon(index)"
+  >
+    ✕
+  </button>
+</transition>
+
             </div>
-
-            <!-- Fallback or edit-mode icon -->
-            <div class="flex flex-col items-center">
-              <Icon
-                v-if="!icon.link && icon.type !== 'utility'"
-                :name="icon.icon || 'lucide:help-circle'"
-                class="text-3xl w-[3rem] h-[5rem]"
-              />
-            </div>
-
-            <!-- Remove Button -->
-            <button
-              v-if="isEditing"
-              class="mt-1 text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600"
-              @click="removeIcon(index)"
-            >
-              ✕
-            </button>
           </div>
 
           <!-- Add Icon -->
@@ -93,7 +99,7 @@
         <div v-if="!isEditing" class="flex flex-col gap-2 pr-2">
           <button
             class="btn btn-square btn-sm"
-            @click="isEditing = true"
+            @click="iconStore.isEditing = true"
             title="Edit"
           >
             <Icon name="kind-icon:settings" />
@@ -121,9 +127,6 @@
   </div>
 </template>
 
-
-
-
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
 import { storeToRefs } from 'pinia'
@@ -133,9 +136,8 @@ import { useDisplayStore } from '@/stores/displayStore'
 const iconStore = useIconStore()
 const displayStore = useDisplayStore()
 const { bigMode } = storeToRefs(displayStore)
-const { activeIcons } = storeToRefs(iconStore)
+const { activeIcons, isEditing } = storeToRefs(iconStore)
 
-const isEditing = ref(false)
 const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
 const originalIcons = ref<SmartIcon[]>([])
 
@@ -174,11 +176,11 @@ function removeIcon(index: number) {
 }
 function confirmEdit() {
   iconStore.setIconOrder(editableIcons.value.map((i) => i.id))
-  isEditing.value = false
+  iconStore.isEditing = false
 }
 function revertEdit() {
   editableIcons.value = [...originalIcons.value]
-  isEditing.value = false
+  iconStore.isEditing = false
 }
 
 // Scroll logic
@@ -243,5 +245,14 @@ onBeforeUnmount(() => {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

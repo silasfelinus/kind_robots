@@ -56,9 +56,9 @@
               </div>
 
               <!-- Label or ✕ with fade -->
-              <transition name="fade" mode="out-in">
+              <transition v-if="icon.type !== 'utility'" name="fade" mode="out-in">
                 <span
-                  v-if="!isEditing && icon.type !== 'utility'"
+                  v-if="!isEditing"
                   key="label"
                   class="text-xs text-center mt-1"
                 >

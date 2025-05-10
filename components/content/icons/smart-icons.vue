@@ -151,11 +151,10 @@ const { activeIcons, isEditing } = storeToRefs(iconStore)
 const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
 const originalIcons = ref<SmartIcon[]>([])
 
-const randomSwarmText = computed(() => {
-  return swarmMessages[Math.floor(Math.random() * swarmMessages.length)]
-})
-
-function getUtilityLabelFromName(name: string): string {
+function getUtilityLabelFromName(
+  name: string,
+  componentInstance?: any,
+): string {
   switch (name) {
     case 'theme-icon':
       return themeStore.currentTheme
@@ -166,7 +165,12 @@ function getUtilityLabelFromName(name: string): string {
     case 'jellybean-icon':
       return `${milestoneStore.milestoneCountForUser || 0} /11`
     case 'swarm-icon':
-      return randomSwarmText.value
+      if (
+        componentInstance?.showSwarm?.value &&
+        componentInstance?.navLabel?.value
+      )
+        return componentInstance.navLabel.value
+      return 'Swarm'
     default:
       return '…'
   }

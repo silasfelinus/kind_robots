@@ -161,13 +161,26 @@ const hasChanges = computed(() => {
   )
 })
 
-function getUtilityLabel(component: any): string {
+interface NavLabelComponent {
+  navLabel?: { value: string }
+}
+
+
+function getUtilityLabel(component: unknown): string {
+  const c = component as NavLabelComponent | undefined
+  if (!c) return '…'
+
   try {
-    return component?.navLabel?.value ?? 'label'
+    const label = c.navLabel?.value
+    if (typeof label === 'string' && label.trim() !== '') return label
+
+    // Optional fallback for debugging
+    return (component as any)?.__name || '…'
   } catch {
-    return 'label'
+    return '…'
   }
 }
+
 
 
 let dragIndex = -1

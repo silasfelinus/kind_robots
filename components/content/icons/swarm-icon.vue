@@ -1,28 +1,15 @@
 <!-- /components/content/story/swarm-icon.vue -->
 <template>
   <div
-    class="group relative flex items-center justify-center w-[3rem] h-[3rem]"
     @click="toggleAmiSwarm"
+    class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
   >
-    <div
-      class="flex items-center justify-center rounded-full hover:bg-accent cursor-pointer"
-    >
-      <Icon
-        name="kind-icon:butterfly"
-        title="Kind Butterflies"
-        :class="{ glow: showSwarm }"
-        class="w-full h-full max-w-[3rem] max-h-[3rem] transition-transform hover:scale-110"
-      />
-    </div>
-
-    <!-- Dynamic Label (shown only when not editing and not in bigMode) -->
-    <span
-      v
-      v-if="!isEditing && !displayStore.bigMode"
-      class="absolute top-full mt-1 text-xs text-center pointer-events-none"
-    >
-      {{ showSwarm ? swarmText : 'Swarm?' }}
-    </span>
+    <Icon
+      name="kind-icon:butterfly"
+      title="Kind Butterflies"
+      :class="{ glow: showSwarm }"
+      class="w-full h-full max-w-[3rem] max-h-[3rem]"
+    />
 
     <!-- Full-screen Swarm Animation -->
     <div
@@ -35,16 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useDisplayStore } from '@/stores/displayStore'
-import { useIconStore } from '@/stores/iconStore'
-
-const displayStore = useDisplayStore()
-const iconStore = useIconStore()
-
-const { bigMode } = storeToRefs(displayStore)
-const { isEditing } = storeToRefs(iconStore)
+import { ref } from 'vue'
 
 const showSwarm = ref(false)
 const swarmText = ref("We're free!")

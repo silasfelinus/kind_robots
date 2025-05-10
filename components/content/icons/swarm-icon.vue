@@ -22,19 +22,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { swarmMessages } from '@/stores/seeds/swarmMessages'
 
 const showSwarm = ref(false)
 const swarmText = ref("We're free!")
 
-const toggleAmiSwarm = () => {
+
+
+const toggleAmiSwarm = async () => {
   showSwarm.value = !showSwarm.value
+
   if (showSwarm.value) {
     const randomIndex = Math.floor(Math.random() * swarmMessages.length)
     swarmText.value = swarmMessages[randomIndex]
+
+    await nextTick() // forces DOM flush before animation paint
   }
 }
+
 
 const navLabel = computed(() => (showSwarm.value ? swarmText.value : 'Swarm?'))
 

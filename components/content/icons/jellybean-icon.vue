@@ -1,19 +1,28 @@
-<!-- /components/content/icons/jellybean-icon.vue -->
+// /components/content/icons/jellybean-icon.vue
 <template>
-  <router-link
-    to="/milestones"
-    class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
-  >
-    <Icon
-      name="kind-icon:jellybean"
-      class="w-full h-full max-w-[3rem] max-h-[3rem]"
-    />
-  </router-link>
-</template>
+  <icon-shell>
+    <template #icon>
+      <router-link
+        to="/milestones"
+        class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
+      >
+        <Icon
+          name="kind-icon:jellybean"
+          class="w-full h-full max-w-[3rem] max-h-[3rem]"
+        />
+      </router-link>
+    </template>
 
-<script lang="ts" setup>
-import { useRouter } from 'vue-router'
-</script>
+    <template #label>
+      <span
+        v-if="!isEditing && !bigMode"
+        class="text-xs text-center leading-none"
+      >
+        {{ beanCount || 0 }} /11
+      </span>
+    </template>
+  </icon-shell>
+</template>
 
 <script lang="ts" setup>
 import { computed } from 'vue'

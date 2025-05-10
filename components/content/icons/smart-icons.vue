@@ -136,7 +136,7 @@ import { useIconStore, type SmartIcon } from '@/stores/iconStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import { swarmMessages } from '@/stores/seeds/swarmMessages'
+
 import { useUserStore } from '@/stores/userStore'
 
 const iconStore = useIconStore()
@@ -150,6 +150,9 @@ const { activeIcons, isEditing } = storeToRefs(iconStore)
 
 const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
 const originalIcons = ref<SmartIcon[]>([])
+
+const showSwarm = computed(() => iconStore.showSwarm)
+const swarmMessage = computed(() => iconStore.swarmMessage)
 
 function getUtilityLabelFromName(
   name: string,
@@ -165,11 +168,7 @@ function getUtilityLabelFromName(
     case 'jellybean-icon':
       return `${milestoneStore.milestoneCountForUser || 0} /11`
     case 'swarm-icon':
-      if (
-        componentInstance?.showSwarm?.value &&
-        componentInstance?.navLabel?.value
-      )
-        return componentInstance.navLabel.value
+      if (showSwarm?.value) return swarmMessage.value
       return 'Swarm'
     default:
       return '…'

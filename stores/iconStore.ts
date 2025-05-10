@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { performFetch, handleError } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import type { SmartIcon } from '@prisma/client'
+import { swarmMessages } from '@/stores/seeds/swarmMessages'
 
 export interface SmartIconForm extends Partial<SmartIcon> {}
 
@@ -16,7 +17,8 @@ export const useIconStore = defineStore('iconStore', {
     loading: false,
     defaultIconIds: [1, 2, 3, 4, 5, 6, 7, 8],
     isEditing: false,
-
+    showSwarm: false,
+    swarmMessage: '',
   }),
 
   getters: {
@@ -63,10 +65,16 @@ export const useIconStore = defineStore('iconStore', {
         handleError(error, 'initializing smartIcon store')
       }
     },
-toggleEditing() {
-  this.isEditing = !this.isEditing
-},
-
+    toggleEditing() {
+      this.isEditing = !this.isEditing
+    },
+    toggleSwarm() {
+      this.showSwarm = !this.showSwarm
+      if (this.showSwarm) {
+        const randomIndex = Math.floor(Math.random() * swarmMessages.length)
+        this.swarmMessage = swarmMessages[randomIndex]
+      }
+    },
 
     syncToLocalStorage() {
       try {

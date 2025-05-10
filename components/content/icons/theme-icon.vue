@@ -16,7 +16,7 @@
     <template #label>
       <span
         v-if="!isEditing && !displayStore.bigMode"
-        class="text-center w-full text-xs truncate"
+        class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.25rem] w-full flex items-center justify-center pointer-events-none z-40 text-xs text-center leading-none"
       >
         {{ currentTheme }}
       </span>

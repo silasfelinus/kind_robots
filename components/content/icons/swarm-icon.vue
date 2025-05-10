@@ -1,28 +1,50 @@
 <!-- /components/content/story/swarm-icon.vue -->
 <template>
-  <div
-    @click="toggleAmiSwarm"
-    class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
-  >
-    <Icon
-      name="kind-icon:butterfly"
-      title="Kind Butterflies"
-      :class="{ glow: showSwarm }"
-      class="w-full h-full max-w-[3rem] max-h-[3rem]"
-    />
+  <icon-shell>
+    <template #icon>
+      <div
+        @click="toggleAmiSwarm"
+        class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
+      >
+        <Icon
+          name="kind-icon:butterfly"
+          title="Kind Butterflies"
+          :class="{ glow: showSwarm }"
+          class="w-full h-full max-w-[3rem] max-h-[3rem]"
+        />
 
-    <!-- Full-screen Swarm Animation -->
-    <div
-      v-if="showSwarm"
-      class="fixed inset-0 overflow-hidden z-50 pointer-events-none full-page"
-    >
-      <butterfly-animation />
-    </div>
-  </div>
+        <!-- Full-screen Swarm Animation -->
+        <div
+          v-if="showSwarm"
+          class="fixed inset-0 overflow-hidden z-50 pointer-events-none full-page"
+        >
+          <butterfly-animation />
+        </div>
+      </div>
+    </template>
+
+    <template #label>
+      <span
+        v-if="!isEditing && !displayStore.bigMode"
+        class="text-xs text-center leading-none"
+      >
+        {{ showSwarm ? swarmText : 'Swarm?' }}
+      </span>
+    </template>
+  </icon-shell>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
+import { useIconStore } from '@/stores/iconStore'
+import { storeToRefs } from 'pinia'
+
+const displayStore = useDisplayStore()
+const iconStore = useIconStore()
+
+const { bigMode } = storeToRefs(displayStore)
+const { isEditing } = storeToRefs(iconStore)
 
 const showSwarm = ref(false)
 const swarmText = ref("We're free!")

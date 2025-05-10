@@ -24,21 +24,15 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { swarmMessages } from '@/stores/seeds/swarmMessages'
+import { useIconStore } from '@/stores/iconStore'
 
-const showSwarm = ref(false)
-const swarmText = ref("We're free!")
+const iconStore = useIconStore()
+
+const showSwarm = computed(() => iconStore.showSwarm)
 
 const toggleAmiSwarm = () => {
-  showSwarm.value = !showSwarm.value
-  if (showSwarm.value) {
-    const randomIndex = Math.floor(Math.random() * swarmMessages.length)
-    swarmText.value = swarmMessages[randomIndex]
-  }
+  iconStore.toggleSwarm()
 }
-
-const navLabel = computed(() => (showSwarm.value ? swarmText.value : 'Swarm?'))
-defineExpose({ navLabel, showSwarm })
 </script>
 
 <style scoped>

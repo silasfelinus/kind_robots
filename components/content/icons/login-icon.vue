@@ -2,7 +2,7 @@
 <template>
   <router-link
     :to="routeToNavigate"
-    class="group flex flex-col items-center justify-center w-[80px] min-w-[72px] max-w-[90px] transition-all"
+    class="group relative flex items-center justify-center w-[3rem] h-[3rem]"
   >
     <div v-if="isLoggedIn" class="flex flex-col items-center">
       <user-avatar
@@ -12,13 +12,13 @@
     <div v-else class="flex flex-col items-center">
       <Icon
         name="kind-icon:person"
-        class="h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 transition-transform transform hover:scale-110 duration-300 ease-in-out"
+        class="w-full h-full max-w-[3rem] max-h-[3rem] transition-transform hover:scale-110"
       />
     </div>
 
     <span
-        v-if="!isEditing && !displayStore.bigMode"
-  class="absolute top-full mt-1 text-xs text-center pointer-events-none"
+      v-if="!isEditing && !displayStore.bigMode"
+      class="absolute top-full mt-1 text-xs text-center pointer-events-none"
     >
       {{ isLoggedIn ? username : 'Login?' }}
     </span>

@@ -1,7 +1,7 @@
 <!-- /components/content/story/swarm-icon.vue -->
 <template>
   <div
-    class="group flex flex-col items-center justify-center w-[80px] min-w-[72px] max-w-[90px] transition-all"
+    class="group relative flex items-center justify-center w-[3rem] h-[3rem]"
     @click="toggleAmiSwarm"
   >
     <div
@@ -11,14 +11,15 @@
         name="kind-icon:butterfly"
         title="Kind Butterflies"
         :class="{ glow: showSwarm }"
-        class="h-8 w-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 transition-transform transform hover:scale-110 duration-300 ease-in-out"
+        class="w-full h-full max-w-[3rem] max-h-[3rem] transition-transform hover:scale-110"
       />
     </div>
 
     <!-- Dynamic Label (shown only when not editing and not in bigMode) -->
     <span
-      v  v-if="!isEditing && !displayStore.bigMode"
-  class="absolute top-full mt-1 text-xs text-center pointer-events-none"
+      v
+      v-if="!isEditing && !displayStore.bigMode"
+      class="absolute top-full mt-1 text-xs text-center pointer-events-none"
     >
       {{ showSwarm ? swarmText : 'Swarm?' }}
     </span>

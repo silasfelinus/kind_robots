@@ -78,22 +78,24 @@
 </div>
 
 
-          <!-- Add Icon -->
-          <NuxtLink
-            to="/icongallery"
-            @click="isEditing && confirmEdit()"
-            class="group flex flex-col items-center justify-center text-3xl w-[3rem] h-[3rem] snap-start"
-          >
-            <Icon name="lucide:plus-circle" class="hover:scale-110 transition-transform" />
-            <span
-              v-if="bigMode"
-              class="text-xs text-center mt-1"
-            >
-              Add Icon
-            </span>
-          </NuxtLink>
-        </div>
-      </div>
+<!-- Add Icon -->
+<div class="relative flex items-center justify-center snap-start h-[6rem] w-[4rem]">
+  <NuxtLink
+    to="/icongallery"
+    @click="isEditing && confirmEdit()"
+    class="flex items-center justify-center w-[3rem] h-[3rem] hover:scale-110 transition-transform"
+  >
+    <Icon name="lucide:plus-circle" class="text-3xl w-full h-full" />
+  </NuxtLink>
+
+  <div
+    v-if="bigMode"
+    class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.25rem] w-full flex items-center justify-center pointer-events-none z-40"
+  >
+    <span class="text-xs text-center leading-none">Add Icon</span>
+  </div>
+</div>
+
 
       <!-- Edit / Confirm / Revert Buttons -->
       <div class="absolute right-0 top-1/2 -translate-y-1/2 z-40">

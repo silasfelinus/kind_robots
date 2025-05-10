@@ -14,7 +14,7 @@
     </div>
 
     <div
-      v-show="showSwarm"
+      v-if="showSwarm"
       class="fixed inset-0 overflow-hidden z-50 pointer-events-none full-page"
     >
       <butterfly-animation />

@@ -1,14 +1,27 @@
 <!-- /components/content/layout/theme-icon.vue -->
 <template>
-  <button
-    @click="goToThemePage"
-    class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
-  >
-    <Icon
-      name="kind-icon:paintbrush"
-      class="w-full h-full max-w-[3rem] max-h-[3rem]"
-    />
-  </button>
+  <icon-shell>
+    <template #icon>
+      <button
+        @click="goToThemePage"
+        class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
+      >
+        <Icon
+          name="kind-icon:paintbrush"
+          class="w-full h-full max-w-[3rem] max-h-[3rem]"
+        />
+      </button>
+    </template>
+
+    <template #label>
+      <span
+        v-if="!isEditing && !displayStore.bigMode"
+        class="text-xs text-center leading-none"
+      >
+        {{ currentTheme }}
+      </span>
+    </template>
+  </icon-shell>
 </template>
 
 <script setup lang="ts">
@@ -24,6 +37,7 @@ const themeStore = useThemeStore()
 const displayStore = useDisplayStore()
 const iconStore = useIconStore()
 
+const { bigMode } = storeToRefs(displayStore)
 const { isEditing } = storeToRefs(iconStore)
 const currentTheme = computed(() => themeStore.currentTheme)
 

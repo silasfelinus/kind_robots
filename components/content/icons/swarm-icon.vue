@@ -1,7 +1,7 @@
 <!-- /components/content/story/swarm-icon.vue -->
 <template>
   <div
-    class="group relative flex items-center justify-center w-[3rem] h-[3rem]"
+    class="group relative flex items-center justify-center hover:scale-110"
     @click="toggleAmiSwarm"
   >
     <div class="flex items-center justify-center w-[3rem] h-[3rem]">

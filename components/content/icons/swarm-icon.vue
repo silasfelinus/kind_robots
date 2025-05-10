@@ -17,7 +17,7 @@
     <span
       v
       v-if="!isEditing && !displayStore.bigMode"
-      class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.25rem] w-full flex items-center justify-center pointer-events-none z-40"
+      class="text-xs absolute bottom-0 left-1/2 leading-none"
     >
       {{ showSwarm ? swarmText : 'Swarm?' }}
     </span>

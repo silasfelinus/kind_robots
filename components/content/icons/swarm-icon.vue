@@ -1,44 +1,42 @@
 <!-- /components/content/story/swarm-icon.vue -->
 <template>
-  <icon-shell>
-    <template #icon>
-      <div
-        @click="toggleAmiSwarm"
-        class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
-      >
-        <Icon
-          name="kind-icon:butterfly"
-          title="Kind Butterflies"
-          :class="{ glow: showSwarm }"
-          class="w-full h-full max-w-[3rem] max-h-[3rem]"
-        />
+  <div
+    class="group relative flex items-center justify-center w-[3rem] h-[3rem]"
+    @click="toggleAmiSwarm"
+  >
+    <div class="flex items-center justify-center w-[3rem] h-[3rem]">
+      <Icon
+        name="kind-icon:butterfly"
+        title="Kind Butterflies"
+        :class="{ glow: showSwarm }"
+        class="flex items-center justify-center w-[3rem] h-[3rem]"
+      />
+    </div>
 
-        <!-- Full-screen Swarm Animation -->
-        <div
-          v-if="showSwarm"
-          class="fixed inset-0 overflow-hidden z-50 pointer-events-none full-page"
-        >
-          <butterfly-animation />
-        </div>
-      </div>
-    </template>
+    <!-- Dynamic Label (shown only when not editing and not in bigMode) -->
+    <span
+      v
+      v-if="!isEditing && !displayStore.bigMode"
+      class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.25rem] w-full flex items-center justify-center pointer-events-none z-40"
+    >
+      {{ showSwarm ? swarmText : 'Swarm?' }}
+    </span>
 
-    <template #label>
-      <span
-        v-if="!isEditing && !bigMode"
-        class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.25rem] w-full flex items-center justify-center pointer-events-none z-40"
-      >
-        {{ showSwarm ? swarmText : 'Swarm?' }}
-      </span>
-    </template>
-  </icon-shell>
+    <!-- Full-screen Swarm Animation -->
+    <div
+      v-if="showSwarm"
+      class="fixed inset-0 overflow-hidden z-50 pointer-events-none full-page"
+    >
+      <butterfly-animation />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useIconStore } from '@/stores/iconStore'
-import { storeToRefs } from 'pinia'
 
 const displayStore = useDisplayStore()
 const iconStore = useIconStore()

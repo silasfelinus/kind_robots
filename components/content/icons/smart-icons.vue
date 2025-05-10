@@ -168,6 +168,17 @@ const themeStore = useThemeStore()
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 
+// Debugging: log path checks for glow condition
+watchEffect(() => {
+  for (const icon of editableIcons.value) {
+    if (icon.link) {
+      console.log(
+        `[glow-check] route.path: '${route.path}' vs icon.link: '${icon.link}'`,
+      )
+    }
+  }
+})
+
 const { bigMode } = storeToRefs(displayStore)
 const { activeIcons, isEditing } = storeToRefs(iconStore)
 

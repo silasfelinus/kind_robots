@@ -14,13 +14,13 @@
     </div>
 
     <!-- Dynamic Label (shown only when not editing and not in bigMode) -->
-    <span
-      v
-      v-if="!isEditing && !displayStore.bigMode"
-      class="text-xs absolute bottom-0 left-1/2 leading-none"
-    >
-      {{ showSwarm ? swarmText : 'Swarm?' }}
-    </span>
+<span
+  v-if="!isEditing && !displayStore.bigMode"
+  class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.25rem] w-full flex items-center justify-center pointer-events-none z-40 text-xs text-center leading-none"
+>
+  {{ showSwarm ? swarmText : 'Swarm?' }}
+</span>
+
 
     <!-- Full-screen Swarm Animation -->
     <div

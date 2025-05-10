@@ -163,9 +163,9 @@ const hasChanges = computed(() => {
 
 function getUtilityLabel(component: any): string {
   try {
-    return component?.navLabel?.value ?? ''
+    return component?.navLabel?.value ?? 'label'
   } catch {
-    return ''
+    return 'label'
   }
 }
 

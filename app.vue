@@ -9,7 +9,7 @@
       <animation-loader class="fixed z-50" />
       <milestone-popup />
       <div
-        v-show="showSwarm"
+        v-if="showSwarm"
         class="fixed inset-0 overflow-hidden z-50 pointer-events-none full-page"
       >
         <butterfly-animation class="pointer-events-none" />

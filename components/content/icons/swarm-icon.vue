@@ -25,7 +25,7 @@
 
     <template #label>
       <span
-        v-if="!isEditing && !displayStore.bigMode"
+        v-if="!isEditing && !bigMode"
         class="text-xs text-center leading-none"
       >
         {{ showSwarm ? swarmText : 'Swarm?' }}

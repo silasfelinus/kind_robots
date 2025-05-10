@@ -50,21 +50,26 @@
               />
             </template>
 
-            <template #label>
-              <span
-                v-if="!isEditing && !bigMode && icon.type !== 'utility'"
-                class="text-xs text-center leading-none"
-              >
-                {{ icon.label }}
-              </span>
-              <button
-                v-else-if="isEditing"
-                class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
-                @click="removeIcon(index)"
-              >
-                ✕
-              </button>
-            </template>
+<template #label>
+  <span
+    v-if="!isEditing && !bigMode"
+    class="text-xs text-center leading-none"
+  >
+    {{
+      icon.type === 'utility'
+        ? getUtilityLabel(icon.component)
+        : icon.label
+    }}
+  </span>
+  <button
+    v-else-if="isEditing"
+    class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
+    @click="removeIcon(index)"
+  >
+    ✕
+  </button>
+</template>
+
           </icon-shell>
 
           <!-- Add Icon -->
@@ -155,6 +160,15 @@ const hasChanges = computed(() => {
     JSON.stringify(originalIcons.value.map((i) => i.id))
   )
 })
+
+function getUtilityLabel(component: any): string {
+  try {
+    return component?.navLabel?.value ?? ''
+  } catch {
+    return ''
+  }
+}
+
 
 let dragIndex = -1
 function onDragStart(index: number) {

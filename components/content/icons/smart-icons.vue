@@ -47,9 +47,11 @@
 
               <div
                 v-else-if="icon.type === 'utility'"
-                class="flex items-center justify-center w-[3rem] h-[3rem]"
+                class="flex items-center justify-center w-[3rem] h-[3rem] overflow-hidden"
               >
-                <component :is="icon.component" />
+                <div class="w-full h-full flex items-center justify-center">
+                  <component :is="icon.component" />
+                </div>
               </div>
 
               <div
@@ -73,7 +75,7 @@
                   {{ icon.label }}
                 </span>
                 <button
-                  v-else
+                  v-else-if="isEditing"
                   class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
                   @click="removeIcon(index)"
                 >

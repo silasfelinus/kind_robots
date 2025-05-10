@@ -1,63 +1,82 @@
 // /components/content/icons/smart-icons.vue
 <template>
   <div class="relative w-full h-full overflow-hidden">
+    <!-- Scroll Arrows -->
+    <button
+      v-show="showLeft"
+      class="absolute left-0 top-1/2 -translate-y-1/2 z-40 bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
+      @mousedown.prevent="startContinuousScroll(-1)"
+      @mouseup="stopContinuousScroll"
+      @mouseleave="stopContinuousScroll"
+    >
+      <Icon name="lucide:chevron-left" />
+    </button>
+    <button
+      v-show="showRight"
+      class="absolute right-[4.5rem] top-1/2 -translate-y-1/2 z-40 bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
+      @mousedown.prevent="startContinuousScroll(1)"
+      @mouseup="stopContinuousScroll"
+      @mouseleave="stopContinuousScroll"
+    >
+      <Icon name="lucide:chevron-right" />
+    </button>
+
     <div class="relative w-full h-full flex items-center pr-[4.5rem]">
       <!-- Scrollable Area -->
       <div
         ref="scrollContainer"
         class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x snap-x snap-mandatory scroll-mx-[4.5rem]"
         @scroll="checkScrollEdges"
-        @mousedown="startDrag"
-        @mousemove="onDrag"
-        @mouseup="endDrag"
-        @mouseleave="endDrag"
-        @touchstart="startTouch"
-        @touchmove="onTouchMove"
-        @touchend="endDrag"
+        @mousedown="handleScrollMouseDown"
+        @mousemove="handleScrollMouseMove"
+        @mouseup="handleScrollMouseUp"
+        @mouseleave="handleScrollMouseUp"
+        @touchstart="handleScrollTouchStart"
+        @touchmove="handleScrollTouchMove"
+        @touchend="handleScrollMouseUp"
       >
         <div
           class="flex items-center gap-6 min-w-fit px-[4.5rem] h-full select-none"
         >
-          <!-- Icon Shells -->
-          <icon-shell
-            v-for="(icon, index) in editableIcons"
-            :key="icon.id"
-            :draggable="isEditing"
-            :onDragStart="() => onDragStart(index)"
-            :onDrop="() => onDrop(index)"
-          >
+          <icon-shell v-for="(icon, index) in editableIcons" :key="icon.id">
             <template #icon>
+              <div
+                v-if="isEditing"
+                class="w-full h-full flex items-center justify-center"
+                draggable
+                @dragstart="!isScrollDragging && onDragStart(index)"
+                @drop="onDrop(index)"
+              >
+                <Icon
+                  :name="icon.icon || 'lucide:help-circle'"
+                  class="text-3xl max-w-[3rem] max-h-[3rem]"
+                />
+              </div>
               <NuxtLink
-                v-if="!isEditing && icon.link && icon.type !== 'utility'"
+                v-else-if="icon.link && icon.type !== 'utility'"
                 :to="icon.link"
                 class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
               >
                 <Icon
                   :name="icon.icon || 'lucide:help-circle'"
                   :class="[
-                    'text-3xl w-full h-full max-w-[3rem] max-h-[3rem]',
+                    'text-3xl max-w-[3rem] max-h-[3rem]',
                     { glow: icon.link && route.path.startsWith(icon.link) },
                   ]"
                 />
               </NuxtLink>
-
               <div
                 v-else-if="icon.type === 'utility'"
                 class="w-full h-full flex items-center justify-center"
               >
                 <component :is="icon.component" />
               </div>
-
               <Icon
                 v-else
                 :name="icon.icon || 'lucide:help-circle'"
-                :class="[
-                  'text-3xl w-full h-full max-w-[3rem] max-h-[3rem]',
-                  { glow: icon.link && route.path.startsWith(icon.link) },
-                ]"
+                class="text-3xl max-w-[3rem] max-h-[3rem]"
               />
             </template>
-
             <template #label>
               <span
                 v-if="!isEditing && !bigMode"
@@ -70,7 +89,7 @@
                 }}
               </span>
               <button
-                v-else-if="isEditing"
+                v-else
                 class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
                 @click="removeIcon(index)"
               >
@@ -79,7 +98,6 @@
             </template>
           </icon-shell>
 
-          <!-- Add Icon -->
           <icon-shell>
             <template #icon>
               <NuxtLink
@@ -94,15 +112,14 @@
               </NuxtLink>
             </template>
             <template #label>
-              <span v-if="bigMode" class="text-xs text-center leading-none">
-                Add Icon
-              </span>
+              <span v-if="bigMode" class="text-xs text-center leading-none"
+                >Add Icon</span
+              >
             </template>
           </icon-shell>
         </div>
       </div>
 
-      <!-- Edit / Confirm / Revert Buttons -->
       <div class="absolute right-0 top-1/2 -translate-y-1/2 z-40">
         <div v-if="!isEditing" class="flex flex-col gap-2 pr-2">
           <button
@@ -118,14 +135,12 @@
             v-if="hasChanges"
             class="btn btn-square btn-xs bg-base-200 text-error hover:bg-base-300"
             @click="revertEdit"
-            title="Revert"
           >
             <Icon name="lucide:rotate-ccw" />
           </button>
           <button
             class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"
             @click="confirmEdit"
-            title="Confirm"
           >
             <Icon name="lucide:check" />
           </button>
@@ -135,6 +150,7 @@
   </div>
 </template>
 
+// /components/content/icons/smart-icons.vue
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
 import { storeToRefs } from 'pinia'
@@ -143,10 +159,9 @@ import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useRoute } from 'vue-router'
-const route = useRoute()
-
 import { useUserStore } from '@/stores/userStore'
 
+const route = useRoute()
 const iconStore = useIconStore()
 const displayStore = useDisplayStore()
 const themeStore = useThemeStore()
@@ -162,10 +177,7 @@ const originalIcons = ref<SmartIcon[]>([])
 const showSwarm = computed(() => iconStore.showSwarm)
 const swarmMessage = computed(() => iconStore.swarmMessage)
 
-function getUtilityLabelFromName(
-  name: string,
-  componentInstance?: any,
-): string {
+function getUtilityLabelFromName(name: string): string {
   switch (name) {
     case 'theme-icon':
       return themeStore.currentTheme
@@ -176,8 +188,7 @@ function getUtilityLabelFromName(
     case 'jellybean-icon':
       return `${milestoneStore.milestoneCountForUser || 0} /11`
     case 'swarm-icon':
-      if (showSwarm?.value) return swarmMessage.value
-      return 'Swarm'
+      return showSwarm.value ? swarmMessage.value : 'Swarm'
     default:
       return '…'
   }
@@ -225,46 +236,69 @@ function revertEdit() {
   iconStore.isEditing = false
 }
 
-// Scroll logic
+// Scroll behavior
 const scrollContainer = ref<HTMLElement | null>(null)
 const showLeft = ref(false)
 const showRight = ref(false)
+
 function checkScrollEdges() {
   const el = scrollContainer.value
   if (!el) return
   showLeft.value = el.scrollLeft > 5
   showRight.value = el.scrollWidth - el.clientWidth - el.scrollLeft > 5
 }
+
 function scrollBy(px: number) {
   scrollContainer.value?.scrollBy({ left: px, behavior: 'smooth' })
 }
 
-// Drag-to-scroll & touch
+let scrollInterval: number | null = null
+function startContinuousScroll(direction: 1 | -1) {
+  scrollBy(direction * 30)
+  scrollInterval = window.setInterval(() => {
+    scrollBy(direction * 15)
+  }, 50)
+}
+function stopContinuousScroll() {
+  if (scrollInterval !== null) {
+    clearInterval(scrollInterval)
+    scrollInterval = null
+  }
+}
+
+// Scroll dragging
 let isDragging = false
+let isScrollDragging = false
 let startX = 0
 let scrollStart = 0
-function startDrag(event: MouseEvent) {
+
+function handleScrollMouseDown(e: MouseEvent) {
   isDragging = true
-  startX = event.clientX
+  isScrollDragging = false
+  startX = e.clientX
   scrollStart = scrollContainer.value?.scrollLeft || 0
 }
-function onDrag(event: MouseEvent) {
+function handleScrollMouseMove(e: MouseEvent) {
   if (!isDragging || !scrollContainer.value) return
-  const dx = event.clientX - startX
+  const dx = e.clientX - startX
+  if (Math.abs(dx) > 5) isScrollDragging = true
   scrollContainer.value.scrollLeft = scrollStart - dx
 }
-function endDrag() {
+function handleScrollMouseUp() {
   isDragging = false
-  dragIndex = -1
+  setTimeout(() => (isScrollDragging = false), 100)
 }
-function startTouch(e: TouchEvent) {
+
+function handleScrollTouchStart(e: TouchEvent) {
   isDragging = true
+  isScrollDragging = false
   startX = e.touches[0].clientX
   scrollStart = scrollContainer.value?.scrollLeft || 0
 }
-function onTouchMove(e: TouchEvent) {
+function handleScrollTouchMove(e: TouchEvent) {
   if (!isDragging || !scrollContainer.value) return
   const dx = e.touches[0].clientX - startX
+  if (Math.abs(dx) > 5) isScrollDragging = true
   scrollContainer.value.scrollLeft = scrollStart - dx
 }
 
@@ -275,9 +309,8 @@ onMounted(() => {
   if (scrollContainer.value) resizeObserver.observe(scrollContainer.value)
 })
 onBeforeUnmount(() => {
-  if (resizeObserver && scrollContainer.value) {
+  if (resizeObserver && scrollContainer.value)
     resizeObserver.unobserve(scrollContainer.value)
-  }
 })
 </script>
 

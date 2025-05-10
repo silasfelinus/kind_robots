@@ -34,7 +34,10 @@
               >
                 <Icon
                   :name="icon.icon || 'lucide:help-circle'"
-                  class="text-3xl w-full h-full max-w-[3rem] max-h-[3rem]"
+                  :class="[
+                    'text-3xl w-full h-full max-w-[3rem] max-h-[3rem]',
+                    { glow: icon.link && route.path.startsWith(icon.link) },
+                  ]"
                 />
               </NuxtLink>
 
@@ -48,7 +51,10 @@
               <Icon
                 v-else
                 :name="icon.icon || 'lucide:help-circle'"
-                class="text-3xl w-full h-full max-w-[3rem] max-h-[3rem]"
+                :class="[
+                  'text-3xl w-full h-full max-w-[3rem] max-h-[3rem]',
+                  { glow: icon.link && route.path.startsWith(icon.link) },
+                ]"
               />
             </template>
 
@@ -136,6 +142,8 @@ import { useIconStore, type SmartIcon } from '@/stores/iconStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useRoute } from 'vue-router'
+const route = useRoute()
 
 import { useUserStore } from '@/stores/userStore'
 
@@ -289,5 +297,10 @@ onBeforeUnmount(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.glow {
+  box-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
+  transition: box-shadow 0.3s ease-in-out;
 }
 </style>

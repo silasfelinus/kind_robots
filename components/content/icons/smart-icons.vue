@@ -38,13 +38,12 @@
                 />
               </NuxtLink>
 
-        <div
-  v-else-if="icon.type === 'utility'"
-  class="w-full h-full flex items-center justify-center"
->
-  <component :is="icon.component" />
-</div>
-
+              <div
+                v-else-if="icon.type === 'utility'"
+                class="w-full h-full flex items-center justify-center"
+              >
+                <component :is="icon.component" />
+              </div>
 
               <Icon
                 v-else
@@ -53,26 +52,25 @@
               />
             </template>
 
-<template #label>
-  <span
-    v-if="!isEditing && !bigMode"
-    class="text-xs text-center leading-none"
-  >
-    {{
-      icon.type === 'utility'
-        ? getUtilityLabel(icon.component)
-        : icon.label
-    }}
-  </span>
-  <button
-    v-else-if="isEditing"
-    class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
-    @click="removeIcon(index)"
-  >
-    ✕
-  </button>
-</template>
-
+            <template #label>
+              <span
+                v-if="!isEditing && !bigMode"
+                class="text-xs text-center leading-none"
+              >
+                {{
+                  icon.type === 'utility' && icon.component
+                    ? getUtilityLabelFromName(icon.component)
+                    : icon.label
+                }}
+              </span>
+              <button
+                v-else-if="isEditing"
+                class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
+                @click="removeIcon(index)"
+              >
+                ✕
+              </button>
+            </template>
           </icon-shell>
 
           <!-- Add Icon -->
@@ -136,14 +134,43 @@ import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useIconStore, type SmartIcon } from '@/stores/iconStore'
 import { useDisplayStore } from '@/stores/displayStore'
+import { useThemeStore } from '@/stores/themeStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+import { swarmMessages } from '@/stores/seeds/swarmMessages'
+import { useUserStore } from '@/stores/userStore'
 
 const iconStore = useIconStore()
 const displayStore = useDisplayStore()
+const themeStore = useThemeStore()
+const userStore = useUserStore()
+const milestoneStore = useMilestoneStore()
+
 const { bigMode } = storeToRefs(displayStore)
 const { activeIcons, isEditing } = storeToRefs(iconStore)
 
 const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
 const originalIcons = ref<SmartIcon[]>([])
+
+const randomSwarmText = computed(() => {
+  return swarmMessages[Math.floor(Math.random() * swarmMessages.length)]
+})
+
+function getUtilityLabelFromName(name: string): string {
+  switch (name) {
+    case 'theme-icon':
+      return themeStore.currentTheme
+    case 'login-icon':
+      return userStore.isLoggedIn
+        ? userStore.user?.username || 'User'
+        : 'Login?'
+    case 'jellybean-icon':
+      return `${milestoneStore.milestoneCountForUser || 0} /11`
+    case 'swarm-icon':
+      return randomSwarmText.value
+    default:
+      return '…'
+  }
+}
 
 watch(
   activeIcons,
@@ -163,28 +190,6 @@ const hasChanges = computed(() => {
     JSON.stringify(originalIcons.value.map((i) => i.id))
   )
 })
-
-interface NavLabelComponent {
-  navLabel?: { value: string }
-}
-
-
-function getUtilityLabel(component: unknown): string {
-  const c = component as NavLabelComponent | undefined
-  if (!c) return '…'
-
-  try {
-    const label = c.navLabel?.value
-    if (typeof label === 'string' && label.trim() !== '') return label
-
-    // Optional fallback for debugging
-    return (component as any)?.__name || '…'
-  } catch {
-    return '…'
-  }
-}
-
-
 
 let dragIndex = -1
 function onDragStart(index: number) {
@@ -239,6 +244,7 @@ function onDrag(event: MouseEvent) {
 }
 function endDrag() {
   isDragging = false
+  dragIndex = -1
 }
 function startTouch(e: TouchEvent) {
   isDragging = true

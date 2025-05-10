@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useIconStore } from '@/stores/iconStore'
 
 const iconStore = useIconStore()
@@ -31,7 +31,9 @@ const iconStore = useIconStore()
 const showSwarm = computed(() => iconStore.showSwarm)
 
 const toggleAmiSwarm = () => {
-  iconStore.toggleSwarm()
+  setTimeout(() => {
+    iconStore.toggleSwarm()
+  }, 10)
 }
 </script>
 

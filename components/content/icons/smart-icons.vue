@@ -1,3 +1,4 @@
+// /components/content/icons/smart-icons.vue
 <template>
   <div class="relative w-full h-full overflow-hidden">
     <div class="relative w-full h-full flex items-center pr-[4.5rem]">
@@ -14,96 +15,78 @@
         @touchmove="onTouchMove"
         @touchend="endDrag"
       >
-        <!-- Icon Row Container -->
         <div
           class="flex items-center gap-6 min-w-fit px-[4.5rem] h-full select-none"
         >
-          <!-- Icon Container -->
-          <div
+          <!-- Icon Shells -->
+          <icon-shell
             v-for="(icon, index) in editableIcons"
             :key="icon.id"
-            class="group relative flex items-center justify-center snap-start h-[6rem] w-[4rem]"
-            :class="{ 'cursor-move': isEditing }"
-            draggable="true"
-            @dragstart="onDragStart(index)"
-            @dragover.prevent
-            @drop="onDrop(index)"
+            :draggable="isEditing"
+            :onDragStart="() => onDragStart(index)"
+            :onDrop="() => onDrop(index)"
           >
-            <!-- Inner wrapper: icon always centered, label/✕ in bottom slot -->
-            <div
-              class="relative w-full h-full flex items-center justify-center"
-            >
-              <!-- Icon -->
+            <template #icon>
               <NuxtLink
                 v-if="!isEditing && icon.link && icon.type !== 'utility'"
                 :to="icon.link"
-                class="flex items-center justify-center w-[3rem] h-[3rem]"
+                class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
               >
                 <Icon
                   :name="icon.icon || 'lucide:help-circle'"
-                  class="text-3xl hover:scale-110 transition-transform"
+                  class="text-3xl w-full h-full max-w-[3rem] max-h-[3rem]"
                 />
               </NuxtLink>
 
-              <div
+              <component
                 v-else-if="icon.type === 'utility'"
-                class="flex items-center justify-center w-[3rem] h-[3rem] overflow-hidden"
-              >
-                <div class="w-full h-full flex items-center justify-center">
-                  <component :is="icon.component" />
-                </div>
-              </div>
+                :is="icon.component"
+              />
 
-              <div
+              <Icon
                 v-else
-                class="flex items-center justify-center w-[3rem] h-[3rem]"
-              >
-                <Icon
-                  :name="icon.icon || 'lucide:help-circle'"
-                  class="text-3xl"
-                />
-              </div>
+                :name="icon.icon || 'lucide:help-circle'"
+                class="text-3xl w-full h-full max-w-[3rem] max-h-[3rem]"
+              />
+            </template>
 
-              <!-- Bottom slot: label (nav only) or ✕ (all editable) -->
-              <div
-                class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.25rem] w-full flex items-center justify-center pointer-events-none z-40"
+            <template #label>
+              <span
+                v-if="!isEditing && !bigMode && icon.type !== 'utility'"
+                class="text-xs text-center leading-none"
               >
-                <span
-                  v-if="!isEditing && !bigMode && icon.type !== 'utility'"
-                  class="text-xs text-center leading-none"
-                >
-                  {{ icon.label }}
-                </span>
-                <button
-                  v-else-if="isEditing"
-                  class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
-                  @click="removeIcon(index)"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-          </div>
+                {{ icon.label }}
+              </span>
+              <button
+                v-else-if="isEditing"
+                class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
+                @click="removeIcon(index)"
+              >
+                ✕
+              </button>
+            </template>
+          </icon-shell>
 
           <!-- Add Icon -->
-          <div
-            class="relative flex items-center justify-center snap-start h-[6rem] w-[4rem]"
-          >
-            <NuxtLink
-              to="/icongallery"
-              @click="isEditing && confirmEdit()"
-              class="flex items-center justify-center w-[3rem] h-[3rem] hover:scale-110 transition-transform"
-            >
-              <Icon name="lucide:plus-circle" class="text-3xl w-full h-full" />
-            </NuxtLink>
-
-            <div
-              v-if="bigMode"
-              class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.25rem] w-full flex items-center justify-center pointer-events-none z-40"
-            >
-              <span class="text-xs text-center leading-none">Add Icon</span>
-            </div>
-          </div>
+          <icon-shell>
+            <template #icon>
+              <NuxtLink
+                to="/icongallery"
+                @click="isEditing && confirmEdit()"
+                class="flex items-center justify-center w-full h-full transition-transform hover:scale-110"
+              >
+                <Icon
+                  name="lucide:plus-circle"
+                  class="text-3xl w-full h-full"
+                />
+              </NuxtLink>
+            </template>
+            <template #label>
+              <span v-if="bigMode" class="text-xs text-center leading-none">
+                Add Icon
+              </span>
+            </template>
+          </icon-shell>
         </div>
       </div>
 

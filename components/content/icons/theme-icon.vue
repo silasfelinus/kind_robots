@@ -2,22 +2,19 @@
 <template>
   <button
     @click="goToThemePage"
-    class="group relative flex flex-col items-center justify-center w-[2.5rem] sm:w-[2.75rem] lg:w-[3rem] xl:w-[3.5rem] min-w-[2.5rem] max-w-[3.5rem]"
+    class="group relative flex items-center justify-center w-[3rem] h-[3rem]"
   >
     <Icon
       name="kind-icon:paintbrush"
-      class="text-3xl lg:text-4xl xl:text-5xl w-[2.5rem] h-[2.5rem] sm:w-[2.75rem] sm:h-[2.75rem] lg:w-[3rem] lg:h-[3rem] xl:w-[3.5rem] xl:h-[3.5rem] transition-transform transform hover:scale-110 duration-300 ease-in-out"
+      class="w-full h-full max-w-[3rem] max-h-[3rem] transition-transform hover:scale-110"
     />
 
-
-<span
-  v-if="!isEditing && !displayStore.bigMode"
-  class="absolute top-full mt-1 text-xs text-center pointer-events-none"
->
-  {{ currentTheme }}
-</span>
-
-
+    <span
+      v-if="!isEditing && !displayStore.bigMode"
+      class="absolute top-full mt-1 text-xs text-center pointer-events-none"
+    >
+      {{ currentTheme }}
+    </span>
   </button>
 </template>
 

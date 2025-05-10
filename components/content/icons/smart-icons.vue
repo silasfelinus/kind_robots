@@ -38,10 +38,13 @@
                 />
               </NuxtLink>
 
-              <component
-                v-else-if="icon.type === 'utility'"
-                :is="icon.component"
-              />
+        <div
+  v-else-if="icon.type === 'utility'"
+  class="w-full h-full flex items-center justify-center"
+>
+  <component :is="icon.component" />
+</div>
+
 
               <Icon
                 v-else

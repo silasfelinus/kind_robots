@@ -16,7 +16,7 @@
     <template #label>
       <span
         v-if="!isEditing && !bigMode"
-        class="text-xs text-center leading-none"
+        class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.25rem] w-full flex items-center justify-center pointer-events-none z-40"
       >
         {{ beanCount || 0 }} /11
       </span>

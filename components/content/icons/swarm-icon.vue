@@ -14,7 +14,7 @@
     </div>
 
     <div
-      v-if="showSwarm"
+      v-show="showSwarm"
       class="fixed inset-0 overflow-hidden z-50 pointer-events-none full-page"
     >
       <butterfly-animation />
@@ -38,7 +38,7 @@ const toggleAmiSwarm = () => {
 }
 
 const navLabel = computed(() => (showSwarm.value ? swarmText.value : 'Swarm?'))
-defineExpose({ navLabel })
+defineExpose({ navLabel, showSwarm })
 </script>
 
 <style scoped>

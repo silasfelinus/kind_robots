@@ -17,8 +17,8 @@
 
     <!-- Dynamic Label (shown only when not editing and not in bigMode) -->
     <span
-      v-if="!isEditing && !bigMode"
-      class="mt-2 text-center text-sm md:block hidden"
+      v  v-if="!isEditing && !displayStore.bigMode"
+  class="absolute top-full mt-1 text-xs text-center pointer-events-none"
     >
       {{ showSwarm ? swarmText : 'Swarm?' }}
     </span>

@@ -1,25 +1,32 @@
 // /components/content/icons/smart-icons.vue
 <template>
   <div class="relative w-full h-full overflow-hidden">
-    <!-- Scroll Arrows -->
-    <button
-      v-show="showLeft"
-      class="absolute left-0 top-1/2 -translate-y-1/2 z-40 bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
-      @mousedown.prevent="startContinuousScroll(-1)"
-      @mouseup="stopContinuousScroll"
-      @mouseleave="stopContinuousScroll"
+    <div
+      class="absolute left-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
     >
-      <Icon name="lucide:chevron-left" />
-    </button>
-    <button
-      v-show="showRight"
-      class="absolute right-[4.5rem] top-1/2 -translate-y-1/2 z-40 bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
-      @mousedown.prevent="startContinuousScroll(1)"
-      @mouseup="stopContinuousScroll"
-      @mouseleave="stopContinuousScroll"
+      <button
+        v-show="showLeft"
+        class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
+        @mousedown.prevent="startContinuousScroll(-1)"
+        @mouseup="stopContinuousScroll"
+        @mouseleave="stopContinuousScroll"
+      >
+        <Icon name="lucide:chevron-left" />
+      </button>
+    </div>
+    <div
+      class="absolute right-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
     >
-      <Icon name="lucide:chevron-right" />
-    </button>
+      <button
+        v-show="showRight"
+        class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
+        @mousedown.prevent="startContinuousScroll(1)"
+        @mouseup="stopContinuousScroll"
+        @mouseleave="stopContinuousScroll"
+      >
+        <Icon name="lucide:chevron-right" />
+      </button>
+    </div>
 
     <div class="relative w-full h-full flex items-center pr-[4.5rem]">
       <!-- Scrollable Area -->

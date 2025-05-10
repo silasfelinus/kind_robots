@@ -8,6 +8,12 @@
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />
+      <div
+        v-show="showSwarm"
+        class="fixed inset-0 overflow-hidden z-50 pointer-events-none full-page"
+      >
+        <butterfly-animation class="pointer-events-none" />
+      </div>
     </div>
 
     <!-- Navigation Loader -->
@@ -41,6 +47,11 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
+import { useIconStore } from '@/stores/iconStore'
+
+const iconStore = useIconStore()
+
+const showSwarm = computed(() => iconStore.showSwarm)
 
 const displayStore = useDisplayStore()
 const router = useRouter()
@@ -70,5 +81,12 @@ router.afterEach(() => {
 
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out forwards;
+}
+
+.full-page {
+  width: 100vw;
+  height: 100vh;
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 </style>

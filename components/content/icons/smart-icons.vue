@@ -115,8 +115,8 @@
                 }}
               </span>
               <button
-                v-else
-                class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
+                v-else-if="isEditing"
+                class="text-xs bg-red-500 text-white rounded-full z-50 px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
                 @click="removeIcon(index)"
               >
                 ✕

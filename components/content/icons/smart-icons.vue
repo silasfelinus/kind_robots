@@ -1,27 +1,36 @@
 // /components/content/icons/smart-icons.vue
 <template>
   <div class="relative w-full h-full overflow-hidden">
-    <!-- Scroll Arrows -->
-    <button
-      v-show="showLeft"
-      class="absolute left-0 top-1/2 -translate-y-1/2 z-40 bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
-      @mousedown.prevent="startContinuousScroll(-1)"
-      @mouseup="stopContinuousScroll"
-      @mouseleave="stopContinuousScroll"
+    <div
+      class="absolute left-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
     >
-      <Icon name="lucide:chevron-left" />
-    </button>
-    <button
-      v-show="showRight"
-      class="absolute right-[4.5rem] top-1/2 -translate-y-1/2 z-40 bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
-      @mousedown.prevent="startContinuousScroll(1)"
-      @mouseup="stopContinuousScroll"
-      @mouseleave="stopContinuousScroll"
+      <button
+        v-show="showLeft"
+        class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
+        @mousedown.prevent="startContinuousScroll(-1)"
+        @mouseup="stopContinuousScroll"
+        @mouseleave="stopContinuousScroll"
+      >
+        <Icon name="lucide:chevron-left" />
+      </button>
+    </div>
+    <div
+      class="absolute right-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
     >
-      <Icon name="lucide:chevron-right" />
-    </button>
+      <button
+        v-show="showRight"
+        class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
+        @mousedown.prevent="startContinuousScroll(1)"
+        @mouseup="stopContinuousScroll"
+        @mouseleave="stopContinuousScroll"
+      >
+        <Icon name="lucide:chevron-right" />
+      </button>
+    </div>
 
-    <div class="relative w-full h-full flex items-center pr-[4.5rem]">
+    <div
+      class="relative w-full h-full flex items-center pr-[4.5rem] scroll-fade-left scroll-fade-right"
+    >
       <!-- Scrollable Area -->
       <div
         ref="scrollContainer"
@@ -168,6 +177,12 @@ const themeStore = useThemeStore()
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 
+const { bigMode } = storeToRefs(displayStore)
+const { activeIcons, isEditing } = storeToRefs(iconStore)
+
+const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
+const originalIcons = ref<SmartIcon[]>([])
+
 // Debugging: log path checks for glow condition
 watchEffect(() => {
   for (const icon of editableIcons.value) {
@@ -178,12 +193,6 @@ watchEffect(() => {
     }
   }
 })
-
-const { bigMode } = storeToRefs(displayStore)
-const { activeIcons, isEditing } = storeToRefs(iconStore)
-
-const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
-const originalIcons = ref<SmartIcon[]>([])
 
 const showSwarm = computed(() => iconStore.showSwarm)
 const swarmMessage = computed(() => iconStore.swarmMessage)
@@ -346,5 +355,28 @@ onBeforeUnmount(() => {
 .glow {
   box-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
   transition: box-shadow 0.3s ease-in-out;
+}
+.scroll-fade-left::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4.5rem;
+  height: 100%;
+  background: linear-gradient(to right, var(--tw-bg-base-200), transparent);
+  z-index: 30;
+  pointer-events: none;
+}
+
+.scroll-fade-right::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4.5rem;
+  height: 100%;
+  background: linear-gradient(to left, var(--tw-bg-base-200), transparent);
+  z-index: 30;
+  pointer-events: none;
 }
 </style>

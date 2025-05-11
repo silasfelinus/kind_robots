@@ -1,12 +1,12 @@
 <template>
   <!-- Mode Button Grid -->
   <div
-    class="grid grid-cols-2 md:grid-cols-3 gap-2 px-2 py-2 w-full mx-auto"
+    class="grid grid-cols-2 md:grid-cols-3 gap-2 px-2 py-2 w-full mx-auto border-black border-1 bg-base-200 rounded-2xl"
   >
     <div
       v-for="mode in modes"
       :key="mode.name"
-      class="flex flex-col items-center justify-between bg-base-200 rounded-2xl border border-base-300 shadow-sm hover:shadow-md p-4 transition group cursor-pointer"
+      class="flex flex-col items-center justify-between border-black border-1 bg-base-200 rounded-2xl shadow-sm hover:shadow-md p-4 transition group cursor-pointer"
     >
       <!-- Icon Button -->
       <div

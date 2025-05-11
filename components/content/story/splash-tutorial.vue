@@ -1,7 +1,7 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
   <div
-    class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-secondary z-20"
+    class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-black z-20"
   >
     <!-- Background Image -->
     <img
@@ -55,7 +55,9 @@
         class="flex flex-col gap-4 overflow-hidden h-full w-full pointer-events-auto"
       >
         <!-- NavComponent (takes half space) -->
-        <div class="flex-grow flex items-center justify-center overflow-auto">
+        <div
+          class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
+        >
           <component
             v-if="Array.isArray(parsedNavComponent)"
             is="smart-nav"
@@ -70,7 +72,9 @@
         </div>
 
         <!-- Mode-row (takes half space) -->
-        <div class="flex-grow flex items-center justify-center overflow-auto">
+        <div
+          class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
+        >
           <mode-row class="w-full max-w-3xl" />
         </div>
       </div>

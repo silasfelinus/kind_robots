@@ -62,9 +62,7 @@
         @touchend="handleScrollMouseUp"
       >
         <!-- Icon Row -->
-        <div
-          class="flex items-center gap-6 min-w-fit h-full select-none px-[4.5rem]"
-        >
+        <div class="flex items-center gap-6 min-w-fit h-full select-none">
           <icon-shell v-for="(icon, index) in editableIcons" :key="icon.id">
             <template #icon>
               <div

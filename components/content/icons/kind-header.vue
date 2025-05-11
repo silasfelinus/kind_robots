@@ -23,7 +23,7 @@
       <!-- Title / Subtitle -->
       <div
         v-if="!bigMode"
-        class="hidden lg:flex flex-col justify-center items-center text-center w-[25%] px-2"
+        class="hidden lg:flex flex-col justify-center items-center text-center w-[20%] px-2"
       >
         <Transition name="fade-scale" mode="out-in" appear>
           <h1

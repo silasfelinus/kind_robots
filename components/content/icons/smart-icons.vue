@@ -36,7 +36,7 @@
       <div v-if="!isEditing" class="flex flex-col gap-2 pr-2">
         <button
           class="btn btn-square btn-sm"
-          @click="iconStore.isEditing = true"
+          @click="activateEditMode"
           title="Edit"
         >
           <Icon name="kind-icon:settings" />
@@ -190,6 +190,12 @@ const { activeIcons, isEditing } = storeToRefs(iconStore)
 
 const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
 const originalIcons = ref<SmartIcon[]>([])
+
+function activateEditMode() {
+  iconStore.isEditing = true
+  displayStore.bigMode = false
+}
+
 
 // Debugging: log path checks for glow condition
 watchEffect(() => {

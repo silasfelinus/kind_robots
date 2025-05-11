@@ -2,7 +2,9 @@
 <template>
   <div class="relative w-full h-full overflow-hidden">
     <!-- Left Scroll Button -->
-    <div class="absolute left-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center">
+    <div
+      class="absolute left-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
+    >
       <button
         v-show="showLeft"
         class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
@@ -15,7 +17,9 @@
     </div>
 
     <!-- Right Scroll Button -->
-    <div class="absolute right-[4.5rem] top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center">
+    <div
+      class="absolute right-[4.5rem] top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
+    >
       <button
         v-show="showRight"
         class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
@@ -41,10 +45,13 @@
     </div>
 
     <!-- Scrollable Area with Fade Overlays -->
-    <div class="relative w-full h-full flex items-center scroll-fade-left scroll-fade-right">
+    <div
+      class="relative w-full h-full flex items-center scroll-fade-left scroll-fade-right"
+    >
       <div
         ref="scrollContainer"
-        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x snap-x snap-mandatory px-[4.5rem]"
+        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x snap-x snap-mandatory"
+        :style="{ paddingLeft: '4.5rem', paddingRight: '4.5rem' }"
         @scroll="checkScrollEdges"
         @mousedown="handleScrollMouseDown"
         @mousemove="handleScrollMouseMove"
@@ -55,7 +62,9 @@
         @touchend="handleScrollMouseUp"
       >
         <!-- Icon Row -->
-        <div class="flex items-center gap-6 min-w-fit h-full select-none pr-[6rem]">
+        <div
+          class="flex items-center gap-6 min-w-fit h-full select-none px-[4.5rem]"
+        >
           <icon-shell v-for="(icon, index) in editableIcons" :key="icon.id">
             <template #icon>
               <div
@@ -124,7 +133,10 @@
                 @click="isEditing && confirmEdit()"
                 class="flex items-center justify-center w-full h-full transition-transform hover:scale-110"
               >
-                <Icon name="lucide:plus-circle" class="text-3xl w-full h-full" />
+                <Icon
+                  name="lucide:plus-circle"
+                  class="text-3xl w-full h-full"
+                />
               </NuxtLink>
             </template>
             <template #label>
@@ -155,8 +167,6 @@
     </div>
   </div>
 </template>
-
-
 
 // /components/content/icons/smart-icons.vue
 <script setup lang="ts">
@@ -262,9 +272,15 @@ const showRight = ref(false)
 
 function checkScrollEdges() {
   const el = scrollContainer.value
-  if (!el) return
-  showLeft.value = el.scrollLeft > 5
-  showRight.value = el.scrollWidth - el.clientWidth - el.scrollLeft > 5
+  if (!el) {
+    showLeft.value = false
+    showRight.value = false
+    return
+  }
+  const canScroll = el.scrollWidth > el.clientWidth + 5
+  showLeft.value = canScroll && el.scrollLeft > 5
+  showRight.value =
+    canScroll && el.scrollLeft + el.clientWidth + 5 < el.scrollWidth
 }
 
 function scrollBy(px: number) {

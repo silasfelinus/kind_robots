@@ -46,12 +46,11 @@
 
     <!-- Scrollable Area with Fade Overlays -->
     <div
-      class="relative w-full h-full flex items-center scroll-fade-left scroll-fade-right"
+      class="relative w-full h-full flex items-center pl-[4.5rem] pr-[9rem] scroll-fade-left scroll-fade-right"
     >
       <div
         ref="scrollContainer"
         class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x snap-x snap-mandatory"
-        :style="{ paddingLeft: '4.5rem', paddingRight: '4.5rem' }"
         @scroll="checkScrollEdges"
         @mousedown="handleScrollMouseDown"
         @mousemove="handleScrollMouseMove"
@@ -62,7 +61,9 @@
         @touchend="handleScrollMouseUp"
       >
         <!-- Icon Row -->
-        <div class="flex items-center gap-6 min-w-fit h-full select-none">
+        <div
+          class="flex items-center gap-6 min-w-fit h-full select-none px-[4.5rem]"
+        >
           <icon-shell v-for="(icon, index) in editableIcons" :key="icon.id">
             <template #icon>
               <div
@@ -270,15 +271,14 @@ const showRight = ref(false)
 
 function checkScrollEdges() {
   const el = scrollContainer.value
-  if (!el) {
-    showLeft.value = false
-    showRight.value = false
-    return
-  }
-  const canScroll = el.scrollWidth > el.clientWidth + 5
-  showLeft.value = canScroll && el.scrollLeft > 5
-  showRight.value =
-    canScroll && el.scrollLeft + el.clientWidth + 5 < el.scrollWidth
+  if (!el) return
+
+  const scrollLeft = el.scrollLeft
+  const scrollRight = el.scrollWidth - el.clientWidth - scrollLeft
+
+  // 👇 Adjust threshold based on known padding (4.5rem = 72px)
+  showLeft.value = scrollLeft > 72 - 4 // add a tiny buffer
+  showRight.value = scrollRight > 72 - 4
 }
 
 function scrollBy(px: number) {

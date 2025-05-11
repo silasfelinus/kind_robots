@@ -1,26 +1,26 @@
 <template>
-  <div class="gap-4 w-full mx-auto p-4">
+  <!-- Mode Button Grid -->
+  <div
+    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 px-4 py-2 w-full max-w-5xl mx-auto"
+  >
     <div
       v-for="mode in modes"
       :key="mode.name"
-      class="flex items-center justify-between bg-base-200 rounded-xl border border-base-300 shadow-sm hover:shadow-md transition group"
+      class="flex flex-col items-center justify-between bg-base-200 rounded-2xl border border-base-300 shadow-sm hover:shadow-md p-4 transition group cursor-pointer"
     >
-      <!-- Add Action (Icon acts as add) -->
+      <!-- Icon Button -->
       <div
         @click="handleAddMode(mode.name as displayModeState)"
-        class="flex items-center justify-center p-2 cursor-pointer hover:bg-primary hover:text-white rounded-l-xl transition"
+        class="flex items-center justify-center w-12 h-12 rounded-full bg-base-100 hover:bg-primary hover:text-white transition mb-2"
         :title="`Add ${mode.label}`"
       >
-        <Icon :name="mode.icon" class="w-5 h-5" />
+        <Icon :name="mode.icon" class="w-6 h-6" />
       </div>
 
-      <!-- Divider -->
-      <div class="w-px h-5 bg-base-300"></div>
-
-      <!-- Gallery Action (Label text) -->
+      <!-- Label Button -->
       <div
         @click="handleGalleryMode(mode.name as displayModeState)"
-        class="text-sm px-2 py-1 cursor-pointer font-medium text-center hover:text-primary transition"
+        class="text-sm font-medium text-center hover:text-primary transition"
         :title="`${mode.label} Gallery`"
       >
         {{ mode.label }}

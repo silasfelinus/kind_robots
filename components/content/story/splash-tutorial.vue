@@ -50,23 +50,30 @@
         </h2>
       </div>
 
-      <!-- navComponent + mode-row in scrollable section -->
+      <!-- Shared container for nav + mode-row -->
       <div
-        class="overflow-y-auto flex flex-col items-center justify-center gap-2"
+        class="flex flex-col gap-4 overflow-hidden h-full w-full pointer-events-auto"
       >
-        <component
-          v-if="Array.isArray(parsedNavComponent)"
-          is="smart-nav"
-          :component-list="parsedNavComponent"
-          class="w-full pointer-events-auto"
-        />
-        <component
-          v-else-if="typeof parsedNavComponent === 'string'"
-          :is="parsedNavComponent"
-          class="w-full pointer-events-auto"
-        />
+        <!-- NavComponent (takes half space) -->
+        <div class="flex-grow flex items-center justify-center overflow-auto">
+          <component
+            v-if="Array.isArray(parsedNavComponent)"
+            is="smart-nav"
+            :component-list="parsedNavComponent"
+            class="w-full max-w-3xl"
+          />
+          <component
+            v-else-if="typeof parsedNavComponent === 'string'"
+            :is="parsedNavComponent"
+            class="w-full max-w-3xl"
+          />
+        </div>
+
+        <!-- Mode-row (takes half space) -->
+        <div class="flex-grow flex items-center justify-center overflow-auto">
+          <mode-row class="w-full max-w-3xl" />
+        </div>
       </div>
-      <mode-row class="w-full pointer-events-auto" />
 
       <!-- Bot Tips (anchored to bottom) -->
       <div

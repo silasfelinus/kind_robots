@@ -34,12 +34,14 @@
         >
           The {{ title }} Room
         </h1>
-        <h2
-          v-if="subtitle"
-          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
-        >
-          {{ subtitle }}
-        </h2>
+        <div>
+          <h2
+            v-if="subtitle"
+            class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
+          >
+            {{ subtitle }}
+          </h2>
+        </div>
         <h2
           v-if="description"
           class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-300"
@@ -63,8 +65,8 @@
           :is="parsedNavComponent"
           class="w-full pointer-events-auto"
         />
-        <mode-row v-else class="w-full min-h-[2rem] pointer-events-auto" />
       </div>
+      <mode-row class="w-full pointer-events-auto" />
 
       <!-- Bot Tips (anchored to bottom) -->
       <div
@@ -83,7 +85,7 @@
               class="font-semibold text-xs md:text:sm lg:text-md xl:text-lg text-black"
               >DottiBot:</span
             >
-            {{ dottitip }}
+            <div class="text-black">{{ dottitip }}</div>
           </div>
         </div>
 
@@ -98,7 +100,7 @@
               class="font-semibold text-xs md:text:sm lg:text-md xl:text-lg text-black"
               >AMIbot:</span
             >
-            {{ amitip }}
+            <div class="text-black">{{ amitip }}</div>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-wrap items-center justify-center gap-2 w-full">
+  <div class="gap-4 w-full mx-auto p-4">
     <div
       v-for="mode in modes"
       :key="mode.name"

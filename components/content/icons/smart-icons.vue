@@ -2,9 +2,7 @@
 <template>
   <div class="relative w-full h-full overflow-hidden">
     <!-- Left Scroll Button -->
-    <div
-      class="absolute left-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
-    >
+    <div class="absolute left-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center">
       <button
         v-show="showLeft"
         class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
@@ -17,9 +15,7 @@
     </div>
 
     <!-- Right Scroll Button -->
-    <div
-      class="absolute right-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
-    >
+    <div class="absolute right-[4.5rem] top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center">
       <button
         v-show="showRight"
         class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
@@ -31,7 +27,20 @@
       </button>
     </div>
 
-    <!-- Scrollable Area with Overlays -->
+    <!-- Edit Button (after right scroll) -->
+    <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50">
+      <div v-if="!isEditing" class="flex flex-col gap-2 pr-2">
+        <button
+          class="btn btn-square btn-sm"
+          @click="iconStore.isEditing = true"
+          title="Edit"
+        >
+          <Icon name="kind-icon:settings" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable Area with Fade Overlays -->
     <div class="relative w-full h-full flex items-center scroll-fade-left scroll-fade-right">
       <div
         ref="scrollContainer"
@@ -46,7 +55,7 @@
         @touchend="handleScrollMouseUp"
       >
         <!-- Icon Row -->
-        <div class="flex items-center gap-6 min-w-fit h-full select-none">
+        <div class="flex items-center gap-6 min-w-fit h-full select-none pr-[6rem]">
           <icon-shell v-for="(icon, index) in editableIcons" :key="icon.id">
             <template #icon>
               <div
@@ -119,44 +128,34 @@
               </NuxtLink>
             </template>
             <template #label>
-              <span v-if="bigMode" class="text-xs text-center leading-none"
-                >Add Icon</span
-              >
+              <span v-if="bigMode" class="text-xs text-center leading-none">
+                Add Icon
+              </span>
             </template>
           </icon-shell>
-        </div>
-      </div>
 
-      <!-- Edit Buttons -->
-      <div class="absolute right-0 top-1/2 -translate-y-1/2 z-40">
-        <div v-if="!isEditing" class="flex flex-col gap-2 pr-2">
-          <button
-            class="btn btn-square btn-sm"
-            @click="iconStore.isEditing = true"
-            title="Edit"
-          >
-            <Icon name="kind-icon:settings" />
-          </button>
-        </div>
-        <div v-else class="flex flex-col gap-2 pr-2">
-          <button
-            v-if="hasChanges"
-            class="btn btn-square btn-xs bg-base-200 text-error hover:bg-base-300"
-            @click="revertEdit"
-          >
-            <Icon name="lucide:rotate-ccw" />
-          </button>
-          <button
-            class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"
-            @click="confirmEdit"
-          >
-            <Icon name="lucide:check" />
-          </button>
+          <!-- Confirm / Revert Buttons (during edit) -->
+          <div v-if="isEditing" class="flex items-center gap-2">
+            <button
+              v-if="hasChanges"
+              class="btn btn-square btn-xs bg-base-200 text-error hover:bg-base-300"
+              @click="revertEdit"
+            >
+              <Icon name="lucide:rotate-ccw" />
+            </button>
+            <button
+              class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"
+              @click="confirmEdit"
+            >
+              <Icon name="lucide:check" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 
 
 // /components/content/icons/smart-icons.vue

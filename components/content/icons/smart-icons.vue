@@ -1,6 +1,7 @@
-// /components/content/icons/smart-icons.vue
+<!-- /components/content/icons/smart-icons.vue -->
 <template>
   <div class="relative w-full h-full overflow-hidden">
+    <!-- Left Scroll Button -->
     <div
       class="absolute left-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
     >
@@ -14,6 +15,8 @@
         <Icon name="lucide:chevron-left" />
       </button>
     </div>
+
+    <!-- Right Scroll Button -->
     <div
       class="absolute right-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
     >
@@ -28,13 +31,11 @@
       </button>
     </div>
 
-    <div
-      class="relative w-full h-full flex items-center pr-[4.5rem] scroll-fade-left scroll-fade-right"
-    >
-      <!-- Scrollable Area -->
+    <!-- Scrollable Area with Overlays -->
+    <div class="relative w-full h-full flex items-center scroll-fade-left scroll-fade-right">
       <div
         ref="scrollContainer"
-        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x snap-x snap-mandatory scroll-mx-[4.5rem]"
+        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x snap-x snap-mandatory px-[4.5rem]"
         @scroll="checkScrollEdges"
         @mousedown="handleScrollMouseDown"
         @mousemove="handleScrollMouseMove"
@@ -44,9 +45,8 @@
         @touchmove="handleScrollTouchMove"
         @touchend="handleScrollMouseUp"
       >
-        <div
-          class="flex items-center gap-6 min-w-fit px-[4.5rem] h-full select-none"
-        >
+        <!-- Icon Row -->
+        <div class="flex items-center gap-6 min-w-fit h-full select-none">
           <icon-shell v-for="(icon, index) in editableIcons" :key="icon.id">
             <template #icon>
               <div
@@ -107,6 +107,7 @@
             </template>
           </icon-shell>
 
+          <!-- Plus Icon -->
           <icon-shell>
             <template #icon>
               <NuxtLink
@@ -114,10 +115,7 @@
                 @click="isEditing && confirmEdit()"
                 class="flex items-center justify-center w-full h-full transition-transform hover:scale-110"
               >
-                <Icon
-                  name="lucide:plus-circle"
-                  class="text-3xl w-full h-full"
-                />
+                <Icon name="lucide:plus-circle" class="text-3xl w-full h-full" />
               </NuxtLink>
             </template>
             <template #label>
@@ -129,6 +127,7 @@
         </div>
       </div>
 
+      <!-- Edit Buttons -->
       <div class="absolute right-0 top-1/2 -translate-y-1/2 z-40">
         <div v-if="!isEditing" class="flex flex-col gap-2 pr-2">
           <button
@@ -158,6 +157,7 @@
     </div>
   </div>
 </template>
+
 
 // /components/content/icons/smart-icons.vue
 <script setup lang="ts">

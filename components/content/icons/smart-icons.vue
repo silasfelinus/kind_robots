@@ -287,9 +287,9 @@ function scrollBy(px: number) {
 
 let scrollInterval: number | null = null
 function startContinuousScroll(direction: 1 | -1) {
-  scrollBy(direction * 30)
+  scrollBy(direction * 45)
   scrollInterval = window.setInterval(() => {
-    scrollBy(direction * 15)
+    scrollBy(direction * 45)
   }, 50)
 }
 function stopContinuousScroll() {

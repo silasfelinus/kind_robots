@@ -186,6 +186,15 @@ const themeStore = useThemeStore()
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 
+const { bigMode } = storeToRefs(displayStore)
+const { activeIcons, isEditing } = storeToRefs(iconStore)
+
+const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
+const originalIcons = ref<SmartIcon[]>([])
+
+const showSwarm = computed(() => iconStore.showSwarm)
+const swarmMessage = computed(() => iconStore.swarmMessage)
+
 // Debugging: log path checks for glow condition
 watchEffect(() => {
   for (const icon of editableIcons.value) {
@@ -196,15 +205,6 @@ watchEffect(() => {
     }
   }
 })
-
-const { bigMode } = storeToRefs(displayStore)
-const { activeIcons, isEditing } = storeToRefs(iconStore)
-
-const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
-const originalIcons = ref<SmartIcon[]>([])
-
-const showSwarm = computed(() => iconStore.showSwarm)
-const swarmMessage = computed(() => iconStore.swarmMessage)
 
 function getUtilityLabelFromName(name: string): string {
   switch (name) {

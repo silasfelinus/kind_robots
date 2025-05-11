@@ -1,37 +1,27 @@
 // /components/content/icons/smart-icons.vue
 <template>
   <div class="relative w-full h-full overflow-hidden">
-    <div
-      class="absolute left-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
+    <!-- Scroll Arrows -->
+    <button
+      v-show="showLeft"
+      class="absolute left-0 top-1/2 -translate-y-1/2 z-40 bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
+      @mousedown.prevent="startContinuousScroll(-1)"
+      @mouseup="stopContinuousScroll"
+      @mouseleave="stopContinuousScroll"
     >
-      <button
-        v-show="showLeft"
-        class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
-        @mousedown.prevent="startContinuousScroll(-1)"
-        @mouseup="stopContinuousScroll"
-        @mouseleave="stopContinuousScroll"
-      >
-        <Icon name="lucide:chevron-left" />
-      </button>
-    </div>
-    <div
-      class="absolute right-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
+      <Icon name="lucide:chevron-left" />
+    </button>
+    <button
+      v-show="showRight"
+      class="absolute right-[4.5rem] top-1/2 -translate-y-1/2 z-40 bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
+      @mousedown.prevent="startContinuousScroll(1)"
+      @mouseup="stopContinuousScroll"
+      @mouseleave="stopContinuousScroll"
     >
-      <button
-        v-show="showRight"
-        class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
-        @mousedown.prevent="startContinuousScroll(1)"
-        @mouseup="stopContinuousScroll"
-        @mouseleave="stopContinuousScroll"
-      >
-        <Icon name="lucide:chevron-right" />
-      </button>
-    </div>
+      <Icon name="lucide:chevron-right" />
+    </button>
 
-    <div
-      class="relative w-full h-full flex items-center pr-[4.5rem] scroll-fade-left scroll-fade-right"
-      :data-active="showLeft || showRight"
-    >
+    <div class="relative w-full h-full flex items-center pr-[4.5rem]">
       <!-- Scrollable Area -->
       <div
         ref="scrollContainer"
@@ -49,70 +39,62 @@
           class="flex items-center gap-6 min-w-fit px-[4.5rem] h-full select-none"
         >
           <icon-shell v-for="(icon, index) in editableIcons" :key="icon.id">
-            <template #default>
+            <template #icon>
               <div
-                class="flex flex-col items-center justify-between h-full w-full"
+                v-if="isEditing"
+                class="w-full h-full flex items-center justify-center"
+                draggable
+                @dragstart="!isScrollDragging && onDragStart(index)"
+                @drop="onDrop(index)"
               >
-                <div
-                  v-if="isEditing"
-                  class="w-full h-full flex items-center justify-center"
-                  draggable
-                  @dragstart="!isScrollDragging && onDragStart(index)"
-                  @drop="onDrop(index)"
-                >
-                  <Icon
-                    :name="icon.icon || 'lucide:help-circle'"
-                    class="text-3xl max-w-[3rem] max-h-[3rem]"
-                  />
-                </div>
-                <NuxtLink
-                  v-else-if="icon.link && icon.type !== 'utility'"
-                  :to="icon.link"
-                  class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
-                >
-                  <Icon
-                    :name="icon.icon || 'lucide:help-circle'"
-                    :class="[
-                      'text-3xl max-w-[3rem] max-h-[3rem]',
-                      { glow: icon.link && route.path.startsWith(icon.link) },
-                    ]"
-                  />
-                </NuxtLink>
-                <div
-                  v-else-if="icon.type === 'utility'"
-                  class="w-full h-full flex items-center justify-center"
-                >
-                  <component :is="icon.component" />
-                </div>
                 <Icon
-                  v-else
                   :name="icon.icon || 'lucide:help-circle'"
                   class="text-3xl max-w-[3rem] max-h-[3rem]"
                 />
-
-                <div
-                  class="h-[1.25rem] w-full flex items-center justify-center"
-                >
-                  <span
-                    v-if="!isEditing"
-                    class="text-xs text-center leading-none transition-opacity duration-300"
-                    :class="{ 'opacity-0 group-hover:opacity-100': bigMode }"
-                  >
-                    {{
-                      icon.type === 'utility' && icon.component
-                        ? getUtilityLabelFromName(icon.component)
-                        : icon.label
-                    }}
-                  </span>
-                  <button
-                    v-else
-                    class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
-                    @click="removeIcon(index)"
-                  >
-                    ✕
-                  </button>
-                </div>
               </div>
+              <NuxtLink
+                v-else-if="icon.link && icon.type !== 'utility'"
+                :to="icon.link"
+                class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
+              >
+                <Icon
+                  :name="icon.icon || 'lucide:help-circle'"
+                  :class="[
+                    'text-3xl max-w-[3rem] max-h-[3rem]',
+                    { glow: icon.link && route.path.startsWith(icon.link) },
+                  ]"
+                />
+              </NuxtLink>
+              <div
+                v-else-if="icon.type === 'utility'"
+                class="w-full h-full flex items-center justify-center"
+              >
+                <component :is="icon.component" />
+              </div>
+              <Icon
+                v-else
+                :name="icon.icon || 'lucide:help-circle'"
+                class="text-3xl max-w-[3rem] max-h-[3rem]"
+              />
+            </template>
+            <template #label>
+              <span
+                v-if="!isEditing && !bigMode"
+                class="text-xs text-center leading-none"
+              >
+                {{
+                  icon.type === 'utility' && icon.component
+                    ? getUtilityLabelFromName(icon.component)
+                    : icon.label
+                }}
+              </span>
+              <button
+                v-else
+                class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
+                @click="removeIcon(index)"
+              >
+                ✕
+              </button>
             </template>
           </icon-shell>
 
@@ -186,15 +168,6 @@ const themeStore = useThemeStore()
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 
-const { bigMode } = storeToRefs(displayStore)
-const { activeIcons, isEditing } = storeToRefs(iconStore)
-
-const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
-const originalIcons = ref<SmartIcon[]>([])
-
-const showSwarm = computed(() => iconStore.showSwarm)
-const swarmMessage = computed(() => iconStore.swarmMessage)
-
 // Debugging: log path checks for glow condition
 watchEffect(() => {
   for (const icon of editableIcons.value) {
@@ -205,6 +178,15 @@ watchEffect(() => {
     }
   }
 })
+
+const { bigMode } = storeToRefs(displayStore)
+const { activeIcons, isEditing } = storeToRefs(iconStore)
+
+const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
+const originalIcons = ref<SmartIcon[]>([])
+
+const showSwarm = computed(() => iconStore.showSwarm)
+const swarmMessage = computed(() => iconStore.swarmMessage)
 
 function getUtilityLabelFromName(name: string): string {
   switch (name) {
@@ -364,28 +346,5 @@ onBeforeUnmount(() => {
 .glow {
   box-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
   transition: box-shadow 0.3s ease-in-out;
-}
-.scroll-fade-left[data-active='true']::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4.5rem;
-  height: 100%;
-  background: linear-gradient(to right, var(--tw-bg-base-200), transparent);
-  z-index: 30;
-  pointer-events: none;
-}
-
-.scroll-fade-right[data-active='true']::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 4.5rem;
-  height: 100%;
-  background: linear-gradient(to left, var(--tw-bg-base-200), transparent);
-  z-index: 30;
-  pointer-events: none;
 }
 </style>

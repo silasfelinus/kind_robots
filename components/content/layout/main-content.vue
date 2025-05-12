@@ -1,6 +1,6 @@
 <!-- /components/content/layout/main-content.vue -->
 <template>
-  <div class="relative h-full w-full rounded-2xl overflow-hidden bg-base-300">
+  <div class="relative h-full w-full rounded-2xl bg-base-300">
     <!-- Mobile View: Flip between page and splash -->
     <div v-if="displayStore.isMobileViewport" class="h-full w-full">
       <div class="flip-card h-full w-full">
@@ -10,14 +10,16 @@
         >
           <!-- Front Face: Main Page -->
           <div class="flip-card-front">
-            <div class="h-full w-full overflow-y-auto max-h-full">
+            <div class="h-full w-full overflow-y-auto">
               <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
             </div>
           </div>
 
           <!-- Back Face: Splash Tutorial -->
           <div class="flip-card-back">
-            <splash-tutorial />
+            <div class="h-full w-full overflow-y-auto">
+              <splash-tutorial />
+            </div>
           </div>
         </div>
       </div>
@@ -81,6 +83,7 @@ watchEffect(() => {
   height: 100%;
   transition: transform 0.6s;
   transform-style: preserve-3d;
+  contain: layout;
 }
 
 .flip-card-inner.is-flipped {
@@ -94,10 +97,16 @@ watchEffect(() => {
   height: 100%;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  will-change: transform;
+}
+
+.flip-card-front {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .flip-card-back {
   transform: rotateY(180deg);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 </style>

@@ -1,4 +1,4 @@
-// server/api/art/image/index.post.ts
+// server/api/art/generate.post.ts
 
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'

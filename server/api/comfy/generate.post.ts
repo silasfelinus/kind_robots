@@ -1,6 +1,6 @@
 // /server/api/comfy/generate.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import { errorHandler } from '@/server/api/utils/error'
+import { errorHandler } from '../utils/error'
 
 type ComfyRequest = {
   prompt: string

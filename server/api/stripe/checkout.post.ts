@@ -4,9 +4,7 @@ import Stripe from 'stripe'
 import prisma from './../utils/prisma'
 import { errorHandler } from '@/server/api/utils/error'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
-})
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export default defineEventHandler(async (event) => {
   try {

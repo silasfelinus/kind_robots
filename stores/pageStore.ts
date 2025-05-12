@@ -45,6 +45,7 @@ export const usePageStore = defineStore('pageStore', () => {
       ...data,
       seo: data.seo ?? {},
       image: data.image ?? '/images/botcafe.webp',
+      room: data.room ?? 'Kind Robots',
       tags: data.tags ?? [],
       icon: data.icon ?? 'mdi:robot-happy',
       tooltip: data.tooltip ?? '',
@@ -118,7 +119,8 @@ export const usePageStore = defineStore('pageStore', () => {
   }
 
   const meta = computed(() => ({
-    title: page.value?.title ?? 'Kind Robots',
+    title: page.value?.title ?? 'Robots',
+    room: page.value?.room ?? 'Kind Robots',
     subtitle: page.value?.subtitle ?? 'Welcome to Kind Robots',
     description: page.value?.description ?? '',
     image: page.value?.image ?? '/images/botcafe.webp',
@@ -154,6 +156,7 @@ export const usePageStore = defineStore('pageStore', () => {
 
     // Expose these directly for convenience
     title: computed(() => meta.value.title),
+    room: computed(() => meta.value.room),
     subtitle: computed(() => meta.value.subtitle),
     description: computed(() => meta.value.description),
     image: computed(() => meta.value.image),

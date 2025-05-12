@@ -4,6 +4,7 @@ export interface Page {
   _id?: string
   _path?: string
   title?: string
+  room?: string
   subtitle?: string
   description?: string
   layout?: string

@@ -614,6 +614,9 @@ model User {
   Role           Role              @default(USER)
   isPublic       Boolean           @default(true)
   customIcons    Boolean          @default(false)
+  isMember       Boolean          @default(false)
+  memberUntil    DateTime?
+  stripeCustomerId String?
   smartBar       String?
   blockList      String?
   designerName   String?

@@ -106,5 +106,7 @@ watchEffect(() => {
   left: 0;
   transform: rotateY(180deg);
   z-index: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 </style>

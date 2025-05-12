@@ -1,39 +1,94 @@
 // /server/api/comfy/generate.post.ts
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '@/server/api/utils/error'
-import { $fetch } from 'ofetch'
+
+type ComfyRequest = {
+  prompt: string
+  user?: string
+  cfg?: number
+  seed?: number
+  steps?: number
+}
+
+type ComfyResponse = {
+  images: string[]
+  error?: string
+}
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<{ prompt: string }>(event)
+    const body = await readBody<ComfyRequest>(event)
 
     if (!body?.prompt) {
-      return errorHandler({ message: 'Missing prompt', statusCode: 400 })
+      throw createError({ statusCode: 400, message: 'Missing prompt.' })
     }
 
-    const comfyServerURL =
-      process.env.COMFY_SERVER_URL || 'https://comfy.acrocatranch.com/generate'
-
-    const response = await $fetch(comfyServerURL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: {
-        prompt: body.prompt,
-      },
+    const comfyResponse = await generateImageFromComfy({
+      prompt: body.prompt,
+      user: body.user || 'kindguest',
+      cfg: body.cfg ?? 3,
+      seed: body.seed ?? -1,
+      steps: body.steps ?? 20,
     })
+
+    if (!comfyResponse.images.length) {
+      throw createError({
+        statusCode: 500,
+        message: comfyResponse.error || 'Comfy server returned no images.',
+      })
+    }
 
     return {
       success: true,
-      data: response,
+      data: comfyResponse.images,
     }
   } catch (error: any) {
-    console.error('🔥 Comfy Error:', error?.data || error?.message || error)
-    return errorHandler({
-      error,
-      message: 'Comfy server failed to respond properly',
-      statusCode: error?.statusCode || 500,
-    })
+    console.error('🔥 Comfy error:', error)
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+    return {
+      success: false,
+      message: handled.message || 'Unknown error from Comfy backend',
+    }
   }
 })
+
+async function generateImageFromComfy({
+  prompt,
+  user,
+  cfg,
+  seed,
+  steps,
+}: ComfyRequest): Promise<ComfyResponse> {
+  try {
+    const response = await fetch('https://comfy.acrocatranch.com/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt,
+        user,
+        cfg_scale: cfg,
+        seed,
+        steps,
+      }),
+    })
+
+    if (!response.ok) {
+      const text = await response.text()
+      console.error('❌ Comfy responded with error:', text)
+      return { images: [], error: text }
+    }
+
+    const data = await response.json()
+    return {
+      images: data.images || [],
+      error: data.error,
+    }
+  } catch (err: any) {
+    console.error('❌ Comfy network error:', err)
+    return {
+      images: [],
+      error: 'Connection to Comfy failed',
+    }
+  }
+}

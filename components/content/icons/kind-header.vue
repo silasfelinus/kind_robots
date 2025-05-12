@@ -6,7 +6,7 @@
     <div class="flex w-full h-full items-stretch">
       <!-- Avatar with Overlay -->
       <div
-        class="relative flex items-center justify-center overflow-hidden rounded-2xl h-full"
+        class="relative flex items-center justify-center overflow-hidden rounded-2xl min-w-10 h-full"
         :class="bigMode ? 'w-[15%]' : 'w-[25%]'"
       >
         <avatar-image

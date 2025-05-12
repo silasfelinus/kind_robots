@@ -29,10 +29,10 @@
         </div>
 
         <h1
-          v-if="title"
+          v-if="room"
           class="text-sm md:text-md lg:text-lg xl:text-2xl font-bold bg-secondary text-black border border-black rounded-2xl px-4 py-1 inline-block animate-fade-in-up"
         >
-          The {{ title }} Room
+          The {{ room }} Room
         </h1>
         <div>
           <h2
@@ -129,6 +129,7 @@ import { computed } from 'vue'
 const displayStore = useDisplayStore()
 const {
   title,
+  room,
   subtitle,
   description,
   icon,

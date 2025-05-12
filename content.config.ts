@@ -3,6 +3,7 @@ import * as z from 'zod'
 
 const contentSchema = z.object({
   title: z.string().optional(),
+  room: z.string().optional(),
   path: z.string(),
   description: z.string().optional(),
   underConstruction: z.boolean().optional(),

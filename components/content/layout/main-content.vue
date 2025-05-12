@@ -9,8 +9,8 @@
           :class="{ 'is-flipped': sidebarRightOpen }"
         >
           <!-- Front Face: Main Page -->
-          <div class="flip-card-front overflow-y-auto">
-            <div class="h-full w-full">
+          <div class="flip-card-front">
+            <div class="h-full w-full overflow-y-auto max-h-full">
               <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
             </div>
           </div>

@@ -616,7 +616,7 @@ model User {
   customIcons    Boolean          @default(false)
   isMember       Boolean          @default(false)
   memberUntil    DateTime?
-  stripeCustomerId String?
+  stripeCustomerId String?         @db.VarChar(64)
   smartBar       String?
   blockList      String?
   designerName   String?

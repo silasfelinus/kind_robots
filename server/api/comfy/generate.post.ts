@@ -1,6 +1,6 @@
 // /server/api/comfy/generate.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '@/server/api/utils/error' // assume your usual handler
+import { errorHandler } from '@/server/api/utils/error'
 import { $fetch } from 'ofetch'
 
 export default defineEventHandler(async (event) => {
@@ -16,6 +16,9 @@ export default defineEventHandler(async (event) => {
 
     const response = await $fetch(comfyServerURL, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: {
         prompt: body.prompt,
       },
@@ -25,7 +28,12 @@ export default defineEventHandler(async (event) => {
       success: true,
       data: response,
     }
-  } catch (error) {
-    return errorHandler({ error })
+  } catch (error: any) {
+    console.error('🔥 Comfy Error:', error?.data || error?.message || error)
+    return errorHandler({
+      error,
+      message: 'Comfy server failed to respond properly',
+      statusCode: error?.statusCode || 500,
+    })
   }
 })

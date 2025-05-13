@@ -44,7 +44,7 @@ export const usePageStore = defineStore('pageStore', () => {
     return {
       ...data,
       seo: data.seo ?? {},
-      image: data.image ?? '/images/botcafe.webp',
+      image: data.image ?? 'botcafe.webp',
       room: data.room ?? 'Kind Robots',
       tags: data.tags ?? [],
       icon: data.icon ?? 'mdi:robot-happy',

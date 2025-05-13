@@ -2,10 +2,10 @@
 <template>
   <!-- Root container with scrollable content -->
   <div
-    class="relative w-full min-h-[100dvh] rounded-2xl border-2 border-black overflow-auto z-20"
+    class="relative w-full h-screen md:h-full overflow-y-auto rounded-2xl border-2 border-black z-20"
   >
     <!-- Background image as part of scrollable flow -->
-    <div class="absolute inset-0 w-full h-full z-0">
+    <div class="absolute inset-0 w-auto object-cover h-full z-0">
       <img
         v-if="image"
         :src="`/images/${image}`"

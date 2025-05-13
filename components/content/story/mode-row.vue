@@ -37,25 +37,83 @@ const router = useRouter()
 const displayStore = useDisplayStore()
 
 const modes = [
-  { name: 'scenario', icon: 'kind-icon:scenario', label: 'Scenarios' },
-  { name: 'resonance', icon: 'kind-icon:resonance', label: 'Resonance' },
-  { name: 'character', icon: 'kind-icon:character', label: 'Characters' },
-  { name: 'reward', icon: 'kind-icon:reward', label: 'Rewards' },
-  { name: 'chat', icon: 'kind-icon:chat', label: 'Chats' },
-  { name: 'bot', icon: 'kind-icon:bot', label: 'Bots' },
-  { name: 'pitch', icon: 'kind-icon:pitch', label: 'Pitches' },
-  { name: 'art', icon: 'kind-icon:art', label: 'Art' },
-]
-
-function handleGalleryMode(modeName: displayModeState) {
-  displayStore.setMode(modeName)
-  displayStore.setAction('gallery')
-  router.push(`/${modeName}gallery`)
-}
+  {
+    name: 'scenario',
+    icon: 'kind-icon:scenario',
+    label: 'Scenarios',
+    addRoute: '/addscenario',
+    galleryRoute: '/scenarios',
+  },
+  {
+    name: 'resonance',
+    icon: 'kind-icon:resonance',
+    label: 'Resonance',
+    addRoute: '/addresonance',
+    galleryRoute: '/resonances',
+  },
+  {
+    name: 'character',
+    icon: 'kind-icon:character',
+    label: 'Characters',
+    addRoute: '/addcharacter',
+    galleryRoute: '/characters',
+  },
+  {
+    name: 'reward',
+    icon: 'kind-icon:reward',
+    label: 'Rewards',
+    addRoute: '/addreward',
+    galleryRoute: '/rewards',
+  },
+  {
+    name: 'chat',
+    icon: 'kind-icon:chat',
+    label: 'Chats',
+    addRoute: '/addchat',
+    galleryRoute: '/chats',
+  },
+  {
+    name: 'bot',
+    icon: 'kind-icon:bot',
+    label: 'Bots',
+    addRoute: '/addbot',
+    galleryRoute: '/bots',
+  },
+  {
+    name: 'pitch',
+    icon: 'kind-icon:pitch',
+    label: 'Pitches',
+    addRoute: '/addpitch',
+    galleryRoute: '/pitches',
+  },
+  {
+    name: 'art',
+    icon: 'kind-icon:art',
+    label: 'Art',
+    addRoute: '/addart',
+    galleryRoute: '/artgallery',
+  },
+] satisfies {
+  name: displayModeState
+  icon: string
+  label: string
+  addRoute: string
+  galleryRoute: string
+}[]
 
 function handleAddMode(modeName: displayModeState) {
+  const mode = modes.find((m) => m.name === modeName)
+  if (!mode) return
   displayStore.setMode(modeName)
   displayStore.setAction('add')
-  router.push(`/add${modeName}`)
+  router.push(mode.addRoute)
+}
+
+function handleGalleryMode(modeName: displayModeState) {
+  const mode = modes.find((m) => m.name === modeName)
+  if (!mode) return
+  displayStore.setMode(modeName)
+  displayStore.setAction('gallery')
+  router.push(mode.galleryRoute)
 }
 </script>

@@ -1,5 +1,6 @@
 ---
-title: 'Character Gallery'
+title: 'Characters'
+room: 'Character Gallery'
 subtitle: 'These personalities aren’t just pretty code'
 description: 'Browse character profiles each with their own quirks and quests.'
 gallery: 'avatars'

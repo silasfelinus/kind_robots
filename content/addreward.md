@@ -1,5 +1,6 @@
 ---
-title: 'Add Reward'
+title: 'Reward'
+room: 'Add Reward Room'
 subtitle: 'Invent a narrative twist disguised as a prize'
 description: 'Rewards aren’t just random items — they’re strange powers, weird items, and story-bending artifacts for our AI-powered adventures.'
 gallery: 'rewards'

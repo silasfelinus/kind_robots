@@ -1,5 +1,6 @@
 ---
-title: 'Add Sample Model'
+title: 'Model'
+room: New Model Room
 subtitle: 'Create a reusable entry for this content type'
 description: 'Use this form to define and save a new SampleModel record.'
 gallery: 'samplevault'

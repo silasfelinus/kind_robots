@@ -1,5 +1,6 @@
 ---
-title: 'Art Lab'
+title: 'Art'
+room: 'Art Maker Room'
 subtitle: AI-Assisted Art Extravaganza
 description: 'Where imagination and algorithms tango!'
 gallery: 'cafepurr'

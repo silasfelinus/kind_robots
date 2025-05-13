@@ -1,5 +1,6 @@
 ---
 title: 'Memory'
+room: 'Memory Room'
 subtitle: Match, Recall, Repeat!
 description: A card match game where art meets serendipity! With 17 AI-generated galleries, every round is a fresh visual adventure—test your memory and discover something new with every match!
 image: 'acrocats/acrocats-24.webp'

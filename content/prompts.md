@@ -1,5 +1,6 @@
 ---
-title: 'Prompt Factory'
+title: 'Prompts'
+room: 'Prompt Factory'
 subtitle: 'Organize and share your AI-prompts'
 description: 'Prompt Factory is a user-friendly organizer for adding, editing, and sharing AI art and text prompts.'
 gallery: 'cafepurr'

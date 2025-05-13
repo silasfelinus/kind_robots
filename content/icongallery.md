@@ -1,5 +1,6 @@
 ---
-title: 'Icon Gallery'
+title: 'Icons'
+room: 'Icon Gallery'
 subtitle: 'Browse smart icons'
 description: 'Customize your smart bar.'
 gallery: 'smartbar'

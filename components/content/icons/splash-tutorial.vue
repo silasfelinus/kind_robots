@@ -18,7 +18,7 @@
 
     <!-- Foreground Content -->
     <div
-      class="relative z-20 w-full max-w-4xl h-full flex flex-col mx-auto px-4 py-4 space-y-6"
+      class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-4 space-y-6"
     >
       <!-- Title + Description Block -->
       <div

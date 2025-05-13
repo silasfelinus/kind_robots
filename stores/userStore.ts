@@ -147,7 +147,11 @@ export const useUserStore = defineStore('userStore', {
       if (index !== -1) {
         this.users.splice(index, 1, updatedUser) // Replace the user in the array
       } else {
-        console.warn('User not found in the list to update:', updatedUser.id)
+        console.warn(
+          'User not found in the list to update:',
+          updatedUser,
+          this.users,
+        )
       }
     },
 
@@ -281,7 +285,6 @@ export const useUserStore = defineStore('userStore', {
       })
       if (response.success && response.data) {
         await this.setUser(response.data)
-        this.updateUserInList(response.data)
         await this.fetchUsers() // Refresh the users array
       }
     },

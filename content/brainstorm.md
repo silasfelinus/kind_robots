@@ -1,5 +1,6 @@
 ---
-title: Brainstorm!
+title: Brains
+room: 'Brainstorm! Room'
 subtitle: Enhanced Idea Generator
 description: Need ideas? The sillier, the better
 image: avatars/brain1.webp

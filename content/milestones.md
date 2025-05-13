@@ -1,5 +1,6 @@
 ---
-title: Jellybean Quest
+title: Jellybeans
+room: 'Jellybean Quests Gallery'
 subtitle: Find the jellybeans
 description: Embark on a delightful quest to discover jellybeans scattered across the website.
 image: weirdlandia/weird-69.png

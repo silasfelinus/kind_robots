@@ -1,5 +1,6 @@
 ---
-title: Bot
+title: Bots
+room: 'Bot Factory'
 subtitle: Chat with a Kind Robot
 description: View the many promptbots at Kind Robots
 image: botcafe/botcafe-268.webp

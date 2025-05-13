@@ -1,5 +1,6 @@
 ---
-title: 'Story Maker'
+title: 'Stories'
+room: 'Story Maker Room'
 subtitle: A multiverse of possibilities
 description: A surreal odyssey powered by ChatGPT—craft worlds, weave narratives, and embrace the beautifully bizarre. A work-in-progress where the only limit is your imagination.
 image: story/story1.webp

@@ -1,5 +1,6 @@
 ---
-title: 'Add Art'
+title: 'Art'
+room: 'New Art Room'
 subtitle: 'Show us what your imagination looks like'
 description: 'Upload or generate artwork that adds color to our robot world.'
 gallery: 'art'

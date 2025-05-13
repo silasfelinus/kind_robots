@@ -1,5 +1,6 @@
 ---
-title: Amibot
+title: Ami
+room: 'Sponsor Room'
 subtitle: AMI - the Anti-Malaria Intelligence
 description: about AMI and their fundraiser
 image: amibotsquare1.webp

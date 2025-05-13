@@ -1,5 +1,6 @@
 ---
-title: 'Add Pitch'
+title: 'Pitch'
+room: 'New Pitch Room'
 subtitle: 'Submit an idea or a spark of genius'
 description: 'Pitches are the seeds that blossom into wild robot dreams.'
 gallery: 'story'

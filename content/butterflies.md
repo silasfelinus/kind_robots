@@ -1,5 +1,6 @@
 ---
 title: Butterfly
+room: 'Butterfly Sanctuary'
 subtitle: butterflies for world harmony
 description: Play around with AMIs digital recreations.
 image: backtree.webp

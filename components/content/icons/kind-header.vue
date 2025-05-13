@@ -25,14 +25,12 @@
         v-if="!bigMode"
         class="hidden lg:flex flex-col justify-center items-center text-center w-[15%]"
       >
-        <Transition name="fade-scale" mode="out-in" appear>
-          <h1
-            key="title"
-            class="font-bold text-xl lg:text-2xl xl:text-3xl tracking-tight drop-shadow"
-          >
-            Kind {{ page?.title || 'Robots' }}
-          </h1>
-        </Transition>
+        <h1
+          key="title"
+          class="font-bold text-xl lg:text-2xl xl:text-3xl tracking-tight drop-shadow"
+        >
+          Kind {{ page?.title || 'Robots' }}
+        </h1>
       </div>
 
       <!-- Smart Icons -->

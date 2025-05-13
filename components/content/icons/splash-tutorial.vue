@@ -141,10 +141,14 @@ const {
 const parsedNavComponent = computed(() => {
   try {
     const raw = navComponent.value
-    if (typeof raw === 'string' && raw.trim().startsWith('[')) {
-      return JSON.parse(raw)
+    if (typeof raw === 'string') {
+      if (raw.trim().startsWith('[')) {
+        const parsed = JSON.parse(raw)
+        return Array.isArray(parsed) ? parsed : null
+      }
+      return raw.trim()
     }
-    return raw
+    return null
   } catch (e) {
     console.warn('Failed to parse navComponent:', e)
     return null

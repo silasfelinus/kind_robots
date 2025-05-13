@@ -6,16 +6,24 @@
       <div class="flip-card h-full w-full">
         <div
           class="flip-card-inner"
-          :class="{ 'is-flipped': sidebarRightOpen }"
+          :class="{
+            'is-flipped': sidebarRightOpen,
+            'front-hidden': sidebarRightOpen,
+            'back-hidden': !sidebarRightOpen,
+          }"
         >
           <!-- Front Face: Main Page -->
           <div class="flip-card-front">
-            <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
+            <div class="h-full w-full overflow-y-auto max-h-full">
+              <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
+            </div>
           </div>
 
           <!-- Back Face: Splash Tutorial -->
           <div class="flip-card-back">
-            <splash-tutorial />
+            <div class="h-full w-full overflow-y-auto max-h-full">
+              <splash-tutorial />
+            </div>
           </div>
         </div>
       </div>
@@ -71,13 +79,14 @@ watchEffect(() => {
   perspective: 1000px;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
 .flip-card-inner {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s;
+  transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
 }
 
@@ -87,26 +96,31 @@ watchEffect(() => {
 
 .flip-card-front,
 .flip-card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  -webkit-overflow-scrolling: touch;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+  display: flex;
+  flex-direction: column;
 }
 
-.flip-card-front {
-  position: relative;
-  z-index: 2;
+/* Hide inactive face to prevent iOS double scroll and ghost touches */
+.front-hidden .flip-card-front {
+  pointer-events: none;
+  visibility: hidden;
+}
+.back-hidden .flip-card-back {
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .flip-card-back {
-  position: absolute;
-  top: 0;
-  left: 0;
   transform: rotateY(180deg);
-  z-index: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
 }
 </style>

@@ -65,13 +65,6 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'hidden' &&
     displayStore.sidebarRightState !== 'disabled',
 )
-
-watchEffect(() => {
-  console.log(
-    '[main-content] flip state:',
-    sidebarRightOpen.value ? 'Flipped to splash' : 'Flipped to page',
-  )
-})
 </script>
 
 <style scoped>

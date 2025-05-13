@@ -1,5 +1,6 @@
 ---
-title: 'Theme'
+title: 'Themes'
+room: 'Theme Gallery'
 subtitle: 'Your World, Your Palette'
 description: 'Select a theme that resonances with you, and make this space truly your own. With a plethora of choices, you are bound to find your vibe.'
 image: fantasycore/fantasycore-859.webp

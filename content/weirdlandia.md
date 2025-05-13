@@ -1,5 +1,6 @@
 ---
-title: 'Weirdlandia'
+title: 'Weirdness'
+room: 'Weirdlandia'
 subtitle: 'Endless AI Adventures'
 description: A surreal odyssey guided by chatGPT, this work-in-progress promises to whisk you away to far-flung corners of absurdity and wonder.
 image: weirdlandia/weird1.png

@@ -1,5 +1,6 @@
 ---
-title: 'Add Bot'
+title: 'Bot'
+room: 'New Bot Room'
 subtitle: 'Create a new kind robot'
 description: 'Create a new bot and share it with the community'
 gallery: 'botcafe'

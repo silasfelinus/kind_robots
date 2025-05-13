@@ -1,5 +1,6 @@
 ---
-title: 'Resonance Gallery'
+title: 'Resonances'
+room: 'Resonance Gallery'
 subtitle: 'ripples of a thousand dreams'
 description: 'Browse the infinite echoes of worlds shaped by sound, thought, and whim. Each resonance tells a story vibrating just beneath reality.'
 gallery: 'resonances'

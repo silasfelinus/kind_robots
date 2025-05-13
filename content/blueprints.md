@@ -1,5 +1,6 @@
 ---
-title: 'Blueprint Gallery'
+title: 'Blueprints'
+room: 'Blueprint Gallery'
 subtitle: 'Browse your creative schematics'
 description: 'Explore, edit, or expand existing Blueprint entries used for AI-driven workflows.'
 gallery: 'blueprintvault'

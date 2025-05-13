@@ -1,5 +1,6 @@
 ---
-title: 'Pitch Gallery'
+title: 'Pitches'
+room: 'Pitch Gallery'
 subtitle: 'Where ideas come to mingle, mutate, and maybe... manifest'
 description: 'See the sparks of inspiration submitted by our community.'
 gallery: 'story'

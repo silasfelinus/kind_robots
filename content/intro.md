@@ -1,5 +1,6 @@
 ---
 title: 'Welcome'
+room: 'Welcome Room'
 subtitle: 'intro slideshow'
 description: 'An overview of our services'
 gallery: 'botcafe'

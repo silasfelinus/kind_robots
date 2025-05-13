@@ -1,5 +1,6 @@
 ---
 title: 'About'
+room: 'About Room'
 subtitle: 'Unapologetically Optimistic'
 description: Where missions and elevator pitches go to socialize.
 layout: 'default'

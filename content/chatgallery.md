@@ -1,5 +1,6 @@
 ---
-title: 'Chat Gallery'
+title: 'Chats'
+room: 'Chat Gallery'
 subtitle: 'Echoes of wit, warmth, and weirdness'
 description: 'Scroll through curated messages and threads from across our digital domains.'
 gallery: 'avatars'

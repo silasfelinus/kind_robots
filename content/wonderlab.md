@@ -1,5 +1,6 @@
 ---
-title: 'Wonderlab'
+title: 'Wonder'
+room: 'Wonder Lab'
 subtitle: 'Unveiling the Magic'
 description: A comprehensive showcase of the modular building blocks that power our digital wonderland. Peer into the gears and cogs of our operation.
 image: backtree.webp

@@ -1,5 +1,6 @@
 ---
-title: 'New Resonance'
+title: 'Resonance'
+room: 'New Resonance Room'
 subtitle: 'Catch a vibration'
 description: 'Capture a fleeting emotion, craft a beat, or weave a new world. Every resonance begins with a whisper... or a subwoofer.'
 gallery: 'resonances'

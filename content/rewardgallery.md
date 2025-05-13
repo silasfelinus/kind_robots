@@ -1,5 +1,6 @@
 ---
-title: 'Reward Gallery'
+title: 'Rewards'
+room: 'Reward Gallery'
 subtitle: 'A collection of beautiful narrative chaos'
 description: 'Explore community-created rewards: items, powers, and prompts that twist the rules of our AI storytelling worlds.'
 gallery: 'rewardgallery'

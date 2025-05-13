@@ -1,5 +1,6 @@
 ---
-title: 'Add Chat'
+title: 'Chat'
+room: 'New Chat Room'
 subtitle: 'Say something worth responding to'
 description: 'Add a new chat prompt or message to spark AI dialogue.'
 gallery: 'botcafe'

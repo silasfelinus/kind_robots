@@ -1,7 +1,7 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
   <div
-    class="relative w-full min-h-screen overflow-y-auto rounded-2xl border-2 border-black z-20"
+    class="relative w-full h-screen overflow-y-auto rounded-2xl border-2 border-black z-20"
   >
     <!-- Background Image -->
     <img
@@ -17,7 +17,9 @@
     />
 
     <!-- Foreground Content -->
-    <div class="relative z-20 w-full max-w-4xl mx-auto px-4 py-4 space-y-6">
+    <div
+      class="relative z-20 w-full max-w-4xl h-full flex flex-col mx-auto px-4 py-4 space-y-6"
+    >
       <!-- Title + Description Block -->
       <div
         class="text-center space-y-2 cursor-pointer"

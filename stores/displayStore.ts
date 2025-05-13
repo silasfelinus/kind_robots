@@ -15,6 +15,8 @@ export type displayModeState =
   | 'pitch'
   | 'art'
   | 'collection'
+  | 'resonance'
+
 export type displayActionState =
   | 'gallery'
   | 'card'

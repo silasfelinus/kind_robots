@@ -16,5 +16,6 @@ dottitip: "I've been meaning to ask you, AMI...What's it like being a robot? I m
 amitip: "Uhm, Dotti...I think we might need to have a talk."
 navComponent: 'mode-nav'
 ---
+:bot-gallery
 
 :bot-factory

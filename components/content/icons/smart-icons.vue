@@ -3,7 +3,7 @@
   <div class="relative w-full h-full overflow-hidden">
     <!-- Left Scroll Button -->
     <div
-      class="absolute left-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
+      class="absolute left-0 top-0 bottom-0 w-[42rem] z-40 flex items-center justify-center"
     >
       <button
         v-show="showLeft"
@@ -18,7 +18,7 @@
 
     <!-- Right Scroll Button -->
     <div
-      class="absolute right-[4.5rem] top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
+      class="absolute right-[2rem] top-0 bottom-0 w-[2rem] z-40 flex items-center justify-center"
     >
       <button
         v-show="showRight"
@@ -33,7 +33,7 @@
 
     <!-- Edit Button (after right scroll) -->
     <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50">
-      <div v-if="!isEditing" class="flex flex-col gap-2 pr-2">
+      <div v-if="!isEditing" class="flex flex-col gap-1 pr-1">
         <button
           class="btn btn-square btn-sm"
           @click="activateEditMode"
@@ -46,7 +46,7 @@
 
     <!-- Scrollable Area with Fade Overlays -->
     <div
-      class="relative w-full h-full flex items-center pl-[4.5rem] pr-[9rem] scroll-fade-left scroll-fade-right"
+      class="relative w-full h-full flex items-center scroll-fade-left scroll-fade-right"
     >
       <div
         ref="scrollContainer"
@@ -62,7 +62,7 @@
       >
         <!-- Icon Row -->
         <div
-          class="flex items-center gap-1 md:gap-2 lg:gap-4 xl:gap-6 min-w-fit h-full select-none px-2"
+          class="flex items-center gap-1 md:gap-2 lg:gap-3 xl:gap-4 min-w-fit h-full select-none"
         >
           <icon-shell v-for="(icon, index) in editableIcons" :key="icon.id">
             <template #icon>
@@ -195,18 +195,6 @@ function activateEditMode() {
   iconStore.isEditing = true
   displayStore.bigMode = false
 }
-
-
-// Debugging: log path checks for glow condition
-watchEffect(() => {
-  for (const icon of editableIcons.value) {
-    if (icon.link) {
-      console.log(
-        `[glow-check] route.path: '${route.path}' vs icon.link: '${icon.link}'`,
-      )
-    }
-  }
-})
 
 const showSwarm = computed(() => iconStore.showSwarm)
 const swarmMessage = computed(() => iconStore.swarmMessage)

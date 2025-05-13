@@ -7,19 +7,17 @@
     <img
       v-if="image"
       :src="`/images/${image}`"
-      class="absolute top-0 left-0 w-full h-full object-cover z-0"
-      style="height: 100%"
+      class="absolute inset-0 w-full h-full object-cover z-0"
       alt="Ambient Background"
     />
+
     <!-- Bokeh Overlay -->
     <div
       class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-10 pointer-events-none"
     />
 
-    <!-- Foreground Content Grid -->
-    <div
-      class="relative z-20 min-h-full max-w-4xl mx-auto px-4 py-2 grid grid-rows-[auto_minmax(0,1fr)_auto] gap-3"
-    >
+    <!-- Foreground Content -->
+    <div class="relative z-20 w-full max-w-4xl mx-auto px-4 py-4 space-y-6">
       <!-- Title + Description Block -->
       <div
         class="text-center space-y-2 cursor-pointer"
@@ -28,21 +26,18 @@
         <div class="absolute top-0 right-0 z-30">
           <Icon :name="icon" class="w-full h-auto text-primary" />
         </div>
-
         <h1
           v-if="room"
           class="text-sm md:text-md lg:text-lg xl:text-2xl font-bold bg-secondary text-black border border-black rounded-2xl px-4 py-1 inline-block animate-fade-in-up"
         >
           The {{ room }}
         </h1>
-        <div>
-          <h2
-            v-if="subtitle"
-            class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
-          >
-            {{ subtitle }}
-          </h2>
-        </div>
+        <h2
+          v-if="subtitle"
+          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
+        >
+          {{ subtitle }}
+        </h2>
         <h2
           v-if="description"
           class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-300"
@@ -51,11 +46,8 @@
         </h2>
       </div>
 
-      <!-- Shared container for nav + mode-row -->
-      <div
-        class="flex flex-col gap-4 overflow-hidden h-full w-full pointer-events-auto"
-      >
-        <!-- NavComponent (takes half space) -->
+      <!-- Nav + Mode Row -->
+      <div class="flex flex-col gap-4 w-full pointer-events-auto">
         <div
           class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
         >
@@ -73,8 +65,6 @@
             class="w-full max-w-3xl"
           />
         </div>
-
-        <!-- Mode-row (takes half space) -->
         <div
           class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
         >
@@ -82,7 +72,7 @@
         </div>
       </div>
 
-      <!-- Bot Tips (anchored to bottom) -->
+      <!-- Bot Tips -->
       <div
         v-if="dottitip && amitip"
         class="space-y-3 max-w-2xl mx-auto pb-3 px-2"
@@ -96,13 +86,12 @@
           </div>
           <div class="chat-bubble bg-primary text-black border border-black">
             <span
-              class="font-semibold text-xs md:text:sm lg:text-md xl:text-lg text-black"
+              class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg text-black"
               >DottiBot:</span
             >
             <div class="text-black">{{ dottitip }}</div>
           </div>
         </div>
-
         <div class="chat chat-start animate-fade-in-up delay-500">
           <div class="chat-image avatar">
             <div class="w-10 h-10 rounded-full border-2 border-secondary">
@@ -111,7 +100,7 @@
           </div>
           <div class="chat-bubble bg-secondary text-black border border-black">
             <span
-              class="font-semibold text-xs md:text:sm lg:text-md xl:text-lg text-black"
+              class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg text-black"
               >AMIbot:</span
             >
             <div class="text-black">{{ amitip }}</div>

@@ -1,7 +1,7 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
   <div
-    class="relative w-full min-h-screen overflow-y-auto rounded-2xl border-2 border-black z-20"
+    class="relative w-full min-h-[100dvh] overflow-auto rounded-2xl border-2 border-black z-20"
   >
     <!-- Background Image -->
     <img

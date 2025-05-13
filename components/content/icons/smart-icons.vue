@@ -128,7 +128,7 @@
           <icon-shell>
             <template #icon>
               <NuxtLink
-                to="/icongallery"
+                to="/icons"
                 @click="isEditing && confirmEdit()"
                 class="flex items-center justify-center w-full h-full transition-transform hover:scale-110"
               >

@@ -160,8 +160,6 @@ import { generateUsername } from '~/utils/generateUsername'
 const userStore = useUserStore()
 const errorStore = useErrorStore()
 
-userStore.initialize()
-
 // Reactive state
 const username = ref('')
 const email = ref('')

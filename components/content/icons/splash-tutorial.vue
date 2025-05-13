@@ -65,7 +65,9 @@
             class="w-full max-w-3xl"
           />
           <component
-            v-else-if="typeof parsedNavComponent === 'string'"
+            v-else-if="
+              typeof parsedNavComponent === 'string' && parsedNavComponent
+            "
             :is="parsedNavComponent"
             class="w-full max-w-3xl"
           />

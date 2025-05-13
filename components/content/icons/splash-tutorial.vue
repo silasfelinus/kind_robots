@@ -1,23 +1,25 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
-  <!-- Root scroll container -->
+  <!-- Root container with scrollable content -->
   <div
-    class="relative w-full min-h-[100dvh] overflow-y-auto rounded-2xl border-2 border-black z-20"
+    class="relative w-full min-h-[100dvh] rounded-2xl border-2 border-black overflow-auto z-20"
   >
-    <!-- Background wrapper (non-scrolling) -->
-    <div class="fixed inset-0 z-0 pointer-events-none">
+    <!-- Background image as part of scrollable flow -->
+    <div class="absolute inset-0 w-full h-full z-0">
       <img
         v-if="image"
         :src="`/images/${image}`"
         class="w-full h-full object-cover"
         alt="Ambient Background"
       />
-      <div class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm" />
+      <div
+        class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none"
+      />
     </div>
 
     <!-- Foreground scroll content -->
     <div
-      class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-4 space-y-6 min-h-[100dvh]"
+      class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-4 space-y-6"
     >
       <!-- Title + Description Block -->
       <div

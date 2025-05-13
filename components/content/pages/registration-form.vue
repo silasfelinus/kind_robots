@@ -151,8 +151,6 @@ import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 const userStore = useUserStore()
 const errorStore = useErrorStore()
 
-userStore.initialize()
-
 const username = ref('')
 const email = ref('')
 const password = ref('')

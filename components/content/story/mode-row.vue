@@ -6,12 +6,12 @@
     <div
       v-for="mode in modes"
       :key="mode.name"
-      class="flex flex-col items-center justify-between border-black border-1 bg-base-200 rounded-2xl shadow-sm hover:shadow-md p-4 transition group cursor-pointer"
+      class="flex flex-col items-center justify-between border-black border-2 bg-primary rounded-2xl shadow-sm hover:shadow-md p-4 transition group cursor-pointer"
     >
       <!-- Icon Button -->
       <div
         @click="handleAddMode(mode.name as displayModeState)"
-        class="flex items-center justify-center w-12 h-12 rounded-full bg-base-100 hover:bg-primary hover:text-white transition mb-2"
+        class="flex items-center justify-center w-12 h-12 rounded-full bg-base-100 border-2 border-black hover:bg-primary hover:text-white transition mb-2"
         :title="`Add ${mode.label}`"
       >
         <Icon :name="mode.icon" class="w-6 h-6" />

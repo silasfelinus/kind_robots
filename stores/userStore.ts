@@ -142,16 +142,25 @@ export const useUserStore = defineStore('userStore', {
       return this.users.find((user) => user.id === userId) || null
     },
 
-    updateUserInList(updatedUser: User) {
+    async updateUserInList(updatedUser: User) {
+      // If users list is empty or hasn't been fetched yet, fetch first
+      if (!this.users.length) {
+        console.warn(
+          '[userStore] Users list is empty. Fetching users before update...',
+        )
+        await this.fetchUsers()
+      }
+
       const index = this.users.findIndex((user) => user.id === updatedUser.id)
       if (index !== -1) {
-        this.users.splice(index, 1, updatedUser) // Replace the user in the array
+        this.users.splice(index, 1, updatedUser)
+        console.log('[userStore] Updated user in list:', updatedUser.username)
       } else {
         console.warn(
-          'User not found in the list to update:',
-          updatedUser,
-          this.users,
+          '[userStore] User not found in list after fetch. Adding to list:',
+          updatedUser.username,
         )
+        this.users.push(updatedUser)
       }
     },
 

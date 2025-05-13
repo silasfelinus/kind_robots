@@ -16,4 +16,3 @@ sort: highlight
 navComponent: 'mode-nav'
 ---
 :add-art
-:art-lab

@@ -1,13 +1,14 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
   <div
-    class="relative w-full h-screen md:h-full overflow-y-auto rounded-2xl border-2 border-black z-20"
+    class="relative w-full min-h-screen overflow-y-auto rounded-2xl border-2 border-black z-20"
   >
     <!-- Background Image -->
     <img
       v-if="image"
       :src="`/images/${image}`"
-      class="absolute inset-0 h-full w-auto object-cover z-0"
+      class="absolute top-0 left-0 w-full h-full object-cover z-0"
+      style="height: 100%"
       alt="Ambient Background"
     />
     <!-- Bokeh Overlay -->

@@ -1,4 +1,4 @@
-<!-- /components/content/layout/main-content.vue -->
+<!-- /components/content/icons/main-content.vue -->
 <template>
   <div class="relative h-full w-full rounded-2xl overflow-hidden bg-base-300">
     <!-- Mobile View: Flip between page and splash -->
@@ -20,10 +20,8 @@
           </div>
 
           <!-- Back Face: Splash Tutorial -->
-          <div class="flip-card-back">
-            <div class="h-full w-full overflow-y-auto max-h-full">
-              <splash-tutorial />
-            </div>
+          <div class="flip-card-back overflow-y-auto w-full">
+            <splash-tutorial />
           </div>
         </div>
       </div>
@@ -55,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watchEffect } from 'vue'
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()

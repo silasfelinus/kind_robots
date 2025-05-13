@@ -6,7 +6,7 @@
     <div class="flex w-full h-full items-stretch">
       <!-- Avatar with Overlay -->
       <div
-        class="relative flex items-center justify-center overflow-hidden rounded-2xl min-w-10 h-full"
+        class="relative flex items-center justify-center overflow-hidden rounded-2xl min-w-20 h-full"
         :class="bigMode ? 'w-[15%]' : 'w-[25%]'"
       >
         <avatar-image
@@ -23,7 +23,7 @@
       <!-- Title / Subtitle -->
       <div
         v-if="!bigMode"
-        class="hidden lg:flex flex-col justify-center items-center text-center w-[20%] px-2"
+        class="hidden lg:flex flex-col justify-center items-center text-center w-[15%]"
       >
         <Transition name="fade-scale" mode="out-in" appear>
           <h1
@@ -46,8 +46,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/story/kind-header.vue
-import { computed } from 'vue'
+// /components/content/icons/kind-header.vue
 import { storeToRefs } from 'pinia'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -58,23 +57,3 @@ const pageStore = usePageStore()
 const { page } = storeToRefs(pageStore)
 const { viewportSize, bigMode } = storeToRefs(displayStore)
 </script>
-
-<style scoped>
-.fade-scale-enter-active,
-.fade-scale-leave-active {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease,
-    translate 0.3s ease;
-}
-.fade-scale-enter-from,
-.fade-scale-leave-to {
-  opacity: 0;
-  transform: scale(0.95) translateY(0.5rem);
-}
-.fade-scale-enter-to,
-.fade-scale-leave-from {
-  opacity: 1;
-  transform: scale(1) translateY(0);
-}
-</style>

@@ -75,10 +75,7 @@ const isLoading = ref(true)
 watchEffect(async () => {
   isLoading.value = true
   try {
-    await Promise.all([
-      characterStore.fetchCharacters(),
-      userStore.initialize(),
-    ])
+    await Promise.all([characterStore.fetchCharacters()])
   } catch (error) {
     console.error(
       'Error fetching characters or initializing user store:',

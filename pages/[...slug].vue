@@ -14,6 +14,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/story/main.vue
 import { watch } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { storeToRefs } from 'pinia'
@@ -28,8 +29,8 @@ import { usePitchStore } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import type {
-  displayActionState,
   displayModeState,
+  displayActionState,
 } from '@/stores/displayStore'
 
 const route = useRoute()
@@ -71,32 +72,12 @@ const handleRouteChange = async () => {
     displayStore.displayAction = displayAction as displayActionState
   }
 
-  if (botId && botStore.selectedBotId !== Number(botId)) {
-    botStore.selectBot(Number(botId))
-  }
-
-  if (
-    characterId &&
-    characterStore.selectedCharacter?.id !== Number(characterId)
-  ) {
-    characterStore.selectCharacter(Number(characterId))
-  }
-
-  if (scenarioId && scenarioStore.selectedScenario?.id !== Number(scenarioId)) {
-    scenarioStore.selectScenario(Number(scenarioId))
-  }
-
-  if (chatId && chatStore.selectedChat?.id !== Number(chatId)) {
-    chatStore.selectChat(Number(chatId))
-  }
-
-  if (pitchId && pitchStore.selectedPitch?.id !== Number(pitchId)) {
-    pitchStore.selectPitch(Number(pitchId))
-  }
-
-  if (promptId && promptStore.selectedPrompt?.id !== Number(promptId)) {
-    promptStore.selectPrompt(Number(promptId))
-  }
+  if (botId) botStore.selectBot(Number(botId))
+  if (characterId) characterStore.selectCharacter(Number(characterId))
+  if (scenarioId) scenarioStore.selectScenario(Number(scenarioId))
+  if (chatId) chatStore.selectChat(Number(chatId))
+  if (pitchId) pitchStore.selectPitch(Number(pitchId))
+  if (promptId) promptStore.selectPrompt(Number(promptId))
 
   if (code) {
     await router.push(`/api/auth/google/callback?code=${code}`)
@@ -106,24 +87,28 @@ const handleRouteChange = async () => {
   const storedToken = userStore.getFromLocalStorage('token')
   const tokenToUse = queryToken || storedToken
 
-  if (!userStore.user && tokenToUse) {
-    if (userStore.token !== tokenToUse) {
+  // Initialization and auth (run only once)
+  if (!userStore.initialized) {
+    await userStore.initialize()
+
+    // Token override logic only if user is still null after init
+    if (!userStore.user && tokenToUse) {
       userStore.token = tokenToUse as string
-    }
 
-    try {
-      const isValid = await userStore.validateAndFetchUserData()
+      try {
+        const isValid = await userStore.validateAndFetchUserData()
 
-      if (!isValid) {
+        if (!isValid) {
+          userStore.removeFromLocalStorage('token')
+          await router.push('/login')
+        } else if (queryToken) {
+          userStore.saveToLocalStorage('token', queryToken as string)
+        }
+      } catch (error) {
+        console.error('Token validation error:', error)
         userStore.removeFromLocalStorage('token')
         await router.push('/login')
-      } else if (queryToken) {
-        userStore.saveToLocalStorage('token', queryToken as string)
       }
-    } catch (error) {
-      console.error('Token validation error:', error)
-      userStore.removeFromLocalStorage('token')
-      await router.push('/login')
     }
   }
 }

@@ -1,113 +1,108 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
+  <!-- Root scroll container -->
   <div
-    class="relative w-full min-h-[100dvh] rounded-2xl border-2 border-black z-20"
+    class="relative w-full min-h-[100dvh] overflow-y-auto rounded-2xl border-2 border-black z-20"
   >
-    <!-- Background Image and Overlay -->
-    <div class="absolute inset-0 w-full h-full z-0">
+    <!-- Background wrapper (non-scrolling) -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
       <img
         v-if="image"
         :src="`/images/${image}`"
         class="w-full h-full object-cover"
         alt="Ambient Background"
       />
-      <div
-        class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none"
-      />
+      <div class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm" />
     </div>
 
-    <!-- Scrollable Foreground Content -->
-    <div class="relative z-20 max-h-[100dvh] overflow-y-auto">
-      <div class="w-full max-w-4xl flex flex-col mx-auto px-4 py-4 space-y-6">
-        <!-- Title + Description Block -->
-        <div
-          class="text-center space-y-2 cursor-pointer"
-          @click="handleSidebarClose"
-        >
-          <div class="absolute top-0 right-0 z-30">
-            <Icon :name="icon" class="w-full h-auto text-primary" />
-          </div>
-          <h1
-            v-if="room"
-            class="text-sm md:text-md lg:text-lg xl:text-2xl font-bold bg-secondary text-black border border-black rounded-2xl px-4 py-1 inline-block animate-fade-in-up"
-          >
-            The {{ room }}
-          </h1>
-          <h2
-            v-if="subtitle"
-            class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
-          >
-            {{ subtitle }}
-          </h2>
-          <h2
-            v-if="description"
-            class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-300"
-          >
-            {{ description }}
-          </h2>
+    <!-- Foreground scroll content -->
+    <div
+      class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-4 space-y-6 min-h-[100dvh]"
+    >
+      <!-- Title + Description Block -->
+      <div
+        class="text-center space-y-2 cursor-pointer"
+        @click="handleSidebarClose"
+      >
+        <div class="absolute top-0 right-0 z-30">
+          <Icon :name="icon" class="w-full h-auto text-primary" />
         </div>
-
-        <!-- Nav + Mode Row -->
-        <div class="flex flex-col gap-4 w-full pointer-events-auto">
-          <div
-            class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
-          >
-            <component
-              v-if="Array.isArray(parsedNavComponent)"
-              is="smart-nav"
-              :component-list="parsedNavComponent"
-              class="w-full max-w-3xl"
-            />
-            <component
-              v-else-if="
-                typeof parsedNavComponent === 'string' && parsedNavComponent
-              "
-              :is="parsedNavComponent"
-              class="w-full max-w-3xl"
-            />
-          </div>
-          <div
-            class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
-          >
-            <mode-row class="w-full max-w-3xl" />
-          </div>
-        </div>
-
-        <!-- Bot Tips -->
-        <div
-          v-if="dottitip && amitip"
-          class="space-y-3 max-w-2xl mx-auto pb-3 px-2"
-          @click="handleSidebarClose"
+        <h1
+          v-if="room"
+          class="text-sm md:text-md lg:text-lg xl:text-2xl font-bold bg-secondary text-black border border-black rounded-2xl px-4 py-1 inline-block animate-fade-in-up"
         >
-          <div class="chat chat-end animate-fade-in-up delay-300 text-black">
-            <div class="chat-image avatar">
-              <div class="w-10 h-10 rounded-full border-2 border-primary">
-                <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
-              </div>
-            </div>
-            <div class="chat-bubble bg-primary text-black border border-black">
-              <span
-                class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
-                >DottiBot:</span
-              >
-              <div>{{ dottitip }}</div>
+          The {{ room }}
+        </h1>
+        <h2
+          v-if="subtitle"
+          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
+        >
+          {{ subtitle }}
+        </h2>
+        <h2
+          v-if="description"
+          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-300"
+        >
+          {{ description }}
+        </h2>
+      </div>
+
+      <!-- Nav + Mode Row -->
+      <div class="flex flex-col gap-4 w-full pointer-events-auto">
+        <div
+          class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
+        >
+          <component
+            v-if="Array.isArray(parsedNavComponent)"
+            is="smart-nav"
+            :component-list="parsedNavComponent"
+            class="w-full max-w-3xl"
+          />
+          <component
+            v-else-if="
+              typeof parsedNavComponent === 'string' && parsedNavComponent
+            "
+            :is="parsedNavComponent"
+            class="w-full max-w-3xl"
+          />
+        </div>
+        <div
+          class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
+        >
+          <mode-row class="w-full max-w-3xl" />
+        </div>
+      </div>
+
+      <!-- Bot Tips -->
+      <div
+        v-if="dottitip && amitip"
+        class="space-y-3 max-w-2xl mx-auto pb-3 px-2"
+        @click="handleSidebarClose"
+      >
+        <div class="chat chat-end animate-fade-in-up delay-300 text-black">
+          <div class="chat-image avatar">
+            <div class="w-10 h-10 rounded-full border-2 border-primary">
+              <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
             </div>
           </div>
-          <div class="chat chat-start animate-fade-in-up delay-500">
-            <div class="chat-image avatar">
-              <div class="w-10 h-10 rounded-full border-2 border-secondary">
-                <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
-              </div>
-            </div>
-            <div
-              class="chat-bubble bg-secondary text-black border border-black"
+          <div class="chat-bubble bg-primary text-black border border-black">
+            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
+              >DottiBot:</span
             >
-              <span
-                class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
-                >AMIbot:</span
-              >
-              <div>{{ amitip }}</div>
+            <div>{{ dottitip }}</div>
+          </div>
+        </div>
+        <div class="chat chat-start animate-fade-in-up delay-500">
+          <div class="chat-image avatar">
+            <div class="w-10 h-10 rounded-full border-2 border-secondary">
+              <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
             </div>
+          </div>
+          <div class="chat-bubble bg-secondary text-black border border-black">
+            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
+              >AMIbot:</span
+            >
+            <div>{{ amitip }}</div>
           </div>
         </div>
       </div>

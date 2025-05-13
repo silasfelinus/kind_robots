@@ -32,8 +32,8 @@
 
       <!-- Icons Section (Bottom-Aligned) -->
       <div class="flex-grow flex items-end justify-end gap-2 mt-auto">
-        <login-path />
-        <jellybean-count />
+        <login-icon />
+        <jellybean-icon />
         <theme-icon />
         <swarm-icon />
       </div>

@@ -12,8 +12,8 @@
 
     <!-- Icons Section -->
     <div class="flex flex-row justify-around items-center flex-grow space-x-4">
-      <login-path class="flex flex-1 max-w-[80px]" />
-      <jellybean-count class="flex flex-1 max-w-[80px]" />
+      <login-icon class="flex flex-1 max-w-[80px]" />
+      <jellybean-icon class="flex flex-1 max-w-[80px]" />
       <theme-icon class="flex flex-1 max-w-[80px]" />
       <swarm-icon class="flex flex-1 max-w-[80px]" />
     </div>

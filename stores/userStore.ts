@@ -288,7 +288,11 @@ export const useUserStore = defineStore('userStore', {
 
     async setUser(userData: User): Promise<void> {
       this.user = userData
-      this.updateUserInList(userData) // Ensure the users array stays updated
+
+      // Only update list if already initialized
+      if (this.initialized) {
+        this.updateUserInList(userData)
+      }
     },
 
     async updateUserInfo(updatedUserInfo: Partial<User>) {

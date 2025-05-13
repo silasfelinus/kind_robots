@@ -1,3 +1,4 @@
+// /stores/promptStore.ts
 import { defineStore } from 'pinia'
 import type { Prompt, Art } from '@prisma/client'
 import { performFetch, handleError } from './utils'
@@ -7,7 +8,6 @@ interface State {
   prompts: Prompt[]
   artByPromptId: Art[]
   selectedPrompt: Prompt | null
-  fetchedPrompts: Record<number, Prompt | null>
   promptField: string
   isInitialized: boolean
   promptArray: string[]
@@ -19,7 +19,6 @@ export const usePromptStore = defineStore('promptStore', {
     prompts: [],
     artByPromptId: [],
     selectedPrompt: null,
-    fetchedPrompts: {},
     promptField: 'kind robots',
     isInitialized: false,
     promptArray: [],
@@ -36,10 +35,31 @@ export const usePromptStore = defineStore('promptStore', {
   actions: {
     async initialize() {
       if (this.isInitialized) return
-      this.loadPromptField()
+      this.loadFromLocalStorage()
       await this.fetchPrompts()
       this.isInitialized = true
     },
+
+    loadFromLocalStorage() {
+      if (typeof window === 'undefined') return
+
+      const storedField = localStorage.getItem('promptField')
+      const storedArray = localStorage.getItem('promptArray')
+      const storedCurrent = localStorage.getItem('currentPrompt')
+
+      if (storedField) this.promptField = storedField
+      if (storedArray) this.promptArray = JSON.parse(storedArray)
+      if (storedCurrent) this.currentPrompt = storedCurrent
+    },
+
+    syncToLocalStorage() {
+      if (typeof window === 'undefined') return
+
+      localStorage.setItem('promptField', this.promptField)
+      localStorage.setItem('promptArray', JSON.stringify(this.promptArray))
+      localStorage.setItem('currentPrompt', this.currentPrompt)
+    },
+
     async selectPrompt(promptId: number) {
       try {
         if (this.selectedPrompt?.id === promptId) return
@@ -55,21 +75,6 @@ export const usePromptStore = defineStore('promptStore', {
       }
     },
 
-    savePromptField() {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('promptField', this.promptField)
-      }
-    },
-
-    loadPromptField() {
-      if (typeof window !== 'undefined') {
-        const savedPrompt = localStorage.getItem('promptField')
-        if (savedPrompt) {
-          this.promptField = savedPrompt
-        }
-      }
-    },
-
     async fetchPrompts() {
       try {
         const response = await performFetch<Prompt[]>('/api/prompts/')
@@ -81,16 +86,19 @@ export const usePromptStore = defineStore('promptStore', {
 
     addPromptToArray(prompt: string) {
       this.promptArray.push(prompt)
+      this.syncToLocalStorage()
     },
 
     removePromptFromArray(index: number) {
       this.promptArray.splice(index, 1)
+      this.syncToLocalStorage()
     },
 
     setPromptsFromString(finalString: string) {
       this.promptArray = finalString
         .split('|')
         .map((prompt: string) => prompt.trim())
+      this.syncToLocalStorage()
     },
 
     async addPrompt(newPrompt: string, userId: number, botId: number) {
@@ -111,15 +119,16 @@ export const usePromptStore = defineStore('promptStore', {
     },
 
     async fetchPromptById(promptId: number): Promise<Prompt | null> {
-      if (this.fetchedPrompts[promptId]) return this.fetchedPrompts[promptId]
+      const prompt = this.prompts.find((p) => p.id === promptId)
+      if (prompt) return prompt
+
       try {
         const response = await performFetch<Prompt>(`/api/prompts/${promptId}`)
         const fetchedPrompt = response.data || null
-        this.fetchedPrompts[promptId] = fetchedPrompt
+        if (fetchedPrompt) this.prompts.push(fetchedPrompt)
         return fetchedPrompt
       } catch (error) {
         handleError(error, 'fetching prompt by ID')
-        this.fetchedPrompts[promptId] = null
         return null
       }
     },

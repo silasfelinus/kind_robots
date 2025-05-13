@@ -73,7 +73,7 @@ const loading = computed(() => artStore.loading)
 const lastError = computed(() => errorStore.getError)
 
 const savePrompt = () => {
-  promptStore.savePromptField()
+  promptStore.syncToLocalStorage()
 }
 
 // Fetch the "Generated Art" collection and its art

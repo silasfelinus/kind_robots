@@ -125,8 +125,10 @@
       "kind-header",
       "kind-icons",
       "login-icon",
+      "main-content",
       "smart-icons",
       "smart-nav",
+      "splash-tutorial",
       "swarm-icon",
       "theme-icon"
     ]
@@ -201,7 +203,6 @@
       "header-upgrade",
       "info-block",
       "large-header",
-      "main-content",
       "navbar-toggle",
       "navigation-row",
       "navigation-trimmed",
@@ -345,7 +346,6 @@
       "right-toggle",
       "screen-debug",
       "selected-view",
-      "splash-tutorial",
       "story-about",
       "story-bar",
       "story-creator",

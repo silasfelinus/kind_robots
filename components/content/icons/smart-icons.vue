@@ -196,17 +196,6 @@ function activateEditMode() {
   displayStore.bigMode = false
 }
 
-// Debugging: log path checks for glow condition
-watchEffect(() => {
-  for (const icon of editableIcons.value) {
-    if (icon.link) {
-      console.log(
-        `[glow-check] route.path: '${route.path}' vs icon.link: '${icon.link}'`,
-      )
-    }
-  }
-})
-
 const showSwarm = computed(() => iconStore.showSwarm)
 const swarmMessage = computed(() => iconStore.swarmMessage)
 

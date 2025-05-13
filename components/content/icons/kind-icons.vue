@@ -43,8 +43,8 @@ defineProps<{ compact?: boolean }>()
 const { navLinks } = storeToRefs(useLinkStore())
 
 const utilityIcons = [
-  { name: 'login-path', component: 'login-path' },
-  { name: 'jellybean-count', component: 'jellybean-count' },
+  { name: 'login-icon', component: 'login-icon' },
+  { name: 'jellybean-icon', component: 'jellybean-icon' },
   { name: 'theme-icon', component: 'theme-icon' },
   { name: 'swarm-icon', component: 'swarm-icon' },
 ]

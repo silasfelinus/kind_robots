@@ -31,7 +31,7 @@
     </header>
 
     <!-- Jellybean Counter -->
-    <jellybean-count
+    <jellybean-icon
       v-if="isLoggedIn"
       class="fixed bottom-8 right-8 bg-white p-2 rounded-full shadow-md z-10"
     />

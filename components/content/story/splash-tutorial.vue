@@ -128,7 +128,6 @@ import { computed } from 'vue'
 
 const displayStore = useDisplayStore()
 const {
-  title,
   room,
   subtitle,
   description,

@@ -1,20 +1,17 @@
 <!-- /components/content/story/splash-tutorial.vue -->
 <template>
-  <!-- Root container with scrollable content -->
   <div
-    class="relative w-full min-h-[100dvh] overflow-y-auto rounded-2xl border-2 border-black z-20"
+    class="relative w-full h-[100dvh] overflow-y-auto rounded-2xl border-2 border-black z-20"
     @scroll="handleScroll"
     ref="scrollContainer"
   >
-    <!-- Foreground scroll content -->
+    <!-- Foreground content -->
     <div
       class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-4 space-y-6"
+      ref="contentContainer"
     >
       <!-- Title + Description Block -->
-      <div
-        class="text-center space-y-2 cursor-pointer"
-        @click="handleSidebarClose"
-      >
+      <div class="text-center space-y-2 cursor-pointer" @click="handleSidebarClose">
         <div class="absolute top-0 right-0 z-30">
           <Icon :name="icon" class="w-full h-auto text-primary" />
         </div>
@@ -40,9 +37,7 @@
 
       <!-- Nav + Mode Row -->
       <div class="flex flex-col gap-4 w-full pointer-events-auto">
-        <div
-          class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
-        >
+        <div class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black">
           <component
             v-if="Array.isArray(parsedNavComponent)"
             is="smart-nav"
@@ -50,16 +45,12 @@
             class="w-full max-w-3xl"
           />
           <component
-            v-else-if="
-              typeof parsedNavComponent === 'string' && parsedNavComponent
-            "
+            v-else-if="typeof parsedNavComponent === 'string' && parsedNavComponent"
             :is="parsedNavComponent"
             class="w-full max-w-3xl"
           />
         </div>
-        <div
-          class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
-        >
+        <div class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black">
           <mode-row class="w-full max-w-3xl" />
         </div>
       </div>
@@ -77,9 +68,7 @@
             </div>
           </div>
           <div class="chat-bubble bg-primary text-black border border-black">
-            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
-              >DottiBot:</span
-            >
+            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg">DottiBot:</span>
             <div>{{ dottitip }}</div>
           </div>
         </div>
@@ -90,36 +79,32 @@
             </div>
           </div>
           <div class="chat-bubble bg-secondary text-black border border-black">
-            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
-              >AMIbot:</span
-            >
+            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg">AMIbot:</span>
             <div>{{ amitip }}</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Parallax Background -->
+    <!-- Wallpaper image moved after all scroll content -->
     <div
-      class="absolute inset-0 -z-10 will-change-transform transition-transform duration-300"
-      :style="`transform: translateY(${parallaxOffset}px);`"
+      v-if="image"
+      class="absolute top-0 left-0 w-full -z-10 overflow-hidden transition-transform duration-300 will-change-transform"
+      :style="`height: ${scrollHeight}px; transform: translateY(${parallaxOffset}px);`"
     >
       <img
-        v-if="image"
         :src="`/images/${image}`"
         class="w-full h-full object-cover"
         alt="Ambient Background"
       />
-      <div
-        class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none"
-      />
+      <div class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // /components/content/story/splash-tutorial.vue
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { usePageStore } from '@/stores/pageStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -154,18 +139,27 @@ const parsedNavComponent = computed(() => {
 })
 
 const handleSidebarClose = () => {
-  console.log('Sidebar closing triggered')
   displayStore.setSidebarRight(false)
 }
 
-const parallaxOffset = ref(0)
 const scrollContainer = ref<HTMLElement | null>(null)
+const contentContainer = ref<HTMLElement | null>(null)
+
+const parallaxOffset = ref(0)
+const scrollHeight = ref(2000)
 
 const handleScroll = () => {
   if (scrollContainer.value) {
     parallaxOffset.value = scrollContainer.value.scrollTop * -0.25
   }
 }
+
+onMounted(async () => {
+  await nextTick()
+  if (contentContainer.value) {
+    scrollHeight.value = contentContainer.value.offsetHeight + 300
+  }
+})
 </script>
 
 <style scoped>

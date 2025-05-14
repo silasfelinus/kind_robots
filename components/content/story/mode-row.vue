@@ -1,7 +1,7 @@
 <template>
   <!-- Mode Button Grid -->
   <div
-    class="grid grid-cols-2 md:grid-cols-3 gap-2 px-2 py-2 w-full mx-auto border-black border-1 bg-base-200 rounded-2xl"
+    class="grid grid-cols-2 md:grid-cols-3 gap-2 px-2 py-2 w-full mx-auto rounded-2xl"
   >
     <div
       v-for="mode in modes"

@@ -3,6 +3,8 @@
   <!-- Root container with scrollable content -->
   <div
     class="relative w-full min-h-[100dvh] overflow-y-auto rounded-2xl border-2 border-black z-20"
+    @scroll="handleScroll"
+    ref="scrollContainer"
   >
     <!-- Foreground scroll content -->
     <div
@@ -97,8 +99,11 @@
       </div>
     </div>
 
-    <!-- Background image placed absolutely but constrained by parent height -->
-    <div class="absolute inset-0 -z-10">
+    <!-- Parallax Background -->
+    <div
+      class="absolute inset-0 -z-10 will-change-transform transition-transform duration-300"
+      :style="`transform: translateY(${parallaxOffset}px);`"
+    >
       <img
         v-if="image"
         :src="`/images/${image}`"
@@ -114,10 +119,10 @@
 
 <script setup lang="ts">
 // /components/content/story/splash-tutorial.vue
+import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { usePageStore } from '@/stores/pageStore'
 import { useDisplayStore } from '@/stores/displayStore'
-import { computed } from 'vue'
 
 const displayStore = useDisplayStore()
 const {
@@ -151,6 +156,15 @@ const parsedNavComponent = computed(() => {
 const handleSidebarClose = () => {
   console.log('Sidebar closing triggered')
   displayStore.setSidebarRight(false)
+}
+
+const parallaxOffset = ref(0)
+const scrollContainer = ref<HTMLElement | null>(null)
+
+const handleScroll = () => {
+  if (scrollContainer.value) {
+    parallaxOffset.value = scrollContainer.value.scrollTop * -0.25
+  }
 }
 </script>
 

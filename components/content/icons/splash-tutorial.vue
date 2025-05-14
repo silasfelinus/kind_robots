@@ -4,19 +4,6 @@
   <div
     class="relative w-full min-h-[100dvh] overflow-y-auto rounded-2xl border-2 border-black z-20"
   >
-    <!-- Background image placed inside scroll flow to stretch with content -->
-    <div class="absolute top-0 left-0 w-full h-full -z-10">
-      <img
-        v-if="image"
-        :src="`/images/${image}`"
-        class="w-full h-full object-cover"
-        alt="Ambient Background"
-      />
-      <div
-        class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none"
-      />
-    </div>
-
     <!-- Foreground scroll content -->
     <div
       class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-4 space-y-6"
@@ -108,6 +95,19 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Background image placed absolutely but constrained by parent height -->
+    <div class="absolute inset-0 -z-10">
+      <img
+        v-if="image"
+        :src="`/images/${image}`"
+        class="w-full h-full object-cover"
+        alt="Ambient Background"
+      />
+      <div
+        class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none"
+      />
     </div>
   </div>
 </template>

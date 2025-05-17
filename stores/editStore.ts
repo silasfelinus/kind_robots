@@ -29,26 +29,32 @@ export const useEditStore = defineStore('editStore', {
   }),
 
   actions: {
-    async submitEdit(edit: EditRequest) {
-      this.loading = true
-      this.error = null
-
+    async submitEdit(payload: {
+      imageId: number
+      request?: string
+      preset?: string
+      userId: number
+    }): Promise<{ success: boolean; message: string }> {
       try {
-        const response = await performFetch('/api/edit/submit', {
+        const response = await performFetch('/api/edit', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(edit),
+          body: JSON.stringify(payload),
+          headers: { 'Content-Type': 'application/json' },
         })
 
-        if (!response.success) {
-          throw new Error(response.message || 'Edit submission failed')
+        if (response.success) {
+          return { success: true, message: 'Edit submitted!' }
+        } else {
+          return { success: false, message: response.message || 'Edit failed.' }
         }
-      } catch (err: any) {
-        handleError(err, 'submitEdit')
-      } finally {
-        this.loading = false
+      } catch (error) {
+        return {
+          success: false,
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Unknown error submitting edit.',
+        }
       }
     },
   },

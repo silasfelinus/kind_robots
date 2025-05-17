@@ -56,7 +56,7 @@ import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import ArtCard from './ArtCard.vue'
+import ArtCard from './art-card.vue'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 
 const milestoneStore = useMilestoneStore()

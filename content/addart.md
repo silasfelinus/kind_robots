@@ -13,6 +13,6 @@ tooltip: 'Contribute artwork for bots, scenes, or just for beauty.'
 dottitip: 'Art speaks where words fall short.'
 amitip: 'Especially when it’s butterflies dancing on laser moons.'
 sort: highlight
-navComponent: 'mode-nav'
+navComponent: 'art-nav'
 ---
 :add-art

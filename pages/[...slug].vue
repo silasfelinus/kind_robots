@@ -1,3 +1,4 @@
+<!-- /pages/[...slug].vue -->
 <template>
   <main>
     <NuxtLayout :name="layout">
@@ -14,7 +15,6 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/story/main.vue
 import { watch } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { storeToRefs } from 'pinia'
@@ -64,6 +64,7 @@ const handleRouteChange = async () => {
     displayAction,
   } = route.query
 
+  // Display modes
   if (displayMode && displayStore.displayMode !== displayMode) {
     displayStore.displayMode = displayMode as displayModeState
   }
@@ -72,6 +73,7 @@ const handleRouteChange = async () => {
     displayStore.displayAction = displayAction as displayActionState
   }
 
+  // Context selects
   if (botId) botStore.selectBot(Number(botId))
   if (characterId) characterStore.selectCharacter(Number(characterId))
   if (scenarioId) scenarioStore.selectScenario(Number(scenarioId))
@@ -79,37 +81,19 @@ const handleRouteChange = async () => {
   if (pitchId) pitchStore.selectPitch(Number(pitchId))
   if (promptId) promptStore.selectPrompt(Number(promptId))
 
+  // Google OAuth callback
   if (code) {
     await router.push(`/api/auth/google/callback?code=${code}`)
     return
   }
 
-  const storedToken = userStore.getFromLocalStorage('token')
-  const tokenToUse = queryToken || storedToken
+  // Initialize userStore with token (if in query)
+  await userStore.initialize(queryToken as string | undefined)
 
-  // Initialization and auth (run only once)
-  if (!userStore.initialized) {
-    await userStore.initialize()
-
-    // Token override logic only if user is still null after init
-    if (!userStore.user && tokenToUse) {
-      userStore.token = tokenToUse as string
-
-      try {
-        const isValid = await userStore.validateAndFetchUserData()
-
-        if (!isValid) {
-          userStore.removeFromLocalStorage('token')
-          await router.push('/login')
-        } else if (queryToken) {
-          userStore.saveToLocalStorage('token', queryToken as string)
-        }
-      } catch (error) {
-        console.error('Token validation error:', error)
-        userStore.removeFromLocalStorage('token')
-        await router.push('/login')
-      }
-    }
+  // If user is still null (token invalid or missing), redirect unless guest allowed
+  if (!userStore.user && queryToken) {
+    console.warn('[slug] Invalid token login attempt. Redirecting.')
+    await router.push('/login')
   }
 }
 

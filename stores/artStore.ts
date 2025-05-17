@@ -705,7 +705,9 @@ export const useArtStore = defineStore('artStore', {
       return validPattern.test(prompt)
     },
 
-    async uploadImage(formData: FormData): Promise<void> {
+    async uploadImage(
+      formData: FormData,
+    ): Promise<{ success: boolean; message: string }> {
       try {
         const response = await performFetch<ArtImage>('/api/art/upload', {
           method: 'POST',
@@ -714,11 +716,16 @@ export const useArtStore = defineStore('artStore', {
 
         if (response.success && response.data) {
           this.artImages.push(response.data)
+          return { success: true, message: 'Image uploaded successfully' }
         } else {
-          throw new Error(response.message)
+          return {
+            success: false,
+            message: response.message || 'Upload failed',
+          }
         }
       } catch (error) {
         handleError(error, 'uploading image')
+        return { success: false, message: 'Upload failed' }
       }
     },
   },

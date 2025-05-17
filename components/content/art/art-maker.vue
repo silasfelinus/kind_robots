@@ -52,12 +52,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useArtStore } from '@/stores/artStore'
-import { usePromptStore } from '@/stores/promptStore'
-import { useDisplayStore } from '@/stores/displayStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import { useArtStore } from './../../../stores/artStore'
+import { usePromptStore } from './../../../stores/promptStore'
+import { useDisplayStore } from './../../../stores/displayStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 import ArtCard from './art-card.vue'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useMilestoneStore } from './../../../stores/milestoneStore'
 
 const milestoneStore = useMilestoneStore()
 

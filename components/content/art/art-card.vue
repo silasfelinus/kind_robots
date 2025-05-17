@@ -79,8 +79,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useArtStore } from '@/stores/artStore'
-import { useUserStore } from '@/stores/userStore'
+import { useArtStore } from './../../../stores/artStore'
+import { useUserStore } from './../../../stores/userStore'
 
 const props = defineProps<{
   art: Art

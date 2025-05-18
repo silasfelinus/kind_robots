@@ -11,7 +11,10 @@
       ref="contentContainer"
     >
       <!-- Title + Description Block -->
-      <div class="text-center space-y-2 cursor-pointer" @click="handleSidebarClose">
+      <div
+        class="text-center space-y-2 cursor-pointer"
+        @click="handleSidebarClose"
+      >
         <div class="absolute top-0 right-0 z-30">
           <Icon :name="icon" class="w-full h-auto text-primary" />
         </div>
@@ -37,7 +40,9 @@
 
       <!-- Nav + Mode Row -->
       <div class="flex flex-col gap-4 w-full pointer-events-auto">
-        <div class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black">
+        <div
+          class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
+        >
           <component
             v-if="Array.isArray(parsedNavComponent)"
             is="smart-nav"
@@ -45,12 +50,16 @@
             class="w-full max-w-3xl"
           />
           <component
-            v-else-if="typeof parsedNavComponent === 'string' && parsedNavComponent"
+            v-else-if="
+              typeof parsedNavComponent === 'string' && parsedNavComponent
+            "
             :is="parsedNavComponent"
             class="w-full max-w-3xl"
           />
         </div>
-        <div class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black">
+        <div
+          class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
+        >
           <mode-row class="w-full max-w-3xl" />
         </div>
       </div>
@@ -68,7 +77,9 @@
             </div>
           </div>
           <div class="chat-bubble bg-primary text-black border border-black">
-            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg">DottiBot:</span>
+            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
+              >DottiBot:</span
+            >
             <div>{{ dottitip }}</div>
           </div>
         </div>
@@ -79,7 +90,9 @@
             </div>
           </div>
           <div class="chat-bubble bg-secondary text-black border border-black">
-            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg">AMIbot:</span>
+            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
+              >AMIbot:</span
+            >
             <div>{{ amitip }}</div>
           </div>
         </div>
@@ -93,11 +106,14 @@
       :style="`height: ${scrollHeight}px; transform: translateY(${parallaxOffset}px);`"
     >
       <img
-        :src="`/images/${image}`"
+        :src="resolvedImage"
+        @error="handleImageError"
         class="w-full h-full object-cover"
         alt="Ambient Background"
       />
-      <div class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none" />
+      <div
+        class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none"
+      />
     </div>
   </div>
 </template>
@@ -138,6 +154,19 @@ const parsedNavComponent = computed(() => {
   }
 })
 
+const fallbackImage = '/images/botcafe.webp'
+const currentImage = ref(image.value)
+
+const handleImageError = () => {
+  currentImage.value = fallbackImage
+}
+
+const resolvedImage = computed(() => {
+  const src = currentImage.value
+  if (!src || typeof src !== 'string') return fallbackImage
+  return src.startsWith('/') ? src : `/images/${src}`
+})
+
 const handleSidebarClose = () => {
   displayStore.setSidebarRight(false)
 }
@@ -153,6 +182,14 @@ const handleScroll = () => {
     parallaxOffset.value = scrollContainer.value.scrollTop * -0.25
   }
 }
+
+watch(
+  image,
+  (newVal) => {
+    currentImage.value = newVal
+  },
+  { immediate: true },
+)
 
 onMounted(async () => {
   await nextTick()

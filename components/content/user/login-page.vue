@@ -41,6 +41,7 @@
             type="password"
             autocomplete="current-password"
             class="w-full p-2 border rounded"
+            required
           />
         </div>
 
@@ -64,7 +65,7 @@
       </div>
 
       <!-- Error Message -->
-      <div v-if="errorMessage" class="text-warning mt-4 text-center">
+      <div v-if="errorMessage" class="error-box mt-4 text-center">
         {{ errorMessage }}
         <div v-if="userNotFound" class="mt-2">
           <NuxtLink to="/register" class="text-accent underline"
@@ -79,12 +80,17 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
+// /components/util/login-form.vue
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/userStore'
 import { useErrorStore, ErrorType } from '~/stores/errorStore'
 
 const store = useUserStore()
+const router = useRouter()
+
 const login = ref('')
 const password = ref('')
 const errorStore = useErrorStore()
@@ -99,15 +105,20 @@ const stayLoggedIn = computed({
 const handleLogin = async () => {
   errorMessage.value = ''
   userNotFound.value = false
+
   try {
     const credentials = {
       username: login.value,
       password: password.value || undefined,
     }
+
     const result = await store.login(credentials)
+
     if (!result.success) {
       errorMessage.value = result.message || 'Login failed'
       userNotFound.value = result.message?.includes('User not found') || false
+    } else {
+      await router.push('/dashboard')
     }
   } catch (error) {
     errorStore.setError(ErrorType.AUTH_ERROR, error)
@@ -153,5 +164,13 @@ button {
 button:hover {
   background-color: var(--bg-button-hover);
   color: var(--text-button-hover);
+}
+
+.error-box {
+  background-color: rgba(255, 180, 0, 0.1);
+  border: 1px solid #facc15;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  color: #92400e;
 }
 </style>

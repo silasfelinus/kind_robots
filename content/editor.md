@@ -4,7 +4,7 @@ room: 'Image Editor Room'
 subtitle: "Tweak, transform, and remix your artwork"
 description: "Welcome to your creative playground. Upload your art, choose an edit style, or describe how you'd like to transform it. Let your imagination guide the remix."
 gallery: 'cafepurr'
-image: 'background/editing-lab.webp'
+image: 'background/editor.png'
 tags: ['editing', 'tools', 'image-playground']
 layout: 'default'
 icon: kind-icon:sparkles

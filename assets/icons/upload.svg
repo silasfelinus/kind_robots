@@ -1,0 +1,6 @@
+<!-- upload.svg -->
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M32 4L32 44" stroke="black" stroke-width="4" stroke-linecap="round"/>
+  <path d="M20 16L32 4L44 16" stroke="black" stroke-width="4" stroke-linecap="round"/>
+  <rect x="12" y="44" width="40" height="16" rx="4" stroke="black" stroke-width="4"/>
+</svg>

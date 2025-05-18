@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div class="w-full max-w-sm mx-auto space-y-2">
     <div class="flex items-center space-x-2">
       <input
         id="stayLoggedIn"
@@ -15,7 +15,7 @@
     <Transition name="fade">
       <div
         v-if="showToast"
-        class="absolute top-10 left-0 bg-info text-info-content px-4 py-2 rounded-2xl shadow-lg text-sm z-50"
+        class="bg-info text-info-content px-4 py-2 rounded-2xl shadow-md text-sm"
       >
         {{
           localStayLoggedIn

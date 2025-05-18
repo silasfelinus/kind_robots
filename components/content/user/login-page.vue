@@ -44,29 +44,19 @@
           />
         </div>
 
-        <!-- Stay Logged In & Submit -->
+        <!-- Login + Register Buttons -->
         <div class="flex items-center justify-between">
-          <div>
-            <input
-              id="stayLoggedIn"
-              v-model="stayLoggedIn"
-              type="checkbox"
-              class="mr-2"
-            />
-            <label for="stayLoggedIn" class="text-sm">Stay Logged In</label>
-          </div>
           <button type="submit" class="bg-info text-default py-1 px-3 rounded">
             Login
           </button>
+          <NuxtLink to="/register" class="text-accent underline text-sm">
+            Register
+          </NuxtLink>
         </div>
-      </form>
 
-      <!-- Register Link -->
-      <div class="text-center mt-4">
-        <NuxtLink to="/register" class="text-accent underline"
-          >Register</NuxtLink
-        >
-      </div>
+        <!-- Stay Logged In -->
+        <LoginPersister />
+      </form>
 
       <!-- Google Login Component -->
       <div class="text-center mt-4">
@@ -89,7 +79,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useUserStore } from '~/stores/userStore'
@@ -102,10 +91,9 @@ const errorStore = useErrorStore()
 const errorMessage = ref('')
 const userNotFound = ref(false)
 
-// Consolidate stayLoggedIn as a computed property
 const stayLoggedIn = computed({
   get: () => store.stayLoggedIn,
-  set: (value: boolean) => (store.stayLoggedIn = value),
+  set: (value: boolean) => store.setStayLoggedIn(value),
 })
 
 const handleLogin = async () => {

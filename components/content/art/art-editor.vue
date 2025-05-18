@@ -83,9 +83,9 @@
 <script setup lang="ts">
 // /components/content/art/art-editor.vue
 import { ref, computed } from 'vue'
-import { useArtStore } from '@/stores/artStore'
-import { useEditStore } from '@/stores/editStore'
-import { useUserStore } from '@/stores/userStore'
+import { useArtStore } from './../../../stores/artStore'
+import { useEditStore } from './../../../stores/editStore'
+import { useUserStore } from './../../../stores/userStore'
 
 const artStore = useArtStore()
 const editStore = useEditStore()

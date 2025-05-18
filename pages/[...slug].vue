@@ -79,12 +79,6 @@ const handleRouteChange = async () => {
   if (pitchId) pitchStore.selectPitch(Number(pitchId))
   if (promptId) promptStore.selectPrompt(Number(promptId))
 
-  // Google OAuth callback
-  if (code) {
-    await router.push(`/api/auth/google/callback?code=${code}`)
-    return
-  }
-
   // Initialize userStore with token (if in query)
   await userStore.initialize(queryToken as string | undefined)
 

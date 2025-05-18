@@ -87,7 +87,7 @@ export default defineEventHandler(async (event) => {
     const jwt = await createToken(user)
 
     // Redirect the user to the dashboard with the token
-    return sendRedirect(event, `/dashboard?token=${jwt}`)
+    return sendRedirect(event, `/auth/google?token=${jwt}`)
   } catch (error) {
     console.error('Error during Google OAuth callback:', error)
     throw createError({ statusCode: 500, message: 'Internal Server Error' })

@@ -2,14 +2,12 @@
 <template>
   <main>
     <NuxtLayout :name="layout">
-      <ClientOnly>
-        <template v-if="page && page.body">
-          <ContentRenderer :value="page" />
-        </template>
-        <template #fallback>
-          <p class="text-center text-base text-info p-4">Loading page...</p>
-        </template>
-      </ClientOnly>
+      <template v-if="page && page.body">
+        <ContentRenderer :value="page" />
+      </template>
+      <template #fallback>
+        <p class="text-center text-base text-info p-4">Loading page...</p>
+      </template>
     </NuxtLayout>
   </main>
 </template>

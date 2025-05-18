@@ -24,18 +24,22 @@
         >
           The {{ room }}
         </h1>
-        <h2
-          v-if="subtitle"
-          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
-        >
-          {{ subtitle }}
-        </h2>
-        <h2
-          v-if="description"
-          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-300"
-        >
-          {{ description }}
-        </h2>
+        <div>
+          <h2
+            v-if="subtitle"
+            class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
+          >
+            {{ subtitle }}
+          </h2>
+        </div>
+        <div>
+          <h2
+            v-if="description"
+            class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-300"
+          >
+            {{ description }}
+          </h2>
+        </div>
       </div>
 
       <!-- Nav + Mode Row -->

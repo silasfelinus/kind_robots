@@ -1,9 +1,9 @@
-// /components/content/art/image-view.vue
+<!-- /components/content/art/image-view.vue -->
 <template>
   <div class="relative w-full">
     <img
-      v-if="image?.url"
-      :src="image.url"
+      v-if="image"
+      :src="imageUrl"
       alt="Uploaded art preview"
       class="w-full h-auto rounded-lg shadow-md object-contain"
     />
@@ -14,12 +14,15 @@
 </template>
 
 <script setup lang="ts">
+import type { ArtImage } from '@/stores/artStore'
+
 interface Props {
-  image: {
-    url: string
-    id: number
-  } | null
+  image: ArtImage | null
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const imageUrl = computed(() =>
+  props.image ? `/api/art/image/${props.image.id}` : '',
+)
 </script>

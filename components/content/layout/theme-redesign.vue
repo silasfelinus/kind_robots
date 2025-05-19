@@ -107,11 +107,6 @@ import { useMilestoneStore } from '@/stores/milestoneStore'
 const themeStore = useThemeStore()
 const milestoneStore = useMilestoneStore()
 
-onMounted(() => {
-  themeStore.initTheme()
-  themeStore.fetchPublicThemes()
-})
-
 const colorKeys = [
   'primary',
   'secondary',

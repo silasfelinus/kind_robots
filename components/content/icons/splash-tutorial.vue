@@ -24,6 +24,15 @@
         >
           The {{ room }}
         </h1>
+
+        <button
+          v-if="theme"
+          @click="themeStore.changeTheme(theme)"
+          class="mx-auto block text-xs md:text-sm lg:text-md xl:text-lg font-semibold bg-accent text-black border border-black rounded-2xl px-3 py-1 animate-fade-in-up hover:underline"
+        >
+          Apply this theme: <span class="font-mono">{{ theme }}</span>
+        </button>
+
         <div>
           <h2
             v-if="subtitle"
@@ -128,6 +137,7 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { usePageStore } from '@/stores/pageStore'
 import { useDisplayStore } from '@/stores/displayStore'
+import { useThemeStore } from '@/stores/themeStore'
 
 const displayStore = useDisplayStore()
 const {
@@ -139,7 +149,10 @@ const {
   amitip,
   navComponent,
   image,
+  theme,
 } = storeToRefs(usePageStore())
+
+const themeStore = useThemeStore()
 
 const parsedNavComponent = computed(() => {
   try {

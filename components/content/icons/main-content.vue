@@ -3,29 +3,17 @@
   <div class="relative h-full w-full rounded-2xl overflow-hidden bg-base-300">
     <!-- Mobile View: Flip between page and splash -->
     <div v-if="displayStore.isMobileViewport" class="h-full w-full">
-      <div class="flip-card h-full w-full">
-        <div
-          class="flip-card-inner"
-          :class="{
-            'is-flipped': sidebarRightOpen,
-            'front-hidden': sidebarRightOpen,
-            'back-hidden': !sidebarRightOpen,
-          }"
-        >
-          <!-- Front Face: Main Page -->
-          <div class="flip-card-front">
-<div class="absolute inset-0 overflow-y-auto">
-  <NuxtPage :key="$route.fullPath" class="min-h-[100vh] w-full" />
-</div>
-
+      <flip-panel :flipped="sidebarRightOpen">
+        <template #front>
+          <div class="absolute inset-0">
+            <NuxtPage :key="$route.fullPath" class="min-h-[100vh] w-full" />
           </div>
+        </template>
 
-          <!-- Back Face: Splash Tutorial -->
-          <div class="flip-card-back overflow-y-auto w-full">
-            <splash-tutorial />
-          </div>
-        </div>
-      </div>
+        <template #back>
+          <splash-tutorial />
+        </template>
+      </flip-panel>
     </div>
 
     <!-- Desktop View: Always show both -->
@@ -54,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/icons/main-content.vue
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
@@ -65,54 +54,3 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'disabled',
 )
 </script>
-
-<style scoped>
-.flip-card {
-  perspective: 1000px;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.flip-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s ease-in-out;
-  transform-style: preserve-3d;
-}
-
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
-}
-
-.flip-card-front,
-.flip-card-back {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: none;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Hide inactive face to prevent iOS double scroll and ghost touches */
-.front-hidden .flip-card-front {
-  pointer-events: none;
-  visibility: hidden;
-}
-.back-hidden .flip-card-back {
-  pointer-events: none;
-  visibility: hidden;
-}
-
-.flip-card-back {
-  transform: rotateY(180deg);
-}
-</style>

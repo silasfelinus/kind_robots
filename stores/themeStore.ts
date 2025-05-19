@@ -2,12 +2,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-export type ThemeSource = {
-  page?: string
-  user?: string
-  custom?: string
-}
-
 export type DaisyUIColorTokens = {
   primary: string
   secondary: string
@@ -27,6 +21,8 @@ export interface Theme {
   name: string
   values: Record<string, string>
   userId?: number
+  room?: string
+  tagline?: string
   isPublic?: boolean
   createdAt?: string
 }
@@ -72,7 +68,7 @@ export const useThemeStore = defineStore('themeStore', () => {
 
   const sharedThemes = ref<Theme[]>([])
 
-  async function fetchPublicThemes() {
+  async function getThemes() {
     try {
       const result = await $fetch<Theme[]>('/api/themes')
       sharedThemes.value = result.filter((t) => t.isPublic)
@@ -81,90 +77,87 @@ export const useThemeStore = defineStore('themeStore', () => {
     }
   }
 
+  async function addTheme(theme: Theme) {
+    try {
+      await $fetch('/api/themes', { method: 'POST', body: theme })
+      await getThemes()
+    } catch (error) {
+      console.error('[themeStore] Failed to save custom theme:', error)
+    }
+  }
+
+  async function updateTheme(id: number, updates: Partial<Theme>) {
+    try {
+      await $fetch(`/api/themes/${id}`, { method: 'PATCH', body: updates })
+      await getThemes()
+    } catch (error) {
+      console.error(`[themeStore] Failed to update theme ${id}:`, error)
+    }
+  }
+
+  async function deleteTheme(id: number) {
+    try {
+      await $fetch(`/api/themes/${id}`, { method: 'DELETE' })
+      await getThemes()
+    } catch (error) {
+      console.error(`[themeStore] Failed to delete theme ${id}:`, error)
+    }
+  }
+
   const open = ref(false)
   const firstThemeChanged = ref(false)
   const botOverride = ref(true)
 
-  const themeSources = ref<Record<'main' | 'splash' | 'header', ThemeSource>>({
-    main: {},
-    splash: {},
-    header: {},
-  })
+  const showCustom = ref(false)
+  const savedTheme = ref('retro')
 
-  const customThemes = ref<Record<string, string>>({})
-
-  if (typeof window !== 'undefined') {
-    try {
-      const stored = localStorage.getItem('customThemes')
-      customThemes.value = stored ? JSON.parse(stored) : {}
-    } catch (e) {
-      console.warn(
-        '[themeStore] Failed to parse customThemes from localStorage:',
-        e,
-      )
-    }
-  }
-
-  const resolvedTheme = (type: 'main' | 'splash' | 'header') =>
-    computed(
-      () =>
-        themeSources.value[type].page ||
-        themeSources.value[type].user ||
-        themeSources.value[type].custom ||
-        'retro',
-    )
-
-  const mainTheme = computed(() => resolvedTheme('main').value)
-  const splashTheme = computed(() => resolvedTheme('splash').value)
-  const headerTheme = computed(() => resolvedTheme('header').value)
+  const currentTheme = computed(() => savedTheme.value)
 
   function toggleMenu() {
     open.value = !open.value
   }
 
-  function setThemeSource(
-    type: 'main' | 'splash' | 'header',
-    source: ThemeSource,
-  ) {
-    themeSources.value[type] = source
-    persistCustomThemes()
-  }
-
   function changeTheme(theme: string) {
-    if (
-      !availableThemes.includes(theme) &&
-      !Object.values(customThemes.value).includes(theme)
-    ) {
+    if (!availableThemes.includes(theme)) {
       console.error(`Invalid theme: "${theme}"`)
       return
     }
     firstThemeChanged.value = true
+    savedTheme.value = theme
     document.documentElement.setAttribute('data-theme', theme)
     if (typeof window !== 'undefined') {
       localStorage.setItem('theme', theme)
     }
   }
 
-  function saveCustomTheme(name: string, theme: string) {
-    customThemes.value[name] = theme
-    persistCustomThemes()
-  }
-
-  function persistCustomThemes() {
+  function setShowCustom(value: boolean) {
+    showCustom.value = value
     if (typeof window !== 'undefined') {
-      localStorage.setItem('customThemes', JSON.stringify(customThemes.value))
+      localStorage.setItem('showCustom', String(value))
     }
   }
 
   function initialize() {
     if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('theme') || 'retro'
-      if (
-        availableThemes.includes(savedTheme) ||
-        Object.values(customThemes.value).includes(savedTheme)
-      ) {
-        changeTheme(savedTheme)
-      } else {
+      try {
+        const storedCustomFlag = localStorage.getItem('showCustom')
+        if (storedCustomFlag !== null) {
+          showCustom.value = storedCustomFlag === 'true'
+        }
+
+        const storedTheme = localStorage.getItem('theme') || 'retro'
+        if (availableThemes.includes(storedTheme)) {
+          changeTheme(storedTheme)
+        } else {
+          changeTheme('retro')
+        }
+
+        getThemes()
+      } catch (e) {
+        console.warn(
+          '[themeStore] Failed to parse localStorage theme state during initialize():',
+          e,
+        )
         changeTheme('retro')
       }
     }
@@ -177,22 +170,22 @@ export const useThemeStore = defineStore('themeStore', () => {
   return {
     availableThemes,
     sharedThemes,
-    fetchPublicThemes,
+    getThemes,
+    addTheme,
+    updateTheme,
+    deleteTheme,
 
     open,
-    mainTheme,
-    splashTheme,
-    headerTheme,
-    themeSources,
-    customThemes,
+    currentTheme,
+    savedTheme,
+    showCustom,
     botOverride,
     firstThemeChanged,
 
     toggleMenu,
     changeTheme,
-    setThemeSource,
-    saveCustomTheme,
     initialize,
     updateBotTheme,
+    setShowCustom,
   }
 })

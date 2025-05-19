@@ -9,7 +9,7 @@
         class="theme-btn p-2 rounded-full border border-accent focus:outline-none focus:ring focus:ring-accent transform hover:scale-110 transition-all ease-in-out duration-200 text-lg"
         @click="toggleMenu"
       >
-        theme: {{ themeStore.mainTheme }}
+        theme: {{ themeStore.currentTheme }}
       </button>
     </div>
     <transition name="theme-menu-fade">
@@ -23,7 +23,7 @@
           v-for="(theme, index) in themeStore.availableThemes"
           :key="index"
           class="theme-item flex items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-base-200 transition-all"
-          :class="theme === themeStore.mainTheme ? 'ring-2 ring-accent' : ''"
+          :class="theme === themeStore.currentTheme ? 'ring-2 ring-accent' : ''"
           role="menuitem"
           tabindex="0"
           @click="themeStore.changeTheme(theme)"

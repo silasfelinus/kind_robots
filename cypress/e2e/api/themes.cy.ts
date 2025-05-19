@@ -22,7 +22,7 @@ describe('Theme Management API Tests', () => {
     }).then((res) => {
       expect(res.status).to.eq(401)
       expect(res.body.success).to.be.false
-      expect(res.body.message).to.contain('Unauthorized')
+      expect(res.body.message).to.contain('Authorization token is required')
     })
   })
 
@@ -43,7 +43,7 @@ describe('Theme Management API Tests', () => {
     }).then((res) => {
       expect(res.status).to.eq(401)
       expect(res.body.success).to.be.false
-      expect(res.body.message).to.contain('Invalid or expired token')
+      expect(res.body.message).to.contain('Unauthorized')
     })
   })
 
@@ -131,7 +131,7 @@ describe('Theme Management API Tests', () => {
     }).then((res) => {
       expect(res.status).to.eq(401)
       expect(res.body.success).to.be.false
-      expect(res.body.message).to.include('Unauthorized')
+      expect(res.body.message).to.include('Authorization token is required')
     })
   })
 

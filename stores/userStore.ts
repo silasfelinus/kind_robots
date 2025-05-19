@@ -81,13 +81,17 @@ export const useUserStore = defineStore('userStore', {
       await this.fetchUsers()
 
       const storedToken = this.getFromLocalStorage('token')
-      const googleToken = this.getFromLocalStorage('googleToken') === 'true'
+      const googleToken = this.getFromLocalStorage('googleToken')
       const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
 
       this.setStayLoggedIn(stayLoggedIn)
-      this.googleToken = googleToken
 
-      const tokenToUse = customToken || storedToken
+      const tokenToUse = customToken || googleToken || storedToken
+
+      if (googleToken) {
+        this.googleToken = true
+      }
+
       if (tokenToUse) {
         this.token = tokenToUse
         const success = await this.validateAndFetchUserData()
@@ -95,6 +99,7 @@ export const useUserStore = defineStore('userStore', {
         if (!success) {
           console.warn('[userStore] Token invalid on init. Clearing.')
           this.removeFromLocalStorage('token')
+          this.removeFromLocalStorage('googleToken')
           this.token = undefined
         } else if (customToken) {
           this.saveToLocalStorage('token', customToken)

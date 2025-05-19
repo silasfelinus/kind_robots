@@ -92,8 +92,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
 import { useDisplayStore } from '@/stores/displayStore'
-import LabGallery from './LabGallery.vue'
-import ComponentScreen from './ComponentScreen.vue'
 import type { KindComponent as Component } from '@/stores/componentStore'
 
 const isLoading = ref(true)

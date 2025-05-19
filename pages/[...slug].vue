@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from '#app'
-
+import { watchEffect, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -25,14 +25,22 @@ import type {
   displayModeState,
   displayActionState,
 } from '@/stores/displayStore'
+import type { ContentType } from '~/content.config'
+import { usePageStore } from '@/stores/pageStore'
+const pageStore = usePageStore()
+
+watchEffect(() => {
+  document.documentElement.setAttribute('data-theme', pageStore.theme)
+})
 
 const route = useRoute()
 const router = useRouter()
 
 const fullPath = route.path || '/'
-const { data: page } = await useAsyncData(fullPath, () =>
+
+const { data: page } = (await useAsyncData(fullPath, () =>
   queryCollection('content').path(fullPath).first(),
-)
+)) as { data: Ref<ContentType | null> }
 
 const layout = computed(() => {
   const val = page.value?.layout

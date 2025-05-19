@@ -8,24 +8,11 @@
       </p>
     </div>
 
-    <!-- Mode Toggle -->
-    <div class="flex justify-center gap-4">
-      <button
-        v-for="mode in ['default', 'user', 'custom']"
-        :key="mode"
-        @click="themeStore.setThemeSource('main', { [mode]: currentThemeRef })"
-        class="btn btn-outline"
-        :class="{ 'btn-active': activeMode === mode }"
-      >
-        Use {{ mode }} theme
-      </button>
-    </div>
-
-    <!-- Build New Theme -->
+    <!-- Build / Edit Theme -->
     <section
       class="bg-base-200 border border-base-content p-6 rounded-2xl shadow-lg"
     >
-      <h2 class="text-2xl font-semibold mb-4">Create Your Own Theme</h2>
+      <h2 class="text-2xl font-semibold mb-4">Create or Edit Your Theme</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <div
           v-for="color in colorKeys"
@@ -41,20 +28,34 @@
         </div>
       </div>
 
-<div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-  <input
-    v-model="customName"
-    placeholder="Theme name"
-    class="input input-bordered text-center"
-  />
-  <input
-    v-model="customRoom"
-    placeholder="Optional room (e.g. splash, editor)"
-    class="input input-bordered text-center"
-  />
-  <button @click="saveTheme" class="btn btn-primary">Save Theme</button>
-</div>
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <input
+          v-model="customName"
+          placeholder="Theme name"
+          class="input input-bordered text-center"
+        />
+        <input
+          v-model="customRoom"
+          placeholder="Optional room (e.g. splash, editor)"
+          class="input input-bordered text-center"
+        />
+        <button @click="saveTheme" class="btn btn-primary">
+          {{ updateMode ? 'Update Theme' : 'Save Theme' }}
+        </button>
+      </div>
 
+      <div
+        class="form-control col-span-1 sm:col-span-3 flex flex-col sm:flex-row gap-4 items-center mt-4"
+      >
+        <label class="label gap-2">
+          <input type="checkbox" class="toggle" v-model="applyAfterSave" />
+          <span class="label-text">Apply after saving</span>
+        </label>
+        <label class="label gap-2">
+          <input type="checkbox" class="toggle" v-model="useCustom" />
+          <span class="label-text">Use page themes (showCustom)</span>
+        </label>
+      </div>
 
       <div class="mt-4 border rounded-xl p-4" :style="previewStyle">
         <h3 class="text-lg font-bold">Live Preview</h3>
@@ -93,6 +94,7 @@
             :key="theme.id"
             :style="getThemeStyle(theme.values)"
             class="rounded-xl p-4 border cursor-pointer hover:ring hover:ring-secondary"
+            @click.ctrl="editTheme(theme)"
             @click="applyTheme(theme.name)"
           >
             <div class="font-mono text-lg">{{ theme.name }}</div>
@@ -104,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useThemeStore } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 
@@ -130,10 +132,14 @@ const customTheme = ref<Record<string, string>>(
 )
 const customName = ref('')
 const customRoom = ref('')
+const selectedThemeId = ref<number | null>(null)
+const updateMode = ref(false)
+const applyAfterSave = ref(true)
 
-
-const activeMode = ref<'default' | 'user' | 'custom'>('default')
-const currentThemeRef = computed(() => themeStore.mainTheme)
+const useCustom = computed({
+  get: () => themeStore.showCustom,
+  set: (val) => themeStore.setShowCustom(val),
+})
 
 const previewStyle = computed(() => {
   const vars = Object.entries(customTheme.value)
@@ -142,7 +148,7 @@ const previewStyle = computed(() => {
   return `background-color: var(--b1); color: var(--n); padding: 1rem; ${vars}`
 })
 
-const convertToDaisyVar = (key: string) => {
+function convertToDaisyVar(key: string) {
   const map: Record<string, string> = {
     primary: 'p',
     secondary: 's',
@@ -159,7 +165,7 @@ const convertToDaisyVar = (key: string) => {
   return map[key] || key
 }
 
-const hexToRgb = (hex: string) => {
+function hexToRgb(hex: string) {
   const h = hex.replace('#', '')
   const bigint = parseInt(h, 16)
   const r = (bigint >> 16) & 255
@@ -170,30 +176,49 @@ const hexToRgb = (hex: string) => {
 
 const saveTheme = async () => {
   if (!customName.value) return
-  const newTheme = {
+
+  const theme = {
     name: customName.value.trim(),
     values: { ...customTheme.value },
     room: customRoom.value.trim() || undefined,
     isPublic: false,
   }
+
   try {
-    await $fetch('/api/themes', { method: 'POST', body: newTheme })
+    if (updateMode.value && selectedThemeId.value) {
+      await themeStore.updateTheme(selectedThemeId.value, theme)
+    } else {
+      await themeStore.addTheme(theme)
+    }
+
+    if (applyAfterSave.value) {
+      themeStore.changeTheme(theme.name)
+    }
+
+    milestoneStore.rewardMilestone(9)
     customName.value = ''
     customRoom.value = ''
-    milestoneStore.rewardMilestone(9)
-    await themeStore.fetchPublicThemes()
+    selectedThemeId.value = null
+    updateMode.value = false
   } catch (e) {
     console.error('Theme save failed', e)
   }
 }
 
-
-const applyTheme = (theme: string) => {
-  themeStore.changeTheme(theme)
+function applyTheme(themeName: string) {
+  themeStore.changeTheme(themeName)
   milestoneStore.rewardMilestone(9)
 }
 
-const getThemeStyle = (values: Record<string, string>) => {
+function editTheme(theme: Theme) {
+  customName.value = theme.name
+  customRoom.value = theme.room || ''
+  customTheme.value = { ...theme.values }
+  selectedThemeId.value = theme.id || null
+  updateMode.value = true
+}
+
+function getThemeStyle(values: Record<string, string>) {
   const entries = Object.entries(values)
     .map(([key, val]) => `--${convertToDaisyVar(key)}: ${hexToRgb(val)}`)
     .join('; ')

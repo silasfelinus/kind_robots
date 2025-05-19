@@ -13,6 +13,7 @@ sort: highlight
 dottitip: AMI, I saw the new theme room. Did we need so many options?
 amitip: What can I say, we're all about giving people choices!
 layout: 'default'
+theme: retro
 ---
 
-:theme-redesign
+:theme-lab

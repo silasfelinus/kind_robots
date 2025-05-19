@@ -3,6 +3,20 @@ import * as z from 'zod'
 
 const contentSchema = z.object({
   title: z.string().optional(),
+  subtitle: z.string().optional(),
+  layout: z.string().optional(),
+  icon: z.string().optional(),
+  image: z.string().optional(),
+  gallery: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  category: z.string().optional(),
+  tooltip: z.string().optional(),
+  dottitip: z.string().optional(),
+  amitip: z.string().optional(),
+  sort: z.string().optional(),
+  navComponent: z.string().optional(),
+  model: z.string().optional(),
+  theme: z.string().optional(),
   room: z.string().optional(),
   path: z.string(),
   description: z.string().optional(),
@@ -34,19 +48,6 @@ const contentSchema = z.object({
       }),
     ])
     .default(true),
-  subtitle: z.string().optional(),
-  layout: z.string().optional(),
-  icon: z.string().optional(),
-  image: z.string().optional(),
-  gallery: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  category: z.string().optional(),
-  tooltip: z.string().optional(),
-  dottitip: z.string().optional(),
-  amitip: z.string().optional(),
-  sort: z.string().optional(),
-  navComponent: z.string().optional(),
-  model: z.string().optional(),
 })
 
 export type ContentType = z.infer<typeof contentSchema> & {

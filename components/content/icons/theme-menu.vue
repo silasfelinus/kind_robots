@@ -167,7 +167,7 @@ const saveTheme = async () => {
     })
     customName.value = ''
     milestoneStore.rewardMilestone(9)
-    await themeStore.fetchPublicThemes()
+    await themeStore.getThemes()
   } catch (e) {
     console.error('Theme save failed', e)
   }

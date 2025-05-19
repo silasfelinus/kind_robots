@@ -4,7 +4,7 @@
 
 
 ### Create a SampleModel (POST single entry)
-POST https://your-app.com/api/sampleModels
+POST https://kind-robots.vercel.app/api/sampleModels
 Content-Type: application/json
 Authorization: Bearer YOUR_API_KEY
 
@@ -20,7 +20,7 @@ Authorization: Bearer YOUR_API_KEY
 ###
 
 ### Seed Multiple SampleModels (POST batch)
-POST https://your-app.com/api/sampleModels
+POST https://kind-robots.vercel.app/api/sampleModels
 Content-Type: application/json
 Authorization: Bearer YOUR_API_KEY
 
@@ -44,17 +44,17 @@ Authorization: Bearer YOUR_API_KEY
 ###
 
 ### Get All SampleModels (public access)
-GET https://your-app.com/api/sampleModels
+GET https://kind-robots.vercel.app/api/sampleModels
 
 ###
 
 ### Get SampleModel by ID
-GET https://your-app.com/api/sampleModels/1
+GET https://kind-robots.vercel.app/api/sampleModels/1
 
 ###
 
 ### Update SampleModel by ID (requires auth)
-PATCH https://your-app.com/api/sampleModels/1
+PATCH https://kind-robots.vercel.app/api/sampleModels/1
 Content-Type: application/json
 Authorization: Bearer YOUR_API_KEY
 
@@ -66,13 +66,13 @@ Authorization: Bearer YOUR_API_KEY
 ###
 
 ### Delete SampleModel by ID (requires auth)
-DELETE https://your-app.com/api/sampleModels/1
+DELETE https://kind-robots.vercel.app/api/sampleModels/1
 Authorization: Bearer YOUR_API_KEY
 
 ###
 
 ### FAIL CASE: Try to PATCH without auth
-PATCH https://your-app.com/api/sampleModels/1
+PATCH https://kind-robots.vercel.app/api/sampleModels/1
 Content-Type: application/json
 
 {
@@ -82,4 +82,4 @@ Content-Type: application/json
 ###
 
 ### FAIL CASE: Try to DELETE without auth
-DELETE https://your-app.com/api/sampleModels/1
+DELETE https://kind-robots.vercel.app/api/sampleModels/1

@@ -142,7 +142,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     localStorage.setItem('customThemes', JSON.stringify(customThemes.value))
   }
 
-  function initTheme() {
+  function initialize() {
     const savedTheme = localStorage.getItem('theme') || 'retro'
     if (
       availableThemes.includes(savedTheme) ||
@@ -176,7 +176,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     changeTheme,
     setThemeSource,
     saveCustomTheme,
-    initTheme,
+    initialize,
     updateBotTheme,
   }
 })

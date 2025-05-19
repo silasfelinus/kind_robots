@@ -32,36 +32,30 @@
 
       <!-- Right Section: Folder View & Reactions -->
       <div class="w-1/3 h-full flex flex-col rounded-2xl">
-        <!-- Folder View -->
-        <div
-          class="bg-gray-100 overflow-y-auto rounded-2xl transition-all duration-300"
-          :style="{ height: galleryHeight }"
-        >
-          <div
-            v-if="componentStore.selectedFolder"
-            class="text-sm md:text-md lg:text-lg xl:text-xl mb-2"
-          >
-            Viewing components in folder: {{ componentStore.selectedFolder }}
-          </div>
-          <div v-else>
-            <lab-gallery
-              class="flex-1 min-h-0 overflow-y-auto"
-              @select-folder="handleFolderSelect"
-            />
-          </div>
-          <div
-            v-if="componentStore.selectedFolder"
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2"
-          >
-            <component-card
-              v-for="component in folderComponents"
-              :key="component.id"
-              :component="component"
-              class="bg-white overflow-y-auto shadow rounded-lg transform transition-transform duration-200 hover:scale-105 hover:shadow-lg"
-              @select="handleComponentSelect"
-            />
-          </div>
-        </div>
+<!-- Folder View -->
+<div class="bg-gray-100 rounded-2xl flex flex-col transition-all duration-300" :style="{ height: galleryHeight }">
+  <div v-if="componentStore.selectedFolder" class="text-sm md:text-md lg:text-lg xl:text-xl mb-2">
+    Viewing components in folder: {{ componentStore.selectedFolder }}
+  </div>
+
+  <div v-else class="flex-1 min-h-0 overflow-y-auto">
+    <lab-gallery @select-folder="handleFolderSelect" />
+  </div>
+
+  <div
+    v-if="componentStore.selectedFolder"
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 overflow-y-auto flex-1 min-h-0"
+  >
+    <component-card
+      v-for="component in folderComponents"
+      :key="component.id"
+      :component="component"
+      class="bg-white shadow rounded-lg transform transition-transform duration-200 hover:scale-105 hover:shadow-lg"
+      @select="handleComponentSelect"
+    />
+  </div>
+</div>
+
 
         <!-- Reactions -->
         <div

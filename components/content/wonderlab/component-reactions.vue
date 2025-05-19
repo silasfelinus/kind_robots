@@ -61,8 +61,8 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue'
-import { useComponentStore } from './../../../stores/componentStore'
-import { useUserStore } from './../../../stores/userStore'
+import { useComponentStore } from '../../../stores/componentStore'
+import { useUserStore } from '../../../stores/userStore'
 
 // Pinia stores
 const reactionStore = useReactionStore()

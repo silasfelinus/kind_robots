@@ -1,16 +1,15 @@
 <!-- /components/content/labs/wonder-lab.vue -->
 <template>
-  <div class="absolute inset-0 overflow-y-auto bg-base-200">
-    <div
-      class="flex flex-col lg:flex-row min-h-[100vh] gap-4 p-4 box-border"
-    >
+  <div v-if="isLoading" class="flex justify-center items-center h-screen">
+    <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />
+    Loading WonderLab...
+  </div>
+  <div v-else class="absolute inset-0 overflow-y-auto bg-base-200">
+    <div class="flex flex-col lg:flex-row min-h-[100vh] gap-4 p-4 box-border">
       <!-- Left: Welcome or Component Screen -->
       <div class="w-full lg:w-2/3 flex flex-col">
         <!-- Welcome Message -->
-        <div
-          v-if="!componentStore.selectedComponent"
-          class="text-center p-4"
-        >
+        <div v-if="!componentStore.selectedComponent" class="text-center p-4">
           <h1 class="text-4xl font-bold">Welcome to the WonderLab</h1>
           <p class="text-lg mt-4">
             Select a folder to view or interact with components!
@@ -34,7 +33,9 @@
       <!-- Right: Folder View & Reactions -->
       <div class="w-full lg:w-1/3 flex flex-col gap-4">
         <!-- Folder View -->
-        <div class="flex flex-col bg-base-300 rounded-2xl border p-4 flex-1 min-h-[300px]">
+        <div
+          class="flex flex-col bg-base-300 rounded-2xl border p-4 flex-1 min-h-[300px]"
+        >
           <div
             v-if="componentStore.selectedFolder"
             class="mb-2 text-lg font-semibold"
@@ -43,10 +44,7 @@
           </div>
 
           <!-- Show folders if no folder selected -->
-          <div
-            v-else
-            class="flex-1 min-h-0 overflow-y-auto"
-          >
+          <div v-else class="flex-1 min-h-0 overflow-y-auto">
             <lab-gallery @select-folder="handleFolderSelect" />
           </div>
 
@@ -70,9 +68,7 @@
           v-if="componentStore.selectedComponent"
           class="bg-gray-200 rounded-2xl border p-4 max-h-[300px] overflow-y-auto"
         >
-          <component-reactions
-            :component="componentStore.selectedComponent"
-          />
+          <component-reactions :component="componentStore.selectedComponent" />
         </div>
       </div>
     </div>

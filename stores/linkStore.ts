@@ -29,22 +29,7 @@ export const useLinkStore = defineStore('linkStore', () => {
     { title: 'Swarm', icon: 'swarm-icon', isUtility: true },
   ])
 
-  const dynamicLinks = computed(() =>
-    pageStore.pages
-      .filter((p) => p.tags?.includes('home') || p.tags?.includes('nav'))
-      .map((p) => ({
-        title: p.title ?? 'Untitled',
-        path: p.path,
-        icon: p.icon ?? 'kind-icon:robot',
-        tooltip: p.tooltip,
-        isDynamic: true,
-      })),
-  )
-
-  const allLinks = computed<LinkItem[]>(() => [
-    ...staticLinks.value,
-    ...dynamicLinks.value,
-  ])
+  const allLinks = computed<LinkItem[]>(() => [...staticLinks.value])
 
   const navLinks = computed(() =>
     allLinks.value.filter((link) => !link.isUtility),
@@ -55,7 +40,6 @@ export const useLinkStore = defineStore('linkStore', () => {
 
   return {
     staticLinks,
-    dynamicLinks,
     allLinks,
     navLinks,
     utilityLinks,

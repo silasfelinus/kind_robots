@@ -49,6 +49,12 @@ const { page, layout } = storeToRefs(pageStore)
 const handleRouteChange = async () => {
   await pageStore.loadPage(route.path)
 
+  if (!pageStore.page) {
+    console.warn('[slug] No page found for route:', route.path)
+    await router.push('/error')
+    return
+  }
+
   const {
     token: queryToken,
     botId,

@@ -8,6 +8,8 @@
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />
+      <scroll-debug v-if="process.client" />
+
       <div
         v-if="showSwarm"
         class="fixed inset-0 overflow-hidden z-50 pointer-events-none full-page"

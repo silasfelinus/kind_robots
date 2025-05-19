@@ -1,14 +1,13 @@
-<!-- /app.vue -->
 <template>
   <div
     class="main-layout bg-base-200 h-screen w-screen relative overflow-hidden box-border"
+    :data-theme="splashTheme"
   >
     <!-- Loaders -->
     <div class="fixed z-50">
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />
-      
 
       <div
         v-if="showSwarm"
@@ -30,6 +29,7 @@
     <header
       class="fixed z-40 border-6 border-secondary transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
+      :data-theme="headerTheme"
     >
       <kind-header class="h-full w-full rounded-xl" />
     </header>
@@ -38,6 +38,7 @@
     <main
       class="absolute inset-0 z-30 border-6 border-secondary rounded-2xl p-1 box-border transition-all duration-600 ease-in-out"
       :style="displayStore.mainContentStyle"
+      :data-theme="mainTheme"
     >
       <main-content />
     </main>
@@ -50,8 +51,10 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useIconStore } from '@/stores/iconStore'
+import { useThemeStore } from '@/stores/themeStore'
 
 const iconStore = useIconStore()
+const themeStore = useThemeStore()
 
 const showSwarm = computed(() => iconStore.showSwarm)
 
@@ -59,13 +62,21 @@ const displayStore = useDisplayStore()
 const router = useRouter()
 const isNavigating = ref(false)
 
+const mainTheme = computed(() => themeStore.mainTheme)
+const splashTheme = computed(() => themeStore.splashTheme)
+const headerTheme = computed(() => themeStore.headerTheme)
+
 router.beforeEach(() => {
   isNavigating.value = true
 })
 router.afterEach(() => {
   setTimeout(() => {
     isNavigating.value = false
-  }, 400) // slight delay for smoother UX
+  }, 400)
+})
+
+onMounted(() => {
+  document.documentElement.setAttribute('data-theme', themeStore.splashTheme)
 })
 </script>
 

@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-type ThemeSource = {
+export type ThemeSource = {
   page?: string
   user?: string
   custom?: string
@@ -25,14 +25,13 @@ export type DaisyUIColorTokens = {
 export interface Theme {
   id?: number
   name: string
-  values: Record<string, string> // DaisyUI color tokens
+  values: Record<string, string>
   userId?: number
   isPublic?: boolean
   createdAt?: string
 }
 
 export const useThemeStore = defineStore('themeStore', () => {
-  // ✅ Predefined DaisyUI Themes
   const availableThemes = [
     'light',
     'dark',
@@ -71,7 +70,6 @@ export const useThemeStore = defineStore('themeStore', () => {
     'silk',
   ]
 
-  // ✅ Public/shared themes from DB
   const sharedThemes = ref<Theme[]>([])
 
   async function fetchPublicThemes() {
@@ -83,24 +81,20 @@ export const useThemeStore = defineStore('themeStore', () => {
     }
   }
 
-  // ✅ Theme mode flags
   const open = ref(false)
   const firstThemeChanged = ref(false)
   const botOverride = ref(true)
 
-  // ✅ Theme selection sources
   const themeSources = ref<Record<'main' | 'splash' | 'header', ThemeSource>>({
     main: {},
     splash: {},
     header: {},
   })
 
-  // ✅ Locally saved custom theme names mapped to a default theme name
   const customThemes = ref<Record<string, string>>(
     JSON.parse(localStorage.getItem('customThemes') || '{}'),
   )
 
-  // ✅ Compute resolved theme for each layer
   const resolvedTheme = (type: 'main' | 'splash' | 'header') =>
     computed(
       () =>
@@ -110,11 +104,10 @@ export const useThemeStore = defineStore('themeStore', () => {
         'retro',
     )
 
-  const currentTheme = computed(() => resolvedTheme('main').value)
+  const mainTheme = computed(() => resolvedTheme('main').value)
   const splashTheme = computed(() => resolvedTheme('splash').value)
   const headerTheme = computed(() => resolvedTheme('header').value)
 
-  // ✅ Helpers
   function toggleMenu() {
     open.value = !open.value
   }
@@ -171,7 +164,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     fetchPublicThemes,
 
     open,
-    currentTheme,
+    mainTheme,
     splashTheme,
     headerTheme,
     themeSources,

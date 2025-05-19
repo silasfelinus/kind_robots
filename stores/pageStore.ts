@@ -1,6 +1,5 @@
 // /stores/pageStore.ts
 import { defineStore } from 'pinia'
-import { useRoute } from '#app'
 import { ref, computed } from 'vue'
 import type { ContentType } from '~/content.config'
 
@@ -8,31 +7,6 @@ export type LayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
 
 export const usePageStore = defineStore('pageStore', () => {
   const page = ref<ContentType | null>(null)
-  const routePath = ref('')
-  const loading = ref(false)
-  const error = ref<string | null>(null)
-
-  const loadPage = async (path?: string) => {
-    const route = useRoute()
-    const resolvedPath = path || route.path
-    routePath.value = resolvedPath
-
-    if (page.value?.path === resolvedPath) return
-
-    loading.value = true
-    error.value = null
-
-    try {
-      const result = await queryCollection('content').path(resolvedPath).first()
-      page.value = result as ContentType
-    } catch (err) {
-      console.error('Failed to load page:', err)
-      error.value = 'Page failed to load'
-      page.value = null
-    } finally {
-      loading.value = false
-    }
-  }
 
   const layout = computed<LayoutKey>(() => {
     const val = page.value?.layout
@@ -61,9 +35,6 @@ export const usePageStore = defineStore('pageStore', () => {
 
   return {
     page,
-    routePath,
-    loading,
-    error,
     layout,
     meta,
 
@@ -81,7 +52,5 @@ export const usePageStore = defineStore('pageStore', () => {
     sort: computed(() => meta.value.sort),
     underConstruction: computed(() => meta.value.underConstruction),
     navComponent: computed(() => meta.value.navComponent),
-
-    loadPage,
   }
 })

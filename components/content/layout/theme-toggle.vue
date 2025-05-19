@@ -9,7 +9,7 @@
         class="theme-btn p-2 rounded-full border border-accent focus:outline-none focus:ring focus:ring-accent transform hover:scale-110 transition-all ease-in-out duration-200 text-lg"
         @click="toggleMenu"
       >
-        theme: {{ themeStore.currentTheme }}
+        theme: {{ themeStore.mainTheme }}
       </button>
     </div>
     <transition name="theme-menu-fade">
@@ -20,10 +20,10 @@
         style="min-width: 250px; max-width: 400px"
       >
         <button
-          v-for="(theme, index) in themeStore.themes"
+          v-for="(theme, index) in themeStore.availableThemes"
           :key="index"
           class="theme-item flex items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-base-200 transition-all"
-          :class="theme === themeStore.currentTheme ? 'ring-2 ring-accent' : ''"
+          :class="theme === themeStore.mainTheme ? 'ring-2 ring-accent' : ''"
           role="menuitem"
           tabindex="0"
           @click="themeStore.changeTheme(theme)"
@@ -34,7 +34,6 @@
     </transition>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
@@ -74,7 +73,7 @@ const closeMenu = (e: MouseEvent) => {
 
 // Initialize theme and setup event listeners
 onMounted(() => {
-  themeStore.initTheme()
+  themeStore.initialize()
   window.addEventListener('click', closeMenu)
   displayStore.updateViewport() // Update viewport on mount
 })

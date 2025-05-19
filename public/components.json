@@ -166,7 +166,6 @@
       "KindBanner",
       "KindButtons",
       "KindFooter",
-      "LatestNav",
       "LayoutSelector",
       "LeftToggle",
       "LoadMessages",
@@ -184,12 +183,10 @@
       "NotificationCard",
       "OldPage",
       "PageLink",
-      "PageList",
       "PopupDescription",
       "RandomLink",
       "SiteLogo",
       "SiteMap",
-      "SmartLinks",
       "SortNav",
       "TestPageMature",
       "TextBubble",
@@ -219,6 +216,7 @@
       "small-header",
       "special-container",
       "theme-menu",
+      "theme-redesign",
       "theme-toggle",
       "title-image"
     ]
@@ -460,14 +458,14 @@
   {
     "folderName": "wonderlab",
     "components": [
-      "ComponentCount",
-      "ComponentReactions",
-      "ComponentScreen",
-      "LabGallery",
-      "WonderLab",
       "comfy-frontend",
+      "component-card",
+      "component-count",
+      "component-reactions",
       "component-sync",
-      "whisper-chat"
+      "lab-gallery",
+      "whisper-chat",
+      "wonder-lab"
     ]
   }
 ]

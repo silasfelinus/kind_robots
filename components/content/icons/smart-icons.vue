@@ -202,7 +202,7 @@ const swarmMessage = computed(() => iconStore.swarmMessage)
 function getUtilityLabelFromName(name: string): string {
   switch (name) {
     case 'theme-icon':
-      return themeStore.currentTheme
+      return themeStore.mainTheme
     case 'login-icon':
       return userStore.isLoggedIn
         ? userStore.user?.username || 'User'

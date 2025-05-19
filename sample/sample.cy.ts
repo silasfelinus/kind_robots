@@ -5,8 +5,8 @@
 //cypress/e2e/[model].cy.ts
 describe('[Model] API Full CRUD + Ownership Tests', () => {
   const modelName = 'sample'
-  const baseUrl = `https://your-app.com/api/${modelName}s`
-  const userUrl = `https://your-app.com/api/users`
+  const baseUrl = `https://kind-robots.vercel.app/api/${modelName}s`
+  const userUrl = `https://kind-robots.vercel.app/api/users`
   const globalApiKey = Cypress.env('API_KEY')
 
   let userA_id: number, userA_apiKey: string

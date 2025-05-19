@@ -41,16 +41,20 @@
         </div>
       </div>
 
-      <div
-        class="mt-4 flex flex-col sm:flex-row gap-2 justify-between items-center"
-      >
-        <input
-          v-model="customName"
-          placeholder="New theme name"
-          class="input input-bordered text-center w-full sm:max-w-xs"
-        />
-        <button @click="saveTheme" class="btn btn-primary">Save Theme</button>
-      </div>
+<div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+  <input
+    v-model="customName"
+    placeholder="Theme name"
+    class="input input-bordered text-center"
+  />
+  <input
+    v-model="customRoom"
+    placeholder="Optional room (e.g. splash, editor)"
+    class="input input-bordered text-center"
+  />
+  <button @click="saveTheme" class="btn btn-primary">Save Theme</button>
+</div>
+
 
       <div class="mt-4 border rounded-xl p-4" :style="previewStyle">
         <h3 class="text-lg font-bold">Live Preview</h3>
@@ -125,6 +129,8 @@ const customTheme = ref<Record<string, string>>(
   Object.fromEntries(colorKeys.map((key) => [key, '#ffffff'])),
 )
 const customName = ref('')
+const customRoom = ref('')
+
 
 const activeMode = ref<'default' | 'user' | 'custom'>('default')
 const currentThemeRef = computed(() => themeStore.mainTheme)
@@ -167,17 +173,20 @@ const saveTheme = async () => {
   const newTheme = {
     name: customName.value.trim(),
     values: { ...customTheme.value },
+    room: customRoom.value.trim() || undefined,
     isPublic: false,
   }
   try {
     await $fetch('/api/themes', { method: 'POST', body: newTheme })
     customName.value = ''
+    customRoom.value = ''
     milestoneStore.rewardMilestone(9)
     await themeStore.fetchPublicThemes()
   } catch (e) {
     console.error('Theme save failed', e)
   }
 }
+
 
 const applyTheme = (theme: string) => {
   themeStore.changeTheme(theme)

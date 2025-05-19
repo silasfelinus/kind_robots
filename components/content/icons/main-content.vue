@@ -14,9 +14,10 @@
         >
           <!-- Front Face: Main Page -->
           <div class="flip-card-front">
-            <div class="h-full w-full overflow-y-auto max-h-full">
-              <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
-            </div>
+<div class="absolute inset-0 overflow-y-auto">
+  <NuxtPage :key="$route.fullPath" class="min-h-[100vh] w-full" />
+</div>
+
           </div>
 
           <!-- Back Face: Splash Tutorial -->

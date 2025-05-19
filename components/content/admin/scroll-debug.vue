@@ -10,7 +10,7 @@
     <ul class="mt-1 max-h-32 overflow-y-auto">
       <li
         v-for="block in blockingElements"
-        :key="block.id"
+        :key="block.selector"
         class="text-red-400 truncate"
       >
         {{ block.selector }} → {{ block.overflow }}
@@ -37,6 +37,8 @@ const getSelector = (el: HTMLElement) => {
 }
 
 const scanForOverflowHidden = () => {
+  if (typeof document === 'undefined') return
+
   const offenders: { selector: string; overflow: string }[] = []
   document.querySelectorAll('*').forEach((el) => {
     const style = getComputedStyle(el)
@@ -54,18 +56,24 @@ const scanForOverflowHidden = () => {
 }
 
 const updateMetrics = () => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return
+
   pageHeight.value = document.documentElement.scrollHeight
   windowHeight.value = window.innerHeight
   scanForOverflowHidden()
 }
 
 onMounted(() => {
+  if (typeof window === 'undefined') return
+
   updateMetrics()
   window.addEventListener('resize', updateMetrics)
   window.addEventListener('scroll', updateMetrics)
 })
 
 onUnmounted(() => {
+  if (typeof window === 'undefined') return
+
   window.removeEventListener('resize', updateMetrics)
   window.removeEventListener('scroll', updateMetrics)
 })

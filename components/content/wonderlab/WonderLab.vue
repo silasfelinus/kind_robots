@@ -1,5 +1,6 @@
+<!-- /components/content/labs/wonder-lab.vue -->
 <template>
-  <div>
+  <div class="w-full h-full">
     <!-- Loading State -->
     <div v-if="isLoading" class="flex justify-center items-center h-full">
       <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />
@@ -7,21 +8,21 @@
     </div>
 
     <!-- Main WonderLab Layout -->
-    <div v-else-if="!errorMessages.length" class="flex h-full">
-      <!-- Left Section for Component Screen -->
-      <div class="w-2/3 h-full flex justify-center items-center">
-        <div
-          v-if="!componentStore.selectedComponent"
-          class="text-center max-w-full"
-        >
+    <div v-else-if="!errorMessages.length" class="flex flex-col lg:flex-row h-full overflow-hidden space-y-4 lg:space-y-0 lg:space-x-4">
+      <!-- Component Screen or Welcome Message -->
+      <div class="w-full lg:w-2/3 flex flex-col h-full">
+        <div v-if="!componentStore.selectedComponent" class="text-center p-4 flex-shrink-0">
           <h1 class="text-4xl font-bold">Welcome to the WonderLab</h1>
           <p class="text-lg mt-4">
             Select a folder to view or interact with components!
           </p>
-          <component-count class="mb-4" />
+          <component-count class="my-4" />
         </div>
 
-        <div v-else class="w-full h-full overflow-auto">
+        <div
+          v-if="componentStore.selectedComponent"
+          class="flex-1 min-h-0 overflow-auto rounded-2xl"
+        >
           <component-screen
             :component="componentStore.selectedComponent"
             class="w-full h-full"
@@ -30,43 +31,43 @@
         </div>
       </div>
 
-      <!-- Right Section: Folder View & Reactions -->
-      <div class="w-1/3 h-full flex flex-col rounded-2xl">
-<!-- Folder View -->
-<div class="bg-gray-100 rounded-2xl flex flex-col transition-all duration-300" :style="{ height: galleryHeight }">
-  <div v-if="componentStore.selectedFolder" class="text-sm md:text-md lg:text-lg xl:text-xl mb-2">
-    Viewing components in folder: {{ componentStore.selectedFolder }}
-  </div>
+      <!-- Folder + Reaction Panel -->
+      <div class="w-full lg:w-1/3 flex flex-col h-full">
+        <!-- Folder View -->
+        <div
+          class="flex-1 min-h-0 bg-base-300 rounded-2xl p-4 flex flex-col"
+          :style="{ height: galleryHeight }"
+        >
+          <div v-if="componentStore.selectedFolder" class="mb-2 text-lg font-semibold">
+            Viewing: {{ componentStore.selectedFolder }}
+          </div>
 
-  <div v-else class="flex-1 min-h-0 overflow-y-auto">
-    <lab-gallery @select-folder="handleFolderSelect" />
-  </div>
+          <div v-else class="flex-1 min-h-0 overflow-y-auto">
+            <lab-gallery @select-folder="handleFolderSelect" />
+          </div>
 
-  <div
-    v-if="componentStore.selectedFolder"
-    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 overflow-y-auto flex-1 min-h-0"
-  >
-    <component-card
-      v-for="component in folderComponents"
-      :key="component.id"
-      :component="component"
-      class="bg-white shadow rounded-lg transform transition-transform duration-200 hover:scale-105 hover:shadow-lg"
-      @select="handleComponentSelect"
-    />
-  </div>
-</div>
-
+          <div
+            v-if="componentStore.selectedFolder"
+            class="grid grid-cols-2 gap-4 overflow-y-auto flex-1 min-h-0 pr-1"
+          >
+            <component-card
+              v-for="component in folderComponents"
+              :key="component.id"
+              :component="component"
+              class="bg-white shadow rounded-lg transform transition-transform duration-200 hover:scale-105 hover:shadow-lg"
+              @select="handleComponentSelect"
+            />
+          </div>
+        </div>
 
         <!-- Reactions -->
         <div
           v-if="componentStore.selectedComponent"
-          class="bg-gray-200 flex justify-center items-center transition-all duration-300"
+          class="bg-gray-200 mt-4 rounded-2xl overflow-hidden transition-all duration-300"
           :style="{ height: reactionsHeight }"
         >
           <div class="h-full w-full overflow-auto bg-gray-50 p-4">
-            <component-reactions
-              :component="componentStore.selectedComponent"
-            />
+            <component-reactions :component="componentStore.selectedComponent" />
           </div>
         </div>
       </div>
@@ -81,6 +82,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'

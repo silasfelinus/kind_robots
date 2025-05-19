@@ -132,7 +132,7 @@ const customTheme = ref<Record<string, string>>(
 const customName = ref('')
 
 const activeMode = ref<'default' | 'user' | 'custom'>('default')
-const currentThemeRef = computed(() => themeStore.currentTheme)
+const currentThemeRef = computed(() => themeStore.mainTheme)
 
 const previewStyle = computed(() => {
   const vars = Object.entries(customTheme.value)

@@ -15,4 +15,4 @@ amitip: What can I say, we're all about giving people choices!
 layout: 'default'
 ---
 
-:theme-menu
+:theme-redesign

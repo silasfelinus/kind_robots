@@ -42,10 +42,7 @@
           <user-panel />
         </div>
         <div v-else class="flex flex-wrap space-y-4">
-          <button class="bg-primary p-2 rounded-lg text-white text-lg">
-            Login
-          </button>
-          <google-login />
+   <login-page />
         </div>
 
         <div class="mt-6">

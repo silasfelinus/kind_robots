@@ -51,7 +51,6 @@ const handleRouteChange = async () => {
 
   const {
     token: queryToken,
-    code,
     botId,
     characterId,
     scenarioId,

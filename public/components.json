@@ -124,6 +124,7 @@
     "components": [
       "add-icon",
       "edit-icon",
+      "flip-panel",
       "icon-gallery",
       "icon-shell",
       "jellybean-icon",
@@ -135,7 +136,10 @@
       "smart-nav",
       "splash-tutorial",
       "swarm-icon",
-      "theme-icon"
+      "theme-icon",
+      "theme-lab",
+      "theme-menu",
+      "theme-toggle"
     ]
   },
   {
@@ -215,9 +219,6 @@
       "site-header",
       "small-header",
       "special-container",
-      "theme-menu",
-      "theme-redesign",
-      "theme-toggle",
       "title-image"
     ]
   },

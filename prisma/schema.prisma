@@ -587,6 +587,7 @@ model Theme {
   isPublic  Boolean  @default(false)
   createdAt DateTime @default(now())
   tagline   String?
+  room      String?
 }
 
 

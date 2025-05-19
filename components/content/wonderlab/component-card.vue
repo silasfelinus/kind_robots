@@ -1,7 +1,5 @@
 <template>
   <div class="p-6 bg-base-300 min-h-screen flex flex-col items-center relative">
-
-
     <!-- Display status message while loading -->
     <div v-if="loadingStatus" class="text-xl text-center text-blue-500 mb-4">
       {{ loadingStatus }}
@@ -38,7 +36,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useComponentStore } from './../../../stores/componentStore'
+import { useComponentStore } from '../../../stores/componentStore'
 
 // State
 const loadingStatus = ref<string | null>(null)
@@ -63,6 +61,4 @@ watch(selectedComponent, (newComponent) => {
     errorMessage.value = null // Clear error message if a component is selected
   }
 })
-
-
 </script>

@@ -48,10 +48,6 @@ import { onMounted } from 'vue'
 const pageStore = usePageStore()
 const router = useRouter()
 
-onMounted(async () => {
-  await pageStore.loadPage()
-})
-
 function handleReset() {
   router.push('/dashboard')
 }

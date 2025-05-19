@@ -12,7 +12,8 @@
       "StoreTester",
       "avatar-banner",
       "avatar-header",
-      "karma-tracker"
+      "karma-tracker",
+      "scroll-debug"
     ]
   },
   {

@@ -1,6 +1,8 @@
 <!-- /components/content/layout/theme-icon.vue -->
 <template>
-  <div class="w-full h-full flex items-center justify-center transition-transform hover:scale-110">
+  <div
+    class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
+  >
     <button
       @click="goToThemePage"
       class="w-full h-full flex items-center justify-center"
@@ -25,7 +27,7 @@ const themeStore = useThemeStore()
 const iconStore = useIconStore()
 const { isEditing } = storeToRefs(iconStore)
 
-const navLabel = computed(() => themeStore.currentTheme)
+const navLabel = computed(() => themeStore.mainTheme)
 
 function goToThemePage() {
   if (!isEditing.value) router.push('/theme')

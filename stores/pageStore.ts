@@ -18,7 +18,7 @@ export const usePageStore = defineStore('pageStore', () => {
 
   const themeStore = useThemeStore()
 
-  const currentTheme = computed(() => themeStore.currentTheme)
+  const currentTheme = computed(() => themeStore.mainTheme)
 
   const meta = computed(() => ({
     title: page.value?.title ?? 'Robots',

@@ -45,7 +45,7 @@
           </div>
           <div v-else>
             <lab-gallery
-              class="h-full overflow-y-auto"
+              class="flex-1 min-h-0 overflow-y-auto"
               @select-folder="handleFolderSelect"
             />
           </div>

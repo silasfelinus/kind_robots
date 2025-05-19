@@ -1,5 +1,5 @@
+// cypress/e2e/themes.cy.js
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-// cypress/e2e/galleries.cy.js
 
 describe('Theme Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/themes'
@@ -21,6 +21,8 @@ describe('Theme Management API Tests', () => {
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(401)
+      expect(res.body.success).to.be.false
+      expect(res.body.message).to.contain('Unauthorized')
     })
   })
 
@@ -40,6 +42,8 @@ describe('Theme Management API Tests', () => {
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(401)
+      expect(res.body.success).to.be.false
+      expect(res.body.message).to.contain('Invalid or expired token')
     })
   })
 
@@ -70,6 +74,8 @@ describe('Theme Management API Tests', () => {
     }).then((res) => {
       expect(res.status).to.eq(201)
       expect(res.body.success).to.be.true
+      expect(res.body.theme).to.have.property('id')
+      expect(res.body.theme.name).to.eq(uniqueThemeName)
       themeId = res.body.theme.id
     })
   })
@@ -81,6 +87,7 @@ describe('Theme Management API Tests', () => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
       expect(res.body.data.name).to.eq(uniqueThemeName)
+      expect(res.body.data).to.have.property('values')
     })
   })
 
@@ -88,6 +95,7 @@ describe('Theme Management API Tests', () => {
   it('should retrieve all public themes', () => {
     cy.request(baseUrl).then((res) => {
       expect(res.status).to.eq(200)
+      expect(res.body.success).to.be.true
       expect(res.body.themes).to.be.an('array')
     })
   })
@@ -96,7 +104,7 @@ describe('Theme Management API Tests', () => {
   it('should update a theme’s name and public status with auth', () => {
     cy.wrap(themeId).should('exist')
     cy.request({
-      method: 'PUT',
+      method: 'PATCH',
       url: `${baseUrl}/${themeId}`,
       headers: {
         'Content-Type': 'application/json',
@@ -108,6 +116,7 @@ describe('Theme Management API Tests', () => {
       },
     }).then((res) => {
       expect(res.status).to.eq(200)
+      expect(res.body.success).to.be.true
       expect(res.body.theme.name).to.include('Renamed-')
       expect(res.body.theme.isPublic).to.be.true
     })
@@ -121,6 +130,8 @@ describe('Theme Management API Tests', () => {
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(401)
+      expect(res.body.success).to.be.false
+      expect(res.body.message).to.include('Unauthorized')
     })
   })
 
@@ -135,6 +146,7 @@ describe('Theme Management API Tests', () => {
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
+      expect(res.body.message).to.include('deleted')
     })
   })
 })

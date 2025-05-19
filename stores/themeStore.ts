@@ -91,9 +91,19 @@ export const useThemeStore = defineStore('themeStore', () => {
     header: {},
   })
 
-  const customThemes = ref<Record<string, string>>(
-    JSON.parse(localStorage.getItem('customThemes') || '{}'),
-  )
+  const customThemes = ref<Record<string, string>>({})
+
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('customThemes')
+      customThemes.value = stored ? JSON.parse(stored) : {}
+    } catch (e) {
+      console.warn(
+        '[themeStore] Failed to parse customThemes from localStorage:',
+        e,
+      )
+    }
+  }
 
   const resolvedTheme = (type: 'main' | 'splash' | 'header') =>
     computed(
@@ -130,7 +140,9 @@ export const useThemeStore = defineStore('themeStore', () => {
     }
     firstThemeChanged.value = true
     document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('theme', theme)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', theme)
+    }
   }
 
   function saveCustomTheme(name: string, theme: string) {
@@ -139,18 +151,22 @@ export const useThemeStore = defineStore('themeStore', () => {
   }
 
   function persistCustomThemes() {
-    localStorage.setItem('customThemes', JSON.stringify(customThemes.value))
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('customThemes', JSON.stringify(customThemes.value))
+    }
   }
 
   function initialize() {
-    const savedTheme = localStorage.getItem('theme') || 'retro'
-    if (
-      availableThemes.includes(savedTheme) ||
-      Object.values(customThemes.value).includes(savedTheme)
-    ) {
-      changeTheme(savedTheme)
-    } else {
-      changeTheme('retro')
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme') || 'retro'
+      if (
+        availableThemes.includes(savedTheme) ||
+        Object.values(customThemes.value).includes(savedTheme)
+      ) {
+        changeTheme(savedTheme)
+      } else {
+        changeTheme('retro')
+      }
     }
   }
 

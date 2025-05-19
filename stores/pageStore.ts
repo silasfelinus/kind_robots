@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { ContentType } from '~/content.config'
+import { useThemeStore } from './themeStore'
 
 export type LayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
 
@@ -14,6 +15,10 @@ export const usePageStore = defineStore('pageStore', () => {
       ? (val as LayoutKey)
       : 'default'
   })
+
+  const themeStore = useThemeStore()
+
+  const currentTheme = computed(() => themeStore.currentTheme)
 
   const meta = computed(() => ({
     title: page.value?.title ?? 'Robots',
@@ -31,6 +36,7 @@ export const usePageStore = defineStore('pageStore', () => {
     underConstruction: page.value?.underConstruction ?? true,
     navComponent: page.value?.navComponent ?? '',
     model: page.value?.model ?? '',
+    theme: page.value?.model ?? currentTheme.value,
   }))
 
   return {
@@ -52,5 +58,6 @@ export const usePageStore = defineStore('pageStore', () => {
     sort: computed(() => meta.value.sort),
     underConstruction: computed(() => meta.value.underConstruction),
     navComponent: computed(() => meta.value.navComponent),
+    theme: computed(() => meta.value.theme),
   }
 })

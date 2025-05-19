@@ -578,6 +578,17 @@ model Tag {
   @@index([userId], map: "Tag_userId_fkey")
 }
 
+model Theme {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  values    Json  // The actual daisyUI theme name
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+
 model User {
   id             Int               @id @default(autoincrement())
   createdAt      DateTime          @default(now())
@@ -640,6 +651,7 @@ model User {
   Scenarios      Scenario[]
   Resonances      Resonance[]
   SmartIcons     SmartIcon[]
+  Themes         Theme[]
   googleId    String? @unique
   googleEmail String? @db.VarChar(255)
 

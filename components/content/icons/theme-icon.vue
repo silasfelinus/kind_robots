@@ -27,7 +27,7 @@ const themeStore = useThemeStore()
 const iconStore = useIconStore()
 const { isEditing } = storeToRefs(iconStore)
 
-const navLabel = computed(() => themeStore.mainTheme)
+const navLabel = computed(() => themeStore.currentTheme)
 
 function goToThemePage() {
   if (!isEditing.value) router.push('/theme')

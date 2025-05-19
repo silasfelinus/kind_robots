@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 401, message: 'Unauthorized' })
 
     const body = await readBody(event)
-    const { name, values, isPublic = false } = body
+    const { name, values, isPublic = false, tagline, room } = body
 
     if (!name || typeof name !== 'string')
       throw createError({ statusCode: 400, message: 'Theme name required' })
@@ -22,13 +22,17 @@ export default defineEventHandler(async (event) => {
         name,
         values,
         isPublic,
+        tagline,
+        room,
         userId: user.id,
       },
     })
 
-    return { success: true, theme, statusCode: 201 }
+    event.node.res.statusCode = 201
+    return { success: true, theme }
   } catch (error) {
     const err = errorHandler(error)
-    return { success: false, message: err.message, statusCode: err.statusCode }
+    event.node.res.statusCode = err.statusCode || 500
+    return { success: false, message: err.message }
   }
 })

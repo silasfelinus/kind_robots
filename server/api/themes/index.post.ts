@@ -16,7 +16,8 @@ export default defineEventHandler(async (event) => {
     const userId = user.id
 
     const normalizeThemeInput = (entry: any) => {
-      const { name, values, tagline, isPublic = false } = entry
+      const { name, values, isPublic = false, tagline, room } = entry
+
       if (!name || typeof name !== 'string') {
         throw createError({ statusCode: 400, message: '"name" is required.' })
       }
@@ -26,16 +27,18 @@ export default defineEventHandler(async (event) => {
           message: '"values" must be a valid object.',
         })
       }
+
       return {
         name,
-        tagline: tagline || null,
         values,
         isPublic,
+        tagline: tagline || null,
+        room: room || null,
         userId,
       }
     }
 
-    // Handle batch create
+    // Handle batch request
     if (Array.isArray(body)) {
       if (body.length === 0) {
         throw createError({
@@ -44,24 +47,36 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      const validatedData = body.map(normalizeThemeInput)
+      const createdThemes = []
+      const skipped: string[] = []
 
-      const createdThemes = await prisma.theme.createMany({
-        data: validatedData,
-        skipDuplicates: true,
-      })
+      for (const entry of body) {
+        const themeData = normalizeThemeInput(entry)
+
+        try {
+          const created = await prisma.theme.create({ data: themeData })
+          createdThemes.push(created)
+        } catch (err: any) {
+          if (err.code === 'P2002') {
+            skipped.push(themeData.name)
+          } else {
+            throw err
+          }
+        }
+      }
 
       event.node.res.statusCode = 201
       return {
         success: true,
-        message: `${createdThemes.count} themes created successfully.`,
-        count: createdThemes.count,
+        message: `${createdThemes.length} theme(s) created, ${skipped.length} duplicates skipped.`,
+        themes: createdThemes,
+        skipped,
+        count: createdThemes.length,
       }
     }
 
     // Handle single theme create
     const themeInput = normalizeThemeInput(body)
-
     const theme = await prisma.theme.create({ data: themeInput })
 
     event.node.res.statusCode = 201

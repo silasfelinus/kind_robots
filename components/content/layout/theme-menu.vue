@@ -1,78 +1,193 @@
+<!-- /components/content/settings/theme-menu.vue -->
 <template>
-  <div
-    class="theme-toggle relative flex flex-col items-center justify-center bg-base-300 p-4 rounded-2xl text-lg w-full h-full border shadow-lg overflow-auto"
-  >
-    <!-- Title -->
-    <div class="text-2xl font-bold mb-4 w-full text-center">Choose Theme:</div>
-
-    <!-- Theme list -->
+  <div class="theme-menu flex flex-col gap-8 px-4 py-6 max-w-5xl mx-auto">
+    <!-- Section: Build Your Own Theme -->
     <div
-      class="theme-list grid gap-6 w-full overflow-y-auto h-full px-4"
-      :class="{
-        'grid-cols-1 sm:grid-cols-[1fr_1fr] sm:grid-rows-[auto_auto]': true,
-        'place-items-center': true,
-      }"
+      class="bg-base-200 border border-base-content p-4 rounded-2xl shadow-md"
     >
-      <magic-container
-        v-for="theme in themeStore.themes"
-        :key="theme"
-        :data-theme="theme"
-        class="theme-container p-4 rounded-xl border shadow-sm transition-all cursor-pointer flex flex-col items-center justify-between"
-        :class="
-          theme === themeStore.currentTheme
-            ? 'ring-4 ring-accent'
-            : 'border-base-300'
-        "
-        @click="handleThemeChange(theme)"
-      >
-        <!-- Button Preview -->
-        <button
-          class="theme-preview w-full h-16 rounded-lg flex items-center justify-center text-lg font-serif"
+      <h2 class="text-xl font-bold mb-4">🎨 Make Your Own Theme</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div
+          v-for="color in colorKeys"
+          :key="color"
+          class="flex items-center gap-2"
         >
-          {{ theme }}
-        </button>
-
-        <!-- Circular Color Swatches -->
-        <div class="color-swatches flex gap-1 mt-4">
-          <div
-            v-for="color in ['primary', 'secondary', 'accent']"
-            :key="color"
-            :class="`bg-${color} rounded-full border border-base-content`"
-            class="h-5 w-5 md:h-6 md:w-6 lg:h-12 lg:w-12"
-          ></div>
+          <label class="w-28 font-medium capitalize">{{ color }}</label>
+          <input
+            type="color"
+            v-model="customTheme[color]"
+            class="input input-bordered w-full h-10 p-0"
+          />
         </div>
-      </magic-container>
+      </div>
+
+      <!-- Name + Save -->
+      <div
+        class="mt-4 flex flex-col sm:flex-row gap-2 items-center justify-between"
+      >
+        <input
+          v-model="customName"
+          placeholder="Theme name"
+          class="input input-bordered w-full sm:max-w-xs text-center"
+        />
+        <button @click="saveTheme" class="btn btn-primary btn-sm">
+          Save Theme
+        </button>
+      </div>
+
+      <!-- Live Preview -->
+      <div class="mt-4 border rounded-xl p-4" :style="previewStyle">
+        <div class="text-xl font-semibold">Live Preview</div>
+        <p class="text-base mt-2">
+          This is how your theme might feel. Test the colors here before saving.
+        </p>
+        <div class="mt-2 flex gap-2">
+          <button class="btn btn-primary btn-sm">Primary</button>
+          <button class="btn btn-secondary btn-sm">Secondary</button>
+          <button class="btn btn-accent btn-sm">Accent</button>
+          <button class="btn btn-warning btn-sm">Warning</button>
+          <button class="btn btn-error btn-sm">Error</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Available Themes -->
+    <div
+      class="bg-base-200 border border-base-content p-4 rounded-2xl shadow-md"
+    >
+      <h2 class="text-xl font-bold mb-4">🌈 Default Themes</h2>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <magic-container
+          v-for="theme in themeStore.availableThemes"
+          :key="theme"
+          :data-theme="theme"
+          class="rounded-xl p-4 border shadow-sm transition-all cursor-pointer text-center"
+          @click="applyTheme(theme)"
+        >
+          <div class="text-lg font-mono">{{ theme }}</div>
+        </magic-container>
+      </div>
+    </div>
+
+    <!-- Section: Shared Themes -->
+    <div
+      v-if="themeStore.sharedThemes.length"
+      class="bg-base-200 border border-base-content p-4 rounded-2xl shadow-md"
+    >
+      <h2 class="text-xl font-bold mb-4">🌍 Shared Themes</h2>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <magic-container
+          v-for="theme in themeStore.sharedThemes"
+          :key="theme.id"
+          :style="getThemeStyle(theme.values)"
+          class="rounded-xl p-4 border shadow-sm cursor-pointer"
+          @click="applyTheme(theme.name)"
+        >
+          <div class="font-mono text-lg">{{ theme.name }}</div>
+        </magic-container>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
-import { useThemeStore } from '../../../stores/themeStore'
+import { ref, computed, onMounted } from 'vue'
+import { useThemeStore } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-const milestoneStore = useMilestoneStore()
 
 const themeStore = useThemeStore()
+const milestoneStore = useMilestoneStore()
 
-// Initialize theme store
 onMounted(() => {
-  try {
-    themeStore.initTheme()
-  } catch (error) {
-    console.error('Error initializing theme store:', error)
-  }
+  themeStore.initTheme()
+  themeStore.fetchPublicThemes()
 })
 
-// Track if the theme has been changed
-const themeChanged = computed(() => themeStore.firstThemeChanged)
+// 🔧 COLOR KEYS
+const colorKeys = [
+  'primary',
+  'secondary',
+  'accent',
+  'neutral',
+  'base-100',
+  'base-200',
+  'base-300',
+  'info',
+  'success',
+  'warning',
+  'error',
+]
 
-// Handle theme change
-const handleThemeChange = (theme: string) => {
-  try {
-    themeStore.changeTheme(theme)
-    milestoneStore.rewardMilestone(9)
-  } catch (error) {
-    console.error('Error changing theme:', error)
+const customTheme = ref<Record<string, string>>(
+  Object.fromEntries(colorKeys.map((key) => [key, '#ffffff'])),
+)
+const customName = ref('')
+
+// 🔁 Computed style block for preview
+const previewStyle = computed(() => {
+  const vars = Object.entries(customTheme.value)
+    .map(([key, val]) => `--${convertToDaisyVar(key)}: ${hexToRgb(val)}`)
+    .join('; ')
+  return `background-color: var(--b1); color: var(--n); padding: 1rem; ${vars}`
+})
+
+const convertToDaisyVar = (key: string) => {
+  const map: Record<string, string> = {
+    primary: 'p',
+    secondary: 's',
+    accent: 'a',
+    neutral: 'n',
+    'base-100': 'b1',
+    'base-200': 'b2',
+    'base-300': 'b3',
+    info: 'in',
+    success: 'su',
+    warning: 'wa',
+    error: 'er',
   }
+  return map[key] || key
+}
+
+const hexToRgb = (hex: string) => {
+  const h = hex.replace('#', '')
+  const bigint = parseInt(h, 16)
+  const r = (bigint >> 16) & 255
+  const g = (bigint >> 8) & 255
+  const b = bigint & 255
+  return `${r} ${g} ${b}`
+}
+
+// 🌈 Save a custom theme
+const saveTheme = async () => {
+  if (!customName.value) return
+  const newTheme = {
+    name: customName.value.trim(),
+    values: { ...customTheme.value },
+    isPublic: false,
+  }
+  try {
+    await $fetch('/api/themes', {
+      method: 'POST',
+      body: newTheme,
+    })
+    customName.value = ''
+    milestoneStore.rewardMilestone(9)
+    await themeStore.fetchPublicThemes()
+  } catch (e) {
+    console.error('Theme save failed', e)
+  }
+}
+
+// 🎯 Apply theme
+const applyTheme = (theme: string) => {
+  themeStore.changeTheme(theme)
+  milestoneStore.rewardMilestone(9)
+}
+
+const getThemeStyle = (values: Record<string, string>) => {
+  const entries = Object.entries(values)
+    .map(([key, val]) => `--${convertToDaisyVar(key)}: ${hexToRgb(val)}`)
+    .join('; ')
+  return `padding: 1rem; ${entries}`
 }
 </script>

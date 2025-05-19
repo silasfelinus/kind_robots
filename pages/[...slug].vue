@@ -84,8 +84,10 @@ const handleRouteChange = async () => {
   if (pitchId) pitchStore.selectPitch(Number(pitchId))
   if (promptId) promptStore.selectPrompt(Number(promptId))
 
-  // Initialize userStore with token (if in query)
-  await userStore.initialize(queryToken as string | undefined)
+if (queryToken && !userStore.user) {
+  await userStore.initialize(queryToken as string)
+}
+
 
   // If user is still null (token invalid or missing), redirect unless guest allowed
   if (!userStore.user && queryToken) {

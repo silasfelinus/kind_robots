@@ -49,7 +49,7 @@ defineProps<{
   height: 100%;
   backface-visibility: hidden;
   will-change: transform;
-  overflow-y: auto;
+  overflow: hidden;
   contain: layout paint;
   display: flex;
   flex-direction: column;

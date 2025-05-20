@@ -134,7 +134,6 @@
 <script setup lang="ts">
 // /components/content/story/splash-tutorial.vue
 import { ref, computed, onMounted, nextTick } from 'vue'
-import { storeToRefs } from 'pinia'
 import { usePageStore } from '@/stores/pageStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
@@ -172,7 +171,7 @@ const parsedNavComponent = computed(() => {
 })
 
 const fallbackImage = '/images/botcafe.webp'
-const currentImage = ref(image.value)
+const currentImage = ref<string | null>(image.value || null)
 
 const handleImageError = () => {
   currentImage.value = fallbackImage
@@ -203,7 +202,7 @@ const handleScroll = () => {
 watch(
   image,
   (newVal) => {
-    currentImage.value = newVal
+    currentImage.value = typeof newVal === 'string' ? newVal : fallbackImage
   },
   { immediate: true },
 )

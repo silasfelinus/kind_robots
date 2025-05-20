@@ -3,38 +3,50 @@
 // test-ignore
 
 // /server/api/[model]/index.get.ts
+
 import { defineEventHandler } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import { validateApiKey } from '@/server/utils/validateKey'
 
 export default defineEventHandler(async (event) => {
-  const modelName = 'sampleModel' // <-- change this
-  let response
+  const modelName = 'sampleModel' // <-- update to your actual model (e.g., 'theme', 'bot', etc.)
 
   try {
-    console.log(`Fetching all ${modelName}s from the database...`)
+    console.log(`[${modelName}.get] Fetching entries...`)
 
-    const data = await prisma[modelName].findMany()
+    const { isValid, user } = await validateApiKey(event)
+    const includeUserData = isValid && user && typeof user.id === 'number'
 
-    console.log(`All ${modelName}s fetched successfully.`)
+    const whereClause = includeUserData
+      ? {
+          OR: [{ isPublic: true }, { userId: user.id }],
+        }
+      : { isPublic: true }
 
-    response = {
-      success: true,
-      message: `All ${modelName}s fetched successfully.`,
-      data,
-      statusCode: 200,
-    }
+    const data = await prisma[modelName].findMany({
+      where: whereClause,
+      orderBy: { createdAt: 'desc' },
+    })
+
+    console.log(`[${modelName}.get] Retrieved ${data.length} entries.`)
+
     event.node.res.statusCode = 200
+    return {
+      success: true,
+      message: includeUserData
+        ? `All ${modelName}s retrieved for user ${user.id}.`
+        : `Public ${modelName}s retrieved successfully.`,
+      data,
+    }
   } catch (error) {
     const handled = errorHandler(error)
-    console.error(`Error fetching ${modelName}s:`, handled)
+    console.error(`[${modelName}.get] Error:`, handled)
+
     event.node.res.statusCode = handled.statusCode || 500
-    response = {
+    return {
       success: false,
       message: handled.message || `Failed to fetch ${modelName}s.`,
-      statusCode: event.node.res.statusCode,
     }
   }
-
-  return response
 })

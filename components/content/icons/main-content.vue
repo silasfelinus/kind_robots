@@ -23,8 +23,8 @@
       </flip-panel>
     </div>
 
-    <div v-else class="absolute inset-0 overflow-y-auto">
-      <NuxtPage :key="$route.fullPath" class="min-h-[100dvh] w-full" />
+    <div v-else class="flex flex-col grow overflow-y-auto w-full">
+      <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
     </div>
 
     <!-- Right Sidebar & Toggle -->
@@ -35,10 +35,10 @@
         'bg-base-300 shadow': !sidebarRightOpen,
       }"
     />
-    <transition name="slide-in-right">
+    <transition name="slide-in-right" appear>
       <aside
         v-show="!displayStore.isMobileViewport && sidebarRightOpen"
-        class="fixed z-30 rounded-2xl border-6 border-secondary bg-base-200 transform transition-transform duration-500 ease-in-out"
+        class="fixed z-30 rounded-2xl border-6 border-secondary bg-base-200 transform will-change-transform transition-transform duration-500 ease-in-out"
         :style="displayStore.rightSidebarStyle"
       >
         <splash-tutorial />
@@ -68,16 +68,16 @@ const sidebarRightOpen = computed(
   opacity: 0;
 }
 
+.slide-in-right-enter-active,
+.slide-in-right-leave-active {
+  transition:
+    transform 0.4s ease-in-out,
+    opacity 0.3s ease-in-out;
+}
+
 .slide-in-right-enter-to,
 .slide-in-right-leave-from {
   transform: translateX(0);
   opacity: 1;
-}
-
-.slide-in-right-enter-active,
-.slide-in-right-leave-active {
-  transition:
-    transform 0.4s ease,
-    opacity 0.3s ease;
 }
 </style>

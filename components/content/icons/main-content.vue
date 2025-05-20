@@ -1,15 +1,14 @@
 <!-- /components/content/icons/main-content.vue -->
 <template>
-  <div class="relative h-full w-full rounded-2xl overflow-hidden bg-base-300">
+  <div class="relative min-h-[100dvh] w-full rounded-2xl bg-base-300">
     <!-- Mobile View: Flip between page and splash -->
-    <div v-if="displayStore.isMobileViewport" class="h-full w-full">
+    <div v-if="displayStore.isMobileViewport" class="min-h-[100dvh] w-full">
       <flip-panel :flipped="sidebarRightOpen">
         <template #front>
-          <div class="absolute inset-0">
-            <NuxtPage :key="$route.fullPath" class="min-h-[100vh] w-full" />
+          <div class="relative min-h-[100dvh] w-full overflow-y-auto">
+            <NuxtPage :key="$route.fullPath" class="min-h-[100dvh] w-full" />
           </div>
         </template>
-
         <template #back>
           <splash-tutorial />
         </template>
@@ -17,10 +16,8 @@
     </div>
 
     <!-- Desktop View: Always show both -->
-    <div v-else class="h-full w-full" key="desktop">
-      <div class="h-full w-full overflow-y-auto">
-        <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
-      </div>
+    <div v-else class="relative min-h-[100dvh] w-full overflow-y-auto">
+      <NuxtPage :key="$route.fullPath" class="min-h-[100dvh] w-full" />
     </div>
 
     <!-- Right Sidebar & Toggle -->
@@ -40,6 +37,7 @@
     </aside>
   </div>
 </template>
+
 
 <script setup lang="ts">
 // /components/content/icons/main-content.vue

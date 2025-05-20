@@ -19,4 +19,4 @@ navComponent: 'lab-nav'
 theme: dracula
 ---
 
-:main-component
+:wonder-lab

@@ -124,8 +124,9 @@ export const useThemeStore = defineStore('themeStore', () => {
     }
     firstThemeChanged.value = true
     savedTheme.value = theme
-    document.documentElement.setAttribute('data-theme', theme)
+
     if (typeof window !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', theme)
       localStorage.setItem('theme', theme)
     }
   }

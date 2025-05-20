@@ -10,27 +10,29 @@
     >
       <flip-panel :flipped="sidebarRightOpen">
         <template #front>
-          <div class="absolute inset-0 overflow-y-auto">
-            <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
+          <div class="relative w-full h-full overflow-hidden">
+            <div class="absolute inset-0 overflow-y-auto">
+              <NuxtPage
+                :key="$route.fullPath"
+                class="min-h-fit w-full px-4 py-6"
+              />
+            </div>
           </div>
         </template>
         <template #back>
-          <div class="absolute inset-0 overflow-y-auto">
-            <splash-tutorial />
+          <div class="relative w-full h-full overflow-hidden">
+            <div class="absolute inset-0 overflow-y-auto">
+              <splash-tutorial />
+            </div>
           </div>
         </template>
       </flip-panel>
     </div>
 
     <!-- Desktop View -->
-    <div
-      v-else
-      class="flex flex-col flex-1 min-h-[100dvh] w-full overflow-hidden"
-    >
-      <div class="flex-1 overflow-y-auto">
-        <div class="min-h-full w-full flex flex-col">
-          <NuxtPage :key="$route.fullPath" class="flex-1" />
-        </div>
+    <div v-else class="relative flex-1 w-full h-full overflow-hidden">
+      <div class="absolute inset-0 overflow-y-auto">
+        <NuxtPage :key="$route.fullPath" class="min-h-fit w-full px-4 py-6" />
       </div>
     </div>
 
@@ -86,5 +88,17 @@ const sidebarRightOpen = computed(
 .slide-in-right-leave-from {
   transform: translateX(0);
   opacity: 1;
+}
+
+.flip-panel-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  will-change: transform;
+  contain: layout paint;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 </style>

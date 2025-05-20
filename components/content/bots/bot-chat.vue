@@ -23,7 +23,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useBotStore } from '../../../stores/botStore'
-import BotStream from './BotStream.vue'
 
 const botStore = useBotStore()
 const currentBot = computed(() => botStore.currentBot)

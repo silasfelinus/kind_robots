@@ -153,9 +153,9 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from '~/stores/userStore'
-import { useErrorStore, ErrorType } from '~/stores/errorStore'
-import { generateUsername } from '~/utils/generateUsername'
+import { useUserStore } from './../../../stores/userStore'
+import { useErrorStore, ErrorType } from './../../../stores/errorStore'
+import { generateUsername } from './../../../utils/generateUsername'
 
 // Store setup
 const userStore = useUserStore()

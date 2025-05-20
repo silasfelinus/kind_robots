@@ -1,5 +1,5 @@
-// server/api/utils/validateKey.ts
-import { createError, type H3Event } from 'h3'
+// /server/api/utils/validateKey.ts
+import { type H3Event } from 'h3'
 import prisma from './prisma'
 
 export async function validateApiKey(event: H3Event): Promise<{
@@ -12,13 +12,9 @@ export async function validateApiKey(event: H3Event): Promise<{
   // Extract authorization header
   const authorizationHeader = event.node.req.headers['authorization']
 
-  // Check for valid Bearer token format
+  // Gracefully fail if no token or bad format
   if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-    throw createError({
-      statusCode: 401,
-      message:
-        'Authorization token is required in the format "Bearer <token>".',
-    })
+    return { isValid: false }
   }
 
   // Extract token
@@ -29,9 +25,9 @@ export async function validateApiKey(event: H3Event): Promise<{
     (await prisma.user.findFirst({
       where: { apiKey: token },
       select: { id: true, Role: true },
-    })) ?? undefined // Convert null to undefined for compatibility
+    })) ?? undefined
 
   console.log('sending user', user)
-  // Return user and validation flag based on match
+
   return { isValid: !!user, user }
 }

@@ -104,8 +104,12 @@ export const useThemeStore = defineStore('themeStore', () => {
     const { success, data } = await performFetch<{ themes: Theme[] }>(
       '/api/themes',
     )
+
     if (success && data?.themes) {
-      sharedThemes.value = data.themes.filter((t) => t.isPublic)
+      sharedThemes.value = data.themes
+    } else {
+      sharedThemes.value = []
+      console.warn('[themeStore] No themes found or fetch failed.', data)
     }
   }
 

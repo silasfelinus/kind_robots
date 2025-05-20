@@ -101,9 +101,11 @@ export const useThemeStore = defineStore('themeStore', () => {
   }
 
   async function getThemes() {
-    const { success, data } = await performFetch<Theme[]>('/api/themes')
-    if (success && data) {
-      sharedThemes.value = data.filter((t) => t.isPublic)
+    const { success, data } = await performFetch<{ themes: Theme[] }>(
+      '/api/themes',
+    )
+    if (success && data?.themes) {
+      sharedThemes.value = data.themes.filter((t) => t.isPublic)
     }
   }
 

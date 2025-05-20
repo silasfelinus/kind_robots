@@ -16,8 +16,8 @@ navComponent: 'mode-row'
 ---
 <img src="/images/background/error.png" alt="Whimsical robot 404" class="w-full max-w-3xl mx-auto rounded-xl shadow-lg mb-8" />
 
-:::info
-**404 Not Found**
+
+404 Not Found
 
 This page doesn’t exist. Double-check the URL or head back to the [home page](/).
-:::
+

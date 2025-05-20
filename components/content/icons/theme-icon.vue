@@ -31,7 +31,7 @@ const { isEditing } = storeToRefs(iconStore)
 const navLabel = computed(() => themeStore.currentTheme)
 
 function goToThemePage() {
-  if (!isEditing.value) router.push('/theme')
+  if (!isEditing.value) router.push('/themes')
 }
 
 // expose shared label

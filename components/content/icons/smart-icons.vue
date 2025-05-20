@@ -12,7 +12,7 @@
         @mouseup="stopContinuousScroll"
         @mouseleave="stopContinuousScroll"
       >
-        <Icon name="lucide:chevron-left" />
+        <Icon name="kind-icon:chevron-left" />
       </button>
     </div>
 
@@ -27,7 +27,7 @@
         @mouseup="stopContinuousScroll"
         @mouseleave="stopContinuousScroll"
       >
-        <Icon name="lucide:chevron-right" />
+        <Icon name="kind-icon:chevron-right" />
       </button>
     </div>
 
@@ -74,7 +74,7 @@
                 @drop="onDrop(index)"
               >
                 <Icon
-                  :name="icon.icon || 'lucide:help-circle'"
+                  :name="icon.icon || 'kind-icon:help'"
                   class="text-3xl max-w-[3rem] max-h-[3rem]"
                 />
               </div>
@@ -84,7 +84,7 @@
                 class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
               >
                 <Icon
-                  :name="icon.icon || 'lucide:help-circle'"
+                  :name="icon.icon || 'kind-icon:help'"
                   :class="[
                     'text-3xl max-w-[3rem] max-h-[3rem]',
                     { glow: icon.link && route.path.startsWith(icon.link) },
@@ -99,7 +99,7 @@
               </div>
               <Icon
                 v-else
-                :name="icon.icon || 'lucide:help-circle'"
+                :name="icon.icon || 'kind-icon:help'"
                 class="text-3xl max-w-[3rem] max-h-[3rem]"
               />
             </template>
@@ -132,10 +132,7 @@
                 @click="isEditing && confirmEdit()"
                 class="flex items-center justify-center w-full h-full transition-transform hover:scale-110"
               >
-                <Icon
-                  name="lucide:plus-circle"
-                  class="text-3xl w-full h-full"
-                />
+                <Icon name="kind-icon:plus" class="text-3xl w-full h-full" />
               </NuxtLink>
             </template>
             <template #label>
@@ -152,13 +149,13 @@
               class="btn btn-square btn-xs bg-base-200 text-error hover:bg-base-300"
               @click="revertEdit"
             >
-              <Icon name="lucide:rotate-ccw" />
+              <Icon name="kind-icon:rotate-ccw" />
             </button>
             <button
               class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"
               @click="confirmEdit"
             >
-              <Icon name="lucide:check" />
+              <Icon name="kind-icon:check" />
             </button>
           </div>
         </div>

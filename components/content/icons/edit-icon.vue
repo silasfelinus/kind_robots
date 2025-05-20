@@ -8,11 +8,11 @@
     <!-- Live Preview -->
     <div class="flex items-center gap-3">
       <Icon
-        :name="form.icon || 'lucide:help-circle'"
+        :name="form.icon || 'kind-icon:help'"
         class="text-4xl text-base-content"
       />
       <span class="text-base-content/70 text-sm">
-        Preview: {{ form.icon || 'lucide:help-circle' }}
+        Preview: {{ form.icon || 'kind-icon:help' }}
       </span>
     </div>
 
@@ -46,7 +46,7 @@
 
     <!-- Icon Name -->
     <label class="form-control">
-      <span class="label-text">Icon Name (e.g. lucide:home)</span>
+      <span class="label-text">Icon Name (e.g. kind-icon:home)</span>
       <input v-model="form.icon" class="input input-bordered w-full" />
     </label>
 
@@ -73,7 +73,9 @@
 
     <!-- Buttons -->
     <div class="flex justify-end gap-2 pt-2">
-      <button class="btn btn-outline btn-sm" @click="$emit('close')">Cancel</button>
+      <button class="btn btn-outline btn-sm" @click="$emit('close')">
+        Cancel
+      </button>
       <button class="btn btn-primary btn-sm" @click="save">Save</button>
     </div>
   </div>

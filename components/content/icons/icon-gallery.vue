@@ -31,7 +31,7 @@
         :key="icon.id"
         class="relative group p-4 border rounded-2xl bg-base-100 shadow-md flex flex-col items-center gap-2"
       >
-        <Icon :name="icon.icon || 'lucide:help-circle'" class="text-4xl" />
+        <Icon :name="icon.icon || 'kind-icon:help'" class="text-4xl" />
         <div class="text-center text-sm font-medium">
           {{ icon.label || icon.title }}
         </div>

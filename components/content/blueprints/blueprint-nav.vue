@@ -15,7 +15,7 @@
       to="/blueprints"
       class="flex flex-col items-center justify-center rounded-2xl p-4 bg-base-200 hover:bg-base-300 transition"
     >
-      <Icon name="lucide:grid" class="text-4xl mb-2" />
+      <Icon name="kind-icon:grid" class="text-4xl mb-2" />
       <span class="text-center text-sm font-semibold">View Gallery</span>
     </NuxtLink>
   </div>

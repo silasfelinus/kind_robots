@@ -26,7 +26,7 @@
       <input
         v-model="form.icon"
         type="text"
-        placeholder="Icon name (e.g. lucide:home)"
+        placeholder="Icon name (e.g. kind-icon:home)"
         class="input input-bordered w-full"
         required
       />

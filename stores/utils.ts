@@ -11,10 +11,20 @@ export type ApiResponse<T> = {
   apiKey?: string
   usernames?: string[]
 }
+
 export async function performFetch<T = unknown>(
   url: string,
   options: RequestInit = {},
-): Promise<{ success: boolean; data?: T; status?: number }> {
+): Promise<{
+  success: boolean
+  data?: T
+  message?: string
+  user?: unknown
+  token?: string
+  apiKey?: string
+  usernames?: string[]
+  status?: number
+}> {
   const userStore = useUserStore()
   const token = userStore.user?.apiKey
 
@@ -30,17 +40,26 @@ export async function performFetch<T = unknown>(
       headers,
     })
 
-    const data = await res.json().catch(() => undefined)
+    const json = await res.json().catch(() => ({}))
+
     return {
       success: res.ok,
       status: res.status,
-      data,
+      data: json.data ?? json,
+      message: json.message ?? undefined,
+      user: json.user ?? undefined,
+      token: json.token ?? undefined,
+      apiKey: json.apiKey ?? undefined,
+      usernames: json.usernames ?? undefined,
     }
   } catch (err) {
     console.error(`[performFetch] Failed fetch to ${url}:`, err)
+    const errorStore = useErrorStore()
+    errorStore.setError(ErrorType.NETWORK_ERROR, `Failed fetch: ${url}`)
     return {
       success: false,
       status: 500,
+      message: 'Network or server error',
     }
   }
 }

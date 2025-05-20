@@ -182,18 +182,21 @@ export const useUserStore = defineStore('userStore', {
       password?: string
     }) {
       try {
-        const response = await performFetch<User>('/api/user/register', {
-          method: 'POST',
-          body: JSON.stringify(userData),
-        })
+        const response = await performFetch<{ user: User; token: string }>(
+          '/api/user/register',
+          {
+            method: 'POST',
+            body: JSON.stringify(userData),
+          },
+        )
 
-        if (response.success && response.user && response.token) {
-          this.user = response.user
-          this.token = response.token
+        if (response.success && response.data?.user && response.data?.token) {
+          this.user = response.data.user
+          this.token = response.data.token
           return {
             success: true,
-            user: response.user,
-            token: response.token,
+            user: response.data.user,
+            token: response.data.token,
           }
         } else {
           console.warn('Registration failed:', response.message)

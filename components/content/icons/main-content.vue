@@ -1,29 +1,23 @@
 <!-- /components/content/icons/main-content.vue -->
 <template>
-  <div
-    class="relative flex flex-col min-h-[100dvh] w-full rounded-2xl bg-base-300"
-  >
+  <div class="relative flex flex-col h-full w-full bg-base-300 rounded-2xl">
     <!-- Mobile View -->
     <div
       v-if="displayStore.isMobileViewport"
-      class="relative flex flex-col min-h-[100dvh] w-full"
+      class="relative flex flex-col h-full w-full overflow-hidden"
     >
       <flip-panel :flipped="sidebarRightOpen">
         <template #front>
-          <div class="relative h-full w-full">
-            <div class="absolute inset-0 overflow-y-auto">
-              <NuxtPage
-                :key="$route.fullPath"
-                class="min-h-[100dvh] w-full px-4 py-6"
-              />
-            </div>
+          <div class="absolute inset-0 overflow-y-auto overscroll-y-contain">
+            <NuxtPage
+              :key="$route.fullPath"
+              class="min-h-[100dvh] w-full px-4 py-6"
+            />
           </div>
         </template>
         <template #back>
-          <div class="relative h-full w-full">
-            <div class="absolute inset-0 overflow-y-auto">
-              <splash-tutorial />
-            </div>
+          <div class="absolute inset-0 overflow-y-auto overscroll-y-contain">
+            <splash-tutorial />
           </div>
         </template>
       </flip-panel>
@@ -31,7 +25,7 @@
 
     <!-- Desktop View -->
     <div v-else class="relative flex-1 w-full h-full overflow-hidden">
-      <div class="relative w-full min-h-[100dvh] overflow-y-auto">
+      <div class="absolute inset-0 overflow-y-auto overscroll-y-contain">
         <NuxtPage :key="$route.fullPath" class="w-full px-4 py-6" />
       </div>
     </div>
@@ -47,7 +41,7 @@
     <transition name="slide-in-right" appear>
       <aside
         v-show="!displayStore.isMobileViewport && sidebarRightOpen"
-        class="fixed z-30 rounded-2xl border-6 border-secondary bg-base-200 transform will-change-transform transition-transform duration-500 ease-in-out"
+        class="fixed z-30 rounded-2xl border-6 border-secondary bg-base-200 transform will-change-transform transition-transform duration-500 ease-in-out overflow-y-auto overscroll-y-contain"
         :style="displayStore.rightSidebarStyle"
       >
         <splash-tutorial />

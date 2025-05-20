@@ -1,31 +1,9 @@
 // /stores/themeStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-
-export type DaisyUIColorTokens = {
-  primary: string
-  secondary: string
-  accent: string
-  neutral: string
-  'base-100': string
-  'base-200'?: string
-  'base-300'?: string
-  info?: string
-  success?: string
-  warning?: string
-  error?: string
-}
-
-export interface Theme {
-  id?: number
-  name: string
-  values: Record<string, string>
-  userId?: number
-  room?: string
-  tagline?: string
-  isPublic?: boolean
-  createdAt?: string
-}
+import { performFetch } from '@/stores/utils'
+import { useUserStore } from '@/stores/userStore'
+import type { Theme } from '@prisma/client'
 
 export const useThemeStore = defineStore('themeStore', () => {
   const availableThemes = [
@@ -67,49 +45,11 @@ export const useThemeStore = defineStore('themeStore', () => {
   ]
 
   const sharedThemes = ref<Theme[]>([])
-
-  async function getThemes() {
-    try {
-      const result = await $fetch<{ themes: Theme[] }>('/api/themes')
-      sharedThemes.value = result.themes.filter((t) => t.isPublic)
-    } catch (error) {
-      console.error('[themeStore] Failed to fetch themes:', error)
-    }
-  }
-
-  async function addTheme(theme: Theme) {
-    try {
-      await $fetch('/api/themes', { method: 'POST', body: theme })
-      await getThemes()
-    } catch (error) {
-      console.error('[themeStore] Failed to save custom theme:', error)
-    }
-  }
-
-  async function updateTheme(id: number, updates: Partial<Theme>) {
-    try {
-      await $fetch(`/api/themes/${id}`, { method: 'PATCH', body: updates })
-      await getThemes()
-    } catch (error) {
-      console.error(`[themeStore] Failed to update theme ${id}:`, error)
-    }
-  }
-
-  async function deleteTheme(id: number) {
-    try {
-      await $fetch(`/api/themes/${id}`, { method: 'DELETE' })
-      await getThemes()
-    } catch (error) {
-      console.error(`[themeStore] Failed to delete theme ${id}:`, error)
-    }
-  }
-
   const open = ref(false)
-  const firstThemeChanged = ref(false)
-  const botOverride = ref(true)
-
   const showCustom = ref(false)
+  const botOverride = ref(true)
   const savedTheme = ref('retro')
+  const firstThemeChanged = ref(false)
 
   const currentTheme = computed(() => savedTheme.value)
 
@@ -119,9 +59,10 @@ export const useThemeStore = defineStore('themeStore', () => {
 
   function changeTheme(theme: string) {
     if (!availableThemes.includes(theme)) {
-      console.error(`Invalid theme: "${theme}"`)
+      console.error(`[themeStore] Invalid theme: "${theme}"`)
       return
     }
+
     firstThemeChanged.value = true
     savedTheme.value = theme
 
@@ -129,6 +70,10 @@ export const useThemeStore = defineStore('themeStore', () => {
       document.documentElement.setAttribute('data-theme', theme)
       localStorage.setItem('theme', theme)
     }
+  }
+
+  function updateBotTheme(theme: string) {
+    if (botOverride.value) changeTheme(theme)
   }
 
   function setShowCustom(value: boolean) {
@@ -139,33 +84,73 @@ export const useThemeStore = defineStore('themeStore', () => {
   }
 
   function initialize() {
-    if (typeof window !== 'undefined') {
-      try {
-        const storedCustomFlag = localStorage.getItem('showCustom')
-        if (storedCustomFlag !== null) {
-          showCustom.value = storedCustomFlag === 'true'
-        }
+    if (typeof window === 'undefined') return
 
-        const storedTheme = localStorage.getItem('theme') || 'retro'
-        if (availableThemes.includes(storedTheme)) {
-          changeTheme(storedTheme)
-        } else {
-          changeTheme('retro')
-        }
+    try {
+      const storedFlag = localStorage.getItem('showCustom')
+      if (storedFlag !== null) showCustom.value = storedFlag === 'true'
 
-        getThemes()
-      } catch (e) {
-        console.warn(
-          '[themeStore] Failed to parse localStorage theme state during initialize():',
-          e,
-        )
-        changeTheme('retro')
-      }
+      const storedTheme = localStorage.getItem('theme') || 'retro'
+      changeTheme(availableThemes.includes(storedTheme) ? storedTheme : 'retro')
+
+      getThemes()
+    } catch (err) {
+      console.warn('[themeStore] Failed localStorage init:', err)
+      changeTheme('retro')
     }
   }
 
-  function updateBotTheme(theme: string) {
-    if (botOverride.value) changeTheme(theme)
+  async function getThemes() {
+    const { success, data } = await performFetch<Theme[]>('/api/themes')
+    if (success && data) {
+      sharedThemes.value = data.filter((t) => t.isPublic)
+    }
+  }
+
+  async function addTheme(theme: Theme) {
+    const userStore = useUserStore()
+    const userId = userStore.user?.id
+
+    if (!userId) {
+      console.warn('[themeStore] No user ID found. Cannot add theme.')
+      return
+    }
+
+    const payload = {
+      ...theme,
+      userId,
+    }
+
+    const { success } = await performFetch('/api/themes', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+
+    if (success) await getThemes()
+  }
+
+  async function updateTheme(id: number, updates: Partial<Theme>) {
+    const userStore = useUserStore()
+    const userId = userStore.user?.id
+
+    const payload = {
+      ...updates,
+      userId, // this assumes your backend still expects userId as confirmation of ownership
+    }
+
+    const { success } = await performFetch(`/api/themes/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    })
+
+    if (success) await getThemes()
+  }
+
+  async function deleteTheme(id: number) {
+    const { success } = await performFetch(`/api/themes/${id}`, {
+      method: 'DELETE',
+    })
+    if (success) await getThemes()
   }
 
   return {
@@ -177,16 +162,18 @@ export const useThemeStore = defineStore('themeStore', () => {
     deleteTheme,
 
     open,
+    toggleMenu,
+
     currentTheme,
     savedTheme,
-    showCustom,
-    botOverride,
+    changeTheme,
+    updateBotTheme,
     firstThemeChanged,
 
-    toggleMenu,
-    changeTheme,
-    initialize,
-    updateBotTheme,
+    showCustom,
     setShowCustom,
+
+    botOverride,
+    initialize,
   }
 })

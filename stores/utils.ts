@@ -15,54 +15,71 @@ export type ApiResponse<T> = {
 export async function performFetch<T = unknown>(
   url: string,
   options: RequestInit = {},
-): Promise<{
-  success: boolean
-  data?: T
-  message?: string
-  user?: unknown
-  token?: string
-  apiKey?: string
-  usernames?: string[]
-  status?: number
-}> {
+  retries = 1,
+  timeout = 10000,
+): Promise<ApiResponse<T> & { status?: number }> {
   const userStore = useUserStore()
   const token = userStore.user?.apiKey
-
   const headers = {
     ...(options.headers || {}),
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 
-  try {
-    const res = await fetch(url, {
-      ...options,
-      headers,
-    })
+  let attempt = 0
+  while (attempt < retries) {
+    try {
+      const controller = new AbortController()
+      const id = setTimeout(() => controller.abort(), timeout)
 
-    const json = await res.json().catch(() => ({}))
+      const res = await fetch(url, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      })
 
-    return {
-      success: res.ok,
-      status: res.status,
-      data: json.data ?? json,
-      message: json.message ?? undefined,
-      user: json.user ?? undefined,
-      token: json.token ?? undefined,
-      apiKey: json.apiKey ?? undefined,
-      usernames: json.usernames ?? undefined,
-    }
-  } catch (err) {
-    console.error(`[performFetch] Failed fetch to ${url}:`, err)
-    const errorStore = useErrorStore()
-    errorStore.setError(ErrorType.NETWORK_ERROR, `Failed fetch: ${url}`)
-    return {
-      success: false,
-      status: 500,
-      message: 'Network or server error',
+      clearTimeout(id)
+      const json = await res.json().catch(() => ({}))
+
+      return {
+        success: res.ok,
+        status: res.status,
+        data: json.data ?? json,
+        message: json.message ?? 'No message returned from server',
+        user: json.user ?? undefined,
+        token: json.token ?? undefined,
+        apiKey: json.apiKey ?? undefined,
+        usernames: json.usernames ?? undefined,
+      }
+    } catch (err) {
+      attempt++
+      const isAbortError = err instanceof Error && err.name === 'AbortError'
+
+      if (attempt >= retries || isAbortError) {
+        console.error(`[performFetch] Failed after ${attempt} attempt(s):`, err)
+
+        const errorStore = useErrorStore()
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          `Failed fetch: ${url} (attempt ${attempt})`,
+        )
+
+        return {
+          success: false,
+          status: 500,
+          message: 'Network or server error',
+        }
+      }
     }
   }
+
+  return {
+    success: false,
+    status: 500,
+    message: 'Unreachable code reached in performFetch',
+  }
 }
+
 export type Timestamp = string
 
 export function handleError(err: unknown, action: string) {

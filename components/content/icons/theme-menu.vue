@@ -80,7 +80,7 @@
         <magic-container
           v-for="theme in themeStore.sharedThemes"
           :key="theme.id"
-          :style="getThemeStyle(theme.values)"
+          :style="getThemeStyle(getSafeThemeValues(theme.values))"
           class="rounded-xl p-4 border shadow-sm cursor-pointer"
           @click="applyTheme(theme.name)"
         >
@@ -113,6 +113,12 @@ const colorKeys = [
   'warning',
   'error',
 ]
+
+function getSafeThemeValues(val: unknown): Record<string, string> {
+  return typeof val === 'object' && val !== null && !Array.isArray(val)
+    ? (val as Record<string, string>)
+    : {}
+}
 
 const customTheme = ref<Record<string, string>>(
   Object.fromEntries(colorKeys.map((key) => [key, '#ffffff'])),

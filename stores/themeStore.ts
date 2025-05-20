@@ -45,13 +45,15 @@ export const useThemeStore = defineStore('themeStore', () => {
   ]
 
   const sharedThemes = ref<Theme[]>([])
+  const currentThemeObj = ref<Theme | null>(null)
+  const themeForm = ref<Partial<Theme>>({})
+  const savedTheme = ref('retro')
+  const currentTheme = computed(() => savedTheme.value)
+
   const open = ref(false)
   const showCustom = ref(false)
   const botOverride = ref(true)
-  const savedTheme = ref('retro')
   const firstThemeChanged = ref(false)
-
-  const currentTheme = computed(() => savedTheme.value)
 
   function toggleMenu() {
     open.value = !open.value
@@ -113,7 +115,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     }
   }
 
-  async function addTheme(theme: Theme) {
+  async function addTheme(theme: Partial<Theme>) {
     const userStore = useUserStore()
     const userId = userStore.user?.id
 
@@ -141,7 +143,7 @@ export const useThemeStore = defineStore('themeStore', () => {
 
     const payload = {
       ...updates,
-      userId, // this assumes your backend still expects userId as confirmation of ownership
+      userId,
     }
 
     const { success } = await performFetch(`/api/themes/${id}`, {
@@ -156,30 +158,53 @@ export const useThemeStore = defineStore('themeStore', () => {
     const { success } = await performFetch(`/api/themes/${id}`, {
       method: 'DELETE',
     })
+
     if (success) await getThemes()
+  }
+
+  function selectTheme(theme: Theme) {
+    currentThemeObj.value = theme
+    themeForm.value = { ...theme }
+  }
+
+  function deselectTheme() {
+    currentThemeObj.value = null
+    themeForm.value = {}
+  }
+
+  function revertForm() {
+    if (currentThemeObj.value) {
+      themeForm.value = { ...currentThemeObj.value }
+    }
   }
 
   return {
     availableThemes,
     sharedThemes,
+    currentTheme,
+    currentThemeObj,
+    themeForm,
+
     getThemes,
     addTheme,
     updateTheme,
     deleteTheme,
 
+    selectTheme,
+    deselectTheme,
+    revertForm,
+
     open,
     toggleMenu,
-
-    currentTheme,
-    savedTheme,
     changeTheme,
+    savedTheme,
     updateBotTheme,
     firstThemeChanged,
-
     showCustom,
     setShowCustom,
-
     botOverride,
     initialize,
   }
 })
+
+export type { Theme }

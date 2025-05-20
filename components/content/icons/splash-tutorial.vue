@@ -2,7 +2,7 @@
 
 <template>
   <div
-    class="relative w-full min-h-[100dvh] rounded-2xl border-2 border-black z-20"
+    class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-black z-20"
     ref="scrollContainer"
   >
     <!-- Foreground content -->

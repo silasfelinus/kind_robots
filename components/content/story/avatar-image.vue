@@ -1,6 +1,6 @@
 <!-- /components/content/story/avatar-image.vue -->
 <template>
-  <div v-if="hydrated" class="relative w-full h-full">
+  <div v-if="hydrated" class="relative w-full h-full border-2 border-black">
     <!-- Optional Top Icon -->
     <div class="absolute top-1 left-1 z-10">
       <Icon
@@ -86,7 +86,6 @@ const handleAvatarClick = () => {
   }
 }
 </script>
-
 
 <style scoped>
 .flip-card {

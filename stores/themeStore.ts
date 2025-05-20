@@ -70,8 +70,8 @@ export const useThemeStore = defineStore('themeStore', () => {
 
   async function getThemes() {
     try {
-      const result = await $fetch<Theme[]>('/api/themes')
-      sharedThemes.value = result.filter((t) => t.isPublic)
+      const result = await $fetch<{ themes: Theme[] }>('/api/themes')
+      sharedThemes.value = result.themes.filter((t) => t.isPublic)
     } catch (error) {
       console.error('[themeStore] Failed to fetch public themes:', error)
     }

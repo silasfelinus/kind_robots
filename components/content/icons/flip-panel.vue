@@ -7,7 +7,7 @@
     >
       <!-- Front face -->
       <div
-        class="absolute inset-0 z-[20] flex flex-col [backface-visibility:hidden] [contain:layout_paint] will-change-transform overscroll-contain"
+        class="absolute inset-0 z-20 flex flex-col [backface-visibility:hidden] [contain:layout_paint] will-change-transform overscroll-contain"
         :class="{ 'pointer-events-none invisible': flipped }"
       >
         <slot name="front" />
@@ -15,7 +15,7 @@
 
       <!-- Back face -->
       <div
-        class="absolute inset-0 z-[10] flex flex-col [backface-visibility:hidden] [contain:layout_paint] will-change-transform overscroll-contain [transform:rotateY(180deg)]"
+        class="absolute inset-0 z-10 flex flex-col [backface-visibility:hidden] [contain:layout_paint] will-change-transform overscroll-contain [transform:rotateY(180deg)]"
         :class="{ 'pointer-events-none invisible': !flipped }"
       >
         <slot name="back" />

@@ -98,7 +98,10 @@ export const useComponentStore = defineStore('componentStore', {
           logProgress('Synchronizing components...')
 
           const normalize = (str: string) =>
-            str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
+            str
+              .replace(/([a-z])([A-Z])/g, '$1-$2')
+              .replace(/[\s_]+/g, '-')
+              .toLowerCase()
 
           for (const folder of folderData) {
             for (const componentName of folder.components) {
@@ -120,26 +123,33 @@ export const useComponentStore = defineStore('componentStore', {
                 }
               }
 
-              const componentData: Component = {
-                id: existingComponent?.id || 0,
-                componentName,
-                folderName: folder.folderName,
-                createdAt: existingComponent?.createdAt || new Date(),
-                updatedAt: new Date(),
-                isWorking: existingComponent?.isWorking ?? true,
-                underConstruction:
-                  existingComponent?.underConstruction ?? false,
-                isBroken: existingComponent?.isBroken ?? false,
-                title: existingComponent?.title ?? null,
-                notes: existingComponent?.notes ?? null,
-                artImageId: existingComponent?.artImageId ?? null,
-              }
-
               if (existingComponent) {
+                const updateData: Component = {
+                  ...existingComponent,
+                  componentName,
+                  folderName: folder.folderName,
+                  updatedAt: new Date(),
+                }
+
                 matchedComponentIds.add(existingComponent.id)
-                await this.updateComponent(componentData)
+                await this.updateComponent(updateData)
               } else {
-                const newComp = await this.createComponent(componentData)
+                const createData: Omit<Component, 'id'> = {
+                  componentName,
+                  folderName: folder.folderName,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                  isWorking: true,
+                  underConstruction: false,
+                  isBroken: false,
+                  title: null,
+                  notes: null,
+                  artImageId: null,
+                }
+
+                const newComp = await this.createComponent(
+                  createData as Component,
+                )
                 matchedComponentIds.add(newComp.id)
               }
             }

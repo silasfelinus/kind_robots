@@ -26,7 +26,7 @@
         </h1>
 
         <button
-          v-if="theme"
+          v-if="theme && themeStore.currentTheme !== theme"
           @click="themeStore.changeTheme(theme)"
           class="mx-auto block text-xs md:text-sm lg:text-md xl:text-lg font-semibold bg-accent text-black border border-black rounded-2xl px-3 py-1 animate-fade-in-up hover:underline"
         >

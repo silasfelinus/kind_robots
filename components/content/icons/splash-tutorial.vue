@@ -53,9 +53,7 @@
 
       <!-- Nav + Mode Row -->
       <div class="flex flex-col gap-4 w-full pointer-events-auto">
-        <div
-          class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
-        >
+        <div class="flex-grow flex items-center justify-center">
           <component
             v-if="Array.isArray(parsedNavComponent)"
             is="smart-nav"
@@ -70,9 +68,7 @@
             class="w-full max-w-3xl"
           />
         </div>
-        <div
-          class="flex-grow flex items-center justify-center overflow-auto rounded-2xl border-2 border-black"
-        >
+        <div class="flex-grow flex items-center justify-center">
           <mode-row class="w-full max-w-3xl" />
         </div>
       </div>

@@ -11,82 +11,39 @@ export type ApiResponse<T> = {
   apiKey?: string
   usernames?: string[]
 }
-export async function performFetch<T>(
+export async function performFetch<T = unknown>(
   url: string,
   options: RequestInit = {},
-  retries = 3,
-  timeout = 8000,
-): Promise<ApiResponse<T>> {
-  const errorStore = useErrorStore()
+): Promise<{ success: boolean; data?: T; status?: number }> {
   const userStore = useUserStore()
+  const token = userStore.user?.apiKey
 
-  // Setup headers conditionally
-  const isFormData = options.body instanceof FormData
-  const headers: HeadersInit = {
+  const headers = {
     ...(options.headers || {}),
-    ...(userStore.apiKey
-      ? { Authorization: `Bearer ${userStore.apiKey}` }
-      : {}),
-    ...(userStore.token ? { 'X-User-Token': userStore.token } : {}),
-    ...(isFormData ? {} : { 'Content-Type': 'application/json' }), // Skip setting Content-Type for FormData
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 
-  // Nested function to handle request with timeout
-  const fetchWithTimeout = (
-    url: string,
-    options: RequestInit,
-    timeout: number,
-  ): Promise<Response> => {
-    return new Promise((resolve, reject) => {
-      const timer = setTimeout(
-        () => reject(new Error('Request timed out')),
-        timeout,
-      )
-
-      fetch(url, options)
-        .then((response) => {
-          clearTimeout(timer)
-          resolve(response)
-        })
-        .catch((error) => {
-          clearTimeout(timer)
-          reject(error)
-        })
+  try {
+    const res = await fetch(url, {
+      ...options,
+      headers,
     })
-  }
 
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      const response = await fetchWithTimeout(
-        url,
-        { ...options, headers },
-        timeout,
-      )
-
-      // Parse response as ApiResponse<T>
-      const parsedResponse = (await response.json()) as ApiResponse<T>
-
-      if (!parsedResponse.success || !response.ok) {
-        const message =
-          parsedResponse.message || response.statusText || 'Unknown error'
-        errorStore.setError(ErrorType.NETWORK_ERROR, message)
-        return { success: false, message }
-      }
-
-      return parsedResponse // Directly return parsed ApiResponse<T>
-    } catch (error) {
-      if (attempt === retries) {
-        const message =
-          error instanceof Error ? error.message : 'Unknown network error'
-        errorStore.setError(ErrorType.NETWORK_ERROR, message)
-        return { success: false, message }
-      }
+    const data = await res.json().catch(() => undefined)
+    return {
+      success: res.ok,
+      status: res.status,
+      data,
+    }
+  } catch (err) {
+    console.error(`[performFetch] Failed fetch to ${url}:`, err)
+    return {
+      success: false,
+      status: 500,
     }
   }
-
-  return { success: false, message: 'All fetch attempts failed' }
 }
-
 export type Timestamp = string
 
 export function handleError(err: unknown, action: string) {

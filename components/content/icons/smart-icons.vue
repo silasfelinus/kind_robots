@@ -149,7 +149,7 @@
               class="btn btn-square btn-xs bg-base-200 text-error hover:bg-base-300"
               @click="revertEdit"
             >
-              <Icon name="kind-icon:rotate-ccw" />
+              <Icon name="kind-icon:rotate" />
             </button>
             <button
               class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"

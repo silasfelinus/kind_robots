@@ -93,7 +93,7 @@
           <magic-container
             v-for="theme in themeStore.sharedThemes"
             :key="theme.id"
-            :style="getThemeStyle(theme.values)"
+            :style="getThemeStyle(theme.values as Record<string, string>)"
             class="rounded-xl p-4 border cursor-pointer hover:ring hover:ring-secondary"
             @click.ctrl="editTheme(theme)"
             @click="applyTheme(theme.name)"
@@ -108,7 +108,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useThemeStore } from '@/stores/themeStore'
+import { useThemeStore, type Theme } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 
 const themeStore = useThemeStore()
@@ -141,6 +141,11 @@ const useCustom = computed({
   get: () => themeStore.showCustom,
   set: (val) => themeStore.setShowCustom(val),
 })
+
+const applyTheme = (themeName: string) => {
+  themeStore.changeTheme(themeName)
+  milestoneStore.rewardMilestone(9)
+}
 
 const previewStyle = computed(() => {
   const vars = Object.entries(customTheme.value)
@@ -206,15 +211,19 @@ const saveTheme = async () => {
   }
 }
 
-function applyTheme(themeName: string) {
-  themeStore.changeTheme(themeName)
-  milestoneStore.rewardMilestone(9)
-}
-
 function editTheme(theme: Theme) {
   customName.value = theme.name
   customRoom.value = theme.room || ''
-  customTheme.value = { ...theme.values }
+  if (
+    theme.values &&
+    typeof theme.values === 'object' &&
+    !Array.isArray(theme.values)
+  ) {
+    customTheme.value = theme.values as Record<string, string>
+  } else {
+    console.warn('Invalid theme.values:', theme.values)
+    customTheme.value = {}
+  }
   selectedThemeId.value = theme.id || null
   updateMode.value = true
 }

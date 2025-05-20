@@ -9,29 +9,30 @@
       class="relative flex flex-col min-h-[100dvh] w-full"
     >
       <flip-panel :flipped="sidebarRightOpen">
-        <!-- Front (NuxtPage) -->
-        <div class="relative h-full w-full">
-          <div class="absolute inset-0 overflow-y-auto">
-            <NuxtPage
-              :key="$route.fullPath"
-              class="min-h-fit w-full px-4 py-6"
-            />
+        <template #front>
+          <div class="relative h-full w-full">
+            <div class="absolute inset-0 overflow-y-auto">
+              <NuxtPage
+                :key="$route.fullPath"
+                class="min-h-[100dvh] w-full px-4 py-6"
+              />
+            </div>
           </div>
-        </div>
-
-        <!-- Back (splash-tutorial) -->
-        <div class="relative h-full w-full">
-          <div class="absolute inset-0 overflow-y-auto">
-            <splash-tutorial />
+        </template>
+        <template #back>
+          <div class="relative h-full w-full">
+            <div class="absolute inset-0 overflow-y-auto">
+              <splash-tutorial />
+            </div>
           </div>
-        </div>
+        </template>
       </flip-panel>
     </div>
 
     <!-- Desktop View -->
     <div v-else class="relative flex-1 w-full h-full overflow-hidden">
-      <div class="absolute inset-0 overflow-y-auto">
-        <NuxtPage :key="$route.fullPath" class="min-h-fit w-full px-4 py-6" />
+      <div class="relative w-full min-h-[100dvh] overflow-y-auto">
+        <NuxtPage :key="$route.fullPath" class="w-full px-4 py-6" />
       </div>
     </div>
 

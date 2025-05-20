@@ -1,3 +1,4 @@
+<!-- /components/content/screenfx/animation-tester.vue -->
 <template>
   <div
     class="animation-tester-container bg-base-200 p-8 rounded-lg max-w-lg mx-auto"

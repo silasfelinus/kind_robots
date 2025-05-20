@@ -1,3 +1,4 @@
+<!-- /components/content/weird/weird-sheet.vue -->
 <template>
   <div
     class="weird-sheet bg-primary text-white flex flex-col items-center justify-start p-4 rounded-lg h-full"

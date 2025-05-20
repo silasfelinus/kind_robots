@@ -1,3 +1,4 @@
+<!-- /components/content/art/art-editor.vue -->
 // /components/content/art/art-editor.vue
 <template>
   <div class="w-full max-w-4xl mx-auto px-4 py-6 space-y-6">

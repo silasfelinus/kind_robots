@@ -1,3 +1,4 @@
+<!-- /components/content/weird/scenario-preview.vue -->
 <template>
   <div class="w-full mb-6">
     <!-- Scenario Selector -->

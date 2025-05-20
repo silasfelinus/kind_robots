@@ -1,4 +1,5 @@
-<!-- /components/content/labs/lab-gallery.vue -->
+<!-- /components/content/wonderlab/lab-gallery.vue -->
+
 <template>
   <div class="bg-base-300 min-h-screen p-4">
     <!-- Folder View -->

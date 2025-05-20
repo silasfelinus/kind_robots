@@ -1,3 +1,4 @@
+<!-- /components/content/bots/bot-spinner.vue -->
 <template>
   <div
     class="relative flex flex-col items-center p-2 bg-base overflow-auto h-screen z-10"

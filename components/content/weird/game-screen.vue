@@ -1,3 +1,4 @@
+<!-- /components/content/weird/game-screen.vue -->
 <template>
   <div class="flex flex-col h-screen bg-base-300 text-base-content">
     <div class="m-4">

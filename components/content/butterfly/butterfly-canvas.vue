@@ -1,3 +1,4 @@
+<!-- /components/content/butterfly/butterfly-canvas.vue -->
 <template>
   <!-- Transparent Overlay with Button Instruction -->
   <div class="relative w-full h-full">

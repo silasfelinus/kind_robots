@@ -1,3 +1,4 @@
+<!-- /components/content/weird/weirder-game.vue -->
 <template>
   <div
     class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-bg-base-300 via-bg-base-100 to-bg-base-200"

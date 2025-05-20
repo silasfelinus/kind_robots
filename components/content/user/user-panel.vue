@@ -1,3 +1,4 @@
+<!-- /components/content/user/user-panel.vue -->
 <template>
   <div class="user-panel p-4 bg-base-200 rounded-lg max-w-2xl mx-auto">
     <h2 class="text-xl font-semibold mb-4">User Profile</h2>

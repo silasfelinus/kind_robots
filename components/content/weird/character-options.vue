@@ -1,3 +1,4 @@
+<!-- /components/content/weird/character-options.vue -->
 <template>
   <div
     class="flex items-center justify-between bg-gray-100 p-1 rounded-lg shadow-md"

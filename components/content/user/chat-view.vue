@@ -1,3 +1,4 @@
+<!-- /components/content/user/chat-view.vue -->
 <template>
   <div class="p-6 m-4 mx-auto max-w-screen-lg bg-base-200 rounded-2xl border">
     <h1 class="text-4xl text-center mb-6">Chat Manager</h1>

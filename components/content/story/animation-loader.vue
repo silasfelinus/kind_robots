@@ -1,3 +1,4 @@
+<!-- /components/content/story/animation-loader.vue -->
 <template>
   <div
     class="effect-container"

@@ -1,4 +1,5 @@
-<!-- /components/content/story/kind-header.vue -->
+<!-- /components/content/icons/kind-header.vue -->
+
 <template>
   <header
     class="relative bg-base-300 rounded-2xl border border-black w-full h-full box-border"

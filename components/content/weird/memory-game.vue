@@ -1,3 +1,4 @@
+<!-- /components/content/weird/memory-game.vue -->
 <template>
   <div class="container mx-auto flex flex-col h-full space-y-4 no-scrollbar">
     <!-- Top Section: Leaderboard and Difficulty Selection -->

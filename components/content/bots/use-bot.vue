@@ -1,3 +1,4 @@
+<!-- /components/content/bots/use-bot.vue -->
 <template>
   <div
     class="rounded-2xl border p-6 m-4 mx-auto bg-base-200 grid gap-6 max-w-screen-lg"

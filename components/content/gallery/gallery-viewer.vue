@@ -1,3 +1,4 @@
+<!-- /components/content/gallery/gallery-viewer.vue -->
 <template>
   <div>
     <!-- Display gallery cards -->

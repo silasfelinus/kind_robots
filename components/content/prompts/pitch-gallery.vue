@@ -1,3 +1,4 @@
+<!-- /components/content/prompts/pitch-gallery.vue -->
 <template>
   <div class="w-full h-full relative bg-base-300 flex flex-col">
     <!-- Pitch Type Selector -->

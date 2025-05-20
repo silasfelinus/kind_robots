@@ -1,4 +1,5 @@
 <!-- /components/content/icons/jellybean-icon.vue -->
+
 <template>
   <router-link
     to="/milestones"

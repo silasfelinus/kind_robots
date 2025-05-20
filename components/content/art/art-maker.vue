@@ -1,3 +1,4 @@
+<!-- /components/content/art/art-maker.vue -->
 <template>
   <div
     class="bg-base-300 shadow-xl rounded-3xl border overflow-y-auto border-base-200 z-10 text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105"

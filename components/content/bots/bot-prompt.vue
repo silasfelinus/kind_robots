@@ -1,3 +1,4 @@
+<!-- /components/content/bots/bot-prompt.vue -->
 <script setup lang="ts">
 import { ref, computed, watchEffect, onMounted } from 'vue'
 import { useBotStore, type Bot } from '../../../stores/botStore'

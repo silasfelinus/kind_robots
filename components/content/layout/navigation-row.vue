@@ -1,3 +1,4 @@
+<!-- /components/content/layout/navigation-row.vue -->
 <template>
   <div class="flex items-center justify-between w-full">
     <!-- BackLink Component -->

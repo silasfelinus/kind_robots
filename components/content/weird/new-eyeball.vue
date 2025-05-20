@@ -1,3 +1,4 @@
+<!-- /components/content/weird/new-eyeball.vue -->
 <script setup lang="ts">
 // Imports
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'

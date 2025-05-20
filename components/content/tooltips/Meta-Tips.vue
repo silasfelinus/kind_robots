@@ -1,3 +1,4 @@
+<!-- /components/content/tooltips/meta-tips.vue -->
 <template>
   <div>
     <!-- Flip Card -->

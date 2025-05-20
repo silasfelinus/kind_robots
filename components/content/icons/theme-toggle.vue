@@ -1,3 +1,4 @@
+<!-- /components/content/icons/theme-toggle.vue -->
 <template>
   <div class="theme-selector flex flex-col items-center relative">
     <div class="flex flex-row items-center justify-center space-x-2 w-full">

@@ -1,3 +1,4 @@
+<!-- /components/content/rewards/reward-gallery.vue -->
 <template>
   <div class="bg-base-300 p-6 min-h-screen">
     <!-- Error Message -->

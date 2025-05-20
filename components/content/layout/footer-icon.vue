@@ -1,3 +1,4 @@
+<!-- /components/content/layout/footer-icon.vue -->
 <template>
   <div
     class="footer-toggle fixed bottom-4 left-1/2 transform -translate-x-1/2 text-accent p-2 rounded-full opacity-75 cursor-pointer z-50"

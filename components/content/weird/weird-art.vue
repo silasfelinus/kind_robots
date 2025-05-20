@@ -1,3 +1,4 @@
+<!-- /components/content/weird/weird-art.vue -->
 <template>
   <div
     class="weird-art bg-accent text-white flex items-center justify-center rounded-lg h-full"

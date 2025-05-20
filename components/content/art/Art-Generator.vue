@@ -1,3 +1,4 @@
+<!-- /components/content/art/art-generator.vue -->
 <template>
   <div class="bg-base-300 rounded-2xl p-8 text-lg">
     <h1 class="text-2xl mb-4">Art-Generator</h1>

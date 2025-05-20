@@ -1,3 +1,4 @@
+<!-- /components/content/butterfly/butterfly-sanctuary.vue -->
 <template>
   <div
     class="relative grid grid-cols-2 gap-1 md:gap-4 bg-info bg-opacity-90 border-white box-border"

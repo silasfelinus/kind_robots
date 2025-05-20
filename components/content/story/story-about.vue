@@ -1,3 +1,4 @@
+<!-- /components/content/story/story-about.vue -->
 <template>
   <div class="p-6 bg-base-200 rounded-2xl shadow-md">
     <h2 class="text-2xl font-bold text-primary mb-4">About StoryMaker</h2>

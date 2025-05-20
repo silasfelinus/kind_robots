@@ -1,3 +1,4 @@
+<!-- /components/content/user/add-chat.vue -->
 <template>
   <div
     class="mx-auto max-w-screen-lg bg-base-200 rounded-2xl border p-4 space-y-6"

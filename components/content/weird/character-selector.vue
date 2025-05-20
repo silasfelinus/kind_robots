@@ -1,3 +1,4 @@
+<!-- /components/content/weird/character-selector.vue -->
 <template>
   <select v-model="characterStore.selectedCharacter">
     <option

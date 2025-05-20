@@ -1,3 +1,4 @@
+<!-- /components/content/weird/action-toggle.vue -->
 <template>
   <div class="ml-2">
     <select v-model="action" class="border p-1">

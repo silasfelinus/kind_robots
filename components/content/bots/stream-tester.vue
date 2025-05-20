@@ -1,3 +1,4 @@
+<!-- /components/content/bots/stream-tester.vue -->
 <template>
   <div class="mx-auto max-w-screen-lg bg-base-200 rounded-2xl border">
     <h1 class="text-4xl text-center mb-6">Stream Tester</h1>

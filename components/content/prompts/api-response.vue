@@ -1,3 +1,4 @@
+<!-- /components/content/prompts/api-response.vue -->
 <template>
   <div class="api-response-container">
     <h2 class="text-lg font-semibold mb-2 text-black">Parsed Examples</h2>

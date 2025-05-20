@@ -1,3 +1,4 @@
+<!-- /components/content/bots/response-card.vue -->
 <template>
   <div
     class="response-card p-6 bg-base-200 rounded-xl shadow-md w-full max-w-lg mx-auto mt-6"

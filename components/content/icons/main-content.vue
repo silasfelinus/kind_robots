@@ -1,4 +1,5 @@
 <!-- /components/content/icons/main-content.vue -->
+
 <template>
   <div
     class="relative flex flex-col min-h-[100dvh] w-full rounded-2xl bg-base-300"

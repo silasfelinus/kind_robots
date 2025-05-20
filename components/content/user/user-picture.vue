@@ -1,3 +1,4 @@
+<!-- /components/content/user/user-picture.vue -->
 <template>
   <nuxt-link to="/dashboard" class="block">
     <!-- Show the avatar image if available -->

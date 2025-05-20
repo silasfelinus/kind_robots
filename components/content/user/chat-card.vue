@@ -1,3 +1,4 @@
+<!-- /components/content/user/chat-card.vue -->
 <template>
   <div
     class="chat-card p-6 bg-base-200 rounded-xl shadow-lg w-full max-w-lg mx-auto mt-6 relative border border-primary hover:border-accent transition"

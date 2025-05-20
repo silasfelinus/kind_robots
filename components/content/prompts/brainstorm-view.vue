@@ -1,3 +1,4 @@
+<!-- /components/content/prompts/brainstorm-view.vue -->
 <template>
   <div class="container mx-auto">
     <!-- Responsive layout for Brainstorm Image and Temperature Slider -->

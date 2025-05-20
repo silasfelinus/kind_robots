@@ -1,3 +1,4 @@
+<!-- /components/content/butterfly/butterfly-demo.vue -->
 <template>
   <div class="relative w-full h-full flex items-center justify-center bg-gray-100">
     <!-- Card container for the butterfly -->

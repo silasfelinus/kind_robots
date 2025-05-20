@@ -1,3 +1,4 @@
+<!-- /components/content/prompts/pitch-display.vue -->
 <template>
   <div>
     <!-- Display Title if Selected -->

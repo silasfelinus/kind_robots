@@ -1,3 +1,4 @@
+<!-- /components/content/weird/weirdlandia-game.vue -->
 <template>
   <div class="flex justify-center items-center bg-gray-800 pattern-grid-lg">
     <div class="hero-image-container relative overflow-hidden">

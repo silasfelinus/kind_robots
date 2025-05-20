@@ -1,3 +1,4 @@
+<!-- /components/content/weird/weird-choices.vue -->
 <template>
   <div
     class="weird-choices bg-warning text-white flex flex-col items-center justify-center rounded-lg h-full"

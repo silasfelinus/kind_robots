@@ -1,3 +1,4 @@
+<!-- /components/content/layout/large-header.vue -->
 <template>
   <div class="flex h-full w-full px-4">
     <!-- Title and Subtitle Section -->

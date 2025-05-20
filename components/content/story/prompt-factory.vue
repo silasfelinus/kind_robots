@@ -1,3 +1,4 @@
+<!-- /components/content/story/prompt-factory.vue -->
 <template>
   <div
     class="prompt-factory-container flex flex-col items-center overflow-y-auto"

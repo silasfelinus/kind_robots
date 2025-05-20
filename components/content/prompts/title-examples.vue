@@ -1,3 +1,4 @@
+<!-- /components/content/prompts/title-examples.vue -->
 <template>
   <div>
     <h2 class="text-xl text-black font-semibold mb-4">Title Examples</h2>

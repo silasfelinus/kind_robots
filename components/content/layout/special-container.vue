@@ -1,3 +1,4 @@
+<!-- /components/content/layout/special-container.vue -->
 <template>
   <div 
     class="special-container border-4 overflow-y-auto h-64 max-h-96 bg-gradient-to-b from-bg-primary to-bg-secondary rounded-lg p-4 

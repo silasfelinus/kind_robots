@@ -1,3 +1,4 @@
+<!-- /components/content/bots/add-bot.vue -->
 // /components/content/story/add-bot.vue
 <template>
   <div

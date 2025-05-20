@@ -1,4 +1,4 @@
-<!-- /components/content/story/smart-nav.vue -->
+<!-- /components/content/icons/smart-nav.vue -->
 <template>
   <div class="w-full flex flex-wrap justify-center gap-3 px-2">
     <button

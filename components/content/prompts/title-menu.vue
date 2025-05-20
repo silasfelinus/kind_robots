@@ -1,3 +1,4 @@
+<!-- /components/content/prompts/title-menu.vue -->
 <template>
   <div>
     <!-- Custom Title Input -->

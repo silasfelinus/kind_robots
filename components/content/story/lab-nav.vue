@@ -1,4 +1,5 @@
 <!-- /components/content/story/lab-nav.vue -->
+
 <template>
   <div class="w-full flex flex-col items-center">
     <div class="flex justify-center flex-wrap gap-2 md:gap-3 lg:gap-4 w-full mb-3">

@@ -1,3 +1,4 @@
+<!-- /components/content/weird/character-title.vue -->
 <template>
   <div class="w-full lg:w-1/2 space-y-4">
     <!-- Name and Honorific -->

@@ -1,3 +1,4 @@
+<!-- /components/content/bots/prompt-creator.vue -->
 <template>
   <div>
     <h2 class="text-lg font-medium mb-2">User Intro Prompts</h2>

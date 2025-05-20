@@ -1,3 +1,4 @@
+<!-- /components/content/weird/add-scenario.vue -->
 // /components/content/story/add-scenario.vue
 <template>
   <div class="w-full md:w-3/4 p-4 mx-auto overflow-y-auto space-y-8">

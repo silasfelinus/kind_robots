@@ -1,3 +1,4 @@
+<!-- /components/content/art/art-card.vue -->
 <template>
   <div
     class="relative flex flex-col bg-primary bg-opacity-30 border border-accent rounded-2xl p-2 m-2 hover:shadow-lg transition-all"

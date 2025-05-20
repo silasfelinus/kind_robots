@@ -1,4 +1,5 @@
-<!-- /components/content/story/edit-icon.vue -->
+<!-- /components/content/icons/edit-icon.vue -->
+
 <template>
   <div
     class="bg-base-100 rounded-2xl p-6 w-full max-w-xl shadow-xl border border-base-content/10 space-y-4"

@@ -1,21 +1,41 @@
-<!-- /components/content/icons/flip-panel.vue -->
+<!-- /components/content/icons/main-content.vue -->
 <template>
-  <div class="flip-panel-wrapper">
-    <div class="flip-panel-inner" :class="{ 'is-flipped': flipped }">
-      <!-- Front Face -->
-      <div class="flip-panel-face flip-panel-front">
-        <slot name="front" />
-      </div>
-
-      <!-- Back Face -->
-      <div class="flip-panel-face flip-panel-back">
-        <slot name="back" />
-      </div>
+  <div
+    class="relative flex flex-col min-h-[100dvh] w-full rounded-2xl bg-base-300"
+  >
+    <!-- Mobile -->
+    <div
+      v-if="displayStore.isMobileViewport"
+      class="relative flex-1 h-full w-full"
+    >
+      <flip-panel :flipped="sidebarRightOpen">
+        <template #front>
+          <NuxtPage :key="$route.fullPath" class="w-full min-h-[100dvh]" />
+        </template>
+        <template #back>
+          <splash-tutorial />
+        </template>
+      </flip-panel>
     </div>
+
+    <!-- Desktop -->
+    <div v-else class="absolute inset-0 overflow-y-auto">
+      <NuxtPage :key="$route.fullPath" class="min-h-[100dvh] w-full" />
+    </div>
+
+    <!-- Toggle -->
+    <right-toggle class="fixed bottom-4 right-4 z-50" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { useDisplayStore } from '@/stores/displayStore'
+
+const displayStore = useDisplayStore()
+
+const sidebarRightOpen = computed(
+  () => displayStore.sidebarRightState === 'open',
+)
 // /components/content/icons/flip-panel.vue
 defineProps<{
   flipped: boolean

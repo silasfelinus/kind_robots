@@ -1,8 +1,7 @@
 <!-- /layouts/default.vue -->
 <template>
-  <div class="relative w-full h-full overflow-hidden">
-    <!-- Main App Slot Content (Header, Main, Splash, etc.) -->
-    <main class="relative z-10">
+  <div class="flex flex-col min-h-[100dvh] w-full overflow-hidden">
+    <main class="flex-1 overflow-y-auto overscroll-y-contain">
       <slot />
     </main>
   </div>

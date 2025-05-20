@@ -185,7 +185,8 @@ export const useDisplayStore = defineStore('displayStore', {
 
     mainContentStyle(): Record<string, string> {
       return {
-        height: `calc(var(--vh) * ${this.mainContentHeight})`,
+        minHeight: `calc(var(--vh) * ${this.mainContentHeight})`,
+        maxHeight: '100%',
         width: `calc(${this.mainContentWidth}vw)`,
         top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
         right:

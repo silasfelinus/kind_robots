@@ -1,39 +1,53 @@
-// server/utils/backupDatabase.ts
+// /server/utils/backup.ts
 import fs from 'fs'
 import prisma from './prisma'
 
+const models = [
+  'user',
+  'art',
+  'artImage',
+  'reaction',
+  'prompt',
+  'bot',
+  'gallery',
+  'character',
+  'component',
+  'scenario',
+  'reward',
+  'pitch',
+  'resource',
+  'tag',
+  'resonance',
+  'milestone',
+  'milestoneRecord',
+  'blueprint',
+  'chat',
+  'smartIcon',
+  'theme',
+  'log',
+] as const
+
+type ModelName = (typeof models)[number]
+
 export async function backupDatabase() {
+  const backupData: Record<string, any[]> = {}
+
   try {
-    const tags = await prisma.tag.findMany()
-    const art = await prisma.art.findMany()
-    const Reactions = await prisma.reaction.findMany()
-    const prompts = await prisma.prompt.findMany()
-    const users = await prisma.user.findMany()
-    const bots = await prisma.bot.findMany()
-    const galleries = await prisma.gallery.findMany()
-
-    const backupData = {
-      art,
-      Reactions,
-      prompts,
-      bots,
-      galleries,
-      tags,
-      users,
+    for (const model of models) {
+      const data = await (prisma as any)[model].findMany()
+      backupData[model] = data
     }
 
-    function replacer(key: string, value: unknown): unknown {
-      if (typeof value === 'bigint') {
-        return value.toString() // convert BigInt to string
-      }
-      return value
-    }
+    const replacer = (_key: string, value: unknown): unknown =>
+      typeof value === 'bigint' ? value.toString() : value
 
-    // Write to file with the replacer to handle BigInt
-    fs.writeFileSync('backup.json', JSON.stringify(backupData, replacer))
-    console.log('Backup successful.')
+    fs.writeFileSync('backup.json', JSON.stringify(backupData, replacer, 2))
+    console.log(
+      '✅ Backup successful. Models:',
+      Object.keys(backupData).join(', '),
+    )
   } catch (error) {
-    console.error('Error during backup:', error)
+    console.error('❌ Error during backup:', error)
   } finally {
     await prisma.$disconnect()
   }

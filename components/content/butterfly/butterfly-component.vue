@@ -1,3 +1,4 @@
+<!-- /components/content/butterfly/butterfly-component.vue -->
 <template>
   <div
     v-if="hydrated"

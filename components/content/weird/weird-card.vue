@@ -1,3 +1,4 @@
+<!-- /components/content/weird/weird-card.vue -->
 <template>
   <div
     class="weird-card-container bg-base-200 border border-gray-400 rounded-2xl shadow-lg p-4 flex flex-col space-y-4 relative"

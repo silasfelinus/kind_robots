@@ -1,3 +1,4 @@
+<!-- /components/content/weird/weird-lab.vue -->
 <template>
   <div
     class="section-container flex flex-col items-center overflow-hidden"

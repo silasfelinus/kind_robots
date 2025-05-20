@@ -1,3 +1,4 @@
+<!-- /components/content/layout/room-title.vue -->
 <template>
   <div class="text-center">
     <h1

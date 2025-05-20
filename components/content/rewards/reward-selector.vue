@@ -1,3 +1,4 @@
+<!-- /components/content/rewards/reward-selector.vue -->
 <template>
   <div class="w-full max-w-lg mx-auto p-4 bg-base-200 rounded-2xl">
     <label for="reward-select" class="block text-lg font-semibold mb-2"

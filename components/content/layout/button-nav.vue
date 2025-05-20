@@ -1,3 +1,4 @@
+<!-- /components/content/layout/button-nav.vue -->
 <template>
   <nav class="w-full bg-base p-4 transition-all duration-500 ease-in-out">
     <div class="flex flex-wrap justify-center mt-2 space-x-2">

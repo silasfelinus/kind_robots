@@ -1,3 +1,4 @@
+<!-- /components/content/art/art-collection.vue -->
 <template>
   <div>
     <!-- Debugging Section -->

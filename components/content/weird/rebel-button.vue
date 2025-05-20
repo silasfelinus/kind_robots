@@ -1,3 +1,4 @@
+<!-- /components/content/weird/rebel-button.vue -->
 <template>
   <div
     class="hero flex flex-col items-center justify-center bg-base-300 rounded-2xl border m-2 h-full w-full"

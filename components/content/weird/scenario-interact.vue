@@ -1,3 +1,4 @@
+<!-- /components/content/weird/scenario-interact.vue -->
 <template>
   <div
     class="flex flex-col items-center p-6 bg-base-200 rounded-2xl max-w-4xl mx-auto"

@@ -1,3 +1,4 @@
+<!-- /components/content/weird/scenario-uploader.vue -->
 <template>
   <div class="scenario-uploader">
     <!-- File Input -->

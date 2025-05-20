@@ -1,3 +1,4 @@
+<!-- /components/content/weird/weird-chat.vue -->
 <template>
   <div
     class="weird-chat-container bg-base-200 border rounded-2xl shadow-lg p-4 flex flex-col space-y-4 h-full"

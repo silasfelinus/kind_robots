@@ -1,3 +1,4 @@
+<!-- /components/content/prompts/add-pitch.vue -->
 <template>
   <div class="mx-auto max-w-3xl p-4 space-y-6 bg-base-200 border rounded-2xl">
     <h2 class="text-2xl text-center font-bold">

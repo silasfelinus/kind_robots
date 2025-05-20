@@ -1,3 +1,4 @@
+<!-- /components/content/user/cache-clear.vue -->
 <template>
   <div class="flex flex-col items-center justify-center gap-4 p-4">
     <!-- Clear Cache Button -->

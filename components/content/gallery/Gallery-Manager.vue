@@ -1,3 +1,4 @@
+<!-- /components/content/gallery/gallery-manager.vue -->
 <template>
   <div class="p-4 bg-white rounded shadow">
     <h2 class="text-lg font-bold mb-4">Gallery Management</h2>

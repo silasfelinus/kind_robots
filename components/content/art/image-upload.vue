@@ -1,3 +1,4 @@
+<!-- /components/content/art/image-upload.vue -->
 <template>
   <div>
     <input

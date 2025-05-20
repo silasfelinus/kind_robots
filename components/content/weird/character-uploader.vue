@@ -1,3 +1,4 @@
+<!-- /components/content/weird/character-uploader.vue -->
 <template>
   <div class="art-uploader">
     <!-- File Input -->

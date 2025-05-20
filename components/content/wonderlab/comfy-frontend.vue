@@ -1,3 +1,4 @@
+<!-- /components/content/wonderlab/comfy-frontend.vue -->
 <template>
   <div
     class="flex flex-col items-center space-y-6 p-6 max-w-lg mx-auto bg-base-200 rounded-lg shadow"

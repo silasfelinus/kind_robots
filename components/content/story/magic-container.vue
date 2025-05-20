@@ -1,3 +1,4 @@
+<!-- /components/content/story/magic-container.vue -->
 // /components/content/story/magic-container.vue
 <template>
   <div class="relative inline-block">

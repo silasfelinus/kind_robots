@@ -1,3 +1,4 @@
+<!-- /components/content/story/big-toggle.vue -->
 <template>
   <div class="fixed p-1">
     <button

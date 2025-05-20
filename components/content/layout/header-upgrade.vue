@@ -1,3 +1,4 @@
+<!-- /components/content/layout/header-upgrade.vue -->
 <template>
   <header
     class="relative flex flex-col bg-base-300 rounded-2xl border-1 border-accent max-w-full box-border"

@@ -1,3 +1,4 @@
+<!-- /components/content/art/dream-generator.vue -->
 <!-- eslint-disable vue/html-self-closing -->
 <template>
   <div class="bg-base-300 rounded-2xl p-8 text-lg">

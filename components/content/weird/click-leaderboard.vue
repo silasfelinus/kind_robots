@@ -1,3 +1,4 @@
+<!-- /components/content/weird/click-leaderboard.vue -->
 <template>
   <div class="p-4">
     <h1 class="text-xl font-bold mb-4">Global Leaderboard</h1>

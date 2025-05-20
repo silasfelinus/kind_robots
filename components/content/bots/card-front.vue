@@ -1,3 +1,4 @@
+<!-- /components/content/bots/card-front.vue -->
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useBotStore } from '../../../stores/botStore'

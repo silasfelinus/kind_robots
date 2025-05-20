@@ -1,3 +1,4 @@
+<!-- /components/content/wonderlab/component-card.vue -->
 <template>
   <div class="p-6 bg-base-300 min-h-screen flex flex-col items-center relative">
     <!-- Display status message while loading -->

@@ -1,4 +1,5 @@
 <!-- /components/content/story/main-component.vue -->
+
 <template>
   <component :is="resolvedComponent" v-if="resolvedComponent" />
 </template>

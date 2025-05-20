@@ -1,3 +1,4 @@
+<!-- /components/content/bots/generate-avatar.vue -->
 <template>
   <div
     class="w-full max-w-2xl mx-auto mb-6 flex flex-col items-center space-y-4"

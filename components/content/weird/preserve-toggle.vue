@@ -1,3 +1,4 @@
+<!-- /components/content/weird/preserve-toggle.vue -->
 <template>
   <div class="flex items-center space-x-2">
     <input

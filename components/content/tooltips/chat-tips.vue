@@ -1,3 +1,4 @@
+<!-- /components/content/tooltips/chat-tips.vue -->
 <template>
   <div
     v-if="tooltip || amitip"

@@ -1,3 +1,4 @@
+<!-- /components/content/weird/checkbox-toggle.vue -->
 <template>
   <div v-if="shouldDisplay" class="flex items-center space-x-2">
     <input

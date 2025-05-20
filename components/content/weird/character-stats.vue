@@ -1,3 +1,4 @@
+<!-- /components/content/weird/character-stats.vue -->
 <template>
   <div class="w-full md:w-1/2 p-1 md:p-2 lg:p-3 xl:p-4">
     <h2 class="text-lg font-medium">Stats</h2>

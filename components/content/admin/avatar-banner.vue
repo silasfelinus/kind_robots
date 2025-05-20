@@ -1,3 +1,4 @@
+<!-- /components/content/admin/avatar-banner.vue -->
 <!-- eslint-disable vue/html-self-closing -->
 <template>
   <div class="flex items-center h-36 w-36 z-30">

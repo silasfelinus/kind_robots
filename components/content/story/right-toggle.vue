@@ -1,4 +1,5 @@
-<!-- /components/content/layout/right-toggle.vue -->
+<!-- /components/content/story/right-toggle.vue -->
+
 <template>
   <div class="fixed p-1 bg-base-200">
     <button

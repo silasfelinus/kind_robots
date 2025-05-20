@@ -1,3 +1,4 @@
+<!-- /components/content/tooltips/tutorial-chat.vue -->
 <template>
   <div class="flex flex-col h-full w-full">
     <!-- Messages Area -->

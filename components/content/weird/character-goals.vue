@@ -1,3 +1,4 @@
+<!-- /components/content/weird/character-goals.vue -->
 <template>
   <div class="flex flex-wrap justify-around space-x-4">
     <div

@@ -1,3 +1,4 @@
+<!-- /components/content/bots/bot-carousel2.vue -->
 <template>
   <div
     class="relative flex flex-col items-center bg-base overflow-auto h-screen"

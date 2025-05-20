@@ -1,4 +1,5 @@
 <!-- /components/content/story/image-background.vue -->
+
 <template>
   <img
     v-if="image"

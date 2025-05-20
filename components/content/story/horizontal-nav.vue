@@ -1,3 +1,4 @@
+<!-- /components/content/story/horizontal-nav.vue -->
 <template>
   <div
     class="relative flex justify-center bg-base-300 border border-accent rounded-2xl max-w-full overflow-x-auto"

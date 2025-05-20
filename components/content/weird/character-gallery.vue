@@ -1,3 +1,4 @@
+<!-- /components/content/weird/character-gallery.vue -->
 <template>
   <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto">
     <h1 class="text-3xl font-bold text-gray-700 mb-4">Character Gallery</h1>

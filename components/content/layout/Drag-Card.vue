@@ -1,3 +1,4 @@
+<!-- /components/content/layout/drag-card.vue -->
 <template>
   <div ref="card" class="grab-card draggable">
     <slot />

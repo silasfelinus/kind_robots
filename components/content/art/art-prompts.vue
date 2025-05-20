@@ -1,3 +1,4 @@
+<!-- /components/content/art/art-prompts.vue -->
 <template>
   <div
     class="art-prompts bg-base-300 rounded-2xl border flex flex-col m-4 p-4 space-y-4"

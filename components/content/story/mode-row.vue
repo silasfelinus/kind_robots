@@ -1,3 +1,4 @@
+<!-- /components/content/story/mode-row.vue -->
 <template>
   <!-- Mode Button Grid -->
   <div

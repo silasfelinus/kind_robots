@@ -1,3 +1,4 @@
+<!-- /components/content/resonance/resonance-lab.vue -->
 <!-- /pages/lab/resonance-lab.vue -->
 <template>
   <div

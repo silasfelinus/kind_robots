@@ -1,3 +1,4 @@
+<!-- /components/content/layout/new-header.vue -->
 <template>
   <header
     class="flex flex-col items-center p-2 bg-base-400 rounded-2xl border-8 border-accent m-2 relative"

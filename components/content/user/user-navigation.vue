@@ -1,3 +1,4 @@
+<!-- /components/content/user/user-navigation.vue -->
 <template>
   <div class="relative bg-base-300 rounded-2xl m-4 p-4">
     <div

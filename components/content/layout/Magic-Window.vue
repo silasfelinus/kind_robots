@@ -1,3 +1,4 @@
+<!-- /components/content/layout/magic-window.vue -->
 <template>
   <div class="teleport-container">
     <!-- Background Image -->

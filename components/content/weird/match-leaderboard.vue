@@ -1,3 +1,4 @@
+<!-- /components/content/weird/match-leaderboard.vue -->
 <template>
   <div class="relative">
     <!-- Toggle Icon -->

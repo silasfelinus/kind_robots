@@ -1,3 +1,4 @@
+<!-- /components/content/icons/swarm-icon.vue -->
 <template>
   <div
     class="group relative flex items-center justify-center"

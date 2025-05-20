@@ -1,4 +1,5 @@
 <!-- /components/content/story/kind-sidebar.vue -->
+
 <template>
   <div
     class="transition-all duration-300 bg-base-300 border-1 border-accent rounded-2xl left-0 h-full overflow-y-auto no-scrollbar flex flex-col justify-between flex-grow box-border"

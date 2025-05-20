@@ -1,3 +1,4 @@
+<!-- /components/content/layout/expandable.container.vue -->
 <template>
   <div
     :class="expanded ? 'fixed inset-0 z-50' : 'relative'"

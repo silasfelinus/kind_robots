@@ -1,3 +1,4 @@
+<!-- /components/content/user/google-login.vue -->
 <template>
   <div class="flex flex-col items-start space-y-4">
     <button

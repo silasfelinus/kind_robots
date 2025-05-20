@@ -1,3 +1,4 @@
+<!-- /components/content/wonderlab/component-count.vue -->
 <template>
   <div
     class="component-count flex flex-col items-center justify-center bg-gray-200 p-10 border-4 border-gray-800 rounded-lg"

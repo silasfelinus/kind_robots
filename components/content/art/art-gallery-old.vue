@@ -1,3 +1,4 @@
+<!-- /components/content/art/art-gallery-old.vue -->
 <template>
   <div class="relative bg-base-300 rounded-2xl shadow-md">
     <!-- View mode switcher -->

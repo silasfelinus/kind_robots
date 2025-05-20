@@ -1,3 +1,4 @@
+<!-- /components/content/story/hot-link.vue -->
 <template>
   <div class="Icon-link-container">
     <NuxtLink

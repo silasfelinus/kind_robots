@@ -1,3 +1,4 @@
+<!-- /components/content/weird/weird-launch.vue -->
 <template>
   <div
     class="bg-gradient-to-r from-primary to-secondary h-screen flex items-center justify-center p-4"

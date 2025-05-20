@@ -1,3 +1,4 @@
+<!-- /components/content/layout/fallback-component.vue -->
 <template>
   <div class="flex flex-col items-center justify-center gap-4 text-center p-4">
     <!-- Animated Image -->

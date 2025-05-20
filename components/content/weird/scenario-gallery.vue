@@ -1,3 +1,4 @@
+<!-- /components/content/weird/scenario-gallery.vue -->
 <template>
   <div class="w-full h-full relative bg-base-300 flex flex-col">
     <!-- Filter and Search -->

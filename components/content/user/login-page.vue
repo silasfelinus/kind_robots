@@ -1,3 +1,4 @@
+<!-- /components/content/user/login-page.vue -->
 <template>
   <div class="login-form-container">
     <div

@@ -1,3 +1,4 @@
+<!-- /components/content/prompts/title-maker.vue -->
 <template>
   <div>
     <h2>Create a New Title</h2>

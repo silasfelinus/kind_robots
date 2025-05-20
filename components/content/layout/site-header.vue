@@ -1,3 +1,4 @@
+<!-- /components/content/layout/site-header.vue -->
 <template>
   <header
     class="site-header w-full bg-gradient-to-r from-primary to-primary-light text-default shadow-md px-4 py-1 sm:px-6 lg:px-8"

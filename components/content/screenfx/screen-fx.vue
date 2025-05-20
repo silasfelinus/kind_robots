@@ -1,3 +1,4 @@
+<!-- /components/content/screenfx/screen-fx.vue -->
 <template>
   <div class="effect-container">
     <component

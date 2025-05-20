@@ -1,3 +1,4 @@
+<!-- /components/content/icons/add-icon.vue -->
 <!-- //components/content/icons/add-icon.vue -->
 <template>
   <div class="container mx-auto max-w-xl p-6 space-y-4">

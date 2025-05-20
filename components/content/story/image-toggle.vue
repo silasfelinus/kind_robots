@@ -1,4 +1,5 @@
 <!-- /components/content/story/image-toggle.vue -->
+
 <template>
   <div
     v-if="image"

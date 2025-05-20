@@ -1,3 +1,4 @@
+<!-- /components/content/weird/character-bottom.vue -->
 <template>
   <div class="grid gap1 md:gap-4">
     <!-- Backstory -->

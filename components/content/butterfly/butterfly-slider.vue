@@ -1,3 +1,4 @@
+<!-- /components/content/butterfly/butterfly-slider.vue -->
 <template>
   <div class="flex flex-col items-center w-full">
     <!-- Label and Current/Original Min/Max Values -->

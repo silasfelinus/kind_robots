@@ -1,3 +1,4 @@
+<!-- /components/content/weird/scenario-card.vue -->
 <template>
   <div
     :class="[

@@ -1,3 +1,4 @@
+<!-- /components/content/layout/small-header.vue -->
 <template>
   <div class="flex h-full px-2 gap-4">
     <!-- Title Section (1/3 Width) -->

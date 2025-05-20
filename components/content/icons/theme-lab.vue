@@ -1,3 +1,4 @@
+<!-- /components/content/icons/theme-lab.vue -->
 <template>
   <div class="theme-lab w-full px-4 py-6 max-w-6xl mx-auto space-y-12">
     <!-- Header -->

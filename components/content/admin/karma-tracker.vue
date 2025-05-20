@@ -1,3 +1,4 @@
+<!-- /components/content/admin/karma-tracker.vue -->
 <!-- Karma Tracker Component -->
 <template>
   <div class="flex items-center space-x-2">

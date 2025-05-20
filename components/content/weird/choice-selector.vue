@@ -1,3 +1,4 @@
+<!-- /components/content/weird/choice-selector.vue -->
 <template>
   <div class="w-full mb-6">
     <div

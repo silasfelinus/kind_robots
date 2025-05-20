@@ -1,4 +1,5 @@
 <!-- /components/content/icons/smart-icons.vue -->
+
 <template>
   <div class="relative w-full h-full overflow-hidden">
     <!-- Left Scroll Button -->

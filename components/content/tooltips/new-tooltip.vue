@@ -1,3 +1,4 @@
+<!-- /components/content/tooltips/new-tooltip.vue -->
 <template>
   <streaming-tooltip
     v-if="tooltip && amitip"

@@ -1,3 +1,4 @@
+<!-- /components/content/weird/character-card.vue -->
 <template>
   <div
     :class="[

@@ -1,3 +1,4 @@
+<!-- /components/content/weird/image-section.vue -->
 <template>
   <div
     class="w-full h-full bg-gray-800 flex items-center justify-center rounded-lg shadow-md"

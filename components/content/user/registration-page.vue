@@ -1,3 +1,4 @@
+<!-- /components/content/user/registration-page.vue -->
 <template>
   <div
     class="bg-base-300 flex flex-col items-center rounded-2xl h-full p-4 sm:p-8"

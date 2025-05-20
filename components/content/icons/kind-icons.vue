@@ -1,3 +1,4 @@
+<!-- /components/content/icons/kind-icons.vue -->
 <template>
   <div class="flex w-full items-center justify-end flex-nowrap gap-1 lg:gap-2">
     <!-- All Icons Treated Equally -->

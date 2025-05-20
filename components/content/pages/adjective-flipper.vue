@@ -1,3 +1,4 @@
+<!-- /components/content/pages/adjective-flipper.vue -->
 <template>
   <span class="transition-transform fixed-size" :class="[currentColor]">
     {{ currentAdjective }}

@@ -1,3 +1,4 @@
+<!-- /components/content/user/user-selector.vue -->
 <template>
   <div class="user-selector">
     <label class="block text-lg font-semibold mb-2">Select User:</label>

@@ -1,4 +1,5 @@
 <!-- /components/content/admin/scroll-debug.vue -->
+
 <template>
   <div
     class="fixed bottom-2 left-2 z-[9999] text-white text-xs px-3 py-2 rounded-xl shadow-md font-mono pointer-events-none"

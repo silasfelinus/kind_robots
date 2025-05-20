@@ -1,3 +1,4 @@
+<!-- /components/content/weird/character-preview.vue -->
 <template>
   <div
     class="w-full mb-6 p-4 border rounded-2xl bg-base-100 hover:shadow-lg transition-all"

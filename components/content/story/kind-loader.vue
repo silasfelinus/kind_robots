@@ -1,3 +1,4 @@
+<!-- /components/content/story/kind-loader.vue -->
 <template>
   <ami-loader />
 </template>

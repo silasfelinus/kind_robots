@@ -1,3 +1,4 @@
+<!-- /components/content/layout/expand-icon.vue -->
 <template>
   <div class="absolute top-2 right-2 cursor-pointer" @click="expandParent">
     <!-- Your icon (adjust the name and style as needed) -->

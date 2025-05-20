@@ -1,3 +1,4 @@
+<!-- /components/content/bots/bot-gallery.vue -->
 <template>
   <div class="w-full h-[100dvh] relative bg-base-300 flex flex-col">
     <!-- Title -->

@@ -1,3 +1,4 @@
+<!-- /components/content/butterfly/single-slider.vue -->
 <template>
   <div class="mb-6">
     <label :for="sliderId" class="block mb-2">{{ label }}:</label>

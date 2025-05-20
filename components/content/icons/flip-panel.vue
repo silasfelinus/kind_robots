@@ -1,35 +1,35 @@
 <!-- /components/content/icons/flip-panel.vue -->
 <template>
-  <div class="flip-panel-wrapper">
-    <div class="flip-panel-inner" :class="{ 'is-flipped': flipped }">
+  <div class="relative w-full h-full overflow-hidden [perspective:1000px]">
+    <div
+      class="relative w-full h-full transition-transform duration-500 ease-in-out [transform-style:preserve-3d]"
+      :class="{ '[transform:rotateY(180deg)]': flipped }"
+    >
       <!-- Front Face -->
       <div
-        class="flip-panel-face flip-panel-front"
-        :class="{
-          'overflow-y-auto touch-auto': !flipped,
-          'overflow-hidden touch-none': flipped,
-          'front-hidden': flipped,
-        }"
+        class="absolute inset-0 flex flex-col [backface-visibility:hidden] [contain:layout_paint] will-change-transform overscroll-contain z-[1]"
+        :class="{ 'pointer-events-none invisible': flipped }"
       >
-        <slot name="front" />
+        <div class="absolute inset-0 overflow-y-auto touch-auto">
+          <slot name="front" />
+        </div>
       </div>
 
       <!-- Back Face -->
       <div
-        class="flip-panel-face flip-panel-back"
-        :class="{
-          'overflow-y-auto touch-auto': flipped,
-          'overflow-hidden touch-none': !flipped,
-          'back-hidden': !flipped,
-        }"
+        class="absolute inset-0 flex flex-col [backface-visibility:hidden] [contain:layout_paint] will-change-transform overscroll-contain [transform:rotateY(180deg)]"
+        :class="{ 'pointer-events-none invisible': !flipped }"
       >
-        <slot name="back" />
+        <div class="absolute inset-0 overflow-y-auto touch-auto">
+          <slot name="back" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// /components/content/icons/flip-panel.vue
 defineProps<{
   flipped: boolean
 }>()

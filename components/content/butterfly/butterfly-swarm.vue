@@ -12,7 +12,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import ButterflySingle from './ButterflyMascot.vue'
 
 interface ButterflyPosition {
   x: number

@@ -28,7 +28,9 @@
       class="flex flex-col flex-1 min-h-[100dvh] w-full overflow-hidden"
     >
       <div class="flex-1 overflow-y-auto">
-        <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
+        <div class="min-h-full w-full flex flex-col">
+          <NuxtPage :key="$route.fullPath" class="flex-1" />
+        </div>
       </div>
     </div>
 

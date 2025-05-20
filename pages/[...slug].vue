@@ -1,18 +1,18 @@
 <!-- /pages/[...slug].vue -->
 <template>
   <NuxtLayout :name="layout">
-    <template v-if="page && page.body">
-      <ContentRenderer :value="page" />
+    <template v-if="pageStore.page && pageStore.page.body">
+      <ContentRenderer :value="pageStore.page" />
     </template>
     <template #fallback>
       <p class="text-center text-base text-info p-4">Loading page...</p>
     </template>
   </NuxtLayout>
 </template>
-
 <script setup lang="ts">
+// /pages/[...slug].vue
 import { useRoute, useRouter } from '#app'
-import { watchEffect, computed } from 'vue'
+import { watchEffect, watch, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -27,33 +27,11 @@ import type {
 } from '@/stores/displayStore'
 import type { ContentType } from '~/content.config'
 import { usePageStore } from '@/stores/pageStore'
-const pageStore = usePageStore()
-
-if (typeof window !== 'undefined') {
-  watchEffect(() => {
-    document.documentElement.setAttribute('data-theme', pageStore.theme)
-  })
-}
 
 const route = useRoute()
 const router = useRouter()
 
-const fullPath = route.path || '/'
-
-const { data: page } = (await useAsyncData(fullPath, () =>
-  queryCollection('content').path(fullPath).first(),
-)) as { data: Ref<ContentType | null> }
-
-watchEffect(() => {
-  pageStore.page = page.value
-})
-
-const layout = computed(() => {
-  const val = page.value?.layout
-  return ['default', 'minimal', 'vertical-scroll'].includes(val as string)
-    ? (val as LayoutKey)
-    : 'default'
-}) as ComputedRef<LayoutKey>
+const pageStore = usePageStore()
 const displayStore = useDisplayStore()
 const userStore = useUserStore()
 const botStore = useBotStore()
@@ -62,6 +40,35 @@ const scenarioStore = useScenarioStore()
 const chatStore = useChatStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
+
+watchEffect(() => {
+  if (typeof window !== 'undefined') {
+    document.documentElement.setAttribute('data-theme', pageStore.theme)
+  }
+})
+
+watch(
+  () => route.fullPath,
+  async (newPath) => {
+    const { data }: { data: Ref<ContentType | null> } = await useAsyncData(
+      newPath,
+      () => queryCollection('content').path(newPath).first(),
+    )
+    if (!data.value) {
+      await router.push('/error')
+    } else {
+      pageStore.page = data.value
+    }
+  },
+  { immediate: true },
+)
+
+const layout = computed(() => {
+  const val = pageStore.page?.layout
+  return ['default', 'minimal', 'vertical-scroll'].includes(val as string)
+    ? (val as LayoutKey)
+    : 'default'
+}) as ComputedRef<LayoutKey>
 
 const {
   token: queryToken,
@@ -84,8 +91,8 @@ if (scenarioId) scenarioStore.selectScenario(Number(scenarioId))
 if (chatId) chatStore.selectChat(Number(chatId))
 if (pitchId) pitchStore.selectPitch(Number(pitchId))
 if (promptId) promptStore.selectPrompt(Number(promptId))
+
 if (queryToken && !userStore.user)
   await userStore.initialize(queryToken as string)
 if (!userStore.user && queryToken) await router.push('/login')
-if (!page.value) await router.push('/error')
 </script>

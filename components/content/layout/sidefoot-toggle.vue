@@ -1,3 +1,4 @@
+<!-- /components/content/layout/sidefoot-toggle.vue -->
 <template>
   <div class="relative z-50 p-1">
     <button

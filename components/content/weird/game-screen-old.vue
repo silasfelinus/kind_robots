@@ -1,3 +1,4 @@
+<!-- /components/content/weird/game-screen-old.vue -->
 <template>
   <div
     class="h-screen flex flex-col bg-gradient-to-r from-primary to-secondary rounded-br-3xl rounded-tr-3xl"

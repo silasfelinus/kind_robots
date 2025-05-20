@@ -1,3 +1,4 @@
+<!-- /components/content/admin/Mana-Counter.vue -->
 <!-- Mana Counter Component -->
 <template>
   <div class="flex items-center space-x-2">
@@ -7,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from './../../../stores/userStore'
+import { useUserStore } from '../../../stores/userStore'
 
 const userStore = useUserStore()
 </script>

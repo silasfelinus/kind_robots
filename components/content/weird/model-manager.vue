@@ -1,3 +1,4 @@
+<!-- /components/content/weird/model-manager.vue -->
 <template>
   <div class="flex flex-col h-full bg-base-100 relative">
     <!-- Modes Section with Toggles and Plus/Gallery Toggle -->

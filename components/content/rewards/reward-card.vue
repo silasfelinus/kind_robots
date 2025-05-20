@@ -1,3 +1,4 @@
+<!-- /components/content/rewards/reward-card.vue -->
 <template>
   <div
     :class="[

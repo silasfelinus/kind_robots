@@ -1,3 +1,4 @@
+<!-- /components/content/tooltips/tooltip-toggle.vue -->
 <template>
   <div
     class="relative flex flex-col items-center justify-center w-20 h-20"

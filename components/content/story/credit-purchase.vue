@@ -1,3 +1,4 @@
+<!-- /components/content/story/credit-purchase.vue -->
 <template>
   <div class="p-6 bg-base-200 rounded-2xl shadow-md text-center">
     <h2 class="text-2xl font-bold text-primary mb-4">Buy Credits</h2>

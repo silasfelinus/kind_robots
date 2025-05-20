@@ -1,3 +1,4 @@
+<!-- /components/content/user/avatar-upload.vue -->
 <template>
   <div>
     <input

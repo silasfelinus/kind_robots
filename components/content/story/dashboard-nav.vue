@@ -1,3 +1,4 @@
+<!-- /components/content/story/dashboard-nav.vue -->
 <template>
   <div class="w-full flex flex-col items-center">
     <div

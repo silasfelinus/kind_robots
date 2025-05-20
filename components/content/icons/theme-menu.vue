@@ -1,4 +1,5 @@
-<!-- /components/content/settings/theme-menu.vue -->
+<!-- /components/content/icons/theme-menu.vue -->
+
 <template>
   <div class="theme-menu flex flex-col gap-8 px-4 py-6 max-w-5xl mx-auto">
     <!-- Section: Build Your Own Theme -->

@@ -1,3 +1,4 @@
+<!-- /components/content/weird/edit-scenario.vue -->
 <template>
   <div class="w-full md:w-3/4 p-4 mx-auto">
     <h1 class="text-2xl font-bold text-gray-700 mb-4">Edit Scenario</h1>

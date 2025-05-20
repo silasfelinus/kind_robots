@@ -1,3 +1,4 @@
+<!-- /components/content/weird/character-art.vue -->
 <template>
   <div class="w-full md:w-1/2 p-4">
     <h2 class="text-lg font-medium flex justify-between items-center">

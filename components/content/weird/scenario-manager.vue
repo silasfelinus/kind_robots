@@ -1,3 +1,4 @@
+<!-- /components/content/weird/scenario-manager.vue -->
 <template>
   <div
     class="w-full h-screen bg-base-200 p-4 flex flex-col overflow-y-auto relative"

@@ -1,3 +1,4 @@
+<!-- /components/content/admin/avatar-header.vue -->
 <template>
   <div
     class="flex flex-col md:flex-row items-center w-full md:max-w-7xl mx-auto py-4 space-y-4 md:space-y-0 md:space-x-4"

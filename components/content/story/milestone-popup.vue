@@ -1,3 +1,4 @@
+<!-- /components/content/story/milestone-popup.vue -->
 <!-- /components/milestone-popup.vue -->
 <template>
   <div

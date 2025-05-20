@@ -1,3 +1,4 @@
+<!-- /components/content/story/weird-adventure.vue -->
 <template>
   <div
     class="weird-adventure bg-secondary text-white flex flex-col items-center justify-start p-4 rounded-lg h-full overflow-y-auto"

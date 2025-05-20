@@ -1,8 +1,8 @@
-<!-- /components/content/story/splash-tutorial.vue -->
+<!-- /components/content/icons/splash-tutorial.vue -->
+
 <template>
   <div
-    class="relative w-full h-[100dvh] overflow-y-auto rounded-2xl border-2 border-black z-20"
-    @scroll="handleScroll"
+    class="relative w-full min-h-[100dvh] rounded-2xl border-2 border-black z-20"
     ref="scrollContainer"
   >
     <!-- Foreground content -->
@@ -90,9 +90,11 @@
             </div>
           </div>
           <div class="chat-bubble bg-primary text-black border border-black">
-            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
-              >DottiBot:</span
+            <span
+              class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
             >
+              DottiBot:
+            </span>
             <div>{{ dottitip }}</div>
           </div>
         </div>
@@ -103,15 +105,18 @@
             </div>
           </div>
           <div class="chat-bubble bg-secondary text-black border border-black">
-            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
-              >AMIbot:</span
+            <span
+              class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
             >
+              AMIbot:
+            </span>
             <div>{{ amitip }}</div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Background Image with Parallax -->
     <div
       v-if="image"
       class="absolute top-0 left-0 w-full -z-10 overflow-hidden will-change-transform"

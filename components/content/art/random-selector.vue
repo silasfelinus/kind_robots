@@ -1,3 +1,4 @@
+<!-- /components/content/art/random-selector.vue -->
 <template>
   <div class="p-6 space-y-4 bg-base-200 rounded-lg shadow-lg">
     <!-- Radial Selector -->

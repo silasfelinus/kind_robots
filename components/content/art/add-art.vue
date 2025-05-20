@@ -1,3 +1,4 @@
+<!-- /components/content/art/add-art.vue -->
 <template>
   <div
     class="bg-base-300 shadow-xl rounded-3xl border border-base-200 overflow-y-auto text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105 p-6 space-y-6"

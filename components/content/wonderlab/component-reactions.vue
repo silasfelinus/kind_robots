@@ -1,3 +1,4 @@
+<!-- /components/content/wonderlab/component-reactions.vue -->
 <template>
   <div class="relative w-full bg-white rounded-lg shadow-md">
     <!-- Display component information dynamically -->

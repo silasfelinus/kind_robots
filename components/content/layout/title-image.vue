@@ -1,3 +1,4 @@
+<!-- /components/content/layout/title-image.vue -->
 <template>
   <nuxt-link
     to="/"

@@ -1,4 +1,5 @@
-<!-- /components/content/story/character-designer.vue -->
+<!-- /components/content/weird/add-character.vue -->
+
 <template>
   <div
     class="rounded-2xl border border-base-300 p-4 bg-base-200 mx-auto w-full max-w-7xl space-y-6"

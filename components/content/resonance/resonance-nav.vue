@@ -1,4 +1,4 @@
-<!-- /components/content/story/resonance-nav.vue -->
+<!-- /components/content/resonance/resonance-nav.vue -->
 <template>
   <div class="relative w-full px-4">
     <!-- Faded Edges -->

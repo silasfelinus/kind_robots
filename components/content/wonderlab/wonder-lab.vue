@@ -1,4 +1,5 @@
-<!-- /components/content/labs/wonder-lab.vue -->
+<!-- /components/content/wonderlab/wonder-lab.vue -->
+
 <template>
   <div v-if="isLoading" class="flex justify-center items-center h-screen">
     <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />

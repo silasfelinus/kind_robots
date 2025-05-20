@@ -1,3 +1,4 @@
+<!-- /components/content/user/user-chat.vue -->
 <template>
   <div>
     <!-- Fallback for non-authenticated users -->

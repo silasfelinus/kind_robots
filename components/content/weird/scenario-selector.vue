@@ -1,3 +1,4 @@
+<!-- /components/content/weird/scenario-selector.vue -->
 <template>
   <select
     v-model="selectedScenario"

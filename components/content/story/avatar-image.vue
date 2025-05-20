@@ -1,4 +1,5 @@
 <!-- /components/content/story/avatar-image.vue -->
+
 <template>
   <div v-if="hydrated" class="relative w-full h-full border-2 border-black">
     <!-- Optional Top Icon -->

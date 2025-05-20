@@ -1,3 +1,4 @@
+<!-- /components/content/weird/weird-window.vue -->
 <template>
   <div class="teleport-container">
     <!-- Background Image -->

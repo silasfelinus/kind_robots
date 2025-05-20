@@ -1,4 +1,5 @@
-<!-- /components/content/layout/theme-icon.vue -->
+<!-- /components/content/icons/theme-icon.vue -->
+
 <template>
   <div
     class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"

@@ -1,3 +1,4 @@
+<!-- /components/content/user/chat-test.vue -->
 <template>
   <div class="container mx-auto p-6 bg-base-300 rounded-2xl">
     <h2 class="text-2xl mb-4 text-center">Chat Store Tester</h2>

@@ -1,3 +1,4 @@
+<!-- /components/content/user/user-dashboard.vue -->
 <template>
   <div class="bg-base-300 rounded-2xl p-4">
     <h1 class="text-2xl font-semibold text-center mb-6">User Dashboard</h1>
@@ -42,7 +43,7 @@
           <user-panel />
         </div>
         <div v-else class="flex flex-wrap space-y-4">
-   <login-page />
+          <login-page />
         </div>
 
         <div class="mt-6">
@@ -56,7 +57,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useUserStore } from './../../../stores/userStore'
+import { useUserStore } from '../../../stores/userStore'
 
 const userStore = useUserStore()
 const user = computed(() => userStore.user)

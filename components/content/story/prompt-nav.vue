@@ -1,4 +1,5 @@
 <!-- /components/content/story/prompt-nav.vue -->
+
 <template>
   <div class="w-full flex flex-col items-center">
     <button

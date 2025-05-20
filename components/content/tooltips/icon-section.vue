@@ -1,3 +1,4 @@
+<!-- /components/content/tooltips/icon-section.vue -->
 <template>
   <div :class="sectionClass">
     <div

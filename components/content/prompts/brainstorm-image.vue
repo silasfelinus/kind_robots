@@ -1,3 +1,4 @@
+<!-- /components/content/prompts/brainstorm-image.vue -->
 <template>
   <nuxt-img
     src="/images/avatars/brain1.webp"

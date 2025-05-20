@@ -1,3 +1,4 @@
+<!-- /components/content/story/flip-screen.vue -->
 <template>
   <div class="flip-container">
     <div class="flip-inner" :class="{ 'is-flipped': flipping }">

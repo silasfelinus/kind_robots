@@ -1,3 +1,4 @@
+<!-- /components/content/bots/reaction-card.vue -->
 <template>
   <div
     class="reaction-card p-4 bg-base-200 rounded-lg shadow-md w-full max-w-md mx-auto mt-4"

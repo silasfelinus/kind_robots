@@ -1,3 +1,4 @@
+<!-- /components/content/layout/navbar-toggle.vue -->
 <template>
   <div
     class="p-4 flex justify-center box-border items-center bg-accent text-white rounded-full cursor-pointer select-none transition-transform duration-500"

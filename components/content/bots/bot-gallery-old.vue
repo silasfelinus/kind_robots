@@ -1,3 +1,4 @@
+<!-- /components/content/bots/bot-gallery-old.vue -->
 <template>
   <div class="min-h-screen flex flex-col justify-center sm:py-12 bg-base-300">
     <div class="relative py-3 sm:max-w-xl sm:mx-auto">

@@ -1,3 +1,4 @@
+<!-- /components/content/pages/welcome-page.vue -->
 <template>
   <div
     class="min-h-screen bg-gradient-to-r from-primary to-secondary flex flex-col"

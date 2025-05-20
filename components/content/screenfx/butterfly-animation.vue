@@ -1,3 +1,4 @@
+<!-- /components/content/screenfx/butterfly-animation.vue -->
 <template>
   <div class="loading-overlay z-50">
     <!-- Multiple Butterflies with Animation Delay -->

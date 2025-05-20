@@ -1,3 +1,4 @@
+<!-- /components/content/bots/card-back.vue -->
 <template>
   <div
     class="bg-base-300 border-2 border-accent rounded-md shadow-md m-4 p-4 flex flex-col items-center justify-center"

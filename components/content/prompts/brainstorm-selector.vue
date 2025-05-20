@@ -1,3 +1,4 @@
+<!-- /components/content/prompts/brainstorm-selector.vue -->
 <template>
   <div class="brainstorm-selector flex flex-col items-center space-y-4">
     <!-- Toggle Buttons for Pitch Types -->

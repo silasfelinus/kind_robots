@@ -1,3 +1,4 @@
+<!-- /components/content/bots/bot-details.vue -->
 <template>
   <div
     class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 border-2 border-solid border-secondary bg-primary opacity-90 rounded-lg shadow-lg text-base-content items-start h-auto lg:h-screen"

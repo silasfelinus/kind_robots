@@ -1,3 +1,4 @@
+<!-- /components/content/story/memory-test.vue -->
 <template>
   <div
     class="container mx-auto flex flex-col h-screen overflow-hidden bg-base-200"

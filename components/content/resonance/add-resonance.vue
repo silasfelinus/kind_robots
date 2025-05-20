@@ -1,4 +1,4 @@
-<!-- /components/content/resonance/add-resonance-form.vue -->
+<!-- /components/content/resonance/add-resonance.vue -->
 <template>
   <div
     class="rounded-2xl border border-base-300 p-4 bg-base-200 mx-auto w-full max-w-7xl space-y-8"

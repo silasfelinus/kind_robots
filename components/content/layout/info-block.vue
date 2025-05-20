@@ -1,3 +1,4 @@
+<!-- /components/content/layout/info-block.vue -->
 <template>
   <div class="info-block">
     <div class="info-block-header">

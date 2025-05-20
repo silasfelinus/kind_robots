@@ -1,3 +1,4 @@
+<!-- /components/content/weird/character-rewards.vue -->
 <template>
   <div class="bg-base-300 p-4">
     <!-- Error Message -->

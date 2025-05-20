@@ -1,3 +1,4 @@
+<!-- /components/content/story/selected-view.vue -->
 <template>
   <div
     class="button-container flex flex-col items-center overflow-hidden"

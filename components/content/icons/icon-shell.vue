@@ -1,4 +1,5 @@
 <!-- /components/content/icons/icon-shell.vue -->
+
 <template>
   <div
     class="group relative flex items-center justify-center snap-start h-[6rem] w-[4rem] select-none"

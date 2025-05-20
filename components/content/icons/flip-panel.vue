@@ -75,6 +75,12 @@ defineProps<{
   flex-direction: column;
 }
 
+.flip-panel-face > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .flip-panel-front {
   z-index: 2;
 }

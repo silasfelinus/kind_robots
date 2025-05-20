@@ -29,9 +29,11 @@ import type { ContentType } from '~/content.config'
 import { usePageStore } from '@/stores/pageStore'
 const pageStore = usePageStore()
 
-watchEffect(() => {
-  document.documentElement.setAttribute('data-theme', pageStore.theme)
-})
+if (typeof window !== 'undefined') {
+  watchEffect(() => {
+    document.documentElement.setAttribute('data-theme', pageStore.theme)
+  })
+}
 
 const route = useRoute()
 const router = useRouter()

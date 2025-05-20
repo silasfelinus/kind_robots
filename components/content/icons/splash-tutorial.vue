@@ -15,7 +15,7 @@
         class="text-center space-y-2 cursor-pointer"
         @click="handleSidebarClose"
       >
-        <div class="absolute top-0 right-0 z-30">
+        <div class="absolute top-0 right-0 z-30" v-if="icon">
           <Icon :name="icon" class="w-full h-auto text-primary" />
         </div>
         <h1
@@ -156,11 +156,12 @@ const parsedNavComponent = computed(() => {
   try {
     const raw = navComponent.value
     if (typeof raw === 'string') {
-      if (raw.trim().startsWith('[')) {
-        const parsed = JSON.parse(raw)
+      const trimmed = raw.trim()
+      if (trimmed.startsWith('[')) {
+        const parsed = JSON.parse(trimmed)
         return Array.isArray(parsed) ? parsed : null
       }
-      return raw.trim()
+      return trimmed
     }
     return null
   } catch (e) {

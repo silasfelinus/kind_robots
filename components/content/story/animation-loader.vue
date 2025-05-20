@@ -26,13 +26,13 @@ const fadeOut = ref(false) // Controls fade-out for the container
 
 // Define async-loaded components
 const LazyBubbleEffect = defineAsyncComponent(
-  () => import('@/components/content/screenfx/BubbleEffect.vue'),
+  () => import('@/components/content/screenfx/bubble-effect.vue'),
 )
 const LazyFizzyBubbles = defineAsyncComponent(
-  () => import('@/components/content/screenfx/FizzyBubbles.vue'),
+  () => import('@/components/content/screenfx/fizzy-bubbles.vue'),
 )
 const LazyRainEffect = defineAsyncComponent(
-  () => import('@/components/content/screenfx/RainEffect.vue'),
+  () => import('@/components/content/screenfx/rain-effect.vue'),
 )
 const LazyButterflyAnimation = defineAsyncComponent(
   () => import('@/components/content/screenfx/butterfly-animation.vue'),

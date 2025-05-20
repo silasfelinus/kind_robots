@@ -44,6 +44,10 @@ const { data: page } = (await useAsyncData(fullPath, () =>
   queryCollection('content').path(fullPath).first(),
 )) as { data: Ref<ContentType | null> }
 
+watchEffect(() => {
+  pageStore.page = page.value
+})
+
 const layout = computed(() => {
   const val = page.value?.layout
   return ['default', 'minimal', 'vertical-scroll'].includes(val as string)

@@ -30,7 +30,7 @@
           @click="themeStore.changeTheme(theme)"
           class="mx-auto block text-xs md:text-sm lg:text-md xl:text-lg font-semibold bg-accent text-black border border-black rounded-2xl px-3 py-1 animate-fade-in-up hover:underline"
         >
-          Apply this theme: <span class="font-mono">{{ theme }}</span>
+          <span class="font-mono">{{ theme }}</span>
         </button>
 
         <div>
@@ -140,17 +140,17 @@ import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
 
 const displayStore = useDisplayStore()
-const {
-  room,
-  subtitle,
-  description,
-  icon,
-  dottitip,
-  amitip,
-  navComponent,
-  image,
-  theme,
-} = storeToRefs(usePageStore())
+const pageStore = usePageStore()
+
+const room = computed(() => pageStore.page?.room)
+const subtitle = computed(() => pageStore.page?.subtitle)
+const description = computed(() => pageStore.page?.description)
+const icon = computed(() => pageStore.page?.icon)
+const dottitip = computed(() => pageStore.page?.dottitip)
+const amitip = computed(() => pageStore.page?.amitip)
+const navComponent = computed(() => pageStore.page?.navComponent)
+const image = computed(() => pageStore.page?.image)
+const theme = computed(() => pageStore.page?.theme)
 
 const themeStore = useThemeStore()
 

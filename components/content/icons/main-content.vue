@@ -9,23 +9,22 @@
       class="relative flex flex-col min-h-[100dvh] w-full"
     >
       <flip-panel :flipped="sidebarRightOpen">
-        <template #front>
-          <div class="relative w-full h-full overflow-hidden">
-            <div class="absolute inset-0 overflow-y-auto">
-              <NuxtPage
-                :key="$route.fullPath"
-                class="min-h-fit w-full px-4 py-6"
-              />
-            </div>
+        <!-- Front (NuxtPage) -->
+        <div class="relative h-full w-full">
+          <div class="absolute inset-0 overflow-y-auto">
+            <NuxtPage
+              :key="$route.fullPath"
+              class="min-h-fit w-full px-4 py-6"
+            />
           </div>
-        </template>
-        <template #back>
-          <div class="relative w-full h-full overflow-hidden">
-            <div class="absolute inset-0 overflow-y-auto">
-              <splash-tutorial />
-            </div>
+        </div>
+
+        <!-- Back (splash-tutorial) -->
+        <div class="relative h-full w-full">
+          <div class="absolute inset-0 overflow-y-auto">
+            <splash-tutorial />
           </div>
-        </template>
+        </div>
       </flip-panel>
     </div>
 

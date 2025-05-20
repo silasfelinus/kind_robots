@@ -86,7 +86,6 @@ export const useComponentStore = defineStore('componentStore', {
           logProgress('Fetching existing components from the API...')
           const apiResponse = await fetch('/api/components')
           const apiData = await apiResponse.json()
-
           if (!apiData.success || !Array.isArray(apiData.data)) {
             throw new Error(
               'Invalid data format: API response must contain a data array',
@@ -94,14 +93,32 @@ export const useComponentStore = defineStore('componentStore', {
           }
 
           const apiComponents: Component[] = apiData.data
-          logProgress('Fetched components from the API.')
+          const matchedComponentIds = new Set<number>()
 
           logProgress('Synchronizing components...')
+
+          const normalize = (str: string) =>
+            str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
+
           for (const folder of folderData) {
             for (const componentName of folder.components) {
-              const existingComponent = apiComponents.find(
+              let existingComponent = apiComponents.find(
                 (comp) => comp.componentName === componentName,
               )
+
+              // Try normalized match if not exact
+              if (!existingComponent) {
+                const normalizedName = normalize(componentName)
+                existingComponent = apiComponents.find(
+                  (comp) => normalize(comp.componentName) === normalizedName,
+                )
+
+                if (existingComponent) {
+                  logProgress(
+                    `Renaming component from "${existingComponent.componentName}" to "${componentName}"`,
+                  )
+                }
+              }
 
               const componentData: Component = {
                 id: existingComponent?.id || 0,
@@ -109,26 +126,32 @@ export const useComponentStore = defineStore('componentStore', {
                 folderName: folder.folderName,
                 createdAt: existingComponent?.createdAt || new Date(),
                 updatedAt: new Date(),
-                isWorking: existingComponent?.isWorking || true,
+                isWorking: existingComponent?.isWorking ?? true,
                 underConstruction:
-                  existingComponent?.underConstruction || false,
-                isBroken: existingComponent?.isBroken || false,
-                title: existingComponent?.title || null,
-                notes: existingComponent?.notes || null,
-                artImageId: existingComponent?.artImageId || null,
+                  existingComponent?.underConstruction ?? false,
+                isBroken: existingComponent?.isBroken ?? false,
+                title: existingComponent?.title ?? null,
+                notes: existingComponent?.notes ?? null,
+                artImageId: existingComponent?.artImageId ?? null,
               }
 
               if (existingComponent) {
-                logProgress(`Updating component: ${componentName}`)
-                await performFetch(`/api/components/name/${componentName}`, {
-                  method: 'PATCH',
-                  body: JSON.stringify(componentData),
-                })
+                matchedComponentIds.add(existingComponent.id)
+                await this.updateComponent(componentData)
               } else {
-                logProgress(`Creating component: ${componentName}`)
-                await this.createComponent(componentData)
+                const newComp = await this.createComponent(componentData)
+                matchedComponentIds.add(newComp.id)
               }
             }
+          }
+
+          // Delete unmatched components
+          const toDelete = apiComponents.filter(
+            (comp) => !matchedComponentIds.has(comp.id),
+          )
+          for (const comp of toDelete) {
+            logProgress(`Deleting unmatched component: ${comp.componentName}`)
+            await this.deleteComponent(comp.id)
           }
 
           logProgress('Synchronization complete.')

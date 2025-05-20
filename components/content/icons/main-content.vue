@@ -4,7 +4,10 @@
     class="relative flex flex-col min-h-[100dvh] w-full rounded-2xl bg-base-300"
   >
     <!-- Mobile View -->
-    <div v-if="displayStore.isMobileViewport" class="flex-1 w-full">
+    <div
+      v-if="displayStore.isMobileViewport"
+      class="relative min-h-[100dvh] w-full overflow-hidden"
+    >
       <flip-panel :flipped="sidebarRightOpen">
         <template #front>
           <div class="relative h-[100dvh] w-full overflow-y-auto">

@@ -1,8 +1,10 @@
 <!-- /components/content/icons/flip-panel.vue -->
 <template>
-  <div class="relative w-full h-full overflow-hidden [perspective:1000px]">
+  <div
+    class="relative w-full min-h-[100dvh] overflow-hidden [perspective:1000px]"
+  >
     <div
-      class="relative w-full h-full transition-transform duration-500 ease-in-out [transform-style:preserve-3d]"
+      class="relative w-full min-h-[100dvh] transition-transform duration-500 ease-in-out [transform-style:preserve-3d]"
       :class="{ '[transform:rotateY(180deg)]': flipped }"
     >
       <!-- Front face -->

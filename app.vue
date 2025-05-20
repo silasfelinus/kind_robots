@@ -1,6 +1,6 @@
 <template>
   <div
-    class="main-layout bg-base-200 h-screen w-screen relative overflow-hidden box-border"
+    class="main-layout bg-base-200 h-screen w-screen relative overflow-y-hidden box-border"
   >
     <!-- Loaders -->
     <div class="fixed z-50">
@@ -34,7 +34,7 @@
 
     <!-- Main Content -->
     <main
-      class="absolute inset-0 z-30 box-border overflow-hidden"
+      class="absolute inset-0 z-30 box-border"
       :style="displayStore.mainContentStyle"
     >
       <main-content />

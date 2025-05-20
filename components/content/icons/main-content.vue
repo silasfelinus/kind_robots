@@ -1,5 +1,4 @@
 <!-- /components/content/icons/main-content.vue -->
-
 <template>
   <div
     class="relative flex flex-col min-h-[100dvh] w-full rounded-2xl bg-base-300"
@@ -23,8 +22,14 @@
       </flip-panel>
     </div>
 
-    <div v-else class="flex flex-col grow overflow-y-auto w-full">
-      <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
+    <!-- Desktop View -->
+    <div
+      v-else
+      class="flex flex-col flex-1 min-h-[100dvh] w-full overflow-hidden"
+    >
+      <div class="flex-1 overflow-y-auto">
+        <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
+      </div>
     </div>
 
     <!-- Right Sidebar & Toggle -->

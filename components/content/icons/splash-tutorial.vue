@@ -112,16 +112,15 @@
       </div>
     </div>
 
-    <!-- Wallpaper image moved after all scroll content -->
     <div
       v-if="image"
-      class="absolute top-0 left-0 w-full -z-10 overflow-hidden transition-transform duration-300 will-change-transform"
-      :style="`height: ${scrollHeight}px; transform: translateY(${parallaxOffset}px);`"
+      class="absolute top-0 left-0 w-full -z-10 overflow-hidden will-change-transform"
+      :style="`transform: translateY(${parallaxOffset}px);`"
     >
       <img
         :src="resolvedImage"
         @error="handleImageError"
-        class="w-full h-full object-cover"
+        class="w-full min-h-[100dvh] object-cover"
         alt="Ambient Background"
       />
       <div
@@ -133,7 +132,7 @@
 
 <script setup lang="ts">
 // /components/content/story/splash-tutorial.vue
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
@@ -191,12 +190,18 @@ const scrollContainer = ref<HTMLElement | null>(null)
 const contentContainer = ref<HTMLElement | null>(null)
 
 const parallaxOffset = ref(0)
+let ticking = false
 const scrollHeight = ref(2000)
 
 const handleScroll = () => {
-  if (scrollContainer.value) {
-    parallaxOffset.value = scrollContainer.value.scrollTop * -0.25
-  }
+  if (!scrollContainer.value || ticking) return
+  ticking = true
+
+  window.requestAnimationFrame(() => {
+    const scrollTop = scrollContainer.value!.scrollTop
+    parallaxOffset.value = scrollTop * -0.3 // can tweak multiplier
+    ticking = false
+  })
 }
 
 watch(
@@ -207,11 +212,14 @@ watch(
   { immediate: true },
 )
 
-onMounted(async () => {
-  await nextTick()
-  if (contentContainer.value) {
-    scrollHeight.value = contentContainer.value.offsetHeight + 300
-  }
+onMounted(() => {
+  const container = scrollContainer.value
+  if (container) container.addEventListener('scroll', handleScroll)
+})
+
+onBeforeUnmount(() => {
+  const container = scrollContainer.value
+  if (container) container.removeEventListener('scroll', handleScroll)
 })
 </script>
 
@@ -225,6 +233,12 @@ onMounted(async () => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+img {
+  transition:
+    transform 0.2s ease-out,
+    opacity 0.3s ease-in;
 }
 
 .animate-fade-in-up {

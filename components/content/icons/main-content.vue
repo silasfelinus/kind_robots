@@ -6,25 +6,24 @@
     <!-- Mobile View -->
     <div
       v-if="displayStore.isMobileViewport"
-      class="relative min-h-[100dvh] w-full overflow-hidden"
+      class="relative flex flex-col min-h-[100dvh] w-full"
     >
       <flip-panel :flipped="sidebarRightOpen">
         <template #front>
-          <div class="relative h-[100dvh] w-full overflow-y-auto">
+          <div class="absolute inset-0 overflow-y-auto">
             <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
           </div>
         </template>
         <template #back>
-          <div class="relative h-[100dvh] w-full overflow-y-auto">
+          <div class="absolute inset-0 overflow-y-auto">
             <splash-tutorial />
           </div>
         </template>
       </flip-panel>
     </div>
 
-    <!-- Desktop View -->
-    <div v-else class="relative flex-1 min-h-[100dvh] w-full overflow-y-auto">
-      <NuxtPage :key="$route.fullPath" class="min-h-full w-full" />
+    <div v-else class="absolute inset-0 overflow-y-auto">
+      <NuxtPage :key="$route.fullPath" class="min-h-[100dvh] w-full" />
     </div>
 
     <!-- Right Sidebar & Toggle -->

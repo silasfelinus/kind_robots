@@ -35,13 +35,15 @@
         'bg-base-300 shadow': !sidebarRightOpen,
       }"
     />
-    <aside
-      v-if="!displayStore.isMobileViewport && sidebarRightOpen"
-      class="fixed z-30 rounded-2xl border-6 border-secondary overflow-y-auto bg-base-200"
-      :style="displayStore.rightSidebarStyle"
-    >
-      <splash-tutorial />
-    </aside>
+    <transition name="slide-in-right">
+      <aside
+        v-show="!displayStore.isMobileViewport && sidebarRightOpen"
+        class="fixed z-30 rounded-2xl border-6 border-secondary overflow-y-auto bg-base-200 transform transition-transform duration-500 ease-in-out"
+        :style="displayStore.rightSidebarStyle"
+      >
+        <splash-tutorial />
+      </aside>
+    </transition>
   </div>
 </template>
 
@@ -58,3 +60,24 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'disabled',
 )
 </script>
+
+<style scoped>
+.slide-in-right-enter-from,
+.slide-in-right-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.slide-in-right-enter-to,
+.slide-in-right-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.slide-in-right-enter-active,
+.slide-in-right-leave-active {
+  transition:
+    transform 0.4s ease,
+    opacity 0.3s ease;
+}
+</style>

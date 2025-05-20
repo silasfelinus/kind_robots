@@ -38,7 +38,7 @@
     <transition name="slide-in-right">
       <aside
         v-show="!displayStore.isMobileViewport && sidebarRightOpen"
-        class="fixed z-30 rounded-2xl border-6 border-secondary overflow-y-auto bg-base-200 transform transition-transform duration-500 ease-in-out"
+        class="fixed z-30 rounded-2xl border-6 border-secondary bg-base-200 transform transition-transform duration-500 ease-in-out"
         :style="displayStore.rightSidebarStyle"
       >
         <splash-tutorial />

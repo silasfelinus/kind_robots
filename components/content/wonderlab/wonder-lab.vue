@@ -37,11 +37,7 @@
       <!-- Gallery or Component -->
       <lab-gallery v-if="!componentStore.selectedComponent" />
 
-      <select-component
-        v-else
-        :component="componentStore.selectedComponent"
-        class="component-screen w-full"
-      />
+      <select-component v-else class="component-screen w-full" />
     </div>
 
     <!-- Floating Back Button -->

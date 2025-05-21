@@ -40,7 +40,7 @@ export const useComponentStore = defineStore('componentStore', {
         if (response.success && response.data) {
           this.components = response.data
           this.isInitialized = true // Mark as initialized
-          console.log('Components initialized successfully', this.components)
+          console.log('Components initialized successfully')
         } else {
           throw new Error('Failed to fetch components from API.')
         }

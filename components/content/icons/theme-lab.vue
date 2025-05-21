@@ -173,6 +173,11 @@ function convertToDaisyVar(key: string) {
 }
 
 function hexToRgb(hex: string) {
+  if (typeof hex !== 'string' || !hex.startsWith('#')) {
+    console.warn('Invalid hex value:', hex)
+    return '255 255 255' // fallback white
+  }
+
   const h = hex.replace('#', '')
   const bigint = parseInt(h, 16)
   const r = (bigint >> 16) & 255
@@ -215,16 +220,27 @@ const saveTheme = async () => {
 function editTheme(theme: Theme) {
   customName.value = theme.name
   customRoom.value = theme.room || ''
+
+  const validTheme: Record<string, string> = {}
+
   if (
     theme.values &&
     typeof theme.values === 'object' &&
     !Array.isArray(theme.values)
   ) {
-    customTheme.value = theme.values as Record<string, string>
+    for (const [key, value] of Object.entries(theme.values)) {
+      if (typeof value === 'string' && /^#([0-9A-F]{3}){1,2}$/i.test(value)) {
+        validTheme[key] = value
+      } else {
+        console.warn(`Skipping invalid color value for "${key}":`, value)
+        validTheme[key] = '#ffffff' // fallback to white
+      }
+    }
   } else {
-    console.warn('Invalid theme.values:', theme.values)
-    customTheme.value = {}
+    console.warn('Invalid theme.values structure:', theme.values)
   }
+
+  customTheme.value = validTheme
   selectedThemeId.value = theme.id || null
   updateMode.value = true
 }

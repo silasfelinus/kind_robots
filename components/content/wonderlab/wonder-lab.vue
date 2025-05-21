@@ -57,7 +57,7 @@
       </div>
 
       <div v-else class="w-full">
-        <component-screen
+        <main-component
           :component="componentStore.selectedComponent"
           class="component-screen w-full"
           @close="handleComponentClose"

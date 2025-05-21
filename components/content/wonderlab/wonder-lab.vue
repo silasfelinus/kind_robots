@@ -1,7 +1,11 @@
 <template>
-  <div class="relative flex flex-col min-h-[100dvh] bg-base-100 text-base-content">
+  <div
+    class="relative flex flex-col min-h-[100dvh] bg-base-100 text-base-content"
+  >
     <!-- Sticky Header -->
-    <div class="sticky top-0 z-10 bg-base-200 border-b border-base-300 p-4 flex flex-col gap-2">
+    <div
+      class="sticky top-0 z-10 bg-base-200 border-b border-base-300 p-4 flex flex-col gap-2"
+    >
       <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold">Welcome to the WonderLab</h1>
         <component-count v-if="!componentStore.selectedComponent" />
@@ -16,7 +20,9 @@
     </div>
 
     <!-- Main Area -->
-    <div class="flex-1 overflow-y-auto px-4 py-6 space-y-6 max-w-7xl w-full mx-auto">
+    <div
+      class="flex-1 overflow-y-auto px-4 py-6 space-y-6 max-w-7xl w-full mx-auto"
+    >
       <!-- Loading -->
       <div v-if="isLoading" class="flex justify-center items-center h-full">
         <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />
@@ -28,24 +34,8 @@
         🚨 {{ errorMessages.join(', ') }}
       </div>
 
-      <!-- Debug (gallery only) -->
-      <div
-        v-if="!componentStore.selectedComponent"
-        class="bg-warning text-black p-4 rounded-xl shadow-xl space-y-2"
-      >
-        <h2 class="text-lg font-bold">🪵 Debug: WonderLab State</h2>
-        <p><strong>Selected Folder:</strong> {{ componentStore.selectedFolder }}</p>
-        <p><strong>Total Components:</strong> {{ componentStore.components.length }}</p>
-        <div class="bg-white text-xs p-2 rounded shadow max-h-48 overflow-y-auto">
-          <strong>All Components:</strong>
-          <pre>{{ JSON.stringify(componentStore.components, null, 2) }}</pre>
-        </div>
-      </div>
-
       <!-- Gallery or Component -->
-      <lab-gallery
-        v-if="!componentStore.selectedComponent"
-      />
+      <lab-gallery v-if="!componentStore.selectedComponent" />
 
       <main-component
         v-else

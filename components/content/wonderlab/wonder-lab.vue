@@ -40,18 +40,6 @@
       <select-component v-else class="component-screen w-full" />
     </div>
 
-    <!-- Floating Back Button -->
-    <transition name="fade">
-      <button
-        v-if="componentStore.selectedComponent"
-        class="fixed bottom-4 left-4 z-30 btn btn-sm btn-outline btn-primary shadow-md"
-        @click="handleComponentClose"
-      >
-        <Icon name="kind-icon:arrow-left" class="mr-1" />
-        Back to WonderLab
-      </button>
-    </transition>
-
     <!-- Floating Reactions Panel -->
     <transition name="fade">
       <div
@@ -75,7 +63,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
-import type { KindComponent as Component } from '@/stores/componentStore'
 
 const isLoading = ref(true)
 const showReactions = ref(false)
@@ -85,7 +72,7 @@ const componentStore = useComponentStore()
 onMounted(async () => {
   isLoading.value = true
   try {
-    await componentStore.initializeComponents()
+    await componentStore.initialize()
   } catch (error) {
     errorMessages.value.push('Failed to initialize components')
     console.error('Error during initialization:', error)
@@ -93,11 +80,6 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
-
-const handleComponentClose = () => {
-  componentStore.clearSelectedComponent()
-  componentStore.clearSelectedFolder()
-}
 </script>
 
 <style scoped>

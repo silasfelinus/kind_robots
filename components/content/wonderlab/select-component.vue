@@ -1,16 +1,15 @@
-<!-- /components/content/wonderlab/select-component.vue -->
 <template>
   <div
     class="relative w-full h-full min-h-[100dvh] bg-base-100 text-base-content"
   >
-    <!-- Fullscreen Component Display -->
+    <!-- Fullscreen Component -->
     <component
       :is="resolvedComponent"
       v-if="resolvedComponent"
       class="w-full h-full"
     />
 
-    <!-- Floating Back Button -->
+    <!-- Back Button -->
     <button
       class="fixed bottom-4 left-4 z-30 btn btn-sm btn-outline btn-primary shadow-md"
       @click="handleBack"
@@ -27,9 +26,9 @@ import { useComponentStore } from '@/stores/componentStore'
 
 const componentStore = useComponentStore()
 
-const resolvedComponent = computed(() => {
-  return componentStore.selectedComponent?.componentName || null
-})
+const resolvedComponent = computed(
+  () => componentStore.selectedComponent?.componentName || null,
+)
 
 const handleBack = () => {
   componentStore.clearSelectedComponent()

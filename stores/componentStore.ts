@@ -33,7 +33,7 @@ export const useComponentStore = defineStore('componentStore', {
   },
 
   actions: {
-    async initializeComponents() {
+    async initialize() {
       if (this.isInitialized) {
         console.log('ComponentStore already initialized — skipping fetch.')
         return

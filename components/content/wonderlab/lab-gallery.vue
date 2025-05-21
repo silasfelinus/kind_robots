@@ -71,7 +71,9 @@ const folderNames = computed(() => {
 const folderComponents = computed(() =>
   componentStore.selectedFolder
     ? componentStore.components.filter(
-        (component) => component.folderName === componentStore.selectedFolder,
+        (component) =>
+          component.folderName.trim().toLowerCase() ===
+          componentStore.selectedFolder?.trim().toLowerCase(),
       )
     : [],
 )

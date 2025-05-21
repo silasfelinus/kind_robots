@@ -1,9 +1,10 @@
 <!-- /components/content/icons/smart-icons.vue -->
+
 <template>
   <div class="relative w-full h-full overflow-hidden">
     <!-- Left Scroll Button -->
     <div
-      class="absolute left-0 top-0 bottom-0 w-10 z-40 flex items-center justify-center"
+      class="absolute left-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
     >
       <button
         v-show="showLeft"
@@ -16,43 +17,41 @@
       </button>
     </div>
 
-    <!-- Edit / Confirm-Revert Toggle -->
+    <!-- Right Scroll Button -->
+    <div
+      class="absolute right-[4.5rem] top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
+    >
+      <button
+        v-show="showRight"
+        class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
+        @mousedown.prevent="startContinuousScroll(1)"
+        @mouseup="stopContinuousScroll"
+        @mouseleave="stopContinuousScroll"
+      >
+        <Icon name="kind-icon:chevron-right" />
+      </button>
+    </div>
+
+    <!-- Edit Button (after right scroll) -->
     <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50">
-      <div class="flex flex-col gap-2 pr-2">
-        <template v-if="!isEditing">
-          <button
-            class="btn btn-square btn-sm"
-            @click="activateEditMode"
-            title="Edit"
-          >
-            <Icon name="kind-icon:settings" />
-          </button>
-        </template>
-        <template v-else>
-          <button
-            v-if="hasChanges"
-            class="btn btn-square btn-xs bg-base-200 text-error hover:bg-base-300"
-            @click="revertEdit"
-          >
-            <Icon name="kind-icon:rotate" />
-          </button>
-          <button
-            class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"
-            @click="confirmEdit"
-          >
-            <Icon name="kind-icon:check" />
-          </button>
-        </template>
+      <div v-if="!isEditing" class="flex flex-col gap-2 pr-2">
+        <button
+          class="btn btn-square btn-sm"
+          @click="activateEditMode"
+          title="Edit"
+        >
+          <Icon name="kind-icon:settings" />
+        </button>
       </div>
     </div>
 
     <!-- Scrollable Area with Fade Overlays -->
     <div
-      class="relative w-full h-full flex items-center pl-10 pr-14 scroll-fade-left scroll-fade-right"
+      class="relative w-full h-full flex items-center pl-[4.5rem] pr-[9rem] scroll-fade-left scroll-fade-right"
     >
       <div
         ref="scrollContainer"
-        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x snap-x snap-mandatory cursor-grab active:cursor-grabbing"
+        class="overflow-x-auto scrollbar-hide w-full h-full touch-pan-x snap-x snap-mandatory"
         @scroll="checkScrollEdges"
         @mousedown="handleScrollMouseDown"
         @mousemove="handleScrollMouseMove"
@@ -62,6 +61,7 @@
         @touchmove="handleScrollTouchMove"
         @touchend="handleScrollMouseUp"
       >
+        <!-- Icon Row -->
         <div
           class="flex items-center gap-1 md:gap-2 lg:gap-4 xl:gap-6 min-w-fit h-full select-none px-2"
         >
@@ -142,29 +142,33 @@
               </span>
             </template>
           </icon-shell>
-        </div>
-      </div>
 
-      <!-- Right Scroll Button -->
-      <div
-        class="absolute right-12 top-0 bottom-0 w-10 z-40 flex items-center justify-center"
-      >
-        <button
-          v-show="showRight"
-          class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
-          @mousedown.prevent="startContinuousScroll(1)"
-          @mouseup="stopContinuousScroll"
-          @mouseleave="stopContinuousScroll"
-        >
-          <Icon name="kind-icon:chevron-right" />
-        </button>
+          <!-- Confirm / Revert Buttons (during edit) -->
+          <div v-if="isEditing" class="flex items-center gap-2">
+            <button
+              v-if="hasChanges"
+              class="btn btn-square btn-xs bg-base-200 text-error hover:bg-base-300"
+              @click="revertEdit"
+            >
+              <Icon name="kind-icon:rotate" />
+            </button>
+            <button
+              class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"
+              @click="confirmEdit"
+            >
+              <Icon name="kind-icon:check" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
+// /components/content/icons/smart-icons.vue
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useIconStore, type SmartIcon } from '@/stores/iconStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
@@ -179,9 +183,8 @@ const themeStore = useThemeStore()
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 
-const bigMode = computed(() => displayStore.bigMode)
-const activeIcons = computed(() => iconStore.activeIcons)
-const isEditing = computed(() => iconStore.isEditing)
+const { bigMode } = storeToRefs(displayStore)
+const { activeIcons, isEditing } = storeToRefs(iconStore)
 
 const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
 const originalIcons = ref<SmartIcon[]>([])

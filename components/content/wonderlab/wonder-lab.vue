@@ -7,8 +7,8 @@
       class="sticky top-0 z-10 bg-base-200 border-b border-base-300 p-4 flex flex-col gap-2"
     >
       <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold">Welcome to the WonderLab</h1>
-        <component-count v-if="!componentStore.selectedComponent" />
+        <wonderlab-launch v-if="!componentStore.selectedComponent" />
+
         <button
           v-if="componentStore.selectedComponent"
           class="btn btn-sm btn-circle btn-accent"

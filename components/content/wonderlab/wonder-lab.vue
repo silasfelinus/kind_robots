@@ -109,13 +109,6 @@ const errorMessages = ref<string[]>([])
 // Access the component store
 const componentStore = useComponentStore()
 
-// Computed value for folder-specific components
-const folderComponents = computed(() => {
-  if (!componentStore.selectedFolder) return []
-  return componentStore.components.filter(
-    (component) => component.folderName === componentStore.selectedFolder,
-  )
-})
 
 // Initialize components on mount
 onMounted(async () => {

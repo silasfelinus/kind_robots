@@ -3,9 +3,7 @@
     <!-- Folder View -->
     <div v-if="!selectedFolder" class="space-y-2">
       <h2 class="text-xl font-semibold text-center">Choose a folder to explore</h2>
-      <div
-        class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-      >
+      <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         <div
           v-for="folder in folderNames"
           :key="folder"
@@ -26,10 +24,7 @@
           Browsing folder:
           <strong class="text-base-content">{{ selectedFolder }}</strong>
         </p>
-        <button
-          class="btn btn-sm btn-outline btn-accent"
-          @click="selectedFolder = null"
-        >
+        <button class="btn btn-sm btn-outline btn-accent" @click="selectedFolder = null">
           <Icon name="kind-icon:arrow-left" class="mr-1" />
           Back to folders
         </button>
@@ -43,7 +38,7 @@
           v-for="component in folderComponents"
           :key="component.id"
           class="rounded-2xl bg-base-100 border border-base-300 hover:bg-secondary hover:text-secondary-content transition-transform transform hover:scale-105 p-4 cursor-pointer shadow-sm"
-          @click="$emit('select-component', component)"
+          @click="componentStore.selectedComponent = component"
         >
           <div class="flex flex-col items-center text-center space-y-2">
             <Icon name="kind-icon:companion-cube" class="text-4xl" />
@@ -71,12 +66,7 @@ import {
   type KindComponent as Component,
 } from '@/stores/componentStore'
 
-const emit = defineEmits<{
-  (e: 'select-component', component: Component): void
-}>()
-
 const selectedFolder = ref<string | null>(null)
-
 const componentStore = useComponentStore()
 
 const folderNames = computed(() => {

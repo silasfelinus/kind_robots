@@ -20,7 +20,7 @@ export const elements: elementData[] = [
     health: 10,
     spawn: 5,
     aggression: 5,
-    spawnIcon: 'fluent-emoji-flat:rock',
+    spawnIcon: 'kind-icon:rock',
     gameIcon: 'kind-icon:rock',
     toggleIcon: 'fa:hand-rock-o',
     strengths: ['Scissors', 'Lizard'],

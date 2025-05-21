@@ -34,7 +34,7 @@ const jellybeans = ref<
   })),
 )
 
-const jellybeanIcon = 'fluent-emoji-high-contrast:beans' // Icon reference
+const jellybeanIcon = 'kind-icon:jellybean' // Icon reference
 
 for (let i = 0; i < maxJellybeans; i++) {
   jellybeans.value.push({

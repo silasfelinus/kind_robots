@@ -37,7 +37,7 @@
       <!-- Gallery or Component -->
       <lab-gallery v-if="!componentStore.selectedComponent" />
 
-      <main-component
+      <select-component
         v-else
         :component="componentStore.selectedComponent"
         class="component-screen w-full"

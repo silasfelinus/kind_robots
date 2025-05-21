@@ -162,9 +162,33 @@ export const useThemeStore = defineStore('themeStore', () => {
     if (success) await getThemes()
   }
 
+  function applyThemeValues(values: Record<string, string>) {
+    if (typeof document === 'undefined') return
+
+    const root = document.documentElement
+
+    for (const [key, value] of Object.entries(values)) {
+      if (key.startsWith('--color-')) {
+        root.style.setProperty(key, value)
+      } else {
+        console.warn(`[themeStore] Skipping invalid key: ${key}`)
+      }
+    }
+  }
+
   function selectTheme(theme: Theme) {
     currentThemeObj.value = theme
     themeForm.value = { ...theme }
+
+    if (theme.values && typeof theme.values === 'object') {
+      applyThemeValues(theme.values as Record<string, string>)
+      savedTheme.value = theme.name
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('theme', theme.name)
+      }
+    } else {
+      console.warn('[themeStore] Theme values are invalid or missing.')
+    }
   }
 
   function deselectTheme() {

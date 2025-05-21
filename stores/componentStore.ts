@@ -34,18 +34,23 @@ export const useComponentStore = defineStore('componentStore', {
 
   actions: {
     async initializeComponents() {
+      if (this.isInitialized) {
+        console.log('ComponentStore already initialized — skipping fetch.')
+        return
+      }
+
       try {
         const response = await performFetch<Component[]>('/api/components')
 
         if (response.success && response.data) {
           this.components = response.data
-          this.isInitialized = true // Mark as initialized
+          this.isInitialized = true
           console.log('Components initialized successfully')
         } else {
           throw new Error('Failed to fetch components from API.')
         }
       } catch (error) {
-        this.isInitialized = false // Ensure it resets on failure
+        this.isInitialized = false
         handleError(error, 'Error fetching components from API')
       }
     },

@@ -2,11 +2,13 @@
 
 <template>
   <div class="w-full flex flex-col items-center">
-    <div class="flex justify-center flex-wrap gap-2 md:gap-3 lg:gap-4 w-full mb-3">
+    <div
+      class="flex justify-center flex-wrap gap-2 md:gap-3 lg:gap-4 w-full mb-3 px-2"
+    >
       <button
         v-for="tab in visibleTabs"
         :key="tab.name"
-        class="flex-1 min-w-[45%] max-w-[30%] md:min-w-[25%] lg:min-w-[15%] px-3 py-2 text-sm md:text-md lg:text-lg font-semibold border border-accent rounded-lg transition-all duration-300 text-center"
+        class="flex-grow basis-[45%] sm:basis-[40%] md:basis-[30%] lg:basis-[22%] xl:basis-[18%] px-4 py-2 text-sm md:text-base lg:text-lg font-semibold border border-accent rounded-2xl text-center whitespace-nowrap overflow-hidden text-ellipsis transition-all duration-300"
         :class="[
           tab.name === activeTab
             ? 'bg-primary text-black'
@@ -40,7 +42,7 @@ const tabs = [
 ]
 
 const visibleTabs = computed(() =>
-  tabs.filter((tab) => !tab.requiresAdmin || userStore.isAdmin)
+  tabs.filter((tab) => !tab.requiresAdmin || userStore.isAdmin),
 )
 
 const activeTab = ref('')
@@ -57,6 +59,6 @@ watch(
     const defaultTab = visibleTabs.value[0]?.name || ''
     if (defaultTab) selectTab(defaultTab)
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>

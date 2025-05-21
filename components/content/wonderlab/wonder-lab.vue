@@ -1,103 +1,87 @@
 <!-- /components/content/wonderlab/wonder-lab.vue -->
-
 <template>
-  <div>
-    <!-- Loading State -->
-    <div v-if="isLoading" class="flex justify-center items-center h-full">
-      <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />
-      Loading...
+  <div
+    class="relative flex flex-col min-h-[100dvh] bg-base-100 text-base-content"
+  >
+    <!-- Sticky Header: Title and Count -->
+    <div
+      class="sticky top-0 z-10 bg-base-200 border-b border-base-300 p-4 flex flex-col gap-2"
+    >
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">Welcome to the WonderLab</h1>
+        <component-count v-if="!componentStore.selectedComponent" />
+        <button
+          v-if="componentStore.selectedComponent"
+          class="btn btn-sm btn-circle btn-accent"
+          @click="showReactions = !showReactions"
+        >
+          <Icon name="kind-icon:emoji" class="text-xl" />
+        </button>
+      </div>
+
+      <!-- Lab Gallery -->
+      <div v-if="!componentStore.selectedFolder" class="w-full">
+        <lab-gallery @select-folder="handleFolderSelect" />
+      </div>
+      <div v-else class="text-sm italic text-base-content/60">
+        Viewing components in folder:
+        <strong>{{ componentStore.selectedFolder }}</strong>
+      </div>
     </div>
 
-    <!-- Show content when not loading and no errors -->
-    <transition name="flip">
-      <div v-if="!isLoading && !errorMessages.length" class="flex h-screen">
-        <!-- Left 2/3 for the welcome message or component screen -->
-        <div class="w-2/3 p-4 flex justify-center items-center">
-          <!-- Welcome message when no component is selected -->
-          <div
-            v-if="!componentStore.selectedComponent"
-            class="welcome-screen text-center"
-          >
-            <h1 class="text-4xl font-bold">Welcome to the WonderLab</h1>
-            <p class="text-lg mt-4">
-              Select a folder to view components or interact with them!
-            </p>
-          </div>
+    <!-- Scrollable Main Area -->
+    <div class="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+      <!-- Loading State -->
+      <div v-if="isLoading" class="flex justify-center items-center h-full">
+        <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />
+        <span class="ml-2">Loading...</span>
+      </div>
 
-          <!-- Component Screen when a component is selected -->
-          <div v-else class="w-full h-full overflow-auto">
-            <component-screen
-              :component="componentStore.selectedComponent"
-              class="component-screen w-full h-full"
-              @close="handleComponentClose"
-            />
-          </div>
+      <!-- Error Message -->
+      <div v-if="errorMessages.length" class="text-error text-center">
+        🚨 {{ errorMessages.join(', ') }}
+      </div>
+
+      <!-- Component List or Selected Component -->
+      <div
+        v-if="!componentStore.selectedComponent"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
+      >
+        <component-card
+          v-for="component in folderComponents"
+          :key="component.id"
+          :component="component"
+          class="component-card p-4 bg-white shadow rounded-2xl hover:scale-105 transition-transform"
+          @select="handleComponentSelect"
+        />
+      </div>
+
+      <div v-else class="w-full">
+        <component-screen
+          :component="componentStore.selectedComponent"
+          class="component-screen w-full"
+          @close="handleComponentClose"
+        />
+      </div>
+    </div>
+
+    <!-- Floating Reactions Panel -->
+    <transition name="fade">
+      <div
+        v-if="showReactions && componentStore.selectedComponent"
+        class="fixed bottom-0 left-0 right-0 z-20 bg-base-200 border-t border-base-300 p-4 shadow-xl"
+      >
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="text-lg font-semibold">
+            Reactions: {{ componentStore.selectedComponent.title }}
+          </h2>
+          <button class="btn btn-xs btn-outline" @click="showReactions = false">
+            Close
+          </button>
         </div>
-
-        <!-- Right 1/3, split into top 1/2 for folder view and bottom 1/2 for count/reactions -->
-        <div class="w-1/3 flex flex-col">
-          <!-- Folder view in the top half -->
-          <div class="folder-view h-1/2 p-4 bg-gray-100 overflow-y-auto">
-            <div v-if="componentStore.selectedFolder" class="text-lg px-4">
-              Viewing components in folder: {{ componentStore.selectedFolder }}
-            </div>
-
-            <!-- Folder gallery when no folder is selected -->
-            <div
-              v-if="!componentStore.selectedFolder"
-              class="lab-gallery h-full"
-            >
-              <lab-gallery @select-folder="handleFolderSelect" />
-            </div>
-
-            <!-- Folder components -->
-            <div
-              v-if="componentStore.selectedFolder"
-              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4 h-full overflow-auto"
-            >
-              <component-card
-                v-for="component in folderComponents"
-                :key="component.id"
-                :component="component"
-                class="component-card p-4 bg-white shadow rounded-lg transition-transform transform hover:scale-105 hover:shadow-lg"
-                @select="handleComponentSelect"
-              />
-            </div>
-          </div>
-
-          <!-- Component count or reactions in the bottom half -->
-          <div class="h-1/2 p-4 bg-gray-200">
-            <transition name="flip">
-              <!-- Component Count (when no component is selected) -->
-              <div
-                v-if="!componentStore.selectedComponent"
-                class="component-counter flex justify-center items-center h-full"
-              >
-                <component-count />
-              </div>
-
-              <!-- Reactions (when a component is selected) -->
-              <div
-                v-else
-                class="reactions-screen p-4 bg-base-200 h-full overflow-auto"
-              >
-                <h2 class="text-2xl font-semibold">
-                  Reactions for {{ componentStore.selectedComponent.title }}
-                </h2>
-                <component-reactions
-                  :component="componentStore.selectedComponent"
-                />
-              </div>
-            </transition>
-          </div>
-        </div>
+        <component-reactions :component="componentStore.selectedComponent" />
       </div>
     </transition>
-
-    <!-- Error Reporting -->
-    <div v-if="errorMessages.length" class="col-span-3 text-red-500 mt-4">
-      🚨 Error loading data: {{ errorMessages.join(', ') }}
-    </div>
   </div>
 </template>
 
@@ -108,6 +92,7 @@ import type { KindComponent as Component } from './../../../stores/componentStor
 
 // State variables
 const isLoading = ref(true)
+const showReactions = ref(false)
 const errorMessages = ref<string[]>([])
 
 // Access the component store

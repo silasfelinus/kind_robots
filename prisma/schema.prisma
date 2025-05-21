@@ -579,16 +579,20 @@ model Tag {
 }
 
 model Theme {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  values    Json  // The actual daisyUI theme name
-  userId    Int?
-  user      User?    @relation(fields: [userId], references: [id])
-  isPublic  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  tagline   String?
-  room      String?
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
+  userId        Int?
+  user          User?    @relation(fields: [userId], references: [id])
+  isPublic      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  tagline       String?
+  room          String?
+
+  prefersDark   Boolean  @default(false)
+  colorScheme   String   @default("light") // could validate against ENUM if strict
+  values        Json     // only the CSS vars like `--color-base-100`, etc.
 }
+
 
 
 model User {

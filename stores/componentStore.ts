@@ -105,34 +105,42 @@ export const useComponentStore = defineStore('componentStore', {
 
           for (const folder of folderData) {
             for (const componentName of folder.components) {
+              const normalizedName = normalize(componentName)
+
               let existingComponent = apiComponents.find(
-                (comp) => comp.componentName === componentName,
+                (comp) => normalize(comp.componentName) === normalizedName,
               )
 
-              // Try normalized match if not exact
-              if (!existingComponent) {
-                const normalizedName = normalize(componentName)
-                existingComponent = apiComponents.find(
-                  (comp) => normalize(comp.componentName) === normalizedName,
-                )
-
-                if (existingComponent) {
+              if (existingComponent) {
+                if (existingComponent.componentName !== componentName) {
                   logProgress(
-                    `Renaming component from "${existingComponent.componentName}" to "${componentName}"`,
+                    `Renaming "${existingComponent.componentName}" → "${componentName}"`,
                   )
                 }
-              }
 
-              if (existingComponent) {
-                const updateData: Component = {
-                  ...existingComponent,
+                matchedComponentIds.add(existingComponent.id)
+
+                // Only allowed fields in update body
+                const updatePayload = {
                   componentName,
                   folderName: folder.folderName,
                   updatedAt: new Date(),
                 }
 
-                matchedComponentIds.add(existingComponent.id)
-                await this.updateComponent(updateData)
+                const patchUrl = `/api/components/${existingComponent.id}`
+
+                const patchRes = await performFetch<Component>(patchUrl, {
+                  method: 'PATCH',
+                  body: JSON.stringify(updatePayload),
+                })
+
+                if (!patchRes.success) {
+                  throw new Error(
+                    `Failed to update ${componentName}: ${patchRes.message}`,
+                  )
+                }
+
+                logProgress(`Updated: ${componentName}`)
               } else {
                 const createData: Omit<Component, 'id'> = {
                   componentName,
@@ -151,20 +159,21 @@ export const useComponentStore = defineStore('componentStore', {
                   createData as Component,
                 )
                 matchedComponentIds.add(newComp.id)
+                logProgress(`Created: ${componentName}`)
               }
             }
           }
 
-          // Delete unmatched components
           const toDelete = apiComponents.filter(
             (comp) => !matchedComponentIds.has(comp.id),
           )
+
           for (const comp of toDelete) {
-            logProgress(`Deleting unmatched component: ${comp.componentName}`)
+            logProgress(`Deleting: ${comp.componentName}`)
             await this.deleteComponent(comp.id)
           }
 
-          logProgress('Synchronization complete.')
+          logProgress('Component sync complete.')
         },
         ErrorType.GENERAL_ERROR,
         'Error syncing components from components.json',

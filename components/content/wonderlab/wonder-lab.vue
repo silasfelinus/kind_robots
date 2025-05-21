@@ -42,6 +42,35 @@
         🚨 {{ errorMessages.join(', ') }}
       </div>
 
+      <!-- DEBUG OUTPUT -->
+      <div class="bg-warning text-black p-4 rounded-xl shadow-xl space-y-2">
+        <h2 class="text-lg font-bold">🪵 Debug: WonderLab State</h2>
+        <p>
+          <strong>Selected Folder:</strong> {{ componentStore.selectedFolder }}
+        </p>
+        <p>
+          <strong>Total Components:</strong>
+          {{ componentStore.components.length }}
+        </p>
+        <p>
+          <strong>Filtered Components:</strong> {{ folderComponents.length }}
+        </p>
+
+        <div
+          class="bg-white text-xs p-2 rounded shadow max-h-48 overflow-y-auto"
+        >
+          <strong>All Components:</strong>
+          <pre>{{ JSON.stringify(componentStore.components, null, 2) }}</pre>
+        </div>
+
+        <div
+          class="bg-white text-xs p-2 rounded shadow max-h-48 overflow-y-auto"
+        >
+          <strong>folderComponents:</strong>
+          <pre>{{ JSON.stringify(folderComponents, null, 2) }}</pre>
+        </div>
+      </div>
+
       <!-- Component List or Selected Component -->
       <div
         v-if="!componentStore.selectedComponent"

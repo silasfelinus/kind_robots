@@ -128,11 +128,12 @@ onMounted(async () => {
 .welcome-zoom-enter-active,
 .welcome-zoom-leave-active {
   transition: all 0.5s ease;
+  transform-origin: top right;
 }
 .welcome-zoom-enter-from,
 .welcome-zoom-leave-to {
   opacity: 0;
-  transform: scale(0.4) translate(50%, -50%);
+  transform: scale(0.2) translate(50%, -50%);
   border-radius: 9999px;
 }
 
@@ -140,11 +141,12 @@ onMounted(async () => {
 .bubble-zoom-enter-active,
 .bubble-zoom-leave-active {
   transition: all 0.4s ease;
+  transform-origin: top right;
 }
 .bubble-zoom-enter-from,
 .bubble-zoom-leave-to {
   opacity: 0;
-  transform: scale(0.5) translate(50%, -50%);
+  transform: scale(0.2) translate(50%, -50%);
 }
 
 /* Main content slide up */
@@ -154,10 +156,10 @@ onMounted(async () => {
 }
 .main-slide-enter-from {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(24px);
 }
 .main-slide-leave-to {
   opacity: 0;
-  transform: translateY(-20px);
+  transform: translateY(-24px);
 }
 </style>

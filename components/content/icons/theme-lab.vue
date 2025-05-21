@@ -147,6 +147,12 @@ const applyTheme = (themeName: string) => {
   milestoneStore.rewardMilestone(9)
 }
 
+function isValidHex(hex: string) {
+  return (
+    typeof hex === 'string' && /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/.test(hex)
+  )
+}
+
 const previewStyle = computed(() => {
   const vars = Object.entries(customTheme.value)
     .map(([key, val]) => `--${convertToDaisyVar(key)}: ${hexToRgb(val)}`)
@@ -172,9 +178,9 @@ function convertToDaisyVar(key: string) {
 }
 
 function hexToRgb(hex: string) {
-  if (typeof hex !== 'string' || !hex.startsWith('#')) {
+  if (!isValidHex(hex)) {
     console.warn('Invalid hex value:', hex)
-    return '255 255 255' // fallback white
+    return '255 255 255'
   }
 
   const h = hex.replace('#', '')
@@ -190,7 +196,7 @@ const saveTheme = async () => {
 
   const theme = {
     name: customName.value.trim(),
-    values: { ...customTheme.value },
+    values: sanitizeThemeValues(customTheme.value),
     room: customRoom.value.trim() || undefined,
     isPublic: false,
   }
@@ -220,32 +226,29 @@ function editTheme(theme: Theme) {
   customName.value = theme.name
   customRoom.value = theme.room || ''
 
-  const validTheme: Record<string, string> = {}
-
-  if (
-    theme.values &&
-    typeof theme.values === 'object' &&
-    !Array.isArray(theme.values)
-  ) {
-    for (const [key, value] of Object.entries(theme.values)) {
-      if (typeof value === 'string' && /^#([0-9A-F]{3}){1,2}$/i.test(value)) {
-        validTheme[key] = value
-      } else {
-        console.warn(`Skipping invalid color value for "${key}":`, value)
-        validTheme[key] = '#ffffff' // fallback to white
-      }
-    }
-  } else {
-    console.warn('Invalid theme.values structure:', theme.values)
-  }
+  const validTheme =
+    theme.values && typeof theme.values === 'object'
+      ? sanitizeThemeValues(theme.values as Record<string, string>)
+      : {}
 
   customTheme.value = validTheme
   selectedThemeId.value = theme.id || null
   updateMode.value = true
 }
 
+function sanitizeThemeValues(
+  values: Record<string, string>,
+): Record<string, string> {
+  const sanitized: Record<string, string> = {}
+  for (const [key, val] of Object.entries(values)) {
+    sanitized[key] = isValidHex(val) ? val : '#ffffff'
+  }
+  return sanitized
+}
+
 function getThemeStyle(values: Record<string, string>) {
   const entries = Object.entries(values)
+    .filter(([, val]) => isValidHex(val))
     .map(([key, val]) => `--${convertToDaisyVar(key)}: ${hexToRgb(val)}`)
     .join('; ')
   return `padding: 1rem; ${entries}`

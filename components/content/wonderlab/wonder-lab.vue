@@ -19,15 +19,11 @@
         </button>
       </div>
 
-      <!-- Lab Gallery -->
-      <div v-if="!componentStore.selectedFolder" class="w-full">
-        <lab-gallery @select-folder="handleFolderSelect" />
-      </div>
-      <div v-else class="text-sm italic text-base-content/60">
-        Viewing components in folder:
-        <strong>{{ componentStore.selectedFolder }}</strong>
-      </div>
-    </div>
+<lab-gallery
+  v-if="!componentStore.selectedComponent"
+  @select-component="handleComponentSelect"
+/>
+
 
     <!-- Scrollable Main Area -->
     <div class="flex-1 overflow-y-auto px-4 py-6 space-y-4">
@@ -69,20 +65,6 @@
           <strong>folderComponents:</strong>
           <pre>{{ JSON.stringify(folderComponents, null, 2) }}</pre>
         </div>
-      </div>
-
-      <!-- Component List or Selected Component -->
-      <div
-        v-if="!componentStore.selectedComponent"
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
-      >
-        <component-card
-          v-for="component in folderComponents"
-          :key="component.id"
-          :component="component"
-          class="component-card p-4 bg-white shadow rounded-2xl hover:scale-105 transition-transform"
-          @select="handleComponentSelect"
-        />
       </div>
 
       <div v-else class="w-full">

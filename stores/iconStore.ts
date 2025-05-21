@@ -19,11 +19,20 @@ export const useIconStore = defineStore('iconStore', {
     isEditing: false,
     showSwarm: false,
     swarmMessage: '',
+    editableIcons: [] as SmartIcon[],
+    originalIcons: [] as SmartIcon[],
+    dragIndex: -1,
   }),
 
   getters: {
     customIconsEnabled(): boolean {
       return useUserStore().user?.customIcons ?? false
+    },
+    hasChanges(): boolean {
+      return (
+        JSON.stringify(this.editableIcons.map((i) => i.id)) !==
+        JSON.stringify(this.originalIcons.map((i) => i.id))
+      )
     },
     smartBarIds(): number[] {
       const raw = useUserStore().user?.smartBar
@@ -64,6 +73,33 @@ export const useIconStore = defineStore('iconStore', {
       } catch (error) {
         handleError(error, 'initializing smartIcon store')
       }
+    },
+    startEdit() {
+      this.isEditing = true
+      this.editableIcons = [...this.activeIcons]
+      this.originalIcons = [...this.activeIcons]
+    },
+
+    confirmEdit() {
+      const newIds = this.editableIcons.map((i) => i.id)
+      this.setIconOrder(newIds)
+      this.isEditing = false
+    },
+
+    revertEdit() {
+      this.editableIcons = [...this.originalIcons]
+      this.isEditing = false
+    },
+
+    startDrag(index: number) {
+      this.dragIndex = index
+    },
+
+    dropIcon(index: number) {
+      if (this.dragIndex < 0 || this.dragIndex === index) return
+      const dragged = this.editableIcons.splice(this.dragIndex, 1)[0]
+      this.editableIcons.splice(index, 0, dragged)
+      this.dragIndex = -1
     },
     toggleEditing() {
       this.isEditing = !this.isEditing

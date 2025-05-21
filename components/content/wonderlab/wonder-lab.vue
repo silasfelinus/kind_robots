@@ -1,16 +1,15 @@
-<!-- /components/content/wonderlab.vue -->
 <template>
   <div
-    class="relative flex flex-col min-h-[100dvh] bg-base-100 text-base-content"
+    class="relative grid grid-rows-[auto_1fr] min-h-[100dvh] bg-base-100 text-base-content overflow-hidden"
   >
-    <!-- Welcome Block -->
+    <!-- Welcome Block (Only shown when not collapsed and no component is selected) -->
     <transition name="welcome-zoom">
       <div
         v-if="!introCollapsed && !componentStore.selectedComponent"
-        class="sticky top-0 z-10 flex justify-center px-4 pt-6 pb-4"
+        class="z-10 px-4 pt-6 pb-4 flex justify-center"
       >
         <div
-          class="welcome-card bg-base-200 border border-base-300 rounded-2xl px-6 py-5 text-center shadow-md flex flex-col items-center gap-4 w-full max-w-4xl transition-all duration-500"
+          class="welcome-card bg-base-200 border border-base-300 rounded-2xl px-6 py-5 text-center shadow-md flex flex-col items-center gap-4 w-full max-w-4xl"
         >
           <div
             class="text-xl sm:text-2xl font-bold tracking-tight text-primary-content"
@@ -47,24 +46,22 @@
       </button>
     </transition>
 
-    <!-- Main Content Area -->
-    <transition name="main-slide">
-      <div
-        v-if="!componentStore.selectedComponent"
-        class="flex-1 overflow-y-auto px-4 py-6 space-y-6 max-w-7xl w-full mx-auto"
-      >
-        <div v-if="isLoading" class="flex justify-center items-center h-full">
-          <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />
-          <span class="ml-2">Loading components…</span>
-        </div>
-
-        <div v-if="errorMessages.length" class="text-error text-center">
-          🚨 {{ errorMessages.join(', ') }}
-        </div>
-
-        <lab-gallery />
+    <!-- Main Scrollable Gallery Area -->
+    <div
+      v-if="!componentStore.selectedComponent"
+      class="overflow-y-auto px-4 py-6 max-w-7xl w-full mx-auto"
+    >
+      <div v-if="isLoading" class="flex justify-center items-center h-full">
+        <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />
+        <span class="ml-2">Loading components…</span>
       </div>
-    </transition>
+
+      <div v-if="errorMessages.length" class="text-error text-center">
+        🚨 {{ errorMessages.join(', ') }}
+      </div>
+
+      <lab-gallery />
+    </div>
 
     <!-- Fullscreen Component View -->
     <select-component

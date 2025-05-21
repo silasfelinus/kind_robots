@@ -1,8 +1,9 @@
-<!-- /components/content/wonderlab/select-component.vue -->
 <template>
-  <div class="fixed inset-0 z-40 bg-base-100 text-base-content overflow-hidden">
-    <!-- Fullscreen Container for the Inner Component -->
-    <div class="w-[100vw] h-[100dvh] overflow-hidden relative">
+  <div
+    class="fixed inset-0 z-40 bg-base-100 text-base-content"
+    :class="{ 'fullscreen-mode': displayStore.isFullScreen }"
+  >
+    <div class="absolute inset-0 w-[100vw] h-[100dvh] overflow-hidden">
       <component
         :is="resolvedComponent"
         v-if="resolvedComponent"
@@ -55,6 +56,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
+import { useDisplayStore } from '@/stores/displayStore'
+const displayStore = useDisplayStore()
 
 const showReactions = ref(false)
 const componentStore = useComponentStore()
@@ -78,5 +81,13 @@ function handleBack() {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.fullscreen-mode {
+  width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  max-width: 100vw;
+  overflow: hidden;
 }
 </style>

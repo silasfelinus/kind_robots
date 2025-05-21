@@ -1,17 +1,15 @@
 <template>
   <div
-    class="relative w-full h-full min-h-[100dvh] bg-base-100 text-base-content"
+    class="w-full h-full bg-base-100 text-base-content flex flex-col items-center justify-center"
   >
-    <!-- Fullscreen Component -->
     <component
       :is="resolvedComponent"
       v-if="resolvedComponent"
-      class="w-full h-full"
+      class="w-full max-w-4xl p-4"
     />
 
-    <!-- Back Button -->
     <button
-      class="fixed bottom-4 left-4 z-30 btn btn-sm btn-outline btn-primary shadow-md"
+      class="fixed bottom-4 left-4 z-50 btn btn-sm btn-outline btn-primary shadow-md"
       @click="handleBack"
     >
       <Icon name="kind-icon:arrow-left" class="mr-1" />

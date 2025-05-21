@@ -1,50 +1,46 @@
+<!-- /components/content/wonderlab.vue -->
 <template>
   <div
     class="relative flex flex-col min-h-[100dvh] bg-base-100 text-base-content"
   >
     <!-- Sticky Header -->
     <div
+      v-if="!componentStore.selectedComponent"
       class="sticky top-0 z-10 bg-base-200 border-b border-base-300 p-4 flex flex-col gap-2"
     >
       <div class="flex items-center justify-between">
-        <wonderlab-launch v-if="!componentStore.selectedComponent" />
-
-        <button
-          v-if="componentStore.selectedComponent"
-          class="btn btn-sm btn-circle btn-accent"
-          @click="showReactions = !showReactions"
-        >
-          <Icon name="kind-icon:emoji" class="text-xl" />
-        </button>
+        <wonderlab-launch />
       </div>
     </div>
 
-    <!-- Main Area -->
+    <!-- Main Content Area (Hidden when in full-screen component mode) -->
     <div
+      v-if="!componentStore.selectedComponent"
       class="flex-1 overflow-y-auto px-4 py-6 space-y-6 max-w-7xl w-full mx-auto"
     >
-      <!-- Loading -->
       <div v-if="isLoading" class="flex justify-center items-center h-full">
         <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />
         <span class="ml-2">Loading components…</span>
       </div>
 
-      <!-- Errors -->
       <div v-if="errorMessages.length" class="text-error text-center">
         🚨 {{ errorMessages.join(', ') }}
       </div>
 
-      <!-- Gallery or Component -->
-      <lab-gallery v-if="!componentStore.selectedComponent" />
-
-      <select-component v-else class="component-screen w-full" />
+      <lab-gallery />
     </div>
+
+    <!-- Fullscreen component view -->
+    <select-component
+      v-if="componentStore.selectedComponent"
+      class="absolute inset-0 z-30"
+    />
 
     <!-- Floating Reactions Panel -->
     <transition name="fade">
       <div
         v-if="showReactions && componentStore.selectedComponent"
-        class="fixed bottom-0 left-0 right-0 z-20 bg-base-200 border-t border-base-300 p-4 shadow-xl"
+        class="fixed bottom-0 left-0 right-0 z-40 bg-base-200 border-t border-base-300 p-4 shadow-xl"
       >
         <div class="flex justify-between items-center mb-2">
           <h2 class="text-lg font-semibold">

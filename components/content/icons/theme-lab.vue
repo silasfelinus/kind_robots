@@ -283,10 +283,10 @@ function editTheme(theme: Theme) {
       ? sanitizeThemeValues(theme.values as Record<string, string>)
       : {}
 
-  customTheme.value = {
-    ...Object.fromEntries([...colorKeys, ...extraVars].map((k) => [k, ''])),
-    ...validTheme,
-  }
+  customTheme.value = Object.fromEntries([
+    ...colorKeys.map((key) => [key, '#ffffff']),
+    ...extraVars.map((key) => [key, '']), // these can remain blank safely
+  ])
 
   selectedThemeId.value = theme.id || null
   updateMode.value = true
@@ -299,9 +299,10 @@ function resetThemeForm() {
   customColorScheme.value = 'light'
   updateMode.value = false
   selectedThemeId.value = null
-  customTheme.value = Object.fromEntries(
-    [...colorKeys, ...extraVars].map((k) => [k, '']),
-  )
+  customTheme.value = Object.fromEntries([
+    ...colorKeys.map((key) => [key, '#ffffff']),
+    ...extraVars.map((key) => [key, '']), // these can remain blank safely
+  ])
 }
 
 function sanitizeThemeValues(

@@ -338,7 +338,6 @@
       "kind-loader",
       "kind-sidebar",
       "lab-chooser",
-      "lab-nav",
       "magic-container",
       "main-component",
       "memory-test",
@@ -465,6 +464,7 @@
       "component-reactions",
       "component-sync",
       "lab-gallery",
+      "lab-nav",
       "whisper-chat",
       "wonder-lab"
     ]

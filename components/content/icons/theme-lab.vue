@@ -1,6 +1,5 @@
 <!-- /components/content/icons/theme-lab.vue -->
 <template>
-  Hello
   <div class="theme-lab w-full px-4 py-6 max-w-6xl mx-auto space-y-12">
     <!-- Header -->
     <div class="text-center">

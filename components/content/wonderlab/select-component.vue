@@ -46,7 +46,7 @@
               Close
             </button>
           </div>
-          <component-reactions :component="componentStore.selectedComponent" />
+          <component-reactions />
         </div>
       </transition>
     </div>

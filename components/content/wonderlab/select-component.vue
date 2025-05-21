@@ -1,48 +1,54 @@
 <!-- /components/content/wonderlab/select-component.vue -->
 <template>
-  <div class="fixed inset-0 z-40 bg-base-100 text-base-content">
-    <component
-      :is="resolvedComponent"
-      v-if="resolvedComponent"
-      class="w-full h-full overflow-auto"
-    />
+  <div class="fixed inset-0 z-40 bg-base-100 text-base-content overflow-hidden">
+    <!-- Fullscreen Container for the Inner Component -->
+    <div class="w-[100vw] h-[100dvh] overflow-hidden relative">
+      <component
+        :is="resolvedComponent"
+        v-if="resolvedComponent"
+        class="w-full h-full overflow-auto"
+      />
 
-    <!-- Back Button (TOP LEFT) -->
-    <button
-      class="absolute top-4 left-4 z-50 btn btn-sm btn-outline btn-primary shadow-md"
-      @click="handleBack"
-    >
-      <Icon name="kind-icon:arrow-left" class="mr-1" />
-      Back
-    </button>
-
-    <!-- Reactions Toggle (BOTTOM RIGHT) -->
-    <button
-      v-if="componentStore.selectedComponent"
-      class="absolute bottom-4 right-4 z-50 btn btn-accent btn-sm btn-circle"
-      @click="showReactions = !showReactions"
-      title="Toggle Reactions"
-    >
-      <Icon name="kind-icon:emoji" class="text-xl" />
-    </button>
-
-    <!-- Reactions Panel -->
-    <transition name="fade">
-      <div
-        v-if="showReactions && componentStore.selectedComponent"
-        class="absolute bottom-0 left-0 right-0 z-40 bg-base-200 border-t border-base-300 p-4 shadow-xl"
+      <!-- Back Button -->
+      <button
+        class="absolute top-4 left-4 z-50 btn btn-sm btn-outline btn-primary shadow-md"
+        @click="handleBack"
       >
-        <div class="flex justify-between items-center mb-2">
-          <h2 class="text-lg font-semibold">
-            Reactions: {{ componentStore.selectedComponent.title }}
-          </h2>
-          <button class="btn btn-xs btn-outline" @click="showReactions = false">
-            Close
-          </button>
+        <Icon name="kind-icon:arrow-left" class="mr-1" />
+        Back
+      </button>
+
+      <!-- Reactions Toggle -->
+      <button
+        v-if="componentStore.selectedComponent"
+        class="absolute bottom-4 right-4 z-50 btn btn-accent btn-sm btn-circle"
+        @click="showReactions = !showReactions"
+        title="Toggle Reactions"
+      >
+        <Icon name="kind-icon:emoji" class="text-xl" />
+      </button>
+
+      <!-- Reactions Panel -->
+      <transition name="fade">
+        <div
+          v-if="showReactions && componentStore.selectedComponent"
+          class="absolute bottom-0 left-0 right-0 z-40 bg-base-200 border-t border-base-300 p-4 shadow-xl"
+        >
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="text-lg font-semibold">
+              Reactions: {{ componentStore.selectedComponent.title }}
+            </h2>
+            <button
+              class="btn btn-xs btn-outline"
+              @click="showReactions = false"
+            >
+              Close
+            </button>
+          </div>
+          <component-reactions :component="componentStore.selectedComponent" />
         </div>
-        <component-reactions :component="componentStore.selectedComponent" />
-      </div>
-    </transition>
+      </transition>
+    </div>
   </div>
 </template>
 

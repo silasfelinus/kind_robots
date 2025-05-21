@@ -35,24 +35,6 @@
       v-if="componentStore.selectedComponent"
       class="absolute inset-0 z-30"
     />
-
-    <!-- Floating Reactions Panel -->
-    <transition name="fade">
-      <div
-        v-if="showReactions && componentStore.selectedComponent"
-        class="fixed bottom-0 left-0 right-0 z-40 bg-base-200 border-t border-base-300 p-4 shadow-xl"
-      >
-        <div class="flex justify-between items-center mb-2">
-          <h2 class="text-lg font-semibold">
-            Reactions: {{ componentStore.selectedComponent.title }}
-          </h2>
-          <button class="btn btn-xs btn-outline" @click="showReactions = false">
-            Close
-          </button>
-        </div>
-        <component-reactions :component="componentStore.selectedComponent" />
-      </div>
-    </transition>
   </div>
 </template>
 
@@ -61,7 +43,6 @@ import { ref, onMounted } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
 
 const isLoading = ref(true)
-const showReactions = ref(false)
 const errorMessages = ref<string[]>([])
 const componentStore = useComponentStore()
 

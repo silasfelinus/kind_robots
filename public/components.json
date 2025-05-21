@@ -126,6 +126,7 @@
       "edit-icon",
       "flip-panel",
       "icon-gallery",
+      "icon-header",
       "icon-shell",
       "jellybean-icon",
       "kind-header",
@@ -465,6 +466,7 @@
       "component-sync",
       "lab-gallery",
       "lab-nav",
+      "select-component",
       "whisper-chat",
       "wonder-lab"
     ]

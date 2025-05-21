@@ -5,8 +5,8 @@
   >
     <!-- Fullscreen Component Display -->
     <component
-      :is="component.componentName"
-      v-if="component?.componentName"
+      :is="resolvedComponent"
+      v-if="resolvedComponent"
       class="w-full h-full"
     />
 
@@ -22,16 +22,14 @@
 </template>
 
 <script setup lang="ts">
-import { toRef } from 'vue'
+import { computed } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
-import type { KindComponent as Component } from '@/stores/componentStore'
 
-const props = defineProps<{
-  component: Component
-}>()
-
-const component = toRef(props, 'component')
 const componentStore = useComponentStore()
+
+const resolvedComponent = computed(() => {
+  return componentStore.selectedComponent?.componentName || null
+})
 
 const handleBack = () => {
   componentStore.clearSelectedComponent()

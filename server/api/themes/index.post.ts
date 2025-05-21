@@ -1,4 +1,3 @@
-// /server/api/themes/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/api/utils/prisma'
 import { errorHandler } from '@/server/api/utils/error'
@@ -16,15 +15,31 @@ export default defineEventHandler(async (event) => {
     const userId = user.id
 
     const normalizeThemeInput = (entry: any) => {
-      const { name, values, isPublic = false, tagline, room } = entry
+      const {
+        name,
+        values,
+        isPublic = false,
+        tagline,
+        room,
+        prefersDark = false,
+        colorScheme = 'light',
+      } = entry
 
       if (!name || typeof name !== 'string') {
         throw createError({ statusCode: 400, message: '"name" is required.' })
       }
-      if (!values || typeof values !== 'object') {
+
+      if (!values || typeof values !== 'object' || Array.isArray(values)) {
         throw createError({
           statusCode: 400,
           message: '"values" must be a valid object.',
+        })
+      }
+
+      if (colorScheme !== 'light' && colorScheme !== 'dark') {
+        throw createError({
+          statusCode: 400,
+          message: '"colorScheme" must be either "light" or "dark".',
         })
       }
 
@@ -34,11 +49,12 @@ export default defineEventHandler(async (event) => {
         isPublic,
         tagline: tagline || null,
         room: room || null,
+        prefersDark,
+        colorScheme,
         userId,
       }
     }
 
-    // Handle batch request
     if (Array.isArray(body)) {
       if (body.length === 0) {
         throw createError({
@@ -75,7 +91,6 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Handle single theme create
     const themeInput = normalizeThemeInput(body)
     const theme = await prisma.theme.create({ data: themeInput })
 

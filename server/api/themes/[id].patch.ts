@@ -27,33 +27,63 @@ export default defineEventHandler(async (event) => {
     }
 
     const userId = user.id
-
     const existingTheme = await prisma.theme.findUnique({ where: { id } })
     if (!existingTheme) {
-      throw createError({
-        statusCode: 404,
-        message: 'Theme not found.',
-      })
+      throw createError({ statusCode: 404, message: 'Theme not found.' })
     }
 
     if (existingTheme.userId !== userId && user.Role !== 'ADMIN') {
-      throw createError({
-        statusCode: 403,
-        message: 'You do not have permission to update this theme.',
-      })
+      throw createError({ statusCode: 403, message: 'Unauthorized.' })
     }
 
-    const themeData: Prisma.ThemeUpdateInput = await readBody(event)
-    if (!themeData || Object.keys(themeData).length === 0) {
+    const rawUpdate = await readBody(event)
+    if (!rawUpdate || Object.keys(rawUpdate).length === 0) {
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
+    const allowedKeys = [
+      'name',
+      'values',
+      'tagline',
+      'room',
+      'prefersDark',
+      'colorScheme',
+      'isPublic',
+    ]
+
+    const data: Prisma.ThemeUpdateInput = {}
+    for (const key of allowedKeys) {
+      if (key in rawUpdate) {
+        ;(data as any)[key] = rawUpdate[key]
+      }
+    }
+
+    if (
+      'colorScheme' in data &&
+      !['light', 'dark'].includes(data.colorScheme as string)
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: '"colorScheme" must be either "light" or "dark".',
+      })
+    }
+
+    if (
+      'values' in data &&
+      (typeof data.values !== 'object' || Array.isArray(data.values))
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: '"values" must be a valid object.',
+      })
+    }
+
     const updated = await prisma.theme.update({
       where: { id },
-      data: themeData,
+      data,
     })
 
     event.node.res.statusCode = 200

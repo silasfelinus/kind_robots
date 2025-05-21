@@ -20,7 +20,10 @@
           :key="color"
           class="flex items-center gap-2"
         >
-          <label class="w-32 font-medium capitalize text-sm">{{ color }}</label>
+          <label class="w-40 font-medium capitalize text-sm">{{
+            labelFromKey(color)
+          }}</label>
+
           <input
             type="color"
             v-model="customTheme[color]"
@@ -30,6 +33,36 @@
       </div>
 
       <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="mt-4 flex flex-col sm:flex-row gap-4 items-center">
+          <label class="flex gap-2 items-center">
+            <span class="label-text">Set as default</span>
+          </label>
+          <label class="flex gap-2 items-center">
+            <input type="checkbox" class="toggle" v-model="customPrefersDark" />
+            <span class="label-text">Prefers dark mode</span>
+          </label>
+          <select v-model="customColorScheme" class="select select-bordered">
+            <option value="light">light</option>
+            <option value="dark">dark</option>
+          </select>
+        </div>
+
+        <div
+          v-for="key in extraVars"
+          :key="key"
+          class="flex items-center gap-2"
+        >
+          <label class="w-40 font-medium text-sm">{{
+            key.replace('--', '')
+          }}</label>
+          <input
+            type="text"
+            v-model="customTheme[key]"
+            class="input input-bordered w-full h-10"
+            placeholder="e.g. 1rem or 0"
+          />
+        </div>
+
         <input
           v-model="customName"
           placeholder="Theme name"
@@ -58,7 +91,12 @@
         </label>
       </div>
 
-      <div class="mt-4 border rounded-xl p-4" :style="previewStyle">
+      <button class="btn btn-outline" @click="resetThemeForm">Reset</button>
+
+      <div
+        class="mt-4 border rounded-xl p-4 transition-all duration-300"
+        :style="`${previewStyle}; border-radius: var(--radius-box); border-width: var(--border);`"
+      >
         <h3 class="text-lg font-bold">Live Preview</h3>
         <div class="flex gap-2 mt-2">
           <button class="btn btn-primary btn-sm">Primary</button>
@@ -114,23 +152,47 @@ import { useMilestoneStore } from '@/stores/milestoneStore'
 const themeStore = useThemeStore()
 const milestoneStore = useMilestoneStore()
 
+const customPrefersDark = ref(false)
+const customColorScheme = ref<'light' | 'dark'>('light')
+
 const colorKeys = [
-  'primary',
-  'secondary',
-  'accent',
-  'neutral',
-  'base-100',
-  'base-200',
-  'base-300',
-  'info',
-  'success',
-  'warning',
-  'error',
+  '--color-primary',
+  '--color-primary-content',
+  '--color-secondary',
+  '--color-secondary-content',
+  '--color-accent',
+  '--color-accent-content',
+  '--color-neutral',
+  '--color-neutral-content',
+  '--color-base-100',
+  '--color-base-200',
+  '--color-base-300',
+  '--color-base-content',
+  '--color-info',
+  '--color-info-content',
+  '--color-success',
+  '--color-success-content',
+  '--color-warning',
+  '--color-warning-content',
+  '--color-error',
+  '--color-error-content',
+]
+
+const extraVars = [
+  '--radius-selector',
+  '--radius-field',
+  '--radius-box',
+  '--size-selector',
+  '--size-field',
+  '--border',
+  '--depth',
+  '--noise',
 ]
 
 const customTheme = ref<Record<string, string>>(
-  Object.fromEntries(colorKeys.map((key) => [key, '#ffffff'])),
+  Object.fromEntries([...colorKeys, ...extraVars].map((key) => [key, ''])),
 )
+
 const customName = ref('')
 const customRoom = ref('')
 const selectedThemeId = ref<number | null>(null)
@@ -147,38 +209,24 @@ const applyTheme = (themeName: string) => {
   milestoneStore.rewardMilestone(9)
 }
 
-function isValidHex(hex: string) {
+function isValidColor(val: string) {
   return (
-    typeof hex === 'string' && /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/.test(hex)
+    typeof val === 'string' &&
+    (/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(val) ||
+      /^oklch\(.+\)$/.test(val))
   )
 }
 
 const previewStyle = computed(() => {
   const vars = Object.entries(customTheme.value)
-    .map(([key, val]) => `--${convertToDaisyVar(key)}: ${hexToRgb(val)}`)
+    .filter(([, val]) => isValidColor(val))
+    .map(([key, val]) => `${key}: ${val}`)
     .join('; ')
-  return `background-color: var(--b1); color: var(--n); padding: 1rem; ${vars}`
+  return `padding: 1rem; ${vars}`
 })
 
-function convertToDaisyVar(key: string) {
-  const map: Record<string, string> = {
-    primary: 'p',
-    secondary: 's',
-    accent: 'a',
-    neutral: 'n',
-    'base-100': 'b1',
-    'base-200': 'b2',
-    'base-300': 'b3',
-    info: 'in',
-    success: 'su',
-    warning: 'wa',
-    error: 'er',
-  }
-  return map[key] || key
-}
-
 function hexToRgb(hex: string) {
-  if (!isValidHex(hex)) {
+  if (!isValidColor(hex)) {
     console.warn('Invalid hex value:', hex)
     return '255 255 255'
   }
@@ -199,6 +247,8 @@ const saveTheme = async () => {
     values: sanitizeThemeValues(customTheme.value),
     room: customRoom.value.trim() || undefined,
     isPublic: false,
+    prefersDark: customPrefersDark.value,
+    colorScheme: customColorScheme.value,
   }
 
   try {
@@ -225,15 +275,33 @@ const saveTheme = async () => {
 function editTheme(theme: Theme) {
   customName.value = theme.name
   customRoom.value = theme.room || ''
+  customPrefersDark.value = theme.prefersDark || false
+  customColorScheme.value = theme.colorScheme === 'dark' ? 'dark' : 'light'
 
   const validTheme =
     theme.values && typeof theme.values === 'object'
       ? sanitizeThemeValues(theme.values as Record<string, string>)
       : {}
 
-  customTheme.value = validTheme
+  customTheme.value = {
+    ...Object.fromEntries([...colorKeys, ...extraVars].map((k) => [k, ''])),
+    ...validTheme,
+  }
+
   selectedThemeId.value = theme.id || null
   updateMode.value = true
+}
+
+function resetThemeForm() {
+  customName.value = ''
+  customRoom.value = ''
+  customPrefersDark.value = false
+  customColorScheme.value = 'light'
+  updateMode.value = false
+  selectedThemeId.value = null
+  customTheme.value = Object.fromEntries(
+    [...colorKeys, ...extraVars].map((k) => [k, '']),
+  )
 }
 
 function sanitizeThemeValues(
@@ -241,16 +309,27 @@ function sanitizeThemeValues(
 ): Record<string, string> {
   const sanitized: Record<string, string> = {}
   for (const [key, val] of Object.entries(values)) {
-    sanitized[key] = isValidHex(val) ? val : '#ffffff'
+    if (key.startsWith('--color-') && isValidColor(val)) {
+      sanitized[key] = val
+    } else if (
+      extraVars.includes(key) &&
+      typeof val === 'string' &&
+      val.length
+    ) {
+      sanitized[key] = val
+    }
   }
   return sanitized
 }
 
+function labelFromKey(key: string) {
+  return key.replace('--color-', '').replaceAll('-', ' ')
+}
+
 function getThemeStyle(values: Record<string, string>) {
-  const entries = Object.entries(values)
-    .filter(([, val]) => isValidHex(val))
-    .map(([key, val]) => `--${convertToDaisyVar(key)}: ${hexToRgb(val)}`)
+  return Object.entries(values)
+    .filter(([, val]) => isValidColor(val))
+    .map(([key, val]) => `${key}: ${val}`)
     .join('; ')
-  return `padding: 1rem; ${entries}`
 }
 </script>

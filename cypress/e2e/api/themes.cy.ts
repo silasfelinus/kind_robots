@@ -8,7 +8,6 @@ describe('Theme Management API Tests', () => {
   let themeId: number | undefined
   const uniqueThemeName = `TestTheme-${Date.now()}`
 
-  // 1. Create theme without auth (should fail)
   it('should not allow creating a theme without an authorization token', () => {
     cy.request({
       method: 'POST',
@@ -16,7 +15,7 @@ describe('Theme Management API Tests', () => {
       headers: { 'Content-Type': 'application/json' },
       body: {
         name: uniqueThemeName,
-        values: { primary: '#ff0000', 'base-100': '#ffffff' },
+        values: { '--color-primary': '#ff0000', '--color-base-100': '#ffffff' },
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -26,7 +25,6 @@ describe('Theme Management API Tests', () => {
     })
   })
 
-  // 2. Create theme with invalid token (should fail)
   it('should not allow creating a theme with an invalid token', () => {
     cy.request({
       method: 'POST',
@@ -37,7 +35,7 @@ describe('Theme Management API Tests', () => {
       },
       body: {
         name: uniqueThemeName,
-        values: { primary: '#ff0000', 'base-100': '#ffffff' },
+        values: { '--color-primary': '#ff0000', '--color-base-100': '#ffffff' },
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -47,7 +45,6 @@ describe('Theme Management API Tests', () => {
     })
   })
 
-  // 3. Create theme with valid token
   it('should create a new theme with valid authentication', () => {
     cy.request({
       method: 'POST',
@@ -59,28 +56,32 @@ describe('Theme Management API Tests', () => {
       body: {
         name: uniqueThemeName,
         values: {
-          primary: '#1e90ff',
-          secondary: '#ff69b4',
-          accent: '#ffd700',
-          neutral: '#1a1a1a',
-          'base-100': '#ffffff',
-          success: '#32cd32',
-          warning: '#ffa500',
-          error: '#dc143c',
+          '--color-primary': '#1e90ff',
+          '--color-secondary': '#ff69b4',
+          '--color-accent': '#ffd700',
+          '--color-neutral': '#1a1a1a',
+          '--color-base-100': '#ffffff',
+          '--color-success': '#32cd32',
+          '--color-warning': '#ffa500',
+          '--color-error': '#dc143c',
         },
         tagline: 'Bold moves in basic colors.',
+        room: 'splash',
         isPublic: false,
+        prefersDark: true,
+        colorScheme: 'dark',
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
       expect(res.body.success).to.be.true
       expect(res.body.theme).to.have.property('id')
       expect(res.body.theme.name).to.eq(uniqueThemeName)
+      expect(res.body.theme.prefersDark).to.be.true
+      expect(res.body.theme.colorScheme).to.eq('dark')
       themeId = res.body.theme.id
     })
   })
 
-  // 4. Get theme by ID
   it('should retrieve the created theme by ID', () => {
     cy.wrap(themeId).should('exist')
     cy.request(`${baseUrl}/${themeId}`).then((res) => {
@@ -88,10 +89,12 @@ describe('Theme Management API Tests', () => {
       expect(res.body.success).to.be.true
       expect(res.body.data.name).to.eq(uniqueThemeName)
       expect(res.body.data).to.have.property('values')
+      expect(res.body.data.values).to.have.property('--color-primary')
+      expect(res.body.data.prefersDark).to.be.true
+      expect(res.body.data.colorScheme).to.eq('dark')
     })
   })
 
-  // 5. Get all public themes
   it('should retrieve all public themes', () => {
     cy.request(baseUrl).then((res) => {
       expect(res.status).to.eq(200)
@@ -100,7 +103,6 @@ describe('Theme Management API Tests', () => {
     })
   })
 
-  // 6. Update theme visibility + name
   it('should update a theme’s name and public status with auth', () => {
     cy.wrap(themeId).should('exist')
     cy.request({
@@ -122,7 +124,27 @@ describe('Theme Management API Tests', () => {
     })
   })
 
-  // 7. Delete theme without auth (should fail)
+  it('should update theme metadata with auth', () => {
+    cy.wrap(themeId).should('exist')
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${themeId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: {
+        prefersDark: false,
+        colorScheme: 'light',
+      },
+    }).then((res) => {
+      expect(res.status).to.eq(200)
+      expect(res.body.success).to.be.true
+      expect(res.body.theme.prefersDark).to.be.false
+      expect(res.body.theme.colorScheme).to.eq('light')
+    })
+  })
+
   it('should not allow deleting a theme without authentication', () => {
     cy.request({
       method: 'DELETE',
@@ -135,7 +157,6 @@ describe('Theme Management API Tests', () => {
     })
   })
 
-  // 8. Delete theme with valid auth (should succeed)
   it('should delete a theme with valid authentication', () => {
     cy.request({
       method: 'DELETE',

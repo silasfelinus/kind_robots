@@ -64,14 +64,7 @@
     </div>
 
     <!-- Fullscreen Component View (In-content fullscreen, not viewport-absolute) -->
-<div class="relative z-30 w-full max-w-7xl mx-auto px-4 py-6">
-  <button
-    class="btn btn-primary mb-4"
-    @click="handleBack"
-  >
-    <Icon name="kind-icon:arrow-left" class="mr-2" />
-    Back
-  </button>
+<div v-if="componentStore.selectedComponent"
 
   <select-component />
 </div>

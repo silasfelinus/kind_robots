@@ -128,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 
 const themeStore = useThemeStore()
@@ -168,13 +168,16 @@ const extraVars = [
   '--depth',
   '--noise',
 ]
-if (!themeForm.values) {
-  themeForm.values = Object.fromEntries([
-    ...colorKeys.map((key) => [key, '#ffffff']),
-    ...extraVars.map((key) => [key, '']),
-  ])
-  fillWithRandomTheme()
-}
+
+onMounted(() => {
+  if (!themeForm.values || Object.keys(themeForm.values).length === 0) {
+    themeForm.values = Object.fromEntries([
+      ...colorKeys.map((key) => [key, '#ffffff']),
+      ...extraVars.map((key) => [key, '']),
+    ])
+    fillWithRandomTheme()
+  }
+})
 
 const updateMode = computed(() => !!themeForm.id)
 const applyAfterSave = computed({
@@ -237,7 +240,7 @@ function isValidColor(val: string) {
 const previewStyle = computed(() => {
   const entries = themeForm.values as Record<string, string>
   const vars = Object.entries(entries || {})
-    .filter(([, val]) => isValidColor(val))
+    .filter(([key, val]) => isValidColor(val) || extraVars.includes(key))
     .map(([key, val]) => `${key}: ${val}`)
     .join('; ')
   return `padding: 1rem; ${vars}`

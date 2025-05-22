@@ -191,7 +191,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     if (typeof document === 'undefined') return
     const root = document.documentElement
     for (const [key, value] of Object.entries(values)) {
-      if (key.startsWith('--color-')) {
+      if (key.startsWith('--')) {
         root.style.setProperty(key, value)
       } else {
         console.warn(`[themeStore] Skipping invalid key: ${key}`)

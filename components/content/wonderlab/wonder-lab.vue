@@ -63,11 +63,19 @@
       <lab-gallery />
     </div>
 
-    <!-- Fullscreen Component View -->
-    <select-component
-      v-if="componentStore.selectedComponent"
-      class="absolute inset-0 z-30"
-    />
+    <!-- Fullscreen Component View (In-content fullscreen, not viewport-absolute) -->
+<div class="relative z-30 w-full max-w-7xl mx-auto px-4 py-6">
+  <button
+    class="btn btn-primary mb-4"
+    @click="handleBack"
+  >
+    <Icon name="kind-icon:arrow-left" class="mr-2" />
+    Back
+  </button>
+
+  <select-component />
+</div>
+
   </div>
 </template>
 
@@ -90,6 +98,11 @@ const restoreIntro = () => {
   introCollapsed.value = false
   localStorage.setItem('wonderlab_intro_seen', 'false')
 }
+
+const handleBack = () => {
+  componentStore.clearSelectedComponent()
+}
+
 
 const handleScroll = () => {
   if (!introCollapsed.value && window.scrollY > 80) {

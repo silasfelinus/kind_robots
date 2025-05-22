@@ -12,7 +12,7 @@
 <script setup lang="ts">
 // /pages/[...slug].vue
 import { useRoute, useRouter } from '#app'
-import { watchEffect, watch, computed } from 'vue'
+import { watch, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -41,12 +41,6 @@ const chatStore = useChatStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 
-watchEffect(() => {
-  if (typeof window !== 'undefined') {
-    document.documentElement.setAttribute('data-theme', pageStore.theme)
-  }
-})
-
 watch(
   () => route.fullPath,
   async (newPath) => {
@@ -57,7 +51,7 @@ watch(
     if (!data.value) {
       await router.push('/error')
     } else {
-      pageStore.page = data.value
+      pageStore.setPage(data.value)
     }
   },
   { immediate: true },

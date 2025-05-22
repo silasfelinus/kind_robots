@@ -4,7 +4,9 @@
   >
     <!-- Star Rating -->
     <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-      <label class="text-base font-semibold text-base-content whitespace-nowrap">Rate:</label>
+      <label class="text-base font-semibold text-base-content whitespace-nowrap"
+        >Rate:</label
+      >
       <div class="flex gap-1 sm:gap-2 items-center">
         <span
           v-for="star in 5"
@@ -26,8 +28,13 @@
 
     <!-- Reaction Type -->
     <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-      <label class="text-base font-semibold text-base-content whitespace-nowrap">React:</label>
-      <select v-model="selectedReactionType" class="select select-bordered w-full sm:max-w-xs">
+      <label class="text-base font-semibold text-base-content whitespace-nowrap"
+        >React:</label
+      >
+      <select
+        v-model="selectedReactionType"
+        class="select select-bordered w-full sm:max-w-xs"
+      >
         <option v-for="type in reactionTypes" :key="type" :value="type">
           {{ type }}
         </option>
@@ -57,7 +64,9 @@
     </div>
 
     <!-- Social Share -->
-    <div class="flex flex-wrap gap-2 justify-center pt-2 border-t border-base-300">
+    <div
+      class="flex flex-wrap gap-2 justify-center pt-2 border-t border-base-300"
+    >
       <button class="btn btn-sm btn-secondary" @click="share('facebook')">
         <Icon name="kind-icon:facebook" class="mr-1" /> Facebook
       </button>
@@ -71,14 +80,13 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import {
   useReactionStore,
-  ReactionTypeEnum,
-  ReactionCategoryEnum,
+  type ReactionTypeEnum,
+  type reactionTypes,
 } from '@/stores/reactionStore'
 
 const props = defineProps({
@@ -99,14 +107,10 @@ const reactionStore = useReactionStore()
 const userStore = useUserStore()
 
 const rating = ref(0)
-const selectedReactionType = ref(ReactionTypeEnum.NEUTRAL) // Default enum value
+const selectedReactionType = ref<ReactionTypeEnum>('NEUTRAL')
 const comment = ref('')
 const showComment = ref(false)
 const hoverRating = ref(0)
-
-
-// Reaction type options
-const reactionTypes = Object.values(ReactionTypeEnum)
 
 const toggleComment = () => {
   showComment.value = !showComment.value
@@ -139,7 +143,7 @@ const submitReaction = async () => {
       rating: rating.value,
       reactionType: selectedReactionType.value as ReactionTypeEnum, // Use enum type
       comment: comment.value,
-      reactionCategory: ReactionCategoryEnum.COMPONENT, // Example default category
+      reactionCategory: 'COMPONENT', // Example default category
     })
     console.log('Reaction submitted successfully.')
   } catch (error) {
@@ -149,7 +153,7 @@ const submitReaction = async () => {
 
 const clearReaction = () => {
   rating.value = 0
-  selectedReactionType.value = ReactionTypeEnum.NEUTRAL
+  selectedReactionType.value = 'NEUTRAL'
   comment.value = ''
   showComment.value = false
 }

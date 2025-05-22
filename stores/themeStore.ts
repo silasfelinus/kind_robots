@@ -44,9 +44,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     'silk',
   ]
 
-  const themeForm = ref<Partial<Theme>>(
-    JSON.parse(localStorage.getItem('themeForm') || '{}'),
-  )
+  const themeForm = ref<Partial<Theme>>({})
 
   watch(
     themeForm,
@@ -105,6 +103,11 @@ export const useThemeStore = defineStore('themeStore', () => {
 
       const storedTheme = localStorage.getItem('theme') || 'retro'
       changeTheme(availableThemes.includes(storedTheme) ? storedTheme : 'retro')
+
+      const storedForm = localStorage.getItem('themeForm')
+      if (storedForm) {
+        themeForm.value = JSON.parse(storedForm)
+      }
 
       getThemes()
     } catch (err) {

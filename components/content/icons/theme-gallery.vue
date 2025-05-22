@@ -34,7 +34,7 @@
   </section>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 

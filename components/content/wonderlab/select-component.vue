@@ -12,13 +12,14 @@
     </div>
 
     <!-- Floating Back Button (top-left) -->
-    <button
-      class="fixed top-24 left-6 z-50 btn btn-primary btn-sm px-4 py-2 shadow-lg"
-      @click="handleBack"
-    >
-      <Icon name="kind-icon:arrow-left" class="mr-2" />
-      Back
-    </button>
+<button
+  class="fixed left-6 z-60 btn btn-primary btn-sm px-4 py-2 shadow-lg"
+  :style="{ top: backButtonTop }"
+  @click="handleBack"
+>
+  <Icon name="kind-icon:arrow-left" class="mr-2" />
+  Back
+</button>
 
     <!-- Floating Reaction Button (bottom-left) -->
     <button
@@ -57,6 +58,12 @@ import { useComponentStore } from '@/stores/componentStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+
+
+const backButtonTop = computed(() => {
+  return `${displayStore.headerHeight + 8}px` // add a little margin (e.g., 8px)
+})
+
 const componentStore = useComponentStore()
 const showReactions = ref(false)
 

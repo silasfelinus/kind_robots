@@ -83,6 +83,13 @@
         <button @click="saveTheme" class="btn btn-primary">
           {{ updateMode ? 'Update Theme' : 'Save Theme' }}
         </button>
+
+        <p
+          v-if="themeError"
+          class="mt-4 p-3 text-sm text-error bg-error/10 border border-error rounded-xl"
+        >
+          {{ themeError }}
+        </p>
       </div>
 
       <div
@@ -129,6 +136,8 @@ import { useThemeStore, type Theme } from '@/stores/themeStore'
 const themeStore = useThemeStore()
 
 const themeForm = themeStore.themeForm as Record<string, any>
+
+const themeError = ref('')
 
 const colorKeys = [
   '--color-primary',
@@ -283,12 +292,20 @@ async function saveTheme() {
     }
 
     if (applyAfterSave.value) {
-      themeStore.changeTheme(themeForm.name)
+      const { success, message } = themeStore.setActiveTheme(themeForm.name)
+      if (!success && message) {
+        themeError.value = message
+      } else {
+        themeError.value = ''
+      }
+    } else {
+      themeError.value = ''
     }
 
     resetThemeForm()
   } catch (e) {
     console.error('Theme save failed', e)
+    themeError.value = 'Theme save failed: ' + String(e)
   }
 }
 </script>

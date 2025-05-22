@@ -27,7 +27,7 @@
           :class="theme === themeStore.currentTheme ? 'ring-2 ring-accent' : ''"
           role="menuitem"
           tabindex="0"
-          @click="themeStore.changeTheme(theme)"
+          @click="themeStore.setActiveTheme(theme)"
         >
           {{ theme }}
         </button>

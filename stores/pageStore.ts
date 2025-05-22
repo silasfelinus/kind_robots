@@ -9,6 +9,8 @@ export type LayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
 export const usePageStore = defineStore('pageStore', () => {
   const page = ref<ContentType | null>(null)
 
+  const ready = ref(false)
+
   const layout = computed<LayoutKey>(() => {
     const val = page.value?.layout
     return ['default', 'minimal', 'vertical-scroll'].includes(val as string)
@@ -39,10 +41,17 @@ export const usePageStore = defineStore('pageStore', () => {
     theme: page.value?.theme ?? currentTheme.value,
   }))
 
+  async function setPage(newPage: ContentType) {
+    page.value = newPage
+    ready.value = true
+  }
+
   return {
     page,
     layout,
     meta,
+    ready,
+    setPage,
 
     // Meta convenience refs
     title: computed(() => meta.value.title),

@@ -1,9 +1,14 @@
 <!-- /components/content/wonderlab/component-reactions.vue -->
 <template>
-  <div class="relative w-full bg-base-200 border border-base-300 rounded-2xl shadow-lg p-6 space-y-8 max-w-5xl mx-auto">
+  <div
+    class="relative w-full bg-base-200 border border-base-300 rounded-2xl shadow-lg p-6 space-y-8 max-w-5xl mx-auto"
+  >
     <!-- Header -->
     <div class="flex items-center justify-between">
-      <h2 v-if="selectedComponent" class="text-2xl font-bold text-primary-content">
+      <h2
+        v-if="selectedComponent"
+        class="text-2xl font-bold text-primary-content"
+      >
         {{ selectedComponent?.componentName }}
       </h2>
       <p v-else class="text-lg text-base-content/70">Loading component...</p>
@@ -12,7 +17,9 @@
     <!-- Notes + Toggles -->
     <div v-if="selectedComponent" class="space-y-6">
       <div>
-        <label class="block mb-1 text-sm font-semibold text-base-content">Notes</label>
+        <label class="block mb-1 text-sm font-semibold text-base-content"
+          >Notes</label
+        >
         <template v-if="isAdmin">
           <textarea
             v-model="selectedComponent.notes"
@@ -22,7 +29,9 @@
           ></textarea>
         </template>
         <template v-else>
-          <p class="text-base-content text-sm bg-base-100 p-3 rounded-lg border border-base-300 whitespace-pre-line">
+          <p
+            class="text-base-content text-sm bg-base-100 p-3 rounded-lg border border-base-300 whitespace-pre-line"
+          >
             {{ selectedComponent.notes || 'No notes available.' }}
           </p>
         </template>
@@ -30,15 +39,30 @@
 
       <div class="flex flex-wrap gap-4">
         <label class="flex items-center gap-2">
-          <input type="checkbox" class="checkbox" v-model="selectedComponent.isWorking" @change="updateComponent" />
+          <input
+            type="checkbox"
+            class="checkbox"
+            v-model="selectedComponent.isWorking"
+            @change="updateComponent"
+          />
           <span class="text-base-content">Is Working</span>
         </label>
         <label class="flex items-center gap-2">
-          <input type="checkbox" class="checkbox" v-model="selectedComponent.underConstruction" @change="updateComponent" />
+          <input
+            type="checkbox"
+            class="checkbox"
+            v-model="selectedComponent.underConstruction"
+            @change="updateComponent"
+          />
           <span class="text-base-content">Under Construction</span>
         </label>
         <label class="flex items-center gap-2">
-          <input type="checkbox" class="checkbox" v-model="selectedComponent.isBroken" @change="updateComponent" />
+          <input
+            type="checkbox"
+            class="checkbox"
+            v-model="selectedComponent.isBroken"
+            @change="updateComponent"
+          />
           <span class="text-base-content">Is Broken</span>
         </label>
       </div>
@@ -71,7 +95,10 @@
       <!-- Reaction Type -->
       <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
         <label class="text-base font-semibold text-base-content">React:</label>
-        <select v-model="selectedReactionType" class="select select-bordered w-full sm:max-w-xs">
+        <select
+          v-model="selectedReactionType"
+          class="select select-bordered w-full sm:max-w-xs"
+        >
           <option v-for="type in reactionTypes" :key="type" :value="type">
             {{ type }}
           </option>
@@ -110,7 +137,11 @@
           ]"
         >
           <Icon
-            :name="reactionStatus === 'success' ? 'kind-icon:check' : 'kind-icon:warning'"
+            :name="
+              reactionStatus === 'success'
+                ? 'kind-icon:check'
+                : 'kind-icon:warning'
+            "
             class="mr-2"
           />
           {{ reactionMessage }}
@@ -120,7 +151,6 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 // Store + utils
 import { ref, computed, watch, onMounted } from 'vue'
@@ -128,8 +158,8 @@ import { useComponentStore } from '@/stores/componentStore'
 import { useUserStore } from '@/stores/userStore'
 import {
   useReactionStore,
-  ReactionTypeEnum,
-  ReactionCategoryEnum,
+  type ReactionTypeEnum,
+  reactionTypes,
 } from '@/stores/reactionStore'
 
 // Component logic
@@ -140,14 +170,14 @@ const userStore = useUserStore()
 const selectedComponent = computed(() => componentStore.selectedComponent)
 const userId = computed(() => userStore.user?.id || 10)
 
-const isAdmin = computed(() => userStore.isAdmin())
+const isAdmin = computed(() => userStore.isAdmin)
 
 const rating = ref(0)
 const hoverRating = ref(0)
-const selectedReactionType = ref(ReactionTypeEnum.NEUTRAL)
+const selectedReactionType = ref<ReactionTypeEnum>('NEUTRAL')
+
 const comment = ref('')
 const showComment = ref(false)
-const reactionTypes = Object.values(ReactionTypeEnum)
 
 // Handlers
 const toggleComment = () => (showComment.value = !showComment.value)
@@ -155,7 +185,8 @@ const setRating = (val: number) => (rating.value = val)
 const clearReaction = () => {
   rating.value = 0
   hoverRating.value = 0
-  selectedReactionType.value = ReactionTypeEnum.NEUTRAL
+  selectedReactionType.value = 'NEUTRAL'
+
   comment.value = ''
   showComment.value = false
 }
@@ -174,7 +205,7 @@ const submitReaction = async () => {
       rating: rating.value,
       reactionType: selectedReactionType.value,
       comment: comment.value,
-      reactionCategory: ReactionCategoryEnum.COMPONENT,
+      reactionCategory: 'COMPONENT',
     })
     reactionStatus.value = 'success'
     reactionMessage.value = 'Reaction submitted successfully!'
@@ -193,8 +224,6 @@ const submitReaction = async () => {
 
 const reactionMessage = ref('')
 const reactionStatus = ref<'success' | 'error' | ''>('')
-
-
 
 // Load existing reaction if present
 const fetchReactions = async (componentId: number) => {
@@ -218,8 +247,10 @@ onMounted(() => {
 // Update handler
 const updateComponent = async () => {
   if (selectedComponent.value) {
-    await componentStore.createOrUpdateComponent(selectedComponent.value, 'update')
+    await componentStore.createOrUpdateComponent(
+      selectedComponent.value,
+      'update',
+    )
   }
 }
 </script>
-m

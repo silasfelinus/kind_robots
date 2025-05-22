@@ -136,6 +136,7 @@
       "smart-nav",
       "splash-tutorial",
       "swarm-icon",
+      "theme-gallery",
       "theme-icon",
       "theme-lab",
       "theme-menu",
@@ -380,6 +381,7 @@
   {
     "folderName": "user",
     "components": [
+      "User-Dashboard",
       "add-chat",
       "avatar-upload",
       "cache-clear",
@@ -394,7 +396,6 @@
       "registration-page",
       "user-avatar",
       "user-chat",
-      "user-dashboard",
       "user-gallery",
       "user-navigation",
       "user-panel",

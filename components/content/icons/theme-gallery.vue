@@ -1,66 +1,63 @@
 <template>
-  <!-- Explore Themes -->
-  <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <!-- Default Themes -->
-    <div>
-      <h2 class="text-xl font-semibold mb-3">🌈 Default Themes</h2>
-      <div class="grid gap-3 sm:grid-cols-2">
-        <magic-container
-          v-for="theme in themeStore.availableThemes"
-          :key="theme"
-          :data-theme="theme"
-          class="rounded-xl p-4 border cursor-pointer text-center hover:ring hover:ring-primary"
-          @click="handleSetTheme(theme)"
-        >
-          <div class="font-mono">{{ theme }}</div>
-        </magic-container>
-      </div>
-    </div>
-
-    <!-- Shared Themes -->
-    <div v-if="themeStore.sharedThemes.length">
-      <h2 class="text-xl font-semibold mb-3">🌍 Shared Themes</h2>
-      <div class="grid gap-3 sm:grid-cols-2">
-        <magic-container
-          v-for="theme in themeStore.sharedThemes"
-          :key="theme.id"
-          :style="getThemeStyle(theme.values as Record<string, string>)"
-          class="relative rounded-xl p-4 border cursor-pointer group hover:ring hover:ring-secondary"
-          @click="handleInspectTheme(theme)"
-        >
-          <div class="font-mono text-lg">{{ theme.name }}</div>
-          <button
-            class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100 transition-opacity"
-            @click.stop="editTheme(theme)"
+  <div class="overflow-y-auto max-h-[calc(100vh-4rem)] px-4 py-6">
+    <!-- Explore Themes -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Default Themes -->
+      <div>
+        <h2 class="text-xl font-semibold mb-3">🌈 Default Themes</h2>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <magic-container
+            v-for="theme in themeStore.availableThemes"
+            :key="theme"
+            :data-theme="theme"
+            class="rounded-xl p-4 border cursor-pointer text-center hover:ring hover:ring-primary"
+            @click="handleSetTheme(theme)"
           >
-            ✏️ Edit
-          </button>
-        </magic-container>
-      </div>
-    </div>
-
-    <!-- Error Message -->
-    <p
-      v-if="themeError"
-      class="col-span-2 mt-4 p-3 text-sm text-error bg-error/10 border border-error rounded-xl whitespace-pre-wrap"
-    >
-      {{ themeError }}
-    </p>
-
-    <!-- Inspect Modal -->
-    <dialog v-if="inspectValues" class="modal modal-open">
-      <div class="modal-box max-w-3xl">
-        <h3 class="font-bold text-lg mb-2">Theme Values</h3>
-        <pre
-          class="bg-base-300 text-sm overflow-auto rounded-lg p-4 max-h-[60vh] whitespace-pre-wrap"
-          >{{ inspectValues }}
-        </pre>
-        <div class="modal-action">
-          <button class="btn" @click="inspectValues = null">Close</button>
+            <div class="font-mono">{{ theme }}</div>
+          </magic-container>
         </div>
       </div>
-    </dialog>
-  </section>
+
+      <!-- Shared Themes -->
+      <div v-if="themeStore.sharedThemes.length">
+        <h2 class="text-xl font-semibold mb-3">🌍 Shared Themes</h2>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <magic-container
+            v-for="theme in themeStore.sharedThemes"
+            :key="theme.id"
+            :style="getThemeStyle(theme.values as Record<string, string>)"
+            class="relative rounded-xl p-4 border cursor-pointer group hover:ring hover:ring-secondary"
+            @click="handleSetTheme(theme)"
+          >
+            <div class="font-mono text-lg">{{ theme.name }}</div>
+            <button
+              class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100 transition-opacity"
+              @click.stop="editTheme(theme)"
+            >
+              ✏️ Edit
+            </button>
+          </magic-container>
+        </div>
+      </div>
+
+      <!-- Full Width Info + Error Block -->
+      <div class="col-span-full space-y-4">
+        <div
+          v-if="inspectValues"
+          class="bg-base-100 border border-base-300 rounded-xl p-4 whitespace-pre-wrap text-sm overflow-auto max-h-[40vh]"
+        >
+          <h3 class="text-lg font-bold mb-2">🎨 Selected Theme Info</h3>
+          <pre>{{ inspectValues }}</pre>
+        </div>
+        <p
+          v-if="themeError"
+          class="p-3 text-sm text-error bg-error/10 border border-error rounded-xl whitespace-pre-wrap"
+        >
+          {{ themeError }}
+        </p>
+      </div>
+    </section>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -77,25 +74,16 @@ const inspectValues = ref<string | null>(null)
 function handleSetTheme(theme: string | Theme) {
   const result = themeStore.setActiveTheme(theme)
   if (!result.success) {
-    themeError.value = `❌ Failed to apply theme\n${result.message}\n\n${JSON.stringify(theme, null, 2)}`
+    themeError.value = `❌ Failed to apply theme\n${result.message}`
+    inspectValues.value = null
   } else {
     themeError.value = ''
-    milestoneStore.rewardMilestone(9)
-  }
-}
-
-function handleInspectTheme(theme: Theme) {
-  const result = themeStore.setActiveTheme(theme)
-  if (!result.success) {
-    themeError.value = `❌ Failed to inspect theme\n${result.message}`
-    return
-  }
-  try {
-    const values = themeStore.getThemeValues()
-    inspectValues.value = JSON.stringify(values, null, 2)
-    milestoneStore.rewardMilestone(9)
-  } catch (err) {
-    themeError.value = `❌ Failed to inspect theme\n${(err as Error).message}`
+    try {
+      inspectValues.value = JSON.stringify(themeStore.getThemeValues(), null, 2)
+      milestoneStore.rewardMilestone(9)
+    } catch (err) {
+      themeError.value = `❌ Failed to load theme info\n${(err as Error).message}`
+    }
   }
 }
 

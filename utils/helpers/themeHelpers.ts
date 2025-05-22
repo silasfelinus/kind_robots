@@ -46,6 +46,8 @@ export function isValidColor(val: string) {
 
 export function sanitizeThemeValues(values: Record<string, string>) {
   const sanitized: Record<string, string> = {}
+  const rejected: [string, string][] = []
+
   for (const [key, val] of Object.entries(values)) {
     if (colorKeys.includes(key) && isValidColor(val)) {
       sanitized[key] = val
@@ -55,8 +57,20 @@ export function sanitizeThemeValues(values: Record<string, string>) {
       val.length
     ) {
       sanitized[key] = val
+    } else {
+      rejected.push([key, val])
     }
   }
+
+  if (rejected.length) {
+    console.warn(
+      `[themeHelpers] Ignored ${rejected.length} invalid theme value(s):`,
+    )
+    for (const [k, v] of rejected) {
+      console.warn(`  ✘ ${k}: ${v}`)
+    }
+  }
+
   return sanitized
 }
 

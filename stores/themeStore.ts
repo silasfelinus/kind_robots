@@ -8,6 +8,7 @@ import {
   buildThemePayload,
   applyThemeValues,
   getThemeValues,
+  sanitizeThemeValues,
 } from '@/utils/helpers/themeHelpers'
 
 export const useThemeStore = defineStore('themeStore', () => {
@@ -88,6 +89,7 @@ export const useThemeStore = defineStore('themeStore', () => {
         console.warn(msg)
         return { success: false, message: msg }
       }
+
       activeTheme.value = input
       document.documentElement.setAttribute('data-theme', input)
       localStorage.setItem('theme', input)
@@ -96,8 +98,12 @@ export const useThemeStore = defineStore('themeStore', () => {
     }
 
     if (typeof input === 'object' && input.values) {
+      const rawValues = input.values
+      const values = sanitizeThemeValues(rawValues as Record<string, string>)
+
       activeTheme.value = input
-      applyThemeValues(input.values as Record<string, string>)
+      applyThemeValues(values)
+      document.documentElement.setAttribute('data-theme', 'custom')
       localStorage.setItem('theme', input.name)
       themeForm.value = { ...input }
       firstThemeChanged.value = true

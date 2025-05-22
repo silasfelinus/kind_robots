@@ -23,11 +23,16 @@
           v-for="theme in themeStore.sharedThemes"
           :key="theme.id"
           :style="getThemeStyle(theme.values as Record<string, string>)"
-          class="rounded-xl p-4 border cursor-pointer hover:ring hover:ring-secondary"
-          @click.ctrl="editTheme(theme)"
+          class="relative rounded-xl p-4 border cursor-pointer group hover:ring hover:ring-secondary"
           @click="applyTheme(theme.name)"
         >
           <div class="font-mono text-lg">{{ theme.name }}</div>
+          <button
+            class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100 transition-opacity"
+            @click.stop="themeStore.selectTheme(theme)"
+          >
+            ✏️ Edit
+          </button>
         </magic-container>
       </div>
     </div>
@@ -44,5 +49,21 @@ const milestoneStore = useMilestoneStore()
 const applyTheme = (themeName: string) => {
   themeStore.changeTheme(themeName)
   milestoneStore.rewardMilestone(9)
+}
+
+function hexToRgb(hex: string) {
+  if (typeof hex !== 'string' || !hex.startsWith('#')) return '255 255 255'
+  const h = hex.replace('#', '')
+  const bigint = parseInt(h, 16)
+  const r = (bigint >> 16) & 255
+  const g = (bigint >> 8) & 255
+  const b = bigint & 255
+  return `${r} ${g} ${b}`
+}
+
+function getThemeStyle(values: Record<string, string>) {
+  return Object.entries(values)
+    .map(([key, val]) => `${key}: ${hexToRgb(val)}`)
+    .join('; ')
 }
 </script>

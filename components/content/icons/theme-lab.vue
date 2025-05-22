@@ -1,3 +1,4 @@
+<!-- /components/content/icons/theme-lab.vue -->
 <template>
   <div class="w-full h-full overflow-y-auto">
     <div class="theme-lab w-full px-4 py-6 max-w-6xl mx-auto space-y-12">
@@ -12,15 +13,16 @@
         class="bg-base-200 border border-base-content p-6 rounded-2xl shadow-lg"
       >
         <h2 class="text-2xl font-semibold mb-4">Create or Edit Your Theme</h2>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <div
             v-for="color in colorKeys"
             :key="color"
             class="flex items-center gap-2"
           >
-            <label class="w-40 font-medium capitalize text-sm">{{
-              labelFromKey(color)
-            }}</label>
+            <label class="w-40 font-medium capitalize text-sm">
+              {{ labelFromKey(color) }}
+            </label>
             <input
               type="color"
               :value="themeForm.values?.[color] || '#ffffff'"
@@ -30,12 +32,12 @@
           </div>
         </div>
 
-        <button class="btn btn-accent" @click="fillWithRandomTheme">
+        <button class="btn btn-accent mt-4" @click="fillWithRandomTheme">
           🎲 Randomize Theme
         </button>
 
-        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div class="mt-4 flex flex-col sm:flex-row gap-4 items-center">
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="flex flex-col sm:flex-row gap-4 items-center">
             <label class="flex gap-2 items-center">
               <input
                 type="checkbox"
@@ -61,7 +63,19 @@
             <label class="w-40 font-medium text-sm">{{
               key.replace('--', '')
             }}</label>
+
             <input
+              v-if="isSliderKey(key)"
+              type="range"
+              class="range range-sm w-full"
+              :min="getSliderMeta(key).min"
+              :max="getSliderMeta(key).max"
+              :step="getSliderMeta(key).step"
+              v-model="themeForm.values[key]"
+            />
+
+            <input
+              v-else
               type="text"
               v-model="themeForm.values[key]"
               class="input input-bordered w-full h-10"
@@ -76,9 +90,10 @@
           />
           <input
             v-model="themeForm.room"
-            placeholder="Optional room (e.g. splash, editor)"
+            placeholder="Optional room (e.g. splash)"
             class="input input-bordered text-center"
           />
+
           <button @click="saveTheme" class="btn btn-primary">
             {{ updateMode ? 'Update Theme' : 'Save Theme' }}
           </button>
@@ -92,11 +107,19 @@
         </div>
 
         <div
-          class="form-control col-span-1 sm:col-span-3 flex flex-col sm:flex-row gap-4 items-center mt-4"
+          class="form-control col-span-1 sm:col-span-3 flex flex-col sm:flex-row gap-4 items-center mt-6"
         >
           <label class="label gap-2">
             <input type="checkbox" class="toggle" v-model="applyAfterSave" />
             <span class="label-text">Apply after saving</span>
+          </label>
+          <label class="label gap-2">
+            <input
+              type="checkbox"
+              class="toggle"
+              v-model="themeForm.isPublic"
+            />
+            <span class="label-text">Make this theme public</span>
           </label>
           <label class="label gap-2">
             <input type="checkbox" class="toggle" v-model="useCustom" />
@@ -104,20 +127,22 @@
           </label>
         </div>
 
-        <button class="btn btn-outline" @click="resetThemeForm">Reset</button>
+        <button class="btn btn-outline mt-4" @click="resetThemeForm">
+          Reset
+        </button>
 
         <div
-          class="mt-4 border rounded-xl p-4 transition-all duration-300"
+          class="mt-6 border rounded-xl p-4 transition-all duration-300"
           :style="`${previewStyle}; border-radius: var(--radius-box, 0.5rem); border-width: var(--border, 1px);`"
         >
           <h3 class="text-lg font-bold">Live Preview</h3>
-          <div class="flex gap-2 mt-2">
+          <div class="flex gap-2 mt-2 flex-wrap">
             <button class="btn btn-base-100 btn-sm">Base-100</button>
             <button class="btn btn-primary btn-sm">Primary</button>
             <button class="btn btn-secondary btn-sm">Secondary</button>
             <button class="btn btn-accent btn-sm">Accent</button>
-            <button class="btn btn-accent btn-sm">Info</button>
-            <button class="btn btn-accent btn-sm">Success</button>
+            <button class="btn btn-info btn-sm">Info</button>
+            <button class="btn btn-success btn-sm">Success</button>
             <button class="btn btn-warning btn-sm">Warning</button>
             <button class="btn btn-error btn-sm">Error</button>
           </div>
@@ -151,9 +176,11 @@ if (!themeForm.values) {
     ...extraVars.map((key) => [key, '']),
   ])
   fillWithRandomTheme()
+  themeForm.name ||= `MyTheme-${Date.now()}`
 }
 
 const updateMode = computed(() => !!themeForm.id)
+
 const applyAfterSave = computed({
   get: () => themeForm.applyAfterSave ?? true,
   set: (val) => (themeForm.applyAfterSave = val),
@@ -163,6 +190,25 @@ const useCustom = computed({
   get: () => themeStore.showCustom,
   set: (val) => themeStore.setShowCustom(val),
 })
+
+function isSliderKey(key: string): boolean {
+  return (
+    key.includes('radius') ||
+    key.includes('size') ||
+    key === '--depth' ||
+    key === '--noise' ||
+    key === '--border'
+  )
+}
+
+function getSliderMeta(key: string) {
+  if (key === '--depth') return { min: 0, max: 10, step: 1 }
+  if (key === '--noise') return { min: 0, max: 1, step: 0.1 }
+  if (key === '--border') return { min: 0, max: 10, step: 1 }
+  if (key.includes('radius') || key.includes('size'))
+    return { min: 0, max: 2, step: 0.05 }
+  return { min: 0, max: 1, step: 0.1 }
+}
 
 function fillWithRandomTheme() {
   themeForm.values ||= {}
@@ -183,6 +229,7 @@ function resetThemeForm() {
     id: undefined,
     name: '',
     room: '',
+    isPublic: false,
     prefersDark: false,
     colorScheme: 'light',
     values: Object.fromEntries([

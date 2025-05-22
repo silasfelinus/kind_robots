@@ -1,22 +1,34 @@
+// /stores/reactionStore.ts
+
 import { defineStore } from 'pinia'
 import type { Reaction, ReactionType, ReactionCategory } from '@prisma/client'
 import { performFetch, handleError } from './utils'
 
-export enum ReactionTypeEnum {
-  LOVED = 'LOVED',
-  CLAPPED = 'CLAPPED',
-  BOOED = 'BOOED',
-  HATED = 'HATED',
-  NEUTRAL = 'NEUTRAL',
-  FLAGGED = 'FLAGGED',
-}
+export type ReactionTypeEnum =
+  | 'LOVED'
+  | 'CLAPPED'
+  | 'BOOED'
+  | 'HATED'
+  | 'NEUTRAL'
+  | 'FLAGGED'
 
-export enum ReactionCategoryEnum {
-  ART = 'ART',
-  PITCH = 'PITCH',
-  COMPONENT = 'COMPONENT',
-  TITLE = 'TITLE',
-}
+export type ReactionCategoryEnum = 'ART' | 'PITCH' | 'COMPONENT' | 'TITLE'
+
+export const reactionTypes: ReactionTypeEnum[] = [
+  'LOVED',
+  'CLAPPED',
+  'BOOED',
+  'HATED',
+  'NEUTRAL',
+  'FLAGGED',
+]
+
+export const reactionCategories: ReactionCategoryEnum[] = [
+  'ART',
+  'PITCH',
+  'COMPONENT',
+  'TITLE',
+]
 
 export const useReactionStore = defineStore('reactionStore', {
   state: () => ({

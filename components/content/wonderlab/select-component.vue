@@ -13,7 +13,7 @@
 
     <!-- Floating Back Button (top-left) -->
     <button
-      class="fixed top-16 left-6 z-50 btn btn-primary btn-sm px-4 py-2 shadow-lg"
+      class="fixed top-24 left-6 z-50 btn btn-primary btn-sm px-4 py-2 shadow-lg"
       @click="handleBack"
     >
       <Icon name="kind-icon:arrow-left" class="mr-2" />

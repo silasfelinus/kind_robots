@@ -1,17 +1,22 @@
-<!-- /components/content/bots/reaction-card.vue -->
 <template>
   <div
-    class="reaction-card p-4 bg-base-200 rounded-lg shadow-md w-full max-w-md mx-auto mt-4"
+    class="reaction-card w-full max-w-xl mx-auto p-6 bg-base-200 border border-base-300 rounded-2xl shadow-md space-y-6"
   >
-    <!-- Star Rating System -->
-    <div class="star-rating flex items-center mb-4">
-      <p class="font-semibold mr-2">Rate:</p>
-      <div class="flex">
+    <!-- Star Rating -->
+    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+      <label class="text-base font-semibold text-base-content whitespace-nowrap">Rate:</label>
+      <div class="flex gap-1 sm:gap-2 items-center">
         <span
           v-for="star in 5"
           :key="star"
-          class="cursor-pointer text-xl"
-          :class="star <= rating ? 'text-yellow-400' : 'text-gray-300'"
+          class="text-4xl sm:text-5xl cursor-pointer select-none transition-transform duration-100 px-1 py-0.5"
+          :class="{
+            'text-yellow-400 scale-110': hoverRating >= star,
+            'text-yellow-300': hoverRating === 0 && rating >= star,
+            'text-gray-400': hoverRating < star && rating < star,
+          }"
+          @mouseenter="hoverRating = star"
+          @mouseleave="hoverRating = 0"
           @click="setRating(star)"
         >
           ★
@@ -19,70 +24,53 @@
       </div>
     </div>
 
-    <!-- Reaction Type Selection -->
-    <div class="reaction-type flex items-center mb-4">
-      <p class="font-semibold mr-2">React:</p>
-      <select v-model="selectedReactionType" class="select select-bordered">
+    <!-- Reaction Type -->
+    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+      <label class="text-base font-semibold text-base-content whitespace-nowrap">React:</label>
+      <select v-model="selectedReactionType" class="select select-bordered w-full sm:max-w-xs">
         <option v-for="type in reactionTypes" :key="type" :value="type">
           {{ type }}
         </option>
       </select>
     </div>
 
-    <!-- Social Media Sharing Buttons -->
-    <div class="social-share flex items-center space-x-2 mb-4">
-      <button
-        class="btn btn-sm btn-secondary flex items-center"
-        @click="share('facebook')"
-      >
-        <Icon name="kind-icon:facebook" class="mr-1" /> Facebook
-      </button>
-      <button
-        class="btn btn-sm btn-secondary flex items-center"
-        @click="share('twitter')"
-      >
-        <Icon name="kind-icon:twitter" class="mr-1" /> Twitter
-      </button>
-      <button
-        class="btn btn-sm btn-secondary flex items-center"
-        @click="share('instagram')"
-      >
-        <Icon name="kind-icon:instagram" class="mr-1" /> Instagram
-      </button>
-    </div>
-
-    <!-- Comment and Actions Bar -->
-    <div class="actions-bar flex items-center justify-between space-x-2">
-      <button
-        class="btn btn-sm btn-accent flex items-center"
-        @click="toggleComment"
-      >
-        <Icon name="kind-icon:comment" class="mr-1" /> Comment
-      </button>
-      <button
-        class="btn btn-sm btn-primary flex items-center"
-        @click="submitReaction"
-      >
-        <Icon name="kind-icon:submit" class="mr-1" /> Submit
-      </button>
-      <button
-        class="btn btn-sm btn-error flex items-center"
-        @click="clearReaction"
-      >
-        <Icon name="kind-icon:clear" class="mr-1" /> Clear
-      </button>
-    </div>
-
-    <!-- Toggleable Comment Input -->
-    <div v-if="showComment" class="comment-input mt-4">
+    <!-- Comment Input -->
+    <div v-if="showComment" class="comment-input">
       <input
         v-model="comment"
         placeholder="Leave a comment..."
         class="input input-bordered w-full"
       />
     </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap gap-2 justify-between sm:justify-start">
+      <button class="btn btn-sm btn-accent" @click="toggleComment">
+        <Icon name="kind-icon:comment" class="mr-1" /> Comment
+      </button>
+      <button class="btn btn-sm btn-primary" @click="submitReaction">
+        <Icon name="kind-icon:submit" class="mr-1" /> Submit
+      </button>
+      <button class="btn btn-sm btn-error" @click="clearReaction">
+        <Icon name="kind-icon:clear" class="mr-1" /> Clear
+      </button>
+    </div>
+
+    <!-- Social Share -->
+    <div class="flex flex-wrap gap-2 justify-center pt-2 border-t border-base-300">
+      <button class="btn btn-sm btn-secondary" @click="share('facebook')">
+        <Icon name="kind-icon:facebook" class="mr-1" /> Facebook
+      </button>
+      <button class="btn btn-sm btn-secondary" @click="share('twitter')">
+        <Icon name="kind-icon:twitter" class="mr-1" /> Twitter
+      </button>
+      <button class="btn btn-sm btn-secondary" @click="share('instagram')">
+        <Icon name="kind-icon:instagram" class="mr-1" /> Instagram
+      </button>
+    </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -114,6 +102,8 @@ const rating = ref(0)
 const selectedReactionType = ref(ReactionTypeEnum.NEUTRAL) // Default enum value
 const comment = ref('')
 const showComment = ref(false)
+const hoverRating = ref(0)
+
 
 // Reaction type options
 const reactionTypes = Object.values(ReactionTypeEnum)

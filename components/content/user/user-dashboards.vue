@@ -1,4 +1,4 @@
-<!-- /components/content/user/user-dashboard.vue -->
+<!--  /components/content/user/user-dashboard.vue -->
 <template>
   <div class="bg-base-300 rounded-2xl p-4">
     <h1 class="text-2xl font-semibold text-center mb-6">User Dashboard</h1>
@@ -32,17 +32,17 @@
           <jellybean-icon />
         </div>
 
-<div v-if="isLoggedIn" class="space-y-4">
-  <user-panel />
-  <div class="flex justify-center">
-    <button
-      class="bg-warning px-4 py-2 rounded-xl text-white text-lg"
-      @click="logout"
-    >
-      Logout
-    </button>
-  </div>
-</div>
+        <div v-if="isLoggedIn" class="space-y-4">
+          <user-panel />
+          <div class="flex justify-center">
+            <button
+              class="bg-warning px-4 py-2 rounded-xl text-white text-lg"
+              @click="logout"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
 
         <div class="mt-6">
           <theme-toggle class="flex flex-row" />

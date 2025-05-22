@@ -27,7 +27,7 @@
 
         <button
           v-if="theme && themeStore.currentTheme !== theme"
-          @click="themeStore.changeTheme(theme)"
+          @click="themeStore.setActiveTheme(theme)"
           class="mx-auto block text-xs md:text-sm lg:text-md xl:text-lg font-semibold bg-accent text-black border border-black rounded-2xl px-3 py-1 animate-fade-in-up hover:underline"
         >
           <span class="font-mono">{{ theme }}</span>

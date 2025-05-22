@@ -30,10 +30,10 @@
       <Icon name="kind-icon:emoji" class="text-xl" />
     </button>
 
-    <transition name="slide-up-down">
+<transition name="slide-up-down">
   <div
     v-if="showReactions && componentStore.selectedComponent"
-    class="fixed bottom-0 left-0 right-0 z-40 bg-base-200 border-t border-base-300 p-4 shadow-xl"
+    class="fixed bottom-0 left-0 right-0 z-40 bg-base-200 border-t border-base-300 p-4 shadow-xl max-h-[80dvh] h-[60vh] overflow-y-auto"
   >
     <div class="flex justify-between items-center mb-2">
       <h2 class="text-lg font-semibold">
@@ -46,6 +46,7 @@
     <component-reactions />
   </div>
 </transition>
+
 
   </div>
 </template>

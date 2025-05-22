@@ -2,199 +2,217 @@
 /* eslint-disable */
 // test-ignore
 
-//stores/[model]Store.ts
+// /stores/sampleModelStore.ts
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import { performFetch, handleError } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import type { SampleModel } from '@prisma/client'
 
 export interface SampleModelForm extends Partial<SampleModel> {}
 
-export const useSampleModelStore = defineStore('sampleModelStore', {
-  state: () => ({
-    items: [] as SampleModel[],
-    selected: null as SampleModel | null,
-    form: {} as SampleModelForm,
-    isSaving: false,
-    isInitialized: false,
-    loading: false,
-  }),
+export const useSampleModelStore = defineStore('sampleModelStore', () => {
+  const items = ref<SampleModel[]>([])
+  const selected = ref<SampleModel | null>(null)
+  const form = ref<SampleModelForm>({})
+  const isSaving = ref(false)
+  const isInitialized = ref(false)
+  const loading = ref(false)
 
-  getters: {
-    ownedItems(): SampleModel[] {
-      const user = useUserStore().user
-      return this.items.filter((i) => i.userId === user?.id)
-    },
-  },
+  const userStore = useUserStore()
 
-  actions: {
-    async initialize() {
-      if (this.isInitialized) return
+  const ownedItems = computed(() =>
+    items.value.filter((i) => i.userId === userStore.user?.id),
+  )
 
-      try {
-        const localItems = localStorage.getItem('sampleModels')
-        const localForm = localStorage.getItem('sampleModelForm')
+  function syncToLocalStorage() {
+    try {
+      localStorage.setItem('sampleModels', JSON.stringify(items.value))
+      localStorage.setItem('sampleModelForm', JSON.stringify(form.value))
+    } catch (error) {
+      console.error('[sampleModelStore] localStorage sync error:', error)
+    }
+  }
 
-        if (localItems) this.items = JSON.parse(localItems)
-        if (localForm) this.form = JSON.parse(localForm)
+  async function initialize() {
+    if (isInitialized.value) return
 
-        const fetched = await this.fetchAll()
-        const fetchedIds = new Set(fetched.map((i) => i.id))
+    try {
+      const localItems = localStorage.getItem('sampleModels')
+      const localForm = localStorage.getItem('sampleModelForm')
 
-        this.items = [
-          ...this.items.filter((i) => !fetchedIds.has(i.id)),
-          ...fetched,
-        ]
+      if (localItems) items.value = JSON.parse(localItems)
+      if (localForm) form.value = JSON.parse(localForm)
 
-        this.syncToLocalStorage()
-        this.isInitialized = true
-      } catch (error) {
-        handleError(error, 'initializing sampleModel store')
+      const fetched = await fetchAllModels()
+      const fetchedIds = new Set(fetched.map((i) => i.id))
+
+      items.value = [
+        ...items.value.filter((i) => !fetchedIds.has(i.id)),
+        ...fetched,
+      ]
+
+      syncToLocalStorage()
+      isInitialized.value = true
+    } catch (error) {
+      handleError(error, 'initializing sampleModel store')
+    }
+  }
+
+  async function fetchAllModels(): Promise<SampleModel[]> {
+    loading.value = true
+    try {
+      const res = await performFetch<SampleModel[]>('/api/sampleModels')
+      if (res.success && res.data) {
+        items.value = res.data
+        syncToLocalStorage()
+        return res.data
+      } else {
+        throw new Error(res.message || 'Failed to fetch sampleModels')
       }
-    },
+    } catch (error) {
+      handleError(error, 'fetching sampleModels')
+      return []
+    } finally {
+      loading.value = false
+    }
+  }
 
-    syncToLocalStorage() {
-      try {
-        localStorage.setItem('sampleModels', JSON.stringify(this.items))
-        localStorage.setItem('sampleModelForm', JSON.stringify(this.form))
-      } catch (error) {
-        console.error('[sampleModelStore] localStorage sync error:', error)
-      }
-    },
+  async function fetchModelById(id: number): Promise<SampleModel | null> {
+    try {
+      const res = await performFetch<SampleModel>(`/api/sampleModels/${id}`)
+      if (res.success && res.data) return res.data
+      throw new Error(res.message)
+    } catch (error) {
+      handleError(error, 'fetching sampleModel by ID')
+      return null
+    }
+  }
 
-    async fetchAll(): Promise<SampleModel[]> {
-      this.loading = true
-      try {
-        const res = await performFetch<SampleModel[]>('/api/sampleModels')
-        if (res.success && res.data) {
-          this.items = res.data
-          this.syncToLocalStorage()
-          return res.data
-        } else {
-          throw new Error(res.message || 'Failed to fetch sampleModels')
-        }
-      } catch (error) {
-        handleError(error, 'fetching sampleModels')
-        return []
-      } finally {
-        this.loading = false
-      }
-    },
+  async function addModel(payload: Partial<SampleModel>) {
+    isSaving.value = true
+    try {
+      const res = await performFetch('/api/sampleModels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
 
-    async fetchById(id: number): Promise<SampleModel | null> {
-      try {
-        const res = await performFetch<SampleModel>(`/api/sampleModels/${id}`)
-        if (res.success && res.data) return res.data
+      if (!res.success) throw new Error(res.message)
+      items.value.push(res.data)
+      syncToLocalStorage()
+      return { success: true, data: res.data }
+    } catch (error) {
+      handleError(error, 'creating sampleModel')
+      return { success: false, message: (error as Error).message }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  async function updateModel(id: number, updates: Partial<SampleModel>) {
+    isSaving.value = true
+    try {
+      const res = await performFetch(`/api/sampleModels/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      })
+
+      if (!res.success) throw new Error(res.message)
+
+      const index = items.value.findIndex((i) => i.id === id)
+      if (index !== -1) items.value[index] = res.data
+
+      syncToLocalStorage()
+      return { success: true, data: res.data }
+    } catch (error) {
+      handleError(error, 'updating sampleModel')
+      return { success: false, message: (error as Error).message }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  async function deleteModel(id: number) {
+    try {
+      const res = await performFetch(`/api/sampleModels/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (res.success) {
+        items.value = items.value.filter((i) => i.id !== id)
+        if (selected.value?.id === id) deselectModel()
+        syncToLocalStorage()
+      } else {
         throw new Error(res.message)
-      } catch (error) {
-        handleError(error, 'fetching sampleModel by ID')
-        return null
       }
-    },
+    } catch (error) {
+      handleError(error, 'deleting sampleModel')
+    }
+  }
 
-    async create(payload: Partial<SampleModel>) {
-      this.isSaving = true
-      try {
-        const res = await performFetch('/api/sampleModels', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
+  function selectModel(id: number) {
+    const item = items.value.find((i) => i.id === id)
+    if (item) {
+      selected.value = item
+      form.value = { ...item }
+    }
+  }
 
-        if (!res.success) throw new Error(res.message)
-        this.items.push(res.data)
-        this.syncToLocalStorage()
-        return { success: true, data: res.data }
-      } catch (error) {
-        handleError(error, 'creating sampleModel')
-        return { success: false, message: (error as Error).message }
-      } finally {
-        this.isSaving = false
+  function deselectModel() {
+    selected.value = null
+    form.value = {}
+  }
+
+  function createNewModel() {
+    form.value = {
+      title: '',
+      type: '',
+      // add other default fields as needed
+    }
+    selected.value = null
+    syncToLocalStorage()
+  }
+
+  async function saveModel() {
+    if (!form.value) return { success: false, message: 'No form loaded.' }
+
+    isSaving.value = true
+    try {
+      if ('id' in form.value && form.value.id) {
+        return await updateModel(form.value.id, form.value)
+      } else {
+        return await addModel(form.value)
       }
-    },
+    } catch (error) {
+      handleError(error, 'saving sampleModel')
+      return { success: false, message: (error as Error).message }
+    } finally {
+      isSaving.value = false
+    }
+  }
 
-    async update(id: number, updates: Partial<SampleModel>) {
-      this.isSaving = true
-      try {
-        const res = await performFetch(`/api/sampleModels/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updates),
-        })
-
-        if (!res.success) throw new Error(res.message)
-        const index = this.items.findIndex((i) => i.id === id)
-        if (index !== -1) this.items[index] = res.data
-        this.syncToLocalStorage()
-        return { success: true, data: res.data }
-      } catch (error) {
-        handleError(error, 'updating sampleModel')
-        return { success: false, message: (error as Error).message }
-      } finally {
-        this.isSaving = false
-      }
-    },
-
-    async delete(id: number) {
-      try {
-        const res = await performFetch(`/api/sampleModels/${id}`, {
-          method: 'DELETE',
-        })
-
-        if (res.success) {
-          this.items = this.items.filter((i) => i.id !== id)
-          if (this.selected?.id === id) this.deselect()
-          this.syncToLocalStorage()
-        } else {
-          throw new Error(res.message)
-        }
-      } catch (error) {
-        handleError(error, 'deleting sampleModel')
-      }
-    },
-
-    select(id: number) {
-      const item = this.items.find((i) => i.id === id)
-      if (item) {
-        this.selected = item
-        this.form = { ...item }
-      }
-    },
-
-    deselect() {
-      this.selected = null
-      this.form = {}
-    },
-
-    createNew() {
-      this.form = {
-        title: '',
-        type: '',
-        // other defaults...
-      }
-      this.selected = null
-      this.syncToLocalStorage()
-    },
-
-    async save() {
-      if (!this.form) return { success: false, message: 'No form loaded.' }
-
-      this.isSaving = true
-
-      try {
-        if (this.form.id) {
-          return await this.update(this.form.id, this.form)
-        } else {
-          return await this.create(this.form)
-        }
-      } catch (error) {
-        handleError(error, 'saving sampleModel')
-        return { success: false, message: (error as Error).message }
-      } finally {
-        this.isSaving = false
-      }
-    },
-  },
+  return {
+    items,
+    selected,
+    form,
+    isSaving,
+    isInitialized,
+    loading,
+    ownedItems,
+    initialize,
+    fetchAllModels,
+    fetchModelById,
+    addModel,
+    updateModel,
+    deleteModel,
+    selectModel,
+    deselectModel,
+    createNewModel,
+    saveModel,
+    syncToLocalStorage,
+  }
 })
 
 export type { SampleModel }

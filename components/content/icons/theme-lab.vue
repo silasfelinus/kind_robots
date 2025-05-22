@@ -46,13 +46,6 @@
               />
               <span class="label-text">Prefers dark mode</span>
             </label>
-            <select
-              v-model="themeForm.colorScheme"
-              class="select select-bordered"
-            >
-              <option value="light">light</option>
-              <option value="dark">dark</option>
-            </select>
           </div>
 
           <div
@@ -190,6 +183,13 @@ const useCustom = computed({
   get: () => themeStore.showCustom,
   set: (val) => themeStore.setShowCustom(val),
 })
+
+watch(
+  () => themeForm.prefersDark,
+  (val) => {
+    themeForm.colorScheme = val ? 'dark' : 'light'
+  },
+)
 
 function isSliderKey(key: string): boolean {
   return (

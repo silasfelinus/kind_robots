@@ -29,7 +29,12 @@
             class="relative rounded-xl p-4 border cursor-pointer group hover:ring hover:ring-secondary"
             @click="handleSetTheme(theme)"
           >
-            <div class="font-mono text-lg">{{ theme.name }}</div>
+            <div
+              class="w-full h-full flex items-center justify-center font-mono text-lg text-center"
+            >
+              {{ theme.name }}
+            </div>
+
             <button
               class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100 transition-opacity"
               @click.stop="editTheme(theme)"
@@ -38,23 +43,22 @@
             </button>
           </magic-container>
         </div>
-      </div>
-
-      <!-- Full Width Info + Error Block -->
-      <div class="col-span-full space-y-4">
-        <div
-          v-if="inspectValues"
-          class="bg-base-100 border border-base-300 rounded-xl p-4 whitespace-pre-wrap text-sm overflow-auto max-h-[40vh]"
-        >
-          <h3 class="text-lg font-bold mb-2">🎨 Selected Theme Info</h3>
-          <pre>{{ inspectValues }}</pre>
+        <!-- Full Width Info + Error Block -->
+        <div class="col-span-full space-y-4">
+          <div
+            v-if="inspectValues"
+            class="bg-base-100 border border-base-300 rounded-xl p-4 whitespace-pre-wrap text-sm overflow-auto max-h-[40vh]"
+          >
+            <h3 class="text-lg font-bold mb-2">🎨 Selected Theme Info</h3>
+            <pre>{{ inspectValues }}</pre>
+          </div>
+          <p
+            v-if="themeError"
+            class="p-3 text-sm text-error bg-error/10 border border-error rounded-xl whitespace-pre-wrap"
+          >
+            {{ themeError }}
+          </p>
         </div>
-        <p
-          v-if="themeError"
-          class="p-3 text-sm text-error bg-error/10 border border-error rounded-xl whitespace-pre-wrap"
-        >
-          {{ themeError }}
-        </p>
       </div>
     </section>
   </div>

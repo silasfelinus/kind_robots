@@ -122,7 +122,7 @@ export const useReactionStore = defineStore('reactionStore', {
       resourceId = null,
       rewardId = null,
       tagId = null,
-      reactionCategory = ReactionCategoryEnum.COMPONENT,
+      reactionCategory = 'COMPONENT',
     }: {
       userId: number
       reactionType: ReactionTypeEnum

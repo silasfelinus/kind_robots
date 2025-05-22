@@ -159,27 +159,6 @@ const clearReaction = () => {
 }
 
 const submitReaction = async () => {
-  if (!userStore.user?.id) return console.error('User not logged in')
-
-  try {
-    await reactionStore.addReaction({
-      componentId: selectedComponent.value?.id,
-      userId: userStore.user.id,
-      rating: rating.value,
-      reactionType: selectedReactionType.value,
-      comment: comment.value,
-      reactionCategory: ReactionCategoryEnum.COMPONENT,
-    })
-    console.log('Reaction submitted successfully.')
-  } catch (err) {
-    console.error('Reaction failed:', err)
-  }
-}
-
-const reactionMessage = ref('')
-const reactionStatus = ref<'success' | 'error' | ''>('')
-
-const submitReaction = async () => {
   if (!userStore.user?.id) {
     reactionStatus.value = 'error'
     reactionMessage.value = 'You must be logged in to submit a reaction.'
@@ -200,9 +179,19 @@ const submitReaction = async () => {
   } catch (err) {
     reactionStatus.value = 'error'
     reactionMessage.value = 'Failed to submit reaction. Please try again.'
-    console.error(err)
+    console.error('Reaction failed:', err)
   }
+
+  // Optional: Clear the message after 5 seconds
+  setTimeout(() => {
+    reactionMessage.value = ''
+    reactionStatus.value = ''
+  }, 5000)
 }
+
+const reactionMessage = ref('')
+const reactionStatus = ref<'success' | 'error' | ''>('')
+
 
 
 // Load existing reaction if present

@@ -107,7 +107,7 @@
 
       <div
         class="mt-4 border rounded-xl p-4 transition-all duration-300"
-        :style="`${previewStyle}; border-radius: var(--radius-box); border-width: var(--border);`"
+        :style="`${previewStyle}; border-radius: var(--radius-box, 0.5rem); border-width: var(--border, 1px);`"
       >
         <h3 class="text-lg font-bold">Live Preview</h3>
         <div class="flex gap-2 mt-2">
@@ -128,56 +128,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
+import {
+  colorKeys,
+  extraVars,
+  isValidColor,
+  labelFromKey,
+  buildThemePayload,
+  getRandomHex,
+} from '@/utils/helpers/themeHelpers'
 
 const themeStore = useThemeStore()
 const themeForm = themeStore.themeForm as Record<string, any>
 const themeError = ref('')
 
-const colorKeys = [
-  '--color-primary',
-  '--color-primary-content',
-  '--color-secondary',
-  '--color-secondary-content',
-  '--color-accent',
-  '--color-accent-content',
-  '--color-neutral',
-  '--color-neutral-content',
-  '--color-base-100',
-  '--color-base-200',
-  '--color-base-300',
-  '--color-base-content',
-  '--color-info',
-  '--color-info-content',
-  '--color-success',
-  '--color-success-content',
-  '--color-warning',
-  '--color-warning-content',
-  '--color-error',
-  '--color-error-content',
-]
-
-const extraVars = [
-  '--radius-selector',
-  '--radius-field',
-  '--radius-box',
-  '--size-selector',
-  '--size-field',
-  '--border',
-  '--depth',
-  '--noise',
-]
-
-onMounted(() => {
-  if (!themeForm.values || Object.keys(themeForm.values).length === 0) {
-    themeForm.values = Object.fromEntries([
-      ...colorKeys.map((key) => [key, '#ffffff']),
-      ...extraVars.map((key) => [key, '']),
-    ])
-    fillWithRandomTheme()
-  }
-})
+if (!themeForm.values) {
+  themeForm.values = Object.fromEntries([
+    ...colorKeys.map((key) => [key, '#ffffff']),
+    ...extraVars.map((key) => [key, '']),
+  ])
+  fillWithRandomTheme()
+}
 
 const updateMode = computed(() => !!themeForm.id)
 const applyAfterSave = computed({
@@ -204,52 +176,6 @@ function onColorInput(e: Event, color: string) {
   }
 }
 
-function getRandomHex(): string {
-  return (
-    '#' +
-    Math.floor(Math.random() * 0xffffff)
-      .toString(16)
-      .padStart(6, '0')
-  )
-}
-
-function sanitizeThemeValues(values: Record<string, string>) {
-  const sanitized: Record<string, string> = {}
-  for (const [key, val] of Object.entries(values)) {
-    if (key.startsWith('--color-') && isValidColor(val)) {
-      sanitized[key] = val
-    } else if (
-      extraVars.includes(key) &&
-      typeof val === 'string' &&
-      val.length
-    ) {
-      sanitized[key] = val
-    }
-  }
-  return sanitized
-}
-
-function isValidColor(val: string) {
-  return (
-    typeof val === 'string' &&
-    (/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(val) ||
-      /^oklch\(.+\)$/.test(val))
-  )
-}
-
-const previewStyle = computed(() => {
-  const entries = themeForm.values as Record<string, string>
-  const vars = Object.entries(entries || {})
-    .filter(([key, val]) => isValidColor(val) || extraVars.includes(key))
-    .map(([key, val]) => `${key}: ${val}`)
-    .join('; ')
-  return `padding: 1rem; ${vars}`
-})
-
-function labelFromKey(key: string) {
-  return key.replace('--color-', '').replaceAll('-', ' ')
-}
-
 function resetThemeForm() {
   Object.assign(themeForm, {
     id: undefined,
@@ -266,15 +192,8 @@ function resetThemeForm() {
 
 async function saveTheme() {
   if (!themeForm.name) return
-  const payload = {
-    name: themeForm.name.trim(),
-    values: sanitizeThemeValues(themeForm.values || {}),
-    room: themeForm.room?.trim() || undefined,
-    isPublic: false,
-    prefersDark: themeForm.prefersDark,
-    colorScheme: themeForm.colorScheme,
-  }
   try {
+    const payload = buildThemePayload(themeForm)
     if (themeForm.id) {
       await themeStore.updateTheme(themeForm.id, payload)
     } else {
@@ -282,11 +201,7 @@ async function saveTheme() {
     }
     if (applyAfterSave.value) {
       const { success, message } = themeStore.setActiveTheme(themeForm.name)
-      if (!success && message) {
-        themeError.value = message
-      } else {
-        themeError.value = ''
-      }
+      themeError.value = success ? '' : message || 'Unknown error'
     } else {
       themeError.value = ''
     }
@@ -296,4 +211,13 @@ async function saveTheme() {
     themeError.value = 'Theme save failed: ' + String(e)
   }
 }
+
+const previewStyle = computed(() => {
+  const entries = themeForm.values as Record<string, string>
+  const vars = Object.entries(entries || {})
+    .filter(([, val]) => isValidColor(val))
+    .map(([key, val]) => `${key}: ${val}`)
+    .join('; ')
+  return `padding: 1rem; ${vars}`
+})
 </script>

@@ -67,6 +67,7 @@
 import { ref } from 'vue'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
+import { getThemeStyle, hexToRgb } from '@/utils/helpers/themeHelpers'
 
 const themeStore = useThemeStore()
 const milestoneStore = useMilestoneStore()
@@ -104,21 +105,5 @@ function editTheme(theme: Theme) {
   } catch (err) {
     themeError.value = `❌ Failed to edit theme\n${(err as Error).message}`
   }
-}
-
-function hexToRgb(hex: string) {
-  if (typeof hex !== 'string' || !hex.startsWith('#')) return '255 255 255'
-  const h = hex.replace('#', '')
-  const bigint = parseInt(h, 16)
-  const r = (bigint >> 16) & 255
-  const g = (bigint >> 8) & 255
-  const b = bigint & 255
-  return `${r} ${g} ${b}`
-}
-
-function getThemeStyle(values: Record<string, string>) {
-  return Object.entries(values)
-    .map(([key, val]) => `${key}: ${hexToRgb(val)}`)
-    .join('; ')
 }
 </script>

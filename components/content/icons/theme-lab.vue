@@ -129,16 +129,6 @@ import { useThemeStore, type Theme } from '@/stores/themeStore'
 const themeStore = useThemeStore()
 
 const themeForm = themeStore.themeForm as Record<string, any>
-const updateMode = computed(() => !!themeForm.id)
-const applyAfterSave = computed({
-  get: () => themeForm.applyAfterSave ?? true,
-  set: (val) => (themeForm.applyAfterSave = val),
-})
-
-const useCustom = computed({
-  get: () => themeStore.showCustom,
-  set: (val) => themeStore.setShowCustom(val),
-})
 
 const colorKeys = [
   '--color-primary',
@@ -173,6 +163,24 @@ const extraVars = [
   '--depth',
   '--noise',
 ]
+
+if (!themeForm.values) {
+  themeForm.values = Object.fromEntries([
+    ...colorKeys.map((key) => [key, '#ffffff']),
+    ...extraVars.map((key) => [key, '']),
+  ])
+}
+
+const updateMode = computed(() => !!themeForm.id)
+const applyAfterSave = computed({
+  get: () => themeForm.applyAfterSave ?? true,
+  set: (val) => (themeForm.applyAfterSave = val),
+})
+
+const useCustom = computed({
+  get: () => themeStore.showCustom,
+  set: (val) => themeStore.setShowCustom(val),
+})
 
 function fillWithRandomTheme() {
   themeForm.values ||= {}

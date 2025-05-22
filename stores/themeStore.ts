@@ -44,9 +44,20 @@ export const useThemeStore = defineStore('themeStore', () => {
     'silk',
   ]
 
+  const themeForm = ref<Partial<Theme>>(
+    JSON.parse(localStorage.getItem('themeForm') || '{}'),
+  )
+
+  watch(
+    themeForm,
+    (val) => {
+      localStorage.setItem('themeForm', JSON.stringify(val))
+    },
+    { deep: true },
+  )
+
   const sharedThemes = ref<Theme[]>([])
   const currentThemeObj = ref<Theme | null>(null)
-  const themeForm = ref<Partial<Theme>>({})
   const savedTheme = ref('retro')
   const currentTheme = computed(() => savedTheme.value)
 

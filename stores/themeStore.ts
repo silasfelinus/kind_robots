@@ -4,6 +4,11 @@ import { ref, computed, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import type { Theme } from '@prisma/client'
+import {
+  buildThemePayload,
+  applyThemeValues,
+  getThemeValues,
+} from '@/utils/helpers/themeHelpers'
 
 export const useThemeStore = defineStore('themeStore', () => {
   const availableThemes = [
@@ -187,63 +192,6 @@ export const useThemeStore = defineStore('themeStore', () => {
     if (success) await getThemes()
   }
 
-  // /stores/themeStore.ts (continued)
-
-  function getThemeValues(): Record<string, string> {
-    if (typeof document === 'undefined') return {}
-
-    const computedStyles = getComputedStyle(document.documentElement)
-    const themeVars: Record<string, string> = {}
-
-    for (const key of [
-      '--color-primary',
-      '--color-primary-content',
-      '--color-secondary',
-      '--color-secondary-content',
-      '--color-accent',
-      '--color-accent-content',
-      '--color-neutral',
-      '--color-neutral-content',
-      '--color-base-100',
-      '--color-base-200',
-      '--color-base-300',
-      '--color-base-content',
-      '--color-info',
-      '--color-info-content',
-      '--color-success',
-      '--color-success-content',
-      '--color-warning',
-      '--color-warning-content',
-      '--color-error',
-      '--color-error-content',
-      '--radius-selector',
-      '--radius-field',
-      '--radius-box',
-      '--size-selector',
-      '--size-field',
-      '--border',
-      '--depth',
-      '--noise',
-    ]) {
-      const val = computedStyles.getPropertyValue(key)?.trim()
-      if (val) themeVars[key] = val
-    }
-
-    return themeVars
-  }
-
-  function applyThemeValues(values: Record<string, string>) {
-    if (typeof document === 'undefined') return
-    const root = document.documentElement
-    for (const [key, value] of Object.entries(values)) {
-      if (key.startsWith('--')) {
-        root.style.setProperty(key, value)
-      } else {
-        console.warn(`[themeStore] Skipping invalid key: ${key}`)
-      }
-    }
-  }
-
   function revertForm() {
     if (typeof activeTheme.value === 'object') {
       themeForm.value = { ...activeTheme.value }
@@ -271,6 +219,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     botOverride,
     initialize,
     getThemeValues,
+    buildThemePayload,
   }
 })
 

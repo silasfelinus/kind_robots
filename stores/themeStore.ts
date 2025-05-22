@@ -187,6 +187,51 @@ export const useThemeStore = defineStore('themeStore', () => {
     if (success) await getThemes()
   }
 
+  // /stores/themeStore.ts (continued)
+
+  function getThemeValues(): Record<string, string> {
+    if (typeof document === 'undefined') return {}
+
+    const computedStyles = getComputedStyle(document.documentElement)
+    const themeVars: Record<string, string> = {}
+
+    for (const key of [
+      '--color-primary',
+      '--color-primary-content',
+      '--color-secondary',
+      '--color-secondary-content',
+      '--color-accent',
+      '--color-accent-content',
+      '--color-neutral',
+      '--color-neutral-content',
+      '--color-base-100',
+      '--color-base-200',
+      '--color-base-300',
+      '--color-base-content',
+      '--color-info',
+      '--color-info-content',
+      '--color-success',
+      '--color-success-content',
+      '--color-warning',
+      '--color-warning-content',
+      '--color-error',
+      '--color-error-content',
+      '--radius-selector',
+      '--radius-field',
+      '--radius-box',
+      '--size-selector',
+      '--size-field',
+      '--border',
+      '--depth',
+      '--noise',
+    ]) {
+      const val = computedStyles.getPropertyValue(key)?.trim()
+      if (val) themeVars[key] = val
+    }
+
+    return themeVars
+  }
+
   function applyThemeValues(values: Record<string, string>) {
     if (typeof document === 'undefined') return
     const root = document.documentElement
@@ -225,6 +270,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     setShowCustom,
     botOverride,
     initialize,
+    getThemeValues,
   }
 })
 

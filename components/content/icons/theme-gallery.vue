@@ -26,7 +26,7 @@
           :key="theme.id"
           :style="getThemeStyle(theme.values as Record<string, string>)"
           class="relative rounded-xl p-4 border cursor-pointer group hover:ring hover:ring-secondary"
-          @click="handleSetTheme(theme)"
+          @click="handleInspectTheme(theme)"
         >
           <div class="font-mono text-lg">{{ theme.name }}</div>
           <button
@@ -46,6 +46,20 @@
     >
       {{ themeError }}
     </p>
+
+    <!-- Inspect Modal -->
+    <dialog v-if="inspectValues" class="modal modal-open">
+      <div class="modal-box max-w-3xl">
+        <h3 class="font-bold text-lg mb-2">Theme Values</h3>
+        <pre
+          class="bg-base-300 text-sm overflow-auto rounded-lg p-4 max-h-[60vh] whitespace-pre-wrap"
+          >{{ inspectValues }}
+        </pre>
+        <div class="modal-action">
+          <button class="btn" @click="inspectValues = null">Close</button>
+        </div>
+      </div>
+    </dialog>
   </section>
 </template>
 
@@ -57,6 +71,7 @@ import { useMilestoneStore } from '@/stores/milestoneStore'
 const themeStore = useThemeStore()
 const milestoneStore = useMilestoneStore()
 const themeError = ref('')
+const inspectValues = ref<string | null>(null)
 
 function handleSetTheme(theme: string | Theme) {
   const result = themeStore.setActiveTheme(theme)
@@ -65,6 +80,21 @@ function handleSetTheme(theme: string | Theme) {
   } else {
     themeError.value = ''
     milestoneStore.rewardMilestone(9)
+  }
+}
+
+function handleInspectTheme(theme: Theme) {
+  const result = themeStore.setActiveTheme(theme)
+  if (!result.success) {
+    themeError.value = `❌ Failed to inspect theme\n${result.message}`
+    return
+  }
+  try {
+    const values = themeStore.getThemeValues()
+    inspectValues.value = JSON.stringify(values, null, 2)
+    milestoneStore.rewardMilestone(9)
+  } catch (err) {
+    themeError.value = `❌ Failed to inspect theme\n${(err as Error).message}`
   }
 }
 

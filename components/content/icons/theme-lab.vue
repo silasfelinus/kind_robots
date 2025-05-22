@@ -23,25 +23,32 @@
           <label class="w-40 font-medium capitalize text-sm">{{
             labelFromKey(color)
           }}</label>
-
           <input
             type="color"
-            v-model="customTheme[color]"
+            :value="themeForm.values?.[color] || '#ffffff'"
+            @input="onColorInput($event, color)"
             class="input input-bordered w-full h-10 p-0 rounded-md"
           />
         </div>
       </div>
+      <button class="btn btn-accent" @click="fillWithRandomTheme">
+        🎲 Randomize Theme
+      </button>
 
       <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div class="mt-4 flex flex-col sm:flex-row gap-4 items-center">
           <label class="flex gap-2 items-center">
-            <span class="label-text">Set as default</span>
-          </label>
-          <label class="flex gap-2 items-center">
-            <input type="checkbox" class="toggle" v-model="customPrefersDark" />
+            <input
+              type="checkbox"
+              class="toggle"
+              v-model="themeForm.prefersDark"
+            />
             <span class="label-text">Prefers dark mode</span>
           </label>
-          <select v-model="customColorScheme" class="select select-bordered">
+          <select
+            v-model="themeForm.colorScheme"
+            class="select select-bordered"
+          >
             <option value="light">light</option>
             <option value="dark">dark</option>
           </select>
@@ -57,19 +64,19 @@
           }}</label>
           <input
             type="text"
-            v-model="customTheme[key]"
+            v-model="themeForm.values[key]"
             class="input input-bordered w-full h-10"
             placeholder="e.g. 1rem or 0"
           />
         </div>
 
         <input
-          v-model="customName"
+          v-model="themeForm.name"
           placeholder="Theme name"
           class="input input-bordered text-center"
         />
         <input
-          v-model="customRoom"
+          v-model="themeForm.room"
           placeholder="Optional room (e.g. splash, editor)"
           class="input input-bordered text-center"
         />
@@ -99,61 +106,39 @@
       >
         <h3 class="text-lg font-bold">Live Preview</h3>
         <div class="flex gap-2 mt-2">
+          <button class="btn btn-base-100 btn-sm">Base-100</button>
           <button class="btn btn-primary btn-sm">Primary</button>
           <button class="btn btn-secondary btn-sm">Secondary</button>
           <button class="btn btn-accent btn-sm">Accent</button>
+          <button class="btn btn-accent btn-sm">Info</button>
+          <button class="btn btn-accent btn-sm">Success</button>
           <button class="btn btn-warning btn-sm">Warning</button>
           <button class="btn btn-error btn-sm">Error</button>
         </div>
       </div>
     </section>
 
-    <!-- Explore Themes -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div>
-        <h2 class="text-xl font-semibold mb-3">🌈 Default Themes</h2>
-        <div class="grid gap-3 sm:grid-cols-2">
-          <magic-container
-            v-for="theme in themeStore.availableThemes"
-            :key="theme"
-            :data-theme="theme"
-            class="rounded-xl p-4 border cursor-pointer text-center hover:ring hover:ring-primary"
-            @click="applyTheme(theme)"
-          >
-            <div class="font-mono">{{ theme }}</div>
-          </magic-container>
-        </div>
-      </div>
-
-      <div v-if="themeStore.sharedThemes.length">
-        <h2 class="text-xl font-semibold mb-3">🌍 Shared Themes</h2>
-        <div class="grid gap-3 sm:grid-cols-2">
-          <magic-container
-            v-for="theme in themeStore.sharedThemes"
-            :key="theme.id"
-            :style="getThemeStyle(theme.values as Record<string, string>)"
-            class="rounded-xl p-4 border cursor-pointer hover:ring hover:ring-secondary"
-            @click.ctrl="editTheme(theme)"
-            @click="applyTheme(theme.name)"
-          >
-            <div class="font-mono text-lg">{{ theme.name }}</div>
-          </magic-container>
-        </div>
-      </div>
-    </section>
+    <theme-gallery />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
 
 const themeStore = useThemeStore()
-const milestoneStore = useMilestoneStore()
 
-const customPrefersDark = ref(false)
-const customColorScheme = ref<'light' | 'dark'>('light')
+const themeForm = themeStore.themeForm as Record<string, any>
+const updateMode = computed(() => !!themeForm.id)
+const applyAfterSave = computed({
+  get: () => themeForm.applyAfterSave ?? true,
+  set: (val) => (themeForm.applyAfterSave = val),
+})
+
+const useCustom = computed({
+  get: () => themeStore.showCustom,
+  set: (val) => themeStore.setShowCustom(val),
+})
 
 const colorKeys = [
   '--color-primary',
@@ -189,125 +174,30 @@ const extraVars = [
   '--noise',
 ]
 
-const customTheme = ref<Record<string, string>>(
-  Object.fromEntries([...colorKeys, ...extraVars].map((key) => [key, ''])),
-)
-
-const customName = ref('')
-const customRoom = ref('')
-const selectedThemeId = ref<number | null>(null)
-const updateMode = ref(false)
-const applyAfterSave = ref(true)
-
-const useCustom = computed({
-  get: () => themeStore.showCustom,
-  set: (val) => themeStore.setShowCustom(val),
-})
-
-const applyTheme = (themeName: string) => {
-  themeStore.changeTheme(themeName)
-  milestoneStore.rewardMilestone(9)
+function fillWithRandomTheme() {
+  themeForm.values ||= {}
+  for (const key of colorKeys) {
+    themeForm.values[key] = getRandomHex()
+  }
 }
 
-function isValidColor(val: string) {
+function onColorInput(e: Event, color: string) {
+  const target = e.target as HTMLInputElement | null
+  if (target && themeForm.values) {
+    themeForm.values[color] = target.value
+  }
+}
+
+function getRandomHex(): string {
   return (
-    typeof val === 'string' &&
-    (/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(val) ||
-      /^oklch\(.+\)$/.test(val))
+    '#' +
+    Math.floor(Math.random() * 0xffffff)
+      .toString(16)
+      .padStart(6, '0')
   )
 }
 
-const previewStyle = computed(() => {
-  const vars = Object.entries(customTheme.value)
-    .filter(([, val]) => isValidColor(val))
-    .map(([key, val]) => `${key}: ${val}`)
-    .join('; ')
-  return `padding: 1rem; ${vars}`
-})
-
-function hexToRgb(hex: string) {
-  if (!isValidColor(hex)) {
-    console.warn('Invalid hex value:', hex)
-    return '255 255 255'
-  }
-
-  const h = hex.replace('#', '')
-  const bigint = parseInt(h, 16)
-  const r = (bigint >> 16) & 255
-  const g = (bigint >> 8) & 255
-  const b = bigint & 255
-  return `${r} ${g} ${b}`
-}
-
-const saveTheme = async () => {
-  if (!customName.value) return
-
-  const theme = {
-    name: customName.value.trim(),
-    values: sanitizeThemeValues(customTheme.value),
-    room: customRoom.value.trim() || undefined,
-    isPublic: false,
-    prefersDark: customPrefersDark.value,
-    colorScheme: customColorScheme.value,
-  }
-
-  try {
-    if (updateMode.value && selectedThemeId.value) {
-      await themeStore.updateTheme(selectedThemeId.value, theme)
-    } else {
-      await themeStore.addTheme(theme)
-    }
-
-    if (applyAfterSave.value) {
-      themeStore.changeTheme(theme.name)
-    }
-
-    milestoneStore.rewardMilestone(9)
-    customName.value = ''
-    customRoom.value = ''
-    selectedThemeId.value = null
-    updateMode.value = false
-  } catch (e) {
-    console.error('Theme save failed', e)
-  }
-}
-
-function editTheme(theme: Theme) {
-  customName.value = theme.name
-  customRoom.value = theme.room || ''
-  customPrefersDark.value = theme.prefersDark || false
-  customColorScheme.value = theme.colorScheme === 'dark' ? 'dark' : 'light'
-
-  const validTheme =
-    theme.values && typeof theme.values === 'object'
-      ? sanitizeThemeValues(theme.values as Record<string, string>)
-      : {}
-
-  customTheme.value = Object.fromEntries([
-    ...colorKeys.map((key) => [key, '#ffffff']),
-    ...extraVars.map((key) => [key, '']), // these can remain blank safely
-  ])
-
-  selectedThemeId.value = theme.id || null
-  updateMode.value = true
-}
-
-function resetThemeForm() {
-  customName.value = ''
-  customRoom.value = ''
-  customPrefersDark.value = false
-  customColorScheme.value = 'light'
-  updateMode.value = false
-  selectedThemeId.value = null
-  customTheme.value = Object.fromEntries([
-    ...colorKeys.map((key) => [key, '#ffffff']),
-    ...extraVars.map((key) => [key, '']), // these can remain blank safely
-  ])
-}
-
-function sanitizeThemeValues(
-  values: Record<string, string>,
-): Record<string, string> {
+function sanitizeThemeValues(values: Record<string, string>) {
   const sanitized: Record<string, string> = {}
   for (const [key, val] of Object.entries(values)) {
     if (key.startsWith('--color-') && isValidColor(val)) {
@@ -323,6 +213,23 @@ function sanitizeThemeValues(
   return sanitized
 }
 
+function isValidColor(val: string) {
+  return (
+    typeof val === 'string' &&
+    (/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(val) ||
+      /^oklch\(.+\)$/.test(val))
+  )
+}
+
+const previewStyle = computed(() => {
+  const entries = themeForm.values as Record<string, string>
+  const vars = Object.entries(entries || {})
+    .filter(([, val]) => isValidColor(val))
+    .map(([key, val]) => `${key}: ${val}`)
+    .join('; ')
+  return `padding: 1rem; ${vars}`
+})
+
 function labelFromKey(key: string) {
   return key.replace('--color-', '').replaceAll('-', ' ')
 }
@@ -332,5 +239,48 @@ function getThemeStyle(values: Record<string, string>) {
     .filter(([, val]) => isValidColor(val))
     .map(([key, val]) => `${key}: ${val}`)
     .join('; ')
+}
+
+function resetThemeForm() {
+  Object.assign(themeForm, {
+    id: undefined,
+    name: '',
+    room: '',
+    prefersDark: false,
+    colorScheme: 'light',
+    values: Object.fromEntries([
+      ...colorKeys.map((key) => [key, '#ffffff']),
+      ...extraVars.map((key) => [key, '']),
+    ]),
+  })
+}
+
+async function saveTheme() {
+  if (!themeForm.name) return
+
+  const payload = {
+    name: themeForm.name.trim(),
+    values: sanitizeThemeValues(themeForm.values || {}),
+    room: themeForm.room?.trim() || undefined,
+    isPublic: false,
+    prefersDark: themeForm.prefersDark,
+    colorScheme: themeForm.colorScheme,
+  }
+
+  try {
+    if (themeForm.id) {
+      await themeStore.updateTheme(themeForm.id, payload)
+    } else {
+      await themeStore.addTheme(payload)
+    }
+
+    if (applyAfterSave.value) {
+      themeStore.changeTheme(themeForm.name)
+    }
+
+    resetThemeForm()
+  } catch (e) {
+    console.error('Theme save failed', e)
+  }
 }
 </script>

@@ -32,19 +32,17 @@
           <jellybean-icon />
         </div>
 
-        <!-- Conditional Rendering Based on isLoggedIn -->
-        <div v-if="isLoggedIn" class="flex flex-wrap space-y-4">
-          <button
-            class="bg-warning p-2 rounded-lg text-white text-lg"
-            @click="logout"
-          >
-            Logout
-          </button>
-          <user-panel />
-        </div>
-        <div v-else class="flex flex-wrap space-y-4">
-          <login-page />
-        </div>
+<div v-if="isLoggedIn" class="space-y-4">
+  <user-panel />
+  <div class="flex justify-center">
+    <button
+      class="bg-warning px-4 py-2 rounded-xl text-white text-lg"
+      @click="logout"
+    >
+      Logout
+    </button>
+  </div>
+</div>
 
         <div class="mt-6">
           <theme-toggle class="flex flex-row" />

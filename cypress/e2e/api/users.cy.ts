@@ -107,7 +107,7 @@ describe('User Management API Tests', () => {
         expect(response.body).to.have.property('success', false)
         expect(response.body)
           .to.have.property('message')
-          .that.includes('Authorization token is required in the format')
+          .that.includes('You do not have permission to update this user')
       })
     })
 
@@ -216,7 +216,7 @@ describe('User Management API Tests', () => {
         expect(response.body).to.have.property('success', false)
         expect(response.body)
           .to.have.property('message')
-          .that.includes('Authorization token is required in the format ')
+          .that.includes('You do not have permission to delete this user')
       })
     })
 

@@ -8,7 +8,7 @@
       <button
         v-for="tab in visibleTabs"
         :key="tab.name"
-        class="flex-grow basis-[45%] sm:basis-[40%] md:basis-[30%] lg:basis-[22%] xl:basis-[18%] px-4 py-2 text-sm md:text-base lg:text-lg font-semibold border border-accent rounded-2xl text-center whitespace-nowrap overflow-hidden text-ellipsis transition-all duration-300"
+        class="min-w-[9rem] flex-grow px-4 py-2 text-sm md:text-base lg:text-lg font-semibold border border-accent rounded-2xl text-center whitespace-nowrap overflow-hidden text-ellipsis transition-all duration-300"
         :class="[
           tab.name === activeTab
             ? 'bg-primary text-black'
@@ -21,6 +21,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'

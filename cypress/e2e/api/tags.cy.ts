@@ -88,9 +88,7 @@ describe('Tag Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401) // Unauthorized without token
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 

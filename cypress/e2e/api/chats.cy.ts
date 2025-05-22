@@ -165,9 +165,7 @@ describe('Chat API Tests', () => {
     makeRequest('DELETE', `${baseUrl}/${chatId}`, null).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 

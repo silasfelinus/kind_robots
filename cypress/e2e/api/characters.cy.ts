@@ -2,11 +2,11 @@
 // cypress/e2e/character.cy.ts
 
 describe('Character Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/characters';
-  const userToken = Cypress.env('USER_TOKEN');
-  const invalidToken = 'someInvalidTokenValue';
-  let characterId: number | undefined; // Define with undefined for clarity
-  const uniqueCharacterName = `Character-${Date.now()}`; // Generate a unique character name
+  const baseUrl = 'https://kind-robots.vercel.app/api/characters'
+  const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'someInvalidTokenValue'
+  let characterId: number | undefined // Define with undefined for clarity
+  const uniqueCharacterName = `Character-${Date.now()}` // Generate a unique character name
 
   // Step 1: Attempt to create a character with various authentication scenarios
 
@@ -27,12 +27,10 @@ describe('Character Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401);
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      );
-    });
-  });
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
 
   it('should not allow creating a character with an invalid authorization token', () => {
     cy.request({
@@ -52,10 +50,10 @@ describe('Character Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401);
-      expect(response.body.message).to.include('Invalid or expired token');
-    });
-  });
+      expect(response.status).to.eq(401)
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
 
   it('Create a New Character with Valid Authentication', () => {
     cy.request({
@@ -74,12 +72,12 @@ describe('Character Management API Tests', () => {
         isPublic: false,
       },
     }).then((response) => {
-      expect(response.status).to.eq(201);
-      expect(response.body.success).to.be.true;
-      expect(response.body.data).to.be.an('object').that.is.not.empty;
-      characterId = response.body.data.id;
-    });
-  });
+      expect(response.status).to.eq(201)
+      expect(response.body.success).to.be.true
+      expect(response.body.data).to.be.an('object').that.is.not.empty
+      characterId = response.body.data.id
+    })
+  })
 
   // Step 2: Attempt to update character without authentication
   it('Attempt to Update Character without Authentication (expect failure)', () => {
@@ -90,9 +88,9 @@ describe('Character Management API Tests', () => {
       body: { name: 'Unauthorized Update' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401); // Unauthorized without token
-    });
-  });
+      expect(response.status).to.eq(401) // Unauthorized without token
+    })
+  })
 
   // Step 3: Attempt to update character with invalid token
   it('Attempt to Update Character with Invalid Token (expect failure)', () => {
@@ -106,13 +104,13 @@ describe('Character Management API Tests', () => {
       body: { name: 'Invalid Update Attempt' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401); // Unauthorized with invalid token
-    });
-  });
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+    })
+  })
 
   // Step 4: Update character with valid authentication
   it('Update Character with Authentication', () => {
-    const updatedCharacterName = `Updated-${uniqueCharacterName}`;
+    const updatedCharacterName = `Updated-${uniqueCharacterName}`
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${characterId}`,
@@ -122,15 +120,15 @@ describe('Character Management API Tests', () => {
       },
       body: { name: updatedCharacterName },
     }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.success).to.be.true;
-      expect(response.body.data.name).to.eq(updatedCharacterName);
-    });
-  });
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.name).to.eq(updatedCharacterName)
+    })
+  })
 
   // Step 5: Retrieve character by ID
   it('Retrieve Character by ID', () => {
-    cy.wrap(characterId).should('exist'); // Ensure characterId exists
+    cy.wrap(characterId).should('exist') // Ensure characterId exists
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${characterId}`,
@@ -139,11 +137,11 @@ describe('Character Management API Tests', () => {
         Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.success).to.be.true;
-      expect(response.body.data.name).to.include('Updated-');
-    });
-  });
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.name).to.include('Updated-')
+    })
+  })
 
   // Step 6: Retrieve all characters
   it('Retrieve All Characters', () => {
@@ -155,30 +153,30 @@ describe('Character Management API Tests', () => {
         Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.success).to.be.true;
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
       expect(response.body.data)
         .to.be.an('array')
-        .and.have.length.greaterThan(0);
-    });
-  });
+        .and.have.length.greaterThan(0)
+    })
+  })
 
   // Step 7: Attempt to delete character without authentication
   it('Attempt to Delete Character without Authentication (expect failure)', () => {
-    cy.wrap(characterId).should('exist'); // Ensure characterId exists
+    cy.wrap(characterId).should('exist') // Ensure characterId exists
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${characterId}`,
       headers: { 'Content-Type': 'application/json' },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401); // Unauthorized without token
-    });
-  });
+      expect(response.status).to.eq(401) // Unauthorized without token
+    })
+  })
 
   // Step 8: Attempt to delete character with invalid token
   it('Attempt to Delete Character with Invalid Token (expect failure)', () => {
-    cy.wrap(characterId).should('exist'); // Ensure characterId exists
+    cy.wrap(characterId).should('exist') // Ensure characterId exists
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${characterId}`,
@@ -188,13 +186,13 @@ describe('Character Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401); // Unauthorized with invalid token
-    });
-  });
+      expect(response.status).to.eq(401) // Unauthorized with invalid token
+    })
+  })
 
   // Step 9: Delete character with valid authentication
   it('Delete Character with Authentication', () => {
-    cy.wrap(characterId).should('exist'); // Ensure characterId exists
+    cy.wrap(characterId).should('exist') // Ensure characterId exists
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${characterId}`,
@@ -203,11 +201,11 @@ describe('Character Management API Tests', () => {
         Authorization: `Bearer ${userToken}`,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.success).to.be.true;
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
       expect(response.body.message).to.include(
         `Character with ID ${characterId} successfully deleted`,
-      );
-    });
-  });
-});
+      )
+    })
+  })
+})

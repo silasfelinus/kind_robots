@@ -63,9 +63,11 @@
       <lab-gallery />
     </div>
 
-    <!-- Fullscreen Component View (In-content fullscreen, not viewport-absolute) -->
-<div v-if="componentStore.selectedComponent"
-
+<!-- Fullscreen Component View (In-content fullscreen, not viewport-absolute) -->
+<div
+  v-if="componentStore.selectedComponent"
+  class="px-4 py-6 w-full max-w-7xl mx-auto"
+>
   <select-component />
 </div>
 

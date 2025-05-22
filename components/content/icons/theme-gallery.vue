@@ -29,7 +29,7 @@
           <div class="font-mono text-lg">{{ theme.name }}</div>
           <button
             class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100 transition-opacity"
-            @click.stop="themeStore.selectTheme(theme)"
+            @click.stop="themeStore.setActiveTheme(theme)"
           >
             ✏️ Edit
           </button>
@@ -47,7 +47,7 @@ const themeStore = useThemeStore()
 const milestoneStore = useMilestoneStore()
 
 const applyTheme = (themeName: string) => {
-  themeStore.changeTheme(themeName)
+  themeStore.setActiveTheme(themeName)
   milestoneStore.rewardMilestone(9)
 }
 

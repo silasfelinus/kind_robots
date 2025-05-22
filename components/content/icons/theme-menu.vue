@@ -182,7 +182,7 @@ const saveTheme = async () => {
 
 // 🎯 Apply theme
 const applyTheme = (theme: string) => {
-  themeStore.changeTheme(theme)
+  themeStore.setActiveTheme(theme)
   milestoneStore.rewardMilestone(9)
 }
 

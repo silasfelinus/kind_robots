@@ -11,43 +11,44 @@
       />
     </div>
 
-    <!-- Back Button (always visible, top-left inside flow) -->
+    <!-- Floating Back Button (top-left) -->
     <button
-      class="absolute top-4 left-4 z-30 btn btn-primary btn-sm px-4 py-2 shadow-lg"
+      class="fixed top-6 left-6 z-50 btn btn-primary btn-sm px-4 py-2 shadow-lg"
       @click="handleBack"
     >
       <Icon name="kind-icon:arrow-left" class="mr-2" />
       Back
     </button>
 
-    <!-- Reaction Icon -->
+    <!-- Floating Reaction Button (bottom-left) -->
     <button
-      class="absolute bottom-4 left-4 z-30 btn btn-accent btn-sm btn-circle"
+      class="fixed bottom-6 left-6 z-50 btn btn-accent btn-sm btn-circle"
       @click="showReactions = !showReactions"
       title="Toggle Reactions"
     >
       <Icon name="kind-icon:emoji" class="text-xl" />
     </button>
 
-    <!-- Reactions Panel -->
-    <transition name="fade">
-      <div
-        v-if="showReactions && componentStore.selectedComponent"
-        class="absolute bottom-0 left-0 right-0 z-20 bg-base-200 border-t border-base-300 p-4 shadow-xl"
-      >
-        <div class="flex justify-between items-center mb-2">
-          <h2 class="text-lg font-semibold">
-            Reactions: {{ componentStore.selectedComponent.title }}
-          </h2>
-          <button class="btn btn-xs btn-outline" @click="showReactions = false">
-            Close
-          </button>
-        </div>
-        <component-reactions />
-      </div>
-    </transition>
+    <transition name="slide-up-down">
+  <div
+    v-if="showReactions && componentStore.selectedComponent"
+    class="fixed bottom-0 left-0 right-0 z-40 bg-base-200 border-t border-base-300 p-4 shadow-xl"
+  >
+    <div class="flex justify-between items-center mb-2">
+      <h2 class="text-lg font-semibold">
+        Reactions: {{ componentStore.selectedComponent.title }}
+      </h2>
+      <button class="btn btn-xs btn-outline" @click="showReactions = false">
+        Close
+      </button>
+    </div>
+    <component-reactions />
+  </div>
+</transition>
+
   </div>
 </template>
+
 
 
 <script setup lang="ts">
@@ -71,12 +72,32 @@ function handleBack() {
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
+.slide-up-down-enter-active {
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  transform: translateY(100%);
   opacity: 0;
 }
+.slide-up-down-enter-to {
+  transform: translateY(0%);
+  opacity: 1;
+}
+.slide-up-down-leave-active {
+  transition: all 0.3s ease-in;
+  transform: translateY(0%);
+  opacity: 1;
+}
+.slide-up-down-enter-from {
+  transform: translateY(100%);
+  opacity: 0;
+}
+.slide-up-down-leave-from {
+  transform: translateY(0%);
+  opacity: 1;
+}
+
+.slide-up-down-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
 </style>

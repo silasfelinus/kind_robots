@@ -1,7 +1,5 @@
-<!-- /components/content/icons/theme-lab.vue -->
 <template>
   <div class="theme-lab w-full px-4 py-6 max-w-6xl mx-auto space-y-12">
-    <!-- Header -->
     <div class="text-center">
       <h1 class="text-4xl font-bold mb-2">🎨 Theme Lab</h1>
       <p class="text-base-content/70">
@@ -9,7 +7,6 @@
       </p>
     </div>
 
-    <!-- Build / Edit Theme -->
     <section
       class="bg-base-200 border border-base-content p-6 rounded-2xl shadow-lg"
     >
@@ -31,6 +28,7 @@
           />
         </div>
       </div>
+
       <button class="btn btn-accent" @click="fillWithRandomTheme">
         🎲 Randomize Theme
       </button>
@@ -130,13 +128,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 
 const themeStore = useThemeStore()
-
 const themeForm = themeStore.themeForm as Record<string, any>
-
 const themeError = ref('')
 
 const colorKeys = [
@@ -172,12 +168,12 @@ const extraVars = [
   '--depth',
   '--noise',
 ]
-
 if (!themeForm.values) {
   themeForm.values = Object.fromEntries([
     ...colorKeys.map((key) => [key, '#ffffff']),
     ...extraVars.map((key) => [key, '']),
   ])
+  fillWithRandomTheme()
 }
 
 const updateMode = computed(() => !!themeForm.id)
@@ -251,13 +247,6 @@ function labelFromKey(key: string) {
   return key.replace('--color-', '').replaceAll('-', ' ')
 }
 
-function getThemeStyle(values: Record<string, string>) {
-  return Object.entries(values)
-    .filter(([, val]) => isValidColor(val))
-    .map(([key, val]) => `${key}: ${val}`)
-    .join('; ')
-}
-
 function resetThemeForm() {
   Object.assign(themeForm, {
     id: undefined,
@@ -274,7 +263,6 @@ function resetThemeForm() {
 
 async function saveTheme() {
   if (!themeForm.name) return
-
   const payload = {
     name: themeForm.name.trim(),
     values: sanitizeThemeValues(themeForm.values || {}),
@@ -283,14 +271,12 @@ async function saveTheme() {
     prefersDark: themeForm.prefersDark,
     colorScheme: themeForm.colorScheme,
   }
-
   try {
     if (themeForm.id) {
       await themeStore.updateTheme(themeForm.id, payload)
     } else {
       await themeStore.addTheme(payload)
     }
-
     if (applyAfterSave.value) {
       const { success, message } = themeStore.setActiveTheme(themeForm.name)
       if (!success && message) {
@@ -301,7 +287,6 @@ async function saveTheme() {
     } else {
       themeError.value = ''
     }
-
     resetThemeForm()
   } catch (e) {
     console.error('Theme save failed', e)

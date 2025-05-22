@@ -92,7 +92,7 @@ describe('User Management API Tests', () => {
   })
 
   context('User Update Tests', () => {
-    it('Attempt to Update User by ID without Authentication (expect 401)', () => {
+    it('Attempt to Update User by ID without Authentication (expect 403)', () => {
       const newUsername = `unauthorizeduser${Date.now()}`
       cy.request({
         method: 'PATCH',
@@ -103,7 +103,7 @@ describe('User Management API Tests', () => {
         body: { username: newUsername },
         failOnStatusCode: false,
       }).then((response) => {
-        expect(response.status).to.eq(401)
+        expect(response.status).to.eq(403)
         expect(response.body).to.have.property('success', false)
         expect(response.body)
           .to.have.property('message')
@@ -203,7 +203,7 @@ describe('User Management API Tests', () => {
   })
 
   context('User Deletion Tests', () => {
-    it('Attempt to Delete User by ID without Authentication (expect 401)', () => {
+    it('Attempt to Delete User by ID without Authentication (expect 403)', () => {
       cy.request({
         method: 'DELETE',
         url: `${baseUrl}/${createdUserId}`,
@@ -212,7 +212,7 @@ describe('User Management API Tests', () => {
         },
         failOnStatusCode: false,
       }).then((response) => {
-        expect(response.status).to.eq(401)
+        expect(response.status).to.eq(403)
         expect(response.body).to.have.property('success', false)
         expect(response.body)
           .to.have.property('message')

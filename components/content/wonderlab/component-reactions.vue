@@ -13,7 +13,7 @@
     <div v-if="selectedComponent" class="space-y-6">
       <div>
         <label class="block mb-1 text-sm font-semibold text-base-content">Notes</label>
-        <template v-if="userStore.user?.isAdmin">
+        <template v-if="isAdmin">
           <textarea
             v-model="selectedComponent.notes"
             class="textarea textarea-bordered w-full"
@@ -139,6 +139,8 @@ const userStore = useUserStore()
 
 const selectedComponent = computed(() => componentStore.selectedComponent)
 const userId = computed(() => userStore.user?.id || 10)
+
+const isAdmin = computed(() => userStore.isAdmin())
 
 const rating = ref(0)
 const hoverRating = ref(0)

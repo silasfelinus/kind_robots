@@ -62,8 +62,9 @@ const displayStore = useDisplayStore()
 
 
 const backButtonTop = computed(() => {
-  return `${displayStore.headerHeight + 8}px` // add a little margin (e.g., 8px)
+  return `calc(${displayStore.headerHeight}vh + 8px)`
 })
+
 
 const componentStore = useComponentStore()
 const showReactions = ref(false)

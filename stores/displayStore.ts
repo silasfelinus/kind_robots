@@ -102,7 +102,7 @@ export const useDisplayStore = defineStore('displayStore', {
       const sizes = {
         small: this.bigMode ? 10 : 16,
         medium: this.bigMode ? 8 : 12,
-        large: this.bigMode ? 7 : 13,
+        large: this.bigMode ? 10 : 14,
         extraLarge: this.bigMode ? 8 : 14,
       }
       return sizes[this.viewportSize]

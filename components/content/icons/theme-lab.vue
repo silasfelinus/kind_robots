@@ -14,50 +14,49 @@
       >
         <h2 class="text-2xl font-semibold mb-4">Create or Edit Your Theme</h2>
 
+        <!-- Color Inputs -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <div
+          <label
             v-for="color in colorKeys"
             :key="color"
-            class="flex items-center gap-2"
+            class="w-full font-medium capitalize text-sm flex items-center gap-2"
           >
-            <label class="w-40 font-medium capitalize text-sm">
-              {{ labelFromKey(color) }}
-            </label>
+            {{ labelFromKey(color) }}
             <input
               type="color"
               :value="themeForm.values?.[color] || '#ffffff'"
               @input="onColorInput($event, color)"
               class="input input-bordered w-full h-10 p-0 rounded-md"
             />
-          </div>
+          </label>
         </div>
 
+        <!-- Random Theme Button -->
         <button class="btn btn-accent mt-4" @click="fillWithRandomTheme">
           🎲 Randomize Theme
         </button>
 
+        <!-- Extra Vars -->
         <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="flex flex-col sm:flex-row gap-4 items-center">
-            <label class="flex gap-2 items-center">
-              <input
-                type="checkbox"
-                class="toggle"
-                v-model="themeForm.prefersDark"
-              />
-              <span class="label-text">Prefers dark mode</span>
-            </label>
-          </div>
+          <!-- Prefers Dark Toggle -->
+          <label class="flex gap-2 items-center text-sm font-medium">
+            <input
+              type="checkbox"
+              class="toggle"
+              v-model="themeForm.prefersDark"
+            />
+            <span>Prefers dark mode</span>
+          </label>
 
-          <div
+          <!-- Sliders and Extras -->
+          <label
             v-for="key in extraVars"
             :key="key"
-            class="flex items-center gap-2"
+            class="flex flex-col gap-1 text-sm font-medium"
           >
-            <label class="w-40 font-medium text-sm">{{
-              key.replace('--', '')
-            }}</label>
+            <span>{{ key.replace('--', '') }}</span>
 
-            <div v-if="isSliderKey(key)" class="w-full flex flex-col gap-1">
+            <div v-if="isSliderKey(key)" class="w-full">
               <input
                 type="range"
                 class="range range-sm"
@@ -78,18 +77,24 @@
               class="input input-bordered w-full h-10"
               placeholder="e.g. 1rem or 0"
             />
-          </div>
+          </label>
 
-          <input
-            v-model="themeForm.name"
-            placeholder="Theme name"
-            class="input input-bordered text-center"
-          />
+          <!-- Theme Name -->
+          <label class="w-full text-sm font-medium flex flex-col gap-1">
+            Theme Name
+            <input
+              v-model="themeForm.name"
+              placeholder="Theme name"
+              class="input input-bordered text-center"
+            />
+          </label>
 
+          <!-- Save Button -->
           <button @click="saveTheme" class="btn btn-primary">
             {{ updateMode ? 'Update Theme' : 'Save Theme' }}
           </button>
 
+          <!-- Error Message -->
           <p
             v-if="themeError"
             class="mt-4 p-3 text-sm text-error bg-error/10 border border-error rounded-xl"
@@ -98,6 +103,7 @@
           </p>
         </div>
 
+        <!-- Toggles -->
         <div
           class="form-control col-span-1 sm:col-span-3 flex flex-col sm:flex-row gap-4 items-center mt-6"
         >
@@ -119,10 +125,12 @@
           </label>
         </div>
 
+        <!-- Reset Button -->
         <button class="btn btn-outline mt-4" @click="resetThemeForm">
           Reset
         </button>
 
+        <!-- Live Preview -->
         <div
           class="mt-6 border rounded-xl p-4 transition-all duration-300"
           :style="`${previewStyle}; border-radius: var(--radius-box, 0.5rem); border-width: var(--border, 1px);`"
@@ -141,6 +149,7 @@
         </div>
       </section>
 
+      <!-- Theme Gallery -->
       <theme-gallery />
     </div>
   </div>

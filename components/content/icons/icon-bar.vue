@@ -1,13 +1,39 @@
 <!-- /components/content/icons/icon-bar.vue -->
 <template>
   <div class="relative w-full h-full overflow-hidden">
-    <!-- Scroll Arrows -->
-    <ScrollArrowLeft v-if="showLeft" @scroll="startContinuousScroll(-1)" />
-    <ScrollArrowRight v-if="showRight" @scroll="startContinuousScroll(1)" />
+    <!-- Left Scroll Button -->
+    <div
+      class="absolute left-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
+    >
+      <button
+        v-show="showLeft"
+        class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
+        @mousedown.prevent="startContinuousScroll(-1)"
+        @mouseup="stopContinuousScroll"
+        @mouseleave="stopContinuousScroll"
+      >
+        <Icon name="kind-icon:chevron-left" />
+      </button>
+    </div>
 
-    <!-- Edit/Add/Confirm/Revert Buttons -->
-    <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50">
-      <div class="flex flex-col gap-2 pr-2">
+    <!-- Right Scroll Button -->
+    <div
+      class="absolute right-[4.5rem] top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
+    >
+      <button
+        v-show="showRight"
+        class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
+        @mousedown.prevent="startContinuousScroll(1)"
+        @mouseup="stopContinuousScroll"
+        @mouseleave="stopContinuousScroll"
+      >
+        <Icon name="kind-icon:chevron-right" />
+      </button>
+    </div>
+
+    <!-- Right Control Panel -->
+    <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50 pr-2">
+      <div class="flex flex-col gap-2">
         <template v-if="isEditing">
           <NuxtLink to="/icons" class="btn btn-square btn-sm" @click="confirmEdit">
             <Icon name="kind-icon:plus" />
@@ -26,7 +52,12 @@
             <Icon name="kind-icon:check" />
           </button>
         </template>
-        <button v-else class="btn btn-square btn-sm" @click="activateEditMode">
+        <button
+          v-else
+          class="btn btn-square btn-sm"
+          @click="activateEditMode"
+          title="Edit"
+        >
           <Icon name="kind-icon:settings" />
         </button>
       </div>
@@ -38,6 +69,13 @@
         ref="scrollContainer"
         class="overflow-x-auto scrollbar-hide w-full h-full flex gap-2 snap-x snap-mandatory"
         @scroll="checkScrollEdges"
+        @mousedown="handleScrollMouseDown"
+        @mousemove="handleScrollMouseMove"
+        @mouseup="handleScrollMouseUp"
+        @mouseleave="handleScrollMouseUp"
+        @touchstart="handleScrollTouchStart"
+        @touchmove="handleScrollTouchMove"
+        @touchend="handleScrollMouseUp"
       >
         <icon-display
           v-for="(icon, index) in editableIcons"
@@ -49,92 +87,42 @@
   </div>
 </template>
 
-// /components/content/icons/smart-icons.vue
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useIconStore, type SmartIcon } from '@/stores/iconStore'
 import { useDisplayStore } from '@/stores/displayStore'
-import { useThemeStore } from '@/stores/themeStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useRoute } from 'vue-router'
-import { useUserStore } from '@/stores/userStore'
 
-const route = useRoute()
 const iconStore = useIconStore()
 const displayStore = useDisplayStore()
-const themeStore = useThemeStore()
-const userStore = useUserStore()
-const milestoneStore = useMilestoneStore()
-
-const { bigMode } = storeToRefs(displayStore)
 const { activeIcons, isEditing } = storeToRefs(iconStore)
 
 const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
 const originalIcons = ref<SmartIcon[]>([])
+
+watch(activeIcons, (val) => {
+  if (!isEditing.value) editableIcons.value = [...val]
+}, { immediate: true })
+
+watch(isEditing, (editing) => {
+  if (editing) originalIcons.value = [...editableIcons.value]
+})
+
+const hasChanges = computed(() =>
+  JSON.stringify(editableIcons.value.map(i => i.id)) !==
+  JSON.stringify(originalIcons.value.map(i => i.id))
+)
 
 function activateEditMode() {
   iconStore.isEditing = true
   displayStore.bigMode = false
 }
 
-const showSwarm = computed(() => iconStore.showSwarm)
-const swarmMessage = computed(() => iconStore.swarmMessage)
-
-function getUtilityLabelFromName(name: string): string {
-  switch (name) {
-    case 'theme-icon':
-      return themeStore.currentTheme
-    case 'login-icon':
-      return userStore.isLoggedIn
-        ? userStore.user?.username || 'User'
-        : 'Login?'
-    case 'jellybean-icon':
-      return ${milestoneStore.milestoneCountForUser || 0} /11
-    case 'swarm-icon':
-      return showSwarm.value ? swarmMessage.value : 'Swarm'
-    default:
-      return '…'
-  }
-}
-
-watch(
-  activeIcons,
-  (val) => {
-    if (!isEditing.value) editableIcons.value = [...val]
-  },
-  { immediate: true },
-)
-
-watch(isEditing, (editing) => {
-  if (editing) originalIcons.value = [...editableIcons.value]
-})
-
-const hasChanges = computed(() => {
-  return (
-    JSON.stringify(editableIcons.value.map((i) => i.id)) !==
-    JSON.stringify(originalIcons.value.map((i) => i.id))
-  )
-})
-
-let dragIndex = -1
-function onDragStart(index: number) {
-  dragIndex = index
-}
-function onDrop(index: number) {
-  if (dragIndex < 0 || dragIndex === index) return
-  const dragged = editableIcons.value.splice(dragIndex, 1)[0]
-  editableIcons.value.splice(index, 0, dragged)
-  dragIndex = -1
-}
-function removeIcon(index: number) {
-  const removed = editableIcons.value.splice(index, 1)[0]
-  iconStore.removeIconFromSmartBar(removed.id)
-}
 function confirmEdit() {
-  iconStore.setIconOrder(editableIcons.value.map((i) => i.id))
+  iconStore.setIconOrder(editableIcons.value.map(i => i.id))
   iconStore.isEditing = false
 }
+
 function revertEdit() {
   editableIcons.value = [...originalIcons.value]
   iconStore.isEditing = false
@@ -148,13 +136,10 @@ const showRight = ref(false)
 function checkScrollEdges() {
   const el = scrollContainer.value
   if (!el) return
-
   const scrollLeft = el.scrollLeft
   const scrollRight = el.scrollWidth - el.clientWidth - scrollLeft
-
-  // 👇 Adjust threshold based on known padding (4.5rem = 72px)
-  showLeft.value = scrollLeft > 72 - 4 // add a tiny buffer
-  showRight.value = scrollRight > 72 - 4
+  showLeft.value = scrollLeft > 68
+  showRight.value = scrollRight > 68
 }
 
 function scrollBy(px: number) {
@@ -175,7 +160,7 @@ function stopContinuousScroll() {
   }
 }
 
-// Scroll dragging
+// Drag-scroll
 let isDragging = false
 let isScrollDragging = false
 let startX = 0
@@ -197,7 +182,6 @@ function handleScrollMouseUp() {
   isDragging = false
   setTimeout(() => (isScrollDragging = false), 100)
 }
-
 function handleScrollTouchStart(e: TouchEvent) {
   isDragging = true
   isScrollDragging = false
@@ -211,6 +195,7 @@ function handleScrollTouchMove(e: TouchEvent) {
   scrollContainer.value.scrollLeft = scrollStart - dx
 }
 
+// Resize check
 let resizeObserver: ResizeObserver | null = null
 onMounted(() => {
   checkScrollEdges()
@@ -222,51 +207,3 @@ onBeforeUnmount(() => {
     resizeObserver.unobserve(scrollContainer.value)
 })
 </script>
-
-<style scoped>
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.glow {
-  box-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
-  transition: box-shadow 0.3s ease-in-out;
-}
-.scroll-fade-left::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4.5rem;
-  height: 100%;
-  background: linear-gradient(to right, var(--tw-bg-base-200), transparent);
-  z-index: 30;
-  pointer-events: none;
-}
-
-.scroll-fade-right::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 4.5rem;
-  height: 100%;
-  background: linear-gradient(to left, var(--tw-bg-base-200), transparent);
-  z-index: 30;
-  pointer-events: none;
-}
-</style>
-

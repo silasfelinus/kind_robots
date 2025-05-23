@@ -46,13 +46,14 @@
 
 <script setup lang="ts">
 // /components/content/icons/kind-header.vue
-import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
-const { page } = storeToRefs(pageStore)
-const { viewportSize, bigMode } = storeToRefs(displayStore)
+const page = computed(() => pageStore.page)
+const viewportSize = computed(() => displayStore.viewportSize)
+const bigMode = computed(() => displayStore.bigMode)
 </script>

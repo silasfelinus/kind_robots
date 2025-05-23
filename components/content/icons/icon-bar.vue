@@ -100,7 +100,9 @@ const iconStore = useIconStore()
 const displayStore = useDisplayStore()
 const { activeIcons, isEditing } = storeToRefs(iconStore)
 
-const editableIcons = ref<SmartIcon[]>([...activeIcons.value])
+const { editableIcons } = storeToRefs(iconStore)
+
+
 const originalIcons = ref<SmartIcon[]>([])
 
 watch(activeIcons, (val) => {

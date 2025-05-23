@@ -1,14 +1,15 @@
 <!-- /pages/[...slug].vue -->
 <template>
   <NuxtLayout :name="layout">
-    <template v-if="pageStore.page && pageStore.page.body">
+    <div v-if="pageStore.page && pageStore.page.body">
       <ContentRenderer :value="pageStore.page" />
-    </template>
+    </div>
     <template #fallback>
       <p class="text-center text-base text-info p-4">Loading page...</p>
     </template>
   </NuxtLayout>
 </template>
+
 <script setup lang="ts">
 // /pages/[...slug].vue
 import { useRoute, useRouter } from '#app'

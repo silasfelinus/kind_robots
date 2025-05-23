@@ -157,6 +157,7 @@ import {
   labelFromKey,
   buildThemePayload,
   getRandomHex,
+  defaultExtraVars,
 } from '@/utils/helpers/themeHelpers'
 
 const themeStore = useThemeStore()
@@ -164,10 +165,10 @@ const themeForm = themeStore.themeForm as Record<string, any>
 const themeError = ref('')
 
 if (!themeForm.values) {
-  themeForm.values = Object.fromEntries([
-    ...colorKeys.map((key) => [key, '#ffffff']),
-    ...extraVars.map((key) => [key, '']),
-  ])
+  themeForm.values = {
+    ...Object.fromEntries(colorKeys.map((key) => [key, '#ffffff'])),
+    ...defaultExtraVars,
+  }
   fillWithRandomTheme()
   themeForm.name ||= `MyTheme-${Date.now()}`
 }
@@ -229,13 +230,13 @@ function resetThemeForm() {
     id: undefined,
     name: '',
     room: '',
-    isPublic: false,
+    isPublic: true,
     prefersDark: false,
     colorScheme: 'light',
-    values: Object.fromEntries([
-      ...colorKeys.map((key) => [key, '#ffffff']),
-      ...extraVars.map((key) => [key, '']),
-    ]),
+    values: {
+      ...Object.fromEntries(colorKeys.map((key) => [key, '#ffffff'])),
+      ...defaultExtraVars,
+    },
   })
 }
 

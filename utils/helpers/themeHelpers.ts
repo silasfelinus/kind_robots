@@ -34,6 +34,17 @@ export const extraVars = [
   '--noise',
 ]
 
+export const defaultExtraVars: Record<string, string> = {
+  '--radius-selector': '0.5rem',
+  '--radius-field': '0.25rem',
+  '--radius-box': '0.5rem',
+  '--size-selector': '1rem',
+  '--size-field': '0.875rem',
+  '--border': '1px solid #ccc',
+  '--depth': 'var(--shadow-md)',
+  '--noise': 'none',
+}
+
 export const allThemeKeys = [...colorKeys, ...extraVars]
 
 export function isValidColor(val: string) {
@@ -44,7 +55,10 @@ export function isValidColor(val: string) {
   )
 }
 
-export function sanitizeThemeValues(values: Record<string, string>) {
+export function sanitizeThemeValues(
+  values: Record<string, string>,
+  options?: { silent?: boolean },
+) {
   const sanitized: Record<string, string> = {}
   const rejected: [string, string][] = []
 
@@ -54,7 +68,7 @@ export function sanitizeThemeValues(values: Record<string, string>) {
     } else if (
       extraVars.includes(key) &&
       typeof val === 'string' &&
-      val.length
+      val.length > 0
     ) {
       sanitized[key] = val
     } else {
@@ -62,7 +76,7 @@ export function sanitizeThemeValues(values: Record<string, string>) {
     }
   }
 
-  if (rejected.length) {
+  if (rejected.length && !options?.silent) {
     console.warn(
       `[themeHelpers] Ignored ${rejected.length} invalid theme value(s):`,
     )
@@ -75,7 +89,13 @@ export function sanitizeThemeValues(values: Record<string, string>) {
 }
 
 export function labelFromKey(key: string) {
-  return key.replace('--color-', '').replaceAll('-', ' ')
+  return key
+    .replace('--color-', '')
+    .replace('--radius-', 'Radius: ')
+    .replace('--size-', 'Size: ')
+    .replace('--', '')
+    .replaceAll('-', ' ')
+    .replace(/\b\w/g, (l) => l.toUpperCase()) // Capitalize
 }
 
 export function buildThemePayload(themeForm: Record<string, any>) {

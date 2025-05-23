@@ -63,27 +63,30 @@
       </div>
     </div>
 
-    <!-- Icon Row -->
-    <div class="relative w-full h-full flex items-center pl-[4.5rem] pr-[9rem] scroll-fade-left scroll-fade-right">
-      <div
-        ref="scrollContainer"
-        class="overflow-x-auto scrollbar-hide w-full h-full flex gap-2 snap-x snap-mandatory"
-        @scroll="checkScrollEdges"
-        @mousedown="handleScrollMouseDown"
-        @mousemove="handleScrollMouseMove"
-        @mouseup="handleScrollMouseUp"
-        @mouseleave="handleScrollMouseUp"
-        @touchstart="handleScrollTouchStart"
-        @touchmove="handleScrollTouchMove"
-        @touchend="handleScrollMouseUp"
-      >
-        <icon-display
-          v-for="(icon, index) in editableIcons"
-          :key="icon.id"
-          :icon="icon"
-        />
-      </div>
-    </div>
+<!-- Icon Row -->
+<div
+  class="relative w-full h-full flex items-center pl-[4.5rem] pr-[9rem]"
+>
+  <div
+    ref="scrollContainer"
+    class="overflow-x-auto scrollbar-hide w-full h-full flex items-center gap-4 snap-x snap-mandatory"
+    @scroll="checkScrollEdges"
+    @mousedown="handleScrollMouseDown"
+    @mousemove="handleScrollMouseMove"
+    @mouseup="handleScrollMouseUp"
+    @mouseleave="handleScrollMouseUp"
+    @touchstart="handleScrollTouchStart"
+    @touchmove="handleScrollTouchMove"
+    @touchend="handleScrollMouseUp"
+  >
+    <icon-display
+      v-for="(icon, index) in editableIcons"
+      :key="icon.id"
+      :icon="icon"
+    />
+  </div>
+</div>
+
   </div>
 </template>
 

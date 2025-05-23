@@ -63,30 +63,30 @@
       </div>
     </div>
 
-<!-- Icon Row -->
-<div
-  class="relative w-full h-full flex items-center pl-[4.5rem] pr-[9rem]"
->
-  <div
-    ref="scrollContainer"
-    class="overflow-x-auto scrollbar-hide w-full h-full flex items-center gap-4 snap-x snap-mandatory"
-    @scroll="checkScrollEdges"
-    @mousedown="handleScrollMouseDown"
-    @mousemove="handleScrollMouseMove"
-    @mouseup="handleScrollMouseUp"
-    @mouseleave="handleScrollMouseUp"
-    @touchstart="handleScrollTouchStart"
-    @touchmove="handleScrollTouchMove"
-    @touchend="handleScrollMouseUp"
-  >
-    <icon-display
-      v-for="(icon, index) in editableIcons"
-      :key="icon.id"
-      :icon="icon"
-    />
-  </div>
-</div>
-
+    <!-- Icon Row -->
+    <div
+      class="relative w-full h-full flex items-center pl-[4.5rem] pr-[9rem]"
+    >
+      <div
+        ref="scrollContainer"
+        class="overflow-x-auto overflow-y-hidden scrollbar-hide w-full h-full flex items-center gap-4 snap-x snap-mandatory"
+        @scroll="checkScrollEdges"
+        @mousedown="handleScrollMouseDown"
+        @mousemove="handleScrollMouseMove"
+        @mouseup="handleScrollMouseUp"
+        @mouseleave="handleScrollMouseUp"
+        @touchstart="handleScrollTouchStart"
+        @touchmove="handleScrollTouchMove"
+        @touchend="handleScrollMouseUp"
+        @wheel="handleWheelScroll"
+      >
+        <icon-display
+          v-for="(icon, index) in editableIcons"
+          :key="icon.id"
+          :icon="icon"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -160,6 +160,17 @@ function stopContinuousScroll() {
   if (scrollInterval !== null) {
     clearInterval(scrollInterval)
     scrollInterval = null
+  }
+}
+
+// Mouse wheel to horizontal scroll
+function handleWheelScroll(e: WheelEvent) {
+  const el = scrollContainer.value
+  if (!el) return
+  if (e.shiftKey) return // preserve shift+scroll
+  if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+    e.preventDefault()
+    el.scrollLeft += e.deltaY
   }
 }
 

@@ -1,41 +1,15 @@
 <!-- /components/content/icons/icon-bar.vue -->
 <template>
   <div class="relative w-full h-full overflow-hidden">
-    <!-- Left Scroll Button -->
-    <div
-      class="absolute left-0 top-0 bottom-0 w-12 z-40 flex items-center justify-center"
-    >
-      <button
-        v-show="showLeft"
-        class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
-        @mousedown.prevent="startContinuousScroll(-1)"
-        @mouseup="stopContinuousScroll"
-        @mouseleave="stopContinuousScroll"
-      >
-        <Icon name="kind-icon:chevron-left" />
-      </button>
-    </div>
-
-    <!-- Right Scroll Button -->
-    <div
-      class="absolute right-[3rem] md:right-[4.5rem] top-0 bottom-0 w-12 z-40 flex items-center justify-center"
-    >
-      <button
-        v-show="showRight"
-        class="bg-base-200/70 hover:bg-base-300 rounded-full w-8 h-8 flex items-center justify-center"
-        @mousedown.prevent="startContinuousScroll(1)"
-        @mouseup="stopContinuousScroll"
-        @mouseleave="stopContinuousScroll"
-      >
-        <Icon name="kind-icon:chevron-right" />
-      </button>
-    </div>
-
     <!-- Right Control Panel -->
     <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50 pr-2">
       <div class="flex flex-col gap-2">
         <template v-if="isEditing">
-          <NuxtLink to="/icons" class="btn btn-square btn-sm" @click="confirmEdit">
+          <NuxtLink
+            to="/icons"
+            class="btn btn-square btn-sm"
+            @click="confirmEdit"
+          >
             <Icon name="kind-icon:plus" />
           </NuxtLink>
           <button
@@ -64,12 +38,13 @@
     </div>
 
     <!-- Icon Row -->
+    <!-- Around scroll container -->
     <div
-      class="relative w-full h-full flex items-center pl-10 md:pl-12 pr-20 md:pr-24"
+      class="relative w-full h-full flex items-center pl-10 md:pl-12 pr-20 md:pr-24 group"
     >
       <div
         ref="scrollContainer"
-        class="overflow-x-auto overflow-y-hidden scrollbar-hide w-full h-full flex items-center gap-1 md:gap-2 snap-x snap-mandatory"
+        class="scroll-container overflow-x-auto overflow-y-hidden w-full h-full flex items-center gap-1 md:gap-2 snap-x snap-mandatory transition-all duration-300 scrollbar-thin scrollbar-thumb-base-content/60 scrollbar-track-transparent"
         @scroll="checkScrollEdges"
         @mousedown="handleScrollMouseDown"
         @mousemove="handleScrollMouseMove"
@@ -102,29 +77,35 @@ const { activeIcons, isEditing } = storeToRefs(iconStore)
 
 const { editableIcons } = storeToRefs(iconStore)
 
-
 const originalIcons = ref<SmartIcon[]>([])
 
-watch(activeIcons, (val) => {
-  if (!isEditing.value) editableIcons.value = [...val]
-}, { immediate: true })
+watch(
+  activeIcons,
+  (val) => {
+    if (!isEditing.value) editableIcons.value = [...val]
+  },
+  { immediate: true },
+)
 
 watch(isEditing, (editing) => {
   if (editing) originalIcons.value = [...editableIcons.value]
 })
 
-const hasChanges = computed(() =>
-  JSON.stringify(editableIcons.value.map(i => i.id)) !==
-  JSON.stringify(originalIcons.value.map(i => i.id))
-)
+const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
 
 function activateEditMode() {
   iconStore.isEditing = true
   displayStore.bigMode = false
 }
 
+const hasChanges = computed(
+  () =>
+    JSON.stringify(getIds(editableIcons.value)) !==
+    JSON.stringify(getIds(originalIcons.value)),
+)
+
 function confirmEdit() {
-  iconStore.setIconOrder(editableIcons.value.map(i => i.id))
+  iconStore.setIconOrder(getIds(editableIcons.value))
   iconStore.isEditing = false
 }
 
@@ -145,24 +126,6 @@ function checkScrollEdges() {
   const scrollRight = el.scrollWidth - el.clientWidth - scrollLeft
   showLeft.value = scrollLeft > 68
   showRight.value = scrollRight > 68
-}
-
-function scrollBy(px: number) {
-  scrollContainer.value?.scrollBy({ left: px, behavior: 'smooth' })
-}
-
-let scrollInterval: number | null = null
-function startContinuousScroll(direction: 1 | -1) {
-  scrollBy(direction * 45)
-  scrollInterval = window.setInterval(() => {
-    scrollBy(direction * 45)
-  }, 50)
-}
-function stopContinuousScroll() {
-  if (scrollInterval !== null) {
-    clearInterval(scrollInterval)
-    scrollInterval = null
-  }
 }
 
 // Mouse wheel to horizontal scroll
@@ -223,3 +186,22 @@ onBeforeUnmount(() => {
     resizeObserver.unobserve(scrollContainer.value)
 })
 </script>
+
+<style scoped>
+.scroll-container::-webkit-scrollbar {
+  height: 8px;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+.group:hover .scroll-container::-webkit-scrollbar,
+.group:focus-within .scroll-container::-webkit-scrollbar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tw-prose-body) transparent;
+}
+</style>

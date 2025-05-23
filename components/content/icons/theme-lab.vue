@@ -138,6 +138,8 @@
           <h3 class="text-lg font-bold">Live Preview</h3>
           <div class="flex gap-2 mt-2 flex-wrap">
             <button class="btn btn-base-100 btn-sm">Base-100</button>
+            <button class="btn btn-base-200 btn-sm">Base-200</button>
+            <button class="btn btn-base-100 btn-sm">Base-300</button>
             <button class="btn btn-primary btn-sm">Primary</button>
             <button class="btn btn-secondary btn-sm">Secondary</button>
             <button class="btn btn-accent btn-sm">Accent</button>

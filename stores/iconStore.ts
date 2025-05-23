@@ -74,6 +74,10 @@ export const useIconStore = defineStore('iconStore', {
         handleError(error, 'initializing smartIcon store')
       }
     },
+    removeFromEditableIcons(id: number) {
+      this.editableIcons = this.editableIcons.filter((i) => i.id !== id)
+    },
+
     startEdit() {
       this.isEditing = true
       this.editableIcons = [...this.activeIcons]

@@ -47,28 +47,32 @@
       </div>
     </div>
 
-    <!-- Label or Delete Button -->
-    <div
-      class="h-5 mt-2 w-full flex items-center justify-center pointer-events-none"
-    >
-      <template v-if="isEditing">
-        <button
-          class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
-          @click="iconStore.removeIconFromSmartBar(icon.id)"
-        >
-          ✕
-        </button>
-      </template>
+<!-- Delete Button -->
+<div
+  v-if="isEditing"
+  class="h-5 mt-2 w-full flex items-center justify-center pointer-events-none"
+>
+  <button
+    class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
+    @click="iconStore.removeIconFromSmartBar(icon.id)"
+  >
+    ✕
+  </button>
+</div>
 
-      <template v-else-if="!bigMode">
-        <span
-          class="text-xs text-center text-base-content/70 truncate max-w-full"
-          :title="computedLabel"
-        >
-          {{ computedLabel }}
-        </span>
-      </template>
-    </div>
+<!-- Label -->
+<div
+  v-else-if="!bigMode"
+  class="h-5 mt-2 w-full flex items-center justify-center pointer-events-none"
+>
+  <span
+    class="text-xs text-center text-base-content/70 truncate max-w-full"
+    :title="computedLabel"
+  >
+    {{ computedLabel }}
+  </span>
+</div>
+
   </div>
 </template>
 

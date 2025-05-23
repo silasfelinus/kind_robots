@@ -57,15 +57,19 @@
               key.replace('--', '')
             }}</label>
 
-            <input
-              v-if="isSliderKey(key)"
-              type="range"
-              class="range range-sm w-full"
-              :min="getSliderMeta(key).min"
-              :max="getSliderMeta(key).max"
-              :step="getSliderMeta(key).step"
-              v-model="themeForm.values[key]"
-            />
+            <div v-if="isSliderKey(key)" class="w-full flex flex-col gap-1">
+              <input
+                type="range"
+                class="range range-sm"
+                :min="getSliderMeta(key).min"
+                :max="getSliderMeta(key).max"
+                :step="getSliderMeta(key).step"
+                v-model="themeForm.values[key]"
+              />
+              <div class="text-xs text-right text-base-content/70">
+                {{ themeForm.values[key] }}
+              </div>
+            </div>
 
             <input
               v-else

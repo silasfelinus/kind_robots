@@ -50,8 +50,9 @@
 <!-- Delete Button -->
 <div
   v-if="isEditing"
-  class="h-5 mt-2 w-full flex items-center justify-center pointer-events-none"
+  class="h-5 mt-2 w-full flex items-center justify-center"
 >
+
 <button
   class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600"
 @click="iconStore.removeFromEditableIcons(icon.id)"

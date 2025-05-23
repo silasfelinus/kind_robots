@@ -12,7 +12,10 @@
         v-if="isEditing"
         class="w-full h-full flex items-center justify-center"
       >
-        <Icon :name="icon.icon || 'kind-icon:help'" class="text-3xl w-full h-full" />
+        <Icon
+          :name="icon.icon || 'kind-icon:help'"
+          class="text-3xl w-full h-full"
+        />
       </div>
 
       <!-- Nav link icon -->
@@ -37,7 +40,10 @@
 
       <!-- Fallback icon -->
       <div v-else class="w-full h-full flex items-center justify-center">
-        <Icon :name="icon.icon || 'kind-icon:help'" class="text-3xl w-full h-full" />
+        <Icon
+          :name="icon.icon || 'kind-icon:help'"
+          class="text-3xl w-full h-full"
+        />
       </div>
     </div>
 
@@ -89,15 +95,16 @@ const route = useRoute()
 const isEditing = computed(() => iconStore.isEditing)
 const bigMode = computed(() => displayStore.bigMode)
 
-const isActiveRoute = computed(() =>
-  props.icon.link && route.path.startsWith(props.icon.link)
+const isActiveRoute = computed(
+  () => props.icon.link && route.path.startsWith(props.icon.link),
 )
 
 const computedLabel = computed(() => {
-  if (props.icon.type !== 'utility') return props.icon.label
+  if (props.icon.type !== 'utility') return props.icon.label || ''
+
   switch (props.icon.component) {
     case 'theme-icon':
-      return themeStore.currentTheme
+      return themeStore.currentTheme || ''
     case 'login-icon':
       return userStore.isLoggedIn
         ? userStore.user?.username || 'User'
@@ -107,7 +114,7 @@ const computedLabel = computed(() => {
     case 'swarm-icon':
       return iconStore.showSwarm ? iconStore.swarmMessage : 'Swarm'
     default:
-      return '…'
+      return ''
   }
 })
 </script>

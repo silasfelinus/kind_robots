@@ -60,7 +60,7 @@
         </button>
       </template>
 
-      <template v-else-if="bigMode">
+      <template v-else-if="!bigMode">
         <span
           class="text-xs text-center text-base-content/70 truncate max-w-full"
           :title="computedLabel"

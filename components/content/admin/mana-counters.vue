@@ -1,4 +1,4 @@
-<!-- /components/content/admin/Mana-Counter.vue -->
+<!-- /components/content/admin/mana-counter.vue -->
 <!-- Mana Counter Component -->
 <template>
   <div class="flex items-center space-x-2">

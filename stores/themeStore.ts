@@ -167,11 +167,8 @@ export const useThemeStore = defineStore('themeStore', () => {
 
   async function addTheme(theme: Partial<Theme>) {
     const userStore = useUserStore()
-    const userId = userStore.user?.id
-    if (!userId) {
-      console.warn('[themeStore] No user ID found. Cannot add theme.')
-      return
-    }
+    const userId = userStore.user?.id || 10
+
     const payload = { ...theme, userId }
     const { success } = await performFetch('/api/themes', {
       method: 'POST',

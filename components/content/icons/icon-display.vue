@@ -1,12 +1,18 @@
 <!-- /components/content/icons/icon-display.vue -->
 <template>
-  <div class="relative snap-start h-[6rem] w-[4rem] flex flex-col items-center justify-center">
+  <div
+    class="relative snap-start shrink-0 w-16 h-20 flex flex-col items-center justify-center"
+  >
     <!-- Icon Section -->
-    <div class="w-[3rem] h-[3rem] flex items-center justify-center overflow-hidden">
+    <div
+      class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center overflow-hidden"
+    >
+      <!-- Edit mode preview -->
       <div v-if="isEditing" class="w-full h-full flex items-center justify-center">
         <Icon :name="icon.icon || 'kind-icon:help'" class="text-3xl" />
       </div>
 
+      <!-- Nav link icon -->
       <NuxtLink
         v-else-if="icon.link && icon.type !== 'utility'"
         :to="icon.link"
@@ -19,12 +25,14 @@
         />
       </NuxtLink>
 
+      <!-- Utility component -->
       <component
         v-else-if="icon.type === 'utility' && icon.component"
         :is="icon.component"
         class="w-full h-full flex items-center justify-center"
       />
 
+      <!-- Fallback -->
       <Icon
         v-else
         :name="icon.icon || 'kind-icon:help'"
@@ -33,7 +41,7 @@
     </div>
 
     <!-- Label / Delete -->
-    <div class="h-[1.25rem] w-full flex items-center justify-center mt-1">
+    <div class="h-5 mt-2 w-full flex items-center justify-center pointer-events-none">
       <template v-if="isEditing">
         <button
           class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
@@ -43,8 +51,11 @@
         </button>
       </template>
 
-      <template v-else-if="!bigMode">
-        <span class="text-xs text-center leading-none">
+      <template v-else-if="bigMode">
+        <span
+          class="text-xs text-center text-base-content/70 truncate max-w-full"
+          :title="computedLabel"
+        >
           {{ computedLabel }}
         </span>
       </template>
@@ -53,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/icons/icon-display.vue
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useIconStore } from '@/stores/iconStore'

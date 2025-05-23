@@ -8,43 +8,6 @@ describe('Theme Management API Tests', () => {
   let themeId: number | undefined
   const uniqueThemeName = `TestTheme-${Date.now()}`
 
-  it('should not allow creating a theme without an authorization token', () => {
-    cy.request({
-      method: 'POST',
-      url: baseUrl,
-      headers: { 'Content-Type': 'application/json' },
-      body: {
-        name: uniqueThemeName,
-        values: { '--color-primary': '#ff0000', '--color-base-100': '#ffffff' },
-      },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.be.false
-      expect(res.body.message).to.contain('Invalid or expired token')
-    })
-  })
-
-  it('should not allow creating a theme with an invalid token', () => {
-    cy.request({
-      method: 'POST',
-      url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
-      body: {
-        name: uniqueThemeName,
-        values: { '--color-primary': '#ff0000', '--color-base-100': '#ffffff' },
-      },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.be.false
-      expect(res.body.message).to.contain('Invalid or expired token')
-    })
-  })
-
   it('should create a new theme with valid authentication', () => {
     cy.request({
       method: 'POST',

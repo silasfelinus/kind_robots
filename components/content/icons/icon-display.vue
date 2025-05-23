@@ -115,4 +115,6 @@ const computedLabel = computed(() => {
 <style scoped>
 .glow {
   box-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
-  transition
+  transition: box-shadow 0.3s ease-in-out;
+}
+</style>

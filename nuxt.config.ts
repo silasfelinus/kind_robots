@@ -68,20 +68,24 @@ export default defineNuxtConfig({
   // Adding the build hook to run the script
   hooks: {
     'build:before': async () => {
-      const command = 'node utils/scripts/create-component-json.mjs'
+      if (process.env.NODE_ENV === 'development') {
+        const command = 'node utils/scripts/create-component-json.mjs'
 
-      const callback: ExecCallback = (error, stdout, stderr) => {
-        if (error) {
-          console.error('Failed to generate components JSON:', error)
-          return
+        const callback: ExecCallback = (error, stdout, stderr) => {
+          if (error) {
+            console.error('Failed to generate components JSON:', error)
+            return
+          }
+          if (stderr) {
+            console.error('stderr:', stderr)
+          }
+          console.log(stdout)
         }
-        if (stderr) {
-          console.error('stderr:', stderr)
-        }
-        console.log(stdout)
+
+        exec(command, callback)
+      } else {
+        console.log('Skipping component JSON generation in production mode.')
       }
-
-      exec(command, callback)
     },
   },
 })

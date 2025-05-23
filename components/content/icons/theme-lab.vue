@@ -15,20 +15,27 @@
         <h2 class="text-2xl font-semibold mb-4">Create or Edit Your Theme</h2>
 
         <!-- Color Inputs -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <label
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div
             v-for="color in colorKeys"
             :key="color"
-            class="w-full font-medium capitalize text-sm flex items-center gap-2"
+            class="relative group w-full h-12 rounded-md overflow-hidden border border-base-content"
           >
-            {{ labelFromKey(color) }}
+            <!-- Color Picker -->
             <input
               type="color"
               :value="themeForm.values?.[color] || '#ffffff'"
               @input="onColorInput($event, color)"
-              class="input input-bordered w-full h-10 p-0 rounded-md"
+              class="w-full h-full appearance-none cursor-pointer bg-transparent"
             />
-          </label>
+
+            <!-- Overlayed Label -->
+            <span
+              class="absolute bottom-0 left-0 w-full bg-base-300/80 text-xs text-center text-base-content py-0.5 font-medium capitalize truncate pointer-events-none"
+            >
+              {{ labelFromKey(color) }}
+            </span>
+          </div>
         </div>
 
         <!-- Random Theme Button -->
@@ -131,6 +138,58 @@
         </button>
 
         <!-- Live Preview -->
+        <div
+          class="mt-6 border rounded-xl p-6 space-y-4 transition-all duration-300"
+          :style="`${previewStyle}; border-radius: var(--radius-box, 0.5rem); border-width: var(--border, 1px); box-shadow: var(--shadow, 0 1px 2px rgba(0, 0, 0, 0.1));`"
+        >
+          <h3 class="text-lg font-bold">Live Preview</h3>
+
+          <div class="flex gap-2 flex-wrap">
+            <button class="btn btn-base-100 btn-sm">Base-100</button>
+            <button class="btn btn-primary btn-sm">Primary</button>
+            <button class="btn btn-secondary btn-sm">Secondary</button>
+            <button class="btn btn-accent btn-sm">Accent</button>
+            <button class="btn btn-info btn-sm">Info</button>
+            <button class="btn btn-success btn-sm">Success</button>
+            <button class="btn btn-warning btn-sm">Warning</button>
+            <button class="btn btn-error btn-sm">Error</button>
+          </div>
+
+          <div
+            class="bg-base-100 p-4 rounded-box border border-base-300 space-y-3 text-base-content"
+          >
+            <p class="text-sm">
+              This card uses <code class="text-xs">--radius-box</code>,
+              <code class="text-xs">--border</code>, and
+              <code class="text-xs">--shadow</code>.
+            </p>
+            <input
+              class="input input-bordered w-full"
+              placeholder="Example input"
+              readonly
+            />
+            <progress
+              class="progress w-full progress-primary"
+              value="40"
+              max="100"
+            />
+            <div class="flex justify-between text-xs text-base-content/70">
+              <span
+                >Font:
+                <code>{{
+                  themeForm.values['--text-base'] || 'default'
+                }}</code></span
+              >
+              <span
+                >Padding:
+                <code>{{
+                  themeForm.values['--padding-card'] || 'default'
+                }}</code></span
+              >
+            </div>
+          </div>
+        </div>
+
         <div
           class="mt-6 border rounded-xl p-4 transition-all duration-300"
           :style="`${previewStyle}; border-radius: var(--radius-box, 0.5rem); border-width: var(--border, 1px);`"

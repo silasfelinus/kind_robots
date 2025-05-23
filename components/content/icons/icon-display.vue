@@ -47,20 +47,33 @@
       </div>
     </div>
 
-<!-- Delete Button -->
+<!-- Delete Button with Confirmation -->
 <div
   v-if="isEditing"
   class="h-5 mt-2 w-full flex items-center justify-center"
 >
+  <template v-if="confirmingDelete">
+    <button
+      class="text-xs bg-gray-300 text-black rounded-full px-2 py-0.5 hover:bg-gray-400 mr-1"
+      @click="confirmingDelete = false"
+    >
+      Cancel
+    </button>
+    <button
+      class="text-xs bg-red-600 text-white rounded-full px-2 py-0.5 hover:bg-red-700"
+      @click="removeIcon"
+    >
+      Confirm
+    </button>
+  </template>
 
-<button
-  class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600"
-@click="iconStore.removeFromEditableIcons(icon.id)"
-
->
-  ✕
-</button>
-
+  <button
+    v-else
+    class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600"
+    @click="confirmingDelete = true"
+  >
+    ✕
+  </button>
 </div>
 
 <!-- Label -->
@@ -101,6 +114,13 @@ const route = useRoute()
 
 const isEditing = computed(() => iconStore.isEditing)
 const bigMode = computed(() => displayStore.bigMode)
+
+const confirmingDelete = ref(false)
+
+function removeIcon() {
+  iconStore.removeFromEditableIcons(props.icon.id)
+  confirmingDelete.value = false
+}
 
 
 const isActiveRoute = computed(

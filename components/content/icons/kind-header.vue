@@ -38,7 +38,7 @@
       <div
         class="flex-grow h-full overflow-hidden px-2 flex items-center justify-end"
       >
-        <smart-icons :big-mode="bigMode" />
+        <icon-bar />
       </div>
     </div>
   </header>

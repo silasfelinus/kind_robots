@@ -1,7 +1,7 @@
 <template>
   <div
     class="flex flex-col items-center justify-center h-screen w-full bg-cover bg-center"
-    style="background-image: url('/path-to-your-image.jpg')"
+    style="background-image: url('/images/background/error.png')"
   >
     <div
       class="bg-opacity-60 bg-base-100 p-8 rounded-2xl text-center shadow-lg"
@@ -23,7 +23,7 @@
           class="text-white bg-primary px-4 py-2 rounded-lg shadow-md hover:bg-secondary transition-colors flex items-center space-x-2"
           @click="goHome"
         >
-          <Icon name="home-icon" class="w-5 h-5" />
+          <Icon name="kind-icon:home" class="w-5 h-5" />
           <span>Go to Home</span>
         </button>
       </div>

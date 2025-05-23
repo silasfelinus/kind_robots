@@ -75,8 +75,8 @@ export const useIconStore = defineStore('iconStore', {
       }
     },
     removeFromEditableIcons(id: number) {
-      this.editableIcons = this.editableIcons.filter((i) => i.id !== id)
-    },
+  this.editableIcons = this.editableIcons.filter((icon) => icon.id !== id)
+},
 
     startEdit() {
       this.isEditing = true

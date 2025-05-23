@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Bot } from '@prisma/client'
 import { performFetch, handleError } from './utils'
+import { botData } from './seeds/seedBots'
 
 interface BotStoreState {
   bots: Bot[]

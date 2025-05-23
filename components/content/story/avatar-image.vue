@@ -17,14 +17,14 @@
           <img
             :src="safeImage"
             alt="Avatar"
-            class="avatar-img shadow-lg hover:shadow-xl rounded-2xl object-cover w-full h-full"
+            class="avatar-img shadow-lg hover:shadow-xl object-cover w-full h-full"
           />
         </div>
         <div class="flip-card-back">
           <img
             :src="safeBackImage"
             alt="New Avatar"
-            class="avatar-img shadow-lg hover:shadow-xl rounded-2xl object-cover w-full h-full"
+            class="avatar-img shadow-lg hover:shadow-xl object-cover w-full h-full"
           />
         </div>
       </div>

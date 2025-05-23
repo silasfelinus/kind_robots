@@ -85,11 +85,6 @@
             placeholder="Theme name"
             class="input input-bordered text-center"
           />
-          <input
-            v-model="themeForm.room"
-            placeholder="Optional room (e.g. splash)"
-            class="input input-bordered text-center"
-          />
 
           <button @click="saveTheme" class="btn btn-primary">
             {{ updateMode ? 'Update Theme' : 'Save Theme' }}

@@ -8,35 +8,14 @@ type ExecCallback = (
 ) => void
 
 export default defineNuxtConfig({
-  build: {
-    // Enables parallel processing during build to speed up the process
-    parallel: true,
-
-    // Extract CSS into separate files for better caching and smaller build size
-    extractCSS: true,
-
-    // Optimize CSS files by minifying them
-    optimizeCSS: true,
-
-    // Enable build cache for faster rebuilds (good for CI/CD or incremental builds)
-    cache: true,
-
-    // Reduce unnecessary bundle size and speed up build by removing unused code
-    splitChunks: {
-      layouts: true,
-      pages: true,
-      commons: true,
+  vite: {
+    build: {
+      target: 'esnext', // Target modern JavaScript features
+      minify: 'esbuild', // Use esbuild for minification (faster than Terser)
+      chunkSizeWarningLimit: 500, // Customize chunk size warning (in KB)
     },
-
-    // Enable the modern build for better performance in modern browsers
-    modern: 'client',
-
-    // Allows webpack to use more parallel threads during the build
-    optimization: {
-      minimize: true,
-      splitChunks: {
-        chunks: 'all',
-      },
+    optimizeDeps: {
+      include: ['vue', 'vue-router'], // Pre-bundle necessary dependencies for faster builds
     },
   },
 
@@ -49,19 +28,13 @@ export default defineNuxtConfig({
     '@nuxt/image',
   ],
 
-  // Vite configuration, specifically aliasing
-  srcDir: '.',
-
-  pinia: {
-    storesDirs: ['./stores/**'],
-  },
-
+  // Global components
   components: {
     global: true,
     dirs: ['~/components/content'],
   },
 
-  // Setting a compatibility date for Nuxt features
+  // Compatibility and feature settings
   compatibilityDate: '2024-08-13',
 
   icon: {
@@ -76,7 +49,6 @@ export default defineNuxtConfig({
   // Global CSS
   css: ['~/assets/css/tailwind.css'],
 
-  // ✅ Fix: Remove Type Casting and Let Nuxt Infer
   runtimeConfig: {
     private: {
       OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
@@ -89,7 +61,6 @@ export default defineNuxtConfig({
     },
   },
 
-  // Control over Nuxt devtools
   devtools: {
     enabled: false, // Disable devtools in production
   },

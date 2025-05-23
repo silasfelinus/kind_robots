@@ -3,7 +3,7 @@
   <div class="relative w-full h-full overflow-hidden">
     <!-- Left Scroll Button -->
     <div
-      class="absolute left-0 top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
+      class="absolute left-0 top-0 bottom-0 w-12 z-40 flex items-center justify-center"
     >
       <button
         v-show="showLeft"
@@ -18,7 +18,7 @@
 
     <!-- Right Scroll Button -->
     <div
-      class="absolute right-[4.5rem] top-0 bottom-0 w-[4.5rem] z-40 flex items-center justify-center"
+      class="absolute right-[3rem] md:right-[4.5rem] top-0 bottom-0 w-12 z-40 flex items-center justify-center"
     >
       <button
         v-show="showRight"
@@ -65,11 +65,11 @@
 
     <!-- Icon Row -->
     <div
-      class="relative w-full h-full flex items-center pl-[4.5rem] pr-[9rem]"
+      class="relative w-full h-full flex items-center pl-10 md:pl-12 pr-20 md:pr-24"
     >
       <div
         ref="scrollContainer"
-        class="overflow-x-auto overflow-y-hidden scrollbar-hide w-full h-full flex items-center gap-4 snap-x snap-mandatory"
+        class="overflow-x-auto overflow-y-hidden scrollbar-hide w-full h-full flex items-center gap-1 md:gap-2 snap-x snap-mandatory"
         @scroll="checkScrollEdges"
         @mousedown="handleScrollMouseDown"
         @mousemove="handleScrollMouseMove"

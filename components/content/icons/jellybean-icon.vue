@@ -1,5 +1,4 @@
 <!-- /components/content/icons/jellybean-icon.vue -->
-
 <template>
   <router-link
     to="/milestones"
@@ -7,12 +6,13 @@
   >
     <Icon
       name="kind-icon:jellybean"
-      class="w-full h-full max-w-[3rem] max-h-[3rem]"
+      class="w-full h-full"
     />
   </router-link>
 </template>
 
 <script setup lang="ts">
+// /components/content/icons/jellybean-icon.vue
 import { computed } from 'vue'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 
@@ -23,6 +23,5 @@ const navLabel = computed(() => {
   return `${count} /11`
 })
 
-// expose for smart-icons
 defineExpose({ navLabel })
 </script>

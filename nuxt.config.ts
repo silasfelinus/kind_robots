@@ -84,10 +84,7 @@ export default defineNuxtConfig({
 
         exec(command, callback)
       } else {
-        console.log(
-          'Skipping component JSON generation in production mode. ENV: ',
-          process.env.NODE_ENV,
-        )
+        console.log('Skipping component JSON generation in production mode.')
       }
     },
   },

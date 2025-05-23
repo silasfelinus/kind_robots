@@ -1,26 +1,29 @@
 <!-- /components/content/icons/icon-display.vue -->
 <template>
   <div
-    class="relative snap-start shrink-0 w-16 h-20 flex flex-col items-center justify-center"
+    class="relative snap-start shrink-0 w-16 h-20 sm:h-24 md:h-28 flex flex-col items-center justify-center"
   >
     <!-- Icon Section -->
     <div
       class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center overflow-hidden"
     >
       <!-- Edit mode preview -->
-      <div v-if="isEditing" class="w-full h-full flex items-center justify-center">
-        <Icon :name="icon.icon || 'kind-icon:help'" class="text-3xl" />
+      <div
+        v-if="isEditing"
+        class="w-full h-full flex items-center justify-center"
+      >
+        <Icon :name="icon.icon || 'kind-icon:help'" class="text-3xl w-full h-full" />
       </div>
 
       <!-- Nav link icon -->
       <NuxtLink
         v-else-if="icon.link && icon.type !== 'utility'"
         :to="icon.link"
-        class="transition-transform hover:scale-110 w-full h-full flex items-center justify-center"
+        class="w-full h-full flex items-center justify-center transition-transform hover:sm:scale-110"
       >
         <Icon
           :name="icon.icon || 'kind-icon:help'"
-          class="text-3xl"
+          class="w-full h-full text-3xl"
           :class="{ glow: isActiveRoute }"
         />
       </NuxtLink>
@@ -32,16 +35,16 @@
         class="w-full h-full flex items-center justify-center"
       />
 
-      <!-- Fallback -->
-      <Icon
-        v-else
-        :name="icon.icon || 'kind-icon:help'"
-        class="text-3xl"
-      />
+      <!-- Fallback icon -->
+      <div v-else class="w-full h-full flex items-center justify-center">
+        <Icon :name="icon.icon || 'kind-icon:help'" class="text-3xl w-full h-full" />
+      </div>
     </div>
 
-    <!-- Label / Delete -->
-    <div class="h-5 mt-2 w-full flex items-center justify-center pointer-events-none">
+    <!-- Label or Delete Button -->
+    <div
+      class="h-5 mt-2 w-full flex items-center justify-center pointer-events-none"
+    >
       <template v-if="isEditing">
         <button
           class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600 pointer-events-auto"
@@ -112,6 +115,4 @@ const computedLabel = computed(() => {
 <style scoped>
 .glow {
   box-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
-  transition: box-shadow 0.3s ease-in-out;
-}
-</style>
+  transition

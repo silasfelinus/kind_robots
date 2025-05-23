@@ -1,5 +1,4 @@
 <!-- /components/content/icons/login-icon.vue -->
-
 <template>
   <router-link
     :to="routeToNavigate"
@@ -7,12 +6,12 @@
   >
     <user-avatar
       v-if="isLoggedIn"
-      class="w-full h-full max-w-[3rem] max-h-[3rem] rounded-full border border-base-300"
+      class="w-full h-full rounded-full border border-base-300 object-cover"
     />
     <Icon
       v-else
       name="kind-icon:person"
-      class="w-full h-full max-w-[3rem] max-h-[3rem]"
+      class="w-full h-full"
     />
   </router-link>
 </template>
@@ -21,19 +20,23 @@
 import { computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useIconStore } from '@/stores/iconStore'
-import { storeToRefs } from 'pinia'
 
 const userStore = useUserStore()
 const iconStore = useIconStore()
-const { isEditing } = storeToRefs(iconStore)
 
+// Don't need storeToRefs; just use computed
+const isEditing = computed(() => iconStore.isEditing)
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 const username = computed(() => userStore.user?.username || 'User')
-const navLabel = computed(() => (isLoggedIn.value ? username.value : 'Login?'))
-const routeToNavigate = computed(() =>
-  isLoggedIn.value ? '/dashboard' : '/login',
+
+const navLabel = computed(() =>
+  isLoggedIn.value ? username.value : 'Login?'
 )
 
-// expose for smart-icons label
+const routeToNavigate = computed(() =>
+  isLoggedIn.value ? '/dashboard' : '/login'
+)
+
+// exposed label for smart-icons
 defineExpose({ navLabel })
 </script>

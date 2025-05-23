@@ -8,8 +8,36 @@ type ExecCallback = (
 ) => void
 
 export default defineNuxtConfig({
-  app: {
-    pageTransition: { name: 'page', mode: 'out-in' },
+  build: {
+    // Enables parallel processing during build to speed up the process
+    parallel: true,
+
+    // Extract CSS into separate files for better caching and smaller build size
+    extractCSS: true,
+
+    // Optimize CSS files by minifying them
+    optimizeCSS: true,
+
+    // Enable build cache for faster rebuilds (good for CI/CD or incremental builds)
+    cache: true,
+
+    // Reduce unnecessary bundle size and speed up build by removing unused code
+    splitChunks: {
+      layouts: true,
+      pages: true,
+      commons: true,
+    },
+
+    // Enable the modern build for better performance in modern browsers
+    modern: 'client',
+
+    // Allows webpack to use more parallel threads during the build
+    optimization: {
+      minimize: true,
+      splitChunks: {
+        chunks: 'all',
+      },
+    },
   },
 
   modules: [
@@ -28,11 +56,10 @@ export default defineNuxtConfig({
     storesDirs: ['./stores/**'],
   },
 
-    components: {
-      global: true,
-      dirs: ['~/components/content'],
-    },
-
+  components: {
+    global: true,
+    dirs: ['~/components/content'],
+  },
 
   // Setting a compatibility date for Nuxt features
   compatibilityDate: '2024-08-13',
@@ -72,10 +99,13 @@ export default defineNuxtConfig({
     'build:before': async () => {
       const command = 'node utils/scripts/create-component-json.mjs'
 
-      const callback: ExecCallback = (error, stdout) => {
+      const callback: ExecCallback = (error, stdout, stderr) => {
         if (error) {
           console.error('Failed to generate components JSON:', error)
           return
+        }
+        if (stderr) {
+          console.error('stderr:', stderr)
         }
         console.log(stdout)
       }

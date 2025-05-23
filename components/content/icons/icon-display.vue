@@ -1,11 +1,11 @@
 <!-- /components/content/icons/icon-display.vue -->
 <template>
   <div
-    class="relative snap-start shrink-0 w-16 h-20 sm:h-24 md:h-28 flex flex-col items-center justify-center"
+    class="relative snap-start shrink-0 w-16 h-20 md:w-24 md:h-28 flex flex-col items-center justify-center"
   >
     <!-- Icon Section -->
     <div
-      class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center overflow-hidden"
+      class="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center overflow-hidden"
     >
       <!-- Edit mode preview -->
       <div
@@ -54,13 +54,13 @@
 >
   <template v-if="confirmingDelete">
     <button
-      class="text-xs bg-gray-300 text-black rounded-full px-2 py-0.5 hover:bg-gray-400 mr-1"
+      class="text-xs bg-gray-300 text-black rounded-full px-1 md:px-2 py-0.5 hover:bg-gray-400 mr-1"
       @click="confirmingDelete = false"
     >
       Cancel
     </button>
     <button
-      class="text-xs bg-red-600 text-white rounded-full px-2 py-0.5 hover:bg-red-700"
+      class="text-xs bg-red-600 text-white rounded-full px-1 md:px-2  py-0.5 hover:bg-red-700"
       @click="removeIcon"
     >
       Confirm
@@ -69,7 +69,7 @@
 
   <button
     v-else
-    class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600"
+    class="text-xs bg-red-500 text-white rounded-full px-1 md:px-2  py-0.5 hover:bg-red-600"
     @click="confirmingDelete = true"
   >
     ✕

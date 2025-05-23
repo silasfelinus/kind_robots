@@ -54,7 +54,8 @@
 >
 <button
   class="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 hover:bg-red-600"
-  @click="iconStore.removeFromEditableIcons(icon.id)"
+@click="iconStore.removeFromEditableIcons(icon.id)"
+
 >
   ✕
 </button>
@@ -99,6 +100,7 @@ const route = useRoute()
 
 const isEditing = computed(() => iconStore.isEditing)
 const bigMode = computed(() => displayStore.bigMode)
+
 
 const isActiveRoute = computed(
   () => props.icon.link && route.path.startsWith(props.icon.link),

@@ -1,84 +1,8 @@
 // /stores/helpers/artHelper.ts
 
 import type { Art, ArtImage } from '@prisma/client'
-import type { ArtCollection } from '@/stores/artStore'
 
-/**
- * Extract pitch string from a comma-delimited prompt.
- */
-export function extractPitch(promptString: string): string {
-  return promptString.split(',')[0].trim() || 'Untitled Pitch'
-}
-
-/**
- * Ensure prompt contains only valid characters.
- */
-export function validatePromptString(prompt: string): boolean {
-  const validPattern = /^[a-zA-Z0-9 ,_<>:]+$/
-  return validPattern.test(prompt)
-}
-
-/**
- * Add Art to a collection in local state only if not already present.
- */
-export function addArtToCollectionLocal(
-  collection: ArtCollection,
-  art: Art,
-): void {
-  if (!collection.art) collection.art = []
-  const exists = collection.art.some((a) => a.id === art.id)
-  if (!exists) collection.art.push(art)
-}
-
-/**
- * Check if a given artId is already in the collection.
- */
-export function isArtInCollection(
-  collection: ArtCollection,
-  artId: number,
-): boolean {
-  return collection.art?.some((a) => a.id === artId) || false
-}
-
-/**
- * Merge incoming ArtImage[] into existing ArtImage[] with deduplication by ID.
- */
-export function mergeArtImages(
-  existing: ArtImage[],
-  incoming: ArtImage[],
-): ArtImage[] {
-  const existingIds = new Set(existing.map((img) => img.id))
-  return [...existing, ...incoming.filter((img) => !existingIds.has(img.id))]
-}
-
-/**
- * Compute uncollected art for a given user.
- */
-export function getUncollectedArt(
-  userId: number,
-  allArt: Art[],
-  collections: ArtCollection[],
-): Art[] {
-  const collectedIds = collections
-    .filter((c) => c.userId === userId)
-    .flatMap((c) => c.art.map((a) => a.id))
-
-  return allArt.filter(
-    (a) => a.userId === userId && !collectedIds.includes(a.id),
-  )
-}
-
-/**
- * Replace __placeholder__ strings in a prompt using pitchStore random entries.
- */
-export function processPromptPlaceholders(
-  prompt: string,
-  pitchStore: { randomEntry: (label: string) => string },
-): string {
-  return prompt.replace(/__(.*?)__/g, (_, label) =>
-    pitchStore.randomEntry(label),
-  )
-}
+import { performFetch, handleError } from '@/stores/utils'
 
 /**
  * Parse stored Art[] from localStorage string.
@@ -86,17 +10,6 @@ export function processPromptPlaceholders(
 export function parseStoredArt(value: string): Art[] {
   try {
     return JSON.parse(value) as Art[]
-  } catch {
-    return []
-  }
-}
-
-/**
- * Parse stored ArtCollection[] from localStorage string.
- */
-export function parseStoredCollections(value: string): ArtCollection[] {
-  try {
-    return JSON.parse(value) as ArtCollection[]
   } catch {
     return []
   }
@@ -139,6 +52,24 @@ export function updateArtImageInPlace(
 }
 
 /**
+ * Remove an ArtImage from array by ID.
+ */
+export function removeImageById(images: ArtImage[], id: number): ArtImage[] {
+  return images.filter((img) => img.id !== id)
+}
+
+/**
+ * Merge incoming ArtImage[] into existing ArtImage[] with deduplication by ID.
+ */
+export function mergeArtImages(
+  existing: ArtImage[],
+  incoming: ArtImage[],
+): ArtImage[] {
+  const existingIds = new Set(existing.map((img) => img.id))
+  return [...existing, ...incoming.filter((img) => !existingIds.has(img.id))]
+}
+
+/**
  * Sort art list by descending creation date. Falls back to updatedAt or skips if both are null.
  */
 export function sortArtByDate(artList: Art[]): Art[] {
@@ -157,58 +88,71 @@ export function sortArtByDate(artList: Art[]): Art[] {
   })
 }
 
-export function findCollectionByUserAndLabel(
-  collections: ArtCollection[],
-  userId: number,
-  label: string,
-): ArtCollection | undefined {
-  return collections.find(
-    (collection) => collection.userId === userId && collection.label === label,
+/**
+ * Fetch and cache ArtImages by ID, only requesting uncached ones.
+ */
+export async function getArtImagesByIds(
+  imageIds: number[],
+  currentImages: ArtImage[],
+  updateImages: (newImages: ArtImage[]) => void,
+): Promise<ArtImage[]> {
+  const uncached = imageIds.filter(
+    (id) => !currentImages.some((img) => img.id === id),
   )
+
+  if (!uncached.length) {
+    return currentImages.filter((img) => imageIds.includes(img.id))
+  }
+
+  try {
+    const response = await performFetch<ArtImage[]>('/api/art/image', {
+      method: 'POST',
+      body: JSON.stringify({ ids: uncached }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    if (response.success && response.data) {
+      updateImages([...currentImages, ...response.data])
+      return [...currentImages, ...response.data].filter((img) =>
+        imageIds.includes(img.id),
+      )
+    } else {
+      throw new Error(response.message)
+    }
+  } catch (error) {
+    handleError(error, 'fetching art images by IDs')
+    return []
+  }
 }
 
-export function getCollectedArtIds(
-  userId: number,
-  collections: ArtCollection[],
-): number[] {
-  return collections
-    .filter((c) => c.userId === userId)
-    .flatMap((c) => c.art.map((a) => a.id))
-}
+/**
+ * Fetch multiple ArtImages by ID from the server and merge with local cache.
+ */
+export async function fetchArtImagesByIds(
+  ids: number[],
+  existingImages: ArtImage[],
+): Promise<ArtImage[]> {
+  const uncached = ids.filter(
+    (id) => !existingImages.some((img) => img.id === id),
+  )
+  if (uncached.length === 0) {
+    return existingImages.filter((img) => ids.includes(img.id))
+  }
 
-export function collectionIncludesArtId(
-  collection: ArtCollection,
-  artId: number,
-): boolean {
-  return !!collection.art?.some((a) => a.id === artId)
-}
+  try {
+    const response = await performFetch<ArtImage[]>('/api/art/image', {
+      method: 'POST',
+      body: JSON.stringify({ ids: uncached }),
+      headers: { 'Content-Type': 'application/json' },
+    })
 
-export function removeArtFromLocalCollection(
-  collection: ArtCollection,
-  artId: number,
-): void {
-  if (!collection.art) return
-  collection.art = collection.art.filter((a) => a.id !== artId)
-}
-
-export function findCollectionById(
-  collections: ArtCollection[],
-  collectionId: number,
-): ArtCollection | undefined {
-  return collections.find((c) => c.id === collectionId)
-}
-
-export function createEmptyCollection(
-  id: number,
-  userId: number,
-  label: string | null = null,
-): ArtCollection {
-  return {
-    id,
-    userId,
-    label,
-    createdAt: new Date(),
-    updatedAt: null,
-    art: [],
+    if (response.success && response.data) {
+      return [...existingImages, ...response.data]
+    } else {
+      throw new Error(response.message || 'Failed to fetch art images.')
+    }
+  } catch (error) {
+    handleError(error, 'fetching art images by IDs')
+    return existingImages
   }
 }

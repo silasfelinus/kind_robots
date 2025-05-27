@@ -37,24 +37,53 @@ export const extraVars = [
 ]
 
 export const daisyuiThemes = [
-  'light', 'dark', 'cupcake', 'bumblebee', 'emerald', 'corporate',
-  'synthwave', 'retro', 'cyberpunk', 'valentine', 'halloween', 'garden',
-  'forest', 'aqua', 'lofi', 'pastel', 'fantasy', 'wireframe', 'black',
-  'luxury', 'dracula', 'cmyk', 'autumn', 'business', 'acid', 'lemonade',
-  'night', 'coffee', 'winter', 'dim', 'nord', 'sunset', 'caramellatte',
-  'abyss', 'silk',
+  'light',
+  'dark',
+  'cupcake',
+  'bumblebee',
+  'emerald',
+  'corporate',
+  'synthwave',
+  'retro',
+  'cyberpunk',
+  'valentine',
+  'halloween',
+  'garden',
+  'forest',
+  'aqua',
+  'lofi',
+  'pastel',
+  'fantasy',
+  'wireframe',
+  'black',
+  'luxury',
+  'dracula',
+  'cmyk',
+  'autumn',
+  'business',
+  'acid',
+  'lemonade',
+  'night',
+  'coffee',
+  'winter',
+  'dim',
+  'nord',
+  'sunset',
+  'caramellatte',
+  'abyss',
+  'silk',
 ]
 
-export function getThemeStyle(values: Record<string, string> = {}): Record<string, string> {
-  const style: Record<string, string> = {}
-  for (const [key, val] of Object.entries(values)) {
-    if (typeof val === 'string' && key.startsWith('--')) {
-      style[key] = val
-    }
-  }
-  return style
+export function isThemeValuesRecord(
+  values: unknown,
+): values is Record<string, string> {
+  return (
+    typeof values === 'object' &&
+    values !== null &&
+    !Array.isArray(values) &&
+    Object.values(values).every((v) => typeof v === 'string')
+  )
 }
-
 
 // Default fallback extras
 export const defaultExtraVars: Record<string, string> = {
@@ -74,13 +103,13 @@ export const allThemeKeys = [...colorKeys, ...extraVars]
 export function isValidColor(val: string): boolean {
   return (
     typeof val === 'string' &&
-    (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(val) ||
-      /^oklch\(.+\)$/.test(val))
+    (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(val) || /^oklch\(.+\)$/.test(val))
   )
 }
 
 export function hexToRgb(hex: string): string {
-  if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return '255 255 255'
+  if (!hex || typeof hex !== 'string' || !hex.startsWith('#'))
+    return '255 255 255'
   const h = hex.slice(1)
   const bigint = parseInt(h, 16)
   const r = (bigint >> 16) & 255
@@ -90,13 +119,18 @@ export function hexToRgb(hex: string): string {
 }
 
 export function getRandomHex(): string {
-  return '#' + Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')
+  return (
+    '#' +
+    Math.floor(Math.random() * 0xffffff)
+      .toString(16)
+      .padStart(6, '0')
+  )
 }
 
 // Sanitize and validate input values for theme saving or applying
 export function sanitizeThemeValues(
   values: Record<string, string>,
-  options?: { silent?: boolean }
+  options?: { silent?: boolean },
 ): Record<string, string> {
   const sanitized: Record<string, string> = {}
   const rejected: [string, string][] = []
@@ -104,7 +138,11 @@ export function sanitizeThemeValues(
   for (const [key, val] of Object.entries(values)) {
     if (colorKeys.includes(key) && isValidColor(val)) {
       sanitized[key] = val
-    } else if (extraVars.includes(key) && typeof val === 'string' && val.length > 0) {
+    } else if (
+      extraVars.includes(key) &&
+      typeof val === 'string' &&
+      val.length > 0
+    ) {
       sanitized[key] = val
     } else {
       rejected.push([key, val])
@@ -112,7 +150,9 @@ export function sanitizeThemeValues(
   }
 
   if (rejected.length && !options?.silent) {
-    console.warn(`[themeHelpers] Ignored ${rejected.length} invalid theme value(s):`)
+    console.warn(
+      `[themeHelpers] Ignored ${rejected.length} invalid theme value(s):`,
+    )
     for (const [key, val] of rejected) {
       console.warn(`  ✘ ${key}: ${val}`)
     }
@@ -177,7 +217,9 @@ export function extractComputedTheme(name = 'custom-from-css'): Partial<Theme> {
 }
 
 // Generates inline Vue :style object from theme vars
-export function getThemeStyle(values: Record<string, string> = {}): Record<string, string> {
+export function getThemeStyle(
+  values: Record<string, string> = {},
+): Record<string, string> {
   const style: Record<string, string> = {}
   for (const [key, val] of Object.entries(values)) {
     if (isValidColor(val)) {

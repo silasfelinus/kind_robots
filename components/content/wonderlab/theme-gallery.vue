@@ -7,7 +7,7 @@
         <h2 class="text-xl font-semibold mb-3">🌈 Default Themes</h2>
         <div class="grid gap-3 sm:grid-cols-2">
           <magic-container
-            v-for="theme in themeStore.availableThemes"
+            v-for="theme in themeStore.daisyuiThemes"
             :key="theme"
             :data-theme="theme"
             class="rounded-xl p-4 border cursor-pointer text-center hover:ring hover:ring-primary"

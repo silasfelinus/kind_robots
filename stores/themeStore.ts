@@ -14,13 +14,12 @@ import {
   extractComputedTheme,
   colorKeys,
   allThemeKeys,
-daisyuiThemes,
-getThemeStyle,
+  daisyuiThemes,
+  getThemeStyle,
+  isThemeValuesRecord,
 } from '@/stores/helpers/themeHelpers'
 
 export const useThemeStore = defineStore('themeStore', () => {
-  
-
   const activeTheme = ref<string | Theme>('retro')
   const themeForm = ref<Partial<Theme>>({})
   const sharedThemes = ref<Theme[]>([])
@@ -28,7 +27,7 @@ export const useThemeStore = defineStore('themeStore', () => {
   const currentTheme = computed(() =>
     typeof activeTheme.value === 'string'
       ? activeTheme.value
-      : activeTheme.value?.name || 'retro'
+      : activeTheme.value?.name || 'retro',
   )
 
   const open = ref(false)
@@ -40,7 +39,10 @@ export const useThemeStore = defineStore('themeStore', () => {
     open.value = !open.value
   }
 
-  function setActiveTheme(input: string | Theme): { success: boolean; message?: string } {
+  function setActiveTheme(input: string | Theme): {
+    success: boolean
+    message?: string
+  } {
     if (typeof input === 'string') {
       if (!daisyuiThemes.includes(input)) {
         const msg = `[themeStore] Invalid theme name: "${input}" not found in DaisyUI`
@@ -56,7 +58,11 @@ export const useThemeStore = defineStore('themeStore', () => {
       return { success: true }
     }
 
-    if (typeof input === 'object' && input.values) {
+    if (
+      typeof input === 'object' &&
+      input.values &&
+      isThemeValuesRecord(input.values)
+    ) {
       const values = sanitizeThemeValues(input.values)
       applyThemeValues(values)
       document.documentElement.setAttribute('data-theme', 'custom')
@@ -119,7 +125,9 @@ export const useThemeStore = defineStore('themeStore', () => {
   }
 
   async function getThemes() {
-    const { success, data } = await performFetch<{ themes: Theme[] }>('/api/themes')
+    const { success, data } = await performFetch<{ themes: Theme[] }>(
+      '/api/themes',
+    )
     if (success && data?.themes) {
       sharedThemes.value = data.themes
     } else {
@@ -158,13 +166,16 @@ export const useThemeStore = defineStore('themeStore', () => {
   }
 
   if (typeof window !== 'undefined') {
-    watch(themeForm, (val) => {
-      localStorage.setItem('themeForm', JSON.stringify(val))
-    }, { deep: true })
+    watch(
+      themeForm,
+      (val) => {
+        localStorage.setItem('themeForm', JSON.stringify(val))
+      },
+      { deep: true },
+    )
   }
 
   return {
-    
     sharedThemes,
     activeTheme,
     currentTheme,
@@ -191,7 +202,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     colorKeys,
     allThemeKeys,
     daisyuiThemes,
-getThemeStyle,
+    getThemeStyle,
   }
 })
 

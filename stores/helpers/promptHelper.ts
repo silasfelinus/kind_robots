@@ -10,14 +10,6 @@ export function isValidPrompt(prompt: Partial<Prompt>): prompt is Prompt {
 }
 
 /**
- * Simple validation for prompt string contents.
- */
-export function validatePromptString(text: string): boolean {
-  const validPattern = /^[a-zA-Z0-9 ,_<>:"'|.!?()\[\]{}\n\r-]+$/
-  return validPattern.test(text.trim())
-}
-
-/**
  * Estimate token count based on rough word count × multiplier.
  */
 export function estimateTokenCount(text: string): number {
@@ -61,4 +53,31 @@ export function cleanPromptExample(raw: string): string {
     .replace(/^EXAMPLES:\|\|/, '')
     .replace(/\|\|"?$/, '')
     .trim()
+}
+
+/**
+ * Extract pitch-like prefix from a comma-delimited prompt string.
+ */
+export function extractPitch(promptString: string): string {
+  return promptString.split(',')[0].trim() || 'Untitled Prompt'
+}
+
+/**
+ * Replace __placeholder__ tokens in a prompt using pitchStore's randomEntry method.
+ */
+export function processPromptPlaceholders(
+  prompt: string,
+  pitchStore: { randomEntry: (label: string) => string },
+): string {
+  return prompt.replace(/__(.*?)__/g, (_, label) =>
+    pitchStore.randomEntry(label),
+  )
+}
+
+/**
+ * Simple prompt validation — ensure allowed characters only.
+ */
+export function validatePromptString(prompt: string): boolean {
+  const validPattern = /^[a-zA-Z0-9 ,_<>:"'|!?()-]+$/
+  return validPattern.test(prompt)
 }

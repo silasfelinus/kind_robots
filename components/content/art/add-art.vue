@@ -52,14 +52,18 @@ import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useCollectionStore } from '@/stores/collectionStore'
+
 import * as artHelper from '@/stores/helpers/artHelper'
 import * as pitchHelper from '@/stores/helpers/promptHelper'
+import * as promptHelper from '@/stores/helpers/promptHelper'
 
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 const milestoneStore = useMilestoneStore()
+const collectionStore = useCollectionStore()
 
 const localError = ref<string | null>(null)
 const isGenerating = ref(false)
@@ -112,6 +116,6 @@ const generateArt = async () => {
 
 onMounted(async () => {
   await artStore.initialize()
-  await artStore.fetchCollections()
+  await collectionStore.fetchCollections()
 })
 </script>

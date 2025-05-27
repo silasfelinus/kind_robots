@@ -150,6 +150,21 @@ export const useArtStore = defineStore('artStore', () => {
     if (isClient) localStorage.setItem('art', JSON.stringify(state.art))
   }
 
+  async function getArtImageById(id: number): Promise<ArtImage | undefined> {
+    const cached = state.artImages.find((img) => img.id === id)
+    if (cached) return cached
+
+    try {
+      const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
+      if (response.success && response.data) {
+        state.artImages.push(response.data)
+        return response.data
+      }
+    } catch (error) {
+      handleError(error, 'fetching single art image')
+    }
+  }
+
   async function fetchUncollectedArt() {
     return collectionHelper.getUncollectedArt(
       userStore.userId,
@@ -496,6 +511,7 @@ export const useArtStore = defineStore('artStore', () => {
     getArtImageByArtId,
     createArt,
     deleteCollection,
+    getArtImageById,
   }
 })
 

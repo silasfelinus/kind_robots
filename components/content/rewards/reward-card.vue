@@ -61,9 +61,9 @@ const selectReward = () => {
 onMounted(async () => {
   if (reward.artImageId) {
     try {
-      const result = await artStore.getArtImageById(reward.artImageId)
-      if (result) {
-        artImage.value = result
+      const results = await artStore.getArtImagesByIds([reward.artImageId])
+      if (results.length) {
+        artImage.value = results[0]
       }
     } catch (error) {
       console.error('Failed to load art image:', error)

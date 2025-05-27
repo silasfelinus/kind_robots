@@ -156,6 +156,8 @@
 import { ref, computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
+import { useCollectionStore } from '@/stores/collectionStore'
+const collectionStore = useCollectionStore()
 
 const artStore = useArtStore()
 const userStore = useUserStore()
@@ -191,7 +193,7 @@ const closeAddToCollectionPopup = () => {
 // Lifecycle: Fetch initial data
 const loadInitialData = async () => {
   try {
-    await artStore.fetchCollections()
+    await collectionStore.fetchCollections()
     await artStore.fetchUncollectedArt()
   } catch (error) {
     console.error('Error loading initial data:', error)
@@ -206,7 +208,11 @@ const createCollection = async () => {
   }
 
   try {
-    await artStore.createCollection(newCollectionLabel.value.trim())
+    await collectionStore.createCollection(
+      newCollectionLabel.value.trim(),
+      userStore.userId,
+    )
+
     newCollectionLabel.value = ''
   } catch (error) {
     console.error('Error creating collection:', error)
@@ -247,7 +253,7 @@ const removeArtFromCollection = async (artId: number, collectionId: number) => {
     return
 
   try {
-    await artStore.removeArtFromCollection(artId, collectionId)
+    await collectionStore.removeArtFromCollectionServer(collectionId, artId)
   } catch (error) {
     console.error('Error removing art from collection:', error)
   }

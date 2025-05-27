@@ -117,15 +117,20 @@ const toggleDetails = () => (showDetails.value = !showDetails.value)
 const loadArtImage = async () => {
   if (reward?.value?.artImageId) {
     try {
-      const result = await artStore.getArtImageById(reward.value.artImageId)
+      const [result] = await artStore.getArtImagesByIds([
+        reward.value.artImageId,
+      ])
       if (result) {
         artImage.value = {
           fileType: result.fileType,
           imageData: result.imageData,
         }
+      } else {
+        artImage.value = null
       }
     } catch (error) {
       console.error('Failed to load reward image:', error)
+      artImage.value = null
     }
   } else {
     artImage.value = null

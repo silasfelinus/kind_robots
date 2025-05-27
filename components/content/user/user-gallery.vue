@@ -69,11 +69,13 @@ import { ref, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 import { useChatStore } from '@/stores/chatStore'
+import { useCollectionStore } from '@/stores/collectionStore'
 
 // Store references
 const userStore = useUserStore()
 const artStore = useArtStore()
 const chatStore = useChatStore()
+const collectionStore = useCollectionStore()
 
 const users = computed(() => userStore.users || [])
 const selectedUserId = ref<number | null>(null)
@@ -91,7 +93,7 @@ async function toggleCollection(userId: number) {
 
   // Fetch user collection only if it hasn't been loaded yet
   if (!userCollections.value[userId]) {
-    const collections = await artStore.getUserCollections(userId)
+    const collections = await collectionStore.getUserCollections(userId)
     const userArt = collections.flatMap((collection) => collection.art || [])
     userCollections.value = { ...userCollections.value, [userId]: userArt }
 
@@ -107,7 +109,8 @@ async function fetchArtImages(artIds: number[]) {
   if (uncachedIds.length === 0) return
 
   try {
-    const response = await artStore.fetchArtImages(uncachedIds) // Batch fetch
+    const response = await artStore.getArtImagesByIds(uncachedIds)
+
     response.forEach((artImage) => {
       artImages.value[artImage.id] =
         artImage.imageData || '/images/kindtitle.webp'

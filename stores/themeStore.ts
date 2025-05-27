@@ -1,5 +1,4 @@
-
-    // /stores/themeStore.ts
+   // /stores/themeStore.ts
 
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'

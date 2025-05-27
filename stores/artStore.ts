@@ -13,15 +13,6 @@ import { useCollectionStore } from './collectionStore'
 
 const isClient = typeof window !== 'undefined'
 
-export interface ArtCollection {
-  id: number
-  createdAt: Date
-  updatedAt: Date | null
-  userId: number
-  label: string | null
-  art: Art[]
-}
-
 export interface GenerateArtData {
   title?: string
   promptString: string

@@ -1,6 +1,6 @@
 // /stores/helpers/collectionHelper.ts
 import type { Art } from '@prisma/client'
-import type { ArtCollection } from '@/stores/artStore'
+import type { ArtCollection } from '@/stores/collectionStore'
 
 export function addArtToCollectionLocal(
   collection: ArtCollection,

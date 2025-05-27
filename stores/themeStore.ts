@@ -43,6 +43,9 @@ export const useThemeStore = defineStore('themeStore', () => {
     success: boolean
     message?: string
   } {
+    if (typeof document === 'undefined')
+      return { success: false, message: 'Cannot set theme server-side' }
+
     if (typeof input === 'string') {
       if (!daisyuiThemes.includes(input)) {
         const msg = `[themeStore] Invalid theme name: "${input}" not found in DaisyUI`
@@ -66,7 +69,7 @@ export const useThemeStore = defineStore('themeStore', () => {
       const values = sanitizeThemeValues(input.values)
       applyThemeValues(values)
       document.documentElement.setAttribute('data-theme', 'custom')
-      localStorage.setItem('theme', input.name)
+      localStorage.setItem('theme', input.name || 'custom')
       activeTheme.value = input
       themeForm.value = { ...input }
       firstThemeChanged.value = true
@@ -166,10 +169,14 @@ export const useThemeStore = defineStore('themeStore', () => {
   }
 
   if (typeof window !== 'undefined') {
+    let saveTimeout: ReturnType<typeof setTimeout>
     watch(
       themeForm,
       (val) => {
-        localStorage.setItem('themeForm', JSON.stringify(val))
+        clearTimeout(saveTimeout)
+        saveTimeout = setTimeout(() => {
+          localStorage.setItem('themeForm', JSON.stringify(val))
+        }, 250)
       },
       { deep: true },
     )

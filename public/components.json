@@ -126,17 +126,13 @@
       "smart-icons",
       "smart-nav",
       "splash-tutorial",
-      "swarm-icon",
-      "theme-gallery",
-      "theme-icon",
-      "theme-lab",
-      "theme-menu",
-      "theme-toggle"
+      "swarm-icon"
     ]
   },
   {
     "folderName": "layout",
     "components": [
+      "Magic-Window",
       "add-bot-link",
       "ami-tooltip",
       "app-navigation",
@@ -174,7 +170,6 @@
       "left-toggle",
       "load-messages",
       "loading-bar",
-      "magic-window",
       "main-flip",
       "main-header",
       "main-links",
@@ -463,6 +458,11 @@
       "lab-gallery",
       "lab-nav",
       "select-component",
+      "theme-gallery",
+      "theme-icon",
+      "theme-lab",
+      "theme-menu",
+      "theme-toggle",
       "whisper-chat",
       "wonder-lab"
     ]

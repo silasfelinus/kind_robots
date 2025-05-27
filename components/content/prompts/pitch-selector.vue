@@ -23,7 +23,8 @@
       <button
         v-for="pitch in filteredPitches"
         :key="pitch.id"
-        class="rounded-lg border p-3 bg-base-300 hover:bg-primary hover:text-white",
+        class="rounded-lg border p-3 bg-base-300 hover:bg-primary hover:text-white"
+        ,
         @click="updateSelectedPitch(pitch.id)"
       >
         <h3 class="font-bold">{{ pitch.title || 'Untitled' }}</h3>
@@ -43,8 +44,7 @@ import { usePitchStore, PitchType } from './../../../stores/pitchStore'
 
 const pitchStore = usePitchStore()
 
-// Fetch pitches by selected pitch type
-const filteredPitches = computed(() => pitchStore.getPitchesBySelectedType)
+const filteredPitches = computed(() => pitchStore.getPitchesBySelectedType())
 
 // Define update function with keyof PitchType
 const updateSelectedPitchType = (type: keyof typeof PitchType) => {

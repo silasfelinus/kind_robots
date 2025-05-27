@@ -19,6 +19,8 @@ import {
   isValidPitch,
 } from './helpers/pitchHelper'
 
+export type { Pitch }
+
 export enum PitchType {
   ARTPITCH = 'ARTPITCH',
   BRAINSTORM = 'BRAINSTORM',
@@ -44,6 +46,8 @@ export const usePitchStore = defineStore('pitchStore', () => {
   const apiResponse = ref(' ')
   const maxTokens = ref(500)
   const selectedPitch = ref<Pitch | null>(null)
+  const pitchTypes = Object.values(PitchType)
+  const selectedPitchId = computed(() => selectedPitch.value?.id)
 
   const userStore = useUserStore()
 
@@ -92,6 +96,12 @@ export const usePitchStore = defineStore('pitchStore', () => {
     localStorage.setItem('exampleString', exampleString.value)
     localStorage.setItem('apiResponse', apiResponse.value)
     localStorage.setItem('maxTokens', JSON.stringify(maxTokens.value))
+  }
+
+  function getPitchesBySelectedType(): Pitch[] {
+    return selectedPitchType.value
+      ? pitches.value.filter((p) => p.PitchType === selectedPitchType.value)
+      : pitches.value
   }
 
   function clearLocalStorage() {
@@ -435,5 +445,8 @@ export const usePitchStore = defineStore('pitchStore', () => {
     updatePitchExamples,
     getSelectedExamples,
     randomEntry,
+    getPitchesBySelectedType,
+    pitchTypes,
+    selectedPitchId,
   }
 })

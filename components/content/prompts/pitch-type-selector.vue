@@ -45,10 +45,14 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+
+import type { Pitch } from '~/stores/pitchStore'
+
 const pitchStore = usePitchStore()
 
-// Fetch pitches by selected pitch type
-const filteredPitches = computed(() => pitchStore.getPitchesBySelectedType)
+const filteredPitches = computed<Pitch[]>(() =>
+  pitchStore.getPitchesBySelectedType(),
+)
 
 // Update selected pitch type directly with PitchType values
 const updateSelectedPitchType = (type: PitchType) => {

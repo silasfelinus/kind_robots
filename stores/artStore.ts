@@ -6,6 +6,8 @@ import { usePromptStore } from './promptStore'
 import { usePitchStore } from './pitchStore'
 import { useUserStore } from './userStore'
 import * as artHelper from '@/stores/helpers/artHelper'
+import * as collectionHelper from '@/stores/helpers/collectionHelper'
+import * as promptHelper from '@/stores/helpers/promptHelper'
 
 const isClient = typeof window !== 'undefined'
 
@@ -90,7 +92,7 @@ export const useArtStore = defineStore('artStore', () => {
     try {
       if (isClient) {
         state.art = artHelper.parseStoredArt(localStorage.getItem('art') || '')
-        state.collections = artHelper.parseStoredCollections(
+        state.collections = collectionHelper.parseStoredCollections(
           localStorage.getItem('collections') || '',
         )
       }
@@ -106,7 +108,7 @@ export const useArtStore = defineStore('artStore', () => {
   async function getOrCreateGeneratedArtCollection(
     userId: number,
   ): Promise<ArtCollection> {
-    let collection = artHelper.findCollectionByUserAndLabel(
+    let collection = collectionHelper.findCollectionByUserAndLabel(
       state.collections,
       userId,
       'Generated Art',
@@ -324,8 +326,8 @@ export const useArtStore = defineStore('artStore', () => {
     const userId = userStore.userId
     let collection =
       collectionId != null
-        ? artHelper.findCollectionById(state.collections, collectionId)
-        : artHelper.findCollectionByUserAndLabel(
+        ? collectionHelper.findCollectionById(state.collections, collectionId)
+        : collectionHelper.findCollectionByUserAndLabel(
             state.collections,
             userId,
             label,
@@ -349,7 +351,7 @@ export const useArtStore = defineStore('artStore', () => {
     })
 
     const art = state.art.find((a) => a.id === artId)
-    if (art) artHelper.addArtToCollectionLocal(collection, art)
+    if (art) collectionHelper.addArtToCollectionLocal(collection, art)
   }
 
   function getArtImageByArtId(artId: number): ArtImage | undefined {
@@ -363,7 +365,9 @@ export const useArtStore = defineStore('artStore', () => {
 
     const data: GenerateArtData = {
       promptString: artData?.promptString || promptStore.promptField,
-      pitch: artData?.pitch || artHelper.extractPitch(promptStore.promptField),
+      pitch:
+        artData?.pitch ||
+        collectionHelper.extractPitch(promptStore.promptField),
       userId: artData?.userId || userStore.userId || 10,
       galleryId: artData?.galleryId,
       checkpoint: artData?.checkpoint || 'stable-diffusion-v1-4',
@@ -376,13 +380,13 @@ export const useArtStore = defineStore('artStore', () => {
       isPublic: artData?.isPublic || true,
     }
 
-    data.promptString = artHelper.processPromptPlaceholders(
+    data.promptString = collectionHelper.processPromptPlaceholders(
       data.promptString,
       pitchStore,
     )
     state.processedArtPrompt = data.promptString
 
-    if (!artHelper.validatePromptString(data.promptString)) {
+    if (!collectionHelper.validatePromptString(data.promptString)) {
       state.loading = false
       return { success: false, message: 'Invalid prompt' }
     }
@@ -410,7 +414,7 @@ export const useArtStore = defineStore('artStore', () => {
         headers: { 'Content-Type': 'application/json' },
       })
 
-      artHelper.addArtToCollectionLocal(collection, response.data)
+      collectionHelper.addArtToCollectionLocal(collection, response.data)
       state.art.push(response.data)
 
       if (isClient) {
@@ -457,17 +461,17 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   async function removeArtFromCollection(artId: number, collectionId: number) {
-    const success = await artHelper.removeArtFromCollectionServer(
+    const success = await collectiontHelper.removeArtFromCollectionServer(
       collectionId,
       artId,
     )
     if (success) {
-      const collection = artHelper.findCollectionById(
+      const collection = collectionHelper.findCollectionById(
         state.collections,
         collectionId,
       )
       if (collection) {
-        artHelper.removeArtFromLocalCollection(collection, artId)
+        collectionHelper.removeArtFromLocalCollection(collection, artId)
       }
     }
   }
@@ -495,6 +499,7 @@ export const useArtStore = defineStore('artStore', () => {
     getCachedArtImageById,
     getArtImageByArtId,
     createArt,
+    deleteCollection,
   }
 })
 

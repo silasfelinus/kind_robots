@@ -3,24 +3,30 @@
 import type { Pitch } from '@prisma/client'
 import { PitchType } from '@/stores/pitchStore'
 
-// Random example entry
+// === Random Entry Logic ===
+
+/**
+ * Selects a random example from a RANDOMLIST pitch by title.
+ */
 export function randomEntry(pitchName: string, allPitches: Pitch[]): string {
   const pitch = allPitches.find(
     (p) =>
       p.PitchType === PitchType.RANDOMLIST &&
       p.title?.toLowerCase() === pitchName.toLowerCase(),
   )
-
   if (!pitch || !pitch.examples) return pitchName
 
-  const examples = pitch.examples.split('|').map((e) => e.trim())
-  if (!examples.length) return pitchName
-
-  const randomIndex = Math.floor(Math.random() * examples.length)
-  return examples[randomIndex]
+  const examples = pitch.examples
+    .split('|')
+    .map((e) => e.trim())
+    .filter(Boolean)
+  return examples.length
+    ? examples[Math.floor(Math.random() * examples.length)]
+    : pitchName
 }
 
-// Type filters
+// === Filtering & Grouping ===
+
 export function filterPitchesByType(type: PitchType, pitches: Pitch[]) {
   return pitches.filter((p) => p.PitchType === type)
 }
@@ -29,7 +35,7 @@ export function groupPitchesByTitle(pitches: Pitch[]): Record<string, Pitch[]> {
   return pitches.reduce(
     (acc, pitch) => {
       const key = pitch.title || 'Untitled'
-      acc[key] = acc[key] || []
+      if (!acc[key]) acc[key] = []
       acc[key].push(pitch)
       return acc
     },
@@ -43,7 +49,8 @@ export function filterPublicPitches(pitches: Pitch[], userId: number) {
   )
 }
 
-// Examples string utils
+// === Example Utils ===
+
 export function extractExamples(exampleString?: string): string[] {
   if (!exampleString) return []
   return exampleString
@@ -58,7 +65,8 @@ export function joinExamples(examples: string[]): string {
   return examples.map((e) => e.trim()).join('|')
 }
 
-// Prompt generators
+// === Prompt Builders ===
+
 export function buildTitleStormPrompt(
   title: string,
   description: string,
@@ -79,7 +87,8 @@ export function buildBrainstormPrompt(
   return prompt
 }
 
-// Pitch validations
+// === Pitch Validation ===
+
 export function isValidPitch(pitch: Partial<Pitch>): pitch is Pitch {
   return typeof pitch.pitch === 'string' && pitch.pitch.length > 0
 }
@@ -88,7 +97,8 @@ export function hasExamples(pitch: Partial<Pitch>): boolean {
   return typeof pitch.examples === 'string' && pitch.examples.includes('|')
 }
 
-// UI helpers
+// === Display Helpers ===
+
 export function pitchTypeLabel(type: PitchType): string {
   return type
     .toLowerCase()
@@ -100,7 +110,8 @@ export function estimateTokenCount(text: string): number {
   return Math.ceil(text.split(/\s+/).length * 1.33)
 }
 
-// Parsing & payloads
+// === Parsing & Payloads ===
+
 export function parsePitchType(value: string): PitchType {
   return PitchType[value as keyof typeof PitchType] || PitchType.ARTPITCH
 }

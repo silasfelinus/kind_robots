@@ -45,6 +45,16 @@ export const daisyuiThemes = [
   'abyss', 'silk',
 ]
 
+export function getThemeStyle(values: Record<string, string> = {}): Record<string, string> {
+  const style: Record<string, string> = {}
+  for (const [key, val] of Object.entries(values)) {
+    if (typeof val === 'string' && key.startsWith('--')) {
+      style[key] = val
+    }
+  }
+  return style
+}
+
 
 // Default fallback extras
 export const defaultExtraVars: Record<string, string> = {

@@ -25,10 +25,15 @@
           <magic-container
             v-for="theme in themeStore.sharedThemes"
             :key="theme.id"
-            :style="getThemeStyle(theme.values as Record<string, string>)"
+            :data-theme="'custom-preview-' + theme.id"
             class="relative rounded-xl p-4 border cursor-pointer group hover:ring hover:ring-secondary"
             @click="handleSetTheme(theme)"
           >
+            <!-- Inject custom variables as scoped CSS -->
+            <style>
+              {{ generateScopedThemeCSS(theme) }}
+            </style>
+
             <div
               class="w-full h-full flex items-center justify-center font-mono text-lg text-center"
             >
@@ -74,6 +79,14 @@ const themeStore = useThemeStore()
 const milestoneStore = useMilestoneStore()
 const themeError = ref('')
 const inspectValues = ref<string | null>(null)
+
+function generateThemeCSS(theme: Theme) {
+  const selector = `[data-theme="custom-preview-${theme.id}"]`
+  const entries = Object.entries(theme.values || {})
+    .map(([key, value]) => `  ${key}: ${value};`)
+    .join('\n')
+  return `${selector} {\n${entries}\n}`
+}
 
 function handleSetTheme(theme: string | Theme) {
   const result = themeStore.setActiveTheme(theme)

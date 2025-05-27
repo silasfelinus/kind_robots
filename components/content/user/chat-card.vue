@@ -133,11 +133,12 @@ const senderName = computed(() => chat.value.sender || 'User')
 const botName = computed(() => chat.value.botName || 'Bot')
 
 watchEffect(async () => {
+  // Load user image if needed
   const user = userStore.getUserById(chat.value.userId)
 
   if (user?.artImageId && !userImage.value) {
     try {
-      const artImage = await artStore.getArtImageById(user.artImageId)
+      const [artImage] = await artStore.getArtImagesByIds([user.artImageId])
       userImage.value = artImage?.imageData || user.avatarImage || undefined
     } catch (error) {
       console.error('Error fetching user image:', error)
@@ -145,11 +146,12 @@ watchEffect(async () => {
     }
   }
 
+  // Load bot image if needed
   if (chat.value.botId !== null && !botImage.value) {
     const bot = await botStore.getBotById(chat.value.botId)
     if (bot?.artImageId) {
       try {
-        const artImage = await artStore.getArtImageById(bot.artImageId)
+        const [artImage] = await artStore.getArtImagesByIds([bot.artImageId])
         botImage.value = artImage?.imageData || bot.avatarImage || undefined
       } catch (error) {
         console.error('Error fetching bot image:', error)

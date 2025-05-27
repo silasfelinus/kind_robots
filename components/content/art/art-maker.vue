@@ -57,11 +57,11 @@ import { useArtStore } from './../../../stores/artStore'
 import { usePromptStore } from './../../../stores/promptStore'
 import { useDisplayStore } from './../../../stores/displayStore'
 import { useErrorStore, ErrorType } from './../../../stores/errorStore'
-import ArtCard from './art-card.vue'
+import { useCollectionStore } from './../../../stores/collectionStore'
 import { useMilestoneStore } from './../../../stores/milestoneStore'
 
 const milestoneStore = useMilestoneStore()
-
+const collectionStore = useCollectionStore()
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 const displayStore = useDisplayStore()
@@ -79,7 +79,7 @@ const savePrompt = () => {
 
 // Fetch the "Generated Art" collection and its art
 const generatedArtCollection = computed(() =>
-  artStore.collections.find((c) => c.label === 'Generated Art'),
+  collectionStore.collections.find((c) => c.label === 'Generated Art'),
 )
 
 const generatedArt = computed(() =>
@@ -96,7 +96,7 @@ const generateArt = async () => {
 
   console.log('Generating art with prompt:', promptStore.promptField)
 
-  if (!artStore.validatePromptString(promptStore.promptField)) {
+  if (!promptStore.validatePromptString(promptStore.promptField)) {
     localError.value = 'Invalid characters in prompt.'
     errorStore.addError(ErrorType.VALIDATION_ERROR, localError.value)
     console.log('Error:', localError.value)
@@ -127,7 +127,7 @@ const generateArt = async () => {
 onMounted(async () => {
   await artStore.initialize()
   console.log('Fetching Generated Art collection...')
-  await artStore.fetchCollections()
+  await collectionStore.fetchCollections()
   console.log('ArtStore and PromptStore initialized')
 })
 </script>

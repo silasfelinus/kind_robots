@@ -1,191 +1,186 @@
 // /stores/promptStore.ts
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import type { Prompt, Art } from '@prisma/client'
 import { performFetch, handleError } from './utils'
 import { useUserStore } from './userStore'
 
-interface State {
-  prompts: Prompt[]
-  artByPromptId: Art[]
-  selectedPrompt: Prompt | null
-  promptField: string
-  isInitialized: boolean
-  promptArray: string[]
-  currentPrompt: string
-}
+export const usePromptStore = defineStore('promptStore', () => {
+  const prompts = ref<Prompt[]>([])
+  const artByPromptId = ref<Art[]>([])
+  const selectedPrompt = ref<Prompt | null>(null)
+  const promptField = ref('kind robots')
+  const isInitialized = ref(false)
+  const promptArray = ref<string[]>([])
+  const currentPrompt = ref('')
 
-export const usePromptStore = defineStore('promptStore', {
-  state: (): State => ({
-    prompts: [],
-    artByPromptId: [],
-    selectedPrompt: null,
-    promptField: 'kind robots',
-    isInitialized: false,
-    promptArray: [],
-    currentPrompt: ' ',
-  }),
+  const finalPromptString = computed(() =>
+    promptArray.value.filter((p) => p.trim() !== '').join(' | '),
+  )
 
-  getters: {
-    finalPromptString: (state): string =>
-      state.promptArray
-        .filter((prompt: string) => prompt.trim() !== '')
-        .join(' | '),
-  },
+  function validatePromptString(prompt: string): boolean {
+    const validPattern = /^[a-zA-Z0-9 ,_<>:"'|!?()-]+$/
+    return validPattern.test(prompt)
+  }
 
-  actions: {
-    async initialize() {
-      if (this.isInitialized) return
-      this.loadFromLocalStorage()
-      await this.fetchPrompts()
-      this.isInitialized = true
-    },
+  function loadFromLocalStorage() {
+    if (typeof window === 'undefined') return
+    const field = localStorage.getItem('promptField')
+    const array = localStorage.getItem('promptArray')
+    const current = localStorage.getItem('currentPrompt')
 
-    loadFromLocalStorage() {
-      if (typeof window === 'undefined') return
+    if (field) promptField.value = field
+    if (array) promptArray.value = JSON.parse(array)
+    if (current) currentPrompt.value = current
+  }
 
-      const storedField = localStorage.getItem('promptField')
-      const storedArray = localStorage.getItem('promptArray')
-      const storedCurrent = localStorage.getItem('currentPrompt')
+  function syncToLocalStorage() {
+    if (typeof window === 'undefined') return
+    localStorage.setItem('promptField', promptField.value)
+    localStorage.setItem('promptArray', JSON.stringify(promptArray.value))
+    localStorage.setItem('currentPrompt', currentPrompt.value)
+  }
 
-      if (storedField) this.promptField = storedField
-      if (storedArray) this.promptArray = JSON.parse(storedArray)
-      if (storedCurrent) this.currentPrompt = storedCurrent
-    },
+  async function initialize() {
+    if (isInitialized.value) return
+    loadFromLocalStorage()
+    await fetchPrompts()
+    isInitialized.value = true
+  }
 
-    syncToLocalStorage() {
-      if (typeof window === 'undefined') return
+  async function fetchPrompts() {
+    try {
+      const response = await performFetch<Prompt[]>('/api/prompts/')
+      prompts.value = response.data || []
+    } catch (error) {
+      handleError(error, 'fetching prompts')
+    }
+  }
 
-      localStorage.setItem('promptField', this.promptField)
-      localStorage.setItem('promptArray', JSON.stringify(this.promptArray))
-      localStorage.setItem('currentPrompt', this.currentPrompt)
-    },
+  function addPromptToArray(prompt: string) {
+    promptArray.value.push(prompt)
+    syncToLocalStorage()
+  }
 
-    async selectPrompt(promptId: number) {
-      try {
-        if (this.selectedPrompt?.id === promptId) return
-        const foundPrompt = this.prompts.find(
-          (prompt) => prompt.id === promptId,
-        )
-        if (!foundPrompt)
-          throw new Error(`Prompt with ID ${promptId} not found`)
+  function removePromptFromArray(index: number) {
+    promptArray.value.splice(index, 1)
+    syncToLocalStorage()
+  }
 
-        this.selectedPrompt = foundPrompt
-      } catch (error) {
-        handleError(error, 'selecting prompt')
+  function setPromptsFromString(final: string) {
+    promptArray.value = final.split('|').map((p) => p.trim())
+    syncToLocalStorage()
+  }
+
+  async function addPrompt(newPrompt: string, userId: number, botId: number) {
+    try {
+      const response = await performFetch<Prompt>('/api/prompts', {
+        method: 'POST',
+        body: JSON.stringify({ prompt: newPrompt, userId, botId }),
+      })
+      const created = response.data || null
+      if (created) prompts.value.push(created)
+      return created
+    } catch (error) {
+      handleError(error, 'adding prompt')
+    }
+  }
+
+  async function selectPrompt(promptId: number) {
+    try {
+      if (selectedPrompt.value?.id === promptId) return
+      const found = prompts.value.find((p) => p.id === promptId)
+      if (!found) throw new Error(`Prompt with ID ${promptId} not found`)
+      selectedPrompt.value = found
+    } catch (error) {
+      handleError(error, 'selecting prompt')
+    }
+  }
+
+  async function fetchPromptById(promptId: number): Promise<Prompt | null> {
+    const found = prompts.value.find((p) => p.id === promptId)
+    if (found) return found
+
+    try {
+      const response = await performFetch<Prompt>(`/api/prompts/${promptId}`)
+      const prompt = response.data || null
+      if (prompt) prompts.value.push(prompt)
+      return prompt
+    } catch (error) {
+      handleError(error, 'fetching prompt by ID')
+      return null
+    }
+  }
+
+  async function fetchArtByPromptId(promptId: number) {
+    try {
+      const response = await performFetch<Art[]>(`/api/art/prompt/${promptId}`)
+      artByPromptId.value = response.data || []
+    } catch (error) {
+      handleError(error, 'fetching art by prompt ID')
+    }
+  }
+
+  async function deletePrompt(promptId: number) {
+    const userStore = useUserStore()
+    const prompt = await fetchPromptById(promptId)
+    if (!prompt || prompt.userId !== userStore.userId) {
+      handleError(new Error('Unauthorized deletion attempt'), 'deleting prompt')
+      return
+    }
+
+    try {
+      const response = await performFetch(`/api/prompts/${promptId}`, {
+        method: 'DELETE',
+      })
+      if (response.success) {
+        prompts.value = prompts.value.filter((p) => p.id !== promptId)
+      } else {
+        throw new Error(response.message)
       }
-    },
+    } catch (error) {
+      handleError(error, 'deleting prompt')
+    }
+  }
 
-    async fetchPrompts() {
-      try {
-        const response = await performFetch<Prompt[]>('/api/prompts/')
-        this.prompts = response.data || []
-      } catch (error) {
-        handleError(error, 'fetching prompts')
-      }
-    },
+  async function updatePromptAtIndex(index: number, value: string) {
+    const userStore = useUserStore()
+    const prompt = prompts.value[index]
+    if (!prompt || prompt.userId !== userStore.userId) {
+      handleError(new Error('Unauthorized edit attempt'), 'updating prompt')
+      return
+    }
+    prompt.prompt = value
+    prompts.value[index] = prompt
+  }
 
-    addPromptToArray(prompt: string) {
-      this.promptArray.push(prompt)
-      this.syncToLocalStorage()
-    },
+  function clearPrompt() {
+    selectedPrompt.value = null
+  }
 
-    removePromptFromArray(index: number) {
-      this.promptArray.splice(index, 1)
-      this.syncToLocalStorage()
-    },
-
-    setPromptsFromString(finalString: string) {
-      this.promptArray = finalString
-        .split('|')
-        .map((prompt: string) => prompt.trim())
-      this.syncToLocalStorage()
-    },
-
-    async addPrompt(newPrompt: string, userId: number, botId: number) {
-      try {
-        const response = await performFetch<Prompt>('/api/prompts', {
-          method: 'POST',
-          body: JSON.stringify({ prompt: newPrompt, userId, botId }),
-        })
-
-        const createdPrompt = response.data || null
-        if (createdPrompt) {
-          this.prompts.push(createdPrompt)
-        }
-        return createdPrompt
-      } catch (error) {
-        handleError(error, 'adding prompt')
-      }
-    },
-
-    async fetchPromptById(promptId: number): Promise<Prompt | null> {
-      const prompt = this.prompts.find((p) => p.id === promptId)
-      if (prompt) return prompt
-
-      try {
-        const response = await performFetch<Prompt>(`/api/prompts/${promptId}`)
-        const fetchedPrompt = response.data || null
-        if (fetchedPrompt) this.prompts.push(fetchedPrompt)
-        return fetchedPrompt
-      } catch (error) {
-        handleError(error, 'fetching prompt by ID')
-        return null
-      }
-    },
-
-    async fetchArtByPromptId(promptId: number) {
-      try {
-        const response = await performFetch<Art[]>(
-          `/api/art/prompt/${promptId}`,
-        )
-        this.artByPromptId = response.data || []
-      } catch (error) {
-        handleError(error, 'fetching art by prompt ID')
-      }
-    },
-
-    async deletePrompt(promptId: number) {
-      const userStore = useUserStore()
-      const currentUserId = userStore.userId
-      const prompt = await this.fetchPromptById(promptId)
-      if (!prompt || prompt.userId !== currentUserId) {
-        handleError(
-          new Error('Unauthorized deletion attempt'),
-          'deleting prompt',
-        )
-        return
-      }
-
-      try {
-        const response = await performFetch(`/api/prompts/${promptId}`, {
-          method: 'DELETE',
-        })
-        if (response.success) {
-          this.prompts = this.prompts.filter((prompt) => prompt.id !== promptId)
-        } else {
-          throw new Error(response.message)
-        }
-      } catch (error) {
-        handleError(error, 'deleting prompt')
-      }
-    },
-
-    async updatePromptAtIndex(index: number, value: string) {
-      const userStore = useUserStore()
-      const prompt = this.prompts[index]
-      if (!prompt || prompt.userId !== userStore.userId) {
-        handleError(new Error('Unauthorized edit attempt'), 'updating prompt')
-        return
-      }
-
-      prompt.prompt = value
-      this.prompts[index] = prompt
-    },
-
-    clearPrompt() {
-      this.selectedPrompt = null
-    },
-  },
+  return {
+    prompts,
+    artByPromptId,
+    selectedPrompt,
+    promptField,
+    isInitialized,
+    promptArray,
+    currentPrompt,
+    finalPromptString,
+    initialize,
+    fetchPrompts,
+    loadFromLocalStorage,
+    syncToLocalStorage,
+    addPromptToArray,
+    removePromptFromArray,
+    setPromptsFromString,
+    addPrompt,
+    selectPrompt,
+    fetchPromptById,
+    fetchArtByPromptId,
+    deletePrompt,
+    updatePromptAtIndex,
+    clearPrompt,
+    validatePromptString,
+  }
 })
-
-export type { Prompt }

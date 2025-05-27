@@ -68,7 +68,7 @@
 import { ref } from 'vue'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import { getThemeStyle } from '@/stores/helpers/themeHelpers'
+import { getThemeStyle } from '~/stores/helpers/themeHelper'
 
 const themeStore = useThemeStore()
 const milestoneStore = useMilestoneStore()

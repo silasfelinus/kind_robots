@@ -17,7 +17,7 @@ import {
   daisyuiThemes,
   getThemeStyle,
   isThemeValuesRecord,
-} from '@/stores/helpers/themeHelpers'
+} from '~/stores/helpers/themeHelper'
 
 export const useThemeStore = defineStore('themeStore', () => {
   const activeTheme = ref<string | Theme>('retro')

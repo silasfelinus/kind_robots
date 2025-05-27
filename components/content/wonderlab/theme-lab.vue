@@ -227,7 +227,7 @@ import {
   buildThemePayload,
   getRandomHex,
   defaultExtraVars,
-} from '@/stores/helpers/themeHelpers'
+} from '~/stores/helpers/themeHelper'
 
 const themeStore = useThemeStore()
 const themeForm = themeStore.themeForm as Record<string, any>

@@ -59,7 +59,7 @@
       <h2 class="text-xl font-bold mb-4">🌈 Default Themes</h2>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <magic-container
-          v-for="theme in themeStore.availableThemes"
+          v-for="theme in themeStore.daisyuiThemes"
           :key="theme"
           :data-theme="theme"
           class="rounded-xl p-4 border shadow-sm transition-all cursor-pointer text-center"

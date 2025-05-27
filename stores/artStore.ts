@@ -191,27 +191,7 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function fetchArtImageByArtId(artId: number): Promise<ArtImage | null> {
-    const cached = getArtImageByArtId(artId)
-    if (cached) return cached
-
-    try {
-      const response = await performFetch<ArtImage>(
-        `/api/art/image/imagebyart/${artId}`,
-      )
-      if (response.success && response.data) {
-        state.artImages.push(response.data)
-        await updateArtImageId(artId, response.data.id)
-        return response.data
-      }
-      throw new Error(response.message)
-    } catch (error) {
-      handleError(error, 'fetching art image by art ID')
-      return null
-    }
-  }
-
-  async function fetchArtImagesByIds(imageIds: number[]): Promise<ArtImage[]> {
+  async function getArtImagesByIds(imageIds: number[]): Promise<ArtImage[]> {
     const uncached = imageIds.filter(
       (id) => !state.artImages.some((img) => img.id === id),
     )
@@ -317,6 +297,61 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
+  async function deleteArtImage(artImageId: number): Promise<void> {
+    try {
+      const response = await performFetch(`/api/art/image/${artImageId}`, {
+        method: 'DELETE',
+      })
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to delete the art image.')
+      }
+      state.artImages = artHelper.removeImageById(state.artImages, artImageId)
+    } catch (error) {
+      handleError(error, 'deleting art image')
+      throw error
+    }
+  }
+
+  async function addArtToCollection({
+    artId,
+    collectionId,
+    label = '',
+  }: {
+    artId: number
+    collectionId?: number
+    label?: string
+  }) {
+    const userId = userStore.userId
+    let collection =
+      collectionId != null
+        ? artHelper.findCollectionById(state.collections, collectionId)
+        : artHelper.findCollectionByUserAndLabel(
+            state.collections,
+            userId,
+            label,
+          )
+
+    if (!collection) {
+      const res = await performFetch<ArtCollection>('/api/art/collection', {
+        method: 'POST',
+        body: JSON.stringify({ label, userId }),
+        headers: { 'Content-Type': 'application/json' },
+      })
+      if (!res.success || !res.data) throw new Error(res.message)
+      collection = res.data
+      state.collections.push(collection)
+    }
+
+    await performFetch(`/api/art/collection/${collection.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ artIds: [artId] }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const art = state.art.find((a) => a.id === artId)
+    if (art) artHelper.addArtToCollectionLocal(collection, art)
+  }
+
   function getArtImageByArtId(artId: number): ArtImage | undefined {
     return state.artImages.find((image: ArtImage) => image.artId === artId)
   }
@@ -399,6 +434,48 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
+  async function createCollection(label: string): Promise<void> {
+    const userId = userStore.userId
+    const response = await performFetch<ArtCollection>('/api/art/collection', {
+      method: 'POST',
+      body: JSON.stringify({ label, userId }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    if (!response.success || !response.data) throw new Error(response.message)
+    state.collections.push(response.data)
+    state.currentCollection = response.data
+  }
+
+  async function deleteCollection(collectionId: number): Promise<void> {
+    const success = await artHelper.deleteCollectionById(collectionId)
+    if (success) {
+      state.collections = state.collections.filter((c) => c.id !== collectionId)
+      if (isClient)
+        localStorage.setItem('collections', JSON.stringify(state.collections))
+    }
+  }
+
+  async function removeArtFromCollection(artId: number, collectionId: number) {
+    const success = await artHelper.removeArtFromCollectionServer(
+      collectionId,
+      artId,
+    )
+    if (success) {
+      const collection = artHelper.findCollectionById(
+        state.collections,
+        collectionId,
+      )
+      if (collection) {
+        artHelper.removeArtFromLocalCollection(collection, artId)
+      }
+    }
+  }
+
+  function getUserCollections(userId: number): ArtCollection[] {
+    return state.collections.filter((c) => c.userId === userId)
+  }
+
   return {
     ...toRefs(state),
     initialize,
@@ -408,6 +485,16 @@ export const useArtStore = defineStore('artStore', () => {
     selectArt,
     generateArt,
     getOrCreateGeneratedArtCollection,
+    getArtImagesByIds,
+    deleteArt,
+    deleteArtImage,
+    addArtToCollection,
+    uploadImage,
+    updateArtImageId,
+    updateArtImageWithArtId,
+    getCachedArtImageById,
+    getArtImageByArtId,
+    createArt,
   }
 })
 

@@ -82,6 +82,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from './../../../stores/artStore'
 import { useUserStore } from './../../../stores/userStore'
+import * as artHelper from '@/stores/helpers/artHelper'
 
 const props = defineProps<{
   art: Art
@@ -117,7 +118,10 @@ onMounted(() => {
 
 const fetchArtImage = async () => {
   if (props.art.artImageId) {
-    localArtImage.value = await artStore.getArtImageById(props.art.artImageId)
+    localArtImage.value = artHelper.getArtImageByArtId(
+      artStore.artImages,
+      props.art.artImageId,
+    )
   }
 }
 

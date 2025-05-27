@@ -216,15 +216,20 @@ export function extractComputedTheme(name = 'custom-from-css'): Partial<Theme> {
   }
 }
 
-// Generates inline Vue :style object from theme vars
 export function getThemeStyle(
   values: Record<string, string> = {},
 ): Record<string, string> {
   const style: Record<string, string> = {}
   for (const [key, val] of Object.entries(values)) {
-    if (isValidColor(val)) {
-      style[key] = val
-    }
+    style[key] = val
   }
   return style
+}
+
+export function generateScopedThemeCSS(theme: Theme): string {
+  const selector = `[data-theme="custom-preview-${theme.id}"]`
+  const entries = Object.entries(theme.values || {})
+    .map(([key, value]) => `  ${key}: ${value};`)
+    .join('\n')
+  return `${selector} {\n${entries}\n}`
 }

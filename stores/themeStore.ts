@@ -15,6 +15,7 @@ import {
   colorKeys,
   allThemeKeys,
 daisyuiThemes,
+getThemeStyle,
 } from '@/stores/helpers/themeHelpers'
 
 export const useThemeStore = defineStore('themeStore', () => {
@@ -190,6 +191,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     colorKeys,
     allThemeKeys,
     daisyuiThemes,
+getThemeStyle,
   }
 })
 

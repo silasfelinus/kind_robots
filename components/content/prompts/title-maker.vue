@@ -23,7 +23,7 @@ async function createTitle() {
     PitchType: PitchType.TITLE,
   })
   if (!success) {
-    errorMessage.value = message
+    errorMessage.value = message ?? 'Unknown error'
   } else {
     newTitle.value = ''
   }

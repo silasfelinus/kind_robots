@@ -53,6 +53,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import * as artHelper from '@/stores/helpers/artHelper'
+import * as pitchHelper from '@/stores/helpers/promptHelper'
 
 const artStore = useArtStore()
 const promptStore = usePromptStore()

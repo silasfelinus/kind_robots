@@ -52,7 +52,7 @@ import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import ArtCard from './art-card.vue'
+import * as artHelper from '@/stores/helpers/artHelper'
 
 const artStore = useArtStore()
 const promptStore = usePromptStore()
@@ -84,7 +84,7 @@ const generateArt = async () => {
   isGenerating.value = true
   displayStore.toggleRandomAnimation()
 
-  if (!artStore.validatePromptString(promptStore.promptField)) {
+  if (!promptHelper.validatePromptString(promptStore.promptField)) {
     localError.value = 'Invalid characters in prompt.'
     errorStore.addError(ErrorType.VALIDATION_ERROR, localError.value)
     isGenerating.value = false

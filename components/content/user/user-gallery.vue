@@ -107,7 +107,7 @@ async function fetchArtImages(artIds: number[]) {
   if (uncachedIds.length === 0) return
 
   try {
-    const response = await artStore.fetchArtImagesByIds(uncachedIds) // Batch fetch
+    const response = await artStore.fetchArtImages(uncachedIds) // Batch fetch
     response.forEach((artImage) => {
       artImages.value[artImage.id] =
         artImage.imageData || '/images/kindtitle.webp'

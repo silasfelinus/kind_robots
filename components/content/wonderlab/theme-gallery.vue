@@ -1,6 +1,8 @@
+<!-- /components/content/themes/theme-gallery.vue -->
 <template>
   <div class="overflow-y-auto max-h-[calc(100vh-4rem)] px-4 py-6">
-    <!-- Explore Themes -->
+    <style v-html="sharedThemeStyles" />
+
     <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- Default Themes -->
       <div>
@@ -22,34 +24,33 @@
       <div v-if="themeStore.sharedThemes.length">
         <h2 class="text-xl font-semibold mb-3">🌍 Shared Themes</h2>
         <div class="grid gap-3 sm:grid-cols-2">
-          <magic-container
+          <div
             v-for="theme in themeStore.sharedThemes"
             :key="theme.id"
-            :data-theme="'custom-preview-' + theme.id"
-            class="relative rounded-xl p-4 border cursor-pointer group hover:ring hover:ring-secondary"
-            @click="handleSetTheme(theme)"
+            class="relative"
           >
-            <!-- Inject custom variables as scoped CSS -->
-            <style>
-              {{ generateScopedThemeCSS(theme) }}
-            </style>
-
             <div
-              class="w-full h-full flex items-center justify-center font-mono text-lg text-center"
+              :data-theme="'custom-preview-' + theme.id"
+              class="rounded-xl p-4 border cursor-pointer group hover:ring hover:ring-secondary"
+              @click="handleSetTheme(theme)"
             >
-              {{ theme.name }}
+              <div
+                class="w-full h-full flex items-center justify-center font-mono text-lg text-center"
+              >
+                {{ theme.name }}
+              </div>
+              <button
+                class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100 transition-opacity"
+                @click.stop="editTheme(theme)"
+              >
+                ✏️ Edit
+              </button>
             </div>
-
-            <button
-              class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100 transition-opacity"
-              @click.stop="editTheme(theme)"
-            >
-              ✏️ Edit
-            </button>
-          </magic-container>
+          </div>
         </div>
-        <!-- Full Width Info + Error Block -->
-        <div class="col-span-full space-y-4">
+
+        <!-- Info + Errors -->
+        <div class="col-span-full space-y-4 mt-6">
           <div
             v-if="inspectValues"
             class="bg-base-100 border border-base-300 rounded-xl p-4 whitespace-pre-wrap text-sm overflow-auto max-h-[40vh]"
@@ -70,23 +71,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+// /components/content/themes/theme-gallery.vue
+
+import { ref, computed } from 'vue'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import { getThemeStyle } from '~/stores/helpers/themeHelper'
 
 const themeStore = useThemeStore()
 const milestoneStore = useMilestoneStore()
 const themeError = ref('')
 const inspectValues = ref<string | null>(null)
-
-function generateThemeCSS(theme: Theme) {
-  const selector = `[data-theme="custom-preview-${theme.id}"]`
-  const entries = Object.entries(theme.values || {})
-    .map(([key, value]) => `  ${key}: ${value};`)
-    .join('\n')
-  return `${selector} {\n${entries}\n}`
-}
 
 function handleSetTheme(theme: string | Theme) {
   const result = themeStore.setActiveTheme(theme)
@@ -111,4 +105,16 @@ function editTheme(theme: Theme) {
     themeError.value = `❌ Failed to edit theme\n${(err as Error).message}`
   }
 }
+
+const sharedThemeStyles = computed(() =>
+  themeStore.sharedThemes
+    .map((theme) => {
+      const selector = `[data-theme="custom-preview-${theme.id}"]`
+      const entries = Object.entries(theme.values || {})
+        .map(([key, value]) => `${key}: ${value};`)
+        .join('\n')
+      return `${selector} {\n${entries}\n}`
+    })
+    .join('\n\n'),
+)
 </script>

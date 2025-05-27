@@ -8,6 +8,8 @@ import { useUserStore } from './userStore'
 import * as artHelper from '@/stores/helpers/artHelper'
 import * as collectionHelper from '@/stores/helpers/collectionHelper'
 import * as promptHelper from '@/stores/helpers/promptHelper'
+import * as pitchHelper from '@/stores/helpers/promptHelper'
+import { useCollectionStore } from './collectionStore'
 
 const isClient = typeof window !== 'undefined'
 
@@ -85,18 +87,20 @@ export const useArtStore = defineStore('artStore', () => {
   const userStore = useUserStore()
   const pitchStore = usePitchStore()
   const promptStore = usePromptStore()
+  const collectionStore = useCollectionStore()
 
   async function initialize() {
     if (state.isInitialized) return
     state.loading = true
+    const collectionStore = useCollectionStore()
+
+    await Promise.all([collectionStore.fetchCollections(), fetchAllArt()])
+
     try {
       if (isClient) {
         state.art = artHelper.parseStoredArt(localStorage.getItem('art') || '')
-        state.collections = collectionHelper.parseStoredCollections(
-          localStorage.getItem('collections') || '',
-        )
       }
-      await Promise.all([fetchCollections(), fetchAllArt()])
+      await Promise.all([collectionStore.fetchCollections(), fetchAllArt()])
       state.isInitialized = true
     } catch (error) {
       handleError(error, 'initializing art store')
@@ -139,12 +143,6 @@ export const useArtStore = defineStore('artStore', () => {
     state.currentArt = found
   }
 
-  async function fetchCollections() {
-    const response = await performFetch<ArtCollection[]>('/api/art/collection')
-    if (!response.success || !response.data) throw new Error(response.message)
-    state.collections = response.data
-  }
-
   async function fetchAllArt() {
     const response = await performFetch<Art[]>('/api/art')
     if (!response.success || !response.data) throw new Error(response.message)
@@ -153,7 +151,7 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   async function fetchUncollectedArt() {
-    return artHelper.getUncollectedArt(
+    return collectionHelper.getUncollectedArt(
       userStore.userId,
       state.art,
       state.collections,
@@ -366,8 +364,7 @@ export const useArtStore = defineStore('artStore', () => {
     const data: GenerateArtData = {
       promptString: artData?.promptString || promptStore.promptField,
       pitch:
-        artData?.pitch ||
-        collectionHelper.extractPitch(promptStore.promptField),
+        artData?.pitch || pitchHelper.extractPitch(promptStore.promptField),
       userId: artData?.userId || userStore.userId || 10,
       galleryId: artData?.galleryId,
       checkpoint: artData?.checkpoint || 'stable-diffusion-v1-4',
@@ -380,13 +377,13 @@ export const useArtStore = defineStore('artStore', () => {
       isPublic: artData?.isPublic || true,
     }
 
-    data.promptString = collectionHelper.processPromptPlaceholders(
+    data.promptString = promptHelper.processPromptPlaceholders(
       data.promptString,
       pitchStore,
     )
     state.processedArtPrompt = data.promptString
 
-    if (!collectionHelper.validatePromptString(data.promptString)) {
+    if (!promptHelper.validatePromptString(data.promptString)) {
       state.loading = false
       return { success: false, message: 'Invalid prompt' }
     }
@@ -452,7 +449,7 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   async function deleteCollection(collectionId: number): Promise<void> {
-    const success = await artHelper.deleteCollectionById(collectionId)
+    const success = await collectionStore.deleteCollectionById(collectionId)
     if (success) {
       state.collections = state.collections.filter((c) => c.id !== collectionId)
       if (isClient)
@@ -461,7 +458,7 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   async function removeArtFromCollection(artId: number, collectionId: number) {
-    const success = await collectiontHelper.removeArtFromCollectionServer(
+    const success = await collectionStore.removeArtFromCollectionServer(
       collectionId,
       artId,
     )
@@ -483,7 +480,6 @@ export const useArtStore = defineStore('artStore', () => {
   return {
     ...toRefs(state),
     initialize,
-    fetchCollections,
     fetchAllArt,
     fetchUncollectedArt,
     selectArt,

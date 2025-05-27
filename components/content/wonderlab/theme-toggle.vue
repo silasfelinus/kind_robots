@@ -21,7 +21,7 @@
         style="min-width: 250px; max-width: 400px"
       >
         <button
-          v-for="(theme, index) in themeStore.availableThemes"
+          v-for="(theme, index) in themeStore.daisyuiThemes"
           :key="index"
           class="theme-item flex items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-base-200 transition-all"
           :class="theme === themeStore.currentTheme ? 'ring-2 ring-accent' : ''"

@@ -5,6 +5,8 @@ import type { Prompt, Art } from '@prisma/client'
 import { performFetch, handleError } from './utils'
 import { useUserStore } from './userStore'
 
+export type { Prompt }
+
 export const usePromptStore = defineStore('promptStore', () => {
   const prompts = ref<Prompt[]>([])
   const artByPromptId = ref<Art[]>([])

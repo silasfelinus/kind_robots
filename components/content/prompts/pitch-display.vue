@@ -17,8 +17,10 @@
         :pitch="pitch"
         :class="{
           newest: pitchStore.newestPitches.includes(pitch),
-          selected: pitchStore.selectedPitches.includes(pitch) ||
-                    (pitchStore.selectedTitle && pitchStore.selectedTitle.id === pitch.id),
+          selected:
+            pitchStore.selectedPitches.includes(pitch) ||
+            (pitchStore.selectedTitle &&
+              pitchStore.selectedTitle.id === pitch.id),
         }"
         @select="toggleSelectedPitch(pitch)"
       />
@@ -32,8 +34,8 @@
       Request More Examples
     </button>
 
-<div> {{newestPitches}} </div>
-<div> {{lastResponse}}</div>
+    <div>{{ newestPitches }}</div>
+    <div>{{ lastResponse }}</div>
   </div>
 </template>
 
@@ -45,21 +47,16 @@ const pitchStore = usePitchStore()
 const newestPitches = computed(() => pitchStore.newestPitches)
 const lastResponse = computed(() => pitchStore.apiResponse)
 
-
-// Computed property for filtering displayed pitches
 const displayedPitches = computed(() => {
   if (pitchStore.selectedTitle) {
-    // Show pitches for the selected title within the selected PitchType
     return pitchStore.pitches.filter(
       (pitch) =>
         pitch.PitchType === pitchStore.selectedPitchType &&
         pitch.title === pitchStore.selectedTitle?.title,
     )
   } else if (pitchStore.selectedPitchType) {
-    // Show all pitches by the selected PitchType if no title is selected
-    return pitchStore.getPitchesBySelectedType
+    return pitchStore.getPitchesBySelectedType() // ✅ FIXED
   } else {
-    // Show all pitches if neither title nor type is selected
     return pitchStore.pitches
   }
 })

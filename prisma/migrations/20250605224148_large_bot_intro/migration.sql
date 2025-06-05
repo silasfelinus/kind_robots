@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Bot` MODIFY `botIntro` VARCHAR(3000) NOT NULL;

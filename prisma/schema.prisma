@@ -130,7 +130,7 @@ model Bot {
   subtitle          String?        @db.VarChar(764)
   description       String?        @db.VarChar(764)
   avatarImage       String?        @db.VarChar(764)
-  botIntro          String         @db.VarChar(764)
+  botIntro          String         @db.VarChar(3000)
   userIntro         String         @db.VarChar(764)
   prompt            String         @db.VarChar(764)
   trainingPath      String?        @db.VarChar(764)
@@ -483,6 +483,7 @@ model Resource {
   description  String?      @db.Text
   isMature     Boolean      @default(false)
   resourceType ResourceType @default(EMBEDDING)
+  generation   String?
   userId       Int?         @default(1)
   artImageId   Int?
   ArtImage     ArtImage?
@@ -744,6 +745,7 @@ enum ResourceType {
   LORA
   LYCORIS
   HYPERNETWORK
+  SAMPLER
   CONTROLNET
   URL
   API

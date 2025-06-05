@@ -6,7 +6,7 @@
     <h1 class="text-3xl font-bold m-6 text-center text-primary">
       🎨 Welcome to the Art-Maker
     </h1>
-
+    <checkpoint-gallery />
     <random-selector />
 
     <!-- Prompt Input -->

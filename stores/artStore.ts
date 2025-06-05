@@ -10,6 +10,7 @@ import * as collectionHelper from '@/stores/helpers/collectionHelper'
 import * as promptHelper from '@/stores/helpers/promptHelper'
 import * as pitchHelper from '@/stores/helpers/promptHelper'
 import { useCollectionStore } from './collectionStore'
+import { useCheckpointStore } from './checkpointStore'
 
 const isClient = typeof window !== 'undefined'
 
@@ -367,14 +368,20 @@ export const useArtStore = defineStore('artStore', () => {
   ): Promise<ApiResponse<Art>> {
     state.loading = true
 
+    const checkpointStore = useCheckpointStore()
+    const prompt = artData?.promptString || promptStore.promptField
+
     const data: GenerateArtData = {
-      promptString: artData?.promptString || promptStore.promptField,
-      pitch:
-        artData?.pitch || pitchHelper.extractPitch(promptStore.promptField),
+      promptString: prompt,
+      pitch: artData?.pitch || pitchHelper.extractPitch(prompt),
       userId: artData?.userId || userStore.userId || 10,
       galleryId: artData?.galleryId,
-      checkpoint: artData?.checkpoint || 'stable-diffusion-v1-4',
-      sampler: artData?.sampler || 'k_lms',
+      checkpoint:
+        artData?.checkpoint ||
+        checkpointStore.selectedCheckpoint?.name ||
+        'stable-diffusion-v1-4',
+      sampler:
+        artData?.sampler || checkpointStore.selectedSampler?.name || 'k_lms',
       steps: artData?.steps || 20,
       designer: artData?.designer || userStore.username || 'Kind Designer',
       cfg: artData?.cfg || 2,
@@ -418,6 +425,7 @@ export const useArtStore = defineStore('artStore', () => {
       })
 
       collectionHelper.addArtToCollectionLocal(collection, response.data)
+
       state.art.push(response.data)
 
       if (isClient) {

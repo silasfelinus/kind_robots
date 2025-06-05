@@ -3,41 +3,20 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import { generateSillyName } from './../../../utils/useRandomName'
 import { saveImage } from './../../../server/api/utils/saveImage'
-import type { Art, PitchType } from '@prisma/client'
+import type { Art } from '@prisma/client'
+import {
+  type RequestData,
+  validateAndLoadDesignerName,
+  validateAndLoadGalleryId,
+  validateAndLoadPitchId,
+  validateAndLoadPromptId,
+  validateAndLoadUserId,
+} from '.'
 
 type GenerateImageResponse = {
   images: string[]
   error?: string
-}
-
-type RequestData = {
-  path?: string | null
-  cfg?: number | null
-  cfgHalf?: boolean
-  checkpoint?: string
-  sampler?: string | null
-  seed?: number | undefined
-  steps?: number | null
-  designer?: string | null
-  title?: string | null
-  description?: string | null
-  flavorText?: string | null
-  highlightImage?: string | null
-  PitchType: PitchType | null
-  isMature?: boolean
-  isPublic?: boolean
-  promptString: string
-  promptId?: number | null
-  userId?: number | null
-  username?: string | null
-  pitchId?: number | null
-  pitch?: string | null
-  playerId?: number | null
-  playerName?: string | null
-  galleryId?: number | null
-  galleryName?: string | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -118,6 +97,8 @@ export default defineEventHandler(async (event) => {
       cfgValue || 3,
       requestData.seed || -1,
       requestData.steps || 20,
+      requestData.checkpoint,
+      requestData.sampler || 'Euler a',
     )
 
     if (!response.images?.length) {
@@ -193,183 +174,33 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-async function validateAndLoadUserId(
-  data: RequestData,
-  validatedData: Partial<RequestData>,
-): Promise<number> {
-  console.log('🔍 Validating and loading User ID...')
-  if (!data.username && !data.userId) {
-    console.warn('No userName or userId provided.')
-    return 0
-  }
-
-  try {
-    if (data.username) {
-      const user = await prisma.user.upsert({
-        where: { username: data.username },
-        update: {},
-        create: {
-          username: data.username,
-          Role: 'USER',
-        },
-      })
-      validatedData.username = user.username
-      return user.id
-    }
-
-    if (data.userId) {
-      return data.userId
-    }
-  } catch (error) {
-    console.error('Error loading user:', error)
-    throw new Error('User validation failed.')
-  }
-
-  return 0
-}
-
-async function validateAndLoadPromptId(
-  data: RequestData,
-  validatedData: Partial<RequestData>,
-): Promise<number> {
-  console.log('🔍 Validating and loading Prompt ID...')
-
-  if (!data.promptString) {
-    console.warn('No prompt provided.')
-    throw new Error('Prompt validation failed.')
-  }
-
-  try {
-    const existingPrompt = await prisma.prompt.findFirst({
-      where: { prompt: data.promptString },
-    })
-
-    if (existingPrompt) {
-      return existingPrompt.id
-    } else {
-      const newPrompt = await prisma.prompt.create({
-        data: {
-          prompt: data.promptString,
-          userId: validatedData.userId || 10,
-          galleryId: data.galleryId ?? 21,
-          pitchId: data.pitchId ?? null,
-        },
-      })
-      return newPrompt.id
-    }
-  } catch (error) {
-    console.error('Error loading prompt:', error)
-    throw new Error('Prompt validation failed.')
-  }
-}
-
-async function validateAndLoadPitchId(
-  data: RequestData,
-): Promise<number | null> {
-  console.log('🔍 Validating and loading pitch ID...')
-
-  if (data.pitchId) {
-    const existingPitch = await prisma.pitch.findUnique({
-      where: { id: data.pitchId },
-    })
-    if (!existingPitch) {
-      throw createError({
-        statusCode: 400,
-        message: `Invalid pitchId: ${data.pitchId}. Pitch does not exist.`,
-      })
-    }
-    return data.pitchId
-  }
-
-  if (data.pitch) {
-    const existingPitch = await prisma.pitch.findFirst({
-      where: { pitch: data.pitch },
-    })
-    if (existingPitch) {
-      console.log(`✅ Existing pitch found: ${existingPitch.id}`)
-      return existingPitch.id
-    } else {
-      const newPitch = await prisma.pitch.create({
-        data: {
-          title: data.title || 'Untitled',
-          pitch: data.pitch,
-          designer: data.designer,
-          flavorText: data.flavorText || '',
-          highlightImage: data.highlightImage || '',
-          PitchType: data.PitchType || 'ARTPITCH',
-          isMature: data.isMature || false,
-          isPublic: data.isPublic || true,
-          userId: data.userId || null,
-        },
-      })
-      console.log(`✅ New pitch created: ${newPitch.id}`)
-      return newPitch.id
-    }
-  }
-
-  return null
-}
-
-async function validateAndLoadGalleryId(data: RequestData): Promise<number> {
-  console.log('🔍 Validating and loading gallery ID...')
-
-  try {
-    if (data.galleryId === undefined) {
-      const galleryName = data.galleryName ?? 'cafefred'
-
-      const existingGallery = await prisma.gallery.findFirst({
-        where: { name: galleryName },
-      })
-
-      if (existingGallery) {
-        return existingGallery.id
-      } else {
-        const newGallery = await prisma.gallery.create({
-          data: {
-            name: galleryName,
-            content: '',
-            userId: data.userId || null,
-            isMature: data.isMature || false,
-            isPublic: data.isPublic || true,
-          },
-        })
-        return newGallery.id
-      }
-    }
-
-    return data.galleryId ?? 21
-  } catch (error) {
-    console.error('Error loading gallery:', error)
-    throw new Error('Gallery validation failed.')
-  }
-}
-
-function validateAndLoadDesignerName(data: RequestData): string {
-  console.log('🔍 Validating and loading designer name...')
-  return data.designer ?? data.username ?? generateSillyName() ?? 'Kind Guest'
-}
-
 export async function generateImage(
   prompt: string,
   user: string,
   cfgValue: number,
   seed?: number,
   steps?: number,
+  checkpoint?: string,
+  sampler?: string,
 ): Promise<{ images: string[] }> {
   console.log('📸 Starting image generation...')
+
   const config = {
     headers: { 'Content-Type': 'application/json' },
   }
 
   const requestBody = {
     prompt,
-    n: 1,
-    size: '256x256',
-    response_format: 'url',
+    steps: steps || 10,
+    cfg_scale: cfgValue ?? 0,
+    seed: seed ?? -1,
+    width: 512,
+    height: 512,
+    sampler_index: sampler || 'Euler a',
+    override_settings: {
+      sd_model_checkpoint: checkpoint || 'Flux/flux1-dev-fp8.safetensors',
+    },
     user,
-    cfg_scale: cfgValue,
-    seed: seed || -1,
-    steps: steps || 20,
   }
 
   try {

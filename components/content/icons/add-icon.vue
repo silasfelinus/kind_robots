@@ -79,7 +79,7 @@ async function handleSubmit() {
     const data = result.data as SmartIcon
     if (data?.id) {
       smartIconStore.addIconToSmartBar(data.id)
-      router.push('/icongallery')
+      router.push('/icons')
     }
   }
 }

@@ -102,7 +102,7 @@ const showMature = computed({
 
 const setModel = async () => {
   if (!selectedCheckpointName.value) return
-  await checkpointStore.setCurrentModelApi(selectedCheckpointName.value)
+  await checkpointStore.setCurrentModelInApi(selectedCheckpointName.value)
   await checkpointStore.fetchCurrentModelFromApi()
 }
 

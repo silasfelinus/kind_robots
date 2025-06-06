@@ -4,6 +4,16 @@ import { ref, computed } from 'vue'
 import type { Prompt, Art } from '@prisma/client'
 import { performFetch, handleError } from './utils'
 import { useUserStore } from './userStore'
+import {
+  validatePromptString,
+  normalizePrompt,
+  promptLabel,
+  cleanPromptExample,
+  extractPitch,
+  estimateTokenCount,
+  buildPromptPayload,
+  processPromptPlaceholders,
+} from '@/stores/helpers/promptHelper'
 
 export type { Prompt }
 
@@ -19,11 +29,6 @@ export const usePromptStore = defineStore('promptStore', () => {
   const finalPromptString = computed(() =>
     promptArray.value.filter((p) => p.trim() !== '').join(' | '),
   )
-
-  function validatePromptString(prompt: string): boolean {
-    const validPattern = /^[a-zA-Z0-9 ,_<>:"'|!?()-]+$/
-    return validPattern.test(prompt)
-  }
 
   function loadFromLocalStorage() {
     if (typeof window === 'undefined') return
@@ -184,5 +189,7 @@ export const usePromptStore = defineStore('promptStore', () => {
     updatePromptAtIndex,
     clearPrompt,
     validatePromptString,
+    extractPitch,
+    processPromptPlaceholders,
   }
 })

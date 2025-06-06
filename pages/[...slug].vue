@@ -5,6 +5,7 @@
       <ContentRenderer :value="pageStore.page" />
     </div>
     <template #fallback>
+      <Icon name="kind-icon:loading" class="w-10 h-10 text-info" />
       <p class="text-center text-base text-info p-4">Loading page...</p>
     </template>
   </NuxtLayout>

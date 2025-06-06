@@ -90,6 +90,7 @@ const validIcons = [
   "lightning",
   "lips",
   "lizard",
+  "loading",
   "lock",
   "magic-stick",
   "magnify",

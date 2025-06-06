@@ -9,6 +9,7 @@
     </h1>
 
     <!-- Random Theme Selector -->
+    <checkpoint-gallery />
     <random-selector />
 
     <!-- Prompt Input -->

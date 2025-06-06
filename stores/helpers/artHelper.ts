@@ -157,80 +157,8 @@ export async function fetchArtImagesByIds(
   }
 }
 
-  export async function createCollection(label: string): Promise<void> {
-    const userId = userStore.userId
-    const response = await performFetch<ArtCollection>('/api/art/collection', {
-      method: 'POST',
-      body: JSON.stringify({ label, userId }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-
-    if (!response.success || !response.data) throw new Error(response.message)
-    state.collections.push(response.data)
-    state.currentCollection = response.data
-  }
-
-  export async function deleteCollection(collectionId: number): Promise<void> {
-    const success = await collectionStore.deleteCollectionById(collectionId)
-    if (success) {
-      state.collections = state.collections.filter((c) => c.id !== collectionId)
-      if (isClient)
-        localStorage.setItem('collections', JSON.stringify(state.collections))
-    }
-  }
-
-  export async function removeArtFromCollection(artId: number, collectionId: number) {
-    const success = await collectionStore.removeArtFromCollectionServer(
-      collectionId,
-      artId,
-    )
-    if (success) {
-      const collection = collectionHelper.findCollectionById(
-        state.collections,
-        collectionId,
-      )
-      if (collection) {
-        collectionHelper.removeArtFromLocalCollection(collection, artId)
-      }
-    }
-  }
-
-  export function getUserCollections(userId: number): ArtCollection[] {
-    return state.collections.filter((c) => c.userId === userId)
-  }
-
-  export async function getOrCreateGeneratedArtCollection(
-    userId: number,
-  ): Promise<ArtCollection> {
-    let collection = collectionHelper.findCollectionByUserAndLabel(
-      state.collections,
-      userId,
-      'Generated Art',
-    )
-    if (!collection) {
-      const response = await performFetch<ArtCollection>(
-        '/api/art/collection',
-        {
-          method: 'POST',
-          body: JSON.stringify({ label: 'Generated Art', userId }),
-          headers: { 'Content-Type': 'application/json' },
-        },
-      )
-      if (!response.success || !response.data) throw new Error(response.message)
-      collection = response.data
-      state.collections.push(collection)
-    }
-    return collection
-  }
 
 
-  export async function fetchUncollectedArt() {
-    return collectionHelper.getUncollectedArt(
-      userStore.userId,
-      state.art,
-      state.collections,
-    )
-  }
   export function getCachedArtImageById(id: number): ArtImage | undefined {
     return state.artImages.find((image) => image.id === id)
   }
@@ -310,46 +238,7 @@ export async function fetchArtImagesByIds(
     }
   }
 
-  export async function addArtToCollection({
-    artId,
-    collectionId,
-    label = '',
-  }: {
-    artId: number
-    collectionId?: number
-    label?: string
-  }) {
-    const userId = userStore.userId
-    let collection =
-      collectionId != null
-        ? collectionHelper.findCollectionById(state.collections, collectionId)
-        : collectionHelper.findCollectionByUserAndLabel(
-            state.collections,
-            userId,
-            label,
-          )
-
-    if (!collection) {
-      const res = await performFetch<ArtCollection>('/api/art/collection', {
-        method: 'POST',
-        body: JSON.stringify({ label, userId }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-      if (!res.success || !res.data) throw new Error(res.message)
-      collection = res.data
-      state.collections.push(collection)
-    }
-
-    await performFetch(`/api/art/collection/${collection.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ artIds: [artId] }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-
-    const art = state.art.find((a) => a.id === artId)
-    if (art) collectionHelper.addArtToCollectionLocal(collection, art)
-  }
-
+  
   export function getArtImageByArtId(artId: number): ArtImage | undefined {
     return state.artImages.find((image: ArtImage) => image.artId === artId)
   }

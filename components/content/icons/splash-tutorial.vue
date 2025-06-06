@@ -12,10 +12,7 @@
       ref="contentContainer"
     >
       <!-- Title + Description Block -->
-      <div
-        class="text-center space-y-2 cursor-pointer"
-        @click="handleSidebarClose"
-      >
+      <div class="text-center space-y-2">
         <div class="absolute top-0 right-0 z-30" v-if="icon">
           <Icon :name="icon" class="w-full h-auto text-primary" />
         </div>
@@ -78,7 +75,6 @@
       <div
         v-if="dottitip && amitip"
         class="space-y-3 max-w-2xl mx-auto pb-3 px-2"
-        @click="handleSidebarClose"
       >
         <div class="chat chat-end animate-fade-in-up delay-300 text-black">
           <div class="chat-image avatar">
@@ -133,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/story/splash-tutorial.vue
+// unchanged from your version
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -202,7 +198,7 @@ const handleScroll = () => {
 
   window.requestAnimationFrame(() => {
     const scrollTop = scrollContainer.value!.scrollTop
-    parallaxOffset.value = scrollTop * -0.3 // can tweak multiplier
+    parallaxOffset.value = scrollTop * -0.3
     ticking = false
   })
 }

@@ -13,6 +13,7 @@ import {
   updateArtImageWithArtId,
   getArtImageByArtId,
   getCachedArtImageById,
+  getOrFetchArtImageById,
   updateArtImageId,
 } from '@/stores/helpers/artHelper'
 
@@ -298,6 +299,7 @@ export const useArtStore = defineStore('artStore', () => {
     getArtImageByArtId,
     createArt,
     getArtImageById,
+    getOrFetchArtImageById,
   }
 })
 

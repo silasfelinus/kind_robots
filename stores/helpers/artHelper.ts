@@ -1,11 +1,10 @@
 // /stores/helpers/artHelper.ts
 
 import type { Art, ArtImage } from '@prisma/client'
-
 import { performFetch, handleError } from '@/stores/utils'
-import { useArtStore } from '@/stores/artStore'
 
-const artStore = useArtStore()
+// Lazy store accessor to prevent circular imports
+const getArtStore = () => useArtStore()
 
 export interface GenerateArtData {
   title?: string
@@ -26,9 +25,6 @@ export interface GenerateArtData {
   collection?: string
 }
 
-/**
- * Parse stored Art[] from localStorage string.
- */
 export function parseStoredArt(value: string): Art[] {
   try {
     return JSON.parse(value) as Art[]
@@ -37,9 +33,6 @@ export function parseStoredArt(value: string): Art[] {
   }
 }
 
-/**
- * Get ArtImage from cache by image ID.
- */
 export function getCachedImageById(
   images: ArtImage[],
   id: number,
@@ -47,9 +40,6 @@ export function getCachedImageById(
   return images.find((image) => image.id === id)
 }
 
-/**
- * Get ArtImage from cache by related art ID.
- */
 export function getArtImageByArtId(
   images: ArtImage[],
   artId: number,
@@ -57,9 +47,6 @@ export function getArtImageByArtId(
   return images.find((image) => image.artId === artId)
 }
 
-/**
- * Replace or insert a single ArtImage in the image array.
- */
 export function updateArtImageInPlace(
   images: ArtImage[],
   updatedImage: ArtImage,
@@ -73,16 +60,10 @@ export function updateArtImageInPlace(
   return images
 }
 
-/**
- * Remove an ArtImage from array by ID.
- */
 export function removeImageById(images: ArtImage[], id: number): ArtImage[] {
   return images.filter((img) => img.id !== id)
 }
 
-/**
- * Merge incoming ArtImage[] into existing ArtImage[] with deduplication by ID.
- */
 export function mergeArtImages(
   existing: ArtImage[],
   incoming: ArtImage[],
@@ -91,9 +72,6 @@ export function mergeArtImages(
   return [...existing, ...incoming.filter((img) => !existingIds.has(img.id))]
 }
 
-/**
- * Sort art list by descending creation date. Falls back to updatedAt or skips if both are null.
- */
 export function sortArtByDate(artList: Art[]): Art[] {
   return [...artList].sort((a, b) => {
     const aTime = a.createdAt
@@ -110,13 +88,10 @@ export function sortArtByDate(artList: Art[]): Art[] {
   })
 }
 
-/**
- * Fetch and cache ArtImages by ID, only requesting uncached ones.
- */
 export async function getArtImagesByIds(
   imageIds: number[],
 ): Promise<ArtImage[]> {
-  const store = useArtStore()
+  const store = getArtStore()
 
   const uncached = imageIds.filter(
     (id) => !store.artImages.some((img) => img.id === id),
@@ -146,13 +121,15 @@ export async function getArtImagesByIds(
 }
 
 export function getCachedArtImageById(id: number): ArtImage | undefined {
-  return artStore.artImages.find((image: ArtImage) => image.id === id)
+  const store = getArtStore()
+  return store.artImages.find((image) => image.id === id)
 }
 
 export async function updateArtImageWithArtId(
   artImageId: number,
   artId: number,
 ): Promise<void> {
+  const store = getArtStore()
   try {
     const response = await performFetch<ArtImage>(
       `/api/art/image/${artImageId}`,
@@ -165,11 +142,11 @@ export async function updateArtImageWithArtId(
 
     if (response.success && response.data) {
       const updated = response.data
-      const index = artStore.artImages.findIndex((img) => img.id === artImageId)
-      if (index !== -1) artStore.artImages.splice(index, 1, updated)
-      else artStore.artImages.push(updated)
+      const index = store.artImages.findIndex((img) => img.id === artImageId)
+      if (index !== -1) store.artImages.splice(index, 1, updated)
+      else store.artImages.push(updated)
 
-      const art = artStore.art.find((a) => a.id === artId)
+      const art = store.art.find((a) => a.id === artId)
       if (art) art.artImageId = artImageId
     } else {
       throw new Error(response.message)
@@ -183,13 +160,14 @@ export async function updateArtImageId(
   artId: number,
   artImageId: number,
 ): Promise<void> {
+  const store = getArtStore()
   try {
     const response = await performFetch(`/api/art/${artId}/image`, {
       method: 'PATCH',
       body: JSON.stringify({ artImageId }),
     })
     if (response.success) {
-      const art = artStore.art.find((a) => a.id === artId)
+      const art = store.art.find((a) => a.id === artId)
       if (art) art.artImageId = artImageId
     } else {
       throw new Error(response.message)

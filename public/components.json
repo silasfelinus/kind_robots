@@ -30,6 +30,7 @@
       "art-nav",
       "art-prompts",
       "art-upload",
+      "checkpoint-gallery",
       "dream-generator",
       "image-upload",
       "image-view",
@@ -132,7 +133,6 @@
   {
     "folderName": "layout",
     "components": [
-      "Magic-Window",
       "add-bot-link",
       "ami-tooltip",
       "app-navigation",
@@ -170,6 +170,7 @@
       "left-toggle",
       "load-messages",
       "loading-bar",
+      "magic-window",
       "main-flip",
       "main-header",
       "main-links",
@@ -282,11 +283,9 @@
   {
     "folderName": "rewards",
     "components": [
-      "add-reward-old",
       "add-reward",
       "edit-reward",
       "reward-card",
-      "reward-gallery-old",
       "reward-gallery",
       "reward-portal",
       "reward-preview",
@@ -329,7 +328,6 @@
       "kind-loader",
       "kind-sidebar",
       "lab-chooser",
-      "magic-container",
       "main-component",
       "memory-test",
       "milestone-popup",
@@ -457,6 +455,7 @@
       "component-sync",
       "lab-gallery",
       "lab-nav",
+      "magic-container",
       "select-component",
       "theme-gallery",
       "theme-icon",

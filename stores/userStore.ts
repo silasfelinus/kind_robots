@@ -465,21 +465,28 @@ export const useUserStore = defineStore('userStore', {
     async userImage(userId: number): Promise<string> {
       const user = this.users.find((u) => u.id === userId)
 
-      if (!user || !user.artImageId) {
-        console.log('no art image or user')
-        return user?.avatarImage || '/images/kindart.webp' // Fallback to default image
+      if (!user) {
+        console.warn(`[userImage] No user found for ID ${userId}`)
+        return '/images/kindart.webp'
+      }
+
+      if (!user.artImageId) {
+        console.warn(
+          `[userImage] User found (${user.username}), but no artImageId`,
+        )
+
+        return user.avatarImage || '/images/kindart.webp'
       }
 
       const artStore = useArtStore()
       try {
-        const artImage = await artStore.getArtImageById(user.artImageId) // Await the Promise
-        return artImage?.imageData || '/images/kindart.webp' // Access imageData after the Promise resolves
+        const artImage = await artStore.getArtImageById(user.artImageId)
+        return artImage?.imageData || '/images/kindart.webp'
       } catch (error) {
-        console.error('Error fetching art image:', error)
-        return '/images/kindart.webp' // Fallback in case of error
+        console.error('[userImage] Error fetching art image:', error)
+        return '/images/kindart.webp'
       }
     },
-
     getFromLocalStorage(key: string): string | null {
       return typeof window !== 'undefined' ? localStorage.getItem(key) : null
     },

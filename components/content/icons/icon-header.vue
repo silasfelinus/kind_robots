@@ -17,25 +17,25 @@
 
     <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50">
       <div class="flex flex-col gap-2 pr-2">
-        <template v-if="!smartIconStore.isEditing">
+        <template v-if="!smartbarStore.isEditing">
           <button
             class="btn btn-square btn-sm"
-            @click="smartIconStore.startEdit()"
+            @click="smartbarStore.startEdit()"
           >
             <Icon name="kind-icon:settings" />
           </button>
         </template>
         <template v-else>
           <button
-            v-if="smartIconStore.hasChanges"
+            v-if="smartbarStore.hasChanges"
             class="btn btn-square btn-xs bg-base-200 text-error hover:bg-base-300"
-            @click="smartIconStore.revertEdit()"
+            @click="smartbarStore.revertEdit()"
           >
             <Icon name="kind-icon:rotate" />
           </button>
           <button
             class="btn btn-square btn-xs bg-green-500 text-white hover:bg-green-600"
-            @click="smartIconStore.confirmEdit()"
+            @click="smartbarStore.confirmEdit()"
           >
             <Icon name="kind-icon:check" />
           </button>
@@ -60,7 +60,7 @@
       >
         <div class="flex items-center gap-2 min-w-fit h-full select-none px-2">
           <icon-shell
-            v-for="(icon, index) in smartIconStore.editableIcons"
+            v-for="(icon, index) in smartbarStore.editableIcons"
             :key="icon.id"
             :icon="icon"
             :index="index"
@@ -89,8 +89,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { usesmartIconStore } from '@/stores/smartIconStore'
-const smartIconStore = usesmartIconStore()
+import { usesmartbarStore } from '@/stores/smartbarStore'
+const smartbarStore = usesmartbarStore()
 
 const scrollContainer = ref<HTMLElement | null>(null)
 const showLeft = ref(false)

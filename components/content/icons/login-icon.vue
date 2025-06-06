@@ -15,13 +15,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { usesmartIconStore } from '@/stores/smartIconStore'
+import { usesmartbarStore } from '@/stores/smartbarStore'
 
 const userStore = useUserStore()
-const smartIconStore = usesmartIconStore()
+const smartbarStore = usesmartbarStore()
 
 // Don't need storeToRefs; just use computed
-const isEditing = computed(() => smartIconStore.isEditing)
+const isEditing = computed(() => smartbarStore.isEditing)
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 const username = computed(() => userStore.user?.username || 'User')
 

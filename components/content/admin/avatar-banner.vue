@@ -46,10 +46,7 @@
     >
       <!-- Loading State -->
       <div v-if="store.loading" class="text-center text-info">
-        <Icon
-          name="kind-icon:bubble-loading"
-          class="animate-spin text-lg mb-2"
-        />
+        <Icon name="kind-icon:loading" class="animate-spin text-lg mb-2" />
         <div>Loading, please wait...</div>
       </div>
 

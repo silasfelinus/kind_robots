@@ -54,10 +54,6 @@ import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 
-import * as artHelper from '@/stores/helpers/artHelper'
-import * as pitchHelper from '@/stores/helpers/promptHelper'
-import * as promptHelper from '@/stores/helpers/promptHelper'
-
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 const displayStore = useDisplayStore()
@@ -89,7 +85,7 @@ const generateArt = async () => {
   isGenerating.value = true
   displayStore.toggleRandomAnimation()
 
-  if (!promptHelper.validatePromptString(promptStore.promptField)) {
+  if (!promptStore.validatePromptString(promptStore.promptField)) {
     localError.value = 'Invalid characters in prompt.'
     errorStore.addError(ErrorType.VALIDATION_ERROR, localError.value)
     isGenerating.value = false

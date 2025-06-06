@@ -1,248 +1,166 @@
+// /stores/botStore.ts
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import type { Bot } from '@prisma/client'
+import {
+  updateBot,
+  addBot,
+  addBots,
+  deleteBot,
+  getBotById,
+  botImage,
+  seedBotsHelper,
+} from './helpers/botHelper'
 import { performFetch, handleError } from './utils'
-import { botData } from './seeds/seedBots'
 
-interface BotStoreState {
-  bots: Bot[]
-  currentBot: Bot | null
-  botForm: Partial<Bot>
-  currentImagePath: string
-  loading: boolean
-  isLoaded: boolean
-}
+export const useBotStore = defineStore('botStore', () => {
+  const bots = ref<Bot[]>([])
+  const currentBot = ref<Bot | null>(null)
+  const botForm = ref<Partial<Bot>>({})
+  const currentImagePath = ref('')
+  const loading = ref(false)
+  const isLoaded = ref(false)
 
-export const useBotStore = defineStore('botStore', {
-  state: (): BotStoreState => ({
-    bots: [] as Bot[],
-    currentBot: null as Bot | null,
-    botForm: {} as Partial<Bot>,
-    currentImagePath: '',
-    loading: false,
-    isLoaded: false,
-  }),
+  const totalBots = computed(() => bots.value.length)
+  const selectedBotId = computed(() => currentBot.value?.id ?? null)
+  const hasUnsavedChanges = computed(
+    () => JSON.stringify(currentBot.value) !== JSON.stringify(botForm.value),
+  )
 
-  getters: {
-    totalBots: (state) => state.bots.length,
-    selectedBotId: (state) => state.currentBot?.id ?? null,
-    hasUnsavedChanges: (state) =>
-      JSON.stringify(state.currentBot) !== JSON.stringify(state.botForm),
-  },
+  async function selectBot(botId: number) {
+    if (currentBot.value?.id === botId) return
+    const found = bots.value.find((b) => b.id === botId)
+    if (!found) return handleError(`Bot ID ${botId} not found`, 'selecting bot')
+    currentBot.value = found
+    botForm.value = { ...found }
+    currentImagePath.value = found.avatarImage || ''
+  }
 
-  actions: {
-    async selectBot(botId: number) {
-      try {
-        if (this.currentBot?.id === botId) return
-        const foundBot = this.bots.find((bot) => bot.id === botId)
-        if (!foundBot) throw new Error(`Bot with ID ${botId} not found`)
+  function revertBotForm() {
+    if (currentBot.value) botForm.value = { ...currentBot.value }
+  }
 
-        this.currentBot = foundBot
-        this.botForm = { ...foundBot }
-        this.currentImagePath = foundBot.avatarImage || ''
-      } catch (error) {
-        handleError(error, 'selecting bot')
-      }
-    },
+  function deselectBot() {
+    currentBot.value = null
+    botForm.value = {}
+    currentImagePath.value = ''
+  }
 
-    revertBotForm() {
-      if (this.currentBot) {
-        this.botForm = { ...this.currentBot }
-      }
-    },
+  async function fetchBots() {
+    if (isLoaded.value) return
+    loading.value = true
+    try {
+      const res = await performFetch<Bot[]>('/api/bots')
+      if (res.success && res.data) bots.value = res.data
+      isLoaded.value = true
+    } catch (error) {
+      handleError(error, 'fetching bots')
+    } finally {
+      loading.value = false
+    }
+  }
 
-    deselectBot() {
-      this.currentBot = null
-      this.botForm = {}
-      this.currentImagePath = ''
-    },
+  async function initialize() {
+    if (isLoaded.value || loading.value) return
+    loading.value = true
+    try {
+      await fetchBots()
+    } catch (e) {
+      handleError(e, 'initialize')
+    } finally {
+      loading.value = false
+    }
+  }
 
-    async fetchBots(): Promise<void> {
-      if (this.isLoaded) return
-      this.loading = true
+  async function updateCurrentBot() {
+    if (!currentBot.value)
+      return handleError('No current bot', 'updateCurrentBot')
+    const updated = await updateBot(
+      currentBot.value.id,
+      botForm.value,
+      currentImagePath.value,
+    )
+    if (updated) {
+      const i = bots.value.findIndex((b) => b.id === updated.id)
+      if (i !== -1) bots.value[i] = updated
+      currentBot.value = updated
+      botForm.value = { ...updated }
+      currentImagePath.value = updated.avatarImage || ''
+    }
+  }
 
-      try {
-        const response = await performFetch<Bot[]>('/api/bots')
+  async function saveUserIntro(newUserIntro: string) {
+    if (!currentBot.value) return
+    botForm.value.userIntro = newUserIntro
+    await updateCurrentBot()
+  }
 
-        if (response.success) {
-          this.bots = response.data || []
-          this.isLoaded = true
-        } else {
-          console.warn('Failed to fetch bots:', response.message)
-          throw new Error(response.message)
-        }
-      } catch (error) {
-        console.error('Error in fetchBots:', error)
-        handleError(error, 'fetching bots')
-      } finally {
-        this.loading = false
-      }
-    },
+  async function deleteBotById(id: number) {
+    const success = await deleteBot(id)
+    if (success) bots.value = bots.value.filter((b) => b.id !== id)
+  }
 
-    async initialize(): Promise<void> {
-      if (this.isLoaded || this.loading) return
-      this.loading = true
-      try {
-        await this.fetchBots()
-        this.isLoaded = true
-      } catch (error) {
-        handleError(error, 'loading store')
-      } finally {
-        this.loading = false
-      }
-    },
+  async function addBotsToStore(newBots: Partial<Bot>[]) {
+    const added = await addBots(newBots)
+    bots.value = [...bots.value, ...added]
+    return added
+  }
 
-    async updateBot(id: number): Promise<void> {
-      try {
-        const botData = { ...this.botForm, avatarImage: this.currentImagePath }
-        const response = await performFetch<Bot>(`/api/bot/id/${id}`, {
-          method: 'PATCH',
-          body: JSON.stringify(botData),
-        })
+  async function addSingleBot(botData: Partial<Bot>) {
+    const newBot = await addBot(botData)
+    if (newBot) bots.value.push(newBot)
+    return newBot
+  }
 
-        if (response.success) {
-          const updatedBot = response.data
-          if (updatedBot) {
-            const botIndex = this.bots.findIndex((bot) => bot.id === id)
-            if (botIndex !== -1) {
-              this.bots[botIndex] = { ...this.bots[botIndex], ...updatedBot }
-            }
-            this.currentBot = updatedBot
-            this.botForm = { ...updatedBot }
-            this.currentImagePath = updatedBot.avatarImage ?? ' '
-          }
-        } else {
-          throw new Error(response.message)
-        }
-      } catch (error) {
-        console.error('Error in updateBot:', error)
-        handleError(error, 'updating bot')
-      }
-    },
+  async function loadBotById(id: number) {
+    const bot = await getBotById(id)
+    if (bot) {
+      currentBot.value = bot
+      botForm.value = { ...bot }
+      currentImagePath.value = bot.avatarImage ?? ''
+    }
+    return bot
+  }
 
-    async updateCurrentBot(): Promise<void> {
-      if (!this.currentBot) {
-        console.error('No bot selected to update')
-        return
-      }
-      await this.updateBot(this.currentBot.id)
-    },
+  async function getBotImage(botId: number): Promise<string> {
+    const bot = bots.value.find((b) => b.id === botId)
+    return bot ? await botImage(bot) : '/images/bot.webp'
+  }
 
-    async saveUserIntro(newUserIntro: string): Promise<void> {
-      if (!this.currentBot) {
-        console.error('No bot selected to update')
-        return
-      }
-      this.botForm.userIntro = newUserIntro
-      await this.updateCurrentBot()
-    },
+  async function seedBots() {
+    try {
+      const seeds = await seedBotsHelper()
+      await addBotsToStore(seeds)
+      await fetchBots()
+    } catch (e) {
+      handleError(e, 'seeding bots')
+    }
+  }
 
-    async deleteBot(id: number): Promise<void> {
-      try {
-        const response = await performFetch(`/api/bot/id/${id}`, {
-          method: 'DELETE',
-        })
-
-        console.log('Response from deleteBot:', response)
-
-        if (response.success) {
-          this.bots = this.bots.filter((bot) => bot.id !== id)
-        } else {
-          throw new Error(response.message)
-        }
-      } catch (error) {
-        console.error('Error in deleteBot:', error)
-        handleError(error, 'deleting bot')
-      }
-    },
-
-    async addBots(botsData: Partial<Bot>[]): Promise<Bot[]> {
-      try {
-        const response = await performFetch<Bot[]>('/api/bots', {
-          method: 'POST',
-          body: JSON.stringify(botsData),
-        })
-
-        if (response.success) {
-          const addedBots = response.data || []
-          this.bots = [...this.bots, ...addedBots]
-          return addedBots
-        } else {
-          throw new Error(response.message)
-        }
-      } catch (error) {
-        console.error('Error in addBots:', error)
-        handleError(error, 'adding bots')
-        return []
-      }
-    },
-
-    async addBot(botData: Partial<Bot>): Promise<Bot | null> {
-      try {
-        const response = await performFetch<Bot>('/api/bot', {
-          method: 'POST',
-          body: JSON.stringify(botData),
-        })
-
-        if (response.success) {
-          const newBot = response.data
-          if (newBot) {
-            this.bots = [...this.bots, newBot]
-            return newBot
-          }
-        }
-        throw new Error(response.message)
-      } catch (error) {
-        console.error('Error in addBot:', error)
-        handleError(error, 'adding bot')
-        return null
-      }
-    },
-    async getBotById(id: number): Promise<Bot | null> {
-      try {
-        const response = await performFetch<Bot>(`/api/bot/id/${id}`)
-
-        if (response.success) {
-          const bot = response.data
-          if (bot) {
-            this.currentBot = bot
-            this.botForm = { ...bot }
-            this.currentImagePath = bot.avatarImage ?? ''
-            return bot
-          }
-        } else {
-          throw new Error(response.message)
-        }
-      } catch (error) {
-        console.error('Error in getBotById:', error)
-        handleError(error, 'fetching bot by id')
-      }
-
-      return null // Return null if no bot is found or on error
-    },
-
-    async botImage(botId: number): Promise<string> {
-      const bot = this.bots.find((b) => b.id === botId)
-      if (!bot || !bot.artImageId) return '/images/bot.webp' // Fallback to default image
-
-      const artStore = useArtStore()
-      try {
-        const artImage = await artStore.getArtImageById(bot.artImageId)
-        return artImage?.imageData || '/images/bot.webp'
-      } catch (error) {
-        console.error('Error fetching art image:', error)
-        return '/images/bot.webp' // Return fallback image on error
-      }
-    },
-
-    async seedBots(): Promise<void> {
-      try {
-        await this.addBots(botData)
-        await this.fetchBots()
-      } catch (error) {
-        handleError(error, 'seeding bots')
-      }
-    },
-  },
+  return {
+    bots,
+    currentBot,
+    botForm,
+    currentImagePath,
+    loading,
+    isLoaded,
+    totalBots,
+    selectedBotId,
+    hasUnsavedChanges,
+    selectBot,
+    revertBotForm,
+    deselectBot,
+    fetchBots,
+    initialize,
+    updateCurrentBot,
+    saveUserIntro,
+    deleteBotById,
+    addBotsToStore,
+    addSingleBot,
+    loadBotById,
+    getBotImage,
+    seedBots,
+  }
 })
 
 export type { Bot }

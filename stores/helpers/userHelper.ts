@@ -36,12 +36,15 @@ export function getUserById(users: User[], userId: number | null): User | null {
 
 export async function userImage(
   users: User[],
-  userId: number,
+  userId?: number,
 ): Promise<string> {
-  const user = users.find((u) => u.id === userId)
+  const userStore = useUserStore()
+  const resolvedId = userId ?? userStore.userId
+
+  const user = users.find((u) => u.id === resolvedId)
 
   if (!user) {
-    console.warn(`[userImage] No user found for ID ${userId}`)
+    console.warn(`[userImage] No user found for ID ${resolvedId}`)
     return '/images/kindart.webp'
   }
 

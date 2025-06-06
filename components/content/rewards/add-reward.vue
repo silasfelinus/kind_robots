@@ -32,17 +32,25 @@
       placeholder="Collection Name"
       class="input input-bordered w-full"
     />
-
     <!-- Icon Selection -->
     <div>
-      <label class="block text-sm font-medium text-base-content mb-1"
-        >Icon</label
-      >
+      <label class="block text-sm font-medium text-base-content mb-1">
+        Icon
+      </label>
       <select v-model="rewardForm.icon" class="select select-bordered w-full">
-        <option v-for="(name, label) in IconMap" :key="label" :value="name">
-          {{ label }} - {{ name }}
+        <option v-for="icon in iconStore.icons" :key="icon" :value="icon">
+          {{ icon }}
         </option>
       </select>
+
+      <div v-if="rewardForm.icon" class="mt-2 text-center">
+        <img
+          :src="`/icons/${rewardForm.icon}.svg`"
+          alt="Selected Icon"
+          class="inline-block w-12 h-12"
+        />
+      </div>
+
       <a
         href="https://icon-sets.iconify.design/game-icons/"
         target="_blank"
@@ -102,11 +110,12 @@ import { ref, computed } from 'vue'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useArtStore } from '@/stores/artStore'
 import { useChoiceStore } from '@/stores/choiceStore'
-import IconMap from '@/training/iconMap'
+import { useIconStore } from '@/stores/iconStore'
 
 const rewardStore = useRewardStore()
 const artStore = useArtStore()
 const choiceStore = useChoiceStore()
+const iconStore = useIconStore()
 
 const isGeneratingArt = ref(false)
 const isSaving = ref(false)

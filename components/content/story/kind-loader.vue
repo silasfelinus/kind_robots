@@ -24,7 +24,7 @@ import { useWeirdStore } from '../../../stores/weirdStore'
 import { useConsoleStore } from '../../../stores/consoleStore'
 import { useChoiceStore } from '../../../stores/choiceStore'
 import { useResonanceStore } from '../../../stores/resonanceStore'
-import { useIconStore } from '../../../stores/iconStore'
+import { usesmartIconStore } from '../../../stores/smartIconStore'
 import { useComponentStore } from '../../../stores/componentStore'
 
 // Stores
@@ -47,7 +47,7 @@ const weirdStore = useWeirdStore()
 const consoleStore = useConsoleStore()
 const choiceStore = useChoiceStore()
 const resonanceStore = useResonanceStore()
-const iconStore = useIconStore()
+const smartIconStore = usesmartIconStore()
 const componentStore = useComponentStore()
 
 // State management
@@ -83,7 +83,7 @@ onMounted(async () => {
       scenarioStore.initialize?.(),
       choiceStore.initialize?.(),
       resonanceStore.initialize?.(),
-      iconStore.initialize?.(),
+      smartIconStore.initialize?.(),
       componentStore.initialize?.(),
     ])
 

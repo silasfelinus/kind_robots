@@ -68,14 +68,14 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useIconStore, type SmartIcon } from '@/stores/iconStore'
+import { usesmartIconStore, type SmartIcon } from '@/stores/smartIconStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
-const iconStore = useIconStore()
+const smartIconStore = usesmartIconStore()
 const displayStore = useDisplayStore()
-const { activeIcons, isEditing } = storeToRefs(iconStore)
+const { activeIcons, isEditing } = storeToRefs(smartIconStore)
 
-const { editableIcons } = storeToRefs(iconStore)
+const { editableIcons } = storeToRefs(smartIconStore)
 
 const originalIcons = ref<SmartIcon[]>([])
 
@@ -94,7 +94,7 @@ watch(isEditing, (editing) => {
 const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
 
 function activateEditMode() {
-  iconStore.isEditing = true
+  smartIconStore.isEditing = true
   displayStore.bigMode = false
 }
 
@@ -105,13 +105,13 @@ const hasChanges = computed(
 )
 
 function confirmEdit() {
-  iconStore.setIconOrder(getIds(editableIcons.value))
-  iconStore.isEditing = false
+  smartIconStore.setIconOrder(getIds(editableIcons.value))
+  smartIconStore.isEditing = false
 }
 
 function revertEdit() {
   editableIcons.value = [...originalIcons.value]
-  iconStore.isEditing = false
+  smartIconStore.isEditing = false
 }
 
 // Scroll behavior

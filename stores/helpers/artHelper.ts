@@ -176,3 +176,27 @@ export async function updateArtImageId(
     handleError(error, 'updating artImageId')
   }
 }
+
+export async function getOrFetchArtImageById(
+  id: number,
+): Promise<ArtImage | null> {
+  const store = getArtStore()
+
+  // First try to find it in the cache
+  const cached = store.artImages.find((img) => img.id === id)
+  if (cached) return cached
+
+  // Otherwise fetch it
+  try {
+    const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
+    if (response.success && response.data) {
+      store.artImages.push(response.data)
+      return response.data
+    } else {
+      throw new Error(response.message)
+    }
+  } catch (error) {
+    handleError(error, `fetching ArtImage with ID ${id}`)
+    return null
+  }
+}

@@ -45,15 +45,27 @@
 
     <!-- Image Display -->
     <div
-      class="relative flex justify-center items-center overflow-hidden cursor-pointer"
+      class="relative flex justify-center items-center overflow-hidden cursor-pointer min-h-[200px]"
       @click="toggleDetails"
     >
-      <img
-        :src="computedArtImage"
-        alt="Artwork"
-        class="rounded-2xl transition-transform hover:scale-105 w-full h-auto object-cover"
-        loading="lazy"
-      />
+      <template v-if="loadingImage">
+        <div
+          class="animate-pulse flex items-center justify-center w-full h-full min-h-[200px]"
+        >
+          <Icon
+            name="kind-icon:loading"
+            class="w-12 h-12 text-info animate-spin"
+          />
+        </div>
+      </template>
+      <template v-else>
+        <img
+          :src="computedArtImage"
+          alt="Artwork"
+          class="rounded-2xl transition-transform hover:scale-105 w-full h-auto object-cover"
+          loading="lazy"
+        />
+      </template>
     </div>
 
     <!-- Art Details Panel -->
@@ -67,7 +79,6 @@
         {{ localArtImage }}
       </pre>
 
-      <!-- Set as Avatar Button -->
       <button
         class="bg-accent text-white rounded-lg px-4 py-2 mt-4"
         @click="setAsAvatar"
@@ -79,11 +90,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useArtStore } from './../../../stores/artStore'
-import { useCollectionStore } from './../../../stores/collectionStore'
-import { useUserStore } from './../../../stores/userStore'
-import * as artHelper from '@/stores/helpers/artHelper'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useArtStore } from '@/stores/artStore'
+import { useCollectionStore } from '@/stores/collectionStore'
+import { useUserStore } from '@/stores/userStore'
 
 const props = defineProps<{
   art: Art
@@ -92,22 +102,39 @@ const props = defineProps<{
 
 const showDetails = ref(false)
 const confirmingDelete = ref(false)
-const localArtImage = ref<ArtImage | null | undefined>(null)
-
-const hasImage = computed(
-  () => !!(localArtImage.value || props.artImage?.imageData),
-)
+const localArtImage = ref<ArtImage | null>(null)
+const loadingImage = ref(false)
 
 const artStore = useArtStore()
 const userStore = useUserStore()
 const collectionStore = useCollectionStore()
 
+const confirmDelete = () => {
+  confirmingDelete.value = true
+}
+
 const canDelete = computed(() => {
   return props.art.userId === userStore.userId || userStore.isAdmin
 })
 
-const confirmDelete = () => {
-  confirmingDelete.value = true
+const hasImage = computed(() => {
+  return !!(localArtImage.value?.imageData || props.artImage?.imageData)
+})
+
+const fetchArtImage = async () => {
+  if (!props.art.artImageId) return
+  loadingImage.value = true
+
+  const fetched = await artStore.getOrFetchArtImageById(props.art.artImageId)
+  if (fetched?.imageData) {
+    localArtImage.value = fetched
+  } else {
+    console.warn(
+      `Failed to fetch imageData for artImageId ${props.art.artImageId}`,
+    )
+  }
+
+  loadingImage.value = false
 }
 
 onMounted(() => {
@@ -115,17 +142,19 @@ onMounted(() => {
     fetchArtImage()
   } else if (props.artImage?.imageData) {
     localArtImage.value = props.artImage
+    loadingImage.value = false
   }
 })
 
-const fetchArtImage = async () => {
-  if (props.art.artImageId) {
-    localArtImage.value = artHelper.getArtImageByArtId(
-      artStore.artImages,
-      props.art.artImageId,
-    )
-  }
-}
+watch(
+  () => props.art.artImageId,
+  async (newId) => {
+    if (newId && !props.artImage?.imageData) {
+      await fetchArtImage()
+    }
+  },
+  { immediate: true },
+)
 
 const deleteImage = async () => {
   try {
@@ -166,23 +195,18 @@ const setAsAvatar = async () => {
 }
 
 const computedArtImage = computed(() => {
-  // Prioritize localArtImage if it exists
   if (localArtImage.value?.imageData) {
     return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`
   }
 
-  // Use props.artImage if no localArtImage is available
   if (props.artImage?.imageData) {
     return `data:image/${props.artImage.fileType};base64,${props.artImage.imageData}`
   }
 
-  // Check art.path only if artImageId is missing
   if (!props.art.artImageId && props.art?.path) {
     return props.art.path
   }
 
-  // Log fallback condition
-  console.warn('Fallback to default image')
   return '/images/backtree.webp'
 })
 </script>

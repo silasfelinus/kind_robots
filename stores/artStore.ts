@@ -5,7 +5,12 @@ import { performFetch, handleError } from './../stores/utils'
 import { usePromptStore } from './promptStore'
 import { usePitchStore } from './pitchStore'
 import { useUserStore } from './userStore'
-import * as artHelper from '@/stores/helpers/artHelper'
+import {
+  getArtImagesByIds,
+  removeImageById,
+  parseStoredArt,
+} from '@/stores/helpers/artHelper'
+
 import * as collectionHelper from '@/stores/helpers/collectionHelper'
 import * as promptHelper from '@/stores/helpers/promptHelper'
 import * as pitchHelper from '@/stores/helpers/pitchHelper'

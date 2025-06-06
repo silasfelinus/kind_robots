@@ -3,6 +3,9 @@
 import type { Art, ArtImage } from '@prisma/client'
 
 import { performFetch, handleError } from '@/stores/utils'
+import { useArtStore } from '@/stores/artStore'
+
+const artStore = useArtStore()
 
 /**
  * Parse stored Art[] from localStorage string.
@@ -125,56 +128,56 @@ export async function getArtImagesByIds(
   }
 }
 
-  export function getCachedArtImageById(id: number): ArtImage | undefined {
-    return state.artImages.find((image) => image.id === id)
-  }
+export function getCachedArtImageById(id: number): ArtImage | undefined {
+  return artStore.artImages.find((image: ArtImage) => image.id === id)
+}
 
-  export async function updateArtImageWithArtId(
-    artImageId: number,
-    artId: number,
-  ): Promise<void> {
-    try {
-      const response = await performFetch<ArtImage>(
-        `/api/art/image/${artImageId}`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ artId }),
-        },
-      )
-
-      if (response.success && response.data) {
-        const updated = response.data
-        const index = state.artImages.findIndex((img) => img.id === artImageId)
-        if (index !== -1) state.artImages.splice(index, 1, updated)
-        else state.artImages.push(updated)
-
-        const art = state.art.find((a) => a.id === artId)
-        if (art) art.artImageId = artImageId
-      } else {
-        throw new Error(response.message)
-      }
-    } catch (error) {
-      handleError(error, 'updating artImageId')
-    }
-  }
-
-  export async function updateArtImageId(
-    artId: number,
-    artImageId: number,
-  ): Promise<void> {
-    try {
-      const response = await performFetch(`/api/art/${artId}/image`, {
+export async function updateArtImageWithArtId(
+  artImageId: number,
+  artId: number,
+): Promise<void> {
+  try {
+    const response = await performFetch<ArtImage>(
+      `/api/art/image/${artImageId}`,
+      {
         method: 'PATCH',
-        body: JSON.stringify({ artImageId }),
-      })
-      if (response.success) {
-        const art = state.art.find((a) => a.id === artId)
-        if (art) art.artImageId = artImageId
-      } else {
-        throw new Error(response.message)
-      }
-    } catch (error) {
-      handleError(error, 'updating artImageId')
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artId }),
+      },
+    )
+
+    if (response.success && response.data) {
+      const updated = response.data
+      const index = artStore.artImages.findIndex((img) => img.id === artImageId)
+      if (index !== -1) artStore.artImages.splice(index, 1, updated)
+      else artStore.artImages.push(updated)
+
+      const art = artStore.art.find((a) => a.id === artId)
+      if (art) art.artImageId = artImageId
+    } else {
+      throw new Error(response.message)
     }
+  } catch (error) {
+    handleError(error, 'updating artImageId')
   }
+}
+
+export async function updateArtImageId(
+  artId: number,
+  artImageId: number,
+): Promise<void> {
+  try {
+    const response = await performFetch(`/api/art/${artId}/image`, {
+      method: 'PATCH',
+      body: JSON.stringify({ artImageId }),
+    })
+    if (response.success) {
+      const art = artStore.art.find((a) => a.id === artId)
+      if (art) art.artImageId = artImageId
+    } else {
+      throw new Error(response.message)
+    }
+  } catch (error) {
+    handleError(error, 'updating artImageId')
+  }
+}

@@ -9,12 +9,17 @@ import {
   getArtImagesByIds,
   removeImageById,
   parseStoredArt,
+  updateArtImageWithArtId,
+  getArtImageByArtId,
+  getCachedArtImageById,
+  updateArtImageId,
 } from '@/stores/helpers/artHelper'
 
 import { useCollectionStore } from './collectionStore'
 import { useCheckpointStore } from './checkpointStore'
 
 const isClient = typeof window !== 'undefined'
+const collectionStore = useCollectionStore()
 
 export interface GenerateArtData {
   title?: string
@@ -90,7 +95,7 @@ export const useArtStore = defineStore('artStore', () => {
 
     try {
       if (isClient) {
-        state.art = artHelper.parseStoredArt(localStorage.getItem('art') || '')
+        state.art = parseStoredArt(localStorage.getItem('art') || '')
       }
       await Promise.all([collectionStore.fetchCollections(), fetchAllArt()])
       state.isInitialized = true
@@ -100,7 +105,6 @@ export const useArtStore = defineStore('artStore', () => {
       state.loading = false
     }
   }
-
 
   function selectArt(artId: number): void {
     const found = state.art.find((a) => a.id === artId)
@@ -133,7 +137,6 @@ export const useArtStore = defineStore('artStore', () => {
       handleError(error, 'fetching single art image')
     }
   }
-
 
   async function createArt(artData: {
     promptString: string
@@ -204,15 +207,12 @@ export const useArtStore = defineStore('artStore', () => {
       if (!response.success) {
         throw new Error(response.message || 'Failed to delete the art image.')
       }
-      state.artImages = artHelper.removeImageById(state.artImages, artImageId)
+      state.artImages = removeImageById(state.artImages, artImageId)
     } catch (error) {
       handleError(error, 'deleting art image')
       throw error
     }
   }
-
-
-
 
   async function generateArt(
     artData?: GenerateArtData,
@@ -224,7 +224,7 @@ export const useArtStore = defineStore('artStore', () => {
 
     const data: GenerateArtData = {
       promptString: prompt,
-      pitch: artData?.pitch || pitchHelper.extractPitch(prompt),
+      pitch: artData?.pitch || promptStore.extractPitch(prompt),
       userId: artData?.userId || userStore.userId || 10,
       galleryId: artData?.galleryId,
       checkpoint:
@@ -241,13 +241,13 @@ export const useArtStore = defineStore('artStore', () => {
       isPublic: artData?.isPublic || true,
     }
 
-    data.promptString = promptHelper.processPromptPlaceholders(
+    data.promptString = promptStore.processPromptPlaceholders(
       data.promptString,
       pitchStore,
     )
     state.processedArtPrompt = data.promptString
 
-    if (!promptHelper.validatePromptString(data.promptString)) {
+    if (!promptStore.validatePromptString(data.promptString)) {
       state.loading = false
       return { success: false, message: 'Invalid prompt' }
     }
@@ -265,9 +265,10 @@ export const useArtStore = defineStore('artStore', () => {
 
       if (!response.success || !response.data) throw new Error(response.message)
 
-      const collection = await getOrCreateGeneratedArtCollection(
-        data.userId || 10,
-      )
+      const collection =
+        await collectionStore.getOrCreateGeneratedArtCollection(
+          data.userId || 10,
+        )
 
       await performFetch(`/api/art/collection/${collection.id}`, {
         method: 'PATCH',
@@ -275,7 +276,7 @@ export const useArtStore = defineStore('artStore', () => {
         headers: { 'Content-Type': 'application/json' },
       })
 
-      collectionHelper.addArtToCollectionLocal(collection, response.data)
+      collectionStore.addArtToCollectionLocal(collection, response.data)
 
       state.art.push(response.data)
 
@@ -300,27 +301,21 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-
-
   return {
     ...toRefs(state),
     initialize,
     fetchAllArt,
-    fetchUncollectedArt,
     selectArt,
     generateArt,
-    getOrCreateGeneratedArtCollection,
     getArtImagesByIds,
     deleteArt,
     deleteArtImage,
-    addArtToCollection,
     uploadImage,
     updateArtImageId,
     updateArtImageWithArtId,
     getCachedArtImageById,
     getArtImageByArtId,
     createArt,
-    deleteCollection,
     getArtImageById,
   }
 })

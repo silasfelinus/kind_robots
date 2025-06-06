@@ -43,7 +43,7 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
   async function fetchCurrentModelFromApi() {
     const res = await performFetch<{ data: string }>('/api/art/sd/currentModel')
     if (res.success && res.data) {
-      currentApiModel.value = res.data
+      currentApiModel.value = res.data.data
     }
   }
 

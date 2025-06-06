@@ -125,40 +125,6 @@ export async function getArtImagesByIds(
   }
 }
 
-/**
- * Fetch multiple ArtImages by ID from the server and merge with local cache.
- */
-export async function fetchArtImagesByIds(
-  ids: number[],
-  existingImages: ArtImage[],
-): Promise<ArtImage[]> {
-  const uncached = ids.filter(
-    (id) => !existingImages.some((img) => img.id === id),
-  )
-  if (uncached.length === 0) {
-    return existingImages.filter((img) => ids.includes(img.id))
-  }
-
-  try {
-    const response = await performFetch<ArtImage[]>('/api/art/image', {
-      method: 'POST',
-      body: JSON.stringify({ ids: uncached }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-
-    if (response.success && response.data) {
-      return [...existingImages, ...response.data]
-    } else {
-      throw new Error(response.message || 'Failed to fetch art images.')
-    }
-  } catch (error) {
-    handleError(error, 'fetching art images by IDs')
-    return existingImages
-  }
-}
-
-
-
   export function getCachedArtImageById(id: number): ArtImage | undefined {
     return state.artImages.find((image) => image.id === id)
   }

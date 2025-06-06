@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { Pitch } from '~/stores/pitchStore'
+import { PitchType, type Pitch } from '~/stores/pitchStore'
 
 const pitchStore = usePitchStore()
 

@@ -11,34 +11,6 @@ import {
   parseStoredArt,
 } from '@/stores/helpers/artHelper'
 
-import {
-  addArtToCollectionLocal,
-  findCollectionByUserAndLabel,
-  addArtToCollection,
-  getOrCreateGeneratedArtCollection,
-  removeArtFromLocalCollection,
-  findCollectionById,
-  getUncollectedArt,
-  isArtInCollection,
-  getCollectedArtIds,
-  collectionIncludesArtId,
-  parseStoredCollections,
-  createEmptyCollection,
-} from '@/stores/helpers/collectionHelper'
-
-import {
-  isValidPrompt,
-  estimateTokenCount,
-  buildPromptPayload,
-  normalizePrompt,
-  promptLabel,
-  cleanPromptExample,
-  extractPitch,
-  processPromptPlaceholders,
-  validatePromptString,
-} from '@/stores/helpers/promptHelper'
-
-import * as pitchHelper from '@/stores/helpers/pitchHelper'
 import { useCollectionStore } from './collectionStore'
 import { useCheckpointStore } from './checkpointStore'
 

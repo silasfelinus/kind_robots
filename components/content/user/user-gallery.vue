@@ -103,18 +103,21 @@ async function toggleCollection(userId: number) {
   }
 }
 
-// Batch fetch images for a list of art IDs
 async function fetchArtImages(artIds: number[]) {
-  const uncachedIds = artIds.filter((id) => !artImages.value[id])
+  const currentImages = artStore.artImages
+  const uncachedIds = artIds.filter(
+    (id) => !currentImages.some((img) => img.id === id),
+  )
   if (uncachedIds.length === 0) return
 
-  try {
-    const response = await artStore.getArtImagesByIds(uncachedIds)
-
-    response.forEach((artImage) => {
-      artImages.value[artImage.id] =
-        artImage.imageData || '/images/kindtitle.webp'
+  const updateImages = (newImages: ArtImage[]) => {
+    newImages.forEach((img) => {
+      artImages.value[img.id] = img.imageData || '/images/kindtitle.webp'
     })
+  }
+
+  try {
+    await artStore.getArtImagesByIds(uncachedIds, currentImages, updateImages)
   } catch (error) {
     console.error('Failed to fetch batch art images', error)
   }

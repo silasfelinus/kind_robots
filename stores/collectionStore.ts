@@ -3,6 +3,25 @@ import { defineStore } from 'pinia'
 import { reactive, toRefs } from 'vue'
 import type { Art } from '@prisma/client'
 import { performFetch, handleError } from './utils'
+import {
+  addArtToCollectionLocal,
+  fetchUncollectedArt,
+  removeArtFromCollection,
+  getUserCollections,
+  addArtToCollection,
+  getOrCreateGeneratedArtCollection,
+  findCollectionByUserAndLabel,
+  createCollection,
+  findCollectionById,
+  deleteCollectionById,
+  isArtInCollection,
+  getUncollectedArt,
+  getCollectedArtIds,
+  collectionIncludesArtId,
+  removeArtFromLocalCollection,
+  createEmptyCollection,
+  parseStoredCollections,
+} from '@/stores/helpers/collectionHelper'
 
 // Local override to reflect nested art[] relation
 export interface ArtCollection {
@@ -58,24 +77,6 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     }
   }
 
-  // Delete a collection
-  async function deleteCollectionById(collectionId: number): Promise<boolean> {
-    try {
-      const response = await performFetch(
-        `/api/art/collection/${collectionId}`,
-        {
-          method: 'DELETE',
-        },
-      )
-      if (!response.success) throw new Error(response.message)
-      state.collections = state.collections.filter((c) => c.id !== collectionId)
-      return true
-    } catch (error) {
-      handleError(error, 'deleting collection')
-      return false
-    }
-  }
-
   // Remove art from a collection on the server and locally
   async function removeArtFromCollectionServer(
     collectionId: number,
@@ -99,40 +100,6 @@ export const useCollectionStore = defineStore('collectionStore', () => {
       handleError(error, 'removing art from collection')
       return false
     }
-  }
-
-  async function addArtToCollection({
-    art,
-    userId,
-    label = '',
-    collectionId,
-  }: {
-    art: Art
-    userId: number
-    label?: string
-    collectionId?: number
-  }) {
-    let collection: ArtCollection | null =
-      collectionId != null
-        ? (findCollectionById(collectionId) ?? null)
-        : (findCollectionByUserAndLabel(userId, label) ?? null)
-
-    if (!collection) {
-      collection = await createCollection(label, userId)
-      if (!collection) return
-    }
-
-    await performFetch(`/api/art/collection/${collection.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ artIds: [art.id] }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-
-    // Ensure .art exists before using it
-    if (!collection.art) collection.art = []
-
-    const exists = collection.art.some((a) => a.id === art.id)
-    if (!exists) collection.art.push(art)
   }
 
   function getUserCollections(userId: number): ArtCollection[] {
@@ -168,13 +135,25 @@ export const useCollectionStore = defineStore('collectionStore', () => {
   return {
     ...toRefs(state),
     fetchCollections,
-    createCollection,
-    deleteCollectionById,
     removeArtFromCollectionServer,
     addArtToCollection,
-    getUserCollections,
-    findCollectionById,
-    findCollectionByUserAndLabel,
+
+    // 👇 From helper
+    addArtToCollectionLocal,
+    fetchUncollectedArt,
     getOrCreateGeneratedArtCollection,
+    createCollection,
+    removeArtFromCollection,
+    getUserCollections,
+    deleteCollectionById,
+    isArtInCollection,
+    getUncollectedArt,
+    findCollectionByUserAndLabel,
+    getCollectedArtIds,
+    collectionIncludesArtId,
+    removeArtFromLocalCollection,
+    findCollectionById,
+    createEmptyCollection,
+    parseStoredCollections,
   }
 })

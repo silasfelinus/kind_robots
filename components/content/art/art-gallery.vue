@@ -64,7 +64,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useArtStore } from '@/stores/artStore'
+import { useArtStore, type Art, type ArtImage } from '@/stores/artStore'
 import { useGalleryStore } from '@/stores/galleryStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -84,32 +84,26 @@ const sortOrder = ref<'Ascending' | 'Descending'>('Ascending')
 // Galleries
 const galleries = computed(() => galleryStore.galleries)
 
-// Filter and sort art assets
 const sortedAndFilteredArt = computed(() => {
   let arts = filteredArtAssets.value
 
-  // Filter by user toggle
   if (showOnlyUserArt.value) {
-    arts = arts.filter((art) => art.userId === userStore.userId)
+    arts = arts.filter((art: Art) => art.userId === userStore.userId)
   }
 
-  // Sort by ID
-  return arts.sort((a, b) =>
+  return arts.sort((a: Art, b: Art) =>
     sortOrder.value === 'Ascending' ? a.id - b.id : b.id - a.id,
   )
 })
 
-// Filter art based on gallery and user preferences
 const filteredArtAssets = computed(() => {
   let arts = artStore.art
 
-  // Filter by selected gallery
   if (selectedGalleryId.value) {
-    arts = arts.filter((art) => art.galleryId === selectedGalleryId.value)
+    arts = arts.filter((art: Art) => art.galleryId === selectedGalleryId.value)
   }
 
-  // Filter by user access settings
-  arts = arts.filter((art) => {
+  arts = arts.filter((art: Art) => {
     const isAccessible = art.isPublic || art.userId === userStore.userId
     const isViewable =
       userStore.showMature || (!art.isMature && art.userId === userStore.userId)
@@ -125,10 +119,9 @@ const setView = (newView: 'twoRow' | 'threeRow' | 'fourRow' | 'single') => {
   window.localStorage.setItem('view', newView)
 }
 
-// Fetch the artImage from the preloaded artImages array
-const getArtImage = (artImageId: number | null) => {
+const getArtImage = (artImageId: number | null): ArtImage | undefined => {
   return artImageId
-    ? artStore.artImages.find((image) => image.id === artImageId)
+    ? artStore.artImages.find((image: ArtImage) => image.id === artImageId)
     : undefined
 }
 

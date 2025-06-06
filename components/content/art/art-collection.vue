@@ -194,7 +194,7 @@ const closeAddToCollectionPopup = () => {
 const loadInitialData = async () => {
   try {
     await collectionStore.fetchCollections()
-    await artStore.fetchUncollectedArt()
+    await collectionStore.fetchUncollectedArt()
   } catch (error) {
     console.error('Error loading initial data:', error)
   }
@@ -227,7 +227,7 @@ const deleteCollection = async (collectionId: number) => {
   if (!confirm('Are you sure you want to delete this collection?')) return
 
   try {
-    await artStore.deleteCollection(collectionId)
+    await collectionStore.deleteCollectionById(collectionId)
   } catch (error) {
     console.error('Error deleting collection:', error)
   }
@@ -237,7 +237,7 @@ const addArtToSelectedCollection = async () => {
   if (!selectedCollectionId.value || !currentArt.value) return
 
   try {
-    await artStore.addArtToCollection({
+    await collectionStore.addArtToCollection({
       artId: currentArt.value.id,
       collectionId: selectedCollectionId.value,
       label: newCollectionLabel.value,

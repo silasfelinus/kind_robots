@@ -440,7 +440,8 @@ export const usePitchStore = defineStore('pitchStore', () => {
     randomEntry,
     getPitchesBySelectedType,
     pitchTypes,
-    PitchType,
     selectedPitchId,
   }
 })
+
+export { PitchType }

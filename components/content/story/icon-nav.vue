@@ -10,7 +10,7 @@
     </NuxtLink>
 
     <NuxtLink
-      to="/icongallery"
+      to="/icons"
       class="flex flex-col items-center justify-center rounded-2xl p-4 bg-base-200 hover:bg-base-300 transition"
     >
       <Icon name="kind-icon:grid" class="text-4xl mb-2" />

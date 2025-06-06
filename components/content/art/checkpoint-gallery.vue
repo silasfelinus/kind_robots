@@ -33,8 +33,22 @@
         >
           {{ c.customLabel || c.name }}
           <span v-if="c.isMature">⚠️</span>
+          <span v-if="c.name === checkpointStore.currentApiModel">
+            (selected)
+          </span>
         </option>
       </select>
+
+      <button
+        v-if="
+          selectedCheckpointName &&
+          selectedCheckpointName !== checkpointStore.currentApiModel
+        "
+        class="btn btn-sm mt-2 bg-info text-white hover:bg-info/80"
+        @click="setModel"
+      >
+        🔁 Set as Active Model
+      </button>
     </div>
 
     <!-- Sampler Select -->
@@ -61,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -78,12 +92,29 @@ const selectedSamplerName = computed({
   set: (val) => checkpointStore.selectSamplerByName(val),
 })
 
-// Local writable proxy for showMature toggle
 const showMature = computed({
   get: () => userStore.user?.showMature ?? false,
   set: async (val: boolean) => {
     if (!userStore.user) return
     await userStore.updateUser({ showMature: val })
   },
+})
+
+const setModel = async () => {
+  if (!selectedCheckpointName.value) return
+  await checkpointStore.setCurrentModelApi(selectedCheckpointName.value)
+  await checkpointStore.fetchCurrentModelFromApi()
+}
+
+onMounted(async () => {
+  await checkpointStore.fetchCurrentModelFromApi()
+
+  if (checkpointStore.currentApiModel) {
+    checkpointStore.selectCheckpointByName(checkpointStore.currentApiModel)
+  }
+
+  if (!checkpointStore.selectedSampler) {
+    checkpointStore.selectSamplerByName('Euler a')
+  }
 })
 </script>

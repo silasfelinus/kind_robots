@@ -68,10 +68,10 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { usesmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
+import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
-const smartbarStore = usesmartbarStore()
+const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const { activeIcons, isEditing } = storeToRefs(smartbarStore)
 

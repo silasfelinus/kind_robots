@@ -409,7 +409,7 @@ export const useArtStore = defineStore('artStore', () => {
           body: JSON.stringify(data),
         },
         3,
-        20000,
+        90000,
       )
 
       if (!response.success || !response.data) throw new Error(response.message)

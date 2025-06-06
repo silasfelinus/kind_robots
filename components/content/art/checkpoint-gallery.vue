@@ -9,7 +9,7 @@
           <input
             type="checkbox"
             class="toggle toggle-accent"
-            v-model="userStore.showMature"
+            v-model="showMature"
           />
         </label>
       </div>
@@ -63,6 +63,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useCheckpointStore } from '@/stores/checkpointStore'
+import { useUserStore } from '@/stores/userStore'
+
 const checkpointStore = useCheckpointStore()
 const userStore = useUserStore()
 
@@ -74,5 +76,14 @@ const selectedCheckpointName = computed({
 const selectedSamplerName = computed({
   get: () => checkpointStore.selectedSampler?.name || '',
   set: (val) => checkpointStore.selectSamplerByName(val),
+})
+
+// Local writable proxy for showMature toggle
+const showMature = computed({
+  get: () => userStore.user?.showMature ?? false,
+  set: async (val: boolean) => {
+    if (!userStore.user) return
+    await userStore.updateUser({ showMature: val })
+  },
 })
 </script>

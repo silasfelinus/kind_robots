@@ -101,29 +101,6 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function getOrCreateGeneratedArtCollection(
-    userId: number,
-  ): Promise<ArtCollection> {
-    let collection = collectionHelper.findCollectionByUserAndLabel(
-      state.collections,
-      userId,
-      'Generated Art',
-    )
-    if (!collection) {
-      const response = await performFetch<ArtCollection>(
-        '/api/art/collection',
-        {
-          method: 'POST',
-          body: JSON.stringify({ label: 'Generated Art', userId }),
-          headers: { 'Content-Type': 'application/json' },
-        },
-      )
-      if (!response.success || !response.data) throw new Error(response.message)
-      collection = response.data
-      state.collections.push(collection)
-    }
-    return collection
-  }
 
   function selectArt(artId: number): void {
     const found = state.art.find((a) => a.id === artId)
@@ -157,91 +134,6 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function fetchUncollectedArt() {
-    return collectionHelper.getUncollectedArt(
-      userStore.userId,
-      state.art,
-      state.collections,
-    )
-  }
-  function getCachedArtImageById(id: number): ArtImage | undefined {
-    return state.artImages.find((image) => image.id === id)
-  }
-
-  async function updateArtImageWithArtId(
-    artImageId: number,
-    artId: number,
-  ): Promise<void> {
-    try {
-      const response = await performFetch<ArtImage>(
-        `/api/art/image/${artImageId}`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ artId }),
-        },
-      )
-
-      if (response.success && response.data) {
-        const updated = response.data
-        const index = state.artImages.findIndex((img) => img.id === artImageId)
-        if (index !== -1) state.artImages.splice(index, 1, updated)
-        else state.artImages.push(updated)
-
-        const art = state.art.find((a) => a.id === artId)
-        if (art) art.artImageId = artImageId
-      } else {
-        throw new Error(response.message)
-      }
-    } catch (error) {
-      handleError(error, 'updating artImageId')
-    }
-  }
-
-  async function getArtImagesByIds(imageIds: number[]): Promise<ArtImage[]> {
-    const uncached = imageIds.filter(
-      (id) => !state.artImages.some((img) => img.id === id),
-    )
-    if (!uncached.length)
-      return state.artImages.filter((img) => imageIds.includes(img.id))
-
-    try {
-      const response = await performFetch<ArtImage[]>('/api/art/image', {
-        method: 'POST',
-        body: JSON.stringify({ ids: uncached }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-      if (response.success && response.data) {
-        state.artImages.push(...response.data)
-        return state.artImages.filter((img) => imageIds.includes(img.id))
-      } else {
-        throw new Error(response.message)
-      }
-    } catch (error) {
-      handleError(error, 'fetching art images by IDs')
-      return []
-    }
-  }
-
-  async function updateArtImageId(
-    artId: number,
-    artImageId: number,
-  ): Promise<void> {
-    try {
-      const response = await performFetch(`/api/art/${artId}/image`, {
-        method: 'PATCH',
-        body: JSON.stringify({ artImageId }),
-      })
-      if (response.success) {
-        const art = state.art.find((a) => a.id === artId)
-        if (art) art.artImageId = artImageId
-      } else {
-        throw new Error(response.message)
-      }
-    } catch (error) {
-      handleError(error, 'updating artImageId')
-    }
-  }
 
   async function createArt(artData: {
     promptString: string
@@ -319,49 +211,8 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function addArtToCollection({
-    artId,
-    collectionId,
-    label = '',
-  }: {
-    artId: number
-    collectionId?: number
-    label?: string
-  }) {
-    const userId = userStore.userId
-    let collection =
-      collectionId != null
-        ? collectionHelper.findCollectionById(state.collections, collectionId)
-        : collectionHelper.findCollectionByUserAndLabel(
-            state.collections,
-            userId,
-            label,
-          )
 
-    if (!collection) {
-      const res = await performFetch<ArtCollection>('/api/art/collection', {
-        method: 'POST',
-        body: JSON.stringify({ label, userId }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-      if (!res.success || !res.data) throw new Error(res.message)
-      collection = res.data
-      state.collections.push(collection)
-    }
 
-    await performFetch(`/api/art/collection/${collection.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ artIds: [artId] }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-
-    const art = state.art.find((a) => a.id === artId)
-    if (art) collectionHelper.addArtToCollectionLocal(collection, art)
-  }
-
-  function getArtImageByArtId(artId: number): ArtImage | undefined {
-    return state.artImages.find((image: ArtImage) => image.artId === artId)
-  }
 
   async function generateArt(
     artData?: GenerateArtData,

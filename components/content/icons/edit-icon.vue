@@ -85,13 +85,13 @@
 <script setup lang="ts">
 // /components/content/story/edit-icon.vue
 import { ref, watch } from 'vue'
-import { useIconStore } from '@/stores/iconStore'
+import { usesmartIconStore } from '@/stores/smartIconStore'
 import type { SmartIcon } from '@prisma/client'
 
 const props = defineProps<{ icon: SmartIcon }>()
 const emit = defineEmits(['close'])
 
-const iconStore = useIconStore()
+const smartIconStore = usesmartIconStore()
 const form = ref({ ...props.icon })
 
 watch(
@@ -103,7 +103,7 @@ watch(
 
 async function save() {
   if (!form.value.id) return
-  const { success } = await iconStore.updateIcon(form.value.id, form.value)
+  const { success } = await smartIconStore.updateIcon(form.value.id, form.value)
   if (success) {
     emit('close')
   }

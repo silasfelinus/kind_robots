@@ -6,6 +6,7 @@ import { usePromptStore } from './promptStore'
 import { usePitchStore } from './pitchStore'
 import { useUserStore } from './userStore'
 import {
+  type GenerateArtData,
   getArtImagesByIds,
   removeImageById,
   parseStoredArt,
@@ -19,26 +20,6 @@ import { useCollectionStore } from './collectionStore'
 import { useCheckpointStore } from './checkpointStore'
 
 const isClient = typeof window !== 'undefined'
-const collectionStore = useCollectionStore()
-
-export interface GenerateArtData {
-  title?: string
-  promptString: string
-  userId?: number
-  pitchId?: number
-  galleryId?: number
-  checkpoint?: string
-  sampler?: string
-  steps?: number
-  designer?: string
-  cfg?: number
-  cfgHalf?: boolean
-  isMature?: boolean
-  isPublic?: boolean
-  pitch?: string
-  artImageId?: number
-  collection?: string
-}
 
 interface ArtStoreState {
   art: Art[]

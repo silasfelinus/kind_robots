@@ -1,0 +1,10 @@
+<!-- pine.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Tree tiers -->
+  <polygon points="32,4 12,28 52,28" fill="#388E3C" stroke="#1B5E20" stroke-width="2"/>
+  <polygon points="32,16 16,36 48,36" fill="#43A047" stroke="#1B5E20" stroke-width="2"/>
+  <polygon points="32,28 20,44 44,44" fill="#66BB6A" stroke="#2E7D32" stroke-width="2"/>
+
+  <!-- Trunk -->
+  <rect x="28" y="44" width="8" height="16" fill="#6D4C41" stroke="#4E342E" stroke-width="2"/>
+</svg>

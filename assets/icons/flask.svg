@@ -1,0 +1,13 @@
+<!-- flask.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Flask body -->
+  <path d="M24 6 H40 V28 L50 50 A2 2 0 0 1 48 54 H16 A2 2 0 0 1 14 50 L24 28 Z" fill="#81D4FA" stroke="#0277BD" stroke-width="2"/>
+
+  <!-- Liquid inside -->
+  <path d="M26 30 L38 30 L46 48 H18 L26 30 Z" fill="#4FC3F7"/>
+
+  <!-- Bubbles -->
+  <circle cx="32" cy="20" r="2" fill="#29B6F6"/>
+  <circle cx="34" cy="14" r="1.5" fill="#29B6F6"/>
+  <circle cx="30" cy="10" r="1" fill="#29B6F6"/>
+</svg>

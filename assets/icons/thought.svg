@@ -1,0 +1,10 @@
+<!-- thought.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Main thought bubble -->
+  <ellipse cx="40" cy="24" rx="20" ry="14" fill="#E1F5FE" stroke="#0288D1" stroke-width="2"/>
+
+  <!-- Small bubble trail -->
+  <circle cx="22" cy="40" r="4" fill="#B3E5FC" stroke="#0288D1" stroke-width="1.5"/>
+  <circle cx="14" cy="50" r="3" fill="#B3E5FC" stroke="#0288D1" stroke-width="1.5"/>
+  <circle cx="10" cy="58" r="2" fill="#B3E5FC" stroke="#0288D1" stroke-width="1.5"/>
+</svg>

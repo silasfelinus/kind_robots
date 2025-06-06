@@ -1,0 +1,11 @@
+<!-- magnify.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Lens -->
+  <circle cx="28" cy="28" r="14" stroke="#455A64" stroke-width="4" fill="#ECEFF1"/>
+
+  <!-- Handle -->
+  <rect x="38" y="38" width="16" height="4" rx="2" transform="rotate(45 38 38)" fill="#607D8B"/>
+
+  <!-- Shine effect (optional highlight) -->
+  <path d="M20 20 C22 18, 26 18, 28 20" stroke="#B0BEC5" stroke-width="1.5" fill="none"/>
+</svg>

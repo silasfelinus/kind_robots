@@ -1,0 +1,15 @@
+<!-- mask.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Main mask shape -->
+  <path
+    d="M12 28 C20 16, 44 16, 52 28 C48 40, 16 40, 12 28 Z"
+    fill="#B39DDB"
+    stroke="#512DA8"
+    stroke-width="2"
+    stroke-linejoin="round"
+  />
+
+  <!-- Eye holes -->
+  <circle cx="22" cy="28" r="4" fill="#FFFFFF"/>
+  <circle cx="42" cy="28" r="4" fill="#FFFFFF"/>
+</svg>

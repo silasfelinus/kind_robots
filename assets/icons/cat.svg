@@ -1,0 +1,19 @@
+<!-- cat.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Cat body silhouette -->
+  <path d="M20 50 C18 38, 24 28, 32 28 C40 28, 46 38, 44 50 Z" fill="#424242" stroke="#212121" stroke-width="2"/>
+
+  <!-- Head -->
+  <circle cx="32" cy="20" r="8" fill="#424242" stroke="#212121" stroke-width="2"/>
+
+  <!-- Ears -->
+  <polygon points="26,14 28,6 30,14" fill="#424242"/>
+  <polygon points="38,14 36,6 34,14" fill="#424242"/>
+
+  <!-- Eyes -->
+  <circle cx="29" cy="20" r="1.5" fill="#FFEB3B"/>
+  <circle cx="35" cy="20" r="1.5" fill="#FFEB3B"/>
+
+  <!-- Tail -->
+  <path d="M44 50 C54 48, 54 34, 44 36" stroke="#212121" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>

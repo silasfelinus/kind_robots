@@ -1,0 +1,20 @@
+<!-- shield.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Outer shield shape -->
+  <path
+    d="M32 4 L12 14 V30 C12 44, 22 56, 32 60 C42 56, 52 44, 52 30 V14 L32 4 Z"
+    fill="#ECEFF1"
+    stroke="#37474F"
+    stroke-width="2"
+    stroke-linejoin="round"
+  />
+
+  <!-- Inner panel -->
+  <path
+    d="M32 10 L18 18 V30 C18 40, 26 50, 32 52 C38 50, 46 40, 46 30 V18 L32 10 Z"
+    fill="#CFD8DC"
+    stroke="#455A64"
+    stroke-width="1.5"
+    stroke-linejoin="round"
+  />
+</svg>

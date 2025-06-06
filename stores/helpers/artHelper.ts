@@ -159,31 +159,6 @@ export async function getArtImagesByIds(
     }
   }
 
-  export async function getArtImagesByIds(imageIds: number[]): Promise<ArtImage[]> {
-    const uncached = imageIds.filter(
-      (id) => !state.artImages.some((img) => img.id === id),
-    )
-    if (!uncached.length)
-      return state.artImages.filter((img) => imageIds.includes(img.id))
-
-    try {
-      const response = await performFetch<ArtImage[]>('/api/art/image', {
-        method: 'POST',
-        body: JSON.stringify({ ids: uncached }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-      if (response.success && response.data) {
-        state.artImages.push(...response.data)
-        return state.artImages.filter((img) => imageIds.includes(img.id))
-      } else {
-        throw new Error(response.message)
-      }
-    } catch (error) {
-      handleError(error, 'fetching art images by IDs')
-      return []
-    }
-  }
-
   export async function updateArtImageId(
     artId: number,
     artImageId: number,

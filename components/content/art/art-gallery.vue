@@ -49,7 +49,9 @@
 
     <!-- ArtCards Grid with Scrollbar -->
     <div class="scroll-container overflow-auto max-h-[75vh] p-4">
-      <div :class="gridClass">
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+      >
         <ArtCard
           v-for="art in sortedAndFilteredArt"
           :key="art.id"
@@ -119,10 +121,16 @@ const setView = (newView: 'twoRow' | 'threeRow' | 'fourRow' | 'single') => {
   window.localStorage.setItem('view', newView)
 }
 
+const artImageMap = computed(() => {
+  const map = new Map<number, ArtImage>()
+  for (const img of artStore.artImages) {
+    map.set(img.id, img)
+  }
+  return map
+})
+
 const getArtImage = (artImageId: number | null): ArtImage | undefined => {
-  return artImageId
-    ? artStore.artImages.find((image: ArtImage) => image.id === artImageId)
-    : undefined
+  return artImageId ? artImageMap.value.get(artImageId) : undefined
 }
 
 // Toggle sort order
@@ -130,7 +138,6 @@ const toggleSortOrder = () => {
   sortOrder.value = sortOrder.value === 'Ascending' ? 'Descending' : 'Ascending'
 }
 
-// Initialize the art store and preload art images
 onMounted(async () => {
   await artStore.initialize()
 
@@ -139,23 +146,20 @@ onMounted(async () => {
     savedView &&
     ['twoRow', 'threeRow', 'fourRow', 'single'].includes(savedView)
   ) {
-    view.value = savedView as 'twoRow' | 'threeRow' | 'fourRow' | 'single'
+    view.value = savedView as typeof view.value
   }
-})
 
-// Grid class computation
-const gridColumns: Record<
-  'twoRow' | 'threeRow' | 'fourRow' | 'single',
-  string
-> = {
-  twoRow: 'grid-cols-2',
-  threeRow: 'grid-cols-3',
-  fourRow: 'grid-cols-4',
-  single: 'grid-cols-1',
-}
+  // Batch fetch all missing images
+  const missingIds = filteredArtAssets.value
+    .map((art) => art.artImageId)
+    .filter(
+      (id): id is number =>
+        !!id && !artStore.artImages.some((img) => img.id === id),
+    )
 
-const gridClass = computed(() => {
-  return `grid ${gridColumns[view.value]} gap-4`
+  if (missingIds.length) {
+    await artStore.getArtImagesByIds([...new Set(missingIds)])
+  }
 })
 </script>
 

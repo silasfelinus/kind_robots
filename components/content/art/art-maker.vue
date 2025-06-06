@@ -11,10 +11,11 @@
 
     <!-- Prompt Input -->
     <div class="mb-6">
-      <input
+      <textarea
         v-model="promptStore.promptField"
         placeholder="Enter your creative prompt..."
-        class="rounded-3xl p-4 w-full text-lg bg-base-200 placeholder-gray-500 focus:ring-4 focus:ring-info focus:outline-none shadow-inner transition-all"
+        rows="6"
+        class="rounded-3xl p-4 w-full text-lg bg-base-200 placeholder-gray-500 focus:ring-4 focus:ring-info focus:outline-none shadow-inner transition-all resize-none"
         :disabled="loading"
         @input="savePrompt"
       />

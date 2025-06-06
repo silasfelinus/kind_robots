@@ -6,6 +6,7 @@ import { useUserStore } from './userStore'
 import { validCheckpoints } from '@/stores/seeds/validCheckpoints'
 import { validSamplers } from '@/stores/seeds/validSamplers'
 import type { Resource } from '@prisma/client'
+import { performFetch } from '@/stores/utils'
 
 export const useCheckpointStore = defineStore('checkpointStore', () => {
   const userStore = useUserStore()
@@ -15,6 +16,7 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
 
   const selectedCheckpoint = ref<Partial<Resource> | null>(null)
   const selectedSampler = ref<Partial<Resource> | null>(null)
+  const currentApiModel = ref<string | null>(null)
 
   const visibleCheckpoints = computed(() =>
     allCheckpoints.value.filter((r) =>
@@ -38,15 +40,38 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
       allSamplers.value.find((s) => s.name === name) || null
   }
 
+  async function fetchCurrentModelFromApi() {
+    const res = await performFetch<{ data: string }>('/api/art/sd/currentModel')
+    if (res.success && res.data) {
+      currentApiModel.value = res.data
+    }
+  }
+
+  async function setCurrentModelInApi(name: string) {
+    const res = await performFetch('/api/art/sd/setModel', {
+      method: 'POST',
+      body: JSON.stringify({ checkpoint: name }),
+    })
+
+    if (res.success) {
+      currentApiModel.value = name
+    }
+
+    return res
+  }
+
   return {
     allCheckpoints,
     allSamplers,
     visibleCheckpoints,
     selectedCheckpoint,
     selectedSampler,
+    currentApiModel,
     isValidSampler,
     isValidCheckpoint,
     selectCheckpointByName,
     selectSamplerByName,
+    fetchCurrentModelFromApi,
+    setCurrentModelInApi,
   }
 })

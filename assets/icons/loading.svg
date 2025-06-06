@@ -1,0 +1,48 @@
+<!-- /assets/icons/loading.svg -->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 100 100"
+  fill="none"
+  class="animate-spin-slow"
+>
+  <!-- Outer ring -->
+  <circle
+    cx="50"
+    cy="50"
+    r="45"
+    stroke="currentColor"
+    stroke-width="6"
+    class="opacity-20"
+  />
+
+  <!-- Pulsing inner core -->
+  <circle
+    cx="50"
+    cy="50"
+    r="20"
+    fill="currentColor"
+  >
+    <animate
+      attributeName="r"
+      values="18;22;18"
+      dur="1s"
+      repeatCount="indefinite"
+    />
+    <animate
+      attributeName="opacity"
+      values="0.7;1;0.7"
+      dur="1s"
+      repeatCount="indefinite"
+    />
+  </circle>
+
+  <!-- Rotating arc (like a charging indicator) -->
+  <path
+    d="M50 5
+       A45 45 0 0 1 95 50"
+    stroke="currentColor"
+    stroke-width="6"
+    stroke-linecap="round"
+    class="opacity-75"
+  />
+</svg>

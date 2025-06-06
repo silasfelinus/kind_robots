@@ -10,7 +10,6 @@
 
     <!-- Random Theme Selector -->
     <checkpoint-gallery />
-    <random-selector />
 
     <!-- Prompt Input -->
     <div>

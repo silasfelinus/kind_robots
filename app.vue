@@ -48,10 +48,10 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
-import { usesmartIconStore } from '@/stores/smartIconStore'
+import { usesmartbarStore } from '@/stores/smartbarStore'
 
-const smartIconStore = usesmartIconStore()
-const showSwarm = computed(() => smartIconStore.showSwarm)
+const smartbarStore = usesmartbarStore()
+const showSwarm = computed(() => smartbarStore.showSwarm)
 
 const displayStore = useDisplayStore()
 const router = useRouter()

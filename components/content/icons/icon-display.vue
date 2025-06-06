@@ -95,29 +95,29 @@
 // /components/content/icons/icon-display.vue
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { usesmartIconStore } from '@/stores/smartIconStore'
+import { usesmartbarStore } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import type { SmartIcon } from '@/stores/smartIconStore'
+import type { SmartIcon } from '@/stores/smartbarStore'
 
 const props = defineProps<{ icon: SmartIcon }>()
 
-const smartIconStore = usesmartIconStore()
+const smartbarStore = usesmartbarStore()
 const displayStore = useDisplayStore()
 const themeStore = useThemeStore()
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 const route = useRoute()
 
-const isEditing = computed(() => smartIconStore.isEditing)
+const isEditing = computed(() => smartbarStore.isEditing)
 const bigMode = computed(() => displayStore.bigMode)
 
 const confirmingDelete = ref(false)
 
 function removeIcon() {
-  smartIconStore.removeFromEditableIcons(props.icon.id)
+  smartbarStore.removeFromEditableIcons(props.icon.id)
   confirmingDelete.value = false
 }
 
@@ -138,7 +138,7 @@ const computedLabel = computed(() => {
     case 'jellybean-icon':
       return `${milestoneStore.milestoneCountForUser || 0} /11`
     case 'swarm-icon':
-      return smartIconStore.showSwarm ? smartIconStore.swarmMessage : 'Swarm'
+      return smartbarStore.showSwarm ? smartbarStore.swarmMessage : 'Swarm'
     default:
       return ''
   }

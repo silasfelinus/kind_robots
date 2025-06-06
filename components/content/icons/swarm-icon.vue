@@ -15,13 +15,13 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usesmartIconStore } from '@/stores/smartIconStore'
+import { usesmartbarStore } from '@/stores/smartbarStore'
 
-const smartIconStore = usesmartIconStore()
-const showSwarm = computed(() => smartIconStore.showSwarm)
+const smartbarStore = usesmartbarStore()
+const showSwarm = computed(() => smartbarStore.showSwarm)
 
 const toggleAmiSwarm = () => {
-  smartIconStore.toggleSwarm()
+  smartbarStore.toggleSwarm()
 }
 </script>
 

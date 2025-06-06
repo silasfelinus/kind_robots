@@ -76,15 +76,15 @@
 // /components/content/story/icon-gallery.vue
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { usesmartIconStore, type SmartIcon } from '@/stores/smartIconStore'
+import { usesmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 import { useUserStore } from '@/stores/userStore'
 
-const smartIconStore = usesmartIconStore()
+const smartbarStore = usesmartbarStore()
 const userStore = useUserStore()
 
 const isAdmin = computed(() => userStore.isAdmin)
 
-const { icons, smartBarIds } = storeToRefs(smartIconStore)
+const { icons, smartBarIds } = storeToRefs(smartbarStore)
 const { user } = storeToRefs(userStore)
 
 const selectedIcon = ref<SmartIcon | null>(null)
@@ -99,7 +99,7 @@ function openEditModal(icon: SmartIcon) {
 
 // Load icons if needed
 onMounted(() => {
-  if (!smartIconStore.isInitialized) smartIconStore.initialize()
+  if (!smartbarStore.isInitialized) smartbarStore.initialize()
 })
 
 const filteredIcons = computed(() =>
@@ -118,9 +118,9 @@ function isInSmartBar(id: number) {
 
 function toggleIcon(id: number) {
   if (isInSmartBar(id)) {
-    smartIconStore.removeIconFromSmartBar(id)
+    smartbarStore.removeIconFromSmartBar(id)
   } else {
-    smartIconStore.addIconToSmartBar(id)
+    smartbarStore.addIconToSmartBar(id)
   }
 }
 </script>

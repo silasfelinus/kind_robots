@@ -471,10 +471,6 @@ export const useUserStore = defineStore('userStore', {
       }
 
       if (!user.artImageId) {
-        console.warn(
-          `[userImage] User found (${user.username}), but no artImageId`,
-        )
-
         return user.avatarImage || '/images/kindart.webp'
       }
 

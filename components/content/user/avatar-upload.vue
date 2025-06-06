@@ -24,10 +24,12 @@
 import { ref, computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
+import { useCollectionStore } from './../../../stores/collectionStore'
 
 // Stores
 const artStore = useArtStore()
 const userStore = useUserStore()
+const collectionStore = useCollectionStore()
 
 // User data
 const userId = computed(() => userStore.userId)
@@ -102,7 +104,7 @@ async function uploadAvatar(event: Event) {
 
         if (newArt.value?.id) {
           console.log('Adding new art to collection...')
-          await artStore.addArtToCollection({
+          await collectionStore.addArtToCollection({
             artId: newArt.value.id,
             label: 'avatars',
           })

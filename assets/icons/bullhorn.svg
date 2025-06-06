@@ -1,0 +1,18 @@
+<!-- bullhorn.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Horn body -->
+  <path
+    d="M12 28 L12 36 L28 40 L44 52 L44 12 L28 24 L12 28 Z"
+    fill="#90CAF9"
+    stroke="#1976D2"
+    stroke-width="2"
+    stroke-linejoin="round"
+  />
+
+  <!-- Handle -->
+  <rect x="18" y="42" width="6" height="14" rx="2" fill="#1976D2"/>
+
+  <!-- Sound waves -->
+  <path d="M50 20 C56 28, 56 36, 50 44" stroke="#0D47A1" stroke-width="2" fill="none"/>
+  <path d="M54 16 C62 28, 62 36, 54 48" stroke="#0D47A1" stroke-width="2" fill="none"/>
+</svg>

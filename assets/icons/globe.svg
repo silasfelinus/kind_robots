@@ -1,0 +1,16 @@
+<!-- globe.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Outer circle (Earth) -->
+  <circle cx="32" cy="32" r="28" fill="#81D4FA" stroke="#0277BD" stroke-width="2"/>
+
+  <!-- Latitude lines -->
+  <ellipse cx="32" cy="32" rx="22" ry="10" stroke="#01579B" stroke-width="1.5" fill="none"/>
+  <ellipse cx="32" cy="32" rx="22" ry="18" stroke="#01579B" stroke-width="1.5" fill="none"/>
+
+  <!-- Longitude lines -->
+  <path d="M32 4 C20 32, 20 32, 32 60" stroke="#01579B" stroke-width="1.5" fill="none"/>
+  <path d="M32 4 C44 32, 44 32, 32 60" stroke="#01579B" stroke-width="1.5" fill="none"/>
+
+  <!-- Equator line -->
+  <line x1="4" y1="32" x2="60" y2="32" stroke="#01579B" stroke-width="1.5"/>
+</svg>

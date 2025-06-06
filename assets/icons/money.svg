@@ -1,0 +1,6 @@
+<!-- money.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect x="4" y="16" width="56" height="32" rx="6" ry="6" fill="#4CAF50" stroke="#2E7D32" stroke-width="2"/>
+  <circle cx="32" cy="32" r="10" fill="#A5D6A7" stroke="#1B5E20" stroke-width="2"/>
+  <text x="32" y="36" font-size="16" font-weight="bold" text-anchor="middle" fill="#1B5E20" font-family="monospace">$</text>
+</svg>

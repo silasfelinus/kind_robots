@@ -22,7 +22,7 @@
         Dashboard
       </NuxtLink>
       <NuxtLink
-        v-if="isLoggedIn && store.role === 'admin'"
+        v-if="isLoggedIn && store.role === 'ADMIN'"
         to="/admin"
         class="text-accent underline text-sm mt-1"
       >

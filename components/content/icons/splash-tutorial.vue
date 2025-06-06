@@ -2,7 +2,7 @@
 
 <template>
   <div
-    v-if="pageStore.ready"
+    v-show="pageStore.ready"
     class="relative w-full min-h-[100dvh] overflow-y-auto rounded-2xl border-2 border-black z-20"
     ref="scrollContainer"
   >

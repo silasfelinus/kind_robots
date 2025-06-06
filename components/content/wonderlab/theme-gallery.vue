@@ -74,7 +74,7 @@
 import { ref, computed, watchEffect } from 'vue'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useHead } from '@unhead/vue'
+import { useHead } from '#imports'
 
 const themeStore = useThemeStore()
 const milestoneStore = useMilestoneStore()

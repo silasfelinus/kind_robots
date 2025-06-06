@@ -4,8 +4,8 @@
     <!-- Mobile View -->
     <div
       v-if="displayStore.isMobileViewport"
-      class="relative flex flex-col h-full w-full overflow-hidden"
-    >
+      class="relative flex flex-col h-full w-full"
+>
       <flip-panel :flipped="sidebarRightOpen">
         <template #front>
           <div class="absolute inset-0 overflow-y-auto overscroll-y-contain">

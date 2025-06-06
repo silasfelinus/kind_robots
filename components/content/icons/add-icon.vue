@@ -53,10 +53,10 @@
 // /components/content/icons/add-icon.vue
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { usesmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
+import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 
 const router = useRouter()
-const smartbarStore = usesmartbarStore()
+const smartbarStore = useSmartbarStore()
 
 const form: Partial<SmartIcon> = reactive({
   title: '',

@@ -89,8 +89,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { usesmartbarStore } from '@/stores/smartbarStore'
-const smartbarStore = usesmartbarStore()
+import { useSmartbarStore } from '@/stores/smartbarStore'
+const smartbarStore = useSmartbarStore()
 
 const scrollContainer = ref<HTMLElement | null>(null)
 const showLeft = ref(false)

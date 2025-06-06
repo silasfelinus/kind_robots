@@ -42,6 +42,47 @@
       </button>
     </div>
 
+    <!-- Advanced Filters -->
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 py-4 bg-base-200 border-b border-base-300"
+    >
+      <!-- Designer filter -->
+      <input
+        v-model="designerFilter"
+        type="text"
+        placeholder="Filter by designer"
+        class="input input-sm input-bordered w-full"
+      />
+
+      <!-- Keyword search -->
+      <input
+        v-model="keywordFilter"
+        type="text"
+        placeholder="Search keywords..."
+        class="input input-sm input-bordered w-full"
+      />
+
+      <!-- isPublic toggle -->
+      <label class="flex items-center space-x-2">
+        <input
+          v-model="showPublicOnly"
+          type="checkbox"
+          class="checkbox checkbox-sm"
+        />
+        <span>Public Only</span>
+      </label>
+
+      <!-- isMature toggle -->
+      <label class="flex items-center space-x-2">
+        <input
+          v-model="showMatureOnly"
+          type="checkbox"
+          class="checkbox checkbox-sm"
+        />
+        <span>Mature Only</span>
+      </label>
+    </div>
+
     <!-- Gallery Selector -->
     <div class="flex justify-center my-4 px-6">
       <gallery-selector v-model="selectedGalleryId" :galleries="galleries" />
@@ -75,6 +116,11 @@ const userStore = useUserStore()
 const artStore = useArtStore()
 const galleryStore = useGalleryStore()
 
+const designerFilter = ref('')
+const keywordFilter = ref('')
+const showPublicOnly = ref(false)
+const showMatureOnly = ref(false)
+
 // View settings
 const view = ref<'twoRow' | 'threeRow' | 'fourRow' | 'single'>('twoRow')
 const selectedGalleryId = ref<number | null>(null)
@@ -101,16 +147,47 @@ const sortedAndFilteredArt = computed(() => {
 const filteredArtAssets = computed(() => {
   let arts = artStore.art
 
+  // Gallery
   if (selectedGalleryId.value) {
-    arts = arts.filter((art: Art) => art.galleryId === selectedGalleryId.value)
+    arts = arts.filter((art) => art.galleryId === selectedGalleryId.value)
   }
 
-  arts = arts.filter((art: Art) => {
+  // Access check
+  arts = arts.filter((art) => {
     const isAccessible = art.isPublic || art.userId === userStore.userId
     const isViewable =
       userStore.showMature || (!art.isMature && art.userId === userStore.userId)
     return isAccessible && isViewable
   })
+
+  // Designer filter
+  if (designerFilter.value.trim()) {
+    arts = arts.filter((art) =>
+      art.designer
+        ?.toLowerCase()
+        .includes(designerFilter.value.trim().toLowerCase()),
+    )
+  }
+
+  // Keyword search (promptString or designer)
+  if (keywordFilter.value.trim()) {
+    const query = keywordFilter.value.toLowerCase()
+    arts = arts.filter(
+      (art) =>
+        art.promptString?.toLowerCase().includes(query) ||
+        art.designer?.toLowerCase().includes(query),
+    )
+  }
+
+  // Public only
+  if (showPublicOnly.value) {
+    arts = arts.filter((art) => art.isPublic)
+  }
+
+  // Mature only
+  if (showMatureOnly.value) {
+    arts = arts.filter((art) => art.isMature)
+  }
 
   return arts
 })

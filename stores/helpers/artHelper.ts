@@ -156,3 +156,45 @@ export async function fetchArtImagesByIds(
     return existingImages
   }
 }
+
+  export async function createCollection(label: string): Promise<void> {
+    const userId = userStore.userId
+    const response = await performFetch<ArtCollection>('/api/art/collection', {
+      method: 'POST',
+      body: JSON.stringify({ label, userId }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    if (!response.success || !response.data) throw new Error(response.message)
+    state.collections.push(response.data)
+    state.currentCollection = response.data
+  }
+
+  export async function deleteCollection(collectionId: number): Promise<void> {
+    const success = await collectionStore.deleteCollectionById(collectionId)
+    if (success) {
+      state.collections = state.collections.filter((c) => c.id !== collectionId)
+      if (isClient)
+        localStorage.setItem('collections', JSON.stringify(state.collections))
+    }
+  }
+
+  export async function removeArtFromCollection(artId: number, collectionId: number) {
+    const success = await collectionStore.removeArtFromCollectionServer(
+      collectionId,
+      artId,
+    )
+    if (success) {
+      const collection = collectionHelper.findCollectionById(
+        state.collections,
+        collectionId,
+      )
+      if (collection) {
+        collectionHelper.removeArtFromLocalCollection(collection, artId)
+      }
+    }
+  }
+
+  export function getUserCollections(userId: number): ArtCollection[] {
+    return state.collections.filter((c) => c.userId === userId)
+  }

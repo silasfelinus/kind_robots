@@ -1,8 +1,6 @@
 <!-- /components/content/themes/theme-gallery.vue -->
 <template>
   <div class="overflow-y-auto max-h-[calc(100vh-4rem)] px-4 py-6">
-    <style v-html="sharedThemeStyles" />
-
     <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- Default Themes -->
       <div>
@@ -73,9 +71,10 @@
 <script setup lang="ts">
 // /components/content/themes/theme-gallery.vue
 
-import { ref, computed } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useHead } from '@unhead/vue'
 
 const themeStore = useThemeStore()
 const milestoneStore = useMilestoneStore()
@@ -97,6 +96,17 @@ function handleSetTheme(theme: string | Theme) {
     }
   }
 }
+watchEffect(() => {
+  useHead({
+    style: [
+      {
+        key: 'custom-theme-preview',
+        tagPriority: 'low',
+        textContent: sharedThemeStyles.value,
+      },
+    ],
+  })
+})
 
 function editTheme(theme: Theme) {
   try {

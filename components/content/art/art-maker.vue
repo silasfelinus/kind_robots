@@ -49,6 +49,7 @@
         <ArtCard :art="art" />
       </div>
     </div>
+    <art-gallery />
   </div>
 </template>
 

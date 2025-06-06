@@ -1,492 +1,331 @@
+// /stores/userStore.ts
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import type { User } from '@prisma/client'
 import { performFetch, handleError } from './utils'
 import { useMilestoneStore } from './milestoneStore'
+import { useArtStore } from './artStore'
+import {
+  getFromLocalStorage,
+  saveToLocalStorage,
+  removeFromLocalStorage,
+  getUserNameByUserId,
+  getUserById,
+  userImage,
+  updateUserFields,
+  startLoading,
+  stopLoading,
+} from './helpers/userHelper'
 
-interface UserState {
-  user: User | null
-  token?: string
-  loading: boolean
-  lastError: string | null
-  stayLoggedIn: boolean
-  milestones: number[]
-  users: User[]
-  recipient: User | null
-  googleToken: boolean
-  initialized: boolean
-}
+export const useUserStore = defineStore('userStore', () => {
+  const user = ref<User | null>(null)
+  const token = ref<string | undefined>()
+  const loading = ref(false)
+  const lastError = ref<string | null>(null)
+  const stayLoggedIn = ref(true)
+  const milestones = ref<number[]>([])
+  const users = ref<User[]>([])
+  const recipient = ref<User | null>(null)
+  const googleToken = ref(false)
+  const initialized = ref(false)
 
-export const useUserStore = defineStore('userStore', {
-  state: (): UserState => ({
-    user: null,
-    token: undefined,
-    loading: false,
-    lastError: null,
-    stayLoggedIn: true,
-    milestones: [],
-    users: [],
-    recipient: null,
-    googleToken: false,
-    initialized: false,
-  }),
+  const isGuest = computed(() => !user.value || user.value.id === 10)
+  const isLoggedIn = computed(() => !!user.value && user.value.id !== 10)
+  const userId = computed(() => user.value?.id ?? 10)
+  const username = computed(() => user.value?.username ?? 'Kind Guest')
+  const karma = computed(() => user.value?.karma ?? 1000)
+  const mana = computed(() => user.value?.mana ?? 0)
+  const role = computed(() => user.value?.Role ?? 'USER')
+  const isAdmin = computed(() => user.value?.Role === 'ADMIN')
+  const avatarImage = computed(() => user.value?.avatarImage ?? 'default')
+  const apiKey = computed(() => user.value?.apiKey ?? null)
+  const showMature = computed(() => user.value?.showMature ?? false)
+  const matchRecord = computed(() => user.value?.matchRecord ?? 0)
+  const clickRecord = computed(() => user.value?.clickRecord ?? 0)
 
-  getters: {
-    isGuest(state): boolean {
-      return state.user === null || state.user?.id === 10
-    },
+  async function initialize(customToken?: string) {
+    if (initialized.value) return
+    initialized.value = true
 
-    karma(state): number {
-      return state.user ? state.user.karma : 1000
-    },
-    mana(state): number {
-      return state.user ? state.user.mana : 0
-    },
-    avatarImage(state): string {
-      return state.user?.avatarImage || 'default'
-    },
-    isLoggedIn(state): boolean {
-      return state.user !== null && state.user.id !== 10
-    },
+    await fetchUsers()
 
-    userId(state): number {
-      return state.user ? state.user.id : 10
-    },
-    username(state): string {
-      return state.user ? state.user.username : 'Kind Guest'
-    },
-    role(state): string {
-      return state.user?.Role || 'USER'
-    },
-    isAdmin(state): boolean {
-      return state.user?.Role === 'ADMIN'
-    },
-    apiKey(state): string | null {
-      return state.user?.apiKey || null
-    },
-    showMature(state): boolean {
-      return state.user?.showMature || false
-    },
-    matchRecord(state): number | null {
-      return state.user?.matchRecord || 0
-    },
-    clickRecord(state): number | null {
-      return state.user?.clickRecord || 0
-    },
-  },
-  actions: {
-    async initialize(customToken?: string) {
-      if (this.initialized) return
-      this.initialized = true
+    const storedToken = getFromLocalStorage('token')
+    const googleStored = getFromLocalStorage('googleToken')
+    const stay = getFromLocalStorage('stayLoggedIn') === 'true'
 
-      await this.fetchUsers()
+    setStayLoggedIn(stay)
+    if (googleStored) googleToken.value = true
 
-      const storedToken = this.getFromLocalStorage('token')
-      const googleToken = this.getFromLocalStorage('googleToken')
-      const stayLoggedIn = this.getFromLocalStorage('stayLoggedIn') === 'true'
-
-      this.setStayLoggedIn(stayLoggedIn)
-
-      const tokenToUse = customToken || googleToken || storedToken
-
-      if (googleToken) {
-        this.googleToken = true
+    const tokenToUse = customToken || googleStored || storedToken
+    if (tokenToUse) {
+      token.value = tokenToUse
+      const success = await validateAndFetchUserData()
+      if (!success) {
+        removeFromLocalStorage('token')
+        removeFromLocalStorage('googleToken')
+        token.value = undefined
+      } else if (customToken) {
+        saveToLocalStorage('token', customToken)
       }
+    }
+  }
 
-      if (tokenToUse) {
-        this.token = tokenToUse
-        const success = await this.validateAndFetchUserData()
+  async function fetchUsers() {
+    try {
+      const response = await performFetch<User[]>('/api/users')
+      if (response.success && response.data) users.value = response.data
+      else throw new Error(response.message)
+    } catch (error) {
+      handleError(error, 'fetching users')
+      users.value = []
+    }
+  }
 
-        if (!success) {
-          console.warn('[userStore] Token invalid on init. Clearing.')
-          this.removeFromLocalStorage('token')
-          this.removeFromLocalStorage('googleToken')
-          this.token = undefined
-        } else if (customToken) {
-          this.saveToLocalStorage('token', customToken)
-        }
-      }
-    },
-    async fetchUsers(): Promise<void> {
-      try {
-        const response = await performFetch<User[]>('/api/users')
-        if (response.success && response.data) {
-          this.users = response.data
-        } else {
-          throw new Error(response.message || 'Failed to fetch users')
-        }
-      } catch (error) {
-        handleError(error, 'fetching users')
-        this.users = [] // Reset to empty if there's an error
-      }
-    },
-    getUserNameByUserId(userId: number | null): string | null {
-      if (userId === null) {
-        return null
-      }
-      const user = this.users.find((user) => user.id === userId)
-      return user ? user.username : null
-    },
-    async getUsernames(): Promise<string[]> {
-      try {
-        const response = await performFetch<string[]>('/api/users/usernames')
-        if (response.success && response.data) {
-          return response.data // Access `usernames` directly
-        } else {
-          handleError(
-            new Error(response.message || 'Failed to fetch usernames'),
-            'fetching usernames',
-          )
-          return []
-        }
-      } catch (error) {
-        handleError(error, 'fetching usernames')
-        return []
-      }
-    },
-    getUserById(userId: number | null): User | null {
-      if (userId === null) {
-        return null
-      }
-      return this.users.find((user) => user.id === userId) || null
-    },
+  function setStayLoggedIn(val: boolean) {
+    stayLoggedIn.value = val
+    saveToLocalStorage('stayLoggedIn', val.toString())
+  }
 
-    async updateUserInList(updatedUser: User) {
-      if (!this.users.length && this.initialized) {
-        // If initialized and still no users, fetch once
-        console.warn(
-          '[userStore] Users list is empty. Fetching users before update...',
-        )
-        await this.fetchUsers()
-      }
+  function setGoogleToken(val: boolean) {
+    googleToken.value = val
+    setStayLoggedIn(true)
+    saveToLocalStorage('googleToken', val.toString())
+  }
 
-      const index = this.users.findIndex((user) => user.id === updatedUser.id)
+  function setToken(newToken: string) {
+    token.value = newToken || undefined
+    saveToLocalStorage('token', newToken)
+  }
 
-      if (index !== -1) {
-        this.users.splice(index, 1, updatedUser)
-        console.log('[userStore] Updated user in list:', updatedUser.username)
+  function logout() {
+    console.log('Logging out user.')
+    user.value = null
+    token.value = undefined
+    ;['token', 'user', 'stayLoggedIn'].forEach(removeFromLocalStorage)
+  }
+
+  async function login(credentials: { username: string; password?: string }) {
+    startLoading(setLoading)
+    try {
+      const res = await performFetch<User>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      })
+      if (res.success && res.data) {
+        await setUser(res.data)
+        token.value = res.data.token ?? undefined
+        if (stayLoggedIn.value && token.value)
+          saveToLocalStorage('token', token.value)
+        if (!res.data.token && token.value) await updateUserToken(token.value)
+        return { success: true }
       } else {
-        // Avoid pushing duplicates if fetchUsers failed or user not found
-        const exists = this.users.some((u) => u.id === updatedUser.id)
-        if (!exists) {
-          console.warn(
-            '[userStore] User not found in list after fetch. Adding to list:',
-            updatedUser.username,
-          )
-          this.users.push(updatedUser)
-        }
+        handleError(new Error(res.message || 'Login failed'), 'login')
+        return { success: false, message: res.message }
       }
-    },
-    async register(userData: {
-      username: string
-      email?: string
-      password?: string
-    }) {
-      try {
-        const response = await performFetch<{ user: User; token: string }>(
-          '/api/user/register',
-          {
-            method: 'POST',
-            body: JSON.stringify(userData),
-          },
-        )
+    } catch (e) {
+      handleError(e, 'login')
+      return { success: false, message: 'An unknown error occurred' }
+    } finally {
+      stopLoading(setLoading)
+    }
+  }
 
-        if (response.success && response.data?.user && response.data?.token) {
-          this.user = response.data.user
-          this.token = response.data.token
-          return {
-            success: true,
-            user: response.data.user,
-            token: response.data.token,
-          }
-        } else {
-          console.warn('Registration failed:', response.message)
-          handleError(
-            new Error(response.message || 'Unknown registration error'),
-            'registering user',
-          )
-          return { success: false, message: response.message }
-        }
-      } catch (error) {
-        handleError(error, 'registering user')
-        return { success: false, message: 'An unknown error occurred' }
-      }
-    },
-    setStayLoggedIn(value: boolean) {
-      if (this.stayLoggedIn !== value) {
-        this.stayLoggedIn = value
-        this.saveToLocalStorage('stayLoggedIn', value.toString())
-        console.log('Updated stayLoggedIn in localStorage:', value)
-      }
-    },
-
-    async validateAndFetchUserData(): Promise<boolean> {
-      if (!this.token) return false
-
-      try {
-        const response = await performFetch<User>('/api/auth/validate/token', {
+  async function register(userData: {
+    username: string
+    email?: string
+    password?: string
+  }) {
+    try {
+      const res = await performFetch<{ user: User; token: string }>(
+        '/api/user/register',
+        {
           method: 'POST',
-          body: JSON.stringify({ token: this.token }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
+          body: JSON.stringify(userData),
+        },
+      )
+      if (res.success && res.data) {
+        user.value = res.data.user
+        token.value = res.data.token
+        return res
+      } else {
+        handleError(new Error(res.message), 'register')
+        return { success: false, message: res.message }
+      }
+    } catch (e) {
+      handleError(e, 'register')
+      return { success: false, message: 'Unknown error' }
+    }
+  }
 
-        if (response.success && response.data) {
-          await this.setUser(response.data)
-
-          if (this.stayLoggedIn && this.token) {
-            this.saveToLocalStorage('token', this.token)
-          }
-
-          return true
-        } else {
-          handleError(
-            new Error(response.message || 'Invalid token'),
-            'validating user',
-          )
-          this.lastError = response.message || 'Invalid token'
-          return false
-        }
-      } catch (error) {
-        handleError(error, 'validating user')
-        this.lastError = 'An error occurred while validating user'
+  async function validateAndFetchUserData(): Promise<boolean> {
+    if (!token.value) return false
+    try {
+      const res = await performFetch<User>('/api/auth/validate/token', {
+        method: 'POST',
+        body: JSON.stringify({ token: token.value }),
+        headers: { 'Content-Type': 'application/json' },
+      })
+      if (res.success && res.data) {
+        await setUser(res.data)
+        if (stayLoggedIn.value && token.value)
+          saveToLocalStorage('token', token.value)
+        return true
+      } else {
+        lastError.value = res.message || 'Invalid token'
         return false
       }
-    },
+    } catch (e) {
+      lastError.value = 'Validation error'
+      return false
+    }
+  }
 
-    async updateKarmaAndMana(): Promise<{ success: boolean; message: string }> {
-      try {
-        const milestoneStore = useMilestoneStore()
-        await Promise.all([
-          milestoneStore.fetchMilestones(),
-          milestoneStore.fetchMilestoneRecords(),
-        ])
-        const milestoneCount = milestoneStore.milestoneCountForUser
-        const updatedKarma = milestoneCount * 1000
-        const updatedMana = milestoneCount
-
-        const response = await performFetch<User>(`/api/users/${this.userId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ karma: updatedKarma, mana: updatedMana }),
-        })
-
-        if (response.success && response.data) {
-          this.user = {
-            ...response.data, // Use the updated user data from response
-            karma: updatedKarma,
-            mana: updatedMana,
-          }
-          this.updateUserFields(this.userId, {
-            karma: updatedKarma,
-            mana: updatedMana,
-          })
-          return {
-            success: true,
-            message: 'Successfully updated karma and mana.',
-          }
-        } else {
-          handleError(
-            new Error(response.message || 'Failed to update karma and mana.'),
-            'updating karma and mana',
-          )
-          return { success: false, message: 'Failed to update karma and mana.' }
-        }
-      } catch (error) {
-        handleError(error, 'updating karma and mana')
-        return { success: false, message: 'An unknown error occurred' }
-      }
-    },
-
-    async setUser(userData: User): Promise<void> {
-      this.user = userData
-
-      // Only update list if already initialized
-      if (this.initialized) {
-        this.updateUserInList(userData)
-      }
-    },
-
-    async updateUserInfo(updatedUserInfo: Partial<User>) {
-      const response = await performFetch<User>(`/api/users/${this.userId}`, {
+  async function updateUserToken(newToken: string) {
+    try {
+      const res = await performFetch<User>(`/api/users/${userId.value}`, {
         method: 'PATCH',
-        body: JSON.stringify(updatedUserInfo),
+        body: JSON.stringify({ token: newToken }),
       })
-      if (response.success && response.data) {
-        await this.setUser(response.data)
-        await this.fetchUsers() // Refresh the users array
-      }
-    },
-    updateUserFields(userId: number, fields: Partial<User>) {
-      const index = this.users.findIndex((user) => user.id === userId)
-      if (index !== -1) {
-        const updatedUser = { ...this.users[index], ...fields }
-        this.users.splice(index, 1, updatedUser)
+      if (res.success && res.data) await setUser(res.data)
+    } catch (e) {
+      handleError(e, 'updateUserToken')
+    }
+  }
+
+  async function setUser(u: User) {
+    user.value = u
+    if (initialized.value) updateUserInList(u)
+  }
+
+  function updateUserInList(u: User) {
+    const index = users.value.findIndex((x) => x.id === u.id)
+    if (index !== -1) users.value.splice(index, 1, u)
+    else users.value.push(u)
+  }
+
+  async function updateUser(fields: Partial<User>) {
+    if (!user.value) return
+    try {
+      const res = await performFetch(`/api/users/${user.value.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fields),
+      })
+      if (res.success && res.data) {
+        user.value = { ...user.value, ...fields }
       } else {
-        console.warn('User not found in list for partial update:', userId)
+        throw new Error(res.message)
       }
-    },
-    async updateUser(fields: Partial<User>) {
-      if (!this.user) return
+    } catch (error) {
+      handleError(error, 'updateUser')
+    }
+  }
 
-      try {
-        const res = await performFetch(`/api/users/${this.user.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(fields),
-        })
+  async function updateUserInfo(info: Partial<User>) {
+    const res = await performFetch<User>(`/api/users/${userId.value}`, {
+      method: 'PATCH',
+      body: JSON.stringify(info),
+    })
+    if (res.success && res.data) {
+      await setUser(res.data)
+      await fetchUsers()
+    }
+  }
 
-        if (res.success && res.data) {
-          this.user = { ...this.user, ...fields }
-          console.log('[userStore] Updated user fields:', fields)
-        } else {
-          throw new Error(res.message || 'Failed to update user')
-        }
-      } catch (error) {
-        handleError(error, 'userStore:updateUser')
-      }
-    },
+  async function updateKarmaAndMana() {
+    try {
+      const milestoneStore = useMilestoneStore()
+      await Promise.all([
+        milestoneStore.fetchMilestones(),
+        milestoneStore.fetchMilestoneRecords(),
+      ])
+      const count = milestoneStore.milestoneCountForUser
+      const updatedKarma = count * 1000
+      const updatedMana = count
 
-    async login(credentials: {
-      username: string
-      password?: string
-    }): Promise<{ success: boolean; message?: string }> {
-      this.startLoading()
-
-      try {
-        const response = await performFetch<User>('/api/auth/login', {
-          method: 'POST',
-          body: JSON.stringify(credentials),
-        })
-
-        if (response.success && response.data) {
-          await this.setUser(response.data)
-          this.token = response.data.token ?? undefined
-
-          // Save the token if it's the first login or stayLoggedIn is true
-          if (this.stayLoggedIn && this.token) {
-            this.saveToLocalStorage('token', this.token)
-          }
-
-          // Update the user's database entry with the token if it's missing
-          if (!response.data.token && this.token) {
-            await this.updateUserToken(this.token)
-          }
-
-          return { success: true }
-        } else {
-          console.warn('Login failed:', response.message)
-          handleError(
-            new Error(response.message || 'Unknown login error'),
-            'logging in',
-          )
-          return { success: false, message: response.message }
-        }
-      } catch (error) {
-        handleError(error, 'logging in')
-        return { success: false, message: 'An unknown error occurred' }
-      } finally {
-        this.stopLoading()
-      }
-    },
-    async updateUserToken(newToken: string): Promise<void> {
-      try {
-        const response = await performFetch<User>(`/api/users/${this.userId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ token: newToken }),
-        })
-
-        if (response.success && response.data) {
-          await this.setUser(response.data)
-          console.log('User token successfully updated in the database.')
-        } else {
-          handleError(
-            new Error(response.message || 'Error updating token'),
-            'updating user token',
-          )
-        }
-      } catch (error) {
-        handleError(error, 'updating user token')
-      }
-    },
-
-    setGoogleToken(value: boolean) {
-      this.googleToken = value
-      this.setStayLoggedIn(true)
-      this.saveToLocalStorage('googleToken', value.toString())
-      console.log('Google login preference updated:', value)
-    },
-
-    logout(): void {
-      console.log('Logging out user.')
-      this.user = null
-      this.token = undefined // Clear the in-memory token
-
-      // Log and clear localStorage keys
-      ;['token', 'user', 'stayLoggedIn'].forEach((key) => {
-        const value = localStorage.getItem(key)
-        console.log(`${key} before clearing:`, value)
-        localStorage.removeItem(key)
+      const res = await performFetch<User>(`/api/users/${userId.value}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ karma: updatedKarma, mana: updatedMana }),
       })
 
-      // Confirm localStorage is cleared
-      console.log('LocalStorage state after logout:', {
-        token: localStorage.getItem('token'),
-        user: localStorage.getItem('user'),
-        stayLoggedIn: localStorage.getItem('stayLoggedIn'),
-      })
-    },
-
-    setToken(newToken: string): void {
-      this.token = newToken || undefined
-      this.saveToLocalStorage('token', newToken)
-    },
-
-    startLoading() {
-      this.loading = true
-    },
-
-    stopLoading() {
-      this.loading = false
-    },
-
-    saveToLocalStorage(key: string, value: string) {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(key, value)
+      if (res.success && res.data) {
+        user.value = { ...res.data, karma: updatedKarma, mana: updatedMana }
+        users.value = updateUserFields(users.value, userId.value, {
+          karma: updatedKarma,
+          mana: updatedMana,
+        })
+        return { success: true, message: 'Karma and mana updated.' }
+      } else {
+        throw new Error(res.message)
       }
-    },
+    } catch (e) {
+      handleError(e, 'updateKarmaAndMana')
+      return { success: false, message: 'Failed to update karma and mana.' }
+    }
+  }
 
-    removeFromLocalStorage(key: string) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem(key)
-        console.log('removed ', key)
-      }
-    },
+  async function getUsernames(): Promise<string[]> {
+    try {
+      const res = await performFetch<string[]>('/api/users/usernames')
+      return res.success && res.data ? res.data : []
+    } catch (e) {
+      handleError(e, 'getUsernames')
+      return []
+    }
+  }
 
-    async userImage(userId: number): Promise<string> {
-      const user = this.users.find((u) => u.id === userId)
+  async function userImageFromId(id: number): Promise<string> {
+    return await userImage(users.value, id)
+  }
 
-      if (!user) {
-        console.warn(`[userImage] No user found for ID ${userId}`)
-        return '/images/kindart.webp'
-      }
+  function setLoading(val: boolean) {
+    loading.value = val
+  }
 
-      if (!user.artImageId) {
-        return user.avatarImage || '/images/kindart.webp'
-      }
-
-      const artStore = useArtStore()
-      try {
-        const artImage = await artStore.getArtImageById(user.artImageId)
-        return artImage?.imageData || '/images/kindart.webp'
-      } catch (error) {
-        console.error('[userImage] Error fetching art image:', error)
-        return '/images/kindart.webp'
-      }
-    },
-    getFromLocalStorage(key: string): string | null {
-      return typeof window !== 'undefined' ? localStorage.getItem(key) : null
-    },
-  },
+  return {
+    user,
+    token,
+    loading,
+    lastError,
+    stayLoggedIn,
+    milestones,
+    users,
+    recipient,
+    googleToken,
+    initialized,
+    isGuest,
+    isLoggedIn,
+    userId,
+    username,
+    karma,
+    mana,
+    role,
+    isAdmin,
+    avatarImage,
+    apiKey,
+    showMature,
+    matchRecord,
+    clickRecord,
+    initialize,
+    login,
+    logout,
+    register,
+    fetchUsers,
+    getUsernames,
+    setUser,
+    setToken,
+    setGoogleToken,
+    setStayLoggedIn,
+    validateAndFetchUserData,
+    updateUser,
+    updateUserInfo,
+    updateUserToken,
+    updateKarmaAndMana,
+    userImageFromId,
+    getUserNameByUserId: (id: number | null) =>
+      getUserNameByUserId(users.value, id),
+    getUserById: (id: number | null) => getUserById(users.value, id),
+  }
 })
 
 export type { User }

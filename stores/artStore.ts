@@ -86,8 +86,6 @@ export const useArtStore = defineStore('artStore', () => {
     state.loading = true
     const collectionStore = useCollectionStore()
 
-    await Promise.all([collectionStore.fetchCollections(), fetchAllArt()])
-
     try {
       if (isClient) {
         state.art = artHelper.parseStoredArt(localStorage.getItem('art') || '')

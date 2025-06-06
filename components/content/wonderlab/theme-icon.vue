@@ -4,10 +4,7 @@
     @click="goToThemePage"
     class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
   >
-    <Icon
-      name="kind-icon:paintbrush"
-      class="w-full h-full"
-    />
+    <Icon name="kind-icon:paintbrush" class="w-full h-full" />
   </button>
 </template>
 
@@ -16,13 +13,13 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useThemeStore } from '@/stores/themeStore'
-import { useIconStore } from '@/stores/iconStore'
+import { usesmartIconStore } from '@/stores/smartIconStore'
 
 const router = useRouter()
 const themeStore = useThemeStore()
-const iconStore = useIconStore()
+const smartIconStore = usesmartIconStore()
 
-const isEditing = computed(() => iconStore.isEditing)
+const isEditing = computed(() => smartIconStore.isEditing)
 const navLabel = computed(() => themeStore.currentTheme)
 
 function goToThemePage() {

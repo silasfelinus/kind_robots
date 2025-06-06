@@ -205,3 +205,6 @@ Run cypress Tests:
 
  Run Single Cypress Test:
 npx cypress run --spec "cypress/e2e/api/users.cy.ts"
+
+Update Smart Icons
+node utils/scripts/updateKindIcons.js

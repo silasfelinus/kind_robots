@@ -47,48 +47,47 @@
       </div>
     </div>
 
-<!-- Delete Button with Confirmation -->
-<div
-  v-if="isEditing"
-  class="h-5 mt-2 w-full flex items-center justify-center"
->
-  <template v-if="confirmingDelete">
-    <button
-      class="text-xs bg-gray-300 text-black rounded-full px-1 md:px-2 py-0.5 hover:bg-gray-400 mr-1"
-      @click="confirmingDelete = false"
+    <!-- Delete Button with Confirmation -->
+    <div
+      v-if="isEditing"
+      class="h-5 mt-2 w-full flex items-center justify-center"
     >
-      Cancel
-    </button>
-    <button
-      class="text-xs bg-red-600 text-white rounded-full px-1 md:px-2  py-0.5 hover:bg-red-700"
-      @click="removeIcon"
+      <template v-if="confirmingDelete">
+        <button
+          class="text-xs bg-gray-300 text-black rounded-full px-1 md:px-2 py-0.5 hover:bg-gray-400 mr-1"
+          @click="confirmingDelete = false"
+        >
+          Cancel
+        </button>
+        <button
+          class="text-xs bg-red-600 text-white rounded-full px-1 md:px-2 py-0.5 hover:bg-red-700"
+          @click="removeIcon"
+        >
+          Confirm
+        </button>
+      </template>
+
+      <button
+        v-else
+        class="text-xs bg-red-500 text-white rounded-full px-1 md:px-2 py-0.5 hover:bg-red-600"
+        @click="confirmingDelete = true"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- Label -->
+    <div
+      v-else-if="!bigMode"
+      class="h-5 mt-2 w-full flex items-center justify-center pointer-events-none"
     >
-      Confirm
-    </button>
-  </template>
-
-  <button
-    v-else
-    class="text-xs bg-red-500 text-white rounded-full px-1 md:px-2  py-0.5 hover:bg-red-600"
-    @click="confirmingDelete = true"
-  >
-    ✕
-  </button>
-</div>
-
-<!-- Label -->
-<div
-  v-else-if="!bigMode"
-  class="h-5 mt-2 w-full flex items-center justify-center pointer-events-none"
->
-  <span
-    class="text-xs text-center text-base-content/70 truncate max-w-full"
-    :title="computedLabel"
-  >
-    {{ computedLabel }}
-  </span>
-</div>
-
+      <span
+        class="text-xs text-center text-base-content/70 truncate max-w-full"
+        :title="computedLabel"
+      >
+        {{ computedLabel }}
+      </span>
+    </div>
   </div>
 </template>
 
@@ -96,32 +95,31 @@
 // /components/content/icons/icon-display.vue
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useIconStore } from '@/stores/iconStore'
+import { usesmartIconStore } from '@/stores/smartIconStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import type { SmartIcon } from '@/stores/iconStore'
+import type { SmartIcon } from '@/stores/smartIconStore'
 
 const props = defineProps<{ icon: SmartIcon }>()
 
-const iconStore = useIconStore()
+const smartIconStore = usesmartIconStore()
 const displayStore = useDisplayStore()
 const themeStore = useThemeStore()
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 const route = useRoute()
 
-const isEditing = computed(() => iconStore.isEditing)
+const isEditing = computed(() => smartIconStore.isEditing)
 const bigMode = computed(() => displayStore.bigMode)
 
 const confirmingDelete = ref(false)
 
 function removeIcon() {
-  iconStore.removeFromEditableIcons(props.icon.id)
+  smartIconStore.removeFromEditableIcons(props.icon.id)
   confirmingDelete.value = false
 }
-
 
 const isActiveRoute = computed(
   () => props.icon.link && route.path.startsWith(props.icon.link),
@@ -140,7 +138,7 @@ const computedLabel = computed(() => {
     case 'jellybean-icon':
       return `${milestoneStore.milestoneCountForUser || 0} /11`
     case 'swarm-icon':
-      return iconStore.showSwarm ? iconStore.swarmMessage : 'Swarm'
+      return smartIconStore.showSwarm ? smartIconStore.swarmMessage : 'Swarm'
     default:
       return ''
   }

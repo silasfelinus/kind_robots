@@ -53,10 +53,10 @@
 // /components/content/icons/add-icon.vue
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useIconStore, type SmartIcon } from '@/stores/iconStore'
+import { usesmartIconStore, type SmartIcon } from '@/stores/smartIconStore'
 
 const router = useRouter()
-const iconStore = useIconStore()
+const smartIconStore = usesmartIconStore()
 
 const form: Partial<SmartIcon> = reactive({
   title: '',
@@ -73,12 +73,12 @@ async function handleSubmit() {
   form.type = 'nav'
   if (!form.title || !form.icon) return
 
-  const result = await iconStore.createIcon(form)
+  const result = await smartIconStore.createIcon(form)
 
   if (result.success) {
     const data = result.data as SmartIcon
     if (data?.id) {
-      iconStore.addIconToSmartBar(data.id)
+      smartIconStore.addIconToSmartBar(data.id)
       router.push('/icongallery')
     }
   }

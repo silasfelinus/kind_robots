@@ -13,13 +13,13 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useThemeStore } from '@/stores/themeStore'
-import { usesmartIconStore } from '@/stores/smartIconStore'
+import { usesmartbarStore } from '@/stores/smartbarStore'
 
 const router = useRouter()
 const themeStore = useThemeStore()
-const smartIconStore = usesmartIconStore()
+const smartbarStore = usesmartbarStore()
 
-const isEditing = computed(() => smartIconStore.isEditing)
+const isEditing = computed(() => smartbarStore.isEditing)
 const navLabel = computed(() => themeStore.currentTheme)
 
 function goToThemePage() {

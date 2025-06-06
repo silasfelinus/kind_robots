@@ -1,0 +1,12 @@
+<!-- flash.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Lightning bolt -->
+  <path
+    d="M36 4 L12 36 H28 L24 60 L52 28 H36 L36 4 Z"
+    fill="#FFEB3B"
+    stroke="#FBC02D"
+    stroke-width="2"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  />
+</svg>

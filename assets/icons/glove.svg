@@ -1,0 +1,27 @@
+<!-- glove.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Thumb -->
+  <path
+    d="M20 24 C16 28, 16 36, 22 38 L26 34 C22 32, 22 28, 24 24 Z"
+    fill="#FFE082"
+    stroke="#F9A825"
+    stroke-width="2"
+    stroke-linejoin="round"
+  />
+
+  <!-- Fingers -->
+  <path
+    d="M28 14 V28 M34 12 V28 M40 14 V28 M46 16 V28"
+    stroke="#F9A825"
+    stroke-width="4"
+    stroke-linecap="round"
+  />
+
+  <!-- Palm -->
+  <path
+    d="M24 28 H48 C50 28, 52 30, 52 32 V50 C52 52, 50 54, 48 54 H26 C22 54, 20 50, 20 46 V36 C20 32, 22 28, 24 28 Z"
+    fill="#FFD54F"
+    stroke="#F57F17"
+    stroke-width="2"
+  />
+</svg>

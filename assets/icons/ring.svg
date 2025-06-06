@@ -1,0 +1,12 @@
+<!-- ring.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Ring band -->
+  <circle cx="32" cy="40" r="16" stroke="#FFD700" stroke-width="4" fill="#FFF8E1"/>
+
+  <!-- Gem base -->
+  <polygon points="24,24 32,8 40,24" fill="#81D4FA" stroke="#0288D1" stroke-width="2"/>
+
+  <!-- Gem facets -->
+  <line x1="32" y1="8" x2="32" y2="24" stroke="#0288D1" stroke-width="1.5"/>
+  <line x1="28" y1="16" x2="36" y2="16" stroke="#0288D1" stroke-width="1.5"/>
+</svg>

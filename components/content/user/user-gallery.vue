@@ -110,14 +110,8 @@ async function fetchArtImages(artIds: number[]) {
   )
   if (uncachedIds.length === 0) return
 
-  const updateImages = (newImages: ArtImage[]) => {
-    newImages.forEach((img) => {
-      artImages.value[img.id] = img.imageData || '/images/kindtitle.webp'
-    })
-  }
-
   try {
-    await artStore.getArtImagesByIds(uncachedIds, currentImages, updateImages)
+    await artStore.getArtImagesByIds(uncachedIds)
   } catch (error) {
     console.error('Failed to fetch batch art images', error)
   }

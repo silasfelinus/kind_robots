@@ -1,0 +1,13 @@
+<!-- music.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Note stems -->
+  <rect x="22" y="12" width="4" height="30" fill="#6A1B9A"/>
+  <rect x="38" y="18" width="4" height="24" fill="#6A1B9A"/>
+
+  <!-- Note heads -->
+  <circle cx="24" cy="46" r="6" fill="#BA68C8" stroke="#4A148C" stroke-width="2"/>
+  <circle cx="40" cy="42" r="6" fill="#BA68C8" stroke="#4A148C" stroke-width="2"/>
+
+  <!-- Beam connecting stems -->
+  <path d="M26 12 C35 10, 45 14, 42 18 L38 18 C40 15, 30 13, 26 14 Z" fill="#4A148C"/>
+</svg>

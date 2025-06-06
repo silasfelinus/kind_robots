@@ -1,0 +1,23 @@
+<!-- feather.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Feather body -->
+  <path
+    d="M50 10 C35 8, 20 22, 16 40 C14 48, 20 54, 28 50 C36 46, 48 34, 54 20 C56 14, 54 10, 50 10 Z"
+    fill="#B3E5FC"
+    stroke="#0288D1"
+    stroke-width="2"
+  />
+
+  <!-- Feather spine -->
+  <path
+    d="M18 46 L46 18"
+    stroke="#0277BD"
+    stroke-width="2"
+    stroke-linecap="round"
+  />
+
+  <!-- Side barbs -->
+  <path d="M24 40 L32 32" stroke="#81D4FA" stroke-width="1.5"/>
+  <path d="M20 36 L28 28" stroke="#81D4FA" stroke-width="1.5"/>
+  <path d="M22 48 L34 36" stroke="#81D4FA" stroke-width="1.5"/>
+</svg>

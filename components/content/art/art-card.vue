@@ -81,6 +81,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useArtStore } from './../../../stores/artStore'
+import { useCollectionStore } from './../../../stores/collectionStore'
 import { useUserStore } from './../../../stores/userStore'
 import * as artHelper from '@/stores/helpers/artHelper'
 
@@ -99,6 +100,7 @@ const hasImage = computed(
 
 const artStore = useArtStore()
 const userStore = useUserStore()
+const collectionStore = useCollectionStore()
 
 const canDelete = computed(() => {
   return props.art.userId === userStore.userId || userStore.isAdmin
@@ -153,7 +155,7 @@ const setAsAvatar = async () => {
     await userStore.updateUserInfo({
       artImageId: props.art.artImageId,
     })
-    await artStore.addArtToCollection({
+    await collectionStore.addArtToCollection({
       artId: props.art.id,
       label: 'avatars',
     })

@@ -115,15 +115,15 @@ export function sortArtByDate(artList: Art[]): Art[] {
  */
 export async function getArtImagesByIds(
   imageIds: number[],
-  currentImages: ArtImage[],
-  updateImages: (newImages: ArtImage[]) => void,
 ): Promise<ArtImage[]> {
+  const store = useArtStore()
+
   const uncached = imageIds.filter(
-    (id) => !currentImages.some((img) => img.id === id),
+    (id) => !store.artImages.some((img) => img.id === id),
   )
 
   if (!uncached.length) {
-    return currentImages.filter((img) => imageIds.includes(img.id))
+    return store.artImages.filter((img) => imageIds.includes(img.id))
   }
 
   try {
@@ -134,10 +134,8 @@ export async function getArtImagesByIds(
     })
 
     if (response.success && response.data) {
-      updateImages([...currentImages, ...response.data])
-      return [...currentImages, ...response.data].filter((img) =>
-        imageIds.includes(img.id),
-      )
+      store.artImages.push(...response.data)
+      return [...store.artImages].filter((img) => imageIds.includes(img.id))
     } else {
       throw new Error(response.message)
     }

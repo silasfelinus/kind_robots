@@ -7,6 +7,25 @@ import { useArtStore } from '@/stores/artStore'
 
 const artStore = useArtStore()
 
+export interface GenerateArtData {
+  title?: string
+  promptString: string
+  userId?: number
+  pitchId?: number
+  galleryId?: number
+  checkpoint?: string
+  sampler?: string
+  steps?: number
+  designer?: string
+  cfg?: number
+  cfgHalf?: boolean
+  isMature?: boolean
+  isPublic?: boolean
+  pitch?: string
+  artImageId?: number
+  collection?: string
+}
+
 /**
  * Parse stored Art[] from localStorage string.
  */

@@ -1,7 +1,14 @@
 // /stores/helpers/pitchHelper.ts
 
 import type { Pitch } from '@prisma/client'
-import { PitchType } from '@/stores/pitchStore'
+
+export enum PitchType {
+  ARTPITCH = 'ARTPITCH',
+  BRAINSTORM = 'BRAINSTORM',
+  RANDOMLIST = 'RANDOMLIST',
+  TITLE = 'TITLE',
+  WEIRDLANDIA = 'WEIRDLANDIA',
+}
 
 // === Random Entry Logic ===
 

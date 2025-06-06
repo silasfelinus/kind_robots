@@ -17,17 +17,10 @@ import {
   buildPitchPayload,
   parsePitchType,
   isValidPitch,
+  PitchType,
 } from './helpers/pitchHelper'
 
 export type { Pitch }
-
-export enum PitchType {
-  ARTPITCH = 'ARTPITCH',
-  BRAINSTORM = 'BRAINSTORM',
-  RANDOMLIST = 'RANDOMLIST',
-  TITLE = 'TITLE',
-  WEIRDLANDIA = 'WEIRDLANDIA',
-}
 
 export const usePitchStore = defineStore('pitchStore', () => {
   const isClient = typeof window !== 'undefined'

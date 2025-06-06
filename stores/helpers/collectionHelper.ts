@@ -1,21 +1,15 @@
 // /stores/helpers/collectionHelper.ts
 import type { ArtCollection as PrismaArtCollection, Art } from '@prisma/client'
-import { useUserStore } from './../userStore'
-import { useArtStore } from '@/stores/artStore'
-import { useCollectionStore } from '@/stores/collectionStore'
 import { performFetch } from '@/stores/utils'
 
-const userStore = useUserStore()
-const artStore = useArtStore()
-const collectionStore = useCollectionStore()
-
-const state = collectionStore
-const isClient = typeof window !== 'undefined'
-
-// Extend Prisma's type to include `art: Art[]`
 export interface ArtCollection extends PrismaArtCollection {
   art: Art[]
 }
+
+// Lazy store access to avoid circular imports
+const getUserStore = () => useUserStore()
+const getArtStore = () => useArtStore()
+const getCollectionStore = () => useCollectionStore()
 
 export function addArtToCollectionLocal(
   collection: ArtCollection,
@@ -27,14 +21,22 @@ export function addArtToCollectionLocal(
 }
 
 export async function fetchUncollectedArt() {
-  return getUncollectedArt(userStore.userId, artStore.art, state.collections)
+  const userStore = getUserStore()
+  const artStore = getArtStore()
+  const collectionStore = getCollectionStore()
+  return getUncollectedArt(
+    userStore.userId,
+    artStore.art,
+    collectionStore.collections,
+  )
 }
 
 export async function getOrCreateGeneratedArtCollection(
   userId: number,
 ): Promise<ArtCollection> {
+  const store = getCollectionStore()
   let collection = findCollectionByUserAndLabel(
-    state.collections,
+    store.collections,
     userId,
     'Generated Art',
   )
@@ -46,35 +48,33 @@ export async function getOrCreateGeneratedArtCollection(
     })
     if (!response.success || !response.data) throw new Error(response.message)
     collection = response.data
-    state.collections.push(collection)
+    store.collections.push(collection)
   }
   return collection
 }
 
 export async function createCollection(label: string): Promise<void> {
-  const userStore = useUserStore()
-  const userId = userStore.userId
+  const userStore = getUserStore()
+  const store = getCollectionStore()
   const response = await performFetch<ArtCollection>('/api/art/collection', {
     method: 'POST',
-    body: JSON.stringify({ label, userId }),
+    body: JSON.stringify({ label, userId: userStore.userId }),
     headers: { 'Content-Type': 'application/json' },
   })
 
   if (!response.success || !response.data) throw new Error(response.message)
-  state.collections.push(response.data)
-  state.currentCollection = response.data
+  store.collections.push(response.data)
+  store.currentCollection = response.data
 }
 
 export async function removeArtFromCollection(
   artId: number,
   collectionId: number,
 ) {
-  const success = await collectionStore.removeArtFromCollectionServer(
-    collectionId,
-    artId,
-  )
+  const store = getCollectionStore()
+  const success = await store.removeArtFromCollectionServer(collectionId, artId)
   if (success) {
-    const collection = findCollectionById(state.collections, collectionId)
+    const collection = findCollectionById(store.collections, collectionId)
     if (collection) {
       removeArtFromLocalCollection(collection, artId)
     }
@@ -82,7 +82,7 @@ export async function removeArtFromCollection(
 }
 
 export function getUserCollections(userId: number): ArtCollection[] {
-  return state.collections.filter((c: ArtCollection) => c.userId === userId)
+  return getCollectionStore().collections.filter((c) => c.userId === userId)
 }
 
 export async function addArtToCollection({
@@ -94,21 +94,28 @@ export async function addArtToCollection({
   collectionId?: number
   label?: string
 }) {
-  const userId = userStore.userId
+  const userStore = getUserStore()
+  const artStore = getArtStore()
+  const collectionStore = getCollectionStore()
+
   let collection =
     collectionId != null
-      ? findCollectionById(state.collections, collectionId)
-      : findCollectionByUserAndLabel(state.collections, userId, label)
+      ? findCollectionById(collectionStore.collections, collectionId)
+      : findCollectionByUserAndLabel(
+          collectionStore.collections,
+          userStore.userId,
+          label,
+        )
 
   if (!collection) {
     const res = await performFetch<ArtCollection>('/api/art/collection', {
       method: 'POST',
-      body: JSON.stringify({ label, userId }),
+      body: JSON.stringify({ label, userId: userStore.userId }),
       headers: { 'Content-Type': 'application/json' },
     })
     if (!res.success || !res.data) throw new Error(res.message)
     collection = res.data
-    state.collections.push(collection)
+    collectionStore.collections.push(collection)
   }
 
   await performFetch(`/api/art/collection/${collection.id}`, {
@@ -117,22 +124,20 @@ export async function addArtToCollection({
     headers: { 'Content-Type': 'application/json' },
   })
 
-  const art = artStore.art.find((a: Art) => a.id === artId)
+  const art = artStore.art.find((a) => a.id === artId)
   if (art) addArtToCollectionLocal(collection, art)
 }
 
-// Delete a collection
 export async function deleteCollectionById(
   collectionId: number,
 ): Promise<boolean> {
+  const store = getCollectionStore()
   try {
     const response = await performFetch(`/api/art/collection/${collectionId}`, {
       method: 'DELETE',
     })
     if (!response.success) throw new Error(response.message)
-    state.collections = state.collections.filter(
-      (c: ArtCollection) => c.id !== collectionId,
-    )
+    store.collections = store.collections.filter((c) => c.id !== collectionId)
     return true
   } catch (error) {
     handleError(error, 'deleting collection')

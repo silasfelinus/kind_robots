@@ -95,7 +95,7 @@
 // /components/content/icons/icon-display.vue
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { usesmartbarStore } from '@/stores/smartbarStore'
+import { useSmartbarStore } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useUserStore } from '@/stores/userStore'
@@ -104,7 +104,7 @@ import type { SmartIcon } from '@/stores/smartbarStore'
 
 const props = defineProps<{ icon: SmartIcon }>()
 
-const smartbarStore = usesmartbarStore()
+const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const themeStore = useThemeStore()
 const userStore = useUserStore()

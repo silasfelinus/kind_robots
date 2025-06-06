@@ -13,11 +13,11 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useThemeStore } from '@/stores/themeStore'
-import { usesmartbarStore } from '@/stores/smartbarStore'
+import { useSmartbarStore } from '@/stores/smartbarStore'
 
 const router = useRouter()
 const themeStore = useThemeStore()
-const smartbarStore = usesmartbarStore()
+const smartbarStore = useSmartbarStore()
 
 const isEditing = computed(() => smartbarStore.isEditing)
 const navLabel = computed(() => themeStore.currentTheme)

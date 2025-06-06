@@ -24,7 +24,7 @@ import { useWeirdStore } from '../../../stores/weirdStore'
 import { useConsoleStore } from '../../../stores/consoleStore'
 import { useChoiceStore } from '../../../stores/choiceStore'
 import { useResonanceStore } from '../../../stores/resonanceStore'
-import { usesmartbarStore } from '../../../stores/smartbarStore'
+import { useSmartbarStore } from '../../../stores/smartbarStore'
 import { useComponentStore } from '../../../stores/componentStore'
 
 // Stores
@@ -47,7 +47,7 @@ const weirdStore = useWeirdStore()
 const consoleStore = useConsoleStore()
 const choiceStore = useChoiceStore()
 const resonanceStore = useResonanceStore()
-const smartbarStore = usesmartbarStore()
+const smartbarStore = useSmartbarStore()
 const componentStore = useComponentStore()
 
 // State management

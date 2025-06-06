@@ -48,9 +48,9 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
-import { usesmartbarStore } from '@/stores/smartbarStore'
+import { useSmartbarStore } from '@/stores/smartbarStore'
 
-const smartbarStore = usesmartbarStore()
+const smartbarStore = useSmartbarStore()
 const showSwarm = computed(() => smartbarStore.showSwarm)
 
 const displayStore = useDisplayStore()

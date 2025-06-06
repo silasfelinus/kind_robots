@@ -15,10 +15,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { usesmartbarStore } from '@/stores/smartbarStore'
+import { useSmartbarStore } from '@/stores/smartbarStore'
 
 const userStore = useUserStore()
-const smartbarStore = usesmartbarStore()
+const smartbarStore = useSmartbarStore()
 
 // Don't need storeToRefs; just use computed
 const isEditing = computed(() => smartbarStore.isEditing)

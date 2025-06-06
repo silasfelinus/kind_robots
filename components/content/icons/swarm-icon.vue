@@ -15,9 +15,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usesmartbarStore } from '@/stores/smartbarStore'
+import { useSmartbarStore } from '@/stores/smartbarStore'
 
-const smartbarStore = usesmartbarStore()
+const smartbarStore = useSmartbarStore()
 const showSwarm = computed(() => smartbarStore.showSwarm)
 
 const toggleAmiSwarm = () => {

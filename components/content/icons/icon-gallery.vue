@@ -76,10 +76,10 @@
 // /components/content/story/icon-gallery.vue
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { usesmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
+import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 import { useUserStore } from '@/stores/userStore'
 
-const smartbarStore = usesmartbarStore()
+const smartbarStore = useSmartbarStore()
 const userStore = useUserStore()
 
 const isAdmin = computed(() => userStore.isAdmin)

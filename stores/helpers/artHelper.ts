@@ -203,8 +203,3 @@ export async function getArtImagesByIds(
       handleError(error, 'updating artImageId')
     }
   }
-
-  
-  export function getArtImageByArtId(artId: number): ArtImage | undefined {
-    return state.artImages.find((image: ArtImage) => image.artId === artId)
-  }

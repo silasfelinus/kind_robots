@@ -1,7 +1,7 @@
 <!-- /components/content/art/add-art.vue -->
 <template>
   <div
-    class="bg-base-300 shadow-xl rounded-3xl border border-base-200 overflow-y-auto text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105 p-6 space-y-8"
+    class="bg-base-300 shadow-xl rounded-3xl border border-base-200 text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105 p-6 space-y-8"
   >
     <!-- Header -->
     <h1 class="text-3xl font-bold text-center text-primary">
@@ -26,24 +26,16 @@
     <!-- CFG Controls -->
     <div class="space-y-2">
       <label class="block font-semibold text-center">
-        🎚 CFG Scale: {{ displayCfg }}
+        🎚 CFG Scale: {{ localCfg }}
       </label>
       <input
         type="range"
         min="0"
         max="30"
-        step="1"
-        v-model="artStore.artForm.cfg"
+        step="0.5"
+        v-model="localCfg"
         class="range range-primary w-full"
       />
-      <div class="flex justify-center items-center space-x-2">
-        <input
-          type="checkbox"
-          class="toggle toggle-sm toggle-info"
-          v-model="artStore.artForm.cfgHalf"
-        />
-        <span class="label-text">Add 0.5</span>
-      </div>
     </div>
 
     <!-- Steps Slider -->
@@ -92,7 +84,17 @@
       <ArtCard v-for="art in generatedArt" :key="art.id" :art="art" />
     </div>
 
-    <art-gallery />
+    <!-- Art Gallery Toggle -->
+    <div class="pt-4 text-center">
+      <button
+        class="btn btn-sm btn-outline"
+        @click="showGallery = !showGallery"
+      >
+        {{ showGallery ? 'Hide Gallery' : 'Show Full Gallery' }}
+      </button>
+    </div>
+
+    <art-gallery v-if="showGallery" />
   </div>
 </template>
 
@@ -119,12 +121,17 @@ const localError = ref<string | null>(null)
 const isGenerating = ref(false)
 const loading = computed(() => artStore.loading)
 const lastError = computed(() => errorStore.getError)
+const showGallery = ref(false)
 
-const displayCfg = computed(() =>
-  artStore.artForm.cfgHalf
-    ? `${artStore.artForm.cfg}.5`
-    : `${artStore.artForm.cfg}`,
+// Local CFG with decimal
+const localCfg = ref<number>(
+  artStore.artForm.cfg + (artStore.artForm.cfgHalf ? 0.5 : 0)
 )
+
+watch(localCfg, (val) => {
+  artStore.artForm.cfg = Math.floor(val)
+  artStore.artForm.cfgHalf = val % 1 >= 0.5
+})
 
 const syncPrompt = () => {
   promptStore.syncToLocalStorage()

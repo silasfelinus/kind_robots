@@ -130,7 +130,7 @@ const localCfg = ref<number>(
 )
 
 const isFlux = computed(
-  () => checkpointStore.selectedCheckpoint?.generation === 'FLUX',
+  () => checkpointStore.selectedCheckpoint?.generation === 'Flux',
 )
 
 watch(isFlux, (flux) => {

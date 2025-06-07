@@ -1,11 +1,12 @@
-<!-- /components/content/art/checkpointGallery.vue -->
+<!-- /components/content/art/checkpoint-gallery.vue -->
 <template>
   <div class="p-6 max-w-2xl mx-auto space-y-6">
+    <!-- Header -->
     <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold">🎛️ Model & Sampler Config</h1>
+      <h1 class="text-2xl font-bold text-primary">🎛️ Model & Sampler Config</h1>
       <div v-if="userStore.isAdmin" class="form-control">
-        <label class="label cursor-pointer">
-          <span class="label-text mr-2">Show Mature</span>
+        <label class="label cursor-pointer space-x-2">
+          <span class="label-text">Show Mature</span>
           <input
             type="checkbox"
             class="toggle toggle-accent"
@@ -15,13 +16,34 @@
       </div>
     </div>
 
+    <!-- Active Backend Model Display -->
+    <div
+      class="border border-base-200 rounded-xl p-4 bg-base-100 flex justify-between items-center text-sm font-mono shadow-inner"
+    >
+      <div>
+        <span>🧠 Active Backend Model:</span>
+        <strong class="ml-1 text-primary">
+          {{ checkpointStore.currentApiModel || 'Loading...' }}
+        </strong>
+        <span
+          v-if="mismatchWarning"
+          class="ml-2 text-warning font-semibold"
+        >
+          (≠ selected)
+        </span>
+      </div>
+      <button class="btn btn-xs btn-outline" @click="refreshModel">
+        🔄 Refresh
+      </button>
+    </div>
+
     <!-- Checkpoint Select -->
     <div class="form-control">
       <label class="label">
         <span class="label-text font-semibold">Checkpoint</span>
       </label>
       <select
-        class="select select-bordered"
+        class="select select-bordered bg-base-200"
         v-model="selectedCheckpointName"
         @change="checkpointStore.selectCheckpointByName(selectedCheckpointName)"
       >
@@ -34,7 +56,7 @@
           {{ c.customLabel || c.name }}
           <span v-if="c.isMature">⚠️</span>
           <span v-if="c.name === checkpointStore.currentApiModel">
-            (selected)
+            (active)
           </span>
         </option>
       </select>
@@ -44,7 +66,7 @@
           selectedCheckpointName &&
           selectedCheckpointName !== checkpointStore.currentApiModel
         "
-        class="btn btn-sm mt-2 bg-info text-white hover:bg-info/80"
+        class="btn btn-sm mt-3 bg-info text-white hover:bg-info/90"
         @click="setModel"
       >
         🔁 Set as Active Model
@@ -57,7 +79,7 @@
         <span class="label-text font-semibold">Sampler</span>
       </label>
       <select
-        class="select select-bordered"
+        class="select select-bordered bg-base-200"
         v-model="selectedSamplerName"
         @change="checkpointStore.selectSamplerByName(selectedSamplerName)"
       >
@@ -75,6 +97,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/art/checkpointGallery.vue
 import { computed, onMounted } from 'vue'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useUserStore } from '@/stores/userStore'
@@ -99,6 +122,17 @@ const showMature = computed({
     await userStore.updateUser({ showMature: val })
   },
 })
+
+const mismatchWarning = computed(
+  () =>
+    selectedCheckpointName.value &&
+    checkpointStore.currentApiModel &&
+    selectedCheckpointName.value !== checkpointStore.currentApiModel,
+)
+
+const refreshModel = async () => {
+  await checkpointStore.fetchCurrentModelFromApi()
+}
 
 const setModel = async () => {
   if (!selectedCheckpointName.value) return

@@ -71,6 +71,9 @@ export const useArtStore = defineStore('artStore', () => {
       steps: 25,
       isMature: false,
       isPublic: true,
+      checkpoint: '',
+      sampler: '',
+      designer: '',
     },
   })
 

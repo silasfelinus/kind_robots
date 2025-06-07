@@ -33,7 +33,7 @@
         min="0"
         max="30"
         step="0.5"
-        v-model="localCfg"
+        v-model.number="localCfg"
         class="range range-primary w-full"
       />
     </div>
@@ -48,7 +48,7 @@
         min="5"
         max="50"
         step="1"
-        v-model="artStore.artForm.steps"
+        v-model.number="artStore.artForm.steps"
         class="range range-secondary w-full"
       />
     </div>

@@ -37,23 +37,12 @@ export const validCheckpoints: Partial<Resource>[] = [
     userId: 1,
   },
   {
-    name: 'hunyuan3d-dit-v2-mv-turbo.safetensors',
-    customLabel: 'hunyuan3d-dit-v2-mv-turbo',
-    localPath:
-      '/stable-diffusion-webui/models/Stable-diffusion/3d/hunyuan3d-dit-v2-mv-turbo.safetensors',
-    description: 'Auto-imported from 3d model folder.',
-    generation: '3d',
-    isMature: false,
-    resourceType: 'CHECKPOINT',
-    userId: 1,
-  },
-  {
     name: 'ponyFaetality_v11.safetensors',
     customLabel: 'ponyFaetality_v11',
     localPath:
       '/stable-diffusion-webui/models/Stable-diffusion/_Pony/ponyFaetality_v11.safetensors',
     description: 'Auto-imported from _Pony model folder.',
-    generation: '_Pony',
+    generation: 'Pony',
     isMature: true,
     resourceType: 'CHECKPOINT',
     userId: 1,

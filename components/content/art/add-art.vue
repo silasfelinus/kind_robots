@@ -24,7 +24,7 @@
     </div>
 
     <!-- CFG Controls -->
-    <div class="space-y-2">
+    <div v-if="!isFlux" class="space-y-2">
       <label class="block font-semibold text-center">
         🎚 CFG Scale: {{ localCfg }}
       </label>
@@ -108,7 +108,7 @@ import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
-import { useUserStoreStore } from '@/stores/userStore'
+import { useUserStore } from '@/stores/userStore'
 
 const artStore = useArtStore()
 const userStore = useUserStore()
@@ -125,10 +125,21 @@ const loading = computed(() => artStore.loading)
 const lastError = computed(() => errorStore.getError)
 const showGallery = ref(false)
 
-// Local CFG with decimal
 const localCfg = ref<number>(
-  artStore.artForm.cfg + (artStore.artForm.cfgHalf ? 0.5 : 0)
+  (artStore.artForm.cfg ?? 3) + (artStore.artForm.cfgHalf ? 0.5 : 0),
 )
+
+const isFlux = computed(
+  () => checkpointStore.selectedCheckpoint?.generation === 'FLUX',
+)
+
+watch(isFlux, (flux) => {
+  if (flux) {
+    artStore.artForm.cfg = 0
+    artStore.artForm.cfgHalf = false
+    localCfg.value = 0
+  }
+})
 
 watch(localCfg, (val) => {
   artStore.artForm.cfg = Math.floor(val)
@@ -149,7 +160,10 @@ watch(
 )
 
 const generatedArtCollection = computed(() =>
-  collectionStore.findCollectionByUserAndLabel(userStore.userId, 'Generated Art'),
+  collectionStore.findCollectionByUserAndLabel(
+    userStore.userId,
+    'Generated Art',
+  ),
 )
 
 const generatedArt = computed(() =>
@@ -191,7 +205,6 @@ const generateArt = async () => {
 }
 
 onMounted(async () => {
-
   if (!artStore.artForm.promptString) {
     artStore.artForm.promptString = promptStore.promptField
   }

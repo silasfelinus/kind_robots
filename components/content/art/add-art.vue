@@ -42,6 +42,7 @@
     <div v-if="generatedArt.length" class="space-y-4">
       <ArtCard v-for="art in generatedArt" :key="art.id" :art="art" />
     </div>
+  <art-gallery />
   </div>
 </template>
 

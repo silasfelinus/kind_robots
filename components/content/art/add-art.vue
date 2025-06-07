@@ -108,8 +108,10 @@ import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
+import { useUserStoreStore } from '@/stores/userStore'
 
 const artStore = useArtStore()
+const userStore = useUserStore()
 const promptStore = usePromptStore()
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()

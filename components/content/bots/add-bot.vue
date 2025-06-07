@@ -167,7 +167,8 @@ async function handleSubmit() {
     })
 
     if (botStore.selectedBotId) {
-      await botStore.updateBot(botStore.selectedBotId)
+      await botStore.updateCurrentBot()
+
       successMessage.value = 'Bot updated successfully!'
     } else {
       const newBot = await botStore.addBot(botStore.botForm)

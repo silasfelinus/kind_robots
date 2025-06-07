@@ -307,4 +307,5 @@ export const useArtStore = defineStore('artStore', () => {
   }
 })
 
+
 export type { Art, ArtImage }

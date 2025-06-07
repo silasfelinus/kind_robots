@@ -1,7 +1,7 @@
 <!-- /components/content/art/add-art.vue -->
 <template>
   <div
-    class="bg-base-300 shadow-xl rounded-3xl border border-base-200 overflow-y-auto text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105 p-6 space-y-6"
+    class="bg-base-300 shadow-xl rounded-3xl border border-base-200 overflow-y-auto text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105 p-6 space-y-8"
   >
     <!-- Header -->
     <h1 class="text-3xl font-bold text-center text-primary">
@@ -12,20 +12,69 @@
     <checkpoint-gallery />
 
     <!-- Prompt Input -->
-    <div>
+    <div class="space-y-2">
+      <label class="font-semibold text-base-content">📝 Prompt</label>
       <input
         v-model="promptStore.promptField"
         placeholder="Enter your creative prompt..."
         class="input input-bordered w-full text-lg bg-base-200 placeholder-gray-500 shadow-inner"
         :disabled="loading"
-        @input="savePrompt"
+        @input="syncPrompt"
+      />
+    </div>
+
+    <!-- CFG Controls -->
+    <div class="space-y-2">
+      <label class="block font-semibold text-center">
+        🎚 CFG Scale: {{ displayCfg }}
+      </label>
+      <input
+        type="range"
+        min="0"
+        max="30"
+        step="1"
+        v-model="artStore.artForm.cfg"
+        class="range range-primary w-full"
+      />
+      <div class="flex justify-center items-center space-x-2">
+        <input
+          type="checkbox"
+          class="toggle toggle-sm toggle-info"
+          v-model="artStore.artForm.cfgHalf"
+        />
+        <span class="label-text">Add 0.5</span>
+      </div>
+    </div>
+
+    <!-- Steps Slider -->
+    <div class="space-y-2">
+      <label class="block font-semibold text-center">
+        🧮 Steps: {{ artStore.artForm.steps }}
+      </label>
+      <input
+        type="range"
+        min="5"
+        max="50"
+        step="1"
+        v-model="artStore.artForm.steps"
+        class="range range-secondary w-full"
+      />
+    </div>
+
+    <!-- isPublic Toggle -->
+    <div class="flex items-center justify-center space-x-4">
+      <span class="font-semibold">🔓 Public?</span>
+      <input
+        type="checkbox"
+        class="toggle toggle-success"
+        v-model="artStore.artForm.isPublic"
       />
     </div>
 
     <!-- Generate Art Button -->
     <button
-      class="btn w-full font-semibold text-white"
-      :class="isGenerating ? 'bg-secondary' : 'bg-primary'"
+      class="btn w-full font-semibold text-white transition duration-300"
+      :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
       :disabled="isGenerating || !promptStore.promptField"
       @click="generateArt"
     >
@@ -33,7 +82,7 @@
     </button>
 
     <!-- Error Message -->
-    <div v-if="localError" class="text-error text-center">
+    <div v-if="localError" class="text-error text-center space-y-1">
       <p>{{ localError }}</p>
       <p v-if="lastError">{{ lastError }}</p>
     </div>
@@ -42,18 +91,21 @@
     <div v-if="generatedArt.length" class="space-y-4">
       <ArtCard v-for="art in generatedArt" :key="art.id" :art="art" />
     </div>
-  <art-gallery />
+
+    <art-gallery />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+// /components/content/art/add-art.vue
+import { ref, computed, onMounted, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useCollectionStore } from '@/stores/collectionStore'
+import { useCheckpointStore } from '@/stores/checkpointStore'
 
 const artStore = useArtStore()
 const promptStore = usePromptStore()
@@ -61,15 +113,31 @@ const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 const milestoneStore = useMilestoneStore()
 const collectionStore = useCollectionStore()
+const checkpointStore = useCheckpointStore()
 
 const localError = ref<string | null>(null)
 const isGenerating = ref(false)
 const loading = computed(() => artStore.loading)
 const lastError = computed(() => errorStore.getError)
 
-const savePrompt = () => {
+const displayCfg = computed(() =>
+  artStore.artForm.cfgHalf
+    ? `${artStore.artForm.cfg}.5`
+    : `${artStore.artForm.cfg}`,
+)
+
+const syncPrompt = () => {
   promptStore.syncToLocalStorage()
+  artStore.artForm.promptString = promptStore.promptField
 }
+
+watch(
+  () => checkpointStore.selectedCheckpoint?.isMature,
+  (isMature) => {
+    artStore.artForm.isMature = !!isMature
+  },
+  { immediate: true },
+)
 
 const generatedArtCollection = computed(() =>
   artStore.collections.find((c) => c.label === 'Generated Art'),
@@ -93,6 +161,8 @@ const generateArt = async () => {
     return
   }
 
+  artStore.artForm.promptString = promptStore.promptField
+
   try {
     const result = await artStore.generateArt()
     if (result.success) {
@@ -114,5 +184,9 @@ const generateArt = async () => {
 onMounted(async () => {
   await artStore.initialize()
   await collectionStore.fetchCollections()
+
+  if (!artStore.artForm.promptString) {
+    artStore.artForm.promptString = promptStore.promptField
+  }
 })
 </script>

@@ -147,7 +147,7 @@ watch(
 )
 
 const generatedArtCollection = computed(() =>
-  artStore.collections.find((c) => c.label === 'Generated Art'),
+  collectionStore.findCollectionByUserAndLabel(userStore.userId, 'Generated Art'),
 )
 
 const generatedArt = computed(() =>
@@ -189,8 +189,6 @@ const generateArt = async () => {
 }
 
 onMounted(async () => {
-  await artStore.initialize()
-  await collectionStore.fetchCollections()
 
   if (!artStore.artForm.promptString) {
     artStore.artForm.promptString = promptStore.promptField

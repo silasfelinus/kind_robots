@@ -1,3 +1,4 @@
+// /stores/artStore.ts
 import { defineStore } from 'pinia'
 import { reactive, toRefs } from 'vue'
 import type { Art, Reaction, ArtImage, Tag } from '@prisma/client'
@@ -16,7 +17,6 @@ import {
   getOrFetchArtImageById,
   updateArtImageId,
 } from '@/stores/helpers/artHelper'
-
 import { useCollectionStore } from './collectionStore'
 import { useCheckpointStore } from './checkpointStore'
 
@@ -41,6 +41,7 @@ interface ArtStoreState {
   uncollectedArt: Art[]
   currentCollection: ArtCollection | null
   generatedArt: Art[]
+  artForm: GenerateArtData
 }
 
 export const useArtStore = defineStore('artStore', () => {
@@ -63,17 +64,24 @@ export const useArtStore = defineStore('artStore', () => {
     uncollectedArt: [],
     currentCollection: null,
     generatedArt: [],
+    artForm: {
+      promptString: '',
+      cfg: 7,
+      cfgHalf: false,
+      steps: 25,
+      isMature: false,
+      isPublic: true,
+    },
   })
 
   const userStore = useUserStore()
-  const pitchStore = usePitchStore()
   const promptStore = usePromptStore()
+  const pitchStore = usePitchStore()
   const collectionStore = useCollectionStore()
 
   async function initialize() {
     if (state.isInitialized) return
     state.loading = true
-    const collectionStore = useCollectionStore()
 
     try {
       if (isClient) {
@@ -88,21 +96,20 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  function selectArt(artId: number): void {
-    const found = state.art.find((a) => a.id === artId)
-    if (!found)
-      return handleError(
-        new Error(`Art with ID ${artId} not found`),
-        'selecting art',
-      )
-    state.currentArt = found
-  }
-
   async function fetchAllArt() {
     const response = await performFetch<Art[]>('/api/art')
     if (!response.success || !response.data) throw new Error(response.message)
     state.art = response.data
     if (isClient) localStorage.setItem('art', JSON.stringify(state.art))
+  }
+
+  function selectArt(artId: number): void {
+    const found = state.art.find((a) => a.id === artId)
+    if (!found) {
+      handleError(new Error(`Art with ID ${artId} not found`), 'selecting art')
+      return
+    }
+    state.currentArt = found
   }
 
   async function getArtImageById(id: number): Promise<ArtImage | undefined> {
@@ -161,9 +168,8 @@ export const useArtStore = defineStore('artStore', () => {
       handleError(error, 'deleting art')
     }
   }
-  async function uploadImage(
-    formData: FormData,
-  ): Promise<{ success: boolean; message: string }> {
+
+  async function uploadImage(formData: FormData): Promise<{ success: boolean; message: string }> {
     try {
       const response = await performFetch<ArtImage>('/api/art/upload', {
         method: 'POST',
@@ -215,18 +221,19 @@ export const useArtStore = defineStore('artStore', () => {
         'stable-diffusion-v1-4',
       sampler:
         artData?.sampler || checkpointStore.selectedSampler?.name || 'k_lms',
-      steps: artData?.steps || 20,
+      steps: artData?.steps ?? state.artForm.steps,
       designer: artData?.designer || userStore.username || 'Kind Designer',
-      cfg: artData?.cfg || 2,
-      cfgHalf: artData?.cfgHalf || false,
-      isMature: artData?.isMature || false,
-      isPublic: artData?.isPublic || true,
+      cfg: artData?.cfg ?? state.artForm.cfg,
+      cfgHalf: artData?.cfgHalf ?? state.artForm.cfgHalf,
+      isMature: artData?.isMature ?? state.artForm.isMature,
+      isPublic: artData?.isPublic ?? state.artForm.isPublic,
     }
 
     data.promptString = promptStore.processPromptPlaceholders(
       data.promptString,
       pitchStore,
     )
+
     state.processedArtPrompt = data.promptString
 
     if (!promptStore.validatePromptString(data.promptString)) {
@@ -248,9 +255,7 @@ export const useArtStore = defineStore('artStore', () => {
       if (!response.success || !response.data) throw new Error(response.message)
 
       const collection =
-        await collectionStore.getOrCreateGeneratedArtCollection(
-          data.userId || 10,
-        )
+        await collectionStore.getOrCreateGeneratedArtCollection(data.userId || 10)
 
       await performFetch(`/api/art/collection/${collection.id}`, {
         method: 'PATCH',
@@ -296,10 +301,9 @@ export const useArtStore = defineStore('artStore', () => {
     updateArtImageId,
     updateArtImageWithArtId,
     getCachedArtImageById,
-    getArtImageByArtId,
-    createArt,
     getArtImageById,
     getOrFetchArtImageById,
+    createArt,
   }
 })
 

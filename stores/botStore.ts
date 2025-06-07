@@ -160,6 +160,13 @@ export const useBotStore = defineStore('botStore', () => {
     loadBotById,
     getBotImage,
     seedBots,
+    getBotById,
+
+    updateBot,
+
+    addBot,
+
+    addBots,
   }
 })
 

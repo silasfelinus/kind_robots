@@ -1,7 +1,5 @@
-<!-- /components/content/art/checkpoint-gallery.vue -->
 <template>
   <div class="p-6 max-w-2xl mx-auto space-y-6">
-    <!-- Header -->
     <div class="flex justify-between items-center">
       <h1 class="text-2xl font-bold text-primary">🎛️ Model & Sampler Config</h1>
       <div v-if="userStore.isAdmin" class="form-control">
@@ -16,19 +14,22 @@
       </div>
     </div>
 
-    <!-- Active Backend Model Display -->
     <div
       class="border border-base-200 rounded-xl p-4 bg-base-100 flex justify-between items-center text-sm font-mono shadow-inner"
     >
       <div>
         <span>🧠 Active Backend Model:</span>
         <strong class="ml-1 text-primary">
-          {{ checkpointStore.currentApiModel || 'Loading...' }}
+          <Icon
+            v-if="checkpointStore.modelUpdating"
+            name="kind-icon:loading"
+            class="inline w-4 h-4 animate-spin text-warning"
+          />
+          <span v-else>{{
+            checkpointStore.currentApiModel || 'Loading...'
+          }}</span>
         </strong>
-        <span
-          v-if="mismatchWarning"
-          class="ml-2 text-warning font-semibold"
-        >
+        <span v-if="mismatchWarning" class="ml-2 text-warning font-semibold">
           (≠ selected)
         </span>
       </div>
@@ -37,7 +38,6 @@
       </button>
     </div>
 
-    <!-- Checkpoint Select -->
     <div class="form-control">
       <label class="label">
         <span class="label-text font-semibold">Checkpoint</span>
@@ -73,7 +73,6 @@
       </button>
     </div>
 
-    <!-- Sampler Select -->
     <div class="form-control">
       <label class="label">
         <span class="label-text font-semibold">Sampler</span>
@@ -97,7 +96,6 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/art/checkpointGallery.vue
 import { computed, onMounted } from 'vue'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useUserStore } from '@/stores/userStore'
@@ -135,9 +133,13 @@ const refreshModel = async () => {
 }
 
 const setModel = async () => {
-  if (!selectedCheckpointName.value) return
-  await checkpointStore.setCurrentModelInApi(selectedCheckpointName.value)
+  if (!checkpointStore.selectedCheckpoint?.localPath) return
+  checkpointStore.modelUpdating = true
+  await checkpointStore.setCurrentModelInApi(
+    checkpointStore.selectedCheckpoint.localPath,
+  )
   await checkpointStore.fetchCurrentModelFromApi()
+  checkpointStore.modelUpdating = false
 }
 
 onMounted(async () => {

@@ -7,7 +7,8 @@ import { validCheckpoints } from '@/stores/seeds/validCheckpoints'
 import { validSamplers } from '@/stores/seeds/validSamplers'
 import type { Resource } from '@prisma/client'
 import { performFetch } from '@/stores/utils'
-import { useErrorStore } from './errorStore'
+import { useErrorStore, ErrorType } from './errorStore'
+
 
 export const useCheckpointStore = defineStore('checkpointStore', () => {
   const userStore = useUserStore()
@@ -46,18 +47,22 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
 
 async function fetchCurrentModelFromApi() {
   const errorStore = useErrorStore()
+
   try {
     const res = await performFetch<{ data: string }>('/api/art/sd/currentModel')
+
     if (res.success && res.data) {
       currentApiModel.value = res.data
     } else {
-      throw new Error(res.message || 'Failed to fetch model')
+      errorStore.setError(ErrorType.GENERAL_ERROR, res.message || 'Model fetch failed.')
+      currentApiModel.value = null
     }
-  } catch (err) {
+  } catch (error) {
+    errorStore.setError(ErrorType.NETWORK_ERROR, error)
     currentApiModel.value = null
-    errorStore.addError('Model fetch failed: ' + (err as Error).message)
   }
 }
+
   async function setCurrentModelInApi(name: string) {
     const res = await performFetch('/api/art/sd/setModel', {
       method: 'POST',

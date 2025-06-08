@@ -1,7 +1,7 @@
+<!-- /components/content/checkpoints/model-config.vue -->
 <template>
   <div class="p-6 max-w-2xl mx-auto space-y-6">
     <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-primary">🎛️ Model & Sampler Config</h1>
       <div v-if="userStore.isAdmin" class="form-control">
         <label class="label cursor-pointer space-x-2">
           <span class="label-text">Show Mature</span>
@@ -15,27 +15,38 @@
     </div>
 
     <div
-      class="border border-base-200 rounded-xl p-4 bg-base-100 flex justify-between items-center text-sm font-mono shadow-inner"
+      class="border border-base-200 rounded-xl p-4 bg-base-100 flex flex-col space-y-2 text-sm font-mono shadow-inner"
     >
-      <div>
-        <span>🧠 Active Backend Model:</span>
-        <strong class="ml-1 text-primary">
-          <Icon
-            v-if="checkpointStore.modelUpdating"
-            name="kind-icon:loading"
-            class="inline w-4 h-4 animate-spin text-warning"
-          />
-          <span v-else>{{
-            checkpointStore.currentApiModel || 'Loading...'
-          }}</span>
-        </strong>
-        <span v-if="mismatchWarning" class="ml-2 text-warning font-semibold">
-          (≠ selected)
-        </span>
+      <div class="flex justify-between items-center">
+        <div>
+          <span>🧠 Active Backend Model:</span>
+          <strong class="ml-1 text-primary">
+            <Icon
+              v-if="checkpointStore.modelUpdating"
+              name="kind-icon:loading"
+              class="inline w-4 h-4 animate-spin text-warning"
+            />
+            <span v-else>
+              {{ checkpointStore.currentApiModel || 'Loading...' }}
+            </span>
+          </strong>
+          <span
+            v-if="mismatchWarning"
+            class="ml-2 text-warning font-semibold"
+          >
+            (≠ selected)
+          </span>
+        </div>
+        <button class="btn btn-xs btn-outline" @click="refreshModel">
+          🔄 Refresh
+        </button>
       </div>
-      <button class="btn btn-xs btn-outline" @click="refreshModel">
-        🔄 Refresh
-      </button>
+      <div
+        v-if="errorStore.getError"
+        class="text-warning font-semibold bg-warning/10 p-2 rounded-xl"
+      >
+        ⚠️ {{ errorStore.getError }}
+      </div>
     </div>
 
     <div class="form-control">
@@ -99,9 +110,11 @@
 import { computed, onMounted } from 'vue'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useUserStore } from '@/stores/userStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const checkpointStore = useCheckpointStore()
 const userStore = useUserStore()
+const errorStore = useErrorStore()
 
 const selectedCheckpointName = computed({
   get: () => checkpointStore.selectedCheckpoint?.name || '',
@@ -129,28 +142,51 @@ const mismatchWarning = computed(
 )
 
 const refreshModel = async () => {
-  await checkpointStore.fetchCurrentModelFromApi()
+  try {
+    await checkpointStore.fetchCurrentModelFromApi()
+    errorStore.clearError()
+  } catch (err) {
+    errorStore.setError(ErrorType.NETWORK_ERROR, err)
+  }
 }
 
 const setModel = async () => {
-  if (!checkpointStore.selectedCheckpoint?.localPath) return
+  const modelPath = checkpointStore.selectedCheckpoint?.localPath
+  if (!modelPath) {
+    errorStore.setError(
+      ErrorType.VALIDATION_ERROR,
+      'Checkpoint has no localPath.',
+    )
+    return
+  }
+
   checkpointStore.modelUpdating = true
-  await checkpointStore.setCurrentModelInApi(
-    checkpointStore.selectedCheckpoint.localPath,
-  )
-  await checkpointStore.fetchCurrentModelFromApi()
-  checkpointStore.modelUpdating = false
+  try {
+    await checkpointStore.setCurrentModelInApi(modelPath)
+    await checkpointStore.fetchCurrentModelFromApi()
+    errorStore.clearError()
+  } catch (err) {
+    errorStore.setError(ErrorType.GENERAL_ERROR, err)
+  } finally {
+    checkpointStore.modelUpdating = false
+  }
 }
 
 onMounted(async () => {
-  await checkpointStore.fetchCurrentModelFromApi()
+  try {
+    await checkpointStore.fetchCurrentModelFromApi()
 
-  if (checkpointStore.currentApiModel) {
-    checkpointStore.selectCheckpointByName(checkpointStore.currentApiModel)
-  }
+    if (checkpointStore.currentApiModel) {
+      checkpointStore.selectCheckpointByName(checkpointStore.currentApiModel)
+    }
 
-  if (!checkpointStore.selectedSampler) {
-    checkpointStore.selectSamplerByName('Euler a')
+    if (!checkpointStore.selectedSampler) {
+      checkpointStore.selectSamplerByName('Euler a')
+    }
+
+    errorStore.clearError()
+  } catch (err) {
+    errorStore.setError(ErrorType.NETWORK_ERROR, err)
   }
 })
 </script>

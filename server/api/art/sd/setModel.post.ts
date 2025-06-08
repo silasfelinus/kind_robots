@@ -10,17 +10,20 @@ export default defineEventHandler(async (event) => {
 
     if (!model) throw new Error('No model specified.')
 
-    const result = await $fetch(
-      'https://lola.acrocatranch.com/sdapi/v1/options',
-      {
-        method: 'POST',
-        body: {
-          sd_model_checkpoint: model,
-        },
+    // Fire-and-forget to avoid Vercel timeout
+    $fetch('https://lola.acrocatranch.com/sdapi/v1/options', {
+      method: 'POST',
+      body: {
+        sd_model_checkpoint: model,
       },
-    )
+    }).catch((err) => {
+      console.error('[Model switch failed]', err)
+    })
 
-    return { success: true, result }
+    return {
+      success: true,
+      message: `Model switch to "${model}" triggered.`,
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500

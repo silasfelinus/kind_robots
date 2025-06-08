@@ -1,8 +1,6 @@
 <!-- /components/content/art/add-art.vue -->
 <template>
-  <div
-    class="bg-base-300 shadow-xl rounded-3xl border border-base-200 text-lg max-w-xl mx-auto transform transition-all duration-300 hover:scale-105 p-6 space-y-8"
-  >
+ 
     <!-- Header -->
     <h1 class="text-3xl font-bold text-center text-primary">
       🎨 Welcome to the Art-Maker
@@ -24,7 +22,7 @@
     </div>
 
     <!-- CFG Controls -->
-    <div v-if="!isFlux" class="space-y-2">
+    <div  class="space-y-2">
       <label class="block font-semibold text-center">
         🎚 CFG Scale: {{ localCfg }}
       </label>
@@ -95,7 +93,6 @@
     </div>
 
     <art-gallery v-if="showGallery" />
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -129,17 +126,7 @@ const localCfg = ref<number>(
   (artStore.artForm.cfg ?? 3) + (artStore.artForm.cfgHalf ? 0.5 : 0),
 )
 
-const isFlux = computed(
-  () => checkpointStore.selectedCheckpoint?.generation === 'Flux',
-)
 
-watch(isFlux, (flux) => {
-  if (flux) {
-    artStore.artForm.cfg = 0
-    artStore.artForm.cfgHalf = false
-    localCfg.value = 0
-  }
-})
 
 watch(localCfg, (val) => {
   artStore.artForm.cfg = Math.floor(val)

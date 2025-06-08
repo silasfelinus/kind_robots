@@ -10,6 +10,7 @@ import { performFetch } from '@/stores/utils'
 
 export const useCheckpointStore = defineStore('checkpointStore', () => {
   const userStore = useUserStore()
+  const modelUpdating = ref(false)
 
   const allCheckpoints = ref<Partial<Resource>[]>(validCheckpoints)
   const allSamplers = ref<Partial<Resource>[]>(validSamplers)
@@ -73,5 +74,6 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     selectSamplerByName,
     fetchCurrentModelFromApi,
     setCurrentModelInApi,
+    modelUpdating,
   }
 })

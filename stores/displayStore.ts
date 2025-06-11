@@ -9,6 +9,7 @@ import type {
   displayActionState,
   EffectId,
 } from './helpers/displayHelper'
+import { setCustomVh } from './helpers/displayHelper'
 
 export const useDisplayStore = defineStore('displayStore', () => {
   const headerState = ref<DisplayState>('open')
@@ -145,9 +146,20 @@ export const useDisplayStore = defineStore('displayStore', () => {
     ['large', 'extraLarge'].includes(viewportSize.value),
   )
 
-  function toggleSidebar() {
-    sidebarLeftState.value =
-      sidebarLeftState.value === 'hidden' ? 'open' : 'hidden'
+  function toggleSidebar(side: 'sidebarLeftState' | 'sidebarRightState') {
+    const stateMap = {
+      hidden: 'compact',
+      compact: 'hidden',
+      open: 'hidden',
+      disabled: 'hidden',
+    } as const
+
+    if (side === 'sidebarLeftState') {
+      sidebarLeftState.value = stateMap[sidebarLeftState.value]
+    } else if (side === 'sidebarRightState') {
+      sidebarRightState.value = stateMap[sidebarRightState.value]
+    }
+    saveState()
   }
 
   function toggleFooter() {
@@ -269,11 +281,38 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function updateViewport() {
-    const width = window.innerWidth
-    if (width < 640) viewportSize.value = 'small'
-    else if (width < 768) viewportSize.value = 'medium'
-    else if (width < 1024) viewportSize.value = 'large'
-    else viewportSize.value = 'extraLarge'
+    if (resizeTimeout.value) clearTimeout(resizeTimeout.value)
+    resizeTimeout.value = setTimeout(() => {
+      try {
+        setCustomVh()
+        const width = window.innerWidth
+        isVertical.value = window.innerHeight > window.innerWidth
+        isTouchDevice.value =
+          'ontouchstart' in window || navigator.maxTouchPoints > 0
+
+        if (width < 768) {
+          viewportSize.value = 'small'
+          isMobileViewport.value = true
+          isFullScreen.value = false
+        } else if (width < 1024) {
+          viewportSize.value = 'medium'
+          isMobileViewport.value = false
+          isFullScreen.value = false
+        } else if (width < 1440) {
+          viewportSize.value = 'large'
+          isMobileViewport.value = false
+          isFullScreen.value = true
+        } else {
+          viewportSize.value = 'extraLarge'
+          isMobileViewport.value = false
+          isFullScreen.value = true
+        }
+      } catch (error) {
+        handleError(error)
+      } finally {
+        resizeTimeout.value = null
+      }
+    }, 200)
   }
 
   function toggleAnimationById(id: EffectId) {
@@ -300,11 +339,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
     saveState()
   }
 
-function setAction(action: displayActionState) {
-  displayAction.value = action
-  saveState()
-}
-
+  function setAction(action: displayActionState) {
+    displayAction.value = action
+    saveState()
+  }
 
   function setMode(mode: displayModeState) {
     displayMode.value = mode

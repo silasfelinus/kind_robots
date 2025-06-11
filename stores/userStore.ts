@@ -4,7 +4,6 @@ import { ref, computed } from 'vue'
 import type { User } from '@prisma/client'
 import { performFetch, handleError } from './utils'
 import { useMilestoneStore } from './milestoneStore'
-import { useArtStore } from './artStore'
 import {
   getFromLocalStorage,
   saveToLocalStorage,

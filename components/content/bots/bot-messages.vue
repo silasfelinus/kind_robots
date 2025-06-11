@@ -39,13 +39,13 @@ import { useBotStore } from './../../../stores/botStore'
 // Get stores and necessary properties
 const { userId } = useUserStore()
 const { selectedBotId, bots } = useBotStore()
-const { fetchChatsByUserId, chats } = useChatStore()
+const { fetchChats, chats } = useChatStore()
 
 // Fetch chat exchanges on mount
 onMounted(async () => {
   if (userId) {
     try {
-      await fetchChatsByUserId(userId)
+      await fetchChats(userId)
     } catch (error) {
       console.error('Failed to fetch chat exchanges:', error)
     }

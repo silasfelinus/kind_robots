@@ -1,6 +1,7 @@
 // /stores/editStore.ts
 import { defineStore } from 'pinia'
-import { performFetch, handleError } from './utils'
+import { ref } from 'vue'
+import { performFetch } from './utils'
 
 interface EditRequest {
   imageId: number
@@ -9,53 +10,55 @@ interface EditRequest {
   userId: number
 }
 
-interface EditState {
-  presets: string[]
-  loading: boolean
-  error: string | null
-}
+export const useEditStore = defineStore('editStore', () => {
+  const presets = ref<string[]>([
+    'Make it anime style',
+    'Convert to black and white',
+    'Add a dreamlike filter',
+    'Enhance with high detail',
+    'Blur background only',
+  ])
 
-export const useEditStore = defineStore('editStore', {
-  state: (): EditState => ({
-    presets: [
-      'Make it anime style',
-      'Convert to black and white',
-      'Add a dreamlike filter',
-      'Enhance with high detail',
-      'Blur background only',
-    ],
-    loading: false,
-    error: null,
-  }),
+  const loading = ref(false)
+  const error = ref<string | null>(null)
 
-  actions: {
-    async submitEdit(payload: {
-      imageId: number
-      request?: string
-      preset?: string
-      userId: number
-    }): Promise<{ success: boolean; message: string }> {
-      try {
-        const response = await performFetch('/api/edit', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-          headers: { 'Content-Type': 'application/json' },
-        })
+  async function submitEdit(payload: {
+    imageId: number
+    request?: string
+    preset?: string
+    userId: number
+  }): Promise<{ success: boolean; message: string }> {
+    loading.value = true
+    error.value = null
 
-        if (response.success) {
-          return { success: true, message: 'Edit submitted!' }
-        } else {
-          return { success: false, message: response.message || 'Edit failed.' }
-        }
-      } catch (error) {
-        return {
-          success: false,
-          message:
-            error instanceof Error
-              ? error.message
-              : 'Unknown error submitting edit.',
-        }
+    try {
+      const response = await performFetch('/api/edit', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      loading.value = false
+
+      if (response.success) {
+        return { success: true, message: 'Edit submitted!' }
+      } else {
+        error.value = response.message || 'Edit failed.'
+        return { success: false, message: error.value }
       }
-    },
-  },
+    } catch (err) {
+      loading.value = false
+      const message =
+        err instanceof Error ? err.message : 'Unknown error submitting edit.'
+      error.value = message
+      return { success: false, message }
+    }
+  }
+
+  return {
+    presets,
+    loading,
+    error,
+    submitEdit,
+  }
 })

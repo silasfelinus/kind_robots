@@ -1,6 +1,7 @@
-// stores/consoleStore.ts
+// /stores/consoleStore.ts
 
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import { useUserStore } from './userStore'
 import { randomFunLine } from './utils/randomFunLine'
 import { randomQuote } from './utils/randomQuote'
@@ -14,159 +15,155 @@ type ConsoleMessage = {
   timestamp: number
 }
 
-type ConsoleState = {
-  messages: ConsoleMessage[]
-  xp: number
-  level: number
-  loginStart: number
-  hasFetched: boolean
-  userId: number | null
-}
-
 const LEVEL_THRESHOLDS = [0, 50, 120, 250, 500, 1000]
 
-export const useConsoleStore = defineStore('consoleStore', {
-  state: (): ConsoleState => ({
-    messages: [],
-    xp: 0,
-    level: 1,
-    loginStart: Date.now(),
-    hasFetched: false,
-    userId: null,
-  }),
+export const useConsoleStore = defineStore('consoleStore', () => {
+  const messages = ref<ConsoleMessage[]>([])
+  const xp = ref(0)
+  const level = ref(1)
+  const loginStart = ref(Date.now())
+  const hasFetched = ref(false)
+  const userId = ref<number | null>(null)
 
-  getters: {
-    sessionDuration(state) {
-      return Math.floor((Date.now() - state.loginStart) / 1000)
-    },
-  },
+  const sessionDuration = computed(() =>
+    Math.floor((Date.now() - loginStart.value) / 1000),
+  )
 
-  actions: {
-    async initialize() {
-      const userStore = useUserStore()
-      this.userId = userStore.user?.id || null
-      this.loginStart = Date.now()
+  async function initialize() {
+    const userStore = useUserStore()
+    userId.value = userStore.user?.id || null
+    loginStart.value = Date.now()
 
-      this.loadFromLocalStorage()
-      this.loadMessagesFromLocal()
+    loadFromLocalStorage()
+    loadMessagesFromLocal()
 
-      if (!this.hasFetched) {
-        await this.fetchConsoleData()
-      }
+    if (!hasFetched.value) {
+      await fetchConsoleData()
+    }
 
-      this.logRandomMessage()
-      this.incrementXP(10)
-    },
+    logRandomMessage()
+    incrementXP(10)
+  }
 
-    loadFromLocalStorage() {
-      const saved = localStorage.getItem('consoleStore')
-      if (saved) {
-        const data = JSON.parse(saved)
-        this.xp = data.xp || 0
-        this.level = data.level || 1
-      }
-    },
+  function loadFromLocalStorage() {
+    const saved = localStorage.getItem('consoleStore')
+    if (saved) {
+      const data = JSON.parse(saved)
+      xp.value = data.xp || 0
+      level.value = data.level || 1
+    }
+  }
 
-    saveToLocalStorage() {
-      localStorage.setItem(
-        'consoleStore',
-        JSON.stringify({ xp: this.xp, level: this.level }),
-      )
-    },
+  function saveToLocalStorage() {
+    localStorage.setItem(
+      'consoleStore',
+      JSON.stringify({ xp: xp.value, level: level.value }),
+    )
+  }
 
-    saveMessagesToLocal() {
-      localStorage.setItem(
-        'consoleMessages',
-        JSON.stringify(this.messages.slice(-100)),
-      )
-    },
+  function saveMessagesToLocal() {
+    localStorage.setItem(
+      'consoleMessages',
+      JSON.stringify(messages.value.slice(-100)),
+    )
+  }
 
-    loadMessagesFromLocal() {
-      const saved = localStorage.getItem('consoleMessages')
-      if (saved) this.messages = JSON.parse(saved)
-    },
+  function loadMessagesFromLocal() {
+    const saved = localStorage.getItem('consoleMessages')
+    if (saved) messages.value = JSON.parse(saved)
+  }
 
-    async fetchConsoleData() {
-      this.hasFetched = true
-      try {
-        // Optional: fetch XP/level from backend via `/api/console/[userId]`
-      } catch (error) {
-        console.error('ConsoleStore fetch failed', error)
-      }
-    },
+  async function fetchConsoleData() {
+    hasFetched.value = true
+    try {
+      // Optional backend fetch logic
+    } catch (error) {
+      console.error('ConsoleStore fetch failed', error)
+    }
+  }
 
-    async saveConsoleData() {
-      try {
-        // Optional: save XP/level to backend via `/api/console/[userId].post.ts`
-      } catch (error) {
-        console.warn('Could not save console progress')
-      }
-    },
+  async function saveConsoleData() {
+    try {
+      // Optional backend save logic
+    } catch (error) {
+      console.warn('Could not save console progress')
+    }
+  }
 
-    logMessage(text: string, type: ConsoleMessage['type']) {
-      this.messages.push({
-        id: Date.now(),
-        text,
-        type,
-        timestamp: Date.now(),
-      })
+  function logMessage(text: string, type: ConsoleMessage['type']) {
+    messages.value.push({
+      id: Date.now(),
+      text,
+      type,
+      timestamp: Date.now(),
+    })
+    saveMessagesToLocal()
+    console.log(`%c[Console XP] ${text}`, 'color: limegreen; font-weight: bold')
+  }
 
-      this.saveMessagesToLocal()
+  function logRandomMessage() {
+    const types = [
+      { type: 'fun', message: randomFunLine() },
+      { type: 'quote', message: randomQuote() },
+      { type: 'trivia', message: randomTrivia() },
+      (() => {
+        const encounter = randomEncounter()
+        incrementXP(encounter.xp)
+        return { type: 'story', message: encounter.message }
+      })(),
+    ]
+    const selected = types[Math.floor(Math.random() * types.length)]
+    logMessage(selected.message, selected.type as ConsoleMessage['type'])
+  }
 
-      console.log(
-        `%c[Console XP] ${text}`,
-        'color: limegreen; font-weight: bold',
-      )
-    },
+  function incrementXP(amount: number) {
+    xp.value += amount
+    saveToLocalStorage()
 
-    logRandomMessage() {
-      const types: Array<{ type: ConsoleMessage['type']; message: string }> = [
-        { type: 'fun', message: randomFunLine() },
-        { type: 'quote', message: randomQuote() },
-        { type: 'trivia', message: randomTrivia() },
-        (() => {
-          const encounter = randomEncounter()
-          this.incrementXP(encounter.xp)
-          return { type: 'story', message: encounter.message }
-        })(),
-      ]
+    while (
+      level.value < LEVEL_THRESHOLDS.length &&
+      xp.value >= LEVEL_THRESHOLDS[level.value]
+    ) {
+      levelUp()
+    }
+  }
 
-      const selected = types[Math.floor(Math.random() * types.length)]
-      this.logMessage(selected.message, selected.type)
-    },
+  function levelUp() {
+    level.value++
+    logMessage(`🎉 Level up! You're now Level ${level.value}`, 'system')
+    saveConsoleData()
+  }
 
-    incrementXP(amount: number) {
-      this.xp += amount
-      this.saveToLocalStorage()
+  function tickStory() {
+    const seconds = sessionDuration.value
+    if (seconds === 60) {
+      logMessage('🕐 One minute into the void. Bugs are stirring...', 'story')
+    } else if (seconds === 300) {
+      logMessage('🍕 Five minutes in. Time for a snack break?', 'story')
+    } else if (seconds === 600) {
+      logMessage('📦 Ten minutes deep. Logs are piling up...', 'story')
+    }
+  }
 
-      while (
-        this.level < LEVEL_THRESHOLDS.length &&
-        this.xp >= LEVEL_THRESHOLDS[this.level]
-      ) {
-        this.levelUp()
-      }
-    },
-
-    levelUp() {
-      this.level++
-      this.logMessage(`🎉 Level up! You're now Level ${this.level}`, 'system')
-      this.saveConsoleData()
-    },
-
-    tickStory() {
-      const seconds = this.sessionDuration
-      if (seconds === 60) {
-        this.logMessage(
-          '🕐 One minute into the void. Bugs are stirring...',
-          'story',
-        )
-      }
-      if (seconds === 300) {
-        this.logMessage('🍕 Five minutes in. Time for a snack break?', 'story')
-      }
-      if (seconds === 600) {
-        this.logMessage('📦 Ten minutes deep. Logs are piling up...', 'story')
-      }
-    },
-  },
+  return {
+    messages,
+    xp,
+    level,
+    loginStart,
+    hasFetched,
+    userId,
+    sessionDuration,
+    initialize,
+    loadFromLocalStorage,
+    saveToLocalStorage,
+    saveMessagesToLocal,
+    loadMessagesFromLocal,
+    fetchConsoleData,
+    saveConsoleData,
+    logMessage,
+    logRandomMessage,
+    incrementXP,
+    levelUp,
+    tickStory,
+  }
 })

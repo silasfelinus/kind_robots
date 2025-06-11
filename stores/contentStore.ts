@@ -1,4 +1,6 @@
+// /stores/contentStore.ts
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 
 export interface Page {
   _id?: string
@@ -20,82 +22,93 @@ export interface Page {
   amitip?: string
   navComponent?: string
   underConstruction?: boolean
-  [key: string]: unknown // For type safety
+  [key: string]: unknown
 }
 
-interface ContentState {
-  page: Page
-  pages: Page[]
-  showTooltip: boolean
-  showAmitip: boolean
-  showInfo: boolean
-  sidebarStatus: 'open' | 'close' | 'icon'
-  sidebarOrientation: 'vertical' | 'horizontal'
-}
+export const useContentStore = defineStore('contentStore', () => {
+  const page = ref<Page>({} as Page)
+  const pages = ref<Page[]>([])
 
-export const useContentStore = defineStore('contentStore', {
-  state: (): ContentState => ({
-    page: {} as Page,
-    pages: [] as Page[],
-    showTooltip: true,
-    showAmitip: false,
-    showInfo: true,
-    sidebarStatus:
-      typeof window !== 'undefined' && localStorage.getItem('sidebarStatus')
-        ? (localStorage.getItem('sidebarStatus') as 'open' | 'close' | 'icon')
-        : 'open',
-    sidebarOrientation:
-      typeof window !== 'undefined' &&
-      localStorage.getItem('sidebarOrientation')
-        ? (localStorage.getItem('sidebarOrientation') as
-            | 'vertical'
-            | 'horizontal')
-        : 'vertical',
-  }),
-  getters: {
-    highlightPages(state): Page[] {
-      return state.pages.filter((page) => page.sort === 'highlight')
-    },
-    underConstructionPages(state): Page[] {
-      return state.pages.filter((page) => page.sort === 'underConstruction')
-    },
-    currentPage: (state): Page => state.page,
-    isSidebarOpen: (state): boolean => state.sidebarStatus === 'open',
-    isSidebarClosed: (state): boolean => state.sidebarStatus === 'close',
+  const showTooltip = ref(true)
+  const showAmitip = ref(false)
+  const showInfo = ref(true)
 
-    // Getter for filtering pages by tag and sort
-    pagesByTagAndSort:
-      (state) =>
-      (tag: string, sort: string): Page[] => {
-        return state.pages.filter(
-          (page) => page.tags?.includes(tag) && page.sort === sort,
-        )
-      },
-  },
-  actions: {
-    toggleSidebar() {
-      this.sidebarStatus = this.sidebarStatus === 'open' ? 'close' : 'open'
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('sidebarStatus', this.sidebarStatus)
-      }
-    },
+  const sidebarStatus = ref<'open' | 'close' | 'icon'>(
+    typeof window !== 'undefined' && localStorage.getItem('sidebarStatus')
+      ? (localStorage.getItem('sidebarStatus') as 'open' | 'close' | 'icon')
+      : 'open',
+  )
 
-    setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
-      this.sidebarOrientation = orientation
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('sidebarOrientation', orientation)
-      }
-    },
+  const sidebarOrientation = ref<'vertical' | 'horizontal'>(
+    typeof window !== 'undefined' && localStorage.getItem('sidebarOrientation')
+      ? (localStorage.getItem('sidebarOrientation') as
+          | 'vertical'
+          | 'horizontal')
+      : 'vertical',
+  )
 
-    setSidebarStatus(status: 'open' | 'close' | 'icon') {
-      this.sidebarStatus = status
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('sidebarStatus', status)
-      }
-    },
+  const highlightPages = computed(() =>
+    pages.value.filter((p) => p.sort === 'highlight'),
+  )
 
-    toggleInfo() {
-      this.showInfo = !this.showInfo
-    },
-  },
+  const underConstructionPages = computed(() =>
+    pages.value.filter((p) => p.sort === 'underConstruction'),
+  )
+
+  const currentPage = computed(() => page.value)
+
+  const isSidebarOpen = computed(() => sidebarStatus.value === 'open')
+  const isSidebarClosed = computed(() => sidebarStatus.value === 'close')
+
+  const pagesByTagAndSort = computed(() => {
+    return (tag: string, sort: string): Page[] =>
+      pages.value.filter(
+        (page) => page.tags?.includes(tag) && page.sort === sort,
+      )
+  })
+
+  function toggleSidebar() {
+    sidebarStatus.value = sidebarStatus.value === 'open' ? 'close' : 'open'
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebarStatus', sidebarStatus.value)
+    }
+  }
+
+  function setSidebarOrientation(orientation: 'vertical' | 'horizontal') {
+    sidebarOrientation.value = orientation
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebarOrientation', orientation)
+    }
+  }
+
+  function setSidebarStatus(status: 'open' | 'close' | 'icon') {
+    sidebarStatus.value = status
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebarStatus', status)
+    }
+  }
+
+  function toggleInfo() {
+    showInfo.value = !showInfo.value
+  }
+
+  return {
+    page,
+    pages,
+    showTooltip,
+    showAmitip,
+    showInfo,
+    sidebarStatus,
+    sidebarOrientation,
+    highlightPages,
+    underConstructionPages,
+    currentPage,
+    isSidebarOpen,
+    isSidebarClosed,
+    pagesByTagAndSort,
+    toggleSidebar,
+    setSidebarOrientation,
+    setSidebarStatus,
+    toggleInfo,
+  }
 })

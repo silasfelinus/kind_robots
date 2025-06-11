@@ -1,5 +1,6 @@
 // /stores/resonanceStore.ts
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import { performFetch, handleError } from '@/stores/utils'
 import type { Resonance } from '@prisma/client'
 
@@ -8,283 +9,241 @@ export interface ResonanceForm extends Partial<Resonance> {
   currentArtId?: number
 }
 
-export const useResonanceStore = defineStore('resonanceStore', {
-  state: () => ({
-    resonances: [] as Resonance[],
-    selectedResonance: null as Resonance | null,
-    resonanceForm: {} as ResonanceForm,
-    isSaving: false,
-    isInitialized: false,
-    loading: false,
-    running: false,
-  }),
+const isClient = typeof window !== 'undefined'
 
-  getters: {
-    totalResonances: (state) => state.resonances.length,
-    hasUnsavedChanges: (state) =>
-      JSON.stringify(state.selectedResonance) !==
-      JSON.stringify(state.resonanceForm),
-  },
+export const useResonanceStore = defineStore('resonanceStore', () => {
+  const resonances = ref<Resonance[]>([])
+  const selectedResonance = ref<Resonance | null>(null)
+  const resonanceForm = ref<ResonanceForm>({})
+  const isSaving = ref(false)
+  const isInitialized = ref(false)
+  const loading = ref(false)
+  const running = ref(false)
 
-  actions: {
-    async initialize() {
-      if (this.isInitialized) return
+  const totalResonances = computed(() => resonances.value.length)
+  const hasUnsavedChanges = computed(
+    () =>
+      JSON.stringify(selectedResonance.value) !==
+      JSON.stringify(resonanceForm.value),
+  )
 
-      try {
+  async function initialize() {
+    if (isInitialized.value) return
+    try {
+      if (isClient) {
         const savedResonances = localStorage.getItem('resonances')
         const savedForm = localStorage.getItem('resonanceForm')
-
-        if (savedResonances) {
-          this.resonances = JSON.parse(savedResonances)
-        }
-        if (savedForm) {
-          this.resonanceForm = JSON.parse(savedForm)
-        }
-
-        const fetchedResonances = await this.fetchResonances()
-
-        if (fetchedResonances.length) {
-          const fetchedIds = new Set(fetchedResonances.map((r) => r.id))
-          this.resonances = [
-            ...this.resonances.filter((r) => !fetchedIds.has(r.id)),
-            ...fetchedResonances,
-          ]
-          this.syncToLocalStorage()
-        }
-
-        this.isInitialized = true
-      } catch (error) {
-        handleError(error, 'initializing resonance store')
+        if (savedResonances) resonances.value = JSON.parse(savedResonances)
+        if (savedForm) resonanceForm.value = JSON.parse(savedForm)
       }
-    },
+      const fetched = await fetchResonances()
+      if (fetched.length) {
+        const fetchedIds = new Set(fetched.map((r) => r.id))
+        resonances.value = [
+          ...resonances.value.filter((r) => !fetchedIds.has(r.id)),
+          ...fetched,
+        ]
+        syncToLocalStorage()
+      }
+      isInitialized.value = true
+    } catch (err) {
+      handleError(err, 'initializing resonance store')
+    }
+  }
 
-    syncToLocalStorage() {
-      try {
-        localStorage.setItem('resonances', JSON.stringify(this.resonances))
+  function syncToLocalStorage() {
+    try {
+      if (isClient) {
+        localStorage.setItem('resonances', JSON.stringify(resonances.value))
         localStorage.setItem(
           'resonanceForm',
-          JSON.stringify(this.resonanceForm),
+          JSON.stringify(resonanceForm.value),
         )
-      } catch (error) {
-        console.error('Error syncing to localStorage:', error)
       }
-    },
+    } catch (err) {
+      console.error('Error syncing to localStorage:', err)
+    }
+  }
 
-    async fetchResonances(): Promise<Resonance[]> {
-      this.loading = true
-      try {
-        const response = await performFetch<Resonance[]>('/api/resonance')
+  async function fetchResonances(): Promise<Resonance[]> {
+    loading.value = true
+    try {
+      const res = await performFetch<Resonance[]>('/api/resonance')
+      if (res.success && res.data) {
+        resonances.value = res.data
+        syncToLocalStorage()
+        return res.data
+      } else throw new Error(res.message || 'Failed to fetch resonances')
+    } catch (err) {
+      handleError(err, 'fetching resonances')
+      return []
+    } finally {
+      loading.value = false
+    }
+  }
 
-        if (response.success && response.data) {
-          this.resonances = response.data
-          this.syncToLocalStorage()
-          return response.data
-        } else {
-          throw new Error(response.message || 'Failed to fetch resonances')
-        }
-      } catch (error) {
-        handleError(error, 'fetching resonances')
-        return []
-      } finally {
-        this.loading = false
+  function selectResonance(id: number) {
+    const r = resonances.value.find((r) => r.id === id)
+    if (!r) return console.warn(`Resonance with ID ${id} not found.`)
+    selectedResonance.value = r
+    resonanceForm.value = { ...r }
+  }
+
+  function deselectResonance() {
+    selectedResonance.value = null
+    resonanceForm.value = {}
+  }
+
+  async function createResonance(payload: Partial<Resonance>) {
+    isSaving.value = true
+    try {
+      const res = await performFetch('/api/resonance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!res.success)
+        throw new Error(res.message || 'Failed to create resonance.')
+      return { success: true, data: res.data }
+    } catch (err) {
+      handleError(err, 'creating resonance')
+      return { success: false, message: (err as Error).message }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  async function updateResonance(id: number, updates: Partial<Resonance>) {
+    isSaving.value = true
+    try {
+      const res = await performFetch(`/api/resonance/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      })
+      if (!res.success)
+        throw new Error(res.message || 'Failed to update resonance.')
+      return { success: true, data: res.data }
+    } catch (err) {
+      handleError(err, 'updating resonance')
+      return { success: false, message: (err as Error).message }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  function createNewResonance() {
+    resonanceForm.value = {
+      title: '',
+      description: '',
+      genres: '',
+      creativityRate: 50,
+      imageMask: 50,
+      iteration: 1000,
+      useMicrophone: false,
+      instructions: '',
+      isPublic: true,
+      isMature: false,
+      seedText: '',
+      artIds: [],
+    }
+    selectedResonance.value = null
+    running.value = false
+    syncToLocalStorage()
+  }
+
+  function nextArtAsset() {
+    const form = resonanceForm.value
+    if (!form.artIds || form.artIds.length === 0) {
+      console.warn('[resonanceStore] No Art assets linked to this Resonance.')
+      return
+    }
+    const current = form.currentArtId || form.artIds[0]
+    const index = form.artIds.indexOf(current)
+    const nextIndex = (index + 1) % form.artIds.length
+    form.currentArtId = form.artIds[nextIndex]
+    syncToLocalStorage()
+  }
+
+  function forceUpdateNow() {
+    running.value = false
+    nextArtAsset()
+    running.value = true
+  }
+
+  async function saveResonance(payload: Omit<ResonanceForm, 'id'>) {
+    if (!resonanceForm.value) {
+      console.warn('[resonanceStore] No resonanceForm loaded.')
+      return { success: false, message: 'No resonance form loaded.' }
+    }
+    isSaving.value = true
+    try {
+      if (resonanceForm.value.id) {
+        return await updateResonance(
+          resonanceForm.value.id,
+          resonanceForm.value,
+        )
+      } else {
+        return await createResonance(resonanceForm.value)
       }
-    },
+    } catch (err) {
+      handleError(err, 'saving resonance')
+      return { success: false, message: (err as Error).message }
+    } finally {
+      isSaving.value = false
+    }
+  }
 
-    async selectResonance(resonanceId: number) {
-      const resonance = this.resonances.find((r) => r.id === resonanceId)
-      if (!resonance) {
-        console.warn(`Resonance with ID ${resonanceId} not found.`)
-        return
-      }
-      this.selectedResonance = resonance
-      this.resonanceForm = { ...resonance }
-    },
+  async function deleteResonance(id: number) {
+    try {
+      const res = await performFetch(`/api/resonance/${id}`, {
+        method: 'DELETE',
+      })
+      if (res.success) {
+        resonances.value = resonances.value.filter((r) => r.id !== id)
+        if (selectedResonance.value?.id === id) selectedResonance.value = null
+        syncToLocalStorage()
+      } else throw new Error(res.message || 'Failed to delete resonance.')
+    } catch (err) {
+      handleError(err, 'deleting resonance')
+    }
+  }
 
-    deselectResonance() {
-      this.selectedResonance = null
-      this.resonanceForm = {}
-    },
+  async function fetchResonanceById(id: number): Promise<Resonance | null> {
+    try {
+      const res = await performFetch<Resonance>(`/api/resonance/${id}`)
+      if (res.success && res.data) return res.data
+      else throw new Error(res.message || 'Failed to fetch resonance.')
+    } catch (err) {
+      handleError(err, 'fetching resonance by ID')
+      return null
+    }
+  }
 
-    async createResonance(payload: Partial<Resonance>) {
-      this.isSaving = true
-
-      try {
-        const response = await performFetch('/api/resonance', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-
-        if (!response.success) {
-          throw new Error(response.message || 'Failed to create resonance.')
-        }
-
-        console.log('[resonanceStore] Created new resonance:', response.data)
-
-        return { success: true, data: response.data }
-      } catch (error) {
-        handleError(error, 'creating resonance')
-        return { success: false, message: (error as Error).message }
-      } finally {
-        this.isSaving = false
-      }
-    },
-
-    async updateResonance(id: number, updates: Partial<Resonance>) {
-      this.isSaving = true
-
-      try {
-        const response = await performFetch(`/api/resonance/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updates),
-        })
-
-        if (!response.success) {
-          throw new Error(response.message || 'Failed to update resonance.')
-        }
-
-        console.log('[resonanceStore] Updated resonance ID:', id)
-
-        return { success: true, data: response.data }
-      } catch (error) {
-        handleError(error, 'updating resonance')
-        return { success: false, message: (error as Error).message }
-      } finally {
-        this.isSaving = false
-      }
-    },
-
-    createNewResonance() {
-      this.resonanceForm = {
-        title: '',
-        description: '',
-        genres: '',
-        creativityRate: 50,
-        imageMask: 50,
-        iteration: 1000,
-        useMicrophone: false,
-        instructions: '',
-        isPublic: true,
-        isMature: false,
-        seedText: '',
-        artIds: [],
-      }
-      this.selectedResonance = null
-      this.running = false
-      console.log('[resonanceStore] New Resonance initialized.')
-      this.syncToLocalStorage()
-    },
-    nextArtAsset() {
-      if (
-        !this.resonanceForm.artIds ||
-        this.resonanceForm.artIds.length === 0
-      ) {
-        console.warn('[resonanceStore] No Art assets linked to this Resonance.')
-        return
-      }
-
-      // Just cycle to the next artId (assume front-end uses currentArtId?)
-      const currentArtId =
-        this.resonanceForm.currentArtId || this.resonanceForm.artIds[0]
-      const index = this.resonanceForm.artIds.indexOf(currentArtId)
-
-      const nextIndex = (index + 1) % this.resonanceForm.artIds.length
-      this.resonanceForm.currentArtId = this.resonanceForm.artIds[nextIndex]
-
-      console.log(
-        '[resonanceStore] Switched to Art ID:',
-        this.resonanceForm.currentArtId,
-      )
-      this.syncToLocalStorage()
-    },
-
-    forceUpdateNow() {
-      console.log('[resonanceStore] Forcing immediate update...')
-      this.running = false
-
-      // Simulate quick transition: move to next art immediately
-      this.nextArtAsset()
-
-      // Optionally restart running (depending if Play mode was active)
-      this.running = true
-    },
-
-    async saveResonance(payload: {
-      title: string
-      description?: string
-      genres?: string
-      creativityRate: number
-      imageMask: number
-      iteration: number
-      useMicrophone: boolean
-      isPublic: boolean
-      isMature: boolean
-      artIds: number[]
-    }) {
-      if (!this.resonanceForm) {
-        console.warn('[resonanceStore] No resonanceForm loaded.')
-        return { success: false, message: 'No resonance form loaded.' }
-      }
-
-      this.isSaving = true
-
-      try {
-        if (this.resonanceForm.id) {
-          console.log(
-            '[resonanceStore] Detected ID - updating existing resonance.',
-          )
-          return await this.updateResonance(
-            this.resonanceForm.id,
-            this.resonanceForm,
-          )
-        } else {
-          console.log('[resonanceStore] No ID - creating new resonance.')
-          return await this.createResonance(this.resonanceForm)
-        }
-      } catch (error) {
-        handleError(error, 'saving resonance')
-        return { success: false, message: (error as Error).message }
-      } finally {
-        this.isSaving = false
-      }
-    },
-
-    async deleteResonance(id: number) {
-      try {
-        const response = await performFetch(`/api/resonance/${id}`, {
-          method: 'DELETE',
-        })
-
-        if (response.success) {
-          this.resonances = this.resonances.filter((r) => r.id !== id)
-          if (this.selectedResonance?.id === id) {
-            this.selectedResonance = null
-          }
-          this.syncToLocalStorage()
-        } else {
-          throw new Error(response.message || 'Failed to delete resonance.')
-        }
-      } catch (error) {
-        handleError(error, 'deleting resonance')
-      }
-    },
-
-    async fetchResonanceById(id: number): Promise<Resonance | null> {
-      try {
-        const response = await performFetch<Resonance>(`/api/resonance/${id}`)
-
-        if (response.success && response.data) {
-          return response.data
-        } else {
-          throw new Error(response.message || 'Failed to fetch resonance.')
-        }
-      } catch (error) {
-        handleError(error, 'fetching resonance by ID')
-        return null
-      }
-    },
-  },
+  return {
+    resonances,
+    selectedResonance,
+    resonanceForm,
+    isSaving,
+    isInitialized,
+    loading,
+    running,
+    totalResonances,
+    hasUnsavedChanges,
+    initialize,
+    syncToLocalStorage,
+    fetchResonances,
+    selectResonance,
+    deselectResonance,
+    createResonance,
+    updateResonance,
+    createNewResonance,
+    nextArtAsset,
+    forceUpdateNow,
+    saveResonance,
+    deleteResonance,
+    fetchResonanceById,
+  }
 })
 
 export type { Resonance }

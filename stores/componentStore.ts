@@ -1,403 +1,259 @@
 import { defineStore } from 'pinia'
-import { performFetch, handleError } from './utils'
+import { ref, computed } from 'vue'
 import type { Component } from '@prisma/client'
+import {
+  fetchComponentById as helperFetch,
+  createComponent as helperCreate,
+  updateComponent as helperUpdate,
+  deleteComponent as helperDelete,
+  findComponentByName as helperFind,
+  createOrUpdateComponent as helperCreateOrUpdate,
+} from '@/stores/helpers/componentHelper'
+import { performFetch } from '@/stores/utils'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
-// Define the Folder interface (from components.json)
 interface Folder {
   folderName: string
   components: string[]
 }
 
-interface ComponentStoreState {
-  components: Component[]
-  selectedComponent: Component | null
-  selectedFolder: string | null
-  isInitialized: boolean
-}
+export const useComponentStore = defineStore('componentStore', () => {
+  const components = ref<Component[]>([])
+  const selectedComponent = ref<Component | null>(null)
+  const selectedFolder = ref<string | null>(null)
+  const isInitialized = ref(false)
 
-export const useComponentStore = defineStore('componentStore', {
-  state: (): ComponentStoreState => ({
-    components: [],
-    selectedComponent: null,
-    selectedFolder: null,
-    isInitialized: false,
-  }),
+  const getSelectedComponent = computed(() => selectedComponent.value)
+  const allComponents = computed(() => components.value)
+  const getSelectedFolder = computed(() => selectedFolder.value)
+  const getIsInitialized = computed(() => isInitialized.value)
 
-  getters: {
-    getSelectedComponent: (state) => state.selectedComponent,
-    allComponents(state) {
-      return state.components
-    },
-    getSelectedFolder: (state) => state.selectedFolder,
-    getIsInitialized: (state) => state.isInitialized, // Getter for initialization state
-  },
-
-  actions: {
-    async initialize() {
-      if (this.isInitialized) {
-        console.log('ComponentStore already initialized — skipping fetch.')
-        return
+  async function initialize() {
+    if (isInitialized.value) return
+    try {
+      const response = await fetch('/api/components')
+      const data = await response.json()
+      if (data.success && data.data) {
+        components.value = data.data
+        isInitialized.value = true
+      } else {
+        throw new Error('Failed to fetch components')
       }
+    } catch (error) {
+      isInitialized.value = false
+      console.error('Initialization failed', error)
+    }
+  }
 
-      try {
-        const response = await performFetch<Component[]>('/api/components')
+  function setSelectedFolder(folderName: string) {
+    selectedFolder.value = folderName
+  }
 
-        if (response.success && response.data) {
-          this.components = response.data
-          this.isInitialized = true
-          console.log('Components initialized successfully')
-        } else {
-          throw new Error('Failed to fetch components from API.')
+  function clearSelectedFolder() {
+    selectedFolder.value = null
+  }
+
+  function clearSelectedComponent() {
+    selectedComponent.value = null
+  }
+
+  async function fetchComponentById(id: number) {
+    const comp = await helperFetch(id)
+    if (comp) selectedComponent.value = comp
+    return comp
+  }
+
+  async function createComponent(component: Component) {
+    const created = await helperCreate(component)
+    components.value.push(created)
+    return created
+  }
+
+  async function updateComponent(component: Component) {
+    const updated = await helperUpdate(component)
+    const index = components.value.findIndex((c) => c.id === component.id)
+    if (index !== -1) components.value[index] = updated
+    return updated
+  }
+
+  async function deleteComponent(id: number) {
+    const success = await helperDelete(id)
+    if (success) {
+      components.value = components.value.filter((c) => c.id !== id)
+    }
+    return success
+  }
+
+  function findComponentByName(name: string) {
+    const found = helperFind(components.value, name)
+    selectedComponent.value = found
+    return found
+  }
+
+  async function createOrUpdateComponent(
+    component: Component,
+    action: 'create' | 'update',
+  ) {
+    const result = await helperCreateOrUpdate(component, action)
+    if (action === 'create') {
+      components.value.push(result)
+    } else {
+      const index = components.value.findIndex((c) => c.id === result.id)
+      if (index !== -1) components.value[index] = result
+    }
+    return result
+  }
+
+  async function syncComponents(progressCallback?: (msg: string) => void) {
+    const errorStore = useErrorStore()
+
+    return errorStore.handleError(
+      async () => {
+        const log = (msg: string) => {
+          console.log(`[SyncComponents] ${msg}`)
+          if (progressCallback) progressCallback(msg)
         }
-      } catch (error) {
-        this.isInitialized = false
-        handleError(error, 'Error fetching components from API')
-      }
-    },
 
-    setSelectedFolder(folderName: string) {
-      this.selectedFolder = folderName
-    },
+        log('Fetching components.json...')
+        const response = await fetch('/components.json')
+        if (!response.ok) throw new Error('Failed to fetch components.json')
+        const folderData: Folder[] = await response.json()
 
-    clearSelectedFolder() {
-      this.selectedFolder = null
-    },
+        if (!Array.isArray(folderData)) {
+          throw new Error(
+            'Invalid data format: components.json must be an array',
+          )
+        }
 
-    async syncComponents(progressCallback?: (message: string) => void) {
-      const errorStore = useErrorStore()
+        log('Fetched components.json.')
+        log('Fetching existing components from the API...')
+        const apiResponse = await fetch('/api/components')
+        const apiData = await apiResponse.json()
+        if (!apiData.success || !Array.isArray(apiData.data)) {
+          throw new Error('Invalid API response: expected data array')
+        }
 
-      return errorStore.handleError(
-        async () => {
-          const logProgress = (message: string) => {
-            console.log(`[SyncComponents] ${message}`)
-            if (progressCallback) progressCallback(message)
-          }
+        const apiComponents: Component[] = apiData.data
+        const matchedComponentIds = new Set<number>()
 
-          logProgress('Fetching components.json...')
-          const response = await fetch('/components.json')
-          if (!response.ok) throw new Error('Failed to fetch components.json')
+        const normalize = (str: string) =>
+          str
+            .replace(/([a-z])([A-Z])/g, '$1-$2')
+            .replace(/[\s_]+/g, '-')
+            .toLowerCase()
 
-          const folderData: Folder[] = await response.json()
-          if (!Array.isArray(folderData)) {
-            throw new Error(
-              'Invalid data format: components.json must be an array',
+        for (const folder of folderData) {
+          for (const name of folder.components) {
+            const normalizedName = normalize(name)
+
+            const existing = apiComponents.find(
+              (c) => normalize(c.componentName) === normalizedName,
             )
-          }
+            const directMatch = apiComponents.find(
+              (c) => c.componentName === name,
+            )
 
-          logProgress('Fetched components.json.')
+            if (existing) {
+              if (directMatch && directMatch.id !== existing.id) {
+                log(`Merging "${existing.componentName}" into "${name}"`)
 
-          logProgress('Fetching existing components from the API...')
-          const apiResponse = await fetch('/api/components')
-          const apiData = await apiResponse.json()
-          if (!apiData.success || !Array.isArray(apiData.data)) {
-            throw new Error('Invalid API response: expected data array')
-          }
-
-          const apiComponents: Component[] = apiData.data
-          const matchedComponentIds = new Set<number>()
-
-          logProgress('Synchronizing components...')
-
-          const normalize = (str: string) =>
-            str
-              .replace(/([a-z])([A-Z])/g, '$1-$2')
-              .replace(/[\s_]+/g, '-')
-              .toLowerCase()
-
-          for (const folder of folderData) {
-            for (const componentName of folder.components) {
-              const normalizedName = normalize(componentName)
-
-              const existingComponent = apiComponents.find(
-                (comp) => normalize(comp.componentName) === normalizedName,
-              )
-
-              const alreadyExists = apiComponents.find(
-                (comp) => comp.componentName === componentName,
-              )
-
-              if (existingComponent) {
-                if (
-                  alreadyExists &&
-                  alreadyExists.id !== existingComponent.id
-                ) {
-                  // Merge logic: update correct one, delete old
-                  logProgress(
-                    `Merging "${existingComponent.componentName}" into "${componentName}" (IDs ${existingComponent.id} → ${alreadyExists.id})`,
-                  )
-
-                  const patchRes = await performFetch<Component>(
-                    `/api/components/${alreadyExists.id}`,
-                    {
-                      method: 'PATCH',
-                      body: JSON.stringify({
-                        folderName: folder.folderName,
-                        updatedAt: new Date(),
-                      }),
-                    },
-                  )
-
-                  if (!patchRes.success) {
-                    throw new Error(
-                      `Failed to update folderName for ${componentName}: ${patchRes.message}`,
-                    )
-                  }
-
-                  matchedComponentIds.add(alreadyExists.id)
-
-                  await this.deleteComponent(existingComponent.id)
-                  logProgress(
-                    `Deleted duplicate "${existingComponent.componentName}" (ID: ${existingComponent.id})`,
-                  )
-                } else {
-                  // Normal update
-                  const patchRes = await performFetch<Component>(
-                    `/api/components/${existingComponent.id}`,
-                    {
-                      method: 'PATCH',
-                      body: JSON.stringify({
-                        componentName,
-                        folderName: folder.folderName,
-                        updatedAt: new Date(),
-                      }),
-                    },
-                  )
-
-                  if (!patchRes.success) {
-                    throw new Error(
-                      `Failed to update ${componentName}: ${patchRes.message}`,
-                    )
-                  }
-
-                  matchedComponentIds.add(existingComponent.id)
-                  logProgress(`Updated: ${componentName}`)
-                }
-              } else {
-                // No match, create fresh
-                const createData: Omit<Component, 'id'> = {
-                  componentName,
-                  folderName: folder.folderName,
-                  createdAt: new Date(),
-                  updatedAt: new Date(),
-                  isWorking: true,
-                  underConstruction: false,
-                  isBroken: false,
-                  title: null,
-                  notes: null,
-                  artImageId: null,
-                }
-
-                const newComp = await this.createComponent(
-                  createData as Component,
+                const patchRes = await performFetch<Component>(
+                  `/api/components/${directMatch.id}`,
+                  {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                      folderName: folder.folderName,
+                      updatedAt: new Date(),
+                    }),
+                  },
                 )
-                matchedComponentIds.add(newComp.id)
-                logProgress(`Created: ${componentName}`)
+
+                if (!patchRes.success)
+                  throw new Error(
+                    `Failed to update folderName: ${patchRes.message}`,
+                  )
+
+                matchedComponentIds.add(directMatch.id)
+                await deleteComponent(existing.id)
+                log(`Deleted duplicate "${existing.componentName}"`)
+              } else {
+                const patchRes = await performFetch<Component>(
+                  `/api/components/${existing.id}`,
+                  {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                      componentName: name,
+                      folderName: folder.folderName,
+                      updatedAt: new Date(),
+                    }),
+                  },
+                )
+
+                if (!patchRes.success)
+                  throw new Error(
+                    `Failed to update ${name}: ${patchRes.message}`,
+                  )
+
+                matchedComponentIds.add(existing.id)
+                log(`Updated: ${name}`)
               }
+            } else {
+              const newComp: Omit<Component, 'id'> = {
+                componentName: name,
+                folderName: folder.folderName,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                isWorking: true,
+                underConstruction: false,
+                isBroken: false,
+                title: null,
+                notes: null,
+                artImageId: null,
+              }
+
+              const created = await createComponent(newComp as Component)
+              matchedComponentIds.add(created.id)
+              log(`Created: ${name}`)
             }
           }
-
-          // Delete any stale entries not matched
-          const toDelete = apiComponents.filter(
-            (comp) => !matchedComponentIds.has(comp.id),
-          )
-
-          for (const comp of toDelete) {
-            logProgress(`Deleting unmatched component: ${comp.componentName}`)
-            await this.deleteComponent(comp.id)
-          }
-
-          logProgress('Component sync complete.')
-        },
-        ErrorType.GENERAL_ERROR,
-        'Error syncing components from components.json',
-      )
-    },
-
-    async fetchComponentById(id: number) {
-      try {
-        console.log(`Fetching component with ID: ${id}`)
-        const response = await performFetch<Component>(`/api/components/${id}`)
-        if (response.success && response.data) {
-          this.selectedComponent = response.data
-          console.log(
-            `Component with ID: ${id} fetched successfully`,
-            response.data,
-          )
-          return response.data
-        } else {
-          throw new Error(`Failed to fetch component with ID: ${id}`)
-        }
-      } catch (error) {
-        handleError(error, `Error fetching component with ID ${id}`)
-      }
-    },
-    async createComponent(component: Component) {
-      try {
-        const response = await performFetch<Component>('/api/components', {
-          method: 'POST',
-          body: JSON.stringify(component),
-        })
-
-        // Validate the response
-        if (!response.success || !response.data) {
-          throw new Error(
-            `API failed to create component: ${component.componentName}. Response: ${JSON.stringify(response)}`,
-          )
         }
 
-        const serverComponent = response.data
-
-        // Add the new component to the state
-        this.components.push(serverComponent)
-        console.log(
-          `Component "${serverComponent.componentName}" created successfully with ID: ${serverComponent.id}`,
+        const stale = apiComponents.filter(
+          (c) => !matchedComponentIds.has(c.id),
         )
-        return serverComponent
-      } catch (error) {
-        // Handle the error and provide detailed messages
-        handleError(
-          error,
-          `Error while trying to create component: ${component.componentName}`,
-        )
-        // Optional: Rethrow the error if the calling method needs to handle it
-        throw error
-      }
-    },
-
-    async updateComponent(component: Component) {
-      try {
-        // Pre-validate the data before sending
-        if (!/^[a-zA-Z0-9\s-]+$/.test(component.componentName)) {
-          throw new Error(`Invalid componentName: ${component.componentName}`)
-        }
-        if (!/^[a-z0-9-]+$/.test(component.folderName)) {
-          throw new Error(`Invalid folderName: ${component.folderName}`)
+        for (const comp of stale) {
+          log(`Deleting unmatched: ${comp.componentName}`)
+          await deleteComponent(comp.id)
         }
 
-        const response = await performFetch<Component>(
-          `/api/components/${component.id}`,
-          {
-            method: 'PATCH',
-            body: JSON.stringify({
-              ...component,
-              notes: component.notes || '', // Replace null with empty string
-              artImageId: component.artImageId || null,
-            }),
-          },
-        )
+        log('Component sync complete.')
+      },
+      ErrorType.GENERAL_ERROR,
+      'Error syncing components',
+    )
+  }
 
-        if (!response.success || !response.data) {
-          throw new Error(
-            `API failed to update component: ${component.componentName}. Response: ${JSON.stringify(response)}`,
-          )
-        }
-
-        console.log(
-          `Component "${component.componentName}" updated successfully.`,
-        )
-      } catch (error) {
-        console.error(
-          `Error updating component "${component.componentName}":`,
-          error,
-        )
-        throw error
-      }
-    },
-
-    findComponentByName(componentName: string) {
-      const foundComponent = this.components.find(
-        (component) => component.componentName === componentName,
-      )
-
-      if (!foundComponent) {
-        throw new Error(`Component with name "${componentName}" not found.`)
-      }
-
-      this.selectedComponent = foundComponent
-      console.log(
-        `Component with name "${componentName}" found successfully`,
-        foundComponent,
-      )
-      return foundComponent
-    },
-
-    async createOrUpdateComponent(
-      component: Component,
-      action: 'create' | 'update',
-    ) {
-      try {
-        const method = action === 'create' ? 'POST' : 'PATCH'
-        const response = await performFetch<Component>('/api/components', {
-          method,
-          body: JSON.stringify(component),
-        })
-
-        // Validate the response
-        if (!response.success || !response.data) {
-          throw new Error(
-            `API failed to ${action} component: ${component.componentName}. Response: ${JSON.stringify(response)}`,
-          )
-        }
-
-        const serverComponent = response.data
-
-        if (action === 'create') {
-          // Add new component to state
-          this.components.push(serverComponent)
-          console.log(
-            `Component "${serverComponent.componentName}" created successfully with ID: ${serverComponent.id}`,
-          )
-          return serverComponent
-        } else {
-          // Update existing component in state
-          const index = this.components.findIndex(
-            (comp) => comp.id === component.id,
-          )
-          if (index !== -1) {
-            this.components[index] = serverComponent
-          } else {
-            // Log a sync issue if the updated component is missing locally
-            console.warn(
-              `Component "${component.componentName}" updated on server but not found in local state.`,
-            )
-          }
-          console.log(
-            `Component "${component.componentName}" updated successfully.`,
-          )
-        }
-      } catch (error) {
-        // Ensure proper error handling and detailed messages
-        handleError(
-          error,
-          `Error while trying to ${action} component: ${component.componentName} (${component.id || 'new'})`,
-        )
-        // Optional: Rethrow the error if the calling method needs to handle it
-        throw error
-      }
-    },
-
-    clearSelectedComponent() {
-      this.selectedComponent = null
-    },
-
-    async deleteComponent(id: number) {
-      try {
-        const response = await performFetch(`/api/components/${id}`, {
-          method: 'DELETE',
-        })
-        if (response.success) {
-          this.components = this.components.filter((c) => c.id !== id)
-          console.log(`Component with ID ${id} deleted successfully`)
-        } else {
-          throw new Error(
-            response.message || `Failed to delete component with ID: ${id}`,
-          )
-        }
-      } catch (error) {
-        handleError(error, `Error deleting component with ID ${id}`)
-      }
-    },
-  },
+  return {
+    components,
+    selectedComponent,
+    selectedFolder,
+    isInitialized,
+    getSelectedComponent,
+    allComponents,
+    getSelectedFolder,
+    getIsInitialized,
+    initialize,
+    setSelectedFolder,
+    clearSelectedFolder,
+    clearSelectedComponent,
+    fetchComponentById,
+    createComponent,
+    updateComponent,
+    deleteComponent,
+    findComponentByName,
+    createOrUpdateComponent,
+    syncComponents,
+  }
 })
 
 export type { Component as KindComponent }

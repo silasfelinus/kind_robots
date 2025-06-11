@@ -43,7 +43,7 @@ const toggleState = () => {
   } else {
     // Toggle footer and sidebar states
     displayStore.toggleFooter()
-    displayStore.toggleSidebar('sidebarLeftState')
+    displayStore.toggleSidebar()
   }
 }
 

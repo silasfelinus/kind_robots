@@ -1,4 +1,6 @@
+// /stores/errorStore.ts
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 
 export enum ErrorType {
   NETWORK_ERROR = 'Network Error',
@@ -18,121 +20,93 @@ export interface ErrorHistoryEntry {
   timestamp: Date
 }
 
-interface ErrorState {
-  message: string | null
-  type: ErrorType | null
-  history: ErrorHistoryEntry[]
-}
+const MAX_HISTORY = 100
 
-const MAX_HISTORY = 100 // Limit the history to 100 errors for better memory management
+export const useErrorStore = defineStore('errorStore', () => {
+  const message = ref<string | null>(null)
+  const type = ref<ErrorType | null>(null)
+  const history = ref<ErrorHistoryEntry[]>([])
 
-export const useErrorStore = defineStore('errorStore', {
-  state: (): ErrorState => ({
-    message: null,
-    type: null,
-    history: [],
-  }),
+  const getError = computed(() => message.value)
+  const getErrors = computed(() => history.value)
 
-  getters: {
-    getError: (state): string | null => state.message,
-    getErrors: (state): ErrorHistoryEntry[] => state.history,
-  },
+  function setError(errorType: ErrorType, errorMessage: unknown): void {
+    let msg = 'An unknown error occurred'
 
-  actions: {
-    /**
-     * Sets the current error and adds it to the error history.
-     * @param {ErrorType} type - The type of the error.
-     * @param {unknown} message - The error message or error object.
-     */
-    setError(type: ErrorType, message: unknown): void {
-      let errorMessage: string = 'An unknown error occurred'
+    if (errorMessage instanceof Error) {
+      msg = errorMessage.message
+    } else if (typeof errorMessage === 'string' && errorMessage !== undefined) {
+      msg = errorMessage
+    }
 
-      if (message instanceof Error) {
-        errorMessage = message.message
-      } else if (typeof message === 'string' && message !== undefined) {
-        errorMessage = message
+    message.value = msg
+    type.value = errorType
+    history.value.push({ type: errorType, message: msg, timestamp: new Date() })
+
+    if (history.value.length > MAX_HISTORY) {
+      history.value.shift()
+    }
+  }
+
+  function addError(errorType: ErrorType, msg: unknown): void {
+    setError(errorType, msg)
+  }
+
+  function clearError(): void {
+    message.value = null
+    type.value = null
+  }
+
+  function clearErrorHistory(): void {
+    history.value = []
+  }
+
+  async function handleError<T>(
+    handler: () => Promise<T>,
+    errorType: ErrorType = ErrorType.UNKNOWN_ERROR,
+    errorMessage: string = 'An error occurred',
+  ): Promise<T> {
+    try {
+      return await handler()
+    } catch (error) {
+      const msg = `${errorMessage} Details: ${error instanceof Error ? error.message : ''}`
+      setError(errorType, msg)
+      throw new Error(msg)
+    }
+  }
+
+  async function checkConnection(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if (history.value.length > 0) {
+        resolve(true)
+      } else {
+        reject(new Error('No errors in store. Connection might be down.'))
       }
+    })
+  }
 
-      this.message = errorMessage
-      this.type = type
-      this.history.push({ type, message: errorMessage, timestamp: new Date() })
+  async function loadStore(): Promise<string> {
+    try {
+      return `Loaded ${getErrors.value.length} errors. Hopefully, there were no issues.`
+    } catch (error) {
+      const msg = `Error loading store: ${error instanceof Error ? error.message : 'Unknown error'}`
+      setError(ErrorType.STORE_ERROR, msg)
+      throw new Error(msg)
+    }
+  }
 
-      if (this.history.length > MAX_HISTORY) {
-        this.history.shift()
-      }
-    },
-
-    addError(type: ErrorType, message: unknown): void {
-      this.setError(type, message) // Use the existing setError function
-    },
-
-    /**
-     * Clears the current error state.
-     */
-    clearError(): void {
-      this.message = null
-      this.type = null
-    },
-
-    /**
-     * Clears the error history.
-     */
-    clearErrorHistory(): void {
-      this.history = []
-    },
-
-    /**
-     * Handles any promise-based operation and catches any errors thrown.
-     * @param {() => Promise<T>} handler - The async operation to handle.
-     * @param {ErrorType} [type=ErrorType.UNKNOWN_ERROR] - The type of error.
-     * @param {string} [errorMessage='An error occurred'] - Custom error message.
-     * @returns {Promise<T>} The result of the async operation.
-     * @throws Will throw a new Error with the custom error message if the handler fails.
-     */
-    async handleError<T>(
-      handler: () => Promise<T>,
-      type: ErrorType = ErrorType.UNKNOWN_ERROR,
-      errorMessage: string = 'An error occurred',
-    ): Promise<T> {
-      try {
-        return await handler()
-      } catch (error) {
-        const detailedErrorMessage = `${errorMessage} Details: ${
-          error instanceof Error ? error.message : ''
-        }`
-        this.setError(type, detailedErrorMessage)
-        // Optionally, you could choose to rethrow or not depending on the use case
-        throw new Error(detailedErrorMessage)
-      }
-    },
-
-    /**
-     * Simulates a connection check by verifying error history existence.
-     * @returns {Promise<boolean>} Resolves if connection is possible, rejects otherwise.
-     */
-    async checkConnection(): Promise<boolean> {
-      return new Promise((resolve, reject) => {
-        if (this.history.length > 0) {
-          resolve(true)
-        } else {
-          reject(new Error('No errors in store. Connection might be down.'))
-        }
-      })
-    },
-
-    /**
-     * Loads the error store and returns the number of errors loaded.
-     * @returns {Promise<string>} The status of the load operation.
-     */
-    async loadStore(): Promise<string> {
-      try {
-        const errors = this.getErrors
-        return `Loaded ${errors.length} errors. Hopefully, there were no issues.`
-      } catch (error) {
-        const loadErrorMessage = `Error loading store: ${error instanceof Error ? error.message : 'Unknown error'}`
-        this.setError(ErrorType.STORE_ERROR, loadErrorMessage)
-        throw new Error(loadErrorMessage)
-      }
-    },
-  },
+  return {
+    message,
+    type,
+    history,
+    getError,
+    getErrors,
+    setError,
+    addError,
+    clearError,
+    clearErrorHistory,
+    handleError,
+    checkConnection,
+    loadStore,
+  }
 })

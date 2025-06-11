@@ -44,6 +44,6 @@ import { useCharacterStore } from '@/stores/characterStore'
 const characterStore = useCharacterStore()
 
 function rerollStats() {
-  characterStore.rerollStats()
+  characterStore.rerollCharacterStats()
 }
 </script>

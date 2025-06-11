@@ -1,531 +1,326 @@
+// /stores/characterStore.ts
 import { defineStore } from 'pinia'
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 import type { Character } from '@prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
 import { useGalleryStore } from '@/stores/galleryStore'
-import { useRandomCharacterData } from './utils/createRandomCharacter'
+import {
+  randomizerMap,
+  getRandomValue,
+  updateFieldWithRandomValue,
+  rerollStats,
+  type RandomizerKeys,
+} from '@/stores/helpers/characterHelper'
 
-type RandomizerKeys =
-  | 'name'
-  | 'honorific'
-  | 'class'
-  | 'genre'
-  | 'species'
-  | 'personality'
-  | 'backstory'
-  | 'inventory'
-  | 'quirks'
-  | 'skills'
-  | 'statName1'
-  | 'statName2'
-  | 'statName3'
-  | 'statName4'
-  | 'statName5'
-  | 'statName6'
-  | 'statValue1'
-  | 'statValue2'
-  | 'statValue3'
-  | 'statValue4'
-  | 'statValue5'
-  | 'statValue6'
+export const useCharacterStore = defineStore('characterStore', () => {
+  const characters = ref<Character[]>([])
+  const selectedCharacter = ref<Character | null>(null)
+  const characterForm = ref<Partial<Character>>({})
+  const generatedCharacter = ref<Partial<Character> | null>(null)
+  const artImagePath = ref('')
+  const useGenerated = ref<Record<string, boolean>>({})
+  const keepField = ref<Record<string, boolean>>({})
+  const isSaving = ref(false)
+  const isGeneratingArt = ref(false)
+  const isInitialized = ref(false)
+  const loading = ref(false)
+  const generationMode = ref(false)
 
-type RandomizerReturnType = {
-  name: string
-  honorific: string
-  class: string
-  genre: string
-  species: string
-  personality: string
-  backstory: string
-  inventory: string
-  quirks: string
-  skills: string
-  statName1: string
-  statName2: string
-  statName3: string
-  statName4: string
-  statName5: string
-  statName6: string
-  statValue1: number
-  statValue2: number
-  statValue3: number
-  statValue4: number
-  statValue5: number
-  statValue6: number
-}
+  async function initialize() {
+    if (isInitialized.value) return
+    loading.value = true
+    try {
+      const savedCharacters = localStorage.getItem('characters')
+      const savedForm = localStorage.getItem('characterForm')
+      const savedGenerated = localStorage.getItem('useGenerated')
 
-interface CharacterStoreState {
-  characters: Character[]
-  selectedCharacter: Character | null
-  characterForm: Partial<Character>
-  generatedCharacter: Partial<Character> | null
-  artImagePath: string
-  useGenerated: Record<string, boolean>
-  keepField: Record<string, boolean>
-  isSaving: boolean
-  isGeneratingArt: boolean
-  isInitialized: boolean
-  loading: boolean
-  generationMode: boolean
-}
+      if (savedCharacters) characters.value = JSON.parse(savedCharacters)
+      if (savedForm) characterForm.value = JSON.parse(savedForm)
+      else characterForm.value = { ...generateDefaultCharacter() }
+      if (savedGenerated) useGenerated.value = JSON.parse(savedGenerated)
 
-export const useCharacterStore = defineStore('characterStore', {
-  state: (): CharacterStoreState => ({
-    characters: [],
-    selectedCharacter: null,
-    characterForm: {},
-    generatedCharacter: null,
-    artImagePath: '',
-    useGenerated: {},
-    keepField: {},
-    isSaving: false,
-    isGeneratingArt: false,
-    isInitialized: false,
-    loading: false,
-    generationMode: false,
-  }),
+      await fetchCharacters()
+      isInitialized.value = true
+    } catch (error) {
+      handleError(error, 'initializing character store')
+    } finally {
+      loading.value = false
+    }
+  }
 
-  getters: {
-    totalCharacters: (state) => state.characters.length,
-    hasUnsavedChanges: (state) =>
-      JSON.stringify(state.selectedCharacter) !==
-      JSON.stringify(state.characterForm),
-  },
+  function generateDefaultCharacter() {
+    const base = Object.fromEntries(
+      Object.keys(randomizerMap).map((key) => [
+        key,
+        getRandomValue(key as RandomizerKeys),
+      ]),
+    )
+    return base as Partial<Character>
+  }
 
-  actions: {
-    randomizerMap: {
-      name: () => useRandomCharacterData().randomName(),
-      honorific: () => useRandomCharacterData().randomHonorific(),
-      class: () => useRandomCharacterData().randomClass(),
-      genre: () => useRandomCharacterData().randomGenre(),
-      species: () => useRandomCharacterData().randomSpecies(),
-      personality: () => useRandomCharacterData().randomPersonality(),
-      backstory: () => useRandomCharacterData().randomBackstory(),
-      inventory: () => useRandomCharacterData().randomInventory(),
-      quirks: () => useRandomCharacterData().randomQuirk(),
-      skills: () => useRandomCharacterData().randomSkill(),
-      statName1: () => 'Luck',
-      statName2: () => 'Swol',
-      statName3: () => 'Wits',
-      statName4: () => 'Flexibility',
-      statName5: () => 'Rizz',
-      statName6: () => 'Empathy',
-      statValue1: () => Math.floor(Math.random() * 100),
-      statValue2: () => Math.floor(Math.random() * 100),
-      statValue3: () => Math.floor(Math.random() * 100),
-      statValue4: () => Math.floor(Math.random() * 100),
-      statValue5: () => Math.floor(Math.random() * 100),
-      statValue6: () => Math.floor(Math.random() * 100),
-    },
-    async initialize() {
-      if (this.isInitialized) return
-      this.loading = true
-      try {
-        const savedState = localStorage.getItem('characters')
-        const savedForm = localStorage.getItem('characterForm')
-        const savedGenerated = localStorage.getItem('useGenerated')
-
-        // Restore characters from local storage
-        if (savedState) {
-          this.characters = JSON.parse(savedState) as Character[]
-        }
-
-        // Restore character form from local storage
-        if (savedForm) {
-          this.characterForm = JSON.parse(savedForm)
-        } else {
-          // Generate default randomized character if no saved form exists
-          Object.assign(
-            this.characterForm,
-            useRandomCharacterData().generateRandomCharacter(),
-          )
-        }
-
-        // Restore "useGenerated" state
-        if (savedGenerated) {
-          this.useGenerated = JSON.parse(savedGenerated)
-        }
-
-        // Fetch characters from API (ensures state is updated with server data)
-        await this.fetchCharacters()
-
-        this.isInitialized = true
-      } catch (error) {
-        handleError(error, 'initializing character store')
-      } finally {
-        this.loading = false
-      }
-    },
-    getRandomValue(
-      key: RandomizerKeys,
-    ): RandomizerReturnType[RandomizerKeys] | null {
-      const randomizers = useRandomCharacterData()
-
-      const randomizerMap: Record<RandomizerKeys, () => string | number> = {
-        name: randomizers.randomName,
-        honorific: randomizers.randomHonorific,
-        class: randomizers.randomClass,
-        genre: randomizers.randomGenre,
-        species: randomizers.randomSpecies,
-        personality: randomizers.randomPersonality,
-        backstory: randomizers.randomBackstory,
-        inventory: randomizers.randomInventory,
-        quirks: randomizers.randomQuirk,
-        skills: randomizers.randomSkill,
-        statName1: () => 'Luck',
-        statName2: () => 'Swol',
-        statName3: () => 'Wits',
-        statName4: () => 'Flexibility',
-        statName5: () => 'Rizz',
-        statName6: () => 'Empathy',
-        statValue1: () => Math.floor(Math.random() * 100),
-        statValue2: () => Math.floor(Math.random() * 100),
-        statValue3: () => Math.floor(Math.random() * 100),
-        statValue4: () => Math.floor(Math.random() * 100),
-        statValue5: () => Math.floor(Math.random() * 100),
-        statValue6: () => Math.floor(Math.random() * 100),
-      }
-
-      if (randomizerMap[key]) {
-        const randomValue = randomizerMap[key]()
-        console.log(`Randomized value for "${key}":`, randomValue)
-        return randomValue
+  async function fetchCharacters() {
+    loading.value = true
+    try {
+      const response = await performFetch<Character[]>('/api/characters')
+      if (response.success && response.data) {
+        characters.value = response.data
+        syncToLocalStorage()
       } else {
-        console.warn(`No randomizer found for key: "${key}"`)
-        return null
+        throw new Error(response.message || 'Failed to fetch characters')
       }
-    },
+    } catch (error) {
+      handleError(error, 'fetching characters')
+    } finally {
+      loading.value = false
+    }
+  }
 
-    updateFieldWithRandomValue<K extends RandomizerKeys>(field: K) {
-      if (!this.randomizerMap[field]) {
-        console.warn(`Randomizer for "${field}" is not defined.`)
-        return
-      }
+  function syncToLocalStorage() {
+    localStorage.setItem('characters', JSON.stringify(characters.value))
+    localStorage.setItem('characterForm', JSON.stringify(characterForm.value))
+    localStorage.setItem('useGenerated', JSON.stringify(useGenerated.value))
+  }
 
-      const randomValue = this.randomizerMap[field]()
-      this.characterForm[field] = randomValue as Character[K]
-    },
+  async function selectCharacter(id: number) {
+    const found = characters.value.find((c) => c.id === id)
+    if (!found) return
+    selectedCharacter.value = found
+    characterForm.value = { ...found }
+    await updateArtImagePath()
+  }
 
-    async generateRandomCharacter() {
+  function deselectCharacter() {
+    selectedCharacter.value = null
+    characterForm.value = {}
+    artImagePath.value = ''
+  }
+
+  async function updateArtImagePath() {
+    const artStore = useArtStore()
+    if (selectedCharacter.value?.artImageId) {
       try {
-        // Generate random fields using a utility function
-        const randomCharacterData =
-          useRandomCharacterData().generateRandomCharacter()
-
-        // Fetch a random image from the selected gallery via artStore
-        const galleryStore = useGalleryStore()
-        const randomGalleryImage = await galleryStore.changeToRandomImage()
-
-        // Generate random stats
-        const randomStats = this.rerollStats()
-
-        // Combine all data into the character form
-        this.characterForm = {
-          ...randomCharacterData,
-          ...randomStats,
-          imagePath: randomGalleryImage || '/images/bot.webp', // Fallback to a default image
-          isPublic: true,
-        }
-
-        this.generatedCharacter = { ...this.characterForm } // Save to generatedCharacter for reference
-      } catch (error) {
-        handleError(error, 'generating random character')
-      }
-    },
-    async fetchCharacterRewards(characterId: number) {
-      try {
-        const response = await performFetch(
-          `/api/rewards/character/${characterId}`,
+        const image = await artStore.getArtImageById(
+          selectedCharacter.value.artImageId,
         )
-        if (response.success && response.data) {
-          return response.data // Return the fetched rewards
-        } else {
-          throw new Error(
-            response.message || 'Failed to fetch character rewards.',
-          )
-        }
+        artImagePath.value = image
+          ? `data:image/${image.fileType};base64,${image.imageData}`
+          : '/images/character-placeholder.webp'
       } catch (error) {
-        handleError(error, 'fetching character rewards')
-        return [] // Return an empty array in case of failure
+        artImagePath.value = '/images/character-placeholder.webp'
       }
-    },
+    } else {
+      artImagePath.value = '/images/character-placeholder.webp'
+    }
+  }
 
-    syncToLocalStorage() {
-      try {
-        localStorage.setItem('characters', JSON.stringify(this.characters))
-        localStorage.setItem(
-          'characterForm',
-          JSON.stringify(this.characterForm),
-        )
-        localStorage.setItem('useGenerated', JSON.stringify(this.useGenerated))
-      } catch (error) {
-        console.error('Error syncing to localStorage:', error)
+  async function saveCharacter() {
+    isSaving.value = true
+    try {
+      const char = { ...characterForm.value }
+      if (char.id) await updateCharacter(char.id, char)
+      else await createCharacter(char)
+      syncToLocalStorage()
+    } catch (error) {
+      handleError(error, 'saving character')
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  async function createCharacter(character: Partial<Character>) {
+    try {
+      const response = await performFetch<Character>('/api/characters', {
+        method: 'POST',
+        body: JSON.stringify(character),
+        headers: { 'Content-Type': 'application/json' },
+      })
+      if (response.success && response.data) {
+        characters.value.push(response.data)
+        selectedCharacter.value = response.data
       }
-    },
+    } catch (error) {
+      handleError(error, 'creating character')
+    }
+  }
 
-    async fetchCharacters() {
-      this.loading = true
-      try {
-        const response = await performFetch<Character[]>('/api/characters')
-        if (response.success && response.data) {
-          this.characters = response.data
-          this.syncToLocalStorage()
-        } else {
-          throw new Error(response.message || 'Failed to fetch characters')
-        }
-      } catch (error) {
-        handleError(error, 'fetching characters')
-      } finally {
-        this.loading = false
+  async function updateCharacter(id: number, updates: Partial<Character>) {
+    try {
+      const response = await performFetch<Character>(`/api/characters/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+        headers: { 'Content-Type': 'application/json' },
+      })
+      if (response.success && response.data) {
+        const index = characters.value.findIndex((c) => c.id === id)
+        if (index !== -1) characters.value[index] = response.data
+        selectedCharacter.value = response.data
+        await updateArtImagePath()
       }
-    },
+    } catch (error) {
+      handleError(error, 'updating character')
+    }
+  }
 
-    async selectCharacter(characterId: number) {
-      const character = this.characters.find((c) => c.id === characterId)
-      if (!character) {
-        console.warn(`Character with ID ${characterId} not found.`)
-        return
+  async function patchCharacter(id: number, updates: Partial<Character>) {
+    try {
+      const response = await performFetch<Character>(`/api/characters/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+        headers: { 'Content-Type': 'application/json' },
+      })
+      if (response.success && response.data) {
+        const index = characters.value.findIndex((c) => c.id === id)
+        if (index !== -1) characters.value[index] = response.data
       }
-      this.selectedCharacter = character
-      this.characterForm = { ...character }
-      await this.updateArtImagePath()
-    },
+    } catch (error) {
+      handleError(error, 'patching character')
+    }
+  }
 
-    deselectCharacter() {
-      this.selectedCharacter = null
-      this.characterForm = {}
-      this.artImagePath = '' // Reset art image path
-    },
-
-    async updateArtImagePath() {
-      const artStore = useArtStore()
-      if (this.selectedCharacter?.artImageId) {
-        try {
-          const image = await artStore.getArtImageById(
-            this.selectedCharacter.artImageId,
-          )
-          this.artImagePath = image
-            ? `data:image/${image.fileType};base64,${image.imageData}`
-            : '/images/character-placeholder.webp'
-        } catch (error) {
-          console.error('Error fetching art image:', error)
-          this.artImagePath = '/images/character-placeholder.webp' // Fallback on error
-        }
-      } else {
-        this.artImagePath = '/images/character-placeholder.webp' // Default placeholder
+  async function deleteCharacter(id: number) {
+    try {
+      const response = await performFetch(`/api/characters/${id}`, {
+        method: 'DELETE',
+      })
+      if (response.success) {
+        characters.value = characters.value.filter((c) => c.id !== id)
+        if (selectedCharacter.value?.id === id) selectedCharacter.value = null
       }
-    },
+    } catch (error) {
+      handleError(error, 'deleting character')
+    }
+  }
 
-    async saveCharacter() {
-      this.isSaving = true
-      try {
-        const characterToSave = { ...this.characterForm }
+  async function generateRandomCharacter() {
+    try {
+      const randomData = generateDefaultCharacter()
+      const galleryStore = useGalleryStore()
+      const randomGalleryImage = await galleryStore.changeToRandomImage()
+      const randomStats = rerollStats()
 
-        if (characterToSave.id) {
-          await this.updateCharacter(characterToSave.id, characterToSave)
-        } else {
-          await this.createCharacter(characterToSave)
-        }
-
-        this.syncToLocalStorage()
-        alert('Character saved successfully!')
-      } catch (error) {
-        handleError(error, 'saving character')
-      } finally {
-        this.isSaving = false
+      characterForm.value = {
+        ...randomData,
+        ...randomStats,
+        imagePath: randomGalleryImage || '/images/bot.webp',
+        isPublic: true,
       }
-    },
-    updateField<K extends keyof Character>(field: K, value: Character[K]) {
-      if (this.selectedCharacter) {
-        this.selectedCharacter[field] = value
-      } else {
-        this.characterForm[field] = value
-      }
-    },
-    async patchCharacter(id: number, updates: Partial<Character>) {
-      try {
-        const response = await performFetch<Character>(
-          `/api/characters/${id}`,
-          {
-            method: 'PATCH',
-            body: JSON.stringify(updates),
-            headers: { 'Content-Type': 'application/json' },
-          },
-        )
 
-        if (response.success && response.data) {
-          const index = this.characters.findIndex((c) => c.id === id)
-          if (index !== -1) {
-            this.characters[index] = response.data
-            if (this.selectedCharacter?.id === id) {
-              this.selectedCharacter = response.data
-            }
-          }
-        } else {
-          throw new Error(response.message || 'Failed to update character.')
-        }
-      } catch (error) {
-        handleError(error, 'patching character')
-      }
-    },
-    async deleteCharacter(id: number) {
-      try {
-        const response = await performFetch(`/api/characters/${id}`, {
-          method: 'DELETE',
-        })
+      generatedCharacter.value = { ...characterForm.value }
+    } catch (error) {
+      handleError(error, 'generating random character')
+    }
+  }
 
-        if (response.success) {
-          this.characters = this.characters.filter((c) => c.id !== id)
-          if (this.selectedCharacter?.id === id) {
-            this.selectedCharacter = null
-          }
-        } else {
-          throw new Error(response.message || 'Failed to delete character.')
-        }
-      } catch (error) {
-        handleError(error, 'deleting character')
-      }
-    },
+  function setArtImageId(id: number) {
+    characterForm.value.artImageId = id
+    updateArtImagePath()
+  }
 
-    async createCharacter(character: Partial<Character> = {}) {
-      try {
-        const response = await performFetch<Character>('/api/characters', {
+  function updateField<K extends keyof Character>(
+    field: K,
+    value: Character[K],
+  ) {
+    if (selectedCharacter.value) {
+      selectedCharacter.value[field] = value
+    } else {
+      characterForm.value[field] = value
+    }
+  }
+
+  function rerollCharacterStats() {
+    Object.assign(characterForm.value, rerollStats())
+  }
+
+  async function fetchCharacterRewards(characterId: number) {
+    try {
+      const response = await performFetch(
+        `/api/rewards/character/${characterId}`,
+      )
+      return response.success && response.data ? response.data : []
+    } catch (error) {
+      handleError(error, 'fetching character rewards')
+      return []
+    }
+  }
+
+  async function generateFields(fieldsToUpgrade: string[]) {
+    try {
+      const response = await performFetch<Partial<Character>>(
+        '/api/character/generate',
+        {
           method: 'POST',
-          body: JSON.stringify(character),
+          body: JSON.stringify({
+            character: characterForm.value,
+            fieldsToUpgrade,
+          }),
           headers: { 'Content-Type': 'application/json' },
-        })
-
-        if (response.success && response.data) {
-          this.characters.push(response.data)
-          this.selectedCharacter = response.data // Select the newly created character
-        } else {
-          throw new Error(response.message || 'Failed to create character.')
-        }
-      } catch (error) {
-        handleError(error, 'creating character')
+        },
+      )
+      if (response.success && response.data) {
+        Object.assign(characterForm.value, response.data)
       }
-    },
+    } catch (error) {
+      handleError(error, 'generating fields')
+    }
+  }
 
-    async updateCharacter(id: number, updates: Partial<Character>) {
-      try {
-        const response = await performFetch<Character>(
-          `/api/characters/${id}`,
-          {
-            method: 'PATCH',
-            body: JSON.stringify(updates),
-            headers: { 'Content-Type': 'application/json' },
-          },
-        )
-
-        if (response.success && response.data) {
-          const index = this.characters.findIndex((c) => c.id === id)
-          if (index !== -1) {
-            this.characters[index] = response.data
-            this.selectedCharacter = response.data
-            await this.updateArtImagePath()
-          }
-          this.syncToLocalStorage()
-        } else {
-          throw new Error(response.message || 'Failed to update character')
-        }
-      } catch (error) {
-        handleError(error, 'updating character')
+  async function generateArtImage() {
+    isGeneratingArt.value = true
+    try {
+      if (!characterForm.value.artPrompt)
+        throw new Error('Art prompt is required.')
+      const artStore = useArtStore()
+      const response = await artStore.generateArt({
+        collection: 'characters',
+        isPublic: characterForm.value.isPublic ?? true,
+        designer: 'Kind Designer',
+        title: `${characterForm.value.name} the ${characterForm.value.honorific}`,
+        promptString: characterForm.value.artPrompt,
+      })
+      if (response.success && response.data) {
+        characterForm.value.artImageId = response.data.artImageId
+        await updateArtImagePath()
       }
-    },
+    } catch (error) {
+      handleError(error, 'generating art')
+    } finally {
+      isGeneratingArt.value = false
+    }
+  }
 
-    async generateCharacter() {
-      try {
-        const response = await performFetch<Partial<Character>>(
-          '/api/characters/generate',
-          { method: 'POST', body: JSON.stringify(this.characterForm) },
-        )
-        if (response.success && response.data) {
-          this.generatedCharacter = response.data // Populate the generatedCharacter object
-        } else {
-          throw new Error(response.message || 'Failed to generate character')
-        }
-      } catch (error) {
-        handleError(error, 'generating character')
-      }
-    },
-
-    async generateFields(fieldsToUpgrade: string[]) {
-      try {
-        const response = await performFetch<Partial<Character>>(
-          '/api/character/generate',
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              character: this.characterForm,
-              fieldsToUpgrade,
-            }),
-            headers: { 'Content-Type': 'application/json' },
-          },
-        )
-
-        if (response.success && response.data) {
-          Object.assign(this.characterForm, response.data)
-        } else {
-          throw new Error(response.message || 'Failed to generate fields.')
-        }
-      } catch (error) {
-        handleError(error, 'generating fields')
-      }
-    },
-
-    async generateArtImage() {
-      this.isGeneratingArt = true
-      try {
-        if (!this.characterForm.artPrompt) {
-          throw new Error('Art prompt is required.')
-        }
-
-        const artStore = useArtStore()
-        const response = await artStore.generateArt({
-          collection: 'characters',
-          isPublic: this.characterForm.isPublic || true,
-          designer: 'Kind Designer',
-          title: `${this.characterForm.name} the ${this.characterForm.honorific}`,
-          promptString: this.characterForm.artPrompt,
-        })
-
-        if (response.success && response.data) {
-          this.characterForm.artImageId = response.data.artImageId
-          await this.updateArtImagePath()
-        } else {
-          throw new Error(response.message || 'Failed to generate art.')
-        }
-      } catch (error) {
-        handleError(error, 'generating art')
-      } finally {
-        this.isGeneratingArt = false
-      }
-    },
-
-    setArtImageId(id: number) {
-      if (this.characterForm) {
-        this.characterForm.artImageId = id
-        this.updateArtImagePath()
-      }
-    },
-
-    async rerollStats() {
-      const rollDice = () =>
-        Array.from({ length: 10 }, () =>
-          Math.floor(Math.random() * 10 + 1),
-        ).reduce((a, b) => a + b)
-
-      if (this.characterForm) {
-        this.characterForm.statValue1 = rollDice()
-        this.characterForm.statValue2 = rollDice()
-        this.characterForm.statValue3 = rollDice()
-        this.characterForm.statValue4 = rollDice()
-        this.characterForm.statValue5 = rollDice()
-        this.characterForm.statValue6 = rollDice()
-      }
-    },
-  },
+  return {
+    characters,
+    selectedCharacter,
+    characterForm,
+    generatedCharacter,
+    artImagePath,
+    useGenerated,
+    keepField,
+    isSaving,
+    isGeneratingArt,
+    isInitialized,
+    loading,
+    generationMode,
+    initialize,
+    fetchCharacters,
+    syncToLocalStorage,
+    selectCharacter,
+    deselectCharacter,
+    updateArtImagePath,
+    saveCharacter,
+    createCharacter,
+    updateCharacter,
+    patchCharacter,
+    deleteCharacter,
+    generateRandomCharacter,
+    setArtImageId,
+    updateField,
+    rerollCharacterStats,
+    fetchCharacterRewards,
+    generateFields,
+    generateArtImage,
+  }
 })
 
 export type { Character }

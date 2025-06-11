@@ -1,487 +1,389 @@
+// /stores/displayStore.ts
 import { defineStore } from 'pinia'
-import { useErrorStore, ErrorType } from './errorStore'
+import { ref, computed, watch } from 'vue'
+import { useErrorStore } from './errorStore'
+import type {
+  DisplayState,
+  FlipState,
+  displayModeState,
+  displayActionState,
+  EffectId,
+} from './helpers/displayHelper'
 
-// Define the types for state values and other variables
-export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
-export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
-export type FullscreenState = 'nuxt' | 'fullscreen' | 'splash'
-export type displayModeState =
-  | 'scenario'
-  | 'character'
-  | 'reward'
-  | 'user'
-  | 'chat'
-  | 'bot'
-  | 'pitch'
-  | 'art'
-  | 'collection'
-  | 'resonance'
+export const useDisplayStore = defineStore('displayStore', () => {
+  const headerState = ref<DisplayState>('open')
+  const sidebarLeftState = ref<DisplayState>('compact')
+  const sidebarRightState = ref<DisplayState>('hidden')
+  const footerState = ref<DisplayState>('hidden')
+  const isVertical = ref(false)
+  const viewportSize = ref<'small' | 'medium' | 'large' | 'extraLarge'>('large')
+  const isTouchDevice = ref(false)
+  const showTutorial = ref(true)
+  const isInitialized = ref(false)
+  const flipState = ref<FlipState>('tutorial')
+  const isFullScreen = ref(false)
+  const isMobileViewport = ref(true)
+  const isAnimating = ref(false)
+  const currentAnimation = ref('')
+  const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
+  const fullscreenState = ref<'nuxt' | 'fullscreen'>('nuxt')
+  const bigMode = ref(false)
+  const displayMode = ref<displayModeState>('scenario')
+  const displayAction = ref<displayActionState>('gallery')
+  const previousRoute = ref('')
+  const mainComponent = ref('')
 
-export type displayActionState =
-  | 'gallery'
-  | 'card'
-  | 'add'
-  | 'edit'
-  | 'generate'
-  | 'interact'
+  const sidebarLeftWidth = computed(() => {
+    const sizes = { small: 16, medium: 11, large: 9, extraLarge: 5 }
+    return (
+      sizes[viewportSize.value] *
+      (['open', 'compact'].includes(sidebarLeftState.value) ? 1 : 0)
+    )
+  })
 
-interface DisplayStoreState {
-  headerState: DisplayState
-  sidebarLeftState: DisplayState
-  sidebarRightState: DisplayState
-  footerState: DisplayState
-  isVertical: boolean
-  viewportSize: 'small' | 'medium' | 'large' | 'extraLarge'
-  isTouchDevice: boolean
-  showTutorial: boolean
-  isInitialized: boolean
-  flipState: FlipState
-  isFullScreen: boolean
-  isMobileViewport: boolean
-  isAnimating: boolean
-  currentAnimation: string
-  resizeTimeout: ReturnType<typeof setTimeout> | null
-  fullscreenState: FullscreenState
-  bigMode: boolean
-  displayMode: displayModeState
-  displayAction: displayActionState
-  previousRoute: string
-  mainComponent: string
+  const sidebarRightWidth = computed(() => {
+    const sizes = { small: 2, medium: 40, large: 25, extraLarge: 28 }
+    return (
+      sizes[viewportSize.value] *
+      (['open', 'compact'].includes(sidebarRightState.value) ? 1 : 0)
+    )
+  })
+
+  const headerHeight = computed(() => {
+    const sizes = {
+      small: bigMode.value ? 10 : 16,
+      medium: bigMode.value ? 8 : 14,
+      large: bigMode.value ? 7 : 13,
+      extraLarge: bigMode.value ? 8 : 14,
+    }
+    return sizes[viewportSize.value]
+  })
+
+  const footerHeight = computed(() => {
+    const sizes = { small: 8, medium: 6, large: 7, extraLarge: 6 }
+    return sizes[viewportSize.value] * (footerState.value === 'open' ? 1 : 0)
+  })
+
+  const sectionPaddingSize = computed(() => {
+    const sizes = { small: 1, medium: 1, large: 1, extraLarge: 0.5 }
+    return sizes[viewportSize.value]
+  })
+
+  const mainContentHeight = computed(
+    () => 100 - (headerHeight.value + 2 * sectionPaddingSize.value),
+  )
+
+  const mainContentWidth = computed(() => {
+    return (
+      100 -
+      (sidebarRightState.value !== 'hidden'
+        ? sidebarRightWidth.value + sectionPaddingSize.value * 2
+        : sectionPaddingSize.value)
+    )
+  })
+
+  const headerStyle = computed(() => ({
+    height: `calc(var(--vh) * ${headerHeight.value})`,
+    width: `calc(100vw - ${sectionPaddingSize.value * 2}vw)`,
+    top: `calc(var(--vh) * ${sectionPaddingSize.value})`,
+    left: `${sectionPaddingSize.value}vw`,
+  }))
+
+  const leftToggleStyle = computed(() => ({
+    top: `calc(var(--vh) * ${headerHeight.value} + ${sectionPaddingSize.value * 2}vh)`,
+    left: `${sectionPaddingSize.value}vw`,
+  }))
+
+  const rightToggleStyle = computed(() => ({
+    top: `calc(var(--vh) * ${headerHeight.value} + ${sectionPaddingSize.value * 2}vh)`,
+    right: `${sectionPaddingSize.value}vw`,
+  }))
+
+  const footerToggleStyle = computed(() => ({
+    bottom: `4vh`,
+    left: '50%',
+    transform: 'translateX(-50%)',
+  }))
+
+  const leftSidebarStyle = computed(() => {
+    return sidebarLeftState.value !== 'hidden'
+      ? {
+          height: `calc(var(--vh) * ${mainContentHeight.value})`,
+          width: `${sidebarLeftWidth.value}vw`,
+          top: `calc(var(--vh) * ${headerHeight.value} + ${sectionPaddingSize.value * 2}vh)`,
+          left: `${sectionPaddingSize.value}vw`,
+        }
+      : { width: '0px', height: '0px' }
+  })
+
+  const rightSidebarStyle = computed(() => {
+    return sidebarRightState.value !== 'hidden'
+      ? {
+          height: `calc(var(--vh) * ${mainContentHeight.value})`,
+          width: `${sidebarRightWidth.value}vw`,
+          top: `calc(var(--vh) * ${headerHeight.value} + ${sectionPaddingSize.value * 2}vh)`,
+          right: `${sectionPaddingSize.value}vw`,
+        }
+      : { width: '0px', height: '0px' }
+  })
+
+  const mainContentStyle = computed(() => ({
+    minHeight: `calc(var(--vh) * ${mainContentHeight.value})`,
+    maxHeight: '100%',
+    width: `calc(${mainContentWidth.value}vw)`,
+    top: `calc(var(--vh) * ${headerHeight.value} + ${sectionPaddingSize.value * 2}vh)`,
+    right:
+      sidebarRightState.value !== 'hidden'
+        ? `calc(${sidebarRightWidth.value}vw + ${sectionPaddingSize.value * 2}vw)`
+        : `${sectionPaddingSize.value}vw`,
+    left: `${sectionPaddingSize.value}vw`,
+  }))
+
+  const footerStyle = computed(() => ({ height: '0px', width: '0px' }))
+
+  const isLargeViewport = computed(() =>
+    ['large', 'extraLarge'].includes(viewportSize.value),
+  )
+
+  function toggleSidebar() {
+    sidebarLeftState.value =
+      sidebarLeftState.value === 'hidden' ? 'open' : 'hidden'
+  }
+
+  function toggleFooter() {
+    footerState.value = footerState.value === 'open' ? 'hidden' : 'open'
+  }
+
+  function toggleBigMode() {
+    bigMode.value = !bigMode.value
+  }
+
+  function setMainComponent(name: string) {
+    mainComponent.value = name
+  }
+
+  function toggleRandomAnimation() {
+    const options = ['sparkle', 'float', 'rainbow', 'shimmer']
+    const index = Math.floor(Math.random() * options.length)
+    currentAnimation.value = options[index]
+    isAnimating.value = true
+  }
+
+  function stopAnimation() {
+    isAnimating.value = false
+    currentAnimation.value = ''
+  }
+
+  function initialize() {
+    if (isInitialized.value) return
+    try {
+      loadState()
+      updateViewport()
+      window.addEventListener('resize', updateViewport)
+      isInitialized.value = true
+    } catch (error) {
+      handleError(error)
+    }
+  }
+
+  function loadState() {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const savedState = localStorage.getItem('displayStoreState')
+        if (savedState) {
+          const parsedState = JSON.parse(savedState)
+          Object.assign(
+            {
+              headerState,
+              sidebarLeftState,
+              sidebarRightState,
+              footerState,
+              isVertical,
+              viewportSize,
+              isTouchDevice,
+              showTutorial,
+              isInitialized,
+              flipState,
+              isFullScreen,
+              isMobileViewport,
+              isAnimating,
+              currentAnimation,
+              fullscreenState,
+              bigMode,
+              displayMode,
+              displayAction,
+              previousRoute,
+              mainComponent,
+            },
+            parsedState,
+          )
+        }
+      }
+    } catch (error) {
+      handleError(error)
+    }
+  }
+
+  // Function to set the right sidebar state (open/hidden) without toggling compact
+  function setSidebarRight(isOpen: boolean) {
+    if (isOpen) {
+      sidebarRightState.value = 'open'
+    } else {
+      sidebarRightState.value = 'hidden'
+    }
+    saveState()
+  }
+
+  function handleError(error: unknown) {
+    const errorStore = useErrorStore()
+    errorStore.setError(ErrorType.GENERAL_ERROR, error)
+  }
+
+  function saveState() {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const stateToSave = {
+          headerState: headerState.value,
+          sidebarLeftState: sidebarLeftState.value,
+          sidebarRightState: sidebarRightState.value,
+          footerState: footerState.value,
+          isVertical: isVertical.value,
+          viewportSize: viewportSize.value,
+          isTouchDevice: isTouchDevice.value,
+          showTutorial: showTutorial.value,
+          flipState: flipState.value,
+          isFullScreen: isFullScreen.value,
+          isMobileViewport: isMobileViewport.value,
+          fullscreenState: fullscreenState.value,
+          bigMode: bigMode.value,
+          displayMode: displayMode.value,
+          displayAction: displayAction.value,
+          previousRoute: previousRoute.value,
+          mainComponent: mainComponent.value,
+        }
+        localStorage.setItem('displayStoreState', JSON.stringify(stateToSave))
+      }
+    } catch (error) {
+      handleError(error)
+    }
+  }
+
+  function updateViewport() {
+    const width = window.innerWidth
+    if (width < 640) viewportSize.value = 'small'
+    else if (width < 768) viewportSize.value = 'medium'
+    else if (width < 1024) viewportSize.value = 'large'
+    else viewportSize.value = 'extraLarge'
+  }
+
+  function toggleAnimationById(id: EffectId) {
+    currentAnimation.value = id
+    isAnimating.value = true
+  }
+
+  function changeState(
+    section:
+      | 'sidebarLeftState'
+      | 'sidebarRightState'
+      | 'headerState'
+      | 'footerState',
+    newState: DisplayState,
+  ) {
+    const stateMap = {
+      sidebarLeftState,
+      sidebarRightState,
+      headerState,
+      footerState,
+    }
+
+    stateMap[section].value = newState
+    saveState()
+  }
+
+function setAction(action: displayActionState) {
+  displayAction.value = action
+  saveState()
 }
 
-// Define the valid effect IDs
-export type EffectId =
-  | 'bubble-effect'
-  | 'fizzy-bubbles'
-  | 'rain-effect'
-  | 'butterfly-animation'
 
-export const useDisplayStore = defineStore('displayStore', {
-  state: (): DisplayStoreState => ({
-    headerState: 'open',
-    sidebarLeftState: 'compact',
-    sidebarRightState: 'hidden',
-    footerState: 'hidden',
-    isVertical: false,
-    viewportSize: 'large',
-    isTouchDevice: false,
-    showTutorial: true,
-    isInitialized: false,
-    flipState: 'tutorial',
-    isFullScreen: false,
-    isMobileViewport: true,
-    isAnimating: false,
-    currentAnimation: '',
-    resizeTimeout: null,
-    fullscreenState: 'nuxt',
-    bigMode: false,
-    displayMode: 'scenario',
-    displayAction: 'gallery',
-    previousRoute: '',
-    mainComponent: '',
-  }),
+  function setMode(mode: displayModeState) {
+    displayMode.value = mode
+    saveState()
+  }
 
-  getters: {
-    sidebarLeftWidth(): number {
-      const sizes = { small: 16, medium: 11, large: 9, extraLarge: 5 }
-      return (
-        sizes[this.viewportSize] *
-        (['open', 'compact'].includes(this.sidebarLeftState) ? 1 : 0)
-      )
-    },
+  function removeViewportWatcher() {
+    console.log('Removing viewport watcher...')
+    window.removeEventListener('resize', updateViewport)
+  }
 
-    sidebarRightWidth(): number {
-      const sizes = { small: 2, medium: 40, large: 25, extraLarge: 28 }
-      return (
-        sizes[this.viewportSize] *
-        (['open', 'compact'].includes(this.sidebarRightState) ? 1 : 0)
-      )
-    },
+  function toggleTutorial() {
+    if (flipState.value === 'tutorial' || flipState.value === 'toTutorial') {
+      flipState.value = 'toMain'
+    } else {
+      flipState.value = 'toTutorial'
+    }
 
-    headerHeight(): number {
-      const sizes = {
-        small: this.bigMode ? 10 : 16,
-        medium: this.bigMode ? 8 : 12,
-        large: this.bigMode ? 10 : 14,
-        extraLarge: this.bigMode ? 8 : 14,
-      }
-      return sizes[this.viewportSize]
-    },
+    // Toggle the showTutorial state
+    showTutorial.value = !showTutorial
 
-    footerHeight(): number {
-      const sizes = { small: 8, medium: 6, large: 7, extraLarge: 6 }
-      return sizes[this.viewportSize] * (this.footerState === 'open' ? 1 : 0)
-    },
+    saveState()
+  }
 
-    sectionPaddingSize(): number {
-      const sizes = { small: 1, medium: 1, large: 1, extraLarge: 0.5 }
-      return sizes[this.viewportSize]
-    },
-
-    mainContentHeight(): number {
-      return 100 - (this.headerHeight + 2 * this.sectionPaddingSize)
-    },
-    mainContentWidth(): number {
-      return (
-        100 -
-        (this.sidebarRightState !== 'hidden'
-          ? this.sidebarRightWidth + this.sectionPaddingSize * 2
-          : this.sectionPaddingSize)
-      )
-    },
-
-    headerStyle(): Record<string, string> {
-      return {
-        height: `calc(var(--vh) * ${this.headerHeight})`,
-        width: `calc(100vw - ${this.sectionPaddingSize * 2}vw)`,
-        top: `calc(var(--vh) * ${this.sectionPaddingSize}`,
-        left: `${this.sectionPaddingSize}vw`,
-      }
-    },
-
-    leftToggleStyle(): Record<string, string> {
-      return {
-        top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
-        left: `${this.sectionPaddingSize}vw`,
-      }
-    },
-
-    rightToggleStyle(): Record<string, string> {
-      return {
-        top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
-        right: `${this.sectionPaddingSize}vw`,
-      }
-    },
-
-    footerToggleStyle(): Record<string, string> {
-      return {
-        bottom: `4vh`,
-        left: '50%',
-        transform: 'translateX(-50%)',
-      }
-    },
-
-    leftSidebarStyle(): Record<string, string> {
-      return this.sidebarLeftState !== 'hidden'
-        ? {
-            height: `calc(var(--vh) * ${this.mainContentHeight})`,
-            width: `${this.sidebarLeftWidth}vw`,
-            top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
-            left: `${this.sectionPaddingSize}vw`,
-          }
-        : { width: '0px', height: '0px' }
-    },
-
-    rightSidebarStyle(): Record<string, string> {
-      return this.sidebarRightState !== 'hidden'
-        ? {
-            height: `calc(var(--vh) * ${this.mainContentHeight})`,
-            width: `${this.sidebarRightWidth}vw`,
-            top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
-            right: `${this.sectionPaddingSize}vw`,
-          }
-        : { width: '0px', height: '0px' }
-    },
-
-    mainContentStyle(): Record<string, string> {
-      return {
-        minHeight: `calc(var(--vh) * ${this.mainContentHeight})`,
-        maxHeight: '100%',
-        width: `calc(${this.mainContentWidth}vw)`,
-        top: `calc(var(--vh) * ${this.headerHeight} + ${this.sectionPaddingSize * 2}vh)`,
-        right:
-          this.sidebarRightState !== 'hidden'
-            ? `calc(${this.sidebarRightWidth}vw + ${this.sectionPaddingSize * 2}vw)`
-            : `${this.sectionPaddingSize}vw`,
-        left: `${this.sectionPaddingSize}vw`,
-      }
-    },
-
-    footerStyle(): Record<string, string> {
-      return { height: '0px', width: '0px' }
-    },
-
-    //everything after here is probably good
-    isLargeViewport(state): boolean {
-      return ['large', 'extraLarge'].includes(state.viewportSize)
-    },
-  },
-
-  actions: {
-    handleError(error: unknown) {
-      const errorStore = useErrorStore()
-      errorStore.setError(ErrorType.GENERAL_ERROR, error)
-    },
-    toggleBigMode() {
-      this.bigMode = !this.bigMode
-
-      this.$patch({
-        headerState: this.bigMode ? 'hidden' : 'open',
-        sidebarLeftState: this.bigMode ? 'hidden' : 'compact',
-        sidebarRightState: this.bigMode ? 'hidden' : 'open',
-        footerState: this.bigMode ? 'hidden' : 'open',
-      })
-
-      this.saveState()
-    },
-    setMainComponent(component: string) {
-      this.mainComponent = component
-    },
-
-    initialize() {
-      if (this.isInitialized) {
-        return
-      }
-
-      try {
-        this.loadState()
-        this.updateViewport()
-        window.addEventListener('resize', this.updateViewport)
-        this.isInitialized = true
-      } catch (error) {
-        this.handleError(error)
-      }
-    },
-    loadState() {
-      try {
-        if (typeof window !== 'undefined' && window.localStorage) {
-          const savedState = localStorage.getItem('displayStoreState')
-          if (savedState) {
-            const parsedState = JSON.parse(savedState)
-            this.$patch(parsedState) // Merge the saved state with the current one
-          }
-        }
-      } catch (error) {
-        this.handleError(error)
-      }
-    },
-
-    toggleFullscreen() {
-      if (this.fullscreenState === 'nuxt') {
-        // Switch to fullscreen
-        this.fullscreenState = 'fullscreen'
-        this.isFullScreen = true
-
-        // Close other elements
-        this.headerState = 'hidden' // Explicitly hide the header
-        this.sidebarLeftState = 'hidden'
-        this.sidebarRightState = 'hidden'
-        this.footerState = 'hidden'
-      } else {
-        // Restore previous states
-        this.fullscreenState = 'nuxt'
-        this.isFullScreen = false
-      }
-
-      this.saveState()
-    },
-
-    // Function to toggle animation by ID
-    toggleAnimationById(animationId: EffectId) {
-      this.isAnimating = true
-      this.currentAnimation = animationId
-    },
-
-    setMode(mode: displayModeState) {
-      this.displayMode = mode
-      this.saveState()
-    },
-    setAction(action: displayActionState) {
-      this.displayAction = action
-      this.saveState()
-    },
-
-    // Function to toggle a random animation
-    toggleRandomAnimation() {
-      const animations: EffectId[] = [
-        'bubble-effect',
-        'fizzy-bubbles',
-        'rain-effect',
-        'butterfly-animation',
-      ]
-      const randomAnimation =
-        animations[Math.floor(Math.random() * animations.length)]
-      this.isAnimating = true
-      this.currentAnimation = randomAnimation
-    },
-
-    stopAnimation() {
-      this.isAnimating = false
-      this.currentAnimation = ''
-    },
-
-    updateViewport() {
-      if (this.resizeTimeout) {
-        clearTimeout(this.resizeTimeout) // Clear previous timeout
-      }
-      this.resizeTimeout = setTimeout(() => {
-        try {
-          // Set custom viewport height for mobile devices
-          this.setCustomVh()
-
-          // Check if we are in a browser environment
-          if (typeof window !== 'undefined') {
-            // Check if the viewport is vertical
-            this.isVertical = window.innerHeight > window.innerWidth
-
-            // Check if the device is a touch device
-            this.isTouchDevice =
-              'ontouchstart' in window || navigator.maxTouchPoints > 0
-
-            // Adjust viewport size based on window width
-            const width = window.innerWidth
-
-            if (width < 768) {
-              this.viewportSize = 'small'
-              this.isMobileViewport = true
-              this.isFullScreen = false
-            } else if (width >= 768 && width < 1024) {
-              this.viewportSize = 'medium'
-              this.isMobileViewport = false
-              this.isFullScreen = false
-            } else if (width >= 1024 && width < 1440) {
-              this.viewportSize = 'large'
-              this.isMobileViewport = false
-              this.isFullScreen = true
-            } else {
-              this.viewportSize = 'extraLarge'
-              this.isMobileViewport = false
-              this.isFullScreen = true
-            }
-          }
-        } catch (error) {
-          this.handleError(error)
-        } finally {
-          this.resizeTimeout = null // Reset timeout after execution
-        }
-      }, 200) // 200ms debounce delay
-    },
-
-    setCustomVh() {
-      if (typeof window !== 'undefined') {
-        const vh = window.innerHeight * 0.01
-        document.documentElement.style.setProperty('--vh', `${vh}px`)
-      }
-    },
-
-    toggleFlipState() {
-      // Manage the flip transition based on current state
-      if (this.flipState === 'tutorial') {
-        this.flipState = 'toMain'
-      } else if (this.flipState === 'main') {
-        this.flipState = 'toTutorial'
-      }
-      this.saveState()
-    },
-
-    setFlipState(newState: FlipState) {
-      const validStates: FlipState[] = [
-        'tutorial',
-        'main',
-        'toTutorial',
-        'toMain',
-      ]
-
-      if (validStates.includes(newState)) {
-        this.flipState = newState
-        this.saveState()
-      } else {
-        const errorStore = useErrorStore()
-        errorStore.setError(
-          ErrorType.GENERAL_ERROR,
-          `Invalid flip state: ${newState}`,
-        )
-      }
-    },
-
-    completeFlip() {
-      if (this.flipState === 'toMain') {
-        this.flipState = 'main'
-      } else if (this.flipState === 'toTutorial') {
-        this.flipState = 'tutorial'
-      }
-      this.saveState()
-    },
-
-    toggleSidebar(side: 'sidebarLeftState' | 'sidebarRightState') {
-      const stateCycle: Record<DisplayState, DisplayState> = {
-        hidden: 'compact',
-        compact: 'hidden',
-        open: 'hidden',
-        disabled: 'hidden',
-      }
-      this[side] = stateCycle[this[side]]
-      this.saveState()
-    },
-
-    toggleFooter() {
-      const stateCycle: Record<DisplayState, DisplayState> = {
-        hidden: 'open',
-        open: 'hidden',
-        compact: 'hidden',
-        disabled: 'hidden',
-      }
-      this.footerState = stateCycle[this.footerState]
-      this.saveState()
-    },
-
-    // Function to set the right sidebar state (open/hidden) without toggling compact
-    setSidebarRight(isOpen: boolean) {
-      if (isOpen) {
-        this.sidebarRightState = 'open'
-      } else {
-        this.sidebarRightState = 'hidden'
-      }
-      this.saveState()
-    },
-
-    toggleTutorial() {
-      if (this.flipState === 'tutorial' || this.flipState === 'toTutorial') {
-        this.flipState = 'toMain'
-      } else {
-        this.flipState = 'toTutorial'
-      }
-
-      // Toggle the showTutorial state
-      this.showTutorial = !this.showTutorial
-
-      this.saveState()
-    },
-
-    changeState(
-      section:
-        | 'sidebarLeftState'
-        | 'sidebarRightState'
-        | 'headerState'
-        | 'footerState',
-      newState: DisplayState,
-    ) {
-      this[section] = newState
-      this.saveState()
-    },
-
-    resetInitialization() {
-      this.isInitialized = false
-    },
-    removeViewportWatcher() {
-      console.log('Removing viewport watcher...')
-      window.removeEventListener('resize', this.updateViewport)
-    },
-
-    saveState() {
-      try {
-        if (typeof window !== 'undefined' && window.localStorage) {
-          const stateToSave = {
-            ...this.$state,
-            resizeTimeout: null, // Exclude transient properties
-            isAnimating: false,
-            currentAnimation: '',
-          }
-          localStorage.setItem('displayStoreState', JSON.stringify(stateToSave))
-        }
-      } catch (error) {
-        this.handleError(error)
-      }
-    },
-  },
+  return {
+    headerState,
+    sidebarLeftState,
+    sidebarRightState,
+    footerState,
+    isVertical,
+    viewportSize,
+    isTouchDevice,
+    showTutorial,
+    isInitialized,
+    flipState,
+    isFullScreen,
+    isMobileViewport,
+    isAnimating,
+    currentAnimation,
+    resizeTimeout,
+    fullscreenState,
+    bigMode,
+    displayMode,
+    displayAction,
+    previousRoute,
+    mainComponent,
+    sidebarLeftWidth,
+    sidebarRightWidth,
+    headerHeight,
+    footerHeight,
+    sectionPaddingSize,
+    mainContentHeight,
+    mainContentWidth,
+    headerStyle,
+    leftToggleStyle,
+    rightToggleStyle,
+    footerToggleStyle,
+    leftSidebarStyle,
+    rightSidebarStyle,
+    mainContentStyle,
+    footerStyle,
+    isLargeViewport,
+    toggleSidebar,
+    toggleFooter,
+    toggleBigMode,
+    setMainComponent,
+    toggleRandomAnimation,
+    stopAnimation,
+    initialize,
+    saveState,
+    updateViewport,
+    toggleAnimationById,
+    setSidebarRight,
+    setMode,
+    setAction,
+    toggleTutorial,
+    changeState,
+    removeViewportWatcher,
+  }
 })
+
+export type { EffectId, displayModeState, displayActionState }

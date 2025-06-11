@@ -13,8 +13,6 @@ interface LinkItem {
 }
 
 export const useLinkStore = defineStore('linkStore', () => {
-  const pageStore = usePageStore()
-
   const staticLinks = ref<LinkItem[]>([
     // Navigation Icons
     { title: 'Brainstorm!', path: '/brainstorm', icon: 'kind-icon:brain' },

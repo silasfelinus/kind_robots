@@ -1,141 +1,143 @@
+// /stores/tagStore.ts
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import type { Tag } from '@prisma/client'
 import { performFetch } from './utils'
 import { useUserStore } from './userStore'
 
 const isClient = typeof window !== 'undefined'
 
-export const useTagStore = defineStore('tagStore', {
-  state: () => ({
-    tags: [] as Tag[],
-    isInitialized: false,
-    selectedTag: null as Tag | null,
-    error: null as string | null,
-    isLoading: false,
-  }),
+export const useTagStore = defineStore('tagStore', () => {
+  const tags = ref<Tag[]>([])
+  const isInitialized = ref(false)
+  const selectedTag = ref<Tag | null>(null)
+  const error = ref<string | null>(null)
+  const isLoading = ref(false)
 
-  getters: {
-    activeAndPublicTags(): Tag[] {
-      const userStore = useUserStore()
-      return this.tags.filter(
-        (tag) =>
-          tag.isPublic || tag.userId === userStore.userId || tag.userId === 0,
-      )
-    },
-  },
+  const userStore = useUserStore()
 
-  actions: {
-    selectTag(tagId: number) {
-      const foundTag = this.tags.find((tag) => tag.id === tagId)
-      if (foundTag) {
-        this.selectedTag = foundTag
-      } else {
-        console.warn(`Tag with id ${tagId} not found.`)
+  const activeAndPublicTags = computed(() => {
+    return tags.value.filter(
+      (tag) =>
+        tag.isPublic || tag.userId === userStore.userId || tag.userId === 0,
+    )
+  })
+
+  function selectTag(tagId: number) {
+    const foundTag = tags.value.find((tag) => tag.id === tagId)
+    if (foundTag) {
+      selectedTag.value = foundTag
+    } else {
+      console.warn(`Tag with id ${tagId} not found.`)
+    }
+  }
+
+  async function initializeTags() {
+    if (!isInitialized.value) {
+      isInitialized.value = true
+      await fetchTags()
+    }
+  }
+
+  async function fetchTags() {
+    isLoading.value = true
+    try {
+      const response = await performFetch<Tag[]>('/api/tags')
+      if (!response.success || !Array.isArray(response.data)) {
+        throw new Error(
+          response.message || 'Invalid response format from the server',
+        )
       }
-    },
-
-    async initializeTags() {
-      if (!this.isInitialized) {
-        this.isInitialized = true
-        await this.fetchTags()
+      tags.value = response.data
+      if (isClient) {
+        localStorage.setItem('tags', JSON.stringify(tags.value))
       }
-    },
+    } catch (err) {
+      error.value = `Failed to fetch tags: ${err}`
+      console.error(error.value)
+    } finally {
+      isLoading.value = false
+    }
+  }
 
-    async fetchTags() {
-      this.isLoading = true
-      try {
-        const response = await performFetch<Tag[]>('/api/tags')
-        if (!response.success || !Array.isArray(response.data)) {
-          throw new Error(
-            response.message || 'Invalid response format from the server',
-          )
-        }
-
-        this.tags = response.data
-
+  async function createTag(label: string, title: string, userId: number) {
+    try {
+      const response = await performFetch<Tag>('/api/tags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label, title, userId, isPublic: false }),
+      })
+      if (response.success && response.data) {
+        tags.value.push(response.data)
         if (isClient) {
-          localStorage.setItem('tags', JSON.stringify(this.tags))
+          localStorage.setItem('tags', JSON.stringify(tags.value))
         }
-      } catch (error) {
-        this.error = `Failed to fetch tags: ${error}`
-        console.error(this.error)
-      } finally {
-        this.isLoading = false
+      } else {
+        throw new Error(response.message || 'Failed to create tag')
       }
-    },
+    } catch (err) {
+      error.value = `Failed to create tag: ${err}`
+      console.error(error.value)
+    }
+  }
 
-    async createTag(label: string, title: string, userId: number) {
-      try {
-        const response = await performFetch<Tag>('/api/tags', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ label, title, userId, isPublic: false }),
-        })
-
-        if (response.success && response.data) {
-          this.tags.push(response.data)
-
+  async function editTag(id: number, updates: Partial<Tag>) {
+    try {
+      const response = await performFetch<Tag>(`/api/tags/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      })
+      if (response.success && response.data) {
+        const index = tags.value.findIndex((tag) => tag.id === id)
+        if (index !== -1) {
+          tags.value[index] = { ...tags.value[index], ...response.data }
           if (isClient) {
-            localStorage.setItem('tags', JSON.stringify(this.tags))
+            localStorage.setItem('tags', JSON.stringify(tags.value))
           }
-        } else {
-          throw new Error(response.message || 'Failed to create tag')
         }
-      } catch (error) {
-        this.error = `Failed to create tag: ${error}`
-        console.error(this.error)
+      } else {
+        throw new Error(response.message || 'Failed to edit tag')
       }
-    },
+    } catch (err) {
+      error.value = `Failed to edit tag: ${err}`
+      console.error(error.value)
+    }
+  }
 
-    async editTag(id: number, updates: Partial<Tag>) {
-      try {
-        const response = await performFetch<Tag>(`/api/tags/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updates),
-        })
-
-        if (response.success && response.data) {
-          const index = this.tags.findIndex((tag) => tag.id === id)
-          if (index !== -1) {
-            this.tags[index] = { ...this.tags[index], ...response.data }
-
-            if (isClient) {
-              localStorage.setItem('tags', JSON.stringify(this.tags))
-            }
-          }
-        } else {
-          throw new Error(response.message || 'Failed to edit tag')
+  async function deleteTag(id: number) {
+    try {
+      const response = await performFetch(`/api/tags/${id}`, {
+        method: 'DELETE',
+      })
+      if (response.success) {
+        tags.value = tags.value.filter((tag) => tag.id !== id)
+        if (isClient) {
+          localStorage.setItem('tags', JSON.stringify(tags.value))
         }
-      } catch (error) {
-        this.error = `Failed to edit tag: ${error}`
-        console.error(this.error)
+      } else {
+        throw new Error(response.message || 'Failed to delete tag')
       }
-    },
+    } catch (err) {
+      error.value = `Failed to delete tag: ${err}`
+      console.error(error.value)
+    }
+  }
 
-    async deleteTag(id: number) {
-      try {
-        const response = await performFetch(`/api/tags/${id}`, {
-          method: 'DELETE',
-        })
-
-        if (response.success) {
-          this.tags = this.tags.filter((tag) => tag.id !== id)
-
-          if (isClient) {
-            localStorage.setItem('tags', JSON.stringify(this.tags))
-          }
-        } else {
-          throw new Error(response.message || 'Failed to delete tag')
-        }
-      } catch (error) {
-        this.error = `Failed to delete tag: ${error}`
-        console.error(this.error)
-      }
-    },
-  },
+  return {
+    tags,
+    isInitialized,
+    selectedTag,
+    error,
+    isLoading,
+    activeAndPublicTags,
+    selectTag,
+    initializeTags,
+    fetchTags,
+    createTag,
+    editTag,
+    deleteTag,
+  }
 })
 
 export type { Tag }

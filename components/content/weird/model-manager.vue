@@ -85,7 +85,7 @@
 </template>
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
+import { useDisplayStore, type displayModeState } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 

@@ -15,5 +15,5 @@ amitip: What can I say, we're all about giving people choices!
 layout: 'default'
 theme: retro
 ---
-
+:theme-preview
 :theme-gallery

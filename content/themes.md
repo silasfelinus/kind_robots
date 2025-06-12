@@ -19,4 +19,4 @@ theme: retro
 
 :theme-lab
 
-:theme-gallery
+:theme-test

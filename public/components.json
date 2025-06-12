@@ -40,7 +40,6 @@
   {
     "folderName": "bots",
     "components": [
-      "add-bot-old",
       "add-bot",
       "bot-bubble",
       "bot-cafe",

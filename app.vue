@@ -27,6 +27,7 @@
 
     <!-- Header -->
     <header
+      v-if="pageStore.ready"
       class="fixed z-40 border-6 border-secondary transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
@@ -35,6 +36,7 @@
 
     <!-- Main Content -->
     <main
+      v-if="pageStore.ready"
       class="absolute inset-0 z-30 box-border overflow-hidden"
       :style="displayStore.mainContentStyle"
     >
@@ -48,12 +50,14 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
+import { usePageStore } from '@/stores/pageStore'
 import { useSmartbarStore } from '@/stores/smartbarStore'
 
 const smartbarStore = useSmartbarStore()
 const showSwarm = computed(() => smartbarStore.showSwarm)
 
 const displayStore = useDisplayStore()
+const pageStore = usePageStore()
 const router = useRouter()
 const isNavigating = ref(false)
 

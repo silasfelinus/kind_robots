@@ -1,4 +1,4 @@
-<!-- /components/content/themes/theme-editor.vue -->
+<!-- /components/content/themes/theme-lab.vue -->
 <template>
   <section class="bg-base-200 border border-base-content p-6 rounded-2xl shadow-lg">
     <h2 class="text-2xl font-semibold mb-4">Create or Edit Your Theme</h2>

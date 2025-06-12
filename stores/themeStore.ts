@@ -201,18 +201,27 @@ export const useThemeStore = defineStore('themeStore', () => {
 
   async function addTheme(theme: Partial<Theme>) {
     const { user } = useUserStore()
-  const userId = user?.id || 10
+    const userId = user?.id || 10
     const payload = { ...theme, userId }
-    const { success } = await performFetch('/api/themes', {
+
+    const result = await performFetch('/api/themes', {
       method: 'POST',
       body: JSON.stringify(payload),
     })
-    if (success) await getThemes()
+
+    if (result.success) await getThemes()
+    else
+      useErrorStore().setError(
+        ErrorType.NETWORK_ERROR,
+        result.message || 'Theme save failed.',
+      )
+
+    return result
   }
 
   async function updateTheme(id: number, updates: Partial<Theme>) {
     const { user } = useUserStore()
-  const userId = user?.id || 10
+    const userId = user?.id || 10
     const payload = { ...updates, userId }
     const { success } = await performFetch(`/api/themes/${id}`, {
       method: 'PATCH',

@@ -189,25 +189,6 @@
             </div>
           </div>
         </div>
-
-        <div
-          class="mt-6 border rounded-xl p-4 transition-all duration-300"
-          :style="`${previewStyle}; border-radius: var(--radius-box, 0.5rem); border-width: var(--border, 1px);`"
-        >
-          <h3 class="text-lg font-bold">Live Preview</h3>
-          <div class="flex gap-2 mt-2 flex-wrap">
-            <button class="btn btn-base-100 btn-sm">Base-100</button>
-            <button class="btn btn-base-200 btn-sm">Base-200</button>
-            <button class="btn btn-base-100 btn-sm">Base-300</button>
-            <button class="btn btn-primary btn-sm">Primary</button>
-            <button class="btn btn-secondary btn-sm">Secondary</button>
-            <button class="btn btn-accent btn-sm">Accent</button>
-            <button class="btn btn-info btn-sm">Info</button>
-            <button class="btn btn-success btn-sm">Success</button>
-            <button class="btn btn-warning btn-sm">Warning</button>
-            <button class="btn btn-error btn-sm">Error</button>
-          </div>
-        </div>
       </section>
 
       <!-- Theme Gallery -->

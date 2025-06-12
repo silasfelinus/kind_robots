@@ -11,7 +11,7 @@
             :key="theme"
             :data-theme="theme"
             class="rounded-xl p-4 border cursor-pointer text-center hover:ring hover:ring-primary"
-            @click="handleSetTheme(theme)"
+            @click="setTheme(theme)"
           >
             <div class="font-mono">{{ theme }}</div>
           </magic-container>
@@ -22,29 +22,25 @@
       <div v-if="themeStore.sharedThemes.length">
         <h2 class="text-xl font-semibold mb-3">🌍 Shared Themes</h2>
         <div class="grid gap-3 sm:grid-cols-2">
-          <div
+          <magic-container
             v-for="theme in themeStore.sharedThemes"
             :key="theme.id"
-            class="relative"
+            :data-theme="'custom-preview-' + theme.id"
+            class="relative rounded-xl p-4 border cursor-pointer group hover:ring hover:ring-secondary"
+            @click="setTheme(theme)"
           >
             <div
-              :data-theme="'custom-preview-' + theme.id"
-              class="rounded-xl p-4 border cursor-pointer group hover:ring hover:ring-secondary"
-              @click="handleSetTheme(theme)"
+              class="w-full h-full flex items-center justify-center font-mono text-lg text-center"
             >
-              <div
-                class="w-full h-full flex items-center justify-center font-mono text-lg text-center"
-              >
-                {{ theme.name }}
-              </div>
-              <button
-                class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100 transition-opacity"
-                @click.stop="editTheme(theme)"
-              >
-                ✏️ Edit
-              </button>
+              {{ theme.name }}
             </div>
-          </div>
+            <button
+              class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100 transition-opacity"
+              @click.stop="editTheme(theme)"
+            >
+              ✏️ Edit
+            </button>
+          </magic-container>
         </div>
 
         <!-- Info + Errors -->
@@ -81,73 +77,81 @@ const milestoneStore = useMilestoneStore()
 const themeError = ref('')
 const inspectValues = ref<string | null>(null)
 
-function handleSetTheme(theme: string | Theme) {
+function safeThemeValues(val: unknown): Record<string, string> {
+  return typeof val === 'object' && val !== null && !Array.isArray(val)
+    ? (val as Record<string, string>)
+    : {}
+}
+
+function setTheme(theme: string | Theme) {
   const input =
     typeof theme === 'string'
       ? theme
       : {
-          ...theme,
-          values:
-            theme.values && typeof theme.values === 'object'
-              ? (theme.values as Record<string, string>)
-              : {},
+          name: theme.name,
+          prefersDark: theme.prefersDark,
+          colorScheme: theme.colorScheme,
+          isPublic: theme.isPublic,
+          room: theme.room || '',
+          values: safeThemeValues(theme.values),
         }
 
-  const result = themeStore.setActiveTheme(input)
-  if (!result.success) {
-    themeError.value = `❌ Failed to apply theme\n${result.message}`
-    inspectValues.value = null
-  } else {
-    themeError.value = ''
-    try {
+  try {
+    const result = themeStore.setActiveTheme(input)
+    if (!result.success) {
+      themeError.value = `❌ Failed to apply theme\n${result.message}`
+      inspectValues.value = null
+    } else {
+      themeError.value = ''
       inspectValues.value = JSON.stringify(themeStore.getThemeValues(), null, 2)
       milestoneStore.rewardMilestone(9)
-    } catch (err) {
-      themeError.value = `❌ Failed to load theme info\n${(err as Error).message}`
     }
+  } catch (err) {
+    themeError.value = `❌ setTheme crashed:\n${(err as Error).message}`
   }
 }
-
-watchEffect(() => {
-  useHead({
-    style: [
-      {
-        key: 'custom-theme-preview',
-        tagPriority: 'low',
-        textContent: sharedThemeStyles.value,
-      },
-    ],
-  })
-})
 
 function editTheme(theme: Theme) {
   try {
     themeStore.themeForm = {
-      ...theme,
-      values:
-        theme.values && typeof theme.values === 'object'
-          ? (theme.values as Record<string, string>)
-          : {},
+      id: theme.id,
+      name: theme.name,
+      prefersDark: theme.prefersDark,
+      colorScheme: theme.colorScheme,
+      isPublic: theme.isPublic,
+      room: theme.room || '',
+      values: safeThemeValues(theme.values),
     }
+    themeError.value = ''
   } catch (err) {
-    themeError.value = `❌ Failed to edit theme\n${(err as Error).message}`
+    themeError.value = `❌ editTheme crashed:\n${(err as Error).message}`
   }
 }
 
 const sharedThemeStyles = computed(() =>
   themeStore.sharedThemes
     .map((theme) => {
-      const values = theme?.values
-      if (!values || typeof values !== 'object' || Array.isArray(values))
-        return ''
-
+      const values = safeThemeValues(theme.values)
       const selector = `[data-theme="custom-preview-${theme.id}"]`
       const entries = Object.entries(values)
         .map(([key, value]) => `${key}: ${value};`)
         .join('\n')
       return `${selector} {\n${entries}\n}`
     })
-    .filter(Boolean)
     .join('\n\n'),
 )
+
+watchEffect(() => {
+  if (themeStore.sharedThemes.length) {
+    useHead({
+      style: [
+        {
+          key: 'custom-theme-preview',
+          tagPriority: 'low',
+          textContent: sharedThemeStyles.value,
+        },
+      ],
+    })
+  }
+})
 </script>

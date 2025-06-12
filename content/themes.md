@@ -16,5 +16,4 @@ layout: 'default'
 theme: retro
 ---
 :theme-lab
-:theme-preview
 :theme-gallery

@@ -17,25 +17,36 @@
       <button class="btn btn-error btn-sm">Error</button>
     </div>
 
-    <div class="bg-base-100 p-4 rounded-box border border-base-300 space-y-3 text-base-content">
+    <div
+      class="bg-base-100 p-4 rounded-box border border-base-300 space-y-3 text-base-content"
+    >
       <p class="text-sm">
         This card uses <code class="text-xs">--radius-box</code>,
         <code class="text-xs">--border</code>, and
         <code class="text-xs">--shadow</code>.
       </p>
+      <label for="preview-input" class="sr-only">Preview Input</label>
       <input
+        id="preview-input"
         class="input input-bordered w-full"
         placeholder="Example input"
         readonly
       />
-      <progress
-        class="progress w-full progress-primary"
-        value="40"
-        max="100"
-      />
+
+      <progress class="progress w-full progress-primary" value="40" max="100" />
       <div class="flex justify-between text-xs text-base-content/70">
-        <span>Font: <code>{{ themeForm.values?.['--text-base'] || 'default' }}</code></span>
-        <span>Padding: <code>{{ themeForm.values?.['--padding-card'] || 'default' }}</code></span>
+        <span
+          >Font:
+          <code>{{
+            themeForm.values?.['--text-base'] || 'default'
+          }}</code></span
+        >
+        <span
+          >Padding:
+          <code>{{
+            themeForm.values?.['--padding-card'] || 'default'
+          }}</code></span
+        >
       </div>
     </div>
   </div>
@@ -44,7 +55,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useThemeStore } from '@/stores/themeStore'
-
 
 const themeStore = useThemeStore()
 const themeForm = themeStore.themeForm

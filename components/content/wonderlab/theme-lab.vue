@@ -73,7 +73,7 @@
                 v-model="themeForm.values?.[key]"
               />
               <div class="text-xs text-right text-base-content/70">
-                {{ themeForm.values?.[key] }}
+                {{ themeForm.values?.[key] || '' }}
               </div>
             </div>
 
@@ -230,6 +230,15 @@ import {
 const themeStore = useThemeStore()
 const themeForm = themeStore.themeForm
 const themeError = ref('')
+
+function bindValue(key: string) {
+  return computed({
+    get: () => themeForm.values?.[key] ?? '',
+    set: (val) => {
+      if (themeForm.values) themeForm.values[key] = val
+    },
+  })
+}
 
 onMounted(() => {
   themeStore.initializeThemeFormIfNeeded()

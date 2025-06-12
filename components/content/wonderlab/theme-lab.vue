@@ -70,17 +70,17 @@
                 :min="getSliderMeta(key).min"
                 :max="getSliderMeta(key).max"
                 :step="getSliderMeta(key).step"
-                v-model="themeForm.values?.[key]"
+                v-bind="vModelBinding(key)"
               />
               <div class="text-xs text-right text-base-content/70">
-                {{ themeForm.values?.[key] || '' }}
+                {{ bindValue(key).value }}
               </div>
             </div>
 
             <input
               v-else
               type="text"
-              v-model="themeForm.values?.[key]"
+              v-bind="vModelBinding(key)"
               class="input input-bordered w-full h-10"
               placeholder="e.g. 1rem or 0"
             />
@@ -219,6 +219,18 @@ function bindValue(key: string) {
       if (themeForm.values) themeForm.values[key] = val
     },
   })
+}
+
+function vModelBinding(key: string) {
+  const model = bindValue(key)
+  return {
+    get modelValue() {
+      return model.value
+    },
+    set modelValue(val: any) {
+      model.value = val
+    },
+  }
 }
 
 onMounted(() => {

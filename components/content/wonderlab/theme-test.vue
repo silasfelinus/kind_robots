@@ -1,3 +1,4 @@
+<!-- /components/content/themes/theme-test.vue -->
 <template>
   <div class="p-6">
     <h2 class="text-xl font-bold mb-4">🎨 Built-in Themes</h2>
@@ -21,7 +22,6 @@
         @click="setTheme(theme)"
       >
         {{ theme.name }}
-
         <button
           class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100"
           @click.stop="editTheme(theme)"
@@ -35,8 +35,39 @@
       <h3 class="text-lg font-bold mb-2">🎨 Theme Values</h3>
       <pre
         class="text-sm bg-base-200 border rounded-xl p-4 whitespace-pre-wrap max-h-60 overflow-auto"
-        >{{ inspectValues }}
-      </pre>
+        >{{ inspectValues }}</pre
+      >
+    </div>
+
+    <div v-if="themeStore.themeForm?.values" class="mt-8">
+      <h3 class="text-lg font-bold mb-2">📝 Edit Theme</h3>
+      <magic-container
+        :data-theme="'custom-preview-' + (themeStore.themeForm?.id ?? 'new')"
+        class="p-6 border rounded-xl bg-base-100 space-y-4"
+      >
+        <input
+          v-model="themeStore.themeForm.name"
+          class="input input-bordered w-full"
+          placeholder="Theme name"
+        />
+
+        <label class="label cursor-pointer space-x-2">
+          <span class="label-text">Dark Mode</span>
+          <input
+            type="checkbox"
+            v-model="themeStore.themeForm.prefersDark"
+            class="toggle"
+          />
+        </label>
+
+        <button
+          class="btn btn-primary w-full"
+          :disabled="savingId !== null"
+          @click="saveTheme"
+        >
+          💾 {{ savingId ? 'Saving...' : 'Save Theme' }}
+        </button>
+      </magic-container>
     </div>
 
     <p v-if="themeError" class="mt-6 text-sm text-error whitespace-pre-wrap">
@@ -46,14 +77,15 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/themes/theme-test.vue
 import { ref, computed, watchEffect } from 'vue'
 import { useHead } from '#imports'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
+import { performFetch } from '@/stores/utils'
 
 const themeStore = useThemeStore()
 const themeError = ref('')
 const inspectValues = ref<string | null>(null)
+const savingId = ref<number | null>(null)
 
 function safeThemeValues(val: unknown): Record<string, string> {
   return typeof val === 'object' && val !== null && !Array.isArray(val)
@@ -97,6 +129,7 @@ function setTheme(theme: string | Theme) {
 function editTheme(theme: Theme) {
   try {
     themeStore.themeForm = {
+      id: theme.id,
       name: theme.name,
       prefersDark: theme.prefersDark,
       colorScheme: theme.colorScheme,
@@ -108,6 +141,24 @@ function editTheme(theme: Theme) {
   } catch (err) {
     themeError.value = `❌ editTheme crashed:\n${(err as Error).message}`
   }
+}
+
+async function saveTheme() {
+  savingId.value = themeStore.themeForm?.id || null
+
+  const result = await performFetch('/api/themes', {
+    method: themeStore.themeForm?.id ? 'PATCH' : 'POST',
+    body: JSON.stringify(themeStore.themeForm),
+    headers: { 'Content-Type': 'application/json' },
+  })
+
+  if (!result.success) {
+    themeError.value = `❌ Save failed\n${result.message}`
+  } else {
+    themeError.value = ''
+  }
+
+  savingId.value = null
 }
 
 const sharedThemeStyles = computed(() =>

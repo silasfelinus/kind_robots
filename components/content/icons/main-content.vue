@@ -17,7 +17,7 @@
         </template>
         <template #back>
           <div class="absolute inset-0 overflow-y-auto overscroll-y-contain">
-            <splash-test />
+            <splash-tutorial />
           </div>
         </template>
       </flip-panel>
@@ -44,7 +44,7 @@
         class="fixed z-30 rounded-2xl border-6 border-secondary bg-base-200 transform will-change-transform transition-transform duration-500 ease-in-out overflow-y-auto overscroll-y-contain"
         :style="displayStore.rightSidebarStyle"
       >
-        <splash-test />
+        <splash-tutorial />
       </aside>
     </transition>
   </div>

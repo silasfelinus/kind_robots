@@ -1,36 +1,57 @@
-<!-- /components/content/themes/theme-test.vue -->
 <template>
   <div class="p-6">
+    <!-- Built-in Themes -->
     <h2 class="text-xl font-bold mb-4">🎨 Built-in Themes</h2>
-    <div class="grid gap-2 grid-cols-2">
-      <div
+    <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+      <magic-container
         v-for="theme in themeStore.daisyuiThemes"
         :key="theme"
-        class="p-4 border rounded-xl cursor-pointer text-center hover:bg-primary hover:text-primary-content"
-        @click="setTheme(theme)"
+        :data-theme="theme"
+        class="rounded-xl"
+        :class="{
+          'ring ring-primary ring-offset-2': themeStore.activeTheme === theme,
+        }"
       >
-        {{ theme }}
-      </div>
+        <button
+          class="btn btn-block border transition-transform duration-200 hover:scale-[1.03]"
+          @click="setTheme(theme)"
+        >
+          {{ theme }}
+        </button>
+      </magic-container>
     </div>
 
+    <!-- Shared Themes -->
     <h2 class="text-xl font-bold mt-8 mb-4">🌍 Shared Themes</h2>
-    <div class="grid gap-2 grid-cols-2">
-      <div
+    <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+      <magic-container
         v-for="theme in themeStore.sharedThemes"
         :key="theme.id"
-        class="relative p-4 border rounded-xl cursor-pointer text-center group hover:bg-secondary hover:text-secondary-content"
-        @click="setTheme(theme)"
+        :data-theme="'custom-preview-' + theme.id"
+        class="relative rounded-xl"
+        :class="{
+          'ring ring-secondary ring-offset-2':
+            typeof themeStore.activeTheme !== 'string' &&
+            themeStore.activeTheme?.id === theme.id,
+        }"
       >
-        {{ theme.name }}
         <button
-          class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100"
+          class="btn btn-block border transition-transform duration-200 hover:scale-[1.03]"
+          @click="setTheme(theme)"
+        >
+          {{ theme.name }}
+        </button>
+        <button
+          title="Edit Theme"
+          class="absolute top-2 right-2 btn btn-xs btn-warning"
           @click.stop="editTheme(theme)"
         >
-          ✏️ Edit
+          ✏️
         </button>
-      </div>
+      </magic-container>
     </div>
 
+    <!-- Debug: Theme Values -->
     <div v-if="inspectValues" class="mt-6">
       <h3 class="text-lg font-bold mb-2">🎨 Theme Values</h3>
       <pre
@@ -39,6 +60,7 @@
       >
     </div>
 
+    <!-- Theme Editor -->
     <div v-if="themeStore.themeForm?.values" class="mt-8">
       <h3 class="text-lg font-bold mb-2">📝 Edit Theme</h3>
       <magic-container
@@ -70,6 +92,7 @@
       </magic-container>
     </div>
 
+    <!-- Error Message -->
     <p v-if="themeError" class="mt-6 text-sm text-error whitespace-pre-wrap">
       {{ themeError }}
     </p>
@@ -172,14 +195,16 @@ const sharedThemeStyles = computed(() =>
 )
 
 watchEffect(() => {
-  useHead({
-    style: [
-      {
-        key: 'custom-theme-preview',
-        tagPriority: 'low',
-        textContent: sharedThemeStyles.value,
-      },
-    ],
-  })
+  if (themeStore.sharedThemes.length) {
+    useHead({
+      style: [
+        {
+          key: 'custom-theme-preview',
+          tagPriority: 'low',
+          textContent: sharedThemeStyles.value,
+        },
+      ],
+    })
+  }
 })
 </script>

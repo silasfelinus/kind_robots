@@ -39,10 +39,22 @@ const themeStore = useThemeStore()
 const themeError = ref('')
 
 function setTheme(theme: string | Theme) {
-  const input = typeof theme === 'string' ? theme : {
-    ...theme,
-    values: typeof theme.values === 'object' ? theme.values : {},
-  }
+  const input =
+    typeof theme === 'string'
+      ? theme
+      : {
+          name: theme.name,
+          prefersDark: theme.prefersDark,
+          colorScheme: theme.colorScheme,
+          isPublic: theme.isPublic,
+          room: theme.room || '',
+          values:
+            theme.values &&
+            !Array.isArray(theme.values) &&
+            typeof theme.values === 'object'
+              ? (theme.values as Record<string, string>)
+              : {},
+        }
 
   try {
     const result = themeStore.setActiveTheme(input)

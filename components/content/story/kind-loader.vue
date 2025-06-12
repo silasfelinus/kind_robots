@@ -26,10 +26,12 @@ import { useChoiceStore } from '../../../stores/choiceStore'
 import { useResonanceStore } from '../../../stores/resonanceStore'
 import { useSmartbarStore } from '../../../stores/smartbarStore'
 import { useComponentStore } from '../../../stores/componentStore'
+import { usePageStore } from '../../../stores/pageStore'
 
 // Stores
 const errorStore = useErrorStore()
 const displayStore = useDisplayStore()
+const pageStore = usePageStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
 const themeStore = useThemeStore()
@@ -67,6 +69,7 @@ onMounted(async () => {
     // Initialize other stores in parallel
     await Promise.all([
       consoleStore.initialize?.(),
+      pageStore.initialize?.(),
       userStore.initialize?.(),
       milestoneStore.initialize?.(),
       pitchStore.initialize?.(),

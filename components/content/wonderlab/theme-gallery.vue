@@ -82,7 +82,18 @@ const themeError = ref('')
 const inspectValues = ref<string | null>(null)
 
 function handleSetTheme(theme: string | Theme) {
-  const result = themeStore.setActiveTheme(theme)
+  const input =
+    typeof theme === 'string'
+      ? theme
+      : {
+          ...theme,
+          values:
+            theme.values && typeof theme.values === 'object'
+              ? (theme.values as Record<string, string>)
+              : {},
+        }
+
+  const result = themeStore.setActiveTheme(input)
   if (!result.success) {
     themeError.value = `❌ Failed to apply theme\n${result.message}`
     inspectValues.value = null
@@ -96,6 +107,7 @@ function handleSetTheme(theme: string | Theme) {
     }
   }
 }
+
 watchEffect(() => {
   useHead({
     style: [
@@ -110,7 +122,13 @@ watchEffect(() => {
 
 function editTheme(theme: Theme) {
   try {
-    themeStore.themeForm = { ...theme }
+    themeStore.themeForm = {
+      ...theme,
+      values:
+        theme.values && typeof theme.values === 'object'
+          ? (theme.values as Record<string, string>)
+          : {},
+    }
   } catch (err) {
     themeError.value = `❌ Failed to edit theme\n${(err as Error).message}`
   }

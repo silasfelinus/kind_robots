@@ -9,7 +9,7 @@
         :data-theme="theme"
         class="rounded-xl"
         :class="{
-          'ring ring-primary ring-offset-2': themeStore.activeTheme === theme,
+          'ring ring-primary ring-offset-2': activeThemeName === theme,
         }"
       >
         <button
@@ -108,6 +108,11 @@ const themeStore = useThemeStore()
 const themeError = ref('')
 const inspectValues = ref<string | null>(null)
 const savingId = ref<number | null>(null)
+
+const activeThemeName = computed(() => {
+  const current = themeStore.activeTheme
+  return typeof current === 'string' ? current : (current?.name ?? '')
+})
 
 function safeThemeValues(val: unknown): Record<string, string> {
   return typeof val === 'object' && val !== null && !Array.isArray(val)

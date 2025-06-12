@@ -200,8 +200,8 @@ export const useThemeStore = defineStore('themeStore', () => {
   }
 
   async function addTheme(theme: Partial<Theme>) {
-    const userStore = useUserStore()
-    const userId = userStore.user?.id || 10
+    const { user } = useUserStore()
+  const userId = user?.id || 10
     const payload = { ...theme, userId }
     const { success } = await performFetch('/api/themes', {
       method: 'POST',
@@ -211,8 +211,8 @@ export const useThemeStore = defineStore('themeStore', () => {
   }
 
   async function updateTheme(id: number, updates: Partial<Theme>) {
-    const userStore = useUserStore()
-    const userId = userStore.user?.id
+    const { user } = useUserStore()
+  const userId = user?.id || 10
     const payload = { ...updates, userId }
     const { success } = await performFetch(`/api/themes/${id}`, {
       method: 'PATCH',

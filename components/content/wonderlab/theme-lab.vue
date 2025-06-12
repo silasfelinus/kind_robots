@@ -239,12 +239,12 @@ const updateMode = computed(() => !!themeForm.id)
 
 const applyAfterSave = computed({
   get: () => themeStore.applyAfterSave,
-  set: (val: boolean) => (themeStore.applyAfterSave = val),
+  set: (val: boolean) => themeStore.setApplyAfterSave(val),
 })
 
 const useCustom = computed({
   get: () => themeStore.showCustom,
-  set: (val) => themeStore.setShowCustom(val),
+  set: (val: boolean) => themeStore.setShowCustom(val),
 })
 
 watch(

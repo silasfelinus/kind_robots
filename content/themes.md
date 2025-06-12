@@ -18,3 +18,5 @@ theme: retro
 :theme-preview
 
 :theme-lab
+
+:theme-gallery

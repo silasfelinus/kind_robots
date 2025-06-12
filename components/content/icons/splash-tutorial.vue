@@ -2,7 +2,6 @@
 
 <template>
   <div
-    v-show="pageStore.ready"
     class="relative w-full min-h-[100dvh] overflow-y-auto rounded-2xl border-2 border-black z-20"
     ref="scrollContainer"
   >
@@ -113,7 +112,6 @@
     <div
       v-if="image"
       class="absolute top-0 left-0 w-full -z-10 overflow-hidden will-change-transform"
-      :style="`transform: translateY(${parallaxOffset}px);`"
     >
       <img
         :src="resolvedImage"
@@ -181,28 +179,6 @@ const resolvedImage = computed(() => {
   return src.startsWith('/') ? src : `/images/${src}`
 })
 
-const handleSidebarClose = () => {
-  displayStore.setSidebarRight(false)
-}
-
-const scrollContainer = ref<HTMLElement | null>(null)
-const contentContainer = ref<HTMLElement | null>(null)
-
-const parallaxOffset = ref(0)
-let ticking = false
-const scrollHeight = ref(2000)
-
-const handleScroll = () => {
-  if (!scrollContainer.value || ticking) return
-  ticking = true
-
-  window.requestAnimationFrame(() => {
-    const scrollTop = scrollContainer.value!.scrollTop
-    parallaxOffset.value = scrollTop * -0.3
-    ticking = false
-  })
-}
-
 watch(
   image,
   (newVal) => {
@@ -210,16 +186,6 @@ watch(
   },
   { immediate: true },
 )
-
-onMounted(() => {
-  const container = scrollContainer.value
-  if (container) container.addEventListener('scroll', handleScroll)
-})
-
-onBeforeUnmount(() => {
-  const container = scrollContainer.value
-  if (container) container.removeEventListener('scroll', handleScroll)
-})
 </script>
 
 <style scoped>

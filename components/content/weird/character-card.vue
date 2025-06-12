@@ -13,7 +13,7 @@
       title="Delete Character"
       @click.stop="deleteCharacter"
     >
-      <Icon name="kind-icon:trash-outline" class="w-4 h-4" />
+      <Icon name="kind-icon:trash" class="w-4 h-4" />
     </button>
 
     <!-- Character Image -->

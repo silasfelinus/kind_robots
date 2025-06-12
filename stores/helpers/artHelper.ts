@@ -93,13 +93,19 @@ export async function getArtImagesByIds(
 ): Promise<ArtImage[]> {
   const store = getArtStore()
 
-  const uncached = imageIds.filter(
+  const validIds = imageIds.filter(
+    (id): id is number => typeof id === 'number' && !isNaN(id),
+  )
+
+  const uncached = validIds.filter(
     (id) => !store.artImages.some((img) => img.id === id),
   )
 
   if (!uncached.length) {
-    return store.artImages.filter((img) => imageIds.includes(img.id))
+    return store.artImages.filter((img) => validIds.includes(img.id))
   }
+
+  console.warn('Fetching uncached artImage IDs:', uncached)
 
   try {
     const response = await performFetch<ArtImage[]>('/api/art/image', {
@@ -110,7 +116,7 @@ export async function getArtImagesByIds(
 
     if (response.success && response.data) {
       store.artImages.push(...response.data)
-      return [...store.artImages].filter((img) => imageIds.includes(img.id))
+      return store.artImages.filter((img) => validIds.includes(img.id))
     } else {
       throw new Error(response.message)
     }

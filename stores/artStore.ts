@@ -172,7 +172,9 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function uploadImage(formData: FormData): Promise<{ success: boolean; message: string }> {
+  async function uploadImage(
+    formData: FormData,
+  ): Promise<{ success: boolean; message: string }> {
     try {
       const response = await performFetch<ArtImage>('/api/art/upload', {
         method: 'POST',
@@ -258,7 +260,9 @@ export const useArtStore = defineStore('artStore', () => {
       if (!response.success || !response.data) throw new Error(response.message)
 
       const collection =
-        await collectionStore.getOrCreateGeneratedArtCollection(data.userId || 10)
+        await collectionStore.getOrCreateGeneratedArtCollection(
+          data.userId || 10,
+        )
 
       await performFetch(`/api/art/collection/${collection.id}`, {
         method: 'PATCH',
@@ -307,8 +311,8 @@ export const useArtStore = defineStore('artStore', () => {
     getArtImageById,
     getOrFetchArtImageById,
     createArt,
+    getArtImageByArtId,
   }
 })
-
 
 export type { Art, ArtImage }

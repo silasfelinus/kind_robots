@@ -43,11 +43,13 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useThemeStore, isValidColor } from '@/stores/themeStore'
+import { useThemeStore } from '@/stores/themeStore'
 
 
 const themeStore = useThemeStore()
 const themeForm = themeStore.themeForm
+
+const { isValidColor } = useThemeStore()
 
 const previewStyle = computed(() => {
   const entries = themeForm.values || {}

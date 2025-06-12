@@ -1,1 +1,0 @@
-<template>Splash Test</template>

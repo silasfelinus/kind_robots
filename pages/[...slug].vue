@@ -1,13 +1,14 @@
 <!-- /pages/[...slug].vue -->
 <template>
-  <NuxtLayout v-if="pageStore.ready" :name="layout">
-    <ContentRenderer v-if="pageStore.page?.body" :value="pageStore.page" />
+  <NuxtLayout :name="layout">
+    <div v-if="pageStore.page && pageStore.page.body">
+      <ContentRenderer :value="pageStore.page" />
+    </div>
+    <template #fallback>
+      <Icon name="kind-icon:loading" class="w-10 h-10 text-info" />
+      <p class="text-center text-base text-info p-4">Loading page...</p>
+    </template>
   </NuxtLayout>
-
-  <div v-else class="flex flex-col items-center justify-center py-20">
-    <Icon name="kind-icon:loading" class="w-10 h-10 text-info" />
-    <p class="text-center text-base text-info p-4">Loading page...</p>
-  </div>
 </template>
 
 <script setup lang="ts">

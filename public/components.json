@@ -125,6 +125,7 @@
       "main-content",
       "smart-icons",
       "smart-nav",
+      "splash-test",
       "splash-tutorial",
       "swarm-icon"
     ]
@@ -460,6 +461,8 @@
       "theme-icon",
       "theme-lab",
       "theme-menu",
+      "theme-preview",
+      "theme-test",
       "theme-toggle",
       "whisper-chat",
       "wonder-lab"

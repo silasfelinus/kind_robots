@@ -175,7 +175,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function toggleRandomAnimation() {
-    const options = ['sparkle', 'float', 'rainbow', 'shimmer']
+    const options = [
+      'bubble-effect',
+      'fizzy-bubbles',
+      'rain-effect',
+      'butterfly-animation',
+    ]
     const index = Math.floor(Math.random() * options.length)
     currentAnimation.value = options[index]
     isAnimating.value = true

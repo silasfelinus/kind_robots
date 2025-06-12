@@ -70,17 +70,17 @@
                 :min="getSliderMeta(key).min"
                 :max="getSliderMeta(key).max"
                 :step="getSliderMeta(key).step"
-                v-model="themeForm.values[key]"
+                v-model="themeForm.values?.[key]"
               />
               <div class="text-xs text-right text-base-content/70">
-                {{ themeForm.values[key] }}
+                {{ themeForm.values?.[key] }}
               </div>
             </div>
 
             <input
               v-else
               type="text"
-              v-model="themeForm.values[key]"
+              v-model="themeForm.values?.[key]"
               class="input input-bordered w-full h-10"
               placeholder="e.g. 1rem or 0"
             />
@@ -177,13 +177,13 @@
               <span
                 >Font:
                 <code>{{
-                  themeForm.values['--text-base'] || 'default'
+                  themeForm.values?.['--text-base'] || 'default'
                 }}</code></span
               >
               <span
                 >Padding:
                 <code>{{
-                  themeForm.values['--padding-card'] || 'default'
+                  themeForm.values?.['--padding-card'] || 'default'
                 }}</code></span
               >
             </div>
@@ -216,38 +216,28 @@
   </div>
 </template>
 
+// /components/content/icons/theme-lab.vue
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useThemeStore, type Theme } from '@/stores/themeStore'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useThemeStore } from '@/stores/themeStore'
 import {
   colorKeys,
   extraVars,
   isValidColor,
   labelFromKey,
-  buildThemePayload,
-  getRandomHex,
-  defaultExtraVars,
 } from '~/stores/helpers/themeHelper'
 
 const themeStore = useThemeStore()
-const themeForm = themeStore.themeForm as Record<string, any>
+const themeForm = themeStore.themeForm
 const themeError = ref('')
 
-if (!themeForm.values) {
-  themeForm.values = {
-    ...Object.fromEntries(colorKeys.map((key) => [key, '#ffffff'])),
-    ...defaultExtraVars,
-  }
-  fillWithRandomTheme()
-  themeForm.name ||= `MyTheme-${Date.now()}`
-}
+onMounted(() => {
+  themeStore.initializeThemeFormIfNeeded()
+})
 
 const updateMode = computed(() => !!themeForm.id)
 
-const applyAfterSave = computed({
-  get: () => themeForm.applyAfterSave ?? true,
-  set: (val) => (themeForm.applyAfterSave = val),
-})
+const applyAfterSave = ref(true) // replace the computed block
 
 const useCustom = computed({
   get: () => themeStore.showCustom,
@@ -261,70 +251,52 @@ watch(
   },
 )
 
+function getSliderMeta(key: string) {
+  if (key.includes('radius')) return { min: 0, max: 3, step: 0.05, unit: 'rem' }
+  if (key.includes('size')) return { min: 0.5, max: 3, step: 0.1, unit: 'rem' }
+  if (key === '--depth') return { min: 0, max: 3, step: 1, unit: 'level' }
+  if (key === '--border') return { min: 0, max: 4, step: 1, unit: 'px' }
+  if (key === '--noise') return { min: 0, max: 100, step: 1, unit: '%' }
+  return { min: 0, max: 1, step: 0.1, unit: '' }
+}
+
 function isSliderKey(key: string): boolean {
   return (
+    ['--depth', '--noise', '--border'].includes(key) ||
     key.includes('radius') ||
-    key.includes('size') ||
-    key === '--depth' ||
-    key === '--noise' ||
-    key === '--border'
+    key.includes('size')
   )
 }
 
-function getSliderMeta(key: string) {
-  if (key === '--depth') return { min: 0, max: 10, step: 1 }
-  if (key === '--noise') return { min: 0, max: 1, step: 0.1 }
-  if (key === '--border') return { min: 0, max: 10, step: 1 }
-  if (key.includes('radius') || key.includes('size'))
-    return { min: 0, max: 2, step: 0.05 }
-  return { min: 0, max: 1, step: 0.1 }
+const fillWithRandomTheme = () => {
+  themeStore.fillThemeWithRandomColors(themeForm)
 }
 
-function fillWithRandomTheme() {
-  themeForm.values ||= {}
-  for (const key of colorKeys) {
-    themeForm.values[key] = getRandomHex()
-  }
+const resetThemeForm = () => {
+  themeStore.resetThemeForm()
 }
 
-function onColorInput(e: Event, color: string) {
-  const target = e.target as HTMLInputElement | null
-  if (target && themeForm.values) {
-    themeForm.values[color] = target.value
-  }
-}
-
-function resetThemeForm() {
-  Object.assign(themeForm, {
-    id: undefined,
-    name: '',
-    room: '',
-    isPublic: true,
-    prefersDark: false,
-    colorScheme: 'light',
-    values: {
-      ...Object.fromEntries(colorKeys.map((key) => [key, '#ffffff'])),
-      ...defaultExtraVars,
-    },
-  })
+function onColorInput(e: Event, key: string) {
+  const value = (e.target as HTMLInputElement)?.value
+  if (value) themeStore.setColorValue(key, value)
 }
 
 async function saveTheme() {
   if (!themeForm.name) return
   try {
-    const payload = buildThemePayload(themeForm)
-    if (themeForm.id) {
-      await themeStore.updateTheme(themeForm.id, payload)
+    const payload = themeStore.buildThemePayload(themeForm)
+
+    if (updateMode.value) {
+      await themeStore.updateTheme(themeForm.id!, payload)
     } else {
       await themeStore.addTheme(payload)
     }
+    // Then inside saveTheme:
     if (applyAfterSave.value) {
-      const { success, message } = themeStore.setActiveTheme(themeForm.name)
-      themeError.value = success ? '' : message || 'Unknown error'
-    } else {
-      themeError.value = ''
+      const result = themeStore.setActiveTheme(themeForm.name!)
+      themeError.value = result.success ? '' : result.message || 'Unknown error'
     }
-    resetThemeForm()
+    themeStore.resetThemeForm()
   } catch (e) {
     console.error('Theme save failed', e)
     themeError.value = 'Theme save failed: ' + String(e)
@@ -332,8 +304,8 @@ async function saveTheme() {
 }
 
 const previewStyle = computed(() => {
-  const entries = themeForm.values as Record<string, string>
-  const vars = Object.entries(entries || {})
+  const entries = themeForm.values || {}
+  const vars = Object.entries(entries)
     .filter(([, val]) => isValidColor(val))
     .map(([key, val]) => `${key}: ${val}`)
     .join('; ')

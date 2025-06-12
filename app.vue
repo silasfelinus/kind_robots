@@ -65,6 +65,10 @@ router.afterEach(() => {
     isNavigating.value = false
   }, 400)
 })
+
+useHead({
+  link: [{ rel: 'icon', type: 'image/png', href: 'favicon.ico' }],
+})
 </script>
 
 <style scoped>

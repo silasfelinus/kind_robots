@@ -137,12 +137,15 @@ function editTheme(theme: Theme) {
 const sharedThemeStyles = computed(() =>
   themeStore.sharedThemes
     .map((theme) => {
+      if (!theme || typeof theme.values !== 'object') return ''
       const selector = `[data-theme="custom-preview-${theme.id}"]`
-      const entries = Object.entries(theme.values || {})
+      const entries = Object.entries(theme.values)
         .map(([key, value]) => `${key}: ${value};`)
         .join('\n')
       return `${selector} {\n${entries}\n}`
     })
-    .join('\n\n'),
+    .filter(Boolean)
+    .join('\n\n')
 )
+
 </script>

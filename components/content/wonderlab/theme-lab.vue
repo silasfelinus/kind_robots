@@ -109,7 +109,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { useThemeStore, colorKeys,
+import { useThemeStore,
   extraVars,
   isValidColor,
   labelFromKey } from '@/stores/themeStore'
@@ -123,6 +123,7 @@ onMounted(() => {
   themeStore.initializeThemeFormIfNeeded()
 })
 
+const colorKeys = computed(() => themeStore.colorKeys)
 const updateMode = computed(() => !!themeForm.id)
 
 const applyAfterSave = computed({

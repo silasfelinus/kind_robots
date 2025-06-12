@@ -34,8 +34,16 @@
 
     <!-- Extra Vars -->
     <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <label class="flex gap-2 items-center text-sm font-medium">
-        <input type="checkbox" class="toggle" v-model="themeForm.prefersDark" />
+      <label
+        for="prefers-dark"
+        class="flex gap-2 items-center text-sm font-medium"
+      >
+        <input
+          id="prefers-dark"
+          type="checkbox"
+          class="toggle"
+          v-model="themeForm.prefersDark"
+        />
         <span>Prefers dark mode</span>
       </label>
 
@@ -95,16 +103,33 @@
     <div
       class="form-control col-span-1 sm:col-span-3 flex flex-col sm:flex-row gap-4 items-center mt-6"
     >
-      <label class="label gap-2">
-        <input type="checkbox" class="toggle" v-model="applyAfterSave" />
+      <label for="apply-after-save" class="label gap-2">
+        <input
+          id="apply-after-save"
+          type="checkbox"
+          class="toggle"
+          v-model="applyAfterSave"
+        />
         <span class="label-text">Apply after saving</span>
       </label>
-      <label class="label gap-2">
-        <input type="checkbox" class="toggle" v-model="themeForm.isPublic" />
+
+      <label for="theme-is-public" class="label gap-2">
+        <input
+          id="theme-is-public"
+          type="checkbox"
+          class="toggle"
+          v-model="themeForm.isPublic"
+        />
         <span class="label-text">Make this theme public</span>
       </label>
-      <label class="label gap-2">
-        <input type="checkbox" class="toggle" v-model="useCustom" />
+
+      <label for="use-page-themes" class="label gap-2">
+        <input
+          id="use-page-themes"
+          type="checkbox"
+          class="toggle"
+          v-model="useCustom"
+        />
         <span class="label-text">Use page themes (showCustom)</span>
       </label>
     </div>

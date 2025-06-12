@@ -34,8 +34,8 @@
         max="100"
       />
       <div class="flex justify-between text-xs text-base-content/70">
-        <span>Font: <code>{{ themeForm.values?.['--text-base'] || 'default' }}</code></span>
-        <span>Padding: <code>{{ themeForm.values?.['--padding-card'] || 'default' }}</code></span>
+        <span>Font: <code>{{ themeValues['--text-base'] || 'default' }}</code></span>
+        <span>Padding: <code>{{ themeValues['--padding-card'] || 'default' }}</code></span>
       </div>
     </div>
   </div>
@@ -49,8 +49,10 @@ import { isValidColor } from '~/stores/helpers/themeHelper'
 const themeStore = useThemeStore()
 const themeForm = themeStore.themeForm
 
+const themeValues = computed(() => themeForm.values || {})
+
 const previewStyle = computed(() => {
-  const entries = themeForm.values || {}
+  const entries = themeValues.value
   const vars = Object.entries(entries)
     .filter(([, val]) => isValidColor(val))
     .map(([key, val]) => `${key}: ${val}`)

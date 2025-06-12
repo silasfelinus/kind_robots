@@ -109,13 +109,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { useThemeStore } from '@/stores/themeStore'
-import {
-  colorKeys,
+import { useThemeStore, colorKeys,
   extraVars,
   isValidColor,
-  labelFromKey,
-} from '~/stores/helpers/themeHelper'
+  labelFromKey } from '@/stores/themeStore'
+
 
 const themeStore = useThemeStore()
 const themeForm = themeStore.themeForm

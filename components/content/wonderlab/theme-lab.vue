@@ -1,6 +1,8 @@
 <!-- /components/content/themes/theme-lab.vue -->
 <template>
-  <section class="bg-base-200 border border-base-content p-6 rounded-2xl shadow-lg">
+  <section
+    class="bg-base-200 border border-base-content p-6 rounded-2xl shadow-lg"
+  >
     <h2 class="text-2xl font-semibold mb-4">Create or Edit Your Theme</h2>
 
     <!-- Color Inputs -->
@@ -12,11 +14,15 @@
       >
         <input
           type="color"
+          :id="`color-${color}`"
           :value="themeForm.values?.[color] || '#ffffff'"
           @input="onColorInput($event, color)"
           class="w-full h-full appearance-none cursor-pointer bg-transparent"
         />
-        <span class="absolute bottom-0 left-0 w-full bg-base-300/80 text-xs text-center text-base-content py-0.5 font-medium capitalize truncate pointer-events-none">
+
+        <span
+          class="absolute bottom-0 left-0 w-full bg-base-300/80 text-xs text-center text-base-content py-0.5 font-medium capitalize truncate pointer-events-none"
+        >
           {{ labelFromKey(color) }}
         </span>
       </div>
@@ -37,6 +43,7 @@
         v-for="key in extraVars"
         :key="key"
         class="flex flex-col gap-1 text-sm font-medium"
+        :for="`input-${key}`"
       >
         <span>{{ key.replace('--', '') }}</span>
 
@@ -44,6 +51,7 @@
           <input
             type="range"
             class="range range-sm"
+            :id="`input-${key}`"
             :min="getSliderMeta(key).min"
             :max="getSliderMeta(key).max"
             :step="getSliderMeta(key).step"
@@ -57,20 +65,19 @@
         <input
           v-else
           type="text"
-          v-bind="vModelBinding(key)"
           class="input input-bordered w-full h-10"
+          :id="`input-${key}`"
           placeholder="e.g. 1rem or 0"
+          v-bind="vModelBinding(key)"
         />
       </label>
 
-      <label class="w-full text-sm font-medium flex flex-col gap-1">
-        Theme Name
-        <input
-          v-model="themeForm.name"
-          placeholder="Theme name"
-          class="input input-bordered text-center"
-        />
-      </label>
+      <input
+        v-model="themeForm.name"
+        id="input-theme-name"
+        placeholder="Theme name"
+        class="input input-bordered text-center"
+      />
 
       <button @click="saveTheme" class="btn btn-primary">
         {{ updateMode ? 'Update Theme' : 'Save Theme' }}
@@ -85,7 +92,9 @@
     </div>
 
     <!-- Toggles -->
-    <div class="form-control col-span-1 sm:col-span-3 flex flex-col sm:flex-row gap-4 items-center mt-6">
+    <div
+      class="form-control col-span-1 sm:col-span-3 flex flex-col sm:flex-row gap-4 items-center mt-6"
+    >
       <label class="label gap-2">
         <input type="checkbox" class="toggle" v-model="applyAfterSave" />
         <span class="label-text">Apply after saving</span>
@@ -100,17 +109,13 @@
       </label>
     </div>
 
-    <button class="btn btn-outline mt-4" @click="resetThemeForm">
-      Reset
-    </button>
+    <button class="btn btn-outline mt-4" @click="resetThemeForm">Reset</button>
   </section>
-
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useThemeStore } from '@/stores/themeStore'
-
 
 const themeStore = useThemeStore()
 const themeForm = themeStore.themeForm
@@ -123,7 +128,6 @@ onMounted(() => {
 const colorKeys = computed(() => themeStore.colorKeys)
 const extraVars = computed(() => themeStore.extraVars)
 const { labelFromKey, isValidColor } = useThemeStore()
-
 
 const updateMode = computed(() => !!themeForm.id)
 
@@ -182,7 +186,8 @@ function isSliderKey(key: string) {
   )
 }
 
-const fillWithRandomTheme = () => themeStore.fillThemeWithRandomColors(themeForm)
+const fillWithRandomTheme = () =>
+  themeStore.fillThemeWithRandomColors(themeForm)
 
 const resetThemeForm = () => themeStore.resetThemeForm()
 

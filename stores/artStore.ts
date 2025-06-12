@@ -234,6 +234,8 @@ export const useArtStore = defineStore('artStore', () => {
       isPublic: artData?.isPublic ?? state.artForm.isPublic,
     }
 
+    console.log('[🎨 generateArt()] Sampler passed:', data.sampler)
+
     data.promptString = promptStore.processPromptPlaceholders(
       data.promptString,
       pitchStore,

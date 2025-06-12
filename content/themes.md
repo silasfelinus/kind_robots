@@ -15,5 +15,4 @@ amitip: What can I say, we're all about giving people choices!
 layout: 'default'
 theme: retro
 ---
-:theme-lab
 :theme-gallery

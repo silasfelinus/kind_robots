@@ -104,8 +104,7 @@
       Reset
     </button>
   </section>
-<theme-preview />
-<theme-gallery />
+
 </template>
 
 <script setup lang="ts">

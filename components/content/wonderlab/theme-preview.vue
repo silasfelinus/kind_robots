@@ -2,7 +2,7 @@
 <template>
   <div
     class="border rounded-xl p-6 space-y-4 transition-all duration-300"
-    :style="`${previewStyle}; border-radius: var(--radius-box, 0.5rem); border-width: var(--border, 1px); box-shadow: var(--shadow, 0 1px 2px rgba(0, 0, 0, 0.1));`"
+    :style="computedStyle"
   >
     <h3 class="text-lg font-bold">Live Preview</h3>
 
@@ -34,8 +34,8 @@
         max="100"
       />
       <div class="flex justify-between text-xs text-base-content/70">
-        <span>Font: <code>{{ themeValues['--text-base'] || 'default' }}</code></span>
-        <span>Padding: <code>{{ themeValues['--padding-card'] || 'default' }}</code></span>
+        <span>Font: <code>{{ textBase }}</code></span>
+        <span>Padding: <code>{{ paddingCard }}</code></span>
       </div>
     </div>
   </div>
@@ -47,16 +47,18 @@ import { useThemeStore } from '@/stores/themeStore'
 import { isValidColor } from '~/stores/helpers/themeHelper'
 
 const themeStore = useThemeStore()
-const themeForm = themeStore.themeForm
 
-const themeValues = computed(() => themeForm.values || {})
+const themeValues = computed(() => themeStore.themeForm.values || {})
 
-const previewStyle = computed(() => {
+const computedStyle = computed(() => {
   const entries = themeValues.value
-  const vars = Object.entries(entries)
-    .filter(([, val]) => isValidColor(val))
+  const styleVars = Object.entries(entries)
+    .filter(([_, val]) => isValidColor(val))
     .map(([key, val]) => `${key}: ${val}`)
     .join('; ')
-  return `padding: 1rem; ${vars}`
+  return `padding: 1rem; ${styleVars}; border-radius: var(--radius-box, 0.5rem); border-width: var(--border, 1px); box-shadow: var(--shadow, 0 1px 2px rgba(0, 0, 0, 0.1));`
 })
+
+const textBase = computed(() => themeValues.value['--text-base'] || 'default')
+const paddingCard = computed(() => themeValues.value['--padding-card'] || 'default')
 </script>

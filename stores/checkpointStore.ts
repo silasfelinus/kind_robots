@@ -38,8 +38,15 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
   }
 
   function selectSamplerByName(name: string) {
-    selectedSampler.value =
-      allSamplers.value.find((s) => s.name === name) || null
+    const found = allSamplers.value.find((s) => s.name === name)
+
+    if (!found) {
+      console.warn(`[❌ Sampler Not Found] "${name}"`)
+    } else {
+      console.log(`[✅ Sampler Selected] "${found.name}"`, found)
+    }
+
+    selectedSampler.value = found || null
   }
 
   async function fetchCurrentModelFromApi() {

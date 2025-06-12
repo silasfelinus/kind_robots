@@ -237,7 +237,10 @@ onMounted(() => {
 
 const updateMode = computed(() => !!themeForm.id)
 
-const applyAfterSave = ref(true) // replace the computed block
+const applyAfterSave = computed({
+  get: () => themeStore.applyAfterSave,
+  set: (val: boolean) => (themeStore.applyAfterSave = val),
+})
 
 const useCustom = computed({
   get: () => themeStore.showCustom,

@@ -17,36 +17,6 @@
       <button class="btn btn-error btn-sm">Error</button>
     </div>
 
-    <div class="bg-base-100 p-4 rounded-box border border-base-300 space-y-3 text-base-content">
-      <p class="text-sm">
-        This card uses <code class="text-xs">--radius-box</code>,
-        <code class="text-xs">--border</code>, and
-        <code class="text-xs">--shadow</code>.
-      </p>
-      <input
-        class="input input-bordered w-full"
-        placeholder="Example input"
-        readonly
-      />
-      <progress
-        class="progress w-full progress-primary"
-        value="40"
-        max="100"
-      />
-      <div class="flex justify-between text-xs text-base-content/70">
-
-      </div>
-    </div>
+ 
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, watchEffect, computed } from 'vue'
-import { useThemeStore } from '@/stores/themeStore'
-import { isValidColor } from '~/stores/helpers/themeHelper'
-
-const themeStore = useThemeStore()
-const themeValues = computed(() => themeStore.themeForm?.values || {})
-
-
-</script>

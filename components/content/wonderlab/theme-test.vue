@@ -80,7 +80,6 @@
 import { ref, computed, watchEffect } from 'vue'
 import { useHead } from '#imports'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
-import { performFetch } from '@/stores/utils'
 
 const themeStore = useThemeStore()
 const themeError = ref('')
@@ -144,21 +143,19 @@ function editTheme(theme: Theme) {
 }
 
 async function saveTheme() {
-  savingId.value = themeStore.themeForm?.id || null
-
-  const result = await performFetch('/api/themes', {
-    method: themeStore.themeForm?.id ? 'PATCH' : 'POST',
-    body: JSON.stringify(themeStore.themeForm),
-    headers: { 'Content-Type': 'application/json' },
-  })
-
-  if (!result.success) {
-    themeError.value = `❌ Save failed\n${result.message}`
-  } else {
-    themeError.value = ''
+  try {
+    savingId.value = themeStore.themeForm?.id ?? -1
+    const result = await themeStore.addTheme(themeStore.themeForm)
+    if (!result.success) {
+      themeError.value = `❌ Theme save failed:\n${result.message}`
+    } else {
+      themeError.value = ''
+    }
+  } catch (err) {
+    themeError.value = `❌ saveTheme crashed:\n${(err as Error).message}`
+  } finally {
+    savingId.value = null
   }
-
-  savingId.value = null
 }
 
 const sharedThemeStyles = computed(() =>

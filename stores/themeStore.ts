@@ -34,6 +34,7 @@ type ActiveTheme = string | ThemeForm
 export const useThemeStore = defineStore('themeStore', () => {
   const activeTheme = ref<ActiveTheme>('retro')
   const themeForm = ref<ThemeForm>({})
+  const applyAfterSave = ref(true)
 
   const sharedThemes = ref<Theme[]>([])
 
@@ -246,6 +247,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     showCustom,
     botOverride,
     firstThemeChanged,
+    applyAfterSave,
 
     toggleMenu,
     setActiveTheme,

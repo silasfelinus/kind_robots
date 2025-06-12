@@ -128,12 +128,10 @@
 
 <script setup lang="ts">
 // unchanged from your version
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
-import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
 
-const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
 const room = computed(() => pageStore.page?.room)

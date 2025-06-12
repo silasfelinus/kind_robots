@@ -1,5 +1,4 @@
 // /stores/themeStore.ts
-
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
@@ -17,11 +16,25 @@ import {
   daisyuiThemes,
   getThemeStyle,
   isThemeValuesRecord,
+  extraVars,
+  defaultExtraVars,
+  getRandomHex,
+  normalizeThemeFromServer,
+  fillThemeWithRandomColors,
+  isValidColor,
+  labelFromKey,
 } from '~/stores/helpers/themeHelper'
 
+type ThemeForm = Partial<Omit<Theme, 'values'>> & {
+  values?: Record<string, string>
+}
+
+type ActiveTheme = string | ThemeForm
+
 export const useThemeStore = defineStore('themeStore', () => {
-  const activeTheme = ref<string | Theme>('retro')
-  const themeForm = ref<Partial<Theme>>({})
+  const activeTheme = ref<ActiveTheme>('retro')
+  const themeForm = ref<ThemeForm>({})
+
   const sharedThemes = ref<Theme[]>([])
 
   const currentTheme = computed(() =>
@@ -35,11 +48,40 @@ export const useThemeStore = defineStore('themeStore', () => {
   const botOverride = ref(true)
   const firstThemeChanged = ref(false)
 
+  function initialize() {
+    if (typeof window === 'undefined') return
+
+    try {
+      const storedFlag = localStorage.getItem('showCustom')
+      if (storedFlag !== null) showCustom.value = storedFlag === 'true'
+
+      const storedTheme = localStorage.getItem('theme') || 'retro'
+      const storedForm = localStorage.getItem('themeForm')
+      const builtIn = daisyuiThemes.includes(storedTheme)
+
+      if (builtIn) {
+        setActiveTheme(storedTheme)
+      } else if (storedForm) {
+        const parsed = JSON.parse(storedForm)
+        if (parsed?.values) {
+          setActiveTheme(normalizeThemeFromServer(parsed))
+        }
+      } else {
+        setActiveTheme('retro')
+      }
+
+      getThemes()
+    } catch (err) {
+      console.warn('[themeStore] Failed to initialize themeStore:', err)
+      setActiveTheme('retro')
+    }
+  }
+
   function toggleMenu() {
     open.value = !open.value
   }
 
-  function setActiveTheme(input: string | Theme): {
+  function setActiveTheme(input: string | ThemeForm): {
     success: boolean
     message?: string
   } {
@@ -56,7 +98,8 @@ export const useThemeStore = defineStore('themeStore', () => {
       document.documentElement.setAttribute('data-theme', input)
       localStorage.setItem('theme', input)
       activeTheme.value = input
-      themeForm.value = extractComputedTheme(input)
+      themeForm.value = normalizeThemeFromServer(extractComputedTheme(input))
+
       firstThemeChanged.value = true
       return { success: true }
     }
@@ -70,8 +113,10 @@ export const useThemeStore = defineStore('themeStore', () => {
       applyThemeValues(values)
       document.documentElement.setAttribute('data-theme', 'custom')
       localStorage.setItem('theme', input.name || 'custom')
-      activeTheme.value = input
-      themeForm.value = { ...input }
+
+      const normalized = normalizeThemeFromServer(input)
+      activeTheme.value = normalized
+      themeForm.value = normalized
       firstThemeChanged.value = true
       return { success: true }
     }
@@ -94,36 +139,46 @@ export const useThemeStore = defineStore('themeStore', () => {
 
   function revertForm() {
     if (typeof activeTheme.value === 'object') {
-      themeForm.value = { ...activeTheme.value }
+      themeForm.value = normalizeThemeFromServer(activeTheme.value)
     } else {
-      themeForm.value = extractComputedTheme()
+      themeForm.value = normalizeThemeFromServer(extractComputedTheme())
     }
   }
 
-  function initialize() {
-    if (typeof window === 'undefined') return
+  function resetThemeForm() {
+    themeForm.value = {
+      name: `MyTheme-${Date.now()}`,
+      room: '',
+      isPublic: true,
+      prefersDark: false,
+      colorScheme: 'light',
+      values: {
+        ...Object.fromEntries(colorKeys.map((key) => [key, '#ffffff'])),
+        ...defaultExtraVars,
+      },
+    }
+  }
 
-    try {
-      const storedFlag = localStorage.getItem('showCustom')
-      if (storedFlag !== null) showCustom.value = storedFlag === 'true'
+  function fillWithRandomTheme() {
+    const values = themeForm.value.values as Record<string, string> | undefined
+    if (!values) return
 
-      const storedTheme = localStorage.getItem('theme') || 'retro'
-      const storedForm = localStorage.getItem('themeForm')
-      const builtIn = daisyuiThemes.includes(storedTheme)
+    for (const key of colorKeys) {
+      values[key] = getRandomHex()
+    }
+  }
 
-      if (builtIn) {
-        setActiveTheme(storedTheme)
-      } else if (storedForm) {
-        const parsed = JSON.parse(storedForm)
-        if (parsed?.values) setActiveTheme(parsed)
-      } else {
-        setActiveTheme('retro')
-      }
+  function setColorValue(key: string, value: string) {
+    const values = themeForm.value.values as Record<string, string> | undefined
+    if (!values) return
 
-      getThemes()
-    } catch (err) {
-      console.warn('[themeStore] Failed to initialize themeStore:', err)
-      setActiveTheme('retro')
+    values[key] = value
+  }
+
+  function initializeThemeFormIfNeeded() {
+    if (!themeForm.value.values) {
+      resetThemeForm()
+      fillWithRandomTheme()
     }
   }
 
@@ -198,6 +253,10 @@ export const useThemeStore = defineStore('themeStore', () => {
     setShowCustom,
     revertForm,
     initialize,
+    resetThemeForm,
+    fillWithRandomTheme,
+    setColorValue,
+    initializeThemeFormIfNeeded,
 
     getThemes,
     addTheme,
@@ -207,10 +266,15 @@ export const useThemeStore = defineStore('themeStore', () => {
     getThemeValues,
     buildThemePayload,
     colorKeys,
+    extraVars,
     allThemeKeys,
     daisyuiThemes,
     getThemeStyle,
+    fillThemeWithRandomColors,
+    sanitizeThemeValues,
+    isValidColor,
+    labelFromKey,
   }
 })
 
-export type { Theme }
+export type { Theme, defaultExtraVars }

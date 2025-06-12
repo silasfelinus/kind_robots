@@ -1,5 +1,11 @@
 // /stores/helpers/themeHelpers.ts
 
+import type { Theme } from '@prisma/client'
+
+export type ThemeForm = Partial<Omit<Theme, 'values'>> & {
+  values?: Record<string, string>
+}
+
 // Keys for main theme colors
 export const colorKeys = [
   '--color-primary',
@@ -73,6 +79,62 @@ export const daisyuiThemes = [
   'abyss',
   'silk',
 ]
+
+export function normalizeThemeFromServer(input: Partial<Theme>): ThemeForm {
+  const rawValues = input.values
+
+  const safeValues =
+    rawValues && typeof rawValues === 'object' && !Array.isArray(rawValues)
+      ? (Object.fromEntries(
+          Object.entries(rawValues as Record<string, unknown>).filter(
+            ([, v]) => typeof v === 'string',
+          ),
+        ) as Record<string, string>)
+      : {}
+
+  return {
+    ...input,
+    values: safeValues,
+  }
+}
+
+export function getDefaultThemeForm(): ThemeForm {
+  return {
+    name: `MyTheme-${Date.now()}`,
+    room: '',
+    isPublic: true,
+    prefersDark: false,
+    colorScheme: 'light',
+    values: {
+      ...Object.fromEntries(colorKeys.map((key) => [key, '#ffffff'])),
+      ...defaultExtraVars,
+    },
+  }
+}
+
+export function fillThemeWithRandomColors(form: ThemeForm) {
+  if (!form.values) return
+  for (const key of colorKeys) {
+    form.values[key] = getRandomHex()
+  }
+}
+
+export function setThemeColorValue(
+  form: ThemeForm,
+  key: string,
+  value: string,
+) {
+  if (!form.values) return
+  form.values[key] = value
+}
+
+export function ensureInitializedThemeForm(form: ThemeForm) {
+  if (!form.values) {
+    const defaultForm = getDefaultThemeForm()
+    Object.assign(form, defaultForm)
+    fillThemeWithRandomColors(form)
+  }
+}
 
 export function isThemeValuesRecord(
   values: unknown,

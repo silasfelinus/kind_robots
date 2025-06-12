@@ -48,7 +48,6 @@ export const usePageStore = defineStore('pageStore', () => {
   async function setPage(newPage: ContentType) {
     page.value = newPage
     ready.value = true
-    console.log('Page ready', ready)
   }
 
   return {

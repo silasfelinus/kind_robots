@@ -78,6 +78,10 @@ export const useThemeStore = defineStore('themeStore', () => {
     }
   }
 
+  function setApplyAfterSave(val: boolean) {
+    applyAfterSave.value = val
+  }
+
   function toggleMenu() {
     open.value = !open.value
   }
@@ -276,6 +280,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     sanitizeThemeValues,
     isValidColor,
     labelFromKey,
+    setApplyAfterSave,
   }
 })
 

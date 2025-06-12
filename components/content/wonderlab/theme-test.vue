@@ -46,7 +46,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+// /components/content/themes/theme-test.vue
+import { ref, computed, watchEffect } from 'vue'
+import { useHead } from '#imports'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 
 const themeStore = useThemeStore()
@@ -79,7 +81,6 @@ function setTheme(theme: string | Theme) {
       inspectValues.value = null
     } else {
       themeError.value = ''
-      // ✅ Only run on client
       if (typeof document !== 'undefined') {
         inspectValues.value = JSON.stringify(
           themeStore.getThemeValues(),
@@ -108,4 +109,29 @@ function editTheme(theme: Theme) {
     themeError.value = `❌ editTheme crashed:\n${(err as Error).message}`
   }
 }
+
+const sharedThemeStyles = computed(() =>
+  themeStore.sharedThemes
+    .map((theme) => {
+      const values = safeThemeValues(theme.values)
+      const selector = `[data-theme="custom-preview-${theme.id}"]`
+      const entries = Object.entries(values)
+        .map(([key, value]) => `${key}: ${value};`)
+        .join('\n')
+      return `${selector} {\n${entries}\n}`
+    })
+    .join('\n\n'),
+)
+
+watchEffect(() => {
+  useHead({
+    style: [
+      {
+        key: 'custom-theme-preview',
+        tagPriority: 'low',
+        textContent: sharedThemeStyles.value,
+      },
+    ],
+  })
+})
 </script>

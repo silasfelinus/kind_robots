@@ -41,6 +41,10 @@ export const usePageStore = defineStore('pageStore', () => {
     theme: page.value?.theme ?? currentTheme.value,
   }))
 
+  async function initialize() {
+    ready.value = true
+  }
+
   async function setPage(newPage: ContentType) {
     page.value = newPage
     ready.value = true
@@ -53,6 +57,7 @@ export const usePageStore = defineStore('pageStore', () => {
     meta,
     ready,
     setPage,
+    initialize,
 
     // Meta convenience refs
     title: computed(() => meta.value.title),

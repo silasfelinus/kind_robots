@@ -1,9 +1,10 @@
-<!-- /components/content/art/randomizer-section.vue -->
 <template>
   <div class="space-y-6">
-    <!-- Pretty + Surprise controls -->
-    <div class="flex justify-between items-center">
-      <label class="label cursor-pointer space-x-2">
+    <!-- Controls -->
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6"
+    >
+      <label class="label cursor-pointer space-x-2 flex-shrink-0">
         <span class="label-text font-semibold">✨ Make Pretty</span>
         <input
           type="checkbox"
@@ -12,7 +13,7 @@
         />
       </label>
 
-      <div class="flex items-center gap-2">
+      <div class="flex gap-2 flex-wrap sm:flex-nowrap">
         <button class="btn btn-sm btn-secondary" @click="surpriseMe">
           🎲 Surprise Me
         </button>
@@ -24,37 +25,48 @@
     <div
       v-for="entry in artListPresets"
       :key="entry.id"
-      class="border p-4 rounded-xl bg-base-200"
+      class="border p-4 rounded-xl bg-base-200 md:flex md:items-center md:gap-4"
     >
-      <h3 class="font-semibold mb-2">{{ entry.title }}</h3>
+      <h3 class="font-semibold mb-2 md:mb-0 md:w-32 shrink-0">
+        {{ entry.title }}
+      </h3>
 
-      <div v-if="resolvePresetType(entry) === 'dropdown'">
-        <select
-          class="select w-full"
-          :multiple="entry.allowMultiple"
-          v-model="localSelections[entry.id]"
-        >
-          <option v-for="option in entry.content" :key="option" :value="option">
-            {{ option }}
-          </option>
-        </select>
-      </div>
-
-      <div v-else-if="resolvePresetType(entry) === 'radio'" class="space-y-1">
-        <label
-          v-for="option in entry.content"
-          :key="option"
-          class="flex items-center gap-2"
-        >
-          <input
-            type="radio"
-            :name="entry.id"
-            :value="option"
+      <div class="w-full">
+        <div v-if="resolvePresetType(entry) === 'dropdown'">
+          <select
+            class="select w-full md:max-w-xs"
+            :multiple="entry.allowMultiple"
             v-model="localSelections[entry.id]"
-            class="radio radio-primary"
-          />
-          <span>{{ option }}</span>
-        </label>
+          >
+            <option
+              v-for="option in entry.content"
+              :key="option"
+              :value="option"
+            >
+              {{ option }}
+            </option>
+          </select>
+        </div>
+
+        <div
+          v-else-if="resolvePresetType(entry) === 'radio'"
+          class="flex flex-wrap gap-2"
+        >
+          <label
+            v-for="option in entry.content"
+            :key="option"
+            class="flex items-center gap-1"
+          >
+            <input
+              type="radio"
+              :name="entry.id"
+              :value="option"
+              v-model="localSelections[entry.id]"
+              class="radio radio-primary"
+            />
+            <span>{{ option }}</span>
+          </label>
+        </div>
       </div>
     </div>
 

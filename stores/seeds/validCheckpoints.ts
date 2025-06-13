@@ -4,8 +4,38 @@ import type { Resource } from '@prisma/client'
 
 export const validCheckpoints: Partial<Resource>[] = [
   {
+    name: 'dreamshaperXL_v21TurboDPMSDE.safetensors',
+    customLabel: 'dreamshaper XL (v21 Turbo)',
+    localPath: 'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors',
+    description: 'New SDXL Model',
+    generation: 'SDXL',
+    isMature: false,
+    resourceType: 'CHECKPOINT',
+    userId: 1,
+  },
+  {
+    name: 'sdxlUnstableDiffusers_nihilmania.safetensors',
+    customLabel: 'SDXL Unstable Diffusers (Nihilmania)',
+    localPath: 'SDXL/sdxlUnstableDiffusers_nihilmania.safetensors',
+    description: 'New SDXL Model',
+    generation: 'SDXL',
+    isMature: false,
+    resourceType: 'CHECKPOINT',
+    userId: 1,
+  },
+  {
+    name: 'samaritan3dCartoon_v40SDXL.safetensors',
+    customLabel: 'Samaritan 3d Cartoon (v40 SDXL)',
+    localPath: 'SDXL/samaritan3dCartoon_v40SDXL.safetensors',
+    description: 'New SDXL Model',
+    generation: 'SDXL',
+    isMature: false,
+    resourceType: 'CHECKPOINT',
+    userId: 1,
+  },
+  {
     name: 'darkSushiMixMix_colorful.safetensors',
-    customLabel: 'darkSushiMixMix_colorful',
+    customLabel: 'DarkSushi Mix (Colorful)',
     localPath: '1.5/darkSushiMixMix_colorful.safetensors',
     description: 'Auto-imported from 1.5 model folder.',
     generation: '1.5',
@@ -15,9 +45,8 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'epicrealism_naturalSinRC1VAE.safetensors',
-    customLabel: 'epicrealism_naturalSinRC1VAE',
-    localPath:
-      '/stable-diffusion-webui/models/Stable-diffusion/1.5/epicrealism_naturalSinRC1VAE.safetensors',
+    customLabel: 'EpicRealism (Natural)',
+    localPath: '1.5/epicrealism_naturalSinRC1VAE.safetensors',
     description: 'Auto-imported from 1.5 model folder.',
     generation: '1.5',
     isMature: true,
@@ -26,7 +55,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'ponyFaetality_v11.safetensors [499513276a]',
-    customLabel: 'ponyFaetality_v11',
+    customLabel: 'Pony Faetality (v11)',
     localPath: '_Pony/ponyFaetality_v11.safetensors',
     description: 'Auto-imported from _Pony model folder.',
     generation: 'Pony',
@@ -36,7 +65,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'cyberrealisticPony_v61.safetensors',
-    customLabel: 'cyberrealisticPony_v61',
+    customLabel: 'CyberRealistic Pony (v61)',
     localPath: 'ARCHIVE/CyberRealistic_Pony/cyberrealisticPony_v61.safetensors',
     description: 'Auto-imported from ARCHIVE model folder.',
     generation: 'ARCHIVE',
@@ -46,7 +75,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'revAnimated_v2Rebirth.safetensors',
-    customLabel: 'revAnimated_v2Rebirth',
+    customLabel: 'Rev Animated (v2 Rebirth)',
     localPath: 'ARCHIVE/revAnimated_v2Rebirth.safetensors',
     description: 'Auto-imported from ARCHIVE model folder.',
     generation: 'ARCHIVE',
@@ -56,7 +85,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'cartoonArcadiaSDXLSD1_v2.safetensors [eb2b3e9a5f]',
-    customLabel: 'cartoonArcadiaSDXLSD1_v2',
+    customLabel: 'Cartoon Arcadia (SDXL SD 1_v2)',
     localPath: 'cartoonArcadiaSDXLSD1_v2.safetensors',
     description: 'Auto-imported from base model folder.',
     generation: 'base',
@@ -66,7 +95,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'disneyrealcartoonmix_v10.1.safetensors',
-    customLabel: 'disneyrealcartoonmix_v10.1',
+    customLabel: 'DisneyReal Cartoonmix (v10.1)',
     localPath: 'disneyrealcartoonmix_v10.1.safetensors',
     description: 'Auto-imported from base model folder.',
     generation: 'base',
@@ -76,7 +105,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'hotart_3SPO.safetensors',
-    customLabel: 'hotart_3SPO',
+    customLabel: 'Hot Art (3SPO)',
     localPath: 'hotart_3SPO.safetensors',
     description: 'Auto-imported from base model folder.',
     generation: 'base',
@@ -86,7 +115,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'ivisionIllustration_ivision10.safetensors',
-    customLabel: 'ivisionIllustration_ivision10',
+    customLabel: 'iVision Illustration (10)',
     localPath: 'ivisionIllustration_ivision10.safetensors',
     description: 'Auto-imported from base model folder.',
     generation: 'base',
@@ -96,7 +125,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'realcartoonPony_v1.safetensors',
-    customLabel: 'realcartoonPony_v1',
+    customLabel: 'RealCartoon Pony (v1)',
     localPath: 'realcartoonPony_v1.safetensors [2295809170]',
     description: 'Auto-imported from base model folder.',
     generation: 'base',
@@ -106,7 +135,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'bigLove_xl25.safetensors',
-    customLabel: 'bigLove_xl25',
+    customLabel: 'Big Love (xl25)',
     localPath: 'SDXL/bigLove_xl25.safetensors [19447d345a]',
     description: 'Auto-imported from SDXL model folder.',
     generation: 'SDXL',
@@ -116,7 +145,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'biglust17_v17.safetensors',
-    customLabel: 'biglust17_v17',
+    customLabel: 'Big Lust17 (v17)',
     localPath: 'SDXL/biglust17_v17.safetensors',
     description: 'Auto-imported from SDXL model folder.',
     generation: 'SDXL',
@@ -126,7 +155,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'lustifySDXLNSFW_oltFIXEDTEXTURES.safetensors',
-    customLabel: 'lustifySDXLNSFW_oltFIXEDTEXTURES',
+    customLabel: 'Lustify (SDXL)',
     localPath: 'SDXL/lustifySDXLNSFW_oltFIXEDTEXTURES.safetensors',
     description: 'Auto-imported from SDXL model folder.',
     generation: 'SDXL',
@@ -136,7 +165,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'duskMixXLIllustration_v15.safetensors',
-    customLabel: 'duskMixXLIllustration_v15',
+    customLabel: 'DuskMix XL Illustration (v15)',
     localPath: 'SDXL/tier2/duskMixXLIllustration_v15.safetensors',
     description: 'Auto-imported from SDXL model folder.',
     generation: 'SDXL',
@@ -146,7 +175,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   },
   {
     name: 'ThinkDiffusionXL.safetensors',
-    customLabel: 'ThinkDiffusionXL',
+    customLabel: 'Think Diffusion (XL)',
     localPath: 'SDXL/tier2/ThinkDiffusionXL.safetensors [a21c9949ef]',
     description: 'Auto-imported from SDXL model folder.',
     generation: 'SDXL',

@@ -8,6 +8,8 @@
   <!-- Random Theme Selector -->
   <checkpoint-gallery />
 
+  <collection-handler />
+
   <art-randomizer />
 
   <!-- Prompt Input -->
@@ -160,31 +162,16 @@ const generateArt = async () => {
   isGenerating.value = true
   displayStore.toggleRandomAnimation()
 
-  if (!promptStore.validatePromptString(promptStore.promptField)) {
-    localError.value = 'Invalid characters in prompt.'
-    errorStore.addError(ErrorType.VALIDATION_ERROR, localError.value)
-    isGenerating.value = false
-    return
+  const result = await artStore.generateArt()
+  if (!result.success) {
+    localError.value = result.message
+    errorStore.addError(ErrorType.GENERAL_ERROR, localError.value)
+  } else {
+    await milestoneStore.rewardMilestone(11)
   }
 
-  artStore.artForm.promptString = promptStore.promptField
-
-  try {
-    const result = await artStore.generateArt()
-    if (result.success) {
-      await milestoneStore.rewardMilestone(11)
-    } else {
-      localError.value = result.message || 'Unknown error occurred.'
-      errorStore.addError(ErrorType.GENERAL_ERROR, localError.value)
-    }
-  } catch (error) {
-    localError.value =
-      error instanceof Error ? error.message : 'Failed to generate art.'
-    errorStore.addError(ErrorType.NETWORK_ERROR, localError.value)
-  } finally {
-    displayStore.stopAnimation()
-    isGenerating.value = false
-  }
+  displayStore.stopAnimation()
+  isGenerating.value = false
 }
 
 onMounted(async () => {

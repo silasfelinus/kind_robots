@@ -79,7 +79,7 @@
         </div>
 
         <!-- Selected Items -->
-        <div>Randomize:</div>
+
         <div
           v-if="
             Array.isArray(localSelections[entry.id]) &&
@@ -102,6 +102,34 @@
             ❌ Clear
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Random Toggles -->
+    <div class="border p-4 rounded-xl bg-base-200 space-y-4">
+      <h3 class="font-semibold">🎲 Bonus Random Prompts</h3>
+      <div class="flex flex-wrap gap-2">
+        <button
+          v-for="key in supportedRandomKeys"
+          :key="key"
+          @click="toggleRandomKey(key)"
+          class="btn btn-sm"
+          :class="randomSelections[key] ? 'btn-primary' : 'btn-outline'"
+        >
+          {{ key }}
+        </button>
+      </div>
+
+      <div
+        v-if="Object.keys(randomSelections).length"
+        class="text-sm mt-2 text-base-content/70"
+      >
+        <span class="font-semibold">Active Random Additions:</span>
+        <ul class="list-disc list-inside">
+          <li v-for="(val, key) in randomSelections" :key="key" class="italic">
+            {{ key }} → {{ val }}
+          </li>
+        </ul>
       </div>
     </div>
 
@@ -130,11 +158,28 @@ import { useRandomStore } from '@/stores/randomStore'
 const artStore = useArtStore()
 const randomStore = useRandomStore()
 
+const randomSelections = ref<Record<string, string>>({})
+
 const localSelections = ref<Record<string, string[]>>({})
 const makePretty = ref(false)
 
+function toggleRandomKey(key: string) {
+  const alreadySet = !!randomSelections.value[key]
+  const results = randomStore.getRandom(key, 1)
+  if (!results.length) return
+
+  if (alreadySet && randomSelections.value[key] === results[0]) {
+    // Reroll different result
+    const newResult = randomStore.getRandom(key, 1)[0]
+    randomSelections.value[key] = newResult
+  } else {
+    randomSelections.value[key] = results[0]
+  }
+}
+
 const LS_KEY = 'artRandomizerSelections'
 const LS_PRETTY = 'artRandomizerMakePretty'
+const LS_RANDOM = 'artRandomizerRandomSelections'
 
 if (import.meta.client) {
   const saved = localStorage.getItem(LS_KEY)
@@ -147,6 +192,14 @@ if (import.meta.client) {
   const pretty = localStorage.getItem(LS_PRETTY)
   if (pretty) {
     makePretty.value = pretty === 'true'
+  }
+
+  const rand = localStorage.getItem(LS_RANDOM)
+  if (rand) {
+    const parsedRand = JSON.parse(rand)
+    if (parsedRand && typeof parsedRand === 'object') {
+      randomSelections.value = parsedRand
+    }
   }
 }
 
@@ -220,8 +273,8 @@ function clearEntry(entryId: string) {
 }
 
 watch(
-  [localSelections, makePretty],
-  ([selections, pretty]) => {
+  [localSelections, makePretty, randomSelections],
+  ([selections, pretty, randoms]) => {
     for (const entry of artListPresets) {
       const val = selections[entry.id] || []
       artStore.updateArtListSelection(
@@ -239,18 +292,25 @@ watch(
       artStore.updateArtListSelection('__pretty__', [])
     }
 
+    // 🧠 Include supportedRandomKeys
+    for (const key of Object.keys(randoms)) {
+      artStore.updateArtListSelection(key, [randoms[key]])
+    }
+
     if (import.meta.client) {
       localStorage.setItem(LS_KEY, JSON.stringify(selections))
       localStorage.setItem(LS_PRETTY, String(pretty))
+      localStorage.setItem(LS_RANDOM, JSON.stringify(randoms))
     }
   },
   { immediate: true },
 )
 
 const promptPreview = computed(() =>
-  Object.entries(localSelections.value)
-    .flatMap(([_, values]) => values)
-    .concat(makePretty.value ? ['✨', ...prettifierPhrases.slice(0, 3)] : [])
-    .join(', '),
+  [
+    ...Object.entries(localSelections.value).flatMap(([_, values]) => values),
+    ...(makePretty.value ? ['✨', ...prettifierPhrases.slice(0, 3)] : []),
+    ...Object.values(randomSelections.value),
+  ].join(', '),
 )
 </script>

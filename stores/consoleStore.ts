@@ -6,7 +6,7 @@ import { useUserStore } from './userStore'
 import { randomFunLine } from './utils/randomFunLine'
 import { randomQuote } from './utils/randomQuote'
 import { randomTrivia } from './utils/randomTrivia'
-import { randomEncounter } from './utils/randomEncounter'
+import { useRandomEncounter } from './utils/randomEncounter'
 
 type ConsoleMessage = {
   id: number
@@ -107,7 +107,7 @@ export const useConsoleStore = defineStore('consoleStore', () => {
       { type: 'quote', message: randomQuote() },
       { type: 'trivia', message: randomTrivia() },
       (() => {
-        const encounter = randomEncounter()
+        const encounter = useRandomEncounter()
         incrementXP(encounter.xp)
         return { type: 'story', message: encounter.message }
       })(),

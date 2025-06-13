@@ -4,7 +4,7 @@ export function randomChoice<T>(list: T[]): T {
   return list[Math.floor(Math.random() * list.length)]
 }
 
-export function spaceEncounter(count: number): string {
+export function useSpaceEncounter(count: number): string {
   const ships = [
     'a suspiciously smooth alien cruiser',
     'an abandoned escape pod orbiting nothing',

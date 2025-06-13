@@ -179,7 +179,6 @@ const supportedRandomKeys = [
   'class',
   'species',
   'quirks',
-'encounter',
 'inventory',
 'item',
 'material',

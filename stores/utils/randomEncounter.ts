@@ -29,7 +29,7 @@ function saveMemory(memory: Record<Genre, number>) {
   localStorage.setItem(encounterMemoryKey, JSON.stringify(memory))
 }
 
-export function randomEncounter(): Encounter {
+export function useRandomEncounter(): Encounter {
   const memory = loadMemory()
   const genres: Genre[] = ['dungeon', 'space', 'noir']
   const genre = randomChoice(genres)

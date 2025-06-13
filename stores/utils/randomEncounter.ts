@@ -1,9 +1,9 @@
 // stores/utils/randomEncounter.ts
 
 
-import { dungeonEncounter } from './dungeonEncounter'
-import { spaceEncounter } from './spaceEncounter'
-import { noirEncounter } from './noirEncounter'
+import { useDungeonEncounter } from './dungeonEncounter'
+import { useSpaceEncounter } from './spaceEncounter'
+import { useNoirEncounter } from './noirEncounter'
 
 type Genre = 'dungeon' | 'space' | 'noir'
 
@@ -40,13 +40,13 @@ export function randomEncounter(): Encounter {
 
   switch (genre) {
     case 'dungeon':
-      message = dungeonEncounter(count)
+      message = useDungeonEncounter(count)
       break
     case 'space':
-      message = spaceEncounter(count)
+      message = useSpaceEncounter(count)
       break
     case 'noir':
-      message = noirEncounter(count)
+      message = useNoirEncounter(count)
       break
     default:
       message = 'You wander into the void... nothing responds.'

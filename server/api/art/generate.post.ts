@@ -203,6 +203,8 @@ export async function generateImage(
     user,
   }
 
+  console.log('[🧪 Backend Request Body]', requestBody)
+
   try {
     const response = await fetch(
       'https://lola.acrocatranch.com/sdapi/v1/txt2img',

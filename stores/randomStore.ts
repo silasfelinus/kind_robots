@@ -8,7 +8,6 @@ import { useRandomAnimal } from '@/stores/utils/randomAnimal'
 import { useRandomBackstory } from '@/stores/utils/randomBackstory'
 import { useRandomClass } from '@/stores/utils/randomClass'
 import { useRandomColor } from '@/stores/utils/randomColor'
-import { useRandomEncounter } from '@/stores/utils/randomEncounter'
 import { useRandomGenre } from '@/stores/utils/randomGenre'
 import { useRandomHonorific } from '@/stores/utils/randomHonorific'
 import { useRandomInventory } from '@/stores/utils/randomInventory'
@@ -31,7 +30,6 @@ export const useRandomStore = defineStore('randomStore', () => {
     backstory: useRandomBackstory,
     class: useRandomClass,
     color: useRandomColor,
-    encounter: useRandomEncounter,
     genre: useRandomGenre,
     honorific: useRandomHonorific,
     inventory: useRandomInventory,

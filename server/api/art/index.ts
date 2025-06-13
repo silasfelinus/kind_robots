@@ -101,52 +101,74 @@ export async function validateAndLoadPromptId(
   }
 }
 
+// /server/api/art/helpers/validateAndLoadPitchId.ts
+
+import { createError } from 'h3'
+import prisma from '~/server/api/utils/prisma'
+import type { RequestData } from '.'
+
 export async function validateAndLoadPitchId(
   data: RequestData,
 ): Promise<number | null> {
-  console.log('🔍 Validating and loading pitch ID...')
+  const start = Date.now()
+  console.log(`[⏱️ ${start}] 🔍 Begin validateAndLoadPitchId()`)
 
   if (data.pitchId) {
+    console.log(`[⏱️ ${Date.now()}] ⌛ Checking pitchId: ${data.pitchId}`)
     const existingPitch = await prisma.pitch.findUnique({
       where: { id: data.pitchId },
     })
+    console.log(`[⏱️ ${Date.now()}] ✅ pitchId lookup complete`)
+
     if (!existingPitch) {
+      console.warn(
+        `[⛔ ${Date.now()}] ❌ Invalid pitchId: ${data.pitchId} does not exist`,
+      )
       throw createError({
         statusCode: 400,
         message: `Invalid pitchId: ${data.pitchId}. Pitch does not exist.`,
       })
     }
+    console.log(`[✅ ${Date.now()}] Returning pitchId: ${data.pitchId}`)
     return data.pitchId
   }
 
   if (data.pitch) {
+    console.log(`[⏱️ ${Date.now()}] 🔍 Searching for pitch text match`)
     const existingPitch = await prisma.pitch.findFirst({
       where: { pitch: data.pitch },
     })
+
     if (existingPitch) {
-      console.log(`✅ Existing pitch found: ${existingPitch.id}`)
+      console.log(
+        `[✅ ${Date.now()}] Reused existing pitch ID: ${existingPitch.id}`,
+      )
       return existingPitch.id
-    } else {
-      const newPitch = await prisma.pitch.create({
-        data: {
-          title: data.title || 'Untitled',
-          pitch: data.pitch,
-          designer: data.designer,
-          flavorText: data.flavorText || '',
-          highlightImage: data.highlightImage || '',
-          PitchType: data.PitchType || 'ARTPITCH',
-          isMature: data.isMature || false,
-          isPublic: data.isPublic || true,
-          userId: data.userId || null,
-        },
-      })
-      console.log(`✅ New pitch created: ${newPitch.id}`)
-      return newPitch.id
     }
+
+    console.log(`[🛠️ ${Date.now()}] Creating new pitch...`)
+    const newPitch = await prisma.pitch.create({
+      data: {
+        title: data.title || 'Untitled',
+        pitch: data.pitch,
+        designer: data.designer,
+        flavorText: data.flavorText || '',
+        highlightImage: data.highlightImage || '',
+        PitchType: data.PitchType || 'ARTPITCH',
+        isMature: data.isMature || false,
+        isPublic: data.isPublic ?? true,
+        userId: data.userId || null,
+      },
+    })
+
+    console.log(`[✅ ${Date.now()}] New pitch created with ID: ${newPitch.id}`)
+    return newPitch.id
   }
 
+  console.log(`[⚠️ ${Date.now()}] No pitch or pitchId provided.`)
   return null
 }
+
 
 export async function validateAndLoadGalleryId(
   data: RequestData,

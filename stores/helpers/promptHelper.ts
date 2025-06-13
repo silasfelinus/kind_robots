@@ -78,6 +78,6 @@ export function processPromptPlaceholders(
  * Simple prompt validation — ensure allowed characters only.
  */
 export function validatePromptString(prompt: string): boolean {
-  const validPattern = /^[a-zA-Z0-9 ,_<>:"'|!?()-]+$/
+  const validPattern = /^[a-zA-Z0-9 ,_<>&:"'|!?()-]+$/
   return validPattern.test(prompt)
 }

@@ -21,6 +21,8 @@
       />
     </div>
 
+    <collection-handler />
+
     <!-- Generate Art Button -->
     <button
       :class="

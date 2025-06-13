@@ -101,11 +101,7 @@ export async function validateAndLoadPromptId(
   }
 }
 
-// /server/api/art/helpers/validateAndLoadPitchId.ts
 
-import { createError } from 'h3'
-import prisma from '~/server/api/utils/prisma'
-import type { RequestData } from '.'
 
 export async function validateAndLoadPitchId(
   data: RequestData,

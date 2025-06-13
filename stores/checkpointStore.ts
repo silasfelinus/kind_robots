@@ -68,6 +68,10 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     }
   }
 
+  function findCheckpointByName(name: string): Partial<Resource> | undefined {
+    return allCheckpoints.value.find((r) => r.name === name)
+  }
+
   async function setCurrentModelInApi(name: string) {
     const res = await performFetch('/api/art/sd/setModel', {
       method: 'POST',
@@ -95,5 +99,6 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     fetchCurrentModelFromApi,
     setCurrentModelInApi,
     modelUpdating,
+    findCheckpointByName,
   }
 })

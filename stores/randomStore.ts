@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { computed } from 'vue'
 
-// 🔌 Import all random utility generators
+// Array-returning generators
 import { useRandomAdjective } from '@/stores/utils/randomAdjective'
 import { useRandomAnimal } from '@/stores/utils/randomAnimal'
 import { useRandomBackstory } from '@/stores/utils/randomBackstory'
@@ -21,7 +21,11 @@ import { useRandomSkill } from '@/stores/utils/randomSkills'
 import { useRandomSpecies } from '@/stores/utils/randomSpecies'
 import { useRandomVerb } from '@/stores/utils/randomVerb'
 
+// ✨ New: Encounter logic (returns object)
+import { useRandomEncounter } from '@/stores/utils/randomEncounter'
+
 type RandomSource = () => string[]
+type SingleSource = () => string
 
 export const useRandomStore = defineStore('randomStore', () => {
   const sources: Record<string, RandomSource> = {
@@ -44,9 +48,20 @@ export const useRandomStore = defineStore('randomStore', () => {
     verb: useRandomVerb,
   }
 
-  const supportedKeys = computed(() => Object.keys(sources))
+  // 🧠 New: Single-return (string) generators
+  const singleValueSources: Record<string, SingleSource> = {
+    randomEncounter: () => useRandomEncounter().message,
+  }
+
+  const supportedKeys = computed(() =>
+    Object.keys(sources).concat(Object.keys(singleValueSources))
+  )
 
   function getRandom(key: string, count = 1): string[] {
+    if (singleValueSources[key]) {
+      return [singleValueSources[key]()]
+    }
+
     const source = sources[key]
     if (!source) return []
     const list = source()

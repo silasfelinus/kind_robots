@@ -42,8 +42,6 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
 
     if (!found) {
       console.warn(`[❌ Sampler Not Found] "${name}"`)
-    } else {
-      console.log(`[✅ Sampler Selected] "${found.name}"`, found)
     }
 
     selectedSampler.value = found || null

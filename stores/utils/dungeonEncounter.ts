@@ -1,6 +1,8 @@
 // stores/utils/dungeonEncounter.ts
 
-import { randomItem } from './randomItem'
+export function randomChoice<T>(list: T[]): T {
+  return list[Math.floor(Math.random() * list.length)]
+}
 
 export function dungeonEncounter(count: number): string {
   const locations = [
@@ -73,8 +75,8 @@ export function dungeonEncounter(count: number): string {
   ]
 
   if (count === 0) {
-    return `🧭 You enter ${randomItem(locations)}, encounter ${randomItem(monsters)}, and discover ${randomItem(treasures)}.`
+    return `🧭 You enter ${randomChoice(locations)}, encounter ${randomChoice(monsters)}, and discover ${randomChoice(treasures)}.`
   } else {
-    return `📜 You've returned to ${randomItem(locations)}. The ${randomItem(monsters)} remembers you. But this time, ${randomItem(treasures)} hums in recognition.`
+    return `📜 You've returned to ${randomChoice(locations)}. The ${randomChoice(monsters)} remembers you. But this time, ${randomChoice(treasures)} hums in recognition.`
   }
 }

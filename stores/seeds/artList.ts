@@ -10,6 +10,19 @@ export interface ArtListEntry {
   allowMultiple: boolean
 }
 
+export const prettifierPhrases = [
+  'masterpiece',
+  'hyper-realistic',
+  'maximum detail',
+  'cinematic lighting',
+  '4k render',
+  'sharp focus',
+  'ultra textured',
+  'rich color grading',
+  'award-winning',
+  'digital painting',
+]
+
 export const artListPresets: ArtListEntry[] = [
   {
     id: 'style',

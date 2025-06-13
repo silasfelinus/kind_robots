@@ -89,8 +89,10 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   function getArtListAddonPrompt(): string {
-    return Object.values(artListSelections.value)
-      .flat()
+    return Object.entries(artListSelections.value)
+      .flatMap(([key, values]) =>
+        key === '__pretty__' ? values : values.map((v) => v.trim()),
+      )
       .filter(Boolean)
       .join(', ')
   }

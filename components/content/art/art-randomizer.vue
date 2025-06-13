@@ -240,9 +240,25 @@ function surpriseMe() {
 }
 
 function resetAll() {
-  localSelections.value = {}
+  for (const key in localSelections.value) {
+    delete localSelections.value[key]
+  }
+
   makePretty.value = false
+  randomSelections.value = {} // 👈 This clears the random tracker
+
+  for (const entry of artListPresets) {
+    artStore.updateArtListSelection(entry.id, [])
+  }
+
+  artStore.updateArtListSelection('__pretty__', [])
+
+  if (import.meta.client) {
+    localStorage.removeItem(LS_KEY)
+    localStorage.removeItem(LS_PRETTY)
+  }
 }
+
 
 function resolvePresetType(entry: ArtListEntry) {
   if (entry.presetType === 'auto') {

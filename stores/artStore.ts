@@ -222,100 +222,98 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function generateArt(
-    artData?: GenerateArtData,
-  ): Promise<ApiResponse<Art>> {
-    state.loading = true
+  // /stores/helpers/artHelper.ts or equivalent
+async function generateArt(
+  artData?: GenerateArtData,
+): Promise<ApiResponse<Art>> {
+  state.loading = true
 
-    const checkpointStore = useCheckpointStore()
-    const prompt = artData?.promptString || promptStore.promptField
+  const checkpointStore = useCheckpointStore()
+  const userId = artData?.userId || userStore.userId || 10
+  const basePrompt =
+    artData?.promptString ||
+    promptStore.promptField ||
+    getArtListAddonPrompt()
 
-    const data: GenerateArtData = {
-      promptString: prompt,
-      pitch: artData?.pitch || promptStore.extractPitch(prompt),
-      userId: artData?.userId || userStore.userId || 10,
-      galleryId: artData?.galleryId,
-      checkpoint:
-        artData?.checkpoint ||
-        checkpointStore.selectedCheckpoint?.name ||
-        'stable-diffusion-v1-4',
-      sampler:
-        artData?.sampler || checkpointStore.selectedSampler?.name || 'k_lms',
-      steps: artData?.steps ?? state.artForm.steps,
-      designer: artData?.designer || userStore.username || 'Kind Designer',
-      cfg: artData?.cfg ?? state.artForm.cfg,
-      cfgHalf: artData?.cfgHalf ?? state.artForm.cfgHalf,
-      isMature: artData?.isMature ?? state.artForm.isMature,
-      isPublic: artData?.isPublic ?? state.artForm.isPublic,
-    }
+  const data: GenerateArtData = {
+    promptString: basePrompt.trim(),
+    pitch: artData?.pitch || promptStore.extractPitch(basePrompt),
+    userId,
+    galleryId: artData?.galleryId,
+    checkpoint:
+      artData?.checkpoint ||
+      checkpointStore.selectedCheckpoint?.name ||
+      'stable-diffusion-v1-4',
+    sampler:
+      artData?.sampler || checkpointStore.selectedSampler?.name || 'k_lms',
+    steps: artData?.steps ?? state.artForm.steps,
+    designer: artData?.designer || userStore.username || 'Kind Designer',
+    cfg: artData?.cfg ?? state.artForm.cfg,
+    cfgHalf: artData?.cfgHalf ?? state.artForm.cfgHalf,
+    isMature: artData?.isMature ?? state.artForm.isMature,
+    isPublic: artData?.isPublic ?? state.artForm.isPublic,
+  }
 
-    const artListAddon = getArtListAddonPrompt()
+  // 🧠 Post-process prompt with placeholders and store
+  data.promptString = promptStore.processPromptPlaceholders(
+    data.promptString,
+    pitchStore,
+  )
 
-    data.promptString = `${data.promptString}, ${artListAddon}`.trim()
-    console.log('[🧾 Prompt + Addon]', data.promptString)
+  state.processedArtPrompt = data.promptString
 
-    data.promptString = promptStore.processPromptPlaceholders(
-      data.promptString,
-      pitchStore,
+  if (!promptStore.validatePromptString(data.promptString)) {
+    state.loading = false
+    return { success: false, message: 'Invalid prompt' }
+  }
+
+  try {
+    const response = await performFetch<Art>(
+      '/api/art/generate',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      },
+      3,
+      120_000,
     )
 
-    state.processedArtPrompt = data.promptString
+    if (!response.success || !response.data)
+      throw new Error(response.message)
 
-    const isValid = promptStore.validatePromptString(data.promptString)
+    const collection =
+      await collectionStore.getOrCreateGeneratedArtCollection(userId)
 
-    if (!isValid) {
-      state.loading = false
-      return { success: false, message: 'Invalid prompt' }
+    await performFetch(`/api/art/collection/${collection.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ artIds: [response.data.id] }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    collectionStore.addArtToCollectionLocal(collection, response.data)
+    state.art.push(response.data)
+
+    if (isClient) {
+      localStorage.setItem('art', JSON.stringify(state.art))
+      localStorage.setItem('collections', JSON.stringify(state.collections))
     }
 
-    try {
-      const response = await performFetch<Art>(
-        '/api/art/generate',
-        {
-          method: 'POST',
-          body: JSON.stringify(data),
-        },
-        3,
-        90000,
-      )
-
-      if (!response.success || !response.data) throw new Error(response.message)
-
-      const collection =
-        await collectionStore.getOrCreateGeneratedArtCollection(
-          data.userId || 10,
-        )
-
-      await performFetch(`/api/art/collection/${collection.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ artIds: [response.data.id] }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      collectionStore.addArtToCollectionLocal(collection, response.data)
-
-      state.art.push(response.data)
-
-      if (isClient) {
-        localStorage.setItem('art', JSON.stringify(state.art))
-        localStorage.setItem('collections', JSON.stringify(state.collections))
-      }
-
-      return {
-        success: true,
-        data: response.data,
-        message: 'Art generated successfully',
-      }
-    } catch (error) {
-      handleError(error, 'generating art')
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : 'Unknown error',
-      }
-    } finally {
-      state.loading = false
+    return {
+      success: true,
+      data: response.data,
+      message: 'Art generated successfully',
     }
+  } catch (error) {
+    handleError(error, 'generating art')
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : 'Unknown error',
+    }
+  } finally {
+    state.loading = false
   }
+}
 
   return {
     ...toRefs(state),

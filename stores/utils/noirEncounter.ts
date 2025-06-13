@@ -1,6 +1,8 @@
 // stores/utils/noirEncounter.ts
 
-import { randomItem } from './randomItem'
+export function randomChoice<T>(list: T[]): T {
+  return list[Math.floor(Math.random() * list.length)]
+}
 
 export function noirEncounter(count: number): string {
   const places = [
@@ -51,8 +53,8 @@ export function noirEncounter(count: number): string {
   ]
 
   if (count === 0) {
-    return `🌃 You slip into ${randomItem(places)}, meet ${randomItem(characters)}, and find ${randomItem(clues)}.`
+    return `🌃 You slip into ${randomChoice(places)}, meet ${randomChoice(characters)}, and find ${randomChoice(clues)}.`
   } else {
-    return `💼 ${randomItem(characters)} lights a cigarette and mutters, “You’ve been here before.” ${randomItem(clues)} pulses in your coat pocket.`
+    return `💼 ${randomChoice(characters)} lights a cigarette and mutters, “You’ve been here before.” ${randomChoice(clues)} pulses in your coat pocket.`
   }
 }

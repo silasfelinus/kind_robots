@@ -69,7 +69,7 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
   }
 
   function findCheckpointByName(name: string): Partial<Resource> | undefined {
-    return allCheckpoints.value.find((r) => r.name === name)
+    return allCheckpoints.value.find((r) => r.name?.trim() === name.trim())
   }
 
   async function setCurrentModelInApi(name: string) {

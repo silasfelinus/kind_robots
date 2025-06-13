@@ -24,6 +24,17 @@
     />
   </div>
 
+  <!-- Negative Prompt Input -->
+  <div class="space-y-2">
+    <label class="font-semibold text-base-content">🚫 Negative Prompt</label>
+    <input
+      v-model="artStore.artForm.negativePrompt"
+      placeholder="Things to avoid (e.g. blurry, extra limbs...)"
+      class="input input-bordered w-full text-lg bg-base-200 placeholder-gray-500 shadow-inner"
+      :disabled="loading"
+    />
+  </div>
+
   <!-- CFG Controls -->
   <div class="space-y-2">
     <label class="block font-semibold text-center">
@@ -84,6 +95,8 @@
   <div v-if="generatedArt.length" class="space-y-4">
     <ArtCard v-for="art in generatedArt" :key="art.id" :art="art" />
   </div>
+
+  <collection-display />
 
   <!-- Art Gallery Toggle -->
   <div class="pt-4 text-center">

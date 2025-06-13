@@ -8,6 +8,7 @@ const getArtStore = () => useArtStore()
 
 export interface GenerateArtData {
   title?: string
+  negativePrompt?: string
   promptString: string
   userId?: number
   pitchId?: number

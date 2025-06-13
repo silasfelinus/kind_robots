@@ -20,6 +20,7 @@ export type RequestData = {
   isMature?: boolean
   isPublic?: boolean
   promptString: string
+  negativePrompt?: string
   promptId?: number | null
   userId?: number | null
   username?: string | null
@@ -101,8 +102,6 @@ export async function validateAndLoadPromptId(
   }
 }
 
-
-
 export async function validateAndLoadPitchId(
   data: RequestData,
 ): Promise<number | null> {
@@ -164,7 +163,6 @@ export async function validateAndLoadPitchId(
   console.log(`[⚠️ ${Date.now()}] No pitch or pitchId provided.`)
   return null
 }
-
 
 export async function validateAndLoadGalleryId(
   data: RequestData,

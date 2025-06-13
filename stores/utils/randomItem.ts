@@ -1,6 +1,6 @@
 // stores/utils/randomItem.ts
 
-const inventoryItems = [
+const useRandomItem = [
   // Practical Items
   'Leather satchel',
   'Pocket watch',

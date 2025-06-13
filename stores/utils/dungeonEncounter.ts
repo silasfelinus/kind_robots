@@ -4,7 +4,7 @@ export function randomChoice<T>(list: T[]): T {
   return list[Math.floor(Math.random() * list.length)]
 }
 
-export function dungeonEncounter(count: number): string {
+export function useDungeonEncounter(count: number): string {
   const locations = [
     'a dark cavern',
     'a crumbling wizard tower',

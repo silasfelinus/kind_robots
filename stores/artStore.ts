@@ -82,6 +82,19 @@ export const useArtStore = defineStore('artStore', () => {
   const pitchStore = usePitchStore()
   const collectionStore = useCollectionStore()
 
+  const artListSelections = ref<Record<string, string[]>>({})
+
+  function updateArtListSelection(id: string, selections: string[]) {
+    artListSelections.value[id] = selections
+  }
+
+  function getArtListAddonPrompt(): string {
+    return Object.values(artListSelections.value)
+      .flat()
+      .filter(Boolean)
+      .join(', ')
+  }
+
   async function initialize() {
     if (state.isInitialized) return
     state.loading = true
@@ -236,6 +249,9 @@ export const useArtStore = defineStore('artStore', () => {
 
     console.log('[🎨 generateArt()] Sampler passed:', data.sampler)
 
+    const artListAddon = getArtListAddonPrompt()
+    data.promptString = `${data.promptString}, ${artListAddon}`.trim()
+
     data.promptString = promptStore.processPromptPlaceholders(
       data.promptString,
       pitchStore,
@@ -314,6 +330,7 @@ export const useArtStore = defineStore('artStore', () => {
     getOrFetchArtImageById,
     createArt,
     getArtImageByArtId,
+    updateArtListSelection,
   }
 })
 

@@ -1,98 +1,96 @@
 <!-- /components/content/art/add-art.vue -->
 <template>
- 
-    <!-- Header -->
-    <h1 class="text-3xl font-bold text-center text-primary">
-      🎨 Welcome to the Art-Maker
-    </h1>
+  <!-- Header -->
+  <h1 class="text-3xl font-bold text-center text-primary">
+    🎨 Welcome to the Art-Maker
+  </h1>
 
-    <!-- Random Theme Selector -->
-    <checkpoint-gallery />
+  <!-- Random Theme Selector -->
+  <checkpoint-gallery />
 
-    <!-- Prompt Input -->
-    <div class="space-y-2">
-      <label class="font-semibold text-base-content">📝 Prompt</label>
-      <input
-        v-model="promptStore.promptField"
-        placeholder="Enter your creative prompt..."
-        class="input input-bordered w-full text-lg bg-base-200 placeholder-gray-500 shadow-inner"
-        :disabled="loading"
-        @input="syncPrompt"
-      />
-    </div>
+  <art-randomizer />
 
-    <!-- CFG Controls -->
-    <div  class="space-y-2">
-      <label class="block font-semibold text-center">
-        🎚 CFG Scale: {{ localCfg }}
-      </label>
-      <input
-        type="range"
-        min="0"
-        max="30"
-        step="0.5"
-        v-model.number="localCfg"
-        class="range range-primary w-full"
-      />
-    </div>
+  <!-- Prompt Input -->
+  <div class="space-y-2">
+    <label class="font-semibold text-base-content">📝 Prompt</label>
+    <input
+      v-model="promptStore.promptField"
+      placeholder="Enter your creative prompt..."
+      class="input input-bordered w-full text-lg bg-base-200 placeholder-gray-500 shadow-inner"
+      :disabled="loading"
+      @input="syncPrompt"
+    />
+  </div>
 
-    <!-- Steps Slider -->
-    <div class="space-y-2">
-      <label class="block font-semibold text-center">
-        🧮 Steps: {{ artStore.artForm.steps }}
-      </label>
-      <input
-        type="range"
-        min="5"
-        max="50"
-        step="1"
-        v-model.number="artStore.artForm.steps"
-        class="range range-secondary w-full"
-      />
-    </div>
+  <!-- CFG Controls -->
+  <div class="space-y-2">
+    <label class="block font-semibold text-center">
+      🎚 CFG Scale: {{ localCfg }}
+    </label>
+    <input
+      type="range"
+      min="0"
+      max="30"
+      step="0.5"
+      v-model.number="localCfg"
+      class="range range-primary w-full"
+    />
+  </div>
 
-    <!-- isPublic Toggle -->
-    <div class="flex items-center justify-center space-x-4">
-      <span class="font-semibold">🔓 Public?</span>
-      <input
-        type="checkbox"
-        class="toggle toggle-success"
-        v-model="artStore.artForm.isPublic"
-      />
-    </div>
+  <!-- Steps Slider -->
+  <div class="space-y-2">
+    <label class="block font-semibold text-center">
+      🧮 Steps: {{ artStore.artForm.steps }}
+    </label>
+    <input
+      type="range"
+      min="5"
+      max="50"
+      step="1"
+      v-model.number="artStore.artForm.steps"
+      class="range range-secondary w-full"
+    />
+  </div>
 
-    <!-- Generate Art Button -->
-    <button
-      class="btn w-full font-semibold text-white transition duration-300"
-      :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
-      :disabled="isGenerating || !promptStore.promptField"
-      @click="generateArt"
-    >
-      <span>🖌️ Create Art</span>
+  <!-- isPublic Toggle -->
+  <div class="flex items-center justify-center space-x-4">
+    <span class="font-semibold">🔓 Public?</span>
+    <input
+      type="checkbox"
+      class="toggle toggle-success"
+      v-model="artStore.artForm.isPublic"
+    />
+  </div>
+
+  <!-- Generate Art Button -->
+  <button
+    class="btn w-full font-semibold text-white transition duration-300"
+    :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
+    :disabled="isGenerating || !promptStore.promptField"
+    @click="generateArt"
+  >
+    <span>🖌️ Create Art</span>
+  </button>
+
+  <!-- Error Message -->
+  <div v-if="localError" class="text-error text-center space-y-1">
+    <p>{{ localError }}</p>
+    <p v-if="lastError">{{ lastError }}</p>
+  </div>
+
+  <!-- Generated Art Gallery -->
+  <div v-if="generatedArt.length" class="space-y-4">
+    <ArtCard v-for="art in generatedArt" :key="art.id" :art="art" />
+  </div>
+
+  <!-- Art Gallery Toggle -->
+  <div class="pt-4 text-center">
+    <button class="btn btn-sm btn-outline" @click="showGallery = !showGallery">
+      {{ showGallery ? 'Hide Gallery' : 'Show Full Gallery' }}
     </button>
+  </div>
 
-    <!-- Error Message -->
-    <div v-if="localError" class="text-error text-center space-y-1">
-      <p>{{ localError }}</p>
-      <p v-if="lastError">{{ lastError }}</p>
-    </div>
-
-    <!-- Generated Art Gallery -->
-    <div v-if="generatedArt.length" class="space-y-4">
-      <ArtCard v-for="art in generatedArt" :key="art.id" :art="art" />
-    </div>
-
-    <!-- Art Gallery Toggle -->
-    <div class="pt-4 text-center">
-      <button
-        class="btn btn-sm btn-outline"
-        @click="showGallery = !showGallery"
-      >
-        {{ showGallery ? 'Hide Gallery' : 'Show Full Gallery' }}
-      </button>
-    </div>
-
-    <art-gallery v-if="showGallery" />
+  <art-gallery v-if="showGallery" />
 </template>
 
 <script setup lang="ts">
@@ -125,8 +123,6 @@ const showGallery = ref(false)
 const localCfg = ref<number>(
   (artStore.artForm.cfg ?? 3) + (artStore.artForm.cfgHalf ? 0.5 : 0),
 )
-
-
 
 watch(localCfg, (val) => {
   artStore.artForm.cfg = Math.floor(val)

@@ -9,6 +9,7 @@
       <p class="text-center text-base text-info p-4">Loading page...</p>
     </template>
   </NuxtLayout>
+  <error-popup />
 </template>
 
 <script setup lang="ts">

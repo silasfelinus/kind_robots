@@ -50,7 +50,7 @@ export const useRandomStore = defineStore('randomStore', () => {
 
   // 🧠 New: Single-return (string) generators
   const singleValueSources: Record<string, SingleSource> = {
-    randomEncounter: () => useRandomEncounter().message,
+    encounter: () => useRandomEncounter().message,
   }
 
   const supportedKeys = computed(() =>

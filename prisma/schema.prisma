@@ -23,7 +23,7 @@ model Art {
   userId        Int?            @default(10)
   pitchId       Int?
   galleryId     Int?            @default(21)
-  promptString  String          @default(" ")
+  promptString  String          @db.Text
   cfg           Int?            @default(3)
   cfgHalf       Boolean?        @default(false)
   artImageId    Int?
@@ -383,7 +383,7 @@ model Prompt {
   id         Int            @id @default(autoincrement())
   createdAt  DateTime       @default(now())
   updatedAt  DateTime?      @default(now()) @updatedAt
-  prompt     String         @db.VarChar(764)
+  prompt     String         @db.Text
   userId     Int?           @default(1)
   galleryId  Int?           @default(21)
   pitchId    Int?

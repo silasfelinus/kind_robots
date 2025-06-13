@@ -1,9 +1,8 @@
+<!-- /components/content/art/art-randomizer.vue -->
 <template>
   <div class="space-y-6">
     <!-- Controls -->
-    <div
-      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6"
-    >
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
       <label class="label cursor-pointer space-x-2 flex-shrink-0">
         <span class="label-text font-semibold">✨ Make Pretty</span>
         <input
@@ -27,8 +26,15 @@
       :key="entry.id"
       class="border p-4 rounded-xl bg-base-200 md:flex md:items-center md:gap-4"
     >
-      <h3 class="font-semibold mb-2 md:mb-0 md:w-32 shrink-0">
+      <h3 class="font-semibold mb-2 md:mb-0 md:w-32 shrink-0 flex items-center gap-2">
         {{ entry.title }}
+        <button
+          class="btn btn-xs btn-outline"
+          @click="randomizeEntry(entry)"
+          title="Random {{ entry.title }}"
+        >
+          🎯
+        </button>
       </h3>
 
       <div class="w-full">
@@ -67,13 +73,27 @@
             <span>{{ option }}</span>
           </label>
         </div>
+
+        <!-- Selected Items -->
+        <div
+          v-if="Array.isArray(localSelections[entry.id]) && localSelections[entry.id].length"
+          class="flex flex-wrap gap-2 mt-3"
+        >
+          <span
+            v-for="(val, i) in localSelections[entry.id]"
+            :key="i"
+            class="badge badge-outline flex items-center gap-1"
+          >
+            {{ val }}
+            <button @click="removeSelection(entry.id, val)">🗑️</button>
+          </span>
+          <button class="btn btn-xs btn-ghost ml-2" @click="clearEntry(entry.id)">❌ Clear</button>
+        </div>
       </div>
     </div>
 
     <!-- Prompt Preview -->
-    <div
-      class="bg-base-100 border border-dashed border-base-300 p-4 rounded-xl text-sm text-base-content/70"
-    >
+    <div class="bg-base-100 border border-dashed border-base-300 p-4 rounded-xl text-sm text-base-content/70">
       <span class="font-semibold text-base-content">Prompt Preview:</span>
       <div class="mt-1 italic">
         {{ promptPreview }}
@@ -90,8 +110,10 @@ import {
   prettifierPhrases,
 } from '@/stores/seeds/artList'
 import { useArtStore } from '@/stores/artStore'
+import { useRandomStore } from '@/stores/randomStore'
 
 const artStore = useArtStore()
+const randomStore = useRandomStore()
 
 const localSelections = ref<Record<string, string[]>>({})
 const makePretty = ref(false)
@@ -139,11 +161,46 @@ function resetAll() {
   makePretty.value = false
 }
 
-const resolvePresetType = (entry: ArtListEntry) => {
+function resolvePresetType(entry: ArtListEntry) {
   if (entry.presetType === 'auto') {
     return entry.content.length <= 3 ? 'radio' : 'dropdown'
   }
   return entry.presetType
+}
+
+const supportedRandomKeys = [
+  'animal',
+  'color',
+  'adjective',
+  'noun',
+  'verb',
+  'name',
+  'genre',
+  'class',
+  'species',
+  'quirks',
+'encounter',
+'inventory',
+'item',
+'material',
+'personality',
+]
+
+function randomizeEntry(entry: ArtListEntry) {
+  const key = entry.id.toLowerCase()
+  if (!supportedRandomKeys.includes(key)) return
+
+  const results = randomStore.getRandom(key, entry.allowMultiple ? 3 : 1)
+  localSelections.value[entry.id] = results
+}
+
+function removeSelection(entryId: string, value: string) {
+  const updated = localSelections.value[entryId]?.filter((v) => v !== value) || []
+  localSelections.value[entryId] = updated
+}
+
+function clearEntry(entryId: string) {
+  delete localSelections.value[entryId]
 }
 
 watch(

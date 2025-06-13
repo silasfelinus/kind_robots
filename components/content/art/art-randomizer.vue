@@ -2,7 +2,9 @@
 <template>
   <div class="space-y-6">
     <!-- Controls -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6"
+    >
       <label class="label cursor-pointer space-x-2 flex-shrink-0">
         <span class="label-text font-semibold">✨ Make Pretty</span>
         <input
@@ -26,7 +28,9 @@
       :key="entry.id"
       class="border p-4 rounded-xl bg-base-200 md:flex md:items-center md:gap-4"
     >
-      <h3 class="font-semibold mb-2 md:mb-0 md:w-32 shrink-0 flex items-center gap-2">
+      <h3
+        class="font-semibold mb-2 md:mb-0 md:w-32 shrink-0 flex items-center gap-2"
+      >
         {{ entry.title }}
         <button
           class="btn btn-xs btn-outline"
@@ -75,8 +79,12 @@
         </div>
 
         <!-- Selected Items -->
+        <div>Randomize:</div>
         <div
-          v-if="Array.isArray(localSelections[entry.id]) && localSelections[entry.id].length"
+          v-if="
+            Array.isArray(localSelections[entry.id]) &&
+            localSelections[entry.id].length
+          "
           class="flex flex-wrap gap-2 mt-3"
         >
           <span
@@ -87,13 +95,20 @@
             {{ val }}
             <button @click="removeSelection(entry.id, val)">🗑️</button>
           </span>
-          <button class="btn btn-xs btn-ghost ml-2" @click="clearEntry(entry.id)">❌ Clear</button>
+          <button
+            class="btn btn-xs btn-ghost ml-2"
+            @click="clearEntry(entry.id)"
+          >
+            ❌ Clear
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Prompt Preview -->
-    <div class="bg-base-100 border border-dashed border-base-300 p-4 rounded-xl text-sm text-base-content/70">
+    <div
+      class="bg-base-100 border border-dashed border-base-300 p-4 rounded-xl text-sm text-base-content/70"
+    >
       <span class="font-semibold text-base-content">Prompt Preview:</span>
       <div class="mt-1 italic">
         {{ promptPreview }}
@@ -179,11 +194,11 @@ const supportedRandomKeys = [
   'class',
   'species',
   'quirks',
-'inventory',
-'item',
-'material',
-'personality',
-'encounter',
+  'inventory',
+  'item',
+  'material',
+  'personality',
+  'encounter',
 ]
 
 function randomizeEntry(entry: ArtListEntry) {
@@ -195,7 +210,8 @@ function randomizeEntry(entry: ArtListEntry) {
 }
 
 function removeSelection(entryId: string, value: string) {
-  const updated = localSelections.value[entryId]?.filter((v) => v !== value) || []
+  const updated =
+    localSelections.value[entryId]?.filter((v) => v !== value) || []
   localSelections.value[entryId] = updated
 }
 

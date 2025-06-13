@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import {
   artListPresets,
   type ArtListEntry,
@@ -99,7 +99,7 @@ const makePretty = ref(false)
 const LS_KEY = 'artRandomizerSelections'
 const LS_PRETTY = 'artRandomizerMakePretty'
 
-if (process.client) {
+if (import.meta.client) {
   const saved = localStorage.getItem(LS_KEY)
   const parsed = saved ? JSON.parse(saved) : {}
 
@@ -146,26 +146,33 @@ const resolvePresetType = (entry: ArtListEntry) => {
   return entry.presetType
 }
 
-watchEffect(() => {
-  for (const entry of artListPresets) {
-    const val = localSelections.value[entry.id] || []
-    artStore.updateArtListSelection(entry.id, Array.isArray(val) ? val : [val])
-  }
+watch(
+  [localSelections, makePretty],
+  ([selections, pretty]) => {
+    for (const entry of artListPresets) {
+      const val = selections[entry.id] || []
+      artStore.updateArtListSelection(
+        entry.id,
+        Array.isArray(val) ? val : [val],
+      )
+    }
 
-  if (makePretty.value) {
-    const randomPhrases = prettifierPhrases
-      .sort(() => 0.5 - Math.random())
-      .slice(0, 3)
-    artStore.updateArtListSelection('__pretty__', randomPhrases)
-  } else {
-    artStore.updateArtListSelection('__pretty__', [])
-  }
+    if (pretty) {
+      const randomPhrases = prettifierPhrases
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 3)
+      artStore.updateArtListSelection('__pretty__', randomPhrases)
+    } else {
+      artStore.updateArtListSelection('__pretty__', [])
+    }
 
-  if (import.meta.client) {
-    localStorage.setItem(LS_KEY, JSON.stringify(localSelections.value))
-    localStorage.setItem(LS_PRETTY, String(makePretty.value))
-  }
-})
+    if (import.meta.client) {
+      localStorage.setItem(LS_KEY, JSON.stringify(selections))
+      localStorage.setItem(LS_PRETTY, String(pretty))
+    }
+  },
+  { immediate: true },
+)
 
 const promptPreview = computed(() =>
   Object.entries(localSelections.value)

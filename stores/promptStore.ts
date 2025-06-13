@@ -6,12 +6,7 @@ import { performFetch, handleError } from './utils'
 import { useUserStore } from './userStore'
 import {
   validatePromptString,
-  normalizePrompt,
-  promptLabel,
-  cleanPromptExample,
   extractPitch,
-  estimateTokenCount,
-  buildPromptPayload,
   processPromptPlaceholders,
 } from '@/stores/helpers/promptHelper'
 

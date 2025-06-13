@@ -117,7 +117,7 @@ export function randomItem<T>(list: T[]): T {
 
 // 🎒 A random inventory item from your curated list
 export function getRandomInventoryItem(): string {
-  return randomItem(inventoryItems)
+  return useRandomItem(inventoryItems)
 }
 
 // 🍱 For multiple items:

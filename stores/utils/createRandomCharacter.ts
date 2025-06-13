@@ -12,6 +12,7 @@ import { useRandomStats } from './randomStats'
 import { useRandomPersonality } from './randomPersonality'
 
 export function useRandomCharacterData() {
+  const { randomName } = useRandomName()
   const { randomHonorific } = useRandomHonorific()
   const { randomClass } = useRandomClass()
   const { randomGenre } = useRandomGenre()

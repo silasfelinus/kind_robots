@@ -16,7 +16,7 @@ import { useRandomMaterial } from '@/stores/utils/randomMaterial'
 import { useRandomName } from '@/stores/utils/randomName'
 import { useRandomNoun } from '@/stores/utils/randomNoun'
 import { useRandomPersonality } from '@/stores/utils/randomPersonality'
-import { useRandomQuirks } from '@/stores/utils/randomQuirks'
+import { useRandomQuirk } from '@/stores/utils/randomQuirks'
 import { useRandomSkills } from '@/stores/utils/randomSkills'
 import { useRandomSpecies } from '@/stores/utils/randomSpecies'
 import { useRandomVerb } from '@/stores/utils/randomVerb'
@@ -38,7 +38,7 @@ export const useRandomStore = defineStore('randomStore', () => {
     name: useRandomName,
     noun: useRandomNoun,
     personality: useRandomPersonality,
-    quirks: useRandomQuirks,
+    quirk: useRandomQuirk,
     skills: useRandomSkills,
     species: useRandomSpecies,
     verb: useRandomVerb,

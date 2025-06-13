@@ -183,6 +183,7 @@ const supportedRandomKeys = [
 'item',
 'material',
 'personality',
+'encounter',
 ]
 
 function randomizeEntry(entry: ArtListEntry) {

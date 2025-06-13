@@ -1,11 +1,15 @@
 // stores/utils/randomEncounter.ts
 
-import { randomItem } from './randomItem'
+
 import { dungeonEncounter } from './dungeonEncounter'
 import { spaceEncounter } from './spaceEncounter'
 import { noirEncounter } from './noirEncounter'
 
 type Genre = 'dungeon' | 'space' | 'noir'
+
+export function randomChoice<T>(list: T[]): T {
+  return list[Math.floor(Math.random() * list.length)]
+}
 
 type Encounter = {
   genre: Genre
@@ -28,7 +32,7 @@ function saveMemory(memory: Record<Genre, number>) {
 export function randomEncounter(): Encounter {
   const memory = loadMemory()
   const genres: Genre[] = ['dungeon', 'space', 'noir']
-  const genre = randomItem(genres)
+  const genre = randomChoice(genres)
   const count = memory[genre] || 0
   const xp = 15 + count * 5
 

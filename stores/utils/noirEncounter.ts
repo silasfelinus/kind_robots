@@ -4,7 +4,7 @@ export function randomChoice<T>(list: T[]): T {
   return list[Math.floor(Math.random() * list.length)]
 }
 
-export function noirEncounter(count: number): string {
+export function useNoirEncounter(count: number): string {
   const places = [
     'a rain-soaked alley under neon glow',
     'a diner where the jukebox always plays static',

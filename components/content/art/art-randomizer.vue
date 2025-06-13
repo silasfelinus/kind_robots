@@ -120,18 +120,30 @@
         </button>
       </div>
 
-      <div
-        v-if="Object.keys(randomSelections).length"
-        class="text-sm mt-2 text-base-content/70"
-      >
-        <span class="font-semibold">Active Random Additions:</span>
-        <ul class="list-disc list-inside">
-          <li v-for="(val, key) in randomSelections" :key="key" class="italic">
-            {{ key }} → {{ val }}
-          </li>
-        </ul>
-      </div>
-    </div>
+    <div
+  v-if="Object.keys(randomSelections).length"
+  class="text-sm mt-2 text-base-content/70"
+>
+  <span class="font-semibold">Active Random Additions:</span>
+  <div class="flex flex-wrap gap-2 mt-2">
+    <span
+      v-for="(val, key) in randomSelections"
+      :key="key"
+      class="badge badge-outline flex items-center gap-1"
+    >
+      {{ key }} → {{ val }}
+     <button
+  @click="removeRandomKey(key)"
+  class="ml-1 hover:text-error"
+  title="Remove {{ key }}"
+>
+  ❌
+</button>
+
+    </span>
+  </div>
+</div>
+
 
     <!-- Prompt Preview -->
     <div
@@ -176,6 +188,11 @@ function toggleRandomKey(key: string) {
     randomSelections.value[key] = results[0]
   }
 }
+
+function removeRandomKey(key: string) {
+  delete randomSelections.value[key]
+}
+
 
 const LS_KEY = 'artRandomizerSelections'
 const LS_PRETTY = 'artRandomizerMakePretty'

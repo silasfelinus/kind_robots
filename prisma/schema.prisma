@@ -24,6 +24,7 @@ model Art {
   pitchId       Int?
   galleryId     Int?            @default(21)
   promptString  String          @db.Text
+  negativePrompt String? @db.Text
   cfg           Int?            @default(3)
   cfgHalf       Boolean?        @default(false)
   artImageId    Int?

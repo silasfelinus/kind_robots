@@ -25,7 +25,7 @@
 
     <!-- Components Section -->
     <div class="flex-grow w-full overflow-y-auto h-full">
-      <lazy-art-maker v-if="choice === 'art-maker'" />
+      <lazy-add-art v-if="choice === 'art-maker'" />
       <lazy-art-collection v-if="choice === 'art-collection'" />
       <lazy-art-gallery v-if="choice === 'art-gallery'" />
     </div>
@@ -41,7 +41,7 @@ const displayStore = useDisplayStore()
 
 // Tabs setup for Art Chooser
 const tabs = [
-  { name: 'art-maker', label: 'Art Maker' },
+  { name: 'add-art', label: 'Art Maker' },
   { name: 'art-collection', label: 'Art Collection' },
   { name: 'art-gallery', label: 'Art Gallery' },
 ]

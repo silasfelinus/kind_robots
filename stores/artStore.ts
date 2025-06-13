@@ -222,98 +222,115 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  // /stores/helpers/artHelper.ts or equivalent
-async function generateArt(
-  artData?: GenerateArtData,
-): Promise<ApiResponse<Art>> {
-  state.loading = true
+  async function generateArt(
+    artData?: GenerateArtData,
+  ): Promise<ApiResponse<Art>> {
+    state.loading = true
 
-  const checkpointStore = useCheckpointStore()
-  const userId = artData?.userId || userStore.userId || 10
-  const basePrompt =
-    artData?.promptString ||
-    promptStore.promptField ||
-    getArtListAddonPrompt()
+    const checkpointStore = useCheckpointStore()
+    const collectionStore = useCollectionStore()
+    const userId = artData?.userId || userStore.userId || 10
 
-  const data: GenerateArtData = {
-    promptString: basePrompt.trim(),
-    pitch: artData?.pitch || promptStore.extractPitch(basePrompt),
-    userId,
-    galleryId: artData?.galleryId,
-    checkpoint:
-      artData?.checkpoint ||
-      checkpointStore.selectedCheckpoint?.name ||
-      'stable-diffusion-v1-4',
-    sampler:
-      artData?.sampler || checkpointStore.selectedSampler?.name || 'k_lms',
-    steps: artData?.steps ?? state.artForm.steps,
-    designer: artData?.designer || userStore.username || 'Kind Designer',
-    cfg: artData?.cfg ?? state.artForm.cfg,
-    cfgHalf: artData?.cfgHalf ?? state.artForm.cfgHalf,
-    isMature: artData?.isMature ?? state.artForm.isMature,
-    isPublic: artData?.isPublic ?? state.artForm.isPublic,
-  }
+    const basePrompt =
+      artData?.promptString ||
+      promptStore.promptField ||
+      getArtListAddonPrompt()
 
-  // 🧠 Post-process prompt with placeholders and store
-  data.promptString = promptStore.processPromptPlaceholders(
-    data.promptString,
-    pitchStore,
-  )
-
-  state.processedArtPrompt = data.promptString
-
-  if (!promptStore.validatePromptString(data.promptString)) {
-    state.loading = false
-    return { success: false, message: 'Invalid prompt' }
-  }
-
-  try {
-    const response = await performFetch<Art>(
-      '/api/art/generate',
-      {
-        method: 'POST',
-        body: JSON.stringify(data),
-      },
-      3,
-      120_000,
-    )
-
-    if (!response.success || !response.data)
-      throw new Error(response.message)
-
-    const collection =
-      await collectionStore.getOrCreateGeneratedArtCollection(userId)
-
-    await performFetch(`/api/art/collection/${collection.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ artIds: [response.data.id] }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-
-    collectionStore.addArtToCollectionLocal(collection, response.data)
-    state.art.push(response.data)
-
-    if (isClient) {
-      localStorage.setItem('art', JSON.stringify(state.art))
-      localStorage.setItem('collections', JSON.stringify(state.collections))
+    const data: GenerateArtData = {
+      promptString: promptStore.processPromptPlaceholders(
+        basePrompt.trim(),
+        pitchStore,
+      ),
+      pitch: artData?.pitch || promptStore.extractPitch(basePrompt),
+      userId,
+      galleryId: artData?.galleryId,
+      checkpoint:
+        artData?.checkpoint ||
+        checkpointStore.selectedCheckpoint?.name ||
+        'stable-diffusion-v1-4',
+      sampler:
+        artData?.sampler || checkpointStore.selectedSampler?.name || 'k_lms',
+      steps: artData?.steps ?? state.artForm.steps,
+      designer: artData?.designer || userStore.username || 'Kind Designer',
+      cfg: artData?.cfg ?? state.artForm.cfg,
+      cfgHalf: artData?.cfgHalf ?? state.artForm.cfgHalf,
+      isMature: artData?.isMature ?? state.artForm.isMature,
+      isPublic: artData?.isPublic ?? state.artForm.isPublic,
     }
 
-    return {
-      success: true,
-      data: response.data,
-      message: 'Art generated successfully',
+    if (!promptStore.validatePromptString(data.promptString)) {
+      state.loading = false
+      return { success: false, message: 'Invalid prompt' }
     }
-  } catch (error) {
-    handleError(error, 'generating art')
-    return {
-      success: false,
-      message:
-        error instanceof Error ? error.message : 'Unknown error',
+
+    try {
+      const response = await performFetch<Art>(
+        '/api/art/generate',
+        {
+          method: 'POST',
+          body: JSON.stringify(data),
+        },
+        3,
+        120_000,
+      )
+
+      if (!response.success || !response.data) throw new Error(response.message)
+
+      const art = response.data
+
+      const generatedCollection =
+        await collectionStore.getOrCreateGeneratedArtCollection(userId)
+
+      const activeCollection = collectionStore.currentCollection
+
+      // Add to generated collection if not already included
+      const alreadyInGenerated = generatedCollection.art.some(
+        (a) => a.id === art.id,
+      )
+      if (!alreadyInGenerated) {
+        await performFetch(`/api/art/collection/${generatedCollection.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ artIds: [art.id] }),
+          headers: { 'Content-Type': 'application/json' },
+        })
+        collectionStore.addArtToCollectionLocal(generatedCollection, art)
+      }
+
+      // Optionally add to current collection (if different)
+      if (activeCollection && activeCollection.id !== generatedCollection.id) {
+        await performFetch(`/api/art/collection/${activeCollection.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ artIds: [art.id] }),
+          headers: { 'Content-Type': 'application/json' },
+        })
+        collectionStore.addArtToCollectionLocal(activeCollection, art)
+      }
+
+      state.art.push(art)
+
+      if (isClient) {
+        localStorage.setItem('art', JSON.stringify(state.art))
+        localStorage.setItem(
+          'collections',
+          JSON.stringify(collectionStore.collections),
+        )
+      }
+
+      return {
+        success: true,
+        data: art,
+        message: 'Art created and added to collections',
+      }
+    } catch (error) {
+      handleError(error, 'generating art')
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error',
+      }
+    } finally {
+      state.loading = false
     }
-  } finally {
-    state.loading = false
   }
-}
 
   return {
     ...toRefs(state),

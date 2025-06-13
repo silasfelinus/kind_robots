@@ -111,7 +111,7 @@ export function useRandomItem() {
     'Miniature cannon',
   ]
 
-  function randomItemCombo() {
+  function randomItem() {
     const itemCount = Math.floor(Math.random() * 3 + 1) // 1 to 3 items
     const inventory = new Set<string>()
 
@@ -122,5 +122,5 @@ export function useRandomItem() {
     return Array.from(inventory).join(', ')
   }
 
-  return items
+  return { randomItem }
 }

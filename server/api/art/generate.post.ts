@@ -85,16 +85,17 @@ export default defineEventHandler(async (event) => {
     validatedData.galleryId = await validateAndLoadGalleryId(requestData)
     validatedData.designer = validateAndLoadDesignerName(requestData)
 
+    const rawCfg = Number(requestData.cfg)
     const cfgValue = calculateCfg(
-      requestData.cfg ?? 3,
+      isNaN(rawCfg) ? 3 : rawCfg,
       requestData.cfgHalf ?? false,
     )
 
-    // Generate the image
     const response: GenerateImageResponse = await generateImage(
       requestData.promptString,
       validatedData.designer || 'kindguest',
       cfgValue || 3,
+      requestData.negativePrompt || '',
       requestData.seed || -1,
       requestData.steps || 20,
       requestData.checkpoint,
@@ -137,6 +138,7 @@ export default defineEventHandler(async (event) => {
         steps: requestData.steps,
         designer: validatedData.designer,
         promptString: requestData.promptString,
+        negativePrompt: requestData.negativePrompt,
         isPublic: requestData.isPublic,
         isMature: requestData.isMature,
         userId: validatedData.userId,
@@ -178,6 +180,7 @@ export async function generateImage(
   prompt: string,
   user: string,
   cfgValue: number,
+  negativePrompt?: string,
   seed?: number,
   steps?: number,
   checkpoint?: string,
@@ -191,6 +194,7 @@ export async function generateImage(
 
   const requestBody = {
     prompt,
+    negative_prompt: negativePrompt || ' ',
     steps: steps || 10,
     cfg_scale: cfgValue ?? 0,
     seed: seed ?? -1,

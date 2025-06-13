@@ -241,6 +241,7 @@ export const useArtStore = defineStore('artStore', () => {
         basePrompt.trim(),
         pitchStore,
       ),
+      negativePrompt: artData?.negativePrompt ?? state.artForm.negativePrompt,
       pitch: artData?.pitch || promptStore.extractPitch(basePrompt),
       userId,
       galleryId: artData?.galleryId,

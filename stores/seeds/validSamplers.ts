@@ -4,7 +4,7 @@ import type { Resource } from '@prisma/client'
 
 export const validSamplers: Partial<Resource>[] = [
   {
-    name: 'DPM++ 2M Karras',
+    name: 'k_dpmpp_2m',
     resourceType: 'SAMPLER',
     isMature: false,
     userId: 1,

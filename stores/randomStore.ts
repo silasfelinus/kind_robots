@@ -2,7 +2,6 @@
 import { defineStore } from 'pinia'
 import { computed } from 'vue'
 
-// Array-returning generators
 import { useRandomAdjective } from '@/stores/utils/randomAdjective'
 import { useRandomAnimal } from '@/stores/utils/randomAnimal'
 import { useRandomBackstory } from '@/stores/utils/randomBackstory'
@@ -21,58 +20,38 @@ import { useRandomSkill } from '@/stores/utils/randomSkills'
 import { useRandomSpecies } from '@/stores/utils/randomSpecies'
 import { useRandomVerb } from '@/stores/utils/randomVerb'
 
-// ✨ New: Encounter logic (returns object)
 import { useRandomEncounter } from '@/stores/utils/randomEncounter'
 
-type RandomSource = () => string[]
 type SingleSource = () => string
 
 export const useRandomStore = defineStore('randomStore', () => {
-  const sources: Record<string, RandomSource> = {
-    adjective: useRandomAdjective,
-    animal: useRandomAnimal,
-    backstory: useRandomBackstory,
-    class: useRandomClass,
-    color: useRandomColor,
-    genre: useRandomGenre,
-    honorific: useRandomHonorific,
-    inventory: useRandomInventory,
-    item: useRandomItem,
-    material: useRandomMaterial,
-    name: useRandomName,
-    noun: useRandomNoun,
-    personality: useRandomPersonality,
-    quirk: useRandomQuirk,
-    skill: useRandomSkill,
-    species: useRandomSpecies,
-    verb: useRandomVerb,
-  }
-
-  // 🧠 New: Single-return (string) generators
   const singleValueSources: Record<string, SingleSource> = {
+    adjective: () => useRandomAdjective().randomAdjective(),
+    animal: () => useRandomAnimal().randomAnimal(),
+    backstory: () => useRandomBackstory().randomBackstory(),
+    class: () => useRandomClass().randomClass(),
+    color: () => useRandomColor().randomColor(),
+    genre: () => useRandomGenre().randomGenre(),
+    honorific: () => useRandomHonorific().randomHonorific(),
+    inventory: () => useRandomInventory().randomInventory(),
+    item: () => useRandomItem().randomItem(),
+    material: () => useRandomMaterial().randomMaterial(),
+    name: () => useRandomName().randomName(),
+    noun: () => useRandomNoun().randomNoun(),
+    personality: () => useRandomPersonality().randomPersonality(),
+    quirk: () => useRandomQuirk().randomQuirk(),
+    skill: () => useRandomSkill().randomSkill(),
+    species: () => useRandomSpecies().randomSpecies(),
+    verb: () => useRandomVerb().randomVerb(),
     encounter: () => useRandomEncounter().message,
   }
 
-  const supportedKeys = computed(() =>
-    Object.keys(sources).concat(Object.keys(singleValueSources))
-  )
+  const supportedKeys = computed(() => Object.keys(singleValueSources))
 
   function getRandom(key: string, count = 1): string[] {
-    if (singleValueSources[key]) {
-      return [singleValueSources[key]()]
-    }
-
-    const source = sources[key]
+    const source = singleValueSources[key]
     if (!source) return []
-    const list = source()
-    if (!list.length) return []
-
-    const result: string[] = []
-    for (let i = 0; i < count; i++) {
-      result.push(list[Math.floor(Math.random() * list.length)])
-    }
-
-    return result
+    return Array.from({ length: count }, () => source())
   }
 
   return {

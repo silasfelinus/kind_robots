@@ -1,6 +1,8 @@
 // stores/utils/spaceEncounter.ts
 
-import { randomItem } from './randomItem'
+export function randomChoice<T>(list: T[]): T {
+  return list[Math.floor(Math.random() * list.length)]
+}
 
 export function spaceEncounter(count: number): string {
   const ships = [
@@ -51,8 +53,8 @@ export function spaceEncounter(count: number): string {
   ]
 
   if (count === 0) {
-    return `🚀 You dock at ${randomItem(ships)}, encounter ${randomItem(threats)}, and leave with ${randomItem(loot)}.`
+    return `🚀 You dock at ${randomChoice(ships)}, encounter ${randomChoice(threats)}, and leave with ${randomChoice(loot)}.`
   } else {
-    return `🪐 The AI on ${randomItem(ships)} recognizes your transponder code. ${randomItem(threats)} eyes you warily. ${randomItem(loot)} responds to your touch.`
+    return `🪐 The AI on ${randomChoice(ships)} recognizes your transponder code. ${randomChoice(threats)} eyes you warily. ${randomChoice(loot)} responds to your touch.`
   }
 }

@@ -248,10 +248,8 @@ export const useArtStore = defineStore('artStore', () => {
       isMature: artData?.isMature ?? state.artForm.isMature,
       isPublic: artData?.isPublic ?? state.artForm.isPublic,
     }
-    console.log('[🎨 generateArt()] Sampler passed:', data.sampler)
 
     const artListAddon = getArtListAddonPrompt()
-    console.log('[➕ Art List Addon]', artListAddon)
 
     data.promptString = `${data.promptString}, ${artListAddon}`.trim()
     console.log('[🧾 Prompt + Addon]', data.promptString)
@@ -260,19 +258,15 @@ export const useArtStore = defineStore('artStore', () => {
       data.promptString,
       pitchStore,
     )
-    console.log('[🔄 After Placeholder Processing]', data.promptString)
 
     state.processedArtPrompt = data.promptString
 
     const isValid = promptStore.validatePromptString(data.promptString)
-    console.log('[✅ Prompt Valid?]', isValid)
 
     if (!isValid) {
       state.loading = false
       return { success: false, message: 'Invalid prompt' }
     }
-
-    console.log('[🧪 Final Prompt]', data.promptString)
 
     try {
       const response = await performFetch<Art>(

@@ -1,4 +1,6 @@
-export function randomName() {
+// /stores/utils/randomName.ts
+
+export function useRandomName() {
   const names = [
     // Classic
     'Alexander',
@@ -121,5 +123,5 @@ export function randomName() {
     'Neo',
   ]
 
-  return names[Math.floor(Math.random() * names.length)]
+  return names
 }

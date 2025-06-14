@@ -76,6 +76,14 @@
               : 'bg-accent hover:bg-accent/80 text-base-100 border-base-300',
           ]"
         >
+          <div v-if="c.name && checkpointImages[c.name]" class="mt-2 w-full">
+            <img
+              :src="checkpointImages[c.name]?.imagePath || undefined"
+              class="rounded-xl object-cover h-32 w-full"
+              :alt="c.name"
+            />
+          </div>
+
           <div class="font-bold leading-snug">
             {{ showMature || !c.isMature ? c.customLabel || c.name : 'Hidden' }}
           </div>
@@ -128,6 +136,9 @@ import { computed, ref, onMounted } from 'vue'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import { useArtStore } from '@/stores/artStore'
+const artStore = useArtStore()
+const checkpointImages = ref<Record<string, Art | null>>({})
 
 const checkpointStore = useCheckpointStore()
 const userStore = useUserStore()
@@ -229,6 +240,29 @@ onMounted(async () => {
 
     if (!checkpointStore.selectedSampler) {
       checkpointStore.selectSamplerByName('Euler a')
+    }
+
+    const userId = userStore.user?.id ?? 10
+    const allArt = artStore.art
+
+    for (const checkpoint of checkpointStore.visibleCheckpoints) {
+      const localPath = checkpoint.localPath
+      if (!localPath) continue
+
+      const matchingArt = allArt
+        .filter(
+          (a) =>
+            a.checkpoint === localPath && (a.isPublic || a.userId === userId),
+        )
+        .sort((a, b) => {
+          const aTime = new Date(a.updatedAt ?? a.createdAt ?? 0).getTime()
+          const bTime = new Date(b.updatedAt ?? b.createdAt ?? 0).getTime()
+          return bTime - aTime // newest first
+        })
+
+      if (checkpoint.name) {
+        checkpointImages.value[checkpoint.name] = matchingArt[0] ?? null
+      }
     }
 
     errorStore.clearError()

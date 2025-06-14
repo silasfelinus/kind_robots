@@ -20,6 +20,9 @@ import {
 import { useCollectionStore } from './collectionStore'
 import { useCheckpointStore } from './checkpointStore'
 import { artListPresets, type ArtListEntry } from '@/stores/seeds/artList'
+import { useRandomStore } from './randomStore'
+
+
 
 const isClient = typeof window !== 'undefined'
 
@@ -84,24 +87,22 @@ export const useArtStore = defineStore('artStore', () => {
   const promptStore = usePromptStore()
   const pitchStore = usePitchStore()
   const collectionStore = useCollectionStore()
+const randomStore = useRandomStore()
 
   const getPromptString = computed(() => {
-    const baseSelections = Object.entries(state.artListSelections)
-      .filter(([key]) => !key.startsWith('__')) // exclude __pretty__, __negative__
-      .flatMap(([_, vals]) => vals)
+  const baseSelections = Object.entries(state.artListSelections)
+    .filter(([key]) => !key.startsWith('__') && !randomStore.supportedKeys.includes(key))
+    .flatMap(([_, vals]) => vals)
 
-    const pretty = state.artListSelections['__pretty__'] || []
+  const pretty = state.artListSelections['__pretty__'] || []
+  const randoms = Object.values(randomStore.randomSelections)
 
-    const randoms = Object.keys(state.artListSelections)
-      .filter(
-        (key) =>
-          !key.startsWith('__') &&
-          !artListPresets.find((preset: ArtListEntry) => preset.id === key),
-      )
-      .flatMap((key) => state.artListSelections[key] || [])
+  const typedPrompt = promptStore.promptField?.trim()
 
-    return [...baseSelections, ...pretty, ...randoms].join(', ')
-  })
+  return [...baseSelections, ...pretty, ...randoms, typedPrompt]
+    .filter(Boolean)
+    .join(', ')
+})
 
   const getNegativePromptString = computed(() => {
     return (state.artListSelections['__negative__'] || []).join(', ')

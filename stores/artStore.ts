@@ -22,8 +22,6 @@ import { useCheckpointStore } from './checkpointStore'
 import { artListPresets, type ArtListEntry } from '@/stores/seeds/artList'
 import { useRandomStore } from './randomStore'
 
-
-
 const isClient = typeof window !== 'undefined'
 
 interface ArtStoreState {
@@ -87,22 +85,25 @@ export const useArtStore = defineStore('artStore', () => {
   const promptStore = usePromptStore()
   const pitchStore = usePitchStore()
   const collectionStore = useCollectionStore()
-const randomStore = useRandomStore()
+  const randomStore = useRandomStore()
 
   const getPromptString = computed(() => {
-  const baseSelections = Object.entries(state.artListSelections)
-    .filter(([key]) => !key.startsWith('__') && !randomStore.supportedKeys.includes(key))
-    .flatMap(([_, vals]) => vals)
+    const baseSelections = Object.entries(state.artListSelections)
+      .filter(
+        ([key]) =>
+          !key.startsWith('__') && !randomStore.supportedKeys.includes(key),
+      )
+      .flatMap(([_, vals]) => vals)
 
-  const pretty = state.artListSelections['__pretty__'] || []
-  const randoms = Object.values(randomStore.randomSelections)
+    const pretty = state.artListSelections['__pretty__'] || []
+    const randoms = Object.values(randomStore.randomSelections)
 
-  const typedPrompt = promptStore.promptField?.trim()
+    const typedPrompt = promptStore.promptField?.trim()
 
-  return [...baseSelections, ...pretty, ...randoms, typedPrompt]
-    .filter(Boolean)
-    .join(', ')
-})
+    return [...baseSelections, ...pretty, ...randoms, typedPrompt]
+      .filter(Boolean)
+      .join(', ')
+  })
 
   const getNegativePromptString = computed(() => {
     return (state.artListSelections['__negative__'] || []).join(', ')
@@ -258,11 +259,9 @@ const randomStore = useRandomStore()
     const userId = artData?.userId || userStore.userId || 10
 
     const basePrompt =
-  getPromptString.value ||
-  promptStore.promptField ||
-  getArtListAddonPrompt()
-
-
+      getPromptString.value ||
+      promptStore.promptField ||
+      getArtListAddonPrompt()
 
     const data: GenerateArtData = {
       promptString: promptStore.processPromptPlaceholders(
@@ -380,6 +379,7 @@ const randomStore = useRandomStore()
     getArtImageByArtId,
     updateArtListSelection,
     artListPresets,
+    getPromptString,
   }
 })
 

@@ -63,6 +63,7 @@ export const artListPresets: ArtListEntry[] = [
       'Digital Matte Painting',
       'Woodblock Print',
       'Glitch Art',
+      'Hyper-realistic',
     ],
   },
   {

@@ -72,13 +72,16 @@
               ? 'bg-primary text-white border-primary'
               : 'hover:scale-[1.015] hover:shadow-md transition-transform duration-150',
             isExpanded
-              ? 'bg-secondary hover:bg-secondary/80 border-base-300 text-base-content'
-              : 'bg-accent hover:bg-accent/80 text-base-100 border-base-300',
+              ? 'bg-base hover:bg-base/80 border-accent text-base-content'
+              : 'bg-base hover:bg-base/80 text-base-100 border-accent',
           ]"
         >
-          <div v-if="c.name && checkpointImages[c.name]" class="mt-2 w-full">
+          <div
+            v-if="c.name && checkpointImages[c.name]?.imagePath"
+            class="mt-2 w-full"
+          >
             <img
-              :src="checkpointImages[c.name]?.imagePath || undefined"
+              :src="checkpointImages[c.name]?.imagePath ?? undefined"
               class="rounded-xl object-cover h-32 w-full"
               :alt="c.name"
             />
@@ -215,8 +218,13 @@ const displayedCheckpoints = computed(() => {
 
 function handleCheckpointClick(name: string) {
   if (!isExpanded.value) {
+    // Clicking while collapsed should expand to show all
     isExpanded.value = true
+  } else if (selectedCheckpointName.value === name) {
+    // Clicking the same selected checkpoint should collapse again
+    isExpanded.value = false
   } else {
+    // Clicking a different checkpoint selects it
     checkpointStore.selectCheckpointByName(name)
   }
 }
@@ -291,6 +299,8 @@ onMounted(async () => {
           const bTime = new Date(b.updatedAt ?? b.createdAt ?? 0).getTime()
           return bTime - aTime // newest first
         })
+
+      console.log('checkpointImages', checkpointImages.value)
 
       if (checkpoint.name) {
         checkpointImages.value[checkpoint.name] = matchingArt[0] ?? null

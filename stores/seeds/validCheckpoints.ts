@@ -134,7 +134,7 @@ export const validCheckpoints: Partial<Resource>[] = [
     userId: 1,
   },
   {
-    name: 'disneyrealcartoonmix_v10.1.safetensors',
+    name: 'disneyrealcartoonmix_v10.1.safetensors [d803b444ed]',
     customLabel: 'DisneyReal Cartoonmix (v10.1)',
     localPath: 'disneyrealcartoonmix_v10.1.safetensors',
     description: 'Auto-imported from base model folder.',

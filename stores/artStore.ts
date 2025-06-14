@@ -257,9 +257,11 @@ export const useArtStore = defineStore('artStore', () => {
     const userId = artData?.userId || userStore.userId || 10
 
     const basePrompt =
-      artData?.promptString ||
-      promptStore.promptField ||
-      getArtListAddonPrompt()
+  getPromptString.value ||
+  promptStore.promptField ||
+  getArtListAddonPrompt()
+
+
 
     const data: GenerateArtData = {
       promptString: promptStore.processPromptPlaceholders(

@@ -1,8 +1,8 @@
 <!-- /components/content/art/art-grid.vue -->
 <template>
-  <div class="relative space-y-6 w-full">
+  <div class="relative w-full">
     <!-- Top-left Toggle -->
-    <div class="absolute top-0 left-0 z-10 p-2">
+    <div class="absolute top-0 left-0 z-10 p-1">
       <button
         class="btn btn-xs btn-circle"
         @click="displayStore.toggleBigMode()"
@@ -52,7 +52,7 @@
     <div
       class="grid gap-6"
       :class="{
-        'grid-cols-1': true,
+        'sm:grid-cols-1': true,
         'md:grid-cols-1': layoutMode === 'single',
         'md:grid-cols-2': layoutMode === 'two-column',
         'xl:grid-cols-3': layoutMode === 'three-column',

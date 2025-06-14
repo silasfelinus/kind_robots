@@ -52,7 +52,7 @@
     <div
       class="grid gap-6"
       :class="{
-        'sm:grid-cols-1': true,
+        'grid-cols-1': true,
         'md:grid-cols-1': layoutMode === 'single',
         'md:grid-cols-2': layoutMode === 'two-column',
         'xl:grid-cols-3': layoutMode === 'three-column',

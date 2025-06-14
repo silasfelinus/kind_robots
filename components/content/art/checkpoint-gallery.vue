@@ -1,7 +1,7 @@
 <!-- /components/content/art/checkpoint-gallery.vue -->
 <template>
   <div class="px-4 sm:px-6 md:px-8 max-w-4xl mx-auto space-y-6 md:space-y-8 xl:space-y-10">
-    <!-- Admin: Show Mature Toggle -->
+    <!-- Admin Toggle -->
     <div class="flex justify-between items-center">
       <div v-if="userStore.isAdmin" class="form-control">
         <label class="label cursor-pointer space-x-2">
@@ -57,22 +57,24 @@
       <label class="label mb-2">
         <span class="label-text font-semibold">Checkpoint</span>
       </label>
-      <div class="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+      <div class="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         <div
-          v-for="c in checkpointStore.visibleCheckpoints"
+          v-for="c in displayedCheckpoints"
           :key="c.name"
-          @click="typeof c.name === 'string' && checkpointStore.selectCheckpointByName(c.name)"
+          @click="handleCheckpointClick(c.name)"
           :class="[
-            'p-4 rounded-2xl border text-center cursor-pointer transition',
+            'p-4 rounded-2xl min-h-[5rem] flex flex-col justify-center items-center border cursor-pointer text-center space-y-1 transition',
             selectedCheckpointName === c.name
               ? 'bg-primary text-white border-primary'
-              : 'bg-base-200 hover:bg-base-300 border-base-300',
+              : isExpanded
+                ? 'bg-secondary hover:bg-secondary/80 border-base-300 text-base-content'
+                : 'bg-accent hover:bg-accent/80 text-base-100 border-base-300',
           ]"
         >
-          <div class="font-bold truncate">
+          <div class="font-bold leading-snug">
             {{ showMature || !c.isMature ? c.customLabel || c.name : 'Hidden' }}
           </div>
-          <div class="text-xs opacity-60">
+          <div class="text-xs opacity-70">
             {{ c.name === checkpointStore.currentApiModel ? '✅ Active' : '' }}
           </div>
           <div v-if="c.isMature && !showMature" class="text-warning text-xs">
@@ -114,8 +116,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/art/checkpoint-gallery.vue
-import { computed, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
@@ -123,6 +124,8 @@ import { useErrorStore, ErrorType } from '@/stores/errorStore'
 const checkpointStore = useCheckpointStore()
 const userStore = useUserStore()
 const errorStore = useErrorStore()
+
+const isExpanded = ref(false)
 
 const selectedCheckpointName = computed({
   get: () => checkpointStore.selectedCheckpoint?.name || '',
@@ -148,6 +151,24 @@ const mismatchWarning = computed(
     checkpointStore.currentApiModel &&
     selectedCheckpointName.value !== checkpointStore.currentApiModel,
 )
+
+const displayedCheckpoints = computed(() => {
+  if (!isExpanded.value && checkpointStore.selectedCheckpoint?.name) {
+    const match = checkpointStore.findCheckpointByName(
+      checkpointStore.selectedCheckpoint.name,
+    )
+    return match ? [match] : []
+  }
+  return checkpointStore.visibleCheckpoints
+})
+
+function handleCheckpointClick(name: string) {
+  if (!isExpanded.value) {
+    isExpanded.value = true
+  } else {
+    checkpointStore.selectCheckpointByName(name)
+  }
+}
 
 const refreshModel = async () => {
   try {
@@ -185,7 +206,6 @@ onMounted(async () => {
     await checkpointStore.fetchCurrentModelFromApi()
 
     const currentName = checkpointStore.currentApiModel
-
     const found = currentName
       ? checkpointStore.findCheckpointByName(currentName)
       : null

@@ -23,8 +23,10 @@
       <div
         class="flex justify-between items-center text-sm sm:text-base font-mono"
       >
-<!-- Active Model Display -->
-<div class="border border-base-200 rounded-2xl p-3 sm:p-4 md:p-6 bg-base-100 shadow-inner space-y-2">
+   <!-- Active Model Display -->
+<div
+  class="border border-base-200 rounded-2xl p-3 sm:p-4 md:p-6 bg-base-100 shadow-inner space-y-2"
+>
   <div class="text-sm sm:text-base font-mono break-words">
     <span>🧠 Active Backend Model:</span>
     <div class="mt-1 text-primary">
@@ -47,7 +49,7 @@
   </div>
 
   <div class="flex justify-center">
-    <button class="btn btn-xs btn-outline mt-2" @click="refreshModel">
+    <button class="btn btn-xs btn-outline mt-1" @click="refreshModel">
       🔄 Refresh
     </button>
   </div>
@@ -59,7 +61,6 @@
     ⚠️ {{ errorStore.getError }}
   </div>
 </div>
-
     <!-- Checkpoint Selection Grid -->
     <div class="form-control">
       <label class="label mb-2">

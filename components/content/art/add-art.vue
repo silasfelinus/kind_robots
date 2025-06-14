@@ -1,131 +1,149 @@
 <!-- /components/content/art/add-art.vue -->
 <template>
-  <!-- Header -->
-  <h1 class="text-3xl font-bold text-center text-primary">
-    🎨 Welcome to the Art-Maker
-  </h1>
+  <div class="space-y-6">
+    <h1 class="text-3xl font-bold text-center text-primary">
+      🎨 Welcome to the Art-Maker
+    </h1>
 
-  <!-- Random Theme Selector -->
-  <checkpoint-gallery />
+    <!-- Responsive Grid -->
+    <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+      <!-- Column 1: Checkpoint + Collection -->
+      <div class="space-y-6">
+        <checkpoint-gallery />
+        <collection-handler />
+      </div>
 
-  <collection-handler />
+      <!-- Column 2: Prompt & Controls -->
+      <div class="space-y-6">
+        <art-randomizer />
 
-  <art-randomizer />
+        <!-- Prompt Input -->
+        <div class="space-y-2">
+          <label class="font-semibold text-base-content">📝 Prompt</label>
+          <input
+            v-model="promptStore.promptField"
+            placeholder="Enter your creative prompt..."
+            class="input input-bordered w-full text-lg bg-base-200 placeholder-gray-500 shadow-inner"
+            :disabled="loading"
+            @input="syncPrompt"
+          />
+        </div>
 
-  <!-- Prompt Input -->
-  <div class="space-y-2">
-    <label class="font-semibold text-base-content">📝 Prompt</label>
-    <input
-      v-model="promptStore.promptField"
-      placeholder="Enter your creative prompt..."
-      class="input input-bordered w-full text-lg bg-base-200 placeholder-gray-500 shadow-inner"
-      :disabled="loading"
-      @input="syncPrompt"
-    />
-  </div>
+        <!-- Negative Toggle -->
+        <label class="label cursor-pointer space-x-2 flex-shrink-0">
+          <span class="label-text font-semibold">🚫 Negative Auto</span>
+          <input
+            type="checkbox"
+            class="toggle toggle-error"
+            v-model="useNegative"
+            @change="toggleNegativePrompt"
+          />
+        </label>
 
-  <label class="label cursor-pointer space-x-2 flex-shrink-0">
-    <span class="label-text font-semibold">🚫 Negative (Auto)</span>
-    <input
-      type="checkbox"
-      class="toggle toggle-error"
-      v-model="useNegative"
-      @change="toggleNegativePrompt"
-    />
-  </label>
+        <!-- Negative Prompt -->
+        <div class="space-y-2">
+          <label class="font-semibold text-base-content">Negative Prompt</label>
+          <input
+            v-model="artStore.artForm.negativePrompt"
+            placeholder="Things to avoid (e.g. blurry, extra limbs...)"
+            class="input input-bordered w-full text-lg bg-base-200 placeholder-gray-500 shadow-inner"
+            :disabled="loading"
+          />
+        </div>
 
-  <!-- Negative Prompt Input -->
-  <div class="space-y-2">
-    <label class="font-semibold text-base-content">🚫 Negative Prompt</label>
-    <input
-      v-model="artStore.artForm.negativePrompt"
-      placeholder="Things to avoid (e.g. blurry, extra limbs...)"
-      class="input input-bordered w-full text-lg bg-base-200 placeholder-gray-500 shadow-inner"
-      :disabled="loading"
-    />
-  </div>
+        <!-- CFG -->
+        <div class="space-y-2">
+          <label class="block font-semibold text-center">
+            🎚 CFG Scale: {{ localCfg }}
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="30"
+            step="0.5"
+            v-model.number="localCfg"
+            class="range range-primary w-full"
+          />
+        </div>
 
-  <!-- CFG Controls -->
-  <div class="space-y-2">
-    <label class="block font-semibold text-center">
-      🎚 CFG Scale: {{ localCfg }}
-    </label>
-    <input
-      type="range"
-      min="0"
-      max="30"
-      step="0.5"
-      v-model.number="localCfg"
-      class="range range-primary w-full"
-    />
-  </div>
+        <!-- Steps -->
+        <div class="space-y-2">
+          <label class="block font-semibold text-center">
+            🧮 Steps: {{ artStore.artForm.steps }}
+          </label>
+          <input
+            type="range"
+            min="5"
+            max="50"
+            step="1"
+            v-model.number="artStore.artForm.steps"
+            class="range range-secondary w-full"
+          />
+        </div>
 
-  <!-- Steps Slider -->
-  <div class="space-y-2">
-    <label class="block font-semibold text-center">
-      🧮 Steps: {{ artStore.artForm.steps }}
-    </label>
-    <input
-      type="range"
-      min="5"
-      max="50"
-      step="1"
-      v-model.number="artStore.artForm.steps"
-      class="range range-secondary w-full"
-    />
-  </div>
+        <!-- Public Toggle -->
+        <div class="flex items-center justify-center space-x-4">
+          <span class="font-semibold">🔓 Public?</span>
+          <input
+            type="checkbox"
+            class="toggle toggle-success"
+            v-model="artStore.artForm.isPublic"
+          />
+        </div>
 
-  <!-- isPublic Toggle -->
-  <div class="flex items-center justify-center space-x-4">
-    <span class="font-semibold">🔓 Public?</span>
-    <input
-      type="checkbox"
-      class="toggle toggle-success"
-      v-model="artStore.artForm.isPublic"
-    />
-  </div>
+        <!-- Prompt Preview -->
+        <div
+          class="bg-base-100 border border-dashed border-base-300 p-4 rounded-xl text-sm text-base-content/70"
+        >
+          <span class="font-semibold text-base-content">Prompt Preview:</span>
+          <div class="mt-1 italic break-words">
+            {{ fullPromptPreview }}
+          </div>
+        </div>
 
-  <!-- Prompt Preview -->
-  <div
-    class="bg-base-100 border border-dashed border-base-300 p-4 rounded-xl text-sm text-base-content/70"
-  >
-    <span class="font-semibold text-base-content">Prompt Preview:</span>
-    <div class="mt-1 italic break-words">
-      {{ fullPromptPreview }}
+        <!-- Generate Art Button -->
+        <button
+          class="btn w-full font-semibold text-white transition duration-300"
+          :class="
+            isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
+          "
+          :disabled="isGenerating || !promptStore.promptField"
+          @click="generateArt"
+        >
+          🖌️ Create Art
+        </button>
+
+        <!-- Error Message -->
+        <div v-if="localError" class="text-error text-center space-y-1">
+          <p>{{ localError }}</p>
+          <p v-if="lastError">{{ lastError }}</p>
+        </div>
+      </div>
+
+      <!-- Column 3: Gallery or Collection -->
+      <div class="space-y-6">
+        <div class="text-center">
+          <button
+            class="btn btn-sm btn-outline"
+            @click="showGallery = !showGallery"
+          >
+            {{ showGallery ? '🖼️ Show Collection' : '🖼️ Show Gallery' }}
+          </button>
+        </div>
+        <div v-if="showGallery">
+          <art-gallery />
+        </div>
+        <div v-else>
+          <collection-display />
+        </div>
+      </div>
+    </div>
+
+    <!-- Fallback Gallery on smaller screens -->
+    <div v-if="generatedArt.length && !showGallery" class="space-y-4 xl:hidden">
+      <ArtCard v-for="art in generatedArt" :key="art.id" :art="art" />
     </div>
   </div>
-
-  <!-- Generate Art Button -->
-  <button
-    class="btn w-full font-semibold text-white transition duration-300"
-    :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
-    :disabled="isGenerating || !promptStore.promptField"
-    @click="generateArt"
-  >
-    <span>🖌️ Create Art</span>
-  </button>
-
-  <!-- Error Message -->
-  <div v-if="localError" class="text-error text-center space-y-1">
-    <p>{{ localError }}</p>
-    <p v-if="lastError">{{ lastError }}</p>
-  </div>
-
-  <!-- Generated Art Gallery -->
-  <div v-if="generatedArt.length" class="space-y-4">
-    <ArtCard v-for="art in generatedArt" :key="art.id" :art="art" />
-  </div>
-
-  <collection-display />
-
-  <!-- Art Gallery Toggle -->
-  <div class="pt-4 text-center">
-    <button class="btn btn-sm btn-outline" @click="showGallery = !showGallery">
-      {{ showGallery ? 'Hide Gallery' : 'Show Full Gallery' }}
-    </button>
-  </div>
-
-  <art-gallery v-if="showGallery" />
 </template>
 
 <script setup lang="ts">

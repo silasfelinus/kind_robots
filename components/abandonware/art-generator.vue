@@ -47,13 +47,13 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useArtStore } from '../../../stores/artStore'
-import { useErrorStore, ErrorType } from '../../../stores/errorStore'
-import { useUserStore } from '../../../stores/userStore'
-import { useLoadStore } from '../../../stores/loadStore'
-import { usePitchStore } from '../../../stores/pitchStore'
-import { useGalleryStore } from '../../../stores/galleryStore'
-import { usePromptStore } from '../../../stores/promptStore'
+import { useArtStore } from '~/stores/artStore'
+import { useErrorStore, ErrorType } from '~/stores/errorStore'
+import { useUserStore } from '~/stores/userStore'
+import { useLoadStore } from '~/stores/loadStore'
+import { usePitchStore } from '~/stores/pitchStore'
+import { useGalleryStore } from '~/stores/galleryStore'
+import { usePromptStore } from '~/stores/promptStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 const milestoneStore = useMilestoneStore()
 

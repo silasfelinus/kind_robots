@@ -52,11 +52,11 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useDreamStore } from '../../../stores/dreamStore'
-import { useErrorStore } from '../../../stores/errorStore'
-import { useUserStore } from '../../../stores/userStore'
-import { useLoadStore } from '../../../stores/loadStore'
-import type { Art } from '../../../stores/artStore'
+import { useDreamStore } from '~/stores/dreamStore'
+import { useErrorStore } from '~/stores/errorStore'
+import { useUserStore } from '~/stores/userStore'
+import { useLoadStore } from '~/stores/loadStore'
+import type { Art } from '~/stores/artStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 const milestoneStore = useMilestoneStore()
 

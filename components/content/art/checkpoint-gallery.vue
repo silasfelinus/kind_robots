@@ -23,38 +23,42 @@
       <div
         class="flex justify-between items-center text-sm sm:text-base font-mono"
       >
-        <div>
-          <span>🧠 Active Backend Model:</span>
-          <strong class="ml-1 text-primary">
-            <Icon
-              v-if="checkpointStore.modelUpdating"
-              name="kind-icon:loading"
-              class="inline w-4 h-4 animate-spin text-warning"
-            />
-            <span v-else>
-              {{
-                !showMature && checkpointStore.selectedCheckpoint?.isMature
-                  ? 'Hidden Model'
-                  : checkpointStore.currentApiModel || 'Loading...'
-              }}
-            </span>
-          </strong>
-          <span v-if="mismatchWarning" class="ml-2 text-warning font-semibold"
-            >(≠ selected)</span
-          >
-        </div>
-        <button class="btn btn-xs btn-outline" @click="refreshModel">
-          🔄 Refresh
-        </button>
-      </div>
-
-      <div
-        v-if="errorStore.getError"
-        class="text-warning font-semibold bg-warning/10 p-2 rounded-xl mt-2"
-      >
-        ⚠️ {{ errorStore.getError }}
-      </div>
+<!-- Active Model Display -->
+<div class="border border-base-200 rounded-2xl p-3 sm:p-4 md:p-6 bg-base-100 shadow-inner space-y-2">
+  <div class="text-sm sm:text-base font-mono break-words">
+    <span>🧠 Active Backend Model:</span>
+    <div class="mt-1 text-primary">
+      <Icon
+        v-if="checkpointStore.modelUpdating"
+        name="kind-icon:loading"
+        class="inline w-4 h-4 animate-spin text-warning"
+      />
+      <span v-else>
+        {{
+          !showMature && checkpointStore.selectedCheckpoint?.isMature
+            ? 'Hidden Model'
+            : checkpointStore.currentApiModel || 'Loading...'
+        }}
+      </span>
+      <span v-if="mismatchWarning" class="ml-2 text-warning font-semibold">
+        (≠ selected)
+      </span>
     </div>
+  </div>
+
+  <div class="flex justify-center">
+    <button class="btn btn-xs btn-outline mt-2" @click="refreshModel">
+      🔄 Refresh
+    </button>
+  </div>
+
+  <div
+    v-if="errorStore.getError"
+    class="text-warning font-semibold bg-warning/10 p-2 rounded-xl"
+  >
+    ⚠️ {{ errorStore.getError }}
+  </div>
+</div>
 
     <!-- Checkpoint Selection Grid -->
     <div class="form-control">

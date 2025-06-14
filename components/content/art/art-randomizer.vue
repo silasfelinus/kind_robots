@@ -114,20 +114,22 @@
           :key="key"
           @click="toggleRandomKey(key)"
           class="btn btn-sm"
-          :class="randomSelections[key] ? 'btn-primary' : 'btn-outline'"
+          :class="
+            randomStore.randomSelections[key] ? 'btn-primary' : 'btn-outline'
+          "
         >
           {{ key }}
         </button>
       </div>
 
       <div
-        v-if="Object.keys(randomSelections).length"
+        v-if="Object.keys(randomStore.randomSelections).length"
         class="text-sm mt-2 text-base-content/70"
       >
         <span class="font-semibold">Active Random Additions:</span>
         <div class="flex flex-wrap gap-2 mt-2">
           <span
-            v-for="(val, key) in randomSelections"
+            v-for="(val, key) in randomStore.randomSelections"
             :key="key"
             class="badge badge-outline flex items-center gap-1"
           >
@@ -157,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watchEffect, computed } from 'vue'
 import {
   artListPresets,
   type ArtListEntry,
@@ -169,70 +171,39 @@ import { useRandomStore } from '@/stores/randomStore'
 const artStore = useArtStore()
 const randomStore = useRandomStore()
 
-const randomSelections = ref<Record<string, string>>({})
-
-const localSelections = ref<Record<string, string[]>>({})
 const makePretty = ref(false)
 
-function toggleRandomKey(key: string) {
-  const alreadySet = !!randomSelections.value[key]
-  const results = randomStore.getRandom(key, 1)
-  if (!results.length) return
+const localSelections = computed({
+  get: () => artStore.artListSelections,
+  set: (val) => {
+    for (const [key, values] of Object.entries(val)) {
+      artStore.updateArtListSelection(key, values)
+    }
+  },
+})
 
-  if (alreadySet && randomSelections.value[key] === results[0]) {
-    // Reroll different result
-    const newResult = randomStore.getRandom(key, 1)[0]
-    randomSelections.value[key] = newResult
-  } else {
-    randomSelections.value[key] = results[0]
-  }
+const supportedRandomKeys = randomStore.supportedKeys
+
+function toggleRandomKey(key: string) {
+  randomStore.toggleSelection(key)
 }
 
 function removeRandomKey(key: string) {
-  delete randomSelections.value[key]
-}
-
-const LS_KEY = 'artRandomizerSelections'
-const LS_PRETTY = 'artRandomizerMakePretty'
-const LS_RANDOM = 'artRandomizerRandomSelections'
-
-if (import.meta.client) {
-  const saved = localStorage.getItem(LS_KEY)
-  const parsed = saved ? JSON.parse(saved) : {}
-
-  if (typeof parsed === 'object' && parsed !== null) {
-    localSelections.value = parsed
-  }
-
-  const pretty = localStorage.getItem(LS_PRETTY)
-  if (pretty) {
-    makePretty.value = pretty === 'true'
-  }
-
-  const rand = localStorage.getItem(LS_RANDOM)
-  if (rand) {
-    const parsedRand = JSON.parse(rand)
-    if (parsedRand && typeof parsedRand === 'object') {
-      randomSelections.value = parsedRand
-    }
-  }
-}
-
-function getRandom<T>(arr: T[], count = 1): T[] {
-  return [...arr].sort(() => 0.5 - Math.random()).slice(0, count)
+  randomStore.clearSelection(key)
 }
 
 function surpriseMe() {
   for (const entry of artListPresets) {
-    const { id, content, allowMultiple } = entry
-
-    if (entry.presetType === 'all') {
-      localSelections.value[id] = [...content]
+    const { id, content, allowMultiple, presetType } = entry
+    if (presetType === 'all') {
+      artStore.updateArtListSelection(id, [...content])
     } else if (allowMultiple) {
       const count = Math.floor(Math.random() * content.length) + 1
-      localSelections.value[id] = getRandom(content, count)
+      const values = randomStore.pickRandomFromArray(content, count)
+      artStore.updateArtListSelection(id, values)
     } else {
-      localSelections.value[id] = [getRandom(content, 1)[0]]
+      const value = randomStore.pickRandomFromArray(content, 1)
+      artStore.updateArtListSelection(id, value)
     }
   }
 
@@ -240,108 +211,60 @@ function surpriseMe() {
 }
 
 function resetAll() {
-  for (const key in localSelections.value) {
-    delete localSelections.value[key]
+  for (const key of Object.keys(localSelections.value)) {
+    artStore.updateArtListSelection(key, [])
   }
 
   makePretty.value = false
-  randomSelections.value = {} // 👈 This clears the random tracker
-
-  for (const entry of artListPresets) {
-    artStore.updateArtListSelection(entry.id, [])
-  }
-
+  randomStore.clearAllSelections()
   artStore.updateArtListSelection('__pretty__', [])
-
-  if (import.meta.client) {
-    localStorage.removeItem(LS_KEY)
-    localStorage.removeItem(LS_PRETTY)
-  }
 }
-
 
 function resolvePresetType(entry: ArtListEntry) {
-  if (entry.presetType === 'auto') {
-    return entry.content.length <= 3 ? 'radio' : 'dropdown'
-  }
-  return entry.presetType
+  return entry.presetType === 'auto'
+    ? entry.content.length <= 3
+      ? 'radio'
+      : 'dropdown'
+    : entry.presetType
 }
-
-const supportedRandomKeys = [
-  'animal',
-  'color',
-  'adjective',
-  'noun',
-  'verb',
-  'name',
-  'genre',
-  'class',
-  'species',
-  'quirks',
-  'inventory',
-  'item',
-  'material',
-  'personality',
-  'encounter',
-]
 
 function randomizeEntry(entry: ArtListEntry) {
   const key = entry.id.toLowerCase()
   if (!supportedRandomKeys.includes(key)) return
 
   const results = randomStore.getRandom(key, entry.allowMultiple ? 3 : 1)
-  localSelections.value[entry.id] = results
+  artStore.updateArtListSelection(entry.id, results)
 }
 
 function removeSelection(entryId: string, value: string) {
   const updated =
     localSelections.value[entryId]?.filter((v) => v !== value) || []
-  localSelections.value[entryId] = updated
+  artStore.updateArtListSelection(entryId, updated)
 }
 
 function clearEntry(entryId: string) {
-  delete localSelections.value[entryId]
+  artStore.updateArtListSelection(entryId, [])
 }
 
-watch(
-  [localSelections, makePretty, randomSelections],
-  ([selections, pretty, randoms]) => {
-    for (const entry of artListPresets) {
-      const val = selections[entry.id] || []
-      artStore.updateArtListSelection(
-        entry.id,
-        Array.isArray(val) ? val : [val],
-      )
-    }
+watchEffect(() => {
+  const pretty = makePretty.value
+  const randoms = randomStore.randomSelections
 
-    if (pretty) {
-      const randomPhrases = prettifierPhrases
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 3)
-      artStore.updateArtListSelection('__pretty__', randomPhrases)
-    } else {
-      artStore.updateArtListSelection('__pretty__', [])
-    }
+  artStore.updateArtListSelection(
+    '__pretty__',
+    pretty ? randomStore.pickRandomFromArray(prettifierPhrases, 3) : [],
+  )
 
-    // 🧠 Include supportedRandomKeys
-    for (const key of Object.keys(randoms)) {
-      artStore.updateArtListSelection(key, [randoms[key]])
-    }
-
-    if (import.meta.client) {
-      localStorage.setItem(LS_KEY, JSON.stringify(selections))
-      localStorage.setItem(LS_PRETTY, String(pretty))
-      localStorage.setItem(LS_RANDOM, JSON.stringify(randoms))
-    }
-  },
-  { immediate: true },
-)
+  for (const key of Object.keys(randoms)) {
+    artStore.updateArtListSelection(key, [randoms[key]])
+  }
+})
 
 const promptPreview = computed(() =>
   [
     ...Object.entries(localSelections.value).flatMap(([_, values]) => values),
     ...(makePretty.value ? ['✨', ...prettifierPhrases.slice(0, 3)] : []),
-    ...Object.values(randomSelections.value),
+    ...Object.values(randomStore.randomSelections),
   ].join(', '),
 )
 </script>

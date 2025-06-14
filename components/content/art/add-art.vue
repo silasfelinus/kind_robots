@@ -24,6 +24,16 @@
     />
   </div>
 
+  <label class="label cursor-pointer space-x-2 flex-shrink-0">
+    <span class="label-text font-semibold">🚫 Negative (Auto)</span>
+    <input
+      type="checkbox"
+      class="toggle toggle-error"
+      v-model="useNegative"
+      @change="toggleNegativePrompt"
+    />
+  </label>
+
   <!-- Negative Prompt Input -->
   <div class="space-y-2">
     <label class="font-semibold text-base-content">🚫 Negative Prompt</label>
@@ -75,6 +85,16 @@
     />
   </div>
 
+  <!-- Prompt Preview -->
+  <div
+    class="bg-base-100 border border-dashed border-base-300 p-4 rounded-xl text-sm text-base-content/70"
+  >
+    <span class="font-semibold text-base-content">Prompt Preview:</span>
+    <div class="mt-1 italic break-words">
+      {{ fullPromptPreview }}
+    </div>
+  </div>
+
   <!-- Generate Art Button -->
   <button
     class="btn w-full font-semibold text-white transition duration-300"
@@ -119,6 +139,7 @@ import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useUserStore } from '@/stores/userStore'
+import { negativePhrases } from '@/stores/seeds/artList'
 
 const artStore = useArtStore()
 const userStore = useUserStore()
@@ -134,6 +155,19 @@ const isGenerating = ref(false)
 const loading = computed(() => artStore.loading)
 const lastError = computed(() => errorStore.getError)
 const showGallery = ref(false)
+
+const useNegative = ref(false)
+
+function toggleNegativePrompt() {
+  useNegative.value = !useNegative.value
+  const list = useNegative.value ? negativePhrases : []
+  artStore.updateArtListSelection('__negative__', list)
+}
+const fullPromptPreview = computed(() => {
+  const selections = Object.values(artStore.artListSelections).flat()
+  const mainPrompt = promptStore.promptField
+  return [...selections, mainPrompt].filter(Boolean).join(', ')
+})
 
 const localCfg = ref<number>(
   (artStore.artForm.cfg ?? 3) + (artStore.artForm.cfgHalf ? 0.5 : 0),

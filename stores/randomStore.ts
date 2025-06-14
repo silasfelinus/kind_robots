@@ -1,6 +1,6 @@
 // /stores/randomStore.ts
 import { defineStore } from 'pinia'
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 
 import { useRandomAdjective } from '@/stores/utils/randomAdjective'
 import { useRandomAnimal } from '@/stores/utils/randomAnimal'
@@ -54,8 +54,65 @@ export const useRandomStore = defineStore('randomStore', () => {
     return Array.from({ length: count }, () => source())
   }
 
+  function pickRandomFromArray(arr: string[], count: number): string[] {
+    if (!Array.isArray(arr)) return []
+    const shuffled = [...arr].sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, Math.min(count, arr.length))
+  }
+
+  const randomSelections = ref<Record<string, string>>({})
+
+  function toggleSelection(key: string) {
+    const result = getRandom(key, 1)[0]
+    if (!result) return
+    if (randomSelections.value[key] === result) {
+      // Reroll
+      randomSelections.value[key] = getRandom(key, 1)[0]
+    } else {
+      randomSelections.value[key] = result
+    }
+  }
+
+  function clearSelection(key: string) {
+    delete randomSelections.value[key]
+  }
+
+  function clearAllSelections() {
+    randomSelections.value = {}
+  }
+
+  function getAllSelections() {
+    return randomSelections.value
+  }
+
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('artRandomizerRandomSelections')
+    if (stored) {
+      try {
+        randomSelections.value = JSON.parse(stored)
+      } catch {}
+    }
+
+    watch(
+      randomSelections,
+      (val) => {
+        localStorage.setItem(
+          'artRandomizerRandomSelections',
+          JSON.stringify(val),
+        )
+      },
+      { deep: true },
+    )
+  }
+
   return {
     supportedKeys,
     getRandom,
+    randomSelections,
+    toggleSelection,
+    clearSelection,
+    getAllSelections,
+    pickRandomFromArray,
+    clearAllSelections,
   }
 })

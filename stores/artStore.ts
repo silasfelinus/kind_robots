@@ -19,6 +19,7 @@ import {
 } from '@/stores/helpers/artHelper'
 import { useCollectionStore } from './collectionStore'
 import { useCheckpointStore } from './checkpointStore'
+import { artListPresets, type ArtListEntry } from '@/stores/seeds/artList'
 
 const isClient = typeof window !== 'undefined'
 
@@ -42,6 +43,7 @@ interface ArtStoreState {
   currentCollection: ArtCollection | null
   generatedArt: Art[]
   artForm: GenerateArtData
+  artListSelections: Record<string, string[]>
 }
 
 export const useArtStore = defineStore('artStore', () => {
@@ -64,6 +66,7 @@ export const useArtStore = defineStore('artStore', () => {
     uncollectedArt: [],
     currentCollection: null,
     generatedArt: [],
+    artListSelections: {} as Record<string, string[]>,
     artForm: {
       promptString: '',
       cfg: 7,
@@ -81,6 +84,28 @@ export const useArtStore = defineStore('artStore', () => {
   const promptStore = usePromptStore()
   const pitchStore = usePitchStore()
   const collectionStore = useCollectionStore()
+
+  const getPromptString = computed(() => {
+    const baseSelections = Object.entries(state.artListSelections)
+      .filter(([key]) => !key.startsWith('__')) // exclude __pretty__, __negative__
+      .flatMap(([_, vals]) => vals)
+
+    const pretty = state.artListSelections['__pretty__'] || []
+
+    const randoms = Object.keys(state.artListSelections)
+      .filter(
+        (key) =>
+          !key.startsWith('__') &&
+          !artListPresets.find((preset: ArtListEntry) => preset.id === key),
+      )
+      .flatMap((key) => state.artListSelections[key] || [])
+
+    return [...baseSelections, ...pretty, ...randoms].join(', ')
+  })
+
+  const getNegativePromptString = computed(() => {
+    return (state.artListSelections['__negative__'] || []).join(', ')
+  })
 
   const artListSelections = ref<Record<string, string[]>>({})
 
@@ -351,6 +376,7 @@ export const useArtStore = defineStore('artStore', () => {
     createArt,
     getArtImageByArtId,
     updateArtListSelection,
+    artListPresets,
   }
 })
 

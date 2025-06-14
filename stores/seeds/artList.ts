@@ -10,6 +10,19 @@ export interface ArtListEntry {
   allowMultiple: boolean
 }
 
+export const negativePhrases = [
+  'blurry',
+  'deformed',
+  'low resolution',
+  'extra limbs',
+  'bad anatomy',
+  'poor lighting',
+  'mutated hands',
+  'ugly',
+  'grainy',
+  'distorted',
+]
+
 export const prettifierPhrases = [
   'masterpiece',
   'hyper-realistic',
@@ -22,8 +35,6 @@ export const prettifierPhrases = [
   'award-winning',
   'digital painting',
 ]
-
-
 
 export const artListPresets: ArtListEntry[] = [
   {
@@ -111,4 +122,3 @@ export const artListPresets: ArtListEntry[] = [
     ],
   },
 ]
-

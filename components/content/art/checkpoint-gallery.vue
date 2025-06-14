@@ -1,8 +1,7 @@
 <!-- /components/content/art/checkpoint-gallery.vue -->
 <template>
-  <div
-    class="px-4 sm:px-6 md:px-8 max-w-4xl mx-auto space-y-6 md:space-y-8 xl:space-y-10"
-  >
+  <div class="px-4 sm:px-6 md:px-8 max-w-4xl mx-auto space-y-6 md:space-y-8 xl:space-y-10">
+    <!-- Admin: Show Mature Toggle -->
     <div class="flex justify-between items-center">
       <div v-if="userStore.isAdmin" class="form-control">
         <label class="label cursor-pointer space-x-2">
@@ -17,50 +16,42 @@
     </div>
 
     <!-- Active Model Display -->
-    <div
-      class="border border-base-200 rounded-2xl p-3 sm:p-4 md:p-6 bg-base-100 shadow-inner"
-    >
+    <div class="border border-base-200 rounded-2xl p-3 sm:p-4 md:p-6 bg-base-100 shadow-inner space-y-2">
+      <div class="text-sm sm:text-base font-mono break-words">
+        <span>🧠 Active Backend Model:</span>
+        <div class="mt-1 text-primary">
+          <Icon
+            v-if="checkpointStore.modelUpdating"
+            name="kind-icon:loading"
+            class="inline w-4 h-4 animate-spin text-warning"
+          />
+          <span v-else>
+            {{
+              !showMature && checkpointStore.selectedCheckpoint?.isMature
+                ? 'Hidden Model'
+                : checkpointStore.currentApiModel || 'Loading...'
+            }}
+          </span>
+          <span v-if="mismatchWarning" class="ml-2 text-warning font-semibold">
+            (≠ selected)
+          </span>
+        </div>
+      </div>
+
+      <div class="flex justify-center">
+        <button class="btn btn-xs btn-outline mt-1" @click="refreshModel">
+          🔄 Refresh
+        </button>
+      </div>
+
       <div
-        class="flex justify-between items-center text-sm sm:text-base font-mono"
+        v-if="errorStore.getError"
+        class="text-warning font-semibold bg-warning/10 p-2 rounded-xl"
       >
-   <!-- Active Model Display -->
-<div
-  class="border border-base-200 rounded-2xl p-3 sm:p-4 md:p-6 bg-base-100 shadow-inner space-y-2"
->
-  <div class="text-sm sm:text-base font-mono break-words">
-    <span>🧠 Active Backend Model:</span>
-    <div class="mt-1 text-primary">
-      <Icon
-        v-if="checkpointStore.modelUpdating"
-        name="kind-icon:loading"
-        class="inline w-4 h-4 animate-spin text-warning"
-      />
-      <span v-else>
-        {{
-          !showMature && checkpointStore.selectedCheckpoint?.isMature
-            ? 'Hidden Model'
-            : checkpointStore.currentApiModel || 'Loading...'
-        }}
-      </span>
-      <span v-if="mismatchWarning" class="ml-2 text-warning font-semibold">
-        (≠ selected)
-      </span>
+        ⚠️ {{ errorStore.getError }}
+      </div>
     </div>
-  </div>
 
-  <div class="flex justify-center">
-    <button class="btn btn-xs btn-outline mt-1" @click="refreshModel">
-      🔄 Refresh
-    </button>
-  </div>
-
-  <div
-    v-if="errorStore.getError"
-    class="text-warning font-semibold bg-warning/10 p-2 rounded-xl"
-  >
-    ⚠️ {{ errorStore.getError }}
-  </div>
-</div>
     <!-- Checkpoint Selection Grid -->
     <div class="form-control">
       <label class="label mb-2">
@@ -70,10 +61,7 @@
         <div
           v-for="c in checkpointStore.visibleCheckpoints"
           :key="c.name"
-          @click="
-            typeof c.name === 'string' &&
-            checkpointStore.selectCheckpointByName(c.name)
-          "
+          @click="typeof c.name === 'string' && checkpointStore.selectCheckpointByName(c.name)"
           :class="[
             'p-4 rounded-2xl border text-center cursor-pointer transition',
             selectedCheckpointName === c.name
@@ -94,10 +82,7 @@
       </div>
 
       <button
-        v-if="
-          selectedCheckpointName &&
-          selectedCheckpointName !== checkpointStore.currentApiModel
-        "
+        v-if="selectedCheckpointName && selectedCheckpointName !== checkpointStore.currentApiModel"
         class="btn btn-sm mt-4 bg-info text-white hover:bg-info/90"
         @click="setModel"
       >

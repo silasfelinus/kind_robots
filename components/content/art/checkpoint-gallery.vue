@@ -1,6 +1,8 @@
 <!-- /components/content/art/checkpoint-gallery.vue -->
 <template>
-  <div class="px-4 sm:px-6 md:px-8 max-w-4xl mx-auto space-y-6 md:space-y-8 xl:space-y-10">
+  <div
+    class="px-4 sm:px-6 md:px-8 max-w-4xl mx-auto space-y-6 md:space-y-8 xl:space-y-10"
+  >
     <!-- Admin Toggle -->
     <div class="flex justify-between items-center">
       <div v-if="userStore.isAdmin" class="form-control">
@@ -16,7 +18,9 @@
     </div>
 
     <!-- Active Model Display -->
-    <div class="border border-base-200 rounded-2xl p-3 sm:p-4 md:p-6 bg-base-100 shadow-inner space-y-2">
+    <div
+      class="border border-base-200 rounded-2xl p-3 sm:p-4 md:p-6 bg-base-100 shadow-inner space-y-2"
+    >
       <div class="text-sm sm:text-base font-mono break-words">
         <span>🧠 Active Backend Model:</span>
         <div class="mt-1 text-primary">
@@ -61,14 +65,15 @@
         <div
           v-for="c in displayedCheckpoints"
           :key="c.name"
-          @click="handleCheckpointClick(c.name)"
+          @click="handleCheckpointClick(c.name!)"
           :class="[
             'p-4 rounded-2xl min-h-[5rem] flex flex-col justify-center items-center border cursor-pointer text-center space-y-1 transition',
             selectedCheckpointName === c.name
               ? 'bg-primary text-white border-primary'
-              : isExpanded
-                ? 'bg-secondary hover:bg-secondary/80 border-base-300 text-base-content'
-                : 'bg-accent hover:bg-accent/80 text-base-100 border-base-300',
+              : 'hover:scale-[1.015] hover:shadow-md transition-transform duration-150',
+            isExpanded
+              ? 'bg-secondary hover:bg-secondary/80 border-base-300 text-base-content'
+              : 'bg-accent hover:bg-accent/80 text-base-100 border-base-300',
           ]"
         >
           <div class="font-bold leading-snug">
@@ -84,7 +89,10 @@
       </div>
 
       <button
-        v-if="selectedCheckpointName && selectedCheckpointName !== checkpointStore.currentApiModel"
+        v-if="
+          selectedCheckpointName &&
+          selectedCheckpointName !== checkpointStore.currentApiModel
+        "
         class="btn btn-sm mt-4 bg-info text-white hover:bg-info/90"
         @click="setModel"
       >

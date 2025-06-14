@@ -195,27 +195,16 @@ onMounted(async () => {
     await checkpointStore.fetchCurrentModelFromApi()
 
     const currentName = checkpointStore.currentApiModel
-    console.log('🧪 Current API Model:', currentName)
-
-    const checkpointNames = checkpointStore.allCheckpoints.map((r) => r.name)
-    console.log('✅ All Checkpoint Names:', checkpointNames)
 
     const found = currentName
       ? checkpointStore.findCheckpointByName(currentName)
       : null
-
-    console.log(
-      found
-        ? `🎯 Match found: ${found.customLabel || found.name}`
-        : '❌ No match found in checkpoint list.',
-    )
 
     if (found && (!found.isMature || showMature.value)) {
       checkpointStore.selectCheckpointByName(found.name!)
     } else {
       const fallback = checkpointStore.visibleCheckpoints[0]
       if (fallback?.name) {
-        console.log('🛟 Using fallback checkpoint:', fallback.name)
         checkpointStore.selectCheckpointByName(fallback.name)
       }
     }

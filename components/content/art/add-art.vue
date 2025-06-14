@@ -1,149 +1,81 @@
 <!-- /components/content/art/add-art.vue -->
 <template>
-  <div class="space-y-6">
-    <h1 class="text-3xl font-bold text-center text-primary">
-      🎨 Welcome to the Art-Maker
-    </h1>
+  <art-grid>
+    <!-- Title -->
+    <template #title>
+      <h1 class="text-3xl font-bold text-primary">
+        🎨 Welcome to the Art-Maker
+      </h1>
+    </template>
 
-    <!-- Responsive Grid -->
-    <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-      <!-- Column 1: Checkpoint + Collection -->
-      <div class="space-y-6">
-        <checkpoint-gallery />
-        <collection-handler />
+    <!-- Left Column -->
+    <template #left>
+      <checkpoint-gallery />
+      <collection-handler />
+    </template>
+
+    <!-- Center Column -->
+    <template #center>
+      <art-randomizer />
+      <prompt-handler />
+
+      <!-- Generate Button -->
+      <button
+        class="btn w-full font-semibold text-white transition duration-300"
+        :class="
+          isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
+        "
+        :disabled="isGenerating || !promptStore.promptField"
+        @click="generateArt"
+      >
+        🖌️ Create Art
+      </button>
+
+      <!-- Error Message -->
+      <div v-if="localError" class="text-error text-center space-y-1">
+        <p>{{ localError }}</p>
+        <p v-if="lastError">{{ lastError }}</p>
       </div>
+    </template>
 
-      <!-- Column 2: Prompt & Controls -->
-      <div class="space-y-6">
-        <art-randomizer />
-
-        <!-- Prompt Input -->
-        <div class="space-y-2">
-          <label class="font-semibold text-base-content">📝 Prompt</label>
-          <input
-            v-model="promptStore.promptField"
-            placeholder="Enter your creative prompt..."
-            class="input input-bordered w-full text-lg bg-base-200 placeholder-gray-500 shadow-inner"
-            :disabled="loading"
-            @input="syncPrompt"
-          />
-        </div>
-
-        <!-- Negative Toggle -->
-        <label class="label cursor-pointer space-x-2 flex-shrink-0">
-          <span class="label-text font-semibold">🚫 Negative Auto</span>
-          <input
-            type="checkbox"
-            class="toggle toggle-error"
-            v-model="useNegative"
-            @change="toggleNegativePrompt"
-          />
-        </label>
-
-        <!-- Negative Prompt -->
-        <div class="space-y-2">
-          <label class="font-semibold text-base-content">Negative Prompt</label>
-          <input
-            v-model="artStore.artForm.negativePrompt"
-            placeholder="Things to avoid (e.g. blurry, extra limbs...)"
-            class="input input-bordered w-full text-lg bg-base-200 placeholder-gray-500 shadow-inner"
-            :disabled="loading"
-          />
-        </div>
-
-        <!-- CFG -->
-        <div class="space-y-2">
-          <label class="block font-semibold text-center">
-            🎚 CFG Scale: {{ localCfg }}
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="30"
-            step="0.5"
-            v-model.number="localCfg"
-            class="range range-primary w-full"
-          />
-        </div>
-
-        <!-- Steps -->
-        <div class="space-y-2">
-          <label class="block font-semibold text-center">
-            🧮 Steps: {{ artStore.artForm.steps }}
-          </label>
-          <input
-            type="range"
-            min="5"
-            max="50"
-            step="1"
-            v-model.number="artStore.artForm.steps"
-            class="range range-secondary w-full"
-          />
-        </div>
-
-        <!-- Public Toggle -->
-        <div class="flex items-center justify-center space-x-4">
-          <span class="font-semibold">🔓 Public?</span>
-          <input
-            type="checkbox"
-            class="toggle toggle-success"
-            v-model="artStore.artForm.isPublic"
-          />
-        </div>
-
-        <!-- Prompt Preview -->
-        <div
-          class="bg-base-100 border border-dashed border-base-300 p-4 rounded-xl text-sm text-base-content/70"
-        >
-          <span class="font-semibold text-base-content">Prompt Preview:</span>
-          <div class="mt-1 italic break-words">
-            {{ fullPromptPreview }}
-          </div>
-        </div>
-
-        <!-- Generate Art Button -->
+    <!-- Right Column -->
+    <template #right>
+      <div class="text-center">
         <button
-          class="btn w-full font-semibold text-white transition duration-300"
-          :class="
-            isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
-          "
-          :disabled="isGenerating || !promptStore.promptField"
-          @click="generateArt"
+          class="btn btn-sm btn-outline"
+          @click="showGallery = !showGallery"
         >
-          🖌️ Create Art
+          {{ showGallery ? '🖼️ Show Collection' : '🖼️ Show Gallery' }}
         </button>
-
-        <!-- Error Message -->
-        <div v-if="localError" class="text-error text-center space-y-1">
-          <p>{{ localError }}</p>
-          <p v-if="lastError">{{ lastError }}</p>
-        </div>
       </div>
 
-      <!-- Column 3: Gallery or Collection -->
-      <div class="space-y-6">
-        <div class="text-center">
-          <button
-            class="btn btn-sm btn-outline"
-            @click="showGallery = !showGallery"
-          >
-            {{ showGallery ? '🖼️ Show Collection' : '🖼️ Show Gallery' }}
-          </button>
-        </div>
-        <div v-if="showGallery">
-          <art-gallery />
-        </div>
-        <div v-else>
-          <collection-display />
-        </div>
+      <div v-if="showGallery">
+        <art-gallery />
       </div>
-    </div>
+      <div v-else>
+        <collection-display />
+      </div>
+    </template>
 
-    <!-- Fallback Gallery on smaller screens -->
-    <div v-if="generatedArt.length && !showGallery" class="space-y-4 xl:hidden">
-      <ArtCard v-for="art in generatedArt" :key="art.id" :art="art" />
-    </div>
-  </div>
+    <!-- Extra Content Below -->
+    <template #extra>
+      <div
+        v-if="generatedArt.length && !showGallery"
+        class="space-y-4 xl:hidden"
+      >
+        <ArtCard v-for="art in generatedArt" :key="art.id" :art="art" />
+      </div>
+    </template>
+
+    <template #report>
+      <div v-if="localError" class="text-error text-sm font-semibold">
+        <p>{{ localError }}</p>
+        <p v-if="lastError" class="text-base-content/60 italic">
+          {{ lastError }}
+        </p>
+      </div>
+    </template>
+  </art-grid>
 </template>
 
 <script setup lang="ts">
@@ -157,8 +89,8 @@ import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useUserStore } from '@/stores/userStore'
-import { negativePhrases } from '@/stores/seeds/artList'
 
+// Core stores
 const artStore = useArtStore()
 const userStore = useUserStore()
 const promptStore = usePromptStore()
@@ -168,38 +100,11 @@ const milestoneStore = useMilestoneStore()
 const collectionStore = useCollectionStore()
 const checkpointStore = useCheckpointStore()
 
+// UI + state
 const localError = ref<string | null>(null)
 const isGenerating = ref(false)
-const loading = computed(() => artStore.loading)
 const lastError = computed(() => errorStore.getError)
 const showGallery = ref(false)
-
-const useNegative = ref(false)
-
-function toggleNegativePrompt() {
-  useNegative.value = !useNegative.value
-  const list = useNegative.value ? negativePhrases : []
-  artStore.updateArtListSelection('__negative__', list)
-}
-const fullPromptPreview = computed(() => {
-  const selections = Object.values(artStore.artListSelections).flat()
-  const mainPrompt = promptStore.promptField
-  return [...selections, mainPrompt].filter(Boolean).join(', ')
-})
-
-const localCfg = ref<number>(
-  (artStore.artForm.cfg ?? 3) + (artStore.artForm.cfgHalf ? 0.5 : 0),
-)
-
-watch(localCfg, (val) => {
-  artStore.artForm.cfg = Math.floor(val)
-  artStore.artForm.cfgHalf = val % 1 >= 0.5
-})
-
-const syncPrompt = () => {
-  promptStore.syncToLocalStorage()
-  artStore.artForm.promptString = promptStore.promptField
-}
 
 watch(
   () => checkpointStore.selectedCheckpoint?.isMature,
@@ -239,7 +144,7 @@ const generateArt = async () => {
   isGenerating.value = false
 }
 
-onMounted(async () => {
+onMounted(() => {
   if (!artStore.artForm.promptString) {
     artStore.artForm.promptString = promptStore.promptField
   }

@@ -59,18 +59,35 @@
       }"
     >
       <!-- Left Column -->
-      <div v-if="layoutMode !== 'single'" class="space-y-6">
-        <slot name="left" />
+      <div
+        v-if="layoutMode !== 'single'"
+        class="flex flex-col w-full max-w-full space-y-6 overflow-y-auto px-2"
+        :class="scrollHeightClass"
+      >
+        <div class="w-full">
+          <slot name="left" />
+        </div>
       </div>
 
-      <!-- Center Column (always shown) -->
-      <div class="space-y-6">
-        <slot name="center" />
+      <!-- Center Column -->
+      <div
+        class="flex flex-col w-full max-w-full space-y-6 overflow-y-auto px-2"
+        :class="scrollHeightClass"
+      >
+        <div class="w-full">
+          <slot name="center" />
+        </div>
       </div>
 
       <!-- Right Column -->
-      <div v-if="layoutMode === 'three-column'" class="space-y-6">
-        <slot name="right" />
+      <div
+        v-if="layoutMode === 'three-column'"
+        class="flex flex-col w-full max-w-full space-y-6 overflow-y-auto px-2"
+        :class="scrollHeightClass"
+      >
+        <div class="w-full">
+          <slot name="right" />
+        </div>
       </div>
     </div>
 
@@ -80,12 +97,15 @@
 </template>
 
 <script setup lang="ts">
-// /components/layout/art-grid.vue
+// /components/content/art/art-grid.vue
 import { ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 const layoutMode = ref<'single' | 'two-column' | 'three-column'>('three-column')
+
+// Fixed scroll height relative to viewport minus space for header/margins
+const scrollHeightClass = 'max-h-[calc(100vh-10rem)]'
 
 const setMode = (mode: typeof layoutMode.value) => {
   layoutMode.value = mode

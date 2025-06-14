@@ -131,6 +131,10 @@ export const useArtStore = defineStore('artStore', () => {
     try {
       if (isClient) {
         state.art = parseStoredArt(localStorage.getItem('art') || '')
+        const storedImages = localStorage.getItem('artImages')
+        if (storedImages) {
+          state.artImages = JSON.parse(storedImages)
+        }
       }
       await Promise.all([collectionStore.fetchCollections(), fetchAllArt()])
       state.isInitialized = true
@@ -138,6 +142,36 @@ export const useArtStore = defineStore('artStore', () => {
       handleError(error, 'initializing art store')
     } finally {
       state.loading = false
+    }
+  }
+
+  async function loadArtImagesInChunks(ids: number[], chunkSize = 20) {
+    const toFetch = ids.filter(
+      (id) => !state.artImages.some((img) => img.id === id),
+    )
+
+    const uniqueIds = [...new Set(toFetch)]
+    const chunks = Array.from(
+      { length: Math.ceil(uniqueIds.length / chunkSize) },
+      (_, i) => uniqueIds.slice(i * chunkSize, (i + 1) * chunkSize),
+    )
+
+    for (const chunk of chunks) {
+      try {
+        const images = await getArtImagesByIds(chunk)
+        if (images?.length) {
+          state.artImages.push(...images)
+          if (isClient) {
+            const existing = JSON.parse(
+              localStorage.getItem('artImages') || '[]',
+            )
+            const updated = [...existing, ...images]
+            localStorage.setItem('artImages', JSON.stringify(updated))
+          }
+        }
+      } catch (e) {
+        handleError(e, 'loading art images in chunks')
+      }
     }
   }
 
@@ -380,6 +414,7 @@ export const useArtStore = defineStore('artStore', () => {
     updateArtListSelection,
     artListPresets,
     getPromptString,
+    loadArtImagesInChunks,
   }
 })
 

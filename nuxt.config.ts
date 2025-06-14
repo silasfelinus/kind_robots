@@ -28,11 +28,14 @@ export default defineNuxtConfig({
     '@nuxt/image',
   ],
 
-  // Global components
-  components: {
-    global: true,
-    dirs: ['~/components/content'],
-  },
+  components: [
+    { path: '~/components/content', global: true },
+    {
+      path: '~/components/abandonware',
+      global: false,
+      ignore: ['**/*.vue'], // completely skip all .vue files
+    },
+  ],
 
   // Compatibility and feature settings
   compatibilityDate: '2024-08-13',

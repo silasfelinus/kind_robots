@@ -109,11 +109,8 @@ watch(localCfg, (val) => {
   artStore.artForm.cfgHalf = val % 1 >= 0.5
 })
 
-const fullPromptPreview = computed(() => {
-  const selections = Object.values(artStore.artListSelections).flat()
-  const mainPrompt = promptStore.promptField
-  return [...selections, mainPrompt].filter(Boolean).join(', ')
-})
+const fullPromptPreview = computed(() => getPromptString.value)
+
 
 function toggleNegativePrompt() {
   const list = useNegative.value ? negativePhrases : []

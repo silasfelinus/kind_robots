@@ -106,6 +106,38 @@
       >
         🔁 Set as Active Model
       </button>
+
+      <!-- Single Checkpoint Info Panel -->
+      <div
+        v-if="displayedCheckpoints.length === 1"
+        class="mt-6 p-4 rounded-2xl bg-base-200 border border-base-300 space-y-2"
+      >
+        <div class="text-lg font-bold text-primary">
+          {{
+            displayedCheckpoints[0].customLabel || displayedCheckpoints[0].name
+          }}
+        </div>
+        <div class="text-sm opacity-80">
+          <span class="font-semibold">Generation:</span>
+          {{ displayedCheckpoints[0].generation || '—' }}
+        </div>
+        <div class="text-sm opacity-80">
+          <span class="font-semibold">Path:</span>
+          {{ displayedCheckpoints[0].localPath || '—' }}
+        </div>
+        <div class="text-sm opacity-80">
+          <span class="font-semibold">Description:</span>
+          {{
+            displayedCheckpoints[0].description || 'No description available.'
+          }}
+        </div>
+        <div
+          v-if="displayedCheckpoints[0].isMature"
+          class="text-xs font-semibold text-warning mt-1"
+        >
+          ⚠️ This model is marked as mature.
+        </div>
+      </div>
     </div>
 
     <!-- Sampler Dropdown -->

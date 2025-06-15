@@ -146,6 +146,20 @@ export const useDisplayStore = defineStore('displayStore', () => {
     ['large', 'extraLarge'].includes(viewportSize.value),
   )
 
+  function toggleFullscreen() {
+    if (!isFullScreen.value) {
+      // Entering fullscreen: hide header
+      headerState.value = 'hidden'
+      fullscreenState.value = 'fullscreen'
+    } else {
+      // Exiting fullscreen: restore header only
+      headerState.value = 'open'
+      fullscreenState.value = 'nuxt'
+    }
+    isFullScreen.value = !isFullScreen.value
+    saveState()
+  }
+
   function toggleSidebar(side: 'sidebarLeftState' | 'sidebarRightState') {
     const stateMap = {
       hidden: 'compact',
@@ -389,6 +403,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     currentAnimation,
     resizeTimeout,
     fullscreenState,
+    toggleFullscreen,
     bigMode,
     displayMode,
     displayAction,

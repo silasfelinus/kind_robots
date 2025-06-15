@@ -98,21 +98,20 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const leftToggleStyle = computed(() => {
-  const header = headerState.value === 'hidden' ? 0 : headerHeight.value
-  return {
-    top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-    left: `${sectionPaddingSize.value}vw`,
-  }
-})
+    const header = headerState.value === 'hidden' ? 0 : headerHeight.value
+    return {
+      top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
+      left: `${sectionPaddingSize.value}vw`,
+    }
+  })
 
-const rightToggleStyle = computed(() => {
-  const header = headerState.value === 'hidden' ? 0 : headerHeight.value
-  return {
-    top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-    right: `${sectionPaddingSize.value}vw`,
-  }
-})
-
+  const rightToggleStyle = computed(() => {
+    const header = headerState.value === 'hidden' ? 0 : headerHeight.value
+    return {
+      top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
+      right: `${sectionPaddingSize.value}vw`,
+    }
+  })
 
   const footerToggleStyle = computed(() => ({
     bottom: `4vh`,
@@ -120,46 +119,44 @@ const rightToggleStyle = computed(() => {
     transform: 'translateX(-50%)',
   }))
 
-const leftSidebarStyle = computed(() => {
-  const header = headerState.value === 'hidden' ? 0 : headerHeight.value
-  return sidebarLeftState.value !== 'hidden'
-    ? {
-        height: `calc(var(--vh) * ${mainContentHeight.value})`,
-        width: `${sidebarLeftWidth.value}vw`,
-        top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-        left: `${sectionPaddingSize.value}vw`,
-      }
-    : { width: '0px', height: '0px' }
-})
+  const leftSidebarStyle = computed(() => {
+    const header = headerState.value === 'hidden' ? 0 : headerHeight.value
+    return sidebarLeftState.value !== 'hidden'
+      ? {
+          height: `calc(var(--vh) * ${mainContentHeight.value})`,
+          width: `${sidebarLeftWidth.value}vw`,
+          top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
+          left: `${sectionPaddingSize.value}vw`,
+        }
+      : { width: '0px', height: '0px' }
+  })
 
   const rightSidebarStyle = computed(() => {
-  const header = headerState.value === 'hidden' ? 0 : headerHeight.value
-  return sidebarRightState.value !== 'hidden'
-    ? {
-        height: `calc(var(--vh) * ${mainContentHeight.value})`,
-        width: `${sidebarRightWidth.value}vw`,
-        top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-        right: `${sectionPaddingSize.value}vw`,
-      }
-    : { width: '0px', height: '0px' }
-})
+    const header = headerState.value === 'hidden' ? 0 : headerHeight.value
+    return sidebarRightState.value !== 'hidden'
+      ? {
+          height: `calc(var(--vh) * ${mainContentHeight.value})`,
+          width: `${sidebarRightWidth.value}vw`,
+          top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
+          right: `${sectionPaddingSize.value}vw`,
+        }
+      : { width: '0px', height: '0px' }
+  })
 
-
-const mainContentStyle = computed(() => {
-  const header = headerState.value === 'hidden' ? 0 : headerHeight.value
-  return {
-    minHeight: `calc(var(--vh) * ${mainContentHeight.value})`,
-    maxHeight: '100%',
-    width: `calc(${mainContentWidth.value}vw)`,
-    top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-    right:
-      sidebarRightState.value !== 'hidden'
-        ? `calc(${sidebarRightWidth.value}vw + ${sectionPaddingSize.value * 2}vw)`
-        : `${sectionPaddingSize.value}vw`,
-    left: `${sectionPaddingSize.value}vw`,
-  }
-})
-
+  const mainContentStyle = computed(() => {
+    const header = headerState.value === 'hidden' ? 0 : headerHeight.value
+    return {
+      minHeight: `calc(var(--vh) * ${mainContentHeight.value})`,
+      maxHeight: '100%',
+      width: `calc(${mainContentWidth.value}vw)`,
+      top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
+      right:
+        sidebarRightState.value !== 'hidden'
+          ? `calc(${sidebarRightWidth.value}vw + ${sectionPaddingSize.value * 2}vw)`
+          : `${sectionPaddingSize.value}vw`,
+      left: `${sectionPaddingSize.value}vw`,
+    }
+  })
 
   const footerStyle = computed(() => ({ height: '0px', width: '0px' }))
 
@@ -333,19 +330,15 @@ const mainContentStyle = computed(() => {
         if (width < 768) {
           viewportSize.value = 'small'
           isMobileViewport.value = true
-          isFullScreen.value = false
         } else if (width < 1024) {
           viewportSize.value = 'medium'
           isMobileViewport.value = false
-          isFullScreen.value = false
         } else if (width < 1440) {
           viewportSize.value = 'large'
           isMobileViewport.value = false
-          isFullScreen.value = true
         } else {
           viewportSize.value = 'extraLarge'
           isMobileViewport.value = false
-          isFullScreen.value = true
         }
       } catch (error) {
         handleError(error)

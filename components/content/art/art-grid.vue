@@ -96,7 +96,11 @@
     </div>
 
     <!-- Extra Content -->
-    <slot name="extra" />
+    <div class="h-full w-full flex items-center justify-center xl:hidden">
+      <div class="h-full w-[60%] overflow-y-auto px-2 space-y-4">
+        <slot name="extra" />
+      </div>
+    </div>
   </div>
 </template>
 

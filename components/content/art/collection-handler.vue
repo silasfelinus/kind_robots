@@ -1,11 +1,15 @@
 <!-- /components/content/art/collection-handler.vue -->
 <template>
-  <div class="space-y-2">
+  <div class="w-full max-w-full space-y-2 overflow-x-hidden">
     <label class="label-text font-semibold">🗂️ Collection</label>
-    <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
+
+    <!-- Form Layout -->
+    <div
+      class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end w-full max-w-full"
+    >
       <!-- Collection Selector -->
       <select
-        class="select select-bordered w-full sm:w-64"
+        class="select select-bordered w-full sm:w-1/3 min-w-[8rem] max-w-full"
         v-model="selectedId"
       >
         <option disabled value="">— Select a collection —</option>
@@ -14,19 +18,25 @@
         </option>
       </select>
 
-      <!-- Create Collection Input -->
+      <!-- New Label Input -->
       <input
         v-model="newLabel"
         type="text"
-        class="input input-bordered flex-grow"
+        class="input input-bordered w-full flex-grow max-w-full"
         placeholder="New collection name"
       />
-      <button class="btn btn-primary whitespace-nowrap" @click="createNew">
+
+      <!-- Create Button -->
+      <button
+        class="btn btn-primary w-full sm:w-auto whitespace-nowrap"
+        @click="createNew"
+      >
         ➕ Create
       </button>
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'

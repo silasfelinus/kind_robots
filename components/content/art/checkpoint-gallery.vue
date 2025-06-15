@@ -96,10 +96,6 @@
           {{ displayedCheckpoints[0].generation || '—' }}
         </div>
         <div class="text-sm">
-          <span class="font-semibold">Path:</span>
-          {{ displayedCheckpoints[0].localPath || '—' }}
-        </div>
-        <div class="text-sm">
           <span class="font-semibold">Description:</span>
           {{
             displayedCheckpoints[0].description || 'No description available.'

@@ -1,0 +1,4 @@
+<!-- compress.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
+  <path d="M352 256h64v64h64V192h-64v64h-64v-64h-64v192h64v-64zm-192 0H96v-64H32v128h64v-64h64v64h64V192h-64v64z"/>
+</svg>

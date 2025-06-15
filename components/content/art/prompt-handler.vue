@@ -1,6 +1,6 @@
 <!-- /components/content/art/prompt-handler.vue -->
 <template>
-  <div class="space-y-6">
+  <div class="w-full max-w-full space-y-6 overflow-x-hidden">
     <!-- Prompt Input -->
     <div class="space-y-2">
       <label class="font-semibold text-base-content">📝 Prompt</label>
@@ -14,15 +14,17 @@
     </div>
 
     <!-- Negative Toggle -->
-    <label class="label cursor-pointer space-x-2 flex-shrink-0">
-      <span class="label-text font-semibold">🚫 Negative Auto</span>
-      <input
-        type="checkbox"
-        class="toggle toggle-error"
-        v-model="useNegative"
-        @change="toggleNegativePrompt"
-      />
-    </label>
+    <div class="flex items-center space-x-3">
+      <label class="label cursor-pointer space-x-2 flex-shrink-0">
+        <span class="label-text font-semibold">🚫 Negative Auto</span>
+        <input
+          type="checkbox"
+          class="toggle toggle-error"
+          v-model="useNegative"
+          @change="toggleNegativePrompt"
+        />
+      </label>
+    </div>
 
     <!-- Negative Prompt -->
     <div class="space-y-2">
@@ -36,8 +38,8 @@
     </div>
 
     <!-- CFG Slider -->
-    <div class="space-y-2">
-      <label class="block font-semibold text-center">
+    <div class="space-y-2 w-full">
+      <label class="block font-semibold">
         🎚 CFG Scale: {{ localCfg }}
       </label>
       <input
@@ -51,8 +53,8 @@
     </div>
 
     <!-- Steps Slider -->
-    <div class="space-y-2">
-      <label class="block font-semibold text-center">
+    <div class="space-y-2 w-full">
+      <label class="block font-semibold">
         🧮 Steps: {{ artStore.artForm.steps }}
       </label>
       <input
@@ -66,7 +68,7 @@
     </div>
 
     <!-- Public Toggle -->
-    <div class="flex items-center justify-center space-x-4">
+    <div class="flex items-center justify-start space-x-4">
       <span class="font-semibold">🔓 Public?</span>
       <input
         type="checkbox"
@@ -77,7 +79,7 @@
 
     <!-- Prompt Preview -->
     <div
-      class="bg-base-100 border border-dashed border-base-300 p-4 rounded-xl text-sm text-base-content/70"
+      class="bg-base-100 border border-dashed border-base-300 p-4 rounded-xl text-sm text-base-content/70 w-full max-w-full"
     >
       <span class="font-semibold text-base-content">Prompt Preview:</span>
       <div class="mt-1 italic break-words">
@@ -86,6 +88,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 // /components/content/art/prompt-handler.vue

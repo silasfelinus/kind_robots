@@ -2,17 +2,13 @@
   {
     "folderName": "admin",
     "components": [
-      "avatar-banner",
-      "debug-launcher",
       "error-popup",
       "karma-tracker",
       "kind-prompts",
       "mana-counter",
       "open-ai-key",
       "privacy-policy",
-      "scroll-debug",
       "store-debug",
-      "store-test",
       "store-tester"
     ]
   },
@@ -26,7 +22,6 @@
       "art-gallery",
       "art-grid",
       "art-nav",
-      "art-prompts",
       "art-randomizer",
       "art-upload",
       "checkpoint-gallery",
@@ -323,20 +318,7 @@
     "folderName": "tooltips",
     "components": [
       "chat-bubble",
-      "chat-tips",
-      "dotti-cards",
-      "header-dashboard",
-      "icon-section",
-      "message-card",
-      "meta-tips",
-      "nav-toggle",
-      "new-tooltip",
-      "room-meta",
-      "streaming-tooltip",
-      "tooltip-toggle",
-      "tutorial-cards",
-      "tutorial-chat",
-      "tutorial-sidebar"
+      "message-card"
     ]
   },
   {
@@ -367,7 +349,6 @@
   {
     "folderName": "weird",
     "components": [
-      "action-toggle",
       "add-character",
       "add-scenario",
       "character-art",
@@ -388,16 +369,11 @@
       "choice-selector",
       "click-leaderboard",
       "edit-scenario",
-      "game-screen-old",
-      "game-screen",
       "generation-toggle",
-      "image-section",
       "match-leaderboard",
       "memory-game",
       "model-decoy",
-      "model-manager",
       "new-eyeball",
-      "preserve-toggle",
       "rebel-button",
       "scenario-card",
       "scenario-gallery",
@@ -405,17 +381,7 @@
       "scenario-manager",
       "scenario-preview",
       "scenario-selector",
-      "scenario-uploader",
-      "weird-art",
-      "weird-card",
-      "weird-chat",
-      "weird-choices",
-      "weird-lab",
-      "weird-launch",
-      "weird-sheet",
-      "weird-window",
-      "weirder-game",
-      "weirdlandia-game"
+      "scenario-uploader"
     ]
   },
   {
@@ -434,9 +400,7 @@
       "theme-lab",
       "theme-menu",
       "theme-preview",
-      "theme-test",
       "theme-toggle",
-      "whisper-chat",
       "wonder-lab"
     ]
   }

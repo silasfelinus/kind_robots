@@ -64,7 +64,9 @@
     >
       <div class="w-full sm:w-auto sm:flex-shrink-0">
         <art-card
-          v-if="selectedCheckpointName && checkpointImages[selectedCheckpointName]"
+          v-if="
+            selectedCheckpointName && checkpointImages[selectedCheckpointName]
+          "
           :art="checkpointImages[selectedCheckpointName]!"
           class="w-40 h-40"
         />
@@ -122,7 +124,9 @@
       <label class="label mb-2">
         <span class="label-text font-semibold">Checkpoint</span>
       </label>
-      <div class="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
+      <div
+        class="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 w-full"
+      >
         <div
           v-for="c in checkpointStore.visibleCheckpoints"
           :key="c.name"
@@ -189,7 +193,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
@@ -324,8 +327,6 @@ onMounted(async () => {
           const bTime = new Date(b.updatedAt ?? b.createdAt ?? 0).getTime()
           return bTime - aTime // newest first
         })
-
-      console.log('checkpointImages', checkpointImages.value)
 
       if (checkpoint.name) {
         checkpointImages.value[checkpoint.name] = matchingArt[0] ?? null

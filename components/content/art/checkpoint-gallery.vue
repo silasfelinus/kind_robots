@@ -76,14 +76,25 @@
               : 'bg-base hover:bg-base/80 text-base-100 border-accent',
           ]"
         >
-          <div
-            v-if="c.name && checkpointImages[c.name]?.imagePath"
-            class="mt-2 w-full"
-          >
+          <div class="mt-2 w-full">
+            <art-card
+              v-if="c.name && checkpointImages[c.name]"
+              :art="checkpointImages[c.name]!"
+              class="w-full"
+            />
+
             <img
-              :src="checkpointImages[c.name]?.imagePath ?? undefined"
+              v-else-if="c.MediaPath"
+              :src="c.MediaPath"
+              alt="Checkpoint Image"
               class="rounded-xl object-cover h-32 w-full"
-              :alt="c.name"
+            />
+
+            <img
+              v-else
+              src="/images/backtree.webp"
+              alt="Fallback"
+              class="rounded-xl object-cover h-32 w-full opacity-50"
             />
           </div>
 

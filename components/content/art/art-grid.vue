@@ -58,7 +58,7 @@
       <slot name="report" />
     </div>
 
-    <!-- Main Grid Container -->
+<!-- Main Grid Container -->
 <div
   class="grid gap-6 h-full"
   :class="{
@@ -68,31 +68,21 @@
   }"
 >
   <!-- Left Column -->
-  <div
-    v-if="layoutMode !== 'single'"
-    class="flex flex-col space-y-6 px-2"
-    :class="{ 'h-full overflow-y-auto': layoutMode !== 'single' }"
-  >
-    <slot name="left" />
+  <div class="flex flex-col space-y-6 px-2 h-full overflow-y-auto min-h-0">
+    <slot v-if="layoutMode !== 'single'" name="left" />
   </div>
 
   <!-- Center Column -->
-  <div
-    class="flex flex-col space-y-6 px-2"
-    :class="{ 'h-full overflow-y-auto': layoutMode !== 'single' }"
-  >
+  <div class="flex flex-col space-y-6 px-2 h-full overflow-y-auto min-h-0">
     <slot name="center" />
   </div>
 
   <!-- Right Column -->
-  <div
-    v-if="layoutMode === 'three-column'"
-    class="flex flex-col space-y-6 px-2"
-    :class="{ 'h-full overflow-y-auto': layoutMode !== 'single' }"
-  >
-    <slot name="right" />
+  <div class="flex flex-col space-y-6 px-2 h-full overflow-y-auto min-h-0">
+    <slot v-if="layoutMode === 'three-column'" name="right" />
   </div>
 </div>
+
 
 
     <!-- Extra Content -->

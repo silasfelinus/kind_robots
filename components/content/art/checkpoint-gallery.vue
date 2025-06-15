@@ -69,11 +69,8 @@
           :class="[
             'p-4 rounded-2xl min-h-[5rem] flex flex-col justify-center items-center border cursor-pointer text-center space-y-1 transition',
             selectedCheckpointName === c.name
-              ? 'bg-primary text-white border-primary'
-              : 'hover:scale-[1.015] hover:shadow-md transition-transform duration-150',
-            isExpanded
-              ? 'bg-base hover:bg-base/80 border-accent text-base-content'
-              : 'bg-base hover:bg-base/80 text-base-100 border-accent',
+              ? 'bg-primary text-white border-primary shadow-md'
+              : 'hover:scale-105 hover:shadow-lg transition-transform duration-150 bg-base-100 border-base-300',
           ]"
         >
           <div class="mt-2 w-full">
@@ -87,14 +84,14 @@
               v-else-if="c.MediaPath"
               :src="c.MediaPath"
               alt="Checkpoint Image"
-              class="rounded-xl object-cover h-32 w-full"
+              class="rounded-xl object-cover h-36 w-full"
             />
 
             <img
               v-else
               src="/images/backtree.webp"
               alt="Fallback"
-              class="rounded-xl object-cover h-32 w-full opacity-50"
+              class="rounded-xl object-cover h-36 w-full opacity-50"
             />
           </div>
 
@@ -124,32 +121,59 @@
       <!-- Single Checkpoint Info Panel -->
       <div
         v-if="displayedCheckpoints.length === 1"
-        class="mt-6 p-4 rounded-2xl bg-base-200 border border-base-300 space-y-2"
+        class="mt-6 p-4 rounded-2xl bg-base-100 border border-base-300 space-y-4 flex flex-col sm:flex-row items-start sm:items-center"
       >
-        <div class="text-lg font-bold text-primary">
-          {{
-            displayedCheckpoints[0].customLabel || displayedCheckpoints[0].name
-          }}
+        <div class="w-full sm:w-auto sm:flex-shrink-0">
+          <art-card
+            v-if="
+              selectedCheckpointName && checkpointImages[selectedCheckpointName]
+            "
+            :art="checkpointImages[selectedCheckpointName]!"
+            class="w-full"
+          />
+
+          <img
+            v-else-if="displayedCheckpoints[0].MediaPath"
+            :src="displayedCheckpoints[0].MediaPath"
+            alt="Checkpoint Image"
+            class="rounded-xl object-cover h-40 w-40"
+          />
+
+          <img
+            v-else
+            src="/images/backtree.webp"
+            alt="Fallback"
+            class="rounded-xl object-cover h-40 w-40 opacity-50"
+          />
         </div>
-        <div class="text-sm opacity-80">
-          <span class="font-semibold">Generation:</span>
-          {{ displayedCheckpoints[0].generation || '—' }}
-        </div>
-        <div class="text-sm opacity-80">
-          <span class="font-semibold">Path:</span>
-          {{ displayedCheckpoints[0].localPath || '—' }}
-        </div>
-        <div class="text-sm opacity-80">
-          <span class="font-semibold">Description:</span>
-          {{
-            displayedCheckpoints[0].description || 'No description available.'
-          }}
-        </div>
-        <div
-          v-if="displayedCheckpoints[0].isMature"
-          class="text-xs font-semibold text-warning mt-1"
-        >
-          ⚠️ This model is marked as mature.
+
+        <div class="sm:ml-6 space-y-1">
+          <div class="text-lg font-bold text-primary">
+            {{
+              displayedCheckpoints[0].customLabel ||
+              displayedCheckpoints[0].name
+            }}
+          </div>
+          <div class="text-sm opacity-80">
+            <span class="font-semibold">Generation:</span>
+            {{ displayedCheckpoints[0].generation || '—' }}
+          </div>
+          <div class="text-sm opacity-80">
+            <span class="font-semibold">Path:</span>
+            {{ displayedCheckpoints[0].localPath || '—' }}
+          </div>
+          <div class="text-sm opacity-80">
+            <span class="font-semibold">Description:</span>
+            {{
+              displayedCheckpoints[0].description || 'No description available.'
+            }}
+          </div>
+          <div
+            v-if="displayedCheckpoints[0].isMature"
+            class="text-xs font-semibold text-warning mt-1"
+          >
+            ⚠️ This model is marked as mature.
+          </div>
         </div>
       </div>
     </div>

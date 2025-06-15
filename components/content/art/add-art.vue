@@ -16,9 +16,12 @@
 
     <!-- Center Column -->
     <template #center>
-      <art-randomizer />
       <prompt-handler />
+      <art-randomizer />
+    </template>
 
+    <!-- Right Column -->
+    <template #right>
       <!-- Generate Button -->
       <button
         class="btn w-full font-semibold text-white transition duration-300"
@@ -30,16 +33,6 @@
       >
         🖌️ Create Art
       </button>
-
-      <!-- Error Message -->
-      <div v-if="localError" class="text-error text-center space-y-1">
-        <p>{{ localError }}</p>
-        <p v-if="lastError">{{ lastError }}</p>
-      </div>
-    </template>
-
-    <!-- Right Column -->
-    <template #right>
       <div class="text-center">
         <button
           class="btn btn-sm btn-outline"
@@ -64,15 +57,6 @@
         class="space-y-4 xl:hidden"
       >
         <ArtCard v-for="art in generatedArt" :key="art.id" :art="art" />
-      </div>
-    </template>
-
-    <template #report>
-      <div v-if="localError" class="text-error text-sm font-semibold">
-        <p>{{ localError }}</p>
-        <p v-if="lastError" class="text-base-content/60 italic">
-          {{ lastError }}
-        </p>
       </div>
     </template>
   </art-grid>
@@ -100,10 +84,7 @@ const milestoneStore = useMilestoneStore()
 const collectionStore = useCollectionStore()
 const checkpointStore = useCheckpointStore()
 
-// UI + state
-const localError = ref<string | null>(null)
 const isGenerating = ref(false)
-const lastError = computed(() => errorStore.getError)
 const showGallery = ref(false)
 
 watch(
@@ -128,14 +109,12 @@ const generatedArt = computed(() =>
 )
 
 const generateArt = async () => {
-  localError.value = null
   isGenerating.value = true
   displayStore.toggleRandomAnimation()
 
   const result = await artStore.generateArt()
   if (!result.success) {
-    localError.value = result.message
-    errorStore.addError(ErrorType.GENERAL_ERROR, localError.value)
+    errorStore.addError(ErrorType.GENERAL_ERROR, result.message)
   } else {
     await milestoneStore.rewardMilestone(11)
   }

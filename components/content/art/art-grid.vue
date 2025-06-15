@@ -1,4 +1,3 @@
-<!-- /components/content/art/art-grid.vue -->
 <template>
   <div
     class="relative w-full h-[calc(100vh-4rem)]"
@@ -9,8 +8,17 @@
   >
     <!-- Top-left Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
-      <button class="btn btn-xs btn-circle" @click="displayStore.toggleFullscreen()">
-        <Icon :name="displayStore.isFullScreen ? 'kind-icon:compress' : 'kind-icon:expand'" />
+      <button
+        class="btn btn-xs btn-circle"
+        @click="displayStore.toggleFullscreen()"
+      >
+        <Icon
+          :name="
+            displayStore.isFullScreen
+              ? 'kind-icon:compress'
+              : 'kind-icon:expand'
+          "
+        />
       </button>
     </div>
 
@@ -21,13 +29,25 @@
 
     <!-- Layout Switcher -->
     <div class="hidden md:flex justify-center gap-2">
-      <button class="btn btn-sm" :class="layoutMode === 'single' && 'btn-primary'" @click="setMode('single')">
+      <button
+        class="btn btn-sm"
+        :class="layoutMode === 'single' && 'btn-primary'"
+        @click="setMode('single')"
+      >
         📄 Single
       </button>
-      <button class="btn btn-sm" :class="layoutMode === 'two-column' && 'btn-primary'" @click="setMode('two-column')">
+      <button
+        class="btn btn-sm"
+        :class="layoutMode === 'two-column' && 'btn-primary'"
+        @click="setMode('two-column')"
+      >
         🪟 Two
       </button>
-      <button class="btn btn-sm" :class="layoutMode === 'three-column' && 'btn-primary'" @click="setMode('three-column')">
+      <button
+        class="btn btn-sm"
+        :class="layoutMode === 'three-column' && 'btn-primary'"
+        @click="setMode('three-column')"
+      >
         🖼️ Three
       </button>
     </div>
@@ -43,17 +63,16 @@
       :class="{
         'grid-cols-1': layoutMode === 'single',
         'grid-cols-1 md:grid-cols-2': layoutMode === 'two-column',
-        'grid-cols-1 md:grid-cols-2 lg:grid-cols-3': layoutMode === 'three-column',
+        'grid-cols-1 md:grid-cols-2 lg:grid-cols-3':
+          layoutMode === 'three-column',
       }"
     >
       <!-- Left Column -->
       <div
+        v-if="layoutMode !== 'single'"
         class="flex flex-col h-full min-h-0 max-w-full overflow-hidden"
       >
-        <div
-          class="flex-1 overflow-y-auto px-2 space-y-6"
-          v-if="layoutMode !== 'single'"
-        >
+        <div class="flex-1 overflow-y-auto px-2 space-y-6">
           <slot name="left" />
         </div>
       </div>
@@ -66,11 +85,11 @@
       </div>
 
       <!-- Right Column -->
-      <div class="flex flex-col h-full min-h-0 max-w-full overflow-hidden">
-        <div
-          class="flex-1 overflow-y-auto px-2 space-y-6"
-          v-if="layoutMode === 'three-column'"
-        >
+      <div
+        v-if="layoutMode === 'three-column'"
+        class="flex flex-col h-full min-h-0 max-w-full overflow-hidden"
+      >
+        <div class="flex-1 overflow-y-auto px-2 space-y-6">
           <slot name="right" />
         </div>
       </div>

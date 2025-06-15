@@ -33,8 +33,8 @@
 
       <!-- Utility component -->
       <component
-        v-else-if="icon.type === 'utility' && icon.component"
-        :is="icon.component"
+        v-else-if="icon.type === 'utility' && icon.component && componentMap[icon.component]"
+        :is="componentMap[icon.component]"
         class="w-full h-full flex items-center justify-center"
       />
 
@@ -93,7 +93,7 @@
 
 <script setup lang="ts">
 // /components/content/icons/icon-display.vue
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSmartbarStore } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -101,6 +101,19 @@ import { useThemeStore } from '@/stores/themeStore'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import type { SmartIcon } from '@/stores/smartbarStore'
+
+// Utility components
+import SwarmIcon from './swarm-icon.vue'
+import ThemeIcon from './theme-icon.vue'
+import LoginIcon from './login-icon.vue'
+import JellybeanIcon from './jellybean-icon.vue'
+
+const componentMap: Record<string, any> = {
+  'swarm-icon': SwarmIcon,
+  'theme-icon': ThemeIcon,
+  'login-icon': LoginIcon,
+  'jellybean-icon': JellybeanIcon,
+}
 
 const props = defineProps<{ icon: SmartIcon }>()
 

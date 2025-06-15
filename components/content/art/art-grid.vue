@@ -8,7 +8,9 @@
         @click="displayStore.toggleBigMode()"
       >
         <Icon
-          :name="displayStore.bigMode ? 'lucide:compress' : 'lucide:expand'"
+          :name="
+            displayStore.bigMode ? 'kind-icon:compress' : 'kind-icon:expand'
+          "
         />
       </button>
     </div>

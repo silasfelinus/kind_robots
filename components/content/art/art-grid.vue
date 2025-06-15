@@ -1,11 +1,6 @@
+<!-- /components/content/art/art-grid.vue -->
 <template>
-  <div
-    class="relative w-full h-[calc(100vh-4rem)]"
-    :class="{
-      'overflow-y-auto': layoutMode === 'single',
-      'overflow-hidden': layoutMode !== 'single',
-    }"
-  >
+  <div class="relative w-full h-[calc(100vh-4rem)] overflow-hidden">
     <!-- Top-left Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
       <button
@@ -27,26 +22,26 @@
       <slot name="title" />
     </div>
 
-    <!-- Layout Switcher -->
-    <div class="hidden md:flex justify-center gap-2">
+    <!-- Layout Switcher (shown md+ only) -->
+    <div class="hidden md:flex justify-center gap-2 mt-2">
       <button
         class="btn btn-sm"
         :class="layoutMode === 'single' && 'btn-primary'"
-        @click="setMode('single')"
+        @click="layoutMode = 'single'"
       >
         📄 Single
       </button>
       <button
         class="btn btn-sm"
         :class="layoutMode === 'two-column' && 'btn-primary'"
-        @click="setMode('two-column')"
+        @click="layoutMode = 'two-column'"
       >
         🪟 Two
       </button>
       <button
-        class="btn btn-sm"
+        class="btn btn-sm hidden lg:inline"
         :class="layoutMode === 'three-column' && 'btn-primary'"
-        @click="setMode('three-column')"
+        @click="layoutMode = 'three-column'"
       >
         🖼️ Three
       </button>
@@ -95,7 +90,7 @@
       </div>
     </div>
 
-    <!-- Extra Content -->
+    <!-- Extra Content (mobile fallback) -->
     <div class="h-full w-full flex items-center justify-center xl:hidden">
       <div class="h-full w-[60%] overflow-y-auto px-2 space-y-4">
         <slot name="extra" />
@@ -111,8 +106,4 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 const layoutMode = ref<'single' | 'two-column' | 'three-column'>('three-column')
-
-const setMode = (mode: typeof layoutMode.value) => {
-  layoutMode.value = mode
-}
 </script>

@@ -63,13 +63,12 @@
       @click="isExpanded = true"
     >
       <div class="w-full sm:w-auto sm:flex-shrink-0">
-        <art-card
-          v-if="
-            selectedCheckpointName && checkpointImages[selectedCheckpointName]
-          "
-          :art="checkpointImages[selectedCheckpointName]!"
-          class="w-full"
-        />
+    <art-card
+  v-if="selectedCheckpointName && checkpointImages[selectedCheckpointName]"
+  :art="checkpointImages[selectedCheckpointName]!"
+  class="w-40 h-40"
+/>
+
 
         <img
           v-else-if="displayedCheckpoints[0].MediaPath"
@@ -143,11 +142,12 @@
           ]"
         >
           <div class="mt-2 w-full">
-            <art-card
-              v-if="c.name && checkpointImages[c.name]"
-              :art="checkpointImages[c.name]!"
-              class="w-full"
-            />
+           <art-card
+  v-if="c.name && checkpointImages[c.name]"
+  :art="checkpointImages[c.name]!"
+  class="w-full h-36"
+/>
+
 
             <img
               v-else-if="c.MediaPath"

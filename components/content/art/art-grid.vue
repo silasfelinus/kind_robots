@@ -5,11 +5,13 @@
     <div class="absolute top-0 left-0 z-10 p-1">
       <button
         class="btn btn-xs btn-circle"
-        @click="displayStore.toggleBigMode()"
+        @click="displayStore.toggleFullscreen()"
       >
         <Icon
           :name="
-            displayStore.bigMode ? 'kind-icon:compress' : 'kind-icon:expand'
+            displayStore.isFullScreen
+              ? 'kind-icon:compress'
+              : 'kind-icon:expand'
           "
         />
       </button>

@@ -70,9 +70,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return sizes[viewportSize.value]
   })
 
-  const mainContentHeight = computed(
-    () => 100 - (headerHeight.value + 2 * sectionPaddingSize.value),
-  )
+  const mainContentHeight = computed(() => {
+    const header = headerState.value === 'hidden' ? 0 : headerHeight.value
+    return 100 - (header + 2 * sectionPaddingSize.value)
+  })
 
   const mainContentWidth = computed(() => {
     return (
@@ -83,12 +84,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
     )
   })
 
-  const headerStyle = computed(() => ({
-    height: `calc(var(--vh) * ${headerHeight.value})`,
-    width: `calc(100vw - ${sectionPaddingSize.value * 2}vw)`,
-    top: `calc(var(--vh) * ${sectionPaddingSize.value})`,
-    left: `${sectionPaddingSize.value}vw`,
-  }))
+  const headerStyle = computed(() => {
+    if (headerState.value === 'hidden') {
+      return { display: 'none' }
+    }
+
+    return {
+      height: `calc(var(--vh) * ${headerHeight.value})`,
+      width: `calc(100vw - ${sectionPaddingSize.value * 2}vw)`,
+      top: `calc(var(--vh) * ${sectionPaddingSize.value})`,
+      left: `${sectionPaddingSize.value}vw`,
+    }
+  })
 
   const leftToggleStyle = computed(() => ({
     top: `calc(var(--vh) * ${headerHeight.value} + ${sectionPaddingSize.value * 2}vh)`,

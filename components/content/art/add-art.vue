@@ -52,10 +52,7 @@
 
     <!-- Extra Content Below -->
     <template #extra>
-      <div
-        v-if="generatedArt.length && !showGallery"
-        class="space-y-4 xl:hidden"
-      >
+      <div v-if="generatedArt.length && !showGallery" class="space-y-4">
         <ArtCard v-for="art in generatedArt" :key="art.id" :art="art" />
       </div>
     </template>

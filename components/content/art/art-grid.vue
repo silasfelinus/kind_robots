@@ -1,6 +1,12 @@
 <!-- /components/content/art/art-grid.vue -->
 <template>
-  <div class="relative w-full h-[calc(100vh-4rem)] overflow-hidden">
+  <div
+    class="relative w-full h-[calc(100vh-4rem)]"
+    :class="{
+      'overflow-y-auto': layoutMode === 'single',
+      'overflow-hidden': layoutMode !== 'single',
+    }"
+  >
     <!-- Top-left Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
       <button
@@ -65,7 +71,10 @@
       <!-- Left Column -->
       <div
         v-if="layoutMode !== 'single'"
-        class="flex flex-col w-full max-w-full space-y-6 h-full overflow-y-auto px-2"
+        class="flex flex-col w-full max-w-full space-y-6 px-2"
+        :class="{
+          'h-full overflow-y-auto': layoutMode !== 'single',
+        }"
       >
         <div class="w-full">
           <slot name="left" />
@@ -74,7 +83,10 @@
 
       <!-- Center Column -->
       <div
-        class="flex flex-col w-full max-w-full space-y-6 h-full overflow-y-auto px-2"
+        class="flex flex-col w-full max-w-full space-y-6 px-2"
+        :class="{
+          'h-full overflow-y-auto': layoutMode !== 'single',
+        }"
       >
         <div class="w-full">
           <slot name="center" />
@@ -84,7 +96,10 @@
       <!-- Right Column -->
       <div
         v-if="layoutMode === 'three-column'"
-        class="flex flex-col w-full max-w-full space-y-6 h-full overflow-y-auto px-2"
+        class="flex flex-col w-full max-w-full space-y-6 px-2"
+        :class="{
+          'h-full overflow-y-auto': layoutMode !== 'single',
+        }"
       >
         <div class="w-full">
           <slot name="right" />
@@ -96,6 +111,7 @@
     <slot name="extra" />
   </div>
 </template>
+
 
 <script setup lang="ts">
 // /components/content/art/art-grid.vue

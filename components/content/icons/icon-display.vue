@@ -104,7 +104,7 @@ import type { SmartIcon } from '@/stores/smartbarStore'
 
 // Utility components
 import SwarmIcon from './swarm-icon.vue'
-import ThemeIcon from './theme-icon.vue'
+import ThemeIcon from '../wonderlab/theme-icon.vue'
 import LoginIcon from './login-icon.vue'
 import JellybeanIcon from './jellybean-icon.vue'
 

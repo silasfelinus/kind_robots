@@ -59,53 +59,41 @@
     </div>
 
     <!-- Main Grid Container -->
-    <div
-      class="grid gap-6 h-full"
-      :class="{
-        'sm:grid-cols-1': true,
-        'md:grid-cols-1': layoutMode === 'single',
-        'md:grid-cols-2': layoutMode === 'two-column',
-        'xl:grid-cols-3': layoutMode === 'three-column',
-      }"
-    >
-      <!-- Left Column -->
-      <div
-        v-if="layoutMode !== 'single'"
-        class="flex flex-col w-full max-w-full space-y-6 px-2"
-        :class="{
-          'h-full overflow-y-auto': layoutMode !== 'single',
-        }"
-      >
-        <div class="w-full">
-          <slot name="left" />
-        </div>
-      </div>
+<div
+  class="grid gap-6 h-full"
+  :class="{
+    'grid-cols-1': layoutMode === 'single',
+    'grid-cols-1 md:grid-cols-2': layoutMode === 'two-column',
+    'grid-cols-1 md:grid-cols-2 lg:grid-cols-3': layoutMode === 'three-column',
+  }"
+>
+  <!-- Left Column -->
+  <div
+    v-if="layoutMode !== 'single'"
+    class="flex flex-col space-y-6 px-2"
+    :class="{ 'h-full overflow-y-auto': layoutMode !== 'single' }"
+  >
+    <slot name="left" />
+  </div>
 
-      <!-- Center Column -->
-      <div
-        class="flex flex-col w-full max-w-full space-y-6 px-2"
-        :class="{
-          'h-full overflow-y-auto': layoutMode !== 'single',
-        }"
-      >
-        <div class="w-full">
-          <slot name="center" />
-        </div>
-      </div>
+  <!-- Center Column -->
+  <div
+    class="flex flex-col space-y-6 px-2"
+    :class="{ 'h-full overflow-y-auto': layoutMode !== 'single' }"
+  >
+    <slot name="center" />
+  </div>
 
-      <!-- Right Column -->
-      <div
-        v-if="layoutMode === 'three-column'"
-        class="flex flex-col w-full max-w-full space-y-6 px-2"
-        :class="{
-          'h-full overflow-y-auto': layoutMode !== 'single',
-        }"
-      >
-        <div class="w-full">
-          <slot name="right" />
-        </div>
-      </div>
-    </div>
+  <!-- Right Column -->
+  <div
+    v-if="layoutMode === 'three-column'"
+    class="flex flex-col space-y-6 px-2"
+    :class="{ 'h-full overflow-y-auto': layoutMode !== 'single' }"
+  >
+    <slot name="right" />
+  </div>
+</div>
+
 
     <!-- Extra Content -->
     <slot name="extra" />

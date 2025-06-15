@@ -1,6 +1,6 @@
 <!-- /components/content/art/art-grid.vue -->
 <template>
-  <div class="relative w-full">
+  <div class="relative w-full h-[calc(100vh-4rem)] overflow-hidden">
     <!-- Top-left Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
       <button
@@ -52,9 +52,9 @@
       <slot name="report" />
     </div>
 
-    <!-- Main Grid -->
+    <!-- Main Grid Container -->
     <div
-      class="grid gap-6"
+      class="grid gap-6 h-full"
       :class="{
         'sm:grid-cols-1': true,
         'md:grid-cols-1': layoutMode === 'single',
@@ -65,8 +65,7 @@
       <!-- Left Column -->
       <div
         v-if="layoutMode !== 'single'"
-        class="flex flex-col w-full max-w-full space-y-6 overflow-y-auto px-2"
-        :class="scrollHeightClass"
+        class="flex flex-col w-full max-w-full space-y-6 h-full overflow-y-auto px-2"
       >
         <div class="w-full">
           <slot name="left" />
@@ -75,8 +74,7 @@
 
       <!-- Center Column -->
       <div
-        class="flex flex-col w-full max-w-full space-y-6 overflow-y-auto px-2"
-        :class="scrollHeightClass"
+        class="flex flex-col w-full max-w-full space-y-6 h-full overflow-y-auto px-2"
       >
         <div class="w-full">
           <slot name="center" />
@@ -86,8 +84,7 @@
       <!-- Right Column -->
       <div
         v-if="layoutMode === 'three-column'"
-        class="flex flex-col w-full max-w-full space-y-6 overflow-y-auto px-2"
-        :class="scrollHeightClass"
+        class="flex flex-col w-full max-w-full space-y-6 h-full overflow-y-auto px-2"
       >
         <div class="w-full">
           <slot name="right" />
@@ -107,9 +104,6 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 const layoutMode = ref<'single' | 'two-column' | 'three-column'>('three-column')
-
-// Fixed scroll height relative to viewport minus space for header/margins
-const scrollHeightClass = 'max-h-[calc(100vh-10rem)]'
 
 const setMode = (mode: typeof layoutMode.value) => {
   layoutMode.value = mode

@@ -222,5 +222,6 @@ export const validCheckpoints: Partial<Resource>[] = [
     isMature: true,
     resourceType: 'CHECKPOINT',
     userId: 1,
+    MediaPath: '/images/botcafe.webp',
   },
 ]

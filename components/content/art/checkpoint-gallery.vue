@@ -1,7 +1,7 @@
 <!-- /components/content/art/checkpoint-gallery.vue -->
 <template>
   <div
-    class="px-4 sm:px-6 md:px-8 max-w-4xl mx-auto space-y-6 md:space-y-8 xl:space-y-10"
+    class="w-full max-w-full px-4 sm:px-6 md:px-8 space-y-6 md:space-y-8 xl:space-y-10 overflow-x-hidden"
   >
     <!-- Admin Toggle -->
     <div class="flex justify-between items-center">
@@ -63,20 +63,17 @@
       @click="isExpanded = true"
     >
       <div class="w-full sm:w-auto sm:flex-shrink-0">
-    <art-card
-  v-if="selectedCheckpointName && checkpointImages[selectedCheckpointName]"
-  :art="checkpointImages[selectedCheckpointName]!"
-  class="w-40 h-40"
-/>
-
-
+        <art-card
+          v-if="selectedCheckpointName && checkpointImages[selectedCheckpointName]"
+          :art="checkpointImages[selectedCheckpointName]!"
+          class="w-40 h-40"
+        />
         <img
           v-else-if="displayedCheckpoints[0].MediaPath"
           :src="displayedCheckpoints[0].MediaPath"
           alt="Checkpoint Image"
           class="rounded-xl object-cover h-40 w-40"
         />
-
         <img
           v-else
           src="/images/backtree.webp"
@@ -85,7 +82,7 @@
         />
       </div>
 
-      <div class="sm:ml-6 space-y-1">
+      <div class="sm:ml-6 space-y-1 w-full max-w-full break-words">
         <div class="text-lg font-bold">
           {{
             displayedCheckpoints[0].customLabel || displayedCheckpoints[0].name
@@ -125,33 +122,30 @@
       <label class="label mb-2">
         <span class="label-text font-semibold">Checkpoint</span>
       </label>
-      <div class="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div class="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
         <div
           v-for="c in checkpointStore.visibleCheckpoints"
           :key="c.name"
           @click="handleCheckpointClick(c.name!)"
           :class="[
-            'p-4 rounded-2xl min-h-[5rem] flex flex-col justify-center items-center border cursor-pointer text-center space-y-1 transition',
+            'p-4 rounded-2xl min-h-[5rem] flex flex-col justify-center items-center border cursor-pointer text-center space-y-1 transition w-full max-w-full overflow-hidden',
             selectedCheckpointName === c.name
               ? 'bg-primary text-white border-primary shadow-md'
               : 'hover:scale-105 hover:shadow-lg transition-transform duration-150 bg-base-100 border-base-300',
           ]"
         >
           <div class="mt-2 w-full">
-           <art-card
-  v-if="c.name && checkpointImages[c.name]"
-  :art="checkpointImages[c.name]!"
-  class="w-full h-36"
-/>
-
-
+            <art-card
+              v-if="c.name && checkpointImages[c.name]"
+              :art="checkpointImages[c.name]!"
+              class="w-full h-36"
+            />
             <img
               v-else-if="c.MediaPath"
               :src="c.MediaPath"
               alt="Checkpoint Image"
               class="rounded-xl object-cover h-36 w-full"
             />
-
             <img
               v-else
               src="/images/backtree.webp"
@@ -160,7 +154,7 @@
             />
           </div>
 
-          <div class="font-bold leading-snug">
+          <div class="font-bold leading-snug break-words w-full">
             {{ showMature || !c.isMature ? c.customLabel || c.name : 'Hidden' }}
           </div>
           <div class="text-xs opacity-70">
@@ -174,12 +168,12 @@
     </div>
 
     <!-- Sampler Dropdown -->
-    <div class="form-control">
+    <div class="form-control w-full">
       <label class="label">
         <span class="label-text font-semibold">Sampler</span>
       </label>
       <select
-        class="select select-bordered bg-base-200"
+        class="select select-bordered bg-base-200 w-full"
         v-model="selectedSamplerName"
         @change="checkpointStore.selectSamplerByName(selectedSamplerName)"
       >
@@ -195,6 +189,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'

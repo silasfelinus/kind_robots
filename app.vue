@@ -27,7 +27,7 @@
 
     <!-- Header -->
     <header
-      v-if="pageStore.ready"
+      v-if="pageStore.ready && displayStore.headerState !== 'hidden'"
       class="fixed z-40 border-6 border-secondary transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >

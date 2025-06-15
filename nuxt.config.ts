@@ -1,4 +1,5 @@
 import { exec } from 'child_process'
+import deadFile from 'vite-plugin-deadfile'
 
 // Define a type for exec's callback
 type ExecCallback = (
@@ -9,6 +10,15 @@ type ExecCallback = (
 
 export default defineNuxtConfig({
   vite: {
+    plugins: [
+      deadFile({
+        root: '.', // scan from project root
+        include: ['components/**/*.{vue,ts,js}'],
+        exclude: ['node_modules/**', '**/*.d.ts'],
+        output: 'dead-files.txt', // optional file output
+        throwWhenFound: false, // disable build failure
+      }),
+    ],
     build: {
       target: 'esnext', // Target modern JavaScript features
       minify: 'esbuild', // Use esbuild for minification (faster than Terser)

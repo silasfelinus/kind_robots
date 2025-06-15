@@ -12,7 +12,7 @@ const displayStore = useDisplayStore()
 
 const resolvedComponent = computed(() => {
   const name = displayStore.mainComponent
-  if (!name) return null
+  if (!name) return 'user-dashboard'
   try {
     return resolveComponent(name)
   } catch {

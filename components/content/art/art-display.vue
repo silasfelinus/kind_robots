@@ -1,42 +1,28 @@
+<!-- /components/content/art/art-display.vue -->
 <template>
   <div
-    v-if="art"
-    class="fixed inset-0 z-50 bg-accent bg-opacity-90 flex items-center justify-center p-[5vh] sm:p-[5vw]"
-    @click.self="closeDisplay"
+    class="fixed inset-0 z-50 bg-accent bg-opacity-90 text-base-content flex items-center justify-center p-[5vh] sm:p-[5vw]"
   >
     <div
-      class="relative w-full h-full max-w-[90vw] max-h-[90vh] overflow-hidden rounded-xl shadow-xl bg-base-100 border border-accent"
-    > Art found
-      <div class="w-full h-full flex flex-col" :class="expanded ? 'lg:flex-row' : ''">
-        <!-- Art Image -->
-        <div
-          class="flex-1 flex items-center justify-center cursor-pointer"
-          @click="toggleExpanded"
-        >
-          <img
-            :src="computedArtImage"
-            alt="Artwork"
-            class="object-contain max-h-full max-w-full"
-          />
-        </div>
+      class="relative w-full h-full max-w-[90vw] max-h-[90vh] overflow-auto rounded-xl shadow-xl bg-base-100 border border-accent p-6 flex flex-col gap-6 items-center justify-start"
+    >
+      <button class="btn btn-sm btn-error self-end" @click="closeDisplay">
+        ❌ Close
+      </button>
 
-        <!-- Expanded Details Panel -->
-        <div
-          v-if="expanded"
-          class="w-full lg:max-w-sm flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-base-300 p-4 space-y-6 overflow-y-auto"
-        >
-          <art-info :art="art" :artImage="localArtImage" />
-          <art-control :art="art" @close="closeDisplay" />
-        </div>
-
-        <!-- Collapsed Footer Panel -->
-        <div
-          v-else
-          class="absolute bottom-0 w-full bg-base-100 bg-opacity-95 border-t border-base-300 p-4 max-h-[40%] overflow-y-auto"
-        >
-          <art-info :art="art" :artImage="localArtImage" />
-        </div>
+      <div v-if="art" class="text-left w-full space-y-2">
+        <div class="text-2xl font-bold text-success">✅ Art found</div>
+        <pre class="bg-base-200 p-4 rounded text-sm overflow-auto max-h-[40vh] whitespace-pre-wrap">
+{{ JSON.stringify(art, null, 2) }}
+        </pre>
+        <img
+          v-if="computedArtImage"
+          :src="computedArtImage"
+          class="max-w-full max-h-[40vh] rounded border border-base-content"
+        />
       </div>
+
+      <div v-else class="text-2xl font-bold text-warning">❌ No art selected</div>
     </div>
   </div>
 </template>
@@ -50,14 +36,13 @@ const artStore = useArtStore()
 const art = computed(() => artStore.currentArt)
 const localArtImage = ref<ArtImage | null>(null)
 const loadingImage = ref(false)
-const expanded = ref(false)
 
 const computedArtImage = computed(() => {
   if (localArtImage.value?.imageData) {
     return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`
   }
   if (art.value?.path) return art.value.path
-  return '/images/backtree.webp'
+  return ''
 })
 
 const fetchArtImage = async () => {
@@ -71,10 +56,6 @@ const fetchArtImage = async () => {
 const closeDisplay = () => {
   console.log('🛑 Closing art-display')
   artStore.currentArt = null
-}
-
-const toggleExpanded = () => {
-  expanded.value = !expanded.value
 }
 
 onMounted(() => {

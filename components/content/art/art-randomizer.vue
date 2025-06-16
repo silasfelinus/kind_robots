@@ -1,93 +1,99 @@
-<!-- //components/content/art-art-randomizer.vue -->
+<!-- /components/content/art/art-randomizer.vue -->
 <template>
-  <div class="w-full max-w-full space-y-6 overflow-x-hidden">
-    <!-- Controls -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
-      <label class="label cursor-pointer space-x-2 flex-shrink-0">
+  <div class="w-full max-w-full space-y-4 overflow-x-hidden">
+    <!-- Make Pretty + Surprise -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+      <label class="label cursor-pointer flex items-center gap-2">
         <span class="label-text font-semibold">✨ Make Pretty</span>
         <input type="checkbox" class="toggle toggle-accent" v-model="makePretty" />
       </label>
 
-      <div class="flex gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto">
-        <button class="btn btn-sm btn-secondary w-full sm:w-auto">🎲 Surprise Me</button>
-        <button class="btn btn-sm btn-ghost w-full sm:w-auto">🔄 Reset</button>
+      <div class="flex gap-2 flex-wrap w-full sm:w-auto justify-end">
+        <button class="btn btn-sm btn-secondary w-full sm:w-auto" @click="surpriseMe">
+          🎲 Surprise Me
+        </button>
+        <button class="btn btn-sm btn-ghost w-full sm:w-auto" @click="resetAll">
+          🔄 Reset
+        </button>
       </div>
     </div>
 
-    <!-- Dynamic Presets -->
+    <!-- Presets -->
     <div
       v-for="entry in artListPresets"
       :key="entry.id"
-      class="border p-4 rounded-xl bg-base-200 md:flex md:items-center md:gap-4 w-full max-w-full"
+      class="border rounded-xl bg-base-200 p-3"
     >
-      <h3 class="font-semibold mb-2 md:mb-0 md:w-32 shrink-0 flex items-center gap-2">
-        {{ entry.title }}
-        <button
-          class="btn btn-xs btn-outline"
-          @click="randomizeEntry(entry)"
-          title="Random {{ entry.title }}"
-        >
-          🎯
-        </button>
-      </h3>
+      <button
+        class="w-full flex justify-between items-center text-left font-semibold text-lg"
+        @click="toggleExpanded(entry.id)"
+      >
+        <span class="flex items-center gap-2">
+          {{ entry.title }}
+          <Icon name="kind-icon:wand-sparkles" class="text-primary" />
+        </span>
+        <Icon :name="expandedPresets[entry.id] ? 'lucide:chevron-up' : 'lucide:chevron-down'" />
+      </button>
 
-      <div class="w-full max-w-full">
-        <!-- Dropdown -->
-        <div v-if="resolvePresetType(entry) === 'dropdown'">
-          <select
-            class="select w-full md:max-w-xs max-w-full"
-            :multiple="entry.allowMultiple"
-            v-model="localSelections[entry.id]"
-          >
-            <option v-for="option in entry.content" :key="option" :value="option">
-              {{ option }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Radio -->
+      <Transition name="slide-fade" mode="out-in" appear>
         <div
-          v-else-if="resolvePresetType(entry) === 'radio'"
-          class="flex flex-wrap gap-2"
+          v-show="expandedPresets[entry.id]"
+          class="mt-4 space-y-2 overflow-hidden transition-all duration-300 ease-in-out"
         >
-          <label
-            v-for="option in entry.content"
-            :key="option"
-            class="flex items-center gap-1"
-          >
-            <input
-              type="radio"
-              :name="entry.id"
-              :value="option"
+          <!-- Dropdown -->
+          <div v-if="resolvePresetType(entry) === 'dropdown'">
+            <select
+              class="select select-bordered w-full"
+              :multiple="entry.allowMultiple"
               v-model="localSelections[entry.id]"
-              class="radio radio-primary"
-            />
-            <span>{{ option }}</span>
-          </label>
-        </div>
+            >
+              <option v-for="option in entry.content" :key="option" :value="option">
+                {{ option }}
+              </option>
+            </select>
+          </div>
 
-        <!-- Selections Display -->
-        <div
-          v-if="Array.isArray(localSelections[entry.id]) && localSelections[entry.id].length"
-          class="flex flex-wrap gap-2 mt-3"
-        >
-          <span
-            v-for="(val, i) in localSelections[entry.id]"
-            :key="i"
-            class="badge badge-outline flex items-center gap-1"
+          <!-- Radio -->
+          <div v-else-if="resolvePresetType(entry) === 'radio'" class="flex flex-wrap gap-2">
+            <label
+              v-for="option in entry.content"
+              :key="option"
+              class="flex items-center gap-1"
+            >
+              <input
+                type="radio"
+                :name="entry.id"
+                :value="option"
+                v-model="localSelections[entry.id]"
+                class="radio radio-primary"
+              />
+              <span>{{ option }}</span>
+            </label>
+          </div>
+
+          <!-- Current Selections -->
+          <div
+            v-if="Array.isArray(localSelections[entry.id]) && localSelections[entry.id].length"
+            class="flex flex-wrap gap-2 mt-2"
           >
-            {{ val }}
-            <button @click="removeSelection(entry.id, val)">🗑️</button>
-          </span>
-          <button class="btn btn-xs btn-ghost ml-2" @click="clearEntry(entry.id)">
-            ❌ Clear
-          </button>
+            <span
+              v-for="(val, i) in localSelections[entry.id]"
+              :key="i"
+              class="badge badge-outline flex items-center gap-1"
+            >
+              {{ val }}
+              <button @click="removeSelection(entry.id, val)">🗑️</button>
+            </span>
+            <button class="btn btn-xs btn-ghost ml-2" @click="clearEntry(entry.id)">
+              ❌ Clear
+            </button>
+          </div>
         </div>
-      </div>
+      </Transition>
     </div>
 
-    <!-- Bonus Random Toggles -->
-    <div class="border p-4 rounded-xl bg-base-200 space-y-4 w-full max-w-full">
+    <!-- Bonus Random Keys -->
+    <div class="border rounded-xl bg-base-200 p-4 space-y-4">
       <h3 class="font-semibold">🎲 Bonus Random Prompts</h3>
       <div class="flex flex-wrap gap-2">
         <button
@@ -124,11 +130,8 @@
         </div>
       </div>
     </div>
-
-    
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, watchEffect, computed } from 'vue'
@@ -144,6 +147,11 @@ const artStore = useArtStore()
 const randomStore = useRandomStore()
 
 const makePretty = ref(false)
+const expandedPresets = ref<Record<string, boolean>>({})
+
+function toggleExpanded(id: string) {
+  expandedPresets.value[id] = !expandedPresets.value[id]
+}
 
 const localSelections = computed({
   get: () => artStore.artListSelections,
@@ -232,5 +240,26 @@ watchEffect(() => {
   }
 })
 
-
+watchEffect(() => {
+  for (const preset of artListPresets.slice(0, 2)) {
+    expandedPresets.value[preset.id] = true
+  }
+})
 </script>
+
+<style scoped>
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+.slide-fade-enter-to,
+.slide-fade-leave-from {
+  max-height: 1000px;
+  opacity: 1;
+}
+</style>

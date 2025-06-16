@@ -53,8 +53,13 @@
       @click="toggleDetails"
     >
       <template v-if="loadingImage">
-        <div class="animate-pulse flex items-center justify-center w-full h-full">
-          <Icon name="kind-icon:loading" class="w-10 h-10 text-info animate-spin" />
+        <div
+          class="animate-pulse flex items-center justify-center w-full h-full"
+        >
+          <Icon
+            name="kind-icon:loading"
+            class="w-10 h-10 text-info animate-spin"
+          />
         </div>
       </template>
       <template v-else>
@@ -65,23 +70,6 @@
           loading="lazy"
         />
       </template>
-    </div>
-
-    <!-- Art Details Panel -->
-    <div
-      v-if="showDetails"
-      class="absolute top-0 right-0 h-full w-2/3 bg-base-100 border-l border-accent p-4 rounded-r-2xl overflow-y-auto z-30"
-    >
-      <h4 class="text-lg font-bold mb-2">Art Details</h4>
-      <pre class="text-xs whitespace-pre-wrap">{{ art }}</pre>
-      <pre v-if="hasImage" class="text-xs whitespace-pre-wrap">{{ localArtImage }}</pre>
-
-      <button
-        class="bg-accent text-white rounded-lg px-4 py-2 mt-4"
-        @click="setAsAvatar"
-      >
-        Set as Avatar
-      </button>
     </div>
   </div>
 </template>
@@ -102,20 +90,17 @@ const userStore = useUserStore()
 const collectionStore = useCollectionStore()
 
 const confirmingDelete = ref(false)
-const showDetails = ref(false)
 const localArtImage = ref<ArtImage | null>(null)
 const loadingImage = ref(false)
 
 const confirmDelete = () => (confirmingDelete.value = true)
 const cancelDelete = () => (confirmingDelete.value = false)
-const toggleDetails = () => (showDetails.value = !showDetails.value)
+const toggleDetails = () => {
+  artStore.currentArt = props.art
+}
 
-const canDelete = computed(() =>
-  props.art.userId === userStore.userId || userStore.isAdmin,
-)
-
-const hasImage = computed(
-  () => !!(localArtImage.value?.imageData || props.artImage?.imageData),
+const canDelete = computed(
+  () => props.art.userId === userStore.userId || userStore.isAdmin,
 )
 
 const computedArtImage = computed(() => {
@@ -151,16 +136,6 @@ const deleteImage = async () => {
     console.error('Delete failed:', error)
     confirmingDelete.value = false
     alert('Delete failed.')
-  }
-}
-
-const setAsAvatar = async () => {
-  try {
-    await userStore.updateUserInfo({ artImageId: props.art.artImageId })
-    await collectionStore.addArtToCollection({ artId: props.art.id, label: 'avatars' })
-    alert('Avatar updated!')
-  } catch (error) {
-    console.error('Error setting avatar:', error)
   }
 }
 

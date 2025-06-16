@@ -81,15 +81,8 @@
     </transition>
 
     <!-- Overlay: only render if slot has content -->
-<slot name="overlay" v-slot="{ fallback }">
-  <div
-    v-if="!fallback"
-    class="fixed inset-0 z-50 flex items-center justify-center"
-  >
-    <div class="w-full h-full pointer-events-auto">
-      <slot name="overlay" />
-    </div>
-  </div>
+<slot name="overlay">
+  
 </slot>
 
   </div>

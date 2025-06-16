@@ -5,7 +5,12 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="flex flex-col items-start">
         <label class="label-text font-semibold">✨ Make Pretty</label>
-        <input type="checkbox" class="toggle toggle-accent mt-1" v-model="makePretty" />
+        <input
+          type="checkbox"
+          class="toggle toggle-accent mt-1"
+          v-model="makePretty"
+          @change="handleMakePrettyToggle"
+        />
       </div>
       <div class="flex flex-col items-start">
         <label class="label-text font-semibold">🎲 Surprise Me</label>
@@ -23,7 +28,7 @@
 
     <!-- Randomized Presets -->
     <div
-      v-for="entry in artListPresets"
+      v-for="entry in extendedPresets"
       :key="entry.id"
       class="border rounded-xl bg-base-200 p-4 space-y-3"
     >
@@ -32,25 +37,35 @@
         @click="toggleExpanded(entry.id)"
       >
         <span class="flex items-center gap-2">
-          {{ entry.icon || '✨' }} {{ entry.title }}
+          {{ entry.title }}
         </span>
-        <Icon :name="expandedPresets[entry.id] ? 'lucide:chevron-up' : 'lucide:chevron-down'" />
+        <Icon
+          :name="expandedPresets[entry.id] ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+        />
       </button>
 
       <Transition name="slide-fade" appear>
-        <div
-          v-show="expandedPresets[entry.id]"
-          class="flex flex-wrap gap-2 pt-2"
-        >
-          <button
-            v-for="option in entry.content"
-            :key="option"
-            @click="toggleMultiSelection(entry.id, option)"
-            class="btn btn-sm"
-            :class="isSelected(entry.id, option) ? 'btn-primary' : 'btn-outline'"
-          >
-            {{ option }}
-          </button>
+        <div v-show="expandedPresets[entry.id]" class="space-y-2 pt-2">
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="option in visibleOptions(entry)"
+              :key="option"
+              @click="toggleMultiSelection(entry.id, option)"
+              class="btn btn-sm"
+              :class="isSelected(entry.id, option) ? 'btn-primary' : 'btn-outline'"
+            >
+              {{ option }}
+            </button>
+          </div>
+
+          <div v-if="entry.content.length > 20" class="mt-2">
+            <button
+              class="btn btn-xs btn-ghost underline"
+              @click="toggleShowAll(entry.id)"
+            >
+              {{ showAll[entry.id] ? 'Show Less' : 'Show More' }}
+            </button>
+          </div>
         </div>
       </Transition>
     </div>
@@ -100,8 +115,9 @@
 import { ref, watchEffect, computed } from 'vue'
 import {
   artListPresets,
+  prettifierList,
+  negativeList,
   type ArtListEntry,
-  prettifierPhrases,
 } from '@/stores/seeds/artList'
 import { useArtStore } from '@/stores/artStore'
 import { useRandomStore } from '@/stores/randomStore'
@@ -110,15 +126,34 @@ const artStore = useArtStore()
 const randomStore = useRandomStore()
 
 const makePretty = ref(false)
+
+const supportedRandomKeys = randomStore.supportedKeys
 const expandedPresets = ref<Record<string, boolean>>({})
+const showAll = ref<Record<string, boolean>>({})
 
-// Collapse all presets by default
-for (const entry of artListPresets) {
+// Extended list with prettifier + negative
+const extendedPresets: ArtListEntry[] = [
+  {
+    id: '__pretty__',
+    title: '✨ Make Pretty Enhancements',
+    presetType: 'auto',
+    allowMultiple: true,
+    content: prettifierList,
+  },
+  {
+    id: '__negative__',
+    title: '🚫 Negative Prompt Filters',
+    presetType: 'auto',
+    allowMultiple: true,
+    content: negativeList,
+  },
+  ...artListPresets,
+]
+
+// Init all collapsed
+for (const entry of extendedPresets) {
   expandedPresets.value[entry.id] = false
-}
-
-function toggleExpanded(id: string) {
-  expandedPresets.value[id] = !expandedPresets.value[id]
+  showAll.value[entry.id] = false
 }
 
 const localSelections = computed({
@@ -129,8 +164,6 @@ const localSelections = computed({
     }
   },
 })
-
-const supportedRandomKeys = randomStore.supportedKeys
 
 function toggleRandomKey(key: string) {
   randomStore.toggleSelection(key)
@@ -150,6 +183,30 @@ function toggleMultiSelection(entryId: string, val: string) {
 
 function isSelected(entryId: string, val: string) {
   return localSelections.value[entryId]?.includes(val)
+}
+
+function visibleOptions(entry: ArtListEntry) {
+  const selected = localSelections.value[entry.id] || []
+  const firstSet = entry.content.slice(0, 20)
+  const rest = entry.content.slice(20)
+
+  if (showAll.value[entry.id]) return entry.content
+  return [...firstSet, ...rest.filter((val) => selected.includes(val))]
+}
+
+function toggleShowAll(id: string) {
+  showAll.value[id] = !showAll.value[id]
+}
+
+function toggleExpanded(id: string) {
+  expandedPresets.value[id] = !expandedPresets.value[id]
+}
+
+function handleMakePrettyToggle() {
+  if (makePretty.value) {
+    expandedPresets.value['__pretty__'] = true
+    expandedPresets.value['__negative__'] = true
+  }
 }
 
 function surpriseMe() {
@@ -178,19 +235,23 @@ function resetAll() {
   makePretty.value = false
   randomStore.clearAllSelections()
   artStore.updateArtListSelection('__pretty__', [])
+  artStore.updateArtListSelection('__negative__', [])
 }
 
 watchEffect(() => {
-  const pretty = makePretty.value
-  const randoms = randomStore.randomSelections
+  if (makePretty.value) {
+    artStore.updateArtListSelection(
+      '__pretty__',
+      randomStore.pickRandomFromArray(prettifierList, 4),
+    )
+    artStore.updateArtListSelection(
+      '__negative__',
+      randomStore.pickRandomFromArray(negativeList, 4),
+    )
+  }
 
-  artStore.updateArtListSelection(
-    '__pretty__',
-    pretty ? randomStore.pickRandomFromArray(prettifierPhrases, 3) : [],
-  )
-
-  for (const key of Object.keys(randoms)) {
-    artStore.updateArtListSelection(key, [randoms[key]])
+  for (const key of Object.keys(randomStore.randomSelections)) {
+    artStore.updateArtListSelection(key, [randomStore.randomSelections[key]])
   }
 })
 </script>

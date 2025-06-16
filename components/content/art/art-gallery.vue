@@ -115,8 +115,6 @@ import { ref, onMounted, computed } from 'vue'
 import { useArtStore, type Art } from '@/stores/artStore'
 import { useGalleryStore } from '@/stores/galleryStore'
 import { useUserStore } from '@/stores/userStore'
-import ArtCard from './art-card.vue'
-import GallerySelector from './gallery-selector.vue'
 
 const artStore = useArtStore()
 const galleryStore = useGalleryStore()

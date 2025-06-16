@@ -77,7 +77,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
-import { useCollectionStore } from '@/stores/collectionStore'
 import { useUserStore } from '@/stores/userStore'
 
 const props = defineProps<{
@@ -96,6 +95,7 @@ const confirmDelete = () => (confirmingDelete.value = true)
 const cancelDelete = () => (confirmingDelete.value = false)
 const toggleDetails = () => {
   artStore.currentArt = props.art
+  console.log('artStore current art is now ', artStore.currentArt)
 }
 
 const canDelete = computed(

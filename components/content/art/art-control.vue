@@ -23,12 +23,40 @@
       Copy Prompt
     </button>
 
+    <div class="space-y-2">
+      <label class="block font-semibold">Add to Collection</label>
+      <select v-model="selectedLabel" class="select select-bordered w-full">
+        <option disabled value="">-- Select Existing --</option>
+        <option
+          v-for="label in userCollections"
+          :key="label ?? ''"
+          :value="label"
+        >
+          {{ label }}
+        </option>
+      </select>
+
+      <input
+        v-model="customLabel"
+        class="input input-bordered w-full"
+        placeholder="Or enter a new label..."
+      />
+
+      <button
+        class="btn btn-success w-full"
+        @click="addToCollection"
+        :disabled="!canUse || (!selectedLabel && !customLabel)"
+      >
+        ➕ Add to Collection
+      </button>
+    </div>
+
     <button class="btn w-full" @click="emit('close')">Close Display</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import type { Art } from '@/stores/artStore'
@@ -39,7 +67,16 @@ const emit = defineEmits(['close'])
 const userStore = useUserStore()
 const collectionStore = useCollectionStore()
 
+const selectedLabel = ref('')
+const customLabel = ref('')
+
 const canUse = computed(() => !!userStore.userId)
+
+const userCollections = computed(() => {
+  return collectionStore.collections
+    .filter((col) => col.userId === userStore.userId)
+    .map((col) => col.label)
+})
 
 const setAsAvatar = async () => {
   try {
@@ -72,6 +109,19 @@ const copyPrompt = async () => {
     alert('Prompt copied to clipboard!')
   } catch (err) {
     console.error('Copy failed:', err)
+  }
+}
+
+const addToCollection = async () => {
+  const label = customLabel.value || selectedLabel.value
+  if (!label) return
+  try {
+    await collectionStore.addArtToCollection({ artId: props.art.id, label })
+    alert(`Added to "${label}" collection!`)
+    selectedLabel.value = ''
+    customLabel.value = ''
+  } catch (err) {
+    console.error('Collection error:', err)
   }
 }
 </script>

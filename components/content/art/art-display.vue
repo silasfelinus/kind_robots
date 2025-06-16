@@ -4,7 +4,7 @@
     <!-- If art exists, show image and panel -->
     <div
       v-if="art"
-      class="relative max-w-[95vw] max-h-[95vh] w-full h-full overflow-hidden rounded-xl shadow-xl bg-base-100"
+      class="relative max-w-[95vw] max-h-[95vh] w-full h-full overflow-hidden rounded-xl shadow-xl bg-base-100 border border-accent"
     >
       <div class="w-full h-full flex flex-col" :class="expanded ? 'lg:flex-row' : ''">
         <!-- Art Image -->
@@ -15,11 +15,11 @@
           <img
             :src="computedArtImage"
             alt="Artwork"
-            class="object-contain max-h-full max-w-full rounded-none"
+            class="object-contain max-h-full max-w-full"
           />
         </div>
 
-        <!-- Overlay Panel (info + controls) -->
+        <!-- Expanded Details Panel -->
         <div
           v-if="expanded"
           class="w-full lg:max-w-sm flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-base-300 p-4 space-y-6 overflow-y-auto"
@@ -28,6 +28,7 @@
           <art-control :art="art" @close="closeDisplay" />
         </div>
 
+        <!-- Collapsed Footer Panel -->
         <div
           v-else
           class="absolute bottom-0 w-full bg-base-100 bg-opacity-95 border-t border-base-300 p-4 max-h-[40%] overflow-y-auto"
@@ -37,12 +38,12 @@
       </div>
     </div>
 
-    <!-- Fallback for no art -->
+    <!-- Fallback when no art -->
     <div
       v-else
-      class="text-center text-base-content font-semibold text-xl bg-base-100 rounded-xl shadow-lg px-6 py-4"
+      class="text-center text-base-content font-semibold text-xl bg-warning bg-opacity-90 rounded-xl shadow-lg px-6 py-4 border border-warning-content"
     >
-      🐛 <span class="opacity-70">No currentArt selected</span>
+      🐛 <span class="opacity-80">No currentArt selected</span>
     </div>
   </div>
 </template>
@@ -75,6 +76,7 @@ const fetchArtImage = async () => {
 }
 
 const closeDisplay = () => {
+  console.log('🛑 Closing art-display')
   artStore.currentArt = null
 }
 
@@ -87,10 +89,14 @@ onMounted(() => {
 })
 
 watch(
-  () => art.value?.artImageId,
-  async (newId) => {
-    if (newId) await fetchArtImage()
+  () => art.value,
+  (newVal) => {
+    if (newVal) {
+      console.log('🎨 Displaying art-detail for:', newVal.title || newVal.id)
+    } else {
+      console.log('⚠️ No art selected (artDetail empty)')
+    }
   },
-  { immediate: true },
+  { immediate: true }
 )
 </script>

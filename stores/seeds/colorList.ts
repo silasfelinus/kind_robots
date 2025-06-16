@@ -1,6 +1,6 @@
 // /stores/seeds/colorList.ts
 
-export const colorList: string[] = [
+export const colorPaletteList: string[] = [
   'Monochrome',
   'Rainbow',
   'Neon',

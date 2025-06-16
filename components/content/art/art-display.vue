@@ -1,17 +1,12 @@
-// /components/content/art/art-display.vue
+<!-- /components/content/art/art-display.vue -->
 <template>
-  <div
-    v-if="art"
-    class="fixed inset-0 z-50 bg-base-200 bg-opacity-90 flex items-center justify-center"
-    @click.self="closeDisplay"
-  >
+  <div class="fixed inset-0 z-50 bg-base-200 bg-opacity-90 flex items-center justify-center">
+    <!-- If art exists, show image and panel -->
     <div
+      v-if="art"
       class="relative max-w-[95vw] max-h-[95vh] w-full h-full overflow-hidden rounded-xl shadow-xl bg-base-100"
     >
-      <div
-        class="w-full h-full flex flex-col"
-        :class="expanded ? 'lg:flex-row' : ''"
-      >
+      <div class="w-full h-full flex flex-col" :class="expanded ? 'lg:flex-row' : ''">
         <!-- Art Image -->
         <div
           class="flex-1 flex items-center justify-center cursor-pointer"
@@ -41,10 +36,19 @@
         </div>
       </div>
     </div>
+
+    <!-- Fallback for no art -->
+    <div
+      v-else
+      class="text-center text-base-content font-semibold text-xl bg-base-100 rounded-xl shadow-lg px-6 py-4"
+    >
+      🐛 <span class="opacity-70">No currentArt selected</span>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// /components/content/art/art-display.vue
 import { computed, onMounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 
@@ -90,5 +94,3 @@ watch(
   { immediate: true },
 )
 </script>
-
-<style scoped></style>

@@ -8,29 +8,30 @@
       </h1>
     </template>
 
-    <!-- Left Column -->
+    <!-- Left Section -->
     <template #left>
       <checkpoint-gallery />
-
     </template>
 
-    <!-- Center Column -->
+    <!-- Center Section -->
     <template #center>
-      
       <art-randomizer />
     </template>
 
-    <!-- Right Column -->
+    <!-- Right Section -->
     <template #right>
-    
-      <art-museum />>
+      <art-museum />
     </template>
 
-    <!-- Extra Content Below -->
+    <!-- Extra Section (bottom 20%) -->
     <template #extra>
+      <prompt-handler />
+      <generate-button />
+    </template>
+
+    <!-- Overlay (full-screen focus area) -->
+    <template #overlay>
       <art-display />
-            <prompt-handler />
-  <generate-button />
     </template>
   </art-grid>
 </template>

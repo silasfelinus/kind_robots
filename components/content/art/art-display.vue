@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 // /components/content/art/art-display.vue
-import { computed } from 'vue'
+import { computed, watchEffect } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import artInfo from './art-info.vue'
 import artControl from './art-control.vue'
@@ -59,4 +59,17 @@ const closeDisplay = () => {
   artStore.currentArt = null
   artStore.currentArtImage = null
 }
+
+// 🔁 Re-fetch artImage if needed
+watchEffect(async () => {
+  if (
+    art.value?.artImageId &&
+    (!artImage.value || !artImage.value.imageData)
+  ) {
+    const fetched = await artStore.getOrFetchArtImageById(art.value.artImageId)
+    if (fetched?.imageData) {
+      artStore.currentArtImage = fetched
+    }
+  }
+})
 </script>

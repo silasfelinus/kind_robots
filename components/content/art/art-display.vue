@@ -1,12 +1,11 @@
-<!-- /components/content/art/art-display.vue -->
 <template>
   <div
-    class="fixed inset-0 z-50 bg-base-200 bg-opacity-90 flex items-center justify-center"
+    v-if="art"
+    class="fixed inset-0 z-50 bg-base-200 bg-opacity-90 flex items-center justify-center p-[5vh] sm:p-[5vw]"
     @click.self="closeDisplay"
   >
     <div
-      v-if="art"
-      class="relative max-w-[90vw] max-h-[90vh] w-full h-full overflow-hidden rounded-xl shadow-xl bg-base-100 border border-accent p-2"
+      class="relative w-full h-full max-w-[90vw] max-h-[90vh] overflow-hidden rounded-xl shadow-xl bg-base-100 border border-accent"
     >
       <div class="w-full h-full flex flex-col" :class="expanded ? 'lg:flex-row' : ''">
         <!-- Art Image -->

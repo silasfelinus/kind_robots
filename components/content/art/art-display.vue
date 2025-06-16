@@ -1,27 +1,25 @@
-<!-- /components/content/art/art-display.vue -->
 <template>
   <div
-    class="fixed inset-0 z-50 bg-accent bg-opacity-90 text-base-content flex items-center justify-center p-[5vh] sm:p-[5vw]"
+    v-if="art"
+    class="fixed inset-0 z-50 flex items-center justify-center p-[5vh] sm:p-[5vw] bg-black bg-opacity-70"
+    @click.self="closeDisplay"
   >
-    <!-- No art selected -->
-    <div v-if="!art" class="text-2xl font-bold text-warning">
-      ❌ No art selected
-    </div>
-
-    <!-- Art selected -->
     <div
-      v-else
-      class="relative w-full h-full max-w-[90vw] max-h-[90vh] overflow-auto rounded-xl shadow-xl bg-base-100 border border-accent p-6 flex flex-col gap-6 items-center justify-start"
+      class="relative w-full h-full max-w-[90vw] max-h-[90vh] overflow-auto rounded-xl shadow-xl bg-base-100 border border-accent p-6 flex flex-col gap-6"
     >
-      <button class="btn btn-sm btn-error self-end" @click="closeDisplay">
-        ❌ Close
-      </button>
+      <div class="flex justify-end">
+        <button class="btn btn-sm btn-error" @click="closeDisplay">
+          ❌ Close
+        </button>
+      </div>
 
-      <div class="text-left w-full space-y-2">
-        <div class="text-2xl font-bold text-success">✅ Art found</div>
-        <pre class="bg-base-200 p-4 rounded text-sm overflow-auto max-h-[40vh] whitespace-pre-wrap">
+      <div class="text-left w-full space-y-4">
+        <div class="text-2xl font-bold text-success">✅ Art Found</div>
+
+        <pre class="bg-base-200 p-4 rounded text-sm overflow-auto max-h-[30vh] whitespace-pre-wrap">
 {{ JSON.stringify(art, null, 2) }}
         </pre>
+
         <img
           v-if="computedArtImage"
           :src="computedArtImage"

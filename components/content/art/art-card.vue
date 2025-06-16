@@ -95,8 +95,9 @@ const confirmDelete = () => (confirmingDelete.value = true)
 const cancelDelete = () => (confirmingDelete.value = false)
 const toggleDetails = () => {
   artStore.currentArt = props.art
-  artStore.currentArtImage = props.artImage
-  console.log('artStore current art is now ', artStore.currentArt)
+  artStore.currentArtImage =
+    localArtImage.value || props.artImage || null
+  
 }
 
 const canDelete = computed(

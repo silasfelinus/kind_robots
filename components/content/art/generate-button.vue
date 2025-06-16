@@ -35,7 +35,9 @@ const generateArt = async () => {
   if (!result.success) {
     errorStore.addError(ErrorType.GENERAL_ERROR, result.message)
   } else {
-    await milestoneStore.rewardMilestone(11)
+    await callOnce(async () => {
+      await milestoneStore.rewardMilestone(11)
+    })
   }
 
   displayStore.stopAnimation()

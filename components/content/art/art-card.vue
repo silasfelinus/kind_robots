@@ -87,7 +87,6 @@ const props = defineProps<{
 
 const artStore = useArtStore()
 const userStore = useUserStore()
-const collectionStore = useCollectionStore()
 
 const confirmingDelete = ref(false)
 const localArtImage = ref<ArtImage | null>(null)

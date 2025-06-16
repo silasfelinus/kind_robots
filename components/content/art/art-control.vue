@@ -51,6 +51,8 @@
       </button>
     </div>
 
+    <art-reactions />
+
     <button class="btn w-full" @click="emit('close')">Close Display</button>
   </div>
 </template>

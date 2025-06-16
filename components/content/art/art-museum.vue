@@ -1,6 +1,5 @@
 <!-- /components/content/art/art-museum.vue -->
 <template>
-  <generate-button />
   <div class="text-center">
     <button class="btn btn-sm btn-outline" @click="showGallery = !showGallery">
       {{ showGallery ? '🖼️ Show Collection' : '🖼️ Show Gallery' }}

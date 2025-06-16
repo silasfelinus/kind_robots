@@ -33,6 +33,7 @@ interface ArtStoreState {
   error: string
   isInitialized: boolean
   currentArt: Art | null
+currentArtImage: ArtImage | null
   processedArtPrompt: string
   pitch: string
   currentPage: number
@@ -57,6 +58,7 @@ export const useArtStore = defineStore('artStore', () => {
     error: '',
     isInitialized: false,
     currentArt: null,
+    currentArtImage: null,
     processedArtPrompt: '',
     pitch: '',
     currentPage: 1,
@@ -182,14 +184,42 @@ export const useArtStore = defineStore('artStore', () => {
     if (isClient) localStorage.setItem('art', JSON.stringify(state.art))
   }
 
-  function selectArt(artId: number): void {
-    const found = state.art.find((a) => a.id === artId)
-    if (!found) {
-      handleError(new Error(`Art with ID ${artId} not found`), 'selecting art')
-      return
-    }
-    state.currentArt = found
+async function selectArt(artId: number): Promise<void> {
+  const found = state.art.find((a) => a.id === artId)
+  if (!found) {
+    handleError(new Error(`Art with ID ${artId} not found`), 'selecting art')
+    return
   }
+  state.currentArt = found
+
+  if (found.artImageId) {
+    const cached = state.artImages.find((img) => img.id === found.artImageId)
+    if (cached) {
+      state.currentArtImage = cached
+    } else {
+      try {
+        const response = await performFetch<ArtImage>(
+          `/api/art/image/${found.artImageId}`,
+        )
+        if (response.success && response.data) {
+          state.artImages.push(response.data)
+          state.currentArtImage = response.data
+          if (isClient) {
+            const existing = JSON.parse(
+              localStorage.getItem('artImages') || '[]',
+            )
+            const updated = [...existing, response.data]
+            localStorage.setItem('artImages', JSON.stringify(updated))
+          }
+        }
+      } catch (err) {
+        handleError(err, 'fetching art image for selected art')
+      }
+    }
+  } else {
+    state.currentArtImage = null
+  }
+}
 
   async function getArtImageById(id: number): Promise<ArtImage | undefined> {
     const cached = state.artImages.find((img) => img.id === id)

@@ -18,7 +18,7 @@ import { prettifierList } from './prettifierList'
 import { negativeList } from './negativeList'
 
 // ✅ Optional direct exports if you still want access outside
-export const negativePhrases = negativeList
+export const negativeList = negativeList
 export const prettifierList = prettifierList
 
 // ✅ Main preset list

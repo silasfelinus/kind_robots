@@ -33,8 +33,11 @@
       <slot name="report" />
     </div>
 
-    <!-- Main Display (Top 80%) -->
-    <div class="flex-1 overflow-hidden flex w-full">
+    <!-- Main Display -->
+    <div
+      class="flex-1 overflow-hidden flex w-full transition-all duration-500"
+      :class="{ 'opacity-30 pointer-events-none': isExtraExpanded }"
+    >
       <div
         v-if="showLeft"
         class="h-full overflow-y-auto px-2 space-y-4"
@@ -58,12 +61,25 @@
       </div>
     </div>
 
-    <!-- Reserved Bottom (20%) -->
-    <div class="h-[20%] w-full overflow-y-auto px-2 border-t border-base-content bg-base-300 shadow-inner">
-      <slot name="extra" />
+    <!-- Expandable Extra Section -->
+    <div
+      class="w-full border-t border-base-content bg-base-300 shadow-inner transition-all duration-500 overflow-y-auto"
+      :class="{
+        'h-[20%]': !isExtraExpanded,
+        'h-[85vh] z-40 absolute bottom-0 left-0 right-0': isExtraExpanded
+      }"
+    >
+      <div class="flex justify-end px-4 pt-2">
+        <button class="btn btn-xs btn-outline" @click="isExtraExpanded = !isExtraExpanded">
+          <Icon :name="isExtraExpanded ? 'kind-icon:chevron-down' : 'kind-icon:chevron-up'" />
+        </button>
+      </div>
+      <div class="px-2 pb-4">
+        <slot name="extra" />
+      </div>
     </div>
 
-    <!-- Overlay (optional occlusion layer) -->
+    <!-- Overlay -->
     <div
       v-if="showOverlay"
       class="fixed inset-0 bg-base-100 bg-opacity-90 z-50 flex items-center justify-center"
@@ -86,6 +102,7 @@ const showLeft = ref(true)
 const showCenter = ref(true)
 const showRight = ref(true)
 const showOverlay = ref(false)
+const isExtraExpanded = ref(false)
 
 function toggleSection(section: 'left' | 'center' | 'right') {
   if (section === 'left') showLeft.value = !showLeft.value
@@ -93,7 +110,6 @@ function toggleSection(section: 'left' | 'center' | 'right') {
   if (section === 'right') showRight.value = !showRight.value
 }
 
-// Flex size logic based on number of visible sections
 const sectionClass = computed(() => {
   const visible = [showLeft.value, showCenter.value, showRight.value].filter(Boolean).length
   if (visible === 3) return 'w-1/3'

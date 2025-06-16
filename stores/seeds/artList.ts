@@ -10,17 +10,17 @@ export interface ArtListEntry {
   allowMultiple: boolean
 }
 
-// ✅ Import modular content
+// ✅ Import modular lists
 import { themeList } from './themeList'
 import { styleList } from './styleList'
 import { colorPaletteList as colorList } from './colorList'
 import { prettifierList } from './prettifierList'
 import { negativeList } from './negativeList'
 
-export { negativeList, prettifierList }
+// ✅ Re-export raw lists
+export { prettifierList, negativeList, styleList, themeList, colorList }
 
-
-// ✅ Main preset list
+// ✅ Define all structured art list presets
 export const artListPresets: ArtListEntry[] = [
   {
     id: 'style',
@@ -42,5 +42,19 @@ export const artListPresets: ArtListEntry[] = [
     presetType: 'dropdown',
     allowMultiple: true,
     content: colorList,
+  },
+  {
+    id: '__pretty__',
+    title: '✨ Make Pretty Enhancements',
+    presetType: 'auto',
+    allowMultiple: true,
+    content: prettifierList,
+  },
+  {
+    id: '__negative__',
+    title: '🚫 Negative Prompt Filters',
+    presetType: 'auto',
+    allowMultiple: true,
+    content: negativeList,
   },
 ]

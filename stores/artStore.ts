@@ -369,6 +369,7 @@ export const useArtStore = defineStore('artStore', () => {
       }
 
       state.art.push(art)
+      state.currentArt = art
 
       if (isClient) {
         localStorage.setItem('art', JSON.stringify(state.art))

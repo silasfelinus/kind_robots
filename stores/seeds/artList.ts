@@ -17,9 +17,8 @@ import { colorPaletteList as colorList } from './colorList'
 import { prettifierList } from './prettifierList'
 import { negativeList } from './negativeList'
 
-// ✅ Optional direct exports if you still want access outside
-export const negativeList
-export const prettifierList
+export { negativeList, prettifierList }
+
 
 // ✅ Main preset list
 export const artListPresets: ArtListEntry[] = [

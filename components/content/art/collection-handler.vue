@@ -1,45 +1,51 @@
 <!-- /components/content/art/collection-handler.vue -->
 <template>
-  <div class="w-full max-w-full space-y-2 overflow-x-hidden">
+  <div class="w-full max-w-full space-y-4 overflow-x-hidden">
     <label class="label-text font-semibold">🗂️ Collection</label>
 
-    <!-- Form Layout -->
-    <div
-      class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end w-full max-w-full"
-    >
+    <div class="flex flex-col gap-3 w-full max-w-full">
       <!-- Collection Selector -->
       <select
-        class="select select-bordered w-full sm:w-1/3 min-w-[8rem] max-w-full"
         v-model="selectedId"
+        class="select select-bordered w-full"
       >
         <option disabled value="">— Select a collection —</option>
-        <option v-for="c in userCollections" :key="c.id" :value="String(c.id)">
+        <option
+          v-for="c in userCollections"
+          :key="c.id"
+          :value="String(c.id)"
+        >
           {{ c.label }}
         </option>
+        <option value="__new__">➕ Create new collection...</option>
       </select>
 
-      <!-- New Label Input -->
-      <input
-        v-model="newLabel"
-        type="text"
-        class="input input-bordered w-full flex-grow max-w-full"
-        placeholder="New collection name"
-      />
-
-      <!-- Create Button -->
-      <button
-        class="btn btn-primary w-full sm:w-auto whitespace-nowrap"
-        @click="createNew"
+      <!-- New Collection Fields -->
+      <div
+        v-if="selectedId === '__new__'"
+        class="flex flex-col gap-2 w-full"
       >
-        ➕ Create
-      </button>
+        <input
+          v-model="newLabel"
+          type="text"
+          class="input input-bordered w-full"
+          placeholder="Enter new collection name"
+        />
+
+        <button
+          class="btn btn-primary w-full"
+          :disabled="!newLabel.trim()"
+          @click="createNew"
+        >
+          ➕ Create Collection
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
-
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 
@@ -47,8 +53,8 @@ const userStore = useUserStore()
 const collectionStore = useCollectionStore()
 
 const selectedId = ref<string>('')
-
 const newLabel = ref('')
+
 const userCollections = computed(() =>
   collectionStore.getUserCollections(userStore.userId),
 )
@@ -62,6 +68,7 @@ watch(
 )
 
 watch(selectedId, (val) => {
+  if (val === '__new__') return
   const found = collectionStore.findCollectionById(Number(val))
   if (found) {
     collectionStore.currentCollection = found
@@ -72,12 +79,10 @@ async function createNew() {
   const label = newLabel.value.trim()
   if (!label) return
 
-  const created = await collectionStore.createCollection(
-    label,
-    userStore.userId,
-  )
+  const created = await collectionStore.createCollection(label, userStore.userId)
   if (created) {
-    selectedId.value = created.id.toString()
+    selectedId.value = String(created.id)
+    collectionStore.currentCollection = created
     newLabel.value = ''
   }
 }

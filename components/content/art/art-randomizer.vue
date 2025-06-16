@@ -1,100 +1,63 @@
 <!-- /components/content/art/art-randomizer.vue -->
 <template>
-  <div class="w-full max-w-full space-y-4 overflow-x-hidden">
-    <!-- Make Pretty + Surprise -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-      <label class="label cursor-pointer flex items-center gap-2">
-        <span class="label-text font-semibold">✨ Make Pretty</span>
-        <input type="checkbox" class="toggle toggle-accent" v-model="makePretty" />
-      </label>
-
-      <div class="flex gap-2 flex-wrap w-full sm:w-auto justify-end">
-        <button class="btn btn-sm btn-secondary w-full sm:w-auto" @click="surpriseMe">
-          🎲 Surprise Me
+  <div class="w-full space-y-6">
+    <!-- Top Row: Make Pretty, Surprise Me, Reset -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="flex flex-col items-start">
+        <label class="label-text font-semibold">✨ Make Pretty</label>
+        <input type="checkbox" class="toggle toggle-accent mt-1" v-model="makePretty" />
+      </div>
+      <div class="flex flex-col items-start">
+        <label class="label-text font-semibold">🎲 Surprise Me</label>
+        <button class="btn btn-secondary mt-1 w-full" @click="surpriseMe">
+          Surprise Me
         </button>
-        <button class="btn btn-sm btn-ghost w-full sm:w-auto" @click="resetAll">
-          🔄 Reset
+      </div>
+      <div class="flex flex-col items-start">
+        <label class="label-text font-semibold">🔄 Reset</label>
+        <button class="btn btn-ghost mt-1 w-full" @click="resetAll">
+          Reset All
         </button>
       </div>
     </div>
 
-    <!-- Presets -->
+    <!-- Randomized Presets -->
     <div
       v-for="entry in artListPresets"
       :key="entry.id"
-      class="border rounded-xl bg-base-200 p-3"
+      class="border rounded-xl bg-base-200 p-4 space-y-3"
     >
       <button
-        class="w-full flex justify-between items-center text-left font-semibold text-lg"
+        class="w-full flex justify-between items-center font-semibold text-left text-lg"
         @click="toggleExpanded(entry.id)"
       >
         <span class="flex items-center gap-2">
-          {{ entry.title }}
-          <Icon name="kind-icon:wand-sparkles" class="text-primary" />
+          {{ entry.icon || '✨' }} {{ entry.title }}
         </span>
         <Icon :name="expandedPresets[entry.id] ? 'lucide:chevron-up' : 'lucide:chevron-down'" />
       </button>
 
-      <Transition name="slide-fade" mode="out-in" appear>
+      <Transition name="slide-fade" appear>
         <div
           v-show="expandedPresets[entry.id]"
-          class="mt-4 space-y-2 overflow-hidden transition-all duration-300 ease-in-out"
+          class="flex flex-wrap gap-2 pt-2"
         >
-          <!-- Dropdown -->
-          <div v-if="resolvePresetType(entry) === 'dropdown'">
-            <select
-              class="select select-bordered w-full"
-              :multiple="entry.allowMultiple"
-              v-model="localSelections[entry.id]"
-            >
-              <option v-for="option in entry.content" :key="option" :value="option">
-                {{ option }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Radio -->
-          <div v-else-if="resolvePresetType(entry) === 'radio'" class="flex flex-wrap gap-2">
-            <label
-              v-for="option in entry.content"
-              :key="option"
-              class="flex items-center gap-1"
-            >
-              <input
-                type="radio"
-                :name="entry.id"
-                :value="option"
-                v-model="localSelections[entry.id]"
-                class="radio radio-primary"
-              />
-              <span>{{ option }}</span>
-            </label>
-          </div>
-
-          <!-- Current Selections -->
-          <div
-            v-if="Array.isArray(localSelections[entry.id]) && localSelections[entry.id].length"
-            class="flex flex-wrap gap-2 mt-2"
+          <button
+            v-for="option in entry.content"
+            :key="option"
+            @click="toggleMultiSelection(entry.id, option)"
+            class="btn btn-sm"
+            :class="isSelected(entry.id, option) ? 'btn-primary' : 'btn-outline'"
           >
-            <span
-              v-for="(val, i) in localSelections[entry.id]"
-              :key="i"
-              class="badge badge-outline flex items-center gap-1"
-            >
-              {{ val }}
-              <button @click="removeSelection(entry.id, val)">🗑️</button>
-            </span>
-            <button class="btn btn-xs btn-ghost ml-2" @click="clearEntry(entry.id)">
-              ❌ Clear
-            </button>
-          </div>
+            {{ option }}
+          </button>
         </div>
       </Transition>
     </div>
 
-    <!-- Bonus Random Keys -->
-    <div class="border rounded-xl bg-base-200 p-4 space-y-4">
-      <h3 class="font-semibold">🎲 Bonus Random Prompts</h3>
+    <!-- Bonus Randoms -->
+    <div class="border rounded-xl bg-base-200 p-4 space-y-3">
+      <h3 class="font-semibold">🎯 Bonus Randoms</h3>
       <div class="flex flex-wrap gap-2">
         <button
           v-for="key in supportedRandomKeys"
@@ -149,6 +112,11 @@ const randomStore = useRandomStore()
 const makePretty = ref(false)
 const expandedPresets = ref<Record<string, boolean>>({})
 
+// Collapse all presets by default
+for (const entry of artListPresets) {
+  expandedPresets.value[entry.id] = false
+}
+
 function toggleExpanded(id: string) {
   expandedPresets.value[id] = !expandedPresets.value[id]
 }
@@ -170,6 +138,18 @@ function toggleRandomKey(key: string) {
 
 function removeRandomKey(key: string) {
   randomStore.clearSelection(key)
+}
+
+function toggleMultiSelection(entryId: string, val: string) {
+  const current = localSelections.value[entryId] || []
+  const updated = current.includes(val)
+    ? current.filter((v) => v !== val)
+    : [...current, val]
+  artStore.updateArtListSelection(entryId, updated)
+}
+
+function isSelected(entryId: string, val: string) {
+  return localSelections.value[entryId]?.includes(val)
 }
 
 function surpriseMe() {
@@ -200,32 +180,6 @@ function resetAll() {
   artStore.updateArtListSelection('__pretty__', [])
 }
 
-function resolvePresetType(entry: ArtListEntry) {
-  return entry.presetType === 'auto'
-    ? entry.content.length <= 3
-      ? 'radio'
-      : 'dropdown'
-    : entry.presetType
-}
-
-function randomizeEntry(entry: ArtListEntry) {
-  const key = entry.id.toLowerCase()
-  if (!supportedRandomKeys.includes(key)) return
-
-  const results = randomStore.getRandom(key, entry.allowMultiple ? 3 : 1)
-  artStore.updateArtListSelection(entry.id, results)
-}
-
-function removeSelection(entryId: string, value: string) {
-  const updated =
-    localSelections.value[entryId]?.filter((v) => v !== value) || []
-  artStore.updateArtListSelection(entryId, updated)
-}
-
-function clearEntry(entryId: string) {
-  artStore.updateArtListSelection(entryId, [])
-}
-
 watchEffect(() => {
   const pretty = makePretty.value
   const randoms = randomStore.randomSelections
@@ -237,12 +191,6 @@ watchEffect(() => {
 
   for (const key of Object.keys(randoms)) {
     artStore.updateArtListSelection(key, [randoms[key]])
-  }
-})
-
-watchEffect(() => {
-  for (const preset of artListPresets.slice(0, 2)) {
-    expandedPresets.value[preset.id] = true
   }
 })
 </script>

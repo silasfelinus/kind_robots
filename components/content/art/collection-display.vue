@@ -1,163 +1,109 @@
 <template>
   <div class="w-full max-w-full space-y-6 overflow-x-hidden">
-    <!-- Checkpoint Selector -->
-    <div class="flex flex-col gap-2">
-      <label class="label-text font-semibold">📌 Checkpoint</label>
+    <!-- Collection Select -->
+    <div class="space-y-2">
+      <label class="label-text font-semibold">🗂️ Collection</label>
       <select v-model="selectedId" class="select select-bordered w-full">
-        <option value="">🚫 None (do not auto-save)</option>
-        <option
-          v-for="c in checkpointStore.visibleCheckpoints"
-          :key="c.name"
-          :value="c.name"
-        >
-          {{ c.customLabel || c.name }}
+        <option disabled value="">— Select a collection —</option>
+        <option v-for="c in userCollections" :key="c.id" :value="String(c.id)">
+          {{ c.label }}
         </option>
-        <option value="__new__">➕ Create new checkpoint...</option>
+        <option value="__new__">➕ Create new collection...</option>
       </select>
-
-      <!-- New Checkpoint Placeholder -->
-      <div v-if="selectedId === '__new__'" class="text-sm text-warning">
-        ⚠️ Checkpoint creation not yet implemented.
-      </div>
-
-      <!-- Editable Name + Author -->
-      <div v-if="selectedCheckpoint" class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-        <div v-if="canEdit">
-          <input
-            v-model="editableLabel"
-            class="input input-sm input-bordered w-full sm:w-64"
-            placeholder="Checkpoint Label"
-            @change="updateCheckpointLabel"
-          />
-        </div>
-        <div v-else class="text-sm opacity-60">
-          Created by <strong>{{ selectedCheckpoint.creator?.username || 'Unknown' }}</strong>
-        </div>
-      </div>
     </div>
 
-    <!-- Gallery -->
-    <div
-      v-if="selectedCheckpoint?.name"
-      class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full"
-    >
-      <div
-        v-for="art in selectedCheckpointArt"
-        :key="art.id"
-        class="border rounded-xl p-4 space-y-2 bg-base-100"
+    <!-- Auto-save Toggle -->
+    <label class="flex items-center gap-2">
+      <input
+        type="checkbox"
+        v-model="autoSaveEnabled"
+        class="checkbox checkbox-sm"
+      />
+      <span class="label-text">💾 Auto-save to this collection</span>
+    </label>
+
+    <!-- New Collection Fields -->
+    <div v-if="selectedId === '__new__'" class="flex flex-col gap-2">
+      <input
+        v-model="newLabel"
+        type="text"
+        class="input input-bordered w-full"
+        placeholder="Enter new collection name"
+      />
+      <button
+        class="btn btn-primary w-full"
+        :disabled="!newLabel.trim()"
+        @click="createNew"
       >
-        <ArtCard :art="art" />
+        ➕ Create Collection
+      </button>
+    </div>
 
-        <div class="flex justify-between items-center">
-          <!-- Visibility Toggles -->
-          <div class="flex gap-4 items-center">
-            <label class="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-xs"
-                :checked="art.isPublic"
-                @change="toggleFlag(art, 'isPublic')"
-                :disabled="!isOwner(art)"
-              />
-              Public
-            </label>
-            <label class="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-xs"
-                :checked="art.isMature"
-                @change="toggleFlag(art, 'isMature')"
-                :disabled="!isOwner(art)"
-              />
-              Mature
-            </label>
-          </div>
-
-          <!-- Remove Button -->
-          <button
-            class="btn btn-xs btn-outline btn-error"
-            @click="removeArt(art.id)"
-            :disabled="!isOwner(art)"
-          >
-            ❌ Remove
-          </button>
-        </div>
-      </div>
+    <!-- Art Cards -->
+    <div
+      v-if="selectedCollection?.art?.length"
+      class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+    >
+      <ArtCard v-for="art in selectedCollection.art" :key="art.id" :art="art" />
+    </div>
+    <div
+      v-else-if="selectedCollection"
+      class="text-sm italic text-base-content opacity-60"
+    >
+      No art in this collection yet.
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useCheckpointStore } from '@/stores/checkpointStore'
-import { useArtStore, type Art } from '@/stores/artStore'
+import { ref, computed, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useCollectionStore } from '@/stores/collectionStore'
 import ArtCard from './art-card.vue'
 
-const checkpointStore = useCheckpointStore()
-const artStore = useArtStore()
 const userStore = useUserStore()
+const collectionStore = useCollectionStore()
 
-const selectedId = ref<string>('') // checkpoint name, '', or '__new__'
-const editableLabel = ref('')
+const selectedId = ref<string>('')
+const newLabel = ref('')
+const autoSaveEnabled = ref(true)
 
-const selectedCheckpoint = computed(() =>
-  checkpointStore.findCheckpointByName(selectedId.value),
+const userCollections = computed(() =>
+  collectionStore.getUserCollections(userStore.userId),
 )
 
-const selectedCheckpointArt = computed(() => {
-  const path = selectedCheckpoint.value?.localPath
-  const userId = userStore.user?.id ?? 10
-  return artStore.art.filter((a) =>
-    a.checkpoint === path && (a.isPublic || a.userId === userId),
-  )
-})
-
-const canEdit = computed(() =>
-  selectedCheckpoint.value?.userId === userStore.userId,
+const selectedCollection = computed(() =>
+  collectionStore.findCollectionById(Number(selectedId.value)),
 )
 
-function isOwner(art: Art) {
-  return art.userId === userStore.userId
-}
-
-async function updateCheckpointLabel() {
-  const checkpoint = selectedCheckpoint.value
-  const label = editableLabel.value.trim()
-  if (!checkpoint?.name || !label) return
-
-  await checkpointStore.updateCheckpointLabel(checkpoint.name, label)
-  await checkpointStore.fetchCheckpoints()
-}
-
-async function toggleFlag(art: Art, field: 'isPublic' | 'isMature') {
-  if (!isOwner(art)) return
-  const updated = { ...art, [field]: !art[field] }
-  await artStore.updateArt(art.id, { [field]: updated[field] })
-}
-
-async function removeArt(id: number) {
-  const checkpoint = selectedCheckpoint.value
-  if (!checkpoint?.id || !checkpoint.localPath) return
-
-  await artStore.removeArtFromCheckpoint(checkpoint.localPath, id)
-}
-
-onMounted(async () => {
-  if (!checkpointStore.visibleCheckpoints.length) {
-    await checkpointStore.fetchCheckpoints()
-  }
-
-  const defaultName = checkpointStore.selectedCheckpoint?.name
-  if (defaultName) {
-    selectedId.value = defaultName
-    editableLabel.value = checkpointStore.selectedCheckpoint?.customLabel || ''
-  }
-})
+watch(
+  () => collectionStore.currentCollection?.id,
+  (id) => {
+    if (id) selectedId.value = id.toString()
+  },
+  { immediate: true },
+)
 
 watch(selectedId, (val) => {
-  const found = checkpointStore.findCheckpointByName(val)
-  checkpointStore.selectedCheckpoint = found || null
-  editableLabel.value = found?.customLabel || ''
+  if (val === '__new__') return
+  const found = collectionStore.findCollectionById(Number(val))
+  if (found) {
+    collectionStore.currentCollection = found
+  }
 })
+
+async function createNew() {
+  const label = newLabel.value.trim()
+  if (!label) return
+
+  const created = await collectionStore.createCollection(
+    label,
+    userStore.userId,
+  )
+  if (created) {
+    selectedId.value = String(created.id)
+    collectionStore.currentCollection = created
+    newLabel.value = ''
+  }
+}
 </script>

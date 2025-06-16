@@ -26,7 +26,7 @@
       </label>
     </div>
 
-    <!-- Negative Prompt -->
+    <!-- Negative Prompt Field -->
     <div class="space-y-2">
       <label class="font-semibold text-base-content">Negative Prompt</label>
       <input
@@ -89,13 +89,12 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 // /components/content/art/prompt-handler.vue
 import { ref, computed, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
-import { negativePhrases } from '@/stores/seeds/artList'
+import { negativeList } from '@/stores/seeds/artList' // ✅ correct source
 
 const artStore = useArtStore()
 const promptStore = usePromptStore()
@@ -115,7 +114,7 @@ watch(localCfg, (val) => {
 const fullPromptPreview = computed(() => artStore.getPromptString)
 
 function toggleNegativePrompt() {
-  const list = useNegative.value ? negativePhrases : []
+  const list = useNegative.value ? negativeList : []
   artStore.updateArtListSelection('__negative__', list)
 }
 

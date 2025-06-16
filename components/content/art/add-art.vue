@@ -11,24 +11,26 @@
     <!-- Left Column -->
     <template #left>
       <checkpoint-gallery />
-      <collection-handler />
+
     </template>
 
     <!-- Center Column -->
     <template #center>
-      <prompt-handler />
+      
       <art-randomizer />
     </template>
 
     <!-- Right Column -->
     <template #right>
-      <generate-button />
+    
       <art-museum />>
     </template>
 
     <!-- Extra Content Below -->
     <template #extra>
       <art-display />
+            <prompt-handler />
+  <generate-button />
     </template>
   </art-grid>
 </template>

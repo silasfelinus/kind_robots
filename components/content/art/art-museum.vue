@@ -9,6 +9,7 @@
     <art-gallery />
   </div>
   <div v-else>
+<collection-handler />
     <collection-display />
   </div>
 </template>

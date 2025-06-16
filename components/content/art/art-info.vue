@@ -71,15 +71,6 @@
       >{{ artImage }}</pre
     >
 
-    <div class="pt-4">
-      <button
-        class="btn btn-accent w-full"
-        @click="setAsAvatar"
-        :disabled="!canUse"
-      >
-        Set as Avatar
-      </button>
-    </div>
   </div>
 </template>
 

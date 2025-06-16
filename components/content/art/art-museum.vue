@@ -1,21 +1,22 @@
-<!-- /components/content/art/art-museum.vue -->
 <template>
-  <div class="text-center">
-    <button class="btn btn-sm btn-outline" @click="showGallery = !showGallery">
+  <div class="w-full max-w-full flex flex-col items-center space-y-4 overflow-x-hidden">
+    <!-- Toggle Button -->
+    <button class="btn btn-sm btn-outline w-full sm:w-auto" @click="showGallery = !showGallery">
       {{ showGallery ? '🖼️ Show Collection' : '🖼️ Show Gallery' }}
     </button>
-  </div>
-  <div v-if="showGallery">
-    <art-gallery />
-  </div>
-  <div v-else>
-<collection-handler />
-    <collection-display />
+
+    <!-- Conditional Sections -->
+    <div class="w-full max-w-full">
+      <art-gallery v-if="showGallery" />
+      <div v-else class="space-y-4">
+        <collection-handler />
+        <collection-display />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// /components/content/art/add-art.vue
 import { ref } from 'vue'
 
 const showGallery = ref(false)

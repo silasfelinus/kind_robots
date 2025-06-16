@@ -90,9 +90,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useCheckpointStore } from '@/stores/checkpointStore'
-import { useArtStore } from '@/stores/artStore'
+import { useArtStore, type Art } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
-import { performFetch } from '@/utils/api'
 import ArtCard from './art-card.vue'
 
 const checkpointStore = useCheckpointStore()
@@ -110,7 +109,7 @@ const selectedCheckpointArt = computed(() => {
   const path = selectedCheckpoint.value?.localPath
   const userId = userStore.user?.id ?? 10
   return artStore.art.filter((a) =>
-    a.checkpoint === path && (a.isPublic || a.userId === userId)
+    a.checkpoint === path && (a.isPublic || a.userId === userId),
   )
 })
 
@@ -128,37 +127,20 @@ async function updateCheckpointLabel() {
   if (!checkpoint?.name || !label) return
 
   await checkpointStore.updateCheckpointLabel(checkpoint.name, label)
-  checkpointStore.refreshVisibleCheckpoints()
+  await checkpointStore.fetchCheckpoints()
 }
 
 async function toggleFlag(art: Art, field: 'isPublic' | 'isMature') {
   if (!isOwner(art)) return
   const updated = { ...art, [field]: !art[field] }
-
-  const response = await performFetch(`/api/art/${art.id}`, {
-    method: 'PATCH',
-    body: JSON.stringify({ [field]: updated[field] }),
-    headers: { 'Content-Type': 'application/json' },
-  })
-
-  if (response.success) {
-    artStore.updateArtLocal(art.id, { [field]: updated[field] })
-  }
+  await artStore.updateArt(art.id, { [field]: updated[field] })
 }
 
 async function removeArt(id: number) {
   const checkpoint = selectedCheckpoint.value
-  if (!checkpoint?.id) return
+  if (!checkpoint?.id || !checkpoint.localPath) return
 
-  const response = await performFetch(`/api/art/collection/${checkpoint.id}`, {
-    method: 'PATCH',
-    body: JSON.stringify({ removeIds: [id] }),
-    headers: { 'Content-Type': 'application/json' },
-  })
-
-  if (response.success) {
-    artStore.removeArtFromCheckpoint(checkpoint.localPath!, id)
-  }
+  await artStore.removeArtFromCheckpoint(checkpoint.localPath, id)
 }
 
 onMounted(async () => {

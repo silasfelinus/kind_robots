@@ -9,7 +9,6 @@
     <div class="w-full max-w-full">
       <art-gallery v-if="showGallery" />
       <div v-else class="space-y-4">
-        <collection-handler />
         <collection-display />
       </div>
     </div>

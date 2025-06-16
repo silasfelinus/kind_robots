@@ -82,7 +82,7 @@
 
     <!-- Overlay -->
     <div
-      v-if="showOverlay"
+     
       class="fixed inset-0 bg-base-100 bg-opacity-90 z-50 flex items-center justify-center"
     >
       <div class="w-[90vw] h-[90vh] overflow-auto p-4 rounded-xl shadow-xl bg-base-200 border border-base-content">
@@ -102,7 +102,7 @@ const displayStore = useDisplayStore()
 const showLeft = ref(true)
 const showCenter = ref(true)
 const showRight = ref(true)
-const showOverlay = ref(false)
+
 const isExtraExpanded = ref(false)
 
 function toggleSection(section: 'left' | 'center' | 'right') {

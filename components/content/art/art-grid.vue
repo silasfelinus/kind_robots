@@ -1,4 +1,3 @@
-<!-- /components/content/art/art-grid.vue -->
 <template>
   <div class="relative w-full h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
     <!-- Fullscreen Toggle -->
@@ -61,8 +60,6 @@
         class="w-full border-t border-base-content bg-base-300 shadow-inner overflow-y-auto transition-all duration-500 relative"
         :class="{ 'absolute bottom-0 left-0 right-0 z-40': isExtraExpanded }"
         :style="{ maxHeight: isExtraExpanded ? '60vh' : '20vh' }"
-        @touchstart="onTouchStart"
-        @touchend="onTouchEnd"
       >
         <!-- Floating Toggle -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10 mt-1">
@@ -120,18 +117,6 @@ const sectionClass = computed(() => {
   if (visible === 2) return 'w-1/2'
   return 'w-full'
 })
-
-// Swipe logic
-let startY = 0
-function onTouchStart(e: TouchEvent) {
-  startY = e.touches[0].clientY
-}
-function onTouchEnd(e: TouchEvent) {
-  const endY = e.changedTouches[0].clientY
-  const deltaY = endY - startY
-  if (Math.abs(deltaY) < 50) return
-  isExtraExpanded.value = deltaY < 0
-}
 </script>
 
 <style scoped>

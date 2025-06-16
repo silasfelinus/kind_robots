@@ -1,6 +1,6 @@
-// /components/content/art/art-gallery.vue
 <template>
   <div class="relative bg-base-300 rounded-2xl shadow-md">
+    <!-- View Toggle Buttons -->
     <div
       class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-lg z-10"
     >
@@ -28,6 +28,7 @@
       </div>
     </div>
 
+    <!-- Top Bar Filters -->
     <div
       class="flex justify-between items-center px-6 py-4 border-b border-base-200"
     >
@@ -40,6 +41,7 @@
       </button>
     </div>
 
+    <!-- Filter Controls -->
     <div
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 py-4 bg-base-200 border-b border-base-300"
     >
@@ -73,10 +75,12 @@
       </label>
     </div>
 
+    <!-- Gallery Selector -->
     <div class="flex justify-center my-4 px-6">
       <gallery-selector v-model="selectedGalleryId" :galleries="galleries" />
     </div>
 
+    <!-- Display Range Control -->
     <div class="px-6 pb-2">
       <label class="label-text font-semibold">🖼️ Display Range</label>
       <input
@@ -92,13 +96,13 @@
       </div>
     </div>
 
+    <!-- Gallery Display Grid -->
     <div class="scroll-container overflow-auto max-h-[75vh] p-4">
       <div :class="gridClass">
         <ArtCard
           v-for="art in limitedArt"
           :key="art.id"
           :art="art"
-          :art-image="getArtImage(art.artImageId)"
           class="rounded-lg shadow-md bg-white hover:shadow-lg transition-shadow"
         />
       </div>
@@ -107,22 +111,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
-import { useArtStore, type Art, type ArtImage } from '@/stores/artStore'
+import { ref, onMounted, computed } from 'vue'
+import { useArtStore, type Art } from '@/stores/artStore'
 import { useGalleryStore } from '@/stores/galleryStore'
 import { useUserStore } from '@/stores/userStore'
+import ArtCard from './art-card.vue'
+import GallerySelector from './gallery-selector.vue'
 
-const userStore = useUserStore()
 const artStore = useArtStore()
 const galleryStore = useGalleryStore()
+const userStore = useUserStore()
 
 const designerFilter = ref('')
 const keywordFilter = ref('')
 const showPublicOnly = ref(false)
 const showMatureOnly = ref(false)
+const showOnlyUserArt = ref(false)
 const view = ref<'twoRow' | 'threeRow' | 'fourRow' | 'single'>('twoRow')
 const selectedGalleryId = ref<number | null>(null)
-const showOnlyUserArt = ref(false)
 const sortOrder = ref<'Ascending' | 'Descending'>('Ascending')
 const visibleCount = ref(50)
 
@@ -133,42 +139,45 @@ const filteredArtAssets = computed(() => {
   if (selectedGalleryId.value) {
     arts = arts.filter((art) => art.galleryId === selectedGalleryId.value)
   }
+
   arts = arts.filter((art) => {
-    const isAccessible = art.isPublic || art.userId === userStore.userId
-    const isViewable =
-      userStore.showMature || (!art.isMature && art.userId === userStore.userId)
-    return isAccessible && isViewable
+    const accessible = art.isPublic || art.userId === userStore.userId
+    const viewable = userStore.showMature || (!art.isMature && art.userId === userStore.userId)
+    return accessible && viewable
   })
+
   if (designerFilter.value.trim()) {
-    arts = arts.filter((art) =>
-      art.designer
-        ?.toLowerCase()
-        .includes(designerFilter.value.trim().toLowerCase()),
-    )
+    const q = designerFilter.value.toLowerCase()
+    arts = arts.filter((art) => art.designer?.toLowerCase().includes(q))
   }
+
   if (keywordFilter.value.trim()) {
-    const query = keywordFilter.value.toLowerCase()
+    const q = keywordFilter.value.toLowerCase()
     arts = arts.filter(
       (art) =>
-        art.promptString?.toLowerCase().includes(query) ||
-        art.designer?.toLowerCase().includes(query),
+        art.promptString?.toLowerCase().includes(q) ||
+        art.designer?.toLowerCase().includes(q),
     )
   }
+
   if (showPublicOnly.value) {
     arts = arts.filter((art) => art.isPublic)
   }
+
   if (showMatureOnly.value) {
     arts = arts.filter((art) => art.isMature)
   }
+
   return arts
 })
 
 const sortedAndFilteredArt = computed(() => {
   let arts = filteredArtAssets.value
   if (showOnlyUserArt.value) {
-    arts = arts.filter((art: Art) => art.userId === userStore.userId)
+    arts = arts.filter((art) => art.userId === userStore.userId)
   }
-  return arts.sort((a: Art, b: Art) =>
+
+  return arts.sort((a, b) =>
     sortOrder.value === 'Ascending' ? a.id - b.id : b.id - a.id,
   )
 })
@@ -177,25 +186,13 @@ const limitedArt = computed(() =>
   sortedAndFilteredArt.value.slice(0, visibleCount.value),
 )
 
-const artImageMap = computed(() => {
-  const map = new Map<number, ArtImage>()
-  for (const img of artStore.artImages) {
-    map.set(img.id, img)
-  }
-  return map
-})
-
-const getArtImage = (artImageId: number | null): ArtImage | undefined => {
-  return artImageId ? artImageMap.value.get(artImageId) : undefined
-}
-
 const toggleSortOrder = () => {
   sortOrder.value = sortOrder.value === 'Ascending' ? 'Descending' : 'Ascending'
 }
 
 const setView = (newView: typeof view.value) => {
   view.value = newView
-  window.localStorage.setItem('view', newView)
+  localStorage.setItem('view', newView)
 }
 
 const gridClass = computed(() => {
@@ -203,30 +200,16 @@ const gridClass = computed(() => {
     'grid grid-cols-1': view.value === 'single',
     'grid grid-cols-1 sm:grid-cols-2': view.value === 'twoRow',
     'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3': view.value === 'threeRow',
-    'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4':
-      view.value === 'fourRow',
+    'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4': view.value === 'fourRow',
     'gap-4': true,
   }
 })
 
 onMounted(async () => {
   await artStore.initialize()
-  const savedView = window.localStorage.getItem('view')
-  if (
-    savedView &&
-    ['twoRow', 'threeRow', 'fourRow', 'single'].includes(savedView)
-  ) {
+  const savedView = localStorage.getItem('view')
+  if (['twoRow', 'threeRow', 'fourRow', 'single'].includes(savedView || '')) {
     view.value = savedView as typeof view.value
-  }
-})
-
-watch(visibleCount, async () => {
-  const missingIds = limitedArt.value
-    .map((art) => art.artImageId)
-    .filter((id): id is number => !!id && !artImageMap.value.has(id))
-
-  if (missingIds.length) {
-    await artStore.loadArtImagesInChunks([...new Set(missingIds)])
   }
 })
 </script>

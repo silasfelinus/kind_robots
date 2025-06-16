@@ -1,10 +1,12 @@
 <!-- /components/content/art/art-display.vue -->
 <template>
-  <div class="fixed inset-0 z-50 bg-base-200 bg-opacity-90 flex items-center justify-center">
-    <!-- If art exists, show image and panel -->
+  <div
+    class="fixed inset-0 z-50 bg-base-200 bg-opacity-90 flex items-center justify-center"
+    @click.self="closeDisplay"
+  >
     <div
       v-if="art"
-      class="relative max-w-[95vw] max-h-[95vh] w-full h-full overflow-hidden rounded-xl shadow-xl bg-base-100 border border-accent"
+      class="relative max-w-[90vw] max-h-[90vh] w-full h-full overflow-hidden rounded-xl shadow-xl bg-base-100 border border-accent p-2"
     >
       <div class="w-full h-full flex flex-col" :class="expanded ? 'lg:flex-row' : ''">
         <!-- Art Image -->
@@ -36,14 +38,6 @@
           <art-info :art="art" :artImage="localArtImage" />
         </div>
       </div>
-    </div>
-
-    <!-- Fallback when no art -->
-    <div
-      v-else
-      class="text-center text-base-content font-semibold text-xl bg-warning bg-opacity-90 rounded-xl shadow-lg px-6 py-4 border border-warning-content"
-    >
-      🐛 <span class="opacity-80">No currentArt selected</span>
     </div>
   </div>
 </template>
@@ -93,8 +87,6 @@ watch(
   (newVal) => {
     if (newVal) {
       console.log('🎨 Displaying art-detail for:', newVal.title || newVal.id)
-    } else {
-      console.log('⚠️ No art selected (artDetail empty)')
     }
   },
   { immediate: true }

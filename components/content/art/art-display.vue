@@ -6,23 +6,39 @@
     @click.self="closeDisplay"
   >
     <div
-      class="relative max-w-[95vw] max-h-[95vh] w-full h-full flex flex-col lg:flex-row overflow-hidden rounded-xl shadow-xl"
+      class="relative max-w-[95vw] max-h-[95vh] w-full h-full overflow-hidden rounded-xl shadow-xl bg-base-100"
     >
-      <!-- Art Image Section -->
-      <div class="flex-1 bg-base-100 flex items-center justify-center p-4">
-        <img
-          :src="computedArtImage"
-          alt="Artwork"
-          class="max-h-full max-w-full object-contain rounded-lg"
-        />
-      </div>
-
-      <!-- Info and Controls -->
       <div
-        class="w-full lg:w-[24rem] bg-base-100 border-l border-base-300 p-4 space-y-6 overflow-y-auto"
+        class="w-full h-full flex flex-col"
+        :class="expanded ? 'lg:flex-row' : ''"
       >
-        <art-info :art="art" :artImage="localArtImage" />
-        <art-control :art="art" @close="closeDisplay" />
+        <!-- Art Image -->
+        <div
+          class="flex-1 flex items-center justify-center cursor-pointer"
+          @click="toggleExpanded"
+        >
+          <img
+            :src="computedArtImage"
+            alt="Artwork"
+            class="object-contain max-h-full max-w-full rounded-none"
+          />
+        </div>
+
+        <!-- Overlay Panel (info + controls) -->
+        <div
+          v-if="expanded"
+          class="w-full lg:max-w-sm flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-base-300 p-4 space-y-6 overflow-y-auto"
+        >
+          <art-info :art="art" :artImage="localArtImage" />
+          <art-control :art="art" @close="closeDisplay" />
+        </div>
+
+        <div
+          v-else
+          class="absolute bottom-0 w-full bg-base-100 bg-opacity-95 border-t border-base-300 p-4 max-h-[40%] overflow-y-auto"
+        >
+          <art-info :art="art" :artImage="localArtImage" />
+        </div>
       </div>
     </div>
   </div>
@@ -36,6 +52,7 @@ const artStore = useArtStore()
 const art = computed(() => artStore.currentArt)
 const localArtImage = ref<ArtImage | null>(null)
 const loadingImage = ref(false)
+const expanded = ref(false)
 
 const computedArtImage = computed(() => {
   if (localArtImage.value?.imageData) {
@@ -57,6 +74,10 @@ const closeDisplay = () => {
   artStore.currentArt = null
 }
 
+const toggleExpanded = () => {
+  expanded.value = !expanded.value
+}
+
 onMounted(() => {
   if (art.value?.artImageId) fetchArtImage()
 })
@@ -70,6 +91,4 @@ watch(
 )
 </script>
 
-<style scoped>
-/* Optional blur or darken background */
-</style>
+<style scoped></style>

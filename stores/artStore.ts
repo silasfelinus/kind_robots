@@ -328,10 +328,9 @@ async function selectArt(artId: number): Promise<void> {
       getArtListAddonPrompt()
 
     const data: GenerateArtData = {
-      promptString: promptStore.processPromptPlaceholders(
-        basePrompt.trim(),
-        pitchStore,
-      ),
+promptString: promptStore
+  .processPromptPlaceholders(basePrompt.trim(), pitchStore)
+  .replace(/\./g, ','),
       negativePrompt: artData?.negativePrompt ?? state.artForm.negativePrompt,
       pitch: artData?.pitch || promptStore.extractPitch(basePrompt),
       userId,

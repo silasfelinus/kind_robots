@@ -28,7 +28,7 @@
 
     <!-- Randomized Presets -->
     <div
-      v-for="entry in extendedPresets"
+      v-for="entry in artListPresets"
       :key="entry.id"
       class="border rounded-xl bg-base-200 p-4 space-y-3"
     >
@@ -113,12 +113,7 @@
 
 <script setup lang="ts">
 import { ref, watchEffect, computed } from 'vue'
-import {
-  artListPresets,
-  prettifierList,
-  negativeList,
-  type ArtListEntry,
-} from '@/stores/seeds/artList'
+import { artListPresets, type ArtListEntry } from '@/stores/seeds/artList'
 import { useArtStore } from '@/stores/artStore'
 import { useRandomStore } from '@/stores/randomStore'
 
@@ -126,32 +121,13 @@ const artStore = useArtStore()
 const randomStore = useRandomStore()
 
 const makePretty = ref(false)
-
 const supportedRandomKeys = randomStore.supportedKeys
+
 const expandedPresets = ref<Record<string, boolean>>({})
 const showAll = ref<Record<string, boolean>>({})
 
-// Extended list with prettifier + negative
-const extendedPresets: ArtListEntry[] = [
-  {
-    id: '__pretty__',
-    title: '✨ Make Pretty Enhancements',
-    presetType: 'auto',
-    allowMultiple: true,
-    content: prettifierList,
-  },
-  {
-    id: '__negative__',
-    title: '🚫 Negative Prompt Filters',
-    presetType: 'auto',
-    allowMultiple: true,
-    content: negativeList,
-  },
-  ...artListPresets,
-]
-
-// Init all collapsed
-for (const entry of extendedPresets) {
+// Init collapsed + showAll = false
+for (const entry of artListPresets) {
   expandedPresets.value[entry.id] = false
   showAll.value[entry.id] = false
 }
@@ -164,14 +140,6 @@ const localSelections = computed({
     }
   },
 })
-
-function toggleRandomKey(key: string) {
-  randomStore.toggleSelection(key)
-}
-
-function removeRandomKey(key: string) {
-  randomStore.clearSelection(key)
-}
 
 function toggleMultiSelection(entryId: string, val: string) {
   const current = localSelections.value[entryId] || []
@@ -189,17 +157,25 @@ function visibleOptions(entry: ArtListEntry) {
   const selected = localSelections.value[entry.id] || []
   const firstSet = entry.content.slice(0, 20)
   const rest = entry.content.slice(20)
+  return showAll.value[entry.id]
+    ? entry.content
+    : [...firstSet, ...rest.filter((val) => selected.includes(val))]
+}
 
-  if (showAll.value[entry.id]) return entry.content
-  return [...firstSet, ...rest.filter((val) => selected.includes(val))]
+function toggleExpanded(id: string) {
+  expandedPresets.value[id] = !expandedPresets.value[id]
 }
 
 function toggleShowAll(id: string) {
   showAll.value[id] = !showAll.value[id]
 }
 
-function toggleExpanded(id: string) {
-  expandedPresets.value[id] = !expandedPresets.value[id]
+function toggleRandomKey(key: string) {
+  randomStore.toggleSelection(key)
+}
+
+function removeRandomKey(key: string) {
+  randomStore.clearSelection(key)
 }
 
 function handleMakePrettyToggle() {
@@ -231,23 +207,28 @@ function resetAll() {
   for (const key of Object.keys(localSelections.value)) {
     artStore.updateArtListSelection(key, [])
   }
-
   makePretty.value = false
   randomStore.clearAllSelections()
-  artStore.updateArtListSelection('__pretty__', [])
-  artStore.updateArtListSelection('__negative__', [])
 }
 
 watchEffect(() => {
   if (makePretty.value) {
-    artStore.updateArtListSelection(
-      '__pretty__',
-      randomStore.pickRandomFromArray(prettifierList, 4),
-    )
-    artStore.updateArtListSelection(
-      '__negative__',
-      randomStore.pickRandomFromArray(negativeList, 4),
-    )
+    const pretty = artListPresets.find((p) => p.id === '__pretty__')
+    const negative = artListPresets.find((p) => p.id === '__negative__')
+
+    if (pretty) {
+      artStore.updateArtListSelection(
+        '__pretty__',
+        randomStore.pickRandomFromArray(pretty.content, 4),
+      )
+    }
+
+    if (negative) {
+      artStore.updateArtListSelection(
+        '__negative__',
+        randomStore.pickRandomFromArray(negative.content, 4),
+      )
+    }
   }
 
   for (const key of Object.keys(randomStore.randomSelections)) {

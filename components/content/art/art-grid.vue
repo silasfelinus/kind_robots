@@ -115,6 +115,24 @@ const showRight = ref(true)
 const showOverlay = ref(false)
 const isExtraExpanded = ref(false)
 
+let startY = 0
+
+function onTouchStart(e: TouchEvent) {
+  startY = e.touches[0].clientY
+}
+
+function onTouchEnd(e: TouchEvent) {
+  const endY = e.changedTouches[0].clientY
+  const deltaY = endY - startY
+
+  // Ignore minor movement
+  if (Math.abs(deltaY) < 50) return
+
+  // Swipe up: expand, Swipe down: collapse
+  isExtraExpanded.value = deltaY < 0
+}
+
+
 function toggleSection(section: 'left' | 'center' | 'right') {
   if (section === 'left') showLeft.value = !showLeft.value
   if (section === 'center') showCenter.value = !showCenter.value

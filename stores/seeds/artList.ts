@@ -18,8 +18,8 @@ import { prettifierList } from './prettifierList'
 import { negativeList } from './negativeList'
 
 // ✅ Optional direct exports if you still want access outside
-export const negativeList = negativeList
-export const prettifierList = prettifierList
+export const negativeList
+export const prettifierList
 
 // ✅ Main preset list
 export const artListPresets: ArtListEntry[] = [

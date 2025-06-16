@@ -1,4 +1,4 @@
-
+<!-- //components/content/art-art-randomizer.vue -->
 <template>
   <div class="w-full max-w-full space-y-6 overflow-x-hidden">
     <!-- Controls -->
@@ -125,15 +125,7 @@
       </div>
     </div>
 
-    <!-- Prompt Preview -->
-    <div
-      class="bg-base-100 border border-dashed border-base-300 p-4 rounded-xl text-sm text-base-content/70 w-full max-w-full break-words"
-    >
-      <span class="font-semibold text-base-content">Prompt Preview:</span>
-      <div class="mt-1 italic">
-        {{ promptPreview }}
-      </div>
-    </div>
+    
   </div>
 </template>
 
@@ -240,11 +232,5 @@ watchEffect(() => {
   }
 })
 
-const promptPreview = computed(() =>
-  [
-    ...Object.entries(localSelections.value).flatMap(([_, values]) => values),
-    ...(makePretty.value ? ['✨', ...prettifierPhrases.slice(0, 3)] : []),
-    ...Object.values(randomStore.randomSelections),
-  ].join(', '),
-)
+
 </script>

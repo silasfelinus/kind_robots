@@ -32,26 +32,6 @@
       </label>
     </div>
 
-    <!-- Collection Overview Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-      <div
-        v-for="collection in filteredCollections"
-        :key="collection.id"
-        @click="selectCollection(collection)"
-        :class="[
-          'cursor-pointer border rounded-xl p-4 w-full transition-all',
-          selectedId === String(collection.id)
-            ? 'bg-primary text-white border-primary'
-            : 'bg-base-200 hover:bg-base-300 border-base-300',
-        ]"
-      >
-        <div class="font-semibold break-words">
-          {{ collection.label || `Untitled #${collection.id}` }}
-        </div>
-        <div class="text-sm opacity-70">{{ collection.art.length }} item{{ collection.art.length === 1 ? '' : 's' }}</div>
-      </div>
-    </div>
-
     <!-- Art Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
       <ArtCard

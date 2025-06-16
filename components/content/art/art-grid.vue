@@ -8,11 +8,7 @@
         @click="displayStore.toggleFullscreen()"
       >
         <Icon
-          :name="
-            displayStore.isFullScreen
-              ? 'kind-icon:compress'
-              : 'kind-icon:expand'
-          "
+          :name="displayStore.isFullScreen ? 'kind-icon:compress' : 'kind-icon:expand'"
         />
       </button>
     </div>
@@ -34,10 +30,7 @@
     </div>
 
     <!-- Main Display -->
-    <div
-      class="flex-1 overflow-hidden flex w-full transition-all duration-500"
-      :class="{ 'opacity-30 pointer-events-none': isExtraExpanded }"
-    >
+    <div class="flex-1 overflow-hidden flex w-full transition-all duration-500">
       <div
         v-if="showLeft"
         class="h-full overflow-y-auto px-2 space-y-4"
@@ -61,34 +54,34 @@
       </div>
     </div>
 
+    <!-- Expandable Extra Section -->
     <transition name="slide-fade">
-  <div
-    ref="extraRef"
-    class="w-full border-t border-base-content bg-base-300 shadow-inner overflow-y-auto transition-all duration-500 relative"
-    :class="{ 'absolute bottom-0 left-0 right-0 z-40': isExtraExpanded }"
-    :style="{ maxHeight: isExtraExpanded ? '85vh' : '20vh' }"
-    @touchstart="onTouchStart"
-    @touchend="onTouchEnd"
-  >
-    <!-- Floating Toggle -->
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10 mt-1">
-      <button
-        class="btn btn-xs btn-circle bg-base-100 border border-base-content shadow"
-        @click="isExtraExpanded = !isExtraExpanded"
+      <div
+        ref="extraRef"
+        class="w-full border-t border-base-content bg-base-300 shadow-inner overflow-y-auto transition-all duration-500 relative"
+        :class="{ 'absolute bottom-0 left-0 right-0 z-40': isExtraExpanded }"
+        :style="{ maxHeight: isExtraExpanded ? '60vh' : '20vh' }"
+        @touchstart="onTouchStart"
+        @touchend="onTouchEnd"
       >
-        <Icon
-          :name="isExtraExpanded ? 'kind-icon:chevron-double-down' : 'kind-icon:chevron-double-up'"
-        />
-      </button>
-    </div>
+        <!-- Floating Toggle -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10 mt-1">
+          <button
+            class="btn btn-xs btn-circle bg-base-100 border border-base-content shadow"
+            @click="isExtraExpanded = !isExtraExpanded"
+          >
+            <Icon
+              :name="isExtraExpanded ? 'kind-icon:chevron-double-down' : 'kind-icon:chevron-double-up'"
+            />
+          </button>
+        </div>
 
-    <!-- Slot Content -->
-    <div class="pt-8 px-2 pb-4">
-      <slot name="extra" />
-    </div>
-  </div>
-</transition>
-
+        <!-- Slot Content -->
+        <div class="pt-8 px-2 pb-4">
+          <slot name="extra" />
+        </div>
+      </div>
+    </transition>
 
     <!-- Overlay -->
     <div
@@ -115,24 +108,6 @@ const showRight = ref(true)
 const showOverlay = ref(false)
 const isExtraExpanded = ref(false)
 
-let startY = 0
-
-function onTouchStart(e: TouchEvent) {
-  startY = e.touches[0].clientY
-}
-
-function onTouchEnd(e: TouchEvent) {
-  const endY = e.changedTouches[0].clientY
-  const deltaY = endY - startY
-
-  // Ignore minor movement
-  if (Math.abs(deltaY) < 50) return
-
-  // Swipe up: expand, Swipe down: collapse
-  isExtraExpanded.value = deltaY < 0
-}
-
-
 function toggleSection(section: 'left' | 'center' | 'right') {
   if (section === 'left') showLeft.value = !showLeft.value
   if (section === 'center') showCenter.value = !showCenter.value
@@ -145,4 +120,28 @@ const sectionClass = computed(() => {
   if (visible === 2) return 'w-1/2'
   return 'w-full'
 })
+
+// Swipe logic
+let startY = 0
+function onTouchStart(e: TouchEvent) {
+  startY = e.touches[0].clientY
+}
+function onTouchEnd(e: TouchEvent) {
+  const endY = e.changedTouches[0].clientY
+  const deltaY = endY - startY
+  if (Math.abs(deltaY) < 50) return
+  isExtraExpanded.value = deltaY < 0
+}
 </script>
+
+<style scoped>
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.4s ease;
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(2rem);
+}
+</style>

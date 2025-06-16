@@ -7,24 +7,29 @@
     <div
       class="relative w-full h-full max-w-[90vw] max-h-[90vh] overflow-auto rounded-xl shadow-xl bg-base-100 border border-accent p-6 flex flex-col gap-6"
     >
+      <!-- Close Button -->
       <div class="flex justify-end">
         <button class="btn btn-sm btn-error" @click="closeDisplay">
           ❌ Close
         </button>
       </div>
 
-      <div class="text-left w-full space-y-4">
-        <div class="text-2xl font-bold text-success">✅ Art Found</div>
+      <!-- Content Layout -->
+      <div class="flex flex-col lg:flex-row gap-6 h-full">
+        <!-- Art Image -->
+        <div class="w-full lg:w-2/3 flex justify-center items-center">
+          <img
+            v-if="computedArtImage"
+            :src="computedArtImage"
+            class="max-w-full max-h-[60vh] rounded border border-base-content"
+          />
+        </div>
 
-        <pre class="bg-base-200 p-4 rounded text-sm overflow-auto max-h-[30vh] whitespace-pre-wrap">
-{{ JSON.stringify(art, null, 2) }}
-        </pre>
-
-        <img
-          v-if="computedArtImage"
-          :src="computedArtImage"
-          class="max-w-full max-h-[40vh] rounded border border-base-content"
-        />
+        <!-- Info + Controls -->
+        <div class="w-full lg:w-1/3 flex flex-col gap-4">
+          <art-info :art="art" />
+          <art-control :art="art" />
+        </div>
       </div>
     </div>
   </div>
@@ -32,42 +37,26 @@
 
 <script setup lang="ts">
 // /components/content/art/art-display.vue
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
+import artInfo from './art-info.vue'
+import artControl from './art-control.vue'
 
 const artStore = useArtStore()
 const art = computed(() => artStore.currentArt)
-const localArtImage = ref<ArtImage | null>(null)
+const artImage = computed(() => artStore.currentArtImage)
 
 const computedArtImage = computed(() => {
-  if (localArtImage.value?.imageData) {
-    return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`
+  if (artImage.value?.imageData) {
+    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
   }
   if (art.value?.path) return art.value.path
   return ''
 })
 
-const fetchArtImage = async () => {
-  if (!art.value?.artImageId) return
-  const fetched = await artStore.getOrFetchArtImageById(art.value.artImageId)
-  if (fetched?.imageData) localArtImage.value = fetched
-}
-
 const closeDisplay = () => {
   console.log('🛑 Closing art-display')
   artStore.currentArt = null
+  artStore.currentArtImage = null
 }
-
-onMounted(() => {
-  if (art.value?.artImageId) fetchArtImage()
-})
-
-watch(
-  () => art.value,
-  async (newVal) => {
-    if (newVal?.artImageId) await fetchArtImage()
-    console.log(newVal ? `🎨 Showing art: ${newVal.title || newVal.id}` : '❌ No art selected')
-  },
-  { immediate: true }
-)
 </script>

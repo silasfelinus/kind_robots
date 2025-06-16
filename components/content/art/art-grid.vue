@@ -1,6 +1,6 @@
 <!-- /components/content/art/art-grid.vue -->
 <template>
-  <div class="relative w-full h-[calc(100vh-4rem)] overflow-hidden">
+  <div class="relative w-full h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
       <button
@@ -17,83 +17,59 @@
       </button>
     </div>
 
-    <!-- Title -->
+    <!-- Title + Toggle Buttons -->
     <div class="text-center mt-6 md:mt-0">
       <slot name="title" />
     </div>
 
-    <!-- Layout Switcher -->
     <div class="hidden md:flex justify-center gap-2 mt-2">
-      <button
-        class="btn btn-sm"
-        :class="layoutMode === 'single' && 'btn-primary'"
-        @click="layoutMode = 'single'"
-      >
-        📄 Single
-      </button>
-      <button
-        class="btn btn-sm"
-        :class="layoutMode === 'two-column' && 'btn-primary'"
-        @click="layoutMode = 'two-column'"
-      >
-        🪟 Two
-      </button>
-      <button
-        class="btn btn-sm hidden lg:inline"
-        :class="layoutMode === 'three-column' && 'btn-primary'"
-        @click="layoutMode = 'three-column'"
-      >
-        🖼️ Three
-      </button>
+      <button class="btn btn-sm" :class="{ 'btn-primary': showLeft }" @click="toggleSection('left')">⬅️ Left</button>
+      <button class="btn btn-sm" :class="{ 'btn-primary': showCenter }" @click="toggleSection('center')">🎯 Center</button>
+      <button class="btn btn-sm" :class="{ 'btn-primary': showRight }" @click="toggleSection('right')">➡️ Right</button>
     </div>
 
-    <!-- Report Section -->
+    <!-- Report Area -->
     <div class="text-center px-4 md:px-12 lg:px-32 space-y-2">
       <slot name="report" />
     </div>
 
-    <!-- Main Layout -->
+    <!-- Main Display (Top 80%) -->
+    <div class="flex-1 overflow-hidden flex w-full">
+      <div
+        v-if="showLeft"
+        class="h-full overflow-y-auto px-2 space-y-4"
+        :class="sectionClass"
+      >
+        <slot name="left" />
+      </div>
+      <div
+        v-if="showCenter"
+        class="h-full overflow-y-auto px-2 space-y-4"
+        :class="sectionClass"
+      >
+        <slot name="center" />
+      </div>
+      <div
+        v-if="showRight"
+        class="h-full overflow-y-auto px-2 space-y-4"
+        :class="sectionClass"
+      >
+        <slot name="right" />
+      </div>
+    </div>
+
+    <!-- Reserved Bottom (20%) -->
+    <div class="h-[20%] w-full overflow-y-auto px-2 border-t border-base-content bg-base-300 shadow-inner">
+      <slot name="extra" />
+    </div>
+
+    <!-- Overlay (optional occlusion layer) -->
     <div
-      v-if="layoutMode === 'three-column'"
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-full w-full overflow-hidden"
+      v-if="showOverlay"
+      class="fixed inset-0 bg-base-100 bg-opacity-90 z-50 flex items-center justify-center"
     >
-      <div class="flex flex-col h-full min-h-0 max-w-full overflow-hidden">
-        <div class="flex-1 overflow-y-auto px-2 space-y-6">
-          <slot name="left" />
-        </div>
-      </div>
-      <div class="flex flex-col h-full min-h-0 max-w-full overflow-hidden">
-        <div class="flex-1 overflow-y-auto px-2 space-y-6">
-          <slot name="center" />
-        </div>
-      </div>
-      <div class="flex flex-col h-full min-h-0 max-w-full overflow-hidden">
-        <div class="flex-1 overflow-y-auto px-2 space-y-6">
-          <slot name="right" />
-        </div>
-      </div>
-    </div>
-
-    <div v-else class="flex flex-col h-full min-h-0 max-w-full overflow-hidden">
-      <div class="flex-1 overflow-y-auto px-2 space-y-6">
-        <div
-          class="grid gap-4 w-full"
-          :class="{
-            'grid-cols-1': layoutMode === 'single',
-            'grid-cols-1 md:grid-cols-2': layoutMode === 'two-column',
-          }"
-        >
-          <slot name="left" v-if="layoutMode !== 'single'" />
-          <slot name="center" />
-          <slot name="right" v-if="layoutMode === 'two-column'" />
-        </div>
-      </div>
-    </div>
-
-    <!-- Mobile fallback -->
-    <div class="h-full w-full flex items-center justify-center xl:hidden">
-      <div class="h-full w-[60%] overflow-y-auto px-2 space-y-4">
-        <slot name="extra" />
+      <div class="w-[90vw] h-[90vh] overflow-auto p-4 rounded-xl shadow-xl bg-base-200 border border-base-content">
+        <slot name="overlay" />
       </div>
     </div>
   </div>
@@ -101,9 +77,27 @@
 
 <script setup lang="ts">
 // /components/content/art/art-grid.vue
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-const layoutMode = ref<'single' | 'two-column' | 'three-column'>('three-column')
+
+const showLeft = ref(true)
+const showCenter = ref(true)
+const showRight = ref(true)
+const showOverlay = ref(false)
+
+function toggleSection(section: 'left' | 'center' | 'right') {
+  if (section === 'left') showLeft.value = !showLeft.value
+  if (section === 'center') showCenter.value = !showCenter.value
+  if (section === 'right') showRight.value = !showRight.value
+}
+
+// Flex size logic based on number of visible sections
+const sectionClass = computed(() => {
+  const visible = [showLeft.value, showCenter.value, showRight.value].filter(Boolean).length
+  if (visible === 3) return 'w-1/3'
+  if (visible === 2) return 'w-1/2'
+  return 'w-full'
+})
 </script>

@@ -77,7 +77,7 @@
         @click="isExtraExpanded = !isExtraExpanded"
       >
         <Icon
-          :name="isExtraExpanded ? 'kind-icon:chevron-down' : 'kind-icon:chevron-up'"
+          :name="isExtraExpanded ? 'kind-icon:chevron-double-down' : 'kind-icon:chevron-double-up'"
         />
       </button>
     </div>

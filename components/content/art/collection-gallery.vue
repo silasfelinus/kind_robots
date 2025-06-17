@@ -13,14 +13,19 @@
           class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2"
         >
           <div class="flex-1 space-y-1">
-            <div v-if="canEdit(c)" class="flex items-center gap-2">
+            <div v-if="canEdit(c) && editingTitle === c.id" class="flex items-center gap-2">
               <input
                 v-model="c.label"
                 class="input input-sm input-bordered text-xl font-bold w-full max-w-xs"
+                @blur="editingTitle = null"
               />
               <span class="badge badge-primary">You</span>
             </div>
-            <h2 v-else class="text-2xl font-bold text-primary truncate">
+            <h2
+              v-else
+              class="text-2xl font-bold text-primary truncate cursor-pointer"
+              @click="canEdit(c) && (editingTitle = c.id)"
+            >
               📁 {{ c.label || 'Untitled Collection' }}
             </h2>
             <div class="text-sm text-base-content/80">
@@ -32,24 +37,20 @@
           <!-- Owner Actions -->
           <div class="flex flex-wrap gap-2 mt-2 md:mt-0">
             <button
-              class="btn btn-xs btn-outline"
+              v-if="canEdit(c)"
+              class="btn btn-xs btn-square"
               @click="removeCollection(c.id)"
+              title="Back"
             >
-              ⏪ Back
+              <Icon name="kind-icon:arrow-left" />
             </button>
             <button
               v-if="canEdit(c)"
-              class="btn btn-xs btn-accent"
-              @click="copyCollection(c)"
-            >
-              📄 Copy
-            </button>
-            <button
-              v-if="canEdit(c)"
-              class="btn btn-xs btn-error"
+              class="btn btn-xs btn-square btn-error"
               @click="deleteCollection(c.id)"
+              title="Delete"
             >
-              🗑️ Delete
+              <Icon name="kind-icon:trash" />
             </button>
           </div>
         </div>
@@ -78,7 +79,17 @@
 
         <!-- Art Cards Grid -->
         <div class="scroll-container overflow-auto max-h-[60vh] pt-4">
-          <div v-if="getArtFromCollection(c).length > 0" :class="gridClass">
+          <div v-if="getArtFromCollection(c).length >= 0" :class="gridClass">
+            <!-- Inline Back Card -->
+            <div
+              v-if="canEdit(c)"
+              class="aspect-square bg-base-200 rounded-xl flex items-center justify-center cursor-pointer hover:bg-base-300 transition-all"
+              @click="removeCollection(c.id)"
+              title="Back to Gallery"
+            >
+              <Icon name="kind-icon:arrow-left" class="w-8 h-8 text-base-content" />
+            </div>
+
             <ArtCard
               v-for="art in getArtFromCollection(c).slice(0, visibleCount)"
               :key="art.id"
@@ -151,6 +162,7 @@ const collectionStore = useCollectionStore()
 const artStore = useArtStore()
 
 const visibleCount = ref(50)
+const editingTitle = ref<number | null>(null)
 const selectedCollections = computed(() => collectionStore.selectedCollections)
 
 function selectCollection(id: number) {
@@ -176,14 +188,8 @@ function canEdit(c: ArtCollection) {
   return c.userId === userStore.userId || userStore.isAdmin
 }
 
-
 function deleteCollection(id: number) {
   collectionStore.deleteCollectionById(id)
-}
-
-function copyCollection(original: ArtCollection) {
-  const newLabel = `${original.label || 'Copy'} (copy)`
-  collectionStore.createCollection(newLabel, userStore.userId)
 }
 
 function getArtFromCollection(c: ArtCollection) {
@@ -204,8 +210,7 @@ function confirmRemoveAllArt(collection: ArtCollection) {
 }
 
 const gridClass = computed(() => ({
-  'grid gap-4 sm:gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5':
-    true,
+  'grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5': true,
 }))
 
 function getPreviewImage(collection: ArtCollection): {

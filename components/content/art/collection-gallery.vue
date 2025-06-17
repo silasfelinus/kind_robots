@@ -76,35 +76,15 @@
           </label>
         </div>
 
-        <!-- Art Cards -->
+        <!-- Art Cards Grid -->
         <div class="scroll-container overflow-auto max-h-[60vh] pt-4">
           <div v-if="getArtFromCollection(c).length > 0" :class="gridClass">
-            <div
+            <ArtCard
               v-for="art in getArtFromCollection(c).slice(0, visibleCount)"
               :key="art.id"
-              class="relative group rounded-2xl overflow-hidden bg-base-100 shadow hover:shadow-lg transition-all"
-            >
-              <div class="aspect-square w-full bg-base-300 overflow-hidden">
-                <img
-                  :src="getArtImage(art)?.imageData || '/images/backtree.webp'"
-                  alt="Art Preview"
-                  class="w-full h-full object-cover"
-                />
-              </div>
-              <div
-                class="absolute inset-0 flex items-end justify-between opacity-0 group-hover:opacity-100 bg-black/40 text-white p-3 transition-opacity"
-              >
-                <div class="text-xs font-bold truncate pointer-events-none">
-                  {{ art.promptString?.slice(0, 60) || 'Untitled Image' }}
-                </div>
-                <button
-                  class="pointer-events-auto hover:text-error"
-                  @click.stop="confirmRemoveArtFromCollection(c, art.id)"
-                >
-                  <Icon name="kind-icon:trash" class="w-5 h-5" />
-                </button>
-              </div>
-            </div>
+              :art="art"
+              @click="artStore.setCurrentArt(art)"
+            />
           </div>
           <div v-else class="text-center italic text-base-content/60 py-12">
             💤 No matching art found.
@@ -160,6 +140,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import ArtCard from '@/components/content/art/art-card.vue'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
@@ -206,18 +187,6 @@ function copyCollection(original: ArtCollection) {
 
 function getArtFromCollection(c: ArtCollection) {
   return (c.art || []).filter((a) => a.id)
-}
-
-function getArtImage(art: Art) {
-  return artStore.getArtImageByArtId(art.id)
-}
-
-function confirmRemoveArtFromCollection(
-  collection: ArtCollection,
-  artId: number,
-) {
-  if (!confirm('Remove this image from the collection?')) return
-  collectionStore.removeArtFromLocalCollection(collection, artId)
 }
 
 function confirmRemoveAllArt(collection: ArtCollection) {
@@ -275,7 +244,7 @@ function getPreviewImage(collection: ArtCollection): {
 
 onMounted(() => {
   selectedCollections.value.forEach((collection) => {
-    ;(collection.art || []).forEach((a) => getArtImage(a))
+    ;(collection.art || []).forEach((a) => artStore.getArtImageByArtId(a.id))
   })
 })
 </script>

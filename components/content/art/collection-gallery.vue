@@ -148,12 +148,22 @@ function getPreviewImage(collection: ArtCollection): {
   }
 
   const art = valid[Math.floor(Math.random() * valid.length)]
+  const path = (art as any).path
 
-  if ('path' in art && art.path) {
-    return {
-      src: art.path,
-      note: 'from Art.path',
-      artId: art.id,
+  if (typeof path === 'string') {
+    if (path.includes('ArtImageUpload')) {
+      const fallbackImage = artStore.getArtImageByArtId(art.id)
+      return {
+        src: fallbackImage?.imageData || fallback,
+        note: 'replaced ArtImageUpload with ArtImage.imageData',
+        artId: art.id,
+      }
+    } else {
+      return {
+        src: path,
+        note: 'from Art.path',
+        artId: art.id,
+      }
     }
   }
 

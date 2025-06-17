@@ -1,7 +1,6 @@
-<!-- /components/content/art/generate-button.vue -->
 <template>
   <div
-    class="relative w-full p-4 bg-base-100 border border-base-300 rounded-xl shadow-lg"
+    class="w-full p-4 bg-base-100 border border-base-300 rounded-xl shadow-lg"
   >
     <div class="flex flex-col md:flex-row gap-4 items-stretch w-full">
       <!-- Left: Prompt Preview -->
@@ -80,6 +79,27 @@ const isGenerating = ref(false)
 const makePretty = ref(false)
 
 const generateArt = async () => {
+  // Safely apply selections to known artForm fields
+  const validKeys = [
+    'checkpoint',
+    'designer',
+    'sampler',
+    'promptString',
+    'negativePrompt',
+    'title',
+    'collection',
+  ] as const
+
+  type ArtFormKey = (typeof validKeys)[number]
+
+  for (const [key, values] of Object.entries(artStore.artListSelections)) {
+    if (validKeys.includes(key as ArtFormKey)) {
+      const formKey = key as ArtFormKey
+      const joined = Array.isArray(values) ? values.join(', ') : String(values)
+      artStore.artForm[formKey] = joined
+    }
+  }
+
   isGenerating.value = true
   displayStore.toggleRandomAnimation()
 

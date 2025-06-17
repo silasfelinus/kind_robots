@@ -1,31 +1,6 @@
 <!-- /components/content/art/art-randomizer.vue -->
 <template>
   <div class="w-full space-y-6">
-    <!-- Top Row: Make Pretty, Surprise Me, Reset -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="flex flex-col items-start">
-        <label class="label-text font-semibold">✨ Make Pretty</label>
-        <input
-          type="checkbox"
-          class="toggle toggle-accent mt-1"
-          v-model="makePretty"
-          @change="handleMakePrettyToggle"
-        />
-      </div>
-      <div class="flex flex-col items-start">
-        <label class="label-text font-semibold">🎲 Surprise Me</label>
-        <button class="btn btn-secondary mt-1 w-full" @click="surpriseMe">
-          Surprise Me
-        </button>
-      </div>
-      <div class="flex flex-col items-start">
-        <label class="label-text font-semibold">🔄 Reset</label>
-        <button class="btn btn-ghost mt-1 w-full" @click="resetAll">
-          Reset All
-        </button>
-      </div>
-    </div>
-
     <!-- Randomized Presets -->
     <div
       v-for="entry in artListPresets"
@@ -40,7 +15,11 @@
           {{ entry.title }}
         </span>
         <Icon
-          :name="expandedPresets[entry.id] ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+          :name="
+            expandedPresets[entry.id]
+              ? 'lucide:chevron-up'
+              : 'lucide:chevron-down'
+          "
         />
       </button>
 
@@ -52,7 +31,9 @@
               :key="option"
               @click="toggleMultiSelection(entry.id, option)"
               class="btn btn-sm"
-              :class="isSelected(entry.id, option) ? 'btn-primary' : 'btn-outline'"
+              :class="
+                isSelected(entry.id, option) ? 'btn-primary' : 'btn-outline'
+              "
             >
               {{ option }}
             </button>
@@ -79,7 +60,9 @@
           :key="key"
           @click="toggleRandomKey(key)"
           class="btn btn-sm"
-          :class="randomStore.randomSelections[key] ? 'btn-primary' : 'btn-outline'"
+          :class="
+            randomStore.randomSelections[key] ? 'btn-primary' : 'btn-outline'
+          "
         >
           {{ key }}
         </button>
@@ -120,13 +103,10 @@ import { useRandomStore } from '@/stores/randomStore'
 const artStore = useArtStore()
 const randomStore = useRandomStore()
 
-const makePretty = ref(false)
 const supportedRandomKeys = randomStore.supportedKeys
-
 const expandedPresets = ref<Record<string, boolean>>({})
 const showAll = ref<Record<string, boolean>>({})
 
-// Init collapsed + showAll = false
 for (const entry of artListPresets) {
   expandedPresets.value[entry.id] = false
   showAll.value[entry.id] = false
@@ -178,59 +158,8 @@ function removeRandomKey(key: string) {
   randomStore.clearSelection(key)
 }
 
-function handleMakePrettyToggle() {
-  if (makePretty.value) {
-    expandedPresets.value['__pretty__'] = true
-    expandedPresets.value['__negative__'] = true
-  }
-}
-
-function surpriseMe() {
-  for (const entry of artListPresets) {
-    const { id, content, allowMultiple, presetType } = entry
-    if (presetType === 'all') {
-      artStore.updateArtListSelection(id, [...content])
-    } else if (allowMultiple) {
-      const count = Math.floor(Math.random() * content.length) + 1
-      const values = randomStore.pickRandomFromArray(content, count)
-      artStore.updateArtListSelection(id, values)
-    } else {
-      const value = randomStore.pickRandomFromArray(content, 1)
-      artStore.updateArtListSelection(id, value)
-    }
-  }
-
-  makePretty.value = Math.random() > 0.3
-}
-
-function resetAll() {
-  for (const key of Object.keys(localSelections.value)) {
-    artStore.updateArtListSelection(key, [])
-  }
-  makePretty.value = false
-  randomStore.clearAllSelections()
-}
-
+// Apply bonus randoms to artListSelections
 watchEffect(() => {
-  if (makePretty.value) {
-    const pretty = artListPresets.find((p) => p.id === '__pretty__')
-    const negative = artListPresets.find((p) => p.id === '__negative__')
-
-    if (pretty) {
-      artStore.updateArtListSelection(
-        '__pretty__',
-        randomStore.pickRandomFromArray(pretty.content, 4),
-      )
-    }
-
-    if (negative) {
-      artStore.updateArtListSelection(
-        '__negative__',
-        randomStore.pickRandomFromArray(negative.content, 4),
-      )
-    }
-  }
-
   for (const key of Object.keys(randomStore.randomSelections)) {
     artStore.updateArtListSelection(key, [randomStore.randomSelections[key]])
   }

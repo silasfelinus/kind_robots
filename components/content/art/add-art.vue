@@ -27,17 +27,7 @@
       <collection-gallery />
     </template>
 
-    <template #extra>
-      <div class="relative w-full h-full flex flex-col p-4 pb-24">
-        <!-- Prompt Handler grows to fill available space -->
-        <prompt-handler class="flex-grow overflow-y-auto" />
-
-        <!-- Generate Button fixed to bottom of this container -->
-        <div class="absolute bottom-4 left-4 right-4 z-20">
-          <generate-button />
-        </div>
-      </div>
-    </template>
+    <template #extra> <art-generator />> </template>
 
     <!-- Overlay -->
     <template #overlay>

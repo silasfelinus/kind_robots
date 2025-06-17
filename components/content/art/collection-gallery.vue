@@ -83,26 +83,27 @@
             <div
               v-for="art in getArtFromCollection(c).slice(0, visibleCount)"
               :key="art.id"
-              class="relative group rounded-2xl shadow-md bg-white hover:shadow-lg transition-shadow"
+              class="relative group rounded-2xl overflow-hidden bg-base-100 shadow hover:shadow-lg transition-all"
             >
-              <!-- Actual ArtCard -->
-              <ArtCard :art="art" />
-
-              <!-- Debug Overlay -->
+              <div class="aspect-square w-full bg-base-300 overflow-hidden">
+                <img
+                  :src="getArtImage(art)?.imageData || '/images/backtree.webp'"
+                  alt="Art Preview"
+                  class="w-full h-full object-cover"
+                />
+              </div>
               <div
-                class="absolute inset-0 bg-black bg-opacity-80 text-white text-xs p-2 overflow-auto z-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                class="absolute inset-0 flex items-end justify-between opacity-0 group-hover:opacity-100 bg-black/40 text-white p-3 transition-opacity"
               >
-                <pre class="whitespace-pre-wrap break-words">
-Art:
-{{ JSON.stringify(art, null, 2) }}
-
-ArtImage:
-{{ JSON.stringify(artStore.getArtImageByArtId(art.id), null, 2) }}
-
-Collection:
-{{ JSON.stringify(c, null, 2) }}
-    </pre
+                <div class="text-xs font-bold truncate pointer-events-none">
+                  {{ art.promptString?.slice(0, 60) || 'Untitled Image' }}
+                </div>
+                <button
+                  class="pointer-events-auto hover:text-error"
+                  @click.stop="confirmRemoveArtFromCollection(c, art.id)"
                 >
+                  <Icon name="kind-icon:trash" class="w-5 h-5" />
+                </button>
               </div>
             </div>
           </div>
@@ -119,7 +120,7 @@ Collection:
         <div
           v-for="collection in collectionStore.collections"
           :key="collection.id"
-          class="flex flex-col items-center bg-base-100 rounded-2xl shadow hover:shadow-xl transition-all overflow-hidden cursor-pointer w-full"
+          class="relative group flex flex-col bg-base-100 rounded-2xl shadow hover:shadow-xl transition-all overflow-hidden cursor-pointer w-full"
           @click="selectCollection(collection.id)"
           @mouseenter="handleHover(collection)"
           @mouseleave="artStore.setHoverArt(null)"
@@ -131,11 +132,24 @@ Collection:
               :alt="collection.label || 'Unnamed Collection'"
             />
           </div>
-          <div class="w-full text-center p-4 space-y-1">
-            <div class="text-lg font-bold truncate">
+          <div
+            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between px-4 py-3 pointer-events-none"
+          >
+            <div
+              class="text-white text-sm font-bold truncate pointer-events-none"
+            >
               {{ collection.label || 'Untitled Collection' }}
             </div>
-            <div class="text-sm text-base-content/80">
+            <button
+              v-if="canEdit(collection)"
+              class="text-white hover:text-error pointer-events-auto"
+              @click.stop="confirmRemoveAllArt(collection)"
+            >
+              <Icon name="kind-icon:trash" class="w-5 h-5" />
+            </button>
+          </div>
+          <div class="w-full text-center p-3 space-y-1 pointer-events-none">
+            <div class="text-sm text-base-content/80 truncate">
               🧑 {{ collection.username || 'Unknown user' }}
               <span v-if="canEdit(collection)" class="ml-1 text-success"
                 >(you)</span
@@ -155,19 +169,19 @@ Collection:
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
-import type { ArtCollection } from '@/stores/artStore'
+import type { ArtCollection, Art } from '@/stores/artStore'
 
 const userStore = useUserStore()
 const collectionStore = useCollectionStore()
 const artStore = useArtStore()
 
 const visibleCount = ref(50)
-
 const selectedCollections = computed(() => collectionStore.selectedCollections)
 
 function selectCollection(id: number) {
@@ -206,8 +220,34 @@ function getArtFromCollection(c: ArtCollection) {
   return (c.art || []).filter((a) => a.id)
 }
 
+function getArtImage(art: Art) {
+  return artStore.getArtImageByArtId(art.id)
+}
+
+function confirmRemoveArtFromCollection(
+  collection: ArtCollection,
+  artId: number,
+) {
+  if (!confirm('Remove this image from the collection?')) return
+  collectionStore.removeArtFromLocalCollection(collection, artId)
+}
+
+function confirmRemoveAllArt(collection: ArtCollection) {
+  if (
+    !confirm(
+      `Remove all art from "${collection.label}"? This only affects this collection.`,
+    )
+  )
+    return
+  const ids = (collection.art || []).map((a) => a.id)
+  for (const id of ids) {
+    collectionStore.removeArtFromLocalCollection(collection, id)
+  }
+}
+
 const gridClass = computed(() => ({
-  'grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4': true,
+  'grid gap-4 sm:gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5':
+    true,
 }))
 
 function getPreviewImage(collection: ArtCollection): {
@@ -218,14 +258,10 @@ function getPreviewImage(collection: ArtCollection): {
   const fallback = '/images/backtree.webp'
   const images = collection.art || []
   const valid = images.filter((img) => img?.id)
-
-  if (!valid.length) {
+  if (!valid.length)
     return { src: fallback, note: 'no art in collection', artId: null }
-  }
-
   const art = valid[Math.floor(Math.random() * valid.length)]
   const path = (art as any).path
-
   if (typeof path === 'string') {
     if (path.includes('ArtImageUpload')) {
       const fallbackImage = artStore.getArtImageByArtId(art.id)
@@ -238,7 +274,6 @@ function getPreviewImage(collection: ArtCollection): {
       return { src: path, note: 'from Art.path', artId: art.id }
     }
   }
-
   const foundImage = artStore.getArtImageByArtId(art.id)
   if (foundImage?.imageData) {
     return {
@@ -247,7 +282,6 @@ function getPreviewImage(collection: ArtCollection): {
       artId: art.id,
     }
   }
-
   return { src: fallback, note: 'fallback used', artId: art.id }
 }
 </script>

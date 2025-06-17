@@ -87,7 +87,7 @@
         :class="{
           'absolute bottom-0 left-0 right-0 z-40': displayStore.isExtraExpanded,
         }"
-        :style="{ maxHeight: displayStore.isExtraExpanded ? '60vh' : '20vh' }"
+        :style="{ maxHeight: displayStore.isExtraExpanded ? '80vh' : '40vh' }"
       >
         <!-- Floating Toggle -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10 mt-1">

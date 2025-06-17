@@ -1,12 +1,10 @@
-<!-- /components/content/art/art-generator.vue -->
+// /components/content/art/art-generator.vue
 <template>
-  <div
-    class="w-full flex flex-col space-y-4 min-h-[100dvh] max-h-[100dvh] overflow-hidden"
-  >
-    <!-- Toggle Collapse -->
+  <div class="flex flex-col min-h-[100dvh] bg-base-200">
+    <!-- Minimized Mode -->
     <div
       v-if="isMinimized"
-      class="flex items-center gap-2 p-2 bg-base-200 rounded-xl"
+      class="flex items-center gap-2 p-2 bg-base-100 shadow rounded-xl"
     >
       <input
         v-model="promptStore.promptField"
@@ -23,20 +21,20 @@
       </button>
     </div>
 
+    <!-- Expanded Mode -->
     <template v-else>
-      <!-- Expanded Prompt Section -->
-      <div
-        class="flex-grow overflow-y-auto p-4 bg-base-200 rounded-xl space-y-4"
-      >
-        <div class="flex justify-between">
-          <h2 class="text-lg font-bold">🎨 Art Generator</h2>
+      <!-- Scrollable Panel -->
+      <div class="flex-grow overflow-y-auto px-4 py-6 space-y-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold">🎨 Art Generator</h2>
           <button class="btn btn-xs btn-ghost" @click="isMinimized = true">
             ⬆️ Minimize
           </button>
         </div>
 
         <!-- Prompt -->
-        <div class="space-y-2">
+        <div class="space-y-1">
           <label class="font-semibold">📝 Prompt</label>
           <input
             v-model="promptStore.promptField"
@@ -47,10 +45,10 @@
           />
         </div>
 
-        <!-- Negative Toggle -->
-        <div class="flex items-center space-x-3">
+        <!-- Toggles -->
+        <div class="flex flex-wrap gap-4 pt-2">
           <label class="label cursor-pointer space-x-2">
-            <span class="label-text font-semibold">🚫 Negative Auto</span>
+            <span class="label-text font-semibold">🚫 Negative Prompt</span>
             <input
               type="checkbox"
               class="toggle toggle-error"
@@ -58,10 +56,18 @@
               @change="toggleNegativePrompt"
             />
           </label>
+          <label class="label cursor-pointer space-x-2">
+            <span class="label-text font-semibold">🔓 Public</span>
+            <input
+              type="checkbox"
+              class="toggle toggle-success"
+              v-model="artStore.artForm.isPublic"
+            />
+          </label>
         </div>
 
         <!-- Negative Prompt -->
-        <div class="space-y-2">
+        <div v-if="useNegative" class="space-y-1">
           <label class="font-semibold">Negative Prompt</label>
           <input
             v-model="artStore.artForm.negativePrompt"
@@ -71,10 +77,12 @@
           />
         </div>
 
-        <!-- CFG + Steps -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="space-y-2">
-            <label>🎚 CFG Scale: {{ localCfg }}</label>
+        <!-- Sliders -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-semibold mb-1"
+              >🎚 CFG Scale: {{ localCfg }}</label
+            >
             <input
               type="range"
               min="0"
@@ -84,8 +92,10 @@
               class="range range-primary"
             />
           </div>
-          <div class="space-y-2">
-            <label>🧮 Steps: {{ artStore.artForm.steps }}</label>
+          <div>
+            <label class="block font-semibold mb-1"
+              >🧮 Steps: {{ artStore.artForm.steps }}</label
+            >
             <input
               type="range"
               min="5"
@@ -96,42 +106,31 @@
             />
           </div>
         </div>
-
-        <!-- Public Toggle -->
-        <div class="flex items-center gap-3 pt-2">
-          <span class="font-semibold">🔓 Public?</span>
-          <input
-            type="checkbox"
-            class="toggle toggle-success"
-            v-model="artStore.artForm.isPublic"
-          />
-        </div>
       </div>
 
-      <!-- Controls Footer -->
+      <!-- Sticky Footer -->
       <div
-        class="sticky bottom-0 z-20 bg-base-100 border border-base-300 p-4 rounded-xl shadow-xl"
+        class="sticky bottom-0 z-10 p-4 bg-base-100 border-t border-base-300 shadow-md"
       >
-        <div class="flex flex-col md:flex-row gap-4 items-stretch w-full">
+        <div class="flex flex-col md:flex-row gap-4 items-stretch">
           <!-- Preview -->
-          <div class="flex-1 space-y-2">
+          <div class="flex-1 space-y-1">
             <label class="text-sm font-semibold">🎯 Prompt Preview</label>
             <div
-              class="text-sm p-3 bg-base-200 rounded-md font-mono max-h-40 overflow-y-auto"
+              class="p-3 rounded bg-base-200 font-mono text-sm max-h-40 overflow-y-auto"
             >
               {{ promptStore.promptField || 'No prompt yet...' }}
             </div>
           </div>
 
-          <!-- Right Controls -->
+          <!-- Controls -->
           <div class="w-full md:w-56 flex flex-col gap-3">
-            <label class="label cursor-pointer justify-between">
+            <label class="label justify-between cursor-pointer">
               <span class="label-text font-semibold">✨ Make Pretty</span>
               <input
                 type="checkbox"
                 class="toggle toggle-accent"
                 v-model="makePretty"
-                @change="handleMakePrettyToggle"
               />
             </label>
 
@@ -165,12 +164,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, watchEffect, computed } from 'vue'
+import { ref, onMounted, watch, computed, watchEffect } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useRandomStore } from '@/stores/randomStore'
 import { artListPresets, negativeList } from '@/stores/seeds/artList'
@@ -178,16 +177,16 @@ import { artListPresets, negativeList } from '@/stores/seeds/artList'
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 const displayStore = useDisplayStore()
-const errorStore = useErrorStore()
 const milestoneStore = useMilestoneStore()
+const errorStore = useErrorStore()
 const checkpointStore = useCheckpointStore()
 const randomStore = useRandomStore()
 
 const isGenerating = ref(false)
+const isMinimized = ref(true)
 const makePretty = ref(false)
 const useNegative = ref(false)
 const loading = computed(() => artStore.loading)
-const isMinimized = ref(true)
 
 const localCfg = ref<number>(
   (artStore.artForm.cfg ?? 3) + (artStore.artForm.cfgHalf ? 0.5 : 0),
@@ -215,61 +214,51 @@ watchEffect(() => {
   if (makePretty.value) {
     const pretty = artListPresets.find((p) => p.id === '__pretty__')
     const negative = artListPresets.find((p) => p.id === '__negative__')
-
-    if (pretty) {
+    if (pretty)
       artStore.updateArtListSelection(
         '__pretty__',
         randomStore.pickRandomFromArray(pretty.content, 4),
       )
-    }
-    if (negative) {
+    if (negative)
       artStore.updateArtListSelection(
         '__negative__',
         randomStore.pickRandomFromArray(negative.content, 4),
       )
-    }
-  }
-
-  for (const key of Object.keys(randomStore.randomSelections)) {
-    artStore.updateArtListSelection(key, [randomStore.randomSelections[key]])
   }
 })
-
-function handleMakePrettyToggle() {}
-
-function toggleNegativePrompt() {
-  const list = useNegative.value ? negativeList : []
-  artStore.updateArtListSelection('__negative__', list)
-}
 
 function syncPrompt() {
   promptStore.syncToLocalStorage()
   artStore.artForm.promptString = promptStore.promptField
 }
 
-function surpriseMe() {
-  for (const entry of artListPresets) {
-    const { id, content, allowMultiple, presetType } = entry
-    if (presetType === 'all') {
-      artStore.updateArtListSelection(id, [...content])
-    } else if (allowMultiple) {
-      const count = Math.floor(Math.random() * content.length) + 1
-      const values = randomStore.pickRandomFromArray(content, count)
-      artStore.updateArtListSelection(id, values)
-    } else {
-      const value = randomStore.pickRandomFromArray(content, 1)
-      artStore.updateArtListSelection(id, value)
-    }
-  }
-  makePretty.value = Math.random() > 0.3
+function toggleNegativePrompt() {
+  artStore.updateArtListSelection(
+    '__negative__',
+    useNegative.value ? negativeList : [],
+  )
 }
 
 function resetAll() {
-  for (const key of Object.keys(artStore.artListSelections)) {
-    artStore.updateArtListSelection(key, [])
-  }
-  makePretty.value = false
+  Object.keys(artStore.artListSelections).forEach((k) =>
+    artStore.updateArtListSelection(k, []),
+  )
   randomStore.clearAllSelections()
+  makePretty.value = false
+  useNegative.value = false
+}
+
+function surpriseMe() {
+  for (const entry of artListPresets) {
+    const values = entry.allowMultiple
+      ? randomStore.pickRandomFromArray(
+          entry.content,
+          Math.ceil(Math.random() * entry.content.length),
+        )
+      : randomStore.pickRandomFromArray(entry.content, 1)
+    artStore.updateArtListSelection(entry.id, values)
+  }
+  makePretty.value = Math.random() > 0.3
 }
 
 async function generateArt() {
@@ -282,28 +271,20 @@ async function generateArt() {
     'title',
     'collection',
   ] as const
-  type ArtFormKey = (typeof validKeys)[number]
-
-  for (const [key, values] of Object.entries(artStore.artListSelections)) {
-    if (validKeys.includes(key as ArtFormKey)) {
-      const formKey = key as ArtFormKey
+  for (const key of validKeys) {
+    const values = artStore.artListSelections[key]
+    if (values !== undefined) {
       const joined = Array.isArray(values) ? values.join(', ') : String(values)
-      artStore.artForm[formKey] = joined
+      ;(artStore.artForm as any)[key] = joined
     }
   }
 
   isGenerating.value = true
   displayStore.toggleRandomAnimation()
-
   const result = await artStore.generateArt()
-  if (!result.success) {
+  if (!result.success)
     errorStore.addError(ErrorType.GENERAL_ERROR, result.message)
-  } else {
-    await callOnce(async () => {
-      await milestoneStore.rewardMilestone(11)
-    })
-  }
-
+  else await milestoneStore.rewardMilestone(11)
   displayStore.stopAnimation()
   isGenerating.value = false
 }

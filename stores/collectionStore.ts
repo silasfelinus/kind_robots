@@ -41,6 +41,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
   const state = reactive({
     collections: [] as ArtCollection[],
     currentCollection: null as ArtCollection | null,
+    autoSave: true,
   })
 
   // Fetch all collections

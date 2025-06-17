@@ -7,7 +7,6 @@ import { performFetch, handleError } from './utils'
 import {
   addArtToCollectionLocal,
   isArtInCollection,
-  getUncollectedArt,
   findCollectionByUserAndLabel,
   getCollectedArtIds,
   collectionIncludesArtId,
@@ -73,6 +72,15 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     } catch (error) {
       handleError(error, 'fetching collections')
     }
+  }
+
+  function getUncollectedArt(): Art[] {
+    const collectedIds = state.collections
+      .filter((c) => c.userId === userStore.userId)
+      .flatMap((c) => c.art.map((a) => a.id))
+    return artStore.art.filter(
+      (a) => a.userId === userStore.userId && !collectedIds.includes(a.id),
+    )
   }
 
   async function createCollection(
@@ -159,10 +167,6 @@ export const useCollectionStore = defineStore('collectionStore', () => {
       const collection = findCollectionById(collectionId)
       if (collection) removeArtFromLocalCollection(collection, artId)
     }
-  }
-
-  async function fetchUncollectedArt() {
-    return getUncollectedArt(userStore.userId, artStore.art, state.collections)
   }
 
   async function removeArtFromCollectionServer(

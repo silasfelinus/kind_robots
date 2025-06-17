@@ -259,7 +259,7 @@ const selectedArt = computed(() => {
 
   if (selectedOption.value.startsWith('gallery-')) {
     const id = Number(selectedOption.value.split('-')[1])
-    return artStore.art.filter((a) => a.galleryId === id)
+    return artStore.art.filter((a: Art) => a.galleryId === id)
   }
 
   return []
@@ -350,7 +350,7 @@ const displayLabel = computed(
 const ownerUser = computed(() => {
   const ownerId =
     selectedCollection.value?.userId || selectedGallery.value?.userId
-  useUserStore().getUserById(ownerId ?? null)
+  return useUserStore().getUserById(ownerId ?? null)
 })
 
 const updateLabel = async () => {

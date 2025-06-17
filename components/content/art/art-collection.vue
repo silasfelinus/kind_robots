@@ -154,7 +154,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useArtStore } from '@/stores/artStore'
+import { useArtStore, type ArtCollection } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 const collectionStore = useCollectionStore()
@@ -194,7 +194,7 @@ const closeAddToCollectionPopup = () => {
 const loadInitialData = async () => {
   try {
     await collectionStore.fetchCollections()
-    await collectionStore.fetchUncollectedArt()
+    await collectionStore.getUncollectedArt()
   } catch (error) {
     console.error('Error loading initial data:', error)
   }

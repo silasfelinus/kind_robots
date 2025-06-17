@@ -61,12 +61,20 @@
           @click="selectCollection(collection.id)"
         >
           <img
-            :src="getPreviewImage(collection)"
+            :src="getPreviewImage(collection).src"
             class="w-full h-48 object-cover"
             :alt="collection.label || 'Unnamed Collection'"
           />
           <div class="p-4 font-semibold text-center text-base-content text-lg">
             📁 {{ collection.label || 'Untitled Collection' }}
+          </div>
+          <div
+            v-if="debug"
+            class="px-4 pb-4 text-xs text-center text-warning-content font-mono break-words"
+          >
+            <p>🖼️ <span class="font-bold">Art ID:</span> {{ getPreviewImage(collection).artId }}</p>
+            <p><span class="font-bold">Path:</span> {{ getPreviewImage(collection).src }}</p>
+            <p><span class="font-bold">Note:</span> {{ getPreviewImage(collection).note }}</p>
           </div>
         </div>
       </div>
@@ -77,10 +85,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useCollectionStore } from '@/stores/collectionStore'
-import type { ArtCollection } from '@/stores/collectionStore'
+import type { ArtCollection, Art } from '@/stores/collectionStore'
 
 const collectionStore = useCollectionStore()
 const visibleCount = ref(50)
+const debug = true
 
 const selectedCollections = computed(() => collectionStore.selectedCollections)
 
@@ -98,15 +107,40 @@ const gridClass = computed(() => ({
   'grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4': true,
 }))
 
-function getPreviewImage(collection: ArtCollection) {
+function getPreviewImage(collection: ArtCollection): {
+  src: string
+  note: string
+  artId: number | null
+} {
   const fallback = '/images/backtree.webp'
   const images = collection.art || []
   const valid = images.filter((img) => img?.imageUrl)
+
   if (valid.length > 0) {
-    const index = Math.floor(Math.random() * valid.length)
-    return valid[index].imageUrl || fallback
+    const random = valid[Math.floor(Math.random() * valid.length)]
+    console.log(`🖼️ Using imageUrl for artId ${random.id}:`, random.imageUrl)
+    return {
+      src: random.imageUrl || fallback,
+      note: random.imageUrl ? 'from art.imageUrl' : 'missing imageUrl',
+      artId: random.id,
+    }
   }
-  return (collection as any).highlightImage || fallback
+
+  if ((collection as any).highlightImage) {
+    console.log(`✨ Using highlightImage for collection ${collection.id}`)
+    return {
+      src: (collection as any).highlightImage,
+      note: 'from highlightImage',
+      artId: null,
+    }
+  }
+
+  console.warn(`⚠️ No valid image found for collection ${collection.id}`)
+  return {
+    src: fallback,
+    note: 'fallback used',
+    artId: null,
+  }
 }
 
 function selectCollection(id: number) {

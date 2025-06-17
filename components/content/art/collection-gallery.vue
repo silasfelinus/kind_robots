@@ -78,12 +78,31 @@
         <!-- Art Cards -->
         <div class="scroll-container overflow-auto max-h-[60vh] pt-4">
           <div v-if="getArtFromCollection(c).length > 0" :class="gridClass">
-            <ArtCard
+            <div
               v-for="art in getArtFromCollection(c).slice(0, visibleCount)"
               :key="art.id"
-              :art="art"
-              class="rounded-2xl shadow-md bg-white hover:shadow-lg transition-shadow"
-            />
+              class="relative group rounded-2xl shadow-md bg-white hover:shadow-lg transition-shadow"
+            >
+              <!-- Actual ArtCard -->
+              <ArtCard :art="art" />
+
+              <!-- Debug Overlay -->
+              <div
+                class="absolute inset-0 bg-black bg-opacity-80 text-white text-xs p-2 overflow-auto z-50 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <pre class="whitespace-pre-wrap break-words">
+Art:
+{{ JSON.stringify(art, null, 2) }}
+
+ArtImage:
+{{ JSON.stringify(artStore.getArtImageByArtId(art.id), null, 2) }}
+
+Collection:
+{{ JSON.stringify(c, null, 2) }}
+    </pre
+                >
+              </div>
+            </div>
           </div>
           <div v-else class="text-center italic text-base-content/60 py-12">
             💤 No matching art found.
@@ -110,7 +129,7 @@
           </div>
           <div class="w-full text-center p-4 space-y-1">
             <div class="text-lg font-bold truncate">
-              📁 {{ collection.label || 'Untitled Collection' }}
+              {{ collection.label || 'Untitled Collection' }}
             </div>
             <div class="text-sm text-base-content/80">
               🧑 {{ collection.username || 'Unknown user' }}

@@ -20,20 +20,23 @@
 
     <!-- Right Section -->
     <template #right>
-      <art-museum />
+      <collection-gallery />
     </template>
 
-<template #extra>
-  <div class="relative w-full h-full flex flex-col justify-end gap-4 p-4 pb-20">
-    <prompt-handler class="flex-grow" />
-    <div class="fixed bottom-4 left-0 right-0 z-40 px-4 flex justify-center pointer-events-none">
-      <div class="pointer-events-auto">
-        <generate-button />
+    <template #extra>
+      <div
+        class="relative w-full h-full flex flex-col justify-end gap-4 p-4 pb-20"
+      >
+        <prompt-handler class="flex-grow" />
+        <div
+          class="fixed bottom-4 left-0 right-0 z-40 px-4 flex justify-center pointer-events-none"
+        >
+          <div class="pointer-events-auto">
+            <generate-button />
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</template>
-
+    </template>
 
     <!-- Overlay (full-screen focus area) -->
     <template #overlay>

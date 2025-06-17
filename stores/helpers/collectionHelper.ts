@@ -4,6 +4,8 @@ import { performFetch } from '@/stores/utils'
 
 export interface ArtCollection extends PrismaArtCollection {
   art: Art[]
+  username: string | null
+  description: string | null
 }
 
 // Lazy store access to avoid circular imports
@@ -41,30 +43,41 @@ export async function getOrCreateGeneratedArtCollection(
     'Generated Art',
   )
   if (!collection) {
-    const response = await performFetch<ArtCollection>('/api/art/collection', {
-      method: 'POST',
-      body: JSON.stringify({ label: 'Generated Art', userId }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-    if (!response.success || !response.data) throw new Error(response.message)
-    collection = response.data
-    store.collections.push(collection)
+    collection = await store.createCollection(
+      'Generated Art',
+      userId,
+      false,
+      false,
+    )
+    if (!collection)
+      throw new Error('Could not create Generated Art collection')
   }
   return collection
 }
 
-export async function createCollection(label: string): Promise<void> {
-  const userStore = getUserStore()
+export async function createCollection(
+  label: string,
+  userId: number,
+  isPublic?: boolean,
+  isMature?: boolean,
+): Promise<ArtCollection> {
   const store = getCollectionStore()
+  const body: Record<string, unknown> = { label, userId }
+
+  if (typeof isPublic === 'boolean') body.isPublic = isPublic
+  if (typeof isMature === 'boolean') body.isMature = isMature
+
   const response = await performFetch<ArtCollection>('/api/art/collection', {
     method: 'POST',
-    body: JSON.stringify({ label, userId: userStore.userId }),
+    body: JSON.stringify(body),
     headers: { 'Content-Type': 'application/json' },
   })
 
   if (!response.success || !response.data) throw new Error(response.message)
+
   store.collections.push(response.data)
   store.currentCollection = response.data
+  return response.data
 }
 
 export async function removeArtFromCollection(
@@ -124,7 +137,7 @@ export async function addArtToCollection({
     headers: { 'Content-Type': 'application/json' },
   })
 
-  const art = artStore.art.find((a) => a.id === artId)
+  const art = artStore.art.find((a: Art) => a.id === artId)
   if (art) addArtToCollectionLocal(collection, art)
 }
 
@@ -215,6 +228,10 @@ export function createEmptyCollection(
     label,
     createdAt: new Date(),
     updatedAt: null,
+    isPublic: false,
+    isMature: false,
+    username: null,
+    description: null,
     art: [],
   }
 }

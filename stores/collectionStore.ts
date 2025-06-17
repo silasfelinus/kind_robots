@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import { ref, reactive, toRefs, computed, watch } from 'vue'
 import type { Art } from '@prisma/client'
+import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { performFetch, handleError } from './utils'
 import {
   addArtToCollectionLocal,
@@ -23,19 +24,6 @@ import {
   parseStoredCollections,
 } from '@/stores/helpers/collectionHelper'
 
-export interface ArtCollection {
-  id: number
-  userId: number
-  createdAt: Date
-  updatedAt: Date | null
-  label: string | null
-  art: Art[]
-  isPublic: boolean
-  isMature: boolean
-  username?: string
-  description?: string
-}
-
 export const useCollectionStore = defineStore('collectionStore', () => {
   const state = reactive({
     collections: [] as ArtCollection[],
@@ -54,10 +42,10 @@ export const useCollectionStore = defineStore('collectionStore', () => {
   const selectedCollections = computed(() =>
     selectedCollectionIds.value
       .map((id) => findCollectionById(id))
-      .filter((c): c is ArtCollection => !!c)
+      .filter((c): c is ArtCollection => !!c),
   )
 
-  if (process.client) {
+  if (import.meta.client) {
     const stored = localStorage.getItem(SELECTED_COLLECTION_KEY)
     if (stored) {
       try {
@@ -68,41 +56,26 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     }
   }
 
-  watch(selectedCollectionIds, (ids) => {
-    if (process.client) {
-      localStorage.setItem(SELECTED_COLLECTION_KEY, JSON.stringify(ids))
-    }
-  }, { deep: true })
+  watch(
+    selectedCollectionIds,
+    (ids) => {
+      if (import.meta.client) {
+        localStorage.setItem(SELECTED_COLLECTION_KEY, JSON.stringify(ids))
+      }
+    },
+    { deep: true },
+  )
 
   // --- API + logic methods ---
   async function fetchCollections() {
     try {
-      const response = await performFetch<ArtCollection[]>('/api/art/collection')
+      const response = await performFetch<ArtCollection[]>(
+        '/api/art/collection',
+      )
       if (!response.success || !response.data) throw new Error(response.message)
       state.collections = response.data
     } catch (error) {
       handleError(error, 'fetching collections')
-    }
-  }
-
-  async function createCollection(
-    label: string,
-    userId: number,
-  ): Promise<ArtCollection | null> {
-    try {
-      const response = await performFetch<ArtCollection>('/api/art/collection', {
-        method: 'POST',
-        body: JSON.stringify({ label, userId }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (!response.success || !response.data) throw new Error(response.message)
-      state.collections.push(response.data)
-      state.currentCollection = response.data
-      return response.data
-    } catch (error) {
-      handleError(error, 'creating collection')
-      return null
     }
   }
 
@@ -113,7 +86,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     try {
       const response = await performFetch(
         `/api/art/collection/${collectionId}/${artId}`,
-        { method: 'DELETE' }
+        { method: 'DELETE' },
       )
       if (!response.success) throw new Error(response.message)
 
@@ -178,13 +151,24 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     }
   }
 
-  async function getOrCreateGeneratedArtCollection(userId: number): Promise<ArtCollection> {
-    let collection = findCollectionByUserAndLabel(userId, 'Generated Art')
+  async function getOrCreateGeneratedArtCollection(
+    userId: number,
+  ): Promise<ArtCollection> {
+    let collection = findCollectionByUserAndLabel(
+      state.collections,
+      userId,
+      'Generated Art',
+    )
     if (!collection) {
-      const newCollection = await createCollection('Generated Art', userId)
+      const newCollection = await createCollection(
+        'Generated Art',
+        userId,
+        false,
+        false,
+      )
       if (!newCollection)
         throw new Error('Could not create Generated Art collection')
-      collection = newCollection
+      return newCollection
     }
     return collection
   }

@@ -33,6 +33,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const displayAction = ref<displayActionState>('gallery')
   const previousRoute = ref('')
   const mainComponent = ref('')
+  const isExtraExpanded = ref(false)
 
   const sidebarLeftWidth = computed(() => {
     const sizes = { small: 16, medium: 11, large: 9, extraLarge: 5 }
@@ -59,6 +60,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
     return sizes[viewportSize.value]
   })
+
+  function toggleExtraExpanded() {
+    isExtraExpanded.value = !isExtraExpanded.value
+  }
+
+  function setExtraExpanded(val: boolean) {
+    isExtraExpanded.value = val
+  }
 
   const footerHeight = computed(() => {
     const sizes = { small: 8, medium: 6, large: 7, extraLarge: 6 }
@@ -263,6 +272,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
               displayAction,
               previousRoute,
               mainComponent,
+              isExtraExpanded,
             },
             parsedState,
           )
@@ -309,6 +319,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
           displayAction: displayAction.value,
           previousRoute: previousRoute.value,
           mainComponent: mainComponent.value,
+          isExtraExpanded: isExtraExpanded.value,
         }
         localStorage.setItem('displayStoreState', JSON.stringify(stateToSave))
       }
@@ -455,6 +466,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
     toggleTutorial,
     changeState,
     removeViewportWatcher,
+    isExtraExpanded,
+    toggleExtraExpanded,
+    setExtraExpanded,
   }
 })
 

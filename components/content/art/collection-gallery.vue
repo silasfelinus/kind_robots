@@ -1,3 +1,4 @@
+<!-- /components/content/art/collection-gallery.vue -->
 <template>
   <div class="relative bg-base-300 rounded-2xl shadow-md overflow-hidden">
     <!-- Selected Collection View -->
@@ -118,7 +119,7 @@
         <div
           v-for="collection in collectionStore.collections"
           :key="collection.id"
-          class="relative group flex flex-col bg-base-100 rounded-2xl shadow hover:shadow-xl transition-all overflow-hidden cursor-pointer w-full"
+          class="relative group col-span-2 flex flex-col bg-base-100 rounded-2xl shadow hover:shadow-xl transition-all overflow-hidden cursor-pointer w-full"
           @click="selectCollection(collection.id)"
           @mouseenter="handleHover(collection)"
           @mouseleave="artStore.setHoverArt(null)"
@@ -146,21 +147,10 @@
               <Icon name="kind-icon:trash" class="w-5 h-5" />
             </button>
           </div>
-          <div class="w-full text-center p-3 space-y-1 pointer-events-none">
-            <div class="text-sm text-base-content/80 truncate">
-              🧑 {{ collection.username || 'Unknown user' }}
-              <span v-if="canEdit(collection)" class="ml-1 text-success"
-                >(you)</span
-              >
-            </div>
-            <div class="flex justify-center gap-3 text-xs font-semibold">
-              <span v-if="collection.isPublic" class="text-success"
-                >🌍 Public</span
-              >
-              <span v-if="collection.isMature" class="text-warning"
-                >🔞 Mature</span
-              >
-            </div>
+          <div
+            class="w-full text-center p-4 text-lg font-bold text-primary truncate pointer-events-none"
+          >
+            📁 {{ collection.label || 'Untitled Collection' }}
           </div>
         </div>
       </div>
@@ -169,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
@@ -282,6 +272,12 @@ function getPreviewImage(collection: ArtCollection): {
   }
   return { src: fallback, note: 'fallback used', artId: art.id }
 }
+
+onMounted(() => {
+  selectedCollections.value.forEach((collection) => {
+    ;(collection.art || []).forEach((a) => getArtImage(a))
+  })
+})
 </script>
 
 <style scoped>

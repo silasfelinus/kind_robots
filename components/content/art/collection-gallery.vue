@@ -173,8 +173,9 @@ function handleHover(collection: ArtCollection) {
 }
 
 function canEdit(c: ArtCollection) {
-  return c.userId === userStore.userId
+  return c.userId === userStore.userId || userStore.isAdmin
 }
+
 
 function deleteCollection(id: number) {
   collectionStore.deleteCollectionById(id)

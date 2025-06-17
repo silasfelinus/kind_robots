@@ -84,8 +84,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useCollectionStore } from '@/stores/collectionStore'
-import { getArtImageByArtId } from '@/stores/helpers/collectionHelper'
+import { useCollectionStore, getArtImageByArtId } from '@/stores/collectionStore'
 import type { Art, ArtImage } from '@/stores/artStore'
 import type { ArtCollection } from '@/stores/collectionStore'
 

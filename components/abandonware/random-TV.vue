@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { useGalleryStore } from './../../../stores/galleryStore' // adjust path as necessary
+import { useGalleryStore } from '../../stores/galleryStore' // adjust path as necessary
 
 const galleryStore = useGalleryStore()
 const currentImage = computed(() => galleryStore.currentImage)

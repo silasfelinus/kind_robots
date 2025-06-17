@@ -92,9 +92,13 @@ model ArtCollection {
   createdAt DateTime  @default(now())
   updatedAt DateTime? @default(now()) @updatedAt
   userId    Int       @default(10)
+  username  String?
   User      User      @relation(fields: [userId], references: [id])
   art       Art[]     @relation("ArtToArtCollection")
   label     String?
+  description String?
+  isPublic  Boolean   @default(true)
+  isMature  Boolean   @default(false)
 
   @@index([userId], map: "ArtCollection_userId_fkey")
 }

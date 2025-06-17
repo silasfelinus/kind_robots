@@ -1,5 +1,8 @@
+<!-- /components/content/art/art-grid.vue -->
 <template>
-  <div class="relative w-full h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
+  <div
+    class="relative w-full h-[calc(100vh-4rem)] overflow-hidden flex flex-col"
+  >
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
       <button
@@ -7,20 +10,43 @@
         @click="displayStore.toggleFullscreen()"
       >
         <Icon
-          :name="displayStore.isFullScreen ? 'kind-icon:compress' : 'kind-icon:expand'"
+          :name="
+            displayStore.isFullScreen
+              ? 'kind-icon:compress'
+              : 'kind-icon:expand'
+          "
         />
       </button>
     </div>
 
-    <!-- Title + Toggle Buttons -->
+    <!-- Title -->
     <div class="text-center mt-6 md:mt-0">
       <slot name="title" />
     </div>
 
+    <!-- Toggle Buttons with Custom Labels -->
     <div class="hidden md:flex justify-center gap-2 mt-2">
-      <button class="btn btn-sm" :class="{ 'btn-primary': showLeft }" @click="toggleSection('left')">⬅️ Left</button>
-      <button class="btn btn-sm" :class="{ 'btn-primary': showCenter }" @click="toggleSection('center')">🎯 Center</button>
-      <button class="btn btn-sm" :class="{ 'btn-primary': showRight }" @click="toggleSection('right')">➡️ Right</button>
+      <button
+        class="btn btn-sm"
+        :class="{ 'btn-primary': showLeft }"
+        @click="toggleSection('left')"
+      >
+        <slot name="label-left">⬅️ Left</slot>
+      </button>
+      <button
+        class="btn btn-sm"
+        :class="{ 'btn-primary': showCenter }"
+        @click="toggleSection('center')"
+      >
+        <slot name="label-center">🎯 Center</slot>
+      </button>
+      <button
+        class="btn btn-sm"
+        :class="{ 'btn-primary': showRight }"
+        @click="toggleSection('right')"
+      >
+        <slot name="label-right">➡️ Right</slot>
+      </button>
     </div>
 
     <!-- Report Area -->
@@ -68,7 +94,11 @@
             @click="isExtraExpanded = !isExtraExpanded"
           >
             <Icon
-              :name="isExtraExpanded ? 'kind-icon:chevron-double-down' : 'kind-icon:chevron-double-up'"
+              :name="
+                isExtraExpanded
+                  ? 'kind-icon:chevron-double-down'
+                  : 'kind-icon:chevron-double-up'
+              "
             />
           </button>
         </div>
@@ -80,11 +110,8 @@
       </div>
     </transition>
 
-    <!-- Overlay: only render if slot has content -->
-<slot name="overlay">
-  
-</slot>
-
+    <!-- Overlay -->
+    <slot name="overlay" />
   </div>
 </template>
 
@@ -108,7 +135,9 @@ function toggleSection(section: 'left' | 'center' | 'right') {
 }
 
 const sectionClass = computed(() => {
-  const visible = [showLeft.value, showCenter.value, showRight.value].filter(Boolean).length
+  const visible = [showLeft.value, showCenter.value, showRight.value].filter(
+    Boolean,
+  ).length
   if (visible === 3) return 'w-1/3'
   if (visible === 2) return 'w-1/2'
   return 'w-full'

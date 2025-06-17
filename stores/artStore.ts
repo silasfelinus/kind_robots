@@ -298,7 +298,6 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  // /stores/artStore.ts (inside your store definition)
   function getArtImageByArtId(
     artId: number,
     images?: ArtImage[],
@@ -393,7 +392,6 @@ export const useArtStore = defineStore('artStore', () => {
           body: JSON.stringify({ artIds: [art.id] }),
           headers: { 'Content-Type': 'application/json' },
         })
-        collectionStore.addArtToCollectionLocal(generatedCollection, art)
       }
 
       // Optionally add to current collection (if different)
@@ -403,7 +401,6 @@ export const useArtStore = defineStore('artStore', () => {
           body: JSON.stringify({ artIds: [art.id] }),
           headers: { 'Content-Type': 'application/json' },
         })
-        collectionStore.addArtToCollectionLocal(activeCollection, art)
       }
 
       state.art.push(art)

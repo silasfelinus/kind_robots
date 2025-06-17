@@ -21,7 +21,7 @@
       </select>
     </div>
 
-    <!-- Art Grid (when collections selected) -->
+    <!-- Art Grid -->
     <div v-if="selectedCollections.length" class="px-6 pb-2">
       <label class="label-text font-semibold">🖼️ Display Range</label>
       <input
@@ -51,21 +51,21 @@
       </div>
     </div>
 
-    <!-- Preview Gallery (when nothing is selected) -->
+    <!-- Collection Preview Grid -->
     <div v-else class="p-4 space-y-4">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         <div
           v-for="collection in collectionStore.collections"
           :key="collection.id"
-          class="cursor-pointer rounded-2xl bg-base-100 shadow hover:shadow-xl overflow-hidden"
+          class="cursor-pointer rounded-2xl bg-base-100 shadow hover:shadow-xl overflow-hidden transition-all min-w-[12rem]"
           @click="selectCollection(collection.id)"
         >
           <img
-            :src="getRandomImage(collection)"
+            :src="getPreviewImage(collection)"
             class="w-full h-48 object-cover"
             :alt="collection.label || 'Unnamed Collection'"
           />
-          <div class="p-3 font-semibold text-center">
+          <div class="p-3 font-semibold text-center text-base-content">
             📁 {{ collection.label || 'Untitled Collection' }}
           </div>
         </div>
@@ -98,12 +98,18 @@ const gridClass = computed(() => ({
   'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4': true,
 }))
 
-function getRandomImage(collection: ArtCollection) {
+function getPreviewImage(collection: ArtCollection) {
   const fallback = '/images/backtree.webp'
   const images = collection.art || []
-  if (images.length === 0) return fallback
-  const randomIndex = Math.floor(Math.random() * images.length)
-  return images[randomIndex]?.imageUrl || fallback
+  if (images.length > 0) {
+    const valid = images.filter((img) => img.imageUrl)
+    const index = Math.floor(Math.random() * valid.length)
+    return valid[index]?.imageUrl || fallback
+  }
+  if ((collection as any).highlightImage) {
+    return (collection as any).highlightImage
+  }
+  return fallback
 }
 
 function selectCollection(id: number) {

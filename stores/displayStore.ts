@@ -1,6 +1,6 @@
 // /stores/displayStore.ts
 import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
+import { reactive, ref, computed, toRefs } from 'vue'
 import { useErrorStore } from './errorStore'
 import type {
   DisplayState,
@@ -12,92 +12,84 @@ import type {
 import { setCustomVh } from './helpers/displayHelper'
 
 export const useDisplayStore = defineStore('displayStore', () => {
-  const headerState = ref<DisplayState>('open')
-  const sidebarLeftState = ref<DisplayState>('compact')
-  const sidebarRightState = ref<DisplayState>('hidden')
-  const footerState = ref<DisplayState>('hidden')
-  const isVertical = ref(false)
-  const viewportSize = ref<'small' | 'medium' | 'large' | 'extraLarge'>('large')
-  const isTouchDevice = ref(false)
-  const showTutorial = ref(true)
-  const isInitialized = ref(false)
-  const flipState = ref<FlipState>('tutorial')
-  const isFullScreen = ref(false)
-  const isMobileViewport = ref(true)
-  const isAnimating = ref(false)
-  const currentAnimation = ref('')
+  const state = reactive({
+    headerState: 'open' as DisplayState,
+    sidebarLeftState: 'compact' as DisplayState,
+    sidebarRightState: 'hidden' as DisplayState,
+    footerState: 'hidden' as DisplayState,
+    isVertical: false,
+    viewportSize: 'large' as 'small' | 'medium' | 'large' | 'extraLarge',
+    isTouchDevice: false,
+    showTutorial: true,
+    isInitialized: false,
+    flipState: 'tutorial' as FlipState,
+    isFullScreen: false,
+    isMobileViewport: true,
+    isAnimating: false,
+    currentAnimation: '',
+    fullscreenState: 'nuxt' as 'nuxt' | 'fullscreen',
+    bigMode: false,
+    displayMode: 'scenario' as displayModeState,
+    displayAction: 'gallery' as displayActionState,
+    previousRoute: '',
+    mainComponent: '',
+    isExtraExpanded: false,
+  })
+
   const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
-  const fullscreenState = ref<'nuxt' | 'fullscreen'>('nuxt')
-  const bigMode = ref(false)
-  const displayMode = ref<displayModeState>('scenario')
-  const displayAction = ref<displayActionState>('gallery')
-  const previousRoute = ref('')
-  const mainComponent = ref('')
-  const isExtraExpanded = ref(false)
 
   const sidebarLeftWidth = computed(() => {
     const sizes = { small: 16, medium: 11, large: 9, extraLarge: 5 }
     return (
-      sizes[viewportSize.value] *
-      (['open', 'compact'].includes(sidebarLeftState.value) ? 1 : 0)
+      sizes[state.viewportSize] *
+      (['open', 'compact'].includes(state.sidebarLeftState) ? 1 : 0)
     )
   })
 
   const sidebarRightWidth = computed(() => {
     const sizes = { small: 2, medium: 40, large: 25, extraLarge: 28 }
     return (
-      sizes[viewportSize.value] *
-      (['open', 'compact'].includes(sidebarRightState.value) ? 1 : 0)
+      sizes[state.viewportSize] *
+      (['open', 'compact'].includes(state.sidebarRightState) ? 1 : 0)
     )
   })
 
   const headerHeight = computed(() => {
     const sizes = {
-      small: bigMode.value ? 10 : 16,
-      medium: bigMode.value ? 8 : 12,
-      large: bigMode.value ? 7 : 13,
-      extraLarge: bigMode.value ? 8 : 14,
+      small: state.bigMode ? 10 : 16,
+      medium: state.bigMode ? 8 : 12,
+      large: state.bigMode ? 7 : 13,
+      extraLarge: state.bigMode ? 8 : 14,
     }
-    return sizes[viewportSize.value]
+    return sizes[state.viewportSize]
   })
-
-  function toggleExtraExpanded() {
-    isExtraExpanded.value = !isExtraExpanded.value
-  }
-
-  function setExtraExpanded(val: boolean) {
-    isExtraExpanded.value = val
-  }
 
   const footerHeight = computed(() => {
     const sizes = { small: 8, medium: 6, large: 7, extraLarge: 6 }
-    return sizes[viewportSize.value] * (footerState.value === 'open' ? 1 : 0)
+    return sizes[state.viewportSize] * (state.footerState === 'open' ? 1 : 0)
   })
 
   const sectionPaddingSize = computed(() => {
     const sizes = { small: 1, medium: 1, large: 1, extraLarge: 0.5 }
-    return sizes[viewportSize.value]
+    return sizes[state.viewportSize]
   })
 
   const mainContentHeight = computed(() => {
-    const header = headerState.value === 'hidden' ? 0 : headerHeight.value
+    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
     return 100 - (header + 2 * sectionPaddingSize.value)
   })
 
   const mainContentWidth = computed(() => {
     return (
       100 -
-      (sidebarRightState.value !== 'hidden'
+      (state.sidebarRightState !== 'hidden'
         ? sidebarRightWidth.value + sectionPaddingSize.value * 2
         : sectionPaddingSize.value)
     )
   })
 
   const headerStyle = computed(() => {
-    if (headerState.value === 'hidden') {
-      return { display: 'none' }
-    }
-
+    if (state.headerState === 'hidden') return { display: 'none' }
     return {
       height: `calc(var(--vh) * ${headerHeight.value})`,
       width: `calc(100vw - ${sectionPaddingSize.value * 2}vw)`,
@@ -107,7 +99,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const leftToggleStyle = computed(() => {
-    const header = headerState.value === 'hidden' ? 0 : headerHeight.value
+    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
     return {
       top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
       left: `${sectionPaddingSize.value}vw`,
@@ -115,7 +107,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const rightToggleStyle = computed(() => {
-    const header = headerState.value === 'hidden' ? 0 : headerHeight.value
+    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
     return {
       top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
       right: `${sectionPaddingSize.value}vw`,
@@ -129,8 +121,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }))
 
   const leftSidebarStyle = computed(() => {
-    const header = headerState.value === 'hidden' ? 0 : headerHeight.value
-    return sidebarLeftState.value !== 'hidden'
+    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
+    return state.sidebarLeftState !== 'hidden'
       ? {
           height: `calc(var(--vh) * ${mainContentHeight.value})`,
           width: `${sidebarLeftWidth.value}vw`,
@@ -141,8 +133,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const rightSidebarStyle = computed(() => {
-    const header = headerState.value === 'hidden' ? 0 : headerHeight.value
-    return sidebarRightState.value !== 'hidden'
+    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
+    return state.sidebarRightState !== 'hidden'
       ? {
           height: `calc(var(--vh) * ${mainContentHeight.value})`,
           width: `${sidebarRightWidth.value}vw`,
@@ -153,14 +145,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const mainContentStyle = computed(() => {
-    const header = headerState.value === 'hidden' ? 0 : headerHeight.value
+    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
     return {
       minHeight: `calc(var(--vh) * ${mainContentHeight.value})`,
       maxHeight: '100%',
       width: `calc(${mainContentWidth.value}vw)`,
       top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
       right:
-        sidebarRightState.value !== 'hidden'
+        state.sidebarRightState !== 'hidden'
           ? `calc(${sidebarRightWidth.value}vw + ${sectionPaddingSize.value * 2}vw)`
           : `${sectionPaddingSize.value}vw`,
       left: `${sectionPaddingSize.value}vw`,
@@ -170,20 +162,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const footerStyle = computed(() => ({ height: '0px', width: '0px' }))
 
   const isLargeViewport = computed(() =>
-    ['large', 'extraLarge'].includes(viewportSize.value),
+    ['large', 'extraLarge'].includes(state.viewportSize),
   )
 
   function toggleFullscreen() {
-    if (!isFullScreen.value) {
-      // Entering fullscreen: hide header
-      headerState.value = 'hidden'
-      fullscreenState.value = 'fullscreen'
-    } else {
-      // Exiting fullscreen: restore header only
-      headerState.value = 'open'
-      fullscreenState.value = 'nuxt'
-    }
-    isFullScreen.value = !isFullScreen.value
+    state.isFullScreen = !state.isFullScreen
+    state.fullscreenState = state.isFullScreen ? 'fullscreen' : 'nuxt'
+    state.headerState = state.isFullScreen ? 'hidden' : 'open'
     saveState()
   }
 
@@ -194,25 +179,20 @@ export const useDisplayStore = defineStore('displayStore', () => {
       open: 'hidden',
       disabled: 'hidden',
     } as const
-
-    if (side === 'sidebarLeftState') {
-      sidebarLeftState.value = stateMap[sidebarLeftState.value]
-    } else if (side === 'sidebarRightState') {
-      sidebarRightState.value = stateMap[sidebarRightState.value]
-    }
+    state[side] = stateMap[state[side]]
     saveState()
   }
 
   function toggleFooter() {
-    footerState.value = footerState.value === 'open' ? 'hidden' : 'open'
+    state.footerState = state.footerState === 'open' ? 'hidden' : 'open'
   }
 
   function toggleBigMode() {
-    bigMode.value = !bigMode.value
+    state.bigMode = !state.bigMode
   }
 
   function setMainComponent(name: string) {
-    mainComponent.value = name
+    state.mainComponent = name
   }
 
   function toggleRandomAnimation() {
@@ -222,146 +202,31 @@ export const useDisplayStore = defineStore('displayStore', () => {
       'rain-effect',
       'butterfly-animation',
     ]
-    const index = Math.floor(Math.random() * options.length)
-    currentAnimation.value = options[index]
-    isAnimating.value = true
+    state.currentAnimation = options[Math.floor(Math.random() * options.length)]
+    state.isAnimating = true
   }
 
   function stopAnimation() {
-    isAnimating.value = false
-    currentAnimation.value = ''
+    state.isAnimating = false
+    state.currentAnimation = ''
   }
 
-  function initialize() {
-    if (isInitialized.value) return
-    try {
-      loadState()
-      updateViewport()
-      window.addEventListener('resize', updateViewport)
-      isInitialized.value = true
-    } catch (error) {
-      handleError(error)
-    }
+  function toggleExtraExpanded() {
+    state.isExtraExpanded = !state.isExtraExpanded
   }
 
-  function loadState() {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        const savedState = localStorage.getItem('displayStoreState')
-        if (savedState) {
-          const parsedState = JSON.parse(savedState)
-          Object.assign(
-            {
-              headerState,
-              sidebarLeftState,
-              sidebarRightState,
-              footerState,
-              isVertical,
-              viewportSize,
-              isTouchDevice,
-              showTutorial,
-              isInitialized,
-              flipState,
-              isFullScreen,
-              isMobileViewport,
-              isAnimating,
-              currentAnimation,
-              fullscreenState,
-              bigMode,
-              displayMode,
-              displayAction,
-              previousRoute,
-              mainComponent,
-              isExtraExpanded,
-            },
-            parsedState,
-          )
-        }
-      }
-    } catch (error) {
-      handleError(error)
-    }
+  function setExtraExpanded(val: boolean) {
+    state.isExtraExpanded = val
   }
 
-  // Function to set the right sidebar state (open/hidden) without toggling compact
   function setSidebarRight(isOpen: boolean) {
-    if (isOpen) {
-      sidebarRightState.value = 'open'
-    } else {
-      sidebarRightState.value = 'hidden'
-    }
+    state.sidebarRightState = isOpen ? 'open' : 'hidden'
     saveState()
   }
 
-  function handleError(error: unknown) {
-    const errorStore = useErrorStore()
-    errorStore.setError(ErrorType.GENERAL_ERROR, error)
-  }
-
-  function saveState() {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        const stateToSave = {
-          headerState: headerState.value,
-          sidebarLeftState: sidebarLeftState.value,
-          sidebarRightState: sidebarRightState.value,
-          footerState: footerState.value,
-          isVertical: isVertical.value,
-          viewportSize: viewportSize.value,
-          isTouchDevice: isTouchDevice.value,
-          showTutorial: showTutorial.value,
-          flipState: flipState.value,
-          isFullScreen: isFullScreen.value,
-          isMobileViewport: isMobileViewport.value,
-          fullscreenState: fullscreenState.value,
-          bigMode: bigMode.value,
-          displayMode: displayMode.value,
-          displayAction: displayAction.value,
-          previousRoute: previousRoute.value,
-          mainComponent: mainComponent.value,
-          isExtraExpanded: isExtraExpanded.value,
-        }
-        localStorage.setItem('displayStoreState', JSON.stringify(stateToSave))
-      }
-    } catch (error) {
-      handleError(error)
-    }
-  }
-
-  function updateViewport() {
-    if (resizeTimeout.value) clearTimeout(resizeTimeout.value)
-    resizeTimeout.value = setTimeout(() => {
-      try {
-        setCustomVh()
-        const width = window.innerWidth
-        isVertical.value = window.innerHeight > window.innerWidth
-        isTouchDevice.value =
-          'ontouchstart' in window || navigator.maxTouchPoints > 0
-
-        if (width < 768) {
-          viewportSize.value = 'small'
-          isMobileViewport.value = true
-        } else if (width < 1024) {
-          viewportSize.value = 'medium'
-          isMobileViewport.value = false
-        } else if (width < 1440) {
-          viewportSize.value = 'large'
-          isMobileViewport.value = false
-        } else {
-          viewportSize.value = 'extraLarge'
-          isMobileViewport.value = false
-        }
-      } catch (error) {
-        handleError(error)
-      } finally {
-        resizeTimeout.value = null
-      }
-    }, 200)
-  }
-
   function toggleAnimationById(id: EffectId) {
-    currentAnimation.value = id
-    isAnimating.value = true
+    state.currentAnimation = id
+    state.isAnimating = true
   }
 
   function changeState(
@@ -372,68 +237,100 @@ export const useDisplayStore = defineStore('displayStore', () => {
       | 'footerState',
     newState: DisplayState,
   ) {
-    const stateMap = {
-      sidebarLeftState,
-      sidebarRightState,
-      headerState,
-      footerState,
-    }
-
-    stateMap[section].value = newState
+    state[section] = newState
     saveState()
   }
 
   function setAction(action: displayActionState) {
-    displayAction.value = action
+    state.displayAction = action
     saveState()
   }
 
   function setMode(mode: displayModeState) {
-    displayMode.value = mode
+    state.displayMode = mode
     saveState()
-  }
-
-  function removeViewportWatcher() {
-    console.log('Removing viewport watcher...')
-    window.removeEventListener('resize', updateViewport)
   }
 
   function toggleTutorial() {
-    if (flipState.value === 'tutorial' || flipState.value === 'toTutorial') {
-      flipState.value = 'toMain'
-    } else {
-      flipState.value = 'toTutorial'
-    }
-
-    // Toggle the showTutorial state
-    showTutorial.value = !showTutorial
-
+    state.flipState =
+      state.flipState === 'tutorial' || state.flipState === 'toTutorial'
+        ? 'toMain'
+        : 'toTutorial'
+    state.showTutorial = !state.showTutorial
     saveState()
   }
 
+  function updateViewport() {
+    if (resizeTimeout.value) clearTimeout(resizeTimeout.value)
+    resizeTimeout.value = setTimeout(() => {
+      try {
+        setCustomVh()
+        const width = window.innerWidth
+        state.isVertical = window.innerHeight > window.innerWidth
+        state.isTouchDevice =
+          'ontouchstart' in window || navigator.maxTouchPoints > 0
+
+        if (width < 768) {
+          state.viewportSize = 'small'
+          state.isMobileViewport = true
+        } else if (width < 1024) {
+          state.viewportSize = 'medium'
+          state.isMobileViewport = false
+        } else if (width < 1440) {
+          state.viewportSize = 'large'
+          state.isMobileViewport = false
+        } else {
+          state.viewportSize = 'extraLarge'
+          state.isMobileViewport = false
+        }
+      } catch (error) {
+        handleError(error)
+      } finally {
+        resizeTimeout.value = null
+      }
+    }, 200)
+  }
+
+  function removeViewportWatcher() {
+    window.removeEventListener('resize', updateViewport)
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem('displayStoreState', JSON.stringify(state))
+    } catch (error) {
+      handleError(error)
+    }
+  }
+
+  function loadState() {
+    try {
+      const saved = localStorage.getItem('displayStoreState')
+      if (saved) Object.assign(state, JSON.parse(saved))
+    } catch (error) {
+      handleError(error)
+    }
+  }
+
+  function initialize() {
+    if (state.isInitialized) return
+    try {
+      loadState()
+      updateViewport()
+      window.addEventListener('resize', updateViewport)
+      state.isInitialized = true
+    } catch (error) {
+      handleError(error)
+    }
+  }
+
+  function handleError(error: unknown) {
+    useErrorStore().setError(ErrorType.GENERAL_ERROR, error)
+  }
+
   return {
-    headerState,
-    sidebarLeftState,
-    sidebarRightState,
-    footerState,
-    isVertical,
-    viewportSize,
-    isTouchDevice,
-    showTutorial,
-    isInitialized,
-    flipState,
-    isFullScreen,
-    isMobileViewport,
-    isAnimating,
-    currentAnimation,
+    ...toRefs(state),
     resizeTimeout,
-    fullscreenState,
-    toggleFullscreen,
-    bigMode,
-    displayMode,
-    displayAction,
-    previousRoute,
-    mainComponent,
     sidebarLeftWidth,
     sidebarRightWidth,
     headerHeight,
@@ -450,25 +347,26 @@ export const useDisplayStore = defineStore('displayStore', () => {
     mainContentStyle,
     footerStyle,
     isLargeViewport,
+    toggleFullscreen,
     toggleSidebar,
     toggleFooter,
     toggleBigMode,
     setMainComponent,
     toggleRandomAnimation,
     stopAnimation,
-    initialize,
-    saveState,
-    updateViewport,
-    toggleAnimationById,
-    setSidebarRight,
-    setMode,
-    setAction,
-    toggleTutorial,
-    changeState,
-    removeViewportWatcher,
-    isExtraExpanded,
     toggleExtraExpanded,
     setExtraExpanded,
+    toggleAnimationById,
+    changeState,
+    setAction,
+    setMode,
+    toggleTutorial,
+    setSidebarRight,
+    saveState,
+    loadState,
+    updateViewport,
+    initialize,
+    removeViewportWatcher,
   }
 })
 

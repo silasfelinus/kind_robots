@@ -5,7 +5,7 @@
       <div
         v-for="c in selectedCollections"
         :key="c.id"
-        class="bg-base-100 p-6 rounded-2xl shadow space-y-4"
+        class="bg-base-100 p-6 rounded-2xl shadow space-y-4 group"
       >
         <!-- Header -->
         <div
@@ -13,12 +13,22 @@
         >
           <div class="flex-1 space-y-1">
             <!-- Editable Label -->
-            <div v-if="canEdit(c) && editingTitle === c.id" class="flex items-center gap-2">
+            <div
+              v-if="canEdit(c) && editingTitle === c.id"
+              class="flex items-center gap-2"
+            >
               <input
                 v-model="c.label"
                 class="input input-sm input-bordered text-xl font-bold w-full max-w-xs"
-                @blur="editingTitle = null"
                 :placeholder="c.label || 'Untitled Collection'"
+              />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-sm"
+                @change="
+                  c.label &&
+                  collectionStore.updateCollectionLabel(c.id, c.label)
+                "
               />
               <span class="badge badge-primary">You</span>
             </div>
@@ -45,14 +55,6 @@
               title="Back"
             >
               <Icon name="kind-icon:arrow-left" />
-            </button>
-            <button
-              v-if="canEdit(c)"
-              class="btn btn-xs btn-square btn-error"
-              @click="deleteCollection(c.id)"
-              title="Delete"
-            >
-              <Icon name="kind-icon:trash" />
             </button>
           </div>
         </div>
@@ -94,22 +96,44 @@
                 class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
                 alt="Back"
               />
-              <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-2">
-                <Icon name="kind-icon:arrow-left" class="w-8 h-8 text-base-content" />
-                <div class="mt-1 text-xs font-semibold text-base-content">Back</div>
+              <div
+                class="absolute inset-0 flex flex-col items-center justify-center text-center px-2"
+              >
+                <Icon
+                  name="kind-icon:arrow-left"
+                  class="w-8 h-8 text-base-content"
+                />
+                <div class="mt-1 text-xs font-semibold text-base-content">
+                  Back
+                </div>
               </div>
             </div>
 
             <!-- Art Cards -->
-            <ArtCard
+            <div
+              class="relative group"
               v-for="art in getArtFromCollection(c).slice(0, visibleCount)"
               :key="art.id"
-              :art="art"
-              @click="artStore.setCurrentArt(art)"
-            />
+            >
+              <ArtCard :art="art" @click="artStore.selectArt(art.id)" />
+              <div
+                v-if="canEdit(c)"
+                class="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 group-hover:opacity-100 opacity-0 transition-opacity"
+              >
+                <button
+                  class="btn btn-xs btn-error"
+                  @click.stop="
+                    collectionStore.removeArtFromLocalCollection(c, art.id)
+                  "
+                  title="Remove from collection"
+                >
+                  <Icon name="kind-icon:trash" class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
           <div v-else class="text-center italic text-base-content/60 py-12">
-            💤 No matching art found.
+            🛌 No matching art found.
           </div>
         </div>
       </div>
@@ -159,7 +183,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
@@ -222,7 +245,8 @@ function confirmRemoveAllArt(collection: ArtCollection) {
 }
 
 const gridClass = computed(() => ({
-  'grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5': true,
+  'grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5':
+    true,
 }))
 
 function getPreviewImage(collection: ArtCollection): {

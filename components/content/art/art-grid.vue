@@ -26,22 +26,22 @@
     <div class="hidden md:flex justify-center gap-2 mt-2">
       <button
         class="btn btn-sm"
-        :class="{ 'btn-primary': showLeft }"
-        @click="toggleSection('left')"
+        :class="{ 'btn-primary': displayStore.showLeft }"
+        @click="displayStore.toggleSection('left')"
       >
         <slot name="label-left">⬅️ Left</slot>
       </button>
       <button
         class="btn btn-sm"
-        :class="{ 'btn-primary': showCenter }"
-        @click="toggleSection('center')"
+        :class="{ 'btn-primary': displayStore.showCenter }"
+        @click="displayStore.toggleSection('center')"
       >
         <slot name="label-center">🎯 Center</slot>
       </button>
       <button
         class="btn btn-sm"
-        :class="{ 'btn-primary': showRight }"
-        @click="toggleSection('right')"
+        :class="{ 'btn-primary': displayStore.showRight }"
+        @click="displayStore.toggleSection('right')"
       >
         <slot name="label-right">➡️ Right</slot>
       </button>
@@ -55,21 +55,21 @@
     <!-- Main Display -->
     <div class="flex-1 overflow-hidden flex w-full transition-all duration-500">
       <div
-        v-if="showLeft"
+        v-if="displayStore.showLeft"
         class="h-full overflow-y-auto px-2 space-y-4"
         :class="sectionClass"
       >
         <slot name="left" />
       </div>
       <div
-        v-if="showCenter"
+        v-if="displayStore.showCenter"
         class="h-full overflow-y-auto px-2 space-y-4"
         :class="sectionClass"
       >
         <slot name="center" />
       </div>
       <div
-        v-if="showRight"
+        v-if="displayStore.showRight"
         class="h-full overflow-y-auto px-2 space-y-4"
         :class="sectionClass"
       >
@@ -80,22 +80,23 @@
     <!-- Expandable Extra Section -->
     <transition name="slide-fade">
       <div
+        v-show="displayStore.showExtended"
         ref="extraRef"
         class="w-full border-t border-base-content bg-base-300 shadow-inner overflow-y-auto transition-all duration-500 relative"
         :class="{
-          'absolute bottom-0 left-0 right-0 z-40': displayStore.isExtraExpanded,
+          'absolute bottom-0 left-0 right-0 z-40': displayStore.showExtended,
         }"
-        :style="{ maxHeight: displayStore.isExtraExpanded ? '50vh' : '20vh' }"
+        :style="{ maxHeight: displayStore.showExtended ? '50vh' : '20vh' }"
       >
         <!-- Floating Toggle -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10 mt-1">
           <button
             class="btn btn-xs btn-circle bg-base-100 border border-base-content shadow"
-            @click="displayStore.toggleExtraExpanded()"
+            @click="displayStore.toggleExtended()"
           >
             <Icon
               :name="
-                displayStore.isExtraExpanded
+                displayStore.showExtended
                   ? 'kind-icon:chevron-double-down'
                   : 'kind-icon:chevron-double-up'
               "
@@ -117,27 +118,19 @@
 
 <script setup lang="ts">
 // /components/content/art/art-grid.vue
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-const showLeft = ref(true)
-const showCenter = ref(true)
-const showRight = ref(true)
-
-function toggleSection(section: 'left' | 'center' | 'right') {
-  if (section === 'left') showLeft.value = !showLeft.value
-  if (section === 'center') showCenter.value = !showCenter.value
-  if (section === 'right') showRight.value = !showRight.value
-}
-
 const sectionClass = computed(() => {
-  const visible = [showLeft.value, showCenter.value, showRight.value].filter(
-    Boolean,
-  ).length
-  if (visible === 3) return 'w-1/3'
-  if (visible === 2) return 'w-1/2'
+  const visibleCount = [
+    displayStore.showLeft,
+    displayStore.showCenter,
+    displayStore.showRight,
+  ].filter(Boolean).length
+  if (visibleCount === 3) return 'w-1/3'
+  if (visibleCount === 2) return 'w-1/2'
   return 'w-full'
 })
 </script>

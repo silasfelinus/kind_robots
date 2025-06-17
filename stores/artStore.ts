@@ -89,6 +89,11 @@ export const useArtStore = defineStore('artStore', () => {
   const collectionStore = useCollectionStore()
   const randomStore = useRandomStore()
 
+  const hoverArt = ref<Art | null>(null)
+  function setHoverArt(a: Art | null) {
+    hoverArt.value = a
+  }
+
   const getPromptString = computed(() => {
     const baseSelections = Object.entries(state.artListSelections)
       .filter(
@@ -451,6 +456,8 @@ export const useArtStore = defineStore('artStore', () => {
     artListPresets,
     getPromptString,
     loadArtImagesInChunks,
+    hoverArt,
+    setHoverArt,
   }
 })
 

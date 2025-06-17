@@ -1,4 +1,6 @@
 <template>
+  <collection-info />
+
   <div class="relative bg-base-300 rounded-2xl shadow-md overflow-hidden">
     <!-- Selected Collection View -->
     <div v-if="selectedCollections.length" class="space-y-6 p-6">
@@ -119,6 +121,8 @@ Collection:
           :key="collection.id"
           class="flex flex-col items-center bg-base-100 rounded-2xl shadow hover:shadow-xl transition-all overflow-hidden cursor-pointer w-full"
           @click="selectCollection(collection.id)"
+          @mouseenter="handleHover(collection)"
+          @mouseleave="artStore.setHoverArt(null)"
         >
           <div class="w-full h-48 overflow-hidden">
             <img
@@ -173,6 +177,16 @@ function selectCollection(id: number) {
 function removeCollection(id: number) {
   collectionStore.selectedCollectionIds =
     collectionStore.selectedCollectionIds.filter((i) => i !== id)
+}
+
+function handleHover(collection: ArtCollection) {
+  const preview = getPreviewImage(collection)
+  if (preview.artId) {
+    const art = artStore.art.find((a) => a.id === preview.artId) || null
+    artStore.setHoverArt(art)
+  } else {
+    artStore.setHoverArt(null)
+  }
 }
 
 function canEdit(c: ArtCollection) {

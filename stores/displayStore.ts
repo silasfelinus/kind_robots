@@ -33,7 +33,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
     displayAction: 'gallery' as displayActionState,
     previousRoute: '',
     mainComponent: '',
-    isExtraExpanded: false,
+    showLeft: true,
+    showCenter: true,
+    showRight: true,
+    showExtended: false,
   })
 
   const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
@@ -211,12 +214,24 @@ export const useDisplayStore = defineStore('displayStore', () => {
     state.currentAnimation = ''
   }
 
+  function toggleSection(section: 'left' | 'center' | 'right') {
+    const key = `show${section.charAt(0).toUpperCase()}${section.slice(1)}` as
+      | 'showLeft'
+      | 'showCenter'
+      | 'showRight'
+    state[key] = !state[key]
+  }
+
+  function toggleExtended() {
+    state.showExtended = !state.showExtended
+  }
+
   function toggleExtraExpanded() {
-    state.isExtraExpanded = !state.isExtraExpanded
+    state.showExtended = !state.showExtended
   }
 
   function setExtraExpanded(val: boolean) {
-    state.isExtraExpanded = val
+    state.showExtended = val
   }
 
   function setSidebarRight(isOpen: boolean) {
@@ -330,6 +345,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   return {
     ...toRefs(state),
+    toggleSection,
+    toggleExtended,
     resizeTimeout,
     sidebarLeftWidth,
     sidebarRightWidth,

@@ -16,4 +16,4 @@ sort: highlight
 navComponent: 'art-nav'
 ---
 
-:art-gallery
+:collection-gallery

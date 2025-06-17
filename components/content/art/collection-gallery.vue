@@ -72,18 +72,9 @@
             v-if="debug"
             class="px-4 pb-4 text-xs text-center text-warning-content font-mono break-words"
           >
-            <p>
-              🖼️ <span class="font-bold">Art ID:</span>
-              {{ getPreviewImage(collection).artId }}
-            </p>
-            <p>
-              <span class="font-bold">Path:</span>
-              {{ getPreviewImage(collection).src }}
-            </p>
-            <p>
-              <span class="font-bold">Note:</span>
-              {{ getPreviewImage(collection).note }}
-            </p>
+            <p>🖼️ <span class="font-bold">Art ID:</span> {{ getPreviewImage(collection).artId }}</p>
+            <p><span class="font-bold">Path:</span> {{ getPreviewImage(collection).src }}</p>
+            <p><span class="font-bold">Note:</span> {{ getPreviewImage(collection).note }}</p>
           </div>
         </div>
       </div>
@@ -94,7 +85,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useCollectionStore } from '@/stores/collectionStore'
-import type { ArtCollection, Art } from '@/stores/artStore'
+import { getArtImageByArtId } from '@/stores/helpers/collectionHelper'
+import type { Art, ArtImage } from '@/stores/artStore'
+import type { ArtCollection } from '@/stores/collectionStore'
 
 const collectionStore = useCollectionStore()
 const visibleCount = ref(50)
@@ -122,32 +115,49 @@ function getPreviewImage(collection: ArtCollection): {
   artId: number | null
 } {
   const fallback = '/images/backtree.webp'
+  const artImages = (collection as any).artImages as ArtImage[] || []
   const images = collection.art || []
-  const valid = images.filter((img: Art) => img?.path)
+
+  const valid = images.filter((img) => img?.id)
 
   if (valid.length > 0) {
-    const random = valid[Math.floor(Math.random() * valid.length)]
-    console.log(`🖼️ Using imageUrl for artId ${random.id}:`, random.path)
+    const art = valid[Math.floor(Math.random() * valid.length)]
+
+    if (art.path) {
+      return {
+        src: art.path,
+        note: 'from art.path',
+        artId: art.id,
+      }
+    }
+
+    const found = getArtImageByArtId(artImages, art.id)
+    if (found?.path) {
+      return {
+        src: found.path,
+        note: 'from artImage.path',
+        artId: art.id,
+      }
+    }
+
+    if ((collection as any).highlightImage) {
+      return {
+        src: (collection as any).highlightImage,
+        note: 'from collection.highlightImage',
+        artId: art.id,
+      }
+    }
+
     return {
-      src: random.path || fallback,
-      note: random.path ? 'from art.imageUrl' : 'missing imageUrl',
-      artId: random.id,
+      src: fallback,
+      note: 'fallback used (no path, no artImage)',
+      artId: art.id,
     }
   }
 
-  if ((collection as any).highlightImage) {
-    console.log(`✨ Using highlightImage for collection ${collection.id}`)
-    return {
-      src: (collection as any).highlightImage,
-      note: 'from highlightImage',
-      artId: null,
-    }
-  }
-
-  console.warn(`⚠️ No valid image found for collection ${collection.id}`)
   return {
     src: fallback,
-    note: 'fallback used',
+    note: 'no art in collection',
     artId: null,
   }
 }

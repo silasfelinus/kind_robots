@@ -36,13 +36,13 @@
         Showing {{ visibleCount }} / {{ filteredArt.length }} images
       </div>
 
-      <div class="scroll-container overflow-auto max-h-[75vh] p-4">
+      <div class="scroll-container overflow-auto max-h-[75vh] p-6">
         <div v-if="visibleArt.length > 0" :class="gridClass">
           <ArtCard
             v-for="art in visibleArt"
             :key="art.id"
             :art="art"
-            class="rounded-lg shadow-md bg-white hover:shadow-lg transition-shadow"
+            class="rounded-2xl shadow-md bg-white hover:shadow-lg transition-shadow"
           />
         </div>
         <div v-else class="text-center italic text-base-content/60 py-12">
@@ -52,12 +52,12 @@
     </div>
 
     <!-- Collection Preview Grid -->
-    <div v-else class="p-4 space-y-4">
-      <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+    <div v-else class="p-6">
+      <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <div
           v-for="collection in collectionStore.collections"
           :key="collection.id"
-          class="cursor-pointer rounded-2xl bg-base-100 shadow hover:shadow-xl overflow-hidden transition-all min-w-[12rem]"
+          class="cursor-pointer rounded-2xl bg-base-100 shadow hover:shadow-xl overflow-hidden transition-all w-full min-w-[14rem] sm:min-w-[16rem]"
           @click="selectCollection(collection.id)"
         >
           <img
@@ -65,7 +65,7 @@
             class="w-full h-48 object-cover"
             :alt="collection.label || 'Unnamed Collection'"
           />
-          <div class="p-3 font-semibold text-center text-base-content">
+          <div class="p-4 font-semibold text-center text-base-content text-lg">
             📁 {{ collection.label || 'Untitled Collection' }}
           </div>
         </div>
@@ -95,21 +95,18 @@ const filteredArt = computed(() =>
 const visibleArt = filteredArt
 
 const gridClass = computed(() => ({
-  'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4': true,
+  'grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4': true,
 }))
 
 function getPreviewImage(collection: ArtCollection) {
   const fallback = '/images/backtree.webp'
   const images = collection.art || []
-  if (images.length > 0) {
-    const valid = images.filter((img) => img.imageUrl)
+  const valid = images.filter((img) => img?.imageUrl)
+  if (valid.length > 0) {
     const index = Math.floor(Math.random() * valid.length)
-    return valid[index]?.imageUrl || fallback
+    return valid[index].imageUrl || fallback
   }
-  if ((collection as any).highlightImage) {
-    return (collection as any).highlightImage
-  }
-  return fallback
+  return (collection as any).highlightImage || fallback
 }
 
 function selectCollection(id: number) {

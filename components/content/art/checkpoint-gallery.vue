@@ -1,3 +1,4 @@
+<!-- /components/content/art/checkpoint-gallery.vue -->
 <template>
   <div class="w-full max-w-full px-4 sm:px-6 md:px-8 space-y-6 md:space-y-8 xl:space-y-10 overflow-x-hidden">
     <!-- Admin Toggle -->
@@ -52,7 +53,7 @@
         />
         <img
           v-else-if="displayedCheckpoints[0].MediaPath"
-          :src="displayedCheckpoints[0].MediaPath"
+          :src="`${displayedCheckpoints[0].MediaPath}?t=${cacheBuster}`"
           alt="Checkpoint Image"
           class="rounded-xl object-cover h-40 w-40"
         />
@@ -105,7 +106,7 @@
             />
             <img
               v-else-if="c.MediaPath"
-              :src="c.MediaPath"
+              :src="`${c.MediaPath}?t=${cacheBuster}`"
               alt="Checkpoint Image"
               class="rounded-xl object-cover w-full h-40"
             />
@@ -158,6 +159,11 @@ const artStore = useArtStore()
 
 const checkpointImages = ref<Record<string, Art | null>>({})
 const isExpanded = ref(false)
+const cacheBuster = ref(Date.now())
+
+function updateCacheBuster() {
+  cacheBuster.value = Date.now()
+}
 
 const selectedCheckpointName = computed({
   get: () => checkpointStore.selectedCheckpoint?.name || '',
@@ -199,6 +205,7 @@ function handleCheckpointClick(name: string) {
     isExpanded.value = false
   } else {
     checkpointStore.selectCheckpointByName(name)
+    updateCacheBuster()
   }
 }
 
@@ -241,9 +248,13 @@ onMounted(async () => {
 
     if (found && (!found.isMature || showMature.value)) {
       checkpointStore.selectCheckpointByName(found.name!)
+      updateCacheBuster()
     } else {
       const fallback = checkpointStore.visibleCheckpoints[0]
-      if (fallback?.name) checkpointStore.selectCheckpointByName(fallback.name)
+      if (fallback?.name) {
+        checkpointStore.selectCheckpointByName(fallback.name)
+        updateCacheBuster()
+      }
     }
 
     if (!checkpointStore.selectedSampler) {

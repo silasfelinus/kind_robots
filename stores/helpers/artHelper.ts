@@ -41,13 +41,6 @@ export function getCachedImageById(
   return images.find((image) => image.id === id)
 }
 
-export function getArtImageByArtId(
-  images: ArtImage[],
-  artId: number,
-): ArtImage | undefined {
-  return images.find((image) => image.artId === artId)
-}
-
 export function updateArtImageInPlace(
   images: ArtImage[],
   updatedImage: ArtImage,

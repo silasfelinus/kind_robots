@@ -82,6 +82,39 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     }
   }
 
+// Key
+const SELECTED_COLLECTION_KEY = 'selectedCollectionIds'
+
+// Ref
+const selectedCollectionIds = ref<number[]>([])
+
+// Computed
+const selectedCollections = computed(() => {
+  return selectedCollectionIds.value
+    .map((id) => findCollectionById(id))
+    .filter((c): c is ArtCollection => !!c)
+})
+
+// Load from storage
+if (process.client) {
+  const stored = localStorage.getItem(SELECTED_COLLECTION_KEY)
+  if (stored) {
+    try {
+      selectedCollectionIds.value = JSON.parse(stored)
+    } catch (e) {
+      console.warn('Invalid collection selection in localStorage:', e)
+    }
+  }
+}
+
+// Save on change
+watch(selectedCollectionIds, (ids) => {
+  if (process.client) {
+    localStorage.setItem(SELECTED_COLLECTION_KEY, JSON.stringify(ids))
+  }
+}, { deep: true })
+
+
   // Remove art from a collection on the server and locally
   async function removeArtFromCollectionServer(
     collectionId: number,

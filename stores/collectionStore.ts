@@ -43,6 +43,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     currentCollection: null as ArtCollection | null,
   })
 
+
   // Fetch all collections
   async function fetchCollections() {
     try {
@@ -113,6 +114,14 @@ export const useCollectionStore = defineStore('collectionStore', () => {
   function findCollectionById(collectionId: number): ArtCollection | undefined {
     return state.collections.find((c) => c.id === collectionId)
   }
+
+const selectedCollectionIds = ref<number[]>([])
+
+const selectedCollections = computed(() => {
+  return selectedCollectionIds.value
+    .map((id) => findCollectionById(id))
+    .filter((c): c is ArtCollection => !!c)
+})
 
   async function updateCollectionLabel(
     id: number,
@@ -207,5 +216,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     parseStoredCollections,
     updateCollectionLabel,
     updateCollectionFlags,
+selectedCollectionIds,
+selectedCollections,
   }
 })

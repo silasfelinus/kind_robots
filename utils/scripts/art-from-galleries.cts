@@ -1,3 +1,6 @@
+// DEPRECATED: Gallery model is legacy-only.
+// This script converts gallery imagePaths into Art + ArtCollection entries.
+
 // utils/scripts/art-from-galleries.cts
 // @ts-nocheck
 

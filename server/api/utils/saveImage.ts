@@ -16,9 +16,7 @@ export async function saveImage(
     const isProduction = process.env.APP_ENV === 'production'
 
     // Set the fileName dynamically based on environment
-    const fileName = isProduction
-      ? `ArtImageUpload-${timestamp}`
-      : `${galleryName}-${timestamp}.webp`
+    const fileName = `ArtImageUpload-${timestamp}`
 
     // Always save to the database
     const savedImage = await prisma.artImage.create({

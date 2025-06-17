@@ -59,7 +59,6 @@
 import { ref, computed, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useCollectionStore } from '@/stores/collectionStore'
-import ArtCard from './art-card.vue'
 
 const userStore = useUserStore()
 const collectionStore = useCollectionStore()

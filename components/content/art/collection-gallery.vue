@@ -88,9 +88,8 @@
       </div>
     </div>
 
-    <!-- Gallery Grid -->
     <div class="scroll-container overflow-auto max-h-[75vh] p-4">
-      <div :class="gridClass">
+      <div v-if="visibleArt.length > 0" :class="gridClass">
         <ArtCard
           v-for="art in visibleArt"
           :key="art.id"
@@ -98,7 +97,7 @@
           class="rounded-lg shadow-md bg-white hover:shadow-lg transition-shadow"
         />
       </div>
-      <div v-else class="text-center text-base-content/60 italic py-12">
+      <div v-else class="text-center italic text-base-content/60 py-12">
         💤 No matching art found.
       </div>
     </div>
@@ -106,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useUserStore } from '@/stores/userStore'
@@ -115,46 +114,40 @@ const artStore = useArtStore()
 const collectionStore = useCollectionStore()
 const userStore = useUserStore()
 
-const selectedOption = ref('__all__')
-const autoSaveEnabled = computed({
-  get: () => collectionStore.autoSave,
-  set: (val: boolean) => (collectionStore.autoSave = val),
-})
-
+const viewMode = ref<'all' | 'selected' | 'custom'>('all')
+const customTextFilter = ref('')
 const newLabel = ref('')
 const visibleCount = ref(50)
 
-const designerFilter = ref('')
-const keywordFilter = ref('')
-const showPublicOnly = ref(false)
-const showMatureOnly = ref(false)
-const showOnlyUserArt = ref(false)
-const sortOrder = ref<'Ascending' | 'Descending'>('Descending')
-const view = ref<'twoRow' | 'threeRow' | 'fourRow' | 'single'>('twoRow')
+const createNewCollection = async () => {
+  if (!newLabel.value.trim()) return
+  await collectionStore.createCollection(
+    newLabel.value.trim(),
+    userStore.userId,
+  )
+  newLabel.value = ''
+}
 
-const allCollections = computed(() => collectionStore.collections)
-
-// Art filter logic
+// 🔍 Cleaned up view logic
 const selectedArt = computed(() => {
-  if (selectedOption.value === '__all__') return artStore.art
-
-  if (selectedOption.value.startsWith('collection-')) {
-    const id = Number(selectedOption.value.split('-')[1])
-    return collectionStore.findCollectionById(id)?.art || []
+  if (viewMode.value === 'all') {
+    return collectionStore.collections.flatMap((c) => c.art || [])
+  }
+  if (viewMode.value === 'selected') {
+    return collectionStore.selectedCollections.flatMap((c) => c.art || [])
   }
   if (viewMode.value === 'custom') {
     const query = customTextFilter.value.toLowerCase()
     return collectionStore.collections
       .filter((c) => c.label?.toLowerCase().includes(query))
-      .flatMap((c) => c.art)
+      .flatMap((c) => c.art || [])
   }
   return []
 })
 
-const filteredArt = computed(() => {
-  return selectedArt.value.slice(0, visibleCount.value)
-})
-
+const filteredArt = computed(() =>
+  selectedArt.value.slice(0, visibleCount.value),
+)
 const visibleArt = filteredArt
 
 const gridClass = computed(() => ({

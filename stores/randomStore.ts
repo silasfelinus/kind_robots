@@ -1,7 +1,12 @@
 // /stores/randomStore.ts
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
+import { useUserStore } from './userStore'
+import { handleError, performFetch } from './utils'
+import type { Pitch } from '@prisma/client'
+
+// Local single-value randomizers
 import { useRandomAdjective } from '@/stores/utils/randomAdjective'
 import { useRandomAnimal } from '@/stores/utils/randomAnimal'
 import { useRandomBackstory } from '@/stores/utils/randomBackstory'
@@ -19,12 +24,13 @@ import { useRandomQuirk } from '@/stores/utils/randomQuirks'
 import { useRandomSkill } from '@/stores/utils/randomSkills'
 import { useRandomSpecies } from '@/stores/utils/randomSpecies'
 import { useRandomVerb } from '@/stores/utils/randomVerb'
-
 import { useRandomEncounter } from '@/stores/utils/randomEncounter'
 
 type SingleSource = () => string
 
 export const useRandomStore = defineStore('randomStore', () => {
+  const userStore = useUserStore()
+
   const singleValueSources: Record<string, SingleSource> = {
     adjective: () => useRandomAdjective().randomAdjective(),
     animal: () => useRandomAnimal().randomAnimal(),
@@ -66,7 +72,6 @@ export const useRandomStore = defineStore('randomStore', () => {
     const result = getRandom(key, 1)[0]
     if (!result) return
     if (randomSelections.value[key] === result) {
-      // Reroll
       randomSelections.value[key] = getRandom(key, 1)[0]
     } else {
       randomSelections.value[key] = result
@@ -105,14 +110,95 @@ export const useRandomStore = defineStore('randomStore', () => {
     )
   }
 
+  // 🔹 RANDOMLIST Pitch database handling
+  const randomLists = ref<Pitch[]>([])
+
+  const filteredLists = computed(() =>
+    randomLists.value.filter((r) => {
+      const isOwner = r.userId === userStore.userId
+      const isVisible = r.isPublic || isOwner
+      const maturityOk = userStore.showMature || !r.isMature
+      return r.PitchType === 'RANDOMLIST' && isVisible && maturityOk
+    }),
+  )
+
+  async function fetchRandomLists() {
+    const { data, success, message } = await performFetch<Pitch[]>(
+      '/api/pitch/randomlists',
+    )
+    if (success && data) {
+      randomLists.value = data
+    } else {
+      handleError(new Error(message), 'fetching random lists')
+    }
+  }
+
+  async function createList(title: string) {
+    const body = {
+      title,
+      pitch: '',
+      PitchType: 'RANDOMLIST',
+      userId: userStore.userId,
+      isPublic: true,
+      isMature: false,
+    }
+    const { data, success, message } = await performFetch<Pitch>('/api/pitch', {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+    })
+    if (success && data) {
+      randomLists.value.push(data)
+    } else {
+      handleError(new Error(message), 'creating list')
+    }
+  }
+
+  async function updateList(pitch: Pitch) {
+    const { data, success, message } = await performFetch<Pitch>(
+      `/api/pitch/${pitch.id}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(pitch),
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
+    if (success && data) {
+      const i = randomLists.value.findIndex((r) => r.id === data.id)
+      if (i !== -1) randomLists.value[i] = data
+    } else {
+      handleError(new Error(message), 'updating list')
+    }
+  }
+
+  async function deleteList(id: number) {
+    const { success, message } = await performFetch(`/api/pitch/${id}`, {
+      method: 'DELETE',
+    })
+    if (success) {
+      randomLists.value = randomLists.value.filter((r) => r.id !== id)
+    } else {
+      handleError(new Error(message), 'deleting list')
+    }
+  }
+
   return {
+    // Local generators
     supportedKeys,
     getRandom,
     randomSelections,
     toggleSelection,
     clearSelection,
     getAllSelections,
-    pickRandomFromArray,
     clearAllSelections,
+    pickRandomFromArray,
+
+    // Remote random lists
+    randomLists,
+    filteredLists,
+    fetchRandomLists,
+    createList,
+    updateList,
+    deleteList,
   }
 })

@@ -165,7 +165,11 @@ const artStore = useArtStore()
 const collectionStore = useCollectionStore()
 
 const selectedOption = ref('__all__')
-const autoSaveEnabled = ref(true)
+const autoSaveEnabled = computed({
+  get: () => collectionStore.autoSave,
+  set: (val: boolean) => (collectionStore.autoSave = val),
+})
+
 const newLabel = ref('')
 const visibleCount = ref(50)
 

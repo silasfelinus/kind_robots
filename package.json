@@ -21,7 +21,8 @@
     "postinstall": "npm run prisma:generate",
     "backup": "ts-node server/utils/backupDatabase.ts",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "convert-art": "node --loader ts-node/esm utils/scripts/art-from-galleries.cts"
   },
   "devDependencies": {
     "@interactjs/types": "^1.10.27",
@@ -38,7 +39,8 @@
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.6",
     "prisma": "^6.9.0",
-    "typescript": "^5.6.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
     "vue-tsc": "^2.1.6"
   },
   "dependencies": {

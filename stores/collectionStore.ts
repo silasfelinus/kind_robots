@@ -31,6 +31,10 @@ export interface ArtCollection {
   updatedAt: Date | null
   label: string | null
   art: Art[]
+  isPublic: boolean
+  isMature: boolean
+  username?: string
+  description?: string
 }
 
 export const useCollectionStore = defineStore('collectionStore', () => {
@@ -110,6 +114,52 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     return state.collections.find((c) => c.id === collectionId)
   }
 
+  async function updateCollectionLabel(
+    id: number,
+    newLabel: string,
+  ): Promise<ArtCollection | null> {
+    try {
+      const response = await performFetch<ArtCollection>(
+        `/api/art/collection/${id}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ label: newLabel }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+      if (!response.success || !response.data) throw new Error(response.message)
+      const index = state.collections.findIndex((c) => c.id === id)
+      if (index !== -1) state.collections[index] = response.data
+      return response.data
+    } catch (error) {
+      handleError(error, 'updating collection label')
+      return null
+    }
+  }
+
+  async function updateCollectionFlags(
+    id: number,
+    flags: { isPublic?: boolean; isMature?: boolean },
+  ): Promise<ArtCollection | null> {
+    try {
+      const response = await performFetch<ArtCollection>(
+        `/api/art/collection/${id}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify(flags),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+      if (!response.success || !response.data) throw new Error(response.message)
+      const index = state.collections.findIndex((c) => c.id === id)
+      if (index !== -1) state.collections[index] = response.data
+      return response.data
+    } catch (error) {
+      handleError(error, 'updating collection flags')
+      return null
+    }
+  }
+
   function findCollectionByUserAndLabel(
     userId: number,
     label: string,
@@ -155,5 +205,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     findCollectionById,
     createEmptyCollection,
     parseStoredCollections,
+    updateCollectionLabel,
+    updateCollectionFlags,
   }
 })

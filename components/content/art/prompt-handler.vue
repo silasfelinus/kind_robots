@@ -39,9 +39,7 @@
 
     <!-- CFG Slider -->
     <div class="space-y-2 w-full">
-      <label class="block font-semibold">
-        🎚 CFG Scale: {{ localCfg }}
-      </label>
+      <label class="block font-semibold"> 🎚 CFG Scale: {{ localCfg }} </label>
       <input
         type="range"
         min="0"
@@ -76,16 +74,6 @@
         v-model="artStore.artForm.isPublic"
       />
     </div>
-
-    <!-- Prompt Preview -->
-    <div
-      class="bg-base-100 border border-dashed border-base-300 p-4 rounded-xl text-sm text-base-content/70 w-full max-w-full"
-    >
-      <span class="font-semibold text-base-content">Prompt Preview:</span>
-      <div class="mt-1 italic break-words">
-        {{ fullPromptPreview }}
-      </div>
-    </div>
   </div>
 </template>
 
@@ -110,8 +98,6 @@ watch(localCfg, (val) => {
   artStore.artForm.cfg = Math.floor(val)
   artStore.artForm.cfgHalf = val % 1 >= 0.5
 })
-
-const fullPromptPreview = computed(() => artStore.getPromptString)
 
 function toggleNegativePrompt() {
   const list = useNegative.value ? negativeList : []

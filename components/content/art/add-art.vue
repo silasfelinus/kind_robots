@@ -1,6 +1,10 @@
-<!-- /components/content/art/add-art.vue -->
 <template>
   <art-grid>
+    <!-- Section Labels -->
+    <template #label-left>🧠 Model</template>
+    <template #label-center>📝 Prompt</template>
+    <template #label-right>🏛️ Gallery</template>
+
     <!-- Title -->
     <template #title>
       <h1 class="text-3xl font-bold text-primary">
@@ -23,6 +27,7 @@
       <collection-gallery />
     </template>
 
+    <!-- Extra Section -->
     <template #extra>
       <div
         class="relative w-full h-full flex flex-col justify-end gap-4 p-4 pb-20"
@@ -38,7 +43,7 @@
       </div>
     </template>
 
-    <!-- Overlay (full-screen focus area) -->
+    <!-- Overlay -->
     <template #overlay>
       <art-display />
     </template>

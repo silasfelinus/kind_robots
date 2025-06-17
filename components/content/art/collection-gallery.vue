@@ -52,38 +52,53 @@
     </div>
 
     <!-- Collection Preview Grid -->
-    <div v-else class="p-6">
-      <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+    <div v-else class="p-6 space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
         <div
           v-for="collection in collectionStore.collections"
           :key="collection.id"
-          class="cursor-pointer rounded-2xl bg-base-100 shadow hover:shadow-xl overflow-hidden transition-all w-full min-w-[14rem] sm:min-w-[16rem]"
+          class="flex flex-col items-center bg-base-100 rounded-2xl shadow hover:shadow-xl transition-all overflow-hidden cursor-pointer w-full"
           @click="selectCollection(collection.id)"
         >
-          <img
-            :src="getPreviewImage(collection).src"
-            class="w-full h-48 object-cover"
-            :alt="collection.label || 'Unnamed Collection'"
-          />
-          <div class="p-4 font-semibold text-center text-base-content text-lg">
-            📁 {{ collection.label || 'Untitled Collection' }}
+          <div class="w-full h-48 overflow-hidden">
+            <img
+              :src="getPreviewImage(collection).src"
+              class="w-full h-full object-cover"
+              :alt="collection.label || 'Unnamed Collection'"
+            />
           </div>
-          <div
-            v-if="debug"
-            class="px-4 pb-4 text-xs text-center text-warning-content font-mono break-words"
-          >
-            <p>
-              🖼️ <span class="font-bold">Art ID:</span>
-              {{ getPreviewImage(collection).artId }}
-            </p>
-            <p>
-              <span class="font-bold">Path:</span>
-              {{ getPreviewImage(collection).src }}
-            </p>
-            <p>
-              <span class="font-bold">Note:</span>
-              {{ getPreviewImage(collection).note }}
-            </p>
+          <div class="w-full text-center p-4 space-y-1">
+            <div class="text-lg font-bold truncate">
+              📁 {{ collection.label || 'Untitled Collection' }}
+            </div>
+            <div class="text-sm text-base-content/80">
+              🧑 {{ collection.username || 'Unknown user' }}
+            </div>
+            <div class="flex justify-center gap-3 text-xs font-semibold">
+              <span v-if="collection.isPublic" class="text-success"
+                >🌍 Public</span
+              >
+              <span v-if="collection.isMature" class="text-warning"
+                >🔞 Mature</span
+              >
+            </div>
+            <div
+              v-if="debug"
+              class="text-xs text-warning-content font-mono break-words space-y-1 pt-2"
+            >
+              <p>
+                🖼️ <span class="font-bold">Art ID:</span>
+                {{ getPreviewImage(collection).artId }}
+              </p>
+              <p>
+                <span class="font-bold">Path:</span>
+                {{ getPreviewImage(collection).src }}
+              </p>
+              <p>
+                <span class="font-bold">Note:</span>
+                {{ getPreviewImage(collection).note }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -95,7 +110,6 @@
 import { ref, computed } from 'vue'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useArtStore } from '@/stores/artStore'
-import type { Art, ArtImage } from '@/stores/artStore'
 import type { ArtCollection } from '@/stores/artStore'
 
 const collectionStore = useCollectionStore()
@@ -104,15 +118,12 @@ const visibleCount = ref(50)
 const debug = true
 
 const selectedCollections = computed(() => collectionStore.selectedCollections)
-
 const selectedArt = computed(() =>
   selectedCollections.value.flatMap((c) => c.art || []),
 )
-
 const filteredArt = computed(() =>
   selectedArt.value.slice(0, visibleCount.value),
 )
-
 const visibleArt = filteredArt
 
 const gridClass = computed(() => ({
@@ -138,7 +149,6 @@ function getPreviewImage(collection: ArtCollection): {
 
   const art = valid[Math.floor(Math.random() * valid.length)]
 
-  // Priority: Art.path (if exists)
   if ('path' in art && art.path) {
     return {
       src: art.path,
@@ -147,9 +157,7 @@ function getPreviewImage(collection: ArtCollection): {
     }
   }
 
-  // Fallback to ArtImage
   const foundImage = artStore.getArtImageByArtId(art.id)
-
   if (foundImage?.imageData) {
     return {
       src: foundImage.imageData,
@@ -158,7 +166,6 @@ function getPreviewImage(collection: ArtCollection): {
     }
   }
 
-  // Optional collection-level highlight image (cast safely)
   const highlight = (collection as any).highlightImage
   if (highlight) {
     return {

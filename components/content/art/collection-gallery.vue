@@ -72,9 +72,18 @@
             v-if="debug"
             class="px-4 pb-4 text-xs text-center text-warning-content font-mono break-words"
           >
-            <p>🖼️ <span class="font-bold">Art ID:</span> {{ getPreviewImage(collection).artId }}</p>
-            <p><span class="font-bold">Path:</span> {{ getPreviewImage(collection).src }}</p>
-            <p><span class="font-bold">Note:</span> {{ getPreviewImage(collection).note }}</p>
+            <p>
+              🖼️ <span class="font-bold">Art ID:</span>
+              {{ getPreviewImage(collection).artId }}
+            </p>
+            <p>
+              <span class="font-bold">Path:</span>
+              {{ getPreviewImage(collection).src }}
+            </p>
+            <p>
+              <span class="font-bold">Note:</span>
+              {{ getPreviewImage(collection).note }}
+            </p>
           </div>
         </div>
       </div>
@@ -85,7 +94,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useCollectionStore } from '@/stores/collectionStore'
-import type { ArtCollection, Art } from '@/stores/collectionStore'
+import type { ArtCollection, Art } from '@/stores/artStore'
 
 const collectionStore = useCollectionStore()
 const visibleCount = ref(50)
@@ -114,14 +123,14 @@ function getPreviewImage(collection: ArtCollection): {
 } {
   const fallback = '/images/backtree.webp'
   const images = collection.art || []
-  const valid = images.filter((img) => img?.imageUrl)
+  const valid = images.filter((img: Art) => img?.path)
 
   if (valid.length > 0) {
     const random = valid[Math.floor(Math.random() * valid.length)]
-    console.log(`🖼️ Using imageUrl for artId ${random.id}:`, random.imageUrl)
+    console.log(`🖼️ Using imageUrl for artId ${random.id}:`, random.path)
     return {
-      src: random.imageUrl || fallback,
-      note: random.imageUrl ? 'from art.imageUrl' : 'missing imageUrl',
+      src: random.path || fallback,
+      note: random.path ? 'from art.imageUrl' : 'missing imageUrl',
       artId: random.id,
     }
   }

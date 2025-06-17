@@ -27,18 +27,14 @@
       <collection-gallery />
     </template>
 
-    <!-- Extra Section -->
     <template #extra>
-      <div
-        class="relative w-full h-full flex flex-col justify-end gap-4 p-4 pb-20"
-      >
-        <prompt-handler class="flex-grow" />
-        <div
-          class="fixed bottom-4 left-0 right-0 z-40 px-4 flex justify-center pointer-events-none"
-        >
-          <div class="pointer-events-auto">
-            <generate-button />
-          </div>
+      <div class="relative w-full h-full flex flex-col p-4 pb-24">
+        <!-- Prompt Handler grows to fill available space -->
+        <prompt-handler class="flex-grow overflow-y-auto" />
+
+        <!-- Generate Button fixed to bottom of this container -->
+        <div class="absolute bottom-4 left-4 right-4 z-20">
+          <generate-button />
         </div>
       </div>
     </template>

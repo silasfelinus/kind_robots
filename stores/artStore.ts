@@ -17,9 +17,10 @@ import {
   getOrFetchArtImageById,
   updateArtImageId,
 } from '@/stores/helpers/artHelper'
+import { type ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useCollectionStore } from './collectionStore'
 import { useCheckpointStore } from './checkpointStore'
-import { artListPresets, type ArtListEntry } from '@/stores/seeds/artList'
+import { artListPresets } from '@/stores/seeds/artList'
 import { useRandomStore } from './randomStore'
 
 const isClient = typeof window !== 'undefined'
@@ -33,7 +34,7 @@ interface ArtStoreState {
   error: string
   isInitialized: boolean
   currentArt: Art | null
-currentArtImage: ArtImage | null
+  currentArtImage: ArtImage | null
   processedArtPrompt: string
   pitch: string
   currentPage: number
@@ -184,42 +185,42 @@ export const useArtStore = defineStore('artStore', () => {
     if (isClient) localStorage.setItem('art', JSON.stringify(state.art))
   }
 
-async function selectArt(artId: number): Promise<void> {
-  const found = state.art.find((a) => a.id === artId)
-  if (!found) {
-    handleError(new Error(`Art with ID ${artId} not found`), 'selecting art')
-    return
-  }
-  state.currentArt = found
-
-  if (found.artImageId) {
-    const cached = state.artImages.find((img) => img.id === found.artImageId)
-    if (cached) {
-      state.currentArtImage = cached
-    } else {
-      try {
-        const response = await performFetch<ArtImage>(
-          `/api/art/image/${found.artImageId}`,
-        )
-        if (response.success && response.data) {
-          state.artImages.push(response.data)
-          state.currentArtImage = response.data
-          if (isClient) {
-            const existing = JSON.parse(
-              localStorage.getItem('artImages') || '[]',
-            )
-            const updated = [...existing, response.data]
-            localStorage.setItem('artImages', JSON.stringify(updated))
-          }
-        }
-      } catch (err) {
-        handleError(err, 'fetching art image for selected art')
-      }
+  async function selectArt(artId: number): Promise<void> {
+    const found = state.art.find((a) => a.id === artId)
+    if (!found) {
+      handleError(new Error(`Art with ID ${artId} not found`), 'selecting art')
+      return
     }
-  } else {
-    state.currentArtImage = null
+    state.currentArt = found
+
+    if (found.artImageId) {
+      const cached = state.artImages.find((img) => img.id === found.artImageId)
+      if (cached) {
+        state.currentArtImage = cached
+      } else {
+        try {
+          const response = await performFetch<ArtImage>(
+            `/api/art/image/${found.artImageId}`,
+          )
+          if (response.success && response.data) {
+            state.artImages.push(response.data)
+            state.currentArtImage = response.data
+            if (isClient) {
+              const existing = JSON.parse(
+                localStorage.getItem('artImages') || '[]',
+              )
+              const updated = [...existing, response.data]
+              localStorage.setItem('artImages', JSON.stringify(updated))
+            }
+          }
+        } catch (err) {
+          handleError(err, 'fetching art image for selected art')
+        }
+      }
+    } else {
+      state.currentArtImage = null
+    }
   }
-}
 
   async function getArtImageById(id: number): Promise<ArtImage | undefined> {
     const cached = state.artImages.find((img) => img.id === id)
@@ -328,9 +329,9 @@ async function selectArt(artId: number): Promise<void> {
       getArtListAddonPrompt()
 
     const data: GenerateArtData = {
-promptString: promptStore
-  .processPromptPlaceholders(basePrompt.trim(), pitchStore)
-  .replace(/\./g, ','),
+      promptString: promptStore
+        .processPromptPlaceholders(basePrompt.trim(), pitchStore)
+        .replace(/\./g, ','),
       negativePrompt: artData?.negativePrompt ?? state.artForm.negativePrompt,
       pitch: artData?.pitch || promptStore.extractPitch(basePrompt),
       userId,
@@ -448,4 +449,4 @@ promptString: promptStore
   }
 })
 
-export type { Art, ArtImage }
+export type { Art, ArtImage, ArtCollection }

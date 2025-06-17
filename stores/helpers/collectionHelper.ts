@@ -23,19 +23,6 @@ export function isArtInCollection(
   return collection.art?.some((a) => a.id === artId) || false
 }
 
-export function getUncollectedArt(
-  userId: number,
-  allArt: Art[],
-  collections: ArtCollection[],
-): Art[] {
-  const collectedIds = collections
-    .filter((c) => c.userId === userId)
-    .flatMap((c) => c.art.map((a) => a.id))
-  return allArt.filter(
-    (a) => a.userId === userId && !collectedIds.includes(a.id),
-  )
-}
-
 export function findCollectionByUserAndLabel(
   collections: ArtCollection[],
   userId: number,

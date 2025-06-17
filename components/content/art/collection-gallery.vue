@@ -75,15 +75,37 @@
       />
     </div>
 
+    <!-- All Collections Preview Grid -->
+    <div v-if="showAllCollections" class="px-6 py-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div
+          v-for="collection in collectionStore.collections"
+          :key="collection.id"
+          class="rounded-xl overflow-hidden bg-base-100 border border-base-200 shadow-md cursor-pointer hover:shadow-lg transition"
+          @click="selectCollection(collection.id)"
+        >
+          <img
+            :src="getPreviewImage(collection)"
+            alt="Preview"
+            class="w-full h-40 object-cover"
+          />
+          <div class="p-4 space-y-1">
+            <h3 class="text-lg font-semibold truncate">{{ collection.label || 'Untitled' }}</h3>
+            <p class="text-sm text-base-content/70">👤 {{ collection.username || 'Unknown' }}</p>
+            <p class="text-xs text-base-content/50">{{ collection.art.length }} image(s)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Selected Collection Info -->
-    <div v-if="viewMode !== 'all'" class="px-6 space-y-6">
+    <div v-if="!showAllCollections && viewMode !== 'all'" class="px-6 space-y-6">
       <div
         v-for="collection in collectionStore.selectedCollections"
         :key="collection.id"
         class="border border-base-200 rounded-xl p-4 bg-base-100 space-y-2"
       >
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-          <!-- Label + Author -->
           <div>
             <h2 class="text-lg font-bold">
               {{ collection.label || 'Untitled Collection' }}
@@ -91,7 +113,6 @@
             <p class="text-sm text-base-content/70">👤 {{ collection.username || 'Unknown' }}</p>
           </div>
 
-          <!-- Edit controls -->
           <div
             v-if="collection.userId === userStore.userId"
             class="flex flex-wrap items-center gap-4"
@@ -127,7 +148,7 @@
     </div>
 
     <!-- Gallery Grid -->
-    <div class="scroll-container overflow-auto max-h-[75vh] p-4">
+    <div v-if="!showAllCollections" class="scroll-container overflow-auto max-h-[75vh] p-4">
       <div v-if="visibleArt.length > 0" :class="gridClass">
         <ArtCard
           v-for="art in visibleArt"
@@ -160,6 +181,19 @@ const visibleCount = ref(50)
 const editableLabels = ref<Record<number, string>>({})
 const editableFlags = ref<Record<number, { isPublic: boolean; isMature: boolean }>>({})
 
+const showAllCollections = computed(() => collectionStore.selectedCollectionIds.length === 0)
+
+function getPreviewImage(collection: ArtCollection): string {
+  const images = collection.art
+  if (!images || images.length === 0) return '/images/placeholder.webp'
+  const random = Math.floor(Math.random() * images.length)
+  return images[random]?.path || '/images/placeholder.webp'
+}
+
+function selectCollection(id: number) {
+  collectionStore.selectedCollectionIds = [id]
+}
+
 watch(() => collectionStore.selectedCollections, (newSelections) => {
   for (const col of newSelections) {
     if (!(col.id in editableLabels.value)) {
@@ -190,24 +224,23 @@ async function saveFlags(collectionId: number) {
 
 const selectedArt = computed(() => {
   if (viewMode.value === 'all') return artStore.art
-
   if (viewMode.value === 'selected') {
     return collectionStore.selectedCollections.flatMap(c => c.art)
   }
-
   if (viewMode.value === 'custom') {
     const query = customTextFilter.value.toLowerCase()
     return collectionStore.collections
       .filter((c) => c.label?.toLowerCase().includes(query))
       .flatMap((c) => c.art)
   }
-
   return []
 })
 
 const filteredArt = computed(() => {
   return selectedArt.value.slice(0, visibleCount.value)
 })
+
+const visibleArt = filteredArt
 
 const gridClass = computed(() => ({
   'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4': true,

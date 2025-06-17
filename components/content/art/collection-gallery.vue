@@ -1,6 +1,4 @@
 <template>
-  <collection-info />
-
   <div class="relative bg-base-300 rounded-2xl shadow-md overflow-hidden">
     <!-- Selected Collection View -->
     <div v-if="selectedCollections.length" class="space-y-6 p-6">

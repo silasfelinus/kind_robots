@@ -1,6 +1,6 @@
 // /stores/collectionStore.ts
 import { defineStore } from 'pinia'
-import { reactive, toRefs } from 'vue'
+import { ref, reactive, toRefs, computed, watch } from 'vue'
 import type { Art } from '@prisma/client'
 import { performFetch, handleError } from './utils'
 import {
@@ -23,7 +23,6 @@ import {
   parseStoredCollections,
 } from '@/stores/helpers/collectionHelper'
 
-// Local override to reflect nested art[] relation
 export interface ArtCollection {
   id: number
   userId: number
@@ -43,13 +42,41 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     currentCollection: null as ArtCollection | null,
   })
 
+  // --- Multi-selection state + persistence ---
+  const SELECTED_COLLECTION_KEY = 'selectedCollectionIds'
+  const selectedCollectionIds = ref<number[]>([])
 
-  // Fetch all collections
+  function findCollectionById(collectionId: number): ArtCollection | undefined {
+    return state.collections.find((c) => c.id === collectionId)
+  }
+
+  const selectedCollections = computed(() =>
+    selectedCollectionIds.value
+      .map((id) => findCollectionById(id))
+      .filter((c): c is ArtCollection => !!c)
+  )
+
+  if (process.client) {
+    const stored = localStorage.getItem(SELECTED_COLLECTION_KEY)
+    if (stored) {
+      try {
+        selectedCollectionIds.value = JSON.parse(stored)
+      } catch (e) {
+        console.warn('Invalid collection selection in localStorage:', e)
+      }
+    }
+  }
+
+  watch(selectedCollectionIds, (ids) => {
+    if (process.client) {
+      localStorage.setItem(SELECTED_COLLECTION_KEY, JSON.stringify(ids))
+    }
+  }, { deep: true })
+
+  // --- API + logic methods ---
   async function fetchCollections() {
     try {
-      const response = await performFetch<ArtCollection[]>(
-        '/api/art/collection',
-      )
+      const response = await performFetch<ArtCollection[]>('/api/art/collection')
       if (!response.success || !response.data) throw new Error(response.message)
       state.collections = response.data
     } catch (error) {
@@ -57,20 +84,16 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     }
   }
 
-  // Create a new collection
   async function createCollection(
     label: string,
     userId: number,
   ): Promise<ArtCollection | null> {
     try {
-      const response = await performFetch<ArtCollection>(
-        '/api/art/collection',
-        {
-          method: 'POST',
-          body: JSON.stringify({ label, userId }),
-          headers: { 'Content-Type': 'application/json' },
-        },
-      )
+      const response = await performFetch<ArtCollection>('/api/art/collection', {
+        method: 'POST',
+        body: JSON.stringify({ label, userId }),
+        headers: { 'Content-Type': 'application/json' },
+      })
 
       if (!response.success || !response.data) throw new Error(response.message)
       state.collections.push(response.data)
@@ -82,40 +105,6 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     }
   }
 
-// Key
-const SELECTED_COLLECTION_KEY = 'selectedCollectionIds'
-
-// Ref
-const selectedCollectionIds = ref<number[]>([])
-
-// Computed
-const selectedCollections = computed(() => {
-  return selectedCollectionIds.value
-    .map((id) => findCollectionById(id))
-    .filter((c): c is ArtCollection => !!c)
-})
-
-// Load from storage
-if (process.client) {
-  const stored = localStorage.getItem(SELECTED_COLLECTION_KEY)
-  if (stored) {
-    try {
-      selectedCollectionIds.value = JSON.parse(stored)
-    } catch (e) {
-      console.warn('Invalid collection selection in localStorage:', e)
-    }
-  }
-}
-
-// Save on change
-watch(selectedCollectionIds, (ids) => {
-  if (process.client) {
-    localStorage.setItem(SELECTED_COLLECTION_KEY, JSON.stringify(ids))
-  }
-}, { deep: true })
-
-
-  // Remove art from a collection on the server and locally
   async function removeArtFromCollectionServer(
     collectionId: number,
     artId: number,
@@ -123,9 +112,7 @@ watch(selectedCollectionIds, (ids) => {
     try {
       const response = await performFetch(
         `/api/art/collection/${collectionId}/${artId}`,
-        {
-          method: 'DELETE',
-        },
+        { method: 'DELETE' }
       )
       if (!response.success) throw new Error(response.message)
 
@@ -143,18 +130,6 @@ watch(selectedCollectionIds, (ids) => {
   function getUserCollections(userId: number): ArtCollection[] {
     return state.collections.filter((c) => c.userId === userId)
   }
-
-  function findCollectionById(collectionId: number): ArtCollection | undefined {
-    return state.collections.find((c) => c.id === collectionId)
-  }
-
-const selectedCollectionIds = ref<number[]>([])
-
-const selectedCollections = computed(() => {
-  return selectedCollectionIds.value
-    .map((id) => findCollectionById(id))
-    .filter((c): c is ArtCollection => !!c)
-})
 
   async function updateCollectionLabel(
     id: number,
@@ -202,18 +177,7 @@ const selectedCollections = computed(() => {
     }
   }
 
-  function findCollectionByUserAndLabel(
-    userId: number,
-    label: string,
-  ): ArtCollection | undefined {
-    return state.collections.find(
-      (c) => c.userId === userId && c.label === label,
-    )
-  }
-
-  async function getOrCreateGeneratedArtCollection(
-    userId: number,
-  ): Promise<ArtCollection> {
+  async function getOrCreateGeneratedArtCollection(userId: number): Promise<ArtCollection> {
     let collection = findCollectionByUserAndLabel(userId, 'Generated Art')
     if (!collection) {
       const newCollection = await createCollection('Generated Art', userId)
@@ -226,30 +190,32 @@ const selectedCollections = computed(() => {
 
   return {
     ...toRefs(state),
-    fetchCollections,
-    removeArtFromCollectionServer,
-    addArtToCollection,
 
-    // 👇 From helper
-    addArtToCollectionLocal,
-    fetchUncollectedArt,
-    getOrCreateGeneratedArtCollection,
+    selectedCollectionIds,
+    selectedCollections,
+
+    fetchCollections,
     createCollection,
-    removeArtFromCollection,
-    getUserCollections,
-    deleteCollectionById,
-    isArtInCollection,
-    getUncollectedArt,
-    findCollectionByUserAndLabel,
-    getCollectedArtIds,
-    collectionIncludesArtId,
-    removeArtFromLocalCollection,
-    findCollectionById,
-    createEmptyCollection,
-    parseStoredCollections,
+    removeArtFromCollectionServer,
     updateCollectionLabel,
     updateCollectionFlags,
-selectedCollectionIds,
-selectedCollections,
+    findCollectionById,
+    findCollectionByUserAndLabel,
+    getUserCollections,
+    getOrCreateGeneratedArtCollection,
+
+    // From helper
+    addArtToCollection,
+    addArtToCollectionLocal,
+    removeArtFromCollection,
+    removeArtFromLocalCollection,
+    deleteCollectionById,
+    isArtInCollection,
+    getCollectedArtIds,
+    getUncollectedArt,
+    fetchUncollectedArt,
+    collectionIncludesArtId,
+    createEmptyCollection,
+    parseStoredCollections,
   }
 })

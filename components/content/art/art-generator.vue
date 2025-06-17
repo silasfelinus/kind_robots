@@ -1,6 +1,8 @@
-<!-- /components/content/art/art-generator-panel.vue -->
+<!-- /components/content/art/art-generator.vue -->
 <template>
-  <div class="w-full flex flex-col space-y-4">
+  <div
+    class="w-full flex flex-col space-y-4 min-h-[100dvh] max-h-[100dvh] overflow-hidden"
+  >
     <!-- Toggle Collapse -->
     <div
       v-if="isMinimized"
@@ -24,7 +26,7 @@
     <template v-else>
       <!-- Expanded Prompt Section -->
       <div
-        class="flex-grow overflow-y-auto max-h-[70vh] p-4 bg-base-200 rounded-xl space-y-4"
+        class="flex-grow overflow-y-auto p-4 bg-base-200 rounded-xl space-y-4"
       >
         <div class="flex justify-between">
           <h2 class="text-lg font-bold">🎨 Art Generator</h2>

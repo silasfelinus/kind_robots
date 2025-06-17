@@ -72,9 +72,18 @@
             v-if="debug"
             class="px-4 pb-4 text-xs text-center text-warning-content font-mono break-words"
           >
-            <p>🖼️ <span class="font-bold">Art ID:</span> {{ getPreviewImage(collection).artId }}</p>
-            <p><span class="font-bold">Path:</span> {{ getPreviewImage(collection).src }}</p>
-            <p><span class="font-bold">Note:</span> {{ getPreviewImage(collection).note }}</p>
+            <p>
+              🖼️ <span class="font-bold">Art ID:</span>
+              {{ getPreviewImage(collection).artId }}
+            </p>
+            <p>
+              <span class="font-bold">Path:</span>
+              {{ getPreviewImage(collection).src }}
+            </p>
+            <p>
+              <span class="font-bold">Note:</span>
+              {{ getPreviewImage(collection).note }}
+            </p>
           </div>
         </div>
       </div>
@@ -87,7 +96,7 @@ import { ref, computed } from 'vue'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useArtStore } from '@/stores/artStore'
 import type { Art, ArtImage } from '@/stores/artStore'
-import type { ArtCollection } from '@/stores/collectionStore'
+import type { ArtCollection } from '@/stores/artStore'
 
 const collectionStore = useCollectionStore()
 const artStore = useArtStore()
@@ -116,50 +125,53 @@ function getPreviewImage(collection: ArtCollection): {
   artId: number | null
 } {
   const fallback = '/images/backtree.webp'
-  const artImages = (collection as any).artImages as ArtImage[] || []
   const images = collection.art || []
-
   const valid = images.filter((img) => img?.id)
 
-  if (valid.length > 0) {
-    const art = valid[Math.floor(Math.random() * valid.length)]
-
-    if (art.path) {
-      return {
-        src: art.path,
-        note: 'from art.path',
-        artId: art.id,
-      }
-    }
-
-    const found = artStore.getArtImageByArtId(artImages, art.id)
-    if (found?.path) {
-      return {
-        src: found.path,
-        note: 'from artImage.path',
-        artId: art.id,
-      }
-    }
-
-    if ((collection as any).highlightImage) {
-      return {
-        src: (collection as any).highlightImage,
-        note: 'from collection.highlightImage',
-        artId: art.id,
-      }
-    }
-
+  if (!valid.length) {
     return {
       src: fallback,
-      note: 'fallback used (no path, no artImage)',
+      note: 'no art in collection',
+      artId: null,
+    }
+  }
+
+  const art = valid[Math.floor(Math.random() * valid.length)]
+
+  // Priority: Art.path (if exists)
+  if ('path' in art && art.path) {
+    return {
+      src: art.path,
+      note: 'from Art.path',
+      artId: art.id,
+    }
+  }
+
+  // Fallback to ArtImage
+  const foundImage = artStore.getArtImageByArtId(art.id)
+
+  if (foundImage?.imageData) {
+    return {
+      src: foundImage.imageData,
+      note: 'from ArtImage.imageData',
+      artId: art.id,
+    }
+  }
+
+  // Optional collection-level highlight image (cast safely)
+  const highlight = (collection as any).highlightImage
+  if (highlight) {
+    return {
+      src: highlight,
+      note: 'from collection.highlightImage',
       artId: art.id,
     }
   }
 
   return {
     src: fallback,
-    note: 'no art in collection',
-    artId: null,
+    note: 'fallback used (no path or imageData)',
+    artId: art.id,
   }
 }
 

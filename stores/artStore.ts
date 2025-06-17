@@ -12,7 +12,6 @@ import {
   removeImageById,
   parseStoredArt,
   updateArtImageWithArtId,
-  getArtImageByArtId,
   getCachedArtImageById,
   getOrFetchArtImageById,
   updateArtImageId,
@@ -297,6 +296,15 @@ export const useArtStore = defineStore('artStore', () => {
       handleError(error, 'uploading image')
       return { success: false, message: 'Upload failed' }
     }
+  }
+
+  // /stores/artStore.ts (inside your store definition)
+  function getArtImageByArtId(
+    artId: number,
+    images?: ArtImage[],
+  ): ArtImage | undefined {
+    const pool = images || state.artImages
+    return pool.find((image) => image.artId === artId)
   }
 
   async function deleteArtImage(artImageId: number): Promise<void> {

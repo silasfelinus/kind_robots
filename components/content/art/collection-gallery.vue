@@ -1,4 +1,3 @@
-<!-- /components/content/art/collection-gallery.vue -->
 <template>
   <div class="relative bg-base-300 rounded-2xl shadow-md overflow-hidden">
     <!-- Selected Collection View -->
@@ -13,14 +12,17 @@
           class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2"
         >
           <div class="flex-1 space-y-1">
+            <!-- Editable Label -->
             <div v-if="canEdit(c) && editingTitle === c.id" class="flex items-center gap-2">
               <input
                 v-model="c.label"
                 class="input input-sm input-bordered text-xl font-bold w-full max-w-xs"
                 @blur="editingTitle = null"
+                :placeholder="c.label || 'Untitled Collection'"
               />
               <span class="badge badge-primary">You</span>
             </div>
+            <!-- Static Label -->
             <h2
               v-else
               class="text-2xl font-bold text-primary truncate cursor-pointer"
@@ -34,7 +36,7 @@
             </div>
           </div>
 
-          <!-- Owner Actions -->
+          <!-- Action Icons -->
           <div class="flex flex-wrap gap-2 mt-2 md:mt-0">
             <button
               v-if="canEdit(c)"
@@ -83,13 +85,22 @@
             <!-- Inline Back Card -->
             <div
               v-if="canEdit(c)"
-              class="aspect-square bg-base-200 rounded-xl flex items-center justify-center cursor-pointer hover:bg-base-300 transition-all"
+              class="aspect-square bg-base-200 rounded-xl overflow-hidden cursor-pointer relative group"
               @click="removeCollection(c.id)"
               title="Back to Gallery"
             >
-              <Icon name="kind-icon:arrow-left" class="w-8 h-8 text-base-content" />
+              <img
+                src="/images/backtree.webp"
+                class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                alt="Back"
+              />
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-2">
+                <Icon name="kind-icon:arrow-left" class="w-8 h-8 text-base-content" />
+                <div class="mt-1 text-xs font-semibold text-base-content">Back</div>
+              </div>
             </div>
 
+            <!-- Art Cards -->
             <ArtCard
               v-for="art in getArtFromCollection(c).slice(0, visibleCount)"
               :key="art.id"
@@ -148,6 +159,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'

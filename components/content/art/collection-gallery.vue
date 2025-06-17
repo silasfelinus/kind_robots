@@ -85,11 +85,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useCollectionStore } from '@/stores/collectionStore'
-import { getArtImageByArtId } from '@/stores/artStore'
+import { useArtStore } from '@/stores/artStore'
 import type { Art, ArtImage } from '@/stores/artStore'
 import type { ArtCollection } from '@/stores/collectionStore'
 
 const collectionStore = useCollectionStore()
+const artStore = useArtStore()
 const visibleCount = ref(50)
 const debug = true
 
@@ -131,7 +132,7 @@ function getPreviewImage(collection: ArtCollection): {
       }
     }
 
-    const found = getArtImageByArtId(artImages, art.id)
+    const found = artStore.getArtImageByArtId(artImages, art.id)
     if (found?.path) {
       return {
         src: found.path,

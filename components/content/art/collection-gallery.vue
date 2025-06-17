@@ -94,15 +94,6 @@
           </option>
           <option value="__new__">➕ Create New Collection</option>
         </optgroup>
-        <optgroup label="Legacy Galleries">
-          <option
-            v-for="g in galleries"
-            :key="'gal-' + g.id"
-            :value="'gallery-' + g.id"
-          >
-            🗃️ {{ g.name }}
-          </option>
-        </optgroup>
       </select>
     </div>
 
@@ -168,13 +159,10 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
-import { useGalleryStore } from '@/stores/galleryStore'
-import ArtCard from './art-card.vue'
 
 const userStore = useUserStore()
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
-const galleryStore = useGalleryStore()
 
 const selectedOption = ref('__all__')
 const autoSaveEnabled = ref(true)
@@ -189,8 +177,6 @@ const showOnlyUserArt = ref(false)
 const sortOrder = ref<'Ascending' | 'Descending'>('Descending')
 const view = ref<'twoRow' | 'threeRow' | 'fourRow' | 'single'>('twoRow')
 
-// All data sources
-const galleries = computed(() => galleryStore.galleries)
 const allCollections = computed(() => collectionStore.collections)
 
 // Art filter logic
@@ -287,11 +273,7 @@ const createNewCollection = async () => {
 }
 
 onMounted(async () => {
-  await Promise.all([
-    artStore.initialize(),
-    collectionStore.fetchCollections(),
-    galleryStore.fetchGalleries?.(),
-  ])
+  await Promise.all([artStore.initialize(), collectionStore.fetchCollections()])
 
   const saved = localStorage.getItem('view')
   if (

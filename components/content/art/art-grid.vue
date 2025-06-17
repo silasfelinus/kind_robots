@@ -1,8 +1,6 @@
 <!-- /components/content/art/art-grid.vue -->
 <template>
-  <div
-    class="relative w-full h-[calc(100vh-4rem)] overflow-hidden flex flex-col"
-  >
+  <div class="relative w-full h-full overflow-hidden flex flex-col">
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
       <button
@@ -87,7 +85,7 @@
         :class="{
           'absolute bottom-0 left-0 right-0 z-40': displayStore.isExtraExpanded,
         }"
-        :style="{ maxHeight: displayStore.isExtraExpanded ? '80vh' : '40vh' }"
+        :style="{ maxHeight: displayStore.isExtraExpanded ? '50vh' : '20vh' }"
       >
         <!-- Floating Toggle -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10 mt-1">

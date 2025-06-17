@@ -21,8 +21,8 @@
       </select>
     </div>
 
-    <!-- Range Slider -->
-    <div class="px-6 pb-2">
+    <!-- Art Grid (when collections selected) -->
+    <div v-if="selectedCollections.length" class="px-6 pb-2">
       <label class="label-text font-semibold">🖼️ Display Range</label>
       <input
         type="range"
@@ -35,19 +35,40 @@
       <div class="text-sm mt-1">
         Showing {{ visibleCount }} / {{ filteredArt.length }} images
       </div>
+
+      <div class="scroll-container overflow-auto max-h-[75vh] p-4">
+        <div v-if="visibleArt.length > 0" :class="gridClass">
+          <ArtCard
+            v-for="art in visibleArt"
+            :key="art.id"
+            :art="art"
+            class="rounded-lg shadow-md bg-white hover:shadow-lg transition-shadow"
+          />
+        </div>
+        <div v-else class="text-center italic text-base-content/60 py-12">
+          💤 No matching art found.
+        </div>
+      </div>
     </div>
 
-    <div class="scroll-container overflow-auto max-h-[75vh] p-4">
-      <div v-if="visibleArt.length > 0" :class="gridClass">
-        <ArtCard
-          v-for="art in visibleArt"
-          :key="art.id"
-          :art="art"
-          class="rounded-lg shadow-md bg-white hover:shadow-lg transition-shadow"
-        />
-      </div>
-      <div v-else class="text-center italic text-base-content/60 py-12">
-        💤 No matching art found.
+    <!-- Preview Gallery (when nothing is selected) -->
+    <div v-else class="p-4 space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div
+          v-for="collection in collectionStore.collections"
+          :key="collection.id"
+          class="cursor-pointer rounded-2xl bg-base-100 shadow hover:shadow-xl overflow-hidden"
+          @click="selectCollection(collection.id)"
+        >
+          <img
+            :src="getRandomImage(collection)"
+            class="w-full h-48 object-cover"
+            :alt="collection.label || 'Unnamed Collection'"
+          />
+          <div class="p-3 font-semibold text-center">
+            📁 {{ collection.label || 'Untitled Collection' }}
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -55,29 +76,50 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
+import type { ArtCollection } from '@/stores/collectionStore'
 
-const artStore = useArtStore()
 const collectionStore = useCollectionStore()
-
 const visibleCount = ref(50)
 
-const selectedArt = computed(() => {
-  const selected = collectionStore.selectedCollections
-  if (selected.length > 0) {
-    return selected.flatMap((c) => c.art || [])
-  } else {
-    return collectionStore.collections.flatMap((c) => c.art || [])
-  }
-})
+const selectedCollections = computed(() => collectionStore.selectedCollections)
+
+const selectedArt = computed(() =>
+  selectedCollections.value.flatMap((c) => c.art || []),
+)
 
 const filteredArt = computed(() =>
   selectedArt.value.slice(0, visibleCount.value),
 )
+
 const visibleArt = filteredArt
 
 const gridClass = computed(() => ({
   'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4': true,
 }))
+
+function getRandomImage(collection: ArtCollection) {
+  const fallback = '/images/backtree.webp'
+  const images = collection.art || []
+  if (images.length === 0) return fallback
+  const randomIndex = Math.floor(Math.random() * images.length)
+  return images[randomIndex]?.imageUrl || fallback
+}
+
+function selectCollection(id: number) {
+  collectionStore.selectedCollectionIds = [id]
+}
 </script>
+
+<style scoped>
+.scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+}
+.scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+</style>

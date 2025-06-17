@@ -1,26 +1,22 @@
-// /components/content/art/collection-info.vue
+<!-- /components/content/art/collection-info.vue -->
 <template>
   <Teleport to="body">
     <transition name="fade">
       <div
         v-if="visible"
-        class="fixed inset-0 flex items-center justify-center pointer-events-none z-[1000]"
+        class="fixed inset-0 flex items-center justify-center z-[1000] debug-overlay"
       >
         <div
-          class="bg-black bg-opacity-90 text-white p-4 rounded-xl max-w-xl w-full mx-4 shadow-xl"
+          class="bg-black bg-opacity-90 text-white p-4 rounded-xl max-w-xl w-full mx-4 shadow-xl debug-popup"
         >
           <h2 class="text-lg font-bold mb-2">🛠️ Debug Info</h2>
-          <div
-            class="text-xs whitespace-pre-wrap break-words max-h-[70vh] overflow-auto"
-          >
-            <p class="mb-2">
+          <div class="text-xs whitespace-pre-wrap break-words space-y-2">
+            <p>
               <span class="font-bold">Collection:</span>
               {{ collection?.label || '—' }}
             </p>
-            <p class="mb-2">
-              <span class="font-bold">Art:</span> {{ art?.id || '—' }}
-            </p>
-            <p class="mb-2">
+            <p><span class="font-bold">Art:</span> {{ art?.id || '—' }}</p>
+            <p>
               <span class="font-bold">ArtImage:</span> {{ artImage?.id || '—' }}
             </p>
 
@@ -50,6 +46,7 @@ const art = computed(() => artStore.hoverArt)
 const artImage = computed(() =>
   artStore.getArtImageByArtId(art.value?.id || -1),
 )
+
 const collection = computed(() => {
   if (!art.value) return null
   return (
@@ -68,5 +65,17 @@ const collection = computed(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* Prevent popup from blocking the rest of the app's interactivity */
+.debug-overlay {
+  pointer-events: none;
+}
+
+/* Allow internal interaction and scroll */
+.debug-popup {
+  pointer-events: auto;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 </style>

@@ -48,10 +48,12 @@
     </div>
 
     <!-- Image Display -->
-    <div
-      class="relative w-full min-h-[9rem] sm:min-h-[10rem] flex items-center justify-center overflow-hidden cursor-pointer"
-      @click="toggleDetails"
-    >
+<!-- Image Display -->
+<div
+  class="relative w-full aspect-square flex items-center justify-center overflow-hidden cursor-pointer"
+  @click="toggleDetails"
+>
+
       <template v-if="loadingImage">
         <div
           class="animate-pulse flex items-center justify-center w-full h-full"

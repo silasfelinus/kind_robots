@@ -5,7 +5,6 @@ import type { Art } from '@prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { performFetch, handleError } from './utils'
 import {
-  addArtToCollectionLocal,
   isArtInCollection,
   findCollectionByUserAndLabel,
   getCollectedArtIds,
@@ -151,14 +150,19 @@ export const useCollectionStore = defineStore('collectionStore', () => {
       state.collections.push(collection)
     }
 
-    await performFetch(`/api/art/collection/${collection.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ artIds: [artId] }),
-      headers: { 'Content-Type': 'application/json' },
-    })
+    const response = await performFetch<ArtCollection>(
+      `/api/art/collection/${collection.id}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ artIds: [artId] }),
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
 
-    const art = artStore.art.find((a: Art) => a.id === artId)
-    if (art) addArtToCollectionLocal(collection, art)
+    if (response.success && response.data) {
+      const index = state.collections.findIndex((c) => c.id === collection!.id)
+      if (index !== -1) state.collections[index] = response.data
+    }
   }
 
   async function removeArtFromCollection(artId: number, collectionId: number) {
@@ -292,7 +296,6 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     getOrCreateGeneratedArtCollection,
 
     // From helper
-    addArtToCollectionLocal,
     isArtInCollection,
     getCollectedArtIds,
     getUncollectedArt,

@@ -91,14 +91,56 @@
         </div>
       </div>
     </div>
+
+    <!-- List Manager (Collapsible) -->
+    <div class="border rounded-xl bg-base-200 p-4 space-y-3">
+      <button
+        class="w-full flex justify-between items-center font-semibold text-left text-lg"
+        @click="showManager = !showManager"
+      >
+        <span class="flex items-center gap-2">🛠️ Manage Custom Lists</span>
+        <Icon
+          :name="showManager ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+        />
+      </button>
+
+      <Transition name="slide-fade" appear>
+        <div v-show="showManager" class="space-y-4 pt-2">
+          <!-- Filter toggles -->
+          <div class="flex flex-wrap gap-4 items-center">
+            <label class="label cursor-pointer gap-2">
+              <span class="label-text">👤 Show Only Mine</span>
+              <input
+                type="checkbox"
+                class="toggle toggle-primary"
+                v-model="onlyMine"
+              />
+            </label>
+            <label class="label cursor-pointer gap-2">
+              <span class="label-text">🌐 Show Public Too</span>
+              <input
+                type="checkbox"
+                class="toggle toggle-accent"
+                v-model="includePublic"
+              />
+            </label>
+          </div>
+
+          <!-- List Manager Component -->
+          <list-manager :only-mine="onlyMine" :include-public="includePublic" />
+        </div>
+      </Transition>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// /components/content/art/art-randomizer.vue
 import { ref, watchEffect, computed } from 'vue'
 import { artListPresets, type ArtListEntry } from '@/stores/seeds/artList'
 import { useArtStore } from '@/stores/artStore'
 import { useRandomStore } from '@/stores/randomStore'
+import ListManager from './list-manager.vue'
 
 const artStore = useArtStore()
 const randomStore = useRandomStore()
@@ -106,6 +148,9 @@ const randomStore = useRandomStore()
 const supportedRandomKeys = randomStore.supportedKeys
 const expandedPresets = ref<Record<string, boolean>>({})
 const showAll = ref<Record<string, boolean>>({})
+const showManager = ref(false)
+const onlyMine = ref(true)
+const includePublic = ref(true)
 
 for (const entry of artListPresets) {
   expandedPresets.value[entry.id] = false
@@ -158,7 +203,6 @@ function removeRandomKey(key: string) {
   randomStore.clearSelection(key)
 }
 
-// Apply bonus randoms to artListSelections
 watchEffect(() => {
   for (const key of Object.keys(randomStore.randomSelections)) {
     artStore.updateArtListSelection(key, [randomStore.randomSelections[key]])

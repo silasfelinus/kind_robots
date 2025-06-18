@@ -148,7 +148,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const footerToggleStyle = computed((): CSSProperties => {
     return {
       position: 'fixed',
-      top: `calc(100dvh - var(--vh) * ${footerHeight.value} - 1.5rem)`,
+      top: `calc(100dvh - var(--vh) * ${footerHeight.value})`,
       left: '50%',
       transform: 'translate(-50%, -50%)',
       zIndex: '50',

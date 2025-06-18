@@ -10,11 +10,7 @@
     @click="select"
   >
     <div class="w-full">
-      <art-card
-        v-if="art && checkpoint.name"
-        :art="art"
-        class="w-full h-40"
-      />
+      <art-card v-if="art && checkpoint.name" :art="art" class="w-full h-40" />
       <img
         v-else-if="checkpoint.MediaPath"
         :src="`${checkpoint.MediaPath}?t=${cacheBuster}`"
@@ -49,11 +45,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Art } from '@/stores/artStore'
-import type { Checkpoint } from '@/stores/checkpointStore'
+import type { Resource } from '@/stores/checkpointStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 
 const props = defineProps<{
-  checkpoint: Checkpoint
+  checkpoint: Resource
   art?: Art | null
   showMature: boolean
   cacheBuster: number

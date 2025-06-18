@@ -1,7 +1,10 @@
+<!-- /components/content/art/list-manager.vue -->
 <template>
   <div class="space-y-6 w-full max-w-full overflow-x-hidden">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div
+      class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+    >
       <h2 class="text-xl font-bold shrink-0">📋 Your Preset Lists</h2>
       <form @submit.prevent="handleCreate" class="flex gap-2 w-full md:w-auto">
         <input
@@ -27,21 +30,25 @@
         class="bg-base-100 rounded-xl border shadow p-4 space-y-4"
       >
         <!-- Title + Actions -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div
+          class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+        >
           <div class="flex gap-2 items-center flex-1 w-full min-w-0 max-w-full">
             <input
               v-model="list.title"
               @change="save(list)"
               class="input input-sm flex-1 min-w-[120px] max-w-full truncate"
             />
-            <button
-              @click="generateMore(list)"
-              class="btn btn-xs btn-info"
-            >
+            <button @click="generateMore(list)" class="btn btn-xs btn-info">
               ⚙️ Generate
             </button>
-            <button class="btn btn-xs btn-accent" @click="save(list)">💾</button>
-            <button class="btn btn-xs btn-error" @click="confirmDelete(list.id)">
+            <button class="btn btn-xs btn-accent" @click="save(list)">
+              💾
+            </button>
+            <button
+              class="btn btn-xs btn-error"
+              @click="confirmDelete(list.id)"
+            >
               🗑️
             </button>
           </div>
@@ -91,27 +98,32 @@ import { ref, watch } from 'vue'
 import { useRandomStore } from '@/stores/randomStore'
 import { useUserStore } from '@/stores/userStore'
 import { storeToRefs } from 'pinia'
+import type { Pitch } from '@prisma/client'
 
 const userStore = useUserStore()
 const randomStore = useRandomStore()
 const { filteredLists } = storeToRefs(randomStore)
 
+interface EditableList extends Pitch {
+  newEntry: string
+  entries: string[]
+}
+
 const newTitle = ref('')
 const isTyping = ref(false)
+const localLists = ref<EditableList[]>([])
 
-const localLists = ref(
-  filteredLists.value.map((list) => ({
-    ...list,
-    newEntry: '',
-  }))
+watch(
+  filteredLists,
+  (val) => {
+    localLists.value = val.map((list) => ({
+      ...list,
+      newEntry: '',
+      entries: list.examples ? JSON.parse(list.examples) : [],
+    }))
+  },
+  { immediate: true },
 )
-
-watch(filteredLists, (val) => {
-  localLists.value = val.map((list) => ({
-    ...list,
-    newEntry: '',
-  }))
-})
 
 async function handleCreate() {
   if (!newTitle.value.trim()) return
@@ -121,7 +133,8 @@ async function handleCreate() {
   isTyping.value = false
 }
 
-function save(list: any) {
+function save(list: EditableList) {
+  list.examples = JSON.stringify(list.entries)
   randomStore.updateList(list)
 }
 
@@ -131,7 +144,7 @@ function confirmDelete(id: number) {
   }
 }
 
-function handleEntry(list: any) {
+function handleEntry(list: EditableList) {
   const text = list.newEntry?.trim()
   if (!text) return
   list.entries = [...(list.entries || []), text]
@@ -139,12 +152,12 @@ function handleEntry(list: any) {
   save(list)
 }
 
-function removeEntry(list: any, index: number) {
-  list.entries = list.entries?.filter((_, i) => i !== index)
+function removeEntry(list: EditableList, index: number) {
+  list.entries = list.entries?.filter((_, i: number) => i !== index)
   save(list)
 }
 
-async function generateMore(list: any) {
+async function generateMore(list: EditableList) {
   await randomStore.generateListItems(list.id)
   await randomStore.fetchRandomLists()
 }

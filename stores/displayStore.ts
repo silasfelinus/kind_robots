@@ -1,6 +1,6 @@
 // /stores/displayStore.ts
 import { defineStore } from 'pinia'
-import { reactive, ref, computed, toRefs } from 'vue'
+import { reactive, ref, computed, toRefs, type CSSProperties } from 'vue'
 import { useErrorStore } from './errorStore'
 import type {
   DisplayState,
@@ -67,20 +67,38 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return sizes[state.viewportSize]
   })
 
-const footerHeights = {
-  closed:   { small: '0rem',  medium: '0rem',  large: '0rem',  extraLarge: '0rem' },
-  compact:  { small: '4rem',  medium: '4rem',  large: '3.5rem', extraLarge: '3rem' },
-  open:     { small: '6rem',  medium: '6rem',  large: '5.5rem', extraLarge: '5rem' },
-  extended: { small: '10rem', medium: '9rem',  large: '8rem',   extraLarge: '7rem' },
-} as const
+  const footerHeights = {
+    closed: {
+      small: 0,
+      medium: 0,
+      large: 0,
+      extraLarge: 0,
+    },
+    compact: {
+      small: 4,
+      medium: 4,
+      large: 3.5,
+      extraLarge: 3,
+    },
+    open: {
+      small: 6,
+      medium: 6,
+      large: 5.5,
+      extraLarge: 5,
+    },
+    extended: {
+      small: 10,
+      medium: 9,
+      large: 8,
+      extraLarge: 7,
+    },
+  } as const
 
-const footerHeight = computed(() => {
-  const stateKey = state.footerState as keyof typeof footerHeights
-  const sizeKey = state.viewportSize
-  return footerHeights[stateKey]?.[sizeKey] ?? '0rem'
-})
-
-
+  const footerHeight = computed(() => {
+    const stateKey = state.footerState as keyof typeof footerHeights
+    const sizeKey = state.viewportSize
+    return footerHeights[stateKey]?.[sizeKey] ?? '0rem'
+  })
 
   const sectionPaddingSize = computed(() => {
     const sizes = { small: 1, medium: 1, large: 1, extraLarge: 0.5 }
@@ -127,14 +145,15 @@ const footerHeight = computed(() => {
     }
   })
 
-  const footerToggleStyle = computed(() => ({
-  position: 'absolute',
-  top: 0,
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  zIndex: 40,
-}))
-
+  const footerToggleStyle = computed((): CSSProperties => {
+    return {
+      bottom: `calc(var(--vh) * ${footerHeight.value})`,
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      position: 'absolute',
+      zIndex: '50',
+    }
+  })
 
   const leftSidebarStyle = computed(() => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
@@ -176,12 +195,11 @@ const footerHeight = computed(() => {
   })
 
   const footerStyle = computed(() => ({
-  height: footerHeight.value,
-  width: '100%',
-  minHeight: '0',
-  transition: 'height 0.3s ease',
-}))
-
+    height: footerHeight.value,
+    width: '100%',
+    minHeight: '0',
+    transition: 'height 0.3s ease',
+  }))
 
   const isLargeViewport = computed(() =>
     ['large', 'extraLarge'].includes(state.viewportSize),
@@ -200,13 +218,20 @@ const footerHeight = computed(() => {
       compact: 'hidden',
       open: 'hidden',
       disabled: 'hidden',
+      extended: 'hidden',
     } as const
     state[side] = stateMap[state[side]]
     saveState()
   }
 
   function toggleFooter() {
-    state.footerState = state.footerState === 'open' ? 'hidden' : 'open'
+    if (state.footerState === 'compact') {
+      state.footerState = 'open'
+    } else if (state.footerState === 'open') {
+      state.footerState = 'extended'
+    } else {
+      state.footerState = 'compact'
+    }
   }
 
   function toggleBigMode() {

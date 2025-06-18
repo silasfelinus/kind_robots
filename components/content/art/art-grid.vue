@@ -73,7 +73,10 @@
       </div>
 
       <!-- Footer Tray with Toggle -->
-      <div class="w-full border-t border-base-content bg-base-300 relative" :style="displayStore.footerStyle">
+      <div
+        class="w-full border-t border-base-content bg-base-300 relative transition-height duration-300 ease-in-out overflow-hidden"
+        :style="displayStore.footerStyle"
+      >
         <div :style="displayStore.footerToggleStyle">
           <button class="btn btn-xs btn-circle" @click="displayStore.toggleFooter()">
             <Icon :name="displayStore.footerState === 'closed' ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'" />
@@ -108,6 +111,7 @@ const sectionClass = computed(() => {
 </script>
 
 <style scoped>
+/* Optional: extra animation if needed */
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 0.4s ease;
@@ -116,5 +120,10 @@ const sectionClass = computed(() => {
 .slide-fade-leave-to {
   opacity: 0;
   transform: translateY(2rem);
+}
+
+/* Custom height transition (if Tailwind doesn't catch it) */
+.transition-height {
+  transition-property: height, min-height, max-height;
 }
 </style>

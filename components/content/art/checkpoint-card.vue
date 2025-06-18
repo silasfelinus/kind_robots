@@ -45,7 +45,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Art } from '@/stores/artStore'
-import type { Resource } from '@/stores/checkpointStore'
+import type { Resource } from '@/stores/resourceStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 
 const props = defineProps<{

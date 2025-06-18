@@ -102,5 +102,3 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     findCheckpointByName,
   }
 })
-
-export type { Resource }

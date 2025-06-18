@@ -31,6 +31,8 @@
       <button
         class="btn btn-sm"
         :class="{ 'btn-primary': displayStore.showLeft }"
+:style="{ paddingBottom: `calc(var(--vh) * ${displayStore.footerHeight})` }"
+
         @click="displayStore.toggleSection('left')"
       >
         <slot name="label-left">⬅️ Left</slot>
@@ -38,6 +40,8 @@
       <button
         class="btn btn-sm"
         :class="{ 'btn-primary': displayStore.showCenter }"
+:style="{ paddingBottom: `calc(var(--vh) * ${displayStore.footerHeight})` }"
+
         @click="displayStore.toggleSection('center')"
       >
         <slot name="label-center">🎯 Center</slot>
@@ -45,6 +49,8 @@
       <button
         class="btn btn-sm"
         :class="{ 'btn-primary': displayStore.showRight }"
+:style="{ paddingBottom: `calc(var(--vh) * ${displayStore.footerHeight})` }"
+
         @click="displayStore.toggleSection('right')"
       >
         <slot name="label-right">➡️ Right</slot>

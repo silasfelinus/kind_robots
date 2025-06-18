@@ -117,20 +117,7 @@
             >
               <div class="relative">
                 <ArtCard :art="art" @click="artStore.selectArt(art.id)" />
-                <div
-                  v-if="canEdit(c)"
-                  class="absolute left-1/2 transform -translate-x-1/2 mt-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto"
-                >
-                  <button
-                    class="btn btn-xs btn-error"
-                    @click.stop="
-                      collectionStore.removeArtFromLocalCollection(c, art.id)
-                    "
-                    title="Remove from collection"
-                  >
-                    <Icon name="kind-icon:trash" class="w-4 h-4" />
-                  </button>
-                </div>
+             
               </div>
             </div>
           </div>

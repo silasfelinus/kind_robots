@@ -1,10 +1,14 @@
 <template>
-  <div class="w-full h-full bg-base-200 border-t border-base-content shadow-inner flex flex-col">
-
+  <div
+    class="w-full h-full bg-base-200 border-t border-base-content shadow-inner flex flex-col"
+  >
     <!-- Scrollable Expanded Content -->
     <div class="flex-1 px-4 pt-4 pb-4 overflow-y-auto space-y-6">
       <!-- Prompt & Buttons (visible when open or extended) -->
-      <div v-if="displayStore.footerState !== 'closed'" class="space-y-4">
+      <div
+        v-if="['open', 'extended'].includes(displayStore.footerState)"
+        class="space-y-4"
+      >
         <input
           v-model="promptStore.promptField"
           placeholder="Enter your creative prompt..."
@@ -64,7 +68,9 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block font-semibold mb-1">🎚 CFG Scale: {{ localCfg }}</label>
+            <label class="block font-semibold mb-1"
+              >🎚 CFG Scale: {{ localCfg }}</label
+            >
             <input
               type="range"
               min="0"
@@ -75,7 +81,9 @@
             />
           </div>
           <div>
-            <label class="block font-semibold mb-1">🧮 Steps: {{ artStore.artForm.steps }}</label>
+            <label class="block font-semibold mb-1"
+              >🧮 Steps: {{ artStore.artForm.steps }}</label
+            >
             <input
               type="range"
               min="5"
@@ -94,14 +102,18 @@
       <div class="flex flex-col md:flex-row gap-4">
         <div class="flex-1 space-y-1">
           <label class="text-sm font-semibold">🎯 Prompt Preview</label>
-          <div class="p-3 rounded bg-base-200 font-mono text-sm max-h-32 overflow-y-auto">
+          <div
+            class="p-3 rounded bg-base-200 font-mono text-sm max-h-32 overflow-y-auto"
+          >
             {{ promptStore.promptField || 'No prompt yet...' }}
           </div>
         </div>
         <div class="flex-none self-end">
           <button
             class="btn text-white font-semibold"
-            :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
+            :class="
+              isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
+            "
             :disabled="isGenerating || !promptStore.promptField"
             @click="generateArt"
           >
@@ -112,8 +124,6 @@
     </div>
   </div>
 </template>
-
-
 
 <script setup lang="ts">
 // same as before
@@ -140,8 +150,6 @@ const extensionStage = ref(0)
 const makePretty = ref(false)
 const useNegative = ref(false)
 const loading = computed(() => artStore.loading)
-
-
 
 const localCfg = ref<number>(
   (artStore.artForm.cfg ?? 3) + (artStore.artForm.cfgHalf ? 0.5 : 0),

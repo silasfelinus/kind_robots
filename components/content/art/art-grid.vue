@@ -1,11 +1,19 @@
 <!-- /components/content/art/art-grid.vue -->
 <template>
   <div class="relative w-full h-full overflow-hidden flex flex-col">
-
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
-      <button class="btn btn-xs btn-circle" @click="displayStore.toggleFullscreen()">
-        <Icon :name="displayStore.isFullScreen ? 'kind-icon:compress' : 'kind-icon:expand'" />
+      <button
+        class="btn btn-xs btn-circle"
+        @click="displayStore.toggleFullscreen()"
+      >
+        <Icon
+          :name="
+            displayStore.isFullScreen
+              ? 'kind-icon:compress'
+              : 'kind-icon:expand'
+          "
+        />
       </button>
     </div>
 
@@ -46,7 +54,6 @@
 
     <!-- Main Area: Columns + Footer -->
     <div class="relative flex-1 w-full flex flex-col overflow-hidden">
-      
       <!-- Scrollable Columns -->
       <div class="flex flex-1 w-full overflow-hidden">
         <div
@@ -73,15 +80,20 @@
       </div>
 
       <!-- Footer Tray with Toggle -->
-      <div
-        class="w-full border-t border-base-content bg-base-300 relative transition-height duration-300 ease-in-out overflow-hidden"
-        :style="displayStore.footerStyle"
-      >
-        <div :style="displayStore.footerToggleStyle">
-          <button class="btn btn-xs btn-circle" @click="displayStore.toggleFooter()">
-            <Icon :name="displayStore.footerState === 'closed' ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'" />
-          </button>
-        </div>
+      <div :style="displayStore.footerToggleStyle as Record<string, string>">
+        <button
+          class="btn btn-xs btn-circle"
+          @click="displayStore.toggleFooter()"
+        >
+          <Icon
+            :name="
+              displayStore.footerState === 'extended'
+                ? 'kind-icon:chevron-double-down'
+                : 'kind-icon:chevron-double-up'
+            "
+          />
+        </button>
+
         <slot name="extra" />
       </div>
     </div>

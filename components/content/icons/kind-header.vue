@@ -1,14 +1,12 @@
 <!-- /components/content/icons/kind-header.vue -->
 
 <template>
-  <header
-    class="relative bg-base-300 rounded-2xl border border-black w-full h-full box-border"
-  >
+  <header class="relative bg-base-300 rounded-2xl w-full h-full box-border">
     <div class="flex w-full h-full items-stretch">
       <!-- Avatar with Overlay -->
       <div
         class="relative flex items-center justify-center overflow-hidden rounded-2xl min-w-20 h-full"
-        :class="bigMode ? 'w-[15%]' : 'w-[25%]'"
+        :class="bigMode ? 'w-[13%]' : 'w-[20%]'"
       >
         <avatar-image
           alt="User Avatar"

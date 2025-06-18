@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full min-h-[100dvh] flex flex-col bg-base-200">
+  <div class="w-full h-[40vh] bg-base-200 border-t border-base-content shadow-inner flex flex-col">
     <!-- Top-Center Extension Toggle -->
     <div class="relative z-10 py-2">
       <div class="absolute top-2 left-1/2 -translate-x-1/2">
@@ -12,9 +12,8 @@
     </div>
 
     <!-- Scrollable Expanded Content -->
-    <div class="flex-1 px-4 pt-4 pb-32 space-y-6 overflow-y-auto">
+    <div class="flex-1 px-4 pt-4 pb-4 overflow-y-auto space-y-6">
       <div v-if="extensionStage > 0" class="space-y-4">
-        <!-- Prompt Input + Tools -->
         <input
           v-model="promptStore.promptField"
           placeholder="Enter your creative prompt..."
@@ -99,14 +98,12 @@
       </div>
     </div>
 
-    <!-- Sticky Footer: Prompt Preview + Generate Button -->
-    <div class="sticky bottom-0 w-full bg-base-100 border-t border-base-content z-20 shadow-inner">
-      <div class="flex flex-col md:flex-row gap-4 p-4">
+    <!-- Fixed Footer Row -->
+    <div class="bg-base-100 border-t border-base-content px-4 py-3">
+      <div class="flex flex-col md:flex-row gap-4">
         <div class="flex-1 space-y-1">
           <label class="text-sm font-semibold">🎯 Prompt Preview</label>
-          <div
-            class="p-3 rounded bg-base-200 font-mono text-sm max-h-40 overflow-y-auto"
-          >
+          <div class="p-3 rounded bg-base-200 font-mono text-sm max-h-32 overflow-y-auto">
             {{ promptStore.promptField || 'No prompt yet...' }}
           </div>
         </div>
@@ -126,6 +123,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 // same as before

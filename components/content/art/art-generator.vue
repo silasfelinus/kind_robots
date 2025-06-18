@@ -115,7 +115,7 @@
         </div>
         <div class="flex-none self-end">
           <button
-            class="btn text-white font-semibold"
+            class="btn text-white font-semibold mr-10"
             :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
             :disabled="isGenerating || !promptStore.promptField"
             @click="generateArt"

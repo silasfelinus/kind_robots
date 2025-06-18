@@ -56,32 +56,32 @@
     </div>
 
     <!-- Main Area: Columns -->
-    <div class="relative flex-1 w-full flex flex-col min-h-0">
-      <div class="flex flex-1 w-full overflow-hidden min-h-0">
-        <div
-          v-if="displayStore.showLeft"
-          class="flex-1 min-h-0 overflow-y-auto px-2 space-y-4"
-          :class="sectionClass"
-          :style="{ paddingBottom: `calc(var(--vh) * ${displayStore.footerHeight})` }"
-        >
-          <slot name="left" />
-        </div>
-        <div
-          v-if="displayStore.showCenter"
-          class="flex-1 min-h-0 overflow-y-auto px-2 space-y-4"
-          :class="sectionClass"
-          :style="{ paddingBottom: `calc(var(--vh) * ${displayStore.footerHeight})` }"
-        >
-          <slot name="center" />
-        </div>
-        <div
-          v-if="displayStore.showRight"
-          class="flex-1 min-h-0 overflow-y-auto px-2 space-y-4"
-          :class="sectionClass"
-          :style="{ paddingBottom: `calc(var(--vh) * ${displayStore.footerHeight})` }"
-        >
-          <slot name="right" />
-        </div>
+    <div
+      class="relative w-full flex min-h-0 flex-1"
+      :style="{
+        height: `calc(100dvh - var(--vh) * ${displayStore.footerHeight})`,
+      }"
+    >
+      <div
+        v-if="displayStore.showLeft"
+        class="overflow-y-auto min-h-0 px-2 space-y-4"
+        :class="sectionClass"
+      >
+        <slot name="left" />
+      </div>
+      <div
+        v-if="displayStore.showCenter"
+        class="overflow-y-auto min-h-0 px-2 space-y-4"
+        :class="sectionClass"
+      >
+        <slot name="center" />
+      </div>
+      <div
+        v-if="displayStore.showRight"
+        class="overflow-y-auto min-h-0 px-2 space-y-4"
+        :class="sectionClass"
+      >
+        <slot name="right" />
       </div>
     </div>
 
@@ -110,6 +110,7 @@
     <slot name="overlay" />
   </div>
 </template>
+
 
 <script setup lang="ts">
 // /components/content/art/art-grid.vue

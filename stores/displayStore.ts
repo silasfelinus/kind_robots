@@ -198,7 +198,7 @@ const footerStyle = computed((): CSSProperties => {
   const sidebarWidth = state.sidebarRightState !== 'hidden' ? sidebarRightWidth.value : 0
   return {
     height: `calc(var(--vh) * ${footerHeight.value})`,
-    width: `calc(100vw - ${sidebarWidth + padding * 2}vw)`,
+    width: `calc(90vw - ${sidebarWidth + padding * 2}vw)`,
     left: `${padding}vw`,
     bottom: '0',
     minHeight: '0',

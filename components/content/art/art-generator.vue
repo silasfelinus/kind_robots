@@ -1,21 +1,23 @@
-<!-- /components/content/art/art-generator.vue -->
 <template>
-  <div class="relative w-full h-full flex flex-col overflow-hidden bg-base-200">
+  <div class="w-full flex flex-col bg-base-200">
+
     <!-- Top-Center Extension Toggle -->
-    <div class="absolute top-2 left-1/2 -translate-x-1/2 z-30">
-      <button class="btn btn-sm btn-ghost" @click="cycleExtension">
-        <span v-if="extensionStage === 0">⬜</span>
-        <span v-else-if="extensionStage === 1">🧰</span>
-        <span v-else>⚙️</span>
-      </button>
+    <div class="relative z-10 py-2">
+      <div class="absolute top-2 left-1/2 -translate-x-1/2">
+        <button class="btn btn-sm btn-ghost" @click="cycleExtension">
+          <span v-if="extensionStage === 0">⬜</span>
+          <span v-else-if="extensionStage === 1">🧰</span>
+          <span v-else>⚙️</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Scrollable Content Area -->
+    <!-- Scrollable Expanded Content -->
     <div
-      class="flex-1 overflow-y-auto px-4 pt-4 pb-[200px] space-y-6"
       v-show="extensionStage > 0"
+      class="w-full px-4 pt-4 pb-32 space-y-6 overflow-y-auto"
     >
-      <!-- Row 2: Prompt Input + Tools -->
+      <!-- Prompt Input + Tools -->
       <div class="space-y-4">
         <input
           v-model="promptStore.promptField"
@@ -25,9 +27,7 @@
           @input="syncPrompt"
         />
         <div class="flex flex-wrap md:flex-row gap-2">
-          <label
-            class="label cursor-pointer justify-between w-full md:w-auto"
-          >
+          <label class="label cursor-pointer justify-between w-full md:w-auto">
             <span class="label-text font-semibold">✨ Make Pretty</span>
             <input
               type="checkbox"
@@ -44,7 +44,7 @@
         </div>
       </div>
 
-      <!-- Row 3: Advanced Tools -->
+      <!-- Advanced Tools -->
       <div v-if="extensionStage > 1" class="space-y-6">
         <div class="flex flex-wrap gap-4">
           <label class="label cursor-pointer space-x-2">
@@ -103,10 +103,8 @@
       </div>
     </div>
 
-    <!-- Fixed Bottom: Prompt Preview + Generate Button -->
-    <div
-      class="absolute bottom-0 w-full bg-base-100 border-t border-base-content z-40 shadow-inner"
-    >
+    <!-- Sticky Footer: Prompt Preview + Generate Button -->
+    <div class="sticky bottom-0 w-full bg-base-100 border-t border-base-content z-20 shadow-inner">
       <div class="flex flex-col md:flex-row gap-4 p-4">
         <div class="flex-1 space-y-1">
           <label class="text-sm font-semibold">🎯 Prompt Preview</label>
@@ -132,7 +130,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 // /components/content/art/art-generator.vue

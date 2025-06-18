@@ -117,6 +117,7 @@
             >
               <div class="relative">
                 <ArtCard :art="art" @click="artStore.selectArt(art.id)" />
+             
               </div>
             </div>
           </div>
@@ -130,20 +131,47 @@
     <!-- Gallery View (Unselected) -->
     <div v-else class="p-6 space-y-6">
       <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-        <collection-card
+        <div
           v-for="collection in collectionStore.collections"
           :key="collection.id"
-          :collection="collection"
-          :previewImage="getPreviewImage(collection).src"
+          class="relative group col-span-2 flex flex-col bg-base-100 rounded-2xl shadow hover:shadow-xl transition-all overflow-hidden cursor-pointer w-full"
+          @click="selectCollection(collection.id)"
           @mouseenter="handleHover(collection)"
           @mouseleave="artStore.setHoverArt(null)"
-          @click="collectionStore.selectedCollectionIds = [collection.id]"
-        />
+        >
+          <div class="w-full h-48 overflow-hidden">
+            <img
+              :src="getPreviewImage(collection).src"
+              class="w-full h-full object-cover"
+              :alt="collection.label || 'Unnamed Collection'"
+            />
+          </div>
+          <div
+            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between px-4 py-3 pointer-events-none"
+          >
+            <div
+              class="text-white text-sm font-bold truncate pointer-events-none"
+            >
+              {{ collection.label || 'Untitled Collection' }}
+            </div>
+            <button
+              v-if="canEdit(collection)"
+              class="text-white hover:text-error pointer-events-auto"
+              @click.stop="confirmRemoveAllArt(collection)"
+            >
+              <Icon name="kind-icon:trash" class="w-5 h-5" />
+            </button>
+          </div>
+          <div
+            class="w-full text-center p-4 text-lg font-bold text-primary truncate pointer-events-none"
+          >
+            📁 {{ collection.label || 'Untitled Collection' }}
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
@@ -195,7 +223,7 @@ function getArtFromCollection(c: ArtCollection) {
 function confirmRemoveAllArt(collection: ArtCollection) {
   if (
     !confirm(
-      `Remove all art from "${collection.label}"? This only affects this collection.`,
+      Remove all art from "${collection.label}"? This only affects this collection.,
     )
   )
     return

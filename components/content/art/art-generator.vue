@@ -103,7 +103,7 @@
     </div>
 
     <!-- Footer -->
-    <div class="bg-base-100 border-t border-base-content px-4 py-3">
+    <div class="bg-base-100 border-t border-base-content px-6 py-1">
       <div class="flex flex-col md:flex-row gap-4">
         <div class="flex-1 space-y-1">
           <label class="text-sm font-semibold">🎯 Prompt Preview</label>
@@ -115,7 +115,7 @@
         </div>
         <div class="flex-none self-end">
           <button
-            class="btn text-white font-semibold mr-10"
+            class="btn text-white font-semibold mr-15"
             :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
             :disabled="isGenerating || !promptStore.promptField"
             @click="generateArt"

@@ -264,57 +264,46 @@ export const useDisplayStore = defineStore('displayStore', () => {
     state.currentAnimation = ''
   }
 
-  function toggleSection(section?: 'left' | 'center' | 'right') {
-  const sectionOrder: ('left' | 'center' | 'right')[] = ['left', 'center', 'right']
-
-  if (state.viewportSize === 'small') {
-    // Show only one section at a time, cycle forward
-    const currentIndex = sectionOrder.findIndex((s) => state[`show${capitalize(s)}` as const])
-    const nextIndex = (currentIndex + 1) % sectionOrder.length
-
-    state.showLeft = false
-    state.showCenter = false
-    state.showRight = false
-    state[`show${capitalize(sectionOrder[nextIndex])}` as const] = true
-  } else {
-    // On md+ viewports: toggle target section, limit max visible to 2
-    if (!section) return
-
-    const key = `show${capitalize(section)}` as const
-    const currentlyShown = sectionOrder.filter((s) => state[`show${capitalize(s)}` as const])
-    const isCurrentlyVisible = state[key]
-
-    if (isCurrentlyVisible && currentlyShown.length === 1) {
-      // Prevent hiding last visible section
-      return
+  function toggleSection(section: 'left' | 'center' | 'right') {
+    const sectionStateMap = {
+      left: state.showLeft,
+      center: state.showCenter,
+      right: state.showRight,
     }
 
-    if (!isCurrentlyVisible && currentlyShown.length >= 2) {
-      // Hide all and show only this one
-      sectionOrder.forEach((s) => {
-        state[`show${capitalize(s)}` as const] = false
-      })
+    const setSectionState = (
+      key: 'left' | 'center' | 'right',
+      value: boolean,
+    ) => {
+      if (key === 'left') state.showLeft = value
+      else if (key === 'center') state.showCenter = value
+      else if (key === 'right') state.showRight = value
     }
 
-    state[key] = !isCurrentlyVisible
+    const isCurrentlyOn = sectionStateMap[section]
+
+    if (state.viewportSize === 'small') {
+      if (isCurrentlyOn) {
+        // Turn it off
+        setSectionState(section, false)
+      } else {
+        // Turn off others, turn this one on
+        setSectionState('left', false)
+        setSectionState('center', false)
+        setSectionState('right', false)
+        setSectionState(section, true)
+      }
+    } else {
+      // On larger screens, just toggle the selected one
+      setSectionState(section, !isCurrentlyOn)
+    }
+
+    // Adjust footer
+    const anyOn = state.showLeft || state.showCenter || state.showRight
+    state.footerState = anyOn ? 'compact' : 'extended'
+
+    saveState()
   }
-
-  // Adjust footerState based on visibility
-  const allOff = !state.showLeft && !state.showCenter && !state.showRight
-  const anyOn = state.showLeft || state.showCenter || state.showRight
-
-  if (allOff) {
-    state.footerState = 'extended'
-  } else if (anyOn && state.footerState === 'extended') {
-    state.footerState = 'compact'
-  }
-
-  saveState()
-}
-
-function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1)
-}
 
   function toggleExtended() {
     state.showExtended = !state.showExtended

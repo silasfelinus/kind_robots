@@ -1,8 +1,8 @@
 <!-- /components/content/art/art-generator.vue -->
 <template>
-  <div class="flex flex-col min-h-[100dvh] bg-base-200 relative p-4 pr-8 space-y-6">
+  <div class="relative w-full h-full flex flex-col overflow-hidden bg-base-200">
     <!-- Top-Center Extension Toggle -->
-    <div class="absolute top-2 left-1/2 -translate-x-1/2 z-20">
+    <div class="absolute top-2 left-1/2 -translate-x-1/2 z-30">
       <button class="btn btn-sm btn-ghost" @click="cycleExtension">
         <span v-if="extensionStage === 0">⬜</span>
         <span v-else-if="extensionStage === 1">🧰</span>
@@ -10,138 +10,149 @@
       </button>
     </div>
 
-    <!-- Row 1: Prompt Preview + Generate -->
-    <div class="flex flex-col md:flex-row gap-4 items-stretch pt-8">
-      <div class="flex-1 space-y-1">
-        <label class="text-sm font-semibold">🎯 Prompt Preview</label>
-        <div
-          class="p-3 rounded bg-base-100 font-mono text-sm max-h-40 overflow-y-auto"
-        >
-          {{ promptStore.promptField || 'No prompt yet...' }}
+    <!-- Spacer / Empty Grow Area -->
+    <div class="flex-grow overflow-hidden"></div>
+
+    <!-- Expanding Bottom Tray -->
+    <div
+      class="relative w-full bg-base-300 border-t border-base-content shadow-inner"
+    >
+      <div class="flex flex-col-reverse">
+        <!-- Fixed Bottom: Prompt Preview + Generate Button -->
+        <div class="flex flex-col md:flex-row gap-4 p-4 bg-base-100 z-20">
+          <div class="flex-1 space-y-1">
+            <label class="text-sm font-semibold">🎯 Prompt Preview</label>
+            <div
+              class="p-3 rounded bg-base-200 font-mono text-sm max-h-40 overflow-y-auto"
+            >
+              {{ promptStore.promptField || 'No prompt yet...' }}
+            </div>
+          </div>
+          <div class="flex-none self-end">
+            <button
+              class="btn text-white font-semibold"
+              :class="
+                isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
+              "
+              :disabled="isGenerating || !promptStore.promptField"
+              @click="generateArt"
+            >
+              🖌️ Create Art
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="flex-none self-end">
-        <button
-          class="btn text-white font-semibold"
-          :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
-          :disabled="isGenerating || !promptStore.promptField"
-          @click="generateArt"
-        >
-          🖌️ Create Art
-        </button>
+
+        <!-- Expanding Content: Prompt Input, Toggles, etc -->
+        <transition name="fade-slide">
+          <div
+            v-show="extensionStage > 0"
+            class="w-full px-4 pt-6 pb-4 space-y-6 bg-base-300 overflow-y-auto"
+            :class="{
+              'max-h-[60vh]': extensionStage > 1,
+              'max-h-[30vh]': extensionStage === 1,
+            }"
+          >
+            <!-- Row 2: Prompt Input + Tools -->
+            <div class="space-y-4">
+              <input
+                v-model="promptStore.promptField"
+                placeholder="Enter your creative prompt..."
+                class="input input-bordered w-full text-lg bg-base-100"
+                :disabled="loading"
+                @input="syncPrompt"
+              />
+              <div class="flex flex-wrap md:flex-row gap-2">
+                <label
+                  class="label cursor-pointer justify-between w-full md:w-auto"
+                >
+                  <span class="label-text font-semibold">✨ Make Pretty</span>
+                  <input
+                    type="checkbox"
+                    class="toggle toggle-accent"
+                    v-model="makePretty"
+                  />
+                </label>
+                <button class="btn btn-sm btn-secondary" @click="surpriseMe">
+                  🎲 Surprise
+                </button>
+                <button class="btn btn-sm btn-warning" @click="resetAll">
+                  ♻️ Reset
+                </button>
+              </div>
+            </div>
+
+            <!-- Row 3: Advanced Tools -->
+            <div v-if="extensionStage > 1" class="space-y-6">
+              <div class="flex flex-wrap gap-4">
+                <label class="label cursor-pointer space-x-2">
+                  <span class="label-text font-semibold"
+                    >🚫 Negative Prompt</span
+                  >
+                  <input
+                    type="checkbox"
+                    class="toggle toggle-error"
+                    v-model="useNegative"
+                    @change="toggleNegativePrompt"
+                  />
+                </label>
+                <label class="label cursor-pointer space-x-2">
+                  <span class="label-text font-semibold">🔓 Public</span>
+                  <input
+                    type="checkbox"
+                    class="toggle toggle-success"
+                    v-model="artStore.artForm.isPublic"
+                  />
+                </label>
+              </div>
+
+              <div v-if="useNegative" class="space-y-1">
+                <label class="font-semibold">Negative Prompt</label>
+                <input
+                  v-model="artStore.artForm.negativePrompt"
+                  class="input input-bordered w-full text-lg bg-base-100"
+                  placeholder="e.g. blurry, extra limbs..."
+                  :disabled="loading"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-semibold mb-1"
+                    >🎚 CFG Scale: {{ localCfg }}</label
+                  >
+                  <input
+                    type="range"
+                    min="0"
+                    max="30"
+                    step="0.5"
+                    v-model.number="localCfg"
+                    class="range range-primary"
+                  />
+                </div>
+                <div>
+                  <label class="block font-semibold mb-1"
+                    >🧮 Steps: {{ artStore.artForm.steps }}</label
+                  >
+                  <input
+                    type="range"
+                    min="5"
+                    max="50"
+                    step="1"
+                    v-model.number="artStore.artForm.steps"
+                    class="range range-secondary"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </transition>
       </div>
     </div>
-
-    <!-- Row 2: Prompt Input + Quick Buttons -->
-    <Transition name="fade-slide" mode="out-in">
-      <div v-if="extensionStage > 0" class="space-y-4" key="stage-1">
-        <input
-          v-model="promptStore.promptField"
-          placeholder="Enter your creative prompt..."
-          class="input input-bordered w-full text-lg bg-base-100"
-          :disabled="loading"
-          @input="syncPrompt"
-        />
-
-        <div class="flex flex-wrap md:flex-row gap-2">
-          <label class="label cursor-pointer justify-between w-full md:w-auto">
-            <span class="label-text font-semibold">✨ Make Pretty</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-accent"
-              v-model="makePretty"
-            />
-          </label>
-          <button class="btn btn-sm btn-secondary" @click="surpriseMe">🎲 Surprise</button>
-          <button class="btn btn-sm btn-warning" @click="resetAll">♻️ Reset</button>
-        </div>
-      </div>
-    </Transition>
-
-    <!-- Row 3: Advanced Controls -->
-    <Transition name="fade-slide" mode="out-in">
-      <div v-if="extensionStage > 1" class="space-y-6" key="stage-2">
-        <div class="flex flex-wrap gap-4">
-          <label class="label cursor-pointer space-x-2">
-            <span class="label-text font-semibold">🚫 Negative Prompt</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-error"
-              v-model="useNegative"
-              @change="toggleNegativePrompt"
-            />
-          </label>
-          <label class="label cursor-pointer space-x-2">
-            <span class="label-text font-semibold">🔓 Public</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-success"
-              v-model="artStore.artForm.isPublic"
-            />
-          </label>
-        </div>
-
-        <Transition name="fade-slide">
-          <div v-if="useNegative" class="space-y-1">
-            <label class="font-semibold">Negative Prompt</label>
-            <input
-              v-model="artStore.artForm.negativePrompt"
-              class="input input-bordered w-full text-lg bg-base-100"
-              placeholder="e.g. blurry, extra limbs..."
-              :disabled="loading"
-            />
-          </div>
-        </Transition>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block font-semibold mb-1">
-              🎚 CFG Scale: {{ localCfg }}
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="30"
-              step="0.5"
-              v-model.number="localCfg"
-              class="range range-primary"
-            />
-          </div>
-          <div>
-            <label class="block font-semibold mb-1">
-              🧮 Steps: {{ artStore.artForm.steps }}
-            </label>
-            <input
-              type="range"
-              min="5"
-              max="50"
-              step="1"
-              v-model.number="artStore.artForm.steps"
-              class="range range-secondary"
-            />
-          </div>
-        </div>
-      </div>
-    </Transition>
   </div>
 </template>
 
-<style scoped>
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  @apply transition-all duration-300 ease-in-out;
-}
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  @apply opacity-0 -translate-y-2;
-}
-.fade-slide-enter-to,
-.fade-slide-leave-from {
-  @apply opacity-100 translate-y-0;
-}
-</style>
-
 <script setup lang="ts">
+// /components/content/art/art-generator.vue
 import { ref, computed, watch, watchEffect, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
@@ -161,7 +172,7 @@ const checkpointStore = useCheckpointStore()
 const randomStore = useRandomStore()
 
 const isGenerating = ref(false)
-const extensionStage = ref(0) // 0 = minimal, 1 = tools, 2 = full
+const extensionStage = ref(0)
 const makePretty = ref(false)
 const useNegative = ref(false)
 const loading = computed(() => artStore.loading)
@@ -264,10 +275,27 @@ async function generateArt() {
   isGenerating.value = true
   displayStore.toggleRandomAnimation()
   const result = await artStore.generateArt()
-  if (!result.success)
+  if (!result.success) {
     errorStore.addError(ErrorType.GENERAL_ERROR, result.message)
-  else await milestoneStore.rewardMilestone(11)
+  } else {
+    await milestoneStore.rewardMilestone(11)
+  }
   displayStore.stopAnimation()
   isGenerating.value = false
 }
 </script>
+
+<style scoped>
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  @apply transition-all duration-300 ease-in-out;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  @apply opacity-0 translate-y-4;
+}
+.fade-slide-enter-to,
+.fade-slide-leave-from {
+  @apply opacity-100 translate-y-0;
+}
+</style>

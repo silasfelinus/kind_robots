@@ -4,16 +4,12 @@
     class="w-full bg-base-200 border-t border-base-content shadow-inner flex flex-col transition-height overflow-hidden"
     :style="displayStore.footerStyle"
   >
-    <div class="text-sm opacity-60 text-center">
-      Footer State: {{ displayStore.footerState }} – Height:
-      {{ displayStore.footerHeight }}
-    </div>
 
     <!-- Expanded Area -->
-    <div class="flex-1 px-4 pt-4 pb-4 overflow-y-auto space-y-6">
+    <div class="flex-1 px-4 overflow-y-auto">
       <div
         v-if="['open', 'extended'].includes(displayStore.footerState)"
-        class="space-y-4"
+        class="space-y-1"
       >
         <input
           v-model="promptStore.promptField"
@@ -124,7 +120,7 @@
           </button>
         </div>
       </div>
-    </div>
+   
   </div>
 </template>
 

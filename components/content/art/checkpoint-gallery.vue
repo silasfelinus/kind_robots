@@ -26,7 +26,7 @@
       <img
         v-if="displayedCheckpoints[0].MediaPath"
         :src="`${displayedCheckpoints[0].MediaPath}?t=${cacheBuster}`"
-        class="h-12 w-12 object-cover rounded-xl"
+        class="h-50 w-50 object-cover rounded-xl"
         alt="Checkpoint Image"
       />
       <div class="flex flex-col truncate">

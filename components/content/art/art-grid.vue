@@ -2,9 +2,8 @@
 <template>
   <div
     class="relative w-full flex flex-col"
-    :style="{
-      height: `calc(104dvh - var(--vh) * ${displayStore.footerHeight})`,
-    }"
+:style="{ height: `calc(100dvh - var(--vh) * ${displayStore.footerHeight})` }"
+
   >
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
@@ -102,8 +101,8 @@
 
     <!-- Footer Panel -->
     <div
-      class="fixed z-30 bottom-0 left-0 right-0 overflow-hidden transition-all bg-base-300 border-t border-base-content"
-      :style="{ height: `calc(var(--vh) * ${displayStore.footerHeight})` }"
+      class="fixed"
+      :style="displayStore.footerStyle"
     >
       <slot name="extra" />
     </div>

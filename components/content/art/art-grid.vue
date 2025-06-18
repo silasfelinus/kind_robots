@@ -57,7 +57,7 @@
     </div>
 
     <!-- Main Area: Columns -->
-    <div class="relative flex-1 w-full flex flex-col overflow-hidden">
+    <div class="relative flex-1 w-full flex flex-col">
       <div class="flex flex-1 w-full overflow-hidden">
         <div
           v-if="displayStore.showLeft"

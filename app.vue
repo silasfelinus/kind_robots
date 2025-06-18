@@ -37,7 +37,7 @@
     <!-- Main Content -->
     <main
       v-if="pageStore.ready"
-      class="absolute inset-0 z-30 box-border overflow-hidden"
+      class="absolute inset-0 z-30 box-border"
       :style="displayStore.mainContentStyle"
     >
       <main-content class="w-full h-full" />

@@ -7,7 +7,7 @@ export function setCustomVh() {
   }
 }
 
-export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'
+export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'|'extended'
 export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 export type FullscreenState = 'nuxt' | 'fullscreen' | 'splash'
 export type displayModeState =

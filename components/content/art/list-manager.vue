@@ -1,13 +1,13 @@
 <!-- /components/content/art/list-manager.vue -->
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 w-full">
     <!-- Header -->
-    <div class="flex justify-between items-center">
-      <h2 class="text-xl font-bold">📋 Your Preset Lists</h2>
-      <form @submit.prevent="handleCreate" class="flex gap-2">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <h2 class="text-xl font-bold shrink-0">📋 Your Preset Lists</h2>
+      <form @submit.prevent="handleCreate" class="flex flex-wrap gap-2 w-full md:w-auto">
         <input
           v-model="newTitle"
-          class="input input-sm input-bordered"
+          class="input input-sm input-bordered flex-1 min-w-[150px]"
           placeholder="New list title"
         />
         <button class="btn btn-sm btn-primary" :disabled="!newTitle.trim()">
@@ -17,14 +17,14 @@
     </div>
 
     <!-- List Items -->
-    <div class="space-y-4">
+    <div class="space-y-4 w-full">
       <div
         v-for="(list, index) in localLists"
         :key="list.id"
-        class="bg-base-100 rounded-xl border shadow p-4 flex flex-col md:flex-row md:items-center justify-between gap-4"
+        class="bg-base-100 rounded-xl border shadow p-4 space-y-4 md:space-y-0 flex flex-col md:flex-row md:items-center md:justify-between w-full"
       >
         <!-- Title + Order -->
-        <div class="flex items-center gap-2 flex-1 w-full">
+        <div class="flex flex-wrap items-center gap-2 flex-1 w-full">
           <button
             @click="moveUp(index)"
             class="btn btn-xs btn-outline"
@@ -42,12 +42,15 @@
           <input
             v-model="list.title"
             @change="save(list)"
-            class="input input-sm flex-1"
+            class="input input-sm flex-1 min-w-[120px]"
           />
         </div>
 
-        <!-- Toggles (owner-only) -->
-        <div v-if="userStore.userId === list.userId" class="flex flex-wrap gap-4 items-center justify-start md:justify-center">
+        <!-- Toggles -->
+        <div
+          v-if="userStore.userId === list.userId"
+          class="flex flex-wrap gap-4 items-center w-full md:w-auto justify-start md:justify-center"
+        >
           <label class="label cursor-pointer gap-2">
             <span class="label-text">🔓 Public</span>
             <input
@@ -70,7 +73,7 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex gap-2 justify-end">
+        <div class="flex gap-2 justify-end w-full md:w-auto">
           <button class="btn btn-sm btn-accent" @click="save(list)">
             💾 Save
           </button>
@@ -105,9 +108,10 @@ watch(filteredLists, (val) => {
   localLists.value = [...val]
 })
 
-function handleCreate() {
+async function handleCreate() {
   if (!newTitle.value.trim()) return
-  randomStore.createList(newTitle.value.trim())
+  await randomStore.createList(newTitle.value.trim())
+  await randomStore.fetchRandomLists() // sync backend with frontend
   newTitle.value = ''
 }
 

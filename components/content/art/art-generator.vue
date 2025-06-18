@@ -1,12 +1,11 @@
 <!-- /components/content/art/art-generator.vue -->
 <template>
   <div
-    class="w-full bg-base-200 border-t border-base-content shadow-inner flex flex-col transition-height overflow-hidden"
+    class="w-full bg-base-200 border-t border-base-content shadow-inner flex flex-col transition-height flex-1 min-h-0"
     :style="displayStore.footerStyle"
   >
-
     <!-- Expanded Area -->
-    <div class="flex-1 px-4 overflow-y-auto">
+    <div class="flex-1 min-h-0 px-4 overflow-y-auto">
       <div
         v-if="['open', 'extended'].includes(displayStore.footerState)"
         class="space-y-1"
@@ -120,9 +119,10 @@
           </button>
         </div>
       </div>
-   
+    </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 // /components/content/art/art-generator.vue

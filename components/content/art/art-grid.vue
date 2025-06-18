@@ -1,19 +1,11 @@
+<!-- /components/content/art/art-grid.vue -->
 <template>
   <div class="relative w-full h-full overflow-hidden flex flex-col">
 
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
-      <button
-        class="btn btn-xs btn-circle"
-        @click="displayStore.toggleFullscreen()"
-      >
-        <Icon
-          :name="
-            displayStore.isFullScreen
-              ? 'kind-icon:compress'
-              : 'kind-icon:expand'
-          "
-        />
+      <button class="btn btn-xs btn-circle" @click="displayStore.toggleFullscreen()">
+        <Icon :name="displayStore.isFullScreen ? 'kind-icon:compress' : 'kind-icon:expand'" />
       </button>
     </div>
 
@@ -52,9 +44,11 @@
       <slot name="report" />
     </div>
 
-    <!-- Main Area: Scrollable Columns -->
-    <div class="relative flex-1 w-full overflow-hidden">
-      <div class="flex w-full h-full">
+    <!-- Main Area: Columns + Footer -->
+    <div class="relative flex-1 w-full flex flex-col overflow-hidden">
+      
+      <!-- Scrollable Columns -->
+      <div class="flex flex-1 w-full overflow-hidden">
         <div
           v-if="displayStore.showLeft"
           class="h-full overflow-y-auto px-2 space-y-4"
@@ -78,17 +72,21 @@
         </div>
       </div>
 
-      <!-- Fixed Bottom Art Generator -->
-      <div class="absolute bottom-0 left-0 right-0 z-30">
+      <!-- Footer Tray with Toggle -->
+      <div class="w-full border-t border-base-content bg-base-300 relative" :style="displayStore.footerStyle">
+        <div :style="displayStore.footerToggleStyle">
+          <button class="btn btn-xs btn-circle" @click="displayStore.toggleFooter()">
+            <Icon :name="displayStore.footerState === 'closed' ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'" />
+          </button>
+        </div>
         <slot name="extra" />
       </div>
     </div>
 
-    <!-- Overlay (e.g. modal) -->
+    <!-- Overlay (e.g. modals) -->
     <slot name="overlay" />
   </div>
 </template>
-
 
 <script setup lang="ts">
 // /components/content/art/art-grid.vue

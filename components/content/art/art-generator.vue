@@ -1,17 +1,16 @@
+<!-- /components/content/art/art-generator.vue -->
 <template>
   <div
     class="w-full bg-base-200 border-t border-base-content shadow-inner flex flex-col transition-height overflow-hidden"
     :style="displayStore.footerStyle"
   >
-    <!-- Debug: Footer Report -->
     <div class="text-sm opacity-60 text-center">
       Footer State: {{ displayStore.footerState }} – Height:
       {{ displayStore.footerHeight }}
     </div>
 
-    <!-- Scrollable Expanded Content -->
+    <!-- Expanded Area -->
     <div class="flex-1 px-4 pt-4 pb-4 overflow-y-auto space-y-6">
-      <!-- Prompt & Buttons (visible when open or extended) -->
       <div
         v-if="['open', 'extended'].includes(displayStore.footerState)"
         class="space-y-4"
@@ -32,16 +31,15 @@
               v-model="makePretty"
             />
           </label>
-          <button class="btn btn-sm btn-secondary" @click="surpriseMe">
+          <button class="btn btn-sm btn-secondary" @click="randomStore.applySurprise">
             🎲 Surprise
           </button>
-          <button class="btn btn-sm btn-warning" @click="resetAll">
+          <button class="btn btn-sm btn-warning" @click="resetUIState">
             ♻️ Reset
           </button>
         </div>
       </div>
 
-      <!-- Advanced Tools (only in extended) -->
       <div v-if="displayStore.footerState === 'extended'" class="space-y-6">
         <div class="flex flex-wrap gap-4">
           <label class="label cursor-pointer space-x-2">
@@ -75,9 +73,9 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block font-semibold mb-1"
-              >🎚 CFG Scale: {{ localCfg }}</label
-            >
+            <label class="block font-semibold mb-1">
+              🎚 CFG Scale: {{ localCfg }}
+            </label>
             <input
               type="range"
               min="0"
@@ -88,9 +86,9 @@
             />
           </div>
           <div>
-            <label class="block font-semibold mb-1"
-              >🧮 Steps: {{ artStore.artForm.steps }}</label
-            >
+            <label class="block font-semibold mb-1">
+              🧮 Steps: {{ artStore.artForm.steps }}
+            </label>
             <input
               type="range"
               min="5"
@@ -104,7 +102,7 @@
       </div>
     </div>
 
-    <!-- Sticky Footer with Prompt Preview + Generate -->
+    <!-- Footer -->
     <div class="bg-base-100 border-t border-base-content px-4 py-3">
       <div class="flex flex-col md:flex-row gap-4">
         <div class="flex-1 space-y-1">
@@ -118,9 +116,7 @@
         <div class="flex-none self-end">
           <button
             class="btn text-white font-semibold"
-            :class="
-              isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
-            "
+            :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
             :disabled="isGenerating || !promptStore.promptField"
             @click="generateArt"
           >
@@ -133,8 +129,8 @@
 </template>
 
 <script setup lang="ts">
-// same as before
-import { ref, computed, watch, watchEffect, onMounted } from 'vue'
+// /components/content/art/art-generator.vue
+import { ref, computed, watch, onMounted, watchEffect } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -142,7 +138,7 @@ import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useRandomStore } from '@/stores/randomStore'
-import { artListPresets, negativeList } from '@/stores/seeds/artList'
+import { negativeList } from '@/stores/seeds/artList'
 
 const artStore = useArtStore()
 const promptStore = usePromptStore()
@@ -153,7 +149,6 @@ const checkpointStore = useCheckpointStore()
 const randomStore = useRandomStore()
 
 const isGenerating = ref(false)
-const extensionStage = ref(0)
 const makePretty = ref(false)
 const useNegative = ref(false)
 const loading = computed(() => artStore.loading)
@@ -161,9 +156,14 @@ const loading = computed(() => artStore.loading)
 const localCfg = ref<number>(
   (artStore.artForm.cfg ?? 3) + (artStore.artForm.cfgHalf ? 0.5 : 0),
 )
+
 watch(localCfg, (val) => {
   artStore.artForm.cfg = Math.floor(val)
   artStore.artForm.cfgHalf = val % 1 >= 0.5
+})
+
+watchEffect(() => {
+  if (makePretty.value) randomStore.applyMakePretty()
 })
 
 watch(
@@ -179,26 +179,8 @@ onMounted(() => {
     artStore.artForm.promptString = promptStore.promptField
   }
 
-  // Ensure footerState is set to compact on first load
   if (displayStore.footerState === 'hidden') {
     displayStore.changeState('footerState', 'compact')
-  }
-})
-
-watchEffect(() => {
-  if (makePretty.value) {
-    const pretty = artListPresets.find((p) => p.id === '__pretty__')
-    const negative = artListPresets.find((p) => p.id === '__negative__')
-    if (pretty)
-      artStore.updateArtListSelection(
-        '__pretty__',
-        randomStore.pickRandomFromArray(pretty.content, 4),
-      )
-    if (negative)
-      artStore.updateArtListSelection(
-        '__negative__',
-        randomStore.pickRandomFromArray(negative.content, 4),
-      )
   }
 })
 
@@ -214,26 +196,10 @@ function toggleNegativePrompt() {
   )
 }
 
-function resetAll() {
-  Object.keys(artStore.artListSelections).forEach((k) =>
-    artStore.updateArtListSelection(k, []),
-  )
-  randomStore.clearAllSelections()
+function resetUIState() {
+  randomStore.resetAll()
   makePretty.value = false
   useNegative.value = false
-}
-
-function surpriseMe() {
-  for (const entry of artListPresets) {
-    const values = entry.allowMultiple
-      ? randomStore.pickRandomFromArray(
-          entry.content,
-          Math.ceil(Math.random() * entry.content.length),
-        )
-      : randomStore.pickRandomFromArray(entry.content, 1)
-    artStore.updateArtListSelection(entry.id, values)
-  }
-  makePretty.value = Math.random() > 0.3
 }
 
 async function generateArt() {
@@ -246,6 +212,7 @@ async function generateArt() {
     'title',
     'collection',
   ] as const
+
   for (const key of validKeys) {
     const values = artStore.artListSelections[key]
     if (values !== undefined) {
@@ -257,11 +224,13 @@ async function generateArt() {
   isGenerating.value = true
   displayStore.toggleRandomAnimation()
   const result = await artStore.generateArt()
+
   if (!result.success) {
     errorStore.addError(ErrorType.GENERAL_ERROR, result.message)
   } else {
     await milestoneStore.rewardMilestone(11)
   }
+
   displayStore.stopAnimation()
   isGenerating.value = false
 }

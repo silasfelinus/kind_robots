@@ -6,21 +6,13 @@
       v-if="displayStore.isMobileViewport"
       class="relative flex flex-col h-full w-full"
     >
-      <flip-panel :flipped="sidebarRightOpen">
-        <template #front>
-          <div class="absolute inset-0">
-            <NuxtPage
-              :key="$route.fullPath"
-              class="min-h-[100dvh] w-full px-4 py-6"
-            />
-          </div>
-        </template>
-        <template #back>
-          <div class="absolute inset-0">
-            <splash-tutorial />
-          </div>
-        </template>
-      </flip-panel>
+      <transition name="fade" mode="out-in">
+        <component
+          :is="sidebarRightOpen ? 'splash-tutorial' : 'NuxtPage'"
+          :key="sidebarRightOpen ? 'splash' : $route.fullPath"
+          class="absolute inset-0 min-h-[100dvh] w-full px-4 py-6"
+        />
+      </transition>
     </div>
 
     <!-- Desktop View -->
@@ -65,34 +57,28 @@ const sidebarRightOpen = computed(
 </script>
 
 <style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 .slide-in-right-enter-from,
 .slide-in-right-leave-to {
   transform: translateX(100%);
   opacity: 0;
 }
-
 .slide-in-right-enter-active,
 .slide-in-right-leave-active {
   transition:
     transform 0.4s ease-in-out,
     opacity 0.3s ease-in-out;
 }
-
 .slide-in-right-enter-to,
 .slide-in-right-leave-from {
   transform: translateX(0);
   opacity: 1;
-}
-
-.flip-panel-face {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  will-change: transform;
-  contain: layout paint;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
 }
 </style>

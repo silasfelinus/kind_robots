@@ -1,6 +1,5 @@
 <template>
-  <div class="w-full flex flex-col bg-base-200">
-
+  <div class="relative w-full min-h-[100dvh] flex flex-col bg-base-200">
     <!-- Top-Center Extension Toggle -->
     <div class="relative z-10 py-2">
       <div class="absolute top-2 left-1/2 -translate-x-1/2">
@@ -13,12 +12,9 @@
     </div>
 
     <!-- Scrollable Expanded Content -->
-    <div
-      v-show="extensionStage > 0"
-      class="w-full px-4 pt-4 pb-32 space-y-6 overflow-y-auto"
-    >
-      <!-- Prompt Input + Tools -->
-      <div class="space-y-4">
+    <div class="flex-1 px-4 pt-4 pb-32 space-y-6 overflow-y-auto">
+      <div v-if="extensionStage > 0" class="space-y-4">
+        <!-- Prompt Input + Tools -->
         <input
           v-model="promptStore.promptField"
           placeholder="Enter your creative prompt..."
@@ -44,8 +40,8 @@
         </div>
       </div>
 
-      <!-- Advanced Tools -->
       <div v-if="extensionStage > 1" class="space-y-6">
+        <!-- Advanced Tools -->
         <div class="flex flex-wrap gap-4">
           <label class="label cursor-pointer space-x-2">
             <span class="label-text font-semibold">🚫 Negative Prompt</span>
@@ -132,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/art/art-generator.vue
+// same as before
 import { ref, computed, watch, watchEffect, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
@@ -264,18 +260,3 @@ async function generateArt() {
   isGenerating.value = false
 }
 </script>
-
-<style scoped>
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  @apply transition-all duration-300 ease-in-out;
-}
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  @apply opacity-0 translate-y-4;
-}
-.fade-slide-enter-to,
-.fade-slide-leave-from {
-  @apply opacity-100 translate-y-0;
-}
-</style>

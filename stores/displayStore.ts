@@ -97,7 +97,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const footerHeight = computed(() => {
     const stateKey = state.footerState as keyof typeof footerHeights
     const sizeKey = state.viewportSize
-    return footerHeights[stateKey]?.[sizeKey] ?? '0rem'
+    return footerHeights[stateKey]?.[sizeKey] ?? 5
   })
 
   const sectionPaddingSize = computed(() => {
@@ -193,13 +193,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
       left: `${sectionPaddingSize.value}vw`,
     }
   })
-
-  const footerStyle = computed(() => ({
-    height: footerHeight.value,
-    width: '100%',
-    minHeight: '0',
-    transition: 'height 0.3s ease',
-  }))
+  const footerStyle = computed(
+    (): CSSProperties => ({
+      height: `calc(var(--vh) * ${footerHeight.value})`,
+      width: '100%',
+      minHeight: '0',
+      transition: 'height 0.3s ease',
+      position: 'fixed',
+      bottom: '0',
+      left: '0',
+      zIndex: '30',
+    }),
+  )
 
   const isLargeViewport = computed(() =>
     ['large', 'extraLarge'].includes(state.viewportSize),
@@ -258,24 +263,24 @@ export const useDisplayStore = defineStore('displayStore', () => {
     state.currentAnimation = ''
   }
 
-function toggleSection(section: 'left' | 'center' | 'right') {
-  const key = `show${section.charAt(0).toUpperCase()}${section.slice(1)}` as
-    | 'showLeft'
-    | 'showCenter'
-    | 'showRight'
-  state[key] = !state[key]
+  function toggleSection(section: 'left' | 'center' | 'right') {
+    const key = `show${section.charAt(0).toUpperCase()}${section.slice(1)}` as
+      | 'showLeft'
+      | 'showCenter'
+      | 'showRight'
+    state[key] = !state[key]
 
-  const allOff = !state.showLeft && !state.showCenter && !state.showRight
-  const anyOn = state.showLeft || state.showCenter || state.showRight
+    const allOff = !state.showLeft && !state.showCenter && !state.showRight
+    const anyOn = state.showLeft || state.showCenter || state.showRight
 
-  if (allOff) {
-    state.footerState = 'extended'
-  } else if (anyOn && state.footerState === 'extended') {
-    state.footerState = 'compact'
+    if (allOff) {
+      state.footerState = 'extended'
+    } else if (anyOn && state.footerState === 'extended') {
+      state.footerState = 'compact'
+    }
+
+    saveState()
   }
-
-  saveState()
-}
 
   function toggleExtended() {
     state.showExtended = !state.showExtended

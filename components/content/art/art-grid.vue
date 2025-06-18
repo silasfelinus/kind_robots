@@ -18,7 +18,7 @@
     </div>
 
     <!-- Title -->
-    <div class="text-center mt-6 md:mt-0">
+    <div class="text-center mt-6 md:mt-1">
       <slot name="title" />
     </div>
 
@@ -80,10 +80,7 @@
     </div>
 
     <!-- Floating Footer Toggle Button -->
-    <div
-      class="fixed z-40"
-      :style="displayStore.footerToggleStyle"
-    >
+    <div class="fixed z-40" :style="displayStore.footerToggleStyle">
       <button
         class="btn btn-xs btn-circle"
         @click="displayStore.toggleFooter()"
@@ -100,7 +97,7 @@
 
     <!-- Footer Panel -->
     <div
-      class="w-full border-t border-base-content bg-base-300 relative transition-height duration-300 ease-in-out overflow-hidden"
+      class="fixed z-30 bottom-0 left-0 right-0 overflow-hidden transition-all bg-base-300 border-t border-base-content"
       :style="displayStore.footerStyle"
     >
       <slot name="extra" />

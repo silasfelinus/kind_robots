@@ -1,3 +1,4 @@
+<!-- /components/content/art/collection-gallery.vue -->
 <template>
   <div class="relative bg-base-300 rounded-2xl shadow-md overflow-hidden">
     <!-- Selected Collection View -->
@@ -12,7 +13,6 @@
           class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2"
         >
           <div class="flex-1 space-y-1">
-            <!-- Editable Label -->
             <div
               v-if="canEdit(c) && editingTitle === c.id"
               class="flex items-center gap-2"
@@ -32,7 +32,6 @@
               />
               <span class="badge badge-primary">You</span>
             </div>
-            <!-- Static Label -->
             <h2
               v-else
               class="text-2xl font-bold text-primary truncate cursor-pointer"
@@ -46,7 +45,6 @@
             </div>
           </div>
 
-          <!-- Action Icons -->
           <div class="flex flex-wrap gap-2 mt-2 md:mt-0">
             <button
               v-if="canEdit(c)"
@@ -59,7 +57,6 @@
           </div>
         </div>
 
-        <!-- Editable Toggles -->
         <div class="flex gap-4 text-sm">
           <label class="flex items-center gap-2">
             <input
@@ -81,10 +78,8 @@
           </label>
         </div>
 
-        <!-- Art Cards Grid -->
         <div class="scroll-container overflow-auto max-h-[60vh] pt-4">
           <div v-if="getArtFromCollection(c).length >= 0" :class="gridClass">
-            <!-- Inline Back Card -->
             <div
               v-if="canEdit(c)"
               class="aspect-square bg-base-200 rounded-xl overflow-hidden cursor-pointer relative group"
@@ -109,15 +104,17 @@
               </div>
             </div>
 
-            <!-- Art Cards -->
             <div
-              class="relative group"
+              class="relative group w-full h-full"
               v-for="art in getArtFromCollection(c).slice(0, visibleCount)"
               :key="art.id"
             >
-              <div class="relative">
-                <ArtCard :art="art" @click="artStore.selectArt(art.id)" />
-             
+              <div class="relative h-full w-full">
+                <ArtCard
+                  :art="art"
+                  class="w-full h-full"
+                  @click="artStore.selectArt(art.id)"
+                />
               </div>
             </div>
           </div>
@@ -130,11 +127,11 @@
 
     <!-- Gallery View (Unselected) -->
     <div v-else class="p-6 space-y-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 auto-rows-fr">
         <div
-          v-for="collection in collectionStore.collections"
+          v-for="collection in sortedUnselectedCollections"
           :key="collection.id"
-          class="relative group col-span-2 flex flex-col bg-base-100 rounded-2xl shadow hover:shadow-xl transition-all overflow-hidden cursor-pointer w-full"
+          class="relative group flex flex-col bg-base-100 rounded-2xl shadow hover:shadow-xl transition-all overflow-hidden cursor-pointer w-full h-full"
           @click="selectCollection(collection.id)"
           @mouseenter="handleHover(collection)"
           @mouseleave="artStore.setHoverArt(null)"
@@ -155,7 +152,7 @@
               {{ collection.label || 'Untitled Collection' }}
             </div>
             <button
-              v-if="canEdit(collection)"
+              v-if="canEdit(collection) && collection.id !== -1"
               class="text-white hover:text-error pointer-events-auto"
               @click.stop="confirmRemoveAllArt(collection)"
             >
@@ -187,6 +184,7 @@ const artStore = useArtStore()
 
 const visibleCount = ref(50)
 const editingTitle = ref<number | null>(null)
+
 const selectedCollections = computed(() => collectionStore.selectedCollections)
 
 function selectCollection(id: number) {
@@ -212,10 +210,6 @@ function canEdit(c: ArtCollection) {
   return c.userId === userStore.userId || userStore.isAdmin
 }
 
-function deleteCollection(id: number) {
-  collectionStore.deleteCollectionById(id)
-}
-
 function getArtFromCollection(c: ArtCollection) {
   return (c.art || []).filter((a) => a.id)
 }
@@ -233,10 +227,32 @@ function confirmRemoveAllArt(collection: ArtCollection) {
   }
 }
 
+const allUnassignedArt = computed(() => {
+  const assignedIds = new Set(
+    collectionStore.collections.flatMap((c) => c.art?.map((a) => a.id) || []),
+  )
+  return artStore.art.filter((a) => a.id && !assignedIds.has(a.id))
+})
+
+const unassignedCollection = computed<ArtCollection>(() => ({
+  id: -1,
+  label: '🗃️ All Images (No Collection)',
+  description: '',
+  userId: userStore.userId,
+  username: userStore.username,
+  isPublic: false,
+  isMature: false,
+  createdAt: new Date(0),
+  updatedAt: new Date(0),
+  art: allUnassignedArt.value,
+}))
+
+const sortedUnselectedCollections = computed(() => {
+  return [unassignedCollection.value, ...collectionStore.collections]
+})
 
 const gridClass = computed(() => ({
-  'grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5':
-    true,
+  'grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-fr': true,
 }))
 
 function getPreviewImage(collection: ArtCollection): {

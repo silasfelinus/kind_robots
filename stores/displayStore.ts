@@ -150,7 +150,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       bottom: `calc(var(--vh) * ${footerHeight.value})`,
       left: '50%',
       transform: 'translate(-50%, -50%)',
-      position: 'absolute',
+      position: 'fixed',
       zIndex: '50',
     }
   })

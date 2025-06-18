@@ -26,7 +26,7 @@
     </div>
 
     <!-- Toggle Buttons with Custom Labels -->
-    <div class="hidden md:flex justify-center gap-2 mt-2">
+    <div class="flex justify-center gap-2 mt-2">
       <button
         class="btn btn-sm"
         :class="{ 'btn-primary': displayStore.showLeft }"

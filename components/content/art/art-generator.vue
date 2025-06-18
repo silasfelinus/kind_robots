@@ -1,7 +1,7 @@
 <!-- /components/content/art/art-generator.vue -->
 <template>
   <div
-    class="w-full bg-base-200 border-t border-base-content shadow-inner flex flex-col transition-height flex-1 min-h-0"
+    class="w-full shadow-inner flex flex-col transition-height flex-1 min-h-0"
     :style="displayStore.footerStyle"
   >
     <!-- Expanded Area -->

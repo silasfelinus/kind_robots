@@ -1,170 +1,127 @@
-// /components/content/art/art-generator.vue
+<!-- /components/content/art/art-generator.vue -->
 <template>
-  <div class="flex flex-col min-h-[100dvh] bg-base-200">
-    <!-- Minimized Mode -->
-    <div
-      v-if="isMinimized"
-      class="flex items-center gap-2 p-2 bg-base-100 shadow rounded-xl"
-    >
-      <input
-        v-model="promptStore.promptField"
-        class="input input-sm input-bordered flex-1"
-        placeholder="Enter prompt..."
-        @focus="isMinimized = false"
-      />
-      <button
-        class="btn btn-primary btn-sm"
-        :disabled="!promptStore.promptField || isGenerating"
-        @click="generateArt"
-      >
-        🖌️
+  <div class="flex flex-col min-h-[100dvh] bg-base-200 relative p-4 pr-8 space-y-6">
+    <!-- Top-Center Extension Toggle -->
+    <div class="absolute top-2 left-1/2 -translate-x-1/2 z-20">
+      <button class="btn btn-sm btn-ghost" @click="cycleExtension">
+        <span v-if="extensionStage === 0">⬜</span>
+        <span v-else-if="extensionStage === 1">🧰</span>
+        <span v-else>⚙️</span>
       </button>
     </div>
 
-    <!-- Expanded Mode -->
-    <template v-else>
-      <!-- Scrollable Panel -->
-      <div class="flex-grow overflow-y-auto px-4 py-6 space-y-6">
-        <!-- Header -->
-        <div class="flex justify-between items-center">
-          <h2 class="text-xl font-bold">🎨 Art Generator</h2>
-          <button class="btn btn-xs btn-ghost" @click="isMinimized = true">
-            ⬆️ Minimize
-          </button>
-        </div>
-
-        <!-- Prompt -->
-        <div class="space-y-1">
-          <label class="font-semibold">📝 Prompt</label>
-          <input
-            v-model="promptStore.promptField"
-            placeholder="Enter your creative prompt..."
-            class="input input-bordered w-full text-lg bg-base-100"
-            :disabled="loading"
-            @input="syncPrompt"
-          />
-        </div>
-
-        <!-- Toggles -->
-        <div class="flex flex-wrap gap-4 pt-2">
-          <label class="label cursor-pointer space-x-2">
-            <span class="label-text font-semibold">🚫 Negative Prompt</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-error"
-              v-model="useNegative"
-              @change="toggleNegativePrompt"
-            />
-          </label>
-          <label class="label cursor-pointer space-x-2">
-            <span class="label-text font-semibold">🔓 Public</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-success"
-              v-model="artStore.artForm.isPublic"
-            />
-          </label>
-        </div>
-
-        <!-- Negative Prompt -->
-        <div v-if="useNegative" class="space-y-1">
-          <label class="font-semibold">Negative Prompt</label>
-          <input
-            v-model="artStore.artForm.negativePrompt"
-            class="input input-bordered w-full text-lg bg-base-100"
-            placeholder="e.g. blurry, extra limbs..."
-            :disabled="loading"
-          />
-        </div>
-
-        <!-- Sliders -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block font-semibold mb-1"
-              >🎚 CFG Scale: {{ localCfg }}</label
-            >
-            <input
-              type="range"
-              min="0"
-              max="30"
-              step="0.5"
-              v-model.number="localCfg"
-              class="range range-primary"
-            />
-          </div>
-          <div>
-            <label class="block font-semibold mb-1"
-              >🧮 Steps: {{ artStore.artForm.steps }}</label
-            >
-            <input
-              type="range"
-              min="5"
-              max="50"
-              step="1"
-              v-model.number="artStore.artForm.steps"
-              class="range range-secondary"
-            />
-          </div>
+    <!-- Row 1: Prompt Preview + Generate -->
+    <div class="flex flex-col md:flex-row gap-4 items-stretch pt-8">
+      <div class="flex-1 space-y-1">
+        <label class="text-sm font-semibold">🎯 Prompt Preview</label>
+        <div
+          class="p-3 rounded bg-base-100 font-mono text-sm max-h-40 overflow-y-auto"
+        >
+          {{ promptStore.promptField || 'No prompt yet...' }}
         </div>
       </div>
+      <div class="flex-none self-end">
+        <button
+          class="btn text-white font-semibold"
+          :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
+          :disabled="isGenerating || !promptStore.promptField"
+          @click="generateArt"
+        >
+          🖌️ Create Art
+        </button>
+      </div>
+    </div>
 
-      <!-- Sticky Footer -->
-      <div
-        class="sticky bottom-0 z-10 p-4 bg-base-100 border-t border-base-300 shadow-md"
-      >
-        <div class="flex flex-col md:flex-row gap-4 items-stretch">
-          <!-- Preview -->
-          <div class="flex-1 space-y-1">
-            <label class="text-sm font-semibold">🎯 Prompt Preview</label>
-            <div
-              class="p-3 rounded bg-base-200 font-mono text-sm max-h-40 overflow-y-auto"
-            >
-              {{ promptStore.promptField || 'No prompt yet...' }}
-            </div>
-          </div>
+    <!-- Row 2: Prompt Input + Quick Buttons -->
+    <div v-if="extensionStage > 0" class="space-y-4">
+      <input
+        v-model="promptStore.promptField"
+        placeholder="Enter your creative prompt..."
+        class="input input-bordered w-full text-lg bg-base-100"
+        :disabled="loading"
+        @input="syncPrompt"
+      />
 
-          <!-- Controls -->
-          <div class="w-full md:w-56 flex flex-col gap-3">
-            <label class="label justify-between cursor-pointer">
-              <span class="label-text font-semibold">✨ Make Pretty</span>
-              <input
-                type="checkbox"
-                class="toggle toggle-accent"
-                v-model="makePretty"
-              />
-            </label>
+      <div class="flex flex-wrap md:flex-row gap-2">
+        <label class="label cursor-pointer justify-between w-full md:w-auto">
+          <span class="label-text font-semibold">✨ Make Pretty</span>
+          <input
+            type="checkbox"
+            class="toggle toggle-accent"
+            v-model="makePretty"
+          />
+        </label>
+        <button class="btn btn-sm btn-secondary" @click="surpriseMe">🎲 Surprise</button>
+        <button class="btn btn-sm btn-warning" @click="resetAll">♻️ Reset</button>
+      </div>
+    </div>
 
-            <div class="flex flex-row md:flex-col gap-2">
-              <button
-                class="btn btn-sm btn-secondary w-full"
-                @click="surpriseMe"
-              >
-                🎲 Surprise
-              </button>
-              <button class="btn btn-sm btn-warning w-full" @click="resetAll">
-                ♻️ Reset
-              </button>
-            </div>
+    <!-- Row 3: Advanced Controls -->
+    <div v-if="extensionStage > 1" class="space-y-6">
+      <div class="flex flex-wrap gap-4">
+        <label class="label cursor-pointer space-x-2">
+          <span class="label-text font-semibold">🚫 Negative Prompt</span>
+          <input
+            type="checkbox"
+            class="toggle toggle-error"
+            v-model="useNegative"
+            @change="toggleNegativePrompt"
+          />
+        </label>
+        <label class="label cursor-pointer space-x-2">
+          <span class="label-text font-semibold">🔓 Public</span>
+          <input
+            type="checkbox"
+            class="toggle toggle-success"
+            v-model="artStore.artForm.isPublic"
+          />
+        </label>
+      </div>
 
-            <button
-              class="btn w-full text-white font-semibold"
-              :class="
-                isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
-              "
-              :disabled="isGenerating || !promptStore.promptField"
-              @click="generateArt"
-            >
-              🖌️ Create Art
-            </button>
-          </div>
+      <div v-if="useNegative" class="space-y-1">
+        <label class="font-semibold">Negative Prompt</label>
+        <input
+          v-model="artStore.artForm.negativePrompt"
+          class="input input-bordered w-full text-lg bg-base-100"
+          placeholder="e.g. blurry, extra limbs..."
+          :disabled="loading"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold mb-1">
+            🎚 CFG Scale: {{ localCfg }}
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="30"
+            step="0.5"
+            v-model.number="localCfg"
+            class="range range-primary"
+          />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">
+            🧮 Steps: {{ artStore.artForm.steps }}
+          </label>
+          <input
+            type="range"
+            min="5"
+            max="50"
+            step="1"
+            v-model.number="artStore.artForm.steps"
+            class="range range-secondary"
+          />
         </div>
       </div>
-    </template>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, watchEffect } from 'vue'
+import { ref, computed, watch, watchEffect, onMounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -183,10 +140,14 @@ const checkpointStore = useCheckpointStore()
 const randomStore = useRandomStore()
 
 const isGenerating = ref(false)
-const isMinimized = ref(true)
+const extensionStage = ref(0) // 0 = minimal, 1 = partial, 2 = full
 const makePretty = ref(false)
 const useNegative = ref(false)
 const loading = computed(() => artStore.loading)
+
+function cycleExtension() {
+  extensionStage.value = (extensionStage.value + 1) % 3
+}
 
 const localCfg = ref<number>(
   (artStore.artForm.cfg ?? 3) + (artStore.artForm.cfgHalf ? 0.5 : 0),

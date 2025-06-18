@@ -12,40 +12,9 @@
       {{ art.promptString }}
     </h3>
 
-    <!-- Delete Button -->
-    <div class="absolute top-2 right-2 z-20">
-      <button
-        v-if="canDelete"
-        class="bg-error text-white p-1 rounded-full hover:bg-error-content transition-all"
-        title="Delete Image"
-        @click.stop="confirmDelete"
-      >
-        <Icon name="kind-icon:delete" class="w-4 h-4" />
-      </button>
-    </div>
+    
 
-    <!-- Confirm Delete Modal -->
-    <div
-      v-if="confirmingDelete"
-      class="absolute top-2 right-2 bg-base-100 border border-warning rounded-lg shadow-lg p-2 w-40 sm:w-48 z-30"
-      @click.stop
-    >
-      <p class="text-xs mb-2 text-warning">Confirm delete?</p>
-      <div class="flex gap-2">
-        <button
-          class="bg-error text-white rounded-md px-3 py-1 hover:bg-error-content"
-          @click.stop="deleteImage"
-        >
-          Yes
-        </button>
-        <button
-          class="bg-base-200 text-gray-700 rounded-md px-3 py-1 hover:bg-base-300"
-          @click.stop="cancelDelete"
-        >
-          No
-        </button>
-      </div>
-    </div>
+    
 
     <!-- Image Display -->
 <!-- Image Display -->
@@ -89,12 +58,12 @@ const props = defineProps<{
 const artStore = useArtStore()
 const userStore = useUserStore()
 
-const confirmingDelete = ref(false)
+
 const localArtImage = ref<ArtImage | null>(null)
 const loadingImage = ref(false)
 
-const confirmDelete = () => (confirmingDelete.value = true)
-const cancelDelete = () => (confirmingDelete.value = false)
+
+
 const toggleDetails = () => {
   artStore.currentArt = props.art
   artStore.currentArtImage =
@@ -102,9 +71,7 @@ const toggleDetails = () => {
   
 }
 
-const canDelete = computed(
-  () => props.art.userId === userStore.userId || userStore.isAdmin,
-)
+
 
 const computedArtImage = computed(() => {
   if (localArtImage.value?.imageData) {
@@ -127,20 +94,7 @@ const fetchArtImage = async () => {
   loadingImage.value = false
 }
 
-const deleteImage = async () => {
-  try {
-    if (props.art.artImageId) {
-      await artStore.deleteArtImage(props.art.artImageId)
-    }
-    await artStore.deleteArt(props.art.id)
-    confirmingDelete.value = false
-    alert('Deleted!')
-  } catch (error) {
-    console.error('Delete failed:', error)
-    confirmingDelete.value = false
-    alert('Delete failed.')
-  }
-}
+
 
 onMounted(() => {
   if (props.art.artImageId && !props.artImage?.imageData) {

@@ -1,7 +1,14 @@
 <template>
   <div
-    class="w-full h-full bg-base-200 border-t border-base-content shadow-inner flex flex-col"
+    class="w-full bg-base-200 border-t border-base-content shadow-inner flex flex-col transition-height overflow-hidden"
+    :style="displayStore.footerStyle"
   >
+    <!-- Debug: Footer Report -->
+    <div class="text-sm opacity-60 text-center">
+      Footer State: {{ displayStore.footerState }} – Height:
+      {{ displayStore.footerHeight }}
+    </div>
+
     <!-- Scrollable Expanded Content -->
     <div class="flex-1 px-4 pt-4 pb-4 overflow-y-auto space-y-6">
       <!-- Prompt & Buttons (visible when open or extended) -->

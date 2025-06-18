@@ -185,6 +185,21 @@ export const useRandomStore = defineStore('randomStore', () => {
     }
   }
 
+  async function generateListItems(id: number) {
+    const { data, success, message } = await performFetch<Pitch>(
+      `/api/pitch/${id}/generate-items`,
+      {
+        method: 'POST',
+      },
+    )
+    if (success && data) {
+      const i = randomLists.value.findIndex((r) => r.id === data.id)
+      if (i !== -1) randomLists.value[i] = data
+    } else {
+      handleError(new Error(message), 'generating list items')
+    }
+  }
+
   // 🔸 ART RANDOMIZATION METHODS
 
   function resetAll() {
@@ -246,5 +261,6 @@ export const useRandomStore = defineStore('randomStore', () => {
     createList,
     updateList,
     deleteList,
+    generateListItems,
   }
 })

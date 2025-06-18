@@ -199,7 +199,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       position: 'fixed',
       top: `calc(100dvh - var(--vh) * ${footerHeight.value})`,
       left: `${padding}vw`,
-      right: `${padding + 4}vw`,
+      right: `${padding}vw`,
       zIndex: '30',
       minHeight: '0',
       height: `calc(var(--vh) * ${footerHeight.value})`,

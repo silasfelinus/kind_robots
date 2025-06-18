@@ -223,7 +223,7 @@ function getArtFromCollection(c: ArtCollection) {
 function confirmRemoveAllArt(collection: ArtCollection) {
   if (
     !confirm(
-      Remove all art from "${collection.label}"? This only affects this collection.,
+      `Remove all art from "${collection.label}"? This only affects this collection.`,
     )
   )
     return
@@ -232,6 +232,7 @@ function confirmRemoveAllArt(collection: ArtCollection) {
     collectionStore.removeArtFromLocalCollection(collection, id)
   }
 }
+
 
 const gridClass = computed(() => ({
   'grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5':

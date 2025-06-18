@@ -53,7 +53,9 @@
     </div>
 
     <!-- Main Area: Columns -->
-    <div class="relative flex-1 w-full flex flex-col overflow-hidden">
+    <div class="relative flex-1 w-full flex flex-col overflow-hidden"
+:style="{ height: `calc(100% - var(--vh) * ${displayStore.footerHeight})` }"
+>
       <div class="flex flex-1 w-full overflow-hidden">
         <div
           v-if="displayStore.showLeft"

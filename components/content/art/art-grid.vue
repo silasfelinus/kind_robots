@@ -1,8 +1,10 @@
 <!-- /components/content/art/art-grid.vue -->
 <template>
   <div
-    class="relative w-full overflow-hidden flex flex-col"
-    :style="{ height: `calc(100dvh - var(--vh) * ${displayStore.footerHeight})` }"
+    class="relative w-full flex flex-col"
+    :style="{
+      height: `calc(104dvh - var(--vh) * ${displayStore.footerHeight})`,
+    }"
   >
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">

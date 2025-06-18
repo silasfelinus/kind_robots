@@ -1,6 +1,9 @@
 <!-- /components/content/art/art-grid.vue -->
 <template>
-  <div class="relative w-full h-full overflow-hidden flex flex-col">
+  <div
+    class="relative w-full overflow-hidden flex flex-col"
+    :style="{ height: `calc(100dvh - var(--vh) * ${displayStore.footerHeight})` }"
+  >
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
       <button
@@ -53,9 +56,7 @@
     </div>
 
     <!-- Main Area: Columns -->
-    <div class="relative flex-1 w-full flex flex-col overflow-hidden"
-:style="{ height: `calc(100% - var(--vh) * ${displayStore.footerHeight})` }"
->
+    <div class="relative flex-1 w-full flex flex-col overflow-hidden">
       <div class="flex flex-1 w-full overflow-hidden">
         <div
           v-if="displayStore.showLeft"
@@ -100,7 +101,7 @@
     <!-- Footer Panel -->
     <div
       class="fixed z-30 bottom-0 left-0 right-0 overflow-hidden transition-all bg-base-300 border-t border-base-content"
-      :style="displayStore.footerStyle"
+      :style="{ height: `calc(var(--vh) * ${displayStore.footerHeight})` }"
     >
       <slot name="extra" />
     </div>

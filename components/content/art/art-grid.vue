@@ -1,6 +1,6 @@
-<!-- /components/content/art/art-grid.vue -->
 <template>
   <div class="relative w-full h-full overflow-hidden flex flex-col">
+
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
       <button
@@ -52,41 +52,43 @@
       <slot name="report" />
     </div>
 
-    <!-- Main Display -->
-    <div class="flex-1 overflow-hidden flex w-full transition-all duration-500">
-      <div
-        v-if="displayStore.showLeft"
-        class="h-full overflow-y-auto px-2 space-y-4"
-        :class="sectionClass"
-      >
-        <slot name="left" />
+    <!-- Main Area: Scrollable Columns -->
+    <div class="relative flex-1 w-full overflow-hidden">
+      <div class="flex w-full h-full">
+        <div
+          v-if="displayStore.showLeft"
+          class="h-full overflow-y-auto px-2 space-y-4"
+          :class="sectionClass"
+        >
+          <slot name="left" />
+        </div>
+        <div
+          v-if="displayStore.showCenter"
+          class="h-full overflow-y-auto px-2 space-y-4"
+          :class="sectionClass"
+        >
+          <slot name="center" />
+        </div>
+        <div
+          v-if="displayStore.showRight"
+          class="h-full overflow-y-auto px-2 space-y-4"
+          :class="sectionClass"
+        >
+          <slot name="right" />
+        </div>
       </div>
-      <div
-        v-if="displayStore.showCenter"
-        class="h-full overflow-y-auto px-2 space-y-4"
-        :class="sectionClass"
-      >
-        <slot name="center" />
-      </div>
-      <div
-        v-if="displayStore.showRight"
-        class="h-full overflow-y-auto px-2 space-y-4"
-        :class="sectionClass"
-      >
-        <slot name="right" />
+
+      <!-- Fixed Bottom Art Generator -->
+      <div class="absolute bottom-0 left-0 right-0 z-30">
+        <slot name="extra" />
       </div>
     </div>
 
-<!-- Art Generator Slot (Always Visible Footer) -->
-<div class="w-full">
-  <slot name="extra" />
-</div>
-
-
-    <!-- Overlay -->
+    <!-- Overlay (e.g. modal) -->
     <slot name="overlay" />
   </div>
 </template>
+
 
 <script setup lang="ts">
 // /components/content/art/art-grid.vue

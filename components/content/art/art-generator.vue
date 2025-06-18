@@ -1,119 +1,107 @@
 <template>
-  <div
-    class="w-full h-full bg-base-200 border-t border-base-content shadow-inner flex flex-col"
-  >
-    <!-- Scrollable Expanded Content -->
+  <div class="w-full h-full bg-base-200 border-t border-base-content shadow-inner flex flex-col">
+
+    <!-- Scrollable Main Content -->
     <div class="flex-1 px-4 pt-4 pb-4 overflow-y-auto space-y-6">
-      <!-- Prompt & Buttons (visible when open or extended) -->
-      <div
-        v-if="['open', 'extended'].includes(displayStore.footerState)"
-        class="space-y-4"
-      >
-        <input
-          v-model="promptStore.promptField"
-          placeholder="Enter your creative prompt..."
-          class="input input-bordered w-full text-lg bg-base-100"
-          :disabled="loading"
-          @input="syncPrompt"
-        />
-        <div class="flex flex-wrap md:flex-row gap-2">
-          <label class="label cursor-pointer justify-between w-full md:w-auto">
-            <span class="label-text font-semibold">✨ Make Pretty</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-accent"
-              v-model="makePretty"
-            />
-          </label>
-          <button class="btn btn-sm btn-secondary" @click="surpriseMe">
-            🎲 Surprise
-          </button>
-          <button class="btn btn-sm btn-warning" @click="resetAll">
-            ♻️ Reset
-          </button>
-        </div>
-      </div>
 
-      <!-- Advanced Tools (only in extended) -->
-      <div v-if="displayStore.footerState === 'extended'" class="space-y-6">
-        <div class="flex flex-wrap gap-4">
-          <label class="label cursor-pointer space-x-2">
-            <span class="label-text font-semibold">🚫 Negative Prompt</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-error"
-              v-model="useNegative"
-              @change="toggleNegativePrompt"
-            />
-          </label>
-          <label class="label cursor-pointer space-x-2">
-            <span class="label-text font-semibold">🔓 Public</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-success"
-              v-model="artStore.artForm.isPublic"
-            />
-          </label>
-        </div>
-
-        <div v-if="useNegative" class="space-y-1">
-          <label class="font-semibold">Negative Prompt</label>
+      <!-- Prompt Input & Toggles (open or extended) -->
+      <template v-if="['open', 'extended'].includes(displayStore.footerState)">
+        <div class="space-y-4">
           <input
-            v-model="artStore.artForm.negativePrompt"
+            v-model="promptStore.promptField"
+            placeholder="Enter your creative prompt..."
             class="input input-bordered w-full text-lg bg-base-100"
-            placeholder="e.g. blurry, extra limbs..."
             :disabled="loading"
+            @input="syncPrompt"
           />
+          <div class="flex flex-wrap md:flex-row gap-2">
+            <label class="label cursor-pointer justify-between w-full md:w-auto">
+              <span class="label-text font-semibold">✨ Make Pretty</span>
+              <input type="checkbox" class="toggle toggle-accent" v-model="makePretty" />
+            </label>
+            <button class="btn btn-sm btn-secondary" @click="surpriseMe">🎲 Surprise</button>
+            <button class="btn btn-sm btn-warning" @click="resetAll">♻️ Reset</button>
+          </div>
         </div>
+      </template>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block font-semibold mb-1"
-              >🎚 CFG Scale: {{ localCfg }}</label
-            >
+      <!-- Advanced Tools (extended only) -->
+      <template v-if="displayStore.footerState === 'extended'">
+        <div class="space-y-6">
+
+          <div class="flex flex-wrap gap-4">
+            <label class="label cursor-pointer space-x-2">
+              <span class="label-text font-semibold">🚫 Negative Prompt</span>
+              <input
+                type="checkbox"
+                class="toggle toggle-error"
+                v-model="useNegative"
+                @change="toggleNegativePrompt"
+              />
+            </label>
+            <label class="label cursor-pointer space-x-2">
+              <span class="label-text font-semibold">🔓 Public</span>
+              <input
+                type="checkbox"
+                class="toggle toggle-success"
+                v-model="artStore.artForm.isPublic"
+              />
+            </label>
+          </div>
+
+          <div v-if="useNegative" class="space-y-1">
+            <label class="font-semibold">Negative Prompt</label>
             <input
-              type="range"
-              min="0"
-              max="30"
-              step="0.5"
-              v-model.number="localCfg"
-              class="range range-primary"
+              v-model="artStore.artForm.negativePrompt"
+              class="input input-bordered w-full text-lg bg-base-100"
+              placeholder="e.g. blurry, extra limbs..."
+              :disabled="loading"
             />
           </div>
-          <div>
-            <label class="block font-semibold mb-1"
-              >🧮 Steps: {{ artStore.artForm.steps }}</label
-            >
-            <input
-              type="range"
-              min="5"
-              max="50"
-              step="1"
-              v-model.number="artStore.artForm.steps"
-              class="range range-secondary"
-            />
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-semibold mb-1">🎚 CFG Scale: {{ localCfg }}</label>
+              <input
+                type="range"
+                min="0"
+                max="30"
+                step="0.5"
+                v-model.number="localCfg"
+                class="range range-primary"
+              />
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">🧮 Steps: {{ artStore.artForm.steps }}</label>
+              <input
+                type="range"
+                min="5"
+                max="50"
+                step="1"
+                v-model.number="artStore.artForm.steps"
+                class="range range-secondary"
+              />
+            </div>
           </div>
+
         </div>
-      </div>
+      </template>
+
     </div>
 
-    <!-- Fixed Footer Row -->
+    <!-- Sticky Footer with Prompt Preview + Generate -->
     <div class="bg-base-100 border-t border-base-content px-4 py-3">
       <div class="flex flex-col md:flex-row gap-4">
         <div class="flex-1 space-y-1">
           <label class="text-sm font-semibold">🎯 Prompt Preview</label>
-          <div
-            class="p-3 rounded bg-base-200 font-mono text-sm max-h-32 overflow-y-auto"
-          >
+          <div class="p-3 rounded bg-base-200 font-mono text-sm max-h-32 overflow-y-auto">
             {{ promptStore.promptField || 'No prompt yet...' }}
           </div>
         </div>
         <div class="flex-none self-end">
           <button
             class="btn text-white font-semibold"
-            :class="
-              isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
-            "
+            :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
             :disabled="isGenerating || !promptStore.promptField"
             @click="generateArt"
           >
@@ -122,8 +110,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Floating Debug Message (footerState) -->
+    <div class="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 text-xs font-mono px-3 py-1 rounded-full bg-base-300 text-base-content shadow border border-base-content">
+      🦶 footerState: {{ displayStore.footerState }}
+    </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 // same as before

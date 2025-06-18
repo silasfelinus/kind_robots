@@ -69,28 +69,28 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const footerHeights = {
     closed: {
-      small: 0,
-      medium: 0,
-      large: 0,
-      extraLarge: 0,
+      small: 2,
+      medium: 2,
+      large: 2,
+      extraLarge: 2,
     },
     compact: {
-      small: 4,
-      medium: 4,
-      large: 3.5,
-      extraLarge: 3,
+      small: 20,
+      medium: 18,
+      large: 17,
+      extraLarge: 15,
     },
     open: {
-      small: 6,
-      medium: 6,
-      large: 5.5,
-      extraLarge: 5,
+      small: 40,
+      medium: 35,
+      large: 30,
+      extraLarge: 25,
     },
     extended: {
-      small: 10,
-      medium: 9,
-      large: 8,
-      extraLarge: 7,
+      small: 80,
+      medium: 70,
+      large: 60,
+      extraLarge: 50,
     },
   } as const
 

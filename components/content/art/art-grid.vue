@@ -77,39 +77,11 @@
       </div>
     </div>
 
-    <!-- Expandable Extra Section -->
-    <transition name="slide-fade">
-      <div
-        v-show="displayStore.showExtended"
-        ref="extraRef"
-        class="w-full border-t border-base-content bg-base-300 shadow-inner overflow-y-auto transition-all duration-500 relative"
-        :class="{
-          'absolute bottom-0 left-0 right-0 z-40': displayStore.showExtended,
-        }"
-        :style="{ maxHeight: displayStore.showExtended ? '50vh' : '20vh' }"
-      >
-        <!-- Floating Toggle -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10 mt-1">
-          <button
-            class="btn btn-xs btn-circle bg-base-100 border border-base-content shadow"
-            @click="displayStore.toggleExtended()"
-          >
-            <Icon
-              :name="
-                displayStore.showExtended
-                  ? 'kind-icon:chevron-double-down'
-                  : 'kind-icon:chevron-double-up'
-              "
-            />
-          </button>
-        </div>
+<!-- Art Generator Slot (Always Visible Footer) -->
+<div class="w-full">
+  <slot name="extra" />
+</div>
 
-        <!-- Slot Content -->
-        <div class="pt-8 px-2 pb-4">
-          <slot name="extra" />
-        </div>
-      </div>
-    </transition>
 
     <!-- Overlay -->
     <slot name="overlay" />

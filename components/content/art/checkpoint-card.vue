@@ -1,96 +1,78 @@
-<!-- /components/content/art/collection-card.vue -->
+<!-- /components/content/art/checkpoint-card.vue -->
 <template>
   <div
-    class="relative w-full flex flex-col bg-secondary bg-opacity-20 border border-base-content rounded-2xl overflow-hidden transition-all"
+    class="p-3 rounded-2xl border cursor-pointer text-center space-y-2 transition-all w-full max-w-full overflow-hidden"
+    :class="[
+      isActive
+        ? 'bg-primary text-white border-primary shadow-md'
+        : 'hover:scale-[1.02] hover:shadow-lg bg-base-100 border-base-300',
+    ]"
+    @click="select"
   >
-    <!-- Label or Input -->
-    <div class="px-2 pt-2">
-      <div v-if="canEdit" class="flex items-center gap-2">
-        <input
-          v-model="collection.label"
-          class="input input-sm input-bordered font-bold text-md w-full"
-          :placeholder="`Collection #${collection.id}`"
-        />
-        <span class="badge badge-primary">You</span>
-      </div>
-      <h3
+    <div class="w-full">
+      <art-card
+        v-if="art && checkpoint.name"
+        :art="art"
+        class="w-full h-40"
+      />
+      <img
+        v-else-if="checkpoint.MediaPath"
+        :src="`${checkpoint.MediaPath}?t=${cacheBuster}`"
+        alt="Checkpoint Image"
+        class="rounded-xl object-cover w-full h-40"
+      />
+      <img
         v-else
-        class="text-sm font-bold truncate"
-        :title="collection.label"
+        src="/images/backtree.webp"
+        alt="Fallback"
+        class="rounded-xl object-cover w-full h-40 opacity-50"
+      />
+    </div>
+
+    <div class="w-full space-y-1">
+      <div class="font-bold text-sm break-words leading-tight">
+        {{ showLabel }}
+      </div>
+      <div class="text-xs text-base-content/70">
+        {{ isActive ? '✅ Active' : '' }}
+      </div>
+      <div
+        v-if="checkpoint.isMature && !showMature"
+        class="text-warning text-xs font-semibold"
       >
-        {{ collection.label }}
-      </h3>
-    </div>
-
-    <!-- Creator (if public) -->
-    <div v-if="collection.isPublic && collection.user?.username" class="px-2 text-xs italic text-base-content opacity-70">
-      by {{ collection.user.username }}
-    </div>
-
-    <!-- Image Preview -->
-    <div
-      class="relative w-full aspect-square flex items-center justify-center overflow-hidden cursor-pointer"
-      @click="toggleCollection"
-    >
-      <template v-if="loadingImage">
-        <div class="animate-pulse flex items-center justify-center w-full h-full">
-          <Icon
-            name="kind-icon:loading"
-            class="w-8 h-8 text-info animate-spin"
-          />
-        </div>
-      </template>
-      <template v-else>
-        <img
-          :src="computedPreview"
-          alt="Collection Preview"
-          class="w-full h-full object-cover transition-transform hover:scale-105"
-          loading="lazy"
-        />
-      </template>
+        Mature
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from '@/stores/userStore'
-import { useCollectionStore } from '@/stores/collectionStore'
-import { getCollectionPreviewImage } from '@/stores/helpers/collectionHelper'
+import { computed } from 'vue'
+import type { Art } from '@/stores/artStore'
+import type { Checkpoint } from '@/stores/checkpointStore'
+import { useCheckpointStore } from '@/stores/checkpointStore'
 
 const props = defineProps<{
-  collection: ArtCollection
-  previewImage?: string
+  checkpoint: Checkpoint
+  art?: Art | null
+  showMature: boolean
+  cacheBuster: number
 }>()
 
-const userStore = useUserStore()
-const collectionStore = useCollectionStore()
+const checkpointStore = useCheckpointStore()
 
-const loadingImage = ref(false)
-const localImage = ref<string | null>(null)
-
-const canEdit = computed(() => {
-  return props.collection.userId === userStore.user?.id
+const isActive = computed(() => {
+  return checkpointStore.currentApiModel === props.checkpoint.name
 })
 
-const computedPreview = computed(() => {
-  if (localImage.value) return localImage.value
-  if (props.previewImage) return props.previewImage
-  return '/images/backtree.webp'
+const showLabel = computed(() => {
+  if (!props.showMature && props.checkpoint.isMature) return 'Hidden'
+  return props.checkpoint.customLabel || props.checkpoint.name
 })
 
-const fetchPreview = async () => {
-  loadingImage.value = true
-  const preview = await getCollectionPreviewImage(props.collection.id)
-  if (preview) localImage.value = preview
-  loadingImage.value = false
+const select = () => {
+  if (props.checkpoint.name) {
+    checkpointStore.selectCheckpointByName(props.checkpoint.name)
+  }
 }
-
-const toggleCollection = () => {
-  collectionStore.toggleCollection(props.collection)
-}
-
-onMounted(() => {
-  if (!props.previewImage) fetchPreview()
-})
 </script>

@@ -104,7 +104,7 @@
       </div>
     </div>
 
-    <!-- Fixed Footer Row -->
+    <!-- Sticky Footer with Prompt Preview + Generate -->
     <div class="bg-base-100 border-t border-base-content px-4 py-3">
       <div class="flex flex-col md:flex-row gap-4">
         <div class="flex-1 space-y-1">

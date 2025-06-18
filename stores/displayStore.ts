@@ -258,13 +258,24 @@ export const useDisplayStore = defineStore('displayStore', () => {
     state.currentAnimation = ''
   }
 
-  function toggleSection(section: 'left' | 'center' | 'right') {
-    const key = `show${section.charAt(0).toUpperCase()}${section.slice(1)}` as
-      | 'showLeft'
-      | 'showCenter'
-      | 'showRight'
-    state[key] = !state[key]
+function toggleSection(section: 'left' | 'center' | 'right') {
+  const key = `show${section.charAt(0).toUpperCase()}${section.slice(1)}` as
+    | 'showLeft'
+    | 'showCenter'
+    | 'showRight'
+  state[key] = !state[key]
+
+  const allOff = !state.showLeft && !state.showCenter && !state.showRight
+  const anyOn = state.showLeft || state.showCenter || state.showRight
+
+  if (allOff) {
+    state.footerState = 'extended'
+  } else if (anyOn && state.footerState === 'extended') {
+    state.footerState = 'compact'
   }
+
+  saveState()
+}
 
   function toggleExtended() {
     state.showExtended = !state.showExtended

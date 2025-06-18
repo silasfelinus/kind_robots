@@ -178,6 +178,11 @@ onMounted(() => {
   if (!artStore.artForm.promptString) {
     artStore.artForm.promptString = promptStore.promptField
   }
+
+  // Ensure footerState is set to compact on first load
+  if (displayStore.footerState === 'hidden') {
+    displayStore.changeState('footerState', 'compact')
+  }
 })
 
 watchEffect(() => {

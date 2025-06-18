@@ -67,10 +67,20 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return sizes[state.viewportSize]
   })
 
-  const footerHeight = computed(() => {
-    const sizes = { small: 8, medium: 6, large: 7, extraLarge: 6 }
-    return sizes[state.viewportSize] * (state.footerState === 'open' ? 1 : 0)
-  })
+const footerHeights = {
+  closed:   { small: '0rem',  medium: '0rem',  large: '0rem',  extraLarge: '0rem' },
+  compact:  { small: '4rem',  medium: '4rem',  large: '3.5rem', extraLarge: '3rem' },
+  open:     { small: '6rem',  medium: '6rem',  large: '5.5rem', extraLarge: '5rem' },
+  extended: { small: '10rem', medium: '9rem',  large: '8rem',   extraLarge: '7rem' },
+} as const
+
+const footerHeight = computed(() => {
+  const stateKey = state.footerState as keyof typeof footerHeights
+  const sizeKey = state.viewportSize
+  return footerHeights[stateKey]?.[sizeKey] ?? '0rem'
+})
+
+
 
   const sectionPaddingSize = computed(() => {
     const sizes = { small: 1, medium: 1, large: 1, extraLarge: 0.5 }
@@ -118,10 +128,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const footerToggleStyle = computed(() => ({
-    bottom: `4vh`,
-    left: '50%',
-    transform: 'translateX(-50%)',
-  }))
+  position: 'absolute',
+  top: 0,
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  zIndex: 40,
+}))
+
 
   const leftSidebarStyle = computed(() => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
@@ -162,7 +175,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
-  const footerStyle = computed(() => ({ height: '0px', width: '0px' }))
+  const footerStyle = computed(() => ({
+  height: footerHeight.value,
+  width: '100%',
+  minHeight: '0',
+  transition: 'height 0.3s ease',
+}))
+
 
   const isLargeViewport = computed(() =>
     ['large', 'extraLarge'].includes(state.viewportSize),

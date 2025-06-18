@@ -21,10 +21,10 @@
       <div
         v-for="(list, index) in localLists"
         :key="list.id"
-        class="bg-base-100 rounded-xl border shadow p-4 flex items-center justify-between gap-2 group"
+        class="bg-base-100 rounded-xl border shadow p-4 flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
-        <!-- Drag + Input -->
-        <div class="flex items-center gap-3 flex-1">
+        <!-- Title + Order -->
+        <div class="flex items-center gap-2 flex-1 w-full">
           <button
             @click="moveUp(index)"
             class="btn btn-xs btn-outline"
@@ -46,9 +46,34 @@
           />
         </div>
 
+        <!-- Toggles (owner-only) -->
+        <div v-if="userStore.userId === list.userId" class="flex flex-wrap gap-4 items-center justify-start md:justify-center">
+          <label class="label cursor-pointer gap-2">
+            <span class="label-text">🔓 Public</span>
+            <input
+              type="checkbox"
+              class="toggle toggle-success"
+              v-model="list.isPublic"
+              @change="save(list)"
+            />
+          </label>
+
+          <label class="label cursor-pointer gap-2">
+            <span class="label-text">🔞 Mature</span>
+            <input
+              type="checkbox"
+              class="toggle toggle-warning"
+              v-model="list.isMature"
+              @change="save(list)"
+            />
+          </label>
+        </div>
+
         <!-- Actions -->
-        <div class="flex gap-2">
-          <button class="btn btn-sm btn-accent" @click="save(list)">💾</button>
+        <div class="flex gap-2 justify-end">
+          <button class="btn btn-sm btn-accent" @click="save(list)">
+            💾 Save
+          </button>
           <button
             class="btn btn-sm btn-error"
             @click="confirmDelete(list.id)"
@@ -66,8 +91,10 @@
 // /components/content/art/list-manager.vue
 import { ref, watch } from 'vue'
 import { useRandomStore } from '@/stores/randomStore'
+import { useUserStore } from '@/stores/userStore'
 import { storeToRefs } from 'pinia'
 
+const userStore = useUserStore()
 const randomStore = useRandomStore()
 const { filteredLists } = storeToRefs(randomStore)
 

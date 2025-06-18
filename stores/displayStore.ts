@@ -196,13 +196,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const footerStyle = computed((): CSSProperties => {
     const padding = sectionPaddingSize.value
     return {
-      height: `calc(var(--vh) * ${footerHeight.value})`,
-      width: `calc(95vw - ${padding}vw)`,
-      left: `${padding}vw`,
-      bottom: '0',
-      minHeight: '0',
       position: 'fixed',
+      left: `${padding}vw`,
+      right: `${padding}vw`,
+      bottom: '0',
       zIndex: '30',
+      minHeight: '0',
+      height: `calc(var(--vh) * ${footerHeight.value})`,
       transition: 'height 0.3s ease',
     }
   })

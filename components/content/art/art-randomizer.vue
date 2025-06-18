@@ -92,7 +92,7 @@
       </div>
     </div>
 
-    <!-- List Manager (Collapsible) -->
+    <!-- List Manager (Styled Like Presets) -->
     <div class="border rounded-xl bg-base-200 p-4 space-y-3">
       <button
         class="w-full flex justify-between items-center font-semibold text-left text-lg"
@@ -105,8 +105,7 @@
       </button>
 
       <Transition name="slide-fade" appear>
-        <div v-show="showManager" class="space-y-4 pt-2">
-          <!-- Filter toggles -->
+        <div v-show="showManager" class="space-y-2 pt-2">
           <div class="flex flex-wrap gap-4 items-center">
             <label class="label cursor-pointer gap-2">
               <span class="label-text">👤 Show Only Mine</span>
@@ -126,8 +125,10 @@
             </label>
           </div>
 
-          <!-- List Manager Component -->
-          <list-manager :only-mine="onlyMine" :include-public="includePublic" />
+          <list-manager
+            :only-mine="onlyMine"
+            :include-public="includePublic"
+          />
         </div>
       </Transition>
     </div>

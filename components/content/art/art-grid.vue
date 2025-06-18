@@ -2,7 +2,9 @@
 <template>
   <div
     class="relative w-full flex flex-col"
-    :style="{ height: `calc(100dvh - var(--vh) * ${displayStore.footerHeight})` }"
+    :style="{
+      height: `calc(100dvh - var(--vh) * ${displayStore.footerHeight})`,
+    }"
   >
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
@@ -25,7 +27,7 @@
       <slot name="title" />
     </div>
 
-    <!-- Toggle Buttons with Custom Labels -->
+    <!-- Toggle Buttons -->
     <div class="flex justify-center gap-2 mt-2">
       <button
         class="btn btn-sm"
@@ -56,36 +58,31 @@
     </div>
 
     <!-- Main Area: Columns -->
-    <div
-      class="relative w-full flex min-h-0 flex-1"
-      :style="{
-        height: `calc(100dvh - var(--vh) * ${displayStore.footerHeight})`,
-      }"
-    >
+    <div class="relative w-full flex-1 flex min-h-0">
       <div
         v-if="displayStore.showLeft"
-        class="overflow-y-auto min-h-0 px-2 space-y-4"
+        class="flex-1 overflow-y-auto min-h-0 px-2 space-y-4"
         :class="sectionClass"
       >
         <slot name="left" />
       </div>
       <div
         v-if="displayStore.showCenter"
-        class="overflow-y-auto min-h-0 px-2 space-y-4"
+        class="flex-1 overflow-y-auto min-h-0 px-2 space-y-4"
         :class="sectionClass"
       >
         <slot name="center" />
       </div>
       <div
         v-if="displayStore.showRight"
-        class="overflow-y-auto min-h-0 px-2 space-y-4"
+        class="flex-1 overflow-y-auto min-h-0 px-2 space-y-4"
         :class="sectionClass"
       >
         <slot name="right" />
       </div>
     </div>
 
-    <!-- Floating Footer Toggle Button -->
+    <!-- Footer Toggle -->
     <div class="fixed z-40" :style="displayStore.footerToggleStyle">
       <button
         class="btn btn-xs btn-circle"
@@ -106,11 +103,10 @@
       <slot name="extra" />
     </div>
 
-    <!-- Overlay (e.g. modals) -->
+    <!-- Overlay -->
     <slot name="overlay" />
   </div>
 </template>
-
 
 <script setup lang="ts">
 // /components/content/art/art-grid.vue
@@ -130,19 +126,3 @@ const sectionClass = computed(() => {
   return 'w-full'
 })
 </script>
-
-<style scoped>
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.4s ease;
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  opacity: 0;
-  transform: translateY(2rem);
-}
-
-.transition-height {
-  transition-property: height, min-height, max-height;
-}
-</style>

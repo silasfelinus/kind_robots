@@ -264,24 +264,57 @@ export const useDisplayStore = defineStore('displayStore', () => {
     state.currentAnimation = ''
   }
 
-  function toggleSection(section: 'left' | 'center' | 'right') {
-    const key = `show${section.charAt(0).toUpperCase()}${section.slice(1)}` as
-      | 'showLeft'
-      | 'showCenter'
-      | 'showRight'
-    state[key] = !state[key]
+  function toggleSection(section?: 'left' | 'center' | 'right') {
+  const sectionOrder: ('left' | 'center' | 'right')[] = ['left', 'center', 'right']
 
-    const allOff = !state.showLeft && !state.showCenter && !state.showRight
-    const anyOn = state.showLeft || state.showCenter || state.showRight
+  if (state.viewportSize === 'small') {
+    // Show only one section at a time, cycle forward
+    const currentIndex = sectionOrder.findIndex((s) => state[`show${capitalize(s)}` as const])
+    const nextIndex = (currentIndex + 1) % sectionOrder.length
 
-    if (allOff) {
-      state.footerState = 'extended'
-    } else if (anyOn && state.footerState === 'extended') {
-      state.footerState = 'compact'
+    state.showLeft = false
+    state.showCenter = false
+    state.showRight = false
+    state[`show${capitalize(sectionOrder[nextIndex])}` as const] = true
+  } else {
+    // On md+ viewports: toggle target section, limit max visible to 2
+    if (!section) return
+
+    const key = `show${capitalize(section)}` as const
+    const currentlyShown = sectionOrder.filter((s) => state[`show${capitalize(s)}` as const])
+    const isCurrentlyVisible = state[key]
+
+    if (isCurrentlyVisible && currentlyShown.length === 1) {
+      // Prevent hiding last visible section
+      return
     }
 
-    saveState()
+    if (!isCurrentlyVisible && currentlyShown.length >= 2) {
+      // Hide all and show only this one
+      sectionOrder.forEach((s) => {
+        state[`show${capitalize(s)}` as const] = false
+      })
+    }
+
+    state[key] = !isCurrentlyVisible
   }
+
+  // Adjust footerState based on visibility
+  const allOff = !state.showLeft && !state.showCenter && !state.showRight
+  const anyOn = state.showLeft || state.showCenter || state.showRight
+
+  if (allOff) {
+    state.footerState = 'extended'
+  } else if (anyOn && state.footerState === 'extended') {
+    state.footerState = 'compact'
+  }
+
+  saveState()
+}
+
+function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
 
   function toggleExtended() {
     state.showExtended = !state.showExtended

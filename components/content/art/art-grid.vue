@@ -2,8 +2,7 @@
 <template>
   <div
     class="relative w-full flex flex-col"
-:style="{ height: `calc(100dvh - var(--vh) * ${displayStore.footerHeight})` }"
-
+    :style="{ height: `calc(100dvh - var(--vh) * ${displayStore.footerHeight})` }"
   >
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
@@ -31,8 +30,6 @@
       <button
         class="btn btn-sm"
         :class="{ 'btn-primary': displayStore.showLeft }"
-:style="{ paddingBottom: `calc(var(--vh) * ${displayStore.footerHeight})` }"
-
         @click="displayStore.toggleSection('left')"
       >
         <slot name="label-left">⬅️ Left</slot>
@@ -40,8 +37,6 @@
       <button
         class="btn btn-sm"
         :class="{ 'btn-primary': displayStore.showCenter }"
-:style="{ paddingBottom: `calc(var(--vh) * ${displayStore.footerHeight})` }"
-
         @click="displayStore.toggleSection('center')"
       >
         <slot name="label-center">🎯 Center</slot>
@@ -49,8 +44,6 @@
       <button
         class="btn btn-sm"
         :class="{ 'btn-primary': displayStore.showRight }"
-:style="{ paddingBottom: `calc(var(--vh) * ${displayStore.footerHeight})` }"
-
         @click="displayStore.toggleSection('right')"
       >
         <slot name="label-right">➡️ Right</slot>
@@ -63,26 +56,29 @@
     </div>
 
     <!-- Main Area: Columns -->
-    <div class="relative flex-1 w-full flex flex-col">
-      <div class="flex flex-1 w-full overflow-hidden">
+    <div class="relative flex-1 w-full flex flex-col min-h-0">
+      <div class="flex flex-1 w-full overflow-hidden min-h-0">
         <div
           v-if="displayStore.showLeft"
-          class="h-full overflow-y-auto px-2 space-y-4"
+          class="flex-1 min-h-0 overflow-y-auto px-2 space-y-4"
           :class="sectionClass"
+          :style="{ paddingBottom: `calc(var(--vh) * ${displayStore.footerHeight})` }"
         >
           <slot name="left" />
         </div>
         <div
           v-if="displayStore.showCenter"
-          class="h-full overflow-y-auto px-2 space-y-4"
+          class="flex-1 min-h-0 overflow-y-auto px-2 space-y-4"
           :class="sectionClass"
+          :style="{ paddingBottom: `calc(var(--vh) * ${displayStore.footerHeight})` }"
         >
           <slot name="center" />
         </div>
         <div
           v-if="displayStore.showRight"
-          class="h-full overflow-y-auto px-2 space-y-4"
+          class="flex-1 min-h-0 overflow-y-auto px-2 space-y-4"
           :class="sectionClass"
+          :style="{ paddingBottom: `calc(var(--vh) * ${displayStore.footerHeight})` }"
         >
           <slot name="right" />
         </div>
@@ -106,10 +102,7 @@
     </div>
 
     <!-- Footer Panel -->
-    <div
-      class="fixed"
-      :style="displayStore.footerStyle"
-    >
+    <div class="fixed" :style="displayStore.footerStyle">
       <slot name="extra" />
     </div>
 

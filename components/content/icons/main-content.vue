@@ -8,7 +8,7 @@
     >
       <flip-panel :flipped="sidebarRightOpen">
         <template #front>
-          <div class="absolute inset-0 overflow-y-auto overscroll-y-contain">
+          <div class="absolute inset-0">
             <NuxtPage
               :key="$route.fullPath"
               class="min-h-[100dvh] w-full px-4 py-6"
@@ -16,7 +16,7 @@
           </div>
         </template>
         <template #back>
-          <div class="absolute inset-0 overflow-y-auto overscroll-y-contain">
+          <div class="absolute inset-0">
             <splash-tutorial />
           </div>
         </template>
@@ -24,8 +24,8 @@
     </div>
 
     <!-- Desktop View -->
-    <div v-else class="relative flex-1 w-full h-full overflow-hidden">
-      <div class="absolute inset-0 overflow-y-auto overscroll-y-contain">
+    <div v-else class="relative flex-1 w-full h-full">
+      <div class="absolute inset-0">
         <NuxtPage :key="$route.fullPath" class="w-full px-4 py-6" />
       </div>
     </div>
@@ -41,7 +41,7 @@
     <transition name="slide-in-right" appear>
       <aside
         v-show="!displayStore.isMobileViewport && sidebarRightOpen"
-        class="fixed z-30 rounded-2xl border-6 border-secondary bg-base-200 transform will-change-transform transition-transform duration-500 ease-in-out overflow-y-auto overscroll-y-contain"
+        class="fixed z-30 rounded-2xl border-6 border-secondary bg-base-200 transform will-change-transform transition-transform duration-500 ease-in-out"
         :style="displayStore.rightSidebarStyle"
       >
         <splash-tutorial />

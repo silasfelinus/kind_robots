@@ -75,22 +75,22 @@ export const useDisplayStore = defineStore('displayStore', () => {
       extraLarge: 2,
     },
     compact: {
-      small: 20,
+      small: 25,
       medium: 18,
       large: 17,
-      extraLarge: 15,
+      extraLarge: 11,
     },
     open: {
-      small: 40,
+      small: 60,
       medium: 35,
-      large: 30,
+      large: 35,
       extraLarge: 25,
     },
     extended: {
-      small: 80,
-      medium: 70,
-      large: 60,
-      extraLarge: 50,
+      small: 75,
+      medium: 50,
+      large: 55,
+      extraLarge: 45,
     },
   } as const
 
@@ -193,21 +193,19 @@ export const useDisplayStore = defineStore('displayStore', () => {
       left: `${sectionPaddingSize.value}vw`,
     }
   })
-const footerStyle = computed((): CSSProperties => {
-  const padding = sectionPaddingSize.value
-  const sidebarWidth = state.sidebarRightState !== 'hidden' ? sidebarRightWidth.value : 0
-  return {
-    height: `calc(var(--vh) * ${footerHeight.value})`,
-    width: `calc(90vw - ${sidebarWidth + padding * 2}vw)`,
-    left: `${padding}vw`,
-    bottom: '0',
-    minHeight: '0',
-    position: 'fixed',
-    zIndex: '30',
-    transition: 'height 0.3s ease',
-  }
-})
-
+  const footerStyle = computed((): CSSProperties => {
+    const padding = sectionPaddingSize.value
+    return {
+      height: `calc(var(--vh) * ${footerHeight.value})`,
+      width: `calc(95vw - ${padding}vw)`,
+      left: `${padding}vw`,
+      bottom: '0',
+      minHeight: '0',
+      position: 'fixed',
+      zIndex: '30',
+      transition: 'height 0.3s ease',
+    }
+  })
 
   const isLargeViewport = computed(() =>
     ['large', 'extraLarge'].includes(state.viewportSize),

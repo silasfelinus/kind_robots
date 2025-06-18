@@ -3,13 +3,17 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <h2 class="text-xl font-bold shrink-0">📋 Your Preset Lists</h2>
-      <form @submit.prevent="handleCreate" class="flex flex-wrap gap-2 w-full md:w-auto">
+      <form @submit.prevent="handleCreate" class="flex gap-2 w-full md:w-auto">
         <input
           v-model="newTitle"
           class="input input-sm input-bordered flex-1 min-w-[150px] max-w-full"
           placeholder="New list title"
+          @input="isTyping = true"
         />
-        <button class="btn btn-sm btn-primary" :disabled="!newTitle.trim()">
+        <button
+          v-if="isTyping && newTitle.trim().length"
+          class="btn btn-sm btn-primary"
+        >
           ➕ Create
         </button>
       </form>
@@ -20,70 +24,62 @@
       <div
         v-for="(list, index) in localLists"
         :key="list.id"
-        class="bg-base-100 rounded-xl border shadow p-4 space-y-4 md:space-y-0 flex flex-col md:flex-row md:items-center md:justify-between w-full max-w-full overflow-hidden"
+        class="bg-base-100 rounded-xl border shadow p-4 space-y-4"
       >
-        <!-- Title + Order -->
-        <div class="flex flex-wrap items-center gap-2 flex-1 w-full min-w-0 max-w-full">
-          <button
-            @click="moveUp(index)"
-            class="btn btn-xs btn-outline"
-            :disabled="index === 0"
-          >
-            ⬆
-          </button>
-          <button
-            @click="moveDown(index)"
-            class="btn btn-xs btn-outline"
-            :disabled="index === localLists.length - 1"
-          >
-            ⬇
-          </button>
+        <!-- Title + Actions -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div class="flex gap-2 items-center flex-1 w-full min-w-0 max-w-full">
+            <input
+              v-model="list.title"
+              @change="save(list)"
+              class="input input-sm flex-1 min-w-[120px] max-w-full truncate"
+            />
+            <button
+              @click="generateMore(list)"
+              class="btn btn-xs btn-info"
+            >
+              ⚙️ Generate
+            </button>
+            <button class="btn btn-xs btn-accent" @click="save(list)">💾</button>
+            <button class="btn btn-xs btn-error" @click="confirmDelete(list.id)">
+              🗑️
+            </button>
+          </div>
+        </div>
+
+        <!-- Entry Input -->
+        <form @submit.prevent="handleEntry(list)" class="flex gap-2">
           <input
-            v-model="list.title"
-            @change="save(list)"
-            class="input input-sm flex-1 min-w-[120px] max-w-full truncate"
+            v-model="list.newEntry"
+            class="input input-sm input-bordered flex-1"
+            placeholder="Add new item"
           />
-        </div>
-
-        <!-- Toggles -->
-        <div
-          v-if="userStore.userId === list.userId"
-          class="flex flex-wrap gap-4 items-center w-full md:w-auto justify-start md:justify-center max-w-full overflow-hidden"
-        >
-          <label class="label cursor-pointer gap-2">
-            <span class="label-text">🔓 Public</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-success"
-              v-model="list.isPublic"
-              @change="save(list)"
-            />
-          </label>
-
-          <label class="label cursor-pointer gap-2">
-            <span class="label-text">🔞 Mature</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-warning"
-              v-model="list.isMature"
-              @change="save(list)"
-            />
-          </label>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex gap-2 justify-end w-full md:w-auto max-w-full overflow-hidden">
-          <button class="btn btn-sm btn-accent" @click="save(list)">
-            💾 Save
-          </button>
           <button
-            class="btn btn-sm btn-error"
-            @click="confirmDelete(list.id)"
-            title="Delete list"
+            class="btn btn-sm btn-secondary"
+            type="submit"
+            :disabled="!list.newEntry?.trim()"
           >
-            🗑️
+            ➕ Add
           </button>
-        </div>
+        </form>
+
+        <!-- List Entries -->
+        <ul class="list-disc list-inside text-sm pl-2 text-base-content/80">
+          <li
+            v-for="(entry, i) in list.entries || []"
+            :key="i"
+            class="flex justify-between items-center gap-2"
+          >
+            <span>{{ entry }}</span>
+            <button
+              class="btn btn-xs btn-outline"
+              @click="removeEntry(list, i)"
+              title="Remove entry"
+            >
+              ❌
+            </button>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
@@ -101,10 +97,20 @@ const randomStore = useRandomStore()
 const { filteredLists } = storeToRefs(randomStore)
 
 const newTitle = ref('')
-const localLists = ref([...filteredLists.value])
+const isTyping = ref(false)
+
+const localLists = ref(
+  filteredLists.value.map((list) => ({
+    ...list,
+    newEntry: '',
+  }))
+)
 
 watch(filteredLists, (val) => {
-  localLists.value = [...val]
+  localLists.value = val.map((list) => ({
+    ...list,
+    newEntry: '',
+  }))
 })
 
 async function handleCreate() {
@@ -112,6 +118,7 @@ async function handleCreate() {
   await randomStore.createList(newTitle.value.trim())
   await randomStore.fetchRandomLists()
   newTitle.value = ''
+  isTyping.value = false
 }
 
 function save(list: any) {
@@ -124,15 +131,21 @@ function confirmDelete(id: number) {
   }
 }
 
-function moveUp(index: number) {
-  if (index === 0) return
-  const item = localLists.value.splice(index, 1)[0]
-  localLists.value.splice(index - 1, 0, item)
+function handleEntry(list: any) {
+  const text = list.newEntry?.trim()
+  if (!text) return
+  list.entries = [...(list.entries || []), text]
+  list.newEntry = ''
+  save(list)
 }
 
-function moveDown(index: number) {
-  if (index === localLists.value.length - 1) return
-  const item = localLists.value.splice(index, 1)[0]
-  localLists.value.splice(index + 1, 0, item)
+function removeEntry(list: any, index: number) {
+  list.entries = list.entries?.filter((_, i) => i !== index)
+  save(list)
+}
+
+async function generateMore(list: any) {
+  await randomStore.generateListItems(list.id)
+  await randomStore.fetchRandomLists()
 }
 </script>

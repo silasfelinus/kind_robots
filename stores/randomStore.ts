@@ -3,8 +3,10 @@ import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 
 import { useUserStore } from './userStore'
+import { useArtStore } from './artStore'
 import { handleError, performFetch } from './utils'
 import type { Pitch } from '@prisma/client'
+import { artListPresets, negativeList } from '@/stores/seeds/artList'
 
 // Local single-value randomizers
 import { useRandomAdjective } from '@/stores/utils/randomAdjective'
@@ -30,6 +32,7 @@ type SingleSource = () => string
 
 export const useRandomStore = defineStore('randomStore', () => {
   const userStore = useUserStore()
+  const artStore = useArtStore()
 
   const singleValueSources: Record<string, SingleSource> = {
     adjective: () => useRandomAdjective().randomAdjective(),
@@ -182,18 +185,61 @@ export const useRandomStore = defineStore('randomStore', () => {
     }
   }
 
+  // 🔸 ART RANDOMIZATION METHODS
+
+  function resetAll() {
+    Object.keys(artStore.artListSelections).forEach((key) => {
+      artStore.updateArtListSelection(key, [])
+    })
+    clearAllSelections()
+  }
+
+  function applyMakePretty() {
+    const pretty = artListPresets.find((p) => p.id === '__pretty__')
+    const negative = artListPresets.find((p) => p.id === '__negative__')
+    if (pretty) {
+      artStore.updateArtListSelection(
+        '__pretty__',
+        pickRandomFromArray(pretty.content, 4),
+      )
+    }
+    if (negative) {
+      artStore.updateArtListSelection(
+        '__negative__',
+        pickRandomFromArray(negative.content, 4),
+      )
+    }
+  }
+
+  function applySurprise() {
+    for (const entry of artListPresets) {
+      const values = entry.allowMultiple
+        ? pickRandomFromArray(
+            entry.content,
+            Math.ceil(Math.random() * entry.content.length),
+          )
+        : pickRandomFromArray(entry.content, 1)
+      artStore.updateArtListSelection(entry.id, values)
+    }
+  }
+
   return {
     // Local generators
     supportedKeys,
     getRandom,
-    randomSelections,
+    pickRandomFromArray,
     toggleSelection,
     clearSelection,
-    getAllSelections,
     clearAllSelections,
-    pickRandomFromArray,
+    getAllSelections,
+    randomSelections,
 
-    // Remote random lists
+    // Centralized commands
+    resetAll,
+    applyMakePretty,
+    applySurprise,
+
+    // Remote random list handling
     randomLists,
     filteredLists,
     fetchRandomLists,

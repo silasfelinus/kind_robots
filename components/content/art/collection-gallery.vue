@@ -115,20 +115,22 @@
               v-for="art in getArtFromCollection(c).slice(0, visibleCount)"
               :key="art.id"
             >
-              <ArtCard :art="art" @click="artStore.selectArt(art.id)" />
-              <div
-                v-if="canEdit(c)"
-                class="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 group-hover:opacity-100 opacity-0 transition-opacity"
-              >
-                <button
-                  class="btn btn-xs btn-error"
-                  @click.stop="
-                    collectionStore.removeArtFromLocalCollection(c, art.id)
-                  "
-                  title="Remove from collection"
+              <div class="relative">
+                <ArtCard :art="art" @click="artStore.selectArt(art.id)" />
+                <div
+                  v-if="canEdit(c)"
+                  class="absolute left-1/2 transform -translate-x-1/2 mt-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto"
                 >
-                  <Icon name="kind-icon:trash" class="w-4 h-4" />
-                </button>
+                  <button
+                    class="btn btn-xs btn-error"
+                    @click.stop="
+                      collectionStore.removeArtFromLocalCollection(c, art.id)
+                    "
+                    title="Remove from collection"
+                  >
+                    <Icon name="kind-icon:trash" class="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

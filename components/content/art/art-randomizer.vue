@@ -1,6 +1,46 @@
-<!-- /components/content/art/art-randomizer.vue -->
 <template>
   <div class="w-full space-y-6">
+    <!-- List Manager (Styled Like Presets) -->
+    <div class="border rounded-xl bg-base-200 p-4 space-y-3">
+      <button
+        class="w-full flex justify-between items-center font-semibold text-left text-lg"
+        @click="showManager = !showManager"
+      >
+        <span class="flex items-center gap-2">🛠️ Manage Custom Lists</span>
+        <Icon
+          :name="showManager ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+        />
+      </button>
+
+      <Transition name="slide-fade" appear>
+        <div v-show="showManager" class="space-y-2 pt-2">
+          <div class="flex flex-wrap gap-4 items-center">
+            <label class="label cursor-pointer gap-2">
+              <span class="label-text">👤 Show Only Mine</span>
+              <input
+                type="checkbox"
+                class="toggle toggle-primary"
+                v-model="onlyMine"
+              />
+            </label>
+            <label class="label cursor-pointer gap-2">
+              <span class="label-text">🌐 Show Public Too</span>
+              <input
+                type="checkbox"
+                class="toggle toggle-accent"
+                v-model="includePublic"
+              />
+            </label>
+          </div>
+
+          <list-manager
+            :only-mine="onlyMine"
+            :include-public="includePublic"
+          />
+        </div>
+      </Transition>
+    </div>
+
     <!-- Randomized Presets -->
     <div
       v-for="entry in artListPresets"
@@ -90,47 +130,6 @@
           </span>
         </div>
       </div>
-    </div>
-
-    <!-- List Manager (Styled Like Presets) -->
-    <div class="border rounded-xl bg-base-200 p-4 space-y-3">
-      <button
-        class="w-full flex justify-between items-center font-semibold text-left text-lg"
-        @click="showManager = !showManager"
-      >
-        <span class="flex items-center gap-2">🛠️ Manage Custom Lists</span>
-        <Icon
-          :name="showManager ? 'lucide:chevron-up' : 'lucide:chevron-down'"
-        />
-      </button>
-
-      <Transition name="slide-fade" appear>
-        <div v-show="showManager" class="space-y-2 pt-2">
-          <div class="flex flex-wrap gap-4 items-center">
-            <label class="label cursor-pointer gap-2">
-              <span class="label-text">👤 Show Only Mine</span>
-              <input
-                type="checkbox"
-                class="toggle toggle-primary"
-                v-model="onlyMine"
-              />
-            </label>
-            <label class="label cursor-pointer gap-2">
-              <span class="label-text">🌐 Show Public Too</span>
-              <input
-                type="checkbox"
-                class="toggle toggle-accent"
-                v-model="includePublic"
-              />
-            </label>
-          </div>
-
-          <list-manager
-            :only-mine="onlyMine"
-            :include-public="includePublic"
-          />
-        </div>
-      </Transition>
     </div>
   </div>
 </template>

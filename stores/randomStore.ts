@@ -6,70 +6,41 @@ import { useUserStore } from './userStore'
 import { useArtStore } from './artStore'
 import { handleError, performFetch } from './utils'
 import type { Pitch } from '@prisma/client'
-import { artListPresets, negativeList } from '@/stores/seeds/artList'
-
-// Local single-value randomizers
-import { useRandomAdjective } from '@/stores/utils/randomAdjective'
-import { useRandomAnimal } from '@/stores/utils/randomAnimal'
-import { useRandomBackstory } from '@/stores/utils/randomBackstory'
-import { useRandomClass } from '@/stores/utils/randomClass'
-import { useRandomColor } from '@/stores/utils/randomColor'
-import { useRandomGenre } from '@/stores/utils/randomGenre'
-import { useRandomHonorific } from '@/stores/utils/randomHonorific'
-import { useRandomInventory } from '@/stores/utils/randomInventory'
-import { useRandomItem } from '@/stores/utils/randomItem'
-import { useRandomMaterial } from '@/stores/utils/randomMaterial'
-import { useRandomName } from '@/stores/utils/randomName'
-import { useRandomNoun } from '@/stores/utils/randomNoun'
-import { useRandomPersonality } from '@/stores/utils/randomPersonality'
-import { useRandomQuirk } from '@/stores/utils/randomQuirks'
-import { useRandomSkill } from '@/stores/utils/randomSkills'
-import { useRandomSpecies } from '@/stores/utils/randomSpecies'
-import { useRandomVerb } from '@/stores/utils/randomVerb'
-import { useRandomEncounter } from '@/stores/utils/randomEncounter'
-
-type SingleSource = () => string
+import { artListPresets } from '@/stores/seeds/artList'
+import {
+  getAllPresetPitches,
+  getRandom,
+  supportedKeys,
+} from './helpers/randomHelper'
 
 export const useRandomStore = defineStore('randomStore', () => {
   const userStore = useUserStore()
   const artStore = useArtStore()
 
-  const singleValueSources: Record<string, SingleSource> = {
-    adjective: () => useRandomAdjective().randomAdjective(),
-    animal: () => useRandomAnimal().randomAnimal(),
-    backstory: () => useRandomBackstory().randomBackstory(),
-    class: () => useRandomClass().randomClass(),
-    color: () => useRandomColor().randomColor(),
-    genre: () => useRandomGenre().randomGenre(),
-    honorific: () => useRandomHonorific().randomHonorific(),
-    inventory: () => useRandomInventory().randomInventory(),
-    item: () => useRandomItem().randomItem(),
-    material: () => useRandomMaterial().randomMaterial(),
-    name: () => useRandomName().randomName(),
-    noun: () => useRandomNoun().randomNoun(),
-    personality: () => useRandomPersonality().randomPersonality(),
-    quirk: () => useRandomQuirk().randomQuirk(),
-    skill: () => useRandomSkill().randomSkill(),
-    species: () => useRandomSpecies().randomSpecies(),
-    verb: () => useRandomVerb().randomVerb(),
-    encounter: () => useRandomEncounter().message,
-  }
+  const randomSelections = ref<Record<string, string>>({})
+  const presetLists = getAllPresetPitches(artListPresets)
 
-  const supportedKeys = computed(() => Object.keys(singleValueSources))
+  // 🔹 RANDOMLIST Pitch database handling
+  const randomLists = ref<Pitch[]>([])
 
-  function getRandom(key: string, count = 1): string[] {
-    const source = singleValueSources[key]
-    if (!source) return []
-    return Array.from({ length: count }, () => source())
-  }
+  const filteredLists = computed(() => {
+    const userLists = Array.isArray(randomLists.value)
+      ? randomLists.value.filter((r) => {
+          const isOwner = r.userId === userStore.userId
+          const isVisible = r.isPublic || isOwner
+          const maturityOk = userStore.showMature || !r.isMature
+          return r.PitchType === PitchType.RANDOMLIST && isVisible && maturityOk
+        })
+      : []
+
+    return [...presetLists, ...userLists]
+  })
 
   function pickRandomFromArray(arr: string[], count: number): string[] {
     if (!Array.isArray(arr)) return []
     const shuffled = [...arr].sort(() => 0.5 - Math.random())
     return shuffled.slice(0, Math.min(count, arr.length))
   }
-
-  const randomSelections = ref<Record<string, string>>({})
 
   function toggleSelection(key: string) {
     const result = getRandom(key, 1)[0]
@@ -112,18 +83,6 @@ export const useRandomStore = defineStore('randomStore', () => {
       { deep: true },
     )
   }
-
-  // 🔹 RANDOMLIST Pitch database handling
-  const randomLists = ref<Pitch[]>([])
-
-  const filteredLists = computed(() =>
-    randomLists.value.filter((r) => {
-      const isOwner = r.userId === userStore.userId
-      const isVisible = r.isPublic || isOwner
-      const maturityOk = userStore.showMature || !r.isMature
-      return r.PitchType === 'RANDOMLIST' && isVisible && maturityOk
-    }),
-  )
 
   async function fetchRandomLists() {
     const { data, success, message } = await performFetch<Pitch[]>(
@@ -200,8 +159,6 @@ export const useRandomStore = defineStore('randomStore', () => {
     }
   }
 
-  // 🔸 ART RANDOMIZATION METHODS
-
   function resetAll() {
     Object.keys(artStore.artListSelections).forEach((key) => {
       artStore.updateArtListSelection(key, [])
@@ -239,8 +196,6 @@ export const useRandomStore = defineStore('randomStore', () => {
   }
 
   return {
-    // Local generators
-    supportedKeys,
     getRandom,
     pickRandomFromArray,
     toggleSelection,
@@ -248,11 +203,11 @@ export const useRandomStore = defineStore('randomStore', () => {
     clearAllSelections,
     getAllSelections,
     randomSelections,
-
     // Centralized commands
     resetAll,
     applyMakePretty,
     applySurprise,
+    supportedKeys,
 
     // Remote random list handling
     randomLists,

@@ -1,5 +1,4 @@
-export function useRandomHonorific() {
-  const honorifics = [
+export const honorificList = [
     // Noble and Regal
     'Brave',
     'Wise',
@@ -109,16 +108,6 @@ export function useRandomHonorific() {
     'Oracle',
   ]
 
-  function randomHonorific() {
-    const randomIndex = Math.floor(Math.random() * honorifics.length)
-    const selectedHonorific = honorifics[randomIndex]
-
-    // Log the random index and selected honorific for debugging
-    console.log('Random Honorific Index:', randomIndex)
-    console.log('Selected Honorific:', selectedHonorific)
-
-    return selectedHonorific
-  }
-
-  return { randomHonorific }
+export function randomHonorific(): string {
+  return honorificList[Math.floor(Math.random() * honorificList.length)]
 }

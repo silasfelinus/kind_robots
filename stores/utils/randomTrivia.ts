@@ -1,6 +1,6 @@
 // stores/utils/randomTrivia.ts
 
-const trivia = [
+export const triviaList = [
   '💾 The "Save" icon is based on a floppy disk — ask your elders what that is.',
   '🦠 The first computer virus was created in 1986 and was called "Brain."',
   '🐞 The term "bug" in programming originated from an actual moth found in a computer in 1947.',
@@ -40,5 +40,5 @@ const trivia = [
 ]
 
 export function randomTrivia() {
-  return trivia[Math.floor(Math.random() * trivia.length)]
+  return triviaList[Math.floor(Math.random() * triviaList.length)]
 }

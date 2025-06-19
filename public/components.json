@@ -17,19 +17,23 @@
     "components": [
       "add-art",
       "art-card",
-      "art-collection",
+      "art-control",
+      "art-display",
       "art-editor",
-      "art-gallery",
+      "art-generator",
       "art-grid",
+      "art-info",
       "art-nav",
       "art-randomizer",
+      "art-reactions",
       "art-upload",
+      "checkpoint-card",
       "checkpoint-gallery",
-      "collection-display",
-      "collection-handler",
+      "collection-gallery",
       "image-upload",
       "image-view",
-      "prompt-handler"
+      "list-manager",
+      "random-gallery"
     ]
   },
   {
@@ -99,7 +103,6 @@
       "gallery-manager",
       "gallery-selector",
       "gallery-viewer",
-      "random-gallery",
       "random-image",
       "teleport-window"
     ]

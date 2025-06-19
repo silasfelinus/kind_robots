@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative grid grid-rows-[auto_1fr] h-full w-100 bg-base-100 text-base-content overflow-y-auto"
+    class="relative grid grid-rows-[auto_1fr] h-full w-full bg-base-100 text-base-content"
   >
     <!-- Welcome Block (Only shown when not collapsed and no component is selected) -->
     <transition name="welcome-zoom">
@@ -49,7 +49,7 @@
     <!-- Main Scrollable Gallery Area -->
     <div
       v-if="!componentStore.selectedComponent"
-      class="px-4 py-6 max-w-7xl w-full mx-auto"
+      class="flex-1 overflow-y-auto px-4 py-6 max-w-7xl w-full mx-auto"
     >
       <div v-if="isLoading" class="flex justify-center items-center h-full">
         <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />

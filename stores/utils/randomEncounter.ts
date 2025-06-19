@@ -26,8 +26,10 @@ function loadMemory(): Record<Genre, number> {
 }
 
 function saveMemory(memory: Record<Genre, number>) {
+  if (typeof localStorage === 'undefined') return
   localStorage.setItem(encounterMemoryKey, JSON.stringify(memory))
 }
+
 
 export function useRandomEncounter(): Encounter {
   const memory = loadMemory()
@@ -52,8 +54,11 @@ export function useRandomEncounter(): Encounter {
       message = 'You wander into the void... nothing responds.'
   }
 
-  memory[genre] = count + 1
-  saveMemory(memory)
+  // Avoid localStorage and mutation during SSR
+  if (typeof window !== 'undefined') {
+    memory[genre] = count + 1
+    saveMemory(memory)
+  }
 
   return {
     genre,
@@ -62,3 +67,4 @@ export function useRandomEncounter(): Encounter {
     memoryKey: genre,
   }
 }
+

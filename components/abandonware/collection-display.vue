@@ -350,7 +350,7 @@ const displayLabel = computed(
 const ownerUser = computed(() => {
   const ownerId =
     selectedCollection.value?.userId || selectedGallery.value?.userId
-  return useUserStore().getUserById(ownerId ?? null)
+return userStore.getUserById(ownerId ?? null)
 })
 
 const updateLabel = async () => {

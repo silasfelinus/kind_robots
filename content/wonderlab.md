@@ -19,4 +19,4 @@ navComponent: 'lab-nav'
 theme: winter
 ---
 
-:main-component
+:wonder-lab

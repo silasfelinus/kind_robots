@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { reactive, ref, computed, toRefs, type CSSProperties } from 'vue'
 import { useErrorStore } from './errorStore'
-import {handleError } from './utils'
+import { handleError } from './utils'
 import type {
   DisplayState,
   FlipState,
@@ -383,7 +383,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
           state.isMobileViewport = false
         }
       } catch (error) {
-        handleError(error)
+        handleError(error, 'Custom width failed')
       } finally {
         resizeTimeout.value = null
       }
@@ -395,40 +395,38 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function loadState() {
-  if (typeof window === 'undefined') return
-  try {
-    const saved = window.localStorage.getItem('displayStoreState')
-    if (saved) Object.assign(state, JSON.parse(saved))
-  } catch (error) {
-    handleError(error)
-  }
-}
-function saveState() {
-  if (typeof window === 'undefined') return
-  try {
-    window.localStorage.setItem('displayStoreState', JSON.stringify(state))
-  } catch (error) {
-    handleError(error)
-  }
-}
-
-
-function initialize() {
-  if (typeof window === 'undefined' || state.isInitialized) return
-
-  queueMicrotask(() => {
+    if (typeof window === 'undefined') return
     try {
-      loadState()
-      updateViewport()
-      window.addEventListener('resize', updateViewport)
-      state.isInitialized = true
+      const saved = window.localStorage.getItem('displayStoreState')
+      if (saved) Object.assign(state, JSON.parse(saved))
     } catch (error) {
-      handleError(error)
+      handleError(error, "Couldn't load state.")
     }
-  })
-}
+  }
+  function saveState() {
+    if (typeof window === 'undefined') return
+    try {
+      window.localStorage.setItem('displayStoreState', JSON.stringify(state))
+    } catch (error) {
+      handleError(error, "couldn't save state.")
+    }
+  }
 
-  
+  function initialize() {
+    if (typeof window === 'undefined' || state.isInitialized) return
+
+    queueMicrotask(() => {
+      try {
+        loadState()
+        updateViewport()
+        window.addEventListener('resize', updateViewport)
+        state.isInitialized = true
+      } catch (error) {
+        handleError(error, 'Task Failed: ')
+      }
+    })
+  }
+
   return {
     ...toRefs(state),
     toggleSection,

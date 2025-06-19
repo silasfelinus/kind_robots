@@ -116,7 +116,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       100 -
       (state.sidebarRightState !== 'hidden'
         ? sidebarRightWidth.value + sectionPaddingSize.value * 2
-        : sectionPaddingSize.value)
+        : sectionPaddingSize.value * 2)
     )
   })
 
@@ -183,8 +183,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const mainContentStyle = computed(() => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
     return {
-      minHeight: `calc(var(--vh) * ${mainContentHeight.value})`,
-      maxHeight: '100%',
+      height: `calc(var(--vh) * ${mainContentHeight.value})`,
       width: `calc(${mainContentWidth.value}vw)`,
       top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
       right:

@@ -1,6 +1,6 @@
 // /stores/randomStore.ts
 import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 
 import { useUserStore } from './userStore'
 import { useArtStore } from './artStore'
@@ -63,29 +63,32 @@ export const useRandomStore = defineStore('randomStore', () => {
   }
 
   function initialize() {
-    if (!process.client) return
-
+  onMounted(() => {
     const stored = localStorage.getItem('artRandomizerRandomSelections')
     if (stored) {
       try {
         randomSelections.value = JSON.parse(stored)
-      } catch {
-        // ignore malformed JSON
+      } catch (err) {
+        handleError('Failed to parse randomSelections from localStorage', err)
       }
     }
 
     watch(
       randomSelections,
       (val) => {
-        localStorage.setItem(
-          'artRandomizerRandomSelections',
-          JSON.stringify(val),
-        )
+        try {
+          localStorage.setItem(
+            'artRandomizerRandomSelections',
+            JSON.stringify(val),
+          )
+        } catch (err) {
+          handleError('Failed to save randomSelections to localStorage', err)
+        }
       },
       { deep: true }
     )
-  }
-
+  })
+}
   async function fetchRandomLists() {
     const { data, success, message } = await performFetch<Pitch[]>(
       '/api/pitch/randomlists',

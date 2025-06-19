@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative grid grid-rows-[auto_1fr] min-h-[100dvh] bg-base-100 text-base-content overflow-hidden"
+    class="relative grid grid-rows-[auto_1fr] h-full w-100 bg-base-100 text-base-content overflow-y-auto"
   >
     <!-- Welcome Block (Only shown when not collapsed and no component is selected) -->
     <transition name="welcome-zoom">
@@ -49,7 +49,7 @@
     <!-- Main Scrollable Gallery Area -->
     <div
       v-if="!componentStore.selectedComponent"
-      class="overflow-y-auto px-4 py-6 max-w-7xl w-full mx-auto"
+      class="px-4 py-6 max-w-7xl w-full mx-auto"
     >
       <div v-if="isLoading" class="flex justify-center items-center h-full">
         <Icon name="kind-icon:bubble-loading" class="animate-spin text-4xl" />
@@ -63,14 +63,13 @@
       <lab-gallery />
     </div>
 
-<!-- Fullscreen Component View (In-content fullscreen, not viewport-absolute) -->
-<div
-  v-if="componentStore.selectedComponent"
-  class="px-4 py-6 w-full max-w-7xl mx-auto"
->
-  <select-component />
-</div>
-
+    <!-- Fullscreen Component View (In-content fullscreen, not viewport-absolute) -->
+    <div
+      v-if="componentStore.selectedComponent"
+      class="px-4 py-6 w-full max-w-7xl mx-auto"
+    >
+      <select-component />
+    </div>
   </div>
 </template>
 
@@ -97,7 +96,6 @@ const restoreIntro = () => {
 const handleBack = () => {
   componentStore.clearSelectedComponent()
 }
-
 
 const handleScroll = () => {
   if (!introCollapsed.value && window.scrollY > 80) {

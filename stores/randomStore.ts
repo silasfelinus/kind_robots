@@ -63,32 +63,38 @@ export const useRandomStore = defineStore('randomStore', () => {
   }
 
   function initialize() {
-  onMounted(() => {
-    const stored = localStorage.getItem('artRandomizerRandomSelections')
-    if (stored) {
-      try {
-        randomSelections.value = JSON.parse(stored)
-      } catch (err) {
-        handleError('Failed to parse randomSelections from localStorage', err)
-      }
-    }
-
-    watch(
-      randomSelections,
-      (val) => {
+    onMounted(() => {
+      const stored = localStorage.getItem('artRandomizerRandomSelections')
+      if (stored) {
         try {
-          localStorage.setItem(
-            'artRandomizerRandomSelections',
-            JSON.stringify(val),
+          randomSelections.value = JSON.parse(stored)
+        } catch (error) {
+          handleError(
+            error,
+            'Failed to parse randomSelections from localStorage',
           )
-        } catch (err) {
-          handleError('Failed to save randomSelections to localStorage', err)
         }
-      },
-      { deep: true }
-    )
-  })
-}
+      }
+
+      watch(
+        randomSelections,
+        (val) => {
+          try {
+            localStorage.setItem(
+              'artRandomizerRandomSelections',
+              JSON.stringify(val),
+            )
+          } catch (error) {
+            handleError(
+              error,
+              'Failed to save randomSelections to localStorage',
+            )
+          }
+        },
+        { deep: true },
+      )
+    })
+  }
   async function fetchRandomLists() {
     const { data, success, message } = await performFetch<Pitch[]>(
       '/api/pitch/randomlists',

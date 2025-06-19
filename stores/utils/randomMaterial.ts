@@ -1,5 +1,4 @@
-export function useRandomMaterial() {
-  const materials = [
+export const materialList = [
     'Mythril',
     'Adamantium',
     'Dragon Scale',
@@ -101,9 +100,6 @@ export function useRandomMaterial() {
     'Solar Flame',
   ]
 
-  function randomMaterial() {
-    return materials[Math.floor(Math.random() * materials.length)]
-  }
-
-  return { randomMaterial }
+export function randomMaterial(): string {
+  return materialList[Math.floor(Math.random() * materialList.length)]
 }

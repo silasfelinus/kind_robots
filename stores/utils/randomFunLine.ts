@@ -1,6 +1,6 @@
 // stores/utils/randomFunLine.ts
 
-const lines = [
+export const funList = [
   // Classic console silliness
   '🛠️ Debugger gnomes deployed!',
   '🐛 A bug got squashed. RIP.',
@@ -38,6 +38,6 @@ const lines = [
   '🎁 You’ve unlocked: Log of Mystery. Don’t open it after midnight.',
 ]
 
-export function randomFunLine() {
-  return lines[Math.floor(Math.random() * lines.length)]
+export function randomFun(): string {
+  return funList[Math.floor(Math.random() * funList.length)]
 }

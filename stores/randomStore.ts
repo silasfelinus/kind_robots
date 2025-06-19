@@ -19,8 +19,6 @@ export const useRandomStore = defineStore('randomStore', () => {
 
   const randomSelections = ref<Record<string, string>>({})
   const presetLists = getAllPresetPitches(artListPresets)
-
-  // 🔹 RANDOMLIST Pitch database handling
   const randomLists = ref<Pitch[]>([])
 
   const filteredLists = computed(() => {
@@ -29,7 +27,7 @@ export const useRandomStore = defineStore('randomStore', () => {
           const isOwner = r.userId === userStore.userId
           const isVisible = r.isPublic || isOwner
           const maturityOk = userStore.showMature || !r.isMature
-          return r.PitchType === PitchType.RANDOMLIST && isVisible && maturityOk
+          return r.PitchType === 'RANDOMLIST' && isVisible && maturityOk
         })
       : []
 
@@ -64,12 +62,16 @@ export const useRandomStore = defineStore('randomStore', () => {
     return randomSelections.value
   }
 
-  if (typeof window !== 'undefined') {
+  function initialize() {
+    if (!process.client) return
+
     const stored = localStorage.getItem('artRandomizerRandomSelections')
     if (stored) {
       try {
         randomSelections.value = JSON.parse(stored)
-      } catch {}
+      } catch {
+        // ignore malformed JSON
+      }
     }
 
     watch(
@@ -80,7 +82,7 @@ export const useRandomStore = defineStore('randomStore', () => {
           JSON.stringify(val),
         )
       },
-      { deep: true },
+      { deep: true }
     )
   }
 
@@ -196,6 +198,7 @@ export const useRandomStore = defineStore('randomStore', () => {
   }
 
   return {
+    initialize,
     getRandom,
     pickRandomFromArray,
     toggleSelection,
@@ -203,6 +206,7 @@ export const useRandomStore = defineStore('randomStore', () => {
     clearAllSelections,
     getAllSelections,
     randomSelections,
+
     // Centralized commands
     resetAll,
     applyMakePretty,

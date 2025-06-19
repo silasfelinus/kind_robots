@@ -1,28 +1,20 @@
 <!-- /components/content/icons/main-content.vue -->
 <template>
   <div class="relative flex flex-col h-full w-full bg-base-300 rounded-2xl">
-    <!-- Mobile View -->
-    <div
-      v-if="displayStore.isMobileViewport"
-      class="relative flex flex-col h-full w-full"
-    >
-      <transition name="fade" mode="out-in">
-        <component
-          :is="sidebarRightOpen ? 'splash-tutorial' : 'NuxtPage'"
-          :key="sidebarRightOpen ? 'splash' : $route.fullPath"
-          class="absolute inset-0 h-full w-full px-4 py-6"
-        />
-      </transition>
-    </div>
+    <!-- Nuxt Page -->
+    <NuxtPage
+      :key="$route.fullPath"
+      class="absolute inset-0 h-full w-full px-4 py-6 transition-opacity duration-300"
+      v-show="showMainContent"
+    />
 
-    <!-- Desktop View -->
-    <div v-else class="relative flex-1 w-full h-full">
-      <div class="absolute inset-0">
-        <NuxtPage :key="$route.fullPath" class="w-full px-4 py-6" />
-      </div>
-    </div>
+    <!-- Splash Tutorial -->
+    <splash-tutorial
+      class="absolute inset-0 h-full w-full px-4 py-6 transition-opacity duration-300"
+      v-show="showSplashTutorial"
+    />
 
-    <!-- Right Sidebar & Toggle -->
+    <!-- Right Sidebar Toggle (always visible) -->
     <right-toggle
       class="fixed bottom-14 right-4 z-40"
       :class="{
@@ -30,20 +22,11 @@
         'bg-base-300 shadow': !sidebarRightOpen,
       }"
     />
-    <transition name="slide-in-right" appear>
-      <aside
-        v-show="!displayStore.isMobileViewport && sidebarRightOpen"
-        class="fixed z-30 rounded-2xl border-6 border-secondary bg-base-200 transform will-change-transform transition-transform duration-500 ease-in-out"
-        :style="displayStore.rightSidebarStyle"
-      >
-        <splash-tutorial />
-      </aside>
-    </transition>
   </div>
 </template>
 
-<script setup lang="ts">
 // /components/content/icons/main-content.vue
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
@@ -54,6 +37,23 @@ const sidebarRightOpen = computed(
     displayStore.sidebarRightState !== 'hidden' &&
     displayStore.sidebarRightState !== 'disabled',
 )
+
+const showMainContent = computed(() => {
+  if (displayStore.viewportSize === 'small') {
+    return displayStore.sidebarRightState !== 'open'
+  }
+  return true
+})
+
+const showSplashTutorial = computed(() => {
+  if (displayStore.viewportSize === 'small') {
+    return (
+      displayStore.sidebarRightState === 'hidden' ||
+      displayStore.sidebarRightState === 'disabled'
+    )
+  }
+  return false
+})
 </script>
 
 <style scoped>

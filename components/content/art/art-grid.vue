@@ -84,7 +84,7 @@
     <div class="fixed" :style="displayStore.footerStyle">
       <div class="relative w-full h-full">
         <!-- Toggle inside footer -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10 p-1">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 z-50 p-1">
           <button
             class="btn btn-xs btn-circle"
             @click="displayStore.toggleFooter()"

@@ -1,23 +1,23 @@
-<!-- /components/content/art/art-generator.vue -->
 <template>
   <div
-    class="w-full shadow-inner flex flex-col transition-height flex-1 min-h-0"
+    class="w-full flex flex-col flex-1 min-h-0 bg-base-200 border-t border-base-content shadow-inner"
     :style="displayStore.footerStyle"
   >
-    <!-- Expanded Area -->
-    <div class="flex-1 min-h-0 px-4 overflow-y-auto">
+    <!-- Expanded Content Area -->
+    <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-6">
       <div
         v-if="['open', 'extended'].includes(displayStore.footerState)"
-        class="space-y-1"
+        class="space-y-4"
       >
         <input
           v-model="promptStore.promptField"
           placeholder="Enter your creative prompt..."
-          class="input input-bordered w-full text-lg bg-base-100"
+          class="input input-bordered w-full text-base bg-base-100"
           :disabled="loading"
           @input="syncPrompt"
         />
-        <div class="flex flex-wrap md:flex-row gap-2">
+
+        <div class="flex flex-wrap md:flex-row gap-2 items-center">
           <label class="label cursor-pointer justify-between w-full md:w-auto">
             <span class="label-text font-semibold">✨ Make Pretty</span>
             <input
@@ -26,9 +26,11 @@
               v-model="makePretty"
             />
           </label>
+
           <button class="btn btn-sm btn-secondary" @click="randomStore.applySurprise">
             🎲 Surprise
           </button>
+
           <button class="btn btn-sm btn-warning" @click="resetUIState">
             ♻️ Reset
           </button>
@@ -46,6 +48,7 @@
               @change="toggleNegativePrompt"
             />
           </label>
+
           <label class="label cursor-pointer space-x-2">
             <span class="label-text font-semibold">🔓 Public</span>
             <input
@@ -56,11 +59,11 @@
           </label>
         </div>
 
-        <div v-if="useNegative" class="space-y-1">
+        <div v-if="useNegative" class="space-y-2">
           <label class="font-semibold">Negative Prompt</label>
           <input
             v-model="artStore.artForm.negativePrompt"
-            class="input input-bordered w-full text-lg bg-base-100"
+            class="input input-bordered w-full text-base bg-base-100"
             placeholder="e.g. blurry, extra limbs..."
             :disabled="loading"
           />
@@ -97,20 +100,20 @@
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="bg-base-100 border-t border-base-content px-6 py-1">
-      <div class="flex flex-col md:flex-row gap-4">
+    <!-- Footer Row -->
+    <div class="bg-base-300 border-t border-base-content px-4 py-2">
+      <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
         <div class="flex-1 space-y-1">
-          <label class="text-sm font-semibold">🎯 Prompt Preview</label>
+          <label class="text-sm font-semibold text-base-content/80">🎯 Prompt Preview</label>
           <div
-            class="p-3 rounded bg-base-200 font-mono text-sm max-h-32 overflow-y-auto"
+            class="p-3 rounded bg-base-100 font-mono text-sm max-h-32 overflow-y-auto border border-base-300"
           >
             {{ promptStore.promptField || 'No prompt yet...' }}
           </div>
         </div>
-        <div class="flex-none self-end">
+        <div class="flex-none">
           <button
-            class="btn text-white font-semibold mr-15"
+            class="btn font-semibold text-white"
             :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
             :disabled="isGenerating || !promptStore.promptField"
             @click="generateArt"
@@ -122,6 +125,7 @@
     </div>
   </div>
 </template>
+
 
 
 <script setup lang="ts">

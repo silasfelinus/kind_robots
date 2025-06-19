@@ -394,39 +394,38 @@ export const useDisplayStore = defineStore('displayStore', () => {
     window.removeEventListener('resize', updateViewport)
   }
 
-  function saveState() {
+  function loadState() {
+  if (typeof window === 'undefined') return
   try {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('displayStoreState', JSON.stringify(state))
-    }
+    const saved = window.localStorage.getItem('displayStoreState')
+    if (saved) Object.assign(state, JSON.parse(saved))
+  } catch (error) {
+    handleError(error)
+  }
+}
+function saveState() {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem('displayStoreState', JSON.stringify(state))
   } catch (error) {
     handleError(error)
   }
 }
 
-function loadState() {
-  try {
-    if (typeof localStorage !== 'undefined') {
-      const saved = localStorage.getItem('displayStoreState')
-      if (saved) Object.assign(state, JSON.parse(saved))
-    }
-  } catch (error) {
-    handleError(error)
-  }
-}
 
 function initialize() {
-  if (state.isInitialized) return
-  try {
-    if (typeof window !== 'undefined') {
+  if (typeof window === 'undefined' || state.isInitialized) return
+
+  queueMicrotask(() => {
+    try {
       loadState()
       updateViewport()
       window.addEventListener('resize', updateViewport)
+      state.isInitialized = true
+    } catch (error) {
+      handleError(error)
     }
-    state.isInitialized = true
-  } catch (error) {
-    handleError(error)
-  }
+  })
 }
 
   

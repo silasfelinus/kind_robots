@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import { reactive, ref, computed, toRefs, type CSSProperties } from 'vue'
 import { useErrorStore } from './errorStore'
+import {handleError } from './utils'
 import type {
   DisplayState,
   FlipState,
@@ -428,10 +429,7 @@ function initialize() {
   }
 }
 
-  function handleError(error: unknown) {
-    useErrorStore().setError(ErrorType.GENERAL_ERROR, error)
-  }
-
+  
   return {
     ...toRefs(state),
     toggleSection,

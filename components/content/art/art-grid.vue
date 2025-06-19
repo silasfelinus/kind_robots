@@ -20,22 +20,6 @@
       </button>
     </div>
 
-    <!-- Footer Toggle at Top Center -->
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 z-20 p-1">
-      <button
-        class="btn btn-xs btn-circle"
-        @click="displayStore.toggleFooter()"
-      >
-        <Icon
-          :name="
-            displayStore.footerState === 'extended'
-              ? 'kind-icon:chevron-double-down'
-              : 'kind-icon:chevron-double-up'
-          "
-        />
-      </button>
-    </div>
-
     <!-- Title -->
     <div class="text-center mt-6 md:mt-1">
       <slot name="title" />
@@ -96,9 +80,28 @@
       </div>
     </div>
 
-    <!-- Footer Panel -->
+    <!-- Footer Panel with Toggle -->
     <div class="fixed" :style="displayStore.footerStyle">
-      <slot name="extra" />
+      <div class="relative w-full h-full">
+        <!-- Toggle inside footer -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10 p-1">
+          <button
+            class="btn btn-xs btn-circle"
+            @click="displayStore.toggleFooter()"
+          >
+            <Icon
+              :name="
+                displayStore.footerState === 'extended'
+                  ? 'kind-icon:chevron-double-down'
+                  : 'kind-icon:chevron-double-up'
+              "
+            />
+          </button>
+        </div>
+
+        <!-- Extra content inside footer -->
+        <slot name="extra" />
+      </div>
     </div>
 
     <!-- Overlay -->

@@ -8,6 +8,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useErrorStore, ErrorType } from '../../../stores/errorStore'
 import { useUserStore } from '../../../stores/userStore'
 import { useArtStore } from '../../../stores/artStore'
+import { useRandomStore } from '../../../stores/randomStore'
 import { useCharacterStore } from '../../../stores/characterStore'
 import { useThemeStore } from '../../../stores/themeStore'
 import { useBotStore } from '../../../stores/botStore'
@@ -51,6 +52,7 @@ const choiceStore = useChoiceStore()
 const resonanceStore = useResonanceStore()
 const smartbarStore = useSmartbarStore()
 const componentStore = useComponentStore()
+const randomStore = useRandomStore()
 
 // State management
 const isReady = ref(false)
@@ -73,6 +75,7 @@ onMounted(async () => {
       userStore.initialize?.(),
       milestoneStore.initialize?.(),
       pitchStore.initialize?.(),
+      randomStore.initialize?.(),
       promptStore.initialize?.(),
       artStore.initialize?.(),
       botStore.initialize?.(),

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full flex flex-col flex-1 min-h-0 bg-base-200 border-t border-base-content shadow-inner"
+    class="w-full flex flex-col rounded-t-2xk flex-1 min-h-0 bg-base-300 shadow-inner"
     :style="displayStore.footerStyle"
   >
     <!-- Expanded Content Area -->
@@ -27,7 +27,10 @@
             />
           </label>
 
-          <button class="btn btn-sm btn-secondary" @click="randomStore.applySurprise">
+          <button
+            class="btn btn-sm btn-secondary"
+            @click="randomStore.applySurprise"
+          >
             🎲 Surprise
           </button>
 
@@ -101,10 +104,14 @@
     </div>
 
     <!-- Footer Row -->
-    <div class="bg-base-300 border-t border-base-content px-4 py-2">
-      <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+    <div class="px-4 py-2">
+      <div
+        class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4"
+      >
         <div class="flex-1 space-y-1">
-          <label class="text-sm font-semibold text-base-content/80">🎯 Prompt Preview</label>
+          <label class="text-sm font-semibold text-base-content/80"
+            >🎯 Prompt Preview</label
+          >
           <div
             class="p-3 rounded bg-base-100 font-mono text-sm max-h-32 overflow-y-auto border border-base-300"
           >
@@ -114,7 +121,9 @@
         <div class="flex-none">
           <button
             class="btn font-semibold text-white"
-            :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
+            :class="
+              isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
+            "
             :disabled="isGenerating || !promptStore.promptField"
             @click="generateArt"
           >
@@ -125,8 +134,6 @@
     </div>
   </div>
 </template>
-
-
 
 <script setup lang="ts">
 // /components/content/art/art-generator.vue

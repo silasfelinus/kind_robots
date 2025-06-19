@@ -108,7 +108,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const mainContentHeight = computed(() => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    return 100 - (header + 2 * sectionPaddingSize.value + footerHeight.value)
+    return 100 - (header + 3 * sectionPaddingSize.value + footerHeight.value)
   })
 
   const mainContentWidth = computed(() => {

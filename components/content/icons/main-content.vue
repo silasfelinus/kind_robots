@@ -10,7 +10,7 @@
         <component
           :is="sidebarRightOpen ? 'splash-tutorial' : 'NuxtPage'"
           :key="sidebarRightOpen ? 'splash' : $route.fullPath"
-          class="absolute inset-0 min-h-[100dvh] w-full px-4 py-6"
+          class="absolute inset-0 h-full w-full px-4 py-6"
         />
       </transition>
     </div>

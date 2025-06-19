@@ -27,7 +27,7 @@ export const useRandomStore = defineStore('randomStore', () => {
           const isOwner = r.userId === userStore.userId
           const isVisible = r.isPublic || isOwner
           const maturityOk = userStore.showMature || !r.isMature
-          return r.PitchType === 'RANDOMLIST' && isVisible && maturityOk
+          return r.PitchType === PitchType.RANDOMLIST && isVisible && maturityOk
         })
       : []
 

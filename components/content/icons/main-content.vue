@@ -10,6 +10,7 @@
         <component
           :is="sidebarRightOpen ? 'splash-tutorial' : 'NuxtPage'"
           :key="sidebarRightOpen ? 'splash' : $route.fullPath"
+          v-if="sidebarRightOpen || $route.fullPath"
           class="absolute inset-0 h-full w-full px-4 py-6"
         />
       </transition>
@@ -20,6 +21,10 @@
       <div class="absolute inset-0">
         <NuxtPage :key="$route.fullPath" class="w-full px-4 py-6" />
       </div>
+    </div>
+
+    <div v-else class="p-4 text-center text-warning">
+      Nothing to show on this route.
     </div>
 
     <!-- Right Sidebar & Toggle -->

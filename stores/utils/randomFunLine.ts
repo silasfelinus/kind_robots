@@ -38,6 +38,6 @@ export const funList = [
   '🎁 You’ve unlocked: Log of Mystery. Don’t open it after midnight.',
 ]
 
-export function randomFun(): string {
+export function randomFunLine(): string {
   return funList[Math.floor(Math.random() * funList.length)]
 }

@@ -394,33 +394,39 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function saveState() {
-    try {
+  try {
+    if (typeof localStorage !== 'undefined') {
       localStorage.setItem('displayStoreState', JSON.stringify(state))
-    } catch (error) {
-      handleError(error)
     }
+  } catch (error) {
+    handleError(error)
   }
+}
 
-  function loadState() {
-    try {
+function loadState() {
+  try {
+    if (typeof localStorage !== 'undefined') {
       const saved = localStorage.getItem('displayStoreState')
       if (saved) Object.assign(state, JSON.parse(saved))
-    } catch (error) {
-      handleError(error)
     }
+  } catch (error) {
+    handleError(error)
   }
+}
 
-  function initialize() {
-    if (state.isInitialized) return
-    try {
+function initialize() {
+  if (state.isInitialized) return
+  try {
+    if (typeof window !== 'undefined') {
       loadState()
       updateViewport()
       window.addEventListener('resize', updateViewport)
-      state.isInitialized = true
-    } catch (error) {
-      handleError(error)
     }
+    state.isInitialized = true
+  } catch (error) {
+    handleError(error)
   }
+}
 
   function handleError(error: unknown) {
     useErrorStore().setError(ErrorType.GENERAL_ERROR, error)

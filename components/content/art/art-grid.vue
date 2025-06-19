@@ -2,9 +2,7 @@
 <template>
   <div
     class="relative w-full flex flex-col"
-    :style="{
-      height: `calc(100dvh - var(--vh) * ${displayStore.footerHeight})`,
-    }"
+    :style="{ height: `calc(var(--vh) * ${displayStore.mainContentHeight})` }"
   >
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
@@ -17,6 +15,22 @@
             displayStore.isFullScreen
               ? 'kind-icon:compress'
               : 'kind-icon:expand'
+          "
+        />
+      </button>
+    </div>
+
+    <!-- Footer Toggle at Top Center -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 z-20 p-1">
+      <button
+        class="btn btn-xs btn-circle"
+        @click="displayStore.toggleFooter()"
+      >
+        <Icon
+          :name="
+            displayStore.footerState === 'extended'
+              ? 'kind-icon:chevron-double-down'
+              : 'kind-icon:chevron-double-up'
           "
         />
       </button>
@@ -80,22 +94,6 @@
       >
         <slot name="right" />
       </div>
-    </div>
-
-    <!-- Footer Toggle -->
-    <div class="fixed z-40" :style="displayStore.footerToggleStyle">
-      <button
-        class="btn btn-xs btn-circle"
-        @click="displayStore.toggleFooter()"
-      >
-        <Icon
-          :name="
-            displayStore.footerState === 'extended'
-              ? 'kind-icon:chevron-double-down'
-              : 'kind-icon:chevron-double-up'
-          "
-        />
-      </button>
     </div>
 
     <!-- Footer Panel -->

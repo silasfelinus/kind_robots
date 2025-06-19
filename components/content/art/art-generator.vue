@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full flex flex-col rounded-t-2xk flex-1 min-h-0 bg-base-300 shadow-inner"
+    class="w-full flex flex-col rounded-2xl flex-1 min-h-0 bg-base-300 shadow-inner"
     :style="displayStore.footerStyle"
   >
     <!-- Expanded Content Area -->

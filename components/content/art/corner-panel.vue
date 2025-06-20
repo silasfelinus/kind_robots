@@ -19,6 +19,22 @@
         v-if="activePanel === item.id"
         class="absolute top-full right-0 mt-1 w-64 bg-base-100 shadow-lg rounded-xl p-3 z-50 text-sm space-y-2"
       >
+
+<!-- Tokens -->
+        <div v-if="item.id === 'tokens'">
+          <div class="font-bold">🧪 Mana: {{ userStore.user?.mana ?? 0 }}</div>
+          <p class="text-xs text-base-content/70">
+            Role: {{ userStore.user?.Role || 'Guest' }}
+          </p>
+          <NuxtLink to="/subscriptions" class="block hover:underline"
+            >💳 Manage Subscriptions</NuxtLink
+          >
+          <NuxtLink to="/boost" class="block hover:underline"
+            >⚡ Boost Tokens</NuxtLink
+          >
+        </div>
+
+
         <!-- Account -->
         <div v-if="item.id === 'account'">
           <template v-if="userStore.isLoggedIn">
@@ -72,19 +88,7 @@
           </template>
         </div>
 
-        <!-- Tokens -->
-        <div v-if="item.id === 'tokens'">
-          <div class="font-bold">🧪 Mana: {{ userStore.user?.mana ?? 0 }}</div>
-          <p class="text-xs text-base-content/70">
-            Role: {{ userStore.user?.Role || 'Guest' }}
-          </p>
-          <NuxtLink to="/subscriptions" class="block hover:underline"
-            >💳 Manage Subscriptions</NuxtLink
-          >
-          <NuxtLink to="/boost" class="block hover:underline"
-            >⚡ Boost Tokens</NuxtLink
-          >
-        </div>
+        
 
         <!-- Directory -->
         <div v-if="item.id === 'directory'">
@@ -134,6 +138,9 @@
           >
           <NuxtLink to="/sponsor" class="block hover:underline"
             >💖 Sponsors</NuxtLink
+          >
+<NuxtLink to="/giftshop" class="block hover:underline"
+            >💖 Giftshop</NuxtLink
           >
         </div>
       </div>

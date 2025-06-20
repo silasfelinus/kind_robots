@@ -1,27 +1,26 @@
-<!-- /components/content/story/screen-debug.vue -->
-
 <template>
   <teleport to="body">
-    <div
-      class="fixed z-50 inset-0 flex items-center justify-center pointer-events-none"
-    >
-      <div class="absolute top-4 right-4 pointer-events-auto">
-        <button
-          class="bg-gray-700 text-white p-2 rounded-full shadow-md"
-          @click="toggleDebug"
-        >
-          {{ isDebugVisible ? '🛠️' : '📌' }}
-        </button>
-      </div>
+    <!-- Floating Toggle Button -->
+    <div class="fixed top-4 right-4 z-50 pointer-events-auto">
+      <button
+        class="bg-gray-700 text-white p-2 rounded-full shadow-md"
+        @click="toggleDebug"
+      >
+        {{ isDebugVisible ? '🛠️' : '📌' }}
+      </button>
+    </div>
 
+    <!-- Debug Panel -->
+    <div
+      v-if="isDebugVisible"
+      class="fixed inset-0 z-40 bg-black bg-opacity-80 flex items-center justify-center overflow-auto p-6"
+    >
       <client-only>
         <div
-          v-if="isDebugVisible"
-          class="bg-black bg-opacity-90 text-white p-6 rounded-xl w-[90vw] max-w-7xl max-h-[90vh] overflow-y-auto shadow-2xl pointer-events-auto"
+          class="bg-base-100 text-base-content p-6 rounded-xl w-full max-w-7xl shadow-2xl pointer-events-auto overflow-y-auto max-h-[90vh]"
         >
-          <!-- Ruler Overlay (Accurate VH/VW Scaling) -->
-          <div class="fixed inset-0 z-40 pointer-events-none">
-            <!-- Vertical Ruler (Left) -->
+          <!-- Ruler Overlay (VH/VW Reference) -->
+          <div class="fixed inset-0 z-30 pointer-events-none">
             <div
               class="absolute left-0 top-0 w-6 h-full flex flex-col text-[8px] text-white"
             >
@@ -41,13 +40,13 @@
                   <span
                     v-if="n % 10 === 0"
                     class="absolute left-6 -translate-y-1/2"
-                    >{{ n }}vh</span
                   >
+                    {{ n }}vh
+                  </span>
                 </div>
               </template>
             </div>
 
-            <!-- Horizontal Ruler (Top) -->
             <div
               class="absolute top-0 left-0 w-full h-6 flex text-[8px] text-white"
             >
@@ -64,63 +63,50 @@
                             : 'border-l border-transparent h-full',
                     ]"
                   ></div>
-                  <span v-if="n % 10 === 0" class="absolute top-6 left-1"
-                    >{{ n }}vw</span
-                  >
+                  <span v-if="n % 10 === 0" class="absolute top-6 left-1">
+                    {{ n }}vw
+                  </span>
                 </div>
               </template>
             </div>
           </div>
 
+          <!-- Debug Panel Content -->
           <h2 class="text-xl font-bold mb-4">🧪 Kind Robots Debug Panel</h2>
 
-          <!-- Debug Style Bindings Grid -->
+          <!-- Grid Section 1 -->
           <div class="space-y-6 mb-6">
-            <!-- Row 1: Header -->
-            <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
-              <div
-                class="bg-primary text-white p-4 rounded-2xl border shadow-md"
-              >
+            <div class="grid grid-cols-1 gap-4">
+              <div class="bg-primary text-white p-4 rounded-2xl border shadow-md">
                 <h3 class="font-semibold mb-2">Header Style</h3>
                 <p class="text-sm font-mono">{{ headerStyle }}</p>
               </div>
             </div>
 
-            <!-- Row 2: Left / Main / Right -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div class="bg-info text-white p-4 rounded-2xl border shadow-md">
                 <h3 class="font-semibold mb-2">Left Sidebar Style</h3>
                 <p class="text-sm font-mono">{{ leftSidebarStyle }}</p>
               </div>
-              <div
-                class="bg-accent text-white p-4 rounded-2xl border shadow-md"
-              >
+              <div class="bg-accent text-white p-4 rounded-2xl border shadow-md">
                 <h3 class="font-semibold mb-2">Main Content Style</h3>
                 <p class="text-sm font-mono">{{ mainContentStyle }}</p>
               </div>
-              <div
-                class="bg-warning text-white p-4 rounded-2xl border shadow-md"
-              >
+              <div class="bg-warning text-white p-4 rounded-2xl border shadow-md">
                 <h3 class="font-semibold mb-2">Right Sidebar Style</h3>
                 <p class="text-sm font-mono">{{ rightSidebarStyle }}</p>
               </div>
             </div>
 
-            <!-- Row 3: Footer -->
-            <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
-              <div
-                class="bg-secondary text-white p-4 rounded-2xl border shadow-md"
-              >
+            <div class="grid grid-cols-1 gap-4">
+              <div class="bg-secondary text-white p-4 rounded-2xl border shadow-md">
                 <h3 class="font-semibold mb-2">Footer Style</h3>
                 <p class="text-sm font-mono">{{ footerStyle }}</p>
               </div>
             </div>
 
-            <!-- Row 4: Toggles -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div
-                class="bg-success text-white p-4 rounded-2xl border shadow-md"
-              >
+              <div class="bg-success text-white p-4 rounded-2xl border shadow-md">
                 <h3 class="font-semibold mb-2">Left Toggle Style</h3>
                 <p class="text-sm font-mono">{{ leftToggleStyle }}</p>
               </div>
@@ -128,49 +114,29 @@
                 <h3 class="font-semibold mb-2">Right Toggle Style</h3>
                 <p class="text-sm font-mono">{{ rightToggleStyle }}</p>
               </div>
-              <div
-                class="bg-base-300 text-black p-4 rounded-2xl border shadow-md"
-              >
+              <div class="bg-base-300 text-black p-4 rounded-2xl border shadow-md">
                 <h3 class="font-semibold mb-2">Footer Toggle Style</h3>
                 <p class="text-sm font-mono">{{ footerToggleStyle }}</p>
               </div>
             </div>
           </div>
 
-          <!-- Other Debug Info Grid -->
+          <!-- Grid Section 2 -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
               <h3 class="text-lg font-semibold mb-2">State & Visibility</h3>
               <div class="space-y-1 text-sm">
-                <div>
-                  <strong>Header:</strong> {{ headerVisible }} ({{
-                    headerState
-                  }})
-                </div>
-                <div>
-                  <strong>Sidebar Left:</strong> {{ sidebarLeftVisible }} ({{
-                    sidebarLeftState
-                  }})
-                </div>
-                <div>
-                  <strong>Sidebar Right:</strong> {{ sidebarRightVisible }} ({{
-                    sidebarRightState
-                  }})
-                </div>
-                <div>
-                  <strong>Footer:</strong> {{ footerVisible }} ({{
-                    footerState
-                  }})
-                </div>
+                <div><strong>Header:</strong> {{ headerVisible }} ({{ headerState }})</div>
+                <div><strong>Sidebar Left:</strong> {{ sidebarLeftVisible }} ({{ sidebarLeftState }})</div>
+                <div><strong>Sidebar Right:</strong> {{ sidebarRightVisible }} ({{ sidebarRightState }})</div>
+                <div><strong>Footer:</strong> {{ footerVisible }} ({{ footerState }})</div>
                 <div><strong>Fullscreen:</strong> {{ fullscreenState }}</div>
                 <div><strong>Flip:</strong> {{ flipState }}</div>
                 <div><strong>Big Mode:</strong> {{ bigMode }}</div>
               </div>
             </div>
 
-            <div
-              class="bg-info text-white p-4 rounded-2xl border border-base-300"
-            >
+            <div class="bg-info text-white p-4 rounded-2xl border border-base-300">
               <h3 class="text-lg font-semibold mb-2">Sizes & Bases</h3>
               <div class="grid grid-cols-2 gap-2 text-sm">
                 <div><strong>Header H:</strong> {{ headerHeight }}</div>
@@ -185,9 +151,7 @@
               </div>
             </div>
 
-            <div
-              class="bg-secondary text-white p-4 rounded-2xl border border-base-300"
-            >
+            <div class="bg-secondary text-white p-4 rounded-2xl border border-base-300">
               <h3 class="text-lg font-semibold mb-2">Device & Viewport</h3>
               <div class="space-y-1 text-sm">
                 <div><strong>Viewport:</strong> {{ viewportSize }}</div>
@@ -195,9 +159,7 @@
                 <div><strong>Large View:</strong> {{ isLargeViewport }}</div>
                 <div><strong>Touch Device:</strong> {{ isTouchDevice }}</div>
                 <div><strong>Is Animating:</strong> {{ isAnimating }}</div>
-                <div>
-                  <strong>Current Animation:</strong> {{ currentAnimation }}
-                </div>
+                <div><strong>Current Animation:</strong> {{ currentAnimation }}</div>
               </div>
             </div>
           </div>
@@ -206,6 +168,7 @@
     </div>
   </teleport>
 </template>
+
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'

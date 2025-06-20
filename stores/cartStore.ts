@@ -4,11 +4,12 @@ import { ref, computed, watch } from 'vue'
 import { handleError } from '@/stores/utils'
 
 export interface CartItem {
-  id: string // unique key for the cart line (e.g., `${type}-${artImageId}`)
-  type: 'print' | 'shirt' | 'sticker' | 'mug'
+  id: string
+  type: 'print' | 'shirt' | 'sticker' | 'mug'| 'book' | 'extra'
   artImageId: number
   imageUrl: string
   quantity: number
+  price: number // 💰 Price per item
   notes?: string
 }
 

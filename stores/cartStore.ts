@@ -57,6 +57,43 @@ export const useCartStore = defineStore('cartStore', () => {
     }
   }
 
+async function subscribe(userId: number) {
+  try {
+    const res = await fetch('/api/stripe/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    })
+
+    const result = await res.json()
+
+    if (!result.success || !result.url) {
+      throw new Error(result.message || 'Subscription checkout failed.')
+    }
+
+    window.location.href = result.url
+  } catch (error) {
+    console.error('[cartStore] Subscribe error:', error)
+    alert('Subscription failed. Try again later.')
+  }
+}
+
+const totalItems = computed(() =>
+  items.value.reduce((sum, item) => sum + item.quantity, 0),
+)
+
+
+async function cancelSubscription(userId: number) {
+  try {
+    // Future version: you'll hit /api/stripe/cancel or similar
+    alert(`Cancel subscription for user ${userId} (not implemented yet)`)
+    console.warn('[cartStore] Cancel subscription is not yet implemented')
+  } catch (error) {
+    console.error('[cartStore] Cancel error:', error)
+    alert('Cancellation failed.')
+  }
+}
+
   function clearCart() {
     items.value = []
     syncToLocalStorage()
@@ -126,18 +163,23 @@ async function checkout(userId: number) {
   watch(items, syncToLocalStorage, { deep: true })
 
   return {
-    items,
-    isOpen,
-    totalItems,
-    hasItems,
-    addItem,
-    removeItem,
-    updateQuantity,
-    clearCart,
-    openCart,
-    closeCart,
-    toggleCart,
-    syncToLocalStorage,
-    loadFromLocalStorage,
-  }
+  items,
+  isOpen,
+  totalItems,
+  totalPrice,
+  hasItems,
+  addItem,
+  removeItem,
+  updateQuantity,
+  clearCart,
+  openCart,
+  closeCart,
+  toggleCart,
+  syncToLocalStorage,
+  loadFromLocalStorage,
+  checkout,
+  subscribe,
+  cancelSubscription,
+}
+
 })

@@ -71,6 +71,18 @@
 // /components/content/shop/shopping-cart.vue
 import { reactive } from 'vue'
 import { useCartStore } from '@/stores/cartStore'
+import { useUserStore } from '@/stores/userStore'
+
+const userStore = useUserStore()
+
+function checkout() {
+  if (!userStore.userId) {
+    alert('You must be logged in to check out.')
+    return
+  }
+  cartStore.checkout(userStore.userId)
+}
+
 
 const cartStore = useCartStore()
 
@@ -83,8 +95,5 @@ function updateQuantity(item: typeof cartStore.items[number]) {
   cartStore.updateQuantity(item.id, qty)
 }
 
-function checkout() {
-  console.log('🧾 Checkout Payload:', cartStore.items)
-  alert('Pretend this is a beautiful Stripe checkout flow ✨')
-}
+
 </script>

@@ -185,10 +185,24 @@ const artStore = useArtStore()
 const visibleCount = ref(50)
 const editingTitle = ref<number | null>(null)
 
-const selectedCollections = computed(() => collectionStore.selectedCollections)
+const selectedCollections = computed(() => {
+  const selected = collectionStore.selectedCollectionIds.map((id) => {
+    if (id === -1) return unassignedCollection.value
+    return collectionStore.collections.find((c) => c.id === id)
+  })
+  return selected.filter(Boolean) as ArtCollection[]
+})
 
 function selectCollection(id: number) {
-  collectionStore.selectedCollectionIds = [id]
+  if (id === -1) {
+    collectionStore.selectedCollectionIds = [-1]
+    // Directly inject the unassigned collection
+    if (!collectionStore.selectedCollections.find((c) => c.id === -1)) {
+      collectionStore.selectedCollections.push(unassignedCollection.value)
+    }
+  } else {
+    collectionStore.selectedCollectionIds = [id]
+  }
 }
 
 function removeCollection(id: number) {
@@ -207,7 +221,7 @@ function handleHover(collection: ArtCollection) {
 }
 
 function canEdit(c: ArtCollection) {
-  return c.userId === userStore.userId || userStore.isAdmin
+  return c.id !== -1 && (c.userId === userStore.userId || userStore.isAdmin)
 }
 
 function getArtFromCollection(c: ArtCollection) {

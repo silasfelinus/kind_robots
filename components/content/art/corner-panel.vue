@@ -142,7 +142,7 @@ const menuItems = [
   },
   {
     id: 'tokens',
-    icon: 'kind-icon:potion',
+    icon: 'kind-icon:mana-potion',
     tooltip: `${userStore.user?.mana ?? 0} Mana`,
   },
   {
@@ -152,7 +152,7 @@ const menuItems = [
   },
   {
     id: 'sources',
-    icon: 'kind-icon:connection',
+    icon: 'kind-icon:butterfly',
     tooltip: 'Modeller Sources',
   },
   {

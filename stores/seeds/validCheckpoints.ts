@@ -34,16 +34,6 @@ export const validCheckpoints: Partial<Resource>[] = [
     userId: 1,
   },
   {
-    name: 'duchaitenAiartSDXL_v33515.safetensors',
-    customLabel: 'Duchaiten AI Art SDXL',
-    localPath: 'SDXL/duchaitenAiartSDXL_v33515.safetensors',
-    description: 'New SDXL Model',
-    generation: 'SDXL',
-    isMature: false,
-    resourceType: 'CHECKPOINT',
-    userId: 1,
-  },
-  {
     name: 'RealitiesEdgeXLLIGHTNING_TURBOV7.safetensors',
     customLabel: 'Realities Edge XL',
     localPath: 'SDXL/RealitiesEdgeXLLIGHTNING_TURBOV7.safetensors',

@@ -5,7 +5,7 @@ import { handleError } from '@/stores/utils'
 
 export interface CartItem {
   id: string
-  type: 'print' | 'shirt' | 'sticker' | 'mug'| 'book' | 'extra'
+  type: 'print' | 'shirt' | 'sticker' | 'mug'| 'book' | 'donation'| 'extra'
   artImageId: number
   imageUrl: string
   quantity: number

@@ -17,9 +17,10 @@ export const useCartStore = defineStore('cartStore', () => {
   const items = ref<CartItem[]>([])
   const isOpen = ref(false)
 
-  const totalItems = computed(() =>
-    items.value.reduce((sum, item) => sum + item.quantity, 0),
-  )
+  const totalPrice = computed(() =>
+  items.value.reduce((sum, item) => sum + item.quantity * item.price, 0),
+)
+
 
   const hasItems = computed(() => items.value.length > 0)
 

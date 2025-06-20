@@ -84,10 +84,15 @@ export const useCartStore = defineStore('cartStore', () => {
 
 async function checkout(userId: number) {
   try {
+    const cartPayload = items.value.map((i) => ({
+      id: i.type, // must match your seed item id
+      quantity: i.quantity,
+    }))
+
     const res = await fetch('/api/stripe/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({ userId, cart: cartPayload }),
     })
 
     const result = await res.json()
@@ -102,6 +107,7 @@ async function checkout(userId: number) {
     alert('Checkout failed. Please try again later.')
   }
 }
+
 
 
   function loadFromLocalStorage() {

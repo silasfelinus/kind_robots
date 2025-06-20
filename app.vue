@@ -1,14 +1,14 @@
 <!-- /app.vue -->
 <template>
   <div
-    class="main-layout bg-base-200 h-screen w-screen relative overflow-hidden box-border"
+    class="main-layout bg-base-200 h-full w-full relative overflow-hidden box-border"
   >
     <!-- Loaders -->
     <div class="fixed z-50">
+      <store-debug />
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />
-<store-debug />
 
       <div
         v-if="showSwarm"
@@ -48,11 +48,12 @@
 
 <script setup lang="ts">
 // /app.vue
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useSmartbarStore } from '@/stores/smartbarStore'
+import { setCustomVh } from '@/stores/helpers/displayHelper'
 
 const smartbarStore = useSmartbarStore()
 const showSwarm = computed(() => smartbarStore.showSwarm)
@@ -69,6 +70,17 @@ router.afterEach(() => {
   setTimeout(() => {
     isNavigating.value = false
   }, 400)
+})
+
+// Set --vh on mount and resize
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    setCustomVh()
+    window.addEventListener('resize', setCustomVh)
+  }
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', setCustomVh)
 })
 
 useHead({
@@ -97,5 +109,14 @@ useHead({
   height: 100vh;
   will-change: transform, opacity;
   transform: translateZ(0);
+}
+
+html,
+body,
+#__nuxt {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 </style>

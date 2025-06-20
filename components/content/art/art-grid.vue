@@ -50,6 +50,9 @@
       </button>
     </div>
 
+    <!-- Corner Panel (top-right) -->
+    <corner-panel />
+
     <!-- Report Area -->
     <div class="text-center px-4 md:px-12 lg:px-32 space-y-2">
       <slot name="report" />

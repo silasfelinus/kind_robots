@@ -249,6 +249,7 @@ model Chat {
   characterId     Int?
   Character       Character?          @relation(fields: [characterId], references: [id])
   isRead          Boolean           @default(false)
+  isMature        Boolean           @default(false)
 }
 
 

@@ -82,6 +82,28 @@ export const useCartStore = defineStore('cartStore', () => {
     }
   }
 
+async function checkout(userId: number) {
+  try {
+    const res = await fetch('/api/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    })
+
+    const result = await res.json()
+
+    if (!result.success || !result.url) {
+      throw new Error(result.message || 'Failed to initiate checkout.')
+    }
+
+    window.location.href = result.url
+  } catch (error) {
+    console.error('[cartStore] Checkout error:', error)
+    alert('Checkout failed. Please try again later.')
+  }
+}
+
+
   function loadFromLocalStorage() {
     try {
       const saved = localStorage.getItem('cartItems')

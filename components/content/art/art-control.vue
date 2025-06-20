@@ -3,11 +3,19 @@
   <div class="space-y-4">
     <h2 class="text-xl font-bold">⚙️ Controls</h2>
 
-    <button class="btn btn-primary w-full" @click="setAsAvatar" :disabled="!canUse">
+    <button
+      class="btn btn-primary w-full"
+      @click="setAsAvatar"
+      :disabled="!canUse"
+    >
       Set as Avatar
     </button>
 
-    <button class="btn btn-accent w-full" @click="addToFavorites" :disabled="!canUse">
+    <button
+      class="btn btn-accent w-full"
+      @click="addToFavorites"
+      :disabled="!canUse"
+    >
       Add to Favorites
     </button>
 
@@ -19,15 +27,25 @@
       🎁 Print Swag
     </button>
 
-    <div v-if="showSwag" class="rounded-2xl border border-base-300 p-4 bg-base-200">
-      <print-swag :artImageId="props.art.artImageId" @close="showSwag = false" />
+    <div
+      v-if="showSwag"
+      class="rounded-2xl border border-base-300 p-4 bg-base-200"
+    >
+      <print-swag
+        :artImageId="props.art.artImageId ?? undefined"
+        @close="showSwag = false"
+      />
     </div>
 
     <div class="space-y-2">
       <label class="block font-semibold">Add to Collection</label>
       <select v-model="selectedLabel" class="select select-bordered w-full">
         <option disabled value="">-- Select Existing --</option>
-        <option v-for="label in userCollections" :key="label ?? ''" :value="label">
+        <option
+          v-for="label in userCollections"
+          :key="label ?? ''"
+          :value="label"
+        >
           {{ label }}
         </option>
       </select>

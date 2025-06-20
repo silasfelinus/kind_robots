@@ -5,7 +5,16 @@ import { handleError } from '@/stores/utils'
 
 export interface CartItem {
   id: string
-  type: 'print' | 'shirt' | 'sticker' | 'mug'| 'book' | 'donation'| 'extra'
+  type:
+    | 'print'
+    | 'shirt'
+    | 'sticker'
+    | 'mug'
+    | 'book'
+    | 'donation'
+    | 'extra'
+    | 'subscription'
+    | 'tokens'
   artImageId: number
   imageUrl: string
   quantity: number
@@ -18,9 +27,8 @@ export const useCartStore = defineStore('cartStore', () => {
   const isOpen = ref(false)
 
   const totalPrice = computed(() =>
-  items.value.reduce((sum, item) => sum + item.quantity * item.price, 0),
-)
-
+    items.value.reduce((sum, item) => sum + item.quantity * item.price, 0),
+  )
 
   const hasItems = computed(() => items.value.length > 0)
 
@@ -57,42 +65,41 @@ export const useCartStore = defineStore('cartStore', () => {
     }
   }
 
-async function subscribe(userId: number) {
-  try {
-    const res = await fetch('/api/stripe/subscribe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
-    })
+  async function subscribe(userId: number) {
+    try {
+      const res = await fetch('/api/stripe/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      })
 
-    const result = await res.json()
+      const result = await res.json()
 
-    if (!result.success || !result.url) {
-      throw new Error(result.message || 'Subscription checkout failed.')
+      if (!result.success || !result.url) {
+        throw new Error(result.message || 'Subscription checkout failed.')
+      }
+
+      window.location.href = result.url
+    } catch (error) {
+      console.error('[cartStore] Subscribe error:', error)
+      alert('Subscription failed. Try again later.')
     }
-
-    window.location.href = result.url
-  } catch (error) {
-    console.error('[cartStore] Subscribe error:', error)
-    alert('Subscription failed. Try again later.')
   }
-}
 
-const totalItems = computed(() =>
-  items.value.reduce((sum, item) => sum + item.quantity, 0),
-)
+  const totalItems = computed(() =>
+    items.value.reduce((sum, item) => sum + item.quantity, 0),
+  )
 
-
-async function cancelSubscription(userId: number) {
-  try {
-    // Future version: you'll hit /api/stripe/cancel or similar
-    alert(`Cancel subscription for user ${userId} (not implemented yet)`)
-    console.warn('[cartStore] Cancel subscription is not yet implemented')
-  } catch (error) {
-    console.error('[cartStore] Cancel error:', error)
-    alert('Cancellation failed.')
+  async function cancelSubscription(userId: number) {
+    try {
+      // Future version: you'll hit /api/stripe/cancel or similar
+      alert(`Cancel subscription for user ${userId} (not implemented yet)`)
+      console.warn('[cartStore] Cancel subscription is not yet implemented')
+    } catch (error) {
+      console.error('[cartStore] Cancel error:', error)
+      alert('Cancellation failed.')
+    }
   }
-}
 
   function clearCart() {
     items.value = []
@@ -119,33 +126,31 @@ async function cancelSubscription(userId: number) {
     }
   }
 
-async function checkout(userId: number) {
-  try {
-    const cartPayload = items.value.map((i) => ({
-      id: i.type, // must match your seed item id
-      quantity: i.quantity,
-    }))
+  async function checkout(userId: number) {
+    try {
+      const cartPayload = items.value.map((i) => ({
+        id: i.type, // must match your seed item id
+        quantity: i.quantity,
+      }))
 
-    const res = await fetch('/api/stripe/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, cart: cartPayload }),
-    })
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, cart: cartPayload }),
+      })
 
-    const result = await res.json()
+      const result = await res.json()
 
-    if (!result.success || !result.url) {
-      throw new Error(result.message || 'Failed to initiate checkout.')
+      if (!result.success || !result.url) {
+        throw new Error(result.message || 'Failed to initiate checkout.')
+      }
+
+      window.location.href = result.url
+    } catch (error) {
+      console.error('[cartStore] Checkout error:', error)
+      alert('Checkout failed. Please try again later.')
     }
-
-    window.location.href = result.url
-  } catch (error) {
-    console.error('[cartStore] Checkout error:', error)
-    alert('Checkout failed. Please try again later.')
   }
-}
-
-
 
   function loadFromLocalStorage() {
     try {
@@ -163,23 +168,22 @@ async function checkout(userId: number) {
   watch(items, syncToLocalStorage, { deep: true })
 
   return {
-  items,
-  isOpen,
-  totalItems,
-  totalPrice,
-  hasItems,
-  addItem,
-  removeItem,
-  updateQuantity,
-  clearCart,
-  openCart,
-  closeCart,
-  toggleCart,
-  syncToLocalStorage,
-  loadFromLocalStorage,
-  checkout,
-  subscribe,
-  cancelSubscription,
-}
-
+    items,
+    isOpen,
+    totalItems,
+    totalPrice,
+    hasItems,
+    addItem,
+    removeItem,
+    updateQuantity,
+    clearCart,
+    openCart,
+    closeCart,
+    toggleCart,
+    syncToLocalStorage,
+    loadFromLocalStorage,
+    checkout,
+    subscribe,
+    cancelSubscription,
+  }
 })

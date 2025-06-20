@@ -5,7 +5,7 @@
   >
     <!-- Loaders -->
     <div class="fixed z-50">
-      <store-debug />
+      <screen-debug />
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />

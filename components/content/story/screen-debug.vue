@@ -1,4 +1,10 @@
 <template>
+  <div
+    style="top: 10vh; left: 10vw; width: 80vw; height: 20vh"
+    class="absolute border border-white bg-white/10 z-[1001]"
+  >
+    Test Static Box
+  </div>
   <!-- Floating Toggle Button -->
   <div class="fixed top-4 right-4 z-[1000] pointer-events-auto">
     <button

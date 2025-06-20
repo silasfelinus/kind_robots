@@ -10,7 +10,7 @@
       </button>
     </div>
 
-    <!-- Debug Panel -->
+    <!-- Debug Panel Overlay -->
     <div
       v-if="isDebugVisible"
       class="fixed inset-0 z-40 bg-black bg-opacity-80 flex items-center justify-center overflow-auto p-6"
@@ -19,11 +19,10 @@
         <div
           class="bg-base-100 text-base-content p-6 rounded-xl w-full max-w-7xl shadow-2xl pointer-events-auto overflow-y-auto max-h-[90vh]"
         >
-          <!-- Ruler Overlay (VH/VW Reference) -->
+          <!-- Ruler Overlay -->
           <div class="fixed inset-0 z-30 pointer-events-none">
-            <div
-              class="absolute left-0 top-0 w-6 h-full flex flex-col text-[8px] text-white"
-            >
+            <!-- Vertical Ruler -->
+            <div class="absolute left-0 top-0 w-6 h-full flex flex-col text-[8px] text-white">
               <template v-for="n in 100" :key="'vh-' + n">
                 <div class="w-full h-[1vh] relative">
                   <div
@@ -37,19 +36,15 @@
                             : 'border-t border-transparent',
                     ]"
                   ></div>
-                  <span
-                    v-if="n % 10 === 0"
-                    class="absolute left-6 -translate-y-1/2"
-                  >
+                  <span v-if="n % 10 === 0" class="absolute left-6 -translate-y-1/2">
                     {{ n }}vh
                   </span>
                 </div>
               </template>
             </div>
 
-            <div
-              class="absolute top-0 left-0 w-full h-6 flex text-[8px] text-white"
-            >
+            <!-- Horizontal Ruler -->
+            <div class="absolute top-0 left-0 w-full h-6 flex text-[8px] text-white">
               <template v-for="n in 100" :key="'vw-' + n">
                 <div class="relative h-full w-[1vw]">
                   <div
@@ -71,10 +66,10 @@
             </div>
           </div>
 
-          <!-- Debug Panel Content -->
+          <!-- Debug Info -->
           <h2 class="text-xl font-bold mb-4">🧪 Kind Robots Debug Panel</h2>
 
-          <!-- Grid Section 1 -->
+          <!-- Style Bindings -->
           <div class="space-y-6 mb-6">
             <div class="grid grid-cols-1 gap-4">
               <div class="bg-primary text-white p-4 rounded-2xl border shadow-md">
@@ -121,7 +116,7 @@
             </div>
           </div>
 
-          <!-- Grid Section 2 -->
+          <!-- State & Layout -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-base-200 p-4 rounded-2xl border border-base-300">
               <h3 class="text-lg font-semibold mb-2">State & Visibility</h3>
@@ -169,7 +164,6 @@
   </teleport>
 </template>
 
-
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -180,58 +174,52 @@ const toggleDebug = () => {
   isDebugVisible.value = !isDebugVisible.value
 }
 
-// Visibility States
-const headerVisible = computed(() => displayStore.headerState == 'open')
+// States & Visibility
+const headerState = computed(() => displayStore.headerState)
+const footerState = computed(() => displayStore.footerState)
+const sidebarLeftState = computed(() => displayStore.sidebarLeftState)
+const sidebarRightState = computed(() => displayStore.sidebarRightState)
+
+const headerVisible = computed(() => displayStore.headerState !== 'hidden')
+const footerVisible = computed(() => displayStore.footerState !== 'closed')
 const sidebarLeftVisible = computed(() =>
   ['open', 'compact'].includes(displayStore.sidebarLeftState),
 )
-
-const sidebarRightVisible = computed(
-  () => displayStore.sidebarRightState == 'open',
+const sidebarRightVisible = computed(() =>
+  ['open', 'compact'].includes(displayStore.sidebarRightState),
 )
-const footerVisible = computed(() => displayStore.footerState == 'open')
 
-// Header & Footer
-const headerState = computed(() => displayStore.headerState)
-const footerState = computed(() => displayStore.footerState)
-const headerBase = computed(() => displayStore.headerHeight)
-const footerBase = computed(() => displayStore.footerHeight)
-const headerHeight = computed(() => displayStore.headerHeight)
-const footerHeight = computed(() => displayStore.footerHeight)
+// Style Bindings
 const headerStyle = computed(() => displayStore.headerStyle)
 const footerStyle = computed(() => displayStore.footerStyle)
-
-// Toggles
 const leftToggleStyle = computed(() => displayStore.leftToggleStyle)
 const rightToggleStyle = computed(() => displayStore.rightToggleStyle)
 const footerToggleStyle = computed(() => displayStore.footerToggleStyle)
-
-// Sidebar Dimensions
-const sidebarLeftState = computed(() => displayStore.sidebarLeftState)
-const sidebarRightState = computed(() => displayStore.sidebarRightState)
-const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
-const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-const sidebarLeftBase = computed(() => displayStore.sidebarLeftWidth)
-const sidebarRightBase = computed(() => displayStore.sidebarRightWidth)
-
 const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
 const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
-
 const mainContentStyle = computed(() => displayStore.mainContentStyle)
 
-// Padding Calculations
+// Dimensions
+const headerHeight = computed(() => displayStore.headerHeight)
+const footerHeight = computed(() => displayStore.footerHeight)
+const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
+const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
+const sidebarLeftBase = sidebarLeftWidth
+const sidebarRightBase = sidebarRightWidth
+const headerBase = headerHeight
+const footerBase = footerHeight
 const sectionPadding = computed(() => displayStore.sectionPaddingSize)
 
-// Animation & Effects
-const isAnimating = computed(() => displayStore.isAnimating)
-const currentAnimation = computed(() => displayStore.currentAnimation)
-
-// Viewport & Layout Info
+// Viewport & Layout
 const viewportSize = computed(() => displayStore.viewportSize)
 const isTouchDevice = computed(() => displayStore.isTouchDevice)
 const isMobileViewport = computed(() => displayStore.isMobileViewport)
 const isLargeViewport = computed(() => displayStore.isLargeViewport)
+
+// Effects
 const fullscreenState = computed(() => displayStore.fullscreenState)
-const bigMode = computed(() => displayStore.bigMode)
+const isAnimating = computed(() => displayStore.isAnimating)
+const currentAnimation = computed(() => displayStore.currentAnimation)
 const flipState = computed(() => displayStore.flipState)
+const bigMode = computed(() => displayStore.bigMode)
 </script>

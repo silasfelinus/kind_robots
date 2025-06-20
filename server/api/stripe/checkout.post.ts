@@ -3,23 +3,25 @@ import { defineEventHandler, readBody } from 'h3'
 import Stripe from 'stripe'
 import prisma from './../utils/prisma'
 import { errorHandler } from '@/server/api/utils/error'
+import { cartItems } from '@/stores/seeds/cartItems' // or move to server if needed
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export default defineEventHandler(async (event) => {
   try {
-    const { userId } = await readBody<{ userId: number }>(event)
+    const { userId, cart } = await readBody<{
+      userId: number
+      cart: Array<{ id: string; quantity: number }>
+    }>(event)
 
-    if (!userId)
-      return errorHandler({ message: 'No user ID provided', statusCode: 400 })
+    if (!userId || !cart?.length)
+      return errorHandler({ message: 'Missing user or cart', statusCode: 400 })
 
     const user = await prisma.user.findUnique({ where: { id: userId } })
-    if (!user)
-      return errorHandler({ message: 'User not found', statusCode: 404 })
+    if (!user) return errorHandler({ message: 'User not found', statusCode: 404 })
 
     const email = user.email || `user-${user.id}@kindrobots.org`
 
-    // Create or reuse Stripe customer
     const customerId =
       user.stripeCustomerId ?? (await stripe.customers.create({ email })).id
 
@@ -30,24 +32,45 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // TODO: move cartItems to server location if needed — this is for demo
+    const trustedItems = cartItems
+
+    const line_items = cart.map(({ id, quantity }) => {
+      const item = trustedItems.find((i) => i.id === id)
+      if (!item) throw new Error(`Invalid cart item: ${id}`)
+
+      return {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.label,
+            images: [item.image],
+            description: item.description,
+          },
+          unit_amount: Math.round(item.price * 100), // cents
+        },
+        quantity,
+      }
+    })
+
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode: 'payment',
       customer: customerId,
-      line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
-      success_url: `${process.env.BASE_URL}/members/success`,
-      cancel_url: `${process.env.BASE_URL}/members/cancel`,
+      line_items,
+      success_url: `${process.env.BASE_URL}/shop/success`,
+      cancel_url: `${process.env.BASE_URL}/shop/cancel`,
     })
 
     return {
       success: true,
-      message: `✨ Checkout ready for ${user.email || 'user'} – proceed to payment`,
       url: session.url,
+      message: '🧾 Stripe checkout ready',
     }
   } catch (error: any) {
-    console.error('🔥 Stripe Checkout Error:', error?.message || error)
+    console.error('🔥 Stripe Checkout Error:', error)
     return errorHandler({
       error,
-      message: '😵 Stripe couldn’t handle this right now. Try again later.',
+      message: '😵 Stripe checkout failed',
       statusCode: error?.statusCode || 500,
     })
   }

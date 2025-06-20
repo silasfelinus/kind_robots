@@ -101,6 +101,7 @@
             <NuxtLink to="/wonderlab" class="hover:underline"
               >🧪 Wonderlab</NuxtLink
             >
+            <NuxtLink to="/forum" class="hover:underline">🧪 Forum</NuxtLink>
             <NuxtLink to="/memory" class="hover:underline">🧠 Memory</NuxtLink>
             <NuxtLink to="/characters" class="hover:underline"
               >🧍 Characters</NuxtLink

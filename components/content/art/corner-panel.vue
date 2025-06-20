@@ -1,147 +1,150 @@
-// /components/content/art/corner-panel.vue
+<!-- /components/content/art/corner-panel.vue -->
 <template>
-  <div
-    class="absolute top-0 right-0 z-50 p-1 flex gap-1 items-center"
-    @click.self="closePanel"
-  >
-    <!-- Menu Icons -->
-    <div v-for="item in menuItems" :key="item.id" class="relative">
-      <button
-        class="btn btn-xs btn-circle tooltip tooltip-left"
-        :data-tip="item.tooltip"
-        @click.stop="toggle(item.id)"
-      >
-        <Icon :name="item.icon" />
-      </button>
-
-      <!-- Dropdown Panel -->
+  <div class="absolute top-0 right-0 z-50 p-1" @click.self="closePanel">
+    <div class="flex gap-1 items-start">
+      <!-- Menu Icons -->
       <div
-        v-if="activePanel === item.id"
-        class="absolute top-full right-0 mt-1 w-64 bg-base-100 shadow-lg rounded-xl p-3 z-50 text-sm space-y-2"
+        v-for="item in menuItems"
+        :key="item.id"
+        class="flex flex-col items-end"
       >
+        <button
+          class="btn btn-xs btn-circle tooltip tooltip-left"
+          :data-tip="item.tooltip"
+          @click.stop="toggle(item.id)"
+        >
+          <Icon :name="item.icon" />
+        </button>
 
-<!-- Tokens -->
-        <div v-if="item.id === 'tokens'">
-          <div class="font-bold">🧪 Mana: {{ userStore.user?.mana ?? 0 }}</div>
-          <p class="text-xs text-base-content/70">
-            Role: {{ userStore.user?.Role || 'Guest' }}
-          </p>
-          <NuxtLink to="/subscriptions" class="block hover:underline"
-            >💳 Manage Subscriptions</NuxtLink
-          >
-          <NuxtLink to="/boost" class="block hover:underline"
-            >⚡ Boost Tokens</NuxtLink
-          >
-        </div>
-
-
-        <!-- Account -->
-        <div v-if="item.id === 'account'">
-          <template v-if="userStore.isLoggedIn">
-            <div class="flex justify-between items-center">
-              <div class="font-bold">
-                👤 {{ userStore.user?.username }}
-                <br />
-                <span class="text-sm text-base-content/70">
-                  ({{ userStore.user?.designerName }})
-                </span>
-              </div>
-              <div class="text-right">
-                <div class="text-xs text-base-content/60">Mana</div>
-                <div class="font-bold text-primary">
-                  {{ userStore.user?.mana ?? 0 }}
-                </div>
-              </div>
+        <!-- Dropdown Panel (now relative and stacked) -->
+        <div
+          v-if="activePanel === item.id"
+          class="mt-2 w-64 bg-base-100 shadow-lg rounded-xl p-3 z-40 text-sm space-y-2"
+        >
+          <!-- Tokens -->
+          <div v-if="item.id === 'tokens'">
+            <div class="font-bold">
+              🧪 Mana: {{ userStore.user?.mana ?? 0 }}
             </div>
-            <NuxtLink to="/dashboard" class="block hover:underline"
-              >📂 Dashboard</NuxtLink
+            <p class="text-xs text-base-content/70">
+              Role: {{ userStore.user?.Role || 'Guest' }}
+            </p>
+            <NuxtLink to="/subscriptions" class="block hover:underline"
+              >💳 Manage Subscriptions</NuxtLink
             >
-            <NuxtLink to="/themes" class="block hover:underline"
-              >🎨 Themes</NuxtLink
-            >
-            <NuxtLink to="/milestones" class="block hover:underline"
-              >🏆 Milestones</NuxtLink
-            >
-            <NuxtLink to="/inbox" class="block hover:underline"
-              >📬 Inbox</NuxtLink
-            >
-            <NuxtLink to="/addchat" class="block hover:underline"
-              >➕ New Chat</NuxtLink
-            >
-            <button
-              class="btn btn-xs btn-error mt-2 w-full"
-              @click="userStore.logout"
-            >
-              🚪 Logout
-            </button>
-          </template>
-          <template v-else>
-            <NuxtLink to="/register" class="block hover:underline"
-              >✏️ Set Designer Name</NuxtLink
-            >
-            <NuxtLink to="/password" class="block hover:underline"
-              >🔒 Set Password</NuxtLink
-            >
-            <NuxtLink to="/register" class="block hover:underline"
-              >📝 Register</NuxtLink
-            >
-          </template>
-        </div>
-
-        
-
-        <!-- Directory -->
-        <div v-if="item.id === 'directory'">
-          <div class="font-bold mb-2">📁 Site Map</div>
-          <div class="flex flex-col gap-1">
-            <NuxtLink to="/art" class="hover:underline">🖼️ Art</NuxtLink>
-            <NuxtLink to="/bots" class="hover:underline">🤖 Bots</NuxtLink>
-            <NuxtLink to="/pitches" class="hover:underline"
-              >🎤 Pitches</NuxtLink
-            >
-            <NuxtLink to="/stories" class="hover:underline"
-              >📖 Stories</NuxtLink
-            >
-            <NuxtLink to="/wonderlab" class="hover:underline"
-              >🧪 Wonderlab</NuxtLink
-            >
-            <NuxtLink to="/forum" class="hover:underline">🧪 Forum</NuxtLink>
-            <NuxtLink to="/memory" class="hover:underline">🧠 Memory</NuxtLink>
-            <NuxtLink to="/characters" class="hover:underline"
-              >🧍 Characters</NuxtLink
+            <NuxtLink to="/boost" class="block hover:underline"
+              >⚡ Boost Tokens</NuxtLink
             >
           </div>
-        </div>
 
-        <!-- Sources -->
-        <div v-if="item.id === 'sources'">
-          <div class="font-bold mb-1">📦 Modeller Sources</div>
-          <label class="flex items-center gap-2">
-            <input type="checkbox" class="checkbox" />
-            <NuxtLink to="/artmodel-manager" class="hover:underline"
-              >🎨 Select Art Modeller</NuxtLink
-            >
-          </label>
-          <label class="flex items-center gap-2">
-            <input type="checkbox" class="checkbox" />
-            <NuxtLink to="/textmodel-manager" class="hover:underline"
-              >📝 Select Text Modeller</NuxtLink
-            >
-          </label>
-        </div>
+          <!-- Account -->
+          <div v-if="item.id === 'account'">
+            <template v-if="userStore.isLoggedIn">
+              <div class="flex justify-between items-center">
+                <div class="font-bold">
+                  👤 {{ userStore.user?.username }}
+                  <br />
+                  <span class="text-sm text-base-content/70">
+                    ({{ userStore.user?.designerName }})
+                  </span>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs text-base-content/60">Mana</div>
+                  <div class="font-bold text-primary">
+                    {{ userStore.user?.mana ?? 0 }}
+                  </div>
+                </div>
+              </div>
+              <NuxtLink to="/dashboard" class="block hover:underline"
+                >📂 Dashboard</NuxtLink
+              >
+              <NuxtLink to="/themes" class="block hover:underline"
+                >🎨 Themes</NuxtLink
+              >
+              <NuxtLink to="/milestones" class="block hover:underline"
+                >🏆 Milestones</NuxtLink
+              >
+              <NuxtLink to="/inbox" class="block hover:underline"
+                >📬 Inbox</NuxtLink
+              >
+              <NuxtLink to="/addchat" class="block hover:underline"
+                >➕ New Chat</NuxtLink
+              >
+              <button
+                class="btn btn-xs btn-error mt-2 w-full"
+                @click="userStore.logout"
+              >
+                🚪 Logout
+              </button>
+            </template>
+            <template v-else>
+              <NuxtLink to="/register" class="block hover:underline"
+                >✏️ Set Designer Name</NuxtLink
+              >
+              <NuxtLink to="/password" class="block hover:underline"
+                >🔒 Set Password</NuxtLink
+              >
+              <NuxtLink to="/register" class="block hover:underline"
+                >📝 Register</NuxtLink
+              >
+            </template>
+          </div>
 
-        <!-- About -->
-        <div v-if="item.id === 'about'">
-          <div class="font-bold mb-1">ℹ️ Info</div>
-          <NuxtLink to="/about" class="block hover:underline"
-            >🌐 About</NuxtLink
-          >
-          <NuxtLink to="/sponsor" class="block hover:underline"
-            >💖 Sponsors</NuxtLink
-          >
-<NuxtLink to="/giftshop" class="block hover:underline"
-            >💖 Giftshop</NuxtLink
-          >
+          <!-- Directory -->
+          <div v-if="item.id === 'directory'">
+            <div class="font-bold mb-2">📁 Site Map</div>
+            <div class="flex flex-col gap-1">
+              <NuxtLink to="/art" class="hover:underline">🖼️ Art</NuxtLink>
+              <NuxtLink to="/bots" class="hover:underline">🤖 Bots</NuxtLink>
+              <NuxtLink to="/pitches" class="hover:underline"
+                >🎤 Pitches</NuxtLink
+              >
+              <NuxtLink to="/stories" class="hover:underline"
+                >📖 Stories</NuxtLink
+              >
+              <NuxtLink to="/wonderlab" class="hover:underline"
+                >🧪 Wonderlab</NuxtLink
+              >
+              <NuxtLink to="/forum" class="hover:underline">🧪 Forum</NuxtLink>
+              <NuxtLink to="/memory" class="hover:underline"
+                >🧠 Memory</NuxtLink
+              >
+              <NuxtLink to="/characters" class="hover:underline"
+                >🧍 Characters</NuxtLink
+              >
+            </div>
+          </div>
+
+          <!-- Sources -->
+          <div v-if="item.id === 'sources'">
+            <div class="font-bold mb-1">📦 Modeller Sources</div>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" class="checkbox" />
+              <NuxtLink to="/artmodel-manager" class="hover:underline"
+                >🎨 Select Art Modeller</NuxtLink
+              >
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" class="checkbox" />
+              <NuxtLink to="/textmodel-manager" class="hover:underline"
+                >📝 Select Text Modeller</NuxtLink
+              >
+            </label>
+          </div>
+
+          <!-- About -->
+          <div v-if="item.id === 'about'">
+            <div class="font-bold mb-1">ℹ️ Info</div>
+            <NuxtLink to="/about" class="block hover:underline"
+              >🌐 About</NuxtLink
+            >
+            <NuxtLink to="/sponsor" class="block hover:underline"
+              >💖 Sponsors</NuxtLink
+            >
+            <NuxtLink to="/giftshop" class="block hover:underline"
+              >💖 Giftshop</NuxtLink
+            >
+          </div>
         </div>
       </div>
     </div>

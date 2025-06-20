@@ -1,11 +1,6 @@
+<!-- /components/content/utils/screen-debug.vue -->
 <template>
-  <div
-    style="top: 10vh; left: 10vw; width: 80vw; height: 20vh"
-    class="absolute border border-white bg-white/10 z-[1001]"
-  >
-    Test Static Box
-  </div>
-  <!-- Floating Toggle Button -->
+  <!-- Toggle Button -->
   <div class="fixed top-4 right-4 z-[1000] pointer-events-auto">
     <button
       class="bg-gray-800 text-white p-2 rounded-full shadow-md"
@@ -15,12 +10,12 @@
     </button>
   </div>
 
-  <!-- Fullscreen Overlay -->
+  <!-- Overlay -->
   <div
     v-if="isDebugVisible"
     class="fixed inset-0 z-[999] bg-black/80 text-white font-mono text-xs"
   >
-    <!-- Layout Region Boxes -->
+    <!-- Layout Zones -->
     <div
       :style="headerStyle"
       class="absolute border border-white bg-white/10 flex items-center justify-center z-[1001]"
@@ -56,7 +51,7 @@
       Main Content ({{ mainContentHeight }}vh × {{ mainContentWidth }}vw)
     </div>
 
-    <!-- Debug Readout Panel -->
+    <!-- Debug Readout -->
     <div
       class="fixed bottom-4 left-4 bg-base-100 text-base-content p-4 rounded-xl shadow-xl w-[90vw] max-w-2xl max-h-[40vh] overflow-y-auto text-xs z-[1002] space-y-2"
     >
@@ -79,13 +74,15 @@
         <div><strong>Display Mode:</strong> {{ displayMode }}</div>
         <div><strong>Display Action:</strong> {{ displayAction }}</div>
         <div><strong>Main Component:</strong> {{ mainComponent }}</div>
+        <div><strong>CSS --vh:</strong> {{ vhValue }}</div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+// /components/content/utils/screen-debug.vue
+import { computed, ref, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
@@ -100,14 +97,11 @@ const headerStyle = computed(() => ({
 }))
 
 const footerStyle = computed(() => displayStore.footerStyle)
-
 const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
-
 const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
-
 const mainContentStyle = computed(() => displayStore.mainContentStyle)
 
-// Individual Value Bindings
+// Bindings
 const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
@@ -115,7 +109,6 @@ const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 const mainContentHeight = computed(() => displayStore.mainContentHeight)
 const mainContentWidth = computed(() => displayStore.mainContentWidth)
 const sectionPadding = computed(() => displayStore.sectionPaddingSize)
-
 const viewportSize = computed(() => displayStore.viewportSize)
 const isTouchDevice = computed(() => displayStore.isTouchDevice)
 const fullscreenState = computed(() => displayStore.fullscreenState)
@@ -126,4 +119,13 @@ const bigMode = computed(() => displayStore.bigMode)
 const displayMode = computed(() => displayStore.displayMode)
 const displayAction = computed(() => displayStore.displayAction)
 const mainComponent = computed(() => displayStore.mainComponent)
+
+const vhValue = ref('unset')
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    vhValue.value =
+      getComputedStyle(document.documentElement).getPropertyValue('--vh') ||
+      'unset'
+  }
+})
 </script>

@@ -1,12 +1,15 @@
 // /components/content/art/corner-panel.vue
 <template>
-  <div class="absolute top-0 right-0 z-50 p-1 flex gap-1 items-center">
+  <div
+    class="absolute top-0 right-0 z-50 p-1 flex gap-1 items-center"
+    @click.self="closePanel"
+  >
     <!-- Menu Icons -->
     <div v-for="item in menuItems" :key="item.id" class="relative">
       <button
         class="btn btn-xs btn-circle tooltip tooltip-left"
         :data-tip="item.tooltip"
-        @click="toggle(item.id)"
+        @click.stop="toggle(item.id)"
       >
         <Icon :name="item.icon" />
       </button>
@@ -19,7 +22,21 @@
         <!-- Account -->
         <div v-if="item.id === 'account'">
           <template v-if="userStore.isLoggedIn">
-            <div class="font-bold">👤 {{ userStore.user?.designerName }}</div>
+            <div class="flex justify-between items-center">
+              <div class="font-bold">
+                👤 {{ userStore.user?.username }}
+                <br />
+                <span class="text-sm text-base-content/70">
+                  ({{ userStore.user?.designerName }})
+                </span>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-base-content/60">Mana</div>
+                <div class="font-bold text-primary">
+                  {{ userStore.user?.mana ?? 0 }}
+                </div>
+              </div>
+            </div>
             <NuxtLink to="/dashboard" class="block hover:underline"
               >📂 Dashboard</NuxtLink
             >
@@ -132,6 +149,10 @@ const activePanel = ref<string | null>(null)
 
 function toggle(panel: string) {
   activePanel.value = activePanel.value === panel ? null : panel
+}
+
+function closePanel() {
+  activePanel.value = null
 }
 
 const menuItems = [

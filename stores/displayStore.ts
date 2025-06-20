@@ -309,10 +309,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     state.showExtended = !state.showExtended
   }
 
-  function toggleExtraExpanded() {
-    state.showExtended = !state.showExtended
-  }
-
   function setExtraExpanded(val: boolean) {
     state.showExtended = val
   }
@@ -417,6 +413,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     queueMicrotask(() => {
       try {
         loadState()
+        setCustomVh() // ← Add this here
         updateViewport()
         window.addEventListener('resize', updateViewport)
         state.isInitialized = true
@@ -454,7 +451,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     setMainComponent,
     toggleRandomAnimation,
     stopAnimation,
-    toggleExtraExpanded,
     setExtraExpanded,
     toggleAnimationById,
     changeState,

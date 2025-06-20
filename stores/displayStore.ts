@@ -102,7 +102,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const sectionPaddingSize = computed(() => {
-    const sizes = { small: 1, medium: 1, large: 1, extraLarge: 1 }
+    const sizes = { small: 1, medium: 2, large: 3, extraLarge: 4 }
     return sizes[state.viewportSize]
   })
 

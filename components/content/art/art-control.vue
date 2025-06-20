@@ -1,21 +1,13 @@
-// /components/content/art/art-control.vue
+<!-- /components/content/art/art-control.vue -->
 <template>
   <div class="space-y-4">
     <h2 class="text-xl font-bold">⚙️ Controls</h2>
 
-    <button
-      class="btn btn-primary w-full"
-      @click="setAsAvatar"
-      :disabled="!canUse"
-    >
+    <button class="btn btn-primary w-full" @click="setAsAvatar" :disabled="!canUse">
       Set as Avatar
     </button>
 
-    <button
-      class="btn btn-accent w-full"
-      @click="addToFavorites"
-      :disabled="!canUse"
-    >
+    <button class="btn btn-accent w-full" @click="addToFavorites" :disabled="!canUse">
       Add to Favorites
     </button>
 
@@ -23,15 +15,19 @@
       Copy Prompt
     </button>
 
+    <button class="btn btn-warning w-full" @click="showSwag = !showSwag">
+      🎁 Print Swag
+    </button>
+
+    <div v-if="showSwag" class="rounded-2xl border border-base-300 p-4 bg-base-200">
+      <print-swag :artImageId="props.art.artImageId" @close="showSwag = false" />
+    </div>
+
     <div class="space-y-2">
       <label class="block font-semibold">Add to Collection</label>
       <select v-model="selectedLabel" class="select select-bordered w-full">
         <option disabled value="">-- Select Existing --</option>
-        <option
-          v-for="label in userCollections"
-          :key="label ?? ''"
-          :value="label"
-        >
+        <option v-for="label in userCollections" :key="label ?? ''" :value="label">
           {{ label }}
         </option>
       </select>
@@ -58,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import type { Art } from '@/stores/artStore'
@@ -71,6 +67,7 @@ const collectionStore = useCollectionStore()
 
 const selectedLabel = ref('')
 const customLabel = ref('')
+const showSwag = ref(false)
 
 const canUse = computed(() => !!userStore.userId)
 

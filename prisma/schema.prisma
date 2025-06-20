@@ -160,36 +160,7 @@ model Bot {
 }
 
 
-model Chat {
-  id              Int                @id @default(autoincrement())
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime?          @default(now()) @updatedAt
-  type            ChatType
-  sender          String             @db.VarChar(255)
-  recipient       String?            @db.VarChar(255)
-  content         String             @db.Text
-  title           String?            @db.VarChar(255)
-  channel         String?            @db.VarChar(255)
-  isPublic        Boolean            @default(true)
-  isFavorite      Boolean            @default(false)
-  previousEntryId Int?
-  originId        Int?
-  userId          Int?
-  botId           Int?
-  recipientId			Int?
-  artImageId      Int?
-  promptId        Int?
-  botName         String?            @db.VarChar(255)
-  Reactions       Reaction[]
-  ArtImage        ArtImage?        
-  Bot             Bot?               @relation(fields: [botId], references: [id])
-  Prompt          Prompt?            @relation(fields: [promptId], references: [id])
-  User            User?              @relation(fields: [userId], references: [id])
-  botResponse     String?
-  characterId     Int?
-  Character       Character?          @relation(fields: [characterId], references: [id])
-  isRead          Boolean           @default(false)
-}
+
 
 model Character {
   id              Int            @id @default(autoincrement())
@@ -247,6 +218,37 @@ model Character {
   Chats           Chat[]
   Scenarios       Scenario[]
   Resonances      Resonance[]
+}
+
+model Chat {
+  id              Int                @id @default(autoincrement())
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime?          @default(now()) @updatedAt
+  type            ChatType
+  sender          String             @db.VarChar(255)
+  recipient       String?            @db.VarChar(255)
+  content         String             @db.Text
+  title           String?            @db.VarChar(255)
+  channel         String?            @db.VarChar(255)
+  isPublic        Boolean            @default(true)
+  isFavorite      Boolean            @default(false)
+  previousEntryId Int?
+  originId        Int?
+  userId          Int?
+  botId           Int?
+  recipientId			Int?
+  artImageId      Int?
+  promptId        Int?
+  botName         String?            @db.VarChar(255)
+  Reactions       Reaction[]
+  ArtImage        ArtImage?        
+  Bot             Bot?               @relation(fields: [botId], references: [id])
+  Prompt          Prompt?            @relation(fields: [promptId], references: [id])
+  User            User?              @relation(fields: [userId], references: [id])
+  botResponse     String?
+  characterId     Int?
+  Character       Character?          @relation(fields: [characterId], references: [id])
+  isRead          Boolean           @default(false)
 }
 
 

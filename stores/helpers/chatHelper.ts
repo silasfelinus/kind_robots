@@ -18,6 +18,8 @@ export interface AddChatInput {
   type: ChatType
   characterId: number | null
   username: string
+  channel?: string | null
+  sender?: string | null
 }
 
 export function buildNewChat(
@@ -30,7 +32,7 @@ export function buildNewChat(
   return {
     content: input.content,
     userId: input.userId,
-    sender: sender ?? 'Unknown',
+    sender: input.sender ?? sender ?? 'Unknown',
     recipient: recipient ?? 'Unknown',
     isPublic: input.isPublic ?? true,
     type: input.type,
@@ -41,7 +43,7 @@ export function buildNewChat(
     previousEntryId: input.previousEntryId ?? null,
     artImageId: null,
     title: null,
-    channel: null,
+    channel: input.channel ?? null,
     isFavorite: false,
     promptId: input.promptId ?? null,
     botResponse: input.botResponse ?? null,

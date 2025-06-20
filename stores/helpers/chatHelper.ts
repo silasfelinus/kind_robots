@@ -49,6 +49,7 @@ export function buildNewChat(
     botResponse: input.botResponse ?? null,
     characterId: input.characterId ?? null,
     isRead: false,
+    isMature: false,
   }
 }
 

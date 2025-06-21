@@ -9,7 +9,6 @@
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />
-
       <div
         v-if="showSwarm"
         class="fixed inset-0 overflow-hidden z-50 pointer-events-none full-page"
@@ -35,13 +34,42 @@
       <kind-header class="h-full w-full rounded-xl" />
     </header>
 
-    <!-- Main Content -->
+    <!-- Main Content Layer -->
     <main
       v-if="pageStore.ready"
-      class="absolute inset-0 z-30 box-border"
-      :style="displayStore.mainContentStyle"
+      class="absolute z-30 inset-0 box-border bg-base-300 rounded-2xl"
     >
-      <main-content class="w-full h-full" />
+      <!-- Main Content (Nuxt Page) -->
+      <div
+        v-if="showMainContent"
+        class="absolute inset-0"
+        :style="displayStore.mainContentStyle"
+      >
+        <NuxtPage
+          :key="$route.fullPath"
+          class="h-full w-full px-4 py-6 transition-opacity duration-300"
+        />
+      </div>
+
+      <!-- Splash Tutorial (small viewport fallback) -->
+      <div
+        v-if="sidebarRightOpen"
+        class="absolute inset-0"
+        :style="displayStore.rightSidebarStyle"
+      >
+        <splash-tutorial
+          class="h-full w-full px-4 py-6 transition-opacity duration-300"
+        />
+      </div>
+
+      <!-- Right Sidebar Toggle -->
+      <right-toggle
+        class="fixed bottom-14 right-4 z-40"
+        :class="{
+          'bg-accent text-white shadow-xl': sidebarRightOpen,
+          'bg-base-300 shadow': !sidebarRightOpen,
+        }"
+      />
     </main>
   </div>
 </template>
@@ -62,6 +90,19 @@ const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const router = useRouter()
 const isNavigating = ref(false)
+
+const sidebarRightOpen = computed(
+  () =>
+    displayStore.sidebarRightState !== 'hidden' &&
+    displayStore.sidebarRightState !== 'disabled',
+)
+
+const showMainContent = computed(() => {
+  if (displayStore.viewportSize === 'small') {
+    return !['open', 'extended'].includes(displayStore.sidebarRightState)
+  }
+  return true
+})
 
 router.beforeEach(() => {
   isNavigating.value = true
@@ -118,5 +159,30 @@ body,
   width: 100%;
   margin: 0;
   padding: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.slide-in-right-enter-from,
+.slide-in-right-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.slide-in-right-enter-active,
+.slide-in-right-leave-active {
+  transition:
+    transform 0.4s ease-in-out,
+    opacity 0.3s ease-in-out;
+}
+.slide-in-right-enter-to,
+.slide-in-right-leave-from {
+  transform: translateX(0);
+  opacity: 1;
 }
 </style>

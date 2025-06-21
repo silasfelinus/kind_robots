@@ -37,16 +37,17 @@
     <!-- Main Content Layer -->
     <main v-if="pageStore.ready">
       <!-- Main Content (Nuxt Page) -->
-      <div
-        v-if="showMainContent"
-        class="fixed z-40 transition-all duration-500 ease-in-out"
-        :style="displayStore.mainContentStyle"
-      >
-        <NuxtPage
-          :key="$route.fullPath"
-          class="h-full w-full px-4 py-6 transition-opacity duration-300 rounded-2xl"
-        />
-      </div>
+   <div
+  v-if="showMainContent"
+  class="fixed z-40 transition-all duration-500 ease-in-out overflow-y-auto overscroll-contain rounded-2xl"
+  :style="displayStore.mainContentStyle"
+>
+  <NuxtPage
+    :key="$route.fullPath"
+    class="min-h-full w-full px-4 py-6 transition-opacity duration-300"
+  />
+</div>
+
 
       <!-- Splash Tutorial (small viewport fallback) -->
       <div

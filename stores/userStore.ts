@@ -93,7 +93,7 @@ export const useUserStore = defineStore('userStore', () => {
     saveToLocalStorage('token', newToken)
   }
 
-async function userImage(userIdOverride?: number): Promise<string> {
+  async function userImage(userIdOverride?: number): Promise<string> {
     const resolvedId = userIdOverride ?? userId.value
     const target = users.value.find((u) => u.id === resolvedId)
 
@@ -297,10 +297,6 @@ async function userImage(userIdOverride?: number): Promise<string> {
     }
   }
 
-  async function userImageFromId(id: number): Promise<string> {
-    return await userImage(users.value, id)
-  }
-
   function setLoading(val: boolean) {
     loading.value = val
   }
@@ -344,7 +340,6 @@ async function userImage(userIdOverride?: number): Promise<string> {
     updateUserInfo,
     updateUserToken,
     updateKarmaAndMana,
-    userImageFromId,
     getFromLocalStorage,
     userImage,
     getUserNameByUserId,

@@ -79,13 +79,11 @@
         <div><strong>Left Sidebar State:</strong> {{ sidebarLeftState }}</div>
         <div><strong>Header State:</strong> {{ headerState }}</div>
         <div><strong>Footer State:</strong> {{ footerState }}</div>
-  <div><strong>Header Style:</strong> {{ headerStyle }}</div>
-  <div><strong>Footer Style:</strong> {{ footerStyle }}</div>
-  <div><strong>Left Sidebar Style:</strong> {{ leftSidebarStyle }}</div>
-  <div><strong>Right Sidebar Style:</strong> {{ rightSidebarStyle }}</div>
-  <div><strong>Main Content Style:</strong> {{ mainContentStyle }}</div>
-</div>
-
+        <div><strong>Header Style:</strong> {{ headerStyle }}</div>
+        <div><strong>Footer Style:</strong> {{ footerStyle }}</div>
+        <div><strong>Left Sidebar Style:</strong> {{ leftSidebarStyle }}</div>
+        <div><strong>Right Sidebar Style:</strong> {{ rightSidebarStyle }}</div>
+        <div><strong>Main Content Style:</strong> {{ mainContentStyle }}</div>
       </div>
 
       <details class="mt-3">

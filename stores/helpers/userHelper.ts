@@ -44,7 +44,6 @@ export async function userImage(
   const user = users.find((u) => u.id === resolvedId)
 
   if (!user) {
-    console.warn(`[userImage] No user found for ID ${resolvedId}`)
     return '/images/kindart.webp'
   }
 

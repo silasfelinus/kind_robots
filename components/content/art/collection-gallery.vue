@@ -1,4 +1,3 @@
-<!-- /components/content/art/collection-gallery.vue -->
 <template>
   <div class="relative bg-base-300 rounded-2xl shadow-md overflow-hidden">
     <!-- Selected Collection View -->
@@ -79,10 +78,12 @@
         </div>
 
         <div class="scroll-container overflow-auto max-h-[60vh] pt-4">
-          <div v-if="getArtFromCollection(c).length >= 0" :class="gridClass">
+          <div
+            v-if="getArtFromCollection(c).length >= 0"
+            class="grid gap-4 auto-rows-fr grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]"
+          >
             <div
-            v-if="canEdit(c) || c.id === -1"
-
+              v-if="canEdit(c) || c.id === -1"
               class="aspect-square bg-base-200 rounded-xl overflow-hidden cursor-pointer relative group"
               @click="removeCollection(c.id)"
               title="Back to Gallery"
@@ -106,11 +107,11 @@
             </div>
 
             <div
-              class="relative group w-full h-full"
+              class="relative group"
               v-for="art in getArtFromCollection(c).slice(0, visibleCount)"
               :key="art.id"
             >
-              <div class="relative h-full w-full">
+              <div class="relative w-full h-full">
                 <ArtCard
                   :art="art"
                   class="w-full h-full"
@@ -128,7 +129,7 @@
 
     <!-- Gallery View (Unselected) -->
     <div v-else class="p-6 space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 auto-rows-fr">
+      <div class="grid gap-6 auto-rows-fr grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]">
         <div
           v-for="collection in sortedUnselectedCollections"
           :key="collection.id"
@@ -170,6 +171,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'

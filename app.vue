@@ -42,8 +42,11 @@
       <!-- Main Content (Nuxt Page) -->
       <div
         v-if="showMainContent"
-        class="absolute inset-0 bg-green-200/40"
-        :style="displayStore.mainContentStyle"
+        class="absolute inset-0"
+        :style="{
+          ...displayStore.mainContentStyle,
+          backgroundColor: 'rgba(0, 255, 0, 0.2)', // Green
+        }"
       >
         <NuxtPage
           :key="$route.fullPath"
@@ -54,8 +57,11 @@
       <!-- Splash Tutorial (small viewport fallback) -->
       <div
         v-if="sidebarRightOpen"
-        class="absolute inset-0 bg-red-200/40"
-        :style="displayStore.rightSidebarStyle"
+        class="absolute inset-0"
+        :style="{
+          ...displayStore.rightSidebarStyle,
+          backgroundColor: 'rgba(255, 0, 0, 0.2)', // Red
+        }"
       >
         <splash-tutorial
           class="h-full w-full px-4 py-6 transition-opacity duration-300"

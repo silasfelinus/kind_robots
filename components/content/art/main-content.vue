@@ -11,7 +11,7 @@
     <!-- Splash Tutorial -->
     <splash-tutorial
       class="absolute inset-0 h-full w-full px-4 py-6 transition-opacity duration-300"
-      v-show="showSplashTutorial"
+      v-show="sidebarRightOpen"
     />
 
     <!-- Right Sidebar Toggle (always visible) -->
@@ -40,19 +40,9 @@ const sidebarRightOpen = computed(
 
 const showMainContent = computed(() => {
   if (displayStore.viewportSize === 'small') {
-    return displayStore.sidebarRightState !== 'open'
+    return !['open', 'extended'].includes(displayStore.sidebarRightState)
   }
   return true
-})
-
-const showSplashTutorial = computed(() => {
-  if (displayStore.viewportSize === 'small') {
-    return (
-      displayStore.sidebarRightState === 'hidden' ||
-      displayStore.sidebarRightState === 'disabled'
-    )
-  }
-  return false
 })
 </script>
 

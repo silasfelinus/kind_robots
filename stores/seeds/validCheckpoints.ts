@@ -193,15 +193,4 @@ export const validCheckpoints: Partial<Resource>[] = [
     resourceType: 'CHECKPOINT',
     userId: 1,
   },
-  {
-    name: 'ThinkDiffusionXL.safetensors',
-    customLabel: 'Think Diffusion',
-    localPath: 'SDXL/tier2/ThinkDiffusionXL.safetensors [a21c9949ef]',
-    description: 'Auto-imported from SDXL model folder.',
-    generation: 'SDXL',
-    isMature: true,
-    resourceType: 'CHECKPOINT',
-    userId: 1,
-    MediaPath: '/images/botcafe.webp',
-  },
 ]

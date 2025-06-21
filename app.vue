@@ -37,12 +37,12 @@
     <!-- Main Content Layer -->
     <main
       v-if="pageStore.ready"
-      class="absolute z-30 inset-0 box-border bg-green-200/40 rounded-2xl"
+      class="absolute z-30 inset-0 box-border rounded-2xl"
     >
       <!-- Main Content (Nuxt Page) -->
       <div
         v-if="showMainContent"
-        class="absolute inset-0"
+        class="absolute inset-0 bg-green-200/40"
         :style="displayStore.mainContentStyle"
       >
         <NuxtPage

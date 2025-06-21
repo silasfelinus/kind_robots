@@ -2,7 +2,7 @@
 <template>
   <div
     class="relative w-full flex flex-col"
-    :style="{ height: `calc(var(--vh) * ${displayStore.mainContentHeight})` }"
+    :style="displayStore.mainContentStyle"
   >
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">

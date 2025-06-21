@@ -2,26 +2,33 @@
 <template>
   <div class="absolute top-0 right-0 z-50 p-1" @click.self="closePanel">
     <div class="flex gap-1 items-start">
-      <!-- Menu Icons -->
-      <div
-        v-for="item in menuItems"
-        :key="item.id"
-        class="flex flex-col items-end"
-      >
-        <div class="tooltip tooltip-top" :data-tip="item.tooltip">
-          <button class="btn btn-xs btn-circle" @click.stop="toggle(item.id)">
-            <Icon :name="item.icon" class="inline" />
-            <span v-if="item.id === 'tokens'" class="ml-1 text-xs font-bold">
-              {{ userStore.user?.mana ?? 0 }}
-            </span>
-          </button>
-        </div>
 
-        <!-- Dropdown Panel -->
-        <div
-          v-if="activePanel === item.id"
-          class="mt-2 w-64 bg-base-100 shadow-lg rounded-xl p-3 z-40 text-sm space-y-2"
-        >
+  <!-- Menu Icons -->
+  <div
+    v-for="item in menuItems"
+    :key="item.id"
+    class="relative flex flex-col items-end"
+  >
+    <div
+      class="tooltip tooltip-top fixed z-[9999]"
+      :data-tip="item.tooltip"
+    >
+      <button
+        class="btn btn-xs btn-circle flex items-center gap-1"
+        @click.stop="toggle(item.id)"
+      >
+        <template v-if="item.id === 'tokens'">
+          <span class="text-xs font-bold">{{ userStore.user?.mana ?? 0 }}</span>
+        </template>
+        <Icon :name="item.icon" class="inline" />
+      </button>
+    </div>
+
+    <!-- Dropdown Panel -->
+    <div
+      v-if="activePanel === item.id"
+      class="mt-2 w-64 bg-base-100 shadow-lg rounded-xl p-3 z-50 text-sm space-y-2"
+    >
           <!-- Tokens Panel -->
           <div v-if="item.id === 'tokens'">
             <div class="font-bold">

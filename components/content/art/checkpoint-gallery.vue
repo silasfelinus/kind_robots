@@ -50,7 +50,7 @@
       <label class="label mb-2">
         <span class="label-text font-semibold">Checkpoint</span>
       </label>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+      <div class="grid gap-6 auto-rows-fr grid-cols-[repeat(auto-fit,_minmax(220px,_1fr))] w-full">
         <div
           v-for="c in checkpointStore.visibleCheckpoints"
           :key="c.name"
@@ -105,9 +105,9 @@
 
     <!-- Sampler Dropdown -->
     <div class="form-control w-full">
-      <label class="label"
-        ><span class="label-text font-semibold">Sampler</span></label
-      >
+      <label class="label">
+        <span class="label-text font-semibold">Sampler</span>
+      </label>
       <select
         class="select select-bordered bg-base-200 w-full"
         v-model="selectedSamplerName"
@@ -162,6 +162,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'

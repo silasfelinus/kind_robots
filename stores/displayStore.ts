@@ -107,15 +107,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const mainContentHeight = computed(() => {
-    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    return 100 - (header + 4 * sectionPaddingSize.value + footerHeight.value)
+    const header =
+      state.headerState === 'hidden'
+        ? 0
+        : headerHeight.value + sectionPaddingSize.value
+    return 100 - (header + 3 * sectionPaddingSize.value + footerHeight.value)
   })
 
   const mainContentWidth = computed(() => {
     return (
       100 -
       (state.sidebarRightState !== 'hidden'
-        ? sidebarRightWidth.value + sectionPaddingSize.value * 2
+        ? sidebarRightWidth.value + sectionPaddingSize.value * 3
         : sectionPaddingSize.value * 2)
     )
   })
@@ -168,47 +171,42 @@ export const useDisplayStore = defineStore('displayStore', () => {
       : { width: '0px', height: '0px' }
   })
 
-const footerStyle = computed(() => {
-  const header = headerHeight.value
-  const content = mainContentHeight.value
-  const padding = sectionPaddingSize.value
+  const footerStyle = computed(() => {
+    const header = headerHeight.value
+    const content = mainContentHeight.value
+    const padding = sectionPaddingSize.value
 
-  return {
-    top: `calc(var(--vh) * ${header + content + padding * 3})`,
-    left: `${padding}vw`,
-    width: `calc(100vw - ${padding * 2}vw)`,
-    height: `calc(var(--vh) * ${footerHeight.value})`,
-  }
-})
+    return {
+      top: `calc(var(--vh) * ${header + content + padding * 3})`,
+      left: `${padding}vw`,
+      width: `calc(100vw - ${padding * 2}vw)`,
+      height: `calc(var(--vh) * ${footerHeight.value})`,
+    }
+  })
 
+  const rightSidebarStyle = computed(() => {
+    const padding = sectionPaddingSize.value
+    const header = headerHeight.value
+    const visible = ['open', 'compact'].includes(state.sidebarRightState)
+    return {
+      top: `calc(var(--vh) * (${header + padding * 2}))`,
+      right: `${padding}vw`,
+      width: visible ? `${sidebarRightWidth.value}vw` : '0px',
+      height: visible ? `calc(var(--vh) * ${mainContentHeight.value})` : '0px',
+    }
+  })
 
-const rightSidebarStyle = computed(() => {
-  const padding = sectionPaddingSize.value
-  const header = headerHeight.value
-  const visible = ['open', 'compact'].includes(state.sidebarRightState)
-  return {
-    top: `calc(var(--vh) * (${header + padding * 2}))`,
-    right: `${padding}vw`,
-    width: visible ? `${sidebarRightWidth.value}vw` : '0px',
-    height: visible
-      ? `calc(var(--vh) * ${mainContentHeight.value})`
-      : '0px',
-  }
-})
-
-const mainContentStyle = computed(() => {
-  const padding = sectionPaddingSize.value
-  const header = headerHeight.value
-  return {
-    top: `calc(var(--vh) * (${header + padding * 2}))`,
-    left: `${padding}vw`,
-    width: `calc(${mainContentWidth.value}vw)`,
-    height: `calc(var(--vh) * ${mainContentHeight.value})`,
-    minHeight: '10vh',
-  }
-})
-
-
+  const mainContentStyle = computed(() => {
+    const padding = sectionPaddingSize.value
+    const header = headerHeight.value
+    return {
+      top: `calc(var(--vh) * (${header + padding * 2}))`,
+      left: `${padding}vw`,
+      width: `calc(${mainContentWidth.value}vw)`,
+      height: `calc(var(--vh) * ${mainContentHeight.value})`,
+      minHeight: '10vh',
+    }
+  })
 
   const isLargeViewport = computed(() =>
     ['large', 'extraLarge'].includes(state.viewportSize),

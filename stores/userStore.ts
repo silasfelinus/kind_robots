@@ -346,12 +346,9 @@ async function userImage(userIdOverride?: number): Promise<string> {
     updateKarmaAndMana,
     userImageFromId,
     getFromLocalStorage,
-    userImage: async (id?: number): Promise<string> => {
-      return await userImage(users.value, id ?? userId.value)
-    },
-    getUserNameByUserId: (id: number | null) =>
-      getUserNameByUserId(users.value, id),
-    getUserById: (id: number | null) => getUserById(users.value, id),
+    userImage,
+    getUserNameByUserId,
+    getUserById,
   }
 })
 

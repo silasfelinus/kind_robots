@@ -75,7 +75,33 @@
         <div><strong>Display Action:</strong> {{ displayAction }}</div>
         <div><strong>Main Component:</strong> {{ mainComponent }}</div>
         <div><strong>CSS --vh:</strong> {{ vhValue }}</div>
+        <div><strong>Right Sidebar State:</strong> {{ sidebarRightState }}</div>
+        <div><strong>Left Sidebar State:</strong> {{ sidebarLeftState }}</div>
+        <div><strong>Header State:</strong> {{ headerState }}</div>
+        <div><strong>Footer State:</strong> {{ footerState }}</div>
       </div>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer font-bold text-sm">
+          🧾 Style Outputs (click to expand)
+        </summary>
+        <pre class="whitespace-pre-wrap mt-2">
+<strong>Header Style:</strong>
+{{ headerStyleReadout }}
+
+<strong>Footer Style:</strong>
+{{ footerStyleReadout }}
+
+<strong>Left Sidebar Style:</strong>
+{{ leftSidebarStyleReadout }}
+
+<strong>Right Sidebar Style:</strong>
+{{ rightSidebarStyleReadout }}
+
+<strong>Main Content Style:</strong>
+{{ mainContentStyleReadout }}
+        </pre>
+      </details>
     </div>
   </div>
 </template>
@@ -122,6 +148,10 @@ const bigMode = computed(() => displayStore.bigMode)
 const displayMode = computed(() => displayStore.displayMode)
 const displayAction = computed(() => displayStore.displayAction)
 const mainComponent = computed(() => displayStore.mainComponent)
+const sidebarRightState = computed(() => displayStore.sidebarRightState)
+const sidebarLeftState = computed(() => displayStore.sidebarLeftState)
+const headerState = computed(() => displayStore.headerState)
+const footerState = computed(() => displayStore.footerState)
 
 const vhValue = ref('unset')
 onMounted(() => {
@@ -130,5 +160,27 @@ onMounted(() => {
       getComputedStyle(document.documentElement).getPropertyValue('--vh') ||
       'unset'
   }
+})
+
+// Readout Computeds
+const headerStyleReadout = computed(() => {
+  const s = headerStyle.value
+  return `top: ${s.top}, left: ${s.left}, width: ${s.width}, height: ${s.height}`
+})
+const footerStyleReadout = computed(() => {
+  const s = footerStyle.value
+  return `top: ${s.top ?? '-'}, left: ${s.left ?? '-'}, width: ${s.width ?? '-'}, height: ${s.height ?? '-'}`
+})
+const leftSidebarStyleReadout = computed(() => {
+  const s = leftSidebarStyle.value
+  return `top: ${s.top}, left: ${s.left}, width: ${s.width}, height: ${s.height}`
+})
+const rightSidebarStyleReadout = computed(() => {
+  const s = rightSidebarStyle.value
+  return `top: ${s.top}, right: ${s.right}, width: ${s.width}, height: ${s.height}`
+})
+const mainContentStyleReadout = computed(() => {
+  const s = mainContentStyle.value
+  return `top: ${s.top}, left: ${s.left}, width: ${s.width}, height: ${s.height}`
 })
 </script>

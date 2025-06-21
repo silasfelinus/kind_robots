@@ -8,20 +8,21 @@
         :key="item.id"
         class="flex flex-col items-end"
       >
-        <button
-          class="btn btn-xs btn-circle tooltip tooltip-left"
-          :data-tip="item.tooltip"
-          @click.stop="toggle(item.id)"
-        >
-          <Icon :name="item.icon" />
-        </button>
+        <div class="tooltip tooltip-top" :data-tip="item.tooltip">
+          <button class="btn btn-xs btn-circle" @click.stop="toggle(item.id)">
+            <Icon :name="item.icon" class="inline" />
+            <span v-if="item.id === 'tokens'" class="ml-1 text-xs font-bold">
+              {{ userStore.user?.mana ?? 0 }}
+            </span>
+          </button>
+        </div>
 
-        <!-- Dropdown Panel (now relative and stacked) -->
+        <!-- Dropdown Panel -->
         <div
           v-if="activePanel === item.id"
           class="mt-2 w-64 bg-base-100 shadow-lg rounded-xl p-3 z-40 text-sm space-y-2"
         >
-          <!-- Tokens -->
+          <!-- Tokens Panel -->
           <div v-if="item.id === 'tokens'">
             <div class="font-bold">
               🧪 Mana: {{ userStore.user?.mana ?? 0 }}

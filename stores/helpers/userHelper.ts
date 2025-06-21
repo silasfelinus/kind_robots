@@ -20,46 +20,8 @@ export function removeFromLocalStorage(key: string): void {
   }
 }
 
-export function getUserNameByUserId(
-  users: User[],
-  userId: number | null,
-): string | null {
-  if (userId === null) return null
-  const user = users.find((u) => u.id === userId)
-  return user?.username || null
-}
 
-export function getUserById(users: User[], userId: number | null): User | null {
-  if (userId === null) return null
-  return users.find((u) => u.id === userId) || null
-}
 
-export async function userImage(
-  users: User[],
-  userId?: number,
-): Promise<string> {
-  const userStore = useUserStore()
-  const resolvedId = userId ?? userStore.userId
-
-  const user = users.find((u) => u.id === resolvedId)
-
-  if (!user) {
-    return '/images/kindart.webp'
-  }
-
-  if (!user.artImageId) {
-    return user.avatarImage || '/images/kindart.webp'
-  }
-
-  const artStore = useArtStore()
-  try {
-    const artImage = await artStore.getArtImageById(user.artImageId)
-    return artImage?.imageData || '/images/kindart.webp'
-  } catch (error) {
-    console.error('[userImage] Error fetching art image:', error)
-    return '/images/kindart.webp'
-  }
-}
 
 export function updateUserFields(
   users: User[],

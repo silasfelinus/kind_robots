@@ -168,12 +168,19 @@ export const useDisplayStore = defineStore('displayStore', () => {
       : { width: '0px', height: '0px' }
   })
 
-const footerStyle = computed(() => ({
-  bottom: `calc(var(--vh) * ${sectionPaddingSize.value})`,
-  left: `${sectionPaddingSize.value}vw`,
-  width: `calc(100vw - ${sectionPaddingSize.value * 2}vw)`,
-  height: `calc(var(--vh) * ${footerHeight.value})`,
-}))
+const footerStyle = computed(() => {
+  const header = headerHeight.value
+  const content = mainContentHeight.value
+  const padding = sectionPaddingSize.value
+
+  return {
+    top: `calc(var(--vh) * ${header + content + padding * 3})`,
+    left: `${padding}vw`,
+    width: `calc(100vw - ${padding * 2}vw)`,
+    height: `calc(var(--vh) * ${footerHeight.value})`,
+  }
+})
+
 
 const rightSidebarStyle = computed(() => {
   const padding = sectionPaddingSize.value

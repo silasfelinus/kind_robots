@@ -8,9 +8,6 @@ import {
   getFromLocalStorage,
   saveToLocalStorage,
   removeFromLocalStorage,
-  getUserNameByUserId,
-  getUserById,
-  userImage,
   updateUserFields,
   startLoading,
   stopLoading,
@@ -94,6 +91,33 @@ export const useUserStore = defineStore('userStore', () => {
   function setToken(newToken: string) {
     token.value = newToken || undefined
     saveToLocalStorage('token', newToken)
+  }
+
+async function userImage(userIdOverride?: number): Promise<string> {
+    const resolvedId = userIdOverride ?? userId.value
+    const target = users.value.find((u) => u.id === resolvedId)
+
+    if (!target) return '/images/kindart.webp'
+    if (!target.artImageId) return target.avatarImage || '/images/kindart.webp'
+
+    const artStore = useArtStore()
+    try {
+      const artImage = await artStore.getArtImageById(target.artImageId)
+      return artImage?.imageData || '/images/kindart.webp'
+    } catch (err) {
+      console.error('[userImage] Error loading image:', err)
+      return '/images/kindart.webp'
+    }
+  }
+
+  function getUserNameByUserId(id: number | null): string | null {
+    if (id === null) return null
+    return users.value.find((u) => u.id === id)?.username ?? null
+  }
+
+  function getUserById(id: number | null): User | null {
+    if (id === null) return null
+    return users.value.find((u) => u.id === id) ?? null
   }
 
   function logout() {

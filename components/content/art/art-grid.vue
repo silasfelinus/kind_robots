@@ -1,7 +1,7 @@
 <!-- /components/content/art/art-grid.vue -->
 <template>
   <div
-    class="relative w-full flex flex-col"
+    class="relative w-full flex flex-col rounded-2xl"
     :style="{ height: `calc(var(--vh) * ${displayStore.mainContentHeight})` }"
   >
     <!-- Fullscreen Toggle -->

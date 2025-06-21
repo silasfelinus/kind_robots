@@ -168,44 +168,37 @@ export const useDisplayStore = defineStore('displayStore', () => {
       : { width: '0px', height: '0px' }
   })
 
-  const rightSidebarStyle = computed(() => {
-    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    return state.sidebarRightState !== 'hidden'
-      ? {
-          height: `calc(var(--vh) * ${mainContentHeight.value})`,
-          width: `${sidebarRightWidth.value}vw`,
-          top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-          right: `${sectionPaddingSize.value}vw`,
-        }
-      : { width: '0px', height: '0px' }
-  })
+  const footerStyle = computed(() => ({
+  bottom: `calc(var(--vh) * ${displayStore.sectionPaddingSize.value})`,
+  left: `${displayStore.sectionPaddingSize.value}vw`,
+  width: `calc(100vw - ${displayStore.sectionPaddingSize.value * 2}vw)`,
+  height: `calc(var(--vh) * ${displayStore.footerHeight.value})`,
+}))
 
-  const mainContentStyle = computed(() => {
-    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    return {
-      height: `calc(var(--vh) * ${mainContentHeight.value})`,
-      width: `calc(${mainContentWidth.value}vw)`,
-      top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-      right:
-        state.sidebarRightState !== 'hidden'
-          ? `calc(${sidebarRightWidth.value}vw + ${sectionPaddingSize.value * 2}vw)`
-          : `${sectionPaddingSize.value}vw`,
-      left: `${sectionPaddingSize.value}vw`,
-    }
-  })
-  const footerStyle = computed((): CSSProperties => {
-    const padding = sectionPaddingSize.value
-    return {
-      position: 'fixed',
-      top: `calc(100vh - var(--vh) * ${footerHeight.value})`,
-      width: `calc(100vw - ${sectionPaddingSize.value * 2}vw)`,
-      left: `${padding}vw`,
-      right: `${padding}vw`,
-      zIndex: '30',
-      height: `calc(var(--vh) * ${footerHeight.value})`,
-      transition: 'height 0.3s ease',
-    }
-  })
+const rightSidebarStyle = computed(() => {
+  const padding = displayStore.sectionPaddingSize.value
+  const header = displayStore.headerHeight.value
+  const visible = ['open', 'compact'].includes(displayStore.sidebarRightState)
+  return {
+    top: `calc(var(--vh) * (${header + padding * 2}))`,
+    right: `${padding}vw`,
+    width: visible ? `${displayStore.sidebarRightWidth.value}vw` : '0px',
+    height: visible
+      ? `calc(var(--vh) * ${displayStore.mainContentHeight.value})`
+      : '0px',
+  }
+})
+
+const mainContentStyle = computed(() => {
+  const padding = displayStore.sectionPaddingSize.value
+  const header = displayStore.headerHeight.value
+  return {
+    top: `calc(var(--vh) * (${header + padding * 2}))`,
+    left: `${padding}vw`,
+    width: `calc(${displayStore.mainContentWidth.value}vw)`,
+    height: `calc(var(--vh) * ${displayStore.mainContentHeight.value})`,
+  }
+})
 
   const isLargeViewport = computed(() =>
     ['large', 'extraLarge'].includes(state.viewportSize),

@@ -51,7 +51,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const sidebarRightWidth = computed(() => {
-    const sizes = { small: 2, medium: 40, large: 25, extraLarge: 28 }
+    const sizes = { small: 98, medium: 40, large: 25, extraLarge: 28 }
     return (
       sizes[state.viewportSize] *
       (['open', 'compact'].includes(state.sidebarRightState) ? 1 : 0)

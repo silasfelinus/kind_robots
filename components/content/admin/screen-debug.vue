@@ -1,7 +1,7 @@
 <!-- /components/content/utils/screen-debug.vue -->
 <template>
-  <!-- Toggle Button -->
-  <div class="fixed top-4 right-4 z-[1000] pointer-events-auto">
+  <!-- Toggle Button (Admins only) -->
+  <div v-if="isAdmin" class="fixed top-4 right-4 z-[1000] pointer-events-auto">
     <button
       class="bg-gray-800 text-white p-2 rounded-full shadow-md"
       @click="toggleDebug"
@@ -10,10 +10,10 @@
     </button>
   </div>
 
-  <!-- Overlay -->
+  <!-- Overlay Debug Layer (Click-through) -->
   <div
     v-if="isDebugVisible"
-    class="fixed inset-0 z-[999] bg-black/80 text-white font-mono text-xs"
+    class="fixed inset-0 z-[999] bg-black/80 text-white font-mono text-xs pointer-events-none"
   >
     <!-- Layout Zones -->
     <div
@@ -51,9 +51,9 @@
       Main Content ({{ mainContentHeight }}vh × {{ mainContentWidth }}vw)
     </div>
 
-    <!-- Debug Readout -->
+    <!-- Debug Readout (Click-enabled) -->
     <div
-      class="fixed bottom-4 left-4 bg-base-100 text-base-content p-4 rounded-xl shadow-xl w-[90vw] max-w-2xl max-h-[40vh] overflow-y-auto text-xs z-[1002] space-y-2"
+      class="fixed bottom-4 left-4 bg-base-100 text-base-content p-4 rounded-xl shadow-xl w-[90vw] max-w-2xl max-h-[40vh] overflow-y-auto text-xs z-[1002] space-y-2 pointer-events-auto"
     >
       <div class="font-bold text-lg mb-1">🧪 Display Store Debug</div>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 leading-relaxed">
@@ -84,10 +84,14 @@
 // /components/content/utils/screen-debug.vue
 import { computed, ref, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
+import { useUserStore } from '@/stores/userStore'
 
 const displayStore = useDisplayStore()
+const userStore = useUserStore()
+
 const isDebugVisible = ref(false)
 const toggleDebug = () => (isDebugVisible.value = !isDebugVisible.value)
+const isAdmin = computed(() => userStore.isAdmin === true)
 
 const headerStyle = computed(() => ({
   top: `calc(var(--vh) * ${displayStore.sectionPaddingSize})`,
@@ -101,7 +105,6 @@ const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
 const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
 const mainContentStyle = computed(() => displayStore.mainContentStyle)
 
-// Bindings
 const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)

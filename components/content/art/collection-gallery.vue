@@ -8,9 +8,7 @@
         class="bg-base-100 p-6 rounded-2xl shadow space-y-4 group"
       >
         <!-- Header -->
-        <div
-          class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2"
-        >
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
           <div class="flex-1 space-y-1">
             <div
               v-if="canEdit(c) && editingTitle === c.id"
@@ -24,10 +22,7 @@
               <input
                 type="checkbox"
                 class="checkbox checkbox-sm"
-                @change="
-                  c.label &&
-                  collectionStore.updateCollectionLabel(c.id, c.label)
-                "
+                @change="c.label && collectionStore.updateCollectionLabel(c.id, c.label)"
               />
               <span class="badge badge-primary">You</span>
             </div>
@@ -107,17 +102,15 @@
             </div>
 
             <div
-              class="relative group"
+              class="relative aspect-square w-full rounded-xl overflow-hidden group"
               v-for="art in getArtFromCollection(c).slice(0, visibleCount)"
               :key="art.id"
             >
-              <div class="relative w-full h-full">
-                <ArtCard
-                  :art="art"
-                  class="w-full h-full"
-                  @click="artStore.selectArt(art.id)"
-                />
-              </div>
+              <ArtCard
+                :art="art"
+                class="absolute inset-0 w-full h-full object-cover"
+                @click="artStore.selectArt(art.id)"
+              />
             </div>
           </div>
           <div v-else class="text-center italic text-base-content/60 py-12">
@@ -138,10 +131,10 @@
           @mouseenter="handleHover(collection)"
           @mouseleave="artStore.setHoverArt(null)"
         >
-          <div class="w-full h-48 overflow-hidden">
+          <div class="w-full aspect-square relative rounded-xl overflow-hidden">
             <img
               :src="getPreviewImage(collection).src"
-              class="w-full h-full object-cover"
+              class="absolute inset-0 w-full h-full object-cover"
               :alt="collection.label || 'Unnamed Collection'"
             />
           </div>
@@ -171,6 +164,7 @@
     </div>
   </div>
 </template>
+
 
 
 <script setup lang="ts">

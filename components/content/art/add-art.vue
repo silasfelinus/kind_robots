@@ -7,9 +7,7 @@
 
     <!-- Title -->
     <template #title>
-      <h1 class="text-3xl font-bold text-primary">
-        🎨 Welcome to the Art-Maker
-      </h1>
+      <h1 class="text-3xl font-bold text-primary">🎨 Art-Maker</h1>
     </template>
 
     <!-- Left Section -->

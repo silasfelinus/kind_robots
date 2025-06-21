@@ -168,37 +168,40 @@ export const useDisplayStore = defineStore('displayStore', () => {
       : { width: '0px', height: '0px' }
   })
 
-  const footerStyle = computed(() => ({
-  bottom: `calc(var(--vh) * ${displayStore.sectionPaddingSize.value})`,
-  left: `${displayStore.sectionPaddingSize.value}vw`,
-  width: `calc(100vw - ${displayStore.sectionPaddingSize.value * 2}vw)`,
-  height: `calc(var(--vh) * ${displayStore.footerHeight.value})`,
+const footerStyle = computed(() => ({
+  bottom: `calc(var(--vh) * ${sectionPaddingSize.value})`,
+  left: `${sectionPaddingSize.value}vw`,
+  width: `calc(100vw - ${sectionPaddingSize.value * 2}vw)`,
+  height: `calc(var(--vh) * ${footerHeight.value})`,
 }))
 
 const rightSidebarStyle = computed(() => {
-  const padding = displayStore.sectionPaddingSize.value
-  const header = displayStore.headerHeight.value
-  const visible = ['open', 'compact'].includes(displayStore.sidebarRightState)
+  const padding = sectionPaddingSize.value
+  const header = headerHeight.value
+  const visible = ['open', 'compact'].includes(state.sidebarRightState)
   return {
     top: `calc(var(--vh) * (${header + padding * 2}))`,
     right: `${padding}vw`,
-    width: visible ? `${displayStore.sidebarRightWidth.value}vw` : '0px',
+    width: visible ? `${sidebarRightWidth.value}vw` : '0px',
     height: visible
-      ? `calc(var(--vh) * ${displayStore.mainContentHeight.value})`
+      ? `calc(var(--vh) * ${mainContentHeight.value})`
       : '0px',
   }
 })
 
 const mainContentStyle = computed(() => {
-  const padding = displayStore.sectionPaddingSize.value
-  const header = displayStore.headerHeight.value
+  const padding = sectionPaddingSize.value
+  const header = headerHeight.value
   return {
     top: `calc(var(--vh) * (${header + padding * 2}))`,
     left: `${padding}vw`,
-    width: `calc(${displayStore.mainContentWidth.value}vw)`,
-    height: `calc(var(--vh) * ${displayStore.mainContentHeight.value})`,
+    width: `calc(${mainContentWidth.value}vw)`,
+    height: `calc(var(--vh) * ${mainContentHeight.value})`,
+    minHeight: '10vh',
   }
 })
+
+
 
   const isLargeViewport = computed(() =>
     ['large', 'extraLarge'].includes(state.viewportSize),

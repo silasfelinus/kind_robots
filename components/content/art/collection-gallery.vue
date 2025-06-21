@@ -81,7 +81,8 @@
         <div class="scroll-container overflow-auto max-h-[60vh] pt-4">
           <div v-if="getArtFromCollection(c).length >= 0" :class="gridClass">
             <div
-              v-if="canEdit(c)"
+            v-if="canEdit(c) || c.id === -1"
+
               class="aspect-square bg-base-200 rounded-xl overflow-hidden cursor-pointer relative group"
               @click="removeCollection(c.id)"
               title="Back to Gallery"

@@ -35,19 +35,16 @@
     </header>
 
     <!-- Main Content Layer -->
-    <main
-      v-if="pageStore.ready"
-    >
+    <main v-if="pageStore.ready">
       <!-- Main Content (Nuxt Page) -->
       <div
         v-if="showMainContent"
         class="fixed z-40 transition-all duration-500 ease-in-out"
         :style="displayStore.mainContentStyle"
-          
       >
         <NuxtPage
           :key="$route.fullPath"
-          class="h-full w-full px-4 py-6 transition-opacity duration-300"
+          class="h-full w-full px-4 py-6 transition-opacity duration-300 rounded-2xl"
         />
       </div>
 
@@ -55,7 +52,7 @@
       <div
         v-if="sidebarRightOpen"
         class="fixed z-40 transition-all duration-500 ease-in-out"
-              :style="displayStore.rightSidebarStyle"
+        :style="displayStore.rightSidebarStyle"
       >
         <splash-tutorial
           class="h-full w-full px-4 py-6 transition-opacity duration-300"

@@ -28,7 +28,7 @@
     <!-- Header -->
     <header
       v-if="pageStore.ready && displayStore.headerState !== 'hidden'"
-      class="fixed z-40 border-6 border-secondary transition-all duration-500 ease-in-out"
+      class="fixed z-40 transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
       <kind-header class="h-full w-full rounded-xl" />
@@ -42,11 +42,9 @@
       <!-- Main Content (Nuxt Page) -->
       <div
         v-if="showMainContent"
-        class="absolute inset-0"
-        :style="{
-          ...displayStore.mainContentStyle,
-          backgroundColor: 'rgba(0, 255, 0, 0.2)', // Green
-        }"
+        class="fixed z-40 transition-all duration-500 ease-in-out"
+        :style="displayStore.mainContentStyle"
+          
       >
         <NuxtPage
           :key="$route.fullPath"
@@ -57,11 +55,8 @@
       <!-- Splash Tutorial (small viewport fallback) -->
       <div
         v-if="sidebarRightOpen"
-        class="absolute inset-0"
-        :style="{
-          ...displayStore.rightSidebarStyle,
-          backgroundColor: 'rgba(255, 0, 0, 0.2)', // Red
-        }"
+        class="fixed z-40 transition-all duration-500 ease-in-out"
+              :style="displayStore.rightSidebarStyle"
       >
         <splash-tutorial
           class="h-full w-full px-4 py-6 transition-opacity duration-300"

@@ -37,7 +37,6 @@
     <!-- Main Content Layer -->
     <main
       v-if="pageStore.ready"
-      class="absolute z-30 inset-0 box-border rounded-2xl"
     >
       <!-- Main Content (Nuxt Page) -->
       <div

@@ -62,25 +62,26 @@
               : 'hover:scale-[1.02] hover:shadow-lg bg-base-100 border-base-300',
           ]"
         >
-          <div class="w-full">
-            <art-card
-              v-if="c.name && checkpointImages[c.name]"
-              :art="checkpointImages[c.name]!"
-              class="w-full h-40"
-            />
-            <img
-              v-else-if="c.MediaPath"
-              :src="`${c.MediaPath}?t=${cacheBuster}`"
-              alt="Checkpoint Image"
-              class="rounded-xl object-cover w-full h-40"
-            />
-            <img
-              v-else
-              src="/images/backtree.webp"
-              alt="Fallback"
-              class="rounded-xl object-cover w-full h-40 opacity-50"
-            />
-          </div>
+<div class="w-full aspect-square relative rounded-xl overflow-hidden">
+  <art-card
+    v-if="c.name && checkpointImages[c.name]"
+    :art="checkpointImages[c.name]!"
+    class="absolute inset-0 w-full h-full object-cover"
+  />
+  <img
+    v-else-if="c.MediaPath"
+    :src="`${c.MediaPath}?t=${cacheBuster}`"
+    alt="Checkpoint Image"
+    class="absolute inset-0 w-full h-full object-cover"
+  />
+  <img
+    v-else
+    src="/images/backtree.webp"
+    alt="Fallback"
+    class="absolute inset-0 w-full h-full object-cover opacity-50"
+  />
+</div>
+
           <div class="w-full space-y-1">
             <div class="font-bold text-sm break-words leading-tight">
               {{

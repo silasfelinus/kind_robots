@@ -5,9 +5,7 @@
     :style="displayStore.footerStyle"
   >
     <!-- Expanded Content Area -->
-    <div
-      class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-6"
-    >
+    <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-6">
       <!-- Animated Main Prompt Area -->
       <Transition name="fade-expand">
         <div
@@ -206,14 +204,19 @@ onMounted(() => {
   if (!artStore.artForm.promptString) {
     artStore.artForm.promptString = promptStore.promptField
   }
+  console.log('footerStyle', displayStore.footerStyle)
 
   if (displayStore.footerState === 'hidden') {
     displayStore.changeState('footerState', 'compact')
   }
+
+  console.log('footerStyle', displayStore.footerStyle)
 })
 
 onUnmounted(() => {
   displayStore.changeState('footerState', 'hidden')
+
+  console.log('footerStyle', displayStore.footerStyle)
 })
 
 function syncPrompt() {

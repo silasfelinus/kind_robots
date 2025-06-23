@@ -3,7 +3,6 @@
   <div
     v-if="showFooter"
     class="fixed z-50 top-0 left-1/2 -translate-x-1/2 p-1"
-    :style="toggleStyle"
   >
     <button class="btn btn-xs btn-circle" @click="displayStore.toggleFooter()">
       <Icon :name="iconName" />
@@ -20,7 +19,7 @@ import { usePageStore } from '@/stores/pageStore'
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
-const showFooter = computed(() => pageStore.page?.showFooter === true)
+const showFooter = computed(() => pageStore.page?.showFooter)
 
 const iconName = computed(() =>
   displayStore.footerState === 'extended'
@@ -28,15 +27,6 @@ const iconName = computed(() =>
     : 'kind-icon:chevron-double-up'
 )
 
-const toggleTop = computed(() => {
-  const topRaw = displayStore.footerStyle?.top
-  if (!topRaw?.includes('calc')) return '90'
-  const match = topRaw.match(/var\(--vh\)\s*\*\s*(\d+(\.\d+)?)/)
-  return match?.[1] ?? '90'
-})
 
-const toggleStyle = computed(() => ({
-  top: `calc(var(--vh) * (${toggleTop.value} - 1))`,
-}))
 </script>
 

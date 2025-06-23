@@ -80,13 +80,7 @@
   <art-generator />
 </div>
 
-<!-- Debug Footer Show State -->
-<div class="fixed bottom-2 left-2 z-[9999] bg-base-100 text-xs text-primary px-3 py-1 rounded-xl shadow-lg border border-primary">
-  showFooter: 
-  <span class="font-bold">
-    {{ typeof pageStore.page?.showFooter === 'boolean' ? pageStore.page.showFooter : 'falsy' }}
-  </span>
-</div>
+
 
 
 </template>

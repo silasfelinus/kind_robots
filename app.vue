@@ -73,7 +73,7 @@
 
 <!-- Footer Area (Extra UI like Art Generator) -->
 <div
-  v-if="pageStore.page.showFooter && ['compact', 'open', 'extended'].includes(displayStore.footerState)"
+  v-if="pageStore.page?.showFooter && ['compact', 'open', 'extended'].includes(displayStore.footerState)"
   class="fixed z-50 w-full"
   :style="displayStore.footerStyle"
 >

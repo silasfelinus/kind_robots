@@ -6,16 +6,9 @@
   >
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
-      <button
-        class="btn btn-xs btn-circle"
-        @click="displayStore.toggleFullscreen()"
-      >
+      <button class="btn btn-xs btn-circle" @click="displayStore.toggleFullscreen()">
         <Icon
-          :name="
-            displayStore.isFullScreen
-              ? 'kind-icon:compress'
-              : 'kind-icon:expand'
-          "
+          :name="displayStore.isFullScreen ? 'kind-icon:compress' : 'kind-icon:expand'"
         />
       </button>
     </div>
@@ -50,7 +43,7 @@
       </button>
     </div>
 
-    <!-- Corner Panel (top-right) -->
+    <!-- Corner Panel -->
     <corner-panel />
 
     <!-- Report Area -->
@@ -58,35 +51,45 @@
       <slot name="report" />
     </div>
 
-    <!-- Main Area: Columns -->
+    <!-- Main Area: Columns with Animations -->
     <div class="relative w-full flex-1 flex min-h-0">
-      <div
-        v-if="displayStore.showLeft"
-        class="flex-1 overflow-y-auto min-h-0 px-2 space-y-4"
-        :class="sectionClass"
-      >
-        <slot name="left" />
-      </div>
-      <div
-        v-if="displayStore.showCenter"
-        class="flex-1 overflow-y-auto min-h-0 px-2 space-y-4"
-        :class="sectionClass"
-      >
-        <slot name="center" />
-      </div>
-      <div
-        v-if="displayStore.showRight"
-        class="flex-1 overflow-y-auto min-h-0 px-2 space-y-4"
-        :class="sectionClass"
-      >
-        <slot name="right" />
-      </div>
+      <Transition name="slide-left" mode="out-in">
+        <div
+          v-if="displayStore.showLeft"
+          key="left"
+          class="flex-1 overflow-y-auto min-h-0 px-2 space-y-4"
+          :class="sectionClass"
+        >
+          <slot name="left" />
+        </div>
+      </Transition>
+
+      <Transition name="slide-down" mode="out-in">
+        <div
+          v-if="displayStore.showCenter"
+          key="center"
+          class="flex-1 overflow-y-auto min-h-0 px-2 space-y-4"
+          :class="sectionClass"
+        >
+          <slot name="center" />
+        </div>
+      </Transition>
+
+      <Transition name="slide-right" mode="out-in">
+        <div
+          v-if="displayStore.showRight"
+          key="right"
+          class="flex-1 overflow-y-auto min-h-0 px-2 space-y-4"
+          :class="sectionClass"
+        >
+          <slot name="right" />
+        </div>
+      </Transition>
     </div>
 
-    <!-- Footer Panel with Toggle -->
+    <!-- Footer Panel -->
     <div class="fixed rounded-2xl" :style="displayStore.footerStyle">
       <div class="relative w-full h-full">
-      
         <slot name="extra" />
       </div>
     </div>
@@ -114,3 +117,69 @@ const sectionClass = computed(() => {
   return 'w-full'
 })
 </script>
+
+<style scoped>
+/* Shared */
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active,
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.5s ease;
+}
+
+/* LEFT */
+.slide-left-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+.slide-left-enter-to {
+  transform: translateX(0);
+  opacity: 1;
+}
+.slide-left-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+.slide-left-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* RIGHT */
+.slide-right-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.slide-right-enter-to {
+  transform: translateX(0);
+  opacity: 1;
+}
+.slide-right-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+.slide-right-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* DOWN (Center Column) */
+.slide-down-enter-from {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+.slide-down-enter-to {
+  transform: translateY(0);
+  opacity: 1;
+}
+.slide-down-leave-from {
+  transform: translateY(0);
+  opacity: 1;
+}
+.slide-down-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+</style>

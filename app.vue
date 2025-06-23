@@ -67,7 +67,7 @@
 
       <!-- Right Sidebar Toggle -->
       <right-toggle
-        class="fixed bottom-14 right-4 z-40"
+        class="fixed bottom-14 right-4 z-50"
         :class="{
           'bg-accent text-white shadow-xl': sidebarRightOpen,
           'bg-base-300 shadow': !sidebarRightOpen,
@@ -79,7 +79,7 @@
 <!-- Footer Area (Extra UI like Art Generator) -->
 <div
   v-if="pageStore.page?.showFooter"
-  class="fixed z-50 w-full"
+  class="fixed z-40 w-full"
   :style="displayStore.footerStyle"
 >
   <art-generator />

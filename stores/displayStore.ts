@@ -17,7 +17,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     headerState: 'open' as DisplayState,
     sidebarLeftState: 'compact' as DisplayState,
     sidebarRightState: 'hidden' as DisplayState,
-    footerState: 'compact' as DisplayState,
+    footerState: 'closed' as DisplayState,
     isVertical: false,
     viewportSize: 'large' as 'small' | 'medium' | 'large' | 'extraLarge',
     isTouchDevice: false,

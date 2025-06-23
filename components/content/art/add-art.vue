@@ -25,7 +25,7 @@
       <collection-gallery />
     </template>
 
-    <template #extra> <art-generator /> </template>
+
 
     <!-- Overlay -->
     <template #overlay>

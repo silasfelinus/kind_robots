@@ -2,7 +2,7 @@
 <template>
   <div
     
-    class="fixed z-50 left-1/2 -translate-x-1/2 p-1"
+    class="fixed z-50 left-1/2 -translate-x-1/2"
     :style="toggleStyle"
   >
     <button class="btn btn-xs btn-circle" @click="displayStore.toggleFooter()">
@@ -33,9 +33,13 @@ const iconName = computed(() =>
 const toggleStyle = computed(() => {
   const padding = displayStore.sectionPaddingSize
   const height = displayStore.footerHeight
-  const offset = height === 0 ? 2 : height
+  const isHidden = displayStore.footerState === 'hidden'
+
+  // Add extra upward offset when hidden so it's not under the bottom chrome bar
+  const offset = isHidden ? padding + 6 : height + padding
+
   return {
-    top: `calc(100dvh - var(--vh) * ${offset + padding})`,
+    top: `calc(100dvh - var(--vh) * ${offset})`,
   }
 })
 

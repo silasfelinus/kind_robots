@@ -122,6 +122,14 @@ router.afterEach(() => {
   }, 400)
 })
 
+const showFooter = computed(() => {
+  const page = pageStore.page
+  if (!page) return false
+  if ('showFooter' in page) return page.showFooter === true
+  return false // fallback default: do not show footer unless explicitly true
+})
+
+
 // Set --vh on mount and resize
 onMounted(() => {
   if (typeof window !== 'undefined') {

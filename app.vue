@@ -1,4 +1,4 @@
-<!-- /app.vue -->
+=<!-- /app.vue -->
 <template>
   <div
     class="main-layout bg-base-200 h-full w-full relative overflow-hidden box-border"
@@ -73,11 +73,19 @@
 
 <!-- Footer Area (Extra UI like Art Generator) -->
 <div
-  v-if="showFooter && ['compact', 'open', 'extended'].includes(displayStore.footerState)"
+  v-if="pageStore.page.showFooter && ['compact', 'open', 'extended'].includes(displayStore.footerState)"
   class="fixed z-50 w-full"
   :style="displayStore.footerStyle"
 >
   <art-generator />
+</div>
+
+<!-- Debug Footer Show State -->
+<div class="fixed bottom-2 left-2 z-[9999] bg-base-100 text-xs text-primary px-3 py-1 rounded-xl shadow-lg border border-primary">
+  showFooter: 
+  <span class="font-bold">
+    {{ typeof pageStore.page?.showFooter === 'boolean' ? pageStore.page.showFooter : 'falsy' }}
+  </span>
 </div>
 
 
@@ -122,24 +130,7 @@ router.afterEach(() => {
   }, 400)
 })
 
-const showFooter = computed(() => {
-  const page = pageStore.page
-  if (!page) return false
-  if ('showFooter' in page) return page.showFooter === true
-  return false // fallback default: do not show footer unless explicitly true
-})
 
-
-// Set --vh on mount and resize
-onMounted(() => {
-  if (typeof window !== 'undefined') {
-    setCustomVh()
-    window.addEventListener('resize', setCustomVh)
-  }
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', setCustomVh)
-})
 
 useHead({
   link: [{ rel: 'icon', type: 'image/png', href: 'favicon.ico' }],

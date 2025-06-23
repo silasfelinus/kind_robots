@@ -21,6 +21,7 @@ const contentSchema = z.object({
   path: z.string(),
   description: z.string().optional(),
   underConstruction: z.boolean().optional(),
+showFooter: z.string().optional(),
   seo: z
     .intersection(
       z.object({

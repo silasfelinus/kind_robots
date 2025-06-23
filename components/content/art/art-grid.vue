@@ -86,23 +86,7 @@
     <!-- Footer Panel with Toggle -->
     <div class="fixed rounded-2xl" :style="displayStore.footerStyle">
       <div class="relative w-full h-full">
-        <!-- Toggle inside footer -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 z-50 p-1">
-          <button
-            class="btn btn-xs btn-circle"
-            @click="displayStore.toggleFooter()"
-          >
-            <Icon
-              :name="
-                displayStore.footerState === 'extended'
-                  ? 'kind-icon:chevron-double-down'
-                  : 'kind-icon:chevron-double-up'
-              "
-            />
-          </button>
-        </div>
-
-        <!-- Extra content inside footer -->
+      
         <slot name="extra" />
       </div>
     </div>

@@ -71,10 +71,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const footerHeights = {
     hidden: {
-      small: 0,
-      medium: 0,
-      large: 0,
-      extraLarge: 0,
+      small: 1,
+      medium: 1,
+      large: 1,
+      extraLarge: 1,
     },
     compact: {
       small: 25,

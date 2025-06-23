@@ -7,6 +7,7 @@
     <div class="fixed z-50">
       <screen-debug />
 <footer-debug />
+<footer-toggle />
       <kind-loader />
       <animation-loader class="fixed z-50" />
       <milestone-popup />

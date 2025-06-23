@@ -1,9 +1,6 @@
 =<!-- /app.vue -->
 <template>
-<div class="top-4 right-4 fixed z-50 text-xs font-mono bg-base-100 border p-2 rounded-xl shadow space-y-1">
-  <div>showFooter: {{ pageStore.page?.showFooter }}</div>
-  <div>footerState: {{ displayStore.footerState }}</div>
-</div>
+
 
   <div
     class="main-layout bg-base-200 h-full w-full relative overflow-hidden box-border"

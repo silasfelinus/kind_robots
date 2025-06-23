@@ -5,7 +5,9 @@
     :style="displayStore.footerStyle"
   >
     <!-- Expanded Content Area -->
-    <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-6 bg-green-300/20">
+    <div
+      class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-6 bg-green-300/20"
+    >
       <!-- Animated Main Prompt Area -->
       <Transition name="fade-expand">
         <div
@@ -21,8 +23,12 @@
             @input="syncPrompt"
           />
 
-          <div class="flex flex-wrap md:flex-row gap-2 items-center bg-blue-200/20 p-2 rounded">
-            <label class="label cursor-pointer justify-between w-full md:w-auto">
+          <div
+            class="flex flex-wrap md:flex-row gap-2 items-center bg-blue-200/20 p-2 rounded"
+          >
+            <label
+              class="label cursor-pointer justify-between w-full md:w-auto"
+            >
               <span class="label-text font-semibold">✨ Make Pretty</span>
               <input
                 type="checkbox"
@@ -31,7 +37,10 @@
               />
             </label>
 
-            <button class="btn btn-sm btn-secondary" @click="randomStore.applySurprise">
+            <button
+              class="btn btn-sm btn-secondary"
+              @click="randomStore.applySurprise"
+            >
               🎲 Surprise
             </button>
 
@@ -113,22 +122,29 @@
     </div>
 
     <!-- Footer Row -->
-    <div 
+    <div
       v-if="displayStore.footerState !== 'hidden'"
       class="px-4 py-2 bg-orange-300/20 border-t border-base-300"
     >
-      <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+      <div
+        class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4"
+      >
         <div class="flex-1 space-y-1">
-          <label class="text-sm font-semibold text-base-content/80">🎯 Prompt Preview</label>
-          <div class="p-3 rounded bg-base-100 font-mono text-sm max-h-32 overflow-y-auto border border-base-300">
+          <label class="text-sm font-semibold text-base-content/80"
+            >🎯 Prompt Preview</label
+          >
+          <div
+            class="p-3 rounded bg-base-100 font-mono text-sm max-h-32 overflow-y-auto border border-base-300"
+          >
             {{ promptStore.promptField || 'No prompt yet...' }}
           </div>
         </div>
         <div class="flex flex-col items-end gap-1">
-          <span class="badge badge-info text-xs">State: {{ displayStore.footerState }}</span>
           <button
             class="btn font-semibold text-white"
-            :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
+            :class="
+              isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
+            "
             :disabled="isGenerating || !promptStore.promptField"
             @click="generateArt"
           >

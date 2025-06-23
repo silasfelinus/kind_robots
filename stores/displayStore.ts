@@ -83,13 +83,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
       extraLarge: 11,
     },
     open: {
-      small: 60,
+      small: 45,
       medium: 25,
       large: 35,
       extraLarge: 25,
     },
     extended: {
-      small: 75,
+      small: 55,
       medium: 35,
       large: 55,
       extraLarge: 45,

@@ -86,7 +86,7 @@
         </div>
       </Transition>
     </div>
-
+   <slot name="extra" />
     
 
 

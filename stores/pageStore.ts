@@ -39,6 +39,7 @@ export const usePageStore = defineStore('pageStore', () => {
     navComponent: page.value?.navComponent ?? '',
     model: page.value?.model ?? '',
     theme: page.value?.theme ?? currentTheme.value,
+showFooter: page.value?.showFooter ?? false,
   }))
 
   async function initialize() {
@@ -73,5 +74,6 @@ export const usePageStore = defineStore('pageStore', () => {
     underConstruction: computed(() => meta.value.underConstruction),
     navComponent: computed(() => meta.value.navComponent),
     theme: computed(() => meta.value.theme),
+showFooter: computed(() => meta.value.showFooter),
   }
 })

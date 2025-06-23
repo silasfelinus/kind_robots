@@ -87,12 +87,7 @@
       </Transition>
     </div>
 
-    <div
-  class="fixed w-full bg-red z-50"
-  :style="displayStore.footerStyle"
->
-  <slot name="extra" />
-</div>
+    
 
 
     <!-- Overlay -->

@@ -1,18 +1,17 @@
 <!-- /components/content/art/art-generator.vue -->
 <template>
   <div
-    class="w-full flex flex-col rounded-2xl flex-1 min-h-0 bg-base-300 shadow-inner"
+    class="w-full flex flex-col rounded-2xl flex-1 min-h-0 bg-red-300/20 shadow-inner"
     :style="displayStore.footerStyle"
   >
     <!-- Expanded Content Area -->
-    <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-6">
-
+    <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-6 bg-green-300/20">
       <!-- Animated Main Prompt Area -->
       <Transition name="fade-expand">
         <div
           v-if="['open', 'extended'].includes(displayStore.footerState)"
           key="expanded"
-          class="space-y-4"
+          class="space-y-4 bg-yellow-200/30 p-2 rounded"
         >
           <input
             v-model="promptStore.promptField"
@@ -22,7 +21,7 @@
             @input="syncPrompt"
           />
 
-          <div class="flex flex-wrap md:flex-row gap-2 items-center">
+          <div class="flex flex-wrap md:flex-row gap-2 items-center bg-blue-200/20 p-2 rounded">
             <label class="label cursor-pointer justify-between w-full md:w-auto">
               <span class="label-text font-semibold">✨ Make Pretty</span>
               <input
@@ -48,7 +47,7 @@
         <div
           v-if="displayStore.footerState === 'extended'"
           key="extended-extra"
-          class="space-y-6"
+          class="space-y-6 bg-purple-200/20 p-2 rounded"
         >
           <div class="flex flex-wrap gap-4">
             <label class="label cursor-pointer space-x-2">
@@ -115,8 +114,9 @@
 
     <!-- Footer Row -->
     <div 
-v-if="displayStore.footerState !== 'hidden'"
-class="px-4 py-2">
+      v-if="displayStore.footerState !== 'hidden'"
+      class="px-4 py-2 bg-orange-300/20 border-t border-base-300"
+    >
       <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
         <div class="flex-1 space-y-1">
           <label class="text-sm font-semibold text-base-content/80">🎯 Prompt Preview</label>
@@ -124,7 +124,8 @@ class="px-4 py-2">
             {{ promptStore.promptField || 'No prompt yet...' }}
           </div>
         </div>
-        <div class="flex-none">
+        <div class="flex flex-col items-end gap-1">
+          <span class="badge badge-info text-xs">State: {{ displayStore.footerState }}</span>
           <button
             class="btn font-semibold text-white"
             :class="isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'"
@@ -141,7 +142,7 @@ class="px-4 py-2">
 
 <script setup lang="ts">
 // /components/content/art/art-generator.vue
-import { ref, computed, watch, onMounted, watchEffect, onUnmounted } from 'vue'
+import { ref, computed, watch, watchEffect, onMounted, onUnmounted } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -257,14 +258,12 @@ async function generateArt() {
   transition: all 0.3s ease;
   overflow: hidden;
 }
-
 .fade-expand-enter-from,
 .fade-expand-leave-to {
   opacity: 0;
   transform: scaleY(0.95);
   max-height: 0;
 }
-
 .fade-expand-enter-to,
 .fade-expand-leave-from {
   opacity: 1;

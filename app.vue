@@ -1,7 +1,5 @@
 =<!-- /app.vue -->
 <template>
-
-
   <div
     class="main-layout bg-base-200 h-full w-full relative overflow-hidden box-border"
   >
@@ -73,18 +71,14 @@
     </main>
   </div>
 
-<!-- Footer Area (Extra UI like Art Generator) -->
-<div
-  v-if="pageStore.page?.showFooter"
-  class="fixed bg-red-500 z-40 w-full"
-  :style="displayStore.footerStyle"
->
-  <art-generator />
-</div>
-
-
-
-
+  <!-- Footer Area (Extra UI like Art Generator) -->
+  <div
+    v-if="pageStore.page?.showFooter"
+    class="fixed bg-primary z-40 w-full"
+    :style="displayStore.footerStyle"
+  >
+    <art-generator />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -125,8 +119,6 @@ router.afterEach(() => {
     isNavigating.value = false
   }, 400)
 })
-
-
 
 useHead({
   link: [{ rel: 'icon', type: 'image/png', href: 'favicon.ico' }],

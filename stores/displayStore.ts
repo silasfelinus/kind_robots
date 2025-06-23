@@ -116,15 +116,20 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return sizes[state.viewportSize]
   })
 
-  const mainContentHeight = computed(() => {
-    const padding = sectionPaddingSize.value
-    const headerExists = state.headerState !== 'hidden'
-    const header = headerExists ? headerHeight.value : 0
+const mainContentHeight = computed(() => {
+  const padding = sectionPaddingSize.value
+  const headerExists = state.headerState !== 'hidden'
+  const header = headerExists ? headerHeight.value : 0
 
-    const totalPadding = padding * 2 + (headerExists ? padding : padding * 2)
+  const footerVisible = state.footerState !== 'hidden'
+  const footerPadding = footerVisible ? padding : 0
+  const headerPadding = headerExists ? padding : padding * 2
 
-    return 100 - (header + totalPadding + footerHeight.value)
-  })
+  const totalPadding = padding + headerPadding + footerPadding
+
+  return 100 - (header + totalPadding + footerHeight.value)
+})
+
 
   const mainContentWidth = computed(() => {
     return (

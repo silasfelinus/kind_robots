@@ -70,6 +70,17 @@
       />
     </main>
   </div>
+
+<!-- Footer Area (Extra UI like Art Generator) -->
+<div
+  v-if="['compact', 'open', 'extended'].includes(displayStore.footerState)"
+  class="fixed z-50 w-full"
+  :style="displayStore.footerStyle"
+>
+  <art-generator />
+</div>
+
+
 </template>
 
 <script setup lang="ts">

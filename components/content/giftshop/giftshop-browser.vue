@@ -27,13 +27,6 @@
         <!-- Price and Mana -->
         <div class="flex flex-col gap-1">
           <div class="text-sm font-medium">💰 ${{ item.price.toFixed(2) }}</div>
-          <div
-            v-if="item.manaCost !== undefined"
-            class="flex items-center gap-1 text-sm font-medium text-accent"
-          >
-            <span>{{ item.manaCost }}</span>
-            <Icon name="kind-icon:mana" class="w-4 h-4" />
-          </div>
         </div>
 
         <!-- Quantity -->
@@ -60,7 +53,6 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 // /components/content/shop/giftshop-browser.vue
 import { ref, reactive } from 'vue'
@@ -77,9 +69,7 @@ const quantities = reactive<Record<string, number>>(
 
 function addToCart(item: CartItem) {
   const quantity = quantities[item.id] || 1
-  const imageUrl = item.needsArt
-    ? customImages[item.id]
-    : item.image
+  const imageUrl = item.needsArt ? customImages[item.id] : item.image
 
   const payload = {
     id: `${item.id}-${Date.now()}`, // unique cart entry ID

@@ -1,7 +1,7 @@
 <!-- /components/layout/footer-toggle.vue -->
 <template>
   <div
-    v-if="canToggleFooter"
+    v-if="showToggle"
     class="fixed z-50 left-1/2 -translate-x-1/2 p-1"
     :style="toggleStyle"
   >
@@ -19,8 +19,10 @@ import { usePageStore } from '@/stores/pageStore'
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
-// Show the toggle if the page allows a footer, even if footer is currently hidden
-const canToggleFooter = pageStore.showFooter
+// Show toggle if the page supports a footer OR the footer is currently active or hidden but toggleable
+const showToggle = computed(() =>
+  pageStore.showFooter || ['compact', 'open', 'extended', 'hidden'].includes(displayStore.footerState)
+)
 
 const iconName = computed(() =>
   displayStore.footerState === 'extended'

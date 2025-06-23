@@ -251,7 +251,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  displayStore.changeState('footerState', 'hidden')
+  displayStore.changeState('footerState', 'closed')
 })
 
 </script>

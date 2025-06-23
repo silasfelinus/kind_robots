@@ -1,7 +1,7 @@
 <!-- /components/layout/footer-toggle.vue -->
 <template>
   <div
-    v-if="showToggle"
+    
     class="fixed z-50 left-1/2 -translate-x-1/2 p-1"
     :style="toggleStyle"
   >

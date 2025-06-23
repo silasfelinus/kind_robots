@@ -241,4 +241,17 @@ async function generateArt() {
   displayStore.stopAnimation()
   isGenerating.value = false
 }
+
+onMounted(() => {
+  if (!artStore.artForm.promptString) {
+    artStore.artForm.promptString = promptStore.promptField
+  }
+
+  displayStore.changeState('footerState', 'compact')
+})
+
+onUnmounted(() => {
+  displayStore.changeState('footerState', 'hidden')
+})
+
 </script>

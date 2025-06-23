@@ -87,12 +87,13 @@
       </Transition>
     </div>
 
-    <!-- Footer Panel -->
-    <div class="fixed rounded-2xl" :style="displayStore.footerStyle">
-      <div class="relative w-full h-full">
-        <slot name="extra" />
-      </div>
-    </div>
+    <div
+  class="fixed bottom-0 left-0 w-full bg-red-300 z-50"
+  style="height: 200px"
+>
+  <slot name="extra" />
+</div>
+
 
     <!-- Overlay -->
     <slot name="overlay" />

@@ -1,26 +1,27 @@
 <!-- /components/content/art/corner-panel.vue -->
 <template>
   <div class="absolute top-0 right-0 z-50 p-1" @click.self="closePanel">
-    <div class="flex gap-1 items-start">
+    <div class="flex gap-2 items-start">
       <!-- Menu Icons -->
       <div
         v-for="item in menuItems"
         :key="item.id"
-        class="relative flex flex-col items-end"
+        class="relative flex items-center gap-2"
       >
         <div
           class="tooltip tooltip-top fixed z-[9999]"
           :data-tip="item.tooltip"
         >
           <button
-            class="btn btn-xs btn-circle flex items-center gap-1 px-2"
+            class="btn btn-xs flex items-center gap-1 px-2"
             @click.stop="toggle(item.id)"
           >
-            <template v-if="item.id === 'tokens'">
-              <span class="text-xs font-bold">
-                {{ userStore.user?.mana ?? 0 }}
-              </span>
-            </template>
+            <span
+              v-if="item.id === 'tokens'"
+              class="text-xs font-bold"
+            >
+              {{ userStore.user?.mana ?? 0 }}
+            </span>
             <Icon :name="item.icon" class="inline" />
           </button>
         </div>
@@ -163,6 +164,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/art/corner-panel.vue
 import { ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 

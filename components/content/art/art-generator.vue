@@ -1,12 +1,12 @@
 <!-- /components/content/art/art-generator.vue -->
 <template>
   <div
-    class="w-full flex flex-col rounded-2xl flex-1 min-h-0 bg-red-300/20 shadow-inner"
+    class="w-full flex flex-col rounded-2xl flex-1 min-h-0 shadow-inner"
     :style="displayStore.footerStyle"
   >
     <!-- Expanded Content Area -->
     <div
-      class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-6 bg-green-300/20"
+      class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-6"
     >
       <!-- Animated Main Prompt Area -->
       <Transition name="fade-expand">

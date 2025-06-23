@@ -30,7 +30,13 @@ const iconName = computed(() =>
     : 'kind-icon:chevron-double-up'
 )
 
-const toggleStyle = computed(() => ({
-  top: `calc(100vh - var(--vh) * (${displayStore.footerHeight}))`,
-}))
+const toggleStyle = computed(() => {
+  const padding = displayStore.sectionPaddingSize
+  const height = displayStore.footerHeight
+  const offset = height === 0 ? 2 : height
+  return {
+    top: `calc(100dvh - var(--vh) * ${offset + padding})`,
+  }
+})
+
 </script>

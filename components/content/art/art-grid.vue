@@ -89,7 +89,7 @@
 
     <div
   class="fixed w-full z-50"
-  style="displayStore.footerStyle"
+  :style="displayStore.footerStyle"
 >
   <slot name="extra" />
 </div>

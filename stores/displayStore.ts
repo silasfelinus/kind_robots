@@ -257,13 +257,11 @@ const mainContentHeight = computed(() => {
     state[side] = stateMap[state[side]]
     saveState()
   }
-
-  function toggleFooter() {
-    const order: DisplayState[] = ['compact', 'open', 'extended', 'hidden']
-
-    const currentIndex = order.indexOf(state.footerState)
-    state.footerState = order[(currentIndex + 1) % order.length]
-  }
+function toggleFooter() {
+  const order: DisplayState[] = ['compact', 'extended', 'hidden']
+  const currentIndex = order.indexOf(state.footerState)
+  state.footerState = order[(currentIndex + 1) % order.length]
+}
 
   function toggleBigMode() {
     state.bigMode = !state.bigMode

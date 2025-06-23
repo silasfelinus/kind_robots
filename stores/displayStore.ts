@@ -70,7 +70,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const footerHeights = {
-    closed: {
+    hidden: {
       small: 2,
       medium: 2,
       large: 2,
@@ -176,7 +176,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return state.sidebarLeftState !== 'hidden'
       ? {
           height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
- width: `${sidebarLeftWidth.value}vw`,
+          width: `${sidebarLeftWidth.value}vw`,
           top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
           left: `${sectionPaddingSize.value}vw`,
         }
@@ -204,20 +204,20 @@ export const useDisplayStore = defineStore('displayStore', () => {
       top: `calc(var(--vh) * ${contentTopOffset.value})`,
       right: `${padding}vw`,
       width: visible ? `${sidebarRightWidth.value}vw` : '0px',
-      height: visible ? `calc(var(--vh) * ${sidebarContentHeight.value})` : '0px',
-
+      height: visible
+        ? `calc(var(--vh) * ${sidebarContentHeight.value})`
+        : '0px',
     }
   })
 
-const sidebarContentHeight = computed(() => {
-  const padding = sectionPaddingSize.value
-  const headerExists = state.headerState !== 'hidden'
-  const header = headerExists ? headerHeight.value : 0
-  const totalPadding = padding * 2 + (headerExists ? padding : padding * 2)
+  const sidebarContentHeight = computed(() => {
+    const padding = sectionPaddingSize.value
+    const headerExists = state.headerState !== 'hidden'
+    const header = headerExists ? headerHeight.value : 0
+    const totalPadding = padding * 2 + (headerExists ? padding : padding * 2)
 
-  return 100 - (header + totalPadding)
-})
-
+    return 100 - (header + totalPadding)
+  })
 
   const mainContentStyle = computed(() => {
     const padding = sectionPaddingSize.value
@@ -254,13 +254,10 @@ const sidebarContentHeight = computed(() => {
   }
 
   function toggleFooter() {
-    if (state.footerState === 'compact') {
-      state.footerState = 'open'
-    } else if (state.footerState === 'open') {
-      state.footerState = 'extended'
-    } else {
-      state.footerState = 'compact'
-    }
+    const order: DisplayState[] = ['compact', 'open', 'extended', 'hidden']
+
+    const currentIndex = order.indexOf(state.footerState)
+    state.footerState = order[(currentIndex + 1) % order.length]
   }
 
   function toggleBigMode() {

@@ -12,6 +12,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/layout/footer-toggle.vue
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -19,10 +20,7 @@ import { usePageStore } from '@/stores/pageStore'
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
-const showFooter = computed(() => {
-  const page = pageStore.page
-  return !!(page && 'showFooter' in page && page.showFooter === true)
-})
+const showFooter = computed(() => pageStore.page?.showFooter === true)
 
 const iconName = computed(() =>
   displayStore.footerState === 'extended'
@@ -30,7 +28,15 @@ const iconName = computed(() =>
     : 'kind-icon:chevron-double-up'
 )
 
+const toggleTop = computed(() => {
+  const topRaw = displayStore.footerStyle?.top
+  if (!topRaw?.includes('calc')) return '90'
+  const match = topRaw.match(/var\(--vh\)\s*\*\s*(\d+(\.\d+)?)/)
+  return match?.[1] ?? '90'
+})
+
 const toggleStyle = computed(() => ({
-  top: `calc(var(--vh) * (${displayStore.footerStyle?.top?.replace('calc(var(--vh) * ', '').replace(')', '') ?? '90'} - 1))`,
+  top: `calc(var(--vh) * (${toggleTop.value} - 1))`,
 }))
 </script>
+

@@ -88,8 +88,8 @@
     </div>
 
     <div
-  class="fixed bottom-0 left-0 w-full bg-red-300 z-50"
-  style="height: 200px"
+  class="fixed w-full z-50"
+  style="displayStore.footerStyle"
 >
   <slot name="extra" />
 </div>

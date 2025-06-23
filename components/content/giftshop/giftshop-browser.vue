@@ -23,7 +23,18 @@
         <!-- Info -->
         <div class="text-lg font-semibold">{{ item.label }}</div>
         <div class="text-sm text-base-content/70">{{ item.description }}</div>
-        <div class="text-sm font-medium">💰 ${{ item.price.toFixed(2) }}</div>
+
+        <!-- Price and Mana -->
+        <div class="flex flex-col gap-1">
+          <div class="text-sm font-medium">💰 ${{ item.price.toFixed(2) }}</div>
+          <div
+            v-if="item.manaCost !== undefined"
+            class="flex items-center gap-1 text-sm font-medium text-accent"
+          >
+            <span>{{ item.manaCost }}</span>
+            <Icon name="kind-icon:mana" class="w-4 h-4" />
+          </div>
+        </div>
 
         <!-- Quantity -->
         <div class="form-control">
@@ -48,6 +59,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 // /components/content/shop/giftshop-browser.vue

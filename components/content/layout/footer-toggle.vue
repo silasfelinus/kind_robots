@@ -2,7 +2,8 @@
 <template>
   <div
     v-if="showFooter"
-    class="fixed z-50 top-0 left-1/2 -translate-x-1/2 p-1"
+    class="fixed z-50 left-1/2 -translate-x-1/2 p-1"
+    :style="toggleStyle"
   >
     <button class="btn btn-xs btn-circle" @click="displayStore.toggleFooter()">
       <Icon :name="iconName" />
@@ -11,7 +12,6 @@
 </template>
 
 <script setup lang="ts">
-// /components/layout/footer-toggle.vue
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -19,7 +19,7 @@ import { usePageStore } from '@/stores/pageStore'
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
-const showFooter = computed(() => pageStore.page?.showFooter)
+const showFooter = computed(() => pageStore.page?.showFooter === true)
 
 const iconName = computed(() =>
   displayStore.footerState === 'extended'
@@ -27,6 +27,8 @@ const iconName = computed(() =>
     : 'kind-icon:chevron-double-up'
 )
 
-
+// Float the toggle just above the footer
+const toggleStyle = computed(() => ({
+  top: `calc(100vh - var(--vh) * (${displayStore.footerHeight}))`,
+}))
 </script>
-

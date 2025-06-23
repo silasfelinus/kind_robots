@@ -38,13 +38,10 @@
     </div>
 
     <!-- Icon Row -->
-    <!-- Around scroll container -->
-    <div
-      class="relative w-full h-full flex items-center pl-10 md:pl-12 pr-20 md:pr-24 group"
-    >
+    <div class="relative w-full h-full flex items-center pl-10 md:pl-12 pr-20 md:pr-24 group">
       <div
         ref="scrollContainer"
-        class="scroll-container overflow-x-auto overflow-y-hidden w-full h-full flex items-center gap-1 md:gap-2 snap-x snap-mandatory transition-all duration-300 scrollbar-thin scrollbar-thumb-base-content/60 scrollbar-track-transparent"
+        class="scroll-container overflow-x-auto overflow-y-hidden w-full h-full flex items-center gap-1 md:gap-2 snap-x snap-mandatory scroll-px-4 transition-all duration-300 scrollbar-thin scrollbar-thumb-base-content/60 scrollbar-track-transparent"
         @scroll="checkScrollEdges"
         @mousedown="handleScrollMouseDown"
         @mousemove="handleScrollMouseMove"
@@ -59,11 +56,13 @@
           v-for="(icon, index) in editableIcons"
           :key="icon.id"
           :icon="icon"
+          class="snap-start shrink-0"
         />
       </div>
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'

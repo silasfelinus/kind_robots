@@ -35,7 +35,7 @@ const toggleStyle = computed(() => {
   const isHidden = displayStore.footerState === 'hidden'
 
   // Add extra upward offset when hidden so it's not under the bottom chrome bar
-  const offset = isHidden ? padding + 3 : height + padding
+  const offset = isHidden ? padding + 1 : height + padding
 
   return {
     top: `calc(100dvh - var(--vh) * ${offset})`,

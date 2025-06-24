@@ -84,6 +84,8 @@
         <div><strong>Left Sidebar Style:</strong> {{ leftSidebarStyle }}</div>
         <div><strong>Right Sidebar Style:</strong> {{ rightSidebarStyle }}</div>
         <div><strong>Main Content Style:</strong> {{ mainContentStyle }}</div>
+        <div><strong>showFooter:</strong> {{ showFooter }}</div>
+
       </div>
 
       <details class="mt-3">
@@ -116,9 +118,12 @@
 import { computed, ref, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useUserStore } from '@/stores/userStore'
+import { usePageStore } from '@/stores/pageStore'
 
 const displayStore = useDisplayStore()
 const userStore = useUserStore()
+const pageStore = usePageStore()
+const showFooter = computed(() => pageStore.page?.showFooter)
 
 const isDebugVisible = ref(false)
 const toggleDebug = () => (isDebugVisible.value = !isDebugVisible.value)

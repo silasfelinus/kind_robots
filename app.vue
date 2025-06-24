@@ -1,11 +1,10 @@
-=<!-- /app.vue -->
+<!-- /app.vue -->
 <template>
   <div
     class="main-layout bg-base-200 h-full w-full relative overflow-hidden box-border"
   >
     <!-- Loaders -->
     <div class="fixed z-50">
- 
       <footer-toggle />
       <kind-loader />
       <animation-loader class="fixed z-50" />
@@ -38,27 +37,31 @@
     <!-- Main Content Layer -->
     <main v-if="pageStore.ready">
       <!-- Main Content (Nuxt Page) -->
-      <div
-        v-if="showMainContent"
-        class="fixed z-40 transition-all duration-500 ease-in-out overflow-y-auto overscroll-contain rounded-2xl"
-        :style="displayStore.mainContentStyle"
-      >
-        <NuxtPage
-          :key="$route.fullPath"
-          class="min-h-full w-full px-4 py-6 transition-opacity duration-300"
-        />
-      </div>
+      <Transition name="slide-in-left">
+        <div
+          v-if="showMainContent"
+          class="fixed z-40 transition-all duration-500 ease-in-out overflow-y-auto overscroll-contain rounded-2xl"
+          :style="displayStore.mainContentStyle"
+        >
+          <NuxtPage
+            :key="$route.fullPath"
+            class="min-h-full w-full px-4 py-6 transition-opacity duration-300"
+          />
+        </div>
+      </Transition>
 
       <!-- Splash Tutorial (small viewport fallback) -->
-      <div
-        v-if="sidebarRightOpen"
-        class="fixed z-40 transition-all duration-500 ease-in-out"
-        :style="displayStore.rightSidebarStyle"
-      >
-        <splash-tutorial
-          class="h-full w-full px-4 py-6 transition-opacity duration-300"
-        />
-      </div>
+      <Transition name="slide-in-right">
+        <div
+          v-if="sidebarRightOpen"
+          class="fixed z-40 transition-all duration-500 ease-in-out"
+          :style="displayStore.rightSidebarStyle"
+        >
+          <splash-tutorial
+            class="h-full w-full px-4 py-6 transition-opacity duration-300"
+          />
+        </div>
+      </Transition>
 
       <!-- Right Sidebar Toggle -->
       <right-toggle
@@ -148,6 +151,44 @@ useHead({
   transform: translateZ(0);
 }
 
+/* Slide in from left (NuxtPage) */
+.slide-in-left-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+.slide-in-left-enter-active,
+.slide-in-left-leave-active {
+  transition: transform 0.4s ease, opacity 0.3s ease;
+}
+.slide-in-left-enter-to,
+.slide-in-left-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+.slide-in-left-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* Slide in from right (Splash Tutorial) */
+.slide-in-right-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.slide-in-right-enter-active,
+.slide-in-right-leave-active {
+  transition: transform 0.4s ease, opacity 0.3s ease;
+}
+.slide-in-right-enter-to,
+.slide-in-right-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+.slide-in-right-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
 html,
 body,
 #__nuxt {
@@ -164,21 +205,5 @@ body,
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}
-.slide-in-right-enter-from,
-.slide-in-right-leave-to {
-  transform: translateX(100%);
-  opacity: 0;
-}
-.slide-in-right-enter-active,
-.slide-in-right-leave-active {
-  transition:
-    transform 0.4s ease-in-out,
-    opacity 0.3s ease-in-out;
-}
-.slide-in-right-enter-to,
-.slide-in-right-leave-from {
-  transform: translateX(0);
-  opacity: 1;
 }
 </style>

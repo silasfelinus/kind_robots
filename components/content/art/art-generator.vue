@@ -4,57 +4,44 @@
     class="w-full flex flex-col rounded-2xl flex-1 min-h-0 shadow-inner"
     :style="displayStore.footerStyle"
   >
-    <!-- Expanded Content Area -->
-    <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-6">
-      <!-- Animated Main Prompt Area -->
-      <Transition name="fade-expand">
-        <div
-          v-if="['open', 'extended'].includes(displayStore.footerState)"
-          key="expanded"
-          class="space-y-4 bg-yellow-200/30 p-2 rounded"
-        >
-          <input
-            v-model="promptStore.promptField"
-            placeholder="Enter your creative prompt..."
-            class="input input-bordered w-full text-base bg-base-100"
-            :disabled="loading"
-            @input="syncPrompt"
-          />
+    <!-- Content Area -->
+    <div class="flex-1 min-h-0 overflow-y-auto" :class="displayStore.sectionPadding">
+      <!-- Prompt Section -->
+      <div class="space-y-4 bg-yellow-200/30 rounded-2xl shadow px-4 py-3">
+        <input
+          v-model="promptStore.promptField"
+          placeholder="Enter your creative prompt..."
+          class="input input-bordered w-full text-base bg-base-100"
+          :disabled="loading"
+          @input="syncPrompt"
+        />
 
-          <div
-            class="flex flex-wrap md:flex-row gap-2 items-center bg-blue-200/20 p-2 rounded"
-          >
-            <label
-              class="label cursor-pointer justify-between w-full md:w-auto"
-            >
-              <span class="label-text font-semibold">✨ Make Pretty</span>
-              <input
-                type="checkbox"
-                class="toggle toggle-accent"
-                v-model="makePretty"
-              />
-            </label>
+        <div class="flex flex-wrap md:flex-row gap-2 items-center bg-blue-200/20 p-3 rounded-xl">
+          <label class="label cursor-pointer justify-between w-full md:w-auto">
+            <span class="label-text font-semibold">✨ Make Pretty</span>
+            <input
+              type="checkbox"
+              class="toggle toggle-accent"
+              v-model="makePretty"
+            />
+          </label>
 
-            <button
-              class="btn btn-sm btn-secondary"
-              @click="randomStore.applySurprise"
-            >
-              🎲 Surprise
-            </button>
+          <button class="btn btn-sm btn-secondary" @click="randomStore.applySurprise">
+            🎲 Surprise
+          </button>
 
-            <button class="btn btn-sm btn-warning" @click="resetUIState">
-              ♻️ Reset
-            </button>
-          </div>
+          <button class="btn btn-sm btn-warning" @click="resetUIState">
+            ♻️ Reset
+          </button>
         </div>
-      </Transition>
+      </div>
 
-      <!-- Animated Extended Area -->
+      <!-- Extended Controls -->
       <Transition name="fade-expand">
         <div
           v-if="displayStore.footerState === 'extended'"
-          key="extended-extra"
-          class="space-y-6 bg-purple-200/20 p-2 rounded"
+          key="extended-controls"
+          class="space-y-6 bg-purple-200/20 rounded-2xl shadow px-4 py-4 mt-4"
         >
           <div class="flex flex-wrap gap-4">
             <label class="label cursor-pointer space-x-2">
@@ -204,18 +191,14 @@ onMounted(() => {
   if (!artStore.artForm.promptString) {
     artStore.artForm.promptString = promptStore.promptField
   }
-  console.log('footerStyle', displayStore.footerStyle)
 
   if (displayStore.footerState === 'hidden') {
     displayStore.changeState('footerState', 'compact')
-    console.log('footerStyle', displayStore.footerStyle)
   }
 })
 
 onUnmounted(() => {
   displayStore.changeState('footerState', 'hidden')
-
-  console.log('footerStyle', displayStore.footerStyle)
 })
 
 function syncPrompt() {

@@ -1,7 +1,7 @@
 <!-- /components/content/art/art-grid.vue -->
 <template>
   <div
-    class="relative w-full flex flex-col rounded-2xl"
+    class="relative w-full flex flex-col bg-secondary rounded-2xl"
     :style="{ height: `calc(var(--vh) * ${displayStore.mainContentHeight})` }"
   >
     <!-- Fullscreen Toggle -->
@@ -46,10 +46,7 @@
     <!-- Corner Panel -->
     <corner-panel />
 
-    <!-- Report Area -->
-    <div class="text-center px-4 md:px-12 lg:px-32 space-y-2">
-      <slot name="report" />
-    </div>
+    
 
     <!-- Main Area: Columns with Animations -->
     <div class="relative w-full flex-1 flex min-h-0">
@@ -86,7 +83,8 @@
         </div>
       </Transition>
     </div>
-   <slot name="extra" />
+   <slot name="extra"     
+    :style="{ height: `calc(var(--vh) * ${displayStore.footerHeight})` }" />
     
 
 

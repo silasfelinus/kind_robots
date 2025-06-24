@@ -74,7 +74,7 @@
   <!-- Footer Area (Extra UI like Art Generator) -->
   <div
     v-if="pageStore.page?.showFooter"
-    class="fixed bg-primary z-40 w-full"
+    class="fixed z-40 w-full"
     :style="displayStore.footerStyle"
   >
     <art-generator />

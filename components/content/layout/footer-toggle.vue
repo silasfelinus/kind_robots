@@ -33,7 +33,7 @@ const toggleStyle = computed(() => {
   const isHidden = displayStore.footerState === 'hidden'
 
   const baseOffset = height + padding
-  const adjustedOffset = isHidden ? baseOffset - 2 : baseOffset
+  const adjustedOffset = isHidden ? baseOffset - 3 : baseOffset
 
   return {
     top: `calc(100dvh - var(--vh) * ${adjustedOffset})`,

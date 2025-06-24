@@ -321,10 +321,7 @@ function toggleFooter() {
       setSectionState(section, !isCurrentlyOn)
     }
 
-    // Adjust footer
-    const anyOn = state.showLeft || state.showCenter || state.showRight
-    state.footerState = anyOn ? 'compact' : 'extended'
-
+ 
     saveState()
   }
 

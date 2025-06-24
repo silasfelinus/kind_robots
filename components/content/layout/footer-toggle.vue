@@ -20,9 +20,7 @@ const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
 // Show toggle if the page supports a footer OR the footer is currently active or hidden but toggleable
-const showToggle = computed(() =>
-  pageStore.showFooter || ['compact', 'open', 'extended', 'hidden'].includes(displayStore.footerState)
-)
+const showToggle = computed(() => pageStore.page?.showFooter)
 
 const iconName = computed(() =>
   displayStore.footerState === 'extended'

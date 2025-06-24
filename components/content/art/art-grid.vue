@@ -6,9 +6,16 @@
   >
     <!-- Fullscreen Toggle -->
     <div class="absolute top-0 left-0 z-10 p-1">
-      <button class="btn btn-xs btn-circle" @click="displayStore.toggleFullscreen()">
+      <button
+        class="btn btn-xs btn-circle"
+        @click="displayStore.toggleFullscreen()"
+      >
         <Icon
-          :name="displayStore.isFullScreen ? 'kind-icon:compress' : 'kind-icon:expand'"
+          :name="
+            displayStore.isFullScreen
+              ? 'kind-icon:compress'
+              : 'kind-icon:expand'
+          "
         />
       </button>
     </div>
@@ -17,37 +24,35 @@
     <div class="text-center mt-6 md:mt-1">
       <slot name="title" />
     </div>
-<!-- Toggle Buttons -->
-<div class="flex justify-center mt-4 px-4">
-  <div class="flex gap-2 bg-base-300 rounded-2xl p-4 shadow-inner">
-    <button
-      class="btn btn-sm"
-      :class="{ 'btn-primary': displayStore.showLeft }"
-      @click="displayStore.toggleSection('left')"
-    >
-      <slot name="label-left">⬅️ Left</slot>
-    </button>
-    <button
-      class="btn btn-sm"
-      :class="{ 'btn-primary': displayStore.showCenter }"
-      @click="displayStore.toggleSection('center')"
-    >
-      <slot name="label-center">🎯 Center</slot>
-    </button>
-    <button
-      class="btn btn-sm"
-      :class="{ 'btn-primary': displayStore.showRight }"
-      @click="displayStore.toggleSection('right')"
-    >
-      <slot name="label-right">➡️ Right</slot>
-    </button>
-  </div>
-</div>
+    <!-- Toggle Buttons -->
+    <div class="flex justify-center mt-4 px-4 py-1">
+      <div class="flex gap-2 bg-base-300 rounded-2xl p-4 shadow-inner">
+        <button
+          class="btn btn-sm"
+          :class="{ 'btn-primary': displayStore.showLeft }"
+          @click="displayStore.toggleSection('left')"
+        >
+          <slot name="label-left">⬅️ Left</slot>
+        </button>
+        <button
+          class="btn btn-sm"
+          :class="{ 'btn-primary': displayStore.showCenter }"
+          @click="displayStore.toggleSection('center')"
+        >
+          <slot name="label-center">🎯 Center</slot>
+        </button>
+        <button
+          class="btn btn-sm"
+          :class="{ 'btn-primary': displayStore.showRight }"
+          @click="displayStore.toggleSection('right')"
+        >
+          <slot name="label-right">➡️ Right</slot>
+        </button>
+      </div>
+    </div>
 
     <!-- Corner Panel -->
     <corner-panel />
-
-    
 
     <!-- Main Area: Columns with Animations -->
     <div class="relative w-full flex-1 flex min-h-0">
@@ -84,10 +89,10 @@
         </div>
       </Transition>
     </div>
-   <slot name="extra"     
-    :style="{ height: `calc(var(--vh) * ${displayStore.footerHeight})` }" />
-    
-
+    <slot
+      name="extra"
+      :style="{ height: `calc(var(--vh) * ${displayStore.footerHeight})` }"
+    />
 
     <!-- Overlay -->
     <slot name="overlay" />

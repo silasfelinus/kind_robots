@@ -122,7 +122,7 @@
     <!-- Footer Row -->
     <div
       v-if="displayStore.footerState !== 'hidden'"
-      class="px-4 py-2 bg-orange-300/20 border-t border-base-300"
+      class="px-4 py-2 rounded-2xl border-t border-base-300"
     >
       <div
         class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4"

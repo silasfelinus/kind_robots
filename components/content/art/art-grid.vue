@@ -5,7 +5,7 @@
     :style="{ height: `calc(var(--vh) * ${displayStore.mainContentHeight})` }"
   >
     <!-- Fullscreen Toggle -->
-    <div class="absolute top-0 left-0 z-10 p-1">
+    <div class="absolute top-0 left-0 z-10 p-2">
       <button
         class="btn btn-xs btn-circle"
         @click="displayStore.toggleFullscreen()"
@@ -21,12 +21,12 @@
     </div>
 
     <!-- Title -->
-    <div class="text-center mt-6 md:mt-1">
+    <div class="text-center p-2">
       <slot name="title" />
     </div>
     <!-- Toggle Buttons -->
-    <div class="flex justify-center mt-4 px-4 py-1">
-      <div class="flex gap-2 bg-base-300 rounded-2xl p-4 shadow-inner">
+    <div class="flex justify-center p-2">
+      <div class="flex gap-2 bg-base-300 rounded-2xl p-2 shadow-inner">
         <button
           class="btn btn-sm"
           :class="{ 'btn-primary': displayStore.showLeft }"

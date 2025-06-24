@@ -5,10 +5,17 @@
     :style="displayStore.footerStyle"
   >
     <!-- Content Area -->
-    <div class="flex-1 min-h-0 overflow-y-auto space-y-4" :class="displayStore.sectionPadding">
+    <div
+      class="flex-1 min-h-0 overflow-y-auto space-y-4"
+      :class="displayStore.sectionPaddingSize"
+    >
       <!-- Prompt Preview + Generate Button -->
-      <div class="px-4 py-2 rounded-2xl border border-base-300 bg-base-100 shadow">
-        <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+      <div
+        class="px-4 py-2 rounded-2xl border border-base-300 bg-base-100 shadow"
+      >
+        <div
+          class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4"
+        >
           <div class="flex-1 space-y-1">
             <label class="text-sm font-semibold text-base-content/80">
               🎯 Prompt Preview
@@ -49,8 +56,12 @@
             @input="syncPrompt"
           />
 
-          <div class="flex flex-wrap md:flex-row gap-2 items-center bg-blue-200/20 p-3 rounded-xl">
-            <label class="label cursor-pointer justify-between w-full md:w-auto">
+          <div
+            class="flex flex-wrap md:flex-row gap-2 items-center bg-blue-200/20 p-3 rounded-xl"
+          >
+            <label
+              class="label cursor-pointer justify-between w-full md:w-auto"
+            >
               <span class="label-text font-semibold">✨ Make Pretty</span>
               <input
                 type="checkbox"
@@ -60,7 +71,9 @@
             </label>
 
             <label class="label cursor-pointer space-x-2 w-full md:w-auto">
-              <span class="label-text font-semibold">🚫 Use Negative Prompt</span>
+              <span class="label-text font-semibold"
+                >🚫 Use Negative Prompt</span
+              >
               <input
                 type="checkbox"
                 class="toggle toggle-error"
@@ -69,7 +82,10 @@
               />
             </label>
 
-            <button class="btn btn-sm btn-secondary" @click="randomStore.applySurprise">
+            <button
+              class="btn btn-sm btn-secondary"
+              @click="randomStore.applySurprise"
+            >
               🎲 Surprise
             </button>
 

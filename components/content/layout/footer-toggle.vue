@@ -1,8 +1,7 @@
 <!-- /components/layout/footer-toggle.vue -->
 <template>
   <div
-v-if="showToggle"
-    
+    v-if="showToggle"
     class="fixed z-50 left-1/2 -translate-x-1/2"
     :style="toggleStyle"
   >
@@ -20,7 +19,6 @@ import { usePageStore } from '@/stores/pageStore'
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
-// Show toggle if the page supports a footer OR the footer is currently active or hidden but toggleable
 const showToggle = computed(() => pageStore.page?.showFooter)
 
 const iconName = computed(() =>
@@ -34,12 +32,11 @@ const toggleStyle = computed(() => {
   const height = displayStore.footerHeight
   const isHidden = displayStore.footerState === 'hidden'
 
-  // Add extra upward offset when hidden so it's not under the bottom chrome bar
-  const offset = isHidden ? padding + 1 : height + padding
+  const baseOffset = height + padding
+  const adjustedOffset = isHidden ? baseOffset - 2 : baseOffset
 
   return {
-    top: `calc(100dvh - var(--vh) * ${offset})`,
+    top: `calc(100dvh - var(--vh) * ${adjustedOffset})`,
   }
 })
-
 </script>

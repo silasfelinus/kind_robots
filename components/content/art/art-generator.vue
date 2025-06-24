@@ -208,9 +208,8 @@ onMounted(() => {
 
   if (displayStore.footerState === 'hidden') {
     displayStore.changeState('footerState', 'compact')
+    console.log('footerStyle', displayStore.footerStyle)
   }
-
-  console.log('footerStyle', displayStore.footerStyle)
 })
 
 onUnmounted(() => {

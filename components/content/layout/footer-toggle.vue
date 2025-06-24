@@ -24,7 +24,7 @@ const showToggle = computed(() => pageStore.page?.showFooter)
 const iconName = computed(() =>
   displayStore.footerState === 'extended'
     ? 'kind-icon:chevron-double-down'
-    : 'kind-icon:chevron-double-up'
+    : 'kind-icon:chevron-double-up',
 )
 
 const toggleStyle = computed(() => {
@@ -33,7 +33,7 @@ const toggleStyle = computed(() => {
   const isHidden = displayStore.footerState === 'hidden'
 
   const baseOffset = height + padding
-  const adjustedOffset = isHidden ? baseOffset - 3 : baseOffset
+  const adjustedOffset = isHidden ? baseOffset - 1 : baseOffset
 
   return {
     top: `calc(100dvh - var(--vh) * ${adjustedOffset})`,

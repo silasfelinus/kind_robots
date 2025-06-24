@@ -51,9 +51,6 @@
       </div>
     </div>
 
-    <!-- Corner Panel -->
-    <corner-panel />
-
     <!-- Main Area: Columns with Animations -->
     <div class="relative w-full flex-1 flex min-h-0">
       <Transition name="slide-left" mode="out-in">

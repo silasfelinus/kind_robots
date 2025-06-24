@@ -43,6 +43,8 @@
           class="fixed z-40 transition-all duration-500 ease-in-out overflow-y-auto overscroll-contain rounded-2xl"
           :style="displayStore.mainContentStyle"
         >
+          <!-- Corner Panel -->
+          <corner-panel />
           <NuxtPage
             :key="$route.fullPath"
             class="min-h-full w-full px-4 py-6 transition-opacity duration-300"
@@ -158,7 +160,9 @@ useHead({
 }
 .slide-in-left-enter-active,
 .slide-in-left-leave-active {
-  transition: transform 0.4s ease, opacity 0.3s ease;
+  transition:
+    transform 0.4s ease,
+    opacity 0.3s ease;
 }
 .slide-in-left-enter-to,
 .slide-in-left-leave-from {
@@ -177,7 +181,9 @@ useHead({
 }
 .slide-in-right-enter-active,
 .slide-in-right-leave-active {
-  transition: transform 0.4s ease, opacity 0.3s ease;
+  transition:
+    transform 0.4s ease,
+    opacity 0.3s ease;
 }
 .slide-in-right-enter-to,
 .slide-in-right-leave-from {

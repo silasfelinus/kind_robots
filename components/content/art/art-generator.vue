@@ -48,6 +48,10 @@
           key="expanded"
           class="space-y-6 bg-yellow-200/30 rounded-2xl shadow px-4 py-4"
         >
+          <!-- 📁 Collection Selector -->
+          <CollectionSelector />
+
+          <!-- Prompt Input -->
           <input
             v-model="promptStore.promptField"
             placeholder="Enter your creative prompt..."
@@ -56,6 +60,7 @@
             @input="syncPrompt"
           />
 
+          <!-- Toggles -->
           <div
             class="flex flex-wrap md:flex-row gap-2 items-center bg-blue-200/20 p-3 rounded-xl"
           >
@@ -94,6 +99,7 @@
             </button>
           </div>
 
+          <!-- Negative Prompt -->
           <div v-if="useNegative" class="space-y-2">
             <label class="font-semibold">Negative Prompt</label>
             <input
@@ -104,6 +110,7 @@
             />
           </div>
 
+          <!-- Public Toggle -->
           <div class="flex flex-wrap gap-4">
             <label class="label cursor-pointer space-x-2">
               <span class="label-text font-semibold">🔓 Public</span>
@@ -115,6 +122,7 @@
             </label>
           </div>
 
+          <!-- Sliders -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block font-semibold mb-1">

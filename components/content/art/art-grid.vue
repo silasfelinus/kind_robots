@@ -17,31 +17,32 @@
     <div class="text-center mt-6 md:mt-1">
       <slot name="title" />
     </div>
-
-    <!-- Toggle Buttons -->
-    <div class="flex justify-center gap-2 mt-2">
-      <button
-        class="btn btn-sm"
-        :class="{ 'btn-primary': displayStore.showLeft }"
-        @click="displayStore.toggleSection('left')"
-      >
-        <slot name="label-left">⬅️ Left</slot>
-      </button>
-      <button
-        class="btn btn-sm"
-        :class="{ 'btn-primary': displayStore.showCenter }"
-        @click="displayStore.toggleSection('center')"
-      >
-        <slot name="label-center">🎯 Center</slot>
-      </button>
-      <button
-        class="btn btn-sm"
-        :class="{ 'btn-primary': displayStore.showRight }"
-        @click="displayStore.toggleSection('right')"
-      >
-        <slot name="label-right">➡️ Right</slot>
-      </button>
-    </div>
+<!-- Toggle Buttons -->
+<div class="flex justify-center mt-4 px-4">
+  <div class="flex gap-2 bg-base-300 rounded-2xl p-4 shadow-inner">
+    <button
+      class="btn btn-sm"
+      :class="{ 'btn-primary': displayStore.showLeft }"
+      @click="displayStore.toggleSection('left')"
+    >
+      <slot name="label-left">⬅️ Left</slot>
+    </button>
+    <button
+      class="btn btn-sm"
+      :class="{ 'btn-primary': displayStore.showCenter }"
+      @click="displayStore.toggleSection('center')"
+    >
+      <slot name="label-center">🎯 Center</slot>
+    </button>
+    <button
+      class="btn btn-sm"
+      :class="{ 'btn-primary': displayStore.showRight }"
+      @click="displayStore.toggleSection('right')"
+    >
+      <slot name="label-right">➡️ Right</slot>
+    </button>
+  </div>
+</div>
 
     <!-- Corner Panel -->
     <corner-panel />

@@ -1,7 +1,7 @@
 <!-- /components/content/story/avatar-image.vue -->
 
 <template>
-  <div v-if="hydrated" class="relative w-full h-full border-2 border-black">
+  <div v-if="hydrated" class="relative w-full h-full">
     <!-- Optional Top Icon -->
     <div class="absolute top-1 left-1 z-10">
       <Icon
@@ -114,7 +114,6 @@ const handleAvatarClick = () => {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  border-radius: 1rem;
   overflow: hidden;
 }
 

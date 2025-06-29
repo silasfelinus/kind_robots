@@ -13,3 +13,9 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
 }
+
+html,
+body,
+#__nuxt {
+  overflow-x: hidden;
+}

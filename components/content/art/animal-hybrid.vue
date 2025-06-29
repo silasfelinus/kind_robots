@@ -11,9 +11,7 @@
         <select v-model="animalOne" class="select select-bordered w-full">
           <option v-for="a in animalList" :key="a" :value="a">{{ a }}</option>
         </select>
-        <button class="btn btn-sm w-full mt-1" @click="randomize('one')">
-          🎲 Random
-        </button>
+        <button class="btn btn-sm w-full mt-1" @click="randomize('one')">🎲 Random</button>
       </div>
 
       <div class="w-full space-y-1">
@@ -21,9 +19,7 @@
         <select v-model="animalTwo" class="select select-bordered w-full">
           <option v-for="a in animalList" :key="a" :value="a">{{ a }}</option>
         </select>
-        <button class="btn btn-sm w-full mt-1" @click="randomize('two')">
-          🎲 Random
-        </button>
+        <button class="btn btn-sm w-full mt-1" @click="randomize('two')">🎲 Random</button>
       </div>
     </div>
 
@@ -41,7 +37,11 @@
     <!-- Prompt Box -->
     <div class="space-y-1">
       <label class="text-sm font-semibold">📝 Generated Prompt</label>
-      <textarea v-model="generatedPrompt" class="textarea textarea-bordered w-full h-40" />
+      <textarea
+        v-model="generatedPrompt"
+        class="textarea textarea-bordered w-full h-40"
+        placeholder="Click 'Get Text' to generate your hybrid art prompt..."
+      />
     </div>
 
     <!-- Action Buttons -->
@@ -66,6 +66,7 @@ import { ref } from 'vue'
 import { animalList } from '@/stores/utils/randomAnimal'
 import { usePromptStore } from '@/stores/promptStore'
 import { useArtStore } from '@/stores/artStore'
+import ArtCard from '@/components/content/art/art-card.vue'
 
 const promptStore = usePromptStore()
 const artStore = useArtStore()
@@ -78,31 +79,31 @@ const generatedPrompt = ref('')
 const latestArt = ref()
 const latestArtImage = ref()
 
-function randomize(target: 'one' | 'two') {
-  const pick = () => animalList[Math.floor(Math.random() * animalList.length)]
-  if (target === 'one') animalOne.value = pick()
-  if (target === 'two') animalTwo.value = pick()
+function randomize(which: 'one' | 'two') {
+  const rand = () => animalList[Math.floor(Math.random() * animalList.length)]
+  if (which === 'one') animalOne.value = rand()
+  if (which === 'two') animalTwo.value = rand()
 }
 
 async function getText() {
   const percentA = blendRatio.value
   const percentB = 100 - percentA
-  const msg = `Write an imaginative and vivid text-to-image prompt to describe a hybrid creature that is ${percentA}% ${animalOne.value} and ${percentB}% ${animalTwo.value}. Describe features, textures, behavior, and environment as if for an art generator.`
-  const { text } = await promptStore.getGptText(msg)
+  const raw = `A hybrid creature that is ${percentA}% ${animalOne.value} and ${percentB}% ${animalTwo.value}. Include details about its appearance, environment, personality, and behavior.`
+  const processed = promptStore.processPromptPlaceholders(raw)
+  const { text } = await promptStore.getGptText(processed)
   generatedPrompt.value = text
 }
 
 async function getArt() {
-  const prompt = generatedPrompt.value
-  if (!prompt) return
-
+  if (!generatedPrompt.value) return
+  const finalPrompt = promptStore.processPromptPlaceholders(generatedPrompt.value)
   const response = await artStore.generateArt({
-    promptString: prompt,
+    promptString: finalPrompt,
     pitch: 'animal hybrid',
     designer: 'Hybrid Lab',
     isPublic: true,
     isMature: false,
-    checkpoint: 'hybrids',
+    collection: 'hybrids',
   })
 
   if (response.success && response.data) {

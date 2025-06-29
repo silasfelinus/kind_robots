@@ -1,21 +1,24 @@
 <!-- /components/content/art/animal-hybrid.vue -->
 <template>
   <div class="w-full max-w-3xl mx-auto space-y-6 p-4">
-    <!-- Title -->
-    <h1 class="text-2xl font-bold text-center">🐾 Animal Hybrid Creator</h1>
+    <h1 class="text-2xl font-bold text-center">🦋 Animal Hybrid Lab</h1>
+
+    <!-- Hybrid Name -->
+    <div v-if="hybridName" class="text-center text-xl font-semibold text-accent">
+      🧬 Meet the <span class="italic">{{ hybridName }}</span>
+    </div>
 
     <!-- Animal Selectors -->
-    <div class="flex flex-col md:flex-row gap-4 justify-between">
-      <div class="w-full space-y-1">
-        <label class="text-sm font-semibold">Animal One</label>
+    <div class="flex flex-col md:flex-row gap-4">
+      <div class="w-full">
+        <label class="label">Animal One</label>
         <select v-model="animalOne" class="select select-bordered w-full">
           <option v-for="a in animalList" :key="a" :value="a">{{ a }}</option>
         </select>
         <button class="btn btn-sm w-full mt-1" @click="randomize('one')">🎲 Random</button>
       </div>
-
-      <div class="w-full space-y-1">
-        <label class="text-sm font-semibold">Animal Two</label>
+      <div class="w-full">
+        <label class="label">Animal Two</label>
         <select v-model="animalTwo" class="select select-bordered w-full">
           <option v-for="a in animalList" :key="a" :value="a">{{ a }}</option>
         </select>
@@ -23,14 +26,14 @@
       </div>
     </div>
 
-    <!-- Blend Slider -->
+    <!-- Blend Ratio -->
     <div class="space-y-2">
       <label class="text-sm font-semibold">⚖️ Blend: {{ blendRatio }}%</label>
       <input type="range" min="0" max="100" step="10" v-model="blendRatio" class="range range-primary" />
       <div class="flex justify-between text-xs text-base-content/60">
-        <span>{{ animalOne || 'Animal One' }}</span>
+        <span>{{ animalOne }}</span>
         <span>50/50</span>
-        <span>{{ animalTwo || 'Animal Two' }}</span>
+        <span>{{ animalTwo }}</span>
       </div>
     </div>
 
@@ -53,7 +56,7 @@
       <button class="btn btn-primary" @click="getTextThenArt">🚀 Get Text + Art</button>
     </div>
 
-    <!-- Display Result -->
+    <!-- ArtCard Display -->
     <div v-if="latestArtImage" class="pt-6">
       <h2 class="text-lg font-semibold mb-2 text-center">✨ Your Hybrid Masterpiece</h2>
       <art-card :art="latestArt" :image="latestArtImage" />
@@ -66,7 +69,6 @@ import { ref } from 'vue'
 import { animalList } from '@/stores/utils/randomAnimal'
 import { usePromptStore } from '@/stores/promptStore'
 import { useArtStore } from '@/stores/artStore'
-import ArtCard from '@/components/content/art/art-card.vue'
 
 const promptStore = usePromptStore()
 const artStore = useArtStore()
@@ -75,35 +77,47 @@ const animalOne = ref(animalList[0])
 const animalTwo = ref(animalList[1])
 const blendRatio = ref(50)
 const generatedPrompt = ref('')
+const hybridName = ref('')
 
 const latestArt = ref()
 const latestArtImage = ref()
 
 function randomize(which: 'one' | 'two') {
-  const rand = () => animalList[Math.floor(Math.random() * animalList.length)]
-  if (which === 'one') animalOne.value = rand()
-  if (which === 'two') animalTwo.value = rand()
+  const pick = () => animalList[Math.floor(Math.random() * animalList.length)]
+  if (which === 'one') animalOne.value = pick()
+  if (which === 'two') animalTwo.value = pick()
 }
 
-async function getText() {
+function generateHybridName(a1: string, a2: string): string {
+  const lower = (s: string) => s.toLowerCase().replace(/\s+/g, '')
+  const part1 = lower(a1).slice(0, Math.max(3, Math.floor(a1.length / 2)))
+  const part2 = lower(a2).slice(-Math.max(3, Math.floor(a2.length / 2)))
+  return capitalize(part1 + part2)
+}
+
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+function getText() {
   const percentA = blendRatio.value
   const percentB = 100 - percentA
-  const raw = `A hybrid creature that is ${percentA}% ${animalOne.value} and ${percentB}% ${animalTwo.value}. Include details about its appearance, environment, personality, and behavior.`
-  const processed = promptStore.processPromptPlaceholders(raw)
-  const { text } = await promptStore.getGptText(processed)
-  generatedPrompt.value = text
+  const rawPrompt = `A hybrid creature that is ${percentA}% ${animalOne.value} and ${percentB}% ${animalTwo.value}, featuring distinct visual features from both. Include details about its appearance, textures, abilities, and environment.`
+  generatedPrompt.value = promptStore.processPromptPlaceholders(rawPrompt)
+  hybridName.value = generateHybridName(animalOne.value, animalTwo.value)
 }
 
 async function getArt() {
   if (!generatedPrompt.value) return
-  const finalPrompt = promptStore.processPromptPlaceholders(generatedPrompt.value)
+
   const response = await artStore.generateArt({
-    promptString: finalPrompt,
+    promptString: generatedPrompt.value,
     pitch: 'animal hybrid',
+    checkpoint: 'stable-diffusion-v1-4', // ← actual model name
+    collectionLabel: 'hybrids',          // ← assigned collection
     designer: 'Hybrid Lab',
     isPublic: true,
     isMature: false,
-    collection: 'hybrids',
   })
 
   if (response.success && response.data) {
@@ -115,7 +129,7 @@ async function getArt() {
 }
 
 async function getTextThenArt() {
-  await getText()
+  getText()
   await getArt()
 }
 </script>

@@ -1,3 +1,5 @@
+
+/* //assets/css/tailwind.css */
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
@@ -5,17 +7,101 @@
 
 /* Hide scrollbar for Chrome, Safari and Opera */
 .no-scrollbar::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
+/* ✅ Lock horizontal scroll globally */
 html,
 body,
 #__nuxt {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
   overflow-x: hidden;
+}
+
+/* ✨ Keyframe Animations */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ✨ Reusable animation class */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* 📐 Reusable full-page overlay container */
+.full-page {
+  width: 100vw;
+  height: 100vh;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* 🎬 Vue Transitions */
+
+/* Slide in from left (NuxtPage) */
+.slide-in-left-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+.slide-in-left-enter-active,
+.slide-in-left-leave-active {
+  transition:
+    transform 0.4s ease,
+    opacity 0.3s ease;
+}
+.slide-in-left-enter-to,
+.slide-in-left-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+.slide-in-left-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* Slide in from right (Splash Tutorial) */
+.slide-in-right-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.slide-in-right-enter-active,
+.slide-in-right-leave-active {
+  transition:
+    transform 0.4s ease,
+    opacity 0.3s ease;
+}
+.slide-in-right-enter-to,
+.slide-in-right-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+.slide-in-right-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* Fade Transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }

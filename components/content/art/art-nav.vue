@@ -24,6 +24,15 @@
       description="Choose an image and transform it with text or presets."
       class="animate-fade-in-up delay-300"
     />
+
+ <NavCard
+      title="Animal Hybrid"
+      icon="kind-icon:plus"
+      to="/hybrid"
+      description="Use AI to invent hybrid creatures by merging two real-world animals."
+      class="animate-fade-in-up"
+    />
+
   </div>
 </template>
 

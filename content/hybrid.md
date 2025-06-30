@@ -11,7 +11,7 @@ icon: kind-icon:dna
 category: user
 tooltip: 'Create fantasy creatures with a touch of science and magic.'
 dottitip: 'Nature already invented weird. You’re just remixing.'
-amitip: 'Like if a penguin and a lion had an emotional support octopus.'
+amitip: 'Listen; if a penguin and a lion love each other very much, who are we to get in their way?'
 sort: highlight
 navComponent: 'art-nav'
 showFooter: false

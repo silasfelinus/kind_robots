@@ -50,7 +50,7 @@
           class="text-center"
         >
           <button
-            class="btn btn-xs md:btn-sm btn-outline border-base-content/40 rounded-2xl transition-all"
+            class="btn btn-xs md:btn-sm btn-outline border-base-content/40 bg-accent rounded-2xl transition-all"
             @click="showNavComponent = !showNavComponent"
           >
             Toggle Navigation:

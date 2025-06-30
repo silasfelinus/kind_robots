@@ -91,7 +91,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useContentStore } from '../../stores/contentStore'
 
 const isHovered = ref<string | undefined>(undefined)
 

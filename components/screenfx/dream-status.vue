@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
-import { useDreamStore } from '../../../stores/dreamStore'
+import { useDreamStore } from '../../stores/dreamStore'
 
 const dreamStore = useDreamStore()
 const dream = ref(dreamStore.randomDream())

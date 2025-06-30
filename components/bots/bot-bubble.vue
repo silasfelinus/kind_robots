@@ -20,7 +20,7 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useBotStore } from './../../../stores/botStore'
+import { useBotStore } from './../../stores/botStore'
 
 const botStore = useBotStore()
 const bots = computed(() => botStore.bots)

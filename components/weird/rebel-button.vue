@@ -129,9 +129,9 @@
 <script setup lang="ts">
 import { reactive, onMounted, ref } from 'vue'
 import confetti from 'canvas-confetti'
-import responses from '../../../assets/buttonResponses'
-import milestones from '../../../assets/buttonMilestones'
-import { useUserStore } from './../../../stores/userStore'
+import responses from '../../assets/buttonResponses'
+import milestones from '../../assets/buttonMilestones'
+import { useUserStore } from './../../stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 
 const userStore = useUserStore()

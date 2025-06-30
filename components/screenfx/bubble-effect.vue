@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useRandomColor } from './../../../utils/useRandomColor'
+import { useRandomColor } from './../../utils/useRandomColor'
 
 // Define Bubble interface to type bubble objects
 interface Bubble {
@@ -53,13 +53,12 @@ const createBubble = () => {
 
 // Bubble style computation with typed bubble parameter
 const bubbleStyle = (bubble: Bubble) => ({
-  left: `${bubble.x}vw`,   // Add backticks around interpolations
-  bottom: '-10vw',         // This one is fine as it's a string
+  left: `${bubble.x}vw`, // Add backticks around interpolations
+  bottom: '-10vw', // This one is fine as it's a string
   width: `${bubble.size}vw`, // Add backticks
   height: `${bubble.size}vw`, // Add backticks
   animationDuration: `${bubble.speed}s`, // Add backticks
 })
-
 
 // Type for bubbleCreationInterval, explicitly cast setInterval to number
 let bubbleCreationInterval: number | null = null

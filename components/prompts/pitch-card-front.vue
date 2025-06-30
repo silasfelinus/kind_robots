@@ -43,7 +43,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Pitch } from './../../../stores/pitchStore'
 
 const {
   pitch = {

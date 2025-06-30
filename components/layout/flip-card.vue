@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { useBotStore } from '../../../stores/botStore'
+import { useBotStore } from '../../stores/botStore'
 
 const botsStore = useBotStore()
 const currentBot = computed(() => botsStore.currentBot)

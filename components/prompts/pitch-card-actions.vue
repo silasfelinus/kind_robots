@@ -91,8 +91,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { usePitchStore, type Pitch } from '../../../stores/pitchStore'
-import { useErrorStore, ErrorType } from '../../../stores/errorStore'
+import { usePitchStore, type Pitch } from '../../stores/pitchStore'
 
 const props = defineProps<{
   pitch?: Pitch

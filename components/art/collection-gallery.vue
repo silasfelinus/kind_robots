@@ -8,7 +8,9 @@
         class="bg-base-100 p-6 rounded-2xl shadow space-y-4 group"
       >
         <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+        <div
+          class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2"
+        >
           <div class="flex-1 space-y-1">
             <div
               v-if="canEdit(c) && editingTitle === c.id"
@@ -22,7 +24,10 @@
               <input
                 type="checkbox"
                 class="checkbox checkbox-sm"
-                @change="c.label && collectionStore.updateCollectionLabel(c.id, c.label)"
+                @change="
+                  c.label &&
+                  collectionStore.updateCollectionLabel(c.id, c.label)
+                "
               />
               <span class="badge badge-primary">You</span>
             </div>
@@ -122,7 +127,9 @@
 
     <!-- Gallery View (Unselected) -->
     <div v-else class="p-6 space-y-6">
-      <div class="grid gap-6 auto-rows-fr grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]">
+      <div
+        class="grid gap-6 auto-rows-fr grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]"
+      >
         <div
           v-for="collection in sortedUnselectedCollections"
           :key="collection.id"
@@ -165,11 +172,9 @@
   </div>
 </template>
 
-
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import ArtCard from '@/components/content/art/art-card.vue'
+import ArtCard from '@/components/art/art-card.vue'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'

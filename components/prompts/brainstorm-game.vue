@@ -56,7 +56,9 @@
     <!-- Floating Submit Button -->
     <button
       class="fixed bottom-4 right-4 bg-primary hover:bg-primary-focus text-white p-3 rounded-full shadow-lg transition-all duration-300"
-      :disabled="selectedPitches.filter((p) => p !== null).length < 5 || isSubmitting"
+      :disabled="
+        selectedPitches.filter((p) => p !== null).length < 5 || isSubmitting
+      "
       @click="submitTopPitches"
     >
       <Icon name="kind-icon:brain" class="w-6 h-6" />
@@ -74,8 +76,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { usePitchStore, type Pitch } from './../../../stores/pitchStore'
-import { useErrorStore, ErrorType } from './../../../stores/errorStore'
 
 // Stores and States
 const pitchStore = usePitchStore()
@@ -105,7 +105,9 @@ const handlePitchCreated = (pitch: Pitch) => {
 
 // Toggle selection of a pitch
 const togglePitchSelection = (pitch: Pitch) => {
-  const existingIndex = selectedPitches.value.findIndex((p) => p?.id === pitch.id)
+  const existingIndex = selectedPitches.value.findIndex(
+    (p) => p?.id === pitch.id,
+  )
   if (existingIndex !== -1) {
     selectedPitches.value[existingIndex] = null
   } else {

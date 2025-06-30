@@ -12,7 +12,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useUserStore } from '../../../stores/userStore'
+import { useUserStore } from '../../stores/userStore'
 
 // Props
 const props = defineProps<{ userId?: number }>()

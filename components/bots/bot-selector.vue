@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
-import { useBotStore } from './../../../stores/botStore'
+import { useBotStore } from './../../stores/botStore'
 
 const botStore = useBotStore()
 

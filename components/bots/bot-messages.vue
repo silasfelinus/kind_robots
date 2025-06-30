@@ -32,9 +32,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useChatStore } from './../../../stores/chatStore'
-import { useUserStore } from './../../../stores/userStore'
-import { useBotStore } from './../../../stores/botStore'
+import { useChatStore } from './../../stores/chatStore'
+import { useUserStore } from './../../stores/userStore'
+import { useBotStore } from './../../stores/botStore'
 
 // Get stores and necessary properties
 const { userId } = useUserStore()

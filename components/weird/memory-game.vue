@@ -95,8 +95,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import confetti from 'canvas-confetti'
-import { useUserStore } from '../../../stores/userStore'
-import { useMilestoneStore } from '../../../stores/milestoneStore'
+import { useUserStore } from '../../stores/userStore'
 
 const windowSize = useState(() => ({
   width: import.meta.client ? window.innerWidth : 0,

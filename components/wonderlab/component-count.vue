@@ -15,8 +15,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useComponentStore } from './../../../stores/componentStore'
-import { useUserStore } from './../../../stores/userStore'
+import { useComponentStore } from './../../stores/componentStore'
+import { useUserStore } from './../../stores/userStore'
 
 // Access the component and user stores
 const componentStore = useComponentStore()

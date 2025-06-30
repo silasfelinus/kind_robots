@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useBotStore } from './../../../stores/botStore'
+import { useBotStore } from './../../stores/botStore'
 
 // Bot store setup
 const botStore = useBotStore()

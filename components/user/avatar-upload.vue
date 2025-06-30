@@ -24,7 +24,7 @@
 import { ref, computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
-import { useCollectionStore } from './../../../stores/collectionStore'
+import { useCollectionStore } from './../../stores/collectionStore'
 
 // Stores
 const artStore = useArtStore()

@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useContentStore } from '../../../stores/contentStore'
+import { useContentStore } from '../../stores/contentStore'
 
 const contentStore = useContentStore()
 const isCurrentPage = computed(

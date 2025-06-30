@@ -9,7 +9,7 @@
       <Icon name="ph:star-bold" class="text-yellow-400 text-4xl" />
     </div>
     <div class="text-center">
-   id: {{ milestone.id }}
+      id: {{ milestone.id }}
       <!-- Milestone Icon -->
       <Icon
         :name="milestone.icon ?? 'kind-icon:map'"
@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Milestone } from './../../../stores/milestoneStore'
+import type { Milestone } from './../../stores/milestoneStore'
 
 // Define props and destructure them
 const props = defineProps<{

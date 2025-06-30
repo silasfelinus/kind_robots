@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
+import { useBotStore } from '../../stores/botStore'
 
 const botsStore = useBotStore()
 const currentBot = computed(() => botsStore.currentBot)

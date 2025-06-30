@@ -45,9 +45,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useBotStore } from './../../../stores/botStore'
-import { useErrorStore, ErrorType } from './../../../stores/errorStore'
-import { useGalleryStore } from './../../../stores/galleryStore'
+import { useBotStore } from './../../stores/botStore'
+import { useErrorStore, ErrorType } from './../../stores/errorStore'
+import { useGalleryStore } from './../../stores/galleryStore'
 
 const botStore = useBotStore()
 const galleryStore = useGalleryStore()

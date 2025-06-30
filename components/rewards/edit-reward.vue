@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useRewardStore } from './../../../stores/rewardStore'
+import { useRewardStore } from './../../stores/rewardStore'
 
 const rewardStore = useRewardStore()
 

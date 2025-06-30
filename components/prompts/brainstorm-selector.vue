@@ -76,7 +76,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { usePitchStore, PitchType } from '../../../stores/pitchStore'
+import { PitchType } from '@/stores/pitchStore'
+
+type PitchTypeKey = (typeof PitchType)[keyof typeof PitchType]
 
 const pitchStore = usePitchStore()
 
@@ -94,8 +96,7 @@ const filteredPitches = computed(() =>
   ),
 )
 
-// Update selected pitch type
-const updateSelectedPitchType = (type: PitchType) => {
+const updateSelectedPitchType = (type: PitchTypeKey) => {
   pitchStore.setSelectedPitchType(type)
 }
 

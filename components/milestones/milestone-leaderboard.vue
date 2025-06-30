@@ -12,10 +12,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import {
-  useMilestoneStore,
-  type MilestoneRecord,
-} from './../../../stores/milestoneStore'
 
 const milestoneStore = useMilestoneStore()
 

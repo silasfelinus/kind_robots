@@ -3,19 +3,23 @@
     "folderName": "admin",
     "components": [
       "error-popup",
+      "footer-debug",
       "karma-tracker",
       "kind-prompts",
       "mana-counter",
       "open-ai-key",
       "privacy-policy",
-      "store-debug",
-      "store-tester"
+      "screen-debug",
+      "store-tester",
+      "test-display",
+      "test-runner"
     ]
   },
   {
     "folderName": "art",
     "components": [
       "add-art",
+      "animal-hybrid",
       "art-card",
       "art-control",
       "art-display",
@@ -30,6 +34,7 @@
       "checkpoint-card",
       "checkpoint-gallery",
       "collection-gallery",
+      "collection-selector",
       "image-upload",
       "image-view",
       "list-manager",
@@ -108,6 +113,16 @@
     ]
   },
   {
+    "folderName": "giftshop",
+    "components": [
+      "cart-display",
+      "corner-panel",
+      "giftshop-browser",
+      "print-swag",
+      "shopping-cart"
+    ]
+  },
+  {
     "folderName": "icons",
     "components": [
       "add-icon",
@@ -120,7 +135,6 @@
       "kind-header",
       "kind-icons",
       "login-icon",
-      "main-content",
       "smart-icons",
       "smart-nav",
       "splash-tutorial",
@@ -148,6 +162,7 @@
       "expandable-container",
       "fallback-component",
       "flip-card",
+      "footer-toggle",
       "forward-link",
       "fullscreen-toggle",
       "header-upgrade",
@@ -162,6 +177,7 @@
       "loading-bar",
       "magic-window",
       "nav-button",
+      "nav-card",
       "navbar-toggle",
       "navigation-row",
       "navigation-trimmed",
@@ -308,7 +324,6 @@
       "prompt-nav",
       "reaction-card",
       "right-toggle",
-      "screen-debug",
       "selected-view",
       "story-about",
       "story-bar",
@@ -334,6 +349,7 @@
       "chat-gallery",
       "chat-test",
       "chat-view",
+      "forum-thread",
       "google-login",
       "login-form",
       "login-page",

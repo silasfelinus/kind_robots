@@ -49,32 +49,21 @@
 
       <!-- Nav + Mode Row -->
       <div class="flex flex-col gap-4 w-full pointer-events-auto">
-        <div class="text-center" v-if="canToggleNav">
-          <button
-            @click="showSmartNav = !showSmartNav"
-            class="btn btn-xs md:btn-sm btn-outline rounded-2xl border-base-content/40"
-          >
-            Toggle Nav:
-            <span class="ml-1 font-mono">{{ showSmartNav ? 'Smart' : 'Component' }}</span>
-          </button>
+        <div v-if="parsedNavComponent" class="w-full text-center space-y-2">
+          <label class="text-sm font-semibold text-base-content/70">🔘 Navigation</label>
+          <div class="flex justify-center">
+            <component
+              :is="parsedNavComponent"
+              class="w-full max-w-3xl"
+            />
+          </div>
         </div>
 
-        <div class="flex-grow flex items-center justify-center">
-          <component
-            v-if="hasSmartNav && showSmartNav"
-            is="smart-nav"
-            :component-list="parsedNavComponent"
-            class="w-full max-w-3xl"
-          />
-          <component
-            v-if="hasStringNav && (!hasSmartNav || !showSmartNav)"
-            :is="parsedNavComponent"
-            class="w-full max-w-3xl"
-          />
-        </div>
-
-        <div class="flex-grow flex items-center justify-center">
-          <mode-row class="w-full max-w-3xl" />
+        <div class="w-full text-center space-y-2">
+          <label class="text-sm font-semibold text-base-content/70">🎮 Mode Row</label>
+          <div class="flex justify-center">
+            <mode-row class="w-full max-w-3xl" />
+          </div>
         </div>
       </div>
 
@@ -125,9 +114,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/icons/splash-tutorial.vue
-
-import { ref, computed, watchEffect } from 'vue'
+import { ref, computed } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
 
@@ -145,65 +132,20 @@ const image = computed(() => pageStore.page?.image)
 const theme = computed(() => pageStore.page?.theme)
 
 const fallbackImage = '/images/botcafe.webp'
-
 const resolvedImage = computed(() => {
   const img = pageStore.page?.image
   if (!img || typeof img !== 'string') return fallbackImage
   return img.startsWith('/') ? img : `/images/${img}`
 })
 
-const parsedNavComponent = ref<string | string[] | null>(null)
-
-watchEffect(() => {
+const parsedNavComponent = computed(() => {
   const raw = navComponent.value
-  let parsed: string | string[] | null = null
-
-  console.groupCollapsed(
-    `%c[splash-tutorial.vue] 🔍 NavComponent Debug`,
-    'color: #42b883; font-weight: bold;'
-  )
-
-  console.log('📝 page.title:', pageStore.page?.title)
-  console.log('📦 Raw navComponent:', raw)
-
-  if (typeof raw === 'string') {
-    const trimmed = raw.trim()
-    if (trimmed.startsWith('[')) {
-      try {
-        parsed = JSON.parse(trimmed)
-        if (!Array.isArray(parsed)) {
-          console.warn('❌ Parsed JSON was not an array:', parsed)
-          parsed = null
-        }
-      } catch (err) {
-        console.warn('❌ navComponent JSON parse failed:', err)
-        parsed = null
-      }
-    } else {
-      parsed = trimmed
-    }
-  } else {
-    console.warn('❌ navComponent was not a string:', raw)
+  if (typeof raw === 'string' && raw.trim()) {
+    return raw.trim()
   }
-
-  parsedNavComponent.value = parsed
-
-  console.log('✅ parsedNavComponent:', parsed)
-  console.log('📊 typeof parsedNavComponent:', typeof parsed)
-  console.log('🔄 hasSmartNav:', Array.isArray(parsed))
-  console.log('🔄 hasStringNav:', typeof parsed === 'string')
-  console.log('🎛 canToggleNav:', Array.isArray(parsed) && typeof raw === 'string' && !raw.trim().startsWith('['))
-  console.log('🧠 showSmartNav:', showSmartNav.value)
-
-  console.groupEnd()
+  console.warn('[splash-tutorial.vue] ❌ Invalid navComponent:', raw)
+  return null
 })
-
-
-const showSmartNav = ref(true)
-
-const hasSmartNav = computed(() => Array.isArray(parsedNavComponent.value))
-const hasStringNav = computed(() => typeof parsedNavComponent.value === 'string')
-const canToggleNav = computed(() => hasSmartNav.value && hasStringNav.value)
 </script>
 
 <style scoped>

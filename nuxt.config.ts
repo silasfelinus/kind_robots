@@ -32,8 +32,9 @@ export default defineNuxtConfig({
     {
       path: '~/components/content',
       pathPrefix: false,
-      extensions: ['.vue'],
       global: true,
+      extensions: ['.vue'],
+      watch: true,
     },
     {
       path: '~/components/abandonware',

@@ -184,6 +184,27 @@ watch(
   },
   { immediate: true },
 )
+
+watchEffect(() => {
+  const pageTitle = pageStore.page?.title
+  const nav = navComponent.value
+  const parsed = parsedNavComponent.value
+
+  console.groupCollapsed(
+    `[splash-tutorial.vue] NavComponent Debug for Page: ${pageTitle}`,
+  )
+  console.log('🔹 Raw navComponent:', nav)
+  console.log('🔹 Parsed navComponent:', parsed)
+  console.log('🔹 Type of parsedNavComponent:', typeof parsed)
+  if (typeof parsed === 'string') {
+    console.log(`✅ Will try to render component: <${parsed} />`)
+  } else if (Array.isArray(parsed)) {
+    console.log('✅ Will try to render smart-nav with:', parsed)
+  } else {
+    console.warn('❌ navComponent is invalid or missing')
+  }
+  console.groupEnd()
+})
 </script>
 
 <style scoped>

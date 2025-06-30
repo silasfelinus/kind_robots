@@ -2,6 +2,7 @@
 
 <template>
   <div
+v-if="pageStore.page"
     class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-black z-20"
     ref="scrollContainer"
   >
@@ -114,11 +115,11 @@
       class="absolute top-0 left-0 w-full -z-10 overflow-hidden will-change-transform"
     >
       <img
-        :src="resolvedImage"
-        @error="handleImageError"
-        class="w-full min-h-[100dvh] object-cover"
-        alt="Ambient Background"
-      />
+  :src="resolvedImage"
+  class="w-full min-h-[100dvh] object-cover"
+  alt="Ambient Background"
+/>
+
       <div
         class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none"
       />
@@ -127,12 +128,14 @@
 </template>
 
 <script setup lang="ts">
-// unchanged from your version
-import { ref, computed } from 'vue'
+// /components/content/icons/splash-tutorial.vue <script setup>
+
+import { ref, watchEffect, computed } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
 
 const pageStore = usePageStore()
+const themeStore = useThemeStore()
 
 const room = computed(() => pageStore.page?.room)
 const subtitle = computed(() => pageStore.page?.subtitle)
@@ -144,67 +147,57 @@ const navComponent = computed(() => pageStore.page?.navComponent)
 const image = computed(() => pageStore.page?.image)
 const theme = computed(() => pageStore.page?.theme)
 
-const themeStore = useThemeStore()
-
-const parsedNavComponent = computed(() => {
-  try {
-    const raw = navComponent.value
-    if (typeof raw === 'string') {
-      const trimmed = raw.trim()
-      if (trimmed.startsWith('[')) {
-        const parsed = JSON.parse(trimmed)
-        return Array.isArray(parsed) ? parsed : null
-      }
-      return trimmed
-    }
-    return null
-  } catch (e) {
-    console.warn('Failed to parse navComponent:', e)
-    return null
-  }
-})
-
 const fallbackImage = '/images/botcafe.webp'
-const currentImage = ref<string | null>(image.value || null)
-
-const handleImageError = () => {
-  currentImage.value = fallbackImage
-}
 
 const resolvedImage = computed(() => {
-  const src = currentImage.value
-  if (!src || typeof src !== 'string') return fallbackImage
-  return src.startsWith('/') ? src : `/images/${src}`
+  const img = pageStore.page?.image
+  if (!img || typeof img !== 'string') return fallbackImage
+  return img.startsWith('/') ? img : `/images/${img}`
 })
 
-watch(
-  image,
-  (newVal) => {
-    currentImage.value = typeof newVal === 'string' ? newVal : fallbackImage
-  },
-  { immediate: true },
-)
+
+const parsedNavComponent = ref<string | string[] | null>(null)
 
 watchEffect(() => {
-  const pageTitle = pageStore.page?.title
-  const nav = navComponent.value
-  const parsed = parsedNavComponent.value
+  const raw = navComponent.value
+  if (!raw) {
+    parsedNavComponent.value = null
+    return
+  }
+
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim()
+    if (trimmed.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(trimmed)
+        parsedNavComponent.value = Array.isArray(parsed) ? parsed : null
+      } catch (err) {
+        console.warn('❌ navComponent JSON parse failed:', err)
+        parsedNavComponent.value = null
+      }
+    } else {
+      parsedNavComponent.value = trimmed
+    }
+  } else {
+    parsedNavComponent.value = null
+  }
 
   console.groupCollapsed(
-    `[splash-tutorial.vue] NavComponent Debug for Page: ${pageTitle}`,
+    `[splash-tutorial.vue] NavComponent Debug for Page: ${pageStore.page?.title || 'unknown'}`
   )
-  console.log('🔹 Raw navComponent:', nav)
-  console.log('🔹 Parsed navComponent:', parsed)
-  console.log('🔹 Type of parsedNavComponent:', typeof parsed)
-  if (typeof parsed === 'string') {
-    console.log(`✅ Will try to render component: <${parsed} />`)
-  } else if (Array.isArray(parsed)) {
-    console.log('✅ Will try to render smart-nav with:', parsed)
+  console.log('🔹 Raw navComponent:', raw)
+  console.log('🔹 Parsed navComponent:', parsedNavComponent.value)
+  console.log('🔹 Type:', typeof parsedNavComponent.value)
+  if (typeof parsedNavComponent.value === 'string') {
+    console.log(`✅ Will render <${parsedNavComponent.value} />`)
+  } else if (Array.isArray(parsedNavComponent.value)) {
+    console.log(`✅ Will render <smart-nav> with`, parsedNavComponent.value)
   } else {
     console.warn('❌ navComponent is invalid or missing')
   }
   console.groupEnd()
 })
+
 </script>
 
 <style scoped>

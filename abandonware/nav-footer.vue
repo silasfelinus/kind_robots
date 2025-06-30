@@ -97,7 +97,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useContentStore } from '../../stores/contentStore' // Changed to useContentStore
 
 const contentStore = useContentStore() // Changed to contentStore
 const isExtended = ref(false)

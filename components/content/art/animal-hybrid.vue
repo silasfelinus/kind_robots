@@ -63,14 +63,21 @@
         />
       </div>
 
-      <!-- Model-Completed Prompt -->
+      <!-- Model-Completed Prompt (streamed) -->
       <div>
         <label class="text-sm font-semibold">🧠 Final AI Text</label>
         <textarea
-          v-model="finalPromptString"
+          :value="promptStore.streamedText"
           class="textarea textarea-bordered w-full h-40"
           placeholder="Click 'Get Text' to generate detailed hybrid description..."
+          readonly
         />
+        <p
+          v-if="promptStore.isStreaming"
+          class="text-sm italic text-primary text-center mt-1"
+        >
+          ✨ Composing magical creature details…
+        </p>
       </div>
     </div>
 
@@ -80,7 +87,7 @@
       <button
         class="btn btn-outline btn-primary"
         @click="getArt"
-        :disabled="!generatedPrompt"
+        :disabled="!promptStore.streamedText"
       >
         🎨 Get Art
       </button>
@@ -111,11 +118,9 @@ const artStore = useArtStore()
 const animalOne = ref(animalList[0])
 const animalTwo = ref(animalList[1])
 const blendRatio = ref(50)
-const generatedPrompt = ref('')
-const hybridName = ref('')
 
 const basePrompt = ref('')
-const finalPromptString = ref('')
+const hybridName = ref('')
 
 const latestArt = ref()
 const latestArtImage = ref()
@@ -146,38 +151,35 @@ async function getText() {
   hybridName.value = generateHybridName(animalOne.value, animalTwo.value)
 
   try {
-    finalPromptString.value = ''
     const processed = promptStore.processPromptPlaceholders(staticPrompt)
+    promptStore.streamedText = ''
     await promptStore.streamPromptCompletion(processed)
-    finalPromptString.value = promptStore.streamedText
   } catch (err) {
-    finalPromptString.value = '⚠️ Failed to generate AI description.'
+    promptStore.streamedText = '⚠️ Failed to generate AI description.'
   }
 }
 
 async function getArt() {
-  if (!generatedPrompt.value) return
+  if (!promptStore.streamedText) return
 
   const response = await artStore.generateArt({
-    promptString: generatedPrompt.value,
+    promptString: promptStore.streamedText,
     pitch: 'animal hybrid',
-    checkpoint: 'stable-diffusion-v1-4', // ← actual model name
-    collection: 'hybrids', // ← assigned collection
+    checkpoint: 'stable-diffusion-v1-4',
+    collection: 'hybrids',
     designer: 'Hybrid Lab',
     isPublic: true,
     isMature: false,
   })
 
   if (response.success && response.data) {
-    const art = response.data
-    const image = artStore.getArtImageByArtId(art.id)
-    latestArt.value = art
-    latestArtImage.value = image
+    latestArt.value = response.data
+    latestArtImage.value = artStore.getArtImageByArtId(response.data.id)
   }
 }
 
 async function getTextThenArt() {
-  getText()
+  await getText()
   await getArt()
 }
 </script>

@@ -35,12 +35,7 @@ export default defineNuxtConfig({
       global: true,
       extensions: ['.vue'],
       watch: true,
-      ignore: ['abandonware/**/*.vue'], // ignore subdir
-    },
-    {
-      path: '~/components/abandonware',
-      global: false,
-      ignore: ['**/*.vue'], // completely skip all .vue files
+      ignore: ['abandonware/**/*.vue'], // this handles the whole folder
     },
   ],
 

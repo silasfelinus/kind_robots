@@ -51,14 +51,27 @@
       </div>
     </div>
 
-    <!-- Prompt Box -->
-    <div class="space-y-1">
-      <label class="text-sm font-semibold">📝 Generated Prompt</label>
-      <textarea
-        v-model="generatedPrompt"
-        class="textarea textarea-bordered w-full h-40"
-        placeholder="Click 'Get Text' to generate your hybrid art prompt..."
-      />
+    <!-- Prompt Input & Model Output -->
+    <div class="space-y-4">
+      <!-- Base Prompt Field -->
+      <div>
+        <label class="text-sm font-semibold">🧬 Base Hybrid Prompt</label>
+        <textarea
+          v-model="basePrompt"
+          class="textarea textarea-bordered w-full h-32"
+          readonly
+        />
+      </div>
+
+      <!-- Model-Completed Prompt -->
+      <div>
+        <label class="text-sm font-semibold">🧠 Final AI Text</label>
+        <textarea
+          v-model="finalPromptString"
+          class="textarea textarea-bordered w-full h-40"
+          placeholder="Click 'Get Text' to generate detailed hybrid description..."
+        />
+      </div>
     </div>
 
     <!-- Action Buttons -->
@@ -101,6 +114,9 @@ const blendRatio = ref(50)
 const generatedPrompt = ref('')
 const hybridName = ref('')
 
+const basePrompt = ref('')
+const finalPromptString = ref('')
+
 const latestArt = ref()
 const latestArtImage = ref()
 
@@ -121,12 +137,22 @@ function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
-function getText() {
+async function getText() {
   const percentA = blendRatio.value
   const percentB = 100 - percentA
-  const rawPrompt = `A hybrid creature that is ${percentA}% ${animalOne.value} and ${percentB}% ${animalTwo.value}, featuring distinct visual features from both. Include details about its appearance, textures, abilities, and environment.`
-  generatedPrompt.value = promptStore.processPromptPlaceholders(rawPrompt)
+  const staticPrompt = `A hybrid creature that is ${percentA}% ${animalOne.value} and ${percentB}% ${animalTwo.value}, featuring distinct visual features from both. Include details about its appearance, textures, abilities, and environment.`
+
+  basePrompt.value = staticPrompt
   hybridName.value = generateHybridName(animalOne.value, animalTwo.value)
+
+  try {
+    finalPromptString.value = ''
+    const processed = promptStore.processPromptPlaceholders(staticPrompt)
+    await promptStore.streamPromptCompletion(processed)
+    finalPromptString.value = promptStore.streamedText
+  } catch (err) {
+    finalPromptString.value = '⚠️ Failed to generate AI description.'
+  }
 }
 
 async function getArt() {

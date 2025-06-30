@@ -68,6 +68,56 @@ export const usePromptStore = defineStore('promptStore', () => {
     syncToLocalStorage()
   }
 
+  const streamedText = ref('')
+  const isStreaming = ref(false)
+
+  async function streamPromptCompletion(inputPrompt: string): Promise<string> {
+    isStreaming.value = true
+    streamedText.value = ''
+
+    try {
+      const response = await fetch('/api/prompts/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: inputPrompt }),
+      })
+
+      if (!response.ok || !response.body) throw new Error('Stream failed')
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+
+        let boundary
+        while ((boundary = buffer.indexOf('\n\n')) !== -1) {
+          const chunk = buffer.slice(0, boundary).trim()
+          buffer = buffer.slice(boundary + 2)
+
+          if (!chunk || chunk === '[DONE]') continue
+          try {
+            const parsed = JSON.parse(chunk)
+            const content = parsed.choices?.[0]?.delta?.content
+            if (content) streamedText.value += content
+          } catch (err) {
+            console.error('Parse error:', err)
+          }
+        }
+      }
+    } catch (err) {
+      handleError(err, 'streaming prompt completion')
+    } finally {
+      isStreaming.value = false
+    }
+
+    return streamedText.value
+  }
+
   function processPromptPlaceholders(prompt: string): string {
     return prompt
       .replace(/__(.*?)__/g, '$1')
@@ -197,5 +247,8 @@ export const usePromptStore = defineStore('promptStore', () => {
     validatePromptString,
     extractPitch,
     processPromptPlaceholders,
+    streamedText,
+    isStreaming,
+    streamPromptCompletion,
   }
 })

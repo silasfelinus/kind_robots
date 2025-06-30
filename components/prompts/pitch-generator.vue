@@ -22,9 +22,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useArtStore } from '../../../stores/artStore'
-import { usePitchStore } from '../../../stores/pitchStore'
-import { useErrorStore, ErrorType } from '../../../stores/errorStore'
+import { useArtStore } from '../../stores/artStore'
 
 const artStore = useArtStore()
 const pitchStore = usePitchStore()

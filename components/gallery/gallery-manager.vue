@@ -41,8 +41,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useGalleryStore } from '../../../stores/galleryStore'
-import { useErrorStore } from '../../../stores/errorStore'
+import { useGalleryStore } from '../../stores/galleryStore'
+import { useErrorStore } from '../../stores/errorStore'
 
 const errorStore = useErrorStore()
 const galleryStore = useGalleryStore()

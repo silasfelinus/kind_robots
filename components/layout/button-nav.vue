@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { useContentStore } from '../../../stores/contentStore'
+import { useContentStore } from '../../stores/contentStore'
 
 const contentStore = useContentStore()
 

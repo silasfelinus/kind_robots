@@ -44,8 +44,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useGalleryStore } from '../../../stores/galleryStore'
-import type { Gallery } from '../../../stores/galleryStore'
+import { useGalleryStore } from '../../stores/galleryStore'
+import type { Gallery } from '../../stores/galleryStore'
 
 const galleryStore = useGalleryStore()
 // Assuming galleryStore.galleries is typed properly as Gallery[]

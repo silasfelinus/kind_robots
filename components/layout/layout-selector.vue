@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useLayoutStore, LayoutKey } from './../../../stores/layoutStore'
+import { useLayoutStore, LayoutKey } from './../../stores/layoutStore'
 
 const layoutStore = useLayoutStore()
 

@@ -49,7 +49,7 @@
 
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
-import { type Reward, useRewardStore } from './../../../stores/rewardStore'
+import { type Reward, useRewardStore } from './../../stores/rewardStore'
 
 const rewardStore = useRewardStore()
 

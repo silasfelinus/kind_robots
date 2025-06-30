@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
-import { useEditStore } from './../../../stores/editStore'
+import { useEditStore } from './../../stores/editStore'
 import { useUserStore } from '@/stores/userStore'
 
 const artStore = useArtStore()

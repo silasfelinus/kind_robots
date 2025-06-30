@@ -59,8 +59,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useBotStore } from '../../../stores/botStore'
-import { useUserStore } from '../../../stores/userStore'
+import { useBotStore } from '../../stores/botStore'
+import { useUserStore } from '../../stores/userStore'
 
 let userKey: string | null = null
 

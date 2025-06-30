@@ -19,4 +19,4 @@ navComponent: 'lab-nav'
 theme: winter
 ---
 
-:wonder-lab
+:test-runner

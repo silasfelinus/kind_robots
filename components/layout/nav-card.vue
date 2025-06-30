@@ -1,18 +1,29 @@
-<!-- /components/content/layout/nav-card.vue -->
 <template>
   <NuxtLink
     :to="to"
-    class="rounded-2xl border border-base-300 bg-base-100 p-4 flex flex-col gap-2 hover:bg-primary hover:text-black transition-all shadow-md"
+    class="group relative flex flex-col justify-between rounded-2xl overflow-hidden bg-base-100 border border-base-300 shadow-md hover:shadow-lg transition-all hover:ring hover:ring-primary/50 p-6 w-full h-full"
   >
-    <div class="flex items-center gap-3">
-      <Icon :name="icon" class="text-2xl" />
-      <h3 class="font-bold text-lg">{{ title }}</h3>
+    <div class="flex flex-col gap-3">
+      <div class="flex items-center gap-3">
+        <Icon
+          :name="icon"
+          class="text-3xl text-primary transition-transform group-hover:scale-110"
+        />
+        <h3
+          class="font-bold text-xl text-base-content group-hover:text-primary"
+        >
+          {{ title }}
+        </h3>
+      </div>
+      <p class="text-base text-base-content/80 group-hover:text-base-content">
+        {{ description }}
+      </p>
     </div>
-    <p class="text-sm text-base-content/70">{{ description }}</p>
   </NuxtLink>
 </template>
 
 <script setup lang="ts">
+// /components/content/layout/nav-card.vue
 defineProps<{
   title: string
   icon: string

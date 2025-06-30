@@ -61,18 +61,31 @@
         </div>
 
         <Transition name="fade-expand">
-          <div v-if="parsedNavComponent && showNavComponent" class="space-y-2">
-            <label class="text-sm font-semibold text-base-content/70 text-center block">
-              🔘 Navigation
+          <div
+            v-if="parsedNavComponent && showNavComponent"
+            class="space-y-2 min-h-[300px] bg-base-200 border border-dashed border-accent rounded-2xl p-4"
+          >
+            <label class="text-sm font-semibold text-accent text-center block">
+              🔘 Navigation Component: <span class="font-mono">{{ parsedNavComponent }}</span>
             </label>
-            <div class="flex justify-center">
-              <component :is="parsedNavComponent" class="w-full max-w-3xl" />
+            <div class="flex justify-center w-full max-w-3xl mx-auto">
+              <component
+                :is="parsedNavComponent"
+                class="w-full"
+                v-if="parsedNavComponent"
+              />
+              <div v-else class="text-warning font-mono text-sm">
+                ⚠️ Failed to resolve component: {{ parsedNavComponent }}
+              </div>
             </div>
           </div>
         </Transition>
 
         <Transition name="fade-expand">
-          <div v-if="!showNavComponent" class="space-y-2">
+          <div
+            v-if="!showNavComponent"
+            class="space-y-2 border border-base-300 bg-base-100 rounded-2xl p-4"
+          >
             <label class="text-sm font-semibold text-base-content/70 text-center block">
               🎮 Mode Row
             </label>
@@ -126,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
 
@@ -151,13 +164,16 @@ const resolvedImage = computed(() => {
 
 const parsedNavComponent = computed(() => {
   const raw = navComponent.value
-  if (typeof raw === 'string' && raw.trim()) {
-    return raw.trim()
-  }
-  return null
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : null
 })
 
 const showNavComponent = ref(true)
+
+watchEffect(() => {
+  console.log('%c🔍 navComponent:', 'color:cyan', navComponent.value)
+  console.log('%c🎯 parsedNavComponent:', 'color:lime', parsedNavComponent.value)
+  console.log('%c🧩 showNavComponent:', 'color:orange', showNavComponent.value)
+})
 </script>
 
 <style scoped>

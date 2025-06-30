@@ -7,7 +7,7 @@ gallery: 'hybrids'
 image: 'background/hybridlab.webp'
 tags: ['visual', 'generator', 'animals']
 layout: 'default'
-icon: fa-solid:dna
+icon: kind-icon:dna
 category: user
 tooltip: 'Create fantasy creatures with a touch of science and magic.'
 dottitip: 'Nature already invented weird. You’re just remixing.'

@@ -156,43 +156,48 @@ const parsedNavComponent = ref<string | string[] | null>(null)
 
 watchEffect(() => {
   const raw = navComponent.value
-  if (!raw) {
-    parsedNavComponent.value = null
-    return
-  }
+  let parsed: string | string[] | null = null
+
+  console.groupCollapsed(
+    `%c[splash-tutorial.vue] 🔍 NavComponent Debug`,
+    'color: #42b883; font-weight: bold;'
+  )
+
+  console.log('📝 page.title:', pageStore.page?.title)
+  console.log('📦 Raw navComponent:', raw)
 
   if (typeof raw === 'string') {
     const trimmed = raw.trim()
     if (trimmed.startsWith('[')) {
       try {
-        const parsed = JSON.parse(trimmed)
-        parsedNavComponent.value = Array.isArray(parsed) ? parsed : null
+        parsed = JSON.parse(trimmed)
+        if (!Array.isArray(parsed)) {
+          console.warn('❌ Parsed JSON was not an array:', parsed)
+          parsed = null
+        }
       } catch (err) {
         console.warn('❌ navComponent JSON parse failed:', err)
-        parsedNavComponent.value = null
+        parsed = null
       }
     } else {
-      parsedNavComponent.value = trimmed
+      parsed = trimmed
     }
   } else {
-    parsedNavComponent.value = null
+    console.warn('❌ navComponent was not a string:', raw)
   }
 
-  console.groupCollapsed(
-    `[splash-tutorial.vue] NavComponent Debug for Page: ${pageStore.page?.title || 'unknown'}`
-  )
-  console.log('🔹 Raw navComponent:', raw)
-  console.log('🔹 Parsed navComponent:', parsedNavComponent.value)
-  console.log('🔹 Type:', typeof parsedNavComponent.value)
-  if (typeof parsedNavComponent.value === 'string') {
-    console.log(`✅ Will render <${parsedNavComponent.value} />`)
-  } else if (Array.isArray(parsedNavComponent.value)) {
-    console.log(`✅ Will render <smart-nav> with`, parsedNavComponent.value)
-  } else {
-    console.warn('❌ navComponent is invalid or missing')
-  }
+  parsedNavComponent.value = parsed
+
+  console.log('✅ parsedNavComponent:', parsed)
+  console.log('📊 typeof parsedNavComponent:', typeof parsed)
+  console.log('🔄 hasSmartNav:', Array.isArray(parsed))
+  console.log('🔄 hasStringNav:', typeof parsed === 'string')
+  console.log('🎛 canToggleNav:', Array.isArray(parsed) && typeof raw === 'string' && !raw.trim().startsWith('['))
+  console.log('🧠 showSmartNav:', showSmartNav.value)
+
   console.groupEnd()
 })
+
 
 const showSmartNav = ref(true)
 

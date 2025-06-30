@@ -2,6 +2,10 @@
 <template>
   <div class="p-4">
     <h2 class="text-xl font-semibold mb-4">Test Runner</h2>
-    <component :is="'test-display'" />
+    <test-display />
   </div>
 </template>
+
+<script setup lang="ts">
+import TestDisplay from '@/components/content/admin/test-display.vue'
+</script>

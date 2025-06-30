@@ -1,7 +1,6 @@
-<!-- /components/content/admin/test-display.vue -->
 <template>
   <div
-    class="fixed inset-0 bg-warning text-black flex items-center justify-center text-4xl font-bold z-50"
+    class="w-full bg-warning text-black flex items-center justify-center text-2xl font-bold rounded-2xl p-4"
   >
     ✅ test-display.vue IS WORKING
   </div>

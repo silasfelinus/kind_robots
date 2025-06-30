@@ -7,8 +7,8 @@ import { useUserStore } from './userStore'
 import {
   validatePromptString,
   extractPitch,
-  processPromptPlaceholders,
 } from '@/stores/helpers/promptHelper'
+import { randomEntry } from '@/stores/helpers/pitchHelper'
 
 export type { Prompt }
 
@@ -57,6 +57,13 @@ export const usePromptStore = defineStore('promptStore', () => {
     } catch (error) {
       handleError(error, 'fetching prompts')
     }
+  }
+
+  function processPromptPlaceholders(prompt: string): string {
+    const pitchStore = usePitchStore()
+    return prompt.replace(/__(.*?)__/g, (_, label) =>
+      pitchStore.randomEntry(label),
+    )
   }
 
   function addPromptToArray(prompt: string) {

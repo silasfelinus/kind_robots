@@ -1,7 +1,7 @@
 <!-- /components/content/art/art-nav.vue -->
 <template>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-    <NavCard
+    <nav-card
       title="Add Art"
       icon="kind-icon:plus"
       to="/addart"
@@ -9,7 +9,7 @@
       class="animate-fade-in-up"
     />
 
-    <NavCard
+    <nav-card
       title="Gallery"
       icon="kind-icon:gallery"
       to="/artgallery"
@@ -17,7 +17,7 @@
       class="animate-fade-in-up delay-200"
     />
 
-    <NavCard
+    <nav-card
       title="Edit Art"
       icon="kind-icon:sparkles"
       to="/editor"
@@ -25,7 +25,7 @@
       class="animate-fade-in-up delay-300"
     />
 
- <NavCard
+ <nav-card
       title="Animal Hybrid"
       icon="kind-icon:plus"
       to="/hybrid"

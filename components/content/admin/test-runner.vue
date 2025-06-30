@@ -8,4 +8,9 @@
 
 <script setup lang="ts">
 import TestDisplay from '@/components/content/admin/test-display.vue'
+
+console.log(
+  '🧪 Registered components:',
+  Object.keys(import.meta.glob('/components/**/*.vue')),
+)
 </script>

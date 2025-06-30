@@ -342,7 +342,7 @@ export const useArtStore = defineStore('artStore', () => {
 
     const data: GenerateArtData = {
       promptString: promptStore
-        .processPromptPlaceholders(basePrompt.trim(), pitchStore)
+        .processPromptPlaceholders(basePrompt.trim())
         .replace(/\./g, ','),
       negativePrompt: artData?.negativePrompt ?? state.artForm.negativePrompt,
       pitch: artData?.pitch || promptStore.extractPitch(basePrompt),

@@ -4,7 +4,10 @@
     <h1 class="text-2xl font-bold text-center">🦋 Animal Hybrid Lab</h1>
 
     <!-- Hybrid Name -->
-    <div v-if="hybridName" class="text-center text-xl font-semibold text-accent">
+    <div
+      v-if="hybridName"
+      class="text-center text-xl font-semibold text-accent"
+    >
       🧬 Meet the <span class="italic">{{ hybridName }}</span>
     </div>
 
@@ -15,21 +18,32 @@
         <select v-model="animalOne" class="select select-bordered w-full">
           <option v-for="a in animalList" :key="a" :value="a">{{ a }}</option>
         </select>
-        <button class="btn btn-sm w-full mt-1" @click="randomize('one')">🎲 Random</button>
+        <button class="btn btn-sm w-full mt-1" @click="randomize('one')">
+          🎲 Random
+        </button>
       </div>
       <div class="w-full">
         <label class="label">Animal Two</label>
         <select v-model="animalTwo" class="select select-bordered w-full">
           <option v-for="a in animalList" :key="a" :value="a">{{ a }}</option>
         </select>
-        <button class="btn btn-sm w-full mt-1" @click="randomize('two')">🎲 Random</button>
+        <button class="btn btn-sm w-full mt-1" @click="randomize('two')">
+          🎲 Random
+        </button>
       </div>
     </div>
 
     <!-- Blend Ratio -->
     <div class="space-y-2">
       <label class="text-sm font-semibold">⚖️ Blend: {{ blendRatio }}%</label>
-      <input type="range" min="0" max="100" step="10" v-model="blendRatio" class="range range-primary" />
+      <input
+        type="range"
+        min="0"
+        max="100"
+        step="10"
+        v-model="blendRatio"
+        class="range range-primary"
+      />
       <div class="flex justify-between text-xs text-base-content/60">
         <span>{{ animalOne }}</span>
         <span>50/50</span>
@@ -50,15 +64,23 @@
     <!-- Action Buttons -->
     <div class="flex flex-wrap justify-center gap-2">
       <button class="btn btn-outline" @click="getText">🧠 Get Text</button>
-      <button class="btn btn-outline btn-primary" @click="getArt" :disabled="!generatedPrompt">
+      <button
+        class="btn btn-outline btn-primary"
+        @click="getArt"
+        :disabled="!generatedPrompt"
+      >
         🎨 Get Art
       </button>
-      <button class="btn btn-primary" @click="getTextThenArt">🚀 Get Text + Art</button>
+      <button class="btn btn-primary" @click="getTextThenArt">
+        🚀 Get Text + Art
+      </button>
     </div>
 
     <!-- ArtCard Display -->
     <div v-if="latestArtImage" class="pt-6">
-      <h2 class="text-lg font-semibold mb-2 text-center">✨ Your Hybrid Masterpiece</h2>
+      <h2 class="text-lg font-semibold mb-2 text-center">
+        ✨ Your Hybrid Masterpiece
+      </h2>
       <art-card :art="latestArt" :image="latestArtImage" />
     </div>
   </div>
@@ -114,7 +136,7 @@ async function getArt() {
     promptString: generatedPrompt.value,
     pitch: 'animal hybrid',
     checkpoint: 'stable-diffusion-v1-4', // ← actual model name
-    collectionLabel: 'hybrids',          // ← assigned collection
+    collection: 'hybrids', // ← assigned collection
     designer: 'Hybrid Lab',
     isPublic: true,
     isMature: false,

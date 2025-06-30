@@ -63,18 +63,6 @@ export function extractPitch(promptString: string): string {
 }
 
 /**
- * Replace __placeholder__ tokens in a prompt using pitchStore's randomEntry method.
- */
-export function processPromptPlaceholders(
-  prompt: string,
-  pitchStore: { randomEntry: (label: string) => string },
-): string {
-  return prompt.replace(/__(.*?)__/g, (_, label) =>
-    pitchStore.randomEntry(label),
-  )
-}
-
-/**
  * Simple prompt validation — ensure allowed characters only.
  */
 export function validatePromptString(prompt: string): boolean {

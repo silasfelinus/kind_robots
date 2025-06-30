@@ -4,7 +4,7 @@
     <h2 class="text-xl font-semibold">Test Runner</h2>
 
     <p class="text-sm text-base-content/70">
-      1. Dynamic mount: <code class="font-mono">auto-test-display</code>
+      1. Dynamic mount: <code class="font-mono">admin-test-display</code>
     </p>
     <component
       :is="'auto-test-display'"

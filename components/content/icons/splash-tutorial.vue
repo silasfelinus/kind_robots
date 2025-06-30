@@ -1,10 +1,10 @@
+<!-- /components/content/icons/splash-tutorial.vue -->
 <template>
   <div
     v-if="pageStore.page"
     class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-black z-20"
     ref="scrollContainer"
   >
-    <!-- Foreground content -->
     <div
       class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-4 space-y-6"
       ref="contentContainer"
@@ -29,42 +29,58 @@
           <span class="font-mono">{{ theme }}</span>
         </button>
 
-        <div>
-          <h2
-            v-if="subtitle"
-            class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
-          >
-            {{ subtitle }}
-          </h2>
-        </div>
-        <div>
-          <h2
-            v-if="description"
-            class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-300"
-          >
-            {{ description }}
-          </h2>
-        </div>
+        <h2
+          v-if="subtitle"
+          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
+        >
+          {{ subtitle }}
+        </h2>
+        <h2
+          v-if="description"
+          class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-300"
+        >
+          {{ description }}
+        </h2>
       </div>
 
-      <!-- Nav + Mode Row -->
+      <!-- Toggle + Nav + Mode Row -->
       <div class="flex flex-col gap-4 w-full pointer-events-auto">
-        <div v-if="parsedNavComponent" class="w-full text-center space-y-2">
-          <label class="text-sm font-semibold text-base-content/70">🔘 Navigation</label>
-          <div class="flex justify-center">
-            <component
-              :is="parsedNavComponent"
-              class="w-full max-w-3xl"
-            />
-          </div>
+        <div
+          v-if="parsedNavComponent && parsedNavComponent !== 'mode-row'"
+          class="text-center"
+        >
+          <button
+            class="btn btn-xs md:btn-sm btn-outline border-base-content/40 rounded-2xl transition-all"
+            @click="showNavComponent = !showNavComponent"
+          >
+            Toggle Navigation:
+            <span class="ml-1 font-mono">
+              {{ showNavComponent ? 'Component' : 'Mode Row' }}
+            </span>
+          </button>
         </div>
 
-        <div class="w-full text-center space-y-2">
-          <label class="text-sm font-semibold text-base-content/70">🎮 Mode Row</label>
-          <div class="flex justify-center">
-            <mode-row class="w-full max-w-3xl" />
+        <Transition name="fade-expand">
+          <div v-if="parsedNavComponent && showNavComponent" class="space-y-2">
+            <label class="text-sm font-semibold text-base-content/70 text-center block">
+              🔘 Navigation
+            </label>
+            <div class="flex justify-center">
+              <component :is="parsedNavComponent" class="w-full max-w-3xl" />
+            </div>
           </div>
-        </div>
+        </Transition>
+
+        <Transition name="fade-expand">
+          <div v-if="!showNavComponent" class="space-y-2">
+            <label class="text-sm font-semibold text-base-content/70 text-center block">
+              🎮 Mode Row
+            </label>
+            <div class="flex justify-center">
+              <mode-row class="w-full max-w-3xl" />
+            </div>
+          </div>
+        </Transition>
       </div>
 
       <!-- Bot Tips -->
@@ -76,9 +92,7 @@
             </div>
           </div>
           <div class="chat-bubble bg-primary text-black border border-black">
-            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg">
-              DottiBot:
-            </span>
+            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg">DottiBot:</span>
             <div>{{ dottitip }}</div>
           </div>
         </div>
@@ -89,16 +103,14 @@
             </div>
           </div>
           <div class="chat-bubble bg-secondary text-black border border-black">
-            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg">
-              AMIbot:
-            </span>
+            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg">AMIbot:</span>
             <div>{{ amitip }}</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Background Image with Parallax -->
+    <!-- Background -->
     <div
       v-if="image"
       class="absolute top-0 left-0 w-full -z-10 overflow-hidden will-change-transform"
@@ -133,9 +145,8 @@ const theme = computed(() => pageStore.page?.theme)
 
 const fallbackImage = '/images/botcafe.webp'
 const resolvedImage = computed(() => {
-  const img = pageStore.page?.image
-  if (!img || typeof img !== 'string') return fallbackImage
-  return img.startsWith('/') ? img : `/images/${img}`
+  const img = image.value
+  return img?.startsWith('/') ? img : `/images/${img ?? fallbackImage}`
 })
 
 const parsedNavComponent = computed(() => {
@@ -143,9 +154,10 @@ const parsedNavComponent = computed(() => {
   if (typeof raw === 'string' && raw.trim()) {
     return raw.trim()
   }
-  console.warn('[splash-tutorial.vue] ❌ Invalid navComponent:', raw)
   return null
 })
+
+const showNavComponent = ref(true)
 </script>
 
 <style scoped>
@@ -159,26 +171,18 @@ const parsedNavComponent = computed(() => {
     transform: translateY(0);
   }
 }
-
-img {
-  transition:
-    transform 0.2s ease-out,
-    opacity 0.3s ease-in;
-}
-
 .animate-fade-in-up {
   animation: fade-in-up 0.6s ease-out forwards;
 }
-.delay-200 {
-  animation-delay: 0.2s;
+.fade-expand-enter-active,
+.fade-expand-leave-active {
+  transition: all 0.4s ease;
 }
-.delay-300 {
-  animation-delay: 0.3s;
+.fade-expand-enter-from,
+.fade-expand-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
 }
-.delay-500 {
-  animation-delay: 0.5s;
-}
-
 .chat-bubble {
   line-height: 1.5;
   max-width: 90%;

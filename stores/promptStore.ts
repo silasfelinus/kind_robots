@@ -8,7 +8,6 @@ import {
   validatePromptString,
   extractPitch,
 } from '@/stores/helpers/promptHelper'
-import { randomEntry } from '@/stores/helpers/pitchHelper'
 
 export type { Prompt }
 
@@ -59,13 +58,6 @@ export const usePromptStore = defineStore('promptStore', () => {
     }
   }
 
-  function processPromptPlaceholders(prompt: string): string {
-    const pitchStore = usePitchStore()
-    return prompt.replace(/__(.*?)__/g, (_, label) =>
-      pitchStore.randomEntry(label),
-    )
-  }
-
   function addPromptToArray(prompt: string) {
     promptArray.value.push(prompt)
     syncToLocalStorage()
@@ -74,6 +66,18 @@ export const usePromptStore = defineStore('promptStore', () => {
   function removePromptFromArray(index: number) {
     promptArray.value.splice(index, 1)
     syncToLocalStorage()
+  }
+
+  function processPromptPlaceholders(prompt: string): string {
+    return prompt
+      .replace(/__(.*?)__/g, '$1')
+      .replace(
+        /([\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C-\uDBFF\uDC00-\uDFFF])+/g,
+        '',
+      )
+      .replace(/\./g, ',')
+      .replace(/\s+/g, ' ')
+      .trim()
   }
 
   function setPromptsFromString(final: string) {

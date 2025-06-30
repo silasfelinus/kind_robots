@@ -1,8 +1,6 @@
-<!-- /components/content/icons/splash-tutorial.vue -->
-
 <template>
   <div
-v-if="pageStore.page"
+    v-if="pageStore.page"
     class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-black z-20"
     ref="scrollContainer"
   >
@@ -51,31 +49,37 @@ v-if="pageStore.page"
 
       <!-- Nav + Mode Row -->
       <div class="flex flex-col gap-4 w-full pointer-events-auto">
+        <div class="text-center" v-if="canToggleNav">
+          <button
+            @click="showSmartNav = !showSmartNav"
+            class="btn btn-xs md:btn-sm btn-outline rounded-2xl border-base-content/40"
+          >
+            Toggle Nav:
+            <span class="ml-1 font-mono">{{ showSmartNav ? 'Smart' : 'Component' }}</span>
+          </button>
+        </div>
+
         <div class="flex-grow flex items-center justify-center">
           <component
-            v-if="Array.isArray(parsedNavComponent)"
+            v-if="hasSmartNav && showSmartNav"
             is="smart-nav"
             :component-list="parsedNavComponent"
             class="w-full max-w-3xl"
           />
           <component
-            v-else-if="
-              typeof parsedNavComponent === 'string' && parsedNavComponent
-            "
+            v-if="hasStringNav && (!hasSmartNav || !showSmartNav)"
             :is="parsedNavComponent"
             class="w-full max-w-3xl"
           />
         </div>
+
         <div class="flex-grow flex items-center justify-center">
           <mode-row class="w-full max-w-3xl" />
         </div>
       </div>
 
       <!-- Bot Tips -->
-      <div
-        v-if="dottitip && amitip"
-        class="space-y-3 max-w-2xl mx-auto pb-3 px-2"
-      >
+      <div v-if="dottitip && amitip" class="space-y-3 max-w-2xl mx-auto pb-3 px-2">
         <div class="chat chat-end animate-fade-in-up delay-300 text-black">
           <div class="chat-image avatar">
             <div class="w-10 h-10 rounded-full border-2 border-primary">
@@ -83,9 +87,7 @@ v-if="pageStore.page"
             </div>
           </div>
           <div class="chat-bubble bg-primary text-black border border-black">
-            <span
-              class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
-            >
+            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg">
               DottiBot:
             </span>
             <div>{{ dottitip }}</div>
@@ -98,9 +100,7 @@ v-if="pageStore.page"
             </div>
           </div>
           <div class="chat-bubble bg-secondary text-black border border-black">
-            <span
-              class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
-            >
+            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg">
               AMIbot:
             </span>
             <div>{{ amitip }}</div>
@@ -115,22 +115,19 @@ v-if="pageStore.page"
       class="absolute top-0 left-0 w-full -z-10 overflow-hidden will-change-transform"
     >
       <img
-  :src="resolvedImage"
-  class="w-full min-h-[100dvh] object-cover"
-  alt="Ambient Background"
-/>
-
-      <div
-        class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none"
+        :src="resolvedImage"
+        class="w-full min-h-[100dvh] object-cover"
+        alt="Ambient Background"
       />
+      <div class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// /components/content/icons/splash-tutorial.vue <script setup>
+// /components/content/icons/splash-tutorial.vue
 
-import { ref, watchEffect, computed } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
 
@@ -154,7 +151,6 @@ const resolvedImage = computed(() => {
   if (!img || typeof img !== 'string') return fallbackImage
   return img.startsWith('/') ? img : `/images/${img}`
 })
-
 
 const parsedNavComponent = ref<string | string[] | null>(null)
 
@@ -198,6 +194,11 @@ watchEffect(() => {
   console.groupEnd()
 })
 
+const showSmartNav = ref(true)
+
+const hasSmartNav = computed(() => Array.isArray(parsedNavComponent.value))
+const hasStringNav = computed(() => typeof parsedNavComponent.value === 'string')
+const canToggleNav = computed(() => hasSmartNav.value && hasStringNav.value)
 </script>
 
 <style scoped>

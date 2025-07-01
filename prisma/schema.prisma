@@ -308,23 +308,28 @@ model Gallery {
 }
 
 model Hybrid {
-  id        Int      @id @default(autoincrement())
-  userId    Int?
-  user      User?    @relation(fields: [userId], references: [id])
-  name      String
-  animalOne String
-  animalTwo String
-  blend     Int
-  promptString    String
-  result    String
-  artId     Int?
-  artImageId Int?
-  promptId   Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime?         @default(now()) @updatedAt
-  art         Art?       @relation(fields: [artId], references: [id])
-  artImage    ArtImage?  @relation(fields: [artImageId], references: [id])
-  prompt     Prompt?    @relation(fields: [promptId], references: [id])
+  id           Int      @id @default(autoincrement())
+  userId       Int?
+  user         User?    @relation(fields: [userId], references: [id])
+
+  name         String
+  animalOne    String
+  animalTwo    String
+  blend        Int
+
+  promptString String   // this stays
+  result       String
+
+  artId        Int?
+  artImageId   Int?
+  promptId     Int?
+
+  art          Art?       @relation(fields: [artId], references: [id])
+  artImage     ArtImage?  @relation(fields: [artImageId], references: [id])
+  promptEntry  Prompt?    @relation(fields: [promptId], references: [id])
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime?  @default(now()) @updatedAt
 }
 
 

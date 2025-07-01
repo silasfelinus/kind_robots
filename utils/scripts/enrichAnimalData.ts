@@ -1,19 +1,30 @@
-// /scripts/enrichAnimalData.ts
+// /utils/scripts/enrichAnimalData.ts
 
-import { type AnimalData, animalDataList } from '@/stores/utils/animalData'
 import fs from 'fs'
 import path from 'path'
+import { animalDataList } from '@/stores/utils/animalData'
+import type { AnimalData } from '@/stores/utils/animalData'
 
+/**
+ * Generates a Wikipedia URL for the given animal name.
+ */
 function getWikiUrl(name: string): string {
   const baseName = name.replace(/\s+/g, '_').replace(/[’']/g, '')
   return `https://en.wikipedia.org/wiki/${baseName}`
 }
 
+/**
+ * Generates a fallback Google Image search link for the animal.
+ */
 function getFallbackImageUrl(name: string): string {
   const query = encodeURIComponent(`${name} animal`)
   return `https://www.google.com/search?tbm=isch&q=${query}`
 }
 
+/**
+ * Provides basic inferred traits based on keywords in the animal name.
+ * Used when data is incomplete or missing.
+ */
 function inferFallbackTraits(name: string): Partial<AnimalData['traits']> {
   const lower = name.toLowerCase()
   const traits: Partial<AnimalData['traits']> = {
@@ -24,72 +35,33 @@ function inferFallbackTraits(name: string): Partial<AnimalData['traits']> {
     tail: true,
   }
 
-  if (
-    lower.includes('fish') ||
-    lower.includes('shark') ||
-    lower.includes('whale') ||
-    lower.includes('ray')
-  ) {
+  if (/(fish|shark|whale|ray)/.test(lower)) {
     traits.environment = 'water'
     traits.bodyType = 'serpentine'
-  } else if (
-    lower.includes('crab') ||
-    lower.includes('shrimp') ||
-    lower.includes('clam')
-  ) {
+  } else if (/(crab|shrimp|clam)/.test(lower)) {
     traits.environment = 'water'
     traits.bodyType = 'crustacean'
     traits.legs = 6
-  } else if (
-    lower.includes('bird') ||
-    lower.includes('eagle') ||
-    lower.includes('penguin') ||
-    lower.includes('owl') ||
-    lower.includes('booby') ||
-    lower.includes('puffin') ||
-    lower.includes('loon')
-  ) {
+  } else if (/(bird|eagle|penguin|owl|booby|puffin|loon)/.test(lower)) {
     traits.environment = 'air'
     traits.hasFeathers = true
     traits.bodyType = 'winged'
     traits.wings = 2
     traits.legs = 2
-  } else if (
-    lower.includes('lizard') ||
-    lower.includes('gecko') ||
-    lower.includes('dragon') ||
-    lower.includes('iguana')
-  ) {
+  } else if (/(lizard|gecko|dragon|iguana)/.test(lower)) {
     traits.environment = 'land'
     traits.texture = 'scaly'
     traits.bodyType = 'quadruped'
-  } else if (
-    lower.includes('insect') ||
-    lower.includes('ant') ||
-    lower.includes('mantis') ||
-    lower.includes('worm') ||
-    lower.includes('beetle') ||
-    lower.includes('fly') ||
-    lower.includes('bug') ||
-    lower.includes('glowworm')
-  ) {
+  } else if (/(insect|ant|mantis|worm|beetle|fly|bug|glowworm)/.test(lower)) {
     traits.environment = 'land'
     traits.legs = 6
     traits.antennae = 2
     traits.bodyType = 'other'
-  } else if (
-    lower.includes('jellyfish') ||
-    lower.includes('sea cucumber') ||
-    lower.includes('starfish')
-  ) {
+  } else if (/(jellyfish|sea cucumber|starfish)/.test(lower)) {
     traits.environment = 'water'
     traits.bodyType = 'amorphous'
     traits.legs = 0
-  } else if (
-    lower.includes('bat') ||
-    lower.includes('fly') ||
-    lower.includes('bee')
-  ) {
+  } else if (/(bat|bee)/.test(lower)) {
     traits.environment = 'air'
     traits.wings = 2
     traits.bodyType = 'winged'
@@ -98,51 +70,58 @@ function inferFallbackTraits(name: string): Partial<AnimalData['traits']> {
     traits.bodyType = 'quadruped'
   }
 
-  // General rules
   if (!traits.size) {
-    if (
-      lower.includes('whale') ||
-      lower.includes('elephant') ||
-      lower.includes('giraffe')
-    ) {
-      traits.size = 'giant'
-    } else if (
-      lower.includes('shrew') ||
-      lower.includes('mouse') ||
-      lower.includes('ant')
-    ) {
-      traits.size = 'tiny'
-    } else if (
-      lower.includes('fox') ||
-      lower.includes('otter') ||
-      lower.includes('bird')
-    ) {
-      traits.size = 'small'
-    } else {
-      traits.size = 'medium'
-    }
+    if (/(whale|elephant|giraffe)/.test(lower)) traits.size = 'giant'
+    else if (/(shrew|mouse|ant)/.test(lower)) traits.size = 'tiny'
+    else if (/(fox|otter|bird)/.test(lower)) traits.size = 'small'
+    else traits.size = 'medium'
   }
 
   return traits
 }
 
-const enrichedAnimalDataList = animalDataList.map((entry) => {
-  return {
-    ...entry,
-    wikiUrl: entry.wikiUrl || getWikiUrl(entry.scientificName || entry.name),
-    imageUrl: entry.imageUrl || getFallbackImageUrl(entry.name),
-    traits: {
-      ...inferFallbackTraits(entry.name),
-      ...entry.traits, // keep existing traits
-    },
-  }
-})
+/**
+ * Enrich the animal list with missing info like wiki URL, fallback image, and default traits.
+ */
+function enrichAnimalList(data: AnimalData[]): AnimalData[] {
+  return data.map((entry) => {
+    const enriched: AnimalData = {
+      ...entry,
+      wikiUrl: entry.wikiUrl || getWikiUrl(entry.scientificName || entry.name),
+      imageUrl: entry.imageUrl || getFallbackImageUrl(entry.name),
+      traits: {
+        ...inferFallbackTraits(entry.name),
+        ...entry.traits,
+      },
+    }
 
-const outputPath = path.resolve('./enrichedAnimalData.ts')
+    return enriched
+  })
+}
 
-fs.writeFileSync(
-  outputPath,
-  `// Auto-generated enriched animal data\n\nexport const enrichedAnimalDataList = ${JSON.stringify(enrichedAnimalDataList, null, 2)};\n`,
-)
+function writeEnrichedDataToFile(enrichedList: AnimalData[]) {
+  const outputPath = path.resolve('./stores/utils/enrichedAnimalData.ts')
+  const outputString =
+    `// 🐾 Auto-generated enriched animal data\n` +
+    `// Do not edit this file manually.\n\n` +
+    `import type { AnimalData } from './animalData'\n\n` +
+    `export const enrichedAnimalDataList: AnimalData[] = ${JSON.stringify(enrichedList, null, 2)}\n`
 
-console.log(`✅ Enriched animal data written to ${outputPath}`)
+  fs.writeFileSync(outputPath, outputString, 'utf-8')
+}
+
+/**
+ * Run the enrichment script.
+ */
+function run() {
+  console.log('🧪 Enriching animal data...')
+  const enriched = enrichAnimalList(animalDataList)
+
+  console.log(`✅ Enriched ${enriched.length} entries.`)
+  writeEnrichedDataToFile(enriched)
+
+  console.log('📁 Saved enriched data to: /stores/utils/enrichedAnimalData.ts')
+  console.log('✨ All done. Your hybrid generator just got smarter.')
+}
+
+run()

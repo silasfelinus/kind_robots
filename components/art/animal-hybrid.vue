@@ -4,10 +4,7 @@
     <h1 class="text-2xl font-bold text-center">🦋 Animal Hybrid Lab</h1>
 
     <!-- Hybrid Name -->
-    <div
-      v-if="hybridName"
-      class="text-center text-xl font-semibold text-accent"
-    >
+    <div v-if="hybridName" class="text-center text-xl font-semibold text-accent">
       🧬 Meet the <span class="italic">{{ hybridName }}</span>
     </div>
 
@@ -18,18 +15,14 @@
         <select v-model="animalOne" class="select select-bordered w-full">
           <option v-for="a in animalList" :key="a" :value="a">{{ a }}</option>
         </select>
-        <button class="btn btn-sm w-full mt-1" @click="randomize('one')">
-          🎲 Random
-        </button>
+        <button class="btn btn-sm w-full mt-1" @click="randomize('one')">🎲 Random</button>
       </div>
       <div class="w-full">
         <label class="label">Animal Two</label>
         <select v-model="animalTwo" class="select select-bordered w-full">
           <option v-for="a in animalList" :key="a" :value="a">{{ a }}</option>
         </select>
-        <button class="btn btn-sm w-full mt-1" @click="randomize('two')">
-          🎲 Random
-        </button>
+        <button class="btn btn-sm w-full mt-1" @click="randomize('two')">🎲 Random</button>
       </div>
     </div>
 
@@ -53,13 +46,12 @@
 
     <!-- Prompt Input & Model Output -->
     <div class="space-y-4">
-      <!-- Base Prompt Field -->
+      <!-- Editable Base Prompt -->
       <div>
         <label class="text-sm font-semibold">🧬 Base Hybrid Prompt</label>
         <textarea
           v-model="basePrompt"
           class="textarea textarea-bordered w-full h-32"
-          readonly
         />
       </div>
 
@@ -91,23 +83,19 @@
       >
         🎨 Get Art
       </button>
-      <button class="btn btn-primary" @click="getTextThenArt">
-        🚀 Get Text + Art
-      </button>
+      <button class="btn btn-primary" @click="getTextThenArt">🚀 Get Text + Art</button>
     </div>
 
     <!-- ArtCard Display -->
     <div v-if="latestArtImage" class="pt-6">
-      <h2 class="text-lg font-semibold mb-2 text-center">
-        ✨ Your Hybrid Masterpiece
-      </h2>
+      <h2 class="text-lg font-semibold mb-2 text-center">✨ Your Hybrid Masterpiece</h2>
       <art-card :art="latestArt" :image="latestArtImage" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { animalList } from '@/stores/utils/randomAnimal'
 import { usePromptStore } from '@/stores/promptStore'
 import { useArtStore } from '@/stores/artStore'
@@ -121,9 +109,12 @@ const blendRatio = ref(50)
 
 const basePrompt = ref('')
 const hybridName = ref('')
-
 const latestArt = ref()
 const latestArtImage = ref()
+
+watch([animalOne, animalTwo, blendRatio], () => {
+  generateBasePrompt()
+})
 
 function randomize(which: 'one' | 'two') {
   const pick = () => animalList[Math.floor(Math.random() * animalList.length)]
@@ -142,16 +133,17 @@ function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
-async function getText() {
+function generateBasePrompt() {
   const percentA = blendRatio.value
   const percentB = 100 - percentA
-  const staticPrompt = `A hybrid creature that is ${percentA}% ${animalOne.value} and ${percentB}% ${animalTwo.value}, featuring distinct visual features from both. Include details about its appearance, textures, abilities, and environment.`
-
-  basePrompt.value = staticPrompt
   hybridName.value = generateHybridName(animalOne.value, animalTwo.value)
 
+  basePrompt.value = `A hybrid creature that is ${percentA}% ${animalOne.value} and ${percentB}% ${animalTwo.value}, featuring distinct visual features from both. Include details about its appearance, textures, abilities, and environment.`
+}
+
+async function getText() {
   try {
-    const processed = promptStore.processPromptPlaceholders(staticPrompt)
+    const processed = promptStore.processPromptPlaceholders(basePrompt.value)
     promptStore.streamedText = ''
     await promptStore.streamPromptCompletion(processed)
   } catch (err) {
@@ -182,4 +174,7 @@ async function getTextThenArt() {
   await getText()
   await getArt()
 }
+
+// Initial setup
+generateBasePrompt()
 </script>

@@ -66,7 +66,8 @@
             class="space-y-2 min-h-[300px] bg-base-200 border border-dashed border-accent rounded-2xl p-4"
           >
             <label class="text-sm font-semibold text-accent text-center block">
-              🔘 Navigation Component: <span class="font-mono">{{ parsedNavComponent }}</span>
+              🔘 Navigation Component:
+              <span class="font-mono">{{ parsedNavComponent }}</span>
             </label>
             <div class="flex justify-center w-full max-w-3xl mx-auto">
               <component
@@ -86,7 +87,9 @@
             v-if="!showNavComponent"
             class="space-y-2 border border-base-300 bg-base-100 rounded-2xl p-4"
           >
-            <label class="text-sm font-semibold text-base-content/70 text-center block">
+            <label
+              class="text-sm font-semibold text-base-content/70 text-center block"
+            >
               🎮 Mode Row
             </label>
             <div class="flex justify-center">
@@ -97,7 +100,10 @@
       </div>
 
       <!-- Bot Tips -->
-      <div v-if="dottitip && amitip" class="space-y-3 max-w-2xl mx-auto pb-3 px-2">
+      <div
+        v-if="dottitip && amitip"
+        class="space-y-3 max-w-2xl mx-auto pb-3 px-2"
+      >
         <div class="chat chat-end animate-fade-in-up delay-300 text-black">
           <div class="chat-image avatar">
             <div class="w-10 h-10 rounded-full border-2 border-primary">
@@ -105,7 +111,9 @@
             </div>
           </div>
           <div class="chat-bubble bg-primary text-black border border-black">
-            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg">DottiBot:</span>
+            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
+              >DottiBot:</span
+            >
             <div>{{ dottitip }}</div>
           </div>
         </div>
@@ -116,7 +124,9 @@
             </div>
           </div>
           <div class="chat-bubble bg-secondary text-black border border-black">
-            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg">AMIbot:</span>
+            <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
+              >AMIbot:</span
+            >
             <div>{{ amitip }}</div>
           </div>
         </div>
@@ -133,13 +143,15 @@
         class="w-full min-h-[100dvh] object-cover"
         alt="Ambient Background"
       />
-      <div class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none" />
+      <div
+        class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watchEffect } from 'vue'
+import { ref, computed } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
 
@@ -168,12 +180,6 @@ const parsedNavComponent = computed(() => {
 })
 
 const showNavComponent = ref(true)
-
-watchEffect(() => {
-  console.log('%c🔍 navComponent:', 'color:cyan', navComponent.value)
-  console.log('%c🎯 parsedNavComponent:', 'color:lime', parsedNavComponent.value)
-  console.log('%c🧩 showNavComponent:', 'color:orange', showNavComponent.value)
-})
 </script>
 
 <style scoped>

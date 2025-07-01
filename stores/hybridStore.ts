@@ -1,7 +1,7 @@
 // /stores/hybridStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import { animalList } from '@/stores/utils/randomAnimal'
+import { animalDataList } from '@/stores/utils/animalData'
 import { usePromptStore } from './promptStore'
 import { useArtStore } from './artStore'
 import { useUserStore } from './userStore'
@@ -21,13 +21,16 @@ export type HybridEntry = {
 
 const localStorageKey = 'hybridHistory'
 
+// legacy export compatibility
+export const animalList = animalDataList.map((a) => a.name)
+
 export const useHybridStore = defineStore('hybridStore', () => {
   const promptStore = usePromptStore()
   const artStore = useArtStore()
   const userStore = useUserStore()
 
-  const animalOne = ref(animalList[0])
-  const animalTwo = ref(animalList[1])
+  const animalOne = ref(animalDataList[0].name)
+  const animalTwo = ref(animalDataList[1].name)
   const blendRatio = ref(50)
 
   const hybridName = ref('')
@@ -67,10 +70,14 @@ export const useHybridStore = defineStore('hybridStore', () => {
     basePrompt.value = `A hybrid creature that is ${percentA.value}% ${a} and ${percentB.value}% ${b}, featuring distinct visual features from both. Include details about its appearance, textures, abilities, and environment.`
   }
 
+  function randomAnimalName(): string {
+    const random = () => animalDataList[Math.floor(Math.random() * animalDataList.length)]
+    return random().name
+  }
+
   function randomizeAnimals() {
-    const random = () => animalList[Math.floor(Math.random() * animalList.length)]
-    animalOne.value = random()
-    animalTwo.value = random()
+    animalOne.value = randomAnimalName()
+    animalTwo.value = randomAnimalName()
   }
 
   async function fetchTextDirectly() {
@@ -117,8 +124,8 @@ export const useHybridStore = defineStore('hybridStore', () => {
   }
 
   function resetHybrid() {
-    animalOne.value = animalList[0]
-    animalTwo.value = animalList[1]
+    animalOne.value = animalDataList[0].name
+    animalTwo.value = animalDataList[1].name
     blendRatio.value = 50
     hybridName.value = ''
     basePrompt.value = ''
@@ -176,7 +183,6 @@ export const useHybridStore = defineStore('hybridStore', () => {
     }
   }
 
-  // ✅ Backend CRUD using performFetch
   async function fetchHybrids() {
     try {
       const res = await performFetch<any[]>('/api/hybrids')

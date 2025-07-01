@@ -2,21 +2,101 @@
 
 export type AnimalData = {
   name: string
+  scientificName?: string
+  category?: 'real' | 'mythological' | 'alien'
   icon?: string
-  imageId?: string
   description?: string
-  title?: string
+  wikiUrl?: string
+  imageUrl?: string
+  traits: {
+    hasHair?: boolean
+    hasFeathers?: boolean
+    laysEggs?: boolean
+    environment?: 'land' | 'water' | 'air' | 'amphibious' | 'space' | 'void'
+    size?: 'tiny' | 'small' | 'medium' | 'large' | 'giant'
+    texture?: 'scaly' | 'furry' | 'smooth' | 'spiky' | 'armored' | 'crystalline' | 'undefined'
+    bodyType?: 'quadruped' | 'biped' | 'serpentine' | 'winged' | 'tentacled' | 'crustacean' | 'amorphous' | 'other'
+    legs?: number
+    wings?: number
+    eyes?: number
+    antennae?: number
+    tail?: boolean
+  }
 }
+
 
 // Central list (eventually enriched with icon/imageId/description/title)
 export const animalDataList: AnimalData[] = [
-  { name: 'Sloth' },
-  { name: 'Water Bear' },
+  
+  {
+  name: 'Sloth',
+  scientificName: 'Bradypus variegatus',
+  category: 'real',
+  icon: '🦥',
+  description: 'A slow-moving, tree-dwelling mammal with long claws and shaggy fur.',
+  wikiUrl: 'https://en.wikipedia.org/wiki/Sloth',
+  imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/9f/Bradypus_variegatus_from_Costa_Rica.jpg',
+  traits: {
+    hasHair: true,
+    laysEggs: false,
+    environment: 'land',
+    size: 'medium',
+    texture: 'furry',
+    bodyType: 'quadruped',
+    legs: 4,
+    wings: 0,
+    eyes: 2,
+    antennae: 0,
+    tail: true,
+  },
+{
+  name: 'Water Bear',
+  scientificName: 'Hypsibius dujardini',
+  category: 'real',
+  icon: '🧸',
+  description: 'A microscopic, water-dwelling invertebrate with eight stubby legs and extreme resilience.',
+  wikiUrl: 'https://en.wikipedia.org/wiki/Tardigrade',
+  imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/00/Hys_dujardini_1.jpg',
+  traits: {
+    hasHair: false,
+    hasFeathers: false,
+    laysEggs: true,
+    environment: 'water',
+    size: 'tiny',
+    texture: 'smooth',
+    bodyType: 'other',
+    legs: 8,
+    wings: 0,
+    eyes: 2,
+    antennae: 0,
+    tail: false,
+  },
+
   { name: 'Flamingo' },
   { name: 'Raccoon' },
   { name: 'Platypus' },
   { name: 'Pangolin' },
-  { name: 'Axolotl' },
+  {
+  name: 'Axolotl',
+  scientificName: 'Ambystoma mexicanum',
+  category: 'real',
+  icon: '🦎',
+  description: 'A smiling aquatic salamander with feathery gills that never grows up.',
+  wikiUrl: 'https://en.wikipedia.org/wiki/Axolotl',
+  imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/69/Ambystoma_mexicanum_02.jpg',
+  traits: {
+    laysEggs: true,
+    environment: 'water',
+    size: 'small',
+    texture: 'smooth',
+    bodyType: 'quadruped',
+    legs: 4,
+    wings: 0,
+    eyes: 2,
+    antennae: 0,
+    tail: true,
+  },
+
   { name: 'Narwhal' },
   { name: 'Red Panda' },
   { name: 'Kiwi Bird' },

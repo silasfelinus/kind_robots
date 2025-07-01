@@ -1,7 +1,8 @@
 // /stores/hybridStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import { animalDataList } from '@/stores/utils/animalData'
+import { enrichedAnimalDataList as animalDataList } from '@/stores/utils/enrichedAnimalData'
+
 import { usePromptStore } from './promptStore'
 import { useArtStore } from './artStore'
 import { useUserStore } from './userStore'
@@ -71,7 +72,8 @@ export const useHybridStore = defineStore('hybridStore', () => {
   }
 
   function randomAnimalName(): string {
-    const random = () => animalDataList[Math.floor(Math.random() * animalDataList.length)]
+    const random = () =>
+      animalDataList[Math.floor(Math.random() * animalDataList.length)]
     return random().name
   }
 
@@ -86,10 +88,13 @@ export const useHybridStore = defineStore('hybridStore', () => {
 
     try {
       const processed = promptStore.processPromptPlaceholders(basePrompt.value)
-      const res = await performFetch<{ text: string }>('/api/hybrids/generate', {
-        method: 'POST',
-        body: JSON.stringify({ prompt: processed }),
-      })
+      const res = await performFetch<{ text: string }>(
+        '/api/hybrids/generate',
+        {
+          method: 'POST',
+          body: JSON.stringify({ prompt: processed }),
+        },
+      )
       finalText.value = res.data?.text || '⚠️ No response received.'
     } catch (err) {
       finalText.value = '⚠️ Error generating hybrid description.'

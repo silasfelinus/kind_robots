@@ -305,6 +305,22 @@ model Gallery {
   @@index([userId], map: "Gallery_userId_fkey")
 }
 
+model Hybrid {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  name      String
+  animalOne String
+  animalTwo String
+  blend     Int
+  prompt    String
+  result    String
+  artId     Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime?         @default(now()) @updatedAt
+}
+
+
 model Log {
   id        Int      @id @default(autoincrement())
   message   String   @db.Text
@@ -667,9 +683,10 @@ model User {
   Rewards        Reward[]
   Tags           Tag[]
   Scenarios      Scenario[]
-  Resonances      Resonance[]
+  Resonances     Resonance[]
   SmartIcons     SmartIcon[]
   Themes         Theme[]
+  Hybrids        Hybrid[]
   googleId    String? @unique
   googleEmail String? @db.VarChar(255)
 

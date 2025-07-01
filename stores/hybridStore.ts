@@ -17,6 +17,8 @@ export type HybridEntry = {
   timestamp: number
 }
 
+const localStorageKey = 'hybridHistory'
+
 export const useHybridStore = defineStore('hybridStore', () => {
   const promptStore = usePromptStore()
   const artStore = useArtStore()
@@ -128,6 +130,7 @@ export const useHybridStore = defineStore('hybridStore', () => {
       timestamp: Date.now(),
     }
     history.value.unshift(entry)
+    syncToLocalStorage()
   }
 
   function loadHybrid(entry: HybridEntry) {
@@ -142,6 +145,35 @@ export const useHybridStore = defineStore('hybridStore', () => {
     if (entry.artId) {
       artImage.value = artStore.getArtImageByArtId(entry.artId)
     }
+  }
+
+  function loadFromLocalStorage() {
+    if (typeof window === 'undefined') return
+    try {
+      const raw = localStorage.getItem(localStorageKey)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) {
+          history.value = parsed
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load hybrid history:', err)
+    }
+  }
+
+  function syncToLocalStorage() {
+    if (typeof window === 'undefined') return
+    try {
+      localStorage.setItem(localStorageKey, JSON.stringify(history.value))
+    } catch (err) {
+      console.warn('Failed to sync hybrid history:', err)
+    }
+  }
+
+  // Initialize history on client
+  if (typeof window !== 'undefined') {
+    loadFromLocalStorage()
   }
 
   return {
@@ -171,5 +203,7 @@ export const useHybridStore = defineStore('hybridStore', () => {
     resetHybrid,
     saveToHistory,
     loadHybrid,
+    syncToLocalStorage,
+    loadFromLocalStorage,
   }
 })

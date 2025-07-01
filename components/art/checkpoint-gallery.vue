@@ -50,7 +50,9 @@
       <label class="label mb-2">
         <span class="label-text font-semibold">Checkpoint</span>
       </label>
-      <div class="grid gap-6 auto-rows-fr grid-cols-[repeat(auto-fit,_minmax(220px,_1fr))] w-full">
+      <div
+        class="grid gap-6 auto-rows-fr grid-cols-[repeat(auto-fit,_minmax(220px,_1fr))] w-full"
+      >
         <div
           v-for="c in checkpointStore.visibleCheckpoints"
           :key="c.name"
@@ -62,25 +64,25 @@
               : 'hover:scale-[1.02] hover:shadow-lg bg-base-100 border-base-300',
           ]"
         >
-<div class="w-full aspect-square relative rounded-xl overflow-hidden">
-  <art-card
-    v-if="c.name && checkpointImages[c.name]"
-    :art="checkpointImages[c.name]!"
-    class="absolute inset-0 w-full h-full object-cover"
-  />
-  <img
-    v-else-if="c.MediaPath"
-    :src="`${c.MediaPath}?t=${cacheBuster}`"
-    alt="Checkpoint Image"
-    class="absolute inset-0 w-full h-full object-cover"
-  />
-  <img
-    v-else
-    src="/images/backtree.webp"
-    alt="Fallback"
-    class="absolute inset-0 w-full h-full object-cover opacity-50"
-  />
-</div>
+          <div class="w-full aspect-square relative rounded-xl overflow-hidden">
+            <art-card
+              v-if="c.name && checkpointImages[c.name]"
+              :art="checkpointImages[c.name]!"
+              class="absolute inset-0 w-full h-full object-cover"
+            />
+            <img
+              v-else-if="c.MediaPath"
+              :src="`${c.MediaPath}?t=${cacheBuster}`"
+              alt="Checkpoint Image"
+              class="absolute inset-0 w-full h-full object-cover"
+            />
+            <img
+              v-else
+              src="/images/backtree.webp"
+              alt="Fallback"
+              class="absolute inset-0 w-full h-full object-cover opacity-50"
+            />
+          </div>
 
           <div class="w-full space-y-1">
             <div class="font-bold text-sm break-words leading-tight">
@@ -163,7 +165,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'

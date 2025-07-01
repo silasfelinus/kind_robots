@@ -51,7 +51,12 @@ export default defineEventHandler(async (event) => {
 
   const stream = new ReadableStream({
     async start(controller) {
-      const reader = response.body.getReader()
+      const reader = response.body?.getReader()
+      if (!reader) {
+        controller.close()
+        return
+      }
+
       const decoder = new TextDecoder('utf-8')
       let buffer = ''
 

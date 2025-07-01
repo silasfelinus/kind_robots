@@ -13,14 +13,26 @@
       <div class="w-full">
         <label class="label">Animal One</label>
         <select v-model="store.animalOne" class="select select-bordered w-full">
-          <option v-for="a in animalList" :key="a" :value="a">{{ a }}</option>
+          <option
+            v-for="animal in animalDataList"
+            :key="animal.name"
+            :value="animal.name"
+          >
+            {{ animal.icon || '🐾' }} {{ animal.name }}
+          </option>
         </select>
         <button class="btn btn-sm w-full mt-1" @click="store.randomizeAnimals()">🎲 Random</button>
       </div>
       <div class="w-full">
         <label class="label">Animal Two</label>
         <select v-model="store.animalTwo" class="select select-bordered w-full">
-          <option v-for="a in animalList" :key="a" :value="a">{{ a }}</option>
+          <option
+            v-for="animal in animalDataList"
+            :key="animal.name"
+            :value="animal.name"
+          >
+            {{ animal.icon || '🐾' }} {{ animal.name }}
+          </option>
         </select>
         <button class="btn btn-sm w-full mt-1" @click="store.randomizeAnimals()">🎲 Random</button>
       </div>
@@ -46,7 +58,6 @@
 
     <!-- Prompt Input & Model Output -->
     <div class="space-y-4">
-      <!-- Editable Base Prompt -->
       <div>
         <label class="text-sm font-semibold">🧬 Base Hybrid Prompt</label>
         <textarea
@@ -55,7 +66,6 @@
         />
       </div>
 
-      <!-- Final Text Output -->
       <div>
         <label class="text-sm font-semibold">🧠 Final AI Text</label>
         <textarea
@@ -97,8 +107,8 @@
 
 <script setup lang="ts">
 import { watch } from 'vue'
-import { animalList } from '@/stores/utils/randomAnimal'
 import { useHybridStore } from '@/stores/hybridStore'
+import { animalDataList } from '@/stores/utils/animalData'
 
 const store = useHybridStore()
 

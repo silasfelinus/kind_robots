@@ -1,11 +1,12 @@
 // /server/api/hybrids/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
-import prisma from '@/server/utils/prisma'
-import { errorHandler } from '@/server/utils/error'
+import prisma from '@/server/api/utils/prisma'
+import { errorHandler } from '@/server/api/utils/error'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
-  if (!id || id <= 0) throw createError({ statusCode: 400, message: 'Invalid hybrid ID' })
+  if (!id || id <= 0)
+    throw createError({ statusCode: 400, message: 'Invalid hybrid ID' })
 
   try {
     await prisma.hybrid.delete({ where: { id } })

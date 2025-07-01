@@ -1,7 +1,7 @@
 // /server/api/hybrids/[id].get.ts
 import { defineEventHandler, createError } from 'h3'
-import prisma from '@/server/utils/prisma'
-import { errorHandler } from '@/server/utils/error'
+import prisma from '@/server/api/utils/prisma'
+import { errorHandler } from '@/server/api/utils/error'
 
 export default defineEventHandler(async (event) => {
   const modelName = 'hybrid'

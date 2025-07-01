@@ -23,7 +23,6 @@ export default defineEventHandler(async (event) => {
       include: {
         art: true,
         artImage: true,
-        prompt: true,
         user: true,
       },
     })
@@ -47,7 +46,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = handled.statusCode || 500
     response = {
       success: false,
-      message: handled.message || `Failed to fetch ${modelName} with ID ${id}.`,
+      message: handled.message || `Failed to fetch ${modelName}.`,
       statusCode: event.node.res.statusCode,
     }
   }

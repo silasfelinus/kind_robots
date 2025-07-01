@@ -1,3 +1,4 @@
+<!-- /components/content/lab/wonderlab.vue -->
 <template>
   <div
     class="relative grid grid-rows-[auto_1fr] h-full w-full bg-base-100 text-base-content"
@@ -8,14 +9,7 @@
         v-if="!introCollapsed && !componentStore.selectedComponent"
         class="z-10 px-4 pt-6 pb-4 flex justify-center"
       >
-        <div
-          class="welcome-card bg-base-200 border border-base-300 rounded-2xl px-6 py-5 text-center shadow-md flex flex-col items-center gap-4 w-full max-w-4xl"
-        >
-          <div
-            class="text-xl sm:text-2xl font-bold tracking-tight text-primary-content"
-          >
-            ✨ Welcome to the WonderLab
-          </div>
+        <smart-container name="✨ Welcome to the WonderLab">
           <div class="text-base-content text-sm sm:text-md">
             Where components come alive—and sometimes crash gloriously.
           </div>
@@ -30,7 +24,7 @@
             </p>
             <component-sync v-if="isAdmin" class="mt-4" />
           </div>
-        </div>
+        </smart-container>
       </div>
     </transition>
 
@@ -63,7 +57,7 @@
       <lab-gallery />
     </div>
 
-    <!-- Fullscreen Component View (In-content fullscreen, not viewport-absolute) -->
+    <!-- Fullscreen Component View -->
     <div
       v-if="componentStore.selectedComponent"
       class="px-4 py-6 w-full max-w-7xl mx-auto"
@@ -91,10 +85,6 @@ const isAdmin = computed(() => userStore.isAdmin)
 const restoreIntro = () => {
   introCollapsed.value = false
   localStorage.setItem('wonderlab_intro_seen', 'false')
-}
-
-const handleBack = () => {
-  componentStore.clearSelectedComponent()
 }
 
 const handleScroll = () => {
@@ -150,19 +140,5 @@ onMounted(async () => {
 .bubble-zoom-leave-to {
   opacity: 0;
   transform: scale(0.2) translate(50%, -50%);
-}
-
-/* Main content slide up */
-.main-slide-enter-active,
-.main-slide-leave-active {
-  transition: all 0.4s ease;
-}
-.main-slide-enter-from {
-  opacity: 0;
-  transform: translateY(24px);
-}
-.main-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-24px);
 }
 </style>

@@ -1,6 +1,6 @@
 <!-- /components/content/hybrids/generate-hybrid.vue -->
 <template>
-  <div class="space-y-6 p-4">
+  <div class="space-y-8 p-4 max-w-5xl mx-auto">
     <!-- Hybrid Name -->
     <transition name="fade-scale">
       <div
@@ -13,23 +13,26 @@
     </transition>
 
     <!-- Animal Inputs -->
-    <div class="flex flex-col md:flex-row gap-6">
+    <div class="flex flex-col md:flex-row gap-6 items-start">
       <animal-picker
-        :label="'Animal One'"
+        label="Animal One"
         v-model="store.animalOne"
+        :target="'animalOne'"
         @click-random="store.randomizeAnimals"
       />
       <div class="flex items-center justify-center">
         <button
-          class="btn btn-circle btn-outline mt-8 md:mt-0"
+          class="btn btn-circle btn-outline tooltip"
+          data-tip="Swap Animals"
           @click="swapAnimals"
         >
           🔄
         </button>
       </div>
       <animal-picker
-        :label="'Animal Two'"
+        label="Animal Two"
         v-model="store.animalTwo"
+        :target="'animalTwo'"
         @click-random="store.randomizeAnimals"
       />
     </div>
@@ -47,7 +50,7 @@
         v-model="store.blendRatio"
         class="range range-primary"
       />
-      <div class="flex justify-between text-xs text-base-content/60">
+      <div class="flex justify-between text-xs text-base-content/60 font-mono">
         <span>{{ store.animalOne }}</span>
         <span>50/50</span>
         <span>{{ store.animalTwo }}</span>
@@ -80,8 +83,8 @@
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="flex flex-wrap justify-center gap-2">
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap justify-center gap-3 pt-2">
       <button
         class="btn btn-outline"
         @click="getText"
@@ -93,6 +96,7 @@
         />
         🧠 Get Text
       </button>
+
       <button
         class="btn btn-outline btn-primary"
         @click="getArt"
@@ -100,6 +104,7 @@
       >
         🎨 Get Art
       </button>
+
       <button
         class="btn btn-primary"
         @click="getTextThenArt"
@@ -107,6 +112,7 @@
       >
         🚀 Text + Art
       </button>
+
       <button
         class="btn btn-outline btn-accent"
         @click="store.randomizeAnimals()"
@@ -116,7 +122,7 @@
     </div>
 
     <!-- Final Art -->
-    <div v-if="store.artImage" class="pt-6">
+    <div v-if="store.artImage" class="pt-8">
       <h2 class="text-lg font-semibold mb-2 text-center">
         ✨ Your Hybrid Masterpiece
       </h2>

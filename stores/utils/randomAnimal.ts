@@ -1,4 +1,4 @@
-// /stores/utils/animalData.ts
+// /stores/utils/randomAnimal.ts
 
 export type AnimalData = {
   name: string

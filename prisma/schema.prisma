@@ -315,7 +315,7 @@ model Hybrid {
   animalOne String
   animalTwo String
   blend     Int
-  prompt    String
+  promptString    String
   result    String
   artId     Int?
   artImageId Int?
@@ -325,7 +325,6 @@ model Hybrid {
   art         Art?       @relation(fields: [artId], references: [id])
   artImage    ArtImage?  @relation(fields: [artImageId], references: [id])
   prompt     Prompt?    @relation(fields: [promptId], references: [id])
-
 }
 
 

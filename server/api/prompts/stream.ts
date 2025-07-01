@@ -1,5 +1,5 @@
 // /server/api/prompt/stream.post.ts
-import { defineEventHandler, readBody, sendStream } from 'h3'
+import { defineEventHandler, readBody, sendStream, createError } from 'h3'
 
 export default defineEventHandler(async (event) => {
   const { OPENAI_API_KEY } = useRuntimeConfig()
@@ -35,22 +35,30 @@ export default defineEventHandler(async (event) => {
   })
 
   if (!response.ok || !response.body) {
-    const err = await response.json()
+    let errorMsg = 'Unknown error'
+    try {
+      const err = await response.json()
+      errorMsg = err.error?.message || response.statusText
+    } catch (e) {
+      errorMsg = response.statusText
+    }
+
     throw createError({
       statusCode: response.status,
-      statusMessage: `OpenAI Error: ${err.error?.message || response.statusText}`,
+      statusMessage: `OpenAI Error: ${errorMsg}`,
     })
   }
 
   const stream = new ReadableStream({
     async start(controller) {
-      const reader = response.body!.getReader()
+      const reader = response.body.getReader()
       const decoder = new TextDecoder('utf-8')
       let buffer = ''
 
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
+
         buffer += decoder.decode(value, { stream: true })
 
         let boundary
@@ -63,13 +71,9 @@ export default defineEventHandler(async (event) => {
 
           try {
             const json = JSON.parse(chunk.replace(/^data:\s*/, ''))
-            const content = json.choices?.[0]?.delta?.content
-            if (content) {
-              controller.enqueue(`data: ${JSON.stringify(json)}\n\n`)
-
-            }
+            controller.enqueue(`data: ${JSON.stringify(json)}\n\n`)
           } catch (err) {
-            console.warn('Invalid chunk:', chunk)
+            console.warn('Invalid stream chunk:', chunk)
           }
         }
       }

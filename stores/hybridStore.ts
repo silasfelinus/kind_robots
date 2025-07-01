@@ -4,6 +4,8 @@ import { ref, computed, watch } from 'vue'
 import { animalList } from '@/stores/utils/randomAnimal'
 import { usePromptStore } from './promptStore'
 import { useArtStore } from './artStore'
+import { useUserStore } from './userStore'
+import { performFetch, handleError } from './utils'
 
 export type HybridEntry = {
   id: string
@@ -22,6 +24,7 @@ const localStorageKey = 'hybridHistory'
 export const useHybridStore = defineStore('hybridStore', () => {
   const promptStore = usePromptStore()
   const artStore = useArtStore()
+  const userStore = useUserStore()
 
   const animalOne = ref(animalList[0])
   const animalTwo = ref(animalList[1])
@@ -36,11 +39,12 @@ export const useHybridStore = defineStore('hybridStore', () => {
   const artImage = ref<any | null>(null)
 
   const history = ref<HybridEntry[]>([])
+  const allHybrids = ref<any[]>([])
+  const selectedHybrid = ref<any | null>(null)
 
   const percentA = computed(() => blendRatio.value)
   const percentB = computed(() => 100 - blendRatio.value)
 
-  // Auto-update hybridName + prompt
   watch([animalOne, animalTwo, blendRatio], () => {
     updatePrompt()
   })
@@ -69,38 +73,20 @@ export const useHybridStore = defineStore('hybridStore', () => {
     animalTwo.value = random()
   }
 
-async function fetchTextDirectly() {
-  isStreaming.value = true
-  finalText.value = ''
-
-  try {
-    const processed = promptStore.processPromptPlaceholders(basePrompt.value)
-    const res = await fetch('/api/hybrids/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: processed }),
-    })
-
-    if (!res.ok) throw new Error('GPT request failed')
-    const { text } = await res.json()
-    finalText.value = text || '⚠️ No response received.'
-  } catch (err) {
-    finalText.value = '⚠️ Error generating hybrid description.'
-    console.error(err)
-  } finally {
-    isStreaming.value = false
-  }
-}
-
-
-  async function streamText() {
+  async function fetchTextDirectly() {
     isStreaming.value = true
     finalText.value = ''
+
     try {
       const processed = promptStore.processPromptPlaceholders(basePrompt.value)
-      finalText.value = await promptStore.streamPromptCompletion(processed)
+      const res = await performFetch<{ text: string }>('/api/hybrids/generate', {
+        method: 'POST',
+        body: JSON.stringify({ prompt: processed }),
+      })
+      finalText.value = res.data?.text || '⚠️ No response received.'
     } catch (err) {
       finalText.value = '⚠️ Error generating hybrid description.'
+      handleError(err, 'generating hybrid text')
     } finally {
       isStreaming.value = false
     }
@@ -126,7 +112,7 @@ async function fetchTextDirectly() {
   }
 
   async function streamTextThenArt() {
-    await streamText()
+    await fetchTextDirectly()
     await generateArtFromText()
   }
 
@@ -175,12 +161,7 @@ async function fetchTextDirectly() {
     if (typeof window === 'undefined') return
     try {
       const raw = localStorage.getItem(localStorageKey)
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        if (Array.isArray(parsed)) {
-          history.value = parsed
-        }
-      }
+      if (raw) history.value = JSON.parse(raw)
     } catch (err) {
       console.warn('Failed to load hybrid history:', err)
     }
@@ -195,10 +176,83 @@ async function fetchTextDirectly() {
     }
   }
 
-  // Initialize history on client
-  if (typeof window !== 'undefined') {
-    loadFromLocalStorage()
+  // ✅ Backend CRUD using performFetch
+  async function fetchHybrids() {
+    try {
+      const res = await performFetch<any[]>('/api/hybrids')
+      if (res.success && Array.isArray(res.data)) {
+        allHybrids.value = res.data
+      }
+    } catch (err) {
+      handleError(err, 'fetching hybrids')
+    }
   }
+
+  async function getHybridById(id: number) {
+    try {
+      const res = await performFetch<any>(`/api/hybrids/${id}`)
+      if (res.success) selectedHybrid.value = res.data
+    } catch (err) {
+      handleError(err, `fetching hybrid ${id}`)
+    }
+  }
+
+  async function createHybrid() {
+    const payload = {
+      name: hybridName.value,
+      animalOne: animalOne.value,
+      animalTwo: animalTwo.value,
+      blend: blendRatio.value,
+      promptString: basePrompt.value,
+      result: finalText.value,
+      userId: userStore.userId,
+      artId: generatedArt.value?.id,
+      artImageId: generatedArt.value?.artImageId || null,
+    }
+
+    try {
+      const res = await performFetch<any>('/api/hybrids', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+      if (res.success && res.data) {
+        allHybrids.value.unshift(res.data)
+        return res.data
+      }
+    } catch (err) {
+      handleError(err, 'creating hybrid')
+    }
+  }
+
+  async function updateHybrid(id: number, updates: Partial<any>) {
+    try {
+      const res = await performFetch<any>(`/api/hybrids/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+      })
+      return res
+    } catch (err) {
+      handleError(err, `updating hybrid ${id}`)
+      return { success: false }
+    }
+  }
+
+  async function deleteHybrid(id: number) {
+    try {
+      const res = await performFetch<any>(`/api/hybrids/${id}`, {
+        method: 'DELETE',
+      })
+      if (res.success) {
+        allHybrids.value = allHybrids.value.filter((h) => h.id !== id)
+      }
+      return res
+    } catch (err) {
+      handleError(err, `deleting hybrid ${id}`)
+      return { success: false }
+    }
+  }
+
+  if (typeof window !== 'undefined') loadFromLocalStorage()
 
   return {
     // state
@@ -212,16 +266,18 @@ async function fetchTextDirectly() {
     generatedArt,
     artImage,
     history,
+    allHybrids,
+    selectedHybrid,
 
     // computed
     percentA,
     percentB,
 
-    // actions
+    // local actions
     updatePrompt,
     generateHybridName,
     randomizeAnimals,
-    streamText,
+    fetchTextDirectly,
     generateArtFromText,
     streamTextThenArt,
     resetHybrid,
@@ -229,6 +285,12 @@ async function fetchTextDirectly() {
     loadHybrid,
     syncToLocalStorage,
     loadFromLocalStorage,
-fetchTextDirectly,
+
+    // backend actions
+    fetchHybrids,
+    getHybridById,
+    createHybrid,
+    updateHybrid,
+    deleteHybrid,
   }
 })

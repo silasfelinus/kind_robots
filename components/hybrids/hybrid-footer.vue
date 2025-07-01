@@ -1,61 +1,48 @@
 <!-- /components/content/hybrid/hybrid-footer.vue -->
 <template>
-  <div
-    class="w-full h-full bg-base-200 border-t border-base-300 px-4 py-2 flex flex-col md:flex-row items-center justify-between gap-4 text-sm"
-  >
-    <!-- Hybrid Summary -->
-    <div
-      class="flex flex-col md:flex-row items-center gap-2 text-base-content/70"
-    >
-      <div v-if="store.hybridName" class="font-semibold text-accent">
-        🧬 {{ store.hybridName }}
-      </div>
-      <div v-if="store.animalOne && store.animalTwo" class="text-xs opacity-60">
-        {{ store.animalOne }} + {{ store.animalTwo }} = Hybrid
-      </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="flex flex-wrap items-center gap-2">
-      <button
-        class="btn btn-sm btn-outline"
-        @click="store.fetchTextDirectly()"
-        :disabled="store.isStreaming"
-      >
-        <span
-          v-if="store.isStreaming"
-          class="loading loading-spinner loading-xs mr-1"
+  <div class="p-4 border-t mt-6 bg-base-100 rounded-t-xl">
+    <div class="flex items-center justify-around text-center">
+      <div class="w-1/2">
+        <img
+          :src="animalOne?.imageUrl"
+          class="w-20 h-20 mx-auto rounded-full object-cover"
+          v-if="animalOne?.imageUrl"
         />
-        🧠 Text
-      </button>
-      <button
-        class="btn btn-sm btn-outline btn-primary"
-        @click="store.generateArtFromText()"
-        :disabled="!store.finalText || store.isStreaming"
-      >
-        🎨 Art
-      </button>
-      <button
-        class="btn btn-sm btn-primary"
-        @click="streamTextAndArt"
-        :disabled="store.isStreaming"
-      >
-        🚀 Text + Art
-      </button>
-    </div>
+        <div class="font-bold text-accent mt-2">
+          {{ percentA }}% {{ animalOne?.name }}
+        </div>
+        <div class="text-xs">{{ animalOne?.description }}</div>
+      </div>
 
-    <!-- Session Info -->
-    <div class="text-xs opacity-50 hidden md:inline">
-      {{ store.history.length }} hybrids this session
+      <div class="w-1/2">
+        <img
+          :src="animalTwo?.imageUrl"
+          class="w-20 h-20 mx-auto rounded-full object-cover"
+          v-if="animalTwo?.imageUrl"
+        />
+        <div class="font-bold text-secondary mt-2">
+          {{ percentB }}% {{ animalTwo?.name }}
+        </div>
+        <div class="text-xs">{{ animalTwo?.description }}</div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useHybridStore } from '@/stores/hybridStore'
+import { useHybridStore, animalList } from '@/stores/hybridStore'
+import { enrichedAnimalDataList as animalDataList } from '@/stores/utils/enrichedAnimalData'
+import { computed } from 'vue'
+
 const store = useHybridStore()
 
-async function streamTextAndArt() {
-  await store.streamTextThenArt()
-}
+const animalOne = computed(() =>
+  animalDataList.find((a) => a.name === store.animalOne),
+)
+const animalTwo = computed(() =>
+  animalDataList.find((a) => a.name === store.animalTwo),
+)
+
+const percentA = computed(() => store.blendRatio)
+const percentB = computed(() => 100 - store.blendRatio)
 </script>

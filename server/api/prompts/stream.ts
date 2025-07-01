@@ -65,7 +65,8 @@ export default defineEventHandler(async (event) => {
             const json = JSON.parse(chunk.replace(/^data:\s*/, ''))
             const content = json.choices?.[0]?.delta?.content
             if (content) {
-              controller.enqueue(`data: ${JSON.stringify(content)}\n\n`)
+              controller.enqueue(`data: ${JSON.stringify(json)}\n\n`)
+
             }
           } catch (err) {
             console.warn('Invalid chunk:', chunk)

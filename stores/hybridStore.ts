@@ -69,6 +69,30 @@ export const useHybridStore = defineStore('hybridStore', () => {
     animalTwo.value = random()
   }
 
+async function fetchTextDirectly() {
+  isStreaming.value = true
+  finalText.value = ''
+
+  try {
+    const processed = promptStore.processPromptPlaceholders(basePrompt.value)
+    const res = await fetch('/api/hybrids/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: processed }),
+    })
+
+    if (!res.ok) throw new Error('GPT request failed')
+    const { text } = await res.json()
+    finalText.value = text || '⚠️ No response received.'
+  } catch (err) {
+    finalText.value = '⚠️ Error generating hybrid description.'
+    console.error(err)
+  } finally {
+    isStreaming.value = false
+  }
+}
+
+
   async function streamText() {
     isStreaming.value = true
     finalText.value = ''
@@ -205,5 +229,6 @@ export const useHybridStore = defineStore('hybridStore', () => {
     loadHybrid,
     syncToLocalStorage,
     loadFromLocalStorage,
+fetchTextDirectly,
   }
 })

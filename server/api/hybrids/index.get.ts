@@ -1,6 +1,6 @@
 // /server/api/hybrids/index.get.ts
 import { defineEventHandler } from 'h3'
-import prisma from '@/server/utils/prisma'
+import prisma from '@/server/api/utils/prisma'
 
 export default defineEventHandler(async () => {
   const data = await prisma.hybrid.findMany({

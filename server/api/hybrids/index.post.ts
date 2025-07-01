@@ -1,16 +1,26 @@
 // /server/api/hybrids/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '@/server/utils/prisma'
-import { errorHandler } from '@/server/utils/error'
+import prisma from '@/server/api/utils/prisma'
+import { errorHandler } from '@/server/api/utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
 
-    const required = ['name', 'animalOne', 'animalTwo', 'blend', 'promptString', 'result']
+    const required = [
+      'name',
+      'animalOne',
+      'animalTwo',
+      'blend',
+      'promptString',
+      'result',
+    ]
     for (const field of required) {
       if (!body[field]) {
-        throw createError({ statusCode: 400, message: `Missing required field: ${field}` })
+        throw createError({
+          statusCode: 400,
+          message: `Missing required field: ${field}`,
+        })
       }
     }
 

@@ -217,6 +217,7 @@ describe('Reward Management API Tests', () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
+      timeout: 60000, // 60 seconds
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)

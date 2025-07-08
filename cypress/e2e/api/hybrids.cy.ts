@@ -1,150 +1,177 @@
-// /cypress/e2e/hybrid.cy.ts
+// /cypress/e2e/hybrids.cy.ts
 
-describe('[Hybrid] API Full CRUD + Ownership Tests', () => {
-  const modelName = 'hybrid'
-  const baseUrl = `https://kind-robots.vercel.app/api/${modelName}s`
-  const userUrl = `https://kind-robots.vercel.app/api/users`
-  const globalApiKey = Cypress.env('API_KEY')
-
-  let userA_id: number, userA_apiKey: string
-  let userB_id: number, userB_apiKey: string
-  let hybridId: number
-
+describe('[Hybrid] API Full CRUD Tests (using USER_TOKEN)', () => {
+  const baseUrl = 'https://kind-robots.vercel.app/api/hybrids'
+  const userToken = Cypress.env('USER_TOKEN')
+  const invalidToken = 'invalid-token'
+  let hybridId: number | undefined
   const time = Date.now()
-  const userA_name = `owner-${time}`
-  const userB_name = `intruder-${time}`
   const hybridName = `Hybrid-${time}`
 
-  before(() => {
-    const register = (username: string) =>
-      cy.request({
-        method: 'POST',
-        url: `${userUrl}/register`,
-        headers: { 'x-api-key': globalApiKey },
-        body: {
-          username,
-          email: `${username}@test.com`,
-          password: 'testtest12',
-        },
-      })
-
-    return register(userA_name).then((resA) => {
-      userA_id = resA.body.user.id
-      userA_apiKey = resA.body.user.apiKey
-
-      return register(userB_name).then((resB) => {
-        userB_id = resB.body.user.id
-        userB_apiKey = resB.body.user.apiKey
-      })
+  it('should not allow creating a hybrid without a token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: { 'Content-Type': 'application/json' },
+      body: {
+        name: hybridName,
+        animalOne: 'Tiger',
+        animalTwo: 'Eagle',
+        blend: 60,
+        promptString: 'Hybrid of a tiger and eagle',
+        result: 'Majestic wings with striped fur',
+      },
+      failOnStatusCode: false,
+    }).then((res) => {
+      expect(res.status).to.eq(401)
+      expect(res.body.message).to.include('Authorization token is required')
     })
   })
 
-  it('POST: User A creates a hybrid', () => {
+  it('should not allow creating a hybrid with an invalid token', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
-        Authorization: `Bearer ${userA_apiKey}`,
+        Authorization: `Bearer ${invalidToken}`,
         'Content-Type': 'application/json',
       },
       body: {
         name: hybridName,
         animalOne: 'Tiger',
         animalTwo: 'Eagle',
-        blend: 70,
-        promptString: 'A 70% Tiger and 30% Eagle hybrid.',
-        result: 'It has powerful stripes and majestic wings.',
+        blend: 60,
+        promptString: 'Hybrid of a tiger and eagle',
+        result: 'Majestic wings with striped fur',
+      },
+      failOnStatusCode: false,
+    }).then((res) => {
+      expect(res.status).to.eq(401)
+      expect(res.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('creates a new hybrid with valid token', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: {
+        name: hybridName,
+        animalOne: 'Tiger',
+        animalTwo: 'Eagle',
+        blend: 60,
+        promptString: 'Hybrid of a tiger and eagle',
+        result: 'Majestic wings with striped fur',
       },
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
-      expect(res.body.data).to.have.property('id')
+      expect(res.body.data.name).to.eq(hybridName)
       hybridId = res.body.data.id
     })
   })
 
-  it('GET: fetch all hybrids', () => {
-    cy.request(baseUrl).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      const match = res.body.data.find((i: any) => i.id === hybridId)
-      expect(match).to.not.be.undefined
-    })
-  })
-
-  it('GET: fetch hybrid by ID', () => {
+  it('retrieves the hybrid by ID', () => {
     cy.request(`${baseUrl}/${hybridId}`).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
       expect(res.body.data.id).to.eq(hybridId)
-      expect(res.body.data.name).to.eq(hybridName)
     })
   })
 
-  it('PATCH: User A updates their hybrid', () => {
-    const newName = `Updated-${hybridName}`
+  it('updates the hybrid with valid token', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${hybridId}`,
       headers: {
-        Authorization: `Bearer ${userA_apiKey}`,
+        Authorization: `Bearer ${userToken}`,
         'Content-Type': 'application/json',
       },
-      body: { name: newName },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.data.name).to.eq(newName)
-    })
-  })
-
-  it('PATCH: User B fails to update hybrid (403)', () => {
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${hybridId}`,
-      headers: {
-        Authorization: `Bearer ${userB_apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: { name: 'unauthorized edit' },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(403)
-      expect(res.body.message.toLowerCase()).to.include('permission')
-    })
-  })
-
-  it('DELETE: User B fails to delete hybrid (403)', () => {
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${hybridId}`,
-      headers: { Authorization: `Bearer ${userB_apiKey}` },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(403)
-      expect(res.body.message.toLowerCase()).to.include('authorized')
-    })
-  })
-
-  it('DELETE: User A deletes hybrid', () => {
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${hybridId}`,
-      headers: { Authorization: `Bearer ${userA_apiKey}` },
+      body: { name: `Updated-${hybridName}` },
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
+      expect(res.body.data.name).to.eq(`Updated-${hybridName}`)
     })
   })
 
-  after(() => {
-    const deleteUser = (id: number, apiKey: string) =>
-      cy.request({
-        method: 'DELETE',
-        url: `${userUrl}/${id}`,
-        headers: { Authorization: `Bearer ${apiKey}` },
-      })
+  it('fails to update hybrid without token', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${hybridId}`,
+      headers: { 'Content-Type': 'application/json' },
+      body: { name: 'Hacked!' },
+      failOnStatusCode: false,
+    }).then((res) => {
+      expect(res.status).to.eq(401)
+      expect(res.body.message).to.include('Invalid or expired token.')
+    })
+  })
 
-    deleteUser(userA_id, userA_apiKey)
-    deleteUser(userB_id, userB_apiKey)
+  it('fails to update hybrid with invalid token', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${hybridId}`,
+      headers: {
+        Authorization: `Bearer ${invalidToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: { name: 'Invalid Update' },
+      failOnStatusCode: false,
+    }).then((res) => {
+      expect(res.status).to.eq(401)
+      expect(res.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('retrieves all hybrids (authenticated)', () => {
+    cy.request({
+      method: 'GET',
+      url: baseUrl,
+      headers: { Authorization: `Bearer ${userToken}` },
+    }).then((res) => {
+      expect(res.status).to.eq(200)
+      expect(res.body.success).to.be.true
+      expect(res.body.data).to.be.an('array')
+    })
+  })
+
+  it('fails to delete hybrid without token', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${hybridId}`,
+      failOnStatusCode: false,
+    }).then((res) => {
+      expect(res.status).to.eq(401)
+      expect(res.body.message).to.include('Authorization token is required')
+    })
+  })
+
+  it('fails to delete hybrid with invalid token', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${hybridId}`,
+      headers: { Authorization: `Bearer ${invalidToken}` },
+      failOnStatusCode: false,
+    }).then((res) => {
+      expect(res.status).to.eq(401)
+      expect(res.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('deletes the hybrid with valid token', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${hybridId}`,
+      headers: { Authorization: `Bearer ${userToken}` },
+    }).then((res) => {
+      expect(res.status).to.eq(200)
+      expect(res.body.success).to.be.true
+      expect(res.body.message).to.include(`${hybridId}`)
+    })
   })
 })

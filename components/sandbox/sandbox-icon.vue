@@ -1,12 +1,12 @@
-<!-- sandbox-icon.vue -->
+<!-- /components/content/sandbox/sandbox-icon.vue -->
 <template>
   <div
-    class="p-2 rounded cursor-pointer border"
+    class="p-2 rounded cursor-pointer border flex flex-col items-center gap-1 w-16"
     :class="active ? 'bg-primary text-white' : 'bg-base-100'"
     @click="$emit('click')"
   >
-    <div>{{ icon }}</div>
-    <div class="text-xs">{{ label }}</div>
+    <Icon :name="icon" class="text-2xl" />
+    <div class="text-xs text-center leading-tight">{{ label }}</div>
   </div>
 </template>
 

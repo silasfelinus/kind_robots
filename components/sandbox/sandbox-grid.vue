@@ -1,14 +1,13 @@
 <!-- /components/content/sandbox/sandbox-grid.vue -->
 <template>
-  <div class="container mx-auto p-4 relative">
-    <!-- Top menu with padding -->
+  <div class="flex flex-col min-h-[100dvh] p-4 relative">
+    <!-- Top menu -->
     <sandbox-environment class="w-full flex justify-center pt-3 pb-2 z-10" />
 
-    <div class="flex min-h-[calc(100dvh-6rem)]">
+    <!-- Main area (sidebars + canvas) -->
+    <div class="flex flex-grow overflow-hidden">
       <!-- Left sidebar -->
-      <div
-        class="w-20 flex-shrink-0 flex flex-col pt-6 overflow-y-auto max-h-[calc(100dvh-8rem)] z-10"
-      >
+      <div class="w-20 flex-shrink-0 flex flex-col pt-6 overflow-y-auto z-10">
         <sandbox-persists />
       </div>
 
@@ -19,7 +18,7 @@
           class="w-full h-full border rounded-xl bg-base-200"
         />
 
-        <!-- Right sidebar (floating) -->
+        <!-- Right floating sidebar -->
         <div
           class="absolute top-12 right-0 w-40 max-h-[calc(100dvh-10rem)] overflow-y-auto z-20"
         >

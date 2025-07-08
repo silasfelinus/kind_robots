@@ -1,18 +1,20 @@
-<!-- /components/content/sandbox/sandbox-icon.vue -->
+<!-- sandbox-icon.vue -->
 <template>
-  <button
-    class="btn btn-square btn-sm tooltip tooltip-right"
-    :data-tip="label"
+  <div
+    class="p-2 rounded cursor-pointer border"
+    :class="active ? 'bg-primary text-white' : 'bg-base-100'"
     @click="$emit('click')"
   >
-    <Icon :name="icon" class="text-xl" />
-  </button>
+    <div>{{ icon }}</div>
+    <div class="text-xs">{{ label }}</div>
+  </div>
 </template>
 
 <script setup lang="ts">
 defineProps<{
   icon: string
-  label?: string
+  label: string
+  active?: boolean
 }>()
 
 defineEmits(['click'])

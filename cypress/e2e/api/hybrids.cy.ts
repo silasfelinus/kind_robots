@@ -1,4 +1,5 @@
 // /cypress/e2e/hybrid.cy.ts
+
 describe('[Hybrid] API Full CRUD + Ownership Tests', () => {
   const modelName = 'hybrid'
   const baseUrl = `https://kind-robots.vercel.app/api/${modelName}s`
@@ -57,6 +58,7 @@ describe('[Hybrid] API Full CRUD + Ownership Tests', () => {
     }).then((res) => {
       expect(res.status).to.eq(201)
       expect(res.body.success).to.be.true
+      expect(res.body.data).to.have.property('id')
       hybridId = res.body.data.id
     })
   })
@@ -101,12 +103,13 @@ describe('[Hybrid] API Full CRUD + Ownership Tests', () => {
       url: `${baseUrl}/${hybridId}`,
       headers: {
         Authorization: `Bearer ${userB_apiKey}`,
+        'Content-Type': 'application/json',
       },
       body: { name: 'unauthorized edit' },
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(403)
-      expect(res.body.message).to.include('permission')
+      expect(res.body.message.toLowerCase()).to.include('permission')
     })
   })
 
@@ -118,7 +121,7 @@ describe('[Hybrid] API Full CRUD + Ownership Tests', () => {
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(403)
-      expect(res.body.message).to.include('authorized')
+      expect(res.body.message.toLowerCase()).to.include('authorized')
     })
   })
 

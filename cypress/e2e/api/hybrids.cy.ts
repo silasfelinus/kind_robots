@@ -147,7 +147,7 @@ describe('[Hybrid] API Full CRUD Tests (using USER_TOKEN)', () => {
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(401)
-      expect(res.body.message).to.include('Authorization token is required')
+      expect(res.body.message).to.include('Invalid or expired token.')
     })
   })
 

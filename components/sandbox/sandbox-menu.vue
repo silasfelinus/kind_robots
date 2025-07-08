@@ -12,15 +12,22 @@
     <!-- Actions -->
     <sandbox-icon icon="kind-icon:save" label="Save" @click="store.saveScene" />
     <sandbox-icon icon="kind-icon:load" label="Load" @click="store.loadScene" />
-    <sandbox-icon icon="kind-icon:refresh" label="Reset" @click="store.resetScene" />
-    <sandbox-icon icon="kind-icon:camera" label="Screenshot" @click="screenshot" />
+    <sandbox-icon
+      icon="kind-icon:refresh"
+      label="Reset"
+      @click="store.resetScene"
+    />
+    <sandbox-icon
+      icon="kind-icon:camera"
+      label="Screenshot"
+      @click="screenshot"
+    />
     <sandbox-icon icon="kind-icon:record" label="Record" @click="record" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useSandboxStore } from '@/stores/sandboxStore'
-import SandboxIcon from './sandbox-icon.vue'
 
 const store = useSandboxStore()
 

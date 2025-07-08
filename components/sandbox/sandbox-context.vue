@@ -20,7 +20,7 @@ import { useSandboxStore } from '@/stores/sandboxStore'
 const store = useSandboxStore()
 
 const contextTools = [
-  { icon: 'kind-icon:wand', label: 'Animate' },
+  { icon: 'kind-icon:animate', label: 'Animate' },
   { icon: 'kind-icon:bolt', label: 'Zap' },
   { icon: 'kind-icon:gear', label: 'Configure' },
   { icon: 'kind-icon:rotate', label: 'Rotate' },

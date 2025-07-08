@@ -24,8 +24,8 @@ const allEnvironmentOptions: SandboxItem[] = [
   { icon: 'kind-icon:storm', label: 'Storm' },
   { icon: 'kind-icon:moon', label: 'Moonlight' },
   { icon: 'kind-icon:fog', label: 'Fog' },
-  { icon: 'kind-icon:quake', label: 'Earthquake' },
+  { icon: 'kind-icon:earthquake', label: 'Earthquake' },
   { icon: 'kind-icon:wind', label: 'Wind' },
-  { icon: 'kind-icon:freeze', label: 'Time Freeze' },
+  { icon: 'kind-icon:time', label: 'Time Freeze' },
 ]
 </script>

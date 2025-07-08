@@ -21,8 +21,8 @@ const persistableIcons = [
   { icon: 'kind-icon:house', label: 'House' },
   { icon: 'kind-icon:flame', label: 'Fire' },
   { icon: 'kind-icon:rock', label: 'Rock' },
-  { icon: 'kind-icon:pond', label: 'Water' },
-  { icon: 'kind-icon:block', label: 'Platform' },
+  { icon: 'kind-icon:water', label: 'Water' },
+  { icon: 'kind-icon:platform', label: 'Platform' },
   { icon: 'kind-icon:portal', label: 'Portal' },
   { icon: 'kind-icon:crate', label: 'Crate' },
 ]

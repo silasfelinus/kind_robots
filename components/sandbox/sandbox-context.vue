@@ -16,7 +16,6 @@
 
 <script setup lang="ts">
 import { useSandboxStore } from '@/stores/sandboxStore'
-import SandboxIcon from './sandbox-icon.vue'
 
 const store = useSandboxStore()
 
@@ -26,7 +25,7 @@ const contextTools = [
   { icon: 'kind-icon:gear', label: 'Configure' },
   { icon: 'kind-icon:rotate', label: 'Rotate' },
   { icon: 'kind-icon:resize', label: 'Resize' },
-  { icon: 'kind-icon:trash', label: 'Delete' }
+  { icon: 'kind-icon:trash', label: 'Delete' },
 ]
 
 function activate(tool: any) {

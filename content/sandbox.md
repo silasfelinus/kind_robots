@@ -4,7 +4,7 @@ room: 'Creative Sandbox'
 subtitle: 'Play with physics, icons, weather, and interactive ideas'
 description: 'A full-page interactive playground for experiments and imagination. Drop in icons, trigger events, and see what happens.'
 gallery: 'sandbox'
-image: 'background/sandbox.webp'
+image: 'background/sandbox.png'
 tags: ['interactive', 'canvas', 'physics']
 layout: 'default'
 icon: kind-icon:experiment

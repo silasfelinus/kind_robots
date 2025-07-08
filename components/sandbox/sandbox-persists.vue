@@ -13,7 +13,6 @@
 
 <script setup lang="ts">
 import { useSandboxStore } from '@/stores/sandboxStore'
-import SandboxIcon from './sandbox-icon.vue'
 
 const store = useSandboxStore()
 
@@ -25,7 +24,7 @@ const persistableIcons = [
   { icon: 'kind-icon:pond', label: 'Water' },
   { icon: 'kind-icon:block', label: 'Platform' },
   { icon: 'kind-icon:portal', label: 'Portal' },
-  { icon: 'kind-icon:crate', label: 'Crate' }
+  { icon: 'kind-icon:crate', label: 'Crate' },
 ]
 
 function addToCanvas(item: any) {

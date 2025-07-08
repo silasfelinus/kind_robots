@@ -15,7 +15,6 @@
 <script setup lang="ts">
 import { useSandboxStore } from '@/stores/sandboxStore'
 import type { SandboxItem } from '@/stores/sandboxStore'
-import SandboxIcon from './sandbox-icon.vue'
 
 const store = useSandboxStore()
 

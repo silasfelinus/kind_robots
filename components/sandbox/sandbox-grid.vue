@@ -1,26 +1,36 @@
 <!-- /components/content/sandbox/sandbox-grid.vue -->
 <template>
   <div class="container mx-auto p-4 relative">
-    <sandbox-environment class="absolute top-0 left-0 w-full flex justify-center z-10" />
-    
-    <div class="flex">
-      <sandbox-persists class="w-24 flex-shrink-0 flex flex-col items-center z-10" />
-      
-      <div class="flex-grow relative">
-        <canvas ref="canvasRef" class="w-full h-full border rounded-xl bg-base-200"></canvas>
-        <sandbox-context class="absolute top-0 right-0 w-40 z-20" />
+    <!-- Top menu with padding -->
+    <sandbox-environment class="w-full flex justify-center pt-3 pb-2 z-10" />
+
+    <div class="flex min-h-[calc(100dvh-6rem)]">
+      <!-- Left sidebar -->
+      <div
+        class="w-20 flex-shrink-0 flex flex-col pt-6 overflow-y-auto max-h-[calc(100dvh-8rem)] z-10"
+      >
+        <sandbox-persists />
       </div>
 
-      <!-- Optional filler or future tools -->
+      <!-- Canvas area -->
+      <div class="flex-grow relative">
+        <canvas
+          ref="canvasRef"
+          class="w-full h-full border rounded-xl bg-base-200"
+        />
+
+        <!-- Right sidebar (floating) -->
+        <div
+          class="absolute top-12 right-0 w-40 max-h-[calc(100dvh-10rem)] overflow-y-auto z-20"
+        >
+          <sandbox-context />
+        </div>
+      </div>
     </div>
 
-    <sandbox-menu class="mt-4 w-full flex justify-center z-10" />
+    <!-- Bottom menu -->
+    <div class="mt-4 w-full flex justify-center z-10">
+      <sandbox-menu />
+    </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import SandboxEnvironment from './sandbox-environment.vue'
-import SandboxMenu from './sandbox-menu.vue'
-import SandboxPersists from './sandbox-persists.vue'
-import SandboxContext from './sandbox-context.vue'
-</script>

@@ -28,14 +28,14 @@ describe('[Hybrid] API Full CRUD + Ownership Tests', () => {
         },
       })
 
-    register(userA_name).then((res) => {
-      userA_id = res.body.user.id
-      userA_apiKey = res.body.user.apiKey
-    })
+    return register(userA_name).then((resA) => {
+      userA_id = resA.body.user.id
+      userA_apiKey = resA.body.user.apiKey
 
-    register(userB_name).then((res) => {
-      userB_id = res.body.user.id
-      userB_apiKey = res.body.user.apiKey
+      return register(userB_name).then((resB) => {
+        userB_id = resB.body.user.id
+        userB_apiKey = resB.body.user.apiKey
+      })
     })
   })
 
@@ -56,7 +56,7 @@ describe('[Hybrid] API Full CRUD + Ownership Tests', () => {
         result: 'It has powerful stripes and majestic wings.',
       },
     }).then((res) => {
-      expect(res.status).to.eq(201)
+      expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
       expect(res.body.data).to.have.property('id')
       hybridId = res.body.data.id

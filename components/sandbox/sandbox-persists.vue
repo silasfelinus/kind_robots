@@ -2,11 +2,11 @@
 <template>
   <div class="flex flex-col items-center gap-2 p-2">
     <sandbox-icon
-      v-for="(item, i) in store.persistables"
+      v-for="(item, i) in persistableIcons"
       :key="i"
       :icon="item.icon"
       :label="item.label"
-      @click="select(item)"
+      @click="addToCanvas(item)"
     />
   </div>
 </template>
@@ -17,7 +17,19 @@ import SandboxIcon from './sandbox-icon.vue'
 
 const store = useSandboxStore()
 
-function select(item: any) {
-  console.log('Selected persistable:', item)
+const persistableIcons = [
+  { icon: 'kind-icon:tree', label: 'Tree' },
+  { icon: 'kind-icon:house', label: 'House' },
+  { icon: 'kind-icon:flame', label: 'Fire' },
+  { icon: 'kind-icon:rock', label: 'Rock' },
+  { icon: 'kind-icon:pond', label: 'Water' },
+  { icon: 'kind-icon:block', label: 'Platform' },
+  { icon: 'kind-icon:portal', label: 'Portal' },
+  { icon: 'kind-icon:crate', label: 'Crate' }
+]
+
+function addToCanvas(item: any) {
+  // Placeholder for actual placeable logic
+  store.persistables.push({ ...item, id: Date.now() })
 }
 </script>

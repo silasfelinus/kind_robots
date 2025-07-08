@@ -1,6 +1,13 @@
 <!-- /components/content/sandbox/sandbox-grid.vue -->
 <template>
-  <div class="flex flex-col min-h-[100dvh] p-4 relative">
+  <div
+    class="relative flex flex-col"
+    :style="{
+      height: mainContentHeight,
+      width: mainContentWidth,
+      padding: '1rem', // matches p-4
+    }"
+  >
     <!-- Top menu -->
     <sandbox-environment class="w-full flex justify-center pt-3 pb-2 z-10" />
 
@@ -33,3 +40,11 @@
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useDisplayStore } from '@/stores/displayStore'
+
+const displayStore = useDisplayStore()
+const { mainContentHeight, mainContentWidth } = storeToRefs(displayStore)
+</script>

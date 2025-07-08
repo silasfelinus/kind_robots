@@ -2,7 +2,7 @@
 <template>
   <div class="flex gap-2 p-2">
     <sandbox-icon
-      v-for="(env, i) in environmentList"
+      v-for="(env, i) in environmentIcons"
       :key="i"
       :icon="env.icon"
       :label="env.label"
@@ -17,16 +17,18 @@ import SandboxIcon from './sandbox-icon.vue'
 
 const store = useSandboxStore()
 
-const environmentList = [
+const environmentIcons = [
   { icon: 'kind-icon:sun', label: 'Sun' },
   { icon: 'kind-icon:rain', label: 'Rain' },
   { icon: 'kind-icon:storm', label: 'Storm' },
-  { icon: 'kind-icon:moon', label: 'Moonlight' }
+  { icon: 'kind-icon:moon', label: 'Moonlight' },
+  { icon: 'kind-icon:fog', label: 'Fog' },
+  { icon: 'kind-icon:quake', label: 'Earthquake' },
+  { icon: 'kind-icon:wind', label: 'Wind' },
+  { icon: 'kind-icon:freeze', label: 'Time Freeze' }
 ]
 
 function toggle(item: any) {
-  const idx = store.environment.findIndex(e => e.label === item.label)
-  if (idx >= 0) store.environment.splice(idx, 1)
-  else store.environment.push(item)
+  store.toggleItem(store.environment, item)
 }
 </script>

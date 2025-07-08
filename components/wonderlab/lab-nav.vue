@@ -39,6 +39,8 @@ const tabs = [
   { name: 'rebel-button', label: 'Rebel Button' },
   { name: 'about-page', label: 'About Page' },
   { name: 'sponsor-page', label: 'Sponsor Page' },
+  { name: 'sandbox-grid', label: 'Sandbox' },
+
 ]
 
 const visibleTabs = computed(() =>

@@ -1,15 +1,15 @@
 // /server/api/hybrids/[id].patch.ts
-import { defineEventHandler, createError, readBody } from 'h3'
-import prisma from '@/server/api/utils/prisma'
-import { errorHandler } from '@/server/api/utils/error'
-import { validateApiKey } from '@/server/api/utils/validateKey'
+import { defineEventHandler, readBody, createError } from 'h3'
+import prisma from '../utils/prisma'
+import { errorHandler } from '../utils/error'
+import { validateApiKey } from '../utils/validateKey'
 import type { Hybrid } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
   const hybridId = Number(event.context.params?.id)
 
   try {
-    // Validate Hybrid ID
+    // 🔒 Validate Hybrid ID
     if (isNaN(hybridId) || hybridId <= 0) {
       throw createError({
         statusCode: 400,
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Authenticate user
+    // 🔒 Validate API key
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
       event.node.res.statusCode = 401
@@ -27,11 +27,12 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Verify ownership
+    // 🔐 Verify ownership
     const existingHybrid = await prisma.hybrid.findUnique({
       where: { id: hybridId },
       select: { userId: true },
     })
+
     if (!existingHybrid) {
       event.node.res.statusCode = 404
       return {
@@ -39,6 +40,7 @@ export default defineEventHandler(async (event) => {
         message: `Hybrid with ID ${hybridId} does not exist.`,
       }
     }
+
     if (existingHybrid.userId !== user.id) {
       event.node.res.statusCode = 403
       return {
@@ -47,7 +49,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Read and validate patch data
+    // ✅ Read update data
     const hybridData: Partial<Hybrid> = await readBody(event)
     if (!hybridData || Object.keys(hybridData).length === 0) {
       event.node.res.statusCode = 400
@@ -57,8 +59,8 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Perform update
-    const data = await prisma.hybrid.update({
+    // ✏️ Perform update
+    const updated = await prisma.hybrid.update({
       where: { id: hybridId },
       data: hybridData,
     })
@@ -66,7 +68,8 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
     return {
       success: true,
-      data,
+      message: 'Hybrid updated successfully.',
+      data: updated,
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)

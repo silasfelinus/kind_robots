@@ -68,7 +68,7 @@ describe('[Hybrid] API Full CRUD Tests (using USER_TOKEN)', () => {
         result: 'Majestic wings with striped fur',
       },
     }).then((res) => {
-      expect(res.status).to.eq(200)
+      expect(res.status).to.eq(201)
       expect(res.body.success).to.be.true
       expect(res.body.data.name).to.eq(hybridName)
       hybridId = res.body.data.id

@@ -324,6 +324,9 @@ model Hybrid {
   artImageId   Int?
   promptId     Int?
 
+  isPublic     Boolean @default(true)
+  isMature     Boolean @default(false)
+
   art          Art?       @relation(fields: [artId], references: [id])
   artImage     ArtImage?  @relation(fields: [artImageId], references: [id])
   promptEntry  Prompt?    @relation(fields: [promptId], references: [id])

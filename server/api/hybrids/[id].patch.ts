@@ -6,25 +6,27 @@ import { validateApiKey } from '../utils/validateKey'
 import type { Hybrid } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
-  const hybridId = Number(event.context.params?.id)
+  let hybridId: number = -1
 
   try {
-    // 🔒 Validate Hybrid ID
-    if (isNaN(hybridId) || hybridId <= 0) {
+    // 🔒 Validate API key FIRST
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
+      event.node.res.statusCode = 401
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    // ✅ Then check Hybrid ID
+    hybridId = Number(event.context.params?.id)
+    if (!hybridId || isNaN(hybridId) || hybridId <= 0) {
+      event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
         message: 'Invalid Hybrid ID. It must be a positive integer.',
       })
-    }
-
-    // 🔒 Validate API key
-    const { isValid, user } = await validateApiKey(event)
-    if (!isValid || !user) {
-      event.node.res.statusCode = 401
-      return {
-        success: false,
-        message: 'Invalid or expired token.',
-      }
     }
 
     // 🔐 Verify ownership
@@ -35,28 +37,28 @@ export default defineEventHandler(async (event) => {
 
     if (!existingHybrid) {
       event.node.res.statusCode = 404
-      return {
-        success: false,
+      throw createError({
+        statusCode: 404,
         message: `Hybrid with ID ${hybridId} does not exist.`,
-      }
+      })
     }
 
     if (existingHybrid.userId !== user.id) {
       event.node.res.statusCode = 403
-      return {
-        success: false,
+      throw createError({
+        statusCode: 403,
         message: 'You do not have permission to update this hybrid.',
-      }
+      })
     }
 
     // ✅ Read update data
     const hybridData: Partial<Hybrid> = await readBody(event)
     if (!hybridData || Object.keys(hybridData).length === 0) {
       event.node.res.statusCode = 400
-      return {
-        success: false,
+      throw createError({
+        statusCode: 400,
         message: 'No data provided for update.',
-      }
+      })
     }
 
     // ✏️ Perform update

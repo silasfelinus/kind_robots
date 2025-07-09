@@ -5,20 +5,11 @@ import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
-  const hybridId = Number(event.context.params?.id)
   let response
+  let hybridId: number = -1
 
   try {
-    // ✅ Validate ID
-    if (isNaN(hybridId) || hybridId <= 0) {
-      event.node.res.statusCode = 400
-      throw createError({
-        statusCode: 400,
-        message: 'Invalid Hybrid ID. It must be a positive integer.',
-      })
-    }
-
-    // 🔐 Authenticate user
+    // 🔐 Authenticate user FIRST
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
       event.node.res.statusCode = 401
@@ -29,6 +20,17 @@ export default defineEventHandler(async (event) => {
     }
 
     const userId = user.id
+
+    // ✅ Validate ID AFTER token check
+    hybridId = Number(event.context.params?.id)
+    if (!hybridId || isNaN(hybridId) || hybridId <= 0) {
+      event.node.res.statusCode = 400
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid Hybrid ID. It must be a positive integer.',
+      })
+    }
+
     console.log(`User ${userId} requested deletion of Hybrid ${hybridId}`)
 
     // 🔍 Find hybrid and verify ownership
@@ -44,8 +46,6 @@ export default defineEventHandler(async (event) => {
         message: `Hybrid with ID ${hybridId} does not exist.`,
       })
     }
-
-    // 🚫 (Optional) admin override — not implemented unless you want role checks like rewards
 
     if (hybrid.userId !== userId) {
       event.node.res.statusCode = 403

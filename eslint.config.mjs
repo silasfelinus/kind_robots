@@ -20,7 +20,6 @@ export default withNuxt({
     'spec*',
     'cypress/',
     'cypress/e2e/',
-    'sample/'
-    // add other patterns you want to ignore
+    'sample/',
   ],
 })

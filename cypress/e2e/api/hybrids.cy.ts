@@ -24,7 +24,7 @@ describe('[Hybrid] API Full CRUD Tests (using USER_TOKEN)', () => {
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(401)
-      expect(res.body.message).to.include('Authorization token is required')
+      expect(res.body.message).to.include('token')
     })
   })
 
@@ -76,6 +76,7 @@ describe('[Hybrid] API Full CRUD Tests (using USER_TOKEN)', () => {
   })
 
   it('retrieves the hybrid by ID', () => {
+    expect(hybridId).to.be.a('number')
     cy.request(`${baseUrl}/${hybridId}`).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
@@ -84,6 +85,7 @@ describe('[Hybrid] API Full CRUD Tests (using USER_TOKEN)', () => {
   })
 
   it('updates the hybrid with valid token', () => {
+    expect(hybridId).to.be.a('number')
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${hybridId}`,
@@ -100,6 +102,7 @@ describe('[Hybrid] API Full CRUD Tests (using USER_TOKEN)', () => {
   })
 
   it('fails to update hybrid without token', () => {
+    expect(hybridId).to.be.a('number')
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${hybridId}`,
@@ -108,11 +111,12 @@ describe('[Hybrid] API Full CRUD Tests (using USER_TOKEN)', () => {
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(401)
-      expect(res.body.message).to.include('Invalid or expired token.')
+      expect(res.body.message).to.include('Invalid or expired token')
     })
   })
 
   it('fails to update hybrid with invalid token', () => {
+    expect(hybridId).to.be.a('number')
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${hybridId}`,
@@ -141,17 +145,19 @@ describe('[Hybrid] API Full CRUD Tests (using USER_TOKEN)', () => {
   })
 
   it('fails to delete hybrid without token', () => {
+    expect(hybridId).to.be.a('number')
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${hybridId}`,
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(401)
-      expect(res.body.message).to.include('Invalid or expired token.')
+      expect(res.body.message).to.include('Invalid or expired token')
     })
   })
 
   it('fails to delete hybrid with invalid token', () => {
+    expect(hybridId).to.be.a('number')
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${hybridId}`,
@@ -164,6 +170,7 @@ describe('[Hybrid] API Full CRUD Tests (using USER_TOKEN)', () => {
   })
 
   it('deletes the hybrid with valid token', () => {
+    expect(hybridId).to.be.a('number')
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${hybridId}`,

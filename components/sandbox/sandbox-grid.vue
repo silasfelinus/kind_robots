@@ -26,9 +26,7 @@
         />
 
         <!-- Right floating sidebar -->
-        <div
-          class="absolute top-12 right-0 w-40 max-h-[calc(100dvh-10rem)] overflow-y-auto z-20"
-        >
+        <div class="absolute top-12 right-0 w-40 h-[calc(100%-4rem)] z-20">
           <sandbox-context />
         </div>
       </div>

@@ -1,8 +1,11 @@
 <!-- /components/content/sandbox/sandbox-context.vue -->
 <template>
-  <div class="bg-base-100 rounded-xl p-2 shadow-md w-full max-w-[160px]">
+  <div
+    class="bg-base-100 rounded-xl p-2 shadow-md w-full max-w-[160px] flex flex-col overflow-auto"
+    :style="{ maxHeight: '100%' }"
+  >
     <div class="text-sm font-semibold text-center mb-2">Context Tools</div>
-    <div class="flex flex-col gap-2 items-center">
+    <div class="flex flex-col gap-2 items-center flex-grow overflow-auto">
       <sandbox-icon
         v-for="(tool, i) in contextTools"
         :key="i"

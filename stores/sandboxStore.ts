@@ -47,6 +47,16 @@ export const useSandboxStore = defineStore('sandboxStore', () => {
     localStorage.setItem('sandboxScene', JSON.stringify(state))
   }
 
+  function toggleContextTool(label: string) {
+    const index = contextTools.value.findIndex((i) => i.label === label)
+    if (index >= 0) {
+      contextTools.value.splice(index, 1)
+    } else {
+      // You can decide whether to allow dynamic tools or not.
+      contextTools.value.push({ icon: 'kind-icon:question', label }) // placeholder icon
+    }
+  }
+
   function loadScene() {
     const raw = localStorage.getItem('sandboxScene')
     if (!raw) return
@@ -77,5 +87,6 @@ export const useSandboxStore = defineStore('sandboxStore', () => {
     saveScene,
     loadScene,
     resetScene,
+    toggleContextTool,
   }
 })

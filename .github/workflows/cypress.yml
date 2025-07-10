@@ -13,6 +13,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Upgrade NPM to match engine
+        run: npm install -g npm@latest
+        
       - name: Install dependencies
         run: npm ci
 

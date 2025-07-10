@@ -1,38 +1,42 @@
 name: Cypress Tests
 on: [push]
+
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
-    # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
-    # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
-    # Also see warning here https://github.com/cypress-io/github-action#parallel
     strategy:
-      fail-fast: false # https://github.com/cypress-io/github-action/issues/48
+      fail-fast: false
       matrix:
-        containers: [1, 2] # Uses 2 parallel instances
+        containers: [0, 1]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Upgrade NPM to match engine
+      - name: Upgrade to npm@latest
         run: npm install -g npm@latest
-        
+
       - name: Install dependencies
         run: npm ci
 
       - name: Build Nuxt app
         run: npm run build
+        env:
+          NODE_ENV: production
 
-      - name: Run Cypress tests on local Nuxt
+      - name: Confirm .output was built
+        run: ls -la .output && test -f .output/nitro.json
+
+      - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
           start: npm start
           wait-on: http://localhost:3000
-          wait-on-timeout: 120
+          wait-on-timeout: 150 # seconds
           record: true
           parallel: true
         env:
           NODE_ENV: production
+          PORT: 3000
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CI_NODE_TOTAL: 2

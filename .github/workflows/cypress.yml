@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Upgrade to npm@latest
-        run: npm install -g npm@latest
+        run: sudo npm install -g npm@latest
 
       - name: Install dependencies
         run: npm ci

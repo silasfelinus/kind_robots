@@ -1,4 +1,4 @@
-<!-- /components/content/story/dashboard-nav.vue -->
+<!-- /components/content/story/giftshop-nav.vue -->
 <template>
   <div class="w-full flex flex-col items-center">
     <div
@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/story/dashboard-nav.vue
+// /components/content/story/giftshop-nav.vue
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDisplayStore } from '~/stores/displayStore'
@@ -32,11 +32,12 @@ const route = useRoute()
 const displayStore = useDisplayStore()
 
 const tabs = [
-  { name: 'user-dashboard', label: 'User Dashboard', link: '/dashboard' },
-  { name: 'navigation-trimmed', label: 'Site Navigation', link: '/navigation' },
-  { name: 'user-gallery', label: 'User Forum', link: '/forum' },
-  { name: 'jellybean-counter', label: 'Milestones', link: '/milestones' },
-  { name: 'user-chat', label: 'User Chat', link: '/chats' },
+  { name: 'giftshop', label: 'Gift Shop', link: '/giftshop' },
+  { name: 'dashboard', label: 'Dashboard', link: '/dashboard' },
+  { name: 'forum', label: 'Forum', link: '/forum' },
+  { name: 'credits', label: 'Credits', link: '/credits' },
+  { name: 'about', label: 'About', link: '/about' },
+  { name: 'amibot', label: 'AmiBot', link: '/amibot' },
 ]
 
 const selected = ref('')

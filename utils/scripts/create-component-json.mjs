@@ -4,7 +4,7 @@ import path from 'path'
 
 async function generateComponentJSON() {
   try {
-    const componentPath = path.resolve(process.cwd(), 'components/content')
+    const componentPath = path.resolve(process.cwd(), 'components/')
     const folderNames = await fs.readdir(componentPath)
     const folders = []
 

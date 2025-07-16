@@ -14,6 +14,7 @@ layout: 'default'
 sort: highlight
 underConstruction: true
 dottitip: Hey AMI, I had an idea. What if we started up a giftshop. so people could use our art modelers to make art, and then sell mugs and what not.
+navComponent: 'giftshop-nav'
 ---
 
 :giftshop-browser

@@ -13,7 +13,7 @@ tooltip: 'Jump into the conversation and let your ideas unfold.'
 dottitip: 'Threads help us track the chaos. Use them wisely.'
 amitip: 'I replied to a reply but someone already replied to their reply. Was that wrong?'
 sort: highlight
-navComponent: 'forum-nav'
+navComponent: 'dashboard-nav'
 ---
 
 :forum-thread

@@ -34,7 +34,7 @@ import { useStoryStore } from '@/stores/storyStore'
 // Import Components
 import StoryCreator from '~/components/weird/story-creator.vue'
 import CreditPurchase from '~/components/giftshop/credit-purchase.vue'
-import StoryAbout from '@/components/story/story-about.vue'
+import StoryAbout from '@/components/weird/story-about.vue'
 
 // Define valid section keys
 const sections = {

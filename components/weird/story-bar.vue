@@ -32,8 +32,8 @@ import { computed } from 'vue'
 import { useStoryStore } from '@/stores/storyStore'
 
 // Import Components
-import StoryCreator from '@/components/story/story-creator.vue'
-import CreditPurchase from '@/components/story/credit-purchase.vue'
+import StoryCreator from '~/components/weird/story-creator.vue'
+import CreditPurchase from '~/components/giftshop/credit-purchase.vue'
 import StoryAbout from '@/components/story/story-about.vue'
 
 // Define valid section keys

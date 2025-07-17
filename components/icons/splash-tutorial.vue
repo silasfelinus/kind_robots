@@ -153,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, onBeforeUnmount } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
 
@@ -187,14 +187,34 @@ const contentContainer = ref<HTMLElement | null>(null)
 const contentHeight = ref(1000)
 const scrollOffset = ref(0)
 
+let resizeObserver: ResizeObserver | null = null
+
+function updateHeight() {
+  if (contentContainer.value) {
+    contentHeight.value = contentContainer.value.offsetHeight
+  }
+}
+
 onMounted(() => {
   nextTick(() => {
-    if (!scrollContainer.value || !contentContainer.value) return
-    contentHeight.value = contentContainer.value.offsetHeight
-    scrollContainer.value.addEventListener('scroll', () => {
-      scrollOffset.value = scrollContainer.value!.scrollTop * -0.2
-    })
+    updateHeight()
+    if (scrollContainer.value) {
+      scrollContainer.value.addEventListener('scroll', () => {
+        scrollOffset.value = scrollContainer.value!.scrollTop * -0.2
+      })
+    }
+
+    if (contentContainer.value) {
+      resizeObserver = new ResizeObserver(updateHeight)
+      resizeObserver.observe(contentContainer.value)
+    }
   })
+})
+
+onBeforeUnmount(() => {
+  if (resizeObserver && contentContainer.value) {
+    resizeObserver.unobserve(contentContainer.value)
+  }
 })
 </script>
 

@@ -1,6 +1,6 @@
 <!-- /components/content/art/corner-panel.vue -->
 <template>
-  <div class="absolute top-0 right-0 z-50 p-1" @click.self="closePanel">
+<div class="absolute top-0 right-0 z-50 p-1 w-[5.5rem]" @click.self="closePanel">
     <div class="flex gap-2 items-start">
       <!-- Menu Icons -->
       <div

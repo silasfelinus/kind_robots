@@ -5,22 +5,21 @@
     @scroll="handleScroll"
     class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-black z-20"
   >
-    <splash-content />
-
-    <!-- Parallax Background -->
+    <!-- Parallax Background (in scroll context) -->
     <div
       v-if="image"
-      class="pointer-events-none fixed top-0 left-0 w-full h-full -z-10 overflow-hidden"
+      class="absolute top-0 left-0 w-full h-[150%] -z-10 overflow-hidden"
+      :style="{ transform: `translateY(${scrollOffset}px)` }"
     >
       <div
-        class="parallax-image w-full h-[120%] bg-cover bg-center transition-transform"
-        :style="{
-          backgroundImage: `url('${resolvedImage}')`,
-          transform: `translateY(${scrollOffset}px)`
-        }"
+        class="parallax-image w-full h-full bg-cover bg-center transition-transform"
+        :style="{ backgroundImage: `url('${resolvedImage}')` }"
       />
       <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" />
     </div>
+
+    <!-- Main Content -->
+    <splash-content />
   </div>
 </template>
 
@@ -40,10 +39,10 @@ const resolvedImage = computed(() => {
 })
 
 function handleScroll() {
-  scrollOffset.value = scrollContainer.value?.scrollTop * -0.2 || 0
+  const scrollTop = scrollContainer.value?.scrollTop || 0
+  scrollOffset.value = scrollTop * -0.2
 }
 </script>
-
 
 <style scoped>
 .parallax-image {

@@ -5,11 +5,14 @@
     @scroll="handleScroll"
     class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-black z-20"
   >
-    <!-- Parallax Background (in scroll context) -->
+    <!-- Parallax Background -->
     <div
       v-if="image"
-      class="absolute top-0 left-0 w-full h-[150%] -z-10 overflow-hidden"
-      :style="{ transform: `translateY(${scrollOffset}px)` }"
+      class="absolute top-0 left-0 w-full -z-10 overflow-hidden"
+      :style="{
+        height: parallaxHeight + 'px',
+        transform: `translateY(${scrollOffset}px)`
+      }"
     >
       <div
         class="parallax-image w-full h-full bg-cover bg-center transition-transform"
@@ -18,18 +21,23 @@
       <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" />
     </div>
 
-    <!-- Main Content -->
-    <splash-content />
+    <!-- Foreground Content -->
+    <div ref="contentContainer">
+      <splash-content />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()
+
 const scrollContainer = ref()
+const contentContainer = ref()
 const scrollOffset = ref(0)
+const parallaxHeight = ref(1000) // fallback default
 
 const image = computed(() => pageStore.page?.image)
 const fallbackImage = '/images/botcafe.webp'
@@ -38,15 +46,18 @@ const resolvedImage = computed(() => {
   return img?.startsWith('/') ? img : `/images/${img ?? fallbackImage}`
 })
 
-function handleScroll() {
-  const scrollTop = scrollContainer.value?.scrollTop || 0
-  scrollOffset.value = scrollTop * -0.2
+function updateParallaxHeight() {
+  if (contentContainer.value) {
+    parallaxHeight.value = contentContainer.value.offsetHeight * 1.25
+  }
 }
-</script>
 
-<style scoped>
-.parallax-image {
-  background-size: cover;
-  background-position: center top;
+function handleScroll() {
+  scrollOffset.value = scrollContainer.value?.scrollTop * -0.2 || 0
 }
-</style>
+
+onMounted(() => {
+  updateParallaxHeight()
+  window.addEventListener('resize', updateParallaxHeight)
+})
+</script>

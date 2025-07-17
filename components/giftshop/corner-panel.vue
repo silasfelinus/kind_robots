@@ -1,25 +1,24 @@
 <!-- /components/content/art/corner-panel.vue -->
 <template>
-<div class="absolute top-0 right-0 z-50 p-1 w-[5.5rem]" @click.self="closePanel">
-    <div class="flex gap-2 items-start">
-      <!-- Menu Icons -->
+  <div
+    class="fixed top-2 right-2 z-[9999] p-1 w-[5.5rem] pointer-events-auto"
+    @click.self="closePanel"
+  >
+    <div class="flex flex-col gap-2 items-start">
       <div
         v-for="item in menuItems"
         :key="item.id"
-        class="relative flex items-center gap-2"
+        class="relative flex items-center"
       >
         <div
-          class="tooltip tooltip-top fixed z-[9999]"
+          class="tooltip tooltip-top z-[9999]"
           :data-tip="item.tooltip"
         >
           <button
             class="btn btn-xs flex items-center gap-1 px-2"
             @click.stop="toggle(item.id)"
           >
-            <span
-              v-if="item.id === 'tokens'"
-              class="text-xs font-bold"
-            >
+            <span v-if="item.id === 'tokens'" class="text-xs font-bold">
               {{ userStore.user?.mana ?? 0 }}
             </span>
             <Icon :name="item.icon" class="inline" />
@@ -29,7 +28,7 @@
         <!-- Dropdown Panel -->
         <div
           v-if="activePanel === item.id"
-          class="mt-2 w-64 bg-base-100 shadow-lg rounded-xl p-3 z-50 text-sm space-y-2"
+          class="mt-2 w-64 bg-base-100 shadow-lg rounded-xl p-3 z-[9999] text-sm space-y-2 absolute right-full top-0"
         >
           <!-- Tokens Panel -->
           <div v-if="item.id === 'tokens'">
@@ -106,24 +105,12 @@
             <div class="flex flex-col gap-1">
               <NuxtLink to="/art" class="hover:underline">🖼️ Art</NuxtLink>
               <NuxtLink to="/bots" class="hover:underline">🤖 Bots</NuxtLink>
-              <NuxtLink to="/pitches" class="hover:underline">
-                🎤 Pitches
-              </NuxtLink>
-              <NuxtLink to="/stories" class="hover:underline">
-                📖 Stories
-              </NuxtLink>
-              <NuxtLink to="/wonderlab" class="hover:underline">
-                🧪 Wonderlab
-              </NuxtLink>
-              <NuxtLink to="/forum" class="hover:underline">
-                🧪 Forum
-              </NuxtLink>
-              <NuxtLink to="/memory" class="hover:underline">
-                🧠 Memory
-              </NuxtLink>
-              <NuxtLink to="/characters" class="hover:underline">
-                🧍 Characters
-              </NuxtLink>
+              <NuxtLink to="/pitches" class="hover:underline">🎤 Pitches</NuxtLink>
+              <NuxtLink to="/stories" class="hover:underline">📖 Stories</NuxtLink>
+              <NuxtLink to="/wonderlab" class="hover:underline">🧪 Wonderlab</NuxtLink>
+              <NuxtLink to="/forum" class="hover:underline">🧪 Forum</NuxtLink>
+              <NuxtLink to="/memory" class="hover:underline">🧠 Memory</NuxtLink>
+              <NuxtLink to="/characters" class="hover:underline">🧍 Characters</NuxtLink>
             </div>
           </div>
 
@@ -147,15 +134,9 @@
           <!-- About -->
           <div v-if="item.id === 'about'">
             <div class="font-bold mb-1">ℹ️ Info</div>
-            <NuxtLink to="/about" class="block hover:underline">
-              🌐 About
-            </NuxtLink>
-            <NuxtLink to="/sponsor" class="block hover:underline">
-              💖 Sponsors
-            </NuxtLink>
-            <NuxtLink to="/giftshop" class="block hover:underline">
-              💖 Giftshop
-            </NuxtLink>
+            <NuxtLink to="/about" class="block hover:underline">🌐 About</NuxtLink>
+            <NuxtLink to="/sponsor" class="block hover:underline">💖 Sponsors</NuxtLink>
+            <NuxtLink to="/giftshop" class="block hover:underline">💖 Giftshop</NuxtLink>
           </div>
         </div>
       </div>
@@ -164,7 +145,6 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/art/corner-panel.vue
 import { ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 
@@ -180,31 +160,11 @@ function closePanel() {
 }
 
 const menuItems = [
-  {
-    id: 'tokens',
-    icon: 'kind-icon:mana-potion',
-    tooltip: `${userStore.user?.mana ?? 0} Mana`,
-  },
-  {
-    id: 'account',
-    icon: 'kind-icon:person',
-    tooltip: userStore.user?.designerName || 'Account',
-  },
-  {
-    id: 'directory',
-    icon: 'kind-icon:folder-tree',
-    tooltip: 'Site Map',
-  },
-  {
-    id: 'sources',
-    icon: 'kind-icon:butterfly',
-    tooltip: 'Modeller Sources',
-  },
-  {
-    id: 'about',
-    icon: 'kind-icon:info-circle',
-    tooltip: 'About / Sponsors',
-  },
+  { id: 'tokens', icon: 'kind-icon:mana-potion', tooltip: `${userStore.user?.mana ?? 0} Mana` },
+  { id: 'account', icon: 'kind-icon:person', tooltip: userStore.user?.designerName || 'Account' },
+  { id: 'directory', icon: 'kind-icon:folder-tree', tooltip: 'Site Map' },
+  { id: 'sources', icon: 'kind-icon:butterfly', tooltip: 'Modeller Sources' },
+  { id: 'about', icon: 'kind-icon:info-circle', tooltip: 'About / Sponsors' },
 ]
 </script>
 

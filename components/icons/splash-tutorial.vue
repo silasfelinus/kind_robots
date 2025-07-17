@@ -141,7 +141,7 @@
       :style="{ height: `${contentHeight * 1.2}px` }"
     >
       <div
-        class="parallax-image absolute top-0 left-0 w-full h-full bg-cover bg-center will-change-transform transition-transform duration-75"
+        class="parallax-image absolute top-0 left-0 w-full h-full bg-cover bg-center will-change-transform transition-transform duration-100"
         :style="{
           backgroundImage: `url('${resolvedImage}')`,
           transform: `translateY(${scrollOffset}px)`
@@ -188,6 +188,7 @@ const contentHeight = ref(1000)
 const scrollOffset = ref(0)
 
 let resizeObserver: ResizeObserver | null = null
+let ticking = false
 
 function updateHeight() {
   if (contentContainer.value) {
@@ -198,9 +199,18 @@ function updateHeight() {
 onMounted(() => {
   nextTick(() => {
     updateHeight()
+
     if (scrollContainer.value) {
       scrollContainer.value.addEventListener('scroll', () => {
-        scrollOffset.value = scrollContainer.value!.scrollTop * -0.2
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            if (scrollContainer.value) {
+              scrollOffset.value = scrollContainer.value.scrollTop * -0.2
+            }
+            ticking = false
+          })
+          ticking = true
+        }
       })
     }
 

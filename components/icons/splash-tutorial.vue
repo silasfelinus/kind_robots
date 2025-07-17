@@ -2,12 +2,13 @@
 <template>
   <div
     v-if="pageStore.page"
-    class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-black z-20"
     ref="scrollContainer"
+    class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-black z-20"
   >
+    <!-- Foreground Content -->
     <div
-      class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-4 space-y-6"
       ref="contentContainer"
+      class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-4 space-y-6"
     >
       <!-- Title + Description Block -->
       <div class="text-center space-y-2">
@@ -133,25 +134,25 @@
       </div>
     </div>
 
-    <!-- Background -->
+    <!-- Parallax Background with Zoom -->
     <div
       v-if="image"
-      class="absolute top-0 left-0 w-full -z-10 overflow-hidden will-change-transform"
+      class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
     >
-      <img
-        :src="resolvedImage"
-        class="w-full min-h-[100dvh] object-cover"
-        alt="Ambient Background"
-      />
       <div
-        class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm pointer-events-none"
+        class="parallax-image absolute top-0 left-0 w-full h-[120%] bg-cover bg-center will-change-transform transition-transform duration-75"
+        :style="{
+          backgroundImage: `url('${resolvedImage}')`,
+          transform: `translateY(${scrollOffset}px) scale(${1 + scrollZoomFactor})`
+        }"
       />
+      <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
 
@@ -180,6 +181,24 @@ const parsedNavComponent = computed(() => {
 })
 
 const showNavComponent = ref(true)
+const scrollContainer = ref<HTMLElement | null>(null)
+const scrollOffset = ref(0)
+
+const scrollZoomFactor = computed(() => {
+  const maxZoom = 0.05
+  const maxScroll = 1000
+  const scrollTop = scrollContainer.value?.scrollTop || 0
+  return Math.min(scrollTop, maxScroll) / maxScroll * maxZoom
+})
+
+onMounted(() => {
+  nextTick(() => {
+    if (!scrollContainer.value) return
+    scrollContainer.value.addEventListener('scroll', () => {
+      scrollOffset.value = scrollContainer.value!.scrollTop * -0.2
+    })
+  })
+})
 </script>
 
 <style scoped>
@@ -210,5 +229,9 @@ const showNavComponent = ref(true)
   max-width: 90%;
   word-break: break-word;
   border: 1px solid black;
+}
+.parallax-image {
+  background-size: cover;
+  background-position: center top;
 }
 </style>

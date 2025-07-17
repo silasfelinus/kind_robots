@@ -31,7 +31,7 @@
     <Transition name="fade-expand">
       <div
         v-if="!showNavComponent"
-        class="space-y-2 border border-base-300 bg-base-100 rounded-2xl p-4"
+        class="space-y-2 border border-base-300 bg-base-100 rounded-2xl"
       >
         <label class="text-sm font-semibold text-base-content/70 text-center block">
           🎮 Mode Row

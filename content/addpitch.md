@@ -13,6 +13,6 @@ tooltip: 'Share new ideas, pitches, or taglines for our bots to build from.'
 dottitip: 'Every great invention starts with a pitch.'
 amitip: 'Except me. I started with a swarm and three espresso shots.'
 sort: highlight
-navComponent: 'mode-nav'
+navComponent: 'prompt-nav'
 ---
 :add-pitch

@@ -13,6 +13,7 @@ tooltip: 'Welcome to the Kind Robots'
 dottitip: Demo mode activated! Time to impress the humans.
 amitip: Or confuse them with charm. Either works for me!
 sort: highlight
+navComponent: 'lab-nav'
 ---
 
 :intro-page

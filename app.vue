@@ -45,10 +45,11 @@
         >
           <!-- Corner Panel -->
           <corner-panel />
-          <NuxtPage
-            :key="$route.fullPath"
-            class="min-h-full w-full px-4 py-6 transition-opacity duration-300"
-          />
+         <NuxtPage
+  :key="$route.fullPath"
+  class="min-h-full w-full px-4 py-6 pr-[5.5rem] transition-opacity duration-300"
+/>
+
         </div>
       </Transition>
 

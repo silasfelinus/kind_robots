@@ -8,8 +8,7 @@
         :title="card.title"
         :icon="card.icon"
         :description="card.description ?? ''"
-        :to="card.onClick ? undefined : card.path"
-        :onClick="card.onClick"
+        :to="card.path"
         :delay="i"
       />
     </div>
@@ -19,7 +18,5 @@
 <script setup lang="ts">
 import type { LinkItem } from '~/stores/linkStore'
 
-defineProps<{
-  cards: (LinkItem & { onClick?: () => void })[]
-}>()
+defineProps<{ cards: LinkItem[] }>()
 </script>

@@ -1,14 +1,17 @@
 <!-- /components/content/icons/splash-nav.vue -->
 <template>
   <div class="flex flex-col gap-4 w-full pointer-events-auto">
-    <div v-if="parsedNavComponent && parsedNavComponent !== 'mode-row'" class="text-center">
+    <div
+      v-if="parsedNavComponent && parsedNavComponent !== 'mode-row'"
+      class="text-center"
+    >
       <button
         class="btn btn-xs md:btn-sm btn-outline border-base-content/40 bg-accent rounded-2xl transition-all"
         @click="showNavComponent = !showNavComponent"
       >
         Toggle Navigation:
         <span class="ml-1 font-mono">
-          {{ showNavComponent ? 'Component' : 'Mode Row' }}
+          {{ showNavComponent ? parsedNavComponent : 'Mode Row' }}
         </span>
       </button>
     </div>
@@ -18,10 +21,6 @@
         v-if="parsedNavComponent && showNavComponent"
         class="space-y-2 min-h-[300px] bg-base-200 border border-dashed border-accent rounded-2xl p-4"
       >
-        <label class="text-sm font-semibold text-accent text-center block">
-          🔘 Navigation Component:
-          <span class="font-mono">{{ parsedNavComponent }}</span>
-        </label>
         <div class="flex justify-center w-full max-w-3xl mx-auto">
           <component :is="parsedNavComponent" class="w-full" />
         </div>
@@ -33,7 +32,9 @@
         v-if="!showNavComponent"
         class="space-y-2 border border-base-300 bg-base-100 rounded-2xl"
       >
-        <label class="text-sm font-semibold text-base-content/70 text-center block">
+        <label
+          class="text-sm font-semibold text-base-content/70 text-center block"
+        >
           🎮 Mode Row
         </label>
         <div class="flex justify-center">

@@ -134,16 +134,17 @@
       </div>
     </div>
 
-    <!-- Parallax Background with Zoom -->
+    <!-- Parallax Background -->
     <div
       v-if="image"
       class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+      :style="{ height: `${contentHeight * 1.2}px` }"
     >
       <div
-        class="parallax-image absolute top-0 left-0 w-full h-[120%] bg-cover bg-center will-change-transform transition-transform duration-75"
+        class="parallax-image absolute top-0 left-0 w-full h-full bg-cover bg-center will-change-transform transition-transform duration-75"
         :style="{
           backgroundImage: `url('${resolvedImage}')`,
-          transform: `translateY(${scrollOffset}px) scale(${1 + scrollZoomFactor})`
+          transform: `translateY(${scrollOffset}px)`
         }"
       />
       <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" />
@@ -182,18 +183,14 @@ const parsedNavComponent = computed(() => {
 
 const showNavComponent = ref(true)
 const scrollContainer = ref<HTMLElement | null>(null)
+const contentContainer = ref<HTMLElement | null>(null)
+const contentHeight = ref(1000)
 const scrollOffset = ref(0)
-
-const scrollZoomFactor = computed(() => {
-  const maxZoom = 0.05
-  const maxScroll = 1000
-  const scrollTop = scrollContainer.value?.scrollTop || 0
-  return Math.min(scrollTop, maxScroll) / maxScroll * maxZoom
-})
 
 onMounted(() => {
   nextTick(() => {
-    if (!scrollContainer.value) return
+    if (!scrollContainer.value || !contentContainer.value) return
+    contentHeight.value = contentContainer.value.offsetHeight
     scrollContainer.value.addEventListener('scroll', () => {
       scrollOffset.value = scrollContainer.value!.scrollTop * -0.2
     })

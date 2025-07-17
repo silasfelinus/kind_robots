@@ -67,7 +67,7 @@ export async function getBotById(id: number): Promise<Bot | null> {
     const response = await performFetch<Bot>(`/api/bot/id/${id}`)
     return response.success && response.data ? response.data : null
   } catch (error) {
-    handleError(error, 'fetching bot by id')
+    handleError(error, 'fetching this bot by id')
     return null
   }
 }

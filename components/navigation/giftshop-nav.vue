@@ -34,7 +34,7 @@ const tabs: LinkItem[] = [
   {
     title: 'About',
     path: '/about',
-    icon: 'kind-icon:info',
+    icon: 'kind-icon:info-circle',
     description: 'Learn about Kind Robots',
   },
   {

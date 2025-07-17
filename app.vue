@@ -1,8 +1,6 @@
 <!-- /app.vue -->
 <template>
-  <div
-    class="main-layout bg-base-200 h-full w-full relative overflow-hidden box-border"
-  >
+  <div class="main-layout bg-base-200 h-full w-full relative overflow-hidden box-border">
     <!-- Loaders -->
     <div class="fixed z-50">
       <footer-toggle />
@@ -36,23 +34,22 @@
 
     <!-- Main Content Layer -->
     <main v-if="pageStore.ready">
-      <!-- Main Content (Nuxt Page) -->
+      <!-- Main Content -->
       <Transition name="slide-in-left">
         <div
           v-if="showMainContent"
           class="fixed z-40 transition-all duration-500 ease-in-out overflow-y-auto overscroll-contain rounded-2xl"
           :style="displayStore.mainContentStyle"
         >
-          <!-- Corner Panel -->
-          <corner-panel />
-      <NuxtPage
-  :key="$route.fullPath"
-  class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300"
-/>
-
-
+          <NuxtPage
+            :key="$route.fullPath"
+            class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300"
+          />
         </div>
       </Transition>
+
+      <!-- Corner Panel (floating) -->
+      <corner-panel />
 
       <!-- Splash Tutorial (small viewport fallback) -->
       <Transition name="slide-in-right">
@@ -76,21 +73,21 @@
         }"
       />
     </main>
-  </div>
 
-  <!-- Footer Area (Extra UI like Art Generator) -->
-  <div
-    v-if="pageStore.page?.showFooter"
-    class="fixed z-40 w-full"
-    :style="displayStore.footerStyle"
-  >
-    <art-generator />
+    <!-- Footer Area (Art Generator) -->
+    <div
+      v-if="pageStore.page?.showFooter"
+      class="fixed z-40 w-full"
+      :style="displayStore.footerStyle"
+    >
+      <art-generator />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // /app.vue
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -108,7 +105,7 @@ const isNavigating = ref(false)
 const sidebarRightOpen = computed(
   () =>
     displayStore.sidebarRightState !== 'hidden' &&
-    displayStore.sidebarRightState !== 'disabled',
+    displayStore.sidebarRightState !== 'disabled'
 )
 
 const showMainContent = computed(() => {
@@ -131,4 +128,3 @@ useHead({
   link: [{ rel: 'icon', type: 'image/png', href: 'favicon.ico' }],
 })
 </script>
-

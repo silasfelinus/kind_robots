@@ -14,6 +14,7 @@ category: novelty
 sort: highlight
 dottitip: AMI! I made a button and a sign to not press it and and visitors started pressing it. Why are people like this?
 amitip: Maybe they're jellybean hunters? But in that case, they should definitely stop around 100 times or so.
+navComponent: 'lab-nav'
 ---
 
 :rebel-button

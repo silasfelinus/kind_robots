@@ -33,7 +33,7 @@ const tabs: LinkItem[] = [
   },
   {
     title: 'About Page',
-    icon: 'kind-icon:info',
+    icon: 'kind-icon:info-circle',
     path: '/about',
     description: 'Informational content for dev context.',
     tooltip: 'Like, about... this whole thing.',

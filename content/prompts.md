@@ -13,6 +13,7 @@ tooltip: Organize and share your text and art prompts
 dottitip: "What's the secret to a perfect prompt, AMI?"
 amitip: 'Keep it short and let the AI do the heavy lifting!'
 sort: highlight
+navComponent: 'prompt-nav'
 ---
 
 :prompt-factory

@@ -10,7 +10,7 @@ export const userNavigation: navigationData[] = [
     title: 'Bot Cafe',
     image: '/images/botcafe.webp',
     description: 'Write poems, tell stories, maybe try to save the world',
-    path: '/botcafe',
+    path: '/bots',
   },
   {
     title: 'Brainstorm!!!!!',
@@ -22,7 +22,7 @@ export const userNavigation: navigationData[] = [
     title: 'Art Challenge!',
     image: '/images/fantasycore/fantasycore-915.webp',
     description: 'Create and share pitches for our community AI-Art generator.',
-    path: '/artmaker',
+    path: '/addart',
   },
   {
     title: 'Rebel Button',
@@ -54,6 +54,6 @@ export const userNavigation: navigationData[] = [
     title: 'Theme Changer',
     image: '/images/redbubble/redbubble-1141.webp',
     description: 'Customize your experience in the Kind Universe',
-    path: '/theme',
+    path: '/themes',
   },
 ]

@@ -32,9 +32,11 @@
       <kind-header class="h-full w-full rounded-xl" />
     </header>
 
+    <!-- Corner Panel (floating above everything else) -->
+    <corner-panel />
+
     <!-- Main Content Layer -->
     <main v-if="pageStore.ready">
-      <!-- Main Content -->
       <Transition name="slide-in-left">
         <div
           v-if="showMainContent"
@@ -47,9 +49,6 @@
           />
         </div>
       </Transition>
-
-      <!-- Corner Panel (floating) -->
-      <corner-panel />
 
       <!-- Splash Tutorial (small viewport fallback) -->
       <Transition name="slide-in-right">

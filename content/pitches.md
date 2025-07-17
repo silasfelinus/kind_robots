@@ -13,5 +13,6 @@ tooltip: 'Browse pitches that fuel future bots, art, and experiments.'
 dottitip: 'A pitch can light the fuse of a whole new bot world.'
 amitip: 'I once pitched “banana-powered empathy engines.” You’re welcome.'
 sort: gallery
+navComponent: 'prompt-nav'
 ---
 :pitch-gallery

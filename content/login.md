@@ -13,6 +13,7 @@ tooltip: "login and registration link here"
 dottitip: 'Before you log in, you must solve a puzzle. One of us only lies, and—'
 amitip: "We're kidding! We do the normal username-and-password thing here. No riddles required."
 sort: highlight
+navComponent: 'dashboard-nav'
 ---
 
 :login-page

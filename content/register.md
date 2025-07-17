@@ -12,6 +12,7 @@ icon: kind-icon:register
 sort: highlight
 dottitip: If people register for an account, then we can customize their experience.
 layout: 'default'
+navComponent: 'dashboard-nav'
 ---
 
 :registration-page

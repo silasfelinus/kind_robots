@@ -13,6 +13,7 @@ sort: highlight
 layout: 'default'
 dottitip: Who is Silas Knight? That name feels familiar, but my mind draws a blank.
 amitip: Best not to think too deep about it, Dot.
+navComponent: 'lab-nav'
 ---
 
 :mermaids-page

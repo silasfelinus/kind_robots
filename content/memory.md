@@ -13,7 +13,7 @@ dottitip: "AMI, I built a memory game! Simple card matching, but with art from o
 amitip: "Brilliant! Pattern recognition and AI art appreciation? Finally, a game that exercises both memory and taste!"
 category: games
 sort: highlight
-
+navComponent: 'lab-nav'
 ---
 
 :memory-test

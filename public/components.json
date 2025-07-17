@@ -25,7 +25,6 @@
       "art-generator",
       "art-grid",
       "art-info",
-      "art-nav",
       "art-randomizer",
       "art-reactions",
       "art-upload",
@@ -119,7 +118,6 @@
       "corner-panel",
       "credit-purchase",
       "giftshop-browser",
-      "giftshop-nav",
       "print-swag",
       "shopping-cart"
     ]
@@ -147,7 +145,6 @@
       "icon-display",
       "icon-gallery",
       "icon-header",
-      "icon-nav",
       "jellybean-icon",
       "kind-header",
       "kind-icons",
@@ -205,7 +202,6 @@
       "mode-row",
       "nav-button",
       "nav-card",
-      "nav-grid",
       "navbar-toggle",
       "navigation-row",
       "navigation-trimmed",
@@ -225,8 +221,7 @@
       "toggle-switch",
       "tool-tip",
       "tooltip-popup",
-      "tutorial-toggle",
-      "vertical-nav"
+      "tutorial-toggle"
     ]
   },
   {
@@ -239,6 +234,20 @@
       "milestone-leaderboard",
       "milestone-popup",
       "unearned-milestone-card"
+    ]
+  },
+  {
+    "folderName": "navigation",
+    "components": [
+      "art-nav",
+      "blueprint-nav",
+      "dashboard-nav",
+      "giftshop-nav",
+      "icon-nav",
+      "lab-nav",
+      "nav-grid",
+      "prompt-nav",
+      "vertical-nav"
     ]
   },
   {
@@ -281,7 +290,6 @@
       "pitch-type-selector",
       "pitch-viewer",
       "prompt-factory",
-      "prompt-nav",
       "title-examples",
       "title-maker",
       "title-menu"
@@ -293,7 +301,6 @@
       "add-blueprint",
       "add-resonance",
       "blueprint-gallery",
-      "blueprint-nav",
       "edit-blueprint",
       "resonance-buttons",
       "resonance-display",
@@ -352,7 +359,6 @@
       "chat-test",
       "chat-view",
       "dashboard-chooser",
-      "dashboard-nav",
       "forum-thread",
       "google-login",
       "login-form",
@@ -424,7 +430,6 @@
       "component-sync",
       "lab-chooser",
       "lab-gallery",
-      "lab-nav",
       "magic-container",
       "memory-test",
       "message-card",

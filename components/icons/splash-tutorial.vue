@@ -7,7 +7,7 @@
   >
     <!-- Parallax Background -->
     <div
-      v-if="image"
+      v-if="resolvedImage"
       class="pointer-events-none absolute top-0 left-0 w-full -z-10 overflow-hidden"
       :style="{ height: parallaxHeight + 'px' }"
     >
@@ -37,11 +37,12 @@ const scrollContainer = ref<HTMLElement | null>(null)
 const scrollOffset = ref(0)
 const parallaxHeight = ref(0)
 
-const image = computed(() => pageStore.page?.image)
 const fallbackImage = '/images/botcafe.webp'
+
+const image = computed(() => pageStore.page?.image)
 const resolvedImage = computed(() => {
-  const img = image.value
-  return img?.startsWith('/') ? img : `/images/${img ?? fallbackImage}`
+  const img = image.value || fallbackImage
+  return img.startsWith('/') ? img : `/images/${img}`
 })
 
 function handleScroll() {

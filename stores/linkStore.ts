@@ -1,12 +1,12 @@
 // /stores/linkStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { usePageStore } from './pageStore'
 
-interface LinkItem {
+export interface LinkItem {
   title: string
   path?: string
   icon: string
+  description?: string
   tooltip?: string
   isDynamic?: boolean
   isUtility?: boolean

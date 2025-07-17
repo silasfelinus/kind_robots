@@ -10,7 +10,7 @@
       </div>
       <h1
         v-if="room"
-        class="text-sm md:text-md lg:text-lg xl:text-2xl font-bold bg-secondary text-black border border-black rounded-2xl px-4 py-1 inline-block animate-fade-in-up"
+        class="text-lg md:text-xl lg:text-2xl xl:text-4xl font-bold bg-secondary text-black border border-black rounded-2xl py-1 inline-block animate-fade-in-up"
       >
         The {{ room }}
       </h1>

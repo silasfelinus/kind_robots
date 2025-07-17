@@ -1,51 +1,56 @@
+<!-- /components/content/dev/dev-nav.vue -->
 <template>
   <nav-grid :cards="tabs" />
 </template>
 
 <script setup lang="ts">
 import { useUserStore } from '~/stores/userStore'
-import { useDisplayStore } from '~/stores/displayStore'
 import type { LinkItem } from '~/stores/linkStore'
 
 const userStore = useUserStore()
-const displayStore = useDisplayStore()
 
-const tabs: (LinkItem & { onClick: () => void; requiresAdmin?: boolean })[] = [
+const tabs: LinkItem[] = [
   {
     title: 'Wonder Lab',
     icon: 'kind-icon:gearhammer',
-    onClick: () => displayStore.setMainComponent('wonder-lab'),
-  },
-  {
-    title: 'Animation Tester',
-    icon: 'kind-icon:zap',
-    onClick: () => displayStore.setMainComponent('animation-tester'),
-  },
-  {
-    title: 'Store Tester',
-    icon: 'kind-icon:settings',
-    requiresAdmin: true,
-    onClick: () => displayStore.setMainComponent('store-tester'),
+    path: '/wonderlab',
+    description: 'Experimental interface for testing wild ideas.',
+    tooltip: 'Where concepts go to get weird.',
   },
   {
     title: 'Rebel Button',
     icon: 'kind-icon:flame',
-    onClick: () => displayStore.setMainComponent('rebel-button'),
+    path: '/button',
+    description: 'A button that does absolutely nothing.',
+    tooltip: 'Fight the system by clicking it.',
+  },
+  {
+    title: 'Blueprints',
+    icon: 'kind-icon:blueprint',
+    path: '/blueprints',
+    description: 'Work in progress automated AI art and text generation',
+    tooltip: 'WIP',
   },
   {
     title: 'About Page',
     icon: 'kind-icon:info',
-    onClick: () => displayStore.setMainComponent('about-page'),
+    path: '/about',
+    description: 'Informational content for dev context.',
+    tooltip: 'Like, about... this whole thing.',
   },
   {
     title: 'Sponsor Page',
     icon: 'kind-icon:coin',
-    onClick: () => displayStore.setMainComponent('sponsor-page'),
+    path: '/sponsor',
+    description: 'Mockup of donation or sponsor call-to-action.',
+    tooltip: 'Imagine generous people here.',
   },
   {
     title: 'Sandbox',
     icon: 'kind-icon:box',
-    onClick: () => displayStore.setMainComponent('sandbox-grid'),
+    path: '/sandbox',
+    description: 'Freestyle component testing zone.',
+    tooltip: 'No rules, just vibes.',
   },
-].filter((tab) => !tab.requiresAdmin || userStore.isAdmin)
+].filter((tab) => !(tab.title === 'Store Tester' && !userStore.isAdmin))
 </script>

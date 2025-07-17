@@ -1,4 +1,4 @@
-// server/api/bots/[id].get.ts
+// server/api/bot/[id].get.ts
 import { defineEventHandler } from 'h3'
 import { fetchBotById } from '../../bots'
 

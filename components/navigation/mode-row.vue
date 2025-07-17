@@ -1,11 +1,14 @@
 <template>
   <div
-    class="grid auto-rows-fr grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4 py-4 w-full mx-auto rounded-2xl"
+    class="grid gap-4 p-4 w-full max-w-screen-xl mx-auto rounded-2xl"
+    :style="{
+      gridTemplateColumns: 'repeat(auto-fit, minmax(10rem, 1fr))'
+    }"
   >
     <div
       v-for="mode in modes"
       :key="mode.name"
-      class="group flex flex-col items-center justify-between text-center border border-base-300 bg-base-100 rounded-2xl p-4 transition-all cursor-pointer hover:bg-base-200 min-h-[11rem] min-w-[12rem]"
+      class="group flex flex-col items-center justify-between text-center border border-base-300 bg-base-100 rounded-2xl p-4 transition-all cursor-pointer hover:bg-base-200 min-h-[10rem] w-full"
     >
       <!-- Icon Button -->
       <div
@@ -27,6 +30,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'

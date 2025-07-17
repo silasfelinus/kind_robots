@@ -137,14 +137,14 @@
     <!-- Parallax Background -->
     <div
       v-if="image"
-      class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
-      :style="{ height: `${contentHeight * 1.2}px` }"
+      class="pointer-events-none absolute top-0 left-0 w-full -z-10 overflow-hidden"
+      :style="{ height: `${backgroundHeight}px` }"
     >
       <div
         class="parallax-image absolute top-0 left-0 w-full h-full bg-cover bg-center will-change-transform transition-transform duration-100"
         :style="{
           backgroundImage: `url('${resolvedImage}')`,
-          transform: `translateY(${scrollOffset}px)`
+          transform: `translateY(${parallaxOffset}px)`
         }"
       />
       <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" />
@@ -153,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
 
@@ -185,28 +185,37 @@ const showNavComponent = ref(true)
 const scrollContainer = ref<HTMLElement | null>(null)
 const contentContainer = ref<HTMLElement | null>(null)
 const contentHeight = ref(1000)
-const scrollOffset = ref(0)
+const backgroundHeight = ref(1200)
+const parallaxOffset = ref(0)
 
-let resizeObserver: ResizeObserver | null = null
 let ticking = false
+let resizeObserver: ResizeObserver | null = null
 
-function updateHeight() {
-  if (contentContainer.value) {
-    contentHeight.value = contentContainer.value.offsetHeight
-  }
+function updateBackground() {
+  if (!scrollContainer.value || !contentContainer.value) return
+
+  const contentH = contentContainer.value.offsetHeight
+  contentHeight.value = contentH
+  backgroundHeight.value = contentH * 1.2
+
+  const scrollTop = scrollContainer.value.scrollTop
+  const scrollMax =
+    scrollContainer.value.scrollHeight - scrollContainer.value.clientHeight
+  const percent = scrollMax > 0 ? scrollTop / scrollMax : 0
+
+  const maxShift = backgroundHeight.value - contentHeight.value
+  parallaxOffset.value = -percent * maxShift
 }
 
 onMounted(() => {
   nextTick(() => {
-    updateHeight()
+    updateBackground()
 
     if (scrollContainer.value) {
       scrollContainer.value.addEventListener('scroll', () => {
         if (!ticking) {
           window.requestAnimationFrame(() => {
-            if (scrollContainer.value) {
-              scrollOffset.value = scrollContainer.value.scrollTop * -0.2
-            }
+            updateBackground()
             ticking = false
           })
           ticking = true
@@ -215,7 +224,7 @@ onMounted(() => {
     }
 
     if (contentContainer.value) {
-      resizeObserver = new ResizeObserver(updateHeight)
+      resizeObserver = new ResizeObserver(updateBackground)
       resizeObserver.observe(contentContainer.value)
     }
   })

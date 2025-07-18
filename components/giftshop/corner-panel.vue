@@ -1,7 +1,7 @@
 <template>
   <div
     ref="panelRef"
-    class="absolute right-2 z-30 pointer-events-auto"
+    class="absolute right-2 z-40 pointer-events-auto"
     
   >
     <div class="flex gap-2 items-start">

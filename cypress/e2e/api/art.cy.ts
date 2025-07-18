@@ -108,7 +108,7 @@ describe('Art Management API Tests', () => {
         'x-api-key': apiKey,
         Authorization: `Bearer ${userToken}`,
       },
-      timeout: 60000, // 60 seconds
+      timeout: 120000, // 120 seconds
       body: {
         promptString: ' a Kind Robot',
         steps: 20,

@@ -2,7 +2,7 @@
   <div
     v-if="pageStore.page"
     ref="scrollContainer"
-    @scroll="handleScroll"
+    @scroll.passive="handleScroll"
     class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-black z-20"
   >
     <!-- Parallax Background -->
@@ -12,10 +12,10 @@
       :style="{ height: parallaxHeight + 'px' }"
     >
       <div
-        class="parallax-image w-full h-full bg-cover bg-center transition-transform will-change-transform"
+        class="parallax-image w-full h-full bg-cover bg-center will-change-transform"
         :style="{
           backgroundImage: `url('${resolvedImage}')`,
-          transform: `translateY(${scrollOffset}px)`,
+          transform: `translateY(${scrollOffset}px)`
         }"
       />
       <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" />
@@ -29,10 +29,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()
+
 const scrollContainer = ref<HTMLElement | null>(null)
 const scrollOffset = ref(0)
 const parallaxHeight = ref(0)
@@ -45,18 +46,25 @@ const resolvedImage = computed(() => {
   return img.startsWith('/') ? img : `/images/${img}`
 })
 
+let ticking = false
 function handleScroll() {
   const el = scrollContainer.value
-  if (el) {
-    scrollOffset.value = el.scrollTop * -0.2
+  if (!el) return
+  if (!ticking) {
+    ticking = true
+    requestAnimationFrame(() => {
+      scrollOffset.value = el.scrollTop * -0.2
+      ticking = false
+    })
   }
 }
 
 function updateParallaxHeight() {
   const el = scrollContainer.value
   if (el) {
-    const contentHeight = el.scrollHeight
-    parallaxHeight.value = Math.max(contentHeight + 200, window.innerHeight)
+    const buffer = 300
+    const visibleHeight = el.clientHeight
+    parallaxHeight.value = Math.max(visibleHeight + buffer, window.innerHeight + buffer)
   }
 }
 
@@ -79,6 +87,17 @@ onBeforeUnmount(() => {
   }
   window.removeEventListener('resize', updateParallaxHeight)
 })
+
+// Watch for route/page changes and re-trigger height calc
+watch(() => pageStore.page, () => {
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      updateParallaxHeight()
+      // optional: re-calc again after delay in case splash-content loads late
+      setTimeout(updateParallaxHeight, 300)
+    })
+  })
+})
 </script>
 
 <style scoped>
@@ -86,5 +105,8 @@ onBeforeUnmount(() => {
   background-size: cover;
   background-position: center top;
   min-height: 100vh;
+  will-change: transform;
+  transform: translateZ(0);
+  transition: transform 0.1s ease-out;
 }
 </style>

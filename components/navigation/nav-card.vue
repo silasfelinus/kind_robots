@@ -3,7 +3,7 @@
     :is="tag"
     :to="tag === 'NuxtLink' ? props.to : undefined"
     @click="handleClick"
-    class="group relative flex flex-col justify-between rounded-2xl p-4 transition-all cursor-pointer border"
+    class="group relative flex flex-col items-center text-center rounded-2xl p-4 transition-all cursor-pointer border w-full"
     :class="[
       `delay-${(props.delay ?? 0) * 100}`,
       isActive
@@ -11,18 +11,20 @@
         : 'border-base-300 hover:bg-base-200 bg-base-100',
     ]"
   >
-<div class="flex items-start gap-2 mb-2 w-full min-w-0">
-  <Icon
-    :name="props.icon"
-    class="text-lg text-primary flex-shrink-0 group-hover:scale-110 transition-transform"
-  />
-  <h3
-    class="font-semibold text-base leading-snug text-base-content group-hover:text-primary break-words truncate"
-  >
-    {{ props.title }}
-  </h3>
-</div>
+    <!-- Icon -->
+    <Icon
+      :name="props.icon"
+      class="text-3xl text-primary mb-2 group-hover:scale-110 transition-transform"
+    />
 
+    <!-- Title -->
+    <h3
+      class="font-semibold text-base text-base-content group-hover:text-primary mb-1 leading-snug break-words"
+    >
+      {{ props.title }}
+    </h3>
+
+    <!-- Description -->
     <p class="text-sm text-base-content/80 leading-tight">
       {{ props.description || '' }}
     </p>

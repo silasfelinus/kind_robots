@@ -1,7 +1,7 @@
 <template>
   <div
     ref="panelRef"
-    class="absolute right-2 z-[999] pointer-events-auto"
+    class="absolute right-2 z-30 pointer-events-auto"
     :style="topMarginStyle"
   >
     <div class="flex gap-2 items-start">
@@ -141,7 +141,7 @@ onBeforeUnmount(() => {
 })
 
 const topMarginStyle = computed(() => {
-  const margin = displayStore.headerHeight + displayStore.sectionPaddingSize * 2
+  const margin = displayStore.headerHeight + displayStore.sectionPaddingSize
   return `margin-top: ${margin}vh`
 })
 

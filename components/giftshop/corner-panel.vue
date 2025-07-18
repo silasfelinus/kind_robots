@@ -1,5 +1,9 @@
 <template>
-  <div ref="panelRef" class="absolute top-2 right-2 z-[999] pointer-events-auto">
+  <div
+    ref="panelRef"
+    class="absolute right-2 z-[999] pointer-events-auto"
+    :style="topMarginStyle"
+  >
     <div class="flex gap-2 items-start">
       <div
         v-for="item in menuItems"
@@ -70,7 +74,7 @@
               <NuxtLink to="/pitches" class="hover:underline">🎤 Pitches</NuxtLink>
               <NuxtLink to="/stories" class="hover:underline">📖 Stories</NuxtLink>
               <NuxtLink to="/wonderlab" class="hover:underline">🧪 Wonderlab</NuxtLink>
-              <NuxtLink to="/forum" class="hover:underline">🧪 Forum</NuxtLink>
+              <NuxtLink to="/forum" class="hover:underline">💬 Forum</NuxtLink>
               <NuxtLink to="/memory" class="hover:underline">🧠 Memory</NuxtLink>
               <NuxtLink to="/characters" class="hover:underline">🧍 Characters</NuxtLink>
             </div>
@@ -94,7 +98,7 @@
             <div class="font-bold mb-1">ℹ️ Info</div>
             <NuxtLink to="/about" class="block hover:underline">🌐 About</NuxtLink>
             <NuxtLink to="/sponsor" class="block hover:underline">💖 Sponsors</NuxtLink>
-            <NuxtLink to="/giftshop" class="block hover:underline">💖 Giftshop</NuxtLink>
+            <NuxtLink to="/giftshop" class="block hover:underline">🛍️ Giftshop</NuxtLink>
           </div>
         </div>
       </div>
@@ -103,12 +107,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useDisplayStore } from '@/stores/displayStore'
 
 const userStore = useUserStore()
-const activePanel = ref<string | null>(null)
+const displayStore = useDisplayStore()
+
 const panelRef = ref<HTMLElement | null>(null)
+const activePanel = ref<string | null>(null)
 
 function toggle(panel: string) {
   activePanel.value = activePanel.value === panel ? null : panel
@@ -130,6 +137,11 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('click', handleClickOutside)
+})
+
+const topMarginStyle = computed(() => {
+  const margin = displayStore.headerHeight + displayStore.sectionPaddingSize * 2
+  return `margin-top: ${margin}vh`
 })
 
 const menuItems = [

@@ -10,11 +10,14 @@
         :key="item.id"
         class="relative flex items-center"
       >
-        <div class="tooltip tooltip-bottom" :data-tip="item.tooltip">
-          <button
-            class="btn btn-xs flex items-center gap-1 px-2"
-            @click.stop="toggle(item.id)"
-          >
+<div
+  :class="[
+    'tooltip',
+    activePanel === item.id ? 'tooltip-top' : 'tooltip-bottom'
+  ]"
+  :data-tip="item.tooltip"
+>
+
             <span v-if="item.id === 'tokens'" class="text-xs font-bold">
               {{ userStore.user?.mana ?? 0 }}
             </span>

@@ -15,8 +15,8 @@ const tabs: LinkItem[] = [
     tooltip: 'Open the bot creation form',
   },
   {
-    title: 'Use Bot',
-    path: '/use-bot',
+    title: 'Bot Gallery',
+    path: '/bots',
     icon: 'kind-icon:chat',
     description: 'Chat with existing bots',
     tooltip: 'Test and deploy your bots',
@@ -26,7 +26,7 @@ const tabs: LinkItem[] = [
     path: '/stream',
     icon: 'kind-icon:bolt',
     description: 'Run live stream tests',
-    tooltip: 'Play with streaming APIs',
+    tooltip: 'Testing page for the API',
   },
 ]
 </script>

@@ -32,6 +32,12 @@ const tabs: LinkItem[] = [
     description: 'Buy tokens and subscription plans',
   },
   {
+    title: 'Subscriptions',
+    path: '/subscriptions',
+    icon: 'kind-icon:rocket',
+    description: 'Manage or cancel your monthly support',
+  },
+  {
     title: 'About',
     path: '/about',
     icon: 'kind-icon:info-circle',

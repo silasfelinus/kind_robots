@@ -8,30 +8,24 @@ import { useDisplayStore } from '~/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-const tabs: (LinkItem & { onClick: () => void })[] = [
+const tabs: LinkItem[] = [
   {
-    title: 'Brainstorm2',
-    icon: 'kind-icon:lightbulb',
-    description: 'Classic brainstorming mode for raw ideas.',
-    onClick: () => displayStore.setMainComponent('BrainstormView'),
-  },
-  {
-    title: 'Pitch Display',
+    title: 'Pitch Gallery',
     icon: 'kind-icon:list',
     description: 'Browse and sort all current pitch ideas.',
-    onClick: () => displayStore.setMainComponent('PitchDisplay'),
+    path: '/pitches',
   },
   {
     title: 'Add Pitch',
     icon: 'kind-icon:plus',
     description: 'Create a new AI prompt pitch.',
-    onClick: () => displayStore.setMainComponent('AddPitch'),
+    path: '/addpitch',
   },
   {
     title: 'Brainstorm!',
-    icon: 'kind-icon:zap',
+    icon: 'kind-icon:brain',
     description: 'Playful chaos mode — spark ideas by randomness!',
-    onClick: () => displayStore.setMainComponent('Brainstorm'),
+    path: '/brainstorm',
   },
 ]
 </script>

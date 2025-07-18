@@ -2,7 +2,7 @@
   <div
     ref="panelRef"
     class="absolute right-2 z-30 pointer-events-auto"
-    :style="topMarginStyle"
+    
   >
     <div class="flex gap-2 items-start">
       <div
@@ -110,10 +110,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { useDisplayStore } from '@/stores/displayStore'
+
 
 const userStore = useUserStore()
-const displayStore = useDisplayStore()
+
 
 const panelRef = ref<HTMLElement | null>(null)
 const activePanel = ref<string | null>(null)
@@ -140,10 +140,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('click', handleClickOutside)
 })
 
-const topMarginStyle = computed(() => {
-  const margin = displayStore.headerHeight + displayStore.sectionPaddingSize
-  return `margin-top: ${margin}vh`
-})
+
 
 const menuItems = [
   { id: 'tokens', icon: 'kind-icon:mana-potion', tooltip: `${userStore.user?.mana ?? 0} Mana` },

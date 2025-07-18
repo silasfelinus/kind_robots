@@ -23,10 +23,11 @@
         </div>
 
         <!-- Dropdown Panel -->
-        <div
-          v-if="activePanel === item.id"
-          class="absolute top-full mt-2 right-0 w-64 bg-base-100 shadow-lg rounded-xl p-3 z-[1000] text-sm space-y-2"
-        >
+<div
+  v-if="activePanel === item.id"
+  class="absolute top-full mt-2 right-0 max-w-[calc(100vw-1rem)] w-64 bg-base-100 shadow-lg rounded-xl p-3 z-[1000] text-sm space-y-2"
+>
+
           <!-- Tokens Panel -->
           <div v-if="item.id === 'tokens'">
             <div class="font-bold">🧪 Mana: {{ userStore.user?.mana ?? 0 }}</div>

@@ -11,17 +11,18 @@
         : 'border-base-300 hover:bg-base-200 bg-base-100',
     ]"
   >
-    <div class="flex items-center gap-2 mb-2">
-      <Icon
-        :name="props.icon"
-        class="text-lg text-primary group-hover:scale-110 transition-transform"
-      />
-      <h3
-        class="font-semibold text-base leading-snug text-base-content group-hover:text-primary break-words"
-      >
-        {{ props.title }}
-      </h3>
-    </div>
+<div class="flex items-start gap-2 mb-2 w-full min-w-0">
+  <Icon
+    :name="props.icon"
+    class="text-lg text-primary flex-shrink-0 group-hover:scale-110 transition-transform"
+  />
+  <h3
+    class="font-semibold text-base leading-snug text-base-content group-hover:text-primary break-words truncate"
+  >
+    {{ props.title }}
+  </h3>
+</div>
+
     <p class="text-sm text-base-content/80 leading-tight">
       {{ props.description || '' }}
     </p>

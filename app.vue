@@ -32,9 +32,8 @@
       <kind-header class="h-full w-full rounded-xl" />
     </header>
 
-    <!-- Corner Panel (floating above everything else) -->
-    <corner-panel />
-
+    
+    
     <!-- Main Content Layer -->
     <main v-if="pageStore.ready">
       <Transition name="slide-in-left">
@@ -43,6 +42,8 @@
           class="fixed z-40 transition-all duration-500 ease-in-out overflow-y-auto overscroll-contain rounded-2xl"
           :style="displayStore.mainContentStyle"
         >
+<corner-panel />
+
           <NuxtPage
             :key="$route.fullPath"
             class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300"

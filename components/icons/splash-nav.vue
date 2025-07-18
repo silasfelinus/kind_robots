@@ -9,7 +9,7 @@
         class="btn btn-xs md:btn-sm btn-outline border-base-content/40 bg-accent rounded-2xl transition-all"
         @click="showNavComponent = !showNavComponent"
       >
-        Toggle Navigation:
+        Toggle:
         <span class="ml-1 font-mono">
           {{ showNavComponent ? parsedNavComponent : 'Mode Row' }}
         </span>

@@ -17,13 +17,17 @@
   ]"
   :data-tip="item.tooltip"
 >
+  <button
+    class="btn btn-xs flex items-center gap-1 px-2"
+    @click.stop="toggle(item.id)"
+  >
+    <span v-if="item.id === 'tokens'" class="text-xs font-bold">
+      {{ userStore.user?.mana ?? 0 }}
+    </span>
+    <Icon :name="item.icon" class="inline" />
+  </button>
+</div>
 
-            <span v-if="item.id === 'tokens'" class="text-xs font-bold">
-              {{ userStore.user?.mana ?? 0 }}
-            </span>
-            <Icon :name="item.icon" class="inline" />
-          </button>
-        </div>
 
         <!-- Dropdown Panel -->
 <div

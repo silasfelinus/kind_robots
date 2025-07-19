@@ -13,7 +13,7 @@ tooltip: 'Add a custom model entry to fuel new features or designs.'
 dottitip: 'Good samples are like seeds for future brilliance.'
 amitip: 'I once added a “Banana Oracle.” No regrets.'
 sort: highlight
-navComponent: 'blueprint-nav'
+navComponent: 'lab-nav'
 ---
 
 :add-sample

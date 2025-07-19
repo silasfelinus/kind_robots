@@ -9,7 +9,7 @@ import type { LinkItem } from '@/stores/linkStore'
 const tabs: LinkItem[] = [
   {
     title: 'Add Bot',
-    path: '/add-bot',
+    path: '/addbot',
     icon: 'kind-icon:bot',
     description: 'Create and configure a new bot',
     tooltip: 'Open the bot creation form',

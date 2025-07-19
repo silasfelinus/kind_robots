@@ -13,6 +13,6 @@ tooltip: 'Trace the echoes of possibility.'
 dottitip: 'Browsing resonances is like following the footprints of forgotten dreams.'
 amitip: 'Or treasure-hunting for the best bass drop in the multiverse.'
 sort: gallery
-navComponent: 'resonance-nav'
+navComponent: 'lab-nav'
 ---
 :resonance-gallery

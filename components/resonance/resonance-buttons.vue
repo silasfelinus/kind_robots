@@ -81,14 +81,14 @@ const actions: ResonanceAction[] = [
   {
     id: 'toggleMic',
     label: 'Mic',
-    icon: 'kind-icon:mic',
+    icon: 'kind-icon:microphone',
     type: 'direct',
     handler: () => toggleMicrophone(),
   },
   {
     id: 'addInstruction',
     label: 'Instruction',
-    icon: 'kind-icon:scroll-text',
+    icon: 'kind-icon:scroll',
     type: 'modal',
     handler: () => openTextPopup('instruction'),
   },

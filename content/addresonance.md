@@ -13,6 +13,6 @@ tooltip: 'Manifest new realities through sound.'
 dottitip: 'Every resonance starts with a single spark of imagination.'
 amitip: 'Or an accidental elbow slam into the soundboard. (It happens.)'
 sort: creation
-navComponent: 'resonance-nav'
+navComponent: 'lab-nav'
 ---
 :add-resonance

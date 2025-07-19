@@ -13,6 +13,6 @@ tooltip: 'Breathe life into dreamworlds, one vibration at a time.'
 dottitip: 'Each resonance captures a fleeting emotion in time.'
 amitip: 'Or a bass drop so good we invent a whole new universe.'
 sort: gallery
-navComponent: 'resonance-nav'
+navComponent: 'lab-nav'
 ---
 :resonance-lab

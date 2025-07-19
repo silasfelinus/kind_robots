@@ -13,7 +13,7 @@ tooltip: 'Experiment with placeables, draggables, and chaos.'
 dottitip: 'The best sandboxes are the ones that never get cleaned up.'
 amitip: 'One time I summoned 400 ducks and crashed the universe.'
 sort: highlight
-navComponent: 'sandbox-nav'
+navComponent: 'lab-nav'
 showFooter: false
 ---
 :sandbox-grid

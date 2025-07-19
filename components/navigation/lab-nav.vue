@@ -32,20 +32,6 @@ const tabs: LinkItem[] = [
     tooltip: 'WIP',
   },
   {
-    title: 'About Page',
-    icon: 'kind-icon:info-circle',
-    path: '/about',
-    description: 'Informational content for dev context.',
-    tooltip: 'Like, about... this whole thing.',
-  },
-  {
-    title: 'Sponsor Page',
-    icon: 'kind-icon:coin',
-    path: '/sponsor',
-    description: 'Mockup of donation or sponsor call-to-action.',
-    tooltip: 'Imagine generous people here.',
-  },
-  {
     title: 'Sandbox',
     icon: 'kind-icon:box',
     path: '/sandbox',
@@ -56,7 +42,7 @@ const tabs: LinkItem[] = [
   {
     title: 'Resonance Gallery',
     description: 'Explore all resonances',
-    path: '/resonancegallery',
+    path: '/resonances',
     icon: 'kind-icon:resonance',
     tooltip: 'View the full resonance archive.',
   },

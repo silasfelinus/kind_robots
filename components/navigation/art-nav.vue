@@ -32,5 +32,11 @@ const artCards: LinkItem[] = [
     description:
       'Use AI to invent hybrid creatures by merging two real-world animals.',
   },
+  {
+    title: 'Memory',
+    path: '/memory',
+    icon: 'kind-icon:brain',
+    description: 'Find the match game using our unique art.',
+  },
 ]
 </script>

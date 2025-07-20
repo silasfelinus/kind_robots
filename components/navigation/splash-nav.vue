@@ -1,38 +1,23 @@
+<!-- /components/content/icons/splash-nav.vue -->
 <template>
   <div class="flex flex-col gap-4 w-full pointer-events-auto">
     <div class="text-center">
-      <div class="flex flex-wrap justify-center gap-2">
-        <button
-          class="btn btn-xs md:btn-sm btn-outline border-base-content/40 bg-primary rounded-2xl"
-          @click="setNavSource('nav-nav')"
-        >
-          🧭 Navigation
-        </button>
-        <button
-          class="btn btn-xs md:btn-sm btn-outline border-base-content/40 bg-secondary rounded-2xl"
-          @click="setNavSource('mode-row')"
-        >
-          🎮 Mode Row
-        </button>
-        <button
-          v-if="linkNavComponent"
-          class="btn btn-xs md:btn-sm btn-outline border-base-content/40 bg-accent rounded-2xl"
-          @click="setNavSource('custom')"
-        >
-          🧩 {{ formatLabel(linkNavComponent) }}
-        </button>
-      </div>
+      <button
+        class="btn btn-xs md:btn-sm btn-outline border-base-content/40 bg-primary rounded-2xl"
+        @click="cycleNavSource"
+      >
+        🔄 Toggle View:
+        <span class="ml-1 font-mono">{{ currentLabel }}</span>
+      </button>
     </div>
 
     <!-- Navigation Select -->
     <Transition name="fade-expand">
       <div
-        v-if="currentNav === 'nav-nav'"
+        v-if="currentNav === 'nav-select'"
         class="space-y-2 min-h-[300px] bg-base-200 border border-dashed border-primary rounded-2xl p-4"
       >
-        <label
-          class="text-sm font-semibold text-base-content/70 text-center block mb-2"
-        >
+        <label class="text-sm font-semibold text-base-content/70 text-center block mb-2">
           Navigation Menu
         </label>
         <nav-nav class="w-full max-w-3xl mx-auto" />
@@ -42,15 +27,13 @@
     <!-- Active Custom Nav -->
     <Transition name="fade-expand">
       <div
-        v-if="currentNav === 'custom' && linkNavComponent"
+        v-if="currentNav === 'custom' && resolvedNavComponent"
         class="space-y-2 min-h-[300px] bg-base-200 border border-dashed border-accent rounded-2xl p-4"
       >
-        <label
-          class="text-sm font-semibold text-base-content/70 text-center block mb-2"
-        >
-          {{ formatLabel(linkNavComponent) }}
+        <label class="text-sm font-semibold text-base-content/70 text-center block mb-2">
+          {{ formatLabel(resolvedNavComponent) }}
         </label>
-        <component :is="linkNavComponent" class="w-full max-w-3xl mx-auto" />
+        <component :is="resolvedNavComponent" class="w-full max-w-3xl mx-auto" />
       </div>
     </Transition>
 
@@ -60,9 +43,7 @@
         v-if="currentNav === 'mode-row'"
         class="space-y-2 border border-base-300 bg-base-100 rounded-2xl"
       >
-        <label
-          class="text-sm font-semibold text-base-content/70 text-center block"
-        >
+        <label class="text-sm font-semibold text-base-content/70 text-center block">
           🎮 Mode Row
         </label>
         <div class="flex justify-center">
@@ -81,29 +62,37 @@ import { useLinkStore } from '@/stores/linkStore'
 const pageStore = usePageStore()
 const linkStore = useLinkStore()
 
-const linkNavComponent = computed(() => linkStore.navComponent?.trim() || null)
-const defaultNav = computed(
-  () => pageStore.page?.navComponent?.trim() || 'mode-row',
-)
+const navStates = ['custom', 'nav-select', 'mode-row'] as const
+const currentNav = ref<(typeof navStates)[number]>('custom')
 
-const currentNav = ref<'nav-nav' | 'mode-row' | 'custom'>(
-  linkNavComponent.value ? 'custom' : (defaultNav.value as any),
-)
+const resolvedNavComponent = computed(() => {
+  return linkStore.navComponent?.trim() || pageStore.page?.navComponent?.trim() || null
+})
 
-function setNavSource(source: 'nav-nav' | 'mode-row' | 'custom') {
-  currentNav.value = source
-  if (source === 'nav-nav') {
+const currentLabel = computed(() => {
+  if (currentNav.value === 'custom' && resolvedNavComponent.value) {
+    return formatLabel(resolvedNavComponent.value)
+  } else if (currentNav.value === 'nav-select') {
+    return 'Navigation'
+  } else {
+    return 'Mode Row'
+  }
+})
+
+function cycleNavSource() {
+  const currentIndex = navStates.indexOf(currentNav.value)
+  const nextIndex = (currentIndex + 1) % navStates.length
+  const next = navStates[nextIndex]
+  currentNav.value = next
+
+  if (next === 'nav-select') {
     linkStore.navComponent = ''
   }
 }
 
 function formatLabel(raw: string): string {
-  return (
-    raw
-      .replace(/-nav$/, '')
-      .replace(/\b\w/g, (c) => c.toUpperCase())
-      .replace(/([a-z])([A-Z])/g, '$1 $2')
-      .replace(/\b([a-z])/g, (_, l) => l.toUpperCase()) + ' Navigation'
-  )
+  return raw.replace(/-nav$/, '')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/\b\w/g, (c) => c.toUpperCase()) + ' Navigation'
 }
 </script>

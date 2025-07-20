@@ -27,6 +27,8 @@ export const useLinkStore = defineStore('linkStore', () => {
     { title: 'Swarm', icon: 'swarm-icon', isUtility: true },
   ])
 
+  const navComponent = ref<string>('')
+
   const allLinks = computed<LinkItem[]>(() => [...staticLinks.value])
 
   const navLinks = computed(() =>
@@ -41,5 +43,6 @@ export const useLinkStore = defineStore('linkStore', () => {
     allLinks,
     navLinks,
     utilityLinks,
+    navComponent,
   }
 })

@@ -7,6 +7,8 @@
 import { useLinkStore } from '~/stores/linkStore'
 import type { LinkItem } from '~/stores/linkStore'
 
+const emit = defineEmits(['card-click', 'nav-selected'])
+
 const linkStore = useLinkStore()
 
 const navCards: LinkItem[] = [
@@ -62,6 +64,7 @@ type NavTitle = keyof typeof titleToComponent
 function handleClick(item: LinkItem) {
   if (item.title in titleToComponent) {
     linkStore.navComponent = titleToComponent[item.title as NavTitle]
+    emit('nav-selected') // Switch to 'custom' in splash-nav
   } else {
     console.warn('Unknown nav title:', item.title)
   }

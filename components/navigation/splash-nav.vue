@@ -17,10 +17,15 @@
         v-if="currentNav === 'nav-select'"
         class="space-y-2 min-h-[300px] bg-base-200 border border-dashed border-primary rounded-2xl p-4"
       >
-        <label class="text-sm font-semibold text-base-content/70 text-center block mb-2">
+        <label
+          class="text-sm font-semibold text-base-content/70 text-center block mb-2"
+        >
           Navigation Menu
         </label>
-        <nav-nav class="w-full max-w-3xl mx-auto" />
+        <nav-nav
+          class="w-full max-w-3xl mx-auto"
+          @nav-selected="currentNav = 'custom'"
+        />
       </div>
     </Transition>
 
@@ -30,10 +35,15 @@
         v-if="currentNav === 'custom' && resolvedNavComponent"
         class="space-y-2 min-h-[300px] bg-base-200 border border-dashed border-accent rounded-2xl p-4"
       >
-        <label class="text-sm font-semibold text-base-content/70 text-center block mb-2">
+        <label
+          class="text-sm font-semibold text-base-content/70 text-center block mb-2"
+        >
           {{ formatLabel(resolvedNavComponent) }}
         </label>
-        <component :is="resolvedNavComponent" class="w-full max-w-3xl mx-auto" />
+        <component
+          :is="resolvedNavComponent"
+          class="w-full max-w-3xl mx-auto"
+        />
       </div>
     </Transition>
 
@@ -43,7 +53,9 @@
         v-if="currentNav === 'mode-row'"
         class="space-y-2 border border-base-300 bg-base-100 rounded-2xl"
       >
-        <label class="text-sm font-semibold text-base-content/70 text-center block">
+        <label
+          class="text-sm font-semibold text-base-content/70 text-center block"
+        >
           🎮 Mode Row
         </label>
         <div class="flex justify-center">
@@ -66,7 +78,11 @@ const navStates = ['custom', 'nav-select', 'mode-row'] as const
 const currentNav = ref<(typeof navStates)[number]>('custom')
 
 const resolvedNavComponent = computed(() => {
-  return linkStore.navComponent?.trim() || pageStore.page?.navComponent?.trim() || null
+  return (
+    linkStore.navComponent?.trim() ||
+    pageStore.page?.navComponent?.trim() ||
+    null
+  )
 })
 
 const currentLabel = computed(() => {
@@ -91,8 +107,11 @@ function cycleNavSource() {
 }
 
 function formatLabel(raw: string): string {
-  return raw.replace(/-nav$/, '')
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/\b\w/g, (c) => c.toUpperCase()) + ' Navigation'
+  return (
+    raw
+      .replace(/-nav$/, '')
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/\b\w/g, (c) => c.toUpperCase()) + ' Navigation'
+  )
 }
 </script>

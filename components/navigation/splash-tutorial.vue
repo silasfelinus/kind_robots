@@ -15,15 +15,23 @@
         class="parallax-image w-full h-full bg-cover bg-center will-change-transform"
         :style="{
           backgroundImage: `url('${resolvedImage}')`,
-          transform: `translateY(${scrollOffset}px)`
+          transform: `translateY(${scrollOffset}px)`,
         }"
       />
       <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" />
     </div>
 
     <!-- Foreground Content -->
-    <div>
-      <splash-content />
+    <div class="relative z-10 flex flex-col gap-4 p-4 sm:p-6 md:p-8">
+      <div
+        class="max-h-[30vh] overflow-y-auto bg-base-100/80 border border-base-content/20 rounded-2xl p-4"
+      >
+        <splash-nav />
+      </div>
+
+      <div class="flex-1">
+        <splash-content />
+      </div>
     </div>
   </div>
 </template>
@@ -64,7 +72,10 @@ function updateParallaxHeight() {
   if (el) {
     const buffer = 300
     const visibleHeight = el.clientHeight
-    parallaxHeight.value = Math.max(visibleHeight + buffer, window.innerHeight + buffer)
+    parallaxHeight.value = Math.max(
+      visibleHeight + buffer,
+      window.innerHeight + buffer,
+    )
   }
 }
 
@@ -89,15 +100,18 @@ onBeforeUnmount(() => {
 })
 
 // Watch for route/page changes and re-trigger height calc
-watch(() => pageStore.page, () => {
-  nextTick(() => {
-    requestAnimationFrame(() => {
-      updateParallaxHeight()
-      // optional: re-calc again after delay in case splash-content loads late
-      setTimeout(updateParallaxHeight, 300)
+watch(
+  () => pageStore.page,
+  () => {
+    nextTick(() => {
+      requestAnimationFrame(() => {
+        updateParallaxHeight()
+        // optional: re-calc again after delay in case splash-content loads late
+        setTimeout(updateParallaxHeight, 300)
+      })
     })
-  })
-})
+  },
+)
 </script>
 
 <style scoped>

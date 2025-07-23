@@ -21,10 +21,36 @@
       <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" />
     </div>
 
-    <!-- Foreground Content -->
-    <div class="relative z-10 flex flex-col gap-4 p-4 sm:p-6 md:p-8">
-      <div class="flex-1">
+    <!-- Foreground Structured Sections -->
+    <div
+      class="relative z-10 flex flex-col gap-6 p-4 sm:p-6 md:p-8 min-h-[120vh]"
+    >
+      <!-- Section: Splash Nav -->
+      <div
+        class="min-h-[40vh] overflow-y-auto rounded-2xl border border-base-300 bg-base-100/80 p-4"
+      >
+        <splash-nav />
+      </div>
+
+      <!-- Section: Title and Section Content -->
+      <div
+        class="min-h-[40vh] overflow-y-auto rounded-2xl border border-base-300 bg-base-200/70 p-4"
+      >
         <splash-content />
+      </div>
+
+      <!-- Section: Chat Tips or Guidance -->
+      <div
+        class="min-h-[40vh] overflow-y-auto rounded-2xl border border-base-300 bg-base-100/80 p-4"
+      >
+        <div class="text-base-content/70 font-mono text-sm">
+          <p class="mb-2">💡 <strong>Tips from AMI:</strong></p>
+          <ul class="list-disc list-inside space-y-1">
+            <li>Tap a navigation style to get started.</li>
+            <li>Scroll through the tutorial sections at your pace.</li>
+            <li>Need a reset? Hit the 🔄 toggle to start fresh.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -93,14 +119,12 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', updateParallaxHeight)
 })
 
-// Watch for route/page changes and re-trigger height calc
 watch(
   () => pageStore.page,
   () => {
     nextTick(() => {
       requestAnimationFrame(() => {
         updateParallaxHeight()
-        // optional: re-calc again after delay in case splash-content loads late
         setTimeout(updateParallaxHeight, 300)
       })
     })

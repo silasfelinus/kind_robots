@@ -25,23 +25,23 @@
     <div
       class="relative z-10 flex flex-col gap-6 p-4 sm:p-6 md:p-8 min-h-[120vh]"
     >
-      <!-- Section: Splash Nav -->
+      <!-- Section 1: Room Info -->
+      <div
+        class="min-h-[40vh] overflow-y-auto rounded-2xl border border-base-300 bg-base-200/80 p-4"
+      >
+        <splash-content />
+      </div>
+
+      <!-- Section 2: Navigation Toggle -->
       <div
         class="min-h-[40vh] overflow-y-auto rounded-2xl border border-base-300 bg-base-100/80 p-4"
       >
         <splash-nav />
       </div>
 
-      <!-- Section: Title and Section Content -->
+      <!-- Section 3: Tips / AMI Chat -->
       <div
-        class="min-h-[40vh] overflow-y-auto rounded-2xl border border-base-300 bg-base-200/70 p-4"
-      >
-        <splash-content />
-      </div>
-
-      <!-- Section: Chat Tips or Guidance -->
-      <div
-        class="min-h-[40vh] overflow-y-auto rounded-2xl border border-base-300 bg-base-100/80 p-4"
+        class="min-h-[40vh] overflow-y-auto rounded-2xl border border-base-300 bg-base-100/70 p-4"
       >
         <div class="text-base-content/70 font-mono text-sm">
           <p class="mb-2">💡 <strong>Tips from AMI:</strong></p>

@@ -23,12 +23,6 @@
 
     <!-- Foreground Content -->
     <div class="relative z-10 flex flex-col gap-4 p-4 sm:p-6 md:p-8">
-      <div
-        class="max-h-[30vh] overflow-y-auto bg-base-100/80 border border-base-content/20 rounded-2xl p-4"
-      >
-        <splash-nav />
-      </div>
-
       <div class="flex-1">
         <splash-content />
       </div>

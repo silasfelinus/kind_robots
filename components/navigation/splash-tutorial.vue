@@ -31,27 +31,6 @@
       >
         <splash-content />
       </div>
-
-      <!-- Section 2: Navigation Toggle -->
-      <div
-        class="min-h-[40vh] overflow-y-auto rounded-2xl border border-base-300 bg-base-100/80 p-4"
-      >
-        <splash-nav />
-      </div>
-
-      <!-- Section 3: Tips / AMI Chat -->
-      <div
-        class="min-h-[40vh] overflow-y-auto rounded-2xl border border-base-300 bg-base-100/70 p-4"
-      >
-        <div class="text-base-content/70 font-mono text-sm">
-          <p class="mb-2">💡 <strong>Tips from AMI:</strong></p>
-          <ul class="list-disc list-inside space-y-1">
-            <li>Tap a navigation style to get started.</li>
-            <li>Scroll through the tutorial sections at your pace.</li>
-            <li>Need a reset? Hit the 🔄 toggle to start fresh.</li>
-          </ul>
-        </div>
-      </div>
     </div>
   </div>
 </template>

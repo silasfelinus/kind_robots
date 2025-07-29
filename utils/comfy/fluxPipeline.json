@@ -1,0 +1,405 @@
+{
+  "8": {
+    "inputs": {
+      "samples": ["13", 1],
+      "vae": ["10", 0]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "10": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "11": {
+    "inputs": {
+      "clip_name1": "t5xxl_fp8_e4m3fn.safetensors",
+      "clip_name2": "clip_l.safetensors",
+      "type": "flux",
+      "device": "default"
+    },
+    "class_type": "DualCLIPLoader",
+    "_meta": {
+      "title": "DualCLIPLoader"
+    }
+  },
+  "12": {
+    "inputs": {
+      "unet_name": "flux1-schnell.safetensors",
+      "weight_dtype": "fp8_e4m3fn"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Load Diffusion Model"
+    }
+  },
+  "13": {
+    "inputs": {
+      "noise": ["25", 0],
+      "guider": ["22", 0],
+      "sampler": ["16", 0],
+      "sigmas": ["17", 0],
+      "latent_image": ["162", 0]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "SamplerCustomAdvanced"
+    }
+  },
+  "16": {
+    "inputs": {
+      "sampler_name": "dpmpp_2m"
+    },
+    "class_type": "KSamplerSelect",
+    "_meta": {
+      "title": "KSamplerSelect"
+    }
+  },
+  "17": {
+    "inputs": {
+      "scheduler": "sgm_uniform",
+      "steps": 25,
+      "denoise": 0.9500000000000001,
+      "model": ["12", 0]
+    },
+    "class_type": "BasicScheduler",
+    "_meta": {
+      "title": "BasicScheduler"
+    }
+  },
+  "22": {
+    "inputs": {
+      "model": ["12", 0],
+      "conditioning": ["171", 0]
+    },
+    "class_type": "BasicGuider",
+    "_meta": {
+      "title": "BasicGuider"
+    }
+  },
+  "25": {
+    "inputs": {
+      "noise_seed": 252019664031279
+    },
+    "class_type": "RandomNoise",
+    "_meta": {
+      "title": "RandomNoise"
+    }
+  },
+  "29": {
+    "inputs": {
+      "clip_l": "",
+      "t5xxl": "Fashion model photoshoot of a man in a hat. Professional quality and lighting. ",
+      "guidance": 3.5,
+      "clip": ["11", 0]
+    },
+    "class_type": "CLIPTextEncodeFlux",
+    "_meta": {
+      "title": "CLIPTextEncodeFlux"
+    }
+  },
+  "33": {
+    "inputs": {
+      "filename_prefix": "./Flux/FluxOutput",
+      "images": ["91", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "38": {
+    "inputs": {
+      "images": ["91", 0]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "86": {
+    "inputs": {
+      "model_name": "4x-UltraSharp.pth"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "Load Upscale Model"
+    }
+  },
+  "90": {
+    "inputs": {
+      "image": ["8", 0],
+      "upscale_model": ["86", 0],
+      "scale": 4
+    },
+    "class_type": "UpscaleImage",
+    "_meta": {
+      "title": "Apply Upscale"
+    }
+  },
+  "91": {
+    "inputs": {
+      "condition": true,
+      "input_true": ["90", 0],
+      "input_false": ["8", 0]
+    },
+    "class_type": "ImageSwitch",
+    "_meta": {
+      "title": "Use Upscale?"
+    }
+  },
+
+  "101": {
+    "inputs": {
+      "conditioning": ["171", 0]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "ConditioningZeroOut"
+    }
+  },
+  "110": {
+    "inputs": {
+      "rgthree_comparer": {
+        "images": [
+          {
+            "name": "A",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_cdpta_00275_.png&type=temp&subfolder=&rand=0.9349042319778496"
+          },
+          {
+            "name": "B",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_cdpta_00276_.png&type=temp&subfolder=&rand=0.45893671722859253"
+          }
+        ]
+      },
+      "image_a": ["111", 0],
+      "image_b": ["113", 0]
+    },
+    "class_type": "Image Comparer (rgthree)",
+    "_meta": {
+      "title": "Image Comparer (rgthree)"
+    }
+  },
+  "111": {
+    "inputs": {
+      "text": "Original",
+      "align": "bottom center",
+      "opacity": 0.6,
+      "font_name": "impact.ttf",
+      "font_size": 50,
+      "font_color": "white",
+      "x_margin": 20,
+      "y_margin": 20,
+      "font_color_hex": "#000000",
+      "image": ["91", 0]
+    },
+    "class_type": "CR Simple Text Watermark",
+    "_meta": {
+      "title": "🔤️ CR Simple Text Watermark"
+    }
+  },
+  "113": {
+    "inputs": {
+      "text": "Upscaled",
+      "align": "bottom center",
+      "opacity": 0.6,
+      "font_name": "impact.ttf",
+      "font_size": 50,
+      "font_color": "white",
+      "x_margin": 20,
+      "y_margin": 20,
+      "font_color_hex": "#000000",
+      "image": ["91", 0]
+    },
+    "class_type": "CR Simple Text Watermark",
+    "_meta": {
+      "title": "🔤️ CR Simple Text Watermark"
+    }
+  },
+  "114": {
+    "inputs": {
+      "filename_prefix": "./Flux/Upscale/FluxOutput",
+      "images": ["90", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "120": {
+    "class_type": "LoadImageFromBase64",
+    "inputs": {
+      "image_data": "__BASE64__"
+    }
+  },
+  "125": {
+    "class_type": "ResizeImage",
+    "inputs": {
+      "image": ["120", 0],
+      "width": 768,
+      "height": 1024,
+      "upscale": "nearest-exact"
+    },
+    "_meta": {
+      "title": "Resize Image"
+    }
+  },
+  "126": {
+    "inputs": {
+      "pixels": ["125", 0],
+      "vae": ["10", 0]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "132": {
+    "inputs": {
+      "low_threshold": 0.45,
+      "high_threshold": 0.8,
+      "image": ["120", 0]
+    },
+    "class_type": "Canny",
+    "_meta": {
+      "title": "Canny"
+    }
+  },
+  "133": {
+    "inputs": {
+      "control_net_name": "ControlNetUnion.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "134": {
+    "inputs": {
+      "images": ["132", 0]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "135": {
+    "inputs": {
+      "strength": 0.6,
+      "start_percent": 0,
+      "end_percent": 0.6,
+      "positive": ["29", 0],
+      "negative": ["101", 0],
+      "control_net": ["133", 0],
+      "image": ["132", 0],
+      "vae": ["10", 0]
+    },
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {
+      "title": "Apply ControlNet"
+    }
+  },
+  "136": {
+    "inputs": {
+      "conditioning": ["135", 1]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "ConditioningZeroOut"
+    }
+  },
+  "143": {
+    "inputs": {
+      "images": ["145", 0]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "145": {
+    "inputs": {
+      "direction": "right",
+      "match_image_size": true,
+      "image1": ["120", 0],
+      "image2": ["91", 0]
+    },
+    "class_type": "ImageConcanate",
+    "_meta": {
+      "title": "Image Concatenate"
+    }
+  },
+  "146": {
+    "inputs": {
+      "filename_prefix": "./Flux/FluxIm2ImgCompare",
+      "images": ["145", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "160": {
+    "class_type": "LoadImageFromBase64",
+    "inputs": {
+      "image_data": "__MASK__"
+    },
+    "_meta": {
+      "title": "Load Mask Image"
+    }
+  },
+  "161": {
+    "class_type": "LatentInpaint",
+    "inputs": {
+      "pixels": ["125", 0],
+      "vae": ["10", 0],
+      "mask": ["160", 0]
+    },
+    "_meta": {
+      "title": "Latent Inpaint"
+    }
+  },
+  "162": {
+    "class_type": "LatentSwitch",
+    "inputs": {
+      "condition": false,
+      "input_true": ["161", 0],
+      "input_false": ["126", 0]
+    },
+    "_meta": {
+      "title": "Use Inpaint?"
+    }
+  },
+  "170": {
+    "class_type": "CLIPTextEncodeFlux",
+    "inputs": {
+      "clip_l": "",
+      "t5xxl": "Second prompt goes here",
+      "guidance": 3.5,
+      "clip": ["11", 0]
+    },
+    "_meta": {
+      "title": "Prompt B Encode"
+    }
+  },
+  "171": {
+    "class_type": "ConditioningAverage",
+    "inputs": {
+      "conditioning_1": ["29", 0],
+      "conditioning_2": ["170", 0],
+      "weight": 0.5
+    },
+    "_meta": {
+      "title": "Blend Prompts"
+    }
+  }
+}

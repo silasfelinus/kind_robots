@@ -78,12 +78,3 @@ async function sendToFlux() {
   resultImage.value = output
 }
 </script>
-
-<style scoped>
-.file-input {
-  @apply border p-2 rounded bg-base-200;
-}
-.btn {
-  @apply px-4 py-2 rounded text-white;
-}
-</style>

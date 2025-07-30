@@ -28,8 +28,11 @@ export default defineEventHandler(async (event) => {
   const blankImage =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQI12NgYGBgAAAABQABDQottgAAAABJRU5ErkJggg=='
 
+  const activeImage = imageData || blankImage
+  const isBlankImage = activeImage === blankImage
+
   const result = await sendComfyPrompt({
-    imageData: imageData || blankImage,
+    imageData: activeImage,
     promptText: prompt,
     promptTextB,
     promptBlend,
@@ -40,6 +43,7 @@ export default defineEventHandler(async (event) => {
     useUpscale,
     useInpaint,
     maskData,
+    isBlankImage,
   })
 
   return result

@@ -123,27 +123,24 @@
     "class_type": "SaveImage",
     "_meta": { "title": "Save Image" }
   },
-  "146": {
-    "inputs": {
-      "filename_prefix": "./Flux/FluxIm2ImgCompare",
-      "images": ["145", 0]
-    },
-    "class_type": "SaveImage",
-    "_meta": { "title": "Save Image" }
-  },
-  "125": {
-    "class_type": "ResizeImage",
-    "inputs": {
-      "image": ["120", 0],
-      "width": 768,
-      "height": 1024,
-      "upscale": "nearest-exact"
-    },
-    "_meta": { "title": "Resize Image" }
-  },
+
   "120": {
     "class_type": "LoadImageFromBase64",
     "inputs": { "image_data": "__BASE64__" }
+  },
+  "125": {
+    "inputs": {
+      "width": 512,
+      "height": 512,
+      "upscale_method": "nearest-exact",
+      "keep_proportion": false,
+      "divisible_by": 2,
+      "crop": "disabled"
+    },
+    "class_type": "ImageResizeKJ",
+    "_meta": {
+      "title": "Resize Image"
+    }
   },
   "132": {
     "inputs": {
@@ -182,6 +179,14 @@
     },
     "class_type": "ImageConcanate",
     "_meta": { "title": "Image Concatenate" }
+  },
+  "146": {
+    "inputs": {
+      "filename_prefix": "./Flux/FluxIm2ImgCompare",
+      "images": ["145", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": { "title": "Save Image" }
   },
   "101": {
     "inputs": { "conditioning": ["29", 0] },
@@ -253,9 +258,9 @@
       "input_true": ["90", 0],
       "input_false": ["8", 0]
     },
-    "class_type": "WAS_Node_ConditioningSwitch",
+    "class_type": "Conditioning Input Switch",
     "_meta": {
-      "title": "WAS Conditioning Switch"
+      "title": "Conditioning Input Switch"
     }
   },
   "160": {
@@ -273,9 +278,9 @@
       "input_true": ["161", 0],
       "input_false": ["126", 0]
     },
-    "class_type": "WAS_Node_Image_Input_Switch",
+    "class_type": "Image Input Switch",
     "_meta": {
-      "title": "WAS Image Switch"
+      "title": "Image Input Switch"
     }
   },
   "170": {
@@ -296,9 +301,9 @@
       "conditioning_2": ["170", 0],
       "strength": 0.5
     },
-    "class_type": "WAS_Node_ConditioningCombine",
+    "class_type": "Cond Combine Multiple",
     "_meta": {
-      "title": "WAS Prompt Blend"
+      "title": "Cond Combine Multiple"
     }
   }
 }

@@ -12,17 +12,30 @@ export default defineEventHandler(async (event) => {
   console.log(`[SD3] Connecting to WebSocket at: ${wsUrl}`)
   console.log(`[SD3] Using prompt_id: ${prompt_id}`)
 
-  // Inject user values into cloned graph
-  const graph = structuredClone(sd3Schnell)
+  // Clone and inject parameters
+  const graph = structuredClone(sd3Schnell) as Record<string, any>
 
+  // Text prompts
   graph['39'].inputs.wildcard_text = body.prompt || 'A surreal dream'
   graph['39'].inputs.populated_text = body.prompt || 'A surreal dream'
+  graph['33'].inputs.text = body.negativePrompt || ''
+
+  // Model + LoRA
   graph['30'].inputs.ckpt_name =
     body.ckpt_name || 'Flux/flux1-schnell-fp8.safetensors'
-  graph['31'].inputs.cfg = body.cfg ?? 1
-  graph['31'].inputs.denoise = body.denoise ?? 1
+
+  // Latent size
   graph['27'].inputs.width = body.width ?? 1024
   graph['27'].inputs.height = body.height ?? 1024
+  graph['27'].inputs.batch_size = body.batch_size ?? 1
+
+  // Sampling details
+  graph['31'].inputs.cfg = body.cfg ?? 1
+  graph['31'].inputs.steps = body.steps ?? 10
+  graph['31'].inputs.denoise = body.denoise ?? 1
+  graph['31'].inputs.sampler_name = body.sampler_name || 'euler'
+  graph['31'].inputs.scheduler = body.scheduler || 'simple'
+  graph['31'].inputs.seed = body.seed ?? Math.floor(Math.random() * 1e18)
 
   return await new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {

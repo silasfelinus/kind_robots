@@ -5,7 +5,6 @@
     <h2 v-if="name" class="text-lg font-bold truncate text-primary">
       {{ name }}
     </h2>
-    import type { Art } from '@prisma/client'
 
     <!-- Optional image using ArtCard -->
     <ArtCard

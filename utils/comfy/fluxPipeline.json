@@ -301,9 +301,9 @@
       "conditioning_2": ["170", 0],
       "strength": 0.5
     },
-    "class_type": "Cond Combine Multiple",
+    "class_type": "ConditioningCombineMultiple+",
     "_meta": {
-      "title": "Cond Combine Multiple"
+      "title": "🔧 Cond Combine Multiple"
     }
   }
 }

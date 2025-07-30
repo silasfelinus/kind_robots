@@ -46,7 +46,8 @@ export async function sendComfyPrompt({
   graph['170'].inputs.t5xxl = promptTextB || promptText
   graph['171'].inputs.weight = promptBlend ?? 0.5
 
-  const ws = new WebSocket('ws://localhost:8188/ws')
+  const wsUrl = process.env.COMFY_WS || 'ws://localhost:8188/ws'
+  const ws = new WebSocket(wsUrl)
 
   return await new Promise((resolve, reject) => {
     ws.onopen = () => {

@@ -1,13 +1,8 @@
 {
-  "version": "1.0",
   "10": {
-    "inputs": {
-      "vae_name": "ae.safetensors"
-    },
+    "inputs": { "vae_name": "ae.safetensors" },
     "class_type": "VAELoader",
-    "_meta": {
-      "title": "Load VAE"
-    }
+    "_meta": { "title": "Load VAE" }
   },
   "11": {
     "inputs": {
@@ -17,9 +12,7 @@
       "device": "default"
     },
     "class_type": "DualCLIPLoader",
-    "_meta": {
-      "title": "DualCLIPLoader"
-    }
+    "_meta": { "title": "DualCLIPLoader" }
   },
   "12": {
     "inputs": {
@@ -27,27 +20,17 @@
       "weight_dtype": "fp8_e4m3fn"
     },
     "class_type": "UNETLoader",
-    "_meta": {
-      "title": "Load Diffusion Model"
-    }
+    "_meta": { "title": "Load Diffusion Model" }
   },
   "25": {
-    "inputs": {
-      "noise_seed": 252019664031279
-    },
+    "inputs": { "noise_seed": 252019664031279 },
     "class_type": "RandomNoise",
-    "_meta": {
-      "title": "RandomNoise"
-    }
+    "_meta": { "title": "RandomNoise" }
   },
   "16": {
-    "inputs": {
-      "sampler_name": "dpmpp_2m"
-    },
+    "inputs": { "sampler_name": "dpmpp_2m" },
     "class_type": "KSamplerSelect",
-    "_meta": {
-      "title": "KSamplerSelect"
-    }
+    "_meta": { "title": "KSamplerSelect" }
   },
   "17": {
     "inputs": {
@@ -57,9 +40,7 @@
       "model": ["12", 0]
     },
     "class_type": "BasicScheduler",
-    "_meta": {
-      "title": "BasicScheduler"
-    }
+    "_meta": { "title": "BasicScheduler" }
   },
   "29": {
     "inputs": {
@@ -69,9 +50,7 @@
       "clip": ["11", 0]
     },
     "class_type": "CLIPTextEncodeFlux",
-    "_meta": {
-      "title": "CLIPTextEncodeFlux"
-    }
+    "_meta": { "title": "CLIPTextEncodeFlux" }
   },
   "22": {
     "inputs": {
@@ -79,9 +58,7 @@
       "conditioning": ["135", 0]
     },
     "class_type": "BasicGuider",
-    "_meta": {
-      "title": "BasicGuider"
-    }
+    "_meta": { "title": "BasicGuider" }
   },
   "13": {
     "inputs": {
@@ -92,9 +69,7 @@
       "latent_image": ["126", 0]
     },
     "class_type": "SamplerCustomAdvanced",
-    "_meta": {
-      "title": "SamplerCustomAdvanced"
-    }
+    "_meta": { "title": "SamplerCustomAdvanced" }
   },
   "126": {
     "inputs": {
@@ -102,9 +77,7 @@
       "vae": ["10", 0]
     },
     "class_type": "VAEEncode",
-    "_meta": {
-      "title": "VAE Encode"
-    }
+    "_meta": { "title": "VAE Encode" }
   },
   "8": {
     "inputs": {
@@ -112,45 +85,27 @@
       "vae": ["10", 0]
     },
     "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
-    }
+    "_meta": { "title": "VAE Decode" }
   },
   "86": {
-    "inputs": {
-      "model_name": "4x-UltraSharp.pth"
-    },
+    "inputs": { "model_name": "4x-UltraSharp.pth" },
     "class_type": "UpscaleModelLoader",
-    "_meta": {
-      "title": "Load Upscale Model"
-    }
+    "_meta": { "title": "Load Upscale Model" }
   },
   "38": {
-    "inputs": {
-      "images": ["8", 0]
-    },
+    "inputs": { "images": ["8", 0] },
     "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
+    "_meta": { "title": "Preview Image" }
   },
   "134": {
-    "inputs": {
-      "images": ["132", 0]
-    },
+    "inputs": { "images": ["132", 0] },
     "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
+    "_meta": { "title": "Preview Image" }
   },
   "143": {
-    "inputs": {
-      "images": ["145", 0]
-    },
+    "inputs": { "images": ["145", 0] },
     "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
+    "_meta": { "title": "Preview Image" }
   },
   "33": {
     "inputs": {
@@ -158,9 +113,7 @@
       "images": ["8", 0]
     },
     "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
+    "_meta": { "title": "Save Image" }
   },
   "114": {
     "inputs": {
@@ -168,9 +121,7 @@
       "images": ["8", 0]
     },
     "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
+    "_meta": { "title": "Save Image" }
   },
   "146": {
     "inputs": {
@@ -178,9 +129,7 @@
       "images": ["145", 0]
     },
     "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
+    "_meta": { "title": "Save Image" }
   },
   "125": {
     "class_type": "ResizeImage",
@@ -190,15 +139,11 @@
       "height": 1024,
       "upscale": "nearest-exact"
     },
-    "_meta": {
-      "title": "Resize Image"
-    }
+    "_meta": { "title": "Resize Image" }
   },
   "120": {
     "class_type": "LoadImageFromBase64",
-    "inputs": {
-      "image_data": "__BASE64__"
-    }
+    "inputs": { "image_data": "__BASE64__" }
   },
   "132": {
     "inputs": {
@@ -207,18 +152,12 @@
       "image": ["120", 0]
     },
     "class_type": "Canny",
-    "_meta": {
-      "title": "Canny"
-    }
+    "_meta": { "title": "Canny" }
   },
   "133": {
-    "inputs": {
-      "control_net_name": "ControlNetUnion.safetensors"
-    },
+    "inputs": { "control_net_name": "ControlNetUnion.safetensors" },
     "class_type": "ControlNetLoader",
-    "_meta": {
-      "title": "Load ControlNet Model"
-    }
+    "_meta": { "title": "Load ControlNet Model" }
   },
   "135": {
     "inputs": {
@@ -232,9 +171,7 @@
       "vae": ["10", 0]
     },
     "class_type": "ControlNetApplyAdvanced",
-    "_meta": {
-      "title": "Apply ControlNet"
-    }
+    "_meta": { "title": "Apply ControlNet" }
   },
   "145": {
     "inputs": {
@@ -244,27 +181,17 @@
       "image2": ["8", 0]
     },
     "class_type": "ImageConcanate",
-    "_meta": {
-      "title": "Image Concatenate"
-    }
+    "_meta": { "title": "Image Concatenate" }
   },
   "101": {
-    "inputs": {
-      "conditioning": ["29", 0]
-    },
+    "inputs": { "conditioning": ["29", 0] },
     "class_type": "ConditioningZeroOut",
-    "_meta": {
-      "title": "ConditioningZeroOut"
-    }
+    "_meta": { "title": "ConditioningZeroOut" }
   },
   "136": {
-    "inputs": {
-      "conditioning": ["135", 1]
-    },
+    "inputs": { "conditioning": ["135", 1] },
     "class_type": "ConditioningZeroOut",
-    "_meta": {
-      "title": "ConditioningZeroOut"
-    }
+    "_meta": { "title": "ConditioningZeroOut" }
   },
   "110": {
     "inputs": {
@@ -286,9 +213,7 @@
       "image_b": ["113", 0]
     },
     "class_type": "Image Comparer (rgthree)",
-    "_meta": {
-      "title": "Image Comparer (rgthree)"
-    }
+    "_meta": { "title": "Image Comparer (rgthree)" }
   },
   "111": {
     "inputs": {
@@ -304,9 +229,7 @@
       "image": ["8", 0]
     },
     "class_type": "CR Simple Text Watermark",
-    "_meta": {
-      "title": "\ud83d\udd24\ufe0f CR Simple Text Watermark"
-    }
+    "_meta": { "title": "🔤️ CR Simple Text Watermark" }
   },
   "113": {
     "inputs": {
@@ -322,9 +245,7 @@
       "image": ["8", 0]
     },
     "class_type": "CR Simple Text Watermark",
-    "_meta": {
-      "title": "\ud83d\udd24\ufe0f CR Simple Text Watermark"
-    }
+    "_meta": { "title": "🔤️ CR Simple Text Watermark" }
   },
   "91": {
     "inputs": {
@@ -332,15 +253,19 @@
       "input_true": ["90", 0],
       "input_false": ["8", 0]
     },
-    "class_type": "",
-    "_meta": {}
+    "class_type": "WAS_Node_ConditioningSwitch",
+    "_meta": {
+      "title": "WAS Conditioning Switch"
+    }
   },
   "160": {
     "inputs": {
       "image_data": "__MASK__"
     },
-    "class_type": "",
-    "_meta": {}
+    "class_type": "LoadImageFromBase64",
+    "_meta": {
+      "title": "Load Mask Image"
+    }
   },
   "162": {
     "inputs": {
@@ -348,8 +273,10 @@
       "input_true": ["161", 0],
       "input_false": ["126", 0]
     },
-    "class_type": "",
-    "_meta": {}
+    "class_type": "WAS_Node_Image_Input_Switch",
+    "_meta": {
+      "title": "WAS Image Switch"
+    }
   },
   "170": {
     "inputs": {
@@ -358,16 +285,20 @@
       "guidance": 3.5,
       "clip": ["11", 0]
     },
-    "class_type": "",
-    "_meta": {}
+    "class_type": "CLIPTextEncodeFlux",
+    "_meta": {
+      "title": "Secondary Prompt"
+    }
   },
   "171": {
     "inputs": {
       "conditioning_1": ["29", 0],
       "conditioning_2": ["170", 0],
-      "weight": 0.5
+      "strength": 0.5
     },
-    "class_type": "",
-    "_meta": {}
+    "class_type": "WAS_Node_ConditioningCombine",
+    "_meta": {
+      "title": "WAS Prompt Blend"
+    }
   }
 }

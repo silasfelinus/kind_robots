@@ -58,7 +58,7 @@ export async function sendComfyPrompt({
 
   graph['162'].inputs.condition = useInpaint ?? false
   graph['170'].inputs.t5xxl = promptTextB || promptText
-  graph['171'].inputs.weight = promptBlend ?? 0.5
+  graph['171'].inputs.strength = promptBlend ?? 0.5
 
   const prompt_id = `edit-${Date.now()}`
   const resolvedWsUrl = wsUrl || comfyUrl()

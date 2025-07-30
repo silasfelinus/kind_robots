@@ -1,28 +1,44 @@
-// server/api/comfy/image.post.ts
-import { defineEventHandler, readMultipartFormData } from 'h3'
-import fs from 'node:fs/promises'
-import path from 'node:path'
+//server/api/comfy/image.post.ts
+
+import { sendComfyPrompt } from '~/utils/comfy/sendComfyPrompt'
 
 export default defineEventHandler(async (event) => {
-  const formData = await readMultipartFormData(event)
+  const body = await readBody(event)
 
-  const file = formData?.find((f) => f.type === 'file')
-  if (!file) {
-    return { success: false, message: 'No file uploaded' }
+  const {
+    prompt,
+    imageData,
+    promptTextB,
+    promptBlend,
+    denoise = 0.95,
+    strength = 0.6,
+    width = 768,
+    height = 1024,
+    useUpscale = false,
+    useInpaint = false,
+    maskData,
+  } = body
+
+  if (!prompt || !imageData) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Missing required prompt or imageData.',
+    })
   }
 
-  const filename = file.filename || `upload-${Date.now()}.png`
-  const uploadDir = '/path/to/comfy/input' // Adjust this to your actual input folder
-  const filepath = path.join(uploadDir, filename)
+  const result = await sendComfyPrompt({
+    imageData,
+    promptText: prompt,
+    promptTextB,
+    promptBlend,
+    denoise,
+    strength,
+    width,
+    height,
+    useUpscale,
+    useInpaint,
+    maskData,
+  })
 
-  try {
-    await fs.writeFile(filepath, file.data)
-    return {
-      success: true,
-      filename, // You can then use this in prompt injection
-      path: filepath,
-    }
-  } catch (err) {
-    return { success: false, message: 'Upload failed', error: err }
-  }
+  return result
 })

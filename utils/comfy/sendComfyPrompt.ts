@@ -15,8 +15,9 @@ export async function sendComfyPrompt({
   promptTextB,
   promptBlend,
   wsUrl,
+  isBlankImage,
 }: {
-  imageData: string
+  imageData?: string
   promptText: string
   denoise: number
   strength: number
@@ -28,21 +29,28 @@ export async function sendComfyPrompt({
   promptTextB?: string
   promptBlend?: number
   wsUrl?: string
+  isBlankImage?: boolean
 }): Promise<{
   status: 'queued'
   jobId: string
   queuePosition: number
 }> {
+  const fallbackImage =
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQI12NgYGBgAAAABQABDQottgAAAABJRU5ErkJggg=='
+
+  const actualImage = imageData || fallbackImage
+
   const graph = structuredClone(pipelineJson)
 
   // Dynamic value injection
-  graph['120'].inputs.image_data = `data:image/png;base64,${imageData}`
+  graph['120'].inputs.image_data = `data:image/png;base64,${actualImage}`
   graph['29'].inputs.t5xxl = promptText
   graph['17'].inputs.denoise = denoise
   graph['91'].inputs.condition = useUpscale
-  graph['135'].inputs.strength = strength
   graph['125'].inputs.width = width
   graph['125'].inputs.height = height
+
+  graph['135'].inputs.strength = isBlankImage ? 0 : strength
 
   if (maskData) {
     graph['160'].inputs.image_data = `data:image/png;base64,${maskData}`
@@ -65,7 +73,7 @@ export async function sendComfyPrompt({
     ws.onopen = () => {
       ws.send(
         JSON.stringify({
-          type: 'prompt', // ✅ correct type
+          type: 'prompt',
           prompt_id,
           prompt: graph,
         }),

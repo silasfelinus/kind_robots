@@ -1,5 +1,6 @@
 // utils/comfy/sendComfyPrompt.ts
 import pipelineJson from './fluxPipeline.json'
+import { comfyUrl } from './comfyUrl'
 
 export async function sendComfyPrompt({
   imageData,
@@ -52,8 +53,7 @@ export async function sendComfyPrompt({
   graph['171'].inputs.weight = promptBlend ?? 0.5
 
   const prompt_id = `edit-${Date.now()}`
-  const resolvedWsUrl =
-    wsUrl || process.env.COMFY_WS || 'wss://localhost:8188/ws'
+  const resolvedWsUrl = wsUrl || comfyUrl()
   const ws = new WebSocket(resolvedWsUrl)
 
   return new Promise((resolve, reject) => {

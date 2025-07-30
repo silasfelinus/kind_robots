@@ -1,3 +1,5 @@
+import { comfyUrl } from '~/utils/comfy/comfyUrl'
+
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const promptId = typeof query?.promptId === 'string' ? query.promptId : null
@@ -9,10 +11,8 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const wsUrl = process.env.COMFY_WS || 'wss://comfyui.acrocatranch.com/ws'
-
   return new Promise((resolve) => {
-    const ws = new WebSocket(wsUrl)
+    const ws = new WebSocket(comfyUrl())
 
     const timeout = setTimeout(() => {
       ws.close()

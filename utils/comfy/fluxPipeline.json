@@ -1,14 +1,4 @@
 {
-  "8": {
-    "inputs": {
-      "samples": ["13", 1],
-      "vae": ["10", 0]
-    },
-    "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
-    }
-  },
   "10": {
     "inputs": {
       "vae_name": "ae.safetensors"
@@ -40,17 +30,13 @@
       "title": "Load Diffusion Model"
     }
   },
-  "13": {
+  "25": {
     "inputs": {
-      "noise": ["25", 0],
-      "guider": ["22", 0],
-      "sampler": ["16", 0],
-      "sigmas": ["17", 0],
-      "latent_image": ["162", 0]
+      "noise_seed": 252019664031279
     },
-    "class_type": "SamplerCustomAdvanced",
+    "class_type": "RandomNoise",
     "_meta": {
-      "title": "SamplerCustomAdvanced"
+      "title": "RandomNoise"
     }
   },
   "16": {
@@ -74,25 +60,6 @@
       "title": "BasicScheduler"
     }
   },
-  "22": {
-    "inputs": {
-      "model": ["12", 0],
-      "conditioning": ["171", 0]
-    },
-    "class_type": "BasicGuider",
-    "_meta": {
-      "title": "BasicGuider"
-    }
-  },
-  "25": {
-    "inputs": {
-      "noise_seed": 252019664031279
-    },
-    "class_type": "RandomNoise",
-    "_meta": {
-      "title": "RandomNoise"
-    }
-  },
   "29": {
     "inputs": {
       "clip_l": "",
@@ -105,23 +72,47 @@
       "title": "CLIPTextEncodeFlux"
     }
   },
-  "33": {
+  "22": {
     "inputs": {
-      "filename_prefix": "./Flux/FluxOutput",
-      "images": ["91", 0]
+      "model": ["12", 0],
+      "conditioning": ["135", 0]
     },
-    "class_type": "SaveImage",
+    "class_type": "BasicGuider",
     "_meta": {
-      "title": "Save Image"
+      "title": "BasicGuider"
     }
   },
-  "38": {
+  "13": {
     "inputs": {
-      "images": ["91", 0]
+      "noise": ["25", 0],
+      "guider": ["22", 0],
+      "sampler": ["16", 0],
+      "sigmas": ["17", 0],
+      "latent_image": ["126", 0]
     },
-    "class_type": "PreviewImage",
+    "class_type": "SamplerCustomAdvanced",
     "_meta": {
-      "title": "Preview Image"
+      "title": "SamplerCustomAdvanced"
+    }
+  },
+  "126": {
+    "inputs": {
+      "pixels": ["125", 0],
+      "vae": ["10", 0]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "8": {
+    "inputs": {
+      "samples": ["13", 1],
+      "vae": ["10", 0]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
     }
   },
   "86": {
@@ -133,32 +124,141 @@
       "title": "Load Upscale Model"
     }
   },
-  "90": {
+  "38": {
     "inputs": {
-      "image": ["8", 0],
-      "upscale_model": ["86", 0],
-      "scale": 4
+      "images": ["8", 0]
     },
-    "class_type": "UpscaleImage",
+    "class_type": "PreviewImage",
     "_meta": {
-      "title": "Apply Upscale"
+      "title": "Preview Image"
     }
   },
-  "91": {
+  "134": {
     "inputs": {
-      "condition": true,
-      "input_true": ["90", 0],
-      "input_false": ["8", 0]
+      "images": ["132", 0]
     },
-    "class_type": "ImageSwitch",
+    "class_type": "PreviewImage",
     "_meta": {
-      "title": "Use Upscale?"
+      "title": "Preview Image"
     }
   },
-
+  "143": {
+    "inputs": {
+      "images": ["145", 0]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "33": {
+    "inputs": {
+      "filename_prefix": "./Flux/FluxOutput",
+      "images": ["8", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "114": {
+    "inputs": {
+      "filename_prefix": "./Flux/Upscale/FluxOutput",
+      "images": ["8", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "146": {
+    "inputs": {
+      "filename_prefix": "./Flux/FluxIm2ImgCompare",
+      "images": ["145", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "125": {
+    "class_type": "ResizeImage",
+    "inputs": {
+      "image": ["120", 0],
+      "width": 768,
+      "height": 1024,
+      "upscale": "nearest-exact"
+    },
+    "_meta": {
+      "title": "Resize Image"
+    }
+  },
+  "120": {
+    "class_type": "LoadImageFromBase64",
+    "inputs": {
+      "image_data": "__BASE64__"
+    }
+  },
+  "132": {
+    "inputs": {
+      "low_threshold": 0.45,
+      "high_threshold": 0.8,
+      "image": ["120", 0]
+    },
+    "class_type": "Canny",
+    "_meta": {
+      "title": "Canny"
+    }
+  },
+  "133": {
+    "inputs": {
+      "control_net_name": "ControlNetUnion.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "135": {
+    "inputs": {
+      "strength": 0.6,
+      "start_percent": 0,
+      "end_percent": 0.6,
+      "positive": ["29", 0],
+      "negative": ["101", 0],
+      "control_net": ["133", 0],
+      "image": ["132", 0],
+      "vae": ["10", 0]
+    },
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {
+      "title": "Apply ControlNet"
+    }
+  },
+  "145": {
+    "inputs": {
+      "direction": "right",
+      "match_image_size": true,
+      "image1": ["120", 0],
+      "image2": ["8", 0]
+    },
+    "class_type": "ImageConcanate",
+    "_meta": {
+      "title": "Image Concatenate"
+    }
+  },
   "101": {
     "inputs": {
-      "conditioning": ["171", 0]
+      "conditioning": ["29", 0]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "ConditioningZeroOut"
+    }
+  },
+  "136": {
+    "inputs": {
+      "conditioning": ["135", 1]
     },
     "class_type": "ConditioningZeroOut",
     "_meta": {
@@ -200,11 +300,11 @@
       "x_margin": 20,
       "y_margin": 20,
       "font_color_hex": "#000000",
-      "image": ["91", 0]
+      "image": ["8", 0]
     },
     "class_type": "CR Simple Text Watermark",
     "_meta": {
-      "title": "🔤️ CR Simple Text Watermark"
+      "title": "\ud83d\udd24\ufe0f CR Simple Text Watermark"
     }
   },
   "113": {
@@ -218,188 +318,55 @@
       "x_margin": 20,
       "y_margin": 20,
       "font_color_hex": "#000000",
-      "image": ["91", 0]
+      "image": ["8", 0]
     },
     "class_type": "CR Simple Text Watermark",
     "_meta": {
-      "title": "🔤️ CR Simple Text Watermark"
+      "title": "\ud83d\udd24\ufe0f CR Simple Text Watermark"
     }
   },
-  "114": {
+  "91": {
     "inputs": {
-      "filename_prefix": "./Flux/Upscale/FluxOutput",
-      "images": ["90", 0]
+      "condition": true,
+      "input_true": ["90", 0],
+      "input_false": ["8", 0]
     },
-    "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
-  },
-  "120": {
-    "class_type": "LoadImageFromBase64",
-    "inputs": {
-      "image_data": "__BASE64__"
-    }
-  },
-  "125": {
-    "class_type": "ResizeImage",
-    "inputs": {
-      "image": ["120", 0],
-      "width": 768,
-      "height": 1024,
-      "upscale": "nearest-exact"
-    },
-    "_meta": {
-      "title": "Resize Image"
-    }
-  },
-  "126": {
-    "inputs": {
-      "pixels": ["125", 0],
-      "vae": ["10", 0]
-    },
-    "class_type": "VAEEncode",
-    "_meta": {
-      "title": "VAE Encode"
-    }
-  },
-  "132": {
-    "inputs": {
-      "low_threshold": 0.45,
-      "high_threshold": 0.8,
-      "image": ["120", 0]
-    },
-    "class_type": "Canny",
-    "_meta": {
-      "title": "Canny"
-    }
-  },
-  "133": {
-    "inputs": {
-      "control_net_name": "ControlNetUnion.safetensors"
-    },
-    "class_type": "ControlNetLoader",
-    "_meta": {
-      "title": "Load ControlNet Model"
-    }
-  },
-  "134": {
-    "inputs": {
-      "images": ["132", 0]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "135": {
-    "inputs": {
-      "strength": 0.6,
-      "start_percent": 0,
-      "end_percent": 0.6,
-      "positive": ["29", 0],
-      "negative": ["101", 0],
-      "control_net": ["133", 0],
-      "image": ["132", 0],
-      "vae": ["10", 0]
-    },
-    "class_type": "ControlNetApplyAdvanced",
-    "_meta": {
-      "title": "Apply ControlNet"
-    }
-  },
-  "136": {
-    "inputs": {
-      "conditioning": ["135", 1]
-    },
-    "class_type": "ConditioningZeroOut",
-    "_meta": {
-      "title": "ConditioningZeroOut"
-    }
-  },
-  "143": {
-    "inputs": {
-      "images": ["145", 0]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "145": {
-    "inputs": {
-      "direction": "right",
-      "match_image_size": true,
-      "image1": ["120", 0],
-      "image2": ["91", 0]
-    },
-    "class_type": "ImageConcanate",
-    "_meta": {
-      "title": "Image Concatenate"
-    }
-  },
-  "146": {
-    "inputs": {
-      "filename_prefix": "./Flux/FluxIm2ImgCompare",
-      "images": ["145", 0]
-    },
-    "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
+    "class_type": "",
+    "_meta": {}
   },
   "160": {
-    "class_type": "LoadImageFromBase64",
     "inputs": {
       "image_data": "__MASK__"
     },
-    "_meta": {
-      "title": "Load Mask Image"
-    }
-  },
-  "161": {
-    "class_type": "LatentInpaint",
-    "inputs": {
-      "pixels": ["125", 0],
-      "vae": ["10", 0],
-      "mask": ["160", 0]
-    },
-    "_meta": {
-      "title": "Latent Inpaint"
-    }
+    "class_type": "",
+    "_meta": {}
   },
   "162": {
-    "class_type": "LatentSwitch",
     "inputs": {
       "condition": false,
       "input_true": ["161", 0],
       "input_false": ["126", 0]
     },
-    "_meta": {
-      "title": "Use Inpaint?"
-    }
+    "class_type": "",
+    "_meta": {}
   },
   "170": {
-    "class_type": "CLIPTextEncodeFlux",
     "inputs": {
       "clip_l": "",
       "t5xxl": "Second prompt goes here",
       "guidance": 3.5,
       "clip": ["11", 0]
     },
-    "_meta": {
-      "title": "Prompt B Encode"
-    }
+    "class_type": "",
+    "_meta": {}
   },
   "171": {
-    "class_type": "ConditioningAverage",
     "inputs": {
       "conditioning_1": ["29", 0],
       "conditioning_2": ["170", 0],
       "weight": 0.5
     },
-    "_meta": {
-      "title": "Blend Prompts"
-    }
+    "class_type": "",
+    "_meta": {}
   }
 }

@@ -1,4 +1,4 @@
-// server/api/comfy/test.post.ts
+// server/api/comfy/text.post.ts
 import { sendComfyPrompt } from '~/utils/comfy/sendComfyPrompt'
 
 export default defineEventHandler(async (event) => {

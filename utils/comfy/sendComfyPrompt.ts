@@ -46,6 +46,7 @@ export async function sendComfyPrompt({
   if (maskData) {
     graph['160'].inputs.image_data = `data:image/png;base64,${maskData}`
   }
+
   graph['162'].inputs.condition = useInpaint ?? false
   graph['170'].inputs.t5xxl = promptTextB || promptText
   graph['171'].inputs.weight = promptBlend ?? 0.5
@@ -56,10 +57,15 @@ export async function sendComfyPrompt({
   const ws = new WebSocket(resolvedWsUrl)
 
   return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      ws.close()
+      reject(new Error('Timed out waiting for queue confirmation'))
+    }, 30000)
+
     ws.onopen = () => {
       ws.send(
         JSON.stringify({
-          type: 'queue_prompt',
+          type: 'prompt', // ✅ correct type
           prompt_id,
           prompt: graph,
         }),
@@ -67,6 +73,7 @@ export async function sendComfyPrompt({
     }
 
     ws.onerror = (err) => {
+      clearTimeout(timeout)
       reject(err)
     }
 
@@ -78,6 +85,7 @@ export async function sendComfyPrompt({
           message.type === 'queue_prompt' &&
           message.data.prompt_id === prompt_id
         ) {
+          clearTimeout(timeout)
           ws.close()
           resolve({
             status: 'queued',
@@ -87,10 +95,12 @@ export async function sendComfyPrompt({
         }
 
         if (message.type === 'execution_error') {
+          clearTimeout(timeout)
           ws.close()
           reject(new Error(message.data.error || 'Execution error'))
         }
       } catch (err) {
+        clearTimeout(timeout)
         ws.close()
         reject(err)
       }

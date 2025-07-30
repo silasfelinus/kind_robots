@@ -13,6 +13,7 @@ export async function sendComfyPrompt({
   useInpaint,
   promptTextB,
   promptBlend,
+  wsUrl,
 }: {
   imageData: string
   promptText: string
@@ -25,12 +26,12 @@ export async function sendComfyPrompt({
   useInpaint?: boolean
   promptTextB?: string
   promptBlend?: number
+  wsUrl?: string
 }): Promise<any> {
   const graph = structuredClone(pipelineJson)
 
   // Dynamic value injection
   graph['120'].inputs.image_data = `data:image/png;base64,${imageData}`
-
   graph['29'].inputs.t5xxl = promptText
   graph['17'].inputs.denoise = denoise
   graph['91'].inputs.condition = useUpscale
@@ -42,12 +43,12 @@ export async function sendComfyPrompt({
     graph['160'].inputs.image_data = `data:image/png;base64,${maskData}`
   }
   graph['162'].inputs.condition = useInpaint ?? false
-
   graph['170'].inputs.t5xxl = promptTextB || promptText
   graph['171'].inputs.weight = promptBlend ?? 0.5
 
-  const wsUrl = process.env.COMFY_WS || 'ws://localhost:8188/ws'
-  const ws = new WebSocket(wsUrl)
+  const resolvedWsUrl =
+    wsUrl || process.env.COMFY_WS || 'ws://localhost:8188/ws'
+  const ws = new WebSocket(resolvedWsUrl)
 
   return await new Promise((resolve, reject) => {
     ws.onopen = () => {

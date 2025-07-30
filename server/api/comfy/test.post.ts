@@ -18,10 +18,10 @@ export default defineEventHandler(async (event) => {
     maskData,
   } = body
 
-  if (!prompt || !imageData) {
+  if (!prompt) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Missing prompt or image data.',
+      statusMessage: 'Missing prompt.',
     })
   }
 

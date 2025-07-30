@@ -27,7 +27,11 @@ export async function sendComfyPrompt({
   promptTextB?: string
   promptBlend?: number
   wsUrl?: string
-}): Promise<any> {
+}): Promise<{
+  status: 'queued'
+  jobId: string
+  queuePosition: number
+}> {
   const graph = structuredClone(pipelineJson)
 
   // Dynamic value injection
@@ -46,28 +50,49 @@ export async function sendComfyPrompt({
   graph['170'].inputs.t5xxl = promptTextB || promptText
   graph['171'].inputs.weight = promptBlend ?? 0.5
 
+  const prompt_id = `edit-${Date.now()}`
   const resolvedWsUrl =
     wsUrl || process.env.COMFY_WS || 'wss://localhost:8188/ws'
   const ws = new WebSocket(resolvedWsUrl)
 
-  return await new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     ws.onopen = () => {
       ws.send(
         JSON.stringify({
           type: 'queue_prompt',
-          prompt_id: `edit-${Date.now()}`,
+          prompt_id,
           prompt: graph,
         }),
       )
     }
 
-    ws.onerror = (err) => reject(err)
+    ws.onerror = (err) => {
+      reject(err)
+    }
 
     ws.onmessage = (event) => {
-      const message = JSON.parse(event.data)
-      if (message.type === 'executed') {
+      try {
+        const message = JSON.parse(event.data)
+
+        if (
+          message.type === 'queue_prompt' &&
+          message.data.prompt_id === prompt_id
+        ) {
+          ws.close()
+          resolve({
+            status: 'queued',
+            jobId: message.data.prompt_id,
+            queuePosition: message.data.number,
+          })
+        }
+
+        if (message.type === 'execution_error') {
+          ws.close()
+          reject(new Error(message.data.error || 'Execution error'))
+        }
+      } catch (err) {
         ws.close()
-        resolve(message)
+        reject(err)
       }
     }
   })

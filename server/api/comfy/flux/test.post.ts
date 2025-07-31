@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const comfyHttpUrl =
     body.apiUrl ||
-    process.env.COMFY_URL + '/prompt' ||
+    (process.env.COMFY_URL ? `${process.env.COMFY_URL}/prompt` : null) ||
     'http://192.168.4.3/prompt'
 
   const prompt_id = `httptest-${Date.now()}`

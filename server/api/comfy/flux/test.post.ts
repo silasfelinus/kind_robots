@@ -1,5 +1,6 @@
 // server/api/comfy/test.post.ts
 import { defineEventHandler, readBody } from 'h3'
+import baseGraph from '~/utils/comfy/test.json'
 
 export default defineEventHandler(async (event) => {
   const prompt_id = `testprompt-${Date.now()}`
@@ -9,56 +10,23 @@ export default defineEventHandler(async (event) => {
   console.log(`[TESTPROMPT] 🚀 Starting test for prompt_id: ${prompt_id}`)
   console.log(`[TESTPROMPT] 🌐 Connecting to WebSocket at: ${wsUrl}`)
 
-  const minimalGraph = {
-    '1': {
-      class_type: 'EmptyLatentImage',
-      inputs: {
-        width: body.width ?? 64,
-        height: body.height ?? 64,
-      },
-    },
-    '2': {
-      class_type: 'CheckpointLoaderSimple',
-      inputs: {
-        ckpt_name: body.ckpt_name || 'Flux/flux1-schnell-fp8.safetensors',
-      },
-    },
-    '6': {
-      class_type: 'CLIPTextEncode',
-      inputs: {
-        text: body.promptText || 'test prompt',
-        clip: ['2', 1],
-      },
-    },
-    '3': {
-      class_type: 'KSampler',
-      inputs: {
-        steps: 2,
-        cfg: body.cfg ?? 1,
-        seed: Math.floor(Math.random() * 1e18),
-        sampler_name: body.sampler_name || 'euler',
-        scheduler: body.scheduler || 'karras',
-        denoise: body.denoise ?? 1,
-        model: ['2', 0],
-        latent_image: ['1', 0],
-        positive: ['6', 0],
-        negative: ['6', 0],
-      },
-    },
-    '4': {
-      class_type: 'VAEDecode',
-      inputs: {
-        samples: ['3', 0],
-        vae: ['2', 2],
-      },
-    },
-    '5': {
-      class_type: 'SaveImage',
-      inputs: {
-        images: ['4', 0],
-      },
-    },
-  }
+  // Deep clone the base graph to allow overrides
+  const minimalGraph = structuredClone(baseGraph)
+
+  // Inject dynamic values
+  minimalGraph['1'].inputs.width = body.width ?? 64
+  minimalGraph['1'].inputs.height = body.height ?? 64
+  minimalGraph['2'].inputs.ckpt_name =
+    body.ckpt_name || 'Flux/flux1-schnell-fp8.safetensors'
+  minimalGraph['6'].inputs.text = body.promptText || 'test prompt'
+
+  const ksampler = minimalGraph['3'].inputs
+  ksampler.cfg = body.cfg ?? 1
+  ksampler.denoise = body.denoise ?? 1
+  ksampler.seed = Math.floor(Math.random() * 1e18)
+  ksampler.steps = body.steps ?? 2
+  ksampler.sampler_name = body.sampler_name || 'euler'
+  ksampler.scheduler = body.scheduler || 'karras'
 
   return await new Promise((resolve) => {
     const ws = new WebSocket(wsUrl)
@@ -80,7 +48,7 @@ export default defineEventHandler(async (event) => {
         JSON.stringify({
           type: 'prompt',
           prompt_id,
-          prompt: minimalGraph, // ✅ direct graph, no workflow
+          prompt: minimalGraph,
         }),
       )
     }
@@ -98,7 +66,6 @@ export default defineEventHandler(async (event) => {
           console.log(
             `[TESTPROMPT] ✅ Queued at position ${message.data.number}`,
           )
-          // do not close yet — wait for execution
         } else if (
           message.type === 'executed' &&
           message.data?.prompt_id === prompt_id

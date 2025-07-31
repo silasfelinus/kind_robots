@@ -46,5 +46,11 @@
     "inputs": {
       "images": ["4", 0]
     }
+  },
+  "7": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": ["4", 0]
+    }
   }
 }

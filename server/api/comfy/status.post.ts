@@ -1,61 +1,54 @@
 // server/api/comfy/status.post.ts
+import { defineEventHandler, getQuery } from 'h3'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const rawUrl = query?.url || process.env.COMFY_WS || 'wss://0.0.0.0:8188'
-  const comfyWsUrl = typeof rawUrl === 'string' ? rawUrl : String(rawUrl)
+  const promptId = query?.promptId
+  const baseUrl = query?.url || process.env.COMFY_HTTP || 'http://0.0.0.0'
 
-  return new Promise((resolve) => {
-    const ws = new WebSocket(comfyWsUrl)
-    const received: Record<string, any> = {}
+  if (!promptId || typeof promptId !== 'string') {
+    return {
+      success: false,
+      error: 'Missing or invalid promptId parameter.',
+    }
+  }
 
-    const timeout = setTimeout(() => {
-      ws.close()
-      resolve({
-        status: 'partial',
-        message: 'Timed out waiting for full response.',
-        wsUrl: comfyWsUrl,
-        queueRemaining:
-          received.status?.status?.exec_info?.queue_remaining ?? null,
-        gpuStats: received['crystools.monitor']?.gpus ?? null,
-        sessionId: received.status?.sid ?? null,
-      })
-    }, 3000)
+  const historyUrl = `${baseUrl}/history/${promptId}`
+  console.log(`[STATUS] 📥 Fetching prompt history from: ${historyUrl}`)
 
-    ws.onmessage = (event) => {
-      try {
-        const parsed = JSON.parse(event.data)
-        received[parsed.type] = parsed.data
-
-        if (received.status && received['crystools.monitor']) {
-          clearTimeout(timeout)
-          ws.close()
-          resolve({
-            status: 'ok',
-            wsUrl: comfyWsUrl,
-            queueRemaining:
-              received.status?.status?.exec_info?.queue_remaining ?? null,
-            gpuStats: received['crystools.monitor']?.gpus,
-            sessionId: received.status?.sid,
-          })
-        }
-      } catch {
-        clearTimeout(timeout)
-        ws.close()
-        resolve({
-          status: 'error',
-          message: 'Invalid JSON from WebSocket server.',
-          raw: event.data,
-        })
+  try {
+    const res = await fetch(historyUrl)
+    if (!res.ok) {
+      return {
+        success: false,
+        error: `HTTP ${res.status}: Failed to retrieve prompt status`,
       }
     }
 
-    ws.onerror = () => {
-      clearTimeout(timeout)
-      resolve({
-        status: 'error',
-        message: `WebSocket connection failed for ${comfyWsUrl}`,
-      })
+    const json = await res.json()
+    const promptData = json[promptId]
+
+    if (!promptData) {
+      return {
+        success: false,
+        error: 'Prompt ID not found in response.',
+      }
     }
-  })
+
+    return {
+      success: true,
+      promptId,
+      status: promptData.status?.status_str ?? 'unknown',
+      completed: promptData.status?.completed ?? false,
+      outputs: promptData.outputs ?? null,
+      messages: promptData.status?.messages ?? [],
+    }
+  } catch (err) {
+    console.error(`[STATUS] ❌ Failed to fetch status for ${promptId}:`, err)
+    return {
+      success: false,
+      error: 'Failed to fetch prompt status',
+      detail: (err as Error).message,
+    }
+  }
 })

@@ -18,9 +18,9 @@ export default defineEventHandler(async (event) => {
       },
     },
     '2': {
-      class_type: 'LoadCheckpoint',
+      class_type: 'CheckpointLoaderSimple',
       inputs: {
-        ckpt_name: body.ckpt_name || 'sd_xl_base_1.0.safetensors',
+        ckpt_name: body.ckpt_name || 'Flux/flux1-schnell-fp8.safetensors',
       },
     },
     '3': {
@@ -34,8 +34,11 @@ export default defineEventHandler(async (event) => {
         denoise: body.denoise ?? 1,
         model: ['2', 0],
         latent_image: ['1', 0],
+        positive: ['6', 0],
+        negative: ['6', 0],
       },
     },
+
     '4': {
       class_type: 'VAEDecode',
       inputs: {
@@ -46,6 +49,14 @@ export default defineEventHandler(async (event) => {
     '5': {
       class_type: 'SaveImage',
       inputs: { images: ['4', 0] },
+    },
+    '6': {
+      class_type: 'CLIPTextEncode',
+      inputs: {
+        text: body.promptText || 'test prompt',
+
+        clip: ['2', 1],
+      },
     },
   }
 

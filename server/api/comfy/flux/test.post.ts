@@ -6,13 +6,16 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const wsUrl = body.wsUrl || process.env.COMFY_WS || 'ws://127.0.0.1:8188/ws'
 
-  console.log(`[TESTPROMPT] Starting test for prompt_id: ${prompt_id}`)
-  console.log(`[TESTPROMPT] Connecting to WebSocket at: ${wsUrl}`)
+  console.log(`[TESTPROMPT] 🚀 Starting test for prompt_id: ${prompt_id}`)
+  console.log(`[TESTPROMPT] 🌐 Connecting to WebSocket at: ${wsUrl}`)
 
   const minimalGraph = {
     '1': {
       class_type: 'EmptyLatentImage',
-      inputs: { width: 64, height: 64 },
+      inputs: {
+        width: body.width ?? 64,
+        height: body.height ?? 64,
+      },
     },
     '2': {
       class_type: 'LoadCheckpoint',
@@ -46,16 +49,17 @@ export default defineEventHandler(async (event) => {
     },
   }
 
-  return await new Promise((resolve, reject) => {
+  return await new Promise((resolve) => {
     const ws = new WebSocket(wsUrl)
 
     const timeout = setTimeout(() => {
       console.error(`[TESTPROMPT] ❌ Timeout for prompt_id: ${prompt_id}`)
       ws.close()
-      reject({
+      resolve({
         success: false,
         promptId: prompt_id,
         error: 'Timeout: No response from ComfyUI',
+        debug: { wsUrl, graph: minimalGraph },
       })
     }, 15000)
 
@@ -73,10 +77,7 @@ export default defineEventHandler(async (event) => {
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data)
-        console.log(
-          `[TESTPROMPT] 📨 Received message for prompt_id ${prompt_id}:`,
-          message,
-        )
+        console.log(`[TESTPROMPT] 📨 Message for ${prompt_id}:`, message)
 
         if (
           message.type === 'queue_prompt' &&
@@ -85,7 +86,7 @@ export default defineEventHandler(async (event) => {
           clearTimeout(timeout)
           ws.close()
           console.log(
-            `[TESTPROMPT] ✅ Prompt queued at position ${message.data.number}`,
+            `[TESTPROMPT] ✅ Queued at position ${message.data.number}`,
           )
           resolve({
             success: true,
@@ -93,12 +94,14 @@ export default defineEventHandler(async (event) => {
             promptId: prompt_id,
             queuePosition: message.data.number,
           })
+        } else {
+          console.log(`[TESTPROMPT] ℹ️ Ignored message:`, message)
         }
       } catch (err) {
-        console.error(`[TESTPROMPT] ❌ Invalid message format:`, err)
+        console.error(`[TESTPROMPT] ❌ Bad JSON for ${prompt_id}:`, err)
         clearTimeout(timeout)
         ws.close()
-        reject({
+        resolve({
           success: false,
           promptId: prompt_id,
           error: 'Invalid JSON in response',
@@ -107,16 +110,17 @@ export default defineEventHandler(async (event) => {
     }
 
     ws.onerror = (err) => {
-      console.error(
-        `[TESTPROMPT] ❌ WebSocket error for prompt_id: ${prompt_id}`,
-        err,
-      )
+      console.error(`[TESTPROMPT] ❌ WebSocket error for ${prompt_id}:`, err)
       clearTimeout(timeout)
-      reject({ success: false, promptId: prompt_id, error: 'WebSocket error' })
+      resolve({
+        success: false,
+        promptId: prompt_id,
+        error: 'WebSocket error',
+      })
     }
 
     ws.onclose = () => {
-      console.log(`[TESTPROMPT] 🔌 WebSocket closed for prompt_id ${prompt_id}`)
+      console.log(`[TESTPROMPT] 🔌 Closed for ${prompt_id}`)
     }
   })
 })

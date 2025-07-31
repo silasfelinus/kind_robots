@@ -3,54 +3,52 @@ import { defineEventHandler } from 'h3'
 
 export default defineEventHandler(async () => {
   const wsUrl = process.env.COMFY_WS || 'ws://127.0.0.1:8188/ws'
-  const ws = new WebSocket(wsUrl)
+  const start = Date.now()
 
   return await new Promise((resolve) => {
+    const ws = new WebSocket(wsUrl)
+
     const timeout = setTimeout(() => {
-      console.error(`[CHECKPOINT] ❌ Timeout after 10s`)
       ws.close()
-      resolve({ success: false, error: 'Timeout querying model info' })
+      resolve({
+        success: false,
+        error: 'Timeout querying model info (no response in 10s)',
+        durationMs: Date.now() - start,
+      })
     }, 10000)
 
     ws.onopen = () => {
-      console.log(`[CHECKPOINT] ✅ Connected. Requesting object_info...`)
+      console.log(`[MODEL] ✅ Connected. Sending object_info...`)
       ws.send(JSON.stringify({ type: 'object_info' }))
     }
 
     ws.onmessage = (event) => {
       try {
-        const message = JSON.parse(event.data)
-        if (message?.type !== 'object_info') return
+        const msg = JSON.parse(event.data)
 
-        clearTimeout(timeout)
-        ws.close()
+        if (msg.type === 'object_info') {
+          clearTimeout(timeout)
+          ws.close()
 
-        const checkpoints = message?.data?.Checkpoints
-        if (!Array.isArray(checkpoints)) {
-          console.error(`[CHECKPOINT] ❌ Invalid model list format`, message)
-          return resolve({
-            success: false,
-            error: 'Invalid response format',
-            detail: message,
+          const checkpoints = msg.data?.Checkpoints ?? []
+          const current = checkpoints.find((c: any) => c.is_loaded)
+
+          resolve({
+            success: true,
+            current: current?.name || null,
+            all: checkpoints.map((c: any) => c.name),
+            durationMs: Date.now() - start,
           })
+        } else {
+          console.warn(`[MODEL] ⚠️ Ignored msg type: ${msg.type}`)
         }
-
-        const current = checkpoints.find((m) => m?.is_loaded)
-        console.log(`[CHECKPOINT] ✅ Current model: ${current?.name}`)
-
-        resolve({
-          success: true,
-          current: current?.name ?? null,
-          all: checkpoints.map((m) => m.name),
-        })
       } catch (err) {
         clearTimeout(timeout)
         ws.close()
-        console.error(`[CHECKPOINT] ❌ Failed to parse message`, err)
         resolve({
           success: false,
-          error: 'JSON parse error',
-          detail: err,
+          error: 'Failed to parse WebSocket message',
+          detail: err instanceof Error ? err.message : err,
         })
       }
     }
@@ -58,8 +56,15 @@ export default defineEventHandler(async () => {
     ws.onerror = (err) => {
       clearTimeout(timeout)
       ws.close()
-      console.error(`[CHECKPOINT] ❌ WebSocket error`, err)
-      resolve({ success: false, error: 'WebSocket error', detail: err })
+      resolve({
+        success: false,
+        error: 'WebSocket error',
+        detail: err,
+      })
+    }
+
+    ws.onclose = () => {
+      console.log(`[MODEL] 🔌 Connection closed`)
     }
   })
 })

@@ -4,7 +4,9 @@ import { defineEventHandler, readBody } from 'h3'
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const comfyHttpUrl =
-    body.apiUrl || process.env.COMFY_URL || 'http://192.168.4.3/prompt'
+    body.apiUrl ||
+    process.env.COMFY_URL + '/prompt' ||
+    'http://192.168.4.3/prompt'
 
   const prompt_id = `httptest-${Date.now()}`
   console.log(`[HTTPTEST] 🚀 Sending HTTP prompt with ID: ${prompt_id}`)

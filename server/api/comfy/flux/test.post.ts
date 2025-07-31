@@ -23,6 +23,13 @@ export default defineEventHandler(async (event) => {
         ckpt_name: body.ckpt_name || 'Flux/flux1-schnell-fp8.safetensors',
       },
     },
+    '6': {
+      class_type: 'CLIPTextEncode',
+      inputs: {
+        text: body.promptText || 'test prompt',
+        clip: ['2', 1],
+      },
+    },
     '3': {
       class_type: 'KSampler',
       inputs: {
@@ -38,7 +45,6 @@ export default defineEventHandler(async (event) => {
         negative: ['6', 0],
       },
     },
-
     '4': {
       class_type: 'VAEDecode',
       inputs: {
@@ -48,14 +54,8 @@ export default defineEventHandler(async (event) => {
     },
     '5': {
       class_type: 'SaveImage',
-      inputs: { images: ['4', 0] },
-    },
-    '6': {
-      class_type: 'CLIPTextEncode',
       inputs: {
-        text: body.promptText || 'test prompt',
-
-        clip: ['2', 1],
+        images: ['4', 0],
       },
     },
   }
@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
         JSON.stringify({
           type: 'prompt',
           prompt_id,
-          prompt: minimalGraph,
+          prompt: minimalGraph, // ✅ direct graph, no workflow
         }),
       )
     }
@@ -95,16 +95,10 @@ export default defineEventHandler(async (event) => {
           message.data?.prompt_id === prompt_id
         ) {
           clearTimeout(timeout)
-          ws.close()
           console.log(
             `[TESTPROMPT] ✅ Queued at position ${message.data.number}`,
           )
-          resolve({
-            success: true,
-            status: 'queued',
-            promptId: prompt_id,
-            queuePosition: message.data.number,
-          })
+          // do not close yet — wait for execution
         } else if (
           message.type === 'executed' &&
           message.data?.prompt_id === prompt_id
@@ -143,7 +137,7 @@ export default defineEventHandler(async (event) => {
     }
 
     ws.onclose = () => {
-      console.log(`[TESTPROMPT] 🔌 Closed for ${prompt_id}`)
+      console.log(`[TESTPROMPT] 🔌 WebSocket closed for ${prompt_id}`)
     }
   })
 })

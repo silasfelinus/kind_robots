@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
 
         if (
           message.type === 'queue_prompt' &&
-          message.data.prompt_id === prompt_id
+          message.data?.prompt_id === prompt_id
         ) {
           clearTimeout(timeout)
           ws.close()
@@ -93,6 +93,18 @@ export default defineEventHandler(async (event) => {
             status: 'queued',
             promptId: prompt_id,
             queuePosition: message.data.number,
+          })
+        } else if (
+          message.type === 'executed' &&
+          message.data?.prompt_id === prompt_id
+        ) {
+          clearTimeout(timeout)
+          ws.close()
+          console.log(`[TESTPROMPT] ✅ Prompt executed for ${prompt_id}`)
+          resolve({
+            success: true,
+            status: 'executed',
+            promptId: prompt_id,
           })
         } else {
           console.log(`[TESTPROMPT] ℹ️ Ignored message:`, message)

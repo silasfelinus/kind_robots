@@ -2,69 +2,33 @@
 import { defineEventHandler } from 'h3'
 
 export default defineEventHandler(async () => {
-  const wsUrl = process.env.COMFY_WS || 'ws://127.0.0.1:8188/ws'
+  const comfyUrl = process.env.COMFY_URL || 'http://127.0.0.1:8188'
   const start = Date.now()
 
-  return await new Promise((resolve) => {
-    const ws = new WebSocket(wsUrl)
+  try {
+    const response = await fetch(`${comfyUrl}/object_info`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'object_info' }),
+    })
 
-    const timeout = setTimeout(() => {
-      ws.close()
-      resolve({
-        success: false,
-        error: 'Timeout querying model info (no response in 10s)',
-        durationMs: Date.now() - start,
-      })
-    }, 10000)
+    const msg = await response.json()
 
-    ws.onopen = () => {
-      console.log(`[MODEL] ✅ Connected. Sending object_info...`)
-      ws.send(JSON.stringify({ type: 'object_info' }))
+    const checkpoints = msg.data?.Checkpoints ?? []
+    const current = checkpoints.find((c: any) => c.is_loaded)
+
+    return {
+      success: true,
+      current: current?.name || null,
+      all: checkpoints.map((c: any) => c.name),
+      durationMs: Date.now() - start,
     }
-
-    ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data)
-
-        if (msg.type === 'object_info') {
-          clearTimeout(timeout)
-          ws.close()
-
-          const checkpoints = msg.data?.Checkpoints ?? []
-          const current = checkpoints.find((c: any) => c.is_loaded)
-
-          resolve({
-            success: true,
-            current: current?.name || null,
-            all: checkpoints.map((c: any) => c.name),
-            durationMs: Date.now() - start,
-          })
-        } else {
-          console.warn(`[MODEL] ⚠️ Ignored msg type: ${msg.type}`)
-        }
-      } catch (err) {
-        clearTimeout(timeout)
-        ws.close()
-        resolve({
-          success: false,
-          error: 'Failed to parse WebSocket message',
-          detail: err instanceof Error ? err.message : err,
-        })
-      }
+  } catch (err) {
+    return {
+      success: false,
+      error: 'Failed to fetch model info via HTTP',
+      detail: err instanceof Error ? err.message : err,
+      durationMs: Date.now() - start,
     }
-
-    ws.onerror = (err) => {
-      clearTimeout(timeout)
-      ws.close()
-      resolve({
-        success: false,
-        error: 'WebSocket error',
-        detail: err,
-      })
-    }
-
-    ws.onclose = () => {
-      console.log(`[MODEL] 🔌 Connection closed`)
-    }
-  })
+  }
 })

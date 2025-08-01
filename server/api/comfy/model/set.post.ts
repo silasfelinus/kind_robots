@@ -2,9 +2,8 @@
 import { defineEventHandler, readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {
-  const wsUrl = process.env.COMFY_WS || 'ws://127.0.0.1:8188/ws'
   const { ckpt } = await readBody(event)
-  const prompt_id = `loadckpt-${Date.now()}`
+  const comfyUrl = process.env.COMFY_URL || 'http://127.0.0.1:8188'
 
   if (!ckpt || typeof ckpt !== 'string') {
     return {
@@ -12,6 +11,8 @@ export default defineEventHandler(async (event) => {
       error: 'Missing or invalid `ckpt` in request body',
     }
   }
+
+  const prompt_id = `loadckpt-${Date.now()}`
 
   const graph = {
     '1': {
@@ -22,90 +23,34 @@ export default defineEventHandler(async (event) => {
     },
   }
 
-  return await new Promise((resolve) => {
-    let wasQueued = false
-    const ws = new WebSocket(wsUrl)
+  try {
+    const res = await fetch(`${comfyUrl}/prompt`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: graph }),
+    })
 
-    const timeout = setTimeout(() => {
-      console.error(`[LOADCKPT] ❌ Timeout for ${prompt_id}`)
-      ws.close()
-      resolve({
-        success: false,
-        promptId: prompt_id,
-        wasQueued,
-        error: wasQueued
-          ? 'Timeout: Prompt was queued but never executed'
-          : 'Timeout: Prompt was never queued',
-        debug: { wsUrl, promptId: prompt_id, graph },
-      })
-    }, 15000)
+    const json = await res.json()
 
-    ws.onopen = () => {
-      console.log(
-        `[LOADCKPT] ✅ Connected. Sending checkpoint load for ${ckpt}`,
-      )
-      ws.send(
-        JSON.stringify({
-          type: 'prompt',
-          prompt_id,
-          prompt: graph,
-        }),
-      )
-    }
-
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data)
-        const type = message.type
-        const dataId = message.data?.prompt_id
-
-        if (type === 'queue_prompt' && dataId === prompt_id) {
-          wasQueued = true
-          console.log(`[LOADCKPT] ✅ Queued at position ${message.data.number}`)
-        } else if (type === 'executed' && dataId === prompt_id) {
-          clearTimeout(timeout)
-          ws.close()
-          console.log(`[LOADCKPT] ✅ Executed successfully for ${ckpt}`)
-          resolve({
-            success: true,
-            status: 'executed',
-            promptId: prompt_id,
-          })
-        } else if (type === 'execution_error' && dataId === prompt_id) {
-          clearTimeout(timeout)
-          ws.close()
-          console.error(`[LOADCKPT] ❌ Execution error: ${message.data.error}`)
-          resolve({
-            success: false,
-            promptId: prompt_id,
-            error: `Execution error: ${message.data.error}`,
-          })
-        }
-      } catch (err) {
-        clearTimeout(timeout)
-        ws.close()
-        console.error(`[LOADCKPT] ❌ Failed to parse WebSocket JSON`, err)
-        resolve({
-          success: false,
-          promptId: prompt_id,
-          error: 'JSON parse error from WebSocket',
-        })
+    if (json?.prompt_id) {
+      return {
+        success: true,
+        promptId: json.prompt_id,
+        queuePosition: json.number ?? null,
+        nodeErrors: json.node_errors ?? null,
       }
     }
 
-    ws.onerror = (err) => {
-      clearTimeout(timeout)
-      ws.close()
-      console.error(`[LOADCKPT] ❌ WebSocket error`, err)
-      resolve({
-        success: false,
-        promptId: prompt_id,
-        error: 'WebSocket connection error',
-      })
+    return {
+      success: false,
+      error: 'No prompt_id returned from server',
+      debug: json,
     }
-
-    ws.onclose = () => {
-      console.log(`[LOADCKPT] 🔌 WebSocket closed for prompt_id=${prompt_id}`)
+  } catch (err) {
+    return {
+      success: false,
+      error: 'Failed to submit checkpoint load request',
+      detail: (err as Error).message,
     }
-  })
+  }
 })

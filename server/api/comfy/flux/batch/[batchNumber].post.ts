@@ -5,9 +5,14 @@ import { defineEventHandler, readBody, getRouterParam } from 'h3'
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const batchNumber = parseInt(getRouterParam(event, 'batchNumber') || '1', 10)
-  const wsUrl = body.wsUrl || process.env.COMFY_WS || 'ws://192.168.4.3:8188/ws'
+  const comfyHttpUrl =
+    body.apiUrl ||
+    (process.env.COMFY_URL ? `${process.env.COMFY_URL}/prompt` : null) ||
+    'http://192.168.4.3/prompt'
 
-  console.log(`[FLUX-BATCH] Starting batch of ${batchNumber} to ${wsUrl}`)
+  console.log(
+    `[FLUX-BATCH] Starting batch of ${batchNumber} to ${comfyHttpUrl}`,
+  )
 
   const results = []
 
@@ -32,54 +37,35 @@ export default defineEventHandler(async (event) => {
       body.seed !== undefined ? body.seed + i : Math.floor(Math.random() * 1e18)
     graph['35'].inputs.guidance = body.guidance ?? 3.5
 
-    const result = await new Promise((resolve, reject) => {
-      const ws = new WebSocket(wsUrl)
-      const timeout = setTimeout(() => {
-        console.error(
-          `[FLUX-BATCH] Timeout waiting for prompt_id: ${prompt_id}`,
-        )
-        ws.close()
-        reject(new Error('Timeout while waiting for queue confirmation'))
-      }, 20000)
+    try {
+      const res = await fetch(comfyHttpUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: graph }),
+      })
 
-      ws.onopen = () => {
-        ws.send(JSON.stringify({ type: 'prompt', prompt_id, prompt: graph }))
+      const json = await res.json()
+
+      if (json?.prompt_id) {
+        results.push({
+          status: 'queued',
+          jobId: json.prompt_id,
+          queuePosition: json.number ?? null,
+          nodeErrors: json.node_errors ?? null,
+        })
+      } else {
+        results.push({
+          status: 'error',
+          error: 'No prompt_id in response',
+          debug: json,
+        })
       }
-
-      ws.onerror = (err) => {
-        clearTimeout(timeout)
-        ws.close()
-        reject(err)
-      }
-
-      ws.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data)
-          if (
-            message.type === 'queue_prompt' &&
-            message.data.prompt_id === prompt_id
-          ) {
-            clearTimeout(timeout)
-            ws.close()
-            resolve({
-              status: 'queued',
-              jobId: prompt_id,
-              queuePosition: message.data.number,
-            })
-          } else if (message.type === 'execution_error') {
-            clearTimeout(timeout)
-            ws.close()
-            reject(new Error(message.data.error || 'Execution error'))
-          }
-        } catch (err) {
-          clearTimeout(timeout)
-          ws.close()
-          reject(err)
-        }
-      }
-    })
-
-    results.push(result)
+    } catch (err) {
+      results.push({
+        status: 'error',
+        error: (err as Error).message,
+      })
+    }
   }
 
   return {

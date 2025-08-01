@@ -1,4 +1,4 @@
-// server/api/comfy/http-test.post.ts
+// server/api/comfy/flux/test.post.ts
 import { defineEventHandler, readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {

@@ -1,80 +1,80 @@
 // server/api/comfy/flux/text.post.ts
-import fluxSchnell from '~/utils/comfy/fluxSchnell.json'
 import { defineEventHandler, readBody } from 'h3'
+import fluxSchnell from '~/utils/comfy/fluxSchnell.json'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
+  const comfyHttpUrl =
+    body.apiUrl ||
+    (process.env.COMFY_URL ? `${process.env.COMFY_URL}/prompt` : null) ||
+    'http://192.168.4.3/prompt'
+
   const prompt_id = `flux-${Date.now()}`
-  const wsUrl = body.wsUrl || process.env.COMFY_WS || 'ws://192.168.4.3:8188/ws'
-  const ws = new WebSocket(wsUrl)
+  console.log(`[FLUX] 🚀 Sending FLUX prompt with ID: ${prompt_id}`)
 
-  console.log(`[FLUX] Connecting to WebSocket at: ${wsUrl}`)
-  console.log(`[FLUX] Using prompt_id: ${prompt_id}`)
+  try {
+    const graph = structuredClone(fluxSchnell)
 
-  return await new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      console.error(`[FLUX] Timeout after 20s waiting for queue confirmation`)
-      ws.close()
-      reject(new Error('Timeout while waiting for queue confirmation'))
-    }, 20000)
-
-    ws.onopen = () => {
-      console.log('[FLUX] WebSocket connection opened')
-      ws.send(
-        JSON.stringify({
-          type: 'prompt',
-          prompt_id,
-          prompt: fluxSchnell,
-        }),
-      )
-      console.log('[FLUX] Prompt sent to WebSocket')
+    // Inject values
+    if (body.promptText) {
+      graph['6'].inputs.text = body.promptText
+    }
+    if (body.negativePrompt !== undefined) {
+      graph['33'].inputs.text = body.negativePrompt
+    }
+    if (body.cfg !== undefined) {
+      graph['31'].inputs.cfg = body.cfg
+    }
+    if (body.denoise !== undefined) {
+      graph['31'].inputs.denoise = body.denoise
+    }
+    if (body.steps !== undefined) {
+      graph['31'].inputs.steps = body.steps
+    }
+    if (body.seed !== undefined) {
+      graph['31'].inputs.seed = body.seed
+    }
+    if (body.ckpt_name) {
+      graph['30'].inputs.ckpt_name = body.ckpt_name
+    }
+    if (body.width) {
+      graph['27'].inputs.width = body.width
+    }
+    if (body.height) {
+      graph['27'].inputs.height = body.height
     }
 
-    ws.onerror = (err) => {
-      console.error('[FLUX] WebSocket error:', err)
-      clearTimeout(timeout)
-      ws.close()
-      reject(err)
-    }
+    const res = await fetch(comfyHttpUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: graph }),
+    })
 
-    ws.onclose = (event) => {
-      console.log(
-        `[FLUX] WebSocket closed (code: ${event.code}, reason: ${event.reason})`,
-      )
-    }
+    const json = await res.json()
 
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data)
-        console.log('[FLUX] Message received from WebSocket:', message)
-
-        if (
-          message.type === 'queue_prompt' &&
-          message.data.prompt_id === prompt_id
-        ) {
-          console.log('[FLUX] Prompt accepted and queued')
-          clearTimeout(timeout)
-          ws.close()
-          resolve({
-            status: 'queued',
-            jobId: message.data.prompt_id,
-            queuePosition: message.data.number,
-          })
-        }
-
-        if (message.type === 'execution_error') {
-          console.error('[FLUX] Execution error:', message.data.error)
-          clearTimeout(timeout)
-          ws.close()
-          reject(new Error(message.data.error || 'Execution error'))
-        }
-      } catch (err) {
-        console.error('[FLUX] Error parsing WebSocket message:', err)
-        clearTimeout(timeout)
-        ws.close()
-        reject(err)
+    if (json?.prompt_id) {
+      console.log(`[FLUX] ✅ Queued prompt_id=${json.prompt_id}`)
+      return {
+        success: true,
+        promptId: json.prompt_id,
+        queuePosition: json.number ?? null,
+        nodeErrors: json.node_errors ?? null,
       }
     }
-  })
+
+    console.warn(`[FLUX] ⚠️ No prompt_id in response`)
+    return {
+      success: false,
+      error: 'No prompt_id in response',
+      debug: json,
+    }
+  } catch (err) {
+    console.error(`[FLUX] ❌ HTTP error submitting prompt`, err)
+    return {
+      success: false,
+      error: 'HTTP submission failed',
+      detail: (err as Error).message,
+    }
+  }
 })

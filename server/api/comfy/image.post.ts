@@ -9,18 +9,11 @@ export default defineEventHandler(async (event) => {
     const {
       prompt,
       imageData,
-      promptTextB,
-      promptBlend,
       denoise = 0.95,
       strength = 0.6,
       width = 768,
       height = 1024,
-      useUpscale = false,
-      useInpaint = false,
-      maskData,
       steps = 25,
-      seed,
-      cfg = 8,
       scheduler = 'sgm_uniform',
     } = body
 
@@ -31,35 +24,23 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const fallbackImage =
-      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQI12NgYGBgAAAABQABDQottgAAAABJRU5ErkJggg=='
-
-    const actualImage = imageData || fallbackImage
     const graph: Record<string, any> = structuredClone(fluxImage)
 
-    graph['120'].inputs.image_data = actualImage
+    // Inject base64 image
+    graph['120'].inputs.image_data = imageData
+
+    // Prompt and guidance
     graph['29'].inputs.t5xxl = prompt
-    graph['170'].inputs.t5xxl = promptTextB || prompt
-    graph['171'].inputs.strength = promptBlend ?? 0.5
 
-    graph['17'].inputs.denoise = denoise
-    graph['17'].inputs.steps = steps
-    graph['17'].inputs.scheduler = scheduler
-
-    graph['3'] = graph['3'] || { inputs: {} }
-    graph['3'].inputs.seed = seed ?? Math.floor(Math.random() * 1e18)
-    graph['3'].inputs.cfg = cfg
-
+    // Size and generation settings
     graph['125'].inputs.width = width
     graph['125'].inputs.height = height
     graph['135'].inputs.strength = strength
 
-    graph['91'].inputs.condition = useUpscale
-    graph['162'].inputs.condition = useInpaint ?? false
-
-    if (maskData) {
-      graph['160'].inputs.image_data = maskData
-    }
+    // Sampler config
+    graph['17'].inputs.denoise = denoise
+    graph['17'].inputs.steps = steps
+    graph['17'].inputs.scheduler = scheduler
 
     const prompt_id = `edit-${Date.now()}`
     const resolvedWsUrl = process.env.COMFY_WS || 'ws://127.0.0.1:8188/ws'

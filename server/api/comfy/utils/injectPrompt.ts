@@ -1,10 +1,13 @@
-import type { ModelType } from './types'
+import type { ModelType } from '..'
 
-export function applyPrompt(graph: any, {
-  modelType,
-  prompt,
-  promptB
-}: { modelType: ModelType, prompt: string, promptB?: string }) {
+export function applyPrompt(
+  graph: any,
+  {
+    modelType,
+    prompt,
+    promptB,
+  }: { modelType: ModelType; prompt: string; promptB?: string },
+) {
   if (modelType === 'flux') {
     // CLIPTextEncodeFlux (Primary Prompt)
     if (graph['29']) {

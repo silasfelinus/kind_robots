@@ -52,6 +52,7 @@ export default defineEventHandler(async (event) => {
       nodeErrors: entry.node_errors || {},
       meta: entry.meta || {},
       messages: statusMessages,
+      prompt: entry.prompt || null,
     }
   } catch (err) {
     return {

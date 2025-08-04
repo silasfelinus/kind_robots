@@ -1,0 +1,17 @@
+{
+  "1": {
+    "class_type": "VAEEncode",
+    "inputs": {
+      "pixels": ["0", 0],
+      "vae": ["0", 1]
+    }
+  },
+  "2": {
+    "class_type": "ImageResizeKJ",
+    "inputs": {
+      "width": 2048,
+      "height": 2048,
+      "upscale_method": "nearest-exact"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "1": {
+    "class_type": "CLIPTextEncodeFlux",
+    "inputs": {
+      "t5xxl": "Fashion model wearing a futuristic cloak",
+      "clip": ["0", 0]
+    }
+  }
+}

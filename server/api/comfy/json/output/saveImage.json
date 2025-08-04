@@ -1,0 +1,15 @@
+{
+  "1": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "ComfyOutput",
+      "images": ["0", 0]
+    }
+  },
+  "2": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": ["0", 0]
+    }
+  }
+}

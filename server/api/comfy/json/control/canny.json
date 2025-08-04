@@ -1,0 +1,10 @@
+{
+  "1": {
+    "class_type": "Canny",
+    "inputs": {
+      "image": ["0", 0],
+      "low_threshold": 0.4,
+      "high_threshold": 0.8
+    }
+  }
+}

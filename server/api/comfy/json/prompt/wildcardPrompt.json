@@ -1,0 +1,13 @@
+{
+  "1": {
+    "class_type": "ImpactWildcardEncode",
+    "inputs": {
+      "wildcard_text": "A robot playing chess",
+      "populated_text": "A robot playing chess",
+      "mode": "populate",
+      "seed": 1234567890,
+      "model": ["0", 0],
+      "clip": ["0", 1]
+    }
+  }
+}

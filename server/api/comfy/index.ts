@@ -1,8 +1,7 @@
 // /server/api/comfy/index.ts
 
-import fluxPipeline from './test/fluxPipeline.json'
-import fluxSchnell from './test/fluxSchnell.json'
-import sd3Schnell from './test/sd3Schnell.json'
+import fluxPipeline from './json/fluxImage.json'
+import sd3Schnell from './json/sd3Schnell.json'
 
 // ---- Types ----
 export type ModelType = 'flux' | 'sdxl'
@@ -29,11 +28,14 @@ export interface BuildGraphInput {
 
 // ---- Graph Modifiers ----
 
-function applyPrompt(graph: any, {
-  modelType,
-  prompt,
-  promptB
-}: { modelType: ModelType, prompt: string, promptB?: string }) {
+function applyPrompt(
+  graph: any,
+  {
+    modelType,
+    prompt,
+    promptB,
+  }: { modelType: ModelType; prompt: string; promptB?: string },
+) {
   if (modelType === 'flux') {
     if (graph['29']) graph['29'].inputs.t5xxl = prompt
     if (promptB && graph['170']) graph['170'].inputs.t5xxl = promptB
@@ -49,8 +51,11 @@ function applyImage(graph: any, imageData: string) {
 }
 
 function applyMask(graph: any, maskData: string) {
-  const maskKey = findNodeByType(graph, 'LoadMaskImage') || findNodeByType(graph, 'LoadImageFromBase64')
-  if (maskKey) graph[maskKey].inputs.image_data = `data:image/png;base64,${maskData}`
+  const maskKey =
+    findNodeByType(graph, 'LoadMaskImage') ||
+    findNodeByType(graph, 'LoadImageFromBase64')
+  if (maskKey)
+    graph[maskKey].inputs.image_data = `data:image/png;base64,${maskData}`
 
   const switchKey = findNodeByType(graph, 'Image Input Switch')
   if (switchKey) graph[switchKey].inputs.condition = true
@@ -59,7 +64,8 @@ function applyMask(graph: any, maskData: string) {
 function applyControlNet(graph: any, controlType: ControlType) {
   const controlKey = findNodeByType(graph, 'ControlNetApplyAdvanced')
   const preprocessorKey = findControlPreprocessor(graph, controlType)
-  if (controlKey && preprocessorKey) graph[controlKey].inputs.image = [preprocessorKey, 0]
+  if (controlKey && preprocessorKey)
+    graph[controlKey].inputs.image = [preprocessorKey, 0]
 }
 
 function applyUpscale(graph: any) {
@@ -68,7 +74,9 @@ function applyUpscale(graph: any) {
 }
 
 function applyLora(graph: any, loraName: string) {
-  const loraKey = findNodeByType(graph, 'ImpactWildcardEncode') || findNodeByType(graph, 'CLIPTextEncode')
+  const loraKey =
+    findNodeByType(graph, 'ImpactWildcardEncode') ||
+    findNodeByType(graph, 'CLIPTextEncode')
   if (loraKey) graph[loraKey].inputs['Select to add LoRA'] = loraName
 }
 
@@ -79,10 +87,13 @@ function saveImage(graph: any) {
 }
 
 function findNodeByType(graph: any, type: string): string | undefined {
-  return Object.keys(graph).find(key => graph[key].class_type === type)
+  return Object.keys(graph).find((key) => graph[key].class_type === type)
 }
 
-function findControlPreprocessor(graph: any, controlType: ControlType): string | undefined {
+function findControlPreprocessor(
+  graph: any,
+  controlType: ControlType,
+): string | undefined {
   const map = {
     depth: 'Midas',
     scribble: 'ScribblePreprocessor',
@@ -96,9 +107,22 @@ function findControlPreprocessor(graph: any, controlType: ControlType): string |
 
 export async function buildGraph(input: BuildGraphInput): Promise<any> {
   const {
-    modelType, prompt, promptB, imageData, maskData,
-    controlType, loraName, useInpaint, useOutpaint,
-    useUpscale, useMorph, denoise, strength, width, height, seed
+    modelType,
+    prompt,
+    promptB,
+    imageData,
+    maskData,
+    controlType,
+    loraName,
+    useInpaint,
+    useOutpaint,
+    useUpscale,
+    useMorph,
+    denoise,
+    strength,
+    width,
+    height,
+    seed,
   } = input
 
   let graph = structuredClone(getBasePipeline(modelType))

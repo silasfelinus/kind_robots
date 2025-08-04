@@ -1,0 +1,15 @@
+{
+  "1": {
+    "class_type": "ControlNetApplyAdvanced",
+    "inputs": {
+      "strength": 0.6,
+      "start_percent": 0,
+      "end_percent": 1,
+      "positive": ["0", 0],
+      "negative": ["0", 1],
+      "control_net": ["0", 2],
+      "image": ["0", 3],
+      "vae": ["0", 4]
+    }
+  }
+}

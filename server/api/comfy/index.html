@@ -1,10 +1,10 @@
-// api/comfy/index.ts
+// /server/api/comfy/index.ts
 
+import fluxPipeline from './test/fluxPipeline.json'
+import fluxSchnell from './test/fluxSchnell.json'
+import sd3Schnell from './test/sd3Schnell.json'
 
-import fluxPipeline from '../utils/test/fluxPipeline.json'
-import fluxSchnell from '../utils/test/fluxSchnell.json'
-import sd3Schnell from '../utils/test/sd3Schnell.json'
-
+// ---- Types ----
 export type ModelType = 'flux' | 'sdxl'
 export type ControlType = 'depth' | 'scribble' | 'canny' | 'custom'
 
@@ -27,7 +27,7 @@ export interface BuildGraphInput {
   seed?: number
 }
 
-// --- Internal graph modifiers ---
+// ---- Graph Modifiers ----
 
 function applyPrompt(graph: any, {
   modelType,
@@ -92,7 +92,7 @@ function findControlPreprocessor(graph: any, controlType: ControlType): string |
   return findNodeByType(graph, map[controlType])
 }
 
-// --- Main build function ---
+// ---- Main Builder ----
 
 export async function buildGraph(input: BuildGraphInput): Promise<any> {
   const {
@@ -111,7 +111,7 @@ export async function buildGraph(input: BuildGraphInput): Promise<any> {
   if (modelType === 'sdxl' && loraName) applyLora(graph, loraName)
   if (useUpscale) applyUpscale(graph)
   if (useMorph) {
-    // You can implement morph logic here when needed
+    // placeholder for morph logic
   }
 
   saveImage(graph)

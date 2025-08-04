@@ -1,0 +1,9 @@
+{
+  "1": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "Your prompt here",
+      "clip": ["0", 1]
+    }
+  }
+}

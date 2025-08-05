@@ -1,9 +1,12 @@
 // /server/api/comfy/index.ts
 
-import fluxPipeline from './json/fluxImage.json'
-import sd3Schnell from './json/sd3Schnell.json'
+import { defineEventHandler, readBody, getQuery } from 'h3'
+import { pipelines } from './pipelines'
+import { applyPrompt } from './modifiers/prompt'
+import { applyInpaint } from './modifiers/inpaint'
+import { applyControlNet } from './modifiers/controlnet'
+import { applyUpscale } from './modifiers/upscale'
 
-// ---- Types ----
 export type ModelType = 'flux' | 'sdxl'
 export type ControlType = 'depth' | 'scribble' | 'canny' | 'custom'
 
@@ -26,86 +29,26 @@ export interface BuildGraphInput {
   seed?: number
 }
 
-// ---- Graph Modifiers ----
+// ---- Main API Route ----
 
-function applyPrompt(
-  graph: any,
-  {
-    modelType,
-    prompt,
-    promptB,
-  }: { modelType: ModelType; prompt: string; promptB?: string },
-) {
-  if (modelType === 'flux') {
-    if (graph['29']) graph['29'].inputs.t5xxl = prompt
-    if (promptB && graph['170']) graph['170'].inputs.t5xxl = promptB
-  } else {
-    if (graph['6']) graph['6'].inputs.text = prompt
-    if (promptB && graph['33']) graph['33'].inputs.text = promptB
+export default defineEventHandler(async (event) => {
+  const method = event.method
+  const query = getQuery(event)
+
+  if (method === 'GET' && query.status) return await fetchStatus()
+  if (method === 'GET' && query.models) return Object.keys(pipelines)
+
+  if (method === 'POST') {
+    const input = await readBody<BuildGraphInput>(event)
+    return await buildGraph(input)
   }
-}
 
-function applyImage(graph: any, imageData: string) {
-  const key = findNodeByType(graph, 'LoadImageFromBase64')
-  if (key) graph[key].inputs.image_data = `data:image/png;base64,${imageData}`
-}
+  return { error: 'Invalid method or query' }
+})
 
-function applyMask(graph: any, maskData: string) {
-  const maskKey =
-    findNodeByType(graph, 'LoadMaskImage') ||
-    findNodeByType(graph, 'LoadImageFromBase64')
-  if (maskKey)
-    graph[maskKey].inputs.image_data = `data:image/png;base64,${maskData}`
+// ---- Pipeline Assembly ----
 
-  const switchKey = findNodeByType(graph, 'Image Input Switch')
-  if (switchKey) graph[switchKey].inputs.condition = true
-}
-
-function applyControlNet(graph: any, controlType: ControlType) {
-  const controlKey = findNodeByType(graph, 'ControlNetApplyAdvanced')
-  const preprocessorKey = findControlPreprocessor(graph, controlType)
-  if (controlKey && preprocessorKey)
-    graph[controlKey].inputs.image = [preprocessorKey, 0]
-}
-
-function applyUpscale(graph: any) {
-  const switchKey = findNodeByType(graph, 'Conditioning Input Switch')
-  if (switchKey) graph[switchKey].inputs.condition = true
-}
-
-function applyLora(graph: any, loraName: string) {
-  const loraKey =
-    findNodeByType(graph, 'ImpactWildcardEncode') ||
-    findNodeByType(graph, 'CLIPTextEncode')
-  if (loraKey) graph[loraKey].inputs['Select to add LoRA'] = loraName
-}
-
-function saveImage(graph: any) {
-  const saveKey = findNodeByType(graph, 'SaveImage')
-  if (saveKey && !graph[saveKey].inputs.filename_prefix)
-    graph[saveKey].inputs.filename_prefix = 'ComfyOutput'
-}
-
-function findNodeByType(graph: any, type: string): string | undefined {
-  return Object.keys(graph).find((key) => graph[key].class_type === type)
-}
-
-function findControlPreprocessor(
-  graph: any,
-  controlType: ControlType,
-): string | undefined {
-  const map = {
-    depth: 'Midas',
-    scribble: 'ScribblePreprocessor',
-    canny: 'Canny',
-    custom: 'ControlPreprocessorCustom',
-  }
-  return findNodeByType(graph, map[controlType])
-}
-
-// ---- Main Builder ----
-
-export async function buildGraph(input: BuildGraphInput): Promise<any> {
+async function buildGraph(input: BuildGraphInput): Promise<any> {
   const {
     modelType,
     prompt,
@@ -125,30 +68,29 @@ export async function buildGraph(input: BuildGraphInput): Promise<any> {
     seed,
   } = input
 
-  let graph = structuredClone(getBasePipeline(modelType))
+  const base = pipelines[modelType]
+  if (!base) throw new Error(`Unknown model type: ${modelType}`)
+
+  const graph = structuredClone(base)
 
   applyPrompt(graph, { modelType, prompt, promptB })
 
-  if (imageData) applyImage(graph, imageData)
-  if (useInpaint && maskData) applyMask(graph, maskData)
+  if (imageData)
+    graph['120'].inputs.image_data = `data:image/png;base64,${imageData}`
+  if (useInpaint && maskData) applyInpaint(graph, maskData)
   if (controlType) applyControlNet(graph, controlType)
-  if (modelType === 'sdxl' && loraName) applyLora(graph, loraName)
   if (useUpscale) applyUpscale(graph)
-  if (useMorph) {
-    // placeholder for morph logic
-  }
 
-  saveImage(graph)
   return graph
 }
 
-function getBasePipeline(modelType: ModelType): any {
-  switch (modelType) {
-    case 'flux':
-      return fluxPipeline
-    case 'sdxl':
-      return sd3Schnell
-    default:
-      throw new Error('Unknown model type')
+// ---- Status ----
+
+async function fetchStatus(): Promise<any> {
+  try {
+    const res = await $fetch('http://localhost:8188/status')
+    return res
+  } catch (err) {
+    return { error: 'Failed to fetch status', details: err }
   }
 }

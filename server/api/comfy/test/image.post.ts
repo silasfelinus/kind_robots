@@ -1,5 +1,5 @@
 // server/api/comfy/image.post.ts
-import fluxImage from '../../json/fluxImage.json'
+import fluxImage from '../../comfybak/json/fluxImage.json'
 import { defineEventHandler, readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {

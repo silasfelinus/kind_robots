@@ -1,6 +1,6 @@
 // server/api/comfy/flux/text.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import fluxSchnell from '../../json/fluxSchnell.json'
+import fluxSchnell from '../../comfybak/json/fluxSchnell.json'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)

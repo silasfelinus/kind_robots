@@ -1,5 +1,5 @@
 // server/api/comfy/flux/schnell.post.ts
-import sd3Schnell from '../../json/sd3Schnell.json'
+import sd3Schnell from '../../comfybak/json/sd3Schnell.json'
 import { defineEventHandler, readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {

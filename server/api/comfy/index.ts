@@ -2,10 +2,14 @@
 
 import { defineEventHandler, readBody, getQuery } from 'h3'
 import { pipelines } from './pipelines'
-import { applyPrompt } from './modifiers/prompt'
-import { applyInpaint } from './modifiers/inpaint'
-import { applyControlNet } from './modifiers/controlnet'
-import { applyUpscale } from './modifiers/upscale'
+
+// Modifier functions
+import prompt from './modifiers/prompt'
+import inpaint from './modifiers/inpaint'
+import controlnet from './modifiers/controlnet'
+import upscale from './modifiers/upscale'
+import outpaint from './modifiers/outpaint'
+import morph from './modifiers/morph'
 
 export type ModelType = 'flux' | 'sdxl'
 export type ControlType = 'depth' | 'scribble' | 'canny' | 'custom'
@@ -14,6 +18,7 @@ export interface BuildGraphInput {
   modelType: ModelType
   prompt: string
   promptB?: string
+  promptBlend?: number
   imageData?: string // base64
   maskData?: string // base64
   controlType?: ControlType
@@ -49,37 +54,24 @@ export default defineEventHandler(async (event) => {
 // ---- Pipeline Assembly ----
 
 async function buildGraph(input: BuildGraphInput): Promise<any> {
-  const {
-    modelType,
-    prompt,
-    promptB,
-    imageData,
-    maskData,
-    controlType,
-    loraName,
-    useInpaint,
-    useOutpaint,
-    useUpscale,
-    useMorph,
-    denoise,
-    strength,
-    width,
-    height,
-    seed,
-  } = input
-
-  const base = pipelines[modelType]
-  if (!base) throw new Error(`Unknown model type: ${modelType}`)
+  const base = pipelines[input.modelType]
+  if (!base) throw new Error(`Unknown model type: ${input.modelType}`)
 
   const graph = structuredClone(base)
 
-  applyPrompt(graph, { modelType, prompt, promptB })
+  // Required: prompt
+  prompt(graph, input)
 
-  if (imageData)
-    graph['120'].inputs.image_data = `data:image/png;base64,${imageData}`
-  if (useInpaint && maskData) applyInpaint(graph, maskData)
-  if (controlType) applyControlNet(graph, controlType)
-  if (useUpscale) applyUpscale(graph)
+  // Optional: image
+  if (input.imageData)
+    graph['120'].inputs.image_data = `data:image/png;base64,${input.imageData}`
+
+  // Optional features
+  if (input.useInpaint && input.maskData) inpaint(graph, input)
+  if (input.controlType) controlnet(graph, input)
+  if (input.useUpscale) upscale(graph, input)
+  if (input.useOutpaint) outpaint(graph, input)
+  if (input.useMorph) morph(graph, input)
 
   return graph
 }
@@ -88,8 +80,7 @@ async function buildGraph(input: BuildGraphInput): Promise<any> {
 
 async function fetchStatus(): Promise<any> {
   try {
-    const res = await $fetch('http://localhost:8188/status')
-    return res
+    return await $fetch('http://localhost:8188/status')
   } catch (err) {
     return { error: 'Failed to fetch status', details: err }
   }

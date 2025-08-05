@@ -3,29 +3,26 @@
 import { defineStore } from 'pinia'
 import { reactive, toRefs } from 'vue'
 import { performFetch, handleError } from './utils'
-import { useUserStore } from './userStore'
+import { v4 as uuid } from 'uuid'
+
+type ModifierType = 'inpaint' | 'outpaint' | 'upscale' | 'morph'
+
+interface ModifierStep {
+  id: string
+  type: ModifierType
+  config: Record<string, any>
+}
 
 interface ComfyStoreState {
   loading: boolean
   error: string
   graphOutput: string | null
+  inputType: 'text' | 'image'
   prompt: string
-  promptB?: string
-  promptBlend?: number
-  imageData?: string
-  maskData?: string
-  modelType: 'flux' | 'sdxl'
-  controlType?: 'canny' | 'scribble' | 'depth' | 'custom'
-  denoise?: number
-  strength?: number
-  width?: number
-  height?: number
-  seed?: number
-  useInpaint: boolean
-  useOutpaint: boolean
-  useUpscale: boolean
-  useMorph: boolean
-  lastSubmittedGraph?: any
+  imageData: string
+  checkpoint: string
+  modifierSteps: ModifierStep[]
+  graphResult: any
   isInitialized: boolean
 }
 
@@ -36,101 +33,101 @@ export const useComfyStore = defineStore('comfyStore', () => {
     loading: false,
     error: '',
     graphOutput: null,
+    inputType: 'text',
     prompt: '',
-    promptB: '',
-    promptBlend: 0.5,
     imageData: '',
-    maskData: '',
-    modelType: 'flux',
-    controlType: undefined,
-    denoise: 1,
-    strength: 0.65,
-    width: 768,
-    height: 1024,
-    seed: undefined,
-    useInpaint: false,
-    useOutpaint: false,
-    useUpscale: false,
-    useMorph: false,
-    lastSubmittedGraph: undefined,
+    checkpoint: 'flux',
+    modifierSteps: [],
+    graphResult: null,
     isInitialized: false,
   })
 
   function initialize() {
     if (state.isInitialized || !isClient) return
     try {
-      const saved = localStorage.getItem('comfyInputs')
+      const saved = localStorage.getItem('comfyBlueprint')
       if (saved) {
         Object.assign(state, JSON.parse(saved))
       }
-    } catch (error) {
-      handleError(error, 'initializing comfyStore')
+    } catch (e) {
+      handleError(e, 'loading comfy blueprint')
     }
     state.isInitialized = true
   }
 
-  function persistInputs() {
+  function persist() {
     if (!isClient) return
     try {
-      localStorage.setItem('comfyInputs', JSON.stringify({ ...state }))
-    } catch (error) {
-      handleError(error, 'saving comfy inputs')
+      localStorage.setItem('comfyBlueprint', JSON.stringify({ ...state }))
+    } catch (e) {
+      handleError(e, 'saving comfy blueprint')
     }
   }
 
   function setPrompt(prompt: string) {
     state.prompt = prompt
-    persistInputs()
-  }
-
-  function setPromptB(promptB: string, blend = 0.5) {
-    state.promptB = promptB
-    state.promptBlend = blend
-    persistInputs()
+    persist()
   }
 
   function setImage(base64: string) {
     state.imageData = base64
-    persistInputs()
+    persist()
   }
 
-  function setMask(base64: string) {
-    state.maskData = base64
-    persistInputs()
+  function setInputType(type: 'text' | 'image') {
+    state.inputType = type
+    persist()
   }
 
-  function toggleInpaint(value = true) {
-    state.useInpaint = value
-    persistInputs()
+  function setCheckpoint(name: string) {
+    state.checkpoint = name
+    persist()
   }
 
-  function toggleUpscale(value = true) {
-    state.useUpscale = value
-    persistInputs()
+  function addStep(type: ModifierType) {
+    state.modifierSteps.push({
+      id: uuid(),
+      type,
+      config: {}
+    })
+    persist()
   }
 
-  function toggleOutpaint(value = true) {
-    state.useOutpaint = value
-    persistInputs()
+  function removeStep(id: string) {
+    state.modifierSteps = state.modifierSteps.filter(s => s.id !== id)
+    persist()
   }
 
-  function toggleMorph(value = true) {
-    state.useMorph = value
-    persistInputs()
+  function moveStepUp(index: number) {
+    if (index <= 0) return
+    const temp = state.modifierSteps[index]
+    state.modifierSteps[index] = state.modifierSteps[index - 1]
+    state.modifierSteps[index - 1] = temp
+    persist()
   }
 
-  function resetInputs() {
+  function moveStepDown(index: number) {
+    if (index >= state.modifierSteps.length - 1) return
+    const temp = state.modifierSteps[index]
+    state.modifierSteps[index] = state.modifierSteps[index + 1]
+    state.modifierSteps[index + 1] = temp
+    persist()
+  }
+
+  function updateStepConfig(id: string, config: Record<string, any>) {
+    const step = state.modifierSteps.find(s => s.id === id)
+    if (step) {
+      step.config = config
+      persist()
+    }
+  }
+
+  function reset() {
     state.prompt = ''
-    state.promptB = ''
-    state.promptBlend = 0.5
     state.imageData = ''
-    state.maskData = ''
-    state.controlType = undefined
-    state.useInpaint = false
-    state.useOutpaint = false
-    state.useUpscale = false
-    state.useMorph = false
-    persistInputs()
+    state.checkpoint = 'flux'
+    state.modifierSteps = []
+    persist()
   }
 
   async function fetchStatus() {
@@ -152,49 +149,35 @@ export const useComfyStore = defineStore('comfyStore', () => {
     }
   }
 
-  async function submitGraph() {
+  async function submitBlueprint() {
     state.loading = true
     state.error = ''
     state.graphOutput = null
 
     try {
-      const userStore = useUserStore()
-
       const payload = {
-        modelType: state.modelType,
+        inputType: state.inputType,
         prompt: state.prompt,
-        promptB: state.promptB,
-        promptBlend: state.promptBlend,
         imageData: state.imageData,
-        maskData: state.maskData,
-        controlType: state.controlType,
-        useInpaint: state.useInpaint,
-        useOutpaint: state.useOutpaint,
-        useUpscale: state.useUpscale,
-        useMorph: state.useMorph,
-        denoise: state.denoise,
-        strength: state.strength,
-        width: state.width,
-        height: state.height,
-        seed: state.seed ?? Math.floor(Math.random() * 1e15),
+        checkpoint: state.checkpoint,
+        steps: state.modifierSteps
       }
 
       const response = await performFetch('/api/comfy', {
         method: 'POST',
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload)
       })
 
       if (!response.success || !response.data) {
         throw new Error(response.message)
       }
 
-      state.lastSubmittedGraph = response.data
+      state.graphResult = response.data
       state.graphOutput = response.data.output || null
-
-      persistInputs()
-      return { success: true, graph: response.data }
+      persist()
+      return { success: true }
     } catch (error) {
-      handleError(error, 'submitting comfy graph')
+      handleError(error, 'submitting comfy blueprint')
       state.error = error instanceof Error ? error.message : 'Unknown error'
       return { success: false, message: state.error }
     } finally {
@@ -206,17 +189,18 @@ export const useComfyStore = defineStore('comfyStore', () => {
     ...toRefs(state),
     initialize,
     setPrompt,
-    setPromptB,
     setImage,
-    setMask,
-    toggleInpaint,
-    toggleUpscale,
-    toggleOutpaint,
-    toggleMorph,
-    resetInputs,
+    setInputType,
+    setCheckpoint,
+    addStep,
+    removeStep,
+    moveStepUp,
+    moveStepDown,
+    updateStepConfig,
     fetchStatus,
     fetchModels,
-    submitGraph,
-    persistInputs,
+    submitBlueprint,
+    reset,
+    persist,
   }
 })

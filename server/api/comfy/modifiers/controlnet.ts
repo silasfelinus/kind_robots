@@ -1,30 +1,24 @@
-// /server/api/comfy/modifiers/controlnet.ts
+import type { BuildGraphInput } from '../index'
 
-import type { ControlType } from '../index'
+export default function controlnet(graph: any, input: BuildGraphInput) {
+  if (!input.controlType) return
 
-export function applyControlNet(graph: any, controlType: ControlType) {
-  const controlKey = findNodeByType(graph, 'ControlNetApplyAdvanced')
-  const preprocessorKey = findPreprocessorNode(graph, controlType)
-
-  if (controlKey && preprocessorKey) {
-    graph[controlKey].inputs.image = [preprocessorKey, 0]
+  // Adjust the loader or image type depending on control type
+  // Example below assumes canny is default, modify as needed
+  switch (input.controlType) {
+    case 'canny':
+      graph['132'].inputs.low_threshold = 0.45
+      graph['132'].inputs.high_threshold = 0.8
+      graph['135'].inputs.image = ['132', 0]
+      break
+    case 'scribble':
+      graph['133'].inputs.control_net_name = 'scribbleModel.safetensors'
+      break
+    case 'depth':
+      graph['133'].inputs.control_net_name = 'depthModel.safetensors'
+      break
+    case 'custom':
+      graph['133'].inputs.control_net_name = 'ControlNetUnion.safetensors'
+      break
   }
-}
-
-function findPreprocessorNode(
-  graph: any,
-  controlType: ControlType,
-): string | undefined {
-  const map: Record<ControlType, string> = {
-    depth: 'Midas',
-    scribble: 'ScribblePreprocessor',
-    canny: 'Canny',
-    custom: 'ControlPreprocessorCustom',
-  }
-
-  return findNodeByType(graph, map[controlType])
-}
-
-function findNodeByType(graph: any, type: string): string | undefined {
-  return Object.keys(graph).find((key) => graph[key].class_type === type)
 }

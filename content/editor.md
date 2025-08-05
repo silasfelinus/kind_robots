@@ -16,4 +16,4 @@ sort: utility
 navComponent: 'art-nav'
 ---
 
-:art-editor
+:new-editor

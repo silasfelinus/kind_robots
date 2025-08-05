@@ -45,9 +45,7 @@ export async function buildGraph(input: BuildGraphInput): Promise<any> {
 
   // Prompt
   if (modelType === 'flux') {
-    const promptMod = await import(
-      '~/server/api/comfy/json/prompt/fluxTextEncode.json'
-    )
+    const promptMod = await import('./json/prompt/fluxTextEncode.json')
     fragments.push(promptMod.default)
   } else {
     const promptMod = await import(

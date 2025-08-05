@@ -1,4 +1,4 @@
-import type { ModelType } from '..'
+import type { ModelType } from '../../comfy'
 
 export function applyPrompt(
   graph: any,

@@ -1,10 +1,9 @@
 // /server/api/comfy/index.ts
 
-import { defineEventHandler, readBody, getQuery } from 'h3'
+import { defineEventHandler, readBody } from 'h3'
 import { pipelines } from './pipelines'
 
 // Modifier functions
-import prompt from './modifiers/prompt'
 import inpaint from './modifiers/inpaint'
 import controlnet from './modifiers/controlnet'
 import upscale from './modifiers/upscale'
@@ -16,72 +15,129 @@ export type ControlType = 'depth' | 'scribble' | 'canny' | 'custom'
 
 export interface BuildGraphInput {
   modelType: ModelType
+  inputType: 'text' | 'image'
+  outputType: 'image' | 'text'
   prompt: string
   promptB?: string
   promptBlend?: number
   imageData?: string // base64
   maskData?: string // base64
-  controlType?: ControlType
   loraName?: string
   useInpaint?: boolean
   useOutpaint?: boolean
   useUpscale?: boolean
   useMorph?: boolean
+  useControlNet?: boolean
+  controlType?: ControlType
   denoise?: number
   strength?: number
   width?: number
   height?: number
   seed?: number
+  steps?: number
+  cfg?: number
+  sampler_name?: string
+  scheduler?: string
+  ckpt_name?: string
+  apiUrl?: string
+  inpaintMode?: 'masked' | 'full'
+  outpaintDirection?: 'left' | 'right' | 'up' | 'down'
 }
 
-// ---- Main API Route ----
+// ---- Main Route: Always Build + Submit ----
 
 export default defineEventHandler(async (event) => {
-  const method = event.method
-  const query = getQuery(event)
-
-  if (method === 'GET' && query.status) return await fetchStatus()
-  if (method === 'GET' && query.models) return Object.keys(pipelines)
-
-  if (method === 'POST') {
+  try {
     const input = await readBody<BuildGraphInput>(event)
-    return await buildGraph(input)
-  }
+    const graph = await buildGraph(input)
+    const comfyHttpUrl =
+      input.apiUrl ||
+      (process.env.COMFY_URL ? `${process.env.COMFY_URL}/prompt` : null)
 
-  return { error: 'Invalid method or query' }
+    if (!comfyHttpUrl) {
+      throw new Error('Missing COMFY_URL and no apiUrl provided')
+    }
+
+    const promptId = `comfy-${Date.now()}`
+    console.log(
+      `[COMFY] 🚀 Submitting prompt with ID: ${promptId} to ${comfyHttpUrl}`,
+    )
+
+    const res = await fetch(comfyHttpUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: graph }),
+    })
+
+    const json = await res.json()
+
+    if (!json?.prompt_id) {
+      console.warn('[COMFY] ⚠️ No prompt_id in response')
+      return {
+        success: false,
+        error: 'No prompt_id in Comfy response',
+        debug: json,
+      }
+    }
+
+    return {
+      success: true,
+      promptId: json.prompt_id,
+      queuePosition: json.number ?? null,
+      nodeErrors: json.node_errors ?? null,
+    }
+  } catch (err: any) {
+    console.error('[COMFY] ❌ Build + Submit failed:', err)
+    return {
+      error: true,
+      statusCode: 500,
+      statusMessage: 'Build + Submit failed',
+      message: err.message || 'Unknown error',
+    }
+  }
 })
 
-// ---- Pipeline Assembly ----
-
+// ---- Graph Assembly ----
 async function buildGraph(input: BuildGraphInput): Promise<any> {
-  const base = pipelines[input.modelType]
-  if (!base) throw new Error(`Unknown model type: ${input.modelType}`)
+  const { inputType, outputType, modelType } = input
+
+  const base = pipelines[modelType]
+  if (!base) throw new Error(`Unknown model type: ${modelType}`)
 
   const graph = structuredClone(base)
 
-  // Required: prompt
-  prompt(graph, input)
+  // 🔒 Input enforcement
+  if (inputType === 'text' && !input.prompt) {
+    throw new Error('Prompt is required for text-based input')
+  }
 
-  // Optional: image
-  if (input.imageData)
+  if (inputType === 'image' && !input.imageData) {
+    throw new Error('imageData is required for image-based input')
+  }
+
+  // 🔒 Output enforcement (optional)
+  if (outputType === 'text') {
+    console.warn(
+      '[COMFY] Output type is text. Consider using /tag route instead',
+    )
+  }
+
+  // Apply image input
+  if (input.imageData && graph['120']?.inputs) {
     graph['120'].inputs.image_data = `data:image/png;base64,${input.imageData}`
+  }
 
-  // Optional features
-  if (input.useInpaint && input.maskData) inpaint(graph, input)
-  if (input.controlType) controlnet(graph, input)
-  if (input.useUpscale) upscale(graph, input)
-  if (input.useOutpaint) outpaint(graph, input)
-  if (input.useMorph) morph(graph, input)
+  // Apply modifiers (if applicable)
+  try {
+    if (input.useInpaint && input.maskData) inpaint(graph, input)
+    if (input.controlType) controlnet(graph, input)
+    if (input.useUpscale) upscale(graph, input)
+    if (input.useOutpaint) outpaint(graph, input)
+    if (input.useMorph) morph(graph, input)
+  } catch (e) {
+    console.warn('[COMFY] Modifier failed:', e)
+    throw new Error('A modifier failed during graph assembly')
+  }
 
   return graph
-}
-
-// ---- Status ----
-
-async function fetchStatus(): Promise<any> {
-  try {
-    return await $fetch('http://localhost:8188/status')
-  } catch (err) {
-    return { error: 'Failed to fetch status', details: err }
-  }
 }

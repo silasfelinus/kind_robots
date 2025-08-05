@@ -3,7 +3,6 @@
 import { defineStore } from 'pinia'
 import { reactive, toRefs } from 'vue'
 import { performFetch, handleError } from './utils'
-import { v4 as uuid } from 'uuid'
 
 type ModifierType = 'inpaint' | 'outpaint' | 'upscale' | 'morph'
 
@@ -26,6 +25,11 @@ interface ComfyStoreState {
   isInitialized: boolean
 }
 
+let stepCounter = 0
+function generateId() {
+  return `step-${Date.now().toString(36)}-${(stepCounter++).toString(36)}`
+}
+
 const isClient = typeof window !== 'undefined'
 
 export const useComfyStore = defineStore('comfyStore', () => {
@@ -46,9 +50,7 @@ export const useComfyStore = defineStore('comfyStore', () => {
     if (state.isInitialized || !isClient) return
     try {
       const saved = localStorage.getItem('comfyBlueprint')
-      if (saved) {
-        Object.assign(state, JSON.parse(saved))
-      }
+      if (saved) Object.assign(state, JSON.parse(saved))
     } catch (e) {
       handleError(e, 'loading comfy blueprint')
     }
@@ -86,15 +88,15 @@ export const useComfyStore = defineStore('comfyStore', () => {
 
   function addStep(type: ModifierType) {
     state.modifierSteps.push({
-      id: uuid(),
+      id: generateId(),
       type,
-      config: {}
+      config: {},
     })
     persist()
   }
 
   function removeStep(id: string) {
-    state.modifierSteps = state.modifierSteps.filter(s => s.id !== id)
+    state.modifierSteps = state.modifierSteps.filter((s) => s.id !== id)
     persist()
   }
 
@@ -115,7 +117,7 @@ export const useComfyStore = defineStore('comfyStore', () => {
   }
 
   function updateStepConfig(id: string, config: Record<string, any>) {
-    const step = state.modifierSteps.find(s => s.id === id)
+    const step = state.modifierSteps.find((s) => s.id === id)
     if (step) {
       step.config = config
       persist()
@@ -160,12 +162,12 @@ export const useComfyStore = defineStore('comfyStore', () => {
         prompt: state.prompt,
         imageData: state.imageData,
         checkpoint: state.checkpoint,
-        steps: state.modifierSteps
+        steps: state.modifierSteps,
       }
 
       const response = await performFetch('/api/comfy', {
         method: 'POST',
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       })
 
       if (!response.success || !response.data) {
@@ -173,7 +175,8 @@ export const useComfyStore = defineStore('comfyStore', () => {
       }
 
       state.graphResult = response.data
-      state.graphOutput = response.data.output || null
+      state.graphOutput = JSON.stringify(response.data, null, 2) // optional pretty output
+
       persist()
       return { success: true }
     } catch (error) {
@@ -204,3 +207,5 @@ export const useComfyStore = defineStore('comfyStore', () => {
     persist,
   }
 })
+
+export type { ModifierType }

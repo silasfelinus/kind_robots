@@ -1,60 +1,84 @@
 <template>
-  <div class="p-4 max-w-4xl mx-auto space-y-6">
-    <h1 class="text-2xl font-bold">Image Editor</h1>
+  <div class="p-6 max-w-5xl mx-auto space-y-6">
+    <h1 class="text-2xl font-bold">New Editor – Build a Blueprint</h1>
 
-    <!-- PROMPT -->
-    <div class="flex flex-col gap-2">
-      <label>Primary Prompt</label>
-      <textarea v-model="prompt" rows="2" class="textarea textarea-bordered" placeholder="Describe your image..." />
-      
-      <label>Secondary Prompt (optional)</label>
-      <textarea v-model="promptB" rows="2" class="textarea textarea-bordered" placeholder="Alternate angle or concept..." />
+    <!-- Input source toggle -->
+    <div class="flex gap-4">
+      <label><input type="radio" value="text" v-model="inputType" /> Text</label>
+      <label><input type="radio" value="image" v-model="inputType" /> Image</label>
     </div>
 
-    <!-- IMAGE UPLOAD -->
+    <!-- Prompt input -->
+    <div v-if="inputType === 'text'">
+      <textarea v-model="prompt" class="textarea textarea-bordered w-full" placeholder="Describe your prompt..." />
+    </div>
+
+    <!-- Image input -->
+    <div v-else>
+      <input type="file" accept="image/*" @change="handleImageUpload" />
+      <img v-if="imageData" :src="imageData" class="mt-2 max-w-sm border rounded" />
+    </div>
+
+    <!-- Checkpoint selection -->
     <div>
-      <label class="block mb-1">Input Image (optional)</label>
-      <input type="file" accept="image/*" @change="handleImageUpload" class="file-input file-input-bordered" />
-      <img v-if="imageData" :src="imageData" class="mt-2 max-w-xs border rounded" />
+      <label>Checkpoint</label>
+      <select v-model="checkpoint" class="select select-bordered">
+        <option value="flux">Flux</option>
+        <option value="sdxl">SDXL</option>
+      </select>
     </div>
 
-    <!-- MASK UPLOAD -->
-    <div v-if="useInpaint">
-      <label class="block mb-1">Mask Image (for inpaint)</label>
-      <input type="file" accept="image/*" @change="handleMaskUpload" class="file-input file-input-bordered" />
-      <img v-if="maskData" :src="maskData" class="mt-2 max-w-xs border rounded" />
+    <!-- Modifier steps -->
+    <div class="mt-4 space-y-4">
+      <h2 class="text-lg font-semibold">Modifier Chain</h2>
+      <div v-for="(step, index) in modifierSteps" :key="step.id" class="p-4 border rounded bg-base-100 space-y-2">
+        <div class="flex justify-between items-center">
+          <span>{{ step.type }}</span>
+          <div class="flex gap-2">
+            <button class="btn btn-xs" @click="moveStepUp(index)">↑</button>
+            <button class="btn btn-xs" @click="moveStepDown(index)">↓</button>
+            <button class="btn btn-xs btn-error" @click="removeStep(step.id)">✕</button>
+          </div>
+        </div>
+        <!-- Modifier config (simple key-value textarea for now) -->
+        <textarea v-model="step.config.details" class="textarea textarea-bordered w-full" placeholder="Config (optional)" />
+      </div>
     </div>
 
-    <!-- TOGGLES -->
-    <div class="flex flex-wrap gap-4">
-      <label><input type="checkbox" v-model="useInpaint" /> Inpaint</label>
-      <label><input type="checkbox" v-model="useUpscale" /> Upscale</label>
-      <label><input type="checkbox" v-model="useOutpaint" /> Outpaint</label>
-      <label><input type="checkbox" v-model="useMorph" /> Morph</label>
+    <!-- Add modifier -->
+    <div class="flex items-center gap-2">
+      <select v-model="newStepType" class="select select-bordered">
+        <option disabled value="">Select modifier...</option>
+        <option value="inpaint">Inpaint</option>
+        <option value="outpaint">Outpaint</option>
+        <option value="upscale">Upscale</option>
+        <option value="morph">Morph</option>
+      </select>
+      <button @click="addModifierStep" class="btn btn-outline">+ Add</button>
     </div>
 
-    <!-- SUBMIT -->
-    <div>
-      <button class="btn btn-accent" :disabled="loading" @click="submit">
-        <span v-if="loading">Submitting…</span>
-        <span v-else>Submit</span>
+    <!-- Final submit -->
+    <div class="mt-6">
+      <button class="btn btn-primary w-full" @click="submitBlueprint" :disabled="loading">
+        {{ loading ? 'Submitting…' : 'Submit Blueprint' }}
       </button>
     </div>
 
-    <!-- RESULT -->
+    <!-- Output -->
     <div v-if="graphOutput" class="mt-6">
-      <h2 class="text-lg font-semibold">Result</h2>
-      <img :src="graphOutput" alt="Generated Output" class="max-w-full border rounded" />
+      <h3 class="text-lg font-semibold">Output</h3>
+      <img :src="graphOutput" class="rounded border max-w-full" />
     </div>
 
-    <!-- ERROR -->
-    <div v-if="error" class="mt-4 text-red-600">
+    <!-- Error -->
+    <div v-if="error" class="text-red-600 mt-2">
       Error: {{ error }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useComfyStore } from '@/stores/comfyStore'
 
@@ -63,37 +87,44 @@ comfyStore.initialize()
 
 const {
   prompt,
-  promptB,
   imageData,
-  maskData,
-  useInpaint,
-  useUpscale,
-  useOutpaint,
-  useMorph,
+  checkpoint,
+  inputType,
+  modifierSteps,
   graphOutput,
-  error,
   loading,
+  error,
 } = storeToRefs(comfyStore)
+
+const newStepType = ref('')
 
 function handleImageUpload(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
-  if (file) {
-    const reader = new FileReader()
-    reader.onload = () => comfyStore.setImage(reader.result as string)
-    reader.readAsDataURL(file)
-  }
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = () => comfyStore.setImage(reader.result as string)
+  reader.readAsDataURL(file)
 }
 
-function handleMaskUpload(event: Event) {
-  const file = (event.target as HTMLInputElement).files?.[0]
-  if (file) {
-    const reader = new FileReader()
-    reader.onload = () => comfyStore.setMask(reader.result as string)
-    reader.readAsDataURL(file)
-  }
+function addModifierStep() {
+  if (!newStepType.value) return
+  comfyStore.addStep(newStepType.value)
+  newStepType.value = ''
 }
 
-async function submit() {
-  await comfyStore.submitGraph()
+function removeStep(id: string) {
+  comfyStore.removeStep(id)
+}
+
+function moveStepUp(index: number) {
+  comfyStore.moveStepUp(index)
+}
+
+function moveStepDown(index: number) {
+  comfyStore.moveStepDown(index)
+}
+
+async function submitBlueprint() {
+  await comfyStore.submitBlueprint()
 }
 </script>

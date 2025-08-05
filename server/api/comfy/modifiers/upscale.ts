@@ -1,12 +1,7 @@
-// /server/api/comfy/modifiers/upscale.ts
+import type { BuildGraphInput } from '../index'
 
-export function applyUpscale(graph: any) {
-  const switchKey = findNodeByType(graph, 'Conditioning Input Switch')
-  if (switchKey) {
-    graph[switchKey].inputs.condition = true
-  }
-}
+export default function upscale(graph: any, input: BuildGraphInput) {
+  if (!input.useUpscale) return
 
-function findNodeByType(graph: any, type: string): string | undefined {
-  return Object.keys(graph).find((key) => graph[key].class_type === type)
+  graph['91'].inputs.condition = true
 }

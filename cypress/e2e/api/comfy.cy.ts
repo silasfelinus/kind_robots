@@ -10,7 +10,6 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
 
   // --- CORE MODE TESTS ---
 
-  // Test 01: Flux text-to-image
   it('Test 01: Flux - Text to Image', () => {
     cy.request({
       method: 'POST',
@@ -27,7 +26,6 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 02: SDXL text-to-image
   it('Test 02: SDXL - Text to Image', () => {
     cy.request({
       method: 'POST',
@@ -44,7 +42,6 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 03: Flux image-to-image
   it('Test 03: Flux - Image to Image', () => {
     cy.request({
       method: 'POST',
@@ -61,7 +58,6 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 04: SDXL image-to-image
   it('Test 04: SDXL - Image to Image', () => {
     cy.request({
       method: 'POST',
@@ -80,7 +76,6 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
 
   // --- UTILITY ROUTES ---
 
-  // Test 05: /tag endpoint for CLIP-style image-to-text tagging
   it('Test 05: Tag image via CLIP', () => {
     cy.request({
       method: 'POST',
@@ -92,7 +87,6 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 06: Poll prompt result by ID (example UUID)
   it('Test 06: Poll for Prompt Result', () => {
     cy.request({
       method: 'GET',
@@ -103,7 +97,6 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 07: Direct Flux/schnell generation
   it('Test 07: Schnell generation (Flux)', () => {
     cy.request({
       method: 'POST',
@@ -129,7 +122,6 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 08: Modify image using image editor endpoint
   it('Test 08: Image modification (/image)', () => {
     cy.request({
       method: 'POST',
@@ -150,7 +142,6 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 09: Submit prompt to test endpoint
   it('Test 09: Flux prompt test submit', () => {
     cy.request({
       method: 'POST',
@@ -169,7 +160,6 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 10: Check backend WebSocket status
   it('Test 10: Server status endpoint', () => {
     cy.request(`${baseUrl}/status?url=wss://comfy.acrocatranch.com/ws`).then(
       (res) => {
@@ -179,15 +169,13 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     )
   })
 
-  // Test 11: Get the currently loaded model checkpoint
-  it('Test 11: Model checkpoint get', () => {
+  it('Test 11: Get current model checkpoint', () => {
     cy.request(`${baseUrl}/model/get`).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body).to.have.property('ckpt')
     })
   })
 
-  // Test 12: Set a specific model checkpoint
   it('Test 12: Set model checkpoint', () => {
     cy.request({
       method: 'POST',
@@ -201,8 +189,9 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 13: SDXL with ControlNet (depth)
-  it('Test 13: SDXL + ControlNet depth', () => {
+  // --- ADVANCED MODIFIER TESTS ---
+
+  it('Test 13: SDXL + ControlNet (depth)', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -220,8 +209,7 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 14: SDXL with ControlNet (custom)
-  it('Test 14: SDXL + ControlNet custom', () => {
+  it('Test 14: SDXL + ControlNet (custom)', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -239,8 +227,7 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 15: Flux with Inpainting
-  it('Test 15: Flux + Inpaint', () => {
+  it('Test 15: Flux + Inpainting', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -258,8 +245,7 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 16: Flux with Outpainting
-  it('Test 16: Flux + Outpaint', () => {
+  it('Test 16: Flux + Outpainting', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -277,7 +263,6 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 17: Flux with Upscale
   it('Test 17: Flux + Upscale', () => {
     cy.request({
       method: 'POST',
@@ -295,8 +280,7 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 18: Flux with Morph
-  it('Test 18: Flux + Morph (blend prompts)', () => {
+  it('Test 18: Flux + Morph', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -315,8 +299,7 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 19: SDXL with Inpainting
-  it('Test 19: SDXL + Inpaint', () => {
+  it('Test 19: SDXL + Inpainting', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -334,8 +317,7 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 20: SDXL with Outpainting
-  it('Test 20: SDXL + Outpaint', () => {
+  it('Test 20: SDXL + Outpainting', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -353,7 +335,6 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 21: SDXL with Upscale
   it('Test 21: SDXL + Upscale', () => {
     cy.request({
       method: 'POST',
@@ -371,8 +352,7 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // Test 22: SDXL with Morph
-  it('Test 22: SDXL + Morph (blend prompts)', () => {
+  it('Test 22: SDXL + Morph', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -391,9 +371,9 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  // --- DUPLICATE + CLOSURE TESTS ---
+  // --- CLOSURE / REPEAT TESTS ---
 
-  it('Test 23: Flux basic text input', () => {
+  it('Test 23: Flux text input (repeat)', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -409,7 +389,7 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  it('Test 24: Flux basic image input', () => {
+  it('Test 24: Flux image input (repeat)', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -418,6 +398,22 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
         inputType: 'image',
         outputType: 'image',
         imageData: base64Image,
+      },
+    }).then((res) => {
+      expect(res.status).to.eq(200)
+      expect(res.body.success || res.body.promptId).to.exist
+    })
+  })
+
+  it('Test 25: SDXL text input (repeat)', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      body: {
+        modelType: 'sdxl',
+        inputType: 'text',
+        outputType: 'image',
+        prompt: testPrompt,
       },
     }).then((res) => {
       expect(res.status).to.eq(200)

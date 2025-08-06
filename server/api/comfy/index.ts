@@ -138,6 +138,24 @@ async function buildGraph(
     throw new Error('A modifier failed during graph assembly')
   }
 
+  // 🧱 Inject fallback latent node if no latent yet
+  if (!latentId) {
+    const nodeId = 'latentInit'
+    graph[nodeId] = {
+      class_type: 'EmptyLatentImage',
+      inputs: {
+        width: input.width ?? 768,
+        height: input.height ?? 768,
+        batch_size: 1,
+      },
+      _meta: { title: 'Fallback Latent Init' },
+    }
+    latentId = nodeId
+    console.log(
+      '[GRAPH] 🧱 Injected EmptyLatentImage as fallback latent source',
+    )
+  }
+
   // Sampling
   latentId = addSamplerAndScheduler(
     graph,

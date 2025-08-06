@@ -66,6 +66,9 @@ export default defineEventHandler(async (event) => {
     console.log(
       `[COMFY] 🚀 Submitting prompt with ID: ${promptId} to ${comfyHttpUrl}`,
     )
+    console.log(
+      '[COMFY] 🔍 Submitting Graph:\n' + JSON.stringify(graph, null, 2),
+    )
 
     const res = await fetch(comfyHttpUrl, {
       method: 'POST',

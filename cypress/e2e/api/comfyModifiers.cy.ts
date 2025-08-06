@@ -4,7 +4,8 @@
 describe('[Comfy] Advanced Modifiers and Effects', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/comfy'
   const testPrompt = 'A test prompt'
-  const base64Mask = 'data:image/png;base64,...'
+  const base64Mask =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8Xw8AApMBgUfrAJYAAAAASUVORK5CYII='
 
   const modifierTests = [
     { model: 'sdxl', type: 'depth', label: 'SDXL + ControlNet (depth)' },

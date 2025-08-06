@@ -18,7 +18,7 @@ describe('[Comfy] Core Image Generation (No Auth)', () => {
         inputType: 'text',
         outputType: 'image',
         prompt: testPrompt,
-        apiUrl, // ✅ Inject from env
+        apiUrl,
       },
     }).then((res) => {
       console.log('Response:', res.body)

@@ -2,8 +2,12 @@
 
 import type { BuildGraphInput, ModelType } from '../index'
 
-export default function outpaint(graph: any, input: BuildGraphInput) {
-  if (!input.useOutpaint) return
+export default function outpaint(
+  graph: any,
+  input: BuildGraphInput,
+  fromNodeId: string | undefined,
+): string {
+  if (!input.useOutpaint) return fromNodeId || 'vaeEncode'
 
   const { modelType = 'flux', outpaintDirection = 'right' } = input
 
@@ -30,6 +34,8 @@ export default function outpaint(graph: any, input: BuildGraphInput) {
   console.log(
     `[OUTPAINT] ✅ Direction: ${outpaintDirection}, matched size: true`,
   )
+
+  return '145'
 }
 
 function findOutpaintModelNode(graph: any): string | null {

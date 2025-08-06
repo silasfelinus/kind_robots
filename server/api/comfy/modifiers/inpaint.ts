@@ -2,9 +2,15 @@
 
 import type { BuildGraphInput, ModelType } from '../index'
 
-export default function inpaint(graph: any, input: BuildGraphInput) {
+export default function inpaint(
+  graph: any,
+  input: BuildGraphInput,
+  fromNodeId: string | undefined,
+): string {
   const { modelType = 'flux', maskData, inpaintMode = 'masked' } = input
-  if (!input.useInpaint || !maskData) return
+  if (!input.useInpaint || !maskData) {
+    return fromNodeId || 'vaeEncode'
+  }
 
   if (!graph['160'] || !graph['162']) {
     throw new Error('[INPAINT] Missing mask or switch nodes (160, 162)')
@@ -31,10 +37,11 @@ export default function inpaint(graph: any, input: BuildGraphInput) {
   }
 
   console.log(`[INPAINT] ✅ Mask applied, mode: ${inpaintMode}`)
+
+  return '162'
 }
 
 function findInpaintModelNode(graph: any): string | null {
-  // Try to locate a node with class_type containing 'Inpaint'
   for (const [id, node] of Object.entries<any>(graph)) {
     if (
       node.class_type?.toLowerCase().includes('inpaint') &&

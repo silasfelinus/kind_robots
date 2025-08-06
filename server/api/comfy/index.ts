@@ -10,6 +10,12 @@ import upscale from './modifiers/upscale'
 import outpaint from './modifiers/outpaint'
 import morph from './modifiers/morph'
 
+// Builder segments
+import { addTextInput } from './segments/inputText'
+import { addImageInput } from './segments/inputImage'
+import { addSamplerAndScheduler } from './segments/sampling'
+import { addOutput } from './segments/output'
+
 export type ModelType = 'flux' | 'sdxl'
 export type ControlType = 'depth' | 'scribble' | 'canny' | 'custom'
 
@@ -43,8 +49,6 @@ export interface BuildGraphInput {
   inpaintMode?: 'masked' | 'full'
   outpaintDirection?: 'left' | 'right' | 'up' | 'down'
 }
-
-// ---- Main Route: Always Build + Submit ----
 
 export default defineEventHandler(async (event) => {
   try {
@@ -97,47 +101,65 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-// ---- Graph Assembly ----
 async function buildGraph(input: BuildGraphInput): Promise<any> {
-  const { inputType, outputType, modelType } = input
+  const { inputType, modelType } = input
 
   const base = pipelines[modelType]
   if (!base) throw new Error(`Unknown model type: ${modelType}`)
 
   const graph = structuredClone(base)
+  const ids = getModelHandles(modelType)
 
-  // 🔒 Input enforcement
-  if (inputType === 'text' && !input.prompt) {
-    throw new Error('Prompt is required for text-based input')
+  // Apply input (text or image)
+  let latentId: string | undefined
+  let conditioningId: string | undefined
+
+  if (inputType === 'text') {
+    conditioningId = addTextInput(graph, input, ids)
+  } else if (inputType === 'image') {
+    latentId = addImageInput(graph, input)
   }
 
-  if (inputType === 'image' && !input.imageData) {
-    throw new Error('imageData is required for image-based input')
-  }
-
-  // 🔒 Output enforcement (optional)
-  if (outputType === 'text') {
-    console.warn(
-      '[COMFY] Output type is text. Consider using /tag route instead',
-    )
-  }
-
-  // Apply image input
-  if (input.imageData && graph['120']?.inputs) {
-    graph['120'].inputs.image_data = `data:image/png;base64,${input.imageData}`
-  }
-
-  // Apply modifiers (if applicable)
+  // Apply modifiers
   try {
-    if (input.useInpaint && input.maskData) inpaint(graph, input)
-    if (input.controlType) controlnet(graph, input)
-    if (input.useUpscale) upscale(graph, input)
-    if (input.useOutpaint) outpaint(graph, input)
-    if (input.useMorph) morph(graph, input)
+    if (input.useInpaint && input.maskData)
+      latentId = inpaint(graph, input, latentId)
+    if (input.controlType) latentId = controlnet(graph, input, latentId)
+    if (input.useUpscale) latentId = upscale(graph, input, latentId)
+    if (input.useOutpaint) latentId = outpaint(graph, input, latentId)
+    if (input.useMorph) latentId = morph(graph, input, latentId)
   } catch (e) {
     console.warn('[COMFY] Modifier failed:', e)
     throw new Error('A modifier failed during graph assembly')
   }
 
+  // Add sampling logic
+  latentId = addSamplerAndScheduler(
+    graph,
+    input,
+    ids.model,
+    conditioningId,
+    latentId,
+  )
+
+  // Add output
+  addOutput(graph, latentId ?? '8', input)
+
   return graph
+}
+
+function getModelHandles(modelType: ModelType) {
+  if (modelType === 'flux') {
+    return {
+      model: '12', // UNETLoader
+      clip: '11',
+      vae: '10',
+    }
+  } else {
+    return {
+      model: '30',
+      clip: '30',
+      vae: '30',
+    }
+  }
 }

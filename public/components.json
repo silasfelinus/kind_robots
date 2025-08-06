@@ -35,6 +35,7 @@
       "image-upload",
       "image-view",
       "list-manager",
+      "new-editor",
       "random-gallery"
     ]
   },
@@ -49,7 +50,6 @@
       "bot-chat",
       "bot-collectible",
       "bot-details",
-      "bot-factory",
       "bot-gallery-old",
       "bot-gallery",
       "bot-messages",
@@ -115,11 +115,11 @@
     "folderName": "giftshop",
     "components": [
       "cart-display",
-      "corner-panel",
       "credit-purchase",
       "giftshop-browser",
       "print-swag",
-      "shopping-cart"
+      "shopping-cart",
+      "subscription-manager"
     ]
   },
   {
@@ -151,7 +151,6 @@
       "login-icon",
       "smart-icons",
       "smart-nav",
-      "splash-tutorial",
       "swarm-icon"
     ]
   },
@@ -198,10 +197,7 @@
       "loading-bar",
       "magic-window",
       "main-component",
-      "mode-nav",
-      "mode-row",
       "nav-button",
-      "nav-card",
       "navbar-toggle",
       "navigation-row",
       "navigation-trimmed",
@@ -240,13 +236,21 @@
     "folderName": "navigation",
     "components": [
       "art-nav",
-      "blueprint-nav",
+      "bot-nav",
+      "corner-panel",
       "dashboard-nav",
       "giftshop-nav",
       "icon-nav",
       "lab-nav",
+      "mode-nav",
+      "mode-row",
+      "nav-card",
       "nav-grid",
+      "nav-nav",
       "prompt-nav",
+      "splash-content",
+      "splash-nav",
+      "splash-tutorial",
       "vertical-nav"
     ]
   },
@@ -305,8 +309,7 @@
       "resonance-buttons",
       "resonance-display",
       "resonance-gallery",
-      "resonance-lab",
-      "resonance-nav"
+      "resonance-lab"
     ]
   },
   {

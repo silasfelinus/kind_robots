@@ -8,7 +8,7 @@ gallery: wondershed
 icon: kind-icon:rocket
 tooltip: Ongoing support makes long-term imagination possible.
 amitip: We're basically a butterfly-powered nonprofit with server bills.
-dottitip: Subscriptions: the adult version of putting a star sticker on our forehead.
+dottitip: Subscriptions are the adult version of putting a star sticker on our forehead.
 tags: ['support', 'subscription', 'monthly', 'funding']
 category: settings
 layout: 'default'

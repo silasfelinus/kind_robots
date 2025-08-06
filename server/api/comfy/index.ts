@@ -15,6 +15,7 @@ import { addTextInput } from './segments/inputText'
 import { addImageInput } from './segments/inputImage'
 import { addSamplerAndScheduler } from './segments/sampling'
 import { addOutput } from './segments/output'
+import { logGraph } from './segments/output'
 
 export type ModelType = 'flux' | 'sdxl'
 export type ControlType = 'depth' | 'scribble' | 'canny' | 'custom'
@@ -143,6 +144,8 @@ async function buildGraph(input: BuildGraphInput): Promise<any> {
   )
 
   // Add output
+  logGraph(graph)
+
   addOutput(graph, latentId ?? '8', input)
 
   return graph

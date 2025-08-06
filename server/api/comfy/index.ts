@@ -101,7 +101,9 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-async function buildGraph(input: BuildGraphInput): Promise<any> {
+async function buildGraph(
+  input: BuildGraphInput,
+): Promise<Record<string, any>> {
   const { inputType, modelType } = input
 
   const base = pipelines[modelType]
@@ -110,7 +112,7 @@ async function buildGraph(input: BuildGraphInput): Promise<any> {
   const graph = structuredClone(base)
   const ids = getModelHandles(modelType)
 
-  // Apply input (text or image)
+  // Apply input
   let latentId: string | undefined
   let conditioningId: string | undefined
 
@@ -120,7 +122,7 @@ async function buildGraph(input: BuildGraphInput): Promise<any> {
     latentId = addImageInput(graph, input)
   }
 
-  // Apply modifiers
+  // Modifiers
   try {
     if (input.useInpaint && input.maskData)
       latentId = inpaint(graph, input, latentId)
@@ -133,7 +135,7 @@ async function buildGraph(input: BuildGraphInput): Promise<any> {
     throw new Error('A modifier failed during graph assembly')
   }
 
-  // Add sampling logic
+  // Sampling
   latentId = addSamplerAndScheduler(
     graph,
     input,
@@ -142,30 +144,12 @@ async function buildGraph(input: BuildGraphInput): Promise<any> {
     latentId,
   )
 
-  // Add output
+  // Output
   logGraph(graph)
   addOutput(graph, latentId ?? '8', input)
 
-  // Convert to ComfyUI "nodes" array format
-  type RawNode = {
-    class_type: string
-    inputs: Record<string, any>
-    _meta?: any
-  }
-
-  const formattedGraph = {
-    nodes: Object.entries(graph).map(([id, node]) => {
-      const typedNode = node as RawNode
-      return {
-        id,
-        type: typedNode.class_type,
-        inputs: typedNode.inputs,
-        ...(typedNode._meta ? { _meta: typedNode._meta } : {}),
-      }
-    }),
-  }
-
-  return formattedGraph
+  // ✅ Return classic Comfy format
+  return graph
 }
 
 function getModelHandles(modelType: ModelType) {

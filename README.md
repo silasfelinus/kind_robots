@@ -208,3 +208,8 @@ npx cypress run --spec "cypress/e2e/api/users.cy.ts"
 
 Update Smart Icons
 node utils/scripts/updateKindIcons.js
+
+Run comfy-test
+curl -X POST "[COMFY_URL]/prompt" \
+  -H "Content-Type: application/json" \
+  --data-binary @utils/comfyTest.json

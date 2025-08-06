@@ -2,7 +2,7 @@
   "30": {
     "class_type": "CheckpointLoaderSimple",
     "inputs": {
-      "ckpt_name": "sdxl/sd_xl_base_1.0.safetensors"
+      "ckpt_name": "SDXL/realcartoonPony_v1.safetensors"
     }
   }
 }

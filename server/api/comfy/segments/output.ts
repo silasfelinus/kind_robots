@@ -28,33 +28,17 @@ export function addOutput(
 
   return saveNodeId
 }
+export function logGraph(graph: Record<string, any>, title = 'Graph') {
+  const nodeIds = Object.keys(graph).sort((a, b) => {
+    const aNum = parseInt(a)
+    const bNum = parseInt(b)
+    return isNaN(aNum) || isNaN(bNum) ? a.localeCompare(b) : aNum - bNum
+  })
 
-export function logGraph(stages: string[], title = 'Flow') {
-  const maxLength = Math.max(...stages.map((s) => s.length)) + 4
-  const line = '─'.repeat(maxLength)
-  const spacer = ' '.repeat(2)
-  const prefix = '│'
-  const output = []
+  const lines = nodeIds.map((id) => {
+    const node = graph[id]
+    return `${id.padEnd(8)} → ${node.class_type}`
+  })
 
-  output.push(`┌${line}┐`)
-  output.push(
-    `│${title.padStart(Math.floor((maxLength + title.length) / 2)).padEnd(maxLength)}│`,
-  )
-  output.push(`├${line}┤`)
-
-  for (let i = 0; i < stages.length; i++) {
-    const label = stages[i]
-    output.push(
-      `${prefix}${spacer}${label.padEnd(maxLength - 4)}${spacer}${prefix}`,
-    )
-    if (i < stages.length - 1) {
-      output.push(
-        `${prefix}${spacer}${'│'.padEnd(maxLength - 4)}${spacer}${prefix}`,
-      )
-    }
-  }
-
-  output.push(`└${line}┘`)
-
-  console.log(output.join('\n'))
+  console.log(`[COMFY] 🔍 ${title}:\n` + lines.join('\n'))
 }

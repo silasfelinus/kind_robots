@@ -14,8 +14,7 @@ import morph from './modifiers/morph'
 import { addTextInput } from './segments/inputText'
 import { addImageInput } from './segments/inputImage'
 import { addSamplerAndScheduler } from './segments/sampling'
-import { addOutput } from './segments/output'
-import { logGraph } from './segments/output'
+import { addOutput, logGraph } from './segments/output'
 
 export type ModelType = 'flux' | 'sdxl'
 export type ControlType = 'depth' | 'scribble' | 'canny' | 'custom'
@@ -145,10 +144,28 @@ async function buildGraph(input: BuildGraphInput): Promise<any> {
 
   // Add output
   logGraph(graph)
-
   addOutput(graph, latentId ?? '8', input)
 
-  return graph
+  // Convert to ComfyUI "nodes" array format
+  type RawNode = {
+    class_type: string
+    inputs: Record<string, any>
+    _meta?: any
+  }
+
+  const formattedGraph = {
+    nodes: Object.entries(graph).map(([id, node]) => {
+      const typedNode = node as RawNode
+      return {
+        id,
+        type: typedNode.class_type,
+        inputs: typedNode.inputs,
+        ...(typedNode._meta ? { _meta: typedNode._meta } : {}),
+      }
+    }),
+  }
+
+  return formattedGraph
 }
 
 function getModelHandles(modelType: ModelType) {

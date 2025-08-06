@@ -1,159 +1,24 @@
 {
   "10": {
-    "inputs": { "vae_name": "ae.safetensors" },
-    "class_type": "VAELoader"
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    }
   },
   "11": {
+    "class_type": "DualCLIPLoader",
     "inputs": {
       "clip_name1": "t5xxl_fp8_e4m3fn.safetensors",
       "clip_name2": "clip_l.safetensors",
       "type": "flux",
       "device": "default"
-    },
-    "class_type": "DualCLIPLoader"
+    }
   },
   "12": {
+    "class_type": "UNETLoader",
     "inputs": {
       "unet_name": "flux1-schnell.safetensors",
       "weight_dtype": "fp8_e4m3fn"
-    },
-    "class_type": "UNETLoader"
-  },
-  "25": {
-    "inputs": { "noise_seed": 252019664031279 },
-    "class_type": "RandomNoise"
-  },
-  "16": {
-    "inputs": { "sampler_name": "dpmpp_2m" },
-    "class_type": "KSamplerSelect"
-  },
-  "17": {
-    "inputs": {
-      "scheduler": "sgm_uniform",
-      "steps": 25,
-      "denoise": 0.95,
-      "model": ["12", 0]
-    },
-    "class_type": "BasicScheduler"
-  },
-  "29": {
-    "inputs": {
-      "clip_l": "",
-      "t5xxl": "",
-      "guidance": 3.5,
-      "clip": ["11", 0]
-    },
-    "class_type": "CLIPTextEncodeFlux"
-  },
-  "22": {
-    "inputs": {
-      "model": ["12", 0],
-      "conditioning": ["135", 0]
-    },
-    "class_type": "BasicGuider"
-  },
-  "13": {
-    "inputs": {
-      "noise": ["25", 0],
-      "guider": ["22", 0],
-      "sampler": ["16", 0],
-      "sigmas": ["17", 0],
-      "latent_image": ["126", 0]
-    },
-    "class_type": "SamplerCustomAdvanced"
-  },
-  "126": {
-    "inputs": {
-      "pixels": ["125", 0],
-      "vae": ["10", 0]
-    },
-    "class_type": "VAEEncode"
-  },
-  "8": {
-    "inputs": {
-      "samples": ["13", 1],
-      "vae": ["10", 0]
-    },
-    "class_type": "VAEDecode"
-  },
-  "33": {
-    "inputs": {
-      "filename_prefix": "./Flux/FluxOutput",
-      "images": ["8", 0]
-    },
-    "class_type": "SaveImage"
-  },
-  "120": {
-    "class_type": "LoadImageFromBase64",
-    "inputs": { "image_data": "__BASE64__" }
-  },
-  "125": {
-    "inputs": {
-      "width": 512,
-      "height": 512,
-      "upscale_method": "nearest-exact",
-      "keep_proportion": false,
-      "divisible_by": 2,
-      "crop": "disabled"
-    },
-    "class_type": "ImageResizeKJ"
-  },
-  "132": {
-    "inputs": {
-      "low_threshold": 0.45,
-      "high_threshold": 0.8,
-      "image": ["120", 0]
-    },
-    "class_type": "Canny"
-  },
-  "133": {
-    "inputs": { "control_net_name": "ControlNetUnion.safetensors" },
-    "class_type": "ControlNetLoader"
-  },
-  "135": {
-    "inputs": {
-      "strength": 0.6,
-      "start_percent": 0,
-      "end_percent": 0.6,
-      "positive": ["29", 0],
-      "negative": ["101", 0],
-      "control_net": ["133", 0],
-      "image": ["132", 0],
-      "vae": ["10", 0]
-    },
-    "class_type": "ControlNetApplyAdvanced"
-  },
-  "101": {
-    "inputs": { "conditioning": ["29", 0] },
-    "class_type": "ConditioningZeroOut"
-  },
-  "170": {
-    "inputs": {
-      "clip_l": "",
-      "t5xxl": "",
-      "guidance": 3.5,
-      "clip": ["11", 0]
-    },
-    "class_type": "CLIPTextEncodeFlux"
-  },
-  "171": {
-    "inputs": {
-      "conditioning_1": ["29", 0],
-      "conditioning_2": ["170", 0],
-      "strength": 0.5
-    },
-    "class_type": "ConditioningCombineMultiple+"
-  },
-  "160": {
-    "inputs": { "image_data": "__MASK__" },
-    "class_type": "LoadImageFromBase64"
-  },
-  "162": {
-    "inputs": {
-      "condition": false,
-      "input_true": ["161", 0],
-      "input_false": ["126", 0]
-    },
-    "class_type": "Image Input Switch"
+    }
   }
 }

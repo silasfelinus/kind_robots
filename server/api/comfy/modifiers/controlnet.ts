@@ -2,7 +2,11 @@
 
 import type { BuildGraphInput, ModelType, ControlType } from '../index'
 
-export default function controlnet(graph: any, input: BuildGraphInput) {
+export default function controlnet(
+  graph: any,
+  input: BuildGraphInput,
+  fromNodeId: string | undefined,
+): string {
   const { modelType = 'flux', controlType = 'canny' } = input
 
   // Confirm required nodes exist
@@ -61,4 +65,6 @@ export default function controlnet(graph: any, input: BuildGraphInput) {
   console.log(
     `[CONTROLNET] ✅ ${modelType.toUpperCase()} using ${controlType} → "${controlNetName}"`,
   )
+
+  return '135'
 }

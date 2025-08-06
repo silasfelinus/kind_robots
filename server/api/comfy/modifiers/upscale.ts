@@ -2,17 +2,19 @@
 
 import type { BuildGraphInput, ModelType } from '../index'
 
-export default function upscale(graph: any, input: BuildGraphInput) {
-  if (!input.useUpscale) return
+export default function upscale(
+  graph: any,
+  input: BuildGraphInput,
+  fromNodeId: string | undefined,
+): string {
+  if (!input.useUpscale) return fromNodeId || 'vaeEncode'
 
   if (!graph['91']) {
     throw new Error('[UPSCALE] Missing toggle node (91)')
   }
 
-  // Enable conditional upscale
   graph['91'].inputs.condition = true
 
-  // Determine model based on type
   const upscaleModelMap: Record<ModelType, string> = {
     flux: 'flux_upscale.safetensors',
     sdxl: 'sdxl_upscale.safetensors',
@@ -28,6 +30,7 @@ export default function upscale(graph: any, input: BuildGraphInput) {
   }
 
   console.log('[UPSCALE] ✅ Enabled conditional upscale')
+  return '91'
 }
 
 function findUpscaleModelNode(graph: any): string | null {

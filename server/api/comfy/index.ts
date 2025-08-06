@@ -142,7 +142,7 @@ async function buildGraph(
   if (!latentId) {
     const nodeId = 'latentInit'
     graph[nodeId] = {
-      class_type: 'EmptyLatentImage',
+      class_type: 'EmptySD3LatentImage',
       inputs: {
         width: input.width ?? 768,
         height: input.height ?? 768,
@@ -150,9 +150,10 @@ async function buildGraph(
       },
       _meta: { title: 'Fallback Latent Init' },
     }
+
     latentId = nodeId
     console.log(
-      '[GRAPH] 🧱 Injected EmptyLatentImage as fallback latent source',
+      '[GRAPH] 🧱 Injected EmptySD3LatentImage as fallback latent source',
     )
   }
 
@@ -172,13 +173,12 @@ async function buildGraph(
   // ✅ Return classic Comfy format
   return graph
 }
-
 function getModelHandles(modelType: ModelType) {
   if (modelType === 'flux') {
     return {
-      model: '12', // UNETLoader
-      clip: '11',
-      vae: '10',
+      model: '30', // now CheckpointLoaderSimple
+      clip: '30',
+      vae: '30',
     }
   } else {
     return {

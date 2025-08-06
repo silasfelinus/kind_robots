@@ -14,7 +14,7 @@ export function addOutput(
     class_type: 'VAEDecode',
     inputs: {
       samples: [fromNodeId, 0],
-      vae: ['10', 0], // Use '30' for SDXL
+      vae: ['30', 2],
     },
   }
 

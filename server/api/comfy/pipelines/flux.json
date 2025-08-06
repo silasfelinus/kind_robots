@@ -1,24 +1,22 @@
 {
-  "10": {
-    "class_type": "VAELoader",
+  "30": {
+    "class_type": "CheckpointLoaderSimple",
     "inputs": {
-      "vae_name": "ae.safetensors"
+      "ckpt_name": "flux1-schnell-fp8.safetensors"
+    },
+    "_meta": {
+      "title": "Load Checkpoint"
     }
   },
-  "11": {
-    "class_type": "DualCLIPLoader",
+  "27": {
+    "class_type": "EmptySD3LatentImage",
     "inputs": {
-      "clip_name1": "t5xxl_fp8_e4m3fn.safetensors",
-      "clip_name2": "clip_l.safetensors",
-      "type": "flux",
-      "device": "default"
-    }
-  },
-  "12": {
-    "class_type": "UNETLoader",
-    "inputs": {
-      "unet_name": "flux1-schnell.safetensors",
-      "weight_dtype": "fp8_e4m3fn"
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    },
+    "_meta": {
+      "title": "Empty Latent"
     }
   }
 }

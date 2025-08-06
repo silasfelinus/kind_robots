@@ -5,8 +5,10 @@
 describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/comfy'
   const testPrompt = 'A test prompt'
-  const base64Image = 'BASE64_IMAGE'
-  const base64Mask = 'BASE64_MASK'
+  const base64Image =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFhgJ/lEFVXgAAAABJRU5ErkJggg=='
+  const base64Mask =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AApMBgUfrAJYAAAAASUVORK5CYII='
 
   // --- CORE MODE TESTS ---
 
@@ -164,7 +166,7 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     cy.request(`${baseUrl}/status?url=wss://comfy.acrocatranch.com/ws`).then(
       (res) => {
         expect(res.status).to.eq(200)
-        expect(res.body).to.have.property('success')
+        expect(res.body).to.have.property('success', true) // Strong assert!
       },
     )
   })
@@ -373,7 +375,7 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
 
   // --- CLOSURE / REPEAT TESTS ---
 
-  it('Test 23: Flux text input (repeat)', () => {
+  it('Test 23: Flux text input', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -389,7 +391,7 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  it('Test 24: Flux image input (repeat)', () => {
+  it('Test 24: Flux image input', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -405,7 +407,7 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
     })
   })
 
-  it('Test 25: SDXL text input (repeat)', () => {
+  it('Test 25: SDXL text input', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -474,11 +476,12 @@ describe('[Comfy] Full Endpoint Coverage (No Auth)', () => {
   })
 
   it('Test 29: WebSocket server status check', () => {
-    cy.request(`${baseUrl}/status?url=wss://comfy.acrocatranch.com/ws`).then(
-      (res) => {
-        expect(res.status).to.eq(200)
-        expect(res.body).to.have.property('success')
-      },
-    )
+    cy.request({
+      url: `${baseUrl}/status?url=wss://comfy.acrocatranch.com/ws`,
+      failOnStatusCode: false,
+    }).then((res) => {
+      expect(res.status).to.eq(200)
+      expect(res.body).to.have.property('success', true)
+    })
   })
 })

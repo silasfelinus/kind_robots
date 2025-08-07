@@ -177,7 +177,7 @@ function getModelHandles(modelType: ModelType) {
     return {
       model: '30', // now CheckpointLoaderSimple
       clip: '30',
-      vae: '30',
+      vae: '10',
     }
   } else {
     return {

@@ -14,7 +14,7 @@ import morph from './modifiers/morph'
 import { addTextInput } from './segments/inputText'
 import { addImageInput } from './segments/inputImage'
 import { addSamplerAndScheduler } from './segments/sampling'
-import { addOutput, logGraph } from './segments/output'
+import { addOutput } from './segments/output'
 
 export type ModelType = 'flux' | 'sdxl'
 export type ControlType = 'depth' | 'scribble' | 'canny' | 'custom'
@@ -123,7 +123,7 @@ async function buildGraph(
     conditioningId = addTextInput(graph, input, ids)
   }
   if (inputType === 'image') {
-    latentId = addImageInput(graph, input)
+    latentId = addImageInput(graph, input, ids)
   }
 
   // Modifiers
@@ -167,9 +167,7 @@ async function buildGraph(
     latentId,
   )
 
-  // Output
-  logGraph(graph)
-  addOutput(graph, latentId ?? '8', input)
+  addOutput(graph, latentId ?? '8', input, ids.vae)
 
   // ✅ Return classic Comfy format
   return graph

@@ -119,9 +119,10 @@ async function buildGraph(
   let latentId: string | undefined
   let conditioningId: string | undefined
 
-  if (inputType === 'text') {
+  if (inputType === 'text' || input.prompt || input.promptB) {
     conditioningId = addTextInput(graph, input, ids)
-  } else if (inputType === 'image') {
+  }
+  if (inputType === 'image') {
     latentId = addImageInput(graph, input)
   }
 

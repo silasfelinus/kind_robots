@@ -11,7 +11,7 @@ export function addImageInput(
   graph[loadNodeId] = {
     class_type: 'LoadImageFromBase64',
     inputs: {
-      image_data: input.imageData || '',
+      data: input.imageData || '',
     },
   }
 

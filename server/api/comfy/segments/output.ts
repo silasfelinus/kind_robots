@@ -15,7 +15,7 @@ export function addOutput(
     class_type: 'VAEDecode',
     inputs: {
       samples: [fromNodeId, 0],
-      vae: [vaeId, 2],
+      vae: [vaeId, 0],
     },
   }
 

@@ -1,4 +1,4 @@
-// server/api/comfy/model/current.get.ts
+// server/api/comfy/model.get.ts
 import { defineEventHandler } from 'h3'
 
 export default defineEventHandler(async () => {
@@ -7,9 +7,7 @@ export default defineEventHandler(async () => {
 
   try {
     const response = await fetch(`${comfyUrl}/object_info`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'object_info' }),
+      method: 'GET',
     })
 
     const msg = await response.json()

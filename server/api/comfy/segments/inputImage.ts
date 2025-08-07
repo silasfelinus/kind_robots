@@ -1,8 +1,10 @@
-// /server/api/comfy/segments/inputImage.ts
-
 import type { BuildGraphInput } from '../index'
 
-export function addImageInput(graph: any, input: BuildGraphInput): string {
+export function addImageInput(
+  graph: any,
+  input: BuildGraphInput,
+  handles: { vae: string },
+): string {
   const loadNodeId = 'loadImage'
   const encodeNodeId = 'vaeEncode'
 
@@ -17,7 +19,7 @@ export function addImageInput(graph: any, input: BuildGraphInput): string {
     class_type: 'VAEEncode',
     inputs: {
       pixels: [loadNodeId, 0],
-      vae: ['10', 0], // Flux VAE or SDXL VAE (same index)
+      vae: [handles.vae, 0], // ✅ dynamic VAE ID
     },
   }
 

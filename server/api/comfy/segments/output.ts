@@ -6,6 +6,7 @@ export function addOutput(
   graph: any,
   fromNodeId: string,
   input: BuildGraphInput,
+  vaeId = '30', // fallback for legacy
 ) {
   const decodeNodeId = 'decodeImage'
   const saveNodeId = 'saveImage'
@@ -14,7 +15,7 @@ export function addOutput(
     class_type: 'VAEDecode',
     inputs: {
       samples: [fromNodeId, 0],
-      vae: ['30', 2],
+      vae: [vaeId, 2],
     },
   }
 
@@ -28,6 +29,7 @@ export function addOutput(
 
   return saveNodeId
 }
+
 export function logGraph(graph: Record<string, any>, title = 'Graph') {
   const nodeIds = Object.keys(graph).sort((a, b) => {
     const aNum = parseInt(a)

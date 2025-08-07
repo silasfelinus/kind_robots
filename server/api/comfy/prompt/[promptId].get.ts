@@ -19,40 +19,68 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const url = `${baseUrl}/history/${promptId}`
+  const historyUrl = `${baseUrl}/history/${promptId}`
 
   try {
-    const res = await fetch(url)
+    const res = await fetch(historyUrl)
     if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`)
     const json = await res.json()
     const entry = json[promptId]
 
-    if (!entry) {
+    // ✅ If in history
+    if (entry) {
+      const statusMessages = entry.status?.messages || []
+      const lastMsg = statusMessages[statusMessages.length - 1]?.[0]
+
+      let status = 'unknown'
+      if (lastMsg === 'execution_start') status = 'running'
+      if (lastMsg === 'execution_cached') status = 'done'
+      if (lastMsg === 'execution_success') status = 'done'
+      if (lastMsg === 'execution_error') status = 'error'
+
       return {
-        success: false,
+        success: true,
         promptId,
-        error: 'No history entry found for this promptId',
+        status,
+        outputs: entry.outputs || {},
+        nodeErrors: entry.node_errors || {},
+        meta: entry.meta || {},
+        messages: statusMessages,
+        prompt: entry.prompt || null,
+        inQueue: false,
       }
     }
 
-    const statusMessages = entry.status?.messages || []
-    const lastMsg = statusMessages[statusMessages.length - 1]?.[0]
+    // 🔍 Check queue if not in history
+    const queueRes = await fetch(`${baseUrl}/queue`)
+    const queueJson = await queueRes.json()
 
-    let status = 'unknown'
-    if (lastMsg === 'execution_start') status = 'running'
-    if (lastMsg === 'execution_cached') status = 'done'
-    if (lastMsg === 'execution_success') status = 'done'
-    if (lastMsg === 'execution_error') status = 'error'
+    const isRunning = queueJson.queue_running?.includes(promptId)
+    const queueIndex = queueJson.queue_pending?.indexOf(promptId)
+
+    if (isRunning) {
+      return {
+        success: true,
+        promptId,
+        status: 'running',
+        inQueue: true,
+      }
+    }
+
+    if (queueIndex !== -1) {
+      return {
+        success: true,
+        promptId,
+        status: 'pending',
+        inQueue: true,
+        queuePosition: queueIndex + 1,
+      }
+    }
 
     return {
-      success: true,
+      success: false,
       promptId,
-      status,
-      outputs: entry.outputs || {},
-      nodeErrors: entry.node_errors || {},
-      meta: entry.meta || {},
-      messages: statusMessages,
-      prompt: entry.prompt || null,
+      error: 'No history entry or queue position found for this promptId',
     }
   } catch (err) {
     return {

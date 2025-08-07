@@ -175,15 +175,15 @@ async function buildGraph(
 function getModelHandles(modelType: ModelType) {
   if (modelType === 'flux') {
     return {
-      model: '30', // now CheckpointLoaderSimple
-      clip: '30',
-      vae: '10',
+      model: '30', // CheckpointLoaderSimple
+      clip: '30', // Same node, typically outputs clip at index 1
+      vae: '10', // ✅ Separate VAELoader node (MUST exist in base)
     }
   } else {
     return {
       model: '30',
       clip: '30',
-      vae: '30',
+      vae: '10',
     }
   }
 }

@@ -1,4 +1,11 @@
 {
+  "10": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    }
+  },
+
   "30": {
     "class_type": "CheckpointLoaderSimple",
     "inputs": {

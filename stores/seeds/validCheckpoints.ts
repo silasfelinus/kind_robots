@@ -76,7 +76,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   {
     name: 'ponyFaetality_v11.safetensors [499513276a]',
     customLabel: 'Pony Faetality',
-    localPath: '_Pony/ponyFaetality_v11.safetensors',
+    localPath: 'SDXL/ponyFaetality_v11.safetensors',
     description: 'Auto-imported from _Pony model folder.',
     generation: 'Pony',
     isMature: true,
@@ -106,7 +106,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   {
     name: 'cartoonArcadiaSDXLSD1_v2.safetensors [eb2b3e9a5f]',
     customLabel: 'Cartoon Arcadia',
-    localPath: 'cartoonArcadiaSDXLSD1_v2.safetensors',
+    localPath: 'SDXL/cartoonArcadiaSDXLSD1_v2.safetensors',
     description: 'Auto-imported from base model folder.',
     generation: 'base',
     isMature: true,
@@ -116,7 +116,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   {
     name: 'disneyrealcartoonmix_v10.1.safetensors [d803b444ed]',
     customLabel: 'DisneyReal Cartoonmix',
-    localPath: 'disneyrealcartoonmix_v10.1.safetensors',
+    localPath: 'SDXL/disneyrealcartoonmix_v10.1.safetensors',
     description: 'Auto-imported from base model folder.',
     generation: 'base',
     isMature: false,
@@ -126,7 +126,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   {
     name: 'hotart_3SPO.safetensors',
     customLabel: 'Hot Art',
-    localPath: 'hotart_3SPO.safetensors',
+    localPath: 'SDXL/hotart_3SPO.safetensors',
     description: 'Auto-imported from base model folder.',
     generation: 'base',
     isMature: true,
@@ -136,7 +136,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   {
     name: 'ivisionIllustration_ivision10.safetensors',
     customLabel: 'iVision Illustration',
-    localPath: 'ivisionIllustration_ivision10.safetensors',
+    localPath: 'SDXL/ivisionIllustration_ivision10.safetensors',
     description: 'Auto-imported from base model folder.',
     generation: 'base',
     isMature: true,
@@ -146,7 +146,7 @@ export const validCheckpoints: Partial<Resource>[] = [
   {
     name: 'realcartoonPony_v1.safetensors',
     customLabel: 'RealCartoon Pony',
-    localPath: 'realcartoonPony_v1.safetensors [2295809170]',
+    localPath: 'SDXL/realcartoonPony_v1.safetensors [2295809170]',
     description: 'Auto-imported from base model folder.',
     generation: 'base',
     isMature: true,

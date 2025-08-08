@@ -210,6 +210,6 @@ Update Smart Icons
 node utils/scripts/updateKindIcons.js
 
 Run comfy-test
-curl -X POST "[COMFY_URL]/prompt" \
+curl -X POST "https://kind-robots.vercel.app/prompt" \
   -H "Content-Type: application/json" \
-  --data-binary @utils/comfyTest.json
+  --data-binary @utils/fluxKontext.json

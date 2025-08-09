@@ -1,58 +1,61 @@
-// /server/api/comfy/turbo.post.ts
+// /server/api/comfy/kontext.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import turboGraph from '~/utils/fluxTurbo.json' // save your JSON above as utils/fluxTurbo.json
+import kontextGraph from '~/utils/fluxTurbo.json'
 
-// Default 1x1 transparent PNG base64
 const defaultBase64Image =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADjgGRzSVcrwAAAABJRU5ErkJggg=='
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<{
-      apiUrl?: string
-      imageData?: string
-    }>(event)
+    const body = await readBody<{ apiUrl?: string; imageData?: string }>(event)
 
     const comfyHttpUrl =
       body.apiUrl ||
       (process.env.COMFY_URL ? `${process.env.COMFY_URL}/prompt` : null)
 
     if (!comfyHttpUrl) {
-      throw new Error('Missing COMFY_URL and no apiUrl provided')
-    }
-
-    // Clone the fixed GGUF turbo graph so we can modify it
-    const graph = structuredClone(turboGraph)
-
-    // Replace node 62 (LoadImageOutput) with LoadImageFromBase64 if imageData present
-    if (body.imageData || !graph['62']) {
-      graph['62'] = {
-        class_type: 'LoadImageFromBase64',
-        inputs: {
-          image: body.imageData || defaultBase64Image,
-          refresh: 'refresh', // satisfies the existing type
-        },
-        _meta: { title: 'Load Image (Base64)' },
+      return {
+        success: false,
+        statusCode: 400,
+        message: 'Missing COMFY_URL and no apiUrl provided',
       }
     }
 
-    const promptId = `comfy-turbo-${Date.now()}`
-    console.log(`[COMFY/TURBO] 🚀 Submitting prompt with ID: ${promptId}`)
-    console.log('[COMFY/TURBO] 🔍 Graph:\n' + JSON.stringify(graph, null, 2))
+    const graph = structuredClone(kontextGraph)
 
+    if (!graph['63'] || graph['63'].class_type !== 'LoadImageFromBase64') {
+      return {
+        success: false,
+        statusCode: 500,
+        message: 'Graph missing node 63 (LoadImageFromBase64)',
+      }
+    }
+
+    graph['63'].inputs.image = body.imageData || defaultBase64Image
+
+    const promptId = `comfy-kontext-${Date.now()}`
     const res = await fetch(comfyHttpUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: graph }),
+      body: JSON.stringify({ prompt: graph, client_id: promptId }),
     })
 
-    const json = await res.json()
+    const json = await res.json().catch(() => null)
 
-    if (!json?.prompt_id) {
-      console.warn('[COMFY/TURBO] ⚠️ No prompt_id in response')
+    if (!res.ok) {
       return {
         success: false,
-        error: 'No prompt_id in Comfy response',
+        statusCode: res.status,
+        message: `Comfy error: ${res.statusText}`,
+        debug: json,
+      }
+    }
+
+    if (!json?.prompt_id) {
+      return {
+        success: false,
+        statusCode: 502,
+        message: 'No prompt_id in Comfy response',
         debug: json,
       }
     }
@@ -64,12 +67,10 @@ export default defineEventHandler(async (event) => {
       nodeErrors: json.node_errors ?? null,
     }
   } catch (err: any) {
-    console.error('[COMFY/TURBO] ❌ Failed:', err)
     return {
-      error: true,
+      success: false,
       statusCode: 500,
-      statusMessage: 'Comfy Turbo submit failed',
-      message: err.message || 'Unknown error',
+      message: err?.message ?? 'Unknown error',
     }
   }
 })

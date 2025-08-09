@@ -116,8 +116,7 @@
   },
   "61": {
     "inputs": {
-      "wildcard_text": "restyle in the same scene and remixed in __flux/affect__ style, __color__, __collar__",
-      "populated_text": "restyle in the same scene and remixed in <lora:FLUX/aidmaHyperrealism-FLUX-v0.3.safetensors> hyperrealism style, Bronze, Lariat necklace",
+      "wildcard_text": "restyle in the same scene and remixed by __flux/affect__, __color__ color accents",
       "mode": "populate",
       "Select to add LoRA": "Select the LoRA to add to the text",
       "Select to add Wildcard": "Select the Wildcard to add to the text",

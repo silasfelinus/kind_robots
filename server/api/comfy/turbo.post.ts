@@ -6,17 +6,21 @@ import turboGraph from '~/utils/fluxTurbo.json'
 const defaultRaw =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADjgGRzSVcrwAAAABJRU5ErkJggg=='
 
-// Helper ensures the LoadImageFromBase64 "data" field has proper header
-function asDataUrl(s: string) {
-  return s.startsWith('data:image') ? s : `data:image/png;base64,${s}`
+// Convert possible data URL -> raw base64 & fix padding
+function toRawBase64(input: string | undefined | null) {
+  const s = (input ?? '').trim()
+  const stripped = s.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, '')
+  const base = stripped || defaultRaw
+  const pad = (4 - (base.length % 4)) % 4
+  return base + '='.repeat(pad)
 }
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<{
       apiUrl?: string
-      data?: string // preferred: base64 (with or without data: header)
-      imageData?: string // legacy field (raw base64)
+      data?: string // raw base64 or data URL
+      imageData?: string // legacy raw base64
       prompt?: string // optional: fills populated_text
     }>(event)
 
@@ -34,7 +38,7 @@ export default defineEventHandler(async (event) => {
 
     const graph: any = structuredClone(turboGraph)
 
-    // ---- Validate and set node 63 (LoadImageFromBase64) ----
+    // ---- Node 63: LoadImageFromBase64 expects RAW base64 in "data" ----
     if (!graph['63'] || graph['63'].class_type !== 'LoadImageFromBase64') {
       return {
         success: false,
@@ -42,12 +46,10 @@ export default defineEventHandler(async (event) => {
         message: 'Graph missing node 63 (LoadImageFromBase64)',
       }
     }
+    const incoming = body.data ?? body.imageData
+    graph['63'].inputs.data = toRawBase64(incoming)
 
-    // Prefer `data`, fall back to `imageData`, else default
-    const incoming = body.data ?? body.imageData ?? defaultRaw
-    graph['63'].inputs.data = asDataUrl(incoming)
-
-    // ---- Ensure node 61 (ImpactWildcardEncode) has populated_text ----
+    // ---- Node 61: ensure populated_text present ----
     if (!graph['61'] || graph['61'].class_type !== 'ImpactWildcardEncode') {
       return {
         success: false,
@@ -55,18 +57,13 @@ export default defineEventHandler(async (event) => {
         message: 'Graph missing node 61 (ImpactWildcardEncode)',
       }
     }
-
-    // Provide a safe default if the graph doesn’t already have one
     const existing = graph['61'].inputs.populated_text
     graph['61'].inputs.populated_text =
-      typeof body.prompt === 'string' && body.prompt.trim().length > 0
-        ? body.prompt.trim()
-        : typeof existing === 'string' && existing.trim().length > 0
-          ? existing
-          : 'keep framing, remix style'
+      body.prompt?.trim() ||
+      (typeof existing === 'string' && existing.trim()) ||
+      'keep framing, remix style'
 
     const promptId = `comfy-turbo-${Date.now()}`
-
     const res = await fetch(comfyHttpUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

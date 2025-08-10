@@ -117,6 +117,7 @@
   "61": {
     "inputs": {
       "wildcard_text": "restyle in the same scene and remixed by __flux/affect__, __color__ color accents",
+      "populated_text": "keep framing, remix style",
       "mode": "populate",
       "Select to add LoRA": "Select the LoRA to add to the text",
       "Select to add Wildcard": "Select the Wildcard to add to the text",
@@ -127,13 +128,15 @@
     "class_type": "ImpactWildcardEncode",
     "_meta": { "title": "ImpactWildcardEncode" }
   },
+
   "63": {
     "inputs": {
-      "image": "__BASE64_IMAGE__"
+      "data": "__BASE64_IMAGE__"
     },
     "class_type": "LoadImageFromBase64",
     "_meta": { "title": "Load Image (Base64)" }
   },
+
   "64": {
     "inputs": { "images": ["63", 0] },
     "class_type": "PreviewImage",

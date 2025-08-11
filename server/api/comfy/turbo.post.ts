@@ -2,13 +2,12 @@
 import { defineEventHandler, readBody } from 'h3'
 import turboGraph from './json/fluxTurbo.json'
 
-// Return RAW base64. If nothing was sent, return '' so we can bypass image path.
-function toRawBase64(input?: string | null) {
-  const s = (input ?? '').trim()
-  const stripped = s.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, '')
-  if (!stripped) return '' // important: do not inject a tiny fallback here
-  const pad = (4 - (stripped.length % 4)) % 4
-  return stripped + '='.repeat(pad)
+function asDataUrl(s?: string | null) {
+  const t = (s ?? '').trim()
+  if (!t) return ''
+  return t.startsWith('data:image')
+    ? t
+    : `data:image/png;base64,${t.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, '')}`
 }
 
 export default defineEventHandler(async (event) => {
@@ -49,22 +48,12 @@ export default defineEventHandler(async (event) => {
       (typeof existing === 'string' && existing.trim()) ||
       'keep framing, remix style'
 
-    // Image handling
-    const raw = toRawBase64(body.data ?? body.imageData)
-    const hasUserImage = !!raw
-
+    const dataUrl = asDataUrl(body.data ?? body.imageData)
+    const hasUserImage = !!dataUrl
     if (hasUserImage) {
-      // Feed RAW base64 to node 63 and keep preview path
       const n63 = graph['63']
-      if (!n63 || n63.class_type !== 'LoadImageFromBase64') {
-        return {
-          success: false,
-          statusCode: 500,
-          message: 'Graph missing node 63 (LoadImageFromBase64)',
-        }
-      }
       n63.inputs = n63.inputs || {}
-      n63.inputs.data = raw
+      n63.inputs.data = dataUrl // <-- feed data URL here
       if (n63.inputs.mask === undefined) n63.inputs.mask = ''
     } else {
       // No image provided. Remove the entire preview chain so Comfy will not execute 63.

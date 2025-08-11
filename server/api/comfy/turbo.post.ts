@@ -2,12 +2,13 @@
 import { defineEventHandler, readBody } from 'h3'
 import turboGraph from './json/fluxTurbo.json'
 
-function asDataUrl(s?: string | null) {
+// RAW base64 with padding — what your custom node expects
+function toRawBase64(s?: string | null) {
   const t = (s ?? '').trim()
   if (!t) return ''
-  return t.startsWith('data:image')
-    ? t
-    : `data:image/png;base64,${t.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, '')}`
+  const raw = t.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, '')
+  const pad = (4 - (raw.length % 4)) % 4
+  return raw + '='.repeat(pad)
 }
 
 export default defineEventHandler(async (event) => {
@@ -33,7 +34,7 @@ export default defineEventHandler(async (event) => {
 
     const graph: any = structuredClone(turboGraph)
 
-    // Ensure populated_text
+    // Prompt into ImpactWildcardEncode (61)
     const n61 = graph['61']
     if (!n61 || n61.class_type !== 'ImpactWildcardEncode') {
       return {
@@ -48,24 +49,34 @@ export default defineEventHandler(async (event) => {
       (typeof existing === 'string' && existing.trim()) ||
       'keep framing, remix style'
 
-    const dataUrl = asDataUrl(body.data ?? body.imageData)
-    const hasUserImage = !!dataUrl
+    // Image handling (RAW base64 only)
+    const raw = toRawBase64(body.data ?? body.imageData)
+    const hasUserImage = !!raw
+
+    // Always remove Preview node; we don't need it in API
+    delete graph['64'] // PreviewImage
+
     if (hasUserImage) {
       const n63 = graph['63']
+      if (!n63 || n63.class_type !== 'LoadImageFromBase64') {
+        return {
+          success: false,
+          statusCode: 500,
+          message: 'Graph missing node 63 (LoadImageFromBase64)',
+        }
+      }
       n63.inputs = n63.inputs || {}
-      n63.inputs.data = dataUrl // <-- feed data URL here
+      n63.inputs.data = raw
       if (n63.inputs.mask === undefined) n63.inputs.mask = ''
+      // keep resize/encode chain (73 -> 75 -> 74 -> 39) intact
     } else {
-      // No image provided. Remove the entire preview chain so Comfy will not execute 63.
-      // Chain: 63 -> 73 -> 75 -> 74 -> 39 -> 42(latent)
-      delete graph['64'] // PreviewImage
+      // No image: cut the image path and rewire both ReferenceLatent and Sampler to the empty latent
       delete graph['73'] // RebatchImages
       delete graph['75'] // ImageSimpleResize
       delete graph['63'] // LoadImageFromBase64
       delete graph['74'] // RebatchImages
 
-      // Rewire ReferenceLatent to the empty latent so the model still runs
-      const n42 = graph['42']
+      const n42 = graph['42'] // ReferenceLatent
       if (!n42 || n42.class_type !== 'ReferenceLatent') {
         return {
           success: false,
@@ -76,12 +87,22 @@ export default defineEventHandler(async (event) => {
       n42.inputs = n42.inputs || {}
       n42.inputs.latent = ['27', 0] // EmptySD3LatentImage
 
-      // Optionally also remove VAEEncode(39) since it was only feeding 42
-      // delete graph['39']  // safe to delete if you want it cleaner
+      const n13 = graph['13'] // SamplerCustomAdvanced
+      if (!n13 || n13.class_type !== 'SamplerCustomAdvanced') {
+        return {
+          success: false,
+          statusCode: 500,
+          message: 'Graph missing node 13 (SamplerCustomAdvanced)',
+        }
+      }
+      n13.inputs = n13.inputs || {}
+      n13.inputs.latent_image = ['27', 0]
+
+      // VAEEncode (39) is now unused; safe to delete if you want:
+      // delete graph['39']
     }
 
     const clientId = `comfy-turbo-${Date.now()}`
-
     const res = await fetch(comfyHttpUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

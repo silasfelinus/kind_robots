@@ -6,20 +6,19 @@ import turboGraph from '~/utils/fluxTurbo.json'
 const defaultRaw =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADjgGRzSVcrwAAAABJRU5ErkJggg=='
 
-// Convert possible data URL -> raw base64 & fix padding
-function toRawBase64(input: string | undefined | null) {
+// Ensure the LoadImageFromBase64 "data" field has a data URL header
+function asDataUrl(input?: string | null) {
   const s = (input ?? '').trim()
-  const stripped = s.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, '')
-  const base = stripped || defaultRaw
-  const pad = (4 - (base.length % 4)) % 4
-  return base + '='.repeat(pad)
+  if (!s) return `data:image/png;base64,${defaultRaw}`
+  // If the caller already sent a data URL, keep it; otherwise wrap it.
+  return s.startsWith('data:image') ? s : `data:image/png;base64,${s}`
 }
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<{
       apiUrl?: string
-      data?: string // raw base64 or data URL
+      data?: string // base64 with or without data: header
       imageData?: string // legacy raw base64
       prompt?: string // optional: fills populated_text
     }>(event)
@@ -38,8 +37,9 @@ export default defineEventHandler(async (event) => {
 
     const graph: any = structuredClone(turboGraph)
 
-    // ---- Node 63: LoadImageFromBase64 expects RAW base64 in "data" ----
-    if (!graph['63'] || graph['63'].class_type !== 'LoadImageFromBase64') {
+    // ---- Node 63: LoadImageFromBase64 must get a data URL ----
+    const n63 = graph['63']
+    if (!n63 || n63.class_type !== 'LoadImageFromBase64') {
       return {
         success: false,
         statusCode: 500,
@@ -47,27 +47,31 @@ export default defineEventHandler(async (event) => {
       }
     }
     const incoming = body.data ?? body.imageData
-    graph['63'].inputs.data = toRawBase64(incoming)
+    n63.inputs = n63.inputs || {}
+    n63.inputs.data = asDataUrl(incoming)
+    // be explicit: some versions accept an empty mask to avoid auto-construct
+    if (n63.inputs.mask === undefined) n63.inputs.mask = ''
 
     // ---- Node 61: ensure populated_text present ----
-    if (!graph['61'] || graph['61'].class_type !== 'ImpactWildcardEncode') {
+    const n61 = graph['61']
+    if (!n61 || n61.class_type !== 'ImpactWildcardEncode') {
       return {
         success: false,
         statusCode: 500,
         message: 'Graph missing node 61 (ImpactWildcardEncode)',
       }
     }
-    const existing = graph['61'].inputs.populated_text
-    graph['61'].inputs.populated_text =
-      body.prompt?.trim() ||
+    const existing = n61.inputs?.populated_text
+    n61.inputs.populated_text =
+      (body.prompt && body.prompt.trim()) ||
       (typeof existing === 'string' && existing.trim()) ||
       'keep framing, remix style'
 
-    const promptId = `comfy-turbo-${Date.now()}`
+    const clientId = `comfy-turbo-${Date.now()}`
     const res = await fetch(comfyHttpUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: graph, client_id: promptId }),
+      body: JSON.stringify({ prompt: graph, client_id: clientId }),
     })
 
     const json = await res.json().catch(() => null)
@@ -80,7 +84,6 @@ export default defineEventHandler(async (event) => {
         debug: json,
       }
     }
-
     if (!json?.prompt_id) {
       return {
         success: false,

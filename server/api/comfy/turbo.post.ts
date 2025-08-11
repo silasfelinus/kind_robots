@@ -2,25 +2,27 @@
 import { defineEventHandler, readBody } from 'h3'
 import turboGraph from '~/utils/fluxTurbo.json'
 
-// Default 1x1 transparent PNG (raw base64, no header)
+// Default 1x1 transparent PNG (RAW base64, no header)
 const defaultRaw =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADjgGRzSVcrwAAAABJRU5ErkJggg=='
 
-// Ensure the LoadImageFromBase64 "data" field has a data URL header
-function asDataUrl(input?: string | null) {
+// Convert possible data URL -> RAW base64 & fix padding
+function toRawBase64(input?: string | null) {
   const s = (input ?? '').trim()
-  if (!s) return `data:image/png;base64,${defaultRaw}`
-  // If the caller already sent a data URL, keep it; otherwise wrap it.
-  return s.startsWith('data:image') ? s : `data:image/png;base64,${s}`
+  // strip data URL header if present
+  const stripped = s.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, '')
+  const base = stripped || defaultRaw
+  const pad = (4 - (base.length % 4)) % 4
+  return base + '='.repeat(pad)
 }
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<{
       apiUrl?: string
-      data?: string // base64 with or without data: header
+      data?: string // raw base64 or data URL
       imageData?: string // legacy raw base64
-      prompt?: string // optional: fills populated_text
+      prompt?: string
     }>(event)
 
     const comfyHttpUrl =
@@ -37,7 +39,7 @@ export default defineEventHandler(async (event) => {
 
     const graph: any = structuredClone(turboGraph)
 
-    // ---- Node 63: LoadImageFromBase64 must get a data URL ----
+    // ---- Node 63: requires RAW base64 in "data"
     const n63 = graph['63']
     if (!n63 || n63.class_type !== 'LoadImageFromBase64') {
       return {
@@ -48,11 +50,10 @@ export default defineEventHandler(async (event) => {
     }
     const incoming = body.data ?? body.imageData
     n63.inputs = n63.inputs || {}
-    n63.inputs.data = asDataUrl(incoming)
-    // be explicit: some versions accept an empty mask to avoid auto-construct
-    if (n63.inputs.mask === undefined) n63.inputs.mask = ''
+    n63.inputs.data = toRawBase64(incoming) // <-- RAW base64 only
+    if (n63.inputs.mask === undefined) n63.inputs.mask = '' // be explicit
 
-    // ---- Node 61: ensure populated_text present ----
+    // ---- Node 61: ensure populated_text present
     const n61 = graph['61']
     if (!n61 || n61.class_type !== 'ImpactWildcardEncode') {
       return {
@@ -73,7 +74,6 @@ export default defineEventHandler(async (event) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: graph, client_id: clientId }),
     })
-
     const json = await res.json().catch(() => null)
 
     if (!res.ok) {

@@ -1,27 +1,22 @@
 // /server/api/comfy/turbo.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import turboGraph from '~/utils/fluxTurbo.json'
+import turboGraph from './json/fluxTurbo.json'
 
-// Default 1x1 transparent PNG (RAW base64, no header)
-const defaultRaw =
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADjgGRzSVcrwAAAABJRU5ErkJggg=='
-
-// Convert possible data URL -> RAW base64 & fix padding
+// Return RAW base64. If nothing was sent, return '' so we can bypass image path.
 function toRawBase64(input?: string | null) {
   const s = (input ?? '').trim()
-  // strip data URL header if present
   const stripped = s.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, '')
-  const base = stripped || defaultRaw
-  const pad = (4 - (base.length % 4)) % 4
-  return base + '='.repeat(pad)
+  if (!stripped) return '' // important: do not inject a tiny fallback here
+  const pad = (4 - (stripped.length % 4)) % 4
+  return stripped + '='.repeat(pad)
 }
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<{
       apiUrl?: string
-      data?: string // raw base64 or data URL
-      imageData?: string // legacy raw base64
+      data?: string
+      imageData?: string
       prompt?: string
     }>(event)
 
@@ -39,21 +34,7 @@ export default defineEventHandler(async (event) => {
 
     const graph: any = structuredClone(turboGraph)
 
-    // ---- Node 63: requires RAW base64 in "data"
-    const n63 = graph['63']
-    if (!n63 || n63.class_type !== 'LoadImageFromBase64') {
-      return {
-        success: false,
-        statusCode: 500,
-        message: 'Graph missing node 63 (LoadImageFromBase64)',
-      }
-    }
-    const incoming = body.data ?? body.imageData
-    n63.inputs = n63.inputs || {}
-    n63.inputs.data = toRawBase64(incoming) // <-- RAW base64 only
-    if (n63.inputs.mask === undefined) n63.inputs.mask = '' // be explicit
-
-    // ---- Node 61: ensure populated_text present
+    // Ensure populated_text
     const n61 = graph['61']
     if (!n61 || n61.class_type !== 'ImpactWildcardEncode') {
       return {
@@ -68,7 +49,50 @@ export default defineEventHandler(async (event) => {
       (typeof existing === 'string' && existing.trim()) ||
       'keep framing, remix style'
 
+    // Image handling
+    const raw = toRawBase64(body.data ?? body.imageData)
+    const hasUserImage = !!raw
+
+    if (hasUserImage) {
+      // Feed RAW base64 to node 63 and keep preview path
+      const n63 = graph['63']
+      if (!n63 || n63.class_type !== 'LoadImageFromBase64') {
+        return {
+          success: false,
+          statusCode: 500,
+          message: 'Graph missing node 63 (LoadImageFromBase64)',
+        }
+      }
+      n63.inputs = n63.inputs || {}
+      n63.inputs.data = raw
+      if (n63.inputs.mask === undefined) n63.inputs.mask = ''
+    } else {
+      // No image provided. Remove the entire preview chain so Comfy will not execute 63.
+      // Chain: 63 -> 73 -> 75 -> 74 -> 39 -> 42(latent)
+      delete graph['64'] // PreviewImage
+      delete graph['73'] // RebatchImages
+      delete graph['75'] // ImageSimpleResize
+      delete graph['63'] // LoadImageFromBase64
+      delete graph['74'] // RebatchImages
+
+      // Rewire ReferenceLatent to the empty latent so the model still runs
+      const n42 = graph['42']
+      if (!n42 || n42.class_type !== 'ReferenceLatent') {
+        return {
+          success: false,
+          statusCode: 500,
+          message: 'Graph missing node 42 (ReferenceLatent)',
+        }
+      }
+      n42.inputs = n42.inputs || {}
+      n42.inputs.latent = ['27', 0] // EmptySD3LatentImage
+
+      // Optionally also remove VAEEncode(39) since it was only feeding 42
+      // delete graph['39']  // safe to delete if you want it cleaner
+    }
+
     const clientId = `comfy-turbo-${Date.now()}`
+
     const res = await fetch(comfyHttpUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

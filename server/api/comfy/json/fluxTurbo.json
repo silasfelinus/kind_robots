@@ -36,10 +36,9 @@
       "guider": ["22", 0],
       "sampler": ["16", 0],
       "sigmas": ["17", 0],
-      "latent_image": ["27", 0]
+      "latent_image": ["39", 0]
     },
-    "class_type": "SamplerCustomAdvanced",
-    "_meta": { "title": "SamplerCustomAdvanced" }
+    "class_type": "SamplerCustomAdvanced"
   },
   "16": {
     "inputs": { "sampler_name": "euler" },
@@ -49,12 +48,11 @@
   "17": {
     "inputs": {
       "scheduler": "simple",
-      "steps": 10,
-      "denoise": 1,
+      "steps": 16,
+      "denoise": 0.45,
       "model": ["30", 0]
     },
-    "class_type": "BasicScheduler",
-    "_meta": { "title": "BasicScheduler" }
+    "class_type": "BasicScheduler"
   },
   "22": {
     "inputs": {

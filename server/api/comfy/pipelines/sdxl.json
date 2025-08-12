@@ -1,8 +1,27 @@
 {
+  "10": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "SDXL/sdxl-vae-fp16.safetensors"
+    },
+    "_meta": { "title": "Load VAE" }
+  },
+
   "30": {
     "class_type": "CheckpointLoaderSimple",
     "inputs": {
-      "ckpt_name": "SDXL/realcartoonPony_v1.safetensors"
-    }
+      "ckpt_name": "SDXL/sdxl_turbo_1.0_fp16.safetensors"
+    },
+    "_meta": { "title": "Load Checkpoint" }
+  },
+
+  "27": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    },
+    "_meta": { "title": "Empty Latent (fallback)" }
   }
 }

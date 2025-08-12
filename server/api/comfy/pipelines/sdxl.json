@@ -1,27 +1,69 @@
 {
   "10": {
     "class_type": "VAELoader",
-    "inputs": {
-      "vae_name": "SDXL/sdxl-vae-fp16.safetensors"
-    },
+    "inputs": { "vae_name": "SDXL/sdxl-vae-fp16.safetensors" },
     "_meta": { "title": "Load VAE" }
-  },
-
-  "30": {
-    "class_type": "CheckpointLoaderSimple",
-    "inputs": {
-      "ckpt_name": "SDXL/sdxl_turbo_1.0_fp16.safetensors"
-    },
-    "_meta": { "title": "Load Checkpoint" }
   },
 
   "27": {
     "class_type": "EmptyLatentImage",
-    "inputs": {
-      "width": 1024,
-      "height": 1024,
-      "batch_size": 1
-    },
+    "inputs": { "width": 1024, "height": 1024, "batch_size": 1 },
     "_meta": { "title": "Empty Latent (fallback)" }
+  },
+
+  "30": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": { "ckpt_name": "SDXL/sdxl_turbo_1.0_fp16.safetensors" },
+    "_meta": { "title": "Load Checkpoint" }
+  },
+
+  "40": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "A test prompt",
+      "clip": ["30", 1]
+    },
+    "_meta": { "title": "Positive Encode" }
+  },
+
+  "41": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "",
+      "clip": ["30", 1]
+    },
+    "_meta": { "title": "Negative Encode" }
+  },
+
+  "50": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 0,
+      "steps": 6,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": ["30", 0],
+      "positive": ["40", 0],
+      "negative": ["41", 0],
+      "latent_image": ["27", 0]
+    },
+    "_meta": { "title": "Sampler (Turbo-friendly)" }
+  },
+
+  "60": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["50", 0],
+      "vae": ["10", 0]
+    },
+    "_meta": { "title": "VAE Decode" }
+  },
+
+  "70": {
+    "class_type": "SaveImage",
+    "inputs": { "images": ["60", 0] },
+    "_meta": { "title": "Save Image" }
   }
 }

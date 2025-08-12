@@ -84,6 +84,8 @@ model ArtImage {
   Tag            Tag?          @relation(fields: [tagId], references: [id])
   Hybrids        Hybrid[]
   Scenarios      Scenario[]
+  
+  Pantheons      Pantheon[]
 
   @@index([galleryId], map: "ArtImage_galleryId_fkey")
   @@index([userId], map: "ArtImage_userId_fkey")
@@ -252,6 +254,7 @@ model Chat {
   Character       Character?          @relation(fields: [characterId], references: [id])
   isRead          Boolean           @default(false)
   isMature        Boolean           @default(false)
+  Pantheons      Pantheon[]
 }
 
 
@@ -381,6 +384,54 @@ model MilestoneRecord {
   @@index([milestoneId], map: "MilestoneRecord_milestoneId_fkey")
   @@index([userId], map: "MilestoneRecord_userId_fkey")
 }
+
+model Pantheon {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @default(now()) @updatedAt
+
+  // Identity
+  name        String    @unique @db.VarChar(255)  // also used to bind the chat room
+  slug        String?   @unique @db.VarChar(255)
+  description String?   @db.Text
+
+  // Visibility
+  isPublic    Boolean   @default(true)
+  isMature    Boolean   @default(false)
+
+  // Owner
+  userId      Int
+  User        User      @relation(fields: [userId], references: [id])
+
+  // Optional cover image for the pantheon card
+  coverArtImageId Int?
+  coverArtImage   ArtImage? @relation(fields: [coverArtImageId], references: [id])
+
+  // Dedicated chat room
+  chatId      Int?      @unique
+  Chat        Chat?     @relation(fields: [chatId], references: [id])
+
+  // Ordered content kept as JSON for zero extra tables
+  // names: ordered list of display strings
+  names       Json      @default("[]")        // string[]
+  // images: ordered list of ArtImage IDs that align to names or stand alone
+  imageIds    Json      @default("[]")        // number[]
+  // galleries: ordered or unordered list of Gallery IDs
+  galleryIds  Json      @default("[]")        // number[]
+
+  // Social
+  // editors: additional user IDs with edit rights
+  editorIds   Json      @default("[]")        // number[]
+  // likes or follows can be tracked elsewhere via Reaction, but leave a counter here if helpful
+  reactions   Int       @default(0)
+
+  // Tags or lightweight metadata if you want quick client filters
+  tags        Json?                             // string[]
+
+  @@index([userId])
+  @@index([isPublic])
+}
+
 
 model Pitch {
   id             Int        @id @default(autoincrement())
@@ -703,6 +754,7 @@ model User {
   Resonances     Resonance[]
   SmartIcons     SmartIcon[]
   Themes         Theme[]
+  Pantheons      Pantheon[]
   googleId    String? @unique
   googleEmail String? @db.VarChar(255)
 

@@ -1,6 +1,11 @@
 // /server/api/comfy/turbo.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import turboGraph from './json/fluxTurbo.json'
+import defaultImageJson from './json/defaultImage.json' // { "base64": "<no data: header>" }
+
+// If you're on TS, make sure tsconfig has: "resolveJsonModule": true
+const DEFAULT_IMAGE_BASE64: string =
+  (defaultImageJson as { base64?: string })?.base64 || ''
 
 // RAW base64 with padding — what custom nodes often expect
 function toRawBase64(s?: string | null) {
@@ -50,16 +55,24 @@ export default defineEventHandler(async (event) => {
       (typeof existing === 'string' && existing.trim()) ||
       'keep framing, remix style'
 
-    // Accept single or multiple images
-    const dataIn = body.data ?? body.imageData
-    const arr = Array.isArray(dataIn)
-      ? dataIn
-      : ([dataIn].filter(Boolean) as string[])
-    const raws = arr.map(toRawBase64).filter(Boolean)
-    const hasUserImage = raws.length > 0
+    // --- Image selection with JSON default ---
+    // Prefer user-provided image(s); if none, use defaultImage.json.base64 (if present).
+    const provided = body.data ?? body.imageData
+    const source =
+      (Array.isArray(provided) && provided.length === 0) || provided == null
+        ? DEFAULT_IMAGE_BASE64
+          ? DEFAULT_IMAGE_BASE64
+          : null
+        : provided
 
-    if (hasUserImage) {
-      // Prefer node 63 (LoadImageFromBase64) if present; else support 81 (LoadImagesToBatch)
+    const arr = Array.isArray(source)
+      ? source
+      : ([source].filter(Boolean) as string[])
+    const raws = arr.map(toRawBase64).filter(Boolean)
+    const hasImage = raws.length > 0
+
+    if (hasImage) {
+      // Prefer node 63 (LoadImageFromBase64); else support 81 (LoadImagesToBatch)
       const n63 = graph['63']
       const n81 = graph['81']
 
@@ -71,7 +84,6 @@ export default defineEventHandler(async (event) => {
         n81.inputs = n81.inputs || {}
         n81.inputs.images = n81.inputs.images || {}
         n81.inputs.images.base64 = raws // multi-image batch
-        // keep latent batch size in sync if available
         if (graph['27']?.class_type === 'EmptySD3LatentImage') {
           graph['27'].inputs = graph['27'].inputs || {}
           graph['27'].inputs.batch_size = raws.length
@@ -85,10 +97,9 @@ export default defineEventHandler(async (event) => {
         }
       }
 
-      // Remove Preview nodes only if they exist
       if (graph['64']?.class_type === 'PreviewImage') delete graph['64']
     } else {
-      // No image: rewire to EmptySD3LatentImage (27)
+      // No image available at all (no user input and no JSON default) → imageless path
       const n42 = graph['42'] // ReferenceLatent
       const n13 = graph['13'] // SamplerCustomAdvanced
       if (!n42 || n42.class_type !== 'ReferenceLatent') {
@@ -109,7 +120,6 @@ export default defineEventHandler(async (event) => {
       n13.inputs = n13.inputs || {}
       n42.inputs.latent = ['27', 0]
       n13.inputs.latent_image = ['27', 0]
-      // Do not delete 39 (VAEEncode); ReferenceLatent may still reference it in other variants
     }
 
     const clientId = `comfy-turbo-${Date.now()}`

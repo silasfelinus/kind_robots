@@ -1,6 +1,6 @@
 // /server/api/comfy/kontext.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import fluxKontext from './json/fluxKontext.json'
+import fluxKontext from '../json/fluxKontext.json'
 
 // 1x1 transparent PNG base64
 const defaultBase64Image =

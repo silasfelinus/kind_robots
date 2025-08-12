@@ -106,14 +106,15 @@ export const usePantheonStore = defineStore('pantheonStore', () => {
   async function create(payload: PantheonForm) {
     isSaving.value = true
     try {
-      const res = await performFetch('/api/pantheon', {
+      const res = await performFetch<Pantheon>('/api/pantheon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      if (!res.success) throw new Error(res.message)
-      items.value.push(res.data)
-      form.value = res.data
+      if (!res.success || !res.data)
+        throw new Error(res.message || 'Failed to create pantheon')
+      items.value.push(res.data) // res.data is Pantheon here
+      form.value = { ...res.data } // OK to assign to PantheonForm
       syncLocal()
       return { success: true, data: res.data }
     } catch (e) {
@@ -127,15 +128,16 @@ export const usePantheonStore = defineStore('pantheonStore', () => {
   async function update(id: number, updates: PantheonForm) {
     isSaving.value = true
     try {
-      const res = await performFetch(`/api/pantheon/${id}`, {
+      const res = await performFetch<Pantheon>(`/api/pantheon/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       })
-      if (!res.success) throw new Error(res.message)
+      if (!res.success || !res.data)
+        throw new Error(res.message || 'Failed to update pantheon')
       const idx = items.value.findIndex((i) => i.id === id)
       if (idx !== -1) items.value[idx] = res.data
-      form.value = res.data
+      form.value = { ...res.data }
       syncLocal()
       return { success: true, data: res.data }
     } catch (e) {

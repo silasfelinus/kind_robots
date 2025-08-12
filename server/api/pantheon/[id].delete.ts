@@ -1,8 +1,8 @@
 // /server/api/pantheon/[id].delete.ts
 import { defineEventHandler } from 'h3'
-import prisma from '@/server/utils/prisma'
-import { errorHandler } from '@/server/utils/error'
-import { validateApiKey } from '@/server/utils/validateKey'
+import prisma from './../utils/prisma'
+import { errorHandler } from './../utils/error'
+import { validateApiKey } from './../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   const modelName = 'pantheon'

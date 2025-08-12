@@ -2,7 +2,7 @@
 import { defineEventHandler, readBody } from 'h3'
 import turboGraph from './json/fluxTurbo.json'
 
-// RAW base64 with padding — what your custom node expects
+// RAW base64 with padding — what custom nodes often expect
 function toRawBase64(s?: string | null) {
   const t = (s ?? '').trim()
   if (!t) return ''
@@ -15,8 +15,8 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<{
       apiUrl?: string
-      data?: string
-      imageData?: string
+      data?: string | string[]
+      imageData?: string | string[]
       prompt?: string
     }>(event)
 
@@ -43,40 +43,54 @@ export default defineEventHandler(async (event) => {
         message: 'Graph missing node 61 (ImpactWildcardEncode)',
       }
     }
-    const existing = n61.inputs?.populated_text
+    n61.inputs = n61.inputs || {}
+    const existing = n61.inputs.populated_text
     n61.inputs.populated_text =
       (body.prompt && body.prompt.trim()) ||
       (typeof existing === 'string' && existing.trim()) ||
       'keep framing, remix style'
 
-    // Image handling (RAW base64 only)
-    const raw = toRawBase64(body.data ?? body.imageData)
-    const hasUserImage = !!raw
-
-    // Always remove Preview node; we don't need it in API
-    delete graph['64'] // PreviewImage
+    // Accept single or multiple images
+    const dataIn = body.data ?? body.imageData
+    const arr = Array.isArray(dataIn)
+      ? dataIn
+      : ([dataIn].filter(Boolean) as string[])
+    const raws = arr.map(toRawBase64).filter(Boolean)
+    const hasUserImage = raws.length > 0
 
     if (hasUserImage) {
+      // Prefer node 63 (LoadImageFromBase64) if present; else support 81 (LoadImagesToBatch)
       const n63 = graph['63']
-      if (!n63 || n63.class_type !== 'LoadImageFromBase64') {
+      const n81 = graph['81']
+
+      if (n63 && n63.class_type === 'LoadImageFromBase64') {
+        n63.inputs = n63.inputs || {}
+        n63.inputs.data = raws[0] // single-image loader
+        if (n63.inputs.mask === undefined) n63.inputs.mask = ''
+      } else if (n81 && n81.class_type === 'LoadImagesToBatch') {
+        n81.inputs = n81.inputs || {}
+        n81.inputs.images = n81.inputs.images || {}
+        n81.inputs.images.base64 = raws // multi-image batch
+        // keep latent batch size in sync if available
+        if (graph['27']?.class_type === 'EmptySD3LatentImage') {
+          graph['27'].inputs = graph['27'].inputs || {}
+          graph['27'].inputs.batch_size = raws.length
+        }
+      } else {
         return {
           success: false,
           statusCode: 500,
-          message: 'Graph missing node 63 (LoadImageFromBase64)',
+          message:
+            'Graph has neither node 63 (LoadImageFromBase64) nor 81 (LoadImagesToBatch).',
         }
       }
-      n63.inputs = n63.inputs || {}
-      n63.inputs.data = raw
-      if (n63.inputs.mask === undefined) n63.inputs.mask = ''
-      // keep resize/encode chain (73 -> 75 -> 74 -> 39) intact
-    } else {
-      // No image: cut the image path and rewire both ReferenceLatent and Sampler to the empty latent
-      delete graph['73'] // RebatchImages
-      delete graph['75'] // ImageSimpleResize
-      delete graph['63'] // LoadImageFromBase64
-      delete graph['74'] // RebatchImages
 
+      // Remove Preview nodes only if they exist
+      if (graph['64']?.class_type === 'PreviewImage') delete graph['64']
+    } else {
+      // No image: rewire to EmptySD3LatentImage (27)
       const n42 = graph['42'] // ReferenceLatent
+      const n13 = graph['13'] // SamplerCustomAdvanced
       if (!n42 || n42.class_type !== 'ReferenceLatent') {
         return {
           success: false,
@@ -84,10 +98,6 @@ export default defineEventHandler(async (event) => {
           message: 'Graph missing node 42 (ReferenceLatent)',
         }
       }
-      n42.inputs = n42.inputs || {}
-      n42.inputs.latent = ['27', 0] // EmptySD3LatentImage
-
-      const n13 = graph['13'] // SamplerCustomAdvanced
       if (!n13 || n13.class_type !== 'SamplerCustomAdvanced') {
         return {
           success: false,
@@ -95,11 +105,11 @@ export default defineEventHandler(async (event) => {
           message: 'Graph missing node 13 (SamplerCustomAdvanced)',
         }
       }
+      n42.inputs = n42.inputs || {}
       n13.inputs = n13.inputs || {}
+      n42.inputs.latent = ['27', 0]
       n13.inputs.latent_image = ['27', 0]
-
-      // VAEEncode (39) is now unused; safe to delete if you want:
-      // delete graph['39']
+      // Do not delete 39 (VAEEncode); ReferenceLatent may still reference it in other variants
     }
 
     const clientId = `comfy-turbo-${Date.now()}`
@@ -108,6 +118,7 @@ export default defineEventHandler(async (event) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: graph, client_id: clientId }),
     })
+
     const json = await res.json().catch(() => null)
 
     if (!res.ok) {
@@ -118,6 +129,7 @@ export default defineEventHandler(async (event) => {
         debug: json,
       }
     }
+
     if (!json?.prompt_id) {
       return {
         success: false,

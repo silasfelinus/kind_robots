@@ -5,7 +5,9 @@
       "vae": ["10", 0]
     },
     "class_type": "VAEDecode",
-    "_meta": { "title": "VAE Decode" }
+    "_meta": {
+      "title": "VAE Decode"
+    }
   },
   "9": {
     "inputs": {
@@ -13,12 +15,18 @@
       "images": ["8", 0]
     },
     "class_type": "SaveImage",
-    "_meta": { "title": "Save Image" }
+    "_meta": {
+      "title": "Save Image"
+    }
   },
   "10": {
-    "inputs": { "vae_name": "ae.safetensors" },
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
     "class_type": "VAELoader",
-    "_meta": { "title": "Load VAE" }
+    "_meta": {
+      "title": "Load VAE"
+    }
   },
   "11": {
     "inputs": {
@@ -28,7 +36,9 @@
       "device": "default"
     },
     "class_type": "DualCLIPLoader",
-    "_meta": { "title": "DualCLIPLoader" }
+    "_meta": {
+      "title": "DualCLIPLoader"
+    }
   },
   "13": {
     "inputs": {
@@ -36,23 +46,33 @@
       "guider": ["22", 0],
       "sampler": ["16", 0],
       "sigmas": ["17", 0],
-      "latent_image": ["39", 0]
+      "latent_image": ["27", 0]
     },
-    "class_type": "SamplerCustomAdvanced"
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "SamplerCustomAdvanced"
+    }
   },
   "16": {
-    "inputs": { "sampler_name": "euler" },
+    "inputs": {
+      "sampler_name": "euler"
+    },
     "class_type": "KSamplerSelect",
-    "_meta": { "title": "KSamplerSelect" }
+    "_meta": {
+      "title": "KSamplerSelect"
+    }
   },
   "17": {
     "inputs": {
       "scheduler": "simple",
-      "steps": 16,
-      "denoise": 0.45,
+      "steps": 10,
+      "denoise": 1,
       "model": ["30", 0]
     },
-    "class_type": "BasicScheduler"
+    "class_type": "BasicScheduler",
+    "_meta": {
+      "title": "BasicScheduler"
+    }
   },
   "22": {
     "inputs": {
@@ -60,12 +80,18 @@
       "conditioning": ["42", 0]
     },
     "class_type": "BasicGuider",
-    "_meta": { "title": "BasicGuider" }
+    "_meta": {
+      "title": "BasicGuider"
+    }
   },
   "25": {
-    "inputs": { "noise_seed": 267743878931998 },
+    "inputs": {
+      "noise_seed": 61973166464280
+    },
     "class_type": "RandomNoise",
-    "_meta": { "title": "RandomNoise" }
+    "_meta": {
+      "title": "RandomNoise"
+    }
   },
   "26": {
     "inputs": {
@@ -73,12 +99,20 @@
       "conditioning": ["61", 2]
     },
     "class_type": "FluxGuidance",
-    "_meta": { "title": "FluxGuidance" }
+    "_meta": {
+      "title": "FluxGuidance"
+    }
   },
   "27": {
-    "inputs": { "width": 1024, "height": 1024, "batch_size": 1 },
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    },
     "class_type": "EmptySD3LatentImage",
-    "_meta": { "title": "EmptySD3LatentImage" }
+    "_meta": {
+      "title": "EmptySD3LatentImage"
+    }
   },
   "30": {
     "inputs": {
@@ -89,15 +123,19 @@
       "model": ["59", 0]
     },
     "class_type": "ModelSamplingFlux",
-    "_meta": { "title": "ModelSamplingFlux" }
+    "_meta": {
+      "title": "ModelSamplingFlux"
+    }
   },
   "39": {
     "inputs": {
-      "pixels": ["74", 0],
+      "pixels": ["75", 0],
       "vae": ["10", 0]
     },
     "class_type": "VAEEncode",
-    "_meta": { "title": "VAE Encode" }
+    "_meta": {
+      "title": "VAE Encode"
+    }
   },
   "42": {
     "inputs": {
@@ -105,64 +143,55 @@
       "latent": ["39", 0]
     },
     "class_type": "ReferenceLatent",
-    "_meta": { "title": "ReferenceLatent" }
+    "_meta": {
+      "title": "ReferenceLatent"
+    }
   },
   "59": {
-    "inputs": { "unet_name": "flux1-kontext-dev-Q5_K_M.gguf" },
+    "inputs": {
+      "unet_name": "flux1-kontext-dev-Q5_K_M.gguf"
+    },
     "class_type": "UnetLoaderGGUF",
-    "_meta": { "title": "Unet Loader (GGUF)" }
+    "_meta": {
+      "title": "Unet Loader (GGUF)"
+    }
   },
   "61": {
     "inputs": {
-      "wildcard_text": "restyle in the same scene and remixed by __flux/affect__, __color__ color accents",
-      "populated_text": "keep framing, remix style",
+      "wildcard_text": "restyle the same scene using __flux/affect__ with __color__ color accents",
+      "populated_text": "restyle the same scene using <lora:FLUX/Clowns-000004.safetensors> clownpaint with Wine red color accents",
       "mode": "populate",
       "Select to add LoRA": "Select the LoRA to add to the text",
       "Select to add Wildcard": "Select the Wildcard to add to the text",
-      "seed": 48473986422808,
+      "seed": 223200617944549,
       "model": ["59", 0],
       "clip": ["11", 0]
     },
     "class_type": "ImpactWildcardEncode",
-    "_meta": { "title": "ImpactWildcardEncode" }
-  },
-
-  "63": {
-    "inputs": {
-      "data": "__BASE64_IMAGE__"
-    },
-    "class_type": "LoadImageFromBase64",
-    "_meta": { "title": "Load Image (Base64)" }
-  },
-
-  "64": {
-    "inputs": { "images": ["63", 0] },
-    "class_type": "PreviewImage",
-    "_meta": { "title": "Preview Image" }
-  },
-  "73": {
-    "inputs": {
-      "batch_size": 1,
-      "images": ["63", 0]
-    },
-    "class_type": "RebatchImages",
-    "_meta": { "title": "Rebatch Images" }
-  },
-  "74": {
-    "inputs": {
-      "batch_size": 1,
-      "images": ["75", 0]
-    },
-    "class_type": "RebatchImages",
-    "_meta": { "title": "Rebatch Images" }
+    "_meta": {
+      "title": "ImpactWildcardEncode"
+    }
   },
   "75": {
     "inputs": {
-      "size": 1024,
+      "size": 829,
       "edge": "largest",
-      "image": ["73", 0]
+      "image": ["81", 0]
     },
     "class_type": "ImageSimpleResize",
-    "_meta": { "title": "ImageSimpleResize" }
+    "_meta": {
+      "title": "ImageSimpleResize"
+    }
+  },
+  "81": {
+    "inputs": {
+      "images": {
+        "base64": []
+      }
+    },
+    "class_type": "LoadImagesToBatch",
+    "_meta": {
+      "title": "Load Images(base64) ♾️Mixlab"
+    }
   }
 }

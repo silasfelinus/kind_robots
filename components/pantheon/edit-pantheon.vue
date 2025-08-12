@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePantheonStore } from '@/stores/pantheonStore'
+import { usePantheonStore } from '~/stores/pantheonStore'
 const store = usePantheonStore()
 const emit = defineEmits(['close'])
 

@@ -1,10 +1,10 @@
+<!-- /components/pantheon/add-pantheon.vue -->
 <template>
   <div
     class="rounded-2xl border p-6 m-4 mx-auto bg-base-200 max-w-5xl space-y-6"
   >
     <h1 class="text-4xl text-center font-bold">Create or Edit a Pantheon</h1>
 
-    <!-- Selector + Owner -->
     <div class="flex flex-wrap justify-between items-center gap-4">
       <pantheon-selector />
 
@@ -47,7 +47,6 @@
       </div>
     </div>
 
-    <!-- Form Fields -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="space-y-4">
         <label class="form-control">
@@ -100,7 +99,6 @@
       </div>
     </div>
 
-    <!-- Ordered Arrays -->
     <div class="grid md:grid-cols-3 gap-4">
       <div>
         <h3 class="font-semibold mb-2">Names (ordered)</h3>
@@ -114,13 +112,13 @@
         </div>
         <ul class="space-y-2">
           <li
-            v-for="(n, i) in store.form.names || []"
+            v-for="(n, i) in namesArr"
             :key="i"
             class="flex items-center gap-2"
           >
             <span class="badge">{{ i + 1 }}</span>
             <input
-              v-model="store.form.names[i]"
+              v-model="namesArr[i]"
               class="input input-bordered input-sm flex-1"
             />
             <button class="btn btn-xs" @click="removeName(i)">x</button>
@@ -141,13 +139,13 @@
         </div>
         <ul class="space-y-2">
           <li
-            v-for="(id, i) in store.form.imageIds || []"
+            v-for="(id, i) in imageIdsArr"
             :key="i"
             class="flex items-center gap-2"
           >
             <span class="badge">{{ i + 1 }}</span>
             <input
-              v-model.number="store.form.imageIds[i]"
+              v-model.number="imageIdsArr[i]"
               type="number"
               class="input input-bordered input-sm flex-1"
             />
@@ -169,13 +167,13 @@
         </div>
         <ul class="space-y-2">
           <li
-            v-for="(id, i) in store.form.galleryIds || []"
+            v-for="(id, i) in galleryIdsArr"
             :key="i"
             class="flex items-center gap-2"
           >
             <span class="badge">{{ i + 1 }}</span>
             <input
-              v-model.number="store.form.galleryIds[i]"
+              v-model.number="galleryIdsArr[i]"
               type="number"
               class="input input-bordered input-sm flex-1"
             />
@@ -185,7 +183,6 @@
       </div>
     </div>
 
-    <!-- Submit -->
     <form @submit.prevent="handleSubmit" class="pt-4">
       <div v-if="store.loading" class="loading loading-ring loading-lg"></div>
       <div v-if="errorMessage" class="text-red-500 mt-2">
@@ -211,7 +208,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { usePantheonStore } from '@/stores/pantheonStore'
+import { usePantheonStore } from '~/stores/pantheonStore'
 import { useUserStore } from '@/stores/userStore'
 
 const store = usePantheonStore()
@@ -225,6 +222,7 @@ const imageInput = ref<number | null>(null)
 const galleryInput = ref<number | null>(null)
 
 const tagsText = ref('')
+
 watch(
   () => store.form.tags,
   () => {
@@ -234,6 +232,7 @@ watch(
   },
   { immediate: true },
 )
+
 function syncTags() {
   store.form.tags = tagsText.value
     .split(',')
@@ -248,37 +247,48 @@ const canEdit = computed(
 function deselect() {
   store.deselect()
 }
-function addName() {
+
+const namesArr = computed<string[]>(() => {
   if (!store.form.names) store.form.names = []
+  return store.form.names
+})
+const imageIdsArr = computed<number[]>(() => {
+  if (!store.form.imageIds) store.form.imageIds = []
+  return store.form.imageIds
+})
+const galleryIdsArr = computed<number[]>(() => {
+  if (!store.form.galleryIds) store.form.galleryIds = []
+  return store.form.galleryIds
+})
+
+function addName() {
   if (nameInput.value.trim()) {
-    store.form.names.push(nameInput.value.trim())
+    namesArr.value.push(nameInput.value.trim())
     nameInput.value = ''
   }
 }
 function removeName(i: number) {
-  store.form.names?.splice(i, 1)
+  namesArr.value.splice(i, 1)
 }
 
 function addImageId() {
-  if (!store.form.imageIds) store.form.imageIds = []
   if (typeof imageInput.value === 'number') {
-    store.form.imageIds.push(imageInput.value)
+    imageIdsArr.value.push(imageInput.value)
     imageInput.value = null
   }
 }
 function removeImageId(i: number) {
-  store.form.imageIds?.splice(i, 1)
+  imageIdsArr.value.splice(i, 1)
 }
 
 function addGalleryId() {
-  if (!store.form.galleryIds) store.form.galleryIds = []
   if (typeof galleryInput.value === 'number') {
-    store.form.galleryIds.push(galleryInput.value)
+    galleryIdsArr.value.push(galleryInput.value)
     galleryInput.value = null
   }
 }
 function removeGalleryId(i: number) {
-  store.form.galleryIds?.splice(i, 1)
+  galleryIdsArr.value.splice(i, 1)
 }
 
 async function handleSubmit() {
@@ -295,6 +305,9 @@ async function handleSubmit() {
 }
 
 onMounted(() => {
+  if (!store.form.names) store.form.names = []
+  if (!store.form.imageIds) store.form.imageIds = []
+  if (!store.form.galleryIds) store.form.galleryIds = []
   store.initialize()
 })
 </script>

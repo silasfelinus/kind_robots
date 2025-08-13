@@ -7,7 +7,12 @@ export function setCustomVh() {
   }
 }
 
-export type DisplayState = 'open' | 'compact' | 'hidden' | 'disabled'|'extended'
+export type DisplayState =
+  | 'open'
+  | 'compact'
+  | 'hidden'
+  | 'disabled'
+  | 'extended'
 export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 export type FullscreenState = 'nuxt' | 'fullscreen' | 'splash'
 export type displayModeState =
@@ -21,6 +26,7 @@ export type displayModeState =
   | 'art'
   | 'collection'
   | 'resonance'
+  | 'pantheon'
 
 export type displayActionState =
   | 'gallery'
@@ -36,7 +42,7 @@ export type EffectId =
   | 'rain-effect'
   | 'butterfly-animation'
 
-  export interface DisplayStoreState {
+export interface DisplayStoreState {
   headerState: DisplayState
   sidebarLeftState: DisplayState
   sidebarRightState: DisplayState

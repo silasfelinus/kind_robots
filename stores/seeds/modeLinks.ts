@@ -67,4 +67,11 @@ export const modes: ModeInfo[] = [
     addRoute: '/addart',
     galleryRoute: '/artgallery',
   },
+  {
+    name: 'pantheon',
+    icon: 'kind-icon:cloud',
+    label: 'Pantheon',
+    addRoute: '/addpantheon',
+    galleryRoute: '/pantheons',
+  },
 ]

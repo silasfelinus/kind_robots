@@ -27,6 +27,7 @@ export type displayModeState =
   | 'collection'
   | 'resonance'
   | 'pantheon'
+  | 'dominion'
 
 export type displayActionState =
   | 'gallery'

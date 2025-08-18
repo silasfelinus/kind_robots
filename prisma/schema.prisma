@@ -35,6 +35,7 @@ model Art {
   User          User?           @relation(fields: [userId], references: [id])
   ArtImage      ArtImage?
   Blueprints    Blueprint[]
+  Dominions     Dominion[]
   Hybrids        Hybrid[]
   Reaction      Reaction[]
   Resonances     Resonance[]
@@ -82,6 +83,7 @@ model ArtImage {
   Resource       Resource?           @relation(fields: [resourceId], references: [id])
   Reward         Reward?           @relation(fields: [rewardId], references: [id])
   Tag            Tag?          @relation(fields: [tagId], references: [id])
+  Dominions       Dominion[]
   Hybrids        Hybrid[]
   Scenarios      Scenario[]
   
@@ -286,6 +288,68 @@ model Component {
   Reactions         Reaction[]
   Tags              Tag[]      @relation("ComponentToTag")
 }
+
+model Dominion {
+  id            Int        @id @default(autoincrement())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime?  @default(now()) @updatedAt
+
+  // Identity & display
+  title         String      @db.VarChar(256)
+  slug          String?     @unique @db.VarChar(256)
+  description   String?     @db.Text            // rules text (original)
+  italics       String?     @db.VarChar(764)    // flavor line (original)
+  color         String?     @db.VarChar(64)     // e.g. 'blue', 'green', 'gold', theming only
+  designer      String?     @db.VarChar(256)
+
+  // Ownership & visibility
+  userId        Int?        @default(10)
+  User          User?       @relation(fields: [userId], references: [id])
+  isPublic      Boolean     @default(true)
+  isMature      Boolean     @default(false)
+
+  // Art
+  artId         Int?
+  artImageId    Int?
+  Art           Art?        @relation(fields: [artId], references: [id])
+  ArtImage      ArtImage?   @relation(fields: [artImageId], references: [id])
+
+  // Types & keywords (flexible, future-proof)
+  types         Json        @default("[]")   // string[]: ["Action","Duration","Attack",...]
+  keywords      Json        @default("[]")   // string[]: ["Gain","Trash","Discard",...]
+
+  // Baseline numeric bonuses (commonly shown as +X on the card)
+  cardAdd       Int         @default(0)   // +Cards
+  actionAdd     Int         @default(0)   // +Actions  (renamed from buyAdd/cardAdd parity)
+  buyAdd        Int         @default(0)   // +Buys
+  coinAdd       Int         @default(0)   // +Coins (virtual money)
+  victoryAdd    Int         @default(0)   // printed VP (if any)
+
+  // Duration & timing
+  isDuration    Boolean     @default(false)
+  durationJSON  Json?                     // structured next-turn effects, if any
+
+  // Cost model (supports alt costs without hard dependencies)
+  priceCoins    Int         @default(0)   // standard coin cost
+  priceDebt     Int         @default(0)   // optional debt cost
+  pricePotion   Int         @default(0)   // optional potion cost (0/1 typical)
+
+  // Advanced rules: triggers, setup, onGain, onTrash, attack/reaction hooks, etc.
+  effects       Json        @default("{}") // machine-readable effect graph/DSL
+  setupText     String?     @db.VarChar(764)
+  notes         String?     @db.VarChar(764) // design notes (not printed)
+
+  // Organization
+  setId         String?
+  version       Int          @default(1)
+  tags          Tag[]
+
+  @@index([userId], map: "DominionCard_userId_idx")
+  @@index([setId], map: "DominionCard_setId_idx")
+}
+
+
+
 
 model Gallery {
   id             Int        @id @default(autoincrement())
@@ -666,6 +730,7 @@ model Tag {
   Pitches    Pitch[]     @relation("PitchToTag")
   Reactions  Reaction[]
   Blueprints  Blueprint[]
+  Dominions   Dominion[]
 
   @@index([userId], map: "Tag_userId_fkey")
 }
@@ -740,6 +805,7 @@ model User {
   Bots           Bot[]
   Characters     Character[]
   Chats          Chat[]
+  Dominions      Dominion[]
   Galleries      Gallery[]
   Hybrids        Hybrid[]
   Logs           Log[]

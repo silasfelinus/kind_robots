@@ -4,7 +4,7 @@ room: 'Hall of Dominion Cards'
 subtitle: 'Browse public and owned dominion cards'
 description: 'Explore, edit, and iterate on fan-made dominion cards.'
 gallery: 'dominion'
-image: 'background/dominiongallery.webp'
+image: 'background/dominion.png'
 tags: ['dominion', 'gallery']
 layout: 'default'
 icon: kind-icon:dominion

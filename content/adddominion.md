@@ -4,7 +4,7 @@ room: 'Dominion Workshop'
 subtitle: 'Create an original Dominion card'
 description: 'Define rules text, types, costs, and bonuses. Save to your set.'
 gallery: 'dominion'
-image: 'background/dominion.webp'
+image: 'background/dominion.png'
 tags: ['dominion', 'create']
 layout: 'default'
 icon: kind-icon:dominion

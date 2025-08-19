@@ -61,15 +61,6 @@
           />
         </div>
       </Transition>
-
-      <!-- Right Sidebar Toggle -->
-      <right-toggle
-        class="fixed bottom-14 right-4 z-40"
-        :class="{
-          'bg-accent text-white shadow-xl': sidebarRightOpen,
-          'bg-base-300 shadow': !sidebarRightOpen,
-        }"
-      />
     </main>
 
     <!-- Footer Area (Art Generator) -->
@@ -90,7 +81,6 @@ import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useSmartbarStore } from '@/stores/smartbarStore'
-import { setCustomVh } from '@/stores/helpers/displayHelper'
 
 const smartbarStore = useSmartbarStore()
 const showSwarm = computed(() => smartbarStore.showSwarm)

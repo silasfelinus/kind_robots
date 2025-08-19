@@ -1,10 +1,9 @@
 <!-- /components/content/navigation/smart-icons.vue -->
 <template>
   <div class="w-full h-full">
-    <!-- Absolute control stack; no layout impact -->
     <div class="absolute right-0 top-1/2 -translate-y-1/2 z-40 pr-2">
       <div class="flex flex-col gap-2 items-stretch">
-        <!-- 1) Smart Icon change -->
+        <!-- 1) Smart Icon edit/change -->
         <template v-if="isEditing">
           <NuxtLink
             to="/icons"
@@ -61,26 +60,12 @@
           />
         </button>
 
-        <!-- 3) Splash Tutorial (Right Sidebar) toggle -->
-        <button
-          class="btn btn-square btn-sm"
-          :class="sidebarRightOpen ? 'btn-accent text-white' : ''"
-          :title="sidebarRightOpen ? 'Hide Tutorial' : 'Show Tutorial'"
-          :aria-pressed="sidebarRightOpen"
-          @click="toggleRightSidebar"
-        >
-          <Icon
-            :name="
-              sidebarRightOpen
-                ? 'kind-icon:panel-right-close'
-                : 'kind-icon:panel-right'
-            "
-          />
-        </button>
+        <!-- 3) Right sidebar toggle (Splash Tutorial) -->
+        <right-toggle />
       </div>
     </div>
 
-    <!-- Icon Row; padding leaves space for control stack -->
+    <!-- Icon Row ... (unchanged) -->
     <div
       class="relative w-full h-full flex items-center pl-10 md:pl-12 pr-20 md:pr-24"
     >
@@ -126,7 +111,6 @@ watch(
   },
   { immediate: true },
 )
-
 watch(isEditing, (editing) => {
   if (editing) originalIcons.value = [...editableIcons.value]
 })
@@ -154,19 +138,7 @@ function revertEdit() {
   smartbarStore.isEditing = false
 }
 
-/** Right Sidebar (Splash Tutorial) toggle */
-const sidebarRightOpen = computed(
-  () =>
-    displayStore.sidebarRightState !== 'hidden' &&
-    displayStore.sidebarRightState !== 'disabled',
-)
-
-function toggleRightSidebar() {
-  const current = displayStore.sidebarRightState
-  displayStore.sidebarRightState = current === 'open' ? 'hidden' : 'open'
-}
-
-/** Scroll and drag */
+/* scroll/drag code unchanged */
 const scrollContainer = ref<HTMLElement | null>(null)
 let scrollTick = false
 function checkScrollEdges() {
@@ -181,9 +153,9 @@ function checkScrollEdgesThrottled() {
     scrollTick = false
   })
 }
-let isDragging = false
-let startX = 0
-let scrollStart = 0
+let isDragging = false,
+  startX = 0,
+  scrollStart = 0
 function handleScrollMouseDown(e: MouseEvent) {
   isDragging = true
   startX = e.clientX

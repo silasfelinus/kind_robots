@@ -45,6 +45,10 @@ export default defineEventHandler(async (event) => {
       italics: (body as any).italics ?? null,
       color: (body as any).color ?? null,
       designer: (body as any).designer ?? null,
+
+      // ✅ NEW: optional icon field
+      icon: (body as any).icon ?? null,
+
       isPublic: (body as any).isPublic ?? true,
       isMature: (body as any).isMature ?? false,
 
@@ -80,8 +84,6 @@ export default defineEventHandler(async (event) => {
       notes: (body as any).notes ?? null,
       version: asInt((body as any).version, 1),
       setId: (body as any).setId ?? null,
-
-      // Tags: handled via separate route usually; omit for now
     }
 
     const created = await prisma.dominion.create({ data })

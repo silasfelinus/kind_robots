@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
+import prisma from '../../server/api/utils/prisma'
+import { errorHandler } from '../../server/api/utils/error'
 
 export default defineEventHandler(async (event) => {
   const modelName = 'blueprint'

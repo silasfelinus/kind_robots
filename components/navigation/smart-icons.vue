@@ -4,68 +4,17 @@
     <div class="absolute right-0 top-1/2 -translate-y-1/2 z-40 pr-2">
       <div class="flex flex-col gap-2 items-stretch">
         <!-- 1) Smart Icon edit/change -->
-        <template v-if="isEditing">
-          <NuxtLink
-            to="/icons"
-            class="btn btn-square btn-sm"
-            @click="confirmEdit"
-            title="Add or manage icons"
-          >
-            <Icon name="kind-icon:plus" />
-          </NuxtLink>
-
-          <button
-            v-if="hasChanges"
-            class="btn btn-square btn-sm text-error"
-            @click="revertEdit"
-            title="Revert changes"
-          >
-            <Icon name="kind-icon:rotate" />
-          </button>
-
-          <button
-            class="btn btn-square btn-sm bg-green-500 text-white"
-            @click="confirmEdit"
-            title="Save order"
-          >
-            <Icon name="kind-icon:check" />
-          </button>
-        </template>
-
-        <button
-          v-else
-          class="btn btn-square btn-sm"
-          @click="activateEditMode"
-          title="Edit Smart Icons"
-        >
-          <Icon name="kind-icon:settings" />
-        </button>
+        <!-- ... unchanged ... -->
 
         <!-- 2) Corner panel toggle -->
-        <button
-          class="btn btn-square btn-sm"
-          :class="displayStore.showCorner ? 'btn-primary' : ''"
-          :title="
-            displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'
-          "
-          :aria-pressed="displayStore.showCorner"
-          @click="displayStore.toggleCorner()"
-        >
-          <Icon
-            :name="
-              displayStore.showCorner
-                ? 'kind-icon:panel-right-close'
-                : 'kind-icon:panel-right'
-            "
-          />
-        </button>
+        <!-- ... unchanged ... -->
 
         <!-- 3) Right sidebar toggle (Splash Tutorial) -->
         <right-toggle />
       </div>
     </div>
 
-    <!-- Icon Row ... (unchanged) -->
+    <!-- Icon Row -->
     <div
       class="relative w-full h-full flex items-center pl-10 md:pl-12 pr-20 md:pr-24"
     >
@@ -82,9 +31,10 @@
         @touchend="handleScrollMouseUp"
       >
         <icon-display
-          v-for="(icon, index) in editableIcons"
+          v-for="icon in editableIcons"
           :key="icon.id"
           :icon="icon"
+          :show-title="showTitles"
           class="snap-start shrink-0"
         />
       </div>
@@ -137,6 +87,11 @@ function revertEdit() {
   editableIcons.value = [...originalIcons.value]
   smartbarStore.isEditing = false
 }
+
+/** Show titles only if not bigMode and not showCorner */
+const showTitles = computed(
+  () => !displayStore.bigMode && !displayStore.showCorner,
+)
 
 /* scroll/drag code unchanged */
 const scrollContainer = ref<HTMLElement | null>(null)

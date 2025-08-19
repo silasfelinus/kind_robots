@@ -38,7 +38,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     showCenter: true,
     showRight: true,
     showExtended: false,
-    headerDisplay: true,
+    showCorner: true,
   })
 
   const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
@@ -246,8 +246,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
     saveState()
   }
 
-  function toggleHeaderDisplay() {
-    state.headerDisplay = !state.headerDisplay
+  function toggleCorner() {
+    state.showCorner = !state.showCorner
   }
 
   function toggleSidebar(side: 'sidebarLeftState' | 'sidebarRightState') {
@@ -448,7 +448,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   return {
     ...toRefs(state),
-    toggleHeaderDisplay,
+    toggleCorner,
     toggleSection,
     toggleExtended,
     resizeTimeout,

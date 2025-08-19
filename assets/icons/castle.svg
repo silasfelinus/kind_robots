@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="1em" height="1em" fill="currentColor">
+  <!-- Base walls -->
+  <path d="M8 28V14h6v4h4v-4h6v4h4v-4h6v14H8zm26-14h6v4h4v-4h6v4h4v-4h6v14H34V14z"/>
+  <!-- Towers -->
+  <path d="M10 32h8v20h-8V32zm18 0h8v20h-8V32zm18 0h8v20h-8V32z"/>
+  <!-- Gate -->
+  <path d="M28 44h8v12h-8V44z"/>
+  <!-- Outer wall -->
+  <path d="M2 60V28h6v24h16V28h20v24h16V28h6v32H2z"/>
+</svg>

@@ -4,6 +4,7 @@
     <!-- Right Control Panel -->
     <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50 pr-2">
       <div class="flex flex-col gap-2">
+        <!-- Edit controls -->
         <template v-if="isEditing">
           <NuxtLink
             to="/icons"
@@ -12,6 +13,7 @@
           >
             <Icon name="kind-icon:plus" />
           </NuxtLink>
+
           <button
             v-if="hasChanges"
             class="btn btn-square btn-sm text-error"
@@ -19,6 +21,7 @@
           >
             <Icon name="kind-icon:rotate" />
           </button>
+
           <button
             class="btn btn-square btn-sm bg-green-500 text-white"
             @click="confirmEdit"
@@ -26,6 +29,7 @@
             <Icon name="kind-icon:check" />
           </button>
         </template>
+
         <button
           v-else
           class="btn btn-square btn-sm"
@@ -33,6 +37,23 @@
           title="Edit"
         >
           <Icon name="kind-icon:settings" />
+        </button>
+
+        <!-- Corner toggle (always visible; stacked BELOW edit controls) -->
+        <button
+          class="btn btn-square btn-sm"
+          :class="displayStore.showCorner ? 'btn-primary' : ''"
+          :title="displayStore.showCorner ? 'Hide Menu' : 'Show Menu'"
+          :aria-pressed="displayStore.showCorner"
+          @click="displayStore.toggleCorner()"
+        >
+          <Icon
+            :name="
+              displayStore.showCorner
+                ? 'kind-icon:panel-right-close'
+                : 'kind-icon:panel-right'
+            "
+          />
         </button>
       </div>
     </div>
@@ -112,7 +133,7 @@ function revertEdit() {
   smartbarStore.isEditing = false
 }
 
-// Scroll behavior
+// Scroll logic unchanged...
 const scrollContainer = ref<HTMLElement | null>(null)
 const showLeft = ref(false)
 const showRight = ref(false)
@@ -126,7 +147,6 @@ function checkScrollEdges() {
   showRight.value = scrollRight > 68
 }
 
-// Throttle scroll edge checks with rAF
 let scrollTick = false
 function checkScrollEdgesThrottled() {
   if (scrollTick) return
@@ -137,11 +157,9 @@ function checkScrollEdgesThrottled() {
   })
 }
 
-// Drag-scroll
 let isDragging = false
 let startX = 0
 let scrollStart = 0
-
 function handleScrollMouseDown(e: MouseEvent) {
   isDragging = true
   startX = e.clientX
@@ -166,7 +184,6 @@ function handleScrollTouchMove(e: TouchEvent) {
   scrollContainer.value.scrollLeft = scrollStart - dx
 }
 
-// Resize check
 let resizeObserver: ResizeObserver | null = null
 onMounted(() => {
   checkScrollEdges()
@@ -178,23 +195,3 @@ onBeforeUnmount(() => {
     resizeObserver.unobserve(scrollContainer.value)
 })
 </script>
-
-<style>
-.icon-bar .scroll-container::-webkit-scrollbar {
-  height: 8px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.icon-bar:hover .scroll-container::-webkit-scrollbar,
-.icon-bar:focus-within .scroll-container::-webkit-scrollbar {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.icon-bar .scroll-container {
-  scrollbar-width: thin;
-  scrollbar-color: var(--tw-prose-body) transparent;
-}
-</style>

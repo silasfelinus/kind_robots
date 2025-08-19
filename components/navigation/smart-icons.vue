@@ -1,90 +1,9 @@
 <!-- /components/content/navigation/smart-icons.vue -->
 <template>
-  <div class="w-full h-full">
-    <!-- Vertical control stack on the right: fills parent height, 3 equal rows -->
-    <div class="absolute inset-y-0 right-0 my-1 pr-2 z-50">
-      <div class="grid grid-rows-3 h-full gap-2">
-        <!-- 1) Smart Icon edit/change (top row) -->
-        <div class="h-full">
-          <div v-if="isEditing" class="flex h-full gap-2">
-            <NuxtLink
-              to="/icons"
-              @click="confirmEdit"
-              title="Add or manage icons"
-              class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-            >
-              <Icon name="kind-icon:plus" class="h-[78%] w-[78%]" />
-            </NuxtLink>
-
-            <button
-              v-if="hasChanges"
-              @click="revertEdit"
-              title="Revert changes"
-              class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-            >
-              <Icon name="kind-icon:rotate" class="h-[78%] w-[78%]" />
-            </button>
-
-            <button
-              @click="confirmEdit"
-              title="Save order"
-              class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-            >
-              <Icon name="kind-icon:check" class="h-[78%] w-[78%]" />
-            </button>
-          </div>
-
-          <button
-            v-else
-            @click="activateEditMode"
-            title="Edit Smart Icons"
-            class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-          >
-            <Icon name="kind-icon:settings" class="h-[78%] w-[78%]" />
-          </button>
-        </div>
-
-        <!-- 2) Corner menu toggle (middle row) -->
-        <button
-          class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-          :class="displayStore.showCorner ? 'ring-1 ring-primary/50' : ''"
-          :title="
-            displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'
-          "
-          :aria-pressed="displayStore.showCorner"
-          @click="displayStore.toggleCorner()"
-        >
-          <Icon
-            :name="
-              displayStore.showCorner
-                ? 'kind-icon:panel-right'
-                : 'kind-icon:panel-right-close'
-            "
-            class="h-[78%] w-[78%]"
-          />
-        </button>
-
-        <!-- 3) Tutorial toggle (bottom row) -->
-        <button
-          class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-          :class="isTutorialOpen ? 'ring-1 ring-primary/50' : ''"
-          :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
-          :aria-pressed="isTutorialOpen"
-          @click="toggleTutorial"
-        >
-          <Icon
-            :name="
-              isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'
-            "
-            class="h-[78%] w-[78%]"
-          />
-        </button>
-      </div>
-    </div>
-
-    <!-- Icon Row -->
+  <div class="w-full h-full flex items-stretch">
+    <!-- Icon Row (fills remaining width) -->
     <div
-      class="relative w-full h-full flex items-center pl-10 md:pl-12 pr-20 md:pr-24"
+      class="flex-1 min-w-0 h-full flex items-center pl-10 md:pl-12 pr-2 md:pr-3"
     >
       <div
         ref="scrollContainer"
@@ -107,6 +26,89 @@
         />
       </div>
     </div>
+
+    <!-- Vertical toggle stack (right edge) -->
+    <div class="flex flex-col h-full min-h-0 gap-2 pr-2">
+      <!-- 1) Smart Icons edit/change -->
+      <div class="flex-1 min-h-0">
+        <div v-if="isEditing" class="flex h-full gap-2">
+          <NuxtLink
+            to="/icons"
+            @click="confirmEdit"
+            title="Add or manage icons"
+            class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+          >
+            <Icon name="kind-icon:plus" class="h-[78%] w-[78%]" />
+          </NuxtLink>
+
+          <button
+            v-if="hasChanges"
+            @click="revertEdit"
+            title="Revert changes"
+            class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+          >
+            <Icon name="kind-icon:rotate" class="h-[78%] w-[78%]" />
+          </button>
+
+          <button
+            @click="confirmEdit"
+            title="Save order"
+            class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+          >
+            <Icon name="kind-icon:check" class="h-[78%] w-[78%]" />
+          </button>
+        </div>
+
+        <button
+          v-else
+          @click="activateEditMode"
+          title="Edit Smart Icons"
+          class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+        >
+          <Icon name="kind-icon:settings" class="h-[78%] w-[78%]" />
+        </button>
+      </div>
+
+      <!-- 2) Corner menu toggle (question / question-glow or panel icons per your current choice) -->
+      <button
+        class="flex-1 min-h-0 w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+        :class="displayStore.showCorner ? 'ring-1 ring-primary/50' : ''"
+        :title="
+          displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'
+        "
+        :aria-pressed="displayStore.showCorner"
+        @click="displayStore.toggleCorner()"
+      >
+        <!-- Using panel-right / panel-right-close as in your latest snippet -->
+        <Icon
+          :name="
+            displayStore.showCorner
+              ? 'kind-icon:panel-right'
+              : 'kind-icon:panel-right-close'
+          "
+          class="h-[78%] w-[78%]"
+        />
+        <!-- If you want question/question-glow instead, swap the line above for:
+        <Icon :name="displayStore.showCorner ? 'kind-icon:question-glow' : 'kind-icon:question'" class="h-[78%] w-[78%]" />
+        -->
+      </button>
+
+      <!-- 3) Tutorial toggle (question / question-glow per your request) -->
+      <button
+        class="flex-1 min-h-0 w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+        :class="isTutorialOpen ? 'ring-1 ring-primary/50' : ''"
+        :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
+        :aria-pressed="isTutorialOpen"
+        @click="toggleTutorial"
+      >
+        <Icon
+          :name="
+            isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'
+          "
+          class="h-[78%] w-[78%]"
+        />
+      </button>
+    </div>
   </div>
 </template>
 
@@ -122,6 +124,7 @@ const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
 
 const originalIcons = ref<SmartIcon[]>([])
 
+/** keep editableIcons synced when NOT editing; freeze snapshot on edit */
 watch(
   activeIcons,
   (val) => {
@@ -157,16 +160,18 @@ function revertEdit() {
   smartbarStore.isEditing = false
 }
 
+/** Row icons: editing shows editable set (replaces normal row) */
 const rowIcons = computed(() =>
   isEditing.value ? editableIcons.value : activeIcons.value,
 )
 
+/** Show titles: hide whenever corner panel is visible */
 const showTitles = computed(() => {
   if (displayStore.showCorner) return false
   return !isEditing.value && !displayStore.bigMode
 })
 
-/** Tutorial toggle */
+/** Tutorial toggle state */
 const isTutorialOpen = computed({
   get: () => displayStore.sidebarRightState === 'open',
   set: (val: boolean) => displayStore.setSidebarRight(val),
@@ -175,7 +180,7 @@ function toggleTutorial() {
   isTutorialOpen.value = !isTutorialOpen.value
 }
 
-/* scroll/drag */
+/* scroll/drag code */
 const scrollContainer = ref<HTMLElement | null>(null)
 let scrollTick = false
 function checkScrollEdges() {
@@ -216,6 +221,7 @@ function handleScrollTouchMove(e: TouchEvent) {
   const dx = e.touches[0].clientX - startX
   scrollContainer.value.scrollLeft = scrollStart - dx
 }
+
 let resizeObserver: ResizeObserver | null = null
 onMounted(() => {
   resizeObserver = new ResizeObserver(checkScrollEdgesThrottled)

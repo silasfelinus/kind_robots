@@ -1,50 +1,49 @@
 <!-- /components/content/navigation/smart-icons.vue -->
 <template>
   <div class="w-full h-full">
-    <!-- Vertical control stack on the right -->
-    <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50 pr-2">
-      <div class="flex flex-col gap-2 items-stretch">
-        <!-- 1) Smart Icon edit/change (top) -->
-        <template v-if="isEditing">
-          <NuxtLink
-            to="/icons"
-            class="btn btn-square btn-sm"
-            @click="confirmEdit"
-            title="Add or manage icons"
-          >
-            <Icon name="kind-icon:plus" />
-          </NuxtLink>
+    <!-- Vertical control stack on the right: fills parent height, 3 equal rows -->
+    <div class="absolute inset-y-0 right-0 my-1 pr-2 z-50">
+      <div class="grid grid-rows-3 h-full gap-2">
+        <!-- 1) Smart Icon edit/change (top row) -->
+        <div class="h-full">
+          <div v-if="isEditing" class="flex h-full gap-2">
+            <NuxtLink
+              to="/icons"
+              @click="confirmEdit"
+              title="Add or manage icons"
+              class="kr-iconbtn"
+            >
+              <Icon name="kind-icon:plus" class="kr-icon" />
+            </NuxtLink>
+
+            <button
+              v-if="hasChanges"
+              @click="revertEdit"
+              title="Revert changes"
+              class="kr-iconbtn"
+            >
+              <Icon name="kind-icon:rotate" class="kr-icon" />
+            </button>
+
+            <button @click="confirmEdit" title="Save order" class="kr-iconbtn">
+              <Icon name="kind-icon:check" class="kr-icon" />
+            </button>
+          </div>
 
           <button
-            v-if="hasChanges"
-            class="btn btn-square btn-sm text-error"
-            @click="revertEdit"
-            title="Revert changes"
+            v-else
+            @click="activateEditMode"
+            title="Edit Smart Icons"
+            class="kr-iconbtn h-full w-full"
           >
-            <Icon name="kind-icon:rotate" />
+            <Icon name="kind-icon:settings" class="kr-icon" />
           </button>
+        </div>
 
-          <button
-            class="btn btn-square btn-sm bg-green-500 text-white"
-            @click="confirmEdit"
-            title="Save order"
-          >
-            <Icon name="kind-icon:check" />
-          </button>
-        </template>
+        <!-- 2) Corner menu toggle (middle row) -->
         <button
-          v-else
-          class="btn btn-square btn-sm"
-          @click="activateEditMode"
-          title="Edit Smart Icons"
-        >
-          <Icon name="kind-icon:settings" />
-        </button>
-
-        <!-- 2) Corner menu toggle (middle) -->
-        <button
-          class="btn btn-square btn-sm"
-          :class="displayStore.showCorner ? 'btn-primary' : ''"
+          class="kr-iconbtn"
+          :class="displayStore.showCorner ? 'ring-1 ring-primary/50' : ''"
           :title="
             displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'
           "
@@ -57,21 +56,23 @@
                 ? 'kind-icon:panel-right'
                 : 'kind-icon:panel-right-close'
             "
+            class="kr-icon"
           />
         </button>
 
-        <!-- 3) Tutorial toggle (bottom) -->
+        <!-- 3) Tutorial toggle (bottom row) -->
         <button
-          class="btn btn-square btn-sm"
-          :class="isTutorialOpen ? 'btn-primary' : ''"
+          class="kr-iconbtn"
+          :class="isTutorialOpen ? 'ring-1 ring-primary/50' : ''"
           :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
           :aria-pressed="isTutorialOpen"
           @click="toggleTutorial"
         >
           <Icon
             :name="
-              isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'
+              isTutorialOpen ? 'kind-icon:tutorial-glow' : 'kind-icon:tutorial'
             "
+            class="kr-icon"
           />
         </button>
       </div>
@@ -117,7 +118,6 @@ const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
 
 const originalIcons = ref<SmartIcon[]>([])
 
-/** keep editableIcons synced when NOT editing; freeze snapshot on edit */
 watch(
   activeIcons,
   (val) => {
@@ -153,17 +153,14 @@ function revertEdit() {
   smartbarStore.isEditing = false
 }
 
-/** Swap row icons: when editing, show editableIcons (replaces normal row) */
 const rowIcons = computed(() =>
   isEditing.value ? editableIcons.value : activeIcons.value,
 )
-
-/** Show titles only if not bigMode and not showCorner, and never during edit */
 const showTitles = computed(
   () => !isEditing.value && !displayStore.bigMode && !displayStore.showCorner,
 )
 
-/** Tutorial toggle logic (was right-toggle.vue) */
+/** Tutorial toggle */
 const isTutorialOpen = computed({
   get: () => displayStore.sidebarRightState === 'open',
   set: (val: boolean) => displayStore.setSidebarRight(val),
@@ -172,7 +169,7 @@ function toggleTutorial() {
   isTutorialOpen.value = !isTutorialOpen.value
 }
 
-/* scroll/drag code */
+/* scroll/drag */
 const scrollContainer = ref<HTMLElement | null>(null)
 let scrollTick = false
 function checkScrollEdges() {
@@ -213,7 +210,6 @@ function handleScrollTouchMove(e: TouchEvent) {
   const dx = e.touches[0].clientX - startX
   scrollContainer.value.scrollLeft = scrollStart - dx
 }
-
 let resizeObserver: ResizeObserver | null = null
 onMounted(() => {
   resizeObserver = new ResizeObserver(checkScrollEdgesThrottled)
@@ -224,3 +220,16 @@ onBeforeUnmount(() => {
     resizeObserver.unobserve(scrollContainer.value)
 })
 </script>
+
+<style scoped>
+/* Scalable icon button — fills its grid row cell */
+.kr-iconbtn {
+  @apply h-full w-full rounded-2xl flex items-center justify-center
+          bg-base-200 hover:bg-base-300 border border-base-content/10
+          transition;
+}
+/* Icon scales inside the button without fixed px; gentle padding */
+.kr-icon {
+  @apply h-[78%] w-[78%];
+}
+</style>

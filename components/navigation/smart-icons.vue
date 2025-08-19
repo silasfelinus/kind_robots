@@ -2,9 +2,9 @@
 <template>
   <div class="w-full h-full">
     <!-- Vertical control stack on the right -->
-    <div class="absolute right-0 top-1/2 -translate-y-1/2 z-40 pr-2">
+    <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50 pr-2">
       <div class="flex flex-col gap-2 items-stretch">
-        <!-- 1) Smart Icon edit/change -->
+        <!-- 1) Smart Icon edit/change (top) -->
         <template v-if="isEditing">
           <NuxtLink
             to="/icons"
@@ -32,7 +32,6 @@
             <Icon name="kind-icon:check" />
           </button>
         </template>
-
         <button
           v-else
           class="btn btn-square btn-sm"
@@ -42,7 +41,7 @@
           <Icon name="kind-icon:settings" />
         </button>
 
-        <!-- 2) Corner/Center panel toggle -->
+        <!-- 2) Corner menu toggle (middle) -->
         <button
           class="btn btn-square btn-sm"
           :class="displayStore.showCorner ? 'btn-primary' : ''"
@@ -55,14 +54,26 @@
           <Icon
             :name="
               displayStore.showCorner
-                ? 'kind-icon:panel-right-close'
-                : 'kind-icon:panel-right'
+                ? 'kind-icon:question-glow'
+                : 'kind-icon:question'
             "
           />
         </button>
 
-        <!-- 3) Right sidebar toggle (Splash Tutorial) -->
-        <right-toggle />
+        <!-- 3) Tutorial toggle (bottom) -->
+        <button
+          class="btn btn-square btn-sm"
+          :class="isTutorialOpen ? 'btn-primary' : ''"
+          :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
+          :aria-pressed="isTutorialOpen"
+          @click="toggleTutorial"
+        >
+          <Icon
+            :name="
+              isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'
+            "
+          />
+        </button>
       </div>
     </div>
 
@@ -83,7 +94,7 @@
         @touchend="handleScrollMouseUp"
       >
         <icon-display
-          v-for="icon in editableIcons"
+          v-for="icon in rowIcons"
           :key="icon.id"
           :icon="icon"
           :show-title="showTitles"
@@ -106,6 +117,7 @@ const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
 
 const originalIcons = ref<SmartIcon[]>([])
 
+/** keep editableIcons synced when NOT editing; freeze snapshot on edit */
 watch(
   activeIcons,
   (val) => {
@@ -113,6 +125,7 @@ watch(
   },
   { immediate: true },
 )
+
 watch(isEditing, (editing) => {
   if (editing) originalIcons.value = [...editableIcons.value]
 })
@@ -140,10 +153,24 @@ function revertEdit() {
   smartbarStore.isEditing = false
 }
 
-/** Show titles only if not bigMode and not showCorner */
-const showTitles = computed(
-  () => !displayStore.bigMode && !displayStore.showCorner,
+/** Swap row icons: when editing, show editableIcons (replaces normal row) */
+const rowIcons = computed(() =>
+  isEditing.value ? editableIcons.value : activeIcons.value,
 )
+
+/** Show titles only if not bigMode and not showCorner, and never during edit */
+const showTitles = computed(
+  () => !isEditing.value && !displayStore.bigMode && !displayStore.showCorner,
+)
+
+/** Tutorial toggle logic (was right-toggle.vue) */
+const isTutorialOpen = computed({
+  get: () => displayStore.sidebarRightState === 'open',
+  set: (val: boolean) => displayStore.setSidebarRight(val),
+})
+function toggleTutorial() {
+  isTutorialOpen.value = !isTutorialOpen.value
+}
 
 /* scroll/drag code */
 const scrollContainer = ref<HTMLElement | null>(null)

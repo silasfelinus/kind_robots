@@ -1,10 +1,10 @@
 <!-- /components/content/icons/kind-header.vue -->
 <template>
   <header
-    class="relative bg-base-300 rounded-2xl w-full box-border overflow-visible"
+    class="relative isolate bg-base-300 rounded-2xl w-full box-border overflow-visible"
   >
-    <!-- Single row -->
-    <div class="flex w-full items-center px-2 h-full">
+    <!-- Single row with explicit height (avoid h-full here) -->
+    <div class="flex w-full items-center px-2" :class="rowHeight">
       <!-- Avatar -->
       <div
         class="relative flex items-center justify-center overflow-hidden rounded-2xl min-w-20 h-full"
@@ -41,7 +41,7 @@
       </div>
     </div>
 
-    <!-- CORNER PANEL OVERLAY (no layout impact, no extra row) -->
+    <!-- Corner panel overlays (intangible to layout) -->
     <div
       class="absolute inset-0 z-[80] pointer-events-none flex items-end justify-end p-1"
     >
@@ -64,4 +64,9 @@ const pageStore = usePageStore()
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
+
+// Explicit single-row height — do NOT use h-full on the row
+const rowHeight = computed(() =>
+  bigMode.value ? 'h-12 md:h-14' : 'h-16 md:h-20',
+)
 </script>

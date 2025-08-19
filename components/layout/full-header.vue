@@ -3,7 +3,7 @@
   <header
     class="relative bg-base-300 rounded-2xl w-full box-border overflow-visible"
   >
-    <!-- Single row: Avatar • (optional) Title • spacer -->
+    <!-- Single row: Avatar • (optional) Title • Smart Icons -->
     <div class="flex w-full items-stretch px-2" :class="rowHeight">
       <!-- Avatar -->
       <div
@@ -33,15 +33,13 @@
         </h1>
       </div>
 
-      <div class="flex-grow" />
-    </div>
-
-    <!-- FLOATING LAYER (does not affect layout) -->
-    <div class="absolute inset-x-0 top-full mt-2 z-[70] pointer-events-none">
-      <div class="pointer-events-auto px-2 flex items-start justify-end gap-2">
-        <smart-icons />
-        <corner-panel v-if="showCorner" class="relative right-0" />
+      <!-- Smart Icons -->
+      <div class="flex-grow flex items-center justify-end">
+        <smart-icons class="h-10 md:h-12" />
       </div>
+
+      <!-- Corner panel (optional) -->
+      <corner-panel v-if="showCorner" class="ml-2" />
     </div>
   </header>
 </template>
@@ -59,16 +57,15 @@ const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
 
-// Make the header shorter in bigMode (per your note)
-// Bigger row when !bigMode so the avatar has more height to fill
+// Shorter row in bigMode, taller when not
 const rowHeight = computed(() =>
   bigMode.value ? 'h-12 md:h-14' : 'h-16 md:h-20',
 )
 
-// Be resilient to either flag name
-const showCorner = computed(() => {
-  // prefer explicit showCorner if it exists, else fall back to showCounter
-  // @ts-ignore - allow undefined on one of these
-  return !!(displayStore.showCorner ?? displayStore.showCounter)
-})
+const showCorner = computed(
+  () =>
+    // prefer explicit showCorner if it exists, else fallback to showCounter
+    // @ts-ignore
+    !!(displayStore.showCorner ?? displayStore.showCounter),
+)
 </script>

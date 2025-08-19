@@ -1,7 +1,8 @@
 <!-- /components/content/icons/kind-header.vue -->
 <template>
   <header class="relative bg-base-300 rounded-2xl w-full h-full box-border">
-    <div class="flex w-full h-full items-stretch">
+    <!-- Row 1: Avatar + Title -->
+    <div class="flex w-full items-stretch h-14 md:h-16 px-2">
       <!-- Avatar -->
       <div
         class="relative flex items-center justify-center overflow-hidden rounded-2xl min-w-20 h-full"
@@ -18,7 +19,7 @@
         </div>
       </div>
 
-      <!-- Title (only when not bigMode) -->
+      <!-- Title (hidden in bigMode) -->
       <div
         v-if="!bigMode"
         class="hidden lg:flex flex-col justify-center items-center text-center w-[15%]"
@@ -30,45 +31,20 @@
         </h1>
       </div>
 
-      <!-- Main header content -->
-      <div
-        class="relative flex-grow h-full overflow-hidden px-2 flex items-center"
-      >
-        <!-- Smart Icons or Corner Panel -->
-        <component
-          :is="displayStore.headerDisplay ? 'smart-icons' : 'corner-panel'"
-          class="w-full h-full"
-        />
+      <div class="flex-grow" />
+    </div>
 
-        <!-- Always-visible Toggle -->
-        <div class="absolute right-2 top-1/2 -translate-y-1/2 z-50">
-          <button
-            class="btn btn-square btn-sm"
-            :title="
-              displayStore.headerDisplay
-                ? 'Show Corner Panel'
-                : 'Show Smart Icons'
-            "
-            @click="displayStore.toggleHeaderDisplay()"
-            aria-label="Toggle header view"
-          >
-            <Icon
-              :name="
-                displayStore.headerDisplay
-                  ? 'kind-icon:panel-right'
-                  : 'kind-icon:apps'
-              "
-              class="text-base"
-            />
-          </button>
-        </div>
-      </div>
+    <!-- Row 2: Smart Icons + Corner Toggle -->
+    <div class="relative w-full">
+      <smart-icons />
+
+      <!-- Corner Panel -->
+      <corner-panel v-if="displayStore.showCorner" />
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-// /components/content/icons/kind-header.vue
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'

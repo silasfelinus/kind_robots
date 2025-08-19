@@ -74,7 +74,7 @@
         >
           <Icon
             :name="
-              isTutorialOpen ? 'kind-icon:tutorial-glow' : 'kind-icon:tutorial'
+              isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'
             "
             class="h-[78%] w-[78%]"
           />

@@ -1,7 +1,7 @@
-<!-- /components/content/icons/kind-header.vue -->
+<!-- /components/content/layout/full-header.vue -->
 <template>
-  <header class="relative bg-base-300 rounded-2xl w-full h-full box-border">
-    <!-- Row 1: Avatar + Title -->
+  <header class="relative bg-base-300 rounded-2xl w-full box-border">
+    <!-- Single row: Avatar + (optional) title + spacer -->
     <div class="flex w-full items-stretch h-14 md:h-16 px-2">
       <!-- Avatar -->
       <div
@@ -34,12 +34,13 @@
       <div class="flex-grow" />
     </div>
 
-    <!-- Row 2: Smart Icons + Corner Toggle -->
-    <div class="relative w-full">
-      <smart-icons />
-
-      <!-- Corner Panel -->
-      <corner-panel v-if="displayStore.showCorner" />
+    <!-- FLOATING LAYER: Smart Icons + Corner Panel -->
+    <!-- Lives outside document flow; does NOT change layout height -->
+    <div class="pointer-events-none absolute inset-x-0 top-full mt-2 z-[60]">
+      <div class="pointer-events-auto px-2">
+        <smart-icons />
+        <corner-panel v-if="displayStore.showCorner" />
+      </div>
     </div>
   </header>
 </template>

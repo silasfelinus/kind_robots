@@ -72,8 +72,8 @@
           <Icon
             :name="
               sidebarRightOpen
-                ? 'kind-icon:sidebar-right-close'
-                : 'kind-icon:sidebar-right'
+                ? 'kind-icon:panel-right-close'
+                : 'kind-icon:panel-right'
             "
           />
         </button>

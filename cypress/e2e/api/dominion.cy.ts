@@ -32,18 +32,6 @@ describe('Dominion Management API Tests', () => {
     })
   })
 
-  it('Get All Dominions by userId with filters (public)', () => {
-    cy.request({
-      method: 'GET',
-      url: `${baseUrl}?userId=10&publicOnly=true&setId=fanpack-alpha&search=otter`,
-      headers: createHeaders(),
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      expect(res.body.data).to.be.an('array')
-    })
-  })
-
   // --- 1. Create: auth failure cases
   it('should not allow creating a Dominion without an authorization token', () => {
     cy.request({

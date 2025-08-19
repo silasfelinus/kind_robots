@@ -300,6 +300,7 @@ model Dominion {
   description   String?     @db.Text            // rules text (original)
   italics       String?     @db.VarChar(764)    // flavor line (original)
   color         String?     @db.VarChar(64)     // e.g. 'blue', 'green', 'gold', theming only
+  icon          String?     @db.VarChar(128)
   designer      String?     @db.VarChar(256)
 
   // Ownership & visibility

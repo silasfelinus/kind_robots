@@ -33,6 +33,26 @@
             placeholder="Kind Designer"
           />
         </label>
+
+        <!-- ✅ Icon (optional) with live preview -->
+        <label class="form-control">
+          <span class="label-text">Icon (optional)</span>
+          <div class="flex gap-3 items-center">
+            <input
+              v-model="store.form.icon"
+              class="input input-bordered flex-1"
+              placeholder="e.g., kind-icon:castle or mdi:castle"
+            />
+            <Icon
+              :name="store.form.icon || 'kind-icon:card'"
+              class="text-3xl"
+            />
+          </div>
+          <p class="text-xs opacity-70 mt-1">
+            Use any supported icon name (e.g. <code>kind-icon:castle</code>,
+            <code>mdi:castle</code>). Leave blank to use the default card icon.
+          </p>
+        </label>
       </div>
 
       <label class="form-control">
@@ -264,6 +284,7 @@ function syncKeywords() {
 }
 
 async function handleSave() {
+  if (store.form.icon === '') store.form.icon = null as any
   const res = await store.save()
   if (res.success) emit('close')
 }

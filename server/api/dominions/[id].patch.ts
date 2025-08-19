@@ -45,6 +45,9 @@ function normalizePatch(input: any): Prisma.DominionUpdateInput {
       (patch as any)[k] = Number(input[k])
   })
 
+  if (typeof input.icon === 'string' || input.icon === null)
+    patch.icon = input.icon
+
   if (typeof input.isDuration === 'boolean') patch.isDuration = input.isDuration
   if ('durationJSON' in input) patch.durationJSON = input.durationJSON ?? null
   if ('effects' in input) patch.effects = input.effects ?? {}

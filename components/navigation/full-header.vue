@@ -1,3 +1,4 @@
+<!-- /components/content/navigation/full-header.vue -->
 <template>
   <header
     class="relative isolate bg-base-300 rounded-2xl w-full box-border overflow-visible"

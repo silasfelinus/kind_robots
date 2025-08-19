@@ -44,7 +44,7 @@ const navCards: LinkItem[] = [
   },
   {
     title: 'Prompt Nav',
-    icon: 'kind-icon:speech-bubble',
+    icon: 'kind-icon:chatbubble',
     description: 'Craft, save, and reuse your best prompts.',
     tooltip: 'Show Prompt Tools',
   },

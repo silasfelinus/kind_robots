@@ -33,7 +33,7 @@
 
       <!-- Smart Icons (fills remaining) -->
       <div
-        class="flex-grow h-full flex items-center justify-end overflow-hidden"
+        class="relative flex-grow h-full flex items-center justify-end overflow-visible"
       >
         <smart-icons class="h-full" />
       </div>

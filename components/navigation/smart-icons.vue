@@ -28,15 +28,16 @@
     </div>
 
     <!-- Vertical toggle stack (right edge) -->
-    <div class="flex flex-col h-full min-h-0 gap-2 pr-2">
+    <div class="flex flex-col h-full min-h-0 gap-2 pr-2 shrink-0 items-center">
       <!-- 1) Smart Icons edit/change -->
-      <div class="flex-1 min-h-0">
-        <div v-if="isEditing" class="flex h-full gap-2">
+      <div class="flex-1 min-h-0 w-full flex items-center justify-center">
+        <!-- Editing toolbar: 3 small squares sharing the row height -->
+        <div v-if="isEditing" class="grid grid-cols-3 gap-2 h-full w-full">
           <NuxtLink
             to="/icons"
             @click="confirmEdit"
             title="Add or manage icons"
-            class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+            class="aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           >
             <Icon name="kind-icon:plus" class="h-[78%] w-[78%]" />
           </NuxtLink>
@@ -45,7 +46,7 @@
             v-if="hasChanges"
             @click="revertEdit"
             title="Revert changes"
-            class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+            class="aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           >
             <Icon name="kind-icon:rotate" class="h-[78%] w-[78%]" />
           </button>
@@ -53,25 +54,26 @@
           <button
             @click="confirmEdit"
             title="Save order"
-            class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+            class="aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           >
             <Icon name="kind-icon:check" class="h-[78%] w-[78%]" />
           </button>
         </div>
 
+        <!-- Single square when not editing -->
         <button
           v-else
           @click="activateEditMode"
           title="Edit Smart Icons"
-          class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+          class="aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         >
           <Icon name="kind-icon:settings" class="h-[78%] w-[78%]" />
         </button>
       </div>
 
-      <!-- 2) Corner menu toggle (question / question-glow or panel icons per your current choice) -->
+      <!-- 2) Corner menu toggle -->
       <button
-        class="flex-1 min-h-0 w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+        class="flex-1 min-h-0 aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         :class="displayStore.showCorner ? 'ring-1 ring-primary/50' : ''"
         :title="
           displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'
@@ -79,7 +81,7 @@
         :aria-pressed="displayStore.showCorner"
         @click="displayStore.toggleCorner()"
       >
-        <!-- Using panel-right / panel-right-close as in your latest snippet -->
+        <!-- Use panel icons (or swap to question/question-glow if you prefer) -->
         <Icon
           :name="
             displayStore.showCorner
@@ -88,14 +90,11 @@
           "
           class="h-[78%] w-[78%]"
         />
-        <!-- If you want question/question-glow instead, swap the line above for:
-        <Icon :name="displayStore.showCorner ? 'kind-icon:question-glow' : 'kind-icon:question'" class="h-[78%] w-[78%]" />
-        -->
       </button>
 
-      <!-- 3) Tutorial toggle (question / question-glow per your request) -->
+      <!-- 3) Tutorial toggle (question / question-glow) -->
       <button
-        class="flex-1 min-h-0 w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+        class="flex-1 min-h-0 aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         :class="isTutorialOpen ? 'ring-1 ring-primary/50' : ''"
         :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
         :aria-pressed="isTutorialOpen"

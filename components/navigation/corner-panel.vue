@@ -1,4 +1,4 @@
-<!-- /components/content/icons/center-panel.vue -->
+<!-- /components/content/navigation/center-panel.vue -->
 <template>
   <!-- Overlay-ready root: never affects layout -->
   <div ref="panelRef" class="relative pointer-events-none z-50">

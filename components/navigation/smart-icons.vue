@@ -1,3 +1,4 @@
+<!-- /components/content/navigation/smart-icons.vue -->
 <template>
   <div class="icon-bar relative w-full h-full overflow-visible">
     <!-- Absolute control stack; no layout impact -->

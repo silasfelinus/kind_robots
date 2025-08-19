@@ -1,10 +1,8 @@
 <!-- /components/content/navigation/full-header.vue -->
 <template>
-  <header
-    class="relative isolate bg-base-300 rounded-2xl w-full box-border overflow-visible"
-  >
+  <header class="bg-base-300 rounded-2xl w-full box-border overflow-visible">
     <!-- Single row (no h-full on the row) -->
-    <div class="flex w-full items-center px-2" :class="rowHeight">
+    <div class="flex w-full items-center px-2 h-full">
       <!-- Avatar -->
       <div
         class="relative flex items-center justify-center overflow-hidden rounded-2xl min-w-20 h-full"
@@ -44,18 +42,8 @@
     <!-- Overlays (no layout impact) -->
     <!-- Corner panel -->
     <div class="absolute inset-0 pointer-events-none z-50">
-      <div class="absolute right-1 top-1 pointer-events-auto">
+      <div class="absolute right-1 bottom-1 pointer-events-auto">
         <corner-panel v-if="displayStore.showCorner" class="m-0" />
-      </div>
-    </div>
-
-    <!-- Center panel: only when !bigMode; overlay below header -->
-    <div class="absolute inset-x-0 pointer-events-none z-50">
-      <div
-        v-if="!bigMode && displayStore.showCenter"
-        class="absolute left-1/2 -translate-x-1/2 top-full mt-2 pointer-events-auto"
-      >
-        <center-panel />
       </div>
     </div>
   </header>
@@ -72,9 +60,4 @@ const pageStore = usePageStore()
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
-
-// Explicit single-row height — do NOT use h-full on the row
-const rowHeight = computed(() =>
-  bigMode.value ? 'h-12 md:h-14' : 'h-16 md:h-20',
-)
 </script>

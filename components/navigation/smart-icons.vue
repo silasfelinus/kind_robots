@@ -1,14 +1,16 @@
 <!-- /components/content/navigation/smart-icons.vue -->
 <template>
-  <div class="icon-bar relative w-full h-full overflow-visible">
+  <div class="w-full h-full">
     <!-- Absolute control stack; no layout impact -->
     <div class="absolute right-0 top-1/2 -translate-y-1/2 z-40 pr-2">
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2 items-stretch">
+        <!-- 1) Smart Icon change -->
         <template v-if="isEditing">
           <NuxtLink
             to="/icons"
             class="btn btn-square btn-sm"
             @click="confirmEdit"
+            title="Add or manage icons"
           >
             <Icon name="kind-icon:plus" />
           </NuxtLink>
@@ -17,6 +19,7 @@
             v-if="hasChanges"
             class="btn btn-square btn-sm text-error"
             @click="revertEdit"
+            title="Revert changes"
           >
             <Icon name="kind-icon:rotate" />
           </button>
@@ -24,25 +27,28 @@
           <button
             class="btn btn-square btn-sm bg-green-500 text-white"
             @click="confirmEdit"
+            title="Save order"
           >
             <Icon name="kind-icon:check" />
           </button>
         </template>
 
         <button
-          class="btn btn-square btn-sm"
           v-else
+          class="btn btn-square btn-sm"
           @click="activateEditMode"
-          title="Edit"
+          title="Edit Smart Icons"
         >
           <Icon name="kind-icon:settings" />
         </button>
 
-        <!-- Corner toggle -->
+        <!-- 2) Corner panel toggle -->
         <button
           class="btn btn-square btn-sm"
           :class="displayStore.showCorner ? 'btn-primary' : ''"
-          :title="displayStore.showCorner ? 'Hide Menu' : 'Show Menu'"
+          :title="
+            displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'
+          "
           :aria-pressed="displayStore.showCorner"
           @click="displayStore.toggleCorner()"
         >
@@ -51,6 +57,23 @@
               displayStore.showCorner
                 ? 'kind-icon:panel-right-close'
                 : 'kind-icon:panel-right'
+            "
+          />
+        </button>
+
+        <!-- 3) Splash Tutorial (Right Sidebar) toggle -->
+        <button
+          class="btn btn-square btn-sm"
+          :class="sidebarRightOpen ? 'btn-accent text-white' : ''"
+          :title="sidebarRightOpen ? 'Hide Tutorial' : 'Show Tutorial'"
+          :aria-pressed="sidebarRightOpen"
+          @click="toggleRightSidebar"
+        >
+          <Icon
+            :name="
+              sidebarRightOpen
+                ? 'kind-icon:sidebar-right-close'
+                : 'kind-icon:sidebar-right'
             "
           />
         </button>
@@ -112,7 +135,7 @@ const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
 
 function activateEditMode() {
   smartbarStore.isEditing = true
-  displayStore.bigMode = false // force small mode while editing
+  displayStore.bigMode = false
 }
 
 const hasChanges = computed(() => {
@@ -131,7 +154,19 @@ function revertEdit() {
   smartbarStore.isEditing = false
 }
 
-// Scroll/drag (unchanged)
+/** Right Sidebar (Splash Tutorial) toggle */
+const sidebarRightOpen = computed(
+  () =>
+    displayStore.sidebarRightState !== 'hidden' &&
+    displayStore.sidebarRightState !== 'disabled',
+)
+
+function toggleRightSidebar() {
+  const current = displayStore.sidebarRightState
+  displayStore.sidebarRightState = current === 'open' ? 'hidden' : 'open'
+}
+
+/** Scroll and drag */
 const scrollContainer = ref<HTMLElement | null>(null)
 let scrollTick = false
 function checkScrollEdges() {
@@ -146,9 +181,9 @@ function checkScrollEdgesThrottled() {
     scrollTick = false
   })
 }
-let isDragging = false,
-  startX = 0,
-  scrollStart = 0
+let isDragging = false
+let startX = 0
+let scrollStart = 0
 function handleScrollMouseDown(e: MouseEvent) {
   isDragging = true
   startX = e.clientX

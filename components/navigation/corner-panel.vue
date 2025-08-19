@@ -28,7 +28,7 @@
         <!-- Dropdown Panel -->
         <div
           v-if="activePanel === item.id"
-          class="absolute top-full mt-2 w-64 max-w-[calc(100vw-1rem)] bg-base-100 shadow-lg rounded-xl p-3 z-[1000] text-sm space-y-2"
+          class="absolute top-full mt-2 w-64 max-w-[calc(100vw-1rem)] bg-base-100 shadow-lg rounded-xl p-3 z-50 text-sm space-y-2"
           style="inset-inline-end: 0"
         >
           <!-- Tokens Panel -->

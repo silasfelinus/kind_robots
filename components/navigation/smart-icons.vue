@@ -11,22 +11,26 @@
               to="/icons"
               @click="confirmEdit"
               title="Add or manage icons"
-              class="kr-iconbtn"
+              class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
             >
-              <Icon name="kind-icon:plus" class="kr-icon" />
+              <Icon name="kind-icon:plus" class="h-[78%] w-[78%]" />
             </NuxtLink>
 
             <button
               v-if="hasChanges"
               @click="revertEdit"
               title="Revert changes"
-              class="kr-iconbtn"
+              class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
             >
-              <Icon name="kind-icon:rotate" class="kr-icon" />
+              <Icon name="kind-icon:rotate" class="h-[78%] w-[78%]" />
             </button>
 
-            <button @click="confirmEdit" title="Save order" class="kr-iconbtn">
-              <Icon name="kind-icon:check" class="kr-icon" />
+            <button
+              @click="confirmEdit"
+              title="Save order"
+              class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+            >
+              <Icon name="kind-icon:check" class="h-[78%] w-[78%]" />
             </button>
           </div>
 
@@ -34,15 +38,15 @@
             v-else
             @click="activateEditMode"
             title="Edit Smart Icons"
-            class="kr-iconbtn h-full w-full"
+            class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           >
-            <Icon name="kind-icon:settings" class="kr-icon" />
+            <Icon name="kind-icon:settings" class="h-[78%] w-[78%]" />
           </button>
         </div>
 
         <!-- 2) Corner menu toggle (middle row) -->
         <button
-          class="kr-iconbtn"
+          class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           :class="displayStore.showCorner ? 'ring-1 ring-primary/50' : ''"
           :title="
             displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'
@@ -56,13 +60,13 @@
                 ? 'kind-icon:panel-right'
                 : 'kind-icon:panel-right-close'
             "
-            class="kr-icon"
+            class="h-[78%] w-[78%]"
           />
         </button>
 
         <!-- 3) Tutorial toggle (bottom row) -->
         <button
-          class="kr-iconbtn"
+          class="h-full w-full rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           :class="isTutorialOpen ? 'ring-1 ring-primary/50' : ''"
           :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
           :aria-pressed="isTutorialOpen"
@@ -72,7 +76,7 @@
             :name="
               isTutorialOpen ? 'kind-icon:tutorial-glow' : 'kind-icon:tutorial'
             "
-            class="kr-icon"
+            class="h-[78%] w-[78%]"
           />
         </button>
       </div>
@@ -156,11 +160,9 @@ function revertEdit() {
 const rowIcons = computed(() =>
   isEditing.value ? editableIcons.value : activeIcons.value,
 )
-// inside <script setup>
+
 const showTitles = computed(() => {
-  // Requirement: if corner panel is showing, NEVER show labels
   if (displayStore.showCorner) return false
-  // otherwise follow your normal logic
   return !isEditing.value && !displayStore.bigMode
 })
 
@@ -224,16 +226,3 @@ onBeforeUnmount(() => {
     resizeObserver.unobserve(scrollContainer.value)
 })
 </script>
-
-<style scoped>
-/* Scalable icon button — fills its grid row cell */
-.kr-iconbtn {
-  @apply h-full w-full rounded-2xl flex items-center justify-center
-          bg-base-200 hover:bg-base-300 border border-base-content/10
-          transition;
-}
-/* Icon scales inside the button without fixed px; gentle padding */
-.kr-icon {
-  @apply h-[78%] w-[78%];
-}
-</style>

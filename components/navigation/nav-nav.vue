@@ -14,7 +14,7 @@ const linkStore = useLinkStore()
 const navCards: LinkItem[] = [
   {
     title: 'Art Nav',
-    icon: 'kind-icon:palette',
+    icon: 'kind-icon:palette-color',
     description: 'Explore art tools and gallery options.',
     tooltip: 'Show Art Navigation',
   },
@@ -26,13 +26,13 @@ const navCards: LinkItem[] = [
   },
   {
     title: 'Dashboard Nav',
-    icon: 'kind-icon:layout-dashboard',
+    icon: 'kind-icon:folder-tree',
     description: 'Access your profile, stats, and key features.',
     tooltip: 'Show Dashboard',
   },
   {
     title: 'Giftshop Nav',
-    icon: 'kind-icon:shopping-bag',
+    icon: 'kind-icon:money',
     description: 'Buy tokens and support Kind Robots projects.',
     tooltip: 'Go shopping!',
   },

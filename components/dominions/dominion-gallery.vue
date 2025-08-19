@@ -3,7 +3,7 @@
   <div class="max-w-6xl mx-auto p-4 space-y-6">
     <div class="flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold">Dominion Gallery</h1>
-      <NuxtLink to="/add-dominion" class="btn btn-primary"
+      <NuxtLink to="/add-dominion" class="btn btn-primary z-40"
         >New Dominion</NuxtLink
       >
     </div>

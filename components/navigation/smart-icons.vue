@@ -1,9 +1,7 @@
-<!-- /components/content/icons/smart-icons.vue -->
 <template>
-  <!-- Root fills the line height provided by parent -->
   <div class="icon-bar relative w-full h-full overflow-visible">
-    <!-- Right Control Panel (absolute; no layout impact) -->
-    <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50 pr-2">
+    <!-- Absolute control stack; no layout impact -->
+    <div class="absolute right-0 top-1/2 -translate-y-1/2 z-40 pr-2">
       <div class="flex flex-col gap-2">
         <template v-if="isEditing">
           <NuxtLink
@@ -39,7 +37,7 @@
           <Icon name="kind-icon:settings" />
         </button>
 
-        <!-- Corner toggle (absolute stack; does not move icons) -->
+        <!-- Corner toggle -->
         <button
           class="btn btn-square btn-sm"
           :class="displayStore.showCorner ? 'btn-primary' : ''"
@@ -58,7 +56,7 @@
       </div>
     </div>
 
-    <!-- Icon Row locked to the component height -->
+    <!-- Icon Row; padding leaves space for control stack -->
     <div
       class="relative w-full h-full flex items-center pl-10 md:pl-12 pr-20 md:pr-24"
     >
@@ -113,7 +111,7 @@ const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
 
 function activateEditMode() {
   smartbarStore.isEditing = true
-  displayStore.bigMode = false
+  displayStore.bigMode = false // force small mode while editing
 }
 
 const hasChanges = computed(() => {
@@ -132,7 +130,7 @@ function revertEdit() {
   smartbarStore.isEditing = false
 }
 
-// Scroll logic (unchanged)
+// Scroll/drag (unchanged)
 const scrollContainer = ref<HTMLElement | null>(null)
 let scrollTick = false
 function checkScrollEdges() {
@@ -147,9 +145,9 @@ function checkScrollEdgesThrottled() {
     scrollTick = false
   })
 }
-let isDragging = false
-let startX = 0
-let scrollStart = 0
+let isDragging = false,
+  startX = 0,
+  scrollStart = 0
 function handleScrollMouseDown(e: MouseEvent) {
   isDragging = true
   startX = e.clientX

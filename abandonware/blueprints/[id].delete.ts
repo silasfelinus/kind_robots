@@ -1,8 +1,8 @@
 // /server/api/blueprints/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
-import prisma from '..//utils/prisma'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
+import prisma from '../../server/api/utils/prisma'
+import { errorHandler } from '../../server/api/utils/error'
+import { validateApiKey } from '../../server/api/utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   const modelName = 'blueprint'

@@ -300,19 +300,6 @@
     ]
   },
   {
-    "folderName": "resonance",
-    "components": [
-      "add-blueprint",
-      "add-resonance",
-      "blueprint-gallery",
-      "edit-blueprint",
-      "resonance-buttons",
-      "resonance-display",
-      "resonance-gallery",
-      "resonance-lab"
-    ]
-  },
-  {
     "folderName": "rewards",
     "components": [
       "add-reward",

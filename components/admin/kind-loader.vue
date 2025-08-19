@@ -24,7 +24,6 @@ import { useScenarioStore } from '../../stores/scenarioStore'
 import { useWeirdStore } from '../../stores/weirdStore'
 import { useConsoleStore } from '../../stores/consoleStore'
 import { useChoiceStore } from '../../stores/choiceStore'
-import { useResonanceStore } from '../../stores/resonanceStore'
 import { useSmartbarStore } from '../../stores/smartbarStore'
 import { useComponentStore } from '../../stores/componentStore'
 import { usePageStore } from '../../stores/pageStore'
@@ -49,7 +48,6 @@ const scenarioStore = useScenarioStore()
 const weirdStore = useWeirdStore()
 const consoleStore = useConsoleStore()
 const choiceStore = useChoiceStore()
-const resonanceStore = useResonanceStore()
 const smartbarStore = useSmartbarStore()
 const componentStore = useComponentStore()
 const randomStore = useRandomStore()
@@ -88,7 +86,6 @@ onMounted(async () => {
       weirdStore.initialize?.(),
       scenarioStore.initialize?.(),
       choiceStore.initialize?.(),
-      resonanceStore.initialize?.(),
       smartbarStore.initialize?.(),
       componentStore.initialize?.(),
     ])

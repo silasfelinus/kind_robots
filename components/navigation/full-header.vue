@@ -4,7 +4,7 @@
     class="relative bg-base-300 rounded-2xl w-full box-border overflow-visible"
   >
     <!-- Single row -->
-    <div class="flex w-full items-center px-2" :class="rowHeight">
+    <div class="flex w-full items-center px-2 h-full">
       <!-- Avatar -->
       <div
         class="relative flex items-center justify-center overflow-hidden rounded-2xl min-w-20 h-full"
@@ -41,9 +41,14 @@
       </div>
     </div>
 
-    <!-- Corner Panel floats at bottom-right INSIDE the header, no layout impact -->
-    <div class="absolute bottom-1 right-1 z-[80] pointer-events-none">
-      <corner-panel v-if="showCorner" class="pointer-events-auto" />
+    <!-- CORNER PANEL OVERLAY (no layout impact, no extra row) -->
+    <div
+      class="absolute inset-0 z-[80] pointer-events-none flex items-end justify-end p-1"
+    >
+      <corner-panel
+        v-if="displayStore.showCorner"
+        class="pointer-events-auto m-0"
+      />
     </div>
   </header>
 </template>
@@ -59,14 +64,4 @@ const pageStore = usePageStore()
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
-
-// Control the single-row height ONLY here (no h-full elsewhere)
-const rowHeight = computed(() =>
-  bigMode.value ? 'h-12 md:h-14' : 'h-16 md:h-20',
-)
-
-const showCorner = computed(() => {
-  // @ts-ignore
-  return !!(displayStore.showCorner ?? displayStore.showCounter)
-})
 </script>

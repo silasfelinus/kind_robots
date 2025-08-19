@@ -30,9 +30,9 @@
     <!-- Vertical toggle stack (right edge) -->
     <div class="flex flex-col h-full min-h-0 gap-2 pr-2 shrink-0 items-center">
       <!-- 1) Smart Icons edit/change -->
-      <div class="flex-1 min-h-0 w-full flex items-center justify-center">
-        <!-- Editing toolbar: 3 small squares sharing the row height -->
-        <div v-if="isEditing" class="grid grid-cols-3 gap-2 h-full w-full">
+      <template v-if="isEditing">
+        <!-- Editing toolbar: 3 small squares sharing the top third -->
+        <div class="flex-1 min-h-0 w-full grid grid-cols-3 gap-2">
           <NuxtLink
             to="/icons"
             @click="confirmEdit"
@@ -59,17 +59,15 @@
             <Icon name="kind-icon:check" class="h-[78%] w-[78%]" />
           </button>
         </div>
-
-        <!-- Single square when not editing -->
-        <button
-          v-else
-          @click="activateEditMode"
-          title="Edit Smart Icons"
-          class="aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-        >
-          <Icon name="kind-icon:settings" class="h-[78%] w-[78%]" />
-        </button>
-      </div>
+      </template>
+      <button
+        v-else
+        @click="activateEditMode"
+        title="Edit Smart Icons"
+        class="flex-1 min-h-0 aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+      >
+        <Icon name="kind-icon:settings" class="h-[78%] w-[78%]" />
+      </button>
 
       <!-- 2) Corner menu toggle -->
       <button
@@ -81,7 +79,7 @@
         :aria-pressed="displayStore.showCorner"
         @click="displayStore.toggleCorner()"
       >
-        <!-- Use panel icons (or swap to question/question-glow if you prefer) -->
+        <!-- Swap to question/question-glow if you prefer that visual language -->
         <Icon
           :name="
             displayStore.showCorner

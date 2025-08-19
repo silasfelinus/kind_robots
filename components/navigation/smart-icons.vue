@@ -156,9 +156,13 @@ function revertEdit() {
 const rowIcons = computed(() =>
   isEditing.value ? editableIcons.value : activeIcons.value,
 )
-const showTitles = computed(
-  () => !isEditing.value && !displayStore.bigMode && !displayStore.showCorner,
-)
+// inside <script setup>
+const showTitles = computed(() => {
+  // Requirement: if corner panel is showing, NEVER show labels
+  if (displayStore.showCorner) return false
+  // otherwise follow your normal logic
+  return !isEditing.value && !displayStore.bigMode
+})
 
 /** Tutorial toggle */
 const isTutorialOpen = computed({

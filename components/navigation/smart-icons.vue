@@ -1,8 +1,8 @@
 <!-- /components/content/icons/smart-icons.vue -->
 <template>
-  <!-- Do NOT use h-full on the root; let parent pass a line height -->
-  <div class="icon-bar relative w-full min-h-10 md:min-h-12 overflow-visible">
-    <!-- Right Control Panel (absolute; does not affect layout) -->
+  <!-- Root fills the line height provided by parent -->
+  <div class="icon-bar relative w-full h-full overflow-visible">
+    <!-- Right Control Panel (absolute; no layout impact) -->
     <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50 pr-2">
       <div class="flex flex-col gap-2">
         <template v-if="isEditing">
@@ -31,15 +31,15 @@
         </template>
 
         <button
-          v-else
           class="btn btn-square btn-sm"
+          v-else
           @click="activateEditMode"
           title="Edit"
         >
           <Icon name="kind-icon:settings" />
         </button>
 
-        <!-- Corner toggle (absolute block; no layout shift) -->
+        <!-- Corner toggle (absolute stack; does not move icons) -->
         <button
           class="btn btn-square btn-sm"
           :class="displayStore.showCorner ? 'btn-primary' : ''"
@@ -58,13 +58,13 @@
       </div>
     </div>
 
-    <!-- Icon Row (fixed to the passed height from parent) -->
+    <!-- Icon Row locked to the component height -->
     <div
-      class="relative w-full h-full flex items-center pl-10 md:pl-12 pr-20 md:pr-24 group"
+      class="relative w-full h-full flex items-center pl-10 md:pl-12 pr-20 md:pr-24"
     >
       <div
         ref="scrollContainer"
-        class="scroll-container overflow-x-auto overflow-y-hidden w-full h-full flex items-center gap-1 md:gap-2 snap-x snap-mandatory scroll-px-4 transition-all duration-300"
+        class="overflow-x-auto overflow-y-hidden w-full h-full flex items-center gap-1 md:gap-2 snap-x snap-mandatory scroll-px-4 transition-all duration-300"
         @scroll="checkScrollEdgesThrottled"
         @mousedown="handleScrollMouseDown"
         @mousemove="handleScrollMouseMove"

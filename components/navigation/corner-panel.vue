@@ -1,5 +1,5 @@
 <template>
-  <div ref="panelRef" class="absolute right-2 top-1 z-40 pointer-events-auto">
+  <div ref="panelRef" class="pointer-events-auto">
     <div class="flex gap-2 items-start">
       <div
         v-for="item in menuItems"
@@ -106,12 +106,22 @@
             <div class="flex flex-col gap-1">
               <NuxtLink to="/addart" class="hover:underline">🖼️ Art</NuxtLink>
               <NuxtLink to="/bots" class="hover:underline">🤖 Bots</NuxtLink>
-              <NuxtLink to="/pitches" class="hover:underline">🎤 Pitches</NuxtLink>
-              <NuxtLink to="/stories" class="hover:underline">📖 Stories</NuxtLink>
-              <NuxtLink to="/wonderlab" class="hover:underline">🧪 Wonderlab</NuxtLink>
+              <NuxtLink to="/pitches" class="hover:underline"
+                >🎤 Pitches</NuxtLink
+              >
+              <NuxtLink to="/stories" class="hover:underline"
+                >📖 Stories</NuxtLink
+              >
+              <NuxtLink to="/wonderlab" class="hover:underline"
+                >🧪 Wonderlab</NuxtLink
+              >
               <NuxtLink to="/forum" class="hover:underline">💬 Forum</NuxtLink>
-              <NuxtLink to="/memory" class="hover:underline">🧠 Memory</NuxtLink>
-              <NuxtLink to="/characters" class="hover:underline">🧍 Characters</NuxtLink>
+              <NuxtLink to="/memory" class="hover:underline"
+                >🧠 Memory</NuxtLink
+              >
+              <NuxtLink to="/characters" class="hover:underline"
+                >🧍 Characters</NuxtLink
+              >
             </div>
           </div>
 
@@ -135,9 +145,15 @@
           <!-- About Panel -->
           <div v-else-if="item.id === 'about'">
             <div class="font-bold mb-1">ℹ️ Info</div>
-            <NuxtLink to="/about" class="block hover:underline">🌐 About</NuxtLink>
-            <NuxtLink to="/sponsor" class="block hover:underline">💖 Sponsors</NuxtLink>
-            <NuxtLink to="/giftshop" class="block hover:underline">🛍️ Giftshop</NuxtLink>
+            <NuxtLink to="/about" class="block hover:underline"
+              >🌐 About</NuxtLink
+            >
+            <NuxtLink to="/sponsor" class="block hover:underline"
+              >💖 Sponsors</NuxtLink
+            >
+            <NuxtLink to="/giftshop" class="block hover:underline"
+              >🛍️ Giftshop</NuxtLink
+            >
           </div>
         </div>
       </div>

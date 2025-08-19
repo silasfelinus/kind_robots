@@ -54,8 +54,8 @@
           <Icon
             :name="
               displayStore.showCorner
-                ? 'kind-icon:question-glow'
-                : 'kind-icon:question'
+                ? 'kind-icon:panel-right'
+                : 'kind-icon:panel-right-close'
             "
           />
         </button>

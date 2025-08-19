@@ -34,11 +34,9 @@ model Art {
   Prompt        Prompt?         @relation(fields: [promptId], references: [id])
   User          User?           @relation(fields: [userId], references: [id])
   ArtImage      ArtImage?
-  Blueprints    Blueprint[]
   Dominions     Dominion[]
   Hybrids        Hybrid[]
   Reaction      Reaction[]
-  Resonances     Resonance[]
   ArtCollection ArtCollection[] @relation("ArtToArtCollection")
   genres        String?
 
@@ -107,26 +105,6 @@ model ArtCollection {
   isMature  Boolean   @default(false)
 
   @@index([userId], map: "ArtCollection_userId_fkey")
-}
-
-model Blueprint {
-  id         Int       @id @default(autoincrement())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-
-  title      String
-  description String?
-  
-  userId     Int
-  User       User      @relation(fields: [userId], references: [id])
-
-  coverArtId Int?
-  coverArt   Art?      @relation(fields: [coverArtId], references: [id])
-
-  steps      Json      // 👈 this is your array of commands (as structured JSON)
-  isPublic   Boolean   @default(true)
-  isMature    Boolean  @default(false)
-  tags       Tag[]  
 }
 
 
@@ -223,7 +201,6 @@ model Character {
   Rewards         Reward[]
   Chats           Chat[]
   Scenarios       Scenario[]
-  Resonances      Resonance[]
 }
 
 model Chat {
@@ -599,31 +576,6 @@ model Reaction {
   @@index([componentId], map: "Reaction_componentId_fkey")
 }
 
-model Resonance {
-  id           Int       @id @default(autoincrement())
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime? @default(now()) @updatedAt
-  title        String    @db.VarChar(255)
-  description  String?   @db.VarChar(512)
-  instructions   String?   @db.VarChar(512)
-  userId       Int?      @default(10)
-  isPublic     Boolean   @default(true)
-  isPreset     Boolean   @default(false)
-  isMature     Boolean   @default(false)
-  iteration    Int      @default(1000)
-  imageMask    Int      @default(50)
-  seedText     String?
-  creativityRate  Int     @default(50)
-  useMicrophone Boolean  @default(false)
-  genres       String?   @db.VarChar(512)
-  User         User?     @relation(fields: [userId], references: [id])
-  Art          Art[]
-  Scenarios     Scenario[]
-  Characters    Character[]
-
-  @@index([userId], map: "Resonance_userId_fkey")
-}
-
 
 model Resource {
   id           Int          @id @default(autoincrement())
@@ -682,7 +634,6 @@ model Scenario {
   userId        Int
   User          User       @relation(fields: [userId], references: [id])
   Characters    Character[]
-  Resonances     Resonance[]
   artImageId    Int?
   ArtImage      ArtImage?      @relation(fields: [artImageId], references: [id])
   imagePath     String?
@@ -730,7 +681,6 @@ model Tag {
   Components Component[] @relation("ComponentToTag")
   Pitches    Pitch[]     @relation("PitchToTag")
   Reactions  Reaction[]
-  Blueprints  Blueprint[]
   Dominions   Dominion[]
 
   @@index([userId], map: "Tag_userId_fkey")
@@ -801,7 +751,6 @@ model User {
   artImageId     Int?
   Art            Art[]
   ArtCollections ArtCollection[]
-  Blueprints     Blueprint[]
   ArtImages      ArtImage[]
   Bots           Bot[]
   Characters     Character[]
@@ -818,7 +767,6 @@ model User {
   Rewards        Reward[]
   Tags           Tag[]
   Scenarios      Scenario[]
-  Resonances     Resonance[]
   SmartIcons     SmartIcon[]
   Themes         Theme[]
   Pantheons      Pantheon[]

@@ -34,7 +34,8 @@
 
       <!-- Smart Icons -->
       <div
-        class="flex-grow h-full overflow-hidden px-2 flex items-center justify-end"
+        v-if="displayStore.showCorner"
+        class="flex-grow h-full overflow-hidden px-2 flex items-center justify-end z-50"
       >
         <smart-icons />
       </div>

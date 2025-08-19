@@ -1,13 +1,65 @@
 <!-- /components/content/navigation/smart-icons.vue -->
 <template>
   <div class="w-full h-full">
+    <!-- Vertical control stack on the right -->
     <div class="absolute right-0 top-1/2 -translate-y-1/2 z-40 pr-2">
       <div class="flex flex-col gap-2 items-stretch">
         <!-- 1) Smart Icon edit/change -->
-        <!-- ... unchanged ... -->
+        <template v-if="isEditing">
+          <NuxtLink
+            to="/icons"
+            class="btn btn-square btn-sm"
+            @click="confirmEdit"
+            title="Add or manage icons"
+          >
+            <Icon name="kind-icon:plus" />
+          </NuxtLink>
 
-        <!-- 2) Corner panel toggle -->
-        <!-- ... unchanged ... -->
+          <button
+            v-if="hasChanges"
+            class="btn btn-square btn-sm text-error"
+            @click="revertEdit"
+            title="Revert changes"
+          >
+            <Icon name="kind-icon:rotate" />
+          </button>
+
+          <button
+            class="btn btn-square btn-sm bg-green-500 text-white"
+            @click="confirmEdit"
+            title="Save order"
+          >
+            <Icon name="kind-icon:check" />
+          </button>
+        </template>
+
+        <button
+          v-else
+          class="btn btn-square btn-sm"
+          @click="activateEditMode"
+          title="Edit Smart Icons"
+        >
+          <Icon name="kind-icon:settings" />
+        </button>
+
+        <!-- 2) Corner/Center panel toggle -->
+        <button
+          class="btn btn-square btn-sm"
+          :class="displayStore.showCorner ? 'btn-primary' : ''"
+          :title="
+            displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'
+          "
+          :aria-pressed="displayStore.showCorner"
+          @click="displayStore.toggleCorner()"
+        >
+          <Icon
+            :name="
+              displayStore.showCorner
+                ? 'kind-icon:panel-right-close'
+                : 'kind-icon:panel-right'
+            "
+          />
+        </button>
 
         <!-- 3) Right sidebar toggle (Splash Tutorial) -->
         <right-toggle />
@@ -93,7 +145,7 @@ const showTitles = computed(
   () => !displayStore.bigMode && !displayStore.showCorner,
 )
 
-/* scroll/drag code unchanged */
+/* scroll/drag code */
 const scrollContainer = ref<HTMLElement | null>(null)
 let scrollTick = false
 function checkScrollEdges() {

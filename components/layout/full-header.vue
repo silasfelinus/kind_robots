@@ -1,10 +1,9 @@
-<!-- /components/content/layout/full-header.vue -->
+<!-- /components/content/icons/kind-header.vue -->
 <template>
   <header
-    class="relative bg-base-300 rounded-2xl w-full box-border overflow-visible"
+    class="relative bg-base-300 rounded-2xl w-full h-full box-border overflow-visible"
   >
-    <!-- Single row: Avatar • (optional) Title • Smart Icons -->
-    <div class="flex w-full items-stretch px-2" :class="rowHeight">
+    <div class="flex w-full h-full items-stretch px-2" :class="rowHeight">
       <!-- Avatar -->
       <div
         class="relative flex items-center justify-center overflow-hidden rounded-2xl min-w-20 h-full"
@@ -12,7 +11,7 @@
       >
         <avatar-image
           alt="User Avatar"
-          class="block h-full w-full object-cover object-center rounded-2xl"
+          class="h-full w-full object-cover object-center rounded-2xl"
         />
         <div
           class="absolute bottom-1 left-1/2 -translate-x-1/2 z-40 text-white bg-primary rounded-md px-1 text-[10px] sm:text-xs md:text-sm"
@@ -33,19 +32,24 @@
         </h1>
       </div>
 
-      <!-- Smart Icons -->
-      <div class="flex-grow flex items-center justify-end">
+      <!-- Smart Icons (always shown) -->
+      <div
+        class="flex-grow h-full flex items-center justify-end overflow-hidden transition-[padding] duration-200"
+        :class="showCorner ? 'pr-16 md:pr-20' : ''"
+      >
         <smart-icons class="h-10 md:h-12" />
       </div>
+    </div>
 
-      <!-- Corner panel (optional) -->
-      <corner-panel v-if="showCorner" class="ml-2" />
+    <!-- Corner Panel: pinned inside bottom-right, floats over content -->
+    <div class="absolute bottom-1 right-1 z-[80] pointer-events-none">
+      <corner-panel v-if="showCorner" class="pointer-events-auto" />
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-// /components/content/layout/full-header.vue
+// /components/content/icons/kind-header.vue
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -57,15 +61,14 @@ const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
 
-// Shorter row in bigMode, taller when not
+// Taller header when not bigMode so avatar fills height nicely
 const rowHeight = computed(() =>
   bigMode.value ? 'h-12 md:h-14' : 'h-16 md:h-20',
 )
 
-const showCorner = computed(
-  () =>
-    // prefer explicit showCorner if it exists, else fallback to showCounter
-    // @ts-ignore
-    !!(displayStore.showCorner ?? displayStore.showCounter),
-)
+// Support either flag in your store
+const showCorner = computed(() => {
+  // @ts-ignore allow either
+  return !!(displayStore.showCorner ?? displayStore.showCounter)
+})
 </script>

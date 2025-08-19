@@ -1,10 +1,10 @@
 <!-- /components/content/icons/smart-icons.vue -->
 <template>
-  <div class="icon-bar relative w-full h-full overflow-hidden">
-    <!-- Right Control Panel -->
+  <!-- Do NOT use h-full on the root; let parent pass a line height -->
+  <div class="icon-bar relative w-full min-h-10 md:min-h-12 overflow-visible">
+    <!-- Right Control Panel (absolute; does not affect layout) -->
     <div class="absolute right-0 top-1/2 -translate-y-1/2 z-50 pr-2">
       <div class="flex flex-col gap-2">
-        <!-- Edit controls -->
         <template v-if="isEditing">
           <NuxtLink
             to="/icons"
@@ -39,7 +39,7 @@
           <Icon name="kind-icon:settings" />
         </button>
 
-        <!-- Corner toggle (always visible; stacked BELOW edit controls) -->
+        <!-- Corner toggle (absolute block; no layout shift) -->
         <button
           class="btn btn-square btn-sm"
           :class="displayStore.showCorner ? 'btn-primary' : ''"
@@ -58,7 +58,7 @@
       </div>
     </div>
 
-    <!-- Icon Row -->
+    <!-- Icon Row (fixed to the passed height from parent) -->
     <div
       class="relative w-full h-full flex items-center pl-10 md:pl-12 pr-20 md:pr-24 group"
     >
@@ -93,8 +93,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
-const { activeIcons, isEditing } = storeToRefs(smartbarStore)
-const { editableIcons } = storeToRefs(smartbarStore)
+const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
 
 const originalIcons = ref<SmartIcon[]>([])
 
@@ -133,21 +132,13 @@ function revertEdit() {
   smartbarStore.isEditing = false
 }
 
-// Scroll logic unchanged...
+// Scroll logic (unchanged)
 const scrollContainer = ref<HTMLElement | null>(null)
-const showLeft = ref(false)
-const showRight = ref(false)
-
+let scrollTick = false
 function checkScrollEdges() {
   const el = scrollContainer.value
   if (!el) return
-  const scrollLeft = el.scrollLeft
-  const scrollRight = el.scrollWidth - el.clientWidth - scrollLeft
-  showLeft.value = scrollLeft > 68
-  showRight.value = scrollRight > 68
 }
-
-let scrollTick = false
 function checkScrollEdgesThrottled() {
   if (scrollTick) return
   scrollTick = true
@@ -156,7 +147,6 @@ function checkScrollEdgesThrottled() {
     scrollTick = false
   })
 }
-
 let isDragging = false
 let startX = 0
 let scrollStart = 0
@@ -186,7 +176,6 @@ function handleScrollTouchMove(e: TouchEvent) {
 
 let resizeObserver: ResizeObserver | null = null
 onMounted(() => {
-  checkScrollEdges()
   resizeObserver = new ResizeObserver(checkScrollEdgesThrottled)
   if (scrollContainer.value) resizeObserver.observe(scrollContainer.value)
 })

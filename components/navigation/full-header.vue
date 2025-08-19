@@ -3,8 +3,8 @@
   <header
     class="relative bg-base-300 rounded-2xl w-full box-border overflow-visible"
   >
-    <!-- Single row only; NEVER use h-full on the row -->
-    <div class="flex w-full items-stretch px-2" :class="rowHeight">
+    <!-- Single row -->
+    <div class="flex w-full items-center px-2" :class="rowHeight">
       <!-- Avatar -->
       <div
         class="relative flex items-center justify-center overflow-hidden rounded-2xl min-w-20 h-full"
@@ -33,14 +33,15 @@
         </h1>
       </div>
 
-      <!-- Smart Icons -->
-      <div class="flex-grow flex items-center justify-end overflow-hidden">
-        <!-- Give icons their own explicit height; DO NOT pad for corner panel -->
-        <smart-icons class="h-10 md:h-12" />
+      <!-- Smart Icons fill remaining space and match row height -->
+      <div
+        class="flex-grow h-full flex items-center justify-end overflow-hidden"
+      >
+        <smart-icons class="h-full" />
       </div>
     </div>
 
-    <!-- Corner Panel: anchored bottom-right INSIDE header, floats over content -->
+    <!-- Corner Panel floats at bottom-right INSIDE the header, no layout impact -->
     <div class="absolute bottom-1 right-1 z-[80] pointer-events-none">
       <corner-panel v-if="showCorner" class="pointer-events-auto" />
     </div>
@@ -48,7 +49,6 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/icons/kind-header.vue
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -60,12 +60,11 @@ const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
 
-// Explicit row heights; avoid h-full anywhere to prevent phantom space
+// Control the single-row height ONLY here (no h-full elsewhere)
 const rowHeight = computed(() =>
   bigMode.value ? 'h-12 md:h-14' : 'h-16 md:h-20',
 )
 
-// Support either flag
 const showCorner = computed(() => {
   // @ts-ignore
   return !!(displayStore.showCorner ?? displayStore.showCounter)

@@ -1,9 +1,10 @@
 <!-- /components/content/icons/kind-header.vue -->
 <template>
   <header
-    class="relative bg-base-300 rounded-2xl w-full h-full box-border overflow-visible"
+    class="relative bg-base-300 rounded-2xl w-full box-border overflow-visible"
   >
-    <div class="flex w-full h-full items-stretch px-2" :class="rowHeight">
+    <!-- Single row only; NEVER use h-full on the row -->
+    <div class="flex w-full items-stretch px-2" :class="rowHeight">
       <!-- Avatar -->
       <div
         class="relative flex items-center justify-center overflow-hidden rounded-2xl min-w-20 h-full"
@@ -32,16 +33,14 @@
         </h1>
       </div>
 
-      <!-- Smart Icons (always shown) -->
-      <div
-        class="flex-grow h-full flex items-center justify-end overflow-hidden transition-[padding] duration-200"
-        :class="showCorner ? 'pr-16 md:pr-20' : ''"
-      >
+      <!-- Smart Icons -->
+      <div class="flex-grow flex items-center justify-end overflow-hidden">
+        <!-- Give icons their own explicit height; DO NOT pad for corner panel -->
         <smart-icons class="h-10 md:h-12" />
       </div>
     </div>
 
-    <!-- Corner Panel: pinned inside bottom-right, floats over content -->
+    <!-- Corner Panel: anchored bottom-right INSIDE header, floats over content -->
     <div class="absolute bottom-1 right-1 z-[80] pointer-events-none">
       <corner-panel v-if="showCorner" class="pointer-events-auto" />
     </div>
@@ -61,14 +60,14 @@ const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
 
-// Taller header when not bigMode so avatar fills height nicely
+// Explicit row heights; avoid h-full anywhere to prevent phantom space
 const rowHeight = computed(() =>
   bigMode.value ? 'h-12 md:h-14' : 'h-16 md:h-20',
 )
 
-// Support either flag in your store
+// Support either flag
 const showCorner = computed(() => {
-  // @ts-ignore allow either
+  // @ts-ignore
   return !!(displayStore.showCorner ?? displayStore.showCounter)
 })
 </script>

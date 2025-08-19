@@ -19,13 +19,6 @@ export const modes: ModeInfo[] = [
     galleryRoute: '/scenarios',
   },
   {
-    name: 'resonance',
-    icon: 'kind-icon:resonance',
-    label: 'Resonance',
-    addRoute: '/addresonance',
-    galleryRoute: '/resonances',
-  },
-  {
     name: 'character',
     icon: 'kind-icon:character',
     label: 'Characters',

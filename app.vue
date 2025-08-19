@@ -1,6 +1,8 @@
 <!-- /app.vue -->
 <template>
-  <div class="main-layout bg-base-200 h-full w-full relative overflow-hidden box-border">
+  <div
+    class="main-layout bg-base-200 h-full w-full relative overflow-hidden box-border"
+  >
     <!-- Loaders -->
     <div class="fixed z-50">
       <footer-toggle />
@@ -29,11 +31,9 @@
       class="fixed z-40 transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
-      <kind-header class="h-full w-full rounded-xl" />
+      <full-header class="h-full w-full rounded-xl" />
     </header>
 
-    
-    
     <!-- Main Content Layer -->
     <main v-if="pageStore.ready">
       <Transition name="slide-in-left">
@@ -42,8 +42,6 @@
           class="fixed z-40 transition-all duration-500 ease-in-out overflow-y-auto overscroll-contain rounded-2xl"
           :style="displayStore.mainContentStyle"
         >
-<corner-panel />
-
           <NuxtPage
             :key="$route.fullPath"
             class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300"
@@ -105,7 +103,7 @@ const isNavigating = ref(false)
 const sidebarRightOpen = computed(
   () =>
     displayStore.sidebarRightState !== 'hidden' &&
-    displayStore.sidebarRightState !== 'disabled'
+    displayStore.sidebarRightState !== 'disabled',
 )
 
 const showMainContent = computed(() => {

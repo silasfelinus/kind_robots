@@ -38,6 +38,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     showCenter: true,
     showRight: true,
     showExtended: false,
+    headerDisplay: true,
   })
 
   const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
@@ -116,20 +117,19 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return sizes[state.viewportSize]
   })
 
-const mainContentHeight = computed(() => {
-  const padding = sectionPaddingSize.value
-  const headerExists = state.headerState !== 'hidden'
-  const header = headerExists ? headerHeight.value : 0
+  const mainContentHeight = computed(() => {
+    const padding = sectionPaddingSize.value
+    const headerExists = state.headerState !== 'hidden'
+    const header = headerExists ? headerHeight.value : 0
 
-  const footerVisible = state.footerState !== 'hidden'
-  const footerPadding = footerVisible ? padding : 0
-  const headerPadding = headerExists ? padding : padding * 2
+    const footerVisible = state.footerState !== 'hidden'
+    const footerPadding = footerVisible ? padding : 0
+    const headerPadding = headerExists ? padding : padding * 2
 
-  const totalPadding = padding + headerPadding + footerPadding
+    const totalPadding = padding + headerPadding + footerPadding
 
-  return 100 - (header + totalPadding + footerHeight.value)
-})
-
+    return 100 - (header + totalPadding + footerHeight.value)
+  })
 
   const mainContentWidth = computed(() => {
     return (
@@ -246,6 +246,10 @@ const mainContentHeight = computed(() => {
     saveState()
   }
 
+  function toggleHeaderDisplay() {
+    state.headerDisplay = !state.headerDisplay
+  }
+
   function toggleSidebar(side: 'sidebarLeftState' | 'sidebarRightState') {
     const stateMap = {
       hidden: 'compact',
@@ -257,11 +261,11 @@ const mainContentHeight = computed(() => {
     state[side] = stateMap[state[side]]
     saveState()
   }
-function toggleFooter() {
-  const order: DisplayState[] = ['compact', 'extended', 'hidden']
-  const currentIndex = order.indexOf(state.footerState)
-  state.footerState = order[(currentIndex + 1) % order.length]
-}
+  function toggleFooter() {
+    const order: DisplayState[] = ['compact', 'extended', 'hidden']
+    const currentIndex = order.indexOf(state.footerState)
+    state.footerState = order[(currentIndex + 1) % order.length]
+  }
 
   function toggleBigMode() {
     state.bigMode = !state.bigMode
@@ -321,7 +325,6 @@ function toggleFooter() {
       setSectionState(section, !isCurrentlyOn)
     }
 
- 
     saveState()
   }
 
@@ -445,6 +448,7 @@ function toggleFooter() {
 
   return {
     ...toRefs(state),
+    toggleHeaderDisplay,
     toggleSection,
     toggleExtended,
     resizeTimeout,

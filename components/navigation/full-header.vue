@@ -1,9 +1,8 @@
-<!-- /components/content/icons/kind-header.vue -->
 <template>
   <header
     class="relative isolate bg-base-300 rounded-2xl w-full box-border overflow-visible"
   >
-    <!-- Single row with explicit height (avoid h-full here) -->
+    <!-- Single row (no h-full on the row) -->
     <div class="flex w-full items-center px-2" :class="rowHeight">
       <!-- Avatar -->
       <div
@@ -15,7 +14,7 @@
           class="h-full w-full object-cover object-center rounded-2xl"
         />
         <div
-          class="absolute bottom-1 left-1/2 -translate-x-1/2 z-40 text-white bg-primary rounded-md px-1 text-[10px] sm:text-xs md:text-sm"
+          class="absolute bottom-1 left-1/2 -translate-x-1/2 z-20 text-white bg-primary rounded-md px-1 text-[10px] sm:text-xs md:text-sm"
         >
           {{ viewportSize }}
         </div>
@@ -33,7 +32,7 @@
         </h1>
       </div>
 
-      <!-- Smart Icons fill remaining space and match row height -->
+      <!-- Smart Icons (fills remaining) -->
       <div
         class="flex-grow h-full flex items-center justify-end overflow-hidden"
       >
@@ -41,14 +40,22 @@
       </div>
     </div>
 
-    <!-- Corner panel overlays (intangible to layout) -->
-    <div
-      class="absolute inset-0 z-[80] pointer-events-none flex items-end justify-end p-1"
-    >
-      <corner-panel
-        v-if="displayStore.showCorner"
-        class="pointer-events-auto m-0"
-      />
+    <!-- Overlays (no layout impact) -->
+    <!-- Corner panel -->
+    <div class="absolute inset-0 pointer-events-none z-50">
+      <div class="absolute right-1 top-1 pointer-events-auto">
+        <corner-panel v-if="displayStore.showCorner" class="m-0" />
+      </div>
+    </div>
+
+    <!-- Center panel: only when !bigMode; overlay below header -->
+    <div class="absolute inset-x-0 pointer-events-none z-50">
+      <div
+        v-if="!bigMode && displayStore.showCenter"
+        class="absolute left-1/2 -translate-x-1/2 top-full mt-2 pointer-events-auto"
+      >
+        <center-panel />
+      </div>
     </div>
   </header>
 </template>

@@ -1,8 +1,8 @@
 <!-- /components/content/navigation/center-panel.vue -->
 <template>
-  <!-- Overlay-ready root: relative so absolutely-positioned panels anchor correctly -->
-  <div ref="panelRef" class="relative z-50">
-    <!-- Icon row + dropdowns; no layout shift because dropdowns are absolute -->
+  <!-- Root: its own stacking context above other header layers -->
+  <div ref="panelRef" class="relative z-[80]">
+    <!-- Toggle row -->
     <div class="flex gap-2 items-start">
       <div
         v-for="item in menuItems"
@@ -34,32 +34,22 @@
         <div
           v-if="activePanel === item.id"
           :id="`panel-${item.id}`"
-          class="absolute top-full mt-2 w-64 max-w-[calc(100vw-1rem)] bg-base-100 shadow-lg rounded-xl p-3 z-50 text-sm space-y-2"
+          class="absolute top-full mt-2 w-64 max-w-[calc(100vw-1rem)] bg-base-100 shadow-lg rounded-xl p-3 z-[90] text-sm space-y-2"
           style="inset-inline-end: 0"
           role="dialog"
           aria-modal="false"
-          @click.stop
+          @click.stop               <!-- never bubble to the outside handler -->
         >
           <!-- Tokens Panel -->
           <div v-if="item.id === 'tokens'">
-            <div class="font-bold">
-              🧪 Mana: {{ userStore.user?.mana ?? 0 }}
-            </div>
+            <div class="font-bold">🧪 Mana: {{ userStore.user?.mana ?? 0 }}</div>
             <p class="text-xs text-base-content/70">
               Role: {{ userStore.user?.Role || 'Guest' }}
             </p>
-            <NuxtLink
-              to="/subscriptions"
-              class="block hover:underline"
-              @click="closeSoon"
-            >
+            <NuxtLink to="/subscriptions" class="block hover:underline" @click="closeAfterRoute">
               💳 Manage Subscription
             </NuxtLink>
-            <NuxtLink
-              to="/credits"
-              class="block hover:underline"
-              @click="closeSoon"
-            >
+            <NuxtLink to="/credits" class="block hover:underline" @click="closeAfterRoute">
               ⚡ Boost Mana Credits
             </NuxtLink>
           </div>
@@ -81,62 +71,17 @@
                   </div>
                 </div>
               </div>
-              <NuxtLink
-                to="/dashboard"
-                class="block hover:underline"
-                @click="closeSoon"
-                >📂 Dashboard</NuxtLink
-              >
-              <NuxtLink
-                to="/themes"
-                class="block hover:underline"
-                @click="closeSoon"
-                >🎨 Themes</NuxtLink
-              >
-              <NuxtLink
-                to="/milestones"
-                class="block hover:underline"
-                @click="closeSoon"
-                >🏆 Milestones</NuxtLink
-              >
-              <NuxtLink
-                to="/inbox"
-                class="block hover:underline"
-                @click="closeSoon"
-                >📬 Inbox</NuxtLink
-              >
-              <NuxtLink
-                to="/addchat"
-                class="block hover:underline"
-                @click="closeSoon"
-                >➕ New Chat</NuxtLink
-              >
-              <button
-                class="btn btn-xs btn-error mt-2 w-full"
-                @click="logoutAndClose"
-              >
-                🚪 Logout
-              </button>
+              <NuxtLink to="/dashboard"  class="block hover:underline" @click="closeAfterRoute">📂 Dashboard</NuxtLink>
+              <NuxtLink to="/themes"     class="block hover:underline" @click="closeAfterRoute">🎨 Themes</NuxtLink>
+              <NuxtLink to="/milestones" class="block hover:underline" @click="closeAfterRoute">🏆 Milestones</NuxtLink>
+              <NuxtLink to="/inbox"      class="block hover:underline" @click="closeAfterRoute">📬 Inbox</NuxtLink>
+              <NuxtLink to="/addchat"    class="block hover:underline" @click="closeAfterRoute">➕ New Chat</NuxtLink>
+              <button class="btn btn-xs btn-error mt-2 w-full" @click="logoutAndClose">🚪 Logout</button>
             </template>
             <template v-else>
-              <NuxtLink
-                to="/register"
-                class="block hover:underline"
-                @click="closeSoon"
-                >✏️ Set Designer Name</NuxtLink
-              >
-              <NuxtLink
-                to="/password"
-                class="block hover:underline"
-                @click="closeSoon"
-                >🔒 Set Password</NuxtLink
-              >
-              <NuxtLink
-                to="/register"
-                class="block hover:underline"
-                @click="closeSoon"
-                >📝 Register</NuxtLink
-              >
+              <NuxtLink to="/register" class="block hover:underline" @click="closeAfterRoute">✏️ Set Designer Name</NuxtLink>
+              <NuxtLink to="/password" class="block hover:underline" @click="closeAfterRoute">🔒 Set Password</NuxtLink>
+              <NuxtLink to="/register" class="block hover:underline" @click="closeAfterRoute">📝 Register</NuxtLink>
             </template>
           </div>
 
@@ -144,42 +89,15 @@
           <div v-else-if="item.id === 'directory'">
             <div class="font-bold mb-2">📁 Site Map</div>
             <div class="flex flex-col gap-1">
-              <NuxtLink to="/addart" class="hover:underline" @click="closeSoon"
-                >🖼️ Art</NuxtLink
-              >
-              <NuxtLink to="/bots" class="hover:underline" @click="closeSoon"
-                >🤖 Bots</NuxtLink
-              >
-              <NuxtLink to="/pitches" class="hover:underline" @click="closeSoon"
-                >🎤 Pitches</NuxtLink
-              >
-              <NuxtLink to="/stories" class="hover:underline" @click="closeSoon"
-                >📖 Stories</NuxtLink
-              >
-              <NuxtLink
-                to="/wonderlab"
-                class="hover:underline"
-                @click="closeSoon"
-                >🧪 Wonderlab</NuxtLink
-              >
-              <NuxtLink
-                to="/dominions"
-                class="hover:underline"
-                @click="closeSoon"
-                >🧪 Dominion Generator</NuxtLink
-              >
-              <NuxtLink to="/forum" class="hover:underline" @click="closeSoon"
-                >💬 Forum</NuxtLink
-              >
-              <NuxtLink to="/memory" class="hover:underline" @click="closeSoon"
-                >🧠 Memory</NuxtLink
-              >
-              <NuxtLink
-                to="/characters"
-                class="hover:underline"
-                @click="closeSoon"
-                >🧍 Characters</NuxtLink
-              >
+              <NuxtLink to="/addart"     class="hover:underline" @click="closeAfterRoute">🖼️ Art</NuxtLink>
+              <NuxtLink to="/bots"       class="hover:underline" @click="closeAfterRoute">🤖 Bots</NuxtLink>
+              <NuxtLink to="/pitches"    class="hover:underline" @click="closeAfterRoute">🎤 Pitches</NuxtLink>
+              <NuxtLink to="/stories"    class="hover:underline" @click="closeAfterRoute">📖 Stories</NuxtLink>
+              <NuxtLink to="/wonderlab"  class="hover:underline" @click="closeAfterRoute">🧪 Wonderlab</NuxtLink>
+              <NuxtLink to="/dominions"  class="hover:underline" @click="closeAfterRoute">🧪 Dominion Generator</NuxtLink>
+              <NuxtLink to="/forum"      class="hover:underline" @click="closeAfterRoute">💬 Forum</NuxtLink>
+              <NuxtLink to="/memory"     class="hover:underline" @click="closeAfterRoute">🧠 Memory</NuxtLink>
+              <NuxtLink to="/characters" class="hover:underline" @click="closeAfterRoute">🧍 Characters</NuxtLink>
             </div>
           </div>
 
@@ -188,45 +106,20 @@
             <div class="font-bold mb-1">📦 Modeller Sources</div>
             <div class="flex items-center gap-2">
               <input type="checkbox" class="checkbox" />
-              <NuxtLink
-                to="/artmodel-manager"
-                class="hover:underline"
-                @click="closeSoon"
-                >🎨 Select Art Modeller</NuxtLink
-              >
+              <NuxtLink to="/artmodel-manager" class="hover:underline" @click="closeAfterRoute">🎨 Select Art Modeller</NuxtLink>
             </div>
             <div class="flex items-center gap-2">
               <input type="checkbox" class="checkbox" />
-              <NuxtLink
-                to="/textmodel-manager"
-                class="hover:underline"
-                @click="closeSoon"
-                >📝 Select Text Modeller</NuxtLink
-              >
+              <NuxtLink to="/textmodel-manager" class="hover:underline" @click="closeAfterRoute">📝 Select Text Modeller</NuxtLink>
             </div>
           </div>
 
           <!-- About Panel -->
           <div v-else-if="item.id === 'about'">
             <div class="font-bold mb-1">ℹ️ Info</div>
-            <NuxtLink
-              to="/about"
-              class="block hover:underline"
-              @click="closeSoon"
-              >🌐 About</NuxtLink
-            >
-            <NuxtLink
-              to="/sponsor"
-              class="block hover:underline"
-              @click="closeSoon"
-              >💖 Sponsors</NuxtLink
-            >
-            <NuxtLink
-              to="/giftshop"
-              class="block hover:underline"
-              @click="closeSoon"
-              >🛍️ Giftshop</NuxtLink
-            >
+            <NuxtLink to="/about"    class="block hover:underline" @click="closeAfterRoute">🌐 About</NuxtLink>
+            <NuxtLink to="/sponsor"  class="block hover:underline" @click="closeAfterRoute">💖 Sponsors</NuxtLink>
+            <NuxtLink to="/giftshop" class="block hover:underline" @click="closeAfterRoute">🛍️ Giftshop</NuxtLink>
           </div>
         </div>
         <!-- /Dropdown Panel -->
@@ -236,37 +129,33 @@
 </template>
 
 <script setup lang="ts">
-/* Overlay-only center-panel */
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
-
 const panelRef = ref<HTMLElement | null>(null)
 const activePanel = ref<string | null>(null)
 
 function toggle(panel: string) {
   activePanel.value = activePanel.value === panel ? null : panel
 }
-function closePanel() {
-  activePanel.value = null
-}
-async function closeSoon() {
-  // allow the router to grab the click first
-  await nextTick()
-  closePanel()
+function closePanel() { activePanel.value = null }
+
+/** Close AFTER the router consumes the click **/
+function closeAfterRoute() {
+  setTimeout(() => closePanel(), 0)
 }
 function logoutAndClose() {
   userStore.logout()
   closePanel()
 }
 
-/* Outside interactions (capture phase to avoid racing link clicks) */
+/** Outside interactions (capture) */
 function handlePointerDownCapture(e: PointerEvent) {
   const root = panelRef.value
   if (!root) return
-  const path = (e.composedPath?.() || []) as EventTarget[]
-  if (path.includes(root)) return // started inside
+  // If press started inside, ignore
+  if (root.contains(e.target as Node)) return
   closePanel()
 }
 function handleKeydown(e: KeyboardEvent) {
@@ -283,19 +172,11 @@ onBeforeUnmount(() => {
 })
 
 const menuItems = [
-  {
-    id: 'tokens',
-    icon: 'kind-icon:mana-potion',
-    tooltip: `${userStore.user?.mana ?? 0} Mana`,
-  },
-  {
-    id: 'account',
-    icon: 'kind-icon:person',
-    tooltip: userStore.user?.designerName || 'Account',
-  },
+  { id: 'tokens',    icon: 'kind-icon:mana-potion', tooltip: `${userStore.user?.mana ?? 0} Mana` },
+  { id: 'account',   icon: 'kind-icon:person',      tooltip: userStore.user?.designerName || 'Account' },
   { id: 'directory', icon: 'kind-icon:folder-tree', tooltip: 'Site Map' },
-  { id: 'sources', icon: 'kind-icon:butterfly', tooltip: 'Modeller Sources' },
-  { id: 'about', icon: 'kind-icon:info-circle', tooltip: 'About / Sponsors' },
+  { id: 'sources',   icon: 'kind-icon:butterfly',   tooltip: 'Modeller Sources' },
+  { id: 'about',     icon: 'kind-icon:info-circle', tooltip: 'About / Sponsors' },
 ]
 </script>
 

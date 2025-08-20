@@ -26,40 +26,33 @@
         />
       </div>
     </div>
-
     <!-- Vertical toggle stack (right edge) -->
     <div class="flex flex-col h-full min-h-0 gap-2 pr-2 shrink-0 items-center">
-      <!-- 1) Smart Icons edit/change -->
+      <!-- 1) Edit toggle becomes Confirm+Cancel side-by-side while editing -->
       <template v-if="isEditing">
-        <!-- Editing toolbar: 3 small squares sharing the top third -->
-        <div class="flex-1 min-h-0 w-full grid grid-cols-3 gap-2">
-          <NuxtLink
-            to="/icons"
-            @click="confirmEdit"
-            title="Add or manage icons"
-            class="aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-          >
-            <Icon name="kind-icon:plus" class="h-[50%] w-[50%]" />
-          </NuxtLink>
-
+        <div class="flex-1 min-h-0 w-full grid grid-cols-2 gap-2">
+          <!-- Cancel (left) -->
           <button
-            v-if="hasChanges"
             @click="revertEdit"
-            title="Revert changes"
+            title="Cancel changes"
             class="aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           >
-            <Icon name="kind-icon:rotate" class="h-[50%] w-[50%]" />
+            <Icon name="kind-icon:close" class="h-[50%] w-[50%]" />
           </button>
 
+          <!-- Confirm (right) — reusing the original toggle button's look/position -->
           <button
             @click="confirmEdit"
-            title="Save order"
-            class="aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+            :disabled="!hasChanges"
+            :title="hasChanges ? 'Save order' : 'No changes to save'"
+            class="aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Icon name="kind-icon:check" class="h-[50%] w-[50%]" />
           </button>
         </div>
       </template>
+
+      <!-- Original edit toggle (only when NOT editing) -->
       <button
         v-else
         @click="activateEditMode"
@@ -79,7 +72,6 @@
         :aria-pressed="displayStore.showCorner"
         @click="displayStore.toggleCorner()"
       >
-        <!-- Swap to question/question-glow if you prefer that visual language -->
         <Icon
           :name="
             displayStore.showCorner
@@ -90,7 +82,7 @@
         />
       </button>
 
-      <!-- 3) Tutorial toggle (question / question-glow) -->
+      <!-- 3) Tutorial toggle -->
       <button
         class="flex-1 min-h-0 aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         :class="isTutorialOpen ? 'ring-1 ring-primary/50' : ''"

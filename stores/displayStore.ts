@@ -189,7 +189,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       : paddingVw * 2 // just main's right gutter
 
     return {
-      top: `calc(var(--vh) * ${contentTopOffset.value} - 1)`, // below header in vh units
+      top: `calc(var(--vh) * ${contentTopOffset.value} )`, // below header in vh units
       right: `${rightVw}vw`,
     } as CSSProperties
   })

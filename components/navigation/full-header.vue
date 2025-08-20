@@ -1,7 +1,7 @@
 <!-- /components/content/navigation/full-header.vue -->
 <template>
   <header
-    class="bg-base-300 rounded-2xl w-full h-14 md:h-16 px-2 flex items-stretch overflow-visible [isolation:isolate]"
+    class="bg-base-300 rounded-2xl w-full h-full px-2 flex items-stretch overflow-visible [isolation:isolate]"
   >
     <!-- Avatar -->
     <div

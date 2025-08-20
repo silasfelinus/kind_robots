@@ -29,12 +29,13 @@
 <!-- Vertical toggle stack (right edge) -->
 <div class="flex flex-col h-full min-h-0 gap-2 pr-2 shrink-0 items-center z-50">
   <!-- Edit controls: exactly two buttons -->
-  <div class="grid grid-cols-2 gap-2">
+  <div class="grid grid-cols-2 gap-2 shrink-0 pointer-events-auto">
     <!-- Toggle: Edit (settings) ⇄ Confirm (check) -->
     <button
       @click="isEditing ? confirmEdit() : activateEditMode()"
       :title="isEditing ? (hasChanges ? 'Save order' : 'No changes to save') : 'Edit Smart Icons'"
       :disabled="isEditing && !hasChanges"
+      :aria-pressed="isEditing"
       class="h-10 w-10 md:h-12 md:w-12 rounded-2xl flex items-center justify-center
              bg-base-200 hover:bg-base-300 border border-base-content/10 transition
              disabled:opacity-40 disabled:cursor-not-allowed"
@@ -86,6 +87,7 @@
     />
   </button>
 </div>
+
 
 
   </div>

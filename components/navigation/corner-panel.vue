@@ -1,6 +1,6 @@
-<!-- /components/content/navigation/center-panel.vue -->
+<!-- /components/content/navigation/corner-panel.vue -->
 <template>
-  <!-- Root: its own stacking context above other header layers -->
+  <!-- Root: isolated stacking above header layers -->
   <div ref="panelRef" class="relative z-[80]">
     <!-- Toggle row -->
     <div class="flex gap-2 items-start">
@@ -18,6 +18,7 @@
           :data-tip="item.tooltip"
         >
           <button
+            :ref="(el) => setTriggerRef(item.id, el as HTMLElement)"
             class="btn btn-xs flex items-center gap-1 px-2"
             @click.stop="toggle(item.id)"
             :aria-expanded="activePanel === item.id"
@@ -29,117 +30,140 @@
             <Icon :name="item.icon" class="inline" />
           </button>
         </div>
-
-        <!-- Dropdown Panel (absolute; no layout impact) -->
-        <div
-          v-if="activePanel === item.id"
-          :id="`panel-${item.id}`"
-          class="absolute top-full mt-2 w-64 max-w-[calc(100vw-1rem)] bg-base-100 shadow-lg rounded-xl p-3 z-[90] text-sm space-y-2"
-          style="inset-inline-end: 0"
-          role="dialog"
-          aria-modal="false"
-          @click.stop               <!-- never bubble to the outside handler -->
-        >
-          <!-- Tokens Panel -->
-          <div v-if="item.id === 'tokens'">
-            <div class="font-bold">🧪 Mana: {{ userStore.user?.mana ?? 0 }}</div>
-            <p class="text-xs text-base-content/70">
-              Role: {{ userStore.user?.Role || 'Guest' }}
-            </p>
-            <NuxtLink to="/subscriptions" class="block hover:underline" @click="closeAfterRoute">
-              💳 Manage Subscription
-            </NuxtLink>
-            <NuxtLink to="/credits" class="block hover:underline" @click="closeAfterRoute">
-              ⚡ Boost Mana Credits
-            </NuxtLink>
-          </div>
-
-          <!-- Account Panel -->
-          <div v-else-if="item.id === 'account'">
-            <template v-if="userStore.isLoggedIn">
-              <div class="flex justify-between items-center">
-                <div class="font-bold">
-                  👤 {{ userStore.user?.username }}<br />
-                  <span class="text-sm text-base-content/70">
-                    ({{ userStore.user?.designerName }})
-                  </span>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-base-content/60">Mana</div>
-                  <div class="font-bold text-primary">
-                    {{ userStore.user?.mana ?? 0 }}
-                  </div>
-                </div>
-              </div>
-              <NuxtLink to="/dashboard"  class="block hover:underline" @click="closeAfterRoute">📂 Dashboard</NuxtLink>
-              <NuxtLink to="/themes"     class="block hover:underline" @click="closeAfterRoute">🎨 Themes</NuxtLink>
-              <NuxtLink to="/milestones" class="block hover:underline" @click="closeAfterRoute">🏆 Milestones</NuxtLink>
-              <NuxtLink to="/inbox"      class="block hover:underline" @click="closeAfterRoute">📬 Inbox</NuxtLink>
-              <NuxtLink to="/addchat"    class="block hover:underline" @click="closeAfterRoute">➕ New Chat</NuxtLink>
-              <button class="btn btn-xs btn-error mt-2 w-full" @click="logoutAndClose">🚪 Logout</button>
-            </template>
-            <template v-else>
-              <NuxtLink to="/register" class="block hover:underline" @click="closeAfterRoute">✏️ Set Designer Name</NuxtLink>
-              <NuxtLink to="/password" class="block hover:underline" @click="closeAfterRoute">🔒 Set Password</NuxtLink>
-              <NuxtLink to="/register" class="block hover:underline" @click="closeAfterRoute">📝 Register</NuxtLink>
-            </template>
-          </div>
-
-          <!-- Directory Panel -->
-          <div v-else-if="item.id === 'directory'">
-            <div class="font-bold mb-2">📁 Site Map</div>
-            <div class="flex flex-col gap-1">
-              <NuxtLink to="/addart"     class="hover:underline" @click="closeAfterRoute">🖼️ Art</NuxtLink>
-              <NuxtLink to="/bots"       class="hover:underline" @click="closeAfterRoute">🤖 Bots</NuxtLink>
-              <NuxtLink to="/pitches"    class="hover:underline" @click="closeAfterRoute">🎤 Pitches</NuxtLink>
-              <NuxtLink to="/stories"    class="hover:underline" @click="closeAfterRoute">📖 Stories</NuxtLink>
-              <NuxtLink to="/wonderlab"  class="hover:underline" @click="closeAfterRoute">🧪 Wonderlab</NuxtLink>
-              <NuxtLink to="/dominions"  class="hover:underline" @click="closeAfterRoute">🧪 Dominion Generator</NuxtLink>
-              <NuxtLink to="/forum"      class="hover:underline" @click="closeAfterRoute">💬 Forum</NuxtLink>
-              <NuxtLink to="/memory"     class="hover:underline" @click="closeAfterRoute">🧠 Memory</NuxtLink>
-              <NuxtLink to="/characters" class="hover:underline" @click="closeAfterRoute">🧍 Characters</NuxtLink>
-            </div>
-          </div>
-
-          <!-- Sources Panel -->
-          <div v-else-if="item.id === 'sources'">
-            <div class="font-bold mb-1">📦 Modeller Sources</div>
-            <div class="flex items-center gap-2">
-              <input type="checkbox" class="checkbox" />
-              <NuxtLink to="/artmodel-manager" class="hover:underline" @click="closeAfterRoute">🎨 Select Art Modeller</NuxtLink>
-            </div>
-            <div class="flex items-center gap-2">
-              <input type="checkbox" class="checkbox" />
-              <NuxtLink to="/textmodel-manager" class="hover:underline" @click="closeAfterRoute">📝 Select Text Modeller</NuxtLink>
-            </div>
-          </div>
-
-          <!-- About Panel -->
-          <div v-else-if="item.id === 'about'">
-            <div class="font-bold mb-1">ℹ️ Info</div>
-            <NuxtLink to="/about"    class="block hover:underline" @click="closeAfterRoute">🌐 About</NuxtLink>
-            <NuxtLink to="/sponsor"  class="block hover:underline" @click="closeAfterRoute">💖 Sponsors</NuxtLink>
-            <NuxtLink to="/giftshop" class="block hover:underline" @click="closeAfterRoute">🛍️ Giftshop</NuxtLink>
-          </div>
-        </div>
-        <!-- /Dropdown Panel -->
       </div>
     </div>
   </div>
+
+  <!-- Floating submenu rendered to <body> so it won't be clipped -->
+  <Teleport to="body">
+    <div
+      v-if="activePanel"
+      class="fixed z-[95] pointer-events-none"
+      :style="{ top: `${floatPos.top}px`, right: `${floatPos.right}px` }"
+    >
+      <div
+        :ref="setFloatPanelRef"
+        class="pointer-events-auto bg-base-100 shadow-lg rounded-xl p-3 text-sm space-y-2
+               w-[16rem] max-w-[min(90vw,24rem)]"
+        role="dialog"
+        :aria-labelledby="`panel-${activePanel}`"
+        @click.stop
+      >
+        <!-- Tokens Panel -->
+        <template v-if="activePanel === 'tokens'">
+          <div class="font-bold">🧪 Mana: {{ userStore.user?.mana ?? 0 }}</div>
+          <p class="text-xs text-base-content/70">
+            Role: {{ userStore.user?.Role || 'Guest' }}
+          </p>
+          <NuxtLink to="/subscriptions" class="block hover:underline" @click="closeAfterRoute">
+            💳 Manage Subscription
+          </NuxtLink>
+          <NuxtLink to="/credits" class="block hover:underline" @click="closeAfterRoute">
+            ⚡ Boost Mana Credits
+          </NuxtLink>
+        </template>
+
+        <!-- Account Panel -->
+        <template v-else-if="activePanel === 'account'">
+          <template v-if="userStore.isLoggedIn">
+            <div class="flex justify-between items-center">
+              <div class="font-bold">
+                👤 {{ userStore.user?.username }}<br />
+                <span class="text-sm text-base-content/70">
+                  ({{ userStore.user?.designerName }})
+                </span>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-base-content/60">Mana</div>
+                <div class="font-bold text-primary">
+                  {{ userStore.user?.mana ?? 0 }}
+                </div>
+              </div>
+            </div>
+            <NuxtLink to="/dashboard"  class="block hover:underline" @click="closeAfterRoute">📂 Dashboard</NuxtLink>
+            <NuxtLink to="/themes"     class="block hover:underline" @click="closeAfterRoute">🎨 Themes</NuxtLink>
+            <NuxtLink to="/milestones" class="block hover:underline" @click="closeAfterRoute">🏆 Milestones</NuxtLink>
+            <NuxtLink to="/inbox"      class="block hover:underline" @click="closeAfterRoute">📬 Inbox</NuxtLink>
+            <NuxtLink to="/addchat"    class="block hover:underline" @click="closeAfterRoute">➕ New Chat</NuxtLink>
+            <button class="btn btn-xs btn-error mt-2 w-full" @click="logoutAndClose">🚪 Logout</button>
+          </template>
+          <template v-else>
+            <NuxtLink to="/register" class="block hover:underline" @click="closeAfterRoute">✏️ Set Designer Name</NuxtLink>
+            <NuxtLink to="/password" class="block hover:underline" @click="closeAfterRoute">🔒 Set Password</NuxtLink>
+            <NuxtLink to="/register" class="block hover:underline" @click="closeAfterRoute">📝 Register</NuxtLink>
+          </template>
+        </template>
+
+        <!-- Directory Panel -->
+        <template v-else-if="activePanel === 'directory'">
+          <div class="font-bold mb-2">📁 Site Map</div>
+          <div class="flex flex-col gap-1">
+            <NuxtLink to="/addart"     class="hover:underline" @click="closeAfterRoute">🖼️ Art</NuxtLink>
+            <NuxtLink to="/bots"       class="hover:underline" @click="closeAfterRoute">🤖 Bots</NuxtLink>
+            <NuxtLink to="/pitches"    class="hover:underline" @click="closeAfterRoute">🎤 Pitches</NuxtLink>
+            <NuxtLink to="/stories"    class="hover:underline" @click="closeAfterRoute">📖 Stories</NuxtLink>
+            <NuxtLink to="/wonderlab"  class="hover:underline" @click="closeAfterRoute">🧪 Wonderlab</NuxtLink>
+            <NuxtLink to="/dominions"  class="hover:underline" @click="closeAfterRoute">🧪 Dominion Generator</NuxtLink>
+            <NuxtLink to="/forum"      class="hover:underline" @click="closeAfterRoute">💬 Forum</NuxtLink>
+            <NuxtLink to="/memory"     class="hover:underline" @click="closeAfterRoute">🧠 Memory</NuxtLink>
+            <NuxtLink to="/characters" class="hover:underline" @click="closeAfterRoute">🧍 Characters</NuxtLink>
+          </div>
+        </template>
+
+        <!-- Sources Panel -->
+        <template v-else-if="activePanel === 'sources'">
+          <div class="font-bold mb-1">📦 Modeller Sources</div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" class="checkbox" />
+            <NuxtLink to="/artmodel-manager" class="hover:underline" @click="closeAfterRoute">🎨 Select Art Modeller</NuxtLink>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" class="checkbox" />
+            <NuxtLink to="/textmodel-manager" class="hover:underline" @click="closeAfterRoute">📝 Select Text Modeller</NuxtLink>
+          </div>
+        </template>
+
+        <!-- About Panel -->
+        <template v-else-if="activePanel === 'about'">
+          <div class="font-bold mb-1">ℹ️ Info</div>
+          <NuxtLink to="/about"    class="block hover:underline" @click="closeAfterRoute">🌐 About</NuxtLink>
+          <NuxtLink to="/sponsor"  class="block hover:underline" @click="closeAfterRoute">💖 Sponsors</NuxtLink>
+          <NuxtLink to="/giftshop" class="block hover:underline" @click="closeAfterRoute">🛍️ Giftshop</NuxtLink>
+        </template>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
+
 const panelRef = ref<HTMLElement | null>(null)
+const floatPanelRef = ref<HTMLElement | null>(null)
 const activePanel = ref<string | null>(null)
 
-function toggle(panel: string) {
-  activePanel.value = activePanel.value === panel ? null : panel
+const triggers = new Map<string, HTMLElement>()
+const floatPos = ref({ top: 0, right: 0 })
+
+function setTriggerRef(id: string, el: HTMLElement | null) {
+  if (el) triggers.set(id, el)
+  else triggers.delete(id)
 }
-function closePanel() { activePanel.value = null }
+function setFloatPanelRef(el: HTMLElement | null) {
+  floatPanelRef.value = el
+}
+
+async function toggle(panel: string) {
+  activePanel.value = activePanel.value === panel ? null : panel
+  await nextTick()
+  if (activePanel.value) positionFloating(activePanel.value)
+}
+function closePanel() {
+  activePanel.value = null
+}
 
 /** Close AFTER the router consumes the click **/
 function closeAfterRoute() {
@@ -150,12 +174,30 @@ function logoutAndClose() {
   closePanel()
 }
 
+function positionFloating(id: string) {
+  const el = triggers.get(id)
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  const gap = 8 // px below the button
+  // Align panel's right edge to button's right edge
+  floatPos.value = {
+    top: Math.round(rect.bottom + gap),
+    right: Math.round(window.innerWidth - rect.right),
+  }
+}
+
+function onWindowScrollOrResize() {
+  if (activePanel.value) positionFloating(activePanel.value)
+}
+
 /** Outside interactions (capture) */
 function handlePointerDownCapture(e: PointerEvent) {
   const root = panelRef.value
+  const floatRoot = floatPanelRef.value
   if (!root) return
-  // If press started inside, ignore
-  if (root.contains(e.target as Node)) return
+  const t = e.target as Node
+  // If press started inside any relevant area, ignore
+  if ((root && root.contains(t)) || (floatRoot && floatRoot.contains(t))) return
   closePanel()
 }
 function handleKeydown(e: KeyboardEvent) {
@@ -165,10 +207,14 @@ function handleKeydown(e: KeyboardEvent) {
 onMounted(() => {
   window.addEventListener('pointerdown', handlePointerDownCapture, true)
   window.addEventListener('keydown', handleKeydown)
+  window.addEventListener('scroll', onWindowScrollOrResize, true)
+  window.addEventListener('resize', onWindowScrollOrResize)
 })
 onBeforeUnmount(() => {
   window.removeEventListener('pointerdown', handlePointerDownCapture, true)
   window.removeEventListener('keydown', handleKeydown)
+  window.removeEventListener('scroll', onWindowScrollOrResize, true)
+  window.removeEventListener('resize', onWindowScrollOrResize)
 })
 
 const menuItems = [

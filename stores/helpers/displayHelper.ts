@@ -25,7 +25,6 @@ export type displayModeState =
   | 'pitch'
   | 'art'
   | 'collection'
-  | 'pantheon'
   | 'dominion'
 
 export type displayActionState =

@@ -3,10 +3,10 @@ import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { enrichedAnimalDataList as animalDataList } from '@/stores/utils/enrichedAnimalData'
 
-import { usePromptStore } from './promptStore'
-import { useArtStore } from './artStore'
-import { useUserStore } from './userStore'
-import { performFetch, handleError } from './utils'
+import { usePromptStore } from '../stores/promptStore'
+import { useArtStore } from '../stores/artStore'
+import { useUserStore } from '../stores/userStore'
+import { performFetch, handleError } from '../stores/utils'
 
 export type HybridEntry = {
   id: string

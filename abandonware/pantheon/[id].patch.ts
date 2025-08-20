@@ -1,8 +1,8 @@
 // /server/api/pantheon/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
-import prisma from './../utils/prisma'
-import { errorHandler } from './../utils/error'
-import { validateApiKey } from './../utils/validateKey'
+import prisma from '../../server/api/utils/prisma'
+import { errorHandler } from '../../server/api/utils/error'
+import { validateApiKey } from '../../server/api/utils/validateKey'
 
 type UpdatePantheonBody = Partial<{
   name: string

@@ -13,8 +13,8 @@
 </template>
 
 <script setup lang="ts">
-import { useSandboxStore } from '@/stores/sandboxStore'
-import type { SandboxItem } from '@/stores/sandboxStore'
+import { useSandboxStore } from '~/abandonware/sandboxStore'
+import type { SandboxItem } from '~/abandonware/sandboxStore'
 
 const store = useSandboxStore()
 

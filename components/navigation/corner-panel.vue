@@ -9,15 +9,28 @@
           :aria-controls="`panel-${item.id}`"
           @click.stop="toggle(item.id)"
         >
-          <Icon :name="item.icon" class="inline" />
+          <ClientOnly>
+            <Icon :name="item.icon" class="inline-block h-4 w-4" />
+            <template #fallback>
+              <span aria-hidden="true" class="inline-block h-4 w-4"></span>
+            </template>
+          </ClientOnly>
+
           <span class="text-xs font-semibold">{{ item.label }}</span>
-          <Icon
-            :name="
-              activePanel === item.id
-                ? 'kind-icon:chevron-up'
-                : 'kind-icon:chevron-down'
-            "
-          />
+
+          <ClientOnly>
+            <Icon
+              :name="
+                activePanel === item.id
+                  ? 'kind-icon:chevron-up'
+                  : 'kind-icon:chevron-down'
+              "
+              class="inline-block h-3 w-3"
+            />
+            <template #fallback>
+              <span aria-hidden="true" class="inline-block h-3 w-3"></span>
+            </template>
+          </ClientOnly>
         </button>
 
         <div
@@ -34,16 +47,11 @@
               to="/subscriptions"
               class="block hover:underline"
               @click="close"
+              >Manage Subscription</NuxtLink
             >
-              Manage Subscription
-            </NuxtLink>
-            <NuxtLink
-              to="/credits"
-              class="block hover:underline"
-              @click="close"
+            <NuxtLink to="/credits" class="block hover:underline" @click="close"
+              >Boost Mana Credits</NuxtLink
             >
-              Boost Mana Credits
-            </NuxtLink>
           </div>
 
           <div v-else-if="item.id === 'account'" class="space-y-2">
@@ -163,9 +171,8 @@
                 to="/artmodel-manager"
                 class="hover:underline"
                 @click="close"
+                >Select Art Modeller</NuxtLink
               >
-                Select Art Modeller
-              </NuxtLink>
             </div>
             <div class="flex items-center gap-2">
               <input type="checkbox" class="checkbox" />
@@ -173,9 +180,8 @@
                 to="/textmodel-manager"
                 class="hover:underline"
                 @click="close"
+                >Select Text Modeller</NuxtLink
               >
-                Select Text Modeller
-              </NuxtLink>
             </div>
           </div>
 
@@ -247,5 +253,5 @@ const menuItems = [
   { id: 'directory', icon: 'kind-icon:folder-tree', label: 'Directory' },
   { id: 'sources', icon: 'kind-icon:butterfly', label: 'Sources' },
   { id: 'about', icon: 'kind-icon:info-circle', label: 'About' },
-]
+] as const
 </script>

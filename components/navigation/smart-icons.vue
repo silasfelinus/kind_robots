@@ -26,67 +26,75 @@
       </div>
     </div>
 
-    <!-- Vertical toggle stack (right edge) -->
-    <div class="flex flex-col h-full min-h-0 gap-2 shrink-0 items-center z-50">
-      <!-- Edit controls: exactly two buttons -->
-      <div class="grid grid-cols-2 gap-2 shrink-0 pointer-events-auto">
-        <!-- Toggle: Edit (settings) ⇄ Confirm (check) -->
-        <button
-          @click="isEditing ? confirmEdit() : activateEditMode()"
-          :title="isEditing ? (hasChanges ? 'Save order' : 'No changes to save') : 'Edit Smart Icons'"
-          :disabled="isEditing && !hasChanges"
-          :aria-pressed="isEditing"
-          class="h-4 w-4 md:h-5 md:w-5 rounded-2xl flex items-center justify-center
-                 bg-base-200 hover:bg-base-300 border border-base-content/10 transition
-                 disabled:opacity-40 disabled:cursor-not-allowed"
-          aria-label="Toggle edit / confirm"
-        >
-          <Icon :name="isEditing ? 'kind-icon:check' : 'kind-icon:settings'" class="h-[55%] w-[55%]" />
-        </button>
+  <!-- Vertical toggle stack (right edge) -->
+<div class="flex flex-col h-full min-h-0 gap-2 shrink-0 items-center z-50">
+  <!-- Edit controls -->
+  <div
+    class="shrink-0 pointer-events-auto grid gap-2"
+    :class="isEditing ? 'grid-cols-2' : 'grid-cols-1'"
+  >
+    <!-- Toggle: Edit (settings) ⇄ Confirm (check) -->
+    <button
+      @click="isEditing ? confirmEdit() : activateEditMode()"
+      :title="isEditing ? (hasChanges ? 'Save order' : 'No changes to save') : 'Edit Smart Icons'"
+      :disabled="isEditing && !hasChanges"
+      :aria-pressed="isEditing"
+      class="rounded-2xl flex items-center justify-center
+             bg-base-200 hover:bg-base-300 border border-base-content/10 transition
+             disabled:opacity-40 disabled:cursor-not-allowed
+             h-5 w-5 md:h-6 md:w-6 lg:h-8 lg:w-8 xl:h-10 xl:w-10"
+      aria-label="Toggle edit / confirm"
+    >
+      <Icon :name="isEditing ? 'kind-icon:check' : 'kind-icon:settings'" class="h-[55%] w-[55%]" />
+    </button>
 
-        <!-- Cancel (only visible in edit mode) -->
-        <button
-          v-show="isEditing"
-          @click="revertEdit"
-          title="Cancel changes"
-          class="h-4 w-4 md:h-5 md:w-5 rounded-2xl flex items-center justify-center
-                 bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-          aria-label="Cancel changes"
-        >
-          <Icon name="kind-icon:close" class="h-[55%] w-[55%]" />
-        </button>
-      </div>
+    <!-- Cancel (only exists in DOM when editing) -->
+    <button
+      v-if="isEditing"
+      @click="revertEdit"
+      title="Cancel changes"
+      class="rounded-2xl flex items-center justify-center
+             bg-base-200 hover:bg-base-300 border border-base-content/10 transition
+             h-5 w-5 md:h-6 md:w-6 lg:h-8 lg:w-8 xl:h-10 xl:w-10"
+      aria-label="Cancel changes"
+    >
+      <Icon name="kind-icon:close" class="h-[55%] w-[55%]" />
+    </button>
+  </div>
 
-      <!-- Corner menu toggle -->
-      <button
-        class="h-4 w-4 md:h-5 md:w-5  rounded-2xl flex items-center justify-center 
-               bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-        :class="displayStore.showCorner ? 'ring-1 ring-primary/50' : ''"
-        :title="displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'"
-        :aria-pressed="displayStore.showCorner"
-        @click="displayStore.toggleCorner()"
-      >
-        <Icon
-          :name="displayStore.showCorner ? 'kind-icon:panel-right' : 'kind-icon:panel-right-close'"
-          class="h-[78%] w-[78%]"
-        />
-      </button>
+  <!-- Corner menu toggle -->
+  <button
+    class="rounded-2xl flex items-center justify-center 
+           bg-base-200 hover:bg-base-300 border border-base-content/10 transition
+           h-5 w-5 md:h-6 md:w-6 lg:h-8 lg:w-8 xl:h-10 xl:w-10"
+    :class="displayStore.showCorner ? 'ring-1 ring-primary/50' : ''"
+    :title="displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'"
+    :aria-pressed="displayStore.showCorner"
+    @click="displayStore.toggleCorner()"
+  >
+    <Icon
+      :name="displayStore.showCorner ? 'kind-icon:panel-right' : 'kind-icon:panel-right-close'"
+      class="h-[78%] w-[78%]"
+    />
+  </button>
 
-      <!-- Tutorial toggle -->
-      <button
-        class="h-4 w-4 md:h-5 md:w-5 rounded-2xl flex items-center justify-center 
-               bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-        :class="isTutorialOpen ? 'ring-1 ring-primary/50' : ''"
-        :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
-        :aria-pressed="isTutorialOpen"
-        @click="toggleTutorial"
-      >
-        <Icon
-          :name="isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'"
-          class="h-[78%] w-[78%]"
-        />
-      </button>
-    </div>
+  <!-- Tutorial toggle -->
+  <button
+    class="rounded-2xl flex items-center justify-center 
+           bg-base-200 hover:bg-base-300 border border-base-content/10 transition
+           h-5 w-5 md:h-6 md:w-6 lg:h-8 lg:w-8 xl:h-10 xl:w-10"
+    :class="isTutorialOpen ? 'ring-1 ring-primary/50' : ''"
+    :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
+    :aria-pressed="isTutorialOpen"
+    @click="toggleTutorial"
+  >
+    <Icon
+      :name="isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'"
+      class="h-[78%] w-[78%]"
+    />
+  </button>
+</div>
+
   </div>
 </template>
 

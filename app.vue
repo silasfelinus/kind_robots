@@ -47,12 +47,7 @@
             class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300 z-40"
           />
 
-<!-- Corner panel -->
-    <div class="absolute inset-0 pointer-events-none z-50">
-      <div class="absolute right-0 top-0 pointer-events-auto">
-        <corner-panel v-if="displayStore.showCorner" />
-      </div>
-    </div>
+
         </div>
       </Transition>
 
@@ -69,6 +64,21 @@
         </div>
       </Transition>
     </main>
+
+<!-- /app.vue -->
+<Teleport to="body">
+  <Transition name="fade">
+    <div
+      v-if="displayStore.showCorner"
+      class="fixed z-50 pointer-events-none"
+      :style="displayStore.cornerPanelStyle"
+    >
+      <!-- Allow interaction only on the panel -->
+      <corner-panel class="pointer-events-auto" />
+    </div>
+  </Transition>
+</Teleport>
+
 
     <!-- Footer Area (Art Generator) -->
     <div

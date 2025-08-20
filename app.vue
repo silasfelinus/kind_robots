@@ -46,8 +46,6 @@
             :key="$route.fullPath"
             class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300 z-40"
           />
-
-
         </div>
       </Transition>
 
@@ -65,20 +63,19 @@
       </Transition>
     </main>
 
-<!-- /app.vue -->
-<Teleport to="body">
-  <Transition name="fade">
-    <div
-      v-if="displayStore.showCorner"
-      class="fixed z-50 pointer-events-none"
-      :style="displayStore.cornerPanelStyle"
-    >
-      <!-- Allow interaction only on the panel -->
-      <corner-panel class="pointer-events-auto" />
-    </div>
-  </Transition>
-</Teleport>
-
+    <!-- /app.vue -->
+    <Teleport to="body">
+      <Transition name="slide-in-right">
+        <div
+          v-if="displayStore.showCorner"
+          class="fixed z-50 pointer-events-none"
+          :style="displayStore.cornerPanelStyle"
+        >
+          <!-- Allow interaction only on the panel -->
+          <corner-panel class="pointer-events-auto" />
+        </div>
+      </Transition>
+    </Teleport>
 
     <!-- Footer Area (Art Generator) -->
     <div

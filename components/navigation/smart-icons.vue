@@ -56,7 +56,7 @@
             :aria-pressed="isEditing"
             aria-label="Toggle edit / confirm"
           >
-            <Icon :name="isEditing ? 'kind-icon:check' : 'kind-icon:settings'" class="h-[60%] w-[60%]" />
+            <Icon :name="isEditing ? 'kind-icon:check' : 'kind-icon:settings'" class="h-[50%] w-[50%]" />
           </button>
 
           <button
@@ -66,7 +66,7 @@
             title="Cancel changes"
             aria-label="Cancel changes"
           >
-            <Icon name="kind-icon:close" class="h-[60%] w-[60%]" />
+            <Icon name="kind-icon:close" class="h-[50%] w-[50%]" />
           </button>
         </div>
 
@@ -80,7 +80,7 @@
         >
           <Icon
             :name="displayStore.showCorner ? 'kind-icon:panel-right' : 'kind-icon:panel-right-close'"
-            class="h-[78%] w-[78%]"
+            class="h-[50%] w-[50%]"
           />
         </button>
 
@@ -94,7 +94,7 @@
         >
           <Icon
             :name="isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'"
-            class="h-[78%] w-[78%]"
+            class="h-[50%] w-[50%]"
           />
         </button>
       </div>

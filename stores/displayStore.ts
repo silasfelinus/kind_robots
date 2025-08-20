@@ -176,6 +176,24 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
+
+const cornerPanelStyle = computed(() => {
+  const padding = sectionPaddingSize.value
+  const rightSidebarVisible = ['open', 'compact'].includes(state.sidebarRightState)
+
+  // Right margin to align with the main content's right edge:
+  // - when right sidebar is visible: sidebar width + 2*padding
+  // - otherwise: just the padding
+  const rightMarginVw = rightSidebarVisible
+    ? sidebarRightWidth.value + padding * 2
+    : padding
+
+  return {
+    top: `calc(var(--vh) * ${contentTopOffset.value})`,
+    right: `${rightMarginVw}vw`,
+  } as CSSProperties
+})
+
   const leftSidebarStyle = computed(() => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
     return state.sidebarLeftState !== 'hidden'
@@ -460,6 +478,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     mainContentHeight,
     mainContentWidth,
     headerStyle,
+cornerPanelStyle,
     leftToggleStyle,
     rightToggleStyle,
     footerToggleStyle,

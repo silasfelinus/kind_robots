@@ -26,13 +26,6 @@ const artCards: LinkItem[] = [
     description: 'Choose an image and transform it with text or presets.',
   },
   {
-    title: 'Animal Hybrid',
-    path: '/hybrid',
-    icon: 'kind-icon:plus',
-    description:
-      'Use AI to invent hybrid creatures by merging two real-world animals.',
-  },
-  {
     title: 'Memory',
     path: '/memory',
     icon: 'kind-icon:brain',

@@ -24,19 +24,5 @@ const tabs: LinkItem[] = [
     description: 'A button that does absolutely nothing.',
     tooltip: 'Fight the system by clicking it.',
   },
-  {
-    title: 'Blueprints',
-    icon: 'kind-icon:blueprint',
-    path: '/blueprints',
-    description: 'Work in progress automated AI art and text generation',
-    tooltip: 'WIP',
-  },
-  {
-    title: 'Sandbox',
-    icon: 'kind-icon:box',
-    path: '/sandbox',
-    description: 'Freestyle component testing zone.',
-    tooltip: 'No rules, just vibes.',
-  },
 ].filter((tab) => !(tab.title === 'Store Tester' && !userStore.isAdmin))
 </script>

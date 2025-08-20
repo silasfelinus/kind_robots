@@ -20,7 +20,6 @@ const models = [
   'resonance',
   'milestone',
   'milestoneRecord',
-  'blueprint',
   'chat',
   'smartIcon',
   'theme',

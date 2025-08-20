@@ -62,7 +62,7 @@ import { useChoiceStore } from '@/stores/choiceStore'
 
 const props = defineProps<{
   label: string
-  model?: 'Character' | 'Bot' | 'Scenario' | 'Pitch' | 'Reward' | 'Blueprint'
+  model?: 'Character' | 'Bot' | 'Scenario' | 'Pitch' | 'Reward'
 }>()
 
 const choiceStore = useChoiceStore()

@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { useSandboxStore } from '@/stores/sandboxStore'
+import { useSandboxStore } from '~/abandonware/sandboxStore'
 
 const store = useSandboxStore()
 

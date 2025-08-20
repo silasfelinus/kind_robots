@@ -26,7 +26,9 @@
         />
 
         <!-- Right floating sidebar + external context icons -->
-        <div class="absolute top-12 right-0 z-20 flex flex-col items-end gap-3 pr-2">
+        <div
+          class="absolute top-12 right-0 z-20 flex flex-col items-end gap-3 pr-2"
+        >
           <!-- External context icons -->
           <div class="flex flex-col gap-2 items-center">
             <sandbox-icon
@@ -54,7 +56,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useDisplayStore } from '@/stores/displayStore'
-import { useSandboxStore } from '@/stores/sandboxStore'
+import { useSandboxStore } from '~/abandonware/sandboxStore'
 
 const displayStore = useDisplayStore()
 const { mainContentHeight, mainContentWidth } = storeToRefs(displayStore)

@@ -42,7 +42,7 @@
     <!-- Overlays (no layout impact) -->
     <!-- Corner panel -->
     <div class="absolute inset-0 pointer-events-none z-50">
-      <div class="absolute right-1 bottom-1 pointer-events-auto">
+      <div class="absolute right-0 bottom-0 pointer-events-auto">
         <corner-panel v-if="displayStore.showCorner" class="mr-20" />
       </div>
     </div>

@@ -46,6 +46,13 @@
             :key="$route.fullPath"
             class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300 z-40"
           />
+
+<!-- Corner panel -->
+    <div class="absolute inset-0 pointer-events-none z-50">
+      <div class="absolute right-0 top-0 pointer-events-auto">
+        <corner-panel v-if="displayStore.showCorner" />
+      </div>
+    </div>
         </div>
       </Transition>
 

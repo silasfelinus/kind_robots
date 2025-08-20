@@ -1,8 +1,10 @@
 <!-- /components/content/navigation/full-header.vue -->
 <template>
-  <header class="bg-base-300 rounded-2xl w-full box-border overflow-visible">
-    <!-- Single row (no h-full on the row) -->
-    <div class="flex w-full items-center px-2 h-full">
+  <header
+    class="bg-base-300 rounded-2xl w-full box-border overflow-visible [isolation:isolate]"
+  >
+    <!-- Single row (explicit height; never use h-full here) -->
+    <div class="flex w-full items-center px-2 h-14 md:h-16">
       <!-- Avatar -->
       <div
         class="relative flex items-center justify-center overflow-hidden rounded-2xl min-w-20 h-full"
@@ -24,23 +26,20 @@
         v-if="!bigMode"
         class="hidden lg:flex flex-col justify-center items-center text-center w-[15%]"
       >
-        <h1
-          class="font-bold text-xl lg:text-2xl xl:text-3xl tracking-tight drop-shadow"
-        >
+        <h1 class="font-bold text-xl lg:text-2xl xl:text-3xl tracking-tight">
           Kind {{ page?.title || 'Robots' }}
         </h1>
       </div>
 
-      <!-- Smart Icons (fills remaining) -->
+      <!-- Smart Icons (fills remaining; must be shrinkable) -->
       <div
-        class="relative flex-grow h-full flex items-center justify-end overflow-visible"
+        class="relative flex-grow min-w-0 h-full flex items-center justify-end overflow-visible"
       >
-        <smart-icons class="h-full" />
+        <smart-icons class="h-full w-full" />
       </div>
     </div>
 
     <!-- Overlays (no layout impact) -->
-    
   </header>
 </template>
 

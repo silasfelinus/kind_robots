@@ -102,6 +102,14 @@
     ]
   },
   {
+    "folderName": "dominions",
+    "components": [
+      "add-dominion",
+      "dominion-gallery",
+      "edit-dominion"
+    ]
+  },
+  {
     "folderName": "gallery",
     "components": [
       "gallery-manager",
@@ -149,7 +157,6 @@
       "kind-header",
       "kind-icons",
       "login-icon",
-      "smart-icons",
       "smart-nav",
       "swarm-icon"
     ]
@@ -205,7 +212,6 @@
       "page-link",
       "popup-description",
       "random-link",
-      "right-toggle",
       "room-title",
       "selected-view",
       "site-logo",
@@ -239,6 +245,8 @@
       "bot-nav",
       "corner-panel",
       "dashboard-nav",
+      "dominion-nav",
+      "full-header",
       "giftshop-nav",
       "icon-nav",
       "lab-nav",
@@ -248,6 +256,7 @@
       "nav-grid",
       "nav-nav",
       "prompt-nav",
+      "smart-icons",
       "splash-content",
       "splash-nav",
       "splash-tutorial",
@@ -265,6 +274,14 @@
       "social-page",
       "super-form",
       "welcome-page"
+    ]
+  },
+  {
+    "folderName": "pantheon",
+    "components": [
+      "add-pantheon",
+      "edit-pantheon",
+      "pantheon-nav"
     ]
   },
   {

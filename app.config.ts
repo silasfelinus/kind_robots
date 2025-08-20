@@ -1,6 +1,6 @@
 // this is for all non-sensitive config information
 export default defineAppConfig({
-  model: 'gpt-4o-mini',
+  model: 'gpt-5',
   completion: 'https://api.openai.com/v1/completions',
   icon: {
     size: '24px', // default <Icon> size applied

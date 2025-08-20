@@ -176,22 +176,23 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
+  // /stores/displayStore.ts
+  const cornerPanelStyle = computed(() => {
+    const paddingVw = sectionPaddingSize.value
+    const rightSidebarVisible = ['open', 'compact'].includes(
+      state.sidebarRightState,
+    )
 
-// /stores/displayStore.ts
-const cornerPanelStyle = computed(() => {
-  const paddingVw = sectionPaddingSize.value
-  const rightSidebarVisible = ['open', 'compact'].includes(state.sidebarRightState)
+    // Right offset aligns with main content's right edge in vw
+    const rightVw = rightSidebarVisible
+      ? sidebarRightWidth.value + paddingVw * 3 // sidebar + main's right gutter
+      : paddingVw * 2 // just main's right gutter
 
-  // Right offset aligns with main content's right edge in vw
-  const rightVw = rightSidebarVisible
-    ? sidebarRightWidth.value + paddingVw * 2 // sidebar + main's right gutter
-    : paddingVw                                // just main's right gutter
-
-  return {
-    top: `calc(var(--vh) * ${contentTopOffset.value})`, // below header in vh units
-    right: `${rightVw}vw`,
-  } as CSSProperties
-})
+    return {
+      top: `calc(var(--vh) * ${contentTopOffset.value})`, // below header in vh units
+      right: `${rightVw}vw`,
+    } as CSSProperties
+  })
 
   const leftSidebarStyle = computed(() => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
@@ -477,7 +478,7 @@ const cornerPanelStyle = computed(() => {
     mainContentHeight,
     mainContentWidth,
     headerStyle,
-cornerPanelStyle,
+    cornerPanelStyle,
     leftToggleStyle,
     rightToggleStyle,
     footerToggleStyle,

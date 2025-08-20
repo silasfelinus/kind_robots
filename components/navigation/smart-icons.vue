@@ -2,7 +2,7 @@
 <template>
   <div class="w-full h-full flex items-stretch">
     <!-- Icon Row (fills remaining width) -->
-    <div class="flex-1 min-w-0 h-full flex items-center pl-10 md:pl-12 pr-2 md:pr-3">
+    <div class="flex-1 min-w-0 h-full flex items-center pl-10 md:pl-12 pr-1">
       <div
         ref="scrollContainer"
         class="overflow-x-auto overflow-y-hidden w-full h-full flex items-center gap-1 md:gap-2 snap-x snap-mandatory scroll-px-4 transition-all duration-300"
@@ -27,7 +27,7 @@
     </div>
 
     <!-- Vertical toggle stack (right edge) -->
-    <div class="flex flex-col h-full min-h-0 gap-2 pr-2 shrink-0 items-center z-50">
+    <div class="flex flex-col h-full min-h-0 gap-2 shrink-0 items-center z-50">
       <!-- Edit controls: exactly two buttons -->
       <div class="grid grid-cols-2 gap-2 shrink-0 pointer-events-auto">
         <!-- Toggle: Edit (settings) ⇄ Confirm (check) -->
@@ -36,7 +36,7 @@
           :title="isEditing ? (hasChanges ? 'Save order' : 'No changes to save') : 'Edit Smart Icons'"
           :disabled="isEditing && !hasChanges"
           :aria-pressed="isEditing"
-          class="h-10 w-10 md:h-12 md:w-12 rounded-2xl flex items-center justify-center
+          class="h-4 w-4 md:h-5 md:w-5 rounded-2xl flex items-center justify-center
                  bg-base-200 hover:bg-base-300 border border-base-content/10 transition
                  disabled:opacity-40 disabled:cursor-not-allowed"
           aria-label="Toggle edit / confirm"
@@ -49,7 +49,7 @@
           v-show="isEditing"
           @click="revertEdit"
           title="Cancel changes"
-          class="h-10 w-10 md:h-12 md:w-12 rounded-2xl flex items-center justify-center
+          class="h-4 w-4 md:h-5 md:w-5 rounded-2xl flex items-center justify-center
                  bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           aria-label="Cancel changes"
         >
@@ -59,7 +59,7 @@
 
       <!-- Corner menu toggle -->
       <button
-        class="h-10 w-10 md:h-12 md:w-12 rounded-2xl flex items-center justify-center 
+        class="h-4 w-4 md:h-5 md:w-5  rounded-2xl flex items-center justify-center 
                bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         :class="displayStore.showCorner ? 'ring-1 ring-primary/50' : ''"
         :title="displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'"
@@ -74,7 +74,7 @@
 
       <!-- Tutorial toggle -->
       <button
-        class="h-10 w-10 md:h-12 md:w-12 rounded-2xl flex items-center justify-center 
+        class="h-4 w-4 md:h-5 md:w-5 rounded-2xl flex items-center justify-center 
                bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         :class="isTutorialOpen ? 'ring-1 ring-primary/50' : ''"
         :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"

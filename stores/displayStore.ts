@@ -177,20 +177,19 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
 
+// /stores/displayStore.ts
 const cornerPanelStyle = computed(() => {
-  const padding = sectionPaddingSize.value
+  const paddingVw = sectionPaddingSize.value
   const rightSidebarVisible = ['open', 'compact'].includes(state.sidebarRightState)
 
-  // Right margin to align with the main content's right edge:
-  // - when right sidebar is visible: sidebar width + 2*padding
-  // - otherwise: just the padding
-  const rightMarginVw = rightSidebarVisible
-    ? sidebarRightWidth.value + padding * 2
-    : padding
+  // Right offset aligns with main content's right edge in vw
+  const rightVw = rightSidebarVisible
+    ? sidebarRightWidth.value + paddingVw * 2 // sidebar + main's right gutter
+    : paddingVw                                // just main's right gutter
 
   return {
-    top: `calc(var(--vh) * ${contentTopOffset.value})`,
-    right: `${rightMarginVw}vw`,
+    top: `calc(var(--vh) * ${contentTopOffset.value})`, // below header in vh units
+    right: `${rightVw}vw`,
   } as CSSProperties
 })
 

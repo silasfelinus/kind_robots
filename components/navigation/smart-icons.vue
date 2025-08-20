@@ -39,7 +39,7 @@
             title="Add or manage icons"
             class="aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           >
-            <Icon name="kind-icon:plus" class="h-[78%] w-[78%]" />
+            <Icon name="kind-icon:plus" class="h-[50%] w-[50%]" />
           </NuxtLink>
 
           <button
@@ -48,7 +48,7 @@
             title="Revert changes"
             class="aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           >
-            <Icon name="kind-icon:rotate" class="h-[78%] w-[78%]" />
+            <Icon name="kind-icon:rotate" class="h-[50%] w-[50%]" />
           </button>
 
           <button
@@ -56,7 +56,7 @@
             title="Save order"
             class="aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           >
-            <Icon name="kind-icon:check" class="h-[78%] w-[78%]" />
+            <Icon name="kind-icon:check" class="h-[50%] w-[50%]" />
           </button>
         </div>
       </template>
@@ -66,7 +66,7 @@
         title="Edit Smart Icons"
         class="flex-1 min-h-0 aspect-square rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
       >
-        <Icon name="kind-icon:settings" class="h-[78%] w-[78%]" />
+        <Icon name="kind-icon:settings" class="h-[50%] w-[50%]" />
       </button>
 
       <!-- 2) Corner menu toggle -->

@@ -131,20 +131,6 @@
     ]
   },
   {
-    "folderName": "hybrids",
-    "components": [
-      "animal-card",
-      "animal-explorer",
-      "animal-hybrid",
-      "animal-picker",
-      "generate-hybrid",
-      "hybrid-footer",
-      "hybrid-gallery",
-      "hybrid-grid",
-      "hybrid-overlay"
-    ]
-  },
-  {
     "folderName": "icons",
     "components": [
       "add-icon",
@@ -277,14 +263,6 @@
     ]
   },
   {
-    "folderName": "pantheon",
-    "components": [
-      "add-pantheon",
-      "edit-pantheon",
-      "pantheon-nav"
-    ]
-  },
-  {
     "folderName": "prompts",
     "components": [
       "add-pitch-old",
@@ -327,17 +305,6 @@
       "reward-preview",
       "reward-selector",
       "show-reward"
-    ]
-  },
-  {
-    "folderName": "sandbox",
-    "components": [
-      "sandbox-context",
-      "sandbox-environment",
-      "sandbox-grid",
-      "sandbox-icon",
-      "sandbox-menu",
-      "sandbox-persists"
     ]
   },
   {

@@ -21,16 +21,8 @@
       <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" />
     </div>
 
-    <!-- Foreground Structured Sections -->
-    <div
-      class="relative z-10 flex flex-col gap-6 p-4 sm:p-6 md:p-8 min-h-[120vh]"
-    >
-      <!-- Section 1: Room Info -->
-      <div
-        class="min-h-[40vh] overflow-y-auto rounded-2xl border border-base-300 bg-base-200/80 p-4"
-      >
-        <splash-content />
-      </div>
+    <div class="relative z-10 flex flex-col min-h-[120vh] overflow-y-auto">
+      <splash-content />
     </div>
   </div>
 </template>

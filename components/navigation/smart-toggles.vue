@@ -1,48 +1,41 @@
+<!-- /components/content/navigation/smart-toggles.vue -->
 <template>
-  <!-- 3 rows, each exactly 1/3 of the column height -->
+  <!-- 3 rows, each exactly 1/3 height -->
   <div class="h-full w-full grid grid-rows-3">
-    <!-- Row 1: Edit / Cancel (stays within its third) -->
+    <!-- Row 1: centered main button; confirm floats on the right in edit mode -->
     <div
-      class="row-span-1 h-full w-full grid"
-      :class="isEditing ? 'grid-cols-2' : 'grid-cols-2'"
+      class="row-span-1 relative h-full w-full flex items-center justify-center"
     >
-      <!-- Edit / Confirm -->
-      <div class="flex items-center justify-center">
-        <button
-          class="rounded-full aspect-square h-[70%] max-h-[5rem] min-h-[1.75rem] flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
-          @click="isEditing ? confirmEdit() : activateEditMode()"
-          :title="
-            isEditing
-              ? hasChanges
-                ? 'Save order'
-                : 'No changes to save'
-              : 'Edit Smart Icons'
-          "
-          :disabled="isEditing && !hasChanges"
-          :aria-pressed="isEditing"
-        >
-          <Icon
-            :name="isEditing ? 'kind-icon:check' : 'kind-icon:settings'"
-            class="h-[55%] w-[55%]"
-          />
-        </button>
-      </div>
+      <!-- Main centered button: Edit (not editing) OR Cancel (editing) -->
+      <button
+        v-if="!isEditing"
+        class="rounded-full aspect-square h-[70%] max-h-[5rem] min-h-[1.75rem] flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
+        :aria-pressed="isEditing"
+        :title="'Edit Smart Icons'"
+        @click="activateEditMode"
+      >
+        <Icon name="kind-icon:settings" class="h-[55%] w-[55%]" />
+      </button>
 
-      <!-- Cancel (placeholder when not editing to maintain grid balance) -->
-      <div class="flex items-center justify-center">
-        <button
-          v-if="isEditing"
-          class="rounded-full aspect-square h-[70%] max-h-[5rem] min-h-[1.75rem] flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-          title="Cancel changes"
-          @click="revertEdit"
-        >
-          <Icon name="kind-icon:close" class="h-[55%] w-[55%]" />
-        </button>
-        <div
-          v-else
-          class="h-[70%] aspect-square opacity-0 pointer-events-none"
-        ></div>
-      </div>
+      <button
+        v-else
+        class="rounded-full aspect-square h-[70%] max-h-[5rem] min-h-[1.75rem] flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+        title="Cancel changes"
+        @click="revertEdit"
+      >
+        <Icon name="kind-icon:close" class="h-[55%] w-[55%]" />
+      </button>
+
+      <!-- Floating confirm: appears only in edit mode; does not change layout -->
+      <button
+        v-if="isEditing"
+        class="absolute top-1/2 -translate-y-1/2 right-[8%] rounded-full aspect-square h-[70%] max-h-[5rem] min-h-[1.75rem] flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
+        :title="hasChanges ? 'Save order' : 'No changes to save'"
+        :disabled="!hasChanges"
+        @click="confirmEdit"
+      >
+        <Icon name="kind-icon:check" class="h-[55%] w-[55%]" />
+      </button>
     </div>
 
     <!-- Row 2: Corner menu -->
@@ -104,8 +97,8 @@ watch(isEditing, (editing) => {
 
 const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
 const hasChanges = computed(() => {
-  const a = getIds(editableIcons.value),
-    b = getIds(originalIcons.value)
+  const a = getIds(editableIcons.value)
+  const b = getIds(originalIcons.value)
   return a.length !== b.length || a.some((id, i) => id !== b[i])
 })
 

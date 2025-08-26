@@ -14,7 +14,6 @@
         class="grid pointer-events-auto"
         :style="{ gridAutoFlow: 'column', gap: isEditing ? '1.25%' : '0' }"
       >
-        <!-- Edit / Confirm -->
         <button
           class="rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
           :style="btnStyle"
@@ -35,7 +34,6 @@
           />
         </button>
 
-        <!-- Cancel -->
         <button
           v-if="isEditing"
           class="rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
@@ -47,7 +45,6 @@
         </button>
       </div>
 
-      <!-- Corner menu -->
       <button
         class="pointer-events-auto rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         :class="[displayStore.showCorner ? 'ring-1 ring-primary/50' : '']"
@@ -68,7 +65,6 @@
         />
       </button>
 
-      <!-- Tutorial -->
       <button
         class="pointer-events-auto rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         :class="[isTutorialOpen ? 'ring-1 ring-primary/50' : '']"
@@ -93,17 +89,13 @@ import { ref, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
-
 const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const { isEditing, editableIcons } = storeToRefs(smartbarStore)
-
 const originalIcons = ref<SmartIcon[]>([])
 watch(isEditing, (editing) => {
   if (editing) originalIcons.value = [...editableIcons.value]
 })
-
-// Button size as % of header height; clamped for extremes
 const btnStyle = computed(() => ({
   height: '11%',
   width: '11%',
@@ -112,14 +104,12 @@ const btnStyle = computed(() => ({
   minHeight: '1.6rem',
   minWidth: '1.6rem',
 }))
-
 const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
 const hasChanges = computed(() => {
-  const a = getIds(editableIcons.value)
-  const b = getIds(originalIcons.value)
+  const a = getIds(editableIcons.value),
+    b = getIds(originalIcons.value)
   return a.length !== b.length || a.some((id, i) => id !== b[i])
 })
-
 function activateEditMode() {
   smartbarStore.isEditing = true
   displayStore.bigMode = false
@@ -132,7 +122,6 @@ function revertEdit() {
   editableIcons.value = [...originalIcons.value]
   smartbarStore.isEditing = false
 }
-
 const isTutorialOpen = computed({
   get: () => displayStore.sidebarRightState === 'open',
   set: (val: boolean) => displayStore.setSidebarRight(val),

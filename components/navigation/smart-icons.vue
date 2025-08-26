@@ -5,14 +5,14 @@
     <div class="h-full w-full flex items-stretch min-w-0">
       <div
         ref="scrollContainer"
-        class="h-full w-full flex-1 min-w-0 overflow-x-auto overflow-y-hidden flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-2 pr-0 [scrollbar-gutter:stable]"
+        class="h-full w-full flex-1 min-w-0 overflow-x-auto overflow-y-hidden flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] pr-0 [scrollbar-gutter:stable]"
         :class="[
           displayStore.showCorner
             ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
             : '',
-          // nuke stray vertical spacing from children
+          // strip vertical gaps so icons hug top/label
           '[&_*]:!mt-0 [&_*]:!mb-0 [&_*]:!pt-0 [&_*]:!pb-0',
-          // nuke any horizontal margins inner tiles might add
+          // strip any horizontal margins inner tiles might add
           '[&_*]:!ms-0 [&_*]:!me-0',
           // direct children fill height
           '[&>*]:h-full',

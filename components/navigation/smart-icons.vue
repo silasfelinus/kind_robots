@@ -1,15 +1,15 @@
 <!-- /components/content/navigation/smart-icons.vue -->
 <template>
   <div class="relative w-full h-full leading-none">
-    <!-- Icon Row (fixed size/gap; only right padding changes to match toggle size) -->
-    <div
-      class="flex-1 min-w-0 h-full flex items-center pl-10 md:pl-12"
-      :class="bigMode ? 'pr-10 md:pr-12' : 'pr-12 md:pr-16'"
-    >
+    <!-- Row uses only % + 1vh vertical padding; no hard numbers -->
+    <div class="flex-1 min-w-0 h-full flex items-center w-full">
       <div
         ref="scrollContainer"
-        class="overflow-x-auto overflow-y-hidden w-full h-full flex items-center gap-1 md:gap-2 snap-x snap-mandatory scroll-px-4 transition-all duration-300"
-        :class="[displayStore.showCorner ? 'kr-hide-titles' : '']"
+        class="overflow-x-auto overflow-y-hidden w-full h-full flex items-center snap-x snap-mandatory transition-all duration-300 py-[1vh] px-[1%]"
+        :class="[
+          displayStore.showCorner ? 'kr-hide-titles' : '',
+          'gap-[1%]', // percent gap so it scales with width
+        ]"
         @scroll="checkScrollEdgesThrottled"
         @mousedown="handleScrollMouseDown"
         @mousemove="handleScrollMouseMove"
@@ -19,114 +19,30 @@
         @touchmove="handleScrollTouchMove"
         @touchend="handleScrollMouseUp"
       >
-        <!-- Icons: fixed sizes (no bigMode change) -->
+        <!-- Icons auto-size to the row height; width constrained by max-% to keep titles visible -->
         <icon-display
           v-for="icon in rowIcons"
           :key="icon.id"
           :icon="icon"
           :show-title="showTitles"
-          class="snap-start shrink-0 h-full w-full max-w-24"
+          class="snap-start shrink-0 h-full"
+          :style="{
+            // let each icon block be up to 12% wide; adjust if you want more/less density
+            maxWidth: '12%',
+            width: 'auto',
+          }"
         />
 
-        <!-- Plus icon (edit mode only), fixed sizes to match row -->
+        <!-- Plus icon (edit mode only), matches icon sizing logic -->
         <NuxtLink
           v-if="isEditing"
           to="/icons"
-          class="snap-start shrink-0 flex items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition h-8 w-8 md:h-10 md:w-10 lg:h-12 lg:w-12"
+          class="snap-start shrink-0 flex items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition h-full"
+          :style="{ maxWidth: '12%' }"
           title="Add or manage icons"
         >
-          <Icon name="kind-icon:plus" class="h-[60%] w-[60%]" />
+          <Icon class="h-[60%] w-[60%]" name="kind-icon:plus" />
         </NuxtLink>
-      </div>
-    </div>
-
-    <!-- ABSOLUTE right-side toggle stack (shrinks in bigMode) -->
-    <div
-      class="pointer-events-none absolute right-1 md:right-2 top-1/2 -translate-y-1/2 z-50"
-    >
-      <div
-        class="flex flex-col items-center"
-        :class="bigMode ? 'gap-1' : 'gap-2'"
-      >
-        <div
-          class="grid"
-          :class="[
-            isEditing ? 'grid-cols-2' : 'grid-cols-1',
-            bigMode ? 'gap-1' : 'gap-2',
-          ]"
-        >
-          <button
-            class="pointer-events-auto rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
-            :class="bigMode ? 'h-5 w-5 md:h-6 md:w-6' : 'h-6 w-6 md:h-8 md:w-8'"
-            @click="isEditing ? confirmEdit() : activateEditMode()"
-            :title="
-              isEditing
-                ? hasChanges
-                  ? 'Save order'
-                  : 'No changes to save'
-                : 'Edit Smart Icons'
-            "
-            :disabled="isEditing && !hasChanges"
-            :aria-pressed="isEditing"
-            aria-label="Toggle edit / confirm"
-          >
-            <Icon
-              :name="isEditing ? 'kind-icon:check' : 'kind-icon:settings'"
-              class="h-[55%] w-[55%]"
-            />
-          </button>
-
-          <button
-            v-if="isEditing"
-            class="pointer-events-auto rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-            :class="bigMode ? 'h-5 w-5 md:h-6 md:w-6' : 'h-6 w-6 md:h-8 md:w-8'"
-            @click="revertEdit"
-            title="Cancel changes"
-            aria-label="Cancel changes"
-          >
-            <Icon name="kind-icon:close" class="h-[55%] w-[55%]" />
-          </button>
-        </div>
-
-        <button
-          class="pointer-events-auto rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-          :class="[
-            bigMode ? 'h-5 w-5 md:h-6 md:w-6' : 'h-6 w-6 md:h-8 md:w-8',
-            displayStore.showCorner ? 'ring-1 ring-primary/50' : '',
-          ]"
-          :title="
-            displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'
-          "
-          :aria-pressed="displayStore.showCorner"
-          @click="displayStore.toggleCorner()"
-        >
-          <Icon
-            :name="
-              displayStore.showCorner
-                ? 'kind-icon:panel-right'
-                : 'kind-icon:panel-right-close'
-            "
-            class="h-[60%] w-[60%]"
-          />
-        </button>
-
-        <button
-          class="pointer-events-auto rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-          :class="[
-            bigMode ? 'h-5 w-5 md:h-6 md:w-6' : 'h-6 w-6 md:h-8 md:w-8',
-            isTutorialOpen ? 'ring-1 ring-primary/50' : '',
-          ]"
-          :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
-          :aria-pressed="isTutorialOpen"
-          @click="toggleTutorial"
-        >
-          <Icon
-            :name="
-              isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'
-            "
-            class="h-[60%] w-[60%]"
-          />
-        </button>
       </div>
     </div>
   </div>
@@ -141,7 +57,6 @@ import { useDisplayStore } from '@/stores/displayStore'
 const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
-const bigMode = computed(() => displayStore.bigMode)
 
 const originalIcons = ref<SmartIcon[]>([])
 
@@ -156,39 +71,12 @@ watch(isEditing, (editing) => {
   if (editing) originalIcons.value = [...editableIcons.value]
 })
 
-const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
-
-function activateEditMode() {
-  smartbarStore.isEditing = true
-  displayStore.bigMode = false
-}
-const hasChanges = computed(() => {
-  const a = getIds(editableIcons.value),
-    b = getIds(originalIcons.value)
-  return a.length !== b.length || a.some((id, i) => id !== b[i])
-})
-function confirmEdit() {
-  smartbarStore.setIconOrder(getIds(editableIcons.value))
-  smartbarStore.isEditing = false
-}
-function revertEdit() {
-  editableIcons.value = [...originalIcons.value]
-  smartbarStore.isEditing = false
-}
-
 const rowIcons = computed(() =>
   isEditing.value ? editableIcons.value : activeIcons.value,
 )
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
 
-const isTutorialOpen = computed({
-  get: () => displayStore.sidebarRightState === 'open',
-  set: (val: boolean) => displayStore.setSidebarRight(val),
-})
-function toggleTutorial() {
-  isTutorialOpen.value = !isTutorialOpen.value
-}
-
+// drag-to-scroll + edge checking
 const scrollContainer = ref<HTMLElement | null>(null)
 let scrollTick = false
 function checkScrollEdges() {}

@@ -1,15 +1,16 @@
-<!-- /components/content/navigation/smart-icons.vue -->
 <template>
-  <div class="relative w-full h-full leading-none">
-    <div class="flex-1 min-w-0 h-full flex items-stretch w-full">
+  <div class="relative h-full w-auto leading-none">
+    <div class="h-full w-auto max-w-full flex items-stretch">
       <div
         ref="scrollContainer"
-        class="overflow-x-auto overflow-y-hidden w-full h-full flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[1%] px-[1%]"
+        class="h-full w-auto max-w-full overflow-x-auto overflow-y-hidden flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[0.5%]"
         :class="[
           displayStore.showCorner
             ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
             : '',
+          // strip vertical gaps so icons hug top/label
           '[&_*]:!mt-0 [&_*]:!mb-0 [&_*]:!pt-0 [&_*]:!pb-0',
+          // direct children fill height
           '[&>*]:h-full',
         ]"
         @scroll="checkScrollEdgesThrottled"
@@ -21,7 +22,7 @@
         @touchmove="handleScrollTouchMove"
         @touchend="handleScrollMouseUp"
       >
-        <!-- Larger tiles; fill height; start immediately after title -->
+        <!-- Larger tiles; adjust cap as desired -->
         <icon-display
           v-for="icon in rowIcons"
           :key="icon.id"

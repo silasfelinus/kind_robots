@@ -1,15 +1,7 @@
 <!-- /components/content/story/avatar-image.vue -->
 <template>
   <div v-if="hydrated" class="relative w-full h-full">
-    <!-- Top-left toggle icon (always above everything) -->
-    <button
-      type="button"
-      class="absolute top-1 left-1 z-50 text-primary hover:opacity-80 transition"
-      @click="handleAvatarClick"
-      aria-label="Toggle big mode"
-    >
-      <Icon name="kind-icon:minimize" class="w-4 h-4" />
-    </button>
+
 
     <!-- Flip card: the whole image area toggles bigMode on click -->
     <div

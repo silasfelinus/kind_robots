@@ -1,3 +1,4 @@
+<!-- /components/content/navigation/smart-icons.vue -->
 <template>
   <div class="relative h-full w-auto leading-none">
     <div class="h-full w-auto max-w-full flex items-stretch">
@@ -22,7 +23,7 @@
         @touchmove="handleScrollTouchMove"
         @touchend="handleScrollMouseUp"
       >
-        <!-- Larger tiles; adjust cap as desired -->
+        <!-- Icons -->
         <icon-display
           v-for="icon in rowIcons"
           :key="icon.id"
@@ -31,14 +32,24 @@
           class="snap-start shrink-0 h-full w-auto max-w-[18%] flex"
         />
 
-        <NuxtLink
+        <!-- Plus tile (edit mode only) — identical sizing as icons, at the very end -->
+        <div
           v-if="isEditing"
-          to="/icons"
-          class="snap-start shrink-0 h-full max-w-[18%] w-auto flex items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-          title="Add or manage icons"
+          class="snap-start shrink-0 h-full w-auto max-w-[18%] flex"
         >
-          <Icon class="h-[60%] w-[60%]" name="kind-icon:plus" />
-        </NuxtLink>
+          <NuxtLink
+            to="/icons"
+            class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl
+                   bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none
+                   focus-visible:ring-2 focus-visible:ring-primary/50"
+            title="Add or manage icons"
+            aria-label="Add or manage icons"
+          >
+            <Icon name="kind-icon:plus" class="pointer-events-none h-[60%] w-[60%]" />
+            <!-- Optional label; respects global title-hiding rules -->
+            <span class="icon-title mt-[0.15em] text-xs opacity-80 select-none">Add</span>
+          </NuxtLink>
+        </div>
       </div>
     </div>
   </div>
@@ -54,6 +65,7 @@ const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
 
+// keep editable list in sync when not editing
 watch(
   activeIcons,
   (val) => {
@@ -61,11 +73,13 @@ watch(
   },
   { immediate: true },
 )
+
 const rowIcons = computed(() =>
   isEditing.value ? editableIcons.value : activeIcons.value,
 )
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
 
+// scroll helpers
 const scrollContainer = ref<HTMLElement | null>(null)
 let scrollTick = false
 function checkScrollEdges() {}
@@ -77,9 +91,10 @@ function checkScrollEdgesThrottled() {
     scrollTick = false
   })
 }
-let isDragging = false,
-  startX = 0,
-  scrollStart = 0
+
+let isDragging = false
+let startX = 0
+let scrollStart = 0
 function handleScrollMouseDown(e: MouseEvent) {
   isDragging = true
   startX = e.clientX

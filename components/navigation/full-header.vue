@@ -4,7 +4,7 @@
     class="relative w-full h-full rounded-2xl bg-base-300 overflow-visible [isolation:isolate]"
   >
     <div class="flex items-stretch w-full h-full gap-0">
-      <!-- Avatar -->
+      <!-- Avatar (16%) -->
       <div
         class="relative flex-none h-full w-[16%] rounded-2xl overflow-hidden"
       >
@@ -19,10 +19,10 @@
         </div>
       </div>
 
-      <!-- Title: no vertical padding, fills height, scales to available space -->
+      <!-- Title: grows but (avatar + title) maxes at 45% -->
       <div
         v-if="!bigMode"
-        class="flex-[3_1_0%] min-w-0 h-full flex items-stretch"
+        class="min-w-0 h-full flex items-stretch flex-[1_1_auto] max-w-[calc(45%-16%)]"
       >
         <h1
           class="m-0 w-full h-full flex items-center truncate font-bold tracking-tight leading-none text-left px-[0.5%] text-[min(8vh,8vw)]"
@@ -31,12 +31,12 @@
         </h1>
       </div>
 
-      <!-- Smart Icons: middle lane -->
-      <div class="flex-[2_1_0%] min-w-0 h-full flex items-stretch">
+      <!-- Smart Icons: begin exactly where title ends, take the rest -->
+      <div class="flex-1 min-w-0 h-full flex items-stretch">
         <smart-icons class="h-full w-full" />
       </div>
 
-      <!-- Smart Toggles: right column (no absolute) -->
+      <!-- Smart Toggles: right column, circles -->
       <div class="flex-none h-full w-[10%]">
         <smart-toggles class="h-full w-full" />
       </div>

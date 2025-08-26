@@ -9,9 +9,7 @@
           displayStore.showCorner
             ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
             : '',
-          // strip vertical padding/margins so icons hug top and their text
           '[&_*]:!mt-0 [&_*]:!mb-0 [&_*]:!pt-0 [&_*]:!pb-0',
-          // ensure direct children fill height
           '[&>*]:h-full',
         ]"
         @scroll="checkScrollEdgesThrottled"
@@ -23,7 +21,7 @@
         @touchmove="handleScrollTouchMove"
         @touchend="handleScrollMouseUp"
       >
-        <!-- Larger icon tiles; still allow labels to fit when shown -->
+        <!-- Larger tiles; fill height; start immediately after title -->
         <icon-display
           v-for="icon in rowIcons"
           :key="icon.id"

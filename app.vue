@@ -1,8 +1,6 @@
 <!-- /app.vue -->
 <template>
-  <div
-    class="main-layout bg-base-200 h-full w-full relative overflow-hidden box-border"
-  >
+  <div class="main-layout h-full w-full relative overflow-hidden box-border">
     <!-- Loaders -->
     <div class="fixed z-50">
       <footer-toggle />
@@ -20,7 +18,7 @@
     <!-- Navigation Loader -->
     <div
       v-if="isNavigating"
-      class="fixed inset-0 z-40 bg-base-200 bg-opacity-70 flex items-center justify-center animate-fade-in"
+      class="fixed inset-0 z-40 bg-opacity-70 flex items-center justify-center animate-fade-in"
     >
       <div class="loading loading-dots loading-lg text-primary" />
     </div>

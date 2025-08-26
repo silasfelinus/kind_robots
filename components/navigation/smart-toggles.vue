@@ -1,78 +1,79 @@
+<!-- /components/content/navigation/smart-toggles.vue -->
 <template>
-  <div class="h-full w-full grid grid-rows-3">
-    <!-- Row 1 -->
+  <!-- Fill available height, each row gets equal space -->
+  <div
+    class="h-full w-full grid [grid-template-rows:repeat(3,minmax(0,1fr))] select-none"
+  >
+    <!-- Row 1: Edit / Cancel + floating Save -->
     <div class="relative h-full w-full flex items-center justify-center">
       <!-- centered main: Edit (not editing) OR Cancel (editing) -->
       <button
         v-if="!isEditing"
-        class="rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem]
-               flex items-center justify-center bg-base-200 hover:bg-base-300
-               border border-base-content/10 transition"
+        class="rounded-full aspect-square h-[86%] min-h-8 flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         :aria-pressed="isEditing"
         title="Edit Smart Icons"
         @click="activateEditMode"
       >
-        <Icon name="kind-icon:settings" class="h-[55%] w-[55%]" />
+        <Icon name="kind-icon:settings" class="h-[72%] w-[72%]" />
       </button>
 
       <button
         v-else
-        class="rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem]
-               flex items-center justify-center bg-base-200 hover:bg-base-300
-               border border-base-content/10 transition"
+        class="rounded-full aspect-square h-[86%] min-h-8 flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         title="Cancel changes"
         @click="revertEdit"
       >
-        <Icon name="kind-icon:close" class="h-[55%] w-[55%]" />
+        <Icon name="kind-icon:close" class="h-[72%] w-[72%]" />
       </button>
 
       <!-- floating confirm: LEFT side, does not shift layout -->
       <button
         v-if="isEditing"
-        class="absolute top-1/2 -translate-y-1/2 left-[2%]
-               rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem]
-               flex items-center justify-center bg-base-200 hover:bg-base-300
-               border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
+        class="absolute top-1/2 -translate-y-1/2 left-[4%] rounded-full aspect-square h-[64%] min-h-7 flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
         :title="hasChanges ? 'Save order' : 'No changes to save'"
         :disabled="!hasChanges"
         @click="confirmEdit"
       >
-        <Icon name="kind-icon:check" class="h-[55%] w-[55%]" />
+        <Icon name="kind-icon:check" class="h-[70%] w-[70%]" />
       </button>
     </div>
 
-    <!-- Row 2 -->
+    <!-- Row 2: Corner menu toggle -->
     <div class="h-full w-full flex items-center justify-center">
       <button
-        class="rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem]
-               flex items-center justify-center bg-base-200 hover:bg-base-300
-               border border-base-content/10 transition"
+        class="rounded-full aspect-square h-[86%] min-h-8 flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         :class="[displayStore.showCorner ? 'ring-1 ring-primary/50' : '']"
-        :title="displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'"
+        :title="
+          displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'
+        "
         :aria-pressed="displayStore.showCorner"
         @click="displayStore.toggleCorner()"
       >
         <Icon
-          :name="displayStore.showCorner ? 'kind-icon:panel-right' : 'kind-icon:panel-right-close'"
-          class="h-[60%] w-[60%]"
+          :name="
+            displayStore.showCorner
+              ? 'kind-icon:panel-right'
+              : 'kind-icon:panel-right-close'
+          "
+          class="h-[74%] w-[74%]"
         />
       </button>
     </div>
 
-    <!-- Row 3 -->
+    <!-- Row 3: Tutorial toggle -->
     <div class="h-full w-full flex items-center justify-center">
       <button
-        class="rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem]
-               flex items-center justify-center bg-base-200 hover:bg-base-300
-               border border-base-content/10 transition"
+        class="rounded-full aspect-square h-[86%] min-h-8 flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         :class="[isTutorialOpen ? 'ring-1 ring-primary/50' : '']"
         :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
         :aria-pressed="isTutorialOpen"
         @click="toggleTutorial"
       >
         <Icon
-          :name="isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'"
-          class="h-[60%] w-[60%]"
+          :name="
+            isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'
+          "
+          class="h-[74%] w-[74%]"
         />
       </button>
     </div>

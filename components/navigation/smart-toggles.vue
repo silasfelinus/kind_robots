@@ -1,86 +1,74 @@
 <!-- /components/content/navigation/smart-toggles.vue -->
 <template>
-  <div
-    class="pointer-events-none absolute z-50"
-    :style="{
-      right: '1%',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      maxHeight: '98%',
-    }"
-  >
-    <div class="flex flex-col items-center" :style="{ gap: '1.25%' }">
-      <div
-        class="grid pointer-events-auto"
-        :style="{ gridAutoFlow: 'column', gap: isEditing ? '1.25%' : '0' }"
-      >
-        <button
-          class="rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
-          :style="btnStyle"
-          @click="isEditing ? confirmEdit() : activateEditMode()"
-          :title="
-            isEditing
-              ? hasChanges
-                ? 'Save order'
-                : 'No changes to save'
-              : 'Edit Smart Icons'
-          "
-          :disabled="isEditing && !hasChanges"
-          :aria-pressed="isEditing"
-        >
-          <Icon
-            :name="isEditing ? 'kind-icon:check' : 'kind-icon:settings'"
-            class="h-[55%] w-[55%]"
-          />
-        </button>
-
-        <button
-          v-if="isEditing"
-          class="rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-          :style="btnStyle"
-          @click="revertEdit"
-          title="Cancel changes"
-        >
-          <Icon name="kind-icon:close" class="h-[55%] w-[55%]" />
-        </button>
-      </div>
-
+  <div class="h-full w-full flex flex-col items-center justify-center gap-[2%]">
+    <!-- Row: edit / cancel -->
+    <div class="w-full flex items-center justify-center gap-[2%]">
       <button
-        class="pointer-events-auto rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-        :class="[displayStore.showCorner ? 'ring-1 ring-primary/50' : '']"
+        class="rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
         :style="btnStyle"
+        @click="isEditing ? confirmEdit() : activateEditMode()"
         :title="
-          displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'
+          isEditing
+            ? hasChanges
+              ? 'Save order'
+              : 'No changes to save'
+            : 'Edit Smart Icons'
         "
-        :aria-pressed="displayStore.showCorner"
-        @click="displayStore.toggleCorner()"
+        :disabled="isEditing && !hasChanges"
+        :aria-pressed="isEditing"
       >
         <Icon
-          :name="
-            displayStore.showCorner
-              ? 'kind-icon:panel-right'
-              : 'kind-icon:panel-right-close'
-          "
-          class="h-[60%] w-[60%]"
+          :name="isEditing ? 'kind-icon:check' : 'kind-icon:settings'"
+          class="h-[55%] w-[55%]"
         />
       </button>
 
       <button
-        class="pointer-events-auto rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-        :class="[isTutorialOpen ? 'ring-1 ring-primary/50' : '']"
+        v-if="isEditing"
+        class="rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
         :style="btnStyle"
-        :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
-        :aria-pressed="isTutorialOpen"
-        @click="toggleTutorial"
+        @click="revertEdit"
+        title="Cancel changes"
       >
-        <Icon
-          :name="
-            isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'
-          "
-          class="h-[60%] w-[60%]"
-        />
+        <Icon name="kind-icon:close" class="h-[55%] w-[55%]" />
       </button>
     </div>
+
+    <!-- Corner menu -->
+    <button
+      class="rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+      :class="[displayStore.showCorner ? 'ring-1 ring-primary/50' : '']"
+      :style="btnStyle"
+      :title="displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'"
+      :aria-pressed="displayStore.showCorner"
+      @click="displayStore.toggleCorner()"
+    >
+      <Icon
+        :name="
+          displayStore.showCorner
+            ? 'kind-icon:panel-right'
+            : 'kind-icon:panel-right-close'
+        "
+        class="h-[60%] w-[60%]"
+      />
+    </button>
+
+    <!-- Tutorial -->
+    <button
+      class="rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+      :class="[isTutorialOpen ? 'ring-1 ring-primary/50' : '']"
+      :style="btnStyle"
+      :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
+      :aria-pressed="isTutorialOpen"
+      @click="toggleTutorial"
+    >
+      <Icon
+        :name="
+          isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'
+        "
+        class="h-[60%] w-[60%]"
+      />
+    </button>
   </div>
 </template>
 
@@ -89,30 +77,33 @@ import { ref, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
+
 const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const { isEditing, editableIcons } = storeToRefs(smartbarStore)
+
 const originalIcons = ref<SmartIcon[]>([])
 watch(isEditing, (editing) => {
   if (editing) originalIcons.value = [...editableIcons.value]
 })
+
+// Buttons scale to column height (the column is ~10% of header width)
 const btnStyle = computed(() => ({
-  height: '11%',
-  width: '11%',
-  maxHeight: '4.25rem',
-  maxWidth: '4.25rem',
+  height: '18%',
+  width: '70%', // keep them nicely sized within the narrow column
+  maxHeight: '4rem',
   minHeight: '1.6rem',
-  minWidth: '1.6rem',
 }))
+
 const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
 const hasChanges = computed(() => {
   const a = getIds(editableIcons.value),
     b = getIds(originalIcons.value)
   return a.length !== b.length || a.some((id, i) => id !== b[i])
 })
+
 function activateEditMode() {
   smartbarStore.isEditing = true
-  displayStore.bigMode = false
 }
 function confirmEdit() {
   smartbarStore.setIconOrder(getIds(editableIcons.value))
@@ -122,6 +113,7 @@ function revertEdit() {
   editableIcons.value = [...originalIcons.value]
   smartbarStore.isEditing = false
 }
+
 const isTutorialOpen = computed({
   get: () => displayStore.sidebarRightState === 'open',
   set: (val: boolean) => displayStore.setSidebarRight(val),

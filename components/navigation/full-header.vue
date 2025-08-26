@@ -19,26 +19,28 @@
         </div>
       </div>
 
-      <!-- Title (maximize width & height, no external padding) -->
+      <!-- Title: no vertical padding, fills height, scales to available space -->
       <div
         v-if="!bigMode"
-        class="flex-[3_1_0%] min-w-0 h-full flex items-center"
+        class="flex-[3_1_0%] min-w-0 h-full flex items-stretch"
       >
         <h1
-          class="w-full truncate font-bold tracking-tight leading-none text-left [font-size:clamp(1.25rem,7vw,5rem)]"
+          class="m-0 w-full h-full flex items-center truncate font-bold tracking-tight leading-none text-left px-[0.5%] text-[min(8vh,8vw)]"
         >
           Kind {{ page?.title || 'Robots' }}
         </h1>
       </div>
 
-      <!-- Smart Icons (share remaining space; no left/right gaps here) -->
-      <div class="flex-[2_1_0%] min-w-0 h-full flex items-center">
+      <!-- Smart Icons: middle lane -->
+      <div class="flex-[2_1_0%] min-w-0 h-full flex items-stretch">
         <smart-icons class="h-full w-full" />
       </div>
-    </div>
 
-    <!-- Right overlay toggles -->
-    <smart-toggles />
+      <!-- Smart Toggles: right column (no absolute) -->
+      <div class="flex-none h-full w-[10%]">
+        <smart-toggles class="h-full w-full" />
+      </div>
+    </div>
   </header>
 </template>
 

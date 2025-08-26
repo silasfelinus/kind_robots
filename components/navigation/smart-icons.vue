@@ -26,19 +26,19 @@
         @touchmove="handleScrollTouchMove"
         @touchend="handleScrollMouseUp"
       >
-        <!-- Icons -->
+        <!-- Icons (square tiles, sized by row height) -->
         <icon-display
           v-for="icon in rowIcons"
           :key="icon.id"
           :icon="icon"
           :show-title="showTitles"
-          class="snap-start shrink-0 h-full flex basis-[18%] max-w-[18%]"
+          class="snap-start shrink-0 h-full aspect-square flex"
         />
 
-        <!-- Plus tile (edit mode only) -->
+        <!-- Plus tile (edit mode only) — same square sizing -->
         <div
           v-if="isEditing"
-          class="snap-start shrink-0 h-full flex basis-[18%] max-w-[18%]"
+          class="snap-start shrink-0 h-full aspect-square flex"
         >
           <NuxtLink
             to="/icons"

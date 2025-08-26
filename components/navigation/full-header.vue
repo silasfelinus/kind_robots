@@ -1,39 +1,46 @@
 <!-- /components/content/navigation/full-header.vue -->
 <template>
   <header
-    class="bg-base-300 rounded-2xl w-full h-full px-2 flex items-stretch overflow-visible [isolation:isolate]"
+    class="relative w-full h-full rounded-2xl bg-base-300 overflow-visible [isolation:isolate]"
   >
-    <!-- Avatar -->
-    <div
-      class="relative flex-none h-full w-20 md:w-24 rounded-2xl overflow-hidden"
-    >
-      <avatar-image
-        alt="User Avatar"
-        class="h-full w-full object-cover object-center"
-      />
+    <!-- Single row, no fixed heights; children scale to container -->
+    <div class="flex items-stretch w-full h-full">
+      <!-- Avatar (flush left, percent width) -->
       <div
-        class="absolute bottom-1 left-1/2 -translate-x-1/2 z-20 text-white bg-primary rounded-md px-1 text-[10px] sm:text-xs md:text-sm"
+        class="relative flex-none h-full w-[16%] rounded-2xl overflow-hidden"
       >
-        {{ viewportSize }}
+        <avatar-image
+          alt="User Avatar"
+          class="h-full w-full object-cover object-center"
+        />
+        <!-- Small readout; position is absolute but doesn’t affect layout -->
+        <div
+          class="absolute bottom-[2%] left-1/2 -translate-x-1/2 z-50 text-white bg-primary/90 rounded-md px-[1%] text-[0.8rem] leading-none"
+        >
+          {{ viewportSize }}
+        </div>
+      </div>
+
+      <!-- Title: as wide as possible, fills height -->
+      <div
+        v-if="!bigMode"
+        class="flex-1 min-w-0 h-full flex items-center justify-center"
+      >
+        <h1
+          class="truncate font-bold tracking-tight leading-none text-[clamp(1rem,2.2vw,2rem)]"
+        >
+          Kind {{ page?.title || 'Robots' }}
+        </h1>
+      </div>
+
+      <!-- Smart Icons: fills remaining space; 1vh top/bottom padding -->
+      <div class="flex-1 min-w-0 h-full flex items-center">
+        <smart-icons class="h-full w-full" />
       </div>
     </div>
 
-    <!-- Title -->
-    <div
-      v-if="!bigMode"
-      class="hidden lg:flex h-full items-center justify-center px-2"
-    >
-      <h1
-        class="font-bold text-xl lg:text-2xl xl:text-3xl tracking-tight leading-none"
-      >
-        Kind {{ page?.title || 'Robots' }}
-      </h1>
-    </div>
-
-    <!-- Smart Icons -->
-    <div class="flex-1 min-w-0 h-full flex items-center">
-      <smart-icons class="h-full w-full" />
-    </div>
+    <!-- Right overlay toggles (don’t affect layout) -->
+    <smart-toggles />
   </header>
 </template>
 

@@ -3,7 +3,7 @@
   <header
     class="w-full h-full flex items-stretch gap-0 rounded-2xl bg-base-300 overflow-visible [isolation:isolate]"
   >
-    <!-- Avatar / Image section: ~40% width, full height, flush top/left -->
+    <!-- Avatar / Image section: 40% width, full height, flush top/left -->
     <div class="relative flex-none w-[40%] h-full overflow-hidden">
       <avatar-image
         alt="User Avatar"
@@ -12,30 +12,39 @@
 
       <!-- Display size badge at top center -->
       <div
-        class="absolute top-[2%] left-1/2 -translate-x-1/2 z-40 text-white bg-primary/90 rounded-md px-[1%] py-[0.25em] text-[clamp(0.65rem,1.1vw,0.95rem)] leading-none"
+        class="absolute top-[2%] left-1/2 -translate-x-1/2 z-40
+               text-white bg-primary/90 rounded-md px-1 py-[0.25em]
+               text-[clamp(0.65rem,1.1vw,0.95rem)] leading-none"
       >
         {{ viewportSize }}
       </div>
 
-      <!-- Title inside the image (readable, no auto-scroll) -->
+      <!-- Title chip inside image (tight bg ends at text; no auto-scroll) -->
       <div
         v-if="!bigMode"
         class="absolute inset-y-0 left-[1%] z-40 flex items-center"
       >
         <h1
-          class="m-0 text-white bg-primary/90 rounded-md px-[0.75%] py-[0.2em] font-bold tracking-tight leading-tight whitespace-normal break-words max-w-[95%] text-[clamp(1rem,6vh,3.25rem)]"
+          class="m-0 inline-flex items-center
+                 text-white bg-primary/90 rounded-md
+                 px-1 py-[0.2em]
+                 font-bold tracking-tight leading-tight
+                 whitespace-normal break-words
+                 max-w-[96%]
+                 text-[clamp(1rem,6vh,3.25rem)]"
         >
           Kind {{ page?.title || 'Robots' }}
         </h1>
       </div>
     </div>
 
-    <!-- Smart Icons: take remaining width (minus toggles) -->
+    <!-- Smart Icons: take remaining width (minus toggles);
+         the component will show a + link to /icons at the far right in edit mode -->
     <div class="flex-1 min-w-0 h-full flex items-stretch">
       <smart-icons class="h-full w-full" />
     </div>
 
-    <!-- Smart Toggles: natural width, circular handled in component -->
+    <!-- Smart Toggles: natural width; confirm floats left in edit mode within its own column -->
     <div class="flex-none h-full">
       <smart-toggles class="h-full w-auto" />
     </div>

@@ -4,14 +4,16 @@
   <header
     class="w-full h-full flex items-stretch gap-0 rounded-2xl bg-base-300 overflow-visible [isolation:isolate]"
   >
-    <!-- Avatar / Image section: fixed 40% width, full height -->
-    <div class="relative flex-none w-[40%] h-full overflow-hidden shrink-0">
+    <!-- Avatar / Image section: fixed 40% width, full height, explicitly clickable -->
+    <div
+      class="relative flex-none w-[40%] h-full overflow-hidden shrink-0 z-0 pointer-events-auto"
+    >
       <avatar-image
         alt="User Avatar"
         class="block w-full h-full object-cover object-center m-0 p-0"
       />
 
-      <!-- Display size badge at top center -->
+      <!-- Display size badge at top center (ignore pointer events) -->
       <div
         class="absolute top-[2%] left-1/2 -translate-x-1/2 z-40
                text-white bg-primary/90 rounded-md px-1 py-[0.25em]
@@ -35,14 +37,11 @@
                  font-bold tracking-tight leading-tight
                  text-[clamp(0.9rem,5.2vh,2.75rem)]"
         >
-          <!-- Background stops at 'Kind' -->
           <span
             class="text-white bg-primary/90 rounded-md px-1 py-[0.125em] whitespace-nowrap"
           >
             Kind
           </span>
-
-          <!-- Rest of the title: no background, image behind -->
           <span
             class="text-white break-words pr-[0.25rem]
                    drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]"
@@ -53,13 +52,13 @@
       </div>
     </div>
 
-    <!-- Smart Icons: take remaining width -->
-    <div class="flex-1 min-w-0 h-full flex items-stretch">
+    <!-- Smart Icons: take remaining width; keep grounded so it never overlays avatar -->
+    <div class="flex-1 min-w-0 h-full flex items-stretch z-0">
       <smart-icons class="h-full w-full" />
     </div>
 
-    <!-- Smart Toggles -->
-    <div class="flex-none h-full">
+    <!-- Smart Toggles: natural width; keep grounded so it never overlays avatar -->
+    <div class="flex-none h-full z-0">
       <smart-toggles class="h-full w-auto" />
     </div>
   </header>

@@ -3,8 +3,8 @@
   <header
     class="relative w-full h-full rounded-2xl bg-base-300 overflow-visible [isolation:isolate]"
   >
-    <div class="flex items-stretch w-full h-full">
-      <!-- Avatar (flush, fills its slot) -->
+    <div class="flex items-stretch w-full h-full gap-0">
+      <!-- Avatar -->
       <div
         class="relative flex-none h-full w-[16%] rounded-2xl overflow-hidden"
       >
@@ -19,25 +19,25 @@
         </div>
       </div>
 
-      <!-- Title: prefers width; scales with width/height; minimal inline padding -->
+      <!-- Title (maximize width & height, no external padding) -->
       <div
         v-if="!bigMode"
-        class="flex-[2_1_0%] min-w-0 h-full flex items-center"
+        class="flex-[3_1_0%] min-w-0 h-full flex items-center"
       >
         <h1
-          class="w-full truncate font-bold tracking-tight leading-none px-[1%] text-left [font-size:clamp(1rem,6vw,4rem)]"
+          class="w-full truncate font-bold tracking-tight leading-none text-left [font-size:clamp(1.25rem,7vw,5rem)]"
         >
           Kind {{ page?.title || 'Robots' }}
         </h1>
       </div>
 
-      <!-- Smart Icons: share remaining space -->
-      <div class="flex-[1_1_0%] min-w-0 h-full flex items-center">
+      <!-- Smart Icons (share remaining space; no left/right gaps here) -->
+      <div class="flex-[2_1_0%] min-w-0 h-full flex items-center">
         <smart-icons class="h-full w-full" />
       </div>
     </div>
 
-    <!-- Right overlay toggles (don’t affect layout) -->
+    <!-- Right overlay toggles -->
     <smart-toggles />
   </header>
 </template>

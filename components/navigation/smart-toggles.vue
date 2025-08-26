@@ -2,10 +2,12 @@
   <div class="h-full w-full grid grid-rows-3">
     <!-- Row 1 -->
     <div class="relative h-full w-full flex items-center justify-center">
-      <!-- centered main: edit or cancel -->
+      <!-- centered main: Edit (not editing) OR Cancel (editing) -->
       <button
         v-if="!isEditing"
-        class="rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem] flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+        class="rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem]
+               flex items-center justify-center bg-base-200 hover:bg-base-300
+               border border-base-content/10 transition"
         :aria-pressed="isEditing"
         title="Edit Smart Icons"
         @click="activateEditMode"
@@ -15,17 +17,22 @@
 
       <button
         v-else
-        class="rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem] flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+        class="rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem]
+               flex items-center justify-center bg-base-200 hover:bg-base-300
+               border border-base-content/10 transition"
         title="Cancel changes"
         @click="revertEdit"
       >
         <Icon name="kind-icon:close" class="h-[55%] w-[55%]" />
       </button>
 
-      <!-- floating confirm, tighter to right -->
+      <!-- floating confirm: LEFT side, does not shift layout -->
       <button
         v-if="isEditing"
-        class="absolute top-1/2 -translate-y-1/2 right-[2%] rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem] flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
+        class="absolute top-1/2 -translate-y-1/2 left-[2%]
+               rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem]
+               flex items-center justify-center bg-base-200 hover:bg-base-300
+               border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
         :title="hasChanges ? 'Save order' : 'No changes to save'"
         :disabled="!hasChanges"
         @click="confirmEdit"
@@ -37,20 +44,16 @@
     <!-- Row 2 -->
     <div class="h-full w-full flex items-center justify-center">
       <button
-        class="rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem] flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+        class="rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem]
+               flex items-center justify-center bg-base-200 hover:bg-base-300
+               border border-base-content/10 transition"
         :class="[displayStore.showCorner ? 'ring-1 ring-primary/50' : '']"
-        :title="
-          displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'
-        "
+        :title="displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'"
         :aria-pressed="displayStore.showCorner"
         @click="displayStore.toggleCorner()"
       >
         <Icon
-          :name="
-            displayStore.showCorner
-              ? 'kind-icon:panel-right'
-              : 'kind-icon:panel-right-close'
-          "
+          :name="displayStore.showCorner ? 'kind-icon:panel-right' : 'kind-icon:panel-right-close'"
           class="h-[60%] w-[60%]"
         />
       </button>
@@ -59,16 +62,16 @@
     <!-- Row 3 -->
     <div class="h-full w-full flex items-center justify-center">
       <button
-        class="rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem] flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+        class="rounded-full aspect-square h-[68%] max-h-[4.5rem] min-h-[1.6rem]
+               flex items-center justify-center bg-base-200 hover:bg-base-300
+               border border-base-content/10 transition"
         :class="[isTutorialOpen ? 'ring-1 ring-primary/50' : '']"
         :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
         :aria-pressed="isTutorialOpen"
         @click="toggleTutorial"
       >
         <Icon
-          :name="
-            isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'
-          "
+          :name="isTutorialOpen ? 'kind-icon:question-glow' : 'kind-icon:question'"
           class="h-[60%] w-[60%]"
         />
       </button>
@@ -93,8 +96,8 @@ watch(isEditing, (editing) => {
 
 const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
 const hasChanges = computed(() => {
-  const a = getIds(editableIcons.value),
-    b = getIds(originalIcons.value)
+  const a = getIds(editableIcons.value)
+  const b = getIds(originalIcons.value)
   return a.length !== b.length || a.some((id, i) => id !== b[i])
 })
 

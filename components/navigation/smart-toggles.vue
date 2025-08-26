@@ -6,14 +6,13 @@
       right: '1%',
       top: '50%',
       transform: 'translateY(-50%)',
-      maxHeight: '96%',
+      maxHeight: '98%',
     }"
   >
-    <!-- percent gap fixes crowding on short headers -->
-    <div class="flex flex-col items-center" :style="{ gap: '1.5%' }">
+    <div class="flex flex-col items-center" :style="{ gap: '1.25%' }">
       <div
         class="grid pointer-events-auto"
-        :style="{ gridAutoFlow: 'column', gap: isEditing ? '1.5%' : '0' }"
+        :style="{ gridAutoFlow: 'column', gap: isEditing ? '1.25%' : '0' }"
       >
         <!-- Edit / Confirm -->
         <button
@@ -29,7 +28,6 @@
           "
           :disabled="isEditing && !hasChanges"
           :aria-pressed="isEditing"
-          aria-label="Toggle edit / confirm"
         >
           <Icon
             :name="isEditing ? 'kind-icon:check' : 'kind-icon:settings'"
@@ -44,7 +42,6 @@
           :style="btnStyle"
           @click="revertEdit"
           title="Cancel changes"
-          aria-label="Cancel changes"
         >
           <Icon name="kind-icon:close" class="h-[55%] w-[55%]" />
         </button>
@@ -106,14 +103,14 @@ watch(isEditing, (editing) => {
   if (editing) originalIcons.value = [...editableIcons.value]
 })
 
-// button size as % of header height; clamped via CSS for very tall/short headers
+// Button size as % of header height; clamped for extremes
 const btnStyle = computed(() => ({
-  height: '12%', // each button ≈12% of header height
-  width: '12%',
-  maxHeight: '4.5rem', // soft clamp for giant headers
-  maxWidth: '4.5rem',
-  minHeight: '1.75rem', // soft clamp for tiny headers
-  minWidth: '1.75rem',
+  height: '11%',
+  width: '11%',
+  maxHeight: '4.25rem',
+  maxWidth: '4.25rem',
+  minHeight: '1.6rem',
+  minWidth: '1.6rem',
 }))
 
 const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)

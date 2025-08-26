@@ -24,11 +24,13 @@
         v-if="!bigMode"
         class="min-w-0 h-full flex items-stretch flex-[1_1_auto] max-w-[calc(45%-16%)]"
       >
-        <h1
-          class="m-0 w-full h-full flex items-center truncate font-bold tracking-tight leading-none text-left px-[0.5%] text-[min(8vh,8vw)]"
-        >
-          Kind {{ page?.title || 'Robots' }}
-        </h1>
+        <div class="relative h-full w-full overflow-hidden">
+          <h1
+            class="absolute m-0 h-full flex items-center font-bold tracking-tight leading-none text-left px-[0.5%] text-[min(8vh,8vw)] whitespace-nowrap transition-transform duration-[8000ms] ease-linear group-hover:-translate-x-full"
+          >
+            Kind {{ page?.title || 'Robots' }}
+          </h1>
+        </div>
       </div>
 
       <!-- Smart Icons: begin exactly where title ends, take the rest -->

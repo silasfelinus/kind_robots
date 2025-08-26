@@ -1,9 +1,10 @@
+<!-- /components/content/navigation/full-header.vue -->
 <template>
   <!-- Full-width header; no clipping so toggles remain visible -->
   <header
     class="w-full h-full flex items-stretch gap-0 rounded-2xl bg-base-300 overflow-visible [isolation:isolate]"
   >
-    <!-- Avatar / Image section: fixed 40% width, full height, flush -->
+    <!-- Avatar / Image section: fixed 40% width, full height -->
     <div class="relative flex-none w-[40%] h-full overflow-hidden shrink-0">
       <avatar-image
         alt="User Avatar"
@@ -14,17 +15,20 @@
       <div
         class="absolute top-[2%] left-1/2 -translate-x-1/2 z-40
                text-white bg-primary/90 rounded-md px-1 py-[0.25em]
-               text-[clamp(0.65rem,1.1vw,0.95rem)] leading-none"
+               text-[clamp(0.65rem,1.1vw,0.95rem)] leading-none
+               pointer-events-none"
       >
         {{ viewportSize }}
       </div>
 
       <!-- Title inside image:
            - 'Kind' on tight background chip
-           - remainder shows over image (no bg), wraps to use full width -->
+           - remainder shows over image with shadow
+           - overlays ignore pointer events -->
       <div
         v-if="!bigMode"
-        class="absolute inset-y-0 left-[1%] right-[2%] z-40 flex items-center"
+        class="absolute inset-y-0 left-[1%] right-[2%] z-40 flex items-center
+               pointer-events-none"
       >
         <h1
           class="m-0 flex flex-wrap items-baseline gap-[0.35ch]
@@ -38,7 +42,7 @@
             Kind
           </span>
 
-          <!-- Rest of the title: no background, image visible behind; wraps fully -->
+          <!-- Rest of the title: no background, image behind -->
           <span
             class="text-white break-words pr-[0.25rem]
                    drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]"
@@ -54,7 +58,7 @@
       <smart-icons class="h-full w-full" />
     </div>
 
-    <!-- Smart Toggles: natural width -->
+    <!-- Smart Toggles -->
     <div class="flex-none h-full">
       <smart-toggles class="h-full w-auto" />
     </div>

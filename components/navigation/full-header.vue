@@ -3,8 +3,10 @@
   <header
     class="w-full h-full flex items-stretch gap-0 rounded-2xl bg-base-300 overflow-visible [isolation:isolate]"
   >
-    <!-- Avatar / Image section: 40% width, full height, flush top/left -->
-    <div class="relative flex-none w-[40%] h-full overflow-hidden">
+    <!-- Avatar / Image section:
+         width hugs content (title), but never exceeds 40% and not below ~28%;
+         full height; flush top/left -->
+    <div class="relative flex-none w-fit max-w-[40%] min-w-[28%] h-full overflow-hidden shrink-0">
       <avatar-image
         alt="User Avatar"
         class="block w-full h-full object-cover object-center m-0 p-0"
@@ -19,7 +21,7 @@
         {{ viewportSize }}
       </div>
 
-      <!-- Title chip inside image (tight bg ends at text; no auto-scroll) -->
+      <!-- Title chip inside image (smaller; bg ends exactly with text) -->
       <div
         v-if="!bigMode"
         class="absolute inset-y-0 left-[1%] z-40 flex items-center"
@@ -27,24 +29,23 @@
         <h1
           class="m-0 inline-flex items-center
                  text-white bg-primary/90 rounded-md
-                 px-1 py-[0.2em]
+                 px-1 py-[0.125em]
                  font-bold tracking-tight leading-tight
                  whitespace-normal break-words
                  max-w-[96%]
-                 text-[clamp(1rem,6vh,3.25rem)]"
+                 text-[clamp(0.9rem,5.2vh,2.75rem)]"
         >
           Kind {{ page?.title || 'Robots' }}
         </h1>
       </div>
     </div>
 
-    <!-- Smart Icons: take remaining width (minus toggles);
-         the component will show a + link to /icons at the far right in edit mode -->
+    <!-- Smart Icons: take remaining width -->
     <div class="flex-1 min-w-0 h-full flex items-stretch">
       <smart-icons class="h-full w-full" />
     </div>
 
-    <!-- Smart Toggles: natural width; confirm floats left in edit mode within its own column -->
+    <!-- Smart Toggles: natural width -->
     <div class="flex-none h-full">
       <smart-toggles class="h-full w-auto" />
     </div>

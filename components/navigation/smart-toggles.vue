@@ -1,11 +1,10 @@
 <!-- /components/content/navigation/smart-toggles.vue -->
 <template>
   <div class="h-full w-full flex flex-col items-center justify-center gap-[2%]">
-    <!-- Row: edit / cancel -->
+    <!-- Edit / Cancel row -->
     <div class="w-full flex items-center justify-center gap-[2%]">
       <button
-        class="rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
-        :style="btnStyle"
+        class="rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed w-[70%]"
         @click="isEditing ? confirmEdit() : activateEditMode()"
         :title="
           isEditing
@@ -25,8 +24,7 @@
 
       <button
         v-if="isEditing"
-        class="rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
-        :style="btnStyle"
+        class="rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition w-[70%]"
         @click="revertEdit"
         title="Cancel changes"
       >
@@ -36,9 +34,8 @@
 
     <!-- Corner menu -->
     <button
-      class="rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+      class="rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition w-[70%]"
       :class="[displayStore.showCorner ? 'ring-1 ring-primary/50' : '']"
-      :style="btnStyle"
       :title="displayStore.showCorner ? 'Hide Corner Menu' : 'Show Corner Menu'"
       :aria-pressed="displayStore.showCorner"
       @click="displayStore.toggleCorner()"
@@ -55,9 +52,8 @@
 
     <!-- Tutorial -->
     <button
-      class="rounded-2xl flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+      class="rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition w-[70%]"
       :class="[isTutorialOpen ? 'ring-1 ring-primary/50' : '']"
-      :style="btnStyle"
       :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"
       :aria-pressed="isTutorialOpen"
       @click="toggleTutorial"
@@ -86,14 +82,6 @@ const originalIcons = ref<SmartIcon[]>([])
 watch(isEditing, (editing) => {
   if (editing) originalIcons.value = [...editableIcons.value]
 })
-
-// Buttons scale to column height (the column is ~10% of header width)
-const btnStyle = computed(() => ({
-  height: '18%',
-  width: '70%', // keep them nicely sized within the narrow column
-  maxHeight: '4rem',
-  minHeight: '1.6rem',
-}))
 
 const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
 const hasChanges = computed(() => {

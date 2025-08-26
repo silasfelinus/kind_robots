@@ -1,6 +1,6 @@
 ---
-title: 'Dominion Gallery'
-room: 'Hall of Dominion Cards'
+title: 'Dominions'
+room: 'Hall of Dominion'
 subtitle: 'Browse public and owned dominion cards'
 description: 'Explore, edit, and iterate on fan-made dominion cards.'
 gallery: 'dominion'

@@ -42,7 +42,7 @@
         >
           <NuxtPage
             :key="$route.fullPath"
-            class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300 z-40"
+            class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300 z-40 bg-base-300"
           />
         </div>
       </Transition>

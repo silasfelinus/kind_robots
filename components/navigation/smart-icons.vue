@@ -1,14 +1,17 @@
 <!-- /components/content/navigation/smart-icons.vue -->
 <template>
   <div class="relative w-full h-full leading-none">
-    <!-- Row uses only % + 1vh vertical padding; no hard numbers -->
-    <div class="flex-1 min-w-0 h-full flex items-center w-full">
+    <div class="flex-1 min-w-0 h-full flex items-stretch w-full">
       <div
         ref="scrollContainer"
-        class="overflow-x-auto overflow-y-hidden w-full h-full flex items-center snap-x snap-mandatory transition-all duration-300 py-[1vh] px-[1%]"
+        class="overflow-x-auto overflow-y-hidden w-full h-full flex items-stretch snap-x snap-mandatory transition-all duration-300 px-[1%] gap-[1%]"
         :class="[
-          displayStore.showCorner ? 'kr-hide-titles' : '',
-          'gap-[1%]', // percent gap so it scales with width
+          // When titles should hide, kill all inner titles via arbitrary selectors (Tailwind-only)
+          displayStore.showCorner
+            ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
+            : '',
+          // Remove vertical margins/padding from any inner wrappers so icons hug top and labels
+          '[&_*]:!mt-0 [&_*]:!mb-0 [&_*]:!pt-0 [&_*]:!pb-0',
         ]"
         @scroll="checkScrollEdgesThrottled"
         @mousedown="handleScrollMouseDown"
@@ -19,26 +22,20 @@
         @touchmove="handleScrollTouchMove"
         @touchend="handleScrollMouseUp"
       >
-        <!-- Icons auto-size to the row height; width constrained by max-% to keep titles visible -->
+        <!-- Each icon fills height; width capped by % so text can fit when shown -->
         <icon-display
           v-for="icon in rowIcons"
           :key="icon.id"
           :icon="icon"
           :show-title="showTitles"
-          class="snap-start shrink-0 h-full"
-          :style="{
-            // let each icon block be up to 12% wide; adjust if you want more/less density
-            maxWidth: '12%',
-            width: 'auto',
-          }"
+          class="snap-start shrink-0 h-full w-auto max-w-[12%] flex"
         />
 
-        <!-- Plus icon (edit mode only), matches icon sizing logic -->
+        <!-- Plus (edit only) matches tile sizing -->
         <NuxtLink
           v-if="isEditing"
           to="/icons"
-          class="snap-start shrink-0 flex items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition h-full"
-          :style="{ maxWidth: '12%' }"
+          class="snap-start shrink-0 h-full max-w-[12%] w-auto flex items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           title="Add or manage icons"
         >
           <Icon class="h-[60%] w-[60%]" name="kind-icon:plus" />
@@ -76,7 +73,7 @@ const rowIcons = computed(() =>
 )
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
 
-// drag-to-scroll + edge checking
+// drag-to-scroll + edge-check (no visual styles)
 const scrollContainer = ref<HTMLElement | null>(null)
 let scrollTick = false
 function checkScrollEdges() {}
@@ -99,8 +96,7 @@ function handleScrollMouseDown(e: MouseEvent) {
 }
 function handleScrollMouseMove(e: MouseEvent) {
   if (!isDragging || !scrollContainer.value) return
-  const dx = e.clientX - startX
-  scrollContainer.value.scrollLeft = scrollStart - dx
+  scrollContainer.value.scrollLeft = scrollStart - (e.clientX - startX)
 }
 function handleScrollMouseUp() {
   isDragging = false
@@ -112,8 +108,8 @@ function handleScrollTouchStart(e: TouchEvent) {
 }
 function handleScrollTouchMove(e: TouchEvent) {
   if (!isDragging || !scrollContainer.value) return
-  const dx = e.touches[0].clientX - startX
-  scrollContainer.value.scrollLeft = scrollStart - dx
+  scrollContainer.value.scrollLeft =
+    scrollStart - (e.touches[0].clientX - startX)
 }
 
 let resizeObserver: ResizeObserver | null = null
@@ -126,13 +122,3 @@ onBeforeUnmount(() => {
     resizeObserver.unobserve(scrollContainer.value)
 })
 </script>
-
-<style scoped>
-.kr-hide-titles
-  :where(.icon-title, .smart-icon-title, .label, [data-icon-title]) {
-  visibility: hidden;
-}
-.kr-hide-titles [aria-label='icon-title'] {
-  visibility: hidden;
-}
-</style>

@@ -3,12 +3,8 @@
   <header
     class="w-full h-full flex items-stretch gap-0 rounded-2xl bg-base-300 overflow-visible [isolation:isolate]"
   >
-    <!-- Avatar / Image section:
-         width hugs content (title), but never exceeds 40% and not below ~28%;
-         full height; flush top/left -->
-    <div
-      class="relative flex-none w-fit max-w-[40%] min-w-[28%] h-full overflow-hidden shrink-0"
-    >
+    <!-- Avatar / Image section: fixed 40% width, full height, flush -->
+    <div class="relative flex-none w-[40%] h-full overflow-hidden shrink-0">
       <avatar-image
         alt="User Avatar"
         class="block w-full h-full object-cover object-center m-0 p-0"
@@ -24,14 +20,14 @@
       </div>
 
       <!-- Title inside image:
-           - 'Kind' on a tight background chip
-           - remainder shows over image (no bg), with a subtle drop shadow for legibility -->
+           - 'Kind' on tight background chip
+           - remainder shows over image (no bg), wraps to use full width -->
       <div
         v-if="!bigMode"
-        class="absolute inset-y-0 left-[1%] z-40 flex items-center"
+        class="absolute inset-y-0 left-[1%] right-[2%] z-40 flex items-center"
       >
         <h1
-          class="m-0 inline-flex items-center gap-[0.35ch]
+          class="m-0 flex flex-wrap items-baseline gap-[0.35ch]
                  font-bold tracking-tight leading-tight
                  text-[clamp(0.9rem,5.2vh,2.75rem)]"
         >
@@ -42,9 +38,9 @@
             Kind
           </span>
 
-          <!-- Rest of the title: no background, image visible behind -->
+          <!-- Rest of the title: no background, image visible behind; wraps fully -->
           <span
-            class="text-white whitespace-normal break-words max-w-[96%]
+            class="text-white break-words pr-[0.25rem]
                    drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]"
           >
             {{ page?.title || 'Robots' }}

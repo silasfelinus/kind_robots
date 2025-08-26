@@ -1,51 +1,45 @@
 <template>
-  <!-- Outer fills parent; inner is centered and shrinks to content -->
-  <div class="w-full h-full flex">
-    <header
-      class="mx-auto inline-flex max-w-full w-fit h-full items-stretch gap-x-[0.5%] rounded-2xl bg-base-300 overflow-visible [isolation:isolate]"
-    >
-      <!-- Image / Title area: takes all remaining space (never collapses) -->
-      <div class="relative flex-1 min-w-[20%] h-full overflow-hidden">
-        <!-- The image fills whatever space remains after icons/toggles -->
-        <avatar-image
-          alt="User Avatar"
-          class="h-full w-full object-cover object-center"
-        />
+  <!-- Full-width header; no clipping so toggles remain visible -->
+  <header
+    class="w-full h-full flex items-stretch gap-0 rounded-2xl bg-base-300 overflow-visible [isolation:isolate]"
+  >
+    <!-- Avatar / Image section: ~40% width, full height, flush top/left -->
+    <div class="relative flex-none w-[40%] h-full overflow-hidden">
+      <avatar-image
+        alt="User Avatar"
+        class="block w-full h-full object-cover object-center m-0 p-0"
+      />
 
-        <!-- Display size badge (top, centered) -->
-        <div
-          class="absolute top-[2%] left-1/2 -translate-x-1/2 z-40 text-white bg-primary/90 rounded-md px-[1%] py-[0.25em] text-[clamp(0.6rem,1.2vw,0.9rem)] leading-none"
+      <!-- Display size badge at top center -->
+      <div
+        class="absolute top-[2%] left-1/2 -translate-x-1/2 z-40 text-white bg-primary/90 rounded-md px-[1%] py-[0.25em] text-[clamp(0.65rem,1.1vw,0.95rem)] leading-none"
+      >
+        {{ viewportSize }}
+      </div>
+
+      <!-- Title inside the image (readable, no auto-scroll) -->
+      <div
+        v-if="!bigMode"
+        class="absolute inset-y-0 left-[1%] z-40 flex items-center"
+      >
+        <h1
+          class="m-0 text-white bg-primary/90 rounded-md px-[0.75%] py-[0.2em] font-bold tracking-tight leading-tight whitespace-normal break-words max-w-[95%] text-[clamp(1rem,6vh,3.25rem)]"
         >
-          {{ viewportSize }}
-        </div>
-
-        <!-- Title pill inside image (large, same color as display-size) -->
-        <div
-          v-if="!bigMode"
-          class="absolute inset-y-0 left-[1%] z-40 flex items-center"
-        >
-          <div class="max-w-full overflow-hidden group">
-            <h1
-              class="m-0 inline-flex items-center text-white bg-primary/90 rounded-md px-[0.75%] py-[0.15em] font-bold tracking-tight leading-none whitespace-nowrap text-[min(8vh,8vw)] transition-transform duration-[8000ms] ease-linear group-hover:-translate-x-[30%]"
-              :title="`Kind ${page?.title || 'Robots'}`"
-            >
-              Kind {{ page?.title || 'Robots' }}
-            </h1>
-          </div>
-        </div>
+          Kind {{ page?.title || 'Robots' }}
+        </h1>
       </div>
+    </div>
 
-      <!-- Smart Icons: natural content width, never shrinks past content -->
-      <div class="flex-none shrink-0 h-full">
-        <smart-icons class="h-full w-auto max-w-full" />
-      </div>
+    <!-- Smart Icons: take remaining width (minus toggles) -->
+    <div class="flex-1 min-w-0 h-full flex items-stretch">
+      <smart-icons class="h-full w-full" />
+    </div>
 
-      <!-- Smart Toggles: natural content width, never shrinks; not clipped -->
-      <div class="flex-none shrink-0 h-full">
-        <smart-toggles class="h-full w-auto" />
-      </div>
-    </header>
-  </div>
+    <!-- Smart Toggles: natural width, circular handled in component -->
+    <div class="flex-none h-full">
+      <smart-toggles class="h-full w-auto" />
+    </div>
+  </header>
 </template>
 
 <script setup lang="ts">

@@ -1,36 +1,56 @@
 <!-- /components/content/story/avatar-image.vue -->
-
 <template>
   <div v-if="hydrated" class="relative w-full h-full">
-    <!-- Optional Top Icon -->
-    <div class="absolute top-1 left-1 z-10">
-      <Icon
-        name="kind-icon:minimize"
-        class="text-primary w-4 h-4 hover:opacity-80 cursor-pointer transition"
-        @click="handleAvatarClick"
-      />
-    </div>
+    <!-- Top-left toggle icon (always above everything) -->
+    <button
+      type="button"
+      class="absolute top-1 left-1 z-50 text-primary hover:opacity-80 transition"
+      @click="handleAvatarClick"
+      aria-label="Toggle big mode"
+    >
+      <Icon name="kind-icon:minimize" class="w-4 h-4" />
+    </button>
 
-    <div class="flip-card h-full w-full" @click="handleAvatarClick">
-      <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
-        <div class="flip-card-front">
+    <!-- Flip card: the whole image area toggles bigMode on click -->
+    <div
+      class="h-full w-full cursor-pointer [perspective:1000px]"
+      @click="handleAvatarClick"
+    >
+      <div
+        :class="[
+          'relative h-full w-full transition-transform duration-700 ease-in-out',
+          '[transform-style:preserve-3d]',
+          flipped ? '[transform:rotateY(180deg)]' : ''
+        ]"
+      >
+        <!-- Front -->
+        <div
+          class="absolute inset-0 overflow-hidden [backface-visibility:hidden]"
+        >
           <img
             :src="safeImage"
             alt="Avatar"
-            class="avatar-img shadow-lg hover:shadow-xl object-cover w-full h-full"
+            class="w-full h-full object-cover shadow-lg hover:shadow-xl"
+            draggable="false"
           />
         </div>
-        <div class="flip-card-back">
+
+        <!-- Back -->
+        <div
+          class="absolute inset-0 overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)]"
+        >
           <img
             :src="safeBackImage"
             alt="New Avatar"
-            class="avatar-img shadow-lg hover:shadow-xl object-cover w-full h-full"
+            class="w-full h-full object-cover shadow-lg hover:shadow-xl"
+            draggable="false"
           />
         </div>
       </div>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
@@ -56,15 +76,13 @@ const resolveImage = (src?: string | null): string => {
   return src.startsWith('/') ? src : `/images/${src}`
 }
 
-const safeImage = computed(() => {
-  return resolveImage(
-    pageImage.value?.length ? pageImage.value : currentBot.value?.avatarImage,
-  )
-})
+const safeImage = computed(() =>
+  resolveImage(pageImage.value?.length ? pageImage.value : currentBot.value?.avatarImage),
+)
 
-const safeBackImage = computed(() => {
-  return resolveImage(currentBot.value?.avatarImage || safeImage.value)
-})
+const safeBackImage = computed(() =>
+  resolveImage(currentBot.value?.avatarImage || safeImage.value),
+)
 
 onMounted(() => {
   hydrated.value = true
@@ -82,42 +100,8 @@ const handleAvatarClick = () => {
     displayStore.toggleBigMode()
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : 'Failed to toggle sidebar'
+      error instanceof Error ? error.message : 'Failed to toggle big mode'
     errorStore.setError(ErrorType.INTERACTION_ERROR, message)
   }
 }
 </script>
-
-<style scoped>
-.flip-card {
-  width: 100%;
-  height: 100%;
-  perspective: 1000px;
-  cursor: pointer;
-}
-
-.flip-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s ease-in-out;
-  transform-style: preserve-3d;
-}
-
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
-}
-
-.flip-card-front,
-.flip-card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  overflow: hidden;
-}
-
-.flip-card-back {
-  transform: rotateY(180deg);
-}
-</style>

@@ -4,14 +4,16 @@
     <div class="flex-1 min-w-0 h-full flex items-stretch w-full">
       <div
         ref="scrollContainer"
-        class="overflow-x-auto overflow-y-hidden w-full h-full flex items-stretch snap-x snap-mandatory transition-all duration-300 px-[1%] gap-[1%]"
+        class="overflow-x-auto overflow-y-hidden w-full h-full flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[1%] pr-[12%]"
         :class="[
-          // When titles should hide, kill all inner titles via arbitrary selectors (Tailwind-only)
+          // hide titles when corner is open
           displayStore.showCorner
             ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
             : '',
-          // Remove vertical margins/padding from any inner wrappers so icons hug top and labels
+          // strip vertical padding/margins from children so icons hug top & labels
           '[&_*]:!mt-0 [&_*]:!mb-0 [&_*]:!pt-0 [&_*]:!pb-0',
+          // ensure children stretch vertically to container
+          '[&>*]:h-full',
         ]"
         @scroll="checkScrollEdgesThrottled"
         @mousedown="handleScrollMouseDown"
@@ -22,20 +24,20 @@
         @touchmove="handleScrollTouchMove"
         @touchend="handleScrollMouseUp"
       >
-        <!-- Each icon fills height; width capped by % so text can fit when shown -->
+        <!-- Icons: bigger caps, full height, no top/bottom pad -->
         <icon-display
           v-for="icon in rowIcons"
           :key="icon.id"
           :icon="icon"
           :show-title="showTitles"
-          class="snap-start shrink-0 h-full w-auto max-w-[12%] flex"
+          class="snap-start shrink-0 h-full w-auto max-w-[16%] flex"
         />
 
-        <!-- Plus (edit only) matches tile sizing -->
+        <!-- Plus (edit only), matches tile sizing -->
         <NuxtLink
           v-if="isEditing"
           to="/icons"
-          class="snap-start shrink-0 h-full max-w-[12%] w-auto flex items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
+          class="snap-start shrink-0 h-full max-w-[16%] w-auto flex items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition"
           title="Add or manage icons"
         >
           <Icon class="h-[60%] w-[60%]" name="kind-icon:plus" />
@@ -55,8 +57,7 @@ const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
 
-const originalIcons = ref<SmartIcon[]>([])
-
+// sync editable list when not editing
 watch(
   activeIcons,
   (val) => {
@@ -64,16 +65,13 @@ watch(
   },
   { immediate: true },
 )
-watch(isEditing, (editing) => {
-  if (editing) originalIcons.value = [...editableIcons.value]
-})
 
 const rowIcons = computed(() =>
   isEditing.value ? editableIcons.value : activeIcons.value,
 )
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
 
-// drag-to-scroll + edge-check (no visual styles)
+// drag-to-scroll + edge-check
 const scrollContainer = ref<HTMLElement | null>(null)
 let scrollTick = false
 function checkScrollEdges() {}
@@ -85,7 +83,6 @@ function checkScrollEdgesThrottled() {
     scrollTick = false
   })
 }
-
 let isDragging = false,
   startX = 0,
   scrollStart = 0

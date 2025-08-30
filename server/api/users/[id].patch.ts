@@ -4,18 +4,21 @@ import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
 
+/**
+ * Minimal, durable user PATCH:
+ * - Auth: only the owner can PATCH.
+ * - Denylist only (avoid brittle whitelists).
+ * - Pass-through for everything else.
+ */
 export default defineEventHandler(async (event) => {
   try {
-    // Parse and validate the User ID from the URL params
     const userId = Number(event.context.params?.id)
-    if (isNaN(userId) || userId <= 0) {
-      throw createError({ statusCode: 400, message: 'Invalid User ID.' })
+    if (!Number.isInteger(userId) || userId <= 0) {
+      throw createError({ statusCode: 400, message: 'Invalid User ID' })
     }
 
-    // Validate the API key using the utility function
+    // Must be the same authenticated user
     const { isValid, user } = await validateApiKey(event)
-
-    // Check if the token is valid and if the requesting user matches the target user
     if (!isValid || user?.id !== userId) {
       throw createError({
         statusCode: 403,
@@ -23,42 +26,55 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Parse and validate the update data
-    const updateData = await readBody(event)
-    if (!updateData || Object.keys(updateData).length === 0) {
+    const body = await readBody<Record<string, unknown>>(event)
+    if (!body || Object.keys(body).length === 0) {
+      throw createError({ statusCode: 400, message: 'No data provided.' })
+    }
+
+    // Keep this list tiny to reduce maintenance overhead
+    const DENY = new Set([
+      'id',
+      'Role',
+      'role', // in case someone sends lowercased
+      'karma',
+      'mana',
+      'token',
+      'apiKey',
+      'password',
+      'emailVerified',
+      'stripeCustomerId',
+      'googleId',
+    ])
+
+    // Shallow copy minus denied fields
+    const updateData: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(body)) {
+      if (DENY.has(k)) continue
+      // Gentle coercion only where harmless:
+      if (k === 'memberUntil' && v != null) {
+        updateData[k] = new Date(String(v))
+        continue
+      }
+      updateData[k] = v
+    }
+
+    if (Object.keys(updateData).length === 0) {
       throw createError({
         statusCode: 400,
-        message: 'No data provided for update.',
+        message: 'No updatable fields present.',
       })
     }
 
-    // Update the user in the database
     const data = await prisma.user.update({
       where: { id: userId },
       data: updateData,
     })
 
-    // Successful update response
     event.node.res.statusCode = 200
-    return {
-      success: true,
-      message: 'User updated successfully.',
-      data,
-    }
-  } catch (error) {
-    const handledError = errorHandler(error)
-    console.error(
-      `Error handling user update for ID ${event.context.params?.id}:`,
-      handledError,
-    )
-
-    // Explicitly set the status code based on the handled error
-    event.node.res.statusCode = handledError.statusCode || 500
-    return {
-      success: false,
-      message:
-        handledError.message ||
-        `Failed to update user with ID ${event.context.params?.id}.`,
-    }
+    return { success: true, message: 'User updated.', data }
+  } catch (err) {
+    const handled = errorHandler(err)
+    event.node.res.statusCode = handled.statusCode || 500
+    return { success: false, message: handled.message || 'Update failed.' }
   }
 })

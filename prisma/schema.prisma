@@ -413,6 +413,7 @@ model Pitch {
   imagePrompt    String?    @db.VarChar(256)
   description    String?    @db.VarChar(256)
   examples       String?    @db.LongText
+  icon           String?
   artImageId     Int?
   ArtImage       ArtImage?
   Art            Art[]
@@ -430,6 +431,7 @@ enum PitchType {
   WEIRDLANDIA
   RANDOMLIST
   TITLE
+  VIBE
 }
 
 
@@ -661,6 +663,9 @@ model User {
   isPublic       Boolean           @default(true)
   customIcons    Boolean          @default(false)
   isMember       Boolean          @default(false)
+
+  vibes          Json?             @default("[]")
+
   memberUntil    DateTime?
   lastReward     String?
   artModels      Json?

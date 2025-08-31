@@ -38,7 +38,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.6",
-    "prisma": "^6.9.0",
+    "prisma": "^6.15.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "vue-tsc": "^2.1.6"
@@ -49,7 +49,7 @@
     "@nuxt/eslint": "^1.1.0",
     "@nuxt/image": "^1.8.0",
     "@pinia/nuxt": "^0.5.3",
-    "@prisma/client": "^6.9.0",
+    "@prisma/client": "^6.15.0",
     "@stripe/stripe-js": "^5.8.0",
     "@types/node": "^22.7.3",
     "@vercel/analytics": "^1.5.0",

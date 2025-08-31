@@ -41,6 +41,7 @@ export function artListToPitch(entry: ArtListEntry): Pitch {
     imagePrompt: null,
     description: null,
     artImageId: null,
+    icon: '',
   }
 }
 
@@ -63,6 +64,7 @@ function arrayToPitch(id: string, title: string, content: string[]): Pitch {
     imagePrompt: null,
     description: null,
     artImageId: null,
+    icon: '',
   }
 }
 

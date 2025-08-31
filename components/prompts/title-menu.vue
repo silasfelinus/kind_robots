@@ -64,6 +64,8 @@ watch([customTitle, selectedTitle], ([newCustom, newSelected]) => {
       userId: userStore.userId,
       artImageId: null,
 
+      icon: '',
+
       // Add default values for missing fields
       isMature: false,
       imagePrompt: null,

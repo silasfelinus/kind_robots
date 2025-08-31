@@ -19,7 +19,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 2,
@@ -37,7 +38,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 3,
@@ -55,7 +57,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 4,
@@ -73,7 +76,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 5,
@@ -91,7 +95,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 6,
@@ -109,7 +114,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 7,
@@ -127,7 +133,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 8,
@@ -145,7 +152,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 9,
@@ -163,7 +171,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 10,
@@ -181,7 +190,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 11,
@@ -199,7 +209,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 12,
@@ -217,7 +228,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 13,
@@ -235,7 +247,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 14,
@@ -253,7 +266,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 15,
@@ -271,7 +285,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 16,
@@ -289,7 +304,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 17,
@@ -307,7 +323,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 18,
@@ -325,7 +342,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 19,
@@ -343,7 +361,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 20,
@@ -361,7 +380,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 21,
@@ -379,7 +399,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 22,
@@ -397,7 +418,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 23,
@@ -415,7 +437,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 24,
@@ -433,7 +456,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 25,
@@ -451,7 +475,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 26,
@@ -469,7 +494,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 27,
@@ -487,7 +513,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 28,
@@ -505,7 +532,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 29,
@@ -523,7 +551,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 30,
@@ -541,7 +570,8 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
   {
     id: 31,
@@ -559,6 +589,7 @@ export const samplePitches: Pitch[] = [
     isPublic: true,
     userId: 1,
     artImageId: null,
-    examples: null
+    examples: null,
+    icon: '',
   },
 ]

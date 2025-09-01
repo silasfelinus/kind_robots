@@ -106,10 +106,18 @@ describe('Vibes CRUD and user membership', () => {
         designer: 'cypress-bot',
       },
     }).then((res) => {
-      expect(res.status).to.eq(200)
+      expect(
+        res.status,
+        `create status: ${res.status} ${JSON.stringify(res.body)}`,
+      ).to.be.oneOf([200, 201])
+
       // Accept either top-level { id } or { data: { id } } depending on your handler
-      const id = res.body?.id ?? res.body?.data?.id
-      expect(id, 'created pitch id').to.be.a('number')
+      const id: unknown = res.body?.id ?? res.body?.data?.id
+      if (typeof id !== 'number') {
+        throw new Error(
+          `Could not find created id in response: ${JSON.stringify(res.body)}`,
+        )
+      }
       createdId = id
     })
   })

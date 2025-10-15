@@ -1,5 +1,5 @@
 // path: server/utils/chatgpt/authAdapter.ts
-// summary: ChatGPT ↔ your auth system. Validates token or auto-registers.
+// summary: ChatGPT ↔ your auth system; validate token or auto-register.
 
 import { $fetch } from 'ofetch'
 
@@ -13,41 +13,39 @@ type ValidateResult = {
   ok: boolean
   userId?: number
   includeSensitive?: boolean
-  // add any fields your validator returns if you want to surface them
+  message?: string
 }
 
 type RegisterResult = {
   ok: boolean
   userId: number
   token: string
-  // add any fields your register route returns if you want to surface them
+  message?: string
 }
 
-const API_BASE = process.env.PUBLIC_BASE_URL || ''
+const API_BASE =
+  process.env.PUBLIC_BASE_URL?.replace(/\/+$/, '') ||
+  process.env.NUXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') ||
+  ''
+
+async function tryValidateTokenOnce(url: string, token: string) {
+  return $fetch<ValidateResult>(`${API_BASE}${url}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: {}
+  })
+}
 
 async function tryValidateToken(token: string): Promise<ValidateResult | null> {
-  const headers = { Authorization: `Bearer ${token}` }
-
-  // a) POST /api/auth/validate/api
+  // Prefer API validator, then token validator
   try {
-    const res = await $fetch<ValidateResult>(`${API_BASE}/api/auth/validate/api`, {
-      method: 'POST',
-      headers,
-      body: {} // adjust if your route expects anything in body
-    })
-    if (res?.ok) return res
+    const a = await tryValidateTokenOnce('/api/auth/validate/api', token)
+    if (a?.ok) return a
   } catch {}
-
-  // b) POST /api/auth/validate/token
   try {
-    const res = await $fetch<ValidateResult>(`${API_BASE}/api/auth/validate/token`, {
-      method: 'POST',
-      headers,
-      body: {}
-    })
-    if (res?.ok) return res
+    const b = await tryValidateTokenOnce('/api/auth/validate/token', token)
+    if (b?.ok) return b
   } catch {}
-
   return null
 }
 
@@ -56,7 +54,7 @@ export async function ensureSession(opts: {
   registerIfMissing?: boolean
   registerPayload?: Record<string, unknown>
 }): Promise<ChatGPTSessionInfo> {
-  // 1) token present → validate
+  // 1) Validate existing token
   if (opts.token) {
     const validated = await tryValidateToken(opts.token)
     if (validated?.ok && validated.userId) {
@@ -68,23 +66,20 @@ export async function ensureSession(opts: {
     }
   }
 
-  // 2) no valid token → optionally auto-register
+  // 2) Auto-register if allowed
   if (opts.registerIfMissing) {
     const payload = opts.registerPayload ?? {
       username: `chatgpt_${Date.now()}`
-      // add any required fields your register route needs
+      // add more required fields here if your register route needs them
     }
-
     const created = await $fetch<RegisterResult>(`${API_BASE}/api/users/register`, {
       method: 'POST',
       body: payload
     })
+    if (!created?.ok) throw new Error(created?.message || 'Registration failed')
 
-    if (!created?.ok) throw new Error('Registration failed')
-
-    // validate the new token for consistency
+    // Validate the new token (in case your validators enrich flags)
     const validated = await tryValidateToken(created.token)
-
     return {
       userId: created.userId,
       token: created.token,

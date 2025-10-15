@@ -1,21 +1,52 @@
-// path: server/api/chatgpt/actions.post.ts
-import { defineEventHandler, readBody, getRequestHeader, setResponseStatus } from 'h3'
-import { runAction } from '~/server/utils/chatgpt/actions'
+// path: server/utils/validate.ts
+// summary: zero-dependency H3 validators and a tiny shape runner
 
-export default defineEventHandler(async (event) => {
-  try {
-    const body = await readBody(event)
-    const auth = getRequestHeader(event, 'authorization') || ''
-    const { action, input } = body || {}
+import { createError } from 'h3'
 
-    if (!action) {
-      setResponseStatus(event, 400)
-      return { ok: false, error: 'Missing "action"' }
-    }
-    const output = await runAction(action, input ?? {}, { authorization: auth })
-    return { ok: true, action, output }
-  } catch (err: any) {
-    setResponseStatus(event, /Invalid input|Unknown action/i.test(String(err)) ? 400 : 500)
-    return { ok: false, error: String(err?.message || err) }
+export function expectString(v: any, field: string): string {
+  if (typeof v !== 'string') {
+    throw createError({ statusCode: 400, statusMessage: `"${field}" must be a string` })
   }
-})
+  return v
+}
+
+export function expectNumber(v: any, field: string): number {
+  const n = typeof v === 'number' ? v : Number(v)
+  if (!Number.isFinite(n)) {
+    throw createError({ statusCode: 400, statusMessage: `"${field}" must be a number` })
+  }
+  return n
+}
+
+export function expectBoolean(v: any, field: string): boolean {
+  if (typeof v !== 'boolean') {
+    throw createError({ statusCode: 400, statusMessage: `"${field}" must be a boolean` })
+  }
+  return v
+}
+
+export function expectRecord(v: any, field: string): Record<string, any> {
+  if (v === null || typeof v !== 'object' || Array.isArray(v)) {
+    throw createError({ statusCode: 400, statusMessage: `"${field}" must be an object` })
+  }
+  return v as Record<string, any>
+}
+
+export function optional<T>(fn: (v: any, f: string) => T) {
+  return (v: any, field: string): T | undefined => {
+    return v === undefined || v === null ? undefined : fn(v, field)
+  }
+}
+
+export function validateShape<T extends Record<string, (v:any,f:string)=>any>>(
+  obj: any,
+  shape: T
+): { [K in keyof T]: ReturnType<T[K]> } {
+  const out: any = {}
+  const source = obj ?? {}
+  for (const key in shape) {
+    const validator = shape[key]
+    out[key] = validator(source[key], key)
+  }
+  return out
+}

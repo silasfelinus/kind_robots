@@ -1,6 +1,5 @@
 // path: server/api/chatgpt/actions.post.ts
 // summary: entrypoint for ChatGPT actions (Nuxt/Nitro API)
-
 import {
   defineEventHandler,
   readBody,
@@ -19,7 +18,11 @@ export default defineEventHandler(async (event) => {
     })
 
     const auth = getRequestHeader(event, 'authorization') || ''
-    const output = await runAction(action, input ?? {}, { authorization: auth })
+    const apiKey = getRequestHeader(event, 'x-api-key') || ''
+    const output = await runAction(action, input ?? {}, {
+      authorization: auth,
+      'x-api-key': apiKey,
+    })
 
     return { ok: true, action, output }
   } catch (err: any) {

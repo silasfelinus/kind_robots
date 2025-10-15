@@ -1,21 +1,26 @@
 // path: server/api/chatgpt/actions.post.ts
+// summary: entrypoint for ChatGPT actions
+
 import { defineEventHandler, readBody, getRequestHeader, setResponseStatus } from 'h3'
+import { validateShape, expectString, optional, expectRecord } from '~/server/utils/validate'
 import { runAction } from '~/server/utils/chatgpt/actions'
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody(event)
-    const auth = getRequestHeader(event, 'authorization') || ''
-    const { action, input } = body || {}
+    const envelope = await readBody(event)
 
-    if (!action) {
-      setResponseStatus(event, 400)
-      return { ok: false, error: 'Missing "action"' }
-    }
+    const { action, input } = validateShape(envelope, {
+      action: expectString,
+      input: optional(expectRecord)
+    })
+
+    const auth = getRequestHeader(event, 'authorization') || ''
     const output = await runAction(action, input ?? {}, { authorization: auth })
+
     return { ok: true, action, output }
   } catch (err: any) {
-    setResponseStatus(event, /Invalid input|Unknown action/i.test(String(err)) ? 400 : 500)
-    return { ok: false, error: String(err?.message || err) }
+    const code = err?.statusCode || 500
+    setResponseStatus(event, code)
+    return { ok: false, error: String(err?.statusMessage || err?.message || err) }
   }
 })

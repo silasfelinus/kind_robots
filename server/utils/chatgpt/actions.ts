@@ -4,7 +4,7 @@
 import { PrismaClient } from '@prisma/client'
 import { createError } from 'h3'
 import {
-  validateShape, expectString, expectNumber, expectRecord, optional
+  validateShape, expectString, expectNumber, expectRecord, optional, badRequest
 } from '~/server/utils/validate'
 import { ensureSession, ChatGPTSessionInfo } from '~/server/utils/chatgpt/authAdapter'
 
@@ -15,7 +15,7 @@ type Action = (input: any, ctx: Ctx) => Promise<any>
 
 const actions: Record<string, Action> = {}
 
-// if you want stricter control, tune this set
+// Whitelist: tighten/expand as needed
 const WRITEABLE = new Set([
   'Art','ArtImage','ArtCollection','Bot','Character','Chat',
   'Component','Dominion','Gallery','Pitch','Prompt','Reaction',
@@ -25,29 +25,33 @@ const WRITEABLE = new Set([
 function delegateFor(model: string) {
   // @ts-ignore
   const d = (prisma as any)[model]
-  if (!d) {
-    throw createError({ statusCode: 400, statusMessage: `Unknown model: ${model}` })
-  }
+  if (!d) throw createError({ statusCode: 400, statusMessage: `Unknown model: ${model}` })
   return d
 }
 
-// session bootstrap (validate or create)
+// --------- Session bootstrap (auth) ----------
 actions['kr.ensure_session'] = async (raw) => {
+  // accept 0/1, true/false, or missing
   const { token, registerIfMissing, registerPayload } = validateShape(raw, {
     token: optional(expectString),
-    registerIfMissing: optional(expectNumber), // allows 0/1 in raw JSON
+    registerIfMissing: optional((v: any, f: string) => {
+      if (typeof v === 'boolean') return v
+      if (v === undefined || v === null) return undefined
+      const n = Number(v)
+      if (Number.isFinite(n)) return !!n
+      badRequest(`"${f}" must be boolean or 0/1`)
+    }),
     registerPayload: optional(expectRecord)
   })
-  const allowRegister = Boolean(registerIfMissing ?? 1)
   const session = await ensureSession({
     token,
-    registerIfMissing: allowRegister,
+    registerIfMissing: registerIfMissing ?? true,
     registerPayload
   })
   return { session }
 }
 
-// list
+// --------- CRUD ----------
 actions['kr.list_objects'] = async (raw) => {
   const { model, page, pageSize, where } = validateShape(raw, {
     model: expectString,
@@ -66,7 +70,6 @@ actions['kr.list_objects'] = async (raw) => {
   return { items, page: p, pageSize: ps, total }
 }
 
-// create
 actions['kr.create_object'] = async (raw, ctx) => {
   const { model, data } = validateShape(raw, {
     model: expectString,
@@ -77,21 +80,19 @@ actions['kr.create_object'] = async (raw, ctx) => {
   }
   const d = delegateFor(model)
 
-  // optional ownership stamp if model supports it
+  // Optional: attach userId if present in model
   try {
-    if ('userId' in (await (d as any).fields ?? {})) {
-      ;(data as any).userId = ctx.session.userId
+    // If your Prisma delegate exposes metadata differently, customize this check:
+    if ('userId' in (data as any) || 'userId' in (d as any)) {
+      ;(data as any).userId ??= ctx.session.userId
     }
-  } catch {
-    // ignore capability check errors
-  }
+  } catch {}
 
   const created = await d.create({ data })
   return { created }
 }
 
-// update
-actions['kr.update_object'] = async (raw) => {
+actions['kr.update_object'] = async (raw, ctx) => {
   const { model, id, data } = validateShape(raw, {
     model: expectString,
     id: expectNumber,
@@ -101,12 +102,13 @@ actions['kr.update_object'] = async (raw) => {
     throw createError({ statusCode: 403, statusMessage: `Model not writeable: ${model}` })
   }
   const d = delegateFor(model)
+  // Optional: enforce ownership if your schema supports it
+  // await d.findFirstOrThrow({ where: { id, userId: ctx.session.userId }})
   const updated = await d.update({ where: { id }, data })
   return { updated }
 }
 
-// delete
-actions['kr.delete_object'] = async (raw) => {
+actions['kr.delete_object'] = async (raw, ctx) => {
   const { model, id } = validateShape(raw, {
     model: expectString,
     id: expectNumber
@@ -115,11 +117,13 @@ actions['kr.delete_object'] = async (raw) => {
     throw createError({ statusCode: 403, statusMessage: `Model not writeable: ${model}` })
   }
   const d = delegateFor(model)
+  // Optional: enforce ownership
+  // await d.findFirstOrThrow({ where: { id, userId: ctx.session.userId }})
   const deleted = await d.delete({ where: { id } })
   return { deletedId: deleted.id }
 }
 
-// story stubs (wire these to your real endpoints later)
+// --------- Story/Bot (stubs; wire to real routes when ready) ----------
 actions['kr.story_start'] = async (raw, ctx) => {
   const { seed } = validateShape(raw, { seed: optional(expectString) })
   return { sessionId: `story_${Date.now()}`, userId: ctx.session.userId, seed: seed ?? null }
@@ -146,17 +150,13 @@ export async function runAction(
   input: any,
   headers: { authorization?: string }
 ) {
-  // require a valid session on all calls except explicit kr.ensure_session
+  // Require session on all calls except explicit kr.ensure_session
   let session: ChatGPTSessionInfo | null = null
-
   if (name !== 'kr.ensure_session') {
     const token = (headers.authorization || '').replace(/^Bearer\s+/i, '') || undefined
     session = await ensureSession({ token, registerIfMissing: false })
   }
-
   const fn = actions[name]
-  if (!fn) {
-    throw createError({ statusCode: 400, statusMessage: `Unknown action: ${name}` })
-  }
-  return fn(input ?? {}, session ? { session } : ({ session: { userId: 10, token: '', includeSensitive: false } as ChatGPTSessionInfo }))
+  if (!fn) throw createError({ statusCode: 400, statusMessage: `Unknown action: ${name}` })
+  return fn(input ?? {}, session ?? { userId: 10, token: '', includeSensitive: false } as ChatGPTSessionInfo)
 }

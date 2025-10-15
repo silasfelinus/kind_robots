@@ -7,39 +7,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 /// Art holds the overarching data for possibly multiple artImage objects. I've tinkered with having a unified Art object to avoid obfuscation, this is the most complex model we have between Art, ArtCollection, and ArtImage, but the hope was that separating would allow easy handling of the entire Art model array, while selectively calling for the ArtImage data when needed.
 model Art {
-  id            Int             @id @default(autoincrement())
-  createdAt     DateTime?       @default(now())
-  updatedAt     DateTime?       @default(now()) @updatedAt
-  path          String?         @default("UNDEFINED") @db.VarChar(764)
-  checkpoint    String?         @db.VarChar(256)
-  sampler       String?         @db.VarChar(764)
-  seed          Int?            @default(-1)
-  steps         Int?
-  designer      String?         @db.VarChar(764)
-  isPublic      Boolean?        @default(false)
-  isMature      Boolean?        @default(false)
-  promptId      Int?
-  userId        Int?            @default(10)
-  pitchId       Int?
-  galleryId     Int?            @default(21)
-  promptString  String          @db.Text
-  negativePrompt String? @db.Text
-  cfg           Int?            @default(3)
-  cfgHalf       Boolean?        @default(false)
-  artImageId    Int?
-  imagePath     String?
-  Gallery       Gallery?        @relation(fields: [galleryId], references: [id])
-  Pitch         Pitch?          @relation(fields: [pitchId], references: [id])
-  Prompt        Prompt?         @relation(fields: [promptId], references: [id])
-  User          User?           @relation(fields: [userId], references: [id])
-  ArtImage      ArtImage?
-  Dominions     Dominion[]
-  Reaction      Reaction[]
-  ArtCollection ArtCollection[] @relation("ArtToArtCollection")
-  genres        String?
+  id             Int             @id @default(autoincrement())
+  createdAt      DateTime?       @default(now())
+  updatedAt      DateTime?       @default(now()) @updatedAt
+  path           String?         @default("UNDEFINED") @db.VarChar(764)
+  checkpoint     String?         @db.VarChar(256)
+  sampler        String?         @db.VarChar(764)
+  seed           Int?            @default(-1)
+  steps          Int?
+  designer       String?         @db.VarChar(764)
+  isPublic       Boolean?        @default(false)
+  isMature       Boolean?        @default(false)
+  promptId       Int?
+  userId         Int?            @default(10)
+  pitchId        Int?
+  galleryId      Int?            @default(21)
+  promptString   String          @db.Text
+  cfg            Int?            @default(3)
+  cfgHalf        Boolean?        @default(false)
+  artImageId     Int?
+  imagePath      String?
+  genres         String?
+  negativePrompt String?         @db.Text
+  Gallery        Gallery?        @relation(fields: [galleryId], references: [id])
+  Pitch          Pitch?          @relation(fields: [pitchId], references: [id])
+  Prompt         Prompt?         @relation(fields: [promptId], references: [id])
+  User           User?           @relation(fields: [userId], references: [id])
+  ArtImage       ArtImage?
+  Dominions      Dominion[]
+  Reaction       Reaction[]
+  ArtCollection  ArtCollection[] @relation("ArtToArtCollection")
 
   @@index([galleryId], map: "Art_galleryId_fkey")
   @@index([pitchId], map: "Art_pitchId_fkey")
@@ -49,210 +48,189 @@ model Art {
 
 /// ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
 model ArtImage {
-  id             Int       @id @default(autoincrement())
-  imageData      String    @db.LongText
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime? @default(now()) @updatedAt
-  artId          Int?      @unique
-  characterId    Int?      @unique
-  galleryId      Int?      @default(21)
-  userId         Int?      @default(10)
-  fileName       String?   @db.VarChar(764)
-  fileType       String    @default("png")
-  botId          Int?      @unique
-  componentId    Int?      @unique
-  milestoneId    Int?      @unique
-  pitchId        Int?      @unique
-  promptId       Int?      @unique
-  reactionId     Int?      @unique
-  resourceId     Int?      @unique
-  rewardId       Int?      @unique
-  tagId          Int?      @unique
-  chatId Int?     @unique
-  Chat Chat?      @relation(fields: [chatId], references: [id])
-  Art            Art?      @relation(fields: [artId], references: [id])
-  Gallery        Gallery?  @relation(fields: [galleryId], references: [id])
-  User           User?     @relation(fields: [userId], references: [id])
-  Bot            Bot?      @relation(fields: [botId], references: [id])       
-  Character      Character?    @relation(fields: [characterId], references: [id])
-  Component      Component?          @relation(fields: [componentId], references: [id])
-  Milestone      Milestone?           @relation(fields: [milestoneId], references: [id])
-  Pitch          Pitch?           @relation(fields: [pitchId], references: [id])
-  Prompt         Prompt?           @relation(fields: [promptId], references: [id])
-  Reaction       Reaction?          @relation(fields: [reactionId], references: [id])
-  Resource       Resource?           @relation(fields: [resourceId], references: [id])
-  Reward         Reward?           @relation(fields: [rewardId], references: [id])
-  Tag            Tag?          @relation(fields: [tagId], references: [id])
-  Dominions       Dominion[]
-  Scenarios      Scenario[]
-  
+  id          Int        @id @default(autoincrement())
+  galleryId   Int?       @default(21)
+  imageData   String     @db.LongText
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @default(now()) @updatedAt
+  userId      Int?       @default(10)
+  artId       Int?       @unique
+  fileName    String?    @db.VarChar(764)
+  fileType    String     @default("png")
+  botId       Int?       @unique
+  componentId Int?       @unique
+  milestoneId Int?       @unique
+  pitchId     Int?       @unique
+  promptId    Int?       @unique
+  reactionId  Int?       @unique
+  resourceId  Int?       @unique
+  rewardId    Int?       @unique
+  tagId       Int?       @unique
+  chatId      Int?       @unique
+  characterId Int?       @unique
+  Art         Art?       @relation(fields: [artId], references: [id])
+  Bot         Bot?       @relation(fields: [botId], references: [id])
+  Character   Character? @relation(fields: [characterId], references: [id])
+  Chat        Chat?      @relation(fields: [chatId], references: [id])
+  Component   Component? @relation(fields: [componentId], references: [id])
+  Gallery     Gallery?   @relation(fields: [galleryId], references: [id])
+  Milestone   Milestone? @relation(fields: [milestoneId], references: [id])
+  Pitch       Pitch?     @relation(fields: [pitchId], references: [id])
+  Prompt      Prompt?    @relation(fields: [promptId], references: [id])
+  Reaction    Reaction?  @relation(fields: [reactionId], references: [id])
+  Resource    Resource?  @relation(fields: [resourceId], references: [id])
+  Reward      Reward?    @relation(fields: [rewardId], references: [id])
+  Tag         Tag?       @relation(fields: [tagId], references: [id])
+  User        User?      @relation(fields: [userId], references: [id])
+  Dominions   Dominion[]
+  Scenarios   Scenario[]
 
   @@index([galleryId], map: "ArtImage_galleryId_fkey")
   @@index([userId], map: "ArtImage_userId_fkey")
 }
 
-//An ArtCollection is the current implementatin of what used to be Gallery. An ArtCollection is simply an editable collection of Art assets that can be  shareable with others
 model ArtCollection {
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @default(now()) @updatedAt
-  userId    Int       @default(10)
-  username  String?
-  User      User      @relation(fields: [userId], references: [id])
-  art       Art[]     @relation("ArtToArtCollection")
-  label     String?
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @default(now()) @updatedAt
+  userId      Int       @default(10)
+  label       String?
+  isMature    Boolean   @default(false)
+  isPublic    Boolean   @default(true)
   description String?
-  isPublic  Boolean   @default(true)
-  isMature  Boolean   @default(false)
+  username    String?
+  User        User      @relation(fields: [userId], references: [id])
+  art         Art[]     @relation("ArtToArtCollection")
 
   @@index([userId], map: "ArtCollection_userId_fkey")
 }
 
-
-/// a Bot is our first large scale project, and was created from the get-go to be an interaction layer with chatGPT. At the moment, the user should be able to create bots and chat with them
-/// our flagship bots are AMI, the AnitMalaria Intelligence, who was designed to raise funds to fight malaria, and dottiBot, our "bot creator". (Don't tell her she's a bot herself, it's part of the character, at least from a kayfabe perspective)
-/// from a design perspective, Bot fulfills the same niche space as a ChatGPT GPT personality.
-
 model Bot {
-  id                Int            @id @default(autoincrement())
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime?      @default(now()) @updatedAt
-  BotType           String         @db.VarChar(764)
-  name              String         @unique(map: "Bot_id_key", length: 200) @db.VarChar(256)
-  subtitle          String?        @db.VarChar(764)
-  description       String?        @db.VarChar(764)
-  avatarImage       String?        @db.VarChar(764)
-  botIntro          String         @db.VarChar(3000)
-  userIntro         String         @db.VarChar(764)
-  prompt            String         @db.VarChar(764)
-  trainingPath      String?        @db.VarChar(764)
-  theme             String?        @db.VarChar(764)
-  personality       String?        @db.VarChar(764)
-  modules           String?        @db.VarChar(764)
-  sampleResponse    String?        @db.VarChar(764)
-  tagline           String?        @db.VarChar(764)
-  isPublic          Boolean        @default(false)
-  underConstruction Boolean        @default(false)
-  canDelete         Boolean        @default(false)
-  userId            Int?           @default(1)
-  designer          String         @default("silasfelinus")
+  id                Int        @id @default(autoincrement())
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime?  @default(now()) @updatedAt
+  BotType           String     @db.VarChar(764)
+  name              String     @unique(map: "Bot_id_key", length: 200) @db.VarChar(256)
+  subtitle          String?    @db.VarChar(764)
+  description       String?    @db.VarChar(764)
+  avatarImage       String?    @db.VarChar(764)
+  botIntro          String     @db.VarChar(3000)
+  userIntro         String     @db.VarChar(764)
+  prompt            String     @db.VarChar(764)
+  trainingPath      String?    @db.VarChar(764)
+  theme             String?    @db.VarChar(764)
+  personality       String?    @db.VarChar(764)
+  modules           String?    @db.VarChar(764)
+  sampleResponse    String?    @db.VarChar(764)
+  tagline           String?    @db.VarChar(764)
+  isPublic          Boolean    @default(false)
+  underConstruction Boolean    @default(false)
+  canDelete         Boolean    @default(false)
+  userId            Int?       @default(1)
+  designer          String     @default("silasfelinus")
   artImageId        Int?
   ArtImage          ArtImage?
-  User              User?          @relation(fields: [userId], references: [id])
+  User              User?      @relation(fields: [userId], references: [id])
+  Chats             Chat[]
   Prompts           Prompt[]
   Reactions         Reaction[]
-  Chats              Chat[]
 
   @@index([userId], map: "Bot_userId_fkey")
 }
 
-
-/// characters are more personality driven than Bots. Unlike Bots, which are meant to be interacted with and perform helpful tasks, a character can be an npc chatbot but can be played as the user's role in a Scenario or chat experience.
-
 model Character {
-  id              Int            @id @default(autoincrement())
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime?      @default(now()) @updatedAt
-  name            String         @db.VarChar(256)
-  honorific      String?        @default("adventurer")
-  achievements    String?        @db.VarChar(256)
-  alignment       String?        @db.VarChar(256)
-  experience      Int?           @default(0)
-  level           Int?           @default(1)
-  artPrompt       String?
-  class           String?        @db.VarChar(764)
-  species         String?        @db.VarChar(764)
-  backstory       String?        @db.VarChar(2048)
-  drive           String?        @db.VarChar(764)
-  inventory       String?        @db.VarChar(2048)
-  quirks          String?        @db.VarChar(2048) 
-  skills          String?        @db.VarChar(2048) 
-  genre           String?        @db.VarChar(256) 
-  imagePath       String?        @db.VarChar(256) 
-  designer        String?
-  personality   String?
+  id             Int        @id @default(autoincrement())
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime?  @default(now()) @updatedAt
+  name           String     @db.VarChar(256)
+  achievements   String?    @db.VarChar(256)
+  alignment      String?    @db.VarChar(256)
+  experience     Int?       @default(0)
+  level          Int?       @default(1)
+  class          String?    @db.VarChar(764)
+  species        String?    @db.VarChar(764)
+  backstory      String?    @db.VarChar(2048)
+  drive          String?    @db.VarChar(764)
+  inventory      String?    @db.VarChar(2048)
+  statName1      String?    @default("Luck")
+  statValue1     Int?       @default(59)
+  statName2      String?    @default("Swol")
+  statValue2     Int?       @default(49)
+  statName3      String?    @default("Wits")
+  statValue3     Int?       @default(72)
+  statName4      String?    @default("Flexibilty")
+  statValue4     Int?       @default(93)
+  statName5      String?    @default("Rizz")
+  statValue5     Int?       @default(9)
+  statName6      String?    @default("Empathy")
+  statValue6     Int?       @default(71)
+  quirks         String?    @db.VarChar(2048)
+  skills         String?    @db.VarChar(2048)
+  genre          String?    @db.VarChar(256)
+  artImageId     Int?
+  isPublic       Boolean    @default(false)
+  userId         Int        @default(10)
+  artPrompt      String?
+  goalStat1Name  String?    @default("Principled|Chaotic")
+  goalStat1Value Int?       @default(0)
+  goalStat2Name  String?    @default("Introvert|Extrovert")
+  goalStat2Value Int?       @default(0)
+  goalStat3Name  String?    @default("Passive|Aggressive")
+  goalStat3Value Int?       @default(0)
+  goalStat4Name  String?    @default("Optimist|Pessimist")
+  goalStat4Value Int?       @default(0)
+  honorific      String?    @default("adventurer")
+  imagePath      String?    @db.VarChar(256)
+  designer       String?
+  personality    String?
+  ArtImage       ArtImage?
+  User           User       @relation(fields: [userId], references: [id])
+  Chats          Chat[]
+  Rewards        Reward[]   @relation("CharacterToReward")
+  Scenarios      Scenario[] @relation("CharacterToScenario")
 
-  // Main Stats
-  statName1       String?        @default("Luck")
-  statValue1      Int?           @default(59)
-  statName2       String?        @default("Swol")
-  statValue2      Int?           @default(49)
-  statName3       String?        @default("Wits")
-  statValue3      Int?           @default(72)
-  statName4       String?        @default("Flexibilty")
-  statValue4      Int?           @default(93)
-  statName5       String?        @default("Rizz")
-  statValue5      Int?           @default(9)
-  statName6       String?        @default("Empathy")
-  statValue6      Int?           @default(71)
-
-  // Goal Stats
-  goalStat1Name   String?        @default("Principled|Chaotic") //currently unused
-  goalStat1Value  Int?           @default(0)  //currently unused
-  goalStat2Name   String?        @default("Introvert|Extrovert")  //currently unused
-  goalStat2Value  Int?           @default(0)  //currently unused
-  goalStat3Name   String?        @default("Passive|Aggressive")  //currently unused
-  goalStat3Value  Int?           @default(0)  //currently unused
-  goalStat4Name   String?        @default("Optimist|Pessimist")  //currently unused
-  goalStat4Value  Int?           @default(0)  //currently unused
-
-  artImageId      Int? 
-  ArtImage        ArtImage?     
-  isPublic        Boolean        @default(false)
-  userId          Int           @default(10)
-  User            User          @relation(fields: [userId], references: [id])
-  Rewards         Reward[]
-  Chats           Chat[]
-  Scenarios       Scenario[]
+  @@index([userId], map: "Character_userId_fkey")
 }
 
 /// a chat can be between users, user to Bot or Character, on to a Forum or Channel (aka chatroom)
 /// originId should always be shared in subsequent messages so we can track the thread via originID and createdAt
 /// splitting the chat into a new thread creates a fresh originId
 model Chat {
-  id              Int                @id @default(autoincrement())
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime?          @default(now()) @updatedAt
-  type            ChatType
-  sender          String             @db.VarChar(255)
-  recipient       String?            @db.VarChar(255)
-  content         String             @db.Text
-  title           String?            @db.VarChar(255)
-  channel         String?            @db.VarChar(255)
-  isPublic        Boolean            @default(true)
-  isFavorite      Boolean            @default(false)
+  id              Int        @id @default(autoincrement())
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime?  @default(now()) @updatedAt
+  type            Chat_type
+  sender          String     @db.VarChar(255)
+  recipient       String?    @db.VarChar(255)
+  content         String     @db.Text
+  title           String?    @db.VarChar(255)
+  isPublic        Boolean    @default(true)
+  isFavorite      Boolean    @default(false)
   previousEntryId Int?
   originId        Int?
   userId          Int?
   botId           Int?
-  recipientId			Int?
+  recipientId     Int?
   artImageId      Int?
   promptId        Int?
-  botName         String?            @db.VarChar(255)
-  Reactions       Reaction[]
-  ArtImage        ArtImage?        
-  Bot             Bot?               @relation(fields: [botId], references: [id])
-  Prompt          Prompt?            @relation(fields: [promptId], references: [id])
-  User            User?              @relation(fields: [userId], references: [id])
+  botName         String?    @db.VarChar(255)
+  channel         String?    @db.VarChar(255)
   botResponse     String?
   characterId     Int?
-  Character       Character?          @relation(fields: [characterId], references: [id])
-  isRead          Boolean           @default(false)
-  isMature        Boolean           @default(false)
+  isRead          Boolean    @default(false)
+  isMature        Boolean    @default(false)
+  ArtImage        ArtImage?
+  Bot             Bot?       @relation(fields: [botId], references: [id])
+  Character       Character? @relation(fields: [characterId], references: [id])
+  Prompt          Prompt?    @relation(fields: [promptId], references: [id])
+  User            User?      @relation(fields: [userId], references: [id])
+  Reactions       Reaction[]
+
+  @@index([botId], map: "Chat_botId_fkey")
+  @@index([characterId], map: "Chat_characterId_fkey")
+  @@index([promptId], map: "Chat_promptId_fkey")
+  @@index([userId], map: "Chat_userId_fkey")
 }
-
-
-/// each chattype should help gate the chat interactions, channel is the fallback if we just need a line that doesn't have a place
-/// 
-enum ChatType {
-  ToBot
-  BotResponse
-  Forum
-  User
-  Character
-  Channel
-}
-
 
 /// Components track all the components we use making kindrobots. it's primary uses are as a museum of developmental attemps, while allowing reactions to allow sifting concepts and allowing the best to rise to attention.
 model Component {
@@ -274,66 +252,48 @@ model Component {
 
 /// this is a novelty dominion card generator, allowing the creation and sharing of custom cards for the excellent Dominion card game system.
 model Dominion {
-  id            Int        @id @default(autoincrement())
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime?  @default(now()) @updatedAt
-
-  // Identity & display
-  title         String      @db.VarChar(256)
-  slug          String?     @unique @db.VarChar(256)
-  description   String?     @db.Text            // rules text (original)
-  italics       String?     @db.VarChar(764)    // flavor line (original)
-  color         String?     @db.VarChar(64)     // e.g. 'blue', 'green', 'gold', theming only
-  icon          String?     @db.VarChar(128)
-  designer      String?     @db.VarChar(256)
-
-  // Ownership & visibility
-  userId        Int?        @default(10)
-  User          User?       @relation(fields: [userId], references: [id])
-  isPublic      Boolean     @default(true)
-  isMature      Boolean     @default(false)
-
-  // Art
-  artId         Int?
-  artImageId    Int?
-  Art           Art?        @relation(fields: [artId], references: [id])
-  ArtImage      ArtImage?   @relation(fields: [artImageId], references: [id])
-
-  // Types & keywords (flexible, future-proof)
-  types         Json        @default("[]")   // string[]: ["Action","Duration","Attack",...]
-  keywords      Json        @default("[]")   // string[]: ["Gain","Trash","Discard",...]
-
-  // Baseline numeric bonuses (commonly shown as +X on the card)
-  cardAdd       Int         @default(0)   // +Cards
-  actionAdd     Int         @default(0)   // +Actions  (renamed from buyAdd/cardAdd parity)
-  buyAdd        Int         @default(0)   // +Buys
-  coinAdd       Int         @default(0)   // +Coins (virtual money)
-  victoryAdd    Int         @default(0)   // printed VP (if any)
-
-  // Duration & timing
-  isDuration    Boolean     @default(false)
-  durationJSON  Json?                     // structured next-turn effects, if any
-
-  // Cost model (supports alt costs without hard dependencies)
-  priceCoins    Int         @default(0)   // standard coin cost
-  priceDebt     Int         @default(0)   // optional debt cost
-  pricePotion   Int         @default(0)   // optional potion cost (0/1 typical)
-
-  // Advanced rules: triggers, setup, onGain, onTrash, attack/reaction hooks, etc.
-  effects       Json        @default("{}") // machine-readable effect graph/DSL
-  setupText     String?     @db.VarChar(764)
-  notes         String?     @db.VarChar(764) // design notes (not printed)
-
-  // Organization
-  setId         String?
-  version       Int          @default(1)
-  tags          Tag[]
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @default(now()) @updatedAt
+  title        String    @db.VarChar(256)
+  slug         String?   @unique @db.VarChar(256)
+  description  String?   @db.Text
+  italics      String?   @db.VarChar(764)
+  color        String?   @db.VarChar(64)
+  designer     String?   @db.VarChar(256)
+  userId       Int?      @default(10)
+  isPublic     Boolean   @default(true)
+  isMature     Boolean   @default(false)
+  artId        Int?
+  artImageId   Int?
+  types        String    @db.LongText
+  keywords     String    @db.LongText
+  cardAdd      Int       @default(0)
+  actionAdd    Int       @default(0)
+  buyAdd       Int       @default(0)
+  coinAdd      Int       @default(0)
+  victoryAdd   Int       @default(0)
+  isDuration   Boolean   @default(false)
+  durationJSON String?   @db.LongText
+  priceCoins   Int       @default(0)
+  priceDebt    Int       @default(0)
+  pricePotion  Int       @default(0)
+  effects      String    @db.LongText
+  setupText    String?   @db.VarChar(764)
+  notes        String?   @db.VarChar(764)
+  setId        String?
+  version      Int       @default(1)
+  icon         String?   @db.VarChar(128)
+  Art          Art?      @relation(fields: [artId], references: [id])
+  ArtImage     ArtImage? @relation(fields: [artImageId], references: [id])
+  User         User?     @relation(fields: [userId], references: [id])
+  tags         Tag[]     @relation("DominionToTag")
 
   @@index([userId], map: "DominionCard_userId_idx")
   @@index([setId], map: "DominionCard_setId_idx")
+  @@index([artId], map: "Dominion_artId_fkey")
+  @@index([artImageId], map: "Dominion_artImageId_fkey")
 }
-
-
 
 /// our mostly-obsolete system for collecting images. It assumed data was kept as physical files on disk, and is still used to access the original seed images, which are only partly digitized and used primarily for our Memory Match game, which is the clearest proof of concept that all of this can be used for a functional purpose.
 model Gallery {
@@ -386,8 +346,8 @@ model Milestone {
   tooltip          String?           @db.VarChar(764)
   isActive         Boolean           @default(false)
   isRepeatable     Boolean           @default(true)
-  ArtImage         ArtImage?
   artImageId       Int?
+  ArtImage         ArtImage?
   MilestoneRecords MilestoneRecord[]
 }
 
@@ -397,9 +357,9 @@ model MilestoneRecord {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime? @default(now()) @updatedAt
   username    String?   @db.VarChar(764)
-  isConfirmed Boolean   @default(false)
   milestoneId Int
   userId      Int
+  isConfirmed Boolean   @default(false)
   Milestones  Milestone @relation(fields: [milestoneId], references: [id])
   User        User      @relation(fields: [userId], references: [id])
 
@@ -407,68 +367,54 @@ model MilestoneRecord {
   @@index([userId], map: "MilestoneRecord_userId_fkey")
 }
 
-
 /// A Pitch is a big picture idea that is meant to be fuel for a project that can become art assets, text assets, and physical swag. A Pitch can contain a collection of Prompts, which is an implementation of the Pitch. for example, a Pitch of "wild colors" could contain a series of prompts like "lavender armadillo;  green curd; rainbow sunburn". it can be represented by an artImage for it's overall vibe, but also collect Art objects if they are inspired by the Pitch 
 model Pitch {
-  id             Int        @id @default(autoincrement())
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime?  @default(now()) @updatedAt
-  title          String?    @db.VarChar(256)
-  pitch          String     @db.VarChar(764)
-  designer       String?    @db.VarChar(256)
-  flavorText     String?    @db.VarChar(512)
-  highlightImage String?    @db.VarChar(256)
-  PitchType      PitchType  @default(ART)
-  isMature       Boolean    @default(false)
-  isPublic       Boolean    @default(true)
-  userId         Int?       @default(1)
-  imagePrompt    String?    @db.VarChar(256)
-  description    String?    @db.VarChar(256)
-  examples       String?    @db.LongText
-  icon           String?
+  id             Int             @id @default(autoincrement())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime?       @default(now()) @updatedAt
+  title          String?         @db.VarChar(256)
+  pitch          String          @db.VarChar(764)
+  designer       String?         @db.VarChar(256)
+  flavorText     String?         @db.VarChar(512)
+  highlightImage String?         @db.VarChar(256)
+  PitchType      Pitch_PitchType @default(ARTPITCH)
+  isMature       Boolean         @default(false)
+  isPublic       Boolean         @default(true)
+  userId         Int?            @default(1)
+  imagePrompt    String?         @db.VarChar(256)
+  description    String?         @db.VarChar(256)
   artImageId     Int?
-  ArtImage       ArtImage?
+  examples       String?         @db.LongText
+  icon           String?
   Art            Art[]
-  User           User?      @relation(fields: [userId], references: [id])
+  ArtImage       ArtImage?
+  User           User?           @relation(fields: [userId], references: [id])
   Prompts        Prompt[]
   Reactions      Reaction[]
-  Tags           Tag[]      @relation("PitchToTag")
+  Tags           Tag[]           @relation("PitchToTag")
 
   @@index([userId], map: "Pitch_userId_fkey")
 }
 
-/// Recently updated, but this should represent the gamut of options for brainstorming new ideas
-enum PitchType {
-  ART
-  BRAINSTORM
-  SCENARIO
-  BOT
-  RANDOMLIST
-  CHARACTER
-  PROMPT
-  PITCH
-  REWARD
-}
-
 /// this is an art or text prompt to an ai to generate new media
 model Prompt {
-  id         Int            @id @default(autoincrement())
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime?      @default(now()) @updatedAt
-  prompt     String         @db.Text
-  userId     Int?           @default(1)
-  galleryId  Int?           @default(21)
+  id         Int        @id @default(autoincrement())
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime?  @default(now()) @updatedAt
+  prompt     String     @db.Text
+  userId     Int?       @default(1)
+  galleryId  Int?       @default(21)
   pitchId    Int?
   botId      Int?
   artImageId Int?
-  ArtImage   ArtImage?
   Art        Art[]
+  ArtImage   ArtImage?
   Chats      Chat[]
+  Bot        Bot?       @relation(fields: [botId], references: [id])
+  Gallery    Gallery?   @relation(fields: [galleryId], references: [id])
+  Pitch      Pitch?     @relation(fields: [pitchId], references: [id])
+  User       User?      @relation(fields: [userId], references: [id])
   Reactions  Reaction[]
-  Bot        Bot?           @relation(fields: [botId], references: [id])
-  Gallery    Gallery?       @relation(fields: [galleryId], references: [id])
-  Pitch      Pitch?         @relation(fields: [pitchId], references: [id])
-  User       User?          @relation(fields: [userId], references: [id])
 
   @@index([botId], map: "Prompt_botId_fkey")
   @@index([galleryId], map: "Prompt_galleryId_fkey")
@@ -482,41 +428,46 @@ model Reaction {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime?        @default(now()) @updatedAt
   comment          String?          @db.Text
-  userId           Int  
-  rating           Int              @default(0)
-  artImageId       Int?
+  userId           Int
   artId            Int?
   pitchId          Int?
   componentId      Int?
-  botId            Int?
-  galleryId        Int?  
-  promptId         Int?      
-  resourceId       Int?     
-  rewardId         Int?     
-  tagId            Int?   
   reactionType     ReactionType
   reactionCategory ReactionCategory @default(ART)
+  rating           Int              @default(0)
+  artImageId       Int?
+  botId            Int?
+  galleryId        Int?
+  promptId         Int?
+  resourceId       Int?
+  rewardId         Int?
+  tagId            Int?
+  chatId           Int?
   ArtImage         ArtImage?
-  chatId  Int?
-  Chat    Chat?      @relation(fields: [chatId], references: [id])
   Art              Art?             @relation(fields: [artId], references: [id])
+  Bot              Bot?             @relation(fields: [botId], references: [id])
+  Chat             Chat?            @relation(fields: [chatId], references: [id])
   Component        Component?       @relation(fields: [componentId], references: [id])
-  Pitch            Pitch?           @relation(fields: [pitchId], references: [id])
-  User             User             @relation(fields: [userId], references: [id])
   Gallery          Gallery?         @relation(fields: [galleryId], references: [id])
-  Bot              Bot?             @relation(fields: [botId], references: [id])       
+  Pitch            Pitch?           @relation(fields: [pitchId], references: [id])
   Prompt           Prompt?          @relation(fields: [promptId], references: [id])
   Resource         Resource?        @relation(fields: [resourceId], references: [id])
   Reward           Reward?          @relation(fields: [rewardId], references: [id])
   Tag              Tag?             @relation(fields: [tagId], references: [id])
+  User             User             @relation(fields: [userId], references: [id])
 
   @@index([artId], map: "Reaction_artId_fkey")
   @@index([pitchId], map: "Reaction_pitchId_fkey")
   @@index([userId], map: "Reaction_userId_fkey")
   @@index([componentId], map: "Reaction_componentId_fkey")
+  @@index([botId], map: "Reaction_botId_fkey")
+  @@index([chatId], map: "Reaction_chatId_fkey")
+  @@index([galleryId], map: "Reaction_galleryId_fkey")
+  @@index([promptId], map: "Reaction_promptId_fkey")
+  @@index([resourceId], map: "Reaction_resourceId_fkey")
+  @@index([rewardId], map: "Reaction_rewardId_fkey")
+  @@index([tagId], map: "Reaction_tagId_fkey")
 }
-
-/// a resource should be a source for more data that can be used by the user and shared with others. Examples are loras, models, and other sources for art and text generation. 
 
 /// This should also be used if a user wants to add a custom art or text generator beyond those servives offered by kind robots. We are intended to be a philanthropic service, so if users use our frameworks without taxing our servers, that is ideal. That said, we aim to be agnostic while encouraging ethical use. In the next year I hope to offer services hosted through solar power locally, and that may change how we encourage services. At the moment, the environmental impact of AI is a valid criticism and I hope the benefits end up being a net gain for the world, as our particular endeavor hopes to be.
 model Resource {
@@ -533,77 +484,78 @@ model Resource {
   description  String?      @db.Text
   isMature     Boolean      @default(false)
   resourceType ResourceType @default(EMBEDDING)
-  generation   String?
   userId       Int?         @default(1)
   artImageId   Int?
+  generation   String?
   ArtImage     ArtImage?
-  User         User?        @relation(fields: [userId], references: [id])
   Reactions    Reaction[]
+  User         User?        @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Resource_userId_fkey")
 }
 
 /// Reward has morphed in intent, it used to be used specifically as a reward for completing a Scenario, and still can be. But in general it is an Item model, and users have the ability to create their own rewards as one shot storytelling prompts in Scenarios. They are designed in the format of the game Equisite Corpse, where storytellers take turns creating a story with a cliffhanger, then expecting the next storyteller to respond. With Scenarios, it's usually user and AI (or multiple users), and the idea was that a reward would be a crazy twist to the narrative, exemplified by our first Reward: The Button that Blows up the World.
 model Reward {
-  id         Int       @id @default(autoincrement())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime? @default(now()) @updatedAt
-  icon       String    @db.VarChar(256)
-  text       String    @db.VarChar(764)
-  power      String    @db.VarChar(764)
-  collection String    @db.VarChar(764)
-  rarity     Int       @default(0)
-  label      String?   @db.VarChar(764)
-  userId     Int?      @default(1)
-  artImageId Int?
-  ArtImage   ArtImage?
-  User       User?     @relation(fields: [userId], references: [id])
-  Reactions  Reaction[]
-  Characters Character[]
-  imagePath  String?
+  id          Int         @id @default(autoincrement())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime?   @default(now()) @updatedAt
+  icon        String      @db.VarChar(256)
+  text        String      @db.VarChar(764)
+  power       String      @db.VarChar(764)
+  collection  String      @db.VarChar(764)
+  rarity      Int         @default(0)
+  label       String?     @db.VarChar(764)
+  userId      Int?        @default(1)
+  artImageId  Int?
+  imagePath   String?
   imagePrompt String?
+  ArtImage    ArtImage?
+  Reactions   Reaction[]
+  User        User?       @relation(fields: [userId], references: [id])
+  Characters  Character[] @relation("CharacterToReward")
 
   @@index([userId], map: "Reward_userId_fkey")
 }
 
 /// Scenarios are meant to be chatroom settings or storytelling scenarios that incorporate other elements like Character, prompt, Art, etc. A user is given options to continue the scenario with a skill check, inventory item, Reward, or custom prompt. The idea is to generate a story through the back and forth exchange.
 model Scenario {
-  id            Int       @id @default(autoincrement())
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime? @default(now()) @updatedAt
-  title         String
-  description   String
-  intros        String
-  genres        String?
-  userId        Int
-  User          User       @relation(fields: [userId], references: [id])
-  Characters    Character[]
-  artImageId    Int?
-  ArtImage      ArtImage?      @relation(fields: [artImageId], references: [id])
-  imagePath     String?
-  locations     String?
-  artPrompt     String?
-  inspirations  String?
+  id           Int         @id @default(autoincrement())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime?   @default(now()) @updatedAt
+  title        String
+  description  String
+  intros       String
+  userId       Int
+  artImageId   Int?
+  imagePath    String?
+  locations    String?
+  artPrompt    String?
+  genres       String?
+  inspirations String?
+  ArtImage     ArtImage?   @relation(fields: [artImageId], references: [id])
+  User         User        @relation(fields: [userId], references: [id])
+  Characters   Character[] @relation("CharacterToScenario")
+
+  @@index([artImageId], map: "Scenario_artImageId_fkey")
+  @@index([userId], map: "Scenario_userId_fkey")
 }
 
 /// Smart Icons are used internally to generate the user's icon array. They can create custom icons that are links to pages or commands
 model SmartIcon {
-  id         Int       @id @default(autoincrement())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime? @default(now()) @updatedAt
-
-  title      String    @db.VarChar(255)
-  type       String    @db.VarChar(255)
-  designer   String?   @db.VarChar(255)
-  description String?  @db.VarChar(255)
-  userId     Int?      @default(10)
-  icon       String?   @db.VarChar(255)
-  label      String?   @db.VarChar(255)
-  link       String?   @db.VarChar(512)
-  component  String?   @db.VarChar(255)
-  isPublic   Boolean   @default(true)
-
-  User       User?     @relation(fields: [userId], references: [id])
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @default(now()) @updatedAt
+  title       String    @db.VarChar(255)
+  type        String    @db.VarChar(255)
+  designer    String?   @db.VarChar(255)
+  userId      Int?      @default(10)
+  icon        String?   @db.VarChar(255)
+  label       String?   @db.VarChar(255)
+  link        String?   @db.VarChar(512)
+  component   String?   @db.VarChar(255)
+  isPublic    Boolean   @default(true)
+  description String?   @db.VarChar(255)
+  User        User?     @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "SmartIcon_userId_fkey")
 }
@@ -622,105 +574,100 @@ model Tag {
   userId     Int?        @default(1)
   artImageId Int?
   ArtImage   ArtImage?
+  Reactions  Reaction[]
   User       User?       @relation(fields: [userId], references: [id])
   Components Component[] @relation("ComponentToTag")
+  Dominions  Dominion[]  @relation("DominionToTag")
   Pitches    Pitch[]     @relation("PitchToTag")
-  Reactions  Reaction[]
-  Dominions   Dominion[]
 
   @@index([userId], map: "Tag_userId_fkey")
 }
 
-/// an only partially implemented theme expander. We already have 26 themes custom with daisy. I wanted to add the ability for user generated custom themes, but currently they are not playing well with nuxt. A few days of problem  solving will probably resolve, but I'm feeling more likely I will kill it to avoid project bloat
-
 model Theme {
-  id            Int      @id @default(autoincrement())
-  name          String   @unique
-  userId        Int?
-  user          User?    @relation(fields: [userId], references: [id])
-  isPublic      Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  tagline       String?
-  room          String?
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  values      String   @db.LongText
+  userId      Int?
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  tagline     String?
+  room        String?
+  colorScheme String   @default("light")
+  prefersDark Boolean  @default(false)
+  user        User?    @relation(fields: [userId], references: [id])
 
-  prefersDark   Boolean  @default(false)
-  colorScheme   String   @default("light") // could validate against ENUM if strict
-  values        Json     // only the CSS vars like `--color-base-100`, etc.
+  @@index([userId], map: "Theme_userId_fkey")
 }
-
 
 /// our user model. default test user is userId=10. 
 model User {
-  id             Int               @id @default(autoincrement())
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime?         @default(now()) @updatedAt
-  username       String            @unique @db.VarChar(255)
-  email          String?           @unique @db.VarChar(255)
-  questPoints    Int               @default(0)
-  emailVerified  DateTime?         @db.DateTime(0)
-  name           String?           @db.VarChar(255)
-  address1       String?           @db.Text
-  address2       String?           @db.Text
-  avatarImage    String?           @db.Text
-  bio            String?           @db.Text
-  birthday       DateTime?         @db.DateTime(0)
-  city           String?           @db.Text
-  country        String?           @db.Text
-  discordUrl     String?           @db.Text
-  facebookUrl    String?           @db.Text
-  instagramUrl   String?           @db.Text
-  kindrobotsUrl  String?           @db.Text
-  languages      String?           @db.Text
-  phone          String?           @db.VarChar(255)
-  state          String?           @db.VarChar(255)
-  timezone       String?           @db.VarChar(255)
-  twitterUrl     String?           @db.Text
-  apiKey         String?           @db.Text
-  token          String?           @db.Text
-  password       String?           @db.Text
-  karma          Int               @default(0)
-  mana           Int               @default(0)
-  clickRecord    Int?              @default(0)
-  matchRecord    Int?              @default(0)
-  showMature     Boolean           @default(false)
-  Role           Role              @default(USER)
-  isPublic       Boolean           @default(true)
-  customIcons    Boolean          @default(false)
-  isMember       Boolean          @default(false)
-
-  vibes          Json?             @default("[]")
-
-  memberUntil    DateTime?
-  lastReward     String?
-  artModels      Json?
-  textModels     Json?
-  stripeCustomerId String?         @db.VarChar(64)
-  smartBar       String?
-  blockList      String?
-  designerName   String?
-  artImageId     Int?
-  Art            Art[]
-  ArtCollections ArtCollection[]
-  ArtImages      ArtImage[]
-  Bots           Bot[]
-  Characters     Character[]
-  Chats          Chat[]
-  Dominions      Dominion[]
-  Galleries      Gallery[]
-  Logs           Log[]
-  Milestones     MilestoneRecord[]
-  Pitches        Pitch[]
-  Prompts        Prompt[]
-  Reactions      Reaction[]
-  Resources      Resource[]
-  Rewards        Reward[]
-  Tags           Tag[]
-  Scenarios      Scenario[]
-  SmartIcons     SmartIcon[]
-  Themes         Theme[]
-  googleId    String? @unique
-  googleEmail String? @db.VarChar(255)
-
+  id               Int               @id @default(autoincrement())
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime?         @default(now()) @updatedAt
+  username         String            @unique @db.VarChar(255)
+  email            String?           @unique @db.VarChar(255)
+  questPoints      Int               @default(0)
+  emailVerified    DateTime?         @db.DateTime(0)
+  name             String?           @db.VarChar(255)
+  address1         String?           @db.Text
+  address2         String?           @db.Text
+  avatarImage      String?           @db.Text
+  bio              String?           @db.Text
+  birthday         DateTime?         @db.DateTime(0)
+  city             String?           @db.Text
+  country          String?           @db.Text
+  discordUrl       String?           @db.Text
+  facebookUrl      String?           @db.Text
+  instagramUrl     String?           @db.Text
+  kindrobotsUrl    String?           @db.Text
+  languages        String?           @db.Text
+  phone            String?           @db.VarChar(255)
+  state            String?           @db.VarChar(255)
+  timezone         String?           @db.VarChar(255)
+  twitterUrl       String?           @db.Text
+  apiKey           String?           @db.Text
+  password         String?           @db.Text
+  karma            Int               @default(0)
+  mana             Int               @default(0)
+  clickRecord      Int?              @default(0)
+  matchRecord      Int?              @default(0)
+  showMature       Boolean           @default(false)
+  Role             Role              @default(USER)
+  artImageId       Int?
+  token            String?           @db.Text
+  designerName     String?
+  googleEmail      String?           @db.VarChar(255)
+  googleId         String?           @unique
+  blockList        String?
+  isPublic         Boolean           @default(true)
+  smartBar         String?
+  customIcons      Boolean           @default(false)
+  isMember         Boolean           @default(false)
+  memberUntil      DateTime?
+  stripeCustomerId String?           @db.VarChar(64)
+  artModels        String?           @db.LongText
+  lastReward       String?
+  textModels       String?           @db.LongText
+  vibes            String?           @db.LongText
+  Art              Art[]
+  ArtCollections   ArtCollection[]
+  ArtImages        ArtImage[]
+  Bots             Bot[]
+  Characters       Character[]
+  Chats            Chat[]
+  Dominions        Dominion[]
+  Galleries        Gallery[]
+  Logs             Log[]
+  Milestones       MilestoneRecord[]
+  Pitches          Pitch[]
+  Prompts          Prompt[]
+  Reactions        Reaction[]
+  Resources        Resource[]
+  Rewards          Reward[]
+  Scenarios        Scenario[]
+  SmartIcons       SmartIcon[]
+  Tags             Tag[]
+  Themes           Theme[]
 }
 
 model ReactionToTag {
@@ -768,9 +715,6 @@ model RewardToUser {
   @@map("_RewardToUser")
 }
 
-
-
-
 enum ReactionType {
   LOVED
   CLAPPED
@@ -797,7 +741,6 @@ enum ReactionCategory {
   TITLE
 }
 
-
 enum ResourceType {
   CHECKPOINT
   EMBEDDING
@@ -821,16 +764,20 @@ enum Role {
   CHILD
 }
 
-enum SupportedModel {
-  Pitch
-  Character
-  Bot
-  Scenario
-  Reward
-  Art
-  Prompt
-  Tag
-  Resource
-  Chat
+enum Chat_type {
+  ToBot
+  BotResponse
+  ToForum
+  ToUser
+  ToCharacter
+  Weirdlandia
 }
 
+enum Pitch_PitchType {
+  ARTPITCH
+  BRAINSTORM
+  WEIRDLANDIA
+  RANDOMLIST
+  TITLE
+  VIBE
+}

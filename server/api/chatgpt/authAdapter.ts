@@ -51,20 +51,24 @@ async function validateByToken(token: string): Promise<ChatGPTSessionInfo | null
   return null
 }
 
+// server/api/chatgpt/authAdapter.ts (replace validateByApiKey)
 async function validateByApiKey(apiKey: string): Promise<ChatGPTSessionInfo | null> {
   try {
-    const res = await $fetch<ApiKeyValidateResponse>(`${API_BASE}/api/auth/validate/api`, {
-      method: 'POST',
-      body: { apiKey }
-    })
+    const res = await $fetch<{ success: boolean; message?: string; data?: { id?: number } }>(
+      `${API_BASE}/api/auth/validate/api`,
+      { method: 'POST', body: { apiKey } }
+    )
     if (res?.success) {
-      // until /validate/api returns a user, treat as guest-scoped
+      // prefer real user if provided by validator
+      if (res.data?.id) {
+        return { userId: Number(res.data.id), token: '', includeSensitive: false, source: 'apiKey' }
+      }
+      // else guest-scope
       return { userId: 10, token: '', includeSensitive: false, source: 'apiKey' }
     }
   } catch {}
   return null
 }
-
 async function registerUser(payload: Record<string, unknown>): Promise<ChatGPTSessionInfo | null> {
   // plural route
   try {

@@ -1,5 +1,5 @@
 // path: server/api/chatgpt/actions.post.ts
-// summary: entrypoint for ChatGPT actions
+// summary: entrypoint for ChatGPT actions (Nuxt/Nitro API)
 
 import { defineEventHandler, readBody, getRequestHeader, setResponseStatus } from 'h3'
 import { validateShape, expectString, optional, expectRecord } from '~/server/utils/validate'
@@ -8,7 +8,6 @@ import { runAction } from '~/server/utils/chatgpt/actions'
 export default defineEventHandler(async (event) => {
   try {
     const envelope = await readBody(event)
-
     const { action, input } = validateShape(envelope, {
       action: expectString,
       input: optional(expectRecord)

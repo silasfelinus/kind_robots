@@ -1,159 +1,108 @@
 // path: server/api/chatgpt/actions.ts
-// summary: ChatGPT-facing actions using H3-native validation + your auth
+// summary: action router for ChatGPT API
 
-import { PrismaClient } from '@prisma/client'
-import { createError } from 'h3'
-import {
-  validateShape, expectString, expectNumber, expectRecord, optional, badRequest
-} from './validate'
-import { ensureSession, ChatGPTSessionInfo } from './authAdapter'
+import type { User } from '@prisma/client'
+import prisma from '../utils/prisma'
+import { parseBearer, validateApiKey } from './token'
 
-const prisma = new PrismaClient()
+type RunActionHeaders = Record<string, string | undefined>
+type ActionInput = Record<string, any>
 
-type Ctx = { session: ChatGPTSessionInfo }
-type Action = (input: any, ctx: Ctx) => Promise<any>
+// Use an explicit type for the minimal user shape we need from Prisma
+type SessionSource = Pick<
+  User,
+  'id' | 'username' | 'Role' | 'apiKey' | 'emailVerified'
+>
 
-const actions: Record<string, Action> = {}
-
-const WRITEABLE = new Set([
-  'Art','ArtImage','ArtCollection','Bot','Character','Chat',
-  'Component','Dominion','Gallery','Pitch','Prompt','Reaction',
-  'Resource','Reward','Scenario','SmartIcon','Tag','Theme'
-])
-
-function delegateFor(model: string) {
-  // @ts-ignore
-  const d = (prisma as any)[model]
-  if (!d) throw createError({ statusCode: 400, statusMessage: `Unknown model: ${model}` })
-  return d
-}
-
-// ---- Session bootstrap (auth) ----------------------------------------------
-actions['kr.ensure_session'] = async (raw) => {
-  const { token, apiKey, registerIfMissing, registerPayload } = validateShape(raw, {
-    token: optional(expectString),
-    apiKey: optional(expectString),
-    registerIfMissing: optional((v: any, f: string) => {
-      if (typeof v === 'boolean') return v
-      if (v === undefined || v === null) return undefined
-      const n = Number(v)
-      if (Number.isFinite(n)) return !!n
-      badRequest(`"${f}" must be boolean or 0/1`)
-    }),
-    registerPayload: optional(expectRecord)
-  })
-  const session = await ensureSession({
-    token, apiKey,
-    registerIfMissing: registerIfMissing ?? false,
-    registerPayload
-  })
-  return { session }
-}
-
-// ---- CRUD ------------------------------------------------------------------
-actions['kr.list_objects'] = async (raw) => {
-  const { model, page, pageSize, where } = validateShape(raw, {
-    model: expectString,
-    page: optional(expectNumber),
-    pageSize: optional(expectNumber),
-    where: optional(expectRecord)
-  })
-  const p = page ?? 1
-  const ps = pageSize ?? 20
-  const skip = (p - 1) * ps
-  const d = delegateFor(model)
-  const [items, total] = await Promise.all([
-    d.findMany({ where, skip, take: ps, orderBy: { id: 'desc' } }),
-    d.count({ where })
-  ])
-  return { items, page: p, pageSize: ps, total }
-}
-
-actions['kr.create_object'] = async (raw, ctx) => {
-  const { model, data } = validateShape(raw, { model: expectString, data: expectRecord })
-  if (!WRITEABLE.has(model)) {
-    throw createError({ statusCode: 403, statusMessage: `Model not writeable: ${model}` })
-  }
-  const d = delegateFor(model)
-  // Optional: stamp ownership if supported
-  try {
-    if ('userId' in (data as any) || 'userId' in (d as any)) {
-      ;(data as any).userId ??= ctx.session.userId
-    }
-  } catch {}
-  const created = await d.create({ data })
-  return { created }
-}
-
-actions['kr.update_object'] = async (raw, ctx) => {
-  const { model, id, data } = validateShape(raw, {
-    model: expectString,
-    id: expectNumber,
-    data: expectRecord
-  })
-  if (!WRITEABLE.has(model)) {
-    throw createError({ statusCode: 403, statusMessage: `Model not writeable: ${model}` })
-  }
-  const d = delegateFor(model)
-  // Optional: enforce ownership if your schema supports it
-  // await d.findFirstOrThrow({ where: { id, userId: ctx.session.userId }})
-  const updated = await d.update({ where: { id }, data })
-  return { updated }
-}
-
-actions['kr.delete_object'] = async (raw, ctx) => {
-  const { model, id } = validateShape(raw, { model: expectString, id: expectNumber })
-  if (!WRITEABLE.has(model)) {
-    throw createError({ statusCode: 403, statusMessage: `Model not writeable: ${model}` })
-  }
-  const d = delegateFor(model)
-  // Optional: enforce ownership
-  // await d.findFirstOrThrow({ where: { id, userId: ctx.session.userId }})
-  const deleted = await d.delete({ where: { id } })
-  return { deletedId: deleted.id }
-}
-
-// ---- Story / Bot (stubs) ---------------------------------------------------
-actions['kr.story_start'] = async (raw, ctx) => {
-  const { seed } = validateShape(raw, { seed: optional(expectString) })
-  return { sessionId: `story_${Date.now()}`, userId: ctx.session.userId, seed: seed ?? null }
-}
-
-actions['kr.story_continue'] = async (raw) => {
-  const { sessionId, choice } = validateShape(raw, {
-    sessionId: expectString,
-    choice: optional(expectString)
-  })
-  return { sessionId, text: `Narrative advances… choice=${choice ?? '—'}` }
-}
-
-actions['kr.bot_chat'] = async (raw, ctx) => {
-  const { botId, message } = validateShape(raw, {
-    botId: expectNumber,
-    message: expectString
-  })
-  return { botId, reply: `Bot(${botId}) says: hello about "${message}" for user ${ctx.session.userId}` }
-}
-
-// ---- Dispatcher used by the route ------------------------------------------
 export async function runAction(
-  name: string,
-  input: any,
-  headers: { authorization?: string; ['x-api-key']?: string }
+  action: string,
+  input: ActionInput,
+  headers: RunActionHeaders,
 ) {
-  let session: ChatGPTSessionInfo | null = null
+  switch (action) {
+    case 'kr.ensure_session':
+      return ensureSession(input, headers)
 
-  if (name !== 'kr.ensure_session') {
-    const token = (headers.authorization || '').replace(/^Bearer\s+/i, '') || undefined
-    const apiKey = headers['x-api-key'] || undefined
-    session = await ensureSession({ token, apiKey, registerIfMissing: false })
+    default:
+      const err: any = new Error(`Unknown action: ${action}`)
+      err.statusCode = 400
+      throw err
+  }
+}
+
+async function ensureSession(
+  input: { token?: string; registerIfMissing?: 0 | 1 } = {},
+  headers: RunActionHeaders,
+) {
+  // 1) extract token
+  const headerAuth = headers['authorization'] || ''
+  const tokenFromHeader = parseBearer(headerAuth)
+  const token = (input.token || tokenFromHeader || '').trim()
+
+  if (!token) {
+    const err: any = new Error('Missing token')
+    err.statusCode = 401
+    throw err
   }
 
-  const fn = actions[name]
-  if (!fn) throw createError({ statusCode: 400, statusMessage: `Unknown action: ${name}` })
+  // 2) validate token against DB
+  const user = await prisma.user.findFirst({
+    where: { apiKey: token },
+    select: {
+      id: true,
+      username: true,
+      Role: true, // include role so the type matches
+      apiKey: true, // string | null in many schemas
+      emailVerified: true, // Date | null in Prisma
+    },
+  })
 
-  return fn(
-    input ?? {},
-    session ?? { userId: 10, token: '', includeSensitive: false, source: 'apiKey' }
-  )
+  const registerIfMissing = Number(input.registerIfMissing || 0) === 1
+
+  if (!user) {
+    if (!registerIfMissing) {
+      const err: any = new Error('No session for this token')
+      err.statusCode = 404
+      throw err
+    }
+
+    // Optional: auto-register path if ever enabled
+    // const created = await prisma.user.create({
+    //   data: { username: makeUsername(), apiKey: token, role: 'USER' },
+    //   select: { id: true, username: true, role: true, apiKey: true, emailVerified: true }
+    // })
+    // return shapeSession(created, true, 'created')
+  }
+
+  // 3) cross-check x-api-key header for sensitive flag
+  const xApiKey = (headers['x-api-key'] || '').trim()
+  const includeSensitive = validateApiKey(xApiKey, user?.apiKey || undefined)
+
+  // user is defined here due to early throw above
+  return shapeSession(user as SessionSource, includeSensitive, 'ok')
+}
+
+function shapeSession(
+  user: SessionSource,
+  includeSensitive: boolean,
+  status: 'ok' | 'created',
+) {
+  // Normalize fields to the response contract
+  const emailVerifiedBool = !!user.emailVerified
+  const apiKeyTail = (user.apiKey ?? '').slice(-4)
+
+  return {
+    status,
+    session: {
+      userId: user.id,
+      username: user.username,
+      role: user.Role,
+      emailVerified: emailVerifiedBool,
+      tokenValid: true,
+      apiKeyTail,
+      sensitive: includeSensitive
+        ? { canSeeSensitive: true }
+        : { canSeeSensitive: false },
+    },
+  }
 }

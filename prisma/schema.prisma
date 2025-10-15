@@ -206,7 +206,9 @@ model Character {
   Scenarios       Scenario[]
 }
 
-/// a chat can be between users, user to Bot or Character, on to a Forum or Chatroom (AKA, weirdlandia)
+/// a chat can be between users, user to Bot or Character, on to a Forum or Channel (aka chatroom)
+/// originId should always be shared in subsequent messages so we can track the thread via originID and createdAt
+/// splitting the chat into a new thread creates a fresh originId
 model Chat {
   id              Int                @id @default(autoincrement())
   createdAt       DateTime           @default(now())
@@ -240,7 +242,7 @@ model Chat {
 }
 
 
-/// each chattype should help gate the chat interactions, everything
+/// each chattype should help gate the chat interactions, channel is the fallback if we just need a line that doesn't have a place
 /// 
 enum ChatType {
   ToBot
@@ -252,7 +254,7 @@ enum ChatType {
 }
 
 
-
+/// Components track all the components we use making kindrobots. it's primary uses are as a museum of developmental attemps, while allowing reactions to allow sifting concepts and allowing the best to rise to attention.
 model Component {
   id                Int        @id @default(autoincrement())
   createdAt         DateTime   @default(now())
@@ -270,6 +272,7 @@ model Component {
   Tags              Tag[]      @relation("ComponentToTag")
 }
 
+/// this is a novelty dominion card generator, allowing the creation and sharing of custom cards for the excellent Dominion card game system.
 model Dominion {
   id            Int        @id @default(autoincrement())
   createdAt     DateTime   @default(now())
@@ -332,7 +335,7 @@ model Dominion {
 
 
 
-
+/// our mostly-obsolete system for collecting images. It assumed data was kept as physical files on disk, and is still used to access the original seed images, which are only partly digitized and used primarily for our Memory Match game, which is the clearest proof of concept that all of this can be used for a functional purpose.
 model Gallery {
   id             Int        @id @default(autoincrement())
   createdAt      DateTime   @default(now())
@@ -356,7 +359,7 @@ model Gallery {
   @@index([userId], map: "Gallery_userId_fkey")
 }
 
-
+/// our woefully underutilized log function, but it's there.
 model Log {
   id        Int      @id @default(autoincrement())
   message   String   @db.Text
@@ -368,7 +371,7 @@ model Log {
   @@index([userId], map: "Log_userId_fkey")
 }
 
-
+/// website achievements! This holds the milestones that can be achieved (in the flavor text we refer to them as "jellybeans"). They are not user editable and set by myself. only about 1/3 are currently utilized, and one of my biggest todos before public release.
 model Milestone {
   id               Int               @id @default(autoincrement())
   createdAt        DateTime          @default(now())
@@ -388,6 +391,7 @@ model Milestone {
   MilestoneRecords MilestoneRecord[]
 }
 
+/// the records of milestones earned. They record the date, username, id, etc. Users are given the option to clear their milestones so they can hunt fresh. I use this extensively in debugging.
 model MilestoneRecord {
   id          Int       @id @default(autoincrement())
   createdAt   DateTime  @default(now())
@@ -404,7 +408,7 @@ model MilestoneRecord {
 }
 
 
-
+/// A Pitch is a big picture idea that is meant to be fuel for a project that can become art assets, text assets, and physical swag. A Pitch can contain a collection of Prompts, which is an implementation of the Pitch. for example, a Pitch of "wild colors" could contain a series of prompts like "lavender armadillo;  green curd; rainbow sunburn". it can be represented by an artImage for it's overall vibe, but also collect Art objects if they are inspired by the Pitch 
 model Pitch {
   id             Int        @id @default(autoincrement())
   createdAt      DateTime   @default(now())
@@ -414,7 +418,7 @@ model Pitch {
   designer       String?    @db.VarChar(256)
   flavorText     String?    @db.VarChar(512)
   highlightImage String?    @db.VarChar(256)
-  PitchType      PitchType  @default(ARTPITCH)
+  PitchType      PitchType  @default(ART)
   isMature       Boolean    @default(false)
   isPublic       Boolean    @default(true)
   userId         Int?       @default(1)
@@ -433,16 +437,20 @@ model Pitch {
   @@index([userId], map: "Pitch_userId_fkey")
 }
 
+/// Recently updated, but this should represent the gamut of options for brainstorming new ideas
 enum PitchType {
-  ARTPITCH
+  ART
   BRAINSTORM
-  WEIRDLANDIA
+  SCENARIO
+  BOT
   RANDOMLIST
-  TITLE
-  VIBE
+  CHARACTER
+  PROMPT
+  PITCH
+  REWARD
 }
 
-
+/// this is an art or text prompt to an ai to generate new media
 model Prompt {
   id         Int            @id @default(autoincrement())
   createdAt  DateTime       @default(now())
@@ -468,6 +476,7 @@ model Prompt {
   @@index([userId], map: "Prompt_userId_fkey")
 }
 
+/// a reaction is created by a user interacting with another object represented in this database. It should be inclusive.
 model Reaction {
   id               Int              @id @unique @default(autoincrement())
   createdAt        DateTime         @default(now())
@@ -507,7 +516,9 @@ model Reaction {
   @@index([componentId], map: "Reaction_componentId_fkey")
 }
 
+/// a resource should be a source for more data that can be used by the user and shared with others. Examples are loras, models, and other sources for art and text generation. 
 
+/// This should also be used if a user wants to add a custom art or text generator beyond those servives offered by kind robots. We are intended to be a philanthropic service, so if users use our frameworks without taxing our servers, that is ideal. That said, we aim to be agnostic while encouraging ethical use. In the next year I hope to offer services hosted through solar power locally, and that may change how we encourage services. At the moment, the environmental impact of AI is a valid criticism and I hope the benefits end up being a net gain for the world, as our particular endeavor hopes to be.
 model Resource {
   id           Int          @id @default(autoincrement())
   createdAt    DateTime     @default(now())

@@ -7,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+/// Art holds the overarching data for possibly multiple artImage objects. I've tinkered with having a unified Art object to avoid obfuscation, this is the most complex model we have between Art, ArtCollection, and ArtImage, but the hope was that separating would allow easy handling of the entire Art model array, while selectively calling for the ArtImage data when needed.
 model Art {
   id            Int             @id @default(autoincrement())
   createdAt     DateTime?       @default(now())
@@ -45,6 +47,7 @@ model Art {
   @@index([userId], map: "Art_userId_fkey")
 }
 
+/// ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
 model ArtImage {
   id             Int       @id @default(autoincrement())
   imageData      String    @db.LongText
@@ -88,6 +91,7 @@ model ArtImage {
   @@index([userId], map: "ArtImage_userId_fkey")
 }
 
+//An ArtCollection is the current implementatin of what used to be Gallery. An ArtCollection is simply an editable collection of Art assets that can be  shareable with others
 model ArtCollection {
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
@@ -105,7 +109,9 @@ model ArtCollection {
 }
 
 
-
+/// a Bot is our first large scale project, and was created from the get-go to be an interaction layer with chatGPT. At the moment, the user should be able to create bots and chat with them
+/// our flagship bots are AMI, the AnitMalaria Intelligence, who was designed to raise funds to fight malaria, and dottiBot, our "bot creator". (Don't tell her she's a bot herself, it's part of the character, at least from a kayfabe perspective)
+/// from a design perspective, Bot fulfills the same niche space as a ChatGPT GPT personality.
 
 model Bot {
   id                Int            @id @default(autoincrement())
@@ -141,7 +147,7 @@ model Bot {
 }
 
 
-
+/// characters are more personality driven than Bots. Unlike Bots, which are meant to be interacted with and perform helpful tasks, a character can be an npc chatbot but can be played as the user's role in a Scenario or chat experience.
 
 model Character {
   id              Int            @id @default(autoincrement())
@@ -200,6 +206,7 @@ model Character {
   Scenarios       Scenario[]
 }
 
+/// a chat can be between users, user to Bot or Character, on to a Forum or Chatroom (AKA, weirdlandia)
 model Chat {
   id              Int                @id @default(autoincrement())
   createdAt       DateTime           @default(now())
@@ -233,14 +240,15 @@ model Chat {
 }
 
 
-
+/// each chattype should help gate the chat interactions, everything
+/// 
 enum ChatType {
   ToBot
   BotResponse
-  ToForum
-  ToUser
-  ToCharacter
-  Weirdlandia
+  Forum
+  User
+  Character
+  Channel
 }
 
 

@@ -543,6 +543,7 @@ model Resource {
   @@index([userId], map: "Resource_userId_fkey")
 }
 
+/// Reward has morphed in intent, it used to be used specifically as a reward for completing a Scenario, and still can be. But in general it is an Item model, and users have the ability to create their own rewards as one shot storytelling prompts in Scenarios. They are designed in the format of the game Equisite Corpse, where storytellers take turns creating a story with a cliffhanger, then expecting the next storyteller to respond. With Scenarios, it's usually user and AI (or multiple users), and the idea was that a reward would be a crazy twist to the narrative, exemplified by our first Reward: The Button that Blows up the World.
 model Reward {
   id         Int       @id @default(autoincrement())
   createdAt  DateTime  @default(now())
@@ -565,6 +566,7 @@ model Reward {
   @@index([userId], map: "Reward_userId_fkey")
 }
 
+/// Scenarios are meant to be chatroom settings or storytelling scenarios that incorporate other elements like Character, prompt, Art, etc. A user is given options to continue the scenario with a skill check, inventory item, Reward, or custom prompt. The idea is to generate a story through the back and forth exchange.
 model Scenario {
   id            Int       @id @default(autoincrement())
   createdAt     DateTime  @default(now())
@@ -584,6 +586,7 @@ model Scenario {
   inspirations  String?
 }
 
+/// Smart Icons are used internally to generate the user's icon array. They can create custom icons that are links to pages or commands
 model SmartIcon {
   id         Int       @id @default(autoincrement())
   createdAt  DateTime  @default(now())
@@ -605,7 +608,7 @@ model SmartIcon {
   @@index([userId], map: "SmartIcon_userId_fkey")
 }
 
-
+/// tags are used to sort Pitches, Reactions, Dominions, or Components. They can be expanded to other Models but haven't. ArtImage is used to represent the Tag on the front end.
 model Tag {
   id         Int         @id @default(autoincrement())
   createdAt  DateTime    @default(now())
@@ -627,6 +630,8 @@ model Tag {
 
   @@index([userId], map: "Tag_userId_fkey")
 }
+
+/// an only partially implemented theme expander. We already have 26 themes custom with daisy. I wanted to add the ability for user generated custom themes, but currently they are not playing well with nuxt. A few days of problem  solving will probably resolve, but I'm feeling more likely I will kill it to avoid project bloat
 
 model Theme {
   id            Int      @id @default(autoincrement())

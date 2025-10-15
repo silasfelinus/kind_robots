@@ -1,0 +1,100 @@
+### 0) ensure session with an existing token (no auto-register)
+POST http://localhost:3000/api/chatgpt/actions
+content-type: application/json
+authorization: Bearer REPLACE_ME
+
+{
+  "action": "kr.ensure_session",
+  "input": { "registerIfMissing": 0 }
+}
+
+### 1) ensure session allowing auto-register (omit auth header)
+POST http://localhost:3000/api/chatgpt/actions
+content-type: application/json
+
+{
+  "action": "kr.ensure_session",
+  "input": {
+    "registerIfMissing": 1,
+    "registerPayload": {
+      "username": "chatgpt_{{timestamp}}"
+    }
+  }
+}
+
+### 2) list objects (replace Scenario with a real model)
+POST http://localhost:3000/api/chatgpt/actions
+content-type: application/json
+authorization: Bearer REPLACE_ME
+
+{
+  "action": "kr.list_objects",
+  "input": { "model": "Scenario", "page": 1, "pageSize": 10 }
+}
+
+### 3) create object (writeable models only; adjust fields!)
+POST http://localhost:3000/api/chatgpt/actions
+content-type: application/json
+authorization: Bearer REPLACE_ME
+
+{
+  "action": "kr.create_object",
+  "input": {
+    "model": "Scenario",
+    "data": { "title": "From ChatGPT" }
+  }
+}
+
+### 4) update object
+POST http://localhost:3000/api/chatgpt/actions
+content-type: application/json
+authorization: Bearer REPLACE_ME
+
+{
+  "action": "kr.update_object",
+  "input": {
+    "model": "Scenario",
+    "id": 123,
+    "data": { "title": "Edited by ChatGPT" }
+  }
+}
+
+### 5) delete object
+POST http://localhost:3000/api/chatgpt/actions
+content-type: application/json
+authorization: Bearer REPLACE_ME
+
+{
+  "action": "kr.delete_object",
+  "input": { "model": "Scenario", "id": 123 }
+}
+
+### 6) story start
+POST http://localhost:3000/api/chatgpt/actions
+content-type: application/json
+authorization: Bearer REPLACE_ME
+
+{
+  "action": "kr.story_start",
+  "input": { "seed": "once upon a midnight dreary" }
+}
+
+### 7) story continue
+POST http://localhost:3000/api/chatgpt/actions
+content-type: application/json
+authorization: Bearer REPLACE_ME
+
+{
+  "action": "kr.story_continue",
+  "input": { "sessionId": "story_1730000000000", "choice": "left path" }
+}
+
+### 8) bot chat
+POST http://localhost:3000/api/chatgpt/actions
+content-type: application/json
+authorization: Bearer REPLACE_ME
+
+{
+  "action": "kr.bot_chat",
+  "input": { "botId": 1, "message": "Hello!" }
+}

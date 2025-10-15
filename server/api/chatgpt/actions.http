@@ -1,4 +1,4 @@
-@host = http://localhost:3000
+@host = https://kind-robots.vercel.app
 @token = REPLACE_ME
 @apikey = REPLACE_ME
 

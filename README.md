@@ -161,8 +161,8 @@ ResourceType: [CHECKPOINT, EMBEDDING, LORA, LYCORIS, HYPERNETWORK, CONTROLNET, U
 **DONE** clean up / rebuild home page on mobile
 **DONE** art datetime corruption fixed/removed
 easier to see loading icon
-art modeller doesn't generate
-fix workshop directory searching by letter instead of full name
+**DONE** art modeller doesn't generate
+**DONE** fix workshop directory searching by letter instead of full name
 **DONE** LINT DIRECTORY NOT FOUND
 **DONE** lint errors fixed
 brainstorm not loading second brainstorm

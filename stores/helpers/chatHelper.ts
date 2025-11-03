@@ -1,5 +1,5 @@
 // /stores/helpers/chatHelper.ts
-import type { Chat, ChatType } from '@prisma/client'
+import type { Chat, Chat_type } from '@prisma/client'
 import { performFetch } from '@/stores/utils'
 import { ErrorType } from '@/stores/errorStore'
 import { handleError } from '@/stores/utils'
@@ -15,7 +15,7 @@ export interface AddChatInput {
   previousEntryId?: number | null
   promptId?: number | null
   botResponse?: string | null
-  type: ChatType
+  type: Chat_type
   characterId: number | null
   username: string
   channel?: string | null

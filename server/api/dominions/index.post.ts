@@ -5,18 +5,26 @@ import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
 import type { Prisma } from '@prisma/client'
 
-function normalizeCsvString(s: string): string {
-  const parts = (s || '')
-    .split(',')
-    .map((t) => t.trim())
-    .filter(Boolean)
-  return parts.join(', ')
+function normalizeArray(input: unknown): string[] {
+  if (Array.isArray(input)) {
+    return input.map((v) => String(v).trim()).filter(Boolean)
+  }
+  if (typeof input === 'string') {
+    return input
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+  }
+  return []
 }
 
-function toCsvString(v: unknown): string {
-  if (Array.isArray(v)) return normalizeCsvString(v.map(String).join(','))
-  if (typeof v === 'string') return normalizeCsvString(v)
-  return ''
+/**
+ * Store types/keywords as JSON strings to satisfy any JSON_VALID() check
+ * while still being a plain String for Prisma.
+ */
+function toJsonArrayString(input: unknown): string {
+  const arr = normalizeArray(input)
+  return JSON.stringify(arr)
 }
 
 function toStringLongText(v: unknown): string | null {
@@ -71,9 +79,9 @@ export default defineEventHandler(async (event) => {
         typeof body.isMature === 'boolean' ? (body.isMature as boolean) : false,
       isDuration: Boolean(body.isDuration),
 
-      // CSV strings per Prisma schema (String @LongText)
-      types: toCsvString(body.types),
-      keywords: toCsvString(body.keywords),
+      // Stored as JSON strings in a String column (DB likely has JSON_VALID check)
+      types: toJsonArrayString(body.types),
+      keywords: toJsonArrayString(body.keywords),
 
       // Numbers
       cardAdd: asInt(body.cardAdd, 0),

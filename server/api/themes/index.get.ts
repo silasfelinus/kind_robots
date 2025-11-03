@@ -3,43 +3,31 @@ import { defineEventHandler } from 'h3'
 import prisma from '@/server/api/utils/prisma'
 import { errorHandler } from '@/server/api/utils/error'
 import { validateApiKey } from '@/server/api/utils/validateKey'
+import { parseTheme } from '@/server/api/themes/index'
 
 export default defineEventHandler(async (event) => {
   try {
-    console.log('[theme.get] Fetching public and user themes')
-
     const { isValid, user } = await validateApiKey(event)
+    const includeUser = isValid && user?.id
 
-    const includeUserThemes = isValid && user && typeof user.id === 'number'
-
-    const themes = await prisma.theme.findMany({
-      where: includeUserThemes
-        ? {
-            OR: [{ isPublic: true }, { userId: user.id }],
-          }
+    const rows = await prisma.theme.findMany({
+      where: includeUser
+        ? { OR: [{ isPublic: true }, { userId: user!.id }] }
         : { isPublic: true },
       orderBy: { createdAt: 'desc' },
     })
 
-    console.log(`[theme.get] Found ${themes.length} themes`)
-
     event.node.res.statusCode = 200
     return {
       success: true,
-      message: includeUserThemes
-        ? `Themes retrieved for user ${user.id}`
+      message: includeUser
+        ? `Themes retrieved for user ${user!.id}`
         : 'Public themes retrieved successfully.',
-      themes,
+      themes: rows.map(parseTheme), // parsed values for the client/tests
     }
   } catch (error) {
-    console.error('[theme.get] Error fetching themes:', error)
-
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
-
-    return {
-      success: false,
-      message,
-    }
+    return { success: false, message }
   }
 })

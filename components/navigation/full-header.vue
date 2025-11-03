@@ -8,7 +8,7 @@
     >
       <avatar-image
         alt="User Avatar"
-        class="block w-full h-full object-cover object-center m-0 p-0"
+        class="block w-20% h-full object-cover object-center m-0 p-0"
       />
 
       <div

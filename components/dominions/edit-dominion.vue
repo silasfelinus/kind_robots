@@ -1,4 +1,4 @@
-<!-- /components/dominion/edit-dominion.vue -->
+<!-- /components/dominions/edit-dominion.vue -->
 <template>
   <div
     class="bg-base-100 rounded-2xl p-6 w-full max-w-2xl shadow-xl border border-base-content/10"
@@ -34,7 +34,7 @@
           />
         </label>
 
-        <!-- ✅ Icon (optional) with live preview -->
+        <!-- Icon (optional) with live preview -->
         <label class="form-control">
           <span class="label-text">Icon (optional)</span>
           <div class="flex gap-3 items-center">
@@ -240,6 +240,11 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Path: /components/dominions/edit-dominion.vue
+ * Prisma is source of truth. `types` and `keywords` are String (CSV) in the schema.
+ * Keep UI as CSV text fields and write back normalized strings.
+ */
 import { ref, watch, onMounted } from 'vue'
 import { useDominionStore } from '~/stores/dominionStore'
 
@@ -249,42 +254,42 @@ const emit = defineEmits(['close'])
 const typesText = ref('')
 const keywordsText = ref('')
 
-watch(
-  () => store.form.types,
-  () => {
-    typesText.value = Array.isArray(store.form.types)
-      ? (store.form.types as string[]).join(', ')
-      : ''
-  },
-  { immediate: true },
-)
+function normalizeCsvString(s: string | null | undefined): string {
+  const parts = (s || '')
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean)
+  return parts.join(', ')
+}
 
+// seed UI from form whenever the selected form changes
 watch(
-  () => store.form.keywords,
+  () => store.form.id,
   () => {
-    keywordsText.value = Array.isArray(store.form.keywords)
-      ? (store.form.keywords as string[]).join(', ')
-      : ''
+    typesText.value = normalizeCsvString(store.form.types as any)
+    keywordsText.value = normalizeCsvString(store.form.keywords as any)
+    if (store.form.icon === '') store.form.icon = null as any
   },
   { immediate: true },
 )
 
 function syncTypes() {
-  store.form.types = (typesText.value || '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean)
+  store.form.types = normalizeCsvString(typesText.value)
+}
+function syncKeywords() {
+  store.form.keywords = normalizeCsvString(keywordsText.value)
 }
 
-function syncKeywords() {
-  store.form.keywords = (keywordsText.value || '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean)
-}
+// also keep in sync while typing
+watch(typesText, syncTypes)
+watch(keywordsText, syncKeywords)
 
 async function handleSave() {
+  // normalize before save
+  syncTypes()
+  syncKeywords()
   if (store.form.icon === '') store.form.icon = null as any
+
   const res = await store.save()
   if (res.success) emit('close')
 }

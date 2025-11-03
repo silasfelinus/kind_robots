@@ -1,10 +1,12 @@
-// /stores/helpers/themeHelpers.ts
-
+// /stores/helpers/themeHelper.ts
 import type { Theme } from '@prisma/client'
 
+/** Frontend editing shape: values as an object */
 export type ThemeForm = Partial<Omit<Theme, 'values'>> & {
   values?: Record<string, string>
 }
+
+/* ------------------------------- Keys ---------------------------------- */
 
 // Keys for main theme colors
 export const colorKeys = [
@@ -80,61 +82,7 @@ export const daisyuiThemes = [
   'silk',
 ]
 
-export function normalizeThemeFromServer(input: Partial<Theme>): ThemeForm {
-  const rawValues = input.values
-
-  const safeValues =
-    rawValues && typeof rawValues === 'object' && !Array.isArray(rawValues)
-      ? (Object.fromEntries(
-          Object.entries(rawValues as Record<string, unknown>).filter(
-            ([, v]) => typeof v === 'string',
-          ),
-        ) as Record<string, string>)
-      : {}
-
-  return {
-    ...input,
-    values: safeValues,
-  }
-}
-
-export function getDefaultThemeForm(): ThemeForm {
-  return {
-    name: `MyTheme-${Date.now()}`,
-    room: '',
-    isPublic: true,
-    prefersDark: false,
-    colorScheme: 'light',
-    values: {
-      ...Object.fromEntries(colorKeys.map((key) => [key, '#ffffff'])),
-      ...defaultExtraVars,
-    },
-  }
-}
-
-export function fillThemeWithRandomColors(form: ThemeForm) {
-  if (!form.values) return
-  for (const key of colorKeys) {
-    form.values[key] = getRandomHex()
-  }
-}
-
-export function setThemeColorValue(
-  form: ThemeForm,
-  key: string,
-  value: string,
-) {
-  if (!form.values) return
-  form.values[key] = value
-}
-
-export function ensureInitializedThemeForm(form: ThemeForm) {
-  if (!form.values) {
-    const defaultForm = getDefaultThemeForm()
-    Object.assign(form, defaultForm)
-    fillThemeWithRandomColors(form)
-  }
-}
+/* ---------------------------- Type guards ------------------------------ */
 
 export function isThemeValuesRecord(
   values: unknown,
@@ -147,7 +95,41 @@ export function isThemeValuesRecord(
   )
 }
 
-// Default fallback extras
+/* -------------------------- Parse/normalize ---------------------------- */
+
+function parseValuesToRecord(values: unknown): Record<string, string> {
+  if (isThemeValuesRecord(values)) return values
+  if (typeof values === 'string') {
+    try {
+      const parsed = JSON.parse(values)
+      return isThemeValuesRecord(parsed) ? parsed : {}
+    } catch {
+      return {}
+    }
+  }
+  return {}
+}
+
+/**
+ * Accepts either DB Theme (values:string) or ThemeForm (values:object)
+ * and returns a ThemeForm with values as a sanitized record.
+ */
+export function normalizeThemeFromServer(
+  input: Partial<Theme> | ThemeForm,
+): ThemeForm {
+  const safeValues = sanitizeThemeValues(
+    parseValuesToRecord((input as any).values),
+    { silent: true },
+  )
+  const out: ThemeForm = {
+    ...input,
+    values: safeValues,
+  }
+  return out
+}
+
+/* ---------------------------- Defaults/ops ----------------------------- */
+
 export const defaultExtraVars: Record<string, string> = {
   '--radius-selector': '0.5rem',
   '--radius-field': '0.25rem',
@@ -159,7 +141,6 @@ export const defaultExtraVars: Record<string, string> = {
   '--noise': 'none',
 }
 
-// Combined theme key list
 export const allThemeKeys = [...colorKeys, ...extraVars]
 
 export function isValidColor(val: string): boolean {
@@ -189,6 +170,8 @@ export function getRandomHex(): string {
   )
 }
 
+/* ------------------------------ Sanitizers ----------------------------- */
+
 // Sanitize and validate input values for theme saving or applying
 export function sanitizeThemeValues(
   values: Record<string, string>,
@@ -213,15 +196,15 @@ export function sanitizeThemeValues(
 
   if (rejected.length && !options?.silent) {
     console.warn(
-      `[themeHelpers] Ignored ${rejected.length} invalid theme value(s):`,
+      `[themeHelper] Ignored ${rejected.length} invalid theme value(s):`,
     )
-    for (const [key, val] of rejected) {
-      console.warn(`  ✘ ${key}: ${val}`)
-    }
+    for (const [key, val] of rejected) console.warn(`  ✘ ${key}: ${val}`)
   }
 
   return sanitized
 }
+
+/* ------------------------------- Labels -------------------------------- */
 
 // Converts a variable name to a pretty label for UI display
 export function labelFromKey(key: string): string {
@@ -234,7 +217,12 @@ export function labelFromKey(key: string): string {
     .replace(/\b\w/g, (l) => l.toUpperCase())
 }
 
-// For payload submission to backend
+/* ------------------------------ Payloads ------------------------------- */
+
+/**
+ * For payload submission to backend (UI helper).
+ * NOTE: returns values as an OBJECT; your store converts to string before POST.
+ */
 export function buildThemePayload(themeForm: Record<string, any>) {
   return {
     name: themeForm.name?.trim() || 'untitled',
@@ -246,18 +234,18 @@ export function buildThemePayload(themeForm: Record<string, any>) {
   }
 }
 
+/* ---------------------------- DOM application -------------------------- */
+
 // Applies custom theme values to the document root
 export function applyThemeValues(values: Record<string, string>) {
   if (typeof document === 'undefined') return
   const root = document.documentElement
   for (const [key, value] of Object.entries(values)) {
-    if (key.startsWith('--')) {
-      root.style.setProperty(key, value)
-    }
+    if (key.startsWith('--')) root.style.setProperty(key, value)
   }
 }
 
-// Extracts all applied values from the current DOM
+// Extracts applied values from current DOM
 export function getThemeValues(): Record<string, string> {
   if (typeof document === 'undefined') return {}
   const computed = getComputedStyle(document.documentElement)
@@ -269,12 +257,17 @@ export function getThemeValues(): Record<string, string> {
   return values
 }
 
-// Full theme object from current computed values (for reverse engineering DaisyUI themes)
-export function extractComputedTheme(name = 'custom-from-css'): Partial<Theme> {
+/**
+ * Build a ThemeForm (values as object) from current CSS.
+ * This used to return Partial<Theme> and caused TS errors because Theme.values is string.
+ */
+export function extractComputedTheme(name = 'custom-from-css'): ThemeForm {
   return {
     name,
     values: getThemeValues(),
-    prefersDark: document.documentElement.classList.contains('dark'),
+    prefersDark:
+      typeof document !== 'undefined' &&
+      document.documentElement.classList.contains('dark'),
   }
 }
 
@@ -282,16 +275,57 @@ export function getThemeStyle(
   values: Record<string, string> = {},
 ): Record<string, string> {
   const style: Record<string, string> = {}
-  for (const [key, val] of Object.entries(values)) {
-    style[key] = val
-  }
+  for (const [key, val] of Object.entries(values)) style[key] = val
   return style
 }
 
-export function generateScopedThemeCSS(theme: Theme): string {
-  const selector = `[data-theme="custom-preview-${theme.id}"]`
-  const entries = Object.entries(theme.values || {})
+/**
+ * Accept either DB Theme (values string) or ThemeForm (values object) and
+ * produce a scoped CSS block. Values string will be parsed to an object.
+ */
+export function generateScopedThemeCSS(theme: Theme | ThemeForm): string {
+  const selector = `[data-theme="custom-preview-${(theme as any).id ?? 'x'}"]`
+  const valuesObj = parseValuesToRecord((theme as any).values)
+  const entries = Object.entries(valuesObj)
     .map(([key, value]) => `  ${key}: ${value};`)
     .join('\n')
   return `${selector} {\n${entries}\n}`
+}
+
+/* ------------------------- Form convenience ops ------------------------ */
+
+export function getDefaultThemeForm(): ThemeForm {
+  return {
+    name: `MyTheme-${Date.now()}`,
+    room: '',
+    isPublic: true,
+    prefersDark: false,
+    colorScheme: 'light',
+    values: {
+      ...Object.fromEntries(colorKeys.map((key) => [key, '#ffffff'])),
+      ...defaultExtraVars,
+    },
+  }
+}
+
+export function fillThemeWithRandomColors(form: ThemeForm) {
+  if (!form.values) return
+  for (const key of colorKeys) form.values[key] = getRandomHex()
+}
+
+export function setThemeColorValue(
+  form: ThemeForm,
+  key: string,
+  value: string,
+) {
+  if (!form.values) return
+  form.values[key] = value
+}
+
+export function ensureInitializedThemeForm(form: ThemeForm) {
+  if (!form.values) {
+    const defaultForm = getDefaultThemeForm()
+    Object.assign(form, defaultForm)
+    fillThemeWithRandomColors(form)
+  }
 }

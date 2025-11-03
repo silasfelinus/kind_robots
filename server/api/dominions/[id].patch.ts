@@ -5,15 +5,40 @@ import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
 import type { Prisma } from '@prisma/client'
 
-function asStringArray(v: unknown): string[] {
-  if (Array.isArray(v)) return v.map(String)
-  if (typeof v === 'string') return [v]
-  return []
+function normalizeCsvString(s: string): string {
+  const parts = (s || '')
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean)
+  return parts.join(', ')
 }
+
+function toCsvString(v: unknown): string {
+  if (Array.isArray(v)) {
+    return normalizeCsvString(v.map(String).join(','))
+  }
+  if (typeof v === 'string') {
+    return normalizeCsvString(v)
+  }
+  return ''
+}
+
+function toStringLongText(v: unknown): string | null {
+  if (v == null) return null
+  if (typeof v === 'string') return v
+  try {
+    // Allow objects/arrays to be stored (e.g., multi-line or json-ish rules)
+    return JSON.stringify(v)
+  } catch {
+    return String(v)
+  }
+}
+
 function normalizePatch(input: any): Prisma.DominionUpdateInput {
   const patch: Prisma.DominionUpdateInput = {}
 
   if (typeof input.title === 'string') patch.title = input.title
+
   if (typeof input.slug === 'string' || input.slug === null)
     patch.slug = input.slug
   if (typeof input.description === 'string' || input.description === null)
@@ -28,8 +53,9 @@ function normalizePatch(input: any): Prisma.DominionUpdateInput {
   if (typeof input.isPublic === 'boolean') patch.isPublic = input.isPublic
   if (typeof input.isMature === 'boolean') patch.isMature = input.isMature
 
-  if ('types' in input) patch.types = asStringArray(input.types)
-  if ('keywords' in input) patch.keywords = asStringArray(input.keywords)
+  // Prisma schema: String (not Json) — store CSV strings
+  if ('types' in input) patch.types = toCsvString(input.types)
+  if ('keywords' in input) patch.keywords = toCsvString(input.keywords)
   ;[
     'cardAdd',
     'actionAdd',
@@ -41,20 +67,25 @@ function normalizePatch(input: any): Prisma.DominionUpdateInput {
     'pricePotion',
     'version',
   ].forEach((k) => {
-    if (k in input && Number.isFinite(Number(input[k])))
-      (patch as any)[k] = Number(input[k])
+    if (k in input && Number.isFinite(Number(input[k]))) {
+      ;(patch as any)[k] = Number(input[k])
+    }
   })
 
   if (typeof input.icon === 'string' || input.icon === null)
     patch.icon = input.icon
 
   if (typeof input.isDuration === 'boolean') patch.isDuration = input.isDuration
-  if ('durationJSON' in input) patch.durationJSON = input.durationJSON ?? null
-  if ('effects' in input) patch.effects = input.effects ?? {}
-  if ('setupText' in input) patch.setupText = input.setupText ?? null
-  if ('notes' in input) patch.notes = input.notes ?? null
+
+  // Strings in schema — allow null, stringify objects safely
+  if ('durationJSON' in input)
+    patch.durationJSON = toStringLongText(input.durationJSON)
+  if ('effects' in input) patch.effects = toStringLongText(input.effects) ?? '' // required String in schema
+  if ('setupText' in input) patch.setupText = toStringLongText(input.setupText)
+  if ('notes' in input) patch.notes = toStringLongText(input.notes)
   if ('setId' in input) patch.setId = input.setId ?? null
 
+  // Relations
   if ('artId' in input) {
     patch.Art = input.artId
       ? { connect: { id: Number(input.artId) } }

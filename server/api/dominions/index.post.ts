@@ -5,11 +5,30 @@ import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
 import type { Prisma } from '@prisma/client'
 
-function asStringArray(v: unknown): string[] {
-  if (Array.isArray(v)) return v.map(String)
-  if (typeof v === 'string') return [v]
-  return []
+function normalizeCsvString(s: string): string {
+  const parts = (s || '')
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean)
+  return parts.join(', ')
 }
+
+function toCsvString(v: unknown): string {
+  if (Array.isArray(v)) return normalizeCsvString(v.map(String).join(','))
+  if (typeof v === 'string') return normalizeCsvString(v)
+  return ''
+}
+
+function toStringLongText(v: unknown): string | null {
+  if (v == null) return null
+  if (typeof v === 'string') return v
+  try {
+    return JSON.stringify(v)
+  } catch {
+    return String(v)
+  }
+}
+
 function asInt(v: unknown, d = 0) {
   const n = Number(v)
   return Number.isFinite(n) ? Math.trunc(n) : d
@@ -25,8 +44,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const body = await readBody<Partial<Prisma.DominionCreateInput>>(event)
-
+    const body = await readBody<Record<string, unknown>>(event)
     if (!body?.title || typeof body.title !== 'string') {
       throw createError({
         statusCode: 400,
@@ -34,56 +52,53 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Normalize JSON-ish fields incoming from UI
-    const types = asStringArray((body as any).types)
-    const keywords = asStringArray((body as any).keywords)
-
     const data: Prisma.DominionCreateInput = {
+      // Required
       title: body.title,
-      slug: (body as any).slug ?? null,
-      description: (body as any).description ?? null,
-      italics: (body as any).italics ?? null,
-      color: (body as any).color ?? null,
-      designer: (body as any).designer ?? null,
 
-      // ✅ NEW: optional icon field
-      icon: (body as any).icon ?? null,
+      // Optionals (strings)
+      slug: (body.slug as string | null) ?? null,
+      description: (body.description as string | null) ?? null,
+      italics: (body.italics as string | null) ?? null,
+      color: (body.color as string | null) ?? null,
+      designer: (body.designer as string | null) ?? null,
+      icon: (body.icon as string | null) ?? null,
 
-      isPublic: (body as any).isPublic ?? true,
-      isMature: (body as any).isMature ?? false,
+      // Booleans
+      isPublic:
+        typeof body.isPublic === 'boolean' ? (body.isPublic as boolean) : true,
+      isMature:
+        typeof body.isMature === 'boolean' ? (body.isMature as boolean) : false,
+      isDuration: Boolean(body.isDuration),
+
+      // CSV strings per Prisma schema (String @LongText)
+      types: toCsvString(body.types),
+      keywords: toCsvString(body.keywords),
+
+      // Numbers
+      cardAdd: asInt(body.cardAdd, 0),
+      actionAdd: asInt(body.actionAdd, 0),
+      buyAdd: asInt(body.buyAdd, 0),
+      coinAdd: asInt(body.coinAdd, 0),
+      victoryAdd: asInt(body.victoryAdd, 0),
+      priceCoins: asInt(body.priceCoins, 0),
+      priceDebt: asInt(body.priceDebt, 0),
+      pricePotion: asInt(body.pricePotion, 0),
+      version: asInt(body.version, 1),
+
+      // Long text strings (nullable in schema except effects)
+      durationJSON: toStringLongText(body.durationJSON),
+      effects: (toStringLongText(body.effects) ?? '').toString(), // effects is required String
+      setupText: toStringLongText(body.setupText),
+      notes: toStringLongText(body.notes),
+      setId: (body.setId as string | null) ?? null,
 
       // Relations (optional)
       User: user?.id ? { connect: { id: user.id } } : undefined,
-      Art: (body as any).artId
-        ? { connect: { id: Number((body as any).artId) } }
+      Art: body.artId ? { connect: { id: Number(body.artId) } } : undefined,
+      ArtImage: body.artImageId
+        ? { connect: { id: Number(body.artImageId) } }
         : undefined,
-      ArtImage: (body as any).artImageId
-        ? { connect: { id: Number((body as any).artImageId) } }
-        : undefined,
-
-      // Arrays / JSON
-      types,
-      keywords,
-
-      // Baselines
-      cardAdd: asInt((body as any).cardAdd, 0),
-      actionAdd: asInt((body as any).actionAdd, 0),
-      buyAdd: asInt((body as any).buyAdd, 0),
-      coinAdd: asInt((body as any).coinAdd, 0),
-      victoryAdd: asInt((body as any).victoryAdd, 0),
-
-      isDuration: Boolean((body as any).isDuration),
-      durationJSON: (body as any).durationJSON ?? null,
-
-      priceCoins: asInt((body as any).priceCoins, 0),
-      priceDebt: asInt((body as any).priceDebt, 0),
-      pricePotion: asInt((body as any).pricePotion, 0),
-
-      effects: (body as any).effects ?? {},
-      setupText: (body as any).setupText ?? null,
-      notes: (body as any).notes ?? null,
-      version: asInt((body as any).version, 1),
-      setId: (body as any).setId ?? null,
     }
 
     const created = await prisma.dominion.create({ data })

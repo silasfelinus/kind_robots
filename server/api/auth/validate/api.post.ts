@@ -1,35 +1,49 @@
-// server/api/auth/validate/api.post.ts
+// /server/api/auth/validate/api.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
-import { validateApiKey } from '..'
+import { validateApiKeyString } from '../../utils/validateKey'
+
+function extractApiKeyFromReq(event: any): string | undefined {
+  const headers = event.node.req.headers || {}
+
+  // Authorization: Bearer <key>
+  const auth = headers['authorization']
+  const bearer =
+    typeof auth === 'string' && auth.toLowerCase().startsWith('bearer ')
+      ? auth.slice(7).trim()
+      : undefined
+
+  // x-api-key
+  const xKey = (headers['x-api-key'] ||
+    headers['x_api_key'] ||
+    headers['x-apikey']) as string | undefined
+
+  // ?apiKey=...
+  const url = new URL(event.node.req.url || '', 'http://localhost')
+  const queryKey = url.searchParams.get('apiKey') || undefined
+
+  return bearer || xKey || queryKey
+}
 
 export default defineEventHandler(async (event) => {
-  console.log('validating by API key...')
   try {
-    const { apiKey } = await readBody(event)
-    if (!apiKey) {
-      throw new Error('API key is required for validation.')
+    const body = (await readBody<{ apiKey?: string }>(event)) || {}
+    const supplied = body.apiKey || extractApiKeyFromReq(event)
+
+    const result = await validateApiKeyString(supplied)
+
+    return {
+      success: result.isValid,
+      message: result.isValid ? 'API key is valid.' : 'Invalid API key.',
+      data: result.isValid
+        ? {
+            kind: result.kind ?? 'user',
+            user: result.user ?? null,
+          }
+        : null,
     }
-
-    const result = await validateApiKey(apiKey)
-
-    if (!result.success) {
-      return { success: false, message: result.message || 'Invalid API key.' }
-    }
-
-    // If validateApiKey found a user, return it in a standard shape ChatGPT can consume
-    if (result.user?.id) {
-      return {
-        success: true,
-        message: 'API key is valid.',
-        data: { id: result.user.id }, // <- important: exposes userId to the adapter
-      }
-    }
-
-    // Valid key, but no user returned (rare with your current impl)
-    return { success: true, message: 'API key is valid.' }
-  } catch (error) {
-    const { message } = errorHandler(error)
-    return { success: false, message: `Validation error: ${message}` }
+  } catch (err) {
+    const { message, statusCode } = errorHandler(err)
+    return { success: false, message, statusCode }
   }
 })

@@ -227,7 +227,7 @@ npx prisma migrate diff \
 npx prisma db execute --file migration.sql --schema prisma/schema.prisma
 
 # 3) Record it as a proper migration folder
-TS=$(date +%Y%m%d%H%M%S); MIGR="${TS}_UPDATE_NAME"
+TS=$(date +%Y%m%d%H%M%S); MIGR="${TS}_chattype_and_pitchtype"
 mkdir -p prisma/migrations/"$MIGR"
 mv migration.sql prisma/migrations/"$MIGR"/migration.sql
 npx prisma migrate resolve --schema=prisma/schema.prisma --applied "$MIGR"

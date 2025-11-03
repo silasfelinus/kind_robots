@@ -135,31 +135,61 @@ describe('Vibes CRUD and user membership', () => {
       .its('status')
       .should('eq', 200)
   })
-
   it('attaches the vibe to user.vibes', () => {
     expect(testUserId, 'testUserId').to.be.a('number')
     expect(userApiKey, 'userApiKey').to.be.a('string')
 
-    // Compute slug same way as store
+    // Build the slug the same way you do elsewhere
     const slug = vibeTitle
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
       .slice(0, 64)
 
+    // 1) Read the current user to get existing `vibes` string
     cy.request({
-      method: 'PATCH',
+      method: 'GET',
       url: `${base}/users/${testUserId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userApiKey}`,
-      },
-      body: {
-        vibes: [{ title: vibeTitle, slug }],
-      },
+      headers: { Authorization: `Bearer ${userApiKey}` },
     })
-      .its('status')
-      .should('eq', 200)
+      .then((getRes) => {
+        expect(getRes.status).to.be.oneOf([200])
+        const user = getRes.body?.data ?? getRes.body?.user ?? getRes.body
+
+        // Parse existing vibes (stored as string)
+        let current: any[] = []
+        if (typeof user?.vibes === 'string' && user.vibes.trim().length) {
+          try {
+            const parsed = JSON.parse(user.vibes)
+            if (Array.isArray(parsed)) current = parsed
+          } catch {
+            // If it wasn't valid JSON, ignore and start fresh
+          }
+        }
+
+        // 2) Append our vibe entry
+        const next = [...current, { title: vibeTitle, slug }]
+
+        // 3) PATCH vibes as a STRING (JSON)
+        return cy.request({
+          method: 'PATCH',
+          url: `${base}/users/${testUserId}`,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${userApiKey}`,
+          },
+          body: {
+            vibes: JSON.stringify(next),
+          },
+          failOnStatusCode: false,
+        })
+      })
+      .then((patchRes) => {
+        expect(
+          patchRes?.status,
+          `patch status: ${patchRes?.status} ${JSON.stringify(patchRes?.body)}`,
+        ).to.be.oneOf([200])
+      })
   })
 
   it('deletes the created vibe', () => {

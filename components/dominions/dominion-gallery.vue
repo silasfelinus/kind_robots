@@ -1,4 +1,4 @@
-<!-- /components/dominion/dominion-gallery.vue -->
+<!-- /components/dominions/dominion-gallery.vue -->
 <template>
   <div class="max-w-6xl mx-auto p-4 space-y-6">
     <div class="flex items-center justify-between gap-4">
@@ -75,19 +75,21 @@
 
         <div class="mt-3 flex flex-wrap gap-1">
           <span
-            v-for="t in card.types as string[]"
-            :key="t"
+            v-for="t in typesArray(card.types)"
+            :key="`t-${card.id}-${t}`"
             class="badge badge-ghost"
-            >{{ t }}</span
           >
+            {{ t }}
+          </span>
         </div>
 
         <div class="mt-4 flex gap-2">
           <NuxtLink
             :to="`/add-dominion?id=${card.id}`"
             class="btn btn-sm btn-outline"
-            >Edit</NuxtLink
           >
+            Edit
+          </NuxtLink>
           <button
             class="btn btn-sm btn-error btn-outline"
             @click="remove(card.id)"
@@ -110,8 +112,10 @@
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue'
 import { useDominionStore } from '~/stores/dominionStore'
+import type { Dominion } from '@prisma/client'
 
 const store = useDominionStore()
+
 const filters = reactive({
   userId: undefined as number | undefined,
   publicOnly: true,
@@ -129,12 +133,13 @@ function buildQuery() {
 }
 
 async function load() {
-  // fetch with filters by temporarily swapping performFetch call inside store if desired,
-  // or just hit the endpoint directly here:
   const query = buildQuery()
   const res = await fetch(`/api/dominions${query ? `?${query}` : ''}`)
   const data = await res.json()
-  if (data.success) store.items = data.data
+  if (data?.success && Array.isArray(data.data)) {
+    // Keep store.items typed as Dominion[]
+    store.items = data.data as Dominion[]
+  }
 }
 
 function reset() {
@@ -145,12 +150,24 @@ function reset() {
   load()
 }
 
-function costLabel(card: any) {
+function costLabel(
+  card: Pick<Dominion, 'priceCoins' | 'priceDebt' | 'pricePotion'>,
+) {
   const parts: string[] = []
   if (card.priceCoins) parts.push(`${card.priceCoins}💰`)
   if (card.priceDebt) parts.push(`${card.priceDebt}🕱`)
   if (card.pricePotion) parts.push(`${card.pricePotion}🧪`)
   return parts.join(' ') || '0💰'
+}
+
+/**
+ * Prisma source of truth: `types` is a String (CSV). Split for display only.
+ */
+function typesArray(types: Dominion['types'] | null | undefined): string[] {
+  return (types || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
 }
 
 async function remove(id: number) {
@@ -162,7 +179,7 @@ async function remove(id: number) {
     },
   })
   const data = await res.json()
-  if (data.success) await load()
+  if (data?.success) await load()
 }
 
 onMounted(async () => {

@@ -3,10 +3,11 @@ import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import type { Theme } from '@prisma/client'
 
 import {
-  buildThemePayload,
+  buildThemePayload, // keep if you use it elsewhere
   applyThemeValues,
   getThemeValues,
   sanitizeThemeValues,
@@ -25,11 +26,39 @@ import {
   labelFromKey,
 } from '~/stores/helpers/themeHelper'
 
+/** UI form uses an object for values; DB expects a string */
 type ThemeForm = Partial<Omit<Theme, 'values'>> & {
   values?: Record<string, string>
 }
-
 type ActiveTheme = string | ThemeForm
+
+type ThemeApiPayload = Partial<Omit<Theme, 'values'>> & { values?: string }
+
+function toApiPayload(
+  src: ThemeForm | Partial<Theme>,
+  userId?: number,
+): ThemeApiPayload {
+  const raw = (src as any).values
+  const values: string | undefined =
+    typeof raw === 'string'
+      ? raw
+      : raw && typeof raw === 'object'
+        ? JSON.stringify(sanitizeThemeValues(raw))
+        : undefined
+
+  return {
+    id: (src as any).id,
+    userId: userId ?? (src as any).userId ?? undefined,
+    name: (src as any).name,
+    values,
+    isPublic: (src as any).isPublic,
+    tagline: (src as any).tagline ?? null,
+    room: (src as any).room ?? null,
+    colorScheme: (src as any).colorScheme,
+    prefersDark: (src as any).prefersDark,
+    // createdAt is server-generated
+  }
+}
 
 export const useThemeStore = defineStore('themeStore', () => {
   const activeTheme = ref<ActiveTheme>('retro')
@@ -104,7 +133,6 @@ export const useThemeStore = defineStore('themeStore', () => {
       localStorage.setItem('theme', input)
       activeTheme.value = input
       themeForm.value = normalizeThemeFromServer(extractComputedTheme(input))
-
       firstThemeChanged.value = true
       return { success: true }
     }
@@ -119,7 +147,7 @@ export const useThemeStore = defineStore('themeStore', () => {
       document.documentElement.setAttribute('data-theme', 'custom')
       localStorage.setItem('theme', input.name || 'custom')
 
-      const normalized = normalizeThemeFromServer(input)
+      const normalized = normalizeThemeFromServer(input as any)
       activeTheme.value = normalized
       themeForm.value = normalized
       firstThemeChanged.value = true
@@ -144,7 +172,7 @@ export const useThemeStore = defineStore('themeStore', () => {
 
   function revertForm() {
     if (typeof activeTheme.value === 'object') {
-      themeForm.value = normalizeThemeFromServer(activeTheme.value)
+      themeForm.value = normalizeThemeFromServer(activeTheme.value as any)
     } else {
       themeForm.value = normalizeThemeFromServer(extractComputedTheme())
     }
@@ -167,16 +195,12 @@ export const useThemeStore = defineStore('themeStore', () => {
   function fillWithRandomTheme() {
     const values = themeForm.value.values as Record<string, string> | undefined
     if (!values) return
-
-    for (const key of colorKeys) {
-      values[key] = getRandomHex()
-    }
+    for (const key of colorKeys) values[key] = getRandomHex()
   }
 
   function setColorValue(key: string, value: string) {
     const values = themeForm.value.values as Record<string, string> | undefined
     if (!values) return
-
     values[key] = value
   }
 
@@ -198,31 +222,33 @@ export const useThemeStore = defineStore('themeStore', () => {
       console.warn('[themeStore] No themes found or fetch failed.')
     }
   }
-
-  async function addTheme(theme: Partial<Theme>) {
+  async function addTheme(theme: ThemeForm | Partial<Theme>) {
     const { user } = useUserStore()
     const userId = user?.id || 10
-    const payload = { ...theme, userId }
+    const payload = toApiPayload(theme, userId)
 
     const result = await performFetch('/api/themes', {
       method: 'POST',
       body: JSON.stringify(payload),
     })
 
-    if (result.success) await getThemes()
-    else
+    if (result.success) {
+      await getThemes()
+    } else {
+      // If you don't have errorStore, replace with console.warn
+      // import { useErrorStore, ErrorType } from '@/stores/errorStore' at top if you use this
       useErrorStore().setError(
         ErrorType.NETWORK_ERROR,
         result.message || 'Theme save failed.',
       )
-
+    }
     return result
   }
-
-  async function updateTheme(id: number, updates: Partial<Theme>) {
+  async function updateTheme(id: number, updates: ThemeForm | Partial<Theme>) {
     const { user } = useUserStore()
     const userId = user?.id || 10
-    const payload = { ...updates, userId }
+    const payload = toApiPayload(updates, userId)
+
     const { success } = await performFetch(`/api/themes/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(payload),
@@ -237,6 +263,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     if (success) await getThemes()
   }
 
+  // Persist the draft themeForm locally for UX
   if (typeof window !== 'undefined') {
     let saveTimeout: ReturnType<typeof setTimeout>
     watch(
@@ -293,4 +320,5 @@ export const useThemeStore = defineStore('themeStore', () => {
   }
 })
 
-export type { Theme, defaultExtraVars }
+export type { Theme }
+export { defaultExtraVars }

@@ -1,56 +1,65 @@
+// /server/api/themes/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/api/utils/prisma'
 import { errorHandler } from '@/server/api/utils/error'
 import { validateApiKey } from '@/server/api/utils/validateKey'
+import { stringifyValues, parseTheme } from '@/server/api/themes/index'
 
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
-    const userId = isValid && user?.id ? user.id : 10
+    if (!isValid || !user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+    const userId = user.id
 
-    const body = await readBody(event)
+    const body = await readBody<any>(event)
 
-    const normalizeThemeInput = (entry: any) => {
+    const normalize = (entry: any) => {
       const {
         name,
         values,
         isPublic = false,
-        tagline,
-        room,
+        tagline = null,
+        room = null,
         prefersDark = false,
         colorScheme = 'light',
-      } = entry
+      } = entry || {}
 
       if (!name || typeof name !== 'string') {
         throw createError({ statusCode: 400, message: '"name" is required.' })
       }
-
-      if (!values || typeof values !== 'object' || Array.isArray(values)) {
-        throw createError({
-          statusCode: 400,
-          message: '"values" must be a valid object.',
-        })
-      }
-
-      if (colorScheme !== 'light' && colorScheme !== 'dark') {
+      if (!['light', 'dark'].includes(colorScheme)) {
         throw createError({
           statusCode: 400,
           message: '"colorScheme" must be either "light" or "dark".',
         })
       }
 
+      const valuesStr = stringifyValues(values)
+      if (!valuesStr) {
+        throw createError({
+          statusCode: 400,
+          message: '"values" must be a valid object or JSON string.',
+        })
+      }
+
       return {
         name,
-        values,
-        isPublic,
-        tagline: tagline || null,
-        room: room || null,
-        prefersDark,
+        values: valuesStr, // <-- DB expects string
+        isPublic: !!isPublic,
+        tagline,
+        room,
+        prefersDark: !!prefersDark,
         colorScheme,
         userId,
       }
     }
 
+    // Bulk create (array) or single
     if (Array.isArray(body)) {
       if (body.length === 0) {
         throw createError({
@@ -58,50 +67,42 @@ export default defineEventHandler(async (event) => {
           message: 'Theme array cannot be empty.',
         })
       }
-
-      const createdThemes = []
+      const created: any[] = []
       const skipped: string[] = []
 
       for (const entry of body) {
-        const themeData = normalizeThemeInput(entry)
-
+        const data = normalize(entry)
         try {
-          const created = await prisma.theme.create({ data: themeData })
-          createdThemes.push(created)
+          const row = await prisma.theme.create({ data })
+          created.push(parseTheme(row)) // return parsed values
         } catch (err: any) {
-          if (err.code === 'P2002') {
-            skipped.push(themeData.name)
-          } else {
-            throw err
-          }
+          if (err?.code === 'P2002') skipped.push(data.name)
+          else throw err
         }
       }
 
       event.node.res.statusCode = 201
       return {
         success: true,
-        message: `${createdThemes.length} theme(s) created, ${skipped.length} duplicates skipped.`,
-        themes: createdThemes,
+        message: `${created.length} theme(s) created, ${skipped.length} duplicates skipped.`,
+        themes: created,
         skipped,
-        count: createdThemes.length,
+        count: created.length,
       }
     }
 
-    const themeInput = normalizeThemeInput(body)
-    const theme = await prisma.theme.create({ data: themeInput })
+    const data = normalize(body)
+    const theme = await prisma.theme.create({ data })
 
     event.node.res.statusCode = 201
     return {
       success: true,
       message: 'Theme created successfully.',
-      theme,
+      theme: parseTheme(theme),
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
-    return {
-      success: false,
-      message: message || 'Failed to create theme(s).',
-    }
+    return { success: false, message: message || 'Failed to create theme(s).' }
   }
 })

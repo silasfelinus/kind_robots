@@ -2,32 +2,45 @@
 import { type H3Event } from 'h3'
 import prisma from './prisma'
 
-export async function validateApiKey(event: H3Event): Promise<{
+export type ValidateResult = {
   isValid: boolean
-  user?: {
-    Role: string
-    id: number
+  user?: { id: number; Role: string }
+  kind?: 'user' | 'server'
+}
+
+function extractBearer(event: H3Event): string | undefined {
+  const h = event.node.req.headers?.authorization
+  if (typeof h === 'string' && h.toLowerCase().startsWith('bearer '))
+    return h.slice(7).trim()
+  return undefined
+}
+
+// Validate a raw apiKey string (DB user key OR server key from env)
+export async function validateApiKeyString(
+  apiKey?: string,
+): Promise<ValidateResult> {
+  if (!apiKey) return { isValid: false }
+
+  // allow server/infra key(s)
+  const serverKeys = [process.env.SERVER_API_KEY, process.env.API_KEY].filter(
+    Boolean,
+  ) as string[]
+  if (serverKeys.includes(apiKey)) {
+    return { isValid: true, kind: 'server' }
   }
-}> {
-  // Extract authorization header
-  const authorizationHeader = event.node.req.headers['authorization']
 
-  // Gracefully fail if no token or bad format
-  if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-    return { isValid: false }
-  }
-
-  // Extract token
-  const token = authorizationHeader.split(' ')[1]
-
-  // Find user with matching apiKey
+  // user key
   const user =
     (await prisma.user.findFirst({
-      where: { apiKey: token },
+      where: { apiKey },
       select: { id: true, Role: true },
     })) ?? undefined
 
-  console.log('sending user', user)
+  return { isValid: !!user, user, kind: user ? 'user' : undefined }
+}
 
-  return { isValid: !!user, user }
+// Validate using the Bearer token from the request
+export async function validateApiKey(event: H3Event): Promise<ValidateResult> {
+  const token = extractBearer(event)
+  return validateApiKeyString(token)
 }

@@ -3,15 +3,14 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '@/server/api/utils/prisma'
 import { errorHandler } from '@/server/api/utils/error'
 import { validateApiKey } from '@/server/api/utils/validateKey'
+import { stringifyValues, parseTheme } from '@/server/api/themes/index'
 import type { Prisma } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
-  let id
-  let response
-
+  let id: number | undefined
   try {
     id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid theme ID. It must be a positive integer.',
@@ -26,25 +25,29 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const userId = user.id
-    const existingTheme = await prisma.theme.findUnique({ where: { id } })
-    if (!existingTheme) {
+    const existing = await prisma.theme.findUnique({
+      where: { id },
+      select: { userId: true },
+    })
+    if (!existing)
       throw createError({ statusCode: 404, message: 'Theme not found.' })
-    }
-
-    if (existingTheme.userId !== userId && user.Role !== 'ADMIN') {
+    if (
+      existing.userId != null &&
+      existing.userId !== user.id &&
+      user.Role !== 'ADMIN'
+    ) {
       throw createError({ statusCode: 403, message: 'Unauthorized.' })
     }
 
-    const rawUpdate = await readBody(event)
-    if (!rawUpdate || Object.keys(rawUpdate).length === 0) {
+    const raw = await readBody<any>(event)
+    if (!raw || Object.keys(raw).length === 0) {
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
-    const allowedKeys = [
+    const allowed = [
       'name',
       'values',
       'tagline',
@@ -52,56 +55,50 @@ export default defineEventHandler(async (event) => {
       'prefersDark',
       'colorScheme',
       'isPublic',
-    ]
-
+    ] as const
     const data: Prisma.ThemeUpdateInput = {}
-    for (const key of allowedKeys) {
-      if (key in rawUpdate) {
-        ;(data as any)[key] = rawUpdate[key]
+
+    for (const key of allowed) {
+      if (key in raw) {
+        if (key === 'values') {
+          const s = stringifyValues(raw.values)
+          if (!s)
+            throw createError({
+              statusCode: 400,
+              message: '"values" must be a valid object or JSON string.',
+            })
+          ;(data as any).values = s // DB string
+        } else if (key === 'colorScheme') {
+          if (!['light', 'dark'].includes(raw.colorScheme)) {
+            throw createError({
+              statusCode: 400,
+              message: '"colorScheme" must be either "light" or "dark".',
+            })
+          }
+          ;(data as any).colorScheme = raw.colorScheme
+        } else if (key === 'prefersDark' || key === 'isPublic') {
+          ;(data as any)[key] = !!raw[key]
+        } else {
+          ;(data as any)[key] = raw[key] ?? null
+        }
       }
     }
 
-    if (
-      'colorScheme' in data &&
-      !['light', 'dark'].includes(data.colorScheme as string)
-    ) {
-      throw createError({
-        statusCode: 400,
-        message: '"colorScheme" must be either "light" or "dark".',
-      })
-    }
-
-    if (
-      'values' in data &&
-      (typeof data.values !== 'object' || Array.isArray(data.values))
-    ) {
-      throw createError({
-        statusCode: 400,
-        message: '"values" must be a valid object.',
-      })
-    }
-
-    const updated = await prisma.theme.update({
-      where: { id },
-      data,
-    })
-
+    const updated = await prisma.theme.update({ where: { id }, data })
     event.node.res.statusCode = 200
-    response = {
+    return {
       success: true,
       message: 'Theme updated successfully.',
-      theme: updated,
+      theme: parseTheme(updated),
       statusCode: 200,
     }
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+  } catch (error) {
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+    return {
       success: false,
-      message: handledError.message || `Failed to update theme with ID ${id}.`,
+      message: handled.message || `Failed to update theme with ID ${id}.`,
       statusCode: event.node.res.statusCode,
     }
   }
-
-  return response
 })

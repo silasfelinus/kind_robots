@@ -1,13 +1,11 @@
 // /stores/chapters/characterChapters.ts
 
-import type { SupportedModel } from '@prisma/client'
-
 export interface CharacterChapter {
   label: string
   intro: string
   icon: string
   choices?: string[]
-  model?: SupportedModel
+  model?: string
   allowCustom?: boolean
 }
 

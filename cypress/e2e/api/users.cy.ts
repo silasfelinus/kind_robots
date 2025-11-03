@@ -241,15 +241,26 @@ describe('User Management API Tests', () => {
       })
     })
 
-    it('API Key Validation', () => {
+    it('API Key Validation (user apiKey)', () => {
       cy.request({
         method: 'POST',
         url: `${authUrl}/validate/api`,
         headers: { 'Content-Type': 'application/json' },
-        body: { apiKey },
+        body: { apiKey: createdUserApiKey },
       }).then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
+
+        // Optional: stronger assertions
+        expect(response.body)
+          .to.have.nested.property('data.kind')
+          .that.equals('user')
+
+        if (createdUserId) {
+          expect(response.body)
+            .to.have.nested.property('data.user.id')
+            .that.equals(createdUserId)
+        }
       })
     })
   })

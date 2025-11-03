@@ -200,7 +200,7 @@ model Chat {
   id              Int        @id @default(autoincrement())
   createdAt       DateTime   @default(now())
   updatedAt       DateTime?  @default(now()) @updatedAt
-  type            Chat_type
+  type            ChatType
   sender          String     @db.VarChar(255)
   recipient       String?    @db.VarChar(255)
   content         String     @db.Text
@@ -378,7 +378,7 @@ model Pitch {
   designer       String?         @db.VarChar(256)
   flavorText     String?         @db.VarChar(512)
   highlightImage String?         @db.VarChar(256)
-  PitchType      Pitch_PitchType @default(ARTPITCH)
+  PitchType      PitchType       @default(ARTPITCH)
   isMature       Boolean         @default(false)
   isPublic       Boolean         @default(true)
   userId         Int?            @default(1)
@@ -765,7 +765,7 @@ enum Role {
   CHILD
 }
 
-enum Chat_type {
+enum ChatType {
   ToBot
   BotResponse
   ToForum
@@ -774,7 +774,7 @@ enum Chat_type {
   Weirdlandia
 }
 
-enum Pitch_PitchType {
+enum PitchType {
   ARTPITCH
   BRAINSTORM
   WEIRDLANDIA

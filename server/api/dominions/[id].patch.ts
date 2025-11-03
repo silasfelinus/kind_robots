@@ -5,99 +5,32 @@ import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
 import type { Prisma } from '@prisma/client'
 
-function normalizeCsvString(s: string): string {
-  const parts = (s || '')
-    .split(',')
-    .map((t) => t.trim())
-    .filter(Boolean)
-  return parts.join(', ')
+function normalizeArray(input: unknown): string[] {
+  if (Array.isArray(input)) {
+    return input.map((v) => String(v).trim()).filter(Boolean)
+  }
+  if (typeof input === 'string') {
+    return input
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+  }
+  return []
 }
 
-function toCsvString(v: unknown): string {
-  if (Array.isArray(v)) {
-    return normalizeCsvString(v.map(String).join(','))
-  }
-  if (typeof v === 'string') {
-    return normalizeCsvString(v)
-  }
-  return ''
+function toJsonArrayString(input: unknown): string {
+  const arr = normalizeArray(input)
+  return JSON.stringify(arr)
 }
 
 function toStringLongText(v: unknown): string | null {
   if (v == null) return null
   if (typeof v === 'string') return v
   try {
-    // Allow objects/arrays to be stored (e.g., multi-line or json-ish rules)
     return JSON.stringify(v)
   } catch {
     return String(v)
   }
-}
-
-function normalizePatch(input: any): Prisma.DominionUpdateInput {
-  const patch: Prisma.DominionUpdateInput = {}
-
-  if (typeof input.title === 'string') patch.title = input.title
-
-  if (typeof input.slug === 'string' || input.slug === null)
-    patch.slug = input.slug
-  if (typeof input.description === 'string' || input.description === null)
-    patch.description = input.description
-  if (typeof input.italics === 'string' || input.italics === null)
-    patch.italics = input.italics
-  if (typeof input.color === 'string' || input.color === null)
-    patch.color = input.color
-  if (typeof input.designer === 'string' || input.designer === null)
-    patch.designer = input.designer
-
-  if (typeof input.isPublic === 'boolean') patch.isPublic = input.isPublic
-  if (typeof input.isMature === 'boolean') patch.isMature = input.isMature
-
-  // Prisma schema: String (not Json) — store CSV strings
-  if ('types' in input) patch.types = toCsvString(input.types)
-  if ('keywords' in input) patch.keywords = toCsvString(input.keywords)
-  ;[
-    'cardAdd',
-    'actionAdd',
-    'buyAdd',
-    'coinAdd',
-    'victoryAdd',
-    'priceCoins',
-    'priceDebt',
-    'pricePotion',
-    'version',
-  ].forEach((k) => {
-    if (k in input && Number.isFinite(Number(input[k]))) {
-      ;(patch as any)[k] = Number(input[k])
-    }
-  })
-
-  if (typeof input.icon === 'string' || input.icon === null)
-    patch.icon = input.icon
-
-  if (typeof input.isDuration === 'boolean') patch.isDuration = input.isDuration
-
-  // Strings in schema — allow null, stringify objects safely
-  if ('durationJSON' in input)
-    patch.durationJSON = toStringLongText(input.durationJSON)
-  if ('effects' in input) patch.effects = toStringLongText(input.effects) ?? '' // required String in schema
-  if ('setupText' in input) patch.setupText = toStringLongText(input.setupText)
-  if ('notes' in input) patch.notes = toStringLongText(input.notes)
-  if ('setId' in input) patch.setId = input.setId ?? null
-
-  // Relations
-  if ('artId' in input) {
-    patch.Art = input.artId
-      ? { connect: { id: Number(input.artId) } }
-      : { disconnect: true }
-  }
-  if ('artImageId' in input) {
-    patch.ArtImage = input.artImageId
-      ? { connect: { id: Number(input.artImageId) } }
-      : { disconnect: true }
-  }
-
-  return patch
 }
 
 export default defineEventHandler(async (event) => {
@@ -132,7 +65,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const body = await readBody(event)
+    const body = await readBody<any>(event)
     if (!body || Object.keys(body).length === 0) {
       throw createError({
         statusCode: 400,
@@ -140,9 +73,73 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const patch: Prisma.DominionUpdateInput = {}
+
+    // Simple scalars
+    if (typeof body.title === 'string') patch.title = body.title
+    if (typeof body.slug === 'string' || body.slug === null)
+      patch.slug = body.slug
+    if (typeof body.description === 'string' || body.description === null)
+      patch.description = body.description
+    if (typeof body.italics === 'string' || body.italics === null)
+      patch.italics = body.italics
+    if (typeof body.color === 'string' || body.color === null)
+      patch.color = body.color
+    if (typeof body.designer === 'string' || body.designer === null)
+      patch.designer = body.designer
+
+    if (typeof body.icon === 'string' || body.icon === null)
+      patch.icon = body.icon
+
+    if (typeof body.isPublic === 'boolean') patch.isPublic = body.isPublic
+    if (typeof body.isMature === 'boolean') patch.isMature = body.isMature
+    if (typeof body.isDuration === 'boolean') patch.isDuration = body.isDuration
+
+    // types/keywords as JSON strings
+    if ('types' in body) patch.types = toJsonArrayString(body.types)
+    if ('keywords' in body)
+      patch.keywords = toJsonArrayString(body.keywords)
+
+      // numeric fields
+    ;[
+      'cardAdd',
+      'actionAdd',
+      'buyAdd',
+      'coinAdd',
+      'victoryAdd',
+      'priceCoins',
+      'priceDebt',
+      'pricePotion',
+      'version',
+    ].forEach((k) => {
+      if (k in body && Number.isFinite(Number(body[k]))) {
+        ;(patch as any)[k] = Number(body[k])
+      }
+    })
+
+    // long-text-ish fields
+    if ('durationJSON' in body)
+      patch.durationJSON = toStringLongText(body.durationJSON)
+    if ('effects' in body) patch.effects = toStringLongText(body.effects) ?? ''
+    if ('setupText' in body) patch.setupText = toStringLongText(body.setupText)
+    if ('notes' in body) patch.notes = toStringLongText(body.notes)
+    if ('setId' in body) patch.setId = body.setId ?? null
+
+    // relations
+    if ('artId' in body) {
+      patch.Art = body.artId
+        ? { connect: { id: Number(body.artId) } }
+        : { disconnect: true }
+    }
+    if ('artImageId' in body) {
+      patch.ArtImage = body.artImageId
+        ? { connect: { id: Number(body.artImageId) } }
+        : { disconnect: true }
+    }
+
     const data = await prisma.dominion.update({
       where: { id },
-      data: normalizePatch(body),
+      data: patch,
     })
 
     event.node.res.statusCode = 200

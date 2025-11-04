@@ -13,7 +13,18 @@
         class="block w-full h-full object-cover object-center m-0 p-0"
       />
 
-      <!-- Title overlay only in non bigMode -->
+      <!-- Top: viewport size badge (inside avatar) -->
+      <div
+        class="absolute left-[4%] right-[4%] top-2 z-40 flex justify-start pointer-events-none"
+      >
+        <span
+          class="inline-flex max-w-full truncate text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.65rem,0.8vw,0.9rem)] leading-none shadow"
+        >
+          {{ viewportSize }}
+        </span>
+      </div>
+
+      <!-- Middle: title overlay only in non bigMode -->
       <div
         v-if="!bigMode"
         class="absolute inset-y-0 left-[3%] right-[4%] z-40 flex items-center pointer-events-none"
@@ -33,6 +44,18 @@
           </span>
         </h1>
       </div>
+
+      <!-- Bottom: subtitle badge (inside avatar) -->
+      <div
+        v-if="subtitle"
+        class="absolute left-[4%] right-[4%] bottom-2 z-40 flex justify-start pointer-events-none"
+      >
+        <span
+          class="inline-flex max-w-full truncate bg-base-100/90 text-black border border-black rounded-md px-2 py-1 text-[clamp(0.7rem,0.9vw,1rem)] leading-none shadow"
+        >
+          {{ subtitle }}
+        </span>
+      </div>
     </div>
 
     <!-- Center smart icons bar -->
@@ -48,20 +71,6 @@
       <smart-toggles class="h-full w-full" />
     </div>
   </header>
-
-  <!-- Debug display info (can remove once you are happy) -->
-  <div
-    class="fixed left-2 top-2 z-50 pointer-events-none text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.7rem,1.1vw,0.95rem)] leading-none shadow"
-  >
-    {{ viewportSize }}
-  </div>
-
-  <div
-    v-if="subtitle"
-    class="fixed left-2 top-12 z-50 pointer-events-none text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.7rem,1.1vw,0.95rem)] leading-none shadow"
-  >
-    {{ subtitle }}
-  </div>
 </template>
 
 <script setup lang="ts">

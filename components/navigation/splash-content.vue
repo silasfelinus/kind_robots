@@ -4,6 +4,15 @@
     ref="contentContainer"
     class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-6 space-y-8"
   >
+    <!-- Subtitle at the very top, centered above everything -->
+    <div v-if="subtitle" class="w-full flex justify-center mb-2">
+      <span
+        class="inline-flex max-w-full truncate bg-base-100/90 text-black border border-black rounded-md px-3 py-1 text-[clamp(0.7rem,0.9vw,1rem)] leading-none shadow"
+      >
+        {{ subtitle }}
+      </span>
+    </div>
+
     <!-- Hero header block -->
     <section
       class="relative overflow-hidden rounded-3xl border border-black bg-base-100/90 shadow-xl px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8 animate-fade-in-up"
@@ -20,7 +29,7 @@
       </div>
 
       <div class="relative space-y-4 sm:space-y-5">
-        <!-- Top line: badge + theme button -->
+        <!-- Top line: theme button -->
         <div
           class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
         >
@@ -38,7 +47,7 @@
           </button>
         </div>
 
-        <!-- Room title -->
+        <!-- Room title + description -->
         <div class="space-y-2">
           <h1
             v-if="room"
@@ -51,7 +60,7 @@
             </span>
           </h1>
 
-          <!-- Description as body copy, not a pill -->
+          <!-- Description as a bold pill/tag line -->
           <p
             v-if="description"
             class="inline-flex items-center rounded-full border border-black bg-secondary px-3 py-0.5 text-[0.7rem] sm:text-xs font-semibold uppercase tracking-[0.18em]"

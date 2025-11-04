@@ -45,18 +45,6 @@
           </h1>
         </div>
       </div>
-
-      <!-- Bottom: subtitle badge (inside avatar) -->
-      <div
-        v-if="subtitle"
-        class="absolute left-[4%] right-[4%] bottom-2 z-40 flex justify-start pointer-events-none"
-      >
-        <span
-          class="inline-flex max-w-full truncate bg-base-100/90 text-black border border-black rounded-md px-2 py-1 text-[clamp(0.7rem,0.9vw,1rem)] leading-none shadow"
-        >
-          {{ subtitle }}
-        </span>
-      </div>
     </div>
 
     <!-- Center smart icons bar -->
@@ -66,7 +54,7 @@
 
     <!-- Right column smart toggles -->
     <div
-      class="flex-none h-full z-0 flex items-stretch justify-end pr-1"
+      class="flex-none h-full z-0 flex items-stretch justify-end"
       :class="toggleColumnClasses"
     >
       <smart-toggles class="h-full w-full" />
@@ -102,7 +90,7 @@ const avatarColumnClasses = computed(() =>
 )
 
 /**
- * Toggle column: a bit slimmer so icons can use more of the bar.
+ * Toggle column: reasonably slim so icons can use the bar.
  */
 const toggleColumnClasses = computed(() =>
   bigMode.value ? 'basis-[11%] max-w-[13%]' : 'basis-[13%] max-w-[15%]',

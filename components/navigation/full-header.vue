@@ -13,8 +13,9 @@
         class="block w-full h-full object-cover object-center m-0 p-0"
       />
 
-      <!-- Top: viewport size badge (inside avatar) -->
+      <!-- Top: viewport size badge (admin only + bigMode) -->
       <div
+        v-if="showViewportBadge"
         class="absolute left-[4%] right-[4%] top-2 z-40 flex justify-start pointer-events-none"
       >
         <span
@@ -77,14 +78,21 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
+import { useUserStore } from '@/stores/userStore'
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
+const userStore = useUserStore()
 
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
 const subtitle = computed(() => pageStore.page?.subtitle)
+
+// only show viewport notice if admin + bigMode
+const showViewportBadge = computed(() => {
+  return bigMode.value && userStore.user?.Role === 'ADMIN'
+})
 
 /**
  * Avatar column: never more than roughly 1/4 of the header width.

@@ -26,24 +26,28 @@
       </div>
     </div>
 
-    <!-- Stylized subtitle column (after avatar) -->
+    <!-- Kind Robots header block (brand + subtitle) -->
     <div
       v-if="subtitle"
       class="flex-none h-full flex items-center px-2 sm:px-3 lg:px-4 max-w-[40%]"
     >
       <div
-        class="inline-flex max-w-full items-center gap-2 rounded-2xl border border-base-content/10 bg-base-100/80 px-3 py-1.5 sm:px-4 sm:py-2 shadow-sm backdrop-blur-sm"
+        class="inline-flex max-w-full flex-col rounded-2xl border border-base-content/10 bg-base-100/80 px-3 py-1.5 sm:px-4 sm:py-2 shadow-sm backdrop-blur-sm"
       >
-        <!-- Label pill -->
+        <!-- Brand line -->
         <span
-          class="inline-flex items-center justify-center rounded-full bg-primary/90 px-2 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.18em] uppercase text-primary-content whitespace-nowrap"
+          class="text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.22em] uppercase text-base-content/70"
         >
-          Subtitle
+          <span
+            class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
+          >
+            Kind Robots
+          </span>
         </span>
 
-        <!-- Actual subtitle text -->
+        <!-- Subtitle -->
         <span
-          class="truncate text-[clamp(0.75rem,1.6vw,1.1rem)] font-semibold leading-snug tracking-tight text-base-content"
+          class="truncate text-[clamp(0.8rem,1.7vw,1.15rem)] font-semibold leading-snug tracking-tight text-base-content"
         >
           {{ subtitle }}
         </span>

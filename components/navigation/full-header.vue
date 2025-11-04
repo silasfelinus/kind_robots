@@ -42,7 +42,7 @@
 
     <!-- Right column smart toggles -->
     <div
-      class="flex-none h-full z-0 flex items-stretch"
+      class="flex-none h-full z-0 flex items-stretch justify-end pr-1"
       :class="toggleColumnClasses"
     >
       <smart-toggles class="h-full w-full" />

@@ -27,7 +27,7 @@
         @mouseleave="handleScrollMouseUp"
         @touchstart="handleScrollTouchStart"
         @touchmove="handleScrollTouchMove"
-        @touchend="handleScrollMouseUp"
+        @touchend="handleScrollTouchEnd"
       >
         <!-- Icons (square tiles, sized by row height) -->
         <icon-display
@@ -63,6 +63,25 @@
         <div aria-hidden="true" class="shrink-0 h-full w-px" />
       </div>
     </div>
+
+    <!-- Scroll hint arrows (no visible scrollbars) -->
+    <button
+      v-if="canScrollLeft"
+      type="button"
+      class="pointer-events-auto absolute left-1 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center rounded-full border border-base-content/30 bg-base-300/80 hover:bg-base-200/90 shadow-sm text-base-content/80 w-6 h-6 lg:w-7 lg:h-7"
+      @click="scrollByStep(-1)"
+    >
+      <Icon name="kind-icon:chevron-left" class="w-3 h-3 lg:w-4 lg:h-4" />
+    </button>
+
+    <button
+      v-if="canScrollRight"
+      type="button"
+      class="pointer-events-auto absolute right-1 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center rounded-full border border-base-content/30 bg-base-300/80 hover:bg-base-200/90 shadow-sm text-base-content/80 w-6 h-6 lg:w-7 lg:h-7"
+      @click="scrollByStep(1)"
+    >
+      <Icon name="kind-icon:chevron-right" class="w-3 h-3 lg:w-4 lg:h-4" />
+    </button>
   </div>
 </template>
 
@@ -95,11 +114,24 @@ const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
 
 // scroll + drag helpers
 const scrollContainer = ref<HTMLElement | null>(null)
+const isDragging = ref(false)
+const canScrollLeft = ref(false)
+const canScrollRight = ref(false)
+
 let scrollTick = false
+let startX = 0
+let scrollStart = 0
+
+function updateScrollFlags() {
+  const el = scrollContainer.value
+  if (!el) return
+  const maxScrollLeft = el.scrollWidth - el.clientWidth - 1
+  canScrollLeft.value = el.scrollLeft > 1
+  canScrollRight.value = el.scrollLeft < maxScrollLeft
+}
 
 function checkScrollEdges() {
-  // Placeholder for future edge indicators (chevrons, fade masks, etc.)
-  // Keeping this here so existing calls don't break.
+  updateScrollFlags()
 }
 
 function checkScrollEdgesThrottled() {
@@ -111,16 +143,42 @@ function checkScrollEdgesThrottled() {
   })
 }
 
-const isDragging = ref(false)
-let startX = 0
-let scrollStart = 0
+function getTileWidth(): number {
+  const el = scrollContainer.value
+  if (!el || !el.children.length) return 0
+  const firstTile = el.children[0] as HTMLElement
+  return firstTile?.offsetWidth || 0
+}
 
+function snapToNearestTile() {
+  const el = scrollContainer.value
+  if (!el) return
+  const tileWidth = getTileWidth()
+  if (!tileWidth) {
+    updateScrollFlags()
+    return
+  }
+  const current = el.scrollLeft
+  const index = Math.round(current / tileWidth)
+  const target = index * tileWidth
+  el.scrollTo({ left: target, behavior: 'smooth' })
+}
+
+function scrollByStep(direction: -1 | 1) {
+  const el = scrollContainer.value
+  if (!el) return
+  const tileWidth = getTileWidth()
+  const step = tileWidth || el.clientWidth / 3
+  const target = el.scrollLeft + direction * step
+  el.scrollTo({ left: target, behavior: 'smooth' })
+}
+
+// Mouse drag
 function handleScrollMouseDown(e: MouseEvent) {
   if (!scrollContainer.value) return
   isDragging.value = true
   startX = e.clientX
   scrollStart = scrollContainer.value.scrollLeft
-  // Prevent text/image selection while dragging
   e.preventDefault()
 }
 
@@ -131,9 +189,12 @@ function handleScrollMouseMove(e: MouseEvent) {
 }
 
 function handleScrollMouseUp() {
+  if (!isDragging.value) return
   isDragging.value = false
+  snapToNearestTile()
 }
 
+// Touch drag
 function handleScrollTouchStart(e: TouchEvent) {
   if (!scrollContainer.value) return
   isDragging.value = true
@@ -147,10 +208,18 @@ function handleScrollTouchMove(e: TouchEvent) {
   scrollContainer.value.scrollLeft = scrollStart - delta
 }
 
+function handleScrollTouchEnd() {
+  if (!isDragging.value) return
+  isDragging.value = false
+  snapToNearestTile()
+}
+
 let resizeObserver: ResizeObserver | null = null
 onMounted(() => {
   resizeObserver = new ResizeObserver(checkScrollEdgesThrottled)
   if (scrollContainer.value) resizeObserver.observe(scrollContainer.value)
+  // Initial state
+  requestAnimationFrame(updateScrollFlags)
 })
 onBeforeUnmount(() => {
   if (resizeObserver && scrollContainer.value)

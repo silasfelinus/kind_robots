@@ -4,16 +4,16 @@
   <div class="h-full w-full flex justify-end items-stretch">
     <!-- Vertical stack of toggles aligned to the right edge -->
     <div
-      class="h-full w-full flex flex-col justify-center items-stretch gap-1 px-1 select-none"
+      class="h-full w-full flex flex-col justify-center items-stretch gap-1 select-none"
     >
       <!-- Row 1: Confirm + Edit/Cancel -->
-      <div class="h-full flex items-center justify-end gap-1">
+      <div class="flex items-center justify-end gap-1">
         <!-- Confirm (edit mode) or invisible placeholder (non-edit) -->
         <button
           v-if="isEditing"
           :class="[
             'rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed',
-            bigMode ? 'h-[52%] min-h-6' : 'h-[72%] min-h-8',
+            bigMode ? 'h-[52%] min-h-6' : 'h-[70%] min-h-8',
           ]"
           :title="hasChanges ? 'Save order' : 'No changes to save'"
           :disabled="!hasChanges"
@@ -25,12 +25,11 @@
           />
         </button>
 
-        <!-- Placeholder keeps layout stable when not editing -->
         <div
           v-else
           :class="[
             'rounded-full aspect-square opacity-0 pointer-events-none',
-            bigMode ? 'h-[52%] min-h-6' : 'h-[72%] min-h-8',
+            bigMode ? 'h-[52%] min-h-6' : 'h-[70%] min-h-8',
           ]"
         />
 
@@ -68,7 +67,7 @@
       </div>
 
       <!-- Row 2: Corner menu toggle -->
-      <div class="h-full flex items-center justify-end">
+      <div class="flex items-center justify-end">
         <button
           :class="[
             'rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition',
@@ -93,7 +92,7 @@
       </div>
 
       <!-- Row 3: Tutorial toggle -->
-      <div class="h-full flex items-center justify-end">
+      <div class="flex items-center justify-end">
         <button
           :class="[
             'rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition',

@@ -5,17 +5,20 @@
     <div class="h-full w-full flex items-stretch min-w-0">
       <div
         ref="scrollContainer"
-        class="h-full w-full flex-1 min-w-0 overflow-x-auto overflow-y-hidden flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] pr-0 [scrollbar-gutter:stable]"
+        class="h-full w-full flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] pr-0 overflow-x-auto overflow-y-hidden smart-icons-scroll select-none"
         :class="[
+          // When the corner panel is open, hide labels/titles so the header stays minimal
           displayStore.showCorner
             ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
             : '',
-          // strip vertical gaps so icons hug top/label
+          // Strip vertical gaps so icons hug the header height
           '[&_*]:!mt-0 [&_*]:!mb-0 [&_*]:!pt-0 [&_*]:!pb-0',
-          // strip any horizontal margins inner tiles might add
+          // Strip any horizontal margins inner tiles might add
           '[&_*]:!ms-0 [&_*]:!me-0',
-          // direct children fill height
+          // Direct children fill height of the row
           '[&>*]:h-full',
+          // Drag cursor feedback
+          isDragging ? 'cursor-grabbing' : 'cursor-grab',
         ]"
         @scroll="checkScrollEdgesThrottled"
         @mousedown="handleScrollMouseDown"
@@ -57,13 +60,14 @@
         </div>
 
         <!-- Spacer to eliminate tiny trailing dead-zone from rounding -->
-        <div aria-hidden="true" class="shrink-0 h-full w-px"></div>
+        <div aria-hidden="true" class="shrink-0 h-full w-px" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// /components/content/navigation/smart-icons.vue
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
@@ -82,15 +86,22 @@ watch(
   { immediate: true },
 )
 
-const rowIcons = computed(() =>
+const rowIcons = computed<SmartIcon[]>(() =>
   isEditing.value ? editableIcons.value : activeIcons.value,
 )
+
+// In bigMode we stay very slim, so hide titles; in normal mode, show them.
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
 
-// scroll helpers
+// scroll + drag helpers
 const scrollContainer = ref<HTMLElement | null>(null)
 let scrollTick = false
-function checkScrollEdges() {}
+
+function checkScrollEdges() {
+  // Placeholder for future edge indicators (chevrons, fade masks, etc.)
+  // Keeping this here so existing calls don't break.
+}
+
 function checkScrollEdgesThrottled() {
   if (scrollTick) return
   scrollTick = true
@@ -100,30 +111,40 @@ function checkScrollEdgesThrottled() {
   })
 }
 
-let isDragging = false
+const isDragging = ref(false)
 let startX = 0
 let scrollStart = 0
+
 function handleScrollMouseDown(e: MouseEvent) {
-  isDragging = true
+  if (!scrollContainer.value) return
+  isDragging.value = true
   startX = e.clientX
-  scrollStart = scrollContainer.value?.scrollLeft || 0
+  scrollStart = scrollContainer.value.scrollLeft
+  // Prevent text/image selection while dragging
+  e.preventDefault()
 }
+
 function handleScrollMouseMove(e: MouseEvent) {
-  if (!isDragging || !scrollContainer.value) return
-  scrollContainer.value.scrollLeft = scrollStart - (e.clientX - startX)
+  if (!isDragging.value || !scrollContainer.value) return
+  const delta = e.clientX - startX
+  scrollContainer.value.scrollLeft = scrollStart - delta
 }
+
 function handleScrollMouseUp() {
-  isDragging = false
+  isDragging.value = false
 }
+
 function handleScrollTouchStart(e: TouchEvent) {
-  isDragging = true
+  if (!scrollContainer.value) return
+  isDragging.value = true
   startX = e.touches[0].clientX
-  scrollStart = scrollContainer.value?.scrollLeft || 0
+  scrollStart = scrollContainer.value.scrollLeft
 }
+
 function handleScrollTouchMove(e: TouchEvent) {
-  if (!isDragging || !scrollContainer.value) return
-  scrollContainer.value.scrollLeft =
-    scrollStart - (e.touches[0].clientX - startX)
+  if (!isDragging.value || !scrollContainer.value) return
+  const delta = e.touches[0].clientX - startX
+  scrollContainer.value.scrollLeft = scrollStart - delta
 }
 
 let resizeObserver: ResizeObserver | null = null
@@ -136,3 +157,16 @@ onBeforeUnmount(() => {
     resizeObserver.unobserve(scrollContainer.value)
 })
 </script>
+
+<style scoped>
+/* Hide scrollbars while keeping horizontal scroll behavior */
+.smart-icons-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/old Edge */
+}
+
+.smart-icons-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+</style>

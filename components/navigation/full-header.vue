@@ -51,7 +51,7 @@
 
   <!-- Debug display info (can remove once you are happy) -->
   <div
-    class="fixed left-2 top-2 z-50 pointer-events-none text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.7rem,1.1vw,0.95rem)] leading-none shadow"
+    class="fixed right-12 top-2 z-50 pointer-events-none text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.7rem,1.1vw,0.95rem)] leading-none shadow"
   >
     {{ viewportSize }}
   </div>

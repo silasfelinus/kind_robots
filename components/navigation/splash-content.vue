@@ -26,15 +26,8 @@
         >
           <div class="flex flex-wrap items-center gap-2">
             <span
-              v-if="room"
-              class="inline-flex items-center rounded-full border border-black bg-secondary px-3 py-0.5 text-[0.7rem] sm:text-xs font-semibold uppercase tracking-[0.18em]"
-            >
-              Room
-            </span>
-
-            <span
               v-if="subtitle"
-              class="inline-flex items-center rounded-full border border-dashed border-base-content/40 bg-base-100/70 px-3 py-0.5 text-[0.7rem] sm:text-xs font-medium tracking-wide text-base-content/80"
+              class="inline-flex items-center rounded-full border border-black bg-secondary px-3 py-0.5 text-[0.7rem] sm:text-xs font-semibold uppercase tracking-[0.18em]"
             >
               {{ subtitle }}
             </span>

@@ -89,7 +89,7 @@
 // /components/vibes/add-vibe.vue
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useVibeStore } from '~/stores/vibeStore'
+import { useVibeStore } from '~/abandonware/vibeStore'
 
 const vibeStore = useVibeStore()
 const { saving, error } = storeToRefs(vibeStore)

@@ -30,20 +30,20 @@
         v-if="!bigMode"
         class="absolute inset-y-0 left-[3%] right-[4%] z-40 flex items-center pointer-events-none"
       >
-        <h1
-          class="m-0 flex flex-wrap items-baseline gap-[0.35ch] font-bold tracking-tight leading-tight text-[clamp(0.9rem,5.2vh,2.75rem)]"
+        <div
+          class="inline-flex max-w-full rounded-2xl bg-black/45 backdrop-blur-sm px-2 py-1 shadow-lg"
         >
-          <span
-            class="text-white rounded-md px-1 py-[0.125em] whitespace-nowrap"
+          <h1
+            class="m-0 flex flex-wrap items-baseline gap-[0.35ch] font-bold tracking-tight leading-tight text-[clamp(0.9rem,5.2vh,2.75rem)] text-white"
           >
-            Kind
-          </span>
-          <span
-            class="text-white break-words pr-[0.25rem] drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]"
-          >
-            {{ page?.title || 'Robots' }}
-          </span>
-        </h1>
+            <span class="whitespace-nowrap font-semibold">Kind</span>
+            <span
+              class="break-words pr-[0.25rem] drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]"
+            >
+              {{ page?.title || 'Robots' }}
+            </span>
+          </h1>
+        </div>
       </div>
 
       <!-- Bottom: subtitle badge (inside avatar) -->

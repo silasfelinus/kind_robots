@@ -18,7 +18,7 @@
           // Direct children fill height of the row
           '[&>*]:h-full',
           // Safe zones for chevron arrows so icons never sit under them
-          'pl-6 pr-6 sm:pl-8 sm:pr-8',
+          'pl-10 pr-10 sm:pl-12 sm:pr-12',
           // Drag cursor feedback
           isDragging ? 'cursor-grabbing' : 'cursor-grab',
         ]"
@@ -37,13 +37,13 @@
           :key="icon.id"
           :icon="icon"
           :show-title="showTitles"
-          class="snap-start shrink-0 h-full aspect-square flex"
+          class="smart-icon-tile snap-start shrink-0 h-full aspect-square flex"
         />
 
         <!-- Plus tile (edit mode only) — same square sizing -->
         <div
           v-if="isEditing"
-          class="snap-start shrink-0 h-full aspect-square flex"
+          class="smart-icon-tile snap-start shrink-0 h-full aspect-square flex"
         >
           <NuxtLink
             to="/icons"
@@ -70,7 +70,7 @@
     <button
       v-if="canScrollLeft"
       type="button"
-      class="pointer-events-auto absolute left-1 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center rounded-full border border-base-content/30 bg-base-300/80 hover:bg-base-200/90 shadow-sm text-base-content/80 w-6 h-6 lg:w-7 lg:h-7"
+      class="pointer-events-auto absolute left-1.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center rounded-full border border-base-content/30 bg-base-300/80 hover:bg-base-200/90 shadow-sm text-base-content/80 w-6 h-6 lg:w-7 lg:h-7"
       @click="scrollByStep(-1)"
     >
       <Icon name="kind-icon:chevron-left" class="w-3 h-3 lg:w-4 lg:h-4" />
@@ -79,7 +79,7 @@
     <button
       v-if="canScrollRight"
       type="button"
-      class="pointer-events-auto absolute right-1 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center rounded-full border border-base-content/30 bg-base-300/80 hover:bg-base-200/90 shadow-sm text-base-content/80 w-6 h-6 lg:w-7 lg:h-7"
+      class="pointer-events-auto absolute right-1.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center rounded-full border border-base-content/30 bg-base-300/80 hover:bg-base-200/90 shadow-sm text-base-content/80 w-6 h-6 lg:w-7 lg:h-7"
       @click="scrollByStep(1)"
     >
       <Icon name="kind-icon:chevron-right" class="w-3 h-3 lg:w-4 lg:h-4" />
@@ -127,6 +127,14 @@ let scrollStart = 0
 function updateScrollFlags() {
   const el = scrollContainer.value
   if (!el) return
+
+  // If content fits, no arrows at all
+  if (el.scrollWidth <= el.clientWidth + 1) {
+    canScrollLeft.value = false
+    canScrollRight.value = false
+    return
+  }
+
   const maxScrollLeft = el.scrollWidth - el.clientWidth - 1
   canScrollLeft.value = el.scrollLeft > 1
   canScrollRight.value = el.scrollLeft < maxScrollLeft
@@ -145,34 +153,11 @@ function checkScrollEdgesThrottled() {
   })
 }
 
-function getTileWidth(): number {
-  const el = scrollContainer.value
-  if (!el || !el.children.length) return 0
-  const firstTile = el.children[0] as HTMLElement
-  return firstTile?.offsetWidth || 0
-}
-
-function snapToNearestTile() {
-  const el = scrollContainer.value
-  if (!el) return
-  const tileWidth = getTileWidth()
-  if (!tileWidth) {
-    updateScrollFlags()
-    return
-  }
-  const current = el.scrollLeft
-  const index = Math.round(current / tileWidth)
-  const target = index * tileWidth
-  el.scrollTo({ left: target, behavior: 'smooth' })
-}
-
 function scrollByStep(direction: -1 | 1) {
   const el = scrollContainer.value
   if (!el) return
-  const tileWidth = getTileWidth()
-  const step = tileWidth || el.clientWidth / 3
-  const target = el.scrollLeft + direction * step
-  el.scrollTo({ left: target, behavior: 'smooth' })
+  const step = el.clientWidth * 0.8
+  el.scrollBy({ left: direction * step, behavior: 'smooth' })
 }
 
 // Mouse drag
@@ -193,7 +178,6 @@ function handleScrollMouseMove(e: MouseEvent) {
 function handleScrollMouseUp() {
   if (!isDragging.value) return
   isDragging.value = false
-  snapToNearestTile()
 }
 
 // Touch drag
@@ -213,7 +197,6 @@ function handleScrollTouchMove(e: TouchEvent) {
 function handleScrollTouchEnd() {
   if (!isDragging.value) return
   isDragging.value = false
-  snapToNearestTile()
 }
 
 let resizeObserver: ResizeObserver | null = null

@@ -2,46 +2,89 @@
 <template>
   <div
     ref="contentContainer"
-    class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-4 space-y-6"
+    class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-6 space-y-8"
   >
-    <div class="text-center space-y-2">
-      <div class="absolute top-0 right-0 z-30" v-if="icon">
-        <Icon :name="icon" class="w-full h-auto text-primary" />
+    <!-- Hero header block -->
+    <section
+      class="relative overflow-hidden rounded-3xl border border-black bg-base-100/90 shadow-xl px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8 animate-fade-in-up"
+    >
+      <!-- Soft icon accent in the background -->
+      <div
+        v-if="icon"
+        class="pointer-events-none absolute -top-10 -right-6 sm:-top-12 sm:-right-8 opacity-20 rotate-6"
+      >
+        <Icon
+          :name="icon"
+          class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
+        />
       </div>
-      <h1
-        v-if="room"
-        class="text-lg md:text-xl lg:text-2xl xl:text-4xl font-bold bg-secondary text-black border border-black rounded-2xl py-1 inline-block animate-fade-in-up"
-      >
-        The {{ room }}
-      </h1>
 
-      <button
-        v-if="theme && themeStore.currentTheme !== theme"
-        @click="themeStore.setActiveTheme(theme)"
-        class="mx-auto block text-xs md:text-sm lg:text-md xl:text-lg font-semibold bg-accent text-black border border-black rounded-2xl px-3 py-1 animate-fade-in-up hover:underline"
-      >
-        <span class="font-mono">{{ theme }}</span>
-      </button>
+      <div class="relative space-y-4 sm:space-y-5">
+        <!-- Top line: badge + theme button -->
+        <div
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              v-if="room"
+              class="inline-flex items-center rounded-full border border-black bg-secondary px-3 py-0.5 text-[0.7rem] sm:text-xs font-semibold uppercase tracking-[0.18em]"
+            >
+              Room
+            </span>
 
-      <h2
-        v-if="subtitle"
-        class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-200"
-      >
-        {{ subtitle }}
-      </h2>
-      <h2
-        v-if="description"
-        class="text-xs md:text-sm lg:text-md xl:text-lg font-medium bg-secondary text-black border border-black rounded-2xl px-3 py-1 inline-block animate-fade-in-up delay-300"
-      >
-        {{ description }}
-      </h2>
-    </div>
+            <span
+              v-if="subtitle"
+              class="inline-flex items-center rounded-full border border-dashed border-base-content/40 bg-base-100/70 px-3 py-0.5 text-[0.7rem] sm:text-xs font-medium tracking-wide text-base-content/80"
+            >
+              {{ subtitle }}
+            </span>
+          </div>
 
+          <button
+            v-if="theme && themeStore.currentTheme !== theme"
+            @click="themeStore.setActiveTheme(theme)"
+            class="inline-flex items-center justify-center self-start sm:self-auto rounded-full border border-black bg-accent px-3 py-1 text-[0.7rem] sm:text-xs lg:text-sm font-semibold text-black shadow-sm hover:translate-y-[1px] hover:shadow-md transition"
+          >
+            <span
+              class="mr-1.5 text-[0.65rem] uppercase tracking-[0.16em] opacity-80"
+            >
+              Theme
+            </span>
+            <span class="font-mono">{{ theme }}</span>
+          </button>
+        </div>
+
+        <!-- Room title -->
+        <div class="space-y-2">
+          <h1
+            v-if="room"
+            class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight tracking-tight"
+          >
+            <span
+              class="inline-block bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent drop-shadow-[0_1px_0_rgba(0,0,0,0.55)]"
+            >
+              The {{ room }}
+            </span>
+          </h1>
+
+          <!-- Description as body copy, not a pill -->
+          <p
+            v-if="description"
+            class="max-w-2xl text-xs sm:text-sm lg:text-base text-base-content/80"
+          >
+            {{ description }}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Nav strip -->
     <splash-nav />
 
-    <div
+    <!-- Dotti and Ami chat banter -->
+    <section
       v-if="dottitip && amitip"
-      class="space-y-3 max-w-2xl mx-auto pb-3 px-2"
+      class="space-y-4 max-w-2xl mx-auto pb-4 px-1 sm:px-2"
     >
       <div class="chat chat-end animate-fade-in-up delay-300 text-black">
         <div class="chat-image avatar">
@@ -50,12 +93,17 @@
           </div>
         </div>
         <div class="chat-bubble bg-primary text-black border border-black">
-          <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
-            >DottiBot:</span
+          <span
+            class="font-semibold text-xs sm:text-sm lg:text-base block mb-1"
           >
-          <div>{{ dottitip }}</div>
+            DottiBot:
+          </span>
+          <div class="text-xs sm:text-sm lg:text-base">
+            {{ dottitip }}
+          </div>
         </div>
       </div>
+
       <div class="chat chat-start animate-fade-in-up delay-500">
         <div class="chat-image avatar">
           <div class="w-10 h-10 rounded-full border-2 border-secondary">
@@ -63,21 +111,27 @@
           </div>
         </div>
         <div class="chat-bubble bg-secondary text-black border border-black">
-          <span class="font-semibold text-xs md:text-sm lg:text-md xl:text-lg"
-            >AMIbot:</span
+          <span
+            class="font-semibold text-xs sm:text-sm lg:text-base block mb-1"
           >
-          <div>{{ amitip }}</div>
+            AMIbot:
+          </span>
+          <div class="text-xs sm:text-sm lg:text-base">
+            {{ amitip }}
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+// /components/content/icons/splash-content.vue
+import { ref, computed } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
 
+const contentContainer = ref<HTMLElement | null>(null)
 
 const pageStore = usePageStore()
 const themeStore = useThemeStore()

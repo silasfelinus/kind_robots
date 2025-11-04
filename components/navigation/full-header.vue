@@ -26,11 +26,6 @@
       </div>
     </div>
 
-    <!-- Center smart icons bar -->
-    <div class="flex-1 min-w-0 h-full flex items-stretch z-0">
-      <smart-icons class="h-full w-full" />
-    </div>
-
     <!-- Kind title column -->
     <div
       class="flex-none h-full flex items-center px-2 sm:px-3 lg:px-4 max-w-[30%]"
@@ -43,6 +38,11 @@
           {{ page?.title || 'Robots' }}
         </span>
       </h1>
+    </div>
+
+    <!-- Center smart icons bar -->
+    <div class="flex-1 min-w-0 h-full flex items-stretch z-0">
+      <smart-icons class="h-full w-full" />
     </div>
 
     <!-- Right column smart toggles -->

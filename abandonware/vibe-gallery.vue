@@ -95,7 +95,11 @@
 // /components/vibes/vibe-gallery.vue
 import { onMounted, ref, computed, type ComputedRef, type Ref } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useVibeStore, type VibeDef, type UserVibe } from '~/stores/vibeStore'
+import {
+  useVibeStore,
+  type VibeDef,
+  type UserVibe,
+} from '~/abandonware/vibeStore'
 import { useUserStore } from '@/stores/userStore'
 
 const vibeStore = useVibeStore()

@@ -130,7 +130,7 @@
 // /components/vibes/vibe-academy.vue
 import { onMounted, ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useVibeStore, type UserVibe } from '@/stores/vibeStore'
+import { useVibeStore, type UserVibe } from '~/abandonware/vibeStore'
 import { useUserStore } from '@/stores/userStore'
 
 const vibeStore = useVibeStore()

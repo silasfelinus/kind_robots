@@ -30,14 +30,31 @@
     <div
       class="flex-none h-full flex items-center px-2 sm:px-3 lg:px-4 max-w-[30%]"
     >
-      <h1
-        class="m-0 flex flex-wrap items-baseline gap-[0.35ch] font-bold tracking-tight leading-tight text-[clamp(0.95rem,2.1vw,1.9rem)] text-base-content truncate"
+      <div
+        class="inline-flex max-w-full items-center gap-2 rounded-2xl border border-base-content/10 bg-base-100/80 px-3 py-1.5 sm:px-4 sm:py-2 shadow-sm backdrop-blur-sm"
       >
-        <span class="whitespace-nowrap font-semibold">Kind</span>
-        <span class="break-words pr-[0.25rem]">
-          {{ page?.title || 'Robots' }}
+        <!-- Kind pill -->
+        <span
+          class="inline-flex items-center justify-center rounded-full bg-primary/90 px-2 py-[0.1rem] text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-wide uppercase text-primary-content whitespace-nowrap"
+        >
+          Kind
         </span>
-      </h1>
+
+        <!-- Title + optional subtitle -->
+        <div class="flex flex-col min-w-0">
+          <span
+            class="truncate font-semibold leading-tight text-[clamp(0.85rem,1.7vw,1.25rem)] text-base-content drop-shadow-sm"
+          >
+            {{ page?.title || 'Robots' }}
+          </span>
+          <span
+            v-if="subtitle"
+            class="truncate text-[0.65rem] sm:text-[0.75rem] text-base-content/70"
+          >
+            {{ subtitle }}
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- Center smart icons bar -->
@@ -45,12 +62,9 @@
       <smart-icons class="h-full w-full" />
     </div>
 
-    <!-- Right column smart toggles -->
-    <div
-      class="flex-none h-full z-0 flex items-stretch justify-end"
-      :class="toggleColumnClasses"
-    >
-      <smart-toggles class="h-full w-full" />
+    <!-- Right column smart toggles (no fixed width, hugs content) -->
+    <div class="flex-none h-full z-0 flex items-center px-1">
+      <smart-toggles />
     </div>
   </header>
 </template>
@@ -68,6 +82,7 @@ const userStore = useUserStore()
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
+const subtitle = computed(() => pageStore.page?.subtitle)
 
 // only show viewport notice if admin + bigMode
 const showViewportBadge = computed(() => {
@@ -79,12 +94,5 @@ const showViewportBadge = computed(() => {
  */
 const avatarColumnClasses = computed(() =>
   bigMode.value ? 'basis-[10%] max-w-[22%]' : 'basis-[12%] max-w-[25%]',
-)
-
-/**
- * Toggle column: reasonably slim so icons can use the bar.
- */
-const toggleColumnClasses = computed(() =>
-  bigMode.value ? 'basis-[11%] max-w-[13%]' : 'basis-[13%] max-w-[15%]',
 )
 </script>

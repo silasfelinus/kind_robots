@@ -1,14 +1,10 @@
 <!-- /components/content/navigation/smart-toggles.vue -->
 <template>
-  <!-- Column hugs the right side -->
-  <div class="h-full w-full flex justify-end items-stretch">
-    <!-- Vertical stack of toggles aligned to the right edge -->
-    <div
-      class="h-full w-full flex flex-col justify-center items-stretch gap-1 select-none"
-    >
+  <!-- Compact vertical stack hugging its content -->
+  <div class="h-full flex items-center">
+    <div class="flex flex-col justify-center items-end gap-1 select-none">
       <!-- Row 1: Confirm + Edit/Cancel -->
       <div class="flex items-center justify-end gap-1">
-        <!-- Confirm (edit mode) or invisible placeholder (non-edit) -->
         <button
           v-if="isEditing"
           :class="[
@@ -33,7 +29,6 @@
           ]"
         />
 
-        <!-- Edit / Cancel -->
         <button
           v-if="!isEditing"
           :class="[

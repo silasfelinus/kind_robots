@@ -1,7 +1,7 @@
 ---
 title: 'Characters'
 room: 'Character Gallery'
-subtitle: 'These personalities aren’t just pretty code'
+subtitle: 'Not just pretty code'
 description: 'Browse character profiles each with their own quirks and quests.'
 gallery: 'avatars'
 image: 'avatars/charactergallery.webp'

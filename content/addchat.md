@@ -1,7 +1,7 @@
 ---
 title: 'Chat'
 room: 'New Chat Room'
-subtitle: 'Say something worth responding to'
+subtitle: 'Say something'
 description: 'Add a new chat prompt or message to spark AI dialogue.'
 gallery: 'botcafe'
 image: 'botcafe/addchat.webp'

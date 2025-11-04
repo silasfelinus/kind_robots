@@ -1,7 +1,7 @@
 ---
 title: 'Gifts'
 room: 'Gift Shop'
-subtitle: A Token of Appreciation 🎁
+subtitle: A Token of Appreciation
 description: Find your keepsake from our world of wonders.
 image: amibotsquare1.webp
 gallery: wondershed

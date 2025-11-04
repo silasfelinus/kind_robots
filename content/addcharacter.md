@@ -1,7 +1,7 @@
 ---
 title: 'Character'
 room: 'New Character Room'
-subtitle: 'Give your bot a soul… or at least a fun backstory'
+subtitle: 'Give your bot a soul'
 description: 'Craft a unique personality for your robot or story character.'
 gallery: 'charvault'
 image: 'avatars/addcharacter.webp'

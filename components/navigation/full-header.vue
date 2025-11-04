@@ -34,7 +34,7 @@
           class="m-0 flex flex-wrap items-baseline gap-[0.35ch] font-bold tracking-tight leading-tight text-[clamp(0.9rem,5.2vh,2.75rem)]"
         >
           <span
-            class="text-white bg-primary/90 rounded-md px-1 py-[0.125em] whitespace-nowrap"
+            class="text-white rounded-md px-1 py-[0.125em] whitespace-nowrap"
           >
             Kind
           </span>

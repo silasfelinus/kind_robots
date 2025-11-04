@@ -1,7 +1,7 @@
 ---
 title: Galleries
 room: 'Galleries Room'
-subtitle: AIs Imaginarium 🎨
+subtitle: AIs Imaginarium
 description: Step into a world where algorithms dream in colors and shapes. Each gallery is a curated adventure for your senses.
 image: 'art1.webp'
 gallery: flower

@@ -1,7 +1,7 @@
 ---
 title: 'Navigation'
 room: 'Navigation Overview'
-subtitle: 'Access every section with style'
+subtitle: 'Your personal roadmap'
 description: 'All roads lead to here — your central hub for exploring Kind Robots. Switch tabs, access dashboards, and get where you need to go.'
 gallery: 'navigation'
 image: 'background/navigation.png'

@@ -1,7 +1,7 @@
 ---
 title: 'Reward'
 room: 'Add Reward Room'
-subtitle: 'Invent a narrative twist disguised as a prize'
+subtitle: 'Invent a narrative twist'
 description: 'Rewards aren’t just random items — they’re strange powers, weird items, and story-bending artifacts for our AI-powered adventures.'
 gallery: 'rewards'
 image: 'rewards/addrewards.webp'

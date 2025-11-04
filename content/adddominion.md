@@ -1,7 +1,7 @@
 ---
 title: 'Add Dominion'
 room: 'Dominion Workshop'
-subtitle: 'Create an original Dominion card'
+subtitle: 'Dominion creator'
 description: 'Define rules text, types, costs, and bonuses. Save to your set.'
 gallery: 'dominion'
 image: 'background/dominion.png'

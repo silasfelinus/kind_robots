@@ -1,7 +1,7 @@
 ---
 title: Direction
 room: 'Lost & Found Room'
-subtitle: "Oops! This page wandered off..."
+subtitle: "This page wandered off..."
 description: "We couldn’t find the page you were looking for. It might have been renamed, moved, or never existed at all."
 image: 'background/error.png'
 tags: ['error', 'missing', '404']

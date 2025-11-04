@@ -1,7 +1,7 @@
 ---
 title: 'Forum'
 room: 'Creative Forum'
-subtitle: 'Share ideas, questions, and delightful nonsense'
+subtitle: 'For ideas, questions, and nonsense'
 description: 'Welcome to the Kind Robots Forum — a freeform chat space for users, bots, and characters to collide creatively. Start a topic, respond to threads, or just vibe.'
 gallery: 'forum'
 image: 'background/forum.png'

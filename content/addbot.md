@@ -1,7 +1,7 @@
 ---
 title: 'Bot'
 room: 'New Bot Room'
-subtitle: 'Create a new kind robot'
+subtitle: 'Create a new robot'
 description: 'Create a new bot and share it with the community'
 gallery: 'botcafe'
 image: 'botcafe/addbot.webp'

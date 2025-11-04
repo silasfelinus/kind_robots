@@ -74,7 +74,7 @@ const bigMode = computed(() => displayStore.bigMode)
  * In bigMode we go a bit slimmer so the center panel has more room.
  */
 const avatarColumnClasses = computed(() =>
-  bigMode.value ? 'basis-[18%] max-w-[22%]' : 'basis-[22%] max-w-[25%]',
+  bigMode.value ? 'basis-[10%] max-w-[22%]' : 'basis-[12%] max-w-[25%]',
 )
 
 /**

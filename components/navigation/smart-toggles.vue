@@ -2,84 +2,77 @@
 <template>
   <!-- Column hugs the right side -->
   <div class="h-full w-full flex justify-end items-stretch">
-    <!-- Inner grid gets a comfortable width relative to the column -->
+    <!-- Vertical stack of toggles aligned to the right edge -->
     <div
-      class="h-full w-[80%] xl:w-[70%] 2xl:w-[60%] grid [grid-template-rows:repeat(3,minmax(0,1fr))] select-none"
+      class="h-full w-full flex flex-col justify-center items-stretch gap-1 px-1 select-none"
     >
-      <!-- Row 1: [Confirm-left] [Main centered: Edit/Cancel] [Spacer-right] -->
-      <div class="h-full w-full grid grid-cols-3 items-center">
-        <!-- Left: Confirm (edit mode) or invisible placeholder (non-edit) -->
-        <div class="flex items-center justify-center">
-          <button
-            v-if="isEditing"
-            :class="[
-              'rounded-full aspect-square min-h-8 flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed',
-              bigMode ? 'h-[55%]' : 'h-[70%]',
-            ]"
-            :title="hasChanges ? 'Save order' : 'No changes to save'"
-            :disabled="!hasChanges"
-            @click="confirmEdit"
-          >
-            <Icon
-              name="kind-icon:check"
-              :class="[bigMode ? 'h-[60%] w-[60%]' : 'h-[65%] w-[65%]']"
-            />
-          </button>
-
-          <!-- Placeholder keeps the layout balanced when not editing -->
-          <div
-            v-else
-            :class="[
-              'rounded-full aspect-square min-h-8 opacity-0 pointer-events-none',
-              bigMode ? 'h-[55%]' : 'h-[70%]',
-            ]"
+      <!-- Row 1: Confirm + Edit/Cancel -->
+      <div class="h-full flex items-center justify-end gap-1">
+        <!-- Confirm (edit mode) or invisible placeholder (non-edit) -->
+        <button
+          v-if="isEditing"
+          :class="[
+            'rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition disabled:opacity-40 disabled:cursor-not-allowed',
+            bigMode ? 'h-[52%] min-h-6' : 'h-[72%] min-h-8',
+          ]"
+          :title="hasChanges ? 'Save order' : 'No changes to save'"
+          :disabled="!hasChanges"
+          @click="confirmEdit"
+        >
+          <Icon
+            name="kind-icon:check"
+            :class="[bigMode ? 'h-[60%] w-[60%]' : 'h-[65%] w-[65%]']"
           />
-        </div>
+        </button>
 
-        <!-- Center: Edit (not editing) OR Cancel (editing), always centered -->
-        <div class="flex items-center justify-center">
-          <button
-            v-if="!isEditing"
-            :class="[
-              'rounded-full aspect-square min-h-8 flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition',
-              bigMode ? 'h-[70%]' : 'h-[86%]',
-            ]"
-            :aria-pressed="isEditing"
-            title="Edit Smart Icons"
-            @click="activateEditMode"
-          >
-            <Icon
-              name="kind-icon:settings"
-              :class="[bigMode ? 'h-[60%] w-[60%]' : 'h-[72%] w-[72%]']"
-            />
-          </button>
+        <!-- Placeholder keeps layout stable when not editing -->
+        <div
+          v-else
+          :class="[
+            'rounded-full aspect-square opacity-0 pointer-events-none',
+            bigMode ? 'h-[52%] min-h-6' : 'h-[72%] min-h-8',
+          ]"
+        />
 
-          <button
-            v-else
-            :class="[
-              'rounded-full aspect-square min-h-8 flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition',
-              bigMode ? 'h-[70%]' : 'h-[86%]',
-            ]"
-            title="Cancel changes"
-            @click="revertEdit"
-          >
-            <Icon
-              name="kind-icon:close"
-              :class="[bigMode ? 'h-[60%] w-[60%]' : 'h-[72%] w-[72%]']"
-            />
-          </button>
-        </div>
+        <!-- Edit / Cancel -->
+        <button
+          v-if="!isEditing"
+          :class="[
+            'rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition',
+            bigMode ? 'h-[60%] min-h-6' : 'h-[86%] min-h-8',
+          ]"
+          :aria-pressed="isEditing"
+          title="Edit Smart Icons"
+          @click="activateEditMode"
+        >
+          <Icon
+            name="kind-icon:settings"
+            :class="[bigMode ? 'h-[60%] w-[60%]' : 'h-[72%] w-[72%]']"
+          />
+        </button>
 
-        <!-- Right: empty spacer to keep center truly centered -->
-        <div />
+        <button
+          v-else
+          :class="[
+            'rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition',
+            bigMode ? 'h-[60%] min-h-6' : 'h-[86%] min-h-8',
+          ]"
+          title="Cancel changes"
+          @click="revertEdit"
+        >
+          <Icon
+            name="kind-icon:close"
+            :class="[bigMode ? 'h-[60%] w-[60%]' : 'h-[72%] w-[72%]']"
+          />
+        </button>
       </div>
 
       <!-- Row 2: Corner menu toggle -->
-      <div class="h-full w-full flex items-center justify-center">
+      <div class="h-full flex items-center justify-end">
         <button
           :class="[
-            'rounded-full aspect-square min-h-8 flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition',
-            bigMode ? 'h-[70%]' : 'h-[86%]',
+            'rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition',
+            bigMode ? 'h-[60%] min-h-6' : 'h-[86%] min-h-8',
             displayStore.showCorner ? 'ring-1 ring-primary/50' : '',
           ]"
           :title="
@@ -100,11 +93,11 @@
       </div>
 
       <!-- Row 3: Tutorial toggle -->
-      <div class="h-full w-full flex items-center justify-center">
+      <div class="h-full flex items-center justify-end">
         <button
           :class="[
-            'rounded-full aspect-square min-h-8 flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition',
-            bigMode ? 'h-[70%]' : 'h-[86%]',
+            'rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition',
+            bigMode ? 'h-[60%] min-h-6' : 'h-[86%] min-h-8',
             isTutorialOpen ? 'ring-1 ring-primary/50' : '',
           ]"
           :title="isTutorialOpen ? 'Hide Tutorial' : 'Show Tutorial'"

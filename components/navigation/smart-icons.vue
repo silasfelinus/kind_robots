@@ -5,7 +5,7 @@
     <div class="h-full w-full flex items-stretch min-w-0">
       <div
         ref="scrollContainer"
-        class="h-full w-full flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] pr-0 overflow-x-auto overflow-y-hidden smart-icons-scroll select-none"
+        class="h-full w-full flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none"
         :class="[
           // When the corner panel is open, hide labels/titles so the header stays minimal
           displayStore.showCorner
@@ -17,6 +17,8 @@
           '[&_*]:!ms-0 [&_*]:!me-0',
           // Direct children fill height of the row
           '[&>*]:h-full',
+          // Safe zones for chevron arrows so icons never sit under them
+          'pl-6 pr-6 sm:pl-8 sm:pr-8',
           // Drag cursor feedback
           isDragging ? 'cursor-grabbing' : 'cursor-grab',
         ]"

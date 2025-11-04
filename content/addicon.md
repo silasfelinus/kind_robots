@@ -1,7 +1,7 @@
 ---
 title: 'Icon'
 room: 'New Icon Room'
-subtitle: 'Customize your smart bar with new icons'
+subtitle: 'Customize your smart bar'
 description: 'Create a custom icon to enhance your navigation or utility tools.'
 gallery: 'smartbar'
 image: 'utility/addicon.png'

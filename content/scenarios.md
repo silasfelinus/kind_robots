@@ -1,7 +1,7 @@
 ---
 title: 'Scenarios'
 room: 'Scenario Gallery'
-subtitle: 'Wander through worlds built by curious minds'
+subtitle: 'worlds built by curious minds'
 description: 'Browse player-made choose-your-own-adventure scenarios where each choice sends bots down new AI-generated paths.'
 gallery: 'scenarios'
 image: 'scenarios/scenariogallery.webp'

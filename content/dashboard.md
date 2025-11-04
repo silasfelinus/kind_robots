@@ -1,7 +1,7 @@
 ---
 title: 'Human'
-room: 'User Dashboard'
-subtitle: "User's Private Page"
+room: 'Your Dashboard'
+subtitle: "Your Private Page"
 description: 'This is your space!'
 gallery: 'cafepurr'
 image: 'backtree.webp'

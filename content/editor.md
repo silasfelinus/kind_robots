@@ -1,7 +1,7 @@
 ---
 title: 'Edit Art'
 room: 'Image Editor Room'
-subtitle: "Tweak, transform, and remix your artwork"
+subtitle: "Tweak and remix"
 description: "Welcome to your creative playground. Upload your art, choose an edit style, or describe how you'd like to transform it. Let your imagination guide the remix."
 gallery: 'cafepurr'
 image: 'background/editor.png'

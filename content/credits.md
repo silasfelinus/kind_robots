@@ -1,7 +1,7 @@
 ---
 title: 'Credits & Support'
 room: 'Support Kind Robots'
-subtitle: Fund the Future, One Token at a Time 💖
+subtitle: Fund the Future
 description: Kind Robots is fueled by curiosity, compassion, and a lot of GPU time. Buy tokens or sponsor a subscription to help us keep the servers humming and the art flowing.
 image: background/credits.png
 gallery: wondershed

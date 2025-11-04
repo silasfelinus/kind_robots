@@ -1,7 +1,7 @@
 ---
 title: 'Chats'
 room: 'Chat Gallery'
-subtitle: 'Echoes of wit, warmth, and weirdness'
+subtitle: 'Echoes of wit and weirdness'
 description: 'Scroll through curated messages and threads from across our digital domains.'
 gallery: 'avatars'
 image: 'botcafe/chatgallery.webp'

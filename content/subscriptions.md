@@ -1,7 +1,7 @@
 ---
 title: 'Subscriptions'
 room: 'Support Kind Robots Monthly'
-subtitle: Power Our Circuits Monthly ⚡
+subtitle: Power Our Circuits
 description: Subscribe to keep Kind Robots dreaming! Monthly support helps us plan for the future and scale our artistic, story-loving AI adventures. Change, upgrade, or cancel anytime.
 image: background/subscription.png
 gallery: wondershed

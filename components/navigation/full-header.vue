@@ -24,32 +24,25 @@
           {{ viewportSize }}
         </span>
       </div>
-
-      <!-- Middle: title overlay only in non bigMode -->
-      <div
-        v-if="!bigMode"
-        class="absolute inset-y-0 left-[3%] right-[4%] z-40 flex items-center pointer-events-none"
-      >
-        <div
-          class="inline-flex max-w-full rounded-2xl bg-black/45 backdrop-blur-sm px-2 py-1 shadow-lg"
-        >
-          <h1
-            class="m-0 flex flex-wrap items-baseline gap-[0.35ch] font-bold tracking-tight leading-tight text-[clamp(0.9rem,5.2vh,2.75rem)] text-white"
-          >
-            <span class="whitespace-nowrap font-semibold">Kind</span>
-            <span
-              class="break-words pr-[0.25rem] drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]"
-            >
-              {{ page?.title || 'Robots' }}
-            </span>
-          </h1>
-        </div>
-      </div>
     </div>
 
     <!-- Center smart icons bar -->
     <div class="flex-1 min-w-0 h-full flex items-stretch z-0">
       <smart-icons class="h-full w-full" />
+    </div>
+
+    <!-- Kind title column -->
+    <div
+      class="flex-none h-full flex items-center px-2 sm:px-3 lg:px-4 max-w-[30%]"
+    >
+      <h1
+        class="m-0 flex flex-wrap items-baseline gap-[0.35ch] font-bold tracking-tight leading-tight text-[clamp(0.95rem,2.1vw,1.9rem)] text-base-content truncate"
+      >
+        <span class="whitespace-nowrap font-semibold">Kind</span>
+        <span class="break-words pr-[0.25rem]">
+          {{ page?.title || 'Robots' }}
+        </span>
+      </h1>
     </div>
 
     <!-- Right column smart toggles -->
@@ -75,7 +68,6 @@ const userStore = useUserStore()
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
-const subtitle = computed(() => pageStore.page?.subtitle)
 
 // only show viewport notice if admin + bigMode
 const showViewportBadge = computed(() => {

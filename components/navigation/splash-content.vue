@@ -24,15 +24,6 @@
         <div
           class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
         >
-          <div class="flex flex-wrap items-center gap-2">
-            <span
-              v-if="subtitle"
-              class="inline-flex items-center rounded-full border border-black bg-secondary px-3 py-0.5 text-[0.7rem] sm:text-xs font-semibold uppercase tracking-[0.18em]"
-            >
-              {{ subtitle }}
-            </span>
-          </div>
-
           <button
             v-if="theme && themeStore.currentTheme !== theme"
             @click="themeStore.setActiveTheme(theme)"
@@ -63,7 +54,7 @@
           <!-- Description as body copy, not a pill -->
           <p
             v-if="description"
-            class="max-w-2xl text-xs sm:text-sm lg:text-base text-base-content/80"
+            class="inline-flex items-center rounded-full border border-black bg-secondary px-3 py-0.5 text-[0.7rem] sm:text-xs font-semibold uppercase tracking-[0.18em]"
           >
             {{ description }}
           </p>

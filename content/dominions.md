@@ -1,7 +1,7 @@
 ---
 title: 'Dominions'
 room: 'Hall of Dominion'
-subtitle: 'Browse public and owned dominion cards'
+subtitle: 'Browse dominion cards'
 description: 'Explore, edit, and iterate on fan-made dominion cards.'
 gallery: 'dominion'
 image: 'background/dominion.png'

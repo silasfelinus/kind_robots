@@ -1,7 +1,7 @@
 ---
 title: 'Button'
 room: 'Rebel Button Room'
-subtitle: The Button You Can't Help but Press!
+subtitle: Don't do it!
 description: For rebels and curious souls, each click delivers a surprise!
 image: wonderchest/wonderchest-1794.webp
 gallery: wonderbot

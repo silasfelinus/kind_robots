@@ -1,7 +1,7 @@
 ---
 title: 'Pitches'
 room: 'Pitch Gallery'
-subtitle: 'Where ideas come to mingle, mutate, and maybe... manifest'
+subtitle: 'Where ideas manifest'
 description: 'See the sparks of inspiration submitted by our community.'
 gallery: 'story'
 image: 'story/pitchgallery.webp'

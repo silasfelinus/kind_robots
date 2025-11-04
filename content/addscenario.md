@@ -1,7 +1,7 @@
 ---
 title: 'Scenario'
 room: 'New Scenario Room'
-subtitle: 'Build a branching world for bots and stories to collide'
+subtitle: 'Build a branching world'
 description: 'Scenarios are interactive, choose-your-own-adventure narratives. You design the world and key decisions — our bots and AI generate the possible outcomes.'
 gallery: 'scenarios'
 image: 'scenarios/addscenario.webp'

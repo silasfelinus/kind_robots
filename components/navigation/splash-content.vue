@@ -4,13 +4,25 @@
     ref="contentContainer"
     class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-6 space-y-8"
   >
-    <!-- Subtitle at the very top, centered above everything -->
-    <div v-if="subtitle" class="w-full flex justify-center mb-2">
-      <span
-        class="inline-flex max-w-full truncate bg-base-100/90 text-black border border-black rounded-md px-3 py-1 text-[clamp(0.7rem,0.9vw,1rem)] leading-none shadow"
+    <!-- Kind title bar at the very top, centered above everything -->
+    <div v-if="title" class="w-full flex justify-center mb-2">
+      <div
+        class="inline-flex max-w-full items-center gap-2 rounded-2xl border border-black bg-base-100/95 px-3 py-1.5 sm:px-4 sm:py-2 shadow-md"
       >
-        {{ subtitle }}
-      </span>
+        <!-- Kind pill -->
+        <span
+          class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-2 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.2em] uppercase whitespace-nowrap"
+        >
+          Kind
+        </span>
+
+        <!-- Page title text -->
+        <span
+          class="truncate font-semibold leading-tight text-[clamp(0.9rem,1.9vw,1.4rem)] tracking-tight"
+        >
+          {{ title }}
+        </span>
+      </div>
     </div>
 
     <!-- Hero header block -->
@@ -129,6 +141,7 @@ const contentContainer = ref<HTMLElement | null>(null)
 const pageStore = usePageStore()
 const themeStore = useThemeStore()
 
+const title = computed(() => pageStore.page?.title)
 const room = computed(() => pageStore.page?.room)
 const subtitle = computed(() => pageStore.page?.subtitle)
 const description = computed(() => pageStore.page?.description)

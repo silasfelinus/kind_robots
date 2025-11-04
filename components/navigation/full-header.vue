@@ -26,34 +26,27 @@
       </div>
     </div>
 
-    <!-- Kind title column -->
+    <!-- Stylized subtitle column (after avatar) -->
     <div
-      class="flex-none h-full flex items-center px-2 sm:px-3 lg:px-4 max-w-[30%]"
+      v-if="subtitle"
+      class="flex-none h-full flex items-center px-2 sm:px-3 lg:px-4 max-w-[40%]"
     >
       <div
         class="inline-flex max-w-full items-center gap-2 rounded-2xl border border-base-content/10 bg-base-100/80 px-3 py-1.5 sm:px-4 sm:py-2 shadow-sm backdrop-blur-sm"
       >
-        <!-- Kind pill -->
+        <!-- Label pill -->
         <span
-          class="inline-flex items-center justify-center rounded-full bg-primary/90 px-2 py-[0.1rem] text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-wide uppercase text-primary-content whitespace-nowrap"
+          class="inline-flex items-center justify-center rounded-full bg-primary/90 px-2 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.18em] uppercase text-primary-content whitespace-nowrap"
         >
-          Kind
+          Subtitle
         </span>
 
-        <!-- Title + optional subtitle -->
-        <div class="flex flex-col min-w-0">
-          <span
-            class="truncate font-semibold leading-tight text-[clamp(0.85rem,1.7vw,1.25rem)] text-base-content drop-shadow-sm"
-          >
-            {{ page?.title || 'Robots' }}
-          </span>
-          <span
-            v-if="subtitle"
-            class="truncate text-[0.65rem] sm:text-[0.75rem] text-base-content/70"
-          >
-            {{ subtitle }}
-          </span>
-        </div>
+        <!-- Actual subtitle text -->
+        <span
+          class="truncate text-[clamp(0.75rem,1.6vw,1.1rem)] font-semibold leading-snug tracking-tight text-base-content"
+        >
+          {{ subtitle }}
+        </span>
       </div>
     </div>
 

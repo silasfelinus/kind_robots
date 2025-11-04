@@ -3,8 +3,8 @@
   <!-- Fill the column by default -->
   <div class="relative h-full w-full leading-none flex-1 min-w-0">
     <!-- One flex row: [arrow] [scrollable icons] [arrow] -->
-    <div class="h-full w-full flex items-stretch min-w-0 gap-1">
-      <!-- Left chevron (only if needed) -->
+    <div class="h-full w-full flex items-stretch min-w-0 gap-[2px]">
+      <!-- Left chevron (only if needed, takes space only when visible) -->
       <button
         v-if="canScrollLeft"
         type="button"
@@ -17,7 +17,7 @@
       <!-- Scrollable icon track -->
       <div
         ref="scrollContainer"
-        class="h-full flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-1 sm:px-2"
+        class="h-full flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none"
         :class="[
           // When the corner panel is open, hide labels/titles so the header stays minimal
           displayStore.showCorner
@@ -75,7 +75,7 @@
         <div aria-hidden="true" class="shrink-0 h-full w-px" />
       </div>
 
-      <!-- Right chevron (only if needed) -->
+      <!-- Right chevron (only if needed, takes space only when visible) -->
       <button
         v-if="canScrollRight"
         type="button"
@@ -124,6 +124,7 @@ const canScrollRight = ref(false)
 let scrollTick = false
 let startX = 0
 let scrollStart = 0
+const EPSILON = 2 // px tolerance so "almost zero" doesn't show the left arrow
 
 function updateScrollFlags() {
   const el = scrollContainer.value
@@ -136,9 +137,9 @@ function updateScrollFlags() {
     return
   }
 
-  const maxScrollLeft = el.scrollWidth - el.clientWidth - 1
-  canScrollLeft.value = el.scrollLeft > 1
-  canScrollRight.value = el.scrollLeft < maxScrollLeft
+  const maxScrollLeft = el.scrollWidth - el.clientWidth
+  canScrollLeft.value = el.scrollLeft > EPSILON
+  canScrollRight.value = maxScrollLeft - el.scrollLeft > EPSILON
 }
 
 function checkScrollEdges() {
@@ -179,6 +180,8 @@ function handleScrollMouseMove(e: MouseEvent) {
 function handleScrollMouseUp() {
   if (!isDragging.value) return
   isDragging.value = false
+  // ensure chevrons refresh when drag ends
+  requestAnimationFrame(updateScrollFlags)
 }
 
 // Touch drag
@@ -198,6 +201,8 @@ function handleScrollTouchMove(e: TouchEvent) {
 function handleScrollTouchEnd() {
   if (!isDragging.value) return
   isDragging.value = false
+  // ensure chevrons refresh when drag ends
+  requestAnimationFrame(updateScrollFlags)
 }
 
 // keep arrows in sync when layout or icons change

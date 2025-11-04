@@ -2,10 +2,22 @@
 <template>
   <!-- Fill the column by default -->
   <div class="relative h-full w-full leading-none flex-1 min-w-0">
-    <div class="h-full w-full flex items-stretch min-w-0">
+    <!-- One flex row: [arrow] [scrollable icons] [arrow] -->
+    <div class="h-full w-full flex items-stretch min-w-0 gap-1">
+      <!-- Left chevron (only if needed) -->
+      <button
+        v-if="canScrollLeft"
+        type="button"
+        class="hidden sm:flex items-center justify-center self-center rounded-full border border-base-content/30 bg-base-300/80 hover:bg-base-200/90 shadow-sm text-base-content/80 flex-none w-6 h-6 lg:w-7 lg:h-7"
+        @click="scrollByStep(-1)"
+      >
+        <Icon name="kind-icon:chevron-left" class="w-3 h-3 lg:w-4 lg:h-4" />
+      </button>
+
+      <!-- Scrollable icon track -->
       <div
         ref="scrollContainer"
-        class="h-full w-full flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none"
+        class="h-full flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-1 sm:px-2"
         :class="[
           // When the corner panel is open, hide labels/titles so the header stays minimal
           displayStore.showCorner
@@ -17,8 +29,6 @@
           '[&_*]:!ms-0 [&_*]:!me-0',
           // Direct children fill height of the row
           '[&>*]:h-full',
-          // Safe zones for chevron arrows so icons never sit under them
-          'pl-10 pr-10 sm:pl-12 sm:pr-12',
           // Drag cursor feedback
           isDragging ? 'cursor-grabbing' : 'cursor-grab',
         ]"
@@ -37,13 +47,13 @@
           :key="icon.id"
           :icon="icon"
           :show-title="showTitles"
-          class="smart-icon-tile snap-start shrink-0 h-full aspect-square flex"
+          class="snap-start shrink-0 h-full aspect-square flex"
         />
 
         <!-- Plus tile (edit mode only) — same square sizing -->
         <div
           v-if="isEditing"
-          class="smart-icon-tile snap-start shrink-0 h-full aspect-square flex"
+          class="snap-start shrink-0 h-full aspect-square flex"
         >
           <NuxtLink
             to="/icons"
@@ -64,32 +74,23 @@
         <!-- Spacer to eliminate tiny trailing dead-zone from rounding -->
         <div aria-hidden="true" class="shrink-0 h-full w-px" />
       </div>
+
+      <!-- Right chevron (only if needed) -->
+      <button
+        v-if="canScrollRight"
+        type="button"
+        class="hidden sm:flex items-center justify-center self-center rounded-full border border-base-content/30 bg-base-300/80 hover:bg-base-200/90 shadow-sm text-base-content/80 flex-none w-6 h-6 lg:w-7 lg:h-7"
+        @click="scrollByStep(1)"
+      >
+        <Icon name="kind-icon:chevron-right" class="w-3 h-3 lg:w-4 lg:h-4" />
+      </button>
     </div>
-
-    <!-- Scroll hint arrows (no visible scrollbars) -->
-    <button
-      v-if="canScrollLeft"
-      type="button"
-      class="pointer-events-auto absolute left-1.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center rounded-full border border-base-content/30 bg-base-300/80 hover:bg-base-200/90 shadow-sm text-base-content/80 w-6 h-6 lg:w-7 lg:h-7"
-      @click="scrollByStep(-1)"
-    >
-      <Icon name="kind-icon:chevron-left" class="w-3 h-3 lg:w-4 lg:h-4" />
-    </button>
-
-    <button
-      v-if="canScrollRight"
-      type="button"
-      class="pointer-events-auto absolute right-1.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center rounded-full border border-base-content/30 bg-base-300/80 hover:bg-base-200/90 shadow-sm text-base-content/80 w-6 h-6 lg:w-7 lg:h-7"
-      @click="scrollByStep(1)"
-    >
-      <Icon name="kind-icon:chevron-right" class="w-3 h-3 lg:w-4 lg:h-4" />
-    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 // /components/content/navigation/smart-icons.vue
-import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, computed, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -198,6 +199,14 @@ function handleScrollTouchEnd() {
   if (!isDragging.value) return
   isDragging.value = false
 }
+
+// keep arrows in sync when layout or icons change
+watch(
+  () => rowIcons.value.length,
+  () => {
+    nextTick(() => requestAnimationFrame(updateScrollFlags))
+  },
+)
 
 let resizeObserver: ResizeObserver | null = null
 onMounted(() => {

@@ -96,17 +96,15 @@ const showViewportBadge = computed(() => {
 
 /**
  * Avatar column: never more than roughly 1/4 of the header width.
- * In bigMode we go a bit slimmer so the center panel has more room.
  */
 const avatarColumnClasses = computed(() =>
   bigMode.value ? 'basis-[10%] max-w-[22%]' : 'basis-[12%] max-w-[25%]',
 )
 
 /**
- * Toggle column: slim on desktop, even slimmer in bigMode.
- * This keeps the vertical stack readable without bullying the center icons.
+ * Toggle column: a bit slimmer so icons can use more of the bar.
  */
 const toggleColumnClasses = computed(() =>
-  bigMode.value ? 'basis-[14%] max-w-[16%]' : 'basis-[17%] max-w-[20%]',
+  bigMode.value ? 'basis-[11%] max-w-[13%]' : 'basis-[13%] max-w-[15%]',
 )
 </script>

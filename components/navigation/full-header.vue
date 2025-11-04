@@ -51,9 +51,16 @@
 
   <!-- Debug display info (can remove once you are happy) -->
   <div
-    class="fixed right-12 top-2 z-50 pointer-events-none text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.7rem,1.1vw,0.95rem)] leading-none shadow"
+    class="fixed left-2 top-2 z-50 pointer-events-none text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.7rem,1.1vw,0.95rem)] leading-none shadow"
   >
     {{ viewportSize }}
+  </div>
+
+  <div
+    v-if="subtitle"
+    class="fixed left-2 top-12 z-50 pointer-events-none text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.7rem,1.1vw,0.95rem)] leading-none shadow"
+  >
+    {{ subtitle }}
   </div>
 </template>
 
@@ -68,6 +75,7 @@ const pageStore = usePageStore()
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
+const subtitle = computed(() => pageStore.page?.subtitle)
 
 /**
  * Avatar column: never more than roughly 1/4 of the header width.

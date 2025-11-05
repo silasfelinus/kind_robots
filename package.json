@@ -17,6 +17,7 @@
     "studio": "npx prisma studio",
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate deploy",
+    "migration": "./scripts/migration.sh",
     "prisma:migrate:dev": "npx prisma migrate dev",
     "postinstall": "npm run prisma:generate",
     "backup": "ts-node server/utils/backupDatabase.ts",

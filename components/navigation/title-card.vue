@@ -5,7 +5,7 @@
   >
     <div
       v-if="icon"
-      class="pointer-events-none absolute -top-10 -right-6 sm:-top-12 sm:-right-8 opacity-20 rotate-6"
+      class="pointer-events-none absolute -top-10 -right-6 sm:-top-12 -right-8 opacity-20 rotate-6"
     >
       <Icon
         :name="icon"
@@ -71,48 +71,18 @@
         {{ description }}
       </p>
     </div>
-
-    <div
-      class="pt-1 flex items-center justify-between gap-2 text-xs sm:text-sm"
-    >
-      <button
-        v-if="canGoBack"
-        type="button"
-        class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-300 px-3 py-1 flex items-center gap-1"
-        @click="goBack"
-      >
-        <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
-        <span>Back</span>
-      </button>
-
-      <span class="flex-1" />
-
-      <button
-        v-if="canGoForward"
-        type="button"
-        class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-300 px-3 py-1 flex items-center gap-1"
-        @click="goNext"
-      >
-        <span>Next</span>
-        <Icon name="kind-icon:arrow-right" class="w-3 h-3" />
-      </button>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // /components/content/icons/title-card.vue
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { Icon } from '#components'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
-import { useNavStore } from '@/stores/navStore'
 
 const pageStore = usePageStore()
 const themeStore = useThemeStore()
-const navStore = useNavStore()
-const router = useRouter()
 
 const title = computed(() => pageStore.page?.title)
 const room = computed(() => pageStore.page?.room)
@@ -120,17 +90,4 @@ const subtitle = computed(() => pageStore.page?.subtitle)
 const description = computed(() => pageStore.page?.description)
 const icon = computed(() => pageStore.page?.icon)
 const theme = computed(() => pageStore.page?.theme)
-
-const canGoBack = computed(() => navStore.canGoBack)
-const canGoForward = computed(() => navStore.canGoForward)
-
-function goBack() {
-  const target = navStore.backPath
-  if (target) router.push(target)
-}
-
-function goNext() {
-  const target = navStore.forwardPath
-  if (target) router.push(target)
-}
 </script>

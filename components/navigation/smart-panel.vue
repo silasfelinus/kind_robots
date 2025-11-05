@@ -1,11 +1,33 @@
 <!-- /components/content/icons/nav-panel.vue -->
 <template>
   <div class="h-full overflow-y-auto px-4 py-5 sm:px-6 sm:py-7">
-    <!-- Header row -->
+    <!-- Header row with history controls -->
     <div class="flex items-center justify-between gap-2 mb-3">
       <h2 class="text-lg sm:text-xl font-bold text-base-content">
         Browse Rooms and Tools
       </h2>
+
+      <div class="flex items-center gap-1">
+        <button
+          v-if="canGoBack"
+          type="button"
+          class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-300 px-3 py-1 flex items-center gap-1"
+          @click="goBack"
+        >
+          <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
+          <span>Back</span>
+        </button>
+
+        <button
+          v-if="canGoForward"
+          type="button"
+          class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-300 px-3 py-1 flex items-center gap-1"
+          @click="goNext"
+        >
+          <span>Next</span>
+          <Icon name="kind-icon:arrow-right" class="w-3 h-3" />
+        </button>
+      </div>
     </div>
 
     <!-- Loading state -->
@@ -59,13 +81,24 @@
 <script setup lang="ts">
 // /components/content/icons/nav-panel.vue
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import { Icon } from '#components'
 import { useNavStore } from '@/stores/navStore'
 
 const navStore = useNavStore()
+const router = useRouter()
 
-const { activeModelType, directoryIcons, modelTypes, favoritesIcons } =
-  storeToRefs(navStore)
+const {
+  activeModelType,
+  directoryIcons,
+  modelTypes,
+  favoritesIcons,
+  canGoBack,
+  canGoForward,
+  backPath,
+  forwardPath,
+} = storeToRefs(navStore)
 
 const navInitialized = computed(() => navStore.isInitialized)
 
@@ -153,5 +186,18 @@ function filterClass(value: string) {
 function formatModelType(type: string) {
   if (!type) return ''
   return type.charAt(0).toUpperCase() + type.slice(1)
+}
+
+// History navigation
+function goBack() {
+  if (backPath.value) {
+    router.push(backPath.value)
+  }
+}
+
+function goNext() {
+  if (forwardPath.value) {
+    router.push(forwardPath.value)
+  }
 }
 </script>

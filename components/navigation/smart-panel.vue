@@ -1,62 +1,81 @@
-<!-- /components/content/layout/smart-grid.vue -->
+<!-- /components/content/icons/nav-panel.vue -->
 <template>
-  <div class="w-full flex flex-col items-stretch rounded-2xl p-2 gap-4">
-    <!-- Filter chips row -->
-    <div class="flex flex-wrap items-center justify-center gap-2 px-1 sm:px-2">
-      <button
-        v-for="chip in filters"
-        :key="chip.value"
-        class="btn btn-xs sm:btn-sm rounded-full px-3"
-        :class="filterClass(chip.value)"
-        @click="setFilter(chip.value)"
-      >
-        {{ chip.label }}
-      </button>
+  <div class="h-full overflow-y-auto px-4 py-5 sm:px-6 sm:py-7">
+    <!-- Header row -->
+    <div class="flex items-center justify-between gap-2 mb-3">
+      <h2 class="text-lg sm:text-xl font-bold text-base-content">
+        Browse Rooms and Tools
+      </h2>
     </div>
 
-    <!-- Grid of icons for the current filter -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-      <smart-card
-        v-for="(icon, i) in filteredIcons"
-        :key="icon.link || icon.title || i"
-        :icon="icon"
-        :delay="i"
-      />
-    </div>
-
-    <p
-      v-if="filteredIcons.length === 0"
-      class="text-center text-xs sm:text-sm text-base-content/70 mt-1"
+    <!-- Loading state -->
+    <div
+      v-if="!navInitialized"
+      class="w-full flex items-center justify-center py-8 text-sm text-base-content/70"
     >
-      No links for this selection yet.
-    </p>
+      Loading navigation...
+    </div>
 
-    <!-- AMI chat always visible -->
-    <div class="mt-3 w-full">
-      <transition name="fade">
-        <ami-chat v-if="showChat" class="w-full" />
-      </transition>
+    <!-- Main nav content -->
+    <div
+      v-else
+      class="w-full flex flex-col items-stretch rounded-2xl p-2 gap-4"
+    >
+      <!-- Filter chips row -->
+      <div
+        class="flex flex-wrap items-center justify-center gap-2 px-1 sm:px-2"
+      >
+        <button
+          v-for="chip in filters"
+          :key="chip.value"
+          class="btn btn-xs sm:btn-sm rounded-full px-3"
+          :class="filterClass(chip.value)"
+          @click="setFilter(chip.value)"
+        >
+          {{ chip.label }}
+        </button>
+      </div>
+
+      <!-- Grid of icons for the current filter -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+        <smart-card
+          v-for="(icon, i) in filteredIcons"
+          :key="icon.link || icon.title || i"
+          :icon="icon"
+          :delay="i"
+        />
+      </div>
+
+      <p
+        v-if="filteredIcons.length === 0"
+        class="text-center text-xs sm:text-sm text-base-content/70 mt-1"
+      >
+        No links for this selection yet.
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// /components/content/layout/smart-grid.vue
+// /components/content/icons/nav-panel.vue
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useNavStore } from '@/stores/navStore'
-import type { SmartIcon } from '@/stores/smartbarStore'
 
 const navStore = useNavStore()
+
 const { activeModelType, directoryIcons, modelTypes, favoritesIcons } =
   storeToRefs(navStore)
 
+const navInitialized = computed(() => navStore.isInitialized)
+
+// All icons coming from the store
 const allIcons = computed(() => directoryIcons.value)
 
-// Do we actually have any favorites?
+// Do we actually have any favorites
 const hasFavorites = computed(() => favoritesIcons.value.length > 0)
 
-// Do we have Ami / User icons?
+// Do we have Ami / User icons
 const hasAmiIcons = computed(() =>
   allIcons.value.some((icon) => icon.category === 'ami'),
 )
@@ -111,8 +130,6 @@ const filteredIcons = computed(() => {
   return icons.filter((icon) => icon.modelType === filter)
 })
 
-const showChat = ref(true)
-
 // Keep store in sync with modelType filters only
 function setFilter(value: string) {
   activeFilter.value = value
@@ -138,18 +155,3 @@ function formatModelType(type: string) {
   return type.charAt(0).toUpperCase() + type.slice(1)
 }
 </script>
-
-<style scoped>
-/* Simple fade for the AMI chat block */
-.fade-enter-active,
-.fade-leave-active {
-  transition:
-    opacity 150ms ease-out,
-    transform 150ms ease-out;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(4px);
-}
-</style>

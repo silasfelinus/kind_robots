@@ -16,6 +16,7 @@
 // /pages/[...slug].vue
 import { useRoute, useRouter } from '#app'
 import { watch, computed } from 'vue'
+import type { Ref, ComputedRef } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -29,12 +30,15 @@ import type {
   displayActionState,
 } from '@/stores/displayStore'
 import type { ContentType } from '~/content.config'
+import type { LayoutKey } from '@/stores/pageStore' // or wherever LayoutKey lives
 import { usePageStore } from '@/stores/pageStore'
+import { useNavStore } from '@/stores/navStore'
 
 const route = useRoute()
 const router = useRouter()
 
 const pageStore = usePageStore()
+const navStore = useNavStore()
 const displayStore = useDisplayStore()
 const userStore = useUserStore()
 const botStore = useBotStore()
@@ -51,10 +55,14 @@ watch(
       newPath,
       () => queryCollection('content').path(newPath).first(),
     )
+
     if (!data.value) {
+      // Do NOT record this path, we’ll land on /error instead
       await router.push('/error')
     } else {
+      // Set the page, then record this visit in nav history
       pageStore.setPage(data.value)
+      navStore.recordVisit(newPath)
     }
   },
   { immediate: true },

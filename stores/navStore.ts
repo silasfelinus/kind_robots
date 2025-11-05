@@ -8,6 +8,7 @@ import smartIconSeeds from '@/stores/seeds/smartIcons.json'
 export type NavTab = 'favorites' | 'navigation' | 'all'
 
 export const useNavStore = defineStore('navStore', () => {
+  // --- CORE STATE ---
   const items = ref<SmartIcon[]>([])
   const favorites = ref<string[]>([])
   const activeTab = ref<NavTab>('navigation')
@@ -15,8 +16,11 @@ export const useNavStore = defineStore('navStore', () => {
   const isInitialized = ref(false)
   const loading = ref(false)
 
-  // --- COMPUTED ---
+  // --- ROUTE HISTORY STATE ---
+  const routeHistory = ref<string[]>([])
+  const currentIndex = ref<number>(-1)
 
+  // --- COMPUTED: SmartIcon Data ---
   const directoryIcons = computed(() =>
     items.value.filter((icon) => icon.type === 'directory'),
   )
@@ -39,7 +43,6 @@ export const useNavStore = defineStore('navStore', () => {
   })
 
   // --- LOCAL STORAGE SYNC ---
-
   function syncToLocalStorage() {
     if (typeof window === 'undefined') return
     try {
@@ -75,10 +78,8 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   if (typeof window !== 'undefined') {
-    // hydrate favorites + any cached icons once
     hydrateFromLocalStorage()
 
-    // persist favorites on change
     watch(
       favorites,
       () => {
@@ -88,8 +89,7 @@ export const useNavStore = defineStore('navStore', () => {
     )
   }
 
-  // --- API + SEED LOADING ---
-
+  // --- FETCHING SMARTICONS ---
   async function fetchAllIcons(): Promise<SmartIcon[]> {
     loading.value = true
     try {
@@ -101,7 +101,6 @@ export const useNavStore = defineStore('navStore', () => {
         return res.data
       }
 
-      // No data from API
       return []
     } catch (error) {
       handleError(error, 'fetching SmartIcons')
@@ -115,7 +114,6 @@ export const useNavStore = defineStore('navStore', () => {
     if (isInitialized.value) return
 
     try {
-      // Use any cached values from localStorage first
       hydrateFromLocalStorage()
 
       const fetched = await fetchAllIcons()
@@ -124,18 +122,15 @@ export const useNavStore = defineStore('navStore', () => {
         console.warn(
           '[navStore] No SmartIcons from API, falling back to seeds/smartIcons.json',
         )
-        // Seed fallback (JSON backup)
         items.value = (smartIconSeeds as unknown as SmartIcon[]).map(
           (icon) => ({
             ...icon,
-            // ensure type is at least "directory" for these
             type: icon.type || 'directory',
           }),
         )
         syncToLocalStorage()
       }
 
-      // Default active model type if not set
       if (!activeModelType.value && modelTypes.value.length > 0) {
         activeModelType.value = modelTypes.value[0]
       }
@@ -144,7 +139,6 @@ export const useNavStore = defineStore('navStore', () => {
     } catch (error) {
       handleError(error, 'initializing navStore')
 
-      // last-resort fallback to seeds if nothing has loaded
       if (!items.value.length) {
         try {
           items.value = (smartIconSeeds as unknown as SmartIcon[]).map(
@@ -162,7 +156,6 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   // --- FAVORITES ---
-
   function toggleFavorite(link?: string | null) {
     if (!link) return
     const idx = favorites.value.indexOf(link)
@@ -179,8 +172,7 @@ export const useNavStore = defineStore('navStore', () => {
     return favorites.value.includes(link)
   }
 
-  // --- UI STATE HELPERS ---
-
+  // --- UI HELPERS ---
   function setActiveTab(tab: NavTab) {
     activeTab.value = tab
   }
@@ -189,7 +181,6 @@ export const useNavStore = defineStore('navStore', () => {
     activeModelType.value = modelType
   }
 
-  // Optional helper so you can manually inject a list
   function setIcons(data: SmartIcon[]) {
     items.value = data
     syncToLocalStorage()
@@ -199,8 +190,70 @@ export const useNavStore = defineStore('navStore', () => {
     }
   }
 
+  // =====================================================
+  // 🧭 ROUTE HISTORY TRACKING
+  // =====================================================
+
+  function recordVisit(path: string) {
+    // First visit
+    if (routeHistory.value.length === 0) {
+      routeHistory.value.push(path)
+      currentIndex.value = 0
+      return
+    }
+
+    const currentPath = routeHistory.value[currentIndex.value]
+
+    // Ignore if same path
+    if (path === currentPath) return
+
+    // Forward navigation in stack
+    if (
+      currentIndex.value < routeHistory.value.length - 1 &&
+      routeHistory.value[currentIndex.value + 1] === path
+    ) {
+      currentIndex.value++
+      return
+    }
+
+    // Backward navigation
+    if (
+      currentIndex.value > 0 &&
+      routeHistory.value[currentIndex.value - 1] === path
+    ) {
+      currentIndex.value--
+      return
+    }
+
+    // If new path, drop "forward" stack and add new entry
+    if (currentIndex.value < routeHistory.value.length - 1) {
+      routeHistory.value.splice(currentIndex.value + 1)
+    }
+
+    routeHistory.value.push(path)
+    currentIndex.value = routeHistory.value.length - 1
+  }
+
+  const canGoBack = computed(() => currentIndex.value > 0)
+  const canGoForward = computed(
+    () =>
+      currentIndex.value >= 0 &&
+      currentIndex.value < routeHistory.value.length - 1,
+  )
+
+  const backPath = computed<string | null>(() =>
+    canGoBack.value ? routeHistory.value[currentIndex.value - 1] : null,
+  )
+
+  const forwardPath = computed<string | null>(() =>
+    canGoForward.value ? routeHistory.value[currentIndex.value + 1] : null,
+  )
+
+  // =====================================================
+  // EXPORT
+  // =====================================================
   return {
-    // state
+    // --- state ---
     items,
     favorites,
     activeTab,
@@ -208,12 +261,20 @@ export const useNavStore = defineStore('navStore', () => {
     isInitialized,
     loading,
 
-    // computed
+    // --- SmartIcon computed ---
     directoryIcons,
     modelTypes,
     favoritesIcons,
 
-    // actions
+    // --- history state ---
+    routeHistory,
+    currentIndex,
+    backPath,
+    forwardPath,
+    canGoBack,
+    canGoForward,
+
+    // --- actions ---
     initialize,
     fetchAllIcons,
     toggleFavorite,
@@ -222,5 +283,6 @@ export const useNavStore = defineStore('navStore', () => {
     setActiveModelType,
     setIcons,
     syncToLocalStorage,
+    recordVisit,
   }
 })

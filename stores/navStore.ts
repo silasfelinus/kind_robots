@@ -93,7 +93,7 @@ export const useNavStore = defineStore('navStore', () => {
   async function fetchAllIcons(): Promise<SmartIcon[]> {
     loading.value = true
     try {
-      const res = await performFetch<SmartIcon[]>('/api/smartIcons')
+      const res = await performFetch<SmartIcon[]>('/api/icons')
 
       if (res.success && res.data && res.data.length > 0) {
         items.value = res.data

@@ -2,30 +2,9 @@
 <template>
   <div
     ref="contentContainer"
-    class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-6 space-y-8"
+    class="relative z-20 w-full max-w-4xl flex flex-col mx-auto px-4 py-6 space-y-6"
   >
-    <!-- Kind title bar at the very top, centered above everything -->
-    <div v-if="title" class="w-full flex justify-center mb-2">
-      <div
-        class="inline-flex max-w-full items-center gap-2 rounded-2xl border border-black bg-base-100/95 px-3 py-1.5 sm:px-4 sm:py-2 shadow-md"
-      >
-        <!-- Kind pill -->
-        <span
-          class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-2 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.2em] uppercase whitespace-nowrap"
-        >
-          Kind
-        </span>
-
-        <!-- Page title text -->
-        <span
-          class="truncate font-semibold leading-tight text-[clamp(0.9rem,1.9vw,1.4rem)] tracking-tight"
-        >
-          {{ title }}
-        </span>
-      </div>
-    </div>
-
-    <!-- Hero header block -->
+    <!-- Hero header block (now includes Kind title + nav controls) -->
     <section
       class="relative overflow-hidden rounded-3xl border border-black bg-base-100/90 shadow-xl px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8 animate-fade-in-up"
     >
@@ -41,26 +20,31 @@
       </div>
 
       <div class="relative space-y-4 sm:space-y-5">
-        <!-- Top line: back + theme -->
-        <div
-          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-        >
-          <div class="flex items-center gap-2">
-            <!-- Always-available back -->
-            <button
-              v-if="showBack"
-              class="btn btn-xs sm:btn-sm rounded-full border border-black bg-base-100 px-3 py-1 font-semibold shadow-sm hover:translate-y-[1px] hover:shadow-md transition flex items-center gap-1"
-              @click="goBack"
+        <!-- Kind title pill + theme switch -->
+        <div v-if="title" class="flex items-center justify-between gap-3 mb-1">
+          <div
+            class="inline-flex max-w-full items-center gap-2 rounded-2xl border border-black bg-base-100/95 px-3 py-1.5 sm:px-4 sm:py-2 shadow-md"
+          >
+            <!-- Kind pill -->
+            <span
+              class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-2 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.2em] uppercase whitespace-nowrap"
             >
-              <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
-              <span class="text-[0.7rem] sm:text-xs">Back</span>
-            </button>
+              Kind
+            </span>
+
+            <!-- Page title text -->
+            <span
+              class="truncate font-semibold leading-tight text-[clamp(0.9rem,1.9vw,1.4rem)] tracking-tight"
+            >
+              {{ title }}
+            </span>
           </div>
 
+          <!-- Theme button -->
           <button
             v-if="theme && themeStore.currentTheme !== theme"
             @click="themeStore.setActiveTheme(theme)"
-            class="inline-flex items-center justify-center self-start sm:self-auto rounded-full border border-black bg-accent px-3 py-1 text-[0.7rem] sm:text-xs lg:text-sm font-semibold text-black shadow-sm hover:translate-y-[1px] hover:shadow-md transition"
+            class="inline-flex items-center justify-center rounded-full border border-black bg-accent px-3 py-1 text-[0.7rem] sm:text-xs lg:text-sm font-semibold text-black shadow-sm hover:translate-y-[1px] hover:shadow-md transition"
           >
             <span
               class="mr-1.5 text-[0.65rem] uppercase tracking-[0.16em] opacity-80"
@@ -71,7 +55,7 @@
           </button>
         </div>
 
-        <!-- Room title + description -->
+        <!-- Room title + subtitle / description -->
         <div class="space-y-2">
           <h1
             v-if="room"
@@ -84,7 +68,14 @@
             </span>
           </h1>
 
-          <!-- Description as a bold pill/tag line -->
+          <p
+            v-if="subtitle"
+            class="text-xs sm:text-sm text-base-content/80 max-w-prose"
+          >
+            {{ subtitle }}
+          </p>
+
+          <!-- Description as bold tag line -->
           <p
             v-if="description"
             class="inline-flex items-center rounded-full border border-black bg-secondary px-3 py-0.5 text-[0.7rem] sm:text-xs font-semibold uppercase tracking-[0.18em]"
@@ -92,35 +83,47 @@
             {{ description }}
           </p>
         </div>
+
+        <!-- Back / Next navigation row -->
+        <div
+          class="pt-1 flex items-center justify-between gap-2 text-xs sm:text-sm"
+        >
+          <button
+            v-if="showBack"
+            class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-300 px-3 py-1 flex items-center gap-1"
+            @click="goBack"
+          >
+            <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
+            <span>Back</span>
+          </button>
+
+          <span class="flex-1" />
+
+          <button
+            v-if="nextLink"
+            class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-300 px-3 py-1 flex items-center gap-1"
+            @click="goNext"
+          >
+            <span>Next</span>
+            <Icon name="kind-icon:arrow-right" class="w-3 h-3" />
+          </button>
+        </div>
       </div>
     </section>
 
-    <!-- Directory / Navigation container (art-gallery style) -->
+    <!-- Directory / Navigation container -->
     <section
       class="relative bg-base-300 rounded-2xl shadow-md overflow-hidden animate-fade-in-up"
     >
       <div class="p-4 sm:p-6 space-y-4">
         <!-- Header row for the directory view -->
-        <div
-          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
-        >
-          <div class="space-y-1">
-            <h2 class="text-lg sm:text-xl font-bold text-base-content">
-              Browse Rooms & Tools
-            </h2>
-            <p class="text-xs sm:text-sm text-base-content/70">
-              Favorites, model-based navigation, and everything in one place.
-            </p>
-          </div>
-
-          <div
-            class="flex items-center gap-2 text-xs sm:text-sm text-base-content/70"
-          >
-            <span class="hidden sm:inline">Powered by SmartIcons</span>
-          </div>
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-lg sm:text-xl font-bold text-base-content">
+            Browse Rooms and Tools
+          </h2>
         </div>
 
-        <!-- Smart nav grid (tabs + categories + AMI chat toggle) -->
+        <!-- Smart nav grid -->
         <smart-grid v-if="navInitialized" />
 
         <!-- Simple loading / fallback -->
@@ -128,7 +131,7 @@
           v-else
           class="w-full flex items-center justify-center py-8 text-sm text-base-content/70"
         >
-          Loading navigation…
+          Loading navigation...
         </div>
       </div>
     </section>
@@ -139,6 +142,7 @@
 // /components/content/icons/splash-content.vue
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Icon } from '#components'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useNavStore } from '@/stores/navStore'
@@ -163,6 +167,11 @@ const navInitialized = computed(() => navStore.isInitialized)
 
 const showBack = computed(() => route.path !== '/')
 
+// Optional next link support: add `next` to page metadata when ready
+const nextLink = computed<string | null>(() => {
+  return (pageStore.page as any)?.next ?? null
+})
+
 function goBack() {
   if (window.history.length > 1) {
     router.back()
@@ -171,11 +180,17 @@ function goBack() {
   }
 }
 
+function goNext() {
+  if (nextLink.value) {
+    router.push(nextLink.value)
+  }
+}
+
 onMounted(async () => {
   if (!navStore.isInitialized) {
     await navStore.initialize()
   }
-  // Make sure we land in Navigation tab by default
-  navStore.setActiveTab('navigation')
+  // Land in "all" by default in the unified grid
+  navStore.setActiveModelType(null)
 })
 </script>

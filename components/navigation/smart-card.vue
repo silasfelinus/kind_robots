@@ -6,21 +6,23 @@
     @click="handleClick"
     class="group relative flex flex-col items-center text-center rounded-2xl p-4 transition-all cursor-pointer border w-full"
     :class="[
-      `delay-${(delay ?? 0) * 100}`,
+      `delay-${delay * 100}`,
       isActive
         ? 'border-primary bg-base-300 cursor-default'
         : 'border-base-300 hover:bg-base-200 bg-base-100',
     ]"
   >
-    <!-- Favorite toggle -->
+    <!-- Favorite toggle (heart) -->
     <button
       class="absolute right-2 top-2 rounded-full p-1 bg-base-100/90 border border-base-300 shadow-sm hover:bg-base-200"
       @click.stop="toggleFavorite"
       aria-label="Toggle favorite"
+      :aria-pressed="isFavorite"
     >
       <Icon
-        :name="isFavorite ? 'fa-solid:star' : 'fa-regular:star'"
+        :name="isFavorite ? 'fa-solid:heart' : 'fa-regular:heart'"
         class="text-sm"
+        :class="isFavorite ? 'text-error' : 'text-base-content/60'"
       />
     </button>
 
@@ -81,7 +83,9 @@ const isActive = computed(() =>
   link.value ? route.path === link.value : false,
 )
 
-const isFavorite = computed(() => navStore.isFavorite(link.value))
+const isFavorite = computed(() =>
+  link.value ? navStore.isFavorite(link.value) : false,
+)
 
 const tag = computed(() => (isActive.value || !link.value ? 'div' : 'NuxtLink'))
 
@@ -91,6 +95,7 @@ function handleClick() {
 }
 
 function toggleFavorite() {
+  if (!link.value) return
   navStore.toggleFavorite(link.value)
 }
 </script>

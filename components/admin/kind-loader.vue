@@ -27,6 +27,7 @@ import { useChoiceStore } from '../../stores/choiceStore'
 import { useSmartbarStore } from '../../stores/smartbarStore'
 import { useComponentStore } from '../../stores/componentStore'
 import { usePageStore } from '../../stores/pageStore'
+import { useNavStore } from '../../stores/navStore'
 
 // Stores
 const errorStore = useErrorStore()
@@ -51,6 +52,7 @@ const choiceStore = useChoiceStore()
 const smartbarStore = useSmartbarStore()
 const componentStore = useComponentStore()
 const randomStore = useRandomStore()
+const navStore = useNavStore()
 
 // State management
 const isReady = ref(false)
@@ -88,6 +90,7 @@ onMounted(async () => {
       choiceStore.initialize?.(),
       smartbarStore.initialize?.(),
       componentStore.initialize?.(),
+      navStore.initialize?.(),
     ])
 
     console.log('All stores initialized successfully.')

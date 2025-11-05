@@ -7,6 +7,7 @@
     <section
       class="relative overflow-hidden rounded-3xl border border-black bg-base-200/90 shadow-xl flex flex-col h-[min(80vh,720px)]"
     >
+      <!-- Top: flip card (title ↔ smart-panel) -->
       <div class="relative flex-1 min-h-[260px] px-2 py-3 sm:px-4 sm:py-4">
         <div class="flip-card">
           <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
@@ -24,6 +25,7 @@
           </div>
         </div>
 
+        <!-- Flip toggle -->
         <button
           type="button"
           class="absolute top-4 right-5 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
@@ -39,6 +41,7 @@
 
       <div class="border-t border-base-300" />
 
+      <!-- Bottom: AMI chat -->
       <div class="relative flex-1 min-h-[260px] overflow-hidden bg-base-100/95">
         <div class="h-full w-full overflow-y-auto">
           <ami-chat />
@@ -70,8 +73,8 @@ onMounted(async () => {
 <style scoped>
 .flip-card {
   perspective: 1000px;
-  width: 300px;
-  height: 500px;
+  width: 100%;
+  height: 100%;
 }
 
 .flip-card-inner {
@@ -86,17 +89,15 @@ onMounted(async () => {
   transform: rotateY(180deg);
 }
 
-.flip-card-front,
-.flip-card-back {
+/* Shared side styling */
+.flip-side {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   backface-visibility: hidden;
-  border: 2px solid var(--bg-base);
-  border-radius: 5px;
 }
 
-.flip-card-back {
+/* Back is rotated 180deg */
+.flip-back {
   transform: rotateY(180deg);
 }
 </style>

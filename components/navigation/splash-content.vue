@@ -2,7 +2,7 @@
 <template>
   <div
     ref="contentContainer"
-    class="relative z-20 w-full max-w-4xl mx-auto px-4 py-6 h-[min(85vh,780px)]"
+    class="relative z-20 w-full max-w-4xl mx-auto px-4 py-6 h-[min(80vh,720px)] overflow-x-hidden"
   >
     <section
       class="relative overflow-hidden rounded-3xl border border-black bg-base-200/90 shadow-xl flex flex-col h-full"
@@ -13,21 +13,27 @@
             class="flip-card-inner h-full w-full"
             :class="{ 'is-flipped': flipped }"
           >
-            <!-- FRONT: Title + AMI chat in a single scrollable unit -->
+            <!-- FRONT: Title-card and AMI chat as two neat cards in one scroll area -->
             <div
               class="flip-side flip-front absolute inset-0 overflow-hidden rounded-3xl border border-black bg-base-100/95 shadow-xl"
             >
               <div
-                class="h-full w-full overflow-y-auto flex flex-col gap-4 sm:gap-5"
+                class="h-full w-full overflow-y-auto overflow-x-hidden p-3 sm:p-4"
               >
-                <div class="pt-4 px-4 sm:px-6 lg:px-8">
-                  <title-card />
-                </div>
+                <div class="space-y-4 sm:space-y-5 max-w-full">
+                  <!-- Title card wrapper -->
+                  <div
+                    class="rounded-2xl border border-base-300 bg-base-100/95 shadow-md px-4 py-4 sm:px-6 sm:py-5"
+                  >
+                    <title-card />
+                  </div>
 
-                <div class="border-t border-base-300 mx-4 sm:mx-6 lg:mx-8" />
-
-                <div class="pb-4 px-4 sm:px-6 lg:px-8">
-                  <ami-chat />
+                  <!-- AMI chat wrapper -->
+                  <div
+                    class="rounded-2xl border border-base-300 bg-base-100 shadow-md px-4 py-4 sm:px-6 sm:py-5"
+                  >
+                    <ami-chat />
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,3 +1,4 @@
+// /server/api/icons/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from './../utils/prisma'
 import { errorHandler } from './../utils/error'
@@ -18,6 +19,27 @@ export default defineEventHandler(async (event) => {
       event,
     )
 
+    // Helper to resolve category/modelType with your defaults:
+    // - If modelType is present and category is missing => category = 'model'
+    // - If both are missing => category = 'giftshop'
+    function resolveCategoryAndModelType(entry: Partial<SmartIcon>) {
+      const modelType = entry.modelType ?? undefined
+
+      let category = entry.category
+      if (!category) {
+        if (modelType) {
+          category = 'model'
+        } else {
+          category = 'giftshop'
+        }
+      }
+
+      return {
+        category,
+        modelType,
+      }
+    }
+
     // SINGLE: SmartIconCreateInput
     const normalizeSingle = (
       entry: Partial<SmartIcon>,
@@ -35,6 +57,8 @@ export default defineEventHandler(async (event) => {
         })
       }
 
+      const { category, modelType } = resolveCategoryAndModelType(entry)
+
       return {
         title: entry.title,
         type: entry.type,
@@ -45,6 +69,8 @@ export default defineEventHandler(async (event) => {
         link: entry.link || '',
         component: entry.component || '',
         isPublic: entry.isPublic ?? true,
+        category,
+        modelType,
         User: { connect: { id: user.id } }, // ✅ for single
       }
     }
@@ -66,6 +92,8 @@ export default defineEventHandler(async (event) => {
         })
       }
 
+      const { category, modelType } = resolveCategoryAndModelType(entry)
+
       return {
         title: entry.title,
         type: entry.type,
@@ -77,6 +105,8 @@ export default defineEventHandler(async (event) => {
         component: entry.component || '',
         isPublic: entry.isPublic ?? true,
         userId: user.id, // ✅ for batch
+        category,
+        modelType,
       }
     }
 

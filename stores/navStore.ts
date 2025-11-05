@@ -1,124 +1,226 @@
 // /stores/navStore.ts
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { useSmartbarStore } from '@/stores/smartbarStore'
-import { usePageStore } from '@/stores/pageStore'
+import { ref, computed, watch } from 'vue'
+import { performFetch, handleError } from '@/stores/utils'
+import type { SmartIcon } from '@prisma/client'
+import smartIconSeeds from '@/stores/seeds/smartIcons.json'
 
-export type NavViewMode = 'favorites' | 'suggested' | 'model' | 'all'
+export type NavTab = 'favorites' | 'navigation' | 'all'
 
 export const useNavStore = defineStore('navStore', () => {
-  const smartbarStore = useSmartbarStore()
-  const pageStore = usePageStore()
+  const items = ref<SmartIcon[]>([])
+  const favorites = ref<string[]>([])
+  const activeTab = ref<NavTab>('navigation')
+  const activeModelType = ref<string | null>(null)
+  const isInitialized = ref(false)
+  const loading = ref(false)
 
-  // All nav-capable SmartIcons
-  const allNavIcons = computed(() =>
-    smartbarStore.icons.filter((icon) => icon.type === 'nav'),
+  // --- COMPUTED ---
+
+  const directoryIcons = computed(() =>
+    items.value.filter((icon) => icon.type === 'directory'),
   )
 
-  const viewMode = ref<NavViewMode>('suggested')
+  const modelTypes = computed(() => {
+    const set = new Set<string>()
+    for (const icon of directoryIcons.value) {
+      if (icon.modelType && icon.category === 'model') {
+        set.add(icon.modelType)
+      }
+    }
+    return Array.from(set).sort()
+  })
 
-  // Separate favorites for navs, local only for now
-  const navFavoriteIds = ref<number[]>([])
+  const favoritesIcons = computed(() => {
+    const favSet = new Set(favorites.value)
+    return directoryIcons.value.filter(
+      (icon) => icon.link && favSet.has(icon.link),
+    )
+  })
 
-  // Active nav is by SmartIcon id, derived from page meta when unset
-  const manualNavId = ref<number | null>(null)
+  // --- LOCAL STORAGE SYNC ---
 
-  const activeNavIcon = computed({
-    get() {
-      if (manualNavId.value != null) {
-        return allNavIcons.value.find((i) => i.id === manualNavId.value) ?? null
+  function syncToLocalStorage() {
+    if (typeof window === 'undefined') return
+    try {
+      localStorage.setItem('navIcons', JSON.stringify(items.value))
+      localStorage.setItem('navFavorites', JSON.stringify(favorites.value))
+    } catch (error) {
+      console.error('[navStore] localStorage sync error:', error)
+    }
+  }
+
+  function hydrateFromLocalStorage() {
+    if (typeof window === 'undefined') return
+    try {
+      const rawIcons = localStorage.getItem('navIcons')
+      const rawFavorites = localStorage.getItem('navFavorites')
+
+      if (rawIcons) {
+        const parsedIcons = JSON.parse(rawIcons)
+        if (Array.isArray(parsedIcons)) {
+          items.value = parsedIcons
+        }
       }
 
-      const cmp = pageStore.page?.navComponent?.trim()
-      if (!cmp) return null
-
-      return (
-        allNavIcons.value.find(
-          (i) => i.component === cmp || i.label === cmp || i.title === cmp,
-        ) ?? null
-      )
-    },
-    set(icon) {
-      manualNavId.value = icon?.id ?? null
-    },
-  })
-
-  const favoriteNavs = computed(() =>
-    allNavIcons.value.filter((i) => navFavoriteIds.value.includes(i.id)),
-  )
-
-  const suggestedNavs = computed(() => {
-    const primary = activeNavIcon.value
-    if (!primary)
-      return favoriteNavs.value.length ? favoriteNavs.value : allNavIcons.value
-
-    const siblings = allNavIcons.value.filter(
-      (i) =>
-        i.category && i.category === primary.category && i.id !== primary.id,
-    )
-
-    return [primary, ...siblings]
-  })
-
-  const modelNavs = computed(() => {
-    const modelType =
-      (pageStore.page as any)?.modelType ??
-      (pageStore.page as any)?.model ??
-      null
-
-    if (!modelType) return suggestedNavs.value
-
-    const matches = allNavIcons.value.filter((i) => i.modelType === modelType)
-    return matches.length ? matches : suggestedNavs.value
-  })
-
-  const visibleNavs = computed(() => {
-    switch (viewMode.value) {
-      case 'favorites':
-        return favoriteNavs.value.length
-          ? favoriteNavs.value
-          : suggestedNavs.value
-      case 'model':
-        return modelNavs.value
-      case 'all':
-        return allNavIcons.value
-      case 'suggested':
-      default:
-        return suggestedNavs.value
+      if (rawFavorites) {
+        const parsedFavs = JSON.parse(rawFavorites)
+        if (Array.isArray(parsedFavs)) {
+          favorites.value = parsedFavs
+        }
+      }
+    } catch (error) {
+      console.error('[navStore] localStorage hydrate error:', error)
     }
-  })
-
-  function setViewMode(mode: NavViewMode) {
-    viewMode.value = mode
   }
 
-  function setActiveNavById(id: number) {
-    manualNavId.value = id
+  if (typeof window !== 'undefined') {
+    // hydrate favorites + any cached icons once
+    hydrateFromLocalStorage()
+
+    // persist favorites on change
+    watch(
+      favorites,
+      () => {
+        syncToLocalStorage()
+      },
+      { deep: true },
+    )
   }
 
-  function toggleFavorite(id: number) {
-    const list = navFavoriteIds.value
-    const idx = list.indexOf(id)
-    if (idx >= 0) list.splice(idx, 1)
-    else list.push(id)
+  // --- API + SEED LOADING ---
+
+  async function fetchAllIcons(): Promise<SmartIcon[]> {
+    loading.value = true
+    try {
+      const res = await performFetch<SmartIcon[]>('/api/smartIcons')
+
+      if (res.success && res.data && res.data.length > 0) {
+        items.value = res.data
+        syncToLocalStorage()
+        return res.data
+      }
+
+      // No data from API
+      return []
+    } catch (error) {
+      handleError(error, 'fetching SmartIcons')
+      return []
+    } finally {
+      loading.value = false
+    }
   }
 
-  function resetToPageDefault() {
-    manualNavId.value = null
+  async function initialize() {
+    if (isInitialized.value) return
+
+    try {
+      // Use any cached values from localStorage first
+      hydrateFromLocalStorage()
+
+      const fetched = await fetchAllIcons()
+
+      if (!fetched || fetched.length === 0) {
+        console.warn(
+          '[navStore] No SmartIcons from API, falling back to seeds/smartIcons.json',
+        )
+        // Seed fallback (JSON backup)
+        items.value = (smartIconSeeds as unknown as SmartIcon[]).map(
+          (icon) => ({
+            ...icon,
+            // ensure type is at least "directory" for these
+            type: icon.type || 'directory',
+          }),
+        )
+        syncToLocalStorage()
+      }
+
+      // Default active model type if not set
+      if (!activeModelType.value && modelTypes.value.length > 0) {
+        activeModelType.value = modelTypes.value[0]
+      }
+
+      isInitialized.value = true
+    } catch (error) {
+      handleError(error, 'initializing navStore')
+
+      // last-resort fallback to seeds if nothing has loaded
+      if (!items.value.length) {
+        try {
+          items.value = (smartIconSeeds as unknown as SmartIcon[]).map(
+            (icon) => ({
+              ...icon,
+              type: icon.type || 'directory',
+            }),
+          )
+          syncToLocalStorage()
+        } catch (seedError) {
+          console.error('[navStore] seed fallback error:', seedError)
+        }
+      }
+    }
+  }
+
+  // --- FAVORITES ---
+
+  function toggleFavorite(link?: string | null) {
+    if (!link) return
+    const idx = favorites.value.indexOf(link)
+    if (idx === -1) {
+      favorites.value.push(link)
+    } else {
+      favorites.value.splice(idx, 1)
+    }
+    syncToLocalStorage()
+  }
+
+  function isFavorite(link?: string | null) {
+    if (!link) return false
+    return favorites.value.includes(link)
+  }
+
+  // --- UI STATE HELPERS ---
+
+  function setActiveTab(tab: NavTab) {
+    activeTab.value = tab
+  }
+
+  function setActiveModelType(modelType: string | null) {
+    activeModelType.value = modelType
+  }
+
+  // Optional helper so you can manually inject a list
+  function setIcons(data: SmartIcon[]) {
+    items.value = data
+    syncToLocalStorage()
+
+    if (!activeModelType.value && modelTypes.value.length > 0) {
+      activeModelType.value = modelTypes.value[0]
+    }
   }
 
   return {
-    viewMode,
-    allNavIcons,
-    activeNavIcon,
-    visibleNavs,
-    favoriteNavs,
-    modelNavs,
-    suggestedNavs,
-    navFavoriteIds,
-    setViewMode,
-    setActiveNavById,
+    // state
+    items,
+    favorites,
+    activeTab,
+    activeModelType,
+    isInitialized,
+    loading,
+
+    // computed
+    directoryIcons,
+    modelTypes,
+    favoritesIcons,
+
+    // actions
+    initialize,
+    fetchAllIcons,
     toggleFavorite,
-    resetToPageDefault,
+    isFavorite,
+    setActiveTab,
+    setActiveModelType,
+    setIcons,
+    syncToLocalStorage,
   }
 })

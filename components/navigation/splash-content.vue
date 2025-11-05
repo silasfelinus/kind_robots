@@ -41,10 +41,22 @@
       </div>
 
       <div class="relative space-y-4 sm:space-y-5">
-        <!-- Top line: theme button -->
+        <!-- Top line: back + theme -->
         <div
           class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
         >
+          <div class="flex items-center gap-2">
+            <!-- Always-available back -->
+            <button
+              v-if="showBack"
+              class="btn btn-xs sm:btn-sm rounded-full border border-black bg-base-100 px-3 py-1 font-semibold shadow-sm hover:translate-y-[1px] hover:shadow-md transition flex items-center gap-1"
+              @click="goBack"
+            >
+              <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
+              <span class="text-[0.7rem] sm:text-xs">Back</span>
+            </button>
+          </div>
+
           <button
             v-if="theme && themeStore.currentTheme !== theme"
             @click="themeStore.setActiveTheme(theme)"
@@ -83,47 +95,40 @@
       </div>
     </section>
 
-    <!-- Nav strip -->
-    <splash-nav />
-
-    <!-- Dotti and Ami chat banter -->
+    <!-- Directory / Navigation container (art-gallery style) -->
     <section
-      v-if="dottitip && amitip"
-      class="space-y-4 max-w-2xl mx-auto pb-4 px-1 sm:px-2"
+      class="relative bg-base-300 rounded-2xl shadow-md overflow-hidden animate-fade-in-up"
     >
-      <div class="chat chat-end animate-fade-in-up delay-300 text-black">
-        <div class="chat-image avatar">
-          <div class="w-10 h-10 rounded-full border-2 border-primary">
-            <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
+      <div class="p-4 sm:p-6 space-y-4">
+        <!-- Header row for the directory view -->
+        <div
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+        >
+          <div class="space-y-1">
+            <h2 class="text-lg sm:text-xl font-bold text-base-content">
+              Browse Rooms & Tools
+            </h2>
+            <p class="text-xs sm:text-sm text-base-content/70">
+              Favorites, model-based navigation, and everything in one place.
+            </p>
           </div>
-        </div>
-        <div class="chat-bubble bg-primary text-black border border-black">
-          <span
-            class="font-semibold text-xs sm:text-sm lg:text-base block mb-1"
-          >
-            DottiBot:
-          </span>
-          <div class="text-xs sm:text-sm lg:text-base">
-            {{ dottitip }}
-          </div>
-        </div>
-      </div>
 
-      <div class="chat chat-start animate-fade-in-up delay-500">
-        <div class="chat-image avatar">
-          <div class="w-10 h-10 rounded-full border-2 border-secondary">
-            <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
+          <div
+            class="flex items-center gap-2 text-xs sm:text-sm text-base-content/70"
+          >
+            <span class="hidden sm:inline">Powered by SmartIcons</span>
           </div>
         </div>
-        <div class="chat-bubble bg-secondary text-black border border-black">
-          <span
-            class="font-semibold text-xs sm:text-sm lg:text-base block mb-1"
-          >
-            AMIbot:
-          </span>
-          <div class="text-xs sm:text-sm lg:text-base">
-            {{ amitip }}
-          </div>
+
+        <!-- Smart nav grid (tabs + categories + AMI chat toggle) -->
+        <smart-grid v-if="navInitialized" />
+
+        <!-- Simple loading / fallback -->
+        <div
+          v-else
+          class="w-full flex items-center justify-center py-8 text-sm text-base-content/70"
+        >
+          Loading navigation…
         </div>
       </div>
     </section>
@@ -132,21 +137,45 @@
 
 <script setup lang="ts">
 // /components/content/icons/splash-content.vue
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
+import { useNavStore } from '@/stores/navStore'
 
 const contentContainer = ref<HTMLElement | null>(null)
 
 const pageStore = usePageStore()
 const themeStore = useThemeStore()
+const navStore = useNavStore()
+
+const route = useRoute()
+const router = useRouter()
 
 const title = computed(() => pageStore.page?.title)
 const room = computed(() => pageStore.page?.room)
 const subtitle = computed(() => pageStore.page?.subtitle)
 const description = computed(() => pageStore.page?.description)
 const icon = computed(() => pageStore.page?.icon)
-const dottitip = computed(() => pageStore.page?.dottitip)
-const amitip = computed(() => pageStore.page?.amitip)
 const theme = computed(() => pageStore.page?.theme)
+
+const navInitialized = computed(() => navStore.isInitialized)
+
+const showBack = computed(() => route.path !== '/')
+
+function goBack() {
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    router.push('/')
+  }
+}
+
+onMounted(async () => {
+  if (!navStore.isInitialized) {
+    await navStore.initialize()
+  }
+  // Make sure we land in Navigation tab by default
+  navStore.setActiveTab('navigation')
+})
 </script>

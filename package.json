@@ -23,7 +23,8 @@
     "backup": "ts-node server/utils/backupDatabase.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "convert-art": "node --loader ts-node/esm utils/scripts/art-from-galleries.cts"
+    "convert-art": "node --loader ts-node/esm utils/scripts/art-from-galleries.cts",
+    "generatesmart": "node utils/scripts/generate-smart-icons.mjs"
   },
   "devDependencies": {
     "@interactjs/types": "^1.10.27",

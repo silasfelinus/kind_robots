@@ -5,7 +5,7 @@
   >
     <div
       v-if="icon"
-      class="pointer-events-none absolute -top-10 -right-6 sm:-top-12 -right-8 opacity-20 rotate-6"
+      class="pointer-events-none absolute -top-10 -right-6 md:-top-12 md:-right-8 opacity-20 rotate-6"
     >
       <Icon
         :name="icon"

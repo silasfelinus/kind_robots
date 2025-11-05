@@ -13,16 +13,20 @@
             class="flip-card-inner h-full w-full"
             :class="{ 'is-flipped': flipped }"
           >
-            <!-- FRONT: Title + AMI chat -->
+            <!-- FRONT: Title + AMI chat in a single scrollable unit -->
             <div
-              class="flip-side flip-front absolute inset-0 overflow-hidden rounded-3xl border border-black bg-base-100/95 shadow-xl flex flex-col"
+              class="flip-side flip-front absolute inset-0 overflow-hidden rounded-3xl border border-black bg-base-100/95 shadow-xl"
             >
-              <div class="flex-1 overflow-y-auto">
-                <title-card />
-              </div>
-              <div class="border-t border-base-300" />
-              <div class="flex-1 overflow-hidden bg-base-100/95">
-                <div class="h-full w-full overflow-y-auto">
+              <div
+                class="h-full w-full overflow-y-auto flex flex-col gap-4 sm:gap-5"
+              >
+                <div class="pt-4 px-4 sm:px-6 lg:px-8">
+                  <title-card />
+                </div>
+
+                <div class="border-t border-base-300 mx-4 sm:mx-6 lg:mx-8" />
+
+                <div class="pb-4 px-4 sm:px-6 lg:px-8">
                   <ami-chat />
                 </div>
               </div>

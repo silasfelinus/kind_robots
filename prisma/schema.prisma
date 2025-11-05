@@ -558,6 +558,9 @@ model SmartIcon {
   description String?   @db.VarChar(255)
   User        User?     @relation(fields: [userId], references: [id])
 
+  category    String?   @db.VarChar(255) 
+  modelType   String?   @db.VarChar(255) 
+
   @@index([userId], map: "SmartIcon_userId_fkey")
 }
 

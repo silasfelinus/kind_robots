@@ -2,23 +2,35 @@
 <template>
   <div
     ref="contentContainer"
-    class="relative z-20 w-full max-w-4xl mx-auto px-4 py-6"
+    class="relative z-20 w-full max-w-4xl mx-auto px-4 py-6 h-[min(85vh,780px)]"
   >
     <section
-      class="relative overflow-hidden rounded-3xl border border-black bg-base-200/90 shadow-xl flex flex-col h-[min(80vh,720px)]"
+      class="relative overflow-hidden rounded-3xl border border-black bg-base-200/90 shadow-xl flex flex-col h-full"
     >
-      <!-- Top: flip card (title ↔ smart-panel) -->
-      <div class="relative flex-1 min-h-[260px] px-2 py-3 sm:px-4 sm:py-4">
-        <div class="flip-card">
-          <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
+      <div class="relative flex-1 px-2 py-3 sm:px-4 sm:py-4">
+        <div class="flip-card h-full w-full">
+          <div
+            class="flip-card-inner h-full w-full"
+            :class="{ 'is-flipped': flipped }"
+          >
+            <!-- FRONT: Title + AMI chat -->
             <div
-              class="flip-side flip-front overflow-hidden rounded-3xl border border-black bg-base-100/95 shadow-xl"
+              class="flip-side flip-front absolute inset-0 overflow-hidden rounded-3xl border border-black bg-base-100/95 shadow-xl flex flex-col"
             >
-              <title-card />
+              <div class="flex-1 overflow-y-auto">
+                <title-card />
+              </div>
+              <div class="border-t border-base-300" />
+              <div class="flex-1 overflow-hidden bg-base-100/95">
+                <div class="h-full w-full overflow-y-auto">
+                  <ami-chat />
+                </div>
+              </div>
             </div>
 
+            <!-- BACK: Smart panel -->
             <div
-              class="flip-side flip-back overflow-hidden rounded-3xl border border-black bg-base-300 shadow-xl"
+              class="flip-side flip-back absolute inset-0 overflow-hidden rounded-3xl border border-black bg-base-300 shadow-xl"
             >
               <smart-panel />
             </div>
@@ -38,15 +50,6 @@
           </span>
         </button>
       </div>
-
-      <div class="border-t border-base-300" />
-
-      <!-- Bottom: AMI chat -->
-      <div class="relative flex-1 min-h-[260px] overflow-hidden bg-base-100/95">
-        <div class="h-full w-full overflow-y-auto">
-          <ami-chat />
-        </div>
-      </div>
     </section>
   </div>
 </template>
@@ -59,7 +62,6 @@ import { useNavStore } from '@/stores/navStore'
 
 const contentContainer = ref<HTMLElement | null>(null)
 const flipped = ref(false)
-
 const navStore = useNavStore()
 
 onMounted(async () => {
@@ -89,14 +91,12 @@ onMounted(async () => {
   transform: rotateY(180deg);
 }
 
-/* Shared side styling */
 .flip-side {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
 }
 
-/* Back is rotated 180deg */
 .flip-back {
   transform: rotateY(180deg);
 }

@@ -1,11 +1,12 @@
 <!-- /components/content/icons/title-card.vue -->
 <template>
   <div
-    class="relative h-full overflow-y-auto px-4 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-6 space-y-3 sm:space-y-4"
+    class="relative h-full overflow-y-auto px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7 space-y-4 sm:space-y-5"
   >
+    <!-- Icon: show only bottom/left 3/4 by pushing it further up/right -->
     <div
       v-if="icon"
-      class="pointer-events-none absolute -top-10 -right-6 md:-top-12 md:-right-8 opacity-20 rotate-6"
+      class="pointer-events-none absolute -top-16 -right-12 sm:-top-20 sm:-right-16 lg:-top-24 lg:-right-20 opacity-20 rotate-6"
     >
       <Icon
         :name="icon"
@@ -13,19 +14,22 @@
       />
     </div>
 
-    <!-- Kind title row -->
-    <div v-if="title" class="flex items-center justify-between gap-3 mb-0.5">
+    <!-- Centered Kind title -->
+    <div
+      v-if="title"
+      class="flex flex-col items-center justify-center gap-2 mb-1 text-center"
+    >
       <div
-        class="inline-flex max-w-full items-center gap-2.5 rounded-2xl border border-black bg-base-100/95 px-3 py-1.5 sm:px-4 sm:py-1.5 shadow-md"
+        class="inline-flex max-w-full items-center gap-2.5 rounded-2xl border border-black bg-gradient-to-r from-base-100 via-base-200 to-base-100 px-4 py-1.5 sm:px-5 sm:py-2 shadow-[0_3px_0_rgba(0,0,0,0.6)]"
       >
         <span
-          class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-2.5 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.22em] uppercase whitespace-nowrap"
+          class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-2.5 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.24em] uppercase whitespace-nowrap"
         >
           Kind
         </span>
 
         <span
-          class="truncate font-semibold leading-tight text-[clamp(0.95rem,1.9vw,1.4rem)] tracking-tight"
+          class="truncate font-semibold leading-tight text-[clamp(1rem,2.1vw,1.5rem)] tracking-tight"
         >
           {{ title }}
         </span>
@@ -46,8 +50,7 @@
       </button>
     </div>
 
-    <!-- Room, subtitle, description -->
-    <div class="space-y-1.5 sm:space-y-2">
+    <div class="space-y-2">
       <h1
         v-if="room"
         class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight tracking-tight"

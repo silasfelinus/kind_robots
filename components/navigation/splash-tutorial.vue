@@ -113,24 +113,24 @@ const resolvedImage = computed(() => {
 <style scoped>
 .flip-card {
   perspective: 1000px;
+  width: 100%;
+  height: 100%;
 }
-
 .flip-card-inner {
   position: relative;
+  width: 100%;
+  height: 100%;
   transition: transform 0.6s;
   transform-style: preserve-3d;
 }
-
 .flip-card-inner.is-flipped {
   transform: rotateY(180deg);
 }
-
 .flip-side {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
 }
-
 .flip-back {
   transform: rotateY(180deg);
 }

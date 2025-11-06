@@ -1,12 +1,12 @@
 <!-- /components/content/icons/title-card.vue -->
 <template>
   <div
-    class="relative h-full overflow-y-auto px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7 space-y-4 sm:space-y-5"
+    class="relative w-full px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7 space-y-4 sm:space-y-5"
   >
-    <!-- Icon: show only bottom/left 3/4 by pushing it further up/right -->
+    <!-- Icon: only bottom-left ~3/4 visible -->
     <div
       v-if="icon"
-      class="pointer-events-none absolute -top-16 -right-12 sm:-top-20 sm:-right-16 lg:-top-24 lg:-right-20 opacity-20 rotate-6"
+      class="pointer-events-none absolute -top-10 -right-10 sm:-top-14 sm:-right-14 lg:-top-16 lg:-right-16 opacity-20 rotate-6"
     >
       <Icon
         :name="icon"

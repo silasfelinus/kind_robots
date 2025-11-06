@@ -33,18 +33,31 @@
               class="flip-card-inner w-full h-full"
               :class="{ 'is-flipped': flipped }"
             >
-              <!-- FRONT SIDE: single continuous wrapper -->
+              <!-- FRONT SIDE: icon background + title-card + ami-chat -->
               <div class="flip-side flip-front">
-                <div class="flex h-full w-full">
+                <div
+                  class="relative flex h-full w-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md overflow-hidden"
+                >
+                  <!-- Soft icon background (front, normal) -->
                   <div
-                    class="flex flex-col w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5"
+                    v-if="pageIcon"
+                    class="pointer-events-none absolute -top-10 -right-10 sm:-top-14 sm:-right-14 lg:-top-16 lg:-right-16 opacity-20 rotate-6"
+                  >
+                    <Icon
+                      :name="pageIcon"
+                      class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
+                    />
+                  </div>
+
+                  <div
+                    class="relative z-10 flex flex-col w-full h-full p-4 sm:p-5"
                   >
                     <!-- Title area -->
                     <div class="mb-3 sm:mb-4">
                       <title-card />
                     </div>
 
-                    <!-- Chat content (no own scrollbar) -->
+                    <!-- Chat content (no own scrollbar; outer container scrolls) -->
                     <div class="flex-1 min-h-0">
                       <ami-chat />
                     </div>
@@ -52,17 +65,32 @@
                 </div>
               </div>
 
-              <!-- BACK SIDE: uses same outer scroll, no inner scroll -->
+              <!-- BACK SIDE: mirrored icon background + smart-panel -->
               <div class="flip-side flip-back">
                 <div
-                  class="w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5"
+                  class="relative w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5 overflow-hidden"
                 >
-                  <smart-panel />
+                  <!-- Soft icon background (back, mirrored for stronger flip effect) -->
+                  <div
+                    v-if="pageIcon"
+                    class="pointer-events-none absolute -top-10 -right-10 sm:-top-14 sm:-right-14 lg:-top-16 lg:-right-16 opacity-20 rotate-6"
+                    style="transform: scaleX(-1)"
+                  >
+                    <Icon
+                      :name="pageIcon"
+                      class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
+                    />
+                  </div>
+
+                  <div class="relative z-10 w-full h-full">
+                    <smart-panel />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
+          <!-- Flip toggle -->
           <button
             type="button"
             class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
@@ -95,6 +123,8 @@ const contentContainer = ref<HTMLElement | null>(null)
 const flipped = ref(false)
 
 const navStore = useNavStore()
+const pageStore = usePageStore()
+
 onMounted(async () => {
   if (!navStore.isInitialized) {
     await navStore.initialize()
@@ -102,14 +132,14 @@ onMounted(async () => {
   navStore.setActiveModelType(null)
 })
 
-const pageStore = usePageStore()
-
 const fallbackImage = '/images/botcafe.webp'
 const image = computed(() => pageStore.page?.image)
 const resolvedImage = computed(() => {
   const img = image.value || fallbackImage
   return img.startsWith('/') ? img : `/images/${img}`
 })
+
+const pageIcon = computed(() => pageStore.page?.icon)
 </script>
 
 <style scoped>

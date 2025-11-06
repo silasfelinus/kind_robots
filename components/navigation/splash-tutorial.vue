@@ -25,8 +25,9 @@
         ref="contentContainer"
         class="relative w-full max-w-4xl mx-auto px-4 pt-6 pb-10"
       >
+        <!-- Card / flip area -->
         <section
-          class="relative h-[min(80vh,720px)] overflow-hidden rounded-3xl border border-black bg-base-100/95 shadow-xl"
+          class="relative h-[min(80vh,720px)] rounded-3xl border border-black bg-base-100/95 shadow-xl"
         >
           <div class="flip-card w-full h-full">
             <div
@@ -49,6 +50,7 @@
                     />
                   </div>
 
+                  <!-- Front content -->
                   <div
                     class="relative z-10 flex flex-col w-full h-full p-4 sm:p-5"
                   >
@@ -57,9 +59,9 @@
                       <title-card />
                     </div>
 
-                    <!-- Chat content (no own scrollbar; outer container scrolls) -->
-                    <div class="flex-1 min-h-0">
-                      <ami-chat />
+                    <!-- Chat content: stretch to fill remaining height -->
+                    <div class="flex-1 min-h-0 flex">
+                      <ami-chat class="flex-1" />
                     </div>
                   </div>
                 </div>
@@ -70,10 +72,10 @@
                 <div
                   class="relative w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5 overflow-hidden"
                 >
-                  <!-- Soft icon background (back, mirrored for stronger flip effect) -->
+                  <!-- Soft icon background (back, mirrored + moved to top-left) -->
                   <div
                     v-if="pageIcon"
-                    class="pointer-events-none absolute -top-10 -right-10 sm:-top-14 sm:-right-14 lg:-top-16 lg:-right-16 opacity-20 rotate-6"
+                    class="pointer-events-none absolute -top-10 -left-10 sm:-top-14 sm:-left-14 lg:-top-16 lg:-left-16 opacity-20 rotate-6"
                     style="transform: scaleX(-1)"
                   >
                     <Icon
@@ -129,6 +131,7 @@ onMounted(async () => {
   if (!navStore.isInitialized) {
     await navStore.initialize()
   }
+  // Default model type for splash
   navStore.setActiveModelType(null)
 })
 

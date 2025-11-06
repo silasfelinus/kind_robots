@@ -27,28 +27,30 @@
       >
         <!-- This height is what keeps the card from squishing -->
         <section
-          class="relative h-[min(80vh,720px)] overflow-hidden rounded-3xl border border-black shadow-xl"
+          class="relative h-[min(80vh,720px)] overflow-hidden rounded-3xl border border-black bg-base-100/95 shadow-xl"
         >
           <div class="flip-card w-full h-full">
             <div
               class="flip-card-inner w-full h-full"
               :class="{ 'is-flipped': flipped }"
             >
-              <!-- FRONT SIDE: title-card + ami-chat as two separate cards -->
+              <!-- FRONT SIDE: single wrapper with title-card + ami-chat -->
               <div class="flip-side flip-front">
-                <div
-                  class="w-full h-full space-y-3 sm:space-y-4 overflow-y-auto overflow-x-hidden"
-                >
+                <div class="flex h-full w-full">
                   <div
-                    class="rounded-2xl border border-base-300 bg-base-100/95 shadow-md"
+                    class="flex flex-col w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5"
                   >
-                    <title-card />
-                  </div>
+                    <!-- Top: title-card -->
+                    <div class="pb-3 sm:pb-4 border-b border-base-300/60">
+                      <title-card />
+                    </div>
 
-                  <div
-                    class="rounded-2xl border border-base-300 bg-base-100 shadow-md"
-                  >
-                    <ami-chat />
+                    <!-- Bottom: ami-chat fills remaining height -->
+                    <div
+                      class="flex-1 min-h-0 pt-3 sm:pt-4 overflow-y-auto overflow-x-hidden"
+                    >
+                      <ami-chat />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -122,7 +124,6 @@ const resolvedImage = computed(() => {
   position: relative;
   transition: transform 0.6s;
   transform-style: preserve-3d;
-  /* height is provided by the h-full class in the template */
 }
 
 .flip-card-inner.is-flipped {

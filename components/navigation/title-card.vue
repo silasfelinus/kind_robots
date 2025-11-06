@@ -1,7 +1,7 @@
 <!-- /components/content/icons/title-card.vue -->
 <template>
   <div
-    class="relative h-full overflow-y-auto px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8 space-y-4 sm:space-y-5"
+    class="relative h-full overflow-y-auto px-4 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-6 space-y-3 sm:space-y-4"
   >
     <div
       v-if="icon"
@@ -13,18 +13,19 @@
       />
     </div>
 
-    <div v-if="title" class="flex items-center justify-between gap-3 mb-1">
+    <!-- Kind title row -->
+    <div v-if="title" class="flex items-center justify-between gap-3 mb-0.5">
       <div
-        class="inline-flex max-w-full items-center gap-2 rounded-2xl border border-black bg-base-100/95 px-3 py-1.5 sm:px-4 sm:py-2 shadow-md"
+        class="inline-flex max-w-full items-center gap-2.5 rounded-2xl border border-black bg-base-100/95 px-3 py-1.5 sm:px-4 sm:py-1.5 shadow-md"
       >
         <span
-          class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-2 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.2em] uppercase whitespace-nowrap"
+          class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-2.5 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.22em] uppercase whitespace-nowrap"
         >
           Kind
         </span>
 
         <span
-          class="truncate font-semibold leading-tight text-[clamp(0.9rem,1.9vw,1.4rem)] tracking-tight"
+          class="truncate font-semibold leading-tight text-[clamp(0.95rem,1.9vw,1.4rem)] tracking-tight"
         >
           {{ title }}
         </span>
@@ -45,7 +46,8 @@
       </button>
     </div>
 
-    <div class="space-y-2">
+    <!-- Room, subtitle, description -->
+    <div class="space-y-1.5 sm:space-y-2">
       <h1
         v-if="room"
         class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight tracking-tight"
@@ -66,7 +68,7 @@
 
       <p
         v-if="description"
-        class="inline-flex items-center rounded-full border border-black bg-secondary px-3 py-0.5 text-[0.7rem] sm:text-xs font-semibold uppercase tracking-[0.18em]"
+        class="inline-flex w-full sm:max-w-[90%] items-center rounded-full border border-black bg-secondary px-4 py-1 text-[0.7rem] sm:text-xs font-semibold uppercase tracking-[0.18em] leading-relaxed whitespace-normal"
       >
         {{ description }}
       </p>

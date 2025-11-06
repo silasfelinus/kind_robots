@@ -2,8 +2,9 @@
 <template>
   <div
     v-if="pageStore.page"
-    class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-black z-20 bg-base-200/80"
+    class="relative w-full min-h-full overflow-y-auto rounded-2xl border-2 border-black z-20 bg-base-200/80"
   >
+    <!-- Static Background Image Layer -->
     <div
       v-if="resolvedImage"
       class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -18,10 +19,11 @@
       />
     </div>
 
+    <!-- Foreground content (single scroll container) -->
     <div class="relative z-10 flex flex-col min-h-full">
       <div
         ref="contentContainer"
-        class="relative w-full max-w-4xl mx-auto px-4 py-6"
+        class="relative w-full max-w-4xl mx-auto px-4 pt-6 pb-10"
       >
         <section
           class="relative h-[min(80vh,720px)] overflow-hidden rounded-3xl border border-black bg-base-100/95 shadow-xl"
@@ -37,25 +39,23 @@
                   <div
                     class="flex flex-col w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5"
                   >
-                    <!-- Title area (no border below) -->
+                    <!-- Title area -->
                     <div class="mb-3 sm:mb-4">
                       <title-card />
                     </div>
 
-                    <!-- Chat fills remaining height -->
-                    <div
-                      class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
-                    >
+                    <!-- Chat content (no own scrollbar) -->
+                    <div class="flex-1 min-h-0">
                       <ami-chat />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- BACK SIDE -->
+              <!-- BACK SIDE: uses same outer scroll, no inner scroll -->
               <div class="flip-side flip-back">
                 <div
-                  class="w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5 overflow-y-auto overflow-x-hidden"
+                  class="w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5"
                 >
                   <smart-panel />
                 </div>

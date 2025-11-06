@@ -1,10 +1,9 @@
-<!-- /components/content/icons/splash-tutorial.vue (wrapper) -->
+<!-- /components/content/icons/splash-tutorial.vue -->
 <template>
   <div
     v-if="pageStore.page"
     class="relative w-full h-full overflow-y-auto rounded-2xl border-2 border-black z-20 bg-base-200/80"
   >
-    <!-- Static Background Image Layer -->
     <div
       v-if="resolvedImage"
       class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -19,13 +18,11 @@
       />
     </div>
 
-    <!-- Foreground content -->
     <div class="relative z-10 flex flex-col min-h-full">
       <div
         ref="contentContainer"
         class="relative w-full max-w-4xl mx-auto px-4 py-6"
       >
-        <!-- This height is what keeps the card from squishing -->
         <section
           class="relative h-[min(80vh,720px)] overflow-hidden rounded-3xl border border-black bg-base-100/95 shadow-xl"
         >
@@ -34,20 +31,20 @@
               class="flip-card-inner w-full h-full"
               :class="{ 'is-flipped': flipped }"
             >
-              <!-- FRONT SIDE: single wrapper with title-card + ami-chat -->
+              <!-- FRONT SIDE: single continuous wrapper -->
               <div class="flip-side flip-front">
                 <div class="flex h-full w-full">
                   <div
                     class="flex flex-col w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5"
                   >
-                    <!-- Top: title-card -->
-                    <div class="pb-3 sm:pb-4 border-b border-base-300/60">
+                    <!-- Title area (no border below) -->
+                    <div class="mb-3 sm:mb-4">
                       <title-card />
                     </div>
 
-                    <!-- Bottom: ami-chat fills remaining height -->
+                    <!-- Chat fills remaining height -->
                     <div
-                      class="flex-1 min-h-0 pt-3 sm:pt-4 overflow-y-auto overflow-x-hidden"
+                      class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
                     >
                       <ami-chat />
                     </div>
@@ -55,7 +52,7 @@
                 </div>
               </div>
 
-              <!-- BACK SIDE: smart-panel in a matching card frame -->
+              <!-- BACK SIDE -->
               <div class="flip-side flip-back">
                 <div
                   class="w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5 overflow-y-auto overflow-x-hidden"

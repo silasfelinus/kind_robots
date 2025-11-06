@@ -21,7 +21,7 @@
     </div>
 
     <!-- Foreground content -->
-    <div class="relative z-10 flex flex-col min-h-full">
+    <div class="relative z-10 flex flex-col min-h-full bg-red-100">
       <splash-content />
     </div>
   </div>

@@ -1,6 +1,6 @@
 <!-- /components/content/icons/nav-panel.vue -->
 <template>
-  <div class="h-full overflow-y-auto px-4 py-5 sm:px-6 sm:py-7">
+  <div class="h-full px-4 py-5 sm:px-6 sm:py-7">
     <!-- Header row with history controls -->
     <div class="flex items-center justify-between gap-2 mb-3">
       <h2 class="text-lg sm:text-xl font-bold text-base-content">
@@ -80,7 +80,7 @@
 
 <script setup lang="ts">
 // /components/content/icons/nav-panel.vue
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { Icon } from '#components'
@@ -117,7 +117,43 @@ const hasUserIcons = computed(() =>
 )
 
 // Local filter state: 'all', 'favorites', or a modelType/category
+const STORAGE_KEY = 'kind-nav-active-filter'
 const activeFilter = ref<string>('all')
+
+// Hydrate filter from localStorage or activeModelType
+onMounted(() => {
+  if (process.client) {
+    const saved = window.localStorage.getItem(STORAGE_KEY)
+
+    if (saved) {
+      activeFilter.value = saved
+      // Sync store for modelType filters
+      if (
+        saved === 'all' ||
+        saved === 'favorites' ||
+        saved === 'ami' ||
+        saved === 'user'
+      ) {
+        navStore.setActiveModelType(null)
+      } else {
+        navStore.setActiveModelType(saved)
+      }
+    } else if (activeModelType.value) {
+      activeFilter.value = activeModelType.value
+    }
+  }
+})
+
+// Persist filter choice
+watch(
+  activeFilter,
+  (val) => {
+    if (process.client) {
+      window.localStorage.setItem(STORAGE_KEY, val)
+    }
+  },
+  { immediate: false },
+)
 
 // Build filter chips dynamically
 const filters = computed(() => {

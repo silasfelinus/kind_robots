@@ -25,8 +25,9 @@
         ref="contentContainer"
         class="relative w-full max-w-4xl mx-auto px-4 py-6"
       >
+        <!-- This height is what keeps the card from squishing -->
         <section
-          class="relative overflow-hidden rounded-3xl border border-black bg-base-100/95 shadow-xl p-3 sm:p-4"
+          class="relative h-[min(80vh,720px)] overflow-hidden rounded-3xl border border-black bg-base-100/95 shadow-xl p-3 sm:p-4"
         >
           <div class="flip-card w-full h-full">
             <div
@@ -35,7 +36,9 @@
             >
               <!-- FRONT SIDE: title-card + ami-chat as two separate cards -->
               <div class="flip-side flip-front">
-                <div class="space-y-3 sm:space-y-4">
+                <div
+                  class="w-full h-full space-y-3 sm:space-y-4 overflow-y-auto overflow-x-hidden"
+                >
                   <div
                     class="rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5"
                   >
@@ -53,7 +56,7 @@
               <!-- BACK SIDE: smart-panel in a matching card frame -->
               <div class="flip-side flip-back">
                 <div
-                  class="w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5 overflow-y-auto"
+                  class="w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5 overflow-y-auto overflow-x-hidden"
                 >
                   <smart-panel />
                 </div>
@@ -113,24 +116,25 @@ const resolvedImage = computed(() => {
 <style scoped>
 .flip-card {
   perspective: 1000px;
-  width: 100%;
-  height: 100%;
 }
+
 .flip-card-inner {
   position: relative;
-  width: 100%;
-  height: 100%;
   transition: transform 0.6s;
   transform-style: preserve-3d;
+  /* height is provided by the h-full class in the template */
 }
+
 .flip-card-inner.is-flipped {
   transform: rotateY(180deg);
 }
+
 .flip-side {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
 }
+
 .flip-back {
   transform: rotateY(180deg);
 }

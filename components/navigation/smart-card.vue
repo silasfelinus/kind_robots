@@ -14,7 +14,7 @@
   >
     <!-- Favorite toggle (heart) -->
     <button
-      class="absolute right-2 top-2 rounded-full p-1 bg-base-100/90 border border-base-300 shadow-sm hover:bg-base-200"
+      class="absolute right-2 top-2 p-1 text-base-content/60 hover:text-error transition-colors"
       @click.stop="toggleFavorite"
       aria-label="Toggle favorite"
       :aria-pressed="isFavorite"

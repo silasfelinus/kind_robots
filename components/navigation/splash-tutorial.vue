@@ -27,7 +27,7 @@
       >
         <!-- This height is what keeps the card from squishing -->
         <section
-          class="relative h-[min(80vh,720px)] overflow-hidden rounded-3xl border border-black bg-base-100/95 shadow-xl p-3 sm:p-4"
+          class="relative h-[min(80vh,720px)] overflow-hidden rounded-3xl border border-black shadow-xl"
         >
           <div class="flip-card w-full h-full">
             <div

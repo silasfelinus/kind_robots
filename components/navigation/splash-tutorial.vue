@@ -40,13 +40,13 @@
                   class="w-full h-full space-y-3 sm:space-y-4 overflow-y-auto overflow-x-hidden"
                 >
                   <div
-                    class="rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5"
+                    class="rounded-2xl border border-base-300 bg-base-100/95 shadow-md"
                   >
                     <title-card />
                   </div>
 
                   <div
-                    class="rounded-2xl border border-base-300 bg-base-100 shadow-md p-4 sm:p-5"
+                    class="rounded-2xl border border-base-300 bg-base-100 shadow-md"
                   >
                     <ami-chat />
                   </div>

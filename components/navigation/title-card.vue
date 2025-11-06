@@ -1,20 +1,7 @@
-<!-- /components/content/icons/title-card.vue -->
 <template>
   <div
     class="relative w-full px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7 space-y-4 sm:space-y-5"
   >
-    <!-- Icon: only bottom-left ~3/4 visible -->
-    <div
-      v-if="icon"
-      class="pointer-events-none absolute -top-10 -right-10 sm:-top-14 sm:-right-14 lg:-top-16 lg:-right-16 opacity-20 rotate-6"
-    >
-      <Icon
-        :name="icon"
-        class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
-      />
-    </div>
-
-    <!-- Centered Kind title -->
     <div
       v-if="title"
       class="flex flex-col items-center justify-center gap-2 mb-1 text-center"
@@ -27,7 +14,6 @@
         >
           Kind
         </span>
-
         <span
           class="truncate font-semibold leading-tight text-[clamp(1rem,2.1vw,1.5rem)] tracking-tight"
         >
@@ -82,7 +68,6 @@
 <script setup lang="ts">
 // /components/content/icons/title-card.vue
 import { computed } from 'vue'
-import { Icon } from '#components'
 import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
 
@@ -93,6 +78,5 @@ const title = computed(() => pageStore.page?.title)
 const room = computed(() => pageStore.page?.room)
 const subtitle = computed(() => pageStore.page?.subtitle)
 const description = computed(() => pageStore.page?.description)
-const icon = computed(() => pageStore.page?.icon)
 const theme = computed(() => pageStore.page?.theme)
 </script>

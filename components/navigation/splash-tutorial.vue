@@ -2,9 +2,9 @@
 <template>
   <div
     v-if="pageStore.page"
-    class="relative w-full min-h-full rounded-2xl border-2 border-black z-20 bg-base-200/80 overflow-hidden"
+    class="relative w-full h-full min-h-[60vh] rounded-2xl border-2 border-black z-20 bg-base-200/80 overflow-hidden flex flex-col"
   >
-    <!-- Static Background Image Layer -->
+    <!-- Static Background Image Layer (stays put) -->
     <div
       v-if="resolvedImage"
       class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -19,19 +19,20 @@
       />
     </div>
 
-    <!-- Foreground content (card stays static; inner content scrolls) -->
-    <div class="relative z-10 flex flex-col min-h-full">
+    <!-- Foreground content -->
+    <div class="relative z-10 flex-1 flex flex-col">
       <div
         ref="contentContainer"
-        class="relative w-full max-w-4xl mx-auto px-4 pt-6 pb-10"
+        class="relative w-full max-w-4xl mx-auto px-4 pt-6 pb-10 flex-1 flex"
       >
-        <!-- Card / flip area (no fixed height) -->
+        <!-- Card / flip area: always 80 percent of parent -->
         <section
-          class="relative w-full rounded-3xl border border-black bg-base-100/95 shadow-xl"
+          class="relative w-full h-[80%] max-h-full rounded-3xl border border-black bg-base-100/95 shadow-xl"
         >
-          <div class="flip-card w-full">
+          <!-- Scroll container for both sides -->
+          <div class="flip-card w-full h-full overflow-y-auto">
             <div
-              class="flip-card-inner w-full min-h-[60vh]"
+              class="flip-card-inner w-full min-h-full"
               :class="{ 'is-flipped': flipped }"
             >
               <!-- FRONT SIDE: icon background + title-card + ami-chat -->
@@ -59,7 +60,7 @@
                       <title-card />
                     </div>
 
-                    <!-- Chat content: stretch and let ami-chat manage its own scroll -->
+                    <!-- Chat content: fills available space, scroll handled by flip-card -->
                     <div class="flex-1 min-h-0 flex">
                       <ami-chat class="flex-1" />
                     </div>
@@ -72,7 +73,7 @@
                 <div
                   class="relative w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5 overflow-hidden"
                 >
-                  <!-- Soft icon background (back, mirrored + moved to top-left) -->
+                  <!-- Soft icon background (back, mirrored + top-left) -->
                   <div
                     v-if="pageIcon"
                     class="pointer-events-none absolute -top-10 -left-10 sm:-top-14 sm:-left-14 lg:-top-16 lg:-left-16 opacity-20 rotate-6"

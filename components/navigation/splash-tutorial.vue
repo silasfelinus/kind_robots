@@ -2,9 +2,9 @@
 <template>
   <div
     v-if="pageStore.page"
-    class="relative w-full h-full min-h-[60vh] rounded-2xl border-2 border-black z-20 bg-base-200/80 overflow-hidden flex flex-col"
+    class="relative w-full min-h-[80vh] rounded-2xl border-2 border-black z-20 bg-base-200/80 overflow-hidden"
   >
-    <!-- Static Background Image Layer (stays put) -->
+    <!-- Static Background Image Layer -->
     <div
       v-if="resolvedImage"
       class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -20,25 +20,24 @@
     </div>
 
     <!-- Foreground content -->
-    <div class="relative z-10 flex-1 flex flex-col">
+    <div class="relative z-10 w-full h-full flex">
       <div
         ref="contentContainer"
-        class="relative w-full max-w-4xl mx-auto px-4 pt-6 pb-10 flex-1 flex"
+        class="w-full max-w-4xl mx-auto px-4 pt-6 pb-10 flex-1 flex"
       >
-        <!-- Card / flip area: always 80 percent of parent -->
+        <!-- Card / flip area: fixed card height, based on viewport -->
         <section
-          class="relative w-full h-[80%] max-h-full rounded-3xl border border-black bg-base-100/95 shadow-xl"
+          class="relative w-full h-[70vh] min-h-[60vh] max-h-[80vh] rounded-3xl border border-black bg-base-100/95 shadow-xl"
         >
-          <!-- Scroll container for both sides -->
-          <div class="flip-card w-full h-full overflow-y-auto">
+          <div class="flip-card w-full h-full">
             <div
-              class="flip-card-inner w-full min-h-full"
+              class="flip-card-inner w-full h-full"
               :class="{ 'is-flipped': flipped }"
             >
               <!-- FRONT SIDE: icon background + title-card + ami-chat -->
               <div class="flip-side flip-front">
                 <div
-                  class="relative flex h-full w-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md overflow-hidden"
+                  class="relative flex h-full w-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md overflow-y-auto"
                 >
                   <!-- Soft icon background (front, normal) -->
                   <div
@@ -60,7 +59,7 @@
                       <title-card />
                     </div>
 
-                    <!-- Chat content: fills available space, scroll handled by flip-card -->
+                    <!-- Chat content: fills remaining height, scrolls with the face -->
                     <div class="flex-1 min-h-0 flex">
                       <ami-chat class="flex-1" />
                     </div>
@@ -71,7 +70,7 @@
               <!-- BACK SIDE: mirrored icon background + smart-panel -->
               <div class="flip-side flip-back">
                 <div
-                  class="relative w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5 overflow-hidden"
+                  class="relative w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5 overflow-y-auto"
                 >
                   <!-- Soft icon background (back, mirrored + top-left) -->
                   <div
@@ -97,7 +96,7 @@
           <button
             type="button"
             class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
-            @click="flipped = !flipped"
+            @click.stop="flipped = !flipped"
           >
             <Icon
               v-if="!flipped"
@@ -151,6 +150,7 @@ const pageIcon = computed(() => pageStore.page?.icon)
   perspective: 1000px;
 }
 
+/* Height now comes from Tailwind classes: h-full on the element */
 .flip-card-inner {
   position: relative;
   transition: transform 0.6s;

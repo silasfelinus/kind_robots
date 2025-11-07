@@ -58,11 +58,6 @@
     <div class="flex-1 min-w-0 h-full flex items-stretch z-0">
       <smart-icons class="h-full w-full" />
     </div>
-
-    <!-- Right column smart toggles (no fixed width, hugs content) -->
-    <div class="flex-none h-full z-0 flex items-center px-1">
-      <smart-toggles />
-    </div>
   </header>
 </template>
 

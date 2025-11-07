@@ -2,7 +2,7 @@
 <template>
   <div
     v-if="pageStore.page"
-    class="relative w-full min-h-full overflow-y-auto rounded-2xl border-2 border-black z-20 bg-base-200/80"
+    class="relative w-full min-h-full rounded-2xl border-2 border-black z-20 bg-base-200/80 overflow-hidden"
   >
     <!-- Static Background Image Layer -->
     <div
@@ -19,19 +19,19 @@
       />
     </div>
 
-    <!-- Foreground content (single scroll container) -->
+    <!-- Foreground content (card stays static; inner content scrolls) -->
     <div class="relative z-10 flex flex-col min-h-full">
       <div
         ref="contentContainer"
         class="relative w-full max-w-4xl mx-auto px-4 pt-6 pb-10"
       >
-        <!-- Card / flip area -->
+        <!-- Card / flip area (no fixed height) -->
         <section
-          class="relative h-[min(80vh,720px)] rounded-3xl border border-black bg-base-100/95 shadow-xl"
+          class="relative w-full rounded-3xl border border-black bg-base-100/95 shadow-xl"
         >
-          <div class="flip-card w-full h-full">
+          <div class="flip-card w-full">
             <div
-              class="flip-card-inner w-full h-full"
+              class="flip-card-inner w-full min-h-[60vh]"
               :class="{ 'is-flipped': flipped }"
             >
               <!-- FRONT SIDE: icon background + title-card + ami-chat -->
@@ -59,7 +59,7 @@
                       <title-card />
                     </div>
 
-                    <!-- Chat content: stretch to fill remaining height -->
+                    <!-- Chat content: stretch and let ami-chat manage its own scroll -->
                     <div class="flex-1 min-h-0 flex">
                       <ami-chat class="flex-1" />
                     </div>

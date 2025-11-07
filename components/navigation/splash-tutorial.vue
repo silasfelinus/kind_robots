@@ -2,7 +2,7 @@
 <template>
   <div
     v-if="pageStore.page"
-    class="relative w-full min-h-[80vh] rounded-2xl border-2 border-black z-20 bg-base-200/80 overflow-hidden"
+    class="relative w-full h-full rounded-2xl border-2 border-black z-20 bg-base-200/80 overflow-y-auto overflow-x-hidden"
   >
     <!-- Static Background Image Layer -->
     <div
@@ -23,11 +23,11 @@
     <div class="relative z-10 w-full h-full flex">
       <div
         ref="contentContainer"
-        class="w-full max-w-4xl mx-auto px-4 pt-6 pb-10 flex-1 flex"
+        class="w-full max-w-4xl mx-auto px-4 py-6 flex-1 flex"
       >
-        <!-- Card / flip area: fixed card height, based on viewport -->
+        <!-- Card / flip area: fills available splash height -->
         <section
-          class="relative w-full h-[70vh] min-h-[60vh] max-h-[80vh] rounded-3xl border border-black bg-base-100/95 shadow-xl"
+          class="relative w-full h-full rounded-3xl border border-black bg-base-100/95 shadow-xl"
         >
           <div class="flip-card w-full h-full">
             <div
@@ -37,7 +37,7 @@
               <!-- FRONT SIDE: icon background + title-card + ami-chat -->
               <div class="flip-side flip-front">
                 <div
-                  class="relative flex h-full w-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md overflow-y-auto"
+                  class="relative flex h-full w-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md"
                 >
                   <!-- Soft icon background (front, normal) -->
                   <div
@@ -59,7 +59,7 @@
                       <title-card />
                     </div>
 
-                    <!-- Chat content: fills remaining height, scrolls with the face -->
+                    <!-- Chat content: fills remaining height -->
                     <div class="flex-1 min-h-0 flex">
                       <ami-chat class="flex-1" />
                     </div>
@@ -70,7 +70,7 @@
               <!-- BACK SIDE: mirrored icon background + smart-panel -->
               <div class="flip-side flip-back">
                 <div
-                  class="relative w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5 overflow-y-auto"
+                  class="relative w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5"
                 >
                   <!-- Soft icon background (back, mirrored + top-left) -->
                   <div
@@ -131,7 +131,6 @@ onMounted(async () => {
   if (!navStore.isInitialized) {
     await navStore.initialize()
   }
-  // Default model type for splash
   navStore.setActiveModelType(null)
 })
 
@@ -150,7 +149,6 @@ const pageIcon = computed(() => pageStore.page?.icon)
   perspective: 1000px;
 }
 
-/* Height now comes from Tailwind classes: h-full on the element */
 .flip-card-inner {
   position: relative;
   transition: transform 0.6s;

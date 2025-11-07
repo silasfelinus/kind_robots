@@ -58,8 +58,9 @@
         </div>
       </Transition>
 
-      <div :style="displayStore.rightSidebarStyle">
-        <tutorial-toggle />
+        <tutorial-toggle
+class="fixed z-40 bottom-2 right-2"
+ />
         <!-- Splash Tutorial (small viewport fallback) -->
         <Transition name="slide-in-right">
           <div
@@ -71,7 +72,7 @@
             />
           </div>
         </Transition>
-      </div>
+
     </main>
 
     <!-- Footer Area (Art Generator) -->

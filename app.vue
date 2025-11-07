@@ -45,11 +45,12 @@
             class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300 z-40 bg-base-300"
           />
 
+          <corner-toggle class="absolute top-3 right-3 z-50" />
           <!-- Corner panel lives inside the center panel -->
           <Transition name="slide-in-right">
             <div
               v-if="displayStore.showCorner"
-              class="absolute top-3 right-3 z-50 pointer-events-none"
+              class="absolute top-3 right-13 z-50 pointer-events-none"
             >
               <corner-panel class="pointer-events-auto" />
             </div>
@@ -57,18 +58,20 @@
         </div>
       </Transition>
 
-      <!-- Splash Tutorial (small viewport fallback) -->
-      <Transition name="slide-in-right">
-        <div
-          v-if="sidebarRightOpen"
-          class="fixed z-40 transition-all duration-500 ease-in-out"
-          :style="displayStore.rightSidebarStyle"
-        >
-          <splash-tutorial
-            class="h-full w-full px-4 py-6 transition-opacity duration-300"
-          />
-        </div>
-      </Transition>
+      <div :style="displayStore.rightSidebarStyle">
+        <tutorial-toggle />
+        <!-- Splash Tutorial (small viewport fallback) -->
+        <Transition name="slide-in-right">
+          <div
+            v-if="sidebarRightOpen"
+            class="fixed z-40 transition-all duration-500 ease-in-out"
+          >
+            <splash-tutorial
+              class="h-full w-full px-4 py-6 transition-opacity duration-300"
+            />
+          </div>
+        </Transition>
+      </div>
     </main>
 
     <!-- Footer Area (Art Generator) -->

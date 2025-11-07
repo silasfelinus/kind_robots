@@ -19,17 +19,12 @@
         ref="scrollContainer"
         class="h-full flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none"
         :class="[
-          // When the corner panel is open, hide labels/titles so the header stays minimal
           displayStore.showCorner
             ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
             : '',
-          // Strip vertical gaps so icons hug the header height
           '[&_*]:!mt-0 [&_*]:!mb-0 [&_*]:!pt-0 [&_*]:!pb-0',
-          // Strip any horizontal margins inner tiles might add
           '[&_*]:!ms-0 [&_*]:!me-0',
-          // Direct children fill height of the row
           '[&>*]:h-full',
-          // Drag cursor feedback
           isDragging ? 'cursor-grabbing' : 'cursor-grab',
         ]"
         @scroll="checkScrollEdgesThrottled"
@@ -71,6 +66,87 @@
           </NuxtLink>
         </div>
 
+        <!-- Edit tile (when not editing) -->
+        <div
+          v-if="!isEditing"
+          class="snap-start shrink-0 h-full aspect-square flex"
+        >
+          <button
+            type="button"
+            class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            title="Edit Smart Icons"
+            aria-label="Edit Smart Icons"
+            @click="activateEditMode"
+          >
+            <Icon
+              name="kind-icon:settings"
+              class="pointer-events-none h-[60%] w-[60%]"
+            />
+            <span
+              v-if="showTitles"
+              class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+            >
+              Edit
+            </span>
+          </button>
+        </div>
+
+        <!-- Save tile (when editing) -->
+        <div
+          v-if="isEditing"
+          class="snap-start shrink-0 h-full aspect-square flex"
+        >
+          <button
+            type="button"
+            class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            :class="
+              hasChanges
+                ? 'bg-base-200 hover:bg-base-300'
+                : 'bg-base-200/60 cursor-not-allowed opacity-60'
+            "
+            :title="hasChanges ? 'Save icon order' : 'No changes to save'"
+            aria-label="Save icon order"
+            :disabled="!hasChanges"
+            @click="hasChanges && confirmEdit()"
+          >
+            <Icon
+              name="kind-icon:check"
+              class="pointer-events-none h-[60%] w-[60%]"
+            />
+            <span
+              v-if="showTitles"
+              class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+            >
+              Save
+            </span>
+          </button>
+        </div>
+
+        <!-- Cancel tile (when editing) -->
+        <div
+          v-if="isEditing"
+          class="snap-start shrink-0 h-full aspect-square flex"
+        >
+          <button
+            type="button"
+            class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-error/60"
+            title="Cancel icon changes"
+            aria-label="Cancel icon changes"
+            @click="revertEdit"
+          >
+            <Icon
+              name="kind-icon:close"
+              class="pointer-events-none h-[60%] w-[60%]"
+            />
+            <span
+              v-if="showTitles"
+              class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+            >
+              Cancel
+            </span>
+          </button>
+        </div>
+
         <!-- Spacer to eliminate tiny trailing dead-zone from rounding -->
         <div aria-hidden="true" class="shrink-0 h-full w-px" />
       </div>
@@ -99,6 +175,8 @@ const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
 
+const bigMode = computed(() => displayStore.bigMode)
+
 // keep editable list in sync when not editing
 watch(
   activeIcons,
@@ -112,8 +190,38 @@ const rowIcons = computed<SmartIcon[]>(() =>
   isEditing.value ? editableIcons.value : activeIcons.value,
 )
 
-// In bigMode we stay very slim, so hide titles; in normal mode, show them.
+// show titles only when not editing and not in bigMode
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
+
+// edit state + change detection
+const originalIcons = ref<SmartIcon[]>([])
+
+watch(isEditing, (editing) => {
+  if (editing) originalIcons.value = [...editableIcons.value]
+})
+
+const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
+
+const hasChanges = computed(() => {
+  const a = getIds(editableIcons.value)
+  const b = getIds(originalIcons.value)
+  if (a.length !== b.length) return true
+  return a.some((id, i) => id !== b[i])
+})
+
+function activateEditMode() {
+  smartbarStore.isEditing = true
+}
+
+function confirmEdit() {
+  smartbarStore.setIconOrder(getIds(editableIcons.value))
+  smartbarStore.isEditing = false
+}
+
+function revertEdit() {
+  editableIcons.value = [...originalIcons.value]
+  smartbarStore.isEditing = false
+}
 
 // scroll + drag helpers
 const scrollContainer = ref<HTMLElement | null>(null)
@@ -124,13 +232,12 @@ const canScrollRight = ref(false)
 let scrollTick = false
 let startX = 0
 let scrollStart = 0
-const EPSILON = 2 // px tolerance so "almost zero" doesn't show the left arrow
+const EPSILON = 2
 
 function updateScrollFlags() {
   const el = scrollContainer.value
   if (!el) return
 
-  // If content fits, no arrows at all
   if (el.scrollWidth <= el.clientWidth + 1) {
     canScrollLeft.value = false
     canScrollRight.value = false
@@ -180,7 +287,6 @@ function handleScrollMouseMove(e: MouseEvent) {
 function handleScrollMouseUp() {
   if (!isDragging.value) return
   isDragging.value = false
-  // ensure chevrons refresh when drag ends
   requestAnimationFrame(updateScrollFlags)
 }
 
@@ -201,7 +307,6 @@ function handleScrollTouchMove(e: TouchEvent) {
 function handleScrollTouchEnd() {
   if (!isDragging.value) return
   isDragging.value = false
-  // ensure chevrons refresh when drag ends
   requestAnimationFrame(updateScrollFlags)
 }
 
@@ -214,12 +319,13 @@ watch(
 )
 
 let resizeObserver: ResizeObserver | null = null
+
 onMounted(() => {
   resizeObserver = new ResizeObserver(checkScrollEdgesThrottled)
   if (scrollContainer.value) resizeObserver.observe(scrollContainer.value)
-  // Initial state
   requestAnimationFrame(updateScrollFlags)
 })
+
 onBeforeUnmount(() => {
   if (resizeObserver && scrollContainer.value)
     resizeObserver.unobserve(scrollContainer.value)
@@ -227,10 +333,9 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Hide scrollbars while keeping horizontal scroll behavior */
 .smart-icons-scroll {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/old Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .smart-icons-scroll::-webkit-scrollbar {

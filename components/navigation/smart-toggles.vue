@@ -61,7 +61,7 @@
         </button>
       </div>
 
-      <!-- Row 2: Corner menu toggle -->
+      <!-- Row 2: center menu toggle -->
       <div class="flex items-center justify-end">
         <button
           :class="[

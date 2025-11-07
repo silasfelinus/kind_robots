@@ -2,9 +2,8 @@
 <template>
   <div
     v-if="pageStore.page"
-    class="relative w-full h-full rounded-2xl border-2 border-black z-20 bg-base-200/80 overflow-y-auto overflow-x-hidden"
+    class="relative w-full h-full rounded-2xl border-2 border-black z-20 bg-base-200/80 overflow-hidden"
   >
-    <!-- Static Background Image Layer -->
     <div
       v-if="resolvedImage"
       class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -19,27 +18,37 @@
       />
     </div>
 
-    <!-- Foreground content -->
     <div class="relative z-10 w-full h-full flex">
       <div
         ref="contentContainer"
-        class="w-full max-w-4xl mx-auto px-4 py-6 flex-1 flex"
+        class="w-full max-w-4xl mx-auto px-4 pt-6 pb-10 flex-1 flex"
       >
-        <!-- Card / flip area: fills available splash height -->
         <section
-          class="relative w-full h-full rounded-3xl border border-black bg-base-100/95 shadow-xl"
+          class="relative w-full max-h-[90%] rounded-3xl border border-black bg-base-100/95 shadow-xl overflow-y-auto transition-[height] duration-300"
+          :style="cardHeightStyle"
         >
           <div class="flip-card w-full h-full">
             <div
-              class="flip-card-inner w-full h-full"
-              :class="{ 'is-flipped': flipped }"
+              ref="flipInner"
+              class="flip-card-inner w-full"
+              :class="{
+                'is-flipped': isAnimating ? animFlipped : flipped,
+                'is-animating': isAnimating,
+              }"
+              @transitionend="onFlipTransitionEnd"
             >
-              <!-- FRONT SIDE: icon background + title-card + ami-chat -->
-              <div class="flip-side flip-front">
+              <!-- FRONT SIDE -->
+              <div
+                ref="frontRef"
+                class="flip-side flip-front"
+                :class="{
+                  'flip-static-visible': !isAnimating && !flipped,
+                  'flip-static-hidden': !isAnimating && flipped,
+                }"
+              >
                 <div
-                  class="relative flex h-full w-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md"
+                  class="relative flex flex-col w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md"
                 >
-                  <!-- Soft icon background (front, normal) -->
                   <div
                     v-if="pageIcon"
                     class="pointer-events-none absolute -top-10 -right-10 sm:-top-14 sm:-right-14 lg:-top-16 lg:-right-16 opacity-20 rotate-6"
@@ -50,16 +59,13 @@
                     />
                   </div>
 
-                  <!-- Front content -->
                   <div
                     class="relative z-10 flex flex-col w-full h-full p-4 sm:p-5"
                   >
-                    <!-- Title area -->
                     <div class="mb-3 sm:mb-4">
                       <title-card />
                     </div>
 
-                    <!-- Chat content: fills remaining height -->
                     <div class="flex-1 min-h-0 flex">
                       <ami-chat class="flex-1" />
                     </div>
@@ -67,12 +73,18 @@
                 </div>
               </div>
 
-              <!-- BACK SIDE: mirrored icon background + smart-panel -->
-              <div class="flip-side flip-back">
+              <!-- BACK SIDE -->
+              <div
+                ref="backRef"
+                class="flip-side flip-back"
+                :class="{
+                  'flip-static-visible': !isAnimating && flipped,
+                  'flip-static-hidden': !isAnimating && !flipped,
+                }"
+              >
                 <div
                   class="relative w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5"
                 >
-                  <!-- Soft icon background (back, mirrored + top-left) -->
                   <div
                     v-if="pageIcon"
                     class="pointer-events-none absolute -top-10 -left-10 sm:-top-14 sm:-left-14 lg:-top-16 lg:-left-16 opacity-20 rotate-6"
@@ -92,11 +104,10 @@
             </div>
           </div>
 
-          <!-- Flip toggle -->
           <button
             type="button"
             class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
-            @click.stop="flipped = !flipped"
+            @click.stop="handleFlipToggle"
           >
             <Icon
               v-if="!flipped"
@@ -116,23 +127,83 @@
 
 <script setup lang="ts">
 // /components/content/icons/splash-tutorial.vue
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { Icon } from '#components'
 import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
 
 const contentContainer = ref<HTMLElement | null>(null)
+
+const flipInner = ref<HTMLElement | null>(null)
+const frontRef = ref<HTMLElement | null>(null)
+const backRef = ref<HTMLElement | null>(null)
+
 const flipped = ref(false)
+const isAnimating = ref(false)
+const animFlipped = ref(false)
+
+const cardHeight = ref<number | null>(null)
+const cardHeightStyle = computed(() =>
+  cardHeight.value ? { height: `${cardHeight.value}px` } : {},
+)
 
 const navStore = useNavStore()
 const pageStore = usePageStore()
+
+const updateCardHeight = () => {
+  nextTick(() => {
+    const el = flipped.value ? backRef.value : frontRef.value
+    if (el) {
+      cardHeight.value = el.offsetHeight
+    }
+  })
+}
 
 onMounted(async () => {
   if (!navStore.isInitialized) {
     await navStore.initialize()
   }
   navStore.setActiveModelType(null)
+  updateCardHeight()
 })
+
+watch(
+  () => pageStore.page,
+  () => {
+    if (!isAnimating.value) {
+      updateCardHeight()
+    }
+  },
+)
+
+watch(
+  () => flipped.value,
+  () => {
+    if (!isAnimating.value) {
+      updateCardHeight()
+    }
+  },
+)
+
+const handleFlipToggle = () => {
+  if (isAnimating.value) return
+  isAnimating.value = true
+  animFlipped.value = flipped.value
+
+  nextTick(() => {
+    if (flipInner.value) {
+      void flipInner.value.offsetWidth
+    }
+    animFlipped.value = !flipped.value
+  })
+}
+
+const onFlipTransitionEnd = (event: TransitionEvent) => {
+  if (!isAnimating.value || event.propertyName !== 'transform') return
+  isAnimating.value = false
+  flipped.value = !flipped.value
+  updateCardHeight()
+}
 
 const fallbackImage = '/images/botcafe.webp'
 const image = computed(() => pageStore.page?.image)
@@ -151,21 +222,37 @@ const pageIcon = computed(() => pageStore.page?.icon)
 
 .flip-card-inner {
   position: relative;
-  transition: transform 0.6s;
   transform-style: preserve-3d;
+  transition: transform 0.6s;
 }
 
-.flip-card-inner.is-flipped {
-  transform: rotateY(180deg);
+.flip-card-inner.is-animating {
+  transform-origin: center;
 }
 
-.flip-side {
+.flip-card-inner.is-animating .flip-side {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
 }
 
-.flip-back {
+.flip-card-inner.is-animating .flip-back {
   transform: rotateY(180deg);
+}
+
+.flip-card-inner.is-animating.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-side {
+  width: 100%;
+}
+
+.flip-static-visible {
+  display: block;
+}
+
+.flip-static-hidden {
+  display: none;
 }
 </style>

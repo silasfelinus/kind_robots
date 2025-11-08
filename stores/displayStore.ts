@@ -387,11 +387,15 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function toggleTutorial() {
+    const opening = !state.showTutorial
+
     state.flipState =
       state.flipState === 'tutorial' || state.flipState === 'toTutorial'
         ? 'toMain'
         : 'toTutorial'
-    state.showTutorial = !state.showTutorial
+
+    state.showTutorial = opening
+    state.sidebarRightState = opening ? 'open' : 'hidden'
     saveState()
   }
 

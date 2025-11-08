@@ -1,8 +1,8 @@
 <!-- /components/content/navigation/corner-panel.vue -->
 <template>
   <div ref="root" class="relative z-50 w-full">
-    <div class="flex flex-wrap items-start gap-2">
-      <div v-for="item in menuItems" :key="item.id" class="w-auto">
+    <div class="flex flex-wrap justify-end items-start gap-2">
+      <div v-for="item in menuItems" :key="item.id" class="relative">
         <button
           class="btn btn-xs flex items-center gap-2 px-3"
           :aria-expanded="activePanel === item.id"
@@ -36,7 +36,7 @@
         <div
           v-if="activePanel === item.id"
           :id="`panel-${item.id}`"
-          class="mt-2 bg-base-100 rounded-xl border border-base-content/10 shadow-lg p-3 w-72 max-w-[calc(100vw-2rem)] text-sm"
+          class="absolute right-0 top-full mt-2 bg-base-100 rounded-xl border border-base-content/10 shadow-lg p-3 w-72 max-w-[calc(100vw-2rem)] text-sm"
         >
           <div v-if="item.id === 'tokens'" class="space-y-2">
             <div class="font-bold">Mana: {{ userStore.user?.mana ?? 0 }}</div>
@@ -47,11 +47,16 @@
               to="/subscriptions"
               class="block hover:underline"
               @click="close"
-              >Manage Subscription</NuxtLink
             >
-            <NuxtLink to="/credits" class="block hover:underline" @click="close"
-              >Boost Mana Credits</NuxtLink
+              Manage Subscription
+            </NuxtLink>
+            <NuxtLink
+              to="/credits"
+              class="block hover:underline"
+              @click="close"
             >
+              Boost Mana Credits
+            </NuxtLink>
           </div>
 
           <div v-else-if="item.id === 'account'" class="space-y-2">
@@ -74,29 +79,37 @@
                 to="/dashboard"
                 class="block hover:underline"
                 @click="close"
-                >Dashboard</NuxtLink
               >
+                Dashboard
+              </NuxtLink>
               <NuxtLink
                 to="/themes"
                 class="block hover:underline"
                 @click="close"
-                >Themes</NuxtLink
               >
+                Themes
+              </NuxtLink>
               <NuxtLink
                 to="/milestones"
                 class="block hover:underline"
                 @click="close"
-                >Milestones</NuxtLink
               >
-              <NuxtLink to="/inbox" class="block hover:underline" @click="close"
-                >Inbox</NuxtLink
+                Milestones
+              </NuxtLink>
+              <NuxtLink
+                to="/inbox"
+                class="block hover:underline"
+                @click="close"
               >
+                Inbox
+              </NuxtLink>
               <NuxtLink
                 to="/addchat"
                 class="block hover:underline"
                 @click="close"
-                >New Chat</NuxtLink
               >
+                New Chat
+              </NuxtLink>
               <button class="btn btn-xs btn-error w-full mt-2" @click="logout">
                 Logout
               </button>
@@ -106,61 +119,75 @@
                 to="/register"
                 class="block hover:underline"
                 @click="close"
-                >Set Designer Name</NuxtLink
               >
+                Set Designer Name
+              </NuxtLink>
               <NuxtLink
                 to="/password"
                 class="block hover:underline"
                 @click="close"
-                >Set Password</NuxtLink
               >
+                Set Password
+              </NuxtLink>
               <NuxtLink
                 to="/register"
                 class="block hover:underline"
                 @click="close"
-                >Register</NuxtLink
               >
+                Register
+              </NuxtLink>
             </div>
           </div>
 
           <div v-else-if="item.id === 'directory'" class="space-y-1">
             <div class="font-bold mb-1">Site Map</div>
-            <NuxtLink to="/addart" class="block hover:underline" @click="close"
-              >Art</NuxtLink
+            <NuxtLink to="/addart" class="block hover:underline" @click="close">
+              Art
+            </NuxtLink>
+            <NuxtLink to="/bots" class="block hover:underline" @click="close">
+              Bots
+            </NuxtLink>
+            <NuxtLink
+              to="/pitches"
+              class="block hover:underline"
+              @click="close"
             >
-            <NuxtLink to="/bots" class="block hover:underline" @click="close"
-              >Bots</NuxtLink
+              Pitches
+            </NuxtLink>
+            <NuxtLink
+              to="/stories"
+              class="block hover:underline"
+              @click="close"
             >
-            <NuxtLink to="/pitches" class="block hover:underline" @click="close"
-              >Pitches</NuxtLink
-            >
-            <NuxtLink to="/stories" class="block hover:underline" @click="close"
-              >Stories</NuxtLink
-            >
+              Stories
+            </NuxtLink>
             <NuxtLink
               to="/wonderlab"
               class="block hover:underline"
               @click="close"
-              >Wonderlab</NuxtLink
             >
+              Wonderlab
+            </NuxtLink>
             <NuxtLink
               to="/dominions"
               class="block hover:underline"
               @click="close"
-              >Dominion Generator</NuxtLink
             >
-            <NuxtLink to="/forum" class="block hover:underline" @click="close"
-              >Forum</NuxtLink
-            >
-            <NuxtLink to="/memory" class="block hover:underline" @click="close"
-              >Memory</NuxtLink
-            >
+              Dominion Generator
+            </NuxtLink>
+            <NuxtLink to="/forum" class="block hover:underline" @click="close">
+              Forum
+            </NuxtLink>
+            <NuxtLink to="/memory" class="block hover:underline" @click="close">
+              Memory
+            </NuxtLink>
             <NuxtLink
               to="/characters"
               class="block hover:underline"
               @click="close"
-              >Characters</NuxtLink
             >
+              Characters
+            </NuxtLink>
           </div>
 
           <div v-else-if="item.id === 'sources'" class="space-y-2">
@@ -171,8 +198,9 @@
                 to="/artmodel-manager"
                 class="hover:underline"
                 @click="close"
-                >Select Art Modeller</NuxtLink
               >
+                Select Art Modeller
+              </NuxtLink>
             </div>
             <div class="flex items-center gap-2">
               <input type="checkbox" class="checkbox" />
@@ -180,24 +208,30 @@
                 to="/textmodel-manager"
                 class="hover:underline"
                 @click="close"
-                >Select Text Modeller</NuxtLink
               >
+                Select Text Modeller
+              </NuxtLink>
             </div>
           </div>
 
           <div v-else-if="item.id === 'about'" class="space-y-1">
-            <NuxtLink to="/about" class="block hover:underline" @click="close"
-              >About</NuxtLink
+            <NuxtLink to="/about" class="block hover:underline" @click="close">
+              About
+            </NuxtLink>
+            <NuxtLink
+              to="/sponsor"
+              class="block hover:underline"
+              @click="close"
             >
-            <NuxtLink to="/sponsor" class="block hover:underline" @click="close"
-              >Sponsors</NuxtLink
-            >
+              Sponsors
+            </NuxtLink>
             <NuxtLink
               to="/giftshop"
               class="block hover:underline"
               @click="close"
-              >Giftshop</NuxtLink
             >
+              Giftshop
+            </NuxtLink>
           </div>
         </div>
       </div>

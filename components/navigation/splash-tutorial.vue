@@ -18,14 +18,13 @@
       />
     </div>
 
-    <div class="relative z-10 w-full h-full flex items-center">
+    <div class="relative z-10 w-full h-full flex">
       <div
         ref="contentContainer"
-        class="w-full max-w-4xl mx-auto px-1 py-3 md:px-2 md:py-4 lg:px-3 lg:py-5 xl:px-4 xl:py-6 flex-1 flex items-center"
+        class="w-full max-w-4xl mx-auto h-full px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3 xl:px-4 xl:py-4 flex"
       >
         <section
-          class="relative w-full rounded-3xl border border-black bg-base-100/95 shadow-xl overflow-y-auto transition-[min-height] duration-300"
-          :style="cardHeightStyle"
+          class="relative w-full h-full rounded-3xl border border-black bg-base-100/95 shadow-xl"
         >
           <div class="flip-card w-full h-full">
             <div
@@ -37,7 +36,6 @@
               }"
               @transitionend="onFlipTransitionEnd"
             >
-              <!-- FRONT SIDE -->
               <div
                 class="flip-side flip-front"
                 :class="{
@@ -66,14 +64,13 @@
                       <title-card />
                     </div>
 
-                    <div class="flex-1 min-h-0 flex">
+                    <div class="flex-1 min-h-0 flex overflow-y-auto">
                       <ami-chat class="flex-1" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- BACK SIDE -->
               <div
                 class="flip-side flip-back"
                 :class="{
@@ -96,7 +93,7 @@
                     />
                   </div>
 
-                  <div class="relative z-10 w-full h-full">
+                  <div class="relative z-10 w-full h-full overflow-y-auto">
                     <smart-panel />
                   </div>
                 </div>
@@ -127,13 +124,12 @@
 
 <script setup lang="ts">
 // /components/content/icons/splash-tutorial.vue
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { Icon } from '#components'
 import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
 
 const contentContainer = ref<HTMLElement | null>(null)
-
 const flipInner = ref<HTMLElement | null>(null)
 const frontRef = ref<HTMLElement | null>(null)
 const backRef = ref<HTMLElement | null>(null)
@@ -142,79 +138,31 @@ const flipped = ref(false)
 const isAnimating = ref(false)
 const animFlipped = ref(false)
 
-const cardHeight = ref<number | null>(null)
-const containerHeight = ref<number | null>(null)
-
-const cardHeightStyle = computed(() =>
-  cardHeight.value ? { minHeight: `${cardHeight.value}px` } : {},
-)
-
 const navStore = useNavStore()
 const pageStore = usePageStore()
 
-const updateCardHeight = () => {
-  nextTick(() => {
-    if (contentContainer.value) {
-      containerHeight.value = contentContainer.value.clientHeight
-    }
-
-    const el = flipped.value ? backRef.value : frontRef.value
-    if (el) {
-      const naturalHeight = el.offsetHeight
-      if (containerHeight.value) {
-        const minHeight = containerHeight.value * 0.9
-        cardHeight.value = Math.max(naturalHeight, minHeight)
-      } else {
-        cardHeight.value = naturalHeight
-      }
-    }
-  })
-}
-
-onMounted(async () => {
-  if (!navStore.isInitialized) {
+if (!navStore.isInitialized) {
+  ;(async () => {
     await navStore.initialize()
-  }
-  navStore.setActiveModelType(null)
-  updateCardHeight()
-})
-
-watch(
-  () => pageStore.page,
-  () => {
-    if (!isAnimating.value) {
-      updateCardHeight()
-    }
-  },
-)
-
-watch(
-  () => flipped.value,
-  () => {
-    if (!isAnimating.value) {
-      updateCardHeight()
-    }
-  },
-)
+    navStore.setActiveModelType(null)
+  })()
+}
 
 const handleFlipToggle = () => {
   if (isAnimating.value) return
   isAnimating.value = true
   animFlipped.value = flipped.value
 
-  nextTick(() => {
-    if (flipInner.value) {
-      void flipInner.value.offsetWidth
-    }
-    animFlipped.value = !flipped.value
-  })
+  if (flipInner.value) {
+    void flipInner.value.offsetWidth
+  }
+  animFlipped.value = !flipped.value
 }
 
 const onFlipTransitionEnd = (event: TransitionEvent) => {
   if (!isAnimating.value || event.propertyName !== 'transform') return
   isAnimating.value = false
   flipped.value = !flipped.value
-  updateCardHeight()
 }
 
 const fallbackImage = '/images/botcafe.webp'
@@ -254,6 +202,7 @@ const pageIcon = computed(() => pageStore.page?.icon)
   position: absolute;
   inset: 0;
   width: 100%;
+  height: 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }

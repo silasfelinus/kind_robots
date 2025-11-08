@@ -93,7 +93,7 @@
                     Milestones
                   </NuxtLink>
                   <NuxtLink
-                    to="/inbox"
+                    to="/chats"
                     class="block hover:underline"
                     @click="close"
                   >
@@ -136,13 +136,6 @@
                     @click="close"
                   >
                     Set Designer Name
-                  </NuxtLink>
-                  <NuxtLink
-                    to="/password"
-                    class="block hover:underline"
-                    @click="close"
-                  >
-                    Set Password
                   </NuxtLink>
                   <NuxtLink
                     to="/register"
@@ -197,12 +190,8 @@
             <NuxtLink to="/about" class="block hover:underline" @click="close">
               About
             </NuxtLink>
-            <NuxtLink
-              to="/sponsor"
-              class="block hover:underline"
-              @click="close"
-            >
-              Sponsors
+            <NuxtLink to="/amibot" class="block hover:underline" @click="close">
+              The AMI Project
             </NuxtLink>
             <NuxtLink
               to="/giftshop"
@@ -270,7 +259,7 @@ const menuItems = [
 ] as const
 
 const directoryLinks = [
-  { to: '/addart', label: 'Art' },
+  { to: '/artgallery', label: 'Art' },
   { to: '/bots', label: 'Bots' },
   { to: '/pitches', label: 'Pitches' },
   { to: '/stories', label: 'Stories' },
@@ -279,5 +268,8 @@ const directoryLinks = [
   { to: '/forum', label: 'Forum' },
   { to: '/memory', label: 'Memory' },
   { to: '/characters', label: 'Characters' },
+  { to: '/scenarios', label: 'Scenarios' },
+  { to: '/rewards', label: 'Rewards' },
+  { to: '/icons', label: 'Icons' },
 ]
 </script>

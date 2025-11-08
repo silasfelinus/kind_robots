@@ -40,11 +40,7 @@
           class="fixed z-40 transition-all duration-500 ease-in-out overflow-y-auto overscroll-contain rounded-2xl"
           :style="displayStore.mainContentStyle"
         >
-          <NuxtPage
-            :key="$route.fullPath"
-            class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300 z-40 bg-base-300"
-          />
-
+          <!-- Corner toggle + panel stay pinned at the top of main content -->
           <div
             class="absolute top-3 right-3 z-50 flex flex-row-reverse items-start gap-3"
           >
@@ -55,6 +51,14 @@
                 <corner-panel class="pointer-events-auto" />
               </div>
             </Transition>
+          </div>
+
+          <!-- Only this inner content gets pushed down when corner is visible -->
+          <div class="h-full w-full" :style="displayStore.centerContentStyle">
+            <NuxtPage
+              :key="$route.fullPath"
+              class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300 z-40 bg-base-300"
+            />
           </div>
         </div>
       </Transition>

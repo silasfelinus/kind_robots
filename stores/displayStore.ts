@@ -97,6 +97,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
     },
   } as const
 
+  const sectionPaddingSize = computed(() => {
+    const sizes = { small: 0, medium: 0, large: 0, extraLarge: 0 }
+    return sizes[state.viewportSize]
+  })
+
   const contentTopOffset = computed(() => {
     const padding = sectionPaddingSize.value
     const headerExists = state.headerState !== 'hidden'
@@ -110,11 +115,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     const stateKey = state.footerState as keyof typeof footerHeights
     const sizeKey = state.viewportSize
     return footerHeights[stateKey]?.[sizeKey] ?? 5
-  })
-
-  const sectionPaddingSize = computed(() => {
-    const sizes = { small: 0, medium: 0, large: 0, extraLarge: 0 }
-    return sizes[state.viewportSize]
   })
 
   const mainContentHeight = computed(() => {
@@ -176,19 +176,27 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
+  const sidebarContentHeight = computed(() => {
+    const padding = sectionPaddingSize.value
+    const headerExists = state.headerState !== 'hidden'
+    const header = headerExists ? headerHeight.value : 0
+    const totalPadding = padding * 2 + (headerExists ? padding : padding * 2)
+
+    return 100 - (header + totalPadding)
+  })
+
   const cornerPanelStyle = computed(() => {
     const paddingVw = sectionPaddingSize.value
     const rightSidebarVisible = ['open', 'compact'].includes(
       state.sidebarRightState,
     )
 
-    // Right offset aligns with main content's right edge in vw
     const rightVw = rightSidebarVisible
-      ? sidebarRightWidth.value + paddingVw * 3 // sidebar + main's right gutter
-      : paddingVw * 2 // just main's right gutter
+      ? sidebarRightWidth.value + paddingVw * 3
+      : paddingVw * 2
 
     return {
-      top: `calc(var(--vh) * ${contentTopOffset.value} )`, // below header in vh units
+      top: `calc(var(--vh) * ${contentTopOffset.value})`,
       right: `${rightVw}vw`,
     } as CSSProperties
   })
@@ -205,20 +213,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
       : { width: '0px', height: '0px' }
   })
 
-  const footerStyle = computed(() => {
-    const padding = sectionPaddingSize.value
-    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    const headerPadding = state.headerState === 'hidden' ? padding : padding * 2
-    const content = mainContentHeight.value
-
-    return {
-      top: `calc(var(--vh) * ${header + content + headerPadding + padding})`,
-      left: `${padding}vw`,
-      width: `calc(100vw - ${padding * 2}vw)`,
-      height: `calc(var(--vh) * ${footerHeight.value})`,
-    }
-  })
-
   const rightSidebarStyle = computed(() => {
     const padding = sectionPaddingSize.value
     const visible = ['open', 'compact'].includes(state.sidebarRightState)
@@ -232,16 +226,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
-  const sidebarContentHeight = computed(() => {
-    const padding = sectionPaddingSize.value
-    const headerExists = state.headerState !== 'hidden'
-    const header = headerExists ? headerHeight.value : 0
-    const totalPadding = padding * 2 + (headerExists ? padding : padding * 2)
-
-    return 100 - (header + totalPadding)
-  })
-
-const centerPanelOffset = computed(() => {
+  const centerPanelOffset = computed(() => {
     if (!state.showCorner) return 0
     const sizes = {
       small: 8,
@@ -254,14 +239,35 @@ const centerPanelOffset = computed(() => {
 
   const mainContentStyle = computed(() => {
     const padding = sectionPaddingSize.value
-    const offset = centerPanelOffset.value
 
     return {
-      top: `calc(var(--vh) * ${contentTopOffset.value + offset})`,
+      top: `calc(var(--vh) * ${contentTopOffset.value})`,
       left: `${padding}vw`,
       width: `calc(${mainContentWidth.value}vw)`,
-      height: `calc(var(--vh) * ${mainContentHeight.value - offset})`,
+      height: `calc(var(--vh) * ${mainContentHeight.value})`,
       minHeight: '10vh',
+    }
+  })
+
+  const centerContentStyle = computed(() => {
+    const offset = centerPanelOffset.value
+    return {
+      marginTop: `calc(var(--vh) * ${offset})`,
+      height: `calc(100% - var(--vh) * ${offset})`,
+    } as CSSProperties
+  })
+
+  const footerStyle = computed(() => {
+    const padding = sectionPaddingSize.value
+    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
+    const headerPadding = state.headerState === 'hidden' ? padding : padding * 2
+    const content = mainContentHeight.value
+
+    return {
+      top: `calc(var(--vh) * ${header + content + headerPadding + padding})`,
+      left: `${padding}vw`,
+      width: `calc(100vw - ${padding * 2}vw)`,
+      height: `calc(var(--vh) * ${footerHeight.value})`,
     }
   })
 
@@ -291,6 +297,7 @@ const centerPanelOffset = computed(() => {
     state[side] = stateMap[state[side]]
     saveState()
   }
+
   function toggleFooter() {
     const order: DisplayState[] = ['compact', 'extended', 'hidden']
     const currentIndex = order.indexOf(state.footerState)
@@ -341,17 +348,14 @@ const centerPanelOffset = computed(() => {
 
     if (state.viewportSize === 'small') {
       if (isCurrentlyOn) {
-        // Turn it off
         setSectionState(section, false)
       } else {
-        // Turn off others, turn this one on
         setSectionState('left', false)
         setSectionState('center', false)
         setSectionState('right', false)
         setSectionState(section, true)
       }
     } else {
-      // On larger screens, just toggle the selected one
       setSectionState(section, !isCurrentlyOn)
     }
 
@@ -455,6 +459,7 @@ const centerPanelOffset = computed(() => {
       handleError(error, "Couldn't load state.")
     }
   }
+
   function saveState() {
     if (typeof window === 'undefined') return
     try {
@@ -470,7 +475,7 @@ const centerPanelOffset = computed(() => {
     queueMicrotask(() => {
       try {
         loadState()
-        setCustomVh() // ← Add this here
+        setCustomVh()
         updateViewport()
         window.addEventListener('resize', updateViewport)
         state.isInitialized = true
@@ -501,7 +506,9 @@ const centerPanelOffset = computed(() => {
     leftSidebarStyle,
     rightSidebarStyle,
     mainContentStyle,
+    centerContentStyle,
     footerStyle,
+    sidebarContentHeight,
     isLargeViewport,
     toggleFullscreen,
     toggleSidebar,

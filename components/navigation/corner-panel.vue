@@ -38,123 +38,124 @@
           :id="`panel-${item.id}`"
           class="absolute right-0 top-full mt-2 bg-base-100 rounded-xl border border-base-content/10 shadow-lg p-3 w-72 max-w-[calc(100vw-2rem)] text-sm text-right"
         >
-          <!-- ACCOUNT -->
-          <div v-if="item.id === 'account'" class="space-y-2 text-left">
-            <div>
-              <div class="font-bold">
-                {{ userStore.user?.username || 'Guest' }}
+          <div v-if="item.id === 'account'" class="text-left">
+            <div class="flex gap-4 items-start">
+              <div class="flex-1 space-y-1">
+                <div class="font-bold">
+                  {{ userStore.user?.username || 'Guest' }}
+                </div>
+                <div class="text-xs text-base-content/70">
+                  {{ userStore.user?.designerName }}
+                </div>
+
+                <div class="mt-2 flex items-center gap-2 text-xs">
+                  <Icon
+                    name="kind-icon:mana-potion"
+                    class="inline-block h-3 w-3"
+                  />
+                  <span class="font-semibold">
+                    Mana: {{ userStore.user?.mana ?? 0 }}
+                  </span>
+                </div>
+
+                <div class="mt-1 flex items-center gap-2 text-xs">
+                  <Icon
+                    name="kind-icon:jellybean"
+                    class="inline-block h-3 w-3"
+                  />
+                  <span>
+                    Jellybeans: {{ milestoneStore.milestoneCountForUser }} / 11
+                  </span>
+                </div>
               </div>
-              <div class="text-xs text-base-content/70">
-                {{ userStore.user?.designerName }}
+
+              <div class="flex-1">
+                <div v-if="userStore.isLoggedIn" class="space-y-1">
+                  <NuxtLink
+                    to="/dashboard"
+                    class="block hover:underline"
+                    @click="close"
+                  >
+                    Dashboard
+                  </NuxtLink>
+                  <NuxtLink
+                    to="/themes"
+                    class="block hover:underline"
+                    @click="close"
+                  >
+                    Themes
+                  </NuxtLink>
+                  <NuxtLink
+                    to="/milestones"
+                    class="block hover:underline"
+                    @click="close"
+                  >
+                    Milestones
+                  </NuxtLink>
+                  <NuxtLink
+                    to="/inbox"
+                    class="block hover:underline"
+                    @click="close"
+                  >
+                    Inbox
+                  </NuxtLink>
+                  <NuxtLink
+                    to="/addchat"
+                    class="block hover:underline"
+                    @click="close"
+                  >
+                    New Chat
+                  </NuxtLink>
+                  <NuxtLink
+                    to="/subscriptions"
+                    class="block hover:underline"
+                    @click="close"
+                  >
+                    Manage Subscription
+                  </NuxtLink>
+                  <NuxtLink
+                    to="/credits"
+                    class="block hover:underline"
+                    @click="close"
+                  >
+                    Boost Mana Credits
+                  </NuxtLink>
+
+                  <button
+                    class="btn btn-xs btn-error w-full mt-2"
+                    @click="logout"
+                  >
+                    Logout
+                  </button>
+                </div>
+
+                <div v-else class="space-y-1">
+                  <NuxtLink
+                    to="/register"
+                    class="block hover:underline"
+                    @click="close"
+                  >
+                    Set Designer Name
+                  </NuxtLink>
+                  <NuxtLink
+                    to="/password"
+                    class="block hover:underline"
+                    @click="close"
+                  >
+                    Set Password
+                  </NuxtLink>
+                  <NuxtLink
+                    to="/register"
+                    class="block hover:underline"
+                    @click="close"
+                  >
+                    Register
+                  </NuxtLink>
+                </div>
               </div>
-
-              <div class="mt-2 flex items-center gap-2 text-xs">
-                <Icon
-                  name="kind-icon:mana-potion"
-                  class="inline-block h-3 w-3"
-                />
-                <span class="font-semibold">
-                  Mana: {{ userStore.user?.mana ?? 0 }}
-                </span>
-              </div>
-
-              <div class="mt-1 flex items-center gap-2 text-xs">
-                <Icon name="kind-icon:jellybean" class="inline-block h-3 w-3" />
-                <span>
-                  Jellybeans: {{ milestoneStore.milestoneCountForUser }} / 11
-                </span>
-              </div>
-            </div>
-
-            <div
-              v-if="userStore.isLoggedIn"
-              class="pt-2 mt-1 border-t border-base-content/10 space-y-1"
-            >
-              <NuxtLink
-                to="/dashboard"
-                class="block hover:underline"
-                @click="close"
-              >
-                Dashboard
-              </NuxtLink>
-              <NuxtLink
-                to="/themes"
-                class="block hover:underline"
-                @click="close"
-              >
-                Themes
-              </NuxtLink>
-              <NuxtLink
-                to="/milestones"
-                class="block hover:underline"
-                @click="close"
-              >
-                Milestones
-              </NuxtLink>
-              <NuxtLink
-                to="/inbox"
-                class="block hover:underline"
-                @click="close"
-              >
-                Inbox
-              </NuxtLink>
-              <NuxtLink
-                to="/addchat"
-                class="block hover:underline"
-                @click="close"
-              >
-                New Chat
-              </NuxtLink>
-
-              <NuxtLink
-                to="/subscriptions"
-                class="block hover:underline"
-                @click="close"
-              >
-                Manage Subscription
-              </NuxtLink>
-              <NuxtLink
-                to="/credits"
-                class="block hover:underline"
-                @click="close"
-              >
-                Boost Mana Credits
-              </NuxtLink>
-
-              <button class="btn btn-xs btn-error w-full mt-2" @click="logout">
-                Logout
-              </button>
-            </div>
-
-            <div
-              v-else
-              class="pt-2 mt-1 border-t border-base-content/10 space-y-1"
-            >
-              <NuxtLink
-                to="/register"
-                class="block hover:underline"
-                @click="close"
-              >
-                Set Designer Name
-              </NuxtLink>
-              <NuxtLink
-                to="/password"
-                class="block hover:underline"
-                @click="close"
-              >
-                Set Password
-              </NuxtLink>
-              <NuxtLink
-                to="/register"
-                class="block hover:underline"
-                @click="close"
-              >
-                Register
-              </NuxtLink>
             </div>
           </div>
 
-          <!-- DIRECTORY -->
           <div v-else-if="item.id === 'directory'" class="space-y-1">
             <div class="font-bold mb-1">Site Map</div>
             <NuxtLink
@@ -168,7 +169,6 @@
             </NuxtLink>
           </div>
 
-          <!-- SOURCES -->
           <div v-else-if="item.id === 'sources'" class="space-y-2">
             <div class="font-bold">Modeller Sources</div>
             <div class="flex items-center justify-between gap-2">
@@ -193,7 +193,6 @@
             </div>
           </div>
 
-          <!-- ABOUT -->
           <div v-else-if="item.id === 'about'" class="space-y-1">
             <NuxtLink to="/about" class="block hover:underline" @click="close">
               About

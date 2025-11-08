@@ -222,8 +222,13 @@ const pageIcon = computed(() => pageStore.page?.icon)
 
 .flip-card-inner {
   position: relative;
+  width: 100%;
   transform-style: preserve-3d;
   transition: transform 0.6s;
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
 }
 
 .flip-card-inner.is-animating {
@@ -236,16 +241,12 @@ const pageIcon = computed(() => pageStore.page?.icon)
   backface-visibility: hidden;
 }
 
-.flip-card-inner.is-animating .flip-back {
-  transform: rotateY(180deg);
-}
-
-.flip-card-inner.is-animating.is-flipped {
-  transform: rotateY(180deg);
-}
-
 .flip-side {
   width: 100%;
+}
+
+.flip-back {
+  transform: rotateY(180deg);
 }
 
 .flip-static-visible {

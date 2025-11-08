@@ -36,6 +36,7 @@
               }"
               @transitionend="onFlipTransitionEnd"
             >
+              <!-- FRONT SIDE -->
               <div
                 class="flip-side flip-front"
                 :class="{
@@ -45,7 +46,7 @@
               >
                 <div
                   ref="frontRef"
-                  class="relative flex flex-col w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md"
+                  class="relative flex flex-col w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md overflow-hidden"
                 >
                   <div
                     v-if="pageIcon"
@@ -56,6 +57,16 @@
                       class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
                     />
                   </div>
+
+                  <!-- FRONT BUTTON (travels with card) -->
+                  <button
+                    type="button"
+                    class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
+                    @click.stop="handleFlipToggle"
+                  >
+                    <Icon name="kind-icon:arrow-right" class="w-3 h-3" />
+                    <span class="hidden sm:inline"> Browse </span>
+                  </button>
 
                   <div
                     class="relative z-10 flex flex-col w-full h-full p-1 md:p-2 lg:p-3 xl:p-4"
@@ -71,6 +82,7 @@
                 </div>
               </div>
 
+              <!-- BACK SIDE -->
               <div
                 class="flip-side flip-back"
                 :class="{
@@ -80,7 +92,7 @@
               >
                 <div
                   ref="backRef"
-                  class="relative w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5"
+                  class="relative w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5 overflow-hidden"
                 >
                   <div
                     v-if="pageIcon"
@@ -93,6 +105,16 @@
                     />
                   </div>
 
+                  <!-- BACK BUTTON (travels with card) -->
+                  <button
+                    type="button"
+                    class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
+                    @click.stop="handleFlipToggle"
+                  >
+                    <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
+                    <span class="hidden sm:inline"> Details </span>
+                  </button>
+
                   <div class="relative z-10 w-full h-full overflow-y-auto">
                     <smart-panel />
                   </div>
@@ -100,22 +122,6 @@
               </div>
             </div>
           </div>
-
-          <button
-            type="button"
-            class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
-            @click.stop="handleFlipToggle"
-          >
-            <Icon
-              v-if="!flipped"
-              name="kind-icon:arrow-right"
-              class="w-3 h-3"
-            />
-            <Icon v-else name="kind-icon:arrow-left" class="w-3 h-3" />
-            <span class="hidden sm:inline">
-              {{ flipped ? 'Details' : 'Browse' }}
-            </span>
-          </button>
         </section>
       </div>
     </div>

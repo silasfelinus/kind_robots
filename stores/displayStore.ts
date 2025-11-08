@@ -242,13 +242,26 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return 100 - (header + totalPadding)
   })
 
+const centerPanelOffset = computed(() => {
+    if (!state.showCorner) return 0
+    const sizes = {
+      small: 8,
+      medium: 6,
+      large: 5,
+      extraLarge: 4,
+    }
+    return sizes[state.viewportSize]
+  })
+
   const mainContentStyle = computed(() => {
     const padding = sectionPaddingSize.value
+    const offset = centerPanelOffset.value
+
     return {
-      top: `calc(var(--vh) * ${contentTopOffset.value})`,
+      top: `calc(var(--vh) * ${contentTopOffset.value + offset})`,
       left: `${padding}vw`,
       width: `calc(${mainContentWidth.value}vw)`,
-      height: `calc(var(--vh) * ${mainContentHeight.value})`,
+      height: `calc(var(--vh) * ${mainContentHeight.value - offset})`,
       minHeight: '10vh',
     }
   })

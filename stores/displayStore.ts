@@ -52,7 +52,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const sidebarRightWidth = computed(() => {
-    const sizes = { small: 98, medium: 40, large: 25, extraLarge: 28 }
+    const sizes = { small: 98, medium: 40, large: 35, extraLarge: 30 }
     return (
       sizes[state.viewportSize] *
       (['open', 'compact'].includes(state.sidebarRightState) ? 1 : 0)
@@ -176,7 +176,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
-  // /stores/displayStore.ts
   const cornerPanelStyle = computed(() => {
     const paddingVw = sectionPaddingSize.value
     const rightSidebarVisible = ['open', 'compact'].includes(

@@ -37,8 +37,8 @@
               }"
               @transitionend="onFlipTransitionEnd"
             >
+              <!-- FRONT SIDE -->
               <div
-                ref="frontRef"
                 class="flip-side flip-front"
                 :class="{
                   'flip-static-visible': !isAnimating && !flipped,
@@ -46,6 +46,7 @@
                 }"
               >
                 <div
+                  ref="frontRef"
                   class="relative flex flex-col w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md"
                 >
                   <div
@@ -72,8 +73,8 @@
                 </div>
               </div>
 
+              <!-- BACK SIDE -->
               <div
-                ref="backRef"
                 class="flip-side flip-back"
                 :class="{
                   'flip-static-visible': !isAnimating && flipped,
@@ -81,6 +82,7 @@
                 }"
               >
                 <div
+                  ref="backRef"
                   class="relative w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5"
                 >
                   <div
@@ -272,4 +274,3 @@ const pageIcon = computed(() => pageStore.page?.icon)
   visibility: hidden;
 }
 </style>
-n 

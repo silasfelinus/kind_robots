@@ -29,7 +29,7 @@
       class="fixed z-40 transition-all duration-500 ease-in-out"
       :style="displayStore.headerStyle"
     >
-      <full-header class="h-full w-full rounded-xl" />
+      <full-header class="h-full w-full" />
     </header>
 
     <!-- Main Content Layer -->
@@ -37,7 +37,7 @@
       <Transition name="slide-in-left">
         <div
           v-if="showMainContent"
-          class="fixed z-40 transition-all duration-500 ease-in-out overflow-y-auto overscroll-contain rounded-2xl"
+          class="fixed z-40 transition-all duration-500 ease-in-out overflow-y-auto overscroll-contain"
           :style="displayStore.mainContentStyle"
         >
           <!-- Corner toggle + panel stay pinned at the top of main content -->

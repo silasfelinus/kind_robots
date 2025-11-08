@@ -38,48 +38,38 @@
           :id="`panel-${item.id}`"
           class="absolute right-0 top-full mt-2 bg-base-100 rounded-xl border border-base-content/10 shadow-lg p-3 w-72 max-w-[calc(100vw-2rem)] text-sm text-right"
         >
-          <!-- TOKENS -->
-          <div v-if="item.id === 'tokens'" class="space-y-2">
-            <div class="flex justify-between items-center font-bold">
-              <span class="text-xs text-base-content/70">Mana</span>
-              <span>{{ userStore.user?.mana ?? 0 }}</span>
-            </div>
-            <div class="text-xs text-base-content/60">
-              Role: {{ userStore.user?.Role || 'Guest' }}
-            </div>
-            <NuxtLink
-              to="/subscriptions"
-              class="block hover:underline"
-              @click="close"
-            >
-              Manage Subscription
-            </NuxtLink>
-            <NuxtLink
-              to="/credits"
-              class="block hover:underline"
-              @click="close"
-            >
-              Boost Mana Credits
-            </NuxtLink>
-          </div>
-
           <!-- ACCOUNT -->
-          <div v-else-if="item.id === 'account'" class="space-y-2">
-            <div v-if="userStore.isLoggedIn" class="space-y-2">
-              <div class="flex justify-between items-start">
-                <div class="text-left">
-                  <div class="font-bold">{{ userStore.user?.username }}</div>
-                  <div class="text-xs text-base-content/70">
-                    {{ userStore.user?.designerName }}
-                  </div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-base-content/60">Mana</div>
-                  <div class="font-bold text-primary">
-                    {{ userStore.user?.mana ?? 0 }}
-                  </div>
-                </div>
+          <div v-if="item.id === 'account'" class="space-y-2 text-left">
+            <div>
+              <div class="font-bold">
+                {{ userStore.user?.username || 'Guest' }}
               </div>
+              <div class="text-xs text-base-content/70">
+                {{ userStore.user?.designerName }}
+              </div>
+
+              <div class="mt-2 flex items-center gap-2 text-xs">
+                <Icon
+                  name="kind-icon:mana-potion"
+                  class="inline-block h-3 w-3"
+                />
+                <span class="font-semibold">
+                  Mana: {{ userStore.user?.mana ?? 0 }}
+                </span>
+              </div>
+
+              <div class="mt-1 flex items-center gap-2 text-xs">
+                <Icon name="kind-icon:jellybean" class="inline-block h-3 w-3" />
+                <span>
+                  Jellybeans: {{ milestoneStore.milestoneCountForUser }} / 11
+                </span>
+              </div>
+            </div>
+
+            <div
+              v-if="userStore.isLoggedIn"
+              class="pt-2 mt-1 border-t border-base-content/10 space-y-1"
+            >
               <NuxtLink
                 to="/dashboard"
                 class="block hover:underline"
@@ -115,11 +105,31 @@
               >
                 New Chat
               </NuxtLink>
+
+              <NuxtLink
+                to="/subscriptions"
+                class="block hover:underline"
+                @click="close"
+              >
+                Manage Subscription
+              </NuxtLink>
+              <NuxtLink
+                to="/credits"
+                class="block hover:underline"
+                @click="close"
+              >
+                Boost Mana Credits
+              </NuxtLink>
+
               <button class="btn btn-xs btn-error w-full mt-2" @click="logout">
                 Logout
               </button>
             </div>
-            <div v-else class="space-y-1">
+
+            <div
+              v-else
+              class="pt-2 mt-1 border-t border-base-content/10 space-y-1"
+            >
               <NuxtLink
                 to="/register"
                 class="block hover:underline"
@@ -212,8 +222,10 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
 
 const userStore = useUserStore()
+const milestoneStore = useMilestoneStore()
 
 const root = ref<HTMLElement | null>(null)
 const activePanel = ref<string | null>(null)
@@ -252,7 +264,6 @@ onBeforeUnmount(() => {
 })
 
 const menuItems = [
-  { id: 'tokens', icon: 'kind-icon:mana-potion', label: 'Tokens' },
   { id: 'account', icon: 'kind-icon:person', label: 'Account' },
   { id: 'directory', icon: 'kind-icon:folder-tree', label: 'Directory' },
   { id: 'sources', icon: 'kind-icon:butterfly', label: 'Sources' },

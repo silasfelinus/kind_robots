@@ -143,6 +143,8 @@ const isAnimating = ref(false)
 const animFlipped = ref(false)
 
 const cardHeight = ref<number | null>(null)
+const containerHeight = ref<number | null>(null)
+
 const cardHeightStyle = computed(() =>
   cardHeight.value ? { height: `${cardHeight.value}px` } : {},
 )
@@ -152,9 +154,19 @@ const pageStore = usePageStore()
 
 const updateCardHeight = () => {
   nextTick(() => {
+    if (contentContainer.value) {
+      containerHeight.value = contentContainer.value.clientHeight
+    }
+
     const el = flipped.value ? backRef.value : frontRef.value
     if (el) {
-      cardHeight.value = el.offsetHeight
+      const naturalHeight = el.offsetHeight
+      if (containerHeight.value) {
+        const minHeight = containerHeight.value * 0.8
+        cardHeight.value = Math.max(naturalHeight, minHeight)
+      } else {
+        cardHeight.value = naturalHeight
+      }
     }
   })
 }

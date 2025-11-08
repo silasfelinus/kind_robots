@@ -21,7 +21,7 @@
     <div class="relative z-10 w-full h-full flex">
       <div
         ref="contentContainer"
-        class="w-full max-w-4xl mx-auto px-4 pt-6 pb-10 flex-1 flex"
+        class="w-full max-w-4xl mx-auto px-1 pt-3 pb-3 md:px-2 md:pt-4 md:pb-4 lg:px-3 lg:pt-5 lg:pb-5 xl:px-4 xl:pt-6 xl:pb-6 flex-1 flex"
       >
         <section
           class="relative w-full max-h-[90%] rounded-3xl border border-black bg-base-100/95 shadow-xl overflow-y-auto transition-[height] duration-300"
@@ -60,9 +60,9 @@
                   </div>
 
                   <div
-                    class="relative z-10 flex flex-col w-full h-full p-4 sm:p-5"
+                    class="relative z-10 flex flex-col w-full h-full p-1 md:p-2 lg:p-3 xl:p-4"
                   >
-                    <div class="mb-3 sm:mb-4">
+                    <div class="mb-1 md:mb-2 lg:mb-3 xl:mb-4">
                       <title-card />
                     </div>
 

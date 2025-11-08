@@ -1,6 +1,8 @@
 <!-- /app.vue -->
 <template>
-  <div class="main-layout h-full w-full relative overflow-hidden box-border">
+  <div
+    class="main-layout h-full w-full relative overflow-hidden box-border bg-base-100"
+  >
     <!-- Loaders -->
     <div class="fixed z-50">
       <footer-toggle />
@@ -57,7 +59,7 @@
           <div class="h-full w-full" :style="displayStore.centerContentStyle">
             <NuxtPage
               :key="$route.fullPath"
-              class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300 z-40 bg-base-300"
+              class="min-h-full w-full px-8 py-8 transition-opacity duration-300 z-40 bg-base-300"
             />
           </div>
         </div>

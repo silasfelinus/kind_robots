@@ -30,7 +30,7 @@
           <div class="flip-card w-full h-full">
             <div
               ref="flipInner"
-              class="flip-card-inner w-full"
+              class="flip-card-inner w-full h-full"
               :class="{
                 'is-flipped': isAnimating ? animFlipped : flipped,
                 'is-animating': isAnimating,
@@ -218,11 +218,14 @@ const pageIcon = computed(() => pageStore.page?.icon)
 <style scoped>
 .flip-card {
   perspective: 1000px;
+  width: 100%;
+  height: 100%;
 }
 
 .flip-card-inner {
   position: relative;
   width: 100%;
+  height: 100%;
   transform-style: preserve-3d;
   transition: transform 0.6s;
 }
@@ -235,14 +238,16 @@ const pageIcon = computed(() => pageStore.page?.icon)
   transform-origin: center;
 }
 
-.flip-card-inner.is-animating .flip-side {
+.flip-side {
   position: absolute;
   inset: 0;
+  width: 100%;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
-.flip-side {
-  width: 100%;
+.flip-front {
+  transform: rotateY(0deg);
 }
 
 .flip-back {
@@ -250,10 +255,10 @@ const pageIcon = computed(() => pageStore.page?.icon)
 }
 
 .flip-static-visible {
-  display: block;
+  visibility: visible;
 }
 
 .flip-static-hidden {
-  display: none;
+  visibility: hidden;
 }
 </style>

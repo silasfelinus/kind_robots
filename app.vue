@@ -51,10 +51,7 @@
             <corner-toggle />
 
             <Transition name="slide-in-right">
-              <div
-                v-if="displayStore.showCorner"
-                class="pointer-events-none"
-              >
+              <div v-if="displayStore.showCorner" class="pointer-events-none">
                 <corner-panel class="pointer-events-auto" />
               </div>
             </Transition>
@@ -62,7 +59,7 @@
         </div>
       </Transition>
 
-      <tutorial-toggle class="fixed z-40 bottom-2 right-2" />
+      <tutorial-toggle class="fixed z-50 bottom-2 right-2" />
 
       <!-- Splash Tutorial in right sidebar region -->
       <Transition name="slide-in-right">

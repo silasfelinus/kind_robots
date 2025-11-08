@@ -45,16 +45,20 @@
             class="min-h-full w-full px-4 py-6 pr-[6rem] transition-opacity duration-300 z-40 bg-base-300"
           />
 
-          <corner-toggle class="absolute top-3 right-3 z-50" />
-          <!-- Corner panel lives inside the center panel -->
-          <Transition name="slide-in-right">
-            <div
-              v-if="displayStore.showCorner"
-              class="absolute top-3 right-13 z-50 pointer-events-none"
-            >
-              <corner-panel class="pointer-events-auto" />
-            </div>
-          </Transition>
+          <div
+            class="absolute top-3 right-3 z-50 flex flex-row-reverse items-start gap-3"
+          >
+            <corner-toggle />
+
+            <Transition name="slide-in-right">
+              <div
+                v-if="displayStore.showCorner"
+                class="pointer-events-none"
+              >
+                <corner-panel class="pointer-events-auto" />
+              </div>
+            </Transition>
+          </div>
         </div>
       </Transition>
 

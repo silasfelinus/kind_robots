@@ -36,11 +36,15 @@
         <div
           v-if="activePanel === item.id"
           :id="`panel-${item.id}`"
-          class="absolute right-0 top-full mt-2 bg-base-100 rounded-xl border border-base-content/10 shadow-lg p-3 w-72 max-w-[calc(100vw-2rem)] text-sm"
+          class="absolute right-0 top-full mt-2 bg-base-100 rounded-xl border border-base-content/10 shadow-lg p-3 w-72 max-w-[calc(100vw-2rem)] text-sm text-right"
         >
+          <!-- TOKENS -->
           <div v-if="item.id === 'tokens'" class="space-y-2">
-            <div class="font-bold">Mana: {{ userStore.user?.mana ?? 0 }}</div>
-            <div class="text-xs text-base-content/70">
+            <div class="flex justify-between items-center font-bold">
+              <span class="text-xs text-base-content/70">Mana</span>
+              <span>{{ userStore.user?.mana ?? 0 }}</span>
+            </div>
+            <div class="text-xs text-base-content/60">
               Role: {{ userStore.user?.Role || 'Guest' }}
             </div>
             <NuxtLink
@@ -59,11 +63,12 @@
             </NuxtLink>
           </div>
 
+          <!-- ACCOUNT -->
           <div v-else-if="item.id === 'account'" class="space-y-2">
             <div v-if="userStore.isLoggedIn" class="space-y-2">
-              <div class="flex items-start justify-between">
-                <div class="font-bold">
-                  {{ userStore.user?.username }}
+              <div class="flex justify-between items-start">
+                <div class="text-left">
+                  <div class="font-bold">{{ userStore.user?.username }}</div>
                   <div class="text-xs text-base-content/70">
                     {{ userStore.user?.designerName }}
                   </div>
@@ -139,61 +144,24 @@
             </div>
           </div>
 
+          <!-- DIRECTORY -->
           <div v-else-if="item.id === 'directory'" class="space-y-1">
             <div class="font-bold mb-1">Site Map</div>
-            <NuxtLink to="/addart" class="block hover:underline" @click="close">
-              Art
-            </NuxtLink>
-            <NuxtLink to="/bots" class="block hover:underline" @click="close">
-              Bots
-            </NuxtLink>
             <NuxtLink
-              to="/pitches"
+              v-for="link in directoryLinks"
+              :key="link.to"
+              :to="link.to"
               class="block hover:underline"
               @click="close"
             >
-              Pitches
-            </NuxtLink>
-            <NuxtLink
-              to="/stories"
-              class="block hover:underline"
-              @click="close"
-            >
-              Stories
-            </NuxtLink>
-            <NuxtLink
-              to="/wonderlab"
-              class="block hover:underline"
-              @click="close"
-            >
-              Wonderlab
-            </NuxtLink>
-            <NuxtLink
-              to="/dominions"
-              class="block hover:underline"
-              @click="close"
-            >
-              Dominion Generator
-            </NuxtLink>
-            <NuxtLink to="/forum" class="block hover:underline" @click="close">
-              Forum
-            </NuxtLink>
-            <NuxtLink to="/memory" class="block hover:underline" @click="close">
-              Memory
-            </NuxtLink>
-            <NuxtLink
-              to="/characters"
-              class="block hover:underline"
-              @click="close"
-            >
-              Characters
+              {{ link.label }}
             </NuxtLink>
           </div>
 
+          <!-- SOURCES -->
           <div v-else-if="item.id === 'sources'" class="space-y-2">
             <div class="font-bold">Modeller Sources</div>
-            <div class="flex items-center gap-2">
-              <input type="checkbox" class="checkbox" />
+            <div class="flex items-center justify-between gap-2">
               <NuxtLink
                 to="/artmodel-manager"
                 class="hover:underline"
@@ -201,9 +169,9 @@
               >
                 Select Art Modeller
               </NuxtLink>
-            </div>
-            <div class="flex items-center gap-2">
               <input type="checkbox" class="checkbox" />
+            </div>
+            <div class="flex items-center justify-between gap-2">
               <NuxtLink
                 to="/textmodel-manager"
                 class="hover:underline"
@@ -211,9 +179,11 @@
               >
                 Select Text Modeller
               </NuxtLink>
+              <input type="checkbox" class="checkbox" />
             </div>
           </div>
 
+          <!-- ABOUT -->
           <div v-else-if="item.id === 'about'" class="space-y-1">
             <NuxtLink to="/about" class="block hover:underline" @click="close">
               About
@@ -288,4 +258,16 @@ const menuItems = [
   { id: 'sources', icon: 'kind-icon:butterfly', label: 'Sources' },
   { id: 'about', icon: 'kind-icon:info-circle', label: 'About' },
 ] as const
+
+const directoryLinks = [
+  { to: '/addart', label: 'Art' },
+  { to: '/bots', label: 'Bots' },
+  { to: '/pitches', label: 'Pitches' },
+  { to: '/stories', label: 'Stories' },
+  { to: '/wonderlab', label: 'Wonderlab' },
+  { to: '/dominions', label: 'Dominion Generator' },
+  { to: '/forum', label: 'Forum' },
+  { to: '/memory', label: 'Memory' },
+  { to: '/characters', label: 'Characters' },
+]
 </script>

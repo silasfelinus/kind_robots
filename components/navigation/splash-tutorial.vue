@@ -18,13 +18,13 @@
       />
     </div>
 
-    <div class="relative z-10 w-full h-full flex">
+    <div class="relative z-10 w-full h-full flex items-center">
       <div
         ref="contentContainer"
-        class="w-full max-w-4xl mx-auto px-1 pt-3 pb-3 md:px-2 md:pt-4 md:pb-4 lg:px-3 lg:pt-5 lg:pb-5 xl:px-4 xl:pt-6 xl:pb-6 flex-1 flex"
+        class="w-full max-w-4xl mx-auto px-1 py-3 md:px-2 md:py-4 lg:px-3 lg:py-5 xl:px-4 xl:py-6 flex-1 flex items-center"
       >
         <section
-          class="relative w-full max-h-[90%] rounded-3xl border border-black bg-base-100/95 shadow-xl overflow-y-auto transition-[height] duration-300"
+          class="relative w-full rounded-3xl border border-black bg-base-100/95 shadow-xl overflow-y-auto transition-[min-height] duration-300"
           :style="cardHeightStyle"
         >
           <div class="flip-card w-full h-full">
@@ -37,7 +37,6 @@
               }"
               @transitionend="onFlipTransitionEnd"
             >
-              <!-- FRONT SIDE -->
               <div
                 ref="frontRef"
                 class="flip-side flip-front"
@@ -73,7 +72,6 @@
                 </div>
               </div>
 
-              <!-- BACK SIDE -->
               <div
                 ref="backRef"
                 class="flip-side flip-back"
@@ -146,7 +144,7 @@ const cardHeight = ref<number | null>(null)
 const containerHeight = ref<number | null>(null)
 
 const cardHeightStyle = computed(() =>
-  cardHeight.value ? { height: `${cardHeight.value}px` } : {},
+  cardHeight.value ? { minHeight: `${cardHeight.value}px` } : {},
 )
 
 const navStore = useNavStore()
@@ -162,7 +160,7 @@ const updateCardHeight = () => {
     if (el) {
       const naturalHeight = el.offsetHeight
       if (containerHeight.value) {
-        const minHeight = containerHeight.value * 0.8
+        const minHeight = containerHeight.value * 0.9
         cardHeight.value = Math.max(naturalHeight, minHeight)
       } else {
         cardHeight.value = naturalHeight
@@ -274,3 +272,4 @@ const pageIcon = computed(() => pageStore.page?.icon)
   visibility: hidden;
 }
 </style>
+n 

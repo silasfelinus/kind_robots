@@ -230,9 +230,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
     if (!state.showCorner) return 0
     const sizes = {
       small: 8,
-      medium: 6,
-      large: 5,
-      extraLarge: 4,
+      medium: 7,
+      large: 6,
+      extraLarge: 5,
     }
     return sizes[state.viewportSize]
   })

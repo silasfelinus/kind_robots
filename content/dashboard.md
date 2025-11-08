@@ -1,6 +1,6 @@
 ---
 title: 'Human'
-room: 'Your Dashboard'
+room: 'Dashboard Room'
 subtitle: "Your Private Page"
 description: 'This is your space!'
 gallery: 'cafepurr'

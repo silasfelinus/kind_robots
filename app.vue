@@ -59,12 +59,13 @@
       </Transition>
 
       <tutorial-toggle class="fixed z-40 bottom-2 right-2" />
-      <!-- Splash Tutorial (small viewport fallback) -->
+
+      <!-- Splash Tutorial in right sidebar region -->
       <Transition name="slide-in-right">
         <div
           v-if="sidebarRightOpen"
+          class="fixed z-40 transition-all duration-500 ease-in-out rounded-2xl overflow-hidden"
           :style="displayStore.rightSidebarStyle"
-          class="fixed z-40 transition-all duration-500 ease-in-out"
         >
           <splash-tutorial
             class="h-full w-full px-4 py-6 transition-opacity duration-300"

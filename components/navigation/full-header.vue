@@ -1,7 +1,7 @@
 <!-- /components/content/navigation/full-header.vue -->
 <template>
   <header
-    class="w-full h-full flex items-stretch gap-0 rounded-2xl bg-base-300 overflow-hidden [isolation:isolate]"
+    class="w-full h-full flex items-stretch gap-0 overflow-hidden [isolation:isolate]"
   >
     <!-- Avatar column -->
     <div
@@ -32,7 +32,7 @@
       class="flex-none h-full flex items-center px-2 sm:px-3 lg:px-4 max-w-[40%]"
     >
       <div
-        class="inline-flex max-w-full flex-col rounded-2xl border border-base-content/10 bg-base-100/80 px-3 py-1.5 sm:px-4 sm:py-2 shadow-sm backdrop-blur-sm"
+        class="inline-flex max-w-full flex-col rounded-2xl border border-base-content/10 bg-base-300 px-3 py-1.5 sm:px-4 sm:py-2 shadow-sm backdrop-blur-sm"
       >
         <!-- Brand line -->
         <span

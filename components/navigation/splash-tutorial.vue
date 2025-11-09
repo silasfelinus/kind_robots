@@ -24,7 +24,7 @@
         class="w-full max-w-4xl mx-auto h-full px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3 xl:px-4 xl:py-4 flex items-center"
       >
         <section
-          class="relative w-full h-[90%] rounded-3xl border border-black bg-base-100/95 shadow-xl overflow-hidden"
+          class="relative w-full h-[90%] rounded-b-3xl border border-black border-t-0 bg-base-100/95 shadow-xl overflow-hidden"
         >
           <div class="flip-card w-full h-full">
             <div
@@ -36,7 +36,7 @@
               }"
               @transitionend="onFlipTransitionEnd"
             >
-              <!-- FRONT SIDE -->
+              <!-- FRONT SIDE (Teleport / smart-panel, small title only) -->
               <div
                 class="flip-side flip-front"
                 :class="{
@@ -46,7 +46,7 @@
               >
                 <div
                   ref="frontRef"
-                  class="relative flex flex-col w-full h-full rounded-2xl border border-black bg-base-100/95 shadow-md overflow-hidden"
+                  class="relative flex flex-col w-full h-full rounded-b-2xl border border-black bg-base-100/95 shadow-md overflow-hidden"
                 >
                   <div
                     v-if="pageIcon"
@@ -58,30 +58,25 @@
                     />
                   </div>
 
-                  <button
-                    type="button"
-                    class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
-                    @click.stop="handleFlipToggle"
-                  >
-                    <Icon name="kind-icon:arrow-right" class="w-3 h-3" />
-                    <span class="hidden sm:inline"> Browse </span>
-                  </button>
-
                   <div
-                    class="relative z-10 flex flex-col w-full h-full p-1 md:p-2 lg:p-3 xl:p-4"
+                    class="relative z-10 flex flex-col w-full h-full p-2 sm:p-3 lg:p-4"
                   >
                     <div class="mb-1 md:mb-2 lg:mb-3 xl:mb-4">
-                      <title-card />
+                      <h2
+                        class="text-xs sm:text-sm font-semibold text-base-content/80 truncate"
+                      >
+                        {{ title }}
+                      </h2>
                     </div>
 
                     <div class="flex-1 min-h-0 flex overflow-y-auto">
-                      <ami-chat class="flex-1" />
+                      <smart-panel class="flex-1" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- BACK SIDE -->
+              <!-- BACK SIDE (Details / ami-chat with full title layout) -->
               <div
                 class="flip-side flip-back"
                 :class="{
@@ -91,7 +86,7 @@
               >
                 <div
                   ref="backRef"
-                  class="relative flex flex-col w-full h-full rounded-2xl border border-black bg-base-100/95 shadow-md overflow-hidden"
+                  class="relative flex flex-col w-full h-full rounded-b-2xl border border-black bg-base-100/95 shadow-md overflow-hidden"
                 >
                   <div
                     v-if="pageIcon"
@@ -104,20 +99,15 @@
                     />
                   </div>
 
-                  <button
-                    type="button"
-                    class="absolute top-3 left-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
-                    @click.stop="handleFlipToggle"
-                  >
-                    <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
-                    <span class="hidden sm:inline"> Details </span>
-                  </button>
-
                   <div
-                    class="relative z-10 flex flex-col w-full h-full p-2 sm:p-3 lg:p-4"
+                    class="relative z-10 flex flex-col w-full h-full p-1 md:p-2 lg:p-3 xl:p-4"
                   >
+                    <div class="mb-1 md:mb-2 lg:mb-3 xl:mb-4">
+                      <title-card />
+                    </div>
+
                     <div class="flex-1 min-h-0 flex overflow-y-auto">
-                      <smart-panel class="flex-1" />
+                      <ami-chat class="flex-1" />
                     </div>
                   </div>
                 </div>
@@ -133,22 +123,26 @@
 
 <script setup lang="ts">
 // /components/content/icons/splash-tutorial.vue
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { Icon } from '#components'
 import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
+import { useDisplayStore } from '@/stores/displayStore'
 
 const contentContainer = ref<HTMLElement | null>(null)
 const flipInner = ref<HTMLElement | null>(null)
 const frontRef = ref<HTMLElement | null>(null)
 const backRef = ref<HTMLElement | null>(null)
 
-const flipped = ref(false)
 const isAnimating = ref(false)
 const animFlipped = ref(false)
 
 const navStore = useNavStore()
 const pageStore = usePageStore()
+const displayStore = useDisplayStore()
+
+// For bottom card, "flipped" means we are showing the back (ami-chat)
+const flipped = computed(() => displayStore.SmartState === 'tutorial')
 
 onMounted(async () => {
   if (!navStore.isInitialized) {
@@ -157,23 +151,31 @@ onMounted(async () => {
   navStore.setActiveModelType(null)
 })
 
-const handleFlipToggle = () => {
-  if (isAnimating.value) return
-  isAnimating.value = true
-  animFlipped.value = flipped.value
+watch(
+  () => displayStore.SmartState,
+  (newState, oldState) => {
+    if (isAnimating.value) return
 
-  nextTick(() => {
-    if (flipInner.value) {
-      void flipInner.value.offsetWidth
-    }
-    animFlipped.value = !flipped.value
-  })
-}
+    const prevFlipped = oldState === 'tutorial'
+    const nextFlipped = newState === 'tutorial'
+
+    if (prevFlipped === nextFlipped) return
+
+    isAnimating.value = true
+    animFlipped.value = prevFlipped
+
+    nextTick(() => {
+      if (flipInner.value) {
+        void flipInner.value.offsetWidth
+      }
+      animFlipped.value = nextFlipped
+    })
+  },
+)
 
 const onFlipTransitionEnd = (event: TransitionEvent) => {
   if (!isAnimating.value || event.propertyName !== 'transform') return
   isAnimating.value = false
-  flipped.value = !flipped.value
 }
 
 const fallbackImage = '/images/botcafe.webp'
@@ -184,6 +186,10 @@ const resolvedImage = computed(() => {
 })
 
 const pageIcon = computed(() => pageStore.page?.icon)
+
+const title = computed(
+  () => pageStore.page?.title || pageStore.page?.room || 'Kind Room',
+)
 </script>
 
 <style scoped>

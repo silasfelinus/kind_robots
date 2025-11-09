@@ -56,7 +56,64 @@
         />
       </div>
 
-      <!-- ...rest of your smart-panel template unchanged... -->
+      <div v-if="pageImagePath" class="w-full flex justify-center">
+        <div
+          class="inline-flex items-center justify-center px-3 py-1.5 rounded-2xl border border-base-200 bg-base-100 text-xs sm:text-sm text-base-content/80 max-w-full truncate"
+        >
+          <img
+            :src="pageImagePath || '/images/bot.webp'"
+            alt="Room Background"
+            class="w-24 h-24 rounded-full"
+          />
+        </div>
+      </div>
+      <div class="flex items-center justify-between gap-2 px-1 sm:px-2">
+        <button
+          v-if="canGoBack"
+          type="button"
+          class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-200 bg-base-100 px-3 py-1 flex items-center gap-1"
+          @click="goBack"
+        >
+          <Icon name="kind-icon:arrow-left" class="w-3 h-3" /> <span>Back</span>
+        </button>
+        <div class="flex-1" />
+        <button
+          v-if="canGoForward"
+          type="button"
+          class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-200 bg-base-100 px-3 py-1 flex items-center gap-1"
+          @click="goNext"
+        >
+          <span>Next</span>
+          <Icon name="kind-icon:arrow-right" class="w-3 h-3" />
+        </button>
+      </div>
+      <div
+        class="flex flex-wrap items-center justify-center gap-2 px-1 sm:px-2"
+      >
+        <button
+          v-for="chip in filters"
+          :key="chip.value"
+          class="btn btn-xs sm:btn-sm rounded-full px-3"
+          :class="filterClass(chip.value)"
+          @click="setFilter(chip.value)"
+        >
+          {{ chip.label }}
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+        <smart-card
+          v-for="(icon, i) in filteredIcons"
+          :key="icon.link || icon.title || i"
+          :icon="icon"
+          :delay="i"
+        />
+      </div>
+      <p
+        v-if="filteredIcons.length === 0"
+        class="text-center text-xs sm:text-sm text-base-content/70 mt-1"
+      >
+        No links for this selection yet.
+      </p>
     </div>
   </div>
 </template>

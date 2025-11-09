@@ -46,7 +46,7 @@
               >
                 <div
                   ref="frontRef"
-                  class="relative flex flex-col w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md overflow-hidden"
+                  class="relative flex flex-col w-full h-full rounded-2xl border border-black bg-base-100/95 shadow-md overflow-hidden"
                 >
                   <div
                     v-if="pageIcon"

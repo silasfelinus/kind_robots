@@ -31,9 +31,7 @@
       v-if="subtitle"
       class="flex-none h-full flex items-center px-2 sm:px-3 lg:px-4 max-w-[40%]"
     >
-      <div
-        class="inline-flex max-w-full flex-col rounded-2xl border border-base-content/10 bg-base-200 px-3 py-1.5 sm:px-4 sm:py-2 shadow-sm backdrop-blur-sm"
-      >
+      <div class="inline-flex max-w-full flex-col px-3 py-1.5 md:px-4 md:py-2">
         <!-- Brand line -->
         <span
           class="text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.22em] uppercase text-base-content/70"
@@ -78,7 +76,7 @@ const subtitle = computed(() => pageStore.page?.subtitle)
 
 // only show viewport notice if admin + bigMode
 const showViewportBadge = computed(() => {
-  return bigMode.value && userStore.user?.Role === 'ADMIN'
+  return userStore.user?.Role === 'ADMIN'
 })
 
 /**

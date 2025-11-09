@@ -4,7 +4,7 @@
     <!-- Header row with history controls -->
     <div class="flex items-center justify-between gap-2 mb-3">
       <h2 class="text-lg sm:text-xl font-bold text-base-content">
-        Browse Rooms and Tools
+        Activate Teleporter
       </h2>
 
       <div class="flex items-center gap-1">

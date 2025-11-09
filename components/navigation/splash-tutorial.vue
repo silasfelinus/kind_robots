@@ -23,9 +23,7 @@
         ref="contentContainer"
         class="w-full max-w-4xl mx-auto h-full px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3 xl:px-4 xl:py-4 flex"
       >
-        <section
-          class="relative w-full h-full rounded-3xl border border-black bg-base-100/95 shadow-xl"
-        >
+        <section class="relative w-full h-full">
           <div class="flip-card w-full h-full">
             <div
               ref="flipInner"
@@ -92,7 +90,7 @@
               >
                 <div
                   ref="backRef"
-                  class="relative w-full h-full rounded-2xl border border-base-300 bg-base-100/95 shadow-md p-4 sm:p-5 overflow-hidden"
+                  class="relative w-full h-full rounded-2xl border border-black shadow-md p-4 sm:p-5 overflow-hidden"
                 >
                   <div
                     v-if="pageIcon"

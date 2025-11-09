@@ -1,6 +1,6 @@
 <!-- /components/content/icons/smart-panel.vue -->
 <template>
-  <div class="w-full h-full flex flex-col">
+  <div class="w-full h-full flex flex-col min-h-0">
     <div class="flex items-center justify-center mb-3">
       <h2
         class="inline-flex items-center justify-center px-4 py-2 rounded-2xl border border-base-200 bg-base-100 text-lg sm:text-xl font-bold text-base-content"
@@ -18,7 +18,7 @@
 
     <div
       v-else
-      class="relative w-full flex-1 flex flex-col items-stretch rounded-2xl border border-base-200 bg-base-100/80 p-3 sm:p-4 gap-4 overflow-hidden"
+      class="relative w-full flex-1 min-h-0 flex flex-col items-stretch rounded-2xl border border-base-200 bg-base-100/80 p-3 sm:p-4 gap-4 overflow-hidden"
     >
       <div v-if="pageIcon" class="pointer-events-none absolute inset-0">
         <Icon
@@ -43,13 +43,12 @@
         />
       </div>
 
-      <div v-if="pageImagePath" class="w-full flex justify-center">
-        <div
-          class="inline-flex items-center justify-center px-3 py-1.5 rounded-2xl border border-base-200 bg-base-100 text-xs sm:text-sm text-base-content/80 max-w-full truncate"
-        >
-          <span class="font-semibold mr-1">Image:</span>
-          <span class="truncate">{{ pageImagePath }}</span>
-        </div>
+      <div v-if="pageImageSrc" class="w-full flex justify-center">
+        <NuxtImg
+          :src="pageImageSrc"
+          alt="Page preview"
+          class="max-h-24 rounded-2xl border border-base-200 shadow-sm object-cover"
+        />
       </div>
 
       <div class="flex items-center justify-between gap-2 px-1 sm:px-2">
@@ -114,7 +113,7 @@
 import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { Icon } from '#components'
+import { Icon, NuxtImg } from '#components'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 
@@ -136,6 +135,11 @@ const {
 const navInitialized = computed(() => navStore.isInitialized)
 
 const pageImagePath = computed(() => pageStore.page?.image || '')
+const pageImageSrc = computed(() => {
+  const img = pageImagePath.value
+  if (!img) return ''
+  return img.startsWith('/') ? img : `/images/${img}`
+})
 const pageIcon = computed(() => pageStore.page?.icon || '')
 
 const allIcons = computed(() => directoryIcons.value)

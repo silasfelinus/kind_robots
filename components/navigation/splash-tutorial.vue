@@ -4,6 +4,7 @@
     v-if="pageStore.page"
     class="relative w-full h-full rounded-2xl border-2 border-black z-20 bg-base-200/80 overflow-hidden"
   >
+    <!-- Background image layer -->
     <div
       v-if="resolvedImage"
       class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -18,13 +19,18 @@
       />
     </div>
 
+    <!-- Content (smart-flip on top + bottom flip card) -->
     <div class="relative z-10 w-full h-full flex">
       <div
         ref="contentContainer"
-        class="w-full max-w-4xl mx-auto h-full px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3 xl:px-4 xl:py-4 flex items-center"
+        class="w-full max-w-4xl mx-auto h-full px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3 xl:px-4 xl:py-4 flex flex-col gap-2"
       >
+        <!-- Top smart header flip (Kind / Teleport) -->
+        <smart-flip />
+
+        <!-- Bottom flip card (Teleport / smart-panel ↔ Tutorial / ami-chat) -->
         <section
-          class="relative w-full h-[90%] rounded-b-3xl border border-black border-t-0 bg-base-100/95 shadow-xl overflow-hidden"
+          class="relative w-full flex-1 min-h-0 rounded-b-3xl border border-black border-t-0 bg-base-100/95 shadow-xl overflow-hidden"
         >
           <div class="flip-card w-full h-full">
             <div
@@ -76,7 +82,7 @@
                 </div>
               </div>
 
-              <!-- BACK SIDE (Details / ami-chat with full title layout) -->
+              <!-- BACK SIDE (Tutorial / ami-chat with full Kind title layout) -->
               <div
                 class="flip-side flip-back"
                 :class="{
@@ -141,7 +147,7 @@ const navStore = useNavStore()
 const pageStore = usePageStore()
 const displayStore = useDisplayStore()
 
-// For bottom card, "flipped" means we are showing the back (ami-chat)
+// For the bottom card, "flipped" means we are showing the back (tutorial / ami-chat)
 const flipped = computed(() => displayStore.SmartState === 'tutorial')
 
 onMounted(async () => {

@@ -1,6 +1,6 @@
 <!-- /components/content/icons/smart-panel.vue -->
 <template>
-  <div class="h-full px-4 py-5 sm:px-6 sm:py-7">
+  <div class="w-full h-full flex flex-col">
     <div class="flex items-center justify-center mb-3">
       <h2
         class="inline-flex items-center justify-center px-4 py-2 rounded-2xl border border-base-200 bg-base-100 text-lg sm:text-xl font-bold text-base-content"
@@ -18,7 +18,7 @@
 
     <div
       v-else
-      class="relative w-full flex flex-col items-stretch rounded-2xl border border-base-200 bg-base-100/80 p-3 sm:p-4 gap-4 overflow-hidden"
+      class="relative w-full flex-1 flex flex-col items-stretch rounded-2xl border border-base-200 bg-base-100/80 p-3 sm:p-4 gap-4 overflow-hidden"
     >
       <div v-if="pageIcon" class="pointer-events-none absolute inset-0">
         <Icon
@@ -110,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/icons/nav-panel.vue
+// /components/content/icons/smart-panel.vue
 import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'

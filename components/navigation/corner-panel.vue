@@ -142,57 +142,71 @@
             </div>
           </div>
 
-          <div v-else-if="item.id === 'directory'" class="space-y-1">
-            <div class="font-bold mb-1">Site Map</div>
-            <NuxtLink
-              v-for="link in directoryLinks"
-              :key="link.to"
-              :to="link.to"
-              class="block hover:underline"
-              @click="close"
-            >
-              {{ link.label }}
-            </NuxtLink>
-          </div>
-
-          <div v-else-if="item.id === 'sources'" class="space-y-2">
-            <div class="font-bold">Modeller Sources</div>
-            <div class="flex items-center justify-between gap-2">
+          <div v-else-if="item.id === 'directory'" class="space-y-2 text-left">
+            <div class="grid grid-cols-2 gap-1">
               <NuxtLink
-                to="/artmodel-manager"
-                class="hover:underline"
+                v-for="link in directoryLinks"
+                :key="link.to"
+                :to="link.to"
+                class="hover:underline text-xs"
                 @click="close"
               >
-                Select Art Modeller
+                {{ link.label }}
               </NuxtLink>
-              <input type="checkbox" class="checkbox" />
-            </div>
-            <div class="flex items-center justify-between gap-2">
-              <NuxtLink
-                to="/textmodel-manager"
-                class="hover:underline"
-                @click="close"
-              >
-                Select Text Modeller
-              </NuxtLink>
-              <input type="checkbox" class="checkbox" />
             </div>
           </div>
 
-          <div v-else-if="item.id === 'about'" class="space-y-1">
-            <NuxtLink to="/about" class="block hover:underline" @click="close">
-              About
-            </NuxtLink>
-            <NuxtLink to="/amibot" class="block hover:underline" @click="close">
-              The AMI Project
-            </NuxtLink>
-            <NuxtLink
-              to="/giftshop"
-              class="block hover:underline"
-              @click="close"
+          <div v-else-if="item.id === 'settings'" class="space-y-2 text-left">
+            <div class="font-bold mb-1 text-right">Settings</div>
+
+            <div class="space-y-1">
+              <NuxtLink
+                to="/about"
+                class="block hover:underline"
+                @click="close"
+              >
+                About
+              </NuxtLink>
+              <NuxtLink
+                to="/amibot"
+                class="block hover:underline"
+                @click="close"
+              >
+                The AMI Project
+              </NuxtLink>
+              <NuxtLink
+                to="/giftshop"
+                class="block hover:underline"
+                @click="close"
+              >
+                Giftshop
+              </NuxtLink>
+            </div>
+
+            <div
+              class="mt-2 pt-2 border-t border-base-content/10 space-y-2 text-xs"
             >
-              Giftshop
-            </NuxtLink>
+              <div class="flex items-center justify-between gap-2">
+                <NuxtLink
+                  to="/artmodel-manager"
+                  class="hover:underline"
+                  @click="close"
+                >
+                  Select Art Modeller
+                </NuxtLink>
+                <input type="checkbox" class="checkbox checkbox-xs" />
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <NuxtLink
+                  to="/textmodel-manager"
+                  class="hover:underline"
+                  @click="close"
+                >
+                  Select Text Modeller
+                </NuxtLink>
+                <input type="checkbox" class="checkbox checkbox-xs" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -247,8 +261,7 @@ onBeforeUnmount(() => {
 const menuItems = [
   { id: 'account', icon: 'kind-icon:person', label: 'Account' },
   { id: 'directory', icon: 'kind-icon:folder-tree', label: 'Directory' },
-  { id: 'sources', icon: 'kind-icon:butterfly', label: 'Sources' },
-  { id: 'about', icon: 'kind-icon:info-circle', label: 'About' },
+  { id: 'settings', icon: 'kind-icon:butterfly', label: 'Settings' },
 ] as const
 
 const directoryLinks = [

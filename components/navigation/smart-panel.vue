@@ -24,22 +24,22 @@
         <Icon
           :name="pageIcon"
           class="absolute -top-6 -left-6 sm:-top-8 sm:-left-8 lg:-top-10 lg:-left-10 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary/40"
-          style="transform: rotate(6deg) scaleX(-1);"
+          style="transform: rotate(6deg) scaleX(-1)"
         />
         <Icon
           :name="pageIcon"
           class="absolute -top-6 -right-6 sm:-top-8 sm:-right-8 lg:-top-10 lg:-right-10 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary/40"
-          style="transform: rotate(6deg);"
+          style="transform: rotate(6deg)"
         />
         <Icon
           :name="pageIcon"
           class="absolute -bottom-6 -right-6 sm:-bottom-8 sm:-right-8 lg:-bottom-10 lg:-right-10 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary/40"
-          style="transform: rotate(6deg) scaleY(-1);"
+          style="transform: rotate(6deg) scaleY(-1)"
         />
         <Icon
           :name="pageIcon"
           class="absolute -bottom-6 -left-6 sm:-bottom-8 sm:-left-8 lg:-bottom-10 lg:-left-10 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary/40"
-          style="transform: rotate(6deg) scaleX(-1) scaleY(-1);"
+          style="transform: rotate(6deg) scaleX(-1) scaleY(-1)"
         />
       </div>
 
@@ -47,8 +47,11 @@
         <div
           class="inline-flex items-center justify-center px-3 py-1.5 rounded-2xl border border-base-200 bg-base-100 text-xs sm:text-sm text-base-content/80 max-w-full truncate"
         >
-          <span class="font-semibold mr-1">Image:</span>
-          <span class="truncate">{{ pageImagePath }}</span>
+          <img
+            :src="pageImagePath || '/images/bot.webp'"
+            alt="Room Background"
+            class="w-24 h-24 rounded-full"
+          />
         </div>
       </div>
 

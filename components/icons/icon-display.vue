@@ -4,10 +4,8 @@
     class="relative snap-start shrink-0 w-16 h-20 md:w-24 md:h-28 flex flex-col items-center justify-center"
   >
     <!-- Icon Section -->
-    <div
-      class="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center overflow-hidden"
-    >
-      <!-- Edit mode preview -->
+    <div class="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center">
+      <!-- Edit mode preview (no hover scaling to keep it stable) -->
       <div
         v-if="isEditing"
         class="w-full h-full flex items-center justify-center"
@@ -22,7 +20,7 @@
       <NuxtLink
         v-else-if="icon.link && icon.type !== 'utility'"
         :to="icon.link"
-        class="w-full h-full flex items-center justify-center transition-transform hover:sm:scale-110"
+        class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
       >
         <Icon
           :name="icon.icon || 'kind-icon:help'"
@@ -33,13 +31,20 @@
 
       <!-- Utility component -->
       <component
-        v-else-if="icon.type === 'utility' && icon.component && componentMap[icon.component]"
+        v-else-if="
+          icon.type === 'utility' &&
+          icon.component &&
+          componentMap[icon.component]
+        "
         :is="componentMap[icon.component]"
-        class="w-full h-full flex items-center justify-center"
+        class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
       />
 
       <!-- Fallback icon -->
-      <div v-else class="w-full h-full flex items-center justify-center">
+      <div
+        v-else
+        class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
+      >
         <Icon
           :name="icon.icon || 'kind-icon:help'"
           class="text-3xl w-full h-full"

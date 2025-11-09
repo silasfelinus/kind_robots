@@ -7,6 +7,8 @@ export function setCustomVh() {
   }
 }
 
+export type SmartState = 'tutorial' | 'teleport'
+
 export type DisplayState =
   | 'open'
   | 'compact'
@@ -63,4 +65,5 @@ export interface DisplayStoreState {
   displayAction: displayActionState
   previousRoute: string
   mainComponent: string
+  headerFlipState: SmartState
 }

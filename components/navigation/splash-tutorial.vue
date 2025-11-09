@@ -21,16 +21,15 @@
     <div class="relative z-10 w-full h-full flex">
       <div
         ref="contentContainer"
-        class="w-full max-w-4xl mx-auto h-full px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3 xl:px-4 xl:py-4 flex"
+        class="w-full max-w-4xl mx-auto h-full px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3 xl:px-4 xl:py-4 flex items-center"
       >
         <section
-          class="relative w-full max-h-[90%] rounded-3xl border border-black bg-base-100/95 shadow-xl overflow-hidden transition-[height] duration-300"
-          :style="cardHeightStyle"
+          class="relative w-full h-[90%] rounded-3xl border border-black bg-base-100/95 shadow-xl overflow-hidden"
         >
           <div class="flip-card w-full h-full">
             <div
               ref="flipInner"
-              class="flip-card-inner w-full"
+              class="flip-card-inner w-full h-full"
               :class="{
                 'is-flipped': isAnimating ? animFlipped : flipped,
                 'is-animating': isAnimating,
@@ -134,7 +133,7 @@
 
 <script setup lang="ts">
 // /components/content/icons/splash-tutorial.vue
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { Icon } from '#components'
 import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
@@ -151,45 +150,12 @@ const animFlipped = ref(false)
 const navStore = useNavStore()
 const pageStore = usePageStore()
 
-const cardHeight = ref<number | null>(null)
-const cardHeightStyle = computed(() =>
-  cardHeight.value ? { height: `${cardHeight.value}px` } : {},
-)
-
-const updateCardHeight = () => {
-  nextTick(() => {
-    const el = flipped.value ? backRef.value : frontRef.value
-    if (el) {
-      cardHeight.value = el.offsetHeight
-    }
-  })
-}
-
 onMounted(async () => {
   if (!navStore.isInitialized) {
     await navStore.initialize()
   }
   navStore.setActiveModelType(null)
-  updateCardHeight()
 })
-
-watch(
-  () => pageStore.page,
-  () => {
-    if (!isAnimating.value) {
-      updateCardHeight()
-    }
-  },
-)
-
-watch(
-  () => flipped.value,
-  () => {
-    if (!isAnimating.value) {
-      updateCardHeight()
-    }
-  },
-)
 
 const handleFlipToggle = () => {
   if (isAnimating.value) return
@@ -208,7 +174,6 @@ const onFlipTransitionEnd = (event: TransitionEvent) => {
   if (!isAnimating.value || event.propertyName !== 'transform') return
   isAnimating.value = false
   flipped.value = !flipped.value
-  updateCardHeight()
 }
 
 const fallbackImage = '/images/botcafe.webp'
@@ -231,6 +196,7 @@ const pageIcon = computed(() => pageStore.page?.icon)
 .flip-card-inner {
   position: relative;
   width: 100%;
+  height: 100%;
   transform-style: preserve-3d;
   transition: transform 0.6s;
 }
@@ -252,6 +218,7 @@ const pageIcon = computed(() => pageStore.page?.icon)
 
 .flip-side {
   width: 100%;
+  height: 100%;
 }
 
 .flip-back {

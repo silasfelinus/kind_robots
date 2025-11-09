@@ -69,11 +69,11 @@
         <!-- Edit tile (when not editing) -->
         <div
           v-if="!isEditing"
-          class="snap-start shrink-0 h-full aspect-square flex"
+          class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
         >
           <button
             type="button"
-            class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             title="Edit Smart Icons"
             aria-label="Edit Smart Icons"
             @click="activateEditMode"
@@ -94,11 +94,11 @@
         <!-- Save tile (when editing) -->
         <div
           v-if="isEditing"
-          class="snap-start shrink-0 h-full aspect-square flex"
+          class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
         >
           <button
             type="button"
-            class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             :class="
               hasChanges
                 ? 'bg-base-200 hover:bg-base-300'
@@ -125,11 +125,11 @@
         <!-- Cancel tile (when editing) -->
         <div
           v-if="isEditing"
-          class="snap-start shrink-0 h-full aspect-square flex"
+          class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
         >
           <button
             type="button"
-            class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-error/60"
+            class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-error/60"
             title="Cancel icon changes"
             aria-label="Cancel icon changes"
             @click="revertEdit"
@@ -177,7 +177,6 @@ const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
 
 const bigMode = computed(() => displayStore.bigMode)
 
-// keep editable list in sync when not editing
 watch(
   activeIcons,
   (val) => {
@@ -190,10 +189,8 @@ const rowIcons = computed<SmartIcon[]>(() =>
   isEditing.value ? editableIcons.value : activeIcons.value,
 )
 
-// show titles only when not editing and not in bigMode
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
 
-// edit state + change detection
 const originalIcons = ref<SmartIcon[]>([])
 
 watch(isEditing, (editing) => {
@@ -223,7 +220,6 @@ function revertEdit() {
   smartbarStore.isEditing = false
 }
 
-// scroll + drag helpers
 const scrollContainer = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 const canScrollLeft = ref(false)
@@ -269,7 +265,6 @@ function scrollByStep(direction: -1 | 1) {
   el.scrollBy({ left: direction * step, behavior: 'smooth' })
 }
 
-// Mouse drag
 function handleScrollMouseDown(e: MouseEvent) {
   if (!scrollContainer.value) return
   isDragging.value = true
@@ -290,7 +285,6 @@ function handleScrollMouseUp() {
   requestAnimationFrame(updateScrollFlags)
 }
 
-// Touch drag
 function handleScrollTouchStart(e: TouchEvent) {
   if (!scrollContainer.value) return
   isDragging.value = true
@@ -310,7 +304,6 @@ function handleScrollTouchEnd() {
   requestAnimationFrame(updateScrollFlags)
 }
 
-// keep arrows in sync when layout or icons change
 watch(
   () => rowIcons.value.length,
   () => {

@@ -135,13 +135,6 @@
                     class="block hover:underline"
                     @click="close"
                   >
-                    Set Designer Name
-                  </NuxtLink>
-                  <NuxtLink
-                    to="/register"
-                    class="block hover:underline"
-                    @click="close"
-                  >
                     Register
                   </NuxtLink>
                 </div>

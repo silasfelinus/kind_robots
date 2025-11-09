@@ -89,7 +89,7 @@
               >
                 <div
                   ref="backRef"
-                  class="relative w-full h-full p-2 sm:p-3"
+                  class="relative flex flex-col w-full h-full rounded-2xl border border-black bg-base-100/95 shadow-md overflow-hidden"
                 >
                   <div
                     v-if="pageIcon"
@@ -102,26 +102,20 @@
                     />
                   </div>
 
-                  <div
-                    class="relative z-10 flex flex-col w-full h-full gap-2 sm:gap-3"
+                  <button
+                    type="button"
+                    class="absolute top-3 left-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
+                    @click.stop="handleFlipToggle"
                   >
-                    <div class="flex justify-end">
-                      <button
-                        type="button"
-                        class="inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
-                        @click.stop="handleFlipToggle"
-                      >
-                        <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
-                        <span class="hidden sm:inline"> Details </span>
-                      </button>
-                    </div>
+                    <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
+                    <span class="hidden sm:inline"> Details </span>
+                  </button>
 
-                    <div
-                      class="relative flex-1 rounded-2xl border border-base-200 bg-base-100/80 shadow-md overflow-hidden"
-                    >
-                      <div class="w-full h-full overflow-y-auto p-3 sm:p-4">
-                        <smart-panel />
-                      </div>
+                  <div
+                    class="relative z-10 flex flex-col w-full h-full p-2 sm:p-3 lg:p-4"
+                  >
+                    <div class="flex-1 min-h-0 flex overflow-y-auto">
+                      <smart-panel class="flex-1" />
                     </div>
                   </div>
                 </div>

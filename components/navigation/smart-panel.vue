@@ -1,36 +1,14 @@
-<!-- /components/content/icons/nav-panel.vue -->
+<!-- /components/content/icons/smart-panel.vue -->
 <template>
   <div class="h-full px-4 py-5 sm:px-6 sm:py-7">
-    <!-- Header row with history controls -->
-    <div class="flex items-center justify-between gap-2 mb-3">
-      <h2 class="text-lg sm:text-xl font-bold text-base-content">
-        Activate Teleporter
+    <div class="flex items-center justify-center mb-3">
+      <h2
+        class="inline-flex items-center justify-center px-4 py-2 rounded-2xl border border-base-200 bg-base-100 text-lg sm:text-xl font-bold text-base-content"
+      >
+        Teleport
       </h2>
-
-      <div class="flex items-center gap-1">
-        <button
-          v-if="canGoBack"
-          type="button"
-          class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-300 px-3 py-1 flex items-center gap-1"
-          @click="goBack"
-        >
-          <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
-          <span>Back</span>
-        </button>
-
-        <button
-          v-if="canGoForward"
-          type="button"
-          class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-300 px-3 py-1 flex items-center gap-1"
-          @click="goNext"
-        >
-          <span>Next</span>
-          <Icon name="kind-icon:arrow-right" class="w-3 h-3" />
-        </button>
-      </div>
     </div>
 
-    <!-- Loading state -->
     <div
       v-if="!navInitialized"
       class="w-full flex items-center justify-center py-8 text-sm text-base-content/70"
@@ -38,12 +16,66 @@
       Loading navigation...
     </div>
 
-    <!-- Main nav content -->
     <div
       v-else
-      class="w-full flex flex-col items-stretch rounded-2xl p-2 gap-4"
+      class="relative w-full flex flex-col items-stretch rounded-2xl border border-base-200 bg-base-100/80 p-3 sm:p-4 gap-4 overflow-hidden"
     >
-      <!-- Filter chips row -->
+      <div v-if="pageIcon" class="pointer-events-none absolute inset-0">
+        <Icon
+          :name="pageIcon"
+          class="absolute -top-6 -left-6 sm:-top-8 sm:-left-8 lg:-top-10 lg:-left-10 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary/40"
+          style="transform: rotate(6deg) scaleX(-1);"
+        />
+        <Icon
+          :name="pageIcon"
+          class="absolute -top-6 -right-6 sm:-top-8 sm:-right-8 lg:-top-10 lg:-right-10 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary/40"
+          style="transform: rotate(6deg);"
+        />
+        <Icon
+          :name="pageIcon"
+          class="absolute -bottom-6 -right-6 sm:-bottom-8 sm:-right-8 lg:-bottom-10 lg:-right-10 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary/40"
+          style="transform: rotate(6deg) scaleY(-1);"
+        />
+        <Icon
+          :name="pageIcon"
+          class="absolute -bottom-6 -left-6 sm:-bottom-8 sm:-left-8 lg:-bottom-10 lg:-left-10 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary/40"
+          style="transform: rotate(6deg) scaleX(-1) scaleY(-1);"
+        />
+      </div>
+
+      <div v-if="pageImagePath" class="w-full flex justify-center">
+        <div
+          class="inline-flex items-center justify-center px-3 py-1.5 rounded-2xl border border-base-200 bg-base-100 text-xs sm:text-sm text-base-content/80 max-w-full truncate"
+        >
+          <span class="font-semibold mr-1">Image:</span>
+          <span class="truncate">{{ pageImagePath }}</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between gap-2 px-1 sm:px-2">
+        <button
+          v-if="canGoBack"
+          type="button"
+          class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-200 bg-base-100 px-3 py-1 flex items-center gap-1"
+          @click="goBack"
+        >
+          <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
+          <span>Back</span>
+        </button>
+
+        <div class="flex-1" />
+
+        <button
+          v-if="canGoForward"
+          type="button"
+          class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-200 bg-base-100 px-3 py-1 flex items-center gap-1"
+          @click="goNext"
+        >
+          <span>Next</span>
+          <Icon name="kind-icon:arrow-right" class="w-3 h-3" />
+        </button>
+      </div>
+
       <div
         class="flex flex-wrap items-center justify-center gap-2 px-1 sm:px-2"
       >
@@ -58,7 +90,6 @@
         </button>
       </div>
 
-      <!-- Grid of icons for the current filter -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
         <smart-card
           v-for="(icon, i) in filteredIcons"
@@ -85,8 +116,10 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { Icon } from '#components'
 import { useNavStore } from '@/stores/navStore'
+import { usePageStore } from '@/stores/pageStore'
 
 const navStore = useNavStore()
+const pageStore = usePageStore()
 const router = useRouter()
 
 const {
@@ -102,13 +135,13 @@ const {
 
 const navInitialized = computed(() => navStore.isInitialized)
 
-// All icons coming from the store
+const pageImagePath = computed(() => pageStore.page?.image || '')
+const pageIcon = computed(() => pageStore.page?.icon || '')
+
 const allIcons = computed(() => directoryIcons.value)
 
-// Do we actually have any favorites
 const hasFavorites = computed(() => favoritesIcons.value.length > 0)
 
-// Do we have Ami / User icons
 const hasAmiIcons = computed(() =>
   allIcons.value.some((icon) => icon.category === 'ami'),
 )
@@ -116,18 +149,15 @@ const hasUserIcons = computed(() =>
   allIcons.value.some((icon) => icon.category === 'user'),
 )
 
-// Local filter state: 'all', 'favorites', or a modelType/category
 const STORAGE_KEY = 'kind-nav-active-filter'
 const activeFilter = ref<string>('all')
 
-// Hydrate filter from localStorage or activeModelType
 onMounted(() => {
   if (process.client) {
     const saved = window.localStorage.getItem(STORAGE_KEY)
 
     if (saved) {
       activeFilter.value = saved
-      // Sync store for modelType filters
       if (
         saved === 'all' ||
         saved === 'favorites' ||
@@ -144,7 +174,6 @@ onMounted(() => {
   }
 })
 
-// Persist filter choice
 watch(
   activeFilter,
   (val) => {
@@ -155,7 +184,6 @@ watch(
   { immediate: false },
 )
 
-// Build filter chips dynamically
 const filters = computed(() => {
   const chips: { value: string; label: string }[] = []
 
@@ -183,9 +211,7 @@ const filteredIcons = computed(() => {
   const icons = allIcons.value
   const filter = activeFilter.value
 
-  if (filter === 'all') {
-    return icons
-  }
+  if (filter === 'all') return icons
 
   if (filter === 'favorites') {
     return icons.filter((icon) => icon.link && navStore.isFavorite(icon.link))
@@ -195,18 +221,15 @@ const filteredIcons = computed(() => {
     return icons.filter((icon) => icon.category === filter)
   }
 
-  // Treat everything else as a modelType filter
   return icons.filter((icon) => icon.modelType === filter)
 })
 
-// Keep store in sync with modelType filters only
 function setFilter(value: string) {
   activeFilter.value = value
 
   if (value === 'all' || value === 'favorites') {
     navStore.setActiveModelType(null)
   } else if (value === 'ami' || value === 'user') {
-    // Categories are not modelTypes, so do not push them into the store
     navStore.setActiveModelType(null)
   } else {
     navStore.setActiveModelType(value)
@@ -224,7 +247,6 @@ function formatModelType(type: string) {
   return type.charAt(0).toUpperCase() + type.slice(1)
 }
 
-// History navigation
 function goBack() {
   if (backPath.value) {
     router.push(backPath.value)

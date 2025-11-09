@@ -140,7 +140,6 @@
       "icon-gallery",
       "icon-header",
       "jellybean-icon",
-      "kind-header",
       "kind-icons",
       "login-icon",
       "smart-nav",
@@ -208,8 +207,7 @@
       "title-image",
       "toggle-switch",
       "tool-tip",
-      "tooltip-popup",
-      "tutorial-toggle"
+      "tooltip-popup"
     ]
   },
   {
@@ -227,26 +225,16 @@
   {
     "folderName": "navigation",
     "components": [
-      "art-nav",
-      "bot-nav",
+      "ami-chat",
       "corner-panel",
-      "dashboard-nav",
-      "dominion-nav",
+      "corner-toggle",
       "full-header",
-      "giftshop-nav",
-      "icon-nav",
-      "lab-nav",
-      "mode-nav",
-      "mode-row",
-      "nav-card",
-      "nav-grid",
-      "nav-nav",
-      "prompt-nav",
+      "smart-card",
       "smart-icons",
-      "splash-content",
-      "splash-nav",
+      "smart-panel",
       "splash-tutorial",
-      "vertical-nav"
+      "title-card",
+      "tutorial-toggle"
     ]
   },
   {
@@ -349,6 +337,10 @@
       "user-picture",
       "user-selector"
     ]
+  },
+  {
+    "folderName": "vibes",
+    "components": []
   },
   {
     "folderName": "weird",

@@ -75,7 +75,7 @@
           :style="displayStore.rightSidebarStyle"
         >
           <splash-tutorial
-            class="h-full w-full px-4 py-6 transition-opacity duration-300"
+            class="h-full w-full transition-opacity duration-300"
           />
         </div>
       </Transition>

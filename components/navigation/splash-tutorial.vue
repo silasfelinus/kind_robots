@@ -9,7 +9,7 @@
       class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
     >
       <div
-        class="w-full h-full bg-cover bg-center"
+        class="w-full h-full bg-cover bg-center scale-105 opacity-70"
         :style="{ backgroundImage: `url('${resolvedImage}')` }"
       />
       <div class="absolute inset-0 bg-base-200/80 mix-blend-multiply" />
@@ -56,7 +56,6 @@
                     />
                   </div>
 
-                  <!-- FRONT BUTTON (travels with card) -->
                   <button
                     type="button"
                     class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
@@ -90,7 +89,7 @@
               >
                 <div
                   ref="backRef"
-                  class="relative w-full h-full rounded-2xl border border-black shadow-md p-4 sm:p-5 overflow-hidden"
+                  class="relative w-full h-full p-2 sm:p-3"
                 >
                   <div
                     v-if="pageIcon"
@@ -103,21 +102,31 @@
                     />
                   </div>
 
-                  <!-- BACK BUTTON (travels with card) -->
-                  <button
-                    type="button"
-                    class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
-                    @click.stop="handleFlipToggle"
+                  <div
+                    class="relative z-10 flex flex-col w-full h-full gap-2 sm:gap-3"
                   >
-                    <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
-                    <span class="hidden sm:inline"> Details </span>
-                  </button>
+                    <div class="flex justify-end">
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
+                        @click.stop="handleFlipToggle"
+                      >
+                        <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
+                        <span class="hidden sm:inline"> Details </span>
+                      </button>
+                    </div>
 
-                  <div class="relative z-10 w-full h-full overflow-y-auto">
-                    <smart-panel />
+                    <div
+                      class="relative flex-1 rounded-2xl border border-base-200 bg-base-100/80 shadow-md overflow-hidden"
+                    >
+                      <div class="w-full h-full overflow-y-auto p-3 sm:p-4">
+                        <smart-panel />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+              <!-- END BACK SIDE -->
             </div>
           </div>
         </section>

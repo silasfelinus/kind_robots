@@ -34,7 +34,7 @@
       <div class="inline-flex max-w-full flex-col px-3 py-1.5 md:px-4 md:py-2">
         <!-- Brand line -->
         <span
-          class="text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.22em] uppercase text-base-content/70"
+          class="text-sm md:text-md lg:text-lg xl:text-xl font-semibold tracking-[0.22em] uppercase text-base-content/70"
         >
           <span
             class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"

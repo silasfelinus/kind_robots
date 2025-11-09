@@ -1,256 +1,229 @@
-<!-- /components/content/icons/nav-panel.vue -->
+<!-- /components/content/icons/splash-tutorial.vue -->
 <template>
-  <div class="h-full px-4 py-5 sm:px-6 sm:py-7">
-    <!-- Teleport title with readable background -->
-    <div class="flex items-center justify-center mb-3">
-      <h2
-        class="inline-flex items-center justify-center px-4 py-2 rounded-2xl border border-base-200 bg-base-100 text-lg sm:text-xl font-bold text-base-content"
-      >
-        Teleport
-      </h2>
-    </div>
-
-    <!-- Loading state -->
+  <div
+    v-if="pageStore.page"
+    class="relative w-full h-full rounded-2xl border-2 border-black z-20 bg-base-200/80 overflow-hidden"
+  >
     <div
-      v-if="!navInitialized"
-      class="w-full flex items-center justify-center py-8 text-sm text-base-content/70"
+      v-if="resolvedImage"
+      class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
     >
-      Loading navigation...
-    </div>
-
-    <!-- Main nav content -->
-    <div
-      v-else
-      class="w-full flex flex-col items-stretch rounded-2xl border border-base-200 bg-base-100/80 p-3 sm:p-4 gap-4"
-    >
-      <!-- Image spot above back/next -->
-      <div v-if="pageImagePath" class="w-full flex justify-center">
-        <div
-          class="inline-flex items-center justify-center px-3 py-1.5 rounded-2xl border border-base-200 bg-base-100 text-xs sm:text-sm text-base-content/80 max-w-full truncate"
-        >
-          <span class="font-semibold mr-1">Image:</span>
-          <span class="truncate">{{ pageImagePath }}</span>
-        </div>
-      </div>
-
-      <!-- Back / Next row above nav options, left/right aligned -->
-      <div class="flex items-center justify-between gap-2 px-1 sm:px-2">
-        <button
-          v-if="canGoBack"
-          type="button"
-          class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-200 bg-base-100 px-3 py-1 flex items-center gap-1"
-          @click="goBack"
-        >
-          <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
-          <span>Back</span>
-        </button>
-
-        <div class="flex-1" />
-
-        <button
-          v-if="canGoForward"
-          type="button"
-          class="btn btn-ghost btn-xs sm:btn-xs rounded-full border border-base-200 bg-base-100 px-3 py-1 flex items-center gap-1"
-          @click="goNext"
-        >
-          <span>Next</span>
-          <Icon name="kind-icon:arrow-right" class="w-3 h-3" />
-        </button>
-      </div>
-
-      <!-- Filter chips row -->
       <div
-        class="flex flex-wrap items-center justify-center gap-2 px-1 sm:px-2"
-      >
-        <button
-          v-for="chip in filters"
-          :key="chip.value"
-          class="btn btn-xs sm:btn-sm rounded-full px-3"
-          :class="filterClass(chip.value)"
-          @click="setFilter(chip.value)"
-        >
-          {{ chip.label }}
-        </button>
-      </div>
+        class="w-full h-full bg-cover bg-center"
+        :style="{ backgroundImage: `url('${resolvedImage}')` }"
+      />
+      <div class="absolute inset-0 bg-base-200/80 mix-blend-multiply" />
+      <div
+        class="absolute inset-0 bg-gradient-to-b from-base-200/40 via-base-200/60 to-base-200/95"
+      />
+    </div>
 
-      <!-- Grid of icons for the current filter -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-        <smart-card
-          v-for="(icon, i) in filteredIcons"
-          :key="icon.link || icon.title || i"
-          :icon="icon"
-          :delay="i"
-        />
-      </div>
-
-      <p
-        v-if="filteredIcons.length === 0"
-        class="text-center text-xs sm:text-sm text-base-content/70 mt-1"
+    <div class="relative z-10 w-full h-full flex">
+      <div
+        ref="contentContainer"
+        class="w-full max-w-4xl mx-auto h-full px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3 xl:px-4 xl:py-4 flex"
       >
-        No links for this selection yet.
-      </p>
+        <section class="relative w-full h-full">
+          <div class="flip-card w-full h-full">
+            <div
+              ref="flipInner"
+              class="flip-card-inner w-full h-full"
+              :class="{
+                'is-flipped': isAnimating ? animFlipped : flipped,
+                'is-animating': isAnimating,
+              }"
+              @transitionend="onFlipTransitionEnd"
+            >
+              <!-- FRONT SIDE -->
+              <div
+                class="flip-side flip-front"
+                :class="{
+                  'flip-static-visible': !isAnimating && !flipped,
+                  'flip-static-hidden': !isAnimating && flipped,
+                }"
+              >
+                <div
+                  ref="frontRef"
+                  class="relative flex flex-col w-full h-full rounded-2xl border border-black bg-base-100/95 shadow-md overflow-hidden"
+                >
+                  <div
+                    v-if="pageIcon"
+                    class="pointer-events-none absolute -top-10 -right-10 sm:-top-14 sm:-right-14 lg:-top-16 lg:-right-16 opacity-20 rotate-6"
+                  >
+                    <Icon
+                      :name="pageIcon"
+                      class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
+                    />
+                  </div>
+
+                  <!-- FRONT BUTTON (travels with card) -->
+                  <button
+                    type="button"
+                    class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
+                    @click.stop="handleFlipToggle"
+                  >
+                    <Icon name="kind-icon:arrow-right" class="w-3 h-3" />
+                    <span class="hidden sm:inline"> Browse </span>
+                  </button>
+
+                  <div
+                    class="relative z-10 flex flex-col w-full h-full p-1 md:p-2 lg:p-3 xl:p-4"
+                  >
+                    <div class="mb-1 md:mb-2 lg:mb-3 xl:mb-4">
+                      <title-card />
+                    </div>
+
+                    <div class="flex-1 min-h-0 flex overflow-y-auto">
+                      <ami-chat class="flex-1" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BACK SIDE -->
+              <div
+                class="flip-side flip-back"
+                :class="{
+                  'flip-static-visible': !isAnimating && flipped,
+                  'flip-static-hidden': !isAnimating && !flipped,
+                }"
+              >
+                <div
+                  ref="backRef"
+                  class="relative w-full h-full rounded-2xl border border-black shadow-md p-4 sm:p-5 overflow-hidden"
+                >
+                  <div
+                    v-if="pageIcon"
+                    class="pointer-events-none absolute -top-10 -left-10 sm:-top-14 sm:-left-14 lg:-top-16 lg:-left-16 opacity-20 rotate-6"
+                    style="transform: scaleX(-1)"
+                  >
+                    <Icon
+                      :name="pageIcon"
+                      class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
+                    />
+                  </div>
+
+                  <!-- BACK BUTTON (travels with card) -->
+                  <button
+                    type="button"
+                    class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
+                    @click.stop="handleFlipToggle"
+                  >
+                    <Icon name="kind-icon:arrow-left" class="w-3 h-3" />
+                    <span class="hidden sm:inline"> Details </span>
+                  </button>
+
+                  <div class="relative z-10 w-full h-full overflow-y-auto">
+                    <smart-panel />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// /components/content/icons/nav-panel.vue
-import { computed, ref, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia'
+// /components/content/icons/splash-tutorial.vue
+import { ref, computed } from 'vue'
 import { Icon } from '#components'
-import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
+import { useNavStore } from '@/stores/navStore'
+
+const contentContainer = ref<HTMLElement | null>(null)
+const flipInner = ref<HTMLElement | null>(null)
+const frontRef = ref<HTMLElement | null>(null)
+const backRef = ref<HTMLElement | null>(null)
+
+const flipped = ref(false)
+const isAnimating = ref(false)
+const animFlipped = ref(false)
 
 const navStore = useNavStore()
 const pageStore = usePageStore()
-const router = useRouter()
 
-const {
-  activeModelType,
-  directoryIcons,
-  modelTypes,
-  favoritesIcons,
-  canGoBack,
-  canGoForward,
-  backPath,
-  forwardPath,
-} = storeToRefs(navStore)
-
-const navInitialized = computed(() => navStore.isInitialized)
-
-// Image path from the current page
-const pageImagePath = computed(() => pageStore.page?.image || '')
-
-// All icons coming from the store
-const allIcons = computed(() => directoryIcons.value)
-
-// Do we actually have any favorites
-const hasFavorites = computed(() => favoritesIcons.value.length > 0)
-
-// Do we have Ami / User icons
-const hasAmiIcons = computed(() =>
-  allIcons.value.some((icon) => icon.category === 'ami'),
-)
-const hasUserIcons = computed(() =>
-  allIcons.value.some((icon) => icon.category === 'user'),
-)
-
-// Local filter state: 'all', 'favorites', or a modelType/category
-const STORAGE_KEY = 'kind-nav-active-filter'
-const activeFilter = ref<string>('all')
-
-// Hydrate filter from localStorage or activeModelType
-onMounted(() => {
-  if (process.client) {
-    const saved = window.localStorage.getItem(STORAGE_KEY)
-
-    if (saved) {
-      activeFilter.value = saved
-      if (
-        saved === 'all' ||
-        saved === 'favorites' ||
-        saved === 'ami' ||
-        saved === 'user'
-      ) {
-        navStore.setActiveModelType(null)
-      } else {
-        navStore.setActiveModelType(saved)
-      }
-    } else if (activeModelType.value) {
-      activeFilter.value = activeModelType.value
-    }
-  }
-})
-
-// Persist filter choice
-watch(
-  activeFilter,
-  (val) => {
-    if (process.client) {
-      window.localStorage.setItem(STORAGE_KEY, val)
-    }
-  },
-  { immediate: false },
-)
-
-// Build filter chips dynamically
-const filters = computed(() => {
-  const chips: { value: string; label: string }[] = []
-
-  if (hasFavorites.value) {
-    chips.push({ value: 'favorites', label: 'Favorites' })
-  }
-
-  chips.push({ value: 'all', label: 'All' })
-
-  modelTypes.value.forEach((type) => {
-    chips.push({ value: type, label: formatModelType(type) })
-  })
-
-  if (hasAmiIcons.value) {
-    chips.push({ value: 'ami', label: 'Ami' })
-  }
-  if (hasUserIcons.value) {
-    chips.push({ value: 'user', label: 'User' })
-  }
-
-  return chips
-})
-
-const filteredIcons = computed(() => {
-  const icons = allIcons.value
-  const filter = activeFilter.value
-
-  if (filter === 'all') {
-    return icons
-  }
-
-  if (filter === 'favorites') {
-    return icons.filter((icon) => icon.link && navStore.isFavorite(icon.link))
-  }
-
-  if (filter === 'ami' || filter === 'user') {
-    return icons.filter((icon) => icon.category === filter)
-  }
-
-  return icons.filter((icon) => icon.modelType === filter)
-})
-
-// Keep store in sync with modelType filters only
-function setFilter(value: string) {
-  activeFilter.value = value
-
-  if (value === 'all' || value === 'favorites') {
+if (!navStore.isInitialized) {
+  ;(async () => {
+    await navStore.initialize()
     navStore.setActiveModelType(null)
-  } else if (value === 'ami' || value === 'user') {
-    navStore.setActiveModelType(null)
-  } else {
-    navStore.setActiveModelType(value)
+  })()
+}
+
+const handleFlipToggle = () => {
+  if (isAnimating.value) return
+  isAnimating.value = true
+  animFlipped.value = flipped.value
+
+  if (flipInner.value) {
+    void flipInner.value.offsetWidth
   }
+  animFlipped.value = !flipped.value
 }
 
-function filterClass(value: string) {
-  return activeFilter.value === value
-    ? 'btn-primary'
-    : 'btn-ghost border border-base-300'
+const onFlipTransitionEnd = (event: TransitionEvent) => {
+  if (!isAnimating.value || event.propertyName !== 'transform') return
+  isAnimating.value = false
+  flipped.value = !flipped.value
 }
 
-function formatModelType(type: string) {
-  if (!type) return ''
-  return type.charAt(0).toUpperCase() + type.slice(1)
-}
+const fallbackImage = '/images/botcafe.webp'
+const image = computed(() => pageStore.page?.image)
+const resolvedImage = computed(() => {
+  const img = image.value || fallbackImage
+  return img.startsWith('/') ? img : `/images/${img}`
+})
 
-// History navigation
-function goBack() {
-  if (backPath.value) {
-    router.push(backPath.value)
-  }
-}
-
-function goNext() {
-  if (forwardPath.value) {
-    router.push(forwardPath.value)
-  }
-}
+const pageIcon = computed(() => pageStore.page?.icon)
 </script>
+
+<style scoped>
+.flip-card {
+  perspective: 1000px;
+  width: 100%;
+  height: 100%;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-inner.is-animating {
+  transform-origin: center;
+}
+
+.flip-side {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-front {
+  transform: rotateY(0deg);
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+.flip-static-visible {
+  visibility: visible;
+}
+
+.flip-static-hidden {
+  visibility: hidden;
+}
+</style>

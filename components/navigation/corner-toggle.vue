@@ -6,7 +6,7 @@
       <div class="flex items-center justify-end">
         <button
           :class="[
-            'rounded-full aspect-square flex items-center justify-center bg-base-200 hover:bg-base-300 border border-base-content/10 transition',
+            'rounded-full aspect-square flex items-center justify-center hover:bg-base-300 transition',
             bigMode ? 'h-[60%] min-h-6' : 'h-[86%] min-h-8',
             displayStore.showCorner ? 'ring-1 ring-primary/50' : '',
           ]"

@@ -44,7 +44,7 @@
         >
           <!-- Corner toggle + panel stay pinned at the top of main content -->
           <div
-            class="absolute top-3 right-1 z-50 flex flex-row-reverse items-start gap-3"
+            class="absolute top-1 right-2 z-50 flex flex-row-reverse items-start gap-3"
           >
             <corner-toggle />
 

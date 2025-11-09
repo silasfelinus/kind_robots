@@ -23,11 +23,14 @@
         ref="contentContainer"
         class="w-full max-w-4xl mx-auto h-full px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3 xl:px-4 xl:py-4 flex"
       >
-        <section class="relative w-full h-full">
+        <section
+          class="relative w-full max-h-[90%] rounded-3xl border border-black bg-base-100/95 shadow-xl overflow-hidden transition-[height] duration-300"
+          :style="cardHeightStyle"
+        >
           <div class="flip-card w-full h-full">
             <div
               ref="flipInner"
-              class="flip-card-inner w-full h-full"
+              class="flip-card-inner w-full"
               :class="{
                 'is-flipped': isAnimating ? animFlipped : flipped,
                 'is-animating': isAnimating,
@@ -131,7 +134,7 @@
 
 <script setup lang="ts">
 // /components/content/icons/splash-tutorial.vue
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { Icon } from '#components'
 import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
@@ -148,28 +151,64 @@ const animFlipped = ref(false)
 const navStore = useNavStore()
 const pageStore = usePageStore()
 
-if (!navStore.isInitialized) {
-  ;(async () => {
-    await navStore.initialize()
-    navStore.setActiveModelType(null)
-  })()
+const cardHeight = ref<number | null>(null)
+const cardHeightStyle = computed(() =>
+  cardHeight.value ? { height: `${cardHeight.value}px` } : {},
+)
+
+const updateCardHeight = () => {
+  nextTick(() => {
+    const el = flipped.value ? backRef.value : frontRef.value
+    if (el) {
+      cardHeight.value = el.offsetHeight
+    }
+  })
 }
+
+onMounted(async () => {
+  if (!navStore.isInitialized) {
+    await navStore.initialize()
+  }
+  navStore.setActiveModelType(null)
+  updateCardHeight()
+})
+
+watch(
+  () => pageStore.page,
+  () => {
+    if (!isAnimating.value) {
+      updateCardHeight()
+    }
+  },
+)
+
+watch(
+  () => flipped.value,
+  () => {
+    if (!isAnimating.value) {
+      updateCardHeight()
+    }
+  },
+)
 
 const handleFlipToggle = () => {
   if (isAnimating.value) return
   isAnimating.value = true
   animFlipped.value = flipped.value
 
-  if (flipInner.value) {
-    void flipInner.value.offsetWidth
-  }
-  animFlipped.value = !flipped.value
+  nextTick(() => {
+    if (flipInner.value) {
+      void flipInner.value.offsetWidth
+    }
+    animFlipped.value = !flipped.value
+  })
 }
 
 const onFlipTransitionEnd = (event: TransitionEvent) => {
   if (!isAnimating.value || event.propertyName !== 'transform') return
   isAnimating.value = false
   flipped.value = !flipped.value
+  updateCardHeight()
 }
 
 const fallbackImage = '/images/botcafe.webp'
@@ -192,7 +231,6 @@ const pageIcon = computed(() => pageStore.page?.icon)
 .flip-card-inner {
   position: relative;
   width: 100%;
-  height: 100%;
   transform-style: preserve-3d;
   transition: transform 0.6s;
 }
@@ -205,17 +243,15 @@ const pageIcon = computed(() => pageStore.page?.icon)
   transform-origin: center;
 }
 
-.flip-side {
+.flip-card-inner.is-animating .flip-side {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 
-.flip-front {
-  transform: rotateY(0deg);
+.flip-side {
+  width: 100%;
 }
 
 .flip-back {
@@ -223,10 +259,10 @@ const pageIcon = computed(() => pageStore.page?.icon)
 }
 
 .flip-static-visible {
-  visibility: visible;
+  display: block;
 }
 
 .flip-static-hidden {
-  visibility: hidden;
+  display: none;
 }
 </style>

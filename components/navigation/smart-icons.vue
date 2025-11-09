@@ -8,7 +8,7 @@
       <button
         v-if="canScrollLeft"
         type="button"
-        class="hidden sm:flex items-center justify-center self-center rounded-full border border-base-content/30 bg-base-300/80 hover:bg-base-200/90 shadow-sm text-base-content/80 flex-none w-6 h-6 lg:w-7 lg:h-7"
+        class="hidden sm:flex items-center justify-center self-center hover:bg-base-200/90 shadow-sm text-base-content/80 flex-none w-6 h-6 lg:w-7 lg:h-7"
         @click="scrollByStep(-1)"
       >
         <Icon name="kind-icon:chevron-left" class="w-3 h-3 lg:w-4 lg:h-4" />
@@ -155,7 +155,7 @@
       <button
         v-if="canScrollRight"
         type="button"
-        class="hidden sm:flex items-center justify-center self-center rounded-full border border-base-content/30 bg-base-300/80 hover:bg-base-200/90 shadow-sm text-base-content/80 flex-none w-6 h-6 lg:w-7 lg:h-7"
+        class="hidden sm:flex items-center justify-center self-center hover:bg-base-200/90 shadow-sm text-base-content/80 flex-none w-6 h-6 lg:w-7 lg:h-7"
         @click="scrollByStep(1)"
       >
         <Icon name="kind-icon:chevron-right" class="w-3 h-3 lg:w-4 lg:h-4" />

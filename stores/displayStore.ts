@@ -9,6 +9,7 @@ import type {
   displayModeState,
   displayActionState,
   EffectId,
+  SmartState,
 } from './helpers/displayHelper'
 import { setCustomVh } from './helpers/displayHelper'
 
@@ -39,6 +40,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     showRight: true,
     showExtended: false,
     showCorner: true,
+    SmartState: 'tutorial' as SmartState,
   })
 
   const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
@@ -460,6 +462,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   }
 
+  function toggleHeaderFlip() {
+    state.SmartState = state.SmartState === 'tutorial' ? 'teleport' : 'tutorial'
+    saveState()
+  }
+
   function saveState() {
     if (typeof window === 'undefined') return
     try {
@@ -529,7 +536,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
     updateViewport,
     initialize,
     removeViewportWatcher,
+    toggleHeaderFlip,
   }
 })
 
-export type { EffectId, displayModeState, displayActionState }
+export type { EffectId, displayModeState, displayActionState, SmartState }

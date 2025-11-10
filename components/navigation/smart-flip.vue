@@ -10,7 +10,6 @@
       }"
       @transitionend="onFlipTransitionEnd"
     >
-      <!-- FRONT SIDE (tutorial / Kind) -->
       <div
         class="flip-face flip-front"
         :class="{
@@ -34,14 +33,10 @@
             class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
             @click.stop="handleFlipToggle"
           >
-            <Icon
-              v-if="!flipped"
-              name="kind-icon:arrow-right"
-              class="w-3 h-3"
-            />
-            <Icon v-else name="kind-icon:arrow-left" class="w-3 h-3" />
+            <Icon v-if="!flipped" name="kind-icon:butterfly" class="w-3 h-3" />
+            <Icon v-else name="kind-icon:map" class="w-3 h-3" />
             <span class="hidden sm:inline">
-              {{ flipped ? 'Details' : 'Browse' }}
+              {{ flipped ? 'Map' : 'AMI' }}
             </span>
           </button>
 
@@ -54,7 +49,7 @@
               <span
                 class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-2.5 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.24em] uppercase whitespace-nowrap"
               >
-                Kind
+                Kind Title
               </span>
               <span
                 class="truncate font-semibold leading-tight text-[clamp(1rem,2.1vw,1.5rem)] tracking-tight"
@@ -128,7 +123,6 @@
         </div>
       </div>
 
-      <!-- BACK SIDE (teleport) -->
       <div
         class="flip-face flip-back"
         :class="{
@@ -152,14 +146,10 @@
             class="absolute top-3 right-4 z-20 inline-flex items-center gap-1 rounded-full border border-base-300 bg-base-100/95 px-3 py-1 text-[0.65rem] sm:text-xs font-semibold shadow-sm hover:shadow-md hover:-translate-y-[1px] transition"
             @click.stop="handleFlipToggle"
           >
-            <Icon
-              v-if="!flipped"
-              name="kind-icon:arrow-right"
-              class="w-3 h-3"
-            />
-            <Icon v-else name="kind-icon:arrow-left" class="w-3 h-3" />
+            <Icon v-if="!flipped" name="kind-icon:butterfly" class="w-3 h-3" />
+            <Icon v-else name="kind-icon:map" class="w-3 h-3" />
             <span class="hidden sm:inline">
-              {{ flipped ? 'Details' : 'Browse' }}
+              {{ flipped ? 'Map' : 'AMI' }}
             </span>
           </button>
 
@@ -172,20 +162,20 @@
               <span
                 class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-2.5 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.24em] uppercase whitespace-nowrap"
               >
-                Teleport
+                AMI
               </span>
               <span
                 class="truncate font-semibold leading-tight text-[clamp(1rem,2.1vw,1.5rem)] tracking-tight"
               >
-                Browse Rooms
+                Meet AMI
               </span>
             </div>
 
             <p
               class="text-[0.7rem] sm:text-xs text-base-content/80 max-w-prose"
             >
-              Jump between rooms, tools, and favorite portals in your Kind
-              Robots universe.
+              Chat with the butterfly hive mind that is trying to make your day,
+              and maybe the world, a little better.
             </p>
           </div>
 
@@ -209,7 +199,7 @@
           </div>
         </div>
       </div>
-      <!-- END BACK SIDE -->
+      <!-- end back -->
     </div>
   </div>
 </template>
@@ -265,7 +255,7 @@ const flipDirection = ref<FlipDirection>('forward')
 
 const innerRef = ref<HTMLElement | null>(null)
 
-const flipped = computed(() => displayStore.SmartState === 'teleport')
+const flipped = computed(() => displayStore.SmartState === 'ami')
 
 const frontDisplayImage = computed(() =>
   isAnimating.value ? transitionImage : frontImage.value,
@@ -311,24 +301,24 @@ watch(
 const handleFlipToggle = () => {
   if (isAnimating.value) return
 
-  const currentlyTele = flipped.value
+  const currentlyAmi = flipped.value
 
   isAnimating.value = true
-  animFlipped.value = currentlyTele
-  flipDirection.value = currentlyTele ? 'back' : 'forward'
+  animFlipped.value = currentlyAmi
+  flipDirection.value = currentlyAmi ? 'back' : 'forward'
 
   nextTick(() => {
     if (innerRef.value) {
       void innerRef.value.offsetWidth
     }
-    animFlipped.value = !currentlyTele
+    animFlipped.value = !currentlyAmi
   })
 }
 
 const onFlipTransitionEnd = (event: TransitionEvent) => {
   if (!isAnimating.value || event.propertyName !== 'transform') return
   isAnimating.value = false
-  displayStore.toggleHeaderFlip()
+  displayStore.toggleSmartFlip()
 }
 </script>
 

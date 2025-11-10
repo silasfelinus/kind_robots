@@ -29,19 +29,11 @@
           <div
             class="flex items-center justify-between gap-2 mb-1 md:mb-2 lg:mb-3 xl:mb-4"
           >
-            <div class="flex items-center gap-2 min-w-0">
-              <span
-                class="inline-flex items-center px-2 py-1 rounded-2xl border border-base-300 bg-base-100 text-[10px] md:text-xs font-semibold uppercase tracking-wide"
-              >
-                Kind
-              </span>
-
-              <h2
-                class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-base-content/90 truncate"
-              >
-                {{ title }}
-              </h2>
-            </div>
+            <h2
+              class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-base-content/90 truncate"
+            >
+              {{ title }}
+            </h2>
 
             <div class="flex items-center gap-1 md:gap-2">
               <button
@@ -57,6 +49,10 @@
                 <span class="hidden sm:inline">Ami</span>
               </button>
             </div>
+          </div>
+
+          <div class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4">
+            <smart-icons />
           </div>
 
           <div class="flex flex-col gap-2 md:gap-3">

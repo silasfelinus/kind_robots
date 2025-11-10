@@ -49,7 +49,7 @@
               <span
                 class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-2.5 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.24em] uppercase whitespace-nowrap"
               >
-                Kind Title
+                Kind
               </span>
               <span
                 class="truncate font-semibold leading-tight text-[clamp(1rem,2.1vw,1.5rem)] tracking-tight"
@@ -70,13 +70,6 @@
                     The {{ room }}
                   </span>
                 </h1>
-
-                <p
-                  v-if="subtitle"
-                  class="text-[0.7rem] sm:text-xs text-base-content/80 line-clamp-2"
-                >
-                  {{ subtitle }}
-                </p>
               </div>
 
               <button
@@ -110,6 +103,7 @@
                 <div
                   class="image-spinner relative rounded-2xl border border-base-300 bg-base-100/80 shadow-md overflow-hidden w-full h-full"
                   :class="imageSpinnerClass"
+                  @click.stop="handleFlipToggle"
                 >
                   <img
                     :src="frontDisplayImage"
@@ -133,7 +127,7 @@
         <div class="relative w-full h-full overflow-hidden">
           <div
             v-if="pageIcon"
-            class="pointer-events-none absolute -top-10 -left-10 sm:-top-12 sm:-left-12 lg:-top-14 lg:-left-14 opacity-30"
+            class="pointer-events-none absolute -top-10 -left-10 sm:-top-12 -left-12 lg:-top-14 lg:-left-14 opacity-30"
           >
             <Icon
               :name="pageIcon"
@@ -187,6 +181,7 @@
                 <div
                   class="image-spinner relative rounded-2xl border border-base-300 bg-base-100/80 shadow-md overflow-hidden w-full h-full"
                   :class="imageSpinnerClass"
+                  @click.stop="handleFlipToggle"
                 >
                   <img
                     :src="backDisplayImage"
@@ -199,7 +194,6 @@
           </div>
         </div>
       </div>
-      <!-- end back -->
     </div>
   </div>
 </template>
@@ -212,7 +206,7 @@ import { useThemeStore } from '@/stores/themeStore'
 import { useGalleryStore } from '@/stores/galleryStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
-type FlipDirection = 'forward' | 'back'
+type FlipDirection = 'toAmi' | 'toMap'
 
 const pageStore = usePageStore()
 const themeStore = useThemeStore()
@@ -230,9 +224,8 @@ const theme = computed(() => pageStore.page?.theme)
 const normalizeImagePath = (img?: string | null): string => {
   if (!img) return '/images/botcafe.webp'
   if (img.startsWith('/images/')) return img
-  if (img.startsWith('images/')) return `/${img}`
-  if (img.startsWith('/')) return `/images/${img.slice(1)}`
-  return `/images/${img}`
+  const cleaned = img.replace(/^images\//, '').replace(/^\//, '')
+  return `/images/${cleaned}`
 }
 
 const galleryName = computed(() => pageStore.page?.gallery || null)
@@ -242,8 +235,6 @@ const backBaseImage = computed(() =>
   normalizeImagePath(pageStore.page?.image || null),
 )
 
-const transitionImage = '/images/backtree.webp'
-
 const frontImage = computed(
   () => frontBaseImage.value || '/images/botcafe.webp',
 )
@@ -251,22 +242,18 @@ const backImage = computed(() => backBaseImage.value)
 
 const isAnimating = ref(false)
 const animFlipped = ref(false)
-const flipDirection = ref<FlipDirection>('forward')
+const flipDirection = ref<FlipDirection>('toAmi')
 
 const innerRef = ref<HTMLElement | null>(null)
 
 const flipped = computed(() => displayStore.SmartState === 'ami')
 
-const frontDisplayImage = computed(() =>
-  isAnimating.value ? transitionImage : frontImage.value,
-)
-const backDisplayImage = computed(() =>
-  isAnimating.value ? transitionImage : backImage.value,
-)
+const frontDisplayImage = computed(() => frontImage.value)
+const backDisplayImage = computed(() => backImage.value)
 
 const imageSpinnerClass = computed(() => {
   if (!isAnimating.value) return ''
-  return flipDirection.value === 'forward' ? 'spin-forward' : 'spin-back'
+  return flipDirection.value === 'toAmi' ? 'spin-to-ami' : 'spin-to-map'
 })
 
 const loadRandomFrontImage = async () => {
@@ -305,7 +292,7 @@ const handleFlipToggle = () => {
 
   isAnimating.value = true
   animFlipped.value = currentlyAmi
-  flipDirection.value = currentlyAmi ? 'back' : 'forward'
+  flipDirection.value = currentlyAmi ? 'toMap' : 'toAmi'
 
   nextTick(() => {
     if (innerRef.value) {
@@ -364,11 +351,11 @@ const onFlipTransitionEnd = (event: TransitionEvent) => {
   transition: transform 0.6s;
 }
 
-.spin-forward {
-  transform: rotateY(-360deg);
+.spin-to-ami {
+  transform: rotateY(180deg);
 }
 
-.spin-back {
-  transform: rotateY(360deg);
+.spin-to-map {
+  transform: rotateY(-180deg);
 }
 </style>

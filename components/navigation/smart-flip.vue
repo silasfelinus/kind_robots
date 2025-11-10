@@ -1,4 +1,4 @@
-<!-- /components/content/icons/smart-flip.vue -->
+<!-- /components/navigation/smart-flip.vue -->
 <template>
   <section
     class="relative w-full max-w-4xl h-[90%] mx-auto rounded-3xl border-2 border-black bg-base-100/95 shadow-xl overflow-hidden"
@@ -23,7 +23,7 @@
           <div class="relative flex flex-col w-full h-full bg-base-100/95">
             <div
               v-if="pageIcon"
-              class="pointer-events-none absolute -top-10 -left-10 sm:-top-12 sm:-left-12 lg:-top-14 lg:-left-14 opacity-20"
+              class="pointer-events-none absolute -top-4 -left-4 sm:-top-5 sm:-left-5 lg:-top-6 lg:-left-6 opacity-40"
             >
               <Icon
                 :name="pageIcon"
@@ -33,7 +33,7 @@
 
             <div
               v-if="pageIcon"
-              class="pointer-events-none absolute -top-10 -right-10 sm:-top-12 sm:-right-12 lg:-top-14 lg:-right-14 opacity-20"
+              class="pointer-events-none absolute -top-4 -right-4 sm:-top-5 sm:-right-5 lg:-top-6 lg:-right-6 opacity-40"
             >
               <Icon
                 :name="pageIcon"
@@ -43,7 +43,7 @@
 
             <div
               v-if="pageIcon"
-              class="pointer-events-none absolute -bottom-10 -left-10 sm:-bottom-14 sm:-left-14 lg:-bottom-16 lg:-left-16 opacity-20 rotate-6"
+              class="pointer-events-none absolute -bottom-4 -left-4 sm:-bottom-5 sm:-left-5 lg:-bottom-6 lg:-left-6 opacity-40 rotate-6"
             >
               <Icon
                 :name="pageIcon"
@@ -53,7 +53,7 @@
 
             <div
               v-if="pageIcon"
-              class="pointer-events-none absolute -bottom-10 -right-10 sm:-bottom-14 sm:-right-14 lg:-bottom-16 lg:-right-16 opacity-20 -rotate-6"
+              class="pointer-events-none absolute -bottom-4 -right-4 sm:-bottom-5 sm:-right-5 lg:-bottom-6 lg:-right-6 opacity-40 -rotate-6"
             >
               <Icon
                 :name="pageIcon"
@@ -156,7 +156,7 @@
           <div class="relative flex flex-col w-full h-full bg-base-100/95">
             <div
               v-if="pageIcon"
-              class="pointer-events-none absolute -top-10 -left-10 sm:-top-12 sm:-left-12 lg:-top-14 lg:-left-14 opacity-20"
+              class="pointer-events-none absolute -top-4 -left-4 sm:-top-5 sm:-left-5 lg:-top-6 lg:-left-6 opacity-40"
             >
               <Icon
                 :name="pageIcon"
@@ -166,7 +166,7 @@
 
             <div
               v-if="pageIcon"
-              class="pointer-events-none absolute -top-10 -right-10 sm:-top-12 sm:-right-12 lg:-top-14 lg:-right-14 opacity-20"
+              class="pointer-events-none absolute -top-4 -right-4 sm:-top-5 sm:-right-5 lg:-top-6 lg:-right-6 opacity-40"
             >
               <Icon
                 :name="pageIcon"
@@ -176,7 +176,7 @@
 
             <div
               v-if="pageIcon"
-              class="pointer-events-none absolute -bottom-10 -left-10 sm:-bottom-14 sm:-left-14 lg:-bottom-16 lg:-left-16 opacity-20 rotate-6"
+              class="pointer-events-none absolute -bottom-4 -left-4 sm:-bottom-5 sm:-left-5 lg:-bottom-6 lg:-left-6 opacity-40 rotate-6"
             >
               <Icon
                 :name="pageIcon"
@@ -186,7 +186,7 @@
 
             <div
               v-if="pageIcon"
-              class="pointer-events-none absolute -bottom-10 -right-10 sm:-bottom-14 sm:-right-14 lg:-bottom-16 lg:-right-16 opacity-20 -rotate-6"
+              class="pointer-events-none absolute -bottom-4 -right-4 sm:-bottom-5 sm:-right-5 lg:-bottom-6 lg:-right-6 opacity-40 -rotate-6"
             >
               <Icon
                 :name="pageIcon"
@@ -284,7 +284,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/icons/smart-flip.vue
+// /components/navigation/smart-flip.vue
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { Icon } from '#components'
 import { usePageStore } from '@/stores/pageStore'
@@ -411,16 +411,13 @@ onMounted(() => {
   transform-origin: center;
 }
 
-.flip-card-inner.is-animating .flip-side {
+.flip-side {
   position: absolute;
   inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.flip-side {
   width: 100%;
   height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .flip-back {

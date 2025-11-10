@@ -9,12 +9,8 @@
       class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
     >
       <div
-        class="w-full h-full bg-cover bg-center scale-105 opacity-70"
+        class="w-full h-full bg-cover bg-center"
         :style="{ backgroundImage: `url('${resolvedImage}')` }"
-      />
-      <div class="absolute inset-0 bg-base-200/80 mix-blend-multiply" />
-      <div
-        class="absolute inset-0 bg-gradient-to-b from-base-200/40 via-base-200/60 to-base-200/95"
       />
     </div>
 

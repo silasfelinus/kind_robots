@@ -2,7 +2,7 @@
 <template>
   <div
     v-if="pageStore.page"
-    class="relative w-full h-full rounded-2xl z-20 bg-base-200/80 overflow-hidden"
+    class="relative w-full h-full rounded-2xl z-20 bg-base-200/80 overflow-hidden opacity-50"
   >
     <div class="pointer-events-none absolute inset-0 -z-10">
       <NuxtImg

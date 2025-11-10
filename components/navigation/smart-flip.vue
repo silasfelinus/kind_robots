@@ -21,44 +21,20 @@
           }"
         >
           <div class="relative flex flex-col w-full h-full bg-base-100/95">
-            <div
-              v-if="pageIcon"
-              class="pointer-events-none absolute -top-4 -left-4 sm:-top-5 sm:-left-5 lg:-top-6 lg:-left-6 opacity-40"
-            >
-              <Icon
-                :name="pageIcon"
-                class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary"
-              />
+            <div v-if="pageIcon" class="corner-icon corner-icon-tl">
+              <Icon :name="pageIcon" class="corner-icon-inner text-primary" />
             </div>
 
-            <div
-              v-if="pageIcon"
-              class="pointer-events-none absolute -top-4 -right-4 sm:-top-5 sm:-right-5 lg:-top-6 lg:-right-6 opacity-40"
-            >
-              <Icon
-                :name="pageIcon"
-                class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary"
-              />
+            <div v-if="pageIcon" class="corner-icon corner-icon-tr">
+              <Icon :name="pageIcon" class="corner-icon-inner text-primary" />
             </div>
 
-            <div
-              v-if="pageIcon"
-              class="pointer-events-none absolute -bottom-4 -left-4 sm:-bottom-5 sm:-left-5 lg:-bottom-6 lg:-left-6 opacity-40 rotate-6"
-            >
-              <Icon
-                :name="pageIcon"
-                class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
-              />
+            <div v-if="pageIcon" class="corner-icon corner-icon-bl">
+              <Icon :name="pageIcon" class="corner-icon-inner text-primary" />
             </div>
 
-            <div
-              v-if="pageIcon"
-              class="pointer-events-none absolute -bottom-4 -right-4 sm:-bottom-5 sm:-right-5 lg:-bottom-6 lg:-right-6 opacity-40 -rotate-6"
-            >
-              <Icon
-                :name="pageIcon"
-                class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
-              />
+            <div v-if="pageIcon" class="corner-icon corner-icon-br">
+              <Icon :name="pageIcon" class="corner-icon-inner text-primary" />
             </div>
 
             <div class="relative z-10 flex-1 min-h-0">
@@ -154,44 +130,20 @@
           }"
         >
           <div class="relative flex flex-col w-full h-full bg-base-100/95">
-            <div
-              v-if="pageIcon"
-              class="pointer-events-none absolute -top-4 -left-4 sm:-top-5 sm:-left-5 lg:-top-6 lg:-left-6 opacity-40"
-            >
-              <Icon
-                :name="pageIcon"
-                class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary"
-              />
+            <div v-if="pageIcon" class="corner-icon corner-icon-tl">
+              <Icon :name="pageIcon" class="corner-icon-inner text-primary" />
             </div>
 
-            <div
-              v-if="pageIcon"
-              class="pointer-events-none absolute -top-4 -right-4 sm:-top-5 sm:-right-5 lg:-top-6 lg:-right-6 opacity-40"
-            >
-              <Icon
-                :name="pageIcon"
-                class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary"
-              />
+            <div v-if="pageIcon" class="corner-icon corner-icon-tr">
+              <Icon :name="pageIcon" class="corner-icon-inner text-primary" />
             </div>
 
-            <div
-              v-if="pageIcon"
-              class="pointer-events-none absolute -bottom-4 -left-4 sm:-bottom-5 sm:-left-5 lg:-bottom-6 lg:-left-6 opacity-40 rotate-6"
-            >
-              <Icon
-                :name="pageIcon"
-                class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
-              />
+            <div v-if="pageIcon" class="corner-icon corner-icon-bl">
+              <Icon :name="pageIcon" class="corner-icon-inner text-primary" />
             </div>
 
-            <div
-              v-if="pageIcon"
-              class="pointer-events-none absolute -bottom-4 -right-4 sm:-bottom-5 sm:-right-5 lg:-bottom-6 lg:-right-6 opacity-40 -rotate-6"
-            >
-              <Icon
-                :name="pageIcon"
-                class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
-              />
+            <div v-if="pageIcon" class="corner-icon corner-icon-br">
+              <Icon :name="pageIcon" class="corner-icon-inner text-primary" />
             </div>
 
             <div class="relative z-10 flex-1 min-h-0">
@@ -401,6 +353,8 @@ onMounted(() => {
   height: 100%;
   transform-style: preserve-3d;
   transition: transform 0.6s;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .flip-card-inner.is-flipped {
@@ -418,6 +372,12 @@ onMounted(() => {
   height: 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.flip-side > * {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .flip-back {
@@ -425,11 +385,11 @@ onMounted(() => {
 }
 
 .flip-static-visible {
-  display: block;
+  display: block !important;
 }
 
 .flip-static-hidden {
-  display: none;
+  display: none !important;
 }
 
 .smart-scroll-container {
@@ -439,5 +399,50 @@ onMounted(() => {
 .smart-scroll-container::-webkit-scrollbar {
   width: 0;
   height: 0;
+}
+
+.corner-icon {
+  position: absolute;
+  width: clamp(4rem, 7vw, 6rem);
+  height: clamp(4rem, 7vw, 6rem);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.corner-icon-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.corner-icon-tl {
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+
+.corner-icon-tr {
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+.corner-icon-bl {
+  bottom: 0;
+  left: 0;
+  transform: translate(-50%, 50%);
+}
+
+.corner-icon-br {
+  bottom: 0;
+  right: 0;
+  transform: translate(50%, 50%);
+}
+
+.corner-icon-bl .corner-icon-inner {
+  transform: rotate(6deg);
+}
+
+.corner-icon-br .corner-icon-inner {
+  transform: rotate(-6deg);
 }
 </style>

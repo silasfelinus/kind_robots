@@ -1,13 +1,7 @@
 <!-- /components/content/icons/smart-panel.vue -->
 <template>
   <div class="w-full flex flex-col">
-    <div class="flex items-center justify-center mb-3">
-      <h2
-        class="inline-flex items-center justify-center px-4 py-2 rounded-2xl border border-base-200 bg-base-100 text-lg sm:text-xl font-bold text-base-content"
-      >
-        Teleport
-      </h2>
-    </div>
+    <div class="flex items-center justify-center mb-3"></div>
 
     <div
       v-if="!navInitialized"

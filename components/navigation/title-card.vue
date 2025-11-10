@@ -20,20 +20,6 @@
           {{ title }}
         </span>
       </div>
-
-      <button
-        v-if="theme && themeStore.currentTheme !== theme"
-        type="button"
-        @click="themeStore.setActiveTheme(theme)"
-        class="inline-flex items-center justify-center rounded-full border border-black bg-accent px-3 py-1 text-[0.7rem] sm:text-xs lg:text-sm font-semibold text-black shadow-sm hover:translate-y-[1px] hover:shadow-md transition"
-      >
-        <span
-          class="mr-1.5 text-[0.65rem] uppercase tracking-[0.16em] opacity-80"
-        >
-          Theme
-        </span>
-        <span class="font-mono">{{ theme }}</span>
-      </button>
     </div>
 
     <div class="space-y-2">
@@ -69,14 +55,11 @@
 // /components/content/icons/title-card.vue
 import { computed } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
-import { useThemeStore } from '@/stores/themeStore'
 
 const pageStore = usePageStore()
-const themeStore = useThemeStore()
 
 const title = computed(() => pageStore.page?.title)
 const room = computed(() => pageStore.page?.room)
 const subtitle = computed(() => pageStore.page?.subtitle)
 const description = computed(() => pageStore.page?.description)
-const theme = computed(() => pageStore.page?.theme)
 </script>

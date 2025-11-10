@@ -2,7 +2,7 @@
 <template>
   <div
     v-if="pageStore.page"
-    class="relative w-full h-full rounded-2xl z-20 bg-base-200/80 overflow-hidden opacity-50"
+    class="relative w-full h-full rounded-2xl z-20 bg-base-200/80 overflow-hidden"
   >
     <div class="pointer-events-none absolute inset-0 -z-10">
       <NuxtImg
@@ -13,6 +13,7 @@
         :sizes="imageSizes"
         loading="lazy"
       />
+      <div class="absolute inset-0 bg-base-200/70 mix-blend-multiply" />
     </div>
 
     <div class="relative z-10 w-full h-full flex items-center justify-center">

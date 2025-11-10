@@ -127,7 +127,7 @@
         <div class="relative w-full h-full overflow-hidden">
           <div
             v-if="pageIcon"
-            class="pointer-events-none absolute -top-10 -left-10 sm:-top-12 -left-12 lg:-top-14 lg:-left-14 opacity-30"
+            class="pointer-events-none absolute -top-10 -left-10 sm:-top-12 lg:-top-14 lg:-left-14 opacity-30"
           >
             <Icon
               :name="pageIcon"

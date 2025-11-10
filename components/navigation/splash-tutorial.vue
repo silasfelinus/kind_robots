@@ -2,9 +2,9 @@
 <template>
   <div
     v-if="pageStore.page"
-    class="relative w-full h-full rounded-2xl border-2 border-black z-20 bg-base-200/80 overflow-hidden"
+    class="relative w-full h-full rounded-2xl z-20 bg-base-200/80 overflow-hidden"
   >
-    <!-- Background image layer -->
+    <!-- Background image layer (100% of container) -->
     <div
       v-if="resolvedImage"
       class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -19,109 +19,129 @@
       />
     </div>
 
-    <!-- Content (smart-flip on top + bottom flip card) -->
+    <!-- Foreground container with ~10% vertical gutter -->
     <div class="relative z-10 w-full h-full flex">
-      <div
-        ref="contentContainer"
-        class="w-full max-w-4xl mx-auto h-full px-1 py-1 md:px-2 md:py-2 lg:px-3 lg:py-3 xl:px-4 xl:py-4 flex flex-col gap-2"
-      >
-        <!-- Top smart header flip (Kind / Teleport) -->
-        <smart-flip />
-
-        <!-- Bottom flip card (Teleport / smart-panel ↔ Tutorial / ami-chat) -->
-        <section
-          class="relative w-full flex-1 min-h-0 rounded-b-3xl border border-black border-t-0 bg-base-100/95 shadow-xl overflow-hidden"
+      <div ref="contentContainer" class="w-full h-full flex">
+        <div
+          class="w-full max-w-4xl mx-auto h-full px-1 md:px-2 lg:px-3 xl:px-4 py-[5%] flex flex-col"
         >
-          <div class="flip-card w-full h-full">
-            <div
-              ref="flipInner"
-              class="flip-card-inner w-full h-full"
-              :class="{
-                'is-flipped': isAnimating ? animFlipped : flipped,
-                'is-animating': isAnimating,
-              }"
-              @transitionend="onFlipTransitionEnd"
-            >
-              <!-- FRONT SIDE (Teleport / smart-panel, small title only) -->
+          <!-- Top smart header flip (rounded top, no bottom radius) -->
+          <smart-flip />
+
+          <!-- Bottom flip card (single pill bottom, shared with smart-flip) -->
+          <section
+            class="relative w-full flex-1 min-h-0 rounded-b-3xl border border-black border-t-0 bg-base-100/95 shadow-xl overflow-hidden"
+          >
+            <div class="flip-card w-full h-full">
               <div
-                class="flip-side flip-front"
+                ref="flipInner"
+                class="flip-card-inner w-full h-full"
                 :class="{
-                  'flip-static-visible': !isAnimating && !flipped,
-                  'flip-static-hidden': !isAnimating && flipped,
+                  'is-flipped': isAnimating ? animFlipped : flipped,
+                  'is-animating': isAnimating,
                 }"
+                @transitionend="onFlipTransitionEnd"
               >
+                <!-- FRONT SIDE (Teleport / smart-panel, small title only) -->
                 <div
-                  ref="frontRef"
-                  class="relative flex flex-col w-full h-full rounded-b-2xl border border-black bg-base-100/95 shadow-md overflow-hidden"
+                  class="flip-side flip-front"
+                  :class="{
+                    'flip-static-visible': !isAnimating && !flipped,
+                    'flip-static-hidden': !isAnimating && flipped,
+                  }"
                 >
                   <div
-                    v-if="pageIcon"
-                    class="pointer-events-none absolute -top-10 -right-10 sm:-top-14 sm:-right-14 lg:-top-16 lg:-right-16 opacity-20 rotate-6"
+                    ref="frontRef"
+                    class="relative flex flex-col w-full h-full bg-base-100/95 overflow-hidden"
                   >
-                    <Icon
-                      :name="pageIcon"
-                      class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
-                    />
-                  </div>
-
-                  <div
-                    class="relative z-10 flex flex-col w-full h-full p-2 sm:p-3 lg:p-4"
-                  >
-                    <div class="mb-1 md:mb-2 lg:mb-3 xl:mb-4">
-                      <h2
-                        class="text-xs sm:text-sm font-semibold text-base-content/80 truncate"
-                      >
-                        {{ title }}
-                      </h2>
+                    <!-- Bottom corner icons, partially clipped -->
+                    <div
+                      v-if="pageIcon"
+                      class="pointer-events-none absolute -bottom-10 -left-10 sm:-bottom-14 sm:-left-14 lg:-bottom-16 lg:-left-16 opacity-20 rotate-6"
+                    >
+                      <Icon
+                        :name="pageIcon"
+                        class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
+                      />
+                    </div>
+                    <div
+                      v-if="pageIcon"
+                      class="pointer-events-none absolute -bottom-10 -right-10 sm:-bottom-14 sm:-right-14 lg:-bottom-16 lg:-right-16 opacity-20 -rotate-6"
+                    >
+                      <Icon
+                        :name="pageIcon"
+                        class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
+                      />
                     </div>
 
-                    <div class="flex-1 min-h-0 flex overflow-y-auto">
-                      <smart-panel class="flex-1" />
+                    <div
+                      class="relative z-10 flex flex-col w-full h-full p-2 sm:p-3 lg:p-4"
+                    >
+                      <div class="mb-1 md:mb-2 lg:mb-3 xl:mb-4">
+                        <h2
+                          class="text-xs sm:text-sm font-semibold text-base-content/80 truncate"
+                        >
+                          {{ title }}
+                        </h2>
+                      </div>
+
+                      <div class="flex-1 min-h-0 flex overflow-y-auto">
+                        <smart-panel class="flex-1" />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- BACK SIDE (Tutorial / ami-chat with full Kind title layout) -->
-              <div
-                class="flip-side flip-back"
-                :class="{
-                  'flip-static-visible': !isAnimating && flipped,
-                  'flip-static-hidden': !isAnimating && !flipped,
-                }"
-              >
+                <!-- BACK SIDE (Tutorial / ami-chat with full Kind title layout) -->
                 <div
-                  ref="backRef"
-                  class="relative flex flex-col w-full h-full rounded-b-2xl border border-black bg-base-100/95 shadow-md overflow-hidden"
+                  class="flip-side flip-back"
+                  :class="{
+                    'flip-static-visible': !isAnimating && flipped,
+                    'flip-static-hidden': !isAnimating && !flipped,
+                  }"
                 >
                   <div
-                    v-if="pageIcon"
-                    class="pointer-events-none absolute -top-10 -left-10 sm:-top-14 sm:-left-14 lg:-top-16 lg:-left-16 opacity-20 rotate-6"
-                    style="transform: scaleX(-1)"
+                    ref="backRef"
+                    class="relative flex flex-col w-full h-full bg-base-100/95 overflow-hidden"
                   >
-                    <Icon
-                      :name="pageIcon"
-                      class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
-                    />
-                  </div>
-
-                  <div
-                    class="relative z-10 flex flex-col w-full h-full p-1 md:p-2 lg:p-3 xl:p-4"
-                  >
-                    <div class="mb-1 md:mb-2 lg:mb-3 xl:mb-4">
-                      <title-card />
+                    <!-- Bottom corner icons, partially clipped -->
+                    <div
+                      v-if="pageIcon"
+                      class="pointer-events-none absolute -bottom-10 -left-10 sm:-bottom-14 sm:-left-14 lg:-bottom-16 lg:-left-16 opacity-20 rotate-6"
+                    >
+                      <Icon
+                        :name="pageIcon"
+                        class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
+                      />
+                    </div>
+                    <div
+                      v-if="pageIcon"
+                      class="pointer-events-none absolute -bottom-10 -right-10 sm:-bottom-14 sm:-right-14 lg:-bottom-16 lg:-right-16 opacity-20 -rotate-6"
+                    >
+                      <Icon
+                        :name="pageIcon"
+                        class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 text-primary"
+                      />
                     </div>
 
-                    <div class="flex-1 min-h-0 flex overflow-y-auto">
-                      <ami-chat class="flex-1" />
+                    <div
+                      class="relative z-10 flex flex-col w-full h-full p-1 md:p-2 lg:p-3 xl:p-4"
+                    >
+                      <div class="mb-1 md:mb-2 lg:mb-3 xl:mb-4">
+                        <title-card />
+                      </div>
+
+                      <div class="flex-1 min-h-0 flex overflow-y-auto">
+                        <ami-chat class="flex-1" />
+                      </div>
                     </div>
                   </div>
                 </div>
+                <!-- END BACK SIDE -->
               </div>
-              <!-- END BACK SIDE -->
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
     </div>
   </div>
@@ -147,7 +167,6 @@ const navStore = useNavStore()
 const pageStore = usePageStore()
 const displayStore = useDisplayStore()
 
-// For the bottom card, "flipped" means we are showing the back (tutorial / ami-chat)
 const flipped = computed(() => displayStore.SmartState === 'tutorial')
 
 onMounted(async () => {

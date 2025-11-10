@@ -4,13 +4,14 @@
     v-if="pageStore.page"
     class="relative w-full h-full rounded-2xl z-20 bg-base-200/80 overflow-hidden"
   >
-    <div
-      v-if="resolvedImage"
-      class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
-    >
-      <div
-        class="w-full h-full bg-cover bg-center"
-        :style="{ backgroundImage: `url('${resolvedImage}')` }"
+    <div class="pointer-events-none absolute inset-0 -z-10">
+      <NuxtImg
+        v-if="resolvedImage"
+        :src="resolvedImage"
+        alt="Room background"
+        class="absolute inset-0 w-full h-full object-cover"
+        :sizes="imageSizes"
+        loading="lazy"
       />
     </div>
 
@@ -27,15 +28,21 @@
 <script setup lang="ts">
 // /components/content/icons/splash-tutorial.vue
 import { computed } from 'vue'
+import { NuxtImg } from '#components'
 import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()
 
 const fallbackImage = '/images/botcafe.webp'
+
 const image = computed(() => pageStore.page?.image)
 
 const resolvedImage = computed(() => {
   const img = image.value || fallbackImage
   return img.startsWith('/') ? img : `/images/${img}`
 })
+
+const imageSizes = computed(
+  () => '(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1024px',
+)
 </script>

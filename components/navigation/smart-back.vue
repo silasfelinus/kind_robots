@@ -26,6 +26,7 @@
         <div
           class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-2 md:gap-3"
         >
+          <!-- Header Row -->
           <div
             class="flex items-center justify-between gap-2 mb-1 md:mb-2 lg:mb-3 xl:mb-4"
           >
@@ -56,11 +57,13 @@
             </div>
           </div>
 
-          <div class="flex flex-col gap-2 md:gap-3 flex-1 min-h-0">
-            <div class="w-full">
-              <title-card />
-            </div>
+          <!-- Smart Icons Row -->
+          <div class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4">
+            <smart-icons />
+          </div>
 
+          <!-- Main Content -->
+          <div class="flex flex-col gap-2 md:gap-3 flex-1 min-h-0">
             <div class="w-full">
               <smart-image />
             </div>
@@ -72,6 +75,7 @@
         </div>
       </div>
 
+      <!-- Scroll Buttons -->
       <button
         v-if="canScrollUp"
         type="button"

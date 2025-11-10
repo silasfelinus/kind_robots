@@ -4,7 +4,6 @@
     v-if="pageStore.page"
     class="relative w-full h-full rounded-2xl z-20 bg-base-200/80 overflow-hidden"
   >
-    <!-- Background image layer (100% of container) -->
     <div
       v-if="resolvedImage"
       class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -19,16 +18,13 @@
       />
     </div>
 
-    <!-- Foreground container with ~10% vertical gutter -->
     <div class="relative z-10 w-full h-full flex">
       <div ref="contentContainer" class="w-full h-full flex">
         <div
           class="w-full max-w-4xl mx-auto h-full px-1 md:px-2 lg:px-3 xl:px-4 py-[5%] flex flex-col"
         >
-          <!-- Top smart header flip (rounded top, no bottom radius) -->
           <smart-flip />
 
-          <!-- Bottom flip card (single pill bottom, shared with smart-flip) -->
           <section
             class="relative w-full flex-1 min-h-0 rounded-b-3xl border border-black border-t-0 bg-base-100/95 shadow-xl overflow-hidden"
           >
@@ -42,7 +38,6 @@
                 }"
                 @transitionend="onFlipTransitionEnd"
               >
-                <!-- FRONT SIDE (Teleport / smart-panel, small title only) -->
                 <div
                   class="flip-side flip-front"
                   :class="{
@@ -52,9 +47,8 @@
                 >
                   <div
                     ref="frontRef"
-                    class="relative flex flex-col w-full h-full bg-base-100/95 overflow-hidden"
+                    class="relative flex flex-col w-full h-full bg-base-100/95 overflow-y-auto"
                   >
-                    <!-- Bottom corner icons, partially clipped -->
                     <div
                       v-if="pageIcon"
                       class="pointer-events-none absolute -bottom-10 -left-10 sm:-bottom-14 sm:-left-14 lg:-bottom-16 lg:-left-16 opacity-20 rotate-6"
@@ -85,14 +79,13 @@
                         </h2>
                       </div>
 
-                      <div class="flex-1 min-h-0 flex overflow-y-auto">
+                      <div class="flex-1 min-h-0 flex">
                         <smart-panel class="flex-1" />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- BACK SIDE (Tutorial / ami-chat with full Kind title layout) -->
                 <div
                   class="flip-side flip-back"
                   :class="{
@@ -102,9 +95,8 @@
                 >
                   <div
                     ref="backRef"
-                    class="relative flex flex-col w-full h-full bg-base-100/95 overflow-hidden"
+                    class="relative flex flex-col w-full h-full bg-base-100/95 overflow-y-auto"
                   >
-                    <!-- Bottom corner icons, partially clipped -->
                     <div
                       v-if="pageIcon"
                       class="pointer-events-none absolute -bottom-10 -left-10 sm:-bottom-14 sm:-left-14 lg:-bottom-16 lg:-left-16 opacity-20 rotate-6"
@@ -131,13 +123,13 @@
                         <title-card />
                       </div>
 
-                      <div class="flex-1 min-h-0 flex overflow-y-auto">
+                      <div class="flex-1 min-h-0 flex">
                         <ami-chat class="flex-1" />
                       </div>
                     </div>
                   </div>
                 </div>
-                <!-- END BACK SIDE -->
+                <!-- end sides -->
               </div>
             </div>
           </section>
@@ -167,7 +159,7 @@ const navStore = useNavStore()
 const pageStore = usePageStore()
 const displayStore = useDisplayStore()
 
-const flipped = computed(() => displayStore.SmartState === 'tutorial')
+const flipped = computed(() => displayStore.SmartState === 'ami')
 
 onMounted(async () => {
   if (!navStore.isInitialized) {
@@ -181,8 +173,8 @@ watch(
   (newState, oldState) => {
     if (isAnimating.value) return
 
-    const prevFlipped = oldState === 'tutorial'
-    const nextFlipped = newState === 'tutorial'
+    const prevFlipped = oldState === 'ami'
+    const nextFlipped = newState === 'ami'
 
     if (prevFlipped === nextFlipped) return
 

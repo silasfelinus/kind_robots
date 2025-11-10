@@ -40,7 +40,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     showRight: true,
     showExtended: false,
     showCorner: true,
-    SmartState: 'tutorial' as SmartState,
+    SmartState: 'map' as SmartState,
   })
 
   const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
@@ -462,8 +462,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   }
 
-  function toggleHeaderFlip() {
-    state.SmartState = state.SmartState === 'tutorial' ? 'teleport' : 'tutorial'
+  function toggleSmartFlip() {
+    state.SmartState = state.SmartState === 'map' ? 'ami' : 'map'
     saveState()
   }
 
@@ -536,7 +536,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     updateViewport,
     initialize,
     removeViewportWatcher,
-    toggleHeaderFlip,
+    toggleSmartFlip,
   }
 })
 

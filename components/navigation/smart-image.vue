@@ -1,4 +1,4 @@
-// /components/content/icons/smart-image.vue
+<!-- /components/content/icons/smart-image.vue -->
 <template>
   <div
     class="relative w-full rounded-2xl border border-base-300 bg-base-200/70 overflow-hidden flex items-center justify-center aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] cursor-pointer"
@@ -19,17 +19,12 @@
 // /components/content/icons/smart-image.vue
 import { computed, ref, watch } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
+import { useGalleryStore } from '@/stores/galleryStore'
 
 const pageStore = usePageStore()
+const galleryStore = useGalleryStore()
 
 const fallbackImage = '/images/botcafe.webp'
-
-// Replace this array with real gallery hero images when you wire it up
-const galleryImages = [
-  '/images/botcafe.webp',
-  '/images/wonderlab.webp',
-  '/images/memory-room.webp',
-]
 
 const frontSrc = ref<string | null>(null)
 const backSrc = ref<string | null>(null)
@@ -39,10 +34,10 @@ const isSpinning = ref(false)
 const currentSrc = computed(() => (showFront.value ? frontSrc.value : backSrc.value))
 
 const pageKey = computed(() => {
-  const page = pageStore.page
+  const page = pageStore.page as any
   return (
     page?.slug ||
-    (page as any)?.id?.toString?.() ||
+    page?.id?.toString?.() ||
     page?.title ||
     page?.room ||
     'default-page'
@@ -54,38 +49,55 @@ const resolveImage = (img: string | null | undefined): string => {
   return img.startsWith('/') ? img : `/images/${img}`
 }
 
-const getRandomGalleryImage = (): string | null => {
-  if (!galleryImages.length) return null
-  const index = Math.floor(Math.random() * galleryImages.length)
-  return galleryImages[index]
+const resolveBackendImage = (img: string | null): string | null => {
+  if (!img) return null
+  return img.startsWith('/') ? img : `/images/${img}`
 }
 
-const initImagesForPage = () => {
-  const pageImgRaw = (pageStore.page as any)?.image as string | null | undefined
+const getGalleryNameForPage = (): string | null => {
+  const page = pageStore.page as any
+  if (page?.galleryName) return page.galleryName as string
+  if (page?.room) return page.room as string
+  if (page?.title) return page.title as string
+  if (galleryStore.currentGallery?.name) return galleryStore.currentGallery.name
+  return null
+}
+
+const initImagesForPage = async () => {
+  const page = pageStore.page as any
+  const pageImgRaw = page?.image as string | null | undefined
   const pageImg = pageImgRaw ? resolveImage(pageImgRaw) : null
-  const randomImg = getRandomGalleryImage()
 
-  if (pageImg) {
-    frontSrc.value = pageImg
-    backSrc.value = randomImg ? resolveImage(randomImg) : pageImg
-  } else if (randomImg) {
-    const resolvedRandom = resolveImage(randomImg)
-    frontSrc.value = resolvedRandom
-    backSrc.value = resolvedRandom
-  } else {
-    const fallbackResolved = resolveImage(fallbackImage)
-    frontSrc.value = fallbackResolved
-    backSrc.value = fallbackResolved
-  }
+  const randomFront = galleryStore.randomImage || null
+  const fallbackFront = pageImg || randomFront || fallbackImage
 
+  frontSrc.value = fallbackFront
   showFront.value = true
   isSpinning.value = false
+
+  backSrc.value = null
+
+  const galleryName = getGalleryNameForPage()
+  if (!galleryName) {
+    backSrc.value = frontSrc.value
+    return
+  }
+
+  try {
+    const randomFromGallery = await galleryStore.getRandomImageFromGalleryName(
+      galleryName,
+    )
+    const resolved = resolveBackendImage(randomFromGallery)
+    backSrc.value = resolved || frontSrc.value
+  } catch {
+    backSrc.value = frontSrc.value
+  }
 }
 
 watch(
   pageKey,
   () => {
-    initImagesForPage()
+    void initImagesForPage()
   },
   { immediate: true },
 )
@@ -121,7 +133,10 @@ const handleClick = () => {
   0% {
     transform: rotateY(0deg);
   }
-  50% {
+  33% {
+    transform: rotateY(180deg);
+  }
+  66% {
     transform: rotateY(180deg);
   }
   100% {

@@ -1,4 +1,3 @@
-<!-- /components/navigation/smart-back.vue -->
 <template>
   <div class="relative flex flex-col w-full h-full bg-base-100/95">
     <div v-if="pageIcon" class="corner-icon corner-icon-tl">
@@ -26,22 +25,9 @@
         <div
           class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-2 md:gap-3"
         >
-          <!-- Header Row -->
           <div
             class="flex items-center justify-between gap-2 mb-1 md:mb-2 lg:mb-3 xl:mb-4"
           >
-            <div class="flex items-center gap-1 md:gap-2">
-              <button
-                v-if="flipped"
-                type="button"
-                class="btn btn-ghost btn-xs rounded-full px-2 md:px-3 text-[10px] md:text-xs flex items-center gap-1"
-                @click="setMapSide"
-              >
-                <Icon name="kind-icon:map" class="w-3 h-3 md:w-4 md:h-4" />
-                <span class="hidden sm:inline">Map</span>
-              </button>
-            </div>
-
             <div class="flex items-center gap-2 min-w-0">
               <span
                 class="inline-flex items-center px-2 py-1 rounded-2xl border border-base-300 bg-base-100 text-[10px] md:text-xs font-semibold uppercase tracking-wide"
@@ -55,14 +41,28 @@
                 {{ title }}
               </h2>
             </div>
+
+            <div class="flex items-center gap-1 md:gap-2">
+              <button
+                v-if="flipped"
+                type="button"
+                class="btn btn-ghost btn-xs rounded-full px-2 md:px-3 text-[10px] md:text-xs flex items-center gap-1"
+                @click="setMapSide"
+              >
+                <Icon name="kind-icon:map" class="w-3 h-3 md:w-4 md:h-4" />
+                <span class="hidden sm:inline">Map</span>
+              </button>
+            </div>
           </div>
 
-          <!-- Smart Icons Row -->
-          <div class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4">
+          <div class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4 overflow-x-auto">
             <smart-icons />
           </div>
 
-          <!-- Main Content -->
+          <div class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4">
+            <corner-panel />
+          </div>
+
           <div class="flex flex-col gap-2 md:gap-3 flex-1 min-h-0">
             <div class="w-full">
               <smart-image />
@@ -75,7 +75,6 @@
         </div>
       </div>
 
-      <!-- Scroll Buttons -->
       <button
         v-if="canScrollUp"
         type="button"

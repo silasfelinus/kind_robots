@@ -1,4 +1,3 @@
-<!-- /components/navigation/smart-flip.vue -->
 <template>
   <section
     class="relative w-full max-w-4xl h-[90%] mx-auto rounded-3xl border-2 border-black bg-base-100/95 shadow-xl overflow-hidden"
@@ -7,16 +6,14 @@
       <div
         ref="flipInner"
         class="flip-card-inner w-full h-full"
-        :class="{
-          'is-flipped': flipped,
-        }"
+        :class="{ 'is-flipped': flipped }"
         @transitionend="onFlipTransitionEnd"
       >
         <div
           class="flip-side flip-front"
           :class="{
-            'flip-static-visible': !flipped,
-            'flip-static-hidden': flipped,
+            'flip-visible': !flipped,
+            'flip-hidden': flipped,
           }"
         >
           <smart-front />
@@ -25,8 +22,8 @@
         <div
           class="flip-side flip-back"
           :class="{
-            'flip-static-visible': flipped,
-            'flip-static-hidden': !flipped,
+            'flip-visible': flipped,
+            'flip-hidden': !flipped,
           }"
         >
           <smart-back />
@@ -87,8 +84,6 @@ onMounted(() => {
   height: 100%;
   transform-style: preserve-3d;
   transition: transform 0.6s;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
 
 .flip-card-inner.is-flipped {
@@ -105,20 +100,21 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.flip-side > * {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+.flip-front {
+  transform: rotateY(0deg);
 }
 
 .flip-back {
   transform: rotateY(180deg);
 }
 
-.flip-static-visible {
-  display: block !important;
+.flip-visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.flip-static-hidden {
-  display: none !important;
+.flip-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 </style>

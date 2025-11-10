@@ -205,6 +205,7 @@ import { usePageStore } from '@/stores/pageStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useGalleryStore } from '@/stores/galleryStore'
 import { useDisplayStore } from '@/stores/displayStore'
+import { Icon } from '#components'
 
 type FlipDirection = 'toAmi' | 'toMap'
 
@@ -222,18 +223,23 @@ const description = computed(() => pageStore.page?.description)
 const theme = computed(() => pageStore.page?.theme)
 
 const normalizeImagePath = (img?: string | null): string => {
-  if (!img) return '/images/botcafe.webp'
+  const fallback = '/images/botcafe.webp'
+  if (!img) return fallback
+
   if (img.startsWith('/images/')) return img
-  const cleaned = img.replace(/^images\//, '').replace(/^\//, '')
-  return `/images/${cleaned}`
+  if (img.startsWith('images/')) return `/${img}`
+  if (img.startsWith('/')) return `/images/${img.slice(1)}`
+  return `/images/${img}`
 }
 
 const galleryName = computed(() => pageStore.page?.gallery || null)
 
-const frontBaseImage = ref<string>('/images/botcafe.webp')
-const backBaseImage = computed(() =>
+const resolvedPageImage = computed(() =>
   normalizeImagePath(pageStore.page?.image || null),
 )
+
+const frontBaseImage = ref<string>(resolvedPageImage.value)
+const backBaseImage = computed(() => resolvedPageImage.value)
 
 const frontImage = computed(
   () => frontBaseImage.value || '/images/botcafe.webp',
@@ -257,8 +263,10 @@ const imageSpinnerClass = computed(() => {
 })
 
 const loadRandomFrontImage = async () => {
+  const fallback = resolvedPageImage.value || '/images/botcafe.webp'
+
   if (!galleryName.value) {
-    frontBaseImage.value = '/images/botcafe.webp'
+    frontBaseImage.value = fallback
     return
   }
 
@@ -266,10 +274,10 @@ const loadRandomFrontImage = async () => {
     const img = await galleryStore.getRandomImageFromGalleryName(
       galleryName.value,
     )
-    frontBaseImage.value = normalizeImagePath(img || '/images/botcafe.webp')
+    frontBaseImage.value = img ? normalizeImagePath(img) : fallback
   } catch (err) {
     console.error('Error fetching random image from gallery:', err)
-    frontBaseImage.value = '/images/botcafe.webp'
+    frontBaseImage.value = fallback
   }
 }
 

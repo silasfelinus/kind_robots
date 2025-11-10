@@ -23,6 +23,26 @@
           <div class="relative flex flex-col w-full h-full bg-base-100/95">
             <div
               v-if="pageIcon"
+              class="pointer-events-none absolute -top-10 -left-10 sm:-top-12 sm:-left-12 lg:-top-14 lg:-left-14 opacity-20"
+            >
+              <Icon
+                :name="pageIcon"
+                class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary"
+              />
+            </div>
+
+            <div
+              v-if="pageIcon"
+              class="pointer-events-none absolute -top-10 -right-10 sm:-top-12 sm:-right-12 lg:-top-14 lg:-right-14 opacity-20"
+            >
+              <Icon
+                :name="pageIcon"
+                class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary"
+              />
+            </div>
+
+            <div
+              v-if="pageIcon"
               class="pointer-events-none absolute -bottom-10 -left-10 sm:-bottom-14 sm:-left-14 lg:-bottom-16 lg:-left-16 opacity-20 rotate-6"
             >
               <Icon
@@ -134,6 +154,26 @@
           }"
         >
           <div class="relative flex flex-col w-full h-full bg-base-100/95">
+            <div
+              v-if="pageIcon"
+              class="pointer-events-none absolute -top-10 -left-10 sm:-top-12 sm:-left-12 lg:-top-14 lg:-left-14 opacity-20"
+            >
+              <Icon
+                :name="pageIcon"
+                class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary"
+              />
+            </div>
+
+            <div
+              v-if="pageIcon"
+              class="pointer-events-none absolute -top-10 -right-10 sm:-top-12 sm:-right-12 lg:-top-14 lg:-right-14 opacity-20"
+            >
+              <Icon
+                :name="pageIcon"
+                class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-primary"
+              />
+            </div>
+
             <div
               v-if="pageIcon"
               class="pointer-events-none absolute -bottom-10 -left-10 sm:-bottom-14 sm:-left-14 lg:-bottom-16 lg:-left-16 opacity-20 rotate-6"

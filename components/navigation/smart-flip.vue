@@ -2,7 +2,6 @@
 <template>
   <section class="relative w-full max-w-4xl h-[90%] mx-auto overflow-visible">
     <div class="flex flex-col w-full h-full">
-      <!-- Header Band -->
       <div class="px-2 md:px-3 lg:px-4 pt-2">
         <div
           class="w-full rounded-2xl border border-base-300 bg-base-200/90 px-2.5 md:px-3.5 py-1.5 md:py-2 flex flex-col gap-1.5 md:gap-2"
@@ -28,7 +27,8 @@
                 type="button"
                 class="btn btn-ghost btn-xs rounded-full px-2 md:px-3 text-[10px] md:text-xs flex items-center gap-1"
                 :class="{
-                  'border-base-300 bg-base-200/70': targetSmartState === state.id,
+                  'border-base-300 bg-base-200/70':
+                    targetSmartState === state.id,
                 }"
                 @click="setSmart(state.id)"
               >
@@ -44,7 +44,6 @@
         </div>
       </div>
 
-      <!-- Flip Prism -->
       <div
         class="relative flex-1 min-h-0 px-2 md:px-3 lg:px-4 pb-2 md:pb-3 lg:pb-4"
       >
@@ -56,22 +55,28 @@
             @transitionend="onTransitionEnd"
           >
             <div
-              class="prism-face prism-face-front"
-              :style="{ transform: `rotateY(0deg) translateZ(${translateZ}px)` }"
+              class="prism-face"
+              :style="{
+                transform: `rotateY(0deg) translateZ(${translateZ}px)`,
+              }"
             >
               <smart-front />
             </div>
 
             <div
-              class="prism-face prism-face-dash"
-              :style="{ transform: `rotateY(120deg) translateZ(${translateZ}px)` }"
+              class="prism-face"
+              :style="{
+                transform: `rotateY(120deg) translateZ(${translateZ}px)`,
+              }"
             >
               <smart-dash />
             </div>
 
             <div
-              class="prism-face prism-face-back"
-              :style="{ transform: `rotateY(240deg) translateZ(${translateZ}px)` }"
+              class="prism-face"
+              :style="{
+                transform: `rotateY(240deg) translateZ(${translateZ}px)`,
+              }"
             >
               <smart-back />
             </div>
@@ -93,10 +98,13 @@ import type { SmartState } from '@/stores/helpers/displayHelper'
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
-const targetSmartState = computed(() => displayStore.SmartState)
-const title = computed(() => pageStore.page?.title || pageStore.page?.room || 'Kind Room')
+const targetSmartState = computed<SmartState>(() => displayStore.SmartState)
 
-const states = [
+const title = computed(
+  () => pageStore.page?.title || pageStore.page?.room || 'Kind Room',
+)
+
+const states: { id: SmartState; label: string; icon: string }[] = [
   { id: 'front', label: 'Map', icon: 'kind-icon:map' },
   { id: 'dash', label: 'Dash', icon: 'kind-icon:dashboard' },
   { id: 'back', label: 'Ami', icon: 'kind-icon:butterfly' },
@@ -120,7 +128,8 @@ onMounted(() => {
   nextTick(() => {
     if (prismInner.value) {
       const w = prismInner.value.offsetWidth
-      translateZ.value = w * 0.2887 // radius for equilateral triangle (zenith centered)
+      translateZ.value = w / (2 * Math.tan(Math.PI / 3))
+      console.log('translateZ for centered prism:', translateZ.value.toFixed(2))
     }
   })
 })
@@ -130,13 +139,18 @@ const setSmart = (next: SmartState) => {
   displayStore.setSmartState(next)
 }
 
-watch(targetSmartState, newState => {
-  if (!newState || newState === currentSmartState.value || isAnimating.value) return
+watch(targetSmartState, (newState) => {
+  if (!newState || newState === currentSmartState.value || isAnimating.value) {
+    return
+  }
+
   const fromIndex = stateOrder.indexOf(currentSmartState.value)
   const toIndex = stateOrder.indexOf(newState as SmartState)
   if (fromIndex === -1 || toIndex === -1) return
 
   const diff = (toIndex - fromIndex + stateOrder.length) % stateOrder.length
+  if (diff === 0) return
+
   const step: 1 | -1 = diff === 1 ? 1 : -1
   currentAngle.value += -step * 120
   currentSmartState.value = newState as SmartState

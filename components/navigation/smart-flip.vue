@@ -4,69 +4,73 @@
     <div class="flex flex-col w-full h-full">
       <div class="px-2 md:px-3 lg:px-4 pt-2">
         <div
-          class="flex items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200/90 px-2.5 md:px-3.5 py-1.5 md:py-2"
+          class="w-full rounded-2xl border border-base-300 bg-base-200/90 px-2.5 md:px-3.5 py-1.5 md:py-2 flex flex-col gap-1.5 md:gap-2"
         >
-          <div class="flex items-center gap-2 min-w-0">
-            <span
-              class="inline-flex items-center px-2 py-1 rounded-2xl border border-base-300 bg-base-100 text-[10px] md:text-xs font-semibold uppercase tracking-wide"
-            >
-              Kind
-            </span>
+          <div class="flex items-center justify-between gap-2 min-w-0">
+            <div class="flex items-center gap-2 min-w-0">
+              <span
+                class="inline-flex items-center px-2 py-1 rounded-2xl border border-base-300 bg-base-100 text-[10px] md:text-xs font-semibold uppercase tracking-wide"
+              >
+                Kind
+              </span>
 
-            <h2
-              class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-base-content/90 truncate"
-            >
-              {{ title }}
-            </h2>
+              <h2
+                class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-base-content/90 truncate"
+              >
+                {{ title }}
+              </h2>
+            </div>
+
+            <div class="flex items-center gap-1 md:gap-2 flex-shrink-0">
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs rounded-full px-2 md:px-3 text-[10px] md:text-xs flex items-center gap-1"
+                :class="{
+                  'border-base-300 bg-base-200/70':
+                    targetSmartState === 'front',
+                }"
+                @click="setSmart('front')"
+              >
+                <Icon name="kind-icon:map" class="w-3 h-3 md:w-4 md:h-4" />
+                <span class="hidden sm:inline">Map</span>
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs rounded-full px-2 md:px-3 text-[10px] md:text-xs flex items-center gap-1"
+                :class="{
+                  'border-base-300 bg-base-200/70': targetSmartState === 'dash',
+                }"
+                @click="setSmart('dash')"
+              >
+                <Icon
+                  name="kind-icon:dashboard"
+                  class="w-3 h-3 md:w-4 md:h-4"
+                />
+                <span class="hidden sm:inline">Dash</span>
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs rounded-full px-2 md:px-3 text-[10px] md:text-xs flex items-center gap-1"
+                :class="{
+                  'border-base-300 bg-base-200/70': targetSmartState === 'back',
+                }"
+                @click="setSmart('back')"
+              >
+                <Icon
+                  name="kind-icon:butterfly"
+                  class="w-3 h-3 md:w-4 md:h-4"
+                />
+                <span class="hidden sm:inline">Ami</span>
+              </button>
+            </div>
           </div>
 
-          <div class="flex items-center gap-1 md:gap-2">
-            <button
-              type="button"
-              class="btn btn-ghost btn-xs rounded-full px-2 md:px-3 text-[10px] md:text-xs flex items-center gap-1"
-              :class="{
-                'border-base-300 bg-base-200/70': targetSmartState === 'front',
-              }"
-              @click="setSmart('front')"
-            >
-              <Icon name="kind-icon:map" class="w-3 h-3 md:w-4 md:h-4" />
-              <span class="hidden sm:inline">Map</span>
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-ghost btn-xs rounded-full px-2 md:px-3 text-[10px] md:text-xs flex items-center gap-1"
-              :class="{
-                'border-base-300 bg-base-200/70': targetSmartState === 'dash',
-              }"
-              @click="setSmart('dash')"
-            >
-              <Icon
-                name="kind-icon:dashboard"
-                class="w-3 h-3 md:w-4 md:h-4"
-              />
-              <span class="hidden sm:inline">Dash</span>
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-ghost btn-xs rounded-full px-2 md:px-3 text-[10px] md:text-xs flex items-center gap-1"
-              :class="{
-                'border-base-300 bg-base-200/70': targetSmartState === 'back',
-              }"
-              @click="setSmart('back')"
-            >
-              <Icon name="kind-icon:butterfly" class="w-3 h-3 md:w-4 md:h-4" />
-              <span class="hidden sm:inline">Ami</span>
-            </button>
+          <div class="w-full overflow-x-auto">
+            <smart-icons />
           </div>
         </div>
-      </div>
-
-      <div
-        class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4 px-2 md:px-3 lg:px-4 overflow-x-auto"
-      >
-        <smart-icons />
       </div>
 
       <div
@@ -151,15 +155,14 @@ const setSmart = (next: SmartState) => {
 
 watch(
   targetSmartState,
-  (newState, oldState) => {
+  newState => {
     const current = visibleSmartState.value
-    const fromState = oldState ?? current
 
     if (newState === current || isAnimating.value) {
       return
     }
 
-    const dir = getDirection(fromState as SmartState, newState as SmartState)
+    const dir = getDirection(current as SmartState, newState as SmartState)
     flipDirection.value = dir
     pendingSmartState.value = newState as SmartState
 

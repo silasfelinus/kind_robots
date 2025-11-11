@@ -462,8 +462,16 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   }
 
+  function setSmartState(next: SmartState) {
+    state.SmartState = next
+    saveState()
+  }
+
   function toggleSmartFlip() {
-    state.SmartState = state.SmartState === 'front' ? 'back' : 'front'
+    const order: SmartState[] = ['front', 'back', 'dash']
+    const index = order.indexOf(state.SmartState)
+    const nextIndex = index === -1 ? 0 : (index + 1) % order.length
+    state.SmartState = order[nextIndex]
     saveState()
   }
 
@@ -536,6 +544,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     updateViewport,
     initialize,
     removeViewportWatcher,
+    setSmartState,
     toggleSmartFlip,
   }
 })

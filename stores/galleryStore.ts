@@ -30,6 +30,19 @@ export const useGalleryStore = defineStore('galleryStore', () => {
     return gallery?.imagePaths?.split(',') || []
   })
 
+  function buildImagePath(galleryName: string, imagePath: string): string {
+    if (!imagePath) return ''
+    const trimmed = imagePath.trim()
+    if (
+      trimmed.startsWith('/images/') ||
+      trimmed.startsWith('http://') ||
+      trimmed.startsWith('https://')
+    ) {
+      return trimmed
+    }
+    return `/images/${galleryName}/${trimmed}`
+  }
+
   async function initialize() {
     if (!isClient) return
     try {
@@ -104,7 +117,8 @@ export const useGalleryStore = defineStore('galleryStore', () => {
     const gallery = galleries.value.find((g) => g.name === name)
     if (gallery) {
       currentGallery.value = gallery
-      currentImage.value = gallery.imagePaths?.split(',')[0] || ''
+      const firstImage = gallery.imagePaths?.split(',')[0] || ''
+      currentImage.value = buildImagePath(gallery.name, firstImage)
       if (isClient) {
         localStorage.setItem(
           'currentGallery',
@@ -126,7 +140,8 @@ export const useGalleryStore = defineStore('galleryStore', () => {
     const gallery = galleries.value.find((g) => g.id === id)
     if (!gallery) return console.warn(`Gallery with ID ${id} not found.`)
     currentGallery.value = gallery
-    currentImage.value = gallery.imagePaths?.split(',')[0] || ''
+    const firstImage = gallery.imagePaths?.split(',')[0] || ''
+    currentImage.value = buildImagePath(gallery.name, firstImage)
     if (isClient) {
       localStorage.setItem(
         'currentGallery',
@@ -143,7 +158,23 @@ export const useGalleryStore = defineStore('galleryStore', () => {
       const res = await performFetch<{ imagePath: string }>(
         `/api/galleries/random/id/${id}`,
       )
-      return res.success && res.data ? res.data.imagePath : null
+      if (res.success && res.data) {
+        const gallery = galleries.value.find((g) => g.id === id) || null
+        const baseName = gallery?.name || ''
+        const fullPath = baseName
+          ? buildImagePath(baseName, res.data.imagePath)
+          : res.data.imagePath
+        currentImage.value = fullPath
+        if (isClient) localStorage.setItem('currentImage', currentImage.value)
+        console.log('[galleryStore] random image by id', {
+          id,
+          galleryName: baseName,
+          imagePath: res.data.imagePath,
+          fullPath,
+        })
+        return fullPath
+      }
+      return null
     } catch (err) {
       console.error('Error fetching random image:', err)
       return null
@@ -151,31 +182,44 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   }
 
   async function getRandomImageFromGalleryName(
-  name: string,
-): Promise<string | null> {
-  const res = await performFetch<string>(`/api/galleries/random/name/${name}`)
-  if (res.success && res.data) {
-    const fullPath = buildImagePath(name, res.data)
-    currentImage.value = fullPath
-    if (isClient) localStorage.setItem('currentImage', currentImage.value)
-    console.log('[galleryStore] random image by name', {
-      name,
-      imageName: res.data,
-      fullPath,
-    })
-    return fullPath
+    name: string,
+  ): Promise<string | null> {
+    try {
+      const res = await performFetch<string>(
+        `/api/galleries/random/name/${name}`,
+      )
+      if (res.success && res.data) {
+        const fullPath = buildImagePath(name, res.data)
+        currentImage.value = fullPath
+        if (isClient) localStorage.setItem('currentImage', currentImage.value)
+        console.log('[galleryStore] random image by name', {
+          name,
+          imageName: res.data,
+          fullPath,
+        })
+        return fullPath
+      }
+      return null
+    } catch (err) {
+      console.error('Error fetching random image:', err)
+      return null
+    }
   }
-  return null
-}
 
   async function changeToRandomImage(): Promise<string | null> {
     const gallery = currentGallery.value
     if (!gallery?.imagePaths) return null
-    const paths = gallery.imagePaths.split(',')
+    const paths = gallery.imagePaths.split(',').map((p) => p.trim())
     if (!paths.length) return null
     const selected = paths[Math.floor(Math.random() * paths.length)]
-    currentImage.value = `/images/${gallery.name}/${selected}`
+    const fullPath = buildImagePath(gallery.name, selected)
+    currentImage.value = fullPath
     if (isClient) localStorage.setItem('currentImage', currentImage.value)
+    console.log('[galleryStore] changeToRandomImage', {
+      galleryName: gallery.name,
+      selected,
+      fullPath,
+    })
     return currentImage.value
   }
 

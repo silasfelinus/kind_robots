@@ -2,7 +2,7 @@
 <template>
   <section class="relative w-full max-w-4xl h-[90%] mx-auto overflow-visible">
     <div class="flex flex-col w-full h-full">
-      <!-- Header Band -->
+      <!-- Kind + Nav + Icons header -->
       <div class="px-2 md:px-3 lg:px-4 pt-2">
         <div
           class="w-full rounded-2xl border border-base-300 bg-base-200/90 px-2.5 md:px-3.5 py-1.5 md:py-2 flex flex-col gap-1.5 md:gap-2"
@@ -44,10 +44,8 @@
         </div>
       </div>
 
-      <!-- Flip Prism -->
-      <div
-        class="relative flex-1 min-h-0 px-2 md:px-3 lg:px-4 pb-2 md:pb-3 lg:pb-4"
-      >
+      <!-- Prism body -->
+      <div class="relative flex-1 min-h-0 px-2 md:px-3 lg:px-4 pb-2 md:pb-3 lg:pb-4">
         <div class="prism-card w-full h-full">
           <div
             ref="prismInner"
@@ -56,21 +54,19 @@
             @transitionend="onTransitionEnd"
           >
             <div
-              class="prism-face prism-face-front"
+              class="prism-face prism-front"
               :style="{ transform: `rotateY(0deg) translateZ(${translateZ}px)` }"
             >
               <smart-front />
             </div>
-
             <div
-              class="prism-face prism-face-dash"
+              class="prism-face prism-dash"
               :style="{ transform: `rotateY(120deg) translateZ(${translateZ}px)` }"
             >
               <smart-dash />
             </div>
-
             <div
-              class="prism-face prism-face-back"
+              class="prism-face prism-back"
               :style="{ transform: `rotateY(240deg) translateZ(${translateZ}px)` }"
             >
               <smart-back />
@@ -92,8 +88,8 @@ import type { SmartState } from '@/stores/helpers/displayHelper'
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
-
 const targetSmartState = computed(() => displayStore.SmartState)
+
 const title = computed(() => pageStore.page?.title || pageStore.page?.room || 'Kind Room')
 
 const states = [
@@ -110,6 +106,7 @@ const isAnimating = ref(false)
 
 const stateOrder: SmartState[] = ['front', 'dash', 'back']
 
+// core rotation style
 const prismStyle = computed(() => ({
   transform: `rotateY(${currentAngle.value}deg)`,
   transformOrigin: 'center center',
@@ -120,7 +117,9 @@ onMounted(() => {
   nextTick(() => {
     if (prismInner.value) {
       const w = prismInner.value.offsetWidth
-      translateZ.value = w * 0.2887 // radius for equilateral triangle (zenith centered)
+      // correct inscribed circle radius for equilateral triangle
+      translateZ.value = w / (2 * Math.tan(Math.PI / 3))
+      console.log('translateZ for centered prism:', translateZ.value.toFixed(2))
     }
   })
 })
@@ -138,6 +137,7 @@ watch(targetSmartState, newState => {
 
   const diff = (toIndex - fromIndex + stateOrder.length) % stateOrder.length
   const step: 1 | -1 = diff === 1 ? 1 : -1
+  // rotate opposite to bring new face forward
   currentAngle.value += -step * 120
   currentSmartState.value = newState as SmartState
   isAnimating.value = true

@@ -1,3 +1,4 @@
+<!-- /components/navigation/splash-tutorial.vue -->
 <template>
   <div
     v-if="pageStore.page"

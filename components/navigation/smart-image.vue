@@ -1,4 +1,4 @@
-<!-- /components/content/icons/smart-image.vue -->
+<!-- /components/navigation/smart-image.vue -->
 <template>
   <div
     class="relative w-full rounded-2xl border border-base-300 bg-base-200/70 overflow-hidden flex items-center justify-center aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] cursor-pointer"

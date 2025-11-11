@@ -151,18 +151,22 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   }
 
   async function getRandomImageFromGalleryName(
-    name: string,
-  ): Promise<string | null> {
-    try {
-      const res = await performFetch<string>(
-        `/api/galleries/random/name/${name}`,
-      )
-      return res.success && res.data ? res.data : null
-    } catch (err) {
-      console.error('Error fetching random image:', err)
-      return null
-    }
+  name: string,
+): Promise<string | null> {
+  const res = await performFetch<string>(`/api/galleries/random/name/${name}`)
+  if (res.success && res.data) {
+    const fullPath = buildImagePath(name, res.data)
+    currentImage.value = fullPath
+    if (isClient) localStorage.setItem('currentImage', currentImage.value)
+    console.log('[galleryStore] random image by name', {
+      name,
+      imageName: res.data,
+      fullPath,
+    })
+    return fullPath
   }
+  return null
+}
 
   async function changeToRandomImage(): Promise<string | null> {
     const gallery = currentGallery.value

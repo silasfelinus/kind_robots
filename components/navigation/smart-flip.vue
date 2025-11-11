@@ -1,7 +1,6 @@
+<!-- /components/navigation/smart-flip.vue -->
 <template>
-  <section
-    class="relative w-full max-w-4xl h-[90%] mx-auto rounded-3xl border-2 border-black bg-base-100/95 shadow-xl overflow-hidden"
-  >
+  <section class="relative w-full max-w-4xl h-[90%] mx-auto overflow-visible">
     <div class="flip-card w-full h-full">
       <div
         ref="flipInner"
@@ -9,8 +8,9 @@
         :class="{ 'is-flipped': flipped }"
         @transitionend="onFlipTransitionEnd"
       >
+        <!-- FRONT -->
         <div
-          class="flip-side flip-front"
+          class="flip-side flip-front rounded-3xl border-2 border-black shadow-xl bg-base-100/95"
           :class="{
             'flip-visible': !flipped,
             'flip-hidden': flipped,
@@ -19,8 +19,9 @@
           <smart-front />
         </div>
 
+        <!-- BACK -->
         <div
-          class="flip-side flip-back"
+          class="flip-side flip-back rounded-3xl border-2 border-black shadow-xl bg-base-100/95"
           :class="{
             'flip-visible': flipped,
             'flip-hidden': !flipped,
@@ -34,7 +35,6 @@
 </template>
 
 <script setup lang="ts">
-// /components/navigation/smart-flip.vue
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
@@ -48,13 +48,9 @@ watch(
   () => displayStore.SmartState,
   (newState, oldState) => {
     if (newState === oldState) return
-
     isAnimating.value = true
-
     nextTick(() => {
-      if (flipInner.value) {
-        void flipInner.value.offsetWidth
-      }
+      if (flipInner.value) void flipInner.value.offsetWidth
     })
   },
 )
@@ -65,9 +61,7 @@ const onFlipTransitionEnd = (event: TransitionEvent) => {
 }
 
 onMounted(() => {
-  if (flipInner.value) {
-    void flipInner.value.offsetWidth
-  }
+  if (flipInner.value) void flipInner.value.offsetWidth
 })
 </script>
 

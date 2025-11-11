@@ -8,24 +8,14 @@
         :class="{ 'is-flipped': flipped }"
         @transitionend="onFlipTransitionEnd"
       >
-        <!-- FRONT -->
         <div
           class="flip-side flip-front rounded-3xl border-2 border-black shadow-xl bg-base-100/95"
-          :class="{
-            'flip-visible': !flipped,
-            'flip-hidden': flipped,
-          }"
         >
           <smart-front />
         </div>
 
-        <!-- BACK -->
         <div
           class="flip-side flip-back rounded-3xl border-2 border-black shadow-xl bg-base-100/95"
-          :class="{
-            'flip-visible': flipped,
-            'flip-hidden': !flipped,
-          }"
         >
           <smart-back />
         </div>
@@ -35,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/navigation/smart-flip.vue
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
@@ -48,9 +39,13 @@ watch(
   () => displayStore.SmartState,
   (newState, oldState) => {
     if (newState === oldState) return
+
     isAnimating.value = true
+
     nextTick(() => {
-      if (flipInner.value) void flipInner.value.offsetWidth
+      if (flipInner.value) {
+        void flipInner.value.offsetWidth
+      }
     })
   },
 )
@@ -61,7 +56,9 @@ const onFlipTransitionEnd = (event: TransitionEvent) => {
 }
 
 onMounted(() => {
-  if (flipInner.value) void flipInner.value.offsetWidth
+  if (flipInner.value) {
+    void flipInner.value.offsetWidth
+  }
 })
 </script>
 
@@ -76,8 +73,8 @@ onMounted(() => {
   position: relative;
   width: 100%;
   height: 100%;
-  transform-style: preserve-3d;
   transition: transform 0.6s;
+  transform-style: preserve-3d;
 }
 
 .flip-card-inner.is-flipped {
@@ -100,15 +97,5 @@ onMounted(() => {
 
 .flip-back {
   transform: rotateY(180deg);
-}
-
-.flip-visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.flip-hidden {
-  opacity: 0;
-  pointer-events: none;
 }
 </style>

@@ -40,7 +40,10 @@
             }"
             @click="setSmart('back')"
           >
-            <Icon name="kind-icon:butterfly" class="w-3 h-3 md:w-4 md:h-4" />
+            <Icon
+              name="kind-icon:butterfly"
+              class="w-3 h-3 md:w-4 md:h-4"
+            />
             <span class="hidden sm:inline">Ami</span>
           </button>
 
@@ -102,6 +105,7 @@ import type { SmartState } from '@/stores/helpers/displayHelper'
 
 const flipInner = ref<HTMLElement | null>(null)
 const isAnimating = ref(false)
+const rotation = ref(0)
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
@@ -112,11 +116,13 @@ const title = computed(
   () => pageStore.page?.title || pageStore.page?.room || 'Kind Room',
 )
 
-const rotation = computed(() => {
-  if (smartState.value === 'front') return 0
-  if (smartState.value === 'back') return 120
-  return 240
-})
+const indexForState = (state: SmartState): number => {
+  if (state === 'front') return 0
+  if (state === 'back') return 1
+  return 2
+}
+
+const currentIndex = ref(indexForState(smartState.value))
 
 const setSmart = (next: SmartState) => {
   if (next === smartState.value) return
@@ -124,16 +130,35 @@ const setSmart = (next: SmartState) => {
 }
 
 watch(
-  () => displayStore.SmartState,
+  smartState,
   (newState, oldState) => {
-    if (newState === oldState) return
+    if (!oldState) {
+      const initialIndex = indexForState(newState)
+      currentIndex.value = initialIndex
+      rotation.value = initialIndex * 120
+      return
+    }
+
+    const nextIndex = indexForState(newState)
+    const prevIndex = currentIndex.value
+
+    if (nextIndex === prevIndex) return
+
+    let delta = nextIndex - prevIndex
+    if (delta === 2) delta = -1
+    else if (delta === -2) delta = 1
+
+    rotation.value += delta * 120
+    currentIndex.value = nextIndex
     isAnimating.value = true
+
     nextTick(() => {
       if (flipInner.value) {
         void flipInner.value.offsetWidth
       }
     })
   },
+  { immediate: true },
 )
 
 const onFlipTransitionEnd = (event: TransitionEvent) => {

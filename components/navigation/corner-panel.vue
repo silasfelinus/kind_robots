@@ -1,4 +1,4 @@
-<!-- /components/content/navigation/corner-panel.vue -->
+<!-- /components/navigation/corner-panel.vue -->
 <template>
   <div ref="root" class="relative z-50 w-full">
     <div class="flex flex-wrap justify-end items-start gap-2">

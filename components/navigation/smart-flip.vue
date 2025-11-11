@@ -76,19 +76,23 @@
       <div
         class="relative flex-1 min-h-0 px-2 md:px-3 lg:px-4 pb-2 md:pb-3 lg:pb-4"
       >
-        <div class="flip-card w-full h-full">
+        <div class="prism-card w-full h-full">
           <div
-            ref="flipInner"
-            class="flip-card-inner w-full h-full rounded-3xl border-2 border-black shadow-xl bg-base-100/95 overflow-hidden"
-            :style="{ transform: transformStyle }"
-            @transitionend="onFlipTransitionEnd"
+            ref="prismInner"
+            class="prism-inner w-full h-full rounded-3xl border-2 border-black shadow-xl bg-base-100/95 overflow-hidden"
+            :style="prismStyle"
+            @transitionend="onTransitionEnd"
           >
-            <div class="flip-side flip-front">
-              <component :is="componentForState(frontFaceState)" />
+            <div class="prism-face prism-face-front">
+              <smart-front />
             </div>
 
-            <div class="flip-side flip-back">
-              <component :is="componentForState(backFaceState)" />
+            <div class="prism-face prism-face-dash">
+              <smart-dash />
+            </div>
+
+            <div class="prism-face prism-face-back">
+              <smart-back />
             </div>
           </div>
         </div>
@@ -99,54 +103,32 @@
 
 <script setup lang="ts">
 // /components/navigation/smart-flip.vue
-import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { Icon } from '#components'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 import type { SmartState } from '@/stores/helpers/displayHelper'
-
-const flipInner = ref<HTMLElement | null>(null)
-const isAnimating = ref(false)
-const showingFront = ref(true)
-const flipDirection = ref<1 | -1>(1)
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
 const targetSmartState = computed(() => displayStore.SmartState)
 
-const visibleSmartState = ref<SmartState>('front')
-const frontFaceState = ref<SmartState>('front')
-const backFaceState = ref<SmartState>('back')
-const pendingSmartState = ref<SmartState | null>(null)
-
 const title = computed(
   () => pageStore.page?.title || pageStore.page?.room || 'Kind Room',
 )
 
-const smartOrder: SmartState[] = ['front', 'dash', 'back']
+const stateOrder: SmartState[] = ['front', 'dash', 'back']
 
-const getDirection = (from: SmartState, to: SmartState): 1 | -1 => {
-  const fromIndex = smartOrder.indexOf(from)
-  const toIndex = smartOrder.indexOf(to)
-  if (fromIndex === -1 || toIndex === -1) return 1
-  const diff = (toIndex - fromIndex + smartOrder.length) % smartOrder.length
-  if (diff === 0) return 1
-  return diff === 1 ? 1 : -1
-}
+const currentSmartState = ref<SmartState>('front')
+const currentAngle = ref(0)
+const lastDirection = ref<1 | -1>(1)
+const isAnimating = ref(false)
 
-const componentForState = (state: SmartState) => {
-  if (state === 'front') return 'smart-front'
-  if (state === 'back') return 'smart-back'
-  return 'smart-dash'
-}
-
-const transformStyle = computed(() => {
-  if (!showingFront.value) {
-    return flipDirection.value === 1 ? 'rotateY(180deg)' : 'rotateY(-180deg)'
-  }
-  return 'rotateY(0deg)'
-})
+const prismStyle = computed(() => ({
+  transform: `rotateY(${currentAngle.value}deg)`,
+  transformOrigin: lastDirection.value === 1 ? 'right center' : 'left center',
+}))
 
 const setSmart = (next: SmartState) => {
   if (next === targetSmartState.value) return
@@ -156,71 +138,58 @@ const setSmart = (next: SmartState) => {
 watch(
   targetSmartState,
   newState => {
-    const current = visibleSmartState.value
+    const from = currentSmartState.value
 
-    if (newState === current || isAnimating.value) {
-      return
-    }
+    if (!newState || newState === from || isAnimating.value) return
 
-    const dir = getDirection(current as SmartState, newState as SmartState)
-    flipDirection.value = dir
-    pendingSmartState.value = newState as SmartState
+    const fromIndex = stateOrder.indexOf(from)
+    const toIndex = stateOrder.indexOf(newState as SmartState)
+    if (fromIndex === -1 || toIndex === -1) return
 
-    if (showingFront.value) {
-      backFaceState.value = newState as SmartState
-    } else {
-      frontFaceState.value = newState as SmartState
-    }
+    const diff = (toIndex - fromIndex + stateOrder.length) % stateOrder.length
+    if (diff === 0) return
 
+    const step: 1 | -1 = diff === 1 ? 1 : -1
+    lastDirection.value = step
+    currentAngle.value += step * 120
+    currentSmartState.value = newState as SmartState
     isAnimating.value = true
-
-    nextTick(() => {
-      showingFront.value = !showingFront.value
-      if (flipInner.value) {
-        void flipInner.value.offsetWidth
-      }
-    })
   },
   { immediate: true },
 )
 
-const onFlipTransitionEnd = (event: TransitionEvent) => {
+const onTransitionEnd = (event: TransitionEvent) => {
   if (event.propertyName !== 'transform') return
-
   isAnimating.value = false
-
-  if (pendingSmartState.value) {
-    visibleSmartState.value = pendingSmartState.value
-    pendingSmartState.value = null
-
-    if (showingFront.value) {
-      frontFaceState.value = visibleSmartState.value
-    } else {
-      backFaceState.value = visibleSmartState.value
-    }
-  }
 }
 
 onMounted(() => {
   const initial = targetSmartState.value
-  visibleSmartState.value = initial
-  frontFaceState.value = initial
-  backFaceState.value = initial
-
-  if (flipInner.value) {
-    void flipInner.value.offsetWidth
+  if (initial && initial !== currentSmartState.value) {
+    const fromIndex = stateOrder.indexOf(currentSmartState.value)
+    const toIndex = stateOrder.indexOf(initial as SmartState)
+    if (fromIndex !== -1 && toIndex !== -1) {
+      const diff =
+        (toIndex - fromIndex + stateOrder.length) % stateOrder.length
+      if (diff !== 0) {
+        const step: 1 | -1 = diff === 1 ? 1 : -1
+        lastDirection.value = step
+        currentAngle.value += step * 120
+        currentSmartState.value = initial as SmartState
+      }
+    }
   }
 })
 </script>
 
 <style scoped>
-.flip-card {
+.prism-card {
   perspective: 1200px;
   width: 100%;
   height: 100%;
 }
 
-.flip-card-inner {
+.prism-inner {
   position: relative;
   width: 100%;
   height: 100%;
@@ -228,7 +197,7 @@ onMounted(() => {
   transition: transform 0.6s;
 }
 
-.flip-side {
+.prism-face {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -238,11 +207,15 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.flip-front {
-  transform: rotateY(0deg);
+.prism-face-front {
+  transform: rotateY(0deg) translateZ(260px);
 }
 
-.flip-back {
-  transform: rotateY(180deg);
+.prism-face-dash {
+  transform: rotateY(120deg) translateZ(260px);
+}
+
+.prism-face-back {
+  transform: rotateY(240deg) translateZ(260px);
 }
 </style>

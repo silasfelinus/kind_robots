@@ -7,7 +7,7 @@ export function setCustomVh() {
   }
 }
 
-export type SmartState = 'map' | 'ami'
+export type SmartState = 'front' | 'back' | 'dash'
 
 export type DisplayState =
   | 'open'

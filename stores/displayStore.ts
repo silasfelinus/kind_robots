@@ -40,7 +40,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     showRight: true,
     showExtended: false,
     showCorner: true,
-    SmartState: 'map' as SmartState,
+    SmartState: 'front' as SmartState,
   })
 
   const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
@@ -463,7 +463,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function toggleSmartFlip() {
-    state.SmartState = state.SmartState === 'map' ? 'ami' : 'map'
+    state.SmartState = state.SmartState === 'front' ? 'back' : 'front'
     saveState()
   }
 

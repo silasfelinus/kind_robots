@@ -110,7 +110,7 @@ const canScrollDown = ref(false)
 const pageStore = usePageStore()
 const displayStore = useDisplayStore()
 
-const flipped = computed(() => displayStore.SmartState === 'ami')
+const flipped = computed(() => displayStore.SmartState === 'back')
 
 const pageIcon = computed(() => pageStore.page?.icon)
 const title = computed(
@@ -118,7 +118,7 @@ const title = computed(
 )
 
 const setMapSide = () => {
-  displayStore.SmartState = 'map'
+  displayStore.SmartState = 'front'
 }
 
 const updateScrollState = () => {

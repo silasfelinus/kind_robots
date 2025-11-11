@@ -33,7 +33,7 @@ const flipInner = ref<HTMLElement | null>(null)
 const isAnimating = ref(false)
 const displayStore = useDisplayStore()
 
-const flipped = computed(() => displayStore.SmartState === 'ami')
+const flipped = computed(() => displayStore.SmartState === 'back')
 
 watch(
   () => displayStore.SmartState,

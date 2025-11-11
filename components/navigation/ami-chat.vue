@@ -1,4 +1,4 @@
-<!-- /components/content/icons/ami-chat.vue -->
+<!-- /components/navigation/ami-chat.vue -->
 <template>
   <section
     v-if="dottitip && amitip"

@@ -51,6 +51,10 @@
             </div>
           </div>
 
+          <div class="w-full">
+            <title-card />
+          </div>
+
           <div class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4">
             <smart-icons />
           </div>
@@ -58,10 +62,6 @@
           <div class="flex flex-col gap-2 md:gap-3">
             <div class="w-full">
               <smart-image />
-            </div>
-
-            <div class="w-full">
-              <smart-buttons />
             </div>
 
             <div class="w-full">

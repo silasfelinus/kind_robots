@@ -51,11 +51,6 @@
         </span>
       </div>
     </div>
-
-    <!-- Center smart icons bar -->
-    <div class="flex-1 min-w-0 h-full flex items-stretch z-0">
-      <smart-icons class="h-full w-full" />
-    </div>
   </header>
 </template>
 

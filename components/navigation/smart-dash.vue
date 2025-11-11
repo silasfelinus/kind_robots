@@ -1,20 +1,20 @@
-<!-- /components/navigation/smart-front.vue -->
+<!-- /components/navigation/smart-dash.vue -->
 <template>
   <div class="relative flex flex-col w-full h-full bg-base-100/95">
     <div v-if="pageIcon" class="corner-icon corner-icon-tl">
-      <Icon :name="pageIcon" class="corner-icon-inner text-primary" />
+      <Icon :name="pageIcon" class="corner-icon-inner text-accent" />
     </div>
 
     <div v-if="pageIcon" class="corner-icon corner-icon-tr">
-      <Icon :name="pageIcon" class="corner-icon-inner text-primary" />
+      <Icon :name="pageIcon" class="corner-icon-inner text-accent" />
     </div>
 
     <div v-if="pageIcon" class="corner-icon corner-icon-bl">
-      <Icon :name="pageIcon" class="corner-icon-inner text-primary" />
+      <Icon :name="pageIcon" class="corner-icon-inner text-accent" />
     </div>
 
     <div v-if="pageIcon" class="corner-icon corner-icon-br">
-      <Icon :name="pageIcon" class="corner-icon-inner text-primary" />
+      <Icon :name="pageIcon" class="corner-icon-inner text-accent" />
     </div>
 
     <div class="relative z-10 flex-1 min-h-0">
@@ -24,35 +24,15 @@
         @scroll="updateScrollState"
       >
         <div
-          class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-2 md:gap-3"
+          class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-3 md:gap-4"
         >
-          <div class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4">
-            <title-card />
-          </div>
+          <p class="text-sm md:text-base text-base-content/80">
+            This side is your Kind dashboard sandbox. Soon it can host stats,
+            shortcuts, and smart-style controls.
+          </p>
 
-          <div class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4">
-            <smart-panel />
-          </div>
-
-          <div class="flex-1 min-h-[8rem]">
-            <div
-              v-if="pageImage"
-              class="relative w-full h-full rounded-2xl border border-base-300 bg-base-200/70 overflow-hidden flex items-center justify-center aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1]"
-            >
-              <NuxtImg
-                :src="pageImage"
-                alt="Room illustration"
-                class="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-
-            <div
-              v-else
-              class="w-full h-full rounded-2xl border border-dashed border-base-300 bg-base-200/40 flex items-center justify-center text-xs md:text-sm text-base-content/60"
-            >
-              No image set for this room yet.
-            </div>
+          <div class="w-full">
+            <corner-panel />
           </div>
         </div>
       </div>
@@ -79,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/navigation/smart-front.vue
+// /components/navigation/smart-dash.vue
 import { ref, computed, onMounted } from 'vue'
 import { Icon } from '#components'
 import { usePageStore } from '@/stores/pageStore'
@@ -89,9 +69,7 @@ const canScrollUp = ref(false)
 const canScrollDown = ref(false)
 
 const pageStore = usePageStore()
-
 const pageIcon = computed(() => pageStore.page?.icon)
-const pageImage = computed(() => pageStore.page?.image || '')
 
 const updateScrollState = () => {
   const el = scrollRef.value
@@ -131,7 +109,7 @@ onMounted(() => {
   position: absolute;
   width: clamp(4rem, 7vw, 6rem);
   height: clamp(4rem, 7vw, 6rem);
-  opacity: 0.4;
+  opacity: 0.35;
   pointer-events: none;
 }
 

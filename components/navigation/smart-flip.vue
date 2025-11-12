@@ -38,7 +38,7 @@
             </div>
           </div>
 
-          <div class="w-full overflow-x-auto">
+          <div v-if="bigMode" class="w-full overflow-x-auto">
             <smart-icons />
           </div>
         </div>
@@ -56,6 +56,7 @@
           >
             <div
               class="prism-face"
+              :class="{ 'prism-face-active': currentSmartState === 'front' }"
               :style="{
                 transform: `rotateY(0deg) translateZ(${translateZ}px)`,
               }"
@@ -65,6 +66,7 @@
 
             <div
               class="prism-face"
+              :class="{ 'prism-face-active': currentSmartState === 'dash' }"
               :style="{
                 transform: `rotateY(120deg) translateZ(${translateZ}px)`,
               }"
@@ -74,6 +76,7 @@
 
             <div
               class="prism-face"
+              :class="{ 'prism-face-active': currentSmartState === 'back' }"
               :style="{
                 transform: `rotateY(240deg) translateZ(${translateZ}px)`,
               }"
@@ -89,7 +92,15 @@
 
 <script setup lang="ts">
 // /components/navigation/smart-flip.vue
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import {
+  ref,
+  computed,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+  type CSSProperties,
+} from 'vue'
 import { Icon } from '#components'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -97,6 +108,8 @@ import type { SmartState } from '@/stores/helpers/displayHelper'
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
+
+const bigMode = computed(() => displayStore.bigMode)
 
 const targetSmartState = computed<SmartState>(() => displayStore.SmartState)
 
@@ -118,20 +131,27 @@ const isAnimating = ref(false)
 
 const stateOrder: SmartState[] = ['front', 'dash', 'back']
 
-const prismStyle = computed(() => ({
+const prismStyle = computed<CSSProperties>(() => ({
   transform: `rotateY(${currentAngle.value}deg)`,
   transformOrigin: 'center center',
   transition: isAnimating.value ? 'transform 0.8s ease-in-out' : 'none',
 }))
 
+const updateTranslateZ = () => {
+  if (!prismInner.value) return
+  const w = prismInner.value.offsetWidth
+  translateZ.value = w / (2 * Math.tan(Math.PI / 3))
+}
+
 onMounted(() => {
   nextTick(() => {
-    if (prismInner.value) {
-      const w = prismInner.value.offsetWidth
-      translateZ.value = w / (2 * Math.tan(Math.PI / 3))
-      console.log('translateZ for centered prism:', translateZ.value.toFixed(2))
-    }
+    updateTranslateZ()
+    window.addEventListener('resize', updateTranslateZ)
   })
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateTranslateZ)
 })
 
 const setSmart = (next: SmartState) => {
@@ -139,23 +159,28 @@ const setSmart = (next: SmartState) => {
   displayStore.setSmartState(next)
 }
 
-watch(targetSmartState, (newState) => {
-  if (!newState || newState === currentSmartState.value || isAnimating.value) {
-    return
-  }
+watch(
+  targetSmartState,
+  (newState) => {
+    if (!newState || newState === currentSmartState.value || isAnimating.value) {
+      return
+    }
 
-  const fromIndex = stateOrder.indexOf(currentSmartState.value)
-  const toIndex = stateOrder.indexOf(newState as SmartState)
-  if (fromIndex === -1 || toIndex === -1) return
+    const fromIndex = stateOrder.indexOf(currentSmartState.value)
+    const toIndex = stateOrder.indexOf(newState as SmartState)
+    if (fromIndex === -1 || toIndex === -1) return
 
-  const diff = (toIndex - fromIndex + stateOrder.length) % stateOrder.length
-  if (diff === 0) return
+    const diff = (toIndex - fromIndex + stateOrder.length) % stateOrder.length
+    if (diff === 0) return
 
-  const step: 1 | -1 = diff === 1 ? 1 : -1
-  currentAngle.value += -step * 120
-  currentSmartState.value = newState as SmartState
-  isAnimating.value = true
-})
+    const step: 1 | -1 = diff === 1 ? 1 : -1
+
+    isAnimating.value = true
+    currentAngle.value += -step * 120
+    currentSmartState.value = newState as SmartState
+  },
+  { immediate: true },
+)
 
 const onTransitionEnd = (e: TransitionEvent) => {
   if (e.propertyName !== 'transform') return
@@ -186,5 +211,10 @@ const onTransitionEnd = (e: TransitionEvent) => {
   -webkit-backface-visibility: hidden;
   overflow: hidden;
   display: flex;
+  pointer-events: none;
+}
+
+.prism-face-active {
+  pointer-events: auto;
 }
 </style>

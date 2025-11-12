@@ -34,7 +34,7 @@
       <div
         class="relative flex-1 min-h-0 px-2 md:px-3 lg:px-4 pb-2 md:pb-3 lg:pb-4"
       >
-        <div class="prism-card w-full h-full">
+        <div ref="prismCard" class="prism-card w-full h-full">
           <div
             ref="prismInner"
             class="prism-inner w-full h-full rounded-3xl border-2 border-black shadow-xl bg-base-100/95 overflow-hidden"
@@ -78,7 +78,6 @@
 </template>
 
 <script setup lang="ts">
-// /components/navigation/smart-flip.vue
 import {
   ref,
   computed,
@@ -109,7 +108,9 @@ const states: { id: SmartState; label: string; icon: string }[] = [
   { id: 'back', label: 'Ami', icon: 'kind-icon:butterfly' },
 ]
 
+const prismCard = ref<HTMLElement | null>(null)
 const prismInner = ref<HTMLElement | null>(null)
+
 const currentSmartState = ref<SmartState>('front')
 const currentAngle = ref(0)
 const translateZ = ref(0)
@@ -131,77 +132,46 @@ function polygonInradius(side: number, sides: number) {
 
 function measureFaceWidth() {
   if (!prismInner.value) return 0
-  const face = prismInner.value.querySelector<HTMLElement>('.prism-face')
-  if (!face) return 0
-  const rect = face.getBoundingClientRect()
+  const rect = prismInner.value.getBoundingClientRect()
   return Math.max(0, rect.width)
 }
 
 function updateTranslateZ() {
   const w = measureFaceWidth()
   const r = polygonInradius(w, 3)
-  if (!Number.isFinite(r) || r <= 0) {
-    console.warn('[smart-flip] bad radius', { width: w, radius: r })
-    translateZ.value = 0
-    return
-  }
-  translateZ.value = r
-  console.info('[smart-flip] translateZ updated', {
-    width: w,
-    radius: r,
-    perspective: getComputedStyle(document.documentElement).getPropertyValue(
-      '--unused',
-    ),
-  })
+  translateZ.value = Number.isFinite(r) && r > 0 ? r : 0
 }
 
-function ensureFirstLayout() {
+async function ensureFirstLayout() {
+  await nextTick()
   updateTranslateZ()
-  console.info('[smart-flip] initial angle/state', {
-    angle: currentAngle.value,
-    current: currentSmartState.value,
-    target: targetSmartState.value,
-  })
 }
 
 onMounted(async () => {
-  await nextTick()
-  ensureFirstLayout()
-
+  await ensureFirstLayout()
   if (prismInner.value) {
-    ro.value = new ResizeObserver(() => {
-      updateTranslateZ()
-    })
+    ro.value = new ResizeObserver(updateTranslateZ)
     ro.value.observe(prismInner.value)
   }
-
   window.addEventListener('resize', updateTranslateZ)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', updateTranslateZ)
-  if (ro.value && prismInner.value) {
-    ro.value.unobserve(prismInner.value)
-  }
+  if (ro.value && prismInner.value) ro.value.unobserve(prismInner.value)
   ro.value = null
 })
 
 function setSmart(next: SmartState) {
   if (next === targetSmartState.value) return
   displayStore.setSmartState(next)
-  console.info('[smart-flip] setSmart invoked', { next })
 }
 
 watch(
   targetSmartState,
   (newState) => {
-    if (
-      !newState ||
-      newState === currentSmartState.value ||
-      isAnimating.value
-    ) {
+    if (!newState || newState === currentSmartState.value || isAnimating.value)
       return
-    }
 
     const fromIndex = stateOrder.indexOf(currentSmartState.value)
     const toIndex = stateOrder.indexOf(newState as SmartState)
@@ -214,14 +184,6 @@ watch(
     isAnimating.value = true
     const delta = -step * 120
     currentAngle.value += delta
-    console.info('[smart-flip] rotating', {
-      from: currentSmartState.value,
-      to: newState,
-      step,
-      delta,
-      angle: currentAngle.value,
-      translateZ: translateZ.value,
-    })
     currentSmartState.value = newState as SmartState
   },
   { immediate: true },
@@ -230,10 +192,6 @@ watch(
 function onTransitionEnd(e: TransitionEvent) {
   if (e.propertyName !== 'transform') return
   isAnimating.value = false
-  console.info('[smart-flip] transition end', {
-    angle: currentAngle.value,
-    state: currentSmartState.value,
-  })
 }
 </script>
 
@@ -258,8 +216,8 @@ function onTransitionEnd(e: TransitionEvent) {
   height: 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  overflow: hidden;
   display: flex;
+  overflow: hidden;
   pointer-events: none;
 }
 

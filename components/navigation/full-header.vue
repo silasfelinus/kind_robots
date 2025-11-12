@@ -29,6 +29,7 @@
       class="flex-1 h-full flex items-center px-1 md:px-2 lg:px-3 xl:px-4"
     >
       <div class="w-full flex items-center justify-between lg:gap-3 xl:gap-4">
+        <!-- BIG MODE -->
         <template v-if="bigMode">
           <div class="flex items-center gap-2 min-w-0 w-full">
             <span
@@ -41,18 +42,19 @@
               </span>
             </span>
 
-            <div class="flex-1 min-w-0 h-full">
+            <div class="relative flex-1 min-w-0 h-full overflow-hidden">
               <smart-icons />
             </div>
           </div>
         </template>
 
+        <!-- NORMAL MODE -->
         <template v-else>
           <div
             class="min-w-0 w-full grid grid-cols-1 items-center gap-1 md:grid-cols-1 lg:flex lg:flex-row lg:items-center lg:gap-2"
           >
             <span
-              class="whitespace-nowrap font-extrabold tracking-tight text-[clamp(1.1rem,2.2vw,1.6rem)] lg:text-[clamp(1.8rem,3.4vw,2.8rem)] xl:text-[clamp(2.2rem,3.8vw,3.2rem)]"
+              class="whitespace-nowrap font-extrabold tracking-tight text-[clamp(1.3rem,2.4vw,1.8rem)] md:text-[clamp(1.7rem,2.8vw,2.3rem)] lg:text-[clamp(2.0rem,3.2vw,2.8rem)] xl:text-[clamp(2.4rem,3.8vw,3.4rem)]"
             >
               <span
                 class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
@@ -63,23 +65,26 @@
 
             <span
               v-if="showSubtitle"
-              class="truncate min-w-0 text-base-content/85 text-[clamp(0.9rem,1.6vw,1.1rem)] lg:text-[clamp(1.2rem,2.0vw,1.4rem)]"
+              class="truncate min-w-0 text-base-content/85 text-[clamp(1rem,1.6vw,1.2rem)] md:text-[clamp(1.2rem,2vw,1.4rem)] lg:text-[clamp(1.3rem,2.2vw,1.6rem)]"
             >
               {{ subtitle }}
             </span>
           </div>
 
+          <!-- Utility Icons -->
           <div
             class="flex items-center justify-end flex-nowrap shrink-0"
-            :class="
+            :class="[
               bigMode
                 ? 'basis-auto max-w-none'
-                : 'basis-[20%] max-w-[20%] h-full'
-            "
+                : 'basis-[20%] max-w-[20%] h-full xl:basis-[40%] xl:max-w-[40%]',
+            ]"
           >
-            <div class="flex w-full h-full items-center justify-end">
+            <div
+              class="flex w-full h-full items-center justify-end xl:justify-center"
+            >
               <div
-                class="grid grid-cols-2 grid-rows-2 place-items-stretch w-full h-full gap-1"
+                class="grid grid-cols-2 grid-rows-2 xl:grid-cols-1 xl:grid-rows-4 place-items-stretch w-full h-full gap-1 md:gap-2 lg:gap-3"
               >
                 <div class="w-full h-full flex items-center justify-center">
                   <login-icon class="w-[45%] h-[45%] text-primary" />

@@ -66,12 +66,13 @@
 
           <div
             v-else
-            class="flex items-center justify-end gap-1 md:gap-1.5 flex-nowrap"
+            class="grid grid-cols-2 grid-rows-2 gap-1 md:gap-1.5 aspect-square max-h-[3rem] sm:max-h-[3.25rem] md:max-h-[3.5rem] lg:max-h-[3.75rem] xl:max-h-[4rem]"
           >
             <icon-display
               v-for="icon in utilityIcons"
               :key="icon.id"
               :icon="icon"
+              class="w-full h-full"
             />
           </div>
         </div>
@@ -111,6 +112,8 @@ const avatarColumnClasses = computed(() =>
 )
 
 const utilityIcons = computed<SmartIcon[]>(() =>
-  smartbarStore.activeIcons.filter((icon) => icon.type === 'utility'),
+  smartbarStore.activeIcons
+    .filter((icon) => icon.type === 'utility')
+    .slice(0, 4),
 )
 </script>

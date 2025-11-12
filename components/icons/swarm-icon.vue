@@ -1,7 +1,7 @@
 <!-- /components/content/icons/swarm-icon.vue -->
 <template>
   <div
-    class="w-full h-full flex items-center justify-center cursor-pointer"
+    class="w-full h-full flex items-center justify-center cursor-pointer transition-transform hover:scale-110"
     @click="toggleAmiSwarm"
     title="Kind Butterflies"
   >

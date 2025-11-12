@@ -1,4 +1,4 @@
-<!-- /components/navigation/smart-flip.vue -->
+// /components/navigation/smart-flip.vue
 <template>
   <section class="relative w-full max-w-4xl h-[90%] mx-auto overflow-visible">
     <div class="flex flex-col w-full h-full">
@@ -34,42 +34,43 @@
       <div
         class="relative flex-1 min-h-0 px-2 md:px-3 lg:px-4 pb-2 md:pb-3 lg:pb-4"
       >
-        <div ref="prismCard" class="prism-card w-full h-full">
-          <div
-            ref="prismInner"
-            class="prism-inner w-full h-full rounded-3xl border-2 border-black shadow-xl bg-base-100/95 overflow-hidden"
-            :style="prismStyle"
-            @transitionend="onTransitionEnd"
-          >
-            <div
-              class="prism-face"
-              :class="{ 'prism-face-active': currentSmartState === 'front' }"
-              :style="{
-                transform: `rotateY(0deg) translateZ(${translateZ}px)`,
-              }"
-            >
-              <smart-front />
-            </div>
+        <div
+          class="splitflap-stage rounded-3xl border-2 border-black shadow-xl bg-base-100/95"
+        >
+          <div class="splitflap-scene" :class="{ 'pe-none': isFlipping }">
+            <div class="splitflap-stack">
+              <div class="half half-top">
+                <div class="pane pane-next-top">
+                  <component :is="nextCompKey" />
+                </div>
+                <div
+                  class="pane pane-flap-top"
+                  :class="{ 'is-flipping': isFlipping }"
+                  :style="flapStyle"
+                >
+                  <component :is="currCompKey" />
+                </div>
+              </div>
 
-            <div
-              class="prism-face"
-              :class="{ 'prism-face-active': currentSmartState === 'dash' }"
-              :style="{
-                transform: `rotateY(120deg) translateZ(${translateZ}px)`,
-              }"
-            >
-              <smart-dash />
-            </div>
+              <div class="half half-bottom">
+                <div
+                  class="pane pane-next-bottom"
+                  :class="{ 'is-flipping': isFlipping }"
+                >
+                  <div class="pane-bottom-rot">
+                    <component :is="nextCompKey" />
+                  </div>
+                </div>
 
-            <div
-              class="prism-face"
-              :class="{ 'prism-face-active': currentSmartState === 'back' }"
-              :style="{
-                transform: `rotateY(240deg) translateZ(${translateZ}px)`,
-              }"
-            >
-              <smart-back />
+                <div class="pane pane-current-bottom" v-if="!isFlipping">
+                  <component :is="currCompKey" />
+                </div>
+              </div>
             </div>
+          </div>
+
+          <div v-if="!isFlipping" class="sr-only" aria-live="polite">
+            {{ ariaLabel }}
           </div>
         </div>
       </div>
@@ -78,19 +79,16 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ref,
-  computed,
-  watch,
-  onMounted,
-  onBeforeUnmount,
-  nextTick,
-  type CSSProperties,
-} from 'vue'
+// /components/navigation/smart-flip.vue
+import { ref, computed, watch, onMounted } from 'vue'
 import { Icon } from '#components'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 import type { SmartState } from '@/stores/helpers/displayHelper'
+import SmartFront from '@/components/navigation/smart-front.vue'
+import SmartBack from '@/components/navigation/smart-back.vue'
+import SmartDash from '@/components/navigation/smart-dash.vue'
+import SmartIcons from '@/components/navigation/smart-icons.vue'
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
@@ -108,120 +106,141 @@ const states: { id: SmartState; label: string; icon: string }[] = [
   { id: 'back', label: 'Ami', icon: 'kind-icon:butterfly' },
 ]
 
-const prismCard = ref<HTMLElement | null>(null)
-const prismInner = ref<HTMLElement | null>(null)
-
-const currentSmartState = ref<SmartState>('front')
-const currentAngle = ref(0)
-const translateZ = ref(0)
-const isAnimating = ref(false)
-const ro = ref<ResizeObserver | null>(null)
-
-const stateOrder: SmartState[] = ['front', 'dash', 'back']
-
-const prismStyle = computed<CSSProperties>(() => ({
-  transform: `rotateY(${currentAngle.value}deg)`,
-  transformOrigin: 'center center',
-  transition: isAnimating.value ? 'transform 0.8s ease-in-out' : 'none',
-  willChange: 'transform',
-}))
-
-function polygonInradius(side: number, sides: number) {
-  return side / (2 * Math.tan(Math.PI / sides))
+const panelMap: Record<SmartState, any> = {
+  front: SmartFront,
+  dash: SmartDash,
+  back: SmartBack,
 }
 
-function measureFaceWidth() {
-  if (!prismInner.value) return 0
-  const rect = prismInner.value.getBoundingClientRect()
-  return Math.max(0, rect.width)
-}
+const current = ref<SmartState>(targetSmartState.value || 'front')
+const next = ref<SmartState>(targetSmartState.value || 'front')
+const isFlipping = ref(false)
+const DURATION = 700
 
-function updateTranslateZ() {
-  const w = measureFaceWidth()
-  const r = polygonInradius(w, 3)
-  translateZ.value = Number.isFinite(r) && r > 0 ? r : 0
-}
+const currCompKey = computed(() => panelMap[current.value])
+const nextCompKey = computed(() => panelMap[next.value])
 
-async function ensureFirstLayout() {
-  await nextTick()
-  updateTranslateZ()
-}
+const ariaLabel = computed(() => `Showing ${current.value} for ${title.value}`)
 
-onMounted(async () => {
-  await ensureFirstLayout()
-  if (prismInner.value) {
-    ro.value = new ResizeObserver(updateTranslateZ)
-    ro.value.observe(prismInner.value)
-  }
-  window.addEventListener('resize', updateTranslateZ)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateTranslateZ)
-  if (ro.value && prismInner.value) ro.value.unobserve(prismInner.value)
-  ro.value = null
-})
-
-function setSmart(next: SmartState) {
-  if (next === targetSmartState.value) return
-  displayStore.setSmartState(next)
+function setSmart(nextState: SmartState) {
+  if (nextState === targetSmartState.value) return
+  displayStore.setSmartState(nextState)
 }
 
 watch(
   targetSmartState,
   (newState) => {
-    if (!newState || newState === currentSmartState.value || isAnimating.value)
-      return
-
-    const fromIndex = stateOrder.indexOf(currentSmartState.value)
-    const toIndex = stateOrder.indexOf(newState as SmartState)
-    if (fromIndex === -1 || toIndex === -1) return
-
-    const diff = (toIndex - fromIndex + stateOrder.length) % stateOrder.length
-    if (diff === 0) return
-
-    const step: 1 | -1 = diff === 1 ? 1 : -1
-    isAnimating.value = true
-    const delta = -step * 120
-    currentAngle.value += delta
-    currentSmartState.value = newState as SmartState
+    if (!newState) return
+    if (isFlipping.value) return
+    if (newState === current.value) return
+    next.value = newState
+    triggerFlip()
   },
   { immediate: true },
 )
 
-function onTransitionEnd(e: TransitionEvent) {
-  if (e.propertyName !== 'transform') return
-  isAnimating.value = false
+function triggerFlip() {
+  isFlipping.value = true
+  window.setTimeout(() => {
+    current.value = next.value
+    isFlipping.value = false
+  }, DURATION)
 }
+
+const flapStyle = computed(() => ({
+  transitionDuration: `${DURATION}ms`,
+}))
 </script>
 
 <style scoped>
-.prism-card {
-  perspective: 1200px;
-  width: 100%;
-  height: 100%;
-}
-
-.prism-inner {
+.splitflap-stage {
   position: relative;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  border-radius: 1.5rem;
+}
+
+.splitflap-scene {
+  position: absolute;
+  inset: 0;
+  perspective: 1400px;
+}
+
+.splitflap-stack {
+  position: absolute;
+  inset: 0;
+}
+
+.half {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+.half-top {
+  top: 0;
+  height: 50%;
+}
+
+.half-bottom {
+  bottom: 0;
+  height: 50%;
+}
+
+.pane {
+  position: absolute;
+  inset: 0;
+}
+
+.pane > * {
+  position: absolute;
+  inset: 0;
+}
+
+.pane-next-top {
+  clip-path: inset(0 0 50% 0);
+}
+
+.pane-flap-top {
+  clip-path: inset(0 0 50% 0);
+  transform-origin: center bottom;
+  transform: rotateX(0deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform var(--flap-dur, 700ms) cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.pane-flap-top.is-flipping {
+  transform: rotateX(-180deg);
+}
+
+.pane-current-bottom {
+  clip-path: inset(50% 0 0 0);
+}
+
+.pane-next-bottom {
+  clip-path: inset(50% 0 0 0);
   transform-style: preserve-3d;
 }
 
-.prism-face {
+.pane-bottom-rot {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
+  clip-path: inset(50% 0 0 0);
+  transform-origin: center top;
+  transform: rotateX(180deg);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  display: flex;
-  overflow: hidden;
-  pointer-events: none;
+  transition: transform var(--flap-dur, 700ms) cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
-.prism-face-active {
-  pointer-events: auto;
+.pane-next-bottom.is-flipping .pane-bottom-rot {
+  transform: rotateX(0deg);
+}
+
+.pe-none {
+  pointer-events: none;
 }
 </style>

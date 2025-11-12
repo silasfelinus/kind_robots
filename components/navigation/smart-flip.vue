@@ -35,9 +35,9 @@
         class="relative flex-1 min-h-0 px-2 md:px-3 lg:px-4 pb-2 md:pb-3 lg:pb-4"
       >
         <div
-          class="split2x2-stage rounded-3xl border-2 border-black shadow-xl bg-base-100/95"
+          class="q4-stage rounded-3xl border-2 border-black shadow-xl bg-base-100/95"
         >
-          <div class="split2x2-scene" :class="{ 'pe-none': isFlipping }">
+          <div class="q4-scene" :class="{ 'pe-none': isFlipping }">
             <div class="absolute inset-0" v-if="!isFlipping">
               <component :is="currCompKey" />
             </div>
@@ -47,31 +47,47 @@
                 <component :is="currCompKey" />
               </div>
 
-              <div class="quarter next-tr">
+              <div class="quad next-tr" v-if="revealTR">
                 <component :is="nextCompKey" />
               </div>
-
               <div
-                class="quarter flap-tr"
+                class="quad flap-tr"
                 :class="{ active: flippingTR }"
                 :style="durStyle"
               >
                 <component :is="currCompKey" />
               </div>
 
-              <div class="quarter next-tl" v-if="flippingTL || tlRevealed">
+              <div class="quad next-tl" v-if="revealTL">
                 <component :is="nextCompKey" />
               </div>
-
               <div
-                class="quarter flap-tl"
+                class="quad flap-tl"
                 :class="{ active: flippingTL }"
                 :style="durStyle"
               >
                 <component :is="currCompKey" />
               </div>
 
-              <div class="half-bottom stick-current" v-if="!cleanupReady">
+              <div class="quad next-br" v-if="revealBR">
+                <component :is="nextCompKey" />
+              </div>
+              <div
+                class="quad flap-br"
+                :class="{ active: flippingBR }"
+                :style="durStyle"
+              >
+                <component :is="currCompKey" />
+              </div>
+
+              <div class="quad next-bl" v-if="revealBL">
+                <component :is="nextCompKey" />
+              </div>
+              <div
+                class="quad flap-bl"
+                :class="{ active: flippingBL }"
+                :style="durStyle"
+              >
                 <component :is="currCompKey" />
               </div>
 
@@ -130,9 +146,15 @@ const next = ref<SmartState>(targetSmartState.value || 'front')
 const isFlipping = ref(false)
 const flippingTR = ref(false)
 const flippingTL = ref(false)
-const tlRevealed = ref(false)
+const flippingBR = ref(false)
+const flippingBL = ref(false)
+const revealTR = ref(false)
+const revealTL = ref(false)
+const revealBR = ref(false)
+const revealBL = ref(false)
 const cleanupReady = ref(false)
-const DURATION = 450
+
+const DURATION = 350
 const GAP = 60
 
 const currCompKey = computed(() => panelMap[current.value])
@@ -147,38 +169,67 @@ function setSmart(nextState: SmartState) {
 
 watch(
   targetSmartState,
-  (newState) => {
+  async (newState) => {
     if (!newState) return
     if (isFlipping.value) return
     if (newState === current.value) return
     next.value = newState
-    runSequence()
+    await runSequence()
   },
   { immediate: true },
 )
 
-function runSequence() {
+function wait(ms: number) {
+  return new Promise((r) => window.setTimeout(r, ms))
+}
+
+async function runSequence() {
   isFlipping.value = true
   cleanupReady.value = false
-  tlRevealed.value = false
+  revealTR.value = false
+  revealTL.value = false
+  revealBR.value = false
+  revealBL.value = false
+  flippingTR.value = false
+  flippingTL.value = false
+  flippingBR.value = false
+  flippingBL.value = false
+
+  revealTR.value = true
   flippingTR.value = true
-  window.setTimeout(() => {
-    flippingTR.value = false
-    tlRevealed.value = true
-    window.setTimeout(() => {
-      flippingTL.value = true
-      window.setTimeout(() => {
-        flippingTL.value = false
-        cleanupReady.value = true
-        window.setTimeout(() => {
-          current.value = next.value
-          isFlipping.value = false
-          cleanupReady.value = false
-          tlRevealed.value = false
-        }, 16)
-      }, DURATION)
-    }, GAP)
-  }, DURATION)
+  await wait(DURATION)
+  flippingTR.value = false
+
+  await wait(GAP)
+
+  revealTL.value = true
+  flippingTL.value = true
+  await wait(DURATION)
+  flippingTL.value = false
+
+  await wait(GAP)
+
+  revealBR.value = true
+  flippingBR.value = true
+  await wait(DURATION)
+  flippingBR.value = false
+
+  await wait(GAP)
+
+  revealBL.value = true
+  flippingBL.value = true
+  await wait(DURATION)
+  flippingBL.value = false
+
+  cleanupReady.value = true
+  await wait(16)
+  current.value = next.value
+  isFlipping.value = false
+  cleanupReady.value = false
+  revealTR.value = false
+  revealTL.value = false
+  revealBR.value = false
+  revealBL.value = false
 }
 
 const durStyle = computed(() => ({
@@ -187,7 +238,7 @@ const durStyle = computed(() => ({
 </script>
 
 <style scoped>
-.split2x2-stage {
+.q4-stage {
   position: relative;
   width: 100%;
   height: 100%;
@@ -195,7 +246,7 @@ const durStyle = computed(() => ({
   border-radius: 1.5rem;
 }
 
-.split2x2-scene {
+.q4-scene {
   position: absolute;
   inset: 0;
 }
@@ -204,14 +255,12 @@ const durStyle = computed(() => ({
   pointer-events: none;
 }
 
-.quarter,
-.half-bottom {
+.quad {
   position: absolute;
   inset: 0;
 }
 
-.quarter > *,
-.half-bottom > * {
+.quad > * {
   position: absolute;
   inset: 0;
 }
@@ -227,7 +276,7 @@ const durStyle = computed(() => ({
   transform: rotateX(0deg);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transition: transform var(--dur, 450ms) cubic-bezier(0.2, 0.7, 0.3, 1);
+  transition: transform var(--dur, 350ms) cubic-bezier(0.2, 0.7, 0.3, 1);
   z-index: 3;
 }
 
@@ -246,7 +295,7 @@ const durStyle = computed(() => ({
   transform: rotateX(0deg);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transition: transform var(--dur, 450ms) cubic-bezier(0.2, 0.7, 0.3, 1);
+  transition: transform var(--dur, 350ms) cubic-bezier(0.2, 0.7, 0.3, 1);
   z-index: 3;
 }
 
@@ -254,8 +303,41 @@ const durStyle = computed(() => ({
   transform: rotateX(-180deg);
 }
 
-.half-bottom.stick-current {
-  clip-path: inset(50% 0 0 0);
-  z-index: 1;
+.next-br {
+  clip-path: inset(50% 0 0 50%);
+  z-index: 2;
+}
+
+.flap-br {
+  clip-path: inset(50% 0 0 50%);
+  transform-origin: center top;
+  transform: rotateX(0deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform var(--dur, 350ms) cubic-bezier(0.2, 0.7, 0.3, 1);
+  z-index: 3;
+}
+
+.flap-br.active {
+  transform: rotateX(180deg);
+}
+
+.next-bl {
+  clip-path: inset(50% 50% 0 0);
+  z-index: 2;
+}
+
+.flap-bl {
+  clip-path: inset(50% 50% 0 0);
+  transform-origin: center top;
+  transform: rotateX(0deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform var(--dur, 350ms) cubic-bezier(0.2, 0.7, 0.3, 1);
+  z-index: 3;
+}
+
+.flap-bl.active {
+  transform: rotateX(180deg);
 }
 </style>

@@ -1,115 +1,52 @@
-<!-- /components/content/navigation/full-header.vue -->
+<!-- /components/content/icons/kind-icons.vue -->
 <template>
-  <header
-    class="w-full h-full flex items-stretch gap-0 overflow-hidden [isolation:isolate]"
-  >
+  <div class="flex w-full items-center justify-end flex-nowrap gap-1 lg:gap-2">
+    <!-- All Icons Treated Equally -->
     <div
-      class="relative flex-none h-full shrink-0 z-0 pointer-events-auto flex"
-      :class="avatarColumnClasses"
+      v-for="link in navLinks"
+      :key="link.path"
+      class="group flex-1 min-w-0 flex flex-col items-center justify-center transition-all"
     >
-      <avatar-image
-        alt="User Avatar"
-        class="block w-full h-full object-cover object-center m-0 p-0"
-      />
-
-      <div
-        v-if="showViewportBadge"
-        class="absolute left-[4%] right-[4%] top-2 z-40 flex justify-start pointer-events-none"
+      <NuxtLink
+        :to="link.path"
+        class="flex flex-col items-center justify-center w-full"
       >
-        <span
-          class="inline-flex max-w-full truncate text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.65rem,0.8vw,0.9rem)] leading-none shadow"
-        >
-          {{ viewportSize }}
-        </span>
-      </div>
-    </div>
-
-    <div
-      v-if="hasHeaderContent"
-      class="flex-1 h-full flex items-center px-2 sm:px-4 lg:px-6"
-    >
-      <div class="w-full flex flex-col gap-2 md:gap-2.5 lg:gap-3">
-        <div class="flex flex-col gap-0.5 md:gap-1">
-          <span
-            class="text-[clamp(0.75rem,1vw,1rem)] font-semibold tracking-[0.24em] uppercase text-base-content/70"
-          >
-            <span
-              class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
-            >
-              Kind Robots
-            </span>
-          </span>
-
-          <p
-            class="text-[clamp(0.9rem,1.4vw,1.15rem)] text-base-content/85 leading-snug"
-          >
-            {{ roomSubtitle }}
-          </p>
-        </div>
-
+        <Icon
+          :name="link.icon"
+          class="text-sm md:text-md lg:text-4xl xl:text-5xl transition-transform hover:scale-110 duration-300 ease-in-out"
+        />
         <div
-          class="flex items-center justify-between gap-2 md:gap-3 lg:gap-4"
+          v-if="!compact"
+          class="mt-1 text-center text-xs lg:text-sm hidden md:block w-full"
         >
-          <span
-            class="text-[clamp(1.05rem,1.9vw,1.5rem)] font-bold tracking-tight text-base-content"
-          >
-            Kind {{ pageTitle }}
-          </span>
-
-          <div class="flex items-center justify-end gap-1.5 md:gap-2 min-w-0">
-            <div v-if="bigMode" class="w-full max-w-full">
-              <smart-icons />
-            </div>
-
-            <div
-              v-else
-              class="flex items-center justify-end gap-1.5 md:gap-2 w-full max-w-full"
-            >
-              <div
-                v-for="icon in utilityIcons"
-                :key="icon.name"
-                class="flex-1 min-w-0 flex justify-center"
-              >
-                <component :is="icon.component" :compact="compact" />
-              </div>
-            </div>
-          </div>
+          {{ link.title }}
         </div>
-      </div>
+      </NuxtLink>
     </div>
-  </header>
+
+    <!-- Utility Icons as Flex Items Too -->
+    <div
+      v-for="icon in utilityIcons"
+      :key="icon.name"
+      class="flex-1 min-w-0 flex justify-center"
+    >
+      <component :is="icon.component" :compact="compact" />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-// /components/content/navigation/full-header.vue
-import { computed } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
-import { usePageStore } from '@/stores/pageStore'
-import { useUserStore } from '@/stores/userStore'
-import { useIconStore } from '@/stores/iconStore'
+import { storeToRefs } from 'pinia'
+import { useLinkStore } from '@/stores/linkStore'
 
-const displayStore = useDisplayStore()
-const pageStore = usePageStore()
-const userStore = useUserStore()
-const iconStore = useIconStore()
+defineProps<{ compact?: boolean }>()
 
-const page = computed(() => pageStore.page)
-const viewportSize = computed(() => displayStore.viewportSize)
-const bigMode = computed(() => displayStore.bigMode)
+const { navLinks } = storeToRefs(useLinkStore())
 
-const pageTitle = computed(() => page.value?.title || 'Robots')
-const roomSubtitle = computed(() => `The ${pageTitle.value} room`)
-
-const hasHeaderContent = computed(() => Boolean(pageTitle.value))
-
-const showViewportBadge = computed(() => {
-  return userStore.user?.Role === 'ADMIN' && bigMode.value
-})
-
-const avatarColumnClasses = computed(() =>
-  bigMode.value ? 'basis-[11%] max-w-[22%]' : 'basis-[13%] max-w-[25%]',
-)
-
-const utilityIcons = computed(() => iconStore.utilityIcons || [])
-const compact = computed(() => !bigMode.value)
+const utilityIcons = [
+  { name: 'login-icon', component: 'login-icon' },
+  { name: 'jellybean-icon', component: 'jellybean-icon' },
+  { name: 'theme-icon', component: 'theme-icon' },
+  { name: 'swarm-icon', component: 'swarm-icon' },
+]
 </script>

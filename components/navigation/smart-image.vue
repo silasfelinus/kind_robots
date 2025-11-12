@@ -1,23 +1,61 @@
 <!-- /components/navigation/smart-image.vue -->
 <template>
   <div
-    class="relative w-full rounded-2xl border border-base-300 bg-base-200/70 overflow-hidden flex items-center justify-center aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] cursor-pointer"
-    :class="{ 'smart-image-spin': isSpinning }"
-    @click="handleClick"
+    ref="wrapRef"
+    class="relative w-full rounded-2xl border border-base-300 bg-base-200/70 overflow-hidden flex items-center justify-center aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] cursor-pointer [perspective:1200px]"
+    @click="spinOnce"
   >
-    <img
-      v-if="currentSrc"
-      :src="currentSrc"
-      alt="Room illustration"
-      class="w-full h-full object-cover"
-      loading="lazy"
-    />
+    <div
+      ref="innerRef"
+      class="relative w-full h-full [transform-style:preserve-3d]"
+      :style="innerStyle"
+      @transitionend="onTransitionEnd"
+    >
+      <div
+        class="absolute inset-0 w-full h-full [backface-visibility:hidden]"
+        :style="faceStyle(0)"
+      >
+        <img
+          v-if="frontSrc"
+          :src="frontSrc"
+          alt="Front"
+          class="w-full h-full object-cover"
+          loading="lazy"
+        />
+      </div>
+
+      <div
+        class="absolute inset-0 w-full h-full [backface-visibility:hidden]"
+        :style="faceStyle(1)"
+      >
+        <img
+          v-if="backSrc"
+          :src="backSrc"
+          alt="Back"
+          class="w-full h-full object-cover"
+          loading="lazy"
+        />
+      </div>
+
+      <div
+        class="absolute inset-0 w-full h-full [backface-visibility:hidden]"
+        :style="faceStyle(2)"
+      >
+        <img
+          v-if="dashSrc"
+          :src="dashSrc"
+          alt="Dash"
+          class="w-full h-full object-cover"
+          loading="lazy"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// /components/content/icons/smart-image.vue
-import { computed, ref, watch } from 'vue'
+// /components/navigation/smart-image.vue
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 import { useGalleryStore } from '@/stores/galleryStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -28,53 +66,39 @@ const displayStore = useDisplayStore()
 
 const fallbackImage = '/images/botcafe.webp'
 
+const wrapRef = ref<HTMLElement | null>(null)
+const innerRef = ref<HTMLElement | null>(null)
+
 const frontSrc = ref<string | null>(null)
 const backSrc = ref<string | null>(null)
-const isSpinning = ref(false)
+const dashSrc = ref<string | null>(null)
 
-const smartState = computed(() => displayStore.SmartState)
+const spinning = ref(false)
+const angleDeg = ref(0)
+const targetIndex = ref(0)
+const currentIndex = ref(0)
+const depthPx = ref(120)
 
-const currentSrc = computed(() => {
-  const front = frontSrc.value
-  const back = backSrc.value
-
-  // Map vs Ami (new semantics)
-  if (smartState.value === 'ami') {
-    return back || front || fallbackImage
-  }
-  if (smartState.value === 'map') {
-    return front || back || fallbackImage
-  }
-
-  // Backwards compatibility for older values
-  if (smartState.value === 'teleport') {
-    return back || front || fallbackImage
-  }
-  if (smartState.value === 'tutorial') {
-    return front || back || fallbackImage
-  }
-
-  // Fallback if SmartState is something unexpected
-  return front || back || fallbackImage
-})
+const smartState = computed(() => displayStore.SmartState as string)
 
 const pageKey = computed(() => {
-  const page = pageStore.page as any
-  return (
-    page?.slug ||
-    page?.id?.toString?.() ||
-    page?.title ||
-    page?.room ||
-    'default-page'
-  )
+  const p = pageStore.page as any
+  return p?.slug || p?.id?.toString?.() || p?.title || p?.room || 'default-page'
 })
 
-const resolveImage = (img: string | null | undefined): string => {
-  if (!img) return fallbackImage
+const stateToIndex = (state: string): number => {
+  if (state === 'map') return 0
+  if (state === 'ami') return 1
+  if (state === 'dash') return 2
+  return 0
+}
+
+const resolveImage = (img?: string | null): string | null => {
+  if (!img) return null
   return img.startsWith('/') ? img : `/images/${img}`
 }
 
-const resolveBackendImage = (img: string | null): string | null => {
+const resolveBackendImage = (img?: string | null): string | null => {
   if (!img) return null
   return img.startsWith('/') ? img : `/images/${img}`
 }
@@ -88,130 +112,147 @@ const getGalleryNameForPage = (): string | null => {
   return null
 }
 
-const initImagesForPage = async () => {
+const setDepthFromWidth = () => {
+  const el = wrapRef.value
+  if (!el) return
+  const w = el.getBoundingClientRect().width
+  const d = w / (2 * Math.tan(Math.PI / 3))
+  depthPx.value = Math.max(40, Math.floor(d))
+}
+
+const loadImages = async () => {
   const page = pageStore.page as any
-  const pageImgRaw = page?.image as string | null | undefined
-  const pageImg = pageImgRaw ? resolveImage(pageImgRaw) : null
-
-  const randomFrontRaw = galleryStore.randomImage || null
-
-  if (randomFrontRaw) {
-    console.log(
-      '[smart-image] Using galleryStore.randomImage for front image:',
-      randomFrontRaw,
-    )
-  } else {
-    console.log(
-      '[smart-image] No galleryStore.randomImage set, falling back to page image or default',
-    )
-  }
-
-  // Keep original behavior: use raw randomImage as-is, no extra prefixing
-  const fallbackFront = pageImg || randomFrontRaw || fallbackImage
-
-  frontSrc.value = fallbackFront
-  backSrc.value = null
-  isSpinning.value = false
-
+  const pageImg = resolveImage(page?.image) || null
   const galleryName = getGalleryNameForPage()
-  console.log('[smart-image] Resolved galleryName for page:', galleryName)
 
-  if (!galleryName) {
-    backSrc.value = frontSrc.value
-    return
-  }
+  const seedFront = pageImg || galleryStore.randomImage || null || fallbackImage
+  frontSrc.value = seedFront
 
-  try {
-    console.log(
-      '[smart-image] Requesting random image from gallery:',
-      galleryName,
-    )
+  let g1: string | null = null
+  let g2: string | null = null
 
-    const randomFromGallery: any =
-      await galleryStore.getRandomImageFromGalleryName(galleryName)
-
-    console.log(
-      '[smart-image] Received random image from gallery',
-      galleryName,
-      ':',
-      randomFromGallery,
-    )
-
-    let resolvedPath: string | null = null
-
-    if (typeof randomFromGallery === 'string') {
-      resolvedPath = resolveBackendImage(randomFromGallery)
-    } else if (randomFromGallery && typeof randomFromGallery === 'object') {
-      const candidate =
-        randomFromGallery.imagePath ||
-        randomFromGallery.MediaPath ||
-        randomFromGallery.mediaPath ||
-        randomFromGallery.path ||
-        randomFromGallery.url ||
-        null
-
-      if (candidate && typeof candidate === 'string') {
-        resolvedPath = resolveBackendImage(candidate)
-      }
+  if (galleryName) {
+    try {
+      const r1: any =
+        await galleryStore.getRandomImageFromGalleryName(galleryName)
+      const c1 =
+        typeof r1 === 'string'
+          ? r1
+          : r1?.imagePath ||
+            r1?.MediaPath ||
+            r1?.mediaPath ||
+            r1?.path ||
+            r1?.url ||
+            null
+      g1 = resolveBackendImage(c1)
+      if (!g1) g1 = seedFront
+    } catch {
+      g1 = seedFront
     }
 
-    backSrc.value = resolvedPath || frontSrc.value
-
-    if (resolvedPath) {
-      console.log('[smart-image] Using backSrc from gallery:', resolvedPath)
-    } else {
-      console.log(
-        '[smart-image] Falling back to frontSrc for backSrc (resolvedPath was null)',
-      )
+    try {
+      const r2: any =
+        await galleryStore.getRandomImageFromGalleryName(galleryName)
+      const c2 =
+        typeof r2 === 'string'
+          ? r2
+          : r2?.imagePath ||
+            r2?.MediaPath ||
+            r2?.mediaPath ||
+            r2?.path ||
+            r2?.url ||
+            null
+      g2 = resolveBackendImage(c2)
+      if (!g2) g2 = seedFront
+    } catch {
+      g2 = seedFront
     }
-  } catch (error) {
-    console.error(
-      '[smart-image] Error while fetching random image from gallery:',
-      error,
-    )
-    backSrc.value = frontSrc.value
+  } else {
+    g1 = seedFront
+    g2 = seedFront
   }
+
+  backSrc.value = g1 || seedFront
+  dashSrc.value = g2 || seedFront
+
+  console.log('[smart-image] front:', frontSrc.value)
+  console.log('[smart-image] back:', backSrc.value)
+  console.log('[smart-image] dash:', dashSrc.value)
+}
+
+const normalizeAngle = (deg: number) => {
+  let a = deg % 360
+  if (a < 0) a += 360
+  return a
+}
+
+const indexToAngle = (idx: number) => normalizeAngle(-idx * 120)
+
+const rotateToIndex = (nextIdx: number) => {
+  const current = normalizeAngle(angleDeg.value)
+  const desired = indexToAngle(nextIdx)
+
+  let delta = desired - current
+  if (delta > 180) delta -= 360
+  if (delta < -180) delta += 360
+
+  angleDeg.value = normalizeAngle(current + delta)
+  currentIndex.value = nextIdx
+}
+
+const innerStyle = computed(() => {
+  return {
+    transform: `rotateY(${angleDeg.value}deg)`,
+    transition: spinning.value
+      ? 'transform 600ms ease-in-out'
+      : 'transform 420ms ease-in-out',
+    '--depth': `${depthPx.value}px`,
+  } as Record<string, string>
+})
+
+const faceStyle = (face: number) => {
+  const base = face * 120
+  return {
+    transform: `rotateY(${base}deg) translateZ(var(--depth))`,
+  }
+}
+
+const spinOnce = () => {
+  if (spinning.value) return
+  spinning.value = true
+  angleDeg.value = normalizeAngle(angleDeg.value + 360)
+}
+
+const onTransitionEnd = () => {
+  spinning.value = false
 }
 
 watch(
   pageKey,
-  () => {
-    void initImagesForPage()
+  async () => {
+    await loadImages()
   },
   { immediate: true },
 )
 
-const SPIN_DURATION = 600
+watch(
+  smartState,
+  async (s) => {
+    targetIndex.value = stateToIndex(s || 'map')
+    await nextTick()
+    rotateToIndex(targetIndex.value)
+  },
+  { immediate: true },
+)
 
-const handleClick = () => {
-  if (isSpinning.value) return
+onMounted(() => {
+  setDepthFromWidth()
+  window.addEventListener('resize', setDepthFromWidth, { passive: true })
+  currentIndex.value = stateToIndex(smartState.value || 'map')
+  angleDeg.value = indexToAngle(currentIndex.value)
+})
 
-  isSpinning.value = true
-
-  window.setTimeout(() => {
-    isSpinning.value = false
-  }, SPIN_DURATION)
-}
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', setDepthFromWidth)
+})
 </script>
-
-<style scoped>
-.smart-image-spin {
-  animation: smart-image-spin 0.6s ease-in-out;
-  transform-origin: center;
-}
-
-@keyframes smart-image-spin {
-  0% {
-    transform: rotateY(0deg);
-  }
-  33% {
-    transform: rotateY(180deg);
-  }
-  66% {
-    transform: rotateY(180deg);
-  }
-  100% {
-    transform: rotateY(360deg);
-  }
-}
-</style>

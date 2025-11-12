@@ -2,7 +2,7 @@
 <template>
   <section class="relative w-full max-w-3xl mx-auto">
     <div
-      class="relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
+      class="scene relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
       :aria-label="ariaLabel"
       aria-live="polite"
       @click="handleFlip"
@@ -23,18 +23,15 @@
       >
         <div class="face face-front"></div>
         <div class="face face-back"></div>
+        <div class="shine"></div>
       </div>
 
-      <div
-        class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/20"
-      ></div>
+      <div class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/20"></div>
     </div>
 
     <div class="mt-2 flex items-center justify-between text-xs opacity-80">
       <span class="truncate">Click anywhere to flip</span>
-      <span>{{
-        isFlipped ? 'Showing bottom reveal' : 'Showing top flap'
-      }}</span>
+      <span>{{ isFlipped ? 'Showing bottom reveal' : 'Showing top flap' }}</span>
     </div>
   </section>
 </template>
@@ -70,49 +67,72 @@ function handleFlip() {
 </script>
 
 <style scoped>
+.scene {
+  perspective: 1200px;
+  perspective-origin: 50% 0%;
+}
+
 .flap-wrapper {
   position: absolute;
   inset: 0;
-  clip-path: inset(0 0 50% 0);
   transform-style: preserve-3d;
-  perspective: 1200px;
-  transform-origin: 50% 100%;
-  transition: transform 480ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  transform-origin: 50% 0%;
+  transition: transform 520ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  will-change: transform;
 }
-.flap-wrapper::after {
+
+.flap-wrapper::before {
   content: '';
   position: absolute;
   inset: 0;
   clip-path: inset(0 0 50% 0);
-  pointer-events: none;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
-  mix-blend-mode: multiply;
-  transition: opacity 480ms ease;
-}
-.flap-wrapper.is-flipped {
-  transform: rotateX(-180deg);
-}
-.flap-wrapper.is-flipped::after {
-  opacity: 0.2;
+  background: var(--flip-image-front) center top / cover no-repeat;
+  opacity: 0;
 }
 
 .face {
   position: absolute;
   inset: 0;
   clip-path: inset(0 0 50% 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  pointer-events: none;
+}
+
+.face-front {
+  background-image: var(--flip-image-front);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center top;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  transform: rotateX(0deg);
 }
-.face-front {
-  transform: rotateX(0deg) translateZ(0.01px);
-  background-image: var(--flip-image-front);
-}
+
 .face-back {
-  transform: rotateX(180deg);
   background-image: var(--flip-image-back);
-  filter: brightness(0.95);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center bottom;
+  clip-path: inset(50% 0 0 0);
+  transform: rotateX(180deg);
+  filter: brightness(0.96);
+}
+
+.shine {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 0 50% 0);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.18), rgba(0,0,0,0));
+  mix-blend-mode: multiply;
+  opacity: 0.85;
+  transition: opacity 520ms ease;
+  pointer-events: none;
+}
+
+.flap-wrapper.is-flipped {
+  transform: rotateX(180deg);
+}
+
+.flap-wrapper.is-flipped .shine {
+  opacity: 0.2;
 }
 </style>

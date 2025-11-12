@@ -54,16 +54,16 @@
             <div
               class="grid grid-cols-2 grid-rows-2 place-items-center
                      w-full h-full rounded-2xl border border-base-300 bg-base-200/70 shadow-inner
-                     p-1 sm:p-2 md:p-3 lg:p-4 gap-1 sm:gap-2 md:gap-3"
+                     p-1 md:p-3 lg:p-4 gap-1 sm:gap-2 md:gap-3"
             >
               <div class="flex items-center justify-center">
                 <login-icon
-                  class="w-[46%] h-[46%] sm:w-[52%] sm:h-[52%] md:w-[58%] md:h-[58%] lg:w-[62%] lg:h-[62%] text-primary"
+                  class="w-[46%] h-[46%] text-primary"
                 />
               </div>
               <div class="flex items-center justify-center">
                 <jellybean-icon
-                  class="w-[46%] h-[46%] sm:w-[52%] sm:h-[52%] md:w-[58%] md:h-[58%] lg:w-[62%] lg:h-[62%] text-secondary"
+                  class="w-[46%] h-[46%] text-secondary"
                 />
               </div>
               <div class="flex items-center justify-center">

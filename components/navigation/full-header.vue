@@ -77,23 +77,32 @@
                 : 'basis-[22%] max-w-[22%] h-full xl:basis-[38%] xl:max-w-[38%]',
             ]"
           >
-            <div
-              class="flex w-full h-full items-center justify-end xl:justify-center"
-            >
+            <div class="flex w-full h-full items-center justify-end xl:justify-center">
               <div
                 class="grid grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-1"
               >
-                <div class="w-full h-full flex items-center justify-center">
-                  <login-icon class="shrink-0 text-primary" />
+                <div class="w-full h-full grid place-items-center">
+                  <div class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]">
+                    <login-icon class="w-full h-full text-primary" />
+                  </div>
                 </div>
-                <div class="w-full h-full flex items-center justify-center">
-                  <jellybean-icon class="shrink-0 text-secondary" />
+
+                <div class="w-full h-full grid place-items-center">
+                  <div class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]">
+                    <jellybean-icon class="w-full h-full text-secondary" />
+                  </div>
                 </div>
-                <div class="w-full h-full flex items-center justify-center">
-                  <theme-icon class="shrink-0 text-accent" />
+
+                <div class="w-full h-full grid place-items-center">
+                  <div class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]">
+                    <theme-icon class="w-full h-full text-accent" />
+                  </div>
                 </div>
-                <div class="w-full h-full flex items-center justify-center">
-                  <swarm-icon class="shrink-0 text-info" />
+
+                <div class="w-full h-full grid place-items-center">
+                  <div class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]">
+                    <swarm-icon class="w-full h-full text-info" />
+                  </div>
                 </div>
               </div>
             </div>

@@ -3,7 +3,6 @@
   <header
     class="w-full h-full flex items-stretch gap-0 overflow-hidden [isolation:isolate]"
   >
-    <!-- Avatar column -->
     <div
       class="relative flex-none h-full shrink-0 z-0 pointer-events-auto flex"
       :class="avatarColumnClasses"
@@ -13,7 +12,6 @@
         class="block w-full h-full object-cover object-center m-0 p-0"
       />
 
-      <!-- Top: viewport size badge (admin only + bigMode) -->
       <div
         v-if="showViewportBadge"
         class="absolute left-[4%] right-[4%] top-2 z-40 flex justify-start pointer-events-none"
@@ -26,35 +24,43 @@
       </div>
     </div>
 
-    <!-- Kind Robots header block (brand + subtitle) -->
     <div
-      v-if="subtitle"
-      class="flex-none h-full flex items-center px-2 sm:px-3 lg:px-4 max-w-[40%]"
+      v-if="hasHeaderContent"
+      class="flex-1 h-full flex items-center px-2 sm:px-4 lg:px-6"
     >
-      <div class="inline-flex max-w-full flex-col px-3 py-1.5 md:px-4 md:py-2">
-        <!-- Brand line -->
+      <div class="w-full flex flex-col gap-1.5 md:gap-2 lg:gap-2.5">
         <span
-          class="text-sm md:text-md lg:text-lg xl:text-xl font-semibold tracking-[0.22em] uppercase text-base-content/70"
+          class="text-[clamp(0.7rem,0.9vw,0.95rem)] font-semibold tracking-[0.24em] uppercase text-base-content/60"
+        >
+          {{ brandLine }}
+        </span>
+
+        <h1
+          class="text-[clamp(1.25rem,2.4vw,2.1rem)] md:text-[clamp(1.5rem,2.7vw,2.3rem)] font-extrabold leading-tight"
         >
           <span
             class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
           >
-            Kind Robots
+            {{ pageTitle }}
           </span>
-        </span>
+        </h1>
 
-        <!-- Subtitle -->
-        <span
-          class="truncate text-[clamp(0.8rem,1.7vw,1.15rem)] font-semibold leading-snug tracking-tight text-base-content"
+        <p
+          class="text-[clamp(0.85rem,1.3vw,1.1rem)] text-base-content/80 leading-snug"
         >
-          {{ subtitle }}
-        </span>
+          {{ roomSubtitle }}
+        </p>
+
+        <div v-if="bigMode" class="mt-1 md:mt-1.5 lg:mt-2">
+          <smart-icons />
+        </div>
       </div>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
+// /components/content/navigation/full-header.vue
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -67,17 +73,18 @@ const userStore = useUserStore()
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
-const subtitle = computed(() => pageStore.page?.subtitle)
 
-// only show viewport notice if admin + bigMode
+const pageTitle = computed(() => page.value?.title || 'Robots')
+const brandLine = computed(() => `Kind ${pageTitle.value}`)
+const roomSubtitle = computed(() => `The ${pageTitle.value} room`)
+
+const hasHeaderContent = computed(() => Boolean(pageTitle.value))
+
 const showViewportBadge = computed(() => {
-  return userStore.user?.Role === 'ADMIN'
+  return userStore.user?.Role === 'ADMIN' && bigMode.value
 })
 
-/**
- * Avatar column: never more than roughly 1/4 of the header width.
- */
 const avatarColumnClasses = computed(() =>
-  bigMode.value ? 'basis-[10%] max-w-[22%]' : 'basis-[12%] max-w-[25%]',
+  bigMode.value ? 'basis-[11%] max-w-[22%]' : 'basis-[13%] max-w-[25%]',
 )
 </script>

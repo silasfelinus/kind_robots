@@ -1,4 +1,4 @@
-// /components/navigation/smart-flip.vue
+<!-- /components/navigation/smart-flip.vue -->
 <template>
   <section class="relative w-full max-w-4xl h-[90%] mx-auto overflow-visible">
     <div class="flex flex-col w-full h-full">
@@ -108,7 +108,7 @@
 
 <script setup lang="ts">
 // /components/navigation/smart-flip.vue
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, h, type Component } from 'vue'
 import { Icon } from '#components'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -134,10 +134,18 @@ const states: { id: SmartState; label: string; icon: string }[] = [
   { id: 'back', label: 'Ami', icon: 'kind-icon:butterfly' },
 ]
 
-const panelMap: Record<SmartState, any> = {
+const SmartFlippingShim: Component = {
+  name: 'SmartFlippingShim',
+  setup: () => () => null,
+}
+
+type SmartKey = SmartState | 'flipping'
+
+const panelMap: Record<SmartKey, Component> = {
   front: SmartFront,
   dash: SmartDash,
   back: SmartBack,
+  flipping: SmartFlippingShim,
 }
 
 const current = ref<SmartState>(targetSmartState.value || 'front')
@@ -157,8 +165,8 @@ const cleanupReady = ref(false)
 const DURATION = 350
 const GAP = 60
 
-const currCompKey = computed(() => panelMap[current.value])
-const nextCompKey = computed(() => panelMap[next.value])
+const currCompKey = computed<Component>(() => panelMap[current.value])
+const nextCompKey = computed<Component>(() => panelMap[next.value])
 
 const ariaLabel = computed(() => `Showing ${current.value} for ${title.value}`)
 

@@ -32,7 +32,7 @@
         class="w-full flex items-center justify-between gap-2 sm:gap-3 lg:gap-4"
       >
         <div
-          class="flex max-w-full gap-2 sm:gap-3"
+          class="flex min-w-0 gap-2 sm:gap-3"
           :class="
             isExtraLarge
               ? 'flex-col items-start'
@@ -40,7 +40,7 @@
           "
         >
           <span
-            class="text-[clamp(1.1rem,1.9vw,1.6rem)] font-extrabold tracking-tight"
+            class="text-[clamp(1.1rem,1.9vw,1.6rem)] font-extrabold tracking-tight whitespace-nowrap"
           >
             <span
               class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
@@ -51,14 +51,14 @@
 
           <span
             v-if="subtitle"
-            class="text-[clamp(0.9rem,1.4vw,1.1rem)] text-base-content/85 leading-snug truncate"
+            class="text-[clamp(0.9rem,1.4vw,1.1rem)] text-base-content/85 leading-snug truncate min-w-0"
           >
             {{ subtitle }}
           </span>
         </div>
 
         <div
-          class="flex items-center justify-end gap-1.5 md:gap-2 min-w-0 flex-1"
+          class="flex items-center justify-end gap-1 md:gap-2 flex-nowrap shrink-0"
         >
           <div v-if="bigMode" class="w-full max-w-full">
             <smart-icons />
@@ -66,15 +66,13 @@
 
           <div
             v-else
-            class="flex items-center justify-end gap-1.5 md:gap-2 w-full max-w-full"
+            class="flex items-center justify-end gap-1 md:gap-1.5 flex-nowrap"
           >
-            <div
+            <icon-display
               v-for="icon in utilityIcons"
-              :key="icon.name"
-              class="flex-1 min-w-0 flex justify-center"
-            >
-              <component :is="icon.component" :compact="compact" />
-            </div>
+              :key="icon.id"
+              :icon="icon"
+            />
           </div>
         </div>
       </div>
@@ -88,10 +86,13 @@ import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
+import { useSmartbarStore } from '@/stores/smartbarStore'
+import type { SmartIcon } from '@/stores/smartbarStore'
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
+const smartbarStore = useSmartbarStore()
 
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
@@ -109,12 +110,7 @@ const avatarColumnClasses = computed(() =>
   bigMode.value ? 'basis-[11%] max-w-[22%]' : 'basis-[13%] max-w-[25%]',
 )
 
-const utilityIcons = [
-  { name: 'login', component: 'login-path' },
-  { name: 'jellybeans', component: 'jellybean-count' },
-  { name: 'theme', component: 'theme-icon' },
-  { name: 'swarm', component: 'swarm-icon' },
-]
-
-const compact = computed(() => !bigMode.value)
+const utilityIcons = computed<SmartIcon[]>(() =>
+  smartbarStore.activeIcons.filter((icon) => icon.type === 'utility'),
+)
 </script>

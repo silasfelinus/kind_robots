@@ -7,19 +7,6 @@
           class="w-full rounded-2xl border border-base-300 bg-base-200/90 px-2.5 md:px-3.5 py-1.5 md:py-2 flex flex-col gap-1.5 md:gap-2"
         >
           <div class="flex items-center justify-between gap-2 min-w-0">
-            <div class="flex items-center gap-2 min-w-0">
-              <span
-                class="inline-flex items-center px-2 py-1 rounded-2xl border border-base-300 bg-base-100 text-[10px] md:text-xs font-semibold uppercase tracking-wide"
-              >
-                Kind
-              </span>
-              <h2
-                class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-base-content/90 truncate"
-              >
-                {{ title }}
-              </h2>
-            </div>
-
             <div class="flex items-center gap-1 md:gap-2 flex-shrink-0">
               <button
                 v-for="state in states"

@@ -84,10 +84,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useSmartbarStore } from '@/stores/smartbarStore'
 import type { SmartIcon } from '@/stores/smartbarStore'
 
-import SwarmIcon from '@/components/content/icons/swarm-icon.vue'
-import ThemeIcon from '@/components/content/wonderlab/theme-icon.vue'
-import LoginIcon from '@/components/content/icons/login-icon.vue'
-import JellybeanIcon from '@/components/content/icons/jellybean-icon.vue'
+
 
 const componentMap: Record<string, any> = {
   'swarm-icon': SwarmIcon,

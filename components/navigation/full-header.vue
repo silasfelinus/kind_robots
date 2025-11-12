@@ -19,10 +19,10 @@
       </div>
     </div>
 
-    <div v-if="hasHeaderContent" class="flex-1 h-full flex items-center px-2 sm:px-4 lg:px-6">
-      <div class="w-full flex items-center justify-between gap-2 sm:gap-3 lg:gap-4">
+    <div v-if="hasHeaderContent" class="flex-1 h-full flex items-center px-1 md:px-2 lg:px-3 xl:px-4">
+      <div class="w-full flex items-center justify-between lg:gap-3 xl:gap-4">
         <div
-          class="flex min-w-0 gap-2 sm:gap-3"
+          class="flex min-w-0 gap-1"
           :class="isExtraLarge ? 'flex-col items-start' : 'flex-row items-center flex-wrap'"
         >
           <span class="text-[clamp(1.1rem,1.9vw,1.6rem)] font-extrabold tracking-tight whitespace-nowrap">
@@ -52,16 +52,16 @@
             class="grid grid-cols-2 grid-rows-2 w-full h-full place-items-center gap-x-[4%] gap-y-[6%] py-[4%]"
           >
             <div class="flex items-center justify-center">
-              <login-icon class="rounded-2xl w-[4%] h-[40%] p-[6%]" />
+              <login-icon class="rounded-2xl w-[4%] h-[40%] p-[1%]" />
             </div>
             <div class="flex items-center justify-center">
-              <jellybean-icon class="rounded-2xl w-[4%] h-[40%] p-[6%]" />
+              <jellybean-icon class="rounded-2xl w-[4%] h-[40%] p-[1%]" />
             </div>
             <div class="flex items-center justify-center">
-              <theme-icon class="rounded-2xl w-[4%] h-[40%] p-[6%]" />
+              <theme-icon class="rounded-2xl w-[4%] h-[40%] p-[1%]" />
             </div>
             <div class="flex items-center justify-center">
-              <swarm-icon class="rounded-2xl w-[4%] h-[40%] p-[6%]" />
+              <swarm-icon class="rounded-2xl w-[4%] h-[40%] p-[1%]" />
             </div>
           </div>
         </div>

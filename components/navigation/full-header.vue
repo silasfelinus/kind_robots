@@ -1,16 +1,10 @@
-<!-- /components/content/navigation/full-header.vue -->
 <template>
-  <header
-    class="w-full h-full flex items-stretch gap-0 overflow-hidden [isolation:isolate]"
-  >
+  <header class="w-full h-full flex items-stretch gap-0 overflow-hidden [isolation:isolate]">
     <div
       class="relative flex-none h-full shrink-0 z-0 pointer-events-auto flex"
       :class="avatarColumnClasses"
     >
-      <avatar-image
-        alt="User Avatar"
-        class="block w-full h-full object-cover object-center m-0 p-0"
-      />
+      <avatar-image alt="User Avatar" class="block w-full h-full object-cover object-center m-0 p-0" />
 
       <div
         v-if="showViewportBadge"
@@ -24,27 +18,14 @@
       </div>
     </div>
 
-    <div
-      v-if="hasHeaderContent"
-      class="flex-1 h-full flex items-center px-2 sm:px-4 lg:px-6"
-    >
-      <div
-        class="w-full flex items-center justify-between gap-2 sm:gap-3 lg:gap-4"
-      >
+    <div v-if="hasHeaderContent" class="flex-1 h-full flex items-center px-2 sm:px-4 lg:px-6">
+      <div class="w-full flex items-center justify-between gap-2 sm:gap-3 lg:gap-4">
         <div
           class="flex min-w-0 gap-2 sm:gap-3"
-          :class="
-            isExtraLarge
-              ? 'flex-col items-start'
-              : 'flex-row items-center flex-wrap'
-          "
+          :class="isExtraLarge ? 'flex-col items-start' : 'flex-row items-center flex-wrap'"
         >
-          <span
-            class="text-[clamp(1.1rem,1.9vw,1.6rem)] font-extrabold tracking-tight whitespace-nowrap"
-          >
-            <span
-              class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
-            >
+          <span class="text-[clamp(1.1rem,1.9vw,1.6rem)] font-extrabold tracking-tight whitespace-nowrap">
+            <span class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
               Kind Robots
             </span>
           </span>
@@ -59,6 +40,7 @@
 
         <div
           class="flex items-center justify-end gap-1 md:gap-2 flex-nowrap shrink-0"
+          :class="bigMode ? 'basis-auto max-w-none' : 'basis-[20%] max-w-[20%] h-full pr-1 sm:pr-2'"
         >
           <div v-if="bigMode" class="w-full max-w-full">
             <smart-icons />
@@ -66,14 +48,18 @@
 
           <div
             v-else
-            class="grid grid-cols-2 grid-rows-2 gap-1 md:gap-1.5 aspect-square max-h-[3rem] sm:max-h-[3.25rem] md:max-h-[3.5rem] lg:max-h-[3.75rem] xl:max-h-[4rem]"
+            class="grid grid-cols-2 grid-rows-2 w-full h-full place-items-center gap-x-[4%] gap-y-[6%] py-[4%]"
           >
-            <icon-display
+            <div
               v-for="icon in utilityIcons"
               :key="icon.id"
-              :icon="icon"
-              class="w-full h-full"
-            />
+              class="flex items-center justify-center p-[6%]"
+            >
+              <icon-display
+                :icon="icon"
+                class="w-[4vw] h-[40%] rounded-2xl"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -103,17 +89,13 @@ const isExtraLarge = computed(() => displayStore.viewportSize === 'extraLarge')
 const subtitle = computed(() => page.value?.subtitle || '')
 const hasHeaderContent = computed(() => true)
 
-const showViewportBadge = computed(() => {
-  return userStore.user?.Role === 'ADMIN' && bigMode.value
-})
+const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN' && bigMode.value)
 
 const avatarColumnClasses = computed(() =>
   bigMode.value ? 'basis-[11%] max-w-[22%]' : 'basis-[13%] max-w-[25%]',
 )
 
 const utilityIcons = computed<SmartIcon[]>(() =>
-  smartbarStore.activeIcons
-    .filter((icon) => icon.type === 'utility')
-    .slice(0, 4),
+  smartbarStore.activeIcons.filter((icon) => icon.type === 'utility').slice(0, 4),
 )
 </script>

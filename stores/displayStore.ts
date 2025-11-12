@@ -230,13 +230,32 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const rightSidebarStyle = computed(() => {
     const padding = sectionPaddingSize.value
     const visible = ['open', 'compact'].includes(state.sidebarRightState)
+
+    if (!visible) {
+      return {
+        top: `calc(var(--vh) * ${contentTopOffset.value})`,
+        right: `${padding}vw`,
+        width: '0px',
+        height: '0px',
+      }
+    }
+
+    if (state.bigMode) {
+      return {
+        top: `calc(var(--vh) * ${padding})`,
+        right: `${padding}vw`,
+        width: `${sidebarRightWidth.value}vw`,
+        height: `calc(var(--vh) * ${headerHeight.value})`,
+      }
+    }
+
+    const fullHeight = 100 - padding * 2
+
     return {
-      top: `calc(var(--vh) * ${contentTopOffset.value})`,
+      top: `calc(var(--vh) * ${padding})`,
       right: `${padding}vw`,
-      width: visible ? `${sidebarRightWidth.value}vw` : '0px',
-      height: visible
-        ? `calc(var(--vh) * ${sidebarContentHeight.value})`
-        : '0px',
+      width: `${sidebarRightWidth.value}vw`,
+      height: `calc(var(--vh) * ${fullHeight})`,
     }
   })
 

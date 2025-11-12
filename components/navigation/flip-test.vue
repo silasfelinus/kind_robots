@@ -1,4 +1,4 @@
-// /components/experiments/flip-test.vue
+<!-- /components/experiments/flip-test.vue -->
 <template>
   <section class="relative w-full max-w-4xl mx-auto">
     <div
@@ -36,8 +36,12 @@
       >
         {{
           isAnimating
-            ? `Flipping col ${activeColLabel}`
-            : 'Ready • click to run full exchange'
+            ? `Flipping col ${activeColLabel} • phase: ${
+                isLogoPhaseComputed ? 'logo' : 'swap'
+              }`
+            : hasShownLogo
+              ? 'Phase 2 • click to reveal background'
+              : 'Phase 1 • click to reveal logo grid'
         }}
       </div>
     </div>
@@ -85,7 +89,8 @@
           >
         </div>
         <div class="mt-1 text-[11px] opacity-80">
-          columns: {{ cols }} • chain: right→left • swap on complete
+          columns: {{ cols }} • chain: right→left • phase:
+          {{ isLogoPhaseComputed ? 'logo (logo_old.webp)' : 'swap (bg)' }}
         </div>
         <div class="mt-2 flex items-center gap-2 text-[11px]">
           <label class="inline-flex items-center gap-1">
@@ -111,10 +116,18 @@
     </div>
 
     <div class="mt-2 flex items-center justify-between text-xs opacity-80">
-      <span class="truncate"
-        >Click the image to run a full top-flip exchange</span
-      >
-      <span>{{ isAnimating ? 'Animating…' : 'Idle' }}</span>
+      <span class="truncate">
+        Click the image to run phased top-flip exchange
+      </span>
+      <span>
+        {{
+          isAnimating
+            ? 'Animating…'
+            : hasShownLogo
+              ? 'Idle • next click = background phase'
+              : 'Idle • next click = logo phase'
+        }}
+      </span>
     </div>
   </section>
 </template>
@@ -124,6 +137,7 @@ import { ref, computed, nextTick } from 'vue'
 
 const imgA = ref<string>('/images/backtree.webp')
 const imgB = ref<string>('/images/botcafe.webp')
+const logoSrc = ref<string>('/images/logo_old.webp')
 const placeholderBackSrc = ref<string>('/images/botcafe.webp')
 
 const cols = ref<number>(2)
@@ -138,31 +152,39 @@ const currentSrc = ref(imgA.value)
 const nextSrc = ref(imgB.value)
 
 const usePlaceholderBackForNonLast = ref(true)
+const hasShownLogo = ref(false)
 
 const ariaLabel = computed(() =>
   isAnimating.value
-    ? 'Running full vertical flip exchange'
-    : 'Image ready; click to start vertical flip exchange',
+    ? 'Running phased vertical flip exchange'
+    : 'Image ready; click to start phased vertical flip exchange',
 )
 
 const activeColLabel = computed(() =>
   activeCol.value === null ? '-' : `${activeCol.value + 1}/${cols.value}`,
 )
 
+const isLogoPhaseComputed = computed(() => !hasShownLogo.value)
+
 function initState() {
   flipped.value = columns.value.map(() => false)
   status.value = columns.value.map(() => 'pending')
   activeCol.value = null
 }
+
 initState()
 
 function columnVars(i: number) {
   const left = (100 / cols.value) * i
   const right = 100 - (100 / cols.value) * (i + 1)
   const center = left + 100 / cols.value / 2
-  const isLast = i === 0
-  const backSrc =
-    usePlaceholderBackForNonLast.value && !isLast
+
+  const isLastCol = i === 0
+  const isLogoPhase = isLogoPhaseComputed.value
+
+  const backSrc = isLogoPhase
+    ? logoSrc.value
+    : usePlaceholderBackForNonLast.value && !isLastCol
       ? placeholderBackSrc.value
       : nextSrc.value
 
@@ -177,7 +199,10 @@ function columnVars(i: number) {
 
 async function runExchange() {
   if (isAnimating.value) return
+
   isAnimating.value = true
+  const isLogoPhase = isLogoPhaseComputed.value
+
   initState()
   await nextTick()
 
@@ -185,18 +210,24 @@ async function runExchange() {
 
   for (const i of order) {
     activeCol.value = i
-    status.value[i] = 'flipping'
+    status.value[i] = isLogoPhase ? 'logo' : 'swap'
     flipped.value[i] = true
-    await wait(520)
-    status.value[i] = 'done'
+    await wait(900)
+    flipped.value[i] = false
+    await wait(140)
   }
 
-  const oldCurrent = currentSrc.value
-  currentSrc.value = nextSrc.value
-  nextSrc.value = oldCurrent
+  if (isLogoPhase) {
+    hasShownLogo.value = true
+  } else {
+    const oldCurrent = currentSrc.value
+    currentSrc.value = nextSrc.value
+    nextSrc.value = oldCurrent
+    hasShownLogo.value = false
+  }
 
   activeCol.value = null
-  await wait(40)
+  await wait(60)
   initState()
   isAnimating.value = false
 }
@@ -213,7 +244,7 @@ function wait(ms: number) {
   transform-style: preserve-3d;
   perspective: 1200px;
   transform-origin: 50% 100%;
-  transition: transform 480ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  transition: transform 900ms cubic-bezier(0.2, 0.7, 0.3, 1);
   clip-path: inset(0 var(--col-right) 50% var(--col-left));
 }
 .flap-wrapper::after {
@@ -223,7 +254,7 @@ function wait(ms: number) {
   pointer-events: none;
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0));
   mix-blend-mode: multiply;
-  transition: opacity 480ms ease;
+  transition: opacity 900ms ease;
   clip-path: inset(0 var(--col-right) 50% var(--col-left));
 }
 .flap-wrapper.is-flipped {

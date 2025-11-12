@@ -3,13 +3,19 @@
   <section class="relative w-full max-w-4xl h-[90%] mx-auto overflow-visible">
     <div class="flex flex-col w-full h-full">
       <div class="px-2 md:px-3 lg:px-4 pt-2">
-        <div class="w-full rounded-2xl border border-base-300 bg-base-200/90 px-2.5 md:px-3.5 py-1.5 md:py-2 flex flex-col gap-1.5 md:gap-2">
+        <div
+          class="w-full rounded-2xl border border-base-300 bg-base-200/90 px-2.5 md:px-3.5 py-1.5 md:py-2 flex flex-col gap-1.5 md:gap-2"
+        >
           <div class="flex items-center justify-between gap-2 min-w-0">
             <div class="flex items-center gap-2 min-w-0">
-              <span class="inline-flex items-center px-2 py-1 rounded-2xl border border-base-300 bg-base-100 text-[10px] md:text-xs font-semibold uppercase tracking-wide">
+              <span
+                class="inline-flex items-center px-2 py-1 rounded-2xl border border-base-300 bg-base-100 text-[10px] md:text-xs font-semibold uppercase tracking-wide"
+              >
                 Kind
               </span>
-              <h2 class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-base-content/90 truncate">
+              <h2
+                class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-base-content/90 truncate"
+              >
                 {{ title }}
               </h2>
             </div>
@@ -20,7 +26,10 @@
                 :key="state.id"
                 type="button"
                 class="btn btn-ghost btn-xs rounded-full px-2 md:px-3 text-[10px] md:text-xs flex items-center gap-1"
-                :class="{ 'border-base-300 bg-base-200/70': targetSmartState === state.id }"
+                :class="{
+                  'border-base-300 bg-base-200/70':
+                    targetSmartState === state.id,
+                }"
                 @click="setSmart(state.id)"
               >
                 <Icon :name="state.icon" class="w-3 h-3 md:w-4 md:h-4" />
@@ -29,13 +38,15 @@
             </div>
           </div>
 
-          <div v-if="bigMode" class="w-full overflow-x-auto">
+          <div v-if="!bigMode" class="w-full overflow-x-auto">
             <smart-icons />
           </div>
         </div>
       </div>
 
-      <div class="relative flex-1 min-h-0 px-2 md:px-3 lg:px-4 pb-2 md:pb-3 lg:pb-4">
+      <div
+        class="relative flex-1 min-h-0 px-2 md:px-3 lg:px-4 pb-2 md:pb-3 lg:pb-4"
+      >
         <div class="prism-card w-full h-full">
           <div
             ref="prismInner"
@@ -46,7 +57,9 @@
             <div
               class="prism-face"
               :class="{ 'prism-face-active': currentSmartState === 'front' }"
-              :style="{ transform: `rotateY(0deg) translateZ(${translateZ}px)` }"
+              :style="{
+                transform: `rotateY(0deg) translateZ(${translateZ}px)`,
+              }"
             >
               <smart-front />
             </div>
@@ -54,7 +67,9 @@
             <div
               class="prism-face"
               :class="{ 'prism-face-active': currentSmartState === 'dash' }"
-              :style="{ transform: `rotateY(120deg) translateZ(${translateZ}px)` }"
+              :style="{
+                transform: `rotateY(120deg) translateZ(${translateZ}px)`,
+              }"
             >
               <smart-dash />
             </div>
@@ -62,7 +77,9 @@
             <div
               class="prism-face"
               :class="{ 'prism-face-active': currentSmartState === 'back' }"
-              :style="{ transform: `rotateY(240deg) translateZ(${translateZ}px)` }"
+              :style="{
+                transform: `rotateY(240deg) translateZ(${translateZ}px)`,
+              }"
             >
               <smart-back />
             </div>
@@ -145,7 +162,9 @@ function updateTranslateZ() {
   console.info('[smart-flip] translateZ updated', {
     width: w,
     radius: r,
-    perspective: getComputedStyle(document.documentElement).getPropertyValue('--unused'),
+    perspective: getComputedStyle(document.documentElement).getPropertyValue(
+      '--unused',
+    ),
   })
 }
 
@@ -188,8 +207,12 @@ function setSmart(next: SmartState) {
 
 watch(
   targetSmartState,
-  newState => {
-    if (!newState || newState === currentSmartState.value || isAnimating.value) {
+  (newState) => {
+    if (
+      !newState ||
+      newState === currentSmartState.value ||
+      isAnimating.value
+    ) {
       return
     }
 

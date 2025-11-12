@@ -28,7 +28,7 @@
     <!-- Header -->
     <header
       v-if="pageStore.ready && displayStore.headerState !== 'hidden'"
-      class="fixed z-40 transition-all duration-500 ease-in-out"
+      class="fixed z-40 transition-all duration-500 ease-in-out rounded-2xl p-1"
       :style="displayStore.headerStyle"
     >
       <full-header class="h-full w-full" />

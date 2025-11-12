@@ -1,15 +1,15 @@
 // /components/experiments/flip-test.vue
 <template>
-  <section class="relative w-full max-w-3xl mx-auto">
+  <section class="relative w-full max-w-4xl mx-auto">
     <div
       class="relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
       :aria-label="ariaLabel"
       aria-live="polite"
-      @click="handleFlip"
+      @click="runExchange"
     >
       <div class="absolute inset-0">
         <img
-          :src="nextSrc"
+          :src="currentSrc"
           alt=""
           class="w-full h-full object-cover select-none pointer-events-none"
           draggable="false"
@@ -17,9 +17,11 @@
       </div>
 
       <div
+        v-for="(col, i) in columns"
+        :key="i"
         class="flap-wrapper"
-        :class="{ 'is-flipped': isFlipped }"
-        :style="flapVars"
+        :class="{ 'is-flipped': flipped[i] }"
+        :style="columnVars(i)"
       >
         <div class="face face-front"></div>
         <div class="face face-back"></div>
@@ -28,44 +30,179 @@
       <div
         class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/20"
       ></div>
+
+      <div
+        class="absolute left-2 top-2 z-20 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
+      >
+        {{
+          isAnimating
+            ? `Flipping col ${activeColLabel}`
+            : 'Ready • click to run full exchange'
+        }}
+      </div>
+    </div>
+
+    <div class="mt-3 grid grid-cols-1 lg:grid-cols-3 gap-2">
+      <div class="rounded-xl border border-base-300 bg-base-200 p-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs opacity-80">Image 1 (current)</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-primary/20"
+            >front/top-half</span
+          >
+        </div>
+        <div class="mt-1 text-[11px] break-all opacity-80">
+          {{ currentSrc }}
+        </div>
+        <div class="mt-2 h-20 w-full overflow-hidden rounded-lg">
+          <div
+            class="h-full w-full bg-cover bg-center"
+            :style="{ backgroundImage: `url('${currentSrc}')` }"
+          ></div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border border-base-300 bg-base-200 p-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs opacity-80">Image 2 (next)</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-secondary/20"
+            >back/bottom-half</span
+          >
+        </div>
+        <div class="mt-1 text-[11px] break-all opacity-80">{{ nextSrc }}</div>
+        <div class="mt-2 h-20 w-full overflow-hidden rounded-lg">
+          <div
+            class="h-full w-full bg-cover bg-center"
+            :style="{ backgroundImage: `url('${nextSrc}')` }"
+          ></div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border border-base-300 bg-base-200 p-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs opacity-80">Run config</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-info/20"
+            >debug</span
+          >
+        </div>
+        <div class="mt-1 text-[11px] opacity-80">
+          columns: {{ cols }} • chain: right→left • swap on complete
+        </div>
+        <div class="mt-2 flex items-center gap-2 text-[11px]">
+          <label class="inline-flex items-center gap-1">
+            <input
+              type="checkbox"
+              class="toggle toggle-xs"
+              v-model="usePlaceholderBackForNonLast"
+            />
+            <span>placeholder on non-last</span>
+          </label>
+          <span class="opacity-60">placeholder: {{ placeholderBackSrc }}</span>
+        </div>
+        <div class="mt-2 grid grid-cols-2 gap-1 text-[11px]">
+          <div
+            v-for="(s, i) in status"
+            :key="i"
+            class="rounded border border-base-300 px-2 py-1"
+          >
+            col {{ i + 1 }}: <b>{{ s }}</b>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="mt-2 flex items-center justify-between text-xs opacity-80">
-      <span class="truncate">Click anywhere to flip</span>
-      <span>{{
-        isFlipped ? 'Showing bottom reveal' : 'Showing top flap'
-      }}</span>
+      <span class="truncate"
+        >Click the image to run a full top-flip exchange</span
+      >
+      <span>{{ isAnimating ? 'Animating…' : 'Idle' }}</span>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 
-const img1 = ref<string>('images/backtree.webp')
-const img2 = ref<string>('images/botcafe.webp')
+const imgA = ref<string>('/images/backtree.webp')
+const imgB = ref<string>('/images/botcafe.webp')
+const placeholderBackSrc = ref<string>('/images/botcafe.webp')
 
-const isFlipped = ref(false)
+const cols = ref<number>(2)
+const columns = computed(() => Array.from({ length: cols.value }, (_, i) => i))
 
-const currentSrc = computed(() => img1.value)
-const nextSrc = computed(() => img2.value)
+const isAnimating = ref(false)
+const flipped = ref<boolean[]>([])
+const status = ref<string[]>([])
+const activeCol = ref<number | null>(null)
 
-const flapVars = computed(
-  () =>
-    ({
-      '--flip-image-front': `url("${currentSrc.value}")`,
-      '--flip-image-back': `url("${nextSrc.value}")`,
-    }) as Record<string, string>,
-)
+const currentSrc = ref(imgA.value)
+const nextSrc = ref(imgB.value)
+
+const usePlaceholderBackForNonLast = ref(true)
 
 const ariaLabel = computed(() =>
-  isFlipped.value
-    ? 'Image revealed after vertical fold'
-    : 'Image with top half ready to fold down',
+  isAnimating.value
+    ? 'Running full vertical flip exchange'
+    : 'Image ready; click to start vertical flip exchange',
 )
 
-function handleFlip() {
-  isFlipped.value = !isFlipped.value
+const activeColLabel = computed(() =>
+  activeCol.value === null ? '-' : `${activeCol.value + 1}/${cols.value}`,
+)
+
+function initState() {
+  flipped.value = columns.value.map(() => false)
+  status.value = columns.value.map(() => 'pending')
+  activeCol.value = null
+}
+initState()
+
+function columnVars(i: number) {
+  const left = (100 / cols.value) * i
+  const right = 100 - (100 / cols.value) * (i + 1)
+  const center = left + 100 / cols.value / 2
+  const isLast = i === 0
+  const backSrc =
+    usePlaceholderBackForNonLast.value && !isLast
+      ? placeholderBackSrc.value
+      : nextSrc.value
+
+  return {
+    '--flip-image-front': `url("${currentSrc.value}")`,
+    '--flip-image-back': `url("${backSrc}")`,
+    '--col-left': `${left}%`,
+    '--col-right': `${right}%`,
+    '--col-center': `${center}%`,
+  } as Record<string, string>
+}
+
+async function runExchange() {
+  if (isAnimating.value) return
+  isAnimating.value = true
+  initState()
+  await nextTick()
+
+  const order = [...columns.value].reverse()
+
+  for (const i of order) {
+    activeCol.value = i
+    status.value[i] = 'flipping'
+    flipped.value[i] = true
+    await wait(520)
+    status.value[i] = 'done'
+  }
+
+  const oldCurrent = currentSrc.value
+  currentSrc.value = nextSrc.value
+  nextSrc.value = oldCurrent
+
+  activeCol.value = null
+  await wait(40)
+  initState()
+  isAnimating.value = false
+}
+
+function wait(ms: number) {
+  return new Promise((res) => setTimeout(res, ms))
 }
 </script>
 
@@ -73,46 +210,49 @@ function handleFlip() {
 .flap-wrapper {
   position: absolute;
   inset: 0;
-  clip-path: inset(0 0 50% 0);
   transform-style: preserve-3d;
   perspective: 1200px;
   transform-origin: 50% 100%;
   transition: transform 480ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  clip-path: inset(0 var(--col-right) 50% var(--col-left));
 }
 .flap-wrapper::after {
   content: '';
   position: absolute;
   inset: 0;
-  clip-path: inset(0 0 50% 0);
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0));
   mix-blend-mode: multiply;
   transition: opacity 480ms ease;
+  clip-path: inset(0 var(--col-right) 50% var(--col-left));
 }
 .flap-wrapper.is-flipped {
   transform: rotateX(-180deg);
 }
 .flap-wrapper.is-flipped::after {
-  opacity: 0.2;
+  opacity: 0.22;
 }
 
 .face {
   position: absolute;
   inset: 0;
-  clip-path: inset(0 0 50% 0);
   background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center top;
+  background-size: 100% 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  clip-path: inset(0 var(--col-right) 50% var(--col-left));
 }
+
 .face-front {
   transform: rotateX(0deg) translateZ(0.01px);
   background-image: var(--flip-image-front);
+  background-position: var(--col-center) top;
 }
+
 .face-back {
   transform: rotateX(180deg);
   background-image: var(--flip-image-back);
-  filter: brightness(0.95);
+  background-position: var(--col-center) bottom;
+  filter: brightness(0.96);
 }
 </style>

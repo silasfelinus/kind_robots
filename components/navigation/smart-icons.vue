@@ -1,10 +1,10 @@
 <!-- /components/content/navigation/smart-icons.vue -->
 <template>
-  <div class="relative h-full w-full leading-none flex-1 min-w-0">
+  <div class="relative h-full w-full flex-1 min-w-0 leading-none">
     <div class="h-full w-full flex items-stretch min-w-0 gap-[2px]">
       <div
         ref="scrollContainer"
-        class="h-full flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-6"
+        class="h-full min-h-[2.6rem] md:min-h-[3rem] lg:min-h-[3.25rem] xl:min-h-[3.5rem] flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-6"
         :class="[
           displayStore.showCorner
             ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
@@ -13,6 +13,7 @@
           '[&_*]:!ms-0 [&_*]:!me-0',
           '[&>*]:h-full',
           isDragging ? 'cursor-grabbing' : 'cursor-grab',
+          'mask-edges'
         ]"
         @scroll="checkScrollEdgesThrottled"
         @mousedown="handleScrollMouseDown"
@@ -28,121 +29,90 @@
         @keydown.right.prevent="scrollByStep(1)"
         aria-label="Smart icons"
       >
-        <icon-display
-          v-for="icon in rowIcons"
-          :key="icon.id"
-          :icon="icon"
-          :show-title="showTitles"
-          class="snap-start shrink-0 h-full aspect-square flex"
-        />
-
         <div
-          v-if="isEditing"
-          class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
+          ref="row"
+          class="h-full min-h-inherit flex items-stretch gap-[2px] min-w-max"
         >
-          <NuxtLink
-            to="/icons"
-            class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-            title="Add or manage icons"
-            aria-label="Add or manage icons"
-          >
-            <Icon
-              name="kind-icon:plus"
-              class="pointer-events-none h-[60%] w-[60%]"
-            />
-            <span class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
-              >Add</span
-            >
-          </NuxtLink>
-        </div>
+          <icon-display
+            v-for="icon in rowIcons"
+            :key="icon.id"
+            :icon="icon"
+            :show-title="showTitles"
+            class="snap-start shrink-0 h-full aspect-square flex"
+          />
 
-        <div
-          v-if="!isEditing"
-          class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
-        >
-          <button
-            type="button"
-            class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-            title="Edit Smart Icons"
-            aria-label="Edit Smart Icons"
-            @click="activateEditMode"
+          <div
+            v-if="isEditing"
+            class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
           >
-            <Icon
-              name="kind-icon:settings"
-              class="pointer-events-none h-[60%] w-[60%]"
-            />
-            <span
-              v-if="showTitles"
-              class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
-              >Edit</span
+            <NuxtLink
+              to="/icons"
+              class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              title="Add or manage icons"
+              aria-label="Add or manage icons"
             >
-          </button>
-        </div>
+              <Icon name="kind-icon:plus" class="pointer-events-none h-[60%] w-[60%]" />
+              <span class="icon-title mt-[0.15em] text-xs opacity-80 select-none">Add</span>
+            </NuxtLink>
+          </div>
 
-        <div
-          v-if="isEditing"
-          class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
-        >
-          <button
-            type="button"
-            class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-            :class="
-              hasChanges
-                ? 'bg-base-200 hover:bg-base-300'
-                : 'bg-base-200/60 cursor-not-allowed opacity-60'
-            "
-            :title="hasChanges ? 'Save icon order' : 'No changes to save'"
-            aria-label="Save icon order"
-            :disabled="!hasChanges"
-            @click="hasChanges && confirmEdit()"
+          <div
+            v-if="!isEditing"
+            class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
           >
-            <Icon
-              name="kind-icon:check"
-              class="pointer-events-none h-[60%] w-[60%]"
-            />
-            <span
-              v-if="showTitles"
-              class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
-              >Save</span
+            <button
+              type="button"
+              class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              title="Edit Smart Icons"
+              aria-label="Edit Smart Icons"
+              @click="activateEditMode"
             >
-          </button>
-        </div>
+              <Icon name="kind-icon:settings" class="pointer-events-none h-[60%] w-[60%]" />
+              <span v-if="showTitles" class="icon-title mt-[0.15em] text-xs opacity-80 select-none">Edit</span>
+            </button>
+          </div>
 
-        <div
-          v-if="isEditing"
-          class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
-        >
-          <button
-            type="button"
-            class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-error/60"
-            title="Cancel icon changes"
-            aria-label="Cancel icon changes"
-            @click="revertEdit"
+          <div
+            v-if="isEditing"
+            class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
           >
-            <Icon
-              name="kind-icon:close"
-              class="pointer-events-none h-[60%] w-[60%]"
-            />
-            <span
-              v-if="showTitles"
-              class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
-              >Cancel</span
+            <button
+              type="button"
+              class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              :class="hasChanges ? 'bg-base-200 hover:bg-base-300' : 'bg-base-200/60 cursor-not-allowed opacity-60'"
+              :title="hasChanges ? 'Save icon order' : 'No changes to save'"
+              aria-label="Save icon order"
+              :disabled="!hasChanges"
+              @click="hasChanges && confirmEdit()"
             >
-          </button>
-        </div>
+              <Icon name="kind-icon:check" class="pointer-events-none h-[60%] w-[60%]" />
+              <span v-if="showTitles" class="icon-title mt-[0.15em] text-xs opacity-80 select-none">Save</span>
+            </button>
+          </div>
 
-        <div aria-hidden="true" class="shrink-0 h-full w-px" />
+          <div
+            v-if="isEditing"
+            class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
+          >
+            <button
+              type="button"
+              class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-error/60"
+              title="Cancel icon changes"
+              aria-label="Cancel icon changes"
+              @click="revertEdit"
+            >
+              <Icon name="kind-icon:close" class="pointer-events-none h-[60%] w-[60%]" />
+              <span v-if="showTitles" class="icon-title mt-[0.15em] text-xs opacity-80 select-none">Cancel</span>
+            </button>
+          </div>
+
+          <div aria-hidden="true" class="shrink-0 h-full w-px" />
+        </div>
       </div>
 
       <div class="pointer-events-none absolute inset-y-0 left-0 right-0 z-30">
-        <div
-          v-show="canScrollLeft"
-          class="absolute left-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-r from-base-100/80 to-transparent"
-        />
-        <div
-          v-show="canScrollRight"
-          class="absolute right-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-l from-base-100/80 to-transparent"
-        />
+        <div v-show="canScrollLeft" class="absolute left-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-r from-base-100/80 to-transparent" />
+        <div v-show="canScrollRight" class="absolute right-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-l from-base-100/80 to-transparent" />
 
         <button
           v-if="canScrollLeft"
@@ -183,20 +153,18 @@ const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
 
 const isNav = (icon: SmartIcon) => (icon?.type || '').toLowerCase() === 'nav'
 
-const filteredActive = computed<SmartIcon[]>(() =>
-  activeIcons.value.filter(isNav),
-)
+const filteredActive = computed<SmartIcon[]>(() => activeIcons.value.filter(isNav))
 
 watch(
   activeIcons,
   () => {
     if (!isEditing.value) editableIcons.value = [...filteredActive.value]
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 const rowIcons = computed<SmartIcon[]>(() =>
-  isEditing.value ? editableIcons.value.filter(isNav) : filteredActive.value,
+  isEditing.value ? editableIcons.value.filter(isNav) : filteredActive.value
 )
 
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
@@ -231,6 +199,8 @@ function revertEdit() {
 }
 
 const scrollContainer = ref<HTMLElement | null>(null)
+const row = ref<HTMLElement | null>(null)
+
 const isDragging = ref(false)
 const canScrollLeft = ref(false)
 const canScrollRight = ref(false)
@@ -269,7 +239,7 @@ function checkScrollEdgesThrottled() {
 function scrollByStep(direction: -1 | 1) {
   const el = scrollContainer.value
   if (!el) return
-  const step = el.clientWidth * 0.8
+  const step = Math.max(160, el.clientWidth * 0.8)
   el.scrollBy({ left: direction * step, behavior: 'smooth' })
 }
 
@@ -323,21 +293,58 @@ function handleWheel(e: WheelEvent) {
 watch(
   () => rowIcons.value.length,
   () => {
-    nextTick(() => requestAnimationFrame(updateScrollFlags))
-  },
+    syncAfterLayout()
+  }
 )
 
+watch(
+  () => [
+    displayStore.bigMode,
+    displayStore.viewportSize,
+    displayStore.headerState,
+    displayStore.sidebarRightState,
+    displayStore.showCorner
+  ],
+  () => {
+    syncAfterLayout()
+  },
+  { flush: 'post' }
+)
+
+function syncAfterLayout() {
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      updateScrollFlags()
+    })
+  })
+}
+
 let resizeObserver: ResizeObserver | null = null
+let rowResizeObserver: ResizeObserver | null = null
+let mutationObserver: MutationObserver | null = null
 
 onMounted(() => {
+  const el = scrollContainer.value
+  const content = row.value
+  if (!el || !content) return
+
   resizeObserver = new ResizeObserver(checkScrollEdgesThrottled)
-  if (scrollContainer.value) resizeObserver.observe(scrollContainer.value)
-  requestAnimationFrame(updateScrollFlags)
+  rowResizeObserver = new ResizeObserver(checkScrollEdgesThrottled)
+  mutationObserver = new MutationObserver(checkScrollEdgesThrottled)
+
+  resizeObserver.observe(el)
+  rowResizeObserver.observe(content)
+  mutationObserver.observe(content, { childList: true })
+
+  syncAfterLayout()
 })
 
 onBeforeUnmount(() => {
-  if (resizeObserver && scrollContainer.value)
-    resizeObserver.unobserve(scrollContainer.value)
+  const el = scrollContainer.value
+  const content = row.value
+  if (resizeObserver && el) resizeObserver.unobserve(el)
+  if (rowResizeObserver && content) rowResizeObserver.unobserve(content)
+  if (mutationObserver) mutationObserver.disconnect()
 })
 </script>
 
@@ -349,5 +356,12 @@ onBeforeUnmount(() => {
 .smart-icons-scroll::-webkit-scrollbar {
   width: 0;
   height: 0;
+}
+.min-h-inherit {
+  min-height: inherit;
+}
+.mask-edges {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
 }
 </style>

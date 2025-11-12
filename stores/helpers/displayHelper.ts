@@ -7,7 +7,7 @@ export function setCustomVh() {
   }
 }
 
-export type SmartState = 'front' | 'back' | 'dash'
+export type SmartState = 'front' | 'back' | 'dash' | 'flipping'
 
 export type DisplayState =
   | 'open'

@@ -142,27 +142,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     )
   })
 
-  const headerStyle = computed(() => {
-    if (state.headerState === 'hidden') return { display: 'none' }
 
-    const padding = sectionPaddingSize.value
-
-    if (state.bigMode) {
-      return {
-        height: `calc(var(--vh) * ${headerHeight.value})`,
-        width: `calc(100vw - ${padding * 2}vw)`,
-        top: `calc(var(--vh) * ${padding})`,
-        left: `${padding}vw`,
-      }
-    }
-
-    return {
-      height: `calc(var(--vh) * ${headerHeight.value})`,
-      width: `${mainContentWidth.value}vw`,
-      top: `calc(var(--vh) * ${padding})`,
-      left: `${padding}vw`,
-    }
-  })
 
   const leftToggleStyle = computed(() => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
@@ -227,37 +207,61 @@ export const useDisplayStore = defineStore('displayStore', () => {
       : { width: '0px', height: '0px' }
   })
 
-  const rightSidebarStyle = computed(() => {
-    const padding = sectionPaddingSize.value
-    const visible = ['open', 'compact'].includes(state.sidebarRightState)
+  // /stores/displayStore.ts — replacements
 
-    if (!visible) {
-      return {
-        top: `calc(var(--vh) * ${contentTopOffset.value})`,
-        right: `${padding}vw`,
-        width: '0px',
-        height: '0px',
-      }
-    }
+const headerStyle = computed(() => {
+  if (state.headerState === 'hidden') return { display: 'none' }
 
-    if (state.bigMode) {
-      return {
-        top: `calc(var(--vh) * ${padding})`,
-        right: `${padding}vw`,
-        width: `${sidebarRightWidth.value}vw`,
-        height: `calc(var(--vh) * ${headerHeight.value})`,
-      }
-    }
+  const padding = sectionPaddingSize.value
 
-    const fullHeight = 100 - padding * 2
-
+  if (state.bigMode) {
     return {
+      height: `calc(var(--vh) * ${headerHeight.value})`,
+      width: `calc(100vw - ${padding * 2}vw)`,
       top: `calc(var(--vh) * ${padding})`,
+      left: `${padding}vw`,
+    }
+  }
+
+  return {
+    height: `calc(var(--vh) * ${headerHeight.value})`,
+    width: `${mainContentWidth.value}vw`,
+    top: `calc(var(--vh) * ${padding})`,
+    left: `${padding}vw`,
+  }
+})
+
+const rightSidebarStyle = computed(() => {
+  const padding = sectionPaddingSize.value
+  const visible = ['open', 'compact'].includes(state.sidebarRightState)
+
+  if (!visible) {
+    return {
+      top: `calc(var(--vh) * ${contentTopOffset.value})`,
+      right: `${padding}vw`,
+      width: '0px',
+      height: '0px',
+    }
+  }
+
+  if (state.bigMode) {
+    return {
+      top: `calc(var(--vh) * ${contentTopOffset.value})`,
       right: `${padding}vw`,
       width: `${sidebarRightWidth.value}vw`,
-      height: `calc(var(--vh) * ${fullHeight})`,
+      height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
     }
-  })
+  }
+
+  const fullHeight = 100 - padding * 2
+
+  return {
+    top: `calc(var(--vh) * ${padding})`,
+    right: `${padding}vw`,
+    width: `${sidebarRightWidth.value}vw`,
+    height: `calc(var(--vh) * ${fullHeight})`,
+  }
+})
 
   const centerPanelOffset = computed(() => {
     if (!state.showCorner) return 0

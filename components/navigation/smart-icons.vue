@@ -22,6 +22,11 @@
         @touchstart="handleScrollTouchStart"
         @touchmove="handleScrollTouchMove"
         @touchend="handleScrollTouchEnd"
+        @wheel.passive="handleWheel"
+        tabindex="0"
+        @keydown.left.prevent="scrollByStep(-1)"
+        @keydown.right.prevent="scrollByStep(1)"
+        aria-label="Smart icons"
       >
         <icon-display
           v-for="icon in rowIcons"
@@ -130,6 +135,15 @@
       </div>
 
       <div class="pointer-events-none absolute inset-y-0 left-0 right-0 z-30">
+        <div
+          v-show="canScrollLeft"
+          class="absolute left-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-r from-base-100/80 to-transparent"
+        />
+        <div
+          v-show="canScrollRight"
+          class="absolute right-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-l from-base-100/80 to-transparent"
+        />
+
         <button
           v-if="canScrollLeft"
           type="button"
@@ -296,6 +310,14 @@ function handleScrollTouchEnd() {
   if (!isDragging.value) return
   isDragging.value = false
   requestAnimationFrame(updateScrollFlags)
+}
+
+function handleWheel(e: WheelEvent) {
+  const el = scrollContainer.value
+  if (!el) return
+  if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
+    el.scrollBy({ left: e.deltaY, behavior: 'auto' })
+  }
 }
 
 watch(

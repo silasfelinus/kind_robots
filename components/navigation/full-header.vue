@@ -1,3 +1,4 @@
+// /components/content/navigation/full-header.vue
 <template>
   <header class="w-full h-full flex items-stretch gap-0 overflow-hidden [isolation:isolate]">
     <div
@@ -50,23 +51,17 @@
             v-else
             class="grid grid-cols-2 grid-rows-2 w-full h-full place-items-center gap-x-[4%] gap-y-[6%] py-[4%]"
           >
-            <div
-              v-for="icon in utilityIcons"
-              :key="icon.id"
-              class="flex items-center justify-center"
-            >
-              <component
-                v-if="icon.component && componentMap[icon.component]"
-                :is="componentMap[icon.component]"
-                class="rounded-2xl"
-                :class="utilitySizeClasses"
-              />
-              <Icon
-                v-else
-                :name="icon.icon || 'kind-icon:help'"
-                class="rounded-2xl"
-                :class="utilitySizeClasses"
-              />
+            <div class="flex items-center justify-center">
+              <login-icon class="rounded-2xl w-[4%] h-[40%] p-[6%]" />
+            </div>
+            <div class="flex items-center justify-center">
+              <jellybean-icon class="rounded-2xl w-[4%] h-[40%] p-[6%]" />
+            </div>
+            <div class="flex items-center justify-center">
+              <theme-icon class="rounded-2xl w-[4%] h-[40%] p-[6%]" />
+            </div>
+            <div class="flex items-center justify-center">
+              <swarm-icon class="rounded-2xl w-[4%] h-[40%] p-[6%]" />
             </div>
           </div>
         </div>
@@ -81,22 +76,10 @@ import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
-import { useSmartbarStore } from '@/stores/smartbarStore'
-import type { SmartIcon } from '@/stores/smartbarStore'
-
-
-
-const componentMap: Record<string, any> = {
-  'swarm-icon': SwarmIcon,
-  'theme-icon': ThemeIcon,
-  'login-icon': LoginIcon,
-  'jellybean-icon': JellybeanIcon,
-}
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
-const smartbarStore = useSmartbarStore()
 
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
@@ -111,10 +94,4 @@ const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN' && big
 const avatarColumnClasses = computed(() =>
   bigMode.value ? 'basis-[11%] max-w-[22%]' : 'basis-[13%] max-w-[25%]',
 )
-
-const utilityIcons = computed<SmartIcon[]>(() =>
-  smartbarStore.activeIcons.filter((icon) => icon.type === 'utility').slice(0, 4),
-)
-
-const utilitySizeClasses = computed(() => 'w-[4%] h-[40%] p-[6%]')
 </script>

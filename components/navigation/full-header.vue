@@ -1,6 +1,8 @@
 <!-- /components/navigation/full-header.vue -->
 <template>
-  <header class="w-full h-full flex items-stretch gap-0 overflow-hidden [isolation:isolate]">
+  <header
+    class="w-full h-full flex items-stretch gap-0 overflow-hidden [isolation:isolate]"
+  >
     <div
       class="relative flex-none h-full shrink-0 z-0 pointer-events-auto flex"
       :class="avatarColumnClasses"
@@ -22,14 +24,25 @@
       </div>
     </div>
 
-    <div v-if="hasHeaderContent" class="flex-1 h-full flex items-center px-1 md:px-2 lg:px-3 xl:px-4">
+    <div
+      v-if="hasHeaderContent"
+      class="flex-1 h-full flex items-center px-1 md:px-2 lg:px-3 xl:px-4"
+    >
       <div class="w-full flex items-center justify-between lg:gap-3 xl:gap-4">
         <div
           class="flex min-w-0 gap-1"
-          :class="isExtraLarge ? 'flex-col items-start' : 'flex-row items-center flex-wrap'"
+          :class="
+            isExtraLarge
+              ? 'flex-col items-start'
+              : 'flex-row items-center flex-wrap'
+          "
         >
-          <span class="text-[clamp(1.1rem,1.9vw,1.6rem)] font-extrabold tracking-tight whitespace-nowrap">
-            <span class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          <span
+            class="text-[clamp(1.1rem,1.9vw,1.6rem)] font-extrabold tracking-tight whitespace-nowrap"
+          >
+            <span
+              class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
+            >
               Kind Robots
             </span>
           </span>
@@ -44,7 +57,9 @@
 
         <div
           class="flex items-center justify-end flex-nowrap shrink-0"
-          :class="bigMode ? 'basis-auto max-w-none' : 'basis-[20%] max-w-[20%] h-full pr-1 sm:pr-2'"
+          :class="
+            bigMode ? 'basis-auto max-w-none' : 'basis-[20%] max-w-[20%] h-full'
+          "
         >
           <div v-if="bigMode" class="w-full max-w-full">
             <smart-icons />
@@ -52,33 +67,38 @@
 
           <div v-else class="flex w-full h-full items-center justify-end">
             <div
-              class="grid grid-cols-2 grid-rows-2 place-items-center
-                     w-full h-full rounded-2xl border border-base-300 bg-base-200/70 shadow-inner
-                     p-1 md:p-3 lg:p-4 gap-1 sm:gap-2 md:gap-3"
+              class="grid grid-cols-2 grid-rows-2 place-items-stretch w-full h-full gap-1 sm:gap-2 md:gap-3"
             >
-              <div class="flex items-center justify-center">
-                <login-icon
-                  class="w-[46%] h-[46%] text-primary"
-                />
+              <div class="w-full h-full flex items-center justify-center">
+                <div
+                  class="w-full h-full rounded-md bg-base-200/70 flex items-center justify-center"
+                >
+                  <login-icon class="w-[52%] h-[52%] text-primary" />
+                </div>
               </div>
-              <div class="flex items-center justify-center">
-                <jellybean-icon
-                  class="w-[46%] h-[46%] text-secondary"
-                />
+              <div class="w-full h-full flex items-center justify-center">
+                <div
+                  class="w-full h-full rounded-md bg-base-200/70 flex items-center justify-center"
+                >
+                  <jellybean-icon class="w-[52%] h-[52%] text-secondary" />
+                </div>
               </div>
-              <div class="flex items-center justify-center">
-                <theme-icon
-                  class="w-[46%] h-[46%] text-accent"
-                />
+              <div class="w-full h-full flex items-center justify-center">
+                <div
+                  class="w-full h-full rounded-md bg-base-200/70 flex items-center justify-center"
+                >
+                  <theme-icon class="w-[52%] h-[52%] text-accent" />
+                </div>
               </div>
-              <div class="flex items-center justify-center">
-                <swarm-icon
-                  class="w-[46%] h-[46%] text-info"
-                />
+              <div class="w-full h-full flex items-center justify-center">
+                <div
+                  class="w-full h-full rounded-md bg-base-200/70 flex items-center justify-center"
+                >
+                  <swarm-icon class="w-[52%] h-[52%] text-info" />
+                </div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>

@@ -42,11 +42,7 @@
             </span>
 
             <div class="relative flex-1 min-w-0 h-full">
-              <div
-                class="h-full w-full overflow-x-auto overflow-y-visible overscroll-x-contain whitespace-nowrap [scrollbar-gutter:stable]"
-              >
-                <smart-icons class="min-w-max h-full px-1 inline-flex" />
-              </div>
+              <smart-icons class="min-w-max h-full px-1 inline-flex" />
             </div>
           </div>
         </template>

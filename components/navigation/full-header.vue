@@ -30,26 +30,21 @@
     >
       <div class="w-full flex items-center justify-between lg:gap-3 xl:gap-4">
         <div
-          class="flex min-w-0 gap-1"
-          :class="
-            isExtraLarge
-              ? 'flex-col items-start'
-              : 'flex-row items-center flex-wrap'
-          "
+          class="min-w-0 w-full grid grid-cols-2 items-center gap-1 lg:flex lg:flex-row lg:items-center lg:gap-2"
         >
           <span
-            class="text-[clamp(1.1rem,1.9vw,1.6rem)] font-extrabold tracking-tight whitespace-nowrap"
+            class="whitespace-nowrap font-extrabold tracking-tight text-[clamp(1.1rem,2.2vw,1.6rem)] lg:text-[clamp(1.8rem,3.4vw,2.8rem)] xl:text-[clamp(2.2rem,3.8vw,3.2rem)]"
           >
             <span
               class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
             >
-              Kind Robots
+              {{ displayTitle }}
             </span>
           </span>
 
           <span
-            v-if="subtitle"
-            class="text-[clamp(0.9rem,1.4vw,1.1rem)] text-base-content/85 leading-snug truncate min-w-0"
+            v-if="showSubtitle"
+            class="truncate min-w-0 text-base-content/85 text-[clamp(0.9rem,1.6vw,1.1rem)] lg:text-[clamp(1.2rem,2.0vw,1.4rem)]"
           >
             {{ subtitle }}
           </span>
@@ -67,35 +62,19 @@
 
           <div v-else class="flex w-full h-full items-center justify-end">
             <div
-              class="grid grid-cols-2 grid-rows-2 place-items-stretch w-full h-full gap-1 sm:gap-2 md:gap-3"
+              class="grid grid-cols-2 grid-rows-2 place-items-stretch w-full h-full gap-1 md:gap-2 lg:gap-3"
             >
               <div class="w-full h-full flex items-center justify-center">
-                <div
-                  class="w-full h-full rounded-md bg-base-200/70 flex items-center justify-center"
-                >
-                  <login-icon class="w-[52%] h-[52%] text-primary" />
-                </div>
+                <login-icon class="w-[45%] h-[45%] text-primary" />
               </div>
               <div class="w-full h-full flex items-center justify-center">
-                <div
-                  class="w-full h-full rounded-md bg-base-200/70 flex items-center justify-center"
-                >
-                  <jellybean-icon class="w-[52%] h-[52%] text-secondary" />
-                </div>
+                <jellybean-icon class="w-[45%] h-[45%] text-secondary" />
               </div>
               <div class="w-full h-full flex items-center justify-center">
-                <div
-                  class="w-full h-full rounded-md bg-base-200/70 flex items-center justify-center"
-                >
-                  <theme-icon class="w-[52%] h-[52%] text-accent" />
-                </div>
+                <theme-icon class="w-[45%] h-[45%] text-accent" />
               </div>
               <div class="w-full h-full flex items-center justify-center">
-                <div
-                  class="w-full h-full rounded-md bg-base-200/70 flex items-center justify-center"
-                >
-                  <swarm-icon class="w-[52%] h-[52%] text-info" />
-                </div>
+                <swarm-icon class="w-[45%] h-[45%] text-info" />
               </div>
             </div>
           </div>
@@ -119,11 +98,15 @@ const userStore = useUserStore()
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
-const isExtraLarge = computed(() => displayStore.viewportSize === 'extraLarge')
 
 const subtitle = computed(() => page.value?.subtitle || '')
-const hasHeaderContent = computed(() => true)
+const showSubtitle = computed(() => !bigMode.value && !!subtitle.value)
 
+const displayTitle = computed(() =>
+  bigMode.value ? `Kind ${page.value?.title || ''}` : 'Kind Robots',
+)
+
+const hasHeaderContent = computed(() => true)
 const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN')
 
 const avatarColumnClasses = computed(() =>

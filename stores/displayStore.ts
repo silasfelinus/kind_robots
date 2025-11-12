@@ -144,11 +144,23 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const headerStyle = computed(() => {
     if (state.headerState === 'hidden') return { display: 'none' }
+
+    const padding = sectionPaddingSize.value
+
+    if (state.bigMode) {
+      return {
+        height: `calc(var(--vh) * ${headerHeight.value})`,
+        width: `calc(100vw - ${padding * 2}vw)`,
+        top: `calc(var(--vh) * ${padding})`,
+        left: `${padding}vw`,
+      }
+    }
+
     return {
       height: `calc(var(--vh) * ${headerHeight.value})`,
-      width: `calc(100vw - ${sectionPaddingSize.value * 2}vw)`,
-      top: `calc(var(--vh) * ${sectionPaddingSize.value})`,
-      left: `${sectionPaddingSize.value}vw`,
+      width: `${mainContentWidth.value}vw`,
+      top: `calc(var(--vh) * ${padding})`,
+      left: `${padding}vw`,
     }
   })
 

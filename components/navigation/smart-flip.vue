@@ -35,42 +35,54 @@
         class="relative flex-1 min-h-0 px-2 md:px-3 lg:px-4 pb-2 md:pb-3 lg:pb-4"
       >
         <div
-          class="splitflap-stage rounded-3xl border-2 border-black shadow-xl bg-base-100/95"
+          class="split2x2-stage rounded-3xl border-2 border-black shadow-xl bg-base-100/95"
         >
-          <div class="splitflap-scene" :class="{ 'pe-none': isFlipping }">
-            <div class="splitflap-stack">
-              <div class="half half-top">
-                <div class="pane pane-next-top">
-                  <component :is="nextCompKey" />
-                </div>
-                <div
-                  class="pane pane-flap-top"
-                  :class="{ 'is-flipping': isFlipping }"
-                  :style="flapStyle"
-                >
-                  <component :is="currCompKey" />
-                </div>
+          <div class="split2x2-scene" :class="{ 'pe-none': isFlipping }">
+            <div class="absolute inset-0" v-if="!isFlipping">
+              <component :is="currCompKey" />
+            </div>
+
+            <div v-if="isFlipping" class="absolute inset-0">
+              <div class="absolute inset-0">
+                <component :is="currCompKey" />
               </div>
 
-              <div class="half half-bottom">
-                <div
-                  class="pane pane-next-bottom"
-                  :class="{ 'is-flipping': isFlipping }"
-                >
-                  <div class="pane-bottom-rot">
-                    <component :is="nextCompKey" />
-                  </div>
-                </div>
+              <div class="quarter next-tr">
+                <component :is="nextCompKey" />
+              </div>
 
-                <div class="pane pane-current-bottom" v-if="!isFlipping">
-                  <component :is="currCompKey" />
-                </div>
+              <div
+                class="quarter flap-tr"
+                :class="{ active: flippingTR }"
+                :style="durStyle"
+              >
+                <component :is="currCompKey" />
+              </div>
+
+              <div class="quarter next-tl" v-if="flippingTL || tlRevealed">
+                <component :is="nextCompKey" />
+              </div>
+
+              <div
+                class="quarter flap-tl"
+                :class="{ active: flippingTL }"
+                :style="durStyle"
+              >
+                <component :is="currCompKey" />
+              </div>
+
+              <div class="half-bottom stick-current" v-if="!cleanupReady">
+                <component :is="currCompKey" />
+              </div>
+
+              <div class="absolute inset-0" v-if="cleanupReady">
+                <component :is="nextCompKey" />
               </div>
             </div>
-          </div>
 
-          <div v-if="!isFlipping" class="sr-only" aria-live="polite">
-            {{ ariaLabel }}
+            <div v-if="!isFlipping" class="sr-only" aria-live="polite">
+              {{ ariaLabel }}
+            </div>
           </div>
         </div>
       </div>
@@ -80,7 +92,7 @@
 
 <script setup lang="ts">
 // /components/navigation/smart-flip.vue
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { Icon } from '#components'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -114,8 +126,14 @@ const panelMap: Record<SmartState, any> = {
 
 const current = ref<SmartState>(targetSmartState.value || 'front')
 const next = ref<SmartState>(targetSmartState.value || 'front')
+
 const isFlipping = ref(false)
-const DURATION = 700
+const flippingTR = ref(false)
+const flippingTL = ref(false)
+const tlRevealed = ref(false)
+const cleanupReady = ref(false)
+const DURATION = 450
+const GAP = 60
 
 const currCompKey = computed(() => panelMap[current.value])
 const nextCompKey = computed(() => panelMap[next.value])
@@ -134,26 +152,42 @@ watch(
     if (isFlipping.value) return
     if (newState === current.value) return
     next.value = newState
-    triggerFlip()
+    runSequence()
   },
   { immediate: true },
 )
 
-function triggerFlip() {
+function runSequence() {
   isFlipping.value = true
+  cleanupReady.value = false
+  tlRevealed.value = false
+  flippingTR.value = true
   window.setTimeout(() => {
-    current.value = next.value
-    isFlipping.value = false
+    flippingTR.value = false
+    tlRevealed.value = true
+    window.setTimeout(() => {
+      flippingTL.value = true
+      window.setTimeout(() => {
+        flippingTL.value = false
+        cleanupReady.value = true
+        window.setTimeout(() => {
+          current.value = next.value
+          isFlipping.value = false
+          cleanupReady.value = false
+          tlRevealed.value = false
+        }, 16)
+      }, DURATION)
+    }, GAP)
   }, DURATION)
 }
 
-const flapStyle = computed(() => ({
+const durStyle = computed(() => ({
   transitionDuration: `${DURATION}ms`,
 }))
 </script>
 
 <style scoped>
-.splitflap-stage {
+.split2x2-stage {
   position: relative;
   width: 100%;
   height: 100%;
@@ -161,86 +195,67 @@ const flapStyle = computed(() => ({
   border-radius: 1.5rem;
 }
 
-.splitflap-scene {
+.split2x2-scene {
   position: absolute;
   inset: 0;
-  perspective: 1400px;
-}
-
-.splitflap-stack {
-  position: absolute;
-  inset: 0;
-}
-
-.half {
-  position: absolute;
-  left: 0;
-  right: 0;
-  overflow: hidden;
-}
-
-.half-top {
-  top: 0;
-  height: 50%;
-}
-
-.half-bottom {
-  bottom: 0;
-  height: 50%;
-}
-
-.pane {
-  position: absolute;
-  inset: 0;
-}
-
-.pane > * {
-  position: absolute;
-  inset: 0;
-}
-
-.pane-next-top {
-  clip-path: inset(0 0 50% 0);
-}
-
-.pane-flap-top {
-  clip-path: inset(0 0 50% 0);
-  transform-origin: center bottom;
-  transform: rotateX(0deg);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transition: transform var(--flap-dur, 700ms) cubic-bezier(0.2, 0.7, 0.3, 1);
-}
-
-.pane-flap-top.is-flipping {
-  transform: rotateX(-180deg);
-}
-
-.pane-current-bottom {
-  clip-path: inset(50% 0 0 0);
-}
-
-.pane-next-bottom {
-  clip-path: inset(50% 0 0 0);
-  transform-style: preserve-3d;
-}
-
-.pane-bottom-rot {
-  position: absolute;
-  inset: 0;
-  clip-path: inset(50% 0 0 0);
-  transform-origin: center top;
-  transform: rotateX(180deg);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transition: transform var(--flap-dur, 700ms) cubic-bezier(0.2, 0.7, 0.3, 1);
-}
-
-.pane-next-bottom.is-flipping .pane-bottom-rot {
-  transform: rotateX(0deg);
 }
 
 .pe-none {
   pointer-events: none;
+}
+
+.quarter,
+.half-bottom {
+  position: absolute;
+  inset: 0;
+}
+
+.quarter > *,
+.half-bottom > * {
+  position: absolute;
+  inset: 0;
+}
+
+.next-tr {
+  clip-path: inset(0 0 50% 50%);
+  z-index: 2;
+}
+
+.flap-tr {
+  clip-path: inset(0 0 50% 50%);
+  transform-origin: center bottom;
+  transform: rotateX(0deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform var(--dur, 450ms) cubic-bezier(0.2, 0.7, 0.3, 1);
+  z-index: 3;
+}
+
+.flap-tr.active {
+  transform: rotateX(-180deg);
+}
+
+.next-tl {
+  clip-path: inset(0 50% 50% 0);
+  z-index: 2;
+}
+
+.flap-tl {
+  clip-path: inset(0 50% 50% 0);
+  transform-origin: center bottom;
+  transform: rotateX(0deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform var(--dur, 450ms) cubic-bezier(0.2, 0.7, 0.3, 1);
+  z-index: 3;
+}
+
+.flap-tl.active {
+  transform: rotateX(-180deg);
+}
+
+.half-bottom.stick-current {
+  clip-path: inset(50% 0 0 0);
+  z-index: 1;
 }
 </style>

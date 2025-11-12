@@ -42,12 +42,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-const img = ref<string>('https://picsum.photos/1600/900?blur=0')
+const img1 = ref<string>('images/backtree.webp')
+const img2 = ref<string>('images/botcafe.webp')
 
 const isFlipped = ref(false)
 
-const currentSrc = computed(() => img.value)
-const nextSrc = computed(() => img.value)
+const currentSrc = computed(() => img1.value)
+const nextSrc = computed(() => img2.value)
 
 const flapVars = computed(
   () =>

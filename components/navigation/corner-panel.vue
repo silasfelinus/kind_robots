@@ -129,13 +129,28 @@
                   </button>
                 </div>
 
-                <div v-else class="space-y-1">
+                <div v-else class="space-y-2">
                   <NuxtLink
-                    to="/register"
-                    class="block hover:underline"
+                    to="/login"
+                    class="flex items-center gap-2 hover:underline"
                     @click="close"
                   >
-                    Register
+                    <Icon
+                      name="kind-icon:person"
+                      class="inline-block h-3.5 w-3.5"
+                    />
+                    <span>Login</span>
+                  </NuxtLink>
+                  <NuxtLink
+                    to="/register"
+                    class="flex items-center gap-2 hover:underline"
+                    @click="close"
+                  >
+                    <Icon
+                      name="kind-icon:person-add"
+                      class="inline-block h-3.5 w-3.5"
+                    />
+                    <span>Register</span>
                   </NuxtLink>
                 </div>
               </div>

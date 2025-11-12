@@ -53,11 +53,19 @@
             <div
               v-for="icon in utilityIcons"
               :key="icon.id"
-              class="flex items-center justify-center p-[6%]"
+              class="flex items-center justify-center"
             >
-              <icon-display
-                :icon="icon"
-                class="w-[4vw] h-[40%] rounded-2xl"
+              <component
+                v-if="icon.component && componentMap[icon.component]"
+                :is="componentMap[icon.component]"
+                class="rounded-2xl"
+                :class="utilitySizeClasses"
+              />
+              <Icon
+                v-else
+                :name="icon.icon || 'kind-icon:help'"
+                class="rounded-2xl"
+                :class="utilitySizeClasses"
               />
             </div>
           </div>
@@ -75,6 +83,18 @@ import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 import { useSmartbarStore } from '@/stores/smartbarStore'
 import type { SmartIcon } from '@/stores/smartbarStore'
+
+import SwarmIcon from '@/components/content/icons/swarm-icon.vue'
+import ThemeIcon from '@/components/content/wonderlab/theme-icon.vue'
+import LoginIcon from '@/components/content/icons/login-icon.vue'
+import JellybeanIcon from '@/components/content/icons/jellybean-icon.vue'
+
+const componentMap: Record<string, any> = {
+  'swarm-icon': SwarmIcon,
+  'theme-icon': ThemeIcon,
+  'login-icon': LoginIcon,
+  'jellybean-icon': JellybeanIcon,
+}
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
@@ -98,4 +118,6 @@ const avatarColumnClasses = computed(() =>
 const utilityIcons = computed<SmartIcon[]>(() =>
   smartbarStore.activeIcons.filter((icon) => icon.type === 'utility').slice(0, 4),
 )
+
+const utilitySizeClasses = computed(() => 'w-[4%] h-[40%] p-[6%]')
 </script>

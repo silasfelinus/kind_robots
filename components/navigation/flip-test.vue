@@ -5,64 +5,119 @@
       class="scene relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
       :aria-label="ariaLabel"
       aria-live="polite"
-      @click="handleFlip"
+      @click="onClick"
     >
-      <div class="absolute inset-0">
-        <img
-          :src="nextSrc"
-          alt=""
-          class="w-full h-full object-cover select-none pointer-events-none"
-          draggable="false"
-        />
-      </div>
+      <img
+        :src="underSrc"
+        alt=""
+        class="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+        draggable="false"
+      />
 
-      <div
-        class="flap-wrapper"
-        :class="{ 'is-flipped': isFlipped }"
-        :style="flapVars"
-      >
-        <div class="face face-front"></div>
-        <div class="face face-back"></div>
-        <div class="shine"></div>
-      </div>
+      <div class="flap-stage">
+        <div
+          class="flap flap-left"
+          :class="{ 'is-flipped': isFlipped }"
+          :style="flapVars"
+          @transitionend="onLeftEnd"
+        >
+          <div class="face face-front"></div>
+          <div class="face face-back"></div>
+          <div class="shine"></div>
+        </div>
 
-      <div class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/20"></div>
+        <div
+          class="flap flap-right"
+          :class="{ 'is-flipped': isFlipped }"
+          :style="flapVars"
+          @transitionend="onRightEnd"
+        >
+          <div class="face face-front"></div>
+          <div class="face face-back"></div>
+          <div class="shine"></div>
+        </div>
+      </div>
     </div>
 
     <div class="mt-2 flex items-center justify-between text-xs opacity-80">
-      <span class="truncate">Click anywhere to flip</span>
-      <span>{{ isFlipped ? 'Showing bottom reveal' : 'Showing top flap' }}</span>
+      <span class="truncate">Click to flip</span>
+      <span class="truncate">{{ statusText }}</span>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
+// /components/experiments/flip-test.vue
+type SmartStateLocal = 'img1' | 'img2' | 'flipping'
+
 import { ref, computed } from 'vue'
 
-const img1 = ref<string>('images/backtree.webp')
-const img2 = ref<string>('images/botcafe.webp')
+const IMG1 = '/images/botcafe.webp'
+const IMG2 = '/images/amibot.webp'
 
+const smartState = ref<SmartStateLocal>('img1')
 const isFlipped = ref(false)
+const leftDone = ref(false)
+const rightDone = ref(false)
 
-const currentSrc = computed(() => img1.value)
-const nextSrc = computed(() => img2.value)
+const frontRef = ref<'img1' | 'img2'>('img1')
+const nextRef = computed<'img1' | 'img2'>(() => (frontRef.value === 'img1' ? 'img2' : 'img1'))
+
+const currentSrc = computed(() => (frontRef.value === 'img1' ? IMG1 : IMG2))
+const nextSrc = computed(() => (nextRef.value === 'img1' ? IMG1 : IMG2))
+const underSrc = computed(() => nextSrc.value)
 
 const flapVars = computed(
   () =>
     ({
-      '--flip-image-front': `url("${currentSrc.value}")`,
-      '--flip-image-back': `url("${nextSrc.value}")`,
+      '--front-image': `url("${currentSrc.value}")`,
+      '--back-image': `url("${underSrc.value}")`,
     }) as Record<string, string>,
 )
 
-const ariaLabel = computed(() =>
-  isFlipped.value
-    ? 'Image revealed after vertical fold'
-    : 'Image with top half ready to fold down',
+const statusText = computed(() =>
+  smartState.value === 'flipping'
+    ? 'Flipping…'
+    : frontRef.value === 'img1'
+      ? 'Image 1 in front'
+      : 'Image 2 in front',
 )
 
-function handleFlip() {
-  isFlipped.value = !isFlipped.value
+const ariaLabel = computed(() =>
+  smartState.value === 'flipping'
+    ? 'Top quadrants folding to reveal the image behind'
+    : frontRef.value === 'img1'
+      ? 'Image 1 showing'
+      : 'Image 2 showing',
+)
+
+function onClick() {
+  if (smartState.value === 'flipping') return
+  smartState.value = 'flipping'
+  leftDone.value = false
+  rightDone.value = false
+  isFlipped.value = true
+}
+
+function onLeftEnd(e: TransitionEvent) {
+  const el = e.target as HTMLElement
+  if (!el.classList.contains('flap-left')) return
+  if (getComputedStyle(el).transform === 'none') return
+  leftDone.value = true
+}
+
+function onRightEnd(e: TransitionEvent) {
+  const el = e.target as HTMLElement
+  if (!el.classList.contains('flap-right')) return
+  if (getComputedStyle(el).transform === 'none') return
+  rightDone.value = true
+  if (leftDone.value) finalizePass()
+}
+
+function finalizePass() {
+  frontRef.value = nextRef.value
+  isFlipped.value = false
+  smartState.value = frontRef.value
 }
 </script>
 
@@ -72,47 +127,60 @@ function handleFlip() {
   perspective-origin: 50% 0%;
 }
 
-.flap-wrapper {
+.flap-stage {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  transform-origin: 50% 0%;
-  transition: transform 520ms cubic-bezier(0.2, 0.7, 0.3, 1);
-  will-change: transform;
 }
 
-.flap-wrapper::before {
-  content: '';
+.flap {
   position: absolute;
-  inset: 0;
-  clip-path: inset(0 0 50% 0);
-  background: var(--flip-image-front) center top / cover no-repeat;
-  opacity: 0;
+  inset: 0 50% 50% 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 900ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.flap-right {
+  inset: 0 0 50% 50%;
+  transition: transform 900ms cubic-bezier(0.2, 0.7, 0.3, 1) 120ms;
+}
+
+.flap.is-flipped {
+  transform: rotateX(180deg);
 }
 
 .face {
   position: absolute;
   inset: 0;
-  clip-path: inset(0 0 50% 0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.flap-left .face,
+.flap-left .shine {
+  clip-path: polygon(0% 0%, 50% 0%, 50% 50%, 0% 50%);
+  background-position: left top;
+  transform-origin: 25% 0%;
+}
+
+.flap-right .face,
+.flap-right .shine {
+  clip-path: polygon(50% 0%, 100% 0%, 100% 50%, 50% 50%);
+  background-position: right top;
+  transform-origin: 75% 0%;
 }
 
 .face-front {
-  background-image: var(--flip-image-front);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center top;
+  background-image: var(--front-image);
   transform: rotateX(0deg);
 }
 
 .face-back {
-  background-image: var(--flip-image-back);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center bottom;
-  clip-path: inset(50% 0 0 0);
+  background-image: var(--back-image);
   transform: rotateX(180deg);
   filter: brightness(0.96);
 }
@@ -120,19 +188,13 @@ function handleFlip() {
 .shine {
   position: absolute;
   inset: 0;
-  clip-path: inset(0 0 50% 0);
   background: linear-gradient(to bottom, rgba(0,0,0,0.18), rgba(0,0,0,0));
   mix-blend-mode: multiply;
   opacity: 0.85;
-  transition: opacity 520ms ease;
-  pointer-events: none;
+  transition: opacity 900ms ease;
 }
 
-.flap-wrapper.is-flipped {
-  transform: rotateX(180deg);
-}
-
-.flap-wrapper.is-flipped .shine {
+.is-flipped .shine {
   opacity: 0.2;
 }
 </style>

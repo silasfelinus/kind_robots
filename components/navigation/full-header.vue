@@ -9,7 +9,7 @@
 
       <div
         v-if="showViewportBadge"
-        class="absolute left-[4%] right-[4%] top-2 z-40 flex justify-start pointer-events-none"
+        class="absolute left-[4%] right-[4%] top-2 z-50 flex justify-start pointer-events-none"
       >
         <span
           class="inline-flex max-w-full truncate text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.65rem,0.8vw,0.9rem)] leading-none shadow"

@@ -7,7 +7,7 @@
       aria-live="polite"
       @click="runExchange"
     >
-      <div class="absolute inset-0">
+      <div class="absolute inset-0 z-0">
         <img
           :src="currentSrc"
           alt=""
@@ -16,19 +16,24 @@
         />
       </div>
 
-      <div
-        v-for="(col, i) in columns"
-        :key="i"
-        class="flap-wrapper"
-        :class="{ 'is-flipped': flipped[i] }"
-        :style="columnVars(i)"
-      >
-        <div class="face face-front"></div>
-        <div class="face face-back"></div>
+      <div v-if="showFlaps" class="absolute inset-0 z-10">
+        <div
+          v-for="tile in tiles"
+          :key="tile.id"
+          class="flap-wrapper"
+          :class="{ 'is-flipped': flipped[tile.index] }"
+          :style="tileVars(tile)"
+        >
+          <div class="face face-front"></div>
+          <div class="face face-back"></div>
+        </div>
       </div>
 
       <div
-        class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/20"
+        class="pointer-events-none absolute inset-x-0 top-1/3 h-px bg-black/25"
+      ></div>
+      <div
+        class="pointer-events-none absolute inset-x-0 top-2/3 h-px bg-black/15"
       ></div>
 
       <div
@@ -36,12 +41,8 @@
       >
         {{
           isAnimating
-            ? `Flipping col ${activeColLabel} • phase: ${
-                isLogoPhaseComputed ? 'logo' : 'swap'
-              }`
-            : hasShownLogo
-              ? 'Phase 2 • click to reveal background'
-              : 'Phase 1 • click to reveal logo grid'
+            ? `Dropping col ${activeColLabel} • 2×2 over 3 segments`
+            : 'Ready • click to run magic flip-flap reveal'
         }}
       </div>
     </div>
@@ -49,9 +50,9 @@
     <div class="mt-3 grid grid-cols-1 lg:grid-cols-3 gap-2">
       <div class="rounded-xl border border-base-300 bg-base-200 p-2">
         <div class="flex items-center justify-between">
-          <span class="text-xs opacity-80">Image 1 (current)</span>
+          <span class="text-xs opacity-80">Rear panel (visible)</span>
           <span class="text-[10px] px-1.5 py-0.5 rounded bg-primary/20"
-            >front/top-half</span
+            >currentSrc</span
           >
         </div>
         <div class="mt-1 text-[11px] break-all opacity-80">
@@ -67,12 +68,14 @@
 
       <div class="rounded-xl border border-base-300 bg-base-200 p-2">
         <div class="flex items-center justify-between">
-          <span class="text-xs opacity-80">Image 2 (next)</span>
+          <span class="text-xs opacity-80">Next hidden panel</span>
           <span class="text-[10px] px-1.5 py-0.5 rounded bg-secondary/20"
-            >back/bottom-half</span
+            >nextSrc</span
           >
         </div>
-        <div class="mt-1 text-[11px] break-all opacity-80">{{ nextSrc }}</div>
+        <div class="mt-1 text-[11px] break-all opacity-80">
+          {{ nextSrc }}
+        </div>
         <div class="mt-2 h-20 w-full overflow-hidden rounded-lg">
           <div
             class="h-full w-full bg-cover bg-center"
@@ -83,26 +86,18 @@
 
       <div class="rounded-xl border border-base-300 bg-base-200 p-2">
         <div class="flex items-center justify-between">
-          <span class="text-xs opacity-80">Run config</span>
+          <span class="text-xs opacity-80">Flip config</span>
           <span class="text-[10px] px-1.5 py-0.5 rounded bg-info/20"
-            >debug</span
+            >2 rows, 3 segments</span
           >
         </div>
         <div class="mt-1 text-[11px] opacity-80">
-          columns: {{ cols }} • chain: right→left • phase:
-          {{ isLogoPhaseComputed ? 'logo (logo_old.webp)' : 'swap (bg)' }}
+          visible rows: 2 • total vertical segments: 3 • cols: {{ cols }}
         </div>
-        <div class="mt-2 flex items-center gap-2 text-[11px]">
-          <label class="inline-flex items-center gap-1">
-            <input
-              type="checkbox"
-              class="toggle toggle-xs"
-              v-model="usePlaceholderBackForNonLast"
-            />
-            <span>placeholder on non-last</span>
-          </label>
-          <span class="opacity-60">placeholder: {{ placeholderBackSrc }}</span>
+        <div class="mt-1 text-[11px] opacity-80">
+          order: top-right → mid-right → top-left → mid-left
         </div>
+        <div class="mt-1 text-[11px] opacity-80">logoSrc: {{ logoSrc }}</div>
         <div class="mt-2 grid grid-cols-2 gap-1 text-[11px]">
           <div
             v-for="(s, i) in status"
@@ -117,17 +112,9 @@
 
     <div class="mt-2 flex items-center justify-between text-xs opacity-80">
       <span class="truncate">
-        Click the image to run phased top-flip exchange
+        Each click swaps panels, then runs a 2×2 drop over a 3-part stack
       </span>
-      <span>
-        {{
-          isAnimating
-            ? 'Animating…'
-            : hasShownLogo
-              ? 'Idle • next click = background phase'
-              : 'Idle • next click = logo phase'
-        }}
-      </span>
+      <span>{{ isAnimating ? 'Animating…' : 'Idle' }}</span>
     </div>
   </section>
 </template>
@@ -138,62 +125,92 @@ import { ref, computed, nextTick } from 'vue'
 const imgA = ref<string>('/images/backtree.webp')
 const imgB = ref<string>('/images/botcafe.webp')
 const logoSrc = ref<string>('/images/logo_old.webp')
-const placeholderBackSrc = ref<string>('/images/botcafe.webp')
 
 const cols = ref<number>(2)
-const columns = computed(() => Array.from({ length: cols.value }, (_, i) => i))
+const visibleRows = ref<number>(2)
+const totalSegments = ref<number>(3)
+
+interface TileDef {
+  id: string
+  row: number
+  col: number
+  index: number
+}
+
+const tiles = computed<TileDef[]>(() => {
+  const result: TileDef[] = []
+  let index = 0
+  for (let r = 0; r < visibleRows.value; r += 1) {
+    for (let c = 0; c < cols.value; c += 1) {
+      result.push({
+        id: `${r}-${c}`,
+        row: r,
+        col: c,
+        index,
+      })
+      index += 1
+    }
+  }
+  return result
+})
 
 const isAnimating = ref(false)
+const showFlaps = ref(false)
 const flipped = ref<boolean[]>([])
 const status = ref<string[]>([])
 const activeCol = ref<number | null>(null)
 
 const currentSrc = ref(imgA.value)
 const nextSrc = ref(imgB.value)
-
-const usePlaceholderBackForNonLast = ref(true)
-const hasShownLogo = ref(false)
+const frontSrc = ref(currentSrc.value)
 
 const ariaLabel = computed(() =>
   isAnimating.value
-    ? 'Running phased vertical flip exchange'
-    : 'Image ready; click to start phased vertical flip exchange',
+    ? 'Running 2×2 flip over 3 stacked segments'
+    : 'Image ready; click to start 2×2 flip-flap reveal',
 )
 
 const activeColLabel = computed(() =>
   activeCol.value === null ? '-' : `${activeCol.value + 1}/${cols.value}`,
 )
 
-const isLogoPhaseComputed = computed(() => !hasShownLogo.value)
-
 function initState() {
-  flipped.value = columns.value.map(() => false)
-  status.value = columns.value.map(() => 'pending')
+  flipped.value = tiles.value.map(() => false)
+  status.value = Array.from({ length: cols.value }, () => 'idle')
   activeCol.value = null
 }
 
 initState()
 
-function columnVars(i: number) {
-  const left = (100 / cols.value) * i
-  const right = 100 - (100 / cols.value) * (i + 1)
-  const center = left + 100 / cols.value / 2
+function tileVars(tile: TileDef) {
+  const colWidth = 100 / cols.value
+  const segHeight = 100 / totalSegments.value
 
-  const isLastCol = i === 0
-  const isLogoPhase = isLogoPhaseComputed.value
+  const left = colWidth * tile.col
+  const right = 100 - colWidth * (tile.col + 1)
 
-  const backSrc = isLogoPhase
-    ? logoSrc.value
-    : usePlaceholderBackForNonLast.value && !isLastCol
-      ? placeholderBackSrc.value
-      : nextSrc.value
+  const top = segHeight * tile.row
+  const bottom = 100 - segHeight * (tile.row + 1)
+
+  const colCenter = left + colWidth / 2
+
+  const rowCenterFront = top + segHeight / 2
+  const rowCenterBack =
+    tile.row === 0 ? top + segHeight / 2 : 100 - segHeight / 2
+
+  const isMiddleRow = tile.row === 1
+  const backImage = isMiddleRow ? currentSrc.value : logoSrc.value
 
   return {
-    '--flip-image-front': `url("${currentSrc.value}")`,
-    '--flip-image-back': `url("${backSrc}")`,
+    '--flip-image-front': `url("${frontSrc.value}")`,
+    '--flip-image-back': `url("${backImage}")`,
     '--col-left': `${left}%`,
     '--col-right': `${right}%`,
-    '--col-center': `${center}%`,
+    '--row-top': `${top}%`,
+    '--row-bottom': `${bottom}%`,
+    '--col-center': `${colCenter}%`,
+    '--row-center-front': `${rowCenterFront}%`,
+    '--row-center-back': `${rowCenterBack}%`,
   } as Record<string, string>
 }
 
@@ -201,39 +218,52 @@ async function runExchange() {
   if (isAnimating.value) return
 
   isAnimating.value = true
-  const isLogoPhase = isLogoPhaseComputed.value
 
+  const previousCurrent = currentSrc.value
+  frontSrc.value = previousCurrent
+  currentSrc.value = nextSrc.value
+
+  showFlaps.value = true
   initState()
   await nextTick()
 
-  const order = [...columns.value].reverse()
-
-  for (const i of order) {
-    activeCol.value = i
-    status.value[i] = isLogoPhase ? 'logo' : 'swap'
-    flipped.value[i] = true
-    await wait(900)
-    flipped.value[i] = false
-    await wait(140)
+  const columnOrder: number[] = []
+  for (let c = cols.value - 1; c >= 0; c -= 1) {
+    columnOrder.push(c)
   }
 
-  if (isLogoPhase) {
-    hasShownLogo.value = true
-  } else {
-    const oldCurrent = currentSrc.value
-    currentSrc.value = nextSrc.value
-    nextSrc.value = oldCurrent
-    hasShownLogo.value = false
+  const flipDuration = 700
+  const rowDelay = 320
+  const betweenColumnsDelay = 180
+
+  for (const col of columnOrder) {
+    activeCol.value = col
+    status.value[col] = 'dropping'
+
+    for (let r = 0; r < visibleRows.value; r += 1) {
+      const index = r * cols.value + col
+      flipped.value[index] = true
+      await wait(rowDelay)
+    }
+
+    status.value[col] = 'done'
+    await wait(betweenColumnsDelay)
   }
+
+  nextSrc.value = previousCurrent
 
   activeCol.value = null
-  await wait(60)
+  await wait(120)
+
+  showFlaps.value = false
   initState()
   isAnimating.value = false
 }
 
 function wait(ms: number) {
-  return new Promise((res) => setTimeout(res, ms))
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
 }
 </script>
 
@@ -244,24 +274,31 @@ function wait(ms: number) {
   transform-style: preserve-3d;
   perspective: 1200px;
   transform-origin: 50% 100%;
-  transition: transform 900ms cubic-bezier(0.2, 0.7, 0.3, 1);
-  clip-path: inset(0 var(--col-right) 50% var(--col-left));
+  transition: transform 700ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  clip-path: inset(
+    var(--row-top) var(--col-right) var(--row-bottom) var(--col-left)
+  );
 }
+
 .flap-wrapper::after {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent);
   mix-blend-mode: multiply;
-  transition: opacity 900ms ease;
-  clip-path: inset(0 var(--col-right) 50% var(--col-left));
+  transition: opacity 700ms ease;
+  clip-path: inset(
+    var(--row-top) var(--col-right) var(--row-bottom) var(--col-left)
+  );
 }
+
 .flap-wrapper.is-flipped {
   transform: rotateX(-180deg);
 }
+
 .flap-wrapper.is-flipped::after {
-  opacity: 0.22;
+  opacity: 0.28;
 }
 
 .face {
@@ -271,19 +308,21 @@ function wait(ms: number) {
   background-size: 100% 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  clip-path: inset(0 var(--col-right) 50% var(--col-left));
+  clip-path: inset(
+    var(--row-top) var(--col-right) var(--row-bottom) var(--col-left)
+  );
 }
 
 .face-front {
   transform: rotateX(0deg) translateZ(0.01px);
   background-image: var(--flip-image-front);
-  background-position: var(--col-center) top;
+  background-position: var(--col-center) var(--row-center-front);
 }
 
 .face-back {
   transform: rotateX(180deg);
   background-image: var(--flip-image-back);
-  background-position: var(--col-center) bottom;
+  background-position: var(--col-center) var(--row-center-back);
   filter: brightness(0.96);
 }
 </style>

@@ -68,12 +68,12 @@
               </div>
               <div class="flex items-center justify-center">
                 <theme-icon
-                  class="w-[46%] h-[46%] sm:w-[52%] sm:h-[52%] md:w-[58%] md:h-[58%] lg:w-[62%] lg:h-[62%] text-accent"
+                  class="w-[46%] h-[46%] text-accent"
                 />
               </div>
               <div class="flex items-center justify-center">
                 <swarm-icon
-                  class="w-[46%] h-[46%] sm:w-[52%] sm:h-[52%] md:w-[58%] md:h-[58%] lg:w-[62%] lg:h-[62%] text-info"
+                  class="w-[46%] h-[46%] text-info"
                 />
               </div>
             </div>

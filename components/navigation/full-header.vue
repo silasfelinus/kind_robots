@@ -1,6 +1,8 @@
 <!-- /components/navigation/full-header.vue -->
 <template>
   <header
+    ref="headerRoot"
+    :key="headerKey"
     class="w-full h-full flex items-stretch gap-0 overflow-x-hidden overflow-y-hidden [isolation:isolate]"
   >
     <div
@@ -16,47 +18,32 @@
         v-if="showViewportBadge"
         class="absolute left-[4%] right-[4%] top-2 z-50 flex justify-start pointer-events-none"
       >
-        <span
-          class="inline-flex max-w-full truncate text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.7rem,1vw,1rem)] leading-none shadow"
-        >
+        <span class="inline-flex max-w-full truncate text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.7rem,1vw,1rem)] leading-none shadow">
           {{ viewportSize }}
         </span>
       </div>
     </div>
 
-    <div
-      v-if="hasHeaderContent"
-      class="flex-1 h-full flex items-center px-1 md:px-2 lg:px-3 xl:px-4"
-    >
-      <div class="w-full flex items-center justify-between lg:gap-3 xl:gap-4">
+    <div v-if="hasHeaderContent" class="flex-1 h-full flex items-center px-1 md:px-2 lg:px-3 xl:px-4 min-w-0">
+      <div class="w-full flex items-center justify-between lg:gap-3 xl:gap-4 min-w-0">
         <template v-if="bigMode">
-          <div class="flex items-center gap-2 min-w-0 w-full">
-            <span
-              class="whitespace-nowrap font-extrabold tracking-tight text-[clamp(2.2rem,6vw,4rem)] xl:text-[clamp(2.6rem,6.5vw,4.5rem)]"
-            >
-              <span
-                class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
-              >
+          <div class="flex items-center gap-2 w-full min-w-0">
+            <span class="whitespace-nowrap font-extrabold tracking-tight text-[clamp(2.2rem,6vw,4rem)] xl:text-[clamp(2.6rem,6.5vw,4.5rem)]">
+              <span class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
                 {{ displayTitle }}
               </span>
             </span>
 
             <div class="relative flex-1 min-w-0 h-full">
-              <smart-icons class="h-full px-1 inline-flex w-full min-w-0" />
+              <smart-icons class="h-full inline-flex w-full min-w-0 px-1" />
             </div>
           </div>
         </template>
 
         <template v-else>
-          <div
-            class="min-w-0 w-full flex flex-col items-start justify-center gap-[2px]"
-          >
-            <span
-              class="block w-full font-extrabold tracking-tight text-[clamp(2.2rem,6vw,3rem)]"
-            >
-              <span
-                class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
-              >
+          <div class="min-w-0 w-full flex flex-col items-start justify-center gap-[2px]">
+            <span class="block w-full font-extrabold tracking-tight text-[clamp(2.2rem,6vw,3rem)]">
+              <span class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
                 {{ displayTitle }}
               </span>
             </span>
@@ -77,23 +64,30 @@
                 : 'basis-[22%] max-w-[22%] h-full xl:basis-[38%] xl:max-w-[38%]',
             ]"
           >
-            <div
-              class="flex w-full h-full items-center justify-end xl:justify-center"
-            >
-              <div
-                class="grid grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-1"
-              >
-                <div class="w-full h-full flex items-center justify-center">
-                  <login-icon class="shrink-0 text-primary" />
+            <div class="flex w-full h-full items-center justify-end xl:justify-center">
+              <div class="grid grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-1">
+                <div class="w-full h-full grid place-items-center">
+                  <div class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]">
+                    <login-icon class="w-full h-full text-primary" />
+                  </div>
                 </div>
-                <div class="w-full h-full flex items-center justify-center">
-                  <jellybean-icon class="shrink-0 text-secondary" />
+
+                <div class="w-full h-full grid place-items-center">
+                  <div class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]">
+                    <jellybean-icon class="w-full h-full text-secondary" />
+                  </div>
                 </div>
-                <div class="w-full h-full flex items-center justify-center">
-                  <theme-icon class="shrink-0 text-accent" />
+
+                <div class="w-full h-full grid place-items-center">
+                  <div class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]">
+                    <theme-icon class="w-full h-full text-accent" />
+                  </div>
                 </div>
-                <div class="w-full h-full flex items-center justify-center">
-                  <swarm-icon class="shrink-0 text-info" />
+
+                <div class="w-full h-full grid place-items-center">
+                  <div class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]">
+                    <swarm-icon class="w-full h-full text-info" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -106,7 +100,7 @@
 
 <script setup lang="ts">
 // /components/navigation/full-header.vue
-import { computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
@@ -114,6 +108,9 @@ import { useUserStore } from '@/stores/userStore'
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
+
+const headerRoot = ref<HTMLElement | null>(null)
+let ro: ResizeObserver | null = null
 
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
@@ -131,5 +128,53 @@ const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN')
 
 const avatarColumnClasses = computed(() =>
   bigMode.value ? 'basis-[11%] max-w-[22%]' : 'basis-[13%] max-w-[25%]',
+)
+
+const headerKey = computed(
+  () =>
+    `${bigMode.value}-${viewportSize.value}-${displayStore.sidebarRightState}-${displayStore.headerState}-${displayStore.showCorner}`
+)
+
+function fireHeaderResized() {
+  window.dispatchEvent(new CustomEvent('kr:header-resized'))
+}
+
+function attachObserver() {
+  if (!headerRoot.value) return
+  ro = new ResizeObserver(() => {
+    fireHeaderResized()
+  })
+  ro.observe(headerRoot.value)
+}
+
+function detachObserver() {
+  if (ro) {
+    ro.disconnect()
+    ro = null
+  }
+}
+
+onMounted(() => {
+  attachObserver()
+  nextTick(fireHeaderResized)
+})
+
+onBeforeUnmount(() => {
+  detachObserver()
+})
+
+watch(
+  () => [
+    bigMode.value,
+    viewportSize.value,
+    displayStore.sidebarRightState,
+    displayStore.headerState,
+    displayStore.showCorner
+  ],
+  async () => {
+    await nextTick()
+    fireHeaderResized()
+  },
+  { flush: 'post' }
 )
 </script>

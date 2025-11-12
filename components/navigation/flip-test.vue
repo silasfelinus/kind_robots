@@ -2,7 +2,7 @@
 <template>
   <section class="relative w-full max-w-4xl mx-auto">
     <div
-      class="relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
+      class="scene relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl select-none"
       :aria-label="ariaLabel"
       aria-live="polite"
       @click="runExchange"
@@ -207,7 +207,12 @@ function wait(ms: number) {
 </script>
 
 <style scoped>
-.flap-wrapper {
+.scene {
+  perspective: 1200px;
+  perspective-origin: 50% 0%;
+}
+
+.flap-stage {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
@@ -216,8 +221,8 @@ function wait(ms: number) {
   transition: transform 480ms cubic-bezier(0.2, 0.7, 0.3, 1);
   clip-path: inset(0 var(--col-right) 50% var(--col-left));
 }
-.flap-wrapper::after {
-  content: '';
+
+.flap {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -226,8 +231,10 @@ function wait(ms: number) {
   transition: opacity 480ms ease;
   clip-path: inset(0 var(--col-right) 50% var(--col-left));
 }
-.flap-wrapper.is-flipped {
-  transform: rotateX(-180deg);
+
+.flap-right {
+  clip-path: polygon(50% 0%, 100% 0%, 100% 50%, 50% 50%);
+  transform-origin: 75% 0%;
 }
 .flap-wrapper.is-flipped::after {
   opacity: 0.22;

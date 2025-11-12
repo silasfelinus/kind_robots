@@ -1,11 +1,14 @@
-// /components/content/navigation/full-header.vue
+<!-- /components/content/navigation/full-header.vue -->
 <template>
   <header class="w-full h-full flex items-stretch gap-0 overflow-hidden [isolation:isolate]">
     <div
       class="relative flex-none h-full shrink-0 z-0 pointer-events-auto flex"
       :class="avatarColumnClasses"
     >
-      <avatar-image alt="User Avatar" class="block w-full h-full object-cover object-center m-0 p-0" />
+      <avatar-image
+        alt="User Avatar"
+        class="block w-full h-full object-cover object-center m-0 p-0"
+      />
 
       <div
         v-if="showViewportBadge"
@@ -40,7 +43,7 @@
         </div>
 
         <div
-          class="flex items-center justify-end gap-1 md:gap-2 flex-nowrap shrink-0"
+          class="flex items-center justify-end flex-nowrap shrink-0"
           :class="bigMode ? 'basis-auto max-w-none' : 'basis-[20%] max-w-[20%] h-full pr-1 sm:pr-2'"
         >
           <div v-if="bigMode" class="w-full max-w-full">
@@ -49,19 +52,20 @@
 
           <div
             v-else
-            class="grid grid-cols-2 grid-rows-2 w-full h-full place-items-center gap-x-[4%] gap-y-[6%] py-[4%]"
+            class="grid grid-cols-2 grid-rows-2 w-full h-full place-items-center gap-x-[4%] gap-y-[6%] py-[4%]
+                   bg-base-200/60 border border-base-300 rounded-xl shadow-inner"
           >
             <div class="flex items-center justify-center">
-              <login-icon class="rounded-2xl w-[4%] h-[40%] p-[1%]" />
+              <login-icon class="w-[40%] h-[40%] text-primary" />
             </div>
             <div class="flex items-center justify-center">
-              <jellybean-icon class="rounded-2xl w-[4%] h-[40%] p-[1%]" />
+              <jellybean-icon class="w-[40%] h-[40%] text-secondary" />
             </div>
             <div class="flex items-center justify-center">
-              <theme-icon class="rounded-2xl w-[4%] h-[40%] p-[1%]" />
+              <theme-icon class="w-[40%] h-[40%] text-accent" />
             </div>
             <div class="flex items-center justify-center">
-              <swarm-icon class="rounded-2xl w-[4%] h-[40%] p-[1%]" />
+              <swarm-icon class="w-[40%] h-[40%] text-info" />
             </div>
           </div>
         </div>

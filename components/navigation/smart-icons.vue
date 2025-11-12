@@ -1,10 +1,7 @@
 <!-- /components/content/navigation/smart-icons.vue -->
 <template>
-  <!-- Fill the column by default -->
   <div class="relative h-full w-full leading-none flex-1 min-w-0">
-    <!-- One flex row: [arrow] [scrollable icons] [arrow] -->
     <div class="h-full w-full flex items-stretch min-w-0 gap-[2px]">
-      <!-- Left chevron (only if needed, takes space only when visible) -->
       <button
         v-if="canScrollLeft"
         type="button"
@@ -14,7 +11,6 @@
         <Icon name="kind-icon:chevron-left" class="w-3 h-3 lg:w-4 lg:h-4" />
       </button>
 
-      <!-- Scrollable icon track -->
       <div
         ref="scrollContainer"
         class="h-full flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none"
@@ -36,7 +32,6 @@
         @touchmove="handleScrollTouchMove"
         @touchend="handleScrollTouchEnd"
       >
-        <!-- Icons (square tiles, sized by row height) -->
         <icon-display
           v-for="icon in rowIcons"
           :key="icon.id"
@@ -45,7 +40,6 @@
           class="snap-start shrink-0 h-full aspect-square flex"
         />
 
-        <!-- Plus tile (edit mode only) — same square sizing -->
         <div
           v-if="isEditing"
           class="snap-start shrink-0 h-full aspect-square flex"
@@ -66,7 +60,6 @@
           </NuxtLink>
         </div>
 
-        <!-- Edit tile (when not editing) -->
         <div
           v-if="!isEditing"
           class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
@@ -91,7 +84,6 @@
           </button>
         </div>
 
-        <!-- Save tile (when editing) -->
         <div
           v-if="isEditing"
           class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
@@ -122,7 +114,6 @@
           </button>
         </div>
 
-        <!-- Cancel tile (when editing) -->
         <div
           v-if="isEditing"
           class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
@@ -147,11 +138,9 @@
           </button>
         </div>
 
-        <!-- Spacer to eliminate tiny trailing dead-zone from rounding -->
         <div aria-hidden="true" class="shrink-0 h-full w-px" />
       </div>
 
-      <!-- Right chevron (only if needed, takes space only when visible) -->
       <button
         v-if="canScrollRight"
         type="button"
@@ -175,18 +164,22 @@ const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
 
-const bigMode = computed(() => displayStore.bigMode)
+const isNav = (icon: SmartIcon) => (icon?.type || '').toLowerCase() === 'nav'
+
+const filteredActive = computed<SmartIcon[]>(() =>
+  activeIcons.value.filter(isNav),
+)
 
 watch(
   activeIcons,
-  (val) => {
-    if (!isEditing.value) editableIcons.value = [...val]
+  () => {
+    if (!isEditing.value) editableIcons.value = [...filteredActive.value]
   },
   { immediate: true },
 )
 
 const rowIcons = computed<SmartIcon[]>(() =>
-  isEditing.value ? editableIcons.value : activeIcons.value,
+  isEditing.value ? editableIcons.value.filter(isNav) : filteredActive.value,
 )
 
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
@@ -194,14 +187,14 @@ const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
 const originalIcons = ref<SmartIcon[]>([])
 
 watch(isEditing, (editing) => {
-  if (editing) originalIcons.value = [...editableIcons.value]
+  if (editing) originalIcons.value = [...editableIcons.value.filter(isNav)]
 })
 
 const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
 
 const hasChanges = computed(() => {
-  const a = getIds(editableIcons.value)
-  const b = getIds(originalIcons.value)
+  const a = getIds(editableIcons.value.filter(isNav))
+  const b = getIds(originalIcons.value.filter(isNav))
   if (a.length !== b.length) return true
   return a.some((id, i) => id !== b[i])
 })
@@ -211,7 +204,7 @@ function activateEditMode() {
 }
 
 function confirmEdit() {
-  smartbarStore.setIconOrder(getIds(editableIcons.value))
+  smartbarStore.setIconOrder(getIds(editableIcons.value.filter(isNav)))
   smartbarStore.isEditing = false
 }
 
@@ -233,13 +226,11 @@ const EPSILON = 2
 function updateScrollFlags() {
   const el = scrollContainer.value
   if (!el) return
-
   if (el.scrollWidth <= el.clientWidth + 1) {
     canScrollLeft.value = false
     canScrollRight.value = false
     return
   }
-
   const maxScrollLeft = el.scrollWidth - el.clientWidth
   canScrollLeft.value = el.scrollLeft > EPSILON
   canScrollRight.value = maxScrollLeft - el.scrollLeft > EPSILON
@@ -330,7 +321,6 @@ onBeforeUnmount(() => {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-
 .smart-icons-scroll::-webkit-scrollbar {
   width: 0;
   height: 0;

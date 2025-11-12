@@ -2,32 +2,27 @@
 <template>
   <section class="relative w-full max-w-3xl mx-auto">
     <div
-      class="scene relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
+      class="scene relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl select-none"
       :aria-label="ariaLabel"
       aria-live="polite"
-      @click="onClick"
     >
-      <!-- 1) Bottom: NEXT image, full -->
       <img
         :src="nextSrc"
         alt=""
-        class="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+        class="absolute inset-0 w-full h-full object-cover pointer-events-none"
         draggable="false"
       />
-
-      <!-- 2) Middle: CURRENT image, bottom half only -->
       <div
-        class="current-bottom absolute inset-0"
+        class="current-bottom absolute inset-0 pointer-events-none"
         :style="{ '--current-image': `url('${currentSrc}')` }"
       ></div>
 
-      <!-- 3) Top: two flaps (top-left, top-right) from CURRENT image that fold to reveal NEXT -->
       <div class="flap-stage">
         <div
           class="flap flap-left"
-          :class="{ half: pass >= 1 && pass < 2, full: pass >= 2 }"
-          :style="flapVars"
+          :style="leftStyle"
           @transitionend="onFlapEnd('left', $event)"
+          @click="queuePanel('left')"
         >
           <div class="face face-front"></div>
           <div class="face face-back"></div>
@@ -36,9 +31,9 @@
 
         <div
           class="flap flap-right"
-          :class="{ half: pass >= 3 && pass < 4, full: pass >= 4 }"
-          :style="flapVars"
+          :style="rightStyle"
           @transitionend="onFlapEnd('right', $event)"
+          @click="queuePanel('right')"
         >
           <div class="face face-front"></div>
           <div class="face face-back"></div>
@@ -47,115 +42,154 @@
       </div>
     </div>
 
-    <!-- Debug / status -->
     <div class="mt-3 rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-xs leading-tight grid grid-cols-2 gap-x-4 gap-y-1">
-      <div><b>smartState(local):</b> <span class="opacity-80">{{ smartState }}</span></div>
-      <div><b>step:</b> <span class="opacity-80">{{ stepLabel }}</span></div>
-      <div><b>front image:</b> <span class="opacity-80">{{ frontRef }}</span></div>
-      <div><b>under image:</b> <span class="opacity-80">{{ nextRef }}</span></div>
-      <div><b>TL visible:</b> <span class="opacity-80">{{ topLeftVisible }}</span></div>
-      <div><b>TR visible:</b> <span class="opacity-80">{{ topRightVisible }}</span></div>
-      <div><b>BL visible:</b> <span class="opacity-80">{{ bottomLeftVisible }}</span></div>
-      <div><b>BR visible:</b> <span class="opacity-80">{{ bottomRightVisible }}</span></div>
+      <div><b>smartState:</b> <span class="opacity-80">{{ smartState }}</span></div>
+      <div><b>step L/R:</b> <span class="opacity-80">{{ leftStep }}/{{ rows }} · {{ rightStep }}/{{ rows }}</span></div>
+      <div><b>front:</b> <span class="opacity-80">{{ frontRef }}</span></div>
+      <div><b>under:</b> <span class="opacity-80">{{ nextRef }}</span></div>
+      <div><b>TL:</b> <span class="opacity-80">{{ tlVisible }}</span></div>
+      <div><b>TR:</b> <span class="opacity-80">{{ trVisible }}</span></div>
+      <div><b>BL:</b> <span class="opacity-80">{{ blVisible }}</span></div>
+      <div><b>BR:</b> <span class="opacity-80">{{ brVisible }}</span></div>
+      <div class="col-span-2"><b>active:</b> <span class="opacity-80">{{ activePanel ?? 'none' }}</span></div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-// /components/experiments/flip-test.vue
 type SmartStateLocal = 'img1' | 'img2' | 'flipping'
+type Panel = 'left' | 'right'
 
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const IMG1 = '/images/botcafe.webp'
 const IMG2 = '/images/amibot.webp'
+const TINY = '/images/botcafe.webp'
+
+const rows = ref(2)
+const cols = ref(2)
 
 const smartState = ref<SmartStateLocal>('img1')
-const frontRef = ref<'img1' | 'img2'>('img1')   // which image is in front overall
+const frontRef = ref<'img1' | 'img2'>('img1')
 const nextRef = computed<'img1' | 'img2'>(() => (frontRef.value === 'img1' ? 'img2' : 'img1'))
 
-// four-step sequence: 0 idle, 1 L1, 2 L2, 3 R1, 4 R2 -> swap & reset to 0
-const pass = ref(0)
-const animating = ref(false)
-
-// sources
 const currentSrc = computed(() => (frontRef.value === 'img1' ? IMG1 : IMG2))
 const nextSrc = computed(() => (nextRef.value === 'img1' ? IMG1 : IMG2))
 
-// css vars for flaps
-const flapVars = computed(
+const leftStep = ref(0)
+const rightStep = ref(0)
+const animating = ref(false)
+const activePanel = ref<Panel | null>(null)
+
+const degPerStep = computed(() => 180 / Math.max(1, rows.value))
+
+const isLastStepLeft = computed(() => leftStep.value + 1 >= rows.value)
+const isLastStepRight = computed(() => rightStep.value + 1 >= rows.value)
+
+const flapVarsBase = computed(
   () =>
     ({
       '--front-image': `url("${currentSrc.value}")`,
-      '--back-image': `url("${nextSrc.value}")`,
     }) as Record<string, string>,
 )
 
-// labels
-const stepLabel = computed(() => {
-  switch (pass.value) {
-    case 0: return 'Ready'
-    case 1: return 'Left drop 1'
-    case 2: return 'Left drop 2'
-    case 3: return 'Right drop 1'
-    case 4: return 'Right drop 2'
-    default: return 'Ready'
-  }
+const leftStyle = computed(() => {
+  const rot = `rotateX(${leftStep.value * degPerStep.value}deg)`
+  const backImg =
+    leftStep.value === 0
+      ? `url("${TINY}")`
+      : leftStep.value < rows.value
+      ? isLastStepLeft.value
+        ? `url("${nextSrc.value}")`
+        : `url("${TINY}")`
+      : `url("${nextSrc.value}")`
+  return {
+    ...flapVarsBase.value,
+    '--rotation': rot,
+    '--back-image': backImg,
+  } as Record<string, string>
 })
+
+const rightStyle = computed(() => {
+  const rot = `rotateX(${rightStep.value * degPerStep.value}deg)`
+  const backImg =
+    rightStep.value === 0
+      ? `url("${TINY}")`
+      : rightStep.value < rows.value
+      ? isLastStepRight.value
+        ? `url("${nextSrc.value}")`
+        : `url("${TINY}")`
+      : `url("${nextSrc.value}")`
+  return {
+    ...flapVarsBase.value,
+    '--rotation': rot,
+    '--back-image': backImg,
+  } as Record<string, string>
+})
+
+const tlVisible = computed(() => (leftStep.value >= rows.value ? nextRef.value : frontRef.value))
+const trVisible = computed(() => (rightStep.value >= rows.value ? nextRef.value : frontRef.value))
+const blVisible = computed(() => frontRef.value)
+const brVisible = computed(() => frontRef.value)
 
 const ariaLabel = computed(() =>
   smartState.value === 'flipping'
-    ? `Folding: ${stepLabel.value}`
+    ? `Folding ${activePanel ?? ''} step`
     : `Showing ${frontRef.value}`,
 )
 
-// visibility report (which image should be visible in each quadrant right now)
-const topLeftVisible = computed(() =>
-  pass.value >= 2 ? nextRef.value : frontRef.value,
-)
-const topRightVisible = computed(() =>
-  pass.value >= 4 ? nextRef.value : frontRef.value,
-)
-const bottomLeftVisible = computed(() => frontRef.value)
-const bottomRightVisible = computed(() => frontRef.value)
-
-// click advances one step
-function onClick() {
+function queuePanel(side: Panel) {
   if (animating.value) return
-  if (pass.value === 0) {
-    smartState.value = 'flipping'
-  }
-  if (pass.value < 4) {
-    pass.value += 1
-    animating.value = true
+  if (smartState.value !== 'flipping') smartState.value = 'flipping'
+  activePanel.value = side
+  advance(side)
+}
+
+function advance(side: Panel) {
+  if (animating.value) return
+  animating.value = true
+  if (side === 'left') {
+    if (leftStep.value < rows.value) {
+      leftStep.value += 1
+    }
+  } else {
+    if (rightStep.value < rows.value) {
+      rightStep.value += 1
+    }
   }
 }
 
-// handle each flap finishing its transition for the current step
-function onFlapEnd(side: 'left' | 'right', e: TransitionEvent) {
-  const el = e.currentTarget as HTMLElement
-  // guard: only when the transform transition finished on the relevant step
+function onFlapEnd(side: Panel, e: TransitionEvent) {
   if (e.propertyName !== 'transform') return
+  animating.value = false
 
-  if (side === 'left' && (pass.value === 1 || pass.value === 2)) {
-    // after L1 or L2 finishes, release animation lock
-    animating.value = false
-    // fallthrough; nothing else to do here
+  if (side === 'left') {
+    if (leftStep.value < rows.value) {
+      setTimeout(() => advance('left'))
+      return
+    }
+  } else {
+    if (rightStep.value < rows.value) {
+      setTimeout(() => advance('right'))
+      return
+    }
   }
 
-  if (side === 'right' && (pass.value === 3 || pass.value === 4)) {
-    animating.value = false
-  }
-
-  // if we just completed pass 4, finalize the swap and reset
-  if (pass.value === 4) {
-    // full reveal completed: swap images
+  if (leftStep.value >= rows.value && rightStep.value >= rows.value) {
     frontRef.value = nextRef.value
-    // reset sequence
-    pass.value = 0
+    leftStep.value = 0
+    rightStep.value = 0
     smartState.value = frontRef.value
+    activePanel.value = null
+  } else {
+    activePanel.value = side === 'left' ? 'right' : 'left'
   }
 }
+
+watch(rows, () => {
+  leftStep.value = 0
+  rightStep.value = 0
+})
 </script>
 
 <style scoped>
@@ -168,9 +202,9 @@ function onFlapEnd(side: 'left' | 'right', e: TransitionEvent) {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
+  display: grid;
 }
 
-/* middle base: current image bottom half only */
 .current-bottom {
   background-image: var(--current-image);
   background-repeat: no-repeat;
@@ -179,32 +213,29 @@ function onFlapEnd(side: 'left' | 'right', e: TransitionEvent) {
   clip-path: inset(50% 0 0 0);
 }
 
-/* two independent flaps for the top half */
 .flap {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
+  transition: transform 500ms cubic-bezier(0.2, 0.7, 0.3, 1);
   will-change: transform;
-  transition: transform 900ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  cursor: pointer;
 }
 
-/* left flap covers top-left quadrant of CURRENT image */
-.flap-left .face,
-.flap-left .shine {
+.flap-left {
   clip-path: polygon(0% 0%, 50% 0%, 50% 50%, 0% 50%);
-  background-position: left top;
   transform-origin: 25% 0%;
 }
 
-/* right flap covers top-right quadrant of CURRENT image */
-.flap-right .face,
-.flap-right .shine {
+.flap-right {
   clip-path: polygon(50% 0%, 100% 0%, 100% 50%, 50% 50%);
-  background-position: right top;
   transform-origin: 75% 0%;
 }
 
-/* face plumbing */
+.flap {
+  transform: var(--rotation);
+}
+
 .face {
   position: absolute;
   inset: 0;
@@ -215,17 +246,30 @@ function onFlapEnd(side: 'left' | 'right', e: TransitionEvent) {
   background-size: cover;
 }
 
-/* front of flap shows CURRENT image's top-half quadrant */
-.face-front {
+.flap-left .face-front,
+.flap-right .face-front {
   background-image: var(--front-image);
   transform: rotateX(0deg);
+  background-position: top left;
 }
 
-/* back of flap shows NEXT image's top-half quadrant (so when flap rotates, the revealed side matches the next image) */
-.face-back {
+.flap-right .face-front {
+  background-position: top right;
+}
+
+.flap-left .face-back,
+.flap-right .face-back {
   background-image: var(--back-image);
   transform: rotateX(180deg);
-  filter: brightness(0.96);
+  background-position: center top;
+  background-size: 24px 24px;
+  background-repeat: no-repeat;
+}
+
+.flap-left .face-back.is-final,
+.flap-right .face-back.is-final {
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .shine {
@@ -234,18 +278,8 @@ function onFlapEnd(side: 'left' | 'right', e: TransitionEvent) {
   background: linear-gradient(to bottom, rgba(0,0,0,0.18), rgba(0,0,0,0));
   mix-blend-mode: multiply;
   opacity: 0.85;
-  transition: opacity 900ms ease;
+  transition: opacity 500ms ease;
 }
 
-/* states: half = 90deg, full = 180deg */
-.flap-left.half    { transform: rotateX(90deg); }
-.flap-left.full    { transform: rotateX(180deg); }
-.flap-right.half   { transform: rotateX(90deg); }
-.flap-right.full   { transform: rotateX(180deg); }
-
-/* dim highlights when folded */
-.flap-left.half .shine,
-.flap-left.full .shine,
-.flap-right.half .shine,
-.flap-right.full .shine { opacity: 0.2; }
+.flap .shine { opacity: 0.8; }
 </style>

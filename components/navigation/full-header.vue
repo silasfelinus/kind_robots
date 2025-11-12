@@ -28,31 +28,54 @@
       v-if="hasHeaderContent"
       class="flex-1 h-full flex items-center px-2 sm:px-4 lg:px-6"
     >
-      <div class="w-full flex flex-col gap-1.5 md:gap-2 lg:gap-2.5">
-        <span
-          class="text-[clamp(0.7rem,0.9vw,0.95rem)] font-semibold tracking-[0.24em] uppercase text-base-content/60"
-        >
-          {{ brandLine }}
-        </span>
-
-        <h1
-          class="text-[clamp(1.25rem,2.4vw,2.1rem)] md:text-[clamp(1.5rem,2.7vw,2.3rem)] font-extrabold leading-tight"
+      <div
+        class="w-full flex items-center justify-between gap-2 sm:gap-3 lg:gap-4"
+      >
+        <div
+          class="flex max-w-full gap-2 sm:gap-3"
+          :class="
+            isExtraLarge
+              ? 'flex-col items-start'
+              : 'flex-row items-center flex-wrap'
+          "
         >
           <span
-            class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
+            class="text-[clamp(1.1rem,1.9vw,1.6rem)] font-extrabold tracking-tight"
           >
-            {{ pageTitle }}
+            <span
+              class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
+            >
+              Kind Robots
+            </span>
           </span>
-        </h1>
 
-        <p
-          class="text-[clamp(0.85rem,1.3vw,1.1rem)] text-base-content/80 leading-snug"
+          <span
+            v-if="subtitle"
+            class="text-[clamp(0.9rem,1.4vw,1.1rem)] text-base-content/85 leading-snug truncate"
+          >
+            {{ subtitle }}
+          </span>
+        </div>
+
+        <div
+          class="flex items-center justify-end gap-1.5 md:gap-2 min-w-0 flex-1"
         >
-          {{ roomSubtitle }}
-        </p>
+          <div v-if="bigMode" class="w-full max-w-full">
+            <smart-icons />
+          </div>
 
-        <div v-if="bigMode" class="mt-1 md:mt-1.5 lg:mt-2">
-          <smart-icons />
+          <div
+            v-else
+            class="flex items-center justify-end gap-1.5 md:gap-2 w-full max-w-full"
+          >
+            <div
+              v-for="icon in utilityIcons"
+              :key="icon.name"
+              class="flex-1 min-w-0 flex justify-center"
+            >
+              <component :is="icon.component" :compact="compact" />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -73,12 +96,10 @@ const userStore = useUserStore()
 const page = computed(() => pageStore.page)
 const viewportSize = computed(() => displayStore.viewportSize)
 const bigMode = computed(() => displayStore.bigMode)
+const isExtraLarge = computed(() => displayStore.viewportSize === 'extraLarge')
 
-const pageTitle = computed(() => page.value?.title || 'Robots')
-const brandLine = computed(() => `Kind ${pageTitle.value}`)
-const roomSubtitle = computed(() => `The ${pageTitle.value} room`)
-
-const hasHeaderContent = computed(() => Boolean(pageTitle.value))
+const subtitle = computed(() => page.value?.subtitle || '')
+const hasHeaderContent = computed(() => true)
 
 const showViewportBadge = computed(() => {
   return userStore.user?.Role === 'ADMIN' && bigMode.value
@@ -87,4 +108,13 @@ const showViewportBadge = computed(() => {
 const avatarColumnClasses = computed(() =>
   bigMode.value ? 'basis-[11%] max-w-[22%]' : 'basis-[13%] max-w-[25%]',
 )
+
+const utilityIcons = [
+  { name: 'login', component: 'login-path' },
+  { name: 'jellybeans', component: 'jellybean-count' },
+  { name: 'theme', component: 'theme-icon' },
+  { name: 'swarm', component: 'swarm-icon' },
+]
+
+const compact = computed(() => !bigMode.value)
 </script>

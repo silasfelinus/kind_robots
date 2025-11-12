@@ -104,7 +104,7 @@ const isExtraLarge = computed(() => displayStore.viewportSize === 'extraLarge')
 const subtitle = computed(() => page.value?.subtitle || '')
 const hasHeaderContent = computed(() => true)
 
-const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN' && bigMode.value)
+const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN')
 
 const avatarColumnClasses = computed(() =>
   bigMode.value ? 'basis-[11%] max-w-[22%]' : 'basis-[13%] max-w-[25%]',

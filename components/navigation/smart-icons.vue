@@ -38,11 +38,11 @@
 
         <div
           v-if="isEditing"
-          class="snap-start shrink-0 h-full aspect-square flex"
+          class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
         >
           <NuxtLink
             to="/icons"
-            class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             title="Add or manage icons"
             aria-label="Add or manage icons"
           >

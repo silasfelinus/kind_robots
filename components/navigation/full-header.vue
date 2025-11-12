@@ -29,6 +29,7 @@
       class="flex-1 h-full flex items-center px-1 md:px-2 lg:px-3 xl:px-4"
     >
       <div class="w-full flex items-center justify-between lg:gap-3 xl:gap-4">
+        <!-- BIG MODE -->
         <template v-if="bigMode">
           <div class="flex items-center gap-2 min-w-0 w-full">
             <span
@@ -51,6 +52,7 @@
           </div>
         </template>
 
+        <!-- NORMAL MODE -->
         <template v-else>
           <div
             class="min-w-0 w-full grid grid-cols-1 items-center gap-1 md:grid-cols-1 lg:flex lg:flex-row lg:items-center lg:gap-2"
@@ -73,19 +75,20 @@
             </span>
           </div>
 
+          <!-- Utility Icons -->
           <div
             class="flex items-center justify-end flex-nowrap shrink-0"
             :class="[
               bigMode
                 ? 'basis-auto max-w-none'
-                : 'basis-[20%] max-w-[20%] h-full xl:basis-[32%] xl:max-w-[32%]',
+                : 'basis-[20%] max-w-[20%] h-full xl:basis-[40%] xl:max-w-[40%]',
             ]"
           >
             <div
               class="flex w-full h-full items-center justify-end xl:justify-center"
             >
               <div
-                class="grid grid-cols-2 grid-rows-2 xl:grid-cols-1 xl:grid-rows-4 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-1"
+                class="grid grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-1"
               >
                 <div class="w-full h-full flex items-center justify-center">
                   <login-icon

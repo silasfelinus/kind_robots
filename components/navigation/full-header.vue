@@ -84,24 +84,16 @@
                 class="grid grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-1"
               >
                 <div class="w-full h-full flex items-center justify-center">
-                  <login-icon
-                    class="shrink-0 w-[clamp(1.75rem,2.6vw,3rem)] h-[clamp(1.75rem,2.6vw,3rem)] text-primary"
-                  />
+                  <login-icon class="shrink-0 text-primary" />
                 </div>
                 <div class="w-full h-full flex items-center justify-center">
-                  <jellybean-icon
-                    class="shrink-0 w-[clamp(1.75rem,2.6vw,3rem)] h-[clamp(1.75rem,2.6vw,3rem)] text-secondary"
-                  />
+                  <jellybean-icon class="shrink-0 text-secondary" />
                 </div>
                 <div class="w-full h-full flex items-center justify-center">
-                  <theme-icon
-                    class="shrink-0 w-[clamp(1.75rem,2.6vw,3rem)] h-[clamp(1.75rem,2.6vw,3rem)] text-accent"
-                  />
+                  <theme-icon class="shrink-0 text-accent" />
                 </div>
                 <div class="w-full h-full flex items-center justify-center">
-                  <swarm-icon
-                    class="shrink-0 w-[clamp(1.75rem,2.6vw,3rem)] h-[clamp(1.75rem,2.6vw,3rem)] text-info"
-                  />
+                  <swarm-icon class="shrink-0 text-info" />
                 </div>
               </div>
             </div>

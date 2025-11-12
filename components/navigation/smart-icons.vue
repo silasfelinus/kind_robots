@@ -2,18 +2,9 @@
 <template>
   <div class="relative h-full w-full leading-none flex-1 min-w-0">
     <div class="h-full w-full flex items-stretch min-w-0 gap-[2px]">
-      <button
-        v-if="canScrollLeft"
-        type="button"
-        class="hidden sm:flex items-center justify-center self-center hover:bg-base-200/90 shadow-sm text-base-content/80 flex-none w-6 h-6 lg:w-7 lg:h-7"
-        @click="scrollByStep(-1)"
-      >
-        <Icon name="kind-icon:chevron-left" class="w-3 h-3 lg:w-4 lg:h-4" />
-      </button>
-
       <div
         ref="scrollContainer"
-        class="h-full flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none"
+        class="h-full flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-6"
         :class="[
           displayStore.showCorner
             ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
@@ -54,9 +45,9 @@
               name="kind-icon:plus"
               class="pointer-events-none h-[60%] w-[60%]"
             />
-            <span class="icon-title mt-[0.15em] text-xs opacity-80 select-none">
-              Add
-            </span>
+            <span class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+              >Add</span
+            >
           </NuxtLink>
         </div>
 
@@ -78,9 +69,8 @@
             <span
               v-if="showTitles"
               class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+              >Edit</span
             >
-              Edit
-            </span>
           </button>
         </div>
 
@@ -108,9 +98,8 @@
             <span
               v-if="showTitles"
               class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+              >Save</span
             >
-              Save
-            </span>
           </button>
         </div>
 
@@ -132,23 +121,37 @@
             <span
               v-if="showTitles"
               class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+              >Cancel</span
             >
-              Cancel
-            </span>
           </button>
         </div>
 
         <div aria-hidden="true" class="shrink-0 h-full w-px" />
       </div>
 
-      <button
-        v-if="canScrollRight"
-        type="button"
-        class="hidden sm:flex items-center justify-center self-center hover:bg-base-200/90 shadow-sm text-base-content/80 flex-none w-6 h-6 lg:w-7 lg:h-7"
-        @click="scrollByStep(1)"
-      >
-        <Icon name="kind-icon:chevron-right" class="w-3 h-3 lg:w-4 lg:h-4" />
-      </button>
+      <div class="pointer-events-none absolute inset-y-0 left-0 right-0 z-30">
+        <button
+          v-if="canScrollLeft"
+          type="button"
+          class="pointer-events-auto absolute left-0 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-full bg-base-200/80 hover:bg-base-200 shadow-sm border border-base-300 text-base-content/80 w-6 h-6 lg:w-7 lg:h-7"
+          @click="scrollByStep(-1)"
+          aria-label="Scroll left"
+          title="Scroll left"
+        >
+          <Icon name="kind-icon:chevron-left" class="w-3 h-3 lg:w-4 lg:h-4" />
+        </button>
+
+        <button
+          v-if="canScrollRight"
+          type="button"
+          class="pointer-events-auto absolute right-0 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-full bg-base-200/80 hover:bg-base-200 shadow-sm border border-base-300 text-base-content/80 w-6 h-6 lg:w-7 lg:h-7"
+          @click="scrollByStep(1)"
+          aria-label="Scroll right"
+          title="Scroll right"
+        >
+          <Icon name="kind-icon:chevron-right" class="w-3 h-3 lg:w-4 lg:h-4" />
+        </button>
+      </div>
     </div>
   </div>
 </template>

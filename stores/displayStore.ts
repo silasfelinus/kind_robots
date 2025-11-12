@@ -64,8 +64,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const headerHeight = computed(() => {
     if (state.headerState === 'hidden') return 0
     const sizes = {
-      small: state.bigMode ? 8 : 16,
-      medium: state.bigMode ? 10 : 11,
+      small: state.bigMode ? 6 : 14,
+      medium: state.bigMode ? 12 : 13,
       large: state.bigMode ? 10 : 12,
       extraLarge: state.bigMode ? 8 : 13,
     }

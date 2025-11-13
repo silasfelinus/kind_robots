@@ -61,7 +61,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px]">
-        <!-- FRONT PANEL PREVIEW -->
         <div
           class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
         >
@@ -81,7 +80,6 @@
           </p>
         </div>
 
-        <!-- REVERSE (BACK OF MAIN PANEL) PREVIEW -->
         <div
           class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
         >
@@ -108,7 +106,6 @@
           </ul>
         </div>
 
-        <!-- REAR PANEL PREVIEW -->
         <div
           class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
         >
@@ -298,11 +295,17 @@ const nextButtonLabel = computed(() =>
 
 function applyStep(step: Step) {
   if (step.kind === 'prepare') {
-    // Front stays exactly as-is (currentImage) – no visible change.
     backgroundPanelSrc.value = otherImage.value
-    showFlaps.value = true
-    initFlaps()
-  } else if (step.kind === 'flipRow' && step.rowIndex != null) {
+    currentStepLabel.value = step.label
+    currentExplanation.value = step.description
+    return
+  }
+
+  if (step.kind === 'flipRow' && step.rowIndex != null) {
+    if (!showFlaps.value) {
+      showFlaps.value = true
+      initFlaps()
+    }
     tiles.value.forEach((tile) => {
       if (tile.row === step.rowIndex && flipped.value[tile.index] !== undefined) {
         flipped.value[tile.index] = true
@@ -369,11 +372,12 @@ const rearPreviewStyle = computed<Record<string, string>>(() => ({
 const backRowStyles = computed<BackRowStyle[]>(() => [
   {
     id: 'back-top',
-    label: 'Top: upside-down logo',
+    label: 'Top: upside-down logo ×3',
     style: {
-      backgroundImage: `url("${logoSrc.value}")`,
-      backgroundSize: '100% 150%',
-      backgroundPosition: 'center',
+      backgroundImage: `url("${logoSrc.value}"), url("${logoSrc.value}"), url("${logoSrc.value}")`,
+      backgroundSize: '100% 33%, 100% 33%, 100% 33%',
+      backgroundPosition: 'top center, center center, bottom center',
+      backgroundRepeat: 'no-repeat, no-repeat, no-repeat',
       transform: 'scaleY(-1)',
       backgroundColor: 'transparent',
     },
@@ -385,6 +389,7 @@ const backRowStyles = computed<BackRowStyle[]>(() => [
       backgroundImage: `url("${otherImage.value}")`,
       backgroundSize: '100% 300%',
       backgroundPosition: 'center bottom',
+      backgroundRepeat: 'no-repeat',
       transform: 'scaleY(-1)',
       backgroundColor: 'transparent',
     },
@@ -397,6 +402,7 @@ const backRowStyles = computed<BackRowStyle[]>(() => [
         'repeating-linear-gradient(45deg, rgba(0,0,0,0.08), rgba(0,0,0,0.08) 4px, transparent 4px, transparent 8px)',
       backgroundSize: '16px 16px',
       backgroundPosition: 'center',
+      backgroundRepeat: 'repeat',
       transform: 'none',
       backgroundColor: 'rgba(0,0,0,0.03)',
     },

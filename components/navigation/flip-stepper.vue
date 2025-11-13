@@ -1,4 +1,4 @@
-<!-- /components/experiments/flip-stepper.vue -->
+// /components/experiments/flip-stepper.vue
 <template>
   <section class="relative w-full max-w-4xl mx-auto">
     <div
@@ -61,76 +61,66 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px]">
-        <div class="rounded-xl border border-base-300 bg-base-100/60 p-2">
-          <div class="flex items-center justify-between mb-1">
+        <div
+          class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
+        >
+          <div class="flex items-center justify-between">
             <span class="opacity-80">Main panel • front face</span>
-            <span class="px-1.5 py-0.5 rounded bg-secondary/20">
-              frontPanelSrc
-            </span>
+            <span class="px-1.5 py-0.5 rounded bg-secondary/20"> front </span>
           </div>
-          <div class="break-all opacity-75 mb-1">
+          <div
+            class="aspect-[4/3] rounded-lg overflow-hidden border border-base-300/70"
+          >
+            <div class="w-full h-full" :style="frontPreviewStyle"></div>
+          </div>
+          <p class="opacity-70 truncate">
             {{ frontPanelSrc }}
-          </div>
-          <div class="mt-1 space-y-0.5">
-            <div
-              v-for="row in frontFaceRows"
-              :key="row.id"
-              class="flex items-center justify-between"
-            >
-              <span class="opacity-70">{{ row.label }}</span>
-              <span class="opacity-80 truncate max-w-[10rem]">
-                {{ row.image }}
-              </span>
-            </div>
-          </div>
+          </p>
         </div>
 
-        <div class="rounded-xl border border-base-300 bg-base-100/60 p-2">
-          <div class="flex items-center justify-between mb-1">
-            <span class="opacity-80">Main panel • back / reverse</span>
+        <div
+          class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
+        >
+          <div class="flex items-center justify-between">
+            <span class="opacity-80">Main panel • reverse</span>
             <span class="px-1.5 py-0.5 rounded bg-accent/20">
-              reverse (back)
+              back collage
             </span>
           </div>
-          <div class="break-all opacity-75 mb-1">
-            Top: logo, middle: bottom third of next, bottom: none
-          </div>
-          <div class="mt-1 space-y-0.5">
+          <div
+            class="aspect-[4/3] rounded-lg overflow-hidden border border-base-300/70 grid grid-rows-3"
+          >
             <div
-              v-for="row in frontBackRows"
+              v-for="row in backRowStyles"
               :key="row.id"
-              class="flex items-center justify-between"
-            >
-              <span class="opacity-70">{{ row.label }}</span>
-              <span class="opacity-80 truncate max-w-[10rem]">
-                {{ row.image || '(none)' }}
-              </span>
-            </div>
+              class="w-full h-full"
+              :style="row.style"
+            ></div>
           </div>
+          <ul class="space-y-0.5 opacity-75">
+            <li v-for="row in backRowStyles" :key="row.id + '-label'">
+              {{ row.label }}
+            </li>
+          </ul>
         </div>
 
-        <div class="rounded-xl border border-base-300 bg-base-100/60 p-2">
-          <div class="flex items-center justify-between mb-1">
+        <div
+          class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
+        >
+          <div class="flex items-center justify-between">
             <span class="opacity-80">Rear panel</span>
             <span class="px-1.5 py-0.5 rounded bg-primary/20">
-              backgroundPanelSrc
+              background
             </span>
           </div>
-          <div class="break-all opacity-75 mb-1">
+          <div
+            class="aspect-[4/3] rounded-lg overflow-hidden border border-base-300/70"
+          >
+            <div class="w-full h-full" :style="rearPreviewStyle"></div>
+          </div>
+          <p class="opacity-70 truncate">
             {{ backgroundPanelSrc }}
-          </div>
-          <div class="mt-1 space-y-0.5">
-            <div
-              v-for="row in rearRows"
-              :key="row.id"
-              class="flex items-center justify-between"
-            >
-              <span class="opacity-70">{{ row.label }}</span>
-              <span class="opacity-80 truncate max-w-[10rem]">
-                {{ row.image }}
-              </span>
-            </div>
-          </div>
+          </p>
         </div>
       </div>
     </div>
@@ -147,7 +137,7 @@ const image1 = ref<string>('/images/backtree.webp')
 const image2 = ref<string>('/images/botcafe.webp')
 const logoSrc = ref<string>('/images/logo_old.webp')
 
-const cols = ref<number>(2)
+const cols = ref<number>(1)
 const visibleRows = ref<number>(3)
 const totalSegments = ref<number>(3)
 
@@ -265,7 +255,7 @@ const steps: Step[] = [
     rowIndex: 0,
     label: 'Drop the top row of flaps',
     description:
-      'The top row of flaps flips down, showing the upside-down logo first and then exposing the new image behind where the flaps no longer cover.',
+      'The top row of flaps flips down, showing the upside-down logo first and then exposing the new image where it no longer covers.',
   },
   {
     id: 2,
@@ -273,14 +263,14 @@ const steps: Step[] = [
     rowIndex: 1,
     label: 'Drop the middle row of flaps',
     description:
-      'The middle row flips, using the bottom-third strip of the next image on its back, so visually the new image now fills the top two-thirds of the panel.',
+      'The middle row flips, using the bottom-third strip of the next image on its back, so visually the new image now fills the top two-thirds.',
   },
   {
     id: 3,
     kind: 'finalize',
     label: 'Commit to the new image',
     description:
-      'We remove the flaps and rebuild the main panel so the entire front matches the new image. Rear and reverse are ready to be rebuilt on the next sequence.',
+      'We remove the flaps and rebuild the main panel so the entire front matches the new image, ready for the next sequence.',
   },
 ]
 
@@ -356,63 +346,58 @@ function hardReset() {
   initFlaps()
 }
 
-interface PanelRowDebug {
+interface BackRowStyle {
   id: string
   label: string
-  image: string
+  style: Record<string, string>
 }
 
-const frontFaceRows = computed<PanelRowDebug[]>(() => [
-  {
-    id: 'front-top',
-    label: 'Top row',
-    image: frontPanelSrc.value,
-  },
-  {
-    id: 'front-middle',
-    label: 'Middle row',
-    image: frontPanelSrc.value,
-  },
-  {
-    id: 'front-bottom',
-    label: 'Bottom row',
-    image: frontPanelSrc.value,
-  },
-])
+const frontPreviewStyle = computed<Record<string, string>>(() => ({
+  backgroundImage: `url("${frontPanelSrc.value}")`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+}))
 
-const frontBackRows = computed<PanelRowDebug[]>(() => [
+const rearPreviewStyle = computed<Record<string, string>>(() => ({
+  backgroundImage: `url("${backgroundPanelSrc.value}")`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+}))
+
+const backRowStyles = computed<BackRowStyle[]>(() => [
   {
     id: 'back-top',
-    label: 'Top row (logo, upside-down)',
-    image: logoSrc.value,
+    label: 'Top: upside-down logo',
+    style: {
+      backgroundImage: `url("${logoSrc.value}")`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      transform: 'scaleY(-1)',
+      backgroundColor: 'transparent',
+    },
   },
   {
     id: 'back-middle',
-    label: 'Middle row (bottom third of next, upside-down)',
-    image: otherImage.value,
+    label: 'Middle: upside-down bottom third of next',
+    style: {
+      backgroundImage: `url("${otherImage.value}")`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center bottom',
+      transform: 'scaleY(-1)',
+      backgroundColor: 'transparent',
+    },
   },
   {
     id: 'back-bottom',
-    label: 'Bottom row (empty, shows rear)',
-    image: '',
-  },
-])
-
-const rearRows = computed<PanelRowDebug[]>(() => [
-  {
-    id: 'rear-top',
-    label: 'Top row',
-    image: backgroundPanelSrc.value,
-  },
-  {
-    id: 'rear-middle',
-    label: 'Middle row',
-    image: backgroundPanelSrc.value,
-  },
-  {
-    id: 'rear-bottom',
-    label: 'Bottom row',
-    image: backgroundPanelSrc.value,
+    label: 'Bottom: empty (rear shows through)',
+    style: {
+      backgroundImage:
+        'repeating-linear-gradient(45deg, rgba(0,0,0,0.08), rgba(0,0,0,0.08) 4px, transparent 4px, transparent 8px)',
+      backgroundSize: '16px 16px',
+      backgroundPosition: 'center',
+      transform: 'none',
+      backgroundColor: 'rgba(0,0,0,0.03)',
+    },
   },
 ])
 </script>

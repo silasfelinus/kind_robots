@@ -7,7 +7,6 @@
       aria-live="polite"
       @click="runExchange"
     >
-      <!-- Background panel: never moves, only its image swaps -->
       <div class="absolute inset-0 z-0">
         <img
           :src="backgroundPanelSrc"
@@ -17,23 +16,31 @@
         />
       </div>
 
-      <!-- Front panel segments (flaps): exist only during animation -->
-      <flip-flap-grid v-if="showFlaps" :tiles="tileViews" :flipped="flipped" />
+      <FlipFlapGrid v-if="showFlaps" :tiles="tileViews" :flipped="flipped" />
 
       <div
-        class="pointer-events-none absolute inset-x-0 top-1/3 h-px bg-black/25"
-      ></div>
+        class="pointer-events-none absolute inset-x-0 top-1/6 h-px bg-black/25"
+      />
       <div
-        class="pointer-events-none absolute inset-x-0 top-2/3 h-px bg-black/15"
-      ></div>
+        class="pointer-events-none absolute inset-x-0 top-2/6 h-px bg-black/25"
+      />
+      <div
+        class="pointer-events-none absolute inset-x-0 top-3/6 h-px bg-black/25"
+      />
+      <div
+        class="pointer-events-none absolute inset-x-0 top-4/6 h-px bg-black/25"
+      />
+      <div
+        class="pointer-events-none absolute inset-x-0 top-5/6 h-px bg-black/25"
+      />
 
       <div
         class="absolute left-2 top-2 z-20 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
       >
         {{
           isAnimating
-            ? `Dropping col ${activeColLabel} • 2×2 over 3 segments`
-            : 'Ready • click to run magic flip-flap reveal'
+            ? `Dropping col ${activeColLabel} • 2×6 panels`
+            : 'Ready • click to run 2×6 flip-flap reveal'
         }}
       </div>
     </div>
@@ -42,9 +49,9 @@
       <div class="rounded-xl border border-base-300 bg-base-200 p-2">
         <div class="flex items-center justify-between">
           <span class="text-xs opacity-80">Background panel</span>
-          <span class="text-[10px] px-1.5 py-0.5 rounded bg-primary/20"
-            >backgroundPanelSrc</span
-          >
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-primary/20">
+            backgroundPanelSrc
+          </span>
         </div>
         <div class="mt-1 text-[11px] break-all opacity-80">
           {{ backgroundPanelSrc }}
@@ -53,16 +60,16 @@
           <div
             class="h-full w-full bg-cover bg-center"
             :style="{ backgroundImage: `url('${backgroundPanelSrc}')` }"
-          ></div>
+          />
         </div>
       </div>
 
       <div class="rounded-xl border border-base-300 bg-base-200 p-2">
         <div class="flex items-center justify-between">
           <span class="text-xs opacity-80">Front panel (current face)</span>
-          <span class="text-[10px] px-1.5 py-0.5 rounded bg-secondary/20"
-            >frontPanelSrc</span
-          >
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-secondary/20">
+            frontPanelSrc
+          </span>
         </div>
         <div class="mt-1 text-[11px] break-all opacity-80">
           {{ frontPanelSrc }}
@@ -71,32 +78,35 @@
           <div
             class="h-full w-full bg-cover bg-center"
             :style="{ backgroundImage: `url('${frontPanelSrc}')` }"
-          ></div>
+          />
         </div>
       </div>
 
       <div class="rounded-xl border border-base-300 bg-base-200 p-2">
         <div class="flex items-center justify-between">
           <span class="text-xs opacity-80">Flip config</span>
-          <span class="text-[10px] px-1.5 py-0.5 rounded bg-info/20"
-            >2 rows animated, 3 segments</span
-          >
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-info/20">
+            2 columns • 6 rows
+          </span>
         </div>
         <div class="mt-1 text-[11px] opacity-80">
-          visible rows: {{ visibleRows }} • total segments:
-          {{ totalSegments }} • cols: {{ cols }}
+          visible rows: {{ visibleRows }} • total tiles: {{ tiles.length }} •
+          cols:
+          {{ cols }}
         </div>
         <div class="mt-1 text-[11px] opacity-80">
-          order: top-right → mid-right → top-left → mid-left
+          order: top-right → bottom-right → top-left → bottom-left
         </div>
-        <div class="mt-1 text-[11px] opacity-80">logoSrc: {{ logoSrc }}</div>
+        <div class="mt-1 text-[11px] opacity-80">logo A: {{ logoSrcA }}</div>
+        <div class="mt-1 text-[11px] opacity-80">logo B: {{ logoSrcB }}</div>
         <div class="mt-2 grid grid-cols-2 gap-1 text-[11px]">
           <div
             v-for="(s, i) in status"
             :key="i"
             class="rounded border border-base-300 px-2 py-1"
           >
-            col {{ i + 1 }}: <b>{{ s }}</b>
+            col {{ i + 1 }}:
+            <b>{{ s }}</b>
           </div>
         </div>
       </div>
@@ -104,8 +114,7 @@
 
     <div class="mt-2 flex items-center justify-between text-xs opacity-80">
       <span class="truncate">
-        Click to toggle between image1 and image2 with a 2×2 drop over 3
-        segments
+        Click to toggle between image1 and image2 with a 2×6 flip-flap reveal
       </span>
       <span>{{ isAnimating ? 'Animating…' : 'Idle' }}</span>
     </div>
@@ -119,11 +128,12 @@ import { type FlipTileView } from '@/stores/flipStore'
 
 const image1 = ref<string>('/images/backtree.webp')
 const image2 = ref<string>('/images/botcafe.webp')
-const logoSrc = ref<string>('/images/logo_old.webp')
+
+const logoSrcA = ref<string>('/images/old_logo.webp')
+const logoSrcB = ref<string>('/images/chest1.webp')
 
 const cols = ref<number>(2)
-const visibleRows = ref<number>(3)
-const totalSegments = ref<number>(3)
+const visibleRows = ref<number>(6)
 
 interface TileDef {
   id: string
@@ -161,10 +171,12 @@ const otherImage = ref<string>(image2.value)
 const backgroundPanelSrc = ref<string>(currentImage.value)
 const frontPanelSrc = ref<string>(currentImage.value)
 
+const specialBottomSrc = ref<string>(otherImage.value)
+
 const ariaLabel = computed(() =>
   isAnimating.value
-    ? 'Running 2×2 flip over 3 stacked segments'
-    : 'Image ready; click to start 2×2 flip-flap reveal',
+    ? 'Running 2×6 flip-flap reveal'
+    : 'Image ready; click to start 2×6 flip-flap reveal',
 )
 
 const activeColLabel = computed(() =>
@@ -181,46 +193,38 @@ initState()
 
 function tileVars(tile: TileDef): Record<string, string> {
   const colWidth = 100 / cols.value
-  const segHeight = 100 / totalSegments.value
+  const rowHeight = 100 / visibleRows.value
 
   const left = colWidth * tile.col
   const right = 100 - colWidth * (tile.col + 1)
 
-  const top = segHeight * tile.row
-  const bottom = 100 - segHeight * (tile.row + 1)
+  const top = rowHeight * tile.row
+  const bottom = 100 - rowHeight * (tile.row + 1)
 
-  const colCenter = left + colWidth / 2
-  const rowCenterFront = top + segHeight / 2
+  let backImage: string | null = null
 
-  // For the back:
-  //  - row 0: logo strip
-  //  - row 1: bottom third of backgroundPanelSrc
-  //  - row 2: not animated, but safe default
-  let rowCenterBack = rowCenterFront
-  if (tile.row === 1) {
-    rowCenterBack = 100 - segHeight / 2
-  }
-
-  const isTopRow = tile.row === 0
-  const isMiddleRow = tile.row === 1
-
-  let backImage = backgroundPanelSrc.value
-  if (isTopRow) {
-    backImage = logoSrc.value
-  } else if (isMiddleRow) {
-    backImage = backgroundPanelSrc.value
+  if (tile.row === 0) {
+    backImage = logoSrcA.value
+  } else if (tile.row === 1) {
+    backImage = logoSrcB.value
+  } else if (tile.row === 2) {
+    backImage = logoSrcA.value
+  } else if (tile.row === 3) {
+    backImage = logoSrcB.value
+  } else if (tile.row === 4) {
+    backImage = specialBottomSrc.value || backgroundPanelSrc.value
+  } else {
+    backImage = null
   }
 
   return {
     '--flip-image-front': `url("${frontPanelSrc.value}")`,
-    '--flip-image-back': `url("${backImage}")`,
+    '--flip-image-back': backImage ? `url("${backImage}")` : 'none',
+    '--flip-back-has-image': backImage ? '1' : '0',
     '--col-left': `${left}%`,
     '--col-right': `${right}%`,
     '--row-top': `${top}%`,
     '--row-bottom': `${bottom}%`,
-    '--col-center': `${colCenter}%`,
-    '--row-center-front': `${rowCenterFront}%`,
-    '--row-center-back': `${rowCenterBack}%`,
   }
 }
 
@@ -240,16 +244,14 @@ async function runExchange() {
   const fromSrc = currentImage.value
   const toSrc = otherImage.value
 
-  // Snapshot the trick: front still looks like fromSrc.
   frontPanelSrc.value = fromSrc
   backgroundPanelSrc.value = fromSrc
+  specialBottomSrc.value = toSrc
 
   showFlaps.value = true
   initState()
   await nextTick()
 
-  // Now background quietly becomes the new image,
-  // fully hidden under the front-panel flaps.
   backgroundPanelSrc.value = toSrc
 
   const columnOrder: number[] = []
@@ -257,15 +259,14 @@ async function runExchange() {
     columnOrder.push(c)
   }
 
-  const rowDelay = 320
+  const rowDelay = 200
   const betweenColumnsDelay = 180
 
   for (const col of columnOrder) {
     activeCol.value = col
     status.value[col] = 'dropping'
 
-    // Only animate top and middle rows (0 and 1).
-    for (let r = 0; r < 2; r += 1) {
+    for (let r = 0; r < visibleRows.value - 1; r += 1) {
       const index = r * cols.value + col
       flipped.value[index] = true
       await wait(rowDelay)
@@ -275,15 +276,15 @@ async function runExchange() {
     await wait(betweenColumnsDelay)
   }
 
-  // Swap which image is "current" so next click reverses.
   currentImage.value = toSrc
   otherImage.value = fromSrc
 
   backgroundPanelSrc.value = currentImage.value
   frontPanelSrc.value = currentImage.value
+  specialBottomSrc.value = otherImage.value
 
   activeCol.value = null
-  await wait(120)
+  await wait(150)
 
   showFlaps.value = false
   initState()

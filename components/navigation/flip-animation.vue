@@ -2,10 +2,10 @@
 <template>
   <div class="flip-tiles-container">
     <div
-      v-for="tile in tiles"
+      v-for="tile in flipStore.tiles"
       :key="tile.id"
       class="flip-tile"
-      :class="{ 'flip-tile--flipped': flipped[tile.index] }"
+      :class="{ 'flip-tile--flipped': flipStore.flipped[tile.index] }"
       :style="tile.style"
     >
       <div class="flip-tile-inner">
@@ -18,20 +18,16 @@
 
 <script setup lang="ts">
 // /components/navigation/flip-animation.vue
-import { toRefs } from 'vue'
+import { onMounted } from 'vue'
+import { useFlipStore } from '@/stores/flipStore'
 
-export interface FlipTileView {
-  id: string
-  index: number
-  style: Record<string, string>
-}
+const flipStore = useFlipStore()
 
-const props = defineProps<{
-  tiles: FlipTileView[]
-  flipped: boolean[]
-}>()
-
-const { tiles, flipped } = toRefs(props)
+onMounted(() => {
+  if (!flipStore.isPrepared) {
+    flipStore.buildTiles()
+  }
+})
 </script>
 
 <style scoped>
@@ -73,18 +69,14 @@ const { tiles, flipped } = toRefs(props)
   background-repeat: no-repeat;
 }
 
-/* Front face: current full image, sliced into thirds via background-size and calc */
+/* Front face: current full image, sliced via background-size/position */
 .flip-tile-face--front {
   background-image: var(--flip-image-front);
   background-size: 100% 300%;
   background-position: center calc(3 * var(--row-top));
 }
 
-/*
-  Back face: collage / next-image underside.
-  We use the src coming in via --flip-image-back and only show it when
-  --flip-back-has-image is 1. The actual collage logic is handled upstream.
-*/
+/* Back face: collage / next-image underside */
 .flip-tile-face--back {
   transform: rotateX(180deg);
   background-image: var(--flip-image-back);

@@ -71,9 +71,7 @@
         >
           <div class="flex items-center justify-between">
             <span class="opacity-80">Main panel • front face</span>
-            <span class="px-1.5 py-0.5 rounded bg-secondary/20">
-              front
-            </span>
+            <span class="px-1.5 py-0.5 rounded bg-secondary/20"> front </span>
           </div>
           <div
             class="aspect-[4/3] rounded-lg overflow-hidden border border-base-300/70"
@@ -138,9 +136,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import FlipAnimation, {
-  type FlipTileView,
-} from '@/components/navigation/flip-animation.vue'
+import FlipAnimation from '@/components/navigation/flip-animation.vue'
+import { type FlipTileView } from '@/stores/flipStore'
 
 const image1 = ref<string>('/images/backtree.webp')
 const image2 = ref<string>('/images/botcafe.webp')
@@ -317,7 +314,10 @@ function applyStep(step: Step) {
       initFlaps()
     }
     tiles.value.forEach((tile) => {
-      if (tile.row === step.rowIndex && flipped.value[tile.index] !== undefined) {
+      if (
+        tile.row === step.rowIndex &&
+        flipped.value[tile.index] !== undefined
+      ) {
         flipped.value[tile.index] = true
       }
     })

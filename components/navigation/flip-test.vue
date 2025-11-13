@@ -114,9 +114,8 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
-import FlipFlapGrid, {
-  type FlipTileView,
-} from '@/components/navigation/flip-animation.vue'
+import FlipFlapGrid from '@/components/navigation/flip-animation.vue'
+import { type FlipTileView } from '@/stores/flipStore'
 
 const image1 = ref<string>('/images/backtree.webp')
 const image2 = ref<string>('/images/botcafe.webp')

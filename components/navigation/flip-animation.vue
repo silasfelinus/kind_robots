@@ -69,11 +69,11 @@ onMounted(() => {
   background-repeat: no-repeat;
 }
 
-/* Front face: current full image, sliced via background-size/position */
+/* Front face: full image, clipping handled by tile position */
 .flip-tile-face--front {
   background-image: var(--flip-image-front);
-  background-size: 100% 300%;
-  background-position: center calc(3 * var(--row-top));
+  background-size: 100% 100%;
+  background-position: center center;
 }
 
 /* Back face: collage / next-image underside */

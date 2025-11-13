@@ -1,16 +1,16 @@
-// /components/navigation/flip-animation.vue
+<!-- /components/navigation/flip-animation.vue -->
 <template>
-  <div class="flip-tiles">
+  <div class="flip-tiles-container">
     <div
       v-for="tile in tiles"
       :key="tile.id"
       class="flip-tile"
-      :class="{ 'is-flipped': flipped[tile.index] }"
+      :class="{ 'flip-tile--flipped': flipped[tile.index] }"
       :style="tile.style"
     >
       <div class="flip-tile-inner">
-        <div class="flip-tile-face flip-tile-front" />
-        <div class="flip-tile-face flip-tile-back" />
+        <div class="flip-tile-face flip-tile-face--front" />
+        <div class="flip-tile-face flip-tile-face--back" />
       </div>
     </div>
   </div>
@@ -18,7 +18,9 @@
 
 <script setup lang="ts">
 // /components/navigation/flip-animation.vue
-export type FlipTileView = {
+import { toRefs } from 'vue'
+
+export interface FlipTileView {
   id: string
   index: number
   style: Record<string, string>
@@ -28,17 +30,19 @@ const props = defineProps<{
   tiles: FlipTileView[]
   flipped: boolean[]
 }>()
+
+const { tiles, flipped } = toRefs(props)
 </script>
 
 <style scoped>
-.flip-tiles {
+.flip-tiles-container {
   position: absolute;
   inset: 0;
-  perspective: 1200px;
+  pointer-events: none;
   transform-style: preserve-3d;
+  perspective: 1600px;
 }
 
-/* Each tile is absolutely positioned using the percent vars from tileVars */
 .flip-tile {
   position: absolute;
   left: var(--col-left);
@@ -48,41 +52,44 @@ const props = defineProps<{
   transform-style: preserve-3d;
 }
 
-/* Inner wrapper that actually rotates */
 .flip-tile-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   transform-style: preserve-3d;
-  transform-origin: top center;
-  transition: transform 450ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  transform-origin: 50% 100%;
+  transition:
+    transform 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01),
+    opacity 0.35s ease-out;
 }
 
-/* When this class is present, the flap rotates down */
-.flip-tile.is-flipped .flip-tile-inner {
+.flip-tile--flipped .flip-tile-inner {
   transform: rotateX(180deg);
 }
-
-/* Faces */
 
 .flip-tile-face {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  background-size: cover;
-  background-position: center;
   background-repeat: no-repeat;
 }
 
-/* Front face shows the current front panel image (image1) */
-.flip-tile-front {
+/* Front face: current full image, sliced into thirds via background-size and calc */
+.flip-tile-face--front {
   background-image: var(--flip-image-front);
+  background-size: 100% 300%;
+  background-position: center calc(3 * var(--row-top));
 }
 
-/* Back face shows logo / bottom-third strip / or nothing */
-.flip-tile-back {
-  background-image: var(--flip-image-back);
+/*
+  Back face: collage / next-image underside.
+  We use the src coming in via --flip-image-back and only show it when
+  --flip-back-has-image is 1. The actual collage logic is handled upstream.
+*/
+.flip-tile-face--back {
   transform: rotateX(180deg);
+  background-image: var(--flip-image-back);
+  background-size: cover;
+  background-position: center center;
+  opacity: var(--flip-back-has-image);
 }
 </style>

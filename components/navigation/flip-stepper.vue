@@ -4,17 +4,20 @@
     <div
       class="relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl"
     >
+      <!-- What the user actually sees: front panel -->
       <div class="absolute inset-0 z-0">
         <img
-          :src="backgroundPanelSrc"
+          :src="frontPanelSrc"
           alt=""
           class="w-full h-full object-cover select-none pointer-events-none"
           draggable="false"
         />
       </div>
 
+      <!-- Flaps that flip to reveal the rear panel / back collage -->
       <flip-animation v-if="showFlaps" :tiles="tileViews" :flipped="flipped" />
 
+      <!-- Guide lines for thirds -->
       <div
         class="pointer-events-none absolute inset-x-0 top-1/3 h-px bg-black/25"
       ></div>
@@ -30,6 +33,7 @@
       </div>
     </div>
 
+    <!-- Control + debug HUD -->
     <div
       class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-3 flex flex-col gap-3"
     >
@@ -61,6 +65,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px]">
+        <!-- FRONT PANEL PREVIEW -->
         <div
           class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
         >
@@ -80,6 +85,7 @@
           </p>
         </div>
 
+        <!-- REVERSE (BACK OF FRONT PANEL) PREVIEW -->
         <div
           class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
         >
@@ -106,6 +112,7 @@
           </ul>
         </div>
 
+        <!-- REAR PANEL PREVIEW -->
         <div
           class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
         >
@@ -121,7 +128,7 @@
             <div class="w-full h-full" :style="rearPreviewStyle"></div>
           </div>
           <p class="opacity-70 truncate">
-            {{ backgroundPanelSrc }}
+            {{ hasRearPanel ? backgroundPanelSrc : 'none (no rear panel yet)' }}
           </p>
         </div>
       </div>
@@ -173,8 +180,9 @@ const flipped = ref<boolean[]>([])
 const currentImage = ref<string>(image1.value)
 const otherImage = ref<string>(image2.value)
 
-const backgroundPanelSrc = ref<string>(currentImage.value)
 const frontPanelSrc = ref<string>(currentImage.value)
+const backgroundPanelSrc = ref<string>('') // rear panel starts as "none"
+const hasRearPanel = ref(false)
 
 function initFlaps() {
   flipped.value = tiles.value.map(() => false)
@@ -249,7 +257,7 @@ const steps: Step[] = [
     kind: 'prepare',
     label: 'Create rear panel and reverse collage',
     description:
-      'We keep the current image on the front, add the next image as the rear panel, and build the reverse of the main panel: upside-down logo on top, upside-down bottom third of the next image in the middle, and an empty bottom strip.',
+      'We keep the current image on the front, add the next image as the rear panel (hidden behind), and conceptually build the reverse of the main panel: upside-down logo on top, upside-down bottom third of the next image in the middle, and an empty bottom strip.',
   },
   {
     id: 1,
@@ -272,7 +280,7 @@ const steps: Step[] = [
     kind: 'finalize',
     label: 'Commit to the new image',
     description:
-      'We remove the flaps and rebuild the main panel so the entire front matches the new image, ready for the next sequence.',
+      'We remove the flaps and rebuild the main panel so the entire front matches the new image, then clear the rear panel until the next sequence.',
   },
 ]
 
@@ -295,7 +303,9 @@ const nextButtonLabel = computed(() =>
 
 function applyStep(step: Step) {
   if (step.kind === 'prepare') {
+    // Step 1: create rear panel with image2, front stays image1, no flaps yet
     backgroundPanelSrc.value = otherImage.value
+    hasRearPanel.value = true
     currentStepLabel.value = step.label
     currentExplanation.value = step.description
     return
@@ -316,7 +326,9 @@ function applyStep(step: Step) {
     currentImage.value = otherImage.value
     otherImage.value = temp
     frontPanelSrc.value = currentImage.value
-    backgroundPanelSrc.value = currentImage.value
+    // After commit, we clear the rear panel; next sequence will build a new one.
+    backgroundPanelSrc.value = ''
+    hasRearPanel.value = false
     showFlaps.value = false
     initFlaps()
   }
@@ -340,14 +352,15 @@ function runNextStep() {
 function hardReset() {
   currentImage.value = image1.value
   otherImage.value = image2.value
-  backgroundPanelSrc.value = currentImage.value
   frontPanelSrc.value = currentImage.value
+  backgroundPanelSrc.value = ''
+  hasRearPanel.value = false
   showFlaps.value = false
   nextStepIndex.value = 0
   currentStepNumber.value = 0
   currentStepLabel.value = 'Idle'
   currentExplanation.value =
-    'Hard reset: the panel is back to the first image with no flaps active.'
+    'Hard reset: the panel is back to the first image with no rear panel and no flaps active.'
   initFlaps()
 }
 
@@ -363,11 +376,20 @@ const frontPreviewStyle = computed<Record<string, string>>(() => ({
   backgroundPosition: 'center',
 }))
 
-const rearPreviewStyle = computed<Record<string, string>>(() => ({
-  backgroundImage: `url("${backgroundPanelSrc.value}")`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-}))
+const rearPreviewStyle = computed<Record<string, string>>(() =>
+  hasRearPanel.value
+    ? {
+        backgroundImage: `url("${backgroundPanelSrc.value}")`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }
+    : {
+        backgroundImage:
+          'repeating-linear-gradient(45deg, rgba(0,0,0,0.08), rgba(0,0,0,0.08) 4px, transparent 4px, transparent 8px)',
+        backgroundSize: '16px 16px',
+        backgroundPosition: 'center',
+      },
+)
 
 const backRowStyles = computed<BackRowStyle[]>(() => [
   {

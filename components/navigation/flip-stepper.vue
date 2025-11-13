@@ -61,12 +61,15 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px]">
+        <!-- FRONT PANEL PREVIEW -->
         <div
           class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
         >
           <div class="flex items-center justify-between">
             <span class="opacity-80">Main panel • front face</span>
-            <span class="px-1.5 py-0.5 rounded bg-secondary/20"> front </span>
+            <span class="px-1.5 py-0.5 rounded bg-secondary/20">
+              front
+            </span>
           </div>
           <div
             class="aspect-[4/3] rounded-lg overflow-hidden border border-base-300/70"
@@ -78,6 +81,7 @@
           </p>
         </div>
 
+        <!-- REVERSE (BACK OF MAIN PANEL) PREVIEW -->
         <div
           class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
         >
@@ -104,6 +108,7 @@
           </ul>
         </div>
 
+        <!-- REAR PANEL PREVIEW -->
         <div
           class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
         >
@@ -247,7 +252,7 @@ const steps: Step[] = [
     kind: 'prepare',
     label: 'Create rear panel and reverse collage',
     description:
-      'We keep the current image on the front, add the next image as a rear panel, and build the reverse of the main panel: logo on top, bottom third of the next image in the middle, and an empty bottom strip.',
+      'We keep the current image on the front, add the next image as the rear panel, and build the reverse of the main panel: upside-down logo on top, upside-down bottom third of the next image in the middle, and an empty bottom strip.',
   },
   {
     id: 1,
@@ -293,16 +298,13 @@ const nextButtonLabel = computed(() =>
 
 function applyStep(step: Step) {
   if (step.kind === 'prepare') {
-    frontPanelSrc.value = currentImage.value
+    // Front stays exactly as-is (currentImage) – no visible change.
     backgroundPanelSrc.value = otherImage.value
     showFlaps.value = true
     initFlaps()
   } else if (step.kind === 'flipRow' && step.rowIndex != null) {
     tiles.value.forEach((tile) => {
-      if (
-        tile.row === step.rowIndex &&
-        flipped.value[tile.index] !== undefined
-      ) {
+      if (tile.row === step.rowIndex && flipped.value[tile.index] !== undefined) {
         flipped.value[tile.index] = true
       }
     })
@@ -370,7 +372,7 @@ const backRowStyles = computed<BackRowStyle[]>(() => [
     label: 'Top: upside-down logo',
     style: {
       backgroundImage: `url("${logoSrc.value}")`,
-      backgroundSize: 'cover',
+      backgroundSize: '100% 150%',
       backgroundPosition: 'center',
       transform: 'scaleY(-1)',
       backgroundColor: 'transparent',
@@ -378,10 +380,10 @@ const backRowStyles = computed<BackRowStyle[]>(() => [
   },
   {
     id: 'back-middle',
-    label: 'Middle: upside-down bottom third of next',
+    label: 'Middle: upside-down bottom third of next image',
     style: {
       backgroundImage: `url("${otherImage.value}")`,
-      backgroundSize: 'cover',
+      backgroundSize: '100% 300%',
       backgroundPosition: 'center bottom',
       transform: 'scaleY(-1)',
       backgroundColor: 'transparent',

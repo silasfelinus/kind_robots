@@ -13,7 +13,7 @@
           '[&_*]:!ms-0 [&_*]:!me-0',
           '[&>*]:h-full',
           isDragging ? 'cursor-grabbing' : 'cursor-grab',
-          'mask-edges'
+          'mask-edges',
         ]"
         @scroll="checkScrollEdgesThrottled"
         @mousedown="handleScrollMouseDown"
@@ -33,6 +33,11 @@
           ref="row"
           class="h-full min-h-inherit flex items-stretch gap-[2px] min-w-max"
         >
+          <div
+            aria-hidden="true"
+            class="shrink-0 h-full w-3 sm:w-4 md:w-6 lg:w-8"
+          />
+
           <icon-display
             v-for="icon in rowIcons"
             :key="icon.id"
@@ -47,12 +52,19 @@
           >
             <NuxtLink
               to="/icons"
-              class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transform scale-75"
               title="Add or manage icons"
               aria-label="Add or manage icons"
             >
-              <Icon name="kind-icon:plus" class="pointer-events-none h-[60%] w-[60%]" />
-              <span class="icon-title mt-[0.15em] text-xs opacity-80 select-none">Add</span>
+              <Icon
+                name="kind-icon:plus"
+                class="pointer-events-none h-[60%] w-[60%]"
+              />
+              <span
+                class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+              >
+                Add
+              </span>
             </NuxtLink>
           </div>
 
@@ -62,13 +74,21 @@
           >
             <button
               type="button"
-              class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transform scale-75"
               title="Edit Smart Icons"
               aria-label="Edit Smart Icons"
               @click="activateEditMode"
             >
-              <Icon name="kind-icon:settings" class="pointer-events-none h-[60%] w-[60%]" />
-              <span v-if="showTitles" class="icon-title mt-[0.15em] text-xs opacity-80 select-none">Edit</span>
+              <Icon
+                name="kind-icon:settings"
+                class="pointer-events-none h-[60%] w-[60%]"
+              />
+              <span
+                v-if="showTitles"
+                class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+              >
+                Edit
+              </span>
             </button>
           </div>
 
@@ -78,15 +98,27 @@
           >
             <button
               type="button"
-              class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-              :class="hasChanges ? 'bg-base-200 hover:bg-base-300' : 'bg-base-200/60 cursor-not-allowed opacity-60'"
+              class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transform scale-75"
+              :class="
+                hasChanges
+                  ? 'bg-base-200 hover:bg-base-300'
+                  : 'bg-base-200/60 cursor-not-allowed opacity-60'
+              "
               :title="hasChanges ? 'Save icon order' : 'No changes to save'"
               aria-label="Save icon order"
               :disabled="!hasChanges"
               @click="hasChanges && confirmEdit()"
             >
-              <Icon name="kind-icon:check" class="pointer-events-none h-[60%] w-[60%]" />
-              <span v-if="showTitles" class="icon-title mt-[0.15em] text-xs opacity-80 select-none">Save</span>
+              <Icon
+                name="kind-icon:check"
+                class="pointer-events-none h-[60%] w-[60%]"
+              />
+              <span
+                v-if="showTitles"
+                class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+              >
+                Save
+              </span>
             </button>
           </div>
 
@@ -96,23 +128,40 @@
           >
             <button
               type="button"
-              class="group relative h-[75%] w-[75%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-error/60"
+              class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-error/60 transform scale-75"
               title="Cancel icon changes"
               aria-label="Cancel icon changes"
               @click="revertEdit"
             >
-              <Icon name="kind-icon:close" class="pointer-events-none h-[60%] w-[60%]" />
-              <span v-if="showTitles" class="icon-title mt-[0.15em] text-xs opacity-80 select-none">Cancel</span>
+              <Icon
+                name="kind-icon:close"
+                class="pointer-events-none h-[60%] w-[60%]"
+              />
+              <span
+                v-if="showTitles"
+                class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+              >
+                Cancel
+              </span>
             </button>
           </div>
 
-          <div aria-hidden="true" class="shrink-0 h-full w-px" />
+          <div
+            aria-hidden="true"
+            class="shrink-0 h-full w-3 sm:w-4 md:w-6 lg:w-8"
+          />
         </div>
       </div>
 
       <div class="pointer-events-none absolute inset-y-0 left-0 right-0 z-30">
-        <div v-show="canScrollLeft" class="absolute left-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-r from-base-100/80 to-transparent" />
-        <div v-show="canScrollRight" class="absolute right-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-l from-base-100/80 to-transparent" />
+        <div
+          v-show="canScrollLeft"
+          class="absolute left-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-r from-base-100/80 to-transparent"
+        />
+        <div
+          v-show="canScrollRight"
+          class="absolute right-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-l from-base-100/80 to-transparent"
+        />
 
         <button
           v-if="canScrollLeft"
@@ -153,18 +202,20 @@ const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
 
 const isNav = (icon: SmartIcon) => (icon?.type || '').toLowerCase() === 'nav'
 
-const filteredActive = computed<SmartIcon[]>(() => activeIcons.value.filter(isNav))
+const filteredActive = computed<SmartIcon[]>(() =>
+  activeIcons.value.filter(isNav),
+)
 
 watch(
   activeIcons,
   () => {
     if (!isEditing.value) editableIcons.value = [...filteredActive.value]
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 const rowIcons = computed<SmartIcon[]>(() =>
-  isEditing.value ? editableIcons.value.filter(isNav) : filteredActive.value
+  isEditing.value ? editableIcons.value.filter(isNav) : filteredActive.value,
 )
 
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
@@ -294,7 +345,7 @@ watch(
   () => rowIcons.value.length,
   () => {
     syncAfterLayout()
-  }
+  },
 )
 
 watch(
@@ -303,12 +354,12 @@ watch(
     displayStore.viewportSize,
     displayStore.headerState,
     displayStore.sidebarRightState,
-    displayStore.showCorner
+    displayStore.showCorner,
   ],
   () => {
     syncAfterLayout()
   },
-  { flush: 'post' }
+  { flush: 'post' },
 )
 
 function syncAfterLayout() {
@@ -332,9 +383,9 @@ onMounted(() => {
   rowResizeObserver = new ResizeObserver(checkScrollEdgesThrottled)
   mutationObserver = new MutationObserver(checkScrollEdgesThrottled)
 
-  resizeObserver.observe(el)
-  rowResizeObserver.observe(content)
-  mutationObserver.observe(content, { childList: true })
+  resizeObserver?.observe(el)
+  rowResizeObserver?.observe(content)
+  mutationObserver?.observe(content, { childList: true })
 
   syncAfterLayout()
 })
@@ -361,7 +412,19 @@ onBeforeUnmount(() => {
   min-height: inherit;
 }
 .mask-edges {
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    black 24px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    black 24px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
 }
 </style>

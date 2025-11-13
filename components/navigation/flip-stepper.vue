@@ -1,4 +1,4 @@
-// /components/experiments/flip-stepper.vue
+<!-- /components/experiments/flip-stepper.vue -->
 <template>
   <section class="relative w-full max-w-4xl mx-auto">
     <div
@@ -60,25 +60,77 @@
         <p>{{ currentExplanation }}</p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px]">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px]">
         <div class="rounded-xl border border-base-300 bg-base-100/60 p-2">
           <div class="flex items-center justify-between mb-1">
-            <span class="opacity-80">Background panel</span>
-            <span class="px-1.5 py-0.5 rounded bg-primary/20">
-              backgroundPanelSrc
-            </span>
-          </div>
-          <div class="break-all opacity-75">{{ backgroundPanelSrc }}</div>
-        </div>
-
-        <div class="rounded-xl border border-base-300 bg-base-100/60 p-2">
-          <div class="flex items-center justify-between mb-1">
-            <span class="opacity-80">Front panel face</span>
+            <span class="opacity-80">Main panel • front face</span>
             <span class="px-1.5 py-0.5 rounded bg-secondary/20">
               frontPanelSrc
             </span>
           </div>
-          <div class="break-all opacity-75">{{ frontPanelSrc }}</div>
+          <div class="break-all opacity-75 mb-1">
+            {{ frontPanelSrc }}
+          </div>
+          <div class="mt-1 space-y-0.5">
+            <div
+              v-for="row in frontFaceRows"
+              :key="row.id"
+              class="flex items-center justify-between"
+            >
+              <span class="opacity-70">{{ row.label }}</span>
+              <span class="opacity-80 truncate max-w-[10rem]">
+                {{ row.image }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-base-300 bg-base-100/60 p-2">
+          <div class="flex items-center justify-between mb-1">
+            <span class="opacity-80">Main panel • back / reverse</span>
+            <span class="px-1.5 py-0.5 rounded bg-accent/20">
+              reverse (back)
+            </span>
+          </div>
+          <div class="break-all opacity-75 mb-1">
+            Top: logo, middle: bottom third of next, bottom: none
+          </div>
+          <div class="mt-1 space-y-0.5">
+            <div
+              v-for="row in frontBackRows"
+              :key="row.id"
+              class="flex items-center justify-between"
+            >
+              <span class="opacity-70">{{ row.label }}</span>
+              <span class="opacity-80 truncate max-w-[10rem]">
+                {{ row.image || '(none)' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-base-300 bg-base-100/60 p-2">
+          <div class="flex items-center justify-between mb-1">
+            <span class="opacity-80">Rear panel</span>
+            <span class="px-1.5 py-0.5 rounded bg-primary/20">
+              backgroundPanelSrc
+            </span>
+          </div>
+          <div class="break-all opacity-75 mb-1">
+            {{ backgroundPanelSrc }}
+          </div>
+          <div class="mt-1 space-y-0.5">
+            <div
+              v-for="row in rearRows"
+              :key="row.id"
+              class="flex items-center justify-between"
+            >
+              <span class="opacity-70">{{ row.label }}</span>
+              <span class="opacity-80 truncate max-w-[10rem]">
+                {{ row.image }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -150,25 +202,27 @@ function tileVars(tile: TileDef): Record<string, string> {
 
   const colCenter = left + colWidth / 2
   const rowCenterFront = top + segHeight / 2
-
-  let rowCenterBack = rowCenterFront
-  if (tile.row === 1) {
-    rowCenterBack = 100 - segHeight / 2
-  }
+  const rowCenterBack = 100 - segHeight / 2
 
   const isTopRow = tile.row === 0
   const isMiddleRow = tile.row === 1
+  const isBottomRow = tile.row === 2
 
-  let backImage = backgroundPanelSrc.value
+  let backImageSrc = ''
   if (isTopRow) {
-    backImage = logoSrc.value
+    backImageSrc = logoSrc.value
   } else if (isMiddleRow) {
-    backImage = backgroundPanelSrc.value
+    backImageSrc = otherImage.value
+  } else if (isBottomRow) {
+    backImageSrc = ''
   }
+
+  const hasBackImage = backImageSrc ? '1' : '0'
 
   return {
     '--flip-image-front': `url("${frontPanelSrc.value}")`,
-    '--flip-image-back': `url("${backImage}")`,
+    '--flip-image-back': backImageSrc ? `url("${backImageSrc}")` : 'none',
+    '--flip-back-has-image': hasBackImage,
     '--col-left': `${left}%`,
     '--col-right': `${right}%`,
     '--row-top': `${top}%`,
@@ -187,76 +241,53 @@ const tileViews = computed<FlipTileView[]>(() =>
   })),
 )
 
-type StepKind = 'prepare' | 'swapBackground' | 'flipTile' | 'finalize'
+type StepKind = 'prepare' | 'flipRow' | 'finalize'
 
 interface Step {
   id: number
   kind: StepKind
   label: string
   description: string
-  tileIndex?: number
+  rowIndex?: number
 }
 
 const steps: Step[] = [
   {
     id: 0,
     kind: 'prepare',
-    label: 'Prepare flaps over the current image',
+    label: 'Create rear panel and reverse collage',
     description:
-      'We take the current image and build a full front panel of flaps that exactly match it, so the picture does not appear to change yet.',
+      'We keep the current image on the front, add the next image as a rear panel, and build the reverse of the main panel: logo on top, bottom third of the next image in the middle, and an empty bottom strip.',
   },
   {
     id: 1,
-    kind: 'swapBackground',
-    label: 'Swap the hidden background to the next image',
+    kind: 'flipRow',
+    rowIndex: 0,
+    label: 'Drop the top row of flaps',
     description:
-      'Behind the flaps, we quietly swap the unmoving background panel to the next image, but the viewer still sees only the original image on the flaps.',
+      'The top row of flaps flips down, showing the upside-down logo first and then exposing the new image behind where the flaps no longer cover.',
   },
   {
     id: 2,
-    kind: 'flipTile',
-    tileIndex: 1,
-    label: 'Flip the top-right segment',
+    kind: 'flipRow',
+    rowIndex: 1,
+    label: 'Drop the middle row of flaps',
     description:
-      'The top-right segment flips down, first exposing its back face, then revealing a glimpse of the next image underneath.',
+      'The middle row flips, using the bottom-third strip of the next image on its back, so visually the new image now fills the top two-thirds of the panel.',
   },
   {
     id: 3,
-    kind: 'flipTile',
-    tileIndex: 3,
-    label: 'Flip the middle-right segment',
-    description:
-      'The middle-right segment flips down, using a patch of the new image on its back so the bottom third of the next image appears to grow upward.',
-  },
-  {
-    id: 4,
-    kind: 'flipTile',
-    tileIndex: 0,
-    label: 'Flip the top-left segment',
-    description:
-      'Now the top-left segment flips, mirroring the motion on the right and extending the reveal of the new image across the top.',
-  },
-  {
-    id: 5,
-    kind: 'flipTile',
-    tileIndex: 2,
-    label: 'Flip the middle-left segment',
-    description:
-      'The middle-left segment completes the drop, so the visible panel now matches the next image everywhere the animation touched.',
-  },
-  {
-    id: 6,
     kind: 'finalize',
-    label: 'Finalize and reset to a clean new panel',
+    label: 'Commit to the new image',
     description:
-      'We remove the flaps and commit the new image as the current panel, ready to run the same sequence in reverse on the next toggle.',
+      'We remove the flaps and rebuild the main panel so the entire front matches the new image. Rear and reverse are ready to be rebuilt on the next sequence.',
   },
 ]
 
 const nextStepIndex = ref<number>(0)
 const currentStepLabel = ref<string>('Idle')
 const currentExplanation = ref<string>(
-  'No step has run yet. Press “Next step” to see how the flip is constructed.',
+  'No step has run yet. Press “Next step” to walk through the flip sequence.',
 )
 const currentStepNumber = ref<number>(0)
 
@@ -273,21 +304,24 @@ const nextButtonLabel = computed(() =>
 function applyStep(step: Step) {
   if (step.kind === 'prepare') {
     frontPanelSrc.value = currentImage.value
-    backgroundPanelSrc.value = currentImage.value
+    backgroundPanelSrc.value = otherImage.value
     showFlaps.value = true
     initFlaps()
-  } else if (step.kind === 'swapBackground') {
-    backgroundPanelSrc.value = otherImage.value
-  } else if (step.kind === 'flipTile' && step.tileIndex != null) {
-    if (flipped.value[step.tileIndex] !== undefined) {
-      flipped.value[step.tileIndex] = true
-    }
+  } else if (step.kind === 'flipRow' && step.rowIndex != null) {
+    tiles.value.forEach((tile) => {
+      if (
+        tile.row === step.rowIndex &&
+        flipped.value[tile.index] !== undefined
+      ) {
+        flipped.value[tile.index] = true
+      }
+    })
   } else if (step.kind === 'finalize') {
     const temp = currentImage.value
     currentImage.value = otherImage.value
     otherImage.value = temp
-    backgroundPanelSrc.value = currentImage.value
     frontPanelSrc.value = currentImage.value
+    backgroundPanelSrc.value = currentImage.value
     showFlaps.value = false
     initFlaps()
   }
@@ -321,4 +355,64 @@ function hardReset() {
     'Hard reset: the panel is back to the first image with no flaps active.'
   initFlaps()
 }
+
+interface PanelRowDebug {
+  id: string
+  label: string
+  image: string
+}
+
+const frontFaceRows = computed<PanelRowDebug[]>(() => [
+  {
+    id: 'front-top',
+    label: 'Top row',
+    image: frontPanelSrc.value,
+  },
+  {
+    id: 'front-middle',
+    label: 'Middle row',
+    image: frontPanelSrc.value,
+  },
+  {
+    id: 'front-bottom',
+    label: 'Bottom row',
+    image: frontPanelSrc.value,
+  },
+])
+
+const frontBackRows = computed<PanelRowDebug[]>(() => [
+  {
+    id: 'back-top',
+    label: 'Top row (logo, upside-down)',
+    image: logoSrc.value,
+  },
+  {
+    id: 'back-middle',
+    label: 'Middle row (bottom third of next, upside-down)',
+    image: otherImage.value,
+  },
+  {
+    id: 'back-bottom',
+    label: 'Bottom row (empty, shows rear)',
+    image: '',
+  },
+])
+
+const rearRows = computed<PanelRowDebug[]>(() => [
+  {
+    id: 'rear-top',
+    label: 'Top row',
+    image: backgroundPanelSrc.value,
+  },
+  {
+    id: 'rear-middle',
+    label: 'Middle row',
+    image: backgroundPanelSrc.value,
+  },
+  {
+    id: 'rear-bottom',
+    label: 'Bottom row',
+    image: backgroundPanelSrc.value,
+  },
+])
 </script>

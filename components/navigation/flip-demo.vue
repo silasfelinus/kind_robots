@@ -1,48 +1,26 @@
-<!-- /components/experiments/flip-repeat.vue -->
+<!-- /components/experiments/flip-demo.vue -->
 <template>
   <section class="relative w-full max-w-4xl mx-auto">
     <div
       class="relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
-      @click="handleClick"
+      @click="runCycle"
     >
       <div class="absolute inset-0 z-0">
         <img
-          :src="baseImageSrc"
+          :src="backgroundPanelSrc"
           alt=""
           class="w-full h-full object-cover select-none pointer-events-none"
           draggable="false"
         />
       </div>
 
-      <div
-        v-if="showFlaps"
-        class="absolute inset-0 z-10 pointer-events-none flip-tiles-container"
-      >
-        <div
-          v-for="tile in tiles"
-          :key="tile.id"
-          class="flip-tile"
-          :class="{ 'flip-tile--flipped': flipState[tile.index] }"
-          :style="tileRegionStyle(tile)"
-        >
-          <div class="flip-tile-inner">
-            <div
-              class="flip-tile-face flip-tile-face-front"
-              :style="frontStyleForTile(tile)"
-            />
-            <div
-              class="flip-tile-face flip-tile-face-back"
-              :style="backStyleForTile(tile)"
-            />
-          </div>
-        </div>
-      </div>
+      <FlipFlapGrid v-if="showFlaps" :tiles="tileViews" :flipped="flipped" />
 
       <div
         class="absolute left-2 top-2 z-20 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold flex items-center gap-1"
       >
         <span>Flip repeat demo</span>
-        <span class="opacity-70">• Click to toggle</span>
+        <span class="opacity-70">click to toggle</span>
         <span class="ml-1 px-1.5 py-0.5 rounded bg-primary/70 text-[10px]">
           {{ isImage2 ? 'Showing image 2' : 'Showing image 1' }}
         </span>
@@ -52,35 +30,37 @@
 </template>
 
 <script setup lang="ts">
-// /components/experiments/flip-repeat.vue
-import { computed, ref } from 'vue'
+// /components/experiments/flip-demo.vue
+import { ref, computed, nextTick } from 'vue'
+import FlipFlapGrid from '@/components/navigation/flip-animation.vue'
+import { type FlipTileView } from '@/stores/flipStore'
 
 const image1 = ref<string>('/images/backtree.webp')
 const image2 = ref<string>('/images/botcafe.webp')
-const logoSrc = ref<string>('/images/logo_old.webp')
-const chestSrc = ref<string>('/images/chest1.webp')
 
-const rows = 3
-const cols = 2
-const totalPanels = rows * cols
+const logoSrcA = ref<string>('/images/old_logo.webp')
+const logoSrcB = ref<string>('/images/chest1.webp')
+
+const cols = ref<number>(2)
+const visibleRows = ref<number>(6)
 
 interface TileDef {
   id: string
-  index: number
   row: number
   col: number
+  index: number
 }
 
 const tiles = computed<TileDef[]>(() => {
   const result: TileDef[] = []
   let index = 0
-  for (let r = 0; r < rows; r += 1) {
-    for (let c = 0; c < cols; c += 1) {
+  for (let r = 0; r < visibleRows.value; r += 1) {
+    for (let c = 0; c < cols.value; c += 1) {
       result.push({
         id: `${r}-${c}`,
-        index,
         row: r,
         col: c,
+        index,
       })
       index += 1
     }
@@ -88,181 +68,122 @@ const tiles = computed<TileDef[]>(() => {
   return result
 })
 
-const isImage2 = ref(false)
 const isAnimating = ref(false)
+const isImage2 = ref(false)
 const showFlaps = ref(false)
+const flipped = ref<boolean[]>([])
 
-const currentFrontImage = ref<string>(image1.value)
-const transitionFrom = ref<string>(currentFrontImage.value)
-const transitionTo = ref<string>(image2.value)
+const currentImage = ref<string>(image1.value)
+const otherImage = ref<string>(image2.value)
 
-const flipState = ref<boolean[]>(
-  Array.from({ length: totalPanels }, () => false),
-)
+const backgroundPanelSrc = ref<string>(currentImage.value)
+const frontPanelSrc = ref<string>(currentImage.value)
+const specialBottomSrc = ref<string>(otherImage.value)
 
-const baseImageSrc = computed<string>(() =>
-  isAnimating.value ? transitionTo.value : currentFrontImage.value,
-)
+function initState() {
+  flipped.value = tiles.value.map(() => false)
+}
 
-function tileRegionStyle(tile: TileDef): Record<string, string> {
-  const colWidth = 100 / cols
-  const rowHeight = 100 / rows
+initState()
+
+function tileVars(tile: TileDef): Record<string, string> {
+  const colWidth = 100 / cols.value
+  const rowHeight = 100 / visibleRows.value
 
   const left = colWidth * tile.col
   const right = 100 - colWidth * (tile.col + 1)
+
   const top = rowHeight * tile.row
   const bottom = 100 - rowHeight * (tile.row + 1)
 
-  return {
-    left: `${left}%`,
-    right: `${right}%`,
-    top: `${top}%`,
-    bottom: `${bottom}%`,
-  }
-}
+  let backImage: string | null = null
 
-function frontStyleForTile(tile: TileDef): Record<string, string> {
-  const bgSizeX = cols * 100
-  const bgSizeY = rows * 100
-  const posX = (tile.col / (cols - 1)) * 100
-  const posY = (tile.row / (rows - 1)) * 100
-
-  return {
-    backgroundImage: `url("${transitionFrom.value}")`,
-    backgroundSize: `${bgSizeX}% ${bgSizeY}%`,
-    backgroundPosition: `${posX}% ${posY}%`,
-  }
-}
-
-function backStyleForTile(tile: TileDef): Record<string, string> {
-  const panelNumber = tile.index + 1
-  let backgroundImage = ''
-  let backgroundSize = 'cover'
-  let backgroundPosition = 'center center'
-  let transform = ''
-
-  if (panelNumber === 5) {
-    const bgSizeX = cols * 100
-    const bgSizeY = rows * 100
-    const posX = 100
-    const posY = 100
-    backgroundImage = `url("${image2.value}")`
-    backgroundSize = `${bgSizeX}% ${bgSizeY}%`
-    backgroundPosition = `${posX}% ${posY}%`
-    transform = 'scaleY(-1)'
-  } else if (panelNumber % 2 === 1) {
-    backgroundImage = `url("${logoSrc.value}")`
+  if (tile.row === 0) {
+    backImage = logoSrcA.value
+  } else if (tile.row === 1) {
+    backImage = logoSrcB.value
+  } else if (tile.row === 2) {
+    backImage = logoSrcA.value
+  } else if (tile.row === 3) {
+    backImage = logoSrcB.value
+  } else if (tile.row === 4) {
+    backImage = specialBottomSrc.value || backgroundPanelSrc.value
   } else {
-    backgroundImage = `url("${chestSrc.value}")`
+    backImage = null
   }
 
   return {
-    backgroundImage,
-    backgroundSize,
-    backgroundPosition,
-    transform,
+    '--flip-image-front': `url("${frontPanelSrc.value}")`,
+    '--flip-image-back': backImage ? `url("${backImage}")` : 'none',
+    '--flip-back-has-image': backImage ? '1' : '0',
+    '--col-left': `${left}%`,
+    '--col-right': `${right}%`,
+    '--row-top': `${top}%`,
+    '--row-bottom': `${bottom}%`,
   }
 }
 
-function resetFlipState() {
-  flipState.value = Array.from({ length: totalPanels }, () => false)
-}
+const tileViews = computed<FlipTileView[]>(() =>
+  tiles.value.map((tile) => ({
+    id: tile.id,
+    index: tile.index,
+    style: tileVars(tile),
+  })),
+)
 
-function animateFlip(targetFlipped: boolean, done: () => void) {
-  const baseDelay = 140
-  const rowGap = 130
-  const colOffset = 80
-  const transitionTime = 700
-
-  const timeouts: number[] = []
-
-  tiles.value.forEach((tile) => {
-    const delay =
-      tile.row * rowGap + (tile.col === 0 ? 0 : colOffset) + baseDelay
-    const id = window.setTimeout(() => {
-      flipState.value[tile.index] = targetFlipped
-    }, delay)
-    timeouts.push(id)
-  })
-
-  const maxDelay = tiles.value.reduce((max, tile) => {
-    const delay =
-      tile.row * rowGap + (tile.col === 0 ? 0 : colOffset) + baseDelay
-    return Math.max(max, delay)
-  }, 0)
-
-  const totalDuration = maxDelay + transitionTime + 80
-
-  const finalTimeout = window.setTimeout(() => {
-    timeouts.forEach((id) => window.clearTimeout(id))
-    done()
-  }, totalDuration)
-
-  timeouts.push(finalTimeout)
-}
-
-function startCycle() {
+async function runCycle() {
   if (isAnimating.value) return
+
   isAnimating.value = true
+
+  const fromSrc = currentImage.value
+  const toSrc = otherImage.value
+
+  frontPanelSrc.value = fromSrc
+  backgroundPanelSrc.value = fromSrc
+  specialBottomSrc.value = toSrc
+
   showFlaps.value = true
+  initState()
+  await nextTick()
 
-  transitionFrom.value = currentFrontImage.value
-  transitionTo.value = isImage2.value ? image1.value : image2.value
+  backgroundPanelSrc.value = toSrc
 
-  resetFlipState()
+  const columnOrder: number[] = []
+  for (let c = cols.value - 1; c >= 0; c -= 1) {
+    columnOrder.push(c)
+  }
 
-  animateFlip(true, () => {
-    currentFrontImage.value = transitionTo.value
-    isImage2.value = !isImage2.value
-    animateFlip(false, () => {
-      showFlaps.value = false
-      resetFlipState()
-      isAnimating.value = false
-    })
-  })
+  const rowDelay = 200
+  const betweenColumnsDelay = 180
+
+  for (const col of columnOrder) {
+    for (let r = 0; r < visibleRows.value - 1; r += 1) {
+      const index = r * cols.value + col
+      flipped.value[index] = true
+      await wait(rowDelay)
+    }
+    await wait(betweenColumnsDelay)
+  }
+
+  currentImage.value = toSrc
+  otherImage.value = fromSrc
+  isImage2.value = currentImage.value === image2.value
+
+  backgroundPanelSrc.value = currentImage.value
+  frontPanelSrc.value = currentImage.value
+  specialBottomSrc.value = otherImage.value
+
+  await wait(150)
+
+  showFlaps.value = false
+  initState()
+  isAnimating.value = false
 }
 
-function handleClick() {
-  startCycle()
+function wait(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
 }
 </script>
-
-<style scoped>
-.flip-tiles-container {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  transform-style: preserve-3d;
-  perspective: 1600px;
-}
-
-.flip-tile {
-  position: absolute;
-  transform-style: preserve-3d;
-}
-
-.flip-tile-inner {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  transform-origin: 50% 0%;
-  transition:
-    transform 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01),
-    opacity 0.35s ease-out;
-}
-
-.flip-tile--flipped .flip-tile-inner {
-  transform: rotateX(180deg);
-}
-
-.flip-tile-face {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  background-repeat: no-repeat;
-}
-
-.flip-tile-face-back {
-  transform: rotateX(180deg);
-}
-</style>

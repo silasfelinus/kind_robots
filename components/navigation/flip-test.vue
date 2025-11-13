@@ -17,7 +17,7 @@
         />
       </div>
 
-      <!-- Front panel pieces: only exist during the flip -->
+      <!-- Front panel segments (flaps): exist only during animation -->
       <flip-flap-grid v-if="showFlaps" :tiles="tileViews" :flipped="flipped" />
 
       <div
@@ -41,7 +41,7 @@
     <div class="mt-3 grid grid-cols-1 lg:grid-cols-3 gap-2">
       <div class="rounded-xl border border-base-300 bg-base-200 p-2">
         <div class="flex items-center justify-between">
-          <span class="text-xs opacity-80">Background panel (visible)</span>
+          <span class="text-xs opacity-80">Background panel</span>
           <span class="text-[10px] px-1.5 py-0.5 rounded bg-primary/20"
             >backgroundPanelSrc</span
           >
@@ -79,7 +79,7 @@
         <div class="flex items-center justify-between">
           <span class="text-xs opacity-80">Flip config</span>
           <span class="text-[10px] px-1.5 py-0.5 rounded bg-info/20"
-            >2 rows, 3 segments</span
+            >2 rows animated, 3 segments</span
           >
         </div>
         <div class="mt-1 text-[11px] opacity-80">
@@ -123,7 +123,7 @@ const image2 = ref<string>('/images/botcafe.webp')
 const logoSrc = ref<string>('/images/logo_old.webp')
 
 const cols = ref<number>(2)
-const visibleRows = ref<number>(2)
+const visibleRows = ref<number>(3)
 const totalSegments = ref<number>(3)
 
 interface TileDef {
@@ -156,27 +156,12 @@ const flipped = ref<boolean[]>([])
 const status = ref<string[]>([])
 const activeCol = ref<number | null>(null)
 
-/**
- * currentImage: what the user considers "the current panel"
- * otherImage: the one we will reveal next
- *
- * Each completed animation swaps them, so clicks alternate A → B → A → B…
- */
 const currentImage = ref<string>(image1.value)
 const otherImage = ref<string>(image2.value)
 
-/**
- * backgroundPanelSrc: what the never-moving background panel is currently showing.
- * frontPanelSrc: what the front panel shows on its face (what gets shredded).
- */
 const backgroundPanelSrc = ref<string>(currentImage.value)
 const frontPanelSrc = ref<string>(currentImage.value)
 
-/**
- * For the back of the front panel:
- * - top third: logo
- * - middle third: bottom third of backgroundPanelSrc
- */
 const ariaLabel = computed(() =>
   isAnimating.value
     ? 'Running 2×2 flip over 3 stacked segments'
@@ -206,13 +191,26 @@ function tileVars(tile: TileDef): Record<string, string> {
   const bottom = 100 - segHeight * (tile.row + 1)
 
   const colCenter = left + colWidth / 2
-
   const rowCenterFront = top + segHeight / 2
-  const rowCenterBack =
-    tile.row === 0 ? top + segHeight / 2 : 100 - segHeight / 2
 
+  // For the back:
+  //  - row 0: logo strip
+  //  - row 1: bottom third of backgroundPanelSrc
+  //  - row 2: not animated, but safe default
+  let rowCenterBack = rowCenterFront
+  if (tile.row === 1) {
+    rowCenterBack = 100 - segHeight / 2
+  }
+
+  const isTopRow = tile.row === 0
   const isMiddleRow = tile.row === 1
-  const backImage = isMiddleRow ? backgroundPanelSrc.value : logoSrc.value
+
+  let backImage = backgroundPanelSrc.value
+  if (isTopRow) {
+    backImage = logoSrc.value
+  } else if (isMiddleRow) {
+    backImage = backgroundPanelSrc.value
+  }
 
   return {
     '--flip-image-front': `url("${frontPanelSrc.value}")`,
@@ -243,18 +241,17 @@ async function runExchange() {
   const fromSrc = currentImage.value
   const toSrc = otherImage.value
 
-  /**
-   * Snapshot the trick:
-   * - Front panel still LOOKS like fromSrc (image1, say).
-   * - Background panel quietly becomes toSrc (image2), but is fully covered.
-   * - Back-of-front uses logo on top row, bottom-third-of-toSrc on middle row.
-   */
+  // Snapshot the trick: front still looks like fromSrc.
   frontPanelSrc.value = fromSrc
-  backgroundPanelSrc.value = toSrc
+  backgroundPanelSrc.value = fromSrc
 
   showFlaps.value = true
   initState()
   await nextTick()
+
+  // Now background quietly becomes the new image,
+  // fully hidden under the front-panel flaps.
+  backgroundPanelSrc.value = toSrc
 
   const columnOrder: number[] = []
   for (let c = cols.value - 1; c >= 0; c -= 1) {
@@ -268,7 +265,8 @@ async function runExchange() {
     activeCol.value = col
     status.value[col] = 'dropping'
 
-    for (let r = 0; r < visibleRows.value; r += 1) {
+    // Only animate top and middle rows (0 and 1).
+    for (let r = 0; r < 2; r += 1) {
       const index = r * cols.value + col
       flipped.value[index] = true
       await wait(rowDelay)
@@ -278,10 +276,7 @@ async function runExchange() {
     await wait(betweenColumnsDelay)
   }
 
-  /**
-   * After the flip is done, the background panel is already toSrc.
-   * We now just swap "current vs other" so the next click reverses the trick.
-   */
+  // Swap which image is "current" so next click reverses.
   currentImage.value = toSrc
   otherImage.value = fromSrc
 

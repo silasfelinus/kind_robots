@@ -30,14 +30,14 @@ const props = defineProps<{
 <style scoped>
 .flap-wrapper {
   position: absolute;
-  inset: 0;
+  top: var(--row-top);
+  bottom: var(--row-bottom);
+  left: var(--col-left);
+  right: var(--col-right);
   transform-style: preserve-3d;
   perspective: 1200px;
   transform-origin: 50% 100%;
   transition: transform 700ms cubic-bezier(0.2, 0.7, 0.3, 1);
-  clip-path: inset(
-    var(--row-top) var(--col-right) var(--row-bottom) var(--col-left)
-  );
 }
 
 .flap-wrapper::after {
@@ -48,9 +48,6 @@ const props = defineProps<{
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent);
   mix-blend-mode: multiply;
   transition: opacity 700ms ease;
-  clip-path: inset(
-    var(--row-top) var(--col-right) var(--row-bottom) var(--col-left)
-  );
 }
 
 .flap-wrapper.is-flipped {
@@ -68,9 +65,6 @@ const props = defineProps<{
   background-size: 100% 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  clip-path: inset(
-    var(--row-top) var(--col-right) var(--row-bottom) var(--col-left)
-  );
 }
 
 .face-front {

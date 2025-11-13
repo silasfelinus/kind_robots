@@ -26,6 +26,7 @@
         <div
           class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-2 md:gap-3"
         >
+          <flip-stepper />
           <div class="flex-1 min-h-[8rem]">
             <ami-chat class="w-full h-full" />
           </div>

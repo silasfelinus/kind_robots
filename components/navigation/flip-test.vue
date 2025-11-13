@@ -7,15 +7,17 @@
       aria-live="polite"
       @click="runExchange"
     >
+      <!-- Background panel: never moves, only its image swaps -->
       <div class="absolute inset-0 z-0">
         <img
-          :src="currentSrc"
+          :src="backgroundPanelSrc"
           alt=""
           class="w-full h-full object-cover select-none pointer-events-none"
           draggable="false"
         />
       </div>
 
+      <!-- Front panel pieces: only exist during the flip -->
       <flip-flap-grid v-if="showFlaps" :tiles="tileViews" :flipped="flipped" />
 
       <div
@@ -39,36 +41,36 @@
     <div class="mt-3 grid grid-cols-1 lg:grid-cols-3 gap-2">
       <div class="rounded-xl border border-base-300 bg-base-200 p-2">
         <div class="flex items-center justify-between">
-          <span class="text-xs opacity-80">Rear panel (visible)</span>
+          <span class="text-xs opacity-80">Background panel (visible)</span>
           <span class="text-[10px] px-1.5 py-0.5 rounded bg-primary/20"
-            >currentSrc</span
+            >backgroundPanelSrc</span
           >
         </div>
         <div class="mt-1 text-[11px] break-all opacity-80">
-          {{ currentSrc }}
+          {{ backgroundPanelSrc }}
         </div>
         <div class="mt-2 h-20 w-full overflow-hidden rounded-lg">
           <div
             class="h-full w-full bg-cover bg-center"
-            :style="{ backgroundImage: `url('${currentSrc}')` }"
+            :style="{ backgroundImage: `url('${backgroundPanelSrc}')` }"
           ></div>
         </div>
       </div>
 
       <div class="rounded-xl border border-base-300 bg-base-200 p-2">
         <div class="flex items-center justify-between">
-          <span class="text-xs opacity-80">Next hidden panel</span>
+          <span class="text-xs opacity-80">Front panel (current face)</span>
           <span class="text-[10px] px-1.5 py-0.5 rounded bg-secondary/20"
-            >nextSrc</span
+            >frontPanelSrc</span
           >
         </div>
         <div class="mt-1 text-[11px] break-all opacity-80">
-          {{ nextSrc }}
+          {{ frontPanelSrc }}
         </div>
         <div class="mt-2 h-20 w-full overflow-hidden rounded-lg">
           <div
             class="h-full w-full bg-cover bg-center"
-            :style="{ backgroundImage: `url('${nextSrc}')` }"
+            :style="{ backgroundImage: `url('${frontPanelSrc}')` }"
           ></div>
         </div>
       </div>
@@ -102,7 +104,8 @@
 
     <div class="mt-2 flex items-center justify-between text-xs opacity-80">
       <span class="truncate">
-        Each click swaps panels, then runs a 2×2 drop over a 3-part stack
+        Click to toggle between image1 and image2 with a 2×2 drop over 3
+        segments
       </span>
       <span>{{ isAnimating ? 'Animating…' : 'Idle' }}</span>
     </div>
@@ -115,8 +118,8 @@ import FlipFlapGrid, {
   type FlipTileView,
 } from '@/components/navigation/flip-animation.vue'
 
-const imgA = ref<string>('/images/backtree.webp')
-const imgB = ref<string>('/images/botcafe.webp')
+const image1 = ref<string>('/images/backtree.webp')
+const image2 = ref<string>('/images/botcafe.webp')
 const logoSrc = ref<string>('/images/logo_old.webp')
 
 const cols = ref<number>(2)
@@ -153,10 +156,27 @@ const flipped = ref<boolean[]>([])
 const status = ref<string[]>([])
 const activeCol = ref<number | null>(null)
 
-const currentSrc = ref(imgA.value)
-const nextSrc = ref(imgB.value)
-const frontSrc = ref(currentSrc.value)
+/**
+ * currentImage: what the user considers "the current panel"
+ * otherImage: the one we will reveal next
+ *
+ * Each completed animation swaps them, so clicks alternate A → B → A → B…
+ */
+const currentImage = ref<string>(image1.value)
+const otherImage = ref<string>(image2.value)
 
+/**
+ * backgroundPanelSrc: what the never-moving background panel is currently showing.
+ * frontPanelSrc: what the front panel shows on its face (what gets shredded).
+ */
+const backgroundPanelSrc = ref<string>(currentImage.value)
+const frontPanelSrc = ref<string>(currentImage.value)
+
+/**
+ * For the back of the front panel:
+ * - top third: logo
+ * - middle third: bottom third of backgroundPanelSrc
+ */
 const ariaLabel = computed(() =>
   isAnimating.value
     ? 'Running 2×2 flip over 3 stacked segments'
@@ -192,10 +212,10 @@ function tileVars(tile: TileDef): Record<string, string> {
     tile.row === 0 ? top + segHeight / 2 : 100 - segHeight / 2
 
   const isMiddleRow = tile.row === 1
-  const backImage = isMiddleRow ? currentSrc.value : logoSrc.value
+  const backImage = isMiddleRow ? backgroundPanelSrc.value : logoSrc.value
 
   return {
-    '--flip-image-front': `url("${frontSrc.value}")`,
+    '--flip-image-front': `url("${frontPanelSrc.value}")`,
     '--flip-image-back': `url("${backImage}")`,
     '--col-left': `${left}%`,
     '--col-right': `${right}%`,
@@ -220,9 +240,17 @@ async function runExchange() {
 
   isAnimating.value = true
 
-  const previousCurrent = currentSrc.value
-  frontSrc.value = previousCurrent
-  currentSrc.value = nextSrc.value
+  const fromSrc = currentImage.value
+  const toSrc = otherImage.value
+
+  /**
+   * Snapshot the trick:
+   * - Front panel still LOOKS like fromSrc (image1, say).
+   * - Background panel quietly becomes toSrc (image2), but is fully covered.
+   * - Back-of-front uses logo on top row, bottom-third-of-toSrc on middle row.
+   */
+  frontPanelSrc.value = fromSrc
+  backgroundPanelSrc.value = toSrc
 
   showFlaps.value = true
   initState()
@@ -250,7 +278,15 @@ async function runExchange() {
     await wait(betweenColumnsDelay)
   }
 
-  nextSrc.value = previousCurrent
+  /**
+   * After the flip is done, the background panel is already toSrc.
+   * We now just swap "current vs other" so the next click reverses the trick.
+   */
+  currentImage.value = toSrc
+  otherImage.value = fromSrc
+
+  backgroundPanelSrc.value = currentImage.value
+  frontPanelSrc.value = currentImage.value
 
   activeCol.value = null
   await wait(120)

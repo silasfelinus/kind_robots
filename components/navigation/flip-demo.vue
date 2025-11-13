@@ -28,7 +28,7 @@
           <div class="flip-tile-inner">
             <div
               class="flip-tile-face flip-tile-face-front"
-              :style="frontStyle"
+              :style="frontStyleForTile(tile)"
             />
             <div
               class="flip-tile-face flip-tile-face-back"
@@ -41,8 +41,8 @@
       <div
         class="absolute left-2 top-2 z-20 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold flex items-center gap-1"
       >
-        <span> Flip repeat demo </span>
-        <span class="opacity-70"> • Click to toggle </span>
+        <span>Flip repeat demo</span>
+        <span class="opacity-70">• Click to toggle</span>
         <span class="ml-1 px-1.5 py-0.5 rounded bg-primary/70 text-[10px]">
           {{ isImage2 ? 'Showing image 2' : 'Showing image 1' }}
         </span>
@@ -104,12 +104,6 @@ const baseImageSrc = computed<string>(() =>
   isAnimating.value ? transitionTo.value : currentFrontImage.value,
 )
 
-const frontStyle = computed<Record<string, string>>(() => ({
-  backgroundImage: `url("${transitionFrom.value}")`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center center',
-}))
-
 function tileRegionStyle(tile: TileDef): Record<string, string> {
   const colWidth = 100 / cols
   const rowHeight = 100 / rows
@@ -127,16 +121,35 @@ function tileRegionStyle(tile: TileDef): Record<string, string> {
   }
 }
 
+function frontStyleForTile(tile: TileDef): Record<string, string> {
+  const bgSizeX = cols * 100
+  const bgSizeY = rows * 100
+  const posX = (tile.col / (cols - 1)) * 100
+  const posY = (tile.row / (rows - 1)) * 100
+
+  return {
+    backgroundImage: `url("${transitionFrom.value}")`,
+    backgroundSize: `${bgSizeX}% ${bgSizeY}%`,
+    backgroundPosition: `${posX}% ${posY}%`,
+  }
+}
+
 function backStyleForTile(tile: TileDef): Record<string, string> {
   const panelNumber = tile.index + 1
   let backgroundImage = ''
   let backgroundSize = 'cover'
   let backgroundPosition = 'center center'
+  let transform = ''
 
   if (panelNumber === 5) {
+    const bgSizeX = cols * 100
+    const bgSizeY = rows * 100
+    const posX = 100
+    const posY = 100
     backgroundImage = `url("${image2.value}")`
-    backgroundSize = '100% 600%'
-    backgroundPosition = 'center bottom'
+    backgroundSize = `${bgSizeX}% ${bgSizeY}%`
+    backgroundPosition = `${posX}% ${posY}%`
+    transform = 'scaleY(-1)'
   } else if (panelNumber % 2 === 1) {
     backgroundImage = `url("${logoSrc.value}")`
   } else {
@@ -147,6 +160,7 @@ function backStyleForTile(tile: TileDef): Record<string, string> {
     backgroundImage,
     backgroundSize,
     backgroundPosition,
+    transform,
   }
 }
 
@@ -231,7 +245,7 @@ function handleClick() {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  transform-origin: 50% 100%;
+  transform-origin: 50% 0%;
   transition:
     transform 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01),
     opacity 0.35s ease-out;

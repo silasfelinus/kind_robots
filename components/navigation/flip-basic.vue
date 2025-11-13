@@ -17,19 +17,21 @@
       </div>
 
       <div
-        v-if="showFlap"
-        class="flip-basic-flap"
-        :class="{ 'flip-basic-flap--flipped': isFlipped }"
-      >
-        <div class="flip-basic-flap-inner">
+        v-if="isAnimating"
+        class="flip-basic-bottom"
+        :style="bottomStyle"
+      ></div>
+
+      <div v-if="isAnimating" class="flip-basic-flap">
+        <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
           <div
             class="flip-basic-face flip-basic-face--front"
             :style="frontStyle"
-          />
+          ></div>
           <div
             class="flip-basic-face flip-basic-face--back"
             :style="backStyle"
-          />
+          ></div>
         </div>
       </div>
 
@@ -42,6 +44,10 @@
           {{ showingImage2 ? 'Showing image 2' : 'Showing image 1' }}
         </span>
       </div>
+
+      <div
+        class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/30"
+      ></div>
     </div>
   </section>
 </template>
@@ -58,14 +64,10 @@ const otherImage = ref<string>(image2.value)
 
 const backgroundSrc = ref<string>(currentImage.value)
 
-const showFlap = ref(false)
-const isFlipped = ref(false)
 const isAnimating = ref(false)
 
 const flapFrontSrc = ref<string>(currentImage.value)
 const flapBackSrc = ref<string>(otherImage.value)
-
-const durationMs = 700
 
 const showingImage2 = computed<boolean>(
   () => currentImage.value === image2.value,
@@ -73,8 +75,8 @@ const showingImage2 = computed<boolean>(
 
 const ariaLabel = computed(() =>
   isAnimating.value
-    ? 'Running a single top-half flip to switch images'
-    : 'Image ready; click to fold the top half and switch images',
+    ? 'Running a midline flip between two images'
+    : 'Image ready; click to fold the top half over the bottom and switch images',
 )
 
 const frontStyle = computed<Record<string, string>>(() => ({
@@ -89,7 +91,13 @@ const backStyle = computed<Record<string, string>>(() => ({
   backgroundPosition: 'center bottom',
 }))
 
-function runFlipOnce() {
+const bottomStyle = computed<Record<string, string>>(() => ({
+  backgroundImage: `url("${flapFrontSrc.value}")`,
+  backgroundSize: '100% 200%',
+  backgroundPosition: 'center bottom',
+}))
+
+function startFlip() {
   if (isAnimating.value) return
 
   isAnimating.value = true
@@ -97,38 +105,39 @@ function runFlipOnce() {
   const fromSrc = currentImage.value
   const toSrc = otherImage.value
 
-  backgroundSrc.value = fromSrc
   flapFrontSrc.value = fromSrc
   flapBackSrc.value = toSrc
 
-  showFlap.value = true
-  isFlipped.value = false
+  backgroundSrc.value = toSrc
+}
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      isFlipped.value = true
-    })
-  })
+function onAnimationEnd() {
+  const tmp = currentImage.value
+  currentImage.value = otherImage.value
+  otherImage.value = tmp
 
-  window.setTimeout(() => {
-    backgroundSrc.value = toSrc
+  backgroundSrc.value = currentImage.value
+  flapFrontSrc.value = currentImage.value
+  flapBackSrc.value = otherImage.value
 
-    const tmp = currentImage.value
-    currentImage.value = otherImage.value
-    otherImage.value = tmp
-
-    showFlap.value = false
-    isFlipped.value = false
-    isAnimating.value = false
-  }, durationMs + 60)
+  isAnimating.value = false
 }
 
 function handleClick() {
-  runFlipOnce()
+  startFlip()
 }
 </script>
 
 <style scoped>
+.flip-basic-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  bottom: 0;
+  background-repeat: no-repeat;
+}
+
 .flip-basic-flap {
   position: absolute;
   left: 0;
@@ -144,11 +153,19 @@ function handleClick() {
   inset: 0;
   transform-style: preserve-3d;
   transform-origin: 50% 100%;
-  transition: transform 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01);
+  animation: flip-basic-fold 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
 }
 
-.flip-basic-flap--flipped .flip-basic-flap-inner {
-  transform: rotateX(-180deg);
+@keyframes flip-basic-fold {
+  0% {
+    transform: rotateX(0deg);
+  }
+  60% {
+    transform: rotateX(-210deg);
+  }
+  100% {
+    transform: rotateX(-180deg);
+  }
 }
 
 .flip-basic-face {
@@ -159,6 +176,6 @@ function handleClick() {
 }
 
 .flip-basic-face--back {
-  transform: rotateX(180deg);
+  transform: rotateX(180deg) scaleY(-1);
 }
 </style>

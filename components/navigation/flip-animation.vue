@@ -33,7 +33,7 @@ const props = defineProps<{
   inset: 0;
   transform-style: preserve-3d;
   perspective: 1200px;
-  transform-origin: 50% 100%;
+  transform-origin: 50% var(--row-bottom);
   transition: transform 700ms cubic-bezier(0.2, 0.7, 0.3, 1);
   clip-path: inset(
     var(--row-top) var(--col-right) var(--row-bottom) var(--col-left)

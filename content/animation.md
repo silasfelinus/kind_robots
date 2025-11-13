@@ -19,8 +19,11 @@ navComponent: 'lab-nav'
 theme: winter
 ---
 
+Flip Test
 :flip-test
 
+Flip Stepper
 :flip-stepper
 
+Flip Demo
 :flip-demo

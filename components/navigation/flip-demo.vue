@@ -14,7 +14,7 @@
         />
       </div>
 
-      <FlipFlapGrid v-if="showFlaps" :tiles="tileViews" :flipped="flipped" />
+      <FlipFlapGrid v-if="showFlaps" />
 
       <div
         class="absolute left-2 top-2 z-20 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold flex items-center gap-1"
@@ -31,9 +31,11 @@
 
 <script setup lang="ts">
 // /components/experiments/flip-demo.vue
-import { ref, computed, nextTick } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
 import FlipFlapGrid from '@/components/navigation/flip-animation.vue'
-import { type FlipTileView } from '@/stores/flipStore'
+import { useFlipStore } from '@/stores/flipStore'
+
+const flipStore = useFlipStore()
 
 const image1 = ref<string>('/images/backtree.webp')
 const image2 = ref<string>('/images/botcafe.webp')
@@ -41,98 +43,69 @@ const image2 = ref<string>('/images/botcafe.webp')
 const logoSrcA = ref<string>('/images/old_logo.webp')
 const logoSrcB = ref<string>('/images/chest1.webp')
 
-const cols = ref<number>(2)
-const visibleRows = ref<number>(6)
-
-interface TileDef {
-  id: string
-  row: number
-  col: number
-  index: number
-}
-
-const tiles = computed<TileDef[]>(() => {
-  const result: TileDef[] = []
-  let index = 0
-  for (let r = 0; r < visibleRows.value; r += 1) {
-    for (let c = 0; c < cols.value; c += 1) {
-      result.push({
-        id: `${r}-${c}`,
-        row: r,
-        col: c,
-        index,
-      })
-      index += 1
-    }
-  }
-  return result
-})
-
 const isAnimating = ref(false)
 const isImage2 = ref(false)
 const showFlaps = ref(false)
-const flipped = ref<boolean[]>([])
 
 const currentImage = ref<string>(image1.value)
 const otherImage = ref<string>(image2.value)
 
 const backgroundPanelSrc = ref<string>(currentImage.value)
 const frontPanelSrc = ref<string>(currentImage.value)
-const specialBottomSrc = ref<string>(otherImage.value)
 
-function initState() {
-  flipped.value = tiles.value.map(() => false)
-}
+onMounted(() => {
+  if (!flipStore.isPrepared) {
+    flipStore.buildTiles()
+  }
+})
 
-initState()
+function prepareTileStyles(fromSrc: string, toSrc: string) {
+  const rows = flipStore.config.rows
+  const cols = flipStore.config.cols
+  const segRows = flipStore.segmentRows
 
-function tileVars(tile: TileDef): Record<string, string> {
-  const colWidth = 100 / cols.value
-  const rowHeight = 100 / visibleRows.value
+  const tiles = flipStore.tiles
 
-  const left = colWidth * tile.col
-  const right = 100 - colWidth * (tile.col + 1)
+  for (let index = 0; index < tiles.length; index += 1) {
+    const tile = tiles[index]
+    const segRow = Math.floor(index / cols)
 
-  const top = rowHeight * tile.row
-  const bottom = 100 - rowHeight * (tile.row + 1)
+    tile.style['--flip-image-front'] = `url("${fromSrc}")`
 
-  let backImage: string | null = null
+    let backImage: string | null = null
 
-  if (tile.row === 0) {
-    backImage = logoSrcA.value
-  } else if (tile.row === 1) {
-    backImage = logoSrcB.value
-  } else if (tile.row === 2) {
-    backImage = logoSrcA.value
-  } else if (tile.row === 3) {
-    backImage = logoSrcB.value
-  } else if (tile.row === 4) {
-    backImage = specialBottomSrc.value || backgroundPanelSrc.value
-  } else {
-    backImage = null
+    if (segRow === 0) {
+      backImage = logoSrcA.value
+    } else if (segRow === 1) {
+      backImage = logoSrcB.value
+    } else if (segRow === 2) {
+      backImage = logoSrcA.value
+    } else if (segRow === 3) {
+      backImage = logoSrcB.value
+    } else if (segRow === segRows - 1) {
+      backImage = toSrc
+    } else {
+      backImage = null
+    }
+
+    if (backImage) {
+      tile.style['--flip-image-back'] = `url("${backImage}")`
+      tile.style['--flip-back-has-image'] = '1'
+    } else {
+      delete tile.style['--flip-image-back']
+      tile.style['--flip-back-has-image'] = '0'
+    }
   }
 
-  return {
-    '--flip-image-front': `url("${frontPanelSrc.value}")`,
-    '--flip-image-back': backImage ? `url("${backImage}")` : 'none',
-    '--flip-back-has-image': backImage ? '1' : '0',
-    '--col-left': `${left}%`,
-    '--col-right': `${right}%`,
-    '--row-top': `${top}%`,
-    '--row-bottom': `${bottom}%`,
-  }
+  const _ = rows
 }
-
-const tileViews = computed<FlipTileView[]>(() =>
-  tiles.value.map((tile) => ({
-    id: tile.id,
-    index: tile.index,
-    style: tileVars(tile),
-  })),
-)
 
 async function runCycle() {
   if (isAnimating.value) return
+
+  if (!flipStore.isPrepared) {
+    flipStore.buildTiles()
+  }
 
   isAnimating.value = true
 
@@ -141,49 +114,36 @@ async function runCycle() {
 
   frontPanelSrc.value = fromSrc
   backgroundPanelSrc.value = fromSrc
-  specialBottomSrc.value = toSrc
+
+  prepareTileStyles(fromSrc, toSrc)
 
   showFlaps.value = true
-  initState()
   await nextTick()
 
   backgroundPanelSrc.value = toSrc
 
-  const columnOrder: number[] = []
-  for (let c = cols.value - 1; c >= 0; c -= 1) {
-    columnOrder.push(c)
+  if (!isImage2.value) {
+    flipStore.flipForward()
+  } else {
+    flipStore.flipBackward()
   }
 
-  const rowDelay = 200
-  const betweenColumnsDelay = 180
+  const tileCount = flipStore.tileCount
+  const baseDelay = 80
+  const transformDuration = 700
+  const fudge = 250
+  const totalDuration = (tileCount - 1) * baseDelay + transformDuration + fudge
 
-  for (const col of columnOrder) {
-    for (let r = 0; r < visibleRows.value - 1; r += 1) {
-      const index = r * cols.value + col
-      flipped.value[index] = true
-      await wait(rowDelay)
-    }
-    await wait(betweenColumnsDelay)
-  }
+  setTimeout(() => {
+    currentImage.value = toSrc
+    otherImage.value = fromSrc
+    isImage2.value = currentImage.value === image2.value
 
-  currentImage.value = toSrc
-  otherImage.value = fromSrc
-  isImage2.value = currentImage.value === image2.value
+    backgroundPanelSrc.value = currentImage.value
+    frontPanelSrc.value = currentImage.value
 
-  backgroundPanelSrc.value = currentImage.value
-  frontPanelSrc.value = currentImage.value
-  specialBottomSrc.value = otherImage.value
-
-  await wait(150)
-
-  showFlaps.value = false
-  initState()
-  isAnimating.value = false
-}
-
-function wait(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
+    showFlaps.value = false
+    isAnimating.value = false
+  }, totalDuration)
 }
 </script>

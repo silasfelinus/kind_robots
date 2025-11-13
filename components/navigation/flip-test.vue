@@ -16,18 +16,7 @@
         />
       </div>
 
-      <div v-if="showFlaps" class="absolute inset-0 z-10">
-        <div
-          v-for="tile in tiles"
-          :key="tile.id"
-          class="flap-wrapper"
-          :class="{ 'is-flipped': flipped[tile.index] }"
-          :style="tileVars(tile)"
-        >
-          <div class="face face-front"></div>
-          <div class="face face-back"></div>
-        </div>
-      </div>
+      <flip-flap-grid v-if="showFlaps" :tiles="tileViews" :flipped="flipped" />
 
       <div
         class="pointer-events-none absolute inset-x-0 top-1/3 h-px bg-black/25"
@@ -92,7 +81,8 @@
           >
         </div>
         <div class="mt-1 text-[11px] opacity-80">
-          visible rows: 2 • total vertical segments: 3 • cols: {{ cols }}
+          visible rows: {{ visibleRows }} • total segments:
+          {{ totalSegments }} • cols: {{ cols }}
         </div>
         <div class="mt-1 text-[11px] opacity-80">
           order: top-right → mid-right → top-left → mid-left
@@ -121,6 +111,9 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
+import FlipFlapGrid, {
+  type FlipTileView,
+} from '@/components/navigation/flip-animation.vue'
 
 const imgA = ref<string>('/images/backtree.webp')
 const imgB = ref<string>('/images/botcafe.webp')
@@ -182,7 +175,7 @@ function initState() {
 
 initState()
 
-function tileVars(tile: TileDef) {
+function tileVars(tile: TileDef): Record<string, string> {
   const colWidth = 100 / cols.value
   const segHeight = 100 / totalSegments.value
 
@@ -211,8 +204,16 @@ function tileVars(tile: TileDef) {
     '--col-center': `${colCenter}%`,
     '--row-center-front': `${rowCenterFront}%`,
     '--row-center-back': `${rowCenterBack}%`,
-  } as Record<string, string>
+  }
 }
+
+const tileViews = computed<FlipTileView[]>(() =>
+  tiles.value.map((tile) => ({
+    id: tile.id,
+    index: tile.index,
+    style: tileVars(tile),
+  })),
+)
 
 async function runExchange() {
   if (isAnimating.value) return
@@ -232,7 +233,6 @@ async function runExchange() {
     columnOrder.push(c)
   }
 
-  const flipDuration = 700
   const rowDelay = 320
   const betweenColumnsDelay = 180
 
@@ -266,63 +266,3 @@ function wait(ms: number) {
   })
 }
 </script>
-
-<style scoped>
-.flap-wrapper {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  perspective: 1200px;
-  transform-origin: 50% 100%;
-  transition: transform 700ms cubic-bezier(0.2, 0.7, 0.3, 1);
-  clip-path: inset(
-    var(--row-top) var(--col-right) var(--row-bottom) var(--col-left)
-  );
-}
-
-.flap-wrapper::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent);
-  mix-blend-mode: multiply;
-  transition: opacity 700ms ease;
-  clip-path: inset(
-    var(--row-top) var(--col-right) var(--row-bottom) var(--col-left)
-  );
-}
-
-.flap-wrapper.is-flipped {
-  transform: rotateX(-180deg);
-}
-
-.flap-wrapper.is-flipped::after {
-  opacity: 0.28;
-}
-
-.face {
-  position: absolute;
-  inset: 0;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  clip-path: inset(
-    var(--row-top) var(--col-right) var(--row-bottom) var(--col-left)
-  );
-}
-
-.face-front {
-  transform: rotateX(0deg) translateZ(0.01px);
-  background-image: var(--flip-image-front);
-  background-position: var(--col-center) var(--row-center-front);
-}
-
-.face-back {
-  transform: rotateX(180deg);
-  background-image: var(--flip-image-back);
-  background-position: var(--col-center) var(--row-center-back);
-  filter: brightness(0.96);
-}
-</style>

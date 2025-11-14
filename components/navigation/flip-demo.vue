@@ -1,10 +1,10 @@
+<!-- /components/experiments/flip-demo.vue -->
 <template>
   <section class="relative w-full max-w-4xl mx-auto">
     <div
       class="relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
       @click="runCycle"
     >
-      <!-- Rear panel: target image, like flip-basic background -->
       <div class="absolute inset-0 z-0">
         <img
           :src="backgroundPanelSrc"
@@ -14,7 +14,6 @@
         />
       </div>
 
-      <!-- Split-flap grid driven by flipStore (tiles + flipped state) -->
       <FlipFlapGrid v-if="showFlaps" />
 
       <div
@@ -64,7 +63,6 @@ function prepareTileStyles(fromSrc: string, toSrc: string) {
   const cols = flipStore.config.cols
   const segRows = flipStore.segmentRows
   const lastSegRow = segRows - 1
-
   const tiles = flipStore.tiles
 
   for (let index = 0; index < tiles.length; index += 1) {
@@ -74,6 +72,8 @@ function prepareTileStyles(fromSrc: string, toSrc: string) {
     const segRow = Math.floor(index / cols)
 
     tile.style['--flip-image-front'] = `url("${fromSrc}")`
+    tile.style['--flip-front-size'] = '100% 100%'
+    tile.style['--flip-front-position'] = 'center center'
 
     let backImage: string | null = null
 
@@ -85,9 +85,13 @@ function prepareTileStyles(fromSrc: string, toSrc: string) {
 
     if (backImage) {
       tile.style['--flip-image-back'] = `url("${backImage}")`
+      tile.style['--flip-back-size'] = '100% 100%'
+      tile.style['--flip-back-position'] = 'center center'
       tile.style['--flip-back-has-image'] = '1'
     } else {
       delete tile.style['--flip-image-back']
+      delete tile.style['--flip-back-size']
+      delete tile.style['--flip-back-position']
       tile.style['--flip-back-has-image'] = '0'
     }
   }
@@ -114,11 +118,7 @@ async function runCycle() {
 
   backgroundPanelSrc.value = toSrc
 
-  if (!isImage2.value) {
-    flipStore.flipForward()
-  } else {
-    flipStore.flipBackward()
-  }
+  flipStore.playSequence()
 
   const tileCount = flipStore.tileCount
   const baseDelay = 80
@@ -126,7 +126,7 @@ async function runCycle() {
   const fudge = 250
   const totalDuration = (tileCount - 1) * baseDelay + transformDuration + fudge
 
-  setTimeout(() => {
+  window.setTimeout(() => {
     currentImage.value = toSrc
     otherImage.value = fromSrc
     isImage2.value = currentImage.value === image2.value

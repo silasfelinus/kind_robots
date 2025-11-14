@@ -69,19 +69,19 @@ onMounted(() => {
   background-repeat: no-repeat;
 }
 
-/* Front face: full image, clipping handled by tile position */
+/* Front face: uses per-tile vars, falls back to full-cover */
 .flip-tile-face--front {
   background-image: var(--flip-image-front);
-  background-size: 100% 100%;
-  background-position: center center;
+  background-size: var(--flip-front-size, 100% 100%);
+  background-position: var(--flip-front-position, center center);
 }
 
 /* Back face: collage / next-image underside */
 .flip-tile-face--back {
   transform: rotateX(180deg);
   background-image: var(--flip-image-back);
-  background-size: cover;
-  background-position: center center;
+  background-size: var(--flip-back-size, 100% 100%);
+  background-position: var(--flip-back-position, center center);
   opacity: var(--flip-back-has-image);
 }
 </style>

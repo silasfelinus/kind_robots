@@ -25,17 +25,15 @@
  *   Callers are responsible for writing the collage pattern into tile.style:
  *   for example, alternating logo rows with a special bottom row derived from the next image.
  *
- * Animation flow in runFlip:
+ * Animation flow in runFlip / playSequence:
  * - Tiles are indexed as segmentRow * cols + col.
  * - getFlipOrder returns indices ordered by column then segmentRow:
  *   - Right column first, from top segment to bottom segment.
  *   - Then left column, from top segment to bottom segment.
  * - runFlip walks that order with a baseDelay per tile and toggles flipped[index]
  *   to true (forward) or false (backward).
- * - Higher level components:
- *   - swap the background panel image just before the animation
- *   - set tile.style variables (front and back images)
- *   - call flipForward, flipBackward, or toggleFlip to run the sequence.
+ * - playSequence always runs a single forward pass (downwards), useful for demos
+ *   that want the *same* visual direction even when swapping images back and forth.
  */
 
 import { defineStore } from 'pinia'
@@ -250,6 +248,36 @@ export const useFlipStore = defineStore('flipStore', () => {
     }
   }
 
+  const playSequence = () => {
+    try {
+      if (isAnimating.value) return
+
+      ensureTiles()
+      clearTimers()
+
+      flipped.value = Array(tileCount.value).fill(false)
+
+      const order = getFlipOrder()
+      const baseDelay = 80
+
+      order.forEach((index, position) => {
+        const timeoutId = setTimeout(() => {
+          flipped.value[index] = true
+
+          if (position === order.length - 1) {
+            isAnimating.value = false
+          }
+        }, position * baseDelay)
+
+        activeTimeouts.value.push(timeoutId)
+      })
+
+      isAnimating.value = true
+    } catch (error) {
+      logError(error, 'Failed to play flip sequence')
+    }
+  }
+
   return {
     config,
     tiles,
@@ -265,6 +293,7 @@ export const useFlipStore = defineStore('flipStore', () => {
     flipForward,
     flipBackward,
     toggleFlip,
+    playSequence,
     buildTiles,
   }
 })

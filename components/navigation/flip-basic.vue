@@ -1,3 +1,4 @@
+<!-- /components/experiments/flip-basic.vue -->
 <template>
   <section
     class="relative w-full max-w-3xl mx-auto aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
@@ -5,7 +6,7 @@
     aria-live="polite"
     @click="handleClick"
   >
-    <!-- Rear panel (the next image, fully visible behind everything) -->
+    <!-- BACKGROUND: always the next image -->
     <img
       :src="backgroundSrc"
       alt=""
@@ -13,29 +14,27 @@
       draggable="false"
     />
 
-    <!-- Bottom half strip of the CURRENT front image -->
-    <div class="flip-basic-bottom" :style="bottomStyle"></div>
+    <!-- BOTTOM STATIC HALF OF CURRENT IMAGE -->
+    <div class="flip-basic-bottom" :style="bottomStyle" />
 
-    <!-- The folding flap (top half of current image) -->
-    <div class="flip-basic-flap" v-if="isAnimating">
+    <!-- TOP FLAP (animated) -->
+    <div v-if="isAnimating" class="flip-basic-flap">
       <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
-        <div
-          class="flip-basic-face flip-basic-face--front"
-          :style="frontStyle"
-        ></div>
-        <div
-          class="flip-basic-face flip-basic-face--back"
-          :style="backStyle"
-        ></div>
+        <!-- FRONT FACE: top half of current image -->
+        <div class="flip-basic-face flip-basic-face--front" :style="frontStyle" />
+
+        <!-- BACK FACE: upside-down bottom half of *next* image -->
+        <div class="flip-basic-face flip-basic-face--back" :style="backStyle" />
       </div>
     </div>
 
-    <!-- Debug overlay -->
     <div
       class="absolute left-2 top-2 z-20 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
     >
-      {{ isAnimating ? 'Animating…' : 'Ready — click to flip' }}
+      {{ isAnimating ? 'Animating…' : 'Ready • Click to flip' }}
     </div>
+
+    <div class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/30" />
   </section>
 </template>
 
@@ -43,40 +42,46 @@
 // /components/experiments/flip-basic.vue
 import { ref, computed } from 'vue'
 
+// Test images
 const image1 = ref('/images/backtree.webp')
 const image2 = ref('/images/botcafe.webp')
 
+// State: which image is currently being shown
 const currentImage = ref(image1.value)
 const otherImage = ref(image2.value)
 
 const backgroundSrc = ref(currentImage.value)
 
+// Animation flag
 const isAnimating = ref(false)
 
+// Flap face assignments
 const flapFrontSrc = ref(currentImage.value)
 const flapBackSrc = ref(otherImage.value)
 
+// Accessibility
 const ariaLabel = computed(() =>
   isAnimating.value
-    ? 'Running midline flip between images'
-    : 'Click to flip the top half over and reveal the next image',
+    ? 'Folding top half to reveal next image'
+    : 'Click to perform paper-fold flip to next image',
 )
 
-// FRONT FACE → full current image, but we only display the *top half*
+// FRONT: top half of current image
 const frontStyle = computed(() => ({
   backgroundImage: `url("${flapFrontSrc.value}")`,
   backgroundSize: '100% 200%',
   backgroundPosition: 'center top',
 }))
 
-// BACK FACE → upside-down *bottom half* of the next image
+// BACK: upside-down bottom half of next image
 const backStyle = computed(() => ({
   backgroundImage: `url("${flapBackSrc.value}")`,
   backgroundSize: '100% 200%',
   backgroundPosition: 'center bottom',
+  transform: 'rotateX(180deg)', // <-- IMPORTANT: upside-down AT INSTANTIATION
 }))
 
-// BOTTOM HALF overlay of current image
+// BOTTOM static area: bottom half of current image
 const bottomStyle = computed(() => ({
   backgroundImage: `url("${flapFrontSrc.value}")`,
   backgroundSize: '100% 200%',
@@ -91,20 +96,21 @@ function startFlip() {
   const fromSrc = currentImage.value
   const toSrc = otherImage.value
 
-  flapFrontSrc.value = fromSrc
-  flapBackSrc.value = toSrc
+  // Assign tops & bottoms
+  flapFrontSrc.value = fromSrc // front face is top of current
+  flapBackSrc.value = toSrc     // back face is BOTTOM of next (inverted)
 
-  // Immediately place new image behind everything
+  // Background is the final desired image
   backgroundSrc.value = toSrc
 }
 
 function onAnimationEnd() {
-  // Swap images (sanity reset)
+  // Commit new image
   const tmp = currentImage.value
   currentImage.value = otherImage.value
   otherImage.value = tmp
 
-  // Rebuild static display
+  // Reset faces to new orientation
   backgroundSrc.value = currentImage.value
   flapFrontSrc.value = currentImage.value
   flapBackSrc.value = otherImage.value
@@ -118,7 +124,6 @@ function handleClick() {
 </script>
 
 <style scoped>
-/* ---- BOTTOM HALF STRIP ---- */
 .flip-basic-bottom {
   position: absolute;
   left: 0;
@@ -129,7 +134,6 @@ function handleClick() {
   background-size: cover;
 }
 
-/* ---- TOP FLAP ---- */
 .flip-basic-flap {
   position: absolute;
   left: 0;
@@ -144,11 +148,10 @@ function handleClick() {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  transform-origin: 50% 100%;
+  transform-origin: 50% 100%; /* hinge at middle */
   animation: flip-basic-fold 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
 }
 
-/* ---- Faces ---- */
 .flip-basic-face {
   position: absolute;
   inset: 0;
@@ -158,26 +161,18 @@ function handleClick() {
 }
 
 .flip-basic-face--back {
-  transform: rotateX(180deg) scaleY(-1);
+  /* THIS IS NOW JUST BACKFACE + rotateX(180deg) */
 }
 
-/* ---- OVERFOLD ANIMATION ---- */
-/* Forward-only motion, same each click */
 @keyframes flip-basic-fold {
   0% {
-    transform: rotateX(0deg) scale(1);
+    transform: rotateX(0deg);
   }
-  25% {
-    transform: rotateX(-45deg) scale(1.03);
-  }
-  50% {
-    transform: rotateX(-115deg) scale(1.09);
-  }
-  75% {
-    transform: rotateX(-190deg) scale(1.03);
+  60% {
+    transform: rotateX(-210deg); /* overfold */
   }
   100% {
-    transform: rotateX(-180deg) scale(1);
+    transform: rotateX(-180deg);
   }
 }
 </style>

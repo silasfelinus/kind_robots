@@ -1,140 +1,182 @@
-<!-- /components/experiments/flip-demo.vue -->
+<!-- /components/experiments/flip-basic.vue -->
 <template>
-  <section class="relative w-full max-w-4xl mx-auto">
-    <div
-      class="relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
-      @click="runCycle"
-    >
-      <div class="absolute inset-0 z-0">
-        <img
-          :src="backgroundPanelSrc"
-          alt=""
-          class="w-full h-full object-cover select-none pointer-events-none"
-          draggable="false"
+  <section
+    class="relative w-full max-w-3xl mx-auto aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
+    :aria-label="ariaLabel"
+    aria-live="polite"
+    @click="handleClick"
+  >
+    <img
+      :src="backgroundSrc"
+      alt=""
+      class="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+      draggable="false"
+    />
+
+    <div v-if="!isAnimating" class="flip-basic-top" :style="staticTopStyle" />
+
+    <div class="flip-basic-bottom" :style="bottomStyle" />
+
+    <div v-if="isAnimating" class="flip-basic-flap">
+      <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
+        <div
+          class="flip-basic-face flip-basic-face--front"
+          :style="frontStyle"
         />
-      </div>
-
-      <FlipFlapGrid v-if="showFlaps" />
-
-      <div
-        class="absolute left-2 top-2 z-20 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold flex items-center gap-1"
-      >
-        <span>Flip repeat demo</span>
-        <span class="opacity-70">click to toggle</span>
-        <span class="ml-1 px-1.5 py-0.5 rounded bg-primary/70 text-[10px]">
-          {{ isImage2 ? 'Showing image 2' : 'Showing image 1' }}
-        </span>
+        <div class="flip-basic-face flip-basic-face--back" :style="backStyle" />
       </div>
     </div>
+
+    <div
+      class="absolute left-2 top-2 z-20 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
+    >
+      {{ isAnimating ? 'Animating…' : 'Ready • click to flip' }}
+    </div>
+
+    <div
+      class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/30"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
-// /components/experiments/flip-demo.vue
-import { ref, nextTick, onMounted } from 'vue'
-import FlipFlapGrid from '@/components/navigation/flip-animation.vue'
-import { useFlipStore } from '@/stores/flipStore'
+// /components/experiments/flip-basic.vue
+import { ref, computed } from 'vue'
 
-const flipStore = useFlipStore()
+const image1 = ref('/images/backtree.webp')
+const image2 = ref('/images/botcafe.webp')
 
-const image1 = ref<string>('/images/backtree.webp')
-const image2 = ref<string>('/images/botcafe.webp')
-
-const logoSrcA = ref<string>('/images/old_logo.webp')
-const logoSrcB = ref<string>('/images/chest1.webp')
+const currentImage = ref(image1.value)
+const otherImage = ref(image2.value)
 
 const isAnimating = ref(false)
-const isImage2 = ref(false)
-const showFlaps = ref(false)
 
-const currentImage = ref<string>(image1.value)
-const otherImage = ref<string>(image2.value)
+const backgroundSrc = ref(currentImage.value)
 
-const backgroundPanelSrc = ref<string>(currentImage.value)
+const flapFrontSrc = ref(currentImage.value)
+const flapBackSrc = ref(otherImage.value)
 
-onMounted(() => {
-  flipStore.setConfig(6, 2)
-  if (!flipStore.isPrepared) {
-    flipStore.buildTiles()
+const ariaLabel = computed(() =>
+  isAnimating.value
+    ? 'Running midline flip between images'
+    : 'Click to flip the top half over and reveal the next image',
+)
+
+const staticTopStyle = computed(() => ({
+  backgroundImage: `url("${currentImage.value}")`,
+  backgroundSize: '100% 200%',
+  backgroundPosition: 'center top',
+}))
+
+const bottomStyle = computed(() => {
+  const src = isAnimating.value ? flapFrontSrc.value : currentImage.value
+  return {
+    backgroundImage: `url("${src}")`,
+    backgroundSize: '100% 200%',
+    backgroundPosition: 'center bottom',
   }
 })
 
-function prepareTileStyles(fromSrc: string, toSrc: string) {
-  const cols = flipStore.config.cols
-  const segRows = flipStore.segmentRows
-  const lastSegRow = segRows - 1
-  const tiles = flipStore.tiles
+const frontStyle = computed(() => ({
+  backgroundImage: `url("${flapFrontSrc.value}")`,
+  backgroundSize: '100% 200%',
+  backgroundPosition: 'center top',
+}))
 
-  for (let index = 0; index < tiles.length; index += 1) {
-    const tile = tiles[index]
-    if (!tile) continue
+const backStyle = computed(() => ({
+  backgroundImage: `url("${flapBackSrc.value}")`,
+  backgroundSize: '100% 200%',
+  backgroundPosition: 'center bottom',
+}))
 
-    const segRow = Math.floor(index / cols)
-
-    tile.style['--flip-image-front'] = `url("${fromSrc}")`
-    tile.style['--flip-front-size'] = '100% 100%'
-    tile.style['--flip-front-position'] = 'center center'
-
-    let backImage: string | null = null
-
-    if (segRow === lastSegRow) {
-      backImage = toSrc
-    } else {
-      backImage = segRow % 2 === 0 ? logoSrcA.value : logoSrcB.value
-    }
-
-    if (backImage) {
-      tile.style['--flip-image-back'] = `url("${backImage}")`
-      tile.style['--flip-back-size'] = '100% 100%'
-      tile.style['--flip-back-position'] = 'center center'
-      tile.style['--flip-back-has-image'] = '1'
-    } else {
-      delete tile.style['--flip-image-back']
-      delete tile.style['--flip-back-size']
-      delete tile.style['--flip-back-position']
-      tile.style['--flip-back-has-image'] = '0'
-    }
-  }
-}
-
-async function runCycle() {
+function startFlip() {
   if (isAnimating.value) return
-
-  if (!flipStore.isPrepared) {
-    flipStore.buildTiles()
-  }
 
   isAnimating.value = true
 
   const fromSrc = currentImage.value
   const toSrc = otherImage.value
 
-  prepareTileStyles(fromSrc, toSrc)
+  flapFrontSrc.value = fromSrc
+  flapBackSrc.value = toSrc
 
-  backgroundPanelSrc.value = fromSrc
+  backgroundSrc.value = toSrc
+}
 
-  showFlaps.value = true
-  await nextTick()
+function onAnimationEnd() {
+  const tmp = currentImage.value
+  currentImage.value = otherImage.value
+  otherImage.value = tmp
 
-  backgroundPanelSrc.value = toSrc
+  backgroundSrc.value = currentImage.value
+  flapFrontSrc.value = currentImage.value
+  flapBackSrc.value = otherImage.value
 
-  flipStore.playSequence()
+  isAnimating.value = false
+}
 
-  const tileCount = flipStore.tileCount
-  const baseDelay = 80
-  const transformDuration = 700
-  const fudge = 250
-  const totalDuration = (tileCount - 1) * baseDelay + transformDuration + fudge
-
-  window.setTimeout(() => {
-    currentImage.value = toSrc
-    otherImage.value = fromSrc
-    isImage2.value = currentImage.value === image2.value
-
-    backgroundPanelSrc.value = currentImage.value
-
-    showFlaps.value = false
-    isAnimating.value = false
-  }, totalDuration)
+function handleClick() {
+  startFlip()
 }
 </script>
+
+<style scoped>
+.flip-basic-top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50%;
+  background-repeat: no-repeat;
+}
+
+.flip-basic-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  bottom: 0;
+  background-repeat: no-repeat;
+}
+
+.flip-basic-flap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50%;
+  transform-style: preserve-3d;
+  perspective: 1600px;
+}
+
+.flip-basic-flap-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: 50% 100%;
+  animation: flip-basic-fold 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
+}
+
+.flip-basic-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  background-repeat: no-repeat;
+}
+
+.flip-basic-face--back {
+  transform: rotateX(180deg);
+}
+
+@keyframes flip-basic-fold {
+  0% {
+    transform: rotateX(0deg);
+  }
+  60% {
+    transform: rotateX(-210deg);
+  }
+  100% {
+    transform: rotateX(-180deg);
+  }
+}
+</style>

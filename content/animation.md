@@ -12,18 +12,18 @@ icon: kind-icon:gearhammer
 category: admin
 sort: highlight
 underConstruction: true
-dottitip: "AMI, is anyone reading this"
+dottitip: "AMI, is anyone reading this?"
 amitip: "I hope not, or I would have come up with something funnier to say."
 layout: 'default'
 navComponent: 'lab-nav'
 theme: winter
 ---
-
+Working:
 Flip Basic
 :flip-basic
 
 
-
+Still to fix:
 Flip Demo
 :flip-demo
 

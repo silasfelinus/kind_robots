@@ -1,3 +1,4 @@
+<!-- /components/experiments/flip-basic.vue -->
 <template>
   <section
     class="relative w-full max-w-3xl mx-auto aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
@@ -5,17 +6,13 @@
     aria-live="polite"
     @click="handleClick"
   >
-    <img
-      :src="backgroundSrc"
-      alt=""
-      class="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
-      draggable="false"
-    />
-
+    <!-- Static top half when not animating -->
     <div v-if="!isAnimating" class="flip-basic-top" :style="staticTopStyle" />
 
+    <!-- Bottom half: always visible -->
     <div class="flip-basic-bottom" :style="bottomStyle" />
 
+    <!-- Flap that replaces the top half while animating -->
     <div v-if="isAnimating" class="flip-basic-flap">
       <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
         <div
@@ -50,8 +47,6 @@ const otherImage = ref(image2.value)
 
 const isAnimating = ref(false)
 
-const backgroundSrc = ref(currentImage.value)
-
 const flapFrontSrc = ref(currentImage.value)
 const flapBackSrc = ref(otherImage.value)
 
@@ -61,12 +56,16 @@ const ariaLabel = computed(() =>
     : 'Click to flip the top half over and reveal the next image',
 )
 
+// Top half of the *current* image
 const staticTopStyle = computed(() => ({
   backgroundImage: `url("${currentImage.value}")`,
   backgroundSize: '100% 200%',
   backgroundPosition: 'center top',
 }))
 
+// Bottom half:
+// - idle: bottom half of currentImage
+// - animating: bottom half of flapFrontSrc (the "from" image)
 const bottomStyle = computed(() => {
   const src = isAnimating.value ? flapFrontSrc.value : currentImage.value
   return {
@@ -76,12 +75,14 @@ const bottomStyle = computed(() => {
   }
 })
 
+// Flap front = top half of from image
 const frontStyle = computed(() => ({
   backgroundImage: `url("${flapFrontSrc.value}")`,
   backgroundSize: '100% 200%',
   backgroundPosition: 'center top',
 }))
 
+// Flap back = upside-down bottom half of next image
 const backStyle = computed(() => ({
   backgroundImage: `url("${flapBackSrc.value}")`,
   backgroundSize: '100% 200%',
@@ -98,8 +99,6 @@ function startFlip() {
 
   flapFrontSrc.value = fromSrc
   flapBackSrc.value = toSrc
-
-  backgroundSrc.value = toSrc
 }
 
 function onAnimationEnd() {
@@ -107,7 +106,6 @@ function onAnimationEnd() {
   currentImage.value = otherImage.value
   otherImage.value = tmp
 
-  backgroundSrc.value = currentImage.value
   flapFrontSrc.value = currentImage.value
   flapBackSrc.value = otherImage.value
 
@@ -125,19 +123,19 @@ function handleClick() {
   left: 0;
   right: 0;
   top: 0;
-  height: 50%;
+  /* slight overlap with bottom to avoid hairline seams */
+  height: 50.2%;
   background-repeat: no-repeat;
-  background-size: cover;
 }
 
 .flip-basic-bottom {
   position: absolute;
   left: 0;
   right: 0;
-  top: 50%;
+  /* slight overlap upward to meet the top cleanly */
+  top: 49.8%;
   bottom: 0;
   background-repeat: no-repeat;
-  background-size: cover;
 }
 
 .flip-basic-flap {
@@ -163,7 +161,6 @@ function handleClick() {
   inset: 0;
   backface-visibility: hidden;
   background-repeat: no-repeat;
-  background-size: cover;
 }
 
 .flip-basic-face--back {

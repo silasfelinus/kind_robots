@@ -56,16 +56,14 @@ const ariaLabel = computed(() =>
     : 'Click to flip the top half over and reveal the next image',
 )
 
-// Top half of the *current* image
+// Idle top half: top half of current image
 const staticTopStyle = computed(() => ({
   backgroundImage: `url("${currentImage.value}")`,
   backgroundSize: '100% 200%',
   backgroundPosition: 'center top',
 }))
 
-// Bottom half:
-// - idle: bottom half of currentImage
-// - animating: bottom half of flapFrontSrc (the "from" image)
+// Bottom half: bottom half of current image (or from image while animating)
 const bottomStyle = computed(() => {
   const src = isAnimating.value ? flapFrontSrc.value : currentImage.value
   return {
@@ -118,13 +116,13 @@ function handleClick() {
 </script>
 
 <style scoped>
+/* Slight overlap between top and bottom to avoid a hairline seam */
 .flip-basic-top {
   position: absolute;
   left: 0;
   right: 0;
   top: 0;
-  /* slight overlap with bottom to avoid hairline seams */
-  height: 50.2%;
+  height: 50.4%;
   background-repeat: no-repeat;
 }
 
@@ -132,12 +130,12 @@ function handleClick() {
   position: absolute;
   left: 0;
   right: 0;
-  /* slight overlap upward to meet the top cleanly */
-  top: 49.8%;
+  top: 49.6%;
   bottom: 0;
   background-repeat: no-repeat;
 }
 
+/* Flap occupies the top half and hinges at 50% */
 .flip-basic-flap {
   position: absolute;
   left: 0;

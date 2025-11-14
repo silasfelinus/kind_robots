@@ -1,4 +1,3 @@
-<!-- /components/experiments/flip-basic.vue -->
 <template>
   <section
     class="relative w-full max-w-3xl mx-auto aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
@@ -6,15 +5,13 @@
     aria-live="polite"
     @click="handleClick"
   >
-    <img
-      :src="backgroundSrc"
-      alt=""
-      class="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
-      draggable="false"
-    />
+    <!-- Static top half when not animating -->
+    <div v-if="!isAnimating" class="flip-basic-top" :style="staticTopStyle" />
 
-    <div v-if="isAnimating" class="flip-basic-bottom" :style="bottomStyle" />
+    <!-- Bottom half: always present, source depends on state -->
+    <div class="flip-basic-bottom" :style="bottomStyle" />
 
+    <!-- Flap: replaces top half only while animating -->
     <div v-if="isAnimating" class="flip-basic-flap">
       <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
         <div
@@ -30,6 +27,10 @@
     >
       {{ isAnimating ? 'Animating…' : 'Ready • click to flip' }}
     </div>
+
+    <div
+      class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/30"
+    />
   </section>
 </template>
 
@@ -43,8 +44,6 @@ const image2 = ref('/images/botcafe.webp')
 const currentImage = ref(image1.value)
 const otherImage = ref(image2.value)
 
-const backgroundSrc = ref(currentImage.value)
-
 const isAnimating = ref(false)
 
 const flapFrontSrc = ref(currentImage.value)
@@ -56,20 +55,35 @@ const ariaLabel = computed(() =>
     : 'Click to flip the top half over and reveal the next image',
 )
 
+// Static top half = top half of currentImage
+const staticTopStyle = computed(() => ({
+  backgroundImage: `url("${currentImage.value}")`,
+  backgroundSize: '100% 200%',
+  backgroundPosition: 'center top',
+}))
+
+// Bottom half:
+// - idle: bottom half of currentImage
+// - animating: bottom half of flapFrontSrc (the "from" image)
+const bottomStyle = computed(() => {
+  const src = isAnimating.value ? flapFrontSrc.value : currentImage.value
+  return {
+    backgroundImage: `url("${src}")`,
+    backgroundSize: '100% 200%',
+    backgroundPosition: 'center bottom',
+  }
+})
+
+// Flap front = top half of from image
 const frontStyle = computed(() => ({
   backgroundImage: `url("${flapFrontSrc.value}")`,
   backgroundSize: '100% 200%',
   backgroundPosition: 'center top',
 }))
 
+// Flap back = upside-down bottom half of next image
 const backStyle = computed(() => ({
   backgroundImage: `url("${flapBackSrc.value}")`,
-  backgroundSize: '100% 200%',
-  backgroundPosition: 'center bottom',
-}))
-
-const bottomStyle = computed(() => ({
-  backgroundImage: `url("${flapFrontSrc.value}")`,
   backgroundSize: '100% 200%',
   backgroundPosition: 'center bottom',
 }))
@@ -84,8 +98,6 @@ function startFlip() {
 
   flapFrontSrc.value = fromSrc
   flapBackSrc.value = toSrc
-
-  backgroundSrc.value = toSrc
 }
 
 function onAnimationEnd() {
@@ -93,7 +105,6 @@ function onAnimationEnd() {
   currentImage.value = otherImage.value
   otherImage.value = tmp
 
-  backgroundSrc.value = currentImage.value
   flapFrontSrc.value = currentImage.value
   flapBackSrc.value = otherImage.value
 
@@ -106,6 +117,16 @@ function handleClick() {
 </script>
 
 <style scoped>
+.flip-basic-top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50%;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
 .flip-basic-bottom {
   position: absolute;
   left: 0;
@@ -116,6 +137,7 @@ function handleClick() {
   background-size: cover;
 }
 
+/* Flap occupies the top half and hinges at 50% */
 .flip-basic-flap {
   position: absolute;
   left: 0;
@@ -142,6 +164,7 @@ function handleClick() {
   background-size: cover;
 }
 
+/* Back face is oriented so it ends up right-side up when folded */
 .flip-basic-face--back {
   transform: rotateX(180deg);
 }

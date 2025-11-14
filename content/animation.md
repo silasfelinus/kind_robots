@@ -19,6 +19,9 @@ navComponent: 'lab-nav'
 theme: winter
 ---
 
+Flip Basic
+:flip-basic
+
 Flip Test
 :flip-test
 

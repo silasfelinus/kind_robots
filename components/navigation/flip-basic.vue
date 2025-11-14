@@ -6,31 +6,36 @@
     aria-live="polite"
     @click="handleClick"
   >
-    <!-- Static top half when not animating -->
-    <div v-if="!isAnimating" class="flip-basic-top" :style="staticTopStyle" />
+    <div v-if="!isAnimating" class="flip-basic-full" :style="fullStyle" />
 
-    <!-- Bottom half: always visible -->
-    <div class="flip-basic-bottom" :style="bottomStyle" />
+    <template v-else>
+      <div class="flip-basic-base" :style="nextBaseStyle" />
 
-    <!-- Flap that replaces the top half while animating -->
-    <div v-if="isAnimating" class="flip-basic-flap">
-      <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
-        <div
-          class="flip-basic-face flip-basic-face--front"
-          :style="frontStyle"
-        />
-        <div class="flip-basic-face flip-basic-face--back" :style="backStyle" />
+      <div class="flip-basic-bottom" :style="bottomStyle" />
+
+      <div class="flip-basic-flap">
+        <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
+          <div
+            class="flip-basic-face flip-basic-face--front"
+            :style="frontStyle"
+          />
+          <div
+            class="flip-basic-face flip-basic-face--back"
+            :style="backStyle"
+          />
+        </div>
       </div>
-    </div>
+    </template>
 
     <div
-      class="absolute left-2 top-2 z-20 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
+      class="absolute left-2 top-2 z-30 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
     >
       {{ isAnimating ? 'Animating…' : 'Ready • click to flip' }}
     </div>
 
     <div
-      class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/30"
+      v-if="isAnimating"
+      class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/30 z-25"
     />
   </section>
 </template>
@@ -56,35 +61,39 @@ const ariaLabel = computed(() =>
     : 'Click to flip the top half over and reveal the next image',
 )
 
-// Idle top half: top half of current image
-const staticTopStyle = computed(() => ({
+const fullStyle = computed(() => ({
   backgroundImage: `url("${currentImage.value}")`,
-  backgroundSize: '100% 200%',
-  backgroundPosition: 'center top',
+  backgroundSize: '100% 100%',
+  backgroundPosition: 'center center',
+  backgroundRepeat: 'no-repeat',
 }))
 
-// Bottom half: bottom half of current image (or from image while animating)
-const bottomStyle = computed(() => {
-  const src = isAnimating.value ? flapFrontSrc.value : currentImage.value
-  return {
-    backgroundImage: `url("${src}")`,
-    backgroundSize: '100% 200%',
-    backgroundPosition: 'center bottom',
-  }
-})
+const nextBaseStyle = computed(() => ({
+  backgroundImage: `url("${otherImage.value}")`,
+  backgroundSize: '100% 100%',
+  backgroundPosition: 'center center',
+  backgroundRepeat: 'no-repeat',
+}))
 
-// Flap front = top half of from image
+const bottomStyle = computed(() => ({
+  backgroundImage: `url("${flapFrontSrc.value}")`,
+  backgroundSize: '100% 200%',
+  backgroundPosition: 'center bottom',
+  backgroundRepeat: 'no-repeat',
+}))
+
 const frontStyle = computed(() => ({
   backgroundImage: `url("${flapFrontSrc.value}")`,
   backgroundSize: '100% 200%',
   backgroundPosition: 'center top',
+  backgroundRepeat: 'no-repeat',
 }))
 
-// Flap back = upside-down bottom half of next image
 const backStyle = computed(() => ({
   backgroundImage: `url("${flapBackSrc.value}")`,
   backgroundSize: '100% 200%',
   backgroundPosition: 'center bottom',
+  backgroundRepeat: 'no-repeat',
 }))
 
 function startFlip() {
@@ -116,13 +125,10 @@ function handleClick() {
 </script>
 
 <style scoped>
-/* Slight overlap between top and bottom to avoid a hairline seam */
-.flip-basic-top {
+.flip-basic-full,
+.flip-basic-base {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 50.4%;
+  inset: 0;
   background-repeat: no-repeat;
 }
 
@@ -130,12 +136,12 @@ function handleClick() {
   position: absolute;
   left: 0;
   right: 0;
-  top: 49.6%;
+  top: 50%;
   bottom: 0;
   background-repeat: no-repeat;
+  z-index: 20;
 }
 
-/* Flap occupies the top half and hinges at 50% */
 .flip-basic-flap {
   position: absolute;
   left: 0;
@@ -144,6 +150,7 @@ function handleClick() {
   height: 50%;
   transform-style: preserve-3d;
   perspective: 1600px;
+  z-index: 25;
 }
 
 .flip-basic-flap-inner {

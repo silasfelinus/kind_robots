@@ -21,7 +21,10 @@
     <div v-if="isAnimating" class="flip-basic-flap">
       <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
         <!-- FRONT FACE: top half of current image -->
-        <div class="flip-basic-face flip-basic-face--front" :style="frontStyle" />
+        <div
+          class="flip-basic-face flip-basic-face--front"
+          :style="frontStyle"
+        />
 
         <!-- BACK FACE: upside-down bottom half of *next* image -->
         <div class="flip-basic-face flip-basic-face--back" :style="backStyle" />
@@ -34,7 +37,9 @@
       {{ isAnimating ? 'Animating…' : 'Ready • Click to flip' }}
     </div>
 
-    <div class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/30" />
+    <div
+      class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/30"
+    />
   </section>
 </template>
 
@@ -98,7 +103,7 @@ function startFlip() {
 
   // Assign tops & bottoms
   flapFrontSrc.value = fromSrc // front face is top of current
-  flapBackSrc.value = toSrc     // back face is BOTTOM of next (inverted)
+  flapBackSrc.value = toSrc // back face is BOTTOM of next (inverted)
 
   // Background is the final desired image
   backgroundSrc.value = toSrc
@@ -158,10 +163,6 @@ function handleClick() {
   backface-visibility: hidden;
   background-repeat: no-repeat;
   background-size: cover;
-}
-
-.flip-basic-face--back {
-  /* THIS IS NOW JUST BACKFACE + rotateX(180deg) */
 }
 
 @keyframes flip-basic-fold {

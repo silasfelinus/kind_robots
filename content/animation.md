@@ -22,11 +22,16 @@ theme: winter
 Flip Basic
 :flip-basic
 
-Flip Test
-:flip-test
+
+
+Flip Demo
+:flip-demo
+
 
 Flip Stepper
 :flip-stepper
 
-Flip Demo
-:flip-demo
+
+
+Flip Test
+:flip-test

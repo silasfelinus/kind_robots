@@ -1,10 +1,10 @@
-<!-- /components/experiments/flip-demo.vue -->
 <template>
   <section class="relative w-full max-w-4xl mx-auto">
     <div
       class="relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
       @click="runCycle"
     >
+      <!-- Rear panel: target image, like flip-basic background -->
       <div class="absolute inset-0 z-0">
         <img
           :src="backgroundPanelSrc"
@@ -14,6 +14,7 @@
         />
       </div>
 
+      <!-- Split-flap grid driven by flipStore (tiles + flipped state) -->
       <FlipFlapGrid v-if="showFlaps" />
 
       <div
@@ -51,41 +52,35 @@ const currentImage = ref<string>(image1.value)
 const otherImage = ref<string>(image2.value)
 
 const backgroundPanelSrc = ref<string>(currentImage.value)
-const frontPanelSrc = ref<string>(currentImage.value)
 
 onMounted(() => {
+  flipStore.setConfig(6, 2)
   if (!flipStore.isPrepared) {
     flipStore.buildTiles()
   }
 })
 
 function prepareTileStyles(fromSrc: string, toSrc: string) {
-  const rows = flipStore.config.rows
   const cols = flipStore.config.cols
   const segRows = flipStore.segmentRows
+  const lastSegRow = segRows - 1
 
   const tiles = flipStore.tiles
 
   for (let index = 0; index < tiles.length; index += 1) {
     const tile = tiles[index]
+    if (!tile) continue
+
     const segRow = Math.floor(index / cols)
 
     tile.style['--flip-image-front'] = `url("${fromSrc}")`
 
     let backImage: string | null = null
 
-    if (segRow === 0) {
-      backImage = logoSrcA.value
-    } else if (segRow === 1) {
-      backImage = logoSrcB.value
-    } else if (segRow === 2) {
-      backImage = logoSrcA.value
-    } else if (segRow === 3) {
-      backImage = logoSrcB.value
-    } else if (segRow === segRows - 1) {
+    if (segRow === lastSegRow) {
       backImage = toSrc
     } else {
-      backImage = null
+      backImage = segRow % 2 === 0 ? logoSrcA.value : logoSrcB.value
     }
 
     if (backImage) {
@@ -96,8 +91,6 @@ function prepareTileStyles(fromSrc: string, toSrc: string) {
       tile.style['--flip-back-has-image'] = '0'
     }
   }
-
-  const _ = rows
 }
 
 async function runCycle() {
@@ -112,10 +105,9 @@ async function runCycle() {
   const fromSrc = currentImage.value
   const toSrc = otherImage.value
 
-  frontPanelSrc.value = fromSrc
-  backgroundPanelSrc.value = fromSrc
-
   prepareTileStyles(fromSrc, toSrc)
+
+  backgroundPanelSrc.value = fromSrc
 
   showFlaps.value = true
   await nextTick()
@@ -140,7 +132,6 @@ async function runCycle() {
     isImage2.value = currentImage.value === image2.value
 
     backgroundPanelSrc.value = currentImage.value
-    frontPanelSrc.value = currentImage.value
 
     showFlaps.value = false
     isAnimating.value = false

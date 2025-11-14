@@ -5,13 +5,17 @@
     aria-live="polite"
     @click="handleClick"
   >
-    <!-- Static top half when not animating -->
+    <img
+      :src="backgroundSrc"
+      alt=""
+      class="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+      draggable="false"
+    />
+
     <div v-if="!isAnimating" class="flip-basic-top" :style="staticTopStyle" />
 
-    <!-- Bottom half: always present, source depends on state -->
     <div class="flip-basic-bottom" :style="bottomStyle" />
 
-    <!-- Flap: replaces top half only while animating -->
     <div v-if="isAnimating" class="flip-basic-flap">
       <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
         <div
@@ -46,6 +50,8 @@ const otherImage = ref(image2.value)
 
 const isAnimating = ref(false)
 
+const backgroundSrc = ref(currentImage.value)
+
 const flapFrontSrc = ref(currentImage.value)
 const flapBackSrc = ref(otherImage.value)
 
@@ -55,16 +61,12 @@ const ariaLabel = computed(() =>
     : 'Click to flip the top half over and reveal the next image',
 )
 
-// Static top half = top half of currentImage
 const staticTopStyle = computed(() => ({
   backgroundImage: `url("${currentImage.value}")`,
   backgroundSize: '100% 200%',
   backgroundPosition: 'center top',
 }))
 
-// Bottom half:
-// - idle: bottom half of currentImage
-// - animating: bottom half of flapFrontSrc (the "from" image)
 const bottomStyle = computed(() => {
   const src = isAnimating.value ? flapFrontSrc.value : currentImage.value
   return {
@@ -74,14 +76,12 @@ const bottomStyle = computed(() => {
   }
 })
 
-// Flap front = top half of from image
 const frontStyle = computed(() => ({
   backgroundImage: `url("${flapFrontSrc.value}")`,
   backgroundSize: '100% 200%',
   backgroundPosition: 'center top',
 }))
 
-// Flap back = upside-down bottom half of next image
 const backStyle = computed(() => ({
   backgroundImage: `url("${flapBackSrc.value}")`,
   backgroundSize: '100% 200%',
@@ -98,6 +98,8 @@ function startFlip() {
 
   flapFrontSrc.value = fromSrc
   flapBackSrc.value = toSrc
+
+  backgroundSrc.value = toSrc
 }
 
 function onAnimationEnd() {
@@ -105,6 +107,7 @@ function onAnimationEnd() {
   currentImage.value = otherImage.value
   otherImage.value = tmp
 
+  backgroundSrc.value = currentImage.value
   flapFrontSrc.value = currentImage.value
   flapBackSrc.value = otherImage.value
 
@@ -137,7 +140,6 @@ function handleClick() {
   background-size: cover;
 }
 
-/* Flap occupies the top half and hinges at 50% */
 .flip-basic-flap {
   position: absolute;
   left: 0;
@@ -164,7 +166,6 @@ function handleClick() {
   background-size: cover;
 }
 
-/* Back face is oriented so it ends up right-side up when folded */
 .flip-basic-face--back {
   transform: rotateX(180deg);
 }

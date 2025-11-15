@@ -12,10 +12,19 @@
       <div class="flip-demo-base" :style="nextBaseStyle" />
 
       <div
+        v-if="phase === 'first'"
+        class="flip-demo-row flip-demo-row--top"
+        :style="rowTopStyle"
+      />
+
+      <div
+        v-if="phase !== 'idle'"
         class="flip-demo-row flip-demo-row--middle"
         :style="rowMiddleStyle"
       />
+
       <div
+        v-if="phase !== 'idle'"
         class="flip-demo-row flip-demo-row--bottom"
         :style="rowBottomStyle"
       />
@@ -114,6 +123,13 @@ const nextBaseStyle = computed(() => ({
   backgroundRepeat: 'no-repeat',
 }))
 
+const rowTopStyle = computed(() => ({
+  backgroundImage: `url("${currentImage.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: 'center top',
+  backgroundRepeat: 'no-repeat',
+}))
+
 const rowMiddleStyle = computed(() => ({
   backgroundImage: `url("${currentImage.value}")`,
   backgroundSize: '100% 300%',
@@ -191,6 +207,11 @@ function handleClick() {
   right: 0;
   background-repeat: no-repeat;
   z-index: 20;
+}
+
+.flip-demo-row--top {
+  top: 0;
+  height: 33.334%;
 }
 
 .flip-demo-row--middle {

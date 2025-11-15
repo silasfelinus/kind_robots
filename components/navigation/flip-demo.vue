@@ -1,117 +1,289 @@
 <!-- /components/experiments/flip-demo.vue -->
 <template>
-  <section class="relative w-full max-w-4xl mx-auto">
-    <div
-      class="relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
-      @click="runCycle"
-    >
-      <div class="absolute inset-0 z-0">
-        <img
-          :src="backgroundPanelSrc"
-          alt=""
-          class="w-full h-full object-cover select-none pointer-events-none"
-          draggable="false"
-        />
-      </div>
+  <section
+    class="relative w-full max-w-3xl mx-auto aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
+    :aria-label="ariaLabel"
+    aria-live="polite"
+    @click="handleClick"
+  >
+    <div v-if="!isAnimating" class="flip-demo-full" :style="fullStyle" />
 
-      <FlipFlapGrid v-if="showFlaps" />
+    <template v-else>
+      <div class="flip-demo-base" :style="nextBaseStyle" />
 
       <div
-        class="absolute left-2 top-2 z-20 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold flex items-center gap-1"
-      >
-        <span>Flip repeat demo</span>
-        <span class="opacity-70">click to toggle</span>
-        <span class="ml-1 px-1.5 py-0.5 rounded bg-primary/70 text-[10px]">
-          {{ isImage2 ? 'Showing image 2' : 'Showing image 1' }}
-        </span>
+        v-if="showTopRow"
+        class="flip-demo-row flip-demo-row--top"
+        :style="rowTopStyle"
+      />
+
+      <div
+        v-if="showMiddleRow"
+        class="flip-demo-row flip-demo-row--middle"
+        :style="rowMiddleStyle"
+      />
+
+      <div
+        v-if="showBottomRow"
+        class="flip-demo-row flip-demo-row--bottom"
+        :style="rowBottomStyle"
+      />
+
+      <div class="flip-demo-flap flip-demo-flap--top">
+        <div
+          class="flip-demo-flap-inner flip-demo-flap-inner--top"
+          @animationend="onTopFoldEnd"
+        >
+          <div
+            class="flip-demo-face flip-demo-face--front"
+            :style="topFlapFrontStyle"
+          />
+          <div
+            class="flip-demo-face flip-demo-face--back"
+            :style="topFlapBackStyle"
+          />
+        </div>
       </div>
+
+      <div class="flip-demo-flap flip-demo-flap--middle">
+        <div
+          class="flip-demo-flap-inner flip-demo-flap-inner--middle"
+          @animationend="onMiddleFoldEnd"
+        >
+          <div
+            class="flip-demo-face flip-demo-face--front"
+            :style="middleFlapFrontStyle"
+          />
+          <div
+            class="flip-demo-face flip-demo-face--back"
+            :style="middleFlapBackStyle"
+          />
+        </div>
+      </div>
+    </template>
+
+    <div
+      class="absolute left-2 top-2 z-30 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
+    >
+      {{
+        isAnimating
+          ? 'Demo: double flip running…'
+          : 'Three-row demo • click to flip'
+      }}
     </div>
+
+    <div
+      v-if="isAnimating"
+      class="pointer-events-none absolute inset-x-0 top-1/3 h-px bg-black/30 z-25"
+    />
+    <div
+      v-if="isAnimating"
+      class="pointer-events-none absolute inset-x-0 top-2/3 h-px bg-black/30 z-25"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
 // /components/experiments/flip-demo.vue
-import { ref, nextTick, onMounted } from 'vue'
-import FlipFlapGrid from '@/components/navigation/flip-animation.vue'
-import { useFlipStore } from '@/stores/flipStore'
+import { ref, computed } from 'vue'
 
-const flipStore = useFlipStore()
+const image1 = ref('/images/backtree.webp')
+const image2 = ref('/images/botcafe.webp')
+const logoImage = ref('/images/old_logo.webp')
 
-const image1 = ref<string>('/images/backtree.webp')
-const image2 = ref<string>('/images/botcafe.webp')
+const currentImage = ref(image1.value)
+const otherImage = ref(image2.value)
 
 const isAnimating = ref(false)
-const isImage2 = ref(false)
-const showFlaps = ref(false)
 
-const currentImage = ref<string>(image1.value)
-const otherImage = ref<string>(image2.value)
+const showTopRow = ref(true)
+const showMiddleRow = ref(true)
+const showBottomRow = ref(true)
 
-const backgroundPanelSrc = ref<string>(currentImage.value)
+const ariaLabel = computed(() =>
+  isAnimating.value
+    ? 'Running three row double flip between images'
+    : 'Click to run a two step flip that reveals the new image',
+)
 
-onMounted(() => {
-  flipStore.setConfig(6, 2)
-  if (!flipStore.isPrepared) {
-    flipStore.buildTiles()
-  }
-})
+const fullStyle = computed(() => ({
+  backgroundImage: `url("${currentImage.value}")`,
+  backgroundSize: '100% 100%',
+  backgroundPosition: 'center center',
+  backgroundRepeat: 'no-repeat',
+}))
 
-function prepareTileStyles(fromSrc: string, toSrc: string) {
-  const tiles = flipStore.tiles
+const nextBaseStyle = computed(() => ({
+  backgroundImage: `url("${otherImage.value}")`,
+  backgroundSize: '100% 100%',
+  backgroundPosition: 'center center',
+  backgroundRepeat: 'no-repeat',
+}))
 
-  for (let index = 0; index < tiles.length; index += 1) {
-    const tile = tiles[index]
-    if (!tile) continue
+const rowTopStyle = computed(() => ({
+  backgroundImage: `url("${currentImage.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: 'center top',
+  backgroundRepeat: 'no-repeat',
+}))
 
-    tile.style['--flip-image-front'] = `url("${fromSrc}")`
-    tile.style['--flip-front-size'] = '100% 100%'
-    tile.style['--flip-front-position'] = 'center center'
+const rowMiddleStyle = computed(() => ({
+  backgroundImage: `url("${currentImage.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: 'center center',
+  backgroundRepeat: 'no-repeat',
+}))
 
-    tile.style['--flip-image-back'] = `url("${toSrc}")`
-    tile.style['--flip-back-size'] = '100% 100%'
-    tile.style['--flip-back-position'] = 'center center'
-    tile.style['--flip-back-has-image'] = '1'
-  }
+const rowBottomStyle = computed(() => ({
+  backgroundImage: `url("${currentImage.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: 'center bottom',
+  backgroundRepeat: 'no-repeat',
+}))
+
+const topFlapFrontStyle = computed(() => ({
+  backgroundImage: `url("${logoImage.value}")`,
+  backgroundSize: 'contain',
+  backgroundPosition: 'center center',
+  backgroundRepeat: 'no-repeat',
+}))
+
+const topFlapBackStyle = computed(() => ({
+  backgroundImage: `url("${logoImage.value}")`,
+  backgroundSize: 'contain',
+  backgroundPosition: 'center center',
+  backgroundRepeat: 'no-repeat',
+}))
+
+const middleFlapFrontStyle = computed(() => ({
+  backgroundImage: `url("${currentImage.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: 'center center',
+  backgroundRepeat: 'no-repeat',
+}))
+
+const middleFlapBackStyle = computed(() => ({
+  backgroundImage: `url("${otherImage.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: 'center bottom',
+  backgroundRepeat: 'no-repeat',
+}))
+
+function resetRows() {
+  showTopRow.value = true
+  showMiddleRow.value = true
+  showBottomRow.value = true
 }
 
-async function runCycle() {
+function startFlip() {
   if (isAnimating.value) return
 
-  if (!flipStore.isPrepared) {
-    flipStore.buildTiles()
-  }
-
   isAnimating.value = true
+  resetRows()
+}
 
-  const fromSrc = currentImage.value
-  const toSrc = otherImage.value
+function onTopFoldEnd() {
+  showTopRow.value = false
+}
 
-  prepareTileStyles(fromSrc, toSrc)
+function onMiddleFoldEnd() {
+  showMiddleRow.value = false
+  showBottomRow.value = false
 
-  backgroundPanelSrc.value = fromSrc
+  const tmp = currentImage.value
+  currentImage.value = otherImage.value
+  otherImage.value = tmp
 
-  showFlaps.value = true
-  await nextTick()
+  isAnimating.value = false
+}
 
-  backgroundPanelSrc.value = toSrc
-
-  flipStore.playSequence()
-
-  const tileCount = flipStore.tileCount
-  const baseDelay = 80
-  const transformDuration = 700
-  const fudge = 250
-  const totalDuration = (tileCount - 1) * baseDelay + transformDuration + fudge
-
-  window.setTimeout(() => {
-    currentImage.value = toSrc
-    otherImage.value = fromSrc
-    isImage2.value = currentImage.value === image2.value
-
-    backgroundPanelSrc.value = currentImage.value
-
-    showFlaps.value = false
-    isAnimating.value = false
-  }, totalDuration)
+function handleClick() {
+  startFlip()
 }
 </script>
+
+<style scoped>
+.flip-demo-full,
+.flip-demo-base {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+}
+
+.flip-demo-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background-repeat: no-repeat;
+  z-index: 20;
+}
+
+.flip-demo-row--top {
+  top: 0;
+  height: 33.334%;
+}
+
+.flip-demo-row--middle {
+  top: 33.334%;
+  height: 33.333%;
+}
+
+.flip-demo-row--bottom {
+  top: 66.667%;
+  bottom: 0;
+}
+
+.flip-demo-flap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  transform-style: preserve-3d;
+  perspective: 1600px;
+  z-index: 25;
+}
+
+.flip-demo-flap--top {
+  top: 0;
+  height: 33.334%;
+}
+
+.flip-demo-flap--middle {
+  top: 33.334%;
+  height: 33.333%;
+}
+
+.flip-demo-flap-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: 50% 100%;
+  animation: flip-demo-fold 0.6s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
+}
+
+.flip-demo-flap-inner--middle {
+  animation-delay: 0.6s;
+}
+
+.flip-demo-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  background-repeat: no-repeat;
+}
+
+.flip-demo-face--back {
+  transform: rotateX(180deg);
+}
+
+@keyframes flip-demo-fold {
+  0% {
+    transform: rotateX(0deg);
+  }
+  60% {
+    transform: rotateX(-210deg);
+  }
+  100% {
+    transform: rotateX(-180deg);
+  }
+}
+</style>

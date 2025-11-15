@@ -36,7 +36,7 @@
         <template v-if="bigMode">
           <div class="flex items-center gap-2 w-full min-w-0 py-0.5 md:py-1">
             <span
-              class="whitespace-nowrap font-extrabold tracking-tight leading-[1.05] text-[clamp(2.2rem,6vw,4rem)] xl:text-[clamp(2.8rem,5.5vw,5rem)]"
+              class="whitespace-nowrap font-extrabold tracking-tight leading-[1.05] sm:text-lg md:text-xl lg:text-2xl xl:text-4xl"
             >
               <span
                 class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
@@ -56,7 +56,7 @@
             class="min-w-0 w-full flex flex-col items-start justify-center gap-[2px]"
           >
             <span
-              class="block w-full font-extrabold tracking-tight text-[clamp(2.2rem,6vw,3rem)] xl:text-[clamp(2.4rem,4.8vw,3.4rem)]"
+              class="block w-full font-extrabold tracking-tight text-md md:text-lg lg:text-xl xl:text-3xl"
             >
               <span
                 class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
@@ -67,7 +67,7 @@
 
             <span
               v-if="showSubtitle"
-              class="block w-full truncate min-w-0 italic font-medium leading-tight text-base-content/90 text-[clamp(1rem,3.2vw,1.25rem)] xl:text-[clamp(1.1rem,2.6vw,1.35rem)]"
+              class="block w-full truncate min-w-0 italic font-medium leading-tight text-base-content/90 text-sm md:text-md lg:text-lg xl:text-xl"
             >
               {{ subtitle }}
             </span>
@@ -88,33 +88,25 @@
                 class="grid grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-1"
               >
                 <div class="w-full h-full grid place-items-center">
-                  <div
-                    class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]"
-                  >
+                  <div class="aspect-square w-[100%] h-auto">
                     <login-icon class="w-full h-full text-primary" />
                   </div>
                 </div>
 
                 <div class="w-full h-full grid place-items-center">
-                  <div
-                    class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]"
-                  >
+                  <div class="aspect-square w-[100%] h-auto">
                     <jellybean-icon class="w-full h-full text-secondary" />
                   </div>
                 </div>
 
                 <div class="w-full h-full grid place-items-center">
-                  <div
-                    class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]"
-                  >
+                  <div class="aspect-square w-[100%] h-auto">
                     <theme-icon class="w-full h-full text-accent" />
                   </div>
                 </div>
 
                 <div class="w-full h-full grid place-items-center">
-                  <div
-                    class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]"
-                  >
+                  <div class="aspect-square w-[100%] h-auto">
                     <swarm-icon class="w-full h-full text-info" />
                   </div>
                 </div>

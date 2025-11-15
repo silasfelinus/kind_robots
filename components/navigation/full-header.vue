@@ -18,18 +18,29 @@
         v-if="showViewportBadge"
         class="absolute left-[4%] right-[4%] top-2 z-50 flex justify-start pointer-events-none"
       >
-        <span class="inline-flex max-w-full truncate text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.7rem,1vw,1rem)] leading-none shadow">
+        <span
+          class="inline-flex max-w-full truncate text-white bg-primary/90 rounded-md px-2 py-1 text-[clamp(0.7rem,1vw,1rem)] leading-none shadow"
+        >
           {{ viewportSize }}
         </span>
       </div>
     </div>
 
-    <div v-if="hasHeaderContent" class="flex-1 h-full flex items-center px-1 md:px-2 lg:px-3 xl:px-4 min-w-0">
-      <div class="w-full flex items-center justify-between lg:gap-3 xl:gap-4 min-w-0">
+    <div
+      v-if="hasHeaderContent"
+      class="flex-1 h-full flex items-center px-1 md:px-2 lg:px-3 xl:px-4 py-1 md:py-1.5 min-w-0"
+    >
+      <div
+        class="w-full flex items-center justify-between lg:gap-3 xl:gap-4 min-w-0"
+      >
         <template v-if="bigMode">
-          <div class="flex items-center gap-2 w-full min-w-0">
-            <span class="whitespace-nowrap font-extrabold tracking-tight text-[clamp(2.2rem,6vw,4rem)] xl:text-[clamp(2.6rem,6.5vw,4.5rem)]">
-              <span class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          <div class="flex items-center gap-2 w-full min-w-0 py-0.5 md:py-1">
+            <span
+              class="whitespace-nowrap font-extrabold tracking-tight leading-[1.05] text-[clamp(2.2rem,6vw,4rem)] xl:text-[clamp(2.8rem,5.5vw,5rem)]"
+            >
+              <span
+                class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
+              >
                 {{ displayTitle }}
               </span>
             </span>
@@ -41,16 +52,22 @@
         </template>
 
         <template v-else>
-          <div class="min-w-0 w-full flex flex-col items-start justify-center gap-[2px]">
-            <span class="block w-full font-extrabold tracking-tight text-[clamp(2.2rem,6vw,3rem)]">
-              <span class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          <div
+            class="min-w-0 w-full flex flex-col items-start justify-center gap-[2px]"
+          >
+            <span
+              class="block w-full font-extrabold tracking-tight text-[clamp(2.2rem,6vw,3rem)] xl:text-[clamp(2.4rem,4.8vw,3.4rem)]"
+            >
+              <span
+                class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
+              >
                 {{ displayTitle }}
               </span>
             </span>
 
             <span
               v-if="showSubtitle"
-              class="block w-full truncate min-w-0 italic font-medium leading-tight text-base-content/90 text-[clamp(1rem,3.2vw,1.25rem)]"
+              class="block w-full truncate min-w-0 italic font-medium leading-tight text-base-content/90 text-[clamp(1rem,3.2vw,1.25rem)] xl:text-[clamp(1.1rem,2.6vw,1.35rem)]"
             >
               {{ subtitle }}
             </span>
@@ -64,28 +81,40 @@
                 : 'basis-[22%] max-w-[22%] h-full xl:basis-[38%] xl:max-w-[38%]',
             ]"
           >
-            <div class="flex w-full h-full items-center justify-end xl:justify-center">
-              <div class="grid grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-1">
+            <div
+              class="flex w-full h-full items-center justify-end xl:justify-center"
+            >
+              <div
+                class="grid grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-1"
+              >
                 <div class="w-full h-full grid place-items-center">
-                  <div class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]">
+                  <div
+                    class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]"
+                  >
                     <login-icon class="w-full h-full text-primary" />
                   </div>
                 </div>
 
                 <div class="w-full h-full grid place-items-center">
-                  <div class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]">
+                  <div
+                    class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]"
+                  >
                     <jellybean-icon class="w-full h-full text-secondary" />
                   </div>
                 </div>
 
                 <div class="w-full h-full grid place-items-center">
-                  <div class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]">
+                  <div
+                    class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]"
+                  >
                     <theme-icon class="w-full h-full text-accent" />
                   </div>
                 </div>
 
                 <div class="w-full h-full grid place-items-center">
-                  <div class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]">
+                  <div
+                    class="aspect-square w-[72%] h-auto md:w-[70%] xl:w-[64%]"
+                  >
                     <swarm-icon class="w-full h-full text-info" />
                   </div>
                 </div>
@@ -127,12 +156,14 @@ const hasHeaderContent = computed(() => true)
 const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN')
 
 const avatarColumnClasses = computed(() =>
-  bigMode.value ? 'basis-[11%] max-w-[22%]' : 'basis-[13%] max-w-[25%]',
+  bigMode.value
+    ? 'basis-[11%] max-w-[22%] xl:basis-[22%] xl:max-w-[44%]'
+    : 'basis-[13%] max-w-[25%] xl:basis-[26%] xl:max-w-[50%]',
 )
 
 const headerKey = computed(
   () =>
-    `${bigMode.value}-${viewportSize.value}-${displayStore.sidebarRightState}-${displayStore.headerState}-${displayStore.showCorner}`
+    `${bigMode.value}-${viewportSize.value}-${displayStore.sidebarRightState}-${displayStore.headerState}-${displayStore.showCorner}`,
 )
 
 function fireHeaderResized() {
@@ -169,12 +200,12 @@ watch(
     viewportSize.value,
     displayStore.sidebarRightState,
     displayStore.headerState,
-    displayStore.showCorner
+    displayStore.showCorner,
   ],
   async () => {
     await nextTick()
     fireHeaderResized()
   },
-  { flush: 'post' }
+  { flush: 'post' },
 )
 </script>

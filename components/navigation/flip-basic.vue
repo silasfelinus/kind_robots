@@ -145,7 +145,7 @@ function handleClick() {
   inset: 0;
   transform-style: preserve-3d;
   transform-origin: 50% 100%;
-  animation: flip-basic-fold 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
+  animation: flip-basic-fold 0.9s cubic-bezier(0.33, 0.8, 0.33, 1.02) forwards;
 }
 
 .flip-basic-face {
@@ -163,8 +163,8 @@ function handleClick() {
   0% {
     transform: rotateX(0deg);
   }
-  60% {
-    transform: rotateX(-210deg);
+  45% {
+    transform: rotateX(-90deg);
   }
   100% {
     transform: rotateX(-180deg);

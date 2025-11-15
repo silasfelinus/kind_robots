@@ -12,7 +12,11 @@
       <div class="flip-basic-bottom" :style="bottomStyle" />
 
       <div class="flip-basic-flap">
-        <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
+        <div
+          class="flip-basic-flap-inner"
+          :key="animationKey"
+          @animationend="onAnimationEnd"
+        >
           <div
             class="flip-basic-face flip-basic-face--front"
             :style="frontStyle"
@@ -28,7 +32,14 @@
     <div
       class="absolute left-2 top-2 z-30 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
     >
-      {{ isAnimating ? 'Animating…' : 'Ready • click to flip' }}
+      <span v-if="!isAnimating"> Ready • click for two-step flip </span>
+      <span v-else>
+        {{
+          phase === 1
+            ? 'Step 1 of 2 • intermediate flip'
+            : 'Step 2 of 2 • final flip'
+        }}
+      </span>
     </div>
 
     <div
@@ -44,20 +55,35 @@ import { ref, computed } from 'vue'
 
 const image1 = ref('/images/backtree.webp')
 const image2 = ref('/images/botcafe.webp')
+const intermediateImage = ref('/images/old_logo.webp')
 
 const visibleImage = ref(image1.value)
 const hiddenImage = ref(image2.value)
 
 const isAnimating = ref(false)
+/**
+ * 0 = idle
+ * 1 = first flip (front -> old logo)
+ * 2 = second flip (old logo -> next image)
+ */
+const phase = ref<0 | 1 | 2>(0)
+const animationKey = ref(0)
 
 const flapFrontSrc = ref(visibleImage.value)
 const flapBackSrc = ref(hiddenImage.value)
 
-const ariaLabel = computed(() =>
-  isAnimating.value
-    ? 'Running midline flip between images'
-    : 'Click to flip the top half over and reveal the next image',
-)
+const ariaLabel = computed(() => {
+  if (!isAnimating.value) {
+    return 'Click to run a two-step flip and reveal the next image'
+  }
+  if (phase.value === 1) {
+    return 'First staged flip, revealing an intermediate panel'
+  }
+  if (phase.value === 2) {
+    return 'Second staged flip, revealing the final image'
+  }
+  return 'Running flip sequence'
+})
 
 const baseStyle = computed(() => ({
   backgroundImage: `url("${visibleImage.value}")`,
@@ -90,20 +116,36 @@ const backStyle = computed(() => ({
 function startFlip() {
   if (isAnimating.value) return
 
+  phase.value = 1
   isAnimating.value = true
 
-  const fromSrc = visibleImage.value
-  const toSrc = hiddenImage.value
+  flapFrontSrc.value = visibleImage.value
+  flapBackSrc.value = intermediateImage.value
 
-  flapFrontSrc.value = fromSrc
-  flapBackSrc.value = toSrc
-
-  visibleImage.value = toSrc
-  hiddenImage.value = fromSrc
+  animationKey.value += 1
 }
 
 function onAnimationEnd() {
-  isAnimating.value = false
+  if (phase.value === 1) {
+    phase.value = 2
+
+    flapFrontSrc.value = intermediateImage.value
+    flapBackSrc.value = hiddenImage.value
+
+    animationKey.value += 1
+    return
+  }
+
+  if (phase.value === 2) {
+    phase.value = 0
+    isAnimating.value = false
+
+    const fromSrc = visibleImage.value
+    const toSrc = hiddenImage.value
+
+    visibleImage.value = toSrc
+    hiddenImage.value = fromSrc
+  }
 }
 
 function handleClick() {
@@ -118,7 +160,6 @@ function handleClick() {
   background-repeat: no-repeat;
   z-index: 0;
 }
-
 .flip-basic-bottom {
   position: absolute;
   left: 0;
@@ -128,7 +169,6 @@ function handleClick() {
   background-repeat: no-repeat;
   z-index: 20;
 }
-
 .flip-basic-flap {
   position: absolute;
   left: 0;
@@ -139,38 +179,28 @@ function handleClick() {
   perspective: 1600px;
   z-index: 25;
 }
-
 .flip-basic-flap-inner {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
   transform-origin: 50% 100%;
-  animation: flip-basic-fold 0.9s cubic-bezier(0.35, 0, 0.25, 1) forwards;
+  animation: flip-basic-fold 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
 }
-
 .flip-basic-face {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
   background-repeat: no-repeat;
 }
-
 .flip-basic-face--back {
   transform: rotateX(180deg);
 }
-
 @keyframes flip-basic-fold {
   0% {
     transform: rotateX(0deg);
   }
-  25% {
-    transform: rotateX(-30deg);
-  }
-  50% {
-    transform: rotateX(-90deg);
-  }
-  75% {
-    transform: rotateX(-140deg);
+  60% {
+    transform: rotateX(-210deg);
   }
   100% {
     transform: rotateX(-180deg);

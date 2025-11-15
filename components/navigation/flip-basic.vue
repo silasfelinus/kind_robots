@@ -7,10 +7,8 @@
     @click="handleClick"
   >
     <div class="flip-basic-base" :style="baseStyle" />
-
     <template v-if="isAnimating">
       <div class="flip-basic-bottom" :style="bottomStyle" />
-
       <div class="flip-basic-flap">
         <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
           <div
@@ -24,13 +22,11 @@
         </div>
       </div>
     </template>
-
     <div
       class="absolute left-2 top-2 z-30 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
     >
       {{ isAnimating ? 'Animating…' : 'Ready • click to flip' }}
     </div>
-
     <div
       v-if="isAnimating"
       class="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/30 z-25"
@@ -118,7 +114,6 @@ function handleClick() {
   background-repeat: no-repeat;
   z-index: 0;
 }
-
 .flip-basic-bottom {
   position: absolute;
   left: 0;
@@ -128,7 +123,6 @@ function handleClick() {
   background-repeat: no-repeat;
   z-index: 20;
 }
-
 .flip-basic-flap {
   position: absolute;
   left: 0;
@@ -139,32 +133,28 @@ function handleClick() {
   perspective: 1600px;
   z-index: 25;
 }
-
 .flip-basic-flap-inner {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
   transform-origin: 50% 100%;
-  animation: flip-basic-fold 0.9s cubic-bezier(0.33, 0.8, 0.33, 1.02) forwards;
+  animation: flip-basic-fold 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
 }
-
 .flip-basic-face {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
   background-repeat: no-repeat;
 }
-
 .flip-basic-face--back {
   transform: rotateX(180deg);
 }
-
 @keyframes flip-basic-fold {
   0% {
     transform: rotateX(0deg);
   }
-  45% {
-    transform: rotateX(-90deg);
+  60% {
+    transform: rotateX(-210deg);
   }
   100% {
     transform: rotateX(-180deg);

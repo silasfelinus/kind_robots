@@ -12,24 +12,15 @@
       <div class="flip-demo-base" :style="nextBaseStyle" />
 
       <div
-        v-if="showTopRow"
-        class="flip-demo-row flip-demo-row--top"
-        :style="rowTopStyle"
-      />
-
-      <div
-        v-if="showMiddleRow"
         class="flip-demo-row flip-demo-row--middle"
         :style="rowMiddleStyle"
       />
-
       <div
-        v-if="showBottomRow"
         class="flip-demo-row flip-demo-row--bottom"
         :style="rowBottomStyle"
       />
 
-      <div class="flip-demo-flap flip-demo-flap--top">
+      <div v-if="phase === 'first'" class="flip-demo-flap flip-demo-flap--top">
         <div
           class="flip-demo-flap-inner flip-demo-flap-inner--top"
           @animationend="onTopFoldEnd"
@@ -45,7 +36,10 @@
         </div>
       </div>
 
-      <div class="flip-demo-flap flip-demo-flap--middle">
+      <div
+        v-else-if="phase === 'second'"
+        class="flip-demo-flap flip-demo-flap--middle"
+      >
         <div
           class="flip-demo-flap-inner flip-demo-flap-inner--middle"
           @animationend="onMiddleFoldEnd"
@@ -67,7 +61,9 @@
     >
       {{
         isAnimating
-          ? 'Demo: double flip running…'
+          ? phase === 'first'
+            ? 'Step 1: logo flap…'
+            : 'Step 2: image flap…'
           : 'Three-row demo • click to flip'
       }}
     </div>
@@ -94,11 +90,9 @@ const logoImage = ref('/images/old_logo.webp')
 const currentImage = ref(image1.value)
 const otherImage = ref(image2.value)
 
-const isAnimating = ref(false)
+const phase = ref<'idle' | 'first' | 'second'>('idle')
 
-const showTopRow = ref(true)
-const showMiddleRow = ref(true)
-const showBottomRow = ref(true)
+const isAnimating = computed(() => phase.value !== 'idle')
 
 const ariaLabel = computed(() =>
   isAnimating.value
@@ -117,13 +111,6 @@ const nextBaseStyle = computed(() => ({
   backgroundImage: `url("${otherImage.value}")`,
   backgroundSize: '100% 100%',
   backgroundPosition: 'center center',
-  backgroundRepeat: 'no-repeat',
-}))
-
-const rowTopStyle = computed(() => ({
-  backgroundImage: `url("${currentImage.value}")`,
-  backgroundSize: '100% 300%',
-  backgroundPosition: 'center top',
   backgroundRepeat: 'no-repeat',
 }))
 
@@ -169,32 +156,20 @@ const middleFlapBackStyle = computed(() => ({
   backgroundRepeat: 'no-repeat',
 }))
 
-function resetRows() {
-  showTopRow.value = true
-  showMiddleRow.value = true
-  showBottomRow.value = true
-}
-
 function startFlip() {
   if (isAnimating.value) return
-
-  isAnimating.value = true
-  resetRows()
+  phase.value = 'first'
 }
 
 function onTopFoldEnd() {
-  showTopRow.value = false
+  phase.value = 'second'
 }
 
 function onMiddleFoldEnd() {
-  showMiddleRow.value = false
-  showBottomRow.value = false
-
   const tmp = currentImage.value
   currentImage.value = otherImage.value
   otherImage.value = tmp
-
-  isAnimating.value = false
+  phase.value = 'idle'
 }
 
 function handleClick() {
@@ -216,11 +191,6 @@ function handleClick() {
   right: 0;
   background-repeat: no-repeat;
   z-index: 20;
-}
-
-.flip-demo-row--top {
-  top: 0;
-  height: 33.334%;
 }
 
 .flip-demo-row--middle {
@@ -261,7 +231,7 @@ function handleClick() {
 }
 
 .flip-demo-flap-inner--middle {
-  animation-delay: 0.6s;
+  animation-delay: 0.05s;
 }
 
 .flip-demo-face {

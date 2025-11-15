@@ -1,4 +1,4 @@
-<!-- /components/experiments/flip-basic.vue -->
+<!-- /components/experiments/flip-demo.vue -->
 <template>
   <section
     class="relative w-full max-w-3xl mx-auto aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/experiments/flip-basic.vue
+// /components/experiments/flip-demo.vue
 import { ref, computed } from 'vue'
 
 const image1 = ref('/images/backtree.webp')

@@ -53,10 +53,10 @@
 
         <template v-else>
           <div
-            class="min-w-0 w-full flex flex-col items-start justify-center gap-[2px]"
+            class="min-w-0 w-full flex flex-col items-start justify-center gap-1"
           >
             <span
-              class="block w-full font-extrabold tracking-tight text-md md:text-lg lg:text-xl xl:text-3xl"
+              class="block w-full font-extrabold tracking-tight leading-tight text-lg md:text-2xl lg:text-3xl xl:text-4xl"
             >
               <span
                 class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
@@ -67,18 +67,18 @@
 
             <span
               v-if="showSubtitle"
-              class="block w-full truncate min-w-0 italic font-medium leading-tight text-base-content/90 text-sm md:text-md lg:text-lg xl:text-xl"
+              class="block w-full truncate min-w-0 italic font-medium leading-snug text-base-content/90 text-sm md:text-lg lg:text-xl xl:text-2xl"
             >
               {{ subtitle }}
             </span>
           </div>
 
           <div
-            class="flex items-center justify-end flex-nowrap shrink-0"
+            class="flex items-center justify-end flex-nowrap shrink-0 overflow-hidden"
             :class="[
               bigMode
                 ? 'basis-auto max-w-none'
-                : 'basis-[22%] max-w-[22%] h-full xl:basis-[38%] xl:max-w-[38%]',
+                : 'basis-[28%] max-w-[32%] h-full xl:basis-[34%] xl:max-w-[34%]',
             ]"
           >
             <div
@@ -87,26 +87,26 @@
               <div
                 class="grid grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-1"
               >
-                <div class="w-full h-full grid place-items-center">
-                  <div class="aspect-square w-[100%] h-auto">
+                <div class="w-full h-full flex items-center justify-center">
+                  <div class="aspect-square w-[80%] max-w-[2.8rem] h-auto">
                     <login-icon class="w-full h-full text-primary" />
                   </div>
                 </div>
 
-                <div class="w-full h-full grid place-items-center">
-                  <div class="aspect-square w-[100%] h-auto">
+                <div class="w-full h-full flex items-center justify-center">
+                  <div class="aspect-square w-[80%] max-w-[2.8rem] h-auto">
                     <jellybean-icon class="w-full h-full text-secondary" />
                   </div>
                 </div>
 
-                <div class="w-full h-full grid place-items-center">
-                  <div class="aspect-square w-[100%] h-auto">
+                <div class="w-full h-full flex items-center justify-center">
+                  <div class="aspect-square w-[80%] max-w-[2.8rem] h-auto">
                     <theme-icon class="w-full h-full text-accent" />
                   </div>
                 </div>
 
-                <div class="w-full h-full grid place-items-center">
-                  <div class="aspect-square w-[100%] h-auto">
+                <div class="w-full h-full flex items-center justify-center">
+                  <div class="aspect-square w-[80%] max-w-[2.8rem] h-auto">
                     <swarm-icon class="w-full h-full text-info" />
                   </div>
                 </div>
@@ -149,8 +149,8 @@ const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN')
 
 const avatarColumnClasses = computed(() =>
   bigMode.value
-    ? 'basis-[11%] max-w-[22%] xl:basis-[22%] xl:max-w-[44%]'
-    : 'basis-[13%] max-w-[25%] xl:basis-[26%] xl:max-w-[50%]',
+    ? 'basis-[11%] max-w-[22%] xl:basis-[22%] xl:max-w-[60%]'
+    : 'basis-[13%] max-w-[25%] xl:basis-[26%] xl:max-w-[40%]',
 )
 
 const headerKey = computed(

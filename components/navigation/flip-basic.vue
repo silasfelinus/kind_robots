@@ -6,28 +6,24 @@
     aria-live="polite"
     @click="handleClick"
   >
-    <div
-      class="flip-basic-full transition-opacity duration-150"
-      :class="isAnimating ? 'opacity-0' : 'opacity-100'"
-      :style="fullStyle"
-    />
+    <div class="flip-basic-base" :style="baseStyle" />
 
-    <div v-show="isAnimating" class="flip-basic-base" :style="nextBaseStyle" />
+    <template v-if="isAnimating">
+      <div class="flip-basic-bottom" :style="bottomStyle" />
 
-    <div v-show="isAnimating" class="flip-basic-bottom" :style="bottomStyle" />
-
-    <div v-show="isAnimating" class="flip-basic-flap">
-      <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
-        <div
-          class="flip-basic-face flip-basic-face--front"
-          :style="frontStyle"
-        />
-        <div
-          class="flip-basic-face flip-basic-face--back"
-          :style="backStyle"
-        />
+      <div class="flip-basic-flap">
+        <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
+          <div
+            class="flip-basic-face flip-basic-face--front"
+            :style="frontStyle"
+          />
+          <div
+            class="flip-basic-face flip-basic-face--back"
+            :style="backStyle"
+          />
+        </div>
       </div>
-    </div>
+    </template>
 
     <div
       class="absolute left-2 top-2 z-30 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
@@ -49,13 +45,13 @@ import { ref, computed } from 'vue'
 const image1 = ref('/images/backtree.webp')
 const image2 = ref('/images/botcafe.webp')
 
-const currentImage = ref(image1.value)
-const otherImage = ref(image2.value)
+const visibleImage = ref(image1.value)
+const hiddenImage = ref(image2.value)
 
 const isAnimating = ref(false)
 
-const flapFrontSrc = ref(currentImage.value)
-const flapBackSrc = ref(otherImage.value)
+const flapFrontSrc = ref(visibleImage.value)
+const flapBackSrc = ref(hiddenImage.value)
 
 const ariaLabel = computed(() =>
   isAnimating.value
@@ -63,15 +59,8 @@ const ariaLabel = computed(() =>
     : 'Click to flip the top half over and reveal the next image',
 )
 
-const fullStyle = computed(() => ({
-  backgroundImage: `url("${currentImage.value}")`,
-  backgroundSize: '100% 100%',
-  backgroundPosition: 'center center',
-  backgroundRepeat: 'no-repeat',
-}))
-
-const nextBaseStyle = computed(() => ({
-  backgroundImage: `url("${otherImage.value}")`,
+const baseStyle = computed(() => ({
+  backgroundImage: `url("${visibleImage.value}")`,
   backgroundSize: '100% 100%',
   backgroundPosition: 'center center',
   backgroundRepeat: 'no-repeat',
@@ -103,21 +92,17 @@ function startFlip() {
 
   isAnimating.value = true
 
-  const fromSrc = currentImage.value
-  const toSrc = otherImage.value
+  const fromSrc = visibleImage.value
+  const toSrc = hiddenImage.value
 
   flapFrontSrc.value = fromSrc
   flapBackSrc.value = toSrc
+
+  visibleImage.value = toSrc
+  hiddenImage.value = fromSrc
 }
 
 function onAnimationEnd() {
-  const tmp = currentImage.value
-  currentImage.value = otherImage.value
-  otherImage.value = tmp
-
-  flapFrontSrc.value = currentImage.value
-  flapBackSrc.value = otherImage.value
-
   isAnimating.value = false
 }
 
@@ -127,11 +112,11 @@ function handleClick() {
 </script>
 
 <style scoped>
-.flip-basic-full,
 .flip-basic-base {
   position: absolute;
   inset: 0;
   background-repeat: no-repeat;
+  z-index: 0;
 }
 
 .flip-basic-bottom {

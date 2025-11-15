@@ -6,26 +6,28 @@
     aria-live="polite"
     @click="handleClick"
   >
-    <div v-if="!isAnimating" class="flip-basic-full" :style="fullStyle" />
+    <div
+      class="flip-basic-full transition-opacity duration-150"
+      :class="isAnimating ? 'opacity-0' : 'opacity-100'"
+      :style="fullStyle"
+    />
 
-    <template v-else>
-      <div class="flip-basic-base" :style="nextBaseStyle" />
+    <div v-show="isAnimating" class="flip-basic-base" :style="nextBaseStyle" />
 
-      <div class="flip-basic-bottom" :style="bottomStyle" />
+    <div v-show="isAnimating" class="flip-basic-bottom" :style="bottomStyle" />
 
-      <div class="flip-basic-flap">
-        <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
-          <div
-            class="flip-basic-face flip-basic-face--front"
-            :style="frontStyle"
-          />
-          <div
-            class="flip-basic-face flip-basic-face--back"
-            :style="backStyle"
-          />
-        </div>
+    <div v-show="isAnimating" class="flip-basic-flap">
+      <div class="flip-basic-flap-inner" @animationend="onAnimationEnd">
+        <div
+          class="flip-basic-face flip-basic-face--front"
+          :style="frontStyle"
+        />
+        <div
+          class="flip-basic-face flip-basic-face--back"
+          :style="backStyle"
+        />
       </div>
-    </template>
+    </div>
 
     <div
       class="absolute left-2 top-2 z-30 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"

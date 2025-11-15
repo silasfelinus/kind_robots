@@ -32,12 +32,12 @@
     <div
       class="absolute left-2 top-2 z-30 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
     >
-      <span v-if="!isAnimating"> Ready • click for two-step flip </span>
+      <span v-if="!isAnimating">Ready • click for two-step flip</span>
       <span v-else>
         {{
           phase === 1
-            ? 'Step 1 of 2 • intermediate flip'
-            : 'Step 2 of 2 • final flip'
+            ? 'Step 1 of 2 • old logo interlude'
+            : 'Step 2 of 2 • reveal next image'
         }}
       </span>
     </div>
@@ -53,6 +53,8 @@
 // /components/experiments/flip-demo.vue
 import { ref, computed } from 'vue'
 
+type Slice = 'top' | 'middle' | 'bottom'
+
 const image1 = ref('/images/backtree.webp')
 const image2 = ref('/images/botcafe.webp')
 const intermediateImage = ref('/images/old_logo.webp')
@@ -63,24 +65,29 @@ const hiddenImage = ref(image2.value)
 const isAnimating = ref(false)
 /**
  * 0 = idle
- * 1 = first flip (front -> old logo)
- * 2 = second flip (old logo -> next image)
+ * 1 = first flip (front -> old_logo)
+ * 2 = second flip (old_logo -> next image)
  */
 const phase = ref<0 | 1 | 2>(0)
 const animationKey = ref(0)
 
 const flapFrontSrc = ref(visibleImage.value)
 const flapBackSrc = ref(hiddenImage.value)
+const bottomSrc = ref(visibleImage.value)
+
+const frontSlice = ref<Slice>('top')
+const backSlice = ref<Slice>('top')
+const bottomSlice = ref<Slice>('bottom')
 
 const ariaLabel = computed(() => {
   if (!isAnimating.value) {
     return 'Click to run a two-step flip and reveal the next image'
   }
   if (phase.value === 1) {
-    return 'First staged flip, revealing an intermediate panel'
+    return 'First staged flip, revealing the old logo'
   }
   if (phase.value === 2) {
-    return 'Second staged flip, revealing the final image'
+    return 'Second staged flip, revealing the next image'
   }
   return 'Running flip sequence'
 })
@@ -92,24 +99,30 @@ const baseStyle = computed(() => ({
   backgroundRepeat: 'no-repeat',
 }))
 
+function sliceToPosition(slice: Slice): string {
+  if (slice === 'top') return 'center top'
+  if (slice === 'middle') return 'center center'
+  return 'center bottom'
+}
+
 const bottomStyle = computed(() => ({
-  backgroundImage: `url("${flapFrontSrc.value}")`,
-  backgroundSize: '100% 200%',
-  backgroundPosition: 'center bottom',
+  backgroundImage: `url("${bottomSrc.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: sliceToPosition(bottomSlice.value),
   backgroundRepeat: 'no-repeat',
 }))
 
 const frontStyle = computed(() => ({
   backgroundImage: `url("${flapFrontSrc.value}")`,
-  backgroundSize: '100% 200%',
-  backgroundPosition: 'center top',
+  backgroundSize: '100% 300%',
+  backgroundPosition: sliceToPosition(frontSlice.value),
   backgroundRepeat: 'no-repeat',
 }))
 
 const backStyle = computed(() => ({
   backgroundImage: `url("${flapBackSrc.value}")`,
-  backgroundSize: '100% 200%',
-  backgroundPosition: 'center bottom',
+  backgroundSize: '100% 300%',
+  backgroundPosition: sliceToPosition(backSlice.value),
   backgroundRepeat: 'no-repeat',
 }))
 
@@ -119,8 +132,14 @@ function startFlip() {
   phase.value = 1
   isAnimating.value = true
 
+  bottomSrc.value = visibleImage.value
+  bottomSlice.value = 'bottom'
+
   flapFrontSrc.value = visibleImage.value
+  frontSlice.value = 'top'
+
   flapBackSrc.value = intermediateImage.value
+  backSlice.value = 'top'
 
   animationKey.value += 1
 }
@@ -129,8 +148,14 @@ function onAnimationEnd() {
   if (phase.value === 1) {
     phase.value = 2
 
+    bottomSrc.value = visibleImage.value
+    bottomSlice.value = 'bottom'
+
     flapFrontSrc.value = intermediateImage.value
+    frontSlice.value = 'middle'
+
     flapBackSrc.value = hiddenImage.value
+    backSlice.value = 'middle'
 
     animationKey.value += 1
     return
@@ -145,6 +170,9 @@ function onAnimationEnd() {
 
     visibleImage.value = toSrc
     hiddenImage.value = fromSrc
+
+    bottomSrc.value = visibleImage.value
+    bottomSlice.value = 'bottom'
   }
 }
 

@@ -62,17 +62,23 @@ const intermediateImage = ref('/images/old_logo.webp')
 const visibleImage = ref(image1.value)
 const hiddenImage = ref(image2.value)
 
+// baseSrc = what the backCard is currently showing
+const baseSrc = ref(visibleImage.value)
+
 const isAnimating = ref(false)
 /**
  * 0 = idle
- * 1 = first flip (front -> old_logo)
- * 2 = second flip (old_logo -> next image)
+ * 1 = first flip (frontCard top segment: currentImage -> old_logo, revealing top of newImage on backCard)
+ * 2 = second flip (frontCard bottom segment: old_logo -> newImage, completing transition)
  */
 const phase = ref<0 | 1 | 2>(0)
 const animationKey = ref(0)
 
+// flap front/back textures
 const flapFrontSrc = ref(visibleImage.value)
 const flapBackSrc = ref(hiddenImage.value)
+
+// bottom band texture
 const bottomSrc = ref(visibleImage.value)
 
 const frontSlice = ref<Slice>('top')
@@ -93,7 +99,7 @@ const ariaLabel = computed(() => {
 })
 
 const baseStyle = computed(() => ({
-  backgroundImage: `url("${visibleImage.value}")`,
+  backgroundImage: `url("${baseSrc.value}")`,
   backgroundSize: '100% 100%',
   backgroundPosition: 'center center',
   backgroundRepeat: 'no-repeat',
@@ -129,12 +135,18 @@ const backStyle = computed(() => ({
 function startFlip() {
   if (isAnimating.value) return
 
+  // phase 0 -> 1
   phase.value = 1
   isAnimating.value = true
 
+  // Treat hiddenImage as the backCard with newImage for the duration of the animation
+  baseSrc.value = hiddenImage.value
+
+  // Bottom band shows bottom third of currentImage
   bottomSrc.value = visibleImage.value
   bottomSlice.value = 'bottom'
 
+  // Flap top segment: front shows top of currentImage, back shows top of intermediate (old_logo)
   flapFrontSrc.value = visibleImage.value
   frontSlice.value = 'top'
 
@@ -146,11 +158,16 @@ function startFlip() {
 
 function onAnimationEnd() {
   if (phase.value === 1) {
+    // End of first flip, prepare second flip (middle+bottom segment)
     phase.value = 2
 
+    // Bottom band still shows bottom third of currentImage
     bottomSrc.value = visibleImage.value
     bottomSlice.value = 'bottom'
 
+    // Flap now works over the middle slice
+    // Front: intermediateImage middle (old_logo band)
+    // Back: hiddenImage middle (newImage band)
     flapFrontSrc.value = intermediateImage.value
     frontSlice.value = 'middle'
 
@@ -162,15 +179,19 @@ function onAnimationEnd() {
   }
 
   if (phase.value === 2) {
+    // End of second flip, finalize transition to newImage
     phase.value = 0
     isAnimating.value = false
 
     const fromSrc = visibleImage.value
     const toSrc = hiddenImage.value
 
+    // Swap which image is "current" vs "next"
     visibleImage.value = toSrc
     hiddenImage.value = fromSrc
 
+    // Base card and bottom band now both use the new current image
+    baseSrc.value = visibleImage.value
     bottomSrc.value = visibleImage.value
     bottomSlice.value = 'bottom'
   }

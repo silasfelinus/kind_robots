@@ -6,24 +6,26 @@
     aria-live="polite"
     @click="handleClick"
   >
-    <div class="flip-basic-base" :style="baseStyle" />
+    <!-- backCard: static card behind everything, showing base/new image -->
+    <div class="flip-back-card" :style="backCardStyle" />
 
     <template v-if="isAnimating">
-      <div class="flip-basic-bottom" :style="bottomStyle" />
+      <!-- bottom band: static bottom third of frontCard during both phases -->
+      <div class="flip-front-card-bottom-band" :style="bottomBandStyle" />
 
-      <div class="flip-basic-flap">
+      <!-- frontCard flap: top-half segment that flips down in two phases -->
+      <div class="flip-front-card-flap">
         <div
-          class="flip-basic-flap-inner"
+          class="flip-front-card-flap-inner"
           :key="animationKey"
           @animationend="onAnimationEnd"
         >
+          <!-- front face of frontCard flap (what we see at start of each flip) -->
+          <div class="flip-front-card-face" :style="flapFrontStyle" />
+          <!-- back face of frontCard flap (what we see while it flips past 90°) -->
           <div
-            class="flip-basic-face flip-basic-face--front"
-            :style="frontStyle"
-          />
-          <div
-            class="flip-basic-face flip-basic-face--back"
-            :style="backStyle"
+            class="flip-front-card-face flip-front-card-face--back"
+            :style="flapBackStyle"
           />
         </div>
       </div>
@@ -51,36 +53,42 @@
 
 <script setup lang="ts">
 // /components/experiments/flip-demo.vue
+// This component models two stacked cards:
+// - backCard: static card behind everything (shows newImage during animation)
+// - frontCard: the flipping card; we only animate its top-half flap in two phases
+
 import { ref, computed } from 'vue'
 
 type Slice = 'top' | 'middle' | 'bottom'
 
+// Source image handles
 const image1 = ref('/images/backtree.webp')
 const image2 = ref('/images/botcafe.webp')
 const intermediateImage = ref('/images/old_logo.webp')
 
+// currentImage (frontCard at rest) and newImage (backCard during flip)
 const visibleImage = ref(image1.value)
 const hiddenImage = ref(image2.value)
 
-// baseSrc = what the backCard is currently showing
+// backCard texture
 const baseSrc = ref(visibleImage.value)
 
+// Animation state
+// phase 0: idle
+// phase 1: first flip (top segment: currentImage -> old_logo, reveal top of newImage)
+// phase 2: second flip (middle+bottom segment: old_logo -> newImage)
 const isAnimating = ref(false)
-/**
- * 0 = idle
- * 1 = first flip (frontCard top segment: currentImage -> old_logo, revealing top of newImage on backCard)
- * 2 = second flip (frontCard bottom segment: old_logo -> newImage, completing transition)
- */
 const phase = ref<0 | 1 | 2>(0)
 const animationKey = ref(0)
 
-// flap front/back textures
+// frontCard flap textures (front/back faces)
 const flapFrontSrc = ref(visibleImage.value)
 const flapBackSrc = ref(hiddenImage.value)
 
-// bottom band texture
+// bottom band texture (bottom third of frontCard)
 const bottomSrc = ref(visibleImage.value)
 
+// Slice selection for each texture (top/middle/bottom thirds)
 const frontSlice = ref<Slice>('top')
 const backSlice = ref<Slice>('top')
 const bottomSlice = ref<Slice>('bottom')
@@ -98,7 +106,8 @@ const ariaLabel = computed(() => {
   return 'Running flip sequence'
 })
 
-const baseStyle = computed(() => ({
+// backCard: full static background card
+const backCardStyle = computed(() => ({
   backgroundImage: `url("${baseSrc.value}")`,
   backgroundSize: '100% 100%',
   backgroundPosition: 'center center',
@@ -111,21 +120,24 @@ function sliceToPosition(slice: Slice): string {
   return 'center bottom'
 }
 
-const bottomStyle = computed(() => ({
+// bottom band: static bottom third of frontCard during both phases
+const bottomBandStyle = computed(() => ({
   backgroundImage: `url("${bottomSrc.value}")`,
   backgroundSize: '100% 300%',
   backgroundPosition: sliceToPosition(bottomSlice.value),
   backgroundRepeat: 'no-repeat',
 }))
 
-const frontStyle = computed(() => ({
+// frontCard flap front face (what we see at start of each flip)
+const flapFrontStyle = computed(() => ({
   backgroundImage: `url("${flapFrontSrc.value}")`,
   backgroundSize: '100% 300%',
   backgroundPosition: sliceToPosition(frontSlice.value),
   backgroundRepeat: 'no-repeat',
 }))
 
-const backStyle = computed(() => ({
+// frontCard flap back face (underside of the flap)
+const flapBackStyle = computed(() => ({
   backgroundImage: `url("${flapBackSrc.value}")`,
   backgroundSize: '100% 300%',
   backgroundPosition: sliceToPosition(backSlice.value),
@@ -139,17 +151,19 @@ function startFlip() {
   phase.value = 1
   isAnimating.value = true
 
-  // Treat hiddenImage as the backCard with newImage for the duration of the animation
+  // backCard becomes newImage for the duration of the animation
   baseSrc.value = hiddenImage.value
 
-  // Bottom band shows bottom third of currentImage
+  // Bottom band shows bottom third of currentImage (frontCard at rest)
   bottomSrc.value = visibleImage.value
   bottomSlice.value = 'bottom'
 
-  // Flap top segment: front shows top of currentImage, back shows top of intermediate (old_logo)
+  // Phase 1: flap top segment
+  // front face = top of currentImage (frontCard.frontFace)
   flapFrontSrc.value = visibleImage.value
   frontSlice.value = 'top'
 
+  // back face = top of intermediateImage (patchwork top: upside-down old_logo in concept)
   flapBackSrc.value = intermediateImage.value
   backSlice.value = 'top'
 
@@ -158,19 +172,18 @@ function startFlip() {
 
 function onAnimationEnd() {
   if (phase.value === 1) {
-    // End of first flip, prepare second flip (middle+bottom segment)
+    // Prepare phase 2: flap covers middle+bottom segment
     phase.value = 2
 
-    // Bottom band still shows bottom third of currentImage
+    // Bottom band continues to show bottom third of currentImage
     bottomSrc.value = visibleImage.value
     bottomSlice.value = 'bottom'
 
-    // Flap now works over the middle slice
-    // Front: intermediateImage middle (old_logo band)
-    // Back: hiddenImage middle (newImage band)
+    // Phase 2 front: middle slice of intermediateImage (old_logo band)
     flapFrontSrc.value = intermediateImage.value
     frontSlice.value = 'middle'
 
+    // Phase 2 back: middle slice of newImage
     flapBackSrc.value = hiddenImage.value
     backSlice.value = 'middle'
 
@@ -179,18 +192,18 @@ function onAnimationEnd() {
   }
 
   if (phase.value === 2) {
-    // End of second flip, finalize transition to newImage
+    // Second flip complete: card should now be fully newImage
     phase.value = 0
     isAnimating.value = false
 
     const fromSrc = visibleImage.value
     const toSrc = hiddenImage.value
 
-    // Swap which image is "current" vs "next"
+    // Swap which image is "current" vs "next" for the next cycle
     visibleImage.value = toSrc
     hiddenImage.value = fromSrc
 
-    // Base card and bottom band now both use the new current image
+    // backCard and frontCard bottom band both use new current image at rest
     baseSrc.value = visibleImage.value
     bottomSrc.value = visibleImage.value
     bottomSlice.value = 'bottom'
@@ -203,13 +216,16 @@ function handleClick() {
 </script>
 
 <style scoped>
-.flip-basic-base {
+/* backCard: static background card beneath the flipping frontCard */
+.flip-back-card {
   position: absolute;
   inset: 0;
   background-repeat: no-repeat;
   z-index: 0;
 }
-.flip-basic-bottom {
+
+/* bottom band: static bottom half of frontCard while flap animates top-half */
+.flip-front-card-bottom-band {
   position: absolute;
   left: 0;
   right: 0;
@@ -218,7 +234,9 @@ function handleClick() {
   background-repeat: no-repeat;
   z-index: 20;
 }
-.flip-basic-flap {
+
+/* frontCard flap: top-half segment of frontCard that flips down */
+.flip-front-card-flap {
   position: absolute;
   left: 0;
   right: 0;
@@ -228,22 +246,29 @@ function handleClick() {
   perspective: 1600px;
   z-index: 25;
 }
-.flip-basic-flap-inner {
+
+/* inner element that actually rotates in 3D for both phases */
+.flip-front-card-flap-inner {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
   transform-origin: 50% 100%;
   animation: flip-basic-fold 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
 }
-.flip-basic-face {
+
+/* frontCard flap faces (front/back of the physical flap) */
+.flip-front-card-face {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
   background-repeat: no-repeat;
 }
-.flip-basic-face--back {
+
+.flip-front-card-face--back {
   transform: rotateX(180deg);
 }
+
+/* shared flip animation: downward fold with overshoot and settle */
 @keyframes flip-basic-fold {
   0% {
     transform: rotateX(0deg);

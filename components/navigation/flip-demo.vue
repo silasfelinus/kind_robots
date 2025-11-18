@@ -67,7 +67,7 @@ type Slice = 'top' | 'middle' | 'bottom'
 
 const image1 = ref('/images/backtree.webp')
 const image2 = ref('/images/botcafe.webp')
-const intermediateImage = ref('/images/old_logo.webp')
+const intermediateImage = ref('/images/logo_old.webp')
 
 const visibleImage = ref(image1.value)
 const hiddenImage = ref(image2.value)

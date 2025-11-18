@@ -256,8 +256,8 @@ const flapBackStyle = computed(() => ({
 
 const patchTopStyle = computed(() => ({
   backgroundImage: `url("${intermediateImage.value}")`,
-  backgroundSize: '100% 300%',
-  backgroundPosition: sliceToPosition('top'),
+  backgroundSize: '100% 100%',
+  backgroundPosition: 'center center',
   backgroundRepeat: 'no-repeat',
 }))
 

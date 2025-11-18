@@ -134,7 +134,6 @@ const baseSrc = ref(visibleImage.value)
 
 const isAnimating = ref(false)
 const phase = ref<0 | 1 | 2>(0)
-const animationKey = ref(0)
 
 const demoStep = ref<DemoStep>(0)
 
@@ -188,11 +187,11 @@ const stepExplanation = computed(() => {
     case 1:
       return 'Phase 1 setup: backCard now shows the next image. The flap is configured over the top+middle region. Flap front shows the top third of the current image; flap back uses the patchwork top band.'
     case 2:
-      return 'Phase 1 animation should be running: the flap flips down over the top+middle region. When the animation ends, Phase 2 will be configured.'
+      return 'Phase 1 animation is running over the top+middle region. When it finishes, click again to configure Phase 2.'
     case 3:
       return 'Phase 2 setup: flap moves to the middle+bottom region. Flap front shows the patchwork middle band (upside-down bottom of current); flap back shows the middle band of the next image.'
     case 4:
-      return 'Phase 2 animation should be running over the middle+bottom region. When it finishes, the next image becomes the current image.'
+      return 'Phase 2 animation is running over the middle+bottom region. When it finishes, click again to go to the finished state.'
     case 5:
       return 'Finished. The card now shows the new image as the current image with no seam. Next step will reset back to idle while keeping this as current.'
     default:
@@ -309,8 +308,6 @@ function resetDemo() {
   flapBackSrc.value = hiddenImage.value
   flapFrontSlice.value = 'top'
   flapBackSlice.value = 'top'
-
-  animationKey.value += 1
 }
 
 function setupPhase1() {
@@ -327,7 +324,6 @@ function setupPhase1() {
 function runPhase1Animation() {
   if (demoStep.value !== 1 || isAnimating.value) return
   isAnimating.value = true
-  animationKey.value += 1
   demoStep.value = 2
 }
 
@@ -344,19 +340,17 @@ function setupPhase2() {
 function runPhase2Animation() {
   if (demoStep.value !== 3 || isAnimating.value) return
   isAnimating.value = true
-  animationKey.value += 1
   demoStep.value = 4
 }
 
 function onAnimationEnd() {
   isAnimating.value = false
 
-  if (demoStep.value === 2) {
-    setupPhase2()
+  if (phase.value === 1) {
     return
   }
 
-  if (demoStep.value === 4) {
+  if (phase.value === 2) {
     const fromSrc = visibleImage.value
     const toSrc = hiddenImage.value
 
@@ -365,7 +359,6 @@ function onAnimationEnd() {
     baseSrc.value = visibleImage.value
 
     phase.value = 0
-    demoStep.value = 5
   }
 }
 
@@ -380,21 +373,19 @@ function advanceStep() {
       runPhase1Animation()
       break
     case 2:
+      setupPhase2()
       break
     case 3:
       runPhase2Animation()
       break
     case 4:
+      demoStep.value = 5
       break
     case 5:
-      demoStep.value = 0
-      phase.value = 0
-      baseSrc.value = visibleImage.value
+      resetDemo()
       break
     default:
-      demoStep.value = 0
-      phase.value = 0
-      baseSrc.value = visibleImage.value
+      resetDemo()
       break
   }
 }

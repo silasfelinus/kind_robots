@@ -6,7 +6,11 @@
     aria-live="polite"
     @click="advanceStep"
   >
-    <div v-if="demoStep === 0 || demoStep === 5" class="flip-single-front" :style="singleFrontStyle" />
+    <div
+      v-if="demoStep === 0 || demoStep === 5"
+      class="flip-single-front"
+      :style="singleFrontStyle"
+    />
 
     <template v-else>
       <div class="flip-back-card" :style="backCardStyle" />
@@ -81,14 +85,21 @@
     <div class="grid grid-cols-3 gap-3 text-[11px]">
       <div class="flex flex-col gap-1">
         <span class="font-semibold">Current image (frontCard at rest)</span>
-        <div class="w-full aspect-video rounded-md border border-base-300 overflow-hidden">
-          <div class="w-full h-full bg-cover bg-center" :style="{ backgroundImage: `url('${currentImageSrc}')` }" />
+        <div
+          class="w-full aspect-video rounded-md border border-base-300 overflow-hidden"
+        >
+          <div
+            class="w-full h-full bg-cover bg-center"
+            :style="{ backgroundImage: `url('${currentImageSrc}')` }"
+          />
         </div>
       </div>
 
       <div class="flex flex-col gap-1">
         <span class="font-semibold">Rear image (patchwork back)</span>
-        <div class="w-full aspect-video rounded-md border border-base-300 overflow-hidden relative">
+        <div
+          class="w-full aspect-video rounded-md border border-base-300 overflow-hidden relative"
+        >
           <div class="absolute inset-0 flex flex-col">
             <div class="flex-1 patch-row" :style="patchTopStyle" />
             <div class="flex-1 patch-row" :style="patchMiddleStyle" />
@@ -99,8 +110,13 @@
 
       <div class="flex flex-col gap-1">
         <span class="font-semibold">Next image (will become current)</span>
-        <div class="w-full aspect-video rounded-md border border-base-300 overflow-hidden">
-          <div class="w-full h-full bg-cover bg-center" :style="{ backgroundImage: `url('${nextImageSrc}')` }" />
+        <div
+          class="w-full aspect-video rounded-md border border-base-300 overflow-hidden"
+        >
+          <div
+            class="w-full h-full bg-cover bg-center"
+            :style="{ backgroundImage: `url('${nextImageSrc}')` }"
+          />
         </div>
       </div>
     </div>
@@ -124,24 +140,9 @@ const hiddenImage = ref(image2.value)
 const baseSrc = ref(visibleImage.value)
 
 const isAnimating = ref(false)
-/**
- * phase:
- * 0 = no flap
- * 1 = flap working over top+middle region
- * 2 = flap working over middle+bottom region
- */
 const phase = ref<0 | 1 | 2>(0)
 const animationKey = ref(0)
 
-/**
- * demoStep:
- * 0 = idle
- * 1 = setup phase 1
- * 2 = animate phase 1
- * 3 = setup phase 2
- * 4 = animate phase 2
- * 5 = finished
- */
 const demoStep = ref<DemoStep>(0)
 
 const flapFrontSrc = ref(visibleImage.value)
@@ -194,13 +195,13 @@ const stepExplanation = computed(() => {
     case 1:
       return 'Phase 1 setup: backCard now shows the next image. The flap is configured over the top+middle region. Flap front shows the top third of the current image; flap back uses the patchwork top band.'
     case 2:
-      return 'Phase 1 animation should be running: the flap flips down over the top+middle region. When the animation ends, the demo advances to Phase 2 setup.'
+      return 'Phase 1 animation should be running: the flap flips down over the top+middle region. When the animation ends, the demo will configure Phase 2.'
     case 3:
-      return 'Phase 1 is complete. Phase 2 is configured: the flap moves to the middle+bottom region. Flap front now shows the patchwork middle band; flap back shows the middle band of the next image.'
+      return 'Phase 2 is configured: the flap now targets the middle+bottom region. Flap front shows the patchwork middle band; flap back shows the middle band of the next image.'
     case 4:
       return 'Phase 2 animation should be running over the middle+bottom region. When it finishes, the next image becomes the current image.'
     case 5:
-      return 'Finished. The card now shows the new image as the current image with no seams. Next step will reset back to idle.'
+      return 'Finished. The card now shows the new image as the current image with no seam. Next step will reset back to idle.'
     default:
       return 'Unknown demo state.'
   }
@@ -226,12 +227,6 @@ function sliceToPosition(slice: Slice): string {
   return 'center bottom'
 }
 
-/**
- * Front card segments show a true 3-way slice of the current image.
- * We use background-size: 100% 300% so each segment shows exactly one third
- * with no zoom differences between top / middle / bottom.
- */
-
 const segmentTopStyle = computed(() => ({
   backgroundImage: `url("${visibleImage.value}")`,
   backgroundSize: '100% 300%',
@@ -253,10 +248,6 @@ const segmentBottomStyle = computed(() => ({
   backgroundRepeat: 'no-repeat',
 }))
 
-/**
- * Flap faces use the same third-slicing logic.
- */
-
 const flapFrontStyle = computed(() => ({
   backgroundImage: `url("${flapFrontSrc.value}")`,
   backgroundSize: '100% 300%',
@@ -270,13 +261,6 @@ const flapBackStyle = computed(() => ({
   backgroundPosition: sliceToPosition(flapBackSlice.value),
   backgroundRepeat: 'no-repeat',
 }))
-
-/**
- * Patchwork preview:
- * - Top third: upside-down old_logo (we fake it by using bottom slice of old_logo and noting that, in motion, the card is flipped).
- * - Middle third: upside-down bottom third of newImage (we show bottom slice of newImage here).
- * - Bottom third: empty.
- */
 
 const patchTopStyle = computed(() => ({
   backgroundImage: `url("${intermediateImage.value}")`,
@@ -378,7 +362,7 @@ function onAnimationEnd() {
   isAnimating.value = false
 
   if (demoStep.value === 2) {
-    demoStep.value = 3
+    setupPhase2()
     return
   }
 
@@ -408,10 +392,9 @@ function advanceStep() {
     case 2:
       break
     case 3:
-      setupPhase2()
+      runPhase2Animation()
       break
     case 4:
-      runPhase2Animation()
       break
     case 5:
       resetDemo()

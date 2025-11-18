@@ -28,14 +28,13 @@
       </div>
 
       <div
-        v-if="phase !== 0"
+        v-if="isAnimating"
         class="flip-flap-wrapper"
         :class="flapWrapperClass"
       >
         <div
           class="flip-flap-inner"
           :class="flapInnerClass"
-          :key="animationKey"
           @animationend="onAnimationEnd"
         >
           <div class="flip-flap-face" :style="flapFrontStyle">
@@ -291,9 +290,6 @@ const flapInnerClass = computed(() => {
   } else if (phase.value === 2) {
     classes.push('flip-flap-inner--hinge-top')
   }
-  if (phase.value !== 0) {
-    classes.push('flip-flap-inner--animating')
-  }
   return classes.join(' ')
 })
 
@@ -473,6 +469,7 @@ function advanceStep() {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
+  animation: flip-basic-fold 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
 }
 
 .flip-flap-inner--hinge-bottom {
@@ -481,10 +478,6 @@ function advanceStep() {
 
 .flip-flap-inner--hinge-top {
   transform-origin: 50% 0%;
-}
-
-.flip-flap-inner--animating {
-  animation: flip-basic-fold 1.1s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
 }
 
 .flip-flap-face {

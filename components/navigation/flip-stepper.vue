@@ -6,65 +6,61 @@
     aria-live="polite"
     @click="advanceStep"
   >
-    <!-- backCard: what the rear card is currently showing -->
-    <div class="flip-back-card" :style="backCardStyle" />
+    <div v-if="demoStep === 0 || demoStep === 5" class="flip-single-front" :style="singleFrontStyle" />
 
-    <!-- frontCard segments: just visual thirds of the currentImage -->
-    <div class="flip-front-card">
-      <div class="flip-segment flip-segment-top" :style="segmentTopStyle">
-        <span class="flip-label">Top segment</span>
-      </div>
-      <div class="flip-segment flip-segment-middle" :style="segmentMiddleStyle">
-        <span class="flip-label">Middle segment</span>
-      </div>
-      <div class="flip-segment flip-segment-bottom" :style="segmentBottomStyle">
-        <span class="flip-label">Bottom segment</span>
-      </div>
-    </div>
+    <template v-else>
+      <div class="flip-back-card" :style="backCardStyle" />
 
-    <!-- flap: only visible when phase != 0 -->
-    <div
-      v-if="phase !== 0"
-      class="flip-flap-wrapper"
-      :class="flapWrapperClass"
-    >
+      <div class="flip-front-card">
+        <div class="flip-segment flip-segment-top" :style="segmentTopStyle">
+          <span class="flip-label">Top segment</span>
+        </div>
+        <div class="flip-segment flip-segment-middle" :style="segmentMiddleStyle">
+          <span class="flip-label">Middle segment</span>
+        </div>
+        <div class="flip-segment flip-segment-bottom" :style="segmentBottomStyle">
+          <span class="flip-label">Bottom segment</span>
+        </div>
+      </div>
+
       <div
-        class="flip-flap-inner"
-        :class="flapInnerClass"
-        :key="animationKey"
-        @animationend="onAnimationEnd"
+        v-if="phase !== 0"
+        class="flip-flap-wrapper"
+        :class="flapWrapperClass"
       >
-        <div class="flip-flap-face" :style="flapFrontStyle">
-          <span class="flip-label flip-label-front">Flap front</span>
-        </div>
         <div
-          class="flip-flap-face flip-flap-face--back"
-          :style="flapBackStyle"
+          class="flip-flap-inner"
+          :class="flapInnerClass"
+          :key="animationKey"
+          @animationend="onAnimationEnd"
         >
-          <span class="flip-label flip-label-back">Flap back</span>
+          <div class="flip-flap-face" :style="flapFrontStyle">
+            <span class="flip-label flip-label-front">Flap front</span>
+          </div>
+          <div
+            class="flip-flap-face flip-flap-face--back"
+            :style="flapBackStyle"
+          >
+            <span class="flip-label flip-label-back">Flap back</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- step label -->
+      <div
+        class="pointer-events-none absolute inset-x-0 top-1/3 h-px bg-black/30 z-40"
+      />
+      <div
+        class="pointer-events-none absolute inset-x-0 top-2/3 h-px bg-black/30 z-40"
+      />
+    </template>
+
     <div
       class="absolute left-2 top-2 z-30 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
     >
       <span>{{ stepLabel }}</span>
     </div>
-
-    <!-- third markers -->
-    <div
-      v-if="phase !== 0"
-      class="pointer-events-none absolute inset-x-0 top-1/3 h-px bg-black/30 z-40"
-    />
-    <div
-      v-if="phase !== 0"
-      class="pointer-events-none absolute inset-x-0 top-2/3 h-px bg-black/30 z-40"
-    />
   </section>
 
-  <!-- Debug panel: controls + explanation + image inspector -->
   <section class="mt-3 w-full max-w-3xl mx-auto px-2 pb-3">
     <div class="flex flex-wrap items-center gap-2 mb-2">
       <button class="btn btn-xs" @click.stop="resetDemo">
@@ -85,27 +81,27 @@
     <div class="grid grid-cols-3 gap-3 text-[11px]">
       <div class="flex flex-col gap-1">
         <span class="font-semibold">Current image (frontCard at rest)</span>
-        <img
-          :src="currentImageSrc"
-          alt="Current image"
-          class="w-full aspect-video object-cover rounded-md border border-base-300"
-        />
+        <div class="w-full aspect-video rounded-md border border-base-300 overflow-hidden">
+          <div class="w-full h-full bg-cover bg-center" :style="{ backgroundImage: `url('${currentImageSrc}')` }" />
+        </div>
       </div>
+
       <div class="flex flex-col gap-1">
-        <span class="font-semibold">Rear image (backCard)</span>
-        <img
-          :src="rearImageSrc"
-          alt="Rear image"
-          class="w-full aspect-video object-cover rounded-md border border-base-300"
-        />
+        <span class="font-semibold">Rear image (patchwork back)</span>
+        <div class="w-full aspect-video rounded-md border border-base-300 overflow-hidden relative">
+          <div class="absolute inset-0 flex flex-col">
+            <div class="flex-1 patch-row" :style="patchTopStyle" />
+            <div class="flex-1 patch-row" :style="patchMiddleStyle" />
+            <div class="flex-1 patch-row" :style="patchBottomStyle" />
+          </div>
+        </div>
       </div>
+
       <div class="flex flex-col gap-1">
         <span class="font-semibold">Next image (will become current)</span>
-        <img
-          :src="nextImageSrc"
-          alt="Next image"
-          class="w-full aspect-video object-cover rounded-md border border-base-300"
-        />
+        <div class="w-full aspect-video rounded-md border border-base-300 overflow-hidden">
+          <div class="w-full h-full bg-cover bg-center" :style="{ backgroundImage: `url('${nextImageSrc}')` }" />
+        </div>
       </div>
     </div>
   </section>
@@ -124,6 +120,7 @@ const intermediateImage = ref('/images/old_logo.webp')
 
 const visibleImage = ref(image1.value)
 const hiddenImage = ref(image2.value)
+
 const baseSrc = ref(visibleImage.value)
 
 const isAnimating = ref(false)
@@ -193,25 +190,32 @@ const stepLabel = computed(() => {
 const stepExplanation = computed(() => {
   switch (demoStep.value) {
     case 0:
-      return 'Idle. All three segments show the current image. Rear card and next image are set but not visible. Click Next step or the card to configure the first flip.'
+      return 'Idle. The card shows the current image as a single seamless panel. Click Next step or the card to configure the first flip.'
     case 1:
-      return 'Phase 1 setup: backCard now shows the next image. The flap is configured to work over the top+middle region, with its front showing the top slice of the current image, and its back showing the top slice of the intermediate (old_logo). No animation yet.'
+      return 'Phase 1 setup: backCard now shows the next image. The flap is configured over the top+middle region. Flap front shows the top third of the current image; flap back uses the patchwork top band.'
     case 2:
-      return 'Phase 1 animation should be running: the flap flips down over the top+middle region. You should see the flap front and back alternate as it moves. When the animation ends, the demo advances to Phase 2 setup.'
+      return 'Phase 1 animation should be running: the flap flips down over the top+middle region. When the animation ends, the demo advances to Phase 2 setup.'
     case 3:
-      return 'Phase 1 is complete. Phase 2 is now configured: the flap moves to the middle+bottom region, with the front showing intermediate (old_logo) and the back showing the next image. No animation yet.'
+      return 'Phase 1 is complete. Phase 2 is configured: the flap moves to the middle+bottom region. Flap front now shows the patchwork middle band; flap back shows the middle band of the next image.'
     case 4:
-      return 'Phase 2 animation should be running: the flap flips over the middle+bottom region. When it finishes, the next image becomes the current image.'
+      return 'Phase 2 animation should be running over the middle+bottom region. When it finishes, the next image becomes the current image.'
     case 5:
-      return 'Finished. The visible card now shows the new image as the current image. Next image has swapped. Click Next step to reset back to idle.'
+      return 'Finished. The card now shows the new image as the current image with no seams. Next step will reset back to idle.'
     default:
       return 'Unknown demo state.'
   }
 })
 
+const singleFrontStyle = computed(() => ({
+  backgroundImage: `url("${visibleImage.value}")`,
+  backgroundSize: '100% 100%',
+  backgroundPosition: 'center center',
+  backgroundRepeat: 'no-repeat',
+}))
+
 const backCardStyle = computed(() => ({
   backgroundImage: `url("${baseSrc.value}")`,
-  backgroundSize: 'cover',
+  backgroundSize: '100% 100%',
   backgroundPosition: 'center center',
   backgroundRepeat: 'no-repeat',
 }))
@@ -223,46 +227,73 @@ function sliceToPosition(slice: Slice): string {
 }
 
 /**
- * IMPORTANT: For debugging, all three segments use backgroundSize: 'cover'.
- * That means they are NOT mathematically perfect 1/3 slices; they are
- * three views of the same image with different vertical focus, so there is
- * no weird 300% zoom. This is just to make the layout visually sane while we
- * debug the state machine.
+ * Front card segments show a true 3-way slice of the current image.
+ * We use background-size: 100% 300% so each segment shows exactly one third
+ * with no zoom differences between top / middle / bottom.
  */
 
 const segmentTopStyle = computed(() => ({
   backgroundImage: `url("${visibleImage.value}")`,
-  backgroundSize: 'cover',
+  backgroundSize: '100% 300%',
   backgroundPosition: sliceToPosition('top'),
   backgroundRepeat: 'no-repeat',
 }))
 
 const segmentMiddleStyle = computed(() => ({
   backgroundImage: `url("${visibleImage.value}")`,
-  backgroundSize: 'cover',
+  backgroundSize: '100% 300%',
   backgroundPosition: sliceToPosition('middle'),
   backgroundRepeat: 'no-repeat',
 }))
 
 const segmentBottomStyle = computed(() => ({
   backgroundImage: `url("${visibleImage.value}")`,
-  backgroundSize: 'cover',
+  backgroundSize: '100% 300%',
   backgroundPosition: sliceToPosition('bottom'),
   backgroundRepeat: 'no-repeat',
 }))
 
+/**
+ * Flap faces use the same third-slicing logic.
+ */
+
 const flapFrontStyle = computed(() => ({
   backgroundImage: `url("${flapFrontSrc.value}")`,
-  backgroundSize: 'cover',
+  backgroundSize: '100% 300%',
   backgroundPosition: sliceToPosition(flapFrontSlice.value),
   backgroundRepeat: 'no-repeat',
 }))
 
 const flapBackStyle = computed(() => ({
   backgroundImage: `url("${flapBackSrc.value}")`,
-  backgroundSize: 'cover',
+  backgroundSize: '100% 300%',
   backgroundPosition: sliceToPosition(flapBackSlice.value),
   backgroundRepeat: 'no-repeat',
+}))
+
+/**
+ * Patchwork preview:
+ * - Top third: upside-down old_logo (we fake it by using bottom slice of old_logo and noting that, in motion, the card is flipped).
+ * - Middle third: upside-down bottom third of newImage (we show bottom slice of newImage here).
+ * - Bottom third: empty.
+ */
+
+const patchTopStyle = computed(() => ({
+  backgroundImage: `url("${intermediateImage.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: sliceToPosition('bottom'),
+  backgroundRepeat: 'no-repeat',
+}))
+
+const patchMiddleStyle = computed(() => ({
+  backgroundImage: `url("${hiddenImage.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: sliceToPosition('bottom'),
+  backgroundRepeat: 'no-repeat',
+}))
+
+const patchBottomStyle = computed(() => ({
+  backgroundImage: 'none',
 }))
 
 const flapWrapperClass = computed(() => {
@@ -289,7 +320,6 @@ const flapInnerClass = computed(() => {
 })
 
 const currentImageSrc = computed(() => visibleImage.value)
-const rearImageSrc = computed(() => baseSrc.value)
 const nextImageSrc = computed(() => hiddenImage.value)
 
 function resetDemo() {
@@ -394,6 +424,13 @@ function advanceStep() {
 </script>
 
 <style scoped>
+.flip-single-front {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  z-index: 10;
+}
+
 .flip-back-card {
   position: absolute;
   inset: 0;
@@ -499,6 +536,10 @@ function advanceStep() {
 
 .flip-label-back {
   background-color: rgba(128, 0, 128, 0.6);
+}
+
+.patch-row {
+  background-repeat: no-repeat;
 }
 
 @keyframes flip-basic-fold {

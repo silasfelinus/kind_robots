@@ -85,9 +85,7 @@
     <div class="grid grid-cols-3 gap-3 text-[11px]">
       <div class="flex flex-col gap-1">
         <span class="font-semibold">Current image (frontCard at rest)</span>
-        <div
-          class="w-full aspect-video rounded-md border border-base-300 overflow-hidden"
-        >
+        <div class="w-full aspect-video rounded-md border border-base-300 overflow-hidden">
           <div
             class="w-full h-full bg-cover bg-center"
             :style="{ backgroundImage: `url('${currentImageSrc}')` }"
@@ -97,9 +95,7 @@
 
       <div class="flex flex-col gap-1">
         <span class="font-semibold">Rear image (patchwork back)</span>
-        <div
-          class="w-full aspect-video rounded-md border border-base-300 overflow-hidden relative"
-        >
+        <div class="w-full aspect-video rounded-md border border-base-300 overflow-hidden relative">
           <div class="absolute inset-0 flex flex-col">
             <div class="flex-1 patch-row" :style="patchTopStyle" />
             <div class="flex-1 patch-row" :style="patchMiddleStyle" />
@@ -110,9 +106,7 @@
 
       <div class="flex flex-col gap-1">
         <span class="font-semibold">Next image (will become current)</span>
-        <div
-          class="w-full aspect-video rounded-md border border-base-300 overflow-hidden"
-        >
+        <div class="w-full aspect-video rounded-md border border-base-300 overflow-hidden">
           <div
             class="w-full h-full bg-cover bg-center"
             :style="{ backgroundImage: `url('${nextImageSrc}')` }"
@@ -195,9 +189,9 @@ const stepExplanation = computed(() => {
     case 1:
       return 'Phase 1 setup: backCard now shows the next image. The flap is configured over the top+middle region. Flap front shows the top third of the current image; flap back uses the patchwork top band.'
     case 2:
-      return 'Phase 1 animation should be running: the flap flips down over the top+middle region. When the animation ends, the demo will configure Phase 2.'
+      return 'Phase 1 animation should be running: the flap flips down over the top+middle region. When the animation ends, Phase 2 will be configured.'
     case 3:
-      return 'Phase 2 is configured: the flap now targets the middle+bottom region. Flap front shows the patchwork middle band; flap back shows the middle band of the next image.'
+      return 'Phase 2 setup: flap moves to the middle+bottom region. Flap front shows the patchwork middle band (upside-down bottom of current); flap back shows the middle band of the next image.'
     case 4:
       return 'Phase 2 animation should be running over the middle+bottom region. When it finishes, the next image becomes the current image.'
     case 5:
@@ -270,7 +264,7 @@ const patchTopStyle = computed(() => ({
 }))
 
 const patchMiddleStyle = computed(() => ({
-  backgroundImage: `url("${hiddenImage.value}")`,
+  backgroundImage: `url("${visibleImage.value}")`,
   backgroundSize: '100% 300%',
   backgroundPosition: sliceToPosition('bottom'),
   backgroundRepeat: 'no-repeat',
@@ -297,7 +291,7 @@ const flapInnerClass = computed(() => {
   } else if (phase.value === 2) {
     classes.push('flip-flap-inner--hinge-top')
   }
-  if (isAnimating.value) {
+  if (phase.value !== 0) {
     classes.push('flip-flap-inner--animating')
   }
   return classes.join(' ')
@@ -397,10 +391,14 @@ function advanceStep() {
     case 4:
       break
     case 5:
-      resetDemo()
+      demoStep.value = 0
+      phase.value = 0
+      baseSrc.value = visibleImage.value
       break
     default:
-      resetDemo()
+      demoStep.value = 0
+      phase.value = 0
+      baseSrc.value = visibleImage.value
       break
   }
 }
@@ -486,7 +484,7 @@ function advanceStep() {
 }
 
 .flip-flap-inner--animating {
-  animation: flip-basic-fold 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
+  animation: flip-basic-fold 1.1s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
 }
 
 .flip-flap-face {

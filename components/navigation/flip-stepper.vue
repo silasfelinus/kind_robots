@@ -1,4 +1,4 @@
-<!-- /components/experiments/flip-demo.vue -->
+<!-- /components/experiments/flip-stepper.vue -->
 <template>
   <section
     class="relative w-full max-w-3xl mx-auto aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
@@ -6,14 +6,23 @@
     aria-live="polite"
     @click="advanceStep"
   >
+    <!-- backCard: what the rear card is currently showing -->
     <div class="flip-back-card" :style="backCardStyle" />
 
+    <!-- frontCard segments: just visual thirds of the currentImage -->
     <div class="flip-front-card">
-      <div class="flip-segment flip-segment-top" :style="segmentTopStyle" />
-      <div class="flip-segment flip-segment-middle" :style="segmentMiddleStyle" />
-      <div class="flip-segment flip-segment-bottom" :style="segmentBottomStyle" />
+      <div class="flip-segment flip-segment-top" :style="segmentTopStyle">
+        <span class="flip-label">Top segment</span>
+      </div>
+      <div class="flip-segment flip-segment-middle" :style="segmentMiddleStyle">
+        <span class="flip-label">Middle segment</span>
+      </div>
+      <div class="flip-segment flip-segment-bottom" :style="segmentBottomStyle">
+        <span class="flip-label">Bottom segment</span>
+      </div>
     </div>
 
+    <!-- flap: only visible when phase != 0 -->
     <div
       v-if="phase !== 0"
       class="flip-flap-wrapper"
@@ -25,20 +34,26 @@
         :key="animationKey"
         @animationend="onAnimationEnd"
       >
-        <div class="flip-flap-face" :style="flapFrontStyle" />
+        <div class="flip-flap-face" :style="flapFrontStyle">
+          <span class="flip-label flip-label-front">Flap front</span>
+        </div>
         <div
           class="flip-flap-face flip-flap-face--back"
           :style="flapBackStyle"
-        />
+        >
+          <span class="flip-label flip-label-back">Flap back</span>
+        </div>
       </div>
     </div>
 
+    <!-- step label -->
     <div
       class="absolute left-2 top-2 z-30 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
     >
       <span>{{ stepLabel }}</span>
     </div>
 
+    <!-- third markers -->
     <div
       v-if="phase !== 0"
       class="pointer-events-none absolute inset-x-0 top-1/3 h-px bg-black/30 z-40"
@@ -49,6 +64,7 @@
     />
   </section>
 
+  <!-- Debug panel: controls + explanation + image inspector -->
   <section class="mt-3 w-full max-w-3xl mx-auto px-2 pb-3">
     <div class="flex flex-wrap items-center gap-2 mb-2">
       <button class="btn btn-xs" @click.stop="resetDemo">
@@ -96,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/experiments/flip-demo.vue
+// /components/experiments/flip-stepper.vue
 import { ref, computed } from 'vue'
 
 type Slice = 'top' | 'middle' | 'bottom'
@@ -113,21 +129,21 @@ const baseSrc = ref(visibleImage.value)
 const isAnimating = ref(false)
 /**
  * phase:
- * 0 = no flap shown (idle / finished)
- * 1 = working with top+middle flap
- * 2 = working with middle+bottom flap
+ * 0 = no flap
+ * 1 = flap working over top+middle region
+ * 2 = flap working over middle+bottom region
  */
 const phase = ref<0 | 1 | 2>(0)
 const animationKey = ref(0)
 
 /**
  * demoStep:
- * 0 = Idle (everything reset)
- * 1 = Setup Phase 1 (top+middle configured, no animation)
- * 2 = Animate Phase 1 (top+middle flipping)
- * 3 = Phase 1 complete, setup Phase 2 available
- * 4 = Animate Phase 2 (middle+bottom flipping)
- * 5 = Finished (new image now current)
+ * 0 = idle
+ * 1 = setup phase 1
+ * 2 = animate phase 1
+ * 3 = setup phase 2
+ * 4 = animate phase 2
+ * 5 = finished
  */
 const demoStep = ref<DemoStep>(0)
 
@@ -141,15 +157,15 @@ const ariaLabel = computed(() => {
     case 0:
       return 'Idle flip demo. Click to step into phase 1 setup.'
     case 1:
-      return 'Phase 1 setup. Top+middle flap configured.'
+      return 'Phase 1 setup: flap configured over top+middle.'
     case 2:
-      return 'Phase 1 animation running over top+middle segments.'
+      return 'Phase 1 animation: flap flipping over top+middle.'
     case 3:
-      return 'Phase 1 complete. Ready to configure phase 2.'
+      return 'Phase 2 setup: flap configured over middle+bottom.'
     case 4:
-      return 'Phase 2 animation running over middle+bottom segments.'
+      return 'Phase 2 animation: flap flipping over middle+bottom.'
     case 5:
-      return 'Finished. New image is fully visible.'
+      return 'Finished: new image now current.'
     default:
       return 'Flip demo state machine.'
   }
@@ -177,17 +193,17 @@ const stepLabel = computed(() => {
 const stepExplanation = computed(() => {
   switch (demoStep.value) {
     case 0:
-      return 'Idle state. frontCard and backCard both effectively show the current image. Click "Next step" or the card to set up the first flip (top+middle).'
+      return 'Idle. All three segments show the current image. Rear card and next image are set but not visible. Click Next step or the card to configure the first flip.'
     case 1:
-      return 'Phase 1 is configured: backCard now shows the next image; the flap front shows the top slice of the current image; the flap back shows the top slice of the intermediate (old logo). No animation yet.'
+      return 'Phase 1 setup: backCard now shows the next image. The flap is configured to work over the top+middle region, with its front showing the top slice of the current image, and its back showing the top slice of the intermediate (old_logo). No animation yet.'
     case 2:
-      return 'Phase 1 animation should be running: the flap flips top+middle, revealing the intermediate image on its underside while backCard shows the next image behind it. When the animation ends, the demo will move to Step 3.'
+      return 'Phase 1 animation should be running: the flap flips down over the top+middle region. You should see the flap front and back alternate as it moves. When the animation ends, the demo advances to Phase 2 setup.'
     case 3:
-      return 'Phase 1 is complete. We now prepare Phase 2: the flap will work over the middle+bottom slices, front showing intermediate, back showing the next image, to finish the transition.'
+      return 'Phase 1 is complete. Phase 2 is now configured: the flap moves to the middle+bottom region, with the front showing intermediate (old_logo) and the back showing the next image. No animation yet.'
     case 4:
-      return 'Phase 2 animation should be running: the flap flips middle+bottom so the next image replaces the remaining part of the current image. When the animation ends, the new image becomes the current image.'
+      return 'Phase 2 animation should be running: the flap flips over the middle+bottom region. When it finishes, the next image becomes the current image.'
     case 5:
-      return 'Finished. The visible card now shows the new image as the current image. Clicking "Next step" will reset back to Step 0 so you can run the sequence again.'
+      return 'Finished. The visible card now shows the new image as the current image. Next image has swapped. Click Next step to reset back to idle.'
     default:
       return 'Unknown demo state.'
   }
@@ -195,7 +211,7 @@ const stepExplanation = computed(() => {
 
 const backCardStyle = computed(() => ({
   backgroundImage: `url("${baseSrc.value}")`,
-  backgroundSize: '100% 100%',
+  backgroundSize: 'cover',
   backgroundPosition: 'center center',
   backgroundRepeat: 'no-repeat',
 }))
@@ -206,37 +222,45 @@ function sliceToPosition(slice: Slice): string {
   return 'center bottom'
 }
 
+/**
+ * IMPORTANT: For debugging, all three segments use backgroundSize: 'cover'.
+ * That means they are NOT mathematically perfect 1/3 slices; they are
+ * three views of the same image with different vertical focus, so there is
+ * no weird 300% zoom. This is just to make the layout visually sane while we
+ * debug the state machine.
+ */
+
 const segmentTopStyle = computed(() => ({
   backgroundImage: `url("${visibleImage.value}")`,
-  backgroundSize: '100% 300%',
+  backgroundSize: 'cover',
   backgroundPosition: sliceToPosition('top'),
   backgroundRepeat: 'no-repeat',
 }))
 
 const segmentMiddleStyle = computed(() => ({
   backgroundImage: `url("${visibleImage.value}")`,
-  backgroundSize: '100% 300%',
+  backgroundSize: 'cover',
   backgroundPosition: sliceToPosition('middle'),
   backgroundRepeat: 'no-repeat',
 }))
 
 const segmentBottomStyle = computed(() => ({
   backgroundImage: `url("${visibleImage.value}")`,
-  backgroundSize: '100% 300%',
+  backgroundSize: 'cover',
   backgroundPosition: sliceToPosition('bottom'),
   backgroundRepeat: 'no-repeat',
 }))
 
 const flapFrontStyle = computed(() => ({
   backgroundImage: `url("${flapFrontSrc.value}")`,
-  backgroundSize: '100% 300%',
+  backgroundSize: 'cover',
   backgroundPosition: sliceToPosition(flapFrontSlice.value),
   backgroundRepeat: 'no-repeat',
 }))
 
 const flapBackStyle = computed(() => ({
   backgroundImage: `url("${flapBackSrc.value}")`,
-  backgroundSize: '100% 300%',
+  backgroundSize: 'cover',
   backgroundPosition: sliceToPosition(flapBackSlice.value),
   backgroundRepeat: 'no-repeat',
 }))
@@ -388,6 +412,9 @@ function advanceStep() {
   left: 0;
   right: 0;
   background-repeat: no-repeat;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .flip-segment-top {
@@ -447,10 +474,31 @@ function advanceStep() {
   inset: 0;
   backface-visibility: hidden;
   background-repeat: no-repeat;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .flip-flap-face--back {
   transform: rotateX(180deg);
+}
+
+.flip-label {
+  margin: 4px 4px 0 4px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 9px;
+  line-height: 1;
+  background-color: rgba(0, 0, 0, 0.35);
+  color: white;
+}
+
+.flip-label-front {
+  background-color: rgba(0, 128, 0, 0.6);
+}
+
+.flip-label-back {
+  background-color: rgba(128, 0, 128, 0.6);
 }
 
 @keyframes flip-basic-fold {

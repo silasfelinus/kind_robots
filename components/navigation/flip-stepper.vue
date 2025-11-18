@@ -1,409 +1,467 @@
-// /components/experiments/flip-stepper.vue
+<!-- /components/experiments/flip-demo.vue -->
 <template>
-  <section class="relative w-full max-w-4xl mx-auto">
+  <section
+    class="relative w-full max-w-3xl mx-auto aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
+    :aria-label="ariaLabel"
+    aria-live="polite"
+    @click="advanceStep"
+  >
+    <div class="flip-back-card" :style="backCardStyle" />
+
+    <div class="flip-front-card">
+      <div class="flip-segment flip-segment-top" :style="segmentTopStyle" />
+      <div class="flip-segment flip-segment-middle" :style="segmentMiddleStyle" />
+      <div class="flip-segment flip-segment-bottom" :style="segmentBottomStyle" />
+    </div>
+
     <div
-      class="relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl"
+      v-if="phase !== 0"
+      class="flip-flap-wrapper"
+      :class="flapWrapperClass"
     >
-      <div class="absolute inset-0 z-0">
-        <img
-          :src="frontPanelSrc"
-          alt=""
-          class="w-full h-full object-cover select-none pointer-events-none"
-          draggable="false"
-        />
-      </div>
-
-      <FlipAnimation v-if="showFlaps" />
-
       <div
-        class="pointer-events-none absolute inset-x-0 top-1/3 h-px bg-black/25"
-      ></div>
-      <div
-        class="pointer-events-none absolute inset-x-0 top-2/3 h-px bg-black/15"
-      ></div>
-
-      <div
-        class="absolute left-2 top-2 z-20 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
+        class="flip-flap-inner"
+        :class="flapInnerClass"
+        :key="animationKey"
+        @animationend="onAnimationEnd"
       >
-        Step {{ currentStepNumber }} of {{ totalSteps }} •
-        {{ currentStepLabel }}
+        <div class="flip-flap-face" :style="flapFrontStyle" />
+        <div
+          class="flip-flap-face flip-flap-face--back"
+          :style="flapBackStyle"
+        />
       </div>
     </div>
 
     <div
-      class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-3 flex flex-col gap-3"
+      class="absolute left-2 top-2 z-30 px-2 py-1 rounded-md bg-base-300/85 text-[11px] font-semibold"
     >
-      <div class="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          class="btn btn-xs sm:btn-sm btn-primary rounded-full"
-          @click="runNextStep"
-        >
-          {{ nextButtonLabel }}
-        </button>
-        <button
-          type="button"
-          class="btn btn-xs sm:btn-sm btn-ghost rounded-full"
-          @click="hardReset"
-        >
-          Hard reset
-        </button>
-        <span class="text-[11px] opacity-70">
-          Current image:
-          <span class="font-semibold">{{ currentImage }}</span> • Next image:
-          <span class="font-semibold">{{ otherImage }}</span>
-        </span>
+      <span>{{ stepLabel }}</span>
+    </div>
+
+    <div
+      v-if="phase !== 0"
+      class="pointer-events-none absolute inset-x-0 top-1/3 h-px bg-black/30 z-40"
+    />
+    <div
+      v-if="phase !== 0"
+      class="pointer-events-none absolute inset-x-0 top-2/3 h-px bg-black/30 z-40"
+    />
+  </section>
+
+  <section class="mt-3 w-full max-w-3xl mx-auto px-2 pb-3">
+    <div class="flex flex-wrap items-center gap-2 mb-2">
+      <button class="btn btn-xs" @click.stop="resetDemo">
+        Reset
+      </button>
+      <button class="btn btn-xs" @click.stop="advanceStep">
+        Next step
+      </button>
+      <span class="text-[11px] opacity-80">
+        Current step: {{ demoStep }} • Phase: {{ phase }}
+      </span>
+    </div>
+
+    <p class="text-[11px] leading-snug mb-3">
+      {{ stepExplanation }}
+    </p>
+
+    <div class="grid grid-cols-3 gap-3 text-[11px]">
+      <div class="flex flex-col gap-1">
+        <span class="font-semibold">Current image (frontCard at rest)</span>
+        <img
+          :src="currentImageSrc"
+          alt="Current image"
+          class="w-full aspect-video object-cover rounded-md border border-base-300"
+        />
       </div>
-
-      <div class="text-[12px] leading-snug bg-base-300/60 rounded-xl px-3 py-2">
-        <p class="font-semibold mb-1">What just happened:</p>
-        <p>{{ currentExplanation }}</p>
+      <div class="flex flex-col gap-1">
+        <span class="font-semibold">Rear image (backCard)</span>
+        <img
+          :src="rearImageSrc"
+          alt="Rear image"
+          class="w-full aspect-video object-cover rounded-md border border-base-300"
+        />
       </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px]">
-        <div
-          class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
-        >
-          <div class="flex items-center justify-between">
-            <span class="opacity-80">Main panel • front face</span>
-            <span class="px-1.5 py-0.5 rounded bg-secondary/20"> front </span>
-          </div>
-          <div
-            class="aspect-[4/3] rounded-lg overflow-hidden border border-base-300/70"
-          >
-            <div class="w-full h-full" :style="frontPreviewStyle"></div>
-          </div>
-          <p class="opacity-70 truncate">
-            {{ frontPanelSrc }}
-          </p>
-        </div>
-
-        <div
-          class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
-        >
-          <div class="flex items-center justify-between">
-            <span class="opacity-80">Main panel • reverse collage</span>
-            <span class="px-1.5 py-0.5 rounded bg-accent/20">
-              logos + special strip
-            </span>
-          </div>
-          <div
-            class="aspect-[4/3] rounded-lg overflow-hidden border border-base-300/70 grid grid-rows-3"
-          >
-            <div
-              v-for="row in backRowStyles"
-              :key="row.id"
-              class="w-full h-full"
-              :style="row.style"
-            ></div>
-          </div>
-          <ul class="space-y-0.5 opacity-75">
-            <li v-for="row in backRowStyles" :key="row.id + '-label'">
-              {{ row.label }}
-            </li>
-          </ul>
-        </div>
-
-        <div
-          class="rounded-xl border border-base-300 bg-base-100/60 p-2 space-y-1.5"
-        >
-          <div class="flex items-center justify-between">
-            <span class="opacity-80">Rear panel</span>
-            <span class="px-1.5 py-0.5 rounded bg-primary/20">
-              background
-            </span>
-          </div>
-          <div
-            class="aspect-[4/3] rounded-lg overflow-hidden border border-base-300/70"
-          >
-            <div class="w-full h-full" :style="rearPreviewStyle"></div>
-          </div>
-          <p class="opacity-70 truncate">
-            {{ hasRearPanel ? backgroundPanelSrc : 'none (no rear panel yet)' }}
-          </p>
-        </div>
+      <div class="flex flex-col gap-1">
+        <span class="font-semibold">Next image (will become current)</span>
+        <img
+          :src="nextImageSrc"
+          alt="Next image"
+          class="w-full aspect-video object-cover rounded-md border border-base-300"
+        />
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-// /components/experiments/flip-stepper.vue
+// /components/experiments/flip-demo.vue
 import { ref, computed } from 'vue'
-import FlipAnimation from '@/components/navigation/flip-animation.vue'
-import { useFlipStore } from '@/stores/flipStore'
 
-const flipStore = useFlipStore()
+type Slice = 'top' | 'middle' | 'bottom'
+type DemoStep = 0 | 1 | 2 | 3 | 4 | 5
 
-const image1 = ref<string>('/images/backtree.webp')
-const image2 = ref<string>('/images/botcafe.webp')
-const logoSrcA = ref<string>('/images/old_logo.webp')
-const logoSrcB = ref<string>('/images/chest1.webp')
+const image1 = ref('/images/backtree.webp')
+const image2 = ref('/images/botcafe.webp')
+const intermediateImage = ref('/images/old_logo.webp')
 
-const currentImage = ref<string>(image1.value)
-const otherImage = ref<string>(image2.value)
+const visibleImage = ref(image1.value)
+const hiddenImage = ref(image2.value)
+const baseSrc = ref(visibleImage.value)
 
-const frontPanelSrc = ref<string>(currentImage.value)
-const backgroundPanelSrc = ref<string>('')
-const hasRearPanel = ref(false)
-const showFlaps = ref(false)
+const isAnimating = ref(false)
+/**
+ * phase:
+ * 0 = no flap shown (idle / finished)
+ * 1 = working with top+middle flap
+ * 2 = working with middle+bottom flap
+ */
+const phase = ref<0 | 1 | 2>(0)
+const animationKey = ref(0)
 
-type StepKind = 'prepare' | 'flipSegments' | 'finalize'
+/**
+ * demoStep:
+ * 0 = Idle (everything reset)
+ * 1 = Setup Phase 1 (top+middle configured, no animation)
+ * 2 = Animate Phase 1 (top+middle flipping)
+ * 3 = Phase 1 complete, setup Phase 2 available
+ * 4 = Animate Phase 2 (middle+bottom flipping)
+ * 5 = Finished (new image now current)
+ */
+const demoStep = ref<DemoStep>(0)
 
-interface Step {
-  id: number
-  kind: StepKind
-  label: string
-  description: string
-  segments?: number[]
+const flapFrontSrc = ref(visibleImage.value)
+const flapBackSrc = ref(hiddenImage.value)
+const flapFrontSlice = ref<Slice>('top')
+const flapBackSlice = ref<Slice>('top')
+
+const ariaLabel = computed(() => {
+  switch (demoStep.value) {
+    case 0:
+      return 'Idle flip demo. Click to step into phase 1 setup.'
+    case 1:
+      return 'Phase 1 setup. Top+middle flap configured.'
+    case 2:
+      return 'Phase 1 animation running over top+middle segments.'
+    case 3:
+      return 'Phase 1 complete. Ready to configure phase 2.'
+    case 4:
+      return 'Phase 2 animation running over middle+bottom segments.'
+    case 5:
+      return 'Finished. New image is fully visible.'
+    default:
+      return 'Flip demo state machine.'
+  }
+})
+
+const stepLabel = computed(() => {
+  switch (demoStep.value) {
+    case 0:
+      return 'Step 0 • Idle'
+    case 1:
+      return 'Step 1 • Setup Phase 1 (top+middle)'
+    case 2:
+      return 'Step 2 • Animate Phase 1'
+    case 3:
+      return 'Step 3 • Setup Phase 2 (middle+bottom)'
+    case 4:
+      return 'Step 4 • Animate Phase 2'
+    case 5:
+      return 'Step 5 • Finished (new image)'
+    default:
+      return 'Unknown step'
+  }
+})
+
+const stepExplanation = computed(() => {
+  switch (demoStep.value) {
+    case 0:
+      return 'Idle state. frontCard and backCard both effectively show the current image. Click "Next step" or the card to set up the first flip (top+middle).'
+    case 1:
+      return 'Phase 1 is configured: backCard now shows the next image; the flap front shows the top slice of the current image; the flap back shows the top slice of the intermediate (old logo). No animation yet.'
+    case 2:
+      return 'Phase 1 animation should be running: the flap flips top+middle, revealing the intermediate image on its underside while backCard shows the next image behind it. When the animation ends, the demo will move to Step 3.'
+    case 3:
+      return 'Phase 1 is complete. We now prepare Phase 2: the flap will work over the middle+bottom slices, front showing intermediate, back showing the next image, to finish the transition.'
+    case 4:
+      return 'Phase 2 animation should be running: the flap flips middle+bottom so the next image replaces the remaining part of the current image. When the animation ends, the new image becomes the current image.'
+    case 5:
+      return 'Finished. The visible card now shows the new image as the current image. Clicking "Next step" will reset back to Step 0 so you can run the sequence again.'
+    default:
+      return 'Unknown demo state.'
+  }
+})
+
+const backCardStyle = computed(() => ({
+  backgroundImage: `url("${baseSrc.value}")`,
+  backgroundSize: '100% 100%',
+  backgroundPosition: 'center center',
+  backgroundRepeat: 'no-repeat',
+}))
+
+function sliceToPosition(slice: Slice): string {
+  if (slice === 'top') return 'center top'
+  if (slice === 'middle') return 'center center'
+  return 'center bottom'
 }
 
-const steps: Step[] = [
-  {
-    id: 0,
-    kind: 'prepare',
-    label: 'Build rear panel and 2×6 reverse collage',
-    description:
-      'We keep the current image on the front, quietly swap the rear panel to the next image, and build a 2×6 reverse collage on the back of the flaps: alternating logo rows, then a special bottom strip sampled from the new image.',
-  },
-  {
-    id: 1,
-    kind: 'flipSegments',
-    segments: [0, 1],
-    label: 'Drop the top segments',
-    description:
-      'The upper segments flip down first, like the top rows of a split-flap display. They briefly show logo panels on their backs, then reveal more of the new image underneath.',
-  },
-  {
-    id: 2,
-    kind: 'flipSegments',
-    segments: [2, 3, 4],
-    label: 'Drop the remaining segments',
-    description:
-      'The lower segments follow in sequence until the special bottom strip flips, completing the reveal of the new image across the whole panel.',
-  },
-  {
-    id: 3,
-    kind: 'finalize',
-    label: 'Commit to the new image',
-    description:
-      'We remove the flaps, promote the rear panel to be the new front, clear the rear, and reset everything so the next click can run the effect in reverse.',
-  },
-]
+const segmentTopStyle = computed(() => ({
+  backgroundImage: `url("${visibleImage.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: sliceToPosition('top'),
+  backgroundRepeat: 'no-repeat',
+}))
 
-const nextStepIndex = ref<number>(0)
-const currentStepLabel = ref<string>('Idle')
-const currentExplanation = ref<string>(
-  'No step has run yet. Press “Start sequence” to walk through the flip animation.',
-)
-const currentStepNumber = ref<number>(0)
+const segmentMiddleStyle = computed(() => ({
+  backgroundImage: `url("${visibleImage.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: sliceToPosition('middle'),
+  backgroundRepeat: 'no-repeat',
+}))
 
-const totalSteps = computed(() => steps.length)
+const segmentBottomStyle = computed(() => ({
+  backgroundImage: `url("${visibleImage.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: sliceToPosition('bottom'),
+  backgroundRepeat: 'no-repeat',
+}))
 
-const nextButtonLabel = computed(() =>
-  nextStepIndex.value === 0 && currentStepNumber.value === 0
-    ? 'Start sequence'
-    : nextStepIndex.value === 0
-      ? 'Restart sequence'
-      : 'Next step',
-)
+const flapFrontStyle = computed(() => ({
+  backgroundImage: `url("${flapFrontSrc.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: sliceToPosition(flapFrontSlice.value),
+  backgroundRepeat: 'no-repeat',
+}))
 
-function prepareTileStyles(fromSrc: string, toSrc: string) {
-  if (!flipStore.isPrepared) {
-    flipStore.buildTiles()
+const flapBackStyle = computed(() => ({
+  backgroundImage: `url("${flapBackSrc.value}")`,
+  backgroundSize: '100% 300%',
+  backgroundPosition: sliceToPosition(flapBackSlice.value),
+  backgroundRepeat: 'no-repeat',
+}))
+
+const flapWrapperClass = computed(() => {
+  if (phase.value === 1) {
+    return 'flip-flap-wrapper--top-middle'
   }
-
-  const cols = flipStore.config.cols
-  const segRows = flipStore.segmentRows
-  const tiles = flipStore.tiles
-
-  for (let index = 0; index < tiles.length; index += 1) {
-    const tile = tiles[index]
-    const segRow = Math.floor(index / cols)
-
-    tile.style['--flip-image-front'] = `url("${fromSrc}")`
-
-    let backImage: string | null = null
-
-    if (segRow === 0) {
-      backImage = logoSrcA.value
-    } else if (segRow === 1) {
-      backImage = logoSrcB.value
-    } else if (segRow === 2) {
-      backImage = logoSrcA.value
-    } else if (segRow === 3) {
-      backImage = logoSrcB.value
-    } else if (segRow === segRows - 1) {
-      backImage = toSrc
-    } else {
-      backImage = null
-    }
-
-    if (backImage) {
-      tile.style['--flip-image-back'] = `url("${backImage}")`
-      tile.style['--flip-back-has-image'] = '1'
-    } else {
-      delete tile.style['--flip-image-back']
-      tile.style['--flip-back-has-image'] = '0'
-    }
+  if (phase.value === 2) {
+    return 'flip-flap-wrapper--middle-bottom'
   }
+  return ''
+})
+
+const flapInnerClass = computed(() => {
+  const classes: string[] = []
+  if (phase.value === 1) {
+    classes.push('flip-flap-inner--hinge-bottom')
+  } else if (phase.value === 2) {
+    classes.push('flip-flap-inner--hinge-top')
+  }
+  if (isAnimating.value) {
+    classes.push('flip-flap-inner--animating')
+  }
+  return classes.join(' ')
+})
+
+const currentImageSrc = computed(() => visibleImage.value)
+const rearImageSrc = computed(() => baseSrc.value)
+const nextImageSrc = computed(() => hiddenImage.value)
+
+function resetDemo() {
+  demoStep.value = 0
+  phase.value = 0
+  isAnimating.value = false
+
+  visibleImage.value = image1.value
+  hiddenImage.value = image2.value
+  baseSrc.value = visibleImage.value
+
+  flapFrontSrc.value = visibleImage.value
+  flapBackSrc.value = hiddenImage.value
+  flapFrontSlice.value = 'top'
+  flapBackSlice.value = 'top'
+
+  animationKey.value += 1
 }
 
-function clearFlips() {
-  if (!flipStore.isPrepared) return
-  const count = flipStore.tileCount
-  const next: boolean[] = []
-  for (let i = 0; i < count; i += 1) {
-    next.push(false)
-  }
-  flipStore.flipped = next
+function setupPhase1() {
+  phase.value = 1
+  baseSrc.value = hiddenImage.value
+  flapFrontSrc.value = visibleImage.value
+  flapFrontSlice.value = 'top'
+  flapBackSrc.value = intermediateImage.value
+  flapBackSlice.value = 'top'
+  isAnimating.value = false
+  demoStep.value = 1
 }
 
-function applyStep(step: Step) {
-  if (step.kind === 'prepare') {
-    if (!flipStore.isPrepared) {
-      flipStore.buildTiles()
-    }
+function runPhase1Animation() {
+  if (demoStep.value !== 1 || isAnimating.value) return
+  isAnimating.value = true
+  animationKey.value += 1
+  demoStep.value = 2
+}
 
-    backgroundPanelSrc.value = otherImage.value
-    hasRearPanel.value = true
+function setupPhase2() {
+  phase.value = 2
+  flapFrontSrc.value = intermediateImage.value
+  flapFrontSlice.value = 'middle'
+  flapBackSrc.value = hiddenImage.value
+  flapBackSlice.value = 'middle'
+  isAnimating.value = false
+  demoStep.value = 3
+}
 
-    prepareTileStyles(currentImage.value, otherImage.value)
+function runPhase2Animation() {
+  if (demoStep.value !== 3 || isAnimating.value) return
+  isAnimating.value = true
+  animationKey.value += 1
+  demoStep.value = 4
+}
 
-    clearFlips()
-    showFlaps.value = true
+function onAnimationEnd() {
+  isAnimating.value = false
 
-    currentStepLabel.value = step.label
-    currentExplanation.value = step.description
+  if (demoStep.value === 2) {
+    demoStep.value = 3
     return
   }
 
-  if (step.kind === 'flipSegments' && step.segments && step.segments.length) {
-    if (!flipStore.isPrepared) {
-      flipStore.buildTiles()
-    }
+  if (demoStep.value === 4) {
+    const fromSrc = visibleImage.value
+    const toSrc = hiddenImage.value
 
-    showFlaps.value = true
+    visibleImage.value = toSrc
+    hiddenImage.value = fromSrc
+    baseSrc.value = visibleImage.value
 
-    const cols = flipStore.config.cols
-
-    step.segments.forEach((segRow) => {
-      for (let col = 0; col < cols; col += 1) {
-        const index = segRow * cols + col
-        if (flipStore.flipped[index] !== undefined) {
-          flipStore.flipped[index] = true
-        }
-      }
-    })
-  } else if (step.kind === 'finalize') {
-    const temp = currentImage.value
-    currentImage.value = otherImage.value
-    otherImage.value = temp
-
-    frontPanelSrc.value = currentImage.value
-    backgroundPanelSrc.value = ''
-    hasRearPanel.value = false
-    showFlaps.value = false
-
-    clearFlips()
-  }
-
-  currentStepLabel.value = step.label
-  currentExplanation.value = step.description
-}
-
-function runNextStep() {
-  const step = steps[nextStepIndex.value]
-  applyStep(step)
-
-  currentStepNumber.value = step.id + 1
-
-  nextStepIndex.value += 1
-  if (nextStepIndex.value >= steps.length) {
-    nextStepIndex.value = 0
+    phase.value = 0
+    demoStep.value = 5
   }
 }
 
-function hardReset() {
-  currentImage.value = image1.value
-  otherImage.value = image2.value
-  frontPanelSrc.value = currentImage.value
-  backgroundPanelSrc.value = ''
-  hasRearPanel.value = false
-  showFlaps.value = false
+function advanceStep() {
+  if (isAnimating.value) return
 
-  nextStepIndex.value = 0
-  currentStepNumber.value = 0
-  currentStepLabel.value = 'Idle'
-  currentExplanation.value =
-    'Hard reset: the panel is back to the first image with no rear panel and no flaps active.'
-
-  clearFlips()
+  switch (demoStep.value) {
+    case 0:
+      setupPhase1()
+      break
+    case 1:
+      runPhase1Animation()
+      break
+    case 2:
+      break
+    case 3:
+      setupPhase2()
+      break
+    case 4:
+      runPhase2Animation()
+      break
+    case 5:
+      resetDemo()
+      break
+    default:
+      resetDemo()
+      break
+  }
 }
-
-interface BackRowStyle {
-  id: string
-  label: string
-  style: Record<string, string>
-}
-
-const frontPreviewStyle = computed<Record<string, string>>(() => ({
-  backgroundImage: `url("${frontPanelSrc.value}")`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-}))
-
-const rearPreviewStyle = computed<Record<string, string>>(() =>
-  hasRearPanel.value
-    ? {
-        backgroundImage: `url("${backgroundPanelSrc.value}")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }
-    : {
-        backgroundImage:
-          'repeating-linear-gradient(45deg, rgba(0,0,0,0.08), rgba(0,0,0,0.08) 4px, transparent 4px, transparent 8px)',
-        backgroundSize: '16px 16px',
-        backgroundPosition: 'center',
-      },
-)
-
-const backRowStyles = computed<BackRowStyle[]>(() => [
-  {
-    id: 'back-top',
-    label: 'Upper bands: upside-down logos and chest panels',
-    style: {
-      backgroundImage: `url("${logoSrcA.value}"), url("${logoSrcB.value}")`,
-      backgroundSize: '100% 50%, 100% 50%',
-      backgroundPosition: 'top center, bottom center',
-      backgroundRepeat: 'no-repeat, no-repeat',
-      transform: 'scaleY(-1)',
-      backgroundColor: 'transparent',
-    },
-  },
-  {
-    id: 'back-middle',
-    label: 'Middle: alternating logo / chest segments',
-    style: {
-      backgroundImage: `url("${logoSrcA.value}"), url("${logoSrcB.value}")`,
-      backgroundSize: '50% 100%, 50% 100%',
-      backgroundPosition: 'left center, right center',
-      backgroundRepeat: 'no-repeat, no-repeat',
-      transform: 'scaleY(-1)',
-      backgroundColor: 'transparent',
-    },
-  },
-  {
-    id: 'back-bottom',
-    label: 'Bottom: special strip from the next image (final reveal)',
-    style: {
-      backgroundImage: `url("${otherImage.value}")`,
-      backgroundSize: '100% 300%',
-      backgroundPosition: 'center bottom',
-      backgroundRepeat: 'no-repeat',
-      transform: 'scaleY(-1)',
-      backgroundColor: 'transparent',
-    },
-  },
-])
 </script>
+
+<style scoped>
+.flip-back-card {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+.flip-front-card {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+.flip-segment {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background-repeat: no-repeat;
+}
+
+.flip-segment-top {
+  top: 0;
+  height: 33.3333%;
+}
+
+.flip-segment-middle {
+  top: 33.3333%;
+  height: 33.3333%;
+}
+
+.flip-segment-bottom {
+  top: 66.6667%;
+  bottom: 0;
+}
+
+.flip-flap-wrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  transform-style: preserve-3d;
+  perspective: 1600px;
+  z-index: 30;
+}
+
+.flip-flap-wrapper--top-middle {
+  top: 0;
+  height: 66.6667%;
+}
+
+.flip-flap-wrapper--middle-bottom {
+  top: 33.3333%;
+  height: 66.6667%;
+}
+
+.flip-flap-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.flip-flap-inner--hinge-bottom {
+  transform-origin: 50% 100%;
+}
+
+.flip-flap-inner--hinge-top {
+  transform-origin: 50% 0%;
+}
+
+.flip-flap-inner--animating {
+  animation: flip-basic-fold 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01) forwards;
+}
+
+.flip-flap-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  background-repeat: no-repeat;
+}
+
+.flip-flap-face--back {
+  transform: rotateX(180deg);
+}
+
+@keyframes flip-basic-fold {
+  0% {
+    transform: rotateX(0deg);
+  }
+  60% {
+    transform: rotateX(-210deg);
+  }
+  100% {
+    transform: rotateX(-180deg);
+  }
+}
+</style>

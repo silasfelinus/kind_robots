@@ -126,7 +126,7 @@ type DemoStep = 0 | 1 | 2 | 3 | 4 | 5
 
 const image1 = ref('/images/backtree.webp')
 const image2 = ref('/images/botcafe.webp')
-const intermediateImage = ref('/images/old_logo.webp')
+const intermediateImage = ref('/images/logo_old.webp')
 
 const visibleImage = ref(image1.value)
 const hiddenImage = ref(image2.value)
@@ -195,7 +195,7 @@ const stepExplanation = computed(() => {
     case 4:
       return 'Phase 2 animation should be running over the middle+bottom region. When it finishes, the next image becomes the current image.'
     case 5:
-      return 'Finished. The card now shows the new image as the current image with no seam. Next step will reset back to idle.'
+      return 'Finished. The card now shows the new image as the current image with no seam. Next step will reset back to idle while keeping this as current.'
     default:
       return 'Unknown demo state.'
   }
@@ -259,7 +259,7 @@ const flapBackStyle = computed(() => ({
 const patchTopStyle = computed(() => ({
   backgroundImage: `url("${intermediateImage.value}")`,
   backgroundSize: '100% 300%',
-  backgroundPosition: sliceToPosition('bottom'),
+  backgroundPosition: sliceToPosition('top'),
   backgroundRepeat: 'no-repeat',
 }))
 
@@ -507,8 +507,8 @@ function advanceStep() {
   border-radius: 4px;
   font-size: 9px;
   line-height: 1;
-  background-color: rgba(0, 0, 0, 0.35);
   color: white;
+  background-color: rgba(0, 0, 0, 0.35);
 }
 
 .flip-label-front {
@@ -521,6 +521,8 @@ function advanceStep() {
 
 .patch-row {
   background-repeat: no-repeat;
+  transform: scaleY(-1);
+  transform-origin: center;
 }
 
 @keyframes flip-basic-fold {

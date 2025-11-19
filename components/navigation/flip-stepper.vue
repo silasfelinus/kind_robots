@@ -58,6 +58,50 @@
       <span v-else-if="phase === 2"> Phase 2 • bottom 2/3 </span>
       <span v-else> Finishing… </span>
     </div>
+
+    <div
+      class="pointer-events-none absolute inset-x-2 bottom-2 z-50 flex flex-col gap-1 rounded-md bg-base-300/85 px-2 py-1 text-[10px] leading-tight"
+    >
+      <div class="flex gap-1">
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold mb-0.5 truncate">
+            Base
+          </div>
+          <div
+            class="h-6 rounded-[4px] border border-base-100"
+            :style="miniBaseStyle"
+          />
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold mb-0.5 truncate">
+            Flap front
+          </div>
+          <div
+            class="grid grid-cols-2 h-6 gap-[1px] rounded-[4px] overflow-hidden border border-base-100"
+          >
+            <div :style="miniFrontUpperStyle" />
+            <div :style="miniFrontLowerStyle" />
+          </div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold mb-0.5 truncate">
+            Flap back
+          </div>
+          <div
+            class="grid grid-cols-2 h-6 gap-[1px] rounded-[4px] overflow-hidden border border-base-100"
+          >
+            <div :style="miniBackUpperStyle" />
+            <div :style="miniBackLowerStyle" />
+          </div>
+        </div>
+      </div>
+
+      <p class="mt-0.5">
+        {{ stepExplanation }}
+      </p>
+    </div>
   </section>
 </template>
 
@@ -74,12 +118,6 @@ const patchLogo = ref('/images/logo_old.webp')
 const visibleImage = ref(image1.value)
 const hiddenImage = ref(image2.value)
 
-/**
- * phase:
- * 0 = idle (full visibleImage, no seam)
- * 1 = flap over top 2/3 (slices 1+2)
- * 2 = flap over bottom 2/3 (slices 2+3)
- */
 const phase = ref<0 | 1 | 2>(0)
 const isAnimating = ref(false)
 const animationKey = ref(0)
@@ -95,6 +133,10 @@ const backUpperSlice = ref<Slice>('top')
 
 const backLowerSrc = ref(hiddenImage.value)
 const backLowerSlice = ref<Slice>('middle')
+
+const stepExplanation = ref(
+  'Ready: click to fold the top two-thirds over using the patch logo.',
+)
 
 const ariaLabel = computed(() => {
   if (!isAnimating.value && phase.value === 0) {
@@ -139,6 +181,15 @@ function makePartStyle(src: string, slice: Slice, isLogo = false) {
   }
 }
 
+function makePreviewStyle(src: string) {
+  return {
+    backgroundImage: `url("${src}")`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center center',
+    backgroundRepeat: 'no-repeat',
+  }
+}
+
 const frontUpperStyle = computed(() =>
   makePartStyle(frontUpperSrc.value, frontUpperSlice.value),
 )
@@ -171,10 +222,30 @@ const flapInnerClass = computed(() => {
   return ''
 })
 
+const miniBaseStyle = computed(() => makePreviewStyle(visibleImage.value))
+const miniFrontUpperStyle = computed(() =>
+  makePreviewStyle(frontUpperSrc.value),
+)
+const miniFrontLowerStyle = computed(() =>
+  makePreviewStyle(frontLowerSrc.value),
+)
+const miniBackUpperStyle = computed(() => makePreviewStyle(backUpperSrc.value))
+const miniBackLowerStyle = computed(() => makePreviewStyle(backLowerSrc.value))
+
 function handleClick() {
   if (isAnimating.value) return
+
   if (phase.value === 0) {
+    stepExplanation.value =
+      'Step 1: Folding the top two-thirds over. Front shows current image; back uses the logo and next image.'
     startPhase1()
+    return
+  }
+
+  if (phase.value === 1) {
+    stepExplanation.value =
+      'Step 2: Folding the bottom two-thirds over. Logo covers the middle and bottom while the next image waits behind.'
+    startPhase2()
   }
 }
 
@@ -220,7 +291,8 @@ function startPhase2() {
 function onAnimationEnd() {
   if (phase.value === 1 && isAnimating.value) {
     isAnimating.value = false
-    startPhase2()
+    stepExplanation.value =
+      'Phase 1 complete: top two-thirds have flipped. Logo is now facing forward over the top and middle thirds.'
     return
   }
 
@@ -234,6 +306,8 @@ function onAnimationEnd() {
     hiddenImage.value = oldVisible
 
     phase.value = 0
+    stepExplanation.value =
+      'Flip completed: the next image is now the base. Ready for another two-step run.'
   }
 }
 </script>

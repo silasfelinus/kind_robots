@@ -83,7 +83,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
   }
 
   async function selectCharacter(id: number) {
-    const found = characters.value.find((c) => c.id === id)
+    const found = characters.value.find((c: { id: number }) => c.id === id)
     if (!found) return
     selectedCharacter.value = found
     characterForm.value = { ...found }
@@ -152,7 +152,9 @@ export const useCharacterStore = defineStore('characterStore', () => {
         headers: { 'Content-Type': 'application/json' },
       })
       if (response.success && response.data) {
-        const index = characters.value.findIndex((c) => c.id === id)
+        const index = characters.value.findIndex(
+          (c: { id: number }) => c.id === id,
+        )
         if (index !== -1) characters.value[index] = response.data
         selectedCharacter.value = response.data
         await updateArtImagePath()
@@ -170,7 +172,9 @@ export const useCharacterStore = defineStore('characterStore', () => {
         headers: { 'Content-Type': 'application/json' },
       })
       if (response.success && response.data) {
-        const index = characters.value.findIndex((c) => c.id === id)
+        const index = characters.value.findIndex(
+          (c: { id: number }) => c.id === id,
+        )
         if (index !== -1) characters.value[index] = response.data
       }
     } catch (error) {
@@ -184,7 +188,9 @@ export const useCharacterStore = defineStore('characterStore', () => {
         method: 'DELETE',
       })
       if (response.success) {
-        characters.value = characters.value.filter((c) => c.id !== id)
+        characters.value = characters.value.filter(
+          (c: { id: number }) => c.id !== id,
+        )
         if (selectedCharacter.value?.id === id) selectedCharacter.value = null
       }
     } catch (error) {

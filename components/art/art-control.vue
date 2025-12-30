@@ -91,8 +91,8 @@ const canUse = computed(() => !!userStore.userId)
 
 const userCollections = computed(() => {
   return collectionStore.collections
-    .filter((col) => col.userId === userStore.userId)
-    .map((col) => col.label)
+    .filter((col: { userId: any }) => col.userId === userStore.userId)
+    .map((col: { label: any }) => col.label)
 })
 
 const setAsAvatar = async () => {

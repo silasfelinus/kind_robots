@@ -77,7 +77,9 @@ export const useRewardStore = defineStore('rewardStore', () => {
         body: JSON.stringify(updatedData),
       })
       if (res.success && res.data) {
-        const index = rewards.value.findIndex((r) => r.id === id)
+        const index = rewards.value.findIndex(
+          (r: { id: number }) => r.id === id,
+        )
         if (index !== -1) rewards.value[index] = res.data
         if (isClient)
           localStorage.setItem('rewards', JSON.stringify(rewards.value))
@@ -116,7 +118,7 @@ export const useRewardStore = defineStore('rewardStore', () => {
         body: JSON.stringify(updatedReward),
       })
       if (res.success && res.data) {
-        const i = rewards.value.findIndex((r) => r.id === id)
+        const i = rewards.value.findIndex((r: { id: number }) => r.id === id)
         if (i !== -1) rewards.value[i] = res.data
         if (isClient)
           localStorage.setItem('rewards', JSON.stringify(rewards.value))
@@ -131,7 +133,7 @@ export const useRewardStore = defineStore('rewardStore', () => {
     try {
       const res = await performFetch(`/api/rewards/${id}`, { method: 'DELETE' })
       if (res.success) {
-        rewards.value = rewards.value.filter((r) => r.id !== id)
+        rewards.value = rewards.value.filter((r: { id: number }) => r.id !== id)
         if (isClient)
           localStorage.setItem('rewards', JSON.stringify(rewards.value))
       } else throw new Error(res.message || 'Failed to delete reward')
@@ -163,7 +165,7 @@ export const useRewardStore = defineStore('rewardStore', () => {
   }
 
   function setRewardById(id: number) {
-    const r = rewards.value.find((r) => r.id === id)
+    const r = rewards.value.find((r: { id: number }) => r.id === id)
     if (r) selectedReward.value = r
     else {
       error.value = `Reward with ID ${id} not found.`

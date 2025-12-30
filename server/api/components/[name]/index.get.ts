@@ -31,7 +31,9 @@ export default defineEventHandler(async (event) => {
     }
 
     // Extract component names from the result
-    const data = components.map((component) => component.componentName)
+    const data = components.map(
+      (component: { componentName: any }) => component.componentName,
+    )
 
     // Return the list of component names
     response = {

@@ -92,11 +92,13 @@ export async function getArtImagesByIds(
   )
 
   const uncached = validIds.filter(
-    (id) => !store.artImages.some((img) => img.id === id),
+    (id) => !store.artImages.some((img: { id: number }) => img.id === id),
   )
 
   if (!uncached.length) {
-    return store.artImages.filter((img) => validIds.includes(img.id))
+    return store.artImages.filter((img: { id: number }) =>
+      validIds.includes(img.id),
+    )
   }
 
   console.warn('Fetching uncached artImage IDs:', uncached)
@@ -110,7 +112,9 @@ export async function getArtImagesByIds(
 
     if (response.success && response.data) {
       store.artImages.push(...response.data)
-      return store.artImages.filter((img) => validIds.includes(img.id))
+      return store.artImages.filter((img: { id: number }) =>
+        validIds.includes(img.id),
+      )
     } else {
       throw new Error(response.message)
     }
@@ -122,7 +126,7 @@ export async function getArtImagesByIds(
 
 export function getCachedArtImageById(id: number): ArtImage | undefined {
   const store = getArtStore()
-  return store.artImages.find((image) => image.id === id)
+  return store.artImages.find((image: { id: number }) => image.id === id)
 }
 
 export async function updateArtImageWithArtId(
@@ -142,11 +146,13 @@ export async function updateArtImageWithArtId(
 
     if (response.success && response.data) {
       const updated = response.data
-      const index = store.artImages.findIndex((img) => img.id === artImageId)
+      const index = store.artImages.findIndex(
+        (img: { id: number }) => img.id === artImageId,
+      )
       if (index !== -1) store.artImages.splice(index, 1, updated)
       else store.artImages.push(updated)
 
-      const art = store.art.find((a) => a.id === artId)
+      const art = store.art.find((a: { id: number }) => a.id === artId)
       if (art) art.artImageId = artImageId
     } else {
       throw new Error(response.message)
@@ -167,7 +173,7 @@ export async function updateArtImageId(
       body: JSON.stringify({ artImageId }),
     })
     if (response.success) {
-      const art = store.art.find((a) => a.id === artId)
+      const art = store.art.find((a: { id: number }) => a.id === artId)
       if (art) art.artImageId = artImageId
     } else {
       throw new Error(response.message)
@@ -183,7 +189,7 @@ export async function getOrFetchArtImageById(
   const store = getArtStore()
 
   // First try to find it in the cache
-  const cached = store.artImages.find((img) => img.id === id)
+  const cached = store.artImages.find((img: { id: number }) => img.id === id)
   if (cached) return cached
 
   // Otherwise fetch it

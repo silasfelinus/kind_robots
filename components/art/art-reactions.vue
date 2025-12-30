@@ -134,7 +134,8 @@ const reactionStatus = ref<'success' | 'error' | ''>('')
 
 const publicReactions = computed(() => {
   return reactionStore.reactions.filter(
-    (r) => r.artId === art.value?.id && r.userId !== userId.value,
+    (r: { artId: any; userId: any }) =>
+      r.artId === art.value?.id && r.userId !== userId.value,
   )
 })
 
@@ -180,7 +181,8 @@ onMounted(async () => {
   if (art.value?.id) {
     await reactionStore.fetchReactionsByArtId(art.value.id)
     const myReaction = reactionStore.reactions.find(
-      (r) => r.artId === art.value?.id && r.userId === userId.value,
+      (r: { artId: any; userId: any }) =>
+        r.artId === art.value?.id && r.userId === userId.value,
     )
     if (myReaction) {
       rating.value = myReaction.rating

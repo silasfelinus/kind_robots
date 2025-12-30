@@ -33,10 +33,7 @@
             </label>
           </div>
 
-          <list-manager
-            :only-mine="onlyMine"
-            :include-public="includePublic"
-          />
+          <list-manager :only-mine="onlyMine" :include-public="includePublic" />
         </div>
       </Transition>
     </div>
@@ -169,7 +166,7 @@ const localSelections = computed({
 function toggleMultiSelection(entryId: string, val: string) {
   const current = localSelections.value[entryId] || []
   const updated = current.includes(val)
-    ? current.filter((v) => v !== val)
+    ? current.filter((v: string) => v !== val)
     : [...current, val]
   artStore.updateArtListSelection(entryId, updated)
 }

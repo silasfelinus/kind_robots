@@ -1,18 +1,29 @@
 // /stores/helpers/collectionHelper.ts
-import type { ArtCollection as PrismaArtCollection, Art } from '@prisma/client'
+import type { Art, ArtCollection as PrismaArtCollection } from '@prisma/client'
 
-export interface ArtCollection extends PrismaArtCollection {
-  art: Art[]
-  username: string | null
-  description: string | null
+type CollectionCore = {
+  id: number
+  userId: number
+  label: string | null
+  createdAt: Date
+  updatedAt: Date | null
+  isPublic: boolean
+  isMature: boolean
 }
+
+export type ArtCollection = CollectionCore &
+  Partial<PrismaArtCollection> & {
+    art: Art[]
+    username: string | null
+    description: string | null
+  }
 
 export function addArtToCollectionLocal(
   collection: ArtCollection,
   art: Art,
 ): void {
   if (!collection.art) collection.art = []
-  const exists = collection.art.some((a) => a.id === art.id)
+  const exists = collection.art.some((a: Art) => a.id === art.id)
   if (!exists) collection.art.push(art)
 }
 
@@ -20,7 +31,7 @@ export function isArtInCollection(
   collection: ArtCollection,
   artId: number,
 ): boolean {
-  return collection.art?.some((a) => a.id === artId) || false
+  return collection.art?.some((a: Art) => a.id === artId) || false
 }
 
 export function findCollectionByUserAndLabel(
@@ -28,7 +39,9 @@ export function findCollectionByUserAndLabel(
   userId: number,
   label: string,
 ): ArtCollection | undefined {
-  return collections.find((c) => c.userId === userId && c.label === label)
+  return collections.find(
+    (c: ArtCollection) => c.userId === userId && c.label === label,
+  )
 }
 
 export function getCollectedArtIds(
@@ -36,15 +49,15 @@ export function getCollectedArtIds(
   collections: ArtCollection[],
 ): number[] {
   return collections
-    .filter((c) => c.userId === userId)
-    .flatMap((c) => c.art.map((a) => a.id))
+    .filter((c: ArtCollection) => c.userId === userId)
+    .flatMap((c: ArtCollection) => c.art.map((a: Art) => a.id))
 }
 
 export function collectionIncludesArtId(
   collection: ArtCollection,
   artId: number,
 ): boolean {
-  return !!collection.art?.some((a) => a.id === artId)
+  return !!collection.art?.some((a: Art) => a.id === artId)
 }
 
 export function removeArtFromLocalCollection(
@@ -52,14 +65,14 @@ export function removeArtFromLocalCollection(
   artId: number,
 ): void {
   if (!collection.art) return
-  collection.art = collection.art.filter((a) => a.id !== artId)
+  collection.art = collection.art.filter((a: Art) => a.id !== artId)
 }
 
 export function findCollectionById(
   collections: ArtCollection[],
   collectionId: number,
 ): ArtCollection | undefined {
-  return collections.find((c) => c.id === collectionId)
+  return collections.find((c: ArtCollection) => c.id === collectionId)
 }
 
 export function createEmptyCollection(

@@ -37,13 +37,16 @@ export const useReactionStore = defineStore('reactionStore', () => {
   const isInitialized = ref(false)
 
   const getReactionsByComponentId = computed(() => (componentId: number) => {
-    return reactions.value.filter((r) => r.componentId === componentId)
+    return reactions.value.filter(
+      (r: { componentId: number }) => r.componentId === componentId,
+    )
   })
 
   const getUserReactionForComponent = computed(
     () => (componentId: number, userId: number) => {
       return reactions.value.find(
-        (r) => r.componentId === componentId && r.userId === userId,
+        (r: { componentId: number; userId: number }) =>
+          r.componentId === componentId && r.userId === userId,
       )
     },
   )
@@ -145,7 +148,9 @@ export const useReactionStore = defineStore('reactionStore', () => {
         body: JSON.stringify(updates),
       })
       if (!res.success) throw new Error(res.message)
-      const index = reactions.value.findIndex((r) => r.id === reactionId)
+      const index = reactions.value.findIndex(
+        (r: { id: number }) => r.id === reactionId,
+      )
       if (index !== -1 && res.data) reactions.value[index] = res.data
       return res.data
     } catch (e) {
@@ -162,7 +167,9 @@ export const useReactionStore = defineStore('reactionStore', () => {
         method: 'DELETE',
       })
       if (!res.success) throw new Error(res.message)
-      reactions.value = reactions.value.filter((r) => r.id !== reactionId)
+      reactions.value = reactions.value.filter(
+        (r: { id: number }) => r.id !== reactionId,
+      )
     } catch (e) {
       handleError(e, 'deleting reaction')
     } finally {

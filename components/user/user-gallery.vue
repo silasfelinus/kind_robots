@@ -14,6 +14,7 @@
         <div class="flex gap-2 mt-4">
           <button
             class="btn btn-primary btn-sm"
+            type="button"
             @click="toggleCollection(user.id)"
           >
             {{
@@ -22,6 +23,7 @@
           </button>
           <button
             class="btn btn-secondary btn-sm relative"
+            type="button"
             @click="sendMessage(user.id)"
           >
             Message
@@ -35,9 +37,9 @@
         </div>
       </div>
 
-      <!-- Inline Collection -->
       <div v-if="selectedUserId === user.id" class="p-4">
         <h4 class="text-lg font-semibold">Art Collection</h4>
+
         <div
           v-if="userCollections[user.id]?.length > 0"
           class="grid grid-cols-2 gap-2 mt-2"
@@ -58,6 +60,7 @@
             </p>
           </div>
         </div>
+
         <p v-else class="text-gray-500 mt-2">No items in collection.</p>
       </div>
     </div>
@@ -71,7 +74,8 @@ import { useArtStore } from '@/stores/artStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 
-// Store references
+import type { Art, ArtImage, ArtCollection, Chat } from '@prisma/client'
+
 const userStore = useUserStore()
 const artStore = useArtStore()
 const chatStore = useChatStore()
@@ -79,35 +83,42 @@ const collectionStore = useCollectionStore()
 
 const users = computed(() => userStore.users || [])
 const selectedUserId = ref<number | null>(null)
+
 const userCollections = ref<Record<number, Art[]>>({})
 const artImages = ref<Record<number, string>>({})
 
-// Fetch user's art collection on toggle
 async function toggleCollection(userId: number) {
   if (selectedUserId.value === userId) {
-    selectedUserId.value = null // Hide collection
+    selectedUserId.value = null
     return
   }
 
   selectedUserId.value = userId
 
-  // Fetch user collection only if it hasn't been loaded yet
   if (!userCollections.value[userId]) {
-    const collections = await collectionStore.getUserCollections(userId)
-    const userArt = collections.flatMap((collection) => collection.art || [])
+    const collections = (await collectionStore.getUserCollections(
+      userId,
+    )) as ArtCollection[]
+
+    const userArt = collections.flatMap((collection: ArtCollection) => {
+      const maybeArt = (collection as unknown as { art?: Art[] }).art
+      return Array.isArray(maybeArt) ? maybeArt : []
+    })
+
     userCollections.value = { ...userCollections.value, [userId]: userArt }
 
-    // Fetch missing art images in bulk
-    const artIds = userArt.map((art) => art.id)
+    const artIds = userArt.map((art: Art) => art.id)
     await fetchArtImages(artIds)
   }
 }
 
 async function fetchArtImages(artIds: number[]) {
-  const currentImages = artStore.artImages
-  const uncachedIds = artIds.filter(
-    (id) => !currentImages.some((img) => img.id === id),
-  )
+  const currentImages = (artStore.artImages || []) as ArtImage[]
+
+  const uncachedIds = artIds.filter((id: number) => {
+    return !currentImages.some((img: ArtImage) => img.id === id)
+  })
+
   if (uncachedIds.length === 0) return
 
   try {
@@ -117,17 +128,14 @@ async function fetchArtImages(artIds: number[]) {
   }
 }
 
-// Handle image loading errors
 function handleImageError(artId: number) {
   artImages.value[artId] = '/images/kindtitle.webp'
 }
 
-// Determine if art path should be displayed
 function shouldShowPath(art: Art): boolean {
   return !art.artImageId && !!art.path
 }
 
-// Send message to user
 async function sendMessage(userId: number) {
   try {
     const currentUser = userStore.user
@@ -136,19 +144,20 @@ async function sendMessage(userId: number) {
       return
     }
 
-    const originChat = chatStore.chats.find(
-      (chat) =>
+    const originChat = (chatStore.chats || []).find((chat: Chat) => {
+      return (
         chat.userId === currentUser.id &&
         chat.recipientId === userId &&
-        chat.originId,
-    )
+        !!chat.originId
+      )
+    })
 
     await chatStore.addChat({
       type: 'ToUser',
       recipientId: userId,
-      content: 'Hello!', // Example default content
-      userId: currentUser.id, // Sender user ID
-      isPublic: false, // Private message
+      content: 'Hello!',
+      userId: currentUser.id,
+      isPublic: false,
       originId: originChat ? originChat.originId : null,
       previousEntryId: originChat ? originChat.id : null,
       characterId: null,
@@ -158,10 +167,10 @@ async function sendMessage(userId: number) {
   }
 }
 
-// Check if there are unread messages from this user
 function hasUnreadMessages(userId: number): boolean {
-  return chatStore.unreadMessages.some(
-    (message) => message.recipientId === userId && !message.isRead,
-  )
+  const unread = (chatStore.unreadMessages || []) as Chat[]
+  return unread.some((message: Chat) => {
+    return message.recipientId === userId && !message.isRead
+  })
 }
 </script>

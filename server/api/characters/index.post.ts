@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     // Handle Rewards if provided
     let rewardsConnect: Prisma.RewardWhereUniqueInput[] | undefined
     if (characterData.rewardIds && Array.isArray(characterData.rewardIds)) {
-      rewardsConnect = characterData.rewardIds.map((id) => ({ id }))
+      rewardsConnect = characterData.rewardIds.map((id: number) => ({ id }))
     }
 
     // Prepare the full character data

@@ -2,21 +2,19 @@
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from './../../../../server/api/utils/prisma'
+import type { MilestoneRecord } from '@prisma/client'
 
 export default defineEventHandler(async (event) => {
-  let response
   const userId = Number(event.context.params?.id)
 
   try {
-    // Validate the user ID
-    if (isNaN(userId) || userId <= 0) {
+    if (Number.isNaN(userId) || userId <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid user ID. It must be a positive integer.',
       })
     }
 
-    // Fetch milestone records for the user
     const milestoneRecords = await prisma.milestoneRecord.findMany({
       where: { userId },
       select: {
@@ -25,19 +23,17 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    // Extract just the milestone IDs into an array
-    const milestoneIds = milestoneRecords.map((record) => record.milestoneId)
+    const milestoneIds = milestoneRecords.map(
+      (record: Pick<MilestoneRecord, 'milestoneId'>) => record.milestoneId,
+    )
 
-    // Successful response
-    response = {
+    event.node.res.statusCode = 200
+    return {
       success: true,
       message: 'Milestone records fetched successfully',
-      data: {
-        milestoneIds,
-      },
+      data: { milestoneIds },
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.error(
@@ -45,9 +41,8 @@ export default defineEventHandler(async (event) => {
       handledError,
     )
 
-    // Set response and status code based on handled error
     event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    return {
       success: false,
       message:
         handledError.message ||
@@ -55,6 +50,4 @@ export default defineEventHandler(async (event) => {
       statusCode: event.node.res.statusCode,
     }
   }
-
-  return response
 })

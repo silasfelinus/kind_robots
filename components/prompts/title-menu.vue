@@ -43,7 +43,7 @@ const selectedTitle = ref<Pitch | null>(null)
 
 // Filter titles based on the selected PitchType
 const availableTitles = computed(() =>
-  pitchStore.pitches.filter((p) => p.PitchType === PitchType.TITLE),
+  pitchStore.pitches.filter((p: Pitch) => p.PitchType === PitchType.TITLE),
 )
 
 // Watch for changes and update the store with an appropriate object

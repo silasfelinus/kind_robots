@@ -104,10 +104,10 @@ const allIcons = computed(() => directoryIcons.value)
 const hasFavorites = computed(() => favoritesIcons.value.length > 0)
 
 const hasAmiIcons = computed(() =>
-  allIcons.value.some((icon) => icon.category === 'ami'),
+  allIcons.value.some((icon: { category: string }) => icon.category === 'ami'),
 )
 const hasUserIcons = computed(() =>
-  allIcons.value.some((icon) => icon.category === 'user'),
+  allIcons.value.some((icon: { category: string }) => icon.category === 'user'),
 )
 
 const STORAGE_KEY = 'kind-nav-active-filter'
@@ -175,14 +175,21 @@ const filteredIcons = computed(() => {
   if (filter === 'all') return icons
 
   if (filter === 'favorites') {
-    return icons.filter((icon) => icon.link && navStore.isFavorite(icon.link))
+    return icons.filter(
+      (icon: { link: string | null | undefined }) =>
+        icon.link && navStore.isFavorite(icon.link),
+    )
   }
 
   if (filter === 'ami' || filter === 'user') {
-    return icons.filter((icon) => icon.category === filter)
+    return icons.filter(
+      (icon: { category: string }) => icon.category === filter,
+    )
   }
 
-  return icons.filter((icon) => icon.modelType === filter)
+  return icons.filter(
+    (icon: { modelType: string }) => icon.modelType === filter,
+  )
 })
 
 function setFilter(value: string) {

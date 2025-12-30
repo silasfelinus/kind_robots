@@ -20,7 +20,9 @@ export default defineEventHandler(async (event) => {
     // Wrap the collected art in a data object
     return { success: true, data: { collectedArt } }
   } catch (error: unknown) {
-    return errorHandler(`Failed to fetch collected art for user ${event.context.params?.id}`)
+    return errorHandler(
+      `Failed to fetch collected art for user ${event.context.params?.id}`,
+    )
   }
 })
 
@@ -39,5 +41,5 @@ async function fetchUserCollectedArt(userId: number): Promise<Art[]> {
   })
 
   // Flatten the collected art from the collections into a single array
-  return collections.flatMap((collection) => collection.art)
+  return collections.flatMap((collection: ArtCollection) => collection.art)
 }

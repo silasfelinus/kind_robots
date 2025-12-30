@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
       })
       if (validArt.length !== artIds.length) {
         const missing = artIds.filter(
-          (id) => !validArt.some((art) => art.id === id),
+          (id) => !validArt.some((art: Art) => art.id === id),
         )
         throw createError({
           statusCode: 404,
@@ -88,7 +88,7 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      updateData.art = { set: validArt.map((art) => ({ id: art.id })) }
+      updateData.art = { set: validArt.map((art: Art) => ({ id: art.id })) }
     }
 
     // Optional metadata updates

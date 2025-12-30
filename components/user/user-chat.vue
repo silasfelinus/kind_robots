@@ -105,14 +105,14 @@ const selectedRecipientId = ref<number | null>(chatStore.selectedRecipientId)
 // Computed properties
 const currentUser = computed(() => userStore.user)
 const recipient = computed(() =>
-  userStore.users.find((user) => user.id === selectedRecipientId.value),
+  userStore.users.find((user: User) => user.id === selectedRecipientId.value),
 )
 const currentMessages = computed(() => {
   if (!selectedRecipientId.value) return []
 
   // Filter chats linked by `originId` or direct sender/recipient
   return chatStore.chats.filter(
-    (chat) =>
+    (chat: Chat) =>
       chat.originId === selectedRecipientId.value ||
       (chat.userId === currentUser.value!.id &&
         chat.recipientId === selectedRecipientId.value) ||

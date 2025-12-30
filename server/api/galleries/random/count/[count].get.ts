@@ -1,5 +1,6 @@
 // server/api/galleries/random/count/[count].get.ts
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, createError } from 'h3'
+import type { Gallery } from '@prisma/client'
 import prisma from '../../../utils/prisma'
 import { getGalleryImages } from '../..'
 import { errorHandler } from '../../../utils/error'
@@ -10,15 +11,13 @@ export default defineEventHandler(async (event) => {
   try {
     const count = Number(event.context.params?.count)
 
-    // Validate the count parameter
-    if (isNaN(count) || count <= 0) {
+    if (Number.isNaN(count) || count <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid count parameter. It must be a positive number.',
       })
     }
 
-    // Fetch gallery IDs with non-null imagePaths
     const initialGalleryIDs = await prisma.gallery.findMany({
       where: {
         imagePaths: {
@@ -35,52 +34,48 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Shuffle the gallery IDs and initialize the selected images array
-    let remainingGalleryIDs = initialGalleryIDs
+    let remainingGalleryIDs: number[] = initialGalleryIDs
       .sort(() => 0.5 - Math.random())
-      .map((g) => g.id)
+      .map((g: { id: number }) => g.id)
+
     const data: string[] = []
 
-    // Collect images until reaching the desired count or exhausting available galleries
     while (data.length < count && remainingGalleryIDs.length > 0) {
       const batchSize = Math.min(
         remainingGalleryIDs.length,
         count - data.length,
       )
-      const selectedBatchIDs = remainingGalleryIDs.slice(0, batchSize)
+      const selectedBatchIDs: number[] = remainingGalleryIDs.slice(0, batchSize)
       remainingGalleryIDs = remainingGalleryIDs.slice(batchSize)
 
-      // Fetch galleries using the selected IDs
-      const galleries = await prisma.gallery.findMany({
+      const galleries: Gallery[] = await prisma.gallery.findMany({
         where: {
           id: { in: selectedBatchIDs },
         },
       })
 
-      // Fetch and select random images from each gallery
-      const allImagesArrays = await Promise.all(
-        galleries.map((gallery) => getGalleryImages(gallery.id)),
+      const allImagesArrays: string[][] = await Promise.all(
+        galleries.map((gallery: Gallery) => getGalleryImages(gallery.id)),
       )
-      allImagesArrays.forEach((galleryImages) => {
+
+      allImagesArrays.forEach((galleryImages: string[]) => {
         if (galleryImages.length > 0) {
           const randomImage =
             galleryImages[Math.floor(Math.random() * galleryImages.length)]
-          data.push(randomImage)
+          if (randomImage) data.push(randomImage)
         }
       })
     }
 
-    // Check if we have the required number of images
     if (data.length < count) {
       return {
         success: false,
         message: `Could not fetch the required number of random images. Requested: ${count}, Received: ${data.length}`,
         error: 'Insufficient images',
-        statusCode: 206, // Partial content
+        statusCode: 206,
       }
     }
 
-    // Return a successful response with the selected images
     response = {
       success: true,
       data,
@@ -88,7 +83,6 @@ export default defineEventHandler(async (event) => {
       statusCode: 200,
     }
   } catch (error: unknown) {
-    // Use error handler for structured error response
     const handledError = errorHandler(error)
     console.error('Error fetching random images:', handledError)
     response = {

@@ -29,7 +29,7 @@ function refreshUserSettings() {
     .then(() => {
       console.log('User data refreshed')
     })
-    .catch((error) => {
+    .catch((error: any) => {
       console.error('Failed to refresh user data:', error)
     })
 }

@@ -36,6 +36,7 @@
             </div>
             <button
               class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100 transition-opacity"
+              type="button"
               @click.stop="editTheme(theme)"
             >
               ✏️ Edit
@@ -66,7 +67,6 @@
 
 <script setup lang="ts">
 // /components/content/themes/theme-gallery.vue
-
 import { ref, computed, watchEffect } from 'vue'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
@@ -74,6 +74,7 @@ import { useHead } from '#imports'
 
 const themeStore = useThemeStore()
 const milestoneStore = useMilestoneStore()
+
 const themeError = ref('')
 const inspectValues = ref<string | null>(null)
 
@@ -106,7 +107,7 @@ function setTheme(theme: string | Theme) {
       inspectValues.value = JSON.stringify(themeStore.getThemeValues(), null, 2)
       milestoneStore.rewardMilestone(9)
     }
-  } catch (err) {
+  } catch (err: unknown) {
     themeError.value = `❌ setTheme crashed:\n${(err as Error).message}`
   }
 }
@@ -123,14 +124,14 @@ function editTheme(theme: Theme) {
       values: safeThemeValues(theme.values),
     }
     themeError.value = ''
-  } catch (err) {
+  } catch (err: unknown) {
     themeError.value = `❌ editTheme crashed:\n${(err as Error).message}`
   }
 }
 
-const sharedThemeStyles = computed(() =>
-  themeStore.sharedThemes
-    .map((theme) => {
+const sharedThemeStyles = computed<string>(() => {
+  return themeStore.sharedThemes
+    .map((theme: Theme) => {
       const values = safeThemeValues(theme.values)
       const selector = `[data-theme="custom-preview-${theme.id}"]`
       const entries = Object.entries(values)
@@ -138,20 +139,20 @@ const sharedThemeStyles = computed(() =>
         .join('\n')
       return `${selector} {\n${entries}\n}`
     })
-    .join('\n\n'),
-)
+    .join('\n\n')
+})
 
 watchEffect(() => {
-  if (themeStore.sharedThemes.length) {
-    useHead({
-      style: [
-        {
-          key: 'custom-theme-preview',
-          tagPriority: 'low',
-          textContent: sharedThemeStyles.value,
-        },
-      ],
-    })
-  }
+  if (!themeStore.sharedThemes.length) return
+
+  useHead({
+    style: [
+      {
+        key: 'custom-theme-preview',
+        tagPriority: 'low',
+        textContent: sharedThemeStyles.value,
+      },
+    ],
+  })
 })
 </script>

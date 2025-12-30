@@ -92,7 +92,7 @@ onMounted(() => {
 // Filter pitches by selected pitch type
 const filteredPitches = computed(() =>
   pitchStore.pitches.filter(
-    (pitch) => pitch.PitchType === pitchStore.selectedPitchType,
+    (pitch: Pitch) => pitch.PitchType === pitchStore.selectedPitchType,
   ),
 )
 

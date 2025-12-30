@@ -117,7 +117,7 @@ const userId = computed(() => chat.value.userId)
 const hasBot = computed(() => !!botStore.getBotById(chat.value.botId ?? -1))
 const threadMessages = computed(() =>
   chatStore.chats.filter(
-    (message) =>
+    (message: { originId: any; id: any }) =>
       message.originId === chat.value.id || message.id === chat.value.id,
   ),
 )

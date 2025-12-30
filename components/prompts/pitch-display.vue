@@ -50,7 +50,7 @@ const lastResponse = computed(() => pitchStore.apiResponse)
 const displayedPitches = computed(() => {
   if (pitchStore.selectedTitle) {
     return pitchStore.pitches.filter(
-      (pitch) =>
+      (pitch: Pitch) =>
         pitch.PitchType === pitchStore.selectedPitchType &&
         pitch.title === pitchStore.selectedTitle?.title,
     )

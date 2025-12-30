@@ -18,11 +18,7 @@
     </div>
 
     <!-- Per-Channel Thread Groups -->
-    <div
-      v-for="channel in visibleChannels"
-      :key="channel"
-      class="space-y-4"
-    >
+    <div v-for="channel in visibleChannels" :key="channel" class="space-y-4">
       <div class="flex justify-between items-center mt-8 mb-2">
         <h2 class="text-xl font-bold">
           {{ formatChannel(channel) }}
@@ -116,7 +112,7 @@ const userStore = useUserStore()
 
 // Define all channels in the forum
 const allChannels = ['share', 'introductions', 'news', 'activism'] as const
-type ForumChannel = typeof allChannels[number]
+type ForumChannel = (typeof allChannels)[number]
 
 // State
 const visibleChannels = ref<ForumChannel[]>([...allChannels])
@@ -137,7 +133,13 @@ function toggleChannel(channel: ForumChannel) {
 // Store-filtered threads
 const threadsByChannel = (channel: ForumChannel) =>
   chatStore.chats.filter(
-    (chat) =>
+    (chat: {
+      originId: null
+      channel: string
+      isPublic: any
+      userId: any
+      isMature: any
+    }) =>
       chat.originId === null &&
       chat.channel === channel &&
       (chat.isPublic || chat.userId === userStore.user?.id) &&
@@ -145,7 +147,9 @@ const threadsByChannel = (channel: ForumChannel) =>
   )
 
 const getReplies = (originId: number) =>
-  chatStore.chats.filter((chat) => chat.originId === originId)
+  chatStore.chats.filter(
+    (chat: { originId: number }) => chat.originId === originId,
+  )
 
 function startNewThread(channel: ForumChannel) {
   composeChannel.value = channel

@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
         userId,
         label,
         art: {
-          connect: artList.map((art) => ({ id: art.id })),
+          connect: artList.map((art: Art) => ({ id: art.id })),
         },
       },
       include: {

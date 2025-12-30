@@ -3,7 +3,6 @@
   <div
     class="flex flex-col items-center bg-base-300 rounded-2xl p-4 sm:p-6 md:p-8 m-4 md:m-6 border border-primary shadow-xl w-full max-w-full overflow-hidden"
   >
-    <!-- Title and Info -->
     <h1
       class="text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-primary text-center"
     >
@@ -16,7 +15,6 @@
 
     <add-pitch @pitch-created="handlePitchCreated"></add-pitch>
 
-    <!-- Top 5 Selected Pitches -->
     <div
       class="flex flex-wrap justify-center sm:justify-around mb-6 w-full max-w-full overflow-hidden"
     >
@@ -33,7 +31,6 @@
       </div>
     </div>
 
-    <!-- Display All Brainstorm Ideas (Responsive Grid) -->
     <transition-group
       name="list"
       tag="div"
@@ -45,7 +42,6 @@
         class="bg-base-300 shadow-md rounded-lg p-4 cursor-pointer hover:bg-base-300 transition duration-300"
         @click="togglePitchSelection(idea)"
       >
-        <!-- Basic Pitch Display -->
         <div>
           <h4 class="text-md md:text-lg font-semibold">{{ idea.title }}</h4>
           <p class="text-xs md:text-sm">{{ idea.pitch }}</p>
@@ -53,18 +49,18 @@
       </div>
     </transition-group>
 
-    <!-- Floating Submit Button -->
     <button
       class="fixed bottom-4 right-4 bg-primary hover:bg-primary-focus text-white p-3 rounded-full shadow-lg transition-all duration-300"
       :disabled="
-        selectedPitches.filter((p) => p !== null).length < 5 || isSubmitting
+        selectedPitches.filter((p: Pitch | null) => p !== null).length < 5 ||
+        isSubmitting
       "
       @click="submitTopPitches"
+      type="button"
     >
       <Icon name="kind-icon:brain" class="w-6 h-6" />
     </button>
 
-    <!-- Error Message if Any -->
     <div
       v-if="errorStore.message"
       class="bg-warning text-white py-4 px-6 rounded-full mt-6 text-center"
@@ -75,47 +71,46 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/prompts/brainstorm-game.vue
 import { ref, computed } from 'vue'
+import type { Pitch } from '@prisma/client'
+import { usePitchStore } from '~/stores/pitchStore'
+import { useErrorStore, ErrorType } from '~/stores/errorStore'
 
-// Stores and States
 const pitchStore = usePitchStore()
 const errorStore = useErrorStore()
+
 const selectedPitches = ref<(Pitch | null)[]>([null, null, null, null, null])
+const brainstormPitches = computed<Pitch[]>(
+  () => pitchStore.brainstormPitches as Pitch[],
+)
 
-// Computed brainstorm pitches
-const brainstormPitches = computed(() => pitchStore.brainstormPitches)
-
-// Update exampleString in pitchStore whenever selectedPitches change
 const updateExampleString = () => {
   const exampleString = selectedPitches.value
-    .filter((pitch) => pitch !== null)
-    .map((pitch) => pitch!.pitch)
+    .filter((pitch: Pitch | null): pitch is Pitch => pitch !== null)
+    .map((pitch: Pitch) => pitch.pitch)
     .join(' | ')
-  pitchStore.exampleString = exampleString
+  ;(pitchStore as any).exampleString = exampleString
 }
 
-// Event handler for when a custom pitch is created
 const handlePitchCreated = (pitch: Pitch) => {
   selectedPitches.value.unshift(pitch)
-  if (selectedPitches.value.length > 5) {
-    selectedPitches.value.pop()
-  }
+  if (selectedPitches.value.length > 5) selectedPitches.value.pop()
   updateExampleString()
 }
 
-// Toggle selection of a pitch
 const togglePitchSelection = (pitch: Pitch) => {
   const existingIndex = selectedPitches.value.findIndex(
-    (p) => p?.id === pitch.id,
+    (p: Pitch | null) => p?.id === pitch.id,
   )
+
   if (existingIndex !== -1) {
     selectedPitches.value[existingIndex] = null
   } else {
     selectedPitches.value.unshift(pitch)
-    if (selectedPitches.value.length > 5) {
-      selectedPitches.value.pop()
-    }
+    if (selectedPitches.value.length > 5) selectedPitches.value.pop()
   }
+
   updateExampleString()
 }
 
@@ -123,38 +118,35 @@ const isSubmitting = ref(false)
 
 const submitTopPitches = async () => {
   try {
-    if (selectedPitches.value.filter((p) => p !== null).length !== 5) {
-      throw new Error('Please select exactly 5 pitches.')
-    }
+    const pickedCount = selectedPitches.value.filter(
+      (p: Pitch | null) => p !== null,
+    ).length
+
+    if (pickedCount !== 5) throw new Error('Please select exactly 5 pitches.')
 
     isSubmitting.value = true
 
-    const topFive = selectedPitches.value.map((pitch) => ({
-      title: pitch?.title || '',
-      pitch: pitch?.pitch || '',
-    }))
+    const topFive = selectedPitches.value
+      .filter((p: Pitch | null): p is Pitch => p !== null)
+      .map((p: Pitch) => ({
+        title: p.title || '',
+        pitch: p.pitch || '',
+      }))
 
     const response = await fetch('/api/botcafe/brainstorm', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ topFive }),
     })
 
-    if (!response.ok) {
-      throw new Error('Failed to submit pitches.')
-    }
+    if (!response.ok) throw new Error('Failed to submit pitches.')
 
     alert('Top 5 pitches submitted successfully!')
     selectedPitches.value = [null, null, null, null, null]
     updateExampleString()
   } catch (error: unknown) {
-    const err = error as Error
-    errorStore.setError(
-      ErrorType.NETWORK_ERROR,
-      err || 'Failed to submit top 5 pitches',
-    )
+    const err = error instanceof Error ? error : new Error('Unknown error')
+    errorStore.setError(ErrorType.NETWORK_ERROR, err.message)
   } finally {
     isSubmitting.value = false
   }

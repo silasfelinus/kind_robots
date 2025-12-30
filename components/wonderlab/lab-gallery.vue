@@ -1,9 +1,12 @@
 <template>
   <div class="px-4 py-6 max-w-7xl mx-auto w-full space-y-6">
-    <!-- Folder View -->
     <div v-if="!selectedFolder" class="space-y-2">
-      <h2 class="text-xl font-semibold text-center">Choose a folder to explore</h2>
-      <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <h2 class="text-xl font-semibold text-center">
+        Choose a folder to explore
+      </h2>
+      <div
+        class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+      >
         <div
           v-for="folder in folderNames"
           :key="folder"
@@ -16,21 +19,22 @@
       </div>
     </div>
 
-    <!-- Component View -->
     <div v-else class="flex flex-col space-y-4 h-[75vh]">
-      <!-- Header with Back Button -->
       <div class="flex justify-between items-center">
         <p class="italic text-sm text-base-content/70">
           Browsing folder:
           <strong class="text-base-content">{{ selectedFolder }}</strong>
         </p>
-        <button class="btn btn-sm btn-outline btn-accent" @click="selectedFolder = null">
+        <button
+          class="btn btn-sm btn-outline btn-accent"
+          type="button"
+          @click="selectedFolder = null"
+        >
           <Icon name="kind-icon:arrow-left" class="mr-1" />
           Back to folders
         </button>
       </div>
 
-      <!-- Grid of components -->
       <div
         class="overflow-y-auto flex-grow grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 pr-1"
       >
@@ -61,28 +65,29 @@
 <script setup lang="ts">
 // /components/content/wonderlab/lab-gallery.vue
 import { ref, computed } from 'vue'
-import {
-  useComponentStore,
-  type KindComponent as Component,
-} from '@/stores/componentStore'
+import { useComponentStore, type KindComponent } from '@/stores/componentStore'
 
 const selectedFolder = ref<string | null>(null)
 const componentStore = useComponentStore()
 
-const folderNames = computed(() => {
-  const folders = new Set(
-    componentStore.components.map((c) => c.folderName?.trim()),
-  )
-  return Array.from(folders).filter(Boolean) as string[]
+const folderNames = computed<string[]>(() => {
+  const folders = new Set<string>()
+
+  componentStore.components.forEach((c: KindComponent) => {
+    const name = c.folderName?.trim()
+    if (name) folders.add(name)
+  })
+
+  return Array.from(folders)
 })
 
-const folderComponents = computed(() =>
-  selectedFolder.value
-    ? componentStore.components.filter(
-        (c) =>
-          c.folderName?.trim().toLowerCase() ===
-          selectedFolder.value?.trim().toLowerCase(),
-      )
-    : [],
-)
+const folderComponents = computed<KindComponent[]>(() => {
+  const target = selectedFolder.value?.trim().toLowerCase()
+  if (!target) return []
+
+  return componentStore.components.filter((c: KindComponent) => {
+    const folder = c.folderName?.trim().toLowerCase()
+    return folder === target
+  })
+})
 </script>

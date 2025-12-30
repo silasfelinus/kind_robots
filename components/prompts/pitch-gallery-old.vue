@@ -1,9 +1,8 @@
 <!-- /components/content/prompts/pitch-gallery-old.vue -->
 <template>
-  <!-- Art Gallery Container -->
   <div class="relative bg-base-300 rounded-2xl m-1 p-0">
     <h1>Pitch Gallery</h1>
-    <!-- View Control Icons -->
+
     <div
       class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-lg"
     >
@@ -30,7 +29,7 @@
         />
       </div>
     </div>
-    <!-- Art Cards -->
+
     <div class="flex flex-wrap">
       <ArtCard
         v-for="art in filteredArtAssets"
@@ -43,54 +42,44 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/prompts/pitch-gallery-old.vue
 import { ref, watch, onMounted, computed } from 'vue'
-import { useArtStore } from '../../stores/artStore'
-import { usePitchStore } from '../../stores/pitchStore'
+import { useArtStore } from '@/stores/artStore'
+import { usePitchStore } from '@/stores/pitchStore'
+import type { Art } from '@prisma/client'
 
-// Initialize stores
 const artStore = useArtStore()
 const pitchStore = usePitchStore()
 
-// Fetch all art assets
-const artArray = computed(() => Array.from(artStore.art.values()))
+const artArray = computed<Art[]>(
+  () => Array.from(artStore.art.values()) as Art[],
+)
 
-// Filter art assets based on the selected pitch from pitchStore
-const filteredArtAssets = computed(() => {
+const filteredArtAssets = computed<Art[]>(() => {
   const selectedPitch = pitchStore.selectedPitch
-  if (selectedPitch) {
-    return artArray.value.filter((art) => art.pitchId === selectedPitch.id)
-  }
-  return []
+  if (!selectedPitch) return []
+  return artArray.value.filter((a: Art) => a.pitchId === selectedPitch.id)
 })
 
-// View control logic
-const view = ref('twoRow')
+type ViewMode = 'twoRow' | 'threeRow' | 'fourRow' | 'single'
+
+const view = ref<ViewMode>('twoRow')
 const itemClass = ref('w-1/2 p-4')
 
-// Load saved view from local storage on mount
 onMounted(() => {
-  const savedView = window.localStorage.getItem('view')
-  if (savedView) {
-    view.value = savedView
-  }
+  const saved = window.localStorage.getItem('view') as ViewMode | null
+  if (saved) view.value = saved
 })
 
-// Update view and save to local storage
-const setView = (newView: string) => {
+function setView(newView: ViewMode) {
   view.value = newView
   window.localStorage.setItem('view', newView)
 }
 
-// Update item class based on the selected view
-watch(view, (newView) => {
-  if (newView === 'twoRow') {
-    itemClass.value = 'w-1/2 p-4'
-  } else if (newView === 'fourRow') {
-    itemClass.value = 'w-1/4 p-4'
-  } else if (newView === 'single') {
-    itemClass.value = 'w-full p-4'
-  } else {
-    itemClass.value = 'w-1/3 p-4'
-  }
+watch(view, (newView: ViewMode) => {
+  if (newView === 'twoRow') itemClass.value = 'w-1/2 p-4'
+  else if (newView === 'fourRow') itemClass.value = 'w-1/4 p-4'
+  else if (newView === 'single') itemClass.value = 'w-full p-4'
+  else itemClass.value = 'w-1/3 p-4'
 })
 </script>

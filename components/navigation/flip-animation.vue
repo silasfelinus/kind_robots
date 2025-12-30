@@ -1,31 +1,48 @@
 <!-- /components/navigation/flip-animation.vue -->
 <template>
-  <div class="flip-tiles-container">
-    <div
-      v-for="tile in flipStore.tiles"
-      :key="tile.id"
-      class="flip-tile"
-      :class="{ 'flip-tile--flipped': flipStore.flipped[tile.index] }"
-      :style="tile.style"
-    >
-      <div class="flip-tile-inner">
-        <div class="flip-tile-face flip-tile-face--front" />
-        <div class="flip-tile-face flip-tile-face--back" />
+  <div class="flip-tiles-container" :style="gridStyle">
+    <div v-for="cell in flip.cells" :key="cell.id" class="flip-tile">
+      <div
+        class="flip-tile-inner"
+        :class="{ 'flip-tile-inner--animating': flip.isAnimating }"
+        :style="flip.cellDelayStyle(cell)"
+        @animationend="flip.markCellDone(cell.id)"
+      >
+        <div
+          class="flip-tile-face flip-tile-face--front"
+          :style="flip.getCellStyle(flip.currentSrc, cell, 'top')"
+        />
+        <div
+          class="flip-tile-face flip-tile-face--back"
+          :style="flip.getCellStyle(flip.nextSrc, cell, 'bottom')"
+        />
       </div>
+
+      <div class="flip-seam" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // /components/navigation/flip-animation.vue
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useFlipStore } from '@/stores/flipStore'
 
-const flipStore = useFlipStore()
+const flip = useFlipStore()
+
+const gridStyle = computed(() => ({
+  gridTemplateColumns: `repeat(${flip.grid.cols}, minmax(0, 1fr))`,
+  gridTemplateRows: `repeat(${flip.grid.rows}, minmax(0, 1fr))`,
+}))
 
 onMounted(() => {
-  if (!flipStore.isPrepared) {
-    flipStore.buildTiles()
+  if (!flip.cells.length) {
+    flip.setGrid(
+      flip.grid.rows,
+      flip.grid.cols,
+      flip.grid.staggerMs,
+      flip.grid.durationMs,
+    )
   }
 })
 </script>
@@ -35,16 +52,14 @@ onMounted(() => {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  display: grid;
   transform-style: preserve-3d;
   perspective: 1600px;
 }
 
 .flip-tile {
-  position: absolute;
-  left: var(--col-left);
-  right: var(--col-right);
-  top: var(--row-top);
-  bottom: var(--row-bottom);
+  position: relative;
+  overflow: hidden;
   transform-style: preserve-3d;
 }
 
@@ -53,13 +68,14 @@ onMounted(() => {
   inset: 0;
   transform-style: preserve-3d;
   transform-origin: 50% 100%;
-  transition:
-    transform 0.7s cubic-bezier(0.24, 0.9, 0.23, 1.01),
-    opacity 0.35s ease-out;
 }
 
-.flip-tile--flipped .flip-tile-inner {
-  transform: rotateX(180deg);
+.flip-tile-inner--animating {
+  animation-name: flip-fold;
+  animation-duration: var(--flip-duration);
+  animation-delay: var(--flip-delay);
+  animation-timing-function: cubic-bezier(0.24, 0.9, 0.23, 1.01);
+  animation-fill-mode: forwards;
 }
 
 .flip-tile-face {
@@ -69,19 +85,29 @@ onMounted(() => {
   background-repeat: no-repeat;
 }
 
-/* Front face: uses per-tile vars, falls back to full-cover */
-.flip-tile-face--front {
-  background-image: var(--flip-image-front);
-  background-size: var(--flip-front-size, 100% 100%);
-  background-position: var(--flip-front-position, center center);
-}
-
-/* Back face: collage / next-image underside */
 .flip-tile-face--back {
   transform: rotateX(180deg);
-  background-image: var(--flip-image-back);
-  background-size: var(--flip-back-size, 100% 100%);
-  background-position: var(--flip-back-position, center center);
-  opacity: var(--flip-back-has-image);
+}
+
+.flip-seam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+}
+
+@keyframes flip-fold {
+  0% {
+    transform: rotateX(0deg);
+  }
+  60% {
+    transform: rotateX(-210deg);
+  }
+  100% {
+    transform: rotateX(-180deg);
+  }
 }
 </style>

@@ -166,7 +166,7 @@ function costLabel(
 function typesArray(types: Dominion['types'] | null | undefined): string[] {
   return (types || '')
     .split(',')
-    .map((s) => s.trim())
+    .map((s: string) => s.trim())
     .filter(Boolean)
 }
 

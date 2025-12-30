@@ -2,7 +2,7 @@
 import type { Pitch } from '@prisma/client'
 import type { ArtListEntry } from '@/stores/seeds/artList'
 
-// 🎯 Raw array lists (all refactored from useRandomX())
+// 🎯 Raw single-value pools
 import { adjectiveList } from '@/stores/utils/randomAdjective'
 import { animalList } from '@/stores/utils/randomAnimal'
 import { backstoryList } from '@/stores/utils/randomBackstory'
@@ -20,92 +20,134 @@ import { quirkList } from '@/stores/utils/randomQuirks'
 import { skillList } from '@/stores/utils/randomSkills'
 import { speciesList } from '@/stores/utils/randomSpecies'
 import { verbList } from '@/stores/utils/randomVerb'
-import { useRandomEncounter } from '@/stores/utils/randomEncounter' // still a function
+import { useRandomEncounter } from '@/stores/utils/randomEncounter'
 
-// 🛠 Converts an ArtListEntry into a Pitch-like object
-export function artListToPitch(entry: ArtListEntry): Pitch {
+/* ---------------------------------------------
+ * Types
+ * -------------------------------------------*/
+
+export type RandomListItem = {
+  id: number
+  title: string
+  PitchType: 'RANDOMLIST'
+  isPublic: boolean
+  isMature: boolean
+  userId: number | null
+  designer: string | null
+  examplesJson: string
+  source: 'preset' | 'user'
+}
+
+type RandomPool = {
+  key: string
+  title: string
+  values: string[]
+}
+
+/* ---------------------------------------------
+ * Utilities
+ * -------------------------------------------*/
+
+function stableNegativeId(input: string): number {
+  let hash = 0
+  for (let i = 0; i < input.length; i++) {
+    hash = (hash * 31 + input.charCodeAt(i)) | 0
+  }
+  const positive = Math.abs(hash) || 1
+  return -positive
+}
+
+function safeStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value.filter(
+    (v): v is string => typeof v === 'string' && v.trim().length > 0,
+  )
+}
+
+/* ---------------------------------------------
+ * Preset list conversion
+ * -------------------------------------------*/
+
+export function artListToRandomListItem(entry: ArtListEntry): RandomListItem {
+  const key = (entry as { id?: string }).id ?? entry.title
+
   return {
-    id: -1,
+    id: stableNegativeId(`preset:${key}`),
     title: entry.title,
-    pitch: '',
     PitchType: 'RANDOMLIST',
-    userId: 0,
+    userId: null,
     isPublic: true,
     isMature: false,
-    examples: JSON.stringify(entry.content),
-    createdAt: new Date(0),
-    updatedAt: new Date(0),
     designer: 'system',
-    flavorText: null,
-    highlightImage: null,
-    imagePrompt: null,
-    description: null,
-    artImageId: null,
-    icon: '',
+    examplesJson: JSON.stringify(entry.content),
+    source: 'preset',
   }
 }
 
-// 🔁 Used for converting arrays into Pitch objects directly
-function arrayToPitch(id: string, title: string, content: string[]): Pitch {
+export function getAllPresetLists(entries: ArtListEntry[]): RandomListItem[] {
+  return entries.map(artListToRandomListItem)
+}
+
+/* ---------------------------------------------
+ * User list conversion
+ * -------------------------------------------*/
+
+export function pitchToRandomListItem(p: Pitch): RandomListItem {
   return {
-    id: -1,
-    title,
-    pitch: '',
+    id: p.id,
+    title: p.title,
     PitchType: 'RANDOMLIST',
-    userId: 0,
-    isPublic: true,
-    isMature: false,
-    examples: JSON.stringify(content),
-    createdAt: new Date(0),
-    updatedAt: new Date(0),
-    designer: 'system',
-    flavorText: null,
-    highlightImage: null,
-    imagePrompt: null,
-    description: null,
-    artImageId: null,
-    icon: '',
+    userId: p.userId ?? null,
+    isPublic: p.isPublic,
+    isMature: p.isMature,
+    designer: null,
+    examplesJson: typeof p.pitch === 'string' ? p.pitch : '[]',
+    source: 'user',
   }
 }
 
-// 🧠 Combine all known single-value sources into mock Pitch[] (local only)
-export const basicSinglePitches: Pitch[] = [
-  arrayToPitch('adjective', 'Adjective', adjectiveList),
-  arrayToPitch('animal', 'Animal', animalList),
-  arrayToPitch('backstory', 'Backstory', backstoryList),
-  arrayToPitch('class', 'Class', classList),
-  arrayToPitch('color', 'Color', colorList),
-  arrayToPitch('genre', 'Genre', genreList),
-  arrayToPitch('honorific', 'Honorific', honorificList),
-  arrayToPitch('inventory', 'Inventory', inventoryList),
-  arrayToPitch('item', 'Item', itemList),
-  arrayToPitch('material', 'Material', materialList),
-  arrayToPitch('name', 'Name', nameList),
-  arrayToPitch('noun', 'Noun', nounList),
-  arrayToPitch('personality', 'Personality', personalityList),
-  arrayToPitch('quirk', 'Quirk', quirkList),
-  arrayToPitch('skill', 'Skill', skillList),
-  arrayToPitch('species', 'Species', speciesList),
-  arrayToPitch('verb', 'Verb', verbList),
-  arrayToPitch('encounter', 'Encounter', [useRandomEncounter().message]),
+/* ---------------------------------------------
+ * Single-value random pools
+ * -------------------------------------------*/
+
+export const basicSinglePools: RandomPool[] = [
+  { key: 'adjective', title: 'Adjective', values: adjectiveList },
+  { key: 'animal', title: 'Animal', values: animalList },
+  { key: 'backstory', title: 'Backstory', values: backstoryList },
+  { key: 'class', title: 'Class', values: classList },
+  { key: 'color', title: 'Color', values: colorList },
+  { key: 'genre', title: 'Genre', values: genreList },
+  { key: 'honorific', title: 'Honorific', values: honorificList },
+  { key: 'inventory', title: 'Inventory', values: inventoryList },
+  { key: 'item', title: 'Item', values: itemList },
+  { key: 'material', title: 'Material', values: materialList },
+  { key: 'name', title: 'Name', values: nameList },
+  { key: 'noun', title: 'Noun', values: nounList },
+  { key: 'personality', title: 'Personality', values: personalityList },
+  { key: 'quirk', title: 'Quirk', values: quirkList },
+  { key: 'skill', title: 'Skill', values: skillList },
+  { key: 'species', title: 'Species', values: speciesList },
+  { key: 'verb', title: 'Verb', values: verbList },
+  {
+    key: 'encounter',
+    title: 'Encounter',
+    values: [useRandomEncounter().message],
+  },
 ]
 
-// 🔀 Random string picker from any known key
+/* ---------------------------------------------
+ * Random selection helpers
+ * -------------------------------------------*/
+
 export function getRandom(key: string, count = 1): string[] {
-  const pitch = basicSinglePitches.find(
-    (p) => p.title?.toLowerCase() === key.toLowerCase(),
+  const pool = basicSinglePools.find(
+    (p) => p.key.toLowerCase() === key.toLowerCase(),
   )
-  if (!pitch) return []
-  const list = pitch.examples ? JSON.parse(pitch.examples) : []
-  const shuffled = [...list].sort(() => 0.5 - Math.random())
-  return shuffled.slice(0, Math.min(count, list.length))
+  if (!pool) return []
+
+  const values = safeStringArray(pool.values)
+  const shuffled = [...values].sort(() => 0.5 - Math.random())
+  return shuffled.slice(0, Math.min(count, values.length))
 }
 
-// 🧱 Map from ArtListEntry[] to mock Pitches
-export function getAllPresetPitches(entries: ArtListEntry[]): Pitch[] {
-  return entries.map(artListToPitch)
-}
-
-export const supportedKeys: string[] = basicSinglePitches
-  .map((p) => p.title?.toLowerCase())
-  .filter(Boolean) as string[]
+export const supportedKeys: string[] = basicSinglePools.map((p) => p.key)

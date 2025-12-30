@@ -64,10 +64,10 @@ const userStore = useUserStore()
 // Compute earned milestones based on records with matching user ID
 const earnedMilestones = computed(() => {
   return milestoneStore.milestoneRecords
-    .filter((record) => record.userId === userStore.userId)
-    .map((record) => {
+    .filter((record: { userId: any }) => record.userId === userStore.userId)
+    .map((record: { milestoneId: any; createdAt: string | number | Date }) => {
       const milestone = milestoneStore.milestones.find(
-        (milestone) => milestone.id === record.milestoneId,
+        (milestone: { id: any }) => milestone.id === record.milestoneId,
       )
       if (milestone) {
         // Format acquiredAt if present
@@ -81,15 +81,15 @@ const earnedMilestones = computed(() => {
       }
       return null
     })
-    .filter((milestone) => milestone !== null) // Remove nulls from the list
+    .filter((milestone: null) => milestone !== null) // Remove nulls from the list
 })
 
 // Calculate unearned milestones based on the absence of records for the current user
 const unearnedMilestones = computed(() => {
   return milestoneStore.milestones.filter(
-    (milestone) =>
+    (milestone: { id: any }) =>
       !milestoneStore.milestoneRecords.some(
-        (record) =>
+        (record: { milestoneId: any; userId: any }) =>
           record.milestoneId === milestone.id &&
           record.userId === userStore.userId,
       ),

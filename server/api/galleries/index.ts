@@ -140,9 +140,7 @@ export async function fetchRandomImage(): Promise<string | null> {
 }
 
 // Function to fetch all images from all galleries
-export async function getAllGalleryImages(): Promise<{
-  [galleryId: number]: string[]
-}> {
+export async function getAllGalleryImages(): Promise<Record<number, string[]>> {
   try {
     const galleries = await prisma.gallery.findMany({
       select: {
@@ -151,15 +149,16 @@ export async function getAllGalleryImages(): Promise<{
       },
     })
 
-    const allImages: { [galleryId: number]: string[] } = {}
+    const allImages: Record<number, string[]> = {}
 
-    galleries.forEach(
-      (gallery: { imagePaths: string; id: string | number }) => {
-        if (gallery.imagePaths) {
-          allImages[gallery.id] = gallery.imagePaths.split(',')
-        }
-      },
-    )
+    galleries.forEach((gallery: { id: number; imagePaths: string | null }) => {
+      if (gallery.imagePaths) {
+        allImages[gallery.id] = gallery.imagePaths
+          .split(',')
+          .map((p: string) => p.trim())
+          .filter((p: string) => p.length > 0)
+      }
+    })
 
     return allImages
   } catch (error: unknown) {

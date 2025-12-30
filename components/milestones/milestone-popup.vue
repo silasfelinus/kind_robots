@@ -1,5 +1,4 @@
 <!-- /components/content/story/milestone-popup.vue -->
-<!-- /components/milestone-popup.vue -->
 <template>
   <div
     v-if="milestone && !userStore.isGuest"
@@ -48,22 +47,37 @@
 </template>
 
 <script setup lang="ts">
-// /components/milestone-popup.vue
-import { computed, watch } from 'vue'
+// /components/content/story/milestone-popup.vue
+import { computed, watch, nextTick } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useErrorStore } from '@/stores/errorStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import confetti from 'canvas-confetti'
+
+type MilestoneRecordLike = {
+  milestoneId: number
+}
+
+type MilestoneLike = {
+  id: number
+  label: string
+  message?: string | null
+  icon?: string | null
+  karma?: number | null
+}
 
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 const errorStore = useErrorStore()
 
-const milestone = computed(() => milestoneStore.unconfirmedMilestones[0])
+const milestone = computed<MilestoneLike | null>(() => {
+  const m = milestoneStore.unconfirmedMilestones?.[0]
+  return (m ?? null) as MilestoneLike | null
+})
 
 watch(milestone, async (newMilestone, oldMilestone) => {
   if (newMilestone && !oldMilestone && !userStore.isGuest) {
-    await nextTick() // ensures DOM is updated before measuring
+    await nextTick()
     confetti({
       particleCount: 150,
       spread: 90,
@@ -75,7 +89,7 @@ watch(milestone, async (newMilestone, oldMilestone) => {
   }
 })
 
-const acknowledgeMilestone = async () => {
+const acknowledgeMilestone = async (): Promise<void> => {
   const current = milestone.value
   if (!current) {
     console.warn(
@@ -93,9 +107,9 @@ const acknowledgeMilestone = async () => {
       await userStore.updateKarmaAndMana()
       await milestoneStore.confirmMilestone(current.id)
 
-      const isRecorded = milestoneStore.milestoneRecords.some(
-        (r) => r.milestoneId === current.id,
-      )
+      const isRecorded = (
+        milestoneStore.milestoneRecords as MilestoneRecordLike[]
+      ).some((r: MilestoneRecordLike) => r.milestoneId === current.id)
 
       if (userStore.isGuest || !isRecorded) {
         console.warn(
@@ -108,10 +122,11 @@ const acknowledgeMilestone = async () => {
     `[milestone-popup] Failed to acknowledge milestone: ${current.label}`,
   )
 
-  // Optional fallback: safety net if errors are swallowed silently
-  if (
-    !milestoneStore.milestoneRecords.some((r) => r.milestoneId === current.id)
-  ) {
+  const stillNotRecorded = !(
+    milestoneStore.milestoneRecords as MilestoneRecordLike[]
+  ).some((r: MilestoneRecordLike) => r.milestoneId === current.id)
+
+  if (stillNotRecorded) {
     milestoneStore.deactivateMilestone(current.id)
   }
 }

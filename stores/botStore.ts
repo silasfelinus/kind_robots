@@ -29,7 +29,7 @@ export const useBotStore = defineStore('botStore', () => {
 
   async function selectBot(botId: number) {
     if (currentBot.value?.id === botId) return
-    const found = bots.value.find((b) => b.id === botId)
+    const found = bots.value.find((b: { id: number }) => b.id === botId)
     if (!found) return handleError(`Bot ID ${botId} not found`, 'selecting bot')
     currentBot.value = found
     botForm.value = { ...found }
@@ -81,7 +81,7 @@ export const useBotStore = defineStore('botStore', () => {
       currentImagePath.value,
     )
     if (updated) {
-      const i = bots.value.findIndex((b) => b.id === updated.id)
+      const i = bots.value.findIndex((b: { id: any }) => b.id === updated.id)
       if (i !== -1) bots.value[i] = updated
       currentBot.value = updated
       botForm.value = { ...updated }
@@ -97,7 +97,8 @@ export const useBotStore = defineStore('botStore', () => {
 
   async function deleteBotById(id: number) {
     const success = await deleteBot(id)
-    if (success) bots.value = bots.value.filter((b) => b.id !== id)
+    if (success)
+      bots.value = bots.value.filter((b: { id: number }) => b.id !== id)
   }
 
   async function addBotsToStore(newBots: Partial<Bot>[]) {
@@ -123,7 +124,7 @@ export const useBotStore = defineStore('botStore', () => {
   }
 
   async function getBotImage(botId: number): Promise<string> {
-    const bot = bots.value.find((b) => b.id === botId)
+    const bot = bots.value.find((b: { id: number }) => b.id === botId)
     return bot ? await botImage(bot) : '/images/bot.webp'
   }
 

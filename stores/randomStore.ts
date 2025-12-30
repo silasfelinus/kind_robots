@@ -137,7 +137,9 @@ export const useRandomStore = defineStore('randomStore', () => {
       },
     )
     if (success && data) {
-      const i = randomLists.value.findIndex((r) => r.id === data.id)
+      const i = randomLists.value.findIndex(
+        (r: { id: any }) => r.id === data.id,
+      )
       if (i !== -1) randomLists.value[i] = data
     } else {
       handleError(new Error(message), 'updating list')
@@ -149,7 +151,9 @@ export const useRandomStore = defineStore('randomStore', () => {
       method: 'DELETE',
     })
     if (success) {
-      randomLists.value = randomLists.value.filter((r) => r.id !== id)
+      randomLists.value = randomLists.value.filter(
+        (r: { id: number }) => r.id !== id,
+      )
     } else {
       handleError(new Error(message), 'deleting list')
     }
@@ -163,7 +167,9 @@ export const useRandomStore = defineStore('randomStore', () => {
       },
     )
     if (success && data) {
-      const i = randomLists.value.findIndex((r) => r.id === data.id)
+      const i = randomLists.value.findIndex(
+        (r: { id: any }) => r.id === data.id,
+      )
       if (i !== -1) randomLists.value[i] = data
     } else {
       handleError(new Error(message), 'generating list items')

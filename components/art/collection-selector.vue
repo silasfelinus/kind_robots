@@ -58,14 +58,14 @@ const userStore = useUserStore()
 const selectedCollection = computed(() => {
   return (
     collectionStore.collections.find(
-      (c) => c.id === collectionStore.selectedCollectionIds[0],
+      (c: { id: any }) => c.id === collectionStore.selectedCollectionIds[0],
     ) || null
   )
 })
 
 const allCollections = computed(() =>
   collectionStore.collections.filter(
-    (c) => c.userId === userStore.userId || userStore.isAdmin,
+    (c: { userId: any }) => c.userId === userStore.userId || userStore.isAdmin,
   ),
 )
 

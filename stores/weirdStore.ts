@@ -36,13 +36,17 @@ export const useWeirdStore = defineStore('weirdStore', () => {
 
   const activeCharacter = computed(() =>
     activeCharacterId.value
-      ? characterStore.characters.find((c) => c.id === activeCharacterId.value)
+      ? characterStore.characters.find(
+          (c: { id: number | null }) => c.id === activeCharacterId.value,
+        )
       : null,
   )
 
   const activeChat = computed(() =>
     activeChatId.value
-      ? chatStore.chats.find((c) => c.id === activeChatId.value)
+      ? chatStore.chats.find(
+          (c: { id: number | null }) => c.id === activeChatId.value,
+        )
       : null,
   )
 

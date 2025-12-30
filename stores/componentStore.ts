@@ -71,7 +71,9 @@ export const useComponentStore = defineStore('componentStore', () => {
 
   async function updateComponent(component: Component) {
     const updated = await helperUpdate(component)
-    const index = components.value.findIndex((c) => c.id === component.id)
+    const index = components.value.findIndex(
+      (c: { id: any }) => c.id === component.id,
+    )
     if (index !== -1) components.value[index] = updated
     return updated
   }
@@ -79,7 +81,9 @@ export const useComponentStore = defineStore('componentStore', () => {
   async function deleteComponent(id: number) {
     const success = await helperDelete(id)
     if (success) {
-      components.value = components.value.filter((c) => c.id !== id)
+      components.value = components.value.filter(
+        (c: { id: number }) => c.id !== id,
+      )
     }
     return success
   }
@@ -98,7 +102,9 @@ export const useComponentStore = defineStore('componentStore', () => {
     if (action === 'create') {
       components.value.push(result)
     } else {
-      const index = components.value.findIndex((c) => c.id === result.id)
+      const index = components.value.findIndex(
+        (c: { id: any }) => c.id === result.id,
+      )
       if (index !== -1) components.value[index] = result
     }
     return result

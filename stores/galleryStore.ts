@@ -14,11 +14,13 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   const currentGalleryContent = computed(
     () => currentGallery.value?.content || null,
   )
-  const allGalleryNames = computed(() => galleries.value.map((g) => g.name))
+  const allGalleryNames = computed(() =>
+    galleries.value.map((g: { name: any }) => g.name),
+  )
   const randomImage = computed(() => currentImage.value || null)
   const randomGallery = computed(() => {
     const others = galleries.value.filter(
-      (g) => g.name !== currentGallery.value?.name,
+      (g: { name: any }) => g.name !== currentGallery.value?.name,
     )
     return others.length
       ? others[Math.floor(Math.random() * others.length)]
@@ -26,7 +28,9 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   })
 
   const imagePathsByGalleryName = computed(() => (name: string): string[] => {
-    const gallery = galleries.value.find((g) => g.name === name)
+    const gallery = galleries.value.find(
+      (g: { name: string }) => g.name === name,
+    )
     return gallery?.imagePaths?.split(',') || []
   })
 
@@ -78,7 +82,7 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   }
 
   async function deleteGallery(id: number, userId: number) {
-    const gallery = galleries.value.find((g) => g.id === id)
+    const gallery = galleries.value.find((g: { id: number }) => g.id === id)
     if (!gallery || gallery.userId !== userId) {
       console.error('Unauthorized or missing gallery.')
       return
@@ -88,7 +92,9 @@ export const useGalleryStore = defineStore('galleryStore', () => {
         method: 'DELETE',
       })
       if (res.success) {
-        galleries.value = galleries.value.filter((g) => g.id !== id)
+        galleries.value = galleries.value.filter(
+          (g: { id: number }) => g.id !== id,
+        )
         if (isClient)
           localStorage.setItem('galleries', JSON.stringify(galleries.value))
       } else throw new Error(res.message || 'Failed to delete gallery')
@@ -114,7 +120,9 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   }
 
   function setGalleryByName(name: string) {
-    const gallery = galleries.value.find((g) => g.name === name)
+    const gallery = galleries.value.find(
+      (g: { name: string }) => g.name === name,
+    )
     if (gallery) {
       currentGallery.value = gallery
       const firstImage = gallery.imagePaths?.split(',')[0] || ''
@@ -137,7 +145,7 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   }
 
   async function setCurrentGallery(id: number) {
-    const gallery = galleries.value.find((g) => g.id === id)
+    const gallery = galleries.value.find((g: { id: number }) => g.id === id)
     if (!gallery) return console.warn(`Gallery with ID ${id} not found.`)
     currentGallery.value = gallery
     const firstImage = gallery.imagePaths?.split(',')[0] || ''
@@ -159,7 +167,8 @@ export const useGalleryStore = defineStore('galleryStore', () => {
         `/api/galleries/random/id/${id}`,
       )
       if (res.success && res.data) {
-        const gallery = galleries.value.find((g) => g.id === id) || null
+        const gallery =
+          galleries.value.find((g: { id: number }) => g.id === id) || null
         const baseName = gallery?.name || ''
         const fullPath = baseName
           ? buildImagePath(baseName, res.data.imagePath)
@@ -209,7 +218,7 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   async function changeToRandomImage(): Promise<string | null> {
     const gallery = currentGallery.value
     if (!gallery?.imagePaths) return null
-    const paths = gallery.imagePaths.split(',').map((p) => p.trim())
+    const paths = gallery.imagePaths.split(',').map((p: string) => p.trim())
     if (!paths.length) return null
     const selected = paths[Math.floor(Math.random() * paths.length)]
     const fullPath = buildImagePath(gallery.name, selected)

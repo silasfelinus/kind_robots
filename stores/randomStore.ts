@@ -5,33 +5,62 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useUserStore } from './userStore'
 import { useArtStore } from './artStore'
 import { handleError, performFetch } from './utils'
+
 import type { Pitch } from '@prisma/client'
 import { artListPresets } from '@/stores/seeds/artList'
 import {
-  getAllPresetPitches,
   getRandom,
   supportedKeys,
+  getAllPresetLists,
+  pitchToRandomListItem,
 } from './helpers/randomHelper'
+import type { RandomListItem } from './helpers/randomHelper'
+
+type PerformFetchResult<T> = {
+  success: boolean
+  data?: T
+  message?: string
+  statusCode?: number
+}
+
+function isRandomListPitch(p: Pitch): boolean {
+  return (p as unknown as { PitchType?: unknown }).PitchType === 'RANDOMLIST'
+}
+
+function safeParseStringArray(value: unknown): string[] {
+  if (typeof value !== 'string') return []
+  try {
+    const parsed = JSON.parse(value) as unknown
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(
+      (v): v is string => typeof v === 'string' && v.trim().length > 0,
+    )
+  } catch {
+    return []
+  }
+}
 
 export const useRandomStore = defineStore('randomStore', () => {
   const userStore = useUserStore()
   const artStore = useArtStore()
 
   const randomSelections = ref<Record<string, string>>({})
-  const presetLists = getAllPresetPitches(artListPresets)
   const randomLists = ref<Pitch[]>([])
+  const presetLists = ref<RandomListItem[]>(getAllPresetLists(artListPresets))
 
-  const filteredLists = computed(() => {
-    const userLists = Array.isArray(randomLists.value)
-      ? randomLists.value.filter((r) => {
-          const isOwner = r.userId === userStore.userId
-          const isVisible = r.isPublic || isOwner
-          const maturityOk = userStore.showMature || !r.isMature
-          return r.PitchType === PitchType.RANDOMLIST && isVisible && maturityOk
-        })
-      : []
+  const filteredLists = computed<RandomListItem[]>(() => {
+    const userLists = (
+      Array.isArray(randomLists.value) ? randomLists.value : []
+    )
+      .filter((r: Pitch) => {
+        const isOwner = r.userId === userStore.userId
+        const isVisible = r.isPublic || isOwner
+        const maturityOk = userStore.showMature || !r.isMature
+        return isRandomListPitch(r) && isVisible && maturityOk
+      })
+      .map(pitchToRandomListItem)
 
-    return [...presetLists, ...userLists]
+    return [...presetLists.value, ...userLists]
   })
 
   function pickRandomFromArray(arr: string[], count: number): string[] {
@@ -43,11 +72,14 @@ export const useRandomStore = defineStore('randomStore', () => {
   function toggleSelection(key: string) {
     const result = getRandom(key, 1)[0]
     if (!result) return
+
     if (randomSelections.value[key] === result) {
-      randomSelections.value[key] = getRandom(key, 1)[0]
-    } else {
-      randomSelections.value[key] = result
+      const next = getRandom(key, 1)[0]
+      if (next) randomSelections.value[key] = next
+      return
     }
+
+    randomSelections.value[key] = result
   }
 
   function clearSelection(key: string) {
@@ -67,8 +99,8 @@ export const useRandomStore = defineStore('randomStore', () => {
       const stored = localStorage.getItem('artRandomizerRandomSelections')
       if (stored) {
         try {
-          randomSelections.value = JSON.parse(stored)
-        } catch (error) {
+          randomSelections.value = JSON.parse(stored) as Record<string, string>
+        } catch (error: unknown) {
           handleError(
             error,
             'Failed to parse randomSelections from localStorage',
@@ -78,13 +110,13 @@ export const useRandomStore = defineStore('randomStore', () => {
 
       watch(
         randomSelections,
-        (val) => {
+        (val: Record<string, string>) => {
           try {
             localStorage.setItem(
               'artRandomizerRandomSelections',
               JSON.stringify(val),
             )
-          } catch (error) {
+          } catch (error: unknown) {
             handleError(
               error,
               'Failed to save randomSelections to localStorage',
@@ -95,89 +127,124 @@ export const useRandomStore = defineStore('randomStore', () => {
       )
     })
   }
+
   async function fetchRandomLists() {
-    const { data, success, message } = await performFetch<Pitch[]>(
+    const res = (await performFetch<Pitch[]>(
       '/api/pitch/randomlists',
-    )
-    if (success && data) {
-      randomLists.value = data
-    } else {
-      handleError(new Error(message), 'fetching random lists')
+    )) as PerformFetchResult<Pitch[]>
+
+    if (res.success && res.data) {
+      randomLists.value = res.data
+      return
     }
+
+    handleError(
+      new Error(res.message || 'Failed to fetch random lists'),
+      'fetching random lists',
+    )
   }
 
   async function createList(title: string) {
-    const body = {
+    const body: Partial<Pitch> & Record<string, unknown> = {
       title,
-      pitch: '',
+      pitch: '[]',
       PitchType: 'RANDOMLIST',
       userId: userStore.userId,
       isPublic: true,
       isMature: false,
     }
-    const { data, success, message } = await performFetch<Pitch>('/api/pitch', {
+
+    const res = (await performFetch<Pitch>('/api/pitch', {
       method: 'POST',
       body: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
-    })
-    if (success && data) {
-      randomLists.value.push(data)
-    } else {
-      handleError(new Error(message), 'creating list')
+    })) as PerformFetchResult<Pitch>
+
+    if (res.success && res.data) {
+      randomLists.value.push(res.data)
+      return
     }
+
+    handleError(
+      new Error(res.message || 'Failed to create list'),
+      'creating list',
+    )
   }
 
   async function updateList(pitch: Pitch) {
-    const { data, success, message } = await performFetch<Pitch>(
-      `/api/pitch/${pitch.id}`,
-      {
-        method: 'PATCH',
-        body: JSON.stringify(pitch),
-        headers: { 'Content-Type': 'application/json' },
-      },
-    )
-    if (success && data) {
-      const i = randomLists.value.findIndex(
-        (r: { id: any }) => r.id === data.id,
+    const res = (await performFetch<Pitch>(`/api/pitch/${pitch.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(pitch),
+      headers: { 'Content-Type': 'application/json' },
+    })) as PerformFetchResult<Pitch>
+
+    if (res.success && res.data) {
+      const idx = randomLists.value.findIndex(
+        (r: Pitch) => r.id === res.data?.id,
       )
-      if (i !== -1) randomLists.value[i] = data
-    } else {
-      handleError(new Error(message), 'updating list')
+      if (idx !== -1) randomLists.value[idx] = res.data
+      return
     }
+
+    handleError(
+      new Error(res.message || 'Failed to update list'),
+      'updating list',
+    )
+  }
+
+  async function updateListItem(list: RandomListItem) {
+    if (list.source !== 'user') return
+
+    const body: Partial<Pitch> & Record<string, unknown> = {
+      id: list.id,
+      title: list.title,
+      PitchType: 'RANDOMLIST',
+      userId: list.userId ?? userStore.userId,
+      isPublic: list.isPublic,
+      isMature: list.isMature,
+      pitch: list.examplesJson,
+    }
+
+    await updateList(body as Pitch)
   }
 
   async function deleteList(id: number) {
-    const { success, message } = await performFetch(`/api/pitch/${id}`, {
+    const res = (await performFetch(`/api/pitch/${id}`, {
       method: 'DELETE',
-    })
-    if (success) {
-      randomLists.value = randomLists.value.filter(
-        (r: { id: number }) => r.id !== id,
-      )
-    } else {
-      handleError(new Error(message), 'deleting list')
+    })) as PerformFetchResult<unknown>
+
+    if (res.success) {
+      randomLists.value = randomLists.value.filter((r: Pitch) => r.id !== id)
+      return
     }
+
+    handleError(
+      new Error(res.message || 'Failed to delete list'),
+      'deleting list',
+    )
   }
 
   async function generateListItems(id: number) {
-    const { data, success, message } = await performFetch<Pitch>(
-      `/api/pitch/${id}/generate-items`,
-      {
-        method: 'POST',
-      },
-    )
-    if (success && data) {
-      const i = randomLists.value.findIndex(
-        (r: { id: any }) => r.id === data.id,
+    const res = (await performFetch<Pitch>(`/api/pitch/${id}/generate-items`, {
+      method: 'POST',
+    })) as PerformFetchResult<Pitch>
+
+    if (res.success && res.data) {
+      const idx = randomLists.value.findIndex(
+        (r: Pitch) => r.id === res.data?.id,
       )
-      if (i !== -1) randomLists.value[i] = data
-    } else {
-      handleError(new Error(message), 'generating list items')
+      if (idx !== -1) randomLists.value[idx] = res.data
+      return
     }
+
+    handleError(
+      new Error(res.message || 'Failed to generate list items'),
+      'generating list items',
+    )
   }
 
   function resetAll() {
-    Object.keys(artStore.artListSelections).forEach((key) => {
+    Object.keys(artStore.artListSelections).forEach((key: string) => {
       artStore.updateArtListSelection(key, [])
     })
     clearAllSelections()
@@ -186,12 +253,14 @@ export const useRandomStore = defineStore('randomStore', () => {
   function applyMakePretty() {
     const pretty = artListPresets.find((p) => p.id === '__pretty__')
     const negative = artListPresets.find((p) => p.id === '__negative__')
+
     if (pretty) {
       artStore.updateArtListSelection(
         '__pretty__',
         pickRandomFromArray(pretty.content, 4),
       )
     }
+
     if (negative) {
       artStore.updateArtListSelection(
         '__negative__',
@@ -208,13 +277,28 @@ export const useRandomStore = defineStore('randomStore', () => {
             Math.ceil(Math.random() * entry.content.length),
           )
         : pickRandomFromArray(entry.content, 1)
+
       artStore.updateArtListSelection(entry.id, values)
     }
   }
 
+  function getExamplesForList(list: RandomListItem): string[] {
+    return safeParseStringArray(list.examplesJson)
+  }
+
+  function setExamplesForList(list: RandomListItem, values: string[]) {
+    const cleaned = Array.isArray(values)
+      ? values.filter((v) => typeof v === 'string' && v.trim().length > 0)
+      : []
+    list.examplesJson = JSON.stringify(cleaned)
+  }
+
   return {
     initialize,
+
+    // Random single selection helpers
     getRandom,
+    supportedKeys,
     pickRandomFromArray,
     toggleSelection,
     clearSelection,
@@ -222,19 +306,26 @@ export const useRandomStore = defineStore('randomStore', () => {
     getAllSelections,
     randomSelections,
 
-    // Centralized commands
-    resetAll,
-    applyMakePretty,
-    applySurprise,
-    supportedKeys,
-
-    // Remote random list handling
+    // Preset + user lists
+    presetLists,
     randomLists,
     filteredLists,
+
+    // Remote random list handling
     fetchRandomLists,
     createList,
     updateList,
+    updateListItem,
     deleteList,
     generateListItems,
+
+    // Commands
+    resetAll,
+    applyMakePretty,
+    applySurprise,
+
+    // Convenience for components
+    getExamplesForList,
+    setExamplesForList,
   }
 })

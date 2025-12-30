@@ -41,7 +41,9 @@ const chatStore = useChatStore()
 
 // Fetch chat exchange by ID
 const chat = computed(() => {
-  return chatStore.chats.find((exchange) => exchange.id === props.chatId)
+  return chatStore.chats.find(
+    (exchange: { id: number }) => exchange.id === props.chatId,
+  )
 })
 
 const chatMessages = computed(() => {
@@ -49,7 +51,7 @@ const chatMessages = computed(() => {
     // Retrieve the bot response if available; otherwise, return a placeholder or an empty string
     const botResponse =
       chatStore.chats.find(
-        (entry) =>
+        (entry: { previousEntryId: any; type: string }) =>
           entry.previousEntryId === chat.value?.id &&
           entry.type === 'BotResponse',
       )?.content || 'Bot response not available.'

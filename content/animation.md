@@ -22,6 +22,9 @@ Working:
 Flip Basic
 :flip-basic
 
+flip-new:
+:flip-new
+
 
 Still to fix:
 Flip Demo

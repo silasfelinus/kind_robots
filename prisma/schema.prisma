@@ -4,6 +4,8 @@ generator client {
 
 datasource db {
   provider          = "mysql"
+  
+
 }
 
 /// Art holds the overarching data for possibly multiple artImage objects. I've tinkered with having a unified Art object to avoid obfuscation, this is the most complex model we have between Art, ArtCollection, and ArtImage, but the hope was that separating would allow easy handling of the entire Art model array, while selectively calling for the ArtImage data when needed.

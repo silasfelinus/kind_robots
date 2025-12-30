@@ -26,7 +26,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
 
   const milestoneCountForUser = computed(() => {
     return milestoneRecords.value.filter(
-      (record) => record.userId === userStore.userId,
+      (record: { userId: any }) => record.userId === userStore.userId,
     ).length
   })
 
@@ -40,9 +40,9 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   }
 
   const unconfirmedMilestones = computed(() => {
-    return milestones.value.filter((milestone) =>
+    return milestones.value.filter((milestone: { id: any }) =>
       milestoneRecords.value.some(
-        (record) =>
+        (record: { userId: any; milestoneId: any; isConfirmed: any }) =>
           record.userId === userStore.userId &&
           record.milestoneId === milestone.id &&
           !record.isConfirmed,
@@ -51,15 +51,19 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   })
 
   const milestoneSummary = computed(() => {
-    return milestones.value.map((milestone) => ({
-      id: milestone.id,
-      label: milestone.label,
-      isActive: milestone.isActive,
-    }))
+    return milestones.value.map(
+      (milestone: { id: any; label: any; isActive: any }) => ({
+        id: milestone.id,
+        label: milestone.label,
+        isActive: milestone.isActive,
+      }),
+    )
   })
 
   const activeMilestones = computed(() => {
-    return milestones.value.filter((milestone) => milestone.isActive)
+    return milestones.value.filter(
+      (milestone: { isActive: any }) => milestone.isActive,
+    )
   })
 
   async function initialize() {
@@ -107,7 +111,8 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     await fetchMilestoneRecords()
 
     const record = milestoneRecords.value.find(
-      (r) => r.userId === userStore.userId && r.milestoneId === milestoneId,
+      (r: { userId: any; milestoneId: number }) =>
+        r.userId === userStore.userId && r.milestoneId === milestoneId,
     )
 
     if (!record) {
@@ -176,7 +181,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   async function updateMilestonesFromData() {
     for (const updatedMilestone of milestoneData) {
       const existingMilestone = milestones.value.find(
-        (m) => m.id === updatedMilestone.id,
+        (m: { id: any }) => m.id === updatedMilestone.id,
       )
       if (existingMilestone) {
         Object.assign(existingMilestone, updatedMilestone)
@@ -335,7 +340,9 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
 
     if (!shouldRun()) return
 
-    const milestone = milestones.value.find((m) => m.id === milestoneId)
+    const milestone = milestones.value.find(
+      (m: { id: number }) => m.id === milestoneId,
+    )
     if (!milestone) {
       const fetched = await fetchMilestoneById(milestoneId)
       if (!fetched.success || !fetched.data) {
@@ -353,7 +360,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       }
     }
 
-    const m = milestones.value.find((m) => m.id === milestoneId)
+    const m = milestones.value.find((m: { id: number }) => m.id === milestoneId)
     if (m && !m.isActive) {
       m.isActive = true
       persist()
@@ -363,7 +370,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   }
 
   function deactivateMilestone(id: number) {
-    const m = milestones.value.find((m) => m.id === id)
+    const m = milestones.value.find((m: { id: number }) => m.id === id)
     if (m) m.isActive = false
     persist()
   }
@@ -411,7 +418,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
 
   function hasMilestone(userId: number, milestoneId: number) {
     return milestoneRecords.value.some(
-      (record) =>
+      (record: { userId: number; milestoneId: number }) =>
         record.userId === userId && record.milestoneId === milestoneId,
     )
   }

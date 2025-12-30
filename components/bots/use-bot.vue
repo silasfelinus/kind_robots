@@ -119,7 +119,7 @@ const parsedUserPrompts = computed(() => {
   const userPrompts = botStore.currentBot?.userIntro || ''
   return userPrompts
     .split('|') // Split string into an array
-    .filter((text) => text.trim()) // Remove empty or whitespace-only entries
+    .filter((text: string) => text.trim()) // Remove empty or whitespace-only entries
     .map((text, index) => ({
       id: index + 1, // Add a unique ID for each entry
       text: text.trim(), // Ensure the prompt text is trimmed

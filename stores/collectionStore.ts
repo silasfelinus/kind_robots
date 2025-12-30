@@ -31,7 +31,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
   const selectedCollectionIds = ref<number[]>([])
 
   function findCollectionById(collectionId: number): ArtCollection | undefined {
-    return state.collections.find((c) => c.id === collectionId)
+    return state.collections.find((c: { id: number }) => c.id === collectionId)
   }
 
   const selectedCollections = computed(() =>
@@ -75,10 +75,11 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
   function getUncollectedArt(): Art[] {
     const collectedIds = state.collections
-      .filter((c) => c.userId === userStore.userId)
-      .flatMap((c) => c.art.map((a) => a.id))
+      .filter((c: { userId: any }) => c.userId === userStore.userId)
+      .flatMap((c: { art: any[] }) => c.art.map((a: { id: any }) => a.id))
     return artStore.art.filter(
-      (a) => a.userId === userStore.userId && !collectedIds.includes(a.id),
+      (a: { userId: any; id: any }) =>
+        a.userId === userStore.userId && !collectedIds.includes(a.id),
     )
   }
 
@@ -113,7 +114,9 @@ export const useCollectionStore = defineStore('collectionStore', () => {
         },
       )
       if (!response.success) throw new Error(response.message)
-      state.collections = state.collections.filter((c) => c.id !== collectionId)
+      state.collections = state.collections.filter(
+        (c: { id: number }) => c.id !== collectionId,
+      )
       return true
     } catch (error) {
       handleError(error, 'deleting collection')
@@ -160,7 +163,9 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     )
 
     if (response.success && response.data) {
-      const index = state.collections.findIndex((c) => c.id === collection!.id)
+      const index = state.collections.findIndex(
+        (c: { id: any }) => c.id === collection!.id,
+      )
       if (index !== -1) state.collections[index] = response.data
     }
   }
@@ -186,7 +191,9 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
       const collection = findCollectionById(collectionId)
       if (collection) {
-        collection.art = collection.art.filter((a) => a.id !== artId)
+        collection.art = collection.art.filter(
+          (a: { id: number }) => a.id !== artId,
+        )
       }
       return true
     } catch (error) {
@@ -196,7 +203,9 @@ export const useCollectionStore = defineStore('collectionStore', () => {
   }
 
   function getUserCollections(userId: number): ArtCollection[] {
-    return state.collections.filter((c) => c.userId === userId)
+    return state.collections.filter(
+      (c: { userId: number }) => c.userId === userId,
+    )
   }
 
   async function updateCollectionLabel(
@@ -213,7 +222,9 @@ export const useCollectionStore = defineStore('collectionStore', () => {
         },
       )
       if (!response.success || !response.data) throw new Error(response.message)
-      const index = state.collections.findIndex((c) => c.id === id)
+      const index = state.collections.findIndex(
+        (c: { id: number }) => c.id === id,
+      )
       if (index !== -1) state.collections[index] = response.data
       return response.data
     } catch (error) {
@@ -236,7 +247,9 @@ export const useCollectionStore = defineStore('collectionStore', () => {
         },
       )
       if (!response.success || !response.data) throw new Error(response.message)
-      const index = state.collections.findIndex((c) => c.id === id)
+      const index = state.collections.findIndex(
+        (c: { id: number }) => c.id === id,
+      )
       if (index !== -1) state.collections[index] = response.data
       return response.data
     } catch (error) {

@@ -17,7 +17,7 @@ export default defineEventHandler(async () => {
     })
 
     // Map the result to extract folder names
-    const data = folders.map((folder) => folder.folderName)
+    const data = folders.map((folder: { folderName: any }) => folder.folderName)
 
     // Return consistent response structure
     response = {

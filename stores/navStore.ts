@@ -22,7 +22,7 @@ export const useNavStore = defineStore('navStore', () => {
 
   // --- COMPUTED: SmartIcon Data ---
   const directoryIcons = computed(() =>
-    items.value.filter((icon) => icon.type === 'directory'),
+    items.value.filter((icon: { type: string }) => icon.type === 'directory'),
   )
 
   const modelTypes = computed(() => {
@@ -38,7 +38,7 @@ export const useNavStore = defineStore('navStore', () => {
   const favoritesIcons = computed(() => {
     const favSet = new Set(favorites.value)
     return directoryIcons.value.filter(
-      (icon) => icon.link && favSet.has(icon.link),
+      (icon: { link: string }) => icon.link && favSet.has(icon.link),
     )
   })
 

@@ -188,9 +188,9 @@ const visibleCount = ref(50)
 const editingTitle = ref<number | null>(null)
 
 const selectedCollections = computed(() => {
-  const selected = collectionStore.selectedCollectionIds.map((id) => {
+  const selected = collectionStore.selectedCollectionIds.map((id: number) => {
     if (id === -1) return unassignedCollection.value
-    return collectionStore.collections.find((c) => c.id === id)
+    return collectionStore.collections.find((c: { id: any }) => c.id === id)
   })
   return selected.filter(Boolean) as ArtCollection[]
 })
@@ -199,7 +199,11 @@ function selectCollection(id: number) {
   if (id === -1) {
     collectionStore.selectedCollectionIds = [-1]
     // Directly inject the unassigned collection
-    if (!collectionStore.selectedCollections.find((c) => c.id === -1)) {
+    if (
+      !collectionStore.selectedCollections.find(
+        (c: { id: number }) => c.id === -1,
+      )
+    ) {
       collectionStore.selectedCollections.push(unassignedCollection.value)
     }
   } else {
@@ -209,13 +213,15 @@ function selectCollection(id: number) {
 
 function removeCollection(id: number) {
   collectionStore.selectedCollectionIds =
-    collectionStore.selectedCollectionIds.filter((i) => i !== id)
+    collectionStore.selectedCollectionIds.filter((i: number) => i !== id)
 }
 
 function handleHover(collection: ArtCollection) {
   const preview = getPreviewImage(collection)
   if (preview.artId) {
-    const art = artStore.art.find((a) => a.id === preview.artId) || null
+    const art =
+      artStore.art.find((a: { id: number | null }) => a.id === preview.artId) ||
+      null
     artStore.setHoverArt(art)
   } else {
     artStore.setHoverArt(null)
@@ -227,7 +233,7 @@ function canEdit(c: ArtCollection) {
 }
 
 function getArtFromCollection(c: ArtCollection) {
-  return (c.art || []).filter((a) => a.id)
+  return (c.art || []).filter((a: { id: any }) => a.id)
 }
 
 function confirmRemoveAllArt(collection: ArtCollection) {
@@ -237,7 +243,7 @@ function confirmRemoveAllArt(collection: ArtCollection) {
     )
   )
     return
-  const ids = (collection.art || []).map((a) => a.id)
+  const ids = (collection.art || []).map((a: { id: any }) => a.id)
   for (const id of ids) {
     collectionStore.removeArtFromLocalCollection(collection, id)
   }
@@ -245,9 +251,13 @@ function confirmRemoveAllArt(collection: ArtCollection) {
 
 const allUnassignedArt = computed(() => {
   const assignedIds = new Set(
-    collectionStore.collections.flatMap((c) => c.art?.map((a) => a.id) || []),
+    collectionStore.collections.flatMap(
+      (c: { art: any[] }) => c.art?.map((a: { id: any }) => a.id) || [],
+    ),
   )
-  return artStore.art.filter((a) => a.id && !assignedIds.has(a.id))
+  return artStore.art.filter(
+    (a: { id: unknown }) => a.id && !assignedIds.has(a.id),
+  )
 })
 
 const unassignedCollection = computed<ArtCollection>(() => ({
@@ -278,7 +288,7 @@ function getPreviewImage(collection: ArtCollection): {
 } {
   const fallback = '/images/backtree.webp'
   const images = collection.art || []
-  const valid = images.filter((img) => img?.id)
+  const valid = images.filter((img: { id: any }) => img?.id)
   if (!valid.length)
     return { src: fallback, note: 'no art in collection', artId: null }
   const art = valid[Math.floor(Math.random() * valid.length)]
@@ -308,7 +318,9 @@ function getPreviewImage(collection: ArtCollection): {
 
 onMounted(() => {
   selectedCollections.value.forEach((collection) => {
-    ;(collection.art || []).forEach((a) => artStore.getArtImageByArtId(a.id))
+    ;(collection.art || []).forEach((a: { id: any }) =>
+      artStore.getArtImageByArtId(a.id),
+    )
   })
 })
 </script>

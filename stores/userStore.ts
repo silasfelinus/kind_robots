@@ -95,7 +95,7 @@ export const useUserStore = defineStore('userStore', () => {
 
   async function userImage(userIdOverride?: number): Promise<string> {
     const resolvedId = userIdOverride ?? userId.value
-    const target = users.value.find((u) => u.id === resolvedId)
+    const target = users.value.find((u: { id: any }) => u.id === resolvedId)
 
     if (!target) return '/images/kindart.webp'
     if (!target.artImageId) return target.avatarImage || '/images/kindart.webp'
@@ -112,12 +112,14 @@ export const useUserStore = defineStore('userStore', () => {
 
   function getUserNameByUserId(id: number | null): string | null {
     if (id === null) return null
-    return users.value.find((u) => u.id === id)?.username ?? null
+    return (
+      users.value.find((u: { id: number }) => u.id === id)?.username ?? null
+    )
   }
 
   function getUserById(id: number | null): User | null {
     if (id === null) return null
-    return users.value.find((u) => u.id === id) ?? null
+    return users.value.find((u: { id: number }) => u.id === id) ?? null
   }
 
   function logout() {
@@ -221,7 +223,7 @@ export const useUserStore = defineStore('userStore', () => {
   }
 
   function updateUserInList(u: User) {
-    const index = users.value.findIndex((x) => x.id === u.id)
+    const index = users.value.findIndex((x: { id: any }) => x.id === u.id)
     if (index !== -1) users.value.splice(index, 1, u)
     else users.value.push(u)
   }

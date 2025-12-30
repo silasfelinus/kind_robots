@@ -152,7 +152,7 @@ export const usePromptStore = defineStore('promptStore', () => {
   async function selectPrompt(promptId: number) {
     try {
       if (selectedPrompt.value?.id === promptId) return
-      const found = prompts.value.find((p) => p.id === promptId)
+      const found = prompts.value.find((p: { id: number }) => p.id === promptId)
       if (!found) throw new Error(`Prompt with ID ${promptId} not found`)
       selectedPrompt.value = found
     } catch (error) {
@@ -161,7 +161,7 @@ export const usePromptStore = defineStore('promptStore', () => {
   }
 
   async function fetchPromptById(promptId: number): Promise<Prompt | null> {
-    const found = prompts.value.find((p) => p.id === promptId)
+    const found = prompts.value.find((p: { id: number }) => p.id === promptId)
     if (found) return found
 
     try {
@@ -197,7 +197,9 @@ export const usePromptStore = defineStore('promptStore', () => {
         method: 'DELETE',
       })
       if (response.success) {
-        prompts.value = prompts.value.filter((p) => p.id !== promptId)
+        prompts.value = prompts.value.filter(
+          (p: { id: number }) => p.id !== promptId,
+        )
       } else {
         throw new Error(response.message)
       }

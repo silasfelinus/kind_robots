@@ -26,19 +26,23 @@ export const useChatStore = defineStore('chatStore', () => {
   const userStore = useUserStore()
 
   const activeChatsByBotId = (botId: number) =>
-    chats.value.filter((chat) => chat.botId === botId)
+    chats.value.filter((chat: { botId: number }) => chat.botId === botId)
 
   const chatsByUserId = computed(() =>
-    chats.value.filter((chat) => chat.userId === userStore.user?.id),
+    chats.value.filter(
+      (chat: { userId: any }) => chat.userId === userStore.user?.id,
+    ),
   )
 
   const unreadCountByRecipient = (recipientId: number) =>
-    unreadMessages.value.filter((chat) => chat.recipientId === recipientId)
-      .length
+    unreadMessages.value.filter(
+      (chat: { recipientId: number }) => chat.recipientId === recipientId,
+    ).length
 
   const publicChats = computed(() =>
     chats.value.filter(
-      (chat) => chat.isPublic && chat.userId !== userStore.user?.id,
+      (chat: { isPublic: any; userId: any }) =>
+        chat.isPublic && chat.userId !== userStore.user?.id,
     ),
   )
 
@@ -55,20 +59,20 @@ export const useChatStore = defineStore('chatStore', () => {
   }
 
   async function selectChat(chatId: number) {
-    const found = chats.value.find((chat) => chat.id === chatId)
+    const found = chats.value.find((chat: { id: number }) => chat.id === chatId)
     if (found) selectedChat.value = found
   }
 
   function markMessagesAsRead(recipientId: number) {
     const unread = unreadMessages.value.filter(
-      (chat) => chat.recipientId === recipientId,
+      (chat: { recipientId: number }) => chat.recipientId === recipientId,
     )
-    unread.forEach((chat) => {
+    unread.forEach((chat: { isRead: boolean; id: number }) => {
       chat.isRead = true
       markChatAsRead(chat.id)
     })
     unreadMessages.value = unreadMessages.value.filter(
-      (chat) => chat.recipientId !== recipientId,
+      (chat: { recipientId: number }) => chat.recipientId !== recipientId,
     )
   }
 
@@ -87,7 +91,9 @@ export const useChatStore = defineStore('chatStore', () => {
   }
 
   function updateChat(chatId: number, updatedFields: Partial<Chat>) {
-    const index = chats.value.findIndex((chat) => chat.id === chatId)
+    const index = chats.value.findIndex(
+      (chat: { id: number }) => chat.id === chatId,
+    )
     if (index !== -1) {
       chats.value[index] = { ...chats.value[index], ...updatedFields }
     }
@@ -100,7 +106,7 @@ export const useChatStore = defineStore('chatStore', () => {
   }
 
   function appendBotResponse(chatId: number, botResponse: string) {
-    const chat = chats.value.find((c) => c.id === chatId)
+    const chat = chats.value.find((c: { id: number }) => c.id === chatId)
     if (chat) {
       chat.botResponse = (chat.botResponse || '') + botResponse
       saveToLocalStorage()
@@ -109,7 +115,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
   async function deleteChat(chatId: number): Promise<boolean> {
     const currentUserId = userStore.userId
-    const chat = chats.value.find((c) => c.id === chatId)
+    const chat = chats.value.find((c: { id: number }) => c.id === chatId)
 
     if (!currentUserId || !chat || chat.userId !== currentUserId) {
       handleError(ErrorType.AUTH_ERROR, 'Unauthorized delete attempt.')
@@ -119,7 +125,7 @@ export const useChatStore = defineStore('chatStore', () => {
     try {
       const success = await deleteChatById(chatId)
       if (success) {
-        chats.value = chats.value.filter((c) => c.id !== chatId)
+        chats.value = chats.value.filter((c: { id: number }) => c.id !== chatId)
         saveToLocalStorage()
         return true
       }
@@ -132,7 +138,7 @@ export const useChatStore = defineStore('chatStore', () => {
   async function editChat(chatId: number, updatedData: Partial<Chat>) {
     try {
       const updatedChat = await patchChat(chatId, updatedData)
-      chats.value = chats.value.map((chat) =>
+      chats.value = chats.value.map((chat: { id: number }) =>
         chat.id === chatId ? updatedChat : chat,
       )
       saveToLocalStorage()

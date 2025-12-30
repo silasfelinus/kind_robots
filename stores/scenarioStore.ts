@@ -85,7 +85,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
   }
 
   async function selectScenario(id: number) {
-    const s = scenarios.value.find((s) => s.id === id)
+    const s = scenarios.value.find((s: { id: number }) => s.id === id)
     if (!s) return console.warn(`Scenario with ID ${id} not found.`)
     selectedScenario.value = s
     scenarioForm.value = { ...s }
@@ -135,7 +135,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
         headers: { 'Content-Type': 'application/json' },
       })
       if (res.success && res.data) {
-        const i = scenarios.value.findIndex((s) => s.id === id)
+        const i = scenarios.value.findIndex((s: { id: number }) => s.id === id)
         if (i !== -1) {
           scenarios.value[i] = res.data
           selectedScenario.value = res.data
@@ -153,7 +153,9 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
         method: 'DELETE',
       })
       if (res.success) {
-        scenarios.value = scenarios.value.filter((s) => s.id !== id)
+        scenarios.value = scenarios.value.filter(
+          (s: { id: number }) => s.id !== id,
+        )
         if (selectedScenario.value?.id === id) selectedScenario.value = null
       } else throw new Error(res.message || 'Failed to delete scenario.')
     } catch (err) {

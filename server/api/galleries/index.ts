@@ -99,7 +99,7 @@ export async function fetchAllGalleryIds(): Promise<number[]> {
         id: true,
       },
     })
-    return galleries.map((gallery) => gallery.id)
+    return galleries.map((gallery: { id: any }) => gallery.id)
   } catch (error: unknown) {
     throw errorHandler(error)
   }
@@ -153,11 +153,13 @@ export async function getAllGalleryImages(): Promise<{
 
     const allImages: { [galleryId: number]: string[] } = {}
 
-    galleries.forEach((gallery) => {
-      if (gallery.imagePaths) {
-        allImages[gallery.id] = gallery.imagePaths.split(',')
-      }
-    })
+    galleries.forEach(
+      (gallery: { imagePaths: string; id: string | number }) => {
+        if (gallery.imagePaths) {
+          allImages[gallery.id] = gallery.imagePaths.split(',')
+        }
+      },
+    )
 
     return allImages
   } catch (error: unknown) {

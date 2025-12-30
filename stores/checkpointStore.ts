@@ -21,24 +21,27 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
   const currentApiModel = ref<string | null>(null)
 
   const visibleCheckpoints = computed(() =>
-    allCheckpoints.value.filter((r) =>
+    allCheckpoints.value.filter((r: { isMature: any }) =>
       userStore.showMature ? true : !r.isMature,
     ),
   )
 
   const isValidSampler = (name: string) =>
-    allSamplers.value.some((s) => s.name === name)
+    allSamplers.value.some((s: { name: string }) => s.name === name)
 
   const isValidCheckpoint = (name: string) =>
-    allCheckpoints.value.some((r) => r.name === name)
+    allCheckpoints.value.some((r: { name: string }) => r.name === name)
 
   function selectCheckpointByName(name: string) {
     selectedCheckpoint.value =
-      allCheckpoints.value.find((r) => r.name === name) || null
+      allCheckpoints.value.find((r: { name: string }) => r.name === name) ||
+      null
   }
 
   function selectSamplerByName(name: string) {
-    const found = allSamplers.value.find((s) => s.name === name)
+    const found = allSamplers.value.find(
+      (s: { name: string }) => s.name === name,
+    )
 
     if (!found) {
       console.warn(`[❌ Sampler Not Found] "${name}"`)
@@ -69,7 +72,9 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
   }
 
   function findCheckpointByName(name: string): Partial<Resource> | undefined {
-    return allCheckpoints.value.find((r) => r.name?.trim() === name.trim())
+    return allCheckpoints.value.find(
+      (r: { name: string }) => r.name?.trim() === name.trim(),
+    )
   }
 
   async function setCurrentModelInApi(name: string) {

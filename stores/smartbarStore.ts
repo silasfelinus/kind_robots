@@ -6,19 +6,23 @@ import { useUserStore } from '@/stores/userStore'
 import { swarmMessages } from '@/stores/seeds/swarmMessages'
 import type { SmartIcon } from '@prisma/client'
 
-export interface SmartIconForm extends Partial<SmartIcon> {}
+export type SmartIconForm = Partial<SmartIcon>
 
 export const useSmartbarStore = defineStore('smartbarStore', () => {
   const icons = ref<SmartIcon[]>([])
   const selectedIcon = ref<SmartIcon | null>(null)
-  const iconForm = ref<SmartIconForm>({})
+  const iconForm = ref<SmartIconForm>({} as SmartIconForm)
+
   const isSaving = ref(false)
   const isInitialized = ref(false)
   const loading = ref(false)
+
   const defaultIconIds = ref<number[]>([1, 2, 3, 4, 5, 6, 7, 8])
+
   const isEditing = ref(false)
   const showSwarm = ref(false)
   const swarmMessage = ref('')
+
   const editableIcons = ref<SmartIcon[]>([])
   const originalIcons = ref<SmartIcon[]>([])
   const dragIndex = ref(-1)
@@ -26,32 +30,32 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
   const userStore = useUserStore()
 
   const customIconsEnabled = computed(
-    () => userStore.user?.customIcons ?? false,
+    (): boolean => userStore.user?.customIcons ?? false,
   )
 
-  const smartBarIds = computed(() => {
+  const smartBarIds = computed((): number[] => {
     const raw = userStore.user?.smartBar
     return (
       raw
         ?.split(',')
-        .map(Number)
-        .filter((n) => !isNaN(n)) ?? []
+        .map((v: string) => Number(v))
+        .filter((n: number) => Number.isFinite(n)) ?? []
     )
   })
 
-  const activeIcons = computed(() => {
-    const ids = customIconsEnabled.value
+  const activeIcons = computed((): SmartIcon[] => {
+    const ids: number[] = customIconsEnabled.value
       ? smartBarIds.value
       : defaultIconIds.value
     return ids
-      .map((id) => icons.value.find((i) => i.id === id))
-      .filter(Boolean) as SmartIcon[]
+      .map((id: number) => icons.value.find((i: SmartIcon) => i.id === id))
+      .filter((i): i is SmartIcon => Boolean(i))
   })
 
-  const hasChanges = computed(() => {
+  const hasChanges = computed((): boolean => {
     return (
-      JSON.stringify(editableIcons.value.map((i) => i.id)) !==
-      JSON.stringify(originalIcons.value.map((i) => i.id))
+      JSON.stringify(editableIcons.value.map((i: SmartIcon) => i.id)) !==
+      JSON.stringify(originalIcons.value.map((i: SmartIcon) => i.id))
     )
   })
 
@@ -60,15 +64,16 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
     try {
       const savedIcons = localStorage.getItem('smartIcons')
       const savedForm = localStorage.getItem('smartIconForm')
-      if (savedIcons) icons.value = JSON.parse(savedIcons)
-      if (savedForm) iconForm.value = JSON.parse(savedForm)
+      if (savedIcons) icons.value = JSON.parse(savedIcons) as SmartIcon[]
+      if (savedForm) iconForm.value = JSON.parse(savedForm) as SmartIconForm
 
       const fetched = await fetchIcons()
-      const fetchedIds = new Set(fetched.map((i) => i.id))
+      const fetchedIds = new Set<number>(fetched.map((i: SmartIcon) => i.id))
       icons.value = [
-        ...icons.value.filter((i) => !fetchedIds.has(i.id)),
+        ...icons.value.filter((i: SmartIcon) => !fetchedIds.has(i.id)),
         ...fetched,
       ]
+
       syncToLocalStorage()
       isInitialized.value = true
     } catch (error) {
@@ -92,7 +97,7 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
   }
 
   function confirmEdit() {
-    setIconOrder(editableIcons.value.map((i) => i.id))
+    setIconOrder(editableIcons.value.map((i: SmartIcon) => i.id))
     isEditing.value = false
   }
 
@@ -108,6 +113,7 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
   function dropIcon(index: number) {
     if (dragIndex.value < 0 || dragIndex.value === index) return
     const dragged = editableIcons.value.splice(dragIndex.value, 1)[0]
+    if (!dragged) return
     editableIcons.value.splice(index, 0, dragged)
     dragIndex.value = -1
   }
@@ -120,7 +126,7 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
     showSwarm.value = !showSwarm.value
     if (showSwarm.value) {
       const randomIndex = Math.floor(Math.random() * swarmMessages.length)
-      swarmMessage.value = swarmMessages[randomIndex]
+      swarmMessage.value = swarmMessages[randomIndex] ?? ''
     }
   }
 
@@ -153,7 +159,7 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
   }
 
   function patchIconLocally(id: number, updates: Partial<SmartIcon>) {
-    const icon = icons.value.find((i) => i.id === id)
+    const icon = icons.value.find((i: SmartIcon) => i.id === id)
     if (!icon) return
     Object.assign(icon, updates)
     syncToLocalStorage()
@@ -179,7 +185,7 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
     try {
       const res = await performFetch('/api/icons', {
         method: 'POST',
-        headers: { 'Content-type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
       if (!res.success) throw new Error(res.message || 'Failed to create.')
@@ -193,7 +199,7 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
   }
 
   async function deleteIcon(id: number) {
-    icons.value = icons.value.filter((i) => i.id !== id)
+    icons.value = icons.value.filter((i: SmartIcon) => i.id !== id)
     syncToLocalStorage()
     try {
       const res = await performFetch(`/api/icons/${id}`, { method: 'DELETE' })
@@ -206,10 +212,13 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
   }
 
   async function saveIcon() {
-    if (!iconForm.value) return { success: false, message: 'No icon form.' }
-    return iconForm.value.id
-      ? await updateIcon(iconForm.value.id, iconForm.value)
-      : await createIcon(iconForm.value)
+    const form = iconForm.value
+    if (!form) return { success: false, message: 'No icon form.' }
+
+    const id = form.id
+    return typeof id === 'number'
+      ? await updateIcon(id, form)
+      : await createIcon(form)
   }
 
   async function updateSmartBar(ids: number[]) {
@@ -246,21 +255,23 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
   }
 
   function removeIconFromSmartBar(id: number) {
-    const ids = smartBarIds.value.filter((existing) => existing !== id)
+    const ids = smartBarIds.value.filter((existing: number) => existing !== id)
     updateSmartBar(ids)
   }
 
   function selectIcon(iconId: number) {
-    const icon = icons.value.find((i) => i.id === iconId)
+    const icon = icons.value.find((i: SmartIcon) => i.id === iconId)
     if (icon) {
       selectedIcon.value = icon
       iconForm.value = { ...icon }
+      syncToLocalStorage()
     }
   }
 
   function deselectIcon() {
     selectedIcon.value = null
-    iconForm.value = {}
+    iconForm.value = {} as SmartIconForm
+    syncToLocalStorage()
   }
 
   function createNewIcon() {
@@ -272,13 +283,15 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
       link: '',
       component: '',
       isPublic: true,
-    }
+    } as SmartIconForm
     selectedIcon.value = null
     syncToLocalStorage()
   }
 
   function removeFromEditableIcons(id: number) {
-    editableIcons.value = editableIcons.value.filter((icon) => icon.id !== id)
+    editableIcons.value = editableIcons.value.filter(
+      (icon: SmartIcon) => icon.id !== id,
+    )
   }
 
   return {

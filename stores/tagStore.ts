@@ -18,13 +18,13 @@ export const useTagStore = defineStore('tagStore', () => {
 
   const activeAndPublicTags = computed(() => {
     return tags.value.filter(
-      (tag) =>
+      (tag: { isPublic: any; userId: number }) =>
         tag.isPublic || tag.userId === userStore.userId || tag.userId === 0,
     )
   })
 
   function selectTag(tagId: number) {
-    const foundTag = tags.value.find((tag) => tag.id === tagId)
+    const foundTag = tags.value.find((tag: { id: number }) => tag.id === tagId)
     if (foundTag) {
       selectedTag.value = foundTag
     } else {
@@ -89,7 +89,9 @@ export const useTagStore = defineStore('tagStore', () => {
         body: JSON.stringify(updates),
       })
       if (response.success && response.data) {
-        const index = tags.value.findIndex((tag) => tag.id === id)
+        const index = tags.value.findIndex(
+          (tag: { id: number }) => tag.id === id,
+        )
         if (index !== -1) {
           tags.value[index] = { ...tags.value[index], ...response.data }
           if (isClient) {
@@ -111,7 +113,7 @@ export const useTagStore = defineStore('tagStore', () => {
         method: 'DELETE',
       })
       if (response.success) {
-        tags.value = tags.value.filter((tag) => tag.id !== id)
+        tags.value = tags.value.filter((tag: { id: number }) => tag.id !== id)
         if (isClient) {
           localStorage.setItem('tags', JSON.stringify(tags.value))
         }

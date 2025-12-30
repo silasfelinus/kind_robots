@@ -60,11 +60,13 @@ export const usePitchStore = defineStore('pitchStore', () => {
   )
   const selectedTitlePitches = computed(() =>
     selectedTitle.value
-      ? pitches.value.filter((p) => p.title === selectedTitle.value?.title)
+      ? pitches.value.filter(
+          (p: { title: any }) => p.title === selectedTitle.value?.title,
+        )
       : [],
   )
   const newestPitchesDisplay = computed(() =>
-    newestPitches.value.map((p) => ({ ...p, isNewest: true })),
+    newestPitches.value.map((p: any) => ({ ...p, isNewest: true })),
   )
 
   function saveStateToLocalStorage() {
@@ -93,7 +95,10 @@ export const usePitchStore = defineStore('pitchStore', () => {
 
   function getPitchesBySelectedType(): Pitch[] {
     return selectedPitchType.value
-      ? pitches.value.filter((p) => p.PitchType === selectedPitchType.value)
+      ? pitches.value.filter(
+          (p: { PitchType: PitchType | null }) =>
+            p.PitchType === selectedPitchType.value,
+        )
       : pitches.value
   }
 
@@ -160,7 +165,9 @@ export const usePitchStore = defineStore('pitchStore', () => {
         method: 'PATCH',
         body: JSON.stringify(updates),
       })
-      const index = pitches.value.findIndex((p) => p.id === pitchId)
+      const index = pitches.value.findIndex(
+        (p: { id: number }) => p.id === pitchId,
+      )
       if (res.success && res.data && index !== -1) {
         pitches.value[index] = { ...pitches.value[index], ...res.data }
         saveStateToLocalStorage()
@@ -179,7 +186,9 @@ export const usePitchStore = defineStore('pitchStore', () => {
         method: 'DELETE',
       })
       if (res.success) {
-        pitches.value = pitches.value.filter((p) => p.id !== pitchId)
+        pitches.value = pitches.value.filter(
+          (p: { id: number }) => p.id !== pitchId,
+        )
         saveStateToLocalStorage()
         return { success: true, message: 'Pitch deleted' }
       }
@@ -194,7 +203,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
     try {
       const res = await performFetch<Pitch>(`/api/pitches/${pitchId}`)
       if (res.success && res.data) {
-        if (!pitches.value.find((p) => p.id === pitchId)) {
+        if (!pitches.value.find((p: { id: number }) => p.id === pitchId)) {
           pitches.value.push(res.data)
           saveStateToLocalStorage()
         }
@@ -330,7 +339,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
   }
 
   function setSelectedPitch(pitchId: number) {
-    const pitch = pitches.value.find((p) => p.id === pitchId)
+    const pitch = pitches.value.find((p: { id: number }) => p.id === pitchId)
     if (pitch) selectedPitches.value = [pitch]
     saveStateToLocalStorage()
   }
@@ -341,7 +350,8 @@ export const usePitchStore = defineStore('pitchStore', () => {
   }
 
   function setSelectedTitle(pitchId: number) {
-    selectedTitle.value = pitches.value.find((p) => p.id === pitchId) || null
+    selectedTitle.value =
+      pitches.value.find((p: { id: number }) => p.id === pitchId) || null
     saveStateToLocalStorage()
   }
 
@@ -363,18 +373,25 @@ export const usePitchStore = defineStore('pitchStore', () => {
 
   function addPitches(newPitches: Pitch[]) {
     const toAdd = newPitches.filter(
-      (np) => !pitches.value.some((p) => p.id === np.id),
+      (np) => !pitches.value.some((p: { id: any }) => p.id === np.id),
     )
     pitches.value.push(...toAdd)
     const sorted = pitches.value
-      .filter((p) => p.PitchType === PitchType.BRAINSTORM)
-      .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+      .filter(
+        (p: { PitchType: PitchType }) => p.PitchType === PitchType.BRAINSTORM,
+      )
+      .sort(
+        (
+          a: { createdAt: string | number | Date },
+          b: { createdAt: string | number | Date },
+        ) => +new Date(b.createdAt) - +new Date(a.createdAt),
+      )
     selectedPitches.value = sorted.slice(0, 5)
     saveStateToLocalStorage()
   }
 
   function selectPitch(pitchId: number) {
-    const found = pitches.value.find((p) => p.id === pitchId)
+    const found = pitches.value.find((p: { id: number }) => p.id === pitchId)
     if (found) selectedPitch.value = found
   }
 

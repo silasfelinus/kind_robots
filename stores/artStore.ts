@@ -154,7 +154,7 @@ export const useArtStore = defineStore('artStore', () => {
 
   async function loadArtImagesInChunks(ids: number[], chunkSize = 20) {
     const toFetch = ids.filter(
-      (id) => !state.artImages.some((img) => img.id === id),
+      (id) => !state.artImages.some((img: { id: number }) => img.id === id),
     )
 
     const uniqueIds = [...new Set(toFetch)]
@@ -190,7 +190,7 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   async function selectArt(artId: number): Promise<void> {
-    const found = state.art.find((a) => a.id === artId)
+    const found = state.art.find((a: { id: number }) => a.id === artId)
     if (!found) {
       handleError(new Error(`Art with ID ${artId} not found`), 'selecting art')
       return
@@ -198,7 +198,9 @@ export const useArtStore = defineStore('artStore', () => {
     state.currentArt = found
 
     if (found.artImageId) {
-      const cached = state.artImages.find((img) => img.id === found.artImageId)
+      const cached = state.artImages.find(
+        (img: { id: any }) => img.id === found.artImageId,
+      )
       if (cached) {
         state.currentArtImage = cached
       } else {
@@ -227,7 +229,7 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   async function getArtImageById(id: number): Promise<ArtImage | undefined> {
-    const cached = state.artImages.find((img) => img.id === id)
+    const cached = state.artImages.find((img: { id: number }) => img.id === id)
     if (cached) return cached
 
     try {
@@ -275,7 +277,7 @@ export const useArtStore = defineStore('artStore', () => {
         method: 'DELETE',
       })
       if (response.success) {
-        state.art = state.art.filter((a) => a.id !== id)
+        state.art = state.art.filter((a: { id: number }) => a.id !== id)
         if (isClient) localStorage.setItem('art', JSON.stringify(state.art))
       } else throw new Error(response.message)
     } catch (error) {
@@ -308,7 +310,7 @@ export const useArtStore = defineStore('artStore', () => {
     images?: ArtImage[],
   ): ArtImage | undefined {
     const pool = images || state.artImages
-    return pool.find((image) => image.artId === artId)
+    return pool.find((image: { artId: number }) => image.artId === artId)
   }
 
   async function deleteArtImage(artImageId: number): Promise<void> {
@@ -389,7 +391,7 @@ export const useArtStore = defineStore('artStore', () => {
 
       // Add to generated collection if not already included
       const alreadyInGenerated = generatedCollection.art.some(
-        (a) => a.id === art.id,
+        (a: { id: any }) => a.id === art.id,
       )
       if (!alreadyInGenerated) {
         await performFetch(`/api/art/collection/${generatedCollection.id}`, {

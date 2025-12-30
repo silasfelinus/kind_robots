@@ -275,11 +275,14 @@ onMounted(async () => {
 
       const matchingArt = allArt
         .filter(
-          (a) =>
+          (a: { checkpoint: any; isPublic: any; userId: any }) =>
             a.checkpoint === localPath && (a.isPublic || a.userId === userId),
         )
         .sort(
-          (a, b) =>
+          (
+            a: { updatedAt: any; createdAt: any },
+            b: { updatedAt: any; createdAt: any },
+          ) =>
             new Date(b.updatedAt ?? b.createdAt ?? 0).getTime() -
             new Date(a.updatedAt ?? a.createdAt ?? 0).getTime(),
         )

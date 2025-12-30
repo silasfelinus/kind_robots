@@ -25,7 +25,9 @@ const selectedGallery = ref<string>('')
 
 // Filter out the gallery with ID 21 and get the names of all remaining galleries
 const galleryNames = computed(() =>
-  galleryStore.allGalleryNames.filter((gallery) => gallery !== 'cafefred'),
+  galleryStore.allGalleryNames.filter(
+    (gallery: string) => gallery !== 'cafefred',
+  ),
 )
 
 // When component is mounted, set the selectedGallery to the current one or default

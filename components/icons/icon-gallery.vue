@@ -103,7 +103,7 @@ onMounted(() => {
 })
 
 const filteredIcons = computed(() =>
-  icons.value.filter((i) => {
+  icons.value.filter((i: { userId: any; isPublic: any; type: string }) => {
     if (filterScope.value === 'user' && i.userId !== user.value?.id)
       return false
     if (filterScope.value === 'public' && !i.isPublic) return false

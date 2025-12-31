@@ -1,4 +1,4 @@
-// server/api/utils/UploadArtImage.ts
+// server/api/utils/uploadArtImage.ts
 import prisma from './prisma'
 
 import type { ArtImage } from '~/server/generated/prisma'

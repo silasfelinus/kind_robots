@@ -1,7 +1,7 @@
 // ~/server/api/art/index.ts
 import prisma from './../utils/prisma'
 import { generateSillyName } from './../../../utils/useRandomName'
-import type { PitchType } from '@prisma/client'
+import type { PitchType } from '~/server/generated/prisma'
 
 export type RequestData = {
   path?: string | null

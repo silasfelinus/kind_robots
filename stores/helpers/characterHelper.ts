@@ -1,6 +1,6 @@
 // /stores/helpers/characterHelper.ts
 import { useRandomCharacterData } from '~/stores/utils/randomCharacter'
-import type { Character } from '@prisma/client'
+import type { Character } from '~/server/generated/prisma'
 
 export type RandomizerKeys =
   | 'name'

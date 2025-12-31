@@ -1,11 +1,10 @@
 import { defineEventHandler, readMultipartFormData } from 'h3'
 import { errorHandler } from './../utils/error'
-import { PrismaClient } from '@prisma/client'
-import type { ArtImage } from '@prisma/client'
+import prisma from '~/server/api/utils/prisma'
+
+import type { ArtImage } from '~/server/generated/prisma'
 import path from 'path'
 import fs from 'fs/promises'
-
-const prisma = new PrismaClient()
 
 export async function uploadArtImage(
   uploadedFile: { data: Buffer; filename: string },

@@ -1,6 +1,6 @@
 // /stores/helpers/pitchHelper.ts
 
-import type { Pitch } from '@prisma/client'
+import type { Pitch } from '~/server/generated/prisma'
 
 export enum PitchType {
   ARTPITCH = 'ARTPITCH',

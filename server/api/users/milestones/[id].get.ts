@@ -2,7 +2,7 @@
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from './../../../../server/api/utils/prisma'
-import type { MilestoneRecord } from '@prisma/client'
+import type { MilestoneRecord } from '~/server/generated/prisma'
 
 export default defineEventHandler(async (event) => {
   const userId = Number(event.context.params?.id)

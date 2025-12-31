@@ -3,7 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
-import type { Prompt, Prisma } from '@prisma/client'
+import type { Prompt, Prisma } from '~/server/generated/prisma'
 
 export default defineEventHandler(async (event) => {
   try {

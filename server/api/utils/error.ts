@@ -1,16 +1,34 @@
-import { Prisma } from '@prisma/client'
+// /server/api/utils/error.ts
+export type ErrorHandlerInput = Error | unknown
 
-type ErrorHandlerInput = Prisma.PrismaClientKnownRequestError | Error | unknown
-
-// Extend the Error type to include `statusCode` as an optional property
 interface CustomError extends Error {
   statusCode?: number
+  code?: string
 }
 
 export type ErrorHandlerOutput = {
   success: boolean
   message: string
   statusCode?: number
+}
+
+type PrismaKnownRequestLike = {
+  name: string
+  code: string
+  message: string
+}
+
+function isPrismaKnownRequestError(
+  error: unknown,
+): error is PrismaKnownRequestLike {
+  if (!error || typeof error !== 'object') return false
+  const e = error as Partial<PrismaKnownRequestLike>
+  return (
+    typeof e.code === 'string' &&
+    typeof e.message === 'string' &&
+    typeof e.name === 'string' &&
+    e.name.includes('PrismaClientKnownRequestError')
+  )
 }
 
 export function errorHandler(error: ErrorHandlerInput): ErrorHandlerOutput {
@@ -24,16 +42,14 @@ export function errorHandler(error: ErrorHandlerInput): ErrorHandlerOutput {
     }
   }
 
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+  if (isPrismaKnownRequestError(error)) {
     return handlePrismaError(error)
   }
 
   if (error instanceof Error) {
-    // Use type assertion to handle `statusCode` if present on error
     const customError = error as CustomError
     const statusCode = customError.statusCode || 400
 
-    // Check for specific error messages that indicate a 401 Unauthorized error
     if (
       error.message.includes('Authentication required') ||
       error.message.includes('Invalid API Key') ||
@@ -53,7 +69,6 @@ export function errorHandler(error: ErrorHandlerInput): ErrorHandlerOutput {
     }
   }
 
-  // Handle string errors or other unknown error types
   if (typeof error === 'string') {
     return {
       success: false,
@@ -62,7 +77,6 @@ export function errorHandler(error: ErrorHandlerInput): ErrorHandlerOutput {
     }
   }
 
-  // Fallback for unhandled error types
   return {
     success: false,
     message: 'An unknown error occurred.',
@@ -70,10 +84,7 @@ export function errorHandler(error: ErrorHandlerInput): ErrorHandlerOutput {
   }
 }
 
-// Helper function to handle Prisma-specific errors
-function handlePrismaError(
-  error: Prisma.PrismaClientKnownRequestError,
-): ErrorHandlerOutput {
+function handlePrismaError(error: PrismaKnownRequestLike): ErrorHandlerOutput {
   switch (error.code) {
     case 'P2002':
       return {

@@ -1,9 +1,8 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '~/server/api/utils/prisma'
+
 import { errorHandler } from '../utils/error'
 import path from 'path'
 import fs from 'fs/promises'
-
-const prisma = new PrismaClient()
 
 export async function saveImage(
   base64Image: string,

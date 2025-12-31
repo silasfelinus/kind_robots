@@ -2,7 +2,7 @@
 import { defineEventHandler } from 'h3'
 import { fetchGalleries } from '.'
 import { errorHandler } from '../utils/error'
-import type { Gallery } from '@prisma/client'
+import type { Gallery } from '~/server/generated/prisma'
 
 type GalleriesResponse = {
   success: boolean

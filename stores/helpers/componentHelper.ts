@@ -2,7 +2,7 @@
 
 import { performFetch, handleError } from '@/stores/utils'
 import { useErrorStore } from '@/stores/errorStore'
-import type { Component } from '@prisma/client'
+import type { Component } from '~/server/generated/prisma'
 
 export interface Folder {
   folderName: string

@@ -5,7 +5,7 @@ import { jwtVerify, SignJWT } from 'jose'
 import { errorHandler } from '../utils/error'
 import { userExists } from '../users'
 import prisma from '../utils/prisma'
-import type { User } from '@prisma/client'
+import type { User } from '~/server/generated/prisma'
 
 const config = useRuntimeConfig()
 const JWT_SECRET = config.private.JWT_SECRET

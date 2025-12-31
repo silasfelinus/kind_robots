@@ -1,7 +1,7 @@
 // /stores/dominionStore.ts
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Dominion } from '@prisma/client'
+import type { Dominion } from '~/server/generated/prisma'
 import { performFetch, handleError } from '@/stores/utils'
 
 function parseJson<T>(key: string, fallback: T): T {

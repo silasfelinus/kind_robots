@@ -2,7 +2,7 @@
 import { defineEventHandler } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import type { Resource } from '@prisma/client'
+import type { Resource } from '~/server/generated/prisma'
 
 export default defineEventHandler(async () => {
   try {

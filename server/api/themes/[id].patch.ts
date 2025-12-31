@@ -4,7 +4,7 @@ import prisma from '@/server/api/utils/prisma'
 import { errorHandler } from '@/server/api/utils/error'
 import { validateApiKey } from '@/server/api/utils/validateKey'
 import { stringifyValues, parseTheme } from '@/server/api/themes/index'
-import type { Prisma } from '@prisma/client'
+import type { Prisma } from '~/server/generated/prisma'
 
 export default defineEventHandler(async (event) => {
   let id: number | undefined

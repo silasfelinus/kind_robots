@@ -1,6 +1,6 @@
 // /stores/helpers/userHelper.ts
 
-import type { User } from '@prisma/client'
+import type { User } from '~/server/generated/prisma'
 import { useArtStore } from '@/stores/artStore'
 
 export function getFromLocalStorage(key: string): string | null {
@@ -19,9 +19,6 @@ export function removeFromLocalStorage(key: string): void {
     console.log('removed', key)
   }
 }
-
-
-
 
 export function updateUserFields(
   users: User[],

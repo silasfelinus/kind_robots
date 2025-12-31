@@ -1,6 +1,6 @@
+// /nuxt.config.ts
 import { exec } from 'child_process'
 
-// Define a type for exec's callback
 type ExecCallback = (
   error: Error | null,
   stdout: string,
@@ -10,12 +10,30 @@ type ExecCallback = (
 export default defineNuxtConfig({
   vite: {
     build: {
-      target: 'esnext', // Target modern JavaScript features
-      minify: 'esbuild', // Use esbuild for minification (faster than Terser)
-      chunkSizeWarningLimit: 500, // Customize chunk size warning (in KB)
+      target: 'esnext',
+      minify: 'esbuild',
+      chunkSizeWarningLimit: 500,
     },
     optimizeDeps: {
-      include: ['vue', 'vue-router'], // Pre-bundle necessary dependencies for faster builds
+      include: ['vue', 'vue-router'],
+    },
+  },
+
+  experimental: {
+    appManifest: false,
+  },
+
+  nitro: {
+    esbuild: {
+      options: {
+        target: 'es2022',
+      },
+    },
+    rollupConfig: {
+      external: ['@prisma/client', '@prisma/client/runtime'],
+    },
+    externals: {
+      inline: [],
     },
   },
 
@@ -27,6 +45,7 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@nuxt/image',
   ],
+
   tailwindcss: {
     viewer: false,
   },
@@ -38,11 +57,10 @@ export default defineNuxtConfig({
       global: true,
       extensions: ['.vue'],
       watch: true,
-      ignore: ['abandonware/**/*.vue'], // this handles the whole folder
+      ignore: ['abandonware/**/*.vue'],
     },
   ],
 
-  // Compatibility and feature settings
   compatibilityDate: '2024-08-13',
 
   icon: {
@@ -54,7 +72,6 @@ export default defineNuxtConfig({
     ],
   },
 
-  // Global CSS
   css: ['~/assets/css/tailwind.css'],
 
   runtimeConfig: {
@@ -70,10 +87,9 @@ export default defineNuxtConfig({
   },
 
   devtools: {
-    enabled: false, // Disable devtools in production
+    enabled: false,
   },
 
-  // Adding the build hook to run the script
   hooks: {
     'build:before': async () => {
       if (process.env.NODE_ENV === 'development') {
@@ -87,7 +103,9 @@ export default defineNuxtConfig({
           if (stderr) {
             console.error('stderr:', stderr)
           }
-          console.log(stdout)
+          if (stdout) {
+            console.log(stdout)
+          }
         }
 
         exec(command, callback)

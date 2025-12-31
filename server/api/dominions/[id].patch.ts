@@ -3,7 +3,7 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
-import type { Prisma } from '@prisma/client'
+import type { Prisma } from '~/server/generated/prisma'
 
 function normalizeArray(input: unknown): string[] {
   if (Array.isArray(input)) {

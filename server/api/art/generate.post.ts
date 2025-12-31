@@ -4,7 +4,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import { saveImage } from './../../../server/api/utils/saveImage'
-import type { Art } from '@prisma/client'
+import type { Art } from '~/server/generated/prisma'
 import {
   type RequestData,
   validateAndLoadDesignerName,

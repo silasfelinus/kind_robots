@@ -112,7 +112,7 @@
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue'
 import { useDominionStore } from '~/stores/dominionStore'
-import type { Dominion } from '@prisma/client'
+import type { Dominion } from '~/server/generated/prisma'
 
 const store = useDominionStore()
 

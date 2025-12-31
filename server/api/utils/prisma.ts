@@ -1,21 +1,9 @@
 // /server/api/utils/prisma.ts
-import { PrismaClient } from './../../generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import { PrismaClient } from '~/server/generated/prisma'
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
 
-const databaseUrl = process.env.DATABASE_URL
-if (!databaseUrl) {
-  throw new Error('DATABASE_URL is missing')
-}
-
-const adapter = new PrismaMariaDb(databaseUrl)
-
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    adapter,
-  })
+export const prisma = globalForPrisma.prisma ?? new PrismaClient()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 

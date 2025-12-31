@@ -2,7 +2,7 @@
 import { defineEventHandler } from 'h3'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
-import type { Chat } from '@prisma/client'
+import type { Chat } from '~/server/generated/prisma'
 
 type ChatsResponse = {
   success: boolean

@@ -1,5 +1,8 @@
 // /stores/helpers/collectionHelper.ts
-import type { Art, ArtCollection as PrismaArtCollection } from '@prisma/client'
+import type {
+  Art,
+  ArtCollection as PrismaArtCollection,
+} from '~/server/generated/prisma'
 
 type CollectionCore = {
   id: number

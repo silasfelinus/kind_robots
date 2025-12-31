@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { performFetch, handleError } from './utils'
-import type { Gallery } from '@prisma/client'
+import type { Gallery } from '~/server/generated/prisma'
 
 const isClient = typeof window !== 'undefined'
 

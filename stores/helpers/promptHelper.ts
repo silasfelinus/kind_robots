@@ -1,6 +1,6 @@
 // /stores/helpers/promptHelper.ts
 
-import type { Prompt } from '@prisma/client'
+import type { Prompt } from '~/server/generated/prisma'
 
 /**
  * Validate prompt input string – must be non-empty and contain valid characters.

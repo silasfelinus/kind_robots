@@ -1,7 +1,7 @@
 // server/api/art/user/[id]/collected.get.ts
 
 import { defineEventHandler } from 'h3'
-import type { Art } from '@prisma/client'
+import type { Art } from '~/server/generated/prisma'
 import { errorHandler } from '../../../utils/error'
 import prisma from '../../../utils/prisma'
 

@@ -1,6 +1,6 @@
 // server/api/utils/UploadArtImage.ts
-import { PrismaClient } from '@prisma/client'
-import type { ArtImage } from '@prisma/client'
+import { PrismaClient } from '~/server/generated/prisma'
+import type { ArtImage } from '~/server/generated/prisma'
 import { errorHandler } from '../utils/error'
 import path from 'path'
 import fs from 'fs/promises'

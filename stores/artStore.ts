@@ -1,7 +1,7 @@
 // /stores/artStore.ts
 import { defineStore } from 'pinia'
 import { reactive, toRefs } from 'vue'
-import type { Art, Reaction, ArtImage, Tag } from '@prisma/client'
+import type { Art, Reaction, ArtImage, Tag } from '~/server/generated/prisma'
 import { performFetch, handleError } from './../stores/utils'
 import { usePromptStore } from './promptStore'
 import { usePitchStore } from './pitchStore'

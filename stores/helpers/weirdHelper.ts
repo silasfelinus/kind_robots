@@ -1,5 +1,5 @@
 // /stores/helpers/weirdHelper.ts
-import type { Scenario as PrismaScenario } from '@prisma/client'
+import type { Scenario as PrismaScenario } from '~/server/generated/prisma'
 
 export const STORAGE_KEY = 'kindrobots.weirdState.v1'
 

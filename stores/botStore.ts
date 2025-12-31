@@ -1,7 +1,7 @@
 // /stores/botStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Bot } from '@prisma/client'
+import type { Bot } from '~/server/generated/prisma'
 import {
   updateBot,
   addBot,

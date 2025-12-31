@@ -1,6 +1,6 @@
 // server/api/bots/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import type { Prisma } from '@prisma/client'
+import type { Prisma } from '~/server/generated/prisma'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 

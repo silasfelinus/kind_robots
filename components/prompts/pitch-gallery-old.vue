@@ -46,7 +46,7 @@
 import { ref, watch, onMounted, computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePitchStore } from '@/stores/pitchStore'
-import type { Art } from '@prisma/client'
+import type { Art } from '~/server/generated/prisma'
 
 const artStore = useArtStore()
 const pitchStore = usePitchStore()

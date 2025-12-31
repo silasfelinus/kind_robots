@@ -1,7 +1,7 @@
 // /stores/collectionStore.ts
 import { defineStore } from 'pinia'
 import { ref, reactive, toRefs, computed, watch } from 'vue'
-import type { Art } from '@prisma/client'
+import type { Art } from '~/server/generated/prisma'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { performFetch, handleError } from './utils'
 import {

@@ -1,6 +1,6 @@
 // /training/milestoneData.ts
 
-import type { Milestone } from '@prisma/client' // Import your Milestone type
+import type { Milestone } from '~/server/generated/prisma' // Import your Milestone type
 
 export const milestoneData: Milestone[] = [
   {

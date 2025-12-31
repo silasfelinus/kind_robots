@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import { Prisma } from '~/server/generated/prisma'
 
 type ErrorHandlerInput = Prisma.PrismaClientKnownRequestError | Error | unknown
 

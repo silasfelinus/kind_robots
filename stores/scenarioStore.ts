@@ -1,7 +1,7 @@
 // /stores/scenarioStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Scenario } from '@prisma/client'
+import type { Scenario } from '~/server/generated/prisma'
 import { performFetch, handleError } from '@/stores/utils'
 import { scenarios as seedScenarios } from '@/utils/sceneChoices'
 

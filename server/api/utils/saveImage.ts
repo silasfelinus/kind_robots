@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '~/server/generated/prisma'
 import { errorHandler } from '../utils/error'
 import path from 'path'
 import fs from 'fs/promises'

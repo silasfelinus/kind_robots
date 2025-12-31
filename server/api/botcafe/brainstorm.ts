@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
-import type { Pitch } from '@prisma/client'
+import type { Pitch } from '~/server/generated/prisma'
 
 interface Example {
   title: string

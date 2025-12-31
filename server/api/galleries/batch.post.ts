@@ -8,7 +8,7 @@ import {
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import { validateApiKey } from '../utils/validateKey'
-import type { Prisma, Gallery } from '@prisma/client'
+import type { Prisma, Gallery } from '~/server/generated/prisma'
 
 type BatchCreateResponse = {
   success: boolean

@@ -1,5 +1,5 @@
-import type { Pitch } from '@prisma/client'
-import { PitchType } from '@prisma/client'
+import type { Pitch } from '~/server/generated/prisma'
+import { PitchType } from '~/server/generated/prisma'
 
 // Upgraded samplePitches to use the full Pitch model structure
 export const samplePitches: Pitch[] = [

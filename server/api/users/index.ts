@@ -1,4 +1,4 @@
-import type { Prisma, User } from '@prisma/client'
+import type { Prisma, User } from '~/server/generated/prisma'
 import prisma from '../utils/prisma'
 import { errorHandler } from '../utils/error'
 import { validatePassword, hashPassword, generateApiKey } from '../auth'

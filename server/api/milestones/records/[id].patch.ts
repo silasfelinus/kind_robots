@@ -1,6 +1,6 @@
 // /server/api/milestones/records/[id].patch.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import type { MilestoneRecord } from '@prisma/client'
+import type { MilestoneRecord } from '~/server/generated/prisma'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 

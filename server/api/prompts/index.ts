@@ -1,5 +1,5 @@
 import prisma from '../utils/prisma'
-import type { Prompt, Art } from '@prisma/client'
+import type { Prompt, Art } from '~/server/generated/prisma'
 import { errorHandler } from '../utils/error'
 import { createError } from 'h3' // Ensure createError is imported for specific error handling
 

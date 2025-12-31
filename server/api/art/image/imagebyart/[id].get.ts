@@ -1,6 +1,6 @@
 // server/api/art/image/imagebyart/[id].get.ts
 import { defineEventHandler } from 'h3'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '~/server/generated/prisma'
 import { errorHandler } from '@/server/api/utils/error'
 
 const prisma = new PrismaClient()

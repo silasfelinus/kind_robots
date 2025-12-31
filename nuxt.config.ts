@@ -27,6 +27,9 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@nuxt/image',
   ],
+  tailwindcss: {
+    viewer: false,
+  },
 
   components: [
     {

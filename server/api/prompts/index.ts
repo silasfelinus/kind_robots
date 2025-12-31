@@ -1,6 +1,6 @@
-import prisma from '../utils/prisma'
+import prisma from '../../utils/prisma'
 import type { Prompt, Art } from '~/server/generated/prisma'
-import { errorHandler } from '../utils/error'
+import { errorHandler } from '../../utils/error'
 import { createError } from 'h3' // Ensure createError is imported for specific error handling
 
 export async function updatePrompt(

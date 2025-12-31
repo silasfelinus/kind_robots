@@ -1,9 +1,9 @@
 // /server/api/galleries/name/[name].post.ts
 import type { H3Event } from 'h3'
 import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '../../utils/prisma'
-import { errorHandler } from '../../utils/error'
-import { validateApiKey } from '../../utils/validateKey'
+import prisma from '../../../utils/prisma'
+import { errorHandler } from '../../../utils/error'
+import { validateApiKey } from '../../../utils/validateKey'
 import type { Gallery } from '~/server/generated/prisma'
 
 export default defineEventHandler(async (event: H3Event) => {

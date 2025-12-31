@@ -1,7 +1,7 @@
 // /server/api/milestones/records.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -38,7 +38,8 @@ export default defineEventHandler(async (event) => {
 
     // Validate required fields for milestone creation
     const missingFields = []
-    if (typeof recordData?.milestoneId !== 'number') missingFields.push('milestoneId')
+    if (typeof recordData?.milestoneId !== 'number')
+      missingFields.push('milestoneId')
     if (typeof recordData?.userId !== 'number') missingFields.push('userId')
 
     if (missingFields.length > 0) {

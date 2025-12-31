@@ -5,9 +5,9 @@ import {
   createError,
   setResponseStatus,
 } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
 import type { Prisma, Gallery } from '~/server/generated/prisma'
 
 type BatchCreateResponse = {

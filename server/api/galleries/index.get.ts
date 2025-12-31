@@ -1,7 +1,7 @@
 // /server/api/galleries/index.get.ts
 import { defineEventHandler } from 'h3'
 import { fetchGalleries } from '.'
-import { errorHandler } from '../utils/error'
+import { errorHandler } from '../../utils/error'
 import type { Gallery } from '~/server/generated/prisma'
 
 type GalleriesResponse = {

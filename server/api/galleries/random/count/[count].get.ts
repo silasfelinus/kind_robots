@@ -1,9 +1,9 @@
 // server/api/galleries/random/count/[count].get.ts
 import { defineEventHandler, createError } from 'h3'
 import type { Gallery } from '~/server/generated/prisma'
-import prisma from '../../../utils/prisma'
+import prisma from '../../../../utils/prisma'
 import { getGalleryImages } from '../..'
-import { errorHandler } from '../../../utils/error'
+import { errorHandler } from '../../../../utils/error'
 
 export default defineEventHandler(async (event) => {
   let response

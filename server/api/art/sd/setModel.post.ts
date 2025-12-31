@@ -1,6 +1,6 @@
 // /server/api/art/sd/setModel.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../../utils/error'
+import { errorHandler } from '../../../utils/error'
 
 const SD_OPTIONS_URL = 'https://lola.acrocatranch.com/sdapi/v1/options'
 

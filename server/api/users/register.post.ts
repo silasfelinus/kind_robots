@@ -1,6 +1,6 @@
 // /server/api/user/register.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error'
+import { errorHandler } from '../../utils/error'
 import { createUser } from '.'
 
 export default defineEventHandler(async (event) => {

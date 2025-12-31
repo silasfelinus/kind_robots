@@ -1,6 +1,6 @@
 // /server/api/utils/openAIImageGenerator.ts
-import type { ErrorHandlerOutput } from '../utils/error'
-import { errorHandler } from '../utils/error'
+import type { ErrorHandlerOutput } from './error'
+import { errorHandler } from './error'
 
 export async function generateImageWithOpenAI(
   prompt: string,

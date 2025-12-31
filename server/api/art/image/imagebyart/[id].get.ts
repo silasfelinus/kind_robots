@@ -1,8 +1,8 @@
 // server/api/art/image/imagebyart/[id].get.ts
 import { defineEventHandler } from 'h3'
-import prisma from '~/server/api/utils/prisma'
+import prisma from '~/server/utils/prisma'
 
-import { errorHandler } from '@/server/api/utils/error'
+import { errorHandler } from '~/server/utils/error'
 
 export default defineEventHandler(async (event) => {
   try {

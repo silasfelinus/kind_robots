@@ -1,7 +1,7 @@
 // /server/api/pitches/index.get.ts
 import { defineEventHandler, getQuery } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 
 // Helpers
 function toBool(v: unknown): boolean | undefined {

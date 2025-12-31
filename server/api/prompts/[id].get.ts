@@ -1,6 +1,6 @@
 // /server/api/prompts/[id].get.ts
 import { defineEventHandler } from 'h3'
-import { errorHandler } from '../utils/error'
+import { errorHandler } from '../../utils/error'
 import { fetchArtByPromptId, fetchPromptById } from '.'
 
 // Event handler for fetching Prompt and related Art by ID

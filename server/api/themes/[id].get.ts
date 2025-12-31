@@ -1,7 +1,7 @@
 // /server/api/themes/[id].get.ts
 import { defineEventHandler, createError } from 'h3'
-import prisma from '@/server/api/utils/prisma'
-import { errorHandler } from '@/server/api/utils/error'
+import prisma from '~/server/utils/prisma'
+import { errorHandler } from '~/server/utils/error'
 import { parseTheme } from '@/server/api/themes/index'
 
 export default defineEventHandler(async (event) => {

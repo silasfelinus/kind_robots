@@ -2,7 +2,7 @@
 import prisma from './prisma'
 
 import type { ArtImage } from '~/server/generated/prisma'
-import { errorHandler } from '../utils/error'
+import { errorHandler } from './error'
 import path from 'path'
 import fs from 'fs/promises'
 

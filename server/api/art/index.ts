@@ -1,5 +1,5 @@
 // ~/server/api/art/index.ts
-import prisma from './../utils/prisma'
+import prisma from '../../utils/prisma'
 import { generateSillyName } from './../../../utils/useRandomName'
 import type { PitchType } from '~/server/generated/prisma'
 

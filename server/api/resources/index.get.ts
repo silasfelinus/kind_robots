@@ -1,7 +1,7 @@
 // /server/api/resources/index.get.ts
 import { defineEventHandler } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 import type { Resource } from '~/server/generated/prisma'
 
 export default defineEventHandler(async () => {

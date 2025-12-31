@@ -1,6 +1,6 @@
 import type { Prisma, Tag } from '~/server/generated/prisma'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 
 // Function to create a new Tag
 export async function createTag(tag: Partial<Tag>): Promise<Tag> {

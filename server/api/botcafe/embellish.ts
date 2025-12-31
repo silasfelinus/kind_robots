@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error'
+import { errorHandler } from '../../utils/error'
 
 const creativeEmbellishments = [
   {

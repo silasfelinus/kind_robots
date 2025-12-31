@@ -1,8 +1,8 @@
 // /server/api/bots/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
 import type { Prisma, Bot } from '~/server/generated/prisma'
 
 export default defineEventHandler(async (event) => {

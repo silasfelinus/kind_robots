@@ -1,6 +1,6 @@
 import type { Prisma, Gallery } from '~/server/generated/prisma'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 
 // Function to create a new gallery
 export async function createGallery(

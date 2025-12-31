@@ -1,7 +1,7 @@
 // server/api/art/prompt/[id].get.ts
 import { defineEventHandler } from 'h3'
-import prisma from '../../utils/prisma'
-import { errorHandler } from '../../utils/error'
+import prisma from '../../../utils/prisma'
+import { errorHandler } from '../../../utils/error'
 
 export default defineEventHandler(async (event) => {
   const promptId = Number(event.context.params?.promptId)

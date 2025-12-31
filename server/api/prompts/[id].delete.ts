@@ -1,8 +1,8 @@
 // /server/api/prompts/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
-import prisma from '../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
+import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   const promptId = Number(event.context.params?.id)
@@ -41,10 +41,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-// Check if user is an admin
+    // Check if user is an admin
     if (user.Role === 'ADMIN') {
       // Admin bypass: Delete the prompt entry directly
-      await prisma.prompt.delete({ where: { id:promptId } })
+      await prisma.prompt.delete({ where: { id: promptId } })
       return {
         success: true,
         message: `Prompt entry with ID ${promptId} deleted successfully by admin.`,

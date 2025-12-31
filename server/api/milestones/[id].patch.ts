@@ -1,8 +1,8 @@
 // /server/api/milestones/[id].patch.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import type { Milestone } from '~/server/generated/prisma'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   let response

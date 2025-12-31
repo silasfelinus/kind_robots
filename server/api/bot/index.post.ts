@@ -1,6 +1,6 @@
 import { defineEventHandler, readBody, createError } from 'h3'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import prisma from '../../utils/prisma'
 import type { Prisma, Bot } from '~/server/generated/prisma'
 
 export default defineEventHandler(async (event) => {

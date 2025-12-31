@@ -1,6 +1,6 @@
 import { defineEventHandler, readMultipartFormData } from 'h3'
-import { errorHandler } from './../utils/error'
-import prisma from '~/server/api/utils/prisma'
+import { errorHandler } from '../../utils/error'
+import prisma from '~/server/utils/prisma'
 
 import type { ArtImage } from '~/server/generated/prisma'
 import path from 'path'

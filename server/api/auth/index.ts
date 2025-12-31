@@ -2,9 +2,9 @@
 import crypto from 'crypto'
 import { hash as bcryptHash, compare as bcryptCompare } from 'bcrypt'
 import { jwtVerify, SignJWT } from 'jose'
-import { errorHandler } from '../utils/error'
+import { errorHandler } from '../../utils/error'
 import { userExists } from '../users'
-import prisma from '../utils/prisma'
+import prisma from '../../utils/prisma'
 import type { User } from '~/server/generated/prisma'
 
 const config = useRuntimeConfig()

@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 import { defineEventHandler } from 'h3'
-import { errorHandler } from '@/server/api/utils/error' // Use existing error handler if you have one
+import { errorHandler } from '~/server/utils/error' // Use existing error handler if you have one
 
 interface Folder {
   folderName: string

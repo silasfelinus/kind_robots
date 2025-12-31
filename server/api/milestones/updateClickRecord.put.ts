@@ -1,8 +1,8 @@
 // /server/api/milestones/updateClickRecord.put.ts
 
 import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   let response

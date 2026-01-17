@@ -1,5 +1,4 @@
 // /stores/checkpointStore.ts
-
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useUserStore } from './userStore'
@@ -21,26 +20,28 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
   const currentApiModel = ref<string | null>(null)
 
   const visibleCheckpoints = computed(() =>
-    allCheckpoints.value.filter((r: { isMature: any }) =>
-      userStore.showMature ? true : !r.isMature,
+    allCheckpoints.value.filter((r) =>
+      userStore.showMature ? true : !(r.isMature ?? false),
     ),
   )
 
   const isValidSampler = (name: string) =>
-    allSamplers.value.some((s: { name: string }) => s.name === name)
+    allSamplers.value.some((s) => (s.name ?? '').trim() === name.trim())
 
   const isValidCheckpoint = (name: string) =>
-    allCheckpoints.value.some((r: { name: string }) => r.name === name)
+    allCheckpoints.value.some((r) => (r.name ?? '').trim() === name.trim())
 
   function selectCheckpointByName(name: string) {
+    const trimmed = name.trim()
     selectedCheckpoint.value =
-      allCheckpoints.value.find((r: { name: string }) => r.name === name) ||
+      allCheckpoints.value.find((r) => (r.name ?? '').trim() === trimmed) ||
       null
   }
 
   function selectSamplerByName(name: string) {
+    const trimmed = name.trim()
     const found = allSamplers.value.find(
-      (s: { name: string }) => s.name === name,
+      (s) => (s.name ?? '').trim() === trimmed,
     )
 
     if (!found) {
@@ -58,13 +59,14 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
 
       if (res.success && res.data) {
         currentApiModel.value = res.data
-      } else {
-        errorStore.setError(
-          ErrorType.GENERAL_ERROR,
-          res.message || 'Model fetch failed.',
-        )
-        currentApiModel.value = null
+        return
       }
+
+      errorStore.setError(
+        ErrorType.GENERAL_ERROR,
+        res.message || 'Model fetch failed.',
+      )
+      currentApiModel.value = null
     } catch (error) {
       errorStore.setError(ErrorType.NETWORK_ERROR, error)
       currentApiModel.value = null
@@ -72,9 +74,8 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
   }
 
   function findCheckpointByName(name: string): Partial<Resource> | undefined {
-    return allCheckpoints.value.find(
-      (r: { name: string }) => r.name?.trim() === name.trim(),
-    )
+    const trimmed = name.trim()
+    return allCheckpoints.value.find((r) => (r.name ?? '').trim() === trimmed)
   }
 
   async function setCurrentModelInApi(name: string) {

@@ -19,7 +19,7 @@
     "prisma:migrate": "npx prisma migrate deploy",
     "migration": "./scripts/migration.sh",
     "prisma:migrate:dev": "npx prisma migrate dev",
-    "postinstall": "npm run prisma:generate",
+    "postinstall": "echo postinstall skipped",
     "backup": "ts-node server/utils/backupDatabase.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",

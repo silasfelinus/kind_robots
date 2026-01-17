@@ -19,11 +19,10 @@
     "prisma:migrate": "npx prisma migrate deploy",
     "migration": "./scripts/migration.sh",
     "prisma:migrate:dev": "npx prisma migrate dev",
-    "postinstall": "npm run prisma:generate",
+    "postinstall": "echo postinstall skipped",
     "backup": "ts-node server/utils/backupDatabase.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "convert-art": "node --loader ts-node/esm utils/scripts/art-from-galleries.cts",
     "generatesmart": "node utils/scripts/generate-smart-icons.mjs"
   },
   "devDependencies": {
@@ -55,7 +54,7 @@
     "@prisma/adapter-mariadb": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "@stripe/stripe-js": "^5.8.0",
-    "@types/node": "^22.7.3",
+    "@types/node": "24.x",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "bcrypt": "^5.1.1",
@@ -76,7 +75,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=20.6.0",
-    "npm": ">=11.0.0"
+    "node": "24.x",
+    "npm": "11.x"
   }
 }

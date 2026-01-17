@@ -1,7 +1,11 @@
 // /stores/reactionStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Reaction, ReactionType, ReactionCategory } from '@prisma/client'
+import type {
+  Reaction,
+  ReactionType,
+  ReactionCategory,
+} from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 
 export type ReactionTypeEnum =

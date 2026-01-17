@@ -4,7 +4,7 @@ import { ref, computed } from 'vue'
 import { useUserStore } from './userStore'
 import { ErrorType } from './errorStore'
 import { handleError } from './utils'
-import type { Chat, ChatType } from '@prisma/client'
+import type { Chat, ChatType } from '~/prisma/generated/prisma/client'
 import {
   buildNewChat,
   createChat,

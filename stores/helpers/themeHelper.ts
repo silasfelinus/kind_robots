@@ -1,5 +1,5 @@
 // /stores/helpers/themeHelper.ts
-import type { Theme } from '@prisma/client'
+import type { Theme } from '~/prisma/generated/prisma/client'
 
 /** Frontend editing shape: values as an object */
 export type ThemeForm = Partial<Omit<Theme, 'values'>> & {

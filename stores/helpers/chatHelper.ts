@@ -1,5 +1,5 @@
 // /stores/helpers/chatHelper.ts
-import type { Chat, ChatType } from '@prisma/client'
+import type { Chat, ChatType } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { ErrorType } from '@/stores/errorStore'
 import { handleError } from '@/stores/utils'

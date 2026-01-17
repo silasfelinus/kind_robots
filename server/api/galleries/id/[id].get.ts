@@ -2,7 +2,7 @@
 
 import { defineEventHandler } from 'h3'
 import { fetchGalleryById } from '..'
-import { errorHandler } from '../../utils/error'
+import { errorHandler } from '../../../utils/error'
 
 export default defineEventHandler(async (event) => {
   let response

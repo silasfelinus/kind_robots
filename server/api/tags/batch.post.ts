@@ -1,9 +1,9 @@
 // /server/api/tags/batch.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
-import prisma from '../utils/prisma'
-import type { Prisma, Tag } from '@prisma/client'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
+import prisma from '../../utils/prisma'
+import type { Prisma, Tag } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {

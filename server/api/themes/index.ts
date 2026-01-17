@@ -1,5 +1,5 @@
 // /server/api/themes/index.ts
-import type { Theme } from '@prisma/client'
+import type { Theme } from '~/prisma/generated/prisma/client'
 
 export function stringifyValues(values: unknown): string | undefined {
   if (!values) return undefined

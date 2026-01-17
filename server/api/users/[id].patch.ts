@@ -1,8 +1,8 @@
 // /server/api/users/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
 
 /**
  * Minimal, durable user PATCH:

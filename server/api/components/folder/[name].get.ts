@@ -1,8 +1,8 @@
 // server/api/components/[name]/index.get.ts
 
 import { defineEventHandler } from 'h3'
-import { errorHandler } from '../../utils/error'
-import prisma from '../../utils/prisma'
+import { errorHandler } from '../../../utils/error'
+import prisma from '../../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   let response

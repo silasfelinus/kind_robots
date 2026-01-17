@@ -1,7 +1,7 @@
 import { defineEventHandler, createError } from 'h3'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
-import prisma from '../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
+import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -79,7 +79,8 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message: handledError.message || `Failed to delete Character with ID ${id}.`,
+      message:
+        handledError.message || `Failed to delete Character with ID ${id}.`,
       statusCode: event.node.res.statusCode,
     }
   }

@@ -1,7 +1,7 @@
 // /stores/rewardStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Reward } from '@prisma/client'
+import type { Reward } from '~/prisma/generated/prisma/client'
 import { performFetch } from './utils'
 
 const isClient = typeof window !== 'undefined'

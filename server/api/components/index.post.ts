@@ -1,9 +1,9 @@
 // server/api/components/index.post.ts
 
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
-import type { Tag } from '@prisma/client'
+import { errorHandler } from '../../utils/error'
+import prisma from '../../utils/prisma'
+import type { Tag } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   let response

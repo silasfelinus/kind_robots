@@ -5,10 +5,10 @@ import {
   createError,
   setResponseStatus,
 } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
-import type { Prisma, Gallery } from '@prisma/client'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
+import type { Prisma, Gallery } from '~/prisma/generated/prisma/client'
 
 type BatchCreateResponse = {
   success: boolean

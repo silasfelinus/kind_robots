@@ -1,7 +1,7 @@
 // /stores/tagStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Tag } from '@prisma/client'
+import type { Tag } from '~/prisma/generated/prisma/client'
 import { performFetch } from './utils'
 import { useUserStore } from './userStore'
 

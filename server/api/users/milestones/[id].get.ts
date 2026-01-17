@@ -1,8 +1,8 @@
 // /server/api/users/milestones/[id].get.ts
 import { defineEventHandler, createError } from 'h3'
-import { errorHandler } from '../../utils/error'
-import prisma from './../../../../server/api/utils/prisma'
-import type { MilestoneRecord } from '@prisma/client'
+import { errorHandler } from '../../../utils/error'
+import prisma from '../../../utils/prisma'
+import type { MilestoneRecord } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   const userId = Number(event.context.params?.id)

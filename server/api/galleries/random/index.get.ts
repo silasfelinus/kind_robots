@@ -1,7 +1,7 @@
 // server/api/galleries/random/index.get.ts
 import { defineEventHandler } from 'h3'
 import { randomGallery } from '..' // Adjusted import path to match file structure
-import { errorHandler } from '../../utils/error' // Import your error handler
+import { errorHandler } from '../../../utils/error' // Import your error handler
 
 export default defineEventHandler(async () => {
   try {

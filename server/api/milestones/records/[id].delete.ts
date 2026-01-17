@@ -1,7 +1,7 @@
 // server/api/users/milestones/records/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
-import prisma from '../../utils/prisma'
-import { errorHandler } from '../../utils/error'
+import prisma from '../../../utils/prisma'
+import { errorHandler } from '../../../utils/error'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
     const handledError = errorHandler(error)
     console.error(
       `Error while deleting Milestone Record with ID "${recordId}":`,
-      handledError
+      handledError,
     )
 
     // Set the appropriate status code and response message

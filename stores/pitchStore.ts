@@ -2,7 +2,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Pitch, Art } from '@prisma/client'
+import type { Pitch, Art } from '~/prisma/generated/prisma/client'
 import { useUserStore } from './userStore'
 import { performFetch, handleError } from './utils'
 import {

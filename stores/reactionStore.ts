@@ -41,25 +41,21 @@ export const useReactionStore = defineStore('reactionStore', () => {
   const isInitialized = ref(false)
 
   const getReactionsByComponentId = computed(() => (componentId: number) => {
-    return reactions.value.filter(
-      (r: { componentId: number }) => r.componentId === componentId,
-    )
+    return reactions.value.filter((r) => r.componentId === componentId)
   })
 
   const getUserReactionForComponent = computed(
     () => (componentId: number, userId: number) => {
       return reactions.value.find(
-        (r: { componentId: number; userId: number }) =>
-          r.componentId === componentId && r.userId === userId,
+        (r) => r.componentId === componentId && r.userId === userId,
       )
     },
   )
 
   async function initialize() {
-    if (!isInitialized.value) {
-      await fetchReactions()
-      isInitialized.value = true
-    }
+    if (isInitialized.value) return
+    await fetchReactions()
+    isInitialized.value = true
   }
 
   async function fetchReactions() {
@@ -71,6 +67,7 @@ export const useReactionStore = defineStore('reactionStore', () => {
       reactions.value = res.data || []
     } catch (e) {
       handleError(e, 'fetching all reactions')
+      error.value = e instanceof Error ? e.message : 'Failed to fetch reactions'
     } finally {
       loading.value = false
     }
@@ -82,9 +79,15 @@ export const useReactionStore = defineStore('reactionStore', () => {
     try {
       const res = await performFetch<Reaction[]>(`/api/reactions/art/${artId}`)
       if (!res.success) throw new Error(res.message)
-      reactions.value = [...reactions.value, ...(res.data || [])]
+
+      const incoming = res.data || []
+      const existingIds = new Set(reactions.value.map((r) => r.id))
+      const deduped = incoming.filter((r) => !existingIds.has(r.id))
+
+      reactions.value = [...reactions.value, ...deduped]
     } catch (e) {
       handleError(e, 'fetching reactions by art ID')
+      error.value = e instanceof Error ? e.message : 'Failed to fetch reactions'
     } finally {
       loading.value = false
     }
@@ -101,6 +104,7 @@ export const useReactionStore = defineStore('reactionStore', () => {
       reactions.value = res.data || []
     } catch (e) {
       handleError(e, 'fetching reactions by component ID')
+      error.value = e instanceof Error ? e.message : 'Failed to fetch reactions'
     } finally {
       loading.value = false
     }
@@ -152,9 +156,8 @@ export const useReactionStore = defineStore('reactionStore', () => {
         body: JSON.stringify(updates),
       })
       if (!res.success) throw new Error(res.message)
-      const index = reactions.value.findIndex(
-        (r: { id: number }) => r.id === reactionId,
-      )
+
+      const index = reactions.value.findIndex((r) => r.id === reactionId)
       if (index !== -1 && res.data) reactions.value[index] = res.data
       return res.data
     } catch (e) {
@@ -171,11 +174,10 @@ export const useReactionStore = defineStore('reactionStore', () => {
         method: 'DELETE',
       })
       if (!res.success) throw new Error(res.message)
-      reactions.value = reactions.value.filter(
-        (r: { id: number }) => r.id !== reactionId,
-      )
+      reactions.value = reactions.value.filter((r) => r.id !== reactionId)
     } catch (e) {
       handleError(e, 'deleting reaction')
+      error.value = e instanceof Error ? e.message : 'Failed to delete reaction'
     } finally {
       loading.value = false
     }

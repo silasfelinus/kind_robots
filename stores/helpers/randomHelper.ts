@@ -2,7 +2,6 @@
 import type { Pitch } from '~/prisma/generated/prisma/client'
 import type { ArtListEntry } from '@/stores/seeds/artList'
 
-// 🎯 Raw single-value pools
 import { adjectiveList } from '@/stores/utils/randomAdjective'
 import { animalList } from '@/stores/utils/randomAnimal'
 import { backstoryList } from '@/stores/utils/randomBackstory'
@@ -22,10 +21,6 @@ import { speciesList } from '@/stores/utils/randomSpecies'
 import { verbList } from '@/stores/utils/randomVerb'
 import { useRandomEncounter } from '@/stores/utils/randomEncounter'
 
-/* ---------------------------------------------
- * Types
- * -------------------------------------------*/
-
 export type RandomListItem = {
   id: number
   title: string
@@ -44,10 +39,6 @@ type RandomPool = {
   values: string[]
 }
 
-/* ---------------------------------------------
- * Utilities
- * -------------------------------------------*/
-
 function stableNegativeId(input: string): number {
   let hash = 0
   for (let i = 0; i < input.length; i++) {
@@ -64,9 +55,15 @@ function safeStringArray(value: unknown): string[] {
   )
 }
 
-/* ---------------------------------------------
- * Preset list conversion
- * -------------------------------------------*/
+function safeTitle(p: Pitch): string {
+  const t = (p.title ?? '').trim()
+  if (t) return t
+
+  const fallback = (p.pitch ?? '').trim()
+  if (fallback) return fallback.slice(0, 80)
+
+  return `Random List #${p.id}`
+}
 
 export function artListToRandomListItem(entry: ArtListEntry): RandomListItem {
   const key = (entry as { id?: string }).id ?? entry.title
@@ -88,27 +85,19 @@ export function getAllPresetLists(entries: ArtListEntry[]): RandomListItem[] {
   return entries.map(artListToRandomListItem)
 }
 
-/* ---------------------------------------------
- * User list conversion
- * -------------------------------------------*/
-
 export function pitchToRandomListItem(p: Pitch): RandomListItem {
   return {
     id: p.id,
-    title: p.title,
+    title: safeTitle(p),
     PitchType: 'RANDOMLIST',
     userId: p.userId ?? null,
-    isPublic: p.isPublic,
-    isMature: p.isMature,
+    isPublic: p.isPublic ?? false,
+    isMature: p.isMature ?? false,
     designer: null,
     examplesJson: typeof p.pitch === 'string' ? p.pitch : '[]',
     source: 'user',
   }
 }
-
-/* ---------------------------------------------
- * Single-value random pools
- * -------------------------------------------*/
 
 export const basicSinglePools: RandomPool[] = [
   { key: 'adjective', title: 'Adjective', values: adjectiveList },
@@ -134,10 +123,6 @@ export const basicSinglePools: RandomPool[] = [
     values: [useRandomEncounter().message],
   },
 ]
-
-/* ---------------------------------------------
- * Random selection helpers
- * -------------------------------------------*/
 
 export function getRandom(key: string, count = 1): string[] {
   const pool = basicSinglePools.find(

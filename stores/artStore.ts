@@ -121,14 +121,12 @@ export const useArtStore = defineStore('artStore', () => {
     return (state.artListSelections['__negative__'] || []).join(', ')
   })
 
-  const artListSelections = ref<Record<string, string[]>>({})
-
   function updateArtListSelection(id: string, selections: string[]) {
-    artListSelections.value[id] = selections
+    state.artListSelections[id] = selections
   }
 
   function getArtListAddonPrompt(): string {
-    return Object.entries(artListSelections.value)
+    return Object.entries(state.artListSelections)
       .flatMap(([key, values]) =>
         key === '__pretty__' ? values : values.map((v) => v.trim()),
       )
@@ -314,8 +312,8 @@ export const useArtStore = defineStore('artStore', () => {
     artId: number,
     images?: ArtImage[],
   ): ArtImage | undefined {
-    const pool = images || state.artImages
-    return pool.find((image: { artId: number }) => image.artId === artId)
+    const pool = images ?? state.artImages
+    return pool.find((image) => image.artId === artId)
   }
 
   async function deleteArtImage(artImageId: number): Promise<void> {

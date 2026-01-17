@@ -1,7 +1,6 @@
 <!-- /components/content/forum/forum-thread.vue -->
 <template>
   <div class="space-y-6 w-full max-w-4xl mx-auto px-4 py-8">
-    <!-- Channel Toggles -->
     <div class="flex flex-wrap justify-center gap-2 mb-6">
       <button
         v-for="channel in allChannels"
@@ -17,7 +16,6 @@
       </button>
     </div>
 
-    <!-- Per-Channel Thread Groups -->
     <div v-for="channel in visibleChannels" :key="channel" class="space-y-4">
       <div class="flex justify-between items-center mt-8 mb-2">
         <h2 class="text-xl font-bold">
@@ -42,6 +40,7 @@
         </div>
         <div class="font-semibold text-base-content">{{ thread.sender }}:</div>
         <div class="whitespace-pre-line">{{ thread.content }}</div>
+
         <div class="flex justify-between items-center">
           <button
             class="btn btn-sm btn-outline mt-2"
@@ -49,6 +48,7 @@
           >
             💬 Reply
           </button>
+
           <span
             v-if="getReplies(thread.id).length"
             class="text-sm text-accent-content"
@@ -59,7 +59,6 @@
           </span>
         </div>
 
-        <!-- Replies -->
         <div
           v-if="getReplies(thread.id).length"
           class="pl-4 border-l-2 border-base-300 space-y-3 mt-3"
@@ -79,7 +78,6 @@
       </div>
     </div>
 
-    <!-- New Thread Composer (inline below all posts) -->
     <div
       v-if="userStore.isLoggedIn && composeChannel"
       class="bg-base-200 p-4 rounded-xl shadow mt-8"
@@ -103,53 +101,50 @@
 
 <script setup lang="ts">
 // /components/content/forum/forum-thread.vue
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
 
 const chatStore = useChatStore()
 const userStore = useUserStore()
 
-// Define all channels in the forum
 const allChannels = ['share', 'introductions', 'news', 'activism'] as const
 type ForumChannel = (typeof allChannels)[number]
 
-// State
 const visibleChannels = ref<ForumChannel[]>([...allChannels])
 const composeChannel = ref<ForumChannel | null>(null)
 const newThreadContent = ref('')
 const replyOriginId = ref<number | null>(null)
 
-// Toggle which channels are shown
 function toggleChannel(channel: ForumChannel) {
   const index = visibleChannels.value.indexOf(channel)
-  if (index > -1) {
-    visibleChannels.value.splice(index, 1)
-  } else {
-    visibleChannels.value.push(channel)
-  }
+  if (index > -1) visibleChannels.value.splice(index, 1)
+  else visibleChannels.value.push(channel)
 }
 
-// Store-filtered threads
-const threadsByChannel = (channel: ForumChannel) =>
-  chatStore.chats.filter(
-    (chat: {
-      originId: null
-      channel: string
-      isPublic: any
-      userId: any
-      isMature: any
-    }) =>
-      chat.originId === null &&
-      chat.channel === channel &&
-      (chat.isPublic || chat.userId === userStore.user?.id) &&
-      (!chat.isMature || userStore.showMature),
-  )
+const threadsByChannel = (channel: ForumChannel) => {
+  const uid = userStore.user?.id ?? null
+  const showMature = userStore.showMature
 
-const getReplies = (originId: number) =>
-  chatStore.chats.filter(
-    (chat: { originId: number }) => chat.originId === originId,
-  )
+  return chatStore.chats.filter((chat) => {
+    const isRoot = chat.originId == null
+    const chatChannel = (chat.channel ?? '').trim()
+    const isVisibleChannel = chatChannel === channel
+
+    const isPublic = chat.isPublic ?? false
+    const isOwner = uid != null && chat.userId === uid
+    const canSee = isPublic || isOwner
+
+    const isMature = chat.isMature ?? false
+    const matureOk = !isMature || showMature
+
+    return isRoot && isVisibleChannel && canSee && matureOk
+  })
+}
+
+const getReplies = (originId: number) => {
+  return chatStore.chats.filter((chat) => chat.originId === originId)
+}
 
 function startNewThread(channel: ForumChannel) {
   composeChannel.value = channel
@@ -161,13 +156,15 @@ function cancelPost() {
   newThreadContent.value = ''
 }
 
-function postThread() {
-  if (!newThreadContent.value.trim() || !composeChannel.value) return
+async function postThread() {
+  const content = newThreadContent.value.trim()
+  const channel = composeChannel.value
+  if (!content || !channel) return
 
-  chatStore.addChat({
-    content: newThreadContent.value.trim(),
+  await chatStore.addChat({
+    content,
     type: 'ToForum',
-    channel: composeChannel.value,
+    channel,
     sender: userStore.user?.designerName || 'Anonymous',
     userId: userStore.user?.id || 0,
     originId: null,
@@ -180,7 +177,6 @@ function postThread() {
 
 function replyTo(id: number) {
   replyOriginId.value = id
-  // future: open reply modal or inline input
 }
 
 function formatDate(date: Date | string) {

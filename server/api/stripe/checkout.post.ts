@@ -1,8 +1,8 @@
 // /server/api/stripe/checkout.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import Stripe from 'stripe'
-import prisma from './../utils/prisma'
-import { errorHandler } from '@/server/api/utils/error'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '~/server/utils/error'
 import { cartItems } from '@/stores/seeds/cartItems' // or move to server if needed
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
@@ -18,7 +18,8 @@ export default defineEventHandler(async (event) => {
       return errorHandler({ message: 'Missing user or cart', statusCode: 400 })
 
     const user = await prisma.user.findUnique({ where: { id: userId } })
-    if (!user) return errorHandler({ message: 'User not found', statusCode: 404 })
+    if (!user)
+      return errorHandler({ message: 'User not found', statusCode: 404 })
 
     const email = user.email || `user-${user.id}@kindrobots.org`
 

@@ -1,8 +1,8 @@
 // /server/api/users/[id].get.ts
 import { defineEventHandler, createError } from 'h3'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
-import { validateApiKey } from '../utils/validateKey'
+import { errorHandler } from '../../utils/error'
+import prisma from '../../utils/prisma'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   console.log('Fetching user by ID with optional API key inclusion.')

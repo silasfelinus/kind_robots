@@ -1,6 +1,6 @@
 //server/api/auth/google/callback.ts
 import { defineEventHandler, getQuery, sendRedirect, createError } from 'h3'
-import prisma from '../../utils/prisma'
+import prisma from '../../../utils/prisma'
 import { createToken, generateApiKey } from '..'
 
 interface GoogleTokenResponse {

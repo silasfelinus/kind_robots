@@ -1,8 +1,8 @@
 // server/api/reactions/component/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import prisma from '../../utils/prisma'
-import { errorHandler } from '../../utils/error'
-import type { Reaction } from '@prisma/client'
+import prisma from '../../../utils/prisma'
+import { errorHandler } from '../../../utils/error'
+import type { Reaction } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   let componentId: number | null = null

@@ -1,7 +1,7 @@
 // /stores/userStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { User } from '@prisma/client'
+import type { User } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 import { useMilestoneStore } from './milestoneStore'
 import {

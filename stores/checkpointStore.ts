@@ -5,7 +5,7 @@ import { computed, ref } from 'vue'
 import { useUserStore } from './userStore'
 import { validCheckpoints } from '@/stores/seeds/validCheckpoints'
 import { validSamplers } from '@/stores/seeds/validSamplers'
-import type { Resource } from '@prisma/client'
+import type { Resource } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { useErrorStore, ErrorType } from './errorStore'
 

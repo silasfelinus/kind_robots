@@ -1,8 +1,8 @@
 // server/api/art/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import type { Art } from '@prisma/client'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
+import type { Art } from '~/prisma/generated/prisma/client'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {

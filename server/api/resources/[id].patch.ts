@@ -1,9 +1,9 @@
 // /server/api/resources/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
-import type { Resource } from '@prisma/client'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
+import type { Resource } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   const resourceId = Number(event.context.params?.id)

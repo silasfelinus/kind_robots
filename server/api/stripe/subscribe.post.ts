@@ -1,8 +1,8 @@
 // /server/api/stripe/subscribe.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import Stripe from 'stripe'
-import prisma from './../utils/prisma'
-import { errorHandler } from '@/server/api/utils/error'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '~/server/utils/error'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 

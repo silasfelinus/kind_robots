@@ -1,8 +1,8 @@
 // /server/api/components/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
-import type { Component } from '@prisma/client'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import type { Component } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -22,7 +22,10 @@ export default defineEventHandler(async (event) => {
     const updatedComponentData: Partial<Component> = await readBody(event)
 
     // Ensure the request body contains valid fields
-    if (!updatedComponentData || Object.keys(updatedComponentData).length === 0) {
+    if (
+      !updatedComponentData ||
+      Object.keys(updatedComponentData).length === 0
+    ) {
       throw createError({
         statusCode: 400,
         message: 'No valid component data provided.',
@@ -30,10 +33,14 @@ export default defineEventHandler(async (event) => {
     }
 
     // Validate each field in the payload
-    if (updatedComponentData.componentName && !/^[a-zA-Z0-9\s-]+$/.test(updatedComponentData.componentName)) {
+    if (
+      updatedComponentData.componentName &&
+      !/^[a-zA-Z0-9\s-]+$/.test(updatedComponentData.componentName)
+    ) {
       throw createError({
         statusCode: 400,
-        message: 'Invalid componentName: Must contain only alphanumeric characters, spaces, or hyphens.',
+        message:
+          'Invalid componentName: Must contain only alphanumeric characters, spaces, or hyphens.',
       })
     }
 
@@ -103,7 +110,9 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message: handledError.message || `Failed to update component with ID ${componentId}.`,
+      message:
+        handledError.message ||
+        `Failed to update component with ID ${componentId}.`,
       statusCode: event.node.res.statusCode,
     }
   }

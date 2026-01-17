@@ -7,7 +7,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type { Prisma, SampleModel } from '@prisma/client'
+import type { Prisma, SampleModel } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   const modelName = 'sampleModel' // Prisma model name

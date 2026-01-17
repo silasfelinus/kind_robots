@@ -1,5 +1,5 @@
 // /stores/helpers/randomHelper.ts
-import type { Pitch } from '@prisma/client'
+import type { Pitch } from '~/prisma/generated/prisma/client'
 import type { ArtListEntry } from '@/stores/seeds/artList'
 
 // 🎯 Raw single-value pools

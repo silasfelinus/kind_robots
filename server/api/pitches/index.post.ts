@@ -1,9 +1,9 @@
 // /server/api/pitches/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
-import prisma from '../utils/prisma'
-import type { Prisma, Pitch } from '@prisma/client'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
+import prisma from '../../utils/prisma'
+import type { Prisma, Pitch } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {

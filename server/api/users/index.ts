@@ -1,6 +1,6 @@
-import type { Prisma, User } from '@prisma/client'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
+import type { Prisma, User } from '../../../prisma/generated/prisma/client'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 import { validatePassword, hashPassword, generateApiKey } from '../auth'
 
 export async function createUser(data: {

@@ -1,6 +1,6 @@
 // /stores/helpers/artHelper.ts
 
-import type { Art, ArtImage } from '@prisma/client'
+import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 
 // Lazy store accessor to prevent circular imports

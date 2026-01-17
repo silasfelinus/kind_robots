@@ -1,8 +1,8 @@
 // /server/api/rewards/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
-import type { Prisma, Reward } from '@prisma/client'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import type { Prisma, Reward } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   let response

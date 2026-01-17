@@ -73,7 +73,7 @@
 <script setup lang="ts">
 // /components/content/prompts/brainstorm-game.vue
 import { ref, computed } from 'vue'
-import type { Pitch } from '@prisma/client'
+import type { Pitch } from '~/prisma/generated/prisma/client'
 import { usePitchStore } from '~/stores/pitchStore'
 import { useErrorStore, ErrorType } from '~/stores/errorStore'
 

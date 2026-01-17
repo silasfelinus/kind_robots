@@ -1,6 +1,6 @@
 // /stores/seeds/validSamplers.ts
 
-import type { Resource } from '@prisma/client'
+import type { Resource } from '~/prisma/generated/prisma/client'
 
 export const validSamplers: Partial<Resource>[] = [
   { name: 'Euler a', resourceType: 'SAMPLER', isMature: false, userId: 1 },

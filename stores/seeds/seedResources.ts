@@ -1,14 +1,14 @@
 // ~/stores/seeds/seedResources.ts
-import type { Resource } from '@prisma/client'
+import type { Resource } from '~/prisma/generated/prisma/client'
 
 export enum ResourceTypeEnum {
-CHECPOINT= 'CHECKPOINT',
-EMBEDDING = 'EMBEDDING',
-LORA = 'LORA',
-LYCORIS = 'LYCORIS',
-HYPERNETWORK = 'HYPERNETWORK',
-CONTROLNET = 'CONTROLNET',
-URL = 'URL'
+  CHECPOINT = 'CHECKPOINT',
+  EMBEDDING = 'EMBEDDING',
+  LORA = 'LORA',
+  LYCORIS = 'LYCORIS',
+  HYPERNETWORK = 'HYPERNETWORK',
+  CONTROLNET = 'CONTROLNET',
+  URL = 'URL',
 }
 export const resourceData: Partial<Resource>[] = [
   {

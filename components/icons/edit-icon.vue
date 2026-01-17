@@ -86,7 +86,7 @@
 // /components/content/story/edit-icon.vue
 import { ref, watch } from 'vue'
 import { useSmartbarStore } from '@/stores/smartbarStore'
-import type { SmartIcon } from '@prisma/client'
+import type { SmartIcon } from '~/prisma/generated/prisma/client'
 
 const props = defineProps<{ icon: SmartIcon }>()
 const emit = defineEmits(['close'])

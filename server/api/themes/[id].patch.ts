@@ -1,10 +1,10 @@
 // /server/api/themes/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import prisma from '@/server/api/utils/prisma'
-import { errorHandler } from '@/server/api/utils/error'
-import { validateApiKey } from '@/server/api/utils/validateKey'
+import prisma from '~/server/utils/prisma'
+import { errorHandler } from '~/server/utils/error'
+import { validateApiKey } from '~/server/utils/validateKey'
 import { stringifyValues, parseTheme } from '@/server/api/themes/index'
-import type { Prisma } from '@prisma/client'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   let id: number | undefined

@@ -1,5 +1,5 @@
 // /stores/helpers/botHelper.ts
-import type { Bot } from '@prisma/client'
+import type { Bot } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
 import { botData } from '@/stores/seeds/seedBots'

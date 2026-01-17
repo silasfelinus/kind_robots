@@ -1,7 +1,7 @@
 import { defineEventHandler } from 'h3'
-import type { Pitch } from '@prisma/client'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
+import type { Pitch } from '~/prisma/generated/prisma/client'
+import { errorHandler } from '../../utils/error'
+import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   let response

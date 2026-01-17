@@ -1,7 +1,7 @@
 // /server/api/rewards/[id].get.ts
 import { defineEventHandler } from 'h3'
 import { fetchRewardById } from './index'
-import { errorHandler } from '../utils/error'
+import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   let response

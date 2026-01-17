@@ -4,7 +4,7 @@ import { ref, computed, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import type { Theme } from '@prisma/client'
+import type { Theme } from '~/prisma/generated/prisma/client'
 
 import {
   buildThemePayload, // keep if you use it elsewhere

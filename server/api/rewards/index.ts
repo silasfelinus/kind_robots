@@ -1,5 +1,5 @@
-import type { Prisma, Reward } from '@prisma/client'
-import prisma from '../utils/prisma'
+import type { Prisma, Reward } from '~/prisma/generated/prisma/client'
+import prisma from '../../utils/prisma'
 
 // Function to create a new Reward
 export function createReward(reward: Partial<Reward>): Promise<Reward> {

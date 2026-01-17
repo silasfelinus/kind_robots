@@ -1,8 +1,8 @@
 // /server/api/galleries/index.get.ts
 import { defineEventHandler } from 'h3'
 import { fetchGalleries } from '.'
-import { errorHandler } from '../utils/error'
-import type { Gallery } from '@prisma/client'
+import { errorHandler } from '../../utils/error'
+import type { Gallery } from '~/prisma/generated/prisma/client'
 
 type GalleriesResponse = {
   success: boolean

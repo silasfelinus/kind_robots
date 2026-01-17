@@ -1,7 +1,7 @@
 // /stores/characterStore.ts
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Character } from '@prisma/client'
+import type { Character } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
 import { useGalleryStore } from '@/stores/galleryStore'

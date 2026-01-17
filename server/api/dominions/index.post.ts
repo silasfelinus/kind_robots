@@ -1,9 +1,9 @@
 // /server/api/dominions/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
-import type { Prisma } from '@prisma/client'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 
 function normalizeArray(input: unknown): string[] {
   if (Array.isArray(input)) {

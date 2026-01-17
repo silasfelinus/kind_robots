@@ -1,6 +1,6 @@
 import { defineEventHandler, readBody, createError } from 'h3'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -29,7 +29,8 @@ export default defineEventHandler(async (event) => {
     const pitchRequest = {
       model: body.model || 'gpt-4o-mini',
       messages: [{ role: 'user', content }],
-      temperature: typeof body.temperature === 'number' ? body.temperature : 0.7,
+      temperature:
+        typeof body.temperature === 'number' ? body.temperature : 0.7,
       max_tokens: body.maxTokens || 150,
       n: body.n || 5,
       stream: body.stream || false,

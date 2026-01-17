@@ -7,7 +7,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { performFetch, handleError } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
-import type { SampleModel } from '@prisma/client'
+import type { SampleModel } from '~/prisma/generated/prisma/client'
 
 export interface SampleModelForm extends Partial<SampleModel> {}
 

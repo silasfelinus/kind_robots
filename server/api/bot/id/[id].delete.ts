@@ -1,7 +1,7 @@
 // server/api/bots/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
-import { errorHandler } from '../../utils/error'
-import prisma from '../../utils/prisma'
+import { errorHandler } from '../../../utils/error'
+import prisma from '../../../utils/prisma'
 import { deleteBot, fetchBotById } from '../../bots'
 
 export default defineEventHandler(async (event) => {

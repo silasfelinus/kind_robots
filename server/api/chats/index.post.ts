@@ -1,9 +1,9 @@
 // /server/api/chats/index.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
-import type { Prisma, Chat } from '@prisma/client'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
+import type { Prisma, Chat } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {

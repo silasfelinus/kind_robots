@@ -74,7 +74,12 @@ import { useArtStore } from '@/stores/artStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 
-import type { Art, ArtImage, ArtCollection, Chat } from '@prisma/client'
+import type {
+  Art,
+  ArtImage,
+  ArtCollection,
+  Chat,
+} from '~/prisma/generated/prisma/client'
 
 const userStore = useUserStore()
 const artStore = useArtStore()

@@ -1,7 +1,7 @@
 import { defineEventHandler, createError, readBody } from 'h3'
-import prisma from '../../utils/prisma'
-import { errorHandler } from '../../utils/error'
-import type { Component } from '@prisma/client'
+import prisma from '../../../utils/prisma'
+import { errorHandler } from '../../../utils/error'
+import type { Component } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -20,7 +20,10 @@ export default defineEventHandler(async (event) => {
     const updatedComponentData: Partial<Component> = await readBody(event)
 
     // Ensure the request body contains valid fields
-    if (!updatedComponentData || Object.keys(updatedComponentData).length === 0) {
+    if (
+      !updatedComponentData ||
+      Object.keys(updatedComponentData).length === 0
+    ) {
       throw createError({
         statusCode: 400,
         message: 'No valid component data provided.',
@@ -93,7 +96,9 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message: handledError.message || `Failed to update component with name ${componentName}.`,
+      message:
+        handledError.message ||
+        `Failed to update component with name ${componentName}.`,
       statusCode: event.node.res.statusCode,
     }
   }

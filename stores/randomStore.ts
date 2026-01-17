@@ -6,7 +6,7 @@ import { useUserStore } from './userStore'
 import { useArtStore } from './artStore'
 import { handleError, performFetch } from './utils'
 
-import type { Pitch } from '@prisma/client'
+import type { Pitch } from '~/prisma/generated/prisma/client'
 import { artListPresets } from '@/stores/seeds/artList'
 import {
   getRandom,

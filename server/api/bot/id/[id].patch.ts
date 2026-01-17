@@ -1,8 +1,8 @@
 // server/api/bots/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
-import type { Prisma } from '@prisma/client'
-import prisma from '../../utils/prisma'
-import { errorHandler } from '../../utils/error'
+import type { Prisma } from '~/prisma/generated/prisma/client'
+import prisma from '../../../utils/prisma'
+import { errorHandler } from '../../../utils/error'
 
 export default defineEventHandler(async (event) => {
   let response

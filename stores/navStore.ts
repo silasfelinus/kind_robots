@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { performFetch, handleError } from '@/stores/utils'
-import type { SmartIcon } from '@prisma/client'
+import type { SmartIcon } from '~/prisma/generated/prisma/client'
 import smartIconSeeds from '@/stores/seeds/smartIcons.json'
 
 export type NavTab = 'favorites' | 'navigation' | 'all'

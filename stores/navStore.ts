@@ -22,14 +22,16 @@ export const useNavStore = defineStore('navStore', () => {
 
   // --- COMPUTED: SmartIcon Data ---
   const directoryIcons = computed(() =>
-    items.value.filter((icon: { type: string }) => icon.type === 'directory'),
+    items.value.filter((icon) => (icon.type ?? 'directory') === 'directory'),
   )
 
   const modelTypes = computed(() => {
     const set = new Set<string>()
     for (const icon of directoryIcons.value) {
-      if (icon.modelType && icon.category === 'model') {
-        set.add(icon.modelType)
+      const modelType = (icon.modelType ?? '').trim()
+      const category = (icon.category ?? '').trim()
+      if (modelType && category === 'model') {
+        set.add(modelType)
       }
     }
     return Array.from(set).sort()
@@ -37,9 +39,10 @@ export const useNavStore = defineStore('navStore', () => {
 
   const favoritesIcons = computed(() => {
     const favSet = new Set(favorites.value)
-    return directoryIcons.value.filter(
-      (icon: { link: string }) => icon.link && favSet.has(icon.link),
-    )
+    return directoryIcons.value.filter((icon) => {
+      const link = (icon.link ?? '').trim()
+      return link.length > 0 && favSet.has(link)
+    })
   })
 
   // --- LOCAL STORAGE SYNC ---
@@ -62,14 +65,14 @@ export const useNavStore = defineStore('navStore', () => {
       if (rawIcons) {
         const parsedIcons = JSON.parse(rawIcons)
         if (Array.isArray(parsedIcons)) {
-          items.value = parsedIcons
+          items.value = parsedIcons as SmartIcon[]
         }
       }
 
       if (rawFavorites) {
         const parsedFavs = JSON.parse(rawFavorites)
         if (Array.isArray(parsedFavs)) {
-          favorites.value = parsedFavs
+          favorites.value = parsedFavs as string[]
         }
       }
     } catch (error) {
@@ -125,7 +128,7 @@ export const useNavStore = defineStore('navStore', () => {
         items.value = (smartIconSeeds as unknown as SmartIcon[]).map(
           (icon) => ({
             ...icon,
-            type: icon.type || 'directory',
+            type: (icon as any).type || 'directory',
           }),
         )
         syncToLocalStorage()
@@ -144,7 +147,7 @@ export const useNavStore = defineStore('navStore', () => {
           items.value = (smartIconSeeds as unknown as SmartIcon[]).map(
             (icon) => ({
               ...icon,
-              type: icon.type || 'directory',
+              type: (icon as any).type || 'directory',
             }),
           )
           syncToLocalStorage()
@@ -157,10 +160,12 @@ export const useNavStore = defineStore('navStore', () => {
 
   // --- FAVORITES ---
   function toggleFavorite(link?: string | null) {
-    if (!link) return
-    const idx = favorites.value.indexOf(link)
+    const normalized = (link ?? '').trim()
+    if (!normalized) return
+
+    const idx = favorites.value.indexOf(normalized)
     if (idx === -1) {
-      favorites.value.push(link)
+      favorites.value.push(normalized)
     } else {
       favorites.value.splice(idx, 1)
     }
@@ -168,8 +173,9 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function isFavorite(link?: string | null) {
-    if (!link) return false
-    return favorites.value.includes(link)
+    const normalized = (link ?? '').trim()
+    if (!normalized) return false
+    return favorites.value.includes(normalized)
   }
 
   // --- UI HELPERS ---
@@ -195,7 +201,6 @@ export const useNavStore = defineStore('navStore', () => {
   // =====================================================
 
   function recordVisit(path: string) {
-    // First visit
     if (routeHistory.value.length === 0) {
       routeHistory.value.push(path)
       currentIndex.value = 0
@@ -204,10 +209,8 @@ export const useNavStore = defineStore('navStore', () => {
 
     const currentPath = routeHistory.value[currentIndex.value]
 
-    // Ignore if same path
     if (path === currentPath) return
 
-    // Forward navigation in stack
     if (
       currentIndex.value < routeHistory.value.length - 1 &&
       routeHistory.value[currentIndex.value + 1] === path
@@ -216,7 +219,6 @@ export const useNavStore = defineStore('navStore', () => {
       return
     }
 
-    // Backward navigation
     if (
       currentIndex.value > 0 &&
       routeHistory.value[currentIndex.value - 1] === path
@@ -225,7 +227,6 @@ export const useNavStore = defineStore('navStore', () => {
       return
     }
 
-    // If new path, drop "forward" stack and add new entry
     if (currentIndex.value < routeHistory.value.length - 1) {
       routeHistory.value.splice(currentIndex.value + 1)
     }

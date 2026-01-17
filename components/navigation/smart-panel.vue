@@ -104,43 +104,48 @@ const allIcons = computed(() => directoryIcons.value)
 const hasFavorites = computed(() => favoritesIcons.value.length > 0)
 
 const hasAmiIcons = computed(() =>
-  allIcons.value.some((icon: { category: string }) => icon.category === 'ami'),
+  allIcons.value.some((icon) => (icon.category ?? '').trim() === 'ami'),
 )
+
 const hasUserIcons = computed(() =>
-  allIcons.value.some((icon: { category: string }) => icon.category === 'user'),
+  allIcons.value.some((icon) => (icon.category ?? '').trim() === 'user'),
 )
 
 const STORAGE_KEY = 'kind-nav-active-filter'
 const activeFilter = ref<string>('all')
 
 onMounted(() => {
-  if (process.client) {
-    const saved = window.localStorage.getItem(STORAGE_KEY)
+  if (!process.client) return
 
-    if (saved) {
-      activeFilter.value = saved
-      if (
-        saved === 'all' ||
-        saved === 'favorites' ||
-        saved === 'ami' ||
-        saved === 'user'
-      ) {
-        navStore.setActiveModelType(null)
-      } else {
-        navStore.setActiveModelType(saved)
-      }
-    } else if (activeModelType.value) {
-      activeFilter.value = activeModelType.value
+  const saved = window.localStorage.getItem(STORAGE_KEY)
+
+  if (saved) {
+    activeFilter.value = saved
+
+    if (
+      saved === 'all' ||
+      saved === 'favorites' ||
+      saved === 'ami' ||
+      saved === 'user'
+    ) {
+      navStore.setActiveModelType(null)
+    } else {
+      navStore.setActiveModelType(saved)
     }
+
+    return
+  }
+
+  if (activeModelType.value) {
+    activeFilter.value = activeModelType.value
   }
 })
 
 watch(
   activeFilter,
   (val) => {
-    if (process.client) {
-      window.localStorage.setItem(STORAGE_KEY, val)
-    }
+    if (!process.client) return
+    window.localStorage.setItem(STORAGE_KEY, val)
   },
   { immediate: false },
 )
@@ -158,12 +163,8 @@ const filters = computed(() => {
     chips.push({ value: type, label: formatModelType(type) })
   })
 
-  if (hasAmiIcons.value) {
-    chips.push({ value: 'ami', label: 'Ami' })
-  }
-  if (hasUserIcons.value) {
-    chips.push({ value: 'user', label: 'User' })
-  }
+  if (hasAmiIcons.value) chips.push({ value: 'ami', label: 'Ami' })
+  if (hasUserIcons.value) chips.push({ value: 'user', label: 'User' })
 
   return chips
 })
@@ -175,33 +176,33 @@ const filteredIcons = computed(() => {
   if (filter === 'all') return icons
 
   if (filter === 'favorites') {
-    return icons.filter(
-      (icon: { link: string | null | undefined }) =>
-        icon.link && navStore.isFavorite(icon.link),
-    )
+    return icons.filter((icon) => {
+      const link = (icon.link ?? '').trim()
+      return link.length > 0 && navStore.isFavorite(link)
+    })
   }
 
   if (filter === 'ami' || filter === 'user') {
-    return icons.filter(
-      (icon: { category: string }) => icon.category === filter,
-    )
+    return icons.filter((icon) => (icon.category ?? '').trim() === filter)
   }
 
-  return icons.filter(
-    (icon: { modelType: string }) => icon.modelType === filter,
-  )
+  return icons.filter((icon) => (icon.modelType ?? '').trim() === filter)
 })
 
 function setFilter(value: string) {
   activeFilter.value = value
 
-  if (value === 'all' || value === 'favorites') {
+  if (
+    value === 'all' ||
+    value === 'favorites' ||
+    value === 'ami' ||
+    value === 'user'
+  ) {
     navStore.setActiveModelType(null)
-  } else if (value === 'ami' || value === 'user') {
-    navStore.setActiveModelType(null)
-  } else {
-    navStore.setActiveModelType(value)
+    return
   }
+
+  navStore.setActiveModelType(value)
 }
 
 function filterClass(value: string) {
@@ -216,14 +217,10 @@ function formatModelType(type: string) {
 }
 
 function goBack() {
-  if (backPath.value) {
-    router.push(backPath.value)
-  }
+  if (backPath.value) router.push(backPath.value)
 }
 
 function goNext() {
-  if (forwardPath.value) {
-    router.push(forwardPath.value)
-  }
+  if (forwardPath.value) router.push(forwardPath.value)
 }
 </script>

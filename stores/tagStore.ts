@@ -17,38 +17,44 @@ export const useTagStore = defineStore('tagStore', () => {
   const userStore = useUserStore()
 
   const activeAndPublicTags = computed(() => {
-    return tags.value.filter(
-      (tag: { isPublic: any; userId: number }) =>
-        tag.isPublic || tag.userId === userStore.userId || tag.userId === 0,
-    )
+    const uid = userStore.userId
+    return tags.value.filter((tag) => {
+      const isPublic = tag.isPublic ?? false
+      const tagUserId = tag.userId ?? null
+      return isPublic || (uid != null && tagUserId === uid) || tagUserId === 0
+    })
   })
 
   function selectTag(tagId: number) {
-    const foundTag = tags.value.find((tag: { id: number }) => tag.id === tagId)
+    const foundTag = tags.value.find((tag) => tag.id === tagId)
     if (foundTag) {
       selectedTag.value = foundTag
-    } else {
-      console.warn(`Tag with id ${tagId} not found.`)
+      return
     }
+    console.warn(`Tag with id ${tagId} not found.`)
   }
 
   async function initializeTags() {
-    if (!isInitialized.value) {
-      isInitialized.value = true
-      await fetchTags()
-    }
+    if (isInitialized.value) return
+    isInitialized.value = true
+    await fetchTags()
   }
 
   async function fetchTags() {
     isLoading.value = true
+    error.value = null
+
     try {
       const response = await performFetch<Tag[]>('/api/tags')
+
       if (!response.success || !Array.isArray(response.data)) {
         throw new Error(
           response.message || 'Invalid response format from the server',
         )
       }
+
       tags.value = response.data
+
       if (isClient) {
         localStorage.setItem('tags', JSON.stringify(tags.value))
       }
@@ -61,19 +67,23 @@ export const useTagStore = defineStore('tagStore', () => {
   }
 
   async function createTag(label: string, title: string, userId: number) {
+    error.value = null
+
     try {
       const response = await performFetch<Tag>('/api/tags', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ label, title, userId, isPublic: false }),
       })
-      if (response.success && response.data) {
-        tags.value.push(response.data)
-        if (isClient) {
-          localStorage.setItem('tags', JSON.stringify(tags.value))
-        }
-      } else {
+
+      if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to create tag')
+      }
+
+      tags.value.push(response.data)
+
+      if (isClient) {
+        localStorage.setItem('tags', JSON.stringify(tags.value))
       }
     } catch (err) {
       error.value = `Failed to create tag: ${err}`
@@ -82,24 +92,26 @@ export const useTagStore = defineStore('tagStore', () => {
   }
 
   async function editTag(id: number, updates: Partial<Tag>) {
+    error.value = null
+
     try {
       const response = await performFetch<Tag>(`/api/tags/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       })
-      if (response.success && response.data) {
-        const index = tags.value.findIndex(
-          (tag: { id: number }) => tag.id === id,
-        )
-        if (index !== -1) {
-          tags.value[index] = { ...tags.value[index], ...response.data }
-          if (isClient) {
-            localStorage.setItem('tags', JSON.stringify(tags.value))
-          }
-        }
-      } else {
+
+      if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to edit tag')
+      }
+
+      const index = tags.value.findIndex((tag) => tag.id === id)
+      if (index !== -1) {
+        tags.value[index] = { ...tags.value[index], ...response.data }
+
+        if (isClient) {
+          localStorage.setItem('tags', JSON.stringify(tags.value))
+        }
       }
     } catch (err) {
       error.value = `Failed to edit tag: ${err}`
@@ -108,17 +120,21 @@ export const useTagStore = defineStore('tagStore', () => {
   }
 
   async function deleteTag(id: number) {
+    error.value = null
+
     try {
       const response = await performFetch(`/api/tags/${id}`, {
         method: 'DELETE',
       })
-      if (response.success) {
-        tags.value = tags.value.filter((tag: { id: number }) => tag.id !== id)
-        if (isClient) {
-          localStorage.setItem('tags', JSON.stringify(tags.value))
-        }
-      } else {
+
+      if (!response.success) {
         throw new Error(response.message || 'Failed to delete tag')
+      }
+
+      tags.value = tags.value.filter((tag) => tag.id !== id)
+
+      if (isClient) {
+        localStorage.setItem('tags', JSON.stringify(tags.value))
       }
     } catch (err) {
       error.value = `Failed to delete tag: ${err}`

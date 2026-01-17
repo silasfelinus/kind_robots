@@ -1,7 +1,6 @@
 <!-- /components/content/milestones/jellybean-counter.vue -->
 <template>
   <div class="bg-base-300 rounded-2xl border p-2 mx-auto max-w-screen-xl">
-    <!-- Header with Reset Button -->
     <div
       class="text-center bg-primary text-white border p-2 m-2 rounded-2xl flex justify-between items-center"
     >
@@ -14,9 +13,7 @@
       </button>
     </div>
 
-    <!-- Milestones Data -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:p-2">
-      <!-- Earned Milestones Column -->
       <div
         class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"
       >
@@ -31,14 +28,12 @@
         </div>
       </div>
 
-      <!-- Leaderboard Column -->
       <div
         class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"
       >
         <milestone-leaderboard />
       </div>
 
-      <!-- Undiscovered Milestones Column -->
       <div
         class="flex flex-col items-center p-4 border bg-primary rounded-2xl m-2"
       >
@@ -61,42 +56,59 @@ import { computed } from 'vue'
 const milestoneStore = useMilestoneStore()
 const userStore = useUserStore()
 
-// Compute earned milestones based on records with matching user ID
-const earnedMilestones = computed(() => {
-  return milestoneStore.milestoneRecords
-    .filter((record: { userId: any }) => record.userId === userStore.userId)
-    .map((record: { milestoneId: any; createdAt: string | number | Date }) => {
-      const milestone = milestoneStore.milestones.find(
-        (milestone: { id: any }) => milestone.id === record.milestoneId,
-      )
-      if (milestone) {
-        // Format acquiredAt if present
-        const acquiredAt =
-          record.createdAt instanceof Date
-            ? record.createdAt.toISOString()
-            : typeof record.createdAt === 'string'
-              ? new Date(record.createdAt).toISOString()
-              : null
-        return { ...milestone, acquiredAt }
-      }
-      return null
+type EarnedMilestone = (typeof milestoneStore.milestones)[number] & {
+  acquiredAt: string | null
+}
+
+function toIsoOrNull(value: unknown): string | null {
+  if (!value) return null
+  if (value instanceof Date) return value.toISOString()
+  if (typeof value === 'string' || typeof value === 'number') {
+    const d = new Date(value)
+    return Number.isNaN(d.getTime()) ? null : d.toISOString()
+  }
+  return null
+}
+
+const earnedMilestones = computed<EarnedMilestone[]>(() => {
+  const uid = userStore.userId
+  if (!uid) return []
+
+  const milestoneById = new Map(milestoneStore.milestones.map((m) => [m.id, m]))
+
+  const earned: EarnedMilestone[] = []
+
+  for (const record of milestoneStore.milestoneRecords) {
+    if (record.userId !== uid) continue
+
+    const milestoneId = record.milestoneId
+    if (milestoneId == null) continue
+
+    const milestone = milestoneById.get(milestoneId)
+    if (!milestone) continue
+
+    earned.push({
+      ...milestone,
+      acquiredAt: toIsoOrNull((record as any).createdAt),
     })
-    .filter((milestone: null) => milestone !== null) // Remove nulls from the list
+  }
+
+  return earned
 })
 
-// Calculate unearned milestones based on the absence of records for the current user
 const unearnedMilestones = computed(() => {
-  return milestoneStore.milestones.filter(
-    (milestone: { id: any }) =>
-      !milestoneStore.milestoneRecords.some(
-        (record: { milestoneId: any; userId: any }) =>
-          record.milestoneId === milestone.id &&
-          record.userId === userStore.userId,
-      ),
+  const uid = userStore.userId
+  if (!uid) return milestoneStore.milestones
+
+  const earnedIds = new Set(
+    milestoneStore.milestoneRecords
+      .filter((r) => r.userId === uid && r.milestoneId != null)
+      .map((r) => r.milestoneId as number),
   )
+
+  return milestoneStore.milestones.filter((m) => !earnedIds.has(m.id))
 })
 
-// Reset milestones function
 const resetMilestones = () => {
   milestoneStore.clearAllMilestoneRecords()
 }

@@ -1,8 +1,8 @@
 // /server/api/users/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
-import { validateApiKey } from '../utils/validateKey'
+import { errorHandler } from '../../utils/error'
+import prisma from '../../utils/prisma'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   try {

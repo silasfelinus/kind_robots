@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import type { Art } from '@prisma/client'
+import type { Art } from '~/prisma/generated/prisma/client'
 
 defineProps<{
   name?: string

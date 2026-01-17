@@ -1,7 +1,7 @@
 // /server/api/milestones/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -32,13 +32,18 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.error(`Error deleting milestone with ID ${milestoneId}:`, handledError)
+    console.error(
+      `Error deleting milestone with ID ${milestoneId}:`,
+      handledError,
+    )
 
     // Set the status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,
-      message: handledError.message || `Failed to delete milestone with ID ${milestoneId}.`,
+      message:
+        handledError.message ||
+        `Failed to delete milestone with ID ${milestoneId}.`,
       statusCode: event.node.res.statusCode,
     }
   }

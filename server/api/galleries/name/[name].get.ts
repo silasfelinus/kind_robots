@@ -1,6 +1,6 @@
 // server/api/galleries/[name].get.ts
 import { defineEventHandler, createError } from 'h3'
-import { errorHandler } from '../../utils/error'
+import { errorHandler } from '../../../utils/error'
 import { fetchGalleryByName } from '..'
 
 export default defineEventHandler(async (event) => {
@@ -42,7 +42,8 @@ export default defineEventHandler(async (event) => {
     // Use standardized error response format
     return {
       success: false,
-      message: handledError.message || `Failed to fetch gallery with name '${name}'.`,
+      message:
+        handledError.message || `Failed to fetch gallery with name '${name}'.`,
       statusCode: handledError.statusCode || 500,
     }
   }

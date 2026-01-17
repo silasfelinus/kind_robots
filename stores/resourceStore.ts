@@ -1,7 +1,7 @@
 // /stores/resourceStore.ts
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Resource } from '@prisma/client'
+import type { Resource } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 import { resourceData } from './../stores/seeds/seedResources'
 

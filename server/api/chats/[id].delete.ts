@@ -1,8 +1,8 @@
 // /server/api/chats/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
-import { validateApiKey } from '../utils/validateKey'
+import { errorHandler } from '../../utils/error'
+import prisma from '../../utils/prisma'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-// Check if user is an admin
+    // Check if user is an admin
     if (user.Role === 'ADMIN') {
       // Admin bypass: Delete the chat entry directly
       await prisma.chat.delete({ where: { id } })

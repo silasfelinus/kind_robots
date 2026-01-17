@@ -1,5 +1,5 @@
 // ~/stores/seeds/seedUsers.ts
-import type { User } from '@prisma/client'
+import type { User } from '~/prisma/generated/prisma/client'
 
 // Define your array of initial bot data
 export const userData: Partial<User>[] = [

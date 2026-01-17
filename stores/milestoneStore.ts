@@ -1,5 +1,8 @@
 import { defineStore } from 'pinia'
-import type { Milestone, MilestoneRecord } from '@prisma/client'
+import type {
+  Milestone,
+  MilestoneRecord,
+} from '~/prisma/generated/prisma/client'
 import { useUserStore } from './userStore'
 import { milestoneData } from './../training/milestoneData'
 import { performFetch, handleError, type ApiResponse } from './utils'

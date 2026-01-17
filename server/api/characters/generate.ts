@@ -1,7 +1,7 @@
 //server/api/characters/generate.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   try {

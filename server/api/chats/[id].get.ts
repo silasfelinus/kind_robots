@@ -1,8 +1,8 @@
 // /server/api/chats/[id].get.ts
 import { defineEventHandler } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)

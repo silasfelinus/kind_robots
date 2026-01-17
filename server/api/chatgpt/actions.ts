@@ -1,7 +1,7 @@
 // path: server/api/chatgpt/actions.ts
 // summary: Registry-driven generic CRUD for shared models (no zod). Exports named runAction.
 import { defineEventHandler, readBody, getHeaders } from 'h3'
-import prisma from '../utils/prisma'
+import prisma from '../../utils/prisma'
 
 // ---------------- utils ----------------
 type RunActionHeaders = Record<string, string | undefined>

@@ -2,10 +2,10 @@
 import crypto from 'crypto'
 import { hash as bcryptHash, compare as bcryptCompare } from 'bcrypt'
 import { jwtVerify, SignJWT } from 'jose'
-import { errorHandler } from '../utils/error'
+import { errorHandler } from '../../utils/error'
 import { userExists } from '../users'
-import prisma from '../utils/prisma'
-import type { User } from '@prisma/client'
+import prisma from '../../utils/prisma'
+import type { User } from '~/prisma/generated/prisma/client'
 
 const config = useRuntimeConfig()
 const JWT_SECRET = config.private.JWT_SECRET

@@ -1,8 +1,8 @@
 // /server/api/milestones/index.get.ts
 import { defineEventHandler, setResponseStatus } from 'h3'
-import type { Milestone } from '@prisma/client'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
+import type { Milestone } from '~/prisma/generated/prisma/client'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   let response

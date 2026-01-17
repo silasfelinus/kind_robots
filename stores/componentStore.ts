@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Component } from '@prisma/client'
+import type { Component } from '~/prisma/generated/prisma/client'
 import {
   fetchComponentById as helperFetch,
   createComponent as helperCreate,

@@ -1,6 +1,6 @@
 // /server/api/users/usernames.get.ts
 import { defineEventHandler } from 'h3'
-import { errorHandler } from '../utils/error'
+import { errorHandler } from '../../utils/error'
 import { fetchUsers } from '.'
 
 export default defineEventHandler(async () => {

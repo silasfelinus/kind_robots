@@ -1,6 +1,6 @@
 // /server/api/reactions/[id].get.ts
 import { defineEventHandler } from 'h3'
-import { errorHandler } from '../utils/error'
+import { errorHandler } from '../../utils/error'
 import { fetchReactionById } from '.' // Ensure this path is correct based on your project structure
 
 export default defineEventHandler(async (event) => {

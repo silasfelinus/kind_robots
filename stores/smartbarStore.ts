@@ -4,7 +4,7 @@ import { ref, computed } from 'vue'
 import { performFetch, handleError } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import { swarmMessages } from '@/stores/seeds/swarmMessages'
-import type { SmartIcon } from '@prisma/client'
+import type { SmartIcon } from '~/prisma/generated/prisma/client'
 
 export type SmartIconForm = Partial<SmartIcon>
 

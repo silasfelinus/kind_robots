@@ -5,9 +5,9 @@ import { useChatStore } from './chatStore'
 import { useCharacterStore } from './characterStore'
 import { useUserStore } from './userStore'
 import { performFetch, handleError } from './utils'
-import type { Chat } from '@prisma/client'
+import type { Chat } from '~/prisma/generated/prisma/client'
 import { scenarios } from '@/utils/sceneChoices'
-import type { Scenario } from '@prisma/client'
+import type { Scenario } from '~/prisma/generated/prisma/client'
 import {
   STORAGE_KEY,
   toPrismaScenario,

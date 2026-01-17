@@ -1,8 +1,8 @@
 // /server/api/rewards/batch.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { createRewardsBatch } from './'
-import { errorHandler } from '../utils/error'
-import prisma from '../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   let response

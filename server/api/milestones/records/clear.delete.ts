@@ -1,8 +1,8 @@
 //server/api/milestones/records/clear.delete.ts
 import { defineEventHandler, createError } from 'h3'
-import prisma from '../../utils/prisma'
-import { errorHandler } from '../../utils/error'
-import { validateApiKey } from '../../utils/validateKey'
+import prisma from '../../../utils/prisma'
+import { errorHandler } from '../../../utils/error'
+import { validateApiKey } from '../../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   let response

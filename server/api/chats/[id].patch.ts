@@ -1,8 +1,8 @@
 // /server/api/chats/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
-import prisma from '../utils/prisma'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
       data: updatedChatData,
     })
 
-console.log("updated chat with: ", data)
+    console.log('updated chat with: ', data)
 
     response = {
       success: true,

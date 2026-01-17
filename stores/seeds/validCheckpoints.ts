@@ -1,6 +1,6 @@
 // /stores/seeds/validCheckpoints.ts
 
-import type { Resource } from '@prisma/client'
+import type { Resource } from '~/prisma/generated/prisma/client'
 
 export const validCheckpoints: Partial<Resource>[] = [
   {

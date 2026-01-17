@@ -1,7 +1,7 @@
 // /server/api/auth/validate/api.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { errorHandler } from '../../utils/error'
-import { validateApiKeyString } from '../../utils/validateKey'
+import { errorHandler } from '../../../utils/error'
+import { validateApiKeyString } from '../../../utils/validateKey'
 
 function extractApiKeyFromReq(event: any): string | undefined {
   const headers = event.node.req.headers || {}

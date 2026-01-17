@@ -1,8 +1,8 @@
 // /server/api/tags/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
-import { errorHandler } from '../utils/error'
-import { validateApiKey } from '../utils/validateKey'
-import prisma from '../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
+import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   const tagId = Number(event.context.params?.id)

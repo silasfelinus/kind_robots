@@ -1,7 +1,7 @@
 // /stores/promptStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Prompt, Art } from '@prisma/client'
+import type { Prompt, Art } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 import { useUserStore } from './userStore'
 import {

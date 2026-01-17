@@ -1,4 +1,4 @@
-import type { Gallery } from '@prisma/client'
+import type { Gallery } from '~/prisma/generated/prisma/client'
 
 export const galleryData: Partial<Gallery>[] = [
   {

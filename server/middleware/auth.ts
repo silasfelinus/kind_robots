@@ -1,6 +1,6 @@
 //server/middleware/auth.ts
 import { defineEventHandler, sendError, createError, getQuery } from 'h3'
-import { errorHandler } from '../api/utils/error'
+import { errorHandler } from '../utils/error'
 
 export default defineEventHandler(async (event) => {
   const secretKey = event.node.req.headers['x-api-key']

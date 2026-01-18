@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useLoadStore = defineStore('loadStore', () => {
   const loadMessages = [
-    'Brewing digital tea...',
+    'Brewing tea...',
     'Charging up the friendly vibes...',
     'Releasing the digital butterflies...',
     'Whispering to the cloud. No...the other one.',
@@ -23,6 +23,7 @@ export const useLoadStore = defineStore('loadStore', () => {
     'AI: Now with 30% more charm.',
     'Swapping binary for butterfly wings.',
     'Debugging reality one line at a time...',
+    'last time on Kind Robots...',
     'Downloading a conscience… this may take a while.',
     'Giving AI a soft spot for haikus.',
     'Scripting the bots to philosophize...',

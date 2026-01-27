@@ -22,6 +22,12 @@ Working:
 Flip Basic
 :flip-basic
 
+flip-cell
+:flip-cell
+
+flip-board
+:flip-board
+
 flip-new:
 :flip-new
 

@@ -4,7 +4,7 @@
     <div class="h-full w-full flex items-stretch min-w-0 gap-[2px]">
       <div
         ref="scrollContainer"
-        class="h-full min-h-0 flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-6"
+        class="h-full min-h-[2.6rem] md:min-h-[3rem] lg:min-h-[3.25rem] xl:min-h-[3.5rem] flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-6"
         :class="[
           displayStore.showCorner
             ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
@@ -13,6 +13,7 @@
           '[&_*]:!ms-0 [&_*]:!me-0',
           '[&>*]:h-full',
           isDragging ? 'cursor-grabbing' : 'cursor-grab',
+          'mask-edges',
         ]"
         @scroll="checkScrollEdgesThrottled"
         @mousedown="handleScrollMouseDown"
@@ -30,7 +31,7 @@
       >
         <div
           ref="row"
-          class="h-full min-h-0 flex items-stretch gap-[2px] min-w-max"
+          class="h-full min-h-inherit flex items-stretch gap-[2px] min-w-max"
         >
           <div
             aria-hidden="true"
@@ -51,7 +52,7 @@
           >
             <NuxtLink
               to="/icons"
-              class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transform scale-75"
               title="Add or manage icons"
               aria-label="Add or manage icons"
             >
@@ -73,7 +74,7 @@
           >
             <button
               type="button"
-              class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transform scale-75"
               title="Edit Smart Icons"
               aria-label="Edit Smart Icons"
               @click="activateEditMode"
@@ -97,7 +98,7 @@
           >
             <button
               type="button"
-              class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transform scale-75"
               :class="
                 hasChanges
                   ? 'bg-base-200 hover:bg-base-300'
@@ -127,7 +128,7 @@
           >
             <button
               type="button"
-              class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-error/60"
+              class="group relative h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-error/60 transform scale-75"
               title="Cancel icon changes"
               aria-label="Cancel icon changes"
               @click="revertEdit"
@@ -406,5 +407,24 @@ onBeforeUnmount(() => {
 .smart-icons-scroll::-webkit-scrollbar {
   width: 0;
   height: 0;
+}
+.min-h-inherit {
+  min-height: inherit;
+}
+.mask-edges {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    black 24px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    black 24px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
 }
 </style>

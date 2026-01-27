@@ -74,7 +74,7 @@
           </div>
 
           <div
-            class="flex items-center justify-end flex-nowrap shrink-0"
+            class="flex items-center justify-end flex-nowrap shrink-0 overflow-hidden"
             :class="[
               bigMode
                 ? 'basis-auto max-w-none'

@@ -34,8 +34,6 @@
           <div class="w-full">
             <corner-panel />
           </div>
-
-          <flip-test />
         </div>
       </div>
 

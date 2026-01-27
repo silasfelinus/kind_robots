@@ -459,18 +459,30 @@ export const useDisplayStore = defineStore('displayStore', () => {
     try {
       const saved = window.localStorage.getItem('displayStoreState')
       if (saved) Object.assign(state, JSON.parse(saved))
+
+      if (
+        state.SmartState !== 'front' &&
+        state.SmartState !== 'dash' &&
+        state.SmartState !== 'back'
+      ) {
+        state.SmartState = 'front'
+      }
     } catch (error) {
       handleError(error, "Couldn't load state.")
     }
   }
 
   function setSmartState(next: SmartState) {
-    state.SmartState = next
+    if (next !== 'front' && next !== 'dash' && next !== 'back') {
+      state.SmartState = 'front'
+    } else {
+      state.SmartState = next
+    }
     saveState()
   }
 
   function toggleSmartFlip() {
-    const order: SmartState[] = ['front', 'back', 'dash']
+    const order: SmartState[] = ['front', 'dash', 'back']
     const index = order.indexOf(state.SmartState)
     const nextIndex = index === -1 ? 0 : (index + 1) % order.length
     state.SmartState = order[nextIndex]

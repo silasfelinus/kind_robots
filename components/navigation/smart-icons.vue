@@ -1,8 +1,21 @@
 <!-- /components/content/navigation/smart-icons.vue -->
 <template>
   <div
-    class="relative w-full flex-1 min-w-0 leading-none h-full min-h-[2.25rem] rounded-2xl border border-base-content/10 bg-base-100/30"
+    class="relative w-full flex-1 min-w-0 leading-none rounded-2xl border border-base-content/10 bg-base-100/30"
+    :class="debugForceHeight ? 'h-[3.25rem]' : 'h-full min-h-[2.25rem]'"
   >
+    <Teleport to="body">
+      <div
+        v-if="debugTeleport && isMounted"
+        class="fixed left-3 bottom-3 z-[9999] rounded-xl border border-base-content/20 bg-base-100/90 px-3 py-2 text-xs shadow-xl"
+      >
+        <div class="font-bold">smart-icons mounted ✅</div>
+        <div class="opacity-80">
+          a:{{ activeCount }} f:{{ filteredCount }} r:{{ rowCount }}
+        </div>
+      </div>
+    </Teleport>
+
     <div
       class="absolute left-1 top-1 z-50 rounded-md bg-base-300/90 px-2 py-1 text-[10px] font-semibold leading-none"
     >
@@ -15,15 +28,9 @@
           <span class="inline-block w-2 h-2 rounded-full bg-warning" v-else />
           smart-icons
         </span>
-        <span class="opacity-70">
-          a:{{ activeCount }} f:{{ filteredCount }} r:{{ rowCount }}
-        </span>
-        <span class="opacity-70">
-          edit:{{ isEditing ? '1' : '0' }} big:{{
-            displayStore.bigMode ? '1' : '0'
-          }}
-          corner:{{ displayStore.showCorner ? '1' : '0' }}
-        </span>
+        <span class="opacity-70"
+          >a:{{ activeCount }} f:{{ filteredCount }} r:{{ rowCount }}</span
+        >
       </div>
     </div>
 
@@ -95,28 +102,6 @@
           />
 
           <div
-            v-if="isEditing"
-            class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
-          >
-            <NuxtLink
-              to="/icons"
-              class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-              title="Add or manage icons"
-              aria-label="Add or manage icons"
-            >
-              <Icon
-                name="kind-icon:plus"
-                class="pointer-events-none h-[60%] w-[60%]"
-              />
-              <span
-                class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
-              >
-                Add
-              </span>
-            </NuxtLink>
-          </div>
-
-          <div
             v-if="!isEditing"
             class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
           >
@@ -139,65 +124,6 @@
               </span>
             </button>
           </div>
-
-          <div
-            v-if="isEditing"
-            class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
-          >
-            <button
-              type="button"
-              class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-              :class="
-                hasChanges
-                  ? 'bg-base-200 hover:bg-base-300'
-                  : 'bg-base-200/60 cursor-not-allowed opacity-60'
-              "
-              :title="hasChanges ? 'Save icon order' : 'No changes to save'"
-              aria-label="Save icon order"
-              :disabled="!hasChanges"
-              @click="hasChanges && confirmEdit()"
-            >
-              <Icon
-                name="kind-icon:check"
-                class="pointer-events-none h-[60%] w-[60%]"
-              />
-              <span
-                v-if="showTitles"
-                class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
-              >
-                Save
-              </span>
-            </button>
-          </div>
-
-          <div
-            v-if="isEditing"
-            class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
-          >
-            <button
-              type="button"
-              class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-error/60"
-              title="Cancel icon changes"
-              aria-label="Cancel icon changes"
-              @click="revertEdit"
-            >
-              <Icon
-                name="kind-icon:close"
-                class="pointer-events-none h-[60%] w-[60%]"
-              />
-              <span
-                v-if="showTitles"
-                class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
-              >
-                Cancel
-              </span>
-            </button>
-          </div>
-
-          <div
-            aria-hidden="true"
-            class="shrink-0 h-full w-3 sm:w-4 md:w-6 lg:w-8"
-          />
         </div>
       </div>
 
@@ -244,6 +170,9 @@ import { storeToRefs } from 'pinia'
 import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
+const debugTeleport = true
+const debugForceHeight = true
+
 const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
@@ -275,13 +204,11 @@ const filteredCount = computed(() => filteredActive.value.length)
 const rowCount = computed(() => rowIcons.value.length)
 
 const originalIcons = ref<SmartIcon[]>([])
-
 watch(isEditing, (editing) => {
   if (editing) originalIcons.value = [...editableIcons.value.filter(isNav)]
 })
 
 const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
-
 const hasChanges = computed(() => {
   const a = getIds(editableIcons.value.filter(isNav))
   const b = getIds(originalIcons.value.filter(isNav))
@@ -292,12 +219,10 @@ const hasChanges = computed(() => {
 function activateEditMode() {
   smartbarStore.isEditing = true
 }
-
 function confirmEdit() {
   smartbarStore.setIconOrder(getIds(editableIcons.value.filter(isNav)))
   smartbarStore.isEditing = false
 }
-
 function revertEdit() {
   editableIcons.value = [...originalIcons.value]
   smartbarStore.isEditing = false
@@ -327,11 +252,9 @@ function updateScrollFlags() {
   canScrollLeft.value = el.scrollLeft > EPSILON
   canScrollRight.value = maxScrollLeft - el.scrollLeft > EPSILON
 }
-
 function checkScrollEdges() {
   updateScrollFlags()
 }
-
 function checkScrollEdgesThrottled() {
   if (scrollTick) return
   scrollTick = true
@@ -340,14 +263,12 @@ function checkScrollEdgesThrottled() {
     scrollTick = false
   })
 }
-
 function scrollByStep(direction: -1 | 1) {
   const el = scrollContainer.value
   if (!el) return
   const step = Math.max(160, el.clientWidth * 0.8)
   el.scrollBy({ left: direction * step, behavior: 'smooth' })
 }
-
 function handleScrollMouseDown(e: MouseEvent) {
   if (!scrollContainer.value) return
   isDragging.value = true
@@ -355,38 +276,32 @@ function handleScrollMouseDown(e: MouseEvent) {
   scrollStart = scrollContainer.value.scrollLeft
   e.preventDefault()
 }
-
 function handleScrollMouseMove(e: MouseEvent) {
   if (!isDragging.value || !scrollContainer.value) return
   const delta = e.clientX - startX
   scrollContainer.value.scrollLeft = scrollStart - delta
 }
-
 function handleScrollMouseUp() {
   if (!isDragging.value) return
   isDragging.value = false
   requestAnimationFrame(updateScrollFlags)
 }
-
 function handleScrollTouchStart(e: TouchEvent) {
   if (!scrollContainer.value) return
   isDragging.value = true
   startX = e.touches[0].clientX
   scrollStart = scrollContainer.value.scrollLeft
 }
-
 function handleScrollTouchMove(e: TouchEvent) {
   if (!isDragging.value || !scrollContainer.value) return
   const delta = e.touches[0].clientX - startX
   scrollContainer.value.scrollLeft = scrollStart - delta
 }
-
 function handleScrollTouchEnd() {
   if (!isDragging.value) return
   isDragging.value = false
   requestAnimationFrame(updateScrollFlags)
 }
-
 function handleWheel(e: WheelEvent) {
   const el = scrollContainer.value
   if (!el) return
@@ -430,6 +345,7 @@ let mutationObserver: MutationObserver | null = null
 
 onMounted(() => {
   isMounted.value = true
+  ;(window as any).__KR_SMART_ICONS_MOUNTED = true
 
   const el = scrollContainer.value
   const content = row.value

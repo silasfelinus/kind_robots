@@ -4,7 +4,6 @@ import { computed, ref } from 'vue'
 import { useErrorStore, ErrorType } from './errorStore'
 
 export type FlipStatus = 'ready' | 'animating'
-
 export type FlipPart = 'full' | 'top' | 'bottom'
 
 export interface FlipGridConfig {
@@ -43,6 +42,7 @@ export const useFlipStore = defineStore('flipStore', () => {
     '/images/backtree.webp',
     '/images/botcafe.webp',
   ])
+
   const currentIndex = ref<number>(0)
   const nextIndex = ref<number>(1)
 
@@ -65,8 +65,8 @@ export const useFlipStore = defineStore('flipStore', () => {
 
   const ariaLabel = computed(() =>
     isAnimating.value
-      ? 'Animating flip-board grid'
-      : 'Click to flip the grid and reveal the next image',
+      ? 'Animating flip-board'
+      : 'Click to flip and reveal the next image',
   )
 
   const ensureGrid = (rows: number, cols: number) => {
@@ -102,10 +102,11 @@ export const useFlipStore = defineStore('flipStore', () => {
       const cleaned = (srcs || [])
         .map((s) => `${s || ''}`.trim())
         .filter(Boolean)
+
       if (cleaned.length < 2) {
         errorStore.setError(
           ErrorType.INTERACTION_ERROR,
-          'Flip board needs at least 2 images',
+          'Flip animation needs at least 2 images',
         )
         return
       }
@@ -130,8 +131,10 @@ export const useFlipStore = defineStore('flipStore', () => {
     try {
       if (typeof staggerMs === 'number')
         grid.value.staggerMs = Math.max(0, Math.floor(staggerMs))
+
       if (typeof durationMs === 'number')
         grid.value.durationMs = clampInt(durationMs, 200, 2000)
+
       ensureGrid(rows, cols)
     } catch (error) {
       const message =
@@ -185,9 +188,10 @@ export const useFlipStore = defineStore('flipStore', () => {
     try {
       if (isAnimating.value) return
       if (!currentSrc.value || !nextSrc.value) return
-      if (!cells.value.length) ensureGrid(grid.value.rows, grid.value.cols)
 
       status.value = 'animating'
+
+      if (!cells.value.length) ensureGrid(grid.value.rows, grid.value.cols)
       completedCount.value = 0
       cells.value = cells.value.map((c) => ({ ...c, done: false }))
     } catch (error) {
@@ -196,6 +200,14 @@ export const useFlipStore = defineStore('flipStore', () => {
       errorStore.setError(ErrorType.INTERACTION_ERROR, message)
       status.value = 'ready'
     }
+  }
+
+  const finishFlip = () => {
+    if (!isAnimating.value) return
+
+    currentIndex.value = nextIndex.value
+    nextIndex.value = (currentIndex.value + 1) % images.value.length
+    status.value = 'ready'
   }
 
   const markCellDone = (cellId: string) => {
@@ -208,11 +220,7 @@ export const useFlipStore = defineStore('flipStore', () => {
     cells.value[idx] = { ...cells.value[idx], done: true }
     completedCount.value++
 
-    if (completedCount.value >= totalCells.value) {
-      currentIndex.value = nextIndex.value
-      nextIndex.value = (currentIndex.value + 1) % images.value.length
-      status.value = 'ready'
-    }
+    if (completedCount.value >= totalCells.value) finishFlip()
   }
 
   const toggleFlip = () => startFlip()
@@ -235,6 +243,7 @@ export const useFlipStore = defineStore('flipStore', () => {
     cellDelayStyle,
     getCellStyle,
     startFlip,
+    finishFlip,
     markCellDone,
     toggleFlip,
   }

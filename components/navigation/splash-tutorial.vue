@@ -22,98 +22,95 @@
       <section
         class="relative w-full max-w-4xl h-[90%] mx-auto overflow-visible"
       >
-        <div class="flex flex-col w-full h-full">
-          <div
-            class="stage rounded-3xl border-2 border-black shadow-xl bg-base-100/95 overflow-hidden"
-          >
-            <div class="absolute inset-0 flex flex-col">
-              <div class="flex-1 min-h-0 border-b border-base-300">
-                <div class="relative w-full h-full">
+        <div
+          class="rounded-3xl border-2 border-black shadow-xl bg-base-100/95 overflow-hidden w-full h-full"
+        >
+          <div class="w-full h-full flex flex-col">
+            <div class="flex-1 min-h-0 border-b border-base-300">
+              <div class="relative w-full h-full">
+                <div
+                  ref="topScrollRef"
+                  class="smart-scroll-container w-full h-full overflow-y-auto"
+                  @scroll="updateTopScrollState"
+                >
                   <div
-                    ref="dashScrollRef"
-                    class="smart-scroll-container w-full h-full overflow-y-auto"
-                    @scroll="updateDashScrollState"
+                    class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-2 md:gap-3"
                   >
-                    <div
-                      class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-3 md:gap-4"
-                    >
-                      <p class="text-sm md:text-base text-base-content/80">
-                        This side is your Kind dashboard sandbox. Soon it can
-                        host stats, shortcuts, and smart-style controls.
-                      </p>
+                    <div class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4">
+                      <title-card />
+                    </div>
 
-                      <div class="w-full">
-                        <corner-panel />
-                      </div>
+                    <div class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4">
+                      <smart-panel />
                     </div>
                   </div>
-
-                  <button
-                    v-if="dashCanScrollUp"
-                    type="button"
-                    class="absolute right-2 top-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-[2px] text-base-content/70"
-                    @click.stop="dashScrollBy('up')"
-                  >
-                    <Icon
-                      name="kind-icon:chevron-up"
-                      class="w-3 h-3 md:w-4 md:h-4"
-                    />
-                  </button>
-
-                  <button
-                    v-if="dashCanScrollDown"
-                    type="button"
-                    class="absolute right-2 bottom-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-[2px] text-base-content/70"
-                    @click.stop="dashScrollBy('down')"
-                  >
-                    <Icon
-                      name="kind-icon:chevron-down"
-                      class="w-3 h-3 md:w-4 md:h-4"
-                    />
-                  </button>
                 </div>
+
+                <button
+                  v-if="topCanScrollUp"
+                  type="button"
+                  class="absolute right-2 top-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-[2px] text-base-content/70"
+                  @click.stop="topScrollBy('up')"
+                >
+                  <Icon
+                    name="kind-icon:chevron-up"
+                    class="w-3 h-3 md:w-4 md:h-4"
+                  />
+                </button>
+
+                <button
+                  v-if="topCanScrollDown"
+                  type="button"
+                  class="absolute right-2 bottom-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-[2px] text-base-content/70"
+                  @click.stop="topScrollBy('down')"
+                >
+                  <Icon
+                    name="kind-icon:chevron-down"
+                    class="w-3 h-3 md:w-4 md:h-4"
+                  />
+                </button>
               </div>
+            </div>
 
-              <div class="flex-1 min-h-0">
-                <div class="relative w-full h-full">
+            <div class="flex-1 min-h-0">
+              <div class="relative w-full h-full">
+                <div
+                  ref="bottomScrollRef"
+                  class="smart-scroll-container w-full h-full overflow-y-auto"
+                  @scroll="updateBottomScrollState"
+                >
                   <div
-                    ref="chatScrollRef"
-                    class="smart-scroll-container w-full h-full overflow-y-auto"
-                    @scroll="updateChatScrollState"
+                    class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-2 md:gap-3"
                   >
-                    <div
-                      class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-2 md:gap-3"
-                    >
-                      <div class="flex-1 min-h-[8rem]">
-                        <ami-chat class="w-full h-full" />
-                      </div>
+                    <div class="flex-1 min-h-[8rem]">
+                      <ami-chat class="w-full h-full" />
                     </div>
                   </div>
-
-                  <button
-                    v-if="chatCanScrollUp"
-                    type="button"
-                    class="absolute right-2 top-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-[2px] text-base-content/70"
-                    @click.stop="chatScrollBy('up')"
-                  >
-                    <Icon
-                      name="kind-icon:chevron-up"
-                      class="w-3 h-3 md:w-4 md:h-4"
-                    />
-                  </button>
-
-                  <button
-                    v-if="chatCanScrollDown"
-                    type="button"
-                    class="absolute right-2 bottom-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-[2px] text-base-content/70"
-                    @click.stop="chatScrollBy('down')"
-                  >
-                    <Icon
-                      name="kind-icon:chevron-down"
-                      class="w-3 h-3 md:w-4 md:h-4"
-                    />
-                  </button>
                 </div>
+
+                <button
+                  v-if="bottomCanScrollUp"
+                  type="button"
+                  class="absolute right-2 top-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-[2px] text-base-content/70"
+                  @click.stop="bottomScrollBy('up')"
+                >
+                  <Icon
+                    name="kind-icon:chevron-up"
+                    class="w-3 h-3 md:w-4 md:h-4"
+                  />
+                </button>
+
+                <button
+                  v-if="bottomCanScrollDown"
+                  type="button"
+                  class="absolute right-2 bottom-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-[2px] text-base-content/70"
+                  @click.stop="bottomScrollBy('down')"
+                >
+                  <Icon
+                    name="kind-icon:chevron-down"
+                    class="w-3 h-3 md:w-4 md:h-4"
+                  />
+                </button>
               </div>
             </div>
           </div>
@@ -144,13 +141,13 @@ const imageSizes = computed(
   () => '(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1024px',
 )
 
-const dashScrollRef = ref<HTMLElement | null>(null)
-const dashCanScrollUp = ref(false)
-const dashCanScrollDown = ref(false)
+const topScrollRef = ref<HTMLElement | null>(null)
+const topCanScrollUp = ref(false)
+const topCanScrollDown = ref(false)
 
-const chatScrollRef = ref<HTMLElement | null>(null)
-const chatCanScrollUp = ref(false)
-const chatCanScrollDown = ref(false)
+const bottomScrollRef = ref<HTMLElement | null>(null)
+const bottomCanScrollUp = ref(false)
+const bottomCanScrollDown = ref(false)
 
 const updateScrollState = (
   el: HTMLElement | null,
@@ -162,11 +159,15 @@ const updateScrollState = (
   down.value = el.scrollTop + el.clientHeight < el.scrollHeight - 2
 }
 
-const updateDashScrollState = () =>
-  updateScrollState(dashScrollRef.value, dashCanScrollUp, dashCanScrollDown)
+const updateTopScrollState = () =>
+  updateScrollState(topScrollRef.value, topCanScrollUp, topCanScrollDown)
 
-const updateChatScrollState = () =>
-  updateScrollState(chatScrollRef.value, chatCanScrollUp, chatCanScrollDown)
+const updateBottomScrollState = () =>
+  updateScrollState(
+    bottomScrollRef.value,
+    bottomCanScrollUp,
+    bottomCanScrollDown,
+  )
 
 const scrollBy = (el: HTMLElement | null, direction: 'up' | 'down') => {
   if (!el) return
@@ -174,25 +175,19 @@ const scrollBy = (el: HTMLElement | null, direction: 'up' | 'down') => {
   el.scrollBy({ top: delta, behavior: 'smooth' })
 }
 
-const dashScrollBy = (direction: 'up' | 'down') =>
-  scrollBy(dashScrollRef.value, direction)
+const topScrollBy = (direction: 'up' | 'down') =>
+  scrollBy(topScrollRef.value, direction)
 
-const chatScrollBy = (direction: 'up' | 'down') =>
-  scrollBy(chatScrollRef.value, direction)
+const bottomScrollBy = (direction: 'up' | 'down') =>
+  scrollBy(bottomScrollRef.value, direction)
 
 onMounted(() => {
-  updateDashScrollState()
-  updateChatScrollState()
+  updateTopScrollState()
+  updateBottomScrollState()
 })
 </script>
 
 <style scoped>
-.stage {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
 .smart-scroll-container {
   scrollbar-width: none;
 }

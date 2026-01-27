@@ -1,8 +1,7 @@
 <!-- /components/content/navigation/smart-icons.vue -->
 <template>
   <div
-    class="relative w-full flex-1 min-w-0 leading-none rounded-2xl border border-base-content/10 bg-base-100/30"
-    :class="debugForceHeight ? 'h-[3.25rem]' : 'h-full min-h-[2.25rem]'"
+    class="relative w-full flex-1 min-w-0 leading-none h-full min-h-[2.25rem]"
   >
     <Teleport to="body">
       <div
@@ -17,114 +16,99 @@
     </Teleport>
 
     <div
-      class="absolute left-1 top-1 z-50 rounded-md bg-base-300/90 px-2 py-1 text-[10px] font-semibold leading-none"
+      ref="scrollContainer"
+      class="h-full min-h-0 w-full flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-10 sm:px-12"
+      :class="[
+        displayStore.showCorner
+          ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
+          : '',
+        '[&_*]:!mt-0 [&_*]:!mb-0 [&_*]:!pt-0 [&_*]:!pb-0',
+        '[&_*]:!ms-0 [&_*]:!me-0',
+        '[&>*]:h-full',
+        isDragging ? 'cursor-grabbing' : 'cursor-grab',
+      ]"
+      @scroll="checkScrollEdgesThrottled"
+      @mousedown="handleScrollMouseDown"
+      @mousemove="handleScrollMouseMove"
+      @mouseup="handleScrollMouseUp"
+      @mouseleave="handleScrollMouseUp"
+      @touchstart="handleScrollTouchStart"
+      @touchmove="handleScrollTouchMove"
+      @touchend="handleScrollTouchEnd"
+      @wheel.passive="handleWheel"
+      tabindex="0"
+      @keydown.left.prevent="scrollByStep(-1)"
+      @keydown.right.prevent="scrollByStep(1)"
+      aria-label="Smart icons"
     >
-      <div class="flex items-center gap-2">
-        <span class="inline-flex items-center gap-1">
-          <span
-            class="inline-block w-2 h-2 rounded-full bg-success"
-            v-if="isMounted"
-          />
-          <span class="inline-block w-2 h-2 rounded-full bg-warning" v-else />
-          smart-icons
-        </span>
-        <span class="opacity-70"
-          >a:{{ activeCount }} f:{{ filteredCount }} r:{{ rowCount }}</span
-        >
-      </div>
-    </div>
-
-    <div class="h-full w-full flex items-stretch min-w-0 gap-[2px]">
       <div
-        ref="scrollContainer"
-        class="h-full min-h-0 flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-10 sm:px-12 pt-6"
-        :class="[
-          displayStore.showCorner
-            ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
-            : '',
-          '[&_*]:!mt-0 [&_*]:!mb-0 [&_*]:!pt-0 [&_*]:!pb-0',
-          '[&_*]:!ms-0 [&_*]:!me-0',
-          '[&>*]:h-full',
-          isDragging ? 'cursor-grabbing' : 'cursor-grab',
-        ]"
-        @scroll="checkScrollEdgesThrottled"
-        @mousedown="handleScrollMouseDown"
-        @mousemove="handleScrollMouseMove"
-        @mouseup="handleScrollMouseUp"
-        @mouseleave="handleScrollMouseUp"
-        @touchstart="handleScrollTouchStart"
-        @touchmove="handleScrollTouchMove"
-        @touchend="handleScrollTouchEnd"
-        @wheel.passive="handleWheel"
-        tabindex="0"
-        @keydown.left.prevent="scrollByStep(-1)"
-        @keydown.right.prevent="scrollByStep(1)"
-        aria-label="Smart icons"
+        ref="row"
+        class="h-full min-h-0 flex items-stretch gap-[2px] min-w-max"
       >
         <div
-          ref="row"
-          class="h-full min-h-0 flex items-stretch gap-[2px] min-w-max"
+          aria-hidden="true"
+          class="shrink-0 h-full w-3 sm:w-4 md:w-6 lg:w-8"
+        />
+
+        <div
+          v-if="rowIcons.length === 0"
+          class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
         >
-          <div
-            aria-hidden="true"
-            class="shrink-0 h-full w-3 sm:w-4 md:w-6 lg:w-8"
-          />
-
-          <div
-            v-if="rowIcons.length === 0"
-            class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
+          <button
+            type="button"
+            class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 text-warning transition outline-none focus-visible:ring-2 focus-visible:ring-warning/50"
+            title="No nav icons found"
+            aria-label="No nav icons found"
+            @click="activateEditMode"
           >
-            <button
-              type="button"
-              class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 text-warning transition outline-none focus-visible:ring-2 focus-visible:ring-warning/50"
-              title="No nav icons found"
-              aria-label="No nav icons found"
-              @click="activateEditMode"
+            <Icon
+              name="kind-icon:alert"
+              class="pointer-events-none h-[60%] w-[60%]"
+            />
+            <span
+              class="icon-title mt-[0.15em] text-[10px] opacity-90 select-none"
             >
-              <Icon
-                name="kind-icon:alert"
-                class="pointer-events-none h-[60%] w-[60%]"
-              />
-              <span
-                class="icon-title mt-[0.15em] text-[10px] opacity-90 select-none"
-              >
-                No icons
-              </span>
-            </button>
-          </div>
-
-          <icon-display
-            v-for="icon in rowIcons"
-            :key="icon.id"
-            :icon="icon"
-            :show-title="showTitles"
-            class="snap-start shrink-0 h-full aspect-square flex"
-          />
-
-          <div
-            v-if="!isEditing"
-            class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
-          >
-            <button
-              type="button"
-              class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-              title="Edit Smart Icons"
-              aria-label="Edit Smart Icons"
-              @click="activateEditMode"
-            >
-              <Icon
-                name="kind-icon:settings"
-                class="pointer-events-none h-[60%] w-[60%]"
-              />
-              <span
-                v-if="showTitles"
-                class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
-              >
-                Edit
-              </span>
-            </button>
-          </div>
+              No icons
+            </span>
+          </button>
         </div>
+
+        <icon-display
+          v-for="icon in rowIcons"
+          :key="icon.id"
+          :icon="icon"
+          :show-title="showTitles"
+          class="snap-start shrink-0 h-full aspect-square flex"
+        />
+
+        <div
+          v-if="!isEditing"
+          class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
+        >
+          <button
+            type="button"
+            class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            title="Edit Smart Icons"
+            aria-label="Edit Smart Icons"
+            @click="activateEditMode"
+          >
+            <Icon
+              name="kind-icon:settings"
+              class="pointer-events-none h-[60%] w-[60%]"
+            />
+            <span
+              v-if="showTitles"
+              class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+            >
+              Edit
+            </span>
+          </button>
+        </div>
+
+        <div
+          aria-hidden="true"
+          class="shrink-0 h-full w-3 sm:w-4 md:w-6 lg:w-8"
+        />
       </div>
 
       <div class="pointer-events-none absolute inset-y-0 left-0 right-0 z-30">
@@ -136,7 +120,6 @@
           v-show="canScrollRight"
           class="absolute right-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-l from-base-100/80 to-transparent"
         />
-
         <button
           v-if="canScrollLeft"
           type="button"
@@ -170,8 +153,7 @@ import { storeToRefs } from 'pinia'
 import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
-const debugTeleport = true
-const debugForceHeight = true
+const debugTeleport = false
 
 const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
@@ -252,6 +234,7 @@ function updateScrollFlags() {
   canScrollLeft.value = el.scrollLeft > EPSILON
   canScrollRight.value = maxScrollLeft - el.scrollLeft > EPSILON
 }
+
 function checkScrollEdges() {
   updateScrollFlags()
 }
@@ -345,7 +328,6 @@ let mutationObserver: MutationObserver | null = null
 
 onMounted(() => {
   isMounted.value = true
-  ;(window as any).__KR_SMART_ICONS_MOUNTED = true
 
   const el = scrollContainer.value
   const content = row.value

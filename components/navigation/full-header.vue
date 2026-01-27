@@ -34,7 +34,7 @@
         class="w-full flex items-center justify-between lg:gap-3 xl:gap-4 min-w-0"
       >
         <template v-if="bigMode">
-          <div class="flex items-center gap-2 w-full min-w-0 py-0">
+          <div class="flex items-stretch gap-2 w-full min-w-0 h-full py-0">
             <span
               class="whitespace-nowrap font-extrabold tracking-tight leading-[1.05] sm:text-lg md:text-xl lg:text-2xl xl:text-4xl"
             >
@@ -44,9 +44,8 @@
                 {{ displayTitle }}
               </span>
             </span>
-
             <div class="relative flex-1 min-w-0 h-full">
-              <smart-icons class="h-full inline-flex w-full min-w-0 px-1" />
+              <smart-icons class="h-full w-full min-w-0 px-1" />
             </div>
           </div>
         </template>

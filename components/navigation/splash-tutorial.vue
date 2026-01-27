@@ -28,23 +28,40 @@
           <div class="relative w-full h-full">
             <div
               ref="scrollRef"
-              class="smart-scroll-container w-full h-full overflow-y-auto"
+              class="smart-scroll-container w-full h-full overflow-y-auto overflow-x-hidden"
               @scroll="updateScrollState"
             >
               <div
-                class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-2 md:gap-3"
+                class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-2 md:gap-3 overflow-x-hidden"
               >
-                <div class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4">
+                <div
+                  class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4 overflow-x-hidden"
+                >
                   <title-card />
                 </div>
 
-                <div class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4">
+                <div
+                  class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4 overflow-x-hidden"
+                >
                   <smart-panel />
+                </div>
+
+                <div v-if="pageImage" class="w-full overflow-x-hidden">
+                  <div
+                    class="relative w-full rounded-2xl border border-base-300 bg-base-200/70 overflow-hidden aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1]"
+                  >
+                    <NuxtImg
+                      :src="pageImage"
+                      alt="Room illustration"
+                      class="absolute inset-0 w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
                 </div>
 
                 <div class="flex-1 min-h-[8rem]" />
 
-                <div class="w-full">
+                <div class="w-full overflow-x-hidden">
                   <ami-chat class="w-full" />
                 </div>
               </div>
@@ -91,6 +108,12 @@ const image = computed(() => pageStore.page?.image)
 
 const resolvedImage = computed(() => {
   const img = image.value || fallbackImage
+  return img.startsWith('/') ? img : `/images/${img}`
+})
+
+const pageImage = computed(() => {
+  const img = image.value || ''
+  if (!img) return ''
   return img.startsWith('/') ? img : `/images/${img}`
 })
 

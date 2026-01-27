@@ -4,7 +4,7 @@
     <div class="h-full w-full flex items-stretch min-w-0 gap-[2px]">
       <div
         ref="scrollContainer"
-        class="h-full min-h-[2.6rem] md:min-h-[3rem] lg:min-h-[3.25rem] xl:min-h-[3.5rem] flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-6"
+        class="h-full min-h-0 flex-1 min-w-0 flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-6"
         :class="[
           displayStore.showCorner
             ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'

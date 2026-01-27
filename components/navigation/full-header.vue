@@ -3,7 +3,7 @@
   <header
     ref="headerRoot"
     :key="headerKey"
-    class="w-full h-full flex items-stretch gap-0 overflow-x-hidden overflow-y-hidden [isolation:isolate]"
+    class="w-full h-full flex items-stretch gap-0 overflow-x-hidden overflow-y-visible [isolation:isolate]"
   >
     <div
       class="relative flex-none h-full shrink-0 z-0 pointer-events-auto flex"
@@ -74,7 +74,7 @@
           </div>
 
           <div
-            class="flex items-center justify-end flex-nowrap shrink-0 overflow-hidden"
+            class="flex items-center justify-end flex-nowrap shrink-0"
             :class="[
               bigMode
                 ? 'basis-auto max-w-none'

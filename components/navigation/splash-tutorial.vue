@@ -22,14 +22,14 @@
       <div
         class="w-full h-full flex items-center justify-center px-1 md:px-2 lg:px-3 xl:px-4 py-[5%]"
       >
-        <smart-flip class="w-full h-full" />
+        <smart-slide class="w-full h-full" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// /components/content/icons/splash-tutorial.vue
+// /components/navigation/splash-tutorial.vue
 import { computed } from 'vue'
 import { NuxtImg } from '#components'
 import { usePageStore } from '@/stores/pageStore'

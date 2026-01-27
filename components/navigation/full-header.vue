@@ -28,13 +28,13 @@
 
     <div
       v-if="hasHeaderContent"
-      class="flex-1 h-full flex items-center px-1 md:px-2 lg:px-3 xl:px-4 py-1 md:py-1.5 min-w-0"
+      class="flex-1 h-full flex items-center px-1 md:px-2 lg:px-3 xl:px-4 py-0 min-w-0"
     >
       <div
         class="w-full flex items-center justify-between lg:gap-3 xl:gap-4 min-w-0"
       >
         <template v-if="bigMode">
-          <div class="flex items-center gap-2 w-full min-w-0 py-0.5 md:py-1">
+          <div class="flex items-center gap-2 w-full min-w-0 py-0">
             <span
               class="whitespace-nowrap font-extrabold tracking-tight leading-[1.05] sm:text-lg md:text-xl lg:text-2xl xl:text-4xl"
             >
@@ -85,28 +85,28 @@
               class="flex w-full h-full items-center justify-end xl:justify-center"
             >
               <div
-                class="grid grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-1"
+                class="grid grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-0"
               >
                 <div class="w-full h-full flex items-center justify-center">
-                  <div class="aspect-square w-[80%] max-w-[2.8rem] h-auto">
+                  <div class="aspect-square h-[70%] w-auto max-h-full">
                     <login-icon class="w-full h-full text-primary" />
                   </div>
                 </div>
 
                 <div class="w-full h-full flex items-center justify-center">
-                  <div class="aspect-square w-[80%] max-w-[2.8rem] h-auto">
+                  <div class="aspect-square h-[70%] w-auto max-h-full">
                     <jellybean-icon class="w-full h-full text-secondary" />
                   </div>
                 </div>
 
                 <div class="w-full h-full flex items-center justify-center">
-                  <div class="aspect-square w-[80%] max-w-[2.8rem] h-auto">
+                  <div class="aspect-square h-[70%] w-auto max-h-full">
                     <theme-icon class="w-full h-full text-accent" />
                   </div>
                 </div>
 
                 <div class="w-full h-full flex items-center justify-center">
-                  <div class="aspect-square w-[80%] max-w-[2.8rem] h-auto">
+                  <div class="aspect-square h-[70%] w-auto max-h-full">
                     <swarm-icon class="w-full h-full text-info" />
                   </div>
                 </div>

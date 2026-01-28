@@ -113,9 +113,9 @@ import { Icon } from '#components'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 import type { SmartState } from '@/stores/helpers/displayHelper'
-import SmartFront from '../navigation/smart-front.vue'
-import SmartBack from '../navigation/smart-back.vue'
-import SmartDash from '@/components/navigation/smart-dash.vue'
+import SmartFront from '@/components/navigation/smart-front.vue'
+import SmartBack from '@/components/navigation/smart-back.vue'
+import SmartDash from '../smart-dash.vue'
 import SmartIcons from '@/components/navigation/smart-icons.vue'
 
 const displayStore = useDisplayStore()

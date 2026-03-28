@@ -13,6 +13,6 @@ tooltip: 'Test your pitch, track your progress, and sharpen your voice.'
 dottitip: 'Precision begins with listening closely to yourself.'
 amitip: 'I tried to sing once. The butterflies filed a noise complaint.'
 sort: highlight
-navComponent: 'workshop-nav'
+navComponent: 'lab-nav'
 ---
 :vocal-upload

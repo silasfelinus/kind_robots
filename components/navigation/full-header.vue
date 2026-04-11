@@ -85,7 +85,7 @@
               class="flex w-full h-full items-center justify-end xl:justify-center"
             >
               <div
-                class="grid grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 place-items-center w-full h-full gap-1 md:gap-1.5 lg:gap-2 p-0"
+                class="grid grid-cols-4 grid-rows-1 place-items-center w-full h-full p-0"
               >
                 <div class="w-full h-full flex items-center justify-center">
                   <div class="aspect-square h-[70%] w-auto max-h-full">

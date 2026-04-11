@@ -28,6 +28,13 @@ model Art {
   promptString   String          @db.Text
   cfg            Int?            @default(3)
   cfgHalf        Boolean?        @default(false)
+
+  serverId     Int?
+  server       Server? @relation(fields: [serverId], references: [id])
+
+  serverName   String?
+  serverUrl    String?
+
   artImageId     Int?
   imagePath      String?
   genres         String?
@@ -541,6 +548,71 @@ model Scenario {
   @@index([userId], map: "Scenario_userId_fkey")
 }
 
+model Server {
+  id                        Int       @id @default(autoincrement())
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  // Basic identity
+  title                     String
+  label                     String?   // short display name
+  description               String?
+
+  // Classification
+  serverType                ServerType @default(ART)
+  category                  String?    // "official", "community", "experimental"
+
+  // Connection
+  baseUrl                   String
+  endpointPath              String?    // e.g. /sdapi/v1/txt2img
+  healthPath                String?    // e.g. /health or /sdapi/v1/progress
+
+  // Ownership
+  userId                    Int?
+  user                      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Visibility & trust
+  isPublic                  Boolean    @default(false)
+  isOfficial                Boolean    @default(false)
+  isDefault                 Boolean    @default(false)
+  isActive                  Boolean    @default(true)
+
+  // Security
+  requiresApiKey            Boolean    @default(false)
+  apiKeyName                String?    // header name or env key reference
+
+  // Capabilities (used for filtering in UI + validation in backend)
+  supportsTxt2Img           Boolean    @default(false)
+  supportsImg2Img           Boolean    @default(false)
+  supportsChat              Boolean    @default(false)
+  supportsComfyWorkflow     Boolean    @default(false)
+
+  supportsCheckpointOverride Boolean   @default(false)
+  supportsSampler           Boolean    @default(false)
+  supportsNegativePrompt    Boolean    @default(false)
+  supportsSeed              Boolean    @default(false)
+  supportsSteps             Boolean    @default(false)
+
+  // Metadata
+  designer                  String?    // stylistic or branding tag
+  version                   String?
+  notes                     String?
+
+  // Sorting / UX
+  sortOrder                 Int        @default(0)
+
+  // Optional: performance / health tracking (future use)
+  lastCheckedAt             DateTime?
+  lastStatus                ServerStatus?
+
+  // Relations
+  arts                      Art[]
+
+  @@index([serverType])
+  @@index([isPublic])
+  @@index([userId])
+}
+
 /// Smart Icons are used internally to generate the user's icon array. They can create custom icons that are links to pages or commands
 model SmartIcon {
   id          Int       @id @default(autoincrement())
@@ -647,6 +719,8 @@ model User {
   smartBar         String?
   customIcons      Boolean           @default(false)
   isMember         Boolean           @default(false)
+  preferredArtServerId   Int?
+  preferredTextServerId  Int?
   memberUntil      DateTime?
   stripeCustomerId String?           @db.VarChar(64)
   artModels        String?           @db.LongText
@@ -672,6 +746,7 @@ model User {
   SmartIcons       SmartIcon[]
   Tags             Tag[]
   Themes           Theme[]
+  Servers          Server[]
 }
 
 model ReactionToTag {
@@ -784,4 +859,20 @@ enum PitchType {
   RANDOMLIST
   TITLE
   VIBE
+}
+
+enum ServerType {
+  ART
+  TEXT
+  COMFY
+  A1111
+  OPENAI_COMPATIBLE
+  OTHER
+}
+
+enum ServerStatus {
+  ONLINE
+  OFFLINE
+  DEGRADED
+  UNKNOWN
 }

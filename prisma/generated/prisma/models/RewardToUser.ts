@@ -175,7 +175,7 @@ export type RewardToUserGroupByOutputType = {
   _max: RewardToUserMaxAggregateOutputType | null
 }
 
-type GetRewardToUserGroupByPayload<T extends RewardToUserGroupByArgs> = Prisma.PrismaPromise<
+export type GetRewardToUserGroupByPayload<T extends RewardToUserGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<RewardToUserGroupByOutputType, T['by']> &
       {
@@ -864,6 +864,11 @@ export type RewardToUserFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Skip the first `n` RewardToUsers.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of RewardToUsers.
+   */
   distinct?: Prisma.RewardToUserScalarFieldEnum | Prisma.RewardToUserScalarFieldEnum[]
 }
 

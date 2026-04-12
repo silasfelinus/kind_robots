@@ -263,7 +263,7 @@ export type MilestoneGroupByOutputType = {
   _max: MilestoneMaxAggregateOutputType | null
 }
 
-type GetMilestoneGroupByPayload<T extends MilestoneGroupByArgs> = Prisma.PrismaPromise<
+export type GetMilestoneGroupByPayload<T extends MilestoneGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MilestoneGroupByOutputType, T['by']> &
       {
@@ -1468,6 +1468,11 @@ export type MilestoneFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Skip the first `n` Milestones.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Milestones.
+   */
   distinct?: Prisma.MilestoneScalarFieldEnum | Prisma.MilestoneScalarFieldEnum[]
 }
 

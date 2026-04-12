@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.2.0
- * Query Engine version: 0c8ef2ce45c83248ab3df073180d5eda9e8be7a3
+ * Prisma Client JS version: 7.7.0
+ * Query Engine version: 75cbdc1eb7150937890ad5465d861175c6624711
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.2.0",
-  engine: "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3"
+  client: "7.7.0",
+  engine: "75cbdc1eb7150937890ad5465d861175c6624711"
 }
 
 /**
@@ -2413,6 +2413,8 @@ export const BotScalarFieldEnum = {
   canDelete: 'canDelete',
   userId: 'userId',
   designer: 'designer',
+  serverId: 'serverId',
+  serverName: 'serverName',
   artImageId: 'artImageId'
 } as const
 
@@ -2492,7 +2494,9 @@ export const ChatScalarFieldEnum = {
   botResponse: 'botResponse',
   characterId: 'characterId',
   isRead: 'isRead',
-  isMature: 'isMature'
+  isMature: 'isMature',
+  serverId: 'serverId',
+  serverName: 'serverName'
 } as const
 
 export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
@@ -2993,7 +2997,8 @@ export const BotOrderByRelevanceFieldEnum = {
   modules: 'modules',
   sampleResponse: 'sampleResponse',
   tagline: 'tagline',
-  designer: 'designer'
+  designer: 'designer',
+  serverName: 'serverName'
 } as const
 
 export type BotOrderByRelevanceFieldEnum = (typeof BotOrderByRelevanceFieldEnum)[keyof typeof BotOrderByRelevanceFieldEnum]
@@ -3038,7 +3043,8 @@ export const ChatOrderByRelevanceFieldEnum = {
   title: 'title',
   botName: 'botName',
   channel: 'channel',
-  botResponse: 'botResponse'
+  botResponse: 'botResponse',
+  serverName: 'serverName'
 } as const
 
 export type ChatOrderByRelevanceFieldEnum = (typeof ChatOrderByRelevanceFieldEnum)[keyof typeof ChatOrderByRelevanceFieldEnum]

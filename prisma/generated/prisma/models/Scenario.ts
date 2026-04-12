@@ -256,7 +256,7 @@ export type ScenarioGroupByOutputType = {
   _max: ScenarioMaxAggregateOutputType | null
 }
 
-type GetScenarioGroupByPayload<T extends ScenarioGroupByArgs> = Prisma.PrismaPromise<
+export type GetScenarioGroupByPayload<T extends ScenarioGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ScenarioGroupByOutputType, T['by']> &
       {
@@ -1717,6 +1717,11 @@ export type ScenarioFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Skip the first `n` Scenarios.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Scenarios.
+   */
   distinct?: Prisma.ScenarioScalarFieldEnum | Prisma.ScenarioScalarFieldEnum[]
 }
 

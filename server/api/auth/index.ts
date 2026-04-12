@@ -1,6 +1,6 @@
 //server/api/auth/index.ts
 import crypto from 'crypto'
-import { hash as bcryptHash, compare as bcryptCompare } from 'bcrypt'
+import { hash as bcryptHash, compare as bcryptCompare } from 'bcryptjs'
 import { jwtVerify, SignJWT } from 'jose'
 import { errorHandler } from '../../utils/error'
 import { userExists } from '../users'

@@ -353,7 +353,7 @@ export type ArtImageGroupByOutputType = {
   _max: ArtImageMaxAggregateOutputType | null
 }
 
-type GetArtImageGroupByPayload<T extends ArtImageGroupByArgs> = Prisma.PrismaPromise<
+export type GetArtImageGroupByPayload<T extends ArtImageGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ArtImageGroupByOutputType, T['by']> &
       {
@@ -3990,6 +3990,11 @@ export type ArtImageFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Skip the first `n` ArtImages.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of ArtImages.
+   */
   distinct?: Prisma.ArtImageScalarFieldEnum | Prisma.ArtImageScalarFieldEnum[]
 }
 

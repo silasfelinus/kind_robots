@@ -266,7 +266,7 @@ export type SmartIconGroupByOutputType = {
   _max: SmartIconMaxAggregateOutputType | null
 }
 
-type GetSmartIconGroupByPayload<T extends SmartIconGroupByArgs> = Prisma.PrismaPromise<
+export type GetSmartIconGroupByPayload<T extends SmartIconGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SmartIconGroupByOutputType, T['by']> &
       {
@@ -1428,6 +1428,11 @@ export type SmartIconFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Skip the first `n` SmartIcons.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of SmartIcons.
+   */
   distinct?: Prisma.SmartIconScalarFieldEnum | Prisma.SmartIconScalarFieldEnum[]
 }
 

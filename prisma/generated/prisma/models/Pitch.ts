@@ -284,7 +284,7 @@ export type PitchGroupByOutputType = {
   _max: PitchMaxAggregateOutputType | null
 }
 
-type GetPitchGroupByPayload<T extends PitchGroupByArgs> = Prisma.PrismaPromise<
+export type GetPitchGroupByPayload<T extends PitchGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PitchGroupByOutputType, T['by']> &
       {
@@ -2319,6 +2319,11 @@ export type PitchFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Skip the first `n` Pitches.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Pitches.
+   */
   distinct?: Prisma.PitchScalarFieldEnum | Prisma.PitchScalarFieldEnum[]
 }
 

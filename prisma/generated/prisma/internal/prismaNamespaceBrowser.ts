@@ -87,12 +87,12 @@ export type ModelName = (typeof ModelName)[keyof typeof ModelName]
  * Enums
  */
 
-export const TransactionIsolationLevel = {
+export const TransactionIsolationLevel = runtime.makeStrictEnum({
   ReadUncommitted: 'ReadUncommitted',
   ReadCommitted: 'ReadCommitted',
   RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
-} as const
+} as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
@@ -192,6 +192,8 @@ export const BotScalarFieldEnum = {
   canDelete: 'canDelete',
   userId: 'userId',
   designer: 'designer',
+  serverId: 'serverId',
+  serverName: 'serverName',
   artImageId: 'artImageId'
 } as const
 
@@ -271,7 +273,9 @@ export const ChatScalarFieldEnum = {
   botResponse: 'botResponse',
   characterId: 'characterId',
   isRead: 'isRead',
-  isMature: 'isMature'
+  isMature: 'isMature',
+  serverId: 'serverId',
+  serverName: 'serverName'
 } as const
 
 export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
@@ -772,7 +776,8 @@ export const BotOrderByRelevanceFieldEnum = {
   modules: 'modules',
   sampleResponse: 'sampleResponse',
   tagline: 'tagline',
-  designer: 'designer'
+  designer: 'designer',
+  serverName: 'serverName'
 } as const
 
 export type BotOrderByRelevanceFieldEnum = (typeof BotOrderByRelevanceFieldEnum)[keyof typeof BotOrderByRelevanceFieldEnum]
@@ -817,7 +822,8 @@ export const ChatOrderByRelevanceFieldEnum = {
   title: 'title',
   botName: 'botName',
   channel: 'channel',
-  botResponse: 'botResponse'
+  botResponse: 'botResponse',
+  serverName: 'serverName'
 } as const
 
 export type ChatOrderByRelevanceFieldEnum = (typeof ChatOrderByRelevanceFieldEnum)[keyof typeof ChatOrderByRelevanceFieldEnum]

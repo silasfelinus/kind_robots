@@ -231,7 +231,7 @@ export type ThemeGroupByOutputType = {
   _max: ThemeMaxAggregateOutputType | null
 }
 
-type GetThemeGroupByPayload<T extends ThemeGroupByArgs> = Prisma.PrismaPromise<
+export type GetThemeGroupByPayload<T extends ThemeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ThemeGroupByOutputType, T['by']> &
       {
@@ -1263,6 +1263,11 @@ export type ThemeFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Skip the first `n` Themes.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Themes.
+   */
   distinct?: Prisma.ThemeScalarFieldEnum | Prisma.ThemeScalarFieldEnum[]
 }
 

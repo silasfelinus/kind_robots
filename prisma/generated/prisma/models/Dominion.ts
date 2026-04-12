@@ -429,7 +429,7 @@ export type DominionGroupByOutputType = {
   _max: DominionMaxAggregateOutputType | null
 }
 
-type GetDominionGroupByPayload<T extends DominionGroupByArgs> = Prisma.PrismaPromise<
+export type GetDominionGroupByPayload<T extends DominionGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<DominionGroupByOutputType, T['by']> &
       {
@@ -2893,6 +2893,11 @@ export type DominionFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Skip the first `n` Dominions.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Dominions.
+   */
   distinct?: Prisma.DominionScalarFieldEnum | Prisma.DominionScalarFieldEnum[]
 }
 

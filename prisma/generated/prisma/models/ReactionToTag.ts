@@ -175,7 +175,7 @@ export type ReactionToTagGroupByOutputType = {
   _max: ReactionToTagMaxAggregateOutputType | null
 }
 
-type GetReactionToTagGroupByPayload<T extends ReactionToTagGroupByArgs> = Prisma.PrismaPromise<
+export type GetReactionToTagGroupByPayload<T extends ReactionToTagGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ReactionToTagGroupByOutputType, T['by']> &
       {
@@ -864,6 +864,11 @@ export type ReactionToTagFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Skip the first `n` ReactionToTags.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of ReactionToTags.
+   */
   distinct?: Prisma.ReactionToTagScalarFieldEnum | Prisma.ReactionToTagScalarFieldEnum[]
 }
 

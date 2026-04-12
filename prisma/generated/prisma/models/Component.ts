@@ -238,7 +238,7 @@ export type ComponentGroupByOutputType = {
   _max: ComponentMaxAggregateOutputType | null
 }
 
-type GetComponentGroupByPayload<T extends ComponentGroupByArgs> = Prisma.PrismaPromise<
+export type GetComponentGroupByPayload<T extends ComponentGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ComponentGroupByOutputType, T['by']> &
       {
@@ -1547,6 +1547,11 @@ export type ComponentFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Skip the first `n` Components.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Components.
+   */
   distinct?: Prisma.ComponentScalarFieldEnum | Prisma.ComponentScalarFieldEnum[]
 }
 

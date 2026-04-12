@@ -224,7 +224,7 @@ export type ArtCollectionGroupByOutputType = {
   _max: ArtCollectionMaxAggregateOutputType | null
 }
 
-type GetArtCollectionGroupByPayload<T extends ArtCollectionGroupByArgs> = Prisma.PrismaPromise<
+export type GetArtCollectionGroupByPayload<T extends ArtCollectionGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ArtCollectionGroupByOutputType, T['by']> &
       {
@@ -1397,6 +1397,11 @@ export type ArtCollectionFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Skip the first `n` ArtCollections.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of ArtCollections.
+   */
   distinct?: Prisma.ArtCollectionScalarFieldEnum | Prisma.ArtCollectionScalarFieldEnum[]
 }
 

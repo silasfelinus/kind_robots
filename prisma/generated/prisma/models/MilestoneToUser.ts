@@ -175,7 +175,7 @@ export type MilestoneToUserGroupByOutputType = {
   _max: MilestoneToUserMaxAggregateOutputType | null
 }
 
-type GetMilestoneToUserGroupByPayload<T extends MilestoneToUserGroupByArgs> = Prisma.PrismaPromise<
+export type GetMilestoneToUserGroupByPayload<T extends MilestoneToUserGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MilestoneToUserGroupByOutputType, T['by']> &
       {
@@ -864,6 +864,11 @@ export type MilestoneToUserFindManyArgs<ExtArgs extends runtime.Types.Extensions
    * Skip the first `n` MilestoneToUsers.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of MilestoneToUsers.
+   */
   distinct?: Prisma.MilestoneToUserScalarFieldEnum | Prisma.MilestoneToUserScalarFieldEnum[]
 }
 

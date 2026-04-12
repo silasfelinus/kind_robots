@@ -521,7 +521,7 @@ export type CharacterGroupByOutputType = {
   _max: CharacterMaxAggregateOutputType | null
 }
 
-type GetCharacterGroupByPayload<T extends CharacterGroupByArgs> = Prisma.PrismaPromise<
+export type GetCharacterGroupByPayload<T extends CharacterGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<CharacterGroupByOutputType, T['by']> &
       {
@@ -3645,6 +3645,11 @@ export type CharacterFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Skip the first `n` Characters.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Characters.
+   */
   distinct?: Prisma.CharacterScalarFieldEnum | Prisma.CharacterScalarFieldEnum[]
 }
 

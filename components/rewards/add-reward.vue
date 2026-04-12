@@ -154,7 +154,6 @@ async function generateArtImage() {
   try {
     const response = await artStore.generateArt({
       promptString: rewardForm.value.artPrompt,
-      title: rewardForm.value.text || 'Untitled Reward',
       collection: 'rewards',
     })
 

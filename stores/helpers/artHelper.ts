@@ -10,6 +10,8 @@ export interface GenerateArtData {
   promptString: string
   negativePrompt?: string
   pitch?: string
+  title?: string
+  collection?: string
 
   userId?: number | null
   galleryId?: number | null
@@ -19,15 +21,14 @@ export interface GenerateArtData {
   checkpoint?: string
   sampler?: string
   steps?: number
-
-  designer?: string
   cfg?: number
   cfgHalf?: boolean
 
+  designer?: string
+  seed?: number | null
+
   isMature?: boolean
   isPublic?: boolean
-
-  seed?: number | null
 
   serverId?: number | null
   serverName?: string | null

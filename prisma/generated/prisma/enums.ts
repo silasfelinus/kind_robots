@@ -92,3 +92,25 @@ export const PitchType = {
 } as const
 
 export type PitchType = (typeof PitchType)[keyof typeof PitchType]
+
+
+export const ServerType = {
+  ART: 'ART',
+  TEXT: 'TEXT',
+  COMFY: 'COMFY',
+  A1111: 'A1111',
+  OPENAI_COMPATIBLE: 'OPENAI_COMPATIBLE',
+  OTHER: 'OTHER'
+} as const
+
+export type ServerType = (typeof ServerType)[keyof typeof ServerType]
+
+
+export const ServerStatus = {
+  ONLINE: 'ONLINE',
+  OFFLINE: 'OFFLINE',
+  DEGRADED: 'DEGRADED',
+  UNKNOWN: 'UNKNOWN'
+} as const
+
+export type ServerStatus = (typeof ServerStatus)[keyof typeof ServerStatus]

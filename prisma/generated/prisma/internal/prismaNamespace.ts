@@ -16,10 +16,10 @@
  */
 
 import * as runtime from "@prisma/client/runtime/client"
-import type * as Prisma from "../models.js"
-import { type PrismaClient } from "./class.js"
+import type * as Prisma from "../models"
+import { type PrismaClient } from "./class"
 
-export type * from '../models.js'
+export type * from '../models'
 
 export type DMMF = typeof runtime.DMMF
 
@@ -402,6 +402,7 @@ export const ModelName = {
   Resource: 'Resource',
   Reward: 'Reward',
   Scenario: 'Scenario',
+  Server: 'Server',
   SmartIcon: 'SmartIcon',
   Tag: 'Tag',
   Theme: 'Theme',
@@ -426,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "art" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dominion" | "gallery" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "smartIcon" | "tag" | "theme" | "user" | "reactionToTag" | "artToProduct" | "artToTag" | "milestoneToUser" | "rewardToUser"
+    modelProps: "art" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dominion" | "gallery" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "tag" | "theme" | "user" | "reactionToTag" | "artToProduct" | "artToTag" | "milestoneToUser" | "rewardToUser"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1618,6 +1619,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Server: {
+      payload: Prisma.$ServerPayload<ExtArgs>
+      fields: Prisma.ServerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ServerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ServerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerPayload>
+        }
+        findFirst: {
+          args: Prisma.ServerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ServerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerPayload>
+        }
+        findMany: {
+          args: Prisma.ServerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerPayload>[]
+        }
+        create: {
+          args: Prisma.ServerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerPayload>
+        }
+        createMany: {
+          args: Prisma.ServerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ServerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerPayload>
+        }
+        update: {
+          args: Prisma.ServerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerPayload>
+        }
+        deleteMany: {
+          args: Prisma.ServerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ServerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ServerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerPayload>
+        }
+        aggregate: {
+          args: Prisma.ServerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateServer>
+        }
+        groupBy: {
+          args: Prisma.ServerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ServerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServerCountAggregateOutputType> | number
+        }
+      }
+    }
     SmartIcon: {
       payload: Prisma.$SmartIconPayload<ExtArgs>
       fields: Prisma.SmartIconFieldRefs
@@ -2270,6 +2337,9 @@ export const ArtScalarFieldEnum = {
   promptString: 'promptString',
   cfg: 'cfg',
   cfgHalf: 'cfgHalf',
+  serverId: 'serverId',
+  serverName: 'serverName',
+  serverUrl: 'serverUrl',
   artImageId: 'artImageId',
   imagePath: 'imagePath',
   genres: 'genres',
@@ -2669,6 +2739,45 @@ export const ScenarioScalarFieldEnum = {
 export type ScenarioScalarFieldEnum = (typeof ScenarioScalarFieldEnum)[keyof typeof ScenarioScalarFieldEnum]
 
 
+export const ServerScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  label: 'label',
+  description: 'description',
+  serverType: 'serverType',
+  category: 'category',
+  baseUrl: 'baseUrl',
+  endpointPath: 'endpointPath',
+  healthPath: 'healthPath',
+  userId: 'userId',
+  isPublic: 'isPublic',
+  isOfficial: 'isOfficial',
+  isDefault: 'isDefault',
+  isActive: 'isActive',
+  requiresApiKey: 'requiresApiKey',
+  apiKeyName: 'apiKeyName',
+  supportsTxt2Img: 'supportsTxt2Img',
+  supportsImg2Img: 'supportsImg2Img',
+  supportsChat: 'supportsChat',
+  supportsComfyWorkflow: 'supportsComfyWorkflow',
+  supportsCheckpointOverride: 'supportsCheckpointOverride',
+  supportsSampler: 'supportsSampler',
+  supportsNegativePrompt: 'supportsNegativePrompt',
+  supportsSeed: 'supportsSeed',
+  supportsSteps: 'supportsSteps',
+  designer: 'designer',
+  version: 'version',
+  notes: 'notes',
+  sortOrder: 'sortOrder',
+  lastCheckedAt: 'lastCheckedAt',
+  lastStatus: 'lastStatus'
+} as const
+
+export type ServerScalarFieldEnum = (typeof ServerScalarFieldEnum)[keyof typeof ServerScalarFieldEnum]
+
+
 export const SmartIconScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -2766,6 +2875,8 @@ export const UserScalarFieldEnum = {
   smartBar: 'smartBar',
   customIcons: 'customIcons',
   isMember: 'isMember',
+  preferredArtServerId: 'preferredArtServerId',
+  preferredTextServerId: 'preferredTextServerId',
   memberUntil: 'memberUntil',
   stripeCustomerId: 'stripeCustomerId',
   artModels: 'artModels',
@@ -2839,6 +2950,8 @@ export const ArtOrderByRelevanceFieldEnum = {
   sampler: 'sampler',
   designer: 'designer',
   promptString: 'promptString',
+  serverName: 'serverName',
+  serverUrl: 'serverUrl',
   imagePath: 'imagePath',
   genres: 'genres',
   negativePrompt: 'negativePrompt'
@@ -3073,6 +3186,23 @@ export const ScenarioOrderByRelevanceFieldEnum = {
 export type ScenarioOrderByRelevanceFieldEnum = (typeof ScenarioOrderByRelevanceFieldEnum)[keyof typeof ScenarioOrderByRelevanceFieldEnum]
 
 
+export const ServerOrderByRelevanceFieldEnum = {
+  title: 'title',
+  label: 'label',
+  description: 'description',
+  category: 'category',
+  baseUrl: 'baseUrl',
+  endpointPath: 'endpointPath',
+  healthPath: 'healthPath',
+  apiKeyName: 'apiKeyName',
+  designer: 'designer',
+  version: 'version',
+  notes: 'notes'
+} as const
+
+export type ServerOrderByRelevanceFieldEnum = (typeof ServerOrderByRelevanceFieldEnum)[keyof typeof ServerOrderByRelevanceFieldEnum]
+
+
 export const SmartIconOrderByRelevanceFieldEnum = {
   title: 'title',
   type: 'type',
@@ -3217,6 +3347,20 @@ export type EnumResourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
+ * Reference to a field of type 'ServerType'
+ */
+export type EnumServerTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerType'>
+    
+
+
+/**
+ * Reference to a field of type 'ServerStatus'
+ */
+export type EnumServerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerStatus'>
+    
+
+
+/**
  * Reference to a field of type 'Role'
  */
 export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
@@ -3342,6 +3486,7 @@ export type GlobalOmitConfig = {
   resource?: Prisma.ResourceOmit
   reward?: Prisma.RewardOmit
   scenario?: Prisma.ScenarioOmit
+  server?: Prisma.ServerOmit
   smartIcon?: Prisma.SmartIconOmit
   tag?: Prisma.TagOmit
   theme?: Prisma.ThemeOmit

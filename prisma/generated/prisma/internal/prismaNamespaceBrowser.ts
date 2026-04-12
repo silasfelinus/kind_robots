@@ -17,8 +17,8 @@
 
 import * as runtime from "@prisma/client/runtime/index-browser"
 
-export type * from '../models.js'
-export type * from './prismaNamespace.js'
+export type * from '../models'
+export type * from './prismaNamespace'
 
 export const Decimal = runtime.Decimal
 
@@ -69,6 +69,7 @@ export const ModelName = {
   Resource: 'Resource',
   Reward: 'Reward',
   Scenario: 'Scenario',
+  Server: 'Server',
   SmartIcon: 'SmartIcon',
   Tag: 'Tag',
   Theme: 'Theme',
@@ -115,6 +116,9 @@ export const ArtScalarFieldEnum = {
   promptString: 'promptString',
   cfg: 'cfg',
   cfgHalf: 'cfgHalf',
+  serverId: 'serverId',
+  serverName: 'serverName',
+  serverUrl: 'serverUrl',
   artImageId: 'artImageId',
   imagePath: 'imagePath',
   genres: 'genres',
@@ -514,6 +518,45 @@ export const ScenarioScalarFieldEnum = {
 export type ScenarioScalarFieldEnum = (typeof ScenarioScalarFieldEnum)[keyof typeof ScenarioScalarFieldEnum]
 
 
+export const ServerScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  label: 'label',
+  description: 'description',
+  serverType: 'serverType',
+  category: 'category',
+  baseUrl: 'baseUrl',
+  endpointPath: 'endpointPath',
+  healthPath: 'healthPath',
+  userId: 'userId',
+  isPublic: 'isPublic',
+  isOfficial: 'isOfficial',
+  isDefault: 'isDefault',
+  isActive: 'isActive',
+  requiresApiKey: 'requiresApiKey',
+  apiKeyName: 'apiKeyName',
+  supportsTxt2Img: 'supportsTxt2Img',
+  supportsImg2Img: 'supportsImg2Img',
+  supportsChat: 'supportsChat',
+  supportsComfyWorkflow: 'supportsComfyWorkflow',
+  supportsCheckpointOverride: 'supportsCheckpointOverride',
+  supportsSampler: 'supportsSampler',
+  supportsNegativePrompt: 'supportsNegativePrompt',
+  supportsSeed: 'supportsSeed',
+  supportsSteps: 'supportsSteps',
+  designer: 'designer',
+  version: 'version',
+  notes: 'notes',
+  sortOrder: 'sortOrder',
+  lastCheckedAt: 'lastCheckedAt',
+  lastStatus: 'lastStatus'
+} as const
+
+export type ServerScalarFieldEnum = (typeof ServerScalarFieldEnum)[keyof typeof ServerScalarFieldEnum]
+
+
 export const SmartIconScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -611,6 +654,8 @@ export const UserScalarFieldEnum = {
   smartBar: 'smartBar',
   customIcons: 'customIcons',
   isMember: 'isMember',
+  preferredArtServerId: 'preferredArtServerId',
+  preferredTextServerId: 'preferredTextServerId',
   memberUntil: 'memberUntil',
   stripeCustomerId: 'stripeCustomerId',
   artModels: 'artModels',
@@ -684,6 +729,8 @@ export const ArtOrderByRelevanceFieldEnum = {
   sampler: 'sampler',
   designer: 'designer',
   promptString: 'promptString',
+  serverName: 'serverName',
+  serverUrl: 'serverUrl',
   imagePath: 'imagePath',
   genres: 'genres',
   negativePrompt: 'negativePrompt'
@@ -916,6 +963,23 @@ export const ScenarioOrderByRelevanceFieldEnum = {
 } as const
 
 export type ScenarioOrderByRelevanceFieldEnum = (typeof ScenarioOrderByRelevanceFieldEnum)[keyof typeof ScenarioOrderByRelevanceFieldEnum]
+
+
+export const ServerOrderByRelevanceFieldEnum = {
+  title: 'title',
+  label: 'label',
+  description: 'description',
+  category: 'category',
+  baseUrl: 'baseUrl',
+  endpointPath: 'endpointPath',
+  healthPath: 'healthPath',
+  apiKeyName: 'apiKeyName',
+  designer: 'designer',
+  version: 'version',
+  notes: 'notes'
+} as const
+
+export type ServerOrderByRelevanceFieldEnum = (typeof ServerOrderByRelevanceFieldEnum)[keyof typeof ServerOrderByRelevanceFieldEnum]
 
 
 export const SmartIconOrderByRelevanceFieldEnum = {

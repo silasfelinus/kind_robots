@@ -6,7 +6,7 @@
     "test": "npx nuxi typecheck",
     "dev": "nuxt dev --host",
     "build": "npx nuxi prepare && npx prisma generate && npx nuxi build",
-    "start": "nuxt start",
+    "start": "npx nuxi start",
     "generate": "npx nuxi prepare && npx nuxi generate",
     "preview": "nuxt preview",
     "lint": "npm run lint:js && npm run lint:prettier",

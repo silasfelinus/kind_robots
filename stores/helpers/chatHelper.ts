@@ -1,8 +1,7 @@
 // /stores/helpers/chatHelper.ts
 import type { Chat, ChatType } from '~/prisma/generated/prisma/client'
-import { performFetch } from '@/stores/utils'
+import { performFetch, handleError } from '@/stores/utils'
 import { ErrorType } from '@/stores/errorStore'
-import { handleError } from '@/stores/utils'
 
 export interface AddChatInput {
   content: string
@@ -20,6 +19,8 @@ export interface AddChatInput {
   username: string
   channel?: string | null
   sender?: string | null
+  serverId?: number | null
+  serverName?: string | null
 }
 
 export function buildNewChat(
@@ -50,6 +51,8 @@ export function buildNewChat(
     characterId: input.characterId ?? null,
     isRead: false,
     isMature: false,
+    serverId: input.serverId ?? null,
+    serverName: input.serverName ?? null,
   }
 }
 
@@ -61,8 +64,11 @@ export async function createChat(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(chat),
   })
-  if (!response.success || !response.data)
+
+  if (!response.success || !response.data) {
     throw new Error(response.message || 'Failed to create chat')
+  }
+
   return response.data
 }
 
@@ -75,8 +81,11 @@ export async function patchChat(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   })
-  if (!response.success || !response.data)
+
+  if (!response.success || !response.data) {
     throw new Error(response.message || 'Failed to patch chat')
+  }
+
   return response.data
 }
 
@@ -89,19 +98,19 @@ export async function deleteChatById(chatId: number): Promise<boolean> {
 
 export async function fetchChatsForUser(userId: number): Promise<Chat[]> {
   const response = await performFetch<Chat[]>(`/api/chats/user/${userId}`)
-  if (!response.success)
+
+  if (!response.success) {
     throw new Error(response.message || 'Failed to fetch chats')
+  }
+
   return response.data || []
 }
 
-export async function markChatAsRead(chatId: number) {
+export async function markChatAsRead(chatId: number): Promise<void> {
   try {
     await performFetch(`/api/chats/${chatId}/read`, { method: 'PUT' })
   } catch (error) {
-    handleError(
-      ErrorType.NETWORK_ERROR,
-      `Failed to mark chat ${chatId} as read`,
-    )
+    handleError(ErrorType.NETWORK_ERROR, `Failed to mark chat ${chatId} as read`)
   }
 }
 
@@ -111,8 +120,10 @@ export async function streamChatResponse(
 ): Promise<void> {
   try {
     const response = await fetch(`/api/chats/${chatId}/stream`)
-    if (!response.ok || !response.body)
+
+    if (!response.ok || !response.body) {
       throw new Error('Streaming response not supported')
+    }
 
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
@@ -121,24 +132,26 @@ export async function streamChatResponse(
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
+
       buffer += decoder.decode(value, { stream: true })
 
-      let boundary
+      let boundary = -1
       while ((boundary = buffer.indexOf('\n\n')) >= 0) {
         const chunk = buffer.slice(0, boundary).trim()
         buffer = buffer.slice(boundary + 2)
 
         if (!chunk || chunk === '[DONE]') continue
+
         try {
           const parsed = JSON.parse(chunk)
           const content = parsed.choices?.[0]?.delta?.content
           if (content) appendFn(content)
-        } catch (err) {
-          console.error('Error parsing stream chunk:', err)
+        } catch (error) {
+          console.error('Error parsing stream chunk:', error)
         }
       }
     }
   } catch (error) {
-    handleError(ErrorType.NETWORK_ERROR, `Streaming failed: ${error}`)
+    handleError(ErrorType.NETWORK_ERROR, `Streaming failed: ${String(error)}`)
   }
 }

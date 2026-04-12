@@ -7,23 +7,30 @@ import { performFetch, handleError } from '@/stores/utils'
 const getArtStore = () => useArtStore()
 
 export interface GenerateArtData {
-  title?: string
-  negativePrompt?: string
   promptString: string
-  userId?: number
-  pitchId?: number
-  galleryId?: number
+  negativePrompt?: string
+  pitch?: string
+
+  userId?: number | null
+  galleryId?: number | null
+  promptId?: number | null
+  pitchId?: number | null
+
   checkpoint?: string
   sampler?: string
   steps?: number
+
   designer?: string
   cfg?: number
   cfgHalf?: boolean
+
   isMature?: boolean
   isPublic?: boolean
-  pitch?: string
-  artImageId?: number
-  collection?: string
+
+  seed?: number | null
+
+  serverId?: number | null
+  serverName?: string | null
 }
 
 export function parseStoredArt(value: string): Art[] {

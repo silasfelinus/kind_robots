@@ -29,11 +29,11 @@ model Art {
   cfg            Int?            @default(3)
   cfgHalf        Boolean?        @default(false)
 
-  serverId     Int?
-  server       Server? @relation(fields: [serverId], references: [id])
+  serverId     Int? 
+  Server       Server? @relation(fields: [serverId], references: [id])
 
-  serverName   String?
-  serverUrl    String?
+  serverName   String? @db.VarChar(256)
+  serverUrl    String? @db.VarChar(764)
 
   artImageId     Int?
   imagePath      String?
@@ -52,6 +52,7 @@ model Art {
   @@index([pitchId], map: "Art_pitchId_fkey")
   @@index([promptId], map: "Art_promptId_fkey")
   @@index([userId], map: "Art_userId_fkey")
+  @@index([serverId], map: "Art_serverId_fkey")
 }
 
 /// ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
@@ -136,6 +137,11 @@ model Bot {
   canDelete         Boolean    @default(false)
   userId            Int?       @default(1)
   designer          String     @default("silasfelinus")
+
+  serverId          Int?
+  serverName        String?    @db.VarChar(256)
+  Server            Server?    @relation(fields: [serverId], references: [id])
+
   artImageId        Int?
   ArtImage          ArtImage?
   User              User?      @relation(fields: [userId], references: [id])
@@ -144,6 +150,7 @@ model Bot {
   Reactions         Reaction[]
 
   @@index([userId], map: "Bot_userId_fkey")
+  @@index([serverId], map: "Bot_serverId_fkey")
 }
 
 model Character {
@@ -227,6 +234,12 @@ model Chat {
   characterId     Int?
   isRead          Boolean    @default(false)
   isMature        Boolean    @default(false)
+  serverId          Int?
+  serverName        String?    @db.VarChar(256)
+  Server            Server?    @relation(fields: [serverId], references: [id])
+
+  @@index([serverId], map: "Chat_serverId_fkey")
+
   ArtImage        ArtImage?
   Bot             Bot?       @relation(fields: [botId], references: [id])
   Character       Character? @relation(fields: [characterId], references: [id])
@@ -606,7 +619,9 @@ model Server {
   lastStatus                ServerStatus?
 
   // Relations
-  arts                      Art[]
+   Arts                      Art[]
+   Bots                       Bot[]
+   Chats                    Chat[]
 
   @@index([serverType])
   @@index([isPublic])

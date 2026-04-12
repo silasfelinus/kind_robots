@@ -1,15 +1,14 @@
 // /stores/artStore.ts
 import { defineStore } from 'pinia'
-import { reactive, toRefs } from 'vue'
+import { reactive, toRefs, ref, computed } from 'vue'
 import type {
   Art,
   Reaction,
   ArtImage,
   Tag,
 } from '~/prisma/generated/prisma/client'
-import { performFetch, handleError } from './../stores/utils'
+import { performFetch, handleError } from '@/stores/utils'
 import { usePromptStore } from './promptStore'
-import { usePitchStore } from './pitchStore'
 import { useUserStore } from './userStore'
 import {
   type GenerateArtData,
@@ -21,13 +20,17 @@ import {
   getOrFetchArtImageById,
   updateArtImageId,
 } from '@/stores/helpers/artHelper'
-import { type ArtCollection } from '@/stores/helpers/collectionHelper'
+import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useCollectionStore } from './collectionStore'
 import { useCheckpointStore } from './checkpointStore'
 import { artListPresets } from '@/stores/seeds/artList'
 import { useRandomStore } from './randomStore'
 
-const isClient = typeof window !== 'undefined'
+interface ApiResponse<T> {
+  success: boolean
+  data?: T
+  message?: string
+}
 
 interface ArtStoreState {
   art: Art[]
@@ -53,6 +56,8 @@ interface ArtStoreState {
   artListSelections: Record<string, string[]>
 }
 
+const isClient = typeof window !== 'undefined'
+
 export const useArtStore = defineStore('artStore', () => {
   const state = reactive<ArtStoreState>({
     art: [],
@@ -74,96 +79,121 @@ export const useArtStore = defineStore('artStore', () => {
     uncollectedArt: [],
     currentCollection: null,
     generatedArt: [],
-    artListSelections: {} as Record<string, string[]>,
+    artListSelections: {},
     artForm: {
       promptString: '',
-      cfg: 7,
-      cfgHalf: false,
-      steps: 25,
-      isMature: false,
-      isPublic: true,
+      negativePrompt: '',
+      pitch: '',
+      userId: null,
+      galleryId: null,
       checkpoint: '',
       sampler: '',
+      steps: 25,
       designer: '',
+      cfg: 7,
+      cfgHalf: false,
+      isMature: false,
+      isPublic: true,
+      seed: null,
+      promptId: null,
+      pitchId: null,
+      serverId: null,
+      serverName: null,
     },
   })
 
   const userStore = useUserStore()
   const promptStore = usePromptStore()
-  const pitchStore = usePitchStore()
   const collectionStore = useCollectionStore()
   const randomStore = useRandomStore()
 
   const hoverArt = ref<Art | null>(null)
-  function setHoverArt(a: Art | null) {
-    hoverArt.value = a
+
+  function setHoverArt(art: Art | null): void {
+    hoverArt.value = art
   }
 
-  const getPromptString = computed(() => {
+  const getPromptString = computed<string>(() => {
     const baseSelections = Object.entries(state.artListSelections)
       .filter(
-        ([key]) =>
+        ([key]: [string, string[]]) =>
           !key.startsWith('__') && !randomStore.supportedKeys.includes(key),
       )
-      .flatMap(([_, vals]) => vals)
+      .flatMap(([, values]: [string, string[]]) => values)
 
-    const pretty = state.artListSelections['__pretty__'] || []
-    const randoms = Object.values(randomStore.randomSelections)
+    const prettySelections = state.artListSelections.__pretty__ || []
+    const randomSelections = Object.values(
+      randomStore.randomSelections as Record<string, string>,
+    )
+    const typedPrompt = promptStore.promptField?.trim() || ''
 
-    const typedPrompt = promptStore.promptField?.trim()
-
-    return [...baseSelections, ...pretty, ...randoms, typedPrompt]
-      .filter(Boolean)
+    return [
+      ...baseSelections,
+      ...prettySelections,
+      ...randomSelections,
+      typedPrompt,
+    ]
+      .filter((value: string) => Boolean(value))
       .join(', ')
   })
 
-  const getNegativePromptString = computed(() => {
-    return (state.artListSelections['__negative__'] || []).join(', ')
+  const getNegativePromptString = computed<string>(() => {
+    return (state.artListSelections.__negative__ || []).join(', ')
   })
 
-  function updateArtListSelection(id: string, selections: string[]) {
+  function updateArtListSelection(id: string, selections: string[]): void {
     state.artListSelections[id] = selections
   }
 
   function getArtListAddonPrompt(): string {
     return Object.entries(state.artListSelections)
-      .flatMap(([key, values]) =>
-        key === '__pretty__' ? values : values.map((v) => v.trim()),
+      .flatMap(([key, values]: [string, string[]]) =>
+        key === '__pretty__'
+          ? values
+          : values.map((value: string) => value.trim()),
       )
-      .filter(Boolean)
+      .filter((value: string) => Boolean(value))
       .join(', ')
   }
 
-  async function initialize() {
+  async function initialize(): Promise<void> {
     if (state.isInitialized) return
+
     state.loading = true
 
     try {
       if (isClient) {
         state.art = parseStoredArt(localStorage.getItem('art') || '')
+
         const storedImages = localStorage.getItem('artImages')
         if (storedImages) {
-          state.artImages = JSON.parse(storedImages)
+          state.artImages = JSON.parse(storedImages) as ArtImage[]
         }
       }
+
       await Promise.all([collectionStore.fetchCollections(), fetchAllArt()])
       state.isInitialized = true
-    } catch (error) {
+    } catch (error: unknown) {
       handleError(error, 'initializing art store')
     } finally {
       state.loading = false
     }
   }
 
-  async function loadArtImagesInChunks(ids: number[], chunkSize = 20) {
+  async function loadArtImagesInChunks(
+    ids: number[],
+    chunkSize = 20,
+  ): Promise<void> {
     const toFetch = ids.filter(
-      (id) => !state.artImages.some((img: { id: number }) => img.id === id),
+      (id: number) =>
+        !state.artImages.some((image: ArtImage) => image.id === id),
     )
 
-    const uniqueIds = [...new Set(toFetch)]
+    const uniqueIds = [...new Set<number>(toFetch)]
     const chunks = Array.from(
       { length: Math.ceil(uniqueIds.length / chunkSize) },
-      (_, i) => uniqueIds.slice(i * chunkSize, (i + 1) * chunkSize),
+      (_: unknown, index: number) =>
+        uniqueIds.slice(index * chunkSize, (index + 1) * chunkSize),
     )
 
     for (const chunk of chunks) {
@@ -171,68 +201,83 @@ export const useArtStore = defineStore('artStore', () => {
         const images = await getArtImagesByIds(chunk)
         if (images?.length) {
           state.artImages.push(...images)
+
           if (isClient) {
             const existing = JSON.parse(
               localStorage.getItem('artImages') || '[]',
-            )
+            ) as ArtImage[]
             const updated = [...existing, ...images]
             localStorage.setItem('artImages', JSON.stringify(updated))
           }
         }
-      } catch (e) {
-        handleError(e, 'loading art images in chunks')
+      } catch (error: unknown) {
+        handleError(error, 'loading art images in chunks')
       }
     }
   }
 
-  async function fetchAllArt() {
+  async function fetchAllArt(): Promise<void> {
     const response = await performFetch<Art[]>('/api/art')
-    if (!response.success || !response.data) throw new Error(response.message)
+
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Failed to fetch art.')
+    }
+
     state.art = response.data
-    if (isClient) localStorage.setItem('art', JSON.stringify(state.art))
+
+    if (isClient) {
+      localStorage.setItem('art', JSON.stringify(state.art))
+    }
   }
 
   async function selectArt(artId: number): Promise<void> {
-    const found = state.art.find((a: { id: number }) => a.id === artId)
+    const found = state.art.find((art: Art) => art.id === artId)
+
     if (!found) {
       handleError(new Error(`Art with ID ${artId} not found`), 'selecting art')
       return
     }
+
     state.currentArt = found
 
-    if (found.artImageId) {
-      const cached = state.artImages.find(
-        (img: { id: any }) => img.id === found.artImageId,
+    if (!found.artImageId) {
+      state.currentArtImage = null
+      return
+    }
+
+    const cachedImage = state.artImages.find(
+      (image: ArtImage) => image.id === found.artImageId,
+    )
+
+    if (cachedImage) {
+      state.currentArtImage = cachedImage
+      return
+    }
+
+    try {
+      const response = await performFetch<ArtImage>(
+        `/api/art/image/${found.artImageId}`,
       )
-      if (cached) {
-        state.currentArtImage = cached
-      } else {
-        try {
-          const response = await performFetch<ArtImage>(
-            `/api/art/image/${found.artImageId}`,
-          )
-          if (response.success && response.data) {
-            state.artImages.push(response.data)
-            state.currentArtImage = response.data
-            if (isClient) {
-              const existing = JSON.parse(
-                localStorage.getItem('artImages') || '[]',
-              )
-              const updated = [...existing, response.data]
-              localStorage.setItem('artImages', JSON.stringify(updated))
-            }
-          }
-        } catch (err) {
-          handleError(err, 'fetching art image for selected art')
+
+      if (response.success && response.data) {
+        state.artImages.push(response.data)
+        state.currentArtImage = response.data
+
+        if (isClient) {
+          const existing = JSON.parse(
+            localStorage.getItem('artImages') || '[]',
+          ) as ArtImage[]
+          const updated = [...existing, response.data]
+          localStorage.setItem('artImages', JSON.stringify(updated))
         }
       }
-    } else {
-      state.currentArtImage = null
+    } catch (error: unknown) {
+      handleError(error, 'fetching art image for selected art')
     }
   }
 
   async function getArtImageById(id: number): Promise<ArtImage | undefined> {
-    const cached = state.artImages.find((img: { id: number }) => img.id === id)
+    const cached = state.artImages.find((image: ArtImage) => image.id === id)
     if (cached) return cached
 
     try {
@@ -241,9 +286,11 @@ export const useArtStore = defineStore('artStore', () => {
         state.artImages.push(response.data)
         return response.data
       }
-    } catch (error) {
+    } catch (error: unknown) {
       handleError(error, 'fetching single art image')
     }
+
+    return undefined
   }
 
   async function createArt(artData: {
@@ -257,33 +304,43 @@ export const useArtStore = defineStore('artStore', () => {
     userId: number | null
     designer: string | null
     artImageId: number | null
+    serverId?: number | null
+    serverName?: string | null
   }): Promise<Art> {
     try {
       const response = await performFetch<Art>('/api/art/', {
         method: 'POST',
         body: JSON.stringify(artData),
       })
+
       if (response.success && response.data) {
         state.art.push(response.data)
         return response.data
       }
-      throw new Error(response.message)
-    } catch (error) {
+
+      throw new Error(response.message || 'Failed to create art.')
+    } catch (error: unknown) {
       handleError(error, 'creating art')
       throw error
     }
   }
 
-  async function deleteArt(id: number) {
+  async function deleteArt(id: number): Promise<void> {
     try {
       const response = await performFetch(`/api/art/${id}`, {
         method: 'DELETE',
       })
-      if (response.success) {
-        state.art = state.art.filter((a: { id: number }) => a.id !== id)
-        if (isClient) localStorage.setItem('art', JSON.stringify(state.art))
-      } else throw new Error(response.message)
-    } catch (error) {
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to delete art.')
+      }
+
+      state.art = state.art.filter((art: Art) => art.id !== id)
+
+      if (isClient) {
+        localStorage.setItem('art', JSON.stringify(state.art))
+      }
+    } catch (error: unknown) {
       handleError(error, 'deleting art')
     }
   }
@@ -296,15 +353,25 @@ export const useArtStore = defineStore('artStore', () => {
         method: 'POST',
         body: formData,
       })
+
       if (response.success && response.data) {
         state.artImages.push(response.data)
-        return { success: true, message: 'Image uploaded successfully' }
-      } else {
-        return { success: false, message: response.message || 'Upload failed' }
+        return {
+          success: true,
+          message: 'Image uploaded successfully',
+        }
       }
-    } catch (error) {
+
+      return {
+        success: false,
+        message: response.message || 'Upload failed',
+      }
+    } catch (error: unknown) {
       handleError(error, 'uploading image')
-      return { success: false, message: 'Upload failed' }
+      return {
+        success: false,
+        message: 'Upload failed',
+      }
     }
   }
 
@@ -313,7 +380,7 @@ export const useArtStore = defineStore('artStore', () => {
     images?: ArtImage[],
   ): ArtImage | undefined {
     const pool = images ?? state.artImages
-    return pool.find((image) => image.artId === artId)
+    return pool.find((image: ArtImage) => image.artId === artId)
   }
 
   async function deleteArtImage(artImageId: number): Promise<void> {
@@ -321,11 +388,13 @@ export const useArtStore = defineStore('artStore', () => {
       const response = await performFetch(`/api/art/image/${artImageId}`, {
         method: 'DELETE',
       })
+
       if (!response.success) {
         throw new Error(response.message || 'Failed to delete the art image.')
       }
+
       state.artImages = removeImageById(state.artImages, artImageId)
-    } catch (error) {
+    } catch (error: unknown) {
       handleError(error, 'deleting art image')
       throw error
     }
@@ -337,7 +406,6 @@ export const useArtStore = defineStore('artStore', () => {
     state.loading = true
 
     const checkpointStore = useCheckpointStore()
-    const collectionStore = useCollectionStore()
     const userId = artData?.userId || userStore.userId || 10
 
     const basePrompt =
@@ -345,31 +413,52 @@ export const useArtStore = defineStore('artStore', () => {
       promptStore.promptField ||
       getArtListAddonPrompt()
 
+    const promptString = promptStore
+      .processPromptPlaceholders(basePrompt.trim())
+      .replace(/\./g, ',')
+
     const data: GenerateArtData = {
-      promptString: promptStore
-        .processPromptPlaceholders(basePrompt.trim())
-        .replace(/\./g, ','),
-      negativePrompt: artData?.negativePrompt ?? state.artForm.negativePrompt,
+      promptString,
+      negativePrompt:
+        artData?.negativePrompt ??
+        state.artForm.negativePrompt ??
+        getNegativePromptString.value,
       pitch: artData?.pitch || promptStore.extractPitch(basePrompt),
       userId,
-      galleryId: artData?.galleryId,
+      galleryId: artData?.galleryId ?? state.artForm.galleryId ?? null,
       checkpoint:
         artData?.checkpoint ||
+        state.artForm.checkpoint ||
         checkpointStore.selectedCheckpoint?.name ||
         'stable-diffusion-v1-4',
       sampler:
-        artData?.sampler || checkpointStore.selectedSampler?.name || 'k_lms',
+        artData?.sampler ||
+        state.artForm.sampler ||
+        checkpointStore.selectedSampler?.name ||
+        'k_lms',
       steps: artData?.steps ?? state.artForm.steps,
-      designer: artData?.designer || userStore.username || 'Kind Designer',
+      designer:
+        artData?.designer ||
+        state.artForm.designer ||
+        userStore.username ||
+        'Kind Designer',
       cfg: artData?.cfg ?? state.artForm.cfg,
       cfgHalf: artData?.cfgHalf ?? state.artForm.cfgHalf,
       isMature: artData?.isMature ?? state.artForm.isMature,
       isPublic: artData?.isPublic ?? state.artForm.isPublic,
+      seed: artData?.seed ?? state.artForm.seed ?? null,
+      promptId: artData?.promptId ?? state.artForm.promptId ?? null,
+      pitchId: artData?.pitchId ?? state.artForm.pitchId ?? null,
+      serverId: artData?.serverId ?? state.artForm.serverId ?? null,
+      serverName: artData?.serverName ?? state.artForm.serverName ?? null,
     }
 
     if (!promptStore.validatePromptString(data.promptString)) {
       state.loading = false
-      return { success: false, message: 'Invalid prompt' }
+      return {
+        success: false,
+        message: 'Invalid prompt',
+      }
     }
 
     try {
@@ -383,7 +472,9 @@ export const useArtStore = defineStore('artStore', () => {
         120_000,
       )
 
-      if (!response.success || !response.data) throw new Error(response.message)
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to generate art.')
+      }
 
       const art = response.data
 
@@ -392,10 +483,10 @@ export const useArtStore = defineStore('artStore', () => {
 
       const activeCollection = collectionStore.currentCollection
 
-      // Add to generated collection if not already included
       const alreadyInGenerated = generatedCollection.art.some(
-        (a: { id: any }) => a.id === art.id,
+        (existingArt: Art) => existingArt.id === art.id,
       )
+
       if (!alreadyInGenerated) {
         await performFetch(`/api/art/collection/${generatedCollection.id}`, {
           method: 'PATCH',
@@ -404,7 +495,6 @@ export const useArtStore = defineStore('artStore', () => {
         })
       }
 
-      // Optionally add to current collection (if different)
       if (activeCollection && activeCollection.id !== generatedCollection.id) {
         await performFetch(`/api/art/collection/${activeCollection.id}`, {
           method: 'PATCH',
@@ -429,7 +519,7 @@ export const useArtStore = defineStore('artStore', () => {
         data: art,
         message: 'Art created and added to collections',
       }
-    } catch (error) {
+    } catch (error: unknown) {
       handleError(error, 'generating art')
       return {
         success: false,
@@ -460,6 +550,7 @@ export const useArtStore = defineStore('artStore', () => {
     updateArtListSelection,
     artListPresets,
     getPromptString,
+    getNegativePromptString,
     loadArtImagesInChunks,
     hoverArt,
     setHoverArt,

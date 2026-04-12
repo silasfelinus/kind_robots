@@ -193,7 +193,7 @@ npx prisma db pull
 npx prisma migrate dev
 
 Update Database:
-npx prisma migrate dev --[name]
+npx prisma migrate dev --name [NAME]
 npx prisma generate
 
 

@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.js"
-import type * as Prisma from "../internal/prismaNamespace.js"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model User
@@ -34,6 +34,8 @@ export type UserAvgAggregateOutputType = {
   clickRecord: number | null
   matchRecord: number | null
   artImageId: number | null
+  preferredArtServerId: number | null
+  preferredTextServerId: number | null
 }
 
 export type UserSumAggregateOutputType = {
@@ -44,6 +46,8 @@ export type UserSumAggregateOutputType = {
   clickRecord: number | null
   matchRecord: number | null
   artImageId: number | null
+  preferredArtServerId: number | null
+  preferredTextServerId: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -89,6 +93,8 @@ export type UserMinAggregateOutputType = {
   smartBar: string | null
   customIcons: boolean | null
   isMember: boolean | null
+  preferredArtServerId: number | null
+  preferredTextServerId: number | null
   memberUntil: Date | null
   stripeCustomerId: string | null
   artModels: string | null
@@ -140,6 +146,8 @@ export type UserMaxAggregateOutputType = {
   smartBar: string | null
   customIcons: boolean | null
   isMember: boolean | null
+  preferredArtServerId: number | null
+  preferredTextServerId: number | null
   memberUntil: Date | null
   stripeCustomerId: string | null
   artModels: string | null
@@ -191,6 +199,8 @@ export type UserCountAggregateOutputType = {
   smartBar: number
   customIcons: number
   isMember: number
+  preferredArtServerId: number
+  preferredTextServerId: number
   memberUntil: number
   stripeCustomerId: number
   artModels: number
@@ -209,6 +219,8 @@ export type UserAvgAggregateInputType = {
   clickRecord?: true
   matchRecord?: true
   artImageId?: true
+  preferredArtServerId?: true
+  preferredTextServerId?: true
 }
 
 export type UserSumAggregateInputType = {
@@ -219,6 +231,8 @@ export type UserSumAggregateInputType = {
   clickRecord?: true
   matchRecord?: true
   artImageId?: true
+  preferredArtServerId?: true
+  preferredTextServerId?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -264,6 +278,8 @@ export type UserMinAggregateInputType = {
   smartBar?: true
   customIcons?: true
   isMember?: true
+  preferredArtServerId?: true
+  preferredTextServerId?: true
   memberUntil?: true
   stripeCustomerId?: true
   artModels?: true
@@ -315,6 +331,8 @@ export type UserMaxAggregateInputType = {
   smartBar?: true
   customIcons?: true
   isMember?: true
+  preferredArtServerId?: true
+  preferredTextServerId?: true
   memberUntil?: true
   stripeCustomerId?: true
   artModels?: true
@@ -366,6 +384,8 @@ export type UserCountAggregateInputType = {
   smartBar?: true
   customIcons?: true
   isMember?: true
+  preferredArtServerId?: true
+  preferredTextServerId?: true
   memberUntil?: true
   stripeCustomerId?: true
   artModels?: true
@@ -504,6 +524,8 @@ export type UserGroupByOutputType = {
   smartBar: string | null
   customIcons: boolean
   isMember: boolean
+  preferredArtServerId: number | null
+  preferredTextServerId: number | null
   memberUntil: Date | null
   stripeCustomerId: string | null
   artModels: string | null
@@ -578,6 +600,8 @@ export type UserWhereInput = {
   smartBar?: Prisma.StringNullableFilter<"User"> | string | null
   customIcons?: Prisma.BoolFilter<"User"> | boolean
   isMember?: Prisma.BoolFilter<"User"> | boolean
+  preferredArtServerId?: Prisma.IntNullableFilter<"User"> | number | null
+  preferredTextServerId?: Prisma.IntNullableFilter<"User"> | number | null
   memberUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
   artModels?: Prisma.StringNullableFilter<"User"> | string | null
@@ -603,6 +627,7 @@ export type UserWhereInput = {
   SmartIcons?: Prisma.SmartIconListRelationFilter
   Tags?: Prisma.TagListRelationFilter
   Themes?: Prisma.ThemeListRelationFilter
+  Servers?: Prisma.ServerListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -648,6 +673,8 @@ export type UserOrderByWithRelationInput = {
   smartBar?: Prisma.SortOrderInput | Prisma.SortOrder
   customIcons?: Prisma.SortOrder
   isMember?: Prisma.SortOrder
+  preferredArtServerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredTextServerId?: Prisma.SortOrderInput | Prisma.SortOrder
   memberUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
   artModels?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -673,6 +700,7 @@ export type UserOrderByWithRelationInput = {
   SmartIcons?: Prisma.SmartIconOrderByRelationAggregateInput
   Tags?: Prisma.TagOrderByRelationAggregateInput
   Themes?: Prisma.ThemeOrderByRelationAggregateInput
+  Servers?: Prisma.ServerOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -722,6 +750,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   smartBar?: Prisma.StringNullableFilter<"User"> | string | null
   customIcons?: Prisma.BoolFilter<"User"> | boolean
   isMember?: Prisma.BoolFilter<"User"> | boolean
+  preferredArtServerId?: Prisma.IntNullableFilter<"User"> | number | null
+  preferredTextServerId?: Prisma.IntNullableFilter<"User"> | number | null
   memberUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
   artModels?: Prisma.StringNullableFilter<"User"> | string | null
@@ -747,6 +777,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   SmartIcons?: Prisma.SmartIconListRelationFilter
   Tags?: Prisma.TagListRelationFilter
   Themes?: Prisma.ThemeListRelationFilter
+  Servers?: Prisma.ServerListRelationFilter
 }, "id" | "username" | "email" | "googleId">
 
 export type UserOrderByWithAggregationInput = {
@@ -792,6 +823,8 @@ export type UserOrderByWithAggregationInput = {
   smartBar?: Prisma.SortOrderInput | Prisma.SortOrder
   customIcons?: Prisma.SortOrder
   isMember?: Prisma.SortOrder
+  preferredArtServerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredTextServerId?: Prisma.SortOrderInput | Prisma.SortOrder
   memberUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
   artModels?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -851,6 +884,8 @@ export type UserScalarWhereWithAggregatesInput = {
   smartBar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   customIcons?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   isMember?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  preferredArtServerId?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
+  preferredTextServerId?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   memberUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   artModels?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -901,6 +936,8 @@ export type UserCreateInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -926,6 +963,7 @@ export type UserCreateInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -971,6 +1009,8 @@ export type UserUncheckedCreateInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -996,6 +1036,7 @@ export type UserUncheckedCreateInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -1040,6 +1081,8 @@ export type UserUpdateInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1065,6 +1108,7 @@ export type UserUpdateInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -1110,6 +1154,8 @@ export type UserUncheckedUpdateInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1135,6 +1181,7 @@ export type UserUncheckedUpdateInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1180,6 +1227,8 @@ export type UserCreateManyInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -1230,6 +1279,8 @@ export type UserUpdateManyMutationInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1281,6 +1332,8 @@ export type UserUncheckedUpdateManyInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1348,6 +1401,8 @@ export type UserCountOrderByAggregateInput = {
   smartBar?: Prisma.SortOrder
   customIcons?: Prisma.SortOrder
   isMember?: Prisma.SortOrder
+  preferredArtServerId?: Prisma.SortOrder
+  preferredTextServerId?: Prisma.SortOrder
   memberUntil?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   artModels?: Prisma.SortOrder
@@ -1364,6 +1419,8 @@ export type UserAvgOrderByAggregateInput = {
   clickRecord?: Prisma.SortOrder
   matchRecord?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  preferredArtServerId?: Prisma.SortOrder
+  preferredTextServerId?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -1409,6 +1466,8 @@ export type UserMaxOrderByAggregateInput = {
   smartBar?: Prisma.SortOrder
   customIcons?: Prisma.SortOrder
   isMember?: Prisma.SortOrder
+  preferredArtServerId?: Prisma.SortOrder
+  preferredTextServerId?: Prisma.SortOrder
   memberUntil?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   artModels?: Prisma.SortOrder
@@ -1460,6 +1519,8 @@ export type UserMinOrderByAggregateInput = {
   smartBar?: Prisma.SortOrder
   customIcons?: Prisma.SortOrder
   isMember?: Prisma.SortOrder
+  preferredArtServerId?: Prisma.SortOrder
+  preferredTextServerId?: Prisma.SortOrder
   memberUntil?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   artModels?: Prisma.SortOrder
@@ -1476,6 +1537,8 @@ export type UserSumOrderByAggregateInput = {
   clickRecord?: Prisma.SortOrder
   matchRecord?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  preferredArtServerId?: Prisma.SortOrder
+  preferredTextServerId?: Prisma.SortOrder
 }
 
 export type UserCreateNestedOneWithoutArtInput = {
@@ -1724,6 +1787,22 @@ export type UserUpdateOneRequiredWithoutScenariosNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutScenariosInput, Prisma.UserUpdateWithoutScenariosInput>, Prisma.UserUncheckedUpdateWithoutScenariosInput>
 }
 
+export type UserCreateNestedOneWithoutServersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutServersInput, Prisma.UserUncheckedCreateWithoutServersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutServersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutServersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutServersInput, Prisma.UserUncheckedCreateWithoutServersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutServersInput
+  upsert?: Prisma.UserUpsertWithoutServersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutServersInput, Prisma.UserUpdateWithoutServersInput>, Prisma.UserUncheckedUpdateWithoutServersInput>
+}
+
 export type UserCreateNestedOneWithoutSmartIconsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutSmartIconsInput, Prisma.UserUncheckedCreateWithoutSmartIconsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutSmartIconsInput
@@ -1818,6 +1897,8 @@ export type UserCreateWithoutArtInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -1842,6 +1923,7 @@ export type UserCreateWithoutArtInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtInput = {
@@ -1887,6 +1969,8 @@ export type UserUncheckedCreateWithoutArtInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -1911,6 +1995,7 @@ export type UserUncheckedCreateWithoutArtInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtInput = {
@@ -1971,6 +2056,8 @@ export type UserUpdateWithoutArtInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1995,6 +2082,7 @@ export type UserUpdateWithoutArtInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtInput = {
@@ -2040,6 +2128,8 @@ export type UserUncheckedUpdateWithoutArtInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2064,6 +2154,7 @@ export type UserUncheckedUpdateWithoutArtInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutArtImagesInput = {
@@ -2108,6 +2199,8 @@ export type UserCreateWithoutArtImagesInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -2132,6 +2225,7 @@ export type UserCreateWithoutArtImagesInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtImagesInput = {
@@ -2177,6 +2271,8 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -2201,6 +2297,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtImagesInput = {
@@ -2261,6 +2358,8 @@ export type UserUpdateWithoutArtImagesInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2285,6 +2384,7 @@ export type UserUpdateWithoutArtImagesInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtImagesInput = {
@@ -2330,6 +2430,8 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2354,6 +2456,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutArtCollectionsInput = {
@@ -2398,6 +2501,8 @@ export type UserCreateWithoutArtCollectionsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -2422,6 +2527,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtCollectionsInput = {
@@ -2467,6 +2573,8 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -2491,6 +2599,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtCollectionsInput = {
@@ -2551,6 +2660,8 @@ export type UserUpdateWithoutArtCollectionsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2575,6 +2686,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtCollectionsInput = {
@@ -2620,6 +2732,8 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2644,6 +2758,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBotsInput = {
@@ -2688,6 +2803,8 @@ export type UserCreateWithoutBotsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -2712,6 +2829,7 @@ export type UserCreateWithoutBotsInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBotsInput = {
@@ -2757,6 +2875,8 @@ export type UserUncheckedCreateWithoutBotsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -2781,6 +2901,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBotsInput = {
@@ -2841,6 +2962,8 @@ export type UserUpdateWithoutBotsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2865,6 +2988,7 @@ export type UserUpdateWithoutBotsInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBotsInput = {
@@ -2910,6 +3034,8 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2934,6 +3060,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCharactersInput = {
@@ -2978,6 +3105,8 @@ export type UserCreateWithoutCharactersInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -3002,6 +3131,7 @@ export type UserCreateWithoutCharactersInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCharactersInput = {
@@ -3047,6 +3177,8 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -3071,6 +3203,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCharactersInput = {
@@ -3131,6 +3264,8 @@ export type UserUpdateWithoutCharactersInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3155,6 +3290,7 @@ export type UserUpdateWithoutCharactersInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCharactersInput = {
@@ -3200,6 +3336,8 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3224,6 +3362,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChatsInput = {
@@ -3268,6 +3407,8 @@ export type UserCreateWithoutChatsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -3292,6 +3433,7 @@ export type UserCreateWithoutChatsInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatsInput = {
@@ -3337,6 +3479,8 @@ export type UserUncheckedCreateWithoutChatsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -3361,6 +3505,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatsInput = {
@@ -3421,6 +3566,8 @@ export type UserUpdateWithoutChatsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3445,6 +3592,7 @@ export type UserUpdateWithoutChatsInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatsInput = {
@@ -3490,6 +3638,8 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3514,6 +3664,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDominionsInput = {
@@ -3558,6 +3709,8 @@ export type UserCreateWithoutDominionsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -3582,6 +3735,7 @@ export type UserCreateWithoutDominionsInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDominionsInput = {
@@ -3627,6 +3781,8 @@ export type UserUncheckedCreateWithoutDominionsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -3651,6 +3807,7 @@ export type UserUncheckedCreateWithoutDominionsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDominionsInput = {
@@ -3711,6 +3868,8 @@ export type UserUpdateWithoutDominionsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3735,6 +3894,7 @@ export type UserUpdateWithoutDominionsInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDominionsInput = {
@@ -3780,6 +3940,8 @@ export type UserUncheckedUpdateWithoutDominionsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3804,6 +3966,7 @@ export type UserUncheckedUpdateWithoutDominionsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutGalleriesInput = {
@@ -3848,6 +4011,8 @@ export type UserCreateWithoutGalleriesInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -3872,6 +4037,7 @@ export type UserCreateWithoutGalleriesInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGalleriesInput = {
@@ -3917,6 +4083,8 @@ export type UserUncheckedCreateWithoutGalleriesInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -3941,6 +4109,7 @@ export type UserUncheckedCreateWithoutGalleriesInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGalleriesInput = {
@@ -4001,6 +4170,8 @@ export type UserUpdateWithoutGalleriesInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4025,6 +4196,7 @@ export type UserUpdateWithoutGalleriesInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGalleriesInput = {
@@ -4070,6 +4242,8 @@ export type UserUncheckedUpdateWithoutGalleriesInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4094,6 +4268,7 @@ export type UserUncheckedUpdateWithoutGalleriesInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLogsInput = {
@@ -4138,6 +4313,8 @@ export type UserCreateWithoutLogsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -4162,6 +4339,7 @@ export type UserCreateWithoutLogsInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLogsInput = {
@@ -4207,6 +4385,8 @@ export type UserUncheckedCreateWithoutLogsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -4231,6 +4411,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLogsInput = {
@@ -4291,6 +4472,8 @@ export type UserUpdateWithoutLogsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4315,6 +4498,7 @@ export type UserUpdateWithoutLogsInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogsInput = {
@@ -4360,6 +4544,8 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4384,6 +4570,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMilestonesInput = {
@@ -4428,6 +4615,8 @@ export type UserCreateWithoutMilestonesInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -4452,6 +4641,7 @@ export type UserCreateWithoutMilestonesInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMilestonesInput = {
@@ -4497,6 +4687,8 @@ export type UserUncheckedCreateWithoutMilestonesInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -4521,6 +4713,7 @@ export type UserUncheckedCreateWithoutMilestonesInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMilestonesInput = {
@@ -4581,6 +4774,8 @@ export type UserUpdateWithoutMilestonesInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4605,6 +4800,7 @@ export type UserUpdateWithoutMilestonesInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMilestonesInput = {
@@ -4650,6 +4846,8 @@ export type UserUncheckedUpdateWithoutMilestonesInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4674,6 +4872,7 @@ export type UserUncheckedUpdateWithoutMilestonesInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPitchesInput = {
@@ -4718,6 +4917,8 @@ export type UserCreateWithoutPitchesInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -4742,6 +4943,7 @@ export type UserCreateWithoutPitchesInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPitchesInput = {
@@ -4787,6 +4989,8 @@ export type UserUncheckedCreateWithoutPitchesInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -4811,6 +5015,7 @@ export type UserUncheckedCreateWithoutPitchesInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPitchesInput = {
@@ -4871,6 +5076,8 @@ export type UserUpdateWithoutPitchesInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4895,6 +5102,7 @@ export type UserUpdateWithoutPitchesInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPitchesInput = {
@@ -4940,6 +5148,8 @@ export type UserUncheckedUpdateWithoutPitchesInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4964,6 +5174,7 @@ export type UserUncheckedUpdateWithoutPitchesInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPromptsInput = {
@@ -5008,6 +5219,8 @@ export type UserCreateWithoutPromptsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -5032,6 +5245,7 @@ export type UserCreateWithoutPromptsInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPromptsInput = {
@@ -5077,6 +5291,8 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -5101,6 +5317,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPromptsInput = {
@@ -5161,6 +5378,8 @@ export type UserUpdateWithoutPromptsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5185,6 +5404,7 @@ export type UserUpdateWithoutPromptsInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPromptsInput = {
@@ -5230,6 +5450,8 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5254,6 +5476,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReactionsInput = {
@@ -5298,6 +5521,8 @@ export type UserCreateWithoutReactionsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -5322,6 +5547,7 @@ export type UserCreateWithoutReactionsInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReactionsInput = {
@@ -5367,6 +5593,8 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -5391,6 +5619,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReactionsInput = {
@@ -5451,6 +5680,8 @@ export type UserUpdateWithoutReactionsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5475,6 +5706,7 @@ export type UserUpdateWithoutReactionsInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReactionsInput = {
@@ -5520,6 +5752,8 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5544,6 +5778,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutResourcesInput = {
@@ -5588,6 +5823,8 @@ export type UserCreateWithoutResourcesInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -5612,6 +5849,7 @@ export type UserCreateWithoutResourcesInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutResourcesInput = {
@@ -5657,6 +5895,8 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -5681,6 +5921,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutResourcesInput = {
@@ -5741,6 +5982,8 @@ export type UserUpdateWithoutResourcesInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5765,6 +6008,7 @@ export type UserUpdateWithoutResourcesInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourcesInput = {
@@ -5810,6 +6054,8 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5834,6 +6080,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRewardsInput = {
@@ -5878,6 +6125,8 @@ export type UserCreateWithoutRewardsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -5902,6 +6151,7 @@ export type UserCreateWithoutRewardsInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRewardsInput = {
@@ -5947,6 +6197,8 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -5971,6 +6223,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRewardsInput = {
@@ -6031,6 +6284,8 @@ export type UserUpdateWithoutRewardsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6055,6 +6310,7 @@ export type UserUpdateWithoutRewardsInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRewardsInput = {
@@ -6100,6 +6356,8 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6124,6 +6382,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutScenariosInput = {
@@ -6168,6 +6427,8 @@ export type UserCreateWithoutScenariosInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -6192,6 +6453,7 @@ export type UserCreateWithoutScenariosInput = {
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutScenariosInput = {
@@ -6237,6 +6499,8 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -6261,6 +6525,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutScenariosInput = {
@@ -6321,6 +6586,8 @@ export type UserUpdateWithoutScenariosInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6345,6 +6612,7 @@ export type UserUpdateWithoutScenariosInput = {
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutScenariosInput = {
@@ -6390,6 +6658,8 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6411,6 +6681,309 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutServersInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  Art?: Prisma.ArtCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Dominions?: Prisma.DominionCreateNestedManyWithoutUserInput
+  Galleries?: Prisma.GalleryCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  Tags?: Prisma.TagCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutServersInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutUserInput
+  Galleries?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutServersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutServersInput, Prisma.UserUncheckedCreateWithoutServersInput>
+}
+
+export type UserUpsertWithoutServersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutServersInput, Prisma.UserUncheckedUpdateWithoutServersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutServersInput, Prisma.UserUncheckedCreateWithoutServersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutServersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutServersInput, Prisma.UserUncheckedUpdateWithoutServersInput>
+}
+
+export type UserUpdateWithoutServersInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Dominions?: Prisma.DominionUpdateManyWithoutUserNestedInput
+  Galleries?: Prisma.GalleryUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutServersInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Dominions?: Prisma.DominionUncheckedUpdateManyWithoutUserNestedInput
+  Galleries?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -6458,6 +7031,8 @@ export type UserCreateWithoutSmartIconsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -6482,6 +7057,7 @@ export type UserCreateWithoutSmartIconsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSmartIconsInput = {
@@ -6527,6 +7103,8 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -6551,6 +7129,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSmartIconsInput = {
@@ -6611,6 +7190,8 @@ export type UserUpdateWithoutSmartIconsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6635,6 +7216,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSmartIconsInput = {
@@ -6680,6 +7262,8 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6704,6 +7288,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTagsInput = {
@@ -6748,6 +7333,8 @@ export type UserCreateWithoutTagsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -6772,6 +7359,7 @@ export type UserCreateWithoutTagsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTagsInput = {
@@ -6817,6 +7405,8 @@ export type UserUncheckedCreateWithoutTagsInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -6841,6 +7431,7 @@ export type UserUncheckedCreateWithoutTagsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTagsInput = {
@@ -6901,6 +7492,8 @@ export type UserUpdateWithoutTagsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6925,6 +7518,7 @@ export type UserUpdateWithoutTagsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTagsInput = {
@@ -6970,6 +7564,8 @@ export type UserUncheckedUpdateWithoutTagsInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6994,6 +7590,7 @@ export type UserUncheckedUpdateWithoutTagsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutThemesInput = {
@@ -7038,6 +7635,8 @@ export type UserCreateWithoutThemesInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -7062,6 +7661,7 @@ export type UserCreateWithoutThemesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutThemesInput = {
@@ -7107,6 +7707,8 @@ export type UserUncheckedCreateWithoutThemesInput = {
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
   artModels?: string | null
@@ -7131,6 +7733,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutThemesInput = {
@@ -7191,6 +7794,8 @@ export type UserUpdateWithoutThemesInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7215,6 +7820,7 @@ export type UserUpdateWithoutThemesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutThemesInput = {
@@ -7260,6 +7866,8 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7284,6 +7892,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -7311,6 +7920,7 @@ export type UserCountOutputType = {
   SmartIcons: number
   Tags: number
   Themes: number
+  Servers: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -7333,6 +7943,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   SmartIcons?: boolean | UserCountOutputTypeCountSmartIconsArgs
   Tags?: boolean | UserCountOutputTypeCountTagsArgs
   Themes?: boolean | UserCountOutputTypeCountThemesArgs
+  Servers?: boolean | UserCountOutputTypeCountServersArgs
 }
 
 /**
@@ -7478,6 +8089,13 @@ export type UserCountOutputTypeCountThemesArgs<ExtArgs extends runtime.Types.Ext
   where?: Prisma.ThemeWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountServersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ServerWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -7522,6 +8140,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   smartBar?: boolean
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: boolean
+  preferredTextServerId?: boolean
   memberUntil?: boolean
   stripeCustomerId?: boolean
   artModels?: boolean
@@ -7547,6 +8167,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   SmartIcons?: boolean | Prisma.User$SmartIconsArgs<ExtArgs>
   Tags?: boolean | Prisma.User$TagsArgs<ExtArgs>
   Themes?: boolean | Prisma.User$ThemesArgs<ExtArgs>
+  Servers?: boolean | Prisma.User$ServersArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -7595,6 +8216,8 @@ export type UserSelectScalar = {
   smartBar?: boolean
   customIcons?: boolean
   isMember?: boolean
+  preferredArtServerId?: boolean
+  preferredTextServerId?: boolean
   memberUntil?: boolean
   stripeCustomerId?: boolean
   artModels?: boolean
@@ -7603,7 +8226,7 @@ export type UserSelectScalar = {
   vibes?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Art?: boolean | Prisma.User$ArtArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
@@ -7624,6 +8247,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   SmartIcons?: boolean | Prisma.User$SmartIconsArgs<ExtArgs>
   Tags?: boolean | Prisma.User$TagsArgs<ExtArgs>
   Themes?: boolean | Prisma.User$ThemesArgs<ExtArgs>
+  Servers?: boolean | Prisma.User$ServersArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -7649,6 +8273,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     SmartIcons: Prisma.$SmartIconPayload<ExtArgs>[]
     Tags: Prisma.$TagPayload<ExtArgs>[]
     Themes: Prisma.$ThemePayload<ExtArgs>[]
+    Servers: Prisma.$ServerPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -7693,6 +8318,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     smartBar: string | null
     customIcons: boolean
     isMember: boolean
+    preferredArtServerId: number | null
+    preferredTextServerId: number | null
     memberUntil: Date | null
     stripeCustomerId: string | null
     artModels: string | null
@@ -8058,6 +8685,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   SmartIcons<T extends Prisma.User$SmartIconsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SmartIconsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SmartIconPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Tags<T extends Prisma.User$TagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$TagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Themes<T extends Prisma.User$ThemesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ThemesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ThemePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Servers<T extends Prisma.User$ServersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ServersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8129,6 +8757,8 @@ export interface UserFieldRefs {
   readonly smartBar: Prisma.FieldRef<"User", 'String'>
   readonly customIcons: Prisma.FieldRef<"User", 'Boolean'>
   readonly isMember: Prisma.FieldRef<"User", 'Boolean'>
+  readonly preferredArtServerId: Prisma.FieldRef<"User", 'Int'>
+  readonly preferredTextServerId: Prisma.FieldRef<"User", 'Int'>
   readonly memberUntil: Prisma.FieldRef<"User", 'DateTime'>
   readonly stripeCustomerId: Prisma.FieldRef<"User", 'String'>
   readonly artModels: Prisma.FieldRef<"User", 'String'>
@@ -8931,6 +9561,30 @@ export type User$ThemesArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.ThemeScalarFieldEnum | Prisma.ThemeScalarFieldEnum[]
+}
+
+/**
+ * User.Servers
+ */
+export type User$ServersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Server
+   */
+  select?: Prisma.ServerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Server
+   */
+  omit?: Prisma.ServerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServerInclude<ExtArgs> | null
+  where?: Prisma.ServerWhereInput
+  orderBy?: Prisma.ServerOrderByWithRelationInput | Prisma.ServerOrderByWithRelationInput[]
+  cursor?: Prisma.ServerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ServerScalarFieldEnum | Prisma.ServerScalarFieldEnum[]
 }
 
 /**

@@ -13,10 +13,10 @@
  * 🟢 You can import this file directly.
  */
 
-import * as Prisma from './internal/prismaNamespaceBrowser.js'
+import * as Prisma from './internal/prismaNamespaceBrowser'
 export { Prisma }
-export * as $Enums from './enums.js'
-export * from './enums.js';
+export * as $Enums from './enums'
+export * from './enums';
 /**
  * Model Art
  * Art holds the overarching data for possibly multiple artImage objects. I've tinkered with having a unified Art object to avoid obfuscation, this is the most complex model we have between Art, ArtCollection, and ArtImage, but the hope was that separating would allow easy handling of the entire Art model array, while selectively calling for the ArtImage data when needed.
@@ -109,6 +109,11 @@ export type Reward = Prisma.RewardModel
  * Scenarios are meant to be chatroom settings or storytelling scenarios that incorporate other elements like Character, prompt, Art, etc. A user is given options to continue the scenario with a skill check, inventory item, Reward, or custom prompt. The idea is to generate a story through the back and forth exchange.
  */
 export type Scenario = Prisma.ScenarioModel
+/**
+ * Model Server
+ * 
+ */
+export type Server = Prisma.ServerModel
 /**
  * Model SmartIcon
  * Smart Icons are used internally to generate the user's icon array. They can create custom icons that are links to pages or commands

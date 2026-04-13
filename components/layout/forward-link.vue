@@ -43,11 +43,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.Icon-effect {
-  @apply cursor-pointer transition-shadow;
-}
-
-/* Glow animation */
 @keyframes glow {
   0% {
     box-shadow: 0 0 5px #fff;
@@ -62,7 +57,7 @@ onUnmounted(() => {
   }
 }
 
-.glow-animation {
+.glow-animation:hover {
   animation: glow 1.5s infinite;
 }
 </style>

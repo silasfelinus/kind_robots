@@ -11,7 +11,7 @@
         'rounded-2xl',
         'text-center',
         'hover:scale-110',
-        'hover:glow-animation',
+        'glow-animation',
         isHomePage ? 'text-gray-400' : '',
       ]"
     >
@@ -35,12 +35,7 @@ const isHomePage = computed(() => {
     : false
 })
 </script>
-
 <style scoped>
-.Icon-effect {
-  @apply cursor-pointer transition-shadow;
-}
-
 @keyframes glow {
   0% {
     box-shadow: 0 0 5px #fff;

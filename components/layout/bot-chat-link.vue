@@ -10,7 +10,7 @@
         'rounded-2xl',
         'text-center',
         'hover:scale-110',
-        'hover:glow-animation',
+        'glow-animation',
         isCurrentPage ? 'text-gray-400' : '',
       ]"
     >

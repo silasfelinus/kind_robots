@@ -135,14 +135,15 @@ const activeComponents = computed(() => {
 </script>
 
 <style scoped>
-/* Glow animation */
 @keyframes glow {
   0%,
   100% {
-    @apply shadow-sm;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
   }
   50% {
-    @apply shadow-2xl;
+    box-shadow:
+      0 0 16px rgba(255, 255, 255, 0.7),
+      0 0 24px rgba(255, 115, 253, 0.7);
   }
 }
 

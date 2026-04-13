@@ -8,7 +8,7 @@
       'rounded-2xl',
       'text-center',
       'hover:scale-110',
-      'hover:glow-animation',
+      'glow-animation',
     ]"
     @click="goBack"
   >
@@ -35,10 +35,6 @@ const goBack = () => {
 </script>
 
 <style scoped>
-.Icon-effect {
-  @apply cursor-pointer transition-shadow;
-}
-
 /* Glow animation */
 @keyframes glow {
   0% {

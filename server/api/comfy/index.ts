@@ -96,11 +96,11 @@ export default defineEventHandler(async (event) => {
   } catch (err: any) {
     console.error('[COMFY] ❌ Build + Submit failed:', err)
     return {
-      error: true,
-      statusCode: 500,
-      statusMessage: 'Build + Submit failed',
-      message: err.message || 'Unknown error',
-    }
+  error: true,
+  statusCode: 500,
+  statusMessage: 'Build + Submit failed',
+  message: err.message || 'Unknown error',
+}
   }
 })
 

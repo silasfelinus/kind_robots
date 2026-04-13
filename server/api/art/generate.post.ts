@@ -1,10 +1,9 @@
-// server/api/art/generate.post.ts
-
+// /server/api/art/generate.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { saveImage } from '../../utils/saveImage'
-import type { Art } from '~/prisma/generated/prisma/client'
+import type { Art, Server } from '~/prisma/generated/prisma/client'
 import {
   type RequestData,
   validateAndLoadDesignerName,
@@ -13,10 +12,31 @@ import {
   validateAndLoadPromptId,
   validateAndLoadUserId,
 } from '.'
+import {
+  resolveServer,
+  getServerEndpoint,
+} from '../../utils/serverResolver'
+
+type ServerAwareRequestData = RequestData & {
+  serverId?: number | null
+  serverName?: string | null
+}
 
 type GenerateImageResponse = {
   images: string[]
   error?: string
+}
+
+interface GenerateImageInput {
+  server: Server
+  prompt: string
+  user: string
+  cfgValue: number
+  negativePrompt?: string
+  seed?: number | null
+  steps?: number
+  checkpoint?: string | null
+  sampler?: string | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -24,18 +44,16 @@ export default defineEventHandler(async (event) => {
   let newArt: Art | null = null
 
   try {
-    const requestData: RequestData = await readBody(event)
+    const requestData: ServerAwareRequestData = await readBody(event)
 
-    // Validate required fields
-    if (!requestData.promptString) {
+    if (!requestData.promptString?.trim()) {
       throw createError({
         statusCode: 400,
         message: 'Missing required field: "promptString".',
       })
     }
 
-    // Authorization check
-    const authorizationHeader = event.node.req.headers['authorization']
+    const authorizationHeader = event.node.req.headers.authorization
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
         statusCode: 401,
@@ -46,7 +64,11 @@ export default defineEventHandler(async (event) => {
     const token = authorizationHeader.split(' ')[1]
     const user = await prisma.user.findFirst({
       where: { apiKey: token },
-      select: { id: true, karma: true },
+      select: {
+        id: true,
+        karma: true,
+        preferredArtServerId: true,
+      },
     })
 
     if (!user) {
@@ -59,8 +81,7 @@ export default defineEventHandler(async (event) => {
     if (user.id !== requestData.userId) {
       throw createError({
         statusCode: 403,
-        message:
-          'User ID in the request does not match the authenticated user.',
+        message: 'User ID in the request does not match the authenticated user.',
       })
     }
 
@@ -71,12 +92,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Validate and load additional required data
     const validatedData: Partial<RequestData> = {}
-    validatedData.userId = await validateAndLoadUserId(
-      requestData,
-      validatedData,
-    )
+    validatedData.userId = await validateAndLoadUserId(requestData, validatedData)
     validatedData.promptId = await validateAndLoadPromptId(
       requestData,
       validatedData,
@@ -87,20 +104,28 @@ export default defineEventHandler(async (event) => {
 
     const rawCfg = Number(requestData.cfg)
     const cfgValue = calculateCfg(
-      isNaN(rawCfg) ? 3 : rawCfg,
+      Number.isNaN(rawCfg) ? 3 : rawCfg,
       requestData.cfgHalf ?? false,
     )
 
-    const response: GenerateImageResponse = await generateImage(
-      requestData.promptString,
-      validatedData.designer || 'kindguest',
-      cfgValue || 3,
-      requestData.negativePrompt || '',
-      requestData.seed || -1,
-      requestData.steps || 20,
-      requestData.checkpoint,
-      requestData.sampler || 'Euler a',
-    )
+    const server = await resolveServer({
+      userId: user.id,
+      serverId: requestData.serverId ?? null,
+      serverName: requestData.serverName ?? null,
+      capability: 'art',
+    })
+
+    const response = await generateImage({
+      server,
+      prompt: requestData.promptString.trim(),
+      user: validatedData.designer || 'kindguest',
+      cfgValue,
+      negativePrompt: requestData.negativePrompt || '',
+      seed: requestData.seed ?? -1,
+      steps: requestData.steps ?? 20,
+      checkpoint: requestData.checkpoint ?? null,
+      sampler: requestData.sampler ?? 'Euler a',
+    })
 
     if (!response.images?.length) {
       throw createError({
@@ -109,7 +134,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Save the generated image
     const base64Image = response.images[0]
     const savedImage = await saveImage(
       base64Image,
@@ -126,26 +150,28 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Create a new art entry linked to the image
     newArt = await prisma.art.create({
       data: {
         path: savedImage.fileName,
-        cfg: requestData.cfg,
-        cfgHalf: requestData.cfgHalf,
-        checkpoint: requestData.checkpoint,
-        sampler: requestData.sampler,
-        seed: requestData.seed,
-        steps: requestData.steps,
-        designer: validatedData.designer,
-        promptString: requestData.promptString,
-        negativePrompt: requestData.negativePrompt,
-        isPublic: requestData.isPublic,
-        isMature: requestData.isMature,
+        cfg: Math.floor(cfgValue),
+        cfgHalf: cfgValue % 1 >= 0.5,
+        checkpoint: requestData.checkpoint ?? null,
+        sampler: requestData.sampler ?? null,
+        seed: requestData.seed ?? -1,
+        steps: requestData.steps ?? 20,
+        designer: validatedData.designer ?? null,
+        promptString: requestData.promptString.trim(),
+        negativePrompt: requestData.negativePrompt ?? null,
+        isPublic: requestData.isPublic ?? true,
+        isMature: requestData.isMature ?? false,
         userId: validatedData.userId,
-        promptId: validatedData.promptId,
-        pitchId: validatedData.pitchId,
-        galleryId: validatedData.galleryId,
+        promptId: validatedData.promptId ?? null,
+        pitchId: validatedData.pitchId ?? null,
+        galleryId: validatedData.galleryId ?? null,
         artImageId: imageId,
+        serverId: server.id,
+        serverName: server.title,
+        serverUrl: getServerEndpoint(server),
       },
     })
 
@@ -153,18 +179,17 @@ export default defineEventHandler(async (event) => {
       where: { id: imageId },
       data: { artId: newArt.id },
     })
+
     await prisma.user.update({
       where: { id: user.id },
       data: { karma: user.karma - 1 },
     })
 
     event.node.res.statusCode = 201
-
-    const data = newArt
     return {
       success: true,
       message: 'Art and image saved successfully!',
-      data,
+      data: newArt,
     }
   } catch (error) {
     const handledError = errorHandler(error)
@@ -176,27 +201,30 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-export async function generateImage(
-  prompt: string,
-  user: string,
-  cfgValue: number,
-  negativePrompt?: string,
-  seed?: number,
-  steps?: number,
-  checkpoint?: string,
-  sampler?: string,
-): Promise<{ images: string[] }> {
-  console.log('📸 Starting image generation...')
+export async function generateImage({
+  server,
+  prompt,
+  user,
+  cfgValue,
+  negativePrompt,
+  seed,
+  steps,
+  checkpoint,
+  sampler,
+}: GenerateImageInput): Promise<GenerateImageResponse> {
+  const endpoint = getServerEndpoint(server)
 
-  const config = {
-    headers: { 'Content-Type': 'application/json' },
+  if (server.serverType === 'COMFY' || server.supportsComfyWorkflow) {
+    throw new Error(
+      `Server "${server.title}" is a Comfy server. This route currently supports A1111-style txt2img servers only.`,
+    )
   }
 
   const requestBody = {
     prompt,
     negative_prompt: negativePrompt || ' ',
-    steps: steps || 10,
-    cfg_scale: cfgValue ?? 0,
+    steps: steps ?? 20,
+    cfg_scale: cfgValue || 3,
     seed: seed ?? -1,
     width: 512,
     height: 512,
@@ -207,30 +235,40 @@ export async function generateImage(
     user,
   }
 
-  console.log('[🧪 Backend Request Body]', requestBody)
-
   try {
-    const response = await fetch(
-      'https://lola.acrocatranch.com/sdapi/v1/txt2img',
-      {
-        method: 'POST',
-        headers: config.headers,
-        body: JSON.stringify(requestBody),
-      },
-    )
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody),
+    })
 
     if (!response.ok) {
-      console.error(`Image generation failed: ${response.statusText}`)
+      let details = ''
+      try {
+        const errorData = await response.json()
+        details =
+          errorData?.error ||
+          errorData?.message ||
+          JSON.stringify(errorData)
+      } catch {
+        details = response.statusText
+      }
+
       throw new Error(
-        `Image generation failed: ${response.status} ${response.statusText}`,
+        `Image generation failed: ${response.status} ${response.statusText}${details ? ` - ${details}` : ''}`,
       )
     }
 
     const responseData = await response.json()
-    return { images: responseData.images }
+    return {
+      images: Array.isArray(responseData.images) ? responseData.images : [],
+      error: responseData.error,
+    }
   } catch (error) {
     console.error('Error during image generation:', error)
-    throw new Error('Image generation failed.')
+    throw error instanceof Error
+      ? error
+      : new Error('Image generation failed.')
   }
 }
 

@@ -1,4 +1,4 @@
-// /server/api/comfy/kontext.post.ts
+// /server/api/comfy/extras/kontext.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import fluxKontext from '../json/fluxKontext.json'
 

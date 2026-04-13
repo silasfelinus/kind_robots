@@ -29,7 +29,7 @@
         <!-- Individual Tooltip -->
         <div
           v-if="hoveredEffect === effect.id"
-          class="absolute top-0 mt-[-60px] left-1/2 transform -translate-x-1/2 bg-opacity-75 text-xl text-default font-bold p-1 rounded-xl whitespace-nowrap pointer-events-none z-10"
+          class="absolute top-0 -mt-15 left-1/2 transform -translate-x-1/2 bg-opacity-75 text-xl text-default font-bold p-1 rounded-xl whitespace-nowrap pointer-events-none z-10"
         >
           {{ effect.tooltip }}
         </div>

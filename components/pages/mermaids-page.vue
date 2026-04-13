@@ -148,26 +148,51 @@ function toggleEurope3Image() {
   showEuropeImage3.value = !showEuropeImage3.value
 }
 </script>
-
 <style scoped>
 .btn {
-  @apply px-4 py-2 rounded-full text-white font-semibold transition-all duration-300;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
 .btn-primary {
-  @apply bg-blue-500 hover:bg-blue-600;
+  background-color: rgb(59 130 246);
+}
+
+.btn-primary:hover {
+  background-color: rgb(37 99 235);
 }
 
 .btn-secondary {
-  @apply bg-green-500 hover:bg-green-600;
+  background-color: rgb(34 197 94);
+}
+
+.btn-secondary:hover {
+  background-color: rgb(22 163 74);
 }
 
 .btn-tertiary {
-  @apply bg-yellow-500 hover:bg-yellow-600;
+  background-color: rgb(234 179 8);
+}
+
+.btn-tertiary:hover {
+  background-color: rgb(202 138 4);
 }
 
 .Icon-effect {
-  @apply w-6 h-6 md:w-16 md:h-16 cursor-pointer transition-shadow;
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+  transition-property: box-shadow;
+}
+
+@media (min-width: 768px) {
+  .Icon-effect {
+    width: 4rem;
+    height: 4rem;
+  }
 }
 
 @keyframes glow {

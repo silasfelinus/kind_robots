@@ -8,7 +8,6 @@ import smartIconSeeds from '@/stores/seeds/smartIcons.json'
 export type NavTab = 'favorites' | 'navigation' | 'all'
 
 export const useNavStore = defineStore('navStore', () => {
-  // --- CORE STATE ---
   const items = ref<SmartIcon[]>([])
   const favorites = ref<string[]>([])
   const activeTab = ref<NavTab>('navigation')
@@ -16,11 +15,12 @@ export const useNavStore = defineStore('navStore', () => {
   const isInitialized = ref(false)
   const loading = ref(false)
 
-  // --- ROUTE HISTORY STATE ---
+  const initializePromise = ref<Promise<void> | null>(null)
+  const fetchIconsPromise = ref<Promise<SmartIcon[]> | null>(null)
+
   const routeHistory = ref<string[]>([])
   const currentIndex = ref<number>(-1)
 
-  // --- COMPUTED: SmartIcon Data ---
   const directoryIcons = computed(() =>
     items.value.filter((icon) => (icon.type ?? 'directory') === 'directory'),
   )
@@ -45,140 +45,136 @@ export const useNavStore = defineStore('navStore', () => {
     })
   })
 
-  // --- LOCAL STORAGE SYNC ---
   function syncToLocalStorage() {
     if (typeof window === 'undefined') return
     try {
       localStorage.setItem('navIcons', JSON.stringify(items.value))
       localStorage.setItem('navFavorites', JSON.stringify(favorites.value))
-    } catch (error) {
-      console.error('[navStore] localStorage sync error:', error)
-    }
+    } catch {}
   }
 
   function hydrateFromLocalStorage() {
     if (typeof window === 'undefined') return
+
     try {
       const rawIcons = localStorage.getItem('navIcons')
       const rawFavorites = localStorage.getItem('navFavorites')
 
       if (rawIcons) {
-        const parsedIcons = JSON.parse(rawIcons)
-        if (Array.isArray(parsedIcons)) {
-          items.value = parsedIcons as SmartIcon[]
+        const parsed = JSON.parse(rawIcons)
+        if (Array.isArray(parsed)) {
+          items.value = parsed
         }
       }
 
       if (rawFavorites) {
-        const parsedFavs = JSON.parse(rawFavorites)
-        if (Array.isArray(parsedFavs)) {
-          favorites.value = parsedFavs as string[]
+        const parsed = JSON.parse(rawFavorites)
+        if (Array.isArray(parsed)) {
+          favorites.value = parsed
         }
       }
-    } catch (error) {
-      console.error('[navStore] localStorage hydrate error:', error)
-    }
+    } catch {}
   }
 
   if (typeof window !== 'undefined') {
     hydrateFromLocalStorage()
 
-    watch(
-      favorites,
-      () => {
-        syncToLocalStorage()
-      },
-      { deep: true },
-    )
+    watch(favorites, () => syncToLocalStorage(), { deep: true })
   }
 
-  // --- FETCHING SMARTICONS ---
-  async function fetchAllIcons(): Promise<SmartIcon[]> {
-    loading.value = true
-    try {
-      const res = await performFetch<SmartIcon[]>('/api/icons')
-
-      if (res.success && res.data && res.data.length > 0) {
-        items.value = res.data
-        syncToLocalStorage()
-        return res.data
-      }
-
-      return []
-    } catch (error) {
-      handleError(error, 'fetching SmartIcons')
-      return []
-    } finally {
-      loading.value = false
+  async function fetchAllIcons(force = false): Promise<SmartIcon[]> {
+    if (!force && items.value.length) {
+      return items.value
     }
+
+    if (fetchIconsPromise.value) {
+      return fetchIconsPromise.value
+    }
+
+    fetchIconsPromise.value = (async () => {
+      loading.value = true
+
+      try {
+        const res = await performFetch<SmartIcon[]>('/api/icons')
+
+        if (res.success && res.data?.length) {
+          items.value = res.data
+          syncToLocalStorage()
+          return items.value
+        }
+
+        return []
+      } catch (error) {
+        handleError(error, 'fetching SmartIcons')
+        return []
+      } finally {
+        loading.value = false
+        fetchIconsPromise.value = null
+      }
+    })()
+
+    return fetchIconsPromise.value
   }
 
-  async function initialize() {
+  async function initialize(): Promise<void> {
     if (isInitialized.value) return
+    if (initializePromise.value) return initializePromise.value
 
-    try {
-      hydrateFromLocalStorage()
+    initializePromise.value = (async () => {
+      try {
+        hydrateFromLocalStorage()
 
-      const fetched = await fetchAllIcons()
+        if (!items.value.length) {
+          const fetched = await fetchAllIcons()
 
-      if (!fetched || fetched.length === 0) {
-        console.warn(
-          '[navStore] No SmartIcons from API, falling back to seeds/smartIcons.json',
-        )
-        items.value = (smartIconSeeds as unknown as SmartIcon[]).map(
-          (icon) => ({
-            ...icon,
-            type: (icon as any).type || 'directory',
-          }),
-        )
-        syncToLocalStorage()
-      }
-
-      if (!activeModelType.value && modelTypes.value.length > 0) {
-        activeModelType.value = modelTypes.value[0]
-      }
-
-      isInitialized.value = true
-    } catch (error) {
-      handleError(error, 'initializing navStore')
-
-      if (!items.value.length) {
-        try {
-          items.value = (smartIconSeeds as unknown as SmartIcon[]).map(
-            (icon) => ({
+          if (!fetched.length) {
+            items.value = (smartIconSeeds as SmartIcon[]).map((icon) => ({
               ...icon,
               type: (icon as any).type || 'directory',
-            }),
-          )
-          syncToLocalStorage()
-        } catch (seedError) {
-          console.error('[navStore] seed fallback error:', seedError)
+            }))
+            syncToLocalStorage()
+          }
         }
+
+        if (!activeModelType.value && modelTypes.value.length > 0) {
+          activeModelType.value = modelTypes.value[0]
+        }
+
+        isInitialized.value = true
+      } catch (error) {
+        handleError(error, 'initializing navStore')
+
+        if (!items.value.length) {
+          items.value = (smartIconSeeds as SmartIcon[]).map((icon) => ({
+            ...icon,
+            type: (icon as any).type || 'directory',
+          }))
+          syncToLocalStorage()
+        }
+      } finally {
+        initializePromise.value = null
       }
-    }
+    })()
+
+    return initializePromise.value
   }
 
-  // --- FAVORITES ---
   function toggleFavorite(link?: string | null) {
     const normalized = (link ?? '').trim()
     if (!normalized) return
 
     const idx = favorites.value.indexOf(normalized)
-    if (idx === -1) {
-      favorites.value.push(normalized)
-    } else {
-      favorites.value.splice(idx, 1)
-    }
+    if (idx === -1) favorites.value.push(normalized)
+    else favorites.value.splice(idx, 1)
+
     syncToLocalStorage()
   }
 
   function isFavorite(link?: string | null) {
     const normalized = (link ?? '').trim()
-    if (!normalized) return false
-    return favorites.value.includes(normalized)
+    return normalized ? favorites.value.includes(normalized) : false
   }
 
-  // --- UI HELPERS ---
   function setActiveTab(tab: NavTab) {
     activeTab.value = tab
   }
@@ -196,20 +192,15 @@ export const useNavStore = defineStore('navStore', () => {
     }
   }
 
-  // =====================================================
-  // 🧭 ROUTE HISTORY TRACKING
-  // =====================================================
-
   function recordVisit(path: string) {
-    if (routeHistory.value.length === 0) {
+    if (!routeHistory.value.length) {
       routeHistory.value.push(path)
       currentIndex.value = 0
       return
     }
 
-    const currentPath = routeHistory.value[currentIndex.value]
-
-    if (path === currentPath) return
+    const current = routeHistory.value[currentIndex.value]
+    if (path === current) return
 
     if (
       currentIndex.value < routeHistory.value.length - 1 &&
@@ -242,40 +233,30 @@ export const useNavStore = defineStore('navStore', () => {
       currentIndex.value < routeHistory.value.length - 1,
   )
 
-  const backPath = computed<string | null>(() =>
+  const backPath = computed(() =>
     canGoBack.value ? routeHistory.value[currentIndex.value - 1] : null,
   )
 
-  const forwardPath = computed<string | null>(() =>
+  const forwardPath = computed(() =>
     canGoForward.value ? routeHistory.value[currentIndex.value + 1] : null,
   )
 
-  // =====================================================
-  // EXPORT
-  // =====================================================
   return {
-    // --- state ---
     items,
     favorites,
     activeTab,
     activeModelType,
     isInitialized,
     loading,
-
-    // --- SmartIcon computed ---
     directoryIcons,
     modelTypes,
     favoritesIcons,
-
-    // --- history state ---
     routeHistory,
     currentIndex,
     backPath,
     forwardPath,
     canGoBack,
     canGoForward,
-
-    // --- actions ---
     initialize,
     fetchAllIcons,
     toggleFavorite,

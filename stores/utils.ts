@@ -19,55 +19,94 @@ export async function performFetch<T = unknown>(
   timeout = 10000,
 ): Promise<ApiResponse<T> & { status?: number }> {
   const userStore = useUserStore()
+  const errorStore = useErrorStore()
   const token = userStore.user?.apiKey
-  const headers = {
-    ...(options.headers || {}),
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+
+  const normalizedHeaders = new Headers(options.headers ?? {})
+
+  if (!normalizedHeaders.has('Content-Type') && options.body) {
+    normalizedHeaders.set('Content-Type', 'application/json')
   }
 
-  let attempt = 0
-  while (attempt < retries) {
-    try {
-      const controller = new AbortController()
-      const id = setTimeout(() => controller.abort(), timeout)
+  if (token && !normalizedHeaders.has('Authorization')) {
+    normalizedHeaders.set('Authorization', `Bearer ${token}`)
+  }
 
+  const maxAttempts = Math.max(1, retries)
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
+
+    try {
       const res = await fetch(url, {
         ...options,
-        headers,
+        headers: normalizedHeaders,
         signal: controller.signal,
       })
 
-      clearTimeout(id)
-      const json = await res.json().catch(() => ({}))
+      clearTimeout(timeoutId)
+
+      const contentType = res.headers.get('content-type') || ''
+      const isJson = contentType.includes('application/json')
+
+      let parsedBody: unknown = {}
+
+      if (res.status !== 204) {
+        if (isJson) {
+          parsedBody = await res.json().catch(() => ({}))
+        } else {
+          const text = await res.text().catch(() => '')
+          parsedBody = text ? { message: text } : {}
+        }
+      }
+
+      const body =
+        parsedBody && typeof parsedBody === 'object'
+          ? (parsedBody as Record<string, unknown>)
+          : {}
 
       return {
         success: res.ok,
         status: res.status,
-        data: json.data ?? json,
-        message: json.message ?? 'No message returned from server',
-        user: json.user ?? undefined,
-        token: json.token ?? undefined,
-        apiKey: json.apiKey ?? undefined,
-        usernames: json.usernames ?? undefined,
+        data: (body.data ?? parsedBody) as T,
+        message:
+          typeof body.message === 'string'
+            ? body.message
+            : res.ok
+              ? 'Request completed successfully'
+              : `Request failed with status ${res.status}`,
+        user: body.user as ApiResponse<T>['user'],
+        token: typeof body.token === 'string' ? body.token : undefined,
+        apiKey: typeof body.apiKey === 'string' ? body.apiKey : undefined,
+        usernames: Array.isArray(body.usernames)
+          ? (body.usernames as string[])
+          : undefined,
       }
     } catch (err) {
-      attempt++
-      const isAbortError = err instanceof Error && err.name === 'AbortError'
+      clearTimeout(timeoutId)
 
-      if (attempt >= retries || isAbortError) {
+      const isAbortError = err instanceof Error && err.name === 'AbortError'
+      const isLastAttempt = attempt >= maxAttempts
+
+      if (isLastAttempt || isAbortError) {
+        const message = isAbortError
+          ? `Request timed out after ${timeout}ms`
+          : err instanceof Error
+            ? err.message
+            : 'Network or server error'
+
         console.error(`[performFetch] Failed after ${attempt} attempt(s):`, err)
 
-        const errorStore = useErrorStore()
         errorStore.setError(
           ErrorType.NETWORK_ERROR,
-          `Failed fetch: ${url} (attempt ${attempt})`,
+          `Failed fetch: ${url} (attempt ${attempt}) - ${message}`,
         )
 
         return {
           success: false,
-          status: 500,
-          message: 'Network or server error',
+          status: isAbortError ? 408 : 500,
+          message,
         }
       }
     }

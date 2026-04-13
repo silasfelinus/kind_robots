@@ -108,9 +108,71 @@ export const useArtStore = defineStore('artStore', () => {
   const randomStore = useRandomStore()
 
   const hoverArt = ref<Art | null>(null)
+  const initializePromise = ref<Promise<void> | null>(null)
+  const fetchAllArtPromise = ref<Promise<Art[]> | null>(null)
+  const artImageRequestMap = ref<Record<number, Promise<ArtImage | undefined>>>(
+    {},
+  )
 
   function setHoverArt(art: Art | null): void {
     hoverArt.value = art
+  }
+
+  function persistArt(): void {
+    if (!isClient) return
+    localStorage.setItem('art', JSON.stringify(state.art))
+  }
+
+  function persistArtImages(): void {
+    if (!isClient) return
+    localStorage.setItem('artImages', JSON.stringify(state.artImages))
+  }
+
+  function mergeUniqueArt(existing: Art[], incoming: Art[]): Art[] {
+    const map = new Map<number, Art>()
+
+    for (const entry of existing) {
+      map.set(entry.id, entry)
+    }
+
+    for (const entry of incoming) {
+      map.set(entry.id, entry)
+    }
+
+    return Array.from(map.values()).sort((a, b) => b.id - a.id)
+  }
+
+  function mergeUniqueArtImages(
+    existing: ArtImage[],
+    incoming: ArtImage[],
+  ): ArtImage[] {
+    const map = new Map<number, ArtImage>()
+
+    for (const image of existing) {
+      map.set(image.id, image)
+    }
+
+    for (const image of incoming) {
+      map.set(image.id, image)
+    }
+
+    return Array.from(map.values()).sort((a, b) => b.id - a.id)
+  }
+
+  function setArtList(art: Art[]): void {
+    state.art = mergeUniqueArt([], art)
+    persistArt()
+  }
+
+  function addOrUpdateArt(art: Art): void {
+    state.art = mergeUniqueArt(state.art, [art])
+    persistArt()
+  }
+
+  function addOrUpdateArtImages(images: ArtImage[]): void {
+    if (!images.length) return
+    state.artImages = mergeUniqueArtImages(state.artImages, images)
+    persistArtImages()
   }
 
   const getPromptString = computed<string>(() => {
@@ -158,38 +220,49 @@ export const useArtStore = defineStore('artStore', () => {
 
   async function initialize(): Promise<void> {
     if (state.isInitialized) return
+    if (initializePromise.value) return initializePromise.value
 
-    state.loading = true
+    initializePromise.value = (async () => {
+      state.loading = true
 
-    try {
-      if (isClient) {
-        state.art = parseStoredArt(localStorage.getItem('art') || '')
+      try {
+        if (isClient) {
+          state.art = parseStoredArt(localStorage.getItem('art') || '')
 
-        const storedImages = localStorage.getItem('artImages')
-        if (storedImages) {
-          state.artImages = JSON.parse(storedImages) as ArtImage[]
+          const storedImages = localStorage.getItem('artImages')
+          if (storedImages) {
+            try {
+              state.artImages = JSON.parse(storedImages) as ArtImage[]
+            } catch {
+              state.artImages = []
+            }
+          }
         }
-      }
 
-      await Promise.all([collectionStore.fetchCollections(), fetchAllArt()])
-      state.isInitialized = true
-    } catch (error: unknown) {
-      handleError(error, 'initializing art store')
-    } finally {
-      state.loading = false
-    }
+        await fetchAllArt()
+        state.isInitialized = true
+      } catch (error: unknown) {
+        handleError(error, 'initializing art store')
+        state.isInitialized = false
+        throw error
+      } finally {
+        state.loading = false
+        initializePromise.value = null
+      }
+    })()
+
+    return initializePromise.value
   }
 
   async function loadArtImagesInChunks(
     ids: number[],
     chunkSize = 20,
   ): Promise<void> {
-    const toFetch = ids.filter(
+    const uniqueIds = [...new Set(ids)].filter(
       (id: number) =>
         !state.artImages.some((image: ArtImage) => image.id === id),
     )
 
-    const uniqueIds = [...new Set<number>(toFetch)]
     const chunks = Array.from(
       { length: Math.ceil(uniqueIds.length / chunkSize) },
       (_: unknown, index: number) =>
@@ -200,15 +273,7 @@ export const useArtStore = defineStore('artStore', () => {
       try {
         const images = await getArtImagesByIds(chunk)
         if (images?.length) {
-          state.artImages.push(...images)
-
-          if (isClient) {
-            const existing = JSON.parse(
-              localStorage.getItem('artImages') || '[]',
-            ) as ArtImage[]
-            const updated = [...existing, ...images]
-            localStorage.setItem('artImages', JSON.stringify(updated))
-          }
+          addOrUpdateArtImages(images)
         }
       } catch (error: unknown) {
         handleError(error, 'loading art images in chunks')
@@ -216,17 +281,33 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function fetchAllArt(): Promise<void> {
-    const response = await performFetch<Art[]>('/api/art')
-
-    if (!response.success || !response.data) {
-      throw new Error(response.message || 'Failed to fetch art.')
+  async function fetchAllArt(force = false): Promise<Art[]> {
+    if (!force && state.art.length) {
+      return state.art
     }
 
-    state.art = response.data
+    if (fetchAllArtPromise.value) {
+      return fetchAllArtPromise.value
+    }
 
-    if (isClient) {
-      localStorage.setItem('art', JSON.stringify(state.art))
+    fetchAllArtPromise.value = (async () => {
+      const response = await performFetch<Art[]>('/api/art')
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to fetch art.')
+      }
+
+      setArtList(response.data)
+      return state.art
+    })()
+
+    try {
+      return await fetchAllArtPromise.value
+    } catch (error: unknown) {
+      handleError(error, 'fetching all art')
+      throw error
+    } finally {
+      fetchAllArtPromise.value = null
     }
   }
 
@@ -245,52 +326,35 @@ export const useArtStore = defineStore('artStore', () => {
       return
     }
 
-    const cachedImage = state.artImages.find(
-      (image: ArtImage) => image.id === found.artImageId,
-    )
-
-    if (cachedImage) {
-      state.currentArtImage = cachedImage
-      return
-    }
-
-    try {
-      const response = await performFetch<ArtImage>(
-        `/api/art/image/${found.artImageId}`,
-      )
-
-      if (response.success && response.data) {
-        state.artImages.push(response.data)
-        state.currentArtImage = response.data
-
-        if (isClient) {
-          const existing = JSON.parse(
-            localStorage.getItem('artImages') || '[]',
-          ) as ArtImage[]
-          const updated = [...existing, response.data]
-          localStorage.setItem('artImages', JSON.stringify(updated))
-        }
-      }
-    } catch (error: unknown) {
-      handleError(error, 'fetching art image for selected art')
-    }
+    const image = await getArtImageById(found.artImageId)
+    state.currentArtImage = image || null
   }
 
   async function getArtImageById(id: number): Promise<ArtImage | undefined> {
     const cached = state.artImages.find((image: ArtImage) => image.id === id)
     if (cached) return cached
 
-    try {
-      const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
-      if (response.success && response.data) {
-        state.artImages.push(response.data)
-        return response.data
-      }
-    } catch (error: unknown) {
-      handleError(error, 'fetching single art image')
-    }
+    const existingRequest = artImageRequestMap.value[id]
+    if (existingRequest) return existingRequest
 
-    return undefined
+    artImageRequestMap.value[id] = (async () => {
+      try {
+        const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
+
+        if (response.success && response.data) {
+          addOrUpdateArtImages([response.data])
+          return response.data
+        }
+      } catch (error: unknown) {
+        handleError(error, 'fetching single art image')
+      } finally {
+        delete artImageRequestMap.value[id]
+      }
+
+      return undefined
+    })()
+
+    return artImageRequestMap.value[id]
   }
 
   async function createArt(artData: {
@@ -314,7 +378,7 @@ export const useArtStore = defineStore('artStore', () => {
       })
 
       if (response.success && response.data) {
-        state.art.push(response.data)
+        addOrUpdateArt(response.data)
         return response.data
       }
 
@@ -337,9 +401,12 @@ export const useArtStore = defineStore('artStore', () => {
 
       state.art = state.art.filter((art: Art) => art.id !== id)
 
-      if (isClient) {
-        localStorage.setItem('art', JSON.stringify(state.art))
+      if (state.currentArt?.id === id) {
+        state.currentArt = null
+        state.currentArtImage = null
       }
+
+      persistArt()
     } catch (error: unknown) {
       handleError(error, 'deleting art')
     }
@@ -355,7 +422,7 @@ export const useArtStore = defineStore('artStore', () => {
       })
 
       if (response.success && response.data) {
-        state.artImages.push(response.data)
+        addOrUpdateArtImages([response.data])
         return {
           success: true,
           message: 'Image uploaded successfully',
@@ -394,10 +461,21 @@ export const useArtStore = defineStore('artStore', () => {
       }
 
       state.artImages = removeImageById(state.artImages, artImageId)
+
+      if (state.currentArtImage?.id === artImageId) {
+        state.currentArtImage = null
+      }
+
+      persistArtImages()
     } catch (error: unknown) {
       handleError(error, 'deleting art image')
       throw error
     }
+  }
+
+  async function ensureCollectionsReady(): Promise<void> {
+    if (collectionStore.collections?.length) return
+    await collectionStore.fetchCollections?.()
   }
 
   async function generateArt(
@@ -478,6 +556,8 @@ export const useArtStore = defineStore('artStore', () => {
 
       const art = response.data
 
+      await ensureCollectionsReady()
+
       const generatedCollection =
         await collectionStore.getOrCreateGeneratedArtCollection(userId)
 
@@ -503,11 +583,10 @@ export const useArtStore = defineStore('artStore', () => {
         })
       }
 
-      state.art.push(art)
+      addOrUpdateArt(art)
       state.currentArt = art
 
       if (isClient) {
-        localStorage.setItem('art', JSON.stringify(state.art))
         localStorage.setItem(
           'collections',
           JSON.stringify(collectionStore.collections),

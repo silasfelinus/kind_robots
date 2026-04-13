@@ -1,10 +1,11 @@
 // /stores/comfyStore.ts
-
 import { defineStore } from 'pinia'
-import { reactive, toRefs } from 'vue'
+import { reactive, toRefs, ref } from 'vue'
 import { performFetch, handleError } from './utils'
 
 type ModifierType = 'inpaint' | 'outpaint' | 'upscale' | 'morph'
+
+type ComfyModel = Record<string, unknown>
 
 interface ModifierStep {
   id: string
@@ -46,23 +47,46 @@ export const useComfyStore = defineStore('comfyStore', () => {
     isInitialized: false,
   })
 
+  const submitPromise = ref<Promise<any> | null>(null)
+  const modelsCache = ref<any[] | null>(null)
+  const statusCache = ref<any | null>(null)
+
   function initialize() {
     if (state.isInitialized || !isClient) return
+
     try {
       const saved = localStorage.getItem('comfyBlueprint')
-      if (saved) Object.assign(state, JSON.parse(saved))
-    } catch (e) {
-      handleError(e, 'loading comfy blueprint')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+
+        state.inputType = parsed.inputType ?? 'text'
+        state.prompt = parsed.prompt ?? ''
+        state.imageData = parsed.imageData ?? ''
+        state.checkpoint = parsed.checkpoint ?? 'flux'
+        state.modifierSteps = parsed.modifierSteps ?? []
+      }
+    } catch (error) {
+      handleError(error, 'loading comfy blueprint')
     }
+
     state.isInitialized = true
   }
 
   function persist() {
     if (!isClient) return
+
     try {
-      localStorage.setItem('comfyBlueprint', JSON.stringify({ ...state }))
-    } catch (e) {
-      handleError(e, 'saving comfy blueprint')
+      const persistable = {
+        inputType: state.inputType,
+        prompt: state.prompt,
+        imageData: state.imageData,
+        checkpoint: state.checkpoint,
+        modifierSteps: state.modifierSteps,
+      }
+
+      localStorage.setItem('comfyBlueprint', JSON.stringify(persistable))
+    } catch (error) {
+      handleError(error, 'saving comfy blueprint')
     }
   }
 
@@ -118,10 +142,9 @@ export const useComfyStore = defineStore('comfyStore', () => {
 
   function updateStepConfig(id: string, config: Record<string, any>) {
     const step = state.modifierSteps.find((s) => s.id === id)
-    if (step) {
-      step.config = config
-      persist()
-    }
+    if (!step) return
+    step.config = config
+    persist()
   }
 
   function reset() {
@@ -132,60 +155,82 @@ export const useComfyStore = defineStore('comfyStore', () => {
     persist()
   }
 
-  async function fetchStatus() {
+  async function fetchStatus(force = false) {
+    if (!force && statusCache.value) return statusCache.value
+
     try {
       const response = await performFetch('/api/comfy?status')
-      return response.success ? response.data : null
+      if (response.success) {
+        statusCache.value = response.data
+        return response.data
+      }
+      return null
     } catch (error) {
       handleError(error, 'fetching Comfy status')
+      return null
     }
   }
 
-  async function fetchModels() {
+  async function fetchModels(force = false) {
+    if (!force && modelsCache.value) return modelsCache.value
+
     try {
-      const response = await performFetch('/api/comfy?models')
-      return response.success ? response.data : []
+      const response = await performFetch<unknown>('/api/comfy?models')
+
+      if (response.success && Array.isArray(response.data)) {
+        modelsCache.value = response.data as ComfyModel[]
+        return modelsCache.value
+      }
+
+      return []
     } catch (error) {
       handleError(error, 'fetching Comfy models')
       return []
     }
   }
-
   async function submitBlueprint() {
-    state.loading = true
-    state.error = ''
-    state.graphOutput = null
+    if (submitPromise.value) return submitPromise.value
 
-    try {
-      const payload = {
-        inputType: state.inputType,
-        prompt: state.prompt,
-        imageData: state.imageData,
-        checkpoint: state.checkpoint,
-        steps: state.modifierSteps,
+    submitPromise.value = (async () => {
+      state.loading = true
+      state.error = ''
+      state.graphOutput = null
+
+      try {
+        const payload = {
+          inputType: state.inputType,
+          prompt: state.prompt,
+          imageData: state.imageData,
+          checkpoint: state.checkpoint,
+          steps: state.modifierSteps,
+        }
+
+        const response = await performFetch('/api/comfy', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        })
+
+        if (!response.success || !response.data) {
+          throw new Error(response.message)
+        }
+
+        state.graphResult = response.data
+        state.graphOutput = JSON.stringify(response.data, null, 2)
+
+        persist()
+
+        return { success: true }
+      } catch (error) {
+        handleError(error, 'submitting comfy blueprint')
+        state.error = error instanceof Error ? error.message : 'Unknown error'
+        return { success: false, message: state.error }
+      } finally {
+        state.loading = false
+        submitPromise.value = null
       }
+    })()
 
-      const response = await performFetch('/api/comfy', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      })
-
-      if (!response.success || !response.data) {
-        throw new Error(response.message)
-      }
-
-      state.graphResult = response.data
-      state.graphOutput = JSON.stringify(response.data, null, 2) // optional pretty output
-
-      persist()
-      return { success: true }
-    } catch (error) {
-      handleError(error, 'submitting comfy blueprint')
-      state.error = error instanceof Error ? error.message : 'Unknown error'
-      return { success: false, message: state.error }
-    } finally {
-      state.loading = false
-    }
+    return submitPromise.value
   }
 
   return {

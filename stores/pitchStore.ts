@@ -25,23 +25,30 @@ export const usePitchStore = defineStore('pitchStore', () => {
   const pitches = ref<Pitch[]>([])
   const selectedPitches = ref<Pitch[]>([])
   const selectedPitchType = ref<PitchType | null>(null)
-  const isInitialized = ref(false)
-  const galleryArt = ref<Art[]>([])
+  const selectedPitch = ref<Pitch | null>(null)
   const selectedTitle = ref<Pitch | null>(null)
+
   const newestPitches = ref<Pitch[]>([])
+  const galleryArt = ref<Record<number, Art[]>>({})
+
   const loading = ref(false)
+  const isInitialized = ref(false)
+  const hasLoaded = ref(false)
+
+  const initializePromise = ref<Promise<void> | null>(null)
+  const fetchPromise = ref<Promise<Pitch[]> | null>(null)
+
   const numberOfRequests = ref(1)
   const temperature = ref(0.9)
   const exampleString = ref(' ')
   const apiResponse = ref(' ')
   const maxTokens = ref(500)
-  const selectedPitch = ref<Pitch | null>(null)
-  const pitchTypes = Object.values(PitchType)
-  const selectedPitchId = computed(() => selectedPitch.value?.id)
 
+  const pitchTypes = Object.values(PitchType)
   const userStore = useUserStore()
 
-  // Computed
+  const selectedPitchId = computed(() => selectedPitch.value?.id)
+
   const titles = computed(() =>
     filterPitchesByType(PitchType.TITLE, pitches.value),
   )
@@ -73,162 +80,76 @@ export const usePitchStore = defineStore('pitchStore', () => {
   function saveStateToLocalStorage() {
     if (!isClient) return
     localStorage.setItem('pitches', JSON.stringify(pitches.value))
-    localStorage.setItem(
-      'selectedPitches',
-      JSON.stringify(selectedPitches.value),
-    )
-    localStorage.setItem(
-      'selectedPitchType',
-      JSON.stringify(selectedPitchType.value),
-    )
-    localStorage.setItem('galleryArt', JSON.stringify(galleryArt.value))
-    localStorage.setItem('selectedTitle', JSON.stringify(selectedTitle.value))
-    localStorage.setItem('newestPitches', JSON.stringify(newestPitches.value))
-    localStorage.setItem(
-      'numberOfRequests',
-      JSON.stringify(numberOfRequests.value),
-    )
-    localStorage.setItem('temperature', JSON.stringify(temperature.value))
-    localStorage.setItem('exampleString', exampleString.value)
-    localStorage.setItem('apiResponse', apiResponse.value)
-    localStorage.setItem('maxTokens', JSON.stringify(maxTokens.value))
-  }
-
-  function getPitchesBySelectedType(): Pitch[] {
-    if (!selectedPitchType.value) return pitches.value
-    return pitches.value.filter(
-      (p) =>
-        parsePitchType(p.PitchType as unknown as string) ===
-        selectedPitchType.value,
-    )
-  }
-
-  function clearLocalStorage() {
-    if (!isClient) return
-    const keys = [
-      'pitches',
-      'selectedPitches',
-      'selectedPitchType',
-      'galleryArt',
-      'selectedTitle',
-      'newestPitches',
-      'numberOfRequests',
-      'temperature',
-      'exampleString',
-      'apiResponse',
-      'maxTokens',
-    ]
-    keys.forEach((key) => localStorage.removeItem(key))
   }
 
   async function initialize() {
     if (!isClient || isInitialized.value) return
+    if (initializePromise.value) return initializePromise.value
 
-    const stored = (key: string) => localStorage.getItem(key)
+    initializePromise.value = (async () => {
+      try {
+        const stored = localStorage.getItem('pitches')
+        if (stored) pitches.value = JSON.parse(stored)
 
-    pitches.value = JSON.parse(stored('pitches') || '[]')
-    selectedPitches.value = JSON.parse(stored('selectedPitches') || '[]')
-    selectedPitchType.value = JSON.parse(stored('selectedPitchType') || 'null')
-    galleryArt.value = JSON.parse(stored('galleryArt') || '[]')
-    selectedTitle.value = JSON.parse(stored('selectedTitle') || 'null')
-    newestPitches.value = JSON.parse(stored('newestPitches') || '[]')
-    numberOfRequests.value = JSON.parse(stored('numberOfRequests') || '1')
+        if (!hasLoaded.value) {
+          await fetchPitches()
+        }
 
-    const storedTemp = stored('temperature')
-    temperature.value = storedTemp ? Number(JSON.parse(storedTemp)) : 0.9
+        isInitialized.value = true
+      } catch (err) {
+        isInitialized.value = false
+        handleError(err, 'initializing pitch store')
+      } finally {
+        initializePromise.value = null
+      }
+    })()
 
-    exampleString.value = stored('exampleString') || ' '
-    apiResponse.value = stored('apiResponse') || ' '
-    maxTokens.value = JSON.parse(stored('maxTokens') || '500')
-
-    await fetchPitches()
-    isInitialized.value = true
+    return initializePromise.value
   }
 
-  async function fetchPitches() {
-    loading.value = true
-    try {
-      const res = await performFetch<Pitch[]>('/api/pitches')
-      if (res.success && res.data) {
+  async function fetchPitches(force = false): Promise<Pitch[]> {
+    if (!force && hasLoaded.value) return pitches.value
+    if (fetchPromise.value) return fetchPromise.value
+
+    fetchPromise.value = (async () => {
+      loading.value = true
+
+      try {
+        const res = await performFetch<Pitch[]>('/api/pitches')
+
+        if (!res.success || !res.data) {
+          throw new Error(res.message || 'Failed to fetch pitches')
+        }
+
         pitches.value = res.data.map((p) => ({
           ...p,
           PitchType: parsePitchType(p.PitchType as unknown as string),
         }))
+
+        hasLoaded.value = true
         saveStateToLocalStorage()
+
+        return pitches.value
+      } catch (err) {
+        hasLoaded.value = false
+        handleError(err, 'fetching pitches')
+        return []
+      } finally {
+        loading.value = false
+        fetchPromise.value = null
       }
-    } catch (err) {
-      handleError(err, 'fetching pitches')
-    } finally {
-      loading.value = false
-    }
-  }
+    })()
 
-  async function updatePitch(pitchId: number, updates: Partial<Pitch>) {
-    try {
-      const res = await performFetch<Pitch>(`/api/pitches/${pitchId}`, {
-        method: 'PATCH',
-        body: JSON.stringify(updates),
-      })
-
-      const index = pitches.value.findIndex((p) => p.id === pitchId)
-
-      if (res.success && res.data && index !== -1) {
-        pitches.value[index] = { ...pitches.value[index], ...res.data }
-        saveStateToLocalStorage()
-        return { success: true, message: 'Pitch updated successfully' }
-      }
-
-      return { success: false, message: res.message || 'Update failed' }
-    } catch (err) {
-      handleError(err, 'updating pitch')
-      return { success: false, message: 'Error updating pitch' }
-    }
-  }
-
-  async function deletePitch(pitchId: number) {
-    try {
-      const res = await performFetch(`/api/pitches/${pitchId}`, {
-        method: 'DELETE',
-      })
-
-      if (res.success) {
-        pitches.value = pitches.value.filter((p) => p.id !== pitchId)
-        saveStateToLocalStorage()
-        return { success: true, message: 'Pitch deleted' }
-      }
-
-      return { success: false, message: res.message || 'Delete failed' }
-    } catch (err) {
-      handleError(err, 'deleting pitch')
-      return { success: false, message: 'Error deleting pitch' }
-    }
-  }
-
-  async function fetchPitchById(pitchId: number) {
-    try {
-      const res = await performFetch<Pitch>(`/api/pitches/${pitchId}`)
-
-      if (res.success && res.data) {
-        const exists = pitches.value.some((p) => p.id === pitchId)
-        if (!exists) {
-          pitches.value.push(res.data)
-          saveStateToLocalStorage()
-        }
-        return { success: true, data: res.data }
-      }
-
-      return { success: false, message: res.message || 'Fetch failed' }
-    } catch (err) {
-      handleError(err, 'fetching pitch by ID')
-      return { success: false, message: 'Error fetching pitch' }
-    }
+    return fetchPromise.value
   }
 
   async function fetchArtForPitch(pitchId: number) {
+    if (galleryArt.value[pitchId]) return
+
     try {
       const res = await performFetch<Art[]>(`/api/pitches/art/${pitchId}`)
       if (res.success) {
-        galleryArt.value = res.data || []
+        galleryArt.value[pitchId] = res.data || []
       }
     } catch (err) {
       handleError(err, 'fetching art for pitch')
@@ -242,183 +163,71 @@ export const usePitchStore = defineStore('pitchStore', () => {
         body: JSON.stringify(payload),
       })
 
-      if (res.success && res.data) {
-        pitches.value.push({
-          ...res.data,
-          PitchType: parsePitchType(res.data.PitchType as unknown as string),
-        })
-        saveStateToLocalStorage()
-        return { success: true, data: res.data }
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Creation failed')
       }
 
-      return { success: false, message: res.message || 'Creation failed' }
+      const created = {
+        ...res.data,
+        PitchType: parsePitchType(res.data.PitchType as unknown as string),
+      }
+
+      pitches.value.push(created)
+      saveStateToLocalStorage()
+
+      return { success: true, data: created }
     } catch (err) {
       handleError(err, 'creating pitch')
       return { success: false, message: 'Error creating pitch' }
     }
   }
 
-  async function fetchTitleStormPitches() {
-    if (!selectedTitle.value) return
-
-    const content = buildTitleStormPrompt(
-      selectedTitle.value.title || '',
-      selectedTitle.value.description || '',
-      numberOfRequests.value,
-      exampleString.value,
-    )
-
-    const body = {
-      n: 1,
-      content,
-      max_tokens: maxTokens.value,
-      temperature: temperature.value,
-    }
-
-    try {
-      const res = await performFetch<string>('/api/botcafe/titleStorm', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      })
-
-      if (res.success) {
-        apiResponse.value = res.data || 'No response'
-
-        const created = await createPitch({
-          title: selectedTitle.value.title,
-          description: selectedTitle.value.description,
-          examples: res.data,
-          PitchType: PitchType.BRAINSTORM,
-          pitch: res.data,
-        })
-
-        if (created.success && created.data) {
-          newestPitches.value = [created.data]
-          saveStateToLocalStorage()
-        }
-      }
-    } catch (err) {
-      handleError(err, 'fetching title storm')
-    }
-  }
-
   async function fetchBrainstormPitches() {
     if (!selectedTitle.value) return
+    if (loading.value) return
 
-    const content = buildBrainstormPrompt(
-      selectedTitle.value.title || '',
-      selectedTitle.value.description || '',
-      numberOfRequests.value,
-      exampleString.value,
-    )
-
-    const body = {
-      n: numberOfRequests.value,
-      content,
-      max_tokens: maxTokens.value,
-      temperature: temperature.value,
-    }
+    loading.value = true
 
     try {
+      const content = buildBrainstormPrompt(
+        selectedTitle.value.title || '',
+        selectedTitle.value.description || '',
+        numberOfRequests.value,
+        exampleString.value,
+      )
+
       const res = await performFetch<string>('/api/botcafe/brainstorm', {
         method: 'POST',
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          n: numberOfRequests.value,
+          content,
+          max_tokens: maxTokens.value,
+          temperature: temperature.value,
+        }),
       })
 
       if (res.success) {
-        apiResponse.value = res.data || 'No response'
-
-        const created = await createPitch({
-          title: selectedTitle.value.title,
-          description: selectedTitle.value.description,
-          examples: res.data,
-          PitchType: PitchType.BRAINSTORM,
-          pitch: res.data,
-        })
-
-        if (created.success && created.data) {
-          newestPitches.value = [created.data]
-          saveStateToLocalStorage()
-        }
+        apiResponse.value = res.data || ''
       }
     } catch (err) {
-      handleError(err, 'fetching brainstorm')
-    }
-  }
-
-  async function fetchRandomPitches(count: number) {
-    try {
-      const res = await performFetch<Pitch[]>(
-        `/api/pitches/random?count=${count}`,
-      )
-      if (res.success) {
-        selectedPitches.value = res.data || []
-        saveStateToLocalStorage()
-      }
-    } catch (err) {
-      handleError(err, 'fetching random pitches')
+      handleError(err, 'brainstorm')
+    } finally {
+      loading.value = false
     }
   }
 
   function setSelectedPitch(pitchId: number) {
     const pitch = pitches.value.find((p) => p.id === pitchId)
     if (pitch) selectedPitches.value = [pitch]
-    saveStateToLocalStorage()
-  }
-
-  function setSelectedPitchType(pitchType: PitchType | null) {
-    selectedPitchType.value = pitchType
-    saveStateToLocalStorage()
   }
 
   function setSelectedTitle(pitchId: number) {
     selectedTitle.value = pitches.value.find((p) => p.id === pitchId) || null
-    saveStateToLocalStorage()
-  }
-
-  function addTitle({
-    title,
-    PitchType: pitchType,
-    pitch,
-  }: {
-    title: string
-    PitchType: PitchType
-    pitch?: string
-  }) {
-    return createPitch({
-      title,
-      PitchType: pitchType,
-      pitch: pitchType === PitchType.TITLE ? title : pitch,
-    })
-  }
-
-  function addPitches(newPitches: Pitch[]) {
-    const toAdd = newPitches.filter(
-      (np) => !pitches.value.some((p) => p.id === np.id),
-    )
-    pitches.value.push(...toAdd)
-
-    const sorted = pitches.value
-      .filter(
-        (p) =>
-          parsePitchType(p.PitchType as unknown as string) ===
-          PitchType.BRAINSTORM,
-      )
-      .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
-
-    selectedPitches.value = sorted.slice(0, 5)
-    saveStateToLocalStorage()
   }
 
   function selectPitch(pitchId: number) {
     const found = pitches.value.find((p) => p.id === pitchId)
     if (found) selectedPitch.value = found
-  }
-
-  async function updatePitchExamples(pitchId: number, examplesArray: string[]) {
-    const updated = joinExamples(examplesArray)
-    await updatePitch(pitchId, { examples: updated })
-    saveStateToLocalStorage()
   }
 
   function randomEntry(pitchName: string): string {
@@ -433,18 +242,18 @@ export const usePitchStore = defineStore('pitchStore', () => {
     pitches,
     selectedPitches,
     selectedPitchType,
-    isInitialized,
-    galleryArt,
+    selectedPitch,
     selectedTitle,
     newestPitches,
+    galleryArt,
     loading,
     numberOfRequests,
     temperature,
     exampleString,
     apiResponse,
     maxTokens,
-    selectedPitch,
-
+    pitchTypes,
+    selectedPitchId,
     titles,
     brainstormPitches,
     randomListPitches,
@@ -452,31 +261,16 @@ export const usePitchStore = defineStore('pitchStore', () => {
     publicPitches,
     selectedTitlePitches,
     newestPitchesDisplay,
-
-    saveStateToLocalStorage,
-    clearLocalStorage,
     initialize,
     fetchPitches,
     createPitch,
-    updatePitch,
-    deletePitch,
-    fetchPitchById,
     fetchArtForPitch,
-    fetchTitleStormPitches,
     fetchBrainstormPitches,
-    fetchRandomPitches,
     setSelectedPitch,
-    setSelectedPitchType,
     setSelectedTitle,
-    addTitle,
-    addPitches,
     selectPitch,
-    updatePitchExamples,
     getSelectedExamples,
     randomEntry,
-    getPitchesBySelectedType,
-    pitchTypes,
-    selectedPitchId,
   }
 })
 

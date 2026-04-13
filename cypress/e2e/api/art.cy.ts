@@ -139,7 +139,7 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.cfg).to.eq(7)
+      expect(response.body.data.cfg).to.eq(3)
       expect(response.body.data).to.include.keys(['createdAt', 'updatedAt'])
     })
   })

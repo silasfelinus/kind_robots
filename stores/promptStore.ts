@@ -13,12 +13,21 @@ export type { Prompt }
 
 export const usePromptStore = defineStore('promptStore', () => {
   const prompts = ref<Prompt[]>([])
-  const artByPromptId = ref<Art[]>([])
+  const artByPromptId = ref<Record<number, Art[]>>({})
   const selectedPrompt = ref<Prompt | null>(null)
+
   const promptField = ref('kind robots')
-  const isInitialized = ref(false)
   const promptArray = ref<string[]>([])
   const currentPrompt = ref('')
+
+  const isInitialized = ref(false)
+  const hasLoaded = ref(false)
+
+  const initializePromise = ref<Promise<void> | null>(null)
+  const fetchPromise = ref<Promise<Prompt[]> | null>(null)
+
+  const streamedText = ref('')
+  const isStreaming = ref(false)
 
   const finalPromptString = computed(() =>
     promptArray.value.filter((p) => p.trim() !== '').join(' | '),
@@ -26,6 +35,7 @@ export const usePromptStore = defineStore('promptStore', () => {
 
   function loadFromLocalStorage() {
     if (typeof window === 'undefined') return
+
     const field = localStorage.getItem('promptField')
     const array = localStorage.getItem('promptArray')
     const current = localStorage.getItem('currentPrompt')
@@ -37,6 +47,7 @@ export const usePromptStore = defineStore('promptStore', () => {
 
   function syncToLocalStorage() {
     if (typeof window === 'undefined') return
+
     localStorage.setItem('promptField', promptField.value)
     localStorage.setItem('promptArray', JSON.stringify(promptArray.value))
     localStorage.setItem('currentPrompt', currentPrompt.value)
@@ -44,18 +55,54 @@ export const usePromptStore = defineStore('promptStore', () => {
 
   async function initialize() {
     if (isInitialized.value) return
-    loadFromLocalStorage()
-    await fetchPrompts()
-    isInitialized.value = true
+    if (initializePromise.value) return initializePromise.value
+
+    initializePromise.value = (async () => {
+      try {
+        loadFromLocalStorage()
+
+        if (!hasLoaded.value) {
+          await fetchPrompts()
+        }
+
+        isInitialized.value = true
+      } catch (error) {
+        isInitialized.value = false
+        handleError(error, 'initializing prompt store')
+      } finally {
+        initializePromise.value = null
+      }
+    })()
+
+    return initializePromise.value
   }
 
-  async function fetchPrompts() {
-    try {
-      const response = await performFetch<Prompt[]>('/api/prompts/')
-      prompts.value = response.data || []
-    } catch (error) {
-      handleError(error, 'fetching prompts')
-    }
+  async function fetchPrompts(force = false): Promise<Prompt[]> {
+    if (!force && hasLoaded.value) return prompts.value
+    if (fetchPromise.value) return fetchPromise.value
+
+    fetchPromise.value = (async () => {
+      try {
+        const response = await performFetch<Prompt[]>('/api/prompts')
+
+        if (!response.success || !Array.isArray(response.data)) {
+          throw new Error(response.message || 'Invalid prompt response')
+        }
+
+        prompts.value = response.data
+        hasLoaded.value = true
+
+        return prompts.value
+      } catch (error) {
+        hasLoaded.value = false
+        handleError(error, 'fetching prompts')
+        return []
+      } finally {
+        fetchPromise.value = null
+      }
+    })()
+
+    return fetchPromise.value
   }
 
   function addPromptToArray(prompt: string) {
@@ -67,9 +114,6 @@ export const usePromptStore = defineStore('promptStore', () => {
     promptArray.value.splice(index, 1)
     syncToLocalStorage()
   }
-
-  const streamedText = ref('')
-  const isStreaming = ref(false)
 
   async function streamPromptCompletion(inputPrompt: string): Promise<string> {
     isStreaming.value = true
@@ -100,6 +144,7 @@ export const usePromptStore = defineStore('promptStore', () => {
           buffer = buffer.slice(boundary + 2)
 
           if (!chunk || chunk === '[DONE]') continue
+
           try {
             const parsed = JSON.parse(chunk)
             const content = parsed.choices?.[0]?.delta?.content
@@ -141,19 +186,26 @@ export const usePromptStore = defineStore('promptStore', () => {
         method: 'POST',
         body: JSON.stringify({ prompt: newPrompt, userId, botId }),
       })
-      const created = response.data || null
-      if (created) prompts.value.push(created)
-      return created
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to create prompt')
+      }
+
+      prompts.value.push(response.data)
+      return response.data
     } catch (error) {
       handleError(error, 'adding prompt')
+      return null
     }
   }
 
   async function selectPrompt(promptId: number) {
     try {
       if (selectedPrompt.value?.id === promptId) return
-      const found = prompts.value.find((p: { id: number }) => p.id === promptId)
-      if (!found) throw new Error(`Prompt with ID ${promptId} not found`)
+
+      const found = prompts.value.find((p) => p.id === promptId)
+      if (!found) throw new Error(`Prompt ${promptId} not found`)
+
       selectedPrompt.value = found
     } catch (error) {
       handleError(error, 'selecting prompt')
@@ -161,14 +213,18 @@ export const usePromptStore = defineStore('promptStore', () => {
   }
 
   async function fetchPromptById(promptId: number): Promise<Prompt | null> {
-    const found = prompts.value.find((p: { id: number }) => p.id === promptId)
+    const found = prompts.value.find((p) => p.id === promptId)
     if (found) return found
 
     try {
       const response = await performFetch<Prompt>(`/api/prompts/${promptId}`)
-      const prompt = response.data || null
-      if (prompt) prompts.value.push(prompt)
-      return prompt
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to fetch prompt')
+      }
+
+      prompts.value.push(response.data)
+      return response.data
     } catch (error) {
       handleError(error, 'fetching prompt by ID')
       return null
@@ -176,9 +232,16 @@ export const usePromptStore = defineStore('promptStore', () => {
   }
 
   async function fetchArtByPromptId(promptId: number) {
+    if (artByPromptId.value[promptId]) return
+
     try {
       const response = await performFetch<Art[]>(`/api/art/prompt/${promptId}`)
-      artByPromptId.value = response.data || []
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to fetch art')
+      }
+
+      artByPromptId.value[promptId] = response.data
     } catch (error) {
       handleError(error, 'fetching art by prompt ID')
     }
@@ -187,6 +250,7 @@ export const usePromptStore = defineStore('promptStore', () => {
   async function deletePrompt(promptId: number) {
     const userStore = useUserStore()
     const prompt = await fetchPromptById(promptId)
+
     if (!prompt || prompt.userId !== userStore.userId) {
       handleError(new Error('Unauthorized deletion attempt'), 'deleting prompt')
       return
@@ -196,13 +260,12 @@ export const usePromptStore = defineStore('promptStore', () => {
       const response = await performFetch(`/api/prompts/${promptId}`, {
         method: 'DELETE',
       })
-      if (response.success) {
-        prompts.value = prompts.value.filter(
-          (p: { id: number }) => p.id !== promptId,
-        )
-      } else {
+
+      if (!response.success) {
         throw new Error(response.message)
       }
+
+      prompts.value = prompts.value.filter((p) => p.id !== promptId)
     } catch (error) {
       handleError(error, 'deleting prompt')
     }
@@ -211,10 +274,12 @@ export const usePromptStore = defineStore('promptStore', () => {
   async function updatePromptAtIndex(index: number, value: string) {
     const userStore = useUserStore()
     const prompt = prompts.value[index]
+
     if (!prompt || prompt.userId !== userStore.userId) {
       handleError(new Error('Unauthorized edit attempt'), 'updating prompt')
       return
     }
+
     prompt.prompt = value
     prompts.value[index] = prompt
   }
@@ -228,10 +293,13 @@ export const usePromptStore = defineStore('promptStore', () => {
     artByPromptId,
     selectedPrompt,
     promptField,
-    isInitialized,
     promptArray,
     currentPrompt,
     finalPromptString,
+    isInitialized,
+    hasLoaded,
+    initializePromise,
+    fetchPromise,
     initialize,
     fetchPrompts,
     loadFromLocalStorage,

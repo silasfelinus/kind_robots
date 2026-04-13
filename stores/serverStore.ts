@@ -38,9 +38,12 @@ interface FetchResponse<T> {
   skipped?: string[]
 }
 
+const isClient = typeof window !== 'undefined'
+
 function isServer(value: unknown): value is Server {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<Server>
+
   return (
     typeof candidate.id === 'number' &&
     typeof candidate.title === 'string' &&
@@ -53,6 +56,8 @@ function isServerArray(value: unknown): value is Server[] {
 }
 
 function parseStoredValue<T>(key: string, fallback: T): T {
+  if (!isClient) return fallback
+
   try {
     const rawValue = localStorage.getItem(key)
     if (!rawValue) return fallback
@@ -93,6 +98,10 @@ export const useServerStore = defineStore('serverStore', () => {
   const isInitialized = ref(false)
   const loading = ref(false)
   const testingHealth = ref(false)
+
+  const initializePromise = ref<Promise<void> | null>(null)
+  const fetchPromise = ref<Promise<Server[]> | null>(null)
+  const hasLoaded = ref(false)
 
   const userStore = useUserStore()
 
@@ -240,6 +249,8 @@ export const useServerStore = defineStore('serverStore', () => {
   )
 
   function syncToLocalStorage(): void {
+    if (!isClient) return
+
     try {
       localStorage.setItem('servers', JSON.stringify(servers.value))
       localStorage.setItem('serverForm', JSON.stringify(serverForm.value))
@@ -261,6 +272,8 @@ export const useServerStore = defineStore('serverStore', () => {
   }
 
   function loadFromLocalStorage(): void {
+    if (!isClient) return
+
     const storedServers = parseStoredValue<unknown[]>('servers', [])
     const storedForm = parseStoredValue<ServerForm>('serverForm', {})
     const storedActiveArtServerId = parseStoredValue<number | null>(
@@ -284,62 +297,80 @@ export const useServerStore = defineStore('serverStore', () => {
 
   async function initialize(): Promise<void> {
     if (isInitialized.value) return
+    if (initializePromise.value) return initializePromise.value
 
-    try {
-      loadFromLocalStorage()
+    initializePromise.value = (async () => {
+      try {
+        loadFromLocalStorage()
 
-      const fetchedServers = await fetchAllServers()
-      const fetchedIds = new Set<number>(
-        fetchedServers.map((server: Server): number => server.id),
-      )
+        const fetchedServers = await fetchAllServers()
+        const fetchedIds = new Set<number>(
+          fetchedServers.map((server: Server): number => server.id),
+        )
 
-      servers.value = [
-        ...servers.value.filter(
-          (server: Server): boolean => !fetchedIds.has(server.id),
-        ),
-        ...fetchedServers,
-      ]
+        servers.value = [
+          ...servers.value.filter(
+            (server: Server): boolean => !fetchedIds.has(server.id),
+          ),
+          ...fetchedServers,
+        ]
 
-      if (
-        activeArtServerId.value === null &&
-        typeof userStore.user?.preferredArtServerId === 'number'
-      ) {
-        activeArtServerId.value = userStore.user.preferredArtServerId
+        if (
+          activeArtServerId.value === null &&
+          typeof userStore.user?.preferredArtServerId === 'number'
+        ) {
+          activeArtServerId.value = userStore.user.preferredArtServerId
+        }
+
+        if (
+          activeTextServerId.value === null &&
+          typeof userStore.user?.preferredTextServerId === 'number'
+        ) {
+          activeTextServerId.value = userStore.user.preferredTextServerId
+        }
+
+        syncToLocalStorage()
+        isInitialized.value = true
+      } catch (error) {
+        isInitialized.value = false
+        handleError(error, 'initializing server store')
+      } finally {
+        initializePromise.value = null
       }
+    })()
 
-      if (
-        activeTextServerId.value === null &&
-        typeof userStore.user?.preferredTextServerId === 'number'
-      ) {
-        activeTextServerId.value = userStore.user.preferredTextServerId
-      }
-
-      syncToLocalStorage()
-      isInitialized.value = true
-    } catch (error) {
-      handleError(error, 'initializing server store')
-    }
+    return initializePromise.value
   }
 
-  async function fetchAllServers(): Promise<Server[]> {
-    loading.value = true
+  async function fetchAllServers(force = false): Promise<Server[]> {
+    if (!force && hasLoaded.value) return servers.value
+    if (fetchPromise.value) return fetchPromise.value
 
-    try {
-      const res = (await performFetch('/api/server')) as FetchResponse<Server[]>
+    fetchPromise.value = (async () => {
+      loading.value = true
 
-      if (res.success && isServerArray(res.data)) {
-        servers.value = res.data
-        syncToLocalStorage()
-        return res.data
+      try {
+        const res = (await performFetch('/api/server')) as FetchResponse<
+          Server[]
+        >
+
+        if (res.success && isServerArray(res.data)) {
+          hasLoaded.value = true
+          return res.data
+        }
+
+        throw new Error(res.message || 'Failed to fetch servers')
+      } catch (error) {
+        hasLoaded.value = false
+        handleError(error, 'fetching servers')
+        return []
+      } finally {
+        loading.value = false
+        fetchPromise.value = null
       }
+    })()
 
-      throw new Error(res.message || 'Failed to fetch servers')
-    } catch (error) {
-      handleError(error, 'fetching servers')
-      return []
-    } finally {
-      loading.value = false
-    }
+    return fetchPromise.value
   }
 
   async function fetchServerById(id: number): Promise<Server | null> {
@@ -709,6 +740,9 @@ export const useServerStore = defineStore('serverStore', () => {
     isInitialized,
     loading,
     testingHealth,
+    initializePromise,
+    fetchPromise,
+    hasLoaded,
     ownedServers,
     publicServers,
     officialServers,

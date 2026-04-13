@@ -1,6 +1,6 @@
 // /stores/randomStore.ts
 import { defineStore } from 'pinia'
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, type WatchStopHandle } from 'vue'
 
 import { useUserStore } from './userStore'
 import { useArtStore } from './artStore'
@@ -23,12 +23,15 @@ type PerformFetchResult<T> = {
   statusCode?: number
 }
 
+const isClient = typeof window !== 'undefined'
+
 function isRandomListPitch(p: Pitch): boolean {
   return (p as unknown as { PitchType?: unknown }).PitchType === 'RANDOMLIST'
 }
 
 function safeParseStringArray(value: unknown): string[] {
   if (typeof value !== 'string') return []
+
   try {
     const parsed = JSON.parse(value) as unknown
     if (!Array.isArray(parsed)) return []
@@ -44,9 +47,14 @@ export const useRandomStore = defineStore('randomStore', () => {
   const userStore = useUserStore()
   const artStore = useArtStore()
 
+  const initialized = ref(false)
   const randomSelections = ref<Record<string, string>>({})
   const randomLists = ref<Pitch[]>([])
   const presetLists = ref<RandomListItem[]>(getAllPresetLists(artListPresets))
+  const randomListsLoaded = ref(false)
+  const fetchRandomListsPromise = ref<Promise<void> | null>(null)
+
+  let randomSelectionsWatcher: WatchStopHandle | null = null
 
   const filteredLists = computed<RandomListItem[]>(() => {
     const userLists = (
@@ -95,7 +103,9 @@ export const useRandomStore = defineStore('randomStore', () => {
   }
 
   function initialize() {
-    onMounted(() => {
+    if (initialized.value) return
+
+    if (isClient) {
       const stored = localStorage.getItem('artRandomizerRandomSelections')
       if (stored) {
         try {
@@ -108,40 +118,56 @@ export const useRandomStore = defineStore('randomStore', () => {
         }
       }
 
-      watch(
-        randomSelections,
-        (val: Record<string, string>) => {
-          try {
-            localStorage.setItem(
-              'artRandomizerRandomSelections',
-              JSON.stringify(val),
-            )
-          } catch (error: unknown) {
-            handleError(
-              error,
-              'Failed to save randomSelections to localStorage',
-            )
-          }
-        },
-        { deep: true },
-      )
-    })
-  }
-
-  async function fetchRandomLists() {
-    const res = (await performFetch<Pitch[]>(
-      '/api/pitch/randomlists',
-    )) as PerformFetchResult<Pitch[]>
-
-    if (res.success && res.data) {
-      randomLists.value = res.data
-      return
+      if (!randomSelectionsWatcher) {
+        randomSelectionsWatcher = watch(
+          randomSelections,
+          (val: Record<string, string>) => {
+            try {
+              localStorage.setItem(
+                'artRandomizerRandomSelections',
+                JSON.stringify(val),
+              )
+            } catch (error: unknown) {
+              handleError(
+                error,
+                'Failed to save randomSelections to localStorage',
+              )
+            }
+          },
+          { deep: true },
+        )
+      }
     }
 
-    handleError(
-      new Error(res.message || 'Failed to fetch random lists'),
-      'fetching random lists',
-    )
+    initialized.value = true
+  }
+
+  async function fetchRandomLists(force = false) {
+    if (!force && randomListsLoaded.value) return
+    if (fetchRandomListsPromise.value) return fetchRandomListsPromise.value
+
+    fetchRandomListsPromise.value = (async () => {
+      const res = (await performFetch<Pitch[]>(
+        '/api/pitch/randomlists',
+      )) as PerformFetchResult<Pitch[]>
+
+      if (res.success && res.data) {
+        randomLists.value = res.data
+        randomListsLoaded.value = true
+        return
+      }
+
+      handleError(
+        new Error(res.message || 'Failed to fetch random lists'),
+        'fetching random lists',
+      )
+    })()
+
+    try {
+      await fetchRandomListsPromise.value
+    } finally {
+      fetchRandomListsPromise.value = null
+    }
   }
 
   async function createList(title: string) {
@@ -295,8 +321,7 @@ export const useRandomStore = defineStore('randomStore', () => {
 
   return {
     initialize,
-
-    // Random single selection helpers
+    initialized,
     getRandom,
     supportedKeys,
     pickRandomFromArray,
@@ -305,26 +330,19 @@ export const useRandomStore = defineStore('randomStore', () => {
     clearAllSelections,
     getAllSelections,
     randomSelections,
-
-    // Preset + user lists
     presetLists,
     randomLists,
     filteredLists,
-
-    // Remote random list handling
+    randomListsLoaded,
     fetchRandomLists,
     createList,
     updateList,
     updateListItem,
     deleteList,
     generateListItems,
-
-    // Commands
     resetAll,
     applyMakePretty,
     applySurprise,
-
-    // Convenience for components
     getExamplesForList,
     setExamplesForList,
   }

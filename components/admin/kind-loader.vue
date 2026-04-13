@@ -68,29 +68,21 @@ onMounted(async () => {
       )
     }
 
-    // Initialize other stores in parallel
     await Promise.all([
-      consoleStore.initialize?.(),
-      pageStore.initialize?.(),
       userStore.initialize?.(),
+      pageStore.initialize?.(),
+      themeStore.initialize?.(),
+      navStore.initialize?.(),
+      smartbarStore.initialize?.(),
+      consoleStore.initialize?.(),
       milestoneStore.initialize?.(),
-      pitchStore.initialize?.(),
-      randomStore.initialize?.(),
-      promptStore.initialize?.(),
+    ])
+
+    await Promise.all([
       artStore.initialize?.(),
       botStore.initialize?.(),
-      chatStore.initialize?.(),
-      themeStore.initialize?.(),
-      reactionStore.initialize?.(),
-      rewardStore.initialize?.(),
-      characterStore.initialize?.(),
       galleryStore.initialize?.(),
-      weirdStore.initialize?.(),
-      scenarioStore.initialize?.(),
-      choiceStore.initialize?.(),
-      smartbarStore.initialize?.(),
-      componentStore.initialize?.(),
-      navStore.initialize?.(),
+      chatStore.initialize?.(),
     ])
 
     console.log('All stores initialized successfully.')

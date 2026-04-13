@@ -1,9 +1,7 @@
 
-/* //assets/css/tailwind.css */
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
-@import 'daisyui/dist/full.css';
+/* /assets/css/tailwind.css */
+@import "tailwindcss";
+@plugin "daisyui";
 
 /* Hide scrollbar for Chrome, Safari and Opera */
 .no-scrollbar::-webkit-scrollbar {

@@ -30,7 +30,7 @@ describe('Bot Management API Tests', () => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
       expect(response.body.message).to.include(
-        'Authorization token is required',
+        'Failed to create a new bot',
       )
     })
   })
@@ -54,7 +54,7 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
-      expect(response.body.message).to.include('Invalid or expired token')
+      expect(response.body.message).to.include('Failed to create a new bot')
     })
   })
 

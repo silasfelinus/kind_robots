@@ -46,6 +46,7 @@
     "vue-tsc": "^2.1.6"
   },
   "dependencies": {
+    "24": "^0.0.0",
     "@interactjs/interact": "^1.10.27",
     "@nuxt/content": "^3.3.0",
     "@nuxt/eslint": "^1.1.0",

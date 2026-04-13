@@ -1,7 +1,7 @@
 // /stores/cartStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import { handleError } from '@/stores/utils'
+import { handleError, performFetch } from '@/stores/utils'
 
 export interface CartItem {
   id: string
@@ -18,16 +18,23 @@ export interface CartItem {
   artImageId: number
   imageUrl: string
   quantity: number
-  price: number // 💰 Price per item
+  price: number
   notes?: string
 }
+
+const isClient = typeof window !== 'undefined'
 
 export const useCartStore = defineStore('cartStore', () => {
   const items = ref<CartItem[]>([])
   const isOpen = ref(false)
+  const initialized = ref(false)
 
   const totalPrice = computed(() =>
     items.value.reduce((sum, item) => sum + item.quantity * item.price, 0),
+  )
+
+  const totalItems = computed(() =>
+    items.value.reduce((sum, item) => sum + item.quantity, 0),
   )
 
   const hasItems = computed(() => items.value.length > 0)
@@ -35,75 +42,45 @@ export const useCartStore = defineStore('cartStore', () => {
   const findItemIndex = (id: string) =>
     items.value.findIndex((item) => item.id === id)
 
+  function initialize() {
+    if (initialized.value) return
+    loadFromLocalStorage()
+    initialized.value = true
+  }
+
   function addItem(newItem: Omit<CartItem, 'id'>) {
     const id = `${newItem.type}-${newItem.artImageId}`
     const index = findItemIndex(id)
 
     if (index !== -1) {
       items.value[index].quantity += newItem.quantity
-    } else {
-      items.value.push({ ...newItem, id })
+      if (newItem.notes) {
+        items.value[index].notes = newItem.notes
+      }
+      return
     }
 
-    syncToLocalStorage()
+    items.value.push({ ...newItem, id })
   }
 
   function removeItem(id: string) {
     items.value = items.value.filter((item) => item.id !== id)
-    syncToLocalStorage()
   }
 
   function updateQuantity(id: string, quantity: number) {
     const index = findItemIndex(id)
-    if (index !== -1) {
-      if (quantity <= 0) {
-        removeItem(id)
-      } else {
-        items.value[index].quantity = quantity
-        syncToLocalStorage()
-      }
+    if (index === -1) return
+
+    if (quantity <= 0) {
+      removeItem(id)
+      return
     }
-  }
 
-  async function subscribe(userId: number) {
-    try {
-      const res = await fetch('/api/stripe/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      })
-
-      const result = await res.json()
-
-      if (!result.success || !result.url) {
-        throw new Error(result.message || 'Subscription checkout failed.')
-      }
-
-      window.location.href = result.url
-    } catch (error) {
-      console.error('[cartStore] Subscribe error:', error)
-      alert('Subscription failed. Try again later.')
-    }
-  }
-
-  const totalItems = computed(() =>
-    items.value.reduce((sum, item) => sum + item.quantity, 0),
-  )
-
-  async function cancelSubscription(userId: number) {
-    try {
-      // Future version: you'll hit /api/stripe/cancel or similar
-      alert(`Cancel subscription for user ${userId} (not implemented yet)`)
-      console.warn('[cartStore] Cancel subscription is not yet implemented')
-    } catch (error) {
-      console.error('[cartStore] Cancel error:', error)
-      alert('Cancellation failed.')
-    }
+    items.value[index].quantity = quantity
   }
 
   function clearCart() {
     items.value = []
-    syncToLocalStorage()
   }
 
   function openCart() {
@@ -119,6 +96,8 @@ export const useCartStore = defineStore('cartStore', () => {
   }
 
   function syncToLocalStorage() {
+    if (!isClient) return
+
     try {
       localStorage.setItem('cartItems', JSON.stringify(items.value))
     } catch (error) {
@@ -126,53 +105,108 @@ export const useCartStore = defineStore('cartStore', () => {
     }
   }
 
+  function loadFromLocalStorage() {
+    if (!isClient) return
+
+    try {
+      const saved = localStorage.getItem('cartItems')
+      if (!saved) return
+
+      const parsed = JSON.parse(saved)
+      if (!Array.isArray(parsed)) {
+        localStorage.removeItem('cartItems')
+        items.value = []
+        return
+      }
+
+      items.value = parsed
+    } catch (error) {
+      handleError(error, 'loading cart')
+      items.value = []
+    }
+  }
+
   async function checkout(userId: number) {
     try {
-      const cartPayload = items.value.map((i) => ({
-        id: i.type, // must match your seed item id
-        quantity: i.quantity,
+      const cartPayload = items.value.map((item) => ({
+        id: item.type,
+        quantity: item.quantity,
       }))
 
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, cart: cartPayload }),
-      })
+      const result = await performFetch<{ url: string }>(
+        '/api/stripe/checkout',
+        {
+          method: 'POST',
+          body: JSON.stringify({ userId, cart: cartPayload }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
 
-      const result = await res.json()
-
-      if (!result.success || !result.url) {
+      if (!result.success || !result.data?.url) {
         throw new Error(result.message || 'Failed to initiate checkout.')
       }
 
-      window.location.href = result.url
+      if (isClient) {
+        window.location.href = result.data.url
+      }
     } catch (error) {
       console.error('[cartStore] Checkout error:', error)
-      alert('Checkout failed. Please try again later.')
+      if (isClient) {
+        alert('Checkout failed. Please try again later.')
+      }
     }
   }
 
-  function loadFromLocalStorage() {
+  async function subscribe(userId: number) {
     try {
-      const saved = localStorage.getItem('cartItems')
-      if (saved) items.value = JSON.parse(saved)
+      const result = await performFetch<{ url: string }>(
+        '/api/stripe/subscribe',
+        {
+          method: 'POST',
+          body: JSON.stringify({ userId }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+
+      if (!result.success || !result.data?.url) {
+        throw new Error(result.message || 'Subscription checkout failed.')
+      }
+
+      if (isClient) {
+        window.location.href = result.data.url
+      }
     } catch (error) {
-      handleError(error, 'loading cart')
+      console.error('[cartStore] Subscribe error:', error)
+      if (isClient) {
+        alert('Subscription failed. Try again later.')
+      }
     }
   }
 
-  // Auto-load on startup
-  loadFromLocalStorage()
+  async function cancelSubscription(userId: number) {
+    try {
+      alert(`Cancel subscription for user ${userId} (not implemented yet)`)
+      console.warn('[cartStore] Cancel subscription is not yet implemented')
+    } catch (error) {
+      console.error('[cartStore] Cancel error:', error)
+      if (isClient) {
+        alert('Cancellation failed.')
+      }
+    }
+  }
 
-  // Auto-persist on change
-  watch(items, syncToLocalStorage, { deep: true })
+  if (isClient) {
+    watch(items, syncToLocalStorage, { deep: true })
+  }
 
   return {
     items,
     isOpen,
+    initialized,
     totalItems,
     totalPrice,
     hasItems,
+    initialize,
     addItem,
     removeItem,
     updateQuantity,

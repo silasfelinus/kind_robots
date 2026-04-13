@@ -27,6 +27,9 @@ export const useBotStore = defineStore('botStore', () => {
   const loading = ref(false)
   const isLoaded = ref(false)
 
+  const initializePromise = ref<Promise<void> | null>(null)
+  const fetchBotsPromise = ref<Promise<void> | null>(null)
+
   const serverStore = useServerStore()
 
   const totalBots = computed<number>(() => bots.value.length)
@@ -132,42 +135,51 @@ export const useBotStore = defineStore('botStore', () => {
   }
 
   async function fetchBots(force = false): Promise<void> {
-    if (isLoaded.value && !force) return
+    if (!force && isLoaded.value) return
+    if (fetchBotsPromise.value) return fetchBotsPromise.value
 
-    loading.value = true
+    fetchBotsPromise.value = (async () => {
+      loading.value = true
 
-    try {
-      const response = await performFetch<Bot[]>('/api/bots')
-      if (response.success && response.data) {
-        bots.value = response.data
-        isLoaded.value = true
-      } else if (!response.success) {
-        throw new Error(response.message || 'Failed to fetch bots')
+      try {
+        const response = await performFetch<Bot[]>('/api/bots')
+        if (response.success && response.data) {
+          bots.value = response.data
+          isLoaded.value = true
+        } else if (!response.success) {
+          throw new Error(response.message || 'Failed to fetch bots')
+        }
+      } catch (error: unknown) {
+        handleError(error, 'fetching bots')
+      } finally {
+        loading.value = false
+        fetchBotsPromise.value = null
       }
-    } catch (error: unknown) {
-      handleError(error, 'fetching bots')
-    } finally {
-      loading.value = false
-    }
+    })()
+
+    return fetchBotsPromise.value
   }
 
   async function initialize(): Promise<void> {
-    if (isLoaded.value || loading.value) return
+    if (isLoaded.value) return
+    if (initializePromise.value) return initializePromise.value
 
-    loading.value = true
+    initializePromise.value = (async () => {
+      try {
+        await serverStore.initialize()
+        await fetchBots()
 
-    try {
-      await serverStore.initialize()
-      await fetchBots()
-
-      if (!currentBot.value && Object.keys(botForm.value).length === 0) {
-        createNewBot()
+        if (!currentBot.value && Object.keys(botForm.value).length === 0) {
+          createNewBot()
+        }
+      } catch (error: unknown) {
+        handleError(error, 'initializing bot store')
+      } finally {
+        initializePromise.value = null
       }
-    } catch (error: unknown) {
-      handleError(error, 'initializing bot store')
-    } finally {
-      loading.value = false
-    }
+    })()
+
+    return initializePromise.value
   }
 
   async function updateCurrentBot(): Promise<Bot | null> {
@@ -313,6 +325,8 @@ export const useBotStore = defineStore('botStore', () => {
     currentImagePath,
     loading,
     isLoaded,
+    initializePromise,
+    fetchBotsPromise,
     totalBots,
     selectedBotId,
     hasUnsavedChanges,

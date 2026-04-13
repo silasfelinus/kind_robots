@@ -10,12 +10,13 @@ import {
   getCollectedArtIds,
   collectionIncludesArtId,
   removeArtFromLocalCollection,
-  findCollectionById,
   createEmptyCollection,
   parseStoredCollections,
 } from '@/stores/helpers/collectionHelper'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
+
+const isClient = typeof window !== 'undefined'
 
 export const useCollectionStore = defineStore('collectionStore', () => {
   const state = reactive({
@@ -30,56 +31,105 @@ export const useCollectionStore = defineStore('collectionStore', () => {
   const SELECTED_COLLECTION_KEY = 'selectedCollectionIds'
   const selectedCollectionIds = ref<number[]>([])
 
-  function findCollectionById(collectionId: number): ArtCollection | undefined {
-    return state.collections.find((c: { id: number }) => c.id === collectionId)
+  const hasFetched = ref(false)
+  const fetchPromise = ref<Promise<void> | null>(null)
+  const createLocks = ref<Partial<Record<string, Promise<ArtCollection>>>>({})
+  const mutationLocks = ref<Partial<Record<string, Promise<void>>>>({})
+
+  function findCollectionByIdLocal(
+    collectionId: number,
+  ): ArtCollection | undefined {
+    return state.collections.find(
+      (collection) => collection.id === collectionId,
+    )
   }
 
   const selectedCollections = computed(() =>
     selectedCollectionIds.value
-      .map((id) => findCollectionById(id))
-      .filter((c): c is ArtCollection => !!c),
+      .map((id) => findCollectionByIdLocal(id))
+      .filter((collection): collection is ArtCollection => !!collection),
   )
 
-  if (import.meta.client) {
+  function loadSelectedCollectionIds() {
+    if (!isClient) return
+
     const stored = localStorage.getItem(SELECTED_COLLECTION_KEY)
-    if (stored) {
-      try {
-        selectedCollectionIds.value = JSON.parse(stored)
-      } catch (e) {
-        console.warn('Invalid collection selection in localStorage:', e)
+    if (!stored) return
+
+    try {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed)) {
+        selectedCollectionIds.value = parsed.filter((id) =>
+          Number.isFinite(id),
+        ) as number[]
       }
+    } catch (error) {
+      console.warn('Invalid collection selection in localStorage:', error)
     }
   }
 
+  function persistSelectedCollectionIds() {
+    if (!isClient) return
+    localStorage.setItem(
+      SELECTED_COLLECTION_KEY,
+      JSON.stringify(selectedCollectionIds.value),
+    )
+  }
+
+  loadSelectedCollectionIds()
+
   watch(
     selectedCollectionIds,
-    (ids) => {
-      if (import.meta.client) {
-        localStorage.setItem(SELECTED_COLLECTION_KEY, JSON.stringify(ids))
-      }
+    () => {
+      persistSelectedCollectionIds()
     },
     { deep: true },
   )
 
-  async function fetchCollections() {
-    try {
-      const response = await performFetch<ArtCollection[]>(
-        '/api/art/collection',
-      )
-      if (!response.success || !response.data) throw new Error(response.message)
-      state.collections = response.data
-    } catch (error) {
-      handleError(error, 'fetching collections')
-    }
+  async function fetchCollections(force = false): Promise<void> {
+    if (!force && hasFetched.value) return
+    if (fetchPromise.value) return fetchPromise.value
+
+    fetchPromise.value = (async () => {
+      try {
+        const response = await performFetch<ArtCollection[]>(
+          '/api/art/collection',
+        )
+
+        if (!response.success || !response.data) {
+          throw new Error(response.message || 'Failed to fetch collections')
+        }
+
+        state.collections = response.data
+        hasFetched.value = true
+
+        if (
+          state.currentCollection &&
+          !state.collections.some(
+            (collection) => collection.id === state.currentCollection?.id,
+          )
+        ) {
+          state.currentCollection = null
+        }
+      } catch (error) {
+        handleError(error, 'fetching collections')
+        hasFetched.value = false
+      } finally {
+        fetchPromise.value = null
+      }
+    })()
+
+    return fetchPromise.value
   }
 
   function getUncollectedArt(): Art[] {
     const collectedIds = state.collections
-      .filter((c: { userId: any }) => c.userId === userStore.userId)
-      .flatMap((c: { art: any[] }) => c.art.map((a: { id: any }) => a.id))
+      .filter((collection) => collection.userId === userStore.userId)
+      .flatMap((collection) => collection.art.map((art) => art.id))
+
     return artStore.art.filter(
-      (a: { userId: any; id: any }) =>
-        a.userId === userStore.userId && !collectedIds.includes(a.id),
+      (art) =>
+        art.userId === userStore.userId && !collectedIds.includes(art.id),
     )
   }
 
@@ -90,6 +140,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     isMature?: boolean,
   ): Promise<ArtCollection> {
     const body: Record<string, unknown> = { label, userId }
+
     if (typeof isPublic === 'boolean') body.isPublic = isPublic
     if (typeof isMature === 'boolean') body.isMature = isMature
 
@@ -99,7 +150,10 @@ export const useCollectionStore = defineStore('collectionStore', () => {
       headers: { 'Content-Type': 'application/json' },
     })
 
-    if (!response.success || !response.data) throw new Error(response.message)
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Failed to create collection')
+    }
+
     state.collections.push(response.data)
     state.currentCollection = response.data
     return response.data
@@ -113,10 +167,23 @@ export const useCollectionStore = defineStore('collectionStore', () => {
           method: 'DELETE',
         },
       )
-      if (!response.success) throw new Error(response.message)
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to delete collection')
+      }
+
       state.collections = state.collections.filter(
-        (c: { id: number }) => c.id !== collectionId,
+        (collection) => collection.id !== collectionId,
       )
+
+      if (state.currentCollection?.id === collectionId) {
+        state.currentCollection = null
+      }
+
+      selectedCollectionIds.value = selectedCollectionIds.value.filter(
+        (id) => id !== collectionId,
+      )
+
       return true
     } catch (error) {
       handleError(error, 'deleting collection')
@@ -132,49 +199,87 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     artId: number
     collectionId?: number
     label?: string
-  }) {
-    let collection =
-      collectionId != null
-        ? findCollectionById(collectionId)
-        : findCollectionByUserAndLabel(
-            state.collections,
-            userStore.userId,
-            label,
+  }): Promise<void> {
+    const lockKey = `${collectionId ?? label}:${artId}`
+
+    if (mutationLocks.value[lockKey]) {
+      return mutationLocks.value[lockKey]
+    }
+
+    mutationLocks.value[lockKey] = (async () => {
+      try {
+        let collection =
+          collectionId != null
+            ? findCollectionByIdLocal(collectionId)
+            : findCollectionByUserAndLabel(
+                state.collections,
+                userStore.userId,
+                label,
+              )
+
+        if (!collection) {
+          const response = await performFetch<ArtCollection>(
+            '/api/art/collection',
+            {
+              method: 'POST',
+              body: JSON.stringify({ label, userId: userStore.userId }),
+              headers: { 'Content-Type': 'application/json' },
+            },
           )
 
-    if (!collection) {
-      const res = await performFetch<ArtCollection>('/api/art/collection', {
-        method: 'POST',
-        body: JSON.stringify({ label, userId: userStore.userId }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-      if (!res.success || !res.data) throw new Error(res.message)
-      collection = res.data
-      state.collections.push(collection)
-    }
+          if (!response.success || !response.data) {
+            throw new Error(response.message || 'Failed to create collection')
+          }
 
-    const response = await performFetch<ArtCollection>(
-      `/api/art/collection/${collection.id}`,
-      {
-        method: 'PATCH',
-        body: JSON.stringify({ artIds: [artId] }),
-        headers: { 'Content-Type': 'application/json' },
-      },
-    )
+          collection = response.data
+          state.collections.push(collection)
+        }
 
-    if (response.success && response.data) {
-      const index = state.collections.findIndex(
-        (c: { id: any }) => c.id === collection!.id,
-      )
-      if (index !== -1) state.collections[index] = response.data
-    }
+        if (collectionIncludesArtId(collection, artId)) {
+          return
+        }
+
+        const response = await performFetch<ArtCollection>(
+          `/api/art/collection/${collection.id}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify({ artIds: [artId] }),
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+
+        if (response.success && response.data) {
+          const index = state.collections.findIndex(
+            (existingCollection) => existingCollection.id === collection!.id,
+          )
+
+          if (index !== -1) {
+            state.collections[index] = response.data
+          }
+        } else {
+          throw new Error(response.message || 'Failed to add art to collection')
+        }
+      } catch (error) {
+        handleError(error, 'adding art to collection')
+      } finally {
+        delete mutationLocks.value[lockKey]
+      }
+    })()
+
+    return mutationLocks.value[lockKey]
   }
 
-  async function removeArtFromCollection(artId: number, collectionId: number) {
+  async function removeArtFromCollection(
+    artId: number,
+    collectionId: number,
+  ): Promise<void> {
     const success = await removeArtFromCollectionServer(collectionId, artId)
+
     if (success) {
-      const collection = findCollectionById(collectionId)
-      if (collection) removeArtFromLocalCollection(collection, artId)
+      const collection = findCollectionByIdLocal(collectionId)
+      if (collection) {
+        removeArtFromLocalCollection(collection, artId)
+      }
     }
   }
 
@@ -187,14 +292,18 @@ export const useCollectionStore = defineStore('collectionStore', () => {
         `/api/art/collection/${collectionId}/${artId}`,
         { method: 'DELETE' },
       )
-      if (!response.success) throw new Error(response.message)
 
-      const collection = findCollectionById(collectionId)
-      if (collection) {
-        collection.art = collection.art.filter(
-          (a: { id: number }) => a.id !== artId,
+      if (!response.success) {
+        throw new Error(
+          response.message || 'Failed to remove art from collection',
         )
       }
+
+      const collection = findCollectionByIdLocal(collectionId)
+      if (collection) {
+        collection.art = collection.art.filter((art) => art.id !== artId)
+      }
+
       return true
     } catch (error) {
       handleError(error, 'removing art from collection')
@@ -204,7 +313,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
   function getUserCollections(userId: number): ArtCollection[] {
     return state.collections.filter(
-      (c: { userId: number }) => c.userId === userId,
+      (collection) => collection.userId === userId,
     )
   }
 
@@ -221,11 +330,23 @@ export const useCollectionStore = defineStore('collectionStore', () => {
           headers: { 'Content-Type': 'application/json' },
         },
       )
-      if (!response.success || !response.data) throw new Error(response.message)
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update collection label')
+      }
+
       const index = state.collections.findIndex(
-        (c: { id: number }) => c.id === id,
+        (collection) => collection.id === id,
       )
-      if (index !== -1) state.collections[index] = response.data
+
+      if (index !== -1) {
+        state.collections[index] = response.data
+      }
+
+      if (state.currentCollection?.id === id) {
+        state.currentCollection = response.data
+      }
+
       return response.data
     } catch (error) {
       handleError(error, 'updating collection label')
@@ -246,11 +367,23 @@ export const useCollectionStore = defineStore('collectionStore', () => {
           headers: { 'Content-Type': 'application/json' },
         },
       )
-      if (!response.success || !response.data) throw new Error(response.message)
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update collection flags')
+      }
+
       const index = state.collections.findIndex(
-        (c: { id: number }) => c.id === id,
+        (collection) => collection.id === id,
       )
-      if (index !== -1) state.collections[index] = response.data
+
+      if (index !== -1) {
+        state.collections[index] = response.data
+      }
+
+      if (state.currentCollection?.id === id) {
+        state.currentCollection = response.data
+      }
+
       return response.data
     } catch (error) {
       handleError(error, 'updating collection flags')
@@ -263,30 +396,77 @@ export const useCollectionStore = defineStore('collectionStore', () => {
   ): Promise<ArtCollection> {
     const username = userStore.username?.trim()
     const label = username ? `${username}'s Art` : 'Generated Art'
+    const fallbackLabel = 'Generated Art'
+    const lockKey = `${userId}:${label}`
 
-    let collection = findCollectionByUserAndLabel(
-      state.collections,
-      userId,
-      label,
-    )
+    if (createLocks.value[lockKey]) {
+      return createLocks.value[lockKey]
+    }
 
-    if (!collection && label !== 'Generated Art') {
-      collection = findCollectionByUserAndLabel(
+    createLocks.value[lockKey] = (async () => {
+      let collection = findCollectionByUserAndLabel(
         state.collections,
         userId,
-        'Generated Art',
+        label,
       )
-    }
 
-    if (!collection) {
-      const newCollection = await createCollection(label, userId, false, false)
-      if (!newCollection) {
-        throw new Error('Could not create user art collection')
+      if (!collection && label !== fallbackLabel) {
+        collection = findCollectionByUserAndLabel(
+          state.collections,
+          userId,
+          fallbackLabel,
+        )
       }
-      collection = newCollection
+
+      if (!collection) {
+        const newCollection = await createCollection(
+          label,
+          userId,
+          false,
+          false,
+        )
+        if (!newCollection) {
+          throw new Error('Could not create user art collection')
+        }
+        collection = newCollection
+      }
+
+      return collection
+    })()
+
+    try {
+      return await createLocks.value[lockKey]
+    } finally {
+      delete createLocks.value[lockKey]
+    }
+  }
+
+  function setCurrentCollection(collectionId: number | null): void {
+    if (collectionId === null) {
+      state.currentCollection = null
+      return
     }
 
-    return collection
+    state.currentCollection = findCollectionByIdLocal(collectionId) ?? null
+  }
+
+  function setSelectedCollectionIds(ids: number[]): void {
+    selectedCollectionIds.value = ids.filter((id) => Number.isFinite(id))
+  }
+
+  function toggleSelectedCollectionId(collectionId: number): void {
+    if (selectedCollectionIds.value.includes(collectionId)) {
+      selectedCollectionIds.value = selectedCollectionIds.value.filter(
+        (id) => id !== collectionId,
+      )
+      return
+    }
+
+    selectedCollectionIds.value = [...selectedCollectionIds.value, collectionId]
+  }
+
+  function clearSelectedCollections(): void {
+    selectedCollectionIds.value = []
   }
 
   return {
@@ -294,6 +474,8 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
     selectedCollectionIds,
     selectedCollections,
+    hasFetched,
+    fetchPromise,
 
     fetchCollections,
     createCollection,
@@ -303,12 +485,17 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     removeArtFromCollectionServer,
     updateCollectionLabel,
     updateCollectionFlags,
-    findCollectionById,
-    findCollectionByUserAndLabel,
     getUserCollections,
     getOrCreateGeneratedArtCollection,
 
-    // From helper
+    setCurrentCollection,
+    setSelectedCollectionIds,
+    toggleSelectedCollectionId,
+    clearSelectedCollections,
+
+    findCollectionById: findCollectionByIdLocal,
+    findCollectionByUserAndLabel,
+
     isArtInCollection,
     getCollectedArtIds,
     getUncollectedArt,

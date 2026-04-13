@@ -16,12 +16,18 @@ import {
   type AddChatInput,
 } from '@/stores/helpers/chatHelper'
 
+const isClient = typeof window !== 'undefined'
+
 export const useChatStore = defineStore('chatStore', () => {
   const chats = ref<Chat[]>([])
   const unreadMessages = ref<Chat[]>([])
   const selectedChat = ref<Chat | null>(null)
   const selectedRecipientId = ref<number | null>(null)
   const isInitialized = ref(false)
+
+  const initializePromise = ref<Promise<void> | null>(null)
+  const fetchChatsPromise = ref<Promise<void> | null>(null)
+  const lastFetchedUserId = ref<number | null>(null)
 
   const userStore = useUserStore()
 
@@ -47,45 +53,76 @@ export const useChatStore = defineStore('chatStore', () => {
     })
   })
 
-  async function initialize() {
-    if (isInitialized.value) return
-    loadFromLocalStorage()
+  function refreshUnreadMessages(): void {
+    const currentUserId = userStore.user?.id
 
-    if (userStore.user?.id) {
-      await fetchChats(userStore.user.id)
-      isInitialized.value = true
+    if (!currentUserId) {
+      unreadMessages.value = []
       return
     }
 
-    handleError(ErrorType.VALIDATION_ERROR, 'User ID not found.')
+    unreadMessages.value = chats.value.filter((chat) => {
+      if (chat.isRead) return false
+      return chat.recipientId === currentUserId
+    })
   }
 
-  async function selectChat(chatId: number) {
+  async function initialize(): Promise<void> {
+    if (isInitialized.value) return
+    if (initializePromise.value) return initializePromise.value
+
+    initializePromise.value = (async () => {
+      loadFromLocalStorage()
+      refreshUnreadMessages()
+
+      const currentUserId = userStore.user?.id
+
+      if (!currentUserId) {
+        return
+      }
+
+      await fetchChats(currentUserId)
+      isInitialized.value = true
+    })()
+
+    try {
+      await initializePromise.value
+    } catch (error) {
+      handleError(
+        ErrorType.NETWORK_ERROR,
+        `Failed to initialize chats: ${error}`,
+      )
+    } finally {
+      initializePromise.value = null
+    }
+  }
+
+  async function selectChat(chatId: number): Promise<void> {
     const found = chats.value.find((chat) => chat.id === chatId)
     if (found) selectedChat.value = found
   }
 
-  function markMessagesAsRead(recipientId: number) {
+  function markMessagesAsRead(recipientId: number): void {
     const unread = unreadMessages.value.filter(
       (chat) => chat.recipientId === recipientId,
     )
 
     unread.forEach((chat) => {
       chat.isRead = true
-      markChatAsRead(chat.id)
+      void markChatAsRead(chat.id)
     })
 
-    unreadMessages.value = unreadMessages.value.filter(
-      (chat) => chat.recipientId !== recipientId,
-    )
+    refreshUnreadMessages()
+    saveToLocalStorage()
   }
 
-  async function addChat(input: Omit<AddChatInput, 'username'>) {
+  async function addChat(input: Omit<AddChatInput, 'username'>): Promise<Chat> {
     try {
       const username = userStore.username ?? 'Unknown User'
       const chatPayload = buildNewChat({ ...input, username })
       const newChat = await createChat(chatPayload)
       chats.value.push(newChat)
+      refreshUnreadMessages()
       saveToLocalStorage()
       return newChat
     } catch (error) {
@@ -94,20 +131,22 @@ export const useChatStore = defineStore('chatStore', () => {
     }
   }
 
-  function updateChat(chatId: number, updatedFields: Partial<Chat>) {
+  function updateChat(chatId: number, updatedFields: Partial<Chat>): void {
     const index = chats.value.findIndex((chat) => chat.id === chatId)
     if (index !== -1) {
       chats.value[index] = { ...chats.value[index], ...updatedFields }
+      refreshUnreadMessages()
+      saveToLocalStorage()
     }
   }
 
-  async function streamResponse(chatId: number) {
+  async function streamResponse(chatId: number): Promise<void> {
     await streamChatResponse(chatId, (chunk) =>
       appendBotResponse(chatId, chunk),
     )
   }
 
-  function appendBotResponse(chatId: number, botResponse: string) {
+  function appendBotResponse(chatId: number, botResponse: string): void {
     const chat = chats.value.find((c) => c.id === chatId)
     if (!chat) return
     chat.botResponse = (chat.botResponse || '') + botResponse
@@ -127,6 +166,12 @@ export const useChatStore = defineStore('chatStore', () => {
       const success = await deleteChatById(chatId)
       if (!success) return false
       chats.value = chats.value.filter((c) => c.id !== chatId)
+
+      if (selectedChat.value?.id === chatId) {
+        selectedChat.value = null
+      }
+
+      refreshUnreadMessages()
       saveToLocalStorage()
       return true
     } catch (error) {
@@ -135,12 +180,16 @@ export const useChatStore = defineStore('chatStore', () => {
     }
   }
 
-  async function editChat(chatId: number, updatedData: Partial<Chat>) {
+  async function editChat(
+    chatId: number,
+    updatedData: Partial<Chat>,
+  ): Promise<Chat> {
     try {
       const updatedChat = await patchChat(chatId, updatedData)
       chats.value = chats.value.map((chat) =>
         chat.id === chatId ? updatedChat : chat,
       )
+      refreshUnreadMessages()
       saveToLocalStorage()
       return updatedChat
     } catch (error) {
@@ -149,35 +198,62 @@ export const useChatStore = defineStore('chatStore', () => {
     }
   }
 
-  async function fetchChats(userId: number) {
-    try {
-      const data = await fetchChatsForUser(userId)
-      chats.value = data
-      saveToLocalStorage()
-    } catch (error) {
-      handleError(ErrorType.NETWORK_ERROR, `Failed to fetch chats: ${error}`)
+  async function fetchChats(userId: number, force = false): Promise<void> {
+    if (!force && lastFetchedUserId.value === userId && isInitialized.value) {
+      return
     }
+
+    if (fetchChatsPromise.value) {
+      return fetchChatsPromise.value
+    }
+
+    fetchChatsPromise.value = (async () => {
+      try {
+        const data = await fetchChatsForUser(userId)
+        chats.value = data
+        lastFetchedUserId.value = userId
+        refreshUnreadMessages()
+        saveToLocalStorage()
+      } catch (error) {
+        handleError(ErrorType.NETWORK_ERROR, `Failed to fetch chats: ${error}`)
+      } finally {
+        fetchChatsPromise.value = null
+      }
+    })()
+
+    return fetchChatsPromise.value
   }
 
-  function selectRecipient(recipientId: number) {
+  async function refreshForCurrentUser(force = true): Promise<void> {
+    const currentUserId = userStore.user?.id
+    if (!currentUserId) {
+      refreshUnreadMessages()
+      return
+    }
+
+    await fetchChats(currentUserId, force)
+    isInitialized.value = true
+  }
+
+  function selectRecipient(recipientId: number): void {
     selectedRecipientId.value = recipientId
     markMessagesAsRead(recipientId)
   }
 
-  function saveToLocalStorage() {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('chats', JSON.stringify(chats.value))
-    }
+  function saveToLocalStorage(): void {
+    if (!isClient) return
+    localStorage.setItem('chats', JSON.stringify(chats.value))
   }
 
-  function loadFromLocalStorage() {
-    if (typeof window === 'undefined') return
+  function loadFromLocalStorage(): void {
+    if (!isClient) return
 
     const saved = localStorage.getItem('chats')
     if (!saved) return
 
     try {
       const parsed = JSON.parse(saved)
+
       if (!Array.isArray(parsed)) {
         localStorage.removeItem('chats')
         chats.value = []
@@ -192,6 +268,7 @@ export const useChatStore = defineStore('chatStore', () => {
         username: chat.username || 'Unknown User',
         content: chat.content || 'No content available',
         isPublic: chat.isPublic ?? true,
+        isRead: chat.isRead ?? false,
       }))
 
       chats.value = normalized as Chat[]
@@ -208,11 +285,16 @@ export const useChatStore = defineStore('chatStore', () => {
     selectedChat,
     selectedRecipientId,
     isInitialized,
+    initializePromise,
+    fetchChatsPromise,
+    lastFetchedUserId,
     activeChatsByBotId,
     chatsByUserId,
     unreadCountByRecipient,
     publicChats,
     initialize,
+    refreshForCurrentUser,
+    refreshUnreadMessages,
     selectChat,
     markMessagesAsRead,
     addChat,

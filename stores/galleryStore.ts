@@ -11,16 +11,21 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   const currentGallery = ref<Gallery | null>(null)
   const currentImage = ref<string>('')
 
+  const initialized = ref(false)
+  const initializePromise = ref<Promise<void> | null>(null)
+  const fetchGalleriesPromise = ref<Promise<void> | null>(null)
+
   const currentGalleryContent = computed(
     () => currentGallery.value?.content || null,
   )
-  const allGalleryNames = computed(() =>
-    galleries.value.map((g: { name: any }) => g.name),
-  )
+
+  const allGalleryNames = computed(() => galleries.value.map((g) => g.name))
+
   const randomImage = computed(() => currentImage.value || null)
+
   const randomGallery = computed(() => {
     const others = galleries.value.filter(
-      (g: { name: any }) => g.name !== currentGallery.value?.name,
+      (g) => g.name !== currentGallery.value?.name,
     )
     return others.length
       ? others[Math.floor(Math.random() * others.length)]
@@ -28,9 +33,7 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   })
 
   const imagePathsByGalleryName = computed(() => (name: string): string[] => {
-    const gallery = galleries.value.find(
-      (g: { name: string }) => g.name === name,
-    )
+    const gallery = galleries.value.find((g) => g.name === name)
     return gallery?.imagePaths?.split(',') || []
   })
 
@@ -47,34 +50,80 @@ export const useGalleryStore = defineStore('galleryStore', () => {
     return `/images/${galleryName}/${trimmed}`
   }
 
-  async function initialize() {
-    if (!isClient) return
-    try {
-      const storedGalleries = localStorage.getItem('galleries')
-      const storedCurrentGallery = localStorage.getItem('currentGallery')
-      const storedCurrentImage = localStorage.getItem('currentImage')
+  async function fetchGalleries(force = false): Promise<void> {
+    if (!force && galleries.value.length) return
+    if (fetchGalleriesPromise.value) return fetchGalleriesPromise.value
 
-      if (storedGalleries) galleries.value = JSON.parse(storedGalleries)
-      if (storedCurrentGallery)
-        currentGallery.value = JSON.parse(storedCurrentGallery)
-      if (storedCurrentImage) currentImage.value = storedCurrentImage
-    } catch (err) {
-      console.error('Error restoring from localStorage:', err)
-    }
-    await fetchGalleries()
+    fetchGalleriesPromise.value = (async () => {
+      try {
+        const res = await performFetch<Gallery[]>('/api/galleries')
+        if (res.success && res.data) {
+          galleries.value = res.data
+
+          if (isClient) {
+            localStorage.setItem('galleries', JSON.stringify(galleries.value))
+          }
+
+          if (!currentGallery.value && galleries.value.length > 0) {
+            setGalleryByName(galleries.value[0].name)
+          }
+        } else {
+          throw new Error(res.message || 'Failed to fetch galleries')
+        }
+      } catch (err) {
+        handleError(err, 'fetching galleries')
+      } finally {
+        fetchGalleriesPromise.value = null
+      }
+    })()
+
+    return fetchGalleriesPromise.value
+  }
+
+  async function initialize(): Promise<void> {
+    if (!isClient) return
+    if (initialized.value) return
+    if (initializePromise.value) return initializePromise.value
+
+    initializePromise.value = (async () => {
+      try {
+        const storedGalleries = localStorage.getItem('galleries')
+        const storedCurrentGallery = localStorage.getItem('currentGallery')
+        const storedCurrentImage = localStorage.getItem('currentImage')
+
+        if (storedGalleries) galleries.value = JSON.parse(storedGalleries)
+        if (storedCurrentGallery)
+          currentGallery.value = JSON.parse(storedCurrentGallery)
+        if (storedCurrentImage) currentImage.value = storedCurrentImage
+
+        if (!galleries.value.length) {
+          await fetchGalleries()
+        }
+
+        initialized.value = true
+      } catch (err) {
+        console.error('Error initializing galleryStore:', err)
+      } finally {
+        initializePromise.value = null
+      }
+    })()
+
+    return initializePromise.value
   }
 
   async function addGallery(gallery: { name: string; userId: number }) {
     try {
       const res = await performFetch<Gallery>('/api/galleries', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(gallery),
       })
+
       if (res.success && res.data) {
         galleries.value.push(res.data)
-        if (isClient)
+
+        if (isClient) {
           localStorage.setItem('galleries', JSON.stringify(galleries.value))
+        }
       } else throw new Error(res.message || 'Failed to add gallery')
     } catch (err) {
       handleError(err, 'adding gallery')
@@ -82,60 +131,41 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   }
 
   async function deleteGallery(id: number, userId: number) {
-    const gallery = galleries.value.find((g: { id: number }) => g.id === id)
-    if (!gallery || gallery.userId !== userId) {
-      console.error('Unauthorized or missing gallery.')
-      return
-    }
+    const gallery = galleries.value.find((g) => g.id === id)
+    if (!gallery || gallery.userId !== userId) return
+
     try {
       const res = await performFetch(`/api/galleries/${id}`, {
         method: 'DELETE',
       })
+
       if (res.success) {
-        galleries.value = galleries.value.filter(
-          (g: { id: number }) => g.id !== id,
-        )
-        if (isClient)
+        galleries.value = galleries.value.filter((g) => g.id !== id)
+
+        if (isClient) {
           localStorage.setItem('galleries', JSON.stringify(galleries.value))
+        }
       } else throw new Error(res.message || 'Failed to delete gallery')
     } catch (err) {
       handleError(err, 'deleting gallery')
     }
   }
 
-  async function fetchGalleries() {
-    try {
-      const res = await performFetch<Gallery[]>('/api/galleries')
-      if (res.success && res.data) {
-        galleries.value = res.data
-        if (isClient)
-          localStorage.setItem('galleries', JSON.stringify(galleries.value))
-        if (!currentGallery.value && galleries.value.length > 0) {
-          setGalleryByName(galleries.value[0].name)
-        }
-      } else throw new Error(res.message || 'Failed to fetch galleries')
-    } catch (err) {
-      handleError(err, 'fetching galleries')
-    }
-  }
-
   function setGalleryByName(name: string) {
-    const gallery = galleries.value.find(
-      (g: { name: string }) => g.name === name,
-    )
-    if (gallery) {
-      currentGallery.value = gallery
-      const firstImage = gallery.imagePaths?.split(',')[0] || ''
-      currentImage.value = buildImagePath(gallery.name, firstImage)
-      if (isClient) {
-        localStorage.setItem(
-          'currentGallery',
-          JSON.stringify(currentGallery.value),
-        )
-        localStorage.setItem('currentImage', currentImage.value)
-      }
-    } else {
-      console.warn(`Gallery with name ${name} not found`)
+    const gallery = galleries.value.find((g) => g.name === name)
+    if (!gallery) return
+
+    currentGallery.value = gallery
+
+    const firstImage = gallery.imagePaths?.split(',')[0] || ''
+    currentImage.value = buildImagePath(gallery.name, firstImage)
+
+    if (isClient) {
+      localStorage.setItem(
+        'currentGallery',
+        JSON.stringify(currentGallery.value),
+      )
+      localStorage.setItem('currentImage', currentImage.value)
     }
   }
 
@@ -145,11 +175,14 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   }
 
   async function setCurrentGallery(id: number) {
-    const gallery = galleries.value.find((g: { id: number }) => g.id === id)
-    if (!gallery) return console.warn(`Gallery with ID ${id} not found.`)
+    const gallery = galleries.value.find((g) => g.id === id)
+    if (!gallery) return
+
     currentGallery.value = gallery
+
     const firstImage = gallery.imagePaths?.split(',')[0] || ''
     currentImage.value = buildImagePath(gallery.name, firstImage)
+
     if (isClient) {
       localStorage.setItem(
         'currentGallery',
@@ -166,26 +199,23 @@ export const useGalleryStore = defineStore('galleryStore', () => {
       const res = await performFetch<{ imagePath: string }>(
         `/api/galleries/random/id/${id}`,
       )
+
       if (res.success && res.data) {
-        const gallery =
-          galleries.value.find((g: { id: number }) => g.id === id) || null
+        const gallery = galleries.value.find((g) => g.id === id) || null
         const baseName = gallery?.name || ''
         const fullPath = baseName
           ? buildImagePath(baseName, res.data.imagePath)
           : res.data.imagePath
+
         currentImage.value = fullPath
+
         if (isClient) localStorage.setItem('currentImage', currentImage.value)
-        console.log('[galleryStore] random image by id', {
-          id,
-          galleryName: baseName,
-          imagePath: res.data.imagePath,
-          fullPath,
-        })
+
         return fullPath
       }
+
       return null
-    } catch (err) {
-      console.error('Error fetching random image:', err)
+    } catch {
       return null
     }
   }
@@ -197,20 +227,18 @@ export const useGalleryStore = defineStore('galleryStore', () => {
       const res = await performFetch<string>(
         `/api/galleries/random/name/${name}`,
       )
+
       if (res.success && res.data) {
         const fullPath = buildImagePath(name, res.data)
         currentImage.value = fullPath
+
         if (isClient) localStorage.setItem('currentImage', currentImage.value)
-        console.log('[galleryStore] random image by name', {
-          name,
-          imageName: res.data,
-          fullPath,
-        })
+
         return fullPath
       }
+
       return null
-    } catch (err) {
-      console.error('Error fetching random image:', err)
+    } catch {
       return null
     }
   }
@@ -218,17 +246,17 @@ export const useGalleryStore = defineStore('galleryStore', () => {
   async function changeToRandomImage(): Promise<string | null> {
     const gallery = currentGallery.value
     if (!gallery?.imagePaths) return null
-    const paths = gallery.imagePaths.split(',').map((p: string) => p.trim())
+
+    const paths = gallery.imagePaths.split(',').map((p) => p.trim())
     if (!paths.length) return null
+
     const selected = paths[Math.floor(Math.random() * paths.length)]
     const fullPath = buildImagePath(gallery.name, selected)
+
     currentImage.value = fullPath
+
     if (isClient) localStorage.setItem('currentImage', currentImage.value)
-    console.log('[galleryStore] changeToRandomImage', {
-      galleryName: gallery.name,
-      selected,
-      fullPath,
-    })
+
     return currentImage.value
   }
 
@@ -242,9 +270,9 @@ export const useGalleryStore = defineStore('galleryStore', () => {
     randomGallery,
     imagePathsByGalleryName,
     initialize,
+    fetchGalleries,
     addGallery,
     deleteGallery,
-    fetchGalleries,
     setCurrentGallery,
     setGalleryByName,
     setRandomGallery,

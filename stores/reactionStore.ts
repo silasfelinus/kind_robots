@@ -36,9 +36,19 @@ export const reactionCategories: ReactionCategoryEnum[] = [
 
 export const useReactionStore = defineStore('reactionStore', () => {
   const reactions = ref<Reaction[]>([])
-  const loading = ref(false)
-  const error = ref<string | null>(null)
   const isInitialized = ref(false)
+
+  const loadingMap = ref<Record<string, boolean>>({})
+  const fetchPromises = ref<Record<string, Promise<void> | null>>({})
+  const loadedKeys = ref<Set<string>>(new Set())
+
+  function getKey(type: string, id: number) {
+    return `${type}:${id}`
+  }
+
+  function setLoading(key: string, val: boolean) {
+    loadingMap.value[key] = val
+  }
 
   const getReactionsByComponentId = computed(() => (componentId: number) => {
     return reactions.value.filter((r) => r.componentId === componentId)
@@ -52,62 +62,76 @@ export const useReactionStore = defineStore('reactionStore', () => {
     },
   )
 
-  async function initialize() {
+  function initialize() {
     if (isInitialized.value) return
-    await fetchReactions()
     isInitialized.value = true
   }
 
-  async function fetchReactions() {
-    loading.value = true
-    error.value = null
-    try {
-      const res = await performFetch<Reaction[]>('/api/reactions')
-      if (!res.success) throw new Error(res.message)
-      reactions.value = res.data || []
-    } catch (e) {
-      handleError(e, 'fetching all reactions')
-      error.value = e instanceof Error ? e.message : 'Failed to fetch reactions'
-    } finally {
-      loading.value = false
-    }
+  async function fetchReactionsByArtId(artId: number, force = false) {
+    const key = getKey('art', artId)
+
+    if (!force && loadedKeys.value.has(key)) return
+    if (fetchPromises.value[key]) return fetchPromises.value[key]
+
+    fetchPromises.value[key] = (async () => {
+      setLoading(key, true)
+
+      try {
+        const res = await performFetch<Reaction[]>(
+          `/api/reactions/art/${artId}`,
+        )
+        if (!res.success) throw new Error(res.message)
+
+        const incoming = res.data || []
+        const existingIds = new Set(reactions.value.map((r) => r.id))
+        const deduped = incoming.filter((r) => !existingIds.has(r.id))
+
+        reactions.value = [...reactions.value, ...deduped]
+        loadedKeys.value.add(key)
+      } catch (e) {
+        handleError(e, 'fetching reactions by art ID')
+      } finally {
+        setLoading(key, false)
+        fetchPromises.value[key] = null
+      }
+    })()
+
+    return fetchPromises.value[key]
   }
 
-  async function fetchReactionsByArtId(artId: number) {
-    loading.value = true
-    error.value = null
-    try {
-      const res = await performFetch<Reaction[]>(`/api/reactions/art/${artId}`)
-      if (!res.success) throw new Error(res.message)
+  async function fetchReactionsByComponentId(
+    componentId: number,
+    force = false,
+  ) {
+    const key = getKey('component', componentId)
 
-      const incoming = res.data || []
-      const existingIds = new Set(reactions.value.map((r) => r.id))
-      const deduped = incoming.filter((r) => !existingIds.has(r.id))
+    if (!force && loadedKeys.value.has(key)) return
+    if (fetchPromises.value[key]) return fetchPromises.value[key]
 
-      reactions.value = [...reactions.value, ...deduped]
-    } catch (e) {
-      handleError(e, 'fetching reactions by art ID')
-      error.value = e instanceof Error ? e.message : 'Failed to fetch reactions'
-    } finally {
-      loading.value = false
-    }
-  }
+    fetchPromises.value[key] = (async () => {
+      setLoading(key, true)
 
-  async function fetchReactionsByComponentId(componentId: number) {
-    loading.value = true
-    error.value = null
-    try {
-      const res = await performFetch<Reaction[]>(
-        `/api/reactions/component/${componentId}`,
-      )
-      if (!res.success) throw new Error(res.message)
-      reactions.value = res.data || []
-    } catch (e) {
-      handleError(e, 'fetching reactions by component ID')
-      error.value = e instanceof Error ? e.message : 'Failed to fetch reactions'
-    } finally {
-      loading.value = false
-    }
+      try {
+        const res = await performFetch<Reaction[]>(
+          `/api/reactions/component/${componentId}`,
+        )
+        if (!res.success) throw new Error(res.message)
+
+        const incoming = res.data || []
+        const existingIds = new Set(reactions.value.map((r) => r.id))
+        const deduped = incoming.filter((r) => !existingIds.has(r.id))
+
+        reactions.value = [...reactions.value, ...deduped]
+        loadedKeys.value.add(key)
+      } catch (e) {
+        handleError(e, 'fetching reactions by component ID')
+      } finally {
+        setLoading(key, false)
+        fetchPromises.value[key] = null
+      }
+    })()
+
+    return fetchPromises.value[key]
   }
 
   async function addReaction(payload: {
@@ -131,9 +155,11 @@ export const useReactionStore = defineStore('reactionStore', () => {
     try {
       const res = await performFetch<Reaction>('/api/reactions', {
         method: 'POST',
-        body: JSON.stringify({ ...payload }),
+        body: JSON.stringify(payload),
       })
+
       if (!res.success) throw new Error(res.message)
+
       if (res.data) reactions.value.push(res.data)
       return res.data
     } catch (e) {
@@ -155,10 +181,12 @@ export const useReactionStore = defineStore('reactionStore', () => {
         method: 'PATCH',
         body: JSON.stringify(updates),
       })
+
       if (!res.success) throw new Error(res.message)
 
       const index = reactions.value.findIndex((r) => r.id === reactionId)
       if (index !== -1 && res.data) reactions.value[index] = res.data
+
       return res.data
     } catch (e) {
       handleError(e, 'updating reaction')
@@ -167,31 +195,26 @@ export const useReactionStore = defineStore('reactionStore', () => {
   }
 
   async function deleteReaction(reactionId: number) {
-    loading.value = true
-    error.value = null
     try {
       const res = await performFetch(`/api/reactions/${reactionId}`, {
         method: 'DELETE',
       })
+
       if (!res.success) throw new Error(res.message)
+
       reactions.value = reactions.value.filter((r) => r.id !== reactionId)
     } catch (e) {
       handleError(e, 'deleting reaction')
-      error.value = e instanceof Error ? e.message : 'Failed to delete reaction'
-    } finally {
-      loading.value = false
     }
   }
 
   return {
     reactions,
-    loading,
-    error,
     isInitialized,
+    loadingMap,
     getReactionsByComponentId,
     getUserReactionForComponent,
     initialize,
-    fetchReactions,
     fetchReactionsByArtId,
     fetchReactionsByComponentId,
     addReaction,

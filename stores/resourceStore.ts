@@ -9,98 +9,212 @@ export const useResourceStore = defineStore('resourceStore', () => {
   const resources = ref<Resource[]>([])
   const currentResource = ref<Resource | null>(null)
   const isInitialized = ref(false)
+  const isLoading = ref(false)
+  const hasLoaded = ref(false)
+
+  const initializePromise = ref<Promise<void> | null>(null)
+  const fetchPromise = ref<Promise<Resource[]> | null>(null)
+  const seedPromise = ref<Promise<void> | null>(null)
 
   async function loadStore(): Promise<void> {
-    return handleError(async () => {
-      if (!isInitialized.value) {
+    if (isInitialized.value) return
+    if (initializePromise.value) return initializePromise.value
+
+    initializePromise.value = (async () => {
+      isLoading.value = true
+
+      try {
         await getResources()
+
         if (resources.value.length === 0) {
           await seedResources()
-          await getResources()
         }
+
         isInitialized.value = true
+      } catch (error) {
+        isInitialized.value = false
+        handleError(error, 'initializing resource store')
+      } finally {
+        isLoading.value = false
+        initializePromise.value = null
       }
-    }, 'initializing resource store')
+    })()
+
+    return initializePromise.value
   }
 
-  async function getResources(): Promise<void> {
-    return handleError(async () => {
+  async function getResources(force = false): Promise<Resource[]> {
+    if (!force && hasLoaded.value) return resources.value
+    if (fetchPromise.value) return fetchPromise.value
+
+    fetchPromise.value = (async () => {
       const res = await performFetch<Resource[]>('/api/resources')
-      if (res.success) {
-        resources.value = res.data || []
-      } else {
+
+      if (!res.success) {
         throw new Error(res.message || 'Failed to fetch resources')
       }
-    }, 'fetching resources')
+
+      resources.value = res.data || []
+      hasLoaded.value = true
+      return resources.value
+    })()
+
+    try {
+      return await fetchPromise.value
+    } catch (error) {
+      handleError(error, 'fetching resources')
+      return []
+    } finally {
+      fetchPromise.value = null
+    }
   }
 
   async function seedResources(): Promise<void> {
-    return handleError(async () => {
+    if (seedPromise.value) return seedPromise.value
+
+    seedPromise.value = (async () => {
+      if (resources.value.length > 0) return
+
       await addResources(resourceData)
-      await getResources()
-    }, 'seeding resources')
+
+      if (resources.value.length === 0) {
+        await getResources(true)
+      }
+    })()
+
+    try {
+      await seedPromise.value
+    } catch (error) {
+      handleError(error, 'seeding resources')
+    } finally {
+      seedPromise.value = null
+    }
   }
 
-  async function getResourceById(id: number): Promise<void> {
-    return handleError(async () => {
+  async function getResourceById(id: number): Promise<Resource | null> {
+    try {
+      const existing = resources.value.find((resource) => resource.id === id)
+
+      if (existing) {
+        currentResource.value = existing
+        return existing
+      }
+
       const res = await performFetch<Resource>(`/api/resources/${id}`)
-      if (res.success && res.data) {
-        currentResource.value = res.data
-      } else {
+
+      if (!res.success || !res.data) {
         throw new Error(res.message || 'Failed to fetch resource by ID')
       }
-    }, `fetching resource by ID: ${id}`)
+
+      currentResource.value = res.data
+
+      const index = resources.value.findIndex((resource) => resource.id === id)
+      if (index === -1) {
+        resources.value.push(res.data)
+      } else {
+        resources.value[index] = res.data
+      }
+
+      return res.data
+    } catch (error) {
+      handleError(error, `fetching resource by ID: ${id}`)
+      return null
+    }
   }
 
-  async function addResources(data: Partial<Resource>[]): Promise<void> {
-    return handleError(async () => {
+  async function addResources(data: Partial<Resource>[]): Promise<Resource[]> {
+    try {
       const res = await performFetch<Resource[]>('/api/resources', {
         method: 'POST',
         body: JSON.stringify(data),
       })
-      if (res.success && res.data) {
-        resources.value = [...resources.value, ...res.data]
-      } else {
+
+      if (!res.success || !res.data) {
         throw new Error(res.message || 'Failed to add resources')
       }
-    }, 'adding resources')
+
+      const created = res.data
+      const createdIds = new Set(created.map((resource) => resource.id))
+
+      resources.value = [
+        ...resources.value.filter((resource) => !createdIds.has(resource.id)),
+        ...created,
+      ]
+
+      hasLoaded.value = true
+      return created
+    } catch (error) {
+      handleError(error, 'adding resources')
+      return []
+    }
   }
 
   async function updateResource(
     id: number,
     data: Partial<Resource>,
-  ): Promise<void> {
-    return handleError(async () => {
+  ): Promise<Resource | null> {
+    try {
       const res = await performFetch<Resource>(`/api/resources/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       })
-      if (res.success && res.data) {
-        currentResource.value = res.data
-        await getResources()
-      } else {
+
+      if (!res.success || !res.data) {
         throw new Error(res.message || 'Failed to update resource')
       }
-    }, `updating resource ID: ${id}`)
+
+      currentResource.value = res.data
+
+      const index = resources.value.findIndex((resource) => resource.id === id)
+      if (index !== -1) {
+        resources.value[index] = res.data
+      } else {
+        resources.value.push(res.data)
+      }
+
+      return res.data
+    } catch (error) {
+      handleError(error, `updating resource ID: ${id}`)
+      return null
+    }
   }
 
-  async function deleteResource(id: number): Promise<void> {
-    return handleError(async () => {
+  async function deleteResource(id: number): Promise<boolean> {
+    try {
       const res = await performFetch(`/api/resources/${id}`, {
         method: 'DELETE',
       })
-      if (res.success) {
-        await getResources()
-      } else {
+
+      if (!res.success) {
         throw new Error(res.message || 'Failed to delete resource')
       }
-    }, `deleting resource ID: ${id}`)
+
+      resources.value = resources.value.filter((resource) => resource.id !== id)
+
+      if (currentResource.value?.id === id) {
+        currentResource.value = null
+      }
+
+      return true
+    } catch (error) {
+      handleError(error, `deleting resource ID: ${id}`)
+      return false
+    }
+  }
+
+  function clearCurrentResource(): void {
+    currentResource.value = null
   }
 
   return {
     resources,
     currentResource,
     isInitialized,
+    isLoading,
+    hasLoaded,
+    initializePromise,
+    fetchPromise,
+    seedPromise,
     loadStore,
     getResources,
     seedResources,
@@ -108,6 +222,7 @@ export const useResourceStore = defineStore('resourceStore', () => {
     addResources,
     updateResource,
     deleteResource,
+    clearCurrentResource,
   }
 })
 

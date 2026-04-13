@@ -8,8 +8,10 @@ export type LayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
 
 export const usePageStore = defineStore('pageStore', () => {
   const page = ref<ContentType | null>(null)
-
   const ready = ref(false)
+  const initialized = ref(false)
+
+  const themeStore = useThemeStore()
 
   const layout = computed<LayoutKey>(() => {
     const val = page.value?.layout
@@ -17,8 +19,6 @@ export const usePageStore = defineStore('pageStore', () => {
       ? (val as LayoutKey)
       : 'default'
   })
-
-  const themeStore = useThemeStore()
 
   const currentTheme = computed(() => themeStore.currentTheme)
 
@@ -42,11 +42,13 @@ export const usePageStore = defineStore('pageStore', () => {
     showFooter: page.value?.showFooter ?? false,
   }))
 
-  async function initialize() {
+  function initialize(): void {
+    if (initialized.value) return
+    initialized.value = true
     ready.value = true
   }
 
-  async function setPage(newPage: ContentType) {
+  function setPage(newPage: ContentType): void {
     page.value = newPage
     ready.value = true
   }
@@ -56,10 +58,9 @@ export const usePageStore = defineStore('pageStore', () => {
     layout,
     meta,
     ready,
+    initialized,
     setPage,
     initialize,
-
-    // Meta convenience refs
     title: computed(() => meta.value.title),
     room: computed(() => meta.value.room),
     subtitle: computed(() => meta.value.subtitle),

@@ -17,75 +17,123 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
   const currentChoice = ref('')
   const storyHistory = ref<string[]>([])
 
+  const initializePromise = ref<Promise<void> | null>(null)
+  const fetchPromise = ref<Promise<Scenario[]> | null>(null)
+  const hasLoaded = ref(false)
+
   const totalScenarios = computed(() => scenarios.value.length)
+
   const hasUnsavedChanges = computed(
     () =>
       JSON.stringify(selectedScenario.value) !==
       JSON.stringify(scenarioForm.value),
   )
 
-  async function initialize() {
-    if (isInitialized.value) return
-
-    try {
-      if (isClient) {
-        const saved = localStorage.getItem('scenarios')
-        const savedForm = localStorage.getItem('scenarioForm')
-        if (saved) scenarios.value = JSON.parse(saved)
-        if (savedForm) scenarioForm.value = JSON.parse(savedForm)
-      }
-
-      scenarios.value = seedScenarios.map((choice) => ({
-        ...choice,
-        id: Math.floor(Math.random() * 10000),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        intros: choice.intros,
-      }))
-
-      const fetched = await fetchScenarios()
-      if (fetched?.length) {
-        const fetchedIds = new Set(fetched.map((s) => s.id))
-        scenarios.value = [
-          ...scenarios.value,
-          ...fetched.filter((s) => !fetchedIds.has(s.id)),
-        ]
-        syncToLocalStorage()
-      }
-
-      isInitialized.value = true
-    } catch (error) {
-      handleError(error, 'initializing scenario store')
-    }
+  function buildSeedScenarios(): Scenario[] {
+    return seedScenarios.map((choice, index) => ({
+      ...choice,
+      id: -(index + 1),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      intros: choice.intros,
+    }))
   }
 
   function syncToLocalStorage() {
+    if (!isClient) return
+
     try {
-      if (isClient) {
-        localStorage.setItem('scenarios', JSON.stringify(scenarios.value))
-        localStorage.setItem('scenarioForm', JSON.stringify(scenarioForm.value))
-      }
+      localStorage.setItem('scenarios', JSON.stringify(scenarios.value))
+      localStorage.setItem('scenarioForm', JSON.stringify(scenarioForm.value))
     } catch (error) {
-      console.error('Error syncing to localStorage:', error)
+      console.error('Error syncing scenarios:', error)
     }
   }
 
-  async function fetchScenarios(): Promise<Scenario[]> {
-    loading.value = true
+  function loadFromLocalStorage() {
+    if (!isClient) return
+
     try {
-      const res = await performFetch<Scenario[]>('/api/scenarios')
-      if (res.success && res.data) return res.data
-      else throw new Error(res.message || 'Failed to fetch scenarios.')
-    } catch (e) {
-      handleError(e, 'fetching scenarios')
-      return []
-    } finally {
-      loading.value = false
+      const saved = localStorage.getItem('scenarios')
+      const savedForm = localStorage.getItem('scenarioForm')
+
+      if (saved) scenarios.value = JSON.parse(saved)
+      if (savedForm) scenarioForm.value = JSON.parse(savedForm)
+    } catch (error) {
+      handleError(error, 'loading scenarios')
     }
+  }
+
+  async function initialize() {
+    if (isInitialized.value) return
+    if (initializePromise.value) return initializePromise.value
+
+    initializePromise.value = (async () => {
+      try {
+        loadFromLocalStorage()
+
+        const seed = buildSeedScenarios()
+
+        const existingIds = new Set(scenarios.value.map((s) => s.id))
+
+        scenarios.value = [
+          ...seed.filter((s) => !existingIds.has(s.id)),
+          ...scenarios.value,
+        ]
+
+        const fetched = await fetchScenarios()
+
+        const fetchedIds = new Set(fetched.map((s) => s.id))
+
+        scenarios.value = [
+          ...scenarios.value.filter((s) => !fetchedIds.has(s.id)),
+          ...fetched,
+        ]
+
+        syncToLocalStorage()
+        isInitialized.value = true
+      } catch (error) {
+        isInitialized.value = false
+        handleError(error, 'initializing scenario store')
+      } finally {
+        initializePromise.value = null
+      }
+    })()
+
+    return initializePromise.value
+  }
+
+  async function fetchScenarios(force = false): Promise<Scenario[]> {
+    if (!force && hasLoaded.value) return scenarios.value
+    if (fetchPromise.value) return fetchPromise.value
+
+    fetchPromise.value = (async () => {
+      loading.value = true
+
+      try {
+        const res = await performFetch<Scenario[]>('/api/scenarios')
+
+        if (res.success && res.data) {
+          hasLoaded.value = true
+          return res.data
+        }
+
+        throw new Error(res.message || 'Failed to fetch scenarios.')
+      } catch (e) {
+        hasLoaded.value = false
+        handleError(e, 'fetching scenarios')
+        return []
+      } finally {
+        loading.value = false
+        fetchPromise.value = null
+      }
+    })()
+
+    return fetchPromise.value
   }
 
   async function selectScenario(id: number) {
-    const s = scenarios.value.find((s: { id: number }) => s.id === id)
+    const s = scenarios.value.find((s) => s.id === id)
     if (!s) return console.warn(`Scenario with ID ${id} not found.`)
     selectedScenario.value = s
     scenarioForm.value = { ...s }
@@ -100,10 +148,14 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     isSaving.value = true
     try {
       const data = { ...scenarioForm.value }
-      if (data.id) await updateScenario(data.id, data)
-      else await createScenario(data)
+
+      if (data.id && data.id > 0) {
+        await updateScenario(data.id, data)
+      } else {
+        await createScenario(data)
+      }
+
       syncToLocalStorage()
-      alert('Scenario saved successfully!')
     } catch (err) {
       handleError(err, 'saving scenario')
     } finally {
@@ -118,10 +170,11 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
         body: JSON.stringify(scenario),
         headers: { 'Content-Type': 'application/json' },
       })
+
       if (res.success && res.data) {
         scenarios.value.push(res.data)
         selectedScenario.value = res.data
-      } else throw new Error(res.message || 'Failed to create scenario.')
+      }
     } catch (err) {
       handleError(err, 'creating scenario')
     }
@@ -134,14 +187,15 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
         body: JSON.stringify(updates),
         headers: { 'Content-Type': 'application/json' },
       })
+
       if (res.success && res.data) {
-        const i = scenarios.value.findIndex((s: { id: number }) => s.id === id)
+        const i = scenarios.value.findIndex((s) => s.id === id)
         if (i !== -1) {
           scenarios.value[i] = res.data
           selectedScenario.value = res.data
         }
         syncToLocalStorage()
-      } else throw new Error(res.message || 'Failed to update scenario.')
+      }
     } catch (err) {
       handleError(err, 'updating scenario')
     }
@@ -152,12 +206,16 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
       const res = await performFetch(`/api/scenarios/${id}`, {
         method: 'DELETE',
       })
+
       if (res.success) {
-        scenarios.value = scenarios.value.filter(
-          (s: { id: number }) => s.id !== id,
-        )
-        if (selectedScenario.value?.id === id) selectedScenario.value = null
-      } else throw new Error(res.message || 'Failed to delete scenario.')
+        scenarios.value = scenarios.value.filter((s) => s.id !== id)
+
+        if (selectedScenario.value?.id === id) {
+          selectedScenario.value = null
+        }
+
+        syncToLocalStorage()
+      }
     } catch (err) {
       handleError(err, 'deleting scenario')
     }
@@ -167,7 +225,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     try {
       const res = await performFetch<Scenario>(`/api/scenarios/${id}`)
       if (res.success && res.data) return res.data
-      else throw new Error(res.message || 'Failed to fetch scenario.')
+      throw new Error(res.message || 'Failed to fetch scenario.')
     } catch (err) {
       handleError(err, 'fetching scenario by ID')
       return null
@@ -183,6 +241,9 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     loading,
     currentChoice,
     storyHistory,
+    initializePromise,
+    fetchPromise,
+    hasLoaded,
     totalScenarios,
     hasUnsavedChanges,
     initialize,

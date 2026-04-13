@@ -7,7 +7,6 @@ import { useUserStore } from './userStore'
 import { performFetch, handleError } from './utils'
 import type { Chat } from '~/prisma/generated/prisma/client'
 import { scenarios } from '@/utils/sceneChoices'
-import type { Scenario } from '~/prisma/generated/prisma/client'
 import {
   STORAGE_KEY,
   toPrismaScenario,
@@ -16,6 +15,8 @@ import {
   parseIntros,
   type ScenarioView,
 } from './helpers/weirdHelper'
+
+const isClient = typeof window !== 'undefined'
 
 export const useWeirdStore = defineStore('weirdStore', () => {
   const activeChatId = ref<number | null>(null)
@@ -26,27 +27,26 @@ export const useWeirdStore = defineStore('weirdStore', () => {
   const mode = ref<'adventure' | 'chat' | 'setting'>('adventure')
   const loading = ref(false)
   const initialized = ref(false)
-  const initialChoices = ref<ScenarioView[]>(scenarios.map(fromSeedScenario))
+  const initializePromise = ref<Promise<void> | null>(null)
 
+  const initialChoices = ref<ScenarioView[]>(scenarios.map(fromSeedScenario))
   const currentOptions = ref<string[]>([])
 
   const characterStore = useCharacterStore()
   const chatStore = useChatStore()
   const userStore = useUserStore()
 
+  const actionLock = ref<Promise<any> | null>(null)
+
   const activeCharacter = computed(() =>
     activeCharacterId.value
-      ? characterStore.characters.find(
-          (c: { id: number | null }) => c.id === activeCharacterId.value,
-        )
+      ? characterStore.characters.find((c) => c.id === activeCharacterId.value)
       : null,
   )
 
   const activeChat = computed(() =>
     activeChatId.value
-      ? chatStore.chats.find(
-          (c: { id: number | null }) => c.id === activeChatId.value,
-        )
+      ? chatStore.chats.find((c) => c.id === activeChatId.value)
       : null,
   )
 
@@ -55,48 +55,54 @@ export const useWeirdStore = defineStore('weirdStore', () => {
   }
 
   function populateCurrentOptions() {
-    if (initialChoices.value.length > 0) {
-      currentOptions.value = initialChoices.value.flatMap((choice) => {
-        return Array.isArray(choice.intros) ? choice.intros : []
-      })
-    } else {
-      console.warn('No initial choices available to populate current options.')
-    }
+    currentOptions.value = initialChoices.value.flatMap((choice) =>
+      Array.isArray(choice.intros) ? choice.intros : [],
+    )
   }
 
   async function initialize() {
     if (initialized.value) return
-    try {
-      loadFromLocalStorage()
+    if (initializePromise.value) return initializePromise.value
 
-      if (!chatStore.isInitialized) await chatStore.initialize()
-      if (!characterStore.isInitialized) await characterStore.initialize()
+    initializePromise.value = (async () => {
+      try {
+        loadFromLocalStorage()
 
-      if (initialChoices.value.length === 0) populateInitialChoices()
-      if (currentOptions.value.length === 0) populateCurrentOptions()
+        await Promise.all([
+          chatStore.initialize?.(),
+          characterStore.initialize?.(),
+        ])
 
-      initialized.value = true
-    } catch (error) {
-      handleError(
-        new Error('WeirdStore Initialization Failed'),
-        (error as Error).message,
-      )
-    }
+        if (!initialChoices.value.length) populateInitialChoices()
+        if (!currentOptions.value.length) populateCurrentOptions()
+
+        initialized.value = true
+      } catch (error) {
+        handleError(
+          new Error('WeirdStore Initialization Failed'),
+          (error as Error).message,
+        )
+        initialized.value = false
+      } finally {
+        initializePromise.value = null
+      }
+    })()
+
+    return initializePromise.value
   }
 
   async function startAdventure(characterId: number, newSetting: string) {
     try {
       loading.value = true
 
-      const selectedScenario = initialChoices.value.find(
-        (scenario: ScenarioView) => scenario.title === newSetting,
-      )
-      if (!selectedScenario) throw new Error('Selected scenario not found.')
+      const scenario = initialChoices.value.find((s) => s.title === newSetting)
 
-      const introContent = `Welcome to ${selectedScenario.title}. ${selectedScenario.description}`
+      if (!scenario) throw new Error('Scenario not found')
+
+      const intro = `Welcome to ${scenario.title}. ${scenario.description}`
 
       const newChat = await chatStore.addChat({
-        content: introContent,
+        content: intro,
         userId: userStore.user?.id ?? 0,
         characterId,
         recipientId: null,
@@ -107,7 +113,10 @@ export const useWeirdStore = defineStore('weirdStore', () => {
       activeChatId.value = newChat.id
       activeCharacterId.value = characterId
       setting.value = newSetting
-      history.value.push(newChat)
+
+      if (!history.value.find((c) => c.id === newChat.id)) {
+        history.value.push(newChat)
+      }
     } catch (error) {
       handleError(
         new Error('Failed to start adventure'),
@@ -119,109 +128,103 @@ export const useWeirdStore = defineStore('weirdStore', () => {
   }
 
   async function processAction(action: string) {
-    if (typeof action !== 'string' || !action.trim()) {
-      handleError(new Error('Invalid action'), 'Processing action')
-      return
-    }
+    if (!action.trim()) return
 
-    try {
-      loading.value = true
+    if (actionLock.value) return actionLock.value
 
-      const response = await performFetch<Chat>(
-        `/api/chats/${activeChatId.value}/process`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ action }),
-          headers: { 'Content-Type': 'application/json' },
-        },
-      )
+    actionLock.value = (async () => {
+      try {
+        loading.value = true
 
-      if (response.success && response.data) {
+        const response = await performFetch<Chat>(
+          `/api/chats/${activeChatId.value}/process`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ action }),
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+
+        if (!response.success || !response.data) {
+          throw new Error(response.message)
+        }
+
         const newChat = response.data
-        chatStore.chats.push(newChat)
-        history.value.push(newChat)
-      } else {
-        throw new Error(response.message || 'Failed to process action.')
+
+        if (!chatStore.chats.find((c) => c.id === newChat.id)) {
+          chatStore.chats.push(newChat)
+        }
+
+        if (!history.value.find((c) => c.id === newChat.id)) {
+          history.value.push(newChat)
+        }
+      } catch (error) {
+        handleError(
+          new Error('Error processing action'),
+          (error as Error).message,
+        )
+      } finally {
+        loading.value = false
+        actionLock.value = null
       }
-    } catch (error) {
-      handleError(
-        new Error('Error processing action'),
-        (error as Error).message,
-      )
-    } finally {
-      loading.value = false
-    }
+    })()
+
+    return actionLock.value
   }
 
   function setSetting(newSetting: string) {
-    if (typeof newSetting !== 'string' || !newSetting.trim()) {
-      handleError(
-        new Error('Invalid setting value'),
-        'Setting adventure setting',
-      )
-      return
-    }
+    if (!newSetting.trim()) return
     setting.value = newSetting.trim()
   }
 
   function loadFromLocalStorage() {
-    if (typeof window === 'undefined') return
-    const savedState = localStorage.getItem(STORAGE_KEY)
-    if (!savedState) return
+    if (!isClient) return
+
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (!saved) return
 
     try {
-      const parsed = JSON.parse(savedState)
+      const parsed = JSON.parse(saved)
+
       activeChatId.value = parsed.activeChatId
       activeCharacterId.value = parsed.activeCharacterId
       setting.value = parsed.setting
-      history.value = parsed.history || []
       artImage.value = parsed.artImage
       mode.value = parsed.mode
       currentOptions.value = parsed.currentOptions || []
 
       initialChoices.value =
-        parsed.initialChoices?.map(fromPrismaScenario) ?? []
+        parsed.initialChoices?.map(fromPrismaScenario) ?? initialChoices.value
+
+      history.value = (parsed.history || []).slice(-50)
     } catch (error) {
       handleError(
-        new Error('Failed to parse weirdState from localStorage'),
+        new Error('Failed to parse weird state'),
         (error as Error).message,
       )
     }
   }
 
   function saveToLocalStorage() {
-    if (typeof window === 'undefined') return
-    const toSave = {
+    if (!isClient) return
+
+    const payload = {
       activeChatId: activeChatId.value,
       activeCharacterId: activeCharacterId.value,
       setting: setting.value,
-      history: history.value,
       artImage: artImage.value,
       mode: mode.value,
-      initialChoices: initialChoices.value.map(toPrismaScenario),
-
       currentOptions: currentOptions.value,
+      initialChoices: initialChoices.value.map(toPrismaScenario),
+      history: history.value.slice(-50),
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
   }
 
-  watch(
-    [
-      activeChatId,
-      activeCharacterId,
-      setting,
-      history,
-      artImage,
-      mode,
-      initialChoices,
-      currentOptions,
-    ],
-    saveToLocalStorage,
-    { deep: true },
-  )
+  watch([activeChatId, activeCharacterId, setting, mode], saveToLocalStorage)
 
   return {
-    // State
     activeChatId,
     activeCharacterId,
     setting,
@@ -232,16 +235,14 @@ export const useWeirdStore = defineStore('weirdStore', () => {
     initialized,
     initialChoices,
     currentOptions,
-
     activeCharacter,
     activeChat,
-
     initialize,
-    populateInitialChoices,
-    populateCurrentOptions,
     startAdventure,
     processAction,
     setSetting,
+    populateInitialChoices,
+    populateCurrentOptions,
     loadFromLocalStorage,
     saveToLocalStorage,
     parseIntros,

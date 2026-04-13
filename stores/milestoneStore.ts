@@ -1,4 +1,6 @@
+// /stores/milestoneStore.ts
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import type {
   Milestone,
   MilestoneRecord,
@@ -14,38 +16,40 @@ type UserScore = {
   matchRecord?: number
 }
 
+const isClient = typeof window !== 'undefined'
+
 export const useMilestoneStore = defineStore('milestoneStore', () => {
   const userStore = useUserStore()
 
   const milestones = ref<Milestone[]>([])
   const milestoneRecords = ref<MilestoneRecord[]>([])
   const isInitialized = ref(false)
+
+  const initializePromise = ref<Promise<void> | null>(null)
+  const fetchMilestonesPromise = ref<Promise<Milestone[]> | null>(null)
+  const fetchRecordsPromise = ref<Promise<MilestoneRecord[]> | null>(null)
+  const fetchHighClickScoresPromise = ref<Promise<UserScore[]> | null>(null)
+  const fetchHighMatchScoresPromise = ref<Promise<UserScore[]> | null>(null)
+
   const highClickScores = ref<UserScore[]>([])
   const highMatchScores = ref<UserScore[]>([])
   const pendingGuestMilestones = ref<number[]>([])
+
   const hasPendingGuestMilestones = computed(
     () => pendingGuestMilestones.value.length > 0,
   )
 
-  const milestoneCountForUser = computed(() => {
-    return milestoneRecords.value.filter(
-      (record: { userId: any }) => record.userId === userStore.userId,
-    ).length
-  })
-
-  function persist() {
-    if (typeof window === 'undefined') return
-    localStorage.setItem('milestones', JSON.stringify(milestones.value))
-    localStorage.setItem(
-      'milestoneRecords',
-      JSON.stringify(milestoneRecords.value),
-    )
-  }
+  const milestoneCountForUser = computed(
+    () =>
+      milestoneRecords.value.filter(
+        (record) => record.userId === userStore.userId,
+      ).length,
+  )
 
   const unconfirmedMilestones = computed(() => {
-    return milestones.value.filter((milestone: { id: any }) =>
+    return milestones.value.filter((milestone) =>
       milestoneRecords.value.some(
-        (record: { userId: any; milestoneId: any; isConfirmed: any }) =>
+        (record) =>
           record.userId === userStore.userId &&
           record.milestoneId === milestone.id &&
           !record.isConfirmed,
@@ -54,84 +58,176 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   })
 
   const milestoneSummary = computed(() => {
-    return milestones.value.map(
-      (milestone: { id: any; label: any; isActive: any }) => ({
-        id: milestone.id,
-        label: milestone.label,
-        isActive: milestone.isActive,
-      }),
-    )
+    return milestones.value.map((milestone) => ({
+      id: milestone.id,
+      label: milestone.label,
+      isActive: milestone.isActive,
+    }))
   })
 
   const activeMilestones = computed(() => {
-    return milestones.value.filter(
-      (milestone: { isActive: any }) => milestone.isActive,
-    )
+    return milestones.value.filter((milestone) => milestone.isActive)
   })
 
-  async function initialize() {
-    if (isInitialized.value) return
+  function persist() {
+    if (!isClient) return
 
-    if (typeof window !== 'undefined') {
-      const storedMilestones = localStorage.getItem('milestones')
-      const storedRecords = localStorage.getItem('milestoneRecords')
+    localStorage.setItem('milestones', JSON.stringify(milestones.value))
+    localStorage.setItem(
+      'milestoneRecords',
+      JSON.stringify(milestoneRecords.value),
+    )
+  }
 
-      if (storedMilestones) milestones.value = JSON.parse(storedMilestones)
-      if (storedRecords) milestoneRecords.value = JSON.parse(storedRecords)
-    }
+  function shouldRun(): boolean {
+    return userStore.isLoggedIn && userStore.userId !== 10
+  }
 
-    await fetchMilestones()
-    await fetchMilestoneRecords()
-    isInitialized.value = true
+  function hasMilestone(userId: number, milestoneId: number) {
+    return milestoneRecords.value.some(
+      (record) =>
+        record.userId === userId && record.milestoneId === milestoneId,
+    )
+  }
 
-    if (!userStore.isGuest && typeof window !== 'undefined') {
-      const storedPending = localStorage.getItem('pendingGuestMilestones')
-      if (storedPending) {
-        try {
-          console.log('pending guest milestones: ', storedPending)
-          const pendingIds = JSON.parse(storedPending) as number[]
-          for (const id of pendingIds) {
-            await rewardMilestone(id)
-          }
-          pendingGuestMilestones.value = []
-          localStorage.removeItem('pendingGuestMilestones')
-        } catch (error) {
-          console.warn('Failed to restore pending guest milestones:', error)
-        }
-      }
+  function deactivateMilestone(id: number) {
+    const milestone = milestones.value.find((entry) => entry.id === id)
+    if (milestone) {
+      milestone.isActive = false
+      persist()
     }
   }
 
-  async function confirmMilestone(milestoneId: number) {
-    console.log(`[milestoneStore] Confirming milestone ${milestoneId}...`)
+  async function fetchMilestones(force = false): Promise<Milestone[]> {
+    if (!force && milestones.value.length) return milestones.value
+    if (fetchMilestonesPromise.value) return fetchMilestonesPromise.value
 
+    fetchMilestonesPromise.value = (async () => {
+      try {
+        const res = await performFetch<Milestone[]>('/api/milestones/')
+
+        if (res.success && Array.isArray(res.data)) {
+          milestones.value = res.data
+          persist()
+        }
+
+        return milestones.value
+      } catch (error) {
+        handleError(error, 'fetching milestones')
+        return []
+      } finally {
+        fetchMilestonesPromise.value = null
+      }
+    })()
+
+    return fetchMilestonesPromise.value
+  }
+
+  async function fetchMilestoneRecords(
+    force = false,
+  ): Promise<MilestoneRecord[]> {
+    if (!force && milestoneRecords.value.length) return milestoneRecords.value
+    if (fetchRecordsPromise.value) return fetchRecordsPromise.value
+
+    fetchRecordsPromise.value = (async () => {
+      try {
+        const res = await performFetch<MilestoneRecord[]>(
+          '/api/milestones/records',
+        )
+
+        if (res.success && Array.isArray(res.data)) {
+          milestoneRecords.value = res.data
+          persist()
+        }
+
+        return milestoneRecords.value
+      } catch (error) {
+        handleError(error, 'fetching milestone records')
+        return []
+      } finally {
+        fetchRecordsPromise.value = null
+      }
+    })()
+
+    return fetchRecordsPromise.value
+  }
+
+  async function initialize(): Promise<void> {
+    if (isInitialized.value) return
+    if (initializePromise.value) return initializePromise.value
+
+    initializePromise.value = (async () => {
+      try {
+        if (isClient) {
+          const storedMilestones = localStorage.getItem('milestones')
+          const storedRecords = localStorage.getItem('milestoneRecords')
+
+          if (storedMilestones) {
+            milestones.value = JSON.parse(storedMilestones)
+          }
+
+          if (storedRecords) {
+            milestoneRecords.value = JSON.parse(storedRecords)
+          }
+        }
+
+        if (!milestones.value.length || !milestoneRecords.value.length) {
+          await Promise.all([fetchMilestones(), fetchMilestoneRecords()])
+        }
+
+        isInitialized.value = true
+
+        if (!userStore.isGuest && isClient) {
+          const storedPending = localStorage.getItem('pendingGuestMilestones')
+
+          if (storedPending) {
+            try {
+              const pendingIds = JSON.parse(storedPending) as number[]
+
+              for (const id of pendingIds) {
+                await rewardMilestone(id)
+              }
+
+              pendingGuestMilestones.value = []
+              localStorage.removeItem('pendingGuestMilestones')
+            } catch (error) {
+              console.warn('Failed to restore pending guest milestones:', error)
+            }
+          }
+        }
+      } catch (error) {
+        handleError(error, 'initializing milestoneStore')
+      } finally {
+        initializePromise.value = null
+      }
+    })()
+
+    return initializePromise.value
+  }
+
+  async function confirmMilestone(milestoneId: number) {
     if (userStore.isGuest) {
-      console.warn('[milestoneStore] Guest cannot confirm. Deactivating.')
       deactivateMilestone(milestoneId)
       return
     }
 
-    await fetchMilestoneRecords()
-
     const record = milestoneRecords.value.find(
-      (r: { userId: any; milestoneId: number }) =>
-        r.userId === userStore.userId && r.milestoneId === milestoneId,
+      (entry) =>
+        entry.userId === userStore.userId && entry.milestoneId === milestoneId,
     )
 
-    if (!record) {
-      console.warn(`[milestoneStore] Record not found for ${milestoneId}`)
-      return
-    }
+    if (!record) return
+
+    record.isConfirmed = true
 
     try {
-      record.isConfirmed = true
       const result = await updateMilestoneRecord({
         id: record.id,
         isConfirmed: true,
       })
 
       if (!result.success) {
-        console.warn(`[milestoneStore] Update failed: ${result.message}`)
+        console.warn(`[milestoneStore] Failed to confirm ${milestoneId}`)
       }
     } catch (error) {
       handleError(error, 'confirming milestone')
@@ -139,43 +235,21 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     }
   }
 
-  async function fetchMilestones() {
-    try {
-      const response = await performFetch<{
-        success: boolean
-        data: Milestone[]
-      }>('/api/milestones/')
-      milestones.value =
-        response.success && Array.isArray(response.data) ? response.data : []
-      persist()
-    } catch (error) {
-      handleError(error, 'fetching milestones')
-    }
-  }
-
-  async function fetchMilestoneRecords() {
-    try {
-      const response = await performFetch<{
-        success: boolean
-        data: MilestoneRecord[]
-      }>('/api/milestones/records')
-      milestoneRecords.value =
-        response.success && Array.isArray(response.data) ? response.data : []
-      persist()
-    } catch (error) {
-      handleError(error, 'fetching milestone records')
-    }
-  }
-
   async function updateMilestone(milestone: Milestone) {
-    if (!milestone.id)
-      return console.error('Milestone ID is required for updating.')
+    if (!milestone.id) {
+      console.error('Milestone ID is required for updating.')
+      return
+    }
+
     try {
       const response = await performFetch(`/api/milestones/${milestone.id}`, {
         method: 'PATCH',
         body: JSON.stringify(milestone),
       })
-      if (response.success) await fetchMilestones()
+
+      if (response.success) {
+        await fetchMilestones(true)
+      }
     } catch (error) {
       handleError(error, 'updating milestone')
     }
@@ -184,8 +258,9 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   async function updateMilestonesFromData() {
     for (const updatedMilestone of milestoneData) {
       const existingMilestone = milestones.value.find(
-        (m: { id: any }) => m.id === updatedMilestone.id,
+        (entry) => entry.id === updatedMilestone.id,
       )
+
       if (existingMilestone) {
         Object.assign(existingMilestone, updatedMilestone)
         await updateMilestone(existingMilestone)
@@ -193,26 +268,50 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     }
   }
 
-  async function fetchHighClickScores() {
-    try {
-      const response = await performFetch<UserScore[]>(
-        '/api/milestones/highClickScores',
-      )
-      highClickScores.value = response.data ?? []
-    } catch (error) {
-      handleError(error, 'fetching high click scores')
-    }
+  async function fetchHighClickScores(force = false): Promise<UserScore[]> {
+    if (!force && highClickScores.value.length) return highClickScores.value
+    if (fetchHighClickScoresPromise.value)
+      return fetchHighClickScoresPromise.value
+
+    fetchHighClickScoresPromise.value = (async () => {
+      try {
+        const response = await performFetch<UserScore[]>(
+          '/api/milestones/highClickScores',
+        )
+        highClickScores.value = response.data ?? []
+        return highClickScores.value
+      } catch (error) {
+        handleError(error, 'fetching high click scores')
+        return []
+      } finally {
+        fetchHighClickScoresPromise.value = null
+      }
+    })()
+
+    return fetchHighClickScoresPromise.value
   }
 
-  async function fetchHighMatchScores() {
-    try {
-      const response = await performFetch<UserScore[]>(
-        '/api/milestones/highMatchScores',
-      )
-      highMatchScores.value = response.data ?? []
-    } catch (error) {
-      handleError(error, 'fetching high match scores')
-    }
+  async function fetchHighMatchScores(force = false): Promise<UserScore[]> {
+    if (!force && highMatchScores.value.length) return highMatchScores.value
+    if (fetchHighMatchScoresPromise.value)
+      return fetchHighMatchScoresPromise.value
+
+    fetchHighMatchScoresPromise.value = (async () => {
+      try {
+        const response = await performFetch<UserScore[]>(
+          '/api/milestones/highMatchScores',
+        )
+        highMatchScores.value = response.data ?? []
+        return highMatchScores.value
+      } catch (error) {
+        handleError(error, 'fetching high match scores')
+        return []
+      } finally {
+        fetchHighMatchScoresPromise.value = null
+      }
+    })()
+
+    return fetchHighMatchScoresPromise.value
   }
 
   async function updateClickRecord(newScore: number): Promise<string> {
@@ -232,7 +331,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     }
   }
 
-  async function updateMatchRecord(newScore: number) {
+  async function updateMatchRecord(newScore: number): Promise<void> {
     try {
       const userId = userStore.userId
       if (!userId) throw new Error('User ID is not available')
@@ -242,11 +341,12 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
         body: JSON.stringify({ newScore, userId }),
       })
 
-      await fetchHighMatchScores()
+      await fetchHighMatchScores(true)
     } catch (error) {
       handleError(error, 'updating match record')
     }
   }
+
   async function updateMilestoneRecord(
     record: Partial<MilestoneRecord>,
   ): Promise<{ success: boolean; message?: string }> {
@@ -263,6 +363,15 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
         throw new Error(response.message || 'Failed to update milestone record')
       }
 
+      const index = milestoneRecords.value.findIndex(
+        (entry) => entry.id === response.data!.id,
+      )
+
+      if (index !== -1) {
+        milestoneRecords.value[index] = response.data
+      }
+
+      persist()
       return { success: true }
     } catch (error) {
       handleError(error, 'updating milestone record')
@@ -277,6 +386,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       const response = await performFetch<Milestone>(
         `/api/milestones/${milestoneId}`,
       )
+
       return response.success && response.data
         ? { success: true, message: 'Milestone recovered', data: response.data }
         : { success: false, message: response.message || 'Milestone not found' }
@@ -289,8 +399,31 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     }
   }
 
+  async function addMilestoneRecord(record: Partial<MilestoneRecord>) {
+    try {
+      const response = await performFetch<MilestoneRecord>(
+        '/api/milestones/records',
+        {
+          method: 'POST',
+          body: JSON.stringify(record),
+        },
+      )
+
+      if (response.success && response.data) {
+        milestoneRecords.value.push(response.data)
+        persist()
+        return { success: true, message: 'Milestone recorded successfully.' }
+      }
+
+      throw new Error(response.message || 'Unknown error occurred')
+    } catch (error) {
+      handleError(error, 'adding milestone record')
+      return { success: false, message: 'An error occurred' }
+    }
+  }
+
   async function recordMilestone(userId: number, milestoneId: number) {
-    if (useUserStore().isGuest) {
+    if (userStore.isGuest) {
       return {
         success: true,
         message: 'Guest users cannot earn milestones.',
@@ -323,10 +456,13 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     const userId = userStore.userId
 
     if (userStore.isGuest) {
+      if (!isClient) return
+
       try {
         const current = JSON.parse(
           localStorage.getItem('pendingGuestMilestones') || '[]',
-        )
+        ) as number[]
+
         if (!current.includes(milestoneId)) {
           current.push(milestoneId)
           localStorage.setItem(
@@ -334,52 +470,44 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
             JSON.stringify(current),
           )
         }
+
         pendingGuestMilestones.value = current
       } catch (error) {
         console.warn('Failed to store pending milestone:', error)
       }
+
       return
     }
 
     if (!shouldRun()) return
 
-    const milestone = milestones.value.find(
-      (m: { id: number }) => m.id === milestoneId,
-    )
+    let milestone = milestones.value.find((entry) => entry.id === milestoneId)
+
     if (!milestone) {
       const fetched = await fetchMilestoneById(milestoneId)
+
       if (!fetched.success || !fetched.data) {
         console.warn(`Milestone ${milestoneId} not found.`)
         return
       }
+
       milestones.value.push(fetched.data)
+      milestone = fetched.data
     }
 
     if (!hasMilestone(userId, milestoneId)) {
       const result = await recordMilestone(userId, milestoneId)
+
       if (!result.success) {
         console.warn(`Failed to record milestone: ${result.message}`)
         return
       }
     }
 
-    const m = milestones.value.find((m: { id: number }) => m.id === milestoneId)
-    if (m && !m.isActive) {
-      m.isActive = true
+    if (milestone && !milestone.isActive) {
+      milestone.isActive = true
       persist()
     }
-
-    console.log(`Milestone ${milestoneId} rewarded.`)
-  }
-
-  function deactivateMilestone(id: number) {
-    const m = milestones.value.find((m: { id: number }) => m.id === id)
-    if (m) m.isActive = false
-    persist()
-  }
-
-  function shouldRun(): boolean {
-    return userStore.isLoggedIn && userStore.userId !== 10
   }
 
   async function clearAllMilestoneRecords() {
@@ -387,6 +515,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       const response = await performFetch(`/api/milestones/records/clear/`, {
         method: 'DELETE',
       })
+
       if (response.success) {
         milestoneRecords.value = []
         persist()
@@ -396,34 +525,6 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     } catch (error) {
       handleError(error, 'clearing all milestone records')
     }
-  }
-
-  async function addMilestoneRecord(record: Partial<MilestoneRecord>) {
-    try {
-      const response = await performFetch<MilestoneRecord>(
-        '/api/milestones/records',
-        {
-          method: 'POST',
-          body: JSON.stringify(record),
-        },
-      )
-      if (response.success && response.data) {
-        milestoneRecords.value.push(response.data)
-        persist()
-        return { success: true, message: 'Milestone recorded successfully.' }
-      }
-      throw new Error(response.message || 'Unknown error occurred')
-    } catch (error) {
-      handleError(error, 'adding milestone record')
-      return { success: false, message: 'An error occurred' }
-    }
-  }
-
-  function hasMilestone(userId: number, milestoneId: number) {
-    return milestoneRecords.value.some(
-      (record: { userId: number; milestoneId: number }) =>
-        record.userId === userId && record.milestoneId === milestoneId,
-    )
   }
 
   return {
@@ -437,7 +538,6 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     isInitialized,
     hasPendingGuestMilestones,
 
-    // Milestone logic
     initialize,
     fetchMilestones,
     fetchMilestoneRecords,
@@ -447,7 +547,6 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     deactivateMilestone,
     rewardMilestone,
 
-    // Milestone record logic
     addMilestoneRecord,
     confirmMilestone,
     updateMilestoneRecord,
@@ -456,17 +555,12 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     clearAllMilestoneRecords,
     milestoneCountForUser,
 
-    // Leaderboard / game scores
     fetchHighClickScores,
     fetchHighMatchScores,
     updateMatchRecord,
     updateClickRecord,
 
-    // Local persistence
     persist,
-
-    // Debug
-    // debugMilestones,
   }
 })
 

@@ -44,7 +44,10 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   const score = ref(0)
   const highScore = ref(0)
   const notification = ref<CustomNotification | null>(null)
+
   let firstSelected: GalleryImage | null = null
+  let winProcessing = false
+
   const matchRecord = computed(() => userStore.matchRecord)
 
   const numberOfCards = computed(() => selectedDifficulty.value.value * 2)
@@ -56,45 +59,24 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     ),
   )
 
-const cardSize = computed(() => {
-  const screen = displayStore.viewportSize
-  const difficulty = selectedDifficulty.value.label
-  const isBig = displayStore.bigMode
+  const cardSize = computed(() => {
+    const screen = displayStore.viewportSize
+    const difficulty = selectedDifficulty.value.label
+    const isBig = displayStore.bigMode
 
-  const sizeMap: Record<
-    string,
-    Record<'small' | 'medium' | 'large' | 'extraLarge', number>
-  > = {
-    Easy: {
-      small: 90,
-      medium: 100,
-      large: 110,
-      extraLarge: 130,
-    },
-    Medium: {
-      small: 80,
-      medium: 90,
-      large: 100,
-      extraLarge: 120,
-    },
-    Hard: {
-      small: 70,
-      medium: 80,
-      large: 90,
-      extraLarge: 110,
-    },
-    Expert: {
-      small: 60,
-      medium: 70,
-      large: 80,
-      extraLarge: 100,
-    },
-  }
+    const sizeMap: Record<
+      string,
+      Record<'small' | 'medium' | 'large' | 'extraLarge', number>
+    > = {
+      Easy: { small: 90, medium: 100, large: 110, extraLarge: 130 },
+      Medium: { small: 80, medium: 90, large: 100, extraLarge: 120 },
+      Hard: { small: 70, medium: 80, large: 90, extraLarge: 110 },
+      Expert: { small: 60, medium: 70, large: 80, extraLarge: 100 },
+    }
 
-  const baseSize = sizeMap[difficulty]?.[screen] || 90
-  return isBig ? Math.round(baseSize * 1.2) : baseSize
-})
-
+    const baseSize = sizeMap[difficulty]?.[screen] || 90
+    return isBig ? Math.round(baseSize * 1.2) : baseSize
+  })
 
   const gameBoardStyle = computed(() => {
     const columns = Math.min(numberOfCards.value, 9)
@@ -158,19 +140,24 @@ const cardSize = computed(() => {
     if (card.flipped || card.matched) return
 
     card.flipped = true
+
     if (!firstSelected) {
       firstSelected = card
-    } else if (firstSelected.imagePath === card.imagePath) {
+      return
+    }
+
+    if (firstSelected.imagePath === card.imagePath) {
       card.matched = true
       firstSelected.matched = true
       score.value += 10
 
-      setTimeout(() => {
+      setTimeout(async () => {
         firstSelected = null
-        checkForWin()
+        await checkForWin()
       }, 500)
     } else {
       score.value -= 5
+
       setTimeout(() => {
         card.flipped = false
         if (firstSelected) firstSelected.flipped = false
@@ -179,8 +166,13 @@ const cardSize = computed(() => {
     }
   }
 
-  function checkForWin() {
-    if (galleryImages.value.every((g) => g.matched)) {
+  async function checkForWin() {
+    if (winProcessing) return
+    if (!galleryImages.value.every((g) => g.matched)) return
+
+    winProcessing = true
+
+    try {
       gameWon.value = true
       triggerConfetti()
 
@@ -193,13 +185,17 @@ const cardSize = computed(() => {
         }
       }
 
+      await milestoneStore.initialize()
+
       if (score.value > currentMatchRecord) {
-        milestoneStore.updateMatchRecord(score.value)
+        await milestoneStore.updateMatchRecord(score.value)
       }
 
       if (score.value >= 50) {
-        milestoneStore.rewardMilestone(5)
+        await milestoneStore.rewardMilestone(5)
       }
+    } finally {
+      winProcessing = false
     }
   }
 

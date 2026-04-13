@@ -2,55 +2,84 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export const useStoryStore = defineStore('storyStore', () => {
-  const activeSection = ref<'create' | 'credits' | 'about'>('create')
+type StorySection = 'create' | 'credits' | 'about'
 
-  const story = ref({
-    creator: null as { id: string; name: string } | null,
-    scenario: null as { id: string; description: string } | null,
-    rewards: [] as Array<{ id: string; name: string; power: number }>,
-    characters: [] as Array<{ id: string; name: string; honorific?: string }>,
+type StoryCreator = { id: string; name: string } | null
+type StoryScenario = { id: string; description: string } | null
+type StoryReward = { id: string; name: string; power: number }
+type StoryCharacter = { id: string; name: string; honorific?: string }
+type StoryChat = { id: string; content: string; botResponse?: string }
+type StoryReaction = { id: string; type: string }
+
+interface StoryState {
+  creator: StoryCreator
+  scenario: StoryScenario
+  rewards: StoryReward[]
+  characters: StoryCharacter[]
+  storyteller: string
+  genre: string
+  intro: string
+  chats: StoryChat[]
+  reactions: StoryReaction[]
+  tags: string[]
+}
+
+function createEmptyStory(): StoryState {
+  return {
+    creator: null,
+    scenario: null,
+    rewards: [],
+    characters: [],
     storyteller: '',
     genre: '',
     intro: '',
-    chats: [] as Array<{ id: string; content: string; botResponse?: string }>,
-    reactions: [] as Array<{ id: string; type: string }>,
-    tags: [] as Array<string>,
-  })
+    chats: [],
+    reactions: [],
+    tags: [],
+  }
+}
 
-  function setActiveSection(section: 'create' | 'credits' | 'about') {
+export const useStoryStore = defineStore('storyStore', () => {
+  const activeSection = ref<StorySection>('create')
+  const story = ref<StoryState>(createEmptyStory())
+
+  function setActiveSection(section: StorySection) {
     activeSection.value = section
   }
 
-  function setCreator(creator: { id: string; name: string }) {
+  function setCreator(creator: NonNullable<StoryCreator>) {
     story.value.creator = creator
   }
 
-  function setScenario(scenario: { id: string; description: string }) {
+  function setScenario(scenario: NonNullable<StoryScenario>) {
     story.value.scenario = scenario
   }
 
-  function addReward(reward: { id: string; name: string; power: number }) {
+  function setStoryteller(storyteller: string) {
+    story.value.storyteller = storyteller
+  }
+
+  function setGenre(genre: string) {
+    story.value.genre = genre
+  }
+
+  function setIntro(intro: string) {
+    story.value.intro = intro
+  }
+
+  function addReward(reward: StoryReward) {
     story.value.rewards.push(reward)
   }
 
-  function addCharacter(character: {
-    id: string
-    name: string
-    honorific?: string
-  }) {
+  function addCharacter(character: StoryCharacter) {
     story.value.characters.push(character)
   }
 
-  function addChat(chat: {
-    id: string
-    content: string
-    botResponse?: string
-  }) {
+  function addChat(chat: StoryChat) {
     story.value.chats.push(chat)
   }
 
-  function addReaction(reaction: { id: string; type: string }) {
+  function addReaction(reaction: StoryReaction) {
     story.value.reactions.push(reaction)
   }
 
@@ -60,19 +89,14 @@ export const useStoryStore = defineStore('storyStore', () => {
     }
   }
 
+  function removeTag(tag: string) {
+    story.value.tags = story.value.tags.filter(
+      (existingTag) => existingTag !== tag,
+    )
+  }
+
   function clearStory() {
-    story.value = {
-      creator: null,
-      scenario: null,
-      rewards: [],
-      characters: [],
-      storyteller: '',
-      genre: '',
-      intro: '',
-      chats: [],
-      reactions: [],
-      tags: [],
-    }
+    story.value = createEmptyStory()
   }
 
   return {
@@ -81,11 +105,15 @@ export const useStoryStore = defineStore('storyStore', () => {
     setActiveSection,
     setCreator,
     setScenario,
+    setStoryteller,
+    setGenre,
+    setIntro,
     addReward,
     addCharacter,
     addChat,
     addReaction,
     addTag,
+    removeTag,
     clearStory,
   }
 })

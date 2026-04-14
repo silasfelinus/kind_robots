@@ -10,7 +10,7 @@
         <milestone-popup />
       </div>
 
-      <animation-loader class="fixed z-50 pointer-events-none" />
+      <animation-loader class="fixed inset-0 z-50 pointer-events-none" />
 
       <div
         v-if="showSwarm"
@@ -22,7 +22,7 @@
 
     <div
       v-if="isNavigating"
-      class="fixed inset-0 z-40 flex items-center justify-center animate-fade-in"
+      class="fixed inset-0 z-40 flex items-center justify-center animate-fade-in pointer-events-none"
     >
       <screen-debug />
       <div class="loading loading-dots loading-lg text-primary" />

@@ -1,3 +1,4 @@
+<!-- /components/server/server-selector.vue -->
 <template>
   <div class="flex flex-col gap-2 w-full">
     <label class="text-sm font-semibold">{{ label }}</label>
@@ -31,7 +32,7 @@
         {{ selectedServer.label || selectedServer.title }}
       </div>
       <div>{{ selectedServer.description || 'No description provided.' }}</div>
-      <div class="opacity-70">
+      <div class="opacity-70 break-all">
         {{ selectedServer.baseUrl }}{{ selectedServer.endpointPath || '' }}
       </div>
     </div>
@@ -65,6 +66,10 @@ const props = defineProps({
     type: String as PropType<'art' | 'text' | 'comfy' | ''>,
     default: '',
   },
+  activeOnly: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const emit = defineEmits<{
@@ -73,22 +78,30 @@ const emit = defineEmits<{
 
 const serverStore = useServerStore()
 
-onMounted(() => {
-  serverStore.initialize()
+onMounted(async () => {
+  await serverStore.initialize()
 })
 
-const filteredServers = computed<Server[]>(() => {
+const sourceServers = computed<Server[]>(() => {
   if (props.capability === 'art') return serverStore.artServers
   if (props.capability === 'text') return serverStore.textServers
   if (props.capability === 'comfy') return serverStore.comfyServers
 
   if (props.allowedTypes.length) {
-    return serverStore.activeServers.filter((server: Server) =>
+    const baseList = props.activeOnly
+      ? serverStore.activeServers
+      : serverStore.servers
+
+    return baseList.filter((server: Server) =>
       props.allowedTypes.includes(server.serverType),
     )
   }
 
-  return serverStore.activeServers
+  return props.activeOnly ? serverStore.activeServers : serverStore.servers
+})
+
+const filteredServers = computed<Server[]>(() => {
+  return sourceServers.value
 })
 
 const selectedServer = computed<Server | null>(() => {
@@ -96,7 +109,7 @@ const selectedServer = computed<Server | null>(() => {
   return serverStore.getServerById(props.modelValue)
 })
 
-function handleChange(event: Event) {
+function handleChange(event: Event): void {
   const value = Number((event.target as HTMLSelectElement).value)
   emit('update:modelValue', Number.isNaN(value) || value <= 0 ? null : value)
 }

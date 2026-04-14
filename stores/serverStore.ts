@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref, type Ref } from 'vue'
 import { performFetch, handleError } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import type {
   Server,
   ServerStatus,
@@ -36,6 +37,7 @@ interface FetchResponse<T> {
   data?: T
   message?: string
   skipped?: string[]
+  status?: number
 }
 
 const isClient = typeof window !== 'undefined'
@@ -104,6 +106,7 @@ export const useServerStore = defineStore('serverStore', () => {
   const hasLoaded = ref(false)
 
   const userStore = useUserStore()
+  const errorStore = useErrorStore()
 
   const ownedServers = computed<Server[]>(() =>
     servers.value.filter(
@@ -295,6 +298,15 @@ export const useServerStore = defineStore('serverStore', () => {
     healthResults.value = storedHealthResults
   }
 
+  function setStoreError(
+    errorType: ErrorType,
+    message: string,
+    context: string,
+  ): void {
+    errorStore.setError(errorType, message)
+    console.error(`[serverStore] ${context}: ${message}`)
+  }
+
   async function initialize(): Promise<void> {
     if (isInitialized.value) return
     if (initializePromise.value) return initializePromise.value
@@ -313,7 +325,7 @@ export const useServerStore = defineStore('serverStore', () => {
             (server: Server): boolean => !fetchedIds.has(server.id),
           ),
           ...fetchedServers,
-        ]
+        ].sort(sortServers)
 
         if (
           activeArtServerId.value === null &&
@@ -334,6 +346,11 @@ export const useServerStore = defineStore('serverStore', () => {
       } catch (error) {
         isInitialized.value = false
         handleError(error, 'initializing server store')
+        setStoreError(
+          ErrorType.STORE_ERROR,
+          'Failed to initialize server store.',
+          'initialize',
+        )
       } finally {
         initializePromise.value = null
       }
@@ -355,14 +372,21 @@ export const useServerStore = defineStore('serverStore', () => {
         >
 
         if (res.success && isServerArray(res.data)) {
+          servers.value = res.data.slice().sort(sortServers)
           hasLoaded.value = true
-          return res.data
+          syncToLocalStorage()
+          return servers.value
         }
 
         throw new Error(res.message || 'Failed to fetch servers')
       } catch (error) {
         hasLoaded.value = false
         handleError(error, 'fetching servers')
+        setStoreError(
+          ErrorType.NETWORK_ERROR,
+          'Failed to fetch servers.',
+          'fetchAllServers',
+        )
         return []
       } finally {
         loading.value = false
@@ -374,6 +398,8 @@ export const useServerStore = defineStore('serverStore', () => {
   }
 
   async function fetchServerById(id: number): Promise<Server | null> {
+    loading.value = true
+
     try {
       const res = (await performFetch(
         `/api/server/${id}`,
@@ -390,6 +416,7 @@ export const useServerStore = defineStore('serverStore', () => {
           servers.value.push(res.data)
         }
 
+        servers.value.sort(sortServers)
         syncToLocalStorage()
         return res.data
       }
@@ -397,7 +424,14 @@ export const useServerStore = defineStore('serverStore', () => {
       throw new Error(res.message || 'Failed to fetch server')
     } catch (error) {
       handleError(error, 'fetching server by ID')
+      setStoreError(
+        ErrorType.NETWORK_ERROR,
+        'Failed to fetch server.',
+        'fetchServerById',
+      )
       return null
+    } finally {
+      loading.value = false
     }
   }
 
@@ -418,12 +452,19 @@ export const useServerStore = defineStore('serverStore', () => {
       }
 
       servers.value.push(res.data)
+      servers.value.sort(sortServers)
       syncToLocalStorage()
 
-      return { success: true, data: res.data }
+      return {
+        success: true,
+        data: res.data,
+        message: res.message || 'Server created successfully.',
+      }
     } catch (error) {
       handleError(error, 'creating server')
-      return { success: false, message: (error as Error).message }
+      const message = (error as Error).message || 'Failed to create server.'
+      setStoreError(ErrorType.STORE_ERROR, message, 'addServer')
+      return { success: false, message }
     } finally {
       isSaving.value = false
     }
@@ -459,7 +500,7 @@ export const useServerStore = defineStore('serverStore', () => {
           (server: Server): boolean => !createdIds.has(server.id),
         ),
         ...createdServers,
-      ]
+      ].sort(sortServers)
 
       syncToLocalStorage()
 
@@ -467,13 +508,16 @@ export const useServerStore = defineStore('serverStore', () => {
         success: true,
         data: createdServers,
         skipped: Array.isArray(res.skipped) ? res.skipped : [],
+        message: res.message || 'Servers created successfully.',
       }
     } catch (error) {
       handleError(error, 'creating servers')
+      const message = (error as Error).message || 'Failed to create servers.'
+      setStoreError(ErrorType.STORE_ERROR, message, 'addServers')
       return {
         success: false,
         data: [],
-        message: (error as Error).message,
+        message,
       }
     } finally {
       isSaving.value = false
@@ -507,16 +551,25 @@ export const useServerStore = defineStore('serverStore', () => {
         servers.value.push(res.data)
       }
 
+      servers.value.sort(sortServers)
+
       if (selectedServer.value?.id === id) {
         selectedServer.value = res.data
         serverForm.value = { ...res.data }
       }
 
       syncToLocalStorage()
-      return { success: true, data: res.data }
+
+      return {
+        success: true,
+        data: res.data,
+        message: res.message || 'Server updated successfully.',
+      }
     } catch (error) {
       handleError(error, 'updating server')
-      return { success: false, message: (error as Error).message }
+      const message = (error as Error).message || 'Failed to update server.'
+      setStoreError(ErrorType.STORE_ERROR, message, 'updateServer')
+      return { success: false, message }
     } finally {
       isSaving.value = false
     }
@@ -525,13 +578,20 @@ export const useServerStore = defineStore('serverStore', () => {
   async function deleteServer(
     id: number,
   ): Promise<{ success: boolean; message?: string }> {
-    try {
-      const res = (await performFetch(`/api/server/${id}`, {
-        method: 'DELETE',
-      })) as FetchResponse<null>
+    loading.value = true
 
-      if (!res.success) {
-        throw new Error(res.message || 'Failed to delete server')
+    try {
+      const response = (await performFetch(`/api/server/${id}`, {
+        method: 'DELETE',
+      })) as FetchResponse<undefined>
+
+      if (!response.success) {
+        const message = response.message || 'Failed to delete server.'
+        setStoreError(ErrorType.STORE_ERROR, message, 'deleteServer')
+        return {
+          success: false,
+          message,
+        }
       }
 
       servers.value = servers.value.filter(
@@ -539,7 +599,8 @@ export const useServerStore = defineStore('serverStore', () => {
       )
 
       if (selectedServer.value?.id === id) {
-        deselectServer()
+        selectedServer.value = null
+        serverForm.value = {}
       }
 
       if (activeArtServerId.value === id) {
@@ -553,10 +614,20 @@ export const useServerStore = defineStore('serverStore', () => {
       delete healthResults.value[id]
       syncToLocalStorage()
 
-      return { success: true }
+      return {
+        success: true,
+        message: response.message || 'Server deleted successfully.',
+      }
     } catch (error) {
       handleError(error, 'deleting server')
-      return { success: false, message: (error as Error).message }
+      const message = 'Failed to delete server.'
+      setStoreError(ErrorType.STORE_ERROR, message, 'deleteServer')
+      return {
+        success: false,
+        message,
+      }
+    } finally {
+      loading.value = false
     }
   }
 
@@ -598,10 +669,18 @@ export const useServerStore = defineStore('serverStore', () => {
       }
 
       syncToLocalStorage()
-      return { success: true, data: res.data }
+
+      return {
+        success: true,
+        data: res.data,
+        message: res.message || 'Server health test completed.',
+      }
     } catch (error) {
       handleError(error, 'testing server health')
-      return { success: false, message: (error as Error).message }
+      const message =
+        (error as Error).message || 'Failed to test server health.'
+      setStoreError(ErrorType.NETWORK_ERROR, message, 'testServerHealth')
+      return { success: false, message }
     } finally {
       testingHealth.value = false
     }
@@ -610,11 +689,18 @@ export const useServerStore = defineStore('serverStore', () => {
   function selectServer(id: number): void {
     const server = servers.value.find((item: Server): boolean => item.id === id)
 
-    if (server) {
-      selectedServer.value = server
-      serverForm.value = { ...server }
-      syncToLocalStorage()
+    if (!server) {
+      setStoreError(
+        ErrorType.VALIDATION_ERROR,
+        'Server not found.',
+        'selectServer',
+      )
+      return
     }
+
+    selectedServer.value = server
+    serverForm.value = { ...server }
+    syncToLocalStorage()
   }
 
   function deselectServer(): void {
@@ -678,7 +764,9 @@ export const useServerStore = defineStore('serverStore', () => {
     message?: string
   }> {
     if (!serverForm.value) {
-      return { success: false, message: 'No server form loaded.' }
+      const message = 'No server form loaded.'
+      setStoreError(ErrorType.VALIDATION_ERROR, message, 'saveServer')
+      return { success: false, message }
     }
 
     isSaving.value = true
@@ -691,20 +779,92 @@ export const useServerStore = defineStore('serverStore', () => {
       return await addServer(serverForm.value)
     } catch (error) {
       handleError(error, 'saving server')
-      return { success: false, message: (error as Error).message }
+      const message = (error as Error).message || 'Failed to save server.'
+      setStoreError(ErrorType.STORE_ERROR, message, 'saveServer')
+      return { success: false, message }
     } finally {
       isSaving.value = false
     }
   }
 
-  function setActiveArtServer(id: number | null): void {
+  function setActiveArtServer(id: number | null): {
+    success: boolean
+    message?: string
+  } {
+    if (id === null) {
+      activeArtServerId.value = null
+      syncToLocalStorage()
+      return { success: true, message: 'Active art server cleared.' }
+    }
+
+    const server = getServerById(id)
+
+    if (!server) {
+      const message = 'Art server not found.'
+      setStoreError(ErrorType.VALIDATION_ERROR, message, 'setActiveArtServer')
+      return { success: false, message }
+    }
+
+    const canUse =
+      Boolean(server.isActive) &&
+      (server.serverType === 'ART' ||
+        server.serverType === 'COMFY' ||
+        server.serverType === 'A1111' ||
+        Boolean(server.supportsTxt2Img) ||
+        Boolean(server.supportsImg2Img))
+
+    if (!canUse) {
+      const message = 'This server is not compatible with art generation.'
+      setStoreError(ErrorType.VALIDATION_ERROR, message, 'setActiveArtServer')
+      return { success: false, message }
+    }
+
     activeArtServerId.value = id
     syncToLocalStorage()
+
+    return {
+      success: true,
+      message: 'Active art server updated.',
+    }
   }
 
-  function setActiveTextServer(id: number | null): void {
+  function setActiveTextServer(id: number | null): {
+    success: boolean
+    message?: string
+  } {
+    if (id === null) {
+      activeTextServerId.value = null
+      syncToLocalStorage()
+      return { success: true, message: 'Active text server cleared.' }
+    }
+
+    const server = getServerById(id)
+
+    if (!server) {
+      const message = 'Text server not found.'
+      setStoreError(ErrorType.VALIDATION_ERROR, message, 'setActiveTextServer')
+      return { success: false, message }
+    }
+
+    const canUse =
+      Boolean(server.isActive) &&
+      (server.serverType === 'TEXT' ||
+        server.serverType === 'OPENAI_COMPATIBLE' ||
+        Boolean(server.supportsChat))
+
+    if (!canUse) {
+      const message = 'This server is not compatible with text generation.'
+      setStoreError(ErrorType.VALIDATION_ERROR, message, 'setActiveTextServer')
+      return { success: false, message }
+    }
+
     activeTextServerId.value = id
     syncToLocalStorage()
+
+    return {
+      success: true,
+      message: 'Active text server updated.',
+    }
   }
 
   function clearActiveServers(): void {

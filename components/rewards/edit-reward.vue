@@ -64,10 +64,7 @@ const formFields = [
 
 const editReward = async () => {
   if (editedReward.value.id) {
-    await rewardStore.updateRewardById(
-      editedReward.value.id,
-      editedReward.value,
-    )
+    await rewardStore.updateReward(editedReward.value.id, editedReward.value)
   }
 }
 </script>

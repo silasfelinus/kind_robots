@@ -51,18 +51,17 @@ function getRandomColor() {
   return '#' + Math.floor(Math.random() * 16777215).toString(16)
 }
 
-// Function to start dragging a jellybean
 function startDrag(index: number) {
-  // Mark the jellybean as being dragged
-  jellybeans.value[index].isDragging = true
+  const bean = jellybeans.value[index]
+  if (!bean) return
+  bean.isDragging = true
 }
 
-// Function to end dragging a jellybean
 function endDrag(index: number) {
-  // Mark the jellybean as not being dragged
-  jellybeans.value[index].isDragging = false
+  const bean = jellybeans.value[index]
+  if (!bean) return
+  bean.isDragging = false
 }
-
 // Function to handle mousemove for dragging
 window.addEventListener('mousemove', (event) => {
   jellybeans.value.forEach((bean) => {

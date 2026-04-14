@@ -105,12 +105,17 @@ const computedImage = computed(() =>
     : scenario?.value?.imagePath || '/images/scenarios/space.webp',
 )
 
-const designerName = computed(() =>
-  scenario?.value?.userId
-    ? userStore.getUserById(scenario.value.userId)?.name || 'Unknown'
-    : 'Unknown',
-)
+const designerName = ref('Unknown')
 
+const loadDesignerName = async () => {
+  if (!scenario.value?.userId) {
+    designerName.value = 'Unknown'
+    return
+  }
+
+  const user = await userStore.getUserById(scenario.value.userId)
+  designerName.value = user?.name || 'Unknown'
+}
 // Debugging Details Toggle
 const showDetails = ref(false)
 const toggleDetails = () => (showDetails.value = !showDetails.value)
@@ -140,9 +145,17 @@ const deselectScenario = () => {
   scenarioStore.currentChoice = '' // Reset choice on deselect
 }
 
-// Watch for changes in the selected scenario and load the art image
-watch(scenario, loadArtImage, { immediate: true })
+watch(
+  scenario,
+  async () => {
+    await loadArtImage()
+    await loadDesignerName()
+  },
+  { immediate: true },
+)
 
-// Load art image on component mount
-onMounted(loadArtImage)
+onMounted(async () => {
+  await loadArtImage()
+  await loadDesignerName()
+})
 </script>

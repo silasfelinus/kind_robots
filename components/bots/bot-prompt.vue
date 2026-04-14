@@ -64,7 +64,12 @@ const sendMessage = async () => {
 const sendReply = async (updatedMessages: Message[]) => {
   try {
     messages.value = updatedMessages
-    message.value = updatedMessages[updatedMessages.length - 1].content
+
+    const lastMessage = updatedMessages[updatedMessages.length - 1]
+    if (lastMessage) {
+      message.value = lastMessage.content
+    }
+
     await sendMessage()
   } catch (err) {
     console.error(err)

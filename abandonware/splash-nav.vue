@@ -11,11 +11,10 @@
       </button>
     </div>
 
-    <!-- Navigation Select -->
     <Transition name="fade-expand">
       <div
         v-if="currentNav === 'nav-select'"
-        class="space-y-2 min-h-[300px] bg-base-200 border border-dashed border-primary rounded-2xl p-4"
+        class="space-y-2 min-h-75 bg-base-200 border border-dashed border-primary rounded-2xl p-4"
       >
         <label
           class="text-sm font-semibold text-base-content/70 text-center block mb-2"
@@ -29,11 +28,10 @@
       </div>
     </Transition>
 
-    <!-- Active Custom Nav -->
     <Transition name="fade-expand">
       <div
         v-if="currentNav === 'custom' && resolvedNavComponent"
-        class="space-y-2 min-h-[300px] bg-base-200 border border-dashed border-accent rounded-2xl p-4"
+        class="space-y-2 min-h-75 bg-base-200 border border-dashed border-accent rounded-2xl p-4"
       >
         <label
           class="text-sm font-semibold text-base-content/70 text-center block mb-2"
@@ -47,11 +45,10 @@
       </div>
     </Transition>
 
-    <!-- Mode Row -->
     <Transition name="fade-expand">
       <div
         v-if="currentNav === 'mode-row'"
-        class="space-y-2 border border-base-300 bg-base-100 rounded-2xl"
+        class="space-y-2 border border-base-300 bg-base-100 rounded-2xl p-4"
       >
         <label
           class="text-sm font-semibold text-base-content/70 text-center block"
@@ -75,7 +72,9 @@ const pageStore = usePageStore()
 const linkStore = useLinkStore()
 
 const navStates = ['custom', 'nav-select', 'mode-row'] as const
-const currentNav = ref<(typeof navStates)[number]>('custom')
+type NavState = (typeof navStates)[number]
+
+const currentNav = ref<NavState>('custom')
 
 const resolvedNavComponent = computed(() => {
   return (
@@ -88,17 +87,20 @@ const resolvedNavComponent = computed(() => {
 const currentLabel = computed(() => {
   if (currentNav.value === 'custom' && resolvedNavComponent.value) {
     return formatLabel(resolvedNavComponent.value)
-  } else if (currentNav.value === 'nav-select') {
-    return 'Navigation'
-  } else {
-    return 'Mode Row'
   }
+
+  if (currentNav.value === 'nav-select') {
+    return 'Navigation'
+  }
+
+  return 'Mode Row'
 })
 
 function cycleNavSource() {
   const currentIndex = navStates.indexOf(currentNav.value)
   const nextIndex = (currentIndex + 1) % navStates.length
-  const next = navStates[nextIndex]
+  const next = navStates[nextIndex] ?? 'custom'
+
   currentNav.value = next
 
   if (next === 'nav-select') {

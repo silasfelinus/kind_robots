@@ -188,11 +188,15 @@ function removeExample(index: number) {
 }
 function moveExample(index: number, direction: number) {
   const newIndex = index + direction
-  if (newIndex >= 0 && newIndex < examples.value.length) {
-    const temp = examples.value[index]
-    examples.value[index] = examples.value[newIndex]
-    examples.value[newIndex] = temp
-  }
+  if (newIndex < 0 || newIndex >= examples.value.length) return
+
+  const current = examples.value[index]
+  const target = examples.value[newIndex]
+
+  if (current === undefined || target === undefined) return
+
+  examples.value[index] = target
+  examples.value[newIndex] = current
 }
 
 async function handleFormSubmit() {

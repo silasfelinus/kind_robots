@@ -126,17 +126,27 @@ export const useComfyStore = defineStore('comfyStore', () => {
 
   function moveStepUp(index: number) {
     if (index <= 0) return
-    const temp = state.modifierSteps[index]
-    state.modifierSteps[index] = state.modifierSteps[index - 1]
-    state.modifierSteps[index - 1] = temp
+
+    const current = state.modifierSteps[index]
+    const previous = state.modifierSteps[index - 1]
+
+    if (!current || !previous) return
+
+    state.modifierSteps[index] = previous
+    state.modifierSteps[index - 1] = current
     persist()
   }
 
   function moveStepDown(index: number) {
     if (index >= state.modifierSteps.length - 1) return
-    const temp = state.modifierSteps[index]
-    state.modifierSteps[index] = state.modifierSteps[index + 1]
-    state.modifierSteps[index + 1] = temp
+
+    const current = state.modifierSteps[index]
+    const next = state.modifierSteps[index + 1]
+
+    if (!current || !next) return
+
+    state.modifierSteps[index] = next
+    state.modifierSteps[index + 1] = current
     persist()
   }
 

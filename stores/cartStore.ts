@@ -53,9 +53,12 @@ export const useCartStore = defineStore('cartStore', () => {
     const index = findItemIndex(id)
 
     if (index !== -1) {
-      items.value[index].quantity += newItem.quantity
+      const existing = items.value[index]
+      if (!existing) return
+
+      existing.quantity += newItem.quantity
       if (newItem.notes) {
-        items.value[index].notes = newItem.notes
+        existing.notes = newItem.notes
       }
       return
     }
@@ -76,7 +79,10 @@ export const useCartStore = defineStore('cartStore', () => {
       return
     }
 
-    items.value[index].quantity = quantity
+    const existing = items.value[index]
+    if (!existing) return
+
+    existing.quantity = quantity
   }
 
   function clearCart() {

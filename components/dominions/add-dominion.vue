@@ -434,7 +434,10 @@ async function handleSubmit() {
         ? 'Dominion updated!'
         : 'Dominion created!'
     } else {
-      errorMessage.value = result.message || 'Failed to save dominion.'
+      errorMessage.value =
+        'message' in result && typeof result.message === 'string'
+          ? result.message
+          : 'Failed to save dominion.'
     }
   } catch (err: any) {
     errorMessage.value = err?.message || 'Failed to save dominion.'

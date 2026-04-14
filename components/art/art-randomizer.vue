@@ -1,6 +1,6 @@
+<!-- /components/content/art/art-randomizer.vue -->
 <template>
   <div class="w-full space-y-6">
-    <!-- List Manager (Styled Like Presets) -->
     <div class="border rounded-xl bg-base-200 p-4 space-y-3">
       <button
         class="w-full flex justify-between items-center font-semibold text-left text-lg"
@@ -38,7 +38,6 @@
       </Transition>
     </div>
 
-    <!-- Randomized Presets -->
     <div
       v-for="entry in artListPresets"
       :key="entry.id"
@@ -88,7 +87,6 @@
       </Transition>
     </div>
 
-    <!-- Bonus Randoms -->
     <div class="border rounded-xl bg-base-200 p-4 space-y-3">
       <h3 class="font-semibold">🎯 Bonus Randoms</h3>
       <div class="flex flex-wrap gap-2">
@@ -120,7 +118,7 @@
             <button
               @click="removeRandomKey(key)"
               class="ml-1 hover:text-error"
-              title="Remove {{ key }}"
+              :title="`Remove ${key}`"
             >
               ❌
             </button>
@@ -142,7 +140,8 @@ import ListManager from './list-manager.vue'
 const artStore = useArtStore()
 const randomStore = useRandomStore()
 
-const supportedRandomKeys = randomStore.supportedKeys
+const supportedRandomKeys = randomStore.supportedKeys as string[]
+
 const expandedPresets = ref<Record<string, boolean>>({})
 const showAll = ref<Record<string, boolean>>({})
 const showManager = ref(false)
@@ -150,12 +149,12 @@ const onlyMine = ref(true)
 const includePublic = ref(true)
 
 for (const entry of artListPresets) {
-  expandedPresets.value[entry.id] = false
-  showAll.value[entry.id] = false
+  expandedPresets.value[String(entry.id)] = false
+  showAll.value[String(entry.id)] = false
 }
 
-const localSelections = computed({
-  get: () => artStore.artListSelections,
+const localSelections = computed<Record<string, string[]>>({
+  get: () => artStore.artListSelections || {},
   set: (val) => {
     for (const [key, values] of Object.entries(val)) {
       artStore.updateArtListSelection(key, values)
@@ -164,21 +163,23 @@ const localSelections = computed({
 })
 
 function toggleMultiSelection(entryId: string, val: string) {
-  const current = localSelections.value[entryId] || []
+  const current = localSelections.value[entryId] ?? []
   const updated = current.includes(val)
-    ? current.filter((v: string) => v !== val)
+    ? current.filter((v) => v !== val)
     : [...current, val]
+
   artStore.updateArtListSelection(entryId, updated)
 }
 
 function isSelected(entryId: string, val: string) {
-  return localSelections.value[entryId]?.includes(val)
+  return localSelections.value[entryId]?.includes(val) ?? false
 }
 
 function visibleOptions(entry: ArtListEntry) {
-  const selected = localSelections.value[entry.id] || []
+  const selected = localSelections.value[entry.id] ?? []
   const firstSet = entry.content.slice(0, 20)
   const rest = entry.content.slice(20)
+
   return showAll.value[entry.id]
     ? entry.content
     : [...firstSet, ...rest.filter((val) => selected.includes(val))]
@@ -202,7 +203,10 @@ function removeRandomKey(key: string) {
 
 watchEffect(() => {
   for (const key of Object.keys(randomStore.randomSelections)) {
-    artStore.updateArtListSelection(key, [randomStore.randomSelections[key]])
+    const val = randomStore.randomSelections[key]
+    if (val) {
+      artStore.updateArtListSelection(key, [val])
+    }
   }
 })
 </script>

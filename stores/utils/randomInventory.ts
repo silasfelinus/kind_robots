@@ -108,5 +108,5 @@ export const inventoryList = [
   'Miniature cannon',
 ]
 export function randomInventory(): string {
-  return inventoryList[Math.floor(Math.random() * inventoryList.length)]
+  return inventoryList[Math.floor(Math.random() * inventoryList.length)]!
 }

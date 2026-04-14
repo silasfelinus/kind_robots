@@ -97,5 +97,5 @@ export const genreList = [
 ]
 
 export function randomGenre(): string {
-  return genreList[Math.floor(Math.random() * genreList.length)]
+  return genreList[Math.floor(Math.random() * genreList.length)]!
 }

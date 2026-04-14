@@ -42,21 +42,24 @@ const stateCycle = [
     footerState: 'open' as DisplayState,
     icon: '↘️',
   }, // Sidebar left closed, footer open
-  
 ]
 
 // Use `ref` to make the current index reactive
 const currentIndex = ref(0)
 
 // Chevron icon based on current state
-const chevronIcon = computed(() => stateCycle[currentIndex.value].icon)
+const chevronIcon = computed(() => {
+  return stateCycle[currentIndex.value]?.icon ?? '⬇️'
+})
 
 // Cycle through the states on click
 const cycleState = () => {
   currentIndex.value = (currentIndex.value + 1) % stateCycle.length // Cycle through states
-  displayStore.sidebarLeftState =
-    stateCycle[currentIndex.value].sidebarLeftState
-  displayStore.footerState = stateCycle[currentIndex.value].footerState
+  const nextState = stateCycle[currentIndex.value]
+  if (!nextState) return
+
+  displayStore.sidebarLeftState = nextState.sidebarLeftState
+  displayStore.footerState = nextState.footerState
   displayStore.saveState() // Save the updated state
 }
 </script>

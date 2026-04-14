@@ -137,7 +137,11 @@ describe('Art Collection API Tests', () => {
   })
 
   it('Remove Art from Collection', () => {
-    artIdToRemove = existingArtIds[0]
+    const firstArtId = existingArtIds[0]
+    if (firstArtId === undefined) {
+      throw new Error('No art ID available to remove.')
+    }
+    artIdToRemove = firstArtId
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${collectionId}`,

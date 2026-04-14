@@ -116,6 +116,128 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
     return fetchIconsPromise.value
   }
 
+  async function fetchIconById(id: number): Promise<SmartIcon | null> {
+    try {
+      const res = await performFetch<SmartIcon>(`/api/icons/${id}`)
+      return res.success ? (res.data ?? null) : null
+    } catch (e) {
+      handleError(e, 'fetch icon by ID')
+      return null
+    }
+  }
+
+  function patchIconLocally(id: number, updates: Partial<SmartIcon>) {
+    const icon = icons.value.find((i) => i.id === id)
+    if (!icon) return
+    Object.assign(icon, updates)
+    syncToLocalStorage()
+  }
+
+  async function updateIcon(id: number, updates: Partial<SmartIcon>) {
+    patchIconLocally(id, updates)
+
+    try {
+      const res = await performFetch<SmartIcon>(`/api/icons/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      })
+
+      if (!res.success) {
+        throw new Error(res.message || 'Failed to update.')
+      }
+
+      return { success: true, data: res.data }
+    } catch (e) {
+      handleError(e, 'updating icon')
+      return { success: false, message: (e as Error).message }
+    }
+  }
+
+  async function createIcon(payload: Partial<SmartIcon>) {
+    try {
+      const res = await performFetch<SmartIcon>('/api/icons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to create.')
+      }
+
+      icons.value.push(res.data)
+      syncToLocalStorage()
+
+      return { success: true, data: res.data }
+    } catch (e) {
+      handleError(e, 'creating icon')
+      return { success: false, message: (e as Error).message }
+    }
+  }
+
+  async function deleteIcon(id: number) {
+    icons.value = icons.value.filter((i) => i.id !== id)
+    syncToLocalStorage()
+
+    try {
+      const res = await performFetch(`/api/icons/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!res.success) {
+        throw new Error(res.message || 'Delete failed.')
+      }
+
+      return true
+    } catch (e) {
+      handleError(e, 'deleting icon')
+      return false
+    }
+  }
+
+  async function saveIcon() {
+    if (!iconForm.value) {
+      return { success: false, message: 'No icon form.' }
+    }
+
+    return iconForm.value.id
+      ? await updateIcon(iconForm.value.id, iconForm.value)
+      : await createIcon(iconForm.value)
+  }
+
+  function setIconOrder(ids: number[]) {
+    updateSmartBar(ids)
+  }
+
+  async function updateSmartBar(ids: number[]) {
+    const user = userStore.user
+    if (!user) return
+
+    const smartBar = ids.join(',')
+    user.smartBar = smartBar
+    user.customIcons = true
+
+    try {
+      await userStore.updateUser({ smartBar, customIcons: true })
+    } catch (e) {
+      handleError(e, 'saving smartBar')
+    }
+  }
+
+  async function toggleCustomIcons(enabled: boolean) {
+    const user = userStore.user
+    if (!user) return
+
+    user.customIcons = enabled
+
+    try {
+      await userStore.updateUser({ customIcons: enabled })
+    } catch (e) {
+      handleError(e, 'toggle customIcons')
+    }
+  }
+
   async function initialize(): Promise<void> {
     if (isInitialized.value) return
     if (initializePromise.value) return initializePromise.value
@@ -124,7 +246,6 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
       try {
         hydrateFromLocalStorage()
 
-        // 🔥 reuse navStore if already loaded
         if (navStore.items.length) {
           icons.value = navStore.items
         } else if (!icons.value.length) {
@@ -142,12 +263,90 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
     return initializePromise.value
   }
 
+  function startEdit() {
+    isEditing.value = true
+    editableIcons.value = [...activeIcons.value]
+    originalIcons.value = [...activeIcons.value]
+  }
+
+  function confirmEdit() {
+    setIconOrder(editableIcons.value.map((i) => i.id))
+    isEditing.value = false
+  }
+
+  function revertEdit() {
+    editableIcons.value = [...originalIcons.value]
+    isEditing.value = false
+  }
+
+  function startDrag(index: number) {
+    dragIndex.value = index
+  }
+
+  function dropIcon(index: number) {
+    if (dragIndex.value < 0 || dragIndex.value === index) return
+
+    const dragged = editableIcons.value.splice(dragIndex.value, 1)[0]
+    if (!dragged) {
+      dragIndex.value = -1
+      return
+    }
+
+    editableIcons.value.splice(index, 0, dragged)
+    dragIndex.value = -1
+  }
+
+  function toggleEditing() {
+    isEditing.value = !isEditing.value
+  }
+
   function toggleSwarm() {
     showSwarm.value = !showSwarm.value
     if (showSwarm.value) {
       const i = Math.floor(Math.random() * swarmMessages.length)
       swarmMessage.value = swarmMessages[i] ?? ''
     }
+  }
+
+  function addIconToSmartBar(id: number) {
+    const ids = [...smartBarIds.value, id]
+    updateSmartBar(ids)
+  }
+
+  function removeIconFromSmartBar(id: number) {
+    const ids = smartBarIds.value.filter((existing: number) => existing !== id)
+    updateSmartBar(ids)
+  }
+
+  function selectIcon(iconId: number) {
+    const icon = icons.value.find((i) => i.id === iconId)
+    if (icon) {
+      selectedIcon.value = icon
+      iconForm.value = { ...icon }
+    }
+  }
+
+  function deselectIcon() {
+    selectedIcon.value = null
+    iconForm.value = {}
+  }
+
+  function createNewIcon() {
+    iconForm.value = {
+      title: '',
+      type: '',
+      icon: '',
+      label: '',
+      link: '',
+      component: '',
+      isPublic: true,
+    }
+    selectedIcon.value = null
+    syncToLocalStorage()
+  }
+
+  function removeFromEditableIcons(id: number) {
+    editableIcons.value = editableIcons.value.filter((icon) => icon.id !== id)
   }
 
   return {
@@ -170,8 +369,29 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
     hasChanges,
     initialize,
     fetchIcons,
+    fetchIconById,
     syncToLocalStorage,
+    startEdit,
+    confirmEdit,
+    revertEdit,
+    startDrag,
+    dropIcon,
+    toggleEditing,
     toggleSwarm,
+    patchIconLocally,
+    updateIcon,
+    createIcon,
+    deleteIcon,
+    saveIcon,
+    setIconOrder,
+    updateSmartBar,
+    toggleCustomIcons,
+    addIconToSmartBar,
+    removeIconFromSmartBar,
+    selectIcon,
+    deselectIcon,
+    createNewIcon,
+    removeFromEditableIcons,
   }
 })
 

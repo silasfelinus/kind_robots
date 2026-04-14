@@ -21,36 +21,32 @@ import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
 
-// State for the selected user ID
 const selectedUserId = ref<string | null>(
   userStore.recipient?.id?.toString() || null,
 )
 
-// Fetch the list of users
 const users = computed(() => userStore.users)
 
-// Watch for changes to `selectedUserId` and update the recipient in the store
+async function syncRecipient(userId: string | null) {
+  if (!userId) {
+    userStore.recipient = null
+    return
+  }
+
+  const selectedUser = await userStore.getUserById(Number(userId))
+  userStore.recipient = selectedUser || null
+}
+
 watch(
   selectedUserId,
-  (newUserId) => {
-    if (!newUserId) {
-      userStore.recipient = null // Set to no recipient
-    } else {
-      const selectedUser = userStore.getUserById(Number(newUserId))
-      userStore.recipient = selectedUser || null
-    }
+  async (newUserId) => {
+    await syncRecipient(newUserId)
   },
   { immediate: true },
 )
 
-// Method to handle selection updates
-function updateRecipient() {
-  if (!selectedUserId.value) {
-    userStore.recipient = null // Set to no recipient
-  } else {
-    const selectedUser = userStore.getUserById(Number(selectedUserId.value))
-    userStore.recipient = selectedUser || null
-  }
+async function updateRecipient() {
+  await syncRecipient(selectedUserId.value)
 }
 </script>
 

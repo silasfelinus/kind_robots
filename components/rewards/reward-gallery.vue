@@ -94,7 +94,7 @@ const showEditReward = ref(false)
 
 // Methods
 const endReward = () => {
-  rewardStore.clearselectedReward()
+  rewardStore.clearSelectedReward()
 }
 
 const selectReward = (reward: Reward) => {

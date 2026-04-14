@@ -123,11 +123,13 @@ const difficulties = [
   { label: 'Hard', value: 16 },
   { label: 'Expert', value: 24 },
 ]
-const selectedDifficulty = ref(difficulties[0])
+const selectedDifficulty = ref<(typeof difficulties)[number]>(
+  difficulties[0] ?? { label: 'Easy', value: 8 },
+)
 
 // reduce last two numbes for baseSize and minSize to reduce cards
 const cardSize = computed(() => {
-  const numPairs = selectedDifficulty.value.value
+  const numPairs = selectedDifficulty.value?.value ?? 8
   const baseSize = width.value > 768 ? 160 : 80 // Larger base size for wider screens
   const minSize = width.value > 768 ? 100 : 60 // Minimum size for cards
   const sizeReduction = (numPairs / 8) * (width.value > 768 ? 8 : 4) // Larger reduction on wider screens

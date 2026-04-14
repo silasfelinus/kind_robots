@@ -134,7 +134,7 @@ export const useChatStore = defineStore('chatStore', () => {
   function updateChat(chatId: number, updatedFields: Partial<Chat>): void {
     const index = chats.value.findIndex((chat) => chat.id === chatId)
     if (index !== -1) {
-      chats.value[index] = { ...chats.value[index], ...updatedFields }
+      chats.value[index] = { ...chats.value[index], ...updatedFields } as Chat
       refreshUnreadMessages()
       saveToLocalStorage()
     }

@@ -158,14 +158,20 @@ export const speciesList: string[] = (() => {
   // Add 100 random animals
   for (let i = 0; i < 100; i++) {
     const index = Math.floor(Math.random() * animals.length)
-    baseSpecies.push(animals[index])
+    const animal = animals[index]
+    if (animal) {
+      baseSpecies.push(animal)
+    }
   }
 
   // Add 100 hybrid species
   for (let i = 0; i < 100; i++) {
     const base = baseSpecies[Math.floor(Math.random() * baseSpecies.length)]
     const animal = animals[Math.floor(Math.random() * animals.length)]
-    hybrids.push(hybridSpecies(animal, base))
+
+    if (base && animal) {
+      hybrids.push(hybridSpecies(animal, base))
+    }
   }
 
   return shuffle([...baseSpecies, ...hybrids])
@@ -174,11 +180,17 @@ export const speciesList: string[] = (() => {
 function shuffle(array: string[]) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-    ;[array[i], array[j]] = [array[j], array[i]]
+    const current = array[i]
+    const target = array[j]
+
+    if (current !== undefined && target !== undefined) {
+      array[i] = target
+      array[j] = current
+    }
   }
   return array
 }
 
 export function randomSpecies(): string {
-  return speciesList[Math.floor(Math.random() * speciesList.length)]
+  return speciesList[Math.floor(Math.random() * speciesList.length)] ?? 'Human'
 }

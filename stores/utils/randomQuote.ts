@@ -32,5 +32,5 @@ export const quoteList = [
 ]
 
 export function randomQuote(): string {
-  return quoteList[Math.floor(Math.random() * quoteList.length)]
+  return quoteList[Math.floor(Math.random() * quoteList.length)]!
 }

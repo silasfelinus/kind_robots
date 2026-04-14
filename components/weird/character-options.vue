@@ -102,7 +102,7 @@ async function saveCharacter() {
     const { selectedCharacter } = characterStore
     if (selectedCharacter) {
       if (selectedCharacter.id) {
-        await characterStore.patchCharacter(
+        await characterStore.updateCharacter(
           selectedCharacter.id,
           selectedCharacter,
         )

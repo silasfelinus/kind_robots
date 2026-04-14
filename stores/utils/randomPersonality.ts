@@ -125,5 +125,5 @@ export const personalityList = [
 ]
 
 export function randomPersonality(): string {
-  return personalityList[Math.floor(Math.random() * personalityList.length)]
+  return personalityList[Math.floor(Math.random() * personalityList.length)]!
 }

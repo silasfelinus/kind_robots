@@ -135,8 +135,19 @@ export default defineEventHandler(async (event) => {
     const data: Partial<Pitch>[] = responseData.choices.map(
       (choice: { message: { content: string } }) => {
         const content = choice.message.content.trim()
-        const [title, pitch] = content.split(', Pitch: ')
-        return { title: title.replace('Topic: ', ''), pitch: pitch || '' }
+        const parts = content.split(', Pitch: ')
+
+        const rawTitle = parts[0]
+        const rawPitch = parts[1]
+
+        if (!rawTitle) {
+          return { title: 'Untitled Idea', pitch: rawPitch || '' }
+        }
+
+        return {
+          title: rawTitle.replace('Topic: ', ''),
+          pitch: rawPitch || '',
+        }
       },
     )
 

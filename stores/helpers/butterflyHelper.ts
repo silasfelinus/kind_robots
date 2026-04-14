@@ -86,15 +86,15 @@ export const randomColor = (): string => {
 
 export const analogousColor = (hsl: string): string => {
   const hslMatch = hsl.match(/\d+/g)
-  if (!hslMatch) throw new Error('Invalid color format')
+  if (!hslMatch || hslMatch.length < 3) throw new Error('Invalid color format')
   const [h, s, l] = hslMatch.map(Number)
-  const newH = (h + 30) % 360
+  const newH = ((h ?? 0) + 30) % 360
   return `hsl(${newH},${s}%,${l}%)`
 }
 
 export const complementaryColor = (hsl: string): string => {
   const [h, s, l] = hsl.replace('hsl(', '').replace(')', '').split(',')
-  const newH = (parseInt(h) + 180) % 360
+  const newH = (parseInt(h || '0') + 180) % 360
   return `hsl(${newH},${s},${l})`
 }
 

@@ -137,7 +137,7 @@ export const useNavStore = defineStore('navStore', () => {
         }
 
         if (!activeModelType.value && modelTypes.value.length > 0) {
-          activeModelType.value = modelTypes.value[0]
+          activeModelType.value = modelTypes.value[0] ?? null
         }
 
         isInitialized.value = true
@@ -188,7 +188,7 @@ export const useNavStore = defineStore('navStore', () => {
     syncToLocalStorage()
 
     if (!activeModelType.value && modelTypes.value.length > 0) {
-      activeModelType.value = modelTypes.value[0]
+      activeModelType.value = modelTypes.value[0] ?? null
     }
   }
 

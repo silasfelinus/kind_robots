@@ -26,7 +26,7 @@
     </div>
 
     <!-- Icon Grid -->
-    <div class="grid grid-cols-[repeat(auto-fit,_minmax(140px,_1fr))] gap-6">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-6">
       <div
         v-for="icon in filteredIcons"
         :key="icon.id"

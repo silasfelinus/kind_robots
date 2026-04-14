@@ -32,8 +32,9 @@ function selectBot(botId: string | number) {
 }
 
 onMounted(() => {
-  if (bots.value.length > 0) {
-    selectBot(bots.value[0].id)
+  const firstBot = bots.value[0]
+  if (firstBot?.id != null) {
+    selectBot(firstBot.id)
   }
   if (scrollContainer.value) {
     scrollContainer.value.scrollLeft = 0

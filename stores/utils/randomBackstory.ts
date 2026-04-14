@@ -34,5 +34,5 @@ export const backstoryList = [
 ]
 
 export function randomBackstory(): string {
-  return backstoryList[Math.floor(Math.random() * backstoryList.length)]
+  return backstoryList[Math.floor(Math.random() * backstoryList.length)]!
 }

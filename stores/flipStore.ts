@@ -215,9 +215,11 @@ export const useFlipStore = defineStore('flipStore', () => {
 
     const idx = cells.value.findIndex((c) => c.id === cellId)
     if (idx === -1) return
-    if (cells.value[idx].done) return
+    
+    const cell = cells.value[idx]
+    if (!cell || cell.done) return
 
-    cells.value[idx] = { ...cells.value[idx], done: true }
+    cells.value[idx] = { ...cell, done: true } as FlipCell
     completedCount.value++
 
     if (completedCount.value >= totalCells.value) finishFlip()

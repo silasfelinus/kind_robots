@@ -3,7 +3,6 @@
   <div
     class="chat-card p-6 bg-base-200 rounded-xl shadow-lg w-full max-w-lg mx-auto mt-6 relative border border-primary hover:border-accent transition"
   >
-    <!-- Top Right Delete Icon -->
     <button
       class="absolute top-4 right-4 text-error hover:text-error-content transition"
       @click="deleteChat"
@@ -11,7 +10,6 @@
       <Icon name="kind-icon:delete" class="w-4 h-4" />
     </button>
 
-    <!-- Header -->
     <div v-if="userId" class="header flex items-center mb-4 gap-4">
       <user-avatar :user-id="userId" class="max-h-8 max-w-8" />
       <img
@@ -31,7 +29,6 @@
       </div>
     </div>
 
-    <!-- Message Thread -->
     <div class="message-thread mb-4">
       <div
         v-for="message in threadMessages"
@@ -49,7 +46,6 @@
       </div>
     </div>
 
-    <!-- Bot Response -->
     <div class="bot-response p-4 rounded-lg bg-accent mb-4">
       <p class="text-sm font-semibold text-black">Bot Response:</p>
       <img
@@ -61,7 +57,6 @@
       <p>{{ botResponse }}</p>
     </div>
 
-    <!-- Continue Section -->
     <div v-if="showReply" class="continue-container mt-4">
       <textarea
         v-model="replyMessage"
@@ -73,10 +68,8 @@
       </button>
     </div>
 
-    <!-- Reactions -->
     <ReactionCard :chat-exchange-id="chat.id" class="mt-6" />
 
-    <!-- Controls -->
     <div class="flex gap-2 mt-4 justify-end">
       <button class="btn btn-secondary" @click="toggleReply">Continue</button>
     </div>
@@ -90,7 +83,6 @@ import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import { useArtStore } from '@/stores/artStore'
 
-// Props
 const props = defineProps({
   chat: {
     type: Object as () => Chat,
@@ -100,13 +92,11 @@ const props = defineProps({
 
 const chat = ref(props.chat)
 
-// Local state
 const showReply = ref(false)
 const replyMessage = ref('')
 const userImage = ref<string | undefined>(undefined)
 const botImage = ref<string | undefined>(undefined)
 
-// Stores
 const chatStore = useChatStore()
 const userStore = useUserStore()
 const botStore = useBotStore()
@@ -117,7 +107,7 @@ const userId = computed(() => chat.value.userId)
 const hasBot = computed(() => !!botStore.getBotById(chat.value.botId ?? -1))
 const threadMessages = computed(() =>
   chatStore.chats.filter(
-    (message: { originId: any; id: any }) =>
+    (message: { originId: number | null; id: number }) =>
       message.originId === chat.value.id || message.id === chat.value.id,
   ),
 )
@@ -133,8 +123,7 @@ const senderName = computed(() => chat.value.sender || 'User')
 const botName = computed(() => chat.value.botName || 'Bot')
 
 watchEffect(async () => {
-  // Load user image if needed
-  const user = userStore.getUserById(chat.value.userId)
+  const user = await userStore.getUserById(chat.value.userId)
 
   if (user?.artImageId && !userImage.value) {
     try {
@@ -144,9 +133,10 @@ watchEffect(async () => {
       console.error('Error fetching user image:', error)
       userImage.value = user?.avatarImage || undefined
     }
+  } else if (!user?.artImageId && user?.avatarImage && !userImage.value) {
+    userImage.value = user.avatarImage
   }
 
-  // Load bot image if needed
   if (chat.value.botId !== null && !botImage.value) {
     const bot = await botStore.getBotById(chat.value.botId)
     if (bot?.artImageId) {
@@ -169,7 +159,6 @@ const messageClass = (message: { sender: string }) => ({
   'flex-row bg-blue-900 text-blue-100': message.sender !== chat.value.sender,
 })
 
-// Actions
 const sendReply = async () => {
   if (replyMessage.value.trim()) {
     try {

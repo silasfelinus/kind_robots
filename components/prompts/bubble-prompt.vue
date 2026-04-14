@@ -58,7 +58,10 @@ function randomizeBlobShape(): string {
     )}% ${getRandom(60, 70)}% ${getRandom(60, 70)}% ${getRandom(50, 60)}%`,
     // Add more variations if desired
   ]
-  return values[Math.floor(Math.random() * values.length)]
+  return (
+    values[Math.floor(Math.random() * values.length)] ??
+    '50% 50% 50% 50% / 50% 50% 50% 50%'
+  )
 }
 
 function getRandom(min: number, max: number): number {
@@ -67,7 +70,7 @@ function getRandom(min: number, max: number): number {
 
 function randomColor(): string {
   const colors = ['#3498db', '#e74c3c', '#f39c12', '#2ecc71', '#8e44ad'] // Example colors
-  return colors[Math.floor(Math.random() * colors.length)]
+  return colors[Math.floor(Math.random() * colors.length)] ?? '#3498db'
 }
 </script>
 

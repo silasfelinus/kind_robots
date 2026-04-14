@@ -210,7 +210,11 @@ const pressedButton = () => {
   })
 
   if (!isMilestone) {
-    state.buttonText = responses[Math.floor(Math.random() * responses.length)]
+    const next =
+      responses[Math.floor(Math.random() * responses.length)] ??
+      'The button stares back at you.'
+
+    state.buttonText = next
   }
 
   state.previousMessage = tempMessage // Set the previous message after updating the buttonText

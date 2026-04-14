@@ -160,13 +160,19 @@ export const useConsoleStore = defineStore('consoleStore', () => {
   function logRandomMessage(): void {
     const encounter = useRandomEncounter()
     const types: Array<{ type: ConsoleMessage['type']; message: string }> = [
-      { type: 'fun', message: randomFunLine() },
-      { type: 'quote', message: randomQuote() },
-      { type: 'trivia', message: randomTrivia() },
+      { type: 'fun', message: randomFunLine() ?? 'Something silly happens.' },
+      { type: 'quote', message: randomQuote() ?? 'A mysterious quote echoes.' },
+      { type: 'trivia', message: randomTrivia() ?? 'A strange fact appears.' },
       { type: 'story', message: encounter.message },
     ]
 
     const selected = types[Math.floor(Math.random() * types.length)]
+
+    if (!selected) {
+      logMessage('The console stares back in silence.', 'system')
+      return
+    }
+
     if (selected.type === 'story') {
       incrementXP(encounter.xp)
     }
@@ -180,7 +186,7 @@ export const useConsoleStore = defineStore('consoleStore', () => {
 
     while (
       level.value < LEVEL_THRESHOLDS.length &&
-      xp.value >= LEVEL_THRESHOLDS[level.value]
+      xp.value >= (LEVEL_THRESHOLDS[level.value] ?? 0)
     ) {
       levelUp()
     }

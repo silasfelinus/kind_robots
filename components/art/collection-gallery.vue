@@ -1,13 +1,11 @@
 <template>
   <div class="relative bg-base-300 rounded-2xl shadow-md overflow-hidden">
-    <!-- Selected Collection View -->
     <div v-if="selectedCollections.length" class="space-y-6 p-6">
       <div
         v-for="c in selectedCollections"
         :key="c.id"
         class="bg-base-100 p-6 rounded-2xl shadow space-y-4 group"
       >
-        <!-- Header -->
         <div
           class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2"
         >
@@ -48,8 +46,8 @@
             <button
               v-if="canEdit(c)"
               class="btn btn-xs btn-square"
-              @click="removeCollection(c.id)"
               title="Back"
+              @click="removeCollection(c.id)"
             >
               <Icon name="kind-icon:arrow-left" />
             </button>
@@ -59,18 +57,18 @@
         <div class="flex gap-4 text-sm">
           <label class="flex items-center gap-2">
             <input
+              v-model="c.isPublic"
               type="checkbox"
               class="checkbox checkbox-sm"
-              v-model="c.isPublic"
               :disabled="!canEdit(c)"
             />
             🌍 Public
           </label>
           <label class="flex items-center gap-2">
             <input
+              v-model="c.isMature"
               type="checkbox"
               class="checkbox checkbox-sm"
-              v-model="c.isMature"
               :disabled="!canEdit(c)"
             />
             🔞 Mature
@@ -80,13 +78,13 @@
         <div class="scroll-container overflow-auto max-h-[60vh] pt-4">
           <div
             v-if="getArtFromCollection(c).length >= 0"
-            class="grid gap-4 auto-rows-fr grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]"
+            class="grid gap-4 auto-rows-fr grid-cols-[repeat(auto-fit,minmax(200px,1fr))]"
           >
             <div
               v-if="canEdit(c) || c.id === -1"
               class="aspect-square bg-base-200 rounded-xl overflow-hidden cursor-pointer relative group"
-              @click="removeCollection(c.id)"
               title="Back to Gallery"
+              @click="removeCollection(c.id)"
             >
               <img
                 src="/images/backtree.webp"
@@ -107,9 +105,9 @@
             </div>
 
             <div
-              class="relative aspect-square w-full rounded-xl overflow-hidden group"
               v-for="art in getArtFromCollection(c).slice(0, visibleCount)"
               :key="art.id"
+              class="relative aspect-square w-full rounded-xl overflow-hidden group"
             >
               <ArtCard
                 :art="art"
@@ -125,10 +123,9 @@
       </div>
     </div>
 
-    <!-- Gallery View (Unselected) -->
     <div v-else class="p-6 space-y-6">
       <div
-        class="grid gap-6 auto-rows-fr grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]"
+        class="grid gap-6 auto-rows-fr grid-cols-[repeat(auto-fit,minmax(200px,1fr))]"
       >
         <div
           v-for="collection in sortedUnselectedCollections"
@@ -190,15 +187,16 @@ const editingTitle = ref<number | null>(null)
 const selectedCollections = computed(() => {
   const selected = collectionStore.selectedCollectionIds.map((id: number) => {
     if (id === -1) return unassignedCollection.value
-    return collectionStore.collections.find((c: { id: any }) => c.id === id)
+    return collectionStore.collections.find((c: { id: number }) => c.id === id)
   })
+
   return selected.filter(Boolean) as ArtCollection[]
 })
 
 function selectCollection(id: number) {
   if (id === -1) {
     collectionStore.selectedCollectionIds = [-1]
-    // Directly inject the unassigned collection
+
     if (
       !collectionStore.selectedCollections.find(
         (c: { id: number }) => c.id === -1,
@@ -218,9 +216,10 @@ function removeCollection(id: number) {
 
 function handleHover(collection: ArtCollection) {
   const preview = getPreviewImage(collection)
+
   if (preview.artId) {
     const art =
-      artStore.art.find((a: { id: number | null }) => a.id === preview.artId) ||
+      artStore.art.find((a: { id: number | null }) => a.id === preview.artId) ??
       null
     artStore.setHoverArt(art)
   } else {
@@ -233,7 +232,7 @@ function canEdit(c: ArtCollection) {
 }
 
 function getArtFromCollection(c: ArtCollection) {
-  return (c.art || []).filter((a: { id: any }) => a.id)
+  return (c.art || []).filter((a: { id: number | null }) => !!a?.id)
 }
 
 function confirmRemoveAllArt(collection: ArtCollection) {
@@ -241,23 +240,32 @@ function confirmRemoveAllArt(collection: ArtCollection) {
     !confirm(
       `Remove all art from "${collection.label}"? This only affects this collection.`,
     )
-  )
+  ) {
     return
-  const ids = (collection.art || []).map((a: { id: any }) => a.id)
+  }
+
+  const ids = (collection.art || []).map((a: { id: number | null }) => a.id)
+
   for (const id of ids) {
-    collectionStore.removeArtFromLocalCollection(collection, id)
+    if (id) {
+      collectionStore.removeArtFromLocalCollection(collection, id)
+    }
   }
 }
 
 const allUnassignedArt = computed(() => {
-  const assignedIds = new Set(
+  const assignedIds = new Set<number>(
     collectionStore.collections.flatMap(
-      (c: { art: any[] }) => c.art?.map((a: { id: any }) => a.id) || [],
+      (c: { art?: Array<{ id: number | null }> }) =>
+        (c.art ?? [])
+          .map((a: { id: number | null }) => a.id)
+          .filter((id): id is number => typeof id === 'number'),
     ),
   )
-  return artStore.art.filter(
-    (a: { id: unknown }) => a.id && !assignedIds.has(a.id),
-  )
+
+  return artStore.art.filter((a: { id: number | null }) => {
+    return typeof a.id === 'number' && !assignedIds.has(a.id)
+  })
 })
 
 const unassignedCollection = computed<ArtCollection>(() => ({
@@ -288,11 +296,23 @@ function getPreviewImage(collection: ArtCollection): {
 } {
   const fallback = '/images/backtree.webp'
   const images = collection.art || []
-  const valid = images.filter((img: { id: any }) => img?.id)
-  if (!valid.length)
+  const valid = images.filter(
+    (img: { id: number | null } | undefined) => !!img?.id,
+  )
+
+  if (!valid.length) {
     return { src: fallback, note: 'no art in collection', artId: null }
-  const art = valid[Math.floor(Math.random() * valid.length)]
-  const path = (art as any).path
+  }
+
+  const randomIndex = Math.floor(Math.random() * valid.length)
+  const art = valid[randomIndex]
+
+  if (!art) {
+    return { src: fallback, note: 'random art missing', artId: null }
+  }
+
+  const path = (art as Art & { path?: string | null }).path
+
   if (typeof path === 'string') {
     if (path.includes('ArtImageUpload')) {
       const fallbackImage = artStore.getArtImageByArtId(art.id)
@@ -301,11 +321,17 @@ function getPreviewImage(collection: ArtCollection): {
         note: 'replaced ArtImageUpload with ArtImage.imageData',
         artId: art.id,
       }
-    } else {
-      return { src: path, note: 'from Art.path', artId: art.id }
+    }
+
+    return {
+      src: path,
+      note: 'from Art.path',
+      artId: art.id,
     }
   }
+
   const foundImage = artStore.getArtImageByArtId(art.id)
+
   if (foundImage?.imageData) {
     return {
       src: foundImage.imageData,
@@ -313,14 +339,21 @@ function getPreviewImage(collection: ArtCollection): {
       artId: art.id,
     }
   }
-  return { src: fallback, note: 'fallback used', artId: art.id }
+
+  return {
+    src: fallback,
+    note: 'fallback used',
+    artId: art.id,
+  }
 }
 
 onMounted(() => {
   selectedCollections.value.forEach((collection) => {
-    ;(collection.art || []).forEach((a: { id: any }) =>
-      artStore.getArtImageByArtId(a.id),
-    )
+    ;(collection.art || []).forEach((a: { id: number | null }) => {
+      if (a?.id) {
+        artStore.getArtImageByArtId(a.id)
+      }
+    })
   })
 })
 </script>

@@ -137,13 +137,13 @@ function handleMouseUp() {
 }
 function handleTouchStart(e: TouchEvent) {
   isDragging = true
-  startX = e.touches[0].clientX
+  startX = e.touches[0]?.clientX || 0
   scrollStart = scrollContainer.value?.scrollLeft || 0
 }
 function handleTouchMove(e: TouchEvent) {
   if (!isDragging || !scrollContainer.value) return
   scrollContainer.value.scrollLeft =
-    scrollStart - (e.touches[0].clientX - startX)
+    scrollStart - ((e.touches[0]?.clientX || 0) - startX)
 }
 
 onMounted(() => {

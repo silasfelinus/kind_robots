@@ -41,13 +41,13 @@ const startButterflyFadeOut = () => {
 }
 
 const updateMessage = () => {
-  currentMessage.value = randomLoadMessage()
+  currentMessage.value = randomLoadMessage() ?? 'Building Kind Robots...'
 }
 
 let intervalId: NodeJS.Timeout
 onMounted(() => {
   setTimeout(() => {
-    currentMessage.value = randomLoadMessage()
+    currentMessage.value = randomLoadMessage() ?? 'Building Kind Robots...'
     intervalId = setInterval(updateMessage, 2500)
   }, 100)
 

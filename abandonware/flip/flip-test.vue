@@ -2,7 +2,7 @@
 <template>
   <section class="relative w-full max-w-4xl mx-auto">
     <div
-      class="relative w-full aspect-[16/9] rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
+      class="relative w-full aspect-video rounded-2xl border border-base-300 bg-base-200 overflow-hidden shadow-xl cursor-pointer"
       :aria-label="ariaLabel"
       aria-live="polite"
       @click="runExchange"
@@ -276,8 +276,7 @@ function scheduleStatusTimers() {
     window.setTimeout(() => {
       status.value[col] = 'done'
       const nextIdx = colOrder.value.indexOf(col) + 1
-      activeCol.value =
-        nextIdx < colOrder.value.length ? colOrder.value[nextIdx] : null
+      activeCol.value = colOrder.value[nextIdx] ?? null
     }, end)
   }
 }

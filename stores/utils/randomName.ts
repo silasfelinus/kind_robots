@@ -123,5 +123,5 @@ export const nameList = [
 ]
 
 export function randomName(): string {
-  return nameList[Math.floor(Math.random() * nameList.length)]
+  return nameList[Math.floor(Math.random() * nameList.length)]!
 }

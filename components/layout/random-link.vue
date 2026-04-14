@@ -3,7 +3,7 @@
   <div class="flex flex-wrap justify-center">
     <!-- Always show Random Link -->
     <NuxtLink
-      :to="randomHighlightPage._path"
+      :to="randomHighlightPage?._path || '/'"
       class="group flex flex-col items-center justify-center rounded-2xl text-center hover:scale-110 transition-all ease-in-out"
     >
       <Icon
@@ -28,9 +28,9 @@ const contentStore = useContentStore()
 
 const randomHighlightPage = computed(() => {
   const highlightPages = contentStore.highlightPages
-  return highlightPages.length > 0
-    ? highlightPages[Math.floor(Math.random() * highlightPages.length)]
-    : {}
+  return (
+    highlightPages[Math.floor(Math.random() * highlightPages.length)] ?? null
+  )
 })
 
 const randomLinkTexts = [

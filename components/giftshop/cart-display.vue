@@ -68,7 +68,7 @@ const quantities = reactive<Record<string, number>>(
 )
 
 function updateQuantity(id: string) {
-  const qty = quantities[id]
+  const qty = quantities[id] ?? 1
   cartStore.updateQuantity(id, qty)
 }
 

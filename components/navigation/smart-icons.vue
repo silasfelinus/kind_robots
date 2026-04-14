@@ -1,12 +1,10 @@
 <!-- /components/content/navigation/smart-icons.vue -->
 <template>
-  <div
-    class="relative w-full flex-1 min-w-0 leading-none h-full min-h-[2.25rem]"
-  >
+  <div class="relative w-full flex-1 min-w-0 leading-none h-full min-h-9">
     <Teleport to="body">
       <div
         v-if="debugTeleport && isMounted"
-        class="fixed left-3 bottom-3 z-[9999] rounded-xl border border-base-content/20 bg-base-100/90 px-3 py-2 text-xs shadow-xl"
+        class="fixed left-3 bottom-3 z-9999 rounded-xl border border-base-content/20 bg-base-100/90 px-3 py-2 text-xs shadow-xl"
       >
         <div class="font-bold">smart-icons mounted ✅</div>
         <div class="opacity-80">
@@ -17,14 +15,14 @@
 
     <div
       ref="scrollContainer"
-      class="h-full min-h-0 w-full flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-[2px] overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-10 sm:px-12"
+      class="h-full min-h-0 w-full flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-0.5 overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-10 sm:px-12"
       :class="[
         displayStore.showCorner
-          ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible [&_[data-icon-title]]:invisible [&_[aria-label=icon-title]]:invisible'
+          ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible **:data-icon-title:invisible **:aria-[aria-label=icon-title]:invisible'
           : '',
-        '[&_*]:!mt-0 [&_*]:!mb-0 [&_*]:!pt-0 [&_*]:!pb-0',
-        '[&_*]:!ms-0 [&_*]:!me-0',
-        '[&>*]:h-full',
+        '**:mt-0! **:mb-0! **:pt-0! **:pb-0!',
+        '**:ms-0! **:me-0!',
+        '*:h-full',
         isDragging ? 'cursor-grabbing' : 'cursor-grab',
       ]"
       @scroll="checkScrollEdgesThrottled"
@@ -43,7 +41,7 @@
     >
       <div
         ref="row"
-        class="h-full min-h-0 flex items-stretch gap-[2px] min-w-max"
+        class="h-full min-h-0 flex items-stretch gap-0.5 min-w-max"
       >
         <div
           aria-hidden="true"
@@ -114,11 +112,11 @@
       <div class="pointer-events-none absolute inset-y-0 left-0 right-0 z-30">
         <div
           v-show="canScrollLeft"
-          class="absolute left-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-r from-base-100/80 to-transparent"
+          class="absolute left-0 top-0 h-full w-10 sm:w-12 bg-linear-to-r from-base-100/80 to-transparent"
         />
         <div
           v-show="canScrollRight"
-          class="absolute right-0 top-0 h-full w-10 sm:w-12 bg-gradient-to-l from-base-100/80 to-transparent"
+          class="absolute right-0 top-0 h-full w-10 sm:w-12 bg-linear-to-l from-base-100/80 to-transparent"
         />
         <button
           v-if="canScrollLeft"
@@ -271,13 +269,20 @@ function handleScrollMouseUp() {
 }
 function handleScrollTouchStart(e: TouchEvent) {
   if (!scrollContainer.value) return
+  const touch = e.touches[0]
+  if (!touch) return
+
   isDragging.value = true
-  startX = e.touches[0].clientX
+  startX = touch.clientX
   scrollStart = scrollContainer.value.scrollLeft
 }
+
 function handleScrollTouchMove(e: TouchEvent) {
   if (!isDragging.value || !scrollContainer.value) return
-  const delta = e.touches[0].clientX - startX
+  const touch = e.touches[0]
+  if (!touch) return
+
+  const delta = touch.clientX - startX
   scrollContainer.value.scrollLeft = scrollStart - delta
 }
 function handleScrollTouchEnd() {

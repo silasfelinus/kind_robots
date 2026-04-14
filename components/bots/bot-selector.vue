@@ -47,8 +47,9 @@ const selectedBotId = computed({
 onMounted(async () => {
   try {
     await botStore.initialize()
-    if (!selectedBotId.value && bots.value.length > 0) {
-      selectedBotId.value = bots.value[0].id
+    const firstBot = bots.value[0]
+    if (!selectedBotId.value && firstBot?.id != null) {
+      selectedBotId.value = firstBot.id
     }
   } catch (err) {
     console.error('🚨 Failed to load store', err)

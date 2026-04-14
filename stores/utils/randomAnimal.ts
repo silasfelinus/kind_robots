@@ -158,5 +158,5 @@ export const animalList = [
 ]
 
 export function randomAnimal(): string {
-  return animalList[Math.floor(Math.random() * animalList.length)]
+  return animalList[Math.floor(Math.random() * animalList.length)]!
 }

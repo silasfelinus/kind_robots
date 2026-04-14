@@ -35,14 +35,15 @@ export function optional<T>(fn: (v: any, f: string) => T) {
     v === undefined || v === null ? undefined : fn(v, field)
 }
 
-export function validateShape<T extends Record<string, (v:any,f:string)=>any>>(
-  obj: any,
-  shape: T
-): { [K in keyof T]: ReturnType<T[K]> } {
+export function validateShape<
+  T extends Record<string, (v: any, f: string) => any>,
+>(obj: any, shape: T): { [K in keyof T]: ReturnType<T[K]> } {
   const out: any = {}
   const source = obj ?? {}
   for (const key in shape) {
-    out[key] = shape[key](source[key], key)
+    const validator = shape[key]
+    if (!validator) continue
+    out[key] = validator(source[key], key)
   }
   return out
 }

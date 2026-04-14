@@ -3,40 +3,36 @@
   <div
     class="w-full max-w-full px-4 sm:px-6 md:px-8 space-y-6 md:space-y-8 xl:space-y-10 overflow-x-hidden"
   >
-    <!-- Admin Toggle -->
     <div class="flex justify-between items-center">
       <div v-if="userStore.isAdmin" class="form-control">
         <label class="label cursor-pointer space-x-2">
           <span class="label-text">Show Mature</span>
           <input
+            v-model="showMature"
             type="checkbox"
             class="toggle toggle-accent"
-            v-model="showMature"
           />
         </label>
       </div>
     </div>
 
-    <!-- Compact Checkpoint Display -->
     <div
-      v-if="!isExpanded && displayedCheckpoints.length === 1"
+      v-if="!isExpanded && compactCheckpoint"
       class="mt-6 p-3 rounded-xl bg-base-100 hover:bg-base-200 transition cursor-pointer border border-base-300 shadow-sm flex gap-4 items-center"
       @click="isExpanded = true"
     >
       <img
-        v-if="displayedCheckpoints[0].MediaPath"
-        :src="`${displayedCheckpoints[0].MediaPath}?t=${cacheBuster}`"
+        v-if="compactCheckpoint.MediaPath"
+        :src="`${compactCheckpoint.MediaPath}?t=${cacheBuster}`"
         class="h-50 w-50 object-cover rounded-xl"
         alt="Checkpoint Image"
       />
       <div class="flex flex-col truncate">
         <div class="text-sm font-bold truncate">
-          {{
-            displayedCheckpoints[0].customLabel || displayedCheckpoints[0].name
-          }}
+          {{ compactCheckpoint.customLabel || compactCheckpoint.name }}
         </div>
         <div class="text-xs text-base-content/60 truncate">
-          {{ displayedCheckpoints[0].description || 'No description' }}
+          {{ compactCheckpoint.description || 'No description' }}
         </div>
       </div>
       <Icon
@@ -45,24 +41,23 @@
       />
     </div>
 
-    <!-- Selection Grid -->
-    <div class="form-control" v-if="isExpanded">
+    <div v-if="isExpanded" class="form-control">
       <label class="label mb-2">
         <span class="label-text font-semibold">Checkpoint</span>
       </label>
       <div
-        class="grid gap-6 auto-rows-fr grid-cols-[repeat(auto-fit,_minmax(220px,_1fr))] w-full"
+        class="grid gap-6 auto-rows-fr grid-cols-[repeat(auto-fit,minmax(220px,1fr))] w-full"
       >
         <div
           v-for="c in checkpointStore.visibleCheckpoints"
           :key="c.name"
-          @click="handleCheckpointClick(c.name!)"
           :class="[
             'p-3 rounded-2xl border cursor-pointer text-center space-y-2 transition-all w-full max-w-full overflow-hidden',
             selectedCheckpointName === c.name
               ? 'bg-primary text-white border-primary shadow-md'
               : 'hover:scale-[1.02] hover:shadow-lg bg-base-100 border-base-300',
           ]"
+          @click="c.name ? handleCheckpointClick(c.name) : undefined"
         >
           <div class="w-full aspect-square relative rounded-xl overflow-hidden">
             <art-card
@@ -85,7 +80,7 @@
           </div>
 
           <div class="w-full space-y-1">
-            <div class="font-bold text-sm break-words leading-tight">
+            <div class="font-bold text-sm wrap-break-word leading-tight">
               {{
                 showMature || !c.isMature ? c.customLabel || c.name : 'Hidden'
               }}
@@ -106,14 +101,13 @@
       </div>
     </div>
 
-    <!-- Sampler Dropdown -->
     <div class="form-control w-full">
       <label class="label">
         <span class="label-text font-semibold">Sampler</span>
       </label>
       <select
-        class="select select-bordered bg-base-200 w-full"
         v-model="selectedSamplerName"
+        class="select select-bordered bg-base-200 w-full"
         @change="checkpointStore.selectSamplerByName(selectedSamplerName)"
       >
         <option disabled value="">Select a sampler...</option>
@@ -127,7 +121,6 @@
       </select>
     </div>
 
-    <!-- Active Model Info (Compact) -->
     <div
       class="mt-8 border-t border-base-300 pt-4 text-xs text-base-content/70 space-y-1"
     >
@@ -146,9 +139,9 @@
                 : checkpointStore.currentApiModel || 'Loading...'
             }}
           </span>
-          <span v-if="mismatchWarning" class="ml-1 text-warning font-semibold"
-            >(≠ selected)</span
-          >
+          <span v-if="mismatchWarning" class="ml-1 text-warning font-semibold">
+            (≠ selected)
+          </span>
         </span>
       </div>
       <div
@@ -168,6 +161,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import type { Art } from '~/prisma/generated/prisma/client'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
@@ -187,13 +181,17 @@ function updateCacheBuster() {
 }
 
 const selectedCheckpointName = computed({
-  get: () => checkpointStore.selectedCheckpoint?.name || '',
-  set: (val) => checkpointStore.selectCheckpointByName(val),
+  get: () => checkpointStore.selectedCheckpoint?.name ?? '',
+  set: (val: string) => {
+    if (val) checkpointStore.selectCheckpointByName(val)
+  },
 })
 
 const selectedSamplerName = computed({
-  get: () => checkpointStore.selectedSampler?.name || '',
-  set: (val) => checkpointStore.selectSamplerByName(val),
+  get: () => checkpointStore.selectedSampler?.name ?? '',
+  set: (val: string) => {
+    if (val) checkpointStore.selectSamplerByName(val)
+  },
 })
 
 const showMature = computed({
@@ -204,33 +202,45 @@ const showMature = computed({
   },
 })
 
-const mismatchWarning = computed(
-  () =>
-    selectedCheckpointName.value &&
-    checkpointStore.currentApiModel &&
-    selectedCheckpointName.value !== checkpointStore.currentApiModel,
-)
+const mismatchWarning = computed(() => {
+  const selected = selectedCheckpointName.value
+  const current = checkpointStore.currentApiModel
+  return !!selected && !!current && selected !== current
+})
 
 const displayedCheckpoints = computed(() => {
-  if (!isExpanded.value && checkpointStore.selectedCheckpoint?.name) {
-    const match = checkpointStore.findCheckpointByName(
-      checkpointStore.selectedCheckpoint.name,
-    )
+  const selected = checkpointStore.selectedCheckpoint?.name
+
+  if (!isExpanded.value && selected) {
+    const match = checkpointStore.findCheckpointByName(selected)
     return match ? [match] : []
   }
-  return checkpointStore.visibleCheckpoints
+
+  return checkpointStore.visibleCheckpoints ?? []
+})
+
+const compactCheckpoint = computed(() => {
+  if (isExpanded.value) return null
+  if (displayedCheckpoints.value.length !== 1) return null
+  return displayedCheckpoints.value[0] ?? null
 })
 
 function handleCheckpointClick(name: string) {
+  if (!name) return
+
   if (!isExpanded.value) {
     isExpanded.value = true
-  } else if (selectedCheckpointName.value === name) {
-    isExpanded.value = false
-  } else {
-    checkpointStore.selectCheckpointByName(name)
-    updateCacheBuster()
-    isExpanded.value = false
+    return
   }
+
+  if (selectedCheckpointName.value === name) {
+    isExpanded.value = false
+    return
+  }
+
+  checkpointStore.selectCheckpointByName(name)
+  updateCacheBuster()
+  isExpanded.value = false
 }
 
 const refreshModel = async () => {
@@ -252,10 +262,12 @@ onMounted(async () => {
       : null
 
     if (found && (!found.isMature || showMature.value)) {
-      checkpointStore.selectCheckpointByName(found.name!)
-      updateCacheBuster()
+      if (found.name) {
+        checkpointStore.selectCheckpointByName(found.name)
+        updateCacheBuster()
+      }
     } else {
-      const fallback = checkpointStore.visibleCheckpoints[0]
+      const fallback = checkpointStore.visibleCheckpoints?.[0]
       if (fallback?.name) {
         checkpointStore.selectCheckpointByName(fallback.name)
         updateCacheBuster()
@@ -267,25 +279,24 @@ onMounted(async () => {
     }
 
     const userId = userStore.user?.id ?? 10
-    const allArt = artStore.art
+    const allArt = artStore.art ?? []
 
-    for (const checkpoint of checkpointStore.visibleCheckpoints) {
+    for (const checkpoint of checkpointStore.visibleCheckpoints ?? []) {
       const localPath = checkpoint.localPath
       if (!localPath) continue
 
       const matchingArt = allArt
-        .filter(
-          (a: { checkpoint: any; isPublic: any; userId: any }) =>
-            a.checkpoint === localPath && (a.isPublic || a.userId === userId),
-        )
-        .sort(
-          (
-            a: { updatedAt: any; createdAt: any },
-            b: { updatedAt: any; createdAt: any },
-          ) =>
+        .filter((a) => {
+          return (
+            a.checkpoint === localPath && (!!a.isPublic || a.userId === userId)
+          )
+        })
+        .sort((a, b) => {
+          return (
             new Date(b.updatedAt ?? b.createdAt ?? 0).getTime() -
-            new Date(a.updatedAt ?? a.createdAt ?? 0).getTime(),
-        )
+            new Date(a.updatedAt ?? a.createdAt ?? 0).getTime()
+          )
+        })
 
       if (checkpoint.name) {
         checkpointImages.value[checkpoint.name] = matchingArt[0] ?? null

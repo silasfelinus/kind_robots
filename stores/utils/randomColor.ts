@@ -147,5 +147,5 @@ export const colorList = [
   'Chocolate Brown',
 ]
 export function randomColor(): string {
-  return colorList[Math.floor(Math.random() * colorList.length)]
+  return colorList[Math.floor(Math.random() * colorList.length)]!
 }

@@ -1,25 +1,19 @@
+<!-- /components/art/add-server.vue -->
 <template>
   <div
     class="rounded-2xl border p-6 m-4 mx-auto bg-base-200 max-w-6xl space-y-6"
   >
-    <h1 class="text-4xl text-center font-bold">Create or Edit a Server</h1>
+    <h1 class="text-4xl text-center font-bold">Create a Server</h1>
 
-    <div class="flex flex-wrap justify-between items-center gap-4">
-      <server-selector
-        v-model="selectedServerId"
-        label="Load Existing Server"
-        placeholder="Select a saved server"
-      />
-
-      <div v-if="serverStore.selectedServer" class="flex items-center gap-2">
-        <button
-          class="btn btn-outline rounded-2xl"
-          @click="deselectCurrentServer"
-        >
-          <icon name="kind-icon:close" class="text-xl" />
-          New Server
-        </button>
-      </div>
+    <div class="flex justify-center">
+      <button
+        class="btn btn-outline rounded-2xl"
+        :disabled="serverStore.isSaving"
+        @click="resetForm"
+      >
+        <icon name="kind-icon:refresh" class="text-xl" />
+        Reset Form
+      </button>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -278,135 +272,48 @@
     <div class="flex flex-wrap gap-3">
       <button
         class="btn btn-primary rounded-2xl"
-        :disabled="isLoading"
+        :disabled="serverStore.isSaving"
         @click="handleSubmit"
       >
-        {{ serverStore.serverForm.id ? 'Update Server' : 'Create Server' }}
-      </button>
-
-      <button
-        v-if="serverStore.serverForm.id"
-        class="btn btn-outline rounded-2xl"
-        :disabled="serverStore.testingHealth"
-        @click="handleHealthCheck"
-      >
-        Test Server
+        Create Server
       </button>
     </div>
 
-    <div v-if="healthSummary" class="rounded-2xl border p-4 bg-base-100">
-      <div class="font-semibold mb-1">Health Check</div>
-      <div>{{ healthSummary }}</div>
-    </div>
-
-    <div v-if="errorMessage" class="text-error">{{ errorMessage }}</div>
     <div v-if="successMessage" class="text-success">{{ successMessage }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
 import type { ServerType } from '~/prisma/generated/prisma/client'
 
 const serverStore = useServerStore()
 
-const isLoading = ref(false)
-const errorMessage = ref<string>('')
-const successMessage = ref<string>('')
-const selectedServerId = ref<number | null>(null)
+const successMessage = ref('')
 const localServerType = ref<ServerType>('ART')
-const healthSummary = ref<string>('')
 
 onMounted(async () => {
   await serverStore.initialize()
-  if (!serverStore.serverForm.serverType) {
-    serverStore.createNewServer('ART')
-  }
-  localServerType.value = (serverStore.serverForm.serverType ||
-    'ART') as ServerType
-})
-
-watch(selectedServerId, (value: number | null) => {
-  if (typeof value === 'number') {
-    serverStore.selectServer(value)
-    localServerType.value = (serverStore.serverForm.serverType ||
-      'ART') as ServerType
-  }
+  resetForm()
 })
 
 watch(localServerType, (value: ServerType) => {
-  if (!serverStore.serverForm.id) {
-    serverStore.createNewServer(value)
-  } else {
-    serverStore.serverForm.serverType = value
-  }
+  serverStore.createNewServer(value)
 })
 
-const selectedHealthResult = computed(() => {
-  const id = serverStore.serverForm.id
-  if (!id) return null
-  return serverStore.healthResults[id] || null
-})
-
-watch(selectedHealthResult, (value) => {
-  if (!value) {
-    healthSummary.value = ''
-    return
-  }
-
-  healthSummary.value = value.ok
-    ? `Online · ${value.status} ${value.statusText} · ${value.latencyMs}ms`
-    : `Offline or failed · ${value.status} ${value.statusText} · ${value.latencyMs}ms`
-})
-
-function deselectCurrentServer() {
-  selectedServerId.value = null
-  localServerType.value = 'ART'
+function resetForm(): void {
   serverStore.deselectServer()
-  serverStore.createNewServer('ART')
-  errorMessage.value = ''
+  serverStore.createNewServer(localServerType.value)
   successMessage.value = ''
-  healthSummary.value = ''
 }
 
-async function handleSubmit() {
-  isLoading.value = true
-  errorMessage.value = ''
-  successMessage.value = ''
+async function handleSubmit(): Promise<void> {
+  const result = await serverStore.addServer(serverStore.serverForm)
 
-  try {
-    const result = await serverStore.saveServer()
-
-    if (result.success) {
-      successMessage.value = serverStore.serverForm.id
-        ? 'Server updated successfully!'
-        : 'Server created successfully!'
-
-      if (result.data?.id) {
-        selectedServerId.value = result.data.id
-        serverStore.selectServer(result.data.id)
-      }
-    } else {
-      errorMessage.value = result.message || 'Failed to save server.'
-    }
-  } catch (error) {
-    errorMessage.value = (error as Error).message
-  } finally {
-    isLoading.value = false
-  }
-}
-
-async function handleHealthCheck() {
-  const id = serverStore.serverForm.id
-  if (!id) return
-
-  errorMessage.value = ''
-  successMessage.value = ''
-
-  const result = await serverStore.testServerHealth(id)
-  if (!result.success) {
-    errorMessage.value = result.message || 'Failed to test server.'
+  if (result.success) {
+    successMessage.value = 'Server created successfully!'
+    resetForm()
   }
 }
 </script>

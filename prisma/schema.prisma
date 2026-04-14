@@ -605,6 +605,10 @@ model Server {
   supportsNegativePrompt    Boolean    @default(false)
   supportsSeed              Boolean    @default(false)
   supportsSteps             Boolean    @default(false)
+  supportsVideo             Boolean    @default(false)
+  
+  model                     String?
+  apiKey                    String?
 
   // Metadata
   designer                  String?    // stylistic or branding tag

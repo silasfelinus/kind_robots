@@ -1,3 +1,5 @@
+// ./tsconfig.json
+
 {
   "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
@@ -6,5 +8,8 @@
     "target": "ES2023",
     "strict": true,
     "esModuleInterop": true
+  },
+  "vueCompilerOptions": {
+    "plugins": []
   }
 }

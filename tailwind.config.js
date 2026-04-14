@@ -1,18 +1,22 @@
-/** @type {import('tailwindcss').Config} */
+// /tailwind.config.ts
+import typography from '@tailwindcss/typography'
+import daisyui from 'daisyui'
+
 export default {
   content: [
     './pages/**/*.{html,ts,js,vue}',
     './components/**/*.{html,ts,js,vue}',
+    './layouts/**/*.{html,ts,js,vue}',
+    './app.vue',
+    './error.vue',
   ],
   theme: {
     extend: {},
   },
-  plugins: ['@tailwindcss/typography', 'daisyui'],
+  plugins: [typography, daisyui],
   daisyui: {
     styled: true,
-    themes: [
-      true, // this will include the default light and dark themes
-    ],
+    themes: [true],
     rtl: false,
     logs: true,
   },

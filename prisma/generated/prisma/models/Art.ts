@@ -412,10 +412,10 @@ export type ArtWhereInput = {
   imagePath?: Prisma.StringNullableFilter<"Art"> | string | null
   genres?: Prisma.StringNullableFilter<"Art"> | string | null
   negativePrompt?: Prisma.StringNullableFilter<"Art"> | string | null
-  Server?: Prisma.XOR<Prisma.ServerNullableScalarRelationFilter, Prisma.ServerWhereInput> | null
   Gallery?: Prisma.XOR<Prisma.GalleryNullableScalarRelationFilter, Prisma.GalleryWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
+  Server?: Prisma.XOR<Prisma.ServerNullableScalarRelationFilter, Prisma.ServerWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Dominions?: Prisma.DominionListRelationFilter
@@ -449,10 +449,10 @@ export type ArtOrderByWithRelationInput = {
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   genres?: Prisma.SortOrderInput | Prisma.SortOrder
   negativePrompt?: Prisma.SortOrderInput | Prisma.SortOrder
-  Server?: Prisma.ServerOrderByWithRelationInput
   Gallery?: Prisma.GalleryOrderByWithRelationInput
   Pitch?: Prisma.PitchOrderByWithRelationInput
   Prompt?: Prisma.PromptOrderByWithRelationInput
+  Server?: Prisma.ServerOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   Dominions?: Prisma.DominionOrderByRelationAggregateInput
@@ -490,10 +490,10 @@ export type ArtWhereUniqueInput = Prisma.AtLeast<{
   imagePath?: Prisma.StringNullableFilter<"Art"> | string | null
   genres?: Prisma.StringNullableFilter<"Art"> | string | null
   negativePrompt?: Prisma.StringNullableFilter<"Art"> | string | null
-  Server?: Prisma.XOR<Prisma.ServerNullableScalarRelationFilter, Prisma.ServerWhereInput> | null
   Gallery?: Prisma.XOR<Prisma.GalleryNullableScalarRelationFilter, Prisma.GalleryWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
+  Server?: Prisma.XOR<Prisma.ServerNullableScalarRelationFilter, Prisma.ServerWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Dominions?: Prisma.DominionListRelationFilter
@@ -585,10 +585,10 @@ export type ArtCreateInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   User?: Prisma.UserCreateNestedOneWithoutArtInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtInput
@@ -648,10 +648,10 @@ export type ArtUpdateInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   User?: Prisma.UserUpdateOneWithoutArtNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtNestedInput
@@ -1248,10 +1248,10 @@ export type ArtCreateWithoutArtImageInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   User?: Prisma.UserCreateNestedOneWithoutArtInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtInput
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
@@ -1325,10 +1325,10 @@ export type ArtUpdateWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   User?: Prisma.UserUpdateOneWithoutArtNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtNestedInput
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
@@ -1386,10 +1386,10 @@ export type ArtCreateWithoutArtCollectionInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   User?: Prisma.UserCreateNestedOneWithoutArtInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtInput
@@ -1499,10 +1499,10 @@ export type ArtCreateWithoutDominionsInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   User?: Prisma.UserCreateNestedOneWithoutArtInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
@@ -1576,10 +1576,10 @@ export type ArtUpdateWithoutDominionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   User?: Prisma.UserUpdateOneWithoutArtNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
@@ -1637,9 +1637,9 @@ export type ArtCreateWithoutGalleryInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   User?: Prisma.UserCreateNestedOneWithoutArtInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtInput
@@ -1724,9 +1724,9 @@ export type ArtCreateWithoutPitchInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   User?: Prisma.UserCreateNestedOneWithoutArtInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtInput
@@ -1811,9 +1811,9 @@ export type ArtCreateWithoutPromptInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   User?: Prisma.UserCreateNestedOneWithoutArtInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtInput
@@ -1898,10 +1898,10 @@ export type ArtCreateWithoutReactionInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   User?: Prisma.UserCreateNestedOneWithoutArtInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtInput
@@ -1975,10 +1975,10 @@ export type ArtUpdateWithoutReactionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   User?: Prisma.UserUpdateOneWithoutArtNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtNestedInput
@@ -2123,10 +2123,10 @@ export type ArtCreateWithoutUserInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtInput
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
@@ -2210,10 +2210,10 @@ export type ArtUpdateWithoutArtCollectionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   User?: Prisma.UserUpdateOneWithoutArtNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtNestedInput
@@ -2326,9 +2326,9 @@ export type ArtUpdateWithoutGalleryInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   User?: Prisma.UserUpdateOneWithoutArtNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtNestedInput
@@ -2441,9 +2441,9 @@ export type ArtUpdateWithoutPitchInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   User?: Prisma.UserUpdateOneWithoutArtNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtNestedInput
@@ -2556,9 +2556,9 @@ export type ArtUpdateWithoutPromptInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   User?: Prisma.UserUpdateOneWithoutArtNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtNestedInput
@@ -2786,10 +2786,10 @@ export type ArtUpdateWithoutUserInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtNestedInput
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
@@ -2929,10 +2929,10 @@ export type ArtSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   imagePath?: boolean
   genres?: boolean
   negativePrompt?: boolean
-  Server?: boolean | Prisma.Art$ServerArgs<ExtArgs>
   Gallery?: boolean | Prisma.Art$GalleryArgs<ExtArgs>
   Pitch?: boolean | Prisma.Art$PitchArgs<ExtArgs>
   Prompt?: boolean | Prisma.Art$PromptArgs<ExtArgs>
+  Server?: boolean | Prisma.Art$ServerArgs<ExtArgs>
   User?: boolean | Prisma.Art$UserArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Art$ArtImageArgs<ExtArgs>
   Dominions?: boolean | Prisma.Art$DominionsArgs<ExtArgs>
@@ -2973,10 +2973,10 @@ export type ArtSelectScalar = {
 
 export type ArtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "path" | "checkpoint" | "sampler" | "seed" | "steps" | "designer" | "isPublic" | "isMature" | "promptId" | "userId" | "pitchId" | "galleryId" | "promptString" | "cfg" | "cfgHalf" | "serverId" | "serverName" | "serverUrl" | "artImageId" | "imagePath" | "genres" | "negativePrompt", ExtArgs["result"]["art"]>
 export type ArtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Server?: boolean | Prisma.Art$ServerArgs<ExtArgs>
   Gallery?: boolean | Prisma.Art$GalleryArgs<ExtArgs>
   Pitch?: boolean | Prisma.Art$PitchArgs<ExtArgs>
   Prompt?: boolean | Prisma.Art$PromptArgs<ExtArgs>
+  Server?: boolean | Prisma.Art$ServerArgs<ExtArgs>
   User?: boolean | Prisma.Art$UserArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Art$ArtImageArgs<ExtArgs>
   Dominions?: boolean | Prisma.Art$DominionsArgs<ExtArgs>
@@ -2988,10 +2988,10 @@ export type ArtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type $ArtPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Art"
   objects: {
-    Server: Prisma.$ServerPayload<ExtArgs> | null
     Gallery: Prisma.$GalleryPayload<ExtArgs> | null
     Pitch: Prisma.$PitchPayload<ExtArgs> | null
     Prompt: Prisma.$PromptPayload<ExtArgs> | null
+    Server: Prisma.$ServerPayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     Dominions: Prisma.$DominionPayload<ExtArgs>[]
@@ -3364,10 +3364,10 @@ readonly fields: ArtFieldRefs;
  */
 export interface Prisma__ArtClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Server<T extends Prisma.Art$ServerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$ServerArgs<ExtArgs>>): Prisma.Prisma__ServerClient<runtime.Types.Result.GetResult<Prisma.$ServerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Gallery<T extends Prisma.Art$GalleryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$GalleryArgs<ExtArgs>>): Prisma.Prisma__GalleryClient<runtime.Types.Result.GetResult<Prisma.$GalleryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Pitch<T extends Prisma.Art$PitchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$PitchArgs<ExtArgs>>): Prisma.Prisma__PitchClient<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Prompt<T extends Prisma.Art$PromptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$PromptArgs<ExtArgs>>): Prisma.Prisma__PromptClient<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Server<T extends Prisma.Art$ServerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$ServerArgs<ExtArgs>>): Prisma.Prisma__ServerClient<runtime.Types.Result.GetResult<Prisma.$ServerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.Art$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ArtImage<T extends Prisma.Art$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Dominions<T extends Prisma.Art$DominionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$DominionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DominionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3775,25 +3775,6 @@ export type ArtDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 
 /**
- * Art.Server
- */
-export type Art$ServerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Server
-   */
-  select?: Prisma.ServerSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Server
-   */
-  omit?: Prisma.ServerOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ServerInclude<ExtArgs> | null
-  where?: Prisma.ServerWhereInput
-}
-
-/**
  * Art.Gallery
  */
 export type Art$GalleryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3848,6 +3829,25 @@ export type Art$PromptArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   include?: Prisma.PromptInclude<ExtArgs> | null
   where?: Prisma.PromptWhereInput
+}
+
+/**
+ * Art.Server
+ */
+export type Art$ServerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Server
+   */
+  select?: Prisma.ServerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Server
+   */
+  omit?: Prisma.ServerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServerInclude<ExtArgs> | null
+  where?: Prisma.ServerWhereInput
 }
 
 /**

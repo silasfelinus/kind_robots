@@ -1,11 +1,10 @@
 generator client {
   provider = "prisma-client"
-    output   = "./generated/prisma"
+  output   = "./generated/prisma"
 }
 
 datasource db {
-  provider          = "mysql"
-  
+  provider = "mysql"
 }
 
 /// Art holds the overarching data for possibly multiple artImage objects. I've tinkered with having a unified Art object to avoid obfuscation, this is the most complex model we have between Art, ArtCollection, and ArtImage, but the hope was that separating would allow easy handling of the entire Art model array, while selectively calling for the ArtImage data when needed.
@@ -28,13 +27,9 @@ model Art {
   promptString   String          @db.Text
   cfg            Int?            @default(3)
   cfgHalf        Boolean?        @default(false)
-
-  serverId     Int? 
-  Server       Server? @relation(fields: [serverId], references: [id])
-
-  serverName   String? @db.VarChar(256)
-  serverUrl    String? @db.VarChar(764)
-
+  serverId       Int?
+  serverName     String?         @db.VarChar(256)
+  serverUrl      String?         @db.VarChar(764)
   artImageId     Int?
   imagePath      String?
   genres         String?
@@ -42,6 +37,7 @@ model Art {
   Gallery        Gallery?        @relation(fields: [galleryId], references: [id])
   Pitch          Pitch?          @relation(fields: [pitchId], references: [id])
   Prompt         Prompt?         @relation(fields: [promptId], references: [id])
+  Server         Server?         @relation(fields: [serverId], references: [id])
   User           User?           @relation(fields: [userId], references: [id])
   ArtImage       ArtImage?
   Dominions      Dominion[]
@@ -137,13 +133,11 @@ model Bot {
   canDelete         Boolean    @default(false)
   userId            Int?       @default(1)
   designer          String     @default("silasfelinus")
-
   serverId          Int?
   serverName        String?    @db.VarChar(256)
-  Server            Server?    @relation(fields: [serverId], references: [id])
-
   artImageId        Int?
   ArtImage          ArtImage?
+  Server            Server?    @relation(fields: [serverId], references: [id])
   User              User?      @relation(fields: [userId], references: [id])
   Chats             Chat[]
   Prompts           Prompt[]
@@ -234,19 +228,17 @@ model Chat {
   characterId     Int?
   isRead          Boolean    @default(false)
   isMature        Boolean    @default(false)
-  serverId          Int?
-  serverName        String?    @db.VarChar(256)
-  Server            Server?    @relation(fields: [serverId], references: [id])
-
-  @@index([serverId], map: "Chat_serverId_fkey")
-
+  serverId        Int?
+  serverName      String?    @db.VarChar(256)
   ArtImage        ArtImage?
   Bot             Bot?       @relation(fields: [botId], references: [id])
   Character       Character? @relation(fields: [characterId], references: [id])
   Prompt          Prompt?    @relation(fields: [promptId], references: [id])
+  Server          Server?    @relation(fields: [serverId], references: [id])
   User            User?      @relation(fields: [userId], references: [id])
   Reactions       Reaction[]
 
+  @@index([serverId], map: "Chat_serverId_fkey")
   @@index([botId], map: "Chat_botId_fkey")
   @@index([characterId], map: "Chat_characterId_fkey")
   @@index([promptId], map: "Chat_promptId_fkey")
@@ -390,29 +382,29 @@ model MilestoneRecord {
 
 /// A Pitch is a big picture idea that is meant to be fuel for a project that can become art assets, text assets, and physical swag. A Pitch can contain a collection of Prompts, which is an implementation of the Pitch. for example, a Pitch of "wild colors" could contain a series of prompts like "lavender armadillo;  green curd; rainbow sunburn". it can be represented by an artImage for it's overall vibe, but also collect Art objects if they are inspired by the Pitch 
 model Pitch {
-  id             Int             @id @default(autoincrement())
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime?       @default(now()) @updatedAt
-  title          String?         @db.VarChar(256)
-  pitch          String          @db.VarChar(764)
-  designer       String?         @db.VarChar(256)
-  flavorText     String?         @db.VarChar(512)
-  highlightImage String?         @db.VarChar(256)
-  PitchType      PitchType       @default(ARTPITCH)
-  isMature       Boolean         @default(false)
-  isPublic       Boolean         @default(true)
-  userId         Int?            @default(1)
-  imagePrompt    String?         @db.VarChar(256)
-  description    String?         @db.VarChar(256)
+  id             Int        @id @default(autoincrement())
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime?  @default(now()) @updatedAt
+  title          String?    @db.VarChar(256)
+  pitch          String     @db.VarChar(764)
+  designer       String?    @db.VarChar(256)
+  flavorText     String?    @db.VarChar(512)
+  highlightImage String?    @db.VarChar(256)
+  PitchType      PitchType  @default(ARTPITCH)
+  isMature       Boolean    @default(false)
+  isPublic       Boolean    @default(true)
+  userId         Int?       @default(1)
+  imagePrompt    String?    @db.VarChar(256)
+  description    String?    @db.VarChar(256)
   artImageId     Int?
-  examples       String?         @db.LongText
+  examples       String?    @db.LongText
   icon           String?
   Art            Art[]
   ArtImage       ArtImage?
-  User           User?           @relation(fields: [userId], references: [id])
+  User           User?      @relation(fields: [userId], references: [id])
   Prompts        Prompt[]
   Reactions      Reaction[]
-  Tags           Tag[]           @relation("PitchToTag")
+  Tags           Tag[]      @relation("PitchToTag")
 
   @@index([userId], map: "Pitch_userId_fkey")
 }
@@ -562,70 +554,48 @@ model Scenario {
 }
 
 model Server {
-  id                        Int       @id @default(autoincrement())
-  createdAt                 DateTime  @default(now())
-  updatedAt                 DateTime  @updatedAt
-
-  // Basic identity
-  title                     String
-  label                     String?   // short display name
-  description               String?
-
-  // Classification
-  serverType                ServerType @default(ART)
-  category                  String?    // "official", "community", "experimental"
-
-  // Connection
-  baseUrl                   String
-  endpointPath              String?    // e.g. /sdapi/v1/txt2img
-  healthPath                String?    // e.g. /health or /sdapi/v1/progress
-
-  // Ownership
-  userId                    Int?
-  user                      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Visibility & trust
-  isPublic                  Boolean    @default(false)
-  isOfficial                Boolean    @default(false)
-  isDefault                 Boolean    @default(false)
-  isActive                  Boolean    @default(true)
-
-  // Security
-  requiresApiKey            Boolean    @default(false)
-  apiKeyName                String?    // header name or env key reference
-
-  // Capabilities (used for filtering in UI + validation in backend)
-  supportsTxt2Img           Boolean    @default(false)
-  supportsImg2Img           Boolean    @default(false)
-  supportsChat              Boolean    @default(false)
-  supportsComfyWorkflow     Boolean    @default(false)
-
-  supportsCheckpointOverride Boolean   @default(false)
-  supportsSampler           Boolean    @default(false)
-  supportsNegativePrompt    Boolean    @default(false)
-  supportsSeed              Boolean    @default(false)
-  supportsSteps             Boolean    @default(false)
-  supportsVideo             Boolean    @default(false)
-  
-  model                     String?
-  apiKey                    String?
-
-  // Metadata
-  designer                  String?    // stylistic or branding tag
-  version                   String?
-  notes                     String?
-
-  // Sorting / UX
-  sortOrder                 Int        @default(0)
-
-  // Optional: performance / health tracking (future use)
-  lastCheckedAt             DateTime?
-  lastStatus                ServerStatus?
-
-  // Relations
-   Arts                      Art[]
-   Bots                       Bot[]
-   Chats                    Chat[]
+  id                         Int           @id @default(autoincrement())
+  createdAt                  DateTime      @default(now())
+  updatedAt                  DateTime      @updatedAt
+  title                      String
+  label                      String?
+  description                String?
+  serverType                 ServerType    @default(ART)
+  category                   String?
+  baseUrl                    String
+  endpointPath               String?
+  healthPath                 String?
+  userId                     Int?
+  isPublic                   Boolean       @default(false)
+  isOfficial                 Boolean       @default(false)
+  isDefault                  Boolean       @default(false)
+  isActive                   Boolean       @default(true)
+  isEditable                 Boolean       @default(true)
+  requiresApiKey             Boolean       @default(false)
+  apiKeyName                 String?
+  supportsTxt2Img            Boolean       @default(false)
+  supportsImg2Img            Boolean       @default(false)
+  supportsChat               Boolean       @default(false)
+  supportsComfyWorkflow      Boolean       @default(false)
+  supportsCheckpointOverride Boolean       @default(false)
+  supportsSampler            Boolean       @default(false)
+  supportsNegativePrompt     Boolean       @default(false)
+  supportsSeed               Boolean       @default(false)
+  supportsSteps              Boolean       @default(false)
+  supportsVideo              Boolean       @default(false)
+  apiLink                    String?
+  model                      String?
+  apiKey                     String?
+  designer                   String?
+  version                    String?
+  notes                      String?
+  sortOrder                  Int           @default(0)
+  lastCheckedAt              DateTime?
+  lastStatus                 ServerStatus?
+  Arts                       Art[]
+  Bots                       Bot[]
+  Chats                      Chat[]
+  user                       User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([serverType])
   @@index([isPublic])
@@ -647,10 +617,9 @@ model SmartIcon {
   component   String?   @db.VarChar(255)
   isPublic    Boolean   @default(true)
   description String?   @db.VarChar(255)
+  category    String?   @db.VarChar(255)
+  modelType   String?   @db.VarChar(255)
   User        User?     @relation(fields: [userId], references: [id])
-
-  category    String?   @db.VarChar(255) 
-  modelType   String?   @db.VarChar(255) 
 
   @@index([userId], map: "SmartIcon_userId_fkey")
 }
@@ -696,76 +665,76 @@ model Theme {
 
 /// our user model. default test user is userId=10. 
 model User {
-  id               Int               @id @default(autoincrement())
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime?         @default(now()) @updatedAt
-  username         String            @unique @db.VarChar(255)
-  email            String?           @unique @db.VarChar(255)
-  questPoints      Int               @default(0)
-  emailVerified    DateTime?         @db.DateTime(0)
-  name             String?           @db.VarChar(255)
-  address1         String?           @db.Text
-  address2         String?           @db.Text
-  avatarImage      String?           @db.Text
-  bio              String?           @db.Text
-  birthday         DateTime?         @db.DateTime(0)
-  city             String?           @db.Text
-  country          String?           @db.Text
-  discordUrl       String?           @db.Text
-  facebookUrl      String?           @db.Text
-  instagramUrl     String?           @db.Text
-  kindrobotsUrl    String?           @db.Text
-  languages        String?           @db.Text
-  phone            String?           @db.VarChar(255)
-  state            String?           @db.VarChar(255)
-  timezone         String?           @db.VarChar(255)
-  twitterUrl       String?           @db.Text
-  apiKey           String?           @db.Text
-  password         String?           @db.Text
-  karma            Int               @default(0)
-  mana             Int               @default(0)
-  clickRecord      Int?              @default(0)
-  matchRecord      Int?              @default(0)
-  showMature       Boolean           @default(false)
-  Role             Role              @default(USER)
-  artImageId       Int?
-  token            String?           @db.Text
-  designerName     String?
-  googleEmail      String?           @db.VarChar(255)
-  googleId         String?           @unique
-  blockList        String?
-  isPublic         Boolean           @default(true)
-  smartBar         String?
-  customIcons      Boolean           @default(false)
-  isMember         Boolean           @default(false)
-  preferredArtServerId   Int?
-  preferredTextServerId  Int?
-  memberUntil      DateTime?
-  stripeCustomerId String?           @db.VarChar(64)
-  artModels        String?           @db.LongText
-  lastReward       String?
-  textModels       String?           @db.LongText
-  vibes            String?           @db.LongText
-  Art              Art[]
-  ArtCollections   ArtCollection[]
-  ArtImages        ArtImage[]
-  Bots             Bot[]
-  Characters       Character[]
-  Chats            Chat[]
-  Dominions        Dominion[]
-  Galleries        Gallery[]
-  Logs             Log[]
-  Milestones       MilestoneRecord[]
-  Pitches          Pitch[]
-  Prompts          Prompt[]
-  Reactions        Reaction[]
-  Resources        Resource[]
-  Rewards          Reward[]
-  Scenarios        Scenario[]
-  SmartIcons       SmartIcon[]
-  Tags             Tag[]
-  Themes           Theme[]
-  Servers          Server[]
+  id                    Int               @id @default(autoincrement())
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime?         @default(now()) @updatedAt
+  username              String            @unique @db.VarChar(255)
+  email                 String?           @unique @db.VarChar(255)
+  questPoints           Int               @default(0)
+  emailVerified         DateTime?         @db.DateTime(0)
+  name                  String?           @db.VarChar(255)
+  address1              String?           @db.Text
+  address2              String?           @db.Text
+  avatarImage           String?           @db.Text
+  bio                   String?           @db.Text
+  birthday              DateTime?         @db.DateTime(0)
+  city                  String?           @db.Text
+  country               String?           @db.Text
+  discordUrl            String?           @db.Text
+  facebookUrl           String?           @db.Text
+  instagramUrl          String?           @db.Text
+  kindrobotsUrl         String?           @db.Text
+  languages             String?           @db.Text
+  phone                 String?           @db.VarChar(255)
+  state                 String?           @db.VarChar(255)
+  timezone              String?           @db.VarChar(255)
+  twitterUrl            String?           @db.Text
+  apiKey                String?           @db.Text
+  password              String?           @db.Text
+  karma                 Int               @default(0)
+  mana                  Int               @default(0)
+  clickRecord           Int?              @default(0)
+  matchRecord           Int?              @default(0)
+  showMature            Boolean           @default(false)
+  Role                  Role              @default(USER)
+  artImageId            Int?
+  token                 String?           @db.Text
+  designerName          String?
+  googleEmail           String?           @db.VarChar(255)
+  googleId              String?
+  blockList             String?
+  isPublic              Boolean           @default(true)
+  smartBar              String?
+  customIcons           Boolean           @default(false)
+  isMember              Boolean           @default(false)
+  preferredArtServerId  Int?
+  preferredTextServerId Int?
+  memberUntil           DateTime?
+  stripeCustomerId      String?           @db.VarChar(64)
+  artModels             String?           @db.LongText
+  lastReward            String?
+  textModels            String?           @db.LongText
+  vibes                 String?           @db.LongText
+  Art                   Art[]
+  ArtCollections        ArtCollection[]
+  ArtImages             ArtImage[]
+  Bots                  Bot[]
+  Characters            Character[]
+  Chats                 Chat[]
+  Dominions             Dominion[]
+  Galleries             Gallery[]
+  Logs                  Log[]
+  Milestones            MilestoneRecord[]
+  Pitches               Pitch[]
+  Prompts               Prompt[]
+  Reactions             Reaction[]
+  Resources             Resource[]
+  Rewards               Reward[]
+  Scenarios             Scenario[]
+  Servers               Server[]
+  SmartIcons            SmartIcon[]
+  Tags                  Tag[]
+  Themes                Theme[]
 }
 
 model ReactionToTag {
@@ -878,6 +847,9 @@ enum PitchType {
   RANDOMLIST
   TITLE
   VIBE
+  BOT
+  ARTGALLERY
+  INSPIRATION
 }
 
 enum ServerType {

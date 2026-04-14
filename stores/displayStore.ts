@@ -73,7 +73,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const footerHeights = {
-    hidden: { small: 1, medium: 1, large: 1, extraLarge: 1 },
+    hidden: { small: 0, medium: 0, large: 0, extraLarge: 0 },
     compact: { small: 25, medium: 11, large: 17, extraLarge: 11 },
     open: { small: 45, medium: 25, large: 35, extraLarge: 25 },
     extended: { small: 55, medium: 35, large: 55, extraLarge: 45 },
@@ -255,12 +255,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const centerContentStyle = computed(() => {
-    const offsetTop = centerPanelOffset.value
-    const offsetBottom = contentBottomOffset.value
+    const offsetTop = state.showCorner ? centerPanelOffset.value : 0
+
     return {
       marginTop: `calc(var(--vh) * ${offsetTop})`,
-      marginBottom: `calc(var(--vh) * ${offsetBottom})`,
-      height: `calc(100% - var(--vh) * ${offsetTop + offsetBottom})`,
+      height: `calc(100% - var(--vh) * ${offsetTop})`,
     } as CSSProperties
   })
 
@@ -325,7 +324,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
       'rain-effect',
       'butterfly-animation',
     ]
-    state.currentAnimation = options[Math.floor(Math.random() * options.length)] ?? 'bubble-effect'
+    state.currentAnimation =
+      options[Math.floor(Math.random() * options.length)] ?? 'bubble-effect'
     state.isAnimating = true
   }
 

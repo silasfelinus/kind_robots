@@ -4,11 +4,13 @@
     <div v-if="pageStore.page && pageStore.page.body">
       <ContentRenderer :value="pageStore.page" />
     </div>
+
     <template #fallback>
       <Icon name="kind-icon:loading" class="w-10 h-10 text-info" />
       <p class="text-center text-base text-info p-4">Loading page...</p>
     </template>
   </NuxtLayout>
+
   <error-popup />
 </template>
 
@@ -16,7 +18,7 @@
 // /pages/[...slug].vue
 import { useRoute, useRouter } from '#app'
 import { watch, computed } from 'vue'
-import type { Ref, ComputedRef } from 'vue'
+import type { Ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -30,9 +32,10 @@ import type {
   displayActionState,
 } from '@/stores/displayStore'
 import type { ContentType } from '~/content.config'
-import type { LayoutKey } from '@/stores/pageStore' // or wherever LayoutKey lives
 import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
+
+type PageLayoutName = 'default'
 
 const route = useRoute()
 const router = useRouter()
@@ -57,23 +60,19 @@ watch(
     )
 
     if (!data.value) {
-      // Do NOT record this path, we’ll land on /error instead
       await router.push('/error')
-    } else {
-      // Set the page, then record this visit in nav history
-      pageStore.setPage(data.value)
-      navStore.recordVisit(newPath)
+      return
     }
+
+    pageStore.setPage(data.value)
+    navStore.recordVisit(newPath)
   },
   { immediate: true },
 )
 
-const layout = computed(() => {
-  const val = pageStore.page?.layout
-  return ['default', 'minimal', 'vertical-scroll'].includes(val as string)
-    ? (val as LayoutKey)
-    : 'default'
-}) as ComputedRef<LayoutKey>
+const layout = computed<PageLayoutName>(() => {
+  return 'default'
+})
 
 const {
   token: queryToken,
@@ -88,8 +87,9 @@ const {
 } = route.query
 
 if (displayMode) displayStore.displayMode = displayMode as displayModeState
-if (displayAction)
+if (displayAction) {
   displayStore.displayAction = displayAction as displayActionState
+}
 if (botId) botStore.selectBot(Number(botId))
 if (characterId) characterStore.selectCharacter(Number(characterId))
 if (scenarioId) scenarioStore.selectScenario(Number(scenarioId))
@@ -97,7 +97,11 @@ if (chatId) chatStore.selectChat(Number(chatId))
 if (pitchId) pitchStore.selectPitch(Number(pitchId))
 if (promptId) promptStore.selectPrompt(Number(promptId))
 
-if (queryToken && !userStore.user)
+if (queryToken && !userStore.user) {
   await userStore.initialize(queryToken as string)
-if (!userStore.user && queryToken) await router.push('/login')
+}
+
+if (!userStore.user && queryToken) {
+  await router.push('/login')
+}
 </script>

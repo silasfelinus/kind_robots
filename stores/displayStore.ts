@@ -1,7 +1,6 @@
 // /stores/displayStore.ts
 import { defineStore } from 'pinia'
 import { reactive, ref, computed, toRefs, type CSSProperties } from 'vue'
-import { useErrorStore } from './errorStore'
 import { handleError } from './utils'
 import type {
   DisplayState,
@@ -13,6 +12,8 @@ import type {
 } from './helpers/displayHelper'
 import { setCustomVh } from './helpers/displayHelper'
 
+type ViewportSize = 'mobile' | 'tablet' | 'desktop'
+
 export const useDisplayStore = defineStore('displayStore', () => {
   const state = reactive({
     headerState: 'open' as DisplayState,
@@ -20,7 +21,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     sidebarRightState: 'hidden' as DisplayState,
     footerState: 'hidden' as DisplayState,
     isVertical: false,
-    viewportSize: 'large' as 'small' | 'medium' | 'large' | 'extraLarge',
+    viewportSize: 'desktop' as ViewportSize,
     isTouchDevice: false,
     showTutorial: true,
     isInitialized: false,
@@ -46,7 +47,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
   const sidebarLeftWidth = computed(() => {
-    const sizes = { small: 16, medium: 11, large: 9, extraLarge: 5 }
+    const sizes: Record<ViewportSize, number> = {
+      mobile: 16,
+      tablet: 11,
+      desktop: 9,
+    }
     return (
       sizes[state.viewportSize] *
       (['open', 'compact'].includes(state.sidebarLeftState) ? 1 : 0)
@@ -54,7 +59,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const sidebarRightWidth = computed(() => {
-    const sizes = { small: 98, medium: 40, large: 35, extraLarge: 30 }
+    const sizes: Record<ViewportSize, number> = {
+      mobile: 98,
+      tablet: 40,
+      desktop: 30,
+    }
     return (
       sizes[state.viewportSize] *
       (['open', 'compact'].includes(state.sidebarRightState) ? 1 : 0)
@@ -63,24 +72,27 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const headerHeight = computed(() => {
     if (state.headerState === 'hidden') return 0
-    const sizes = {
-      small: state.bigMode ? 6 : 14,
-      medium: state.bigMode ? 12 : 13,
-      large: state.bigMode ? 10 : 12,
-      extraLarge: state.bigMode ? 8 : 13,
+    const sizes: Record<ViewportSize, number> = {
+      mobile: state.bigMode ? 6 : 14,
+      tablet: state.bigMode ? 12 : 13,
+      desktop: state.bigMode ? 8 : 13,
     }
     return sizes[state.viewportSize]
   })
 
   const footerHeights = {
-    hidden: { small: 0, medium: 0, large: 0, extraLarge: 0 },
-    compact: { small: 25, medium: 11, large: 17, extraLarge: 11 },
-    open: { small: 45, medium: 25, large: 35, extraLarge: 25 },
-    extended: { small: 55, medium: 35, large: 55, extraLarge: 45 },
+    hidden: { mobile: 0, tablet: 0, desktop: 0 },
+    compact: { mobile: 25, tablet: 11, desktop: 11 },
+    open: { mobile: 45, tablet: 25, desktop: 25 },
+    extended: { mobile: 55, tablet: 35, desktop: 45 },
   } as const
 
   const sectionPaddingSize = computed(() => {
-    const sizes = { small: 0, medium: 0, large: 0, extraLarge: 0 }
+    const sizes: Record<ViewportSize, number> = {
+      mobile: 0,
+      tablet: 0,
+      desktop: 0,
+    }
     return sizes[state.viewportSize]
   })
 
@@ -96,8 +108,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const footerHeight = computed(() => {
     const stateKey = state.footerState as keyof typeof footerHeights
-    const sizeKey = state.viewportSize
-    return footerHeights[stateKey]?.[sizeKey] ?? 5
+    return footerHeights[stateKey]?.[state.viewportSize] ?? 5
   })
 
   const contentBottomOffset = computed(() => {
@@ -239,7 +250,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const centerPanelOffset = computed(() => {
     if (!state.showCorner) return 0
-    const sizes = { small: 8, medium: 7, large: 6, extraLarge: 5 }
+    const sizes: Record<ViewportSize, number> = {
+      mobile: 8,
+      tablet: 7,
+      desktop: 5,
+    }
     return sizes[state.viewportSize]
   })
 
@@ -276,9 +291,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
-  const isLargeViewport = computed(() =>
-    ['large', 'extraLarge'].includes(state.viewportSize),
-  )
+  const isLargeViewport = computed(() => state.viewportSize === 'desktop')
 
   function toggleFullscreen() {
     state.isFullScreen = !state.isFullScreen
@@ -352,7 +365,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
     const isCurrentlyOn = sectionStateMap[section]
 
-    if (state.viewportSize === 'small') {
+    if (state.viewportSize === 'mobile') {
       if (isCurrentlyOn) {
         setSectionState(section, false)
       } else {
@@ -430,16 +443,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
           'ontouchstart' in window || navigator.maxTouchPoints > 0
 
         if (width < 768) {
-          state.viewportSize = 'small'
+          state.viewportSize = 'mobile'
           state.isMobileViewport = true
         } else if (width < 1024) {
-          state.viewportSize = 'medium'
-          state.isMobileViewport = false
-        } else if (width < 1440) {
-          state.viewportSize = 'large'
+          state.viewportSize = 'tablet'
           state.isMobileViewport = false
         } else {
-          state.viewportSize = 'extraLarge'
+          state.viewportSize = 'desktop'
           state.isMobileViewport = false
         }
       } catch (error) {
@@ -459,6 +469,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
     try {
       const saved = window.localStorage.getItem('displayStoreState')
       if (saved) Object.assign(state, JSON.parse(saved))
+
+      if (
+        state.viewportSize !== 'mobile' &&
+        state.viewportSize !== 'tablet' &&
+        state.viewportSize !== 'desktop'
+      ) {
+        state.viewportSize = 'desktop'
+      }
 
       if (
         state.SmartState !== 'front' &&
@@ -562,4 +580,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 })
 
-export type { EffectId, displayModeState, displayActionState, SmartState }
+export type {
+  EffectId,
+  displayModeState,
+  displayActionState,
+  SmartState,
+  ViewportSize,
+}

@@ -1,67 +1,52 @@
 <!-- /components/content/weird/character-bottom.vue -->
 <template>
-  <div class="grid gap1 md:gap-4">
-    <!-- Backstory -->
+  <div class="grid gap-1 md:gap-4">
     <div>
-      <CheckboxToggle
-        v-model="characterStore.keepField.backstory"
-        label="Freeze Backstory"
-      />
+      <CheckboxToggle v-model="freezeBackstory" label="Freeze Backstory" />
       <h2 class="text-lg font-medium">Backstory</h2>
       <textarea
         v-model="characterStore.characterForm.backstory"
-        class="w-full p-3 rounded-lg border"
+        class="w-full rounded-lg border p-3"
         placeholder="Write the character's backstory..."
         rows="4"
-        :disabled="characterStore.keepField.backstory"
+        :disabled="freezeBackstory"
       ></textarea>
     </div>
 
-    <!-- Quirks, Inventory, Skills -->
     <div class="grid grid-cols-3 gap-1 md:gap-4">
-      <!-- Quirks -->
       <div>
-        <CheckboxToggle
-          v-model="characterStore.keepField.quirks"
-          label="Freeze Quirks"
-        />
+        <CheckboxToggle v-model="freezeQuirks" label="Freeze Quirks" />
         <h3 class="text-sm font-bold">Quirks</h3>
         <textarea
           v-model="characterStore.characterForm.quirks"
-          class="w-full p-1 md:p-3 rounded-lg border"
+          class="w-full rounded-lg border p-1 md:p-3"
           placeholder="Enter character's quirks..."
           rows="4"
-          :disabled="characterStore.keepField.quirks"
+          :disabled="freezeQuirks"
         ></textarea>
       </div>
-      <!-- Inventory -->
+
       <div>
-        <CheckboxToggle
-          v-model="characterStore.keepField.inventory"
-          label="Freeze Inventory"
-        />
+        <CheckboxToggle v-model="freezeInventory" label="Freeze Inventory" />
         <h3 class="text-sm font-bold">Inventory</h3>
         <textarea
           v-model="characterStore.characterForm.inventory"
-          class="w-full p-1 md:p-3 rounded-lg border"
+          class="w-full rounded-lg border p-1 md:p-3"
           placeholder="Enter character's inventory..."
           rows="4"
-          :disabled="characterStore.keepField.inventory"
+          :disabled="freezeInventory"
         ></textarea>
       </div>
-      <!-- Skills -->
+
       <div>
-        <CheckboxToggle
-          v-model="characterStore.keepField.skills"
-          label="Freeze Skills"
-        />
+        <CheckboxToggle v-model="freezeSkills" label="Freeze Skills" />
         <h3 class="text-sm font-bold">Skills</h3>
         <textarea
           v-model="characterStore.characterForm.skills"
-          class="w-full p-1 md:p-3 rounded-lg border"
+          class="w-full rounded-lg border p-1 md:p-3"
           placeholder="Enter character's skills..."
           rows="4"
-          :disabled="characterStore.keepField.skills"
+          :disabled="freezeSkills"
         ></textarea>
       </div>
     </div>
@@ -69,7 +54,36 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 
 const characterStore = useCharacterStore()
+
+const freezeBackstory = computed({
+  get: (): boolean => Boolean(characterStore.keepField.backstory),
+  set: (value: boolean) => {
+    characterStore.keepField.backstory = value
+  },
+})
+
+const freezeQuirks = computed({
+  get: (): boolean => Boolean(characterStore.keepField.quirks),
+  set: (value: boolean) => {
+    characterStore.keepField.quirks = value
+  },
+})
+
+const freezeInventory = computed({
+  get: (): boolean => Boolean(characterStore.keepField.inventory),
+  set: (value: boolean) => {
+    characterStore.keepField.inventory = value
+  },
+})
+
+const freezeSkills = computed({
+  get: (): boolean => Boolean(characterStore.keepField.skills),
+  set: (value: boolean) => {
+    characterStore.keepField.skills = value
+  },
+})
 </script>

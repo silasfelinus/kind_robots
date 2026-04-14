@@ -1,7 +1,7 @@
 <!-- /components/content/utils/screen-debug.vue -->
 <template>
   <!-- Toggle Button (Admins only) -->
-  <div v-if="isAdmin" class="fixed top-4 right-4 z-[1000] pointer-events-auto">
+  <div v-if="isAdmin" class="fixed top-4 right-4 z-1000 pointer-events-auto">
     <button
       class="bg-gray-800 text-white p-2 rounded-full shadow-md"
       @click="toggleDebug"
@@ -13,47 +13,47 @@
   <!-- Overlay Debug Layer (Click-through) -->
   <div
     v-if="isDebugVisible"
-    class="fixed inset-0 z-[999] bg-black/80 text-white font-mono text-xs pointer-events-none"
+    class="fixed inset-0 z-999 bg-black/80 text-white font-mono text-xs pointer-events-none"
   >
     <!-- Layout Zones -->
     <div
       :style="headerStyle"
-      class="absolute border border-white bg-white/10 flex items-center justify-center z-[1001]"
+      class="absolute border border-white bg-white/10 flex items-center justify-center z-1001"
     >
       Header ({{ headerHeight }}vh)
     </div>
 
     <div
       :style="footerStyle"
-      class="absolute border border-white bg-white/10 flex items-center justify-center z-[1001]"
+      class="absolute border border-white bg-white/10 flex items-center justify-center z-1001"
     >
       Footer ({{ footerHeight }}vh)
     </div>
 
     <div
       :style="leftSidebarStyle"
-      class="absolute border border-cyan-400 bg-cyan-400/10 flex items-center justify-center text-cyan-200 z-[1001]"
+      class="absolute border border-cyan-400 bg-cyan-400/10 flex items-center justify-center text-cyan-200 z-1001"
     >
       Left Sidebar ({{ sidebarLeftWidth }}vw)
     </div>
 
     <div
       :style="rightSidebarStyle"
-      class="absolute border border-pink-400 bg-pink-400/10 flex items-center justify-center text-pink-200 z-[1001]"
+      class="absolute border border-pink-400 bg-pink-400/10 flex items-center justify-center text-pink-200 z-1001"
     >
       Right Sidebar ({{ sidebarRightWidth }}vw)
     </div>
 
     <div
       :style="mainContentStyle"
-      class="absolute border border-yellow-300 bg-yellow-300/10 flex items-center justify-center text-yellow-200 text-center z-[1001]"
+      class="absolute border border-yellow-300 bg-yellow-300/10 flex items-center justify-center text-yellow-200 text-center z-1001"
     >
       Main Content ({{ mainContentHeight }}vh × {{ mainContentWidth }}vw)
     </div>
 
     <!-- Debug Readout (Click-enabled) -->
     <div
-      class="fixed bottom-4 left-4 bg-base-100 text-base-content p-4 rounded-xl shadow-xl w-[90vw] max-w-2xl max-h-[40vh] overflow-y-auto text-xs z-[1002] space-y-2 pointer-events-auto"
+      class="fixed bottom-4 left-4 bg-base-100 text-base-content p-4 rounded-xl shadow-xl w-[90vw] max-w-2xl max-h-[40vh] overflow-y-auto text-xs z-1002 space-y-2 pointer-events-auto"
     >
       <div class="font-bold text-lg mb-1">🧪 Display Store Debug</div>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 leading-relaxed">
@@ -85,7 +85,6 @@
         <div><strong>Right Sidebar Style:</strong> {{ rightSidebarStyle }}</div>
         <div><strong>Main Content Style:</strong> {{ mainContentStyle }}</div>
         <div><strong>showFooter:</strong> {{ showFooter }}</div>
-
       </div>
 
       <details class="mt-3">

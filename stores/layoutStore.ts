@@ -1,9 +1,11 @@
 // /stores/layoutStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
 
 export const layoutKeys = ['default', 'mobile', 'tablet', 'desktop'] as const
 export type LayoutKey = (typeof layoutKeys)[number]
+export type ResolvedLayoutKey = Exclude<LayoutKey, 'default'>
 
 const LOCAL_STORAGE_KEY = 'currentLayout'
 
@@ -24,11 +26,24 @@ function getStoredLayout(defaultValue: LayoutKey): LayoutKey {
 }
 
 export const useLayoutStore = defineStore('layoutStore', () => {
+  const displayStore = useDisplayStore()
+
   const currentLayout = ref<LayoutKey>('default')
   const isSidebarOpen = ref(true)
 
-  const getCurrentLayout = computed(() => currentLayout.value)
   const availableLayouts = computed<LayoutKey[]>(() => [...layoutKeys])
+  const isAutoLayout = computed(() => currentLayout.value === 'default')
+  const getCurrentLayout = computed(() => currentLayout.value)
+
+  const resolvedLayout = computed<ResolvedLayoutKey>(() => {
+    if (currentLayout.value === 'mobile') return 'mobile'
+    if (currentLayout.value === 'tablet') return 'tablet'
+    if (currentLayout.value === 'desktop') return 'desktop'
+
+    if (displayStore.viewportSize === 'mobile') return 'mobile'
+    if (displayStore.viewportSize === 'tablet') return 'tablet'
+    return 'desktop'
+  })
 
   function toggleSidebar() {
     isSidebarOpen.value = !isSidebarOpen.value
@@ -51,6 +66,10 @@ export const useLayoutStore = defineStore('layoutStore', () => {
     }
   }
 
+  function setAutoLayout() {
+    setLayout('default')
+  }
+
   function initializeStore() {
     currentLayout.value = getStoredLayout('default')
   }
@@ -62,10 +81,13 @@ export const useLayoutStore = defineStore('layoutStore', () => {
   return {
     currentLayout,
     isSidebarOpen,
-    getCurrentLayout,
     availableLayouts,
+    isAutoLayout,
+    getCurrentLayout,
+    resolvedLayout,
     toggleSidebar,
     setLayout,
+    setAutoLayout,
     initializeStore,
     resetLayout,
   }

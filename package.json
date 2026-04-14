@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
-    "test": "nuxi typecheck",
+    "test": "nuxi prepare && node utils/scripts/fix-nuxt-tsconfig.mjs && vue-tsc --noEmit -p tsconfig.json",
     "dev": "nuxt dev --host",
     "build": "nuxi prepare && prisma generate && nuxi build",
     "start": "nuxi start",
@@ -31,7 +31,6 @@
     "@tailwindcss/postcss": "^4.2.2",
     "@types/bcrypt": "^6.0.0",
     "@vitejs/plugin-vue": "^6.0.6",
-    "@vue/language-core": "^1.8.27",
     "cypress": "^15.13.1",
     "daisyui": "^5.5.19",
     "dotenv": "^17.2.3",
@@ -45,8 +44,8 @@
     "prisma": "^7.7.0",
     "tailwindcss": "^4.2.2",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.2",
-    "vue-tsc": "^1.8.27"
+    "typescript": "^5.6.2",
+    "vue-tsc": "^2.1.10"
   },
   "dependencies": {
     "@interactjs/interact": "^1.10.27",
@@ -54,7 +53,7 @@
     "@nuxt/eslint": "^1.1.0",
     "@nuxt/image": "^2.0.0",
     "@pinia/nuxt": "^0.11.3",
-    "@prisma/adapter-mariadb": "^7.2.0",
+    "@prisma/adapter-mariadb": "^7.7.0",
     "@prisma/client": "^7.7.0",
     "@stripe/stripe-js": "^9.1.0",
     "@types/node": "24.x",
@@ -66,6 +65,7 @@
     "esbuild": "^0.28.0",
     "interactjs": "^1.10.27",
     "jose": "^6.2.2",
+    "mariadb": "^3.5.2",
     "mysql2": "^3.16.0",
     "nuxt": "^4.4.2",
     "open-simplex-noise": "^2.5.0",

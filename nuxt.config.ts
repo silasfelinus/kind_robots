@@ -50,6 +50,14 @@ export default defineNuxtConfig({
     ],
   },
 
+  typescript: {
+    tsConfig: {
+      vueCompilerOptions: {
+        plugins: [],
+      },
+    },
+  },
+
   // Global CSS
   css: ['~/assets/css/tailwind.css'],
 

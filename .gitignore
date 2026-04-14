@@ -27,3 +27,7 @@ cypress/screenshots/*
 http-client.env.json
 contents.sqlite
 prisma/migrations_old/*.sql
+kindblank_*.sql
+
+kindblank_*.sql
+prisma/migrations_old/*.sql

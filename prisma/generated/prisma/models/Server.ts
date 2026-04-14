@@ -55,6 +55,7 @@ export type ServerMinAggregateOutputType = {
   isOfficial: boolean | null
   isDefault: boolean | null
   isActive: boolean | null
+  isEditable: boolean | null
   requiresApiKey: boolean | null
   apiKeyName: string | null
   supportsTxt2Img: boolean | null
@@ -66,6 +67,10 @@ export type ServerMinAggregateOutputType = {
   supportsNegativePrompt: boolean | null
   supportsSeed: boolean | null
   supportsSteps: boolean | null
+  supportsVideo: boolean | null
+  apiLink: string | null
+  model: string | null
+  apiKey: string | null
   designer: string | null
   version: string | null
   notes: string | null
@@ -91,6 +96,7 @@ export type ServerMaxAggregateOutputType = {
   isOfficial: boolean | null
   isDefault: boolean | null
   isActive: boolean | null
+  isEditable: boolean | null
   requiresApiKey: boolean | null
   apiKeyName: string | null
   supportsTxt2Img: boolean | null
@@ -102,6 +108,10 @@ export type ServerMaxAggregateOutputType = {
   supportsNegativePrompt: boolean | null
   supportsSeed: boolean | null
   supportsSteps: boolean | null
+  supportsVideo: boolean | null
+  apiLink: string | null
+  model: string | null
+  apiKey: string | null
   designer: string | null
   version: string | null
   notes: string | null
@@ -127,6 +137,7 @@ export type ServerCountAggregateOutputType = {
   isOfficial: number
   isDefault: number
   isActive: number
+  isEditable: number
   requiresApiKey: number
   apiKeyName: number
   supportsTxt2Img: number
@@ -138,6 +149,10 @@ export type ServerCountAggregateOutputType = {
   supportsNegativePrompt: number
   supportsSeed: number
   supportsSteps: number
+  supportsVideo: number
+  apiLink: number
+  model: number
+  apiKey: number
   designer: number
   version: number
   notes: number
@@ -177,6 +192,7 @@ export type ServerMinAggregateInputType = {
   isOfficial?: true
   isDefault?: true
   isActive?: true
+  isEditable?: true
   requiresApiKey?: true
   apiKeyName?: true
   supportsTxt2Img?: true
@@ -188,6 +204,10 @@ export type ServerMinAggregateInputType = {
   supportsNegativePrompt?: true
   supportsSeed?: true
   supportsSteps?: true
+  supportsVideo?: true
+  apiLink?: true
+  model?: true
+  apiKey?: true
   designer?: true
   version?: true
   notes?: true
@@ -213,6 +233,7 @@ export type ServerMaxAggregateInputType = {
   isOfficial?: true
   isDefault?: true
   isActive?: true
+  isEditable?: true
   requiresApiKey?: true
   apiKeyName?: true
   supportsTxt2Img?: true
@@ -224,6 +245,10 @@ export type ServerMaxAggregateInputType = {
   supportsNegativePrompt?: true
   supportsSeed?: true
   supportsSteps?: true
+  supportsVideo?: true
+  apiLink?: true
+  model?: true
+  apiKey?: true
   designer?: true
   version?: true
   notes?: true
@@ -249,6 +274,7 @@ export type ServerCountAggregateInputType = {
   isOfficial?: true
   isDefault?: true
   isActive?: true
+  isEditable?: true
   requiresApiKey?: true
   apiKeyName?: true
   supportsTxt2Img?: true
@@ -260,6 +286,10 @@ export type ServerCountAggregateInputType = {
   supportsNegativePrompt?: true
   supportsSeed?: true
   supportsSteps?: true
+  supportsVideo?: true
+  apiLink?: true
+  model?: true
+  apiKey?: true
   designer?: true
   version?: true
   notes?: true
@@ -372,6 +402,7 @@ export type ServerGroupByOutputType = {
   isOfficial: boolean
   isDefault: boolean
   isActive: boolean
+  isEditable: boolean
   requiresApiKey: boolean
   apiKeyName: string | null
   supportsTxt2Img: boolean
@@ -383,6 +414,10 @@ export type ServerGroupByOutputType = {
   supportsNegativePrompt: boolean
   supportsSeed: boolean
   supportsSteps: boolean
+  supportsVideo: boolean
+  apiLink: string | null
+  model: string | null
+  apiKey: string | null
   designer: string | null
   version: string | null
   notes: string | null
@@ -431,6 +466,7 @@ export type ServerWhereInput = {
   isOfficial?: Prisma.BoolFilter<"Server"> | boolean
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
   isActive?: Prisma.BoolFilter<"Server"> | boolean
+  isEditable?: Prisma.BoolFilter<"Server"> | boolean
   requiresApiKey?: Prisma.BoolFilter<"Server"> | boolean
   apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
   supportsTxt2Img?: Prisma.BoolFilter<"Server"> | boolean
@@ -442,16 +478,20 @@ export type ServerWhereInput = {
   supportsNegativePrompt?: Prisma.BoolFilter<"Server"> | boolean
   supportsSeed?: Prisma.BoolFilter<"Server"> | boolean
   supportsSteps?: Prisma.BoolFilter<"Server"> | boolean
+  supportsVideo?: Prisma.BoolFilter<"Server"> | boolean
+  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
+  model?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
   designer?: Prisma.StringNullableFilter<"Server"> | string | null
   version?: Prisma.StringNullableFilter<"Server"> | string | null
   notes?: Prisma.StringNullableFilter<"Server"> | string | null
   sortOrder?: Prisma.IntFilter<"Server"> | number
   lastCheckedAt?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
   lastStatus?: Prisma.EnumServerStatusNullableFilter<"Server"> | $Enums.ServerStatus | null
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Arts?: Prisma.ArtListRelationFilter
   Bots?: Prisma.BotListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type ServerOrderByWithRelationInput = {
@@ -471,6 +511,7 @@ export type ServerOrderByWithRelationInput = {
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isEditable?: Prisma.SortOrder
   requiresApiKey?: Prisma.SortOrder
   apiKeyName?: Prisma.SortOrderInput | Prisma.SortOrder
   supportsTxt2Img?: Prisma.SortOrder
@@ -482,16 +523,20 @@ export type ServerOrderByWithRelationInput = {
   supportsNegativePrompt?: Prisma.SortOrder
   supportsSeed?: Prisma.SortOrder
   supportsSteps?: Prisma.SortOrder
+  supportsVideo?: Prisma.SortOrder
+  apiLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  model?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastStatus?: Prisma.SortOrderInput | Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
   Arts?: Prisma.ArtOrderByRelationAggregateInput
   Bots?: Prisma.BotOrderByRelationAggregateInput
   Chats?: Prisma.ChatOrderByRelationAggregateInput
+  user?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.ServerOrderByRelevanceInput
 }
 
@@ -515,6 +560,7 @@ export type ServerWhereUniqueInput = Prisma.AtLeast<{
   isOfficial?: Prisma.BoolFilter<"Server"> | boolean
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
   isActive?: Prisma.BoolFilter<"Server"> | boolean
+  isEditable?: Prisma.BoolFilter<"Server"> | boolean
   requiresApiKey?: Prisma.BoolFilter<"Server"> | boolean
   apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
   supportsTxt2Img?: Prisma.BoolFilter<"Server"> | boolean
@@ -526,16 +572,20 @@ export type ServerWhereUniqueInput = Prisma.AtLeast<{
   supportsNegativePrompt?: Prisma.BoolFilter<"Server"> | boolean
   supportsSeed?: Prisma.BoolFilter<"Server"> | boolean
   supportsSteps?: Prisma.BoolFilter<"Server"> | boolean
+  supportsVideo?: Prisma.BoolFilter<"Server"> | boolean
+  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
+  model?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
   designer?: Prisma.StringNullableFilter<"Server"> | string | null
   version?: Prisma.StringNullableFilter<"Server"> | string | null
   notes?: Prisma.StringNullableFilter<"Server"> | string | null
   sortOrder?: Prisma.IntFilter<"Server"> | number
   lastCheckedAt?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
   lastStatus?: Prisma.EnumServerStatusNullableFilter<"Server"> | $Enums.ServerStatus | null
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Arts?: Prisma.ArtListRelationFilter
   Bots?: Prisma.BotListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
 
 export type ServerOrderByWithAggregationInput = {
@@ -555,6 +605,7 @@ export type ServerOrderByWithAggregationInput = {
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isEditable?: Prisma.SortOrder
   requiresApiKey?: Prisma.SortOrder
   apiKeyName?: Prisma.SortOrderInput | Prisma.SortOrder
   supportsTxt2Img?: Prisma.SortOrder
@@ -566,6 +617,10 @@ export type ServerOrderByWithAggregationInput = {
   supportsNegativePrompt?: Prisma.SortOrder
   supportsSeed?: Prisma.SortOrder
   supportsSteps?: Prisma.SortOrder
+  supportsVideo?: Prisma.SortOrder
+  apiLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  model?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -599,6 +654,7 @@ export type ServerScalarWhereWithAggregatesInput = {
   isOfficial?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isDefault?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
+  isEditable?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   requiresApiKey?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   apiKeyName?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   supportsTxt2Img?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
@@ -610,6 +666,10 @@ export type ServerScalarWhereWithAggregatesInput = {
   supportsNegativePrompt?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   supportsSeed?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   supportsSteps?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
+  supportsVideo?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
+  apiLink?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  model?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   designer?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   version?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
@@ -633,6 +693,7 @@ export type ServerCreateInput = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
   supportsTxt2Img?: boolean
@@ -644,16 +705,20 @@ export type ServerCreateInput = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
   sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus | null
-  user?: Prisma.UserCreateNestedOneWithoutServersInput
   Arts?: Prisma.ArtCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
+  user?: Prisma.UserCreateNestedOneWithoutServersInput
 }
 
 export type ServerUncheckedCreateInput = {
@@ -673,6 +738,7 @@ export type ServerUncheckedCreateInput = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
   supportsTxt2Img?: boolean
@@ -684,6 +750,10 @@ export type ServerUncheckedCreateInput = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -710,6 +780,7 @@ export type ServerUpdateInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -721,16 +792,20 @@ export type ServerUpdateInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  user?: Prisma.UserUpdateOneWithoutServersNestedInput
   Arts?: Prisma.ArtUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
+  user?: Prisma.UserUpdateOneWithoutServersNestedInput
 }
 
 export type ServerUncheckedUpdateInput = {
@@ -750,6 +825,7 @@ export type ServerUncheckedUpdateInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -761,6 +837,10 @@ export type ServerUncheckedUpdateInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -789,6 +869,7 @@ export type ServerCreateManyInput = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
   supportsTxt2Img?: boolean
@@ -800,6 +881,10 @@ export type ServerCreateManyInput = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -823,6 +908,7 @@ export type ServerUpdateManyMutationInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -834,6 +920,10 @@ export type ServerUpdateManyMutationInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -859,6 +949,7 @@ export type ServerUncheckedUpdateManyInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -870,6 +961,10 @@ export type ServerUncheckedUpdateManyInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -906,6 +1001,7 @@ export type ServerCountOrderByAggregateInput = {
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isEditable?: Prisma.SortOrder
   requiresApiKey?: Prisma.SortOrder
   apiKeyName?: Prisma.SortOrder
   supportsTxt2Img?: Prisma.SortOrder
@@ -917,6 +1013,10 @@ export type ServerCountOrderByAggregateInput = {
   supportsNegativePrompt?: Prisma.SortOrder
   supportsSeed?: Prisma.SortOrder
   supportsSteps?: Prisma.SortOrder
+  supportsVideo?: Prisma.SortOrder
+  apiLink?: Prisma.SortOrder
+  model?: Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   version?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -948,6 +1048,7 @@ export type ServerMaxOrderByAggregateInput = {
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isEditable?: Prisma.SortOrder
   requiresApiKey?: Prisma.SortOrder
   apiKeyName?: Prisma.SortOrder
   supportsTxt2Img?: Prisma.SortOrder
@@ -959,6 +1060,10 @@ export type ServerMaxOrderByAggregateInput = {
   supportsNegativePrompt?: Prisma.SortOrder
   supportsSeed?: Prisma.SortOrder
   supportsSteps?: Prisma.SortOrder
+  supportsVideo?: Prisma.SortOrder
+  apiLink?: Prisma.SortOrder
+  model?: Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   version?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -984,6 +1089,7 @@ export type ServerMinOrderByAggregateInput = {
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isEditable?: Prisma.SortOrder
   requiresApiKey?: Prisma.SortOrder
   apiKeyName?: Prisma.SortOrder
   supportsTxt2Img?: Prisma.SortOrder
@@ -995,6 +1101,10 @@ export type ServerMinOrderByAggregateInput = {
   supportsNegativePrompt?: Prisma.SortOrder
   supportsSeed?: Prisma.SortOrder
   supportsSteps?: Prisma.SortOrder
+  supportsVideo?: Prisma.SortOrder
+  apiLink?: Prisma.SortOrder
+  model?: Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   version?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -1132,6 +1242,7 @@ export type ServerCreateWithoutArtsInput = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
   supportsTxt2Img?: boolean
@@ -1143,15 +1254,19 @@ export type ServerCreateWithoutArtsInput = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
   sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus | null
-  user?: Prisma.UserCreateNestedOneWithoutServersInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
+  user?: Prisma.UserCreateNestedOneWithoutServersInput
 }
 
 export type ServerUncheckedCreateWithoutArtsInput = {
@@ -1171,6 +1286,7 @@ export type ServerUncheckedCreateWithoutArtsInput = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
   supportsTxt2Img?: boolean
@@ -1182,6 +1298,10 @@ export type ServerUncheckedCreateWithoutArtsInput = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1223,6 +1343,7 @@ export type ServerUpdateWithoutArtsInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1234,15 +1355,19 @@ export type ServerUpdateWithoutArtsInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  user?: Prisma.UserUpdateOneWithoutServersNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
+  user?: Prisma.UserUpdateOneWithoutServersNestedInput
 }
 
 export type ServerUncheckedUpdateWithoutArtsInput = {
@@ -1262,6 +1387,7 @@ export type ServerUncheckedUpdateWithoutArtsInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1273,6 +1399,10 @@ export type ServerUncheckedUpdateWithoutArtsInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1298,6 +1428,7 @@ export type ServerCreateWithoutBotsInput = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
   supportsTxt2Img?: boolean
@@ -1309,15 +1440,19 @@ export type ServerCreateWithoutBotsInput = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
   sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus | null
-  user?: Prisma.UserCreateNestedOneWithoutServersInput
   Arts?: Prisma.ArtCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
+  user?: Prisma.UserCreateNestedOneWithoutServersInput
 }
 
 export type ServerUncheckedCreateWithoutBotsInput = {
@@ -1337,6 +1472,7 @@ export type ServerUncheckedCreateWithoutBotsInput = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
   supportsTxt2Img?: boolean
@@ -1348,6 +1484,10 @@ export type ServerUncheckedCreateWithoutBotsInput = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1389,6 +1529,7 @@ export type ServerUpdateWithoutBotsInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1400,15 +1541,19 @@ export type ServerUpdateWithoutBotsInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  user?: Prisma.UserUpdateOneWithoutServersNestedInput
   Arts?: Prisma.ArtUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
+  user?: Prisma.UserUpdateOneWithoutServersNestedInput
 }
 
 export type ServerUncheckedUpdateWithoutBotsInput = {
@@ -1428,6 +1573,7 @@ export type ServerUncheckedUpdateWithoutBotsInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1439,6 +1585,10 @@ export type ServerUncheckedUpdateWithoutBotsInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1464,6 +1614,7 @@ export type ServerCreateWithoutChatsInput = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
   supportsTxt2Img?: boolean
@@ -1475,15 +1626,19 @@ export type ServerCreateWithoutChatsInput = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
   sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus | null
-  user?: Prisma.UserCreateNestedOneWithoutServersInput
   Arts?: Prisma.ArtCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
+  user?: Prisma.UserCreateNestedOneWithoutServersInput
 }
 
 export type ServerUncheckedCreateWithoutChatsInput = {
@@ -1503,6 +1658,7 @@ export type ServerUncheckedCreateWithoutChatsInput = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
   supportsTxt2Img?: boolean
@@ -1514,6 +1670,10 @@ export type ServerUncheckedCreateWithoutChatsInput = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1555,6 +1715,7 @@ export type ServerUpdateWithoutChatsInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1566,15 +1727,19 @@ export type ServerUpdateWithoutChatsInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  user?: Prisma.UserUpdateOneWithoutServersNestedInput
   Arts?: Prisma.ArtUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
+  user?: Prisma.UserUpdateOneWithoutServersNestedInput
 }
 
 export type ServerUncheckedUpdateWithoutChatsInput = {
@@ -1594,6 +1759,7 @@ export type ServerUncheckedUpdateWithoutChatsInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1605,6 +1771,10 @@ export type ServerUncheckedUpdateWithoutChatsInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1630,6 +1800,7 @@ export type ServerCreateWithoutUserInput = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
   supportsTxt2Img?: boolean
@@ -1641,6 +1812,10 @@ export type ServerCreateWithoutUserInput = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1668,6 +1843,7 @@ export type ServerUncheckedCreateWithoutUserInput = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
   supportsTxt2Img?: boolean
@@ -1679,6 +1855,10 @@ export type ServerUncheckedCreateWithoutUserInput = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1736,6 +1916,7 @@ export type ServerScalarWhereInput = {
   isOfficial?: Prisma.BoolFilter<"Server"> | boolean
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
   isActive?: Prisma.BoolFilter<"Server"> | boolean
+  isEditable?: Prisma.BoolFilter<"Server"> | boolean
   requiresApiKey?: Prisma.BoolFilter<"Server"> | boolean
   apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
   supportsTxt2Img?: Prisma.BoolFilter<"Server"> | boolean
@@ -1747,6 +1928,10 @@ export type ServerScalarWhereInput = {
   supportsNegativePrompt?: Prisma.BoolFilter<"Server"> | boolean
   supportsSeed?: Prisma.BoolFilter<"Server"> | boolean
   supportsSteps?: Prisma.BoolFilter<"Server"> | boolean
+  supportsVideo?: Prisma.BoolFilter<"Server"> | boolean
+  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
+  model?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
   designer?: Prisma.StringNullableFilter<"Server"> | string | null
   version?: Prisma.StringNullableFilter<"Server"> | string | null
   notes?: Prisma.StringNullableFilter<"Server"> | string | null
@@ -1771,6 +1956,7 @@ export type ServerCreateManyUserInput = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
   supportsTxt2Img?: boolean
@@ -1782,6 +1968,10 @@ export type ServerCreateManyUserInput = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1805,6 +1995,7 @@ export type ServerUpdateWithoutUserInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1816,6 +2007,10 @@ export type ServerUpdateWithoutUserInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1843,6 +2038,7 @@ export type ServerUncheckedUpdateWithoutUserInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1854,6 +2050,10 @@ export type ServerUncheckedUpdateWithoutUserInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1881,6 +2081,7 @@ export type ServerUncheckedUpdateManyWithoutUserInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1892,6 +2093,10 @@ export type ServerUncheckedUpdateManyWithoutUserInput = {
   supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1966,6 +2171,7 @@ export type ServerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: boolean
   supportsTxt2Img?: boolean
@@ -1977,16 +2183,20 @@ export type ServerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: boolean
+  model?: boolean
+  apiKey?: boolean
   designer?: boolean
   version?: boolean
   notes?: boolean
   sortOrder?: boolean
   lastCheckedAt?: boolean
   lastStatus?: boolean
-  user?: boolean | Prisma.Server$userArgs<ExtArgs>
   Arts?: boolean | Prisma.Server$ArtsArgs<ExtArgs>
   Bots?: boolean | Prisma.Server$BotsArgs<ExtArgs>
   Chats?: boolean | Prisma.Server$ChatsArgs<ExtArgs>
+  user?: boolean | Prisma.Server$userArgs<ExtArgs>
   _count?: boolean | Prisma.ServerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["server"]>
 
@@ -2009,6 +2219,7 @@ export type ServerSelectScalar = {
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
+  isEditable?: boolean
   requiresApiKey?: boolean
   apiKeyName?: boolean
   supportsTxt2Img?: boolean
@@ -2020,6 +2231,10 @@ export type ServerSelectScalar = {
   supportsNegativePrompt?: boolean
   supportsSeed?: boolean
   supportsSteps?: boolean
+  supportsVideo?: boolean
+  apiLink?: boolean
+  model?: boolean
+  apiKey?: boolean
   designer?: boolean
   version?: boolean
   notes?: boolean
@@ -2028,22 +2243,22 @@ export type ServerSelectScalar = {
   lastStatus?: boolean
 }
 
-export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "serverType" | "category" | "baseUrl" | "endpointPath" | "healthPath" | "userId" | "isPublic" | "isOfficial" | "isDefault" | "isActive" | "requiresApiKey" | "apiKeyName" | "supportsTxt2Img" | "supportsImg2Img" | "supportsChat" | "supportsComfyWorkflow" | "supportsCheckpointOverride" | "supportsSampler" | "supportsNegativePrompt" | "supportsSeed" | "supportsSteps" | "designer" | "version" | "notes" | "sortOrder" | "lastCheckedAt" | "lastStatus", ExtArgs["result"]["server"]>
+export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "serverType" | "category" | "baseUrl" | "endpointPath" | "healthPath" | "userId" | "isPublic" | "isOfficial" | "isDefault" | "isActive" | "isEditable" | "requiresApiKey" | "apiKeyName" | "supportsTxt2Img" | "supportsImg2Img" | "supportsChat" | "supportsComfyWorkflow" | "supportsCheckpointOverride" | "supportsSampler" | "supportsNegativePrompt" | "supportsSeed" | "supportsSteps" | "supportsVideo" | "apiLink" | "model" | "apiKey" | "designer" | "version" | "notes" | "sortOrder" | "lastCheckedAt" | "lastStatus", ExtArgs["result"]["server"]>
 export type ServerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.Server$userArgs<ExtArgs>
   Arts?: boolean | Prisma.Server$ArtsArgs<ExtArgs>
   Bots?: boolean | Prisma.Server$BotsArgs<ExtArgs>
   Chats?: boolean | Prisma.Server$ChatsArgs<ExtArgs>
+  user?: boolean | Prisma.Server$userArgs<ExtArgs>
   _count?: boolean | Prisma.ServerCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Server"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs> | null
     Arts: Prisma.$ArtPayload<ExtArgs>[]
     Bots: Prisma.$BotPayload<ExtArgs>[]
     Chats: Prisma.$ChatPayload<ExtArgs>[]
+    user: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2062,6 +2277,7 @@ export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     isOfficial: boolean
     isDefault: boolean
     isActive: boolean
+    isEditable: boolean
     requiresApiKey: boolean
     apiKeyName: string | null
     supportsTxt2Img: boolean
@@ -2073,6 +2289,10 @@ export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     supportsNegativePrompt: boolean
     supportsSeed: boolean
     supportsSteps: boolean
+    supportsVideo: boolean
+    apiLink: string | null
+    model: string | null
+    apiKey: string | null
     designer: string | null
     version: string | null
     notes: string | null
@@ -2419,10 +2639,10 @@ readonly fields: ServerFieldRefs;
  */
 export interface Prisma__ServerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.Server$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Arts<T extends Prisma.Server$ArtsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$ArtsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Bots<T extends Prisma.Server$BotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$BotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Chats<T extends Prisma.Server$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  user<T extends Prisma.Server$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2468,6 +2688,7 @@ export interface ServerFieldRefs {
   readonly isOfficial: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isDefault: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Server", 'Boolean'>
+  readonly isEditable: Prisma.FieldRef<"Server", 'Boolean'>
   readonly requiresApiKey: Prisma.FieldRef<"Server", 'Boolean'>
   readonly apiKeyName: Prisma.FieldRef<"Server", 'String'>
   readonly supportsTxt2Img: Prisma.FieldRef<"Server", 'Boolean'>
@@ -2479,6 +2700,10 @@ export interface ServerFieldRefs {
   readonly supportsNegativePrompt: Prisma.FieldRef<"Server", 'Boolean'>
   readonly supportsSeed: Prisma.FieldRef<"Server", 'Boolean'>
   readonly supportsSteps: Prisma.FieldRef<"Server", 'Boolean'>
+  readonly supportsVideo: Prisma.FieldRef<"Server", 'Boolean'>
+  readonly apiLink: Prisma.FieldRef<"Server", 'String'>
+  readonly model: Prisma.FieldRef<"Server", 'String'>
+  readonly apiKey: Prisma.FieldRef<"Server", 'String'>
   readonly designer: Prisma.FieldRef<"Server", 'String'>
   readonly version: Prisma.FieldRef<"Server", 'String'>
   readonly notes: Prisma.FieldRef<"Server", 'String'>
@@ -2833,25 +3058,6 @@ export type ServerDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
- * Server.user
- */
-export type Server$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the User
-   */
-  select?: Prisma.UserSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the User
-   */
-  omit?: Prisma.UserOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
-}
-
-/**
  * Server.Arts
  */
 export type Server$ArtsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2921,6 +3127,25 @@ export type Server$ChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.ChatScalarFieldEnum | Prisma.ChatScalarFieldEnum[]
+}
+
+/**
+ * Server.user
+ */
+export type Server$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

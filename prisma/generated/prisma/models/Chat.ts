@@ -414,11 +414,11 @@ export type ChatWhereInput = {
   isMature?: Prisma.BoolFilter<"Chat"> | boolean
   serverId?: Prisma.IntNullableFilter<"Chat"> | number | null
   serverName?: Prisma.StringNullableFilter<"Chat"> | string | null
-  Server?: Prisma.XOR<Prisma.ServerNullableScalarRelationFilter, Prisma.ServerWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
+  Server?: Prisma.XOR<Prisma.ServerNullableScalarRelationFilter, Prisma.ServerWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
 }
@@ -449,11 +449,11 @@ export type ChatOrderByWithRelationInput = {
   isMature?: Prisma.SortOrder
   serverId?: Prisma.SortOrderInput | Prisma.SortOrder
   serverName?: Prisma.SortOrderInput | Prisma.SortOrder
-  Server?: Prisma.ServerOrderByWithRelationInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   Bot?: Prisma.BotOrderByWithRelationInput
   Character?: Prisma.CharacterOrderByWithRelationInput
   Prompt?: Prisma.PromptOrderByWithRelationInput
+  Server?: Prisma.ServerOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   _relevance?: Prisma.ChatOrderByRelevanceInput
@@ -488,11 +488,11 @@ export type ChatWhereUniqueInput = Prisma.AtLeast<{
   isMature?: Prisma.BoolFilter<"Chat"> | boolean
   serverId?: Prisma.IntNullableFilter<"Chat"> | number | null
   serverName?: Prisma.StringNullableFilter<"Chat"> | string | null
-  Server?: Prisma.XOR<Prisma.ServerNullableScalarRelationFilter, Prisma.ServerWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
+  Server?: Prisma.XOR<Prisma.ServerNullableScalarRelationFilter, Prisma.ServerWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
 }, "id">
@@ -581,11 +581,11 @@ export type ChatCreateInput = {
   isRead?: boolean
   isMature?: boolean
   serverName?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChatInput
   Bot?: Prisma.BotCreateNestedOneWithoutChatsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChatsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutChatsInput
+  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   User?: Prisma.UserCreateNestedOneWithoutChatsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChatInput
 }
@@ -640,11 +640,11 @@ export type ChatUpdateInput = {
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChatNestedInput
   Bot?: Prisma.BotUpdateOneWithoutChatsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChatsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutChatsNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   User?: Prisma.UserUpdateOneWithoutChatsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChatNestedInput
 }
@@ -1154,10 +1154,10 @@ export type ChatCreateWithoutArtImageInput = {
   isRead?: boolean
   isMature?: boolean
   serverName?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   Bot?: Prisma.BotCreateNestedOneWithoutChatsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChatsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutChatsInput
+  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   User?: Prisma.UserCreateNestedOneWithoutChatsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChatInput
 }
@@ -1227,10 +1227,10 @@ export type ChatUpdateWithoutArtImageInput = {
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutChatsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChatsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutChatsNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   User?: Prisma.UserUpdateOneWithoutChatsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChatNestedInput
 }
@@ -1284,10 +1284,10 @@ export type ChatCreateWithoutBotInput = {
   isRead?: boolean
   isMature?: boolean
   serverName?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChatInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChatsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutChatsInput
+  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   User?: Prisma.UserCreateNestedOneWithoutChatsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChatInput
 }
@@ -1398,10 +1398,10 @@ export type ChatCreateWithoutCharacterInput = {
   isRead?: boolean
   isMature?: boolean
   serverName?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChatInput
   Bot?: Prisma.BotCreateNestedOneWithoutChatsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutChatsInput
+  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   User?: Prisma.UserCreateNestedOneWithoutChatsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChatInput
 }
@@ -1481,10 +1481,10 @@ export type ChatCreateWithoutPromptInput = {
   isRead?: boolean
   isMature?: boolean
   serverName?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChatInput
   Bot?: Prisma.BotCreateNestedOneWithoutChatsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChatsInput
+  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   User?: Prisma.UserCreateNestedOneWithoutChatsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChatInput
 }
@@ -1564,11 +1564,11 @@ export type ChatCreateWithoutReactionsInput = {
   isRead?: boolean
   isMature?: boolean
   serverName?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChatInput
   Bot?: Prisma.BotCreateNestedOneWithoutChatsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChatsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutChatsInput
+  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   User?: Prisma.UserCreateNestedOneWithoutChatsInput
 }
 
@@ -1637,11 +1637,11 @@ export type ChatUpdateWithoutReactionsInput = {
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChatNestedInput
   Bot?: Prisma.BotUpdateOneWithoutChatsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChatsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutChatsNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   User?: Prisma.UserUpdateOneWithoutChatsNestedInput
 }
 
@@ -1777,11 +1777,11 @@ export type ChatCreateWithoutUserInput = {
   isRead?: boolean
   isMature?: boolean
   serverName?: string | null
-  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChatInput
   Bot?: Prisma.BotCreateNestedOneWithoutChatsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChatsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutChatsInput
+  Server?: Prisma.ServerCreateNestedOneWithoutChatsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChatInput
 }
 
@@ -1887,10 +1887,10 @@ export type ChatUpdateWithoutBotInput = {
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChatNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChatsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutChatsNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   User?: Prisma.UserUpdateOneWithoutChatsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChatNestedInput
 }
@@ -1998,10 +1998,10 @@ export type ChatUpdateWithoutCharacterInput = {
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChatNestedInput
   Bot?: Prisma.BotUpdateOneWithoutChatsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutChatsNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   User?: Prisma.UserUpdateOneWithoutChatsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChatNestedInput
 }
@@ -2109,10 +2109,10 @@ export type ChatUpdateWithoutPromptInput = {
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChatNestedInput
   Bot?: Prisma.BotUpdateOneWithoutChatsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChatsNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   User?: Prisma.UserUpdateOneWithoutChatsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChatNestedInput
 }
@@ -2331,11 +2331,11 @@ export type ChatUpdateWithoutUserInput = {
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChatNestedInput
   Bot?: Prisma.BotUpdateOneWithoutChatsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChatsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutChatsNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutChatsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChatNestedInput
 }
 
@@ -2452,11 +2452,11 @@ export type ChatSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   isMature?: boolean
   serverId?: boolean
   serverName?: boolean
-  Server?: boolean | Prisma.Chat$ServerArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Chat$ArtImageArgs<ExtArgs>
   Bot?: boolean | Prisma.Chat$BotArgs<ExtArgs>
   Character?: boolean | Prisma.Chat$CharacterArgs<ExtArgs>
   Prompt?: boolean | Prisma.Chat$PromptArgs<ExtArgs>
+  Server?: boolean | Prisma.Chat$ServerArgs<ExtArgs>
   User?: boolean | Prisma.Chat$UserArgs<ExtArgs>
   Reactions?: boolean | Prisma.Chat$ReactionsArgs<ExtArgs>
   _count?: boolean | Prisma.ChatCountOutputTypeDefaultArgs<ExtArgs>
@@ -2494,11 +2494,11 @@ export type ChatSelectScalar = {
 
 export type ChatOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "type" | "sender" | "recipient" | "content" | "title" | "isPublic" | "isFavorite" | "previousEntryId" | "originId" | "userId" | "botId" | "recipientId" | "artImageId" | "promptId" | "botName" | "channel" | "botResponse" | "characterId" | "isRead" | "isMature" | "serverId" | "serverName", ExtArgs["result"]["chat"]>
 export type ChatInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Server?: boolean | Prisma.Chat$ServerArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Chat$ArtImageArgs<ExtArgs>
   Bot?: boolean | Prisma.Chat$BotArgs<ExtArgs>
   Character?: boolean | Prisma.Chat$CharacterArgs<ExtArgs>
   Prompt?: boolean | Prisma.Chat$PromptArgs<ExtArgs>
+  Server?: boolean | Prisma.Chat$ServerArgs<ExtArgs>
   User?: boolean | Prisma.Chat$UserArgs<ExtArgs>
   Reactions?: boolean | Prisma.Chat$ReactionsArgs<ExtArgs>
   _count?: boolean | Prisma.ChatCountOutputTypeDefaultArgs<ExtArgs>
@@ -2507,11 +2507,11 @@ export type ChatInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type $ChatPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Chat"
   objects: {
-    Server: Prisma.$ServerPayload<ExtArgs> | null
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     Bot: Prisma.$BotPayload<ExtArgs> | null
     Character: Prisma.$CharacterPayload<ExtArgs> | null
     Prompt: Prisma.$PromptPayload<ExtArgs> | null
+    Server: Prisma.$ServerPayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
   }
@@ -2881,11 +2881,11 @@ readonly fields: ChatFieldRefs;
  */
 export interface Prisma__ChatClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Server<T extends Prisma.Chat$ServerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Chat$ServerArgs<ExtArgs>>): Prisma.Prisma__ServerClient<runtime.Types.Result.GetResult<Prisma.$ServerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ArtImage<T extends Prisma.Chat$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Chat$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Bot<T extends Prisma.Chat$BotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Chat$BotArgs<ExtArgs>>): Prisma.Prisma__BotClient<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Character<T extends Prisma.Chat$CharacterArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Chat$CharacterArgs<ExtArgs>>): Prisma.Prisma__CharacterClient<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Prompt<T extends Prisma.Chat$PromptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Chat$PromptArgs<ExtArgs>>): Prisma.Prisma__PromptClient<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Server<T extends Prisma.Chat$ServerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Chat$ServerArgs<ExtArgs>>): Prisma.Prisma__ServerClient<runtime.Types.Result.GetResult<Prisma.$ServerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.Chat$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Chat$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Reactions<T extends Prisma.Chat$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Chat$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -3290,25 +3290,6 @@ export type ChatDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * Chat.Server
- */
-export type Chat$ServerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Server
-   */
-  select?: Prisma.ServerSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Server
-   */
-  omit?: Prisma.ServerOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ServerInclude<ExtArgs> | null
-  where?: Prisma.ServerWhereInput
-}
-
-/**
  * Chat.ArtImage
  */
 export type Chat$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3382,6 +3363,25 @@ export type Chat$PromptArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   include?: Prisma.PromptInclude<ExtArgs> | null
   where?: Prisma.PromptWhereInput
+}
+
+/**
+ * Chat.Server
+ */
+export type Chat$ServerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Server
+   */
+  select?: Prisma.ServerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Server
+   */
+  omit?: Prisma.ServerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServerInclude<ExtArgs> | null
+  where?: Prisma.ServerWhereInput
 }
 
 /**

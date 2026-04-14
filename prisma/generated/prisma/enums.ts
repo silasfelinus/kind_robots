@@ -88,7 +88,10 @@ export const PitchType = {
   WEIRDLANDIA: 'WEIRDLANDIA',
   RANDOMLIST: 'RANDOMLIST',
   TITLE: 'TITLE',
-  VIBE: 'VIBE'
+  VIBE: 'VIBE',
+  BOT: 'BOT',
+  ARTGALLERY: 'ARTGALLERY',
+  INSPIRATION: 'INSPIRATION'
 } as const
 
 export type PitchType = (typeof PitchType)[keyof typeof PitchType]

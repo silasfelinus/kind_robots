@@ -68,7 +68,7 @@ const refreshRewards = () => {
 
 // Clear current reward selection
 const endReward = () => {
-  rewardStore.clearselectedReward()
+  rewardStore.clearSelectedReward()
 }
 
 // Select a reward

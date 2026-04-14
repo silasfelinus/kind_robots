@@ -9,12 +9,12 @@
       <div
         v-for="(item, index) in links"
         :key="index"
-        class="group flex flex-col items-center justify-center min-w-[80px]"
+        class="group flex flex-col items-center justify-center min-w-20"
       >
         <button
           :aria-label="item.title"
           class="group flex flex-col items-center justify-center w-full space-y-1 text-center transition-all transform hover:scale-105 hover:bg-accent hover:text-info focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
-          @click="navigateTo(item.path)"
+          @click="item.path && navigateTo(item.path)"
         >
           <icon
             :name="item.icon"

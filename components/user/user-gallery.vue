@@ -41,11 +41,11 @@
         <h4 class="text-lg font-semibold">Art Collection</h4>
 
         <div
-          v-if="userCollections[user.id]?.length > 0"
+          v-if="(userCollections[user.id] ?? []).length > 0"
           class="grid grid-cols-2 gap-2 mt-2"
         >
           <div
-            v-for="art in userCollections[user.id]"
+            v-for="art in userCollections[user.id] ?? []"
             :key="art.id"
             class="item rounded-md shadow-sm p-2 bg-base-200"
           >

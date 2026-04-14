@@ -101,5 +101,5 @@ export const materialList = [
   ]
 
 export function randomMaterial(): string {
-  return materialList[Math.floor(Math.random() * materialList.length)]
+  return materialList[Math.floor(Math.random() * materialList.length)]!
 }

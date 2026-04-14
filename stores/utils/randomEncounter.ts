@@ -1,6 +1,5 @@
 // stores/utils/randomEncounter.ts
 
-
 import { useDungeonEncounter } from './dungeonEncounter'
 import { useSpaceEncounter } from './spaceEncounter'
 import { useNoirEncounter } from './noirEncounter'
@@ -8,7 +7,11 @@ import { useNoirEncounter } from './noirEncounter'
 type Genre = 'dungeon' | 'space' | 'noir'
 
 export function randomChoice<T>(list: T[]): T {
-  return list[Math.floor(Math.random() * list.length)]
+  if (!list.length) {
+    throw new Error('randomChoice called with empty list')
+  }
+
+  return list[Math.floor(Math.random() * list.length)]!
 }
 
 type Encounter = {
@@ -21,7 +24,8 @@ type Encounter = {
 const encounterMemoryKey = 'encounterMemory'
 
 function loadMemory(): Record<Genre, number> {
-  if (typeof localStorage === 'undefined') return { dungeon: 0, space: 0, noir: 0 }
+  if (typeof localStorage === 'undefined')
+    return { dungeon: 0, space: 0, noir: 0 }
   return JSON.parse(localStorage.getItem(encounterMemoryKey) || '{}')
 }
 
@@ -29,7 +33,6 @@ function saveMemory(memory: Record<Genre, number>) {
   if (typeof localStorage === 'undefined') return
   localStorage.setItem(encounterMemoryKey, JSON.stringify(memory))
 }
-
 
 export function useRandomEncounter(): Encounter {
   const memory = loadMemory()
@@ -67,4 +70,3 @@ export function useRandomEncounter(): Encounter {
     memoryKey: genre,
   }
 }
-

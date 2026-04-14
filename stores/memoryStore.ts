@@ -37,7 +37,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     { label: 'Expert', value: 24 },
   ]
 
-  const selectedDifficulty = ref<DifficultyOption>(difficulties[0])
+  const selectedDifficulty = ref<DifficultyOption>(difficulties[0]!)
   const galleryImages = ref<GalleryImage[]>([])
   const gameWon = ref(false)
   const isLoading = ref(true)

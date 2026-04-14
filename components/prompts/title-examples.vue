@@ -134,10 +134,14 @@ function removeExample(index: number) {
 }
 function moveExample(index: number, direction: number) {
   const newIndex = index + direction
-  if (newIndex >= 0 && newIndex < editableExamples.value.length) {
-    const temp = editableExamples.value[index]
-    editableExamples.value[index] = editableExamples.value[newIndex]
-    editableExamples.value[newIndex] = temp
-  }
+  if (newIndex < 0 || newIndex >= editableExamples.value.length) return
+
+  const current = editableExamples.value[index]
+  const target = editableExamples.value[newIndex]
+
+  if (current === undefined || target === undefined) return
+
+  editableExamples.value[index] = target
+  editableExamples.value[newIndex] = current
 }
 </script>

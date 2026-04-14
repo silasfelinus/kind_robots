@@ -65,7 +65,7 @@ export const useGalleryStore = defineStore('galleryStore', () => {
           }
 
           if (!currentGallery.value && galleries.value.length > 0) {
-            setGalleryByName(galleries.value[0].name)
+            setGalleryByName(galleries.value[0]?.name || '')
           }
         } else {
           throw new Error(res.message || 'Failed to fetch galleries')
@@ -251,7 +251,7 @@ export const useGalleryStore = defineStore('galleryStore', () => {
     if (!paths.length) return null
 
     const selected = paths[Math.floor(Math.random() * paths.length)]
-    const fullPath = buildImagePath(gallery.name, selected)
+    const fullPath = buildImagePath(gallery.name || '', selected || '')
 
     currentImage.value = fullPath
 

@@ -5,10 +5,10 @@
   >
     <!-- Message Interaction Area -->
     <div
-      class="message-container flex flex-col bg-base-300 p-2 rounded-2xl flex-grow"
+      class="message-container flex flex-col bg-base-300 p-2 rounded-2xl grow"
     >
       <!-- Scrollable conversation area -->
-      <div class="conversation-area flex-grow overflow-y-auto p-4">
+      <div class="conversation-area grow overflow-y-auto p-4">
         <ConversationDisplay
           :chat-id="activechatId"
           :current-bot="currentBot"
@@ -17,7 +17,7 @@
       </div>
 
       <!-- Input area stays at the bottom -->
-      <div class="prompt-area p-3 bg-base-200 rounded-lg flex-shrink-0">
+      <div class="prompt-area p-3 bg-base-200 rounded-lg shrink-0">
         <label for="newMessage" class="block mb-1 font-semibold text-md">
           <div v-if="currentBot" class="user-intro p-1 rounded-md">
             <p class="text-base">{{ currentBot.userIntro ?? 'User Intro' }}</p>
@@ -90,14 +90,13 @@ const defaultBot = {
   avatarImage: '/images/amibotsquare1.webp',
 }
 
-// Use fallback values if activeConversationIndex or chat ID is null
-const activechatId = computed(
-  () =>
-    activeConversationIndex.value !== null &&
-    chatStore.chats[activeConversationIndex.value]
-      ? chatStore.chats[activeConversationIndex.value].id
-      : -1, // Fallback to -1 or any invalid ID if not set
-)
+const activechatId = computed(() => {
+  const idx = activeConversationIndex.value
+  if (idx === null) return -1
+
+  const chat = chatStore.chats[idx]
+  return chat?.id ?? -1
+})
 
 // Use defaultBot when botStore.currentBot is null
 const currentBot = computed(() => botStore.currentBot ?? defaultBot)
@@ -132,8 +131,13 @@ const sendMessage = async () => {
         ? chatStore.chats.length - 1
         : null
     } else {
-      // Continue existing conversation
-      const previousChat = conversations.value[activeConversationIndex.value]
+      const idx = activeConversationIndex.value
+      const previousChat = idx !== null ? conversations.value[idx] : undefined
+
+      if (!previousChat) {
+        throw new Error('Previous chat not found.')
+      }
+
       await chatStore.addChat({
         content: message.value,
         userId,

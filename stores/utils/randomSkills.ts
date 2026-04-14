@@ -79,5 +79,5 @@ export const skillList = [
 ]
 
 export function randomSkill(): string {
-  return skillList[Math.floor(Math.random() * skillList.length)]
+  return skillList[Math.floor(Math.random() * skillList.length)]!
 }

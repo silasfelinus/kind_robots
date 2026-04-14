@@ -1,7 +1,11 @@
 // stores/utils/dungeonEncounter.ts
 
 export function randomChoice<T>(list: T[]): T {
-  return list[Math.floor(Math.random() * list.length)]
+  if (!list.length) {
+    throw new Error('randomChoice called with empty list')
+  }
+
+  return list[Math.floor(Math.random() * list.length)]!
 }
 
 export function useDungeonEncounter(count: number): string {

@@ -86,7 +86,7 @@ async function handleImageUpload(event: Event) {
       pitchId: null,
       userId: userId.value ?? 10, // Default userId if undefined
       designer: username.value ?? 'Kind Guest', // Default designer if undefined
-      artImageId: uploadedArtImage.value?.id,
+      artImageId: uploadedArtImage.value?.id ?? null,
     }
 
     // Create art entry

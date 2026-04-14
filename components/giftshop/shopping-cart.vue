@@ -41,7 +41,9 @@
             />
             =
             <span class="font-medium">
-              ${{ (item.price * quantities[item.id]).toFixed(2) }}
+              ${{
+                (item.price * (quantities[item.id] ?? item.quantity)).toFixed(2)
+              }}
             </span>
           </div>
         </div>
@@ -83,17 +85,14 @@ function checkout() {
   cartStore.checkout(userStore.userId)
 }
 
-
 const cartStore = useCartStore()
 
 const quantities = reactive<Record<string, number>>(
-  Object.fromEntries(cartStore.items.map((item) => [item.id, item.quantity]))
+  Object.fromEntries(cartStore.items.map((item) => [item.id, item.quantity])),
 )
 
-function updateQuantity(item: typeof cartStore.items[number]) {
-  const qty = quantities[item.id]
+function updateQuantity(item: (typeof cartStore.items)[number]) {
+  const qty = quantities[item.id] ?? item.quantity
   cartStore.updateQuantity(item.id, qty)
 }
-
-
 </script>

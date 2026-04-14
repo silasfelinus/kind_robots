@@ -4,7 +4,7 @@
 export function parseBearer(authorizationHeader: string) {
   // accepts variants like "Bearer abc123" or "bearer abc123"
   const m = authorizationHeader?.match(/^\s*Bearer\s+(.+)$/i)
-  return m ? m[1].trim() : ''
+  return m && m[1] ? m[1].trim() : ''
 }
 
 /**

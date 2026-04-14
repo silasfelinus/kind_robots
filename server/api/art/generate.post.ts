@@ -12,10 +12,7 @@ import {
   validateAndLoadPromptId,
   validateAndLoadUserId,
 } from '.'
-import {
-  resolveServer,
-  getServerEndpoint,
-} from '../../utils/serverResolver'
+import { resolveServer, getServerEndpoint } from '../../utils/serverResolver'
 
 type ServerAwareRequestData = RequestData & {
   serverId?: number | null
@@ -61,7 +58,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const token = authorizationHeader.split(' ')[1]
+    const token = authorizationHeader.split(' ')[1] ?? ''
     const user = await prisma.user.findFirst({
       where: { apiKey: token },
       select: {
@@ -81,7 +78,8 @@ export default defineEventHandler(async (event) => {
     if (user.id !== requestData.userId) {
       throw createError({
         statusCode: 403,
-        message: 'User ID in the request does not match the authenticated user.',
+        message:
+          'User ID in the request does not match the authenticated user.',
       })
     }
 
@@ -93,7 +91,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const validatedData: Partial<RequestData> = {}
-    validatedData.userId = await validateAndLoadUserId(requestData, validatedData)
+    validatedData.userId = await validateAndLoadUserId(
+      requestData,
+      validatedData,
+    )
     validatedData.promptId = await validateAndLoadPromptId(
       requestData,
       validatedData,
@@ -135,6 +136,14 @@ export default defineEventHandler(async (event) => {
     }
 
     const base64Image = response.images[0]
+
+    if (!base64Image) {
+      throw createError({
+        statusCode: 500,
+        message: 'Image generation failed: missing image data.',
+      })
+    }
+
     const savedImage = await saveImage(
       base64Image,
       requestData.galleryName || 'cafefred',
@@ -247,9 +256,7 @@ export async function generateImage({
       try {
         const errorData = await response.json()
         details =
-          errorData?.error ||
-          errorData?.message ||
-          JSON.stringify(errorData)
+          errorData?.error || errorData?.message || JSON.stringify(errorData)
       } catch {
         details = response.statusText
       }
@@ -266,9 +273,7 @@ export async function generateImage({
     }
   } catch (error) {
     console.error('Error during image generation:', error)
-    throw error instanceof Error
-      ? error
-      : new Error('Image generation failed.')
+    throw error instanceof Error ? error : new Error('Image generation failed.')
   }
 }
 

@@ -151,7 +151,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
       const char = { ...characterForm.value }
 
       if (char.id) {
-        await mutateCharacter(char.id, char)
+        await updateCharacter(char.id, char)
       } else {
         await createCharacter(char)
       }
@@ -182,7 +182,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
     }
   }
 
-  async function mutateCharacter(id: number, updates: Partial<Character>) {
+  async function updateCharacter(id: number, updates: Partial<Character>) {
     try {
       const response = await performFetch<Character>(`/api/characters/${id}`, {
         method: 'PATCH',
@@ -346,7 +346,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
     updateArtImagePath,
     saveCharacter,
     createCharacter,
-    mutateCharacter,
+    updateCharacter,
     deleteCharacter,
     generateRandomCharacter,
     setArtImageId,

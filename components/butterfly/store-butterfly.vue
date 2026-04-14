@@ -17,14 +17,17 @@ const analogousColor = (hsl: string): string => {
   if (!hslMatch) {
     throw new Error('Invalid color format')
   }
-  const [h, s, l] = hslMatch.map(Number)
+  const [h = 0, s = 100, l = 50] = hslMatch.map(Number)
   const newH = (h + 30) % 360
   return `hsl(${newH},${s}%,${l}%)`
 }
 
 const complementaryColor = (color: string): string => {
-  const [h, s, l] = color.replace('hsl(', '').replace(')', '').split(',')
-  const newH = (parseInt(h) + 180) % 360
+  const [h = '0', s = '100%', l = '50%'] = color
+    .replace('hsl(', '')
+    .replace(')', '')
+    .split(',')
+  const newH = (parseInt(h, 10) + 180) % 360
   return `hsl(${newH},${s},${l})`
 }
 

@@ -69,7 +69,9 @@ const quantities = reactive<Record<string, number>>(
 
 function addToCart(item: CartItem) {
   const quantity = quantities[item.id] || 1
-  const imageUrl = item.needsArt ? customImages[item.id] : item.image
+  const imageUrl = item.needsArt
+    ? (customImages[item.id] ?? '/images/backtree.webp')
+    : (item.image ?? '/images/backtree.webp')
 
   const payload = {
     id: `${item.id}-${Date.now()}`, // unique cart entry ID

@@ -61,5 +61,5 @@ export const adjectiveList = [
 ]
 
 export function randomAdjective(): string {
-  return adjectiveList[Math.floor(Math.random() * adjectiveList.length)]
+  return adjectiveList[Math.floor(Math.random() * adjectiveList.length)]!
 }

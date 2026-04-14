@@ -106,11 +106,14 @@ export default defineEventHandler(async (event) => {
       throw new Error('Missing title or pitch.')
     }
 
-    // Simulate selecting a random embellishment from the list
     const embellishment =
       creativeEmbellishments[
         Math.floor(Math.random() * creativeEmbellishments.length)
       ]
+
+    if (!embellishment) {
+      throw new Error('Failed to select embellishment')
+    }
 
     return {
       title,

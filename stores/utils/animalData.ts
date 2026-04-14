@@ -261,10 +261,10 @@ export const animalList: string[] = animalDataList.map((a) => a.name)
 
 // Random selection by name
 export function randomAnimal(): string {
-  return animalList[Math.floor(Math.random() * animalList.length)]
+  return animalList[Math.floor(Math.random() * animalList.length)]!
 }
 
 // Optional: random full metadata
 export function randomAnimalData(): AnimalData {
-  return animalDataList[Math.floor(Math.random() * animalDataList.length)]
+  return animalDataList[Math.floor(Math.random() * animalDataList.length)]!
 }

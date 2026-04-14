@@ -39,5 +39,5 @@ export const funList = [
 ]
 
 export function randomFunLine(): string {
-  return funList[Math.floor(Math.random() * funList.length)]
+  return funList[Math.floor(Math.random() * funList.length)]!
 }

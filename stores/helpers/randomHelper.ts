@@ -36,9 +36,8 @@ export type RandomListItem = {
 type RandomPool = {
   key: string
   title: string
-  values: string[]
+  values: readonly string[]
 }
-
 function stableNegativeId(input: string): number {
   let hash = 0
   for (let i = 0; i < input.length; i++) {

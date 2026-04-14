@@ -162,5 +162,5 @@ export const classList = [
 ]
 
 export function randomClass(): string {
-  return classList[Math.floor(Math.random() * classList.length)]
+  return classList[Math.floor(Math.random() * classList.length)]!
 }

@@ -27,8 +27,8 @@ export function randomEntry(pitchName: string, allPitches: Pitch[]): string {
     .split('|')
     .map((e: string) => e.trim())
     .filter(Boolean)
-  return examples.length
-    ? examples[Math.floor(Math.random() * examples.length)]
+  return examples.length > 0
+    ? examples[Math.floor(Math.random() * examples.length)] || pitchName
     : pitchName
 }
 

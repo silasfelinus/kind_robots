@@ -307,7 +307,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   function toggleFooter() {
     const order: DisplayState[] = ['compact', 'extended', 'hidden']
     const currentIndex = order.indexOf(state.footerState)
-    state.footerState = order[(currentIndex + 1) % order.length]
+    state.footerState = order[(currentIndex + 1) % order.length] ?? 'compact'
   }
 
   function toggleBigMode() {
@@ -325,7 +325,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       'rain-effect',
       'butterfly-animation',
     ]
-    state.currentAnimation = options[Math.floor(Math.random() * options.length)]
+    state.currentAnimation = options[Math.floor(Math.random() * options.length)] ?? 'bubble-effect'
     state.isAnimating = true
   }
 
@@ -485,7 +485,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     const order: SmartState[] = ['front', 'dash', 'back']
     const index = order.indexOf(state.SmartState)
     const nextIndex = index === -1 ? 0 : (index + 1) % order.length
-    state.SmartState = order[nextIndex]
+    state.SmartState = order[nextIndex] ?? 'front'
     saveState()
   }
 

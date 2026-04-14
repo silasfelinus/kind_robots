@@ -45,7 +45,7 @@ export const nouns = [
 ]
 
 function getRandomElement(array: string[]): string {
-  return array[Math.floor(Math.random() * array.length)]
+  return array[Math.floor(Math.random() * array.length)]!
 }
 
 export function randomPhrase(): string {

@@ -27,7 +27,7 @@ export function updateUserFields(
 ): User[] {
   const index = users.findIndex((user) => user.id === userId)
   if (index !== -1) {
-    const updatedUser = { ...users[index], ...fields }
+    const updatedUser = { ...users[index], ...fields } as User
     const updatedUsers = [...users]
     updatedUsers.splice(index, 1, updatedUser)
     return updatedUsers

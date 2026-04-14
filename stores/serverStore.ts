@@ -586,6 +586,10 @@ export const useServerStore = defineStore('serverStore', () => {
         const nextStatus: ServerStatus = res.data.ok ? 'ONLINE' : 'OFFLINE'
         const currentServer = servers.value[serverIndex]
 
+        if (!currentServer) {
+          throw new Error('Server not found in local state')
+        }
+
         servers.value[serverIndex] = {
           ...currentServer,
           lastCheckedAt: new Date(),

@@ -108,5 +108,5 @@ export const verbList = [
 ]
 
 export function randomVerb(): string {
-  return verbList[Math.floor(Math.random() * verbList.length)]
+  return verbList[Math.floor(Math.random() * verbList.length)]!
 }

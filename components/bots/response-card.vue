@@ -80,11 +80,9 @@ const toggleReply = () => {
   showReply.value = !showReply.value
 }
 
-// Get the content of the last message
 const getLastMessageContent = computed(() => {
-  return props.messages.length
-    ? props.messages[props.messages.length - 1].content
-    : ''
+  const lastMessage = props.messages[props.messages.length - 1]
+  return lastMessage?.content ?? ''
 })
 
 // Send a reply

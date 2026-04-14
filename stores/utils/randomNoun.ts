@@ -103,8 +103,8 @@ export const nounList = [
   'xenon',
   'yonder',
   'zeppelin',
-]
+] as const
 
 export function randomNoun(): string {
-  return nounList[Math.floor(Math.random() * nounList.length)]
+  return nounList[Math.floor(Math.random() * nounList.length)]!
 }

@@ -100,5 +100,5 @@ export const quirkList = [
 ]
 
 export function randomQuirk(): string {
-  return quirkList[Math.floor(Math.random() * quirkList.length)]
+  return quirkList[Math.floor(Math.random() * quirkList.length)]!
 }

@@ -111,5 +111,5 @@ export const itemList = [
 ]
 
 export function randomItem(): string {
-  return itemList[Math.floor(Math.random() * itemList.length)]
+  return itemList[Math.floor(Math.random() * itemList.length)]!
 }

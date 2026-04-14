@@ -20,7 +20,7 @@ export const allSeeds: ChoiceEntry[] = [
 export function loadAllChoiceSeeds(
   choiceStore: ReturnType<typeof useChoiceStore>,
 ) {
-  allSeeds.forEach(({ label, model, options }) => {
-    choiceStore.registerChoice(label, model, options)
+  allSeeds.forEach((entry) => {
+    choiceStore.registerChoice(entry)
   })
 }

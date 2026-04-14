@@ -17,7 +17,7 @@
         <p class="ml-2">Create new bot</p>
       </div>
 
-      <div class="flex-grow max-w-xs">
+      <div class="grow max-w-xs">
         <label for="designer" class="block text-lg font-medium"
           >Designer:</label
         >
@@ -163,7 +163,11 @@ async function handleSubmit() {
     // Sync choice store into botForm
     const fields = ['name', 'description', 'personality', 'subtitle']
     fields.forEach((field) => {
-      choiceStore.applyToForm(botStore.botForm, field, 'Bot')
+      choiceStore.applyToForm(
+        botStore.botForm as Partial<Record<string, unknown>>,
+        field,
+        'Bot',
+      )
     })
 
     if (botStore.selectedBotId) {

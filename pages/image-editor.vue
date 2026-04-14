@@ -58,8 +58,14 @@ function applyGrayscale() {
   const imageData = ctx.value.getImageData(0, 0, width, height)
   const data = imageData.data
   for (let i = 0; i < data.length; i += 4) {
-    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3
-    data[i] = data[i + 1] = data[i + 2] = avg
+    const r = data[i] ?? 0
+    const g = data[i + 1] ?? 0
+    const b = data[i + 2] ?? 0
+    const avg = (r + g + b) / 3
+
+    data[i] = avg
+    data[i + 1] = avg
+    data[i + 2] = avg
   }
   ctx.value.putImageData(imageData, 0, 0)
 }

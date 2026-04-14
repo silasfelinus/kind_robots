@@ -59,7 +59,7 @@ export function cleanPromptExample(raw: string): string {
  * Extract pitch-like prefix from a comma-delimited prompt string.
  */
 export function extractPitch(promptString: string): string {
-  return promptString.split(',')[0].trim() || 'Untitled Prompt'
+  return (promptString.split(',')[0] ?? '').trim() || 'Untitled Prompt'
 }
 
 /**

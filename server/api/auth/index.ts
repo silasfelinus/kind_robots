@@ -60,7 +60,7 @@ export function extractTokenFromHeader(
         'Authorization token is required in the format "Bearer <token>".',
     })
   }
-  return authorizationHeader.split(' ')[1] // Extract token after "Bearer "
+  return authorizationHeader.split(' ')[1] ?? ''
 }
 
 export async function getUserIdFromToken(token: string): Promise<number> {

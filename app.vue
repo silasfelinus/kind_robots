@@ -1,6 +1,8 @@
 <!-- /app.vue -->
 <template>
   <div class="relative min-h-screen w-full overflow-hidden bg-base-100">
+    <NuxtPage />
+
     <div class="fixed inset-0 z-50 pointer-events-none">
       <div class="pointer-events-auto">
         <footer-toggle />
@@ -31,47 +33,15 @@
 <script setup lang="ts">
 // /app.vue
 import { ref, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useDisplayStore } from '@/stores/displayStore'
-import { usePageStore } from '@/stores/pageStore'
+import { useRouter } from 'vue-router'
 import { useSmartbarStore } from '@/stores/smartbarStore'
 
 const smartbarStore = useSmartbarStore()
-const displayStore = useDisplayStore()
-const pageStore = usePageStore()
 const router = useRouter()
-const route = useRoute()
 
 const isNavigating = ref(false)
 
 const showSwarm = computed(() => smartbarStore.showSwarm)
-
-const sidebarRightOpen = computed(() =>
-  ['open', 'compact'].includes(displayStore.sidebarRightState),
-)
-
-const rightSidebarWidth = computed(() => {
-  if (!sidebarRightOpen.value) return 0
-  return displayStore.sidebarRightWidth
-})
-
-const headerHeight = computed(() => displayStore.headerHeight)
-
-const footerHeight = computed(() => {
-  if (!pageStore.page?.showFooter || displayStore.footerState === 'hidden') {
-    return 0
-  }
-  return displayStore.footerHeight
-})
-
-const mainShellStyle = computed(() => ({
-  top: `calc(var(--vh) * ${headerHeight.value})`,
-  left: '0',
-  width: sidebarRightOpen.value
-    ? `calc(100vw - ${rightSidebarWidth.value}vw)`
-    : '100vw',
-  height: `calc(var(--vh) * ${100 - headerHeight.value - footerHeight.value})`,
-}))
 
 router.beforeEach(() => {
   isNavigating.value = true

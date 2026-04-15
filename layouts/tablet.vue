@@ -1,6 +1,8 @@
 <!-- /layouts/tablet.vue -->
 <template>
-  <div class="relative flex flex-col min-h-dvh w-full overflow-hidden bg-base-100">
+  <div
+    class="relative flex flex-col min-h-dvh w-full overflow-hidden bg-base-100"
+  >
     <div class="pointer-events-none absolute inset-0 bg-warning/5"></div>
 
     <div
@@ -8,7 +10,9 @@
       class="relative z-10 w-full shrink-0 border-b border-base-300 bg-warning/10"
       :style="{ height: `calc(var(--vh) * ${headerHeight})` }"
     >
-      <div class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-warning bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-warning shadow-lg">
+      <div
+        class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-warning bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-warning shadow-lg"
+      >
         H1 Tablet Header
       </div>
 
@@ -51,7 +55,9 @@
         class="relative shrink-0 h-full overflow-y-auto border-r border-base-300 bg-secondary/10"
         :style="{ width: `${sidebarLeftWidth}vw` }"
       >
-        <div class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-secondary bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-secondary shadow-lg">
+        <div
+          class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-secondary bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-secondary shadow-lg"
+        >
           L2 Tablet Left
         </div>
 
@@ -69,19 +75,19 @@
               class="flex h-full flex-col gap-3 p-3"
             >
               <button class="btn justify-start rounded-2xl">
-                <Icon name="kind-icon:brainstorm." class="text-xl" />
+                <Icon name="kind-icon:brainstorm" class="text-xl" />
                 Brainstorm
               </button>
               <button class="btn justify-start rounded-2xl">
-                <Icon name="kind-icon:wonderlab." class="text-xl" />
+                <Icon name="kind-icon:wonderlab" class="text-xl" />
                 Wonderlab
               </button>
               <button class="btn justify-start rounded-2xl">
-                <Icon name="kind-icon:story." class="text-xl" />
+                <Icon name="kind-icon:story" class="text-xl" />
                 Story
               </button>
               <button class="btn justify-start rounded-2xl">
-                <Icon name="kind-icon:gallery." class="text-xl" />
+                <Icon name="kind-icon:gallery" class="text-xl" />
                 Gallery
               </button>
             </div>
@@ -91,8 +97,12 @@
         </div>
       </aside>
 
-      <main class="relative flex-1 min-w-0 h-full overflow-y-auto overscroll-y-contain bg-accent/5">
-        <div class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-accent bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-accent shadow-lg">
+      <main
+        class="relative flex-1 min-w-0 h-full overflow-y-auto overscroll-y-contain bg-accent/5"
+      >
+        <div
+          class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-accent bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-accent shadow-lg"
+        >
           M3 Tablet Main
         </div>
 
@@ -113,20 +123,26 @@
                 <Icon name="kind-icon:story." class="text-4xl text-accent" />
                 <div>
                   <div class="text-xl font-black">Tablet Main Content</div>
-                  <div class="text-sm opacity-70">Comfortably roomy, not full desktop chaos.</div>
+                  <div class="text-sm opacity-70">
+                    Comfortably roomy, not full desktop chaos.
+                  </div>
                 </div>
               </div>
             </div>
 
             <div class="grid gap-4 md:grid-cols-2">
-              <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4">
+              <div
+                class="rounded-2xl border border-base-300 bg-base-100/80 p-4"
+              >
                 <div class="font-bold">Example Card</div>
                 <div class="mt-2 text-sm opacity-80">
                   Titles, filters, and quick actions can live here.
                 </div>
               </div>
 
-              <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4">
+              <div
+                class="rounded-2xl border border-base-300 bg-base-100/80 p-4"
+              >
                 <div class="font-bold">Toggle Row</div>
                 <div class="mt-2 flex flex-wrap gap-2">
                   <button class="btn btn-xs rounded-2xl">View</button>
@@ -146,7 +162,9 @@
         class="relative shrink-0 h-full overflow-y-auto border-l border-base-300 bg-warning/10"
         :style="{ width: `${sidebarRightWidth}vw` }"
       >
-        <div class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-warning bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-warning shadow-lg">
+        <div
+          class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-warning bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-warning shadow-lg"
+        >
           R4 Tablet Right
         </div>
 
@@ -163,12 +181,18 @@
               v-if="debugStore.enabled && debugStore.fillerRight"
               class="grid gap-3 p-3"
             >
-              <div class="rounded-2xl border border-base-300 bg-base-100/80 p-3">
+              <div
+                class="rounded-2xl border border-base-300 bg-base-100/80 p-3"
+              >
                 <div class="font-bold">Inspector</div>
-                <div class="mt-2 text-sm opacity-80">Utility panel content goes here.</div>
+                <div class="mt-2 text-sm opacity-80">
+                  Utility panel content goes here.
+                </div>
               </div>
 
-              <div class="rounded-2xl border border-base-300 bg-base-100/80 p-3">
+              <div
+                class="rounded-2xl border border-base-300 bg-base-100/80 p-3"
+              >
                 <div class="font-bold">Toggles</div>
                 <div class="mt-2 flex flex-wrap gap-2">
                   <button class="btn btn-xs rounded-2xl">A</button>
@@ -189,7 +213,9 @@
       class="relative z-10 w-full shrink-0 border-t border-base-300 bg-success/10"
       :style="{ height: `calc(var(--vh) * ${footerHeight})` }"
     >
-      <div class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-success bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-success shadow-lg">
+      <div
+        class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-success bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-success shadow-lg"
+      >
         F5 Tablet Footer
       </div>
 
@@ -208,10 +234,10 @@
           >
             <div class="font-bold">Tablet Footer</div>
             <div class="flex items-center gap-3">
-              <Icon name="kind-icon:brainstorm." class="text-xl" />
-              <Icon name="kind-icon:wonderlab." class="text-xl" />
-              <Icon name="kind-icon:story." class="text-xl" />
-              <Icon name="kind-icon:gallery." class="text-xl" />
+              <Icon name="kind-icon:brainstorm" class="text-xl" />
+              <Icon name="kind-icon:wonderlab" class="text-xl" />
+              <Icon name="kind-icon:story" class="text-xl" />
+              <Icon name="kind-icon:gallery" class="text-xl" />
             </div>
           </div>
 

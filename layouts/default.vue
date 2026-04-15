@@ -1,190 +1,231 @@
 <!-- /layouts/default.vue -->
+<!--
+  Layout regions — color-coded and store-driven.
+  Each region renders its own toggle controls.
+
+  Sidebar height modes (cycled per sidebar):
+    'compact'  → inset: sits below header, above footer
+    'open'     → full-height: spans full screen height, overlapping header/footer
+    'hidden'   → not rendered
+
+  Header / Footer modes:
+    'open'     → visible at configured height
+    'hidden'   → collapsed to a thin restore strip
+-->
 <template>
-  <div
-    class="flex h-dvh w-full flex-col overflow-hidden bg-base-100 text-base-content"
-  >
-    <!-- ═══ HEADER ═══ -->
-    <section
-      v-if="showHeader"
-      class="relative flex-none w-full border-b border-base-300"
-      :style="{ height: `calc(var(--vh, 1vh) * ${headerHeight})` }"
-    >
-      <span class="region-label">Header</span>
+  <div class="layout-root">
+    <!-- ══════════════════════════════════════════
+         HEADER
+         'open'   → rendered at headerHeight
+         'hidden' → thin restore strip
+    ══════════════════════════════════════════ -->
+    <header v-if="showHeader" class="layout-header" :style="headerStyle">
+      <slot name="header"><main-header /></slot>
+
+      <!-- Hide control -->
       <button
-        class="region-toggle"
+        class="region-btn region-btn--tr"
         title="Hide header"
         @click="displayStore.changeState('headerState', 'hidden')"
       >
         ✕
       </button>
-      <div class="h-full w-full min-h-0">
-        <slot name="header"><main-header /></slot>
-      </div>
-    </section>
+    </header>
+
+    <!-- Header restore strip -->
     <button
       v-else
-      class="region-restore-h"
+      class="restore-strip restore-strip--h restore-strip--header"
       @click="displayStore.changeState('headerState', 'open')"
     >
-      + Header
+      <span class="restore-label">Header</span>
     </button>
 
-    <!-- ═══ BODY ═══
-         ClientOnly gates the mobile/desktop branch so the server always renders
-         the same tree, and the correct layout is applied only on the client.
-         The fallback renders a neutral shell that matches the desktop structure
-         closely enough that the initial paint looks correct before hydration.
-    -->
-    <ClientOnly>
-      <!-- MOBILE: full-page panel switcher -->
-      <template v-if="isMobile">
-        <main class="relative flex-1 min-h-0 w-full overflow-hidden">
-          <span class="region-label region-label--dim">{{
-            mobileRegionLabel
-          }}</span>
-
-          <!-- Panel switcher tabs -->
-          <div
-            class="absolute left-[0.45rem] top-[0.45rem] z-20 flex gap-[0.35rem]"
-          >
-            <button
-              v-for="tab in mobileTabs"
-              :key="tab.region"
-              class="region-tab"
-              :class="
-                activeMobileRegion === tab.region ? 'region-tab--active' : ''
-              "
-              @click="setMobileRegion(tab.region)"
-            >
-              {{ tab.label }}
-            </button>
-          </div>
-
-          <transition name="mobile-panel" mode="out-in">
-            <section
-              :key="activeMobileRegion"
-              class="h-full w-full min-h-0 overflow-y-auto overscroll-contain px-3 py-4"
-            >
-              <template v-if="activeMobileRegion === 'left'">
-                <slot name="left"><left-sidebar /></slot>
-              </template>
-              <template v-else-if="activeMobileRegion === 'right'">
-                <slot name="right"><right-sidebar /></slot>
-              </template>
-              <template v-else>
-                <slot />
-              </template>
-            </section>
-          </transition>
-        </main>
-      </template>
-
-      <!-- DESKTOP/TABLET: sidebar columns -->
-      <template v-else>
-        <div class="flex flex-1 min-h-0 w-full overflow-hidden">
+    <!-- ══════════════════════════════════════════
+         BODY ROW  (sidebars + center)
+         Fills the space between header and footer.
+         Sidebars may break out to full-height via
+         position:fixed when state === 'open'.
+    ══════════════════════════════════════════ -->
+    <div class="layout-body">
+      <!-- LEFT SIDEBAR -->
+      <ClientOnly>
+        <template v-if="showLeftSidebar">
+          <!-- full-height overlay mode -->
           <aside
-            v-if="showLeftSidebar"
-            class="relative flex-none h-full border-r border-base-300"
+            v-if="sidebarLeftState === 'open'"
+            class="layout-sidebar layout-sidebar--left layout-sidebar--full"
             :style="{ width: `${sidebarLeftWidth}vw` }"
           >
-            <span class="region-label region-label--vertical">Left</span>
-            <button
-              class="region-toggle"
-              title="Hide left sidebar"
-              @click="displayStore.changeState('sidebarLeftState', 'hidden')"
-            >
-              ✕
-            </button>
-            <div class="h-full w-full min-h-0 overflow-y-auto">
-              <slot name="left"><left-sidebar /></slot>
+            <slot name="left"><left-sidebar /></slot>
+            <div class="sidebar-controls sidebar-controls--left">
+              <button
+                class="region-btn"
+                title="Compact"
+                @click="displayStore.changeState('sidebarLeftState', 'compact')"
+              >
+                ↙
+              </button>
+              <button
+                class="region-btn"
+                title="Hide"
+                @click="displayStore.changeState('sidebarLeftState', 'hidden')"
+              >
+                ✕
+              </button>
             </div>
           </aside>
-          <button
-            v-else
-            class="region-restore-v"
-            @click="displayStore.changeState('sidebarLeftState', 'open')"
-          >
-            +
-          </button>
 
-          <main
-            class="relative flex-1 min-w-0 h-full overflow-y-auto overscroll-contain"
-          >
-            <span class="region-label region-label--dim">Main</span>
-            <div class="w-full min-h-0 px-4 py-4">
-              <slot />
-            </div>
-          </main>
-
+          <!-- inset (compact) mode -->
           <aside
-            v-if="showRightSidebar"
-            class="relative flex-none h-full border-l border-base-300"
+            v-else
+            class="layout-sidebar layout-sidebar--left layout-sidebar--inset"
+            :style="{ width: `${sidebarLeftWidth}vw` }"
+          >
+            <slot name="left"><left-sidebar /></slot>
+            <div class="sidebar-controls sidebar-controls--left">
+              <button
+                class="region-btn"
+                title="Full height"
+                @click="displayStore.changeState('sidebarLeftState', 'open')"
+              >
+                ↗
+              </button>
+              <button
+                class="region-btn"
+                title="Hide"
+                @click="displayStore.changeState('sidebarLeftState', 'hidden')"
+              >
+                ✕
+              </button>
+            </div>
+          </aside>
+        </template>
+
+        <!-- Left restore strip -->
+        <button
+          v-else
+          class="restore-strip restore-strip--v restore-strip--left"
+          @click="displayStore.changeState('sidebarLeftState', 'compact')"
+        >
+          <span class="restore-label restore-label--v">L</span>
+        </button>
+
+        <template #fallback>
+          <div
+            class="layout-sidebar layout-sidebar--left layout-sidebar--inset"
+            :style="{ width: `${sidebarLeftWidth}vw` }"
+          />
+        </template>
+      </ClientOnly>
+
+      <!-- CENTER CONTENT -->
+      <main class="layout-center">
+        <div class="layout-center-inner">
+          <slot />
+        </div>
+      </main>
+
+      <!-- RIGHT SIDEBAR -->
+      <ClientOnly>
+        <template v-if="showRightSidebar">
+          <!-- full-height overlay mode -->
+          <aside
+            v-if="sidebarRightState === 'open'"
+            class="layout-sidebar layout-sidebar--right layout-sidebar--full"
             :style="{ width: `${sidebarRightWidth}vw` }"
           >
-            <span
-              class="region-label region-label--vertical region-label--right"
-              >Right</span
-            >
-            <button
-              class="region-toggle"
-              title="Hide right sidebar"
-              @click="displayStore.changeState('sidebarRightState', 'hidden')"
-            >
-              ✕
-            </button>
-            <div class="h-full w-full min-h-0 overflow-y-auto">
-              <slot name="right"><right-sidebar /></slot>
+            <slot name="right"><right-sidebar /></slot>
+            <div class="sidebar-controls sidebar-controls--right">
+              <button
+                class="region-btn"
+                title="Compact"
+                @click="
+                  displayStore.changeState('sidebarRightState', 'compact')
+                "
+              >
+                ↘
+              </button>
+              <button
+                class="region-btn"
+                title="Hide"
+                @click="displayStore.changeState('sidebarRightState', 'hidden')"
+              >
+                ✕
+              </button>
             </div>
           </aside>
-          <button
+
+          <!-- inset (compact) mode -->
+          <aside
             v-else
-            class="region-restore-v"
-            @click="displayStore.changeState('sidebarRightState', 'open')"
+            class="layout-sidebar layout-sidebar--right layout-sidebar--inset"
+            :style="{ width: `${sidebarRightWidth}vw` }"
           >
-            +
-          </button>
-        </div>
-      </template>
-
-      <!-- SSR fallback: neutral desktop shell — server renders this, client
-           replaces it after hydration. Keeps layout from jumping on first paint. -->
-      <template #fallback>
-        <div class="flex flex-1 min-h-0 w-full overflow-hidden">
-          <main
-            class="relative flex-1 min-w-0 h-full overflow-y-auto overscroll-contain"
-          >
-            <div class="w-full min-h-0 px-4 py-4">
-              <slot />
+            <slot name="right"><right-sidebar /></slot>
+            <div class="sidebar-controls sidebar-controls--right">
+              <button
+                class="region-btn"
+                title="Full height"
+                @click="displayStore.changeState('sidebarRightState', 'open')"
+              >
+                ↖
+              </button>
+              <button
+                class="region-btn"
+                title="Hide"
+                @click="displayStore.changeState('sidebarRightState', 'hidden')"
+              >
+                ✕
+              </button>
             </div>
-          </main>
-        </div>
-      </template>
-    </ClientOnly>
+          </aside>
+        </template>
 
-    <!-- ═══ FOOTER ═══ -->
-    <section
+        <!-- Right restore strip -->
+        <button
+          v-else
+          class="restore-strip restore-strip--v restore-strip--right"
+          @click="displayStore.changeState('sidebarRightState', 'compact')"
+        >
+          <span class="restore-label restore-label--v">R</span>
+        </button>
+
+        <template #fallback>
+          <div
+            class="layout-sidebar layout-sidebar--right layout-sidebar--inset"
+            :style="{ width: `${sidebarRightWidth}vw` }"
+          />
+        </template>
+      </ClientOnly>
+    </div>
+    <!-- /layout-body -->
+
+    <!-- ══════════════════════════════════════════
+         FOOTER
+    ══════════════════════════════════════════ -->
+    <footer
       v-if="showFooter"
-      class="relative flex-none w-full border-t border-base-300"
+      class="layout-footer"
       :style="{ height: `calc(var(--vh, 1vh) * ${footerHeight})` }"
     >
-      <span class="region-label">Footer</span>
+      <slot name="footer"><main-footer /></slot>
       <button
-        class="region-toggle"
+        class="region-btn region-btn--tr"
         title="Hide footer"
         @click="displayStore.changeState('footerState', 'hidden')"
       >
         ✕
       </button>
-      <div class="h-full w-full min-h-0">
-        <slot name="footer"><main-footer /></slot>
-      </div>
-    </section>
+    </footer>
+
+    <!-- Footer restore strip -->
     <button
       v-else
-      class="region-restore-h"
+      class="restore-strip restore-strip--h restore-strip--footer"
       @click="displayStore.changeState('footerState', 'open')"
     >
-      + Footer
+      <span class="restore-label">Footer</span>
     </button>
   </div>
 </template>
@@ -196,9 +237,6 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-// isMobile reads viewport — only safe to use inside ClientOnly
-const isMobile = computed(() => displayStore.viewportSize === 'mobile')
-
 const showHeader = computed(() => displayStore.headerState !== 'hidden')
 const showFooter = computed(() => displayStore.footerState !== 'hidden')
 const showLeftSidebar = computed(() =>
@@ -208,192 +246,258 @@ const showRightSidebar = computed(() =>
   ['open', 'compact'].includes(displayStore.sidebarRightState),
 )
 
+const sidebarLeftState = computed(() => displayStore.sidebarLeftState)
+const sidebarRightState = computed(() => displayStore.sidebarRightState)
+
 const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 
-const activeMobileRegion = computed<'left' | 'center' | 'right'>(() => {
-  if (displayStore.showLeft) return 'left'
-  if (displayStore.showRight) return 'right'
-  return 'center'
-})
-
-const mobileRegionLabel = computed(() => {
-  if (activeMobileRegion.value === 'left') return 'Left'
-  if (activeMobileRegion.value === 'right') return 'Right'
-  return 'Main'
-})
-
-const mobileTabs = [
-  { region: 'left' as const, label: 'Left' },
-  { region: 'center' as const, label: 'Main' },
-  { region: 'right' as const, label: 'Right' },
-]
-
-function setMobileRegion(region: 'left' | 'center' | 'right') {
-  displayStore.showLeft = region === 'left'
-  displayStore.showCenter = region === 'center'
-  displayStore.showRight = region === 'right'
-  displayStore.saveState()
-}
+// Pull header style from store (includes height, width, top, left)
+const headerStyle = computed(() => displayStore.headerStyle)
 </script>
 
 <style scoped>
-/* ── Region labels ── */
-.region-label {
-  position: absolute;
-  top: 0.45rem;
-  right: 0.65rem;
-  z-index: 10;
-  border-radius: 9999px;
-  border: 1px solid oklch(var(--bc) / 0.1);
-  background: oklch(var(--b1) / 0.7);
-  backdrop-filter: blur(6px);
-  padding: 0.18rem 0.42rem;
-  font-size: 0.58rem;
-  font-weight: 900;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: oklch(var(--bc) / 0.3);
-  pointer-events: none;
-  user-select: none;
-  white-space: nowrap;
-}
-.region-label--vertical {
-  top: 50%;
-  left: 0.5rem;
-  right: auto;
-  transform: translateY(-50%) rotate(-90deg);
-}
-.region-label--right {
-  left: auto;
-  right: 0.5rem;
-  transform: translateY(-50%) rotate(90deg);
-}
-.region-label--dim {
-  color: oklch(var(--bc) / 0.18);
+/* ─────────────────────────────────────────────
+   ROOT — full viewport, no outer scroll
+───────────────────────────────────────────── */
+.layout-root {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  position: relative;
 }
 
-/* ── Toggle buttons ── */
-.region-toggle {
+/* ─────────────────────────────────────────────
+   HEADER
+───────────────────────────────────────────── */
+.layout-header {
+  position: relative;
+  flex: none;
+  width: 100%;
+  background: oklch(0.28 0.04 240); /* deep navy */
+  border-bottom: 2px solid oklch(0.38 0.05 240 / 0.6);
+  overflow: hidden;
+  z-index: 30;
+}
+
+/* ─────────────────────────────────────────────
+   BODY ROW
+───────────────────────────────────────────── */
+.layout-body {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─────────────────────────────────────────────
+   CENTER
+───────────────────────────────────────────── */
+.layout-center {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+  background: oklch(0.97 0.005 60); /* warm sand */
+}
+
+.layout-center-inner {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding: 1rem 1.25rem;
+}
+
+/* ─────────────────────────────────────────────
+   SIDEBARS — shared
+───────────────────────────────────────────── */
+.layout-sidebar {
+  flex: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Inset: sits within the body row flow */
+.layout-sidebar--inset {
+  height: 100%;
+  z-index: 20;
+}
+
+/* Full-height: breaks out via absolute + full dvh */
+.layout-sidebar--full {
+  position: absolute;
+  top: 0;
+  height: 100dvh;
+  z-index: 100;
+  /* translate upward to cover header; body-row top is header height — */
+  /* we offset by pulling the element above its container */
+  transform: translateY(calc(-1 * var(--header-h, 0px)));
+}
+
+.layout-sidebar--left.layout-sidebar--full {
+  left: 0;
+}
+.layout-sidebar--right.layout-sidebar--full {
+  right: 0;
+}
+
+/* Left sidebar color: redwood */
+.layout-sidebar--left {
+  background: oklch(0.38 0.08 20);
+  border-right: 2px solid oklch(0.45 0.09 20 / 0.5);
+}
+
+/* Right sidebar color: seafoam */
+.layout-sidebar--right {
+  background: oklch(0.52 0.07 170);
+  border-left: 2px solid oklch(0.58 0.08 170 / 0.5);
+}
+
+/* ─────────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────────── */
+.layout-footer {
+  position: relative;
+  flex: none;
+  width: 100%;
+  background: oklch(0.32 0.06 55); /* amber-brown */
+  border-top: 2px solid oklch(0.42 0.08 55 / 0.6);
+  overflow: hidden;
+  z-index: 30;
+}
+
+/* ─────────────────────────────────────────────
+   RESTORE STRIPS
+───────────────────────────────────────────── */
+.restore-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  border: none;
+  outline: none;
+}
+
+/* Horizontal strips (header / footer) */
+.restore-strip--h {
+  width: 100%;
+  height: 1.5rem;
+}
+.restore-strip--header {
+  background: oklch(0.28 0.04 240 / 0.55);
+  border-bottom: 1px dashed oklch(0.28 0.04 240 / 0.35);
+}
+.restore-strip--header:hover {
+  background: oklch(0.28 0.04 240 / 0.8);
+}
+.restore-strip--footer {
+  background: oklch(0.32 0.06 55 / 0.55);
+  border-top: 1px dashed oklch(0.32 0.06 55 / 0.35);
+}
+.restore-strip--footer:hover {
+  background: oklch(0.32 0.06 55 / 0.8);
+}
+
+/* Vertical strips (sidebars) */
+.restore-strip--v {
+  height: 100%;
+  width: 1.4rem;
+  writing-mode: vertical-lr;
+}
+.restore-strip--left {
+  background: oklch(0.38 0.08 20 / 0.5);
+  border-right: 1px dashed oklch(0.38 0.08 20 / 0.35);
+}
+.restore-strip--left:hover {
+  background: oklch(0.38 0.08 20 / 0.8);
+}
+.restore-strip--right {
+  background: oklch(0.52 0.07 170 / 0.5);
+  border-left: 1px dashed oklch(0.52 0.07 170 / 0.35);
+}
+.restore-strip--right:hover {
+  background: oklch(0.52 0.07 170 / 0.8);
+}
+
+/* ─────────────────────────────────────────────
+   RESTORE LABELS
+───────────────────────────────────────────── */
+.restore-label {
+  font-size: 0.52rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: oklch(1 0 0 / 0.45);
+  pointer-events: none;
+  user-select: none;
+}
+.restore-label--v {
+  writing-mode: vertical-lr;
+  letter-spacing: 0.15em;
+}
+
+/* ─────────────────────────────────────────────
+   CONTROL BUTTONS (per-region)
+───────────────────────────────────────────── */
+.region-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  border: 1px solid oklch(1 0 0 / 0.18);
+  background: oklch(0 0 0 / 0.25);
+  backdrop-filter: blur(4px);
+  font-size: 0.6rem;
+  color: oklch(1 0 0 / 0.55);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+  flex: none;
+}
+.region-btn:hover {
+  background: oklch(0 0 0 / 0.5);
+  color: oklch(1 0 0 / 0.9);
+  border-color: oklch(1 0 0 / 0.4);
+}
+
+/* top-right positioned (header / footer close btn) */
+.region-btn--tr {
   position: absolute;
   top: 0.4rem;
   right: 0.4rem;
-  z-index: 20;
+  z-index: 10;
+}
+
+/* sidebar control clusters */
+.sidebar-controls {
+  position: absolute;
+  top: 0.4rem;
+  z-index: 10;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.4rem;
-  height: 1.4rem;
-  border-radius: 9999px;
-  border: 1px solid oklch(var(--bc) / 0.13);
-  background: oklch(var(--b1) / 0.7);
-  backdrop-filter: blur(6px);
-  font-size: 0.6rem;
-  line-height: 1;
-  color: oklch(var(--bc) / 0.45);
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s,
-    border-color 0.15s;
+  flex-direction: column;
+  gap: 0.3rem;
 }
-.region-toggle:hover {
-  background: oklch(var(--er) / 0.12);
-  border-color: oklch(var(--er) / 0.35);
-  color: oklch(var(--er));
+.sidebar-controls--left {
+  right: 0.4rem;
 }
-
-/* ── Restore pills ── */
-.region-restore-h {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 1.25rem;
-  border-top: 1px dashed oklch(var(--bc) / 0.16);
-  border-bottom: 1px dashed oklch(var(--bc) / 0.16);
-  background: transparent;
-  font-size: 0.58rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: oklch(var(--bc) / 0.32);
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-.region-restore-h:hover {
-  background: oklch(var(--bc) / 0.04);
-  color: oklch(var(--bc) / 0.65);
-}
-
-.region-restore-v {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.25rem;
-  height: 100%;
-  border-left: 1px dashed oklch(var(--bc) / 0.16);
-  border-right: 1px dashed oklch(var(--bc) / 0.16);
-  background: transparent;
-  font-size: 0.7rem;
-  color: oklch(var(--bc) / 0.32);
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-.region-restore-v:hover {
-  background: oklch(var(--bc) / 0.04);
-  color: oklch(var(--bc) / 0.65);
-}
-
-/* ── Mobile panel tabs ── */
-.region-tab {
-  border-radius: 9999px;
-  border: 1px solid oklch(var(--bc) / 0.15);
-  background: oklch(var(--b1) / 0.7);
-  backdrop-filter: blur(6px);
-  padding: 0.2rem 0.55rem;
-  font-size: 0.58rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: oklch(var(--bc) / 0.45);
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s,
-    border-color 0.15s;
-}
-.region-tab:hover {
-  background: oklch(var(--bc) / 0.05);
-  color: oklch(var(--bc) / 0.7);
-}
-.region-tab--active {
-  border-color: oklch(var(--p) / 0.35);
-  background: oklch(var(--p) / 0.15);
-  color: oklch(var(--p));
-}
-
-/* ── Mobile panel transitions ── */
-.mobile-panel-enter-active,
-.mobile-panel-leave-active {
-  transition:
-    opacity 0.18s ease,
-    transform 0.18s ease;
-}
-.mobile-panel-enter-from {
-  opacity: 0;
-  transform: translateX(18px);
-}
-.mobile-panel-leave-to {
-  opacity: 0;
-  transform: translateX(-18px);
+.sidebar-controls--right {
+  left: 0.4rem;
 }
 </style>

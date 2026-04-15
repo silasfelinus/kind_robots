@@ -35,7 +35,9 @@
             <Icon name="kind-icon:butterfly." class="text-3xl text-info" />
             <div>
               <div class="font-black">Kind Robots Desktop</div>
-              <div class="text-xs opacity-70">Header filler with title and controls</div>
+              <div class="text-xs opacity-70">
+                Header filler with title and controls
+              </div>
             </div>
           </div>
 
@@ -121,21 +123,26 @@
                 <div>
                   <div class="text-2xl font-black">Desktop Main Content</div>
                   <div class="text-sm opacity-70">
-                    Room for cards, filters, tools, and whatever other gremlins you install later.
+                    Room for cards, filters, tools, and whatever other gremlins
+                    you install later.
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="grid gap-4 lg:grid-cols-3">
-              <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4">
+              <div
+                class="rounded-2xl border border-base-300 bg-base-100/80 p-4"
+              >
                 <div class="font-bold">Primary Card</div>
                 <div class="mt-2 text-sm opacity-80">
                   Good spot for stats, feed items, or summaries.
                 </div>
               </div>
 
-              <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4">
+              <div
+                class="rounded-2xl border border-base-300 bg-base-100/80 p-4"
+              >
                 <div class="font-bold">Action Card</div>
                 <div class="mt-2 flex flex-wrap gap-2">
                   <button class="btn btn-xs rounded-2xl">Run</button>
@@ -144,9 +151,13 @@
                 </div>
               </div>
 
-              <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4">
+              <div
+                class="rounded-2xl border border-base-300 bg-base-100/80 p-4"
+              >
                 <div class="font-bold">Preview Card</div>
-                <div class="mt-2 h-24 rounded-2xl border border-dashed border-base-300 bg-base-200/60"></div>
+                <div
+                  class="mt-2 h-24 rounded-2xl border border-dashed border-base-300 bg-base-200/60"
+                ></div>
               </div>
             </div>
           </div>
@@ -240,8 +251,6 @@
 <script setup lang="ts">
 // /layouts/desktop.vue
 import { computed } from 'vue'
-import LayoutRegion from '@/components/layout/layout-region.vue'
-import { useDebugStore } from '@/stores/debugStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 

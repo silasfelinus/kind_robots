@@ -13,6 +13,7 @@
 
     <layout-region
       v-if="showHeaderFinal"
+      region="header"
       title="H1 Mobile Header"
       tone="success"
       toggle-side="right"
@@ -36,7 +37,7 @@
       <template #filler>
         <div class="flex h-full items-center justify-between gap-2 px-4">
           <div class="flex items-center gap-2">
-            <Icon name="kind-icon:butterfly." class="text-2xl text-success" />
+            <Icon name="kind-icon:butterfly" class="text-2xl text-success" />
             <div>
               <div class="font-black">Kind Robots</div>
               <div class="text-xs opacity-70">Mobile Header</div>
@@ -53,6 +54,7 @@
 
     <div class="relative z-10 flex-1 min-h-0 w-full overflow-hidden">
       <layout-region
+        region="main"
         title="M2 Mobile Main"
         tone="accent"
         toggle-side="right"
@@ -72,7 +74,7 @@
           <div class="grid gap-4">
             <div class="rounded-2xl border border-accent/30 bg-base-100/80 p-4">
               <div class="flex items-center gap-3">
-                <Icon name="kind-icon:story." class="text-3xl text-accent" />
+                <Icon name="kind-icon:story" class="text-3xl text-accent" />
                 <div>
                   <div class="text-lg font-black">Mobile Page Title</div>
                   <div class="text-sm opacity-70">
@@ -111,6 +113,7 @@
 
     <layout-region
       v-if="showFooterFinal"
+      region="footer"
       title="F4 Mobile Footer"
       tone="success"
       toggle-side="right"
@@ -135,9 +138,9 @@
         <div class="flex h-full items-center justify-between gap-2 px-4">
           <div class="text-sm font-bold">Footer Zone</div>
           <div class="flex items-center gap-2">
-            <Icon name="kind-icon:brainstorm." class="text-xl" />
-            <Icon name="kind-icon:wonderlab." class="text-xl" />
-            <Icon name="kind-icon:story." class="text-xl" />
+            <Icon name="kind-icon:brainstorm" class="text-xl" />
+            <Icon name="kind-icon:wonderlab" class="text-xl" />
+            <Icon name="kind-icon:story" class="text-xl" />
           </div>
         </div>
       </template>

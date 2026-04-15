@@ -1,179 +1,176 @@
 <!-- /layouts/mobile.vue -->
 <template>
   <div
-    class="relative flex flex-col min-h-dvh w-full overflow-hidden bg-base-100"
+    class="flex h-dvh w-full flex-col overflow-hidden bg-base-100 text-base-content"
   >
-    <div class="pointer-events-none absolute inset-0 bg-success/5"></div>
-
-    <div
-      class="pointer-events-none fixed right-2 top-2 z-120 rounded-2xl border border-success bg-success/20 px-3 py-1 text-xs font-bold text-success-content"
+    <section
+      v-if="showHeader"
+      class="region-shell flex-none w-full border-b border-base-300"
+      :style="{ height: `calc(var(--vh, 1vh) * ${headerHeight})` }"
     >
-      MOBILE LAYOUT
-    </div>
+      <span class="region-label">Header</span>
 
-    <layout-region
-      v-if="showHeaderFinal"
-      region="header"
-      title="H1 Mobile Header"
-      tone="success"
-      toggle-side="right"
-      :show="showHeaderFinal"
-      :show-filler="debugStore.fillerHeader"
-      :can-toggle-visibility="debugStore.enabled"
-      :can-toggle-filler="debugStore.enabled"
-      content-class="h-full min-h-0 pt-8"
-      :height="`calc(var(--vh) * ${headerHeight})`"
-      @toggle-visibility="debugStore.showHeader = $event"
-      @toggle-filler="debugStore.fillerHeader = $event"
-    >
-      <template #default>
-        <header class="h-full w-full min-h-0">
-          <slot name="header">
-            <main-header />
-          </slot>
-        </header>
-      </template>
-
-      <template #filler>
-        <div class="flex h-full items-center justify-between gap-2 px-4">
-          <div class="flex items-center gap-2">
-            <Icon name="kind-icon:butterfly" class="text-2xl text-success" />
-            <div>
-              <div class="font-black">Kind Robots</div>
-              <div class="text-xs opacity-70">Mobile Header</div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button class="btn btn-xs rounded-2xl">Menu</button>
-            <button class="btn btn-xs rounded-2xl">Theme</button>
-          </div>
-        </div>
-      </template>
-    </layout-region>
-
-    <div class="relative z-10 flex-1 min-h-0 w-full overflow-hidden">
-      <layout-region
-        region="main"
-        title="M2 Mobile Main"
-        tone="accent"
-        toggle-side="right"
-        :show="true"
-        :show-filler="debugStore.fillerMain"
-        :can-toggle-visibility="false"
-        :can-toggle-filler="debugStore.enabled"
-        section-class="h-full w-full overflow-y-auto overscroll-y-contain"
-        content-class="container mx-auto h-full w-full min-h-0 px-2 py-10"
-        @toggle-filler="debugStore.fillerMain = $event"
+      <button
+        class="region-toggle"
+        title="Hide header"
+        @click="displayStore.changeState('headerState', 'hidden')"
       >
-        <template #default>
-          <slot />
-        </template>
+        ✕
+      </button>
 
-        <template #filler>
-          <div class="grid gap-4">
-            <div class="rounded-2xl border border-accent/30 bg-base-100/80 p-4">
-              <div class="flex items-center gap-3">
-                <Icon name="kind-icon:story" class="text-3xl text-accent" />
-                <div>
-                  <div class="text-lg font-black">Mobile Page Title</div>
-                  <div class="text-sm opacity-70">
-                    This is filler content for the main region.
-                  </div>
-                </div>
-              </div>
-            </div>
+      <div class="h-full w-full min-h-0">
+        <slot name="header">
+          <main-header />
+        </slot>
+      </div>
+    </section>
 
-            <div class="grid gap-3">
-              <div
-                class="rounded-2xl border border-base-300 bg-base-100/80 p-4"
-              >
-                <div class="font-bold">Card One</div>
-                <div class="mt-2 text-sm opacity-80">
-                  A compact mobile-friendly card with just enough visual proof
-                  to stop the void from gaslighting you.
-                </div>
-              </div>
-
-              <div
-                class="rounded-2xl border border-base-300 bg-base-100/80 p-4"
-              >
-                <div class="font-bold">Card Two</div>
-                <div class="mt-2 flex flex-wrap gap-2">
-                  <button class="btn btn-xs rounded-2xl">Action</button>
-                  <button class="btn btn-xs rounded-2xl">Filter</button>
-                  <button class="btn btn-xs rounded-2xl">View</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-      </layout-region>
-    </div>
-
-    <layout-region
-      v-if="showFooterFinal"
-      region="footer"
-      title="F4 Mobile Footer"
-      tone="success"
-      toggle-side="right"
-      :show="showFooterFinal"
-      :show-filler="debugStore.fillerFooter"
-      :can-toggle-visibility="debugStore.enabled"
-      :can-toggle-filler="debugStore.enabled"
-      content-class="h-full min-h-0 pt-8"
-      :height="`calc(var(--vh) * ${footerHeight})`"
-      @toggle-visibility="debugStore.showFooter = $event"
-      @toggle-filler="debugStore.fillerFooter = $event"
+    <button
+      v-else
+      class="region-restore-h"
+      @click="displayStore.changeState('headerState', 'open')"
     >
-      <template #default>
-        <footer class="h-full w-full min-h-0">
-          <slot name="footer">
-            <main-footer />
-          </slot>
-        </footer>
-      </template>
+      + Header
+    </button>
 
-      <template #filler>
-        <div class="flex h-full items-center justify-between gap-2 px-4">
-          <div class="text-sm font-bold">Footer Zone</div>
-          <div class="flex items-center gap-2">
-            <Icon name="kind-icon:brainstorm" class="text-xl" />
-            <Icon name="kind-icon:wonderlab" class="text-xl" />
-            <Icon name="kind-icon:story" class="text-xl" />
-          </div>
-        </div>
-      </template>
-    </layout-region>
+    <main
+      class="region-shell flex-1 min-h-0 w-full overflow-y-auto overscroll-contain"
+    >
+      <span class="region-label region-label--dim">Main</span>
+
+      <div class="h-full w-full min-h-0 px-3 py-4">
+        <slot />
+      </div>
+    </main>
+
+    <section
+      v-if="showFooter"
+      class="region-shell flex-none w-full border-t border-base-300"
+      :style="{ height: `calc(var(--vh, 1vh) * ${footerHeight})` }"
+    >
+      <span class="region-label">Footer</span>
+
+      <button
+        class="region-toggle"
+        title="Hide footer"
+        @click="displayStore.changeState('footerState', 'hidden')"
+      >
+        ✕
+      </button>
+
+      <div class="h-full w-full min-h-0">
+        <slot name="footer">
+          <main-footer />
+        </slot>
+      </div>
+    </section>
+
+    <button
+      v-else
+      class="region-restore-h"
+      @click="displayStore.changeState('footerState', 'open')"
+    >
+      + Footer
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 // /layouts/mobile.vue
 import { computed } from 'vue'
-import { useDebugStore } from '@/stores/debugStore'
 import { useDisplayStore } from '@/stores/displayStore'
-import { usePageStore } from '@/stores/pageStore'
 
 const displayStore = useDisplayStore()
-const pageStore = usePageStore()
-const debugStore = useDebugStore()
 
 const showHeader = computed(() => displayStore.headerState !== 'hidden')
-const showFooter = computed(() => {
-  return pageStore.page?.showFooter && displayStore.footerState !== 'hidden'
-})
-
-const showHeaderFinal = computed(() => {
-  if (debugStore.enabled) return debugStore.showHeader
-  return showHeader.value
-})
-
-const showFooterFinal = computed(() => {
-  if (debugStore.enabled) return debugStore.showFooter
-  return showFooter.value
-})
+const showFooter = computed(() => displayStore.footerState !== 'hidden')
 
 const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 </script>
+
+<style scoped>
+.region-shell {
+  position: relative;
+}
+
+.region-label {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.65rem;
+  z-index: 10;
+  border-radius: 9999px;
+  border: 1px solid oklch(var(--bc) / 0.1);
+  background: oklch(var(--b1) / 0.7);
+  backdrop-filter: blur(6px);
+  padding: 0.18rem 0.42rem;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: oklch(var(--bc) / 0.3);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.region-label--dim {
+  color: oklch(var(--bc) / 0.18);
+}
+
+.region-toggle {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 9999px;
+  border: 1px solid oklch(var(--bc) / 0.13);
+  background: oklch(var(--b1) / 0.7);
+  backdrop-filter: blur(6px);
+  font-size: 0.6rem;
+  line-height: 1;
+  color: oklch(var(--bc) / 0.45);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.region-toggle:hover {
+  background: oklch(var(--er) / 0.12);
+  border-color: oklch(var(--er) / 0.35);
+  color: oklch(var(--er));
+}
+
+.region-restore-h {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 1.25rem;
+  border-top: 1px dashed oklch(var(--bc) / 0.16);
+  border-bottom: 1px dashed oklch(var(--bc) / 0.16);
+  background: transparent;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: oklch(var(--bc) / 0.32);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.region-restore-h:hover {
+  background: oklch(var(--bc) / 0.04);
+  color: oklch(var(--bc) / 0.65);
+}
+</style>

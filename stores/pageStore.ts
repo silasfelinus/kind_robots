@@ -4,7 +4,7 @@ import { ref, computed } from 'vue'
 import type { ContentType } from '~/content.config'
 import { useThemeStore } from './themeStore'
 
-export type LayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
+export type PageLayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
 
 export const usePageStore = defineStore('pageStore', () => {
   const page = ref<ContentType | null>(null)
@@ -13,10 +13,10 @@ export const usePageStore = defineStore('pageStore', () => {
 
   const themeStore = useThemeStore()
 
-  const layout = computed<LayoutKey>(() => {
+  const layout = computed<PageLayoutKey>(() => {
     const val = page.value?.layout
     return ['default', 'minimal', 'vertical-scroll'].includes(val as string)
-      ? (val as LayoutKey)
+      ? (val as PageLayoutKey)
       : 'default'
   })
 

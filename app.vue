@@ -15,6 +15,7 @@
       <div
         v-if="showSwarm"
         class="pointer-events-none fixed inset-0 z-9000 overflow-hidden"
+        aria-hidden="true"
       >
         <butterfly-animation />
       </div>
@@ -55,49 +56,16 @@
       <NuxtPage />
     </NuxtLayout>
 
-    <div class="fixed bottom-4 left-4 z-10001">
-      <button
-        v-if="!debugPanelOpen"
-        class="btn btn-xs btn-ghost rounded-2xl opacity-30 transition-opacity hover:opacity-70"
-        @click="debugPanelOpen = true"
+    <!-- Viewport indicator: simple, centered, no toggle -->
+    <ClientOnly>
+      <div
+        class="pointer-events-none fixed bottom-3 left-1/2 z-10001 -translate-x-1/2"
       >
-        ⚙
-      </button>
-
-      <Transition
-        enter-active-class="transition-[opacity,transform] duration-[180ms] ease-in-out"
-        leave-active-class="transition-[opacity,transform] duration-[180ms] ease-in-out"
-        enter-from-class="translate-y-2 opacity-0"
-        leave-to-class="translate-y-2 opacity-0"
-      >
-        <div
-          v-if="debugPanelOpen"
-          class="rounded-2xl border border-base-300 bg-base-100/95 shadow-2xl backdrop-blur"
-        >
-          <div class="flex min-w-[16rem] flex-col gap-3 p-3">
-            <div class="flex items-center justify-between gap-2">
-              <div
-                class="text-xs font-black uppercase tracking-[0.3em] text-primary"
-              >
-                Debug
-              </div>
-              <button
-                class="btn btn-xs btn-ghost rounded-2xl"
-                @click="debugPanelOpen = false"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div class="space-y-0.5 text-xs opacity-60">
-              <div>Viewport: {{ displayStore.viewportSize }}</div>
-              <div>Resolved: {{ layoutStore.resolvedLayout }}</div>
-              <div>Layout: {{ layoutStore.currentLayout }}</div>
-            </div>
-          </div>
+        <div class="viewport-badge">
+          {{ displayStore.viewportSize }}
         </div>
-      </Transition>
-    </div>
+      </div>
+    </ClientOnly>
   </div>
 </template>
 
@@ -119,8 +87,6 @@ const pageStore = usePageStore()
 const userStore = useUserStore()
 
 const isNavigating = ref(false)
-const debugPanelOpen = ref(false)
-
 const showSwarm = computed(() => smartbarStore.showSwarm)
 
 let removeAfter: (() => void) | null = null
@@ -133,15 +99,11 @@ onMounted(async () => {
       clearTimeout(navigationTimer)
       navigationTimer = null
     }
-
     isNavigating.value = true
   })
 
   removeAfter = router.afterEach(() => {
-    if (navigationTimer) {
-      clearTimeout(navigationTimer)
-    }
-
+    if (navigationTimer) clearTimeout(navigationTimer)
     navigationTimer = setTimeout(() => {
       isNavigating.value = false
       navigationTimer = null
@@ -165,7 +127,6 @@ onUnmounted(() => {
     clearTimeout(navigationTimer)
     navigationTimer = null
   }
-
   removeBefore?.()
   removeAfter?.()
 })
@@ -174,3 +135,20 @@ useHead({
   link: [{ rel: 'icon', type: 'image/png', href: 'favicon.ico' }],
 })
 </script>
+
+<style>
+.viewport-badge {
+  background: oklch(var(--b2, 0.2 0 0) / 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid oklch(var(--bc, 0.5 0 0) / 0.12);
+  border-radius: 9999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: oklch(var(--bc, 0.5 0 0) / 0.35);
+  user-select: none;
+  white-space: nowrap;
+}
+</style>

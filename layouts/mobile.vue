@@ -1,21 +1,31 @@
 <!-- /layouts/mobile.vue -->
 <template>
-  <div class="flex flex-col min-h-dvh w-full overflow-hidden bg-base-100">
+  <div class="relative flex flex-col min-h-dvh w-full overflow-hidden bg-base-100">
+    <div class="pointer-events-none absolute inset-0 bg-success/5"></div>
+
     <div
       v-if="showHeader"
-      class="w-full shrink-0"
+      class="relative z-10 w-full shrink-0 border-b border-base-300 bg-success/10"
       :style="{ height: `calc(var(--vh) * ${headerHeight})` }"
     >
-      <header class="h-full w-full">
+      <div class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-success bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-success shadow-lg">
+        Mobile Header
+      </div>
+
+      <header class="h-full w-full pt-8">
         <slot name="header">
           <main-header />
         </slot>
       </header>
     </div>
 
-    <div class="flex-1 min-h-0 w-full overflow-hidden">
-      <main class="h-full w-full overflow-y-auto overscroll-y-contain">
-        <div class="container mx-auto h-full w-full px-2 py-2">
+    <div class="relative z-10 flex-1 min-h-0 w-full overflow-hidden">
+      <main class="relative h-full w-full overflow-y-auto overscroll-y-contain bg-accent/5">
+        <div class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-accent bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-accent shadow-lg">
+          Mobile Main
+        </div>
+
+        <div class="container mx-auto h-full w-full px-2 py-10">
           <slot />
         </div>
       </main>
@@ -23,10 +33,14 @@
 
     <div
       v-if="showFooter"
-      class="w-full shrink-0"
+      class="relative z-10 w-full shrink-0 border-t border-base-300 bg-success/10"
       :style="{ height: `calc(var(--vh) * ${footerHeight})` }"
     >
-      <footer class="h-full w-full">
+      <div class="pointer-events-none absolute left-2 top-2 z-20 rounded-2xl border border-success bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-success shadow-lg">
+        Mobile Footer
+      </div>
+
+      <footer class="h-full w-full pt-8">
         <slot name="footer">
           <main-footer />
         </slot>

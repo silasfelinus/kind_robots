@@ -17,21 +17,7 @@
       class="pointer-events-none fixed inset-0 z-9000 overflow-hidden"
       aria-hidden="true"
     >
-      <div
-        v-for="butterfly in butterflies"
-        :key="butterfly.id"
-        class="absolute [animation-name:butterfly-float] [animation-timing-function:ease-in-out] [animation-iteration-count:infinite] will-change-[transform,opacity] text-secondary/70"
-        :style="{
-          left: butterfly.left,
-          top: butterfly.top,
-          animationDelay: butterfly.delay,
-          animationDuration: butterfly.duration,
-          fontSize: butterfly.size,
-          transform: `rotate(${butterfly.rotate})`,
-        }"
-      >
-        🦋
-      </div>
+      <butterfly-animation />
     </div>
 
     <!-- Navigation loading overlay -->
@@ -129,16 +115,6 @@ import { useLayoutStore } from '@/stores/layoutStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 
-interface ButterflyItem {
-  id: number
-  left: string
-  top: string
-  delay: string
-  duration: string
-  size: string
-  rotate: string
-}
-
 const router = useRouter()
 const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
@@ -150,81 +126,6 @@ const isNavigating = ref(false)
 const debugPanelOpen = ref(false)
 
 const showSwarm = computed(() => smartbarStore.showSwarm)
-
-const butterflies = computed<ButterflyItem[]>(() => [
-  {
-    id: 1,
-    left: '6%',
-    top: '14%',
-    delay: '0s',
-    duration: '12s',
-    size: '1.6rem',
-    rotate: '-12deg',
-  },
-  {
-    id: 2,
-    left: '18%',
-    top: '62%',
-    delay: '1.2s',
-    duration: '15s',
-    size: '2rem',
-    rotate: '8deg',
-  },
-  {
-    id: 3,
-    left: '32%',
-    top: '28%',
-    delay: '2.4s',
-    duration: '13s',
-    size: '1.4rem',
-    rotate: '-4deg',
-  },
-  {
-    id: 4,
-    left: '48%',
-    top: '70%',
-    delay: '0.8s',
-    duration: '16s',
-    size: '1.9rem',
-    rotate: '10deg',
-  },
-  {
-    id: 5,
-    left: '58%',
-    top: '18%',
-    delay: '1.8s',
-    duration: '14s',
-    size: '1.5rem',
-    rotate: '-10deg',
-  },
-  {
-    id: 6,
-    left: '72%',
-    top: '54%',
-    delay: '3s',
-    duration: '17s',
-    size: '2.1rem',
-    rotate: '6deg',
-  },
-  {
-    id: 7,
-    left: '84%',
-    top: '22%',
-    delay: '2.1s',
-    duration: '12.5s',
-    size: '1.5rem',
-    rotate: '-14deg',
-  },
-  {
-    id: 8,
-    left: '90%',
-    top: '74%',
-    delay: '0.4s',
-    duration: '18s',
-    size: '1.8rem',
-    rotate: '12deg',
-  },
-])
 
 let removeAfter: (() => void) | null = null
 let removeBefore: (() => void) | null = null
@@ -257,29 +158,3 @@ useHead({
   link: [{ rel: 'icon', type: 'image/png', href: 'favicon.ico' }],
 })
 </script>
-
-<style>
-/* butterfly-float cannot be expressed in Tailwind — keyframe animation with
-   translate3d and multi-stop opacity. Defined globally (not scoped) so the
-   arbitrary [animation-name:butterfly-float] class on the butterfly divs can reach it. */
-@keyframes butterfly-float {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
-    opacity: 0.2;
-  }
-  20% {
-    opacity: 0.7;
-  }
-  50% {
-    transform: translate3d(28px, -36px, 0) rotate(6deg) scale(1.06);
-    opacity: 0.9;
-  }
-  80% {
-    opacity: 0.65;
-  }
-  100% {
-    transform: translate3d(-22px, -84px, 0) rotate(-8deg) scale(0.98);
-    opacity: 0.15;
-  }
-}
-</style>

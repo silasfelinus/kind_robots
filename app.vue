@@ -226,16 +226,24 @@ const butterflies = computed<ButterflyItem[]>(() => [
   },
 ])
 
+let removeAfter: (() => void) | null = null
+let removeBefore: (() => void) | null = null
+
 onMounted(() => {
-  router.beforeEach(() => {
+  removeBefore = router.beforeEach(() => {
     isNavigating.value = true
   })
 
-  router.afterEach(() => {
+  removeAfter = router.afterEach(() => {
     setTimeout(() => {
       isNavigating.value = false
     }, 450)
   })
+})
+
+onUnmounted(() => {
+  removeBefore?.()
+  removeAfter?.()
 })
 
 onMounted(async () => {

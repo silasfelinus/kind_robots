@@ -37,7 +37,7 @@
               Loading
             </div>
             <p class="mt-2 text-sm opacity-80">
-              Butterflies are pretending this is absolutely under control.
+              The butterflies are filing a very professional incident report.
             </p>
           </div>
         </div>
@@ -48,17 +48,137 @@
       <NuxtPage />
     </NuxtLayout>
 
-    <milestone-popup />
+    <div class="fixed bottom-4 left-4 z-[10001]">
+      <div class="rounded-2xl border border-base-300 bg-base-100/95 shadow-2xl backdrop-blur">
+        <div class="flex flex-col gap-3 p-3 min-w-[18rem]">
+          <div class="flex items-center justify-between gap-2">
+            <div class="text-xs font-black uppercase tracking-[0.3em] text-primary">
+              Layout Panel
+            </div>
 
-  <debug-panel />
+            <button
+              class="btn btn-xs rounded-2xl"
+              :class="debugStore.enabled ? 'btn-primary' : 'btn-outline'"
+              @click="toggleDebug"
+            >
+              {{ debugStore.enabled ? 'Debug On' : 'Debug Off' }}
+            </button>
+          </div>
 
-    <div class="pointer-events-none fixed bottom-3 right-3 z-[10000]">
-      <div class="rounded-2xl border border-primary bg-base-100/90 px-4 py-2 shadow-xl backdrop-blur">
-        <div class="text-[10px] font-black uppercase tracking-[0.3em] text-primary">
-          App Shell
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              class="btn btn-sm rounded-2xl"
+              :class="debugStore.showHeader ? 'btn-success' : 'btn-outline'"
+              @click="debugStore.toggle('header')"
+            >
+              H1 {{ debugStore.showHeader ? 'On' : 'Off' }}
+            </button>
+
+            <button
+              class="btn btn-sm rounded-2xl"
+              :class="debugStore.showFooter ? 'btn-success' : 'btn-outline'"
+              @click="debugStore.toggle('footer')"
+            >
+              F4 {{ debugStore.showFooter ? 'On' : 'Off' }}
+            </button>
+
+            <button
+              class="btn btn-sm rounded-2xl"
+              :class="debugStore.showLeft ? 'btn-success' : 'btn-outline'"
+              @click="debugStore.toggle('left')"
+            >
+              L2 {{ debugStore.showLeft ? 'On' : 'Off' }}
+            </button>
+
+            <button
+              class="btn btn-sm rounded-2xl"
+              :class="debugStore.showRight ? 'btn-success' : 'btn-outline'"
+              @click="debugStore.toggle('right')"
+            >
+              R3 {{ debugStore.showRight ? 'On' : 'Off' }}
+            </button>
+          </div>
+
+          <div class="border-t border-base-300 pt-2">
+            <div class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-secondary">
+              Filler
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                class="btn btn-xs rounded-2xl"
+                :class="debugStore.fillerHeader ? 'btn-secondary' : 'btn-outline'"
+                @click="debugStore.toggleFiller('header')"
+              >
+                Header
+              </button>
+
+              <button
+                class="btn btn-xs rounded-2xl"
+                :class="debugStore.fillerFooter ? 'btn-secondary' : 'btn-outline'"
+                @click="debugStore.toggleFiller('footer')"
+              >
+                Footer
+              </button>
+
+              <button
+                class="btn btn-xs rounded-2xl"
+                :class="debugStore.fillerLeft ? 'btn-secondary' : 'btn-outline'"
+                @click="debugStore.toggleFiller('left')"
+              >
+                Left
+              </button>
+
+              <button
+                class="btn btn-xs rounded-2xl"
+                :class="debugStore.fillerRight ? 'btn-secondary' : 'btn-outline'"
+                @click="debugStore.toggleFiller('right')"
+              >
+                Right
+              </button>
+
+              <button
+                class="btn btn-xs rounded-2xl col-span-2"
+                :class="debugStore.fillerMain ? 'btn-secondary' : 'btn-outline'"
+                @click="debugStore.toggleFiller('main')"
+              >
+                Main
+              </button>
+            </div>
+          </div>
+
+          <div class="border-t border-base-300 pt-2">
+            <div class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-accent">
+              Presets
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button class="btn btn-xs btn-outline rounded-2xl" @click="debugStore.setPreset('mobile')">
+                Mobile
+              </button>
+              <button class="btn btn-xs btn-outline rounded-2xl" @click="debugStore.setPreset('tablet')">
+                Tablet
+              </button>
+              <button class="btn btn-xs btn-outline rounded-2xl" @click="debugStore.setPreset('desktop')">
+                Desktop
+              </button>
+              <button class="btn btn-xs btn-primary rounded-2xl" @click="debugStore.setPreset('all')">
+                Show All
+              </button>
+            </div>
+          </div>
+
+          <div class="border-t border-base-300 pt-2 text-xs opacity-80">
+            <div>Viewport: {{ displayStore.viewportSize }}</div>
+            <div>Resolved: {{ layoutStore.resolvedLayout }}</div>
+            <div>Layout Setting: {{ layoutStore.currentLayout }}</div>
+            <div>Page Footer: {{ Boolean(pageStore.page?.showFooter) }}</div>
+          </div>
         </div>
       </div>
     </div>
+
+    <milestone-popup />
   </div>
 </template>
 
@@ -71,6 +191,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 import { useLayoutStore } from '@/stores/layoutStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
+import { useDebugStore } from '@/stores/debugStore'
 
 interface ButterflyItem {
   id: number
@@ -88,6 +209,7 @@ const displayStore = useDisplayStore()
 const layoutStore = useLayoutStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
+const debugStore = useDebugStore()
 
 const isNavigating = ref(false)
 
@@ -167,6 +289,15 @@ const butterflies = computed<ButterflyItem[]>(() => [
     rotate: '12deg',
   },
 ])
+
+function toggleDebug() {
+  if (debugStore.enabled) {
+    debugStore.disable()
+    return
+  }
+
+  debugStore.enable()
+}
 
 router.beforeEach(() => {
   isNavigating.value = true

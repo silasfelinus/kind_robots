@@ -2,6 +2,7 @@
   {
     "folderName": "admin",
     "components": [
+      "debug-panel",
       "error-popup",
       "footer-debug",
       "karma-tracker",
@@ -18,6 +19,7 @@
     "folderName": "art",
     "components": [
       "add-art",
+      "add-server",
       "art-card",
       "art-control",
       "art-display",
@@ -32,11 +34,14 @@
       "checkpoint-gallery",
       "collection-gallery",
       "collection-selector",
+      "edit-server",
       "image-upload",
       "image-view",
       "list-manager",
       "new-editor",
-      "random-gallery"
+      "random-gallery",
+      "server-gallery",
+      "server-selector"
     ]
   },
   {
@@ -228,21 +233,15 @@
       "ami-chat",
       "corner-panel",
       "corner-toggle",
-      "flip-animation",
-      "flip-basic",
-      "flip-demo",
-      "flip-new",
-      "flip-stepper",
-      "flip-test",
       "full-header",
+      "layout-region",
       "smart-back",
       "smart-card",
-      "smart-dash",
-      "smart-flip",
       "smart-front",
       "smart-icons",
       "smart-image",
       "smart-panel",
+      "smart-toggle",
       "splash-tutorial",
       "title-card",
       "tutorial-toggle"

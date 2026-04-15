@@ -30,7 +30,7 @@
     <transition name="fade">
       <div
         v-if="isNavigating"
-        class="pointer-events-none fixed inset-0 z-9500lex items-center justify-center bg-base-200/55 backdrop-blur-sm"
+        class="pointer-events-none fixed inset-0 z-9500 flex items-center justify-center bg-base-200/55 backdrop-blur-sm"
       >
         <div
           class="flex flex-col items-center gap-4 rounded-2xl border border-info bg-base-100/90 px-6 py-5 shadow-2xl"
@@ -61,7 +61,7 @@
       <div
         class="rounded-2xl border border-base-300 bg-base-100/95 shadow-2xl backdrop-blur"
       >
-        <div class="flex flex-col gap-3 p-3 min-w-[18rem]">
+        <div class="flex min-w-[18rem] flex-col gap-3 p-3">
           <div class="flex items-center justify-between gap-2">
             <div
               class="text-xs font-black uppercase tracking-[0.3em] text-primary"
@@ -159,7 +159,7 @@
               </button>
 
               <button
-                class="btn btn-xs rounded-2xl col-span-2"
+                class="btn btn-xs col-span-2 rounded-2xl"
                 :class="debugStore.fillerMain ? 'btn-secondary' : 'btn-outline'"
                 @click="debugStore.toggleFiller('main')"
               >
@@ -356,11 +356,6 @@ onMounted(async () => {
 
 useHead({
   link: [{ rel: 'icon', type: 'image/png', href: 'favicon.ico' }],
-})
-
-onMounted(() => {
-  displayStore.initialize()
-  layoutStore.initializeStore()
 })
 </script>
 

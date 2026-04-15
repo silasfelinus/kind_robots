@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     console.log('[server.get] Fetching servers...')
 
     const { isValid, user } = await validateApiKey(event)
-    console.log('[DB URL]', process.env.DATABASE_URL)
+    console.log('[DATABASE_URL]', process.env.DATABASE_URL)
     const includeUserData = isValid && user && typeof user.id === 'number'
 
     const whereClause = includeUserData

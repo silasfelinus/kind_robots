@@ -1,10 +1,12 @@
 <!-- /layouts/mobile.vue -->
 <template>
-  <div class="relative flex flex-col min-h-dvh w-full overflow-hidden bg-base-100">
+  <div
+    class="relative flex flex-col min-h-dvh w-full overflow-hidden bg-base-100"
+  >
     <div class="pointer-events-none absolute inset-0 bg-success/5"></div>
 
     <div
-      class="pointer-events-none fixed right-2 top-2 z-[120] rounded-2xl border border-success bg-success/20 px-3 py-1 text-xs font-bold text-success-content"
+      class="pointer-events-none fixed right-2 top-2 z-120 rounded-2xl border border-success bg-success/20 px-3 py-1 text-xs font-bold text-success-content"
     >
       MOBILE LAYOUT
     </div>
@@ -81,14 +83,19 @@
             </div>
 
             <div class="grid gap-3">
-              <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4">
+              <div
+                class="rounded-2xl border border-base-300 bg-base-100/80 p-4"
+              >
                 <div class="font-bold">Card One</div>
                 <div class="mt-2 text-sm opacity-80">
-                  A compact mobile-friendly card with just enough visual proof to stop the void from gaslighting you.
+                  A compact mobile-friendly card with just enough visual proof
+                  to stop the void from gaslighting you.
                 </div>
               </div>
 
-              <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4">
+              <div
+                class="rounded-2xl border border-base-300 bg-base-100/80 p-4"
+              >
                 <div class="font-bold">Card Two</div>
                 <div class="mt-2 flex flex-wrap gap-2">
                   <button class="btn btn-xs rounded-2xl">Action</button>
@@ -141,7 +148,6 @@
 <script setup lang="ts">
 // /layouts/mobile.vue
 import { computed } from 'vue'
-import LayoutRegion from '@/components/layout/layout-region.vue'
 import { useDebugStore } from '@/stores/debugStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'

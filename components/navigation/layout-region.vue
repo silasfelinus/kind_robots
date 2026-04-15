@@ -104,11 +104,11 @@ const regionTitles: Record<DisplayRegionKey, string> = {
 }
 
 const regionIcons: Record<DisplayRegionKey, string> = {
-  header: 'kind-icon:smarttoy.',
-  left: 'kind-icon:apps.',
-  main: 'kind-icon:dashboard.',
-  right: 'kind-icon:settings.',
-  footer: 'kind-icon:drag_handle.',
+  header: 'kind-icon:smarttoy',
+  left: 'kind-icon:apps',
+  main: 'kind-icon:dashboard',
+  right: 'kind-icon:settings',
+  footer: 'kind-icon:drag_handle',
 }
 
 const resolvedTitle = computed(() => props.title || regionTitles[props.region])

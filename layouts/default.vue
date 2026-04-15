@@ -1,9 +1,13 @@
 <!-- /layouts/default.vue -->
 <template>
   <div class="relative min-h-dvh w-full">
-    <div class="pointer-events-none fixed left-3 top-3 z-[10000]">
-      <div class="rounded-2xl border border-secondary bg-base-100/90 px-4 py-2 shadow-xl backdrop-blur">
-        <div class="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">
+    <div class="pointer-events-none fixed left-3 top-3 z-10000">
+      <div
+        class="rounded-2xl border border-secondary bg-base-100/90 px-4 py-2 shadow-xl backdrop-blur"
+      >
+        <div
+          class="text-[10px] font-black uppercase tracking-[0.3em] text-secondary"
+        >
           Default → {{ resolvedLayoutKey }}
         </div>
       </div>

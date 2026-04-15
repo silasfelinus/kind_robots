@@ -2,7 +2,7 @@
 <template>
   <div class="flex flex-col min-h-dvh w-full overflow-hidden bg-base-100">
     <div
-      class="pointer-events-none fixed right-2 top-2 z-[120] rounded-2xl border border-info bg-info/20 px-3 py-1 text-xs font-bold text-info-content"
+      class="pointer-events-none fixed right-2 top-2 z-120 rounded-2xl border border-info bg-info/20 px-3 py-1 text-xs font-bold text-info-content"
     >
       DESKTOP LAYOUT
     </div>

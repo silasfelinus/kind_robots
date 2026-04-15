@@ -1,9 +1,16 @@
-<!-- /components/layout/layout-region.vue -->
+<!-- /components/navigation/layout-region.vue -->
 <template>
   <section
     v-if="show"
     class="relative min-h-0 overflow-hidden"
-    :class="[baseClass, toneClass, paddingClass, roundedClass, borderClass, sectionClass]"
+    :class="[
+      baseClass,
+      toneClass,
+      paddingClass,
+      roundedClass,
+      borderClass,
+      sectionClass,
+    ]"
     :style="sectionStyle"
   >
     <div
@@ -57,14 +64,14 @@
     <div class="h-full min-h-0 w-full" :class="contentClass">
       <slot v-if="!showFiller" />
       <slot v-else name="filler">
-        <div class="flex h-full min-h-[8rem] items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-4 text-center">
+        <div
+          class="flex h-full min-h-32 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-4 text-center"
+        >
           <div>
             <div class="text-sm font-black uppercase tracking-[0.2em]">
               {{ title }}
             </div>
-            <div class="mt-2 text-sm opacity-70">
-              Filler content
-            </div>
+            <div class="mt-2 text-sm opacity-70">Filler content</div>
           </div>
         </div>
       </slot>
@@ -73,11 +80,31 @@
 </template>
 
 <script setup lang="ts">
+// /components/navigation/layout-region.vue
 import { computed, type CSSProperties } from 'vue'
 
-type RegionTone = 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'info' | 'neutral'
+type RegionTone =
+  | 'primary'
+  | 'secondary'
+  | 'accent'
+  | 'success'
+  | 'warning'
+  | 'info'
+  | 'neutral'
+
+type ToggleTone =
+  | 'neutral'
+  | 'primary'
+  | 'secondary'
+  | 'accent'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'ghost'
+
 type ToggleSide = 'left' | 'right'
 type RegionPadding = 'none' | 'sm' | 'md' | 'lg'
+type ToggleLabelPosition = 'top' | 'bottom' | 'left' | 'right'
 
 interface LayoutRegionProps {
   title: string
@@ -159,7 +186,7 @@ const labelToneClassMap: Record<RegionTone, string> = {
   neutral: 'border-base-300 text-base-content',
 }
 
-const toggleToneMap: Record<RegionTone, string> = {
+const toggleToneMap: Record<RegionTone, ToggleTone> = {
   primary: 'primary',
   secondary: 'secondary',
   accent: 'accent',
@@ -178,22 +205,20 @@ const paddingClassMap: Record<RegionPadding, string> = {
 
 const toneClass = computed(() => toneClassMap[props.tone])
 const labelToneClass = computed(() => labelToneClassMap[props.tone])
-const toggleTone = computed(() => toggleToneMap[props.tone])
+const toggleTone = computed<ToggleTone>(() => toggleToneMap[props.tone])
 const paddingClass = computed(() => paddingClassMap[props.padded])
 const roundedClass = computed(() => (props.rounded ? 'rounded-2xl' : ''))
 const borderClass = computed(() =>
   props.bordered ? 'border border-base-300' : '',
 )
 
-const labelPositionClass = computed(() => {
-  return props.toggleSide === 'left' ? 'left-2' : 'left-2'
-})
+const labelPositionClass = computed(() => 'left-2')
 
 const togglePositionClass = computed(() => {
   return props.toggleSide === 'left' ? 'left-2' : 'right-2'
 })
 
-const toggleLabelPosition = computed(() => {
+const toggleLabelPosition = computed<ToggleLabelPosition>(() => {
   return props.toggleSide === 'left' ? 'right' : 'left'
 })
 

@@ -357,6 +357,11 @@ onMounted(async () => {
 useHead({
   link: [{ rel: 'icon', type: 'image/png', href: 'favicon.ico' }],
 })
+
+onMounted(() => {
+  displayStore.initialize()
+  layoutStore.initializeStore()
+})
 </script>
 
 <style scoped>

@@ -3,7 +3,13 @@
   <div
     class="relative h-dvh w-full overflow-hidden bg-base-200 text-base-content"
   >
-    <NuxtLoadingIndicator />
+    <div class="pointer-events-auto">
+      <footer-toggle />
+      <kind-loader />
+      <milestone-popup />
+    </div>
+
+    <animation-loader class="fixed z-50 pointer-events-none" />
 
     <!-- Butterfly swarm overlay -->
     <div
@@ -14,7 +20,7 @@
       <div
         v-for="butterfly in butterflies"
         :key="butterfly.id"
-        class="absolute animate-butterfly-float text-secondary/70"
+        class="absolute [animation-name:butterfly-float] [animation-timing-function:ease-in-out] [animation-iteration-count:infinite] will-change-[transform,opacity] text-secondary/70"
         :style="{
           left: butterfly.left,
           top: butterfly.top,
@@ -29,7 +35,12 @@
     </div>
 
     <!-- Navigation loading overlay -->
-    <transition name="fade">
+    <Transition
+      enter-active-class="transition-opacity duration-[220ms] ease-in-out"
+      leave-active-class="transition-opacity duration-[220ms] ease-in-out"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
       <div
         v-if="isNavigating"
         class="pointer-events-none fixed inset-0 z-9500 flex items-center justify-center bg-base-200/55 backdrop-blur-sm"
@@ -53,24 +64,29 @@
           </div>
         </div>
       </div>
-    </transition>
+    </Transition>
 
     <!-- Main layout -->
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
 
-    <!-- Debug panel — collapsible pill, bottom-left -->
+    <!-- Debug panel — collapsible gear, bottom-left -->
     <div class="fixed bottom-4 left-4 z-10001">
       <button
         v-if="!debugPanelOpen"
-        class="btn btn-xs btn-ghost rounded-2xl opacity-30 hover:opacity-70 transition-opacity"
+        class="btn btn-xs btn-ghost rounded-2xl opacity-30 transition-opacity hover:opacity-70"
         @click="debugPanelOpen = true"
       >
         ⚙
       </button>
 
-      <transition name="panel-slide">
+      <Transition
+        enter-active-class="transition-[opacity,transform] duration-[180ms] ease-in-out"
+        leave-active-class="transition-[opacity,transform] duration-[180ms] ease-in-out"
+        enter-from-class="opacity-0 translate-y-2"
+        leave-to-class="opacity-0 translate-y-2"
+      >
         <div
           v-if="debugPanelOpen"
           class="rounded-2xl border border-base-300 bg-base-100/95 shadow-2xl backdrop-blur"
@@ -90,76 +106,16 @@
               </button>
             </div>
 
-            <!-- Filler content toggles -->
-            <div>
-              <div
-                class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-secondary"
-              >
-                Filler Content
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <button
-                  class="btn btn-xs rounded-2xl"
-                  :class="
-                    debugStore.fillerHeader ? 'btn-secondary' : 'btn-outline'
-                  "
-                  @click="debugStore.toggleFiller('header')"
-                >
-                  Header
-                </button>
-                <button
-                  class="btn btn-xs rounded-2xl"
-                  :class="
-                    debugStore.fillerFooter ? 'btn-secondary' : 'btn-outline'
-                  "
-                  @click="debugStore.toggleFiller('footer')"
-                >
-                  Footer
-                </button>
-                <button
-                  class="btn btn-xs rounded-2xl"
-                  :class="
-                    debugStore.fillerLeft ? 'btn-secondary' : 'btn-outline'
-                  "
-                  @click="debugStore.toggleFiller('left')"
-                >
-                  Left
-                </button>
-                <button
-                  class="btn btn-xs rounded-2xl"
-                  :class="
-                    debugStore.fillerRight ? 'btn-secondary' : 'btn-outline'
-                  "
-                  @click="debugStore.toggleFiller('right')"
-                >
-                  Right
-                </button>
-                <button
-                  class="btn btn-xs col-span-2 rounded-2xl"
-                  :class="
-                    debugStore.fillerMain ? 'btn-secondary' : 'btn-outline'
-                  "
-                  @click="debugStore.toggleFiller('main')"
-                >
-                  Main
-                </button>
-              </div>
-            </div>
-
             <!-- Viewport info -->
-            <div
-              class="border-t border-base-300 pt-2 text-xs opacity-60 space-y-0.5"
-            >
+            <div class="text-xs opacity-60 space-y-0.5">
               <div>Viewport: {{ displayStore.viewportSize }}</div>
               <div>Resolved: {{ layoutStore.resolvedLayout }}</div>
               <div>Layout: {{ layoutStore.currentLayout }}</div>
             </div>
           </div>
         </div>
-      </transition>
+      </Transition>
     </div>
-
-    <milestone-popup />
   </div>
 </template>
 
@@ -189,7 +145,6 @@ const displayStore = useDisplayStore()
 const layoutStore = useLayoutStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
-const debugStore = useDebugStore()
 
 const isNavigating = ref(false)
 const debugPanelOpen = ref(false)
@@ -292,7 +247,10 @@ useHead({
 })
 </script>
 
-<style scoped>
+<style>
+/* butterfly-float cannot be expressed in Tailwind — keyframe animation with
+   translate3d and multi-stop opacity. Defined globally (not scoped) so the
+   arbitrary [animation-name:butterfly-float] class on the butterfly divs can reach it. */
 @keyframes butterfly-float {
   0% {
     transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
@@ -312,32 +270,5 @@ useHead({
     transform: translate3d(-22px, -84px, 0) rotate(-8deg) scale(0.98);
     opacity: 0.15;
   }
-}
-.animate-butterfly-float {
-  animation-name: butterfly-float;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  will-change: transform, opacity;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.22s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.panel-slide-enter-active,
-.panel-slide-leave-active {
-  transition:
-    opacity 0.18s ease,
-    transform 0.18s ease;
-}
-.panel-slide-enter-from,
-.panel-slide-leave-to {
-  opacity: 0;
-  transform: translateY(8px);
 }
 </style>

@@ -21,7 +21,7 @@ const contentSchema = z.object({
   path: z.string(),
   description: z.string().optional(),
   underConstruction: z.boolean().optional(),
-showFooter: z.boolean().optional(),
+  showFooter: z.boolean().optional(),
   seo: z
     .intersection(
       z.object({
@@ -32,7 +32,6 @@ showFooter: z.boolean().optional(),
       }),
       z.record(z.string(), z.any()),
     )
-    .optional()
     .default({}),
   body: z.object({
     type: z.string(),

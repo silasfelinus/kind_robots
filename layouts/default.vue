@@ -3,228 +3,185 @@
   <div
     class="flex h-dvh w-full flex-col overflow-hidden bg-base-100 text-base-content"
   >
+    <!-- ═══ HEADER ═══ -->
     <section
       v-if="showHeader"
       class="relative flex-none w-full border-b border-base-300"
       :style="{ height: `calc(var(--vh, 1vh) * ${headerHeight})` }"
     >
-      <span
-        class="pointer-events-none absolute right-[0.65rem] top-[0.45rem] z-10 whitespace-nowrap rounded-full border border-base-content/10 bg-base-100/70 px-[0.42rem] py-[0.18rem] text-[0.58rem] font-black uppercase tracking-[0.22em] text-base-content/30 backdrop-blur-md"
-      >
-        Header
-      </span>
-
+      <span class="region-label">Header</span>
       <button
-        class="absolute right-[0.4rem] top-[0.4rem] z-20 flex h-[1.4rem] w-[1.4rem] items-center justify-center rounded-full border border-base-content/15 bg-base-100/70 text-[0.6rem] leading-none text-base-content/45 backdrop-blur-md transition hover:border-error/35 hover:bg-error/12 hover:text-error"
+        class="region-toggle"
         title="Hide header"
         @click="displayStore.changeState('headerState', 'hidden')"
       >
         ✕
       </button>
-
       <div class="h-full w-full min-h-0">
-        <slot name="header">
-          <main-header />
-        </slot>
+        <slot name="header"><main-header /></slot>
       </div>
     </section>
-
     <button
       v-else
-      class="flex h-5 w-full flex-none items-center justify-center border-y border-dashed border-base-content/15 bg-transparent text-[0.58rem] font-extrabold uppercase tracking-[0.16em] text-base-content/30 transition hover:bg-base-content/5 hover:text-base-content/65"
+      class="region-restore-h"
       @click="displayStore.changeState('headerState', 'open')"
     >
       + Header
     </button>
 
-    <template v-if="isMobile">
-      <main class="relative flex-1 min-h-0 w-full overflow-hidden">
-        <span
-          class="pointer-events-none absolute right-[0.65rem] top-[0.45rem] z-10 whitespace-nowrap rounded-full border border-base-content/10 bg-base-100/70 px-[0.42rem] py-[0.18rem] text-[0.58rem] font-black uppercase tracking-[0.22em] text-base-content/20 backdrop-blur-md"
-        >
-          {{ mobileRegionLabel }}
-        </span>
+    <!-- ═══ BODY ═══
+         ClientOnly gates the mobile/desktop branch so the server always renders
+         the same tree, and the correct layout is applied only on the client.
+         The fallback renders a neutral shell that matches the desktop structure
+         closely enough that the initial paint looks correct before hydration.
+    -->
+    <ClientOnly>
+      <!-- MOBILE: full-page panel switcher -->
+      <template v-if="isMobile">
+        <main class="relative flex-1 min-h-0 w-full overflow-hidden">
+          <span class="region-label region-label--dim">{{
+            mobileRegionLabel
+          }}</span>
 
-        <div
-          class="absolute left-[0.45rem] top-[0.45rem] z-20 flex gap-[0.35rem]"
-        >
-          <button
-            class="rounded-full border border-base-content/15 bg-base-100/70 px-[0.55rem] py-[0.2rem] text-[0.58rem] font-extrabold uppercase tracking-[0.08em] text-base-content/45 backdrop-blur-md transition hover:bg-base-content/5 hover:text-base-content/70"
-            :class="
-              activeMobileRegion === 'left'
-                ? 'border-primary/35 bg-primary/15 text-primary'
-                : ''
-            "
-            @click="setMobileRegion('left')"
+          <!-- Panel switcher tabs -->
+          <div
+            class="absolute left-[0.45rem] top-[0.45rem] z-20 flex gap-[0.35rem]"
           >
-            Left
+            <button
+              v-for="tab in mobileTabs"
+              :key="tab.region"
+              class="region-tab"
+              :class="
+                activeMobileRegion === tab.region ? 'region-tab--active' : ''
+              "
+              @click="setMobileRegion(tab.region)"
+            >
+              {{ tab.label }}
+            </button>
+          </div>
+
+          <transition name="mobile-panel" mode="out-in">
+            <section
+              :key="activeMobileRegion"
+              class="h-full w-full min-h-0 overflow-y-auto overscroll-contain px-3 py-4"
+            >
+              <template v-if="activeMobileRegion === 'left'">
+                <slot name="left"><left-sidebar /></slot>
+              </template>
+              <template v-else-if="activeMobileRegion === 'right'">
+                <slot name="right"><right-sidebar /></slot>
+              </template>
+              <template v-else>
+                <slot />
+              </template>
+            </section>
+          </transition>
+        </main>
+      </template>
+
+      <!-- DESKTOP/TABLET: sidebar columns -->
+      <template v-else>
+        <div class="flex flex-1 min-h-0 w-full overflow-hidden">
+          <aside
+            v-if="showLeftSidebar"
+            class="relative flex-none h-full border-r border-base-300"
+            :style="{ width: `${sidebarLeftWidth}vw` }"
+          >
+            <span class="region-label region-label--vertical">Left</span>
+            <button
+              class="region-toggle"
+              title="Hide left sidebar"
+              @click="displayStore.changeState('sidebarLeftState', 'hidden')"
+            >
+              ✕
+            </button>
+            <div class="h-full w-full min-h-0 overflow-y-auto">
+              <slot name="left"><left-sidebar /></slot>
+            </div>
+          </aside>
+          <button
+            v-else
+            class="region-restore-v"
+            @click="displayStore.changeState('sidebarLeftState', 'open')"
+          >
+            +
           </button>
 
-          <button
-            class="rounded-full border border-base-content/15 bg-base-100/70 px-[0.55rem] py-[0.2rem] text-[0.58rem] font-extrabold uppercase tracking-[0.08em] text-base-content/45 backdrop-blur-md transition hover:bg-base-content/5 hover:text-base-content/70"
-            :class="
-              activeMobileRegion === 'center'
-                ? 'border-primary/35 bg-primary/15 text-primary'
-                : ''
-            "
-            @click="setMobileRegion('center')"
+          <main
+            class="relative flex-1 min-w-0 h-full overflow-y-auto overscroll-contain"
           >
-            Main
-          </button>
+            <span class="region-label region-label--dim">Main</span>
+            <div class="w-full min-h-0 px-4 py-4">
+              <slot />
+            </div>
+          </main>
 
-          <button
-            class="rounded-full border border-base-content/15 bg-base-100/70 px-[0.55rem] py-[0.2rem] text-[0.58rem] font-extrabold uppercase tracking-[0.08em] text-base-content/45 backdrop-blur-md transition hover:bg-base-content/5 hover:text-base-content/70"
-            :class="
-              activeMobileRegion === 'right'
-                ? 'border-primary/35 bg-primary/15 text-primary'
-                : ''
-            "
-            @click="setMobileRegion('right')"
+          <aside
+            v-if="showRightSidebar"
+            class="relative flex-none h-full border-l border-base-300"
+            :style="{ width: `${sidebarRightWidth}vw` }"
           >
-            Right
+            <span
+              class="region-label region-label--vertical region-label--right"
+              >Right</span
+            >
+            <button
+              class="region-toggle"
+              title="Hide right sidebar"
+              @click="displayStore.changeState('sidebarRightState', 'hidden')"
+            >
+              ✕
+            </button>
+            <div class="h-full w-full min-h-0 overflow-y-auto">
+              <slot name="right"><right-sidebar /></slot>
+            </div>
+          </aside>
+          <button
+            v-else
+            class="region-restore-v"
+            @click="displayStore.changeState('sidebarRightState', 'open')"
+          >
+            +
           </button>
         </div>
+      </template>
 
-        <transition name="mobile-panel" mode="out-in">
-          <section
-            :key="activeMobileRegion"
-            class="h-full w-full min-h-0 overflow-y-auto overscroll-contain px-3 py-4"
+      <!-- SSR fallback: neutral desktop shell — server renders this, client
+           replaces it after hydration. Keeps layout from jumping on first paint. -->
+      <template #fallback>
+        <div class="flex flex-1 min-h-0 w-full overflow-hidden">
+          <main
+            class="relative flex-1 min-w-0 h-full overflow-y-auto overscroll-contain"
           >
-            <template v-if="activeMobileRegion === 'left'">
-              <slot name="left">
-                <left-sidebar />
-              </slot>
-            </template>
-
-            <template v-else-if="activeMobileRegion === 'right'">
-              <slot name="right">
-                <right-sidebar />
-              </slot>
-            </template>
-
-            <template v-else>
+            <div class="w-full min-h-0 px-4 py-4">
               <slot />
-            </template>
-          </section>
-        </transition>
-      </main>
-    </template>
+            </div>
+          </main>
+        </div>
+      </template>
+    </ClientOnly>
 
-    <template v-else>
-      <div class="flex flex-1 min-h-0 w-full overflow-hidden">
-        <aside
-          v-if="showLeftSidebar"
-          class="relative flex-none h-full border-r border-base-300"
-          :style="{ width: `${sidebarLeftWidth}vw` }"
-        >
-          <span
-            class="pointer-events-none absolute left-2 top-1/2 z-10 -translate-y-1/2 -rotate-90 whitespace-nowrap rounded-full border border-base-content/10 bg-base-100/70 px-[0.42rem] py-[0.18rem] text-[0.58rem] font-black uppercase tracking-[0.22em] text-base-content/30 backdrop-blur-md"
-          >
-            Left
-          </span>
-
-          <button
-            class="absolute right-[0.4rem] top-[0.4rem] z-20 flex h-[1.4rem] w-[1.4rem] items-center justify-center rounded-full border border-base-content/15 bg-base-100/70 text-[0.6rem] leading-none text-base-content/45 backdrop-blur-md transition hover:border-error/35 hover:bg-error/12 hover:text-error"
-            title="Hide left sidebar"
-            @click="displayStore.changeState('sidebarLeftState', 'hidden')"
-          >
-            ✕
-          </button>
-
-          <div class="h-full w-full min-h-0 overflow-y-auto">
-            <slot name="left">
-              <left-sidebar />
-            </slot>
-          </div>
-        </aside>
-
-        <button
-          v-else
-          class="flex h-full w-5 flex-none items-center justify-center border-x border-dashed border-base-content/15 bg-transparent text-[0.7rem] text-base-content/30 transition hover:bg-base-content/5 hover:text-base-content/65"
-          @click="displayStore.changeState('sidebarLeftState', 'open')"
-        >
-          +
-        </button>
-
-        <main
-          class="relative flex-1 min-w-0 h-full overflow-y-auto overscroll-contain"
-        >
-          <span
-            class="pointer-events-none absolute right-[0.65rem] top-[0.45rem] z-10 whitespace-nowrap rounded-full border border-base-content/10 bg-base-100/70 px-[0.42rem] py-[0.18rem] text-[0.58rem] font-black uppercase tracking-[0.22em] text-base-content/20 backdrop-blur-md"
-          >
-            Main
-          </span>
-
-          <div class="h-full w-full min-h-0 px-4 py-4">
-            <slot />
-          </div>
-        </main>
-
-        <aside
-          v-if="showRightSidebar"
-          class="relative flex-none h-full border-l border-base-300"
-          :style="{ width: `${sidebarRightWidth}vw` }"
-        >
-          <span
-            class="pointer-events-none absolute right-2 top-1/2 z-10 -translate-y-1/2 rotate-90 whitespace-nowrap rounded-full border border-base-content/10 bg-base-100/70 px-[0.42rem] py-[0.18rem] text-[0.58rem] font-black uppercase tracking-[0.22em] text-base-content/30 backdrop-blur-md"
-          >
-            Right
-          </span>
-
-          <button
-            class="absolute right-[0.4rem] top-[0.4rem] z-20 flex h-[1.4rem] w-[1.4rem] items-center justify-center rounded-full border border-base-content/15 bg-base-100/70 text-[0.6rem] leading-none text-base-content/45 backdrop-blur-md transition hover:border-error/35 hover:bg-error/12 hover:text-error"
-            title="Hide right sidebar"
-            @click="displayStore.changeState('sidebarRightState', 'hidden')"
-          >
-            ✕
-          </button>
-
-          <div class="h-full w-full min-h-0 overflow-y-auto">
-            <slot name="right">
-              <right-sidebar />
-            </slot>
-          </div>
-        </aside>
-
-        <button
-          v-else
-          class="flex h-full w-5 flex-none items-center justify-center border-x border-dashed border-base-content/15 bg-transparent text-[0.7rem] text-base-content/30 transition hover:bg-base-content/5 hover:text-base-content/65"
-          @click="displayStore.changeState('sidebarRightState', 'open')"
-        >
-          +
-        </button>
-      </div>
-    </template>
-
+    <!-- ═══ FOOTER ═══ -->
     <section
       v-if="showFooter"
       class="relative flex-none w-full border-t border-base-300"
       :style="{ height: `calc(var(--vh, 1vh) * ${footerHeight})` }"
     >
-      <span
-        class="pointer-events-none absolute right-[0.65rem] top-[0.45rem] z-10 whitespace-nowrap rounded-full border border-base-content/10 bg-base-100/70 px-[0.42rem] py-[0.18rem] text-[0.58rem] font-black uppercase tracking-[0.22em] text-base-content/30 backdrop-blur-md"
-      >
-        Footer
-      </span>
-
+      <span class="region-label">Footer</span>
       <button
-        class="absolute right-[0.4rem] top-[0.4rem] z-20 flex h-[1.4rem] w-[1.4rem] items-center justify-center rounded-full border border-base-content/15 bg-base-100/70 text-[0.6rem] leading-none text-base-content/45 backdrop-blur-md transition hover:border-error/35 hover:bg-error/12 hover:text-error"
+        class="region-toggle"
         title="Hide footer"
         @click="displayStore.changeState('footerState', 'hidden')"
       >
         ✕
       </button>
-
       <div class="h-full w-full min-h-0">
-        <slot name="footer">
-          <main-footer />
-        </slot>
+        <slot name="footer"><main-footer /></slot>
       </div>
     </section>
-
     <button
       v-else
-      class="flex h-5 w-full flex-none items-center justify-center border-y border-dashed border-base-content/15 bg-transparent text-[0.58rem] font-extrabold uppercase tracking-[0.16em] text-base-content/30 transition hover:bg-base-content/5 hover:text-base-content/65"
+      class="region-restore-h"
       @click="displayStore.changeState('footerState', 'open')"
     >
       + Footer
@@ -239,15 +196,14 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
+// isMobile reads viewport — only safe to use inside ClientOnly
 const isMobile = computed(() => displayStore.viewportSize === 'mobile')
 
 const showHeader = computed(() => displayStore.headerState !== 'hidden')
 const showFooter = computed(() => displayStore.footerState !== 'hidden')
-
 const showLeftSidebar = computed(() =>
   ['open', 'compact'].includes(displayStore.sidebarLeftState),
 )
-
 const showRightSidebar = computed(() =>
   ['open', 'compact'].includes(displayStore.sidebarRightState),
 )
@@ -269,6 +225,12 @@ const mobileRegionLabel = computed(() => {
   return 'Main'
 })
 
+const mobileTabs = [
+  { region: 'left' as const, label: 'Left' },
+  { region: 'center' as const, label: 'Main' },
+  { region: 'right' as const, label: 'Right' },
+]
+
 function setMobileRegion(region: 'left' | 'center' | 'right') {
   displayStore.showLeft = region === 'left'
   displayStore.showCenter = region === 'center'
@@ -278,18 +240,158 @@ function setMobileRegion(region: 'left' | 'center' | 'right') {
 </script>
 
 <style scoped>
+/* ── Region labels ── */
+.region-label {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.65rem;
+  z-index: 10;
+  border-radius: 9999px;
+  border: 1px solid oklch(var(--bc) / 0.1);
+  background: oklch(var(--b1) / 0.7);
+  backdrop-filter: blur(6px);
+  padding: 0.18rem 0.42rem;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: oklch(var(--bc) / 0.3);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+.region-label--vertical {
+  top: 50%;
+  left: 0.5rem;
+  right: auto;
+  transform: translateY(-50%) rotate(-90deg);
+}
+.region-label--right {
+  left: auto;
+  right: 0.5rem;
+  transform: translateY(-50%) rotate(90deg);
+}
+.region-label--dim {
+  color: oklch(var(--bc) / 0.18);
+}
+
+/* ── Toggle buttons ── */
+.region-toggle {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 9999px;
+  border: 1px solid oklch(var(--bc) / 0.13);
+  background: oklch(var(--b1) / 0.7);
+  backdrop-filter: blur(6px);
+  font-size: 0.6rem;
+  line-height: 1;
+  color: oklch(var(--bc) / 0.45);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+.region-toggle:hover {
+  background: oklch(var(--er) / 0.12);
+  border-color: oklch(var(--er) / 0.35);
+  color: oklch(var(--er));
+}
+
+/* ── Restore pills ── */
+.region-restore-h {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 1.25rem;
+  border-top: 1px dashed oklch(var(--bc) / 0.16);
+  border-bottom: 1px dashed oklch(var(--bc) / 0.16);
+  background: transparent;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: oklch(var(--bc) / 0.32);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.region-restore-h:hover {
+  background: oklch(var(--bc) / 0.04);
+  color: oklch(var(--bc) / 0.65);
+}
+
+.region-restore-v {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 100%;
+  border-left: 1px dashed oklch(var(--bc) / 0.16);
+  border-right: 1px dashed oklch(var(--bc) / 0.16);
+  background: transparent;
+  font-size: 0.7rem;
+  color: oklch(var(--bc) / 0.32);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.region-restore-v:hover {
+  background: oklch(var(--bc) / 0.04);
+  color: oklch(var(--bc) / 0.65);
+}
+
+/* ── Mobile panel tabs ── */
+.region-tab {
+  border-radius: 9999px;
+  border: 1px solid oklch(var(--bc) / 0.15);
+  background: oklch(var(--b1) / 0.7);
+  backdrop-filter: blur(6px);
+  padding: 0.2rem 0.55rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(var(--bc) / 0.45);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+.region-tab:hover {
+  background: oklch(var(--bc) / 0.05);
+  color: oklch(var(--bc) / 0.7);
+}
+.region-tab--active {
+  border-color: oklch(var(--p) / 0.35);
+  background: oklch(var(--p) / 0.15);
+  color: oklch(var(--p));
+}
+
+/* ── Mobile panel transitions ── */
 .mobile-panel-enter-active,
 .mobile-panel-leave-active {
   transition:
     opacity 0.18s ease,
     transform 0.18s ease;
 }
-
 .mobile-panel-enter-from {
   opacity: 0;
   transform: translateX(18px);
 }
-
 .mobile-panel-leave-to {
   opacity: 0;
   transform: translateX(-18px);

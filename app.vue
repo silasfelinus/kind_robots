@@ -9,9 +9,8 @@
       <milestone-popup />
     </div>
 
-    <animation-loader class="fixed z-50 pointer-events-none" />
+    <animation-loader class="pointer-events-none fixed z-50" />
 
-    <!-- Butterfly swarm overlay -->
     <div
       v-if="showSwarm"
       class="pointer-events-none fixed inset-0 z-9000 overflow-hidden"
@@ -20,7 +19,6 @@
       <butterfly-animation />
     </div>
 
-    <!-- Navigation loading overlay -->
     <Transition
       enter-active-class="transition-opacity duration-[220ms] ease-in-out"
       leave-active-class="transition-opacity duration-[220ms] ease-in-out"
@@ -52,12 +50,10 @@
       </div>
     </Transition>
 
-    <!-- Main layout -->
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
 
-    <!-- Debug panel — collapsible gear, bottom-left -->
     <div class="fixed bottom-4 left-4 z-10001">
       <button
         v-if="!debugPanelOpen"
@@ -70,8 +66,8 @@
       <Transition
         enter-active-class="transition-[opacity,transform] duration-[180ms] ease-in-out"
         leave-active-class="transition-[opacity,transform] duration-[180ms] ease-in-out"
-        enter-from-class="opacity-0 translate-y-2"
-        leave-to-class="opacity-0 translate-y-2"
+        enter-from-class="translate-y-2 opacity-0"
+        leave-to-class="translate-y-2 opacity-0"
       >
         <div
           v-if="debugPanelOpen"
@@ -92,8 +88,7 @@
               </button>
             </div>
 
-            <!-- Viewport info -->
-            <div class="text-xs opacity-60 space-y-0.5">
+            <div class="space-y-0.5 text-xs opacity-60">
               <div>Viewport: {{ displayStore.viewportSize }}</div>
               <div>Resolved: {{ layoutStore.resolvedLayout }}</div>
               <div>Layout: {{ layoutStore.currentLayout }}</div>
@@ -107,7 +102,7 @@
 
 <script setup lang="ts">
 // /app.vue
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSmartbarStore } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -129,29 +124,49 @@ const showSwarm = computed(() => smartbarStore.showSwarm)
 
 let removeAfter: (() => void) | null = null
 let removeBefore: (() => void) | null = null
+let navigationTimer: ReturnType<typeof setTimeout> | null = null
 
-onMounted(() => {
+onMounted(async () => {
   removeBefore = router.beforeEach(() => {
+    if (navigationTimer) {
+      clearTimeout(navigationTimer)
+      navigationTimer = null
+    }
+
     isNavigating.value = true
   })
 
   removeAfter = router.afterEach(() => {
-    setTimeout(() => {
+    if (navigationTimer) {
+      clearTimeout(navigationTimer)
+    }
+
+    navigationTimer = setTimeout(() => {
       isNavigating.value = false
+      navigationTimer = null
     }, 450)
   })
+
+  if (!displayStore.isInitialized) {
+    displayStore.initialize()
+  }
+
+  layoutStore.initializeStore()
+  pageStore.initialize()
+
+  if (!userStore.initialized) {
+    await userStore.initialize()
+  }
 })
 
 onUnmounted(() => {
+  if (navigationTimer) {
+    clearTimeout(navigationTimer)
+    navigationTimer = null
+  }
+
   removeBefore?.()
   removeAfter?.()
-})
-
-onMounted(async () => {
-  displayStore.initialize()
-  layoutStore.initializeStore()
-  pageStore.initialize()
-  if (!userStore.initialized) await userStore.initialize()
 })
 
 useHead({

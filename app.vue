@@ -1,11 +1,13 @@
 <!-- /app.vue -->
 <template>
-  <div class="relative min-h-dvh w-full overflow-hidden bg-base-200 text-base-content">
+  <div
+    class="relative min-h-dvh w-full overflow-hidden bg-base-200 text-base-content"
+  >
     <NuxtLoadingIndicator />
 
     <div
       v-if="showSwarm"
-      class="pointer-events-none fixed inset-0 z-[9000] overflow-hidden"
+      class="pointer-events-none fixed inset-0 z-9000 overflow-hidden"
       aria-hidden="true"
     >
       <div
@@ -28,12 +30,19 @@
     <transition name="fade">
       <div
         v-if="isNavigating"
-        class="pointer-events-none fixed inset-0 z-[9500] flex items-center justify-center bg-base-200/55 backdrop-blur-sm"
+        class="pointer-events-none fixed inset-0 z-9500lex items-center justify-center bg-base-200/55 backdrop-blur-sm"
       >
-        <div class="flex flex-col items-center gap-4 rounded-2xl border border-info bg-base-100/90 px-6 py-5 shadow-2xl">
-          <Icon name="kind-icon:loading" class="h-12 w-12 animate-spin text-info" />
+        <div
+          class="flex flex-col items-center gap-4 rounded-2xl border border-info bg-base-100/90 px-6 py-5 shadow-2xl"
+        >
+          <Icon
+            name="kind-icon:loading"
+            class="h-12 w-12 animate-spin text-info"
+          />
           <div class="text-center">
-            <div class="text-xs font-black uppercase tracking-[0.3em] text-info">
+            <div
+              class="text-xs font-black uppercase tracking-[0.3em] text-info"
+            >
               Loading
             </div>
             <p class="mt-2 text-sm opacity-80">
@@ -48,11 +57,15 @@
       <NuxtPage />
     </NuxtLayout>
 
-    <div class="fixed bottom-4 left-4 z-[10001]">
-      <div class="rounded-2xl border border-base-300 bg-base-100/95 shadow-2xl backdrop-blur">
+    <div class="fixed bottom-4 left-4 z-10001">
+      <div
+        class="rounded-2xl border border-base-300 bg-base-100/95 shadow-2xl backdrop-blur"
+      >
         <div class="flex flex-col gap-3 p-3 min-w-[18rem]">
           <div class="flex items-center justify-between gap-2">
-            <div class="text-xs font-black uppercase tracking-[0.3em] text-primary">
+            <div
+              class="text-xs font-black uppercase tracking-[0.3em] text-primary"
+            >
               Layout Panel
             </div>
 
@@ -100,14 +113,18 @@
           </div>
 
           <div class="border-t border-base-300 pt-2">
-            <div class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-secondary">
+            <div
+              class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-secondary"
+            >
               Filler
             </div>
 
             <div class="grid grid-cols-2 gap-2">
               <button
                 class="btn btn-xs rounded-2xl"
-                :class="debugStore.fillerHeader ? 'btn-secondary' : 'btn-outline'"
+                :class="
+                  debugStore.fillerHeader ? 'btn-secondary' : 'btn-outline'
+                "
                 @click="debugStore.toggleFiller('header')"
               >
                 Header
@@ -115,7 +132,9 @@
 
               <button
                 class="btn btn-xs rounded-2xl"
-                :class="debugStore.fillerFooter ? 'btn-secondary' : 'btn-outline'"
+                :class="
+                  debugStore.fillerFooter ? 'btn-secondary' : 'btn-outline'
+                "
                 @click="debugStore.toggleFiller('footer')"
               >
                 Footer
@@ -131,7 +150,9 @@
 
               <button
                 class="btn btn-xs rounded-2xl"
-                :class="debugStore.fillerRight ? 'btn-secondary' : 'btn-outline'"
+                :class="
+                  debugStore.fillerRight ? 'btn-secondary' : 'btn-outline'
+                "
                 @click="debugStore.toggleFiller('right')"
               >
                 Right
@@ -148,21 +169,35 @@
           </div>
 
           <div class="border-t border-base-300 pt-2">
-            <div class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-accent">
+            <div
+              class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-accent"
+            >
               Presets
             </div>
 
             <div class="grid grid-cols-2 gap-2">
-              <button class="btn btn-xs btn-outline rounded-2xl" @click="debugStore.setPreset('mobile')">
+              <button
+                class="btn btn-xs btn-outline rounded-2xl"
+                @click="debugStore.setPreset('mobile')"
+              >
                 Mobile
               </button>
-              <button class="btn btn-xs btn-outline rounded-2xl" @click="debugStore.setPreset('tablet')">
+              <button
+                class="btn btn-xs btn-outline rounded-2xl"
+                @click="debugStore.setPreset('tablet')"
+              >
                 Tablet
               </button>
-              <button class="btn btn-xs btn-outline rounded-2xl" @click="debugStore.setPreset('desktop')">
+              <button
+                class="btn btn-xs btn-outline rounded-2xl"
+                @click="debugStore.setPreset('desktop')"
+              >
                 Desktop
               </button>
-              <button class="btn btn-xs btn-primary rounded-2xl" @click="debugStore.setPreset('all')">
+              <button
+                class="btn btn-xs btn-primary rounded-2xl"
+                @click="debugStore.setPreset('all')"
+              >
                 Show All
               </button>
             </div>

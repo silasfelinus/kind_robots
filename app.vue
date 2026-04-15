@@ -11,13 +11,14 @@
 
     <animation-loader class="pointer-events-none fixed z-50" />
 
-    <div
-      v-if="showSwarm"
-      class="pointer-events-none fixed inset-0 z-9000 overflow-hidden"
-      aria-hidden="true"
-    >
-      <butterfly-animation />
-    </div>
+    <ClientOnly>
+      <div
+        v-if="showSwarm"
+        class="pointer-events-none fixed inset-0 z-9000 overflow-hidden"
+      >
+        <butterfly-animation />
+      </div>
+    </ClientOnly>
 
     <Transition
       enter-active-class="transition-opacity duration-[220ms] ease-in-out"

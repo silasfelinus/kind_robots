@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     console.log('[server.get] Fetching servers...')
 
     const { isValid, user } = await validateApiKey(event)
+    console.log('[DB URL]', process.env.DATABASE_URL)
     const includeUserData = isValid && user && typeof user.id === 'number'
 
     const whereClause = includeUserData
@@ -25,6 +26,20 @@ export default defineEventHandler(async (event) => {
         { sortOrder: 'asc' },
         { createdAt: 'desc' },
       ],
+      select: {
+        id: true,
+        title: true,
+        label: true,
+        serverType: true,
+        url: true,
+        isPublic: true,
+        isOfficial: true,
+        isDefault: true,
+        sortOrder: true,
+        userId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     })
 
     event.node.res.statusCode = 200

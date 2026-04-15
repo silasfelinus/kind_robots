@@ -1,255 +1,154 @@
 <!-- /layouts/desktop.vue -->
 <template>
-  <div class="flex flex-col min-h-dvh w-full overflow-hidden bg-base-100">
-    <div
-      class="pointer-events-none fixed right-2 top-2 z-120 rounded-2xl border border-info bg-info/20 px-3 py-1 text-xs font-bold text-info-content"
-    >
-      DESKTOP LAYOUT
-    </div>
+  <!--
+    ROOT: h-dvh + overflow-hidden locks the shell to exactly the viewport.
+    No scrolling at this level — only the main region scrolls internally.
+  -->
+  <div class="flex h-dvh w-full flex-col overflow-hidden bg-base-100">
+    <!-- ═══ H1: HEADER (full width, fixed height) ═══ -->
+    <template v-if="showHeaderFinal">
+      <div
+        class="region-shell relative flex-none w-full overflow-hidden border-b border-base-300"
+        :style="{ height: `calc(var(--vh, 1vh) * ${headerHeight})` }"
+      >
+        <!-- Region label -->
+        <div class="region-label">Header</div>
 
-    <layout-region
-      v-if="showHeaderFinal"
-      region="header"
-      title="H1 Desktop Header"
-      tone="info"
-      toggle-side="right"
-      :show="showHeaderFinal"
-      :show-filler="debugStore.fillerHeader"
-      :can-toggle-visibility="debugStore.enabled"
-      :can-toggle-filler="debugStore.enabled"
-      content-class="h-full min-h-0 pt-8"
-      :height="`calc(var(--vh) * ${headerHeight})`"
-      @toggle-visibility="debugStore.showHeader = $event"
-      @toggle-filler="debugStore.fillerHeader = $event"
-    >
-      <template #default>
-        <header class="h-full w-full min-h-0">
-          <slot name="header">
-            <main-header />
-          </slot>
-        </header>
-      </template>
-
-      <template #filler>
-        <div class="flex h-full items-center justify-between gap-4 px-5">
-          <div class="flex items-center gap-3">
-            <Icon name="kind-icon:butterfly" class="text-3xl text-info" />
-            <div>
-              <div class="font-black">Kind Robots Desktop</div>
-              <div class="text-xs opacity-70">
-                Header filler with title and controls
-              </div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button class="btn btn-xs rounded-2xl">Search</button>
-            <button class="btn btn-xs rounded-2xl">Create</button>
-            <button class="btn btn-xs rounded-2xl">Theme</button>
-            <button class="btn btn-xs rounded-2xl">Profile</button>
-          </div>
+        <!-- Slot content -->
+        <div class="h-full w-full min-h-0">
+          <slot name="header"><main-header /></slot>
         </div>
-      </template>
-    </layout-region>
 
+        <!-- Visibility toggle -->
+        <button
+          v-if="debugStore.enabled"
+          class="region-toggle"
+          title="Hide Header"
+          @click="debugStore.toggle('header')"
+        >
+          ✕
+        </button>
+      </div>
+    </template>
+
+    <!-- Collapsed header restore pill -->
+    <button
+      v-else-if="debugStore.enabled"
+      class="region-restore-h"
+      @click="debugStore.toggle('header')"
+    >
+      + Header
+    </button>
+
+    <!-- ═══ MIDDLE ROW: Left | Main | Right ═══ -->
+    <!--
+      flex-1 min-h-0 is the critical pair: flex-1 takes remaining space,
+      min-h-0 overrides the default min-height:auto that causes overflow.
+    -->
     <div class="flex flex-1 min-h-0 w-full overflow-hidden">
-      <layout-region
-        v-if="showLeftSidebarFinal"
-        region="left"
-        title="L2 Desktop Left"
-        tone="secondary"
-        toggle-side="right"
-        :show="showLeftSidebarFinal"
-        :show-filler="debugStore.fillerLeft"
-        :can-toggle-visibility="debugStore.enabled"
-        :can-toggle-filler="debugStore.enabled"
-        section-class="shrink-0 h-full overflow-y-auto"
-        content-class="h-full min-h-0 pt-8"
-        :width="`${sidebarLeftWidth}vw`"
-        @toggle-visibility="debugStore.showLeft = $event"
-        @toggle-filler="debugStore.fillerLeft = $event"
-      >
-        <template #default>
-          <slot name="left">
-            <left-sidebar />
-          </slot>
-        </template>
-
-        <template #filler>
-          <div class="flex h-full flex-col gap-3">
-            <button class="btn justify-start rounded-2xl">
-              <Icon name="kind-icon:brainstorm" class="text-xl" />
-              Brainstorm
-            </button>
-            <button class="btn justify-start rounded-2xl">
-              <Icon name="kind-icon:wonderlab" class="text-xl" />
-              Wonderlab
-            </button>
-            <button class="btn justify-start rounded-2xl">
-              <Icon name="kind-icon:story" class="text-xl" />
-              Story
-            </button>
-            <button class="btn justify-start rounded-2xl">
-              <Icon name="kind-icon:gallery" class="text-xl" />
-              Gallery
-            </button>
-            <button class="btn justify-start rounded-2xl">
-              <Icon name="kind-icon:botcafe" class="text-xl" />
-              Bot Café
-            </button>
+      <!-- ─── L2: LEFT SIDEBAR ─── -->
+      <template v-if="showLeftSidebarFinal">
+        <div
+          class="region-shell relative flex-none h-full overflow-y-auto overflow-x-hidden border-r border-base-300"
+          :style="{ width: `${sidebarLeftWidth}vw` }"
+        >
+          <div class="region-label region-label--vertical">Left</div>
+          <div class="h-full w-full min-h-0 p-3">
+            <slot name="left"><left-sidebar /></slot>
           </div>
-        </template>
-      </layout-region>
-
-      <layout-region
-        region="main"
-        title="M3 Desktop Main"
-        tone="accent"
-        toggle-side="right"
-        :show="true"
-        :show-filler="debugStore.fillerMain"
-        :can-toggle-visibility="false"
-        :can-toggle-filler="debugStore.enabled"
-        section-class="flex-1 min-w-0 h-full overflow-y-auto overscroll-y-contain"
-        content-class="container mx-auto h-full w-full min-h-0 px-4 py-10"
-        @toggle-filler="debugStore.fillerMain = $event"
-      >
-        <template #default>
-          <slot />
-        </template>
-
-        <template #filler>
-          <div class="grid gap-5">
-            <div class="rounded-2xl border border-accent/30 bg-base-100/80 p-6">
-              <div class="flex items-center gap-4">
-                <Icon name="kind-icon:story" class="text-5xl text-accent" />
-                <div>
-                  <div class="text-2xl font-black">Desktop Main Content</div>
-                  <div class="text-sm opacity-70">
-                    Room for cards, filters, tools, and whatever other gremlins
-                    you install later.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid gap-4 lg:grid-cols-3">
-              <div
-                class="rounded-2xl border border-base-300 bg-base-100/80 p-4"
-              >
-                <div class="font-bold">Primary Card</div>
-                <div class="mt-2 text-sm opacity-80">
-                  Good spot for stats, feed items, or summaries.
-                </div>
-              </div>
-
-              <div
-                class="rounded-2xl border border-base-300 bg-base-100/80 p-4"
-              >
-                <div class="font-bold">Action Card</div>
-                <div class="mt-2 flex flex-wrap gap-2">
-                  <button class="btn btn-xs rounded-2xl">Run</button>
-                  <button class="btn btn-xs rounded-2xl">Save</button>
-                  <button class="btn btn-xs rounded-2xl">Share</button>
-                </div>
-              </div>
-
-              <div
-                class="rounded-2xl border border-base-300 bg-base-100/80 p-4"
-              >
-                <div class="font-bold">Preview Card</div>
-                <div
-                  class="mt-2 h-24 rounded-2xl border border-dashed border-base-300 bg-base-200/60"
-                ></div>
-              </div>
-            </div>
-          </div>
-        </template>
-      </layout-region>
-
-      <layout-region
-        v-if="showRightSidebarFinal"
-        region="right"
-        title="R4 Desktop Right"
-        tone="warning"
-        toggle-side="left"
-        :show="showRightSidebarFinal"
-        :show-filler="debugStore.fillerRight"
-        :can-toggle-visibility="debugStore.enabled"
-        :can-toggle-filler="debugStore.enabled"
-        section-class="shrink-0 h-full overflow-y-auto"
-        content-class="h-full min-h-0 pt-8"
-        :width="`${sidebarRightWidth}vw`"
-        @toggle-visibility="debugStore.showRight = $event"
-        @toggle-filler="debugStore.fillerRight = $event"
-      >
-        <template #default>
-          <slot name="right">
-            <right-sidebar />
-          </slot>
-        </template>
-
-        <template #filler>
-          <div class="grid gap-3">
-            <div class="rounded-2xl border border-base-300 bg-base-100/80 p-3">
-              <div class="font-bold">Inspector</div>
-              <div class="mt-2 text-sm opacity-80">Selected item details.</div>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-100/80 p-3">
-              <div class="font-bold">Filters</div>
-              <div class="mt-2 flex flex-wrap gap-2">
-                <button class="btn btn-xs rounded-2xl">Public</button>
-                <button class="btn btn-xs rounded-2xl">Mine</button>
-                <button class="btn btn-xs rounded-2xl">Newest</button>
-              </div>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-100/80 p-3">
-              <div class="font-bold">Stats</div>
-              <div class="mt-2 text-sm opacity-80">18 Items</div>
-            </div>
-          </div>
-        </template>
-      </layout-region>
-    </div>
-
-    <layout-region
-      v-if="showFooterFinal"
-      region="footer"
-      title="F5 Desktop Footer"
-      tone="success"
-      toggle-side="right"
-      :show="showFooterFinal"
-      :show-filler="debugStore.fillerFooter"
-      :can-toggle-visibility="debugStore.enabled"
-      :can-toggle-filler="debugStore.enabled"
-      content-class="h-full min-h-0 pt-8"
-      :height="`calc(var(--vh) * ${footerHeight})`"
-      @toggle-visibility="debugStore.showFooter = $event"
-      @toggle-filler="debugStore.fillerFooter = $event"
-    >
-      <template #default>
-        <footer class="h-full w-full min-h-0">
-          <slot name="footer">
-            <main-footer />
-          </slot>
-        </footer>
-      </template>
-
-      <template #filler>
-        <div class="flex h-full items-center justify-between gap-2 px-5">
-          <div class="font-bold">Desktop Footer</div>
-          <div class="flex items-center gap-3">
-            <Icon name="kind-icon:brainstorm" class="text-xl" />
-            <Icon name="kind-icon:wonderlab" class="text-xl" />
-            <Icon name="kind-icon:story" class="text-xl" />
-            <Icon name="kind-icon:gallery" class="text-xl" />
-            <Icon name="kind-icon:botcafe" class="text-xl" />
-          </div>
+          <button
+            v-if="debugStore.enabled"
+            class="region-toggle"
+            title="Hide Left Sidebar"
+            @click="debugStore.toggle('left')"
+          >
+            ✕
+          </button>
         </div>
       </template>
-    </layout-region>
+
+      <!-- Collapsed left restore pill -->
+      <button
+        v-else-if="debugStore.enabled"
+        class="region-restore-v region-restore-v--left"
+        @click="debugStore.toggle('left')"
+      >
+        + L
+      </button>
+
+      <!-- ─── M: MAIN CONTENT (only this scrolls) ─── -->
+      <div
+        class="region-shell relative flex-1 min-w-0 h-full overflow-y-auto overscroll-contain"
+      >
+        <div class="region-label region-label--dim">Main</div>
+        <div class="h-full w-full min-h-0 px-4 py-6">
+          <slot />
+        </div>
+      </div>
+
+      <!-- ─── R3: RIGHT SIDEBAR ─── -->
+      <template v-if="showRightSidebarFinal">
+        <div
+          class="region-shell relative flex-none h-full overflow-y-auto overflow-x-hidden border-l border-base-300"
+          :style="{ width: `${sidebarRightWidth}vw` }"
+        >
+          <div class="region-label region-label--vertical region-label--right">
+            Right
+          </div>
+          <div class="h-full w-full min-h-0 p-3">
+            <slot name="right"><right-sidebar /></slot>
+          </div>
+          <button
+            v-if="debugStore.enabled"
+            class="region-toggle"
+            title="Hide Right Sidebar"
+            @click="debugStore.toggle('right')"
+          >
+            ✕
+          </button>
+        </div>
+      </template>
+
+      <!-- Collapsed right restore pill -->
+      <button
+        v-else-if="debugStore.enabled"
+        class="region-restore-v region-restore-v--right"
+        @click="debugStore.toggle('right')"
+      >
+        + R
+      </button>
+    </div>
+    <!-- end middle row -->
+
+    <!-- ═══ F4: FOOTER (full width, fixed height) ═══ -->
+    <template v-if="showFooterFinal">
+      <div
+        class="region-shell relative flex-none w-full overflow-hidden border-t border-base-300"
+        :style="{ height: `calc(var(--vh, 1vh) * ${footerHeight})` }"
+      >
+        <div class="region-label">Footer</div>
+        <div class="h-full w-full min-h-0">
+          <slot name="footer"><main-footer /></slot>
+        </div>
+        <button
+          v-if="debugStore.enabled"
+          class="region-toggle"
+          title="Hide Footer"
+          @click="debugStore.toggle('footer')"
+        >
+          ✕
+        </button>
+      </div>
+    </template>
+
+    <!-- Collapsed footer restore pill -->
+    <button
+      v-else-if="debugStore.enabled"
+      class="region-restore-h region-restore-h--bottom"
+      @click="debugStore.toggle('footer')"
+    >
+      + Footer
+    </button>
   </div>
 </template>
 
@@ -258,48 +157,169 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
+import { useDebugStore } from '@/stores/debugStore'
 
 const debugStore = useDebugStore()
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
 const showHeader = computed(() => displayStore.headerState !== 'hidden')
-const showFooter = computed(() => {
-  return (
-    Boolean(pageStore.page?.showFooter) && displayStore.footerState !== 'hidden'
-  )
-})
-
+const showFooter = computed(() => displayStore.footerState !== 'hidden')
 const showLeftSidebar = computed(() =>
   ['open', 'compact'].includes(displayStore.sidebarLeftState),
 )
-
 const showRightSidebar = computed(() =>
   ['open', 'compact'].includes(displayStore.sidebarRightState),
 )
 
-const showHeaderFinal = computed(() => {
-  if (debugStore.enabled) return debugStore.showHeader
-  return showHeader.value
-})
-
-const showFooterFinal = computed(() => {
-  if (debugStore.enabled) return debugStore.showFooter
-  return showFooter.value
-})
-
-const showLeftSidebarFinal = computed(() => {
-  if (debugStore.enabled) return debugStore.showLeft
-  return showLeftSidebar.value
-})
-
-const showRightSidebarFinal = computed(() => {
-  if (debugStore.enabled) return debugStore.showRight
-  return showRightSidebar.value
-})
+const showHeaderFinal = computed(() =>
+  debugStore.enabled ? debugStore.showHeader : showHeader.value,
+)
+const showFooterFinal = computed(() =>
+  debugStore.enabled ? debugStore.showFooter : showFooter.value,
+)
+const showLeftSidebarFinal = computed(() =>
+  debugStore.enabled ? debugStore.showLeft : showLeftSidebar.value,
+)
+const showRightSidebarFinal = computed(() =>
+  debugStore.enabled ? debugStore.showRight : showRightSidebar.value,
+)
 
 const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
 </script>
+
+<style scoped>
+/* ─────────────────────────────────────────
+   Region shell — the bounding box for each layout zone
+   ───────────────────────────────────────── */
+.region-shell {
+  position: relative;
+}
+
+/* ─────────────────────────────────────────
+   Region label — subtle watermark in corner
+   ───────────────────────────────────────── */
+.region-label {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.6rem;
+  z-index: 10;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: oklch(var(--bc) / 0.18);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Sidebar labels — rotated along the edge */
+.region-label--vertical {
+  top: 50%;
+  right: auto;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  transform-origin: center;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
+  color: oklch(var(--bc) / 0.12);
+}
+
+/* Right sidebar: mirror rotation */
+.region-label--right {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+/* Main content label — extra subtle since content lives here */
+.region-label--dim {
+  color: oklch(var(--bc) / 0.07);
+}
+
+.region-toggle {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 9999px;
+  border: 1px solid oklch(var(--bc) / 0.15);
+  background: oklch(var(--b1) / 0.7);
+  backdrop-filter: blur(4px);
+  font-size: 0.6rem;
+  color: oklch(var(--bc) / 0.5);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+  line-height: 1;
+}
+.region-toggle:hover {
+  background: oklch(var(--er) / 0.15);
+  border-color: oklch(var(--er) / 0.4);
+  color: oklch(var(--er));
+}
+
+/* Horizontal restore (header/footer) */
+.region-restore-h {
+  flex: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.25rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border: 1px dashed oklch(var(--bc) / 0.2);
+  color: oklch(var(--bc) / 0.35);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.region-restore-h:hover {
+  background: oklch(var(--bc) / 0.05);
+  color: oklch(var(--bc) / 0.7);
+}
+
+/* Vertical restore (sidebars) */
+.region-restore-v {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 100%;
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  writing-mode: vertical-lr;
+  border: 1px dashed oklch(var(--bc) / 0.2);
+  color: oklch(var(--bc) / 0.35);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.region-restore-v:hover {
+  background: oklch(var(--bc) / 0.05);
+  color: oklch(var(--bc) / 0.7);
+}
+.region-restore-v--right {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+</style>

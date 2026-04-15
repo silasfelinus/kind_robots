@@ -1,10 +1,11 @@
 <!-- /app.vue -->
 <template>
   <div
-    class="relative min-h-dvh w-full overflow-hidden bg-base-200 text-base-content"
+    class="relative h-dvh w-full overflow-hidden bg-base-200 text-base-content"
   >
     <NuxtLoadingIndicator />
 
+    <!-- Butterfly swarm overlay -->
     <div
       v-if="showSwarm"
       class="pointer-events-none fixed inset-0 z-9000 overflow-hidden"
@@ -27,6 +28,7 @@
       </div>
     </div>
 
+    <!-- Navigation loading overlay -->
     <transition name="fade">
       <div
         v-if="isNavigating"
@@ -53,164 +55,181 @@
       </div>
     </transition>
 
+    <!-- Main layout -->
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
 
+    <!-- Debug panel — collapsible, bottom-left, z above layout but below overlays -->
     <div class="fixed bottom-4 left-4 z-10001">
-      <div
-        class="rounded-2xl border border-base-300 bg-base-100/95 shadow-2xl backdrop-blur"
+      <!-- Collapsed toggle button -->
+      <button
+        v-if="!debugPanelOpen"
+        class="btn btn-xs btn-outline rounded-2xl opacity-50 hover:opacity-100 transition-opacity"
+        @click="debugPanelOpen = true"
       >
-        <div class="flex min-w-[18rem] flex-col gap-3 p-3">
-          <div class="flex items-center justify-between gap-2">
-            <div
-              class="text-xs font-black uppercase tracking-[0.3em] text-primary"
-            >
-              Layout Panel
-            </div>
+        ⚙ Layout
+      </button>
 
-            <button
-              class="btn btn-xs rounded-2xl"
-              :class="debugStore.enabled ? 'btn-primary' : 'btn-outline'"
-              @click="toggleDebug"
-            >
-              {{ debugStore.enabled ? 'Debug On' : 'Debug Off' }}
-            </button>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <button
-              class="btn btn-sm rounded-2xl"
-              :class="debugStore.showHeader ? 'btn-success' : 'btn-outline'"
-              @click="debugStore.toggle('header')"
-            >
-              H1 {{ debugStore.showHeader ? 'On' : 'Off' }}
-            </button>
-
-            <button
-              class="btn btn-sm rounded-2xl"
-              :class="debugStore.showFooter ? 'btn-success' : 'btn-outline'"
-              @click="debugStore.toggle('footer')"
-            >
-              F4 {{ debugStore.showFooter ? 'On' : 'Off' }}
-            </button>
-
-            <button
-              class="btn btn-sm rounded-2xl"
-              :class="debugStore.showLeft ? 'btn-success' : 'btn-outline'"
-              @click="debugStore.toggle('left')"
-            >
-              L2 {{ debugStore.showLeft ? 'On' : 'Off' }}
-            </button>
-
-            <button
-              class="btn btn-sm rounded-2xl"
-              :class="debugStore.showRight ? 'btn-success' : 'btn-outline'"
-              @click="debugStore.toggle('right')"
-            >
-              R3 {{ debugStore.showRight ? 'On' : 'Off' }}
-            </button>
-          </div>
-
-          <div class="border-t border-base-300 pt-2">
-            <div
-              class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-secondary"
-            >
-              Filler
+      <!-- Expanded panel -->
+      <transition name="panel-slide">
+        <div
+          v-if="debugPanelOpen"
+          class="rounded-2xl border border-base-300 bg-base-100/95 shadow-2xl backdrop-blur"
+        >
+          <div class="flex min-w-[18rem] flex-col gap-3 p-3">
+            <div class="flex items-center justify-between gap-2">
+              <div
+                class="text-xs font-black uppercase tracking-[0.3em] text-primary"
+              >
+                Layout Panel
+              </div>
+              <div class="flex gap-1">
+                <button
+                  class="btn btn-xs rounded-2xl"
+                  :class="debugStore.enabled ? 'btn-primary' : 'btn-outline'"
+                  @click="toggleDebug"
+                >
+                  {{ debugStore.enabled ? 'Debug On' : 'Debug Off' }}
+                </button>
+                <button
+                  class="btn btn-xs btn-ghost rounded-2xl"
+                  @click="debugPanelOpen = false"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
               <button
-                class="btn btn-xs rounded-2xl"
-                :class="
-                  debugStore.fillerHeader ? 'btn-secondary' : 'btn-outline'
-                "
-                @click="debugStore.toggleFiller('header')"
+                class="btn btn-sm rounded-2xl"
+                :class="debugStore.showHeader ? 'btn-success' : 'btn-outline'"
+                @click="debugStore.toggle('header')"
               >
-                Header
+                H1 {{ debugStore.showHeader ? 'On' : 'Off' }}
               </button>
-
               <button
-                class="btn btn-xs rounded-2xl"
-                :class="
-                  debugStore.fillerFooter ? 'btn-secondary' : 'btn-outline'
-                "
-                @click="debugStore.toggleFiller('footer')"
+                class="btn btn-sm rounded-2xl"
+                :class="debugStore.showFooter ? 'btn-success' : 'btn-outline'"
+                @click="debugStore.toggle('footer')"
               >
-                Footer
+                F4 {{ debugStore.showFooter ? 'On' : 'Off' }}
               </button>
-
               <button
-                class="btn btn-xs rounded-2xl"
-                :class="debugStore.fillerLeft ? 'btn-secondary' : 'btn-outline'"
-                @click="debugStore.toggleFiller('left')"
+                class="btn btn-sm rounded-2xl"
+                :class="debugStore.showLeft ? 'btn-success' : 'btn-outline'"
+                @click="debugStore.toggle('left')"
               >
-                Left
+                L2 {{ debugStore.showLeft ? 'On' : 'Off' }}
               </button>
-
               <button
-                class="btn btn-xs rounded-2xl"
-                :class="
-                  debugStore.fillerRight ? 'btn-secondary' : 'btn-outline'
-                "
-                @click="debugStore.toggleFiller('right')"
+                class="btn btn-sm rounded-2xl"
+                :class="debugStore.showRight ? 'btn-success' : 'btn-outline'"
+                @click="debugStore.toggle('right')"
               >
-                Right
-              </button>
-
-              <button
-                class="btn btn-xs col-span-2 rounded-2xl"
-                :class="debugStore.fillerMain ? 'btn-secondary' : 'btn-outline'"
-                @click="debugStore.toggleFiller('main')"
-              >
-                Main
+                R3 {{ debugStore.showRight ? 'On' : 'Off' }}
               </button>
             </div>
-          </div>
 
-          <div class="border-t border-base-300 pt-2">
-            <div
-              class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-accent"
-            >
-              Presets
+            <div class="border-t border-base-300 pt-2">
+              <div
+                class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-secondary"
+              >
+                Filler
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  class="btn btn-xs rounded-2xl"
+                  :class="
+                    debugStore.fillerHeader ? 'btn-secondary' : 'btn-outline'
+                  "
+                  @click="debugStore.toggleFiller('header')"
+                >
+                  Header
+                </button>
+                <button
+                  class="btn btn-xs rounded-2xl"
+                  :class="
+                    debugStore.fillerFooter ? 'btn-secondary' : 'btn-outline'
+                  "
+                  @click="debugStore.toggleFiller('footer')"
+                >
+                  Footer
+                </button>
+                <button
+                  class="btn btn-xs rounded-2xl"
+                  :class="
+                    debugStore.fillerLeft ? 'btn-secondary' : 'btn-outline'
+                  "
+                  @click="debugStore.toggleFiller('left')"
+                >
+                  Left
+                </button>
+                <button
+                  class="btn btn-xs rounded-2xl"
+                  :class="
+                    debugStore.fillerRight ? 'btn-secondary' : 'btn-outline'
+                  "
+                  @click="debugStore.toggleFiller('right')"
+                >
+                  Right
+                </button>
+                <button
+                  class="btn btn-xs col-span-2 rounded-2xl"
+                  :class="
+                    debugStore.fillerMain ? 'btn-secondary' : 'btn-outline'
+                  "
+                  @click="debugStore.toggleFiller('main')"
+                >
+                  Main
+                </button>
+              </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
-              <button
-                class="btn btn-xs btn-outline rounded-2xl"
-                @click="debugStore.setPreset('mobile')"
+            <div class="border-t border-base-300 pt-2">
+              <div
+                class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-accent"
               >
-                Mobile
-              </button>
-              <button
-                class="btn btn-xs btn-outline rounded-2xl"
-                @click="debugStore.setPreset('tablet')"
-              >
-                Tablet
-              </button>
-              <button
-                class="btn btn-xs btn-outline rounded-2xl"
-                @click="debugStore.setPreset('desktop')"
-              >
-                Desktop
-              </button>
-              <button
-                class="btn btn-xs btn-primary rounded-2xl"
-                @click="debugStore.setPreset('all')"
-              >
-                Show All
-              </button>
+                Presets
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  class="btn btn-xs btn-outline rounded-2xl"
+                  @click="debugStore.setPreset('mobile')"
+                >
+                  Mobile
+                </button>
+                <button
+                  class="btn btn-xs btn-outline rounded-2xl"
+                  @click="debugStore.setPreset('tablet')"
+                >
+                  Tablet
+                </button>
+                <button
+                  class="btn btn-xs btn-outline rounded-2xl"
+                  @click="debugStore.setPreset('desktop')"
+                >
+                  Desktop
+                </button>
+                <button
+                  class="btn btn-xs btn-primary rounded-2xl"
+                  @click="debugStore.setPreset('all')"
+                >
+                  Show All
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div class="border-t border-base-300 pt-2 text-xs opacity-80">
-            <div>Viewport: {{ displayStore.viewportSize }}</div>
-            <div>Resolved: {{ layoutStore.resolvedLayout }}</div>
-            <div>Layout Setting: {{ layoutStore.currentLayout }}</div>
-            <div>Page Footer: {{ Boolean(pageStore.page?.showFooter) }}</div>
+            <div class="border-t border-base-300 pt-2 text-xs opacity-80">
+              <div>Viewport: {{ displayStore.viewportSize }}</div>
+              <div>Resolved: {{ layoutStore.resolvedLayout }}</div>
+              <div>Layout Setting: {{ layoutStore.currentLayout }}</div>
+              <div>Page Footer: {{ Boolean(pageStore.page?.showFooter) }}</div>
+            </div>
           </div>
         </div>
-      </div>
+      </transition>
     </div>
 
     <milestone-popup />
@@ -247,6 +266,7 @@ const userStore = useUserStore()
 const debugStore = useDebugStore()
 
 const isNavigating = ref(false)
+const debugPanelOpen = ref(false)
 
 const showSwarm = computed(() => smartbarStore.showSwarm)
 
@@ -330,7 +350,6 @@ function toggleDebug() {
     debugStore.disable()
     return
   }
-
   debugStore.enable()
 }
 
@@ -392,9 +411,20 @@ useHead({
 .fade-leave-active {
   transition: opacity 0.22s ease;
 }
-
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.panel-slide-enter-active,
+.panel-slide-leave-active {
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+.panel-slide-enter-from,
+.panel-slide-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
 }
 </style>

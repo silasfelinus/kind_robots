@@ -9,6 +9,7 @@
 
     <layout-region
       v-if="showHeaderFinal"
+      region="header"
       title="H1 Desktop Header"
       tone="info"
       toggle-side="right"
@@ -32,7 +33,7 @@
       <template #filler>
         <div class="flex h-full items-center justify-between gap-4 px-5">
           <div class="flex items-center gap-3">
-            <Icon name="kind-icon:butterfly." class="text-3xl text-info" />
+            <Icon name="kind-icon:butterfly" class="text-3xl text-info" />
             <div>
               <div class="font-black">Kind Robots Desktop</div>
               <div class="text-xs opacity-70">
@@ -54,6 +55,7 @@
     <div class="flex flex-1 min-h-0 w-full overflow-hidden">
       <layout-region
         v-if="showLeftSidebarFinal"
+        region="left"
         title="L2 Desktop Left"
         tone="secondary"
         toggle-side="right"
@@ -76,23 +78,23 @@
         <template #filler>
           <div class="flex h-full flex-col gap-3">
             <button class="btn justify-start rounded-2xl">
-              <Icon name="kind-icon:brainstorm." class="text-xl" />
+              <Icon name="kind-icon:brainstorm" class="text-xl" />
               Brainstorm
             </button>
             <button class="btn justify-start rounded-2xl">
-              <Icon name="kind-icon:wonderlab." class="text-xl" />
+              <Icon name="kind-icon:wonderlab" class="text-xl" />
               Wonderlab
             </button>
             <button class="btn justify-start rounded-2xl">
-              <Icon name="kind-icon:story." class="text-xl" />
+              <Icon name="kind-icon:story" class="text-xl" />
               Story
             </button>
             <button class="btn justify-start rounded-2xl">
-              <Icon name="kind-icon:gallery." class="text-xl" />
+              <Icon name="kind-icon:gallery" class="text-xl" />
               Gallery
             </button>
             <button class="btn justify-start rounded-2xl">
-              <Icon name="kind-icon:botcafe." class="text-xl" />
+              <Icon name="kind-icon:botcafe" class="text-xl" />
               Bot Café
             </button>
           </div>
@@ -100,6 +102,7 @@
       </layout-region>
 
       <layout-region
+        region="main"
         title="M3 Desktop Main"
         tone="accent"
         toggle-side="right"
@@ -119,7 +122,7 @@
           <div class="grid gap-5">
             <div class="rounded-2xl border border-accent/30 bg-base-100/80 p-6">
               <div class="flex items-center gap-4">
-                <Icon name="kind-icon:story." class="text-5xl text-accent" />
+                <Icon name="kind-icon:story" class="text-5xl text-accent" />
                 <div>
                   <div class="text-2xl font-black">Desktop Main Content</div>
                   <div class="text-sm opacity-70">
@@ -166,6 +169,7 @@
 
       <layout-region
         v-if="showRightSidebarFinal"
+        region="right"
         title="R4 Desktop Right"
         tone="warning"
         toggle-side="left"
@@ -212,6 +216,7 @@
 
     <layout-region
       v-if="showFooterFinal"
+      region="footer"
       title="F5 Desktop Footer"
       tone="success"
       toggle-side="right"
@@ -236,11 +241,11 @@
         <div class="flex h-full items-center justify-between gap-2 px-5">
           <div class="font-bold">Desktop Footer</div>
           <div class="flex items-center gap-3">
-            <Icon name="kind-icon:brainstorm." class="text-xl" />
-            <Icon name="kind-icon:wonderlab." class="text-xl" />
-            <Icon name="kind-icon:story." class="text-xl" />
-            <Icon name="kind-icon:gallery." class="text-xl" />
-            <Icon name="kind-icon:botcafe." class="text-xl" />
+            <Icon name="kind-icon:brainstorm" class="text-xl" />
+            <Icon name="kind-icon:wonderlab" class="text-xl" />
+            <Icon name="kind-icon:story" class="text-xl" />
+            <Icon name="kind-icon:gallery" class="text-xl" />
+            <Icon name="kind-icon:botcafe" class="text-xl" />
           </div>
         </div>
       </template>
@@ -260,7 +265,9 @@ const pageStore = usePageStore()
 
 const showHeader = computed(() => displayStore.headerState !== 'hidden')
 const showFooter = computed(() => {
-  return pageStore.page?.showFooter && displayStore.footerState !== 'hidden'
+  return (
+    Boolean(pageStore.page?.showFooter) && displayStore.footerState !== 'hidden'
+  )
 })
 
 const showLeftSidebar = computed(() =>

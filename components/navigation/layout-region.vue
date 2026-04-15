@@ -1,232 +1,220 @@
 <!-- /components/navigation/layout-region.vue -->
 <template>
-  <section
-    v-if="show"
-    class="relative min-h-0 overflow-hidden"
-    :class="[
-      baseClass,
-      toneClass,
-      paddingClass,
-      roundedClass,
-      borderClass,
-      sectionClass,
-    ]"
-    :style="sectionStyle"
-  >
+  <section :class="rootClasses">
     <div
-      v-if="showLabel"
-      class="pointer-events-none absolute top-2 z-20 rounded-2xl border bg-base-100/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] shadow-lg"
-      :class="[labelToneClass, labelPositionClass]"
+      class="flex h-full w-full min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100"
     >
-      {{ title }}
-    </div>
-
-    <div
-      v-if="canToggleVisibility"
-      class="absolute top-2 z-30"
-      :class="togglePositionClass"
-    >
-      <smart-toggle
-        :model-value="show"
-        :on-icon="visibleOnIcon"
-        :off-icon="visibleOffIcon"
-        :on-label="visibleOnLabel"
-        :off-label="visibleOffLabel"
-        orientation="icon"
-        size="xs"
-        :tone-on="toggleTone"
-        tone-off="ghost"
-        :label-position="toggleLabelPosition"
-        @update:model-value="$emit('toggle-visibility', $event)"
-      />
-    </div>
-
-    <div
-      v-if="canToggleFiller"
-      class="absolute top-12 z-30"
-      :class="togglePositionClass"
-    >
-      <smart-toggle
-        :model-value="showFiller"
-        :on-icon="fillerOnIcon"
-        :off-icon="fillerOffIcon"
-        :on-label="fillerOnLabel"
-        :off-label="fillerOffLabel"
-        orientation="icon"
-        size="xs"
-        tone-on="primary"
-        tone-off="ghost"
-        :label-position="toggleLabelPosition"
-        @update:model-value="$emit('toggle-filler', $event)"
-      />
-    </div>
-
-    <div class="h-full min-h-0 w-full" :class="contentClass">
-      <slot v-if="!showFiller" />
-      <slot v-else name="filler">
-        <div
-          class="flex h-full min-h-32 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-4 text-center"
-        >
-          <div>
-            <div class="text-sm font-black uppercase tracking-[0.2em]">
-              {{ title }}
-            </div>
-            <div class="mt-2 text-sm opacity-70">Filler content</div>
-          </div>
+      <div
+        v-if="props.chrome"
+        class="flex items-center justify-between border-b border-base-300 px-3 py-2"
+      >
+        <div class="flex min-w-0 items-center gap-2">
+          <icon :name="resolvedIcon" class="shrink-0" />
+          <span class="truncate font-semibold">
+            {{ resolvedTitle }}
+          </span>
         </div>
-      </slot>
+
+        <button
+          v-if="props.collapsible && props.region !== 'main'"
+          class="btn btn-xs rounded-2xl"
+          type="button"
+          @click="toggleRegion"
+        >
+          Toggle
+        </button>
+      </div>
+
+      <div :class="bodyClasses">
+        <slot />
+      </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-// /components/navigation/layout-region.vue
-import { computed, type CSSProperties } from 'vue'
+import { computed } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
+import { useLayoutStore } from '@/stores/layoutStore'
 
+type DisplayRegionKey = 'header' | 'left' | 'main' | 'right' | 'footer'
 type RegionTone =
+  | 'neutral'
   | 'primary'
   | 'secondary'
   | 'accent'
-  | 'success'
-  | 'warning'
   | 'info'
-  | 'neutral'
-
-type ToggleTone =
-  | 'neutral'
-  | 'primary'
-  | 'secondary'
-  | 'accent'
   | 'success'
   | 'warning'
   | 'error'
-  | 'ghost'
+type LayoutMode = 'mobile' | 'tablet' | 'desktop'
+type DisplayState = 'hidden' | 'compact' | 'extended'
 
-type ToggleSide = 'left' | 'right'
-type RegionPadding = 'none' | 'sm' | 'md' | 'lg'
-type ToggleLabelPosition = 'top' | 'bottom' | 'left' | 'right'
-
-interface LayoutRegionProps {
-  title: string
-  show?: boolean
-  showFiller?: boolean
-  showLabel?: boolean
-  canToggleVisibility?: boolean
-  canToggleFiller?: boolean
-  tone?: RegionTone
-  toggleSide?: ToggleSide
-  sectionClass?: string
-  contentClass?: string
-  baseClass?: string
-  rounded?: boolean
-  bordered?: boolean
-  padded?: RegionPadding
-  minHeight?: string
-  height?: string
-  width?: string
-  visibleOnIcon?: string
-  visibleOffIcon?: string
-  fillerOnIcon?: string
-  fillerOffIcon?: string
-  visibleOnLabel?: string
-  visibleOffLabel?: string
-  fillerOnLabel?: string
-  fillerOffLabel?: string
+interface DisplayStoreCompat {
+  showLeft?: boolean
+  showRight?: boolean
+  showCenter?: boolean
+  showHeader?: boolean
+  showFooter?: boolean
+  headerState?: DisplayState
+  footerState?: DisplayState
+  toggleSection?: (section: 'left' | 'right' | 'center') => void
+  toggleFooter?: () => void
+  toggleHeader?: () => void
 }
 
-const props = withDefaults(defineProps<LayoutRegionProps>(), {
-  show: true,
-  showFiller: false,
-  showLabel: true,
-  canToggleVisibility: true,
-  canToggleFiller: false,
-  tone: 'neutral',
-  toggleSide: 'right',
-  sectionClass: '',
-  contentClass: '',
-  baseClass: '',
-  rounded: true,
-  bordered: true,
-  padded: 'md',
-  minHeight: '',
-  height: '',
-  width: '',
-  visibleOnIcon: 'kind-icon:eye.',
-  visibleOffIcon: 'kind-icon:eye-off.',
-  fillerOnIcon: 'kind-icon:gallery.',
-  fillerOffIcon: 'kind-icon:close.',
-  visibleOnLabel: 'Visible',
-  visibleOffLabel: 'Hidden',
-  fillerOnLabel: 'Filler',
-  fillerOffLabel: 'Live',
-})
-
-defineEmits<{
-  'toggle-visibility': [value: boolean]
-  'toggle-filler': [value: boolean]
-}>()
-
-const toneClassMap: Record<RegionTone, string> = {
-  primary: 'bg-primary/10',
-  secondary: 'bg-secondary/10',
-  accent: 'bg-accent/10',
-  success: 'bg-success/10',
-  warning: 'bg-warning/10',
-  info: 'bg-info/10',
-  neutral: 'bg-base-100',
-}
-
-const labelToneClassMap: Record<RegionTone, string> = {
-  primary: 'border-primary text-primary',
-  secondary: 'border-secondary text-secondary',
-  accent: 'border-accent text-accent',
-  success: 'border-success text-success',
-  warning: 'border-warning text-warning',
-  info: 'border-info text-info',
-  neutral: 'border-base-300 text-base-content',
-}
-
-const toggleToneMap: Record<RegionTone, ToggleTone> = {
-  primary: 'primary',
-  secondary: 'secondary',
-  accent: 'accent',
-  success: 'success',
-  warning: 'warning',
-  info: 'primary',
-  neutral: 'neutral',
-}
-
-const paddingClassMap: Record<RegionPadding, string> = {
-  none: '',
-  sm: 'p-2',
-  md: 'p-3',
-  lg: 'p-4',
-}
-
-const toneClass = computed(() => toneClassMap[props.tone])
-const labelToneClass = computed(() => labelToneClassMap[props.tone])
-const toggleTone = computed<ToggleTone>(() => toggleToneMap[props.tone])
-const paddingClass = computed(() => paddingClassMap[props.padded])
-const roundedClass = computed(() => (props.rounded ? 'rounded-2xl' : ''))
-const borderClass = computed(() =>
-  props.bordered ? 'border border-base-300' : '',
+const props = withDefaults(
+  defineProps<{
+    region: DisplayRegionKey
+    title?: string
+    icon?: string
+    collapsible?: boolean
+    chrome?: boolean
+    forceShow?: boolean
+    allowOverlay?: boolean
+    scroll?: boolean
+    padded?: boolean
+    tone?: RegionTone
+  }>(),
+  {
+    title: '',
+    icon: '',
+    collapsible: true,
+    chrome: true,
+    forceShow: false,
+    allowOverlay: true,
+    scroll: true,
+    padded: true,
+    tone: 'neutral',
+  },
 )
 
-const labelPositionClass = computed(() => 'left-2')
+const displayStore = useDisplayStore()
+const layoutStore = useLayoutStore()
+const display = displayStore as unknown as DisplayStoreCompat
 
-const togglePositionClass = computed(() => {
-  return props.toggleSide === 'left' ? 'left-2' : 'right-2'
+const resolvedLayout = computed<LayoutMode>(() => layoutStore.resolvedLayout)
+
+const regionTitles: Record<DisplayRegionKey, string> = {
+  header: 'Header',
+  left: 'Left Sidebar',
+  main: 'Main Content',
+  right: 'Right Sidebar',
+  footer: 'Footer',
+}
+
+const regionIcons: Record<DisplayRegionKey, string> = {
+  header: 'kind-icon:smarttoy.',
+  left: 'kind-icon:apps.',
+  main: 'kind-icon:dashboard.',
+  right: 'kind-icon:settings.',
+  footer: 'kind-icon:drag_handle.',
+}
+
+const resolvedTitle = computed(() => props.title || regionTitles[props.region])
+const resolvedIcon = computed(() => props.icon || regionIcons[props.region])
+
+const isHeaderVisible = computed(() => {
+  if (typeof display.showHeader === 'boolean') return display.showHeader
+  if (display.headerState) return display.headerState !== 'hidden'
+  return true
 })
 
-const toggleLabelPosition = computed<ToggleLabelPosition>(() => {
-  return props.toggleSide === 'left' ? 'right' : 'left'
+const isFooterVisible = computed(() => {
+  if (typeof display.showFooter === 'boolean') return display.showFooter
+  if (display.footerState) return display.footerState !== 'hidden'
+  return true
 })
 
-const sectionStyle = computed<CSSProperties>(() => {
-  const style: CSSProperties = {}
-  if (props.minHeight) style.minHeight = props.minHeight
-  if (props.height) style.height = props.height
-  if (props.width) style.width = props.width
-  return style
+const regionVisibleMap = computed<Record<DisplayRegionKey, boolean>>(() => ({
+  header: isHeaderVisible.value,
+  left: Boolean(display.showLeft ?? true),
+  main: Boolean(display.showCenter ?? true),
+  right: Boolean(display.showRight ?? true),
+  footer: isFooterVisible.value,
+}))
+
+const isVisible = computed(() => {
+  if (props.forceShow) return true
+  return regionVisibleMap.value[props.region]
 })
+
+const isHeader = computed(() => props.region === 'header')
+const isLeft = computed(() => props.region === 'left')
+const isMain = computed(() => props.region === 'main')
+const isRight = computed(() => props.region === 'right')
+const isFooter = computed(() => props.region === 'footer')
+
+const isMobile = computed(() => resolvedLayout.value === 'mobile')
+const isTablet = computed(() => resolvedLayout.value === 'tablet')
+const isDesktop = computed(() => resolvedLayout.value === 'desktop')
+
+const useOverlay = computed(() => {
+  if (!props.allowOverlay) return false
+  return (isLeft.value || isRight.value) && isMobile.value
+})
+
+const rootClasses = computed(() => {
+  if (!isVisible.value) return 'hidden'
+
+  if (useOverlay.value) {
+    return [
+      'fixed inset-y-0 z-40 flex flex-col',
+      isLeft.value ? 'left-0 w-[88vw] max-w-sm' : '',
+      isRight.value ? 'right-0 w-[88vw] max-w-sm' : '',
+    ].join(' ')
+  }
+
+  if (isHeader.value || isFooter.value) {
+    return 'flex w-full shrink-0 flex-col'
+  }
+
+  if (isLeft.value) {
+    if (isMobile.value) return 'flex w-full flex-col'
+    if (isTablet.value) return 'flex w-72 shrink-0 flex-col'
+    if (isDesktop.value) return 'flex w-80 shrink-0 flex-col'
+  }
+
+  if (isRight.value) {
+    if (isMobile.value) return 'flex w-full flex-col'
+    if (isTablet.value) return 'flex w-80 shrink-0 flex-col'
+    if (isDesktop.value) return 'flex w-96 shrink-0 flex-col'
+  }
+
+  return 'flex min-h-0 min-w-0 flex-1 flex-col'
+})
+
+const bodyClasses = computed(() => {
+  return [
+    'flex min-h-0 flex-1 flex-col',
+    props.scroll ? 'overflow-auto' : 'overflow-hidden',
+    props.padded ? 'p-3 sm:p-4' : '',
+  ].join(' ')
+})
+
+function toggleRegion() {
+  if (isLeft.value) {
+    display.toggleSection?.('left')
+    return
+  }
+
+  if (isRight.value) {
+    display.toggleSection?.('right')
+    return
+  }
+
+  if (isMain.value) {
+    display.toggleSection?.('center')
+    return
+  }
+
+  if (isFooter.value) {
+    display.toggleFooter?.()
+    return
+  }
+
+  if (isHeader.value) {
+    display.toggleHeader?.()
+  }
+}
 </script>

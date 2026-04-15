@@ -226,13 +226,16 @@ const butterflies = computed<ButterflyItem[]>(() => [
   },
 ])
 
-router.beforeEach(() => {
-  isNavigating.value = true
-})
-router.afterEach(() => {
-  window.setTimeout(() => {
-    isNavigating.value = false
-  }, 450)
+onMounted(() => {
+  router.beforeEach(() => {
+    isNavigating.value = true
+  })
+
+  router.afterEach(() => {
+    setTimeout(() => {
+      isNavigating.value = false
+    }, 450)
+  })
 })
 
 onMounted(async () => {

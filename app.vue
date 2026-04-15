@@ -1,6 +1,6 @@
 <!-- /app.vue -->
 <template>
-  <div class="relative min-h-dvh w-full bg-base-200 text-base-content overflow-hidden">
+  <div class="relative min-h-dvh w-full overflow-hidden bg-base-200 text-base-content">
     <NuxtLoadingIndicator />
 
     <div
@@ -11,7 +11,7 @@
       <div
         v-for="butterfly in butterflies"
         :key="butterfly.id"
-        class="absolute text-secondary/70 animate-butterfly-float"
+        class="absolute animate-butterfly-float text-secondary/70"
         :style="{
           left: butterfly.left,
           top: butterfly.top,
@@ -37,7 +37,7 @@
               Loading
             </div>
             <p class="mt-2 text-sm opacity-80">
-              Butterflies are pretending this is definitely under control.
+              Butterflies are pretending this is absolutely under control.
             </p>
           </div>
         </div>
@@ -47,6 +47,8 @@
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+
+    <milestone-popup />
 
     <div class="pointer-events-none fixed bottom-3 right-3 z-[10000]">
       <div class="rounded-2xl border border-primary bg-base-100/90 px-4 py-2 shadow-xl backdrop-blur">
@@ -60,9 +62,13 @@
 
 <script setup lang="ts">
 // /app.vue
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSmartbarStore } from '@/stores/smartbarStore'
+import { useDisplayStore } from '@/stores/displayStore'
+import { useLayoutStore } from '@/stores/layoutStore'
+import { usePageStore } from '@/stores/pageStore'
+import { useUserStore } from '@/stores/userStore'
 
 interface ButterflyItem {
   id: number
@@ -74,8 +80,12 @@ interface ButterflyItem {
   rotate: string
 }
 
-const smartbarStore = useSmartbarStore()
 const router = useRouter()
+const smartbarStore = useSmartbarStore()
+const displayStore = useDisplayStore()
+const layoutStore = useLayoutStore()
+const pageStore = usePageStore()
+const userStore = useUserStore()
 
 const isNavigating = ref(false)
 
@@ -164,6 +174,16 @@ router.afterEach(() => {
   window.setTimeout(() => {
     isNavigating.value = false
   }, 450)
+})
+
+onMounted(async () => {
+  displayStore.initialize()
+  layoutStore.initializeStore()
+  pageStore.initialize()
+
+  if (!userStore.initialized) {
+    await userStore.initialize()
+  }
 })
 
 useHead({

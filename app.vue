@@ -50,6 +50,8 @@
 
     <milestone-popup />
 
+  <debug-panel />
+
     <div class="pointer-events-none fixed bottom-3 right-3 z-[10000]">
       <div class="rounded-2xl border border-primary bg-base-100/90 px-4 py-2 shadow-xl backdrop-blur">
         <div class="text-[10px] font-black uppercase tracking-[0.3em] text-primary">

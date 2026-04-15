@@ -26,7 +26,7 @@
         <div
           class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-2 md:gap-3"
         >
-          <div class="flex-1 min-h-[8rem]">
+          <div class="flex-1 min-h-32">
             <ami-chat class="w-full h-full" />
           </div>
         </div>
@@ -35,7 +35,7 @@
       <button
         v-if="canScrollUp"
         type="button"
-        class="absolute right-2 top-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-[2px] text-base-content/70"
+        class="absolute right-2 top-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-0.5 text-base-content/70"
         @click.stop="scrollBy('up')"
       >
         <Icon name="kind-icon:chevron-up" class="w-3 h-3 md:w-4 md:h-4" />
@@ -44,7 +44,7 @@
       <button
         v-if="canScrollDown"
         type="button"
-        class="absolute right-2 bottom-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-[2px] text-base-content/70"
+        class="absolute right-2 bottom-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-0.5 text-base-content/70"
         @click.stop="scrollBy('down')"
       >
         <Icon name="kind-icon:chevron-down" class="w-3 h-3 md:w-4 md:h-4" />

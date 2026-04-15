@@ -60,83 +60,42 @@
       <NuxtPage />
     </NuxtLayout>
 
-    <!-- Debug panel — collapsible, bottom-left, z above layout but below overlays -->
+    <!-- Debug panel — collapsible pill, bottom-left -->
     <div class="fixed bottom-4 left-4 z-10001">
-      <!-- Collapsed toggle button -->
       <button
         v-if="!debugPanelOpen"
-        class="btn btn-xs btn-outline rounded-2xl opacity-50 hover:opacity-100 transition-opacity"
+        class="btn btn-xs btn-ghost rounded-2xl opacity-30 hover:opacity-70 transition-opacity"
         @click="debugPanelOpen = true"
       >
-        ⚙ Layout
+        ⚙
       </button>
 
-      <!-- Expanded panel -->
       <transition name="panel-slide">
         <div
           v-if="debugPanelOpen"
           class="rounded-2xl border border-base-300 bg-base-100/95 shadow-2xl backdrop-blur"
         >
-          <div class="flex min-w-[18rem] flex-col gap-3 p-3">
+          <div class="flex min-w-[16rem] flex-col gap-3 p-3">
             <div class="flex items-center justify-between gap-2">
               <div
                 class="text-xs font-black uppercase tracking-[0.3em] text-primary"
               >
-                Layout Panel
+                Debug
               </div>
-              <div class="flex gap-1">
-                <button
-                  class="btn btn-xs rounded-2xl"
-                  :class="debugStore.enabled ? 'btn-primary' : 'btn-outline'"
-                  @click="toggleDebug"
-                >
-                  {{ debugStore.enabled ? 'Debug On' : 'Debug Off' }}
-                </button>
-                <button
-                  class="btn btn-xs btn-ghost rounded-2xl"
-                  @click="debugPanelOpen = false"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
               <button
-                class="btn btn-sm rounded-2xl"
-                :class="debugStore.showHeader ? 'btn-success' : 'btn-outline'"
-                @click="debugStore.toggle('header')"
+                class="btn btn-xs btn-ghost rounded-2xl"
+                @click="debugPanelOpen = false"
               >
-                H1 {{ debugStore.showHeader ? 'On' : 'Off' }}
-              </button>
-              <button
-                class="btn btn-sm rounded-2xl"
-                :class="debugStore.showFooter ? 'btn-success' : 'btn-outline'"
-                @click="debugStore.toggle('footer')"
-              >
-                F4 {{ debugStore.showFooter ? 'On' : 'Off' }}
-              </button>
-              <button
-                class="btn btn-sm rounded-2xl"
-                :class="debugStore.showLeft ? 'btn-success' : 'btn-outline'"
-                @click="debugStore.toggle('left')"
-              >
-                L2 {{ debugStore.showLeft ? 'On' : 'Off' }}
-              </button>
-              <button
-                class="btn btn-sm rounded-2xl"
-                :class="debugStore.showRight ? 'btn-success' : 'btn-outline'"
-                @click="debugStore.toggle('right')"
-              >
-                R3 {{ debugStore.showRight ? 'On' : 'Off' }}
+                ✕
               </button>
             </div>
 
-            <div class="border-t border-base-300 pt-2">
+            <!-- Filler content toggles -->
+            <div>
               <div
                 class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-secondary"
               >
-                Filler
+                Filler Content
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <button
@@ -187,45 +146,13 @@
               </div>
             </div>
 
-            <div class="border-t border-base-300 pt-2">
-              <div
-                class="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-accent"
-              >
-                Presets
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <button
-                  class="btn btn-xs btn-outline rounded-2xl"
-                  @click="debugStore.setPreset('mobile')"
-                >
-                  Mobile
-                </button>
-                <button
-                  class="btn btn-xs btn-outline rounded-2xl"
-                  @click="debugStore.setPreset('tablet')"
-                >
-                  Tablet
-                </button>
-                <button
-                  class="btn btn-xs btn-outline rounded-2xl"
-                  @click="debugStore.setPreset('desktop')"
-                >
-                  Desktop
-                </button>
-                <button
-                  class="btn btn-xs btn-primary rounded-2xl"
-                  @click="debugStore.setPreset('all')"
-                >
-                  Show All
-                </button>
-              </div>
-            </div>
-
-            <div class="border-t border-base-300 pt-2 text-xs opacity-80">
+            <!-- Viewport info -->
+            <div
+              class="border-t border-base-300 pt-2 text-xs opacity-60 space-y-0.5"
+            >
               <div>Viewport: {{ displayStore.viewportSize }}</div>
               <div>Resolved: {{ layoutStore.resolvedLayout }}</div>
-              <div>Layout Setting: {{ layoutStore.currentLayout }}</div>
-              <div>Page Footer: {{ Boolean(pageStore.page?.showFooter) }}</div>
+              <div>Layout: {{ layoutStore.currentLayout }}</div>
             </div>
           </div>
         </div>
@@ -245,7 +172,6 @@ import { useDisplayStore } from '@/stores/displayStore'
 import { useLayoutStore } from '@/stores/layoutStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
-import { useDebugStore } from '@/stores/debugStore'
 
 interface ButterflyItem {
   id: number
@@ -345,18 +271,9 @@ const butterflies = computed<ButterflyItem[]>(() => [
   },
 ])
 
-function toggleDebug() {
-  if (debugStore.enabled) {
-    debugStore.disable()
-    return
-  }
-  debugStore.enable()
-}
-
 router.beforeEach(() => {
   isNavigating.value = true
 })
-
 router.afterEach(() => {
   window.setTimeout(() => {
     isNavigating.value = false
@@ -367,10 +284,7 @@ onMounted(async () => {
   displayStore.initialize()
   layoutStore.initializeStore()
   pageStore.initialize()
-
-  if (!userStore.initialized) {
-    await userStore.initialize()
-  }
+  if (!userStore.initialized) await userStore.initialize()
 })
 
 useHead({
@@ -399,7 +313,6 @@ useHead({
     opacity: 0.15;
   }
 }
-
 .animate-butterfly-float {
   animation-name: butterfly-float;
   animation-timing-function: ease-in-out;

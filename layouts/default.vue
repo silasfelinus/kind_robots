@@ -9,19 +9,25 @@
         <full-header />
       </slot>
 
-      <div class="absolute right-2 top-2 z-[220] flex items-start gap-2">
-        <button
-          class="icon-btn icon-btn--pill icon-btn--primary"
-          :class="{ 'icon-btn--dim': headerState === 'hidden' }"
-          :title="`Header: ${headerModeLabel}`"
-          @click="displayStore.toggleHeader()"
-        >
-          <Icon
-            :name="headerIcon"
-            class="icon-btn__icon"
-          />
-          <span class="icon-btn__label">{{ headerModeLabel }}</span>
-        </button>
+      <div
+        v-if="headerState !== 'hidden'"
+        class="pointer-events-none fixed z-[220]"
+        :style="headerToggleStyle"
+      >
+        <div class="pointer-events-auto flex items-start gap-2">
+          <button
+            class="icon-btn icon-btn--pill icon-btn--primary"
+            :class="{ 'icon-btn--dim': headerState === 'hidden' }"
+            :title="`Header: ${headerModeLabel}`"
+            @click="toggleHeader"
+          >
+            <Icon
+              :name="headerIcon"
+              class="icon-btn__icon"
+            />
+            <span class="icon-btn__label">{{ headerModeLabel }}</span>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -36,46 +42,52 @@
           </slot>
         </div>
 
-        <div class="absolute left-2 top-2 z-[220] flex flex-col items-start gap-2">
-          <button
-            class="icon-btn icon-btn--tab icon-btn--secondary"
-            :class="{ 'icon-btn--dim': sidebarLeftState === 'hidden' }"
-            :title="`Left sidebar: ${leftSidebarModeLabel}`"
-            @click="displayStore.toggleLeftSidebar()"
-          >
-            <Icon
-              :name="leftSidebarIcon"
-              class="icon-btn__icon icon-btn__icon--mirror"
-            />
-            <span class="icon-btn__label icon-btn__label--vertical">
-              {{ leftSidebarModeLabel }}
-            </span>
-          </button>
-
-          <div class="flex flex-col gap-1">
+        <div
+          v-if="sidebarLeftState !== 'hidden'"
+          class="pointer-events-none fixed z-[220]"
+          :style="leftToggleStyle"
+        >
+          <div class="pointer-events-auto flex flex-col items-start gap-2">
             <button
-              class="icon-btn icon-btn--mini icon-btn--secondary"
-              :class="{ 'icon-btn--active': sidebarLeftHeaderPriority }"
-              title="Left sidebar header priority"
-              @click="displayStore.toggleSidebarLeftHeaderPriority()"
+              class="icon-btn icon-btn--tab icon-btn--secondary"
+              :class="{ 'icon-btn--dim': sidebarLeftState === 'hidden' }"
+              :title="`Left sidebar: ${leftSidebarModeLabel}`"
+              @click="toggleLeftSidebar"
             >
               <Icon
-                :name="sidebarLeftHeaderPriority ? 'kind-icon:compress' : 'kind-icon:expand'"
-                class="icon-btn__icon icon-btn__icon--flip-v"
+                :name="leftSidebarIcon"
+                class="icon-btn__icon icon-btn__icon--mirror"
               />
+              <span class="icon-btn__label icon-btn__label--vertical">
+                {{ leftSidebarModeLabel }}
+              </span>
             </button>
 
-            <button
-              class="icon-btn icon-btn--mini icon-btn--secondary"
-              :class="{ 'icon-btn--active': sidebarLeftFooterPriority }"
-              title="Left sidebar footer priority"
-              @click="displayStore.toggleSidebarLeftFooterPriority()"
-            >
-              <Icon
-                :name="sidebarLeftFooterPriority ? 'kind-icon:compress' : 'kind-icon:expand'"
-                class="icon-btn__icon"
-              />
-            </button>
+            <div class="flex flex-col gap-1">
+              <button
+                class="icon-btn icon-btn--mini icon-btn--secondary"
+                :class="{ 'icon-btn--active': sidebarLeftHeaderPriority }"
+                title="Left sidebar header priority"
+                @click="toggleSidebarLeftHeaderPriority"
+              >
+                <Icon
+                  :name="sidebarLeftHeaderPriority ? 'kind-icon:compress' : 'kind-icon:expand'"
+                  class="icon-btn__icon icon-btn__icon--flip-v"
+                />
+              </button>
+
+              <button
+                class="icon-btn icon-btn--mini icon-btn--secondary"
+                :class="{ 'icon-btn--active': sidebarLeftFooterPriority }"
+                title="Left sidebar footer priority"
+                @click="toggleSidebarLeftFooterPriority"
+              >
+                <Icon
+                  :name="sidebarLeftFooterPriority ? 'kind-icon:compress' : 'kind-icon:expand'"
+                  class="icon-btn__icon"
+                />
+              </button>
+            </div>
           </div>
         </div>
       </aside>
@@ -93,46 +105,52 @@
           </slot>
         </div>
 
-        <div class="absolute right-2 top-2 z-[220] flex flex-col items-end gap-2">
-          <button
-            class="icon-btn icon-btn--tab icon-btn--accent"
-            :class="{ 'icon-btn--dim': sidebarRightState === 'hidden' }"
-            :title="`Right sidebar: ${rightSidebarModeLabel}`"
-            @click="displayStore.toggleRightSidebar()"
-          >
-            <Icon
-              :name="rightSidebarIcon"
-              class="icon-btn__icon"
-            />
-            <span class="icon-btn__label icon-btn__label--vertical">
-              {{ rightSidebarModeLabel }}
-            </span>
-          </button>
-
-          <div class="flex flex-col gap-1">
+        <div
+          v-if="sidebarRightState !== 'hidden'"
+          class="pointer-events-none fixed z-[220]"
+          :style="rightToggleStyle"
+        >
+          <div class="pointer-events-auto flex flex-col items-end gap-2">
             <button
-              class="icon-btn icon-btn--mini icon-btn--accent"
-              :class="{ 'icon-btn--active': sidebarRightHeaderPriority }"
-              title="Right sidebar header priority"
-              @click="displayStore.toggleSidebarRightHeaderPriority()"
+              class="icon-btn icon-btn--tab icon-btn--accent"
+              :class="{ 'icon-btn--dim': sidebarRightState === 'hidden' }"
+              :title="`Right sidebar: ${rightSidebarModeLabel}`"
+              @click="toggleRightSidebar"
             >
               <Icon
-                :name="sidebarRightHeaderPriority ? 'kind-icon:compress' : 'kind-icon:expand'"
-                class="icon-btn__icon icon-btn__icon--flip-v"
-              />
-            </button>
-
-            <button
-              class="icon-btn icon-btn--mini icon-btn--accent"
-              :class="{ 'icon-btn--active': sidebarRightFooterPriority }"
-              title="Right sidebar footer priority"
-              @click="displayStore.toggleSidebarRightFooterPriority()"
-            >
-              <Icon
-                :name="sidebarRightFooterPriority ? 'kind-icon:compress' : 'kind-icon:expand'"
+                :name="rightSidebarIcon"
                 class="icon-btn__icon"
               />
+              <span class="icon-btn__label icon-btn__label--vertical">
+                {{ rightSidebarModeLabel }}
+              </span>
             </button>
+
+            <div class="flex flex-col gap-1">
+              <button
+                class="icon-btn icon-btn--mini icon-btn--accent"
+                :class="{ 'icon-btn--active': sidebarRightHeaderPriority }"
+                title="Right sidebar header priority"
+                @click="toggleSidebarRightHeaderPriority"
+              >
+                <Icon
+                  :name="sidebarRightHeaderPriority ? 'kind-icon:compress' : 'kind-icon:expand'"
+                  class="icon-btn__icon icon-btn__icon--flip-v"
+                />
+              </button>
+
+              <button
+                class="icon-btn icon-btn--mini icon-btn--accent"
+                :class="{ 'icon-btn--active': sidebarRightFooterPriority }"
+                title="Right sidebar footer priority"
+                @click="toggleSidebarRightFooterPriority"
+              >
+                <Icon
+                  :name="sidebarRightFooterPriority ? 'kind-icon:compress' : 'kind-icon:expand'"
+                  class="icon-btn__icon"
+                />
+              </button>
+            </div>
           </div>
         </div>
       </aside>
@@ -158,19 +176,25 @@
         </slot>
       </div>
 
-      <div class="absolute left-1/2 top-2 z-[220] flex -translate-x-1/2 justify-center">
-        <button
-          class="icon-btn icon-btn--pill icon-btn--base"
-          :class="{ 'icon-btn--dim': footerState === 'hidden' }"
-          :title="`Footer: ${footerModeLabel}`"
-          @click="displayStore.toggleFooter()"
-        >
-          <Icon
-            :name="footerIcon"
-            class="icon-btn__icon"
-          />
-          <span class="icon-btn__label">{{ footerModeLabel }}</span>
-        </button>
+      <div
+        v-if="footerState !== 'hidden'"
+        class="pointer-events-none fixed z-[220]"
+        :style="footerToggleStyle"
+      >
+        <div class="pointer-events-auto flex justify-center">
+          <button
+            class="icon-btn icon-btn--pill icon-btn--base"
+            :class="{ 'icon-btn--dim': footerState === 'hidden' }"
+            :title="`Footer: ${footerModeLabel}`"
+            @click="toggleFooter"
+          >
+            <Icon
+              :name="footerIcon"
+              class="icon-btn__icon"
+            />
+            <span class="icon-btn__label">{{ footerModeLabel }}</span>
+          </button>
+        </div>
       </div>
     </footer>
 
@@ -183,7 +207,7 @@
         class="icon-btn icon-btn--pill icon-btn--primary"
         style="pointer-events: auto"
         title="Show header"
-        @click="displayStore.toggleHeader()"
+        @click="toggleHeader"
       >
         <Icon name="kind-icon:chevron-double-down" class="icon-btn__icon" />
         <span class="icon-btn__label">header</span>
@@ -199,7 +223,7 @@
         class="icon-btn icon-btn--pill icon-btn--base"
         style="pointer-events: auto"
         title="Show footer"
-        @click="displayStore.toggleFooter()"
+        @click="toggleFooter"
       >
         <Icon name="kind-icon:chevron-double-up" class="icon-btn__icon" />
         <span class="icon-btn__label">footer</span>
@@ -215,7 +239,7 @@
         class="icon-btn icon-btn--tab icon-btn--secondary"
         style="pointer-events: auto"
         title="Show left sidebar"
-        @click="displayStore.toggleLeftSidebar()"
+        @click="toggleLeftSidebar"
       >
         <Icon name="kind-icon:panel-right" class="icon-btn__icon icon-btn__icon--mirror" />
         <span class="icon-btn__label icon-btn__label--vertical">left</span>
@@ -231,7 +255,7 @@
         class="icon-btn icon-btn--tab icon-btn--accent"
         style="pointer-events: auto"
         title="Show right sidebar"
-        @click="displayStore.toggleRightSidebar()"
+        @click="toggleRightSidebar"
       >
         <Icon name="kind-icon:panel-right-close" class="icon-btn__icon" />
         <span class="icon-btn__label icon-btn__label--vertical">right</span>
@@ -242,50 +266,403 @@
 
 <script setup lang="ts">
 // /layouts/default.vue
-import { computed, type CSSProperties } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  type CSSProperties,
+} from 'vue'
 
-const displayStore = useDisplayStore()
+type DisplayState = 'hidden' | 'compact' | 'open' | 'full'
+type ViewportSize = 'mobile' | 'tablet' | 'desktop'
 
-const headerState = computed(() => displayStore.headerState)
-const footerState = computed(() => displayStore.footerState)
-const sidebarLeftState = computed(() => displayStore.sidebarLeftState)
-const sidebarRightState = computed(() => displayStore.sidebarRightState)
+const HEADER_FOOTER_CYCLE: DisplayState[] = ['hidden', 'compact', 'open', 'full']
+const SIDEBAR_CYCLE: DisplayState[] = ['hidden', 'compact', 'open', 'full']
 
-const sidebarLeftHeaderPriority = computed(() => displayStore.sidebarLeftHeaderPriority)
-const sidebarLeftFooterPriority = computed(() => displayStore.sidebarLeftFooterPriority)
-const sidebarRightHeaderPriority = computed(() => displayStore.sidebarRightHeaderPriority)
-const sidebarRightFooterPriority = computed(() => displayStore.sidebarRightFooterPriority)
+const headerState = ref<DisplayState>('open')
+const footerState = ref<DisplayState>('compact')
+const sidebarLeftState = ref<DisplayState>('open')
+const sidebarRightState = ref<DisplayState>('open')
 
-const headerStyle = computed(() => displayStore.headerStyle)
-const footerStyle = computed(() => displayStore.footerStyle)
-const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
-const rightSidebarStyle = computed(() => displayStore.rightSidebarStyle)
-const mainContentStyle = computed(() => displayStore.mainContentStyle)
+const sidebarLeftHeaderPriority = ref(false)
+const sidebarLeftFooterPriority = ref(false)
+const sidebarRightHeaderPriority = ref(false)
+const sidebarRightFooterPriority = ref(false)
 
-const headerModeLabel = computed(() => displayStore.headerModeLabel)
-const footerModeLabel = computed(() => displayStore.footerModeLabel)
-const leftSidebarModeLabel = computed(() => displayStore.leftSidebarModeLabel)
-const rightSidebarModeLabel = computed(() => displayStore.rightSidebarModeLabel)
+const viewportSize = ref<ViewportSize>('desktop')
+const bigMode = ref(false)
+const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
-function toUnit(value: unknown, fallback = '0px'): string {
-  if (typeof value === 'number') return `${value}px`
-  if (typeof value === 'string' && value.trim()) return value
-  return fallback
+function setCustomVh() {
+  if (typeof window === 'undefined') return
+  const vh = window.innerHeight * 0.01
+  document.documentElement.style.setProperty('--vh', `${vh}px`)
 }
 
-function styleValue(style: Record<string, unknown>, key: string, fallback = '0px'): string {
-  return toUnit(style[key], fallback)
+function updateViewport() {
+  if (typeof window === 'undefined') return
+
+  if (resizeTimeout.value) clearTimeout(resizeTimeout.value)
+
+  resizeTimeout.value = setTimeout(() => {
+    setCustomVh()
+    const width = window.innerWidth
+
+    if (width < 768) viewportSize.value = 'mobile'
+    else if (width < 1024) viewportSize.value = 'tablet'
+    else viewportSize.value = 'desktop'
+
+    resizeTimeout.value = null
+  }, 100)
 }
 
-function parsePixels(value: unknown): number {
-  if (typeof value === 'number') return value
-  if (typeof value === 'string') {
-    const match = value.match(/-?\d+(\.\d+)?/)
-    return match ? Number(match[0]) : 0
+onMounted(() => {
+  setCustomVh()
+  updateViewport()
+  window.addEventListener('resize', updateViewport)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateViewport)
+  if (resizeTimeout.value) clearTimeout(resizeTimeout.value)
+})
+
+function nextState(current: DisplayState, cycle: DisplayState[]): DisplayState {
+  const index = cycle.indexOf(current)
+  if (index === -1) return cycle[0] ?? 'open'
+  return cycle[(index + 1) % cycle.length] ?? cycle[0] ?? 'open'
+}
+
+function toggleHeader() {
+  headerState.value = nextState(headerState.value, HEADER_FOOTER_CYCLE)
+}
+
+function toggleFooter() {
+  footerState.value = nextState(footerState.value, HEADER_FOOTER_CYCLE)
+}
+
+function toggleLeftSidebar() {
+  sidebarLeftState.value = nextState(sidebarLeftState.value, SIDEBAR_CYCLE)
+}
+
+function toggleRightSidebar() {
+  sidebarRightState.value = nextState(sidebarRightState.value, SIDEBAR_CYCLE)
+}
+
+function toggleSidebarLeftHeaderPriority() {
+  sidebarLeftHeaderPriority.value = !sidebarLeftHeaderPriority.value
+}
+
+function toggleSidebarLeftFooterPriority() {
+  sidebarLeftFooterPriority.value = !sidebarLeftFooterPriority.value
+}
+
+function toggleSidebarRightHeaderPriority() {
+  sidebarRightHeaderPriority.value = !sidebarRightHeaderPriority.value
+}
+
+function toggleSidebarRightFooterPriority() {
+  sidebarRightFooterPriority.value = !sidebarRightFooterPriority.value
+}
+
+const vh = (n: number) => `calc(var(--vh, 1vh) * ${n})`
+
+const sectionPaddingSize = computed((): number => {
+  const sizes: Record<ViewportSize, number> = {
+    mobile: 1,
+    tablet: 1,
+    desktop: 1,
   }
-  return 0
+  return sizes[viewportSize.value]
+})
+
+const toggleInset = computed((): string => {
+  if (viewportSize.value === 'mobile') return '0.35rem'
+  if (viewportSize.value === 'tablet') return '0.45rem'
+  return '0.5rem'
+})
+
+const headerHeight = computed((): number => {
+  const p = sectionPaddingSize.value
+
+  switch (headerState.value) {
+    case 'hidden':
+      return p
+    case 'compact':
+      return viewportSize.value === 'mobile' ? 5 : 4
+    case 'full': {
+      const sizes: Record<ViewportSize, number> = {
+        mobile: 35,
+        tablet: 28,
+        desktop: 25,
+      }
+      return sizes[viewportSize.value]
+    }
+    default: {
+      const sizes: Record<ViewportSize, number> = {
+        mobile: bigMode.value ? 6 : 14,
+        tablet: bigMode.value ? 12 : 13,
+        desktop: bigMode.value ? 8 : 13,
+      }
+      return sizes[viewportSize.value]
+    }
+  }
+})
+
+const footerHeights: Record<DisplayState, Record<ViewportSize, number>> = {
+  hidden: { mobile: 1, tablet: 1, desktop: 1 },
+  compact: { mobile: 6, tablet: 4, desktop: 4 },
+  open: { mobile: 45, tablet: 25, desktop: 25 },
+  full: { mobile: 55, tablet: 40, desktop: 40 },
 }
+
+const footerHeight = computed((): number => {
+  const p = sectionPaddingSize.value
+  if (footerState.value === 'hidden') return p
+  return footerHeights[footerState.value]?.[viewportSize.value] ?? p
+})
+
+const sidebarLeftWidth = computed((): number => {
+  const p = sectionPaddingSize.value
+
+  switch (sidebarLeftState.value) {
+    case 'hidden':
+      return p
+    case 'compact': {
+      const sizes: Record<ViewportSize, number> = {
+        mobile: 14,
+        tablet: 8,
+        desktop: 6,
+      }
+      return sizes[viewportSize.value]
+    }
+    case 'full': {
+      const sizes: Record<ViewportSize, number> = {
+        mobile: 60,
+        tablet: 28,
+        desktop: 22,
+      }
+      return sizes[viewportSize.value]
+    }
+    default: {
+      const sizes: Record<ViewportSize, number> = {
+        mobile: 40,
+        tablet: 20,
+        desktop: 15,
+      }
+      return sizes[viewportSize.value]
+    }
+  }
+})
+
+const sidebarRightWidth = computed((): number => {
+  const p = sectionPaddingSize.value
+
+  switch (sidebarRightState.value) {
+    case 'hidden':
+      return p
+    case 'compact': {
+      const sizes: Record<ViewportSize, number> = {
+        mobile: 18,
+        tablet: 12,
+        desktop: 8,
+      }
+      return sizes[viewportSize.value]
+    }
+    case 'full': {
+      const sizes: Record<ViewportSize, number> = {
+        mobile: 100,
+        tablet: 50,
+        desktop: 36,
+      }
+      return sizes[viewportSize.value]
+    }
+    default: {
+      const sizes: Record<ViewportSize, number> = {
+        mobile: 90,
+        tablet: 35,
+        desktop: 25,
+      }
+      return sizes[viewportSize.value]
+    }
+  }
+})
+
+const headerLeftOffset = computed((): number =>
+  sidebarLeftHeaderPriority.value ? 0 : sidebarLeftWidth.value,
+)
+
+const headerRightOffset = computed((): number =>
+  sidebarRightHeaderPriority.value ? 0 : sidebarRightWidth.value,
+)
+
+const headerWidth = computed((): number =>
+  Math.max(0, 100 - headerLeftOffset.value - headerRightOffset.value),
+)
+
+const footerLeftOffset = computed((): number =>
+  sidebarLeftFooterPriority.value ? 0 : sidebarLeftWidth.value,
+)
+
+const footerRightOffset = computed((): number =>
+  sidebarRightFooterPriority.value ? 0 : sidebarRightWidth.value,
+)
+
+const footerWidth = computed((): number =>
+  Math.max(0, 100 - footerLeftOffset.value - footerRightOffset.value),
+)
+
+function sidebarVh(
+  sizeState: DisplayState,
+  headerPriority: boolean,
+  footerPriority: boolean,
+): { top: number; height: number } {
+  if (sizeState === 'full') return { top: 0, height: 100 }
+
+  const p = sectionPaddingSize.value
+  const hh = headerHeight.value
+  const fh = footerHeight.value
+  const topEdge = headerPriority ? 0 : hh + p
+  const bottomEdge = footerPriority ? 0 : fh + p
+
+  return {
+    top: topEdge,
+    height: Math.max(p, 100 - topEdge - bottomEdge),
+  }
+}
+
+function sidebarZ(sizeState: DisplayState, hp: boolean, fp: boolean): number {
+  if (sizeState === 'full') return 50
+  if (hp || fp) return 40
+  return 20
+}
+
+const centerTopOffset = computed((): number => headerHeight.value + sectionPaddingSize.value)
+const centerBottomOffset = computed((): number => footerHeight.value + sectionPaddingSize.value)
+const centerLeftOffset = computed((): number => sidebarLeftWidth.value + sectionPaddingSize.value)
+const centerRightOffset = computed((): number => sidebarRightWidth.value + sectionPaddingSize.value)
+
+const mainContentHeight = computed((): number =>
+  Math.max(sectionPaddingSize.value, 100 - centerTopOffset.value - centerBottomOffset.value),
+)
+
+const mainContentWidth = computed((): number =>
+  Math.max(10, 100 - centerLeftOffset.value - centerRightOffset.value),
+)
+
+const headerStyle = computed<CSSProperties>(() => ({
+  position: 'fixed',
+  top: '0',
+  left: `${headerLeftOffset.value}vw`,
+  width: `${headerWidth.value}vw`,
+  height: vh(headerHeight.value),
+  zIndex: '30',
+}))
+
+const footerStyle = computed<CSSProperties>(() => ({
+  position: 'fixed',
+  bottom: '0',
+  left: `${footerLeftOffset.value}vw`,
+  width: `${footerWidth.value}vw`,
+  height: vh(footerHeight.value),
+  zIndex: '30',
+}))
+
+const leftSidebarStyle = computed<CSSProperties>(() => {
+  const { top, height } = sidebarVh(
+    sidebarLeftState.value,
+    sidebarLeftHeaderPriority.value,
+    sidebarLeftFooterPriority.value,
+  )
+
+  return {
+    position: 'fixed',
+    left: '0',
+    top: vh(top),
+    width: `${sidebarLeftWidth.value}vw`,
+    height: vh(height),
+    zIndex: String(
+      sidebarZ(
+        sidebarLeftState.value,
+        sidebarLeftHeaderPriority.value,
+        sidebarLeftFooterPriority.value,
+      ),
+    ),
+  }
+})
+
+const rightSidebarStyle = computed<CSSProperties>(() => {
+  const { top, height } = sidebarVh(
+    sidebarRightState.value,
+    sidebarRightHeaderPriority.value,
+    sidebarRightFooterPriority.value,
+  )
+
+  return {
+    position: 'fixed',
+    right: '0',
+    top: vh(top),
+    width: `${sidebarRightWidth.value}vw`,
+    height: vh(height),
+    zIndex: String(
+      sidebarZ(
+        sidebarRightState.value,
+        sidebarRightHeaderPriority.value,
+        sidebarRightFooterPriority.value,
+      ),
+    ),
+  }
+})
+
+const mainContentStyle = computed<CSSProperties>(() => ({
+  position: 'fixed',
+  top: vh(centerTopOffset.value),
+  left: `${centerLeftOffset.value}vw`,
+  width: `${mainContentWidth.value}vw`,
+  height: vh(mainContentHeight.value),
+  zIndex: '10',
+}))
+
+const headerModeLabel = computed(() => {
+  const labels: Record<DisplayState, string> = {
+    hidden: 'Hidden',
+    compact: 'Compact',
+    open: 'Open',
+    full: 'Full',
+  }
+  return labels[headerState.value]
+})
+
+const footerModeLabel = computed(() => {
+  const labels: Record<DisplayState, string> = {
+    hidden: 'Hidden',
+    compact: 'Compact',
+    open: 'Open',
+    full: 'Full',
+  }
+  return labels[footerState.value]
+})
+
+const leftSidebarModeLabel = computed(() => {
+  const labels: Record<DisplayState, string> = {
+    hidden: 'Hidden',
+    compact: 'Compact',
+    open: 'Open',
+    full: 'Full',
+  }
+  return labels[sidebarLeftState.value]
+})
+
+const rightSidebarModeLabel = computed(() => {
+  const labels: Record<DisplayState, string> = {
+    hidden: 'Hidden',
+    compact: 'Compact',
+    open: 'Open',
+    full: 'Full',
+  }
+  return labels[sidebarRightState.value]
+})
 
 const headerIcon = computed(() => {
   if (headerState.value === 'hidden') return 'kind-icon:chevron-double-down'
@@ -311,41 +688,77 @@ const rightSidebarIcon = computed(() => {
   return 'kind-icon:panel-right'
 })
 
-const headerGhostToggleStyle = computed<CSSProperties>(() => {
-  const header = headerStyle.value as Record<string, unknown>
-  const right = rightSidebarStyle.value as Record<string, unknown>
-  const rightShift =
+const headerToggleStyle = computed<CSSProperties>(() => {
+  const rightOffset =
     sidebarRightHeaderPriority.value && sidebarRightState.value !== 'hidden'
-      ? parsePixels(right.width) + 8
-      : 8
+      ? `calc(${sidebarRightWidth.value}vw + ${toggleInset.value})`
+      : toggleInset.value
 
   return {
-    top: '8px',
-    right: `${rightShift}px`,
+    top: toggleInset.value,
+    right: rightOffset,
+  }
+})
+
+const leftToggleStyle = computed<CSSProperties>(() => {
+  const { top } = sidebarVh(
+    sidebarLeftState.value,
+    sidebarLeftHeaderPriority.value,
+    sidebarLeftFooterPriority.value,
+  )
+
+  return {
+    top: `calc(${vh(top)} + ${toggleInset.value})`,
+    left: toggleInset.value,
+  }
+})
+
+const rightToggleStyle = computed<CSSProperties>(() => {
+  const { top } = sidebarVh(
+    sidebarRightState.value,
+    sidebarRightHeaderPriority.value,
+    sidebarRightFooterPriority.value,
+  )
+
+  return {
+    top: `calc(${vh(top)} + ${toggleInset.value})`,
+    right: toggleInset.value,
+  }
+})
+
+const footerToggleStyle = computed<CSSProperties>(() => ({
+  top: `calc(${vh(100 - footerHeight.value)} + ${toggleInset.value})`,
+  left: '50%',
+  transform: 'translateX(-50%)',
+}))
+
+const headerGhostToggleStyle = computed<CSSProperties>(() => {
+  const rightShift =
+    sidebarRightHeaderPriority.value && sidebarRightState.value !== 'hidden'
+      ? `calc(${sidebarRightWidth.value}vw + ${toggleInset.value})`
+      : toggleInset.value
+
+  return {
+    top: toggleInset.value,
+    right: rightShift,
   }
 })
 
 const footerGhostToggleStyle = computed<CSSProperties>(() => ({
   left: '50%',
-  bottom: '8px',
+  bottom: toggleInset.value,
   transform: 'translateX(-50%)',
 }))
 
-const leftGhostToggleStyle = computed<CSSProperties>(() => {
-  const main = mainContentStyle.value as Record<string, unknown>
-  return {
-    top: styleValue(main, 'top', '8px'),
-    left: '8px',
-  }
-})
+const leftGhostToggleStyle = computed<CSSProperties>(() => ({
+  top: `calc(${vh(centerTopOffset.value)} + ${toggleInset.value})`,
+  left: toggleInset.value,
+}))
 
-const rightGhostToggleStyle = computed<CSSProperties>(() => {
-  const main = mainContentStyle.value as Record<string, unknown>
-  return {
-    top: styleValue(main, 'top', '8px'),
-    right: '8px',
-  }
-})
+const rightGhostToggleStyle = computed<CSSProperties>(() => ({
+  top: `calc(${vh(centerTopOffset.value)} + ${toggleInset.value})`,
+  right: toggleInset.value,
+}))
 </script>
 
 <style scoped>

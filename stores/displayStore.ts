@@ -89,10 +89,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const sidebarLeftWidth = computed(() => {
     const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
-      small: { hidden: 0, compact: 10, open: 18, priority: 18 },
-      medium: { hidden: 0, compact: 8, open: 14, priority: 14 },
-      large: { hidden: 0, compact: 6, open: 12, priority: 12 },
-      extraLarge: { hidden: 0, compact: 5, open: 10, priority: 10 },
+      small: { hidden: 0, compact: 18, open: 32, priority: 32 },
+      medium: { hidden: 0, compact: 16, open: 20, priority: 22 },
+      large: { hidden: 0, compact: 14, open: 19, priority: 24 },
+      extraLarge: { hidden: 0, compact: 12, open: 20, priority: 25 },
     }
 
     return widths[state.viewportSize][leftSidebarStage.value]
@@ -101,9 +101,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const sidebarRightWidth = computed(() => {
     const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
       small: { hidden: 0, compact: 18, open: 32, priority: 32 },
-      medium: { hidden: 0, compact: 16, open: 28, priority: 28 },
-      large: { hidden: 0, compact: 14, open: 24, priority: 24 },
-      extraLarge: { hidden: 0, compact: 12, open: 20, priority: 20 },
+      medium: { hidden: 0, compact: 16, open: 20, priority: 22 },
+      large: { hidden: 0, compact: 14, open: 19, priority: 24 },
+      extraLarge: { hidden: 0, compact: 12, open: 20, priority: 25 },
     }
 
     return widths[state.viewportSize][rightSidebarStage.value]

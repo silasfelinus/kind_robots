@@ -107,7 +107,7 @@
     >
       <Transition name="slide-in-right">
         <div class="pointer-events-none">
-          <corner-panel class="pointer-events-auto" />
+          <corner-panel class="mr-20 pointer-events-auto" />
         </div>
       </Transition>
 

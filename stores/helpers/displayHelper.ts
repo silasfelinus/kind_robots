@@ -10,11 +10,11 @@ export function setCustomVh() {
 export type SmartState = 'front' | 'back' | 'dash'
 
 export type DisplayState =
-  | 'open'
-  | 'compact'
   | 'hidden'
+  | 'compact'
+  | 'open'
+  | 'priority'
   | 'disabled'
-  | 'extended'
 export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 export type FullscreenState = 'nuxt' | 'fullscreen' | 'splash'
 export type displayModeState =

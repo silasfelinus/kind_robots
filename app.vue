@@ -1,9 +1,5 @@
 <!-- /app.vue -->
 <template>
-  <!--
-    Root: no overflow-hidden, no relative, no transform — nothing that
-    could trap position:fixed children into a local stacking context.
-  -->
   <div class="h-dvh w-full bg-base-200 text-base-content">
     <footer-toggle />
     <kind-loader />
@@ -30,7 +26,7 @@
     >
       <div
         v-if="isNavigating"
-        class="pointer-events-none fixed inset-0 flex items-center justify-center bg-base-200/55 backdrop-blur-sm"
+        class="pointer-events-none fixed inset-0 flex items-center justify-center backdrop-blur-sm"
         style="z-index: 9500"
       >
         <div
@@ -57,8 +53,6 @@
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-
-    <screen-debug />
 
     <!-- Viewport badge: centered bottom, pointer-events-none -->
     <ClientOnly>

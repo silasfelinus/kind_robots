@@ -1,4 +1,5 @@
 import { exec } from 'child_process'
+import tailwindcss from '@tailwindcss/vite'
 
 // Define a type for exec's callback
 type ExecCallback = (
@@ -9,6 +10,7 @@ type ExecCallback = (
 
 export default defineNuxtConfig({
   vite: {
+    plugins: [tailwindcss()],
     build: {
       target: 'esnext', // Target modern JavaScript features
       minify: 'esbuild', // Use esbuild for minification (faster than Terser)
@@ -25,7 +27,6 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/icon',
     '@nuxt/image',
-    '@nuxtjs/tailwindcss',
   ],
 
   components: [

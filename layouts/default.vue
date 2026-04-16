@@ -9,20 +9,14 @@
         <full-header />
       </slot>
 
-      <div
-        class="pointer-events-none fixed z-[220]"
-        :style="headerToggleStyle"
-      >
+      <div class="pointer-events-none fixed z-220" :style="headerToggleStyle">
         <div class="pointer-events-auto flex items-start gap-2">
           <button
             class="icon-btn icon-btn--pill icon-btn--primary"
             :title="`Header: ${headerModeLabel}`"
             @click="toggleHeader"
           >
-            <Icon
-              :name="headerIcon"
-              class="icon-btn__icon"
-            />
+            <Icon :name="headerIcon" class="icon-btn__icon" />
             <span class="icon-btn__label">{{ headerModeLabel }}</span>
           </button>
         </div>
@@ -34,16 +28,15 @@
         class="fixed overflow-hidden border-r-2 border-secondary-focus bg-secondary text-secondary-content transition-[top,height,width,left] duration-200"
         :style="leftSidebarStyle"
       >
-        <div class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain">
+        <div
+          class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain"
+        >
           <slot name="left">
             <left-sidebar />
           </slot>
         </div>
 
-        <div
-          class="pointer-events-none fixed z-[220]"
-          :style="leftToggleStyle"
-        >
+        <div class="pointer-events-none fixed z-220" :style="leftToggleStyle">
           <div class="pointer-events-auto flex flex-col items-start gap-2">
             <button
               class="icon-btn icon-btn--tab icon-btn--secondary"
@@ -69,26 +62,22 @@
         class="fixed overflow-hidden border-l-2 border-accent-focus bg-accent text-accent-content transition-[top,height,width,right] duration-200"
         :style="rightSidebarStyle"
       >
-        <div class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain">
+        <div
+          class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain"
+        >
           <slot name="right">
             <right-sidebar />
           </slot>
         </div>
 
-        <div
-          class="pointer-events-none fixed z-[220]"
-          :style="rightToggleStyle"
-        >
+        <div class="pointer-events-none fixed z-220" :style="rightToggleStyle">
           <div class="pointer-events-auto flex flex-col items-end gap-2">
             <button
               class="icon-btn icon-btn--tab icon-btn--accent"
               :title="`Right sidebar: ${rightSidebarModeLabel}`"
               @click="toggleRightSidebar"
             >
-              <Icon
-                :name="rightSidebarIcon"
-                class="icon-btn__icon"
-              />
+              <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
               <span class="icon-btn__label icon-btn__label--vertical">
                 {{ rightSidebarModeLabel }}
               </span>
@@ -103,7 +92,9 @@
       class="fixed overflow-hidden border border-base-300 bg-base-100 text-base-content transition-[top,left,width,height] duration-200"
       :style="mainContentStyle"
     >
-      <div class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 py-4">
+      <div
+        class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 py-4"
+      >
         <slot />
       </div>
     </main>
@@ -118,20 +109,14 @@
         </slot>
       </div>
 
-      <div
-        class="pointer-events-none fixed z-[220]"
-        :style="footerToggleStyle"
-      >
+      <div class="pointer-events-none fixed z-220" :style="footerToggleStyle">
         <div class="pointer-events-auto flex justify-center">
           <button
             class="icon-btn icon-btn--pill icon-btn--base"
             :title="`Footer: ${footerModeLabel}`"
             @click="toggleFooter"
           >
-            <Icon
-              :name="footerIcon"
-              class="icon-btn__icon"
-            />
+            <Icon :name="footerIcon" class="icon-btn__icon" />
             <span class="icon-btn__label">{{ footerModeLabel }}</span>
           </button>
         </div>
@@ -355,10 +340,7 @@ const mainContentHeight = computed((): number => {
 })
 
 const mainContentWidth = computed((): number => {
-  return Math.max(
-    10,
-    100 - centerLeftOffset.value - centerRightOffset.value,
-  )
+  return Math.max(10, 100 - centerLeftOffset.value - centerRightOffset.value)
 })
 
 const headerStyle = computed<CSSProperties>(() => ({
@@ -462,7 +444,8 @@ const leftSidebarIcon = computed(() => {
 
 const rightSidebarIcon = computed(() => {
   if (sidebarRightState.value === 'closed') return 'kind-icon:panel-right-close'
-  if (sidebarRightState.value === 'compact') return 'kind-icon:panel-right-close'
+  if (sidebarRightState.value === 'compact')
+    return 'kind-icon:panel-right-close'
   return 'kind-icon:panel-right'
 })
 

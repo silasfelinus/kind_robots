@@ -4,7 +4,7 @@
       <button
         v-if="canScrollLeft"
         type="button"
-        class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl bg-base-300 hover:bg-base-300/80 border border-base-content/20 shadow-sm transition"
+        class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl hover:bg-base-300/80 border border-base-content/20 shadow-sm transition"
         @click="scrollByStep(-1)"
       >
         <Icon name="kind-icon:chevron-left" class="w-[65%] h-[65%]" />
@@ -67,7 +67,7 @@
       <button
         v-if="canScrollRight"
         type="button"
-        class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl bg-base-300 hover:bg-base-300/80 border border-base-content/20 shadow-sm transition"
+        class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl hover:bg-base-300/80 border border-base-content/20 shadow-sm transition"
         @click="scrollByStep(1)"
       >
         <Icon name="kind-icon:chevron-right" class="w-[65%] h-[65%]" />

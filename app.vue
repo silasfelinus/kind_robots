@@ -50,9 +50,9 @@
       </div>
     </Transition>
 
-    <div class="layout-shell">
+    <div class="layout-shell bg-accent">
       <NuxtLayout>
-        <NuxtPage />
+        main content
       </NuxtLayout>
     </div>
 
@@ -171,7 +171,6 @@ body {
   min-width: 100vw;
   min-height: 100dvh;
   overflow: hidden;
-  background: oklch(var(--er) / 0.18);
 }
 
 .layout-shell > * {

@@ -1,145 +1,77 @@
-<!-- /components/content/navigation/smart-icons.vue -->
 <template>
-  <div class="relative w-full flex-1 min-w-0 leading-none h-full min-h-9">
-    <Teleport to="body">
-      <div
-        v-if="debugTeleport && isMounted"
-        class="fixed left-3 bottom-3 z-9999 rounded-xl border border-base-content/20 bg-base-100/90 px-3 py-2 text-xs shadow-xl"
+  <div class="relative flex h-full min-h-10 w-full min-w-0 items-stretch">
+    <div class="flex h-full w-full items-stretch gap-1">
+      <button
+        v-if="canScrollLeft"
+        type="button"
+        class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl bg-base-300 hover:bg-base-300/80 border border-base-content/20 shadow-sm transition"
+        @click="scrollByStep(-1)"
       >
-        <div class="font-bold">smart-icons mounted ✅</div>
-        <div class="opacity-80">
-          a:{{ activeCount }} f:{{ filteredCount }} r:{{ rowCount }}
-        </div>
-      </div>
-    </Teleport>
+        <Icon name="kind-icon:chevron-left" class="w-[65%] h-[65%]" />
+      </button>
 
-    <div
-      ref="scrollContainer"
-      class="h-full min-h-0 w-full flex items-stretch snap-x snap-mandatory transition-all duration-300 gap-0.5 overflow-x-auto overflow-y-hidden smart-icons-scroll select-none px-10 sm:px-12"
-      :class="[
-        displayStore.showCorner
-          ? '[&_.icon-title]:invisible [&_.smart-icon-title]:invisible [&_.label]:invisible **:data-icon-title:invisible **:aria-[aria-label=icon-title]:invisible'
-          : '',
-        '**:mt-0! **:mb-0! **:pt-0! **:pb-0!',
-        '**:ms-0! **:me-0!',
-        '*:h-full',
-        isDragging ? 'cursor-grabbing' : 'cursor-grab',
-      ]"
-      @scroll="checkScrollEdgesThrottled"
-      @mousedown="handleScrollMouseDown"
-      @mousemove="handleScrollMouseMove"
-      @mouseup="handleScrollMouseUp"
-      @mouseleave="handleScrollMouseUp"
-      @touchstart="handleScrollTouchStart"
-      @touchmove="handleScrollTouchMove"
-      @touchend="handleScrollTouchEnd"
-      @wheel.passive="handleWheel"
-      tabindex="0"
-      @keydown.left.prevent="scrollByStep(-1)"
-      @keydown.right.prevent="scrollByStep(1)"
-      aria-label="Smart icons"
-    >
       <div
-        ref="row"
-        class="h-full min-h-0 flex items-stretch gap-0.5 min-w-max"
+        ref="scrollContainer"
+        class="smart-icons-scroll flex h-full min-h-0 flex-1 min-w-0 items-stretch gap-1 overflow-x-auto overflow-y-hidden transition-all duration-300"
+        :class="[
+          isDragging ? 'cursor-grabbing' : 'cursor-grab',
+          !canScrollLeft && !canScrollRight ? 'justify-center px-2' : '',
+        ]"
+        @scroll="checkScrollEdgesThrottled"
+        @mousedown="handleScrollMouseDown"
+        @mousemove="handleScrollMouseMove"
+        @mouseup="handleScrollMouseUp"
+        @mouseleave="handleScrollMouseUp"
+        @touchstart="handleScrollTouchStart"
+        @touchmove="handleScrollTouchMove"
+        @touchend="handleScrollTouchEnd"
+        @wheel.passive="handleWheel"
       >
-        <div
-          aria-hidden="true"
-          class="shrink-0 h-full w-3 sm:w-4 md:w-6 lg:w-8"
-        />
-
-        <div
-          v-if="rowIcons.length === 0"
-          class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
-        >
-          <button
-            type="button"
-            class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 text-warning transition outline-none focus-visible:ring-2 focus-visible:ring-warning/50"
-            title="No nav icons found"
-            aria-label="No nav icons found"
-            @click="activateEditMode"
+        <div ref="row" class="flex h-full min-w-max items-stretch gap-1">
+          <div
+            v-if="rowIcons.length === 0"
+            class="flex h-full aspect-square items-center justify-center"
           >
-            <Icon
-              name="kind-icon:alert"
-              class="pointer-events-none h-[60%] w-[60%]"
-            />
-            <span
-              class="icon-title mt-[0.15em] text-[10px] opacity-90 select-none"
+            <button
+              type="button"
+              class="h-full w-full flex flex-col items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 text-warning"
+              @click="activateEditMode"
             >
-              No icons
-            </span>
-          </button>
-        </div>
+              <Icon name="kind-icon:alert" class="h-[70%] w-[70%]" />
+            </button>
+          </div>
 
-        <icon-display
-          v-for="icon in rowIcons"
-          :key="icon.id"
-          :icon="icon"
-          :show-title="showTitles"
-          class="snap-start shrink-0 h-full aspect-square flex"
-        />
+          <icon-display
+            v-for="icon in rowIcons"
+            :key="icon.id"
+            :icon="icon"
+            :show-title="showTitles"
+            class="h-full aspect-square flex"
+          />
 
-        <div
-          v-if="!isEditing"
-          class="snap-start shrink-0 h-full aspect-square flex items-center justify-center"
-        >
-          <button
-            type="button"
-            class="group relative h-[85%] w-[85%] flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10 transition outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-            title="Edit Smart Icons"
-            aria-label="Edit Smart Icons"
-            @click="activateEditMode"
+          <div
+            v-if="!isEditing"
+            class="flex h-full aspect-square items-center justify-center"
           >
-            <Icon
-              name="kind-icon:settings"
-              class="pointer-events-none h-[60%] w-[60%]"
-            />
-            <span
-              v-if="showTitles"
-              class="icon-title mt-[0.15em] text-xs opacity-80 select-none"
+            <button
+              type="button"
+              class="h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10"
+              @click="activateEditMode"
             >
-              Edit
-            </span>
-          </button>
+              <Icon name="kind-icon:settings" class="h-[70%] w-[70%]" />
+            </button>
+          </div>
         </div>
-
-        <div
-          aria-hidden="true"
-          class="shrink-0 h-full w-3 sm:w-4 md:w-6 lg:w-8"
-        />
       </div>
 
-      <div class="pointer-events-none absolute inset-y-0 left-0 right-0 z-30">
-        <div
-          v-show="canScrollLeft"
-          class="absolute left-0 top-0 h-full w-10 sm:w-12 bg-linear-to-r from-base-100/80 to-transparent"
-        />
-        <div
-          v-show="canScrollRight"
-          class="absolute right-0 top-0 h-full w-10 sm:w-12 bg-linear-to-l from-base-100/80 to-transparent"
-        />
-        <button
-          v-if="canScrollLeft"
-          type="button"
-          class="pointer-events-auto absolute left-0 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-full bg-base-200/80 hover:bg-base-200 shadow-sm border border-base-300 text-base-content/80 w-6 h-6 lg:w-7 lg:h-7"
-          @click="scrollByStep(-1)"
-          aria-label="Scroll left"
-          title="Scroll left"
-        >
-          <Icon name="kind-icon:chevron-left" class="w-3 h-3 lg:w-4 lg:h-4" />
-        </button>
-
-        <button
-          v-if="canScrollRight"
-          type="button"
-          class="pointer-events-auto absolute right-0 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-full bg-base-200/80 hover:bg-base-200 shadow-sm border border-base-300 text-base-content/80 w-6 h-6 lg:w-7 lg:h-7"
-          @click="scrollByStep(1)"
-          aria-label="Scroll right"
-          title="Scroll right"
-        >
-          <Icon name="kind-icon:chevron-right" class="w-3 h-3 lg:w-4 lg:h-4" />
-        </button>
-      </div>
+      <button
+        v-if="canScrollRight"
+        type="button"
+        class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl bg-base-300 hover:bg-base-300/80 border border-base-content/20 shadow-sm transition"
+        @click="scrollByStep(1)"
+      >
+        <Icon name="kind-icon:chevron-right" class="w-[65%] h-[65%]" />
+      </button>
     </div>
   </div>
 </template>

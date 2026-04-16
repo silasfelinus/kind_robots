@@ -106,8 +106,11 @@
       :style="displayStore.mainContentStyle"
     >
       <Transition name="slide-in-right">
-        <div class="pointer-events-none">
-          <corner-panel class="mr-20 pointer-events-auto" />
+        <div
+          class="pointer-events-none fixed z-40"
+          :style="displayStore.cornerPanelStyle"
+        >
+          <corner-panel class="pointer-events-auto" />
         </div>
       </Transition>
 

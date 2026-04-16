@@ -257,14 +257,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
-  const footerToggleStyle = computed<CSSProperties>(() => ({
-    position: 'fixed',
-    left: '50%',
-    bottom: `calc(var(--vh) * ${Math.max(1, footerHeight.value * 0.25)})`,
-    transform: 'translateX(-50%)',
-    zIndex: '80',
-  }))
+  const footerToggleStyle = computed<CSSProperties>(() => {
+    const padding = sectionPaddingSize.value
+    const footerTop = 100 - footerHeight.value - padding
 
+    return {
+      position: 'fixed',
+      left: '50%',
+      top: `calc(var(--vh) * ${footerTop} - 0.9rem)`,
+      transform: 'translateX(-50%)',
+      zIndex: '80',
+    }
+  })
   const headerToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     top: `calc(var(--vh) * ${Math.max(0.5, sectionPaddingSize.value + 0.75)})`,

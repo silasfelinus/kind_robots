@@ -1,147 +1,136 @@
 <!-- /components/content/utils/screen-debug.vue -->
 <template>
-  <!-- Toggle Button (Admins only) -->
-  <div v-if="isAdmin" class="fixed top-4 right-4 z-1000 pointer-events-auto">
+  <!-- Toggle button — admins only -->
+  <div
+    v-if="isAdmin"
+    style="position: fixed; top: 1rem; right: 1rem; z-index: 500"
+    class="pointer-events-auto"
+  >
     <button
-      class="bg-gray-800 text-white p-2 rounded-full shadow-md"
+      class="bg-base-300 text-base-content p-2 rounded-full shadow-md text-sm"
       @click="toggleDebug"
     >
       {{ isDebugVisible ? '❌' : '🛠️' }}
     </button>
   </div>
 
-  <!-- Overlay Debug Layer -->
+  <!-- Full-screen overlay: pointer-events:none so it never blocks the layout -->
   <div
     v-if="isDebugVisible"
-    class="fixed inset-0 z-999 bg-black/80 text-white font-mono text-xs pointer-events-none"
+    style="position: fixed; inset: 0; z-index: 400; pointer-events: none"
+    class="bg-black/70 font-mono text-xs text-white"
   >
-    <!-- Region outlines — use store styles directly -->
+    <!-- Region outlines — all always rendered (regions never disappear) -->
     <div
-      v-if="displayStore.headerState !== 'hidden'"
       :style="displayStore.headerStyle"
-      class="absolute border border-white bg-white/10 flex items-center justify-center z-1001"
+      class="absolute flex items-center justify-center border-2 border-white bg-white/10"
     >
-      Header ({{ headerHeight }}vh)
+      Header · {{ headerHeight }}vh · {{ displayStore.headerState }}
     </div>
 
     <div
-      v-if="displayStore.footerState !== 'hidden'"
       :style="displayStore.footerStyle"
-      class="absolute border border-white bg-white/10 flex items-center justify-center z-1001"
+      class="absolute flex items-center justify-center border-2 border-white bg-white/10"
     >
-      Footer ({{ footerHeight }}vh)
+      Footer · {{ footerHeight }}vh · {{ displayStore.footerState }}
     </div>
 
     <div
-      v-if="displayStore.leftSidebarVisible"
       :style="displayStore.leftSidebarStyle"
-      class="absolute border border-cyan-400 bg-cyan-400/10 flex items-center justify-center text-cyan-200 z-1001"
+      class="absolute flex items-center justify-center border-2 border-cyan-400 bg-cyan-400/10 text-cyan-200"
     >
-      Left ({{ sidebarLeftWidth }}vw)
+      Left · {{ sidebarLeftWidth }}vw · {{ displayStore.sidebarLeftState }}
     </div>
 
     <div
-      v-if="displayStore.rightSidebarVisible"
       :style="displayStore.rightSidebarStyle"
-      class="absolute border border-pink-400 bg-pink-400/10 flex items-center justify-center text-pink-200 z-1001"
+      class="absolute flex items-center justify-center border-2 border-pink-400 bg-pink-400/10 text-pink-200"
     >
-      Right ({{ sidebarRightWidth }}vw)
+      Right · {{ sidebarRightWidth }}vw · {{ displayStore.sidebarRightState }}
     </div>
 
     <div
       :style="displayStore.mainContentStyle"
-      class="absolute border border-yellow-300 bg-yellow-300/10 flex items-center justify-center text-yellow-200 text-center z-1001"
+      class="absolute flex items-center justify-center border-2 border-yellow-300 bg-yellow-300/10 text-yellow-200 text-center"
     >
-      Center ({{ mainContentHeight }}vh × {{ mainContentWidth }}vw)
+      Center · {{ mainContentHeight }}vh × {{ mainContentWidth }}vw
     </div>
 
-    <!-- Debug Readout (click-enabled) -->
+    <!-- Debug readout — pointer-events:auto so it's scrollable -->
     <div
-      class="fixed bottom-4 left-4 bg-base-100 text-base-content p-4 rounded-xl shadow-xl w-[90vw] max-w-2xl max-h-[40vh] overflow-y-auto text-xs z-1002 space-y-2 pointer-events-auto"
+      style="
+        position: fixed;
+        bottom: 1rem;
+        left: 1rem;
+        z-index: 410;
+        pointer-events: auto;
+      "
+      class="bg-base-100 text-base-content p-4 rounded-xl shadow-xl w-[90vw] max-w-2xl max-h-[40vh] overflow-y-auto space-y-2"
     >
-      <div class="font-bold text-lg mb-1">🧪 Display Store Debug</div>
+      <div class="font-bold text-base mb-1">🧪 Display Store Debug</div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 leading-relaxed">
-        <!-- States -->
-        <div><strong>Header State:</strong> {{ displayStore.headerState }}</div>
-        <div><strong>Footer State:</strong> {{ displayStore.footerState }}</div>
+      <div
+        class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 leading-relaxed"
+      >
         <div>
-          <strong>Left State:</strong> {{ displayStore.sidebarLeftState }}
+          <strong>Header:</strong> {{ displayStore.headerState }} ·
+          {{ headerHeight }}vh
         </div>
         <div>
-          <strong>Right State:</strong> {{ displayStore.sidebarRightState }}
+          <strong>Footer:</strong> {{ displayStore.footerState }} ·
+          {{ footerHeight }}vh
         </div>
-
-        <!-- Priority booleans -->
         <div>
-          <strong>L Header Priority:</strong>
+          <strong>Left:</strong> {{ displayStore.sidebarLeftState }} ·
+          {{ sidebarLeftWidth }}vw
+        </div>
+        <div>
+          <strong>Right:</strong> {{ displayStore.sidebarRightState }} ·
+          {{ sidebarRightWidth }}vw
+        </div>
+        <div>
+          <strong>L ↑H priority:</strong>
           {{ displayStore.sidebarLeftHeaderPriority }}
         </div>
         <div>
-          <strong>L Footer Priority:</strong>
+          <strong>L ↓F priority:</strong>
           {{ displayStore.sidebarLeftFooterPriority }}
         </div>
         <div>
-          <strong>R Header Priority:</strong>
+          <strong>R ↑H priority:</strong>
           {{ displayStore.sidebarRightHeaderPriority }}
         </div>
         <div>
-          <strong>R Footer Priority:</strong>
+          <strong>R ↓F priority:</strong>
           {{ displayStore.sidebarRightFooterPriority }}
         </div>
-
-        <!-- Dimensions -->
-        <div><strong>Header:</strong> {{ headerHeight }}vh</div>
-        <div><strong>Footer:</strong> {{ footerHeight }}vh</div>
         <div><strong>Padding:</strong> {{ sectionPadding }}vh</div>
-        <div><strong>Main Height:</strong> {{ mainContentHeight }}vh</div>
-        <div><strong>Main Width:</strong> {{ mainContentWidth }}vw</div>
-        <div><strong>Left Width:</strong> {{ sidebarLeftWidth }}vw</div>
-        <div><strong>Right Width:</strong> {{ sidebarRightWidth }}vw</div>
-
-        <!-- Viewport / device -->
+        <div><strong>Center H:</strong> {{ mainContentHeight }}vh</div>
+        <div><strong>Center W:</strong> {{ mainContentWidth }}vw</div>
         <div><strong>Viewport:</strong> {{ displayStore.viewportSize }}</div>
         <div><strong>Touch:</strong> {{ displayStore.isTouchDevice }}</div>
-        <div><strong>CSS --vh:</strong> {{ vhValue }}</div>
-
-        <!-- App state -->
+        <div><strong>--vh:</strong> {{ vhValue }}</div>
+        <div><strong>Big Mode:</strong> {{ displayStore.bigMode }}</div>
         <div>
           <strong>Fullscreen:</strong> {{ displayStore.fullscreenState }}
         </div>
-        <div><strong>Big Mode:</strong> {{ displayStore.bigMode }}</div>
-        <div><strong>Flip:</strong> {{ displayStore.flipState }}</div>
         <div><strong>Animating:</strong> {{ displayStore.isAnimating }}</div>
-        <div>
-          <strong>Animation:</strong> {{ displayStore.currentAnimation }}
-        </div>
-        <div><strong>Display Mode:</strong> {{ displayStore.displayMode }}</div>
-        <div>
-          <strong>Display Action:</strong> {{ displayStore.displayAction }}
-        </div>
-        <div>
-          <strong>Main Component:</strong> {{ displayStore.mainComponent }}
-        </div>
+        <div><strong>Mode:</strong> {{ displayStore.displayMode }}</div>
+        <div><strong>Action:</strong> {{ displayStore.displayAction }}</div>
       </div>
 
-      <details class="mt-3">
+      <details class="mt-2">
         <summary class="cursor-pointer font-bold text-sm">
-          🧾 Computed Styles (click to expand)
+          🧾 Raw styles
         </summary>
-        <pre class="whitespace-pre-wrap mt-2 text-[0.65rem] leading-relaxed">
-<strong>headerStyle:</strong>
-{{ fmt(displayStore.headerStyle) }}
-
-<strong>footerStyle:</strong>
-{{ fmt(displayStore.footerStyle) }}
-
-<strong>leftSidebarStyle:</strong>
-{{ fmt(displayStore.leftSidebarStyle) }}
-
-<strong>rightSidebarStyle:</strong>
-{{ fmt(displayStore.rightSidebarStyle) }}
-
-<strong>mainContentStyle:</strong>
-{{ fmt(displayStore.mainContentStyle) }}
+        <pre
+          class="whitespace-pre-wrap mt-2 text-[0.6rem] leading-relaxed opacity-80"
+        >
+headerStyle:       {{ fmt(displayStore.headerStyle) }}
+footerStyle:       {{ fmt(displayStore.footerStyle) }}
+leftSidebarStyle:  {{ fmt(displayStore.leftSidebarStyle) }}
+rightSidebarStyle: {{ fmt(displayStore.rightSidebarStyle) }}
+mainContentStyle:  {{ fmt(displayStore.mainContentStyle) }}
         </pre>
       </details>
     </div>
@@ -162,7 +151,6 @@ const isDebugVisible = ref(false)
 const toggleDebug = () => (isDebugVisible.value = !isDebugVisible.value)
 const isAdmin = computed(() => userStore.isAdmin === true)
 
-// Flat computed refs for the readout grid — all from the store
 const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
@@ -173,18 +161,15 @@ const sectionPadding = computed(() => displayStore.sectionPaddingSize)
 
 const vhValue = ref('unset')
 onMounted(() => {
-  if (typeof window !== 'undefined') {
-    vhValue.value =
-      getComputedStyle(document.documentElement)
-        .getPropertyValue('--vh')
-        .trim() || 'unset'
-  }
+  vhValue.value =
+    getComputedStyle(document.documentElement)
+      .getPropertyValue('--vh')
+      .trim() || 'unset'
 })
 
-// Pretty-print a CSSProperties object for the <pre> readout
 function fmt(style: CSSProperties): string {
   return Object.entries(style)
-    .map(([k, v]) => `  ${k}: ${v}`)
-    .join('\n')
+    .map(([k, v]) => `${k}: ${v}`)
+    .join(', ')
 }
 </script>

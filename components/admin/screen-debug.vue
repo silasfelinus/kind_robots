@@ -3,7 +3,7 @@
   <!-- Toggle button — admins only -->
   <div
     v-if="isAdmin"
-    style="position: fixed; top: 1rem; right: 1rem; z-index: 500"
+    style="position: fixed; top: 1rem; right: 1rem; z-index: 50"
     class="pointer-events-auto"
   >
     <button
@@ -17,7 +17,7 @@
   <!-- Full-screen overlay: pointer-events:none so it never blocks the layout -->
   <div
     v-if="isDebugVisible"
-    style="position: fixed; inset: 0; z-index: 400; pointer-events: none"
+    style="position: fixed; inset: 0; z-index: 50; pointer-events: none"
     class="bg-black/70 font-mono text-xs text-white"
   >
     <!-- Region outlines — all always rendered (regions never disappear) -->

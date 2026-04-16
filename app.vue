@@ -1,6 +1,8 @@
 <!-- /app.vue -->
 <template>
-  <div class="layout-shell bg-secondary-200">main content</div>
+  <div class="h-dvh w-full bg-secondary flex items-center justify-center">
+    <NuxtPage />
+  </div>
 </template>
 
 <script setup lang="ts">

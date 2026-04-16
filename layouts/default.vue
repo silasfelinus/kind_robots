@@ -3,15 +3,11 @@
   Every region is ALWAYS in the DOM. Hidden = sectionPaddingSize minimum.
   No v-if on regions. No Tailwind position classes on region elements.
   position:fixed comes exclusively from the store style object.
-  Toggle buttons use inline style for position to guarantee no class conflicts.
 
-  Icons used (from /assets/icons/):
-    Header toggle       → chevron-up / chevron-double-up      (open vs hidden)
-    Footer toggle       → chevron-down / chevron-double-down  (open vs hidden)
-    Left sidebar        → panel-right-close / panel-right     (scoped: mirror via CSS)
-    Right sidebar       → panel-right / panel-right-close
-    Priority ↑ header   → expand (active: compress)
-    Priority ↓ footer   → expand (rotated, active: compress)
+  Toggle centering uses left:0;right:0;display:flex;justify-content:center
+  instead of left:50%;transform:translateX(-50%) to avoid stacking context issues.
+
+  Icons via Nuxt <Icon> component (kind-icon set) — no bare /assets/ img paths.
 -->
 <template>
   <div>
@@ -46,14 +42,13 @@
             title="Extend behind header"
             @click="displayStore.toggleSidebarLeftHeaderPriority()"
           >
-            <img
-              :src="
+            <Icon
+              :name="
                 sidebarLeftHeaderPriority
-                  ? '/icons/compress.svg'
-                  : '/icons/expand.svg'
+                  ? 'kind-icon:compress'
+                  : 'kind-icon:expand'
               "
-              class="icon-btn__img icon-btn__img--flip-v"
-              aria-hidden="true"
+              class="icon-btn__icon icon-btn__icon--flip-v"
             />
           </button>
           <button
@@ -62,14 +57,13 @@
             title="Extend behind footer"
             @click="displayStore.toggleSidebarLeftFooterPriority()"
           >
-            <img
-              :src="
+            <Icon
+              :name="
                 sidebarLeftFooterPriority
-                  ? '/icons/compress.svg'
-                  : '/icons/expand.svg'
+                  ? 'kind-icon:compress'
+                  : 'kind-icon:expand'
               "
-              class="icon-btn__img"
-              aria-hidden="true"
+              class="icon-btn__icon"
             />
           </button>
         </div>
@@ -98,14 +92,13 @@
             title="Extend behind header"
             @click="displayStore.toggleSidebarRightHeaderPriority()"
           >
-            <img
-              :src="
+            <Icon
+              :name="
                 sidebarRightHeaderPriority
-                  ? '/icons/compress.svg'
-                  : '/icons/expand.svg'
+                  ? 'kind-icon:compress'
+                  : 'kind-icon:expand'
               "
-              class="icon-btn__img icon-btn__img--flip-v"
-              aria-hidden="true"
+              class="icon-btn__icon icon-btn__icon--flip-v"
             />
           </button>
           <button
@@ -114,14 +107,13 @@
             title="Extend behind footer"
             @click="displayStore.toggleSidebarRightFooterPriority()"
           >
-            <img
-              :src="
+            <Icon
+              :name="
                 sidebarRightFooterPriority
-                  ? '/icons/compress.svg'
-                  : '/icons/expand.svg'
+                  ? 'kind-icon:compress'
+                  : 'kind-icon:expand'
               "
-              class="icon-btn__img"
-              aria-hidden="true"
+              class="icon-btn__icon"
             />
           </button>
         </div>
@@ -149,92 +141,103 @@
     </footer>
 
     <!-- ══ TOGGLE BUTTONS ══
-         Always visible. Inline style for position — no Tailwind conflict.
-         z-index 200 sits above all regions (max region z-index is 50).
+         Always visible. z-index 200 above all regions (max is 50).
+         Centered via left:0;right:0;justify-content:center — no transform,
+         no stacking context created.
     -->
 
-    <!-- Header: top center -->
+    <!-- Header toggle: top, centered horizontally -->
     <div
       style="
         position: fixed;
         top: 0.3rem;
-        left: 50%;
-        transform: translateX(-50%);
+        left: 0;
+        right: 0;
         z-index: 200;
+        display: flex;
+        justify-content: center;
+        pointer-events: none;
       "
     >
       <button
         class="icon-btn icon-btn--pill"
+        style="pointer-events: auto"
         :class="{ 'icon-btn--dim': headerState === 'hidden' }"
         :title="`Header: ${headerModeLabel}`"
         @click="displayStore.toggleHeader()"
       >
-        <img
-          :src="
+        <Icon
+          :name="
             headerState === 'hidden'
-              ? '/icons/chevron-double-up.svg'
-              : '/icons/chevron-up.svg'
+              ? 'kind-icon:chevron-double-up'
+              : 'kind-icon:chevron-up'
           "
-          class="icon-btn__img"
-          aria-hidden="true"
+          class="icon-btn__icon"
         />
         <span class="icon-btn__label">{{ headerModeLabel }}</span>
       </button>
     </div>
 
-    <!-- Footer: bottom center -->
+    <!-- Footer toggle: bottom, centered horizontally -->
     <div
       style="
         position: fixed;
         bottom: 0.3rem;
-        left: 50%;
-        transform: translateX(-50%);
+        left: 0;
+        right: 0;
         z-index: 200;
+        display: flex;
+        justify-content: center;
+        pointer-events: none;
       "
     >
       <button
         class="icon-btn icon-btn--pill"
+        style="pointer-events: auto"
         :class="{ 'icon-btn--dim': footerState === 'hidden' }"
         :title="`Footer: ${footerModeLabel}`"
         @click="displayStore.toggleFooter()"
       >
-        <img
-          :src="
+        <Icon
+          :name="
             footerState === 'hidden'
-              ? '/icons/chevron-double-down.svg'
-              : '/icons/chevron-down.svg'
+              ? 'kind-icon:chevron-double-down'
+              : 'kind-icon:chevron-down'
           "
-          class="icon-btn__img"
-          aria-hidden="true"
+          class="icon-btn__icon"
         />
         <span class="icon-btn__label">{{ footerModeLabel }}</span>
       </button>
     </div>
 
-    <!-- Left sidebar: left edge, vertically centered -->
+    <!-- Left sidebar toggle: left edge, vertically centered -->
+    <!-- translateY on the button itself, not the wrapper — wrapper is plain fixed -->
     <div
       style="
         position: fixed;
         left: 0;
-        top: 50%;
-        transform: translateY(-50%);
+        top: 0;
+        bottom: 0;
         z-index: 200;
+        display: flex;
+        align-items: center;
+        pointer-events: none;
       "
     >
       <button
         class="icon-btn icon-btn--tab icon-btn--tab-left"
+        style="pointer-events: auto"
         :class="{ 'icon-btn--dim': sidebarLeftState === 'hidden' }"
         :title="`Left sidebar: ${leftSidebarModeLabel}`"
         @click="displayStore.toggleLeftSidebar()"
       >
-        <img
-          :src="
+        <Icon
+          :name="
             sidebarLeftState === 'hidden'
-              ? '/icons/panel-right.svg'
-              : '/icons/panel-right-close.svg'
+              ? 'kind-icon:panel-right'
+              : 'kind-icon:panel-right-close'
           "
-          class="icon-btn__img icon-btn__img--mirror"
-          aria-hidden="true"
+          class="icon-btn__icon icon-btn__icon--mirror"
         />
         <span class="icon-btn__label icon-btn__label--vertical">{{
           leftSidebarModeLabel
@@ -242,30 +245,33 @@
       </button>
     </div>
 
-    <!-- Right sidebar: right edge, vertically centered -->
+    <!-- Right sidebar toggle: right edge, vertically centered -->
     <div
       style="
         position: fixed;
         right: 0;
-        top: 50%;
-        transform: translateY(-50%);
+        top: 0;
+        bottom: 0;
         z-index: 200;
+        display: flex;
+        align-items: center;
+        pointer-events: none;
       "
     >
       <button
         class="icon-btn icon-btn--tab icon-btn--tab-right"
+        style="pointer-events: auto"
         :class="{ 'icon-btn--dim': sidebarRightState === 'hidden' }"
         :title="`Right sidebar: ${rightSidebarModeLabel}`"
         @click="displayStore.toggleRightSidebar()"
       >
-        <img
-          :src="
+        <Icon
+          :name="
             sidebarRightState === 'hidden'
-              ? '/icons/panel-right-close.svg'
-              : '/icons/panel-right.svg'
+              ? 'kind-icon:panel-right-close'
+              : 'kind-icon:panel-right'
           "
-          class="icon-btn__img"
-          aria-hidden="true"
+          class="icon-btn__icon"
         />
         <span class="icon-btn__label icon-btn__label--vertical">{{
           rightSidebarModeLabel
@@ -336,17 +342,18 @@ const rightSidebarModeLabel = computed(() => displayStore.rightSidebarModeLabel)
   color: oklch(var(--bc) / 1);
 }
 
-/* Pill shape — header/footer toggles */
+/* Pill — header/footer toggles */
 .icon-btn--pill {
-  padding: 0.25rem 0.6rem;
+  padding: 0.25rem 0.65rem;
   border-radius: 9999px;
 }
 
-/* Tab shape — sidebar toggles, flush on one side */
+/* Tab — sidebar toggles, flush on the screen-edge side */
 .icon-btn--tab {
   flex-direction: column;
-  padding: 0.5rem 0.3rem;
+  padding: 0.6rem 0.35rem;
   width: 2rem;
+  gap: 0.3rem;
 }
 .icon-btn--tab-left {
   border-radius: 0 0.5rem 0.5rem 0;
@@ -365,7 +372,7 @@ const rightSidebarModeLabel = computed(() => displayStore.rightSidebarModeLabel)
   padding: 0.2rem;
 }
 
-/* Active state (priority enabled) */
+/* Active (priority on) */
 .icon-btn--active {
   background: oklch(var(--wa) / 0.85);
   border-color: oklch(var(--wa) / 0.5);
@@ -383,29 +390,24 @@ const rightSidebarModeLabel = computed(() => displayStore.rightSidebarModeLabel)
   opacity: 1;
 }
 
-/* ── Icon image ── */
-.icon-btn__img {
+/* ── Icon ── */
+.icon-btn__icon {
   width: 1rem;
   height: 1rem;
   flex-shrink: 0;
-  /* Invert to match current text color in light/dark themes */
-  filter: invert(var(--icon-invert, 0));
   opacity: 0.75;
 }
-.icon-btn:hover .icon-btn__img {
+.icon-btn:hover .icon-btn__icon {
   opacity: 1;
 }
-
-/* Mirror horizontally (left sidebar icons face right → flip to face left) */
-.icon-btn__img--mirror {
+.icon-btn__icon--mirror {
   transform: scaleX(-1);
 }
-/* Flip vertically (expand icon pointing up for header priority) */
-.icon-btn__img--flip-v {
+.icon-btn__icon--flip-v {
   transform: scaleY(-1);
 }
 
-/* ── Labels ── */
+/* ── Label ── */
 .icon-btn__label {
   font-size: 0.5rem;
   font-weight: 900;

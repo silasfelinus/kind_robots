@@ -1,20 +1,21 @@
 <!-- /app.vue -->
 <template>
-  <div
-    class="relative h-dvh w-full overflow-hidden bg-base-200 text-base-content"
-  >
-    <div class="pointer-events-auto">
-      <footer-toggle />
-      <kind-loader />
-      <milestone-popup />
-    </div>
+  <!--
+    Root: no overflow-hidden, no relative, no transform — nothing that
+    could trap position:fixed children into a local stacking context.
+  -->
+  <div class="h-dvh w-full bg-base-200 text-base-content">
+    <footer-toggle />
+    <kind-loader />
+    <milestone-popup />
 
     <animation-loader class="pointer-events-none fixed z-50" />
 
     <ClientOnly>
       <div
         v-if="showSwarm"
-        class="pointer-events-none fixed inset-0 z-9000 overflow-hidden"
+        class="pointer-events-none fixed inset-0 overflow-hidden"
+        style="z-index: 9000"
         aria-hidden="true"
       >
         <butterfly-animation />
@@ -29,7 +30,8 @@
     >
       <div
         v-if="isNavigating"
-        class="pointer-events-none fixed inset-0 z-9500 flex items-center justify-center bg-base-200/55 backdrop-blur-sm"
+        class="pointer-events-none fixed inset-0 flex items-center justify-center bg-base-200/55 backdrop-blur-sm"
+        style="z-index: 9500"
       >
         <div
           class="flex flex-col items-center gap-4 rounded-2xl border border-info bg-base-100/90 px-6 py-5 shadow-2xl"
@@ -58,10 +60,17 @@
 
     <screen-debug />
 
-    <!-- Viewport indicator: simple, centered, no toggle -->
+    <!-- Viewport badge: centered bottom, pointer-events-none -->
     <ClientOnly>
       <div
-        class="pointer-events-none fixed bottom-3 left-1/2 z-10001 -translate-x-1/2"
+        class="pointer-events-none fixed bottom-3 viewport-badge-wrap"
+        style="
+          left: 0;
+          right: 0;
+          z-index: 10001;
+          display: flex;
+          justify-content: center;
+        "
       >
         <div class="viewport-badge">
           {{ displayStore.viewportSize }}
@@ -103,7 +112,6 @@ onMounted(async () => {
     }
     isNavigating.value = true
   })
-
   removeAfter = router.afterEach(() => {
     if (navigationTimer) clearTimeout(navigationTimer)
     navigationTimer = setTimeout(() => {
@@ -112,16 +120,10 @@ onMounted(async () => {
     }, 450)
   })
 
-  if (!displayStore.isInitialized) {
-    displayStore.initialize()
-  }
-
+  if (!displayStore.isInitialized) displayStore.initialize()
   layoutStore.initializeStore()
   pageStore.initialize()
-
-  if (!userStore.initialized) {
-    await userStore.initialize()
-  }
+  if (!userStore.initialized) await userStore.initialize()
 })
 
 onUnmounted(() => {

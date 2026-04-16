@@ -51,9 +51,7 @@
     </Transition>
 
     <div class="layout-shell bg-accent">
-      <NuxtLayout>
         main content
-      </NuxtLayout>
     </div>
 
     <ClientOnly>

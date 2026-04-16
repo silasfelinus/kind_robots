@@ -34,7 +34,7 @@
 
     <!-- Title -->
     <h3
-      class="font-semibold text-base text-base-content group-hover:text-primary mb-1 leading-snug break-words"
+      class="font-semibold text-base text-base-content group-hover:text-primary mb-1 leading-snug wrap-break-word"
     >
       {{ title }}
     </h3>

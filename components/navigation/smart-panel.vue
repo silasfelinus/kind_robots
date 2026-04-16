@@ -43,7 +43,7 @@
           <button
             v-for="chip in filters"
             :key="chip.value"
-            class="btn btn-xs sm:btn-sm rounded-full px-3"
+            class="btn btn-xs sm:btn-sm rounded-full px-3 text-base-content/60"
             :class="filterClass(chip.value)"
             @click="setFilter(chip.value)"
           >

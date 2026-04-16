@@ -48,7 +48,7 @@
 
                 <div v-if="pageImage" class="w-full overflow-x-hidden">
                   <div
-                    class="relative w-full rounded-2xl border border-base-300 bg-base-200/70 overflow-hidden aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1]"
+                    class="relative w-full rounded-2xl border border-base-300 bg-base-200/70 overflow-hidden aspect-video md:aspect-21/9 lg:aspect-3/1"
                   >
                     <NuxtImg
                       :src="pageImage"
@@ -59,7 +59,7 @@
                   </div>
                 </div>
 
-                <div class="flex-1 min-h-[8rem]" />
+                <div class="flex-1 min-h-32" />
 
                 <div class="w-full overflow-x-hidden">
                   <ami-chat class="w-full" />
@@ -70,7 +70,7 @@
             <button
               v-if="canScrollUp"
               type="button"
-              class="absolute right-2 top-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-[2px] text-base-content/70"
+              class="absolute right-2 top-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-0.5 text-base-content/70"
               @click.stop="scrollBy('up')"
             >
               <Icon name="kind-icon:chevron-up" class="w-3 h-3 md:w-4 md:h-4" />
@@ -79,7 +79,7 @@
             <button
               v-if="canScrollDown"
               type="button"
-              class="absolute right-2 bottom-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-[2px] text-base-content/70"
+              class="absolute right-2 bottom-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-0.5 text-base-content/70"
               @click.stop="scrollBy('down')"
             >
               <Icon

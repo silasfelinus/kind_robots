@@ -5,9 +5,12 @@
     :key="headerKey"
     class="isolate flex h-full w-full items-stretch gap-0 overflow-x-hidden overflow-y-visible"
   >
-    <div
-      class="relative z-0 flex h-full shrink-0 flex-none pointer-events-auto"
+    <button
+      type="button"
+      class="relative z-0 flex h-full shrink-0 flex-none pointer-events-auto overflow-hidden"
       :class="avatarColumnClasses"
+      :title="avatarToggleTitle"
+      @click="toggleHeaderCompact"
     >
       <avatar-image
         alt="User Avatar"
@@ -24,7 +27,7 @@
           {{ viewportSize }}
         </span>
       </div>
-    </div>
+    </button>
 
     <div
       v-if="hasHeaderContent"
@@ -156,6 +159,11 @@ const avatarColumnClasses = computed(() => {
   return 'basis-[13%] max-w-[25%] xl:basis-[26%] xl:max-w-[40%]'
 })
 
+const avatarToggleTitle = computed(() => {
+  if (headerState.value === 'open') return 'Compact header'
+  return 'Open header'
+})
+
 const headerKey = computed(() => {
   return [
     headerState.value,
@@ -164,6 +172,20 @@ const headerKey = computed(() => {
     displayStore.sidebarRightState,
   ].join('-')
 })
+
+function toggleHeaderCompact() {
+  if (displayStore.headerState === 'hidden') {
+    displayStore.changeState('headerState', 'open')
+    return
+  }
+
+  if (displayStore.headerState === 'open') {
+    displayStore.changeState('headerState', 'compact')
+    return
+  }
+
+  displayStore.changeState('headerState', 'open')
+}
 
 function fireHeaderResized() {
   window.dispatchEvent(new CustomEvent('kr:header-resized'))

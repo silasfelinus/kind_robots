@@ -102,7 +102,7 @@
     </ClientOnly>
 
     <main
-      class="fixed overflow-hidden border border-base-300 bg-base-100 text-base-content transition-[top,left,width,height] duration-200"
+      class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"
       :style="displayStore.mainContentStyle"
     >
       <Transition name="slide-in-right">

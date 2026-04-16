@@ -8,25 +8,25 @@
       <slot name="header">
         <full-header />
       </slot>
-
-      <div
-        class="pointer-events-none fixed"
-        :style="displayStore.headerToggleStyle"
-      >
-        <div class="pointer-events-auto flex items-start gap-2">
-          <button
-            class="icon-btn icon-btn--pill icon-btn--primary"
-            :title="`Header: ${displayStore.headerModeLabel}`"
-            @click="displayStore.toggleHeader"
-          >
-            <Icon :name="headerIcon" class="icon-btn__icon" />
-            <span class="icon-btn__label">
-              {{ displayStore.headerModeLabel }}
-            </span>
-          </button>
-        </div>
-      </div>
     </header>
+
+    <div
+      class="pointer-events-none fixed"
+      :style="displayStore.headerToggleStyle"
+    >
+      <div class="pointer-events-auto flex items-start gap-2">
+        <button
+          class="icon-btn icon-btn--pill icon-btn--primary"
+          :title="`Header: ${displayStore.headerModeLabel}`"
+          @click="displayStore.toggleHeader"
+        >
+          <Icon :name="headerIcon" class="icon-btn__icon" />
+          <span class="icon-btn__label">
+            {{ displayStore.headerModeLabel }}
+          </span>
+        </button>
+      </div>
+    </div>
 
     <ClientOnly>
       <aside
@@ -40,28 +40,29 @@
             <splash-tutorial />
           </slot>
         </div>
-
-        <div
-          class="pointer-events-none fixed"
-          :style="displayStore.leftToggleStyle"
-        >
-          <div class="pointer-events-auto flex flex-col items-start gap-2">
-            <button
-              class="icon-btn icon-btn--tab icon-btn--secondary"
-              :title="`Left sidebar: ${displayStore.leftSidebarModeLabel}`"
-              @click="displayStore.toggleSidebar('sidebarLeftState')"
-            >
-              <Icon
-                :name="leftSidebarIcon"
-                class="icon-btn__icon icon-btn__icon--mirror"
-              />
-              <span class="icon-btn__label icon-btn__label--vertical">
-                {{ displayStore.leftSidebarModeLabel }}
-              </span>
-            </button>
-          </div>
-        </div>
       </aside>
+
+      <div
+        class="pointer-events-none fixed"
+        :style="displayStore.leftToggleStyle"
+      >
+        <div class="pointer-events-auto flex flex-col items-start gap-2">
+          <button
+            class="icon-btn icon-btn--tab icon-btn--secondary"
+            :title="`Left sidebar: ${displayStore.leftSidebarModeLabel}`"
+            @click="displayStore.toggleSidebar('sidebarLeftState')"
+          >
+            <Icon
+              :name="leftSidebarIcon"
+              class="icon-btn__icon icon-btn__icon--mirror"
+            />
+            <span class="icon-btn__label icon-btn__label--vertical">
+              {{ displayStore.leftSidebarModeLabel }}
+            </span>
+          </button>
+        </div>
+      </div>
+
       <template #fallback />
     </ClientOnly>
 
@@ -77,25 +78,26 @@
             <login-page />
           </slot>
         </div>
-
-        <div
-          class="pointer-events-none fixed"
-          :style="displayStore.rightToggleStyle"
-        >
-          <div class="pointer-events-auto flex flex-col items-end gap-2">
-            <button
-              class="icon-btn icon-btn--tab icon-btn--accent"
-              :title="`Right sidebar: ${displayStore.rightSidebarModeLabel}`"
-              @click="displayStore.toggleSidebar('sidebarRightState')"
-            >
-              <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
-              <span class="icon-btn__label icon-btn__label--vertical">
-                {{ displayStore.rightSidebarModeLabel }}
-              </span>
-            </button>
-          </div>
-        </div>
       </aside>
+
+      <div
+        class="pointer-events-none fixed"
+        :style="displayStore.rightToggleStyle"
+      >
+        <div class="pointer-events-auto flex flex-col items-end gap-2">
+          <button
+            class="icon-btn icon-btn--tab icon-btn--accent"
+            :title="`Right sidebar: ${displayStore.rightSidebarModeLabel}`"
+            @click="displayStore.toggleSidebar('sidebarRightState')"
+          >
+            <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
+            <span class="icon-btn__label icon-btn__label--vertical">
+              {{ displayStore.rightSidebarModeLabel }}
+            </span>
+          </button>
+        </div>
+      </div>
+
       <template #fallback />
     </ClientOnly>
 
@@ -132,25 +134,25 @@
           <art-generator />
         </slot>
       </div>
-
-      <div
-        class="pointer-events-none fixed"
-        :style="displayStore.footerToggleStyle"
-      >
-        <div class="pointer-events-auto flex justify-center">
-          <button
-            class="icon-btn icon-btn--pill icon-btn--base"
-            :title="`Footer: ${displayStore.footerModeLabel}`"
-            @click="displayStore.toggleFooter"
-          >
-            <Icon :name="footerIcon" class="icon-btn__icon" />
-            <span class="icon-btn__label">
-              {{ displayStore.footerModeLabel }}
-            </span>
-          </button>
-        </div>
-      </div>
     </footer>
+
+    <div
+      class="pointer-events-none fixed"
+      :style="displayStore.footerToggleStyle"
+    >
+      <div class="pointer-events-auto flex justify-center">
+        <button
+          class="icon-btn icon-btn--pill icon-btn--base"
+          :title="`Footer: ${displayStore.footerModeLabel}`"
+          @click="displayStore.toggleFooter"
+        >
+          <Icon :name="footerIcon" class="icon-btn__icon" />
+          <span class="icon-btn__label">
+            {{ displayStore.footerModeLabel }}
+          </span>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 

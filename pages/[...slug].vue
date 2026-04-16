@@ -1,14 +1,21 @@
 <!-- /pages/[...slug].vue -->
 <template>
   <NuxtLayout :name="layout">
-    <div v-if="pageStore.page && pageStore.page.body">
-      <ContentRenderer :value="pageStore.page" />
-    </div>
+    <div class="flex min-h-dvh w-full flex-col">
+      <div
+        v-if="pageStore.page && pageStore.page.body"
+        class="flex min-h-dvh w-full flex-col"
+      >
+        <ContentRenderer :value="pageStore.page" />
+      </div>
 
-    <template #fallback>
-      <Icon name="kind-icon:loading" class="h-10 w-10 text-info" />
-      <p class="p-4 text-center text-base text-info">Loading page...</p>
-    </template>
+      <template #fallback>
+        <div class="flex min-h-dvh w-full flex-col items-center justify-center">
+          <Icon name="kind-icon:loading" class="h-10 w-10 text-info" />
+          <p class="p-4 text-center text-base text-info">Loading page...</p>
+        </div>
+      </template>
+    </div>
   </NuxtLayout>
 
   <error-popup />

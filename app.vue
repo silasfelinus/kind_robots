@@ -1,6 +1,6 @@
 <!-- /app.vue -->
 <template>
-  <div class="h-dvh w-full bg-secondary flex items-center justify-center">
+  <div class="flex min-h-dvh w-full flex-col bg-secondary">
     <NuxtPage />
   </div>
 </template>

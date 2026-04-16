@@ -12,6 +12,12 @@ import type {
 } from './helpers/displayHelper'
 import { setCustomVh } from './helpers/displayHelper'
 
+type ViewportSize = 'small' | 'medium' | 'large' | 'extraLarge'
+type FullscreenState = 'nuxt' | 'fullscreen'
+type SidebarStage = 'hidden' | 'compact' | 'open' | 'priority'
+type SidebarStateKey = 'sidebarLeftState' | 'sidebarRightState'
+type LogicalSide = 'left' | 'right'
+
 export const useDisplayStore = defineStore('displayStore', () => {
   const state = reactive({
     headerState: 'open' as DisplayState,
@@ -19,13 +25,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
     sidebarRightState: 'hidden' as DisplayState,
     footerState: 'hidden' as DisplayState,
 
-    leftHeaderPriority: true,
-    rightHeaderPriority: true,
-    leftFooterPriority: false,
-    rightFooterPriority: false,
-
     isVertical: false,
-    viewportSize: 'large' as 'small' | 'medium' | 'large' | 'extraLarge',
+    viewportSize: 'large' as ViewportSize,
     isTouchDevice: false,
     showTutorial: true,
     isInitialized: false,
@@ -34,7 +35,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     isMobileViewport: true,
     isAnimating: false,
     currentAnimation: '',
-    fullscreenState: 'nuxt' as 'nuxt' | 'fullscreen',
+    fullscreenState: 'nuxt' as FullscreenState,
     bigMode: false,
     displayMode: 'scenario' as displayModeState,
     displayAction: 'gallery' as displayActionState,
@@ -44,59 +45,98 @@ export const useDisplayStore = defineStore('displayStore', () => {
     showCenter: true,
     showRight: true,
     showExtended: false,
-    showCorner: true,
+    showCorner: false,
     SmartState: 'front' as SmartState,
   })
 
   const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
-  const sidebarLeftVisible = computed(() =>
-    ['open', 'compact'].includes(state.sidebarLeftState),
+  function normalizeSidebarState(value: DisplayState): SidebarStage {
+    if (value === 'hidden') return 'hidden'
+    if (value === 'compact') return 'compact'
+    if (value === 'priority') return 'priority'
+    return 'open'
+  }
+
+  const leftSidebarStage = computed<SidebarStage>(() => {
+    return normalizeSidebarState(state.sidebarLeftState)
+  })
+
+  const rightSidebarStage = computed<SidebarStage>(() => {
+    return normalizeSidebarState(state.sidebarRightState)
+  })
+
+  const sidebarLeftVisible = computed(() => leftSidebarStage.value !== 'hidden')
+  const sidebarRightVisible = computed(
+    () => rightSidebarStage.value !== 'hidden',
   )
 
-  const sidebarRightVisible = computed(() =>
-    ['open', 'compact'].includes(state.sidebarRightState),
+  const leftSidebarPriority = computed(
+    () => leftSidebarStage.value === 'priority',
+  )
+
+  const rightSidebarPriority = computed(
+    () => rightSidebarStage.value === 'priority',
   )
 
   const sidebarLeftWidth = computed(() => {
-    const sizes = { small: 16, medium: 11, large: 9, extraLarge: 5 }
-    return sizes[state.viewportSize] * (sidebarLeftVisible.value ? 1 : 0)
+    const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
+      small: { hidden: 0, compact: 10, open: 18, priority: 18 },
+      medium: { hidden: 0, compact: 8, open: 14, priority: 14 },
+      large: { hidden: 0, compact: 6, open: 12, priority: 12 },
+      extraLarge: { hidden: 0, compact: 5, open: 10, priority: 10 },
+    }
+
+    return widths[state.viewportSize][leftSidebarStage.value]
   })
 
   const sidebarRightWidth = computed(() => {
-    const sizes = { small: 98, medium: 40, large: 35, extraLarge: 30 }
-    return sizes[state.viewportSize] * (sidebarRightVisible.value ? 1 : 0)
+    const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
+      small: { hidden: 0, compact: 18, open: 32, priority: 32 },
+      medium: { hidden: 0, compact: 16, open: 28, priority: 28 },
+      large: { hidden: 0, compact: 14, open: 24, priority: 24 },
+      extraLarge: { hidden: 0, compact: 12, open: 20, priority: 20 },
+    }
+
+    return widths[state.viewportSize][rightSidebarStage.value]
   })
 
   const headerHeight = computed(() => {
     if (state.headerState === 'hidden') return 0
-    const sizes = {
+
+    const sizes: Record<ViewportSize, number> = {
       small: state.bigMode ? 6 : 14,
       medium: state.bigMode ? 12 : 13,
       large: state.bigMode ? 10 : 12,
       extraLarge: state.bigMode ? 8 : 13,
     }
+
     return sizes[state.viewportSize]
   })
 
-  const footerHeights = {
+  const footerHeights: Record<DisplayState, Record<ViewportSize, number>> = {
     hidden: { small: 0, medium: 0, large: 0, extraLarge: 0 },
-    compact: { small: 25, medium: 11, large: 17, extraLarge: 11 },
-    open: { small: 45, medium: 25, large: 35, extraLarge: 25 },
-    extended: { small: 55, medium: 35, large: 55, extraLarge: 45 },
-  } as const
+    compact: { small: 18, medium: 10, large: 14, extraLarge: 10 },
+    open: { small: 28, medium: 18, large: 24, extraLarge: 18 },
+    priority: { small: 36, medium: 24, large: 32, extraLarge: 24 },
+    disabled: { small: 0, medium: 0, large: 0, extraLarge: 0 },
+  }
 
   const sectionPaddingSize = computed(() => {
-    const sizes = { small: 1, medium: 2, large: 3, extraLarge: 4 }
+    const sizes: Record<ViewportSize, number> = {
+      small: 0,
+      medium: 0,
+      large: 0,
+      extraLarge: 0,
+    }
+
     return sizes[state.viewportSize]
   })
 
   const footerVisible = computed(() => state.footerState !== 'hidden')
 
   const footerHeight = computed(() => {
-    const stateKey = state.footerState as keyof typeof footerHeights
-    const sizeKey = state.viewportSize
-    return footerHeights[stateKey]?.[sizeKey] ?? 5
+    return footerHeights[state.footerState]?.[state.viewportSize] ?? 0
   })
 
   const contentTopOffset = computed(() => {
@@ -149,14 +189,16 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const headerLeftInset = computed(() => {
     const padding = sectionPaddingSize.value
-    if (!state.leftHeaderPriority || !sidebarLeftVisible.value) return padding
-    return padding + sidebarLeftWidth.value
+    return leftSidebarPriority.value
+      ? padding + sidebarLeftWidth.value
+      : padding
   })
 
   const headerRightInset = computed(() => {
     const padding = sectionPaddingSize.value
-    if (!state.rightHeaderPriority || !sidebarRightVisible.value) return padding
-    return padding + sidebarRightWidth.value
+    return rightSidebarPriority.value
+      ? padding + sidebarRightWidth.value
+      : padding
   })
 
   const headerWidth = computed(() => {
@@ -165,59 +207,65 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const footerLeftInset = computed(() => {
     const padding = sectionPaddingSize.value
-    if (!state.leftFooterPriority || !sidebarLeftVisible.value) return padding
-    return padding + sidebarLeftWidth.value
+    return leftSidebarPriority.value
+      ? padding + sidebarLeftWidth.value
+      : padding
   })
 
   const footerRightInset = computed(() => {
     const padding = sectionPaddingSize.value
-    if (!state.rightFooterPriority || !sidebarRightVisible.value) return padding
-    return padding + sidebarRightWidth.value
+    return rightSidebarPriority.value
+      ? padding + sidebarRightWidth.value
+      : padding
   })
 
   const footerWidth = computed(() => {
     return 100 - footerLeftInset.value - footerRightInset.value
   })
 
-  const leftToggleStyle = computed(() => {
+  const leftToggleStyle = computed<CSSProperties>(() => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
+    const leftOffset = sidebarLeftVisible.value
+      ? sectionPaddingSize.value + sidebarLeftWidth.value
+      : sectionPaddingSize.value
+
     return {
       top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-      left: `${sectionPaddingSize.value}vw`,
+      left: `${leftOffset}vw`,
       zIndex: '70',
     }
   })
 
-  const rightToggleStyle = computed(() => {
+  const rightToggleStyle = computed<CSSProperties>(() => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
+    const rightOffset = sidebarRightVisible.value
+      ? sectionPaddingSize.value + sidebarRightWidth.value
+      : sectionPaddingSize.value
+
     return {
       top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-      right: `${sectionPaddingSize.value}vw`,
+      right: `${rightOffset}vw`,
       zIndex: '70',
     }
   })
 
-  const footerToggleStyle = computed(
-    (): CSSProperties => ({
-      position: 'fixed',
-      left: '50%',
-      bottom: `calc(var(--vh) * ${Math.max(1, footerHeight.value * 0.25)})`,
-      transform: 'translateX(-50%)',
-      zIndex: '80',
-    }),
-  )
+  const footerToggleStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    left: '50%',
+    bottom: `calc(var(--vh) * ${Math.max(1, footerHeight.value * 0.25)})`,
+    transform: 'translateX(-50%)',
+    zIndex: '80',
+  }))
 
-  const headerToggleStyle = computed(
-    (): CSSProperties => ({
-      position: 'fixed',
-      top: `calc(var(--vh) * ${Math.max(0.5, sectionPaddingSize.value + 0.75)})`,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      zIndex: '80',
-    }),
-  )
+  const headerToggleStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    top: `calc(var(--vh) * ${Math.max(0.5, sectionPaddingSize.value + 0.75)})`,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    zIndex: '80',
+  }))
 
-  const cornerPanelStyle = computed(() => {
+  const cornerPanelStyle = computed<CSSProperties>(() => {
     const paddingVw = sectionPaddingSize.value
     const rightInset = sidebarRightVisible.value
       ? sidebarRightWidth.value + paddingVw
@@ -226,37 +274,30 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return {
       top: `calc(var(--vh) * ${contentTopOffset.value})`,
       right: `${rightInset}vw`,
-    } as CSSProperties
+    }
   })
 
-  const cornerToggleStyle = computed(
-    (): CSSProperties => ({
-      position: 'absolute',
-      top: '0.75rem',
-      right: '0.75rem',
-      zIndex: '60',
-    }),
-  )
-
-  const leftSidebarStyle = computed(() => {
+  const leftSidebarStyle = computed<CSSProperties>(() => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
 
-    return sidebarLeftVisible.value
-      ? {
-          height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
-          width: `${sidebarLeftWidth.value}vw`,
-          top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-          left: `${sectionPaddingSize.value}vw`,
-        }
-      : {
-          top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-          left: `${sectionPaddingSize.value}vw`,
-          width: '0px',
-          height: '0px',
-        }
+    if (!sidebarLeftVisible.value) {
+      return {
+        top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
+        left: `${sectionPaddingSize.value}vw`,
+        width: '0px',
+        height: '0px',
+      }
+    }
+
+    return {
+      height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
+      width: `${sidebarLeftWidth.value}vw`,
+      top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
+      left: `${sectionPaddingSize.value}vw`,
+    }
   })
 
-  const rightSidebarStyle = computed(() => {
+  const rightSidebarStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
 
     if (!sidebarRightVisible.value) {
@@ -268,29 +309,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
       }
     }
 
-    if (state.bigMode) {
-      return {
-        top: `calc(var(--vh) * ${contentTopOffset.value})`,
-        right: `${padding}vw`,
-        width: `${sidebarRightWidth.value}vw`,
-        height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
-      }
-    }
-
-    const footerPad = footerVisible.value ? padding : 0
-    const fullHeight =
-      100 - (padding * 2 + contentBottomOffset.value + footerPad)
-
     return {
-      top: `calc(var(--vh) * ${padding})`,
+      top: `calc(var(--vh) * ${contentTopOffset.value})`,
       right: `${padding}vw`,
       width: `${sidebarRightWidth.value}vw`,
-      height: `calc(var(--vh) * ${fullHeight})`,
+      height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
     }
   })
 
-  const headerStyle = computed(() => {
-    if (state.headerState === 'hidden') return { display: 'none' }
+  const headerStyle = computed<CSSProperties>(() => {
+    if (state.headerState === 'hidden') {
+      return { display: 'none' }
+    }
 
     const padding = sectionPaddingSize.value
 
@@ -313,11 +343,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const centerPanelOffset = computed(() => {
     if (!state.showCorner) return 0
-    const sizes = { small: 8, medium: 7, large: 6, extraLarge: 5 }
+
+    const sizes: Record<ViewportSize, number> = {
+      small: 8,
+      medium: 7,
+      large: 6,
+      extraLarge: 5,
+    }
+
     return sizes[state.viewportSize]
   })
 
-  const mainContentStyle = computed(() => {
+  const mainContentStyle = computed<CSSProperties>(() => {
     return {
       top: `calc(var(--vh) * ${contentTopOffset.value})`,
       left: `${mainContentLeft.value}vw`,
@@ -327,16 +364,16 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
-  const centerContentStyle = computed(() => {
+  const centerContentStyle = computed<CSSProperties>(() => {
     const offsetTop = state.showCorner ? centerPanelOffset.value : 0
 
     return {
       marginTop: `calc(var(--vh) * ${offsetTop})`,
       height: `calc(100% - var(--vh) * ${offsetTop})`,
-    } as CSSProperties
+    }
   })
 
-  const footerStyle = computed(() => {
+  const footerStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
 
     return {
@@ -353,29 +390,36 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const headerModeLabel = computed(() => state.headerState)
   const footerModeLabel = computed(() => state.footerState)
-  const leftSidebarModeLabel = computed(() => {
-    if (
-      state.sidebarLeftState === 'open' &&
-      state.leftHeaderPriority &&
-      state.leftFooterPriority
-    ) {
-      return 'priority'
+  const leftSidebarModeLabel = computed(() => leftSidebarStage.value)
+  const rightSidebarModeLabel = computed(() => rightSidebarStage.value)
+
+  function getOppositeSide(side: LogicalSide): LogicalSide {
+    return side === 'left' ? 'right' : 'left'
+  }
+
+  function getSidebarKey(side: LogicalSide): SidebarStateKey {
+    return side === 'left' ? 'sidebarLeftState' : 'sidebarRightState'
+  }
+
+  function getSidebarStage(side: LogicalSide): SidebarStage {
+    return side === 'left' ? leftSidebarStage.value : rightSidebarStage.value
+  }
+
+  function setSidebarStage(side: LogicalSide, stage: SidebarStage) {
+    const key = getSidebarKey(side)
+
+    if (stage === 'priority' && state.viewportSize === 'small') {
+      const oppositeSide = getOppositeSide(side)
+      const oppositeKey = getSidebarKey(oppositeSide)
+      const oppositeStage = getSidebarStage(oppositeSide)
+
+      if (oppositeStage === 'priority') {
+        state[oppositeKey] = 'open'
+      }
     }
 
-    return state.sidebarLeftState
-  })
-
-  const rightSidebarModeLabel = computed(() => {
-    if (
-      state.sidebarRightState === 'open' &&
-      state.rightHeaderPriority &&
-      state.rightFooterPriority
-    ) {
-      return 'priority'
-    }
-
-    return state.sidebarRightState
-  })
+    state[key] = stage
+  }
 
   function toggleFullscreen() {
     state.isFullScreen = !state.isFullScreen
@@ -396,182 +440,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
     saveState()
   }
 
-  function syncPriorityWithSidebar(side: 'left' | 'right', isVisible: boolean) {
-    if (side === 'left') {
-      if (!isVisible) {
-        state.leftHeaderPriority = false
-        state.leftFooterPriority = false
-      } else {
-        state.leftHeaderPriority = true
-      }
-    }
-
-    if (side === 'right') {
-      if (!isVisible) {
-        state.rightHeaderPriority = false
-        state.rightFooterPriority = false
-      } else {
-        state.rightHeaderPriority = true
-      }
-    }
-  }
-
-  function applySidebarStage(
-    side: 'left' | 'right',
-    stage: 'hidden' | 'compact' | 'open' | 'priority',
-  ) {
-    if (side === 'left') {
-      if (stage === 'hidden') {
-        state.sidebarLeftState = 'hidden'
-        state.leftHeaderPriority = false
-        state.leftFooterPriority = false
-        return
-      }
-
-      if (stage === 'compact') {
-        state.sidebarLeftState = 'compact'
-        state.leftHeaderPriority = false
-        state.leftFooterPriority = false
-        return
-      }
-
-      if (stage === 'open') {
-        state.sidebarLeftState = 'open'
-        state.leftHeaderPriority = false
-        state.leftFooterPriority = false
-        return
-      }
-
-      state.sidebarLeftState = 'open'
-      state.leftHeaderPriority = true
-      state.leftFooterPriority = true
-      return
-    }
-
-    if (stage === 'hidden') {
-      state.sidebarRightState = 'hidden'
-      state.rightHeaderPriority = false
-      state.rightFooterPriority = false
-      return
-    }
-
-    if (stage === 'compact') {
-      state.sidebarRightState = 'compact'
-      state.rightHeaderPriority = false
-      state.rightFooterPriority = false
-      return
-    }
-
-    if (stage === 'open') {
-      state.sidebarRightState = 'open'
-      state.rightHeaderPriority = false
-      state.rightFooterPriority = false
-      return
-    }
-
-    state.sidebarRightState = 'open'
-    state.rightHeaderPriority = true
-    state.rightFooterPriority = true
-  }
-
-  type SidebarStage = 'hidden' | 'compact' | 'open' | 'priority'
-
-  function getSidebarStage(side: 'left' | 'right'): SidebarStage {
-    if (side === 'left') {
-      if (state.sidebarLeftState === 'hidden') return 'hidden'
-      if (state.sidebarLeftState === 'compact') return 'compact'
-
-      if (
-        state.sidebarLeftState === 'open' &&
-        state.leftHeaderPriority &&
-        state.leftFooterPriority
-      ) {
-        return 'priority'
-      }
-
-      return 'open'
-    }
-
-    if (state.sidebarRightState === 'hidden') return 'hidden'
-    if (state.sidebarRightState === 'compact') return 'compact'
-
-    if (
-      state.sidebarRightState === 'open' &&
-      state.rightHeaderPriority &&
-      state.rightFooterPriority
-    ) {
-      return 'priority'
-    }
-
-    return 'open'
-  }
-
-  function setSidebarStage(side: 'left' | 'right', stage: SidebarStage) {
-    const isLeft = side === 'left'
-
-    const setState = (
-      key: 'sidebarLeftState' | 'sidebarRightState',
-      val: DisplayState,
-    ) => {
-      state[key] = val
-    }
-
-    if (stage === 'hidden') {
-      setState(isLeft ? 'sidebarLeftState' : 'sidebarRightState', 'hidden')
-
-      if (isLeft) {
-        state.leftHeaderPriority = false
-        state.leftFooterPriority = false
-      } else {
-        state.rightHeaderPriority = false
-        state.rightFooterPriority = false
-      }
-      return
-    }
-
-    if (stage === 'compact') {
-      setState(isLeft ? 'sidebarLeftState' : 'sidebarRightState', 'compact')
-
-      if (isLeft) {
-        state.leftHeaderPriority = false
-        state.leftFooterPriority = false
-      } else {
-        state.rightHeaderPriority = false
-        state.rightFooterPriority = false
-      }
-      return
-    }
-
-    if (stage === 'open') {
-      setState(isLeft ? 'sidebarLeftState' : 'sidebarRightState', 'open')
-
-      if (isLeft) {
-        state.leftHeaderPriority = false
-        state.leftFooterPriority = false
-      } else {
-        state.rightHeaderPriority = false
-        state.rightFooterPriority = false
-      }
-      return
-    }
-
-    setState(isLeft ? 'sidebarLeftState' : 'sidebarRightState', 'open')
-
-    if (isLeft) {
-      state.leftHeaderPriority = true
-      state.leftFooterPriority = true
-    } else {
-      state.rightHeaderPriority = true
-      state.rightFooterPriority = true
-    }
-  }
-
-  function toggleSidebar(side: 'sidebarLeftState' | 'sidebarRightState') {
-    const logical = side === 'sidebarLeftState' ? 'left' : 'right'
-
+  function toggleSidebar(side: SidebarStateKey) {
+    const logical: LogicalSide = side === 'sidebarLeftState' ? 'left' : 'right'
     const order: SidebarStage[] = ['hidden', 'compact', 'open', 'priority']
     const current = getSidebarStage(logical)
     const next = order[(order.indexOf(current) + 1) % order.length] ?? 'hidden'
+
     setSidebarStage(logical, next)
     saveState()
   }
@@ -585,7 +459,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function toggleFooter() {
-    const order: DisplayState[] = ['compact', 'extended', 'hidden']
+    const order: DisplayState[] = ['compact', 'open', 'priority', 'hidden']
     const currentIndex = order.indexOf(state.footerState)
     state.footerState = order[(currentIndex + 1) % order.length] ?? 'compact'
     saveState()
@@ -630,7 +504,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     ) => {
       if (key === 'left') state.showLeft = value
       else if (key === 'center') state.showCenter = value
-      else if (key === 'right') state.showRight = value
+      else state.showRight = value
     }
 
     const isCurrentlyOn = sectionStateMap[section]
@@ -663,25 +537,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   function setSidebarRight(isOpen: boolean) {
     state.sidebarRightState = isOpen ? 'open' : 'hidden'
-    syncPriorityWithSidebar('right', isOpen)
-    saveState()
-  }
-
-  function setHeaderPriority(side: 'left' | 'right', value: boolean) {
-    if (side === 'left') {
-      state.leftHeaderPriority = value && sidebarLeftVisible.value
-    } else {
-      state.rightHeaderPriority = value && sidebarRightVisible.value
-    }
-    saveState()
-  }
-
-  function setFooterPriority(side: 'left' | 'right', value: boolean) {
-    if (side === 'left') {
-      state.leftFooterPriority = value && sidebarLeftVisible.value
-    } else {
-      state.rightFooterPriority = value && sidebarRightVisible.value
-    }
     saveState()
   }
 
@@ -698,22 +553,19 @@ export const useDisplayStore = defineStore('displayStore', () => {
       | 'footerState',
     newState: DisplayState,
   ) {
-    state[section] = newState
-
     if (section === 'sidebarLeftState') {
-      if (newState === 'hidden' || newState === 'compact') {
-        state.leftHeaderPriority = false
-        state.leftFooterPriority = false
-      }
+      setSidebarStage('left', normalizeSidebarState(newState))
+      saveState()
+      return
     }
 
     if (section === 'sidebarRightState') {
-      if (newState === 'hidden' || newState === 'compact') {
-        state.rightHeaderPriority = false
-        state.rightFooterPriority = false
-      }
+      setSidebarStage('right', normalizeSidebarState(newState))
+      saveState()
+      return
     }
 
+    state[section] = newState
     saveState()
   }
 
@@ -735,7 +587,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
         : 'toTutorial'
     state.showTutorial = opening
     state.sidebarRightState = opening ? 'open' : 'hidden'
-    syncPriorityWithSidebar('right', opening)
     saveState()
   }
 
@@ -763,6 +614,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
           state.viewportSize = 'extraLarge'
           state.isMobileViewport = false
         }
+
+        if (
+          state.viewportSize === 'small' &&
+          state.sidebarLeftState === 'priority' &&
+          state.sidebarRightState === 'priority'
+        ) {
+          state.sidebarRightState = 'open'
+        }
       } catch (error) {
         handleError(error, 'Custom width failed')
       } finally {
@@ -780,7 +639,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
     try {
       const saved = window.localStorage.getItem('displayStoreState')
-      if (saved) Object.assign(state, JSON.parse(saved))
+      if (saved) {
+        Object.assign(state, JSON.parse(saved))
+      }
 
       if (
         state.SmartState !== 'front' &&
@@ -790,14 +651,19 @@ export const useDisplayStore = defineStore('displayStore', () => {
         state.SmartState = 'front'
       }
 
-      if (!sidebarLeftVisible.value) {
-        state.leftHeaderPriority = false
-        state.leftFooterPriority = false
-      }
+      state.sidebarLeftState = normalizeSidebarState(
+        state.sidebarLeftState,
+      ) as DisplayState
+      state.sidebarRightState = normalizeSidebarState(
+        state.sidebarRightState,
+      ) as DisplayState
 
-      if (!sidebarRightVisible.value) {
-        state.rightHeaderPriority = false
-        state.rightFooterPriority = false
+      if (
+        state.viewportSize === 'small' &&
+        state.sidebarLeftState === 'priority' &&
+        state.sidebarRightState === 'priority'
+      ) {
+        state.sidebarRightState = 'open'
       }
     } catch (error) {
       handleError(error, "Couldn't load state.")
@@ -823,6 +689,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   function saveState() {
     if (typeof window === 'undefined') return
+
     try {
       window.localStorage.setItem('displayStoreState', JSON.stringify(state))
     } catch (error) {
@@ -850,8 +717,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
     ...toRefs(state),
     resizeTimeout,
 
+    leftSidebarStage,
+    rightSidebarStage,
     sidebarLeftVisible,
     sidebarRightVisible,
+    leftSidebarPriority,
+    rightSidebarPriority,
     sidebarLeftWidth,
     sidebarRightWidth,
 
@@ -874,7 +745,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     headerStyle,
     headerToggleStyle,
     cornerPanelStyle,
-    cornerToggleStyle,
     leftToggleStyle,
     rightToggleStyle,
     footerToggleStyle,
@@ -883,8 +753,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     mainContentStyle,
     centerContentStyle,
     footerStyle,
-    toggleLeftSidebar,
-    toggleRightSidebar,
 
     isLargeViewport,
     headerModeLabel,
@@ -892,10 +760,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
     leftSidebarModeLabel,
     rightSidebarModeLabel,
 
+    getSidebarStage,
+    setSidebarStage,
     toggleFullscreen,
     toggleCorner,
     toggleHeader,
     toggleSidebar,
+    toggleLeftSidebar,
+    toggleRightSidebar,
     toggleFooter,
     toggleBigMode,
     toggleSection,
@@ -909,8 +781,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     setMainComponent,
     setExtraExpanded,
     setSidebarRight,
-    setHeaderPriority,
-    setFooterPriority,
     changeState,
     setAction,
     setMode,

@@ -122,13 +122,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return sizes[state.viewportSize]
   })
 
-  const footerHeights: Record<DisplayState, Record<ViewportSize, number>> = {
+  const footerHeights = {
     hidden: { small: 0, medium: 0, large: 0, extraLarge: 0 },
     compact: { small: 18, medium: 10, large: 14, extraLarge: 10 },
     open: { small: 28, medium: 18, large: 24, extraLarge: 18 },
-    priority: { small: 36, medium: 24, large: 32, extraLarge: 24 },
     disabled: { small: 0, medium: 0, large: 0, extraLarge: 0 },
-  }
+  } as const
 
   const sectionPaddingSize = computed(() => {
     const sizes: Record<ViewportSize, number> = {
@@ -144,7 +143,15 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const footerVisible = computed(() => state.footerState !== 'hidden')
 
   const footerHeight = computed(() => {
-    return footerHeights[state.footerState]?.[state.viewportSize] ?? 0
+    const stateKey =
+      state.footerState === 'compact' ||
+      state.footerState === 'open' ||
+      state.footerState === 'hidden' ||
+      state.footerState === 'disabled'
+        ? state.footerState
+        : 'hidden'
+
+    return footerHeights[stateKey][state.viewportSize]
   })
 
   const contentTopOffset = computed(() => {

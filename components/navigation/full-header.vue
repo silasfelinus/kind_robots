@@ -10,7 +10,7 @@
       class="relative z-0 flex h-full shrink-0 flex-none pointer-events-auto overflow-hidden"
       :class="avatarColumnClasses"
       :title="avatarToggleTitle"
-      @click="toggleHeaderCompact"
+      @click="displayStore.toggleHeaderCompact"
     >
       <avatar-image
         alt="User Avatar"
@@ -42,9 +42,18 @@
               class="shrink-0 whitespace-nowrap font-extrabold tracking-tight leading-[1.05] sm:text-lg md:text-xl lg:text-2xl xl:text-4xl"
             >
               <span
-                class="bg-linear-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
+                class="inline-flex max-w-full items-center gap-2.5 rounded-2xl border border-black bg-linear-to-r from-base-100 via-base-200 to-base-100 px-4 py-1.5 shadow-[0_3px_0_rgba(0,0,0,0.6)] sm:px-5 sm:py-2"
               >
-                {{ displayTitle }}
+                <span
+                  class="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-black px-2.5 py-px text-[0.6rem] font-semibold uppercase tracking-[0.24em] text-base-100 sm:text-[0.7rem]"
+                >
+                  Kind
+                </span>
+                <span
+                  class="truncate text-[clamp(1rem,2.1vw,1.5rem)] font-semibold leading-tight tracking-tight"
+                >
+                  {{ title }}
+                </span>
               </span>
             </span>
 
@@ -59,7 +68,7 @@
             class="flex w-full min-w-0 flex-col items-start justify-center gap-1"
           >
             <span
-              class="block w-full font-extrabold tracking-tight leading-tight text-lg md:text-2xl lg:text-3xl xl:text-4xl"
+              class="block w-full text-lg font-extrabold leading-tight tracking-tight md:text-2xl lg:text-3xl xl:text-4xl"
             >
               <span
                 class="bg-linear-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
@@ -70,14 +79,14 @@
 
             <span
               v-if="showSubtitle"
-              class="block min-w-0 w-full truncate italic font-medium leading-snug text-base-content/90 text-sm md:text-lg lg:text-xl xl:text-2xl"
+              class="block min-w-0 w-full truncate text-sm font-medium italic leading-snug text-base-content/90 md:text-lg lg:text-xl xl:text-2xl"
             >
               {{ subtitle }}
             </span>
           </div>
 
           <div
-            class="flex h-full shrink-0 flex-nowrap items-center justify-end overflow-hidden basis-[28%] max-w-[32%] xl:basis-[34%] xl:max-w-[34%]"
+            class="flex h-full shrink-0 basis-[28%] max-w-[32%] flex-nowrap items-center justify-end overflow-hidden xl:basis-[34%] xl:max-w-[34%]"
           >
             <div
               class="flex h-full w-full items-center justify-end xl:justify-center"
@@ -132,10 +141,21 @@ const headerRoot = ref<HTMLElement | null>(null)
 let ro: ResizeObserver | null = null
 
 const page = computed(() => pageStore.page)
+const title = computed(() => pageStore.page?.title || '')
 const viewportSize = computed(() => displayStore.viewportSize)
 const headerState = computed(() => displayStore.headerState)
 const isCompactHeader = computed(() => headerState.value === 'compact')
 const isOpenHeader = computed(() => headerState.value === 'open')
+
+const leftPriority = computed(
+  () => displayStore.leftSidebarModeLabel === 'priority',
+)
+const rightPriority = computed(
+  () => displayStore.rightSidebarModeLabel === 'priority',
+)
+const hasPrioritySidebar = computed(
+  () => leftPriority.value || rightPriority.value,
+)
 
 const subtitle = computed(() => page.value?.subtitle || '')
 const showSubtitle = computed(() => isOpenHeader.value && !!subtitle.value)
@@ -152,8 +172,16 @@ const hasHeaderContent = computed(() => headerState.value !== 'hidden')
 const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN')
 
 const avatarColumnClasses = computed(() => {
+  if (isCompactHeader.value && hasPrioritySidebar.value) {
+    return 'basis-[10%] max-w-[18%] xl:basis-[16%] xl:max-w-[22%]'
+  }
+
   if (isCompactHeader.value) {
     return 'basis-[11%] max-w-[22%] xl:basis-[22%] xl:max-w-[60%]'
+  }
+
+  if (hasPrioritySidebar.value) {
+    return 'basis-[11%] max-w-[18%] xl:basis-[18%] xl:max-w-[24%]'
   }
 
   return 'basis-[13%] max-w-[25%] xl:basis-[26%] xl:max-w-[40%]'
@@ -170,22 +198,10 @@ const headerKey = computed(() => {
     viewportSize.value,
     displayStore.sidebarLeftState,
     displayStore.sidebarRightState,
+    displayStore.leftSidebarModeLabel,
+    displayStore.rightSidebarModeLabel,
   ].join('-')
 })
-
-function toggleHeaderCompact() {
-  if (displayStore.headerState === 'hidden') {
-    displayStore.changeState('headerState', 'open')
-    return
-  }
-
-  if (displayStore.headerState === 'open') {
-    displayStore.changeState('headerState', 'compact')
-    return
-  }
-
-  displayStore.changeState('headerState', 'open')
-}
 
 function fireHeaderResized() {
   window.dispatchEvent(new CustomEvent('kr:header-resized'))
@@ -222,6 +238,8 @@ watch(
     viewportSize.value,
     displayStore.sidebarLeftState,
     displayStore.sidebarRightState,
+    displayStore.leftSidebarModeLabel,
+    displayStore.rightSidebarModeLabel,
   ],
   async () => {
     await nextTick()

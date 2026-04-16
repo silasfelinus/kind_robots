@@ -1,6 +1,6 @@
 <!-- /app.vue -->
 <template>
-  <div class="h-dvh w-full bg-base-200 text-base-content">
+  <div class="app-shell">
     <footer-toggle />
     <kind-loader />
     <milestone-popup />
@@ -50,11 +50,12 @@
       </div>
     </Transition>
 
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
+    <div class="layout-shell">
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
+    </div>
 
-    <!-- Viewport badge: centered bottom, pointer-events-none -->
     <ClientOnly>
       <div
         class="pointer-events-none fixed bottom-3 viewport-badge-wrap"
@@ -106,6 +107,7 @@ onMounted(async () => {
     }
     isNavigating.value = true
   })
+
   removeAfter = router.afterEach(() => {
     if (navigationTimer) clearTimeout(navigationTimer)
     navigationTimer = setTimeout(() => {
@@ -135,6 +137,50 @@ useHead({
 </script>
 
 <style>
+html,
+body,
+#__nuxt {
+  width: 100%;
+  min-width: 100%;
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: oklch(var(--b2));
+  overflow: hidden;
+}
+
+.app-shell {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  min-width: 100vw;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: oklch(var(--b2));
+  color: oklch(var(--bc));
+}
+
+.layout-shell {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  min-width: 100vw;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: oklch(var(--er) / 0.18);
+}
+
+.layout-shell > * {
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+}
+
 .viewport-badge {
   background: oklch(var(--b2, 0.2 0 0) / 0.75);
   backdrop-filter: blur(6px);

@@ -38,9 +38,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const state = reactive({
     // ── Region size/visibility states ──
     headerState: 'open' as DisplayState,
-    sidebarLeftState: 'compact' as DisplayState,
-    sidebarRightState: 'hidden' as DisplayState,
-    footerState: 'hidden' as DisplayState,
+    sidebarLeftState: 'open' as DisplayState,
+    sidebarRightState: 'open' as DisplayState,
+    footerState: 'compact' as DisplayState,
 
     // ── Sidebar priority booleans ──────────────────────────────────────────────
     // headerPriority: sidebar top edge aligns with screen top (overlaps header)

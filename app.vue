@@ -1,7 +1,42 @@
 <!-- /app.vue -->
 <template>
-  <div class="flex min-h-dvh w-full flex-col bg-secondary">
-    <NuxtPage />
+  <div class="relative min-h-screen w-full overflow-hidden bg-base-100">
+    <div class="fixed inset-0 z-50 pointer-events-none">
+      <div class="pointer-events-auto">
+        <footer-toggle />
+        <kind-loader />
+        <milestone-popup />
+      </div>
+
+      <animation-loader class="fixed z-50 pointer-events-none" />
+
+      <div
+        v-if="showSwarm"
+        class="fixed inset-0 z-50 overflow-hidden pointer-events-none"
+      >
+        <butterfly-animation class="pointer-events-none" />
+      </div>
+    </div>
+
+    <div
+      v-if="isNavigating"
+      class="fixed inset-0 z-40 flex items-center justify-center animate-fade-in"
+    >
+      <div class="loading loading-dots loading-lg text-primary" />
+    </div>
+
+    <main v-if="pageStore.ready" class="fixed z-30">
+      <div class="relative h-full w-full overflow-y-auto overscroll-contain">
+        <div
+          class="absolute top-2 right-2 z-50 flex flex-row-reverse items-start gap-3"
+        ></div>
+
+        <NuxtPage
+          :key="$route.fullPath"
+          class="min-h-full w-full transition-opacity duration-300 bg-base-300"
+        />
+      </div>
+    </main>
   </div>
 </template>
 

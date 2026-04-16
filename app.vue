@@ -56,6 +56,8 @@
       <NuxtPage />
     </NuxtLayout>
 
+    <screen-debug />
+
     <!-- Viewport indicator: simple, centered, no toggle -->
     <ClientOnly>
       <div

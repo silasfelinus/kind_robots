@@ -184,31 +184,22 @@ const footerIcon = computed(() => {
 })
 
 const leftSidebarIcon = computed(() => {
-  if (displayStore.sidebarLeftState === 'hidden') return 'kind-icon:panel-right'
-  if (displayStore.sidebarLeftState === 'compact')
+  if (displayStore.leftSidebarModeLabel === 'hidden')
     return 'kind-icon:panel-right'
-  if (
-    displayStore.sidebarLeftState === 'open' &&
-    displayStore.leftHeaderPriority &&
-    displayStore.leftFooterPriority
-  ) {
+  if (displayStore.leftSidebarModeLabel === 'compact')
+    return 'kind-icon:panel-right'
+  if (displayStore.leftSidebarModeLabel === 'open')
     return 'kind-icon:panel-right-close'
-  }
   return 'kind-icon:panel-right-close'
 })
 
 const rightSidebarIcon = computed(() => {
-  if (displayStore.sidebarRightState === 'hidden')
+  if (displayStore.rightSidebarModeLabel === 'hidden')
     return 'kind-icon:panel-right-close'
-  if (displayStore.sidebarRightState === 'compact')
+  if (displayStore.rightSidebarModeLabel === 'compact')
     return 'kind-icon:panel-right-close'
-  if (
-    displayStore.sidebarRightState === 'open' &&
-    displayStore.rightHeaderPriority &&
-    displayStore.rightFooterPriority
-  ) {
+  if (displayStore.rightSidebarModeLabel === 'open')
     return 'kind-icon:panel-right'
-  }
   return 'kind-icon:panel-right'
 })
 </script>

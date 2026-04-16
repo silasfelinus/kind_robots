@@ -257,12 +257,66 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return 20
   }
 
+  const headerLeftOffset = computed((): number => {
+    return state.sidebarLeftHeaderPriority ? 0 : sidebarLeftWidth.value
+  })
+
+  const headerRightOffset = computed((): number => {
+    return state.sidebarRightHeaderPriority ? 0 : sidebarRightWidth.value
+  })
+
+  const headerWidth = computed((): number => {
+    return Math.max(0, 100 - headerLeftOffset.value - headerRightOffset.value)
+  })
+
+  const footerLeftOffset = computed((): number => {
+    return state.sidebarLeftFooterPriority ? 0 : sidebarLeftWidth.value
+  })
+
+  const footerRightOffset = computed((): number => {
+    return state.sidebarRightFooterPriority ? 0 : sidebarRightWidth.value
+  })
+
+  const footerWidth = computed((): number => {
+    return Math.max(0, 100 - footerLeftOffset.value - footerRightOffset.value)
+  })
+
+  const centerTopOffset = computed((): number => {
+    return headerHeight.value + sectionPaddingSize.value
+  })
+
+  const centerBottomOffset = computed((): number => {
+    return footerHeight.value + sectionPaddingSize.value
+  })
+
+  const centerLeftOffset = computed((): number => {
+    return sidebarLeftWidth.value + sectionPaddingSize.value
+  })
+
+  const centerRightOffset = computed((): number => {
+    return sidebarRightWidth.value + sectionPaddingSize.value
+  })
+
+  const mainContentHeight = computed((): number => {
+    return Math.max(
+      sectionPaddingSize.value,
+      100 - centerTopOffset.value - centerBottomOffset.value,
+    )
+  })
+
+  const mainContentWidth = computed((): number => {
+    return Math.max(
+      10,
+      100 - centerLeftOffset.value - centerRightOffset.value,
+    )
+  })
+
   const headerStyle = computed(
     (): CSSProperties => ({
       position: 'fixed',
       top: '0',
-      left: '0',
-      width: '100vw',
+      left: `${headerLeftOffset.value}vw`,
+      width: `${headerWidth.value}vw`,
       height: vh(headerHeight.value),
       zIndex: '30',
     }),
@@ -272,8 +326,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
     (): CSSProperties => ({
       position: 'fixed',
       bottom: '0',
-      left: '0',
-      width: '100vw',
+      left: `${footerLeftOffset.value}vw`,
+      width: `${footerWidth.value}vw`,
       height: vh(footerHeight.value),
       zIndex: '30',
     }),
@@ -325,40 +379,19 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
-  const mainContentHeight = computed((): number => {
-    const p = sectionPaddingSize.value
-    return Math.max(p, 100 - headerHeight.value - footerHeight.value - p * 2)
-  })
-
-  const mainContentWidth = computed((): number => {
-    const p = sectionPaddingSize.value
-    return Math.max(
-      10,
-      100 - sidebarLeftWidth.value - sidebarRightWidth.value - p * 2,
-    )
-  })
-
-  const mainContentStyle = computed((): CSSProperties => {
-    const p = sectionPaddingSize.value
-
-    return {
-      position: 'fixed',
-      top: vh(headerHeight.value + p),
-      left: `calc(${sidebarLeftWidth.value}vw + ${vh(p)})`,
-      width: `${mainContentWidth.value}vw`,
-      height: vh(mainContentHeight.value),
-      zIndex: '10',
-    }
-  })
+  const mainContentStyle = computed((): CSSProperties => ({
+    position: 'fixed',
+    top: vh(centerTopOffset.value),
+    left: `${centerLeftOffset.value}vw`,
+    width: `${mainContentWidth.value}vw`,
+    height: vh(mainContentHeight.value),
+    zIndex: '10',
+  }))
 
   const sidebarContentHeight = computed(() => mainContentHeight.value)
   const isLargeViewport = computed(() => state.viewportSize === 'desktop')
-  const contentTopOffset = computed(
-    () => headerHeight.value + sectionPaddingSize.value,
-  )
-  const contentBottomOffset = computed(
-    () => footerHeight.value + sectionPaddingSize.value,
-  )
+  const contentTopOffset = computed(() => centerTopOffset.value)
+  const contentBottomOffset = computed(() => centerBottomOffset.value)
 
   const cornerPanelStyle = computed(
     (): CSSProperties => ({
@@ -745,6 +778,16 @@ export const useDisplayStore = defineStore('displayStore', () => {
     footerHeight,
     sidebarLeftWidth,
     sidebarRightWidth,
+    headerLeftOffset,
+    headerRightOffset,
+    headerWidth,
+    footerLeftOffset,
+    footerRightOffset,
+    footerWidth,
+    centerTopOffset,
+    centerBottomOffset,
+    centerLeftOffset,
+    centerRightOffset,
     mainContentHeight,
     mainContentWidth,
     sidebarContentHeight,

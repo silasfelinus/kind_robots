@@ -50,7 +50,7 @@
           <button
             class="icon-btn icon-btn--tab icon-btn--secondary"
             :title="`Left sidebar: ${displayStore.leftSidebarModeLabel}`"
-            @click="displayStore.toggleSidebar('sidebarLeftState')"
+            @click="displayStore.toggleLeftSidebar"
           >
             <Icon
               :name="leftSidebarIcon"
@@ -88,7 +88,7 @@
           <button
             class="icon-btn icon-btn--tab icon-btn--accent"
             :title="`Right sidebar: ${displayStore.rightSidebarModeLabel}`"
-            @click="displayStore.toggleSidebar('sidebarRightState')"
+            @click="displayStore.toggleRightSidebar"
           >
             <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
             <span class="icon-btn__label icon-btn__label--vertical">
@@ -105,10 +105,6 @@
       class="fixed overflow-hidden border border-base-300 bg-base-100 text-base-content transition-[top,left,width,height] duration-200"
       :style="displayStore.mainContentStyle"
     >
-      <div :style="displayStore.cornerToggleStyle">
-        <corner-toggle />
-      </div>
-
       <Transition name="slide-in-right">
         <div class="pointer-events-none">
           <corner-panel class="pointer-events-auto" />
@@ -189,20 +185,30 @@ const footerIcon = computed(() => {
 
 const leftSidebarIcon = computed(() => {
   if (displayStore.sidebarLeftState === 'hidden') return 'kind-icon:panel-right'
-  if (displayStore.sidebarLeftState === 'disabled')
-    return 'kind-icon:panel-right'
   if (displayStore.sidebarLeftState === 'compact')
     return 'kind-icon:panel-right'
+  if (
+    displayStore.sidebarLeftState === 'open' &&
+    displayStore.leftHeaderPriority &&
+    displayStore.leftFooterPriority
+  ) {
+    return 'kind-icon:panel-right-close'
+  }
   return 'kind-icon:panel-right-close'
 })
 
 const rightSidebarIcon = computed(() => {
   if (displayStore.sidebarRightState === 'hidden')
     return 'kind-icon:panel-right-close'
-  if (displayStore.sidebarRightState === 'disabled')
-    return 'kind-icon:panel-right-close'
   if (displayStore.sidebarRightState === 'compact')
     return 'kind-icon:panel-right-close'
+  if (
+    displayStore.sidebarRightState === 'open' &&
+    displayStore.rightHeaderPriority &&
+    displayStore.rightFooterPriority
+  ) {
+    return 'kind-icon:panel-right'
+  }
   return 'kind-icon:panel-right'
 })
 </script>

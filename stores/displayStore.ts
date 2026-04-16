@@ -353,8 +353,29 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const headerModeLabel = computed(() => state.headerState)
   const footerModeLabel = computed(() => state.footerState)
-  const leftSidebarModeLabel = computed(() => state.sidebarLeftState)
-  const rightSidebarModeLabel = computed(() => state.sidebarRightState)
+  const leftSidebarModeLabel = computed(() => {
+    if (
+      state.sidebarLeftState === 'open' &&
+      state.leftHeaderPriority &&
+      state.leftFooterPriority
+    ) {
+      return 'priority'
+    }
+
+    return state.sidebarLeftState
+  })
+
+  const rightSidebarModeLabel = computed(() => {
+    if (
+      state.sidebarRightState === 'open' &&
+      state.rightHeaderPriority &&
+      state.rightFooterPriority
+    ) {
+      return 'priority'
+    }
+
+    return state.sidebarRightState
+  })
 
   function toggleFullscreen() {
     state.isFullScreen = !state.isFullScreen
@@ -395,32 +416,172 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   }
 
+  function applySidebarStage(
+    side: 'left' | 'right',
+    stage: 'hidden' | 'compact' | 'open' | 'priority',
+  ) {
+    if (side === 'left') {
+      if (stage === 'hidden') {
+        state.sidebarLeftState = 'hidden'
+        state.leftHeaderPriority = false
+        state.leftFooterPriority = false
+        return
+      }
+
+      if (stage === 'compact') {
+        state.sidebarLeftState = 'compact'
+        state.leftHeaderPriority = false
+        state.leftFooterPriority = false
+        return
+      }
+
+      if (stage === 'open') {
+        state.sidebarLeftState = 'open'
+        state.leftHeaderPriority = false
+        state.leftFooterPriority = false
+        return
+      }
+
+      state.sidebarLeftState = 'open'
+      state.leftHeaderPriority = true
+      state.leftFooterPriority = true
+      return
+    }
+
+    if (stage === 'hidden') {
+      state.sidebarRightState = 'hidden'
+      state.rightHeaderPriority = false
+      state.rightFooterPriority = false
+      return
+    }
+
+    if (stage === 'compact') {
+      state.sidebarRightState = 'compact'
+      state.rightHeaderPriority = false
+      state.rightFooterPriority = false
+      return
+    }
+
+    if (stage === 'open') {
+      state.sidebarRightState = 'open'
+      state.rightHeaderPriority = false
+      state.rightFooterPriority = false
+      return
+    }
+
+    state.sidebarRightState = 'open'
+    state.rightHeaderPriority = true
+    state.rightFooterPriority = true
+  }
+
+  type SidebarStage = 'hidden' | 'compact' | 'open' | 'priority'
+
+  function getSidebarStage(side: 'left' | 'right'): SidebarStage {
+    if (side === 'left') {
+      if (state.sidebarLeftState === 'hidden') return 'hidden'
+      if (state.sidebarLeftState === 'compact') return 'compact'
+
+      if (
+        state.sidebarLeftState === 'open' &&
+        state.leftHeaderPriority &&
+        state.leftFooterPriority
+      ) {
+        return 'priority'
+      }
+
+      return 'open'
+    }
+
+    if (state.sidebarRightState === 'hidden') return 'hidden'
+    if (state.sidebarRightState === 'compact') return 'compact'
+
+    if (
+      state.sidebarRightState === 'open' &&
+      state.rightHeaderPriority &&
+      state.rightFooterPriority
+    ) {
+      return 'priority'
+    }
+
+    return 'open'
+  }
+
+  function setSidebarStage(side: 'left' | 'right', stage: SidebarStage) {
+    const isLeft = side === 'left'
+
+    const setState = (
+      key: 'sidebarLeftState' | 'sidebarRightState',
+      val: DisplayState,
+    ) => {
+      state[key] = val
+    }
+
+    if (stage === 'hidden') {
+      setState(isLeft ? 'sidebarLeftState' : 'sidebarRightState', 'hidden')
+
+      if (isLeft) {
+        state.leftHeaderPriority = false
+        state.leftFooterPriority = false
+      } else {
+        state.rightHeaderPriority = false
+        state.rightFooterPriority = false
+      }
+      return
+    }
+
+    if (stage === 'compact') {
+      setState(isLeft ? 'sidebarLeftState' : 'sidebarRightState', 'compact')
+
+      if (isLeft) {
+        state.leftHeaderPriority = false
+        state.leftFooterPriority = false
+      } else {
+        state.rightHeaderPriority = false
+        state.rightFooterPriority = false
+      }
+      return
+    }
+
+    if (stage === 'open') {
+      setState(isLeft ? 'sidebarLeftState' : 'sidebarRightState', 'open')
+
+      if (isLeft) {
+        state.leftHeaderPriority = false
+        state.leftFooterPriority = false
+      } else {
+        state.rightHeaderPriority = false
+        state.rightFooterPriority = false
+      }
+      return
+    }
+
+    setState(isLeft ? 'sidebarLeftState' : 'sidebarRightState', 'open')
+
+    if (isLeft) {
+      state.leftHeaderPriority = true
+      state.leftFooterPriority = true
+    } else {
+      state.rightHeaderPriority = true
+      state.rightFooterPriority = true
+    }
+  }
+
   function toggleSidebar(side: 'sidebarLeftState' | 'sidebarRightState') {
-    const stateMap = {
-      hidden: 'compact',
-      compact: 'hidden',
-      open: 'hidden',
-      disabled: 'hidden',
-      extended: 'hidden',
-    } as const
+    const logical = side === 'sidebarLeftState' ? 'left' : 'right'
 
-    state[side] = stateMap[state[side]]
-
-    if (side === 'sidebarLeftState') {
-      syncPriorityWithSidebar(
-        'left',
-        ['open', 'compact'].includes(state.sidebarLeftState),
-      )
-    }
-
-    if (side === 'sidebarRightState') {
-      syncPriorityWithSidebar(
-        'right',
-        ['open', 'compact'].includes(state.sidebarRightState),
-      )
-    }
-
+    const order: SidebarStage[] = ['hidden', 'compact', 'open', 'priority']
+    const current = getSidebarStage(logical)
+    const next = order[(order.indexOf(current) + 1) % order.length] ?? 'hidden'
+    setSidebarStage(logical, next)
     saveState()
+  }
+
+  function toggleLeftSidebar() {
+    toggleSidebar('sidebarLeftState')
+  }
+
+  function toggleRightSidebar() {
+    toggleSidebar('sidebarRightState')
   }
 
   function toggleFooter() {
@@ -540,17 +701,17 @@ export const useDisplayStore = defineStore('displayStore', () => {
     state[section] = newState
 
     if (section === 'sidebarLeftState') {
-      syncPriorityWithSidebar(
-        'left',
-        ['open', 'compact'].includes(state.sidebarLeftState),
-      )
+      if (newState === 'hidden' || newState === 'compact') {
+        state.leftHeaderPriority = false
+        state.leftFooterPriority = false
+      }
     }
 
     if (section === 'sidebarRightState') {
-      syncPriorityWithSidebar(
-        'right',
-        ['open', 'compact'].includes(state.sidebarRightState),
-      )
+      if (newState === 'hidden' || newState === 'compact') {
+        state.rightHeaderPriority = false
+        state.rightFooterPriority = false
+      }
     }
 
     saveState()
@@ -722,6 +883,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
     mainContentStyle,
     centerContentStyle,
     footerStyle,
+    toggleLeftSidebar,
+    toggleRightSidebar,
 
     isLargeViewport,
     headerModeLabel,

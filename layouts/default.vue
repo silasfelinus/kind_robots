@@ -49,7 +49,7 @@
             <button
               class="icon-btn icon-btn--tab icon-btn--secondary"
               :title="`Left sidebar: ${displayStore.leftSidebarModeLabel}`"
-              @click="displayStore.toggleLeftSidebar"
+              @click="displayStore.toggleSidebar('sidebarLeftState')"
             >
               <Icon
                 :name="leftSidebarIcon"
@@ -86,7 +86,7 @@
             <button
               class="icon-btn icon-btn--tab icon-btn--accent"
               :title="`Right sidebar: ${displayStore.rightSidebarModeLabel}`"
-              @click="displayStore.toggleRightSidebar"
+              @click="displayStore.toggleSidebar('sidebarRightState')"
             >
               <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
               <span class="icon-btn__label icon-btn__label--vertical">
@@ -103,7 +103,9 @@
       class="fixed overflow-hidden border border-base-300 bg-base-100 text-base-content transition-[top,left,width,height] duration-200"
       :style="displayStore.mainContentStyle"
     >
-      <corner-toggle />
+      <div :style="displayStore.cornerToggleStyle">
+        <corner-toggle />
+      </div>
 
       <Transition name="slide-in-right">
         <div class="pointer-events-none">

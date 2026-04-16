@@ -1,26 +1,7 @@
 <!-- /app.vue -->
-<!-- /app.vue -->
 <template>
-  <div class="min-h-dvh w-full grid grid-cols-4 grid-rows-4">
-    <div class="bg-red-500"></div>
-    <div class="bg-blue-500"></div>
-    <div class="bg-green-500"></div>
-    <div class="bg-yellow-500"></div>
-
-    <div class="bg-purple-500"></div>
-    <div class="bg-pink-500"></div>
-    <div class="bg-indigo-500"></div>
-    <div class="bg-teal-500"></div>
-
-    <div class="bg-orange-500"></div>
-    <div class="bg-lime-500"></div>
-    <div class="bg-cyan-500"></div>
-    <div class="bg-rose-500"></div>
-
-    <div class="bg-primary"></div>
-    <div class="bg-secondary"></div>
-    <div class="bg-accent"></div>
-    <div class="bg-base-200"></div>
+  <div class="flex min-h-dvh w-full flex-col bg-secondary">
+    <NuxtPage />
   </div>
 </template>
 

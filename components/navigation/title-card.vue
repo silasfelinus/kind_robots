@@ -7,7 +7,7 @@
       class="flex flex-col items-center justify-center gap-2 mb-1 text-center"
     >
       <div
-        class="inline-flex max-w-full items-center gap-2.5 rounded-2xl border border-black bg-gradient-to-r from-base-100 via-base-200 to-base-100 px-4 py-1.5 sm:px-5 sm:py-2 shadow-[0_3px_0_rgba(0,0,0,0.6)]"
+        class="inline-flex max-w-full items-center gap-2.5 rounded-2xl border border-black bg-linear-to-r from-base-100 via-base-200 to-base-100 px-4 py-1.5 sm:px-5 sm:py-2 shadow-[0_3px_0_rgba(0,0,0,0.6)]"
       >
         <span
           class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-2.5 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.24em] uppercase whitespace-nowrap"
@@ -28,7 +28,7 @@
         class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight tracking-tight"
       >
         <span
-          class="inline-block bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent drop-shadow-[0_1px_0_rgba(0,0,0,0.55)]"
+          class="inline-block bg-clip-text text-transparent bg-linear-to-r from-primary via-secondary to-accent drop-shadow-[0_1px_0_rgba(0,0,0,0.55)]"
         >
           The {{ room }}
         </span>

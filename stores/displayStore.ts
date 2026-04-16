@@ -357,6 +357,17 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
+  function toggleHeaderCompact() {
+    if (state.headerState === 'hidden') {
+      state.headerState = 'open'
+      saveState()
+      return
+    }
+
+    state.headerState = state.headerState === 'open' ? 'compact' : 'open'
+    saveState()
+  }
+
   const headerStyle = computed<CSSProperties>(() => {
     if (state.headerState === 'hidden') {
       return { display: 'none' }
@@ -829,6 +840,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     initialize,
     removeViewportWatcher,
     setSmartState,
+    toggleHeaderCompact,
   }
 })
 

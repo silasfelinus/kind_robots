@@ -50,7 +50,7 @@
       </div>
     </Transition>
 
-    <div class="layout-shell bg-green">
+    <div class="layout-shell bg-green-500">
         main content
     </div>
 

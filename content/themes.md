@@ -19,5 +19,4 @@ navComponent: 'dashboard-nav'
 :theme-gallery
 :theme-preview
 
-:theme-lab
 

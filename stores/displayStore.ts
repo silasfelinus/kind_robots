@@ -497,12 +497,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function toggleFooter() {
-    const order: DisplayState[] = ['compact', 'open', 'priority', 'hidden']
+    const order: DisplayState[] = ['compact', 'open', 'hidden']
     const currentIndex = order.indexOf(state.footerState)
     state.footerState = order[(currentIndex + 1) % order.length] ?? 'compact'
     saveState()
   }
-
   function toggleBigMode() {
     state.bigMode = !state.bigMode
     saveState()

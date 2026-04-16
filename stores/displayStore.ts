@@ -67,23 +67,26 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
-  // ─── Viewport-responsive padding (vh units) ───────────────────────────────────
+  // ─── Padding ──────────────────────────────────────────────────────────────────
   // Applied once between every adjacent pair of regions.
+  // This is also the MINIMUM size of any region when state === 'hidden'.
   const sectionPaddingSize = computed((): number => {
     const sizes: Record<ViewportSize, number> = {
-      mobile: 0,
-      tablet: 0.5,
-      desktop: 0.75,
+      mobile: 1,
+      tablet: 1,
+      desktop: 1,
     }
     return sizes[state.viewportSize]
   })
 
   // ─── Raw heights (vh units) ───────────────────────────────────────────────────
+  // 'hidden' returns sectionPaddingSize — region is always present, just minimal.
 
   const headerHeight = computed((): number => {
+    const p = sectionPaddingSize.value
     switch (state.headerState) {
       case 'hidden':
-        return 0
+        return p
       case 'compact':
         return state.viewportSize === 'mobile' ? 5 : 4
       case 'full': {
@@ -107,7 +110,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const footerHeights: Record<string, Record<ViewportSize, number>> = {
-    hidden: { mobile: 0, tablet: 0, desktop: 0 },
     compact: { mobile: 6, tablet: 4, desktop: 4 },
     open: { mobile: 45, tablet: 25, desktop: 25 },
     full: { mobile: 55, tablet: 40, desktop: 40 },
@@ -115,56 +117,58 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   const footerHeight = computed((): number => {
-    const key =
-      state.footerState in footerHeights ? state.footerState : 'hidden'
-    return footerHeights[key]![state.viewportSize] ?? 0
+    const p = sectionPaddingSize.value
+    if (state.footerState === 'hidden') return p
+    return footerHeights[state.footerState]?.[state.viewportSize] ?? p
   })
 
   // ─── Raw widths (vw units) ────────────────────────────────────────────────────
+  // 'hidden' returns sectionPaddingSize — always a sliver.
 
   const sidebarLeftWidth = computed((): number => {
+    const p = sectionPaddingSize.value
+    if (['hidden', 'disabled'].includes(state.sidebarLeftState)) return p
     const sizes: Record<ViewportSize, number> = {
       mobile: 40,
       tablet: 20,
       desktop: 15,
     }
-    return ['hidden', 'disabled'].includes(state.sidebarLeftState)
-      ? 0
-      : sizes[state.viewportSize]
+    return sizes[state.viewportSize]
   })
 
   const sidebarRightWidth = computed((): number => {
+    const p = sectionPaddingSize.value
+    if (['hidden', 'disabled'].includes(state.sidebarRightState)) return p
     const sizes: Record<ViewportSize, number> = {
       mobile: 90,
       tablet: 35,
       desktop: 25,
     }
-    return ['hidden', 'disabled'].includes(state.sidebarRightState)
-      ? 0
-      : sizes[state.viewportSize]
+    return sizes[state.viewportSize]
   })
 
-  // ─── Derived geometry ─────────────────────────────────────────────────────────
+  // ─── Geometry ─────────────────────────────────────────────────────────────────
   //
-  // All positions are in vh (vertical) or vw (horizontal).
-  // sectionPaddingSize (p) is inserted ONCE between each adjacent pair.
+  // All values in vh (vertical) or vw (horizontal).
+  // p = sectionPaddingSize — gap between every adjacent pair of regions.
   //
-  // Header:  top=0,                  height=headerHeight
-  //          (no top padding — flush to screen top)
+  // Header:   top=0,             height=headerHeight   (always ≥ p)
+  // Footer:   bottom=0,          height=footerHeight   (always ≥ p)
+  // Sidebar:  top/height depend on priority flags and header/footer heights
+  // Center:   fills remaining space after all four surrounding regions
   //
-  // Footer:  top=100-footerHeight,   height=footerHeight
-  //          (no bottom padding — flush to screen bottom)
+  // Sidebar geometry:
+  //   topEdge    = headerPriority ? 0 : headerHeight + p
+  //   bottomEdge = footerPriority ? 0 : footerHeight + p
+  //   top        = topEdge
+  //   height     = 100 - topEdge - bottomEdge
+  //   'full' state → top=0, height=100 regardless of priority
   //
-  // Sidebar: topEdge    = headerPriority ? 0 : headerHeight + p
-  //          bottomEdge = footerPriority ? 0 : footerHeight + p  (measured from bottom)
-  //          top        = topEdge
-  //          height     = 100 - topEdge - bottomEdge
-  //          'full' state overrides: top=0, height=100
-  //
-  // Center:  top    = headerHeight + p
-  //          height = 100 - headerHeight - p*2 - footerHeight
-  //          left   = sidebarLeftWidth + p  (vw)
-  //          width  = 100 - sidebarLeftWidth - sidebarRightWidth - p*2  (vw)
+  // Center:
+  //   top    = headerHeight + p
+  //   left   = sidebarLeftWidth + p   (vw)
+  //   width  = 100 - sidebarLeftWidth - sidebarRightWidth - p*2
+  //   height = 100 - headerHeight - footerHeight - p*2
 
   const leftSidebarVisible = computed(
     () => !['hidden', 'disabled'].includes(state.sidebarLeftState),
@@ -173,7 +177,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     () => !['hidden', 'disabled'].includes(state.sidebarRightState),
   )
 
-  // Sidebar top/height given priority flags
   function sidebarVh(
     sizeState: DisplayState,
     headerPriority: boolean,
@@ -194,37 +197,35 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return 20
   }
 
-  // vh helper string
   const vh = (n: number) => `calc(var(--vh, 1vh) * ${n})`
 
-  // ─── Computed styles — every region is position:fixed ────────────────────────
+  // ─── Computed styles ──────────────────────────────────────────────────────────
+  // Every region ALWAYS returns a valid positioned style — no display:none ever.
+  // position:fixed is set here; layout elements must not add their own position class.
 
-  const headerStyle = computed((): CSSProperties => {
-    if (state.headerState === 'hidden') return { display: 'none' }
-    return {
+  const headerStyle = computed(
+    (): CSSProperties => ({
       position: 'fixed',
       top: '0',
       left: '0',
       width: '100vw',
       height: vh(headerHeight.value),
       zIndex: '30',
-    }
-  })
+    }),
+  )
 
-  const footerStyle = computed((): CSSProperties => {
-    if (state.footerState === 'hidden') return { display: 'none' }
-    return {
+  const footerStyle = computed(
+    (): CSSProperties => ({
       position: 'fixed',
       bottom: '0',
       left: '0',
       width: '100vw',
       height: vh(footerHeight.value),
       zIndex: '30',
-    }
-  })
+    }),
+  )
 
   const leftSidebarStyle = computed((): CSSProperties => {
-    if (!leftSidebarVisible.value) return { display: 'none' }
     const { top, height } = sidebarVh(
       state.sidebarLeftState,
       state.sidebarLeftHeaderPriority,
@@ -247,7 +248,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const rightSidebarStyle = computed((): CSSProperties => {
-    if (!rightSidebarVisible.value) return { display: 'none' }
     const { top, height } = sidebarVh(
       state.sidebarRightState,
       state.sidebarRightHeaderPriority,
@@ -271,7 +271,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const mainContentHeight = computed((): number => {
     const p = sectionPaddingSize.value
-    return 100 - headerHeight.value - p * 2 - footerHeight.value
+    return 100 - headerHeight.value - footerHeight.value - p * 2
   })
 
   const mainContentWidth = computed((): number => {
@@ -285,13 +285,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
       position: 'fixed',
       top: vh(headerHeight.value + p),
       left: `calc(${sidebarLeftWidth.value}vw + ${vh(p)})`,
-      width: `calc(${mainContentWidth.value}vw)`,
+      width: `${mainContentWidth.value}vw`,
       height: vh(mainContentHeight.value),
       zIndex: '10',
     }
   })
 
-  // ─── Compat / legacy styles ───────────────────────────────────────────────────
+  // ─── Compat / legacy ──────────────────────────────────────────────────────────
 
   const sidebarContentHeight = computed(() => mainContentHeight.value)
   const isLargeViewport = computed(() => state.viewportSize === 'desktop')
@@ -335,14 +335,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       zIndex: '50',
     }),
   )
-  const centerContentStyle = computed(
-    (): CSSProperties => ({
-      marginTop: '0',
-      height: '100%',
-    }),
-  )
-  const headerStyle_compat = headerStyle // same ref
-  const footerStyle_compat = footerStyle
+  const centerContentStyle = computed((): CSSProperties => ({ height: '100%' }))
 
   // ─── Mode labels ──────────────────────────────────────────────────────────────
 
@@ -602,7 +595,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   return {
     ...toRefs(state),
-    // dimensions
     sectionPaddingSize,
     headerHeight,
     footerHeight,
@@ -614,7 +606,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     isLargeViewport,
     contentTopOffset,
     contentBottomOffset,
-    // styles
     headerStyle,
     footerStyle,
     leftSidebarStyle,
@@ -625,15 +616,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
     leftToggleStyle,
     rightToggleStyle,
     footerToggleStyle,
-    // visibility
     leftSidebarVisible,
     rightSidebarVisible,
-    // labels
     headerModeLabel,
     footerModeLabel,
     leftSidebarModeLabel,
     rightSidebarModeLabel,
-    // toggles
     toggleHeader,
     toggleFooter,
     toggleLeftSidebar,
@@ -644,7 +632,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     toggleSidebarRightHeaderPriority,
     toggleSidebarRightFooterPriority,
     changeState,
-    // other
     toggleCorner,
     toggleSection,
     toggleExtended,

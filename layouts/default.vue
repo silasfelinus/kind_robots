@@ -1,22 +1,16 @@
 <!-- /layouts/default.vue -->
 <!--
-  All regions are position:fixed. The store computes every coordinate.
-  The root div is a 100vw × 100dvh canvas — just a stacking context.
+  Every region is ALWAYS in the DOM. Hidden state = sectionPaddingSize minimum.
+  No v-if on any region. No Tailwind position classes (fixed/absolute/relative)
+  on region elements — position:fixed comes exclusively from the store style object.
 
-  Toggle buttons are position:fixed at predictable screen positions,
-  always rendered regardless of whether the region is visible.
-
-  Toggle anchor points:
-    Header     → fixed top-0 left-1/2  (centered, top edge)
-    Footer     → fixed bottom-0 left-1/2 (centered, bottom edge)
-    Left       → fixed left-0 top-1/2  (left edge, vertically centered)
-    Right      → fixed right-0 top-1/2 (right edge, vertically centered)
+  Toggle buttons use inline style for position to guarantee no class conflicts.
 -->
 <template>
-  <div class="fixed inset-0 overflow-hidden bg-base-200 text-base-content">
+  <div>
     <!-- ══ HEADER ══ -->
     <header
-      class="absolute overflow-hidden bg-primary text-primary-content border-b-2 border-primary-focus transition-[height] duration-200"
+      class="overflow-hidden bg-primary text-primary-content border-b-2 border-primary-focus transition-[height] duration-200"
       :style="headerStyle"
     >
       <div class="absolute inset-0 overflow-hidden">
@@ -27,7 +21,7 @@
     <!-- ══ LEFT SIDEBAR ══ -->
     <ClientOnly>
       <aside
-        class="absolute overflow-hidden bg-neutral text-neutral-content border-r-2 border-neutral-focus transition-[top,height,width] duration-200"
+        class="overflow-hidden bg-neutral text-neutral-content border-r-2 border-neutral-focus transition-[top,height,width] duration-200"
         :style="leftSidebarStyle"
       >
         <div
@@ -35,13 +29,12 @@
         >
           <slot name="left"><left-sidebar /></slot>
         </div>
-        <!-- Priority controls inside sidebar, bottom-right -->
         <div
           class="absolute bottom-10 right-1.5 z-10 flex flex-col gap-1 items-end"
         >
           <button
             class="region-btn"
-            :class="sidebarLeftHeaderPriority && 'region-btn--active'"
+            :class="{ 'region-btn--active': sidebarLeftHeaderPriority }"
             title="Extend behind header"
             @click="displayStore.toggleSidebarLeftHeaderPriority()"
           >
@@ -49,7 +42,7 @@
           </button>
           <button
             class="region-btn"
-            :class="sidebarLeftFooterPriority && 'region-btn--active'"
+            :class="{ 'region-btn--active': sidebarLeftFooterPriority }"
             title="Extend behind footer"
             @click="displayStore.toggleSidebarLeftFooterPriority()"
           >
@@ -63,7 +56,7 @@
     <!-- ══ RIGHT SIDEBAR ══ -->
     <ClientOnly>
       <aside
-        class="absolute overflow-hidden bg-secondary text-secondary-content border-l-2 border-secondary-focus transition-[top,height,width] duration-200"
+        class="overflow-hidden bg-secondary text-secondary-content border-l-2 border-secondary-focus transition-[top,height,width] duration-200"
         :style="rightSidebarStyle"
       >
         <div
@@ -71,13 +64,12 @@
         >
           <slot name="right"><right-sidebar /></slot>
         </div>
-        <!-- Priority controls inside sidebar, bottom-left -->
         <div
           class="absolute bottom-10 left-1.5 z-10 flex flex-col gap-1 items-start"
         >
           <button
             class="region-btn"
-            :class="sidebarRightHeaderPriority && 'region-btn--active'"
+            :class="{ 'region-btn--active': sidebarRightHeaderPriority }"
             title="Extend behind header"
             @click="displayStore.toggleSidebarRightHeaderPriority()"
           >
@@ -85,7 +77,7 @@
           </button>
           <button
             class="region-btn"
-            :class="sidebarRightFooterPriority && 'region-btn--active'"
+            :class="{ 'region-btn--active': sidebarRightFooterPriority }"
             title="Extend behind footer"
             @click="displayStore.toggleSidebarRightFooterPriority()"
           >
@@ -97,10 +89,7 @@
     </ClientOnly>
 
     <!-- ══ CENTER ══ -->
-    <main
-      class="absolute overflow-hidden bg-base-100 transition-[top,left,width,height] duration-200"
-      :style="mainContentStyle"
-    >
+    <main class="overflow-hidden bg-base-100" :style="mainContentStyle">
       <div
         class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 py-4"
       >
@@ -110,7 +99,7 @@
 
     <!-- ══ FOOTER ══ -->
     <footer
-      class="absolute overflow-hidden bg-accent text-accent-content border-t-2 border-accent-focus transition-[height] duration-200"
+      class="overflow-hidden bg-accent text-accent-content border-t-2 border-accent-focus transition-[height] duration-200"
       :style="footerStyle"
     >
       <div class="absolute inset-0 overflow-hidden">
@@ -118,62 +107,88 @@
       </div>
     </footer>
 
-    <!-- ══════════════════════════════════════════════════
-         ALWAYS-VISIBLE TOGGLE BUTTONS
-         Fixed to screen edges, z-50, never disappear.
-    ══════════════════════════════════════════════════ -->
+    <!-- ══ TOGGLE BUTTONS ══
+         Always visible. Inline style for position — no Tailwind class conflict.
+         z-index 200 sits above all regions (max region z is 50).
+    -->
 
-    <!-- Header toggle — top center -->
-    <ClientOnly>
-      <div class="fixed top-1 left-1/2 -translate-x-1/2 z-50">
-        <button
-          class="region-btn region-btn--mode"
-          :class="!showHeader && 'region-btn--dim'"
-          @click="displayStore.toggleHeader()"
-        >
-          ▲ {{ headerModeLabel }}
-        </button>
-      </div>
-    </ClientOnly>
+    <!-- Header: top center -->
+    <div
+      style="
+        position: fixed;
+        top: 0.3rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 200;
+      "
+    >
+      <button
+        class="region-btn region-btn--mode"
+        :class="{ 'region-btn--dim': headerState === 'hidden' }"
+        @click="displayStore.toggleHeader()"
+      >
+        ▲ {{ headerModeLabel }}
+      </button>
+    </div>
 
-    <!-- Left sidebar toggle — left edge, vertically centered -->
-    <ClientOnly>
-      <div class="fixed left-0 top-1/2 -translate-y-1/2 z-50">
-        <button
-          class="region-btn region-btn--mode region-btn--vertical rounded-l-none"
-          :class="!leftSidebarVisible && 'region-btn--dim'"
-          @click="displayStore.toggleLeftSidebar()"
-        >
-          {{ leftSidebarModeLabel }}
-        </button>
-      </div>
-    </ClientOnly>
+    <!-- Footer: bottom center -->
+    <div
+      style="
+        position: fixed;
+        bottom: 0.3rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 200;
+      "
+    >
+      <button
+        class="region-btn region-btn--mode"
+        :class="{ 'region-btn--dim': footerState === 'hidden' }"
+        @click="displayStore.toggleFooter()"
+      >
+        ▼ {{ footerModeLabel }}
+      </button>
+    </div>
 
-    <!-- Right sidebar toggle — right edge, vertically centered -->
-    <ClientOnly>
-      <div class="fixed right-0 top-1/2 -translate-y-1/2 z-50">
-        <button
-          class="region-btn region-btn--mode region-btn--vertical rounded-r-none"
-          :class="!rightSidebarVisible && 'region-btn--dim'"
-          @click="displayStore.toggleRightSidebar()"
-        >
-          {{ rightSidebarModeLabel }}
-        </button>
-      </div>
-    </ClientOnly>
+    <!-- Left sidebar: left edge, vertically centered -->
+    <div
+      style="
+        position: fixed;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 200;
+      "
+    >
+      <button
+        class="region-btn region-btn--mode region-btn--vertical"
+        style="border-top-left-radius: 0; border-bottom-left-radius: 0"
+        :class="{ 'region-btn--dim': sidebarLeftState === 'hidden' }"
+        @click="displayStore.toggleLeftSidebar()"
+      >
+        {{ leftSidebarModeLabel }}
+      </button>
+    </div>
 
-    <!-- Footer toggle — bottom center -->
-    <ClientOnly>
-      <div class="fixed bottom-1 left-1/2 -translate-x-1/2 z-50">
-        <button
-          class="region-btn region-btn--mode"
-          :class="!showFooter && 'region-btn--dim'"
-          @click="displayStore.toggleFooter()"
-        >
-          ▼ {{ footerModeLabel }}
-        </button>
-      </div>
-    </ClientOnly>
+    <!-- Right sidebar: right edge, vertically centered -->
+    <div
+      style="
+        position: fixed;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 200;
+      "
+    >
+      <button
+        class="region-btn region-btn--mode region-btn--vertical"
+        style="border-top-right-radius: 0; border-bottom-right-radius: 0"
+        :class="{ 'region-btn--dim': sidebarRightState === 'hidden' }"
+        @click="displayStore.toggleRightSidebar()"
+      >
+        {{ rightSidebarModeLabel }}
+      </button>
+    </div>
   </div>
 </template>
 
@@ -184,10 +199,11 @@ import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
-const showHeader = computed(() => displayStore.headerState !== 'hidden')
-const showFooter = computed(() => displayStore.footerState !== 'hidden')
-const leftSidebarVisible = computed(() => displayStore.leftSidebarVisible)
-const rightSidebarVisible = computed(() => displayStore.rightSidebarVisible)
+// Read state directly for :class bindings
+const headerState = computed(() => displayStore.headerState)
+const footerState = computed(() => displayStore.footerState)
+const sidebarLeftState = computed(() => displayStore.sidebarLeftState)
+const sidebarRightState = computed(() => displayStore.sidebarRightState)
 
 const sidebarLeftHeaderPriority = computed(
   () => displayStore.sidebarLeftHeaderPriority,
@@ -202,6 +218,7 @@ const sidebarRightFooterPriority = computed(
   () => displayStore.sidebarRightFooterPriority,
 )
 
+// Store provides position:fixed + all coordinates
 const headerStyle = computed(() => displayStore.headerStyle)
 const footerStyle = computed(() => displayStore.footerStyle)
 const leftSidebarStyle = computed(() => displayStore.leftSidebarStyle)
@@ -222,13 +239,13 @@ const rightSidebarModeLabel = computed(() => displayStore.rightSidebarModeLabel)
   padding: 0.2rem 0.55rem;
   border-radius: 9999px;
   border: 1px solid oklch(var(--bc) / 0.25);
-  background: oklch(var(--b1) / 0.85);
+  background: oklch(var(--b1) / 0.9);
   backdrop-filter: blur(8px);
   font-size: 0.55rem;
   font-weight: 900;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: oklch(var(--bc) / 0.8);
+  color: oklch(var(--bc) / 0.85);
   cursor: pointer;
   white-space: nowrap;
   transition:
@@ -255,10 +272,11 @@ const rightSidebarModeLabel = computed(() => displayStore.rightSidebarModeLabel)
 .region-btn--dim:hover {
   opacity: 1;
 }
+
 .region-btn--vertical {
   writing-mode: vertical-lr;
   padding: 0.55rem 0.2rem;
-  height: 4rem;
+  height: 5rem;
   border-radius: 9999px;
 }
 </style>

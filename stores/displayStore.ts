@@ -58,6 +58,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return 'open'
   }
 
+  const fullColumnTopOffset = computed(() => {
+    return sectionPaddingSize.value
+  })
+
+  const fullColumnHeight = computed(() => {
+    return 100 - sectionPaddingSize.value * 2
+  })
+
   const leftSidebarStage = computed<SidebarStage>(() => {
     return normalizeSidebarState(state.sidebarLeftState)
   })
@@ -278,39 +286,58 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const leftSidebarStyle = computed<CSSProperties>(() => {
+    const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
 
     if (!sidebarLeftVisible.value) {
       return {
-        top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-        left: `${sectionPaddingSize.value}vw`,
+        top: `calc(var(--vh) * ${header + padding * 2})`,
+        left: `${padding}vw`,
         width: '0px',
         height: '0px',
       }
     }
 
+    if (leftSidebarPriority.value) {
+      return {
+        top: `calc(var(--vh) * ${fullColumnTopOffset.value})`,
+        left: `${padding}vw`,
+        width: `${sidebarLeftWidth.value}vw`,
+        height: `calc(var(--vh) * ${fullColumnHeight.value})`,
+      }
+    }
+
     return {
-      height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
+      top: `calc(var(--vh) * ${header + padding * 2})`,
+      left: `${padding}vw`,
       width: `${sidebarLeftWidth.value}vw`,
-      top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-      left: `${sectionPaddingSize.value}vw`,
+      height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
     }
   })
-
   const rightSidebarStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
+    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
 
     if (!sidebarRightVisible.value) {
       return {
-        top: `calc(var(--vh) * ${contentTopOffset.value})`,
+        top: `calc(var(--vh) * ${header + padding * 2})`,
         right: `${padding}vw`,
         width: '0px',
         height: '0px',
       }
     }
 
+    if (rightSidebarPriority.value) {
+      return {
+        top: `calc(var(--vh) * ${fullColumnTopOffset.value})`,
+        right: `${padding}vw`,
+        width: `${sidebarRightWidth.value}vw`,
+        height: `calc(var(--vh) * ${fullColumnHeight.value})`,
+      }
+    }
+
     return {
-      top: `calc(var(--vh) * ${contentTopOffset.value})`,
+      top: `calc(var(--vh) * ${header + padding * 2})`,
       right: `${padding}vw`,
       width: `${sidebarRightWidth.value}vw`,
       height: `calc(var(--vh) * ${sidebarContentHeight.value})`,

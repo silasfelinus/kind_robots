@@ -25,6 +25,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/icon',
     '@nuxt/image',
+    '@nuxtjs/tailwindcss',
   ],
 
   components: [

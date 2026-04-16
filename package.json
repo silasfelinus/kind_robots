@@ -28,6 +28,7 @@
   "devDependencies": {
     "@interactjs/types": "^1.10.27",
     "@nuxt/icon": "^2.2.1",
+    "@nuxtjs/tailwindcss": "^6.14.0",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/bcrypt": "^6.0.0",
     "@vitejs/plugin-vue": "^6.0.6",

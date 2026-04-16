@@ -1,139 +1,155 @@
 <!-- /layouts/default.vue -->
 <template>
   <div class="fixed inset-0 overflow-hidden bg-base-300 text-base-content">
-    <!-- ══ HEADER ══ -->
     <header
-      class="overflow-hidden border-b-2 border-primary-focus bg-primary text-primary-content transition-[height] duration-200"
+      class="fixed overflow-hidden border-b-2 border-primary-focus bg-primary text-primary-content transition-[height,width,left,top] duration-200"
       :style="headerStyle"
     >
-      <div class="absolute inset-0 overflow-hidden">
-        <slot name="header">
-          <main-header />
-        </slot>
+      <slot name="header">
+        <full-header />
+      </slot>
+
+      <div class="absolute right-2 top-2 z-[220] flex items-start gap-2">
+        <button
+          class="icon-btn icon-btn--pill icon-btn--primary"
+          :class="{ 'icon-btn--dim': headerState === 'hidden' }"
+          :title="`Header: ${headerModeLabel}`"
+          @click="displayStore.toggleHeader()"
+        >
+          <Icon
+            :name="headerIcon"
+            class="icon-btn__icon"
+          />
+          <span class="icon-btn__label">{{ headerModeLabel }}</span>
+        </button>
       </div>
     </header>
 
-    <!-- ══ LEFT SIDEBAR ══ -->
     <ClientOnly>
       <aside
-        class="overflow-hidden border-r-2 border-secondary-focus bg-secondary text-secondary-content transition-[top,height,width] duration-200"
+        class="fixed overflow-hidden border-r-2 border-secondary-focus bg-secondary text-secondary-content transition-[top,height,width,left] duration-200"
         :style="leftSidebarStyle"
       >
-        <div
-          class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain"
-        >
+        <div class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain">
           <slot name="left">
             <left-sidebar />
           </slot>
         </div>
 
-        <div
-          class="absolute bottom-12 right-1.5 z-[120] flex flex-col items-end gap-1"
-        >
+        <div class="absolute left-2 top-2 z-[220] flex flex-col items-start gap-2">
           <button
-            class="icon-btn icon-btn--mini icon-btn--secondary"
-            :class="{ 'icon-btn--active': sidebarLeftHeaderPriority }"
-            title="Extend behind header"
-            @click="displayStore.toggleSidebarLeftHeaderPriority()"
+            class="icon-btn icon-btn--tab icon-btn--secondary"
+            :class="{ 'icon-btn--dim': sidebarLeftState === 'hidden' }"
+            :title="`Left sidebar: ${leftSidebarModeLabel}`"
+            @click="displayStore.toggleLeftSidebar()"
           >
             <Icon
-              :name="
-                sidebarLeftHeaderPriority
-                  ? 'kind-icon:compress'
-                  : 'kind-icon:expand'
-              "
-              class="icon-btn__icon icon-btn__icon--flip-v"
+              :name="leftSidebarIcon"
+              class="icon-btn__icon icon-btn__icon--mirror"
             />
+            <span class="icon-btn__label icon-btn__label--vertical">
+              {{ leftSidebarModeLabel }}
+            </span>
           </button>
 
-          <button
-            class="icon-btn icon-btn--mini icon-btn--secondary"
-            :class="{ 'icon-btn--active': sidebarLeftFooterPriority }"
-            title="Extend behind footer"
-            @click="displayStore.toggleSidebarLeftFooterPriority()"
-          >
-            <Icon
-              :name="
-                sidebarLeftFooterPriority
-                  ? 'kind-icon:compress'
-                  : 'kind-icon:expand'
-              "
-              class="icon-btn__icon"
-            />
-          </button>
+          <div class="flex flex-col gap-1">
+            <button
+              class="icon-btn icon-btn--mini icon-btn--secondary"
+              :class="{ 'icon-btn--active': sidebarLeftHeaderPriority }"
+              title="Left sidebar header priority"
+              @click="displayStore.toggleSidebarLeftHeaderPriority()"
+            >
+              <Icon
+                :name="sidebarLeftHeaderPriority ? 'kind-icon:compress' : 'kind-icon:expand'"
+                class="icon-btn__icon icon-btn__icon--flip-v"
+              />
+            </button>
+
+            <button
+              class="icon-btn icon-btn--mini icon-btn--secondary"
+              :class="{ 'icon-btn--active': sidebarLeftFooterPriority }"
+              title="Left sidebar footer priority"
+              @click="displayStore.toggleSidebarLeftFooterPriority()"
+            >
+              <Icon
+                :name="sidebarLeftFooterPriority ? 'kind-icon:compress' : 'kind-icon:expand'"
+                class="icon-btn__icon"
+              />
+            </button>
+          </div>
         </div>
       </aside>
       <template #fallback />
     </ClientOnly>
 
-    <!-- ══ RIGHT SIDEBAR ══ -->
     <ClientOnly>
       <aside
-        class="overflow-hidden border-l-2 border-accent-focus bg-accent text-accent-content transition-[top,height,width] duration-200"
+        class="fixed overflow-hidden border-l-2 border-accent-focus bg-accent text-accent-content transition-[top,height,width,right] duration-200"
         :style="rightSidebarStyle"
       >
-        <div
-          class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain"
-        >
+        <div class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain">
           <slot name="right">
             <right-sidebar />
           </slot>
         </div>
 
-        <div
-          class="absolute bottom-12 left-1.5 z-[120] flex flex-col items-start gap-1"
-        >
+        <div class="absolute right-2 top-2 z-[220] flex flex-col items-end gap-2">
           <button
-            class="icon-btn icon-btn--mini icon-btn--accent"
-            :class="{ 'icon-btn--active': sidebarRightHeaderPriority }"
-            title="Extend behind header"
-            @click="displayStore.toggleSidebarRightHeaderPriority()"
+            class="icon-btn icon-btn--tab icon-btn--accent"
+            :class="{ 'icon-btn--dim': sidebarRightState === 'hidden' }"
+            :title="`Right sidebar: ${rightSidebarModeLabel}`"
+            @click="displayStore.toggleRightSidebar()"
           >
             <Icon
-              :name="
-                sidebarRightHeaderPriority
-                  ? 'kind-icon:compress'
-                  : 'kind-icon:expand'
-              "
-              class="icon-btn__icon icon-btn__icon--flip-v"
-            />
-          </button>
-
-          <button
-            class="icon-btn icon-btn--mini icon-btn--accent"
-            :class="{ 'icon-btn--active': sidebarRightFooterPriority }"
-            title="Extend behind footer"
-            @click="displayStore.toggleSidebarRightFooterPriority()"
-          >
-            <Icon
-              :name="
-                sidebarRightFooterPriority
-                  ? 'kind-icon:compress'
-                  : 'kind-icon:expand'
-              "
+              :name="rightSidebarIcon"
               class="icon-btn__icon"
             />
+            <span class="icon-btn__label icon-btn__label--vertical">
+              {{ rightSidebarModeLabel }}
+            </span>
           </button>
+
+          <div class="flex flex-col gap-1">
+            <button
+              class="icon-btn icon-btn--mini icon-btn--accent"
+              :class="{ 'icon-btn--active': sidebarRightHeaderPriority }"
+              title="Right sidebar header priority"
+              @click="displayStore.toggleSidebarRightHeaderPriority()"
+            >
+              <Icon
+                :name="sidebarRightHeaderPriority ? 'kind-icon:compress' : 'kind-icon:expand'"
+                class="icon-btn__icon icon-btn__icon--flip-v"
+              />
+            </button>
+
+            <button
+              class="icon-btn icon-btn--mini icon-btn--accent"
+              :class="{ 'icon-btn--active': sidebarRightFooterPriority }"
+              title="Right sidebar footer priority"
+              @click="displayStore.toggleSidebarRightFooterPriority()"
+            >
+              <Icon
+                :name="sidebarRightFooterPriority ? 'kind-icon:compress' : 'kind-icon:expand'"
+                class="icon-btn__icon"
+              />
+            </button>
+          </div>
         </div>
       </aside>
       <template #fallback />
     </ClientOnly>
 
-    <!-- ══ CENTER ══ -->
     <main
-      class="overflow-hidden border-x border-base-300 bg-base-100 text-base-content"
+      class="fixed overflow-hidden border border-base-300 bg-base-100 text-base-content transition-[top,left,width,height] duration-200"
       :style="mainContentStyle"
     >
-      <div
-        class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 py-4"
-      >
+      <div class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 py-4">
         <slot />
       </div>
     </main>
 
-    <!-- ══ FOOTER ══ -->
     <footer
-      class="overflow-hidden border-t-2 border-neutral-focus bg-neutral text-neutral-content transition-[height] duration-200"
+      class="fixed overflow-hidden border-t-2 border-base-content/20 bg-base-200 text-base-content transition-[height,width,left,bottom] duration-200"
       :style="footerStyle"
     >
       <div class="absolute inset-0 overflow-hidden">
@@ -141,107 +157,84 @@
           <main-footer />
         </slot>
       </div>
+
+      <div class="absolute left-1/2 top-2 z-[220] flex -translate-x-1/2 justify-center">
+        <button
+          class="icon-btn icon-btn--pill icon-btn--base"
+          :class="{ 'icon-btn--dim': footerState === 'hidden' }"
+          :title="`Footer: ${footerModeLabel}`"
+          @click="displayStore.toggleFooter()"
+        >
+          <Icon
+            :name="footerIcon"
+            class="icon-btn__icon"
+          />
+          <span class="icon-btn__label">{{ footerModeLabel }}</span>
+        </button>
+      </div>
     </footer>
 
-    <!-- ══ TOGGLES ══ -->
-
-    <!-- Header toggle: attached to bottom-inside edge of header -->
     <div
-      class="pointer-events-none fixed left-0 right-0 z-[200] flex justify-center"
-      :style="headerToggleStyle"
+      class="pointer-events-none fixed z-[230]"
+      :style="headerGhostToggleStyle"
     >
       <button
+        v-if="headerState === 'hidden'"
         class="icon-btn icon-btn--pill icon-btn--primary"
         style="pointer-events: auto"
-        :class="{ 'icon-btn--dim': headerState === 'hidden' }"
-        :title="`Header: ${headerModeLabel}`"
+        title="Show header"
         @click="displayStore.toggleHeader()"
       >
-        <Icon
-          :name="
-            headerState === 'hidden'
-              ? 'kind-icon:chevron-double-down'
-              : 'kind-icon:chevron-up'
-          "
-          class="icon-btn__icon"
-        />
-        <span class="icon-btn__label">{{ headerModeLabel }}</span>
+        <Icon name="kind-icon:chevron-double-down" class="icon-btn__icon" />
+        <span class="icon-btn__label">header</span>
       </button>
     </div>
 
-    <!-- Footer toggle: attached to top-inside edge of footer -->
     <div
-      class="pointer-events-none fixed left-0 right-0 z-[200] flex justify-center"
-      :style="footerToggleStyle"
+      class="pointer-events-none fixed z-[230]"
+      :style="footerGhostToggleStyle"
     >
       <button
-        class="icon-btn icon-btn--pill icon-btn--neutral"
+        v-if="footerState === 'hidden'"
+        class="icon-btn icon-btn--pill icon-btn--base"
         style="pointer-events: auto"
-        :class="{ 'icon-btn--dim': footerState === 'hidden' }"
-        :title="`Footer: ${footerModeLabel}`"
+        title="Show footer"
         @click="displayStore.toggleFooter()"
       >
-        <Icon
-          :name="
-            footerState === 'hidden'
-              ? 'kind-icon:chevron-double-up'
-              : 'kind-icon:chevron-down'
-          "
-          class="icon-btn__icon"
-        />
-        <span class="icon-btn__label">{{ footerModeLabel }}</span>
+        <Icon name="kind-icon:chevron-double-up" class="icon-btn__icon" />
+        <span class="icon-btn__label">footer</span>
       </button>
     </div>
 
-    <!-- Left sidebar toggle: attached to inside-right edge of left sidebar -->
     <div
-      class="pointer-events-none fixed z-[200] flex items-center justify-end"
-      :style="leftToggleStyle"
+      class="pointer-events-none fixed z-[230]"
+      :style="leftGhostToggleStyle"
     >
       <button
-        class="icon-btn icon-btn--tab icon-btn--tab-left icon-btn--secondary"
+        v-if="sidebarLeftState === 'hidden'"
+        class="icon-btn icon-btn--tab icon-btn--secondary"
         style="pointer-events: auto"
-        :class="{ 'icon-btn--dim': sidebarLeftState === 'hidden' }"
-        :title="`Left sidebar: ${leftSidebarModeLabel}`"
+        title="Show left sidebar"
         @click="displayStore.toggleLeftSidebar()"
       >
-        <Icon
-          :name="
-            sidebarLeftState === 'hidden'
-              ? 'kind-icon:panel-right'
-              : 'kind-icon:panel-right-close'
-          "
-          class="icon-btn__icon icon-btn__icon--mirror"
-        />
-        <span class="icon-btn__label icon-btn__label--vertical">
-          {{ leftSidebarModeLabel }}
-        </span>
+        <Icon name="kind-icon:panel-right" class="icon-btn__icon icon-btn__icon--mirror" />
+        <span class="icon-btn__label icon-btn__label--vertical">left</span>
       </button>
     </div>
 
-    <!-- Right sidebar toggle: attached to inside-left edge of right sidebar -->
     <div
-      class="pointer-events-none fixed z-[200] flex items-center justify-start"
-      :style="rightToggleStyle"
+      class="pointer-events-none fixed z-[230]"
+      :style="rightGhostToggleStyle"
     >
       <button
-        class="icon-btn icon-btn--tab icon-btn--tab-right icon-btn--accent"
+        v-if="sidebarRightState === 'hidden'"
+        class="icon-btn icon-btn--tab icon-btn--accent"
         style="pointer-events: auto"
-        :class="{ 'icon-btn--dim': sidebarRightState === 'hidden' }"
-        :title="`Right sidebar: ${rightSidebarModeLabel}`"
+        title="Show right sidebar"
         @click="displayStore.toggleRightSidebar()"
       >
-        <Icon
-          :name="
-            sidebarRightState === 'hidden'
-              ? 'kind-icon:panel-right-close'
-              : 'kind-icon:panel-right'
-          "
-          class="icon-btn__icon"
-        />
-        <span class="icon-btn__label icon-btn__label--vertical">
-          {{ rightSidebarModeLabel }}
-        </span>
+        <Icon name="kind-icon:panel-right-close" class="icon-btn__icon" />
+        <span class="icon-btn__label icon-btn__label--vertical">right</span>
       </button>
     </div>
   </div>
@@ -259,18 +252,10 @@ const footerState = computed(() => displayStore.footerState)
 const sidebarLeftState = computed(() => displayStore.sidebarLeftState)
 const sidebarRightState = computed(() => displayStore.sidebarRightState)
 
-const sidebarLeftHeaderPriority = computed(
-  () => displayStore.sidebarLeftHeaderPriority,
-)
-const sidebarLeftFooterPriority = computed(
-  () => displayStore.sidebarLeftFooterPriority,
-)
-const sidebarRightHeaderPriority = computed(
-  () => displayStore.sidebarRightHeaderPriority,
-)
-const sidebarRightFooterPriority = computed(
-  () => displayStore.sidebarRightFooterPriority,
-)
+const sidebarLeftHeaderPriority = computed(() => displayStore.sidebarLeftHeaderPriority)
+const sidebarLeftFooterPriority = computed(() => displayStore.sidebarLeftFooterPriority)
+const sidebarRightHeaderPriority = computed(() => displayStore.sidebarRightHeaderPriority)
+const sidebarRightFooterPriority = computed(() => displayStore.sidebarRightFooterPriority)
 
 const headerStyle = computed(() => displayStore.headerStyle)
 const footerStyle = computed(() => displayStore.footerStyle)
@@ -289,41 +274,76 @@ function toUnit(value: unknown, fallback = '0px'): string {
   return fallback
 }
 
-function styleNumber(style: Record<string, unknown>, key: string): string {
-  return toUnit(style[key], '0px')
+function styleValue(style: Record<string, unknown>, key: string, fallback = '0px'): string {
+  return toUnit(style[key], fallback)
 }
 
-const headerToggleStyle = computed<CSSProperties>(() => {
+function parsePixels(value: unknown): number {
+  if (typeof value === 'number') return value
+  if (typeof value === 'string') {
+    const match = value.match(/-?\d+(\.\d+)?/)
+    return match ? Number(match[0]) : 0
+  }
+  return 0
+}
+
+const headerIcon = computed(() => {
+  if (headerState.value === 'hidden') return 'kind-icon:chevron-double-down'
+  if (headerState.value === 'compact') return 'kind-icon:chevron-double-down'
+  return 'kind-icon:chevron-up'
+})
+
+const footerIcon = computed(() => {
+  if (footerState.value === 'hidden') return 'kind-icon:chevron-double-up'
+  if (footerState.value === 'compact') return 'kind-icon:chevron-double-up'
+  return 'kind-icon:chevron-down'
+})
+
+const leftSidebarIcon = computed(() => {
+  if (sidebarLeftState.value === 'hidden') return 'kind-icon:panel-right'
+  if (sidebarLeftState.value === 'compact') return 'kind-icon:panel-right'
+  return 'kind-icon:panel-right-close'
+})
+
+const rightSidebarIcon = computed(() => {
+  if (sidebarRightState.value === 'hidden') return 'kind-icon:panel-right-close'
+  if (sidebarRightState.value === 'compact') return 'kind-icon:panel-right-close'
+  return 'kind-icon:panel-right'
+})
+
+const headerGhostToggleStyle = computed<CSSProperties>(() => {
   const header = headerStyle.value as Record<string, unknown>
+  const right = rightSidebarStyle.value as Record<string, unknown>
+  const rightShift =
+    sidebarRightHeaderPriority.value && sidebarRightState.value !== 'hidden'
+      ? parsePixels(right.width) + 8
+      : 8
+
   return {
-    top: `calc(${styleNumber(header, 'height')} - 1.1rem)`,
+    top: '8px',
+    right: `${rightShift}px`,
   }
 })
 
-const footerToggleStyle = computed<CSSProperties>(() => {
-  const footer = footerStyle.value as Record<string, unknown>
+const footerGhostToggleStyle = computed<CSSProperties>(() => ({
+  left: '50%',
+  bottom: '8px',
+  transform: 'translateX(-50%)',
+}))
+
+const leftGhostToggleStyle = computed<CSSProperties>(() => {
+  const main = mainContentStyle.value as Record<string, unknown>
   return {
-    bottom: `calc(${styleNumber(footer, 'height')} - 1.1rem)`,
+    top: styleValue(main, 'top', '8px'),
+    left: '8px',
   }
 })
 
-const leftToggleStyle = computed<CSSProperties>(() => {
-  const sidebar = leftSidebarStyle.value as Record<string, unknown>
+const rightGhostToggleStyle = computed<CSSProperties>(() => {
+  const main = mainContentStyle.value as Record<string, unknown>
   return {
-    top: styleNumber(sidebar, 'top'),
-    left: `calc(${styleNumber(sidebar, 'width')} - 1rem)`,
-    height: styleNumber(sidebar, 'height'),
-    width: '0px',
-  }
-})
-
-const rightToggleStyle = computed<CSSProperties>(() => {
-  const sidebar = rightSidebarStyle.value as Record<string, unknown>
-  return {
-    top: styleNumber(sidebar, 'top'),
-    right: `calc(${styleNumber(sidebar, 'width')} - 1rem)`,
-    height: styleNumber(sidebar, 'height'),
-    width: '0px',
+    top: styleValue(main, 'top', '8px'),
+    right: '8px',
   }
 })
 </script>
@@ -333,7 +353,7 @@ const rightToggleStyle = computed<CSSProperties>(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
+  gap: 0.3rem;
   border-width: 1px;
   border-style: solid;
   backdrop-filter: blur(8px);
@@ -352,7 +372,7 @@ const rightToggleStyle = computed<CSSProperties>(() => {
 }
 
 .icon-btn--pill {
-  padding: 0.25rem 0.65rem;
+  padding: 0.3rem 0.7rem;
   border-radius: 9999px;
 }
 
@@ -361,21 +381,14 @@ const rightToggleStyle = computed<CSSProperties>(() => {
   width: 2rem;
   gap: 0.3rem;
   padding: 0.6rem 0.35rem;
-}
-
-.icon-btn--tab-left {
-  border-radius: 0.75rem 0 0 0.75rem;
-}
-
-.icon-btn--tab-right {
-  border-radius: 0 0.75rem 0.75rem 0;
+  border-radius: 0.75rem;
 }
 
 .icon-btn--mini {
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 1.7rem;
+  height: 1.7rem;
   padding: 0.2rem;
-  border-radius: 0.45rem;
+  border-radius: 0.5rem;
 }
 
 .icon-btn--primary {
@@ -408,14 +421,14 @@ const rightToggleStyle = computed<CSSProperties>(() => {
   background: oklch(var(--af) / 1);
 }
 
-.icon-btn--neutral {
-  background: oklch(var(--n) / 0.95);
-  border-color: oklch(var(--nf) / 0.9);
-  color: oklch(var(--nc) / 1);
+.icon-btn--base {
+  background: oklch(var(--b2) / 0.95);
+  border-color: oklch(var(--b3) / 0.9);
+  color: oklch(var(--bc) / 1);
 }
 
-.icon-btn--neutral:hover {
-  background: oklch(var(--nf) / 1);
+.icon-btn--base:hover {
+  background: oklch(var(--b3) / 1);
 }
 
 .icon-btn--active {
@@ -435,7 +448,7 @@ const rightToggleStyle = computed<CSSProperties>(() => {
   width: 1rem;
   height: 1rem;
   flex-shrink: 0;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .icon-btn__icon--mirror {
@@ -448,11 +461,11 @@ const rightToggleStyle = computed<CSSProperties>(() => {
 
 .icon-btn__label {
   white-space: nowrap;
-  font-size: 0.5rem;
+  font-size: 0.52rem;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  opacity: 0.82;
+  opacity: 0.85;
 }
 
 .icon-btn__label--vertical {

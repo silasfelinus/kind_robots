@@ -89,10 +89,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const sidebarLeftWidth = computed(() => {
     const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
-      small: { hidden: 0, compact: 18, open: 32, priority: 32 },
-      medium: { hidden: 0, compact: 16, open: 20, priority: 22 },
-      large: { hidden: 0, compact: 14, open: 19, priority: 24 },
-      extraLarge: { hidden: 0, compact: 12, open: 20, priority: 25 },
+      small: { hidden: 0, compact: 35, open: 40, priority: 50 },
+      medium: { hidden: 0, compact: 30, open: 35, priority: 40 },
+      large: { hidden: 0, compact: 24, open: 30, priority: 35 },
+      extraLarge: { hidden: 0, compact: 17, open: 22, priority: 30 },
     }
 
     return widths[state.viewportSize][leftSidebarStage.value]
@@ -101,9 +101,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const sidebarRightWidth = computed(() => {
     const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
       small: { hidden: 0, compact: 18, open: 32, priority: 32 },
-      medium: { hidden: 0, compact: 16, open: 20, priority: 22 },
-      large: { hidden: 0, compact: 14, open: 19, priority: 24 },
-      extraLarge: { hidden: 0, compact: 12, open: 20, priority: 25 },
+      medium: { hidden: 0, compact: 30, open: 35, priority: 40 },
+      large: { hidden: 0, compact: 24, open: 30, priority: 35 },
+      extraLarge: { hidden: 0, compact: 17, open: 22, priority: 30 },
     }
 
     return widths[state.viewportSize][rightSidebarStage.value]
@@ -124,8 +124,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const footerHeights = {
     hidden: { small: 0, medium: 0, large: 0, extraLarge: 0 },
-    compact: { small: 18, medium: 10, large: 14, extraLarge: 10 },
-    open: { small: 28, medium: 18, large: 24, extraLarge: 18 },
+    compact: { small: 16, medium: 12, large: 10, extraLarge: 8 },
+    open: { small: 22, medium: 18, large: 24, extraLarge: 18 },
     disabled: { small: 0, medium: 0, large: 0, extraLarge: 0 },
   } as const
 

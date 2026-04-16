@@ -16,7 +16,6 @@
   <div class="fixed inset-0 overflow-hidden bg-base-200 text-base-content">
     <!-- ══ HEADER ══ -->
     <header
-      v-if="showHeader"
       class="absolute overflow-hidden bg-primary text-primary-content border-b-2 border-primary-focus transition-[height] duration-200"
       :style="headerStyle"
     >
@@ -28,7 +27,6 @@
     <!-- ══ LEFT SIDEBAR ══ -->
     <ClientOnly>
       <aside
-        v-if="leftSidebarVisible"
         class="absolute overflow-hidden bg-neutral text-neutral-content border-r-2 border-neutral-focus transition-[top,height,width] duration-200"
         :style="leftSidebarStyle"
       >
@@ -65,7 +63,6 @@
     <!-- ══ RIGHT SIDEBAR ══ -->
     <ClientOnly>
       <aside
-        v-if="rightSidebarVisible"
         class="absolute overflow-hidden bg-secondary text-secondary-content border-l-2 border-secondary-focus transition-[top,height,width] duration-200"
         :style="rightSidebarStyle"
       >
@@ -113,7 +110,6 @@
 
     <!-- ══ FOOTER ══ -->
     <footer
-      v-if="showFooter"
       class="absolute overflow-hidden bg-accent text-accent-content border-t-2 border-accent-focus transition-[height] duration-200"
       :style="footerStyle"
     >
@@ -140,19 +136,6 @@
       </div>
     </ClientOnly>
 
-    <!-- Footer toggle — bottom center -->
-    <ClientOnly>
-      <div class="fixed bottom-1 left-1/2 -translate-x-1/2 z-50">
-        <button
-          class="region-btn region-btn--mode"
-          :class="!showFooter && 'region-btn--dim'"
-          @click="displayStore.toggleFooter()"
-        >
-          ▼ {{ footerModeLabel }}
-        </button>
-      </div>
-    </ClientOnly>
-
     <!-- Left sidebar toggle — left edge, vertically centered -->
     <ClientOnly>
       <div class="fixed left-0 top-1/2 -translate-y-1/2 z-50">
@@ -175,6 +158,19 @@
           @click="displayStore.toggleRightSidebar()"
         >
           {{ rightSidebarModeLabel }}
+        </button>
+      </div>
+    </ClientOnly>
+
+    <!-- Footer toggle — bottom center -->
+    <ClientOnly>
+      <div class="fixed bottom-1 left-1/2 -translate-x-1/2 z-50">
+        <button
+          class="region-btn region-btn--mode"
+          :class="!showFooter && 'region-btn--dim'"
+          @click="displayStore.toggleFooter()"
+        >
+          ▼ {{ footerModeLabel }}
         </button>
       </div>
     </ClientOnly>

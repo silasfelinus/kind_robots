@@ -1,6 +1,6 @@
 <!-- /layouts/default.vue -->
 <template>
-  <div class="flex min-h-dvh w-full flex-col overflow-hidden bg-secondary">
+  <div class="flex min-h-dvh w-full flex-col overflow-hidden">
     <header
       class="fixed overflow-hidden border-b-2 border-primary-focus bg-primary text-primary-content transition-[height,width,left,top] duration-200"
       :style="displayStore.headerStyle"

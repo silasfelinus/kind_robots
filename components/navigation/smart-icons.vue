@@ -4,7 +4,7 @@
       <button
         v-if="canScrollLeft"
         type="button"
-        class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl hover:bg-base-300/80 border border-base-content/20 shadow-sm transition"
+        class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl hover:bg-base-300/80 transition"
         @click="scrollByStep(-1)"
       >
         <Icon name="kind-icon:chevron-left" class="w-[65%] h-[65%]" />
@@ -55,7 +55,7 @@
           >
             <button
               type="button"
-              class="h-full w-full flex flex-col items-center justify-center rounded-2xl hover:bg-base-300 border border-base-content/10"
+              class="h-full w-full flex flex-col items-center justify-center rounded-2xl hover:bg-base-300"
               @click="activateEditMode"
             >
               <Icon name="kind-icon:settings" class="h-[70%] w-[70%]" />
@@ -67,7 +67,7 @@
       <button
         v-if="canScrollRight"
         type="button"
-        class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl hover:bg-base-300/80 border border-base-content/20 shadow-sm transition"
+        class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl hover:bg-base-300/80 transition"
         @click="scrollByStep(1)"
       >
         <Icon name="kind-icon:chevron-right" class="w-[65%] h-[65%]" />

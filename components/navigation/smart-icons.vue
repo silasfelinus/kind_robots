@@ -28,6 +28,24 @@
         @wheel.passive="handleWheel"
       >
         <div ref="row" class="flex h-full min-w-max items-stretch gap-1">
+          <!-- Prepended intro icons (open mode only, hidden during editing) -->
+          <template
+            v-if="!isEditing && prependIcons && prependIcons.length > 0"
+          >
+            <div
+              v-for="icon in prependIcons"
+              :key="icon.id"
+              class="flex h-full aspect-square items-center justify-center"
+            >
+              <component
+                :is="icon.component"
+                class="h-[70%] w-[70%]"
+                :class="icon.color"
+              />
+            </div>
+          </template>
+
+          <!-- Empty state -->
           <div
             v-if="rowIcons.length === 0"
             class="flex h-full aspect-square items-center justify-center"
@@ -41,6 +59,7 @@
             </button>
           </div>
 
+          <!-- Nav icons -->
           <icon-display
             v-for="icon in rowIcons"
             :key="icon.id"
@@ -49,6 +68,7 @@
             class="h-full flex"
           />
 
+          <!-- Settings button -->
           <div
             v-if="!isEditing"
             class="flex h-full aspect-square items-center justify-center"
@@ -83,7 +103,13 @@ import { storeToRefs } from 'pinia'
 import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
-const debugTeleport = false
+interface PrependIcon {
+  id: string
+  component: string
+  color: string
+}
+
+const props = defineProps<{ prependIcons?: PrependIcon[] }>()
 
 const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
@@ -110,10 +136,6 @@ const rowIcons = computed<SmartIcon[]>(() =>
 )
 
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
-
-const activeCount = computed(() => activeIcons.value.length)
-const filteredCount = computed(() => filteredActive.value.length)
-const rowCount = computed(() => rowIcons.value.length)
 
 const originalIcons = ref<SmartIcon[]>([])
 watch(isEditing, (editing) => {
@@ -203,17 +225,14 @@ function handleScrollTouchStart(e: TouchEvent) {
   if (!scrollContainer.value) return
   const touch = e.touches[0]
   if (!touch) return
-
   isDragging.value = true
   startX = touch.clientX
   scrollStart = scrollContainer.value.scrollLeft
 }
-
 function handleScrollTouchMove(e: TouchEvent) {
   if (!isDragging.value || !scrollContainer.value) return
   const touch = e.touches[0]
   if (!touch) return
-
   const delta = touch.clientX - startX
   scrollContainer.value.scrollLeft = scrollStart - delta
 }
@@ -232,6 +251,13 @@ function handleWheel(e: WheelEvent) {
 
 watch(
   () => rowIcons.value.length,
+  () => {
+    syncAfterLayout()
+  },
+)
+
+watch(
+  () => props.prependIcons?.length,
   () => {
     syncAfterLayout()
   },
@@ -265,7 +291,6 @@ let mutationObserver: MutationObserver | null = null
 
 onMounted(() => {
   isMounted.value = true
-
   const el = scrollContainer.value
   const content = row.value
   if (!el || !content) return
@@ -274,9 +299,9 @@ onMounted(() => {
   rowResizeObserver = new ResizeObserver(checkScrollEdgesThrottled)
   mutationObserver = new MutationObserver(checkScrollEdgesThrottled)
 
-  resizeObserver?.observe(el)
-  rowResizeObserver?.observe(content)
-  mutationObserver?.observe(content, { childList: true })
+  resizeObserver.observe(el)
+  rowResizeObserver.observe(content)
+  mutationObserver.observe(content, { childList: true })
 
   syncAfterLayout()
 })

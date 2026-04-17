@@ -8,13 +8,6 @@
       v-if="resolvedImage"
       class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
     >
-      <NuxtImg
-        :src="resolvedImage"
-        alt="Room background"
-        class="absolute inset-0 w-full h-full object-cover blur-sm sm:blur-md lg:blur-lg"
-        :sizes="imageSizes"
-        loading="lazy"
-      />
       <div class="absolute inset-0 bg-base-200/80 mix-blend-multiply" />
     </div>
 

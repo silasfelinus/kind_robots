@@ -11,19 +11,18 @@
     </header>
 
     <div
-      class="pointer-events-none fixed"
-      :style="displayStore.headerToggleStyle"
+      v-if="displayStore.headerState === 'hidden'"
+      class="pointer-events-none fixed z-80"
+      :style="displayStore.headerCornerToggleStyle"
     >
-      <div class="pointer-events-auto flex items-start gap-2">
+      <div class="pointer-events-auto flex items-start">
         <button
           class="icon-btn icon-btn--pill icon-btn--primary"
-          :title="`Header: ${displayStore.headerModeLabel}`"
-          @click="displayStore.toggleHeader"
+          title="Open header"
+          @click="displayStore.toggleHeader('open')"
         >
-          <Icon :name="headerIcon" class="icon-btn__icon" />
-          <span class="icon-btn__label">
-            {{ displayStore.headerModeLabel }}
-          </span>
+          <Icon name="kind-icon:chevron-double-down" class="icon-btn__icon" />
+          <span class="icon-btn__label"> Open </span>
         </button>
       </div>
     </div>
@@ -168,14 +167,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   displayStore.removeViewportWatcher()
-})
-
-const headerIcon = computed(() => {
-  if (displayStore.headerState === 'hidden')
-    return 'kind-icon:chevron-double-down'
-  if (displayStore.headerState === 'compact')
-    return 'kind-icon:chevron-double-down'
-  return 'kind-icon:chevron-up'
 })
 
 const footerIcon = computed(() => {

@@ -10,7 +10,7 @@
       class="relative z-0 flex h-full shrink-0 overflow-hidden pointer-events-auto"
       :style="avatarColumnStyle"
       :title="avatarToggleTitle"
-      @click="displayStore.toggleHeaderCompact"
+      @click="handleAvatarClick"
     >
       <avatar-image
         alt="User Avatar"
@@ -38,7 +38,7 @@
       >
         <template v-if="isCompactHeader">
           <div class="flex h-full w-full min-w-0 items-center gap-2 py-0">
-            <div class="min-w-0 shrink flex items-center">
+            <div class="flex min-w-0 shrink items-center">
               <div
                 class="inline-flex min-w-0 max-w-full items-center gap-2 rounded-2xl border border-black bg-linear-to-r from-base-100 via-base-200 to-base-100 px-3 py-1.5 shadow-[0_3px_0_rgba(0,0,0,0.6)] sm:px-4 sm:py-2"
               >
@@ -144,6 +144,10 @@ const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
 
+function handleAvatarClick() {
+  displayStore.toggleHeader()
+}
+
 const headerRoot = ref<HTMLElement | null>(null)
 let ro: ResizeObserver | null = null
 
@@ -220,6 +224,7 @@ const utilityColumnStyle = computed<CSSProperties>(() => {
 
 const avatarToggleTitle = computed(() => {
   if (headerState.value === 'open') return 'Compact header'
+  if (headerState.value === 'compact') return 'Hide header'
   return 'Open header'
 })
 

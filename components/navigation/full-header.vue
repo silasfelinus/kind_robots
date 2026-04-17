@@ -3,12 +3,12 @@
   <header
     ref="headerRoot"
     :key="headerKey"
-    class="isolate flex h-full w-full items-stretch gap-0 overflow-x-hidden overflow-y-visible"
+    class="isolate flex h-full w-full min-w-0 items-stretch gap-0 overflow-hidden"
   >
     <button
       type="button"
-      class="relative z-0 flex h-full shrink-0 flex-none pointer-events-auto overflow-hidden"
-      :class="avatarColumnClasses"
+      class="relative z-0 flex h-full shrink-0 overflow-hidden pointer-events-auto"
+      :style="avatarColumnStyle"
       :title="avatarToggleTitle"
       @click="displayStore.toggleHeaderCompact"
     >
@@ -34,41 +34,39 @@
       class="flex h-full min-w-0 flex-1 items-center px-1 py-0 md:px-2 lg:px-3 xl:px-4"
     >
       <div
-        class="flex h-full w-full min-w-0 items-center justify-between lg:gap-3 xl:gap-4"
+        class="flex h-full w-full min-w-0 items-center justify-between gap-2 lg:gap-3 xl:gap-4"
       >
         <template v-if="isCompactHeader">
           <div class="flex h-full w-full min-w-0 items-center gap-2 py-0">
-            <span
-              class="shrink-0 whitespace-nowrap font-extrabold tracking-tight leading-[1.05] sm:text-lg md:text-xl lg:text-2xl xl:text-4xl"
-            >
-              <span
-                class="inline-flex max-w-full items-center gap-2.5 rounded-2xl border border-black bg-linear-to-r from-base-100 via-base-200 to-base-100 px-4 py-1.5 shadow-[0_3px_0_rgba(0,0,0,0.6)] sm:px-5 sm:py-2"
+            <div class="min-w-0 shrink flex items-center">
+              <div
+                class="inline-flex min-w-0 max-w-full items-center gap-2 rounded-2xl border border-black bg-linear-to-r from-base-100 via-base-200 to-base-100 px-3 py-1.5 shadow-[0_3px_0_rgba(0,0,0,0.6)] sm:px-4 sm:py-2"
               >
                 <span
-                  class="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-black px-2.5 py-px text-[0.6rem] font-semibold uppercase tracking-[0.24em] text-base-100 sm:text-[0.7rem]"
+                  class="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-black px-2.5 py-px text-[0.6rem] font-semibold uppercase tracking-[0.24em] text-base-100 sm:text-[0.7rem]"
                 >
                   Kind
                 </span>
                 <span
-                  class="truncate text-[clamp(1rem,2.1vw,1.5rem)] font-semibold leading-tight tracking-tight"
+                  class="block min-w-0 truncate text-[clamp(0.95rem,2vw,1.45rem)] font-semibold leading-tight tracking-tight"
                 >
                   {{ title }}
                 </span>
-              </span>
-            </span>
+              </div>
+            </div>
 
             <div class="relative h-full min-w-0 flex-1">
-              <smart-icons class="h-full w-full min-w-0 px-1" />
+              <smart-icons class="h-full w-full min-w-0" />
             </div>
           </div>
         </template>
 
         <template v-else>
           <div
-            class="flex w-full min-w-0 flex-col items-start justify-center gap-1"
+            class="flex min-w-0 flex-1 flex-col items-start justify-center gap-1"
           >
             <span
-              class="block w-full text-lg font-extrabold leading-tight tracking-tight md:text-2xl lg:text-3xl xl:text-4xl"
+              class="block w-full truncate text-lg font-extrabold leading-tight tracking-tight md:text-2xl lg:text-3xl xl:text-4xl"
             >
               <span
                 class="bg-linear-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
@@ -86,34 +84,35 @@
           </div>
 
           <div
-            class="flex h-full shrink-0 basis-[28%] max-w-[32%] flex-nowrap items-center justify-end overflow-hidden xl:basis-[34%] xl:max-w-[34%]"
+            class="flex h-full shrink-0 items-center justify-end overflow-hidden"
+            :style="utilityColumnStyle"
           >
             <div
               class="flex h-full w-full items-center justify-end xl:justify-center"
             >
               <div
-                class="grid h-full w-full grid-cols-4 grid-rows-1 place-items-center p-0"
+                class="grid h-full w-full grid-cols-4 place-items-center gap-1 p-0"
               >
                 <div class="flex h-full w-full items-center justify-center">
-                  <div class="aspect-square h-[70%] w-auto max-h-full">
+                  <div class="aspect-square h-[78%] w-auto max-h-full">
                     <login-icon class="h-full w-full text-primary" />
                   </div>
                 </div>
 
                 <div class="flex h-full w-full items-center justify-center">
-                  <div class="aspect-square h-[70%] w-auto max-h-full">
+                  <div class="aspect-square h-[78%] w-auto max-h-full">
                     <jellybean-icon class="h-full w-full text-secondary" />
                   </div>
                 </div>
 
                 <div class="flex h-full w-full items-center justify-center">
-                  <div class="aspect-square h-[70%] w-auto max-h-full">
+                  <div class="aspect-square h-[78%] w-auto max-h-full">
                     <theme-icon class="h-full w-full text-accent" />
                   </div>
                 </div>
 
                 <div class="flex h-full w-full items-center justify-center">
-                  <div class="aspect-square h-[70%] w-auto max-h-full">
+                  <div class="aspect-square h-[78%] w-auto max-h-full">
                     <swarm-icon class="h-full w-full text-info" />
                   </div>
                 </div>
@@ -128,7 +127,15 @@
 
 <script setup lang="ts">
 // /components/navigation/full-header.vue
-import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
+import {
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+  watch,
+  type CSSProperties,
+} from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
@@ -144,6 +151,7 @@ const page = computed(() => pageStore.page)
 const title = computed(() => pageStore.page?.title || '')
 const viewportSize = computed(() => displayStore.viewportSize)
 const headerState = computed(() => displayStore.headerState)
+
 const isCompactHeader = computed(() => headerState.value === 'compact')
 const isOpenHeader = computed(() => headerState.value === 'open')
 
@@ -161,30 +169,53 @@ const subtitle = computed(() => page.value?.subtitle || '')
 const showSubtitle = computed(() => isOpenHeader.value && !!subtitle.value)
 
 const displayTitle = computed(() => {
-  if (isCompactHeader.value) {
-    return `Kind ${page.value?.title || ''}`.trim()
-  }
-
+  if (isCompactHeader.value) return `Kind ${page.value?.title || ''}`.trim()
   return 'Kind Robots'
 })
 
 const hasHeaderContent = computed(() => headerState.value !== 'hidden')
 const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN')
 
-const avatarColumnClasses = computed(() => {
+const avatarColumnStyle = computed<CSSProperties>(() => {
   if (isCompactHeader.value && hasPrioritySidebar.value) {
-    return 'basis-[10%] max-w-[18%] xl:basis-[16%] xl:max-w-[22%]'
+    return {
+      flexBasis: '12%',
+      maxWidth: '18%',
+    }
   }
 
   if (isCompactHeader.value) {
-    return 'basis-[11%] max-w-[22%] xl:basis-[22%] xl:max-w-[60%]'
+    return {
+      flexBasis: '14%',
+      maxWidth: '22%',
+    }
   }
 
   if (hasPrioritySidebar.value) {
-    return 'basis-[11%] max-w-[18%] xl:basis-[18%] xl:max-w-[24%]'
+    return {
+      flexBasis: '12%',
+      maxWidth: '18%',
+    }
   }
 
-  return 'basis-[13%] max-w-[25%] xl:basis-[26%] xl:max-w-[40%]'
+  return {
+    flexBasis: '15%',
+    maxWidth: '24%',
+  }
+})
+
+const utilityColumnStyle = computed<CSSProperties>(() => {
+  if (hasPrioritySidebar.value) {
+    return {
+      flexBasis: '24%',
+      maxWidth: '24%',
+    }
+  }
+
+  return {
+    flexBasis: '30%',
+    maxWidth: '32%',
+  }
 })
 
 const avatarToggleTitle = computed(() => {

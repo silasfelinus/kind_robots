@@ -55,7 +55,7 @@
           >
             <button
               type="button"
-              class="h-full w-full flex flex-col items-center justify-center rounded-2xl bg-base-200 hover:bg-base-300 border border-base-content/10"
+              class="h-full w-full flex flex-col items-center justify-center rounded-2xl hover:bg-base-300 border border-base-content/10"
               @click="activateEditMode"
             >
               <Icon name="kind-icon:settings" class="h-[70%] w-[70%]" />

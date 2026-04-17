@@ -2,19 +2,16 @@
 <template>
   <div
     class="relative snap-start shrink-0 h-full flex flex-col items-center justify-center px-1"
-    style="aspect-ratio: 1 / 1.25"
+    style="aspect-ratio: 1 / 1"
   >
-    <!-- Icon Section -->
-    <div class="w-4/5 flex-1 min-h-0 flex items-center justify-center">
-      <!-- Edit mode preview (no hover scaling to keep it stable) -->
+    <!-- Icon Section: 90% of height -->
+    <div class="w-full flex items-center justify-center" style="height: 78%">
+      <!-- Edit mode -->
       <div
         v-if="isEditing"
         class="w-full h-full flex items-center justify-center"
       >
-        <Icon
-          :name="icon.icon || 'kind-icon:help'"
-          class="text-3xl w-full h-full"
-        />
+        <Icon :name="icon.icon || 'kind-icon:help'" class="w-[90%] h-[90%]" />
       </div>
 
       <!-- Nav link icon -->
@@ -25,7 +22,7 @@
       >
         <Icon
           :name="icon.icon || 'kind-icon:help'"
-          class="w-full h-full text-3xl"
+          class="w-[90%] h-[90%]"
           :class="{ glow: isActiveRoute }"
         />
       </NuxtLink>
@@ -41,54 +38,53 @@
         class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
       />
 
-      <!-- Fallback icon -->
+      <!-- Fallback -->
       <div
         v-else
         class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
       >
-        <Icon
-          :name="icon.icon || 'kind-icon:help'"
-          class="text-3xl w-full h-full"
-        />
+        <Icon :name="icon.icon || 'kind-icon:help'" class="w-[90%] h-[90%]" />
       </div>
     </div>
 
-    <!-- Delete Button with Confirmation -->
+    <!-- Delete confirmation (edit mode) -->
     <div
       v-if="isEditing"
-      class="shrink-0 mt-1 w-full flex items-center justify-center"
+      class="w-full flex items-center justify-center"
+      style="height: 22%"
     >
       <template v-if="confirmingDelete">
         <button
-          class="text-xs bg-gray-300 text-black rounded-full px-1 md:px-2 py-0.5 hover:bg-gray-400 mr-1"
+          class="text-[0.6rem] bg-gray-300 text-black rounded-full px-1.5 py-0.5 hover:bg-gray-400 mr-1 font-bold"
           @click="confirmingDelete = false"
         >
-          Cancel
+          No
         </button>
         <button
-          class="text-xs bg-red-600 text-white rounded-full px-1 md:px-2 py-0.5 hover:bg-red-700"
+          class="text-[0.6rem] bg-red-600 text-white rounded-full px-1.5 py-0.5 hover:bg-red-700 font-bold"
           @click="removeIcon"
         >
-          Confirm
+          Remove
         </button>
       </template>
-
       <button
         v-else
-        class="text-xs bg-red-500 text-white rounded-full px-1 md:px-2 py-0.5 hover:bg-red-600"
+        class="text-[0.6rem] bg-red-500 text-white rounded-full px-1.5 py-0.5 hover:bg-red-600 font-bold"
         @click="confirmingDelete = true"
       >
         ✕
       </button>
     </div>
 
-    <!-- Label -->
+    <!-- Label (normal mode) -->
     <div
       v-else-if="!bigMode"
-      class="shrink-0 mt-1 w-full flex items-center justify-center pointer-events-none"
+      class="w-full flex items-center justify-center"
+      style="height: 22%"
     >
       <span
-        class="text-xs text-center text-base-content/70 truncate max-w-full"
+        class="text-center font-bold truncate max-w-full leading-none"
+        style="font-size: clamp(0.55rem, 1vw, 0.8rem)"
         :title="computedLabel"
       >
         {{ computedLabel }}
@@ -108,7 +104,6 @@ import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import type { SmartIcon } from '@/stores/smartbarStore'
 
-// Utility components
 import SwarmIcon from './swarm-icon.vue'
 import ThemeIcon from '../wonderlab/theme-icon.vue'
 import LoginIcon from './login-icon.vue'
@@ -121,7 +116,7 @@ const componentMap: Record<string, any> = {
   'jellybean-icon': JellybeanIcon,
 }
 
-const props = defineProps<{ icon: SmartIcon }>()
+const props = defineProps<{ icon: SmartIcon; showTitle?: boolean }>()
 
 const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()

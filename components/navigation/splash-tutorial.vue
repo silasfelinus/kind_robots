@@ -2,95 +2,97 @@
 <template>
   <div
     v-if="pageStore.page"
-    class="relative w-full h-full rounded-2xl z-20 overflow-hidden"
+    class="relative z-20 flex h-full w-full items-center justify-center overflow-hidden rounded-2xl"
   >
-    <div
-      v-if="resolvedImage"
-      class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+    <section
+      class="relative mx-auto h-[90%] w-full max-w-4xl overflow-hidden rounded-3xl border-2 border-black bg-base-100/95 shadow-xl"
     >
-      <div class="absolute inset-0 bg-base-200/80 mix-blend-multiply" />
-    </div>
-
-    <div class="relative z-10 w-full h-full flex items-center justify-center">
-      <section
-        class="relative w-full max-w-4xl h-[90%] mx-auto overflow-visible"
-      >
+      <div class="relative h-full w-full">
         <div
-          class="rounded-3xl border-2 border-black shadow-xl bg-base-100/95 overflow-hidden w-full h-full"
+          v-if="resolvedImage"
+          class="pointer-events-none absolute inset-0 z-0 overflow-hidden"
         >
-          <div class="relative w-full h-full">
+          <NuxtImg
+            :src="resolvedImage"
+            alt="Splash background"
+            :sizes="imageSizes"
+            class="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+          />
+          <div class="absolute inset-0 bg-base-200/80 mix-blend-multiply" />
+          <div class="absolute inset-0 bg-base-100/55" />
+        </div>
+
+        <div class="relative z-10 h-full w-full">
+          <div
+            ref="scrollRef"
+            class="smart-scroll-container h-full w-full overflow-y-auto overflow-x-hidden"
+            @scroll="updateScrollState"
+          >
             <div
-              ref="scrollRef"
-              class="smart-scroll-container w-full h-full overflow-y-auto overflow-x-hidden"
-              @scroll="updateScrollState"
+              class="flex min-h-full w-full flex-col gap-2 overflow-x-hidden p-2 md:gap-3 md:p-3 lg:p-4 xl:p-5"
             >
               <div
-                class="flex flex-col w-full min-h-full p-2 md:p-3 lg:p-4 xl:p-5 gap-2 md:gap-3 overflow-x-hidden"
+                class="mb-1 w-full overflow-x-hidden md:mb-2 lg:mb-3 xl:mb-4"
               >
+                <title-card />
+              </div>
+
+              <div
+                class="mb-1 w-full overflow-x-hidden md:mb-2 lg:mb-3 xl:mb-4"
+              >
+                <smart-panel />
+              </div>
+
+              <div v-if="pageImage" class="w-full overflow-x-hidden">
                 <div
-                  class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4 overflow-x-hidden"
+                  class="relative aspect-video w-full overflow-hidden rounded-2xl border border-base-300 bg-base-200/70 md:aspect-21/9 lg:aspect-3/1"
                 >
-                  <title-card />
-                </div>
-
-                <div
-                  class="w-full mb-1 md:mb-2 lg:mb-3 xl:mb-4 overflow-x-hidden"
-                >
-                  <smart-panel />
-                </div>
-
-                <div v-if="pageImage" class="w-full overflow-x-hidden">
-                  <div
-                    class="relative w-full rounded-2xl border border-base-300 bg-base-200/70 overflow-hidden aspect-video md:aspect-21/9 lg:aspect-3/1"
-                  >
-                    <NuxtImg
-                      :src="pageImage"
-                      alt="Room illustration"
-                      class="absolute inset-0 w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                </div>
-
-                <div class="flex-1 min-h-32" />
-
-                <div class="w-full overflow-x-hidden">
-                  <ami-chat class="w-full" />
+                  <NuxtImg
+                    :src="pageImage"
+                    alt="Room illustration"
+                    :sizes="imageSizes"
+                    class="absolute inset-0 h-full w-full object-cover"
+                    loading="lazy"
+                  />
                 </div>
               </div>
+
+              <div class="flex-1 min-h-32" />
+
+              <div class="w-full overflow-x-hidden">
+                <ami-chat class="w-full" />
+              </div>
             </div>
-
-            <button
-              v-if="canScrollUp"
-              type="button"
-              class="absolute right-2 top-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-0.5 text-base-content/70"
-              @click.stop="scrollBy('up')"
-            >
-              <Icon name="kind-icon:chevron-up" class="w-3 h-3 md:w-4 md:h-4" />
-            </button>
-
-            <button
-              v-if="canScrollDown"
-              type="button"
-              class="absolute right-2 bottom-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-0.5 text-base-content/70"
-              @click.stop="scrollBy('down')"
-            >
-              <Icon
-                name="kind-icon:chevron-down"
-                class="w-3 h-3 md:w-4 md:h-4"
-              />
-            </button>
           </div>
+
+          <button
+            v-if="canScrollUp"
+            type="button"
+            class="absolute right-2 top-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-0.5 text-base-content/70"
+            @click.stop="scrollBy('up')"
+          >
+            <Icon name="kind-icon:chevron-up" class="h-3 w-3 md:h-4 md:w-4" />
+          </button>
+
+          <button
+            v-if="canScrollDown"
+            type="button"
+            class="absolute right-2 bottom-2 z-20 rounded-full border border-base-300 bg-base-200/80 px-1 py-0.5 text-base-content/70"
+            @click.stop="scrollBy('down')"
+          >
+            <Icon name="kind-icon:chevron-down" class="h-3 w-3 md:h-4 md:w-4" />
+          </button>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
 // /components/navigation/splash-tutorial.vue
 import { computed, onMounted, ref } from 'vue'
-import { NuxtImg, Icon } from '#components'
+import { Icon, NuxtImg } from '#components'
 import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()

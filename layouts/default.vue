@@ -174,6 +174,7 @@ const footerIcon = computed(() => {
     return 'kind-icon:chevron-double-up'
   if (displayStore.footerState === 'compact')
     return 'kind-icon:chevron-double-up'
+  if (displayStore.footerState === 'priority') return 'kind-icon:chevron-down'
   return 'kind-icon:chevron-down'
 })
 

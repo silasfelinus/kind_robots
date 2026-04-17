@@ -163,6 +163,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     hidden: { small: 0, medium: 0, large: 0, extraLarge: 0 },
     compact: { small: 16, medium: 12, large: 10, extraLarge: 8 },
     open: { small: 22, medium: 18, large: 24, extraLarge: 18 },
+    priority: { small: 50, medium: 50, large: 50, extraLarge: 50 },
     disabled: { small: 0, medium: 0, large: 0, extraLarge: 0 },
   } as const
 
@@ -184,6 +185,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       state.footerState === 'compact' ||
       state.footerState === 'open' ||
       state.footerState === 'hidden' ||
+      state.footerState === 'priority' ||
       state.footerState === 'disabled'
         ? state.footerState
         : 'hidden'
@@ -455,12 +457,19 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const centerContentStyle = computed<CSSProperties>(() => {
-    const cornerOffset = state.showCorner ? centerPanelOffset.value : 0
-    const topInset = mainInnerTopInset.value + cornerOffset
+    let topInset = 0
+
+    if (hasPrioritySidebar.value) {
+      topInset += mainInnerTopInset.value
+    }
+
+    if (state.showCorner) {
+      topInset += centerPanelOffset.value
+    }
 
     return {
-      marginTop: `calc(var(--vh) * ${topInset})`,
-      height: `calc(100% - var(--vh) * ${topInset})`,
+      paddingTop: `calc(var(--vh) * ${topInset})`,
+      height: '100%',
     }
   })
 
@@ -565,11 +574,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function toggleFooter() {
-    const order: DisplayState[] = ['compact', 'open', 'hidden']
+    const order: DisplayState[] = ['compact', 'open', 'priority', 'hidden']
     const currentIndex = order.indexOf(state.footerState)
     state.footerState = order[(currentIndex + 1) % order.length] ?? 'compact'
     saveState()
   }
+
   function toggleBigMode() {
     state.bigMode = !state.bigMode
     saveState()

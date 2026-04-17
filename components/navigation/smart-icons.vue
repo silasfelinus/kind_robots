@@ -2,7 +2,7 @@
   <div class="relative flex h-full min-h-10 w-full min-w-0 items-stretch">
     <div class="flex h-full w-full items-stretch gap-1">
       <button
-        v-if="canScrollLeft"
+        v-if="canScrollLeft && !isEditing"
         type="button"
         class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl hover:bg-base-300/80 transition"
         @click="scrollByStep(-1)"
@@ -28,6 +28,32 @@
         @wheel.passive="handleWheel"
       >
         <div ref="row" class="flex h-full min-w-max items-stretch gap-1">
+          <!-- Edit mode: cancel + conditional confirm -->
+          <template v-if="isEditing">
+            <div class="flex h-full items-center gap-1 pr-1">
+              <button
+                type="button"
+                class="h-full px-3 flex items-center justify-center gap-1.5 rounded-2xl bg-base-300 hover:bg-base-300/70 transition text-base-content font-bold text-sm"
+                @click="revertEdit"
+              >
+                <Icon name="kind-icon:x" class="h-[55%] w-auto aspect-square" />
+                <span>Cancel</span>
+              </button>
+              <button
+                v-if="hasChanges"
+                type="button"
+                class="h-full px-3 flex items-center justify-center gap-1.5 rounded-2xl bg-primary hover:bg-primary/80 transition text-primary-content font-bold text-sm"
+                @click="confirmEdit"
+              >
+                <Icon
+                  name="kind-icon:check"
+                  class="h-[55%] w-auto aspect-square"
+                />
+                <span>Save</span>
+              </button>
+            </div>
+          </template>
+
           <!-- Prepended intro icons (open mode only, hidden during editing) -->
           <template
             v-if="!isEditing && prependIcons && prependIcons.length > 0"
@@ -39,15 +65,15 @@
             >
               <component
                 :is="icon.component"
-                class="h-[70%] w-[70%]"
+                class="h-[85%] w-[85%]"
                 :class="icon.color"
               />
             </div>
           </template>
 
-          <!-- Empty state -->
+          <!-- Empty state (only when no prepend icons either) -->
           <div
-            v-if="rowIcons.length === 0"
+            v-if="rowIcons.length === 0 && !isEditing"
             class="flex h-full aspect-square items-center justify-center"
           >
             <button
@@ -55,7 +81,7 @@
               class="h-full w-full flex flex-col items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 text-warning"
               @click="activateEditMode"
             >
-              <Icon name="kind-icon:alert" class="h-[70%] w-[70%]" />
+              <Icon name="kind-icon:alert" class="h-[85%] w-[85%]" />
             </button>
           </div>
 
@@ -65,7 +91,7 @@
             :key="icon.id"
             :icon="icon"
             :show-title="showTitles"
-            class="h-full flex"
+            class="h-full flex smart-icon-item"
           />
 
           <!-- Settings button -->
@@ -78,14 +104,14 @@
               class="h-full w-full flex flex-col items-center justify-center rounded-2xl hover:bg-base-300"
               @click="activateEditMode"
             >
-              <Icon name="kind-icon:settings" class="h-[70%] w-[70%]" />
+              <Icon name="kind-icon:settings" class="h-[85%] w-[85%]" />
             </button>
           </div>
         </div>
       </div>
 
       <button
-        v-if="canScrollRight"
+        v-if="canScrollRight && !isEditing"
         type="button"
         class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl hover:bg-base-300/80 transition"
         @click="scrollByStep(1)"
@@ -323,5 +349,11 @@ onBeforeUnmount(() => {
 .smart-icons-scroll::-webkit-scrollbar {
   width: 0;
   height: 0;
+}
+
+/* Larger, bolder icon labels */
+.smart-icon-item :deep([class*='text-']) {
+  font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+  font-weight: 700;
 }
 </style>

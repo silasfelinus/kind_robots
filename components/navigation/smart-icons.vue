@@ -33,10 +33,10 @@
             <div class="flex h-full items-center gap-1 pr-1">
               <button
                 type="button"
-                class="h-full px-3 flex items-center justify-center gap-1.5 rounded-2xl bg-base-300 hover:bg-base-300/70 transition text-base-content font-bold text-sm"
+                class="h-full flex items-center justify-center gap-1.5 rounded-2xl bg-base-300 hover:bg-base-300/70 transition text-base-content font-bold text-sm"
                 @click="revertEdit"
               >
-                <Icon name="kind-icon:x" class="h-[55%] w-auto aspect-square" />
+                <Icon name="kind-icon:x" class="w-full aspect-square" />
                 <span>Cancel</span>
               </button>
               <button
@@ -65,7 +65,7 @@
             >
               <component
                 :is="icon.component"
-                class="h-[85%] w-[85%]"
+                class="h-100 w-100"
                 :class="icon.color"
               />
             </div>

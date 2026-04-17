@@ -11,7 +11,7 @@
         v-if="isEditing"
         class="w-full h-full flex items-center justify-center"
       >
-        <Icon :name="icon.icon || 'kind-icon:help'" class="w-[90%] h-[90%]" />
+        <Icon :name="icon.icon || 'kind-icon:help'" class="w-100 h-100" />
       </div>
 
       <!-- Nav link icon -->
@@ -22,7 +22,7 @@
       >
         <Icon
           :name="icon.icon || 'kind-icon:help'"
-          class="w-[90%] h-[90%]"
+          class="w-100 h-100"
           :class="{ glow: isActiveRoute }"
         />
       </NuxtLink>

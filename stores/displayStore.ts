@@ -113,11 +113,15 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const mainInnerTopInset = computed(() => {
+    let inset = 0
+
     if (hasPrioritySidebar.value && state.headerState !== 'hidden') {
-      return headerHeight.value + sectionPaddingSize.value
+      inset += headerHeight.value + sectionPaddingSize.value
     }
 
-    return 0
+    inset += cornerPanelLineInset.value
+
+    return inset
   })
 
   const sidebarLeftWidth = computed(() => {
@@ -164,10 +168,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const sectionPaddingSize = computed(() => {
     const sizes: Record<ViewportSize, number> = {
-      small: 0,
-      medium: 0,
-      large: 0,
-      extraLarge: 0,
+      small: 1,
+      medium: 1,
+      large: 2,
+      extraLarge: 2,
     }
 
     return sizes[state.viewportSize]
@@ -390,17 +394,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
-  function toggleHeaderCompact() {
-    if (state.headerState === 'hidden') {
-      state.headerState = 'open'
-      saveState()
-      return
-    }
-
-    state.headerState = state.headerState === 'open' ? 'compact' : 'open'
-    saveState()
-  }
-
   const headerStyle = computed<CSSProperties>(() => {
     if (state.headerState === 'hidden') {
       return { display: 'none' }
@@ -433,6 +426,19 @@ export const useDisplayStore = defineStore('displayStore', () => {
       medium: 7,
       large: 6,
       extraLarge: 5,
+    }
+
+    return sizes[state.viewportSize]
+  })
+
+  const cornerPanelLineInset = computed(() => {
+    if (!hasPrioritySidebar.value || state.headerState === 'hidden') return 0
+
+    const sizes: Record<ViewportSize, number> = {
+      small: 4,
+      medium: 3,
+      large: 2.5,
+      extraLarge: 2,
     }
 
     return sizes[state.viewportSize]
@@ -518,12 +524,27 @@ export const useDisplayStore = defineStore('displayStore', () => {
     saveState()
   }
 
-  function toggleHeader() {
+  function toggleHeader(mode: 'cycle' | 'open' = 'cycle') {
+    if (mode === 'open') {
+      state.headerState = 'open'
+      saveState()
+      return
+    }
+
     const order: DisplayState[] = ['open', 'compact', 'hidden']
-    const currentIndex = order.indexOf(state.headerState)
+    const currentIndex = Math.max(0, order.indexOf(state.headerState))
     state.headerState = order[(currentIndex + 1) % order.length] ?? 'open'
     saveState()
   }
+
+  const headerCornerToggleStyle = computed<CSSProperties>(() => {
+    const padding = sectionPaddingSize.value
+
+    return {
+      top: `calc(var(--vh) * ${padding + 0.5})`,
+      left: `${padding + 0.75}rem`,
+    }
+  })
 
   function toggleSidebar(side: SidebarStateKey) {
     const logical: LogicalSide = side === 'sidebarLeftState' ? 'left' : 'right'
@@ -874,7 +895,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     initialize,
     removeViewportWatcher,
     setSmartState,
-    toggleHeaderCompact,
+    headerCornerToggleStyle,
   }
 })
 

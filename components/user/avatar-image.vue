@@ -1,24 +1,20 @@
 <!-- /components/content/story/avatar-image.vue -->
 <template>
   <div v-if="hydrated" class="relative w-full h-full">
-
-
     <!-- Flip card: the whole image area toggles bigMode on click -->
     <div
-      class="h-full w-full cursor-pointer [perspective:1000px]"
+      class="h-full w-full cursor-pointer perspective-[1000px]"
       @click="handleAvatarClick"
     >
       <div
         :class="[
           'relative h-full w-full transition-transform duration-700 ease-in-out',
-          '[transform-style:preserve-3d]',
-          flipped ? '[transform:rotateY(180deg)]' : ''
+          'transform-3d',
+          flipped ? 'transform-[rotateY(180deg)]' : '',
         ]"
       >
         <!-- Front -->
-        <div
-          class="absolute inset-0 overflow-hidden [backface-visibility:hidden]"
-        >
+        <div class="absolute inset-0 overflow-hidden backface-hidden">
           <img
             :src="safeImage"
             alt="Avatar"
@@ -29,7 +25,7 @@
 
         <!-- Back -->
         <div
-          class="absolute inset-0 overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)]"
+          class="absolute inset-0 overflow-hidden backface-hidden transform-[rotateY(180deg)]"
         >
           <img
             :src="safeBackImage"
@@ -69,7 +65,9 @@ const resolveImage = (src?: string | null): string => {
 }
 
 const safeImage = computed(() =>
-  resolveImage(pageImage.value?.length ? pageImage.value : currentBot.value?.avatarImage),
+  resolveImage(
+    pageImage.value?.length ? pageImage.value : currentBot.value?.avatarImage,
+  ),
 )
 
 const safeBackImage = computed(() =>

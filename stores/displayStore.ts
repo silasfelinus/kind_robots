@@ -324,16 +324,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }))
 
   const cornerPanelStyle = computed<CSSProperties>(() => {
-    const paddingVw = sectionPaddingSize.value
-    const toggleClearanceVw = 4
-
-    const rightInset = sidebarRightVisible.value
-      ? sidebarRightWidth.value + paddingVw + toggleClearanceVw
-      : paddingVw + toggleClearanceVw
+    const rightInset = mainContentRightInset.value
 
     return {
       top: `calc(var(--vh) * ${contentTopOffset.value} + 0.75rem)`,
       right: `${rightInset}vw`,
+      zIndex: '40',
     }
   })
 

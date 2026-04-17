@@ -1,4 +1,5 @@
 <!-- /layouts/default.vue -->
+<!-- /layouts/default.vue -->
 <template>
   <div class="flex min-h-dvh w-full flex-col overflow-hidden">
     <header
@@ -100,19 +101,21 @@
       <template #fallback />
     </ClientOnly>
 
+    <!-- Corner panel lifted OUT of <main>, fixed to viewport -->
+    <Transition name="slide-in-right">
+      <div
+        v-if="displayStore.showCorner"
+        class="pointer-events-none fixed z-40"
+        :style="displayStore.cornerPanelStyle"
+      >
+        <corner-panel class="pointer-events-auto" />
+      </div>
+    </Transition>
+
     <main
       class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"
       :style="displayStore.mainContentStyle"
     >
-      <Transition name="slide-in-right">
-        <div
-          class="pointer-events-none fixed z-40"
-          :style="displayStore.cornerPanelStyle"
-        >
-          <corner-panel class="pointer-events-auto" />
-        </div>
-      </Transition>
-
       <div
         class="absolute inset-0 flex overflow-y-auto overflow-x-hidden overscroll-contain px-5 py-4"
         :style="displayStore.centerContentStyle"

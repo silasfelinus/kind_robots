@@ -1,10 +1,11 @@
 <!-- /components/content/icons/icon-display.vue -->
 <template>
   <div
-    class="relative snap-start shrink-0 w-16 h-20 md:w-24 md:h-28 flex flex-col items-center justify-center"
+    class="relative snap-start shrink-0 h-full flex flex-col items-center justify-center px-1"
+    style="aspect-ratio: 1 / 1.25"
   >
     <!-- Icon Section -->
-    <div class="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center">
+    <div class="w-4/5 flex-1 min-h-0 flex items-center justify-center">
       <!-- Edit mode preview (no hover scaling to keep it stable) -->
       <div
         v-if="isEditing"
@@ -55,7 +56,7 @@
     <!-- Delete Button with Confirmation -->
     <div
       v-if="isEditing"
-      class="h-5 mt-2 w-full flex items-center justify-center"
+      class="shrink-0 mt-1 w-full flex items-center justify-center"
     >
       <template v-if="confirmingDelete">
         <button
@@ -84,7 +85,7 @@
     <!-- Label -->
     <div
       v-else-if="!bigMode"
-      class="h-5 mt-2 w-full flex items-center justify-center pointer-events-none"
+      class="shrink-0 mt-1 w-full flex items-center justify-center pointer-events-none"
     >
       <span
         class="text-xs text-center text-base-content/70 truncate max-w-full"

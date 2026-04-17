@@ -46,7 +46,7 @@
             :key="icon.id"
             :icon="icon"
             :show-title="showTitles"
-            class="h-full aspect-square flex"
+            class="h-full flex"
           />
 
           <div

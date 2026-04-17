@@ -65,10 +65,10 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     const isBig = displayStore.bigMode
 
     const sizeMap: Record<string, Record<ViewportSize, number>> = {
-      Easy: { mobile: 90, tablet: 100, desktop: 130 },
-      Medium: { mobile: 80, tablet: 90, desktop: 120 },
-      Hard: { mobile: 70, tablet: 80, desktop: 110 },
-      Expert: { mobile: 60, tablet: 70, desktop: 100 },
+      Easy: { small: 90, medium: 100, large: 130, extraLarge: 150 },
+      Medium: { small: 80, medium: 90, large: 120, extraLarge: 130 },
+      Hard: { small: 70, medium: 80, large: 110, extraLarge: 140 },
+      Expert: { small: 60, medium: 70, large: 100, extraLarge: 130 },
     }
 
     const baseSize = sizeMap[difficulty]?.[screen] ?? 90

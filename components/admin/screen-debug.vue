@@ -88,22 +88,6 @@
           <strong>Right:</strong> {{ displayStore.sidebarRightState }} ·
           {{ sidebarRightWidth }}vw
         </div>
-        <div>
-          <strong>L ↑H priority:</strong>
-          {{ displayStore.leftHeaderPriority }}
-        </div>
-        <div>
-          <strong>L ↓F priority:</strong>
-          {{ displayStore.leftFooterPriority }}
-        </div>
-        <div>
-          <strong>R ↑H priority:</strong>
-          {{ displayStore.rightHeaderPriority }}
-        </div>
-        <div>
-          <strong>R ↓F priority:</strong>
-          {{ displayStore.rightFooterPriority }}
-        </div>
         <div><strong>Padding:</strong> {{ sectionPadding }}vh</div>
         <div><strong>Center H:</strong> {{ mainContentHeight }}vh</div>
         <div><strong>Center W:</strong> {{ mainContentWidth }}vw</div>

@@ -22,7 +22,7 @@ const pageStore = usePageStore()
 const showToggle = computed(() => pageStore.page?.showFooter)
 
 const iconName = computed(() =>
-  displayStore.footerState === 'extended'
+  displayStore.footerState === 'open'
     ? 'kind-icon:chevron-double-down'
     : 'kind-icon:chevron-double-up',
 )

@@ -37,5 +37,5 @@ import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-const isMobileDisplay = computed(() => displayStore.viewportSize === 'mobile')
+const isMobileDisplay = computed(() => displayStore.viewportSize === 'small')
 </script>

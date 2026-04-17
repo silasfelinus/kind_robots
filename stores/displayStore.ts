@@ -12,7 +12,7 @@ import type {
 } from './helpers/displayHelper'
 import { setCustomVh } from './helpers/displayHelper'
 
-type ViewportSize = 'small' | 'medium' | 'large' | 'extraLarge'
+export type ViewportSize = 'small' | 'medium' | 'large' | 'extraLarge'
 type FullscreenState = 'nuxt' | 'fullscreen'
 type SidebarStage = 'hidden' | 'compact' | 'open' | 'priority'
 type SidebarStateKey = 'sidebarLeftState' | 'sidebarRightState'

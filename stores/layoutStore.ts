@@ -40,8 +40,8 @@ export const useLayoutStore = defineStore('layoutStore', () => {
     if (currentLayout.value === 'tablet') return 'tablet'
     if (currentLayout.value === 'desktop') return 'desktop'
 
-    if (displayStore.viewportSize === 'mobile') return 'mobile'
-    if (displayStore.viewportSize === 'tablet') return 'tablet'
+    if (displayStore.viewportSize === 'small') return 'mobile'
+    if (displayStore.viewportSize === 'medium') return 'tablet'
     return 'desktop'
   })
 

@@ -104,7 +104,6 @@
     <!-- Corner panel lifted OUT of <main>, fixed to viewport -->
     <Transition name="slide-in-right">
       <div
-        v-if="displayStore.showCorner"
         class="pointer-events-none fixed z-40"
         :style="displayStore.cornerPanelStyle"
       >

@@ -87,6 +87,39 @@ export const useDisplayStore = defineStore('displayStore', () => {
     () => rightSidebarStage.value === 'priority',
   )
 
+  const hasPrioritySidebar = computed(() => {
+    return leftSidebarPriority.value || rightSidebarPriority.value
+  })
+
+  const mainPanelTopOffset = computed(() => {
+    if (hasPrioritySidebar.value) {
+      return sectionPaddingSize.value
+    }
+
+    return contentTopOffset.value
+  })
+
+  const mainPanelHeight = computed(() => {
+    if (hasPrioritySidebar.value) {
+      return (
+        100 -
+        sectionPaddingSize.value * 2 -
+        footerHeight.value -
+        (footerVisible.value ? sectionPaddingSize.value : 0)
+      )
+    }
+
+    return mainContentHeight.value
+  })
+
+  const mainInnerTopInset = computed(() => {
+    if (hasPrioritySidebar.value && state.headerState !== 'hidden') {
+      return headerHeight.value + sectionPaddingSize.value
+    }
+
+    return 0
+  })
+
   const sidebarLeftWidth = computed(() => {
     const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
       small: { hidden: 0, compact: 35, open: 40, priority: 50 },
@@ -407,20 +440,21 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const mainContentStyle = computed<CSSProperties>(() => {
     return {
-      top: `calc(var(--vh) * ${contentTopOffset.value})`,
+      top: `calc(var(--vh) * ${mainPanelTopOffset.value})`,
       left: `${mainContentLeft.value}vw`,
       width: `${mainContentWidth.value}vw`,
-      height: `calc(var(--vh) * ${mainContentHeight.value})`,
+      height: `calc(var(--vh) * ${mainPanelHeight.value})`,
       minHeight: '10vh',
     }
   })
 
   const centerContentStyle = computed<CSSProperties>(() => {
-    const offsetTop = state.showCorner ? centerPanelOffset.value : 0
+    const cornerOffset = state.showCorner ? centerPanelOffset.value : 0
+    const topInset = mainInnerTopInset.value + cornerOffset
 
     return {
-      marginTop: `calc(var(--vh) * ${offsetTop})`,
-      height: `calc(100% - var(--vh) * ${offsetTop})`,
+      marginTop: `calc(var(--vh) * ${topInset})`,
+      height: `calc(100% - var(--vh) * ${topInset})`,
     }
   })
 

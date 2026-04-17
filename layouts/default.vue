@@ -118,7 +118,7 @@
         class="absolute inset-0 flex overflow-y-auto overflow-x-hidden overscroll-contain px-5 py-4"
         :style="displayStore.centerContentStyle"
       >
-        <div class="flex min-h-full w-full flex-col justify-center">
+        <div class="flex min-h-full w-full flex-col justify-start">
           <slot />
         </div>
       </div>

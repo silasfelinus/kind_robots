@@ -75,7 +75,7 @@
           class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain"
         >
           <slot name="right">
-            <login-page />
+            <user-dashboard />
           </slot>
         </div>
       </aside>
@@ -103,12 +103,12 @@
 
     <main
       class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"
-      :style="displayStore.mainContentStyle"
+      :style="displayStore.centerContentStyle"
     >
       <corner-panel class="pointer-events-auto" />
       <div
         class="absolute inset-0 flex overflow-y-auto overflow-x-hidden overscroll-contain px-5 py-4"
-        :style="displayStore.centerContentStyle"
+        :style="displayStore.mainContentStyle"
       >
         <div class="flex min-h-full w-full flex-col justify-start">
           <slot />

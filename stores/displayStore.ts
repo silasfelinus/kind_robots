@@ -443,29 +443,25 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const mainContentStyle = computed<CSSProperties>(() => {
-    return {
-      top: `calc(var(--vh) * ${mainPanelTopOffset.value})`,
-      left: `${mainContentLeft.value}vw`,
-      width: `${mainContentWidth.value}vw`,
-      height: `calc(var(--vh) * ${mainPanelHeight.value})`,
-      minHeight: '10vh',
-    }
-  })
-
-  const centerContentStyle = computed<CSSProperties>(() => {
     let topInset = 0
 
     if (hasPrioritySidebar.value) {
       topInset += mainInnerTopInset.value
     }
 
-    if (state.showCorner) {
-      topInset += centerPanelOffset.value
-    }
-
     return {
-      paddingTop: `calc(var(--vh) * ${topInset})`,
       height: '100%',
+      paddingTop: `calc(var(--vh) * ${topInset})`,
+    }
+  })
+
+  const centerContentStyle = computed<CSSProperties>(() => {
+    return {
+      top: `calc(var(--vh) * ${mainPanelTopOffset.value})`,
+      left: `${mainContentLeft.value}vw`,
+      width: `${mainContentWidth.value}vw`,
+      height: `calc(var(--vh) * ${mainPanelHeight.value})`,
+      minHeight: '10vh',
     }
   })
 

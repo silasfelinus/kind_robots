@@ -442,6 +442,16 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return sizes[state.viewportSize]
   })
 
+  const centerContentStyle = computed<CSSProperties>(() => {
+    return {
+      top: `calc(var(--vh) * ${mainPanelTopOffset.value})`,
+      left: `${mainContentLeft.value}vw`,
+      width: `${mainContentWidth.value}vw`,
+      height: `calc(var(--vh) * ${mainPanelHeight.value})`,
+      minHeight: '10vh',
+    }
+  })
+
   const mainContentStyle = computed<CSSProperties>(() => {
     let topInset = 0
 
@@ -450,18 +460,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
 
     return {
+      minHeight: 0,
       height: '100%',
       paddingTop: `calc(var(--vh) * ${topInset})`,
-    }
-  })
-
-  const centerContentStyle = computed<CSSProperties>(() => {
-    return {
-      top: `calc(var(--vh) * ${mainPanelTopOffset.value})`,
-      left: `${mainContentLeft.value}vw`,
-      width: `${mainContentWidth.value}vw`,
-      height: `calc(var(--vh) * ${mainPanelHeight.value})`,
-      minHeight: '10vh',
     }
   })
 

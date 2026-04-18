@@ -112,18 +112,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return mainContentHeight.value
   })
 
-  const mainInnerTopInset = computed(() => {
-    let inset = 0
-
-    if (hasPrioritySidebar.value && state.headerState !== 'hidden') {
-      inset += headerHeight.value + sectionPaddingSize.value
-    }
-
-    inset += cornerPanelLineInset.value
-
-    return inset
-  })
-
   const sidebarLeftWidth = computed(() => {
     const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
       small: { hidden: 0, compact: 35, open: 40, priority: 50 },
@@ -416,53 +404,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
-  const centerPanelOffset = computed(() => {
-    if (!state.showCorner) return 0
-
-    const sizes: Record<ViewportSize, number> = {
-      small: 8,
-      medium: 7,
-      large: 6,
-      extraLarge: 5,
-    }
-
-    return sizes[state.viewportSize]
-  })
-
-  const cornerPanelLineInset = computed(() => {
-    if (!hasPrioritySidebar.value || state.headerState === 'hidden') return 0
-
-    const sizes: Record<ViewportSize, number> = {
-      small: 4,
-      medium: 3,
-      large: 2.5,
-      extraLarge: 2,
-    }
-
-    return sizes[state.viewportSize]
-  })
-
-  const centerContentStyle = computed<CSSProperties>(() => {
+  const mainContentStyle = computed<CSSProperties>(() => {
     return {
       top: `calc(var(--vh) * ${mainPanelTopOffset.value})`,
       left: `${mainContentLeft.value}vw`,
       width: `${mainContentWidth.value}vw`,
       height: `calc(var(--vh) * ${mainPanelHeight.value})`,
       minHeight: '10vh',
-    }
-  })
-
-  const mainContentStyle = computed<CSSProperties>(() => {
-    let topInset = 0
-
-    if (hasPrioritySidebar.value) {
-      topInset += mainInnerTopInset.value
-    }
-
-    return {
-      minHeight: 0,
-      height: '100%',
-      paddingTop: `calc(var(--vh) * ${topInset})`,
     }
   })
 
@@ -859,7 +807,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     leftSidebarStyle,
     rightSidebarStyle,
     mainContentStyle,
-    centerContentStyle,
     footerStyle,
 
     isLargeViewport,

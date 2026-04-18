@@ -101,14 +101,19 @@
       <template #fallback />
     </ClientOnly>
 
+    <!-- /layouts/default.vue -->
     <main
       class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"
-      :style="displayStore.centerContentStyle"
+      :style="displayStore.mainContentStyle"
     >
-      <corner-panel class="pointer-events-auto" />
+      <corner-panel
+        v-if="displayStore.showCorner"
+        class="pointer-events-auto fixed z-40"
+        :style="displayStore.cornerPanelStyle"
+      />
+
       <div
-        class="absolute inset-0 flex overflow-y-auto overflow-x-hidden overscroll-contain px-5 py-4"
-        :style="displayStore.mainContentStyle"
+        class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-4 pt-20"
       >
         <div class="flex min-h-full w-full flex-col justify-start">
           <slot />

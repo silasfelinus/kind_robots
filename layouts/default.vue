@@ -1,5 +1,4 @@
 <!-- /layouts/default.vue -->
-<!-- /layouts/default.vue -->
 <template>
   <div class="flex min-h-dvh w-full flex-col overflow-hidden">
     <header
@@ -18,19 +17,18 @@
     >
       <div class="pointer-events-auto flex items-start">
         <button
-          class="icon-btn icon-btn--pill icon-btn--primary"
+          class="flex items-center gap-2 rounded-full border border-primary-focus bg-primary/95 px-2 py-1 text-primary-content shadow-md backdrop-blur-sm transition hover:scale-[1.02] hover:bg-primary-focus"
           title="Open header"
           @click="displayStore.toggleHeader('open')"
         >
-          <Icon name="kind-icon:chevron-double-down" class="icon-btn__icon" />
-          <span class="icon-btn__label"> Open </span>
+          <kind-title />
         </button>
       </div>
     </div>
 
     <ClientOnly>
       <aside
-        class="fixed overflow-hidden text-secondary-content transition-[top,height,width,left] duration-200"
+        class="fixed overflow-visible text-secondary-content transition-[top,height,width,left] duration-200"
         :style="displayStore.leftSidebarStyle"
       >
         <div
@@ -40,35 +38,22 @@
             <splash-tutorial />
           </slot>
         </div>
-      </aside>
 
-      <div
-        class="pointer-events-none fixed"
-        :style="displayStore.leftToggleStyle"
-      >
-        <div class="pointer-events-auto flex flex-col items-start gap-2">
-          <button
-            class="icon-btn icon-btn--tab icon-btn--secondary"
-            :title="`Left sidebar: ${displayStore.leftSidebarModeLabel}`"
-            @click="displayStore.toggleLeftSidebar"
-          >
-            <Icon
-              :name="leftSidebarIcon"
-              class="icon-btn__icon icon-btn__icon--mirror"
-            />
-            <span class="icon-btn__label icon-btn__label--vertical">
-              {{ displayStore.leftSidebarModeLabel }}
-            </span>
-          </button>
-        </div>
-      </div>
+        <button
+          class="sidebar-toggle sidebar-toggle--left icon-btn icon-btn--edge icon-btn--secondary"
+          title="Toggle left sidebar"
+          @click="displayStore.toggleLeftSidebar"
+        >
+          <Icon :name="leftSidebarIcon" class="icon-btn__icon" />
+        </button>
+      </aside>
 
       <template #fallback />
     </ClientOnly>
 
     <ClientOnly>
       <aside
-        class="fixed overflow-hidden border-l-2 border-accent-focus bg-accent text-accent-content transition-[top,height,width,right] duration-200"
+        class="fixed overflow-visible border-l-2 border-accent-focus bg-accent text-accent-content transition-[top,height,width,right] duration-200"
         :style="displayStore.rightSidebarStyle"
       >
         <div
@@ -78,30 +63,19 @@
             <user-dashboard />
           </slot>
         </div>
-      </aside>
 
-      <div
-        class="pointer-events-none fixed"
-        :style="displayStore.rightToggleStyle"
-      >
-        <div class="pointer-events-auto flex flex-col items-end gap-2">
-          <button
-            class="icon-btn icon-btn--tab icon-btn--accent"
-            :title="`Right sidebar: ${displayStore.rightSidebarModeLabel}`"
-            @click="displayStore.toggleRightSidebar"
-          >
-            <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
-            <span class="icon-btn__label icon-btn__label--vertical">
-              {{ displayStore.rightSidebarModeLabel }}
-            </span>
-          </button>
-        </div>
-      </div>
+        <button
+          class="sidebar-toggle sidebar-toggle--right icon-btn icon-btn--edge icon-btn--accent"
+          title="Toggle right sidebar"
+          @click="displayStore.toggleRightSidebar"
+        >
+          <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
+        </button>
+      </aside>
 
       <template #fallback />
     </ClientOnly>
 
-    <!-- /layouts/default.vue -->
     <main
       class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"
       :style="displayStore.mainContentStyle"
@@ -113,7 +87,8 @@
       />
 
       <div
-        class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-4 pt-20"
+        class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-4"
+        :style="mainInnerStyle"
       >
         <div class="flex min-h-full w-full flex-col justify-start">
           <slot />
@@ -139,13 +114,10 @@
       <div class="pointer-events-auto flex justify-center">
         <button
           class="icon-btn icon-btn--pill icon-btn--base"
-          :title="`Footer: ${displayStore.footerModeLabel}`"
+          title="Toggle footer"
           @click="displayStore.toggleFooter"
         >
           <Icon :name="footerIcon" class="icon-btn__icon" />
-          <span class="icon-btn__label">
-            {{ displayStore.footerModeLabel }}
-          </span>
         </button>
       </div>
     </div>
@@ -158,7 +130,6 @@ import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-
 onMounted(() => {
   displayStore.initialize()
 })
@@ -168,32 +139,28 @@ onBeforeUnmount(() => {
 })
 
 const footerIcon = computed(() => {
-  if (displayStore.footerState === 'hidden')
-    return 'kind-icon:chevron-double-up'
-  if (displayStore.footerState === 'compact')
-    return 'kind-icon:chevron-double-up'
+  if (displayStore.footerState === 'hidden') return 'kind-icon:chevron-up'
+  if (displayStore.footerState === 'compact') return 'kind-icon:chevron-up'
   if (displayStore.footerState === 'priority') return 'kind-icon:chevron-down'
   return 'kind-icon:chevron-down'
 })
 
 const leftSidebarIcon = computed(() => {
-  if (displayStore.leftSidebarModeLabel === 'hidden')
-    return 'kind-icon:panel-right'
-  if (displayStore.leftSidebarModeLabel === 'compact')
-    return 'kind-icon:panel-right'
   if (displayStore.leftSidebarModeLabel === 'open')
-    return 'kind-icon:panel-right-close'
-  return 'kind-icon:panel-right-close'
+    return 'kind-icon:sidebar-left'
+  return 'kind-icon:sidebar-left'
 })
 
 const rightSidebarIcon = computed(() => {
-  if (displayStore.rightSidebarModeLabel === 'hidden')
-    return 'kind-icon:panel-right-close'
-  if (displayStore.rightSidebarModeLabel === 'compact')
-    return 'kind-icon:panel-right-close'
   if (displayStore.rightSidebarModeLabel === 'open')
-    return 'kind-icon:panel-right'
-  return 'kind-icon:panel-right'
+    return 'kind-icon:sidebar-right'
+  return 'kind-icon:sidebar-right'
+})
+
+const mainInnerStyle = computed(() => {
+  return {
+    paddingTop: displayStore.showCorner ? '5.5rem' : '1rem',
+  }
 })
 </script>
 
@@ -202,10 +169,8 @@ const rightSidebarIcon = computed(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
   border-width: 1px;
   border-style: solid;
-  backdrop-filter: blur(8px);
   cursor: pointer;
   transition:
     background 0.15s,
@@ -214,6 +179,7 @@ const rightSidebarIcon = computed(() => {
     color 0.15s,
     transform 0.15s;
   box-shadow: 0 1px 6px oklch(0 0 0 / 0.18);
+  backdrop-filter: blur(8px);
 }
 
 .icon-btn:hover {
@@ -221,26 +187,15 @@ const rightSidebarIcon = computed(() => {
 }
 
 .icon-btn--pill {
-  padding: 0.3rem 0.7rem;
+  padding: 0.35rem 0.65rem;
   border-radius: 9999px;
 }
 
-.icon-btn--tab {
-  flex-direction: column;
+.icon-btn--edge {
   width: 2rem;
-  gap: 0.3rem;
-  padding: 0.6rem 0.35rem;
-  border-radius: 0.75rem;
-}
-
-.icon-btn--primary {
-  background: oklch(var(--p) / 0.95);
-  border-color: oklch(var(--pf) / 0.9);
-  color: oklch(var(--pc) / 1);
-}
-
-.icon-btn--primary:hover {
-  background: oklch(var(--pf) / 1);
+  height: 2.75rem;
+  border-radius: 0.85rem;
+  padding: 0;
 }
 
 .icon-btn--secondary {
@@ -277,24 +232,21 @@ const rightSidebarIcon = computed(() => {
   width: 1rem;
   height: 1rem;
   flex-shrink: 0;
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
-.icon-btn__icon--mirror {
-  transform: scaleX(-1);
+.sidebar-toggle {
+  position: absolute;
+  top: 50%;
+  z-index: 60;
+  transform: translateY(-50%);
 }
 
-.icon-btn__label {
-  white-space: nowrap;
-  font-size: 0.52rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.85;
+.sidebar-toggle--left {
+  right: -0.75rem;
 }
 
-.icon-btn__label--vertical {
-  writing-mode: vertical-lr;
-  letter-spacing: 0.06em;
+.sidebar-toggle--right {
+  left: -0.75rem;
 }
 </style>

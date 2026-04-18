@@ -30,7 +30,7 @@
 
     <ClientOnly>
       <aside
-        class="fixed overflow-hidden border-r-2 border-secondary-focus bg-secondary text-secondary-content transition-[top,height,width,left] duration-200"
+        class="fixed overflow-hidden text-secondary-content transition-[top,height,width,left] duration-200"
         :style="displayStore.leftSidebarStyle"
       >
         <div

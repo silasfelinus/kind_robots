@@ -5,10 +5,17 @@
       <button
         v-if="canScrollLeft && !isEditing"
         type="button"
-        class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl hover:bg-base-300/80 transition"
+        class="shrink-0 flex h-full aspect-square items-center justify-center rounded-2xl hover:bg-base-300/80 transition"
         @click="scrollByStep(-1)"
       >
-        <Icon name="kind-icon:chevron-left" class="w-[65%] h-[65%]" />
+        <div
+          class="flex h-[65%] w-[65%] items-center justify-center overflow-hidden"
+        >
+          <Icon
+            name="kind-icon:chevron-left"
+            class="force-fill h-full w-full"
+          />
+        </div>
       </button>
 
       <div
@@ -33,22 +40,31 @@
             <div class="flex h-full items-center gap-1 pr-1">
               <button
                 type="button"
-                class="h-full flex items-center justify-center gap-1.5 rounded-2xl bg-base-300 hover:bg-base-300/70 transition text-base-content font-bold text-sm"
+                class="h-full flex items-center justify-center gap-1.5 rounded-2xl bg-base-300 px-2 hover:bg-base-300/70 transition text-base-content font-bold text-sm"
                 @click="revertEdit"
               >
-                <Icon name="kind-icon:x" class="w-full aspect-square" />
+                <div
+                  class="flex h-[55%] aspect-square items-center justify-center overflow-hidden"
+                >
+                  <Icon name="kind-icon:x" class="force-fill h-full w-full" />
+                </div>
                 <span>Cancel</span>
               </button>
+
               <button
                 v-if="hasChanges"
                 type="button"
                 class="h-full px-3 flex items-center justify-center gap-1.5 rounded-2xl bg-primary hover:bg-primary/80 transition text-primary-content font-bold text-sm"
                 @click="confirmEdit"
               >
-                <Icon
-                  name="kind-icon:check"
-                  class="h-[55%] w-auto aspect-square"
-                />
+                <div
+                  class="flex h-[55%] aspect-square items-center justify-center overflow-hidden"
+                >
+                  <Icon
+                    name="kind-icon:check"
+                    class="force-fill h-full w-full"
+                  />
+                </div>
                 <span>Save</span>
               </button>
             </div>
@@ -76,6 +92,7 @@
                     :class="icon.color"
                   />
                 </div>
+
                 <span
                   class="block h-[1.1em] shrink-0 text-center text-[clamp(0.55rem,0.9vw,0.9rem)] font-black uppercase leading-none tracking-[0.18em]"
                   :class="icon.color"
@@ -95,7 +112,11 @@
               class="h-full w-full flex flex-col items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 text-warning"
               @click="activateEditMode"
             >
-              <Icon name="kind-icon:alert" class="w-full h-full" />
+              <div
+                class="flex h-full w-full items-center justify-center overflow-hidden"
+              >
+                <Icon name="kind-icon:alert" class="force-fill h-full w-full" />
+              </div>
             </button>
           </div>
 
@@ -117,7 +138,14 @@
               class="h-full w-full flex flex-col items-center justify-center rounded-2xl hover:bg-base-300"
               @click="activateEditMode"
             >
-              <Icon name="kind-icon:settings" class="w-full h-full" />
+              <div
+                class="flex h-full w-full items-center justify-center overflow-hidden"
+              >
+                <Icon
+                  name="kind-icon:settings"
+                  class="force-fill h-full w-full"
+                />
+              </div>
             </button>
           </div>
         </div>
@@ -126,10 +154,17 @@
       <button
         v-if="canScrollRight && !isEditing"
         type="button"
-        class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl hover:bg-base-300/80 transition"
+        class="shrink-0 flex h-full aspect-square items-center justify-center rounded-2xl hover:bg-base-300/80 transition"
         @click="scrollByStep(1)"
       >
-        <Icon name="kind-icon:chevron-right" class="w-full h-full" />
+        <div
+          class="flex h-[65%] w-[65%] items-center justify-center overflow-hidden"
+        >
+          <Icon
+            name="kind-icon:chevron-right"
+            class="force-fill h-full w-full"
+          />
+        </div>
       </button>
     </div>
   </div>
@@ -182,6 +217,7 @@ watch(isEditing, (editing) => {
 })
 
 const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
+
 const hasChanges = computed(() => {
   const a = getIds(editableIcons.value.filter(isNav))
   const b = getIds(originalIcons.value.filter(isNav))
@@ -192,10 +228,12 @@ const hasChanges = computed(() => {
 function activateEditMode() {
   smartbarStore.isEditing = true
 }
+
 function confirmEdit() {
   smartbarStore.setIconOrder(getIds(editableIcons.value.filter(isNav)))
   smartbarStore.isEditing = false
 }
+
 function revertEdit() {
   editableIcons.value = [...originalIcons.value]
   smartbarStore.isEditing = false
@@ -216,11 +254,13 @@ const EPSILON = 2
 function updateScrollFlags() {
   const el = scrollContainer.value
   if (!el) return
+
   if (el.scrollWidth <= el.clientWidth + 1) {
     canScrollLeft.value = false
     canScrollRight.value = false
     return
   }
+
   const maxScrollLeft = el.scrollWidth - el.clientWidth
   canScrollLeft.value = el.scrollLeft > EPSILON
   canScrollRight.value = maxScrollLeft - el.scrollLeft > EPSILON
@@ -229,6 +269,7 @@ function updateScrollFlags() {
 function checkScrollEdges() {
   updateScrollFlags()
 }
+
 function checkScrollEdgesThrottled() {
   if (scrollTick) return
   scrollTick = true
@@ -237,12 +278,14 @@ function checkScrollEdgesThrottled() {
     scrollTick = false
   })
 }
+
 function scrollByStep(direction: -1 | 1) {
   const el = scrollContainer.value
   if (!el) return
   const step = Math.max(160, el.clientWidth * 0.8)
   el.scrollBy({ left: direction * step, behavior: 'smooth' })
 }
+
 function handleScrollMouseDown(e: MouseEvent) {
   if (!scrollContainer.value) return
   isDragging.value = true
@@ -250,16 +293,19 @@ function handleScrollMouseDown(e: MouseEvent) {
   scrollStart = scrollContainer.value.scrollLeft
   e.preventDefault()
 }
+
 function handleScrollMouseMove(e: MouseEvent) {
   if (!isDragging.value || !scrollContainer.value) return
   const delta = e.clientX - startX
   scrollContainer.value.scrollLeft = scrollStart - delta
 }
+
 function handleScrollMouseUp() {
   if (!isDragging.value) return
   isDragging.value = false
   requestAnimationFrame(updateScrollFlags)
 }
+
 function handleScrollTouchStart(e: TouchEvent) {
   if (!scrollContainer.value) return
   const touch = e.touches[0]
@@ -268,6 +314,7 @@ function handleScrollTouchStart(e: TouchEvent) {
   startX = touch.clientX
   scrollStart = scrollContainer.value.scrollLeft
 }
+
 function handleScrollTouchMove(e: TouchEvent) {
   if (!isDragging.value || !scrollContainer.value) return
   const touch = e.touches[0]
@@ -275,11 +322,13 @@ function handleScrollTouchMove(e: TouchEvent) {
   const delta = touch.clientX - startX
   scrollContainer.value.scrollLeft = scrollStart - delta
 }
+
 function handleScrollTouchEnd() {
   if (!isDragging.value) return
   isDragging.value = false
   requestAnimationFrame(updateScrollFlags)
 }
+
 function handleWheel(e: WheelEvent) {
   const el = scrollContainer.value
   if (!el) return
@@ -359,6 +408,7 @@ onBeforeUnmount(() => {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
 .smart-icons-scroll::-webkit-scrollbar {
   width: 0;
   height: 0;
@@ -372,7 +422,11 @@ onBeforeUnmount(() => {
 .prepend-icon :deep(svg),
 .prepend-icon :deep(img),
 .prepend-icon :deep(.iconify),
-.prepend-icon :deep(i) {
+.prepend-icon :deep(i),
+.force-fill :deep(svg),
+.force-fill :deep(img),
+.force-fill :deep(.iconify),
+.force-fill :deep(i) {
   width: 100%;
   height: 100%;
   display: block;

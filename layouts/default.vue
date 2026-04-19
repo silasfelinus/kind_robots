@@ -12,8 +12,7 @@
 
     <div
       v-if="displayStore.headerState === 'hidden'"
-      class="pointer-events-none fixed"
-      :style="displayStore.headerToggleStyle"
+      class="pointer-events-none fixed left-3 top-3 z-80"
     >
       <div class="pointer-events-auto flex items-start">
         <button
@@ -147,15 +146,16 @@
       <template #fallback />
     </ClientOnly>
 
+    <corner-panel
+      v-if="displayStore.showCorner"
+      class="corner-panel-anchor pointer-events-auto fixed z-40"
+      :style="cornerPanelAnchorStyle"
+    />
+
     <main
       class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"
       :style="displayStore.mainContentStyle"
     >
-      <corner-panel
-        class="pointer-events-auto fixed z-40"
-        :style="displayStore.cornerPanelStyle"
-      />
-
       <div
         class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-4"
         :style="mainInnerStyle"
@@ -218,6 +218,19 @@ const rightCanScrollDown = ref(false)
 const sidebarImageSizes = computed(
   () => '(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 420px',
 )
+
+const cornerPanelAnchorStyle = computed(() => {
+  const mainStyle = displayStore.mainContentStyle as Record<string, string>
+  const rightStyle = displayStore.rightSidebarStyle as Record<string, string>
+
+  return {
+    top: mainStyle.top ?? '0px',
+    left: rightStyle.left
+      ? `calc(${rightStyle.left} - 0.75rem)`
+      : (mainStyle.left ?? '0px'),
+    transform: 'translate(-100%, -55%)',
+  }
+})
 
 const leftSidebarBackground = computed(() => {
   const img = pageStore.page?.image || '/images/botcafe.webp'

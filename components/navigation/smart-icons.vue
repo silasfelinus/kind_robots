@@ -1,3 +1,4 @@
+<!-- /components/navigation/smart-icons.vue -->
 <template>
   <div class="relative flex h-full min-h-10 w-full min-w-0 items-stretch">
     <div class="flex h-full w-full items-stretch gap-1">
@@ -28,7 +29,6 @@
         @wheel.passive="handleWheel"
       >
         <div ref="row" class="flex h-full min-w-max items-stretch gap-1">
-          <!-- Edit mode: cancel + conditional confirm -->
           <template v-if="isEditing">
             <div class="flex h-full items-center gap-1 pr-1">
               <button
@@ -54,7 +54,24 @@
             </div>
           </template>
 
-          <!-- Prepended intro icons (open mode only, hidden during editing) -->
+          <div
+            v-if="!isEditing"
+            class="flex h-full aspect-square items-center justify-center"
+          >
+            <button
+              type="button"
+              class="flex h-full w-full flex-col items-center justify-center rounded-2xl border-2 border-secondary bg-base-200 text-secondary overflow-hidden"
+              title="icons"
+            >
+              <Icon name="kind-icon:bot" class="h-[72%] w-[72%] shrink-0" />
+              <span
+                class="mt-[-0.15em] text-[clamp(0.55rem,0.9vw,0.9rem)] font-black uppercase leading-none tracking-[0.18em]"
+              >
+                icons
+              </span>
+            </button>
+          </div>
+
           <template
             v-if="!isEditing && prependIcons && prependIcons.length > 0"
           >
@@ -65,13 +82,12 @@
             >
               <component
                 :is="icon.component"
-                class="h-100 w-100"
+                class="h-full w-full"
                 :class="icon.color"
               />
             </div>
           </template>
 
-          <!-- Empty state (only when no prepend icons either) -->
           <div
             v-if="rowIcons.length === 0 && !isEditing"
             class="flex h-full aspect-square items-center justify-center"
@@ -85,16 +101,15 @@
             </button>
           </div>
 
-          <!-- Nav icons -->
           <icon-display
             v-for="icon in rowIcons"
             :key="icon.id"
             :icon="icon"
             :show-title="showTitles"
+            :debug-label="'display'"
             class="h-full flex smart-icon-item"
           />
 
-          <!-- Settings button -->
           <div
             v-if="!isEditing"
             class="flex h-full aspect-square items-center justify-center"

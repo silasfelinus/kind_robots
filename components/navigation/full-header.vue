@@ -31,8 +31,25 @@
 
     <div
       v-if="hasHeaderContent"
-      class="flex h-full min-w-0 flex-1 items-center px-1 py-0 md:px-2 lg:px-3 xl:px-4"
+      class="flex h-full min-w-0 flex-1 items-stretch gap-1 px-1 py-0 md:px-2 lg:px-3 xl:px-4"
     >
+      <div
+        class="flex h-full shrink-0 aspect-square items-center justify-center"
+      >
+        <button
+          type="button"
+          class="flex h-full w-full flex-col items-center justify-center rounded-2xl border-2 border-primary bg-base-200 text-primary overflow-hidden"
+          title="header"
+        >
+          <Icon name="kind-icon:bot" class="h-[72%] w-[72%] shrink-0" />
+          <span
+            class="mt-[-0.15em] text-[clamp(0.55rem,0.9vw,0.9rem)] font-black uppercase leading-none tracking-[0.18em]"
+          >
+            header
+          </span>
+        </button>
+      </div>
+
       <smart-icons
         class="h-full w-full min-w-0"
         :prepend-icons="prependIcons"
@@ -77,7 +94,6 @@ const avatarToggleTitle = computed(() => {
   return 'Open header'
 })
 
-// Only inject the intro icons when in open mode
 const prependIcons = computed(() =>
   isCompactHeader.value
     ? []
@@ -104,10 +120,15 @@ const hasPrioritySidebar = computed(
 )
 
 const avatarColumnStyle = computed<CSSProperties>(() => {
-  if (isCompactHeader.value && hasPrioritySidebar.value)
+  if (isCompactHeader.value && hasPrioritySidebar.value) {
     return { flexBasis: '12%', maxWidth: '18%' }
-  if (isCompactHeader.value) return { flexBasis: '14%', maxWidth: '22%' }
-  if (hasPrioritySidebar.value) return { flexBasis: '12%', maxWidth: '18%' }
+  }
+  if (isCompactHeader.value) {
+    return { flexBasis: '14%', maxWidth: '22%' }
+  }
+  if (hasPrioritySidebar.value) {
+    return { flexBasis: '12%', maxWidth: '18%' }
+  }
   return { flexBasis: '15%', maxWidth: '24%' }
 })
 

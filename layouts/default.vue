@@ -41,7 +41,7 @@
                 :src="leftSidebarBackground"
                 alt="Sidebar background"
                 :sizes="sidebarImageSizes"
-                class="absolute inset-0 h-full w-full object-cover"
+                class="absolute inset-0 h-full w-full object-cover border border-black"
                 loading="lazy"
               />
               <div class="absolute inset-0 bg-base-200/80 mix-blend-multiply" />

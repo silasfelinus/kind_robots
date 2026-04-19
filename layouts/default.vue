@@ -17,11 +17,11 @@
     >
       <div class="pointer-events-auto flex items-start">
         <button
-          class="flex items-center gap-2 rounded-full border border-primary-focus bg-primary/95 px-2 py-1 text-primary-content shadow-md backdrop-blur-sm transition-colors duration-150 hover:bg-primary-focus"
+          class="icon-btn icon-btn--pill icon-btn--base opacity-80 hover:opacity-100"
           title="Open header"
           @click="displayStore.toggleHeader('open')"
         >
-          <kind-title />
+          <Icon name="kind-icon:chevron-down" class="icon-btn__icon" />
         </button>
       </div>
     </div>

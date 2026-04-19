@@ -4,32 +4,39 @@
     class="relative snap-start shrink-0 h-full flex flex-col items-center justify-center px-1"
     style="aspect-ratio: 1 / 1"
   >
-    <!-- Icon Section: 90% of height -->
     <div
       class="w-full flex-1 min-h-0 flex items-center justify-center overflow-hidden"
     >
-      <!-- Edit mode -->
       <div
         v-if="isEditing"
         class="w-full h-full flex items-center justify-center"
       >
-        <Icon :name="icon.icon || 'kind-icon:help'" class="w-full h-full" />
+        <div
+          class="w-full h-full flex items-center justify-center overflow-hidden"
+        >
+          <Icon
+            :name="icon.icon || 'kind-icon:help'"
+            class="force-fill w-full h-full"
+          />
+        </div>
       </div>
 
-      <!-- Nav link icon -->
       <NuxtLink
         v-else-if="icon.link && icon.type !== 'utility'"
         :to="icon.link"
         class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
       >
-        <Icon
-          :name="icon.icon || 'kind-icon:help'"
-          class="w-full h-full"
-          :class="{ glow: isActiveRoute }"
-        />
+        <div
+          class="w-full h-full flex items-center justify-center overflow-hidden"
+        >
+          <Icon
+            :name="icon.icon || 'kind-icon:help'"
+            class="force-fill w-full h-full"
+            :class="{ glow: isActiveRoute }"
+          />
+        </div>
       </NuxtLink>
 
-      <!-- Utility component -->
       <component
         v-else-if="
           icon.type === 'utility' &&
@@ -40,16 +47,21 @@
         class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
       />
 
-      <!-- Fallback -->
       <div
         v-else
         class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
       >
-        <Icon :name="icon.icon || 'kind-icon:help'" class="w-[90%] h-[90%]" />
+        <div
+          class="w-[90%] h-[90%] flex items-center justify-center overflow-hidden"
+        >
+          <Icon
+            :name="icon.icon || 'kind-icon:help'"
+            class="force-fill w-full h-full"
+          />
+        </div>
       </div>
     </div>
 
-    <!-- Delete confirmation (edit mode) -->
     <div
       v-if="isEditing"
       class="w-full flex items-center justify-center"
@@ -78,7 +90,6 @@
       </button>
     </div>
 
-    <!-- Label (normal mode) -->
     <div
       v-else-if="!bigMode"
       class="w-full flex items-center justify-center"
@@ -96,7 +107,6 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/icons/icon-display.vue
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSmartbarStore } from '@/stores/smartbarStore'
@@ -165,5 +175,14 @@ const computedLabel = computed(() => {
 .glow {
   box-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
   transition: box-shadow 0.3s ease-in-out;
+}
+
+.force-fill :deep(svg),
+.force-fill :deep(img),
+.force-fill :deep(.iconify),
+.force-fill :deep(i) {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 </style>

@@ -5,7 +5,9 @@
     style="aspect-ratio: 1 / 1"
   >
     <!-- Icon Section: 90% of height -->
-    <div class="w-full flex items-center justify-center" style="height: 78%">
+    <div
+      class="w-full flex-1 min-h-0 flex items-center justify-center overflow-hidden"
+    >
       <!-- Edit mode -->
       <div
         v-if="isEditing"

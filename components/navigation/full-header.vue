@@ -14,7 +14,7 @@
     >
       <avatar-image
         alt="User Avatar"
-        class="m-0 block h-full w-full object-cover object-center p-0"
+        class="m-0 block h-full w-full object-cover rounded-2xl object-center p-0"
       />
 
       <div

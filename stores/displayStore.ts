@@ -45,7 +45,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     showCenter: true,
     showRight: true,
     showExtended: false,
-    showCorner: false,
+    showCorner: true,
     SmartState: 'front' as SmartState,
   })
 

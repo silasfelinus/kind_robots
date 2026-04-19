@@ -457,7 +457,6 @@ watch(
     displayStore.viewportSize,
     displayStore.headerState,
     displayStore.sidebarRightState,
-    displayStore.showCorner,
   ],
   syncAfterLayout,
   { flush: 'post' },

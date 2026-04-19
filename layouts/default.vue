@@ -152,7 +152,6 @@
       :style="displayStore.mainContentStyle"
     >
       <corner-panel
-        v-if="displayStore.showCorner"
         class="pointer-events-auto fixed z-40"
         :style="displayStore.cornerPanelStyle"
       />

@@ -147,7 +147,6 @@
     </ClientOnly>
 
     <corner-panel
-      v-if="displayStore.showCorner"
       class="corner-panel-anchor pointer-events-auto fixed z-40"
       :style="cornerPanelAnchorStyle"
     />

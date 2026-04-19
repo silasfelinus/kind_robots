@@ -36,12 +36,13 @@
         @wheel.passive="handleWheel"
       >
         <div ref="row" class="flex h-full min-w-max items-stretch gap-1">
+          <!-- Edit mode: Cancel / Save -->
           <template v-if="isEditing">
             <div class="flex h-full items-center gap-1 pr-1">
               <button
                 type="button"
                 class="h-full flex items-center justify-center gap-1.5 rounded-2xl bg-base-300 px-2 hover:bg-base-300/70 transition text-base-content font-bold text-sm"
-                @click="revertEdit"
+                @click="smartbarStore.revertEdit()"
               >
                 <div
                   class="flex h-[55%] aspect-square items-center justify-center overflow-hidden"
@@ -50,12 +51,11 @@
                 </div>
                 <span>Cancel</span>
               </button>
-
               <button
-                v-if="hasChanges"
+                v-if="smartbarStore.hasChanges"
                 type="button"
                 class="h-full px-3 flex items-center justify-center gap-1.5 rounded-2xl bg-primary hover:bg-primary/80 transition text-primary-content font-bold text-sm"
-                @click="confirmEdit"
+                @click="smartbarStore.confirmEdit()"
               >
                 <div
                   class="flex h-[55%] aspect-square items-center justify-center overflow-hidden"
@@ -70,6 +70,7 @@
             </div>
           </template>
 
+          <!-- Prepend icons -->
           <template
             v-if="!isEditing && prependIcons && prependIcons.length > 0"
           >
@@ -92,7 +93,6 @@
                     :class="icon.color"
                   />
                 </div>
-
                 <span
                   class="block h-[1.1em] shrink-0 text-center text-[clamp(0.55rem,0.9vw,0.9rem)] font-black uppercase leading-none tracking-[0.18em]"
                   :class="icon.color"
@@ -103,14 +103,15 @@
             </div>
           </template>
 
+          <!-- Empty state -->
           <div
             v-if="rowIcons.length === 0 && !isEditing"
-            class="flex h-full aspect-square items-center justify-center"
+            class="flex h-full aspect-square items-stretch justify-center"
           >
             <button
               type="button"
               class="h-full w-full flex flex-col items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 text-warning"
-              @click="activateEditMode"
+              @click="smartbarStore.startEdit()"
             >
               <div
                 class="flex h-full w-full items-center justify-center overflow-hidden"
@@ -120,27 +121,130 @@
             </button>
           </div>
 
+          <!-- Nav icons -->
           <div
-            v-for="icon in rowIcons"
+            v-for="(icon, index) in rowIcons"
             :key="icon.id"
             class="flex h-full aspect-square items-stretch justify-center shrink-0"
+            :draggable="isEditing"
+            @dragstart="smartbarStore.startDrag(index)"
+            @dragover.prevent
+            @drop="smartbarStore.dropIcon(index)"
           >
-            <icon-display
-              :icon="icon"
-              :show-title="showTitles"
-              :debug-label="'display'"
-              class="h-full w-full"
-            />
+            <!-- Icon area -->
+            <div
+              class="flex h-full w-full min-h-0 flex-col items-center justify-center overflow-hidden rounded-2xl"
+              :class="isEditing ? 'border border-base-300' : ''"
+            >
+              <div
+                class="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden"
+              >
+                <!-- Editing: just the icon, no link -->
+                <div
+                  v-if="isEditing"
+                  class="w-full h-full flex items-center justify-center overflow-hidden"
+                >
+                  <Icon
+                    :name="icon.icon || 'kind-icon:help'"
+                    class="force-fill w-full h-full"
+                  />
+                </div>
+
+                <!-- Nav link -->
+                <NuxtLink
+                  v-else-if="icon.link && icon.type !== 'utility'"
+                  :to="icon.link"
+                  class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
+                >
+                  <div
+                    class="w-full h-full flex items-center justify-center overflow-hidden"
+                  >
+                    <Icon
+                      :name="icon.icon || 'kind-icon:help'"
+                      class="force-fill w-full h-full"
+                      :class="{ glow: isActiveRoute(icon) }"
+                    />
+                  </div>
+                </NuxtLink>
+
+                <!-- Utility component -->
+                <component
+                  v-else-if="
+                    icon.type === 'utility' &&
+                    icon.component &&
+                    componentMap[icon.component]
+                  "
+                  :is="componentMap[icon.component]"
+                  class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
+                />
+
+                <!-- Fallback -->
+                <div
+                  v-else
+                  class="w-[90%] h-[90%] flex items-center justify-center overflow-hidden"
+                >
+                  <Icon
+                    :name="icon.icon || 'kind-icon:help'"
+                    class="force-fill w-full h-full"
+                  />
+                </div>
+              </div>
+
+              <!-- Edit mode: delete confirm -->
+              <div
+                v-if="isEditing"
+                class="w-full flex items-center justify-center shrink-0"
+                style="height: 22%"
+              >
+                <template v-if="confirmingDeleteId === icon.id">
+                  <button
+                    class="text-[0.6rem] bg-gray-300 text-black rounded-full px-1.5 py-0.5 hover:bg-gray-400 mr-1 font-bold"
+                    @click="confirmingDeleteId = null"
+                  >
+                    No
+                  </button>
+                  <button
+                    class="text-[0.6rem] bg-red-600 text-white rounded-full px-1.5 py-0.5 hover:bg-red-700 font-bold"
+                    @click="removeIcon(icon.id)"
+                  >
+                    Remove
+                  </button>
+                </template>
+                <button
+                  v-else
+                  class="text-[0.6rem] bg-red-500 text-white rounded-full px-1.5 py-0.5 hover:bg-red-600 font-bold"
+                  @click="confirmingDeleteId = icon.id"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <!-- Normal mode: label -->
+              <div
+                v-else-if="showTitles"
+                class="w-full flex items-center justify-center shrink-0"
+                style="height: 22%"
+              >
+                <span
+                  class="text-center font-bold truncate max-w-full leading-none"
+                  style="font-size: clamp(0.55rem, 1vw, 0.8rem)"
+                  :title="computedLabel(icon)"
+                >
+                  {{ computedLabel(icon) }}
+                </span>
+              </div>
+            </div>
           </div>
 
+          <!-- Settings button -->
           <div
             v-if="!isEditing"
-            class="flex h-full aspect-square items-center justify-center"
+            class="flex h-full aspect-square items-stretch justify-center shrink-0"
           >
             <button
               type="button"
               class="h-full w-full flex flex-col items-center justify-center rounded-2xl hover:bg-base-300"
-              @click="activateEditMode"
+              @click="smartbarStore.startEdit()"
             >
               <div
                 class="flex h-full w-full items-center justify-center overflow-hidden"
@@ -177,8 +281,24 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, computed, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
 import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
+import { useThemeStore } from '@/stores/themeStore'
+import { useUserStore } from '@/stores/userStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+
+import SwarmIcon from '@/components/icons/swarm-icon.vue'
+import ThemeIcon from '@/components/wonderlab/theme-icon.vue'
+import LoginIcon from '@/components/icons/login-icon.vue'
+import JellybeanIcon from '@/components/icons/jellybean-icon.vue'
+
+const componentMap: Record<string, any> = {
+  'swarm-icon': SwarmIcon,
+  'theme-icon': ThemeIcon,
+  'login-icon': LoginIcon,
+  'jellybean-icon': JellybeanIcon,
+}
 
 interface PrependIcon {
   id: string
@@ -191,61 +311,55 @@ const props = defineProps<{ prependIcons?: PrependIcon[] }>()
 
 const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
-const { activeIcons, isEditing, editableIcons } = storeToRefs(smartbarStore)
+const themeStore = useThemeStore()
+const userStore = useUserStore()
+const milestoneStore = useMilestoneStore()
+const route = useRoute()
 
-const isMounted = ref(false)
+const { isEditing, editableIcons, activeIcons } = storeToRefs(smartbarStore)
 
 const isNav = (icon: SmartIcon) => (icon?.type || '').toLowerCase() === 'nav'
 
-const filteredActive = computed<SmartIcon[]>(() =>
-  activeIcons.value.filter(isNav),
-)
-
-watch(
-  activeIcons,
-  () => {
-    if (!isEditing.value) editableIcons.value = [...filteredActive.value]
-  },
-  { immediate: true },
-)
-
 const rowIcons = computed<SmartIcon[]>(() =>
-  isEditing.value ? editableIcons.value.filter(isNav) : filteredActive.value,
+  isEditing.value
+    ? editableIcons.value.filter(isNav)
+    : activeIcons.value.filter(isNav),
 )
 
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
 
-const originalIcons = ref<SmartIcon[]>([])
-watch(isEditing, (editing) => {
-  if (editing) originalIcons.value = [...editableIcons.value.filter(isNav)]
-})
+const confirmingDeleteId = ref<number | null>(null)
 
-const getIds = (icons: SmartIcon[]) => icons.map((i) => i.id)
-
-const hasChanges = computed(() => {
-  const a = getIds(editableIcons.value.filter(isNav))
-  const b = getIds(originalIcons.value.filter(isNav))
-  if (a.length !== b.length) return true
-  return a.some((id, i) => id !== b[i])
-})
-
-function activateEditMode() {
-  smartbarStore.isEditing = true
+function removeIcon(id: number) {
+  smartbarStore.removeFromEditableIcons(id)
+  confirmingDeleteId.value = null
 }
 
-function confirmEdit() {
-  smartbarStore.setIconOrder(getIds(editableIcons.value.filter(isNav)))
-  smartbarStore.isEditing = false
+function isActiveRoute(icon: SmartIcon) {
+  return icon.link && route.path.startsWith(icon.link)
 }
 
-function revertEdit() {
-  editableIcons.value = [...originalIcons.value]
-  smartbarStore.isEditing = false
+function computedLabel(icon: SmartIcon): string {
+  if (icon.type !== 'utility') return icon.label || ''
+  switch (icon.component) {
+    case 'theme-icon':
+      return themeStore.currentTheme || ''
+    case 'login-icon':
+      return userStore.isLoggedIn
+        ? userStore.user?.username || 'User'
+        : 'Login?'
+    case 'jellybean-icon':
+      return `${milestoneStore.milestoneCountForUser || 0} /11`
+    case 'swarm-icon':
+      return smartbarStore.showSwarm ? smartbarStore.swarmMessage : 'Swarm'
+    default:
+      return ''
+  }
 }
 
+// Scroll logic
 const scrollContainer = ref<HTMLElement | null>(null)
 const row = ref<HTMLElement | null>(null)
-
 const isDragging = ref(false)
 const canScrollLeft = ref(false)
 const canScrollRight = ref(false)
@@ -258,27 +372,21 @@ const EPSILON = 2
 function updateScrollFlags() {
   const el = scrollContainer.value
   if (!el) return
-
   if (el.scrollWidth <= el.clientWidth + 1) {
     canScrollLeft.value = false
     canScrollRight.value = false
     return
   }
-
   const maxScrollLeft = el.scrollWidth - el.clientWidth
   canScrollLeft.value = el.scrollLeft > EPSILON
   canScrollRight.value = maxScrollLeft - el.scrollLeft > EPSILON
-}
-
-function checkScrollEdges() {
-  updateScrollFlags()
 }
 
 function checkScrollEdgesThrottled() {
   if (scrollTick) return
   scrollTick = true
   requestAnimationFrame(() => {
-    checkScrollEdges()
+    updateScrollFlags()
     scrollTick = false
   })
 }
@@ -300,8 +408,7 @@ function handleScrollMouseDown(e: MouseEvent) {
 
 function handleScrollMouseMove(e: MouseEvent) {
   if (!isDragging.value || !scrollContainer.value) return
-  const delta = e.clientX - startX
-  scrollContainer.value.scrollLeft = scrollStart - delta
+  scrollContainer.value.scrollLeft = scrollStart - (e.clientX - startX)
 }
 
 function handleScrollMouseUp() {
@@ -311,20 +418,17 @@ function handleScrollMouseUp() {
 }
 
 function handleScrollTouchStart(e: TouchEvent) {
-  if (!scrollContainer.value) return
   const touch = e.touches[0]
-  if (!touch) return
+  if (!touch || !scrollContainer.value) return
   isDragging.value = true
   startX = touch.clientX
   scrollStart = scrollContainer.value.scrollLeft
 }
 
 function handleScrollTouchMove(e: TouchEvent) {
-  if (!isDragging.value || !scrollContainer.value) return
   const touch = e.touches[0]
-  if (!touch) return
-  const delta = touch.clientX - startX
-  scrollContainer.value.scrollLeft = scrollStart - delta
+  if (!touch || !isDragging.value || !scrollContainer.value) return
+  scrollContainer.value.scrollLeft = scrollStart - (touch.clientX - startX)
 }
 
 function handleScrollTouchEnd() {
@@ -341,20 +445,12 @@ function handleWheel(e: WheelEvent) {
   }
 }
 
-watch(
-  () => rowIcons.value.length,
-  () => {
-    syncAfterLayout()
-  },
-)
+function syncAfterLayout() {
+  nextTick(() => requestAnimationFrame(updateScrollFlags))
+}
 
-watch(
-  () => props.prependIcons?.length,
-  () => {
-    syncAfterLayout()
-  },
-)
-
+watch(() => rowIcons.value.length, syncAfterLayout)
+watch(() => props.prependIcons?.length, syncAfterLayout)
 watch(
   () => [
     displayStore.bigMode,
@@ -363,26 +459,15 @@ watch(
     displayStore.sidebarRightState,
     displayStore.showCorner,
   ],
-  () => {
-    syncAfterLayout()
-  },
+  syncAfterLayout,
   { flush: 'post' },
 )
-
-function syncAfterLayout() {
-  nextTick(() => {
-    requestAnimationFrame(() => {
-      updateScrollFlags()
-    })
-  })
-}
 
 let resizeObserver: ResizeObserver | null = null
 let rowResizeObserver: ResizeObserver | null = null
 let mutationObserver: MutationObserver | null = null
 
 onMounted(() => {
-  isMounted.value = true
   const el = scrollContainer.value
   const content = row.value
   if (!el || !content) return
@@ -412,17 +497,14 @@ onBeforeUnmount(() => {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-
 .smart-icons-scroll::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
-
-.smart-icon-item :deep([class*='text-']) {
-  font-size: clamp(0.75rem, 1.1vw, 0.95rem);
-  font-weight: 700;
+.glow {
+  box-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
+  transition: box-shadow 0.3s ease-in-out;
 }
-
 .prepend-icon :deep(svg),
 .prepend-icon :deep(img),
 .prepend-icon :deep(.iconify),

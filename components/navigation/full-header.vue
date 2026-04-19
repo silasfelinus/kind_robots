@@ -56,7 +56,6 @@ import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 
 const displayStore = useDisplayStore()
-const pageStore = usePageStore()
 const userStore = useUserStore()
 
 function handleAvatarClick() {

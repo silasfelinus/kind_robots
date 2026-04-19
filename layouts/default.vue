@@ -28,7 +28,7 @@
 
     <ClientOnly>
       <aside
-        class="fixed overflow-visible bg-secondary text-secondary-content transition-[top,height,width,left] duration-200"
+        class="fixed overflow-visible text-secondary-content transition-[top,height,width,left] duration-200"
         :style="displayStore.leftSidebarStyle"
       >
         <div
@@ -53,7 +53,7 @@
 
     <ClientOnly>
       <aside
-        class="fixed overflow-visible border-l-2 border-accent-focus bg-accent text-accent-content transition-[top,height,width,right] duration-200"
+        class="fixed overflow-visible border-l-2 border-accent-focus text-accent-content transition-[top,height,width,right] duration-200"
         :style="displayStore.rightSidebarStyle"
       >
         <div

@@ -54,31 +54,6 @@
             </div>
           </template>
 
-          <div
-            v-if="!isEditing"
-            class="flex h-full aspect-square items-stretch justify-center"
-          >
-            <button
-              type="button"
-              class="flex h-full w-full min-h-0 flex-col items-center justify-between rounded-2xl border-2 border-secondary bg-base-200 px-1 py-1 text-secondary overflow-hidden"
-              title="icons"
-            >
-              <div
-                class="flex min-h-0 flex-1 w-full items-center justify-center overflow-hidden"
-              >
-                <Icon
-                  name="kind-icon:bot"
-                  class="h-full w-full max-h-full max-w-full shrink-0"
-                />
-              </div>
-              <span
-                class="block h-[1.1em] shrink-0 text-center text-[clamp(0.55rem,0.9vw,0.9rem)] font-black uppercase leading-none tracking-[0.18em]"
-              >
-                icons
-              </span>
-            </button>
-          </div>
-
           <template
             v-if="!isEditing && prependIcons && prependIcons.length > 0"
           >

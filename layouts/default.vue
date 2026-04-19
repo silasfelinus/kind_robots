@@ -347,7 +347,6 @@ function scrollSidebar(side: SidebarKey, direction: ScrollDirection): void {
   window.setTimeout(() => updateScrollState(side), 200)
 }
 </script>
-
 <style scoped>
 .icon-btn {
   display: inline-flex;
@@ -421,8 +420,9 @@ function scrollSidebar(side: SidebarKey, direction: ScrollDirection): void {
 
 .sidebar-toggle {
   position: absolute;
-  top: 1rem;
+  top: 50%;
   z-index: 60;
+  transform: translateY(-50%);
 }
 
 .sidebar-toggle--left {
@@ -491,7 +491,6 @@ function scrollSidebar(side: SidebarKey, direction: ScrollDirection): void {
 
 .scroll-button {
   position: absolute;
-  right: 0.75rem;
   z-index: 30;
   display: inline-flex;
   align-items: center;
@@ -521,6 +520,16 @@ function scrollSidebar(side: SidebarKey, direction: ScrollDirection): void {
 
 .scroll-button--bottom {
   bottom: 0.75rem;
+}
+
+.sidebar-region--secondary .scroll-button {
+  left: 0.5rem;
+  right: auto;
+}
+
+.sidebar-region--accent .scroll-button {
+  right: 0.5rem;
+  left: auto;
 }
 
 .smart-scroll-container {

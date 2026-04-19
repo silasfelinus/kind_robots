@@ -1,8 +1,8 @@
 <!-- /components/content/icons/icon-display.vue -->
 <template>
   <div
-    class="relative snap-start shrink-0 h-full flex flex-col items-center justify-center px-1"
-    style="aspect-ratio: 1 / 1"
+    class="relative snap-start shrink-0 flex flex-col items-center justify-center px-1"
+    style="aspect-ratio: 1 / 1; height: 100%; align-self: stretch"
   >
     <div
       class="w-full flex-1 min-h-0 flex items-center justify-center overflow-hidden"

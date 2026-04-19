@@ -120,14 +120,18 @@
             </button>
           </div>
 
-          <icon-display
+          <div
             v-for="icon in rowIcons"
             :key="icon.id"
-            :icon="icon"
-            :show-title="showTitles"
-            :debug-label="'display'"
-            class="h-full flex smart-icon-item"
-          />
+            class="flex h-full aspect-square items-stretch justify-center shrink-0"
+          >
+            <icon-display
+              :icon="icon"
+              :show-title="showTitles"
+              :debug-label="'display'"
+              class="h-full w-full"
+            />
+          </div>
 
           <div
             v-if="!isEditing"

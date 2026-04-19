@@ -153,7 +153,7 @@
 
     <main
       class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"
-      :style="displayStore.mainContentStyle"
+      :style="adjustedMainStyle"
     >
       <div
         class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-4"
@@ -218,16 +218,28 @@ const sidebarImageSizes = computed(
   () => '(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 420px',
 )
 
-const cornerPanelAnchorStyle = computed(() => {
+const adjustedMainStyle = computed(() => {
   const mainStyle = displayStore.mainContentStyle as Record<string, string>
+  const headerStyle = displayStore.headerStyle as Record<string, string>
+
+  const headerTop = headerStyle.top ?? '0px'
+  const headerHeight = headerStyle.height ?? '0px'
+  const mainTop = mainStyle.top ?? '0px'
+
+  return {
+    ...mainStyle,
+    top: `max(${mainTop}, calc(${headerTop} + ${headerHeight} + 0.75rem))`,
+  }
+})
+
+const cornerPanelAnchorStyle = computed(() => {
+  const mainStyle = adjustedMainStyle.value as Record<string, string>
   const rightStyle = displayStore.rightSidebarStyle as Record<string, string>
 
   return {
     top: mainStyle.top ?? '0px',
-    left: rightStyle.left
-      ? `calc(${rightStyle.left} - 0.75rem)`
-      : (mainStyle.left ?? '0px'),
-    transform: 'translate(-100%, -55%)',
+    right: rightStyle.right ?? '0px',
+    transform: 'translateY(-110%)',
   }
 })
 

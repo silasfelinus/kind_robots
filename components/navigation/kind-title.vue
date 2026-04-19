@@ -1,6 +1,8 @@
 <!-- /components/navigation/kind-title.vue -->
 <template>
-  <div class="inline-flex items-center gap-2 min-w-0">
+  <div
+    class="inline-flex items-center gap-2 min-w-0 border-black shadow-[0_3px_0_rgba(0,0,0,0.6)]"
+  >
     <span
       class="flex shrink-0 items-center justify-center rounded-full bg-black px-2.5 py-px text-[0.6rem] font-semibold uppercase tracking-[0.24em] text-base-100 sm:text-[0.7rem]"
     >

@@ -1,6 +1,6 @@
 <!-- /layouts/default.vue -->
 <template>
-  <div class="flex min-h-dvh w-full flex-col overflow-hidden">
+  <div class="flex min-h-dvh w-full flex-col overflow-hidden bg-base-200">
     <header
       class="fixed overflow-hidden border-b-2 border-primary-focus text-primary-content transition-[height,width,left,top] duration-200"
       :style="displayStore.headerStyle"
@@ -31,12 +31,55 @@
         class="fixed overflow-visible text-secondary-content transition-[top,height,width,left] duration-200"
         :style="displayStore.leftSidebarStyle"
       >
-        <div
-          class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain"
-        >
-          <slot name="left">
-            <splash-tutorial />
-          </slot>
+        <div class="sidebar-region sidebar-region--secondary">
+          <div class="sidebar-shell">
+            <div
+              v-if="leftSidebarBackground"
+              class="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[inherit]"
+            >
+              <NuxtImg
+                :src="leftSidebarBackground"
+                alt="Sidebar background"
+                :sizes="sidebarImageSizes"
+                class="absolute inset-0 h-full w-full object-cover"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-base-200/80 mix-blend-multiply" />
+              <div class="absolute inset-0 bg-base-100/60" />
+            </div>
+
+            <div
+              ref="leftScrollRef"
+              class="smart-scroll-container sidebar-scroll"
+              @scroll="updateScrollState('left')"
+            >
+              <div class="sidebar-scroll__content">
+                <slot name="left">
+                  <splash-tutorial />
+                </slot>
+              </div>
+            </div>
+
+            <button
+              v-if="leftCanScrollUp"
+              type="button"
+              class="scroll-button scroll-button--top"
+              title="Scroll up"
+              @click.stop="scrollSidebar('left', 'up')"
+            >
+              <Icon name="kind-icon:chevron-up" class="h-4 w-4" />
+            </button>
+
+            <button
+              v-if="leftCanScrollDown"
+              type="button"
+              class="scroll-button scroll-button--bottom"
+              title="Scroll down"
+              @click.stop="scrollSidebar('left', 'down')"
+            >
+              <Icon name="kind-icon:chevron-down" class="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         <button
@@ -53,15 +96,43 @@
 
     <ClientOnly>
       <aside
-        class="fixed overflow-visible border-l-2 border-accent-focus text-accent-content transition-[top,height,width,right] duration-200"
+        class="fixed overflow-visible text-accent-content transition-[top,height,width,right] duration-200"
         :style="displayStore.rightSidebarStyle"
       >
-        <div
-          class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain"
-        >
-          <slot name="right">
-            <user-dashboard />
-          </slot>
+        <div class="sidebar-region sidebar-region--accent">
+          <div class="sidebar-shell">
+            <div
+              ref="rightScrollRef"
+              class="smart-scroll-container sidebar-scroll"
+              @scroll="updateScrollState('right')"
+            >
+              <div class="sidebar-scroll__content">
+                <slot name="right">
+                  <user-dashboard />
+                </slot>
+              </div>
+            </div>
+
+            <button
+              v-if="rightCanScrollUp"
+              type="button"
+              class="scroll-button scroll-button--top"
+              title="Scroll up"
+              @click.stop="scrollSidebar('right', 'up')"
+            >
+              <Icon name="kind-icon:chevron-up" class="h-4 w-4" />
+            </button>
+
+            <button
+              v-if="rightCanScrollDown"
+              type="button"
+              class="scroll-button scroll-button--bottom"
+              title="Scroll down"
+              @click.stop="scrollSidebar('right', 'down')"
+            >
+              <Icon name="kind-icon:chevron-down" class="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         <button
@@ -126,18 +197,57 @@
 
 <script setup lang="ts">
 // /layouts/default.vue
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { NuxtImg } from '#components'
 import { useDisplayStore } from '@/stores/displayStore'
+import { usePageStore } from '@/stores/pageStore'
+
+type SidebarKey = 'left' | 'right'
+type ScrollDirection = 'up' | 'down'
 
 const displayStore = useDisplayStore()
+const pageStore = usePageStore()
 
-onMounted(() => {
+const leftScrollRef = ref<HTMLElement | null>(null)
+const rightScrollRef = ref<HTMLElement | null>(null)
+
+const leftCanScrollUp = ref(false)
+const leftCanScrollDown = ref(false)
+const rightCanScrollUp = ref(false)
+const rightCanScrollDown = ref(false)
+
+const sidebarImageSizes = computed(
+  () => '(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 420px',
+)
+
+const leftSidebarBackground = computed(() => {
+  const img = pageStore.page?.image || '/images/botcafe.webp'
+  return img.startsWith('/') ? img : `/images/${img}`
+})
+
+onMounted(async () => {
   displayStore.initialize()
+  await nextTick()
+  updateAllScrollStates()
 })
 
 onBeforeUnmount(() => {
   displayStore.removeViewportWatcher()
 })
+
+watch(
+  () => [
+    displayStore.leftSidebarModeLabel,
+    displayStore.rightSidebarModeLabel,
+    displayStore.mainContentStyle,
+    pageStore.page?.image,
+  ],
+  async () => {
+    await nextTick()
+    updateAllScrollStates()
+  },
+  { deep: true },
+)
 
 const footerIcon = computed(() => {
   if (displayStore.footerState === 'hidden') return 'kind-icon:chevron-up'
@@ -188,6 +298,54 @@ const mainInnerStyle = computed(() => {
     paddingTop: displayStore.showCorner ? '5.5rem' : '1rem',
   }
 })
+
+function getScrollElement(side: SidebarKey): HTMLElement | null {
+  return side === 'left' ? leftScrollRef.value : rightScrollRef.value
+}
+
+function setScrollFlags(
+  side: SidebarKey,
+  canUp: boolean,
+  canDown: boolean,
+): void {
+  if (side === 'left') {
+    leftCanScrollUp.value = canUp
+    leftCanScrollDown.value = canDown
+    return
+  }
+
+  rightCanScrollUp.value = canUp
+  rightCanScrollDown.value = canDown
+}
+
+function updateScrollState(side: SidebarKey): void {
+  const el = getScrollElement(side)
+
+  if (!el) {
+    setScrollFlags(side, false, false)
+    return
+  }
+
+  const canUp = el.scrollTop > 2
+  const canDown = el.scrollTop + el.clientHeight < el.scrollHeight - 2
+
+  setScrollFlags(side, canUp, canDown)
+}
+
+function updateAllScrollStates(): void {
+  updateScrollState('left')
+  updateScrollState('right')
+}
+
+function scrollSidebar(side: SidebarKey, direction: ScrollDirection): void {
+  const el = getScrollElement(side)
+  if (!el) return
+
+  const delta = el.clientHeight * 0.6 * (direction === 'up' ? -1 : 1)
+  el.scrollBy({ top: delta, behavior: 'smooth' })
+
+  window.setTimeout(() => updateScrollState(side), 200)
+}
 </script>
 
 <style scoped>
@@ -263,15 +421,114 @@ const mainInnerStyle = computed(() => {
 
 .sidebar-toggle {
   position: absolute;
-  top: 0.25rem;
+  top: 1rem;
   z-index: 60;
 }
 
 .sidebar-toggle--left {
-  right: 0.5rem;
+  right: 0.75rem;
 }
 
 .sidebar-toggle--right {
-  left: 0.5rem;
+  left: 0.75rem;
+}
+
+.sidebar-region {
+  height: 100%;
+  width: 100%;
+  padding: 0.75rem;
+}
+
+.sidebar-region--secondary {
+  color: oklch(var(--sc) / 1);
+}
+
+.sidebar-region--accent {
+  color: oklch(var(--ac) / 1);
+}
+
+.sidebar-shell {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 1.75rem;
+  background: oklch(var(--b1) / 0.92);
+  box-shadow:
+    0 12px 30px oklch(0 0 0 / 0.16),
+    inset 0 1px 0 oklch(1 0 0 / 0.18);
+  backdrop-filter: blur(10px);
+}
+
+.sidebar-region--secondary .sidebar-shell {
+  border-color: oklch(var(--sf) / 0.9);
+}
+
+.sidebar-region--accent .sidebar-shell {
+  border-color: oklch(var(--af) / 0.9);
+}
+
+.sidebar-scroll {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+.sidebar-scroll__content {
+  display: flex;
+  min-height: 100%;
+  width: 100%;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.scroll-button {
+  position: absolute;
+  right: 0.75rem;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid oklch(var(--b3) / 0.9);
+  border-radius: 9999px;
+  background: oklch(var(--b2) / 0.86);
+  color: oklch(var(--bc) / 0.82);
+  box-shadow: 0 1px 6px oklch(0 0 0 / 0.12);
+  backdrop-filter: blur(8px);
+  padding: 0.35rem;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease,
+    color 0.15s ease;
+}
+
+.scroll-button:hover {
+  background: oklch(var(--b3) / 0.96);
+  color: oklch(var(--bc) / 1);
+  transform: scale(1.04);
+}
+
+.scroll-button--top {
+  top: 0.75rem;
+}
+
+.scroll-button--bottom {
+  bottom: 0.75rem;
+}
+
+.smart-scroll-container {
+  scrollbar-width: none;
+}
+
+.smart-scroll-container::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 </style>

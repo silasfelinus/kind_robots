@@ -505,6 +505,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
   transition: box-shadow 0.3s ease-in-out;
 }
+
 .prepend-icon :deep(svg),
 .prepend-icon :deep(img),
 .prepend-icon :deep(.iconify),
@@ -516,5 +517,11 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.force-fill {
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 </style>

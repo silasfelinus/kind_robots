@@ -98,14 +98,30 @@ const prependIcons = computed(() =>
   isCompactHeader.value
     ? []
     : [
-        { id: '__login', component: 'login-icon', color: 'text-primary' },
+        {
+          id: '__login',
+          component: 'login-icon',
+          color: 'text-primary',
+          label: 'login',
+        },
         {
           id: '__jellybean',
           component: 'jellybean-icon',
           color: 'text-secondary',
+          label: 'beans',
         },
-        { id: '__theme', component: 'theme-icon', color: 'text-accent' },
-        { id: '__swarm', component: 'swarm-icon', color: 'text-info' },
+        {
+          id: '__theme',
+          component: 'theme-icon',
+          color: 'text-accent',
+          label: 'theme',
+        },
+        {
+          id: '__swarm',
+          component: 'swarm-icon',
+          color: 'text-info',
+          label: 'swarm',
+        },
       ],
 )
 

@@ -56,16 +56,23 @@
 
           <div
             v-if="!isEditing"
-            class="flex h-full aspect-square items-center justify-center"
+            class="flex h-full aspect-square items-stretch justify-center"
           >
             <button
               type="button"
-              class="flex h-full w-full flex-col items-center justify-center rounded-2xl border-2 border-secondary bg-base-200 text-secondary overflow-hidden"
+              class="flex h-full w-full min-h-0 flex-col items-center justify-between rounded-2xl border-2 border-secondary bg-base-200 px-1 py-1 text-secondary overflow-hidden"
               title="icons"
             >
-              <Icon name="kind-icon:bot" class="h-[72%] w-[72%] shrink-0" />
+              <div
+                class="flex min-h-0 flex-1 w-full items-center justify-center overflow-hidden"
+              >
+                <Icon
+                  name="kind-icon:bot"
+                  class="h-full w-full max-h-full max-w-full shrink-0"
+                />
+              </div>
               <span
-                class="mt-[-0.15em] text-[clamp(0.55rem,0.9vw,0.9rem)] font-black uppercase leading-none tracking-[0.18em]"
+                class="block h-[1.1em] shrink-0 text-center text-[clamp(0.55rem,0.9vw,0.9rem)] font-black uppercase leading-none tracking-[0.18em]"
               >
                 icons
               </span>
@@ -78,13 +85,29 @@
             <div
               v-for="icon in prependIcons"
               :key="icon.id"
-              class="flex h-full aspect-square items-center justify-center"
+              class="flex h-full aspect-square items-stretch justify-center"
             >
-              <component
-                :is="icon.component"
-                class="h-full w-full"
-                :class="icon.color"
-              />
+              <button
+                type="button"
+                class="flex h-full w-full min-h-0 flex-col items-center justify-between rounded-2xl border-2 border-base-300 bg-base-200 px-1 py-1 overflow-hidden"
+                :title="icon.label"
+              >
+                <div
+                  class="flex min-h-0 flex-1 w-full items-center justify-center overflow-hidden"
+                >
+                  <component
+                    :is="icon.component"
+                    class="prepend-icon h-full w-full"
+                    :class="icon.color"
+                  />
+                </div>
+                <span
+                  class="block h-[1.1em] shrink-0 text-center text-[clamp(0.55rem,0.9vw,0.9rem)] font-black uppercase leading-none tracking-[0.18em]"
+                  :class="icon.color"
+                >
+                  {{ icon.label }}
+                </span>
+              </button>
             </div>
           </template>
 
@@ -138,7 +161,6 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/navigation/smart-icons.vue
 import { ref, watch, onMounted, onBeforeUnmount, computed, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
@@ -148,6 +170,7 @@ interface PrependIcon {
   id: string
   component: string
   color: string
+  label: string
 }
 
 const props = defineProps<{ prependIcons?: PrependIcon[] }>()
@@ -366,9 +389,17 @@ onBeforeUnmount(() => {
   height: 0;
 }
 
-/* Larger, bolder icon labels */
 .smart-icon-item :deep([class*='text-']) {
   font-size: clamp(0.75rem, 1.1vw, 0.95rem);
   font-weight: 700;
+}
+
+.prepend-icon :deep(svg),
+.prepend-icon :deep(img),
+.prepend-icon :deep(.iconify),
+.prepend-icon :deep(i) {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 </style>

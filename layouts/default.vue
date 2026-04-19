@@ -41,11 +41,7 @@
 
         <button
           class="sidebar-toggle sidebar-toggle--left icon-btn icon-btn--edge icon-btn--secondary"
-          :title="
-            displayStore.leftSidebarModeLabel === 'open'
-              ? 'Close left sidebar'
-              : 'Open left sidebar'
-          "
+          :title="leftSidebarTitle"
           @click="displayStore.toggleLeftSidebar"
         >
           <Icon :name="leftSidebarIcon" class="icon-btn__icon" />
@@ -70,11 +66,7 @@
 
         <button
           class="sidebar-toggle sidebar-toggle--right icon-btn icon-btn--edge icon-btn--accent"
-          :title="
-            displayStore.rightSidebarModeLabel === 'open'
-              ? 'Close right sidebar'
-              : 'Open right sidebar'
-          "
+          :title="rightSidebarTitle"
           @click="displayStore.toggleRightSidebar"
         >
           <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
@@ -150,19 +142,45 @@ onBeforeUnmount(() => {
 const footerIcon = computed(() => {
   if (displayStore.footerState === 'hidden') return 'kind-icon:chevron-up'
   if (displayStore.footerState === 'compact') return 'kind-icon:chevron-up'
+  if (displayStore.footerState === 'open') return 'kind-icon:chevron-up'
   return 'kind-icon:chevron-down'
 })
 
 const leftSidebarIcon = computed(() => {
-  return displayStore.leftSidebarModeLabel === 'open'
-    ? 'kind-icon:chevron-left'
-    : 'kind-icon:sidebar-left'
+  const state = displayStore.leftSidebarModeLabel
+
+  if (state === 'hidden') return 'kind-icon:sidebar-left'
+  if (state === 'priority') return 'kind-icon:chevron-left'
+
+  return 'kind-icon:chevron-right'
 })
 
 const rightSidebarIcon = computed(() => {
-  return displayStore.rightSidebarModeLabel === 'open'
-    ? 'kind-icon:chevron-right'
-    : 'kind-icon:sidebar-right'
+  const state = displayStore.rightSidebarModeLabel
+
+  if (state === 'hidden') return 'kind-icon:sidebar-right'
+  if (state === 'priority') return 'kind-icon:chevron-right'
+
+  return 'kind-icon:chevron-left'
+})
+
+const leftSidebarTitle = computed(() => {
+  if (displayStore.leftSidebarModeLabel === 'hidden') return 'Open left sidebar'
+  if (displayStore.leftSidebarModeLabel === 'compact')
+    return 'Expand left sidebar'
+  if (displayStore.leftSidebarModeLabel === 'open')
+    return 'Prioritize left sidebar'
+  return 'Reduce left sidebar'
+})
+
+const rightSidebarTitle = computed(() => {
+  if (displayStore.rightSidebarModeLabel === 'hidden')
+    return 'Open right sidebar'
+  if (displayStore.rightSidebarModeLabel === 'compact')
+    return 'Expand right sidebar'
+  if (displayStore.rightSidebarModeLabel === 'open')
+    return 'Prioritize right sidebar'
+  return 'Reduce right sidebar'
 })
 
 const mainInnerStyle = computed(() => {
@@ -245,9 +263,8 @@ const mainInnerStyle = computed(() => {
 
 .sidebar-toggle {
   position: absolute;
-  top: 50%;
+  top: 0.25rem;
   z-index: 60;
-  transform: translateY(-50%);
 }
 
 .sidebar-toggle--left {

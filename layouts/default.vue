@@ -12,8 +12,8 @@
 
     <div
       v-if="displayStore.headerState === 'hidden'"
-      class="pointer-events-none fixed z-80"
-      :style="displayStore.headerCornerToggleStyle"
+      class="pointer-events-none fixed"
+      :style="displayStore.headerToggleStyle"
     >
       <div class="pointer-events-auto flex items-start">
         <button

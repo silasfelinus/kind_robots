@@ -381,29 +381,29 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const headerStyle = computed<CSSProperties>(() => {
-    if (state.headerState === 'hidden') {
-      return { display: 'none' }
-    }
-
     const padding = sectionPaddingSize.value
+    const isHidden = state.headerState === 'hidden'
 
     if (state.bigMode) {
       return {
-        height: `calc(var(--vh) * ${headerHeight.value})`,
+        height: isHidden ? '0px' : `calc(var(--vh) * ${headerHeight.value})`,
         width: `calc(100vw - ${padding * 2}vw)`,
         top: `calc(var(--vh) * ${padding})`,
         left: `${padding}vw`,
+        opacity: isHidden ? '0' : '1',
+        pointerEvents: isHidden ? 'none' : 'auto',
       }
     }
 
     return {
-      height: `calc(var(--vh) * ${headerHeight.value})`,
+      height: isHidden ? '0px' : `calc(var(--vh) * ${headerHeight.value})`,
       width: `${headerWidth.value}vw`,
       top: `calc(var(--vh) * ${padding})`,
       left: `${headerLeftInset.value}vw`,
+      opacity: isHidden ? '0' : '1',
+      pointerEvents: isHidden ? 'none' : 'auto',
     }
   })
-
   const mainContentStyle = computed<CSSProperties>(() => {
     return {
       top: `calc(var(--vh) * ${mainPanelTopOffset.value})`,

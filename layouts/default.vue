@@ -17,7 +17,7 @@
     >
       <div class="pointer-events-auto flex items-start">
         <button
-          class="flex items-center gap-2 rounded-full border border-primary-focus bg-primary/95 px-2 py-1 text-primary-content shadow-md backdrop-blur-sm transition hover:scale-[1.02] hover:bg-primary-focus"
+          class="flex items-center gap-2 rounded-full border border-primary-focus bg-primary/95 px-2 py-1 text-primary-content shadow-md backdrop-blur-sm transition-colors duration-150 hover:bg-primary-focus"
           title="Open header"
           @click="displayStore.toggleHeader('open')"
         >
@@ -28,7 +28,7 @@
 
     <ClientOnly>
       <aside
-        class="fixed overflow-visible text-secondary-content transition-[top,height,width,left] duration-200"
+        class="fixed overflow-visible bg-secondary text-secondary-content transition-[top,height,width,left] duration-200"
         :style="displayStore.leftSidebarStyle"
       >
         <div
@@ -41,7 +41,11 @@
 
         <button
           class="sidebar-toggle sidebar-toggle--left icon-btn icon-btn--edge icon-btn--secondary"
-          title="Toggle left sidebar"
+          :title="
+            displayStore.leftSidebarModeLabel === 'open'
+              ? 'Close left sidebar'
+              : 'Open left sidebar'
+          "
           @click="displayStore.toggleLeftSidebar"
         >
           <Icon :name="leftSidebarIcon" class="icon-btn__icon" />
@@ -66,7 +70,11 @@
 
         <button
           class="sidebar-toggle sidebar-toggle--right icon-btn icon-btn--edge icon-btn--accent"
-          title="Toggle right sidebar"
+          :title="
+            displayStore.rightSidebarModeLabel === 'open'
+              ? 'Close right sidebar'
+              : 'Open right sidebar'
+          "
           @click="displayStore.toggleRightSidebar"
         >
           <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
@@ -130,6 +138,7 @@ import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
+
 onMounted(() => {
   displayStore.initialize()
 })
@@ -141,20 +150,19 @@ onBeforeUnmount(() => {
 const footerIcon = computed(() => {
   if (displayStore.footerState === 'hidden') return 'kind-icon:chevron-up'
   if (displayStore.footerState === 'compact') return 'kind-icon:chevron-up'
-  if (displayStore.footerState === 'priority') return 'kind-icon:chevron-down'
   return 'kind-icon:chevron-down'
 })
 
 const leftSidebarIcon = computed(() => {
-  if (displayStore.leftSidebarModeLabel === 'open')
-    return 'kind-icon:sidebar-left'
-  return 'kind-icon:sidebar-left'
+  return displayStore.leftSidebarModeLabel === 'open'
+    ? 'kind-icon:chevron-left'
+    : 'kind-icon:sidebar-left'
 })
 
 const rightSidebarIcon = computed(() => {
-  if (displayStore.rightSidebarModeLabel === 'open')
-    return 'kind-icon:sidebar-right'
-  return 'kind-icon:sidebar-right'
+  return displayStore.rightSidebarModeLabel === 'open'
+    ? 'kind-icon:chevron-right'
+    : 'kind-icon:sidebar-right'
 })
 
 const mainInnerStyle = computed(() => {
@@ -176,14 +184,9 @@ const mainInnerStyle = computed(() => {
     background 0.15s,
     opacity 0.15s,
     border-color 0.15s,
-    color 0.15s,
-    transform 0.15s;
+    color 0.15s;
   box-shadow: 0 1px 6px oklch(0 0 0 / 0.18);
   backdrop-filter: blur(8px);
-}
-
-.icon-btn:hover {
-  transform: scale(1.03);
 }
 
 .icon-btn--pill {
@@ -233,6 +236,11 @@ const mainInnerStyle = computed(() => {
   height: 1rem;
   flex-shrink: 0;
   opacity: 0.95;
+  transition: transform 0.15s ease;
+}
+
+.icon-btn:hover .icon-btn__icon {
+  transform: scale(1.06);
 }
 
 .sidebar-toggle {
@@ -243,10 +251,10 @@ const mainInnerStyle = computed(() => {
 }
 
 .sidebar-toggle--left {
-  right: -0.75rem;
+  right: 0.5rem;
 }
 
 .sidebar-toggle--right {
-  left: -0.75rem;
+  left: 0.5rem;
 }
 </style>

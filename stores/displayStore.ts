@@ -93,9 +93,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const mainPanelTopOffset = computed(() => {
     if (hasPrioritySidebar.value) {
-      return sectionPaddingSize.value
+      const headerExists = state.headerState !== 'hidden'
+      const header = headerExists ? headerHeight.value : 0
+      const padding = sectionPaddingSize.value
+      return header + padding * 2
     }
-
     return contentTopOffset.value
   })
 

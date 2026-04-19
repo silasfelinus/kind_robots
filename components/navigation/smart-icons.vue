@@ -81,7 +81,7 @@
               class="h-full w-full flex flex-col items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 text-warning"
               @click="activateEditMode"
             >
-              <Icon name="kind-icon:alert" class="h-100 w-100" />
+              <Icon name="kind-icon:alert" class="w-full h-full" />
             </button>
           </div>
 
@@ -104,7 +104,7 @@
               class="h-full w-full flex flex-col items-center justify-center rounded-2xl hover:bg-base-300"
               @click="activateEditMode"
             >
-              <Icon name="kind-icon:settings" class="h-100 w-100" />
+              <Icon name="kind-icon:settings" class="w-full h-full" />
             </button>
           </div>
         </div>
@@ -116,7 +116,7 @@
         class="shrink-0 flex items-center justify-center h-full aspect-square rounded-2xl hover:bg-base-300/80 transition"
         @click="scrollByStep(1)"
       >
-        <Icon name="kind-icon:chevron-right" class="w-100 h-100" />
+        <Icon name="kind-icon:chevron-right" class="w-full h-full" />
       </button>
     </div>
   </div>

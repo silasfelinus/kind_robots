@@ -125,7 +125,7 @@
           <div
             v-for="(icon, index) in rowIcons"
             :key="icon.id"
-            class="flex h-full aspect-square items-stretch justify-center shrink-0"
+            class="flex h-full aspect-square items-stretch justify-center shrink-0 text-base-content"
             :draggable="isEditing"
             @dragstart="smartbarStore.startDrag(index)"
             @dragover.prevent
@@ -154,7 +154,7 @@
                 <NuxtLink
                   v-else-if="icon.link && icon.type !== 'utility'"
                   :to="icon.link"
-                  class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
+                  class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110 text-base-content"
                 >
                   <div
                     class="w-full h-full flex items-center justify-center overflow-hidden"

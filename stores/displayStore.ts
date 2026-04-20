@@ -330,6 +330,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
+  const showCornerPanel = computed(() => {
+    return (
+      state.sidebarRightState === 'open' ||
+      state.sidebarRightState === 'priority'
+    )
+  })
+
   const leftSidebarStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
@@ -855,6 +862,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     removeViewportWatcher,
     setSmartState,
     headerCornerToggleStyle,
+    showCornerPanel,
   }
 })
 

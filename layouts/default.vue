@@ -26,6 +26,7 @@
     </div>
 
     <corner-panel
+      v-if="displayStore.showCornerPanel"
       class="pointer-events-auto fixed"
       :style="displayStore.cornerPanelStyle"
     />

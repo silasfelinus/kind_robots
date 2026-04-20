@@ -26,7 +26,7 @@
     </div>
 
     <corner-panel
-      class="pointer-events-auto fixed right-0"
+      class="pointer-events-auto fixed"
       :style="displayStore.cornerPanelStyle"
     />
 

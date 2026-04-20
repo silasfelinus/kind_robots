@@ -318,12 +318,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
 
     return {
-      top: `calc(var(--vh) * ${header + padding * 2})`,
-      right: `${padding}vw`,
+      position: 'fixed',
+      top: `calc(var(--vh) * ${header + padding * 2} + 0.75rem)`,
+      right: `calc(${padding}vw + 0.75rem)`,
+      left: 'auto',
+      width: 'max-content',
       zIndex: '80',
     }
   })
-
   const leftSidebarStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value

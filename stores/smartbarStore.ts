@@ -252,10 +252,10 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
       try {
         hydrateFromLocalStorage()
 
-        if (navStore.items.length) {
-          icons.value = navStore.items
-        } else if (!icons.value.length) {
-          await fetchIcons()
+        await fetchIcons(true)
+
+        if (!icons.value.length && navStore.items.length) {
+          icons.value = [...navStore.items]
         }
 
         isInitialized.value = true

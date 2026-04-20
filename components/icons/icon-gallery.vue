@@ -98,8 +98,10 @@ function openEditModal(icon: SmartIcon) {
 }
 
 // Load icons if needed
-onMounted(() => {
-  if (!smartbarStore.isInitialized) smartbarStore.initialize()
+onMounted(async () => {
+  if (!smartbarStore.isInitialized) {
+    await smartbarStore.initialize()
+  }
 })
 
 const filteredIcons = computed(() =>

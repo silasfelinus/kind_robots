@@ -704,7 +704,7 @@ model User {
   googleId              String?
   blockList             String?
   isPublic              Boolean           @default(true)
-  smartBar              String?
+  smartBar              String?           @db.Text
   customIcons           Boolean           @default(false)
   isMember              Boolean           @default(false)
   preferredArtServerId  Int?

@@ -4,14 +4,6 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 
-/**
- * Minimal, durable user PATCH:
- * - Auth: only the owner can PATCH.
- * - Denylist only (avoid brittle whitelists).
- * - JSON-ish fields (e.g., vibes) are stringified if objects/arrays are sent.
- * - Gentle coercions for dates/booleans.
- */
-
 function toBooleanLike(v: unknown): boolean | undefined {
   if (v === undefined) return undefined
   if (typeof v === 'boolean') return v
@@ -30,16 +22,32 @@ function toDateLike(v: unknown): Date | undefined {
   return isNaN(d.getTime()) ? undefined : d
 }
 
-/** If the API receives an object/array for a string column, JSON-stringify it. */
 function toStringOrJson(v: unknown): string | null {
   if (v == null) return null
   if (typeof v === 'string') return v
   try {
     return JSON.stringify(v)
   } catch {
-    // fall back to a simple string
     return String(v)
   }
+}
+
+function normalizeSmartBar(v: unknown): string | null {
+  if (v == null) return null
+
+  const rawValues = Array.isArray(v)
+    ? v
+    : typeof v === 'string'
+      ? v.split(',')
+      : [v]
+
+  const ids = rawValues
+    .map((value) => Number(value))
+    .filter((id) => Number.isInteger(id) && id > 0)
+
+  const uniqueIds = [...new Set(ids)]
+
+  return uniqueIds.length ? uniqueIds.join(',') : ''
 }
 
 export default defineEventHandler(async (event) => {
@@ -49,7 +57,6 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid User ID' })
     }
 
-    // Must be the same authenticated user
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || user?.id !== userId) {
       throw createError({
@@ -63,11 +70,10 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'No data provided.' })
     }
 
-    // Keep this list tiny to reduce maintenance overhead
     const DENY = new Set([
       'id',
       'Role',
-      'role', // lowercased variant
+      'role',
       'karma',
       'mana',
       'token',
@@ -78,23 +84,20 @@ export default defineEventHandler(async (event) => {
       'googleId',
     ])
 
-    // Columns that are stored as STRING but often carry JSON
-    // (If you send objects/arrays, we will stringify them.)
-    const JSONISH = new Set([
-      'vibes',
-      'artModels',
-      'textModels',
-      'smartBar',
-      'blockList',
-    ])
+    const JSONISH = new Set(['vibes', 'artModels', 'textModels', 'blockList'])
 
-    // Gentle boolean/date coercions for common flags
     const BOOLS = new Set(['isPublic', 'showMature', 'customIcons', 'isMember'])
     const DATES = new Set(['memberUntil'])
 
     const updateData: Record<string, unknown> = {}
+
     for (const [k, v] of Object.entries(body)) {
       if (DENY.has(k)) continue
+
+      if (k === 'smartBar') {
+        updateData[k] = normalizeSmartBar(v)
+        continue
+      }
 
       if (DATES.has(k)) {
         const d = toDateLike(v)
@@ -114,14 +117,23 @@ export default defineEventHandler(async (event) => {
         continue
       }
 
-      // Pass-through for everything else
-      updateData[k] = v as any
+      updateData[k] = v
     }
 
     if (Object.keys(updateData).length === 0) {
       throw createError({
         statusCode: 400,
         message: 'No updatable fields present.',
+      })
+    }
+
+    if (
+      typeof updateData.smartBar === 'string' &&
+      updateData.smartBar.length > 5000
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: 'smartBar payload is too large.',
       })
     }
 
@@ -135,6 +147,10 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Update failed.' }
+    return {
+      success: false,
+      message: handled.message || 'Update failed.',
+      statusCode: handled.statusCode || 500,
+    }
   }
 })

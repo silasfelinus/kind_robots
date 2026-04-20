@@ -316,16 +316,20 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const cornerPanelStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
+    const topOffset = rightSidebarPriority.value
+      ? fullColumnTopOffset.value
+      : header + padding * 2
 
     return {
       position: 'fixed',
-      top: `calc(var(--vh) * ${header + padding * 2} + 0.75rem)`,
+      top: `calc(var(--vh) * ${topOffset})`,
       right: `calc(${padding}vw + 0.75rem)`,
       left: 'auto',
       width: 'max-content',
       zIndex: '80',
     }
   })
+
   const leftSidebarStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value

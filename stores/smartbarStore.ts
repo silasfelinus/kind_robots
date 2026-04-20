@@ -44,7 +44,7 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
       raw
         ?.split(',')
         .map((v: string) => Number(v))
-        .filter((n: number) => Number.isFinite(n)) ?? []
+        .filter((n: number) => Number.isFinite(n) && n > 0) ?? []
     )
   })
 
@@ -64,6 +64,10 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
       JSON.stringify(originalIcons.value.map((i) => i.id))
     )
   })
+
+  function normalizeIds(ids: number[]): number[] {
+    return [...new Set(ids.filter((id) => Number.isInteger(id) && id > 0))]
+  }
 
   function syncToLocalStorage() {
     try {
@@ -214,7 +218,9 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
     const user = userStore.user
     if (!user) return
 
-    const smartBar = ids.join(',')
+    const normalizedIds = normalizeIds(ids)
+    const smartBar = normalizedIds.join(',')
+
     user.smartBar = smartBar
     user.customIcons = true
 
@@ -309,7 +315,7 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
   }
 
   function addIconToSmartBar(id: number) {
-    const ids = [...smartBarIds.value, id]
+    const ids = normalizeIds([...smartBarIds.value, id])
     updateSmartBar(ids)
   }
 

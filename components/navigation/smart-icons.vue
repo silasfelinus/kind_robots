@@ -235,6 +235,25 @@
               </div>
             </div>
           </div>
+          <!-- Add icon (edit mode only) -->
+          <div
+            v-if="isEditing"
+            class="flex h-full aspect-square items-stretch justify-center shrink-0"
+          >
+            <NuxtLink
+              to="/icons"
+              class="h-full w-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-primary/50 bg-primary/10 hover:bg-primary/20 transition"
+            >
+              <div
+                class="flex h-full w-full items-center justify-center overflow-hidden"
+              >
+                <Icon
+                  name="kind-icon:plus"
+                  class="force-fill h-full w-full text-primary"
+                />
+              </div>
+            </NuxtLink>
+          </div>
 
           <!-- Settings button -->
           <div

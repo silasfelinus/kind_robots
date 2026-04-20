@@ -1,7 +1,7 @@
 <!-- /components/navigation/corner-panel.vue -->
 <template>
-  <div ref="root" class="relative z-50 inline-flex w-auto overflow-visible">
-    <div class="flex flex-row-reverse items-start gap-2">
+  <div ref="root" class="z-50 inline-flex w-max overflow-visible">
+    <div class="flex items-start justify-end gap-2">
       <div v-for="item in menuItems" :key="item.id" class="relative">
         <button
           class="btn btn-xs flex items-center gap-2 px-3"

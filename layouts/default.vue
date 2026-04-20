@@ -147,8 +147,8 @@
     </ClientOnly>
 
     <corner-panel
-      class="corner-panel-anchor pointer-events-auto fixed z-40"
-      :style="cornerPanelAnchorStyle"
+      class="pointer-events-auto fixed"
+      :style="displayStore.cornerPanelStyle"
     />
 
     <main
@@ -232,16 +232,6 @@ const adjustedMainStyle = computed(() => {
   }
 })
 
-const cornerPanelAnchorStyle = computed(() => {
-  const mainStyle = adjustedMainStyle.value as Record<string, string>
-  const rightInset = displayStore.mainContentRightInset
-
-  return {
-    top: mainStyle.top ?? '0px',
-    right: `${rightInset}vw`,
-    transform: 'translateY(-110%)',
-  }
-})
 const leftSidebarBackground = computed(() => {
   const img = pageStore.page?.image || '/images/botcafe.webp'
   return img.startsWith('/') ? img : `/images/${img}`

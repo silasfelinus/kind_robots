@@ -1,7 +1,7 @@
 <!-- /components/navigation/corner-panel.vue -->
 <template>
   <div ref="root" class="relative z-50 inline-flex w-auto overflow-visible">
-    <div class="flex items-start justify-end gap-2">
+    <div class="flex flex-row-reverse items-start gap-2">
       <div v-for="item in menuItems" :key="item.id" class="relative">
         <button
           class="btn btn-xs flex items-center gap-2 px-3"
@@ -36,7 +36,7 @@
         <div
           v-if="activePanel === item.id"
           :id="`panel-${item.id}`"
-          class="absolute right-full mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-base-content/10 bg-base-100 p-3 text-sm text-left shadow-lg"
+          class="absolute right-0 top-full mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-base-content/10 bg-base-100 p-3 text-sm text-left shadow-lg"
         >
           <div v-if="item.id === 'account'" class="text-left">
             <div class="flex gap-4 items-start">

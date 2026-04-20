@@ -314,12 +314,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }))
 
   const cornerPanelStyle = computed<CSSProperties>(() => {
-    const rightInset = mainContentRightInset.value
+    const padding = sectionPaddingSize.value
+    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
 
     return {
-      top: `calc(var(--vh) * ${contentTopOffset.value} + 0.75rem)`,
-      right: `${rightInset}vw`,
-      zIndex: '40',
+      top: `calc(var(--vh) * ${header + padding * 2})`,
+      right: `${padding}vw`,
+      zIndex: '80',
     }
   })
 

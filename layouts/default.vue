@@ -25,6 +25,11 @@
       </div>
     </div>
 
+    <corner-panel
+      class="pointer-events-auto fixed"
+      :style="displayStore.cornerPanelStyle"
+    />
+
     <ClientOnly>
       <aside
         class="fixed overflow-visible text-secondary-content transition-[top,height,width,left] duration-200"
@@ -145,11 +150,6 @@
 
       <template #fallback />
     </ClientOnly>
-
-    <corner-panel
-      class="pointer-events-auto fixed"
-      :style="displayStore.cornerPanelStyle"
-    />
 
     <main
       class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"

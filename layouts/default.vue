@@ -234,15 +234,14 @@ const adjustedMainStyle = computed(() => {
 
 const cornerPanelAnchorStyle = computed(() => {
   const mainStyle = adjustedMainStyle.value as Record<string, string>
-  const rightStyle = displayStore.rightSidebarStyle as Record<string, string>
+  const rightInset = displayStore.mainContentRightInset
 
   return {
     top: mainStyle.top ?? '0px',
-    right: rightStyle.right ?? '0px',
+    right: `${rightInset}vw`,
     transform: 'translateY(-110%)',
   }
 })
-
 const leftSidebarBackground = computed(() => {
   const img = pageStore.page?.image || '/images/botcafe.webp'
   return img.startsWith('/') ? img : `/images/${img}`

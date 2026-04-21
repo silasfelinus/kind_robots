@@ -286,42 +286,55 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const footerWidth = computed(() => {
     return 100 - footerLeftInset.value - footerRightInset.value
   })
-
   const leftToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    const topOffset = header + padding * 2
 
-    // Center button on the sidebar's right boundary seam.
-    // When hidden (sidebarWidth=0), seam=0 so button is half on-screen at the left edge.
     const isHidden = leftSidebarStage.value === 'hidden'
-    const seam = isHidden ? 0 : padding + sidebarLeftWidth.value
+    const isPriority = leftSidebarStage.value === 'priority'
+
+    const sidebarTop = isPriority
+      ? fullColumnTopOffset.value
+      : header + padding * 2
+
+    const sidebarHeight = isPriority
+      ? fullColumnHeight.value
+      : mainContentHeight.value
+
+    const seam = isHidden ? padding : padding + sidebarLeftWidth.value
 
     return {
       position: 'fixed',
-      top: `calc(var(--vh) * ${topOffset})`,
+      top: `calc(var(--vh) * ${sidebarTop + sidebarHeight / 2})`,
       left: `${seam}vw`,
-      transform: 'translateX(-50%)',
-      zIndex: '70',
+      transform: 'translate(-50%, -50%)',
+      zIndex: '40',
     }
   })
 
   const rightToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    const topOffset = header + padding * 2
 
-    // Mirror: center button on sidebar's left boundary seam.
-    // When hidden, seam=0 so button is half on-screen at the right edge.
     const isHidden = rightSidebarStage.value === 'hidden'
-    const seam = isHidden ? 0 : padding + sidebarRightWidth.value
+    const isPriority = rightSidebarStage.value === 'priority'
+
+    const sidebarTop = isPriority
+      ? fullColumnTopOffset.value
+      : header + padding * 2
+
+    const sidebarHeight = isPriority
+      ? fullColumnHeight.value
+      : mainContentHeight.value
+
+    const seam = isHidden ? padding : padding + sidebarRightWidth.value
 
     return {
       position: 'fixed',
-      top: `calc(var(--vh) * ${topOffset})`,
+      top: `calc(var(--vh) * ${sidebarTop + sidebarHeight / 2})`,
       right: `${seam}vw`,
-      transform: 'translateX(50%)',
-      zIndex: '70',
+      transform: 'translate(50%, -50%)',
+      zIndex: '40',
     }
   })
 
@@ -335,7 +348,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       left: '50%',
       top: `calc(var(--vh) * ${footerTop} - ${lift}rem)`,
       transform: 'translateX(-50%)',
-      zIndex: '80',
+      zIndex: '40',
     }
   })
 
@@ -344,7 +357,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     top: `calc(var(--vh) * ${Math.max(0.5, sectionPaddingSize.value + 0.75)})`,
     left: '50%',
     transform: 'translateX(-50%)',
-    zIndex: '80',
+    zIndex: '40',
   }))
 
   const cornerPanelStyle = computed<CSSProperties>(() => {

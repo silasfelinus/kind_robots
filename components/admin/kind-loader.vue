@@ -1,6 +1,6 @@
 <!-- /components/content/story/kind-loader.vue -->
 <template>
-  <div>
+  <div class="z-50">
     <butterfly-layer />
 
     <div

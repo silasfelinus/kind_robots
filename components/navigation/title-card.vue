@@ -10,7 +10,7 @@
         class="inline-flex max-w-full items-center gap-2.5 rounded-2xl border border-black bg-linear-to-r from-base-100 via-base-200 to-base-100 px-4 py-1.5 sm:px-5 sm:py-2 shadow-[0_3px_0_rgba(0,0,0,0.6)]"
       >
         <span
-          class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-2.5 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.24em] uppercase whitespace-nowrap"
+          class="inline-flex items-center justify-center rounded-full bg-black text-base-100 px-1 py-px text-[0.6rem] sm:text-[0.7rem] font-semibold tracking-[0.24em] uppercase whitespace-nowrap"
         >
           Kind
         </span>

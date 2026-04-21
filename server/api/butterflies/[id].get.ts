@@ -5,7 +5,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 
 export default defineEventHandler(async (event) => {
-  let id: number
+  let id: number = 0
   let response
 
   try {

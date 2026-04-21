@@ -27,6 +27,8 @@ export const useBotStore = defineStore('botStore', () => {
   const loading = ref(false)
   const isLoaded = ref(false)
 
+  const pendingLaunchMessage = ref('')
+
   const initializePromise = ref<Promise<void> | null>(null)
   const fetchBotsPromise = ref<Promise<void> | null>(null)
 
@@ -60,6 +62,14 @@ export const useBotStore = defineStore('botStore', () => {
     { immediate: true },
   )
 
+  function setPendingLaunchMessage(message: string): void {
+    pendingLaunchMessage.value = message
+  }
+
+  function clearPendingLaunchMessage(): void {
+    pendingLaunchMessage.value = ''
+  }
+
   function createNewBot(): void {
     const activeTextServer = serverStore.activeTextServer
 
@@ -88,6 +98,7 @@ export const useBotStore = defineStore('botStore', () => {
 
     currentBot.value = null
     currentImagePath.value = ''
+    pendingLaunchMessage.value = ''
   }
 
   async function selectBot(botId: number): Promise<void> {
@@ -132,6 +143,7 @@ export const useBotStore = defineStore('botStore', () => {
     currentBot.value = null
     botForm.value = {}
     currentImagePath.value = ''
+    pendingLaunchMessage.value = ''
   }
 
   async function fetchBots(force = false): Promise<void> {
@@ -325,12 +337,15 @@ export const useBotStore = defineStore('botStore', () => {
     currentImagePath,
     loading,
     isLoaded,
+    pendingLaunchMessage,
     initializePromise,
     fetchBotsPromise,
     totalBots,
     selectedBotId,
     hasUnsavedChanges,
     ownedBots,
+    setPendingLaunchMessage,
+    clearPendingLaunchMessage,
     selectBot,
     revertBotForm,
     deselectBot,

@@ -34,7 +34,7 @@
 import { computed, type Component } from 'vue'
 import FooterFx from '@/components/butterfly/butterfly-footer.vue'
 import KindFooter from '@/components/bots/bot-chat.vue'
-import ArtFooter from '@/components/art/art-generator.vue'
+import ArtFooter from '@/components/art/art-footer.vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 type FooterName = 'fx' | 'kind' | 'art'

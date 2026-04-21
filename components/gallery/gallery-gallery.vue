@@ -2,18 +2,11 @@
 <!--
   GalleryGallery
   ──────────────
-  A vertical meta-gallery that renders each sub-gallery as a named,
-  collapsible panel row. Designed to work at any container width:
-  narrow sidebar, half-pane, full main content, phone portrait/landscape.
+  Vertical meta-gallery. Each row embeds a *-picker — a compact, width-agnostic
+  selection widget — instead of the full gallery component. The "Full page" link
+  takes the user to the rich gallery when they need it.
 
-  When a row is open, a NuxtLink to the gallery's full page appears in
-  the toggle bar so the user can jump straight to it.
-
-  Usage:
-    <gallery-gallery />
-
-  No props required. Edit the `galleries` array in <script setup> to
-  add, remove, or reorder sections.
+  Works from ~240px sidebar width up to full main-content pane.
 -->
 <template>
   <div class="flex flex-col min-h-0 w-full bg-base-200">
@@ -69,7 +62,7 @@
               : 'rounded-xl hover:bg-base-200'
           "
         >
-          <!-- Clickable area: icon + name + description -->
+          <!-- Left: icon + name + description (clicking opens picker) -->
           <button
             class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             :aria-expanded="openMap[gallery.key]"
@@ -95,9 +88,8 @@
             </span>
           </button>
 
-          <!-- Right side: page link (visible when open) + chevron -->
+          <!-- Right: full-page link (slides in when open) + chevron -->
           <div class="flex items-center gap-1.5 shrink-0">
-            <!-- Full-page link — appears when the panel is open -->
             <Transition name="gg-link-fade">
               <NuxtLink
                 v-if="openMap[gallery.key]"
@@ -111,7 +103,6 @@
               </NuxtLink>
             </Transition>
 
-            <!-- Chevron toggle -->
             <button
               class="flex items-center justify-center w-6 h-6 rounded text-base-content/40 hover:text-base-content/70 transition-transform duration-250 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               :class="openMap[gallery.key] ? 'rotate-180 text-primary' : ''"
@@ -127,26 +118,26 @@
           </div>
         </div>
 
-        <!-- Collapsible panel body -->
+        <!-- Picker panel -->
         <Transition name="gg-panel">
           <div
             v-if="openMap[gallery.key]"
             class="gg-row-body overflow-y-auto overscroll-contain"
           >
-            <div class="gg-row-body-inner p-2 sm:p-3 min-h-0">
-              <bot-gallery v-if="gallery.key === 'bots'" />
-              <character-gallery v-else-if="gallery.key === 'characters'" />
-              <chat-gallery v-else-if="gallery.key === 'chats'" />
-              <checkpoint-gallery v-else-if="gallery.key === 'checkpoints'" />
-              <collection-gallery v-else-if="gallery.key === 'collections'" />
-              <dominion-gallery v-else-if="gallery.key === 'dominions'" />
-              <icon-gallery v-else-if="gallery.key === 'icons'" />
-              <lab-gallery v-else-if="gallery.key === 'lab'" />
-              <pitch-gallery v-else-if="gallery.key === 'pitches'" />
-              <reward-gallery v-else-if="gallery.key === 'rewards'" />
-              <scenario-gallery v-else-if="gallery.key === 'scenarios'" />
-              <server-gallery v-else-if="gallery.key === 'servers'" />
-              <theme-gallery v-else-if="gallery.key === 'themes'" />
+            <div class="p-2 sm:p-3 min-h-0">
+              <bot-picker v-if="gallery.key === 'bots'" />
+              <character-picker v-else-if="gallery.key === 'characters'" />
+              <chat-picker v-else-if="gallery.key === 'chats'" />
+              <checkpoint-picker v-else-if="gallery.key === 'checkpoints'" />
+              <collection-picker v-else-if="gallery.key === 'collections'" />
+              <dominion-picker v-else-if="gallery.key === 'dominions'" />
+              <icon-picker v-else-if="gallery.key === 'icons'" />
+              <lab-picker v-else-if="gallery.key === 'lab'" />
+              <pitch-picker v-else-if="gallery.key === 'pitches'" />
+              <reward-picker v-else-if="gallery.key === 'rewards'" />
+              <scenario-picker v-else-if="gallery.key === 'scenarios'" />
+              <server-picker v-else-if="gallery.key === 'servers'" />
+              <theme-picker v-else-if="gallery.key === 'themes'" />
             </div>
           </div>
         </Transition>
@@ -158,9 +149,9 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue'
 
-// ── Gallery manifest ─────────────────────────────────────────────────────────
-// `page` is the route path segment — plural noun matching your Nuxt pages.
-// Override `page` if a route doesn't match the plural of `name`.
+// ── Manifest ──────────────────────────────────────────────────────────────────
+// `page` = Nuxt route segment (pluralised noun).
+// Override if a route doesn't match the simple plural.
 const galleries = [
   {
     key: 'bots',
@@ -279,28 +270,33 @@ function toggleAll() {
 </script>
 
 <style scoped>
-/* ── Panel body: responsive max-height ───────────────────────────────────── */
+/* ── Panel body max-height ───────────────────────────────────────────────── */
+/*
+  Pickers are dense lists so don't need as much height as the old card galleries.
+  These are still viewport-relative because the component doesn't know its own
+  container height.
+*/
 .gg-row-body {
-  max-height: 55vh;
+  max-height: 40vh;
 }
 @media (min-width: 480px) {
   .gg-row-body {
-    max-height: 60vh;
+    max-height: 45vh;
   }
 }
 @media (min-width: 640px) {
   .gg-row-body {
-    max-height: 65vh;
+    max-height: 50vh;
   }
 }
 @media (min-width: 1024px) {
   .gg-row-body {
-    max-height: 70vh;
+    max-height: 55vh;
   }
 }
 @media (max-height: 500px) {
   .gg-row-body {
-    max-height: 42vh;
+    max-height: 35vh;
   }
 }
 
@@ -319,25 +315,12 @@ function toggleAll() {
   background: oklch(var(--bc) / 0.22);
 }
 
-/* ── Child gallery containment ───────────────────────────────────────────── */
-.gg-row-body-inner :deep(.h-screen),
-.gg-row-body-inner :deep(.h-\[100dvh\]),
-.gg-row-body-inner :deep(.min-h-screen),
-.gg-row-body-inner :deep([style*='height: calc']),
-.gg-row-body-inner :deep([style*='height:calc']) {
-  height: auto !important;
-  min-height: 0 !important;
-}
-.gg-row-body-inner :deep(.fixed) {
-  position: absolute;
-}
-
-/* ── Panel slide + fade ──────────────────────────────────────────────────── */
+/* ── Panel transition ────────────────────────────────────────────────────── */
 .gg-panel-enter-active,
 .gg-panel-leave-active {
   transition:
-    max-height 0.28s ease,
-    opacity 0.22s ease;
+    max-height 0.25s ease,
+    opacity 0.2s ease;
   overflow: hidden;
 }
 .gg-panel-enter-from,
@@ -350,7 +333,7 @@ function toggleAll() {
   opacity: 1;
 }
 
-/* ── Page link fade in/out ───────────────────────────────────────────────── */
+/* ── Full-page link fade ─────────────────────────────────────────────────── */
 .gg-link-fade-enter-active {
   transition:
     opacity 0.18s ease,

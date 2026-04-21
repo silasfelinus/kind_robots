@@ -233,7 +233,18 @@ async function saveTheme() {
     }
 
     if (applyAfterSave.value) {
-      const result = themeStore.setActiveTheme(themeForm.name!)
+      const result = await themeStore.setActiveTheme({
+        id: themeForm.id,
+        userId: themeForm.userId,
+        name: themeForm.name,
+        prefersDark: themeForm.prefersDark,
+        colorScheme: themeForm.colorScheme,
+        isPublic: themeForm.isPublic,
+        tagline: themeForm.tagline,
+        room: themeForm.room || '',
+        values: themeForm.values || {},
+      })
+
       themeError.value = result.success ? '' : result.message || 'Unknown error'
     }
 

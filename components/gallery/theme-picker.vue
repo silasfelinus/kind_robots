@@ -4,7 +4,7 @@
     <div class="picker-controls">
       <select
         v-model="filterGroup"
-        class="select select-bordered select-xs bg-base-200 w-full sm:w-auto"
+        class="select select-bordered select-xs w-full bg-base-200 sm:w-auto"
       >
         <option value="all">All themes</option>
         <option value="default">Default</option>
@@ -36,16 +36,16 @@
         @click="applyTheme(t)"
       >
         <span
-          class="picker-icon shrink-0 w-5 h-5 rounded-md border border-base-300"
+          class="picker-icon h-5 w-5 shrink-0 rounded-md border border-base-300"
           :data-theme="typeof t === 'string' ? t : 'custom-preview-' + t.id"
           style="background: oklch(var(--p, 50% 0.2 260))"
         />
 
         <span class="picker-label">
           <span class="picker-name">{{ getThemeName(t) }}</span>
-          <span class="picker-sub">{{
-            typeof t === 'string' ? 'Default' : 'Shared'
-          }}</span>
+          <span class="picker-sub">
+            {{ typeof t === 'string' ? 'Default' : 'Shared' }}
+          </span>
         </span>
 
         <button
@@ -77,28 +77,34 @@ const activeThemeName = computed(() => themeStore.currentTheme)
 
 const allThemes = computed<ThemeEntry[]>(() => {
   const defaults: ThemeEntry[] =
-    filterGroup.value !== 'shared' ? themeStore.daisyuiThemes : []
+    filterGroup.value !== 'shared' ? [...themeStore.daisyuiThemes] : []
   const shared: ThemeEntry[] =
-    filterGroup.value !== 'default' ? themeStore.sharedThemes : []
+    filterGroup.value !== 'default' ? [...themeStore.sharedThemes] : []
 
   return [...defaults, ...shared]
 })
 
 const filtered = computed<ThemeEntry[]>(() => {
   const q = query.value.trim().toLowerCase()
+
   if (!q) return allThemes.value
 
-  return allThemes.value.filter((t) => {
-    const name = getThemeName(t)
-    return name.toLowerCase().includes(q)
-  })
+  return allThemes.value.filter((t) =>
+    getThemeName(t).toLowerCase().includes(q),
+  )
 })
 
 function getThemeName(t: ThemeEntry): string {
   return typeof t === 'string' ? t : t.name
 }
 
-function applyTheme(t: ThemeEntry) {
+function safeThemeValues(val: unknown): Record<string, string> {
+  return typeof val === 'object' && val !== null && !Array.isArray(val)
+    ? (val as Record<string, string>)
+    : {}
+}
+
+async function applyTheme(t: ThemeEntry) {
   try {
     const input =
       typeof t === 'string'
@@ -112,17 +118,13 @@ function applyTheme(t: ThemeEntry) {
             isPublic: t.isPublic,
             tagline: t.tagline,
             room: t.room || '',
-            createdAt: t.createdAt,
-            values:
-              typeof t.values === 'object' && t.values !== null
-                ? (t.values as Record<string, string>)
-                : {},
+            values: safeThemeValues(t.values),
           }
 
-    const result = themeStore.setActiveTheme(input)
+    const result = await themeStore.setActiveTheme(input)
 
     if (!result.success) {
-      themeError.value = result.message ?? 'Failed to apply'
+      themeError.value = result.message ?? 'Failed to apply theme'
       return
     }
 

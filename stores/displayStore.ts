@@ -288,35 +288,43 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const leftToggleStyle = computed<CSSProperties>(() => {
+    const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    const collapsedSidebarOffset = 2.5
+    const collapsedWidth = 5
+    const activeWidth =
+      leftSidebarStage.value === 'hidden'
+        ? collapsedWidth
+        : sidebarLeftWidth.value
 
-    const leftOffset =
-      sectionPaddingSize.value +
-      (leftSidebarStage.value === 'hidden'
-        ? collapsedSidebarOffset
-        : sidebarLeftWidth.value)
+    const topOffset = leftSidebarPriority.value
+      ? fullColumnTopOffset.value
+      : header + padding * 2
 
     return {
-      top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-      left: `${leftOffset}vw`,
+      top: `calc(var(--vh) * ${topOffset})`,
+      left: `${padding + activeWidth / 2}vw`,
+      transform: 'translate(-50%, 0)',
       zIndex: '70',
     }
   })
 
   const rightToggleStyle = computed<CSSProperties>(() => {
+    const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    const collapsedSidebarOffset = 2.5
+    const collapsedWidth = 5
+    const activeWidth =
+      rightSidebarStage.value === 'hidden'
+        ? collapsedWidth
+        : sidebarRightWidth.value
 
-    const rightOffset =
-      sectionPaddingSize.value +
-      (rightSidebarStage.value === 'hidden'
-        ? collapsedSidebarOffset
-        : sidebarRightWidth.value)
+    const topOffset = rightSidebarPriority.value
+      ? fullColumnTopOffset.value
+      : header + padding * 2
 
     return {
-      top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
-      right: `${rightOffset}vw`,
+      top: `calc(var(--vh) * ${topOffset})`,
+      right: `${padding + activeWidth / 2}vw`,
+      transform: 'translate(50%, 0)',
       zIndex: '70',
     }
   })

@@ -290,19 +290,19 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const leftToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    const collapsedWidth = 5
-    const activeWidth =
-      leftSidebarStage.value === 'hidden'
-        ? collapsedWidth
-        : sidebarLeftWidth.value
 
-    const topOffset = leftSidebarPriority.value
-      ? fullColumnTopOffset.value
-      : header + padding * 2
+    // Always use the non-priority top offset so position doesn't jump
+    const topOffset = header + padding * 2
+
+    // When hidden, hug the left edge. Otherwise, sit at the sidebar's right edge.
+    const leftEdge =
+      leftSidebarStage.value === 'hidden'
+        ? padding
+        : padding + sidebarLeftWidth.value
 
     return {
       top: `calc(var(--vh) * ${topOffset})`,
-      left: `${padding + activeWidth / 2}vw`,
+      left: `${leftEdge}vw`,
       transform: 'translate(-50%, 0)',
       zIndex: '70',
     }
@@ -311,24 +311,21 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const rightToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    const collapsedWidth = 5
-    const activeWidth =
-      rightSidebarStage.value === 'hidden'
-        ? collapsedWidth
-        : sidebarRightWidth.value
 
-    const topOffset = rightSidebarPriority.value
-      ? fullColumnTopOffset.value
-      : header + padding * 2
+    const topOffset = header + padding * 2
+
+    const rightEdge =
+      rightSidebarStage.value === 'hidden'
+        ? padding
+        : padding + sidebarRightWidth.value
 
     return {
       top: `calc(var(--vh) * ${topOffset})`,
-      right: `${padding + activeWidth / 2}vw`,
+      right: `${rightEdge}vw`,
       transform: 'translate(50%, 0)',
       zIndex: '70',
     }
   })
-
   const footerToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const footerTop = 100 - effectiveFooterHeight.value - padding

@@ -188,11 +188,12 @@
     >
       <div class="pointer-events-auto flex justify-center">
         <button
-          class="icon-btn icon-btn--pill icon-btn--base transition-all duration-200 hover:scale-110 hover:shadow-[0_0_1.2rem_rgba(255,255,255,0.4)]"
+          type="button"
+          class="flex h-14 w-14 items-center justify-center rounded-full border-2 border-base-content/30 bg-base-100/95 text-base-content shadow-lg shadow-base-content/20 backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-primary/60 hover:bg-base-100 hover:text-primary hover:shadow-[0_0_1.5rem_rgba(255,255,255,0.25)] active:scale-95 sm:h-16 sm:w-16"
           title="Toggle footer"
           @click="displayStore.toggleFooter"
         >
-          <Icon :name="footerIcon" class="icon-btn__icon" />
+          <Icon :name="footerIcon" class="h-6 w-6 sm:h-7 sm:w-7" />
         </button>
       </div>
     </div>

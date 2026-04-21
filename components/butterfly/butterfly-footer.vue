@@ -441,7 +441,7 @@
             <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <div class="text-xs uppercase text-base-content/60">Sponsor</div>
               <div class="mt-2">
-                <NuxtLink to="/sponsor" class="btn btn-accent btn-sm w-full">
+                <NuxtLink to="/amibot" class="btn btn-accent btn-sm w-full">
                   Support Ami
                 </NuxtLink>
               </div>

@@ -10,8 +10,6 @@
         <kind-loader />
         <milestone-popup />
       </div>
-
-      <animation-loader class="fixed z-50 pointer-events-none" />
     </div>
 
     <div
@@ -21,17 +19,12 @@
       <div class="loading loading-dots loading-lg text-primary" />
     </div>
 
-    <main v-if="pageStore.ready" class="fixed z-30">
-      <div class="relative h-full w-full overflow-y-auto overscroll-contain">
-        <div
-          class="absolute top-2 right-2 z-50 flex flex-row-reverse items-start gap-3"
-        />
-
-        <NuxtPage
-          :key="$route.fullPath"
-          class="min-h-full w-full bg-base-300 transition-opacity duration-300"
-        />
-      </div>
+    <!-- /app.vue -->
+    <main v-if="pageStore.ready" class="contents">
+      <NuxtPage
+        :key="$route.fullPath"
+        class="min-h-full w-full bg-base-300 transition-opacity duration-300"
+      />
     </main>
   </div>
 </template>
@@ -40,7 +33,6 @@
 // /app.vue
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useSmartbarStore } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useLayoutStore } from '@/stores/layoutStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -48,7 +40,6 @@ import { useUserStore } from '@/stores/userStore'
 import { useThemeStore } from '@/stores/themeStore'
 
 const router = useRouter()
-const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const layoutStore = useLayoutStore()
 const pageStore = usePageStore()
@@ -56,7 +47,6 @@ const userStore = useUserStore()
 const themeStore = useThemeStore()
 
 const isNavigating = ref(false)
-const showSwarm = computed(() => smartbarStore.showSwarm)
 
 let removeAfter: (() => void) | null = null
 let removeBefore: (() => void) | null = null

@@ -1,6 +1,6 @@
 // /stores/themeStore.ts
 import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
@@ -96,6 +96,21 @@ export const useThemeStore = defineStore('themeStore', () => {
     }
   }
 
+  async function getActiveThemeSnapshot(
+    themeName?: string,
+  ): Promise<ThemeForm | null> {
+    if (typeof document === 'undefined') return null
+
+    await nextTick()
+
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve())
+    })
+
+    const snapshot = extractComputedTheme(themeName)
+    return normalizeThemeFromServer(snapshot)
+  }
+
   function setApplyAfterSave(val: boolean): void {
     applyAfterSave.value = val
   }
@@ -104,10 +119,10 @@ export const useThemeStore = defineStore('themeStore', () => {
     open.value = !open.value
   }
 
-  function setActiveTheme(input: string | ThemeForm): {
+  async function setActiveTheme(input: string | ThemeForm): Promise<{
     success: boolean
     message?: string
-  } {
+  }> {
     if (typeof document === 'undefined') {
       return { success: false, message: 'Cannot set theme server-side' }
     }
@@ -123,7 +138,10 @@ export const useThemeStore = defineStore('themeStore', () => {
       document.documentElement.setAttribute('data-theme', input)
       localStorage.setItem('theme', input)
       activeTheme.value = input
-      themeForm.value = normalizeThemeFromServer(extractComputedTheme(input))
+
+      const snapshot = await getActiveThemeSnapshot(input)
+      themeForm.value =
+        snapshot || normalizeThemeFromServer(extractComputedTheme(input))
       firstThemeChanged.value = true
 
       return { success: true }
@@ -131,6 +149,7 @@ export const useThemeStore = defineStore('themeStore', () => {
 
     if (input.values && isThemeValuesRecord(input.values)) {
       const values = sanitizeThemeValues(input.values)
+      clearAppliedThemeValues()
       applyThemeValues(values)
       document.documentElement.setAttribute('data-theme', 'custom')
       localStorage.setItem('theme', input.name || 'custom')
@@ -150,7 +169,7 @@ export const useThemeStore = defineStore('themeStore', () => {
 
   function updateBotTheme(theme: string): void {
     if (botOverride.value) {
-      setActiveTheme(theme)
+      void setActiveTheme(theme)
     }
   }
 
@@ -255,23 +274,23 @@ export const useThemeStore = defineStore('themeStore', () => {
         const builtIn = daisyuiThemes.includes(storedTheme)
 
         if (builtIn) {
-          setActiveTheme(storedTheme)
+          await setActiveTheme(storedTheme)
         } else if (storedForm) {
           const parsed = JSON.parse(storedForm) as ThemeForm
           if (parsed?.values) {
-            setActiveTheme(normalizeThemeFromServer(parsed))
+            await setActiveTheme(normalizeThemeFromServer(parsed))
           } else {
-            setActiveTheme('retro')
+            await setActiveTheme('retro')
           }
         } else {
-          setActiveTheme('retro')
+          await setActiveTheme('retro')
         }
 
         await getThemes()
         initialized.value = true
       } catch (error) {
         console.warn('[themeStore] Failed to initialize themeStore:', error)
-        setActiveTheme('retro')
+        await setActiveTheme('retro')
         initialized.value = false
         throw error
       } finally {
@@ -374,6 +393,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     updateTheme,
     deleteTheme,
     getThemeValues,
+    getActiveThemeSnapshot,
     buildThemePayload,
     colorKeys,
     extraVars,

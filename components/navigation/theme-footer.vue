@@ -6,7 +6,7 @@
   >
     <div v-if="isCompact" class="flex h-full w-full min-h-0">
       <div
-        class="grid h-full w-full min-h-0 grid-cols-[auto_1fr_auto] items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-2 py-2"
+        class="grid h-full w-full min-h-0 grid-cols-[auto_1fr_auto] items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
       >
         <div
           class="flex h-12 w-12 items-center justify-center rounded-2xl border border-base-300 bg-base-200"
@@ -15,9 +15,11 @@
         </div>
 
         <div class="flex min-w-0 flex-col gap-1 overflow-hidden">
-          <div class="truncate text-sm font-semibold">Theme</div>
+          <div class="truncate text-sm font-semibold">
+            {{ activeThemeLabel }}
+          </div>
           <div class="truncate text-xs text-base-content/70">
-            Pick a look without leaving the footer.
+            {{ compactSubtitle }}
           </div>
         </div>
 
@@ -33,7 +35,7 @@
 
     <div
       v-else-if="isOpen"
-      class="grid h-full w-full min-h-0 grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,22rem)]"
+      class="grid h-full w-full min-h-0 grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.15fr)_minmax(18rem,22rem)]"
     >
       <div
         class="flex min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
@@ -42,7 +44,7 @@
           <div class="min-w-0">
             <h2 class="truncate text-base font-semibold">🎨 Theme Footer</h2>
             <div class="text-xs text-base-content/70">
-              Switch vibes fast. No wandering required.
+              Flip themes without leaving the footer like a civilized goblin.
             </div>
           </div>
 
@@ -52,6 +54,22 @@
             @click="openThemeLab"
           >
             Theme Lab
+          </button>
+        </div>
+
+        <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <button
+            v-for="theme in quickThemes"
+            :key="theme"
+            type="button"
+            class="rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-sm font-semibold transition hover:bg-base-300"
+            :class="{
+              'border-primary bg-primary/15 text-primary':
+                currentTheme === theme,
+            }"
+            @click="applyBuiltInTheme(theme)"
+          >
+            {{ theme }}
           </button>
         </div>
 
@@ -70,7 +88,7 @@
         <div
           class="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70"
         >
-          Quick Theme Notes
+          Active Theme
         </div>
 
         <div class="flex min-h-0 flex-1 flex-col gap-3">
@@ -78,24 +96,38 @@
             <div
               class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
             >
-              Footer Mode
+              Current
             </div>
-            <div class="mt-1 text-lg font-semibold">Open</div>
+            <div class="mt-1 truncate text-lg font-semibold">
+              {{ activeThemeLabel }}
+            </div>
+            <div class="mt-1 text-xs text-base-content/70">
+              {{ activeThemeMode }}
+            </div>
           </div>
 
           <div
-            class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/80"
+            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/80"
           >
-            Open mode keeps the picker front and center while still leaving room
-            for a little supporting context. Very civilized. Very smug.
+            <div class="mb-2 font-semibold">Theme Snapshot</div>
+            <pre class="max-h-64 overflow-auto whitespace-pre-wrap text-xs">{{
+              inspectValues
+            }}</pre>
           </div>
+
+          <p
+            v-if="themeError"
+            class="rounded-2xl border border-error bg-error/10 p-3 text-sm text-error whitespace-pre-wrap"
+          >
+            {{ themeError }}
+          </p>
         </div>
       </div>
     </div>
 
     <div
       v-else
-      class="grid h-full w-full min-h-0 grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,24rem)]"
+      class="grid h-full w-full min-h-0 grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.3fr)_minmax(20rem,24rem)]"
     >
       <div
         class="flex min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
@@ -104,7 +136,8 @@
           <div class="min-w-0">
             <h2 class="truncate text-base font-semibold">🎨 Theme Footer</h2>
             <div class="text-xs text-base-content/70">
-              Full-size footer mode for browsing and switching themes.
+              Full-size mode for browsing, testing, and not getting gaslit by
+              stale theme values.
             </div>
           </div>
 
@@ -114,6 +147,22 @@
             @click="openThemeLab"
           >
             Theme Lab
+          </button>
+        </div>
+
+        <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+          <button
+            v-for="theme in extendedThemes"
+            :key="theme"
+            type="button"
+            class="rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-sm font-semibold transition hover:bg-base-300"
+            :class="{
+              'border-primary bg-primary/15 text-primary':
+                currentTheme === theme,
+            }"
+            @click="applyBuiltInTheme(theme)"
+          >
+            {{ theme }}
           </button>
         </div>
 
@@ -137,6 +186,20 @@
           </div>
 
           <div class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-y-auto">
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <div
+                class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+              >
+                Current Theme
+              </div>
+              <div class="mt-1 truncate text-lg font-semibold">
+                {{ activeThemeLabel }}
+              </div>
+              <div class="mt-1 text-xs text-base-content/70">
+                {{ activeThemeMode }}
+              </div>
+            </div>
+
             <button
               type="button"
               class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-3 py-3 text-left transition hover:bg-base-300"
@@ -151,17 +214,27 @@
               <div class="min-w-0 flex-1">
                 <div class="truncate font-semibold">Open Theme Lab</div>
                 <div class="line-clamp-3 text-xs text-base-content/70">
-                  Jump to the full theme area when you want deeper controls.
+                  Jump to the full theme area when you want deeper controls and
+                  editing.
                 </div>
               </div>
             </button>
 
             <div
-              class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/70"
+              class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/80"
             >
-              Priority mode gives the picker room to breathe instead of stuffing
-              it into a shoebox like a Victorian interface.
+              <div class="mb-2 font-semibold">Theme Snapshot</div>
+              <pre class="max-h-72 overflow-auto whitespace-pre-wrap text-xs">{{
+                inspectValues
+              }}</pre>
             </div>
+
+            <p
+              v-if="themeError"
+              class="rounded-2xl border border-error bg-error/10 p-3 text-sm text-error whitespace-pre-wrap"
+            >
+              {{ themeError }}
+            </p>
           </div>
         </div>
       </div>
@@ -171,16 +244,82 @@
 
 <script setup lang="ts">
 // /components/navigation/theme-footer.vue
-import { computed } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
+import { useThemeStore } from '@/stores/themeStore'
 
 const router = useRouter()
 const displayStore = useDisplayStore()
+const themeStore = useThemeStore()
+
+const themeError = ref('')
+const inspectValues = ref('{}')
 
 const footerState = computed(() => displayStore.footerState)
 const isCompact = computed(() => footerState.value === 'compact')
 const isOpen = computed(() => footerState.value === 'open')
+
+const currentTheme = computed(() => themeStore.currentTheme)
+
+const activeThemeLabel = computed(() => {
+  return typeof themeStore.activeTheme === 'string'
+    ? themeStore.activeTheme
+    : themeStore.activeTheme?.name || themeStore.currentTheme
+})
+
+const activeThemeMode = computed(() => {
+  return typeof themeStore.activeTheme === 'string'
+    ? 'Built-in DaisyUI theme'
+    : 'Custom theme'
+})
+
+const compactSubtitle = computed(() => {
+  return typeof themeStore.activeTheme === 'string'
+    ? 'Built-in theme selected'
+    : 'Custom theme selected'
+})
+
+const quickThemes = ['retro', 'cupcake', 'forest', 'dracula']
+const extendedThemes = [
+  'retro',
+  'cupcake',
+  'forest',
+  'dracula',
+  'night',
+  'dim',
+  'nord',
+  'sunset',
+  'bumblebee',
+  'luxury',
+]
+
+async function applyBuiltInTheme(theme: string) {
+  try {
+    const result = await themeStore.setActiveTheme(theme)
+
+    if (!result.success) {
+      themeError.value = result.message || 'Failed to apply theme.'
+      return
+    }
+
+    themeError.value = ''
+
+    const snapshot = await themeStore.getActiveThemeSnapshot(theme)
+    inspectValues.value = JSON.stringify(snapshot, null, 2)
+  } catch (error: unknown) {
+    themeError.value = (error as Error).message || 'Theme switch failed.'
+  }
+}
+
+watchEffect(async () => {
+  const snapshot =
+    typeof themeStore.activeTheme === 'string'
+      ? await themeStore.getActiveThemeSnapshot(themeStore.activeTheme)
+      : themeStore.themeForm
+
+  inspectValues.value = JSON.stringify(snapshot, null, 2)
+})
 
 async function openThemeLab() {
   await router.push('/themes')

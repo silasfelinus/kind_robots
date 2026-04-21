@@ -340,9 +340,7 @@ const { isEditing, editableIcons, activeIcons } = storeToRefs(smartbarStore)
 const isNav = (icon: SmartIcon) => (icon?.type || '').toLowerCase() === 'nav'
 
 const rowIcons = computed<SmartIcon[]>(() =>
-  isEditing.value
-    ? editableIcons.value.filter(isNav)
-    : activeIcons.value.filter(isNav),
+  isEditing.value ? editableIcons.value : activeIcons.value,
 )
 
 const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)

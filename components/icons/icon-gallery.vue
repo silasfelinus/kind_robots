@@ -15,11 +15,10 @@
     >
       <div class="text-sm">
         <span class="font-semibold">Custom Icons:</span>
-        <span class="ml-2">
-          {{ customIconsEnabled ? 'Enabled' : 'Disabled' }}
-        </span>
+        <span class="ml-2">{{
+          customIconsEnabled ? 'Enabled' : 'Disabled'
+        }}</span>
       </div>
-
       <button
         class="btn btn-sm rounded-xl"
         :class="customIconsEnabled ? 'btn-secondary' : 'btn-outline'"
@@ -36,7 +35,6 @@
         <option value="user">My Icons</option>
         <option value="public">Public Only</option>
       </select>
-
       <select v-model="filterType" class="select select-bordered rounded-lg">
         <option value="">All Types</option>
         <option value="nav">Navigation</option>
@@ -49,9 +47,26 @@
       <div
         v-for="icon in filteredIcons"
         :key="icon.id"
-        class="relative group p-4 border rounded-2xl bg-base-100 shadow-md flex flex-col items-center gap-2"
+        class="relative group p-4 border-2 rounded-2xl bg-base-100 shadow-md flex flex-col items-center gap-2"
+        :class="{
+          'border-primary/30': icon.type === 'nav',
+          'border-secondary/30': icon.type === 'utility',
+          'border-base-300': !icon.type,
+        }"
       >
-        <Icon :name="icon.icon || 'kind-icon:help'" class="text-4xl" />
+        <!-- Type badge -->
+        <span
+          class="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md"
+          :class="{
+            'bg-primary/10 text-primary': icon.type === 'nav',
+            'bg-secondary/10 text-secondary': icon.type === 'utility',
+            'bg-base-300 text-base-content/40': !icon.type,
+          }"
+        >
+          {{ icon.type || '?' }}
+        </span>
+
+        <Icon :name="icon.icon || 'kind-icon:help'" class="text-4xl mt-3" />
 
         <div class="text-center text-sm font-medium">
           {{ icon.label || icon.title }}

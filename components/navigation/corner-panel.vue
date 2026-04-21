@@ -7,6 +7,7 @@
           class="btn btn-xs flex items-center gap-2 px-3"
           :aria-expanded="activePanel === item.id"
           :aria-controls="`panel-${item.id}`"
+          :title="item.label"
           @click.stop="toggle(item.id)"
         >
           <ClientOnly>
@@ -16,9 +17,11 @@
             </template>
           </ClientOnly>
 
-          <span class="text-xs font-semibold">{{ item.label }}</span>
+          <span v-if="showLabels" class="text-xs font-semibold">
+            {{ item.label }}
+          </span>
 
-          <ClientOnly>
+          <ClientOnly v-if="showLabels">
             <Icon
               :name="
                 activePanel === item.id
@@ -233,9 +236,15 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useDisplayStore } from '@/stores/displayStore'
 
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
+const displayStore = useDisplayStore()
+
+const showLabels = computed(() => {
+  return displayStore.rightSidebarModeLabel === 'priority'
+})
 
 const root = ref<HTMLElement | null>(null)
 const activePanel = ref<string | null>(null)

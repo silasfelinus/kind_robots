@@ -17,7 +17,7 @@ type FullscreenState = 'nuxt' | 'fullscreen'
 type SidebarStage = 'hidden' | 'compact' | 'open' | 'priority'
 type SidebarStateKey = 'sidebarLeftState' | 'sidebarRightState'
 type LogicalSide = 'left' | 'right'
-type FooterComponentName = 'fx' | 'kind' | 'art'
+type FooterComponentName = 'fx' | 'kind' | 'art' | 'story'
 type PromptOffsetOwner = FooterComponentName | ''
 
 export const useDisplayStore = defineStore('displayStore', () => {
@@ -65,10 +65,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function normalizeFooterComponent(value: string): FooterComponentName {
-    return value === 'fx' || value === 'kind' || value === 'art'
-      ? value
-      : 'kind'
-  }
+  return value === 'fx' ||
+    value === 'kind' ||
+    value === 'art' ||
+    value === 'story'
+    ? value
+    : 'kind'
+}
 
   const fullColumnTopOffset = computed(() => {
     return sectionPaddingSize.value

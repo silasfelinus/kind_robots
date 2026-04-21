@@ -4,6 +4,7 @@
     v-if="footerState !== 'hidden'"
     class="flex h-full w-full min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200/80 p-2 shadow-inner md:p-3"
   >
+    <!-- ── compact ──────────────────────────────────────────────────────────── -->
     <div v-if="isCompact" class="flex h-full w-full min-h-0 items-center">
       <div
         class="flex h-full w-full min-h-0 items-center gap-2 overflow-hidden rounded-2xl border border-base-300 bg-base-100 px-2 py-2 sm:px-3"
@@ -70,6 +71,7 @@
       </div>
     </div>
 
+    <!-- ── open ────────────────────────────────────────────────────────────── -->
     <div
       v-else-if="isOpen"
       class="grid h-full w-full min-h-0 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,22rem)]"
@@ -171,7 +173,8 @@
                   Sponsor Butterflies
                 </NuxtLink>
 
-                <butterfly-trigger />
+                <!-- CHANGED: butterfly-trigger → butterfly-net -->
+                <butterfly-net />
               </div>
             </div>
           </div>
@@ -217,17 +220,20 @@
                 Surprise
               </div>
 
-              <butterfly-trigger />
+              <!-- CHANGED: butterfly-trigger → butterfly-net -->
+              <butterfly-net />
             </div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- ── priority ────────────────────────────────────────────────────────── -->
     <div
       v-else
       class="grid h-full w-full min-h-0 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,24rem)]"
     >
+      <!-- left col: unchanged -->
       <div
         class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
       >
@@ -303,7 +309,7 @@
               class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
             >
               <div class="text-sm text-base-content/80">
-                Ami’s butterflies are fundraising chaos with a mission.
+                Ami's butterflies are fundraising chaos with a mission.
               </div>
 
               <div class="flex flex-wrap items-center gap-2">
@@ -312,13 +318,15 @@
                   Visit Sponsor Page
                 </NuxtLink>
 
-                <butterfly-trigger />
+                <!-- CHANGED: butterfly-trigger → butterfly-net -->
+                <butterfly-net />
               </div>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- right col: original Swarm Readout preserved, Field Guide appended -->
       <div
         class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
       >
@@ -330,6 +338,7 @@
 
         <div class="min-h-0 flex-1 overflow-y-auto pr-1">
           <div class="flex flex-col gap-3">
+            <!-- original readout content: unchanged -->
             <label
               class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
             >
@@ -378,7 +387,8 @@
                   Support Ami
                 </NuxtLink>
 
-                <butterfly-trigger />
+                <!-- CHANGED: butterfly-trigger → butterfly-net -->
+                <butterfly-net />
               </div>
             </div>
 
@@ -388,6 +398,130 @@
               Keep the swarm small for subtle flutter, or crank it up when you
               want maximum butterfly nonsense.
             </div>
+
+            <!-- NEW: Field Guide gallery, appended after existing readout -->
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <div class="mb-2 flex items-center justify-between gap-2">
+                <div
+                  class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+                >
+                  Field Guide
+                </div>
+                <div class="text-xs text-base-content/40">
+                  {{ caughtCount }} / {{ totalCount }} caught
+                </div>
+              </div>
+
+              <div
+                v-if="!galleryReady"
+                class="py-4 text-center text-xs text-base-content/40"
+              >
+                loading…
+              </div>
+
+              <div
+                v-else-if="totalCount === 0"
+                class="py-4 text-center text-xs text-base-content/40"
+              >
+                no species in the field guide yet
+              </div>
+
+              <template v-else>
+                <!-- caught -->
+                <template v-if="caughtSlots.length > 0">
+                  <div class="mb-2 text-xs font-medium text-base-content/50">
+                    Caught
+                  </div>
+                  <div
+                    class="mb-3 grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2"
+                  >
+                    <button
+                      v-for="slot in caughtSlots"
+                      :key="slot.rarityNumber"
+                      class="group relative flex aspect-square items-center justify-center rounded-xl border border-success/40 bg-success/10 transition hover:scale-105 hover:border-success/60 hover:bg-success/20"
+                      :title="slot.butterfly?.name ?? ''"
+                      @click="butterflyStore.setInspected(slot.butterfly!)"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="30"
+                        height="24"
+                        viewBox="0 0 36 28"
+                        aria-hidden="true"
+                      >
+                        <ellipse
+                          cx="9"
+                          cy="10"
+                          rx="9"
+                          ry="6"
+                          :fill="slot.butterfly!.wingTopColor"
+                          opacity="0.9"
+                        />
+                        <ellipse
+                          cx="27"
+                          cy="10"
+                          rx="9"
+                          ry="6"
+                          :fill="slot.butterfly!.wingTopColor"
+                          opacity="0.9"
+                        />
+                        <ellipse
+                          cx="8"
+                          cy="18"
+                          rx="7"
+                          ry="5"
+                          :fill="slot.butterfly!.wingBottomColor"
+                          opacity="0.8"
+                        />
+                        <ellipse
+                          cx="28"
+                          cy="18"
+                          rx="7"
+                          ry="5"
+                          :fill="slot.butterfly!.wingBottomColor"
+                          opacity="0.8"
+                        />
+                        <ellipse
+                          cx="18"
+                          cy="14"
+                          rx="2"
+                          ry="6"
+                          fill="#2c2c2a"
+                          opacity="0.8"
+                        />
+                      </svg>
+                      <div
+                        class="pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-lg bg-base-300 px-2 py-1 text-xs opacity-0 shadow transition-opacity group-hover:opacity-100"
+                      >
+                        {{ slot.butterfly!.name }}
+                      </div>
+                    </button>
+                  </div>
+                </template>
+
+                <!-- locked -->
+                <template v-if="lockedSlots.length > 0">
+                  <div class="mb-2 text-xs font-medium text-base-content/30">
+                    Not yet caught
+                  </div>
+                  <div
+                    class="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2"
+                  >
+                    <div
+                      v-for="slot in lockedSlots"
+                      :key="slot.rarityNumber"
+                      class="flex aspect-square items-center justify-center rounded-xl border border-dashed border-base-300 bg-base-200/50"
+                      :title="`#${String(slot.rarityNumber).padStart(2, '0')} — not yet caught`"
+                    >
+                      <span class="text-xs tabular-nums text-base-content/25">
+                        {{ String(slot.rarityNumber).padStart(2, '0') }}
+                      </span>
+                    </div>
+                  </div>
+                </template>
+              </template>
+            </div>
+            <!-- end Field Guide -->
           </div>
         </div>
       </div>
@@ -396,7 +530,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useSmartbarStore } from '@/stores/smartbarStore'
@@ -426,20 +560,31 @@ const showNames = computed({
 })
 
 const butterflySummary = computed(() => {
-  if (!showSwarm.value) {
-    return 'Butterflies hidden'
-  }
-
-  if (butterflyCount.value === 0) {
-    return 'No butterflies active'
-  }
-
-  if (butterflyCount.value === 1) {
-    return 'One brave butterfly active'
-  }
-
+  if (!showSwarm.value) return 'Butterflies hidden'
+  if (butterflyCount.value === 0) return 'No butterflies active'
+  if (butterflyCount.value === 1) return 'One brave butterfly active'
   return `${butterflyCount.value} butterflies fluttering`
 })
+
+// ─── gallery ──────────────────────────────────────────────────────────────────
+
+const galleryReady = ref(false)
+
+const caughtSlots = computed(() =>
+  butterflyStore.gallerySlots.filter((s) => s.butterfly !== null),
+)
+const lockedSlots = computed(() =>
+  butterflyStore.gallerySlots.filter((s) => s.butterfly === null),
+)
+const caughtCount = computed(() => caughtSlots.value.length)
+const totalCount = computed(() => butterflyStore.gallerySlots.length)
+
+onMounted(async () => {
+  await butterflyStore.initGame()
+  galleryReady.value = true
+})
+
+// ─── swarm actions ────────────────────────────────────────────────────────────
 
 async function addButterfly() {
   await butterflyStore.addButterfly()

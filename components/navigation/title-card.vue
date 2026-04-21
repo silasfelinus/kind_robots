@@ -43,7 +43,7 @@
 
       <p
         v-if="description"
-        class="inline-flex w-full sm:max-w-[90%] items-center rounded-full border border-black bg-secondary px-4 py-1 text-[0.7rem] sm:text-xs font-semibold uppercase tracking-[0.18em] leading-relaxed whitespace-normal"
+        class="inline-flex w-full sm:max-w-[90%] items-center rounded-2xl border border-black bg-secondary px-1 py-1 text-[0.7rem] sm:text-xs font-semibold uppercase tracking-[0.18em] leading-relaxed whitespace-normal"
       >
         {{ description }}
       </p>

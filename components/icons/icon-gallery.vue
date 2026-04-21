@@ -20,6 +20,8 @@
         </span>
       </div>
 
+      <icon-debugger />
+
       <button
         class="btn btn-sm rounded-xl"
         :class="customIconsEnabled ? 'btn-secondary' : 'btn-outline'"

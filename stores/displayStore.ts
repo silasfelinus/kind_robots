@@ -17,7 +17,7 @@ type FullscreenState = 'nuxt' | 'fullscreen'
 type SidebarStage = 'hidden' | 'compact' | 'open' | 'priority'
 type SidebarStateKey = 'sidebarLeftState' | 'sidebarRightState'
 type LogicalSide = 'left' | 'right'
-type FooterComponentName = 'fx' | 'kind' | 'art' | 'story'
+type FooterComponentName = 'fx' | 'kind' | 'art' | 'story' | 'theme'
 type PromptOffsetOwner = FooterComponentName | ''
 
 export const useDisplayStore = defineStore('displayStore', () => {
@@ -68,7 +68,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return value === 'fx' ||
       value === 'kind' ||
       value === 'art' ||
-      value === 'story'
+      value === 'story' ||
+      value === 'theme'
       ? value
       : 'kind'
   }

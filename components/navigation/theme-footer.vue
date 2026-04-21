@@ -40,7 +40,7 @@
       <div
         class="flex min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
       >
-        <div class="flex items-center justify-between gap-2">
+        <div class="flex shrink-0 items-center justify-between gap-2">
           <div class="min-w-0">
             <h2 class="truncate text-base font-semibold">🎨 Theme Footer</h2>
             <div class="text-xs text-base-content/70">
@@ -57,7 +57,7 @@
           </button>
         </div>
 
-        <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div class="mt-3 shrink-0 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <button
             v-for="theme in quickThemes"
             :key="theme"
@@ -86,41 +86,43 @@
         class="flex min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
       >
         <div
-          class="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70"
+          class="mb-2 shrink-0 text-sm font-semibold uppercase tracking-wide text-base-content/70"
         >
           Active Theme
         </div>
 
-        <div class="flex min-h-0 flex-1 flex-col gap-3">
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+        <div class="min-h-0 flex-1 overflow-y-auto">
+          <div class="flex flex-col gap-3">
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <div
+                class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+              >
+                Current
+              </div>
+              <div class="mt-1 truncate text-lg font-semibold">
+                {{ activeThemeLabel }}
+              </div>
+              <div class="mt-1 text-xs text-base-content/70">
+                {{ activeThemeMode }}
+              </div>
+            </div>
+
             <div
-              class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+              class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/80"
             >
-              Current
+              <div class="mb-2 font-semibold">Theme Snapshot</div>
+              <pre class="max-h-64 overflow-auto whitespace-pre-wrap text-xs">{{
+                inspectValues
+              }}</pre>
             </div>
-            <div class="mt-1 truncate text-lg font-semibold">
-              {{ activeThemeLabel }}
-            </div>
-            <div class="mt-1 text-xs text-base-content/70">
-              {{ activeThemeMode }}
-            </div>
-          </div>
 
-          <div
-            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/80"
-          >
-            <div class="mb-2 font-semibold">Theme Snapshot</div>
-            <pre class="max-h-64 overflow-auto whitespace-pre-wrap text-xs">{{
-              inspectValues
-            }}</pre>
+            <p
+              v-if="themeError"
+              class="rounded-2xl border border-error bg-error/10 p-3 text-sm text-error whitespace-pre-wrap"
+            >
+              {{ themeError }}
+            </p>
           </div>
-
-          <p
-            v-if="themeError"
-            class="rounded-2xl border border-error bg-error/10 p-3 text-sm text-error whitespace-pre-wrap"
-          >
-            {{ themeError }}
-          </p>
         </div>
       </div>
     </div>
@@ -132,7 +134,7 @@
       <div
         class="flex min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
       >
-        <div class="flex items-center justify-between gap-2">
+        <div class="flex shrink-0 items-center justify-between gap-2">
           <div class="min-w-0">
             <h2 class="truncate text-base font-semibold">🎨 Theme Footer</h2>
             <div class="text-xs text-base-content/70">
@@ -150,7 +152,9 @@
           </button>
         </div>
 
-        <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        <div
+          class="mt-3 shrink-0 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5"
+        >
           <button
             v-for="theme in extendedThemes"
             :key="theme"
@@ -180,61 +184,64 @@
           class="flex h-full min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
         >
           <div
-            class="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70"
+            class="mb-2 shrink-0 text-sm font-semibold uppercase tracking-wide text-base-content/70"
           >
             Theme Tools
           </div>
 
-          <div class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-y-auto">
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <div
-                class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
-              >
-                Current Theme
-              </div>
-              <div class="mt-1 truncate text-lg font-semibold">
-                {{ activeThemeLabel }}
-              </div>
-              <div class="mt-1 text-xs text-base-content/70">
-                {{ activeThemeMode }}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-3 py-3 text-left transition hover:bg-base-300"
-              @click="openThemeLab"
-            >
-              <div
-                class="flex h-14 w-14 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
-              >
-                <icon name="kind-icon:theme" class="h-6 w-6" />
-              </div>
-
-              <div class="min-w-0 flex-1">
-                <div class="truncate font-semibold">Open Theme Lab</div>
-                <div class="line-clamp-3 text-xs text-base-content/70">
-                  Jump to the full theme area when you want deeper controls and
-                  editing.
+          <div class="min-h-0 flex-1 overflow-y-auto">
+            <div class="grid grid-cols-1 gap-3">
+              <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+                <div
+                  class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+                >
+                  Current Theme
+                </div>
+                <div class="mt-1 truncate text-lg font-semibold">
+                  {{ activeThemeLabel }}
+                </div>
+                <div class="mt-1 text-xs text-base-content/70">
+                  {{ activeThemeMode }}
                 </div>
               </div>
-            </button>
 
-            <div
-              class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/80"
-            >
-              <div class="mb-2 font-semibold">Theme Snapshot</div>
-              <pre class="max-h-72 overflow-auto whitespace-pre-wrap text-xs">{{
-                inspectValues
-              }}</pre>
+              <button
+                type="button"
+                class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-3 py-3 text-left transition hover:bg-base-300"
+                @click="openThemeLab"
+              >
+                <div
+                  class="flex h-14 w-14 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
+                >
+                  <icon name="kind-icon:theme" class="h-6 w-6" />
+                </div>
+
+                <div class="min-w-0 flex-1">
+                  <div class="truncate font-semibold">Open Theme Lab</div>
+                  <div class="line-clamp-3 text-xs text-base-content/70">
+                    Jump to the full theme area when you want deeper controls
+                    and editing.
+                  </div>
+                </div>
+              </button>
+
+              <div
+                class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/80"
+              >
+                <div class="mb-2 font-semibold">Theme Snapshot</div>
+                <pre
+                  class="max-h-72 overflow-auto whitespace-pre-wrap text-xs"
+                  >{{ inspectValues }}</pre
+                >
+              </div>
+
+              <p
+                v-if="themeError"
+                class="rounded-2xl border border-error bg-error/10 p-3 text-sm text-error whitespace-pre-wrap"
+              >
+                {{ themeError }}
+              </p>
             </div>
-
-            <p
-              v-if="themeError"
-              class="rounded-2xl border border-error bg-error/10 p-3 text-sm text-error whitespace-pre-wrap"
-            >
-              {{ themeError }}
-            </p>
           </div>
         </div>
       </div>

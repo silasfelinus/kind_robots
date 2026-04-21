@@ -284,22 +284,6 @@
                 </div>
               </div>
             </div>
-
-            <div
-              class="flex min-h-0 flex-1 flex-col rounded-2xl border border-base-300 bg-base-200 p-3"
-            >
-              <div
-                class="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70"
-              >
-                Prompt Preview
-              </div>
-
-              <div
-                class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-3 font-mono text-sm"
-              >
-                {{ promptStore.promptField || 'No prompt yet...' }}
-              </div>
-            </div>
           </div>
         </div>
       </div>

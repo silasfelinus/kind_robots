@@ -12,13 +12,6 @@
       </div>
 
       <animation-loader class="fixed z-50 pointer-events-none" />
-
-      <div
-        v-if="showSwarm"
-        class="fixed inset-0 z-50 overflow-hidden pointer-events-none"
-      >
-        <butterfly-layer class="pointer-events-none" />
-      </div>
     </div>
 
     <div

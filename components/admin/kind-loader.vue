@@ -1,6 +1,6 @@
 <!-- /components/content/story/kind-loader.vue -->
 <template>
-  <ami-loader />
+  <butterfly-layer />
 </template>
 
 <script setup lang="ts">

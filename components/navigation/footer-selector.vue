@@ -32,7 +32,7 @@
 <script setup lang="ts">
 // /components/navigation/footer-selector.vue
 import { computed, type Component } from 'vue'
-import FooterFx from '@/components/screenfx/screen-fx.vue'
+import FooterFx from '@/components/butterfly/butterfly-footer.vue'
 import KindFooter from '@/components/bots/bot-chat.vue'
 import ArtFooter from '@/components/art/art-generator.vue'
 import { useDisplayStore } from '@/stores/displayStore'

@@ -84,6 +84,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       speed: db.speed,
       wingSpeed: db.wingSpeed,
       scale: db.scale,
+      scaleMod: 1,
       rarity: db.rarityNumber,
       artImageId: db.artImageId,
       x: clampToTwoDecimals(Math.random() * 100),
@@ -388,8 +389,9 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
       butterfly.rotation = dx >= 0 ? 120 : 30
 
-      butterfly.scale =
-        0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67
+      butterfly.scaleMod = clampToTwoDecimals(
+        0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
+      )
 
       const removeBuffer = 28
       const isOutOfBounds =
@@ -426,8 +428,9 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       butterfly.y + (butterfly.goal.y - butterfly.y) * 0.02,
     )
 
-    butterfly.scale =
-      0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67
+    butterfly.scaleMod = clampToTwoDecimals(
+      0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
+    )
 
     butterfly.rotation = dx >= 0 ? 120 : 30
   }

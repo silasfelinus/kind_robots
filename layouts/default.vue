@@ -57,7 +57,10 @@
               class="smart-scroll-container sidebar-scroll"
               @scroll="updateScrollState('left')"
             >
-              <div :key="`left-${localPageKey}`" class="sidebar-scroll__content">
+              <div
+                :key="`left-${localPageKey}`"
+                class="sidebar-scroll__content"
+              >
                 <slot name="left">
                   <splash-tutorial />
                 </slot>
@@ -137,7 +140,7 @@
 
     <button
       class="pointer-events-auto sidebar-toggle icon-btn icon-btn--edge icon-btn--secondary"
-      :style="leftToggleStyle"
+      :style="displayStore.leftToggleStyle"
       :title="leftSidebarTitle"
       @click="displayStore.toggleLeftSidebar"
     >
@@ -146,7 +149,7 @@
 
     <button
       class="pointer-events-auto sidebar-toggle icon-btn icon-btn--edge icon-btn--accent"
-      :style="rightToggleStyle"
+      :style="displayStore.rightToggleStyle"
       :title="rightSidebarTitle"
       @click="displayStore.toggleRightSidebar"
     >
@@ -185,7 +188,7 @@
     >
       <div class="pointer-events-auto flex justify-center">
         <button
-          class="icon-btn icon-btn--pill icon-btn--base"
+          class="icon-btn icon-btn--pill icon-btn--base transition-all duration-200 hover:scale-110 hover:shadow-[0_0_1.2rem_rgba(255,255,255,0.4)]"
           title="Toggle footer"
           @click="displayStore.toggleFooter"
         >
@@ -196,17 +199,9 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 // /layouts/default.vue
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { NuxtImg } from '#components'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -228,36 +223,6 @@ const rightCanScrollUp = ref(false)
 const rightCanScrollDown = ref(false)
 
 const localPageKey = computed(() => route.path)
-
-const leftToggleStyle = computed(() => {
-  const state = displayStore.leftSidebarModeLabel
-  const sidebar = displayStore.leftSidebarStyle as Record<string, string>
-
-  const width = sidebar.width ?? '0px'
-  const top = sidebar.top ?? '0px'
-  const height = sidebar.height ?? '100vh'
-
-  return {
-    left: state === 'hidden' ? '1rem' : `calc(${width} + 0.5rem)`,
-    top: `calc(${top} + (${height} / 2))`,
-    transform: 'translateY(-50%)',
-  }
-})
-
-const rightToggleStyle = computed(() => {
-  const state = displayStore.rightSidebarModeLabel
-  const sidebar = displayStore.rightSidebarStyle as Record<string, string>
-
-  const width = sidebar.width ?? '0px'
-  const top = sidebar.top ?? '0px'
-  const height = sidebar.height ?? '100vh'
-
-  return {
-    right: state === 'hidden' ? '1rem' : `calc(${width} + 0.5rem)`,
-    top: `calc(${top} + (${height} / 2))`,
-    transform: 'translateY(-50%)',
-  }
-})
 
 const sidebarImageSizes = computed(
   () => '(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 420px',

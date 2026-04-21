@@ -65,13 +65,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function normalizeFooterComponent(value: string): FooterComponentName {
-  return value === 'fx' ||
-    value === 'kind' ||
-    value === 'art' ||
-    value === 'story'
-    ? value
-    : 'kind'
-}
+    return value === 'fx' ||
+      value === 'kind' ||
+      value === 'art' ||
+      value === 'story'
+      ? value
+      : 'kind'
+  }
 
   const fullColumnTopOffset = computed(() => {
     return sectionPaddingSize.value
@@ -316,11 +316,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const footerToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const footerTop = 100 - effectiveFooterHeight.value - padding
+    const lift = state.footerState === 'hidden' ? 0.9 : 0.35
 
     return {
       position: 'fixed',
       left: '50%',
-      top: `calc(var(--vh) * ${footerTop} - 0.9rem)`,
+      top: `calc(var(--vh) * ${footerTop} - ${lift}rem)`,
       transform: 'translateX(-50%)',
       zIndex: '80',
     }

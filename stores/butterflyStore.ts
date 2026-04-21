@@ -3,6 +3,7 @@
 import { defineStore } from 'pinia'
 import { ref, reactive, computed } from 'vue'
 import { useErrorStore, ErrorType } from './errorStore'
+import { useUserStore } from './userStore'
 import {
   type Butterfly,
   type ButterflySettingsWithOptions,
@@ -29,6 +30,12 @@ interface DbButterfly {
   rarityNumber: number
   artImageId?: number
   designer?: string
+}
+
+interface DbButterflyRecord {
+  id: number
+  butterflyId: number
+  userId: number
 }
 
 export const useButterflyStore = defineStore('butterflyStore', () => {
@@ -177,20 +184,24 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     original: originalButterflySettings,
   }))
 
-  const spawnableButterflies = computed<Butterfly[]>(() =>
-    dbButterflies.value
-      .filter((db) => !userCaughtIds.value.has(db.id))
-      .map(hydrateButterfly),
-  )
+  const spawnableButterflies = computed<Butterfly[]>(() => {
+    const safe = Array.isArray(dbButterflies.value) ? dbButterflies.value : []
 
-  const gallerySlots = computed(() =>
-    [...dbButterflies.value]
+    return safe
+      .filter((db) => !userCaughtIds.value.has(db.id))
+      .map(hydrateButterfly)
+  })
+
+  const gallerySlots = computed(() => {
+    const safe = Array.isArray(dbButterflies.value) ? dbButterflies.value : []
+
+    return [...safe]
       .sort((a, b) => a.rarityNumber - b.rarityNumber)
       .map((db) => ({
         rarityNumber: db.rarityNumber,
         butterfly: userCaughtIds.value.has(db.id) ? hydrateButterfly(db) : null,
-      })),
-  )
+      }))
+  })
 
   function clearButterflies() {
     markAllButterfliesForExit()
@@ -198,6 +209,10 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   function toggleShowNames() {
     showNames.value = !showNames.value
+  }
+
+  function setShowNames(value: boolean) {
+    showNames.value = value
   }
 
   function addError(type: ErrorType, message: unknown) {
@@ -470,13 +485,34 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   async function initGame() {
     try {
-      const [allRes, caughtRes] = await Promise.all([
+      const userStore = useUserStore()
+      const userId = userStore.userId
+
+      if (!userId) {
+        dbButterflies.value = []
+        userCaughtIds.value = new Set()
+        return
+      }
+
+      const [allRes, recordRes] = await Promise.all([
         $fetch<DbButterfly[]>('/api/butterflies'),
-        $fetch<{ butterflyId: number }[]>('/api/me/butterflies'),
+        $fetch<DbButterflyRecord[]>('/api/butterfly-records', {
+          query: { userId },
+        }),
       ])
-      dbButterflies.value = allRes
-      userCaughtIds.value = new Set(caughtRes.map((r) => r.butterflyId))
+
+      const safeButterflies = Array.isArray(allRes) ? allRes : []
+      const safeRecords = Array.isArray(recordRes) ? recordRes : []
+
+      dbButterflies.value = safeButterflies
+      userCaughtIds.value = new Set(
+        safeRecords
+          .map((record) => record.butterflyId)
+          .filter((id): id is number => typeof id === 'number'),
+      )
     } catch (error) {
+      dbButterflies.value = []
+      userCaughtIds.value = new Set()
       addError(ErrorType.STORE_ERROR, error)
     }
   }
@@ -636,6 +672,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     complementaryColor,
     analogousColor,
     applyColorScheme,
+    setShowNames,
   }
 })
 

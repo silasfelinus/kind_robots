@@ -179,7 +179,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  background: color-mix(in oklab, black 78%, transparent);
+  background: color-mix(in oklab, black 100%, transparent);
   transition: opacity 1s;
   pointer-events: auto;
 }

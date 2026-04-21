@@ -42,6 +42,7 @@ model Art {
   ArtImage       ArtImage?
   Dominions      Dominion[]
   Reaction       Reaction[]
+  Butterflies Butterfly[]
   ArtCollection  ArtCollection[] @relation("ArtToArtCollection")
 
   @@index([galleryId], map: "Art_galleryId_fkey")
@@ -62,6 +63,7 @@ model ArtImage {
   artId       Int?       @unique
   fileName    String?    @db.VarChar(764)
   fileType    String     @default("png")
+  rarity      Int?
   botId       Int?       @unique
   componentId Int?       @unique
   milestoneId Int?       @unique
@@ -73,6 +75,7 @@ model ArtImage {
   tagId       Int?       @unique
   chatId      Int?       @unique
   characterId Int?       @unique
+  butterflyId Int?       @unique
   Art         Art?       @relation(fields: [artId], references: [id])
   Bot         Bot?       @relation(fields: [botId], references: [id])
   Character   Character? @relation(fields: [characterId], references: [id])
@@ -87,6 +90,7 @@ model ArtImage {
   Reward      Reward?    @relation(fields: [rewardId], references: [id])
   Tag         Tag?       @relation(fields: [tagId], references: [id])
   User        User?      @relation(fields: [userId], references: [id])
+  Butterflies Butterfly[]
   Dominions   Dominion[]
   Scenarios   Scenario[]
 
@@ -106,6 +110,7 @@ model ArtCollection {
   username    String?
   User        User      @relation(fields: [userId], references: [id])
   art         Art[]     @relation("ArtToArtCollection")
+  Butterflies Butterfly[]
 
   @@index([userId], map: "ArtCollection_userId_fkey")
 }
@@ -142,9 +147,106 @@ model Bot {
   Chats             Chat[]
   Prompts           Prompt[]
   Reactions         Reaction[]
+  Butterflies Butterfly[]
 
   @@index([userId], map: "Bot_userId_fkey")
   @@index([serverId], map: "Bot_serverId_fkey")
+}
+
+/// Butterfly is the source of truth for each collectible species.
+/// Runtime-only fields (x, y, z, goal, rotation, status, zIndex) live in the
+/// butterflyStore — nothing positional is persisted here.
+/// name and message are the personality core; treat them as immutable post-seed.
+/// wingTopColor / wingBottomColor stored as HSL strings: "hsl(210,70%,55%)"
+model Butterfly {
+  id              Int                @id @default(autoincrement())
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime?          @default(now()) @updatedAt
+
+  /// The funny generated name — also used as display identity in the game UI.
+  /// Maps to the `id` field in butterflyHelper's Butterfly interface at runtime.
+  name            String             @unique @db.VarChar(255)
+
+  /// One-line character description shown in the capture modal.
+  message         String             @db.VarChar(764)
+
+  /// Stored so the gallery can render caught butterflies without spawning them.
+  wingTopColor    String             @db.VarChar(64)
+  wingBottomColor String             @db.VarChar(64)
+
+  /// Flight personality — read by createNewButterfly() at spawn time.
+  /// speed maps to butterflyHelper speedRange output (Float, e.g. 0.3–0.8)
+  /// wingSpeed maps to wingSpeedRange output (Float, e.g. 0.06–0.15)
+  /// scale maps to the scale field on the Butterfly interface (Float, e.g. 0.7–1.3)
+  speed           Float
+  wingSpeed       Float
+  scale           Float
+
+  /// Stable 1-based slot index for the field guide gallery.
+  /// Assigned at seed time and never changed — it's the gallery key.
+  rarityNumber    Int                @unique
+
+  /// Optional: attach art to a butterfly for a richer gallery detail view later.
+  artImageId      Int?               @unique
+  ArtImage        ArtImage?          @relation(fields: [artImageId], references: [id])
+
+  /// Follows Bot/Dominion/Pitch convention for ownership + visibility.
+  designer        String?            @db.VarChar(255)
+  userId          Int?               @default(1)
+  isPublic        Boolean            @default(true)
+
+  User            User?              @relation(fields: [userId], references: [id])
+  Collections     ButterflyRecord[]
+
+  artId           Int?
+artCollectionId Int?
+botId           Int?
+characterId     Int?
+pitchId         Int?
+promptId        Int?
+rewardId        Int?
+scenarioId      Int?
+tagId           Int?
+
+Art             Art?           @relation(fields: [artId], references: [id])
+ArtCollection   ArtCollection? @relation(fields: [artCollectionId], references: [id])
+Bot             Bot?           @relation(fields: [botId], references: [id])
+Character       Character?     @relation(fields: [characterId], references: [id])
+Pitch           Pitch?         @relation(fields: [pitchId], references: [id])
+Prompt          Prompt?        @relation(fields: [promptId], references: [id])
+Reward          Reward?        @relation(fields: [rewardId], references: [id])
+Scenario        Scenario?      @relation(fields: [scenarioId], references: [id])
+Tag             Tag?           @relation(fields: [tagId], references: [id])
+
+  @@index([userId], map: "Butterfly_userId_fkey")
+  @@index([artId],           map: "Butterfly_artId_fkey")
+@@index([artCollectionId], map: "Butterfly_artCollectionId_fkey")
+@@index([botId],           map: "Butterfly_botId_fkey")
+@@index([characterId],     map: "Butterfly_characterId_fkey")
+@@index([pitchId],         map: "Butterfly_pitchId_fkey")
+@@index([promptId],        map: "Butterfly_promptId_fkey")
+@@index([rewardId],        map: "Butterfly_rewardId_fkey")
+@@index([scenarioId],      map: "Butterfly_scenarioId_fkey")
+@@index([tagId],           map: "Butterfly_tagId_fkey")
+}
+
+/// Records which butterflies each user has caught.
+/// Follows the MilestoneRecord pattern rather than implicit M2M,
+/// so we can attach caughtAt and any future metadata cleanly.
+model ButterflyRecord {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @default(now()) @updatedAt
+
+  userId      Int
+  butterflyId Int
+
+  User        User      @relation(fields: [userId], references: [id])
+  Butterfly   Butterfly @relation(fields: [butterflyId], references: [id])
+
+  @@unique([userId, butterflyId])
+  @@index([userId],      map: "ButterflyRecord_userId_fkey")
+  @@index([butterflyId], map: "ButterflyRecord_butterflyId_fkey")
 }
 
 model Character {
@@ -197,6 +299,7 @@ model Character {
   Chats          Chat[]
   Rewards        Reward[]   @relation("CharacterToReward")
   Scenarios      Scenario[] @relation("CharacterToScenario")
+  Butterflies Butterfly[]
 
   @@index([userId], map: "Character_userId_fkey")
 }
@@ -328,6 +431,7 @@ model Gallery {
   User           User?      @relation(fields: [userId], references: [id])
   Prompts        Prompt[]
   Reactions      Reaction[]
+  
 
   @@index([userId], map: "Gallery_userId_fkey")
 }
@@ -405,6 +509,7 @@ model Pitch {
   Prompts        Prompt[]
   Reactions      Reaction[]
   Tags           Tag[]      @relation("PitchToTag")
+  Butterflies Butterfly[]
 
   @@index([userId], map: "Pitch_userId_fkey")
 }
@@ -427,6 +532,7 @@ model Prompt {
   Gallery    Gallery?   @relation(fields: [galleryId], references: [id])
   Pitch      Pitch?     @relation(fields: [pitchId], references: [id])
   User       User?      @relation(fields: [userId], references: [id])
+  Butterflies Butterfly[]
   Reactions  Reaction[]
 
   @@index([botId], map: "Prompt_botId_fkey")
@@ -526,6 +632,7 @@ model Reward {
   Reactions   Reaction[]
   User        User?       @relation(fields: [userId], references: [id])
   Characters  Character[] @relation("CharacterToReward")
+  Butterflies Butterfly[]
 
   @@index([userId], map: "Reward_userId_fkey")
 }
@@ -548,6 +655,7 @@ model Scenario {
   ArtImage     ArtImage?   @relation(fields: [artImageId], references: [id])
   User         User        @relation(fields: [userId], references: [id])
   Characters   Character[] @relation("CharacterToScenario")
+  Butterflies Butterfly[]
 
   @@index([artImageId], map: "Scenario_artImageId_fkey")
   @@index([userId], map: "Scenario_userId_fkey")
@@ -643,6 +751,7 @@ model Tag {
   Components Component[] @relation("ComponentToTag")
   Dominions  Dominion[]  @relation("DominionToTag")
   Pitches    Pitch[]     @relation("PitchToTag")
+  Butterflies Butterfly[]
 
   @@index([userId], map: "Tag_userId_fkey")
 }
@@ -735,6 +844,8 @@ model User {
   SmartIcons            SmartIcon[]
   Tags                  Tag[]
   Themes                Theme[]
+  Butterflies           Butterfly[]
+  ButterflyRecords      ButterflyRecord[]
 }
 
 model ReactionToTag {

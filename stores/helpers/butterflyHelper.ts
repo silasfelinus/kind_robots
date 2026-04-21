@@ -15,10 +15,13 @@ export interface Butterfly {
   rotation: number
   wingTopColor: string
   wingBottomColor: string
+  name?: string
   speed: number
   wingSpeed: number
+  rarity?: number
   status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
   scale: number
+  artImageId?: number
   message: string
   goal: {
     x: number

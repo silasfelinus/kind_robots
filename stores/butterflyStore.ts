@@ -17,6 +17,20 @@ import {
   getNoise,
 } from './helpers/butterflyHelper'
 
+interface DbButterfly {
+  id: number
+  name: string
+  message: string
+  wingTopColor: string
+  wingBottomColor: string
+  speed: number
+  wingSpeed: number
+  scale: number
+  rarityNumber: number
+  artImageId?: number
+  designer?: string
+}
+
 export const useButterflyStore = defineStore('butterflyStore', () => {
   const butterflies = ref<Butterfly[]>([])
   const scaleModifier = ref(1)
@@ -48,6 +62,36 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   const presets = ref<ButterflySettingsWithOptions[]>([])
 
+  const gameOpen = ref(false)
+  const dbButterflies = ref<DbButterfly[]>([])
+  const userCaughtIds = ref<Set<number>>(new Set())
+  const inspectedButterfly = ref<Butterfly | null>(null)
+
+  function hydrateButterfly(db: DbButterfly): Butterfly {
+    return {
+      id: db.name,
+      name: db.name,
+      message: db.message,
+      wingTopColor: db.wingTopColor,
+      wingBottomColor: db.wingBottomColor,
+      speed: db.speed,
+      wingSpeed: db.wingSpeed,
+      scale: db.scale,
+      rarity: db.rarityNumber,
+      artImageId: db.artImageId,
+      x: clampToTwoDecimals(Math.random() * 100),
+      y: clampToTwoDecimals(Math.random() * 100),
+      z: clampToTwoDecimals(Math.random() * 0.5 + 0.5),
+      zIndex: Math.floor(Math.random() * 50),
+      rotation: 110,
+      status: 'random',
+      goal: {
+        x: clampToTwoDecimals(Math.random() * 100),
+        y: clampToTwoDecimals(Math.random() * 100),
+      },
+    }
+  }
+
   const usedNames = computed(() => butterflies.value.map((b) => b.id))
   const getAllButterflies = computed(() => butterflies.value)
   const getButterflyById = (id: string) =>
@@ -74,6 +118,21 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     original: originalButterflySettings,
   }))
 
+  const spawnableButterflies = computed<Butterfly[]>(() =>
+    dbButterflies.value
+      .filter((db) => !userCaughtIds.value.has(db.id))
+      .map(hydrateButterfly),
+  )
+
+  const gallerySlots = computed(() =>
+    [...dbButterflies.value]
+      .sort((a, b) => a.rarityNumber - b.rarityNumber)
+      .map((db) => ({
+        rarityNumber: db.rarityNumber,
+        butterfly: userCaughtIds.value.has(db.id) ? hydrateButterfly(db) : null,
+      })),
+  )
+
   function clearButterflies() {
     butterflies.value = []
     selectedButterflyId.value = ''
@@ -99,20 +158,48 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     }
   }
 
+  async function addButterflies(amount: number, incoming?: Butterfly[]) {
+    try {
+      const safeAmount = Math.max(0, Math.floor(amount))
+      if (safeAmount === 0) return
+
+      if (incoming?.length) {
+        const nextButterflies = incoming.slice(0, safeAmount)
+        butterflies.value.push(...nextButterflies)
+        selectedButterflyId.value =
+          nextButterflies.at(-1)?.id || selectedButterflyId.value
+        return
+      }
+
+      const nextButterflies: Butterfly[] = []
+      const localUsedNames = [...usedNames.value]
+
+      for (let i = 0; i < safeAmount; i++) {
+        const newButterfly = await createNewButterfly(
+          newButterflySettings,
+          localUsedNames,
+        )
+
+        nextButterflies.push(newButterfly)
+        localUsedNames.push(newButterfly.id)
+      }
+
+      butterflies.value.push(...nextButterflies)
+      selectedButterflyId.value =
+        nextButterflies.at(-1)?.id || selectedButterflyId.value
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
+  }
+
   async function syncButterflyCount() {
     try {
       const diff = targetCount.value - butterflies.value.length
-
       if (diff > 0) {
-        for (let i = 0; i < diff; i++) {
-          await addButterfly()
-        }
+        await addButterflies(diff)
       }
-
       if (diff < 0) {
-        for (let i = 0; i < Math.abs(diff); i++) {
-          removeLastButterfly()
-        }
+        for (let i = 0; i < Math.abs(diff); i++) removeLastButterfly()
       }
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
@@ -121,9 +208,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   async function generateInitialButterflies(count: number) {
     try {
-      for (let i = 0; i < count; i++) {
-        await addButterfly()
-      }
+      await addButterflies(count)
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }
@@ -138,12 +223,9 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   function removeRandomButterfly() {
     if (!butterflies.value.length) return
-
     const index = Math.floor(Math.random() * butterflies.value.length)
     const removed = butterflies.value.splice(index, 1)[0]
-
     if (!removed) return
-
     if (removed.id === selectedButterflyId.value) {
       selectedButterflyId.value =
         butterflies.value.at(-1)?.id || butterflies.value.at(0)?.id || ''
@@ -155,7 +237,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       clearTimeout(drainStartTimeoutId.value)
       drainStartTimeoutId.value = null
     }
-
     if (drainIntervalId.value) {
       clearInterval(drainIntervalId.value)
       drainIntervalId.value = null
@@ -164,16 +245,13 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   function startDrain(delay = 1200, interval = 450) {
     stopDrain()
-
     drainStartTimeoutId.value = setTimeout(() => {
       drainStartTimeoutId.value = null
-
       drainIntervalId.value = setInterval(() => {
         if (!butterflies.value.length) {
           stopDrain()
           return
         }
-
         removeRandomButterfly()
       }, interval)
     }, delay)
@@ -181,7 +259,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   async function initialize() {
     if (initialized.value) return
-
     try {
       clearButterflies()
       targetCount.value = 20
@@ -210,7 +287,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       2
     const dx = Math.cos(angle) * butterfly.speed
     const dy = Math.sin(angle) * butterfly.speed
-
     butterfly.goal.x = Math.max(
       Math.min(butterfly.goal.x + dx, window.innerWidth - 100),
       0,
@@ -219,7 +295,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       Math.min(butterfly.goal.y + dy, window.innerHeight - 100),
       0,
     )
-
     butterfly.scale =
       0.33 +
       ((2 -
@@ -281,6 +356,37 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     if (Object.keys(newSettings).length) savePreset()
   }
 
+  async function initGame() {
+    try {
+      const [allRes, caughtRes] = await Promise.all([
+        $fetch<DbButterfly[]>('/api/butterflies'),
+        $fetch<{ butterflyId: number }[]>('/api/me/butterflies'),
+      ])
+      dbButterflies.value = allRes
+      userCaughtIds.value = new Set(caughtRes.map((r) => r.butterflyId))
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
+  }
+
+  async function recordCapture(butterfly: Butterfly) {
+    const dbRow = dbButterflies.value.find((db) => db.name === butterfly.id)
+    if (!dbRow) return
+    try {
+      await $fetch('/api/me/butterflies', {
+        method: 'POST',
+        body: { butterflyId: dbRow.id },
+      })
+      userCaughtIds.value.add(dbRow.id)
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
+  }
+
+  function setInspected(butterfly: Butterfly) {
+    inspectedButterfly.value = butterfly
+  }
+
   return {
     butterflies,
     scaleModifier,
@@ -296,6 +402,10 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     initialized,
     drainIntervalId,
     drainStartTimeoutId,
+    gameOpen,
+    dbButterflies,
+    userCaughtIds,
+    inspectedButterfly,
 
     usedNames,
     getAllButterflies,
@@ -309,11 +419,14 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     getButterfliesByStatus,
     getOriginalButterflySettings,
     getSettings,
+    spawnableButterflies,
+    gallerySlots,
 
     clearButterflies,
     toggleShowNames,
     addError,
     addButterfly,
+    addButterflies,
     syncButterflyCount,
     generateInitialButterflies,
     removeLastButterfly,
@@ -331,6 +444,9 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     resetPresets,
     applyPreset,
     updateButterflySettings,
+    initGame,
+    recordCapture,
+    setInspected,
 
     createNewButterfly,
     clampToTwoDecimals,

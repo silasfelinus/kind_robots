@@ -204,8 +204,12 @@ onBeforeUnmount(() => {
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  background: color-mix(in oklab, black 100%, transparent);
-  transition: opacity 1s;
+
+  background: oklch(0 0 0 / 0.85);
+
+  opacity: 1;
+  transition: opacity 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+
   pointer-events: auto;
 }
 

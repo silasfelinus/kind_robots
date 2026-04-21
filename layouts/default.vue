@@ -113,7 +113,7 @@
             >
               <div class="sidebar-scroll__content">
                 <slot name="right">
-                  <user-dashboard />
+                  <icon-debugger />
                 </slot>
               </div>
             </div>

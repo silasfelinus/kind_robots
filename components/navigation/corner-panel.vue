@@ -16,24 +16,6 @@
               <span aria-hidden="true" class="inline-block h-4 w-4"></span>
             </template>
           </ClientOnly>
-
-          <span v-if="showLabels" class="text-xs font-semibold">
-            {{ item.label }}
-          </span>
-
-          <ClientOnly v-if="showLabels">
-            <Icon
-              :name="
-                activePanel === item.id
-                  ? 'kind-icon:chevron-up'
-                  : 'kind-icon:chevron-down'
-              "
-              class="inline-block h-3 w-3"
-            />
-            <template #fallback>
-              <span aria-hidden="true" class="inline-block h-3 w-3"></span>
-            </template>
-          </ClientOnly>
         </button>
 
         <div
@@ -241,10 +223,6 @@ import { useDisplayStore } from '@/stores/displayStore'
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 const displayStore = useDisplayStore()
-
-const showLabels = computed(() => {
-  return displayStore.rightSidebarModeLabel === 'priority'
-})
 
 const root = ref<HTMLElement | null>(null)
 const activePanel = ref<string | null>(null)

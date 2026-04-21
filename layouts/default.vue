@@ -104,7 +104,7 @@
             >
               <div class="sidebar-scroll__content">
                 <slot name="right">
-                  <icon-debugger />
+                  <gallery-gallery />
                 </slot>
               </div>
             </div>

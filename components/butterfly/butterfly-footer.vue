@@ -1,8 +1,8 @@
-<!-- /components/content/butterfly/butterfly-sanctuary.vue -->
+<!-- /components/content/butterfly/butterfly-footer.vue -->
 <template>
   <div
-    class="relative overflow-hidden rounded-2xl border border-white/30 bg-info/90"
-    :style="{ width: centerWidth, height: centerHeight }"
+    v-if="footerState !== 'hidden'"
+    class="relative h-full w-full overflow-hidden rounded-2xl border border-white/30 bg-info/90"
   >
     <div
       class="pointer-events-none fixed inset-0 z-1 overflow-hidden opacity-0"
@@ -11,16 +11,39 @@
     </div>
 
     <div
-      class="relative z-10 grid h-full w-full gap-1 md:gap-4"
-      :class="showDemo ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'"
+      v-if="isCompact"
+      class="relative z-10 flex h-full w-full items-center justify-between gap-2 overflow-x-auto rounded-2xl bg-black/40 px-3 py-2"
+    >
+      <button class="control-btn compact-btn shrink-0" @click="addButterfly">
+        Add Butterfly
+      </button>
+
+      <div
+        class="shrink-0 rounded-2xl border border-white/20 bg-black/60 px-4 py-2 text-center text-sm font-semibold text-white"
+      >
+        Butterflies: {{ butterflyCount }}
+      </div>
+
+      <button
+        class="control-btn compact-btn shrink-0"
+        :disabled="butterflyCount === 0"
+        @click="removeButterfly"
+      >
+        Remove Butterfly
+      </button>
+    </div>
+
+    <div
+      v-else
+      class="relative z-10 grid h-full w-full min-h-0 grid-cols-1 gap-2 overflow-y-auto p-2 md:gap-4 md:p-4 lg:grid-cols-2"
     >
       <div
-        class="flex h-full min-h-0 flex-col justify-between gap-3 bg-black/50 p-2 md:p-4 rounded-2xl"
+        class="flex min-h-0 flex-col gap-3 rounded-2xl bg-black/50 p-3 md:p-4"
       >
         <div
-          class="flex-1 rounded-2xl border border-white/10 bg-base-200/20 p-3 md:p-4"
+          class="rounded-2xl border border-white/10 bg-base-200/20 p-3 md:p-4"
         >
-          <div class="flex h-full flex-col justify-between gap-4">
+          <div class="flex flex-col gap-4">
             <div class="rounded-2xl bg-black/60 p-3 text-center text-white">
               Butterflies: {{ butterflyCount }}
             </div>
@@ -29,10 +52,16 @@
               <button class="control-btn" @click="toggleAmiSwarm">
                 {{ showSwarm ? 'Stop' : 'Start' }} Animation
               </button>
+
               <button class="control-btn" @click="addButterfly">
                 Add Butterfly
               </button>
-              <button class="control-btn" @click="removeButterfly">
+
+              <button
+                class="control-btn"
+                :disabled="butterflyCount === 0"
+                @click="removeButterfly"
+              >
                 Remove Butterfly
               </button>
             </div>
@@ -41,8 +70,7 @@
       </div>
 
       <div
-        v-if="showDemo"
-        class="flex h-full min-h-0 flex-col gap-3 rounded-2xl bg-base-200 p-2 md:p-4"
+        class="flex min-h-56 flex-col gap-3 rounded-2xl bg-base-200 p-3 md:p-4"
       >
         <div class="rounded-2xl bg-black p-3 text-center text-white">
           Butterfly Demo
@@ -57,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/butterfly/butterfly-sanctuary.vue
+// /components/content/butterfly/butterfly-footer.vue
 import { computed, ref } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -65,15 +93,13 @@ import { useDisplayStore } from '@/stores/displayStore'
 const butterflyStore = useButterflyStore()
 const displayStore = useDisplayStore()
 
-const centerHeight = computed(() => displayStore.mainContentHeight)
-const centerWidth = computed(() => displayStore.mainContentWidth)
-
-const butterflyCount = computed(() => butterflyStore.butterflies.length)
-
 const footerState = computed(() => displayStore.footerState)
-const showDemo = computed(
+const isCompact = computed(() => footerState.value === 'compact')
+const isExpanded = computed(
   () => footerState.value === 'open' || footerState.value === 'priority',
 )
+
+const butterflyCount = computed(() => butterflyStore.butterflies.length)
 
 const showSwarm = ref(false)
 const swarmSize = ref(15)
@@ -106,15 +132,27 @@ const removeButterfly = () => {
 .control-btn {
   background-color: #1d4ed8;
   color: white;
-  padding: 10px 20px;
+  padding: 0.75rem 1rem;
   border-radius: 1rem;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition:
+    transform 0.2s,
+    opacity 0.2s;
 }
 
 .control-btn:hover {
-  transform: scale(1.05);
+  transform: scale(1.03);
+}
+
+.control-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.compact-btn {
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
 }
 </style>

@@ -31,9 +31,9 @@
 
 <script setup lang="ts">
 // /components/navigation/footer-selector.vue
-import { computed, type Component } from 'vue'
-import FooterFx from '@/components/butterfly/butterfly-footer.vue'
-import KindFooter from '@/components/bots/bot-chat.vue'
+import { computed, watchEffect, type Component } from 'vue'
+import ButterflyFooter from '@/components/butterfly/butterfly-footer.vue'
+import BotFooter from '@/components/bots/bot-footer.vue'
 import ArtFooter from '@/components/art/art-footer.vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
@@ -44,45 +44,60 @@ const displayStore = useDisplayStore()
 const footerOptions: FooterName[] = ['fx', 'kind', 'art']
 
 const footerComponentMap: Record<FooterName, Component> = {
-  fx: FooterFx,
-  kind: KindFooter,
+  fx: ButterflyFooter,
+  kind: BotFooter,
   art: ArtFooter,
 }
 
+function isFooterName(value: unknown): value is FooterName {
+  return (
+    typeof value === 'string' && footerOptions.includes(value as FooterName)
+  )
+}
+
+function normalizeFooterName(value: unknown): FooterName {
+  return isFooterName(value) ? value : 'kind'
+}
+
 const activeFooter = computed<FooterName>(() => {
-  const current = displayStore.footerComponent as FooterName | undefined
-  return current && footerOptions.includes(current) ? current : 'kind'
+  return normalizeFooterName(displayStore.footerComponent)
 })
 
-const activeIndex = computed(() => {
+const activeIndex = computed<number>(() => {
   const index = footerOptions.indexOf(activeFooter.value)
   return index >= 0 ? index : 0
 })
 
 const activeComponent = computed<Component>(() => {
-  return footerComponentMap[activeFooter.value]
+  return footerComponentMap[activeFooter.value] ?? BotFooter
+})
+
+watchEffect(() => {
+  const normalized = normalizeFooterName(displayStore.footerComponent)
+
+  if (displayStore.footerComponent !== normalized) {
+    displayStore.setFooterComponent(normalized)
+  }
 })
 
 function setFooterComponent(name: FooterName): void {
   displayStore.setFooterComponent(name)
 }
 
-function showPrevious(): void {
+function getWrappedFooter(step: -1 | 1): FooterName {
+  const currentIndex = footerOptions.indexOf(activeFooter.value)
+  const safeIndex = currentIndex >= 0 ? currentIndex : 0
   const nextIndex =
-    (activeIndex.value - 1 + footerOptions.length) % footerOptions.length
-  const nextFooter = footerOptions[nextIndex]
+    (safeIndex + step + footerOptions.length) % footerOptions.length
 
-  if (!nextFooter) return
+  return footerOptions[nextIndex] ?? 'kind'
+}
 
-  setFooterComponent(nextFooter)
+function showPrevious(): void {
+  setFooterComponent(getWrappedFooter(-1))
 }
 
 function showNext(): void {
-  const nextIndex = (activeIndex.value + 1) % footerOptions.length
-  const nextFooter = footerOptions[nextIndex]
-
-  if (!nextFooter) return
-
-  setFooterComponent(nextFooter)
+  setFooterComponent(getWrappedFooter(1))
 }
 </script>

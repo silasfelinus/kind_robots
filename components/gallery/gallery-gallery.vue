@@ -131,6 +131,7 @@
               <checkpoint-picker v-else-if="gallery.key === 'checkpoints'" />
               <collection-picker v-else-if="gallery.key === 'collections'" />
               <dominion-picker v-else-if="gallery.key === 'dominions'" />
+              <gallery-picker v-else-if="gallery.key === 'galleries'" />
               <icon-picker v-else-if="gallery.key === 'icons'" />
               <lab-picker v-else-if="gallery.key === 'lab'" />
               <pitch-picker v-else-if="gallery.key === 'pitches'" />
@@ -184,7 +185,7 @@ const galleries = [
   {
     key: 'collections',
     name: 'Collections',
-    page: 'collections',
+    page: 'artgallery',
     icon: '📁',
     description: 'Browse art grouped into named collections',
   },
@@ -192,8 +193,15 @@ const galleries = [
     key: 'dominions',
     name: 'Dominions',
     page: 'dominions',
-    icon: '♟️',
+    icon: 'kind-icon:frame',
     description: 'Manage and filter custom Dominion cards',
+  },
+  {
+    key: 'galleries',
+    name: 'Galleries',
+    page: 'galleries',
+    icon: '♟️',
+    description: 'Browse the ai art that inspired Kind Robots',
   },
   {
     key: 'icons',

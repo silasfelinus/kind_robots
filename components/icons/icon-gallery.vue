@@ -98,13 +98,19 @@
     </div>
 
     <!-- Edit Modal -->
-    <edit-icon
-      v-if="selectedIcon"
-      :icon="selectedIcon"
-      @close="selectedIcon = null"
-      class="fixed inset-0 z-50 bg-base-200 bg-opacity-90 backdrop-blur-md flex items-center justify-center p-4"
-      style="max-height: 95vh; overflow-y: auto"
-    />
+    <Teleport to="body">
+      <div
+        v-if="selectedIcon"
+        class="fixed inset-0 z-50 bg-base-200/90 backdrop-blur-md flex items-center justify-center p-4"
+        @click.self="selectedIcon = null"
+      >
+        <edit-icon
+          :icon="selectedIcon"
+          @close="selectedIcon = null"
+          style="max-height: 95vh; overflow-y: auto"
+        />
+      </div>
+    </Teleport>
   </div>
 </template>
 

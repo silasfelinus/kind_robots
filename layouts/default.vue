@@ -1,4 +1,3 @@
-<!-- /layouts/default.vue -->
 <template>
   <div class="flex min-h-dvh w-full flex-col overflow-hidden bg-base-200">
     <header
@@ -86,14 +85,6 @@
             </button>
           </div>
         </div>
-
-        <button
-          class="sidebar-toggle sidebar-toggle--left icon-btn icon-btn--edge icon-btn--secondary"
-          :title="leftSidebarTitle"
-          @click="displayStore.toggleLeftSidebar"
-        >
-          <Icon :name="leftSidebarIcon" class="icon-btn__icon" />
-        </button>
       </aside>
 
       <template #fallback />
@@ -139,18 +130,28 @@
             </button>
           </div>
         </div>
-
-        <button
-          class="sidebar-toggle sidebar-toggle--right icon-btn icon-btn--edge icon-btn--accent"
-          :title="rightSidebarTitle"
-          @click="displayStore.toggleRightSidebar"
-        >
-          <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
-        </button>
       </aside>
 
       <template #fallback />
     </ClientOnly>
+
+    <button
+      class="pointer-events-auto sidebar-toggle icon-btn icon-btn--edge icon-btn--secondary"
+      :style="leftToggleStyle"
+      :title="leftSidebarTitle"
+      @click="displayStore.toggleLeftSidebar"
+    >
+      <Icon :name="leftSidebarIcon" class="icon-btn__icon" />
+    </button>
+
+    <button
+      class="pointer-events-auto sidebar-toggle icon-btn icon-btn--edge icon-btn--accent"
+      :style="rightToggleStyle"
+      :title="rightSidebarTitle"
+      @click="displayStore.toggleRightSidebar"
+    >
+      <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
+    </button>
 
     <main
       class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"
@@ -214,6 +215,36 @@ const leftCanScrollUp = ref(false)
 const leftCanScrollDown = ref(false)
 const rightCanScrollUp = ref(false)
 const rightCanScrollDown = ref(false)
+
+const leftToggleStyle = computed(() => {
+  const state = displayStore.leftSidebarModeLabel
+  const sidebar = displayStore.leftSidebarStyle as Record<string, string>
+
+  const width = sidebar.width ?? '0px'
+  const top = sidebar.top ?? '0px'
+  const height = sidebar.height ?? '100vh'
+
+  return {
+    left: state === 'hidden' ? '1rem' : `calc(${width} + 0.5rem)`,
+    top: `calc(${top} + (${height} / 2))`,
+    transform: 'translateY(-50%)',
+  }
+})
+
+const rightToggleStyle = computed(() => {
+  const state = displayStore.rightSidebarModeLabel
+  const sidebar = displayStore.rightSidebarStyle as Record<string, string>
+
+  const width = sidebar.width ?? '0px'
+  const top = sidebar.top ?? '0px'
+  const height = sidebar.height ?? '100vh'
+
+  return {
+    right: state === 'hidden' ? '1rem' : `calc(${width} + 0.5rem)`,
+    top: `calc(${top} + (${height} / 2))`,
+    transform: 'translateY(-50%)',
+  }
+})
 
 const sidebarImageSizes = computed(
   () => '(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 420px',
@@ -432,18 +463,8 @@ function scrollSidebar(side: SidebarKey, direction: ScrollDirection): void {
 }
 
 .sidebar-toggle {
-  position: absolute;
-  top: 50%;
+  position: fixed;
   z-index: 60;
-  transform: translateY(-50%);
-}
-
-.sidebar-toggle--left {
-  right: 0.75rem;
-}
-
-.sidebar-toggle--right {
-  left: 0.75rem;
 }
 
 .sidebar-region {

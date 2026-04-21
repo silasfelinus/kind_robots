@@ -354,7 +354,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       butterfly.scale =
         0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67
 
-      const removeBuffer = 22
+      const removeBuffer = 28
       const isOutOfBounds =
         butterfly.x < -removeBuffer ||
         butterfly.x > 100 + removeBuffer ||

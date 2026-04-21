@@ -14,7 +14,7 @@
         v-if="showSwarm"
         class="fixed inset-0 z-50 overflow-hidden pointer-events-none"
       >
-        <butterfly-animation class="pointer-events-none" />
+        <butterfly-layer class="pointer-events-none" />
       </div>
     </div>
 

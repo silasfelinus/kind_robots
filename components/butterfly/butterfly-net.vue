@@ -8,7 +8,7 @@
       butterflyStore.gameOpen ? 'Put net down' : 'Pick up butterfly net'
     "
     :title="butterflyStore.gameOpen ? 'Put net down' : 'Catch butterflies'"
-    @click="butterflyStore.gameOpen = !butterflyStore.gameOpen"
+    @click.stop="butterflyStore.gameOpen = !butterflyStore.gameOpen"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -57,17 +57,11 @@
     <span class="close-x" aria-hidden="true">×</span>
   </button>
 
-  <!-- ── cursor overlay + modal — teleports to body when game is open ────── -->
+  <!-- ── cursor overlay — pointer-events: none so UI stays clickable ──────── -->
   <Teleport to="body">
     <Transition name="net-fade">
-      <div
-        v-if="butterflyStore.gameOpen"
-        class="butterfly-overlay"
-        @mousemove="onMouseMove"
-        @mouseleave="onMouseLeave"
-        @click="onOverlayClick"
-      >
-        <!-- lagging net cursor -->
+      <div v-if="butterflyStore.gameOpen" class="butterfly-overlay">
+        <!-- net cursor tracks mouse, pointer-events: none throughout -->
         <div
           v-show="cursorVisible"
           class="net-cursor"
@@ -123,7 +117,7 @@
           <div v-if="flashMessage" class="catch-flash">{{ flashMessage }}</div>
         </Transition>
 
-        <!-- butterfly-modal handles the capture card -->
+        <!-- modal — has its own backdrop with pointer-events when open -->
         <ButterflyModal
           :butterfly="captureTarget"
           @confirm="onConfirmCapture"
@@ -156,14 +150,56 @@ const netCursorStyle = computed(() => ({
   transform: 'translate(-44px, -34px)',
 }))
 
-function onMouseMove(e: MouseEvent) {
+// ── capture state ──────────────────────────────────────────────────────────────
+
+const captureTarget = ref<Butterfly | null>(null)
+const flashMessage = ref('')
+let flashTimer: ReturnType<typeof setTimeout> | null = null
+
+const NET_RADIUS = 48 // px in viewport space — generous for usability
+
+// ── document-level listeners — attached when game is open ─────────────────────
+// Using document listeners instead of an overlay div means the UI stays
+// fully interactive. The cursor style on <html> signals game mode visually.
+
+function onDocMouseMove(e: MouseEvent) {
   mouseX.value = e.clientX
   mouseY.value = e.clientY
   cursorVisible.value = true
 }
 
-function onMouseLeave() {
+function onDocMouseLeave() {
   cursorVisible.value = false
+}
+
+function onDocClick(e: MouseEvent) {
+  if (captureTarget.value) return
+  if (butterflyStore.discoveryButterfly) return // discovery modal is open
+  if ((e.target as HTMLElement).closest('.net-icon-btn')) return
+
+  // Don't intercept clicks on the toggle button itself
+  if ((e.target as HTMLElement).closest('.net-icon-btn')) return
+
+  const netCx = netX.value
+  const netCy = netY.value
+
+  for (const b of butterflyStore.butterflies) {
+    // Skip already-caught butterflies
+    if (butterflyStore.userCaughtIds.has(b.rarity ?? -1)) continue
+
+    // b.x and b.y are 0–100 percentages of the viewport
+    const bpx = (b.x / 100) * window.innerWidth
+    const bpy = (b.y / 100) * window.innerHeight
+
+    const dx = bpx - netCx
+    const dy = bpy - netCy
+
+    if (Math.sqrt(dx * dx + dy * dy) < NET_RADIUS) {
+      captureTarget.value = b
+      e.stopPropagation()
+      return
+    }
+  }
 }
 
 // ── net lag RAF ────────────────────────────────────────────────────────────────
@@ -186,41 +222,37 @@ function stopNetLag() {
   }
 }
 
+// ── lifecycle ──────────────────────────────────────────────────────────────────
+
+function attachListeners() {
+  document.addEventListener('mousemove', onDocMouseMove)
+  document.addEventListener('mouseleave', onDocMouseLeave)
+  document.addEventListener('click', onDocClick, true) // capture phase
+  document.documentElement.style.cursor = 'none'
+  startNetLag()
+}
+
+function detachListeners() {
+  document.removeEventListener('mousemove', onDocMouseMove)
+  document.removeEventListener('mouseleave', onDocMouseLeave)
+  document.removeEventListener('click', onDocClick, true)
+  document.documentElement.style.cursor = ''
+  stopNetLag()
+  cursorVisible.value = false
+}
+
 watch(
   () => butterflyStore.gameOpen,
   (open) => {
-    if (open) startNetLag()
-    else stopNetLag()
+    if (open) attachListeners()
+    else detachListeners()
   },
   { immediate: true },
 )
 
-onUnmounted(stopNetLag)
+onUnmounted(detachListeners)
 
-// ── capture ────────────────────────────────────────────────────────────────────
-
-const captureTarget = ref<Butterfly | null>(null)
-const flashMessage = ref('')
-let flashTimer: ReturnType<typeof setTimeout> | null = null
-
-const NET_RADIUS = 32
-
-function onOverlayClick(e: MouseEvent) {
-  if (captureTarget.value) return
-
-  const netCx = netX.value
-  const netCy = netY.value
-
-  for (const b of butterflyStore.butterflies) {
-    if (butterflyStore.userCaughtIds.has(b.rarity ?? -1)) continue
-    const dx = b.goal.x - netCx
-    const dy = b.goal.y - netCy
-    if (Math.sqrt(dx * dx + dy * dy) < NET_RADIUS) {
-      captureTarget.value = b
-      return
-    }
-  }
-}
+// ── capture handlers ───────────────────────────────────────────────────────────
 
 function onConfirmCapture() {
   if (!captureTarget.value) return
@@ -331,14 +363,13 @@ function onCancel() {
   }
 }
 
-/* ── overlay ────────────────────────────────────────────────────────────────── */
+/* ── overlay — pointer-events: none so nothing is blocked ───────────────────── */
 
 .butterfly-overlay {
   position: fixed;
   inset: 0;
   z-index: 9000;
-  cursor: none;
-  pointer-events: all;
+  pointer-events: none; /* UI stays fully interactive */
 }
 
 .net-cursor {

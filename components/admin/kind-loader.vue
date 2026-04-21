@@ -1,9 +1,23 @@
 <!-- /components/content/story/kind-loader.vue -->
 <template>
-  <butterfly-layer />
+  <div>
+    <butterfly-layer />
+
+    <div
+      v-if="showOverlay"
+      class="loading-overlay"
+      :class="{ 'fade-out': fadeOut }"
+      @transitionend="handleTransitionEnd"
+      @click="startFadeOut"
+    >
+      <Icon name="kind-icon:bubble-loading" class="bubble-loader" />
+      <div class="loading-message">{{ currentMessage }}</div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
+// /components/content/story/kind-loader.vue
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useErrorStore, ErrorType } from '../../stores/errorStore'
 import { useUserStore } from '../../stores/userStore'
@@ -27,8 +41,8 @@ import { useSmartbarStore } from '../../stores/smartbarStore'
 import { useComponentStore } from '../../stores/componentStore'
 import { usePageStore } from '../../stores/pageStore'
 import { useNavStore } from '../../stores/navStore'
+import { useLoadStore } from '../../stores/loadStore'
 
-// Stores
 const errorStore = useErrorStore()
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
@@ -51,10 +65,41 @@ const smartbarStore = useSmartbarStore()
 const componentStore = useComponentStore()
 const randomStore = useRandomStore()
 const navStore = useNavStore()
+const loadStore = useLoadStore()
 
-// State management
+const emit = defineEmits<{
+  pageReady: [boolean]
+}>()
+
 const isReady = ref(false)
-const emit = defineEmits(['pageReady'])
+const showOverlay = ref(true)
+const fadeOut = ref(false)
+const currentMessage = ref('Building Kind Robots...')
+
+let messageIntervalId: ReturnType<typeof setInterval> | null = null
+let initialMessageTimeoutId: ReturnType<typeof setTimeout> | null = null
+let fadeTimeoutId: ReturnType<typeof setTimeout> | null = null
+
+function updateMessage() {
+  currentMessage.value =
+    loadStore.randomLoadMessage?.() ?? 'Building Kind Robots...'
+}
+
+function startFadeOut() {
+  fadeOut.value = true
+}
+
+function handleTransitionEnd(event: TransitionEvent) {
+  if (event.propertyName !== 'opacity') return
+  if (!fadeOut.value) return
+
+  showOverlay.value = false
+
+  if (!isReady.value) {
+    isReady.value = true
+    emit('pageReady', true)
+  }
+}
 
 onMounted(async () => {
   try {
@@ -65,6 +110,11 @@ onMounted(async () => {
         'Error initializing display store',
       )
     }
+
+    initialMessageTimeoutId = setTimeout(() => {
+      updateMessage()
+      messageIntervalId = setInterval(updateMessage, 2500)
+    }, 100)
 
     await Promise.all([
       userStore.initialize?.(),
@@ -84,19 +134,78 @@ onMounted(async () => {
 
     console.log('All stores initialized successfully.')
 
-    // Immediately announce the page is ready
-    isReady.value = true
-    emit('pageReady', true)
+    fadeTimeoutId = setTimeout(() => {
+      startFadeOut()
+    }, 1300)
   } catch (error) {
     console.error('Initialization failed:', error)
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
       `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
     )
+    fadeTimeoutId = setTimeout(() => {
+      startFadeOut()
+    }, 1300)
   }
 })
 
 onBeforeUnmount(() => {
-  displayStore.removeViewportWatcher() // Clean up the watcher
+  if (initialMessageTimeoutId) {
+    clearTimeout(initialMessageTimeoutId)
+    initialMessageTimeoutId = null
+  }
+
+  if (fadeTimeoutId) {
+    clearTimeout(fadeTimeoutId)
+    fadeTimeoutId = null
+  }
+
+  if (messageIntervalId) {
+    clearInterval(messageIntervalId)
+    messageIntervalId = null
+  }
+
+  displayStore.removeViewportWatcher()
 })
 </script>
+
+<style scoped>
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  background: color-mix(in oklab, black 78%, transparent);
+  transition: opacity 1s;
+  pointer-events: auto;
+}
+
+.loading-overlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-message {
+  max-width: min(90vw, 42rem);
+  padding: 0.75rem 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid oklch(var(--bc) / 0.2);
+  background: oklch(var(--b1) / 0.92);
+  color: oklch(var(--bc));
+  font-size: clamp(1.125rem, 2vw, 2rem);
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 0.75rem 2rem oklch(0 0 0 / 0.18);
+  backdrop-filter: blur(10px);
+}
+
+.bubble-loader {
+  font-size: clamp(4rem, 10vw, 6rem);
+  color: oklch(var(--p));
+  filter: drop-shadow(0 0 1rem oklch(var(--p) / 0.35));
+}
+</style>

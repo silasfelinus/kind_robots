@@ -363,76 +363,61 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   }
 
   function updateButterflyPosition(butterfly: Butterfly) {
-    t.value += 0.01
     const noise2D = getNoise()
+    const t = Date.now() * 0.001 // wall clock, same as ami — fixes the spasm
+
+    const angle =
+      noise2D(butterfly.x * 0.01, butterfly.y * 0.01 + t) * Math.PI * 2
+
+    const noiseDx = Math.cos(angle) * butterfly.speed
+    const noiseDy = Math.sin(angle) * butterfly.speed
 
     if (butterfly.isExiting) {
-      const targetX = butterfly.goal.x
-      const targetY = butterfly.goal.y
-
-      const dx = targetX - butterfly.x
-      const dy = targetY - butterfly.y
-      const distance = Math.sqrt(dx * dx + dy * dy) || 1
-
-      const exitSpeed = Math.max(butterfly.speed * 1.4, 1.2)
-      const wobble = 0.35
-
-      const nx = noise2D(butterfly.x * 0.05, t.value)
-      const ny = noise2D(butterfly.y * 0.05, t.value + 10)
+      // Same noise movement as always, plus a gentle drift toward the exit goal.
+      // Not a beeline — the butterfly still feels like itself, just gradually pulled away.
+      const goalDx = butterfly.goal.x - butterfly.x
+      const goalDy = butterfly.goal.y - butterfly.y
+      const goalDist = Math.sqrt(goalDx * goalDx + goalDy * goalDy) || 1
+      const pull = butterfly.speed * 0.4
 
       butterfly.x = clampToTwoDecimals(
-        butterfly.x + (dx / distance) * exitSpeed + nx * wobble,
+        butterfly.x + noiseDx + (goalDx / goalDist) * pull,
       )
       butterfly.y = clampToTwoDecimals(
-        butterfly.y + (dy / distance) * exitSpeed + ny * wobble,
+        butterfly.y + noiseDy + (goalDy / goalDist) * pull,
       )
 
-      butterfly.rotation = dx >= 0 ? 120 : 30
-
+      butterfly.rotation = noiseDx >= 0 ? 120 : 30
       butterfly.scaleMod = clampToTwoDecimals(
         0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
       )
 
       const removeBuffer = 28
-      const isOutOfBounds =
+      if (
         butterfly.x < -removeBuffer ||
         butterfly.x > 100 + removeBuffer ||
         butterfly.y < -removeBuffer ||
         butterfly.y > 100 + removeBuffer
-
-      if (isOutOfBounds) {
+      ) {
         const index = butterflies.value.findIndex((b) => b.id === butterfly.id)
-        if (index !== -1) {
-          butterflies.value.splice(index, 1)
-        }
+        if (index !== -1) butterflies.value.splice(index, 1)
       }
 
       return
     }
 
-    const angle =
-      noise2D(butterfly.goal.x * 0.01, butterfly.goal.y * 0.01 + t.value) *
-      Math.PI *
-      2
-
-    const dx = Math.cos(angle) * butterfly.speed
-    const dy = Math.sin(angle) * butterfly.speed
-
-    butterfly.goal.x = Math.max(Math.min(butterfly.goal.x + dx, 100), 0)
-    butterfly.goal.y = Math.max(Math.min(butterfly.goal.y + dy, 100), 0)
-
+    // Normal flight: noise-driven, clamped to viewport
     butterfly.x = clampToTwoDecimals(
-      butterfly.x + (butterfly.goal.x - butterfly.x) * 0.02,
+      Math.max(0, Math.min(butterfly.x + noiseDx, 100)),
     )
     butterfly.y = clampToTwoDecimals(
-      butterfly.y + (butterfly.goal.y - butterfly.y) * 0.02,
+      Math.max(0, Math.min(butterfly.y + noiseDy, 100)),
     )
 
+    butterfly.rotation = noiseDx >= 0 ? 120 : 30
     butterfly.scaleMod = clampToTwoDecimals(
       0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
     )
-
-    butterfly.rotation = dx >= 0 ? 120 : 30
   }
 
   function animateButterflies() {

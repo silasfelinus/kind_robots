@@ -74,7 +74,7 @@
               title="Scroll up"
               @click.stop="scrollSidebar('left', 'up')"
             >
-              <Icon name="kind-icon:chevron-up" class="h-4 w-4" />
+              <Icon name="kind-icon:chevron-up" class="h-6 w-6" />
             </button>
 
             <button
@@ -84,7 +84,7 @@
               title="Scroll down"
               @click.stop="scrollSidebar('left', 'down')"
             >
-              <Icon name="kind-icon:chevron-down" class="h-4 w-4" />
+              <Icon name="kind-icon:chevron-down" class="h-6 w-6" />
             </button>
           </div>
         </div>

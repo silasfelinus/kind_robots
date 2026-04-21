@@ -289,9 +289,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const leftToggleStyle = computed<CSSProperties>(() => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    const leftOffset = sidebarLeftVisible.value
-      ? sectionPaddingSize.value + sidebarLeftWidth.value
-      : sectionPaddingSize.value
+    const collapsedSidebarOffset = 2.5
+
+    const leftOffset =
+      sectionPaddingSize.value +
+      (leftSidebarStage.value === 'hidden'
+        ? collapsedSidebarOffset
+        : sidebarLeftWidth.value)
 
     return {
       top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,
@@ -302,9 +306,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const rightToggleStyle = computed<CSSProperties>(() => {
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    const rightOffset = sidebarRightVisible.value
-      ? sectionPaddingSize.value + sidebarRightWidth.value
-      : sectionPaddingSize.value
+    const collapsedSidebarOffset = 2.5
+
+    const rightOffset =
+      sectionPaddingSize.value +
+      (rightSidebarStage.value === 'hidden'
+        ? collapsedSidebarOffset
+        : sidebarRightWidth.value)
 
     return {
       top: `calc(var(--vh) * ${header + sectionPaddingSize.value * 2})`,

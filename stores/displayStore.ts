@@ -769,6 +769,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   }
 
+  const footerComponent = ref<string>('fx')
+
+  function setFooterComponent(name: string) {
+    footerComponent.value = name
+  }
+
   function initialize() {
     if (typeof window === 'undefined' || state.isInitialized) return
 
@@ -824,12 +830,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
     rightSidebarStyle,
     mainContentStyle,
     footerStyle,
+    footerComponent,
 
     isLargeViewport,
     headerModeLabel,
     footerModeLabel,
     leftSidebarModeLabel,
     rightSidebarModeLabel,
+    setFooterComponent,
 
     getSidebarStage,
     setSidebarStage,

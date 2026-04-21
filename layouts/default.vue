@@ -173,7 +173,7 @@
     >
       <div class="absolute inset-0 overflow-hidden">
         <slot name="footer">
-          <art-generator />
+          <footer-selector />
         </slot>
       </div>
     </footer>

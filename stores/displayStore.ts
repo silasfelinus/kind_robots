@@ -17,6 +17,8 @@ type FullscreenState = 'nuxt' | 'fullscreen'
 type SidebarStage = 'hidden' | 'compact' | 'open' | 'priority'
 type SidebarStateKey = 'sidebarLeftState' | 'sidebarRightState'
 type LogicalSide = 'left' | 'right'
+type FooterComponentName = 'fx' | 'kind' | 'art'
+type PromptOffsetOwner = FooterComponentName | ''
 
 export const useDisplayStore = defineStore('displayStore', () => {
   const state = reactive({
@@ -51,11 +53,21 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
+  const footerComponent = ref<FooterComponentName>('fx')
+  const promptOffset = ref(0)
+  const promptOffsetOwner = ref<PromptOffsetOwner>('')
+
   function normalizeSidebarState(value: DisplayState): SidebarStage {
     if (value === 'hidden') return 'hidden'
     if (value === 'compact') return 'compact'
     if (value === 'priority') return 'priority'
     return 'open'
+  }
+
+  function normalizeFooterComponent(value: string): FooterComponentName {
+    return value === 'fx' || value === 'kind' || value === 'art'
+      ? value
+      : 'kind'
   }
 
   const fullColumnTopOffset = computed(() => {
@@ -99,19 +111,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
       return header + padding * 2
     }
     return contentTopOffset.value
-  })
-
-  const mainPanelHeight = computed(() => {
-    if (hasPrioritySidebar.value) {
-      return (
-        100 -
-        sectionPaddingSize.value * 2 -
-        footerHeight.value -
-        (footerVisible.value ? sectionPaddingSize.value : 0)
-      )
-    }
-
-    return mainContentHeight.value
   })
 
   const sidebarLeftWidth = computed(() => {
@@ -183,6 +182,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return footerHeights[stateKey][state.viewportSize]
   })
 
+  const effectiveFooterHeight = computed(() => {
+    if (!footerVisible.value) return 0
+    return footerHeight.value + promptOffset.value
+  })
+
   const contentTopOffset = computed(() => {
     const padding = sectionPaddingSize.value
     const headerExists = state.headerState !== 'hidden'
@@ -193,7 +197,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const contentBottomOffset = computed(() => {
     const padding = sectionPaddingSize.value
-    const footer = footerVisible.value ? footerHeight.value : 0
+    const footer = footerVisible.value ? effectiveFooterHeight.value : 0
     const paddingTotal = footerVisible.value ? padding : 0
     return footer + paddingTotal
   })
@@ -216,7 +220,20 @@ export const useDisplayStore = defineStore('displayStore', () => {
     const header = headerExists ? headerHeight.value : 0
     const footerPadding = footerVisible.value ? padding : 0
     const totalPadding = padding * 2 + footerPadding
-    return 100 - (header + totalPadding + footerHeight.value)
+    return 100 - (header + totalPadding + effectiveFooterHeight.value)
+  })
+
+  const mainPanelHeight = computed(() => {
+    if (hasPrioritySidebar.value) {
+      return (
+        100 -
+        sectionPaddingSize.value * 2 -
+        effectiveFooterHeight.value -
+        (footerVisible.value ? sectionPaddingSize.value : 0)
+      )
+    }
+
+    return mainContentHeight.value
   })
 
   const mainContentLeft = computed(() => {
@@ -295,7 +312,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const footerToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
-    const footerTop = 100 - footerHeight.value - padding
+    const footerTop = 100 - effectiveFooterHeight.value - padding
 
     return {
       position: 'fixed',
@@ -305,6 +322,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       zIndex: '80',
     }
   })
+
   const headerToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     top: `calc(var(--vh) * ${Math.max(0.5, sectionPaddingSize.value + 0.75)})`,
@@ -366,6 +384,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
     }
   })
+
   const rightSidebarStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
@@ -420,6 +439,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       pointerEvents: isHidden ? 'none' : 'auto',
     }
   })
+
   const mainContentStyle = computed<CSSProperties>(() => {
     return {
       top: `calc(var(--vh) * ${mainPanelTopOffset.value})`,
@@ -434,10 +454,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
     const padding = sectionPaddingSize.value
 
     return {
-      top: `calc(var(--vh) * ${100 - footerHeight.value - padding})`,
+      top: `calc(var(--vh) * ${100 - effectiveFooterHeight.value - padding})`,
       left: `${footerLeftInset.value}vw`,
       width: `${footerWidth.value}vw`,
-      height: `calc(var(--vh) * ${footerHeight.value})`,
+      height: `calc(var(--vh) * ${effectiveFooterHeight.value})`,
     }
   })
 
@@ -476,6 +496,41 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
 
     state[key] = stage
+  }
+
+  function requestPromptOffset(owner: FooterComponentName, nextOffset: number) {
+    if (footerComponent.value !== owner) return
+
+    const clamped = Math.max(0, Math.min(nextOffset, 24))
+    promptOffset.value = clamped
+    promptOffsetOwner.value = clamped > 0 ? owner : ''
+  }
+
+  function clearPromptOffset(owner?: FooterComponentName) {
+    if (owner && promptOffsetOwner.value && promptOffsetOwner.value !== owner) {
+      return
+    }
+
+    promptOffset.value = 0
+    promptOffsetOwner.value = ''
+  }
+
+  function refreshPromptOffset(
+    owner: FooterComponentName,
+    scrollHeight: number,
+    clientHeight: number,
+    extraPadding = 2,
+  ) {
+    if (footerComponent.value !== owner) {
+      clearPromptOffset(owner)
+      return
+    }
+
+    const overflow = Math.max(0, scrollHeight - clientHeight)
+    const overflowVh =
+      window.innerHeight > 0 ? (overflow / window.innerHeight) * 100 : 0
+
+    requestPromptOffset(owner, overflowVh + extraPadding)
   }
 
   function toggleFullscreen() {
@@ -534,6 +589,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     const order: DisplayState[] = ['compact', 'open', 'priority', 'hidden']
     const currentIndex = order.indexOf(state.footerState)
     state.footerState = order[(currentIndex + 1) % order.length] ?? 'compact'
+    clearPromptOffset()
     saveState()
   }
 
@@ -633,6 +689,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
     if (section === 'sidebarRightState') {
       setSidebarStage('right', normalizeSidebarState(newState))
+      saveState()
+      return
+    }
+
+    if (section === 'footerState') {
+      state.footerState = newState
+      clearPromptOffset()
       saveState()
       return
     }
@@ -769,10 +832,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   }
 
-  const footerComponent = ref<string>('fx')
-
   function setFooterComponent(name: string) {
-    footerComponent.value = name
+    const normalized = normalizeFooterComponent(name)
+    footerComponent.value = normalized
+    clearPromptOffset()
   }
 
   function initialize() {
@@ -806,6 +869,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
     headerHeight,
     footerHeight,
+    effectiveFooterHeight,
     sectionPaddingSize,
     sidebarContentHeight,
     mainContentHeight,
@@ -831,6 +895,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
     mainContentStyle,
     footerStyle,
     footerComponent,
+    promptOffset,
+    promptOffsetOwner,
 
     isLargeViewport,
     headerModeLabel,
@@ -838,6 +904,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
     leftSidebarModeLabel,
     rightSidebarModeLabel,
     setFooterComponent,
+    requestPromptOffset,
+    clearPromptOffset,
+    refreshPromptOffset,
 
     getSidebarStage,
     setSidebarStage,

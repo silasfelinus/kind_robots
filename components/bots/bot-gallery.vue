@@ -1,8 +1,8 @@
 <!-- /components/content/bots/bot-gallery.vue -->
 <template>
-  <div class="w-full h-[100dvh] relative bg-base-300 flex flex-col">
+  <div class="w-full h-dvh relative bg-base-300 flex flex-col">
     <!-- Title -->
-    <div class="p-6 text-center flex-shrink-0">
+    <div class="p-6 text-center shrink-0">
       <h1 class="text-3xl font-bold text-gray-700">Bot Gallery</h1>
       <p class="text-lg text-gray-500">Select a bot to activate it</p>
     </div>
@@ -57,7 +57,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'

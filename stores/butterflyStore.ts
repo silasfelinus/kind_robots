@@ -330,6 +330,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       selectedButterflyId.value = ''
       targetCount.value = 20
       await generateInitialButterflies(targetCount.value)
+      animateButterflies()
       startDrain()
       initialized.value = true
     } catch (error) {

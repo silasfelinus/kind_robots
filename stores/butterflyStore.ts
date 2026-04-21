@@ -104,6 +104,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   }
 
   function markButterflyForExit(butterfly: Butterfly) {
+    if (butterfly.isExiting) return
+
     butterfly.isExiting = true
 
     const overshoot = 18
@@ -129,6 +131,24 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
     butterfly.goal.x = clampToTwoDecimals(Math.random() * 100)
     butterfly.goal.y = 100 + overshoot
+  }
+
+  function markAllButterfliesForExit() {
+    butterflies.value.forEach((butterfly, index) => {
+      if (butterfly.isExiting) return
+
+      markButterflyForExit(butterfly)
+
+      const stagger = index * 0.7
+      butterfly.goal.x = clampToTwoDecimals(
+        butterfly.goal.x + (Math.random() - 0.5) * stagger,
+      )
+      butterfly.goal.y = clampToTwoDecimals(
+        butterfly.goal.y + (Math.random() - 0.5) * stagger,
+      )
+    })
+
+    selectedButterflyId.value = ''
   }
 
   const usedNames = computed(() => butterflies.value.map((b) => b.id))
@@ -173,8 +193,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   )
 
   function clearButterflies() {
-    butterflies.value = []
-    selectedButterflyId.value = ''
+    markAllButterfliesForExit()
   }
 
   function toggleShowNames() {
@@ -238,7 +257,9 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
         await addButterflies(diff)
       }
       if (diff < 0) {
-        for (let i = 0; i < Math.abs(diff); i++) removeLastButterfly()
+        for (let i = 0; i < Math.abs(diff); i++) {
+          removeRandomButterfly()
+        }
       }
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
@@ -305,7 +326,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   async function initialize() {
     if (initialized.value) return
     try {
-      clearButterflies()
+      butterflies.value = []
+      selectedButterflyId.value = ''
       targetCount.value = 20
       await generateInitialButterflies(targetCount.value)
       startDrain()
@@ -336,11 +358,10 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       const distance = Math.sqrt(dx * dx + dy * dy) || 1
 
       const exitSpeed = Math.max(butterfly.speed * 1.4, 1.2)
-
       const wobble = 0.35
 
-      const nx = getNoise()(butterfly.x * 0.05, t.value)
-      const ny = getNoise()(butterfly.y * 0.05, t.value + 10)
+      const nx = noise2D(butterfly.x * 0.05, t.value)
+      const ny = noise2D(butterfly.y * 0.05, t.value + 10)
 
       butterfly.x = clampToTwoDecimals(
         butterfly.x + (dx / distance) * exitSpeed + nx * wobble,

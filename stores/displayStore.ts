@@ -290,20 +290,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const leftToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-
-    // Always use the non-priority top offset so position doesn't jump
     const topOffset = header + padding * 2
 
-    // When hidden, hug the left edge. Otherwise, sit at the sidebar's right edge.
-    const leftEdge =
-      leftSidebarStage.value === 'hidden'
-        ? padding
-        : padding + sidebarLeftWidth.value
+    // Center button on the sidebar's right boundary seam.
+    // When hidden (sidebarWidth=0), seam=0 so button is half on-screen at the left edge.
+    const isHidden = leftSidebarStage.value === 'hidden'
+    const seam = isHidden ? 0 : padding + sidebarLeftWidth.value
 
     return {
+      position: 'fixed',
       top: `calc(var(--vh) * ${topOffset})`,
-      left: `${leftEdge}vw`,
-      transform: 'translate(-50%, 0)',
+      left: `${seam}vw`,
+      transform: 'translateX(-50%)',
       zIndex: '70',
     }
   })
@@ -311,21 +309,22 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const rightToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-
     const topOffset = header + padding * 2
 
-    const rightEdge =
-      rightSidebarStage.value === 'hidden'
-        ? padding
-        : padding + sidebarRightWidth.value
+    // Mirror: center button on sidebar's left boundary seam.
+    // When hidden, seam=0 so button is half on-screen at the right edge.
+    const isHidden = rightSidebarStage.value === 'hidden'
+    const seam = isHidden ? 0 : padding + sidebarRightWidth.value
 
     return {
+      position: 'fixed',
       top: `calc(var(--vh) * ${topOffset})`,
-      right: `${rightEdge}vw`,
-      transform: 'translate(50%, 0)',
+      right: `${seam}vw`,
+      transform: 'translateX(50%)',
       zIndex: '70',
     }
   })
+
   const footerToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const footerTop = 100 - effectiveFooterHeight.value - padding

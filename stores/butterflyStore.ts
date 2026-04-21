@@ -85,11 +85,50 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       zIndex: Math.floor(Math.random() * 50),
       rotation: 110,
       status: 'random',
+      isExiting: false,
       goal: {
         x: clampToTwoDecimals(Math.random() * 100),
         y: clampToTwoDecimals(Math.random() * 100),
       },
     }
+  }
+
+  function pickExitSide(): 'left' | 'right' | 'top' | 'bottom' {
+    const sides: Array<'left' | 'right' | 'top' | 'bottom'> = [
+      'left',
+      'right',
+      'top',
+      'bottom',
+    ]
+    return sides[Math.floor(Math.random() * sides.length)] || 'right'
+  }
+
+  function markButterflyForExit(butterfly: Butterfly) {
+    butterfly.isExiting = true
+
+    const overshoot = 18
+    const side = pickExitSide()
+
+    if (side === 'left') {
+      butterfly.goal.x = -overshoot
+      butterfly.goal.y = clampToTwoDecimals(Math.random() * 100)
+      return
+    }
+
+    if (side === 'right') {
+      butterfly.goal.x = 100 + overshoot
+      butterfly.goal.y = clampToTwoDecimals(Math.random() * 100)
+      return
+    }
+
+    if (side === 'top') {
+      butterfly.goal.x = clampToTwoDecimals(Math.random() * 100)
+      butterfly.goal.y = -overshoot
+      return
+    }
+
+    butterfly.goal.x = clampToTwoDecimals(Math.random() * 100)
+    butterfly.goal.y = 100 + overshoot
   }
 
   const usedNames = computed(() => butterflies.value.map((b) => b.id))
@@ -222,13 +261,19 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   }
 
   function removeRandomButterfly() {
-    if (!butterflies.value.length) return
-    const index = Math.floor(Math.random() * butterflies.value.length)
-    const removed = butterflies.value.splice(index, 1)[0]
-    if (!removed) return
-    if (removed.id === selectedButterflyId.value) {
+    const available = butterflies.value.filter((b) => !b.isExiting)
+    if (!available.length) return
+
+    const butterfly = available[Math.floor(Math.random() * available.length)]
+
+    if (!butterfly) return
+
+    markButterflyForExit(butterfly)
+
+    if (butterfly.id === selectedButterflyId.value) {
       selectedButterflyId.value =
-        butterflies.value.at(-1)?.id || butterflies.value.at(0)?.id || ''
+        butterflies.value.find((b) => !b.isExiting && b.id !== butterfly.id)
+          ?.id || ''
     }
   }
 
@@ -281,27 +326,67 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   function updateButterflyPosition(butterfly: Butterfly) {
     t.value += 0.01
     const noise2D = getNoise()
+
+    if (butterfly.isExiting) {
+      const targetX = butterfly.goal.x
+      const targetY = butterfly.goal.y
+
+      const dx = targetX - butterfly.x
+      const dy = targetY - butterfly.y
+      const distance = Math.sqrt(dx * dx + dy * dy) || 1
+
+      const exitSpeed = Math.max(butterfly.speed * 0.75, 0.9)
+
+      butterfly.x = clampToTwoDecimals(
+        butterfly.x + (dx / distance) * exitSpeed,
+      )
+      butterfly.y = clampToTwoDecimals(
+        butterfly.y + (dy / distance) * exitSpeed,
+      )
+
+      butterfly.rotation = dx >= 0 ? 120 : 30
+
+      butterfly.scale =
+        0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67
+
+      const removeBuffer = 22
+      const isOutOfBounds =
+        butterfly.x < -removeBuffer ||
+        butterfly.x > 100 + removeBuffer ||
+        butterfly.y < -removeBuffer ||
+        butterfly.y > 100 + removeBuffer
+
+      if (isOutOfBounds) {
+        const index = butterflies.value.findIndex((b) => b.id === butterfly.id)
+        if (index !== -1) {
+          butterflies.value.splice(index, 1)
+        }
+      }
+
+      return
+    }
+
     const angle =
       noise2D(butterfly.goal.x * 0.01, butterfly.goal.y * 0.01 + t.value) *
       Math.PI *
       2
+
     const dx = Math.cos(angle) * butterfly.speed
     const dy = Math.sin(angle) * butterfly.speed
-    butterfly.goal.x = Math.max(
-      Math.min(butterfly.goal.x + dx, window.innerWidth - 100),
-      0,
+
+    butterfly.goal.x = Math.max(Math.min(butterfly.goal.x + dx, 100), 0)
+    butterfly.goal.y = Math.max(Math.min(butterfly.goal.y + dy, 100), 0)
+
+    butterfly.x = clampToTwoDecimals(
+      butterfly.x + (butterfly.goal.x - butterfly.x) * 0.02,
     )
-    butterfly.goal.y = Math.max(
-      Math.min(butterfly.goal.y + dy, window.innerHeight - 100),
-      0,
+    butterfly.y = clampToTwoDecimals(
+      butterfly.y + (butterfly.goal.y - butterfly.y) * 0.02,
     )
+
     butterfly.scale =
-      0.33 +
-      ((2 -
-        (butterfly.goal.x / window.innerWidth +
-          butterfly.goal.y / window.innerHeight)) /
-        2) *
-        0.67
+      0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67
+
     butterfly.rotation = dx >= 0 ? 120 : 30
   }
 

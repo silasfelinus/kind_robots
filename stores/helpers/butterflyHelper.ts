@@ -23,6 +23,8 @@ export interface Butterfly {
   scale: number
   artImageId?: number
   message: string
+  isExiting?: boolean
+  exitSide?: 'left' | 'right' | 'top' | 'bottom'
   goal: {
     x: number
     y: number

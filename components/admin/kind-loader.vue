@@ -10,7 +10,6 @@ import { useUserStore } from '../../stores/userStore'
 import { useArtStore } from '../../stores/artStore'
 import { useRandomStore } from '../../stores/randomStore'
 import { useCharacterStore } from '../../stores/characterStore'
-import { useThemeStore } from '../../stores/themeStore'
 import { useBotStore } from '../../stores/botStore'
 import { useChatStore } from '../../stores/chatStore'
 import { useMilestoneStore } from '../../stores/milestoneStore'
@@ -35,7 +34,6 @@ const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
-const themeStore = useThemeStore()
 const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
 const pitchStore = usePitchStore()
@@ -71,7 +69,6 @@ onMounted(async () => {
     await Promise.all([
       userStore.initialize?.(),
       pageStore.initialize?.(),
-      themeStore.initialize?.(),
       navStore.initialize?.(),
       smartbarStore.initialize?.(),
       consoleStore.initialize?.(),

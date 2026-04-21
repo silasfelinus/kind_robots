@@ -1,6 +1,9 @@
 <!-- /app.vue -->
 <template>
-  <div class="relative min-h-screen w-full overflow-hidden bg-base-100">
+  <div
+    class="relative min-h-screen w-full overflow-hidden bg-base-100"
+    :data-theme="themeStore.currentTheme"
+  >
     <div class="fixed inset-0 z-50 pointer-events-none">
       <div class="pointer-events-auto">
         <footer-toggle />
@@ -29,11 +32,11 @@
       <div class="relative h-full w-full overflow-y-auto overscroll-contain">
         <div
           class="absolute top-2 right-2 z-50 flex flex-row-reverse items-start gap-3"
-        ></div>
+        />
 
         <NuxtPage
           :key="$route.fullPath"
-          class="min-h-full w-full transition-opacity duration-300 bg-base-300"
+          class="min-h-full w-full bg-base-300 transition-opacity duration-300"
         />
       </div>
     </main>
@@ -49,6 +52,7 @@ import { useDisplayStore } from '@/stores/displayStore'
 import { useLayoutStore } from '@/stores/layoutStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
+import { useThemeStore } from '@/stores/themeStore'
 
 const router = useRouter()
 const smartbarStore = useSmartbarStore()
@@ -56,6 +60,7 @@ const displayStore = useDisplayStore()
 const layoutStore = useLayoutStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
+const themeStore = useThemeStore()
 
 const isNavigating = ref(false)
 const showSwarm = computed(() => smartbarStore.showSwarm)
@@ -85,6 +90,7 @@ onMounted(async () => {
   layoutStore.initializeStore()
   pageStore.initialize()
   if (!userStore.initialized) await userStore.initialize()
+  if (!themeStore.initialized) await themeStore.initialize()
 })
 
 onUnmounted(() => {

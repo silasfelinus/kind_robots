@@ -36,19 +36,21 @@ import ButterflyFooter from '@/components/butterfly/butterfly-footer.vue'
 import BotFooter from '@/components/bots/bot-footer.vue'
 import ArtFooter from '@/components/art/art-footer.vue'
 import StoryFooter from '@/components/navigation/story-footer.vue'
+import ThemeFooter from '@/components/navigation/theme-footer.vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-type FooterName = 'fx' | 'kind' | 'art' | 'story'
+type FooterName = 'fx' | 'kind' | 'art' | 'story' | 'theme'
 
 const displayStore = useDisplayStore()
 
-const footerOptions: FooterName[] = ['fx', 'kind', 'art', 'story']
+const footerOptions: FooterName[] = ['fx', 'kind', 'art', 'story', 'theme']
 
 const footerComponentMap: Record<FooterName, Component> = {
   fx: ButterflyFooter,
   kind: BotFooter,
   art: ArtFooter,
   story: StoryFooter,
+  theme: ThemeFooter,
 }
 
 function isFooterName(value: unknown): value is FooterName {

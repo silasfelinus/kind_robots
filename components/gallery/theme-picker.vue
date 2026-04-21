@@ -10,6 +10,7 @@
         <option value="default">Default</option>
         <option value="shared">Shared</option>
       </select>
+
       <input
         v-model="query"
         type="search"
@@ -30,14 +31,10 @@
         :key="typeof t === 'string' ? t : t.id"
         class="picker-row"
         :class="{
-          'picker-row--active':
-            typeof t === 'string'
-              ? themeStore.activeThemeName === t
-              : themeStore.activeThemeName === t.name,
+          'picker-row--active': activeThemeName === getThemeName(t),
         }"
         @click="applyTheme(t)"
       >
-        <!-- Swatch: a tiny strip of the theme's primary color if available -->
         <span
           class="picker-icon shrink-0 w-5 h-5 rounded-md border border-base-300"
           :data-theme="typeof t === 'string' ? t : 'custom-preview-' + t.id"
@@ -45,20 +42,20 @@
         />
 
         <span class="picker-label">
-          <span class="picker-name">{{ typeof t === 'string' ? t : t.name }}</span>
-          <span class="picker-sub">{{ typeof t === 'string' ? 'Default' : 'Shared' }}</span>
+          <span class="picker-name">{{ getThemeName(t) }}</span>
+          <span class="picker-sub">{{
+            typeof t === 'string' ? 'Default' : 'Shared'
+          }}</span>
         </span>
 
         <button
           class="picker-action"
           :class="
-            (typeof t === 'string' ? themeStore.activeThemeName === t : themeStore.activeThemeName === t.name)
-              ? 'btn-primary'
-              : 'btn-ghost'
+            activeThemeName === getThemeName(t) ? 'btn-primary' : 'btn-ghost'
           "
           @click.stop="applyTheme(t)"
         >
-          {{ (typeof t === 'string' ? themeStore.activeThemeName === t : themeStore.activeThemeName === t.name) ? 'Active' : 'Apply' }}
+          {{ activeThemeName === getThemeName(t) ? 'Active' : 'Apply' }}
         </button>
       </li>
     </ul>
@@ -71,25 +68,35 @@ import { useThemeStore, type Theme } from '@/stores/themeStore'
 
 const themeStore = useThemeStore()
 const query = ref('')
-const filterGroup = ref('all')
+const filterGroup = ref<'all' | 'default' | 'shared'>('all')
 const themeError = ref('')
 
 type ThemeEntry = string | Theme
 
+const activeThemeName = computed(() => themeStore.currentTheme)
+
 const allThemes = computed<ThemeEntry[]>(() => {
-  const defaults: ThemeEntry[] = filterGroup.value !== 'shared' ? themeStore.daisyuiThemes : []
-  const shared: ThemeEntry[] = filterGroup.value !== 'default' ? themeStore.sharedThemes : []
+  const defaults: ThemeEntry[] =
+    filterGroup.value !== 'shared' ? themeStore.daisyuiThemes : []
+  const shared: ThemeEntry[] =
+    filterGroup.value !== 'default' ? themeStore.sharedThemes : []
+
   return [...defaults, ...shared]
 })
 
 const filtered = computed<ThemeEntry[]>(() => {
   const q = query.value.trim().toLowerCase()
   if (!q) return allThemes.value
+
   return allThemes.value.filter((t) => {
-    const name = typeof t === 'string' ? t : t.name
+    const name = getThemeName(t)
     return name.toLowerCase().includes(q)
   })
 })
+
+function getThemeName(t: ThemeEntry): string {
+  return typeof t === 'string' ? t : t.name
+}
 
 function applyTheme(t: ThemeEntry) {
   try {
@@ -97,21 +104,32 @@ function applyTheme(t: ThemeEntry) {
       typeof t === 'string'
         ? t
         : {
+            id: t.id,
+            userId: t.userId,
             name: t.name,
             prefersDark: t.prefersDark,
             colorScheme: t.colorScheme,
             isPublic: t.isPublic,
+            tagline: t.tagline,
             room: t.room || '',
+            createdAt: t.createdAt,
             values:
               typeof t.values === 'object' && t.values !== null
                 ? (t.values as Record<string, string>)
                 : {},
           }
+
     const result = themeStore.setActiveTheme(input)
-    if (!result.success) themeError.value = result.message ?? 'Failed to apply'
-    else themeError.value = ''
+
+    if (!result.success) {
+      themeError.value = result.message ?? 'Failed to apply'
+      return
+    }
+
+    themeError.value = ''
   } catch (err: unknown) {
-    themeError.value = (err as Error).message
+    themeError.value =
+      err instanceof Error ? err.message : 'Failed to apply theme'
   }
 }
 </script>

@@ -11,6 +11,7 @@
           {{ t }}
         </option>
       </select>
+
       <input
         v-model="query"
         type="search"
@@ -32,17 +33,25 @@
         v-for="pitch in filtered"
         :key="pitch.id"
         class="picker-row"
-        :class="{ 'picker-row--active': pitchStore.selectedPitch?.id === pitch.id }"
+        :class="{
+          'picker-row--active': pitchStore.selectedPitch?.id === pitch.id,
+        }"
         @click="pitchStore.setSelectedPitch(pitch.id)"
       >
         <span class="picker-icon">📣</span>
+
         <span class="picker-label">
           <span class="picker-name">{{ pitch.title || 'Untitled' }}</span>
-          <span class="picker-sub">{{ pitch.type }}</span>
+          <span class="picker-sub">{{ pitch.PitchType }}</span>
         </span>
+
         <button
-          class="picker-action"
-          :class="pitchStore.selectedPitch?.id === pitch.id ? 'btn-primary' : 'btn-ghost'"
+          class="btn btn-xs picker-action"
+          :class="
+            pitchStore.selectedPitch?.id === pitch.id
+              ? 'btn-primary'
+              : 'btn-ghost'
+          "
           @click.stop="pitchStore.setSelectedPitch(pitch.id)"
         >
           {{ pitchStore.selectedPitch?.id === pitch.id ? 'Active' : 'Use' }}
@@ -53,26 +62,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { usePitchStore } from '@/stores/pitchStore'
+import { computed, onMounted, ref } from 'vue'
+import { usePitchStore, type Pitch, PitchType } from '@/stores/pitchStore'
 
 const pitchStore = usePitchStore()
 const query = ref('')
-const selectedType = ref<string | null>(null)
+const selectedType = ref<PitchType | null>(null)
 const isLoading = ref(false)
 
 onMounted(async () => {
   isLoading.value = true
-  try { await pitchStore.fetchPitches() } catch {}
-  finally { isLoading.value = false }
+  try {
+    await pitchStore.fetchPitches()
+  } catch {
+  } finally {
+    isLoading.value = false
+  }
 })
 
-const filtered = computed(() => {
-  let list = selectedType.value
-    ? pitchStore.getPitchesByType(selectedType.value)
-    : pitchStore.pitches
+const filtered = computed<Pitch[]>(() => {
+  let list: Pitch[] = pitchStore.pitches
+
+  if (selectedType.value) {
+    list = list.filter((pitch: Pitch) => pitch.PitchType === selectedType.value)
+  }
+
   const q = query.value.trim().toLowerCase()
-  if (q) list = list.filter((p) => (p.title || '').toLowerCase().includes(q))
+
+  if (q) {
+    list = list.filter((pitch: Pitch) =>
+      (pitch.title || '').toLowerCase().includes(q),
+    )
+  }
+
   return list
 })
 </script>

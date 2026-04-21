@@ -26,6 +26,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   const animationPaused = ref(false)
   const showNames = ref(true)
   const selectedButterflyId = ref('')
+  const targetCount = ref(20)
 
   const originalButterflySettings = reactive({
     sizeRange: { min: 0.5, max: 1.5 },
@@ -93,6 +94,26 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
         (await createNewButterfly(newButterflySettings, usedNames.value))
       butterflies.value.push(newButterfly)
       selectedButterflyId.value = newButterfly.id
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
+  }
+
+  async function syncButterflyCount() {
+    try {
+      const diff = targetCount.value - butterflies.value.length
+
+      if (diff > 0) {
+        for (let i = 0; i < diff; i++) {
+          await addButterfly()
+        }
+      }
+
+      if (diff < 0) {
+        for (let i = 0; i < Math.abs(diff); i++) {
+          removeLastButterfly()
+        }
+      }
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }
@@ -230,6 +251,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     getButterfliesByStatus,
     getOriginalButterflySettings,
     getSettings,
+    targetCount,
+    syncButterflyCount,
 
     // actions
     clearButterflies,

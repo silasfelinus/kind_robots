@@ -368,7 +368,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     const noise2D = getNoise()
     const t = Date.now() * 0.001
 
-    // Scale matches ami's effective range — each butterfly roams its own noise territory
     const angle =
       noise2D(
         butterfly.x * 0.15 + butterfly.noiseOffsetX,
@@ -377,14 +376,22 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       Math.PI *
       2
 
-    const noiseDx = Math.cos(angle) * butterfly.speed
-    const noiseDy = Math.sin(angle) * butterfly.speed
+    // Converts stored speed (1–3) to ami-equivalent % movement per frame
+    const moveScale = 0.08
+    const noiseDx = Math.cos(angle) * butterfly.speed * moveScale
+    const noiseDy = Math.sin(angle) * butterfly.speed * moveScale
+
+    // Lerp toward target rotation instead of snapping — kills the cursed flicker
+    const targetRotation = noiseDx >= 0 ? 120 : 30
+    butterfly.rotation = clampToTwoDecimals(
+      butterfly.rotation + (targetRotation - butterfly.rotation) * 0.05,
+    )
 
     if (butterfly.isExiting) {
       const goalDx = butterfly.goal.x - butterfly.x
       const goalDy = butterfly.goal.y - butterfly.y
       const goalDist = Math.sqrt(goalDx * goalDx + goalDy * goalDy) || 1
-      const pull = butterfly.speed * 0.4
+      const pull = butterfly.speed * moveScale * 0.6
 
       butterfly.x = clampToTwoDecimals(
         butterfly.x + noiseDx + (goalDx / goalDist) * pull,
@@ -392,8 +399,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       butterfly.y = clampToTwoDecimals(
         butterfly.y + noiseDy + (goalDy / goalDist) * pull,
       )
-
-      butterfly.rotation = noiseDx >= 0 ? 120 : 30
       butterfly.scaleMod = clampToTwoDecimals(
         0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
       )
@@ -417,12 +422,10 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     butterfly.y = clampToTwoDecimals(
       Math.max(0, Math.min(butterfly.y + noiseDy, 100)),
     )
-    butterfly.rotation = noiseDx >= 0 ? 120 : 30
     butterfly.scaleMod = clampToTwoDecimals(
       0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
     )
   }
-
   function animateButterflies() {
     const animate = () => {
       butterflies.value.forEach(updateButterflyPosition)

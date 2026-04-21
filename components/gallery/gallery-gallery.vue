@@ -135,9 +135,11 @@
               <icon-picker v-else-if="gallery.key === 'icons'" />
               <lab-picker v-else-if="gallery.key === 'lab'" />
               <pitch-picker v-else-if="gallery.key === 'pitches'" />
+              <prompt-picker v-else-if="gallery.key === 'prompts'" />
               <reward-picker v-else-if="gallery.key === 'rewards'" />
               <scenario-picker v-else-if="gallery.key === 'scenarios'" />
               <server-picker v-else-if="gallery.key === 'servers'" />
+              <story-picker v-else-if="gallery.key === 'stories'" />
               <theme-picker v-else-if="gallery.key === 'themes'" />
             </div>
           </div>
@@ -225,6 +227,13 @@ const galleries = [
     description: 'Browse and search prompt pitches by type',
   },
   {
+    key: 'prompts',
+    name: 'Prompts',
+    page: 'prompts',
+    icon: '♟️',
+    description: 'Create and organizer brainstormed prompts',
+  },
+  {
     key: 'rewards',
     name: 'Rewards',
     page: 'rewards',
@@ -244,6 +253,13 @@ const galleries = [
     page: 'servers',
     icon: '🖥️',
     description: 'Manage art and text inference servers',
+  },
+  {
+    key: 'stories',
+    name: 'Stories',
+    page: 'stories',
+    icon: '📖',
+    description: 'Story Generator',
   },
   {
     key: 'themes',

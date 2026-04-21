@@ -35,7 +35,7 @@
     </transition>
 
     <!-- Components section with scrollable content -->
-    <div class="flex-grow w-full overflow-y-auto h-full">
+    <div class="grow w-full overflow-y-auto h-full">
       <LazyPitchDisplay v-if="activeTab === 'pitch-display'" />
       <LazyAddPitch v-if="activeTab === 'add-pitch'" />
       <LazyBrainstormGame v-if="activeTab === 'brainstorm-game'" />

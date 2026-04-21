@@ -25,6 +25,8 @@ export interface Butterfly {
   artImageId?: number
   message: string
   isExiting?: boolean
+  noiseOffsetX: number
+  noiseOffsetY: number
   exitSide?: 'left' | 'right' | 'top' | 'bottom'
   goal: {
     x: number
@@ -176,6 +178,8 @@ export const createNewButterfly = async (
     scale: clampToTwoDecimals(Math.random() * 1.5 + 0.5),
     scaleMod: 1,
     status: settings.status,
+    noiseOffsetX: Math.random() * 1000,
+    noiseOffsetY: Math.random() * 1000,
     message,
     goal: {
       x: clampToTwoDecimals(Math.random() * 100),

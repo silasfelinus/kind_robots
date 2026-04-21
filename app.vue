@@ -1,9 +1,6 @@
 <!-- /app.vue -->
 <template>
-  <div
-    class="relative min-h-screen w-full overflow-hidden bg-base-100"
-    :data-theme="themeStore.currentTheme"
-  >
+  <div class="relative min-h-screen w-full overflow-hidden bg-base-100">
     <div class="fixed inset-0 z-50 pointer-events-none">
       <div class="pointer-events-auto">
         <footer-toggle />

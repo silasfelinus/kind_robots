@@ -535,6 +535,13 @@ onBeforeUnmount(() => {
   display: block;
 }
 
+.force-fill :deep(svg),
+.force-fill :deep(.iconify),
+.force-fill :deep(path) {
+  fill: hsl(var(--a));
+  color: hsl(var(--a));
+}
+
 .force-fill {
   display: flex;
   width: 100%;

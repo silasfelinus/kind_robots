@@ -5,10 +5,9 @@
 
     <div
       v-if="showOverlay"
-      class="loading-overlay z-40"
+      class="loading-overlay"
       :class="{ 'fade-out': fadeOut }"
       @transitionend="handleTransitionEnd"
-      @click="startFadeOut"
     >
       <Icon
         name="kind-icon:bubble-loading"
@@ -199,7 +198,7 @@ onBeforeUnmount(() => {
 .loading-overlay {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: 40;
   display: flex;
   flex-direction: column;
   justify-content: center;

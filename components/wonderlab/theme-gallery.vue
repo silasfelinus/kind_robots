@@ -45,14 +45,6 @@
     </section>
 
     <section class="mt-6 space-y-4">
-      <div
-        v-if="inspectValues"
-        class="max-h-[40vh] overflow-auto whitespace-pre-wrap rounded-xl border border-base-300 bg-base-100 p-4 text-sm"
-      >
-        <h3 class="mb-2 text-lg font-bold">🎨 Selected Theme Info</h3>
-        <pre>{{ inspectValues }}</pre>
-      </div>
-
       <p
         v-if="themeError"
         class="whitespace-pre-wrap rounded-xl border border-error bg-error/10 p-3 text-sm text-error"

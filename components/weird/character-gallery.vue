@@ -1,52 +1,69 @@
 <!-- /components/content/weird/character-gallery.vue -->
 <template>
-  <div class="h-screen w-full bg-base-300 p-4 flex flex-col overflow-y-auto">
-    <h1 class="text-3xl font-bold text-gray-700 mb-4">Character Gallery</h1>
-
-    <!-- Filter and Search -->
-    <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
-      <!-- User Filter -->
-      <div class="flex items-center">
-        <label class="mr-2 text-sm font-bold text-gray-600"
-          >Filter by User:</label
-        >
-        <select
-          v-model="selectedUser"
-          class="bg-base-200 border border-gray-400 rounded-lg p-2"
-        >
-          <option value="all">All Users</option>
-          <option
-            v-for="user in userStore.users"
-            :key="user.id"
-            :value="user.id"
-          >
-            {{ user.username }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Search Bar -->
-      <div class="flex items-center w-full md:w-1/2">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search characters by name..."
-          class="bg-base-200 border border-gray-400 rounded-lg p-2 w-full"
-        />
-      </div>
+  <!--
+    No h-screen — lets the parent (gallery-gallery panel) control height.
+    w-full + flex-col so it fills whatever container it's placed in.
+  -->
+  <div class="w-full flex flex-col gap-3 bg-base-300 p-3">
+    <!-- ── Header ─────────────────────────────────────────────────────── -->
+    <div class="flex items-center justify-between gap-2 shrink-0">
+      <h2 class="text-base font-bold text-base-content leading-tight truncate">
+        Characters
+      </h2>
+      <span v-if="!isLoading" class="badge badge-ghost badge-sm shrink-0">{{
+        filteredCharacters.length
+      }}</span>
     </div>
 
-    <!-- Character Grid -->
-    <div v-if="isLoading" class="flex justify-center items-center h-96">
-      <span class="loading loading-spinner loading-lg"></span>
+    <!-- ── Controls ───────────────────────────────────────────────────── -->
+    <!--
+      Stack vertically by default (works in a 200px sidebar).
+      Side-by-side only when there's enough room (sm: breakpoint).
+    -->
+    <div class="flex flex-col gap-2 shrink-0 sm:flex-row sm:items-center">
+      <!-- User filter -->
+      <select
+        v-model="selectedUser"
+        class="select select-bordered select-sm w-full sm:w-auto bg-base-200 text-base-content"
+        aria-label="Filter by user"
+      >
+        <option value="all">All users</option>
+        <option v-for="user in userStore.users" :key="user.id" :value="user.id">
+          {{ user.username }}
+        </option>
+      </select>
+
+      <!-- Search -->
+      <input
+        v-model="searchQuery"
+        type="search"
+        placeholder="Search characters…"
+        class="input input-bordered input-sm w-full bg-base-200 text-base-content"
+        aria-label="Search characters by name"
+      />
     </div>
+
+    <!-- ── Loading ────────────────────────────────────────────────────── -->
+    <div v-if="isLoading" class="flex justify-center items-center py-12">
+      <span class="loading loading-spinner loading-md text-primary"></span>
+    </div>
+
+    <!-- ── Empty ──────────────────────────────────────────────────────── -->
     <div
       v-else-if="filteredCharacters.length === 0"
-      class="flex justify-center items-center h-96"
+      class="flex flex-col items-center justify-center py-10 gap-2 text-base-content/50"
     >
-      <p class="text-lg font-bold text-gray-600">No characters found.</p>
+      <span class="text-3xl">🎭</span>
+      <p class="text-sm font-medium">No characters found</p>
     </div>
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <!-- ── Grid ───────────────────────────────────────────────────────── -->
+    <!--
+      auto-fill with minmax so the grid self-adjusts from 1 column (narrow
+      sidebar) up to however many 180px columns fit (wide main pane) without
+      any hard breakpoint class.
+    -->
+    <div v-else class="character-grid">
       <CharacterCard
         v-for="character in filteredCharacters"
         :key="character.id"
@@ -63,49 +80,50 @@ import { computed, ref, watchEffect } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
 
-// Stores
 const characterStore = useCharacterStore()
 const userStore = useUserStore()
 
-// State
 const selectedUser = ref('all')
 const searchQuery = ref('')
 const isLoading = ref(true)
 
-// Simulate fetching characters
 watchEffect(async () => {
   isLoading.value = true
   try {
-    await Promise.all([characterStore.fetchCharacters()])
+    await characterStore.fetchCharacters()
   } catch (error) {
-    console.error(
-      'Error fetching characters or initializing user store:',
-      error,
-    )
+    console.error('Error fetching characters:', error)
   } finally {
     isLoading.value = false
   }
 })
 
-// Computed: Filtered and searched characters
 const filteredCharacters = computed(() => {
   let characters = characterStore.characters
 
-  // Filter by user
   if (selectedUser.value !== 'all') {
     characters = characters.filter(
-      (character) => character.userId === Number(selectedUser.value),
+      (c) => c.userId === Number(selectedUser.value),
     )
   }
 
-  // Search by name
   if (searchQuery.value.trim()) {
-    const query = searchQuery.value.trim().toLowerCase()
-    characters = characters.filter((character) =>
-      character.name.toLowerCase().includes(query),
-    )
+    const q = searchQuery.value.trim().toLowerCase()
+    characters = characters.filter((c) => c.name.toLowerCase().includes(q))
   }
 
   return characters
 })
 </script>
+
+<style scoped>
+/*
+  Container-aware auto grid: fills 1 column when narrow (sidebar),
+  grows naturally as the container widens. No hard breakpoints needed.
+*/
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr));
+  gap: 0.75rem;
+}
+</style>

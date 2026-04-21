@@ -278,6 +278,7 @@ export type TagWhereInput = {
   Components?: Prisma.ComponentListRelationFilter
   Dominions?: Prisma.DominionListRelationFilter
   Pitches?: Prisma.PitchListRelationFilter
+  Butterflies?: Prisma.ButterflyListRelationFilter
 }
 
 export type TagOrderByWithRelationInput = {
@@ -298,6 +299,7 @@ export type TagOrderByWithRelationInput = {
   Components?: Prisma.ComponentOrderByRelationAggregateInput
   Dominions?: Prisma.DominionOrderByRelationAggregateInput
   Pitches?: Prisma.PitchOrderByRelationAggregateInput
+  Butterflies?: Prisma.ButterflyOrderByRelationAggregateInput
   _relevance?: Prisma.TagOrderByRelevanceInput
 }
 
@@ -322,6 +324,7 @@ export type TagWhereUniqueInput = Prisma.AtLeast<{
   Components?: Prisma.ComponentListRelationFilter
   Dominions?: Prisma.DominionListRelationFilter
   Pitches?: Prisma.PitchListRelationFilter
+  Butterflies?: Prisma.ButterflyListRelationFilter
 }, "id">
 
 export type TagOrderByWithAggregationInput = {
@@ -376,6 +379,7 @@ export type TagCreateInput = {
   Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutTagsInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
 }
 
 export type TagUncheckedCreateInput = {
@@ -395,6 +399,7 @@ export type TagUncheckedCreateInput = {
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutTagsInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type TagUpdateInput = {
@@ -413,6 +418,7 @@ export type TagUpdateInput = {
   Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutTagsNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateInput = {
@@ -432,6 +438,7 @@ export type TagUncheckedUpdateInput = {
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutTagsNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
 }
 
 export type TagCreateManyInput = {
@@ -563,6 +570,22 @@ export type TagUpdateOneWithoutArtImageNestedInput = {
   delete?: Prisma.TagWhereInput | boolean
   connect?: Prisma.TagWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutArtImageInput, Prisma.TagUpdateWithoutArtImageInput>, Prisma.TagUncheckedUpdateWithoutArtImageInput>
+}
+
+export type TagCreateNestedOneWithoutButterfliesInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutButterfliesInput, Prisma.TagUncheckedCreateWithoutButterfliesInput>
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutButterfliesInput
+  connect?: Prisma.TagWhereUniqueInput
+}
+
+export type TagUpdateOneWithoutButterfliesNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutButterfliesInput, Prisma.TagUncheckedCreateWithoutButterfliesInput>
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutButterfliesInput
+  upsert?: Prisma.TagUpsertWithoutButterfliesInput
+  disconnect?: Prisma.TagWhereInput | boolean
+  delete?: Prisma.TagWhereInput | boolean
+  connect?: Prisma.TagWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutButterfliesInput, Prisma.TagUpdateWithoutButterfliesInput>, Prisma.TagUncheckedUpdateWithoutButterfliesInput>
 }
 
 export type TagCreateNestedManyWithoutComponentsInput = {
@@ -752,6 +775,7 @@ export type TagCreateWithoutArtImageInput = {
   Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutTagsInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
 }
 
 export type TagUncheckedCreateWithoutArtImageInput = {
@@ -770,6 +794,7 @@ export type TagUncheckedCreateWithoutArtImageInput = {
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutTagsInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type TagCreateOrConnectWithoutArtImageInput = {
@@ -803,6 +828,7 @@ export type TagUpdateWithoutArtImageInput = {
   Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutTagsNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateWithoutArtImageInput = {
@@ -817,6 +843,97 @@ export type TagUncheckedUpdateWithoutArtImageInput = {
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
+  Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
+  Dominions?: Prisma.DominionUncheckedUpdateManyWithoutTagsNestedInput
+  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
+}
+
+export type TagCreateWithoutButterfliesInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  label: string
+  title: string
+  flavorText?: string | null
+  pitch?: string | null
+  isPublic?: boolean | null
+  isMature?: boolean
+  artImageId?: number | null
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
+  User?: Prisma.UserCreateNestedOneWithoutTagsInput
+  Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
+  Dominions?: Prisma.DominionCreateNestedManyWithoutTagsInput
+  Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
+}
+
+export type TagUncheckedCreateWithoutButterfliesInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  label: string
+  title: string
+  flavorText?: string | null
+  pitch?: string | null
+  isPublic?: boolean | null
+  isMature?: boolean
+  userId?: number | null
+  artImageId?: number | null
+  ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutTagInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
+  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
+  Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutTagsInput
+  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
+}
+
+export type TagCreateOrConnectWithoutButterfliesInput = {
+  where: Prisma.TagWhereUniqueInput
+  create: Prisma.XOR<Prisma.TagCreateWithoutButterfliesInput, Prisma.TagUncheckedCreateWithoutButterfliesInput>
+}
+
+export type TagUpsertWithoutButterfliesInput = {
+  update: Prisma.XOR<Prisma.TagUpdateWithoutButterfliesInput, Prisma.TagUncheckedUpdateWithoutButterfliesInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutButterfliesInput, Prisma.TagUncheckedCreateWithoutButterfliesInput>
+  where?: Prisma.TagWhereInput
+}
+
+export type TagUpdateToOneWithWhereWithoutButterfliesInput = {
+  where?: Prisma.TagWhereInput
+  data: Prisma.XOR<Prisma.TagUpdateWithoutButterfliesInput, Prisma.TagUncheckedUpdateWithoutButterfliesInput>
+}
+
+export type TagUpdateWithoutButterfliesInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutTagNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
+  User?: Prisma.UserUpdateOneWithoutTagsNestedInput
+  Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
+  Dominions?: Prisma.DominionUpdateManyWithoutTagsNestedInput
+  Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
+}
+
+export type TagUncheckedUpdateWithoutButterfliesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutTagNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutTagsNestedInput
@@ -838,6 +955,7 @@ export type TagCreateWithoutComponentsInput = {
   User?: Prisma.UserCreateNestedOneWithoutTagsInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutTagsInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
 }
 
 export type TagUncheckedCreateWithoutComponentsInput = {
@@ -856,6 +974,7 @@ export type TagUncheckedCreateWithoutComponentsInput = {
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutTagsInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type TagCreateOrConnectWithoutComponentsInput = {
@@ -911,6 +1030,7 @@ export type TagCreateWithoutDominionsInput = {
   User?: Prisma.UserCreateNestedOneWithoutTagsInput
   Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
 }
 
 export type TagUncheckedCreateWithoutDominionsInput = {
@@ -929,6 +1049,7 @@ export type TagUncheckedCreateWithoutDominionsInput = {
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type TagCreateOrConnectWithoutDominionsInput = {
@@ -967,6 +1088,7 @@ export type TagCreateWithoutPitchesInput = {
   User?: Prisma.UserCreateNestedOneWithoutTagsInput
   Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
 }
 
 export type TagUncheckedCreateWithoutPitchesInput = {
@@ -985,6 +1107,7 @@ export type TagUncheckedCreateWithoutPitchesInput = {
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type TagCreateOrConnectWithoutPitchesInput = {
@@ -1023,6 +1146,7 @@ export type TagCreateWithoutReactionsInput = {
   Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutTagsInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
 }
 
 export type TagUncheckedCreateWithoutReactionsInput = {
@@ -1041,6 +1165,7 @@ export type TagUncheckedCreateWithoutReactionsInput = {
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutTagsInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type TagCreateOrConnectWithoutReactionsInput = {
@@ -1074,6 +1199,7 @@ export type TagUpdateWithoutReactionsInput = {
   Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutTagsNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateWithoutReactionsInput = {
@@ -1092,6 +1218,7 @@ export type TagUncheckedUpdateWithoutReactionsInput = {
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutTagsNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
 }
 
 export type TagCreateWithoutUserInput = {
@@ -1109,6 +1236,7 @@ export type TagCreateWithoutUserInput = {
   Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutTagsInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
 }
 
 export type TagUncheckedCreateWithoutUserInput = {
@@ -1127,6 +1255,7 @@ export type TagUncheckedCreateWithoutUserInput = {
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutTagsInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type TagCreateOrConnectWithoutUserInput = {
@@ -1170,6 +1299,7 @@ export type TagUpdateWithoutComponentsInput = {
   User?: Prisma.UserUpdateOneWithoutTagsNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutTagsNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateWithoutComponentsInput = {
@@ -1188,6 +1318,7 @@ export type TagUncheckedUpdateWithoutComponentsInput = {
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutTagsNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateManyWithoutComponentsInput = {
@@ -1219,6 +1350,7 @@ export type TagUpdateWithoutDominionsInput = {
   User?: Prisma.UserUpdateOneWithoutTagsNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateWithoutDominionsInput = {
@@ -1237,6 +1369,7 @@ export type TagUncheckedUpdateWithoutDominionsInput = {
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateManyWithoutDominionsInput = {
@@ -1268,6 +1401,7 @@ export type TagUpdateWithoutPitchesInput = {
   User?: Prisma.UserUpdateOneWithoutTagsNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateWithoutPitchesInput = {
@@ -1286,6 +1420,7 @@ export type TagUncheckedUpdateWithoutPitchesInput = {
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateManyWithoutPitchesInput = {
@@ -1330,6 +1465,7 @@ export type TagUpdateWithoutUserInput = {
   Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutTagsNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateWithoutUserInput = {
@@ -1348,6 +1484,7 @@ export type TagUncheckedUpdateWithoutUserInput = {
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutTagsNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateManyWithoutUserInput = {
@@ -1373,6 +1510,7 @@ export type TagCountOutputType = {
   Components: number
   Dominions: number
   Pitches: number
+  Butterflies: number
 }
 
 export type TagCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1380,6 +1518,7 @@ export type TagCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.In
   Components?: boolean | TagCountOutputTypeCountComponentsArgs
   Dominions?: boolean | TagCountOutputTypeCountDominionsArgs
   Pitches?: boolean | TagCountOutputTypeCountPitchesArgs
+  Butterflies?: boolean | TagCountOutputTypeCountButterfliesArgs
 }
 
 /**
@@ -1420,6 +1559,13 @@ export type TagCountOutputTypeCountPitchesArgs<ExtArgs extends runtime.Types.Ext
   where?: Prisma.PitchWhereInput
 }
 
+/**
+ * TagCountOutputType without action
+ */
+export type TagCountOutputTypeCountButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ButterflyWhereInput
+}
+
 
 export type TagSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1439,6 +1585,7 @@ export type TagSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   Components?: boolean | Prisma.Tag$ComponentsArgs<ExtArgs>
   Dominions?: boolean | Prisma.Tag$DominionsArgs<ExtArgs>
   Pitches?: boolean | Prisma.Tag$PitchesArgs<ExtArgs>
+  Butterflies?: boolean | Prisma.Tag$ButterfliesArgs<ExtArgs>
   _count?: boolean | Prisma.TagCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tag"]>
 
@@ -1466,6 +1613,7 @@ export type TagInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Components?: boolean | Prisma.Tag$ComponentsArgs<ExtArgs>
   Dominions?: boolean | Prisma.Tag$DominionsArgs<ExtArgs>
   Pitches?: boolean | Prisma.Tag$PitchesArgs<ExtArgs>
+  Butterflies?: boolean | Prisma.Tag$ButterfliesArgs<ExtArgs>
   _count?: boolean | Prisma.TagCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1478,6 +1626,7 @@ export type $TagPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     Components: Prisma.$ComponentPayload<ExtArgs>[]
     Dominions: Prisma.$DominionPayload<ExtArgs>[]
     Pitches: Prisma.$PitchPayload<ExtArgs>[]
+    Butterflies: Prisma.$ButterflyPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1837,6 +1986,7 @@ export interface Prisma__TagClient<T, Null = never, ExtArgs extends runtime.Type
   Components<T extends Prisma.Tag$ComponentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$ComponentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ComponentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Dominions<T extends Prisma.Tag$DominionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$DominionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DominionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Pitches<T extends Prisma.Tag$PitchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$PitchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Butterflies<T extends Prisma.Tag$ButterfliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$ButterfliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ButterflyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2356,6 +2506,30 @@ export type Tag$PitchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.PitchScalarFieldEnum | Prisma.PitchScalarFieldEnum[]
+}
+
+/**
+ * Tag.Butterflies
+ */
+export type Tag$ButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Butterfly
+   */
+  select?: Prisma.ButterflySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Butterfly
+   */
+  omit?: Prisma.ButterflyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ButterflyInclude<ExtArgs> | null
+  where?: Prisma.ButterflyWhereInput
+  orderBy?: Prisma.ButterflyOrderByWithRelationInput | Prisma.ButterflyOrderByWithRelationInput[]
+  cursor?: Prisma.ButterflyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ButterflyScalarFieldEnum | Prisma.ButterflyScalarFieldEnum[]
 }
 
 /**

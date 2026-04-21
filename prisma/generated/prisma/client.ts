@@ -62,6 +62,22 @@ export type ArtCollection = Prisma.ArtCollectionModel
  */
 export type Bot = Prisma.BotModel
 /**
+ * Model Butterfly
+ * Butterfly is the source of truth for each collectible species.
+ * Runtime-only fields (x, y, z, goal, rotation, status, zIndex) live in the
+ * butterflyStore — nothing positional is persisted here.
+ * name and message are the personality core; treat them as immutable post-seed.
+ * wingTopColor / wingBottomColor stored as HSL strings: "hsl(210,70%,55%)"
+ */
+export type Butterfly = Prisma.ButterflyModel
+/**
+ * Model ButterflyRecord
+ * Records which butterflies each user has caught.
+ * Follows the MilestoneRecord pattern rather than implicit M2M,
+ * so we can attach caughtAt and any future metadata cleanly.
+ */
+export type ButterflyRecord = Prisma.ButterflyRecordModel
+/**
  * Model Character
  * 
  */

@@ -589,6 +589,7 @@ export type CharacterWhereInput = {
   Chats?: Prisma.ChatListRelationFilter
   Rewards?: Prisma.RewardListRelationFilter
   Scenarios?: Prisma.ScenarioListRelationFilter
+  Butterflies?: Prisma.ButterflyListRelationFilter
 }
 
 export type CharacterOrderByWithRelationInput = {
@@ -641,6 +642,7 @@ export type CharacterOrderByWithRelationInput = {
   Chats?: Prisma.ChatOrderByRelationAggregateInput
   Rewards?: Prisma.RewardOrderByRelationAggregateInput
   Scenarios?: Prisma.ScenarioOrderByRelationAggregateInput
+  Butterflies?: Prisma.ButterflyOrderByRelationAggregateInput
   _relevance?: Prisma.CharacterOrderByRelevanceInput
 }
 
@@ -697,6 +699,7 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   Chats?: Prisma.ChatListRelationFilter
   Rewards?: Prisma.RewardListRelationFilter
   Scenarios?: Prisma.ScenarioListRelationFilter
+  Butterflies?: Prisma.ButterflyListRelationFilter
 }, "id">
 
 export type CharacterOrderByWithAggregationInput = {
@@ -849,6 +852,7 @@ export type CharacterCreateInput = {
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterUncheckedCreateInput = {
@@ -900,6 +904,7 @@ export type CharacterUncheckedCreateInput = {
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterUpdateInput = {
@@ -950,6 +955,7 @@ export type CharacterUpdateInput = {
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateInput = {
@@ -1001,6 +1007,7 @@ export type CharacterUncheckedUpdateInput = {
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterCreateManyInput = {
@@ -1356,6 +1363,22 @@ export type CharacterUpdateOneWithoutArtImageNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CharacterUpdateToOneWithWhereWithoutArtImageInput, Prisma.CharacterUpdateWithoutArtImageInput>, Prisma.CharacterUncheckedUpdateWithoutArtImageInput>
 }
 
+export type CharacterCreateNestedOneWithoutButterfliesInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutButterfliesInput, Prisma.CharacterUncheckedCreateWithoutButterfliesInput>
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutButterfliesInput
+  connect?: Prisma.CharacterWhereUniqueInput
+}
+
+export type CharacterUpdateOneWithoutButterfliesNestedInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutButterfliesInput, Prisma.CharacterUncheckedCreateWithoutButterfliesInput>
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutButterfliesInput
+  upsert?: Prisma.CharacterUpsertWithoutButterfliesInput
+  disconnect?: Prisma.CharacterWhereInput | boolean
+  delete?: Prisma.CharacterWhereInput | boolean
+  connect?: Prisma.CharacterWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CharacterUpdateToOneWithWhereWithoutButterfliesInput, Prisma.CharacterUpdateWithoutButterfliesInput>, Prisma.CharacterUncheckedUpdateWithoutButterfliesInput>
+}
+
 export type CharacterCreateNestedOneWithoutChatsInput = {
   create?: Prisma.XOR<Prisma.CharacterCreateWithoutChatsInput, Prisma.CharacterUncheckedCreateWithoutChatsInput>
   connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutChatsInput
@@ -1537,6 +1560,7 @@ export type CharacterCreateWithoutArtImageInput = {
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterUncheckedCreateWithoutArtImageInput = {
@@ -1587,6 +1611,7 @@ export type CharacterUncheckedCreateWithoutArtImageInput = {
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterCreateOrConnectWithoutArtImageInput = {
@@ -1652,6 +1677,7 @@ export type CharacterUpdateWithoutArtImageInput = {
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutArtImageInput = {
@@ -1699,6 +1725,225 @@ export type CharacterUncheckedUpdateWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutCharacterNestedInput
+}
+
+export type CharacterCreateWithoutButterfliesInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  achievements?: string | null
+  alignment?: string | null
+  experience?: number | null
+  level?: number | null
+  class?: string | null
+  species?: string | null
+  backstory?: string | null
+  drive?: string | null
+  inventory?: string | null
+  statName1?: string | null
+  statValue1?: number | null
+  statName2?: string | null
+  statValue2?: number | null
+  statName3?: string | null
+  statValue3?: number | null
+  statName4?: string | null
+  statValue4?: number | null
+  statName5?: string | null
+  statValue5?: number | null
+  statName6?: string | null
+  statValue6?: number | null
+  quirks?: string | null
+  skills?: string | null
+  genre?: string | null
+  artImageId?: number | null
+  isPublic?: boolean
+  artPrompt?: string | null
+  goalStat1Name?: string | null
+  goalStat1Value?: number | null
+  goalStat2Name?: string | null
+  goalStat2Value?: number | null
+  goalStat3Name?: string | null
+  goalStat3Value?: number | null
+  goalStat4Name?: string | null
+  goalStat4Value?: number | null
+  honorific?: string | null
+  imagePath?: string | null
+  designer?: string | null
+  personality?: string | null
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharacterInput
+  User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
+}
+
+export type CharacterUncheckedCreateWithoutButterfliesInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  achievements?: string | null
+  alignment?: string | null
+  experience?: number | null
+  level?: number | null
+  class?: string | null
+  species?: string | null
+  backstory?: string | null
+  drive?: string | null
+  inventory?: string | null
+  statName1?: string | null
+  statValue1?: number | null
+  statName2?: string | null
+  statValue2?: number | null
+  statName3?: string | null
+  statValue3?: number | null
+  statName4?: string | null
+  statValue4?: number | null
+  statName5?: string | null
+  statValue5?: number | null
+  statName6?: string | null
+  statValue6?: number | null
+  quirks?: string | null
+  skills?: string | null
+  genre?: string | null
+  artImageId?: number | null
+  isPublic?: boolean
+  userId?: number
+  artPrompt?: string | null
+  goalStat1Name?: string | null
+  goalStat1Value?: number | null
+  goalStat2Name?: string | null
+  goalStat2Value?: number | null
+  goalStat3Name?: string | null
+  goalStat3Value?: number | null
+  goalStat4Name?: string | null
+  goalStat4Value?: number | null
+  honorific?: string | null
+  imagePath?: string | null
+  designer?: string | null
+  personality?: string | null
+  ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutCharacterInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
+}
+
+export type CharacterCreateOrConnectWithoutButterfliesInput = {
+  where: Prisma.CharacterWhereUniqueInput
+  create: Prisma.XOR<Prisma.CharacterCreateWithoutButterfliesInput, Prisma.CharacterUncheckedCreateWithoutButterfliesInput>
+}
+
+export type CharacterUpsertWithoutButterfliesInput = {
+  update: Prisma.XOR<Prisma.CharacterUpdateWithoutButterfliesInput, Prisma.CharacterUncheckedUpdateWithoutButterfliesInput>
+  create: Prisma.XOR<Prisma.CharacterCreateWithoutButterfliesInput, Prisma.CharacterUncheckedCreateWithoutButterfliesInput>
+  where?: Prisma.CharacterWhereInput
+}
+
+export type CharacterUpdateToOneWithWhereWithoutButterfliesInput = {
+  where?: Prisma.CharacterWhereInput
+  data: Prisma.XOR<Prisma.CharacterUpdateWithoutButterfliesInput, Prisma.CharacterUncheckedUpdateWithoutButterfliesInput>
+}
+
+export type CharacterUpdateWithoutButterfliesInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  achievements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  experience?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backstory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statName1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statValue1?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statName2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statValue2?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statName3?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statValue3?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statName4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statValue4?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statName5?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statValue5?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statName6?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statValue6?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  skills?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  goalStat2Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goalStat2Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  goalStat3Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goalStat3Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  goalStat4Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goalStat4Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutCharacterNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutCharactersNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
+}
+
+export type CharacterUncheckedUpdateWithoutButterfliesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  achievements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  experience?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backstory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statName1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statValue1?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statName2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statValue2?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statName3?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statValue3?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statName4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statValue4?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statName5?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statValue5?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statName6?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statValue6?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  skills?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  goalStat2Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goalStat2Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  goalStat3Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goalStat3Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  goalStat4Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goalStat4Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
@@ -1751,6 +1996,7 @@ export type CharacterCreateWithoutChatsInput = {
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterUncheckedCreateWithoutChatsInput = {
@@ -1801,6 +2047,7 @@ export type CharacterUncheckedCreateWithoutChatsInput = {
   ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutCharacterInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterCreateOrConnectWithoutChatsInput = {
@@ -1866,6 +2113,7 @@ export type CharacterUpdateWithoutChatsInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutChatsInput = {
@@ -1916,6 +2164,7 @@ export type CharacterUncheckedUpdateWithoutChatsInput = {
   ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutCharacterNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterCreateWithoutRewardsInput = {
@@ -1965,6 +2214,7 @@ export type CharacterCreateWithoutRewardsInput = {
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterUncheckedCreateWithoutRewardsInput = {
@@ -2015,6 +2265,7 @@ export type CharacterUncheckedCreateWithoutRewardsInput = {
   ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterCreateOrConnectWithoutRewardsInput = {
@@ -2135,6 +2386,7 @@ export type CharacterCreateWithoutScenariosInput = {
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterUncheckedCreateWithoutScenariosInput = {
@@ -2185,6 +2437,7 @@ export type CharacterUncheckedCreateWithoutScenariosInput = {
   ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterCreateOrConnectWithoutScenariosInput = {
@@ -2255,6 +2508,7 @@ export type CharacterCreateWithoutUserInput = {
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterUncheckedCreateWithoutUserInput = {
@@ -2305,6 +2559,7 @@ export type CharacterUncheckedCreateWithoutUserInput = {
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterCreateOrConnectWithoutUserInput = {
@@ -2380,6 +2635,7 @@ export type CharacterUpdateWithoutRewardsInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutRewardsInput = {
@@ -2430,6 +2686,7 @@ export type CharacterUncheckedUpdateWithoutRewardsInput = {
   ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateManyWithoutRewardsInput = {
@@ -2526,6 +2783,7 @@ export type CharacterUpdateWithoutScenariosInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutScenariosInput = {
@@ -2576,6 +2834,7 @@ export type CharacterUncheckedUpdateWithoutScenariosInput = {
   ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateManyWithoutScenariosInput = {
@@ -2718,6 +2977,7 @@ export type CharacterUpdateWithoutUserInput = {
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutUserInput = {
@@ -2768,6 +3028,7 @@ export type CharacterUncheckedUpdateWithoutUserInput = {
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateManyWithoutUserInput = {
@@ -2825,12 +3086,14 @@ export type CharacterCountOutputType = {
   Chats: number
   Rewards: number
   Scenarios: number
+  Butterflies: number
 }
 
 export type CharacterCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Chats?: boolean | CharacterCountOutputTypeCountChatsArgs
   Rewards?: boolean | CharacterCountOutputTypeCountRewardsArgs
   Scenarios?: boolean | CharacterCountOutputTypeCountScenariosArgs
+  Butterflies?: boolean | CharacterCountOutputTypeCountButterfliesArgs
 }
 
 /**
@@ -2862,6 +3125,13 @@ export type CharacterCountOutputTypeCountRewardsArgs<ExtArgs extends runtime.Typ
  */
 export type CharacterCountOutputTypeCountScenariosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ScenarioWhereInput
+}
+
+/**
+ * CharacterCountOutputType without action
+ */
+export type CharacterCountOutputTypeCountButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ButterflyWhereInput
 }
 
 
@@ -2915,6 +3185,7 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   Chats?: boolean | Prisma.Character$ChatsArgs<ExtArgs>
   Rewards?: boolean | Prisma.Character$RewardsArgs<ExtArgs>
   Scenarios?: boolean | Prisma.Character$ScenariosArgs<ExtArgs>
+  Butterflies?: boolean | Prisma.Character$ButterfliesArgs<ExtArgs>
   _count?: boolean | Prisma.CharacterCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["character"]>
 
@@ -2974,6 +3245,7 @@ export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   Chats?: boolean | Prisma.Character$ChatsArgs<ExtArgs>
   Rewards?: boolean | Prisma.Character$RewardsArgs<ExtArgs>
   Scenarios?: boolean | Prisma.Character$ScenariosArgs<ExtArgs>
+  Butterflies?: boolean | Prisma.Character$ButterfliesArgs<ExtArgs>
   _count?: boolean | Prisma.CharacterCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -2985,6 +3257,7 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     Chats: Prisma.$ChatPayload<ExtArgs>[]
     Rewards: Prisma.$RewardPayload<ExtArgs>[]
     Scenarios: Prisma.$ScenarioPayload<ExtArgs>[]
+    Butterflies: Prisma.$ButterflyPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -3376,6 +3649,7 @@ export interface Prisma__CharacterClient<T, Null = never, ExtArgs extends runtim
   Chats<T extends Prisma.Character$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Rewards<T extends Prisma.Character$RewardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$RewardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Scenarios<T extends Prisma.Character$ScenariosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$ScenariosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Butterflies<T extends Prisma.Character$ButterfliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$ButterfliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ButterflyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3885,6 +4159,30 @@ export type Character$ScenariosArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.ScenarioScalarFieldEnum | Prisma.ScenarioScalarFieldEnum[]
+}
+
+/**
+ * Character.Butterflies
+ */
+export type Character$ButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Butterfly
+   */
+  select?: Prisma.ButterflySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Butterfly
+   */
+  omit?: Prisma.ButterflyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ButterflyInclude<ExtArgs> | null
+  where?: Prisma.ButterflyWhereInput
+  orderBy?: Prisma.ButterflyOrderByWithRelationInput | Prisma.ButterflyOrderByWithRelationInput[]
+  cursor?: Prisma.ButterflyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ButterflyScalarFieldEnum | Prisma.ButterflyScalarFieldEnum[]
 }
 
 /**

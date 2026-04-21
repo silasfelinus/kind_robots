@@ -1,35 +1,54 @@
 <template>
-  <art-grid>
-    <!-- Section Labels -->
-    <template #label-left>🧠 Model</template>
-    <template #label-center>📝 Prompt</template>
-    <template #label-right>🏛️ Gallery</template>
+  <section class="w-full h-full">
+    <div
+      class="mx-auto flex h-full w-full max-w-7xl flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4 sm:p-6"
+    >
+      <div
+        class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-4"
+      >
+        <h1 class="text-2xl font-bold text-primary sm:text-3xl">
+          🎨 Art-Maker
+        </h1>
+        <p class="text-sm text-base-content/70 sm:text-base">
+          Pick a model, build a prompt, choose a gallery, then make something
+          weird.
+        </p>
+      </div>
 
-    <!-- Title -->
-    <template #title>
-      <h1 class="text-3xl font-bold text-primary">🎨 Art-Maker</h1>
-    </template>
+      <div class="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-12">
+        <div class="xl:col-span-3">
+          <div
+            class="h-full rounded-2xl border border-base-300 bg-base-100 p-4"
+          >
+            <div class="mb-3 text-lg font-semibold text-primary">🧠 Model</div>
+            <checkpoint-gallery />
+          </div>
+        </div>
 
-    <!-- Left Section -->
-    <template #left>
-      <checkpoint-gallery />
-    </template>
+        <div class="xl:col-span-6">
+          <div
+            class="h-full rounded-2xl border border-base-300 bg-base-100 p-4"
+          >
+            <div class="mb-3 text-lg font-semibold text-primary">📝 Prompt</div>
+            <art-randomizer />
+          </div>
+        </div>
 
-    <!-- Center Section -->
-    <template #center>
-      <art-randomizer />
-    </template>
+        <div class="xl:col-span-3">
+          <div
+            class="h-full rounded-2xl border border-base-300 bg-base-100 p-4"
+          >
+            <div class="mb-3 text-lg font-semibold text-primary">
+              🏛️ Gallery
+            </div>
+            <collection-gallery />
+          </div>
+        </div>
+      </div>
 
-    <!-- Right Section -->
-    <template #right>
-      <collection-gallery />
-    </template>
-
-
-
-    <!-- Overlay -->
-    <template #overlay>
-      <art-display />
-    </template>
-  </art-grid>
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <art-display />
+      </div>
+    </div>
+  </section>
 </template>

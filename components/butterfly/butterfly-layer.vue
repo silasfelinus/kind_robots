@@ -19,8 +19,8 @@ const butterflyStore = useButterflyStore()
 const { butterflies } = storeToRefs(butterflyStore)
 
 onMounted(async () => {
-  if (!butterflies.value.length) {
-    await butterflyStore.generateInitialButterflies(20)
+  if (!butterflyStore.initialized) {
+    await butterflyStore.initialize()
   }
 })
 </script>

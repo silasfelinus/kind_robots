@@ -18,7 +18,6 @@ import {
 } from './helpers/butterflyHelper'
 
 export const useButterflyStore = defineStore('butterflyStore', () => {
-  // === STATE ===
   const butterflies = ref<Butterfly[]>([])
   const scaleModifier = ref(1)
   const animationFrameId = ref<number | null>(null)
@@ -27,6 +26,9 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   const showNames = ref(true)
   const selectedButterflyId = ref('')
   const targetCount = ref(20)
+  const initialized = ref(false)
+  const drainIntervalId = ref<ReturnType<typeof setInterval> | null>(null)
+  const drainStartTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
 
   const originalButterflySettings = reactive({
     sizeRange: { min: 0.5, max: 1.5 },
@@ -46,7 +48,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   const presets = ref<ButterflySettingsWithOptions[]>([])
 
-  // === GETTERS ===
   const usedNames = computed(() => butterflies.value.map((b) => b.id))
   const getAllButterflies = computed(() => butterflies.value)
   const getButterflyById = (id: string) =>
@@ -73,7 +74,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     original: originalButterflySettings,
   }))
 
-  // === ACTIONS ===
   function clearButterflies() {
     butterflies.value = []
     selectedButterflyId.value = ''
@@ -133,6 +133,63 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     const removed = butterflies.value.pop()
     if (removed?.id === selectedButterflyId.value) {
       selectedButterflyId.value = butterflies.value.at(-1)?.id || ''
+    }
+  }
+
+  function removeRandomButterfly() {
+    if (!butterflies.value.length) return
+
+    const index = Math.floor(Math.random() * butterflies.value.length)
+    const removed = butterflies.value.splice(index, 1)[0]
+
+    if (!removed) return
+
+    if (removed.id === selectedButterflyId.value) {
+      selectedButterflyId.value =
+        butterflies.value.at(-1)?.id || butterflies.value.at(0)?.id || ''
+    }
+  }
+
+  function stopDrain() {
+    if (drainStartTimeoutId.value) {
+      clearTimeout(drainStartTimeoutId.value)
+      drainStartTimeoutId.value = null
+    }
+
+    if (drainIntervalId.value) {
+      clearInterval(drainIntervalId.value)
+      drainIntervalId.value = null
+    }
+  }
+
+  function startDrain(delay = 1200, interval = 450) {
+    stopDrain()
+
+    drainStartTimeoutId.value = setTimeout(() => {
+      drainStartTimeoutId.value = null
+
+      drainIntervalId.value = setInterval(() => {
+        if (!butterflies.value.length) {
+          stopDrain()
+          return
+        }
+
+        removeRandomButterfly()
+      }, interval)
+    }, delay)
+  }
+
+  async function initialize() {
+    if (initialized.value) return
+
+    try {
+      clearButterflies()
+      targetCount.value = 20
+      await generateInitialButterflies(targetCount.value)
+      startDrain()
+      initialized.value = true
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
     }
   }
 
@@ -224,9 +281,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     if (Object.keys(newSettings).length) savePreset()
   }
 
-  // === EXPORT ===
   return {
-    // state
     butterflies,
     scaleModifier,
     animationFrameId,
@@ -237,8 +292,11 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     originalButterflySettings,
     newButterflySettings,
     presets,
+    targetCount,
+    initialized,
+    drainIntervalId,
+    drainStartTimeoutId,
 
-    // getters
     usedNames,
     getAllButterflies,
     getButterflyById,
@@ -251,16 +309,18 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     getButterfliesByStatus,
     getOriginalButterflySettings,
     getSettings,
-    targetCount,
-    syncButterflyCount,
 
-    // actions
     clearButterflies,
     toggleShowNames,
     addError,
     addButterfly,
+    syncButterflyCount,
     generateInitialButterflies,
     removeLastButterfly,
+    removeRandomButterfly,
+    startDrain,
+    stopDrain,
+    initialize,
     resetButterflySettings,
     updateButterflyPosition,
     animateButterflies,
@@ -272,7 +332,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     applyPreset,
     updateButterflySettings,
 
-    // helpers (re-exported for external use)
     createNewButterfly,
     clampToTwoDecimals,
     randomColor,

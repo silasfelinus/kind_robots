@@ -139,6 +139,19 @@
             </div>
           </div>
         </div>
+
+        <div
+          class="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+        >
+          <div class="text-sm text-base-content/80">
+            Flutter with purpose. Help Ami fight malaria.
+          </div>
+
+          <NuxtLink to="/sponsor" class="btn btn-accent btn-sm">
+            <icon name="kind-icon:butterfly" class="h-4 w-4" />
+            Sponsor Butterflies
+          </NuxtLink>
+        </div>
       </div>
 
       <div
@@ -154,15 +167,15 @@
           <label
             class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
           >
-            <span class="text-sm font-medium">Show butterflies</span>
+            <span class="text-sm font-medium">Show active butterflies</span>
             <input v-model="showSwarm" type="checkbox" class="toggle" />
           </label>
 
           <div
             class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/80"
           >
-            Use this footer to adjust the live butterfly layer. Less chaos, more
-            intentional chaos.
+            The butterfly layer stays mounted as a launchpad. This toggle only
+            controls whether active butterflies are visible.
           </div>
 
           <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
@@ -211,7 +224,7 @@
           <div
             class="min-h-72 rounded-2xl border border-base-300 bg-base-200 p-3"
           >
-            <butterfly-demo class="h-full w-full rounded-2xl overflow-hidden" />
+            <butterfly-demo class="h-full w-full overflow-hidden rounded-2xl" />
           </div>
 
           <div
@@ -278,6 +291,19 @@
                   </button>
                 </div>
               </div>
+
+              <div
+                class="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+              >
+                <div class="text-sm text-base-content/80">
+                  Ami’s butterflies are fundraising chaos with a mission.
+                </div>
+
+                <NuxtLink to="/sponsor" class="btn btn-accent btn-sm">
+                  <icon name="kind-icon:butterfly" class="h-4 w-4" />
+                  Visit Sponsor Page
+                </NuxtLink>
+              </div>
             </div>
 
             <div class="flex min-h-0 flex-col gap-3">
@@ -292,8 +318,19 @@
                   <label
                     class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
                   >
-                    <span class="text-sm font-medium">Show butterflies</span>
+                    <span class="text-sm font-medium"
+                      >Show active butterflies</span
+                    >
                     <input v-model="showSwarm" type="checkbox" class="toggle" />
+                  </label>
+
+                  <label
+                    class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+                  >
+                    <span class="text-sm font-medium"
+                      >Show butterfly names</span
+                    >
+                    <input v-model="showNames" type="checkbox" class="toggle" />
                   </label>
                 </div>
               </div>
@@ -325,6 +362,17 @@
                     </div>
                     <div class="mt-1 text-sm font-semibold">
                       {{ showSwarm ? 'Visible' : 'Hidden' }}
+                    </div>
+                  </div>
+
+                  <div
+                    class="rounded-2xl border border-base-300 bg-base-100 p-3"
+                  >
+                    <div class="text-xs uppercase text-base-content/60">
+                      Name Labels
+                    </div>
+                    <div class="mt-1 text-sm font-semibold">
+                      {{ showNames ? 'Shown' : 'Hidden' }}
                     </div>
                   </div>
 
@@ -390,6 +438,15 @@
               </div>
             </div>
 
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <div class="text-xs uppercase text-base-content/60">Sponsor</div>
+              <div class="mt-2">
+                <NuxtLink to="/sponsor" class="btn btn-accent btn-sm w-full">
+                  Support Ami
+                </NuxtLink>
+              </div>
+            </div>
+
             <div
               class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/80"
             >
@@ -442,6 +499,13 @@ const showSwarm = computed({
   },
 })
 
+const showNames = computed({
+  get: () => butterflyStore.showNames,
+  set: () => {
+    butterflyStore.toggleShowNames()
+  },
+})
+
 const selectedButterfly = computed(() => butterflyStore.getSelectedButterfly)
 
 const selectedButterflyLabel = computed(() => {
@@ -456,7 +520,7 @@ const selectedButterflyLabel = computed(() => {
 
 const butterflySummary = computed(() => {
   if (!showSwarm.value) {
-    return 'Swarm hidden'
+    return 'Butterflies hidden'
   }
 
   if (butterflyCount.value === 0) {
@@ -470,12 +534,12 @@ const butterflySummary = computed(() => {
   return `${butterflyCount.value} butterflies fluttering`
 })
 
-function addButterfly() {
-  butterflyStore.addButterfly()
+async function addButterfly() {
+  await butterflyStore.addButterfly()
 }
 
 function removeButterfly() {
-  butterflyStore.removeLastButterfly()
+  butterflyStore.removeRandomButterfly()
 }
 
 function clearButterflies() {

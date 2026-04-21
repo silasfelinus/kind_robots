@@ -337,11 +337,16 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
       const exitSpeed = Math.max(butterfly.speed * 1.4, 1.2)
 
+      const wobble = 0.35
+
+      const nx = getNoise()(butterfly.x * 0.05, t.value)
+      const ny = getNoise()(butterfly.y * 0.05, t.value + 10)
+
       butterfly.x = clampToTwoDecimals(
-        butterfly.x + (dx / distance) * exitSpeed,
+        butterfly.x + (dx / distance) * exitSpeed + nx * wobble,
       )
       butterfly.y = clampToTwoDecimals(
-        butterfly.y + (dy / distance) * exitSpeed,
+        butterfly.y + (dy / distance) * exitSpeed + ny * wobble,
       )
 
       butterfly.rotation = dx >= 0 ? 120 : 30

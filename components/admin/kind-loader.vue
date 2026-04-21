@@ -10,8 +10,14 @@
       @transitionend="handleTransitionEnd"
       @click="startFadeOut"
     >
-      <Icon name="kind-icon:bubble-loading" class="bubble-loader" />
-      <div class="loading-message">{{ currentMessage }}</div>
+      <Icon
+        name="kind-icon:bubble-loading"
+        class="bubble-loader"
+        :style="frozenIconStyle"
+      />
+      <div class="loading-message" :style="frozenMessageStyle">
+        {{ currentMessage }}
+      </div>
     </div>
   </div>
 </template>
@@ -76,6 +82,9 @@ const showOverlay = ref(true)
 const fadeOut = ref(false)
 const currentMessage = ref('Building Kind Robots...')
 
+const frozenIconStyle = ref<Record<string, string>>({})
+const frozenMessageStyle = ref<Record<string, string>>({})
+
 let messageIntervalId: ReturnType<typeof setInterval> | null = null
 let initialMessageTimeoutId: ReturnType<typeof setTimeout> | null = null
 let fadeTimeoutId: ReturnType<typeof setTimeout> | null = null
@@ -102,6 +111,23 @@ function handleTransitionEnd(event: TransitionEvent) {
 }
 
 onMounted(async () => {
+  // Capture CSS variable values synchronously before any async store inits
+  // can trigger a theme change and alter the palette
+  const cs = getComputedStyle(document.documentElement)
+  const p = cs.getPropertyValue('--p').trim()
+  const b1 = cs.getPropertyValue('--b1').trim()
+  const bc = cs.getPropertyValue('--bc').trim()
+
+  frozenIconStyle.value = {
+    color: `oklch(${p})`,
+    filter: `drop-shadow(0 0 1rem oklch(${p} / 0.35))`,
+  }
+  frozenMessageStyle.value = {
+    borderColor: `oklch(${bc} / 0.2)`,
+    background: `oklch(${b1} / 0.92)`,
+    color: `oklch(${bc})`,
+  }
+
   try {
     if (!displayStore.isInitialized) {
       await errorStore.handleError(
@@ -193,9 +219,7 @@ onBeforeUnmount(() => {
   max-width: min(90vw, 42rem);
   padding: 0.75rem 1.25rem;
   border-radius: 1rem;
-  border: 1px solid oklch(var(--bc) / 0.2);
-  background: oklch(var(--b1) / 0.92);
-  color: oklch(var(--bc));
+  border: 1px solid;
   font-size: clamp(1.125rem, 2vw, 2rem);
   font-weight: 700;
   text-align: center;
@@ -205,7 +229,5 @@ onBeforeUnmount(() => {
 
 .bubble-loader {
   font-size: clamp(4rem, 10vw, 6rem);
-  color: oklch(var(--p));
-  filter: drop-shadow(0 0 1rem oklch(var(--p) / 0.35));
 }
 </style>

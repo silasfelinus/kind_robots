@@ -1,3 +1,4 @@
+<!-- /layouts/default.vue -->
 <template>
   <div class="flex min-h-dvh w-full flex-col overflow-hidden bg-base-200">
     <header
@@ -189,11 +190,12 @@
       <div class="pointer-events-auto flex justify-center">
         <button
           type="button"
-          class="flex h-14 w-14 items-center justify-center rounded-full border-2 border-base-content/30 bg-base-100/95 text-base-content shadow-lg shadow-base-content/20 backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-primary/60 hover:bg-base-100 hover:text-primary hover:shadow-[0_0_1.5rem_rgba(255,255,255,0.25)] active:scale-95 sm:h-16 sm:w-16"
-          title="Toggle footer"
+          class="flex items-center justify-center rounded-full border-2 border-base-content/30 bg-base-100/95 text-base-content shadow-lg shadow-base-content/20 backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-primary/60 hover:bg-base-100 hover:text-primary hover:shadow-[0_0_1.5rem_rgba(255,255,255,0.25)] active:scale-95"
+          :class="footerToggleButtonClass"
+          :title="footerTitle"
           @click="displayStore.toggleFooter"
         >
-          <Icon :name="footerIcon" class="h-6 w-6 sm:h-7 sm:w-7" />
+          <Icon :name="footerIcon" :class="footerToggleIconClass" />
         </button>
       </div>
     </div>
@@ -280,21 +282,50 @@ const footerIcon = computed(() => {
   return 'kind-icon:chevron-down'
 })
 
+const footerTitle = computed(() => {
+  if (displayStore.footerState === 'hidden') return 'Open footer'
+  if (displayStore.footerState === 'compact') return 'Expand footer'
+  if (displayStore.footerState === 'open') return 'Prioritize footer'
+  return 'Reduce footer'
+})
+
+const footerToggleButtonClass = computed(() => {
+  if (displayStore.footerState === 'hidden') {
+    return 'h-14 w-14 sm:h-16 sm:w-16'
+  }
+  if (displayStore.footerState === 'compact') {
+    return 'h-12 w-12 sm:h-14 sm:w-14'
+  }
+  if (displayStore.footerState === 'open') {
+    return 'h-10 w-10 sm:h-12 sm:w-12'
+  }
+  return 'h-9 w-9 sm:h-10 sm:w-10'
+})
+
+const footerToggleIconClass = computed(() => {
+  if (displayStore.footerState === 'hidden') {
+    return 'h-6 w-6 sm:h-7 sm:w-7'
+  }
+  if (displayStore.footerState === 'compact') {
+    return 'h-5 w-5 sm:h-6 sm:w-6'
+  }
+  if (displayStore.footerState === 'open') {
+    return 'h-4 w-4 sm:h-5 sm:w-5'
+  }
+  return 'h-4 w-4'
+})
+
 const leftSidebarIcon = computed(() => {
   const state = displayStore.leftSidebarModeLabel
-
   if (state === 'hidden') return 'kind-icon:sidebar-left'
   if (state === 'priority') return 'kind-icon:chevron-left'
-
   return 'kind-icon:chevron-right'
 })
 
 const rightSidebarIcon = computed(() => {
   const state = displayStore.rightSidebarModeLabel
-
   if (state === 'hidden') return 'kind-icon:sidebar-right'
   if (state === 'priority') return 'kind-icon:chevron-right'
-
   return 'kind-icon:chevron-left'
 })
 
@@ -337,14 +368,12 @@ function setScrollFlags(
     leftCanScrollDown.value = canDown
     return
   }
-
   rightCanScrollUp.value = canUp
   rightCanScrollDown.value = canDown
 }
 
 function updateScrollState(side: SidebarKey): void {
   const el = getScrollElement(side)
-
   if (!el) {
     setScrollFlags(side, false, false)
     return

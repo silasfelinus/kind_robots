@@ -297,15 +297,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
       ? fullColumnTopOffset.value
       : header + padding * 2
 
-    const sidebarHeight = isPriority
-      ? fullColumnHeight.value
-      : mainContentHeight.value
-
     const seam = isHidden ? padding : padding + sidebarLeftWidth.value
 
     return {
       position: 'fixed',
-      top: `calc(var(--vh) * ${sidebarTop + sidebarHeight / 2})`,
+      top: `calc(var(--vh) * ${sidebarTop + sidebarContentHeight.value / 2})`,
       left: `${seam}vw`,
       transform: 'translate(-50%, -50%)',
       zIndex: '40',
@@ -323,15 +319,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
       ? fullColumnTopOffset.value
       : header + padding * 2
 
-    const sidebarHeight = isPriority
-      ? fullColumnHeight.value
-      : mainContentHeight.value
-
     const seam = isHidden ? padding : padding + sidebarRightWidth.value
 
     return {
       position: 'fixed',
-      top: `calc(var(--vh) * ${sidebarTop + sidebarHeight / 2})`,
+      top: `calc(var(--vh) * ${sidebarTop + sidebarContentHeight.value / 2})`,
       right: `${seam}vw`,
       transform: 'translate(50%, -50%)',
       zIndex: '40',

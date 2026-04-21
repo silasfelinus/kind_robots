@@ -1,239 +1,245 @@
 <!-- /components/butterfly/butterfly-modal.vue -->
 <template>
-  <Transition name="modal">
-    <!-- ── discovery congratulations ──────────────────────────────────────── -->
-    <div
-      v-if="butterflyStore.discoveryButterfly"
-      key="discovery"
-      class="modal-backdrop"
-      @click.self="butterflyStore.clearDiscovery()"
-    >
+  <!-- ── discovery congratulations ─────────────────────────────────────────── -->
+  <Teleport to="body">
+    <Transition name="modal">
       <div
-        class="modal-card discovery-card"
-        role="dialog"
-        aria-label="New species discovered"
-        @click.stop
+        v-if="butterflyStore.discoveryButterfly"
+        class="modal-backdrop"
+        @click.self="butterflyStore.clearDiscovery()"
       >
-        <div class="discovery-glow" aria-hidden="true" />
+        <div
+          class="modal-card discovery-card"
+          role="dialog"
+          aria-label="New species discovered"
+          @click.stop
+        >
+          <div class="discovery-glow" aria-hidden="true" />
 
-        <div class="modal-wings" aria-hidden="true">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="96"
-            height="72"
-            viewBox="0 0 36 28"
-          >
-            <ellipse
-              cx="9"
-              cy="10"
-              rx="9"
-              ry="6"
-              :fill="butterflyStore.discoveryButterfly.wingTopColor"
-              opacity="0.95"
-            />
-            <ellipse
-              cx="27"
-              cy="10"
-              rx="9"
-              ry="6"
-              :fill="butterflyStore.discoveryButterfly.wingTopColor"
-              opacity="0.95"
-            />
-            <ellipse
-              cx="8"
-              cy="18"
-              rx="7"
-              ry="5"
-              :fill="butterflyStore.discoveryButterfly.wingBottomColor"
-              opacity="0.88"
-            />
-            <ellipse
-              cx="28"
-              cy="18"
-              rx="7"
-              ry="5"
-              :fill="butterflyStore.discoveryButterfly.wingBottomColor"
-              opacity="0.88"
-            />
-            <ellipse
-              cx="18"
-              cy="14"
-              rx="2"
-              ry="6"
-              fill="#2c2c2a"
-              opacity="0.85"
-            />
-            <line
-              x1="17"
-              y1="8"
-              x2="13"
-              y2="3"
-              stroke="#2c2c2a"
-              stroke-width="0.9"
-            />
-            <line
-              x1="19"
-              y1="8"
-              x2="23"
-              y2="3"
-              stroke="#2c2c2a"
-              stroke-width="0.9"
-            />
-            <circle cx="13" cy="3" r="1" fill="#2c2c2a" />
-            <circle cx="23" cy="3" r="1" fill="#2c2c2a" />
-          </svg>
-        </div>
-
-        <div class="discovery-label">new species discovered</div>
-        <h2 class="modal-name">
-          {{
-            butterflyStore.discoveryButterfly.name ??
-            butterflyStore.discoveryButterfly.id
-          }}
-        </h2>
-        <p class="modal-message">
-          "{{ butterflyStore.discoveryButterfly.message }}"
-        </p>
-        <p class="discovery-body">
-          This butterfly has never been seen before. It's been added to the
-          field guide and your collection.
-        </p>
-
-        <div class="modal-actions">
-          <button
-            class="btn-confirm btn-discovery"
-            @click="butterflyStore.clearDiscovery()"
-          >
-            wonderful
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── standard capture card ──────────────────────────────────────────── -->
-    <div
-      v-else-if="butterfly"
-      key="capture"
-      class="modal-backdrop"
-      @click.self="$emit('cancel')"
-    >
-      <div
-        class="modal-card"
-        role="dialog"
-        :aria-label="`Captured: ${butterfly.name ?? butterfly.id}`"
-        @click.stop
-      >
-        <div class="modal-wings" aria-hidden="true">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="80"
-            height="60"
-            viewBox="0 0 36 28"
-          >
-            <ellipse
-              cx="9"
-              cy="10"
-              rx="9"
-              ry="6"
-              :fill="butterfly.wingTopColor"
-              opacity="0.92"
-            />
-            <ellipse
-              cx="27"
-              cy="10"
-              rx="9"
-              ry="6"
-              :fill="butterfly.wingTopColor"
-              opacity="0.92"
-            />
-            <ellipse
-              cx="8"
-              cy="18"
-              rx="7"
-              ry="5"
-              :fill="butterfly.wingBottomColor"
-              opacity="0.82"
-            />
-            <ellipse
-              cx="28"
-              cy="18"
-              rx="7"
-              ry="5"
-              :fill="butterfly.wingBottomColor"
-              opacity="0.82"
-            />
-            <ellipse
-              cx="18"
-              cy="14"
-              rx="2"
-              ry="6"
-              fill="#2c2c2a"
-              opacity="0.85"
-            />
-            <line
-              x1="17"
-              y1="8"
-              x2="13"
-              y2="3"
-              stroke="#2c2c2a"
-              stroke-width="0.9"
-            />
-            <line
-              x1="19"
-              y1="8"
-              x2="23"
-              y2="3"
-              stroke="#2c2c2a"
-              stroke-width="0.9"
-            />
-            <circle cx="13" cy="3" r="1" fill="#2c2c2a" />
-            <circle cx="23" cy="3" r="1" fill="#2c2c2a" />
-          </svg>
-        </div>
-
-        <div v-if="butterfly.rarity" class="modal-rarity">
-          #{{ String(butterfly.rarity).padStart(3, '0') }}
-        </div>
-
-        <h2 class="modal-name">{{ butterfly.name ?? butterfly.id }}</h2>
-        <p class="modal-message">"{{ butterfly.message }}"</p>
-
-        <div class="modal-stats">
-          <div class="stat">
-            <span class="stat-label">speed</span>
-            <span class="stat-val">{{ butterfly.speed }}×</span>
-          </div>
-          <div class="stat">
-            <span class="stat-label">wing freq</span>
-            <span class="stat-val"
-              >{{ butterfly.wingSpeed.toFixed(2) }} hz</span
+          <div class="modal-wings" aria-hidden="true">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="96"
+              height="72"
+              viewBox="0 0 36 28"
             >
+              <ellipse
+                cx="9"
+                cy="10"
+                rx="9"
+                ry="6"
+                :fill="butterflyStore.discoveryButterfly.wingTopColor"
+                opacity="0.95"
+              />
+              <ellipse
+                cx="27"
+                cy="10"
+                rx="9"
+                ry="6"
+                :fill="butterflyStore.discoveryButterfly.wingTopColor"
+                opacity="0.95"
+              />
+              <ellipse
+                cx="8"
+                cy="18"
+                rx="7"
+                ry="5"
+                :fill="butterflyStore.discoveryButterfly.wingBottomColor"
+                opacity="0.88"
+              />
+              <ellipse
+                cx="28"
+                cy="18"
+                rx="7"
+                ry="5"
+                :fill="butterflyStore.discoveryButterfly.wingBottomColor"
+                opacity="0.88"
+              />
+              <ellipse
+                cx="18"
+                cy="14"
+                rx="2"
+                ry="6"
+                fill="#2c2c2a"
+                opacity="0.85"
+              />
+              <line
+                x1="17"
+                y1="8"
+                x2="13"
+                y2="3"
+                stroke="#2c2c2a"
+                stroke-width="0.9"
+              />
+              <line
+                x1="19"
+                y1="8"
+                x2="23"
+                y2="3"
+                stroke="#2c2c2a"
+                stroke-width="0.9"
+              />
+              <circle cx="13" cy="3" r="1" fill="#2c2c2a" />
+              <circle cx="23" cy="3" r="1" fill="#2c2c2a" />
+            </svg>
           </div>
-          <div class="stat">
-            <span class="stat-label">top</span>
-            <span
-              class="stat-swatch"
-              :style="{ background: butterfly.wingTopColor }"
-            />
-          </div>
-          <div class="stat">
-            <span class="stat-label">bottom</span>
-            <span
-              class="stat-swatch"
-              :style="{ background: butterfly.wingBottomColor }"
-            />
-          </div>
-        </div>
 
-        <div class="modal-actions">
-          <button class="btn-confirm" @click="$emit('confirm')">
-            add to gallery
-          </button>
-          <button class="btn-cancel" @click="$emit('cancel')">let it go</button>
+          <div class="discovery-label">new species discovered</div>
+          <h2 class="modal-name">
+            {{
+              butterflyStore.discoveryButterfly.name ??
+              butterflyStore.discoveryButterfly.id
+            }}
+          </h2>
+          <p class="modal-message">
+            "{{ butterflyStore.discoveryButterfly.message }}"
+          </p>
+          <p class="discovery-body">
+            This butterfly has never been seen before. It's been added to the
+            field guide and your collection.
+          </p>
+
+          <div class="modal-actions">
+            <button
+              class="btn-confirm btn-discovery"
+              @click="butterflyStore.clearDiscovery()"
+            >
+              wonderful
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </Transition>
+    </Transition>
+  </Teleport>
+
+  <!-- ── standard capture card ─────────────────────────────────────────────── -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div
+        v-if="butterfly"
+        class="modal-backdrop"
+        @click.self="$emit('cancel')"
+      >
+        <div
+          class="modal-card"
+          role="dialog"
+          :aria-label="`Captured: ${butterfly.name ?? butterfly.id}`"
+          @click.stop
+        >
+          <div class="modal-wings" aria-hidden="true">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="80"
+              height="60"
+              viewBox="0 0 36 28"
+            >
+              <ellipse
+                cx="9"
+                cy="10"
+                rx="9"
+                ry="6"
+                :fill="butterfly.wingTopColor"
+                opacity="0.92"
+              />
+              <ellipse
+                cx="27"
+                cy="10"
+                rx="9"
+                ry="6"
+                :fill="butterfly.wingTopColor"
+                opacity="0.92"
+              />
+              <ellipse
+                cx="8"
+                cy="18"
+                rx="7"
+                ry="5"
+                :fill="butterfly.wingBottomColor"
+                opacity="0.82"
+              />
+              <ellipse
+                cx="28"
+                cy="18"
+                rx="7"
+                ry="5"
+                :fill="butterfly.wingBottomColor"
+                opacity="0.82"
+              />
+              <ellipse
+                cx="18"
+                cy="14"
+                rx="2"
+                ry="6"
+                fill="#2c2c2a"
+                opacity="0.85"
+              />
+              <line
+                x1="17"
+                y1="8"
+                x2="13"
+                y2="3"
+                stroke="#2c2c2a"
+                stroke-width="0.9"
+              />
+              <line
+                x1="19"
+                y1="8"
+                x2="23"
+                y2="3"
+                stroke="#2c2c2a"
+                stroke-width="0.9"
+              />
+              <circle cx="13" cy="3" r="1" fill="#2c2c2a" />
+              <circle cx="23" cy="3" r="1" fill="#2c2c2a" />
+            </svg>
+          </div>
+
+          <div v-if="butterfly.rarity" class="modal-rarity">
+            #{{ String(butterfly.rarity).padStart(3, '0') }}
+          </div>
+
+          <h2 class="modal-name">{{ butterfly.name ?? butterfly.id }}</h2>
+          <p class="modal-message">"{{ butterfly.message }}"</p>
+
+          <div class="modal-stats">
+            <div class="stat">
+              <span class="stat-label">speed</span>
+              <span class="stat-val">{{ butterfly.speed }}×</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">wing freq</span>
+              <span class="stat-val"
+                >{{ butterfly.wingSpeed.toFixed(2) }} hz</span
+              >
+            </div>
+            <div class="stat">
+              <span class="stat-label">top</span>
+              <span
+                class="stat-swatch"
+                :style="{ background: butterfly.wingTopColor }"
+              />
+            </div>
+            <div class="stat">
+              <span class="stat-label">bottom</span>
+              <span
+                class="stat-swatch"
+                :style="{ background: butterfly.wingBottomColor }"
+              />
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn-confirm" @click="$emit('confirm')">
+              add to gallery
+            </button>
+            <button class="btn-cancel" @click="$emit('cancel')">
+              let it go
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -263,6 +269,7 @@ const butterflyStore = useButterflyStore()
   backdrop-filter: blur(2px);
   z-index: 9300;
   cursor: default;
+  pointer-events: all;
 }
 
 .modal-card {
@@ -312,7 +319,7 @@ const butterflyStore = useButterflyStore()
   margin-bottom: 16px;
 }
 
-/* ── shared card elements ───────────────────────────────────────────────────── */
+/* ── shared ─────────────────────────────────────────────────────────────────── */
 
 .modal-wings {
   display: flex;

@@ -57,7 +57,7 @@
               class="smart-scroll-container sidebar-scroll"
               @scroll="updateScrollState('left')"
             >
-              <div class="sidebar-scroll__content">
+              <div :key="`left-${localPageKey}`" class="sidebar-scroll__content">
                 <slot name="left">
                   <splash-tutorial />
                 </slot>
@@ -158,6 +158,7 @@
       :style="adjustedMainStyle"
     >
       <div
+        :key="`main-${localPageKey}`"
         class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-4"
         :style="mainInnerStyle"
       >
@@ -195,9 +196,18 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
 // /layouts/default.vue
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue'
+import { useRoute } from 'vue-router'
 import { NuxtImg } from '#components'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -205,6 +215,7 @@ import { usePageStore } from '@/stores/pageStore'
 type SidebarKey = 'left' | 'right'
 type ScrollDirection = 'up' | 'down'
 
+const route = useRoute()
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
@@ -215,6 +226,8 @@ const leftCanScrollUp = ref(false)
 const leftCanScrollDown = ref(false)
 const rightCanScrollUp = ref(false)
 const rightCanScrollDown = ref(false)
+
+const localPageKey = computed(() => route.path)
 
 const leftToggleStyle = computed(() => {
   const state = displayStore.leftSidebarModeLabel
@@ -285,6 +298,7 @@ watch(
     displayStore.rightSidebarModeLabel,
     displayStore.mainContentStyle,
     pageStore.page?.image,
+    route.path,
   ],
   async () => {
     await nextTick()
@@ -391,187 +405,3 @@ function scrollSidebar(side: SidebarKey, direction: ScrollDirection): void {
   window.setTimeout(() => updateScrollState(side), 200)
 }
 </script>
-<style scoped>
-.icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-width: 1px;
-  border-style: solid;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    opacity 0.15s,
-    border-color 0.15s,
-    color 0.15s;
-  box-shadow: 0 1px 6px oklch(0 0 0 / 0.18);
-  backdrop-filter: blur(8px);
-}
-
-.icon-btn--pill {
-  padding: 0.35rem 0.65rem;
-  border-radius: 9999px;
-}
-
-.icon-btn--edge {
-  width: 2rem;
-  height: 2.75rem;
-  border-radius: 0.85rem;
-  padding: 0;
-}
-
-.icon-btn--secondary {
-  background: oklch(var(--s) / 0.95);
-  border-color: oklch(var(--sf) / 0.9);
-  color: oklch(var(--sc) / 1);
-}
-
-.icon-btn--secondary:hover {
-  background: oklch(var(--sf) / 1);
-}
-
-.icon-btn--accent {
-  background: oklch(var(--a) / 0.95);
-  border-color: oklch(var(--af) / 0.9);
-  color: oklch(var(--ac) / 1);
-}
-
-.icon-btn--accent:hover {
-  background: oklch(var(--af) / 1);
-}
-
-.icon-btn--base {
-  background: oklch(var(--b2) / 0.95);
-  border-color: oklch(var(--b3) / 0.9);
-  color: oklch(var(--bc) / 1);
-}
-
-.icon-btn--base:hover {
-  background: oklch(var(--b3) / 1);
-}
-
-.icon-btn__icon {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
-  opacity: 0.95;
-  transition: transform 0.15s ease;
-}
-
-.icon-btn:hover .icon-btn__icon {
-  transform: scale(1.06);
-}
-
-.sidebar-toggle {
-  position: fixed;
-  z-index: 60;
-}
-
-.sidebar-region {
-  height: 100%;
-  width: 100%;
-  padding: 0.75rem;
-}
-
-.sidebar-region--secondary {
-  color: oklch(var(--sc) / 1);
-}
-
-.sidebar-region--accent {
-  color: oklch(var(--ac) / 1);
-}
-
-.sidebar-shell {
-  position: relative;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-  border-width: 2px;
-  border-style: solid;
-  border-radius: 1.75rem;
-  background: oklch(var(--b1) / 0.92);
-  box-shadow:
-    0 12px 30px oklch(0 0 0 / 0.16),
-    inset 0 1px 0 oklch(1 0 0 / 0.18);
-  backdrop-filter: blur(10px);
-}
-
-.sidebar-region--secondary .sidebar-shell {
-  border-color: oklch(var(--sf) / 0.9);
-}
-
-.sidebar-region--accent .sidebar-shell {
-  border-color: oklch(var(--af) / 0.9);
-}
-
-.sidebar-scroll {
-  position: relative;
-  z-index: 10;
-  height: 100%;
-  width: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-}
-
-.sidebar-scroll__content {
-  display: flex;
-  min-height: 100%;
-  width: 100%;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem;
-}
-
-.scroll-button {
-  position: absolute;
-  z-index: 30;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid oklch(var(--b3) / 0.9);
-  border-radius: 9999px;
-  background: oklch(var(--b2) / 0.86);
-  color: oklch(var(--bc) / 0.82);
-  box-shadow: 0 1px 6px oklch(0 0 0 / 0.12);
-  backdrop-filter: blur(8px);
-  padding: 0.35rem;
-  transition:
-    background 0.15s ease,
-    transform 0.15s ease,
-    color 0.15s ease;
-}
-
-.scroll-button:hover {
-  background: oklch(var(--b3) / 0.96);
-  color: oklch(var(--bc) / 1);
-  transform: scale(1.04);
-}
-
-.scroll-button--top {
-  top: 0.75rem;
-}
-
-.scroll-button--bottom {
-  bottom: 0.75rem;
-}
-
-.sidebar-region--secondary .scroll-button {
-  left: 0.5rem;
-  right: auto;
-}
-
-.sidebar-region--accent .scroll-button {
-  right: 0.5rem;
-  left: auto;
-}
-
-.smart-scroll-container {
-  scrollbar-width: none;
-}
-
-.smart-scroll-container::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-</style>

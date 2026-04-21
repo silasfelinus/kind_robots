@@ -80,6 +80,22 @@ export const useThemeStore = defineStore('themeStore', () => {
       : activeTheme.value?.name || 'retro',
   )
 
+  function clearAppliedThemeValues(): void {
+    if (typeof document === 'undefined') return
+
+    const root = document.documentElement
+
+    for (const key of allThemeKeys) {
+      root.style.removeProperty(key)
+      root.style.removeProperty(`--${key}`)
+    }
+
+    for (const key of extraVars) {
+      root.style.removeProperty(key)
+      root.style.removeProperty(`--${key}`)
+    }
+  }
+
   function setApplyAfterSave(val: boolean): void {
     applyAfterSave.value = val
   }
@@ -103,6 +119,7 @@ export const useThemeStore = defineStore('themeStore', () => {
         return { success: false, message }
       }
 
+      clearAppliedThemeValues()
       document.documentElement.setAttribute('data-theme', input)
       localStorage.setItem('theme', input)
       activeTheme.value = input

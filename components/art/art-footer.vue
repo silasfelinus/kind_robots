@@ -9,6 +9,7 @@
         class="grid h-full w-full min-h-0 grid-cols-[1fr_auto] items-stretch gap-2 rounded-2xl border border-base-300 bg-base-100 p-2"
       >
         <textarea
+          ref="promptMeasureRef"
           v-model="promptStore.promptField"
           class="textarea textarea-bordered h-full min-h-0 w-full resize-none overflow-y-auto bg-base-100 text-sm"
           placeholder="Enter your creative prompt..."
@@ -60,6 +61,7 @@
             </label>
 
             <textarea
+              ref="promptMeasureRef"
               v-model="promptStore.promptField"
               class="textarea textarea-bordered min-h-0 flex-1 resize-none overflow-y-auto bg-base-100 text-sm"
               placeholder="Enter your creative prompt..."
@@ -362,8 +364,15 @@
 </template>
 
 <script setup lang="ts">
-// /components/navigation/art-footer.vue
-import { computed, ref, watch, watchEffect } from 'vue'
+import {
+  computed,
+  ref,
+  watch,
+  watchEffect,
+  nextTick,
+  onMounted,
+  onBeforeUnmount,
+} from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
@@ -384,7 +393,9 @@ const displayStore = useDisplayStore()
 const footerState = computed(() => displayStore.footerState)
 const isCompact = computed(() => footerState.value === 'compact')
 const isOpen = computed(() => footerState.value === 'open')
-const isPriority = computed(() => footerState.value === 'priority')
+
+const promptMeasureRef = ref<HTMLTextAreaElement | null>(null)
+let promptResizeObserver: ResizeObserver | null = null
 
 const isGenerating = ref(false)
 const makePretty = ref(false)
@@ -418,6 +429,7 @@ watch(
 function syncPrompt() {
   promptStore.syncToLocalStorage()
   artStore.artForm.promptString = promptStore.promptField
+  queuePromptOffsetRefresh()
 }
 
 function toggleNegativePrompt() {
@@ -425,6 +437,7 @@ function toggleNegativePrompt() {
     '__negative__',
     useNegative.value ? negativeList : [],
   )
+  queuePromptOffsetRefresh()
 }
 
 function resetUIState() {
@@ -432,7 +445,75 @@ function resetUIState() {
   makePretty.value = false
   useNegative.value = false
   artStore.artForm.negativePrompt = ''
+  queuePromptOffsetRefresh()
 }
+
+function refreshPromptOffset() {
+  if (displayStore.footerComponent !== 'art') {
+    displayStore.clearPromptOffset('art')
+    return
+  }
+
+  if (footerState.value === 'hidden') {
+    displayStore.clearPromptOffset('art')
+    return
+  }
+
+  if (footerState.value === 'priority') {
+    displayStore.clearPromptOffset('art')
+    return
+  }
+
+  const el = promptMeasureRef.value
+  if (!el) {
+    displayStore.clearPromptOffset('art')
+    return
+  }
+
+  displayStore.refreshPromptOffset(
+    'art',
+    el.scrollHeight,
+    el.clientHeight,
+    footerState.value === 'compact' ? 1.5 : 2.5,
+  )
+}
+
+function queuePromptOffsetRefresh() {
+  nextTick(() => {
+    refreshPromptOffset()
+  })
+}
+
+watch(
+  () => [
+    footerState.value,
+    promptStore.promptField,
+    artStore.artForm.negativePrompt,
+    useNegative.value,
+    displayStore.footerComponent,
+  ],
+  () => {
+    queuePromptOffsetRefresh()
+  },
+)
+
+onMounted(() => {
+  queuePromptOffsetRefresh()
+
+  promptResizeObserver = new ResizeObserver(() => {
+    refreshPromptOffset()
+  })
+
+  if (promptMeasureRef.value) {
+    promptResizeObserver.observe(promptMeasureRef.value)
+  }
+})
+
+onBeforeUnmount(() => {
+  promptResizeObserver?.disconnect()
+  promptResizeObserver = null
+  displayStore.clearPromptOffset('art')
+})
 
 async function generateArt() {
   const validKeys = [
@@ -465,6 +546,7 @@ async function generateArt() {
   }
 
   isGenerating.value = false
+  queuePromptOffsetRefresh()
 }
 </script>
 

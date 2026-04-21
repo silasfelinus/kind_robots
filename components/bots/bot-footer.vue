@@ -21,6 +21,7 @@
           </div>
 
           <textarea
+            ref="messageMeasureRef"
             v-model="launchMessage"
             class="textarea textarea-bordered h-16 min-h-0 w-full resize-none overflow-y-auto bg-base-100 px-3 py-2 text-sm leading-snug"
             placeholder="Give your bot a first line..."
@@ -184,6 +185,7 @@
 
               <div class="flex min-h-0 flex-1 flex-col gap-3">
                 <textarea
+                  ref="messageMeasureRef"
                   v-model="launchMessage"
                   class="textarea textarea-bordered h-32 min-h-32 w-full resize-none bg-base-100 text-sm"
                   placeholder="Type the first message to hand off to /bots..."
@@ -261,10 +263,8 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-// /components/navigation/bot-footer.vue
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onBeforeUnmount, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBotStore } from '@/stores/botStore'
 import { useDisplayStore } from '@/stores/displayStore'
@@ -290,12 +290,17 @@ const launchMessage = computed({
   set: (value: string) => botStore.setPendingLaunchMessage(value),
 })
 
+const messageMeasureRef = ref<HTMLTextAreaElement | null>(null)
+let messageResizeObserver: ResizeObserver | null = null
+
 async function selectBot(botId: number) {
   await botStore.selectBot(botId)
+  queuePromptOffsetRefresh()
 }
 
 function clearSelectedBot() {
   botStore.deselectBot()
+  displayStore.clearPromptOffset('kind')
 }
 
 function fillStarter() {
@@ -303,10 +308,12 @@ function fillStarter() {
     botStore.setPendingLaunchMessage(
       `Hey ${botStore.currentBot.name}, I want your help with something.`,
     )
+    queuePromptOffsetRefresh()
     return
   }
 
   botStore.setPendingLaunchMessage('Hey bot, I want your help with something.')
+  queuePromptOffsetRefresh()
 }
 
 function fillWeirdStarter() {
@@ -314,17 +321,69 @@ function fillWeirdStarter() {
     botStore.setPendingLaunchMessage(
       `Hey ${botStore.currentBot.name}, let’s make something strange, clever, and unexpectedly excellent.`,
     )
+    queuePromptOffsetRefresh()
     return
   }
 
   botStore.setPendingLaunchMessage(
     'Let’s make something strange, clever, and unexpectedly excellent.',
   )
+  queuePromptOffsetRefresh()
 }
 
 function resetFooter() {
   botStore.clearPendingLaunchMessage()
+  queuePromptOffsetRefresh()
 }
+
+function refreshPromptOffset() {
+  if (displayStore.footerComponent !== 'kind') {
+    displayStore.clearPromptOffset('kind')
+    return
+  }
+
+  if (footerState.value === 'hidden') {
+    displayStore.clearPromptOffset('kind')
+    return
+  }
+
+  if (footerState.value === 'priority') {
+    displayStore.clearPromptOffset('kind')
+    return
+  }
+
+  const el = messageMeasureRef.value
+
+  if (!el || !botStore.currentBot) {
+    displayStore.clearPromptOffset('kind')
+    return
+  }
+
+  displayStore.refreshPromptOffset(
+    'kind',
+    el.scrollHeight,
+    el.clientHeight,
+    footerState.value === 'compact' ? 1.5 : 2.5,
+  )
+}
+
+function queuePromptOffsetRefresh() {
+  nextTick(() => {
+    refreshPromptOffset()
+  })
+}
+
+watch(
+  () => [
+    footerState.value,
+    displayStore.footerComponent,
+    botStore.currentBot?.id ?? 0,
+    botStore.pendingLaunchMessage,
+  ],
+  () => {
+    queuePromptOffsetRefresh()
+  },
+)
 
 async function launchBot() {
   if (!botStore.currentBot || !botStore.pendingLaunchMessage.trim()) return
@@ -333,5 +392,20 @@ async function launchBot() {
 
 onMounted(async () => {
   await botStore.initialize()
+  queuePromptOffsetRefresh()
+
+  messageResizeObserver = new ResizeObserver(() => {
+    refreshPromptOffset()
+  })
+
+  if (messageMeasureRef.value) {
+    messageResizeObserver.observe(messageMeasureRef.value)
+  }
+})
+
+onBeforeUnmount(() => {
+  messageResizeObserver?.disconnect()
+  messageResizeObserver = null
+  displayStore.clearPromptOffset('kind')
 })
 </script>

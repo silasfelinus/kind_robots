@@ -1,11 +1,11 @@
 <!-- /components/content/story/kind-loader.vue -->
 <template>
-  <div class="z-50">
-    <butterfly-layer />
+  <div>
+    <butterfly-layer class="z-50" />
 
     <div
       v-if="showOverlay"
-      class="loading-overlay"
+      class="loading-overlay z-40"
       :class="{ 'fade-out': fadeOut }"
       @transitionend="handleTransitionEnd"
       @click="startFadeOut"

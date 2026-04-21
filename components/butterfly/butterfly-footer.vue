@@ -528,7 +528,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
@@ -554,8 +553,8 @@ const showSwarm = computed({
 
 const showNames = computed({
   get: () => butterflyStore.showNames,
-  set: () => {
-    butterflyStore.toggleShowNames()
+  set: (value: boolean) => {
+    butterflyStore.setShowNames(value)
   },
 })
 
@@ -566,25 +565,27 @@ const butterflySummary = computed(() => {
   return `${butterflyCount.value} butterflies fluttering`
 })
 
-// ─── gallery ──────────────────────────────────────────────────────────────────
-
 const galleryReady = ref(false)
 
+const gallerySlots = computed(() =>
+  Array.isArray(butterflyStore.gallerySlots) ? butterflyStore.gallerySlots : [],
+)
+
 const caughtSlots = computed(() =>
-  butterflyStore.gallerySlots.filter((s) => s.butterfly !== null),
+  gallerySlots.value.filter((slot) => slot?.butterfly != null),
 )
+
 const lockedSlots = computed(() =>
-  butterflyStore.gallerySlots.filter((s) => s.butterfly === null),
+  gallerySlots.value.filter((slot) => slot?.butterfly == null),
 )
+
 const caughtCount = computed(() => caughtSlots.value.length)
-const totalCount = computed(() => butterflyStore.gallerySlots.length)
+const totalCount = computed(() => gallerySlots.value.length)
 
 onMounted(async () => {
   await butterflyStore.initGame()
   galleryReady.value = true
 })
-
-// ─── swarm actions ────────────────────────────────────────────────────────────
 
 async function addButterfly() {
   await butterflyStore.addButterfly()

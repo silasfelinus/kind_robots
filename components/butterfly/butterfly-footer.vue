@@ -538,6 +538,12 @@ async function addButterfly() {
   await butterflyStore.addButterfly()
 }
 
+async function addBurst(amount: number) {
+  for (let i = 0; i < amount; i++) {
+    await butterflyStore.addButterfly()
+  }
+}
+
 function removeButterfly() {
   butterflyStore.removeRandomButterfly()
 }

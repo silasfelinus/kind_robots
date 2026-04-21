@@ -12,7 +12,7 @@
 
     <div
       v-if="displayStore.headerState === 'hidden'"
-      class="pointer-events-none fixed left-3 top-3 z-80"
+      class="pointer-events-none fixed left-3 top-3 z-30"
     >
       <div class="pointer-events-auto flex items-start">
         <button

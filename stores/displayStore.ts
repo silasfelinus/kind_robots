@@ -305,7 +305,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       top: `calc(var(--vh) * ${sidebarTop + sidebarContentHeight.value / 2})`,
       left: `${seam}vw`,
       transform: 'translate(-50%, -50%)',
-      zIndex: '40',
+      zIndex: '30',
     }
   })
 
@@ -327,7 +327,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       top: `calc(var(--vh) * ${sidebarTop + sidebarContentHeight.value / 2})`,
       right: `${seam}vw`,
       transform: 'translate(50%, -50%)',
-      zIndex: '40',
+      zIndex: '30',
     }
   })
 
@@ -341,7 +341,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       left: '50%',
       top: `calc(var(--vh) * ${footerTop} - ${lift}rem)`,
       transform: 'translateX(-50%)',
-      zIndex: '40',
+      zIndex: '30',
     }
   })
 
@@ -350,7 +350,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     top: `calc(var(--vh) * ${Math.max(0.5, sectionPaddingSize.value + 0.75)})`,
     left: '50%',
     transform: 'translateX(-50%)',
-    zIndex: '40',
+    zIndex: '30',
   }))
 
   const cornerPanelStyle = computed<CSSProperties>(() => {

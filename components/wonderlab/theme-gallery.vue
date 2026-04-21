@@ -1,16 +1,15 @@
 <!-- /components/content/themes/theme-gallery.vue -->
 <template>
   <div class="overflow-y-auto max-h-[calc(100vh-4rem)] px-4 py-6">
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <!-- Default Themes -->
+    <section class="grid grid-cols-1 gap-8 md:grid-cols-2">
       <div>
-        <h2 class="text-xl font-semibold mb-3">🌈 Default Themes</h2>
+        <h2 class="mb-3 text-xl font-semibold">🌈 Default Themes</h2>
         <div class="grid gap-3 sm:grid-cols-2">
           <magic-container
             v-for="theme in themeStore.daisyuiThemes"
             :key="theme"
             :data-theme="theme"
-            class="rounded-xl p-4 border cursor-pointer text-center hover:ring hover:ring-primary"
+            class="cursor-pointer rounded-xl border p-4 text-center hover:ring hover:ring-primary"
             @click="setTheme(theme)"
           >
             <div class="font-mono">{{ theme }}</div>
@@ -18,24 +17,23 @@
         </div>
       </div>
 
-      <!-- Shared Themes -->
       <div v-if="themeStore.sharedThemes.length">
-        <h2 class="text-xl font-semibold mb-3">🌍 Shared Themes</h2>
+        <h2 class="mb-3 text-xl font-semibold">🌍 Shared Themes</h2>
         <div class="grid gap-3 sm:grid-cols-2">
           <magic-container
             v-for="theme in themeStore.sharedThemes"
             :key="theme.id"
             :data-theme="'custom-preview-' + theme.id"
-            class="relative rounded-xl p-4 border cursor-pointer group hover:ring hover:ring-secondary"
+            class="group relative cursor-pointer rounded-xl border p-4 hover:ring hover:ring-secondary"
             @click="setTheme(theme)"
           >
             <div
-              class="w-full h-full flex items-center justify-center font-mono text-lg text-center"
+              class="flex h-full w-full items-center justify-center text-center font-mono text-lg"
             >
               {{ theme.name }}
             </div>
             <button
-              class="absolute top-2 right-2 btn btn-xs btn-warning opacity-0 group-hover:opacity-100 transition-opacity"
+              class="btn btn-warning btn-xs absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100"
               type="button"
               @click.stop="editTheme(theme)"
             >
@@ -43,30 +41,29 @@
             </button>
           </magic-container>
         </div>
-
-        <!-- Info + Errors -->
-        <div class="col-span-full space-y-4 mt-6">
-          <div
-            v-if="inspectValues"
-            class="bg-base-100 border border-base-300 rounded-xl p-4 whitespace-pre-wrap text-sm overflow-auto max-h-[40vh]"
-          >
-            <h3 class="text-lg font-bold mb-2">🎨 Selected Theme Info</h3>
-            <pre>{{ inspectValues }}</pre>
-          </div>
-          <p
-            v-if="themeError"
-            class="p-3 text-sm text-error bg-error/10 border border-error rounded-xl whitespace-pre-wrap"
-          >
-            {{ themeError }}
-          </p>
-        </div>
       </div>
+    </section>
+
+    <section class="mt-6 space-y-4">
+      <div
+        v-if="inspectValues"
+        class="max-h-[40vh] overflow-auto whitespace-pre-wrap rounded-xl border border-base-300 bg-base-100 p-4 text-sm"
+      >
+        <h3 class="mb-2 text-lg font-bold">🎨 Selected Theme Info</h3>
+        <pre>{{ inspectValues }}</pre>
+      </div>
+
+      <p
+        v-if="themeError"
+        class="whitespace-pre-wrap rounded-xl border border-error bg-error/10 p-3 text-sm text-error"
+      >
+        {{ themeError }}
+      </p>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-// /components/content/themes/theme-gallery.vue
 import { ref, computed, watchEffect } from 'vue'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
@@ -84,7 +81,7 @@ function safeThemeValues(val: unknown): Record<string, string> {
     : {}
 }
 
-function setTheme(theme: string | Theme) {
+async function setTheme(theme: string | Theme) {
   const input =
     typeof theme === 'string'
       ? theme
@@ -98,15 +95,23 @@ function setTheme(theme: string | Theme) {
         }
 
   try {
-    const result = themeStore.setActiveTheme(input)
+    const result = await themeStore.setActiveTheme(input)
+
     if (!result.success) {
       themeError.value = `❌ Failed to apply theme\n${result.message}`
       inspectValues.value = null
-    } else {
-      themeError.value = ''
-      inspectValues.value = JSON.stringify(themeStore.getThemeValues(), null, 2)
-      milestoneStore.rewardMilestone(9)
+      return
     }
+
+    themeError.value = ''
+
+    const snapshot =
+      typeof theme === 'string'
+        ? await themeStore.getActiveThemeSnapshot(theme)
+        : themeStore.themeForm
+
+    inspectValues.value = JSON.stringify(snapshot, null, 2)
+    milestoneStore.rewardMilestone(9)
   } catch (err: unknown) {
     themeError.value = `❌ setTheme crashed:\n${(err as Error).message}`
   }

@@ -87,6 +87,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       scaleMod: 1,
       rarity: db.rarityNumber,
       artImageId: db.artImageId,
+      noiseOffsetX: Math.random() * 1000,
+      noiseOffsetY: Math.random() * 1000,
       x: clampToTwoDecimals(Math.random() * 100),
       y: clampToTwoDecimals(Math.random() * 100),
       z: clampToTwoDecimals(Math.random() * 0.5 + 0.5),
@@ -364,17 +366,21 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   function updateButterflyPosition(butterfly: Butterfly) {
     const noise2D = getNoise()
-    const t = Date.now() * 0.001 // wall clock, same as ami — fixes the spasm
+    const t = Date.now() * 0.001
 
+    // Scale matches ami's effective range — each butterfly roams its own noise territory
     const angle =
-      noise2D(butterfly.x * 0.01, butterfly.y * 0.01 + t) * Math.PI * 2
+      noise2D(
+        butterfly.x * 0.15 + butterfly.noiseOffsetX,
+        butterfly.y * 0.15 + butterfly.noiseOffsetY + t,
+      ) *
+      Math.PI *
+      2
 
     const noiseDx = Math.cos(angle) * butterfly.speed
     const noiseDy = Math.sin(angle) * butterfly.speed
 
     if (butterfly.isExiting) {
-      // Same noise movement as always, plus a gentle drift toward the exit goal.
-      // Not a beeline — the butterfly still feels like itself, just gradually pulled away.
       const goalDx = butterfly.goal.x - butterfly.x
       const goalDy = butterfly.goal.y - butterfly.y
       const goalDist = Math.sqrt(goalDx * goalDx + goalDy * goalDy) || 1
@@ -402,18 +408,15 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
         const index = butterflies.value.findIndex((b) => b.id === butterfly.id)
         if (index !== -1) butterflies.value.splice(index, 1)
       }
-
       return
     }
 
-    // Normal flight: noise-driven, clamped to viewport
     butterfly.x = clampToTwoDecimals(
       Math.max(0, Math.min(butterfly.x + noiseDx, 100)),
     )
     butterfly.y = clampToTwoDecimals(
       Math.max(0, Math.min(butterfly.y + noiseDy, 100)),
     )
-
     butterfly.rotation = noiseDx >= 0 ? 120 : 30
     butterfly.scaleMod = clampToTwoDecimals(
       0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,

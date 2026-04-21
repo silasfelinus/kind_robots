@@ -9,7 +9,7 @@ import { validateApiKey } from '@/server/utils/validateKey'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
-  let id: number
+  let id: number = 0
   let response
 
   try {

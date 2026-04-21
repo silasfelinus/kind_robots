@@ -93,7 +93,7 @@ export default defineEventHandler(async (event) => {
       wingSpeed,
       scale,
       rarityNumber,
-      designer: designer || user.username || '',
+      designer: designer || '',
       isPublic: isPublic ?? true,
       User: { connect: { id: user.id } },
       ...(artImageId ? { ArtImage: { connect: { id: artImageId } } } : {}),

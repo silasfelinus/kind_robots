@@ -9,7 +9,7 @@ import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 
 export default defineEventHandler(async (event) => {
-  let id: number
+  let id: number = 0
   let response
 
   try {

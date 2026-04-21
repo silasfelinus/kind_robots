@@ -92,9 +92,7 @@
 
         <div class="mt-3 min-h-0 flex-1 overflow-y-auto pr-1">
           <div class="flex flex-col gap-3">
-            <div
-              class="grid grid-cols-1 gap-3 sm:grid-cols-[auto_auto_1fr_auto]"
-            >
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-[auto_auto_auto]">
               <button
                 type="button"
                 class="btn btn-primary"
@@ -114,25 +112,6 @@
                 Remove
               </button>
 
-              <div
-                class="flex min-w-0 flex-col justify-center rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-              >
-                <div
-                  class="mb-2 flex items-center justify-between gap-3 text-sm"
-                >
-                  <span class="font-medium">Target Count</span>
-                  <span class="font-semibold">{{ count }}</span>
-                </div>
-
-                <input
-                  v-model="count"
-                  type="range"
-                  min="0"
-                  max="100"
-                  class="range range-sm w-full"
-                />
-              </div>
-
               <button
                 type="button"
                 class="btn btn-outline"
@@ -143,7 +122,7 @@
               </button>
             </div>
 
-            <div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
+            <div class="grid grid-cols-3 gap-2">
               <button class="btn btn-sm btn-outline" @click="addBurst(5)">
                 +5
               </button>
@@ -153,36 +132,18 @@
               <button class="btn btn-sm btn-outline" @click="addBurst(20)">
                 +20
               </button>
-              <button class="btn btn-sm btn-outline" @click="setCount(10)">
-                10
-              </button>
-              <button class="btn btn-sm btn-outline" @click="setCount(20)">
-                20
-              </button>
-              <button class="btn btn-sm btn-outline" @click="setCount(40)">
-                40
-              </button>
             </div>
 
-            <div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
+            <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
               <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
                 <div
                   class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
                 >
-                  Current Count
+                  Active Count
                 </div>
                 <div class="mt-1 text-lg font-semibold">
                   🦋 {{ butterflyCount }}
                 </div>
-              </div>
-
-              <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-                <div
-                  class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
-                >
-                  Target Count
-                </div>
-                <div class="mt-1 text-lg font-semibold">{{ targetCount }}</div>
               </div>
 
               <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
@@ -235,30 +196,18 @@
               <input v-model="showSwarm" type="checkbox" class="toggle" />
             </label>
 
+            <label
+              class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+            >
+              <span class="text-sm font-medium">Show butterfly names</span>
+              <input v-model="showNames" type="checkbox" class="toggle" />
+            </label>
+
             <div
               class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/80"
             >
               The butterfly layer stays mounted as a launchpad. This toggle only
               controls whether active butterflies are visible.
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <div class="mb-2 text-sm font-semibold">Quick actions</div>
-
-              <div class="grid grid-cols-2 gap-2">
-                <button class="btn btn-sm btn-outline" @click="setCount(10)">
-                  10
-                </button>
-                <button class="btn btn-sm btn-outline" @click="setCount(20)">
-                  20
-                </button>
-                <button class="btn btn-sm btn-outline" @click="setCount(40)">
-                  40
-                </button>
-                <button class="btn btn-sm btn-outline" @click="setCount(60)">
-                  60
-                </button>
-              </div>
             </div>
 
             <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
@@ -277,7 +226,7 @@
 
     <div
       v-else
-      class="grid h-full w-full min-h-0 grid-cols-1 gap-3 overflow-y-auto xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,24rem)]"
+      class="grid h-full w-full min-h-0 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,24rem)]"
     >
       <div
         class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
@@ -295,8 +244,8 @@
           <div class="badge badge-primary badge-outline">priority mode</div>
         </div>
 
-        <div class="mt-3 min-h-0 flex-1 overflow-hidden">
-          <div class="flex h-full min-h-0 flex-col gap-3">
+        <div class="mt-3 min-h-0 flex-1 overflow-y-auto pr-1">
+          <div class="flex flex-col gap-3">
             <div
               class="min-h-72 shrink-0 rounded-2xl border border-base-300 bg-base-200 p-3"
             >
@@ -305,246 +254,96 @@
               />
             </div>
 
-            <div
-              class="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
-            >
-              <div
-                class="flex min-h-0 flex-col overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-4"
-              >
-                <div class="mb-3 flex items-center justify-between gap-3">
-                  <div class="text-sm font-semibold">Population</div>
-                  <div class="text-sm text-base-content/70">
-                    {{ butterflyCount }} / {{ targetCount }}
-                  </div>
-                </div>
-
-                <div class="mb-4 flex flex-wrap items-center gap-3">
-                  <button class="btn btn-primary" @click="addButterfly">
-                    <icon name="kind-icon:plus" class="h-4 w-4" />
-                    Add butterfly
-                  </button>
-
-                  <button
-                    class="btn btn-secondary"
-                    :disabled="butterflyCount <= 0"
-                    @click="removeButterfly"
-                  >
-                    <icon name="kind-icon:minus" class="h-4 w-4" />
-                    Remove butterfly
-                  </button>
-
-                  <button
-                    class="btn btn-outline"
-                    :disabled="butterflyCount <= 0"
-                    @click="clearButterflies"
-                  >
-                    Clear swarm
-                  </button>
-                </div>
-
-                <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-                  <div class="mb-2 flex items-center justify-between gap-3">
-                    <span class="text-sm font-medium">Target Count</span>
-                    <span class="text-lg font-semibold">{{ count }}</span>
-                  </div>
-
-                  <input
-                    v-model="count"
-                    type="range"
-                    min="0"
-                    max="100"
-                    class="range range-md w-full"
-                  />
-
-                  <div class="mt-3 grid grid-cols-4 gap-2">
-                    <button class="btn btn-sm btn-outline" @click="setCount(0)">
-                      0
-                    </button>
-                    <button
-                      class="btn btn-sm btn-outline"
-                      @click="setCount(12)"
-                    >
-                      12
-                    </button>
-                    <button
-                      class="btn btn-sm btn-outline"
-                      @click="setCount(24)"
-                    >
-                      24
-                    </button>
-                    <button
-                      class="btn btn-sm btn-outline"
-                      @click="setCount(50)"
-                    >
-                      50
-                    </button>
-                  </div>
-
-                  <div class="mt-3 grid grid-cols-3 gap-2">
-                    <button class="btn btn-sm btn-outline" @click="addBurst(5)">
-                      +5
-                    </button>
-                    <button
-                      class="btn btn-sm btn-outline"
-                      @click="addBurst(10)"
-                    >
-                      +10
-                    </button>
-                    <button
-                      class="btn btn-sm btn-outline"
-                      @click="addBurst(20)"
-                    >
-                      +20
-                    </button>
-                  </div>
-                </div>
-
-                <div
-                  class="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-                >
-                  <div class="text-sm text-base-content/80">
-                    Ami’s butterflies are fundraising chaos with a mission.
-                  </div>
-
-                  <div class="flex flex-wrap items-center gap-2">
-                    <NuxtLink to="/sponsor" class="btn btn-accent btn-sm">
-                      <icon name="kind-icon:butterfly" class="h-4 w-4" />
-                      Visit Sponsor Page
-                    </NuxtLink>
-
-                    <butterfly-trigger />
-                  </div>
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <div class="text-sm font-semibold">Population</div>
+                <div class="text-sm text-base-content/70">
+                  {{ butterflyCount }} active
                 </div>
               </div>
 
-              <div class="flex min-h-0 flex-col overflow-y-auto gap-3">
-                <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-                  <div
-                    class="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70"
-                  >
-                    Display Options
-                  </div>
+              <div class="mb-4 flex flex-wrap items-center gap-3">
+                <button class="btn btn-primary" @click="addButterfly">
+                  <icon name="kind-icon:plus" class="h-4 w-4" />
+                  Add butterfly
+                </button>
 
-                  <div class="grid grid-cols-1 gap-3">
-                    <label
-                      class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-                    >
-                      <span class="text-sm font-medium"
-                        >Show active butterflies</span
-                      >
-                      <input
-                        v-model="showSwarm"
-                        type="checkbox"
-                        class="toggle"
-                      />
-                    </label>
+                <button
+                  class="btn btn-secondary"
+                  :disabled="butterflyCount <= 0"
+                  @click="removeButterfly"
+                >
+                  <icon name="kind-icon:minus" class="h-4 w-4" />
+                  Remove butterfly
+                </button>
 
-                    <label
-                      class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-                    >
-                      <span class="text-sm font-medium"
-                        >Show butterfly names</span
-                      >
-                      <input
-                        v-model="showNames"
-                        type="checkbox"
-                        class="toggle"
-                      />
-                    </label>
-                  </div>
-                </div>
+                <button
+                  class="btn btn-outline"
+                  :disabled="butterflyCount <= 0"
+                  @click="clearButterflies"
+                >
+                  Clear swarm
+                </button>
+              </div>
 
-                <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-                  <div
-                    class="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70"
-                  >
-                    Summary
-                  </div>
+              <div class="grid grid-cols-3 gap-2">
+                <button class="btn btn-sm btn-outline" @click="addBurst(5)">
+                  +5
+                </button>
+                <button class="btn btn-sm btn-outline" @click="addBurst(10)">
+                  +10
+                </button>
+                <button class="btn btn-sm btn-outline" @click="addBurst(20)">
+                  +20
+                </button>
+              </div>
+            </div>
 
-                  <div class="space-y-3">
-                    <div
-                      class="rounded-2xl border border-base-300 bg-base-100 p-3"
-                    >
-                      <div class="text-xs uppercase text-base-content/60">
-                        Current State
-                      </div>
-                      <div class="mt-1 text-sm font-semibold">
-                        {{ butterflySummary }}
-                      </div>
-                    </div>
+            <div
+              class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+            >
+              <div class="text-sm text-base-content/80">
+                Ami’s butterflies are fundraising chaos with a mission.
+              </div>
 
-                    <div
-                      class="rounded-2xl border border-base-300 bg-base-100 p-3"
-                    >
-                      <div class="text-xs uppercase text-base-content/60">
-                        Swarm Visibility
-                      </div>
-                      <div class="mt-1 text-sm font-semibold">
-                        {{ showSwarm ? 'Visible' : 'Hidden' }}
-                      </div>
-                    </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <NuxtLink to="/sponsor" class="btn btn-accent btn-sm">
+                  <icon name="kind-icon:butterfly" class="h-4 w-4" />
+                  Visit Sponsor Page
+                </NuxtLink>
 
-                    <div
-                      class="rounded-2xl border border-base-300 bg-base-100 p-3"
-                    >
-                      <div class="text-xs uppercase text-base-content/60">
-                        Name Labels
-                      </div>
-                      <div class="mt-1 text-sm font-semibold">
-                        {{ showNames ? 'Shown' : 'Hidden' }}
-                      </div>
-                    </div>
-
-                    <div
-                      class="rounded-2xl border border-base-300 bg-base-100 p-3"
-                    >
-                      <div class="text-xs uppercase text-base-content/60">
-                        Selected Butterfly
-                      </div>
-                      <div class="mt-1 text-sm font-semibold">
-                        {{ selectedButterflyLabel }}
-                      </div>
-                    </div>
-
-                    <div
-                      class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm text-base-content/80"
-                    >
-                      Priority mode gives the butterfly controls room to breathe
-                      and lets your selected butterfly strut a little.
-                    </div>
-
-                    <div
-                      class="rounded-2xl border border-base-300 bg-base-100 p-3"
-                    >
-                      <div
-                        class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60"
-                      >
-                        Surprise Minigame
-                      </div>
-
-                      <butterfly-trigger />
-                    </div>
-                  </div>
-                </div>
+                <butterfly-trigger />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="flex min-h-0 overflow-hidden xl:flex xl:flex-col">
+      <div
+        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
+      >
         <div
-          class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
+          class="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70"
         >
-          <div
-            class="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70"
-          >
-            Swarm Readout
-          </div>
+          Swarm Readout
+        </div>
 
-          <div
-            class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-y-auto pr-1"
-          >
+        <div class="min-h-0 flex-1 overflow-y-auto pr-1">
+          <div class="flex flex-col gap-3">
+            <label
+              class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+            >
+              <span class="text-sm font-medium">Show active butterflies</span>
+              <input v-model="showSwarm" type="checkbox" class="toggle" />
+            </label>
+
+            <label
+              class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+            >
+              <span class="text-sm font-medium">Show butterfly names</span>
+              <input v-model="showNames" type="checkbox" class="toggle" />
+            </label>
+
             <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <div class="text-xs uppercase text-base-content/60">
                 Active Butterflies
@@ -556,19 +355,19 @@
 
             <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <div class="text-xs uppercase text-base-content/60">
-                Target Count
+                Swarm Visibility
               </div>
-              <div class="mt-1 text-2xl font-bold">
-                {{ targetCount }}
+              <div class="mt-1 text-sm font-semibold">
+                {{ showSwarm ? 'Visible' : 'Hidden' }}
               </div>
             </div>
 
             <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <div class="text-xs uppercase text-base-content/60">
-                Selected Butterfly
+                Name Labels
               </div>
               <div class="mt-1 text-sm font-semibold">
-                {{ selectedButterflyLabel }}
+                {{ showNames ? 'Shown' : 'Hidden' }}
               </div>
             </div>
 
@@ -611,21 +410,6 @@ const isCompact = computed(() => footerState.value === 'compact')
 const isOpen = computed(() => footerState.value === 'open')
 
 const butterflyCount = computed(() => butterflyStore.getButterflyCount)
-const targetCount = computed(() => butterflyStore.targetCount)
-
-const count = computed({
-  get: () => butterflyStore.targetCount,
-  set: (val: number | string) => {
-    const nextValue =
-      typeof val === 'number' ? val : Number.parseInt(String(val), 10)
-
-    butterflyStore.targetCount = Number.isFinite(nextValue)
-      ? Math.max(0, Math.min(100, nextValue))
-      : 0
-
-    butterflyStore.syncButterflyCount()
-  },
-})
 
 const showSwarm = computed({
   get: () => smartbarStore.showSwarm,
@@ -639,18 +423,6 @@ const showNames = computed({
   set: () => {
     butterflyStore.toggleShowNames()
   },
-})
-
-const selectedButterfly = computed(() => butterflyStore.getSelectedButterfly)
-
-const selectedButterflyLabel = computed(() => {
-  if (!selectedButterfly.value) {
-    return 'No butterfly selected'
-  }
-
-  return selectedButterfly.value.message
-    ? `${selectedButterfly.value.id}: ${selectedButterfly.value.message}`
-    : selectedButterfly.value.id
 })
 
 const butterflySummary = computed(() => {
@@ -683,9 +455,5 @@ function removeButterfly() {
 
 function clearButterflies() {
   butterflyStore.clearButterflies()
-}
-
-function setCount(value: number) {
-  count.value = value
 }
 </script>

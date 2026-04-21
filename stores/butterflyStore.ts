@@ -335,7 +335,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       const dy = targetY - butterfly.y
       const distance = Math.sqrt(dx * dx + dy * dy) || 1
 
-      const exitSpeed = Math.max(butterfly.speed * 0.75, 0.9)
+      const exitSpeed = Math.max(butterfly.speed * 1.4, 1.2)
 
       butterfly.x = clampToTwoDecimals(
         butterfly.x + (dx / distance) * exitSpeed,

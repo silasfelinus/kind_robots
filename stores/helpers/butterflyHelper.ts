@@ -21,6 +21,7 @@ export interface Butterfly {
   rarity?: number
   status: 'random' | 'float' | 'mouse' | 'spaz' | 'flock' | 'clear'
   scale: number
+  scaleMod: number
   artImageId?: number
   message: string
   isExiting?: boolean
@@ -172,7 +173,8 @@ export const createNewButterfly = async (
         (settings.wingSpeedRange.max - settings.wingSpeedRange.min) +
         settings.wingSpeedRange.min,
     ),
-    scale: clampToTwoDecimals(Math.random() * 0.5 + 0.75),
+    scale: clampToTwoDecimals(Math.random() * 1.5 + 0.5),
+    scaleMod: 1,
     status: settings.status,
     message,
     goal: {

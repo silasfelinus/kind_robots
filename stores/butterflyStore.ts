@@ -480,18 +480,85 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     }
   }
 
+  // add to state refs
+  const discoveryButterfly = ref<Butterfly | null>(null)
+
+  // replace recordCapture with this
   async function recordCapture(butterfly: Butterfly) {
-    const dbRow = dbButterflies.value.find((db) => db.name === butterfly.id)
-    if (!dbRow) return
+    const existingDb = dbButterflies.value.find(
+      (db) => db.name === butterfly.id,
+    )
+
+    // ── known species: just record the catch ──────────────────────────────────
+    if (existingDb) {
+      const alreadyCaught = userCaughtIds.value.has(existingDb.id)
+      if (alreadyCaught) return
+
+      try {
+        await $fetch('/api/butterfly-records', {
+          method: 'POST',
+          body: { butterflyId: existingDb.id },
+        })
+        userCaughtIds.value.add(existingDb.id)
+      } catch (error) {
+        addError(ErrorType.STORE_ERROR, error)
+      }
+      return
+    }
+
+    // ── unknown species: name + message are both novel → discover it ──────────
+    const nameCollides = dbButterflies.value.some(
+      (db) => db.name === butterfly.id,
+    )
+    const messageCollides = dbButterflies.value.some(
+      (db) => db.message === butterfly.message,
+    )
+
+    if (nameCollides || messageCollides) {
+      // Partial collision — don't persist, treat as a known catch without a DB row
+      return
+    }
+
     try {
-      await $fetch('/api/me/butterflies', {
+      const userStore = useUserStore()
+
+      // Create the species in the DB — this user is its discoverer
+      const created = await $fetch<DbButterfly>('/api/butterflies', {
         method: 'POST',
-        body: { butterflyId: dbRow.id },
+        body: {
+          name: butterfly.id,
+          message: butterfly.message,
+          wingTopColor: butterfly.wingTopColor,
+          wingBottomColor: butterfly.wingBottomColor,
+          speed: butterfly.speed,
+          wingSpeed: butterfly.wingSpeed,
+          scale: butterfly.scale,
+          rarityNumber: dbButterflies.value.length + 1,
+          isPublic: true,
+          userId: userStore.userId,
+        },
       })
-      userCaughtIds.value.add(dbRow.id)
+
+      // Add it to the local roster immediately so the gallery slot appears
+      dbButterflies.value.push(created)
+
+      // Record the catch
+      await $fetch('/api/butterfly-records', {
+        method: 'POST',
+        body: { butterflyId: created.id },
+      })
+
+      userCaughtIds.value.add(created.id)
+
+      // Signal discovery to the UI
+      discoveryButterfly.value = butterfly
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }
+  }
+
+  function clearDiscovery() {
+    discoveryButterfly.value = null
   }
 
   function setInspected(butterfly: Butterfly) {
@@ -517,6 +584,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     dbButterflies,
     userCaughtIds,
     inspectedButterfly,
+    discoveryButterfly,
+    clearDiscovery,
 
     usedNames,
     getAllButterflies,

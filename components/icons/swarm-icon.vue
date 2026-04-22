@@ -1,27 +1,32 @@
 <!-- /components/content/icons/swarm-icon.vue -->
 <template>
   <div
-    class="w-full h-full flex items-center justify-center cursor-pointer transition-transform hover:scale-110"
-    @click="toggleAmiSwarm"
+    class="flex h-full w-full cursor-pointer items-center justify-center transition-transform hover:scale-110"
     title="Kind Butterflies"
+    @click="toggleAmiSwarm"
   >
     <Icon
       name="kind-icon:butterfly"
-      class="w-full h-full transition-transform duration-300"
-      :class="{ glow: showSwarm }"
+      class="h-full w-full transition-transform duration-300"
+      :class="{ glow: hasActiveButterflies }"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useSmartbarStore } from '@/stores/smartbarStore'
+import { useButterflyStore } from '@/stores/butterflyStore'
 
-const smartbarStore = useSmartbarStore()
-const showSwarm = computed(() => smartbarStore.showSwarm)
+const butterflyStore = useButterflyStore()
+
+const hasActiveButterflies = computed(
+  () =>
+    butterflyStore.butterflies.filter((butterfly) => !butterfly.isExiting)
+      .length > 0,
+)
 
 function toggleAmiSwarm() {
-  smartbarStore.toggleSwarm()
+  butterflyStore.toggleSwarm(20)
 }
 </script>
 

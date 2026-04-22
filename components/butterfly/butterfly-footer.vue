@@ -5,12 +5,7 @@
     class="flex h-full w-full min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200/80 p-2 shadow-inner md:p-3"
   >
     <div
-      class="grid h-full w-full min-h-0 grid-cols-1 gap-3 overflow-hidden"
-      :class="
-        isPriority
-          ? 'xl:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)]'
-          : 'xl:grid-cols-[minmax(18rem,24rem)_minmax(16rem,22rem)]'
-      "
+      class="grid h-full w-full min-h-0 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)]"
     >
       <section
         class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
@@ -21,7 +16,7 @@
               🦋 Butterfly Footer
             </h2>
             <p class="text-xs text-base-content/70">
-              Pick an active butterfly and send it to the guide.
+              Pick an active butterfly and inspect it without losing the swarm.
             </p>
           </div>
 
@@ -92,14 +87,37 @@
             <div
               class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
             >
-              Selected
+              Swarm Status
             </div>
-            <div class="mt-2 text-sm font-semibold">
-              {{ selectedButterfly?.name || selectedButterfly?.id || 'None' }}
+            <div class="mt-2 flex flex-col gap-2 text-sm">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-base-content/70">Visible</span>
+                <span class="font-semibold">
+                  {{ activeCount > 0 ? 'Yes' : 'No' }}
+                </span>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-base-content/70">Names</span>
+                <span class="font-semibold">
+                  {{ showNames ? 'Shown' : 'Hidden' }}
+                </span>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-base-content/70">Selected</span>
+                <span class="truncate font-semibold">
+                  {{
+                    selectedButterfly?.name || selectedButterfly?.id || 'None'
+                  }}
+                </span>
+              </div>
             </div>
-            <div class="mt-1 text-xs text-base-content/60">
-              {{ activeCount }} butterflies currently visible
-            </div>
+          </div>
+
+          <div
+            class="mt-auto rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/80"
+          >
+            Keep one butterfly selected and the rest of the chaos becomes way
+            less feral.
           </div>
         </div>
       </section>
@@ -107,86 +125,36 @@
       <section
         class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
       >
-        <template v-if="isPriority">
-          <butterfly-guide class="h-full w-full" />
-        </template>
-
-        <template v-else>
-          <div class="flex h-full min-h-0 flex-col overflow-hidden">
-            <div class="mb-3 flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <h3 class="truncate text-base font-semibold">
-                  {{
-                    selectedButterfly?.name ||
-                    selectedButterfly?.id ||
-                    'Butterfly Summary'
-                  }}
-                </h3>
-                <p class="text-xs text-base-content/70">
-                  Lightweight preview. Open priority mode for the full guide.
-                </p>
-              </div>
-
-              <button
-                v-if="canEditSelected"
-                type="button"
-                class="btn btn-accent btn-sm shrink-0"
-                @click="editSelectedButterfly"
-              >
-                <icon name="kind-icon:pen" class="h-4 w-4" />
-                Edit
-              </button>
-            </div>
-
-            <div
-              class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-4"
-            >
-              <div
-                v-if="!selectedButterfly"
-                class="flex h-full items-center justify-center text-center text-sm text-base-content/60"
-              >
-                {{ emptyLabel }}
-              </div>
-
-              <div v-else class="flex h-full min-h-0 flex-col gap-3">
-                <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-                  <div class="text-xs uppercase text-base-content/50">
-                    Message
-                  </div>
-                  <div class="mt-2 text-sm">
-                    {{
-                      selectedButterfly.message ||
-                      'No butterfly gossip recorded.'
-                    }}
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                  <div
-                    class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-sm"
-                  >
-                    <div class="text-xs text-base-content/50">Speed</div>
-                    <div class="font-semibold">
-                      {{ selectedButterfly.speed ?? '—' }}
-                    </div>
-                  </div>
-                  <div
-                    class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-sm"
-                  >
-                    <div class="text-xs text-base-content/50">Rarity</div>
-                    <div class="font-semibold">
-                      {{ selectedButterfly.rarity ?? '—' }}
-                    </div>
-                  </div>
-                </div>
-
-                <div class="mt-auto text-xs text-base-content/50">
-                  Priority mode shows the full field guide.
-                </div>
-              </div>
-            </div>
+        <div class="mb-3 flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <h3 class="truncate text-base font-semibold">
+              {{
+                selectedButterfly?.name ||
+                selectedButterfly?.id ||
+                'Field Guide'
+              }}
+            </h3>
+            <p class="text-xs text-base-content/70">
+              Active butterfly details and discovery info.
+            </p>
           </div>
-        </template>
+
+          <button
+            v-if="canEditSelected"
+            type="button"
+            class="btn btn-accent btn-sm shrink-0"
+            @click="editSelectedButterfly"
+          >
+            <icon name="kind-icon:pen" class="h-4 w-4" />
+            Edit
+          </button>
+        </div>
+
+        <butterfly-field-guide-card
+          class="min-h-0 flex-1"
+          :butterfly="selectedButterfly"
+          :empty-label="emptyLabel"
+        />
       </section>
     </div>
   </div>
@@ -197,26 +165,16 @@ import { computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useButterflyStore } from '@/stores/butterflyStore'
 import { useDisplayStore } from '@/stores/displayStore'
-import { useSmartbarStore } from '@/stores/smartbarStore'
 import { useUserStore } from '@/stores/userStore'
 
 const butterflyStore = useButterflyStore()
 const displayStore = useDisplayStore()
-const smartbarStore = useSmartbarStore()
 const userStore = useUserStore()
 
 const { butterflies, selectedButterflyId, showNames } =
   storeToRefs(butterflyStore)
 
 const footerState = computed(() => displayStore.footerState)
-const isPriority = computed(() => footerState.value === 'priority')
-
-const showSwarm = computed({
-  get: () => smartbarStore.showSwarm,
-  set: (value: boolean) => {
-    smartbarStore.showSwarm = value
-  },
-})
 
 const selectableButterflies = computed(() =>
   butterflies.value.filter((butterfly) => !butterfly.isExiting),
@@ -235,7 +193,7 @@ const activeCount = computed(() => selectableButterflies.value.length)
 
 const emptyLabel = computed(() => {
   if (!activeCount.value) return 'No butterflies are active right now.'
-  return 'Choose a butterfly from the dropdown to load its guide.'
+  return 'Choose a butterfly from the dropdown to load its field guide.'
 })
 
 const canEditSelected = computed(() => {
@@ -243,6 +201,7 @@ const canEditSelected = computed(() => {
   if (!butterfly) return false
 
   const isAdmin = userStore.isAdmin === true || userStore.role === 'ADMIN'
+
   const isOwner =
     butterfly.userId != null &&
     userStore.userId != null &&
@@ -274,7 +233,8 @@ function butterflyLabel(butterfly: {
 }
 
 async function addButterfly() {
-  await butterflyStore.addButterfly()
+  await butterflyStore.summonSwarm(1)
+
   const newest = selectableButterflies.value.at(-1)
   if (newest) {
     selectedButterflyId.value = newest.id
@@ -307,5 +267,6 @@ function editSelectedButterfly() {
   const butterfly = selectedButterfly.value
   if (!butterfly) return
   butterflyStore.setInspected(butterfly)
+  displayStore.setMainComponent?.('edit-butterfly')
 }
 </script>

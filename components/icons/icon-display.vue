@@ -108,12 +108,14 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 import { useSmartbarStore } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useButterflyStore } from '@/stores/butterflyStore'
 import type { SmartIcon } from '@/stores/smartbarStore'
 
 import SwarmIcon from './swarm-icon.vue'
@@ -135,12 +137,19 @@ const displayStore = useDisplayStore()
 const themeStore = useThemeStore()
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
+const butterflyStore = useButterflyStore()
 const route = useRoute()
+
+const { butterflies } = storeToRefs(butterflyStore)
 
 const isEditing = computed(() => smartbarStore.isEditing)
 const bigMode = computed(() => displayStore.bigMode)
 
 const confirmingDelete = ref(false)
+
+const activeButterflyCount = computed(
+  () => butterflies.value.filter((butterfly) => !butterfly.isExiting).length,
+)
 
 function removeIcon() {
   smartbarStore.removeFromEditableIcons(props.icon.id)
@@ -164,7 +173,9 @@ const computedLabel = computed(() => {
     case 'jellybean-icon':
       return `${milestoneStore.milestoneCountForUser || 0} /11`
     case 'swarm-icon':
-      return smartbarStore.showSwarm ? smartbarStore.swarmMessage : 'Swarm'
+      return activeButterflyCount.value > 0
+        ? `${activeButterflyCount.value} Butterflies`
+        : 'Swarm'
     default:
       return ''
   }

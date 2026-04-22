@@ -5,18 +5,10 @@
     :class="{ 'loading-overlay--fade': fadeOverlay }"
     @transitionend="handleTransitionEnd"
   >
-    <Icon
-      name="kind-icon:bubble-loading"
-      class="bubble-loader"
-      :style="frozenIconStyle"
-    />
+    <Icon name="kind-icon:bubble-loading" class="bubble-loader" />
 
     <transition name="loader-message" mode="out-in">
-      <div
-        :key="messageKey"
-        class="loading-message"
-        :style="frozenMessageStyle"
-      >
+      <div :key="messageKey" class="loading-message">
         {{ currentMessage }}
       </div>
     </transition>
@@ -25,7 +17,7 @@
 
 <script setup lang="ts">
 // /components/content/story/loading-message.vue
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useLoadStore } from '../../stores/loadStore'
 
 const props = defineProps<{
@@ -51,32 +43,6 @@ const OVERLAY_FADE_MS = 950
 let destroyed = false
 let rotationIntervalId: ReturnType<typeof setInterval> | null = null
 let fallbackFadeTimeoutId: ReturnType<typeof setTimeout> | null = null
-
-const frozenIconStyle = computed<Record<string, string>>(() => {
-  if (typeof window === 'undefined') return {}
-
-  const cs = getComputedStyle(document.documentElement)
-  const p = cs.getPropertyValue('--p').trim()
-
-  return {
-    color: `oklch(${p})`,
-    filter: `drop-shadow(0 0 1rem oklch(${p} / 0.35))`,
-  }
-})
-
-const frozenMessageStyle = computed<Record<string, string>>(() => {
-  if (typeof window === 'undefined') return {}
-
-  const cs = getComputedStyle(document.documentElement)
-  const b1 = cs.getPropertyValue('--b1').trim()
-  const bc = cs.getPropertyValue('--bc').trim()
-
-  return {
-    borderColor: `oklch(${bc} / 0.2)`,
-    background: `oklch(${b1} / 0.92)`,
-    color: `oklch(${bc})`,
-  }
-})
 
 function wait(ms: number) {
   return new Promise((resolve) => {
@@ -197,7 +163,9 @@ onBeforeUnmount(() => {
   justify-content: center;
   padding: 0.85rem 1.35rem;
   border-radius: 1rem;
-  border: 1px solid;
+  border: 1px solid oklch(var(--bc) / 0.2);
+  background: oklch(var(--b1) / 0.92);
+  color: oklch(var(--bc));
   font-size: clamp(1.1rem, 2vw, 2rem);
   font-weight: 700;
   text-align: center;
@@ -207,6 +175,8 @@ onBeforeUnmount(() => {
 
 .bubble-loader {
   font-size: clamp(4rem, 10vw, 6rem);
+  color: oklch(var(--p));
+  filter: drop-shadow(0 0 1rem oklch(var(--p) / 0.35));
 }
 
 .loader-message-enter-active,

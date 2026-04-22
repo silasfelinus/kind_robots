@@ -1,10 +1,8 @@
-<!-- /components/content/story/kind-loader.vue -->
 <template>
-  <div>
+  <div v-if="showOverlay">
     <butterfly-layer class="z-50" />
 
     <div
-      v-if="showOverlay"
       class="loading-overlay"
       :class="{ 'fade-out': fadeOut }"
       @transitionend="handleTransitionEnd"
@@ -159,18 +157,14 @@ onMounted(async () => {
 
     console.log('All stores initialized successfully.')
 
-    fadeTimeoutId = setTimeout(() => {
-      startFadeOut()
-    }, 1300)
+    startFadeOut()
   } catch (error) {
     console.error('Initialization failed:', error)
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
       `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
     )
-    fadeTimeoutId = setTimeout(() => {
-      startFadeOut()
-    }, 1300)
+    startFadeOut()
   }
 })
 
@@ -208,7 +202,7 @@ onBeforeUnmount(() => {
   background: oklch(0 0 0 / 0.85);
 
   opacity: 1;
-  transition: opacity 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.45s ease;
 
   pointer-events: auto;
 }

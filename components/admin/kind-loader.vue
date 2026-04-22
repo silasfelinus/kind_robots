@@ -1,6 +1,6 @@
 <template>
   <div v-if="showOverlay">
-    <butterfly-layer class="z-50" />
+    <butterfly-layer />
 
     <div
       class="loading-overlay"

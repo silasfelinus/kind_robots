@@ -29,21 +29,19 @@ const messageKey = ref(0)
 const fadeOverlay = ref(false)
 const minimumSequenceComplete = ref(false)
 
-// ── Timing knobs ──────────────────────────────────────────────────────────────
-const FIRST_MESSAGE_MS = 2200 // how long the first message shows
-const SECOND_MESSAGE_LEAD_MS = 1600 // pause before rotation begins / sequence gates
-const ROTATING_MESSAGE_MS = 1900 // interval between messages during store wait
-const READY_HOLD_MS = 1800 // [theirs] grace period after stores signal ready
-const MIN_TOTAL_MS = 5500 // [mine]   absolute wall-clock floor from mount
-const OVERLAY_FADE_MS = 1600 // [theirs] longer fade feels more cinematic
-// ─────────────────────────────────────────────────────────────────────────────
+const FIRST_MESSAGE_MS = 1100
+const SECOND_MESSAGE_LEAD_MS = 900
+const ROTATING_MESSAGE_MS = 1300
+const READY_HOLD_MS = 700
+const MIN_TOTAL_MS = 2600
+const OVERLAY_FADE_MS = 950
 
 const startTime = Date.now()
 
 let destroyed = false
 let rotationIntervalId: ReturnType<typeof setInterval> | null = null
 let fallbackFadeTimeoutId: ReturnType<typeof setTimeout> | null = null
-let readyHoldTimeoutId: ReturnType<typeof setTimeout> | null = null // [theirs] double-schedule guard
+let readyHoldTimeoutId: ReturnType<typeof setTimeout> | null = null
 
 function wait(ms: number) {
   return new Promise<void>((resolve) => {
@@ -51,8 +49,7 @@ function wait(ms: number) {
       resolve()
       return
     }
-    const id = setTimeout(resolve, ms)
-    ;(wait as any)._lastId = id
+    setTimeout(resolve, ms)
   })
 }
 
@@ -63,39 +60,39 @@ function nextMessage() {
   messageKey.value += 1
 }
 
-// [theirs] named helper keeps onBeforeUnmount clean
 function clearRotation() {
   if (!rotationIntervalId) return
   clearInterval(rotationIntervalId)
   rotationIntervalId = null
 }
 
-// [mine] separated from scheduling so the delay math is its own concern
 function doFade() {
   if (destroyed || fadeOverlay.value) return
   fadeOverlay.value = true
-  if (fallbackFadeTimeoutId) clearTimeout(fallbackFadeTimeoutId)
-  fallbackFadeTimeoutId = setTimeout(
-    () => emit('hidden'),
-    OVERLAY_FADE_MS + 120,
-  )
+
+  if (fallbackFadeTimeoutId) {
+    clearTimeout(fallbackFadeTimeoutId)
+  }
+
+  fallbackFadeTimeoutId = setTimeout(() => {
+    emit('hidden')
+  }, OVERLAY_FADE_MS + 120)
 }
 
-// Synthesis: Math.max lets both constraints win simultaneously.
-// Fast stores? MIN_TOTAL_MS protects the floor.
-// Slow stores finishing mid-sequence? READY_HOLD_MS still gives a grace beat.
 function scheduleFade() {
   if (!props.storesReady) return
   if (!minimumSequenceComplete.value) return
   if (fadeOverlay.value) return
-  if (readyHoldTimeoutId) return // [theirs] prevent double-scheduling
+  if (readyHoldTimeoutId) return
 
   clearRotation()
 
   const elapsed = Date.now() - startTime
   const holdNeeded = Math.max(READY_HOLD_MS, MIN_TOTAL_MS - elapsed)
 
-  readyHoldTimeoutId = setTimeout(doFade, holdNeeded)
+  readyHoldTimeoutId = setTimeout(() => {
+    doFade()
+  }, holdNeeded)
 }
 
 function handleTransitionEnd(event: TransitionEvent) {
@@ -140,11 +137,13 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   destroyed = true
-  clearRotation() // [theirs]
+  clearRotation()
+
   if (fallbackFadeTimeoutId) {
     clearTimeout(fallbackFadeTimeoutId)
     fallbackFadeTimeoutId = null
   }
+
   if (readyHoldTimeoutId) {
     clearTimeout(readyHoldTimeoutId)
     readyHoldTimeoutId = null
@@ -164,7 +163,7 @@ onBeforeUnmount(() => {
   gap: 1.25rem;
   background: #000;
   opacity: 1;
-  transition: opacity 1.6s ease;
+  transition: opacity 0.95s ease;
   pointer-events: auto;
 }
 
@@ -200,13 +199,13 @@ onBeforeUnmount(() => {
 .loader-message-enter-active,
 .loader-message-leave-active {
   transition:
-    opacity 0.35s ease,
-    transform 0.35s ease;
+    opacity 0.24s ease,
+    transform 0.24s ease;
 }
 
 .loader-message-enter-from,
 .loader-message-leave-to {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(6px);
 }
 </style>

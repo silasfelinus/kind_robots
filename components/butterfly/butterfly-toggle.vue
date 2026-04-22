@@ -32,7 +32,12 @@ import { useButterflyStore } from '@/stores/butterflyStore'
 import { useDisplayStore } from '@/stores/displayStore'
 
 type ToggleKey = 'header' | 'footer' | 'left-sidebar' | 'right-sidebar'
-type ToggleMode = 'approaching' | 'perched' | 'fleeing' | 'returning'
+type ToggleMode =
+  | 'approaching'
+  | 'settling'
+  | 'perched'
+  | 'fleeing'
+  | 'returning'
 
 const props = withDefaults(
   defineProps<{
@@ -41,20 +46,54 @@ const props = withDefaults(
     size?: number
     perchOffsetX?: number
     perchOffsetY?: number
-    perchRadiusX?: number
-    perchRadiusY?: number
   }>(),
   {
     size: 100,
     perchOffsetX: 0,
     perchOffsetY: 0,
-    perchRadiusX: 3,
-    perchRadiusY: 2,
   },
 )
 
 const butterflyStore = useButterflyStore()
 const displayStore = useDisplayStore()
+
+function getClosedHeaderAnchor() {
+  return {
+    x: 5 + props.perchOffsetX,
+    y: 5 + props.perchOffsetY,
+  }
+}
+
+function getFooterAnchor() {
+  const displayAny = displayStore as unknown as {
+    footerLeftInset?: number
+    footerWidth?: number
+    footerHeight?: number
+  }
+
+  const leftInset =
+    typeof displayAny.footerLeftInset === 'number'
+      ? displayAny.footerLeftInset
+      : 5
+
+  const width =
+    typeof displayAny.footerWidth === 'number' ? displayAny.footerWidth : 90
+
+  const height =
+    typeof displayAny.footerHeight === 'number' ? displayAny.footerHeight : 12
+
+  const viewport = getViewportBounds()
+
+  const xPercent = leftInset + width / 2
+  const xPixels = (viewport.width * xPercent) / 100
+
+  const yPixels = viewport.height - (viewport.height * height) / 200
+
+  return {
+    x: xPixels + props.perchOffsetX,
+    y: yPixels + props.perchOffsetY,
+  }
+}
 
 const hydrated = ref(false)
 const mode = ref<ToggleMode>('approaching')
@@ -73,13 +112,10 @@ const bodyScale = ref(1)
 const wingAngle = ref(16)
 const wingLift = ref(0)
 const idlePose = ref(0)
-const lastTime = ref(0)
+const settleProgress = ref(0)
 
-const idleSeed = Math.random() * Math.PI * 2
 const spawnSeed = Math.random()
 const flutterSeed = Math.random() * 1000
-const perchLeanSeed = Math.random() > 0.5 ? 1 : -1
-
 const wingColorType = Math.floor(Math.random() * 3)
 const primaryColor = butterflyStore.randomColor()
 const wingTopColor = primaryColor
@@ -145,35 +181,6 @@ function getTargetRect() {
   return target.getBoundingClientRect()
 }
 
-function getClosedHeaderAnchor() {
-  const viewport = getViewportBounds()
-  const fallbackY = 28 + props.size * 0.12
-  const fallbackX = viewport.width * 0.5 + props.perchOffsetX
-
-  const displayAny = displayStore as unknown as {
-    headerHeight?: number
-    sectionPaddingSize?: number
-  }
-
-  const headerHeight =
-    typeof displayAny.headerHeight === 'number' ? displayAny.headerHeight : 0
-
-  const sectionPaddingSize =
-    typeof displayAny.sectionPaddingSize === 'number'
-      ? displayAny.sectionPaddingSize
-      : 1.25
-
-  const estimatedClosedCenterY =
-    Math.max(20, headerHeight * 0.5) +
-    sectionPaddingSize * 2 +
-    props.perchOffsetY
-
-  return {
-    x: fallbackX,
-    y: estimatedClosedCenterY || fallbackY,
-  }
-}
-
 function syncAnchor(resetPosition = false) {
   const rect = getTargetRect()
   const viewport = getViewportBounds()
@@ -182,6 +189,10 @@ function syncAnchor(resetPosition = false) {
     const closedAnchor = getClosedHeaderAnchor()
     anchorX.value = closedAnchor.x
     anchorY.value = closedAnchor.y
+  } else if (props.toggleKey === 'footer') {
+    const footerAnchor = getFooterAnchor()
+    anchorX.value = footerAnchor.x
+    anchorY.value = footerAnchor.y
   } else if (rect) {
     anchorX.value = rect.left + rect.width / 2 + props.perchOffsetX
     anchorY.value = rect.top + rect.height / 2 + props.perchOffsetY
@@ -292,12 +303,34 @@ function triggerDisplayToggle() {
   displayStore.toggleRightSidebar()
 }
 
+function lockToAnchor() {
+  x.value = anchorX.value
+  y.value = anchorY.value
+  vx.value = 0
+  vy.value = 0
+  wingLift.value = 0
+  wingAngle.value = 8
+  idlePose.value = 0
+  bodyScale.value = 0.9
+  rotation.value = 90
+  settleProgress.value = 1
+  mode.value = 'perched'
+}
+
+function startSettling() {
+  mode.value = 'settling'
+  settleProgress.value = 0
+  vx.value *= 0.2
+  vy.value *= 0.2
+}
+
 function startFleeAndReturn() {
   const viewport = getViewportBounds()
   const flee = getFleePoint(viewport.width, viewport.height)
 
   disturbedUntil.value = Date.now() + 1800
   mode.value = 'fleeing'
+  settleProgress.value = 0
 
   const horizontalBias =
     props.toggleKey === 'left-sidebar'
@@ -321,6 +354,8 @@ function startFleeAndReturn() {
   vy.value = verticalBias * randomRange(4.5, 7.5)
   anchorX.value = flee.x
   anchorY.value = flee.y
+  bodyScale.value = 1
+  wingAngle.value = 24
 
   if (returnTimeoutId.value) {
     clearTimeout(returnTimeoutId.value)
@@ -341,42 +376,57 @@ async function handleClick() {
   startFleeAndReturn()
 }
 
-function updatePerchedMotion(time: number) {
-  const settleX =
-    anchorX.value + Math.cos(time * 0.17 + idleSeed) * props.perchRadiusX
-  const settleY =
-    anchorY.value + Math.sin(time * 0.19 + idleSeed) * props.perchRadiusY
+function updateSettlingMotion() {
+  const dx = anchorX.value - x.value
+  const dy = anchorY.value - y.value
+  const dist = Math.sqrt(dx * dx + dy * dy)
 
-  x.value += (settleX - x.value) * 0.08
-  y.value += (settleY - y.value) * 0.08
+  x.value += dx * 0.22
+  y.value += dy * 0.22
 
-  const lean =
-    perchLeanSeed *
-    (4 +
-      Math.sin(time * 0.35 + idleSeed) * 2 +
-      Math.sin(time * 0.11 + idleSeed) * 1.5)
+  settleProgress.value = clamp(settleProgress.value + 0.08, 0, 1)
 
-  rotation.value += (90 + lean - rotation.value) * 0.08
-  bodyScale.value += (1 - bodyScale.value) * 0.08
+  const settleScale =
+    settleProgress.value < 0.7
+      ? 1 - settleProgress.value * 0.08
+      : 0.944 - (settleProgress.value - 0.7) * 0.1466667
 
-  const flutterGate = Math.sin(time * 0.55 + flutterSeed)
-  const microFlutterGate = Math.sin(time * 0.19 + flutterSeed * 0.3)
+  bodyScale.value = settleScale
+  wingLift.value *= 0.7
+  wingAngle.value += (8 - wingAngle.value) * 0.18
+  idlePose.value *= 0.7
+  rotation.value += (90 - rotation.value) * 0.16
+  vx.value *= 0.5
+  vy.value *= 0.5
 
-  if (flutterGate > 0.985) {
-    wingLift.value = Math.sin(time * 16) * 22
-  } else if (microFlutterGate > 0.96) {
-    wingLift.value = Math.sin(time * 8) * 8
-  } else {
-    wingLift.value += (0 - wingLift.value) * 0.18
+  if (dist < 1.5 && settleProgress.value >= 1) {
+    lockToAnchor()
   }
-
-  idlePose.value = Math.sin(time * 0.45 + idleSeed) * 6
-  wingAngle.value += (16 - wingAngle.value) * 0.18
-  vx.value *= 0.82
-  vy.value *= 0.82
 }
 
-function updateTravelMotion(time: number) {
+function updatePerchedMotion(now: number) {
+  const time = now * 0.001
+  const flutterGate = Math.sin(time * 0.5 + flutterSeed)
+
+  x.value = anchorX.value
+  y.value = anchorY.value
+  vx.value = 0
+  vy.value = 0
+  bodyScale.value += (0.9 - bodyScale.value) * 0.18
+  rotation.value += (90 - rotation.value) * 0.18
+  idlePose.value = 0
+
+  if (flutterGate > 0.992) {
+    wingLift.value = Math.sin(time * 16) * 12
+  } else {
+    wingLift.value += (0 - wingLift.value) * 0.24
+  }
+
+  wingAngle.value += (8 - wingAngle.value) * 0.2
+}
+
+function updateTravelMotion(now: number) {
+  const time = now * 0.001
   const dx = anchorX.value - x.value
   const dy = anchorY.value - y.value
   const dist = Math.sqrt(dx * dx + dy * dy) || 1
@@ -400,20 +450,15 @@ function updateTravelMotion(time: number) {
   rotation.value += (travelRotation - rotation.value) * 0.2
   bodyScale.value +=
     ((mode.value === 'fleeing' ? 1.04 : 1) - bodyScale.value) * 0.12
-
   wingAngle.value = 24
-  wingLift.value =
-    Math.sin(time * (mode.value === 'fleeing' ? 18 : 14) + idleSeed) * 24
-  idlePose.value = Math.sin(time * 2.2 + idleSeed) * 4
+  wingLift.value = Math.sin(time * (mode.value === 'fleeing' ? 18 : 14)) * 24
+  idlePose.value = 0
 
   if (
     (mode.value === 'approaching' || mode.value === 'returning') &&
-    dist < 10
+    dist < 18
   ) {
-    mode.value = 'perched'
-    vx.value *= 0.2
-    vy.value *= 0.2
-    syncAnchor(false)
+    startSettling()
   }
 
   const viewport = getViewportBounds()
@@ -435,28 +480,30 @@ function updateTravelMotion(time: number) {
 }
 
 function updateMotion(now: number) {
-  const time = now * 0.001
-
   if (mode.value === 'perched') {
-    updatePerchedMotion(time)
+    updatePerchedMotion(now)
     return
   }
 
-  updateTravelMotion(time)
+  if (mode.value === 'settling') {
+    updateSettlingMotion()
+    return
+  }
+
+  updateTravelMotion(now)
 }
 
 function tick(now: number) {
-  if (!lastTime.value) {
-    lastTime.value = now
-  }
-
   updateMotion(now)
-  lastTime.value = now
   animationFrameId.value = window.requestAnimationFrame(tick)
 }
 
 function handleResize() {
   syncAnchor(false)
+
+  if (mode.value === 'perched') {
+    lockToAnchor()
+  }
 }
 
 onMounted(async () => {
@@ -520,7 +567,7 @@ onBeforeUnmount(() => {
   top: 10px;
   pointer-events: none;
   opacity: 1;
-  transition: transform 0.16s ease-out;
+  transition: transform 0.12s ease-out;
 }
 
 .left-wing {

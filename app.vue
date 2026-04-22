@@ -19,7 +19,7 @@
     <main v-if="pageStore.ready" class="contents">
       <NuxtPage
         :key="$route.fullPath"
-        class="min-h-full w-full bg-base-300 transition-opacity duration-300"
+        class="min-h-full w-full bg-base-300 transition-opacity duration-300 z-30"
       />
     </main>
   </div>

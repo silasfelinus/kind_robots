@@ -3,7 +3,7 @@
   <header
     ref="headerRoot"
     :key="headerKey"
-    class="isolate flex h-full w-full min-w-0 items-stretch gap-0 overflow-hidden"
+    class="isolate flex h-full w-full min-w-0 items-stretch gap-0 overflow-hidden z-30"
   >
     <button
       type="button"

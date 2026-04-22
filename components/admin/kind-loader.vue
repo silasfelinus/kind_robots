@@ -1,6 +1,6 @@
 <!-- /components/content/story/kind-loader.vue -->
 <template>
-  <div v-if="showSequence" class="loader-root">
+  <div class="loader-root">
     <butterfly-layer
       :begin-exit="beginButterflyExit"
       :overlay-visible="showOverlay"
@@ -67,7 +67,6 @@ const emit = defineEmits<{
   pageReady: [boolean]
 }>()
 
-const showSequence = ref(true)
 const showOverlay = ref(true)
 const beginButterflyExit = ref(false)
 const storesReady = ref(false)

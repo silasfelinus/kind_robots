@@ -13,8 +13,21 @@
     </button>
 
     <div
-      class="min-w-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200/60"
+      class="relative min-w-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200/60"
     >
+      <!-- LOCK TOGGLE -->
+      <button
+        type="button"
+        class="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-xl border border-base-300 bg-base-100/80 transition hover:scale-110 hover:bg-base-200"
+        @click="toggleLock"
+        :title="isLocked ? 'Locked to page' : 'Navigate on change'"
+      >
+        <icon
+          :name="isLocked ? 'kind-icon:lock' : 'kind-icon:house'"
+          class="h-4 w-4"
+        />
+      </button>
+
       <component :is="activeComponent" class="h-full w-full" />
     </div>
 
@@ -31,7 +44,8 @@
 
 <script setup lang="ts">
 // /components/navigation/footer-selector.vue
-import { computed, watchEffect, type Component } from 'vue'
+import { computed, ref, watchEffect, type Component } from 'vue'
+import { useRouter } from 'vue-router'
 import ButterflyFooter from '@/components/butterfly/butterfly-footer.vue'
 import BotFooter from '@/components/bots/bot-footer.vue'
 import ArtFooter from '@/components/art/art-footer.vue'
@@ -42,6 +56,9 @@ import { useDisplayStore } from '@/stores/displayStore'
 type FooterName = 'fx' | 'kind' | 'art' | 'story' | 'theme'
 
 const displayStore = useDisplayStore()
+const router = useRouter()
+
+const isLocked = ref(false)
 
 const footerOptions: FooterName[] = ['fx', 'kind', 'art', 'story', 'theme']
 
@@ -51,6 +68,14 @@ const footerComponentMap: Record<FooterName, Component> = {
   art: ArtFooter,
   story: StoryFooter,
   theme: ThemeFooter,
+}
+
+const footerRouteMap: Record<FooterName, string> = {
+  fx: '/butterflies',
+  kind: '/bots',
+  art: '/addart',
+  story: '/stories',
+  theme: '/themes',
 }
 
 function isFooterName(value: unknown): value is FooterName {
@@ -67,11 +92,6 @@ const activeFooter = computed<FooterName>(() => {
   return normalizeFooterName(displayStore.footerComponent)
 })
 
-const activeIndex = computed<number>(() => {
-  const index = footerOptions.indexOf(activeFooter.value)
-  return index >= 0 ? index : 0
-})
-
 const activeComponent = computed<Component>(() => {
   return footerComponentMap[activeFooter.value] ?? BotFooter
 })
@@ -84,8 +104,19 @@ watchEffect(() => {
   }
 })
 
+function toggleLock(): void {
+  isLocked.value = !isLocked.value
+}
+
 function setFooterComponent(name: FooterName): void {
   displayStore.setFooterComponent(name)
+
+  if (!isLocked.value) {
+    const route = footerRouteMap[name]
+    if (route) {
+      router.push(route)
+    }
+  }
 }
 
 function getWrappedFooter(step: -1 | 1): FooterName {

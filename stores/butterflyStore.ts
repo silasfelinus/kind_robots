@@ -7,7 +7,6 @@ import { useUserStore } from './userStore'
 import {
   type Butterfly,
   type ButterflySettingsWithOptions,
-  type ButterflyState,
   createNewButterfly,
   clampToTwoDecimals,
   randomColor,
@@ -75,6 +74,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   const inspectedButterfly = ref<Butterfly | null>(null)
 
   function hydrateButterfly(db: DbButterfly): Butterfly {
+    const baseZIndex = Math.floor(Math.random() * 50)
+
     return {
       id: db.name,
       name: db.name,
@@ -92,7 +93,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       x: clampToTwoDecimals(Math.random() * 100),
       y: clampToTwoDecimals(Math.random() * 100),
       z: clampToTwoDecimals(Math.random() * 0.5 + 0.5),
-      zIndex: Math.floor(Math.random() * 50),
+      baseZIndex,
+      zIndex: baseZIndex + 100,
       rotation: 110,
       status: 'random',
       isExiting: false,
@@ -366,22 +368,22 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   function updateButterflyPosition(butterfly: Butterfly) {
     const noise2D = getNoise()
-    const t = Date.now() * 0.001
+    const now = Date.now() * 0.001
+
+    butterfly.zIndex = Math.max(butterfly.baseZIndex, butterfly.zIndex - 0.35)
 
     const angle =
       noise2D(
         butterfly.x * 0.15 + butterfly.noiseOffsetX,
-        butterfly.y * 0.15 + butterfly.noiseOffsetY + t,
+        butterfly.y * 0.15 + butterfly.noiseOffsetY + now,
       ) *
       Math.PI *
       2
 
-    // Converts stored speed (1–3) to ami-equivalent % movement per frame
     const moveScale = 0.08
     const noiseDx = Math.cos(angle) * butterfly.speed * moveScale
     const noiseDy = Math.sin(angle) * butterfly.speed * moveScale
 
-    // Lerp toward target rotation instead of snapping — kills the cursed flicker
     const targetRotation = noiseDx >= 0 ? 120 : 30
     butterfly.rotation = clampToTwoDecimals(
       butterfly.rotation + (targetRotation - butterfly.rotation) * 0.05,
@@ -426,6 +428,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
     )
   }
+
   function animateButterflies() {
     const animate = () => {
       butterflies.value.forEach(updateButterflyPosition)
@@ -511,16 +514,13 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     }
   }
 
-  // add to state refs
   const discoveryButterfly = ref<Butterfly | null>(null)
 
-  // replace recordCapture with this
   async function recordCapture(butterfly: Butterfly) {
     const existingDb = dbButterflies.value.find(
       (db) => db.name === butterfly.id,
     )
 
-    // ── known species: just record the catch ──────────────────────────────────
     if (existingDb) {
       const alreadyCaught = userCaughtIds.value.has(existingDb.id)
       if (alreadyCaught) return
@@ -537,7 +537,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       return
     }
 
-    // ── unknown species: name + message are both novel → discover it ──────────
     const nameCollides = dbButterflies.value.some(
       (db) => db.name === butterfly.id,
     )
@@ -546,14 +545,12 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     )
 
     if (nameCollides || messageCollides) {
-      // Partial collision — don't persist, treat as a known catch without a DB row
       return
     }
 
     try {
       const userStore = useUserStore()
 
-      // Create the species in the DB — this user is its discoverer
       const created = await $fetch<DbButterfly>('/api/butterflies', {
         method: 'POST',
         body: {
@@ -570,18 +567,14 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
         },
       })
 
-      // Add it to the local roster immediately so the gallery slot appears
       dbButterflies.value.push(created)
 
-      // Record the catch
       await $fetch('/api/butterfly-records', {
         method: 'POST',
         body: { butterflyId: created.id },
       })
 
       userCaughtIds.value.add(created.id)
-
-      // Signal discovery to the UI
       discoveryButterfly.value = butterfly
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)

@@ -4,14 +4,13 @@ import { makeNoise2D } from 'open-simplex-noise'
 import { generateFunnyName } from '~/utils/generateButterflyNames'
 import { generateMessage } from '~/utils/generateMessage'
 
-// TYPES
-
 export interface Butterfly {
   id: string
   x: number
   y: number
   z: number
   zIndex: number
+  baseZIndex: number
   rotation: number
   wingTopColor: string
   wingBottomColor: string
@@ -75,15 +74,11 @@ export interface Range {
   max: number
 }
 
-// SHARED UTILITY
-
 const noise2D = makeNoise2D(Date.now())
 export const getNoise = () => noise2D
 
 export const clampToTwoDecimals = (value: number): number =>
   Math.round(value * 100) / 100
-
-// COLOR HELPERS
 
 export const randomColor = (): string => {
   const h = Math.floor(Math.random() * 360)
@@ -130,8 +125,6 @@ export const applyColorScheme = (
   }
 }
 
-// CREATE BUTTERFLY
-
 export const createNewButterfly = async (
   settings: ButterflySettingsWithOptions,
   usedNames: string[],
@@ -139,6 +132,11 @@ export const createNewButterfly = async (
   const primaryColor = randomColor()
   const secondaryColor = applyColorScheme(settings.colorScheme, primaryColor)
   const message = await generateMessage()
+
+  const baseZIndex =
+    Math.floor(
+      Math.random() * (settings.zIndexRange.max - settings.zIndexRange.min + 1),
+    ) + settings.zIndexRange.min
 
   return {
     id: generateFunnyName(usedNames),
@@ -154,11 +152,8 @@ export const createNewButterfly = async (
       Math.random() * (settings.sizeRange.max - settings.sizeRange.min) +
         settings.sizeRange.min,
     ),
-    zIndex:
-      Math.floor(
-        Math.random() *
-          (settings.zIndexRange.max - settings.zIndexRange.min + 1),
-      ) + settings.zIndexRange.min,
+    baseZIndex,
+    zIndex: baseZIndex + 100,
     rotation: clampToTwoDecimals(
       Math.random() *
         (settings.rotationRange.max - settings.rotationRange.min) +

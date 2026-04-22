@@ -366,14 +366,51 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   async function initialize() {
     if (initialized.value) return
+
     try {
       butterflies.value = []
       selectedButterflyId.value = ''
-      targetCount.value = 20
-      await generateInitialButterflies(targetCount.value)
       animateButterflies()
-      startDrain()
       initialized.value = true
+      await spawnStartupSwarm(20)
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
+  }
+
+  async function spawnStartupSwarm(amount = 20) {
+    try {
+      stopDrain()
+      butterflies.value = []
+      selectedButterflyId.value = ''
+      targetCount.value = amount
+      await addButterflies(amount)
+      startDrain()
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
+  }
+
+  async function summonSwarm(amount = 20) {
+    try {
+      stopDrain()
+      await addButterflies(amount)
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
+  }
+
+  async function toggleSwarm(amount = 20) {
+    try {
+      const activeButterflies = butterflies.value.filter((b) => !b.isExiting)
+
+      if (activeButterflies.length > 0) {
+        clearButterflies()
+        return
+      }
+
+      stopDrain()
+      await addButterflies(amount)
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }
@@ -409,7 +446,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     )
 
     if (butterfly.isExiting) {
-      butterfly.zIndex = Math.max(butterfly.baseZIndex, butterfly.zIndex - 0.75)
+      butterfly.zIndex = Math.max(1, butterfly.zIndex - 0.75)
 
       const goalDx = butterfly.goal.x - butterfly.x
       const goalDy = butterfly.goal.y - butterfly.y
@@ -631,6 +668,9 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     inspectedButterfly,
     discoveryButterfly,
     clearDiscovery,
+    spawnStartupSwarm,
+    summonSwarm,
+    toggleSwarm,
 
     usedNames,
     getAllButterflies,

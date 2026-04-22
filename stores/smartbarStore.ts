@@ -24,7 +24,6 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
   const defaultIconIds = ref<number[]>([1, 2, 3, 4, 5, 6, 7, 8])
 
   const isEditing = ref(false)
-  const showSwarm = ref(false)
   const swarmMessage = ref('')
 
   const editableIcons = ref<SmartIcon[]>([])
@@ -306,14 +305,6 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
     isEditing.value = !isEditing.value
   }
 
-  function toggleSwarm() {
-    showSwarm.value = !showSwarm.value
-    if (showSwarm.value) {
-      const i = Math.floor(Math.random() * swarmMessages.length)
-      swarmMessage.value = swarmMessages[i] ?? ''
-    }
-  }
-
   function addIconToSmartBar(id: number) {
     const ids = normalizeIds([...smartBarIds.value, id])
     updateSmartBar(ids)
@@ -364,7 +355,6 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
     loading,
     defaultIconIds,
     isEditing,
-    showSwarm,
     swarmMessage,
     editableIcons,
     originalIcons,
@@ -383,7 +373,6 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
     startDrag,
     dropIcon,
     toggleEditing,
-    toggleSwarm,
     patchIconLocally,
     updateIcon,
     createIcon,

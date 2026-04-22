@@ -1,25 +1,29 @@
 <!-- /app.vue -->
 <template>
   <div class="relative min-h-screen w-full overflow-hidden bg-base-100">
-    <div class="fixed inset-0 pointer-events-none">
-      <div class="pointer-events-auto">
+    <div class="pointer-events-none fixed inset-0 z-40">
+      <div class="pointer-events-auto h-full w-full">
         <kind-loader />
+      </div>
+    </div>
+
+    <div class="pointer-events-none fixed inset-0 z-50">
+      <div class="pointer-events-auto">
         <milestone-popup />
       </div>
     </div>
 
     <div
       v-if="isNavigating"
-      class="fixed inset-0 z-40 flex items-center justify-center animate-fade-in"
+      class="fixed inset-0 z-45 flex items-center justify-center animate-fade-in"
     >
       <div class="loading loading-dots loading-lg text-primary" />
     </div>
 
-    <!-- /app.vue -->
     <main v-if="pageStore.ready" class="contents">
       <NuxtPage
         :key="$route.fullPath"
-        class="min-h-full w-full bg-base-300 transition-opacity duration-300 z-30"
+        class="min-h-full w-full bg-base-300 transition-opacity duration-300"
       />
     </main>
   </div>
@@ -27,7 +31,7 @@
 
 <script setup lang="ts">
 // /app.vue
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useLayoutStore } from '@/stores/layoutStore'

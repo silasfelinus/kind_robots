@@ -146,5 +146,11 @@ onBeforeUnmount(() => {
 .loader-root {
   position: fixed;
   inset: 0;
+  z-index: 40;
+  pointer-events: none;
+}
+
+.loader-root > * {
+  pointer-events: auto;
 }
 </style>

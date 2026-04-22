@@ -1,11 +1,82 @@
-<!-- /components/navigation/footer/butterfly-footer.vue -->
 <template>
   <div
     v-if="footerState !== 'hidden'"
     class="flex h-full w-full min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200/80 p-2 shadow-inner md:p-3"
   >
+    <div v-if="isCompact" class="flex h-full w-full min-h-0 flex-col gap-2">
+      <div
+        class="flex items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
+      >
+        <div class="min-w-0">
+          <div class="truncate text-sm font-semibold">🦋 Swarm Controls</div>
+          <div class="text-xs text-base-content/60">
+            Compact mode keeps it simple because chaos has enough hobbies.
+          </div>
+        </div>
+
+        <div class="badge badge-outline shrink-0">{{ activeCount }} active</div>
+      </div>
+
+      <div
+        class="grid h-full min-h-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6"
+      >
+        <button
+          type="button"
+          class="btn btn-secondary h-full min-h-13"
+          @click="removeRandom"
+        >
+          <icon name="kind-icon:minus" class="h-4 w-4" />
+          -1
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary h-full min-h-13"
+          @click="summon(1)"
+        >
+          <icon name="kind-icon:plus" class="h-4 w-4" />
+          +1
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline h-full min-h-13"
+          @click="summon(5)"
+        >
+          +5
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline h-full min-h-13"
+          @click="summon(10)"
+        >
+          +10
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline h-full min-h-13"
+          @click="summon(20)"
+        >
+          +20
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-warning h-full min-h-13"
+          :disabled="activeCount <= 0"
+          @click="clearButterflies"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+
     <div
-      class="grid h-full w-full min-h-0 grid-cols-1 gap-3 overflow-hidden 2xl:grid-cols-[minmax(19rem,24rem)_minmax(0,1fr)]"
+      v-else
+      class="grid h-full w-full min-h-0 gap-3 overflow-hidden"
+      :class="contentLayoutClass"
     >
       <section
         class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
@@ -16,8 +87,7 @@
               🦋 Butterfly Footer
             </h2>
             <p class="text-xs text-base-content/70">
-              Pick an active butterfly, inspect the full live state, and edit
-              when allowed.
+              Swarm controls on the left. Butterfly tea on the right.
             </p>
           </div>
 
@@ -29,15 +99,28 @@
         <div
           class="mt-3 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1"
         >
-          <label class="form-control w-full">
-            <div
-              class="mb-1 text-xs font-semibold uppercase tracking-wide text-base-content/60"
-            >
-              Current butterflies
+          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+            <div class="mb-2 flex items-center justify-between gap-2">
+              <div
+                class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+              >
+                Current selection
+              </div>
+
+              <button
+                v-if="canEditSelected"
+                type="button"
+                class="btn btn-accent btn-xs shrink-0"
+                @click="editSelectedButterfly"
+              >
+                <icon name="kind-icon:pen" class="h-3 w-3" />
+                Edit
+              </button>
             </div>
+
             <select
               v-model="selectedButterflyId"
-              class="select select-bordered w-full bg-base-200"
+              class="select select-bordered w-full bg-base-100"
             >
               <option value="">Choose a butterfly…</option>
               <option
@@ -48,202 +131,144 @@
                 {{ butterflyLabel(butterfly) }}
               </option>
             </select>
-          </label>
 
-          <div
-            v-if="selectedButterfly"
-            class="rounded-2xl border border-base-300 bg-base-200 p-3"
-          >
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <div class="truncate text-sm font-semibold">
-                  {{ selectedButterfly.name || selectedButterfly.id }}
-                </div>
-                <div class="mt-1 flex flex-wrap gap-2">
-                  <div class="badge badge-outline badge-sm">
-                    {{ selectedButterfly.status || 'random' }}
-                  </div>
-                  <div
-                    class="badge badge-sm"
-                    :class="
-                      selectedButterfly.isExiting
-                        ? 'badge-warning'
-                        : 'badge-success'
-                    "
-                  >
-                    {{ selectedButterfly.isExiting ? 'Exiting' : 'Active' }}
-                  </div>
-                  <div
-                    v-if="selectedIsToggleButterfly"
-                    class="badge badge-accent badge-sm"
-                  >
-                    Toggle
-                  </div>
+            <div
+              v-if="currentButterfly"
+              class="mt-3 grid grid-cols-2 gap-2 text-xs"
+            >
+              <div
+                class="rounded-xl border border-base-300 bg-base-100 px-3 py-2"
+              >
+                <div class="text-base-content/50">Name</div>
+                <div class="truncate font-semibold">
+                  {{ currentButterfly.name || currentButterfly.id }}
                 </div>
               </div>
 
-              <div class="flex shrink-0 items-center gap-2">
-                <div
-                  class="h-5 w-5 rounded-full border border-base-300"
-                  :style="{ background: selectedButterfly.wingTopColor }"
-                />
-                <div
-                  class="h-5 w-5 rounded-full border border-base-300"
-                  :style="{ background: selectedButterfly.wingBottomColor }"
-                />
+              <div
+                class="rounded-xl border border-base-300 bg-base-100 px-3 py-2"
+              >
+                <div class="text-base-content/50">Status</div>
+                <div class="font-semibold">
+                  {{ currentButterfly.status || 'random' }}
+                </div>
               </div>
-            </div>
 
-            <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
               <div
                 class="rounded-xl border border-base-300 bg-base-100 px-3 py-2"
               >
-                <div class="text-base-content/50">X / Y</div>
+                <div class="text-base-content/50">Position</div>
                 <div class="font-semibold">
-                  {{ selectedButterfly.x }}, {{ selectedButterfly.y }}
+                  {{ currentButterfly.x ?? '—' }},
+                  {{ currentButterfly.y ?? '—' }}
                 </div>
               </div>
+
               <div
                 class="rounded-xl border border-base-300 bg-base-100 px-3 py-2"
               >
-                <div class="text-base-content/50">Goal</div>
+                <div class="text-base-content/50">Z Index</div>
                 <div class="font-semibold">
-                  {{ selectedButterfly.goal?.x ?? '—' }},
-                  {{ selectedButterfly.goal?.y ?? '—' }}
-                </div>
-              </div>
-              <div
-                class="rounded-xl border border-base-300 bg-base-100 px-3 py-2"
-              >
-                <div class="text-base-content/50">Z / Base</div>
-                <div class="font-semibold">
-                  {{ selectedButterfly.zIndex ?? '—' }} /
-                  {{ selectedButterfly.baseZIndex ?? '—' }}
-                </div>
-              </div>
-              <div
-                class="rounded-xl border border-base-300 bg-base-100 px-3 py-2"
-              >
-                <div class="text-base-content/50">Scale / Mod</div>
-                <div class="font-semibold">
-                  {{ selectedButterfly.scale ?? '—' }} /
-                  {{ selectedButterfly.scaleMod ?? '—' }}
+                  {{ currentButterfly.zIndex ?? '—' }}
                 </div>
               </div>
             </div>
 
-            <div class="mt-3 flex flex-wrap gap-2">
-              <div
-                class="badge"
-                :class="canEditSelected ? 'badge-secondary' : 'badge-outline'"
-              >
-                {{
-                  canEditSelected ? 'You can edit this butterfly' : 'Read only'
-                }}
-              </div>
-              <div
-                v-if="selectedButterfly.userId != null"
-                class="badge badge-outline"
-              >
-                Owner {{ selectedButterfly.userId }}
-              </div>
-              <div
-                v-if="selectedButterfly.designer"
-                class="badge badge-outline"
-              >
-                {{ selectedButterfly.designer }}
-              </div>
+            <div v-else class="mt-3 text-sm text-base-content/60">
+              Pick a butterfly to load the guide.
             </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <button type="button" class="btn btn-primary" @click="addButterfly">
-              <icon name="kind-icon:plus" class="h-4 w-4" />
-              Add
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-secondary"
-              :disabled="!selectedButterfly"
-              @click="removeSelectedButterfly"
-            >
-              <icon name="kind-icon:minus" class="h-4 w-4" />
-              Send Away
-            </button>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              class="btn btn-outline btn-sm"
-              @click="toggleNames"
-            >
-              {{ showNames ? 'Hide Names' : 'Show Names' }}
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-outline btn-sm"
-              :disabled="activeCount <= 0"
-              @click="clearButterflies"
-            >
-              Clear Swarm
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 gap-2">
-            <button
-              type="button"
-              class="btn btn-accent btn-sm"
-              :disabled="!canEditSelected"
-              @click="editSelectedButterfly"
-            >
-              <icon name="kind-icon:pen" class="h-4 w-4" />
-              {{ canEditSelected ? 'Edit Selected Butterfly' : 'Edit Locked' }}
-            </button>
           </div>
 
           <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
             <div
-              class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+              class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60"
             >
-              Swarm Status
+              Swarm actions
             </div>
-            <div class="mt-2 flex flex-col gap-2 text-sm">
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-base-content/70">Visible</span>
-                <span class="font-semibold">
-                  {{ activeCount > 0 ? 'Yes' : 'No' }}
-                </span>
-              </div>
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-base-content/70">Names</span>
-                <span class="font-semibold">
-                  {{ showNames ? 'Shown' : 'Hidden' }}
-                </span>
-              </div>
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-base-content/70">Selected</span>
-                <span class="truncate font-semibold">
-                  {{
-                    selectedButterfly?.name || selectedButterfly?.id || 'None'
-                  }}
-                </span>
-              </div>
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-base-content/70">Editable</span>
-                <span class="font-semibold">
-                  {{ canEditSelected ? 'Yes' : 'No' }}
-                </span>
-              </div>
+
+            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                @click="removeRandom"
+              >
+                <icon name="kind-icon:minus" class="h-4 w-4" />
+                -1
+              </button>
+
+              <button type="button" class="btn btn-primary" @click="summon(1)">
+                <icon name="kind-icon:plus" class="h-4 w-4" />
+                +1
+              </button>
+
+              <button type="button" class="btn btn-outline" @click="summon(5)">
+                +5
+              </button>
+
+              <button type="button" class="btn btn-outline" @click="summon(10)">
+                +10
+              </button>
+
+              <button type="button" class="btn btn-outline" @click="summon(20)">
+                +20
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-warning"
+                :disabled="activeCount <= 0"
+                @click="clearButterflies"
+              >
+                Clear
+              </button>
             </div>
           </div>
 
-          <div
-            class="mt-auto rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/80"
-          >
-            One selected butterfly, one honest panel, zero mystery meat stats.
+          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+            <div
+              class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/60"
+            >
+              Quick options
+            </div>
+
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                class="btn btn-outline btn-sm"
+                @click="toggleNames"
+              >
+                {{ showNames ? 'Hide Names' : 'Show Names' }}
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-outline btn-sm"
+                :disabled="!currentButterfly"
+                @click="removeSelectedButterfly"
+              >
+                Send Selected Away
+              </button>
+            </div>
+
+            <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
+              <div
+                class="rounded-xl border border-base-300 bg-base-100 px-3 py-2"
+              >
+                <div class="text-xs text-base-content/50">Visible</div>
+                <div class="font-semibold">
+                  {{ activeCount > 0 ? 'Yes' : 'No' }}
+                </div>
+              </div>
+
+              <div
+                class="rounded-xl border border-base-300 bg-base-100 px-3 py-2"
+              >
+                <div class="text-xs text-base-content/50">Names</div>
+                <div class="font-semibold">
+                  {{ showNames ? 'Shown' : 'Hidden' }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -255,40 +280,31 @@
           <div class="min-w-0">
             <h3 class="truncate text-base font-semibold">
               {{
-                selectedButterfly?.name ||
-                selectedButterfly?.id ||
-                'Field Guide'
+                currentButterfly?.name || currentButterfly?.id || 'Field Guide'
               }}
             </h3>
             <p class="text-xs text-base-content/70">
-              Full live butterfly state, not the diet version.
+              Full live butterfly state, not the sad little diet version.
             </p>
           </div>
 
-          <button
-            v-if="canEditSelected"
-            type="button"
-            class="btn btn-accent btn-sm shrink-0"
-            @click="editSelectedButterfly"
+          <div
+            v-if="currentButterfly"
+            class="badge shrink-0"
+            :class="canEditSelected ? 'badge-secondary' : 'badge-outline'"
           >
-            <icon name="kind-icon:pen" class="h-4 w-4" />
-            Edit
-          </button>
+            {{ canEditSelected ? 'Editable' : 'Read only' }}
+          </div>
         </div>
 
-        <butterfly-guide
-          class="min-h-0 flex-1"
-          :butterfly="selectedButterfly"
-          :empty-label="emptyLabel"
-          :can-edit="canEditSelected"
-          :is-toggle-butterfly="selectedIsToggleButterfly"
-        />
+        <butterfly-guide class="min-h-0 flex-1" :empty-label="emptyLabel" />
       </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// /components/navigation/footer/butterfly-footer.vue
 import { computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useButterflyStore } from '@/stores/butterflyStore'
@@ -303,33 +319,26 @@ const { butterflies, selectedButterflyId, showNames } =
   storeToRefs(butterflyStore)
 
 const footerState = computed(() => displayStore.footerState)
+const isCompact = computed(() => footerState.value === 'compact')
 
 const selectableButterflies = computed(() =>
   butterflies.value.filter((butterfly) => !butterfly.isExiting),
 )
 
-const selectedButterfly = computed(() => {
-  if (!selectedButterflyId.value) return null
-  return (
-    selectableButterflies.value.find(
-      (butterfly) => butterfly.id === selectedButterflyId.value,
-    ) || null
-  )
-})
-
 const activeCount = computed(() => selectableButterflies.value.length)
+
+const currentButterfly = computed(() => butterflyStore.getSelectedButterfly)
 
 const emptyLabel = computed(() => {
   if (!activeCount.value) return 'No butterflies are active right now.'
-  return 'Choose a butterfly from the dropdown to load its field guide.'
+  return 'Choose a butterfly from the selector to load its field guide.'
 })
 
 const canEditSelected = computed(() => {
-  const butterfly = selectedButterfly.value
+  const butterfly = currentButterfly.value
   if (!butterfly) return false
 
   const isAdmin = userStore.isAdmin === true || userStore.role === 'ADMIN'
-
   const isOwner =
     butterfly.userId != null &&
     userStore.userId != null &&
@@ -338,10 +347,12 @@ const canEditSelected = computed(() => {
   return isAdmin || isOwner
 })
 
-const selectedIsToggleButterfly = computed(() => {
-  const butterfly = selectedButterfly.value
-  if (!butterfly) return false
-  return butterflyStore.isToggleButterfly(butterfly)
+const contentLayoutClass = computed(() => {
+  if (footerState.value === 'priority') {
+    return 'grid-cols-1 xl:grid-cols-[minmax(20rem,28rem)_minmax(0,1fr)]'
+  }
+
+  return 'grid-cols-1 2xl:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)]'
 })
 
 onMounted(async () => {
@@ -370,11 +381,12 @@ function butterflyLabel(butterfly: {
     butterfly.x != null && butterfly.y != null
       ? ` @ ${butterfly.x}, ${butterfly.y}`
       : ''
+
   return snippet ? `${title} — ${snippet}${pos}` : `${title}${pos}`
 }
 
-async function addButterfly() {
-  await butterflyStore.summonSwarm(1)
+async function summon(count: number) {
+  await butterflyStore.summonSwarm(count)
 
   const newest = selectableButterflies.value.at(-1)
   if (newest) {
@@ -382,8 +394,19 @@ async function addButterfly() {
   }
 }
 
+function removeRandom() {
+  butterflyStore.removeRandomButterfly?.()
+
+  if (currentButterfly.value && currentButterfly.value.isExiting) {
+    const next = selectableButterflies.value.find(
+      (item) => item.id !== currentButterfly.value?.id,
+    )
+    selectedButterflyId.value = next?.id || ''
+  }
+}
+
 function removeSelectedButterfly() {
-  const butterfly = selectedButterfly.value
+  const butterfly = currentButterfly.value
   if (!butterfly) return
 
   butterflyStore.markButterflyForExit(butterfly)
@@ -405,8 +428,9 @@ function toggleNames() {
 }
 
 function editSelectedButterfly() {
-  const butterfly = selectedButterfly.value
+  const butterfly = currentButterfly.value
   if (!butterfly || !canEditSelected.value) return
+
   butterflyStore.setInspected(butterfly)
   displayStore.setMainComponent?.('edit-butterfly')
 }

@@ -538,10 +538,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       }))
   })
 
-  function clearButterflies() {
-    markAllButterfliesForExit()
-  }
-
   function toggleShowNames() {
     showNames.value = !showNames.value
   }
@@ -649,23 +645,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     }
   }
 
-  function removeRandomButterfly() {
-    const available = butterflies.value.filter((b) => !b.isExiting)
-    if (!available.length) return
-
-    const butterfly = available[Math.floor(Math.random() * available.length)]
-
-    if (!butterfly) return
-
-    markButterflyForExit(butterfly)
-
-    if (butterfly.id === selectedButterflyId.value) {
-      selectedButterflyId.value =
-        butterflies.value.find((b) => !b.isExiting && b.id !== butterfly.id)
-          ?.id || ''
-    }
-  }
-
   function stopDrain() {
     if (drainStartTimeoutId.value) {
       clearTimeout(drainStartTimeoutId.value)
@@ -716,6 +695,100 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }
+  }
+
+  function removeButterflyById(id: string) {
+    const index = butterflies.value.findIndex(
+      (butterfly) => butterfly.id === id,
+    )
+    if (index === -1) return
+
+    butterflies.value.splice(index, 1)
+
+    if (selectedButterflyId.value === id) {
+      selectedButterflyId.value =
+        butterflies.value.find((b) => !b.isExiting)?.id || ''
+    }
+  }
+
+  function clearButterflyById(id: string) {
+    removeButterflyById(id)
+  }
+
+  function clearRandomButterfly() {
+    const available = butterflies.value.filter((b) => !isToggleButterfly(b))
+    if (!available.length) return
+
+    const butterfly = available[Math.floor(Math.random() * available.length)]
+    if (!butterfly) return
+
+    removeButterflyById(butterfly.id)
+  }
+
+  function clearAllButterflies() {
+    const preserved = butterflies.value.filter((butterfly) =>
+      isToggleButterfly(butterfly),
+    )
+    butterflies.value = [...preserved]
+
+    if (
+      selectedButterflyId.value &&
+      !butterflies.value.some(
+        (butterfly) => butterfly.id === selectedButterflyId.value,
+      )
+    ) {
+      selectedButterflyId.value =
+        butterflies.value.find((b) => !b.isExiting)?.id || ''
+    }
+  }
+
+  function sendButterflyAway(butterfly: Butterfly) {
+    markButterflyForExit(butterfly)
+
+    if (butterfly.id === selectedButterflyId.value) {
+      selectedButterflyId.value =
+        butterflies.value.find((b) => !b.isExiting && b.id !== butterfly.id)
+          ?.id || ''
+    }
+  }
+
+  function sendRandomButterflyAway() {
+    const available = butterflies.value.filter(
+      (b) => !b.isExiting && !isToggleButterfly(b),
+    )
+    if (!available.length) return
+
+    const butterfly = available[Math.floor(Math.random() * available.length)]
+    if (!butterfly) return
+
+    sendButterflyAway(butterfly)
+  }
+
+  function sendAllButterfliesAway() {
+    butterflies.value.forEach((butterfly) => {
+      if (butterfly.isExiting) return
+      if (isToggleButterfly(butterfly)) return
+      markButterflyForExit(butterfly)
+    })
+
+    if (
+      selectedButterflyId.value &&
+      butterflies.value.some(
+        (butterfly) =>
+          butterfly.id === selectedButterflyId.value && butterfly.isExiting,
+      )
+    ) {
+      selectedButterflyId.value =
+        butterflies.value.find((b) => !b.isExiting)?.id || ''
+    }
+  }
+
+  function clearButterflies() {
+    clearAllButterflies()
+  }
+
+  function removeRandomButterfly() {
+    sendRandomButterflyAway()
   }
 
   async function summonSwarm(amount = 20) {
@@ -881,11 +954,42 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     )
   }
 
+  function isOutsideRemovalBounds(butterfly: Butterfly) {
+    const buffer = 12
+    return (
+      butterfly.x < -buffer ||
+      butterfly.x > 112 ||
+      butterfly.y < -buffer ||
+      butterfly.y > 112
+    )
+  }
+
   function animateButterflies() {
     const animate = () => {
-      butterflies.value.forEach(updateButterflyPosition)
+      const next: Butterfly[] = []
+
+      for (const butterfly of butterflies.value) {
+        updateButterflyPosition(butterfly)
+
+        if (butterfly.isExiting && isOutsideRemovalBounds(butterfly)) {
+          continue
+        }
+
+        next.push(butterfly)
+      }
+
+      if (
+        selectedButterflyId.value &&
+        !next.some((b) => b.id === selectedButterflyId.value)
+      ) {
+        selectedButterflyId.value = next.find((b) => !b.isExiting)?.id || ''
+      }
+
+      butterflies.value = next
+
       animationFrameId.value = requestAnimationFrame(animate)
     }
+
     animate()
   }
 

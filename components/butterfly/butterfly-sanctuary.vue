@@ -34,7 +34,7 @@
 
       <!-- Butterfly Demo Section ) -->
       <div class="w-full h-[90%] bg-info bg-opacity-80 rounded-md">
-        <butterfly-demo />
+        <butterfly-guide />
       </div>
     </div>
   </div>

@@ -713,7 +713,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       selectedButterflyId.value = ''
       targetCount.value = amount
       await addButterflies(amount)
-      startDrain()
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }

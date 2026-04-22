@@ -35,14 +35,16 @@ const messageKey = ref(0)
 const fadeOverlay = ref(false)
 const minimumSequenceComplete = ref(false)
 
-const FIRST_MESSAGE_MS = 1800
-const SECOND_MESSAGE_LEAD_MS = 900
-const ROTATING_MESSAGE_MS = 1800
-const OVERLAY_FADE_MS = 950
+const FIRST_MESSAGE_MS = 2200
+const SECOND_MESSAGE_LEAD_MS = 1600
+const ROTATING_MESSAGE_MS = 1900
+const READY_HOLD_MS = 1800
+const OVERLAY_FADE_MS = 1600
 
 let destroyed = false
 let rotationIntervalId: ReturnType<typeof setInterval> | null = null
 let fallbackFadeTimeoutId: ReturnType<typeof setTimeout> | null = null
+let readyHoldTimeoutId: ReturnType<typeof setTimeout> | null = null
 
 function wait(ms: number) {
   return new Promise((resolve) => {
@@ -61,20 +63,32 @@ function nextMessage() {
   messageKey.value += 1
 }
 
-function startFade() {
+function clearRotation() {
+  if (!rotationIntervalId) return
+  clearInterval(rotationIntervalId)
+  rotationIntervalId = null
+}
+
+function scheduleFade() {
   if (!props.storesReady) return
   if (!minimumSequenceComplete.value) return
   if (fadeOverlay.value) return
+  if (readyHoldTimeoutId) return
 
-  fadeOverlay.value = true
+  clearRotation()
 
-  if (fallbackFadeTimeoutId) {
-    clearTimeout(fallbackFadeTimeoutId)
-  }
+  readyHoldTimeoutId = setTimeout(() => {
+    if (destroyed) return
+    fadeOverlay.value = true
 
-  fallbackFadeTimeoutId = setTimeout(() => {
-    emit('hidden')
-  }, OVERLAY_FADE_MS + 100)
+    if (fallbackFadeTimeoutId) {
+      clearTimeout(fallbackFadeTimeoutId)
+    }
+
+    fallbackFadeTimeoutId = setTimeout(() => {
+      emit('hidden')
+    }, OVERLAY_FADE_MS + 120)
+  }, READY_HOLD_MS)
 }
 
 function handleTransitionEnd(event: TransitionEvent) {
@@ -95,14 +109,14 @@ async function runVisualSequence() {
   minimumSequenceComplete.value = true
 
   if (props.storesReady) {
-    startFade()
+    scheduleFade()
     return
   }
 
   rotationIntervalId = setInterval(() => {
     nextMessage()
     if (props.storesReady) {
-      startFade()
+      scheduleFade()
     }
   }, ROTATING_MESSAGE_MS)
 }
@@ -111,7 +125,7 @@ watch(
   () => props.storesReady,
   (ready) => {
     if (!ready) return
-    startFade()
+    scheduleFade()
   },
 )
 
@@ -122,14 +136,16 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   destroyed = true
 
-  if (rotationIntervalId) {
-    clearInterval(rotationIntervalId)
-    rotationIntervalId = null
-  }
+  clearRotation()
 
   if (fallbackFadeTimeoutId) {
     clearTimeout(fallbackFadeTimeoutId)
     fallbackFadeTimeoutId = null
+  }
+
+  if (readyHoldTimeoutId) {
+    clearTimeout(readyHoldTimeoutId)
+    readyHoldTimeoutId = null
   }
 })
 </script>
@@ -138,7 +154,7 @@ onBeforeUnmount(() => {
 .loading-overlay {
   position: fixed;
   inset: 0;
-  z-index: 85;
+  z-index: 40;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -146,7 +162,7 @@ onBeforeUnmount(() => {
   gap: 1.25rem;
   background: #000;
   opacity: 1;
-  transition: opacity 0.95s ease;
+  transition: opacity 1.6s ease;
   pointer-events: auto;
 }
 

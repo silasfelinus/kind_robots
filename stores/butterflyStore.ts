@@ -29,6 +29,7 @@ interface DbButterfly {
   rarityNumber: number
   artImageId?: number
   designer?: string
+  userId?: number
 }
 
 interface DbButterflyRecord {
@@ -98,6 +99,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       rotation: 110,
       status: 'random',
       isExiting: false,
+      userId: db.userId,
+      designer: db.designer,
       goal: {
         x: clampToTwoDecimals(Math.random() * 100),
         y: clampToTwoDecimals(Math.random() * 100),
@@ -226,9 +229,16 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   async function addButterfly(butterfly?: Butterfly) {
     try {
+      const currentUserStore = useUserStore()
+
       const newButterfly =
         butterfly ||
         (await createNewButterfly(newButterflySettings, usedNames.value))
+
+      if (newButterfly.userId == null && currentUserStore.userId != null) {
+        newButterfly.userId = currentUserStore.userId
+      }
+
       butterflies.value.push(newButterfly)
       selectedButterflyId.value = newButterfly.id
     } catch (error) {
@@ -238,11 +248,18 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   async function addButterflies(amount: number, incoming?: Butterfly[]) {
     try {
+      const currentUserStore = useUserStore()
       const safeAmount = Math.max(0, Math.floor(amount))
       if (safeAmount === 0) return
 
       if (incoming?.length) {
-        const nextButterflies = incoming.slice(0, safeAmount)
+        const nextButterflies = incoming
+          .slice(0, safeAmount)
+          .map((butterfly) => ({
+            ...butterfly,
+            userId: butterfly.userId ?? currentUserStore.userId ?? undefined,
+          }))
+
         butterflies.value.push(...nextButterflies)
         selectedButterflyId.value =
           nextButterflies.at(-1)?.id || selectedButterflyId.value
@@ -257,6 +274,10 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
           newButterflySettings,
           localUsedNames,
         )
+
+        if (newButterfly.userId == null && currentUserStore.userId != null) {
+          newButterfly.userId = currentUserStore.userId
+        }
 
         nextButterflies.push(newButterfly)
         localUsedNames.push(newButterfly.id)
@@ -660,6 +681,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     analogousColor,
     applyColorScheme,
     setShowNames,
+    markButterflyForExit,
   }
 })
 

@@ -26,6 +26,8 @@ export interface Butterfly {
   isExiting?: boolean
   noiseOffsetX: number
   noiseOffsetY: number
+  userId?: number
+  designer?: string
   exitSide?: 'left' | 'right' | 'top' | 'bottom'
   goal: {
     x: number
@@ -170,12 +172,14 @@ export const createNewButterfly = async (
         (settings.wingSpeedRange.max - settings.wingSpeedRange.min) +
         settings.wingSpeedRange.min,
     ),
-    scale: clampToTwoDecimals(Math.random() * 1.5 + 0.5),
+    scale: clampToTwoDecimals(Math.random() * 1.3 + 0.7),
     scaleMod: 1,
     status: settings.status,
     noiseOffsetX: Math.random() * 1000,
     noiseOffsetY: Math.random() * 1000,
+    userId: 1,
     message,
+    designer: 'ami',
     goal: {
       x: clampToTwoDecimals(Math.random() * 100),
       y: clampToTwoDecimals(Math.random() * 100),

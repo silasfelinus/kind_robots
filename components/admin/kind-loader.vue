@@ -1,13 +1,9 @@
 <!-- /components/content/story/kind-loader.vue -->
 <template>
   <div class="loader-root">
-    <butterfly-layer
-      :begin-exit="beginButterflyExit"
-      :overlay-visible="showOverlay"
-    />
+    <butterfly-layer :begin-exit="beginButterflyExit" :overlay-visible="true" />
 
     <loading-messages
-      v-if="showOverlay"
       :stores-ready="storesReady"
       @hidden="handleOverlayHidden"
     />

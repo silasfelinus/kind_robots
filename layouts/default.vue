@@ -16,12 +16,18 @@
     >
       <div class="pointer-events-auto flex items-start">
         <button
+          ref="headerToggleRef"
           class="icon-btn icon-btn--pill icon-btn--base opacity-80 hover:opacity-100"
           title="Open header"
           @click="displayStore.toggleHeader('open')"
         >
           <Icon name="kind-icon:chevron-down" class="icon-btn__icon" />
         </button>
+        <butterfly-toggle
+          toggle-key="header"
+          :target-ref="headerToggleRef"
+          :perch-offset-x="4"
+        />
       </div>
     </div>
 
@@ -140,6 +146,7 @@
     </ClientOnly>
 
     <button
+      ref="leftToggleRef"
       class="pointer-events-auto sidebar-toggle icon-btn icon-btn--edge icon-btn--secondary"
       :style="displayStore.leftToggleStyle"
       :title="leftSidebarTitle"
@@ -148,7 +155,14 @@
       <Icon :name="leftSidebarIcon" class="icon-btn__icon" />
     </button>
 
+    <butterfly-toggle
+      toggle-key="left-sidebar"
+      :target-ref="leftToggleRef"
+      :perch-offset-x="-4"
+    />
+
     <button
+      ref="rightToggleRef"
       class="pointer-events-auto sidebar-toggle icon-btn icon-btn--edge icon-btn--accent"
       :style="displayStore.rightToggleStyle"
       :title="rightSidebarTitle"
@@ -156,6 +170,12 @@
     >
       <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
     </button>
+
+    <butterfly-toggle
+      toggle-key="right-sidebar"
+      :target-ref="rightToggleRef"
+      :perch-offset-x="2"
+    />
 
     <main
       class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"
@@ -189,6 +209,7 @@
     >
       <div class="pointer-events-auto flex justify-center">
         <button
+          ref="footerToggleRef"
           type="button"
           class="flex items-center justify-center rounded-full border-2 border-base-content/30 bg-base-100/95 text-base-content shadow-lg shadow-base-content/20 backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-primary/60 hover:bg-base-100 hover:text-primary hover:shadow-[0_0_1.5rem_rgba(255,255,255,0.25)] active:scale-95"
           :class="footerToggleButtonClass"
@@ -197,6 +218,11 @@
         >
           <Icon :name="footerIcon" :class="footerToggleIconClass" />
         </button>
+        <butterfly-toggle
+          toggle-key="footer"
+          :target-ref="footerToggleRef"
+          :perch-offset-y="-6"
+        />
       </div>
     </div>
   </div>
@@ -224,6 +250,11 @@ const leftCanScrollUp = ref(false)
 const leftCanScrollDown = ref(false)
 const rightCanScrollUp = ref(false)
 const rightCanScrollDown = ref(false)
+
+const headerToggleRef = ref<HTMLElement | null>(null)
+const leftToggleRef = ref<HTMLElement | null>(null)
+const rightToggleRef = ref<HTMLElement | null>(null)
+const footerToggleRef = ref<HTMLElement | null>(null)
 
 const localPageKey = computed(() => route.path)
 

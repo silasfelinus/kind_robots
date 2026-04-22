@@ -370,8 +370,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     const noise2D = getNoise()
     const now = Date.now() * 0.001
 
-    butterfly.zIndex = Math.max(butterfly.baseZIndex, butterfly.zIndex - 0.35)
-
     const angle =
       noise2D(
         butterfly.x * 0.15 + butterfly.noiseOffsetX,
@@ -390,6 +388,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     )
 
     if (butterfly.isExiting) {
+      butterfly.zIndex = Math.max(butterfly.baseZIndex, butterfly.zIndex - 0.75)
+
       const goalDx = butterfly.goal.x - butterfly.x
       const goalDy = butterfly.goal.y - butterfly.y
       const goalDist = Math.sqrt(goalDx * goalDx + goalDy * goalDy) || 1

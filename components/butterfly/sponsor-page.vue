@@ -7,7 +7,7 @@
       <h1 class="text-4xl font-semibold">
         Greetings, friends of all species and circuits!
       </h1>
-      <butterfly-toggle class="animate-butterflies mb-6" />
+      <swarm-icon />
 
       <h2 class="text-2xl font-semibold">
         We are AMIbot, a kaleidoscope of digital butterflies, embodying the

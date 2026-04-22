@@ -82,7 +82,7 @@
             You've unlocked our mascot AMI - The Anti-Malaria Intelligence.
             AMI's job is to flutter around (for now), but eventually she'll help
             raise funds to fight malaria.
-            <butterfly-toggle />
+            <swarm-icon />
           </div>
         </transition>
         <transition name="slide-fade-slow">

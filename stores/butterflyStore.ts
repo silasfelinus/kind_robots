@@ -687,12 +687,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       initialized.value = true
 
       await spawnStartupSwarm(20)
-      syncToggleAnchors()
-      await spawnToggleButterflies()
-
-      if (typeof window !== 'undefined') {
-        window.addEventListener('resize', syncToggleAnchors)
-      }
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }
@@ -1133,8 +1127,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     setShowNames,
     markButterflyForExit,
 
-    syncToggleAnchors,
-    spawnToggleButterflies,
     handleToggleButterflyClick,
     destroyToggleButterflies,
     isToggleButterfly,

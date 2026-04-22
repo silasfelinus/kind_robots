@@ -1,9 +1,13 @@
 <!-- /components/content/story/kind-loader.vue -->
 <template>
-  <div class="loader-root">
-    <butterfly-layer :begin-exit="beginButterflyExit" :overlay-visible="true" />
+  <div v-if="showOverlay || !pageReadyEmitted" class="loader-root">
+    <butterfly-layer
+      :begin-exit="beginButterflyExit"
+      :overlay-visible="showOverlay"
+    />
 
     <loading-messages
+      v-if="showOverlay"
       :stores-ready="storesReady"
       @hidden="handleOverlayHidden"
     />
@@ -143,6 +147,5 @@ onBeforeUnmount(() => {
   position: fixed;
   inset: 0;
   z-index: 80;
-  pointer-events: none;
 }
 </style>

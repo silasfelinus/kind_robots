@@ -146,6 +146,5 @@ onBeforeUnmount(() => {
 .loader-root {
   position: fixed;
   inset: 0;
-  z-index: 80;
 }
 </style>

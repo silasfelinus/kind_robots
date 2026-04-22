@@ -479,6 +479,34 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     sendToggleButterflyAway(key)
   }
 
+  function relocateToggleButterfly(key: ToggleButterflyKey, el: HTMLElement) {
+    if (typeof window === 'undefined') return
+
+    const rect = el.getBoundingClientRect()
+    const cx = rect.left + rect.width / 2
+    const cy = rect.top + rect.height / 2
+
+    const x = clampPercent((cx / window.innerWidth) * 100)
+    const y = clampPercent((cy / window.innerHeight) * 100)
+
+    toggleAnchors.value[key] = { x, y }
+
+    const butterflyId = toggleButterflyIds.value[key]
+    if (!butterflyId) return
+
+    const state = toggleStates.value[butterflyId]
+    const butterfly = getButterflyById(butterflyId)
+    if (!state || !butterfly || butterfly.isExiting) return
+
+    state.anchor = { x, y }
+    state.home = { x, y }
+
+    // Pull it out of idle hover and send it to the new location
+    state.mode = 'returning'
+    butterfly.goal.x = x
+    butterfly.goal.y = y
+  }
+
   const usedNames = computed(() => butterflies.value.map((b) => b.id))
   const getAllButterflies = computed(() => butterflies.value)
   const getButterflyById = (id: string) =>
@@ -1090,6 +1118,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     getSettings,
     spawnableButterflies,
     gallerySlots,
+    relocateToggleButterfly,
 
     clearButterflies,
     toggleShowNames,

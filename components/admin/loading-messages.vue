@@ -6,7 +6,6 @@
     @transitionend="handleTransitionEnd"
   >
     <Icon name="kind-icon:bubble-loading" class="bubble-loader" />
-
     <transition name="loader-message" mode="out-in">
       <div :key="messageKey" class="loading-message">
         {{ currentMessage }}
@@ -20,13 +19,8 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useLoadStore } from '../../stores/loadStore'
 
-const props = defineProps<{
-  storesReady: boolean
-}>()
-
-const emit = defineEmits<{
-  hidden: []
-}>()
+const props = defineProps<{ storesReady: boolean }>()
+const emit = defineEmits<{ hidden: [] }>()
 
 const loadStore = useLoadStore()
 
@@ -35,24 +29,30 @@ const messageKey = ref(0)
 const fadeOverlay = ref(false)
 const minimumSequenceComplete = ref(false)
 
-const FIRST_MESSAGE_MS = 2200
-const SECOND_MESSAGE_LEAD_MS = 1600
-const ROTATING_MESSAGE_MS = 1900
-const READY_HOLD_MS = 1800
-const OVERLAY_FADE_MS = 1600
+// ── Timing knobs ──────────────────────────────────────────────────────────────
+const FIRST_MESSAGE_MS = 2200 // how long the first message shows
+const SECOND_MESSAGE_LEAD_MS = 1600 // pause before rotation begins / sequence gates
+const ROTATING_MESSAGE_MS = 1900 // interval between messages during store wait
+const READY_HOLD_MS = 1800 // [theirs] grace period after stores signal ready
+const MIN_TOTAL_MS = 5500 // [mine]   absolute wall-clock floor from mount
+const OVERLAY_FADE_MS = 1600 // [theirs] longer fade feels more cinematic
+// ─────────────────────────────────────────────────────────────────────────────
+
+const startTime = Date.now()
 
 let destroyed = false
 let rotationIntervalId: ReturnType<typeof setInterval> | null = null
 let fallbackFadeTimeoutId: ReturnType<typeof setTimeout> | null = null
-let readyHoldTimeoutId: ReturnType<typeof setTimeout> | null = null
+let readyHoldTimeoutId: ReturnType<typeof setTimeout> | null = null // [theirs] double-schedule guard
 
 function wait(ms: number) {
-  return new Promise((resolve) => {
-    const timeoutId = setTimeout(resolve, ms)
+  return new Promise<void>((resolve) => {
     if (destroyed) {
-      clearTimeout(timeoutId)
-      resolve(undefined)
+      resolve()
+      return
     }
+    const id = setTimeout(resolve, ms)
+    ;(wait as any)._lastId = id
   })
 }
 
@@ -63,32 +63,39 @@ function nextMessage() {
   messageKey.value += 1
 }
 
+// [theirs] named helper keeps onBeforeUnmount clean
 function clearRotation() {
   if (!rotationIntervalId) return
   clearInterval(rotationIntervalId)
   rotationIntervalId = null
 }
 
+// [mine] separated from scheduling so the delay math is its own concern
+function doFade() {
+  if (destroyed || fadeOverlay.value) return
+  fadeOverlay.value = true
+  if (fallbackFadeTimeoutId) clearTimeout(fallbackFadeTimeoutId)
+  fallbackFadeTimeoutId = setTimeout(
+    () => emit('hidden'),
+    OVERLAY_FADE_MS + 120,
+  )
+}
+
+// Synthesis: Math.max lets both constraints win simultaneously.
+// Fast stores? MIN_TOTAL_MS protects the floor.
+// Slow stores finishing mid-sequence? READY_HOLD_MS still gives a grace beat.
 function scheduleFade() {
   if (!props.storesReady) return
   if (!minimumSequenceComplete.value) return
   if (fadeOverlay.value) return
-  if (readyHoldTimeoutId) return
+  if (readyHoldTimeoutId) return // [theirs] prevent double-scheduling
 
   clearRotation()
 
-  readyHoldTimeoutId = setTimeout(() => {
-    if (destroyed) return
-    fadeOverlay.value = true
+  const elapsed = Date.now() - startTime
+  const holdNeeded = Math.max(READY_HOLD_MS, MIN_TOTAL_MS - elapsed)
 
-    if (fallbackFadeTimeoutId) {
-      clearTimeout(fallbackFadeTimeoutId)
-    }
-
-    fallbackFadeTimeoutId = setTimeout(() => {
-      emit('hidden')
-    }, OVERLAY_FADE_MS + 120)
-  }, READY_HOLD_MS)
+  readyHoldTimeoutId = setTimeout(doFade, holdNeeded)
 }
 
 function handleTransitionEnd(event: TransitionEvent) {
@@ -114,18 +121,16 @@ async function runVisualSequence() {
   }
 
   rotationIntervalId = setInterval(() => {
+    if (destroyed) return
     nextMessage()
-    if (props.storesReady) {
-      scheduleFade()
-    }
+    if (props.storesReady) scheduleFade()
   }, ROTATING_MESSAGE_MS)
 }
 
 watch(
   () => props.storesReady,
   (ready) => {
-    if (!ready) return
-    scheduleFade()
+    if (ready) scheduleFade()
   },
 )
 
@@ -135,14 +140,11 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   destroyed = true
-
-  clearRotation()
-
+  clearRotation() // [theirs]
   if (fallbackFadeTimeoutId) {
     clearTimeout(fallbackFadeTimeoutId)
     fallbackFadeTimeoutId = null
   }
-
   if (readyHoldTimeoutId) {
     clearTimeout(readyHoldTimeoutId)
     readyHoldTimeoutId = null

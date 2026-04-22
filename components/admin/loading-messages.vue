@@ -1,4 +1,4 @@
-<!-- /components/content/story/loading-message.vue -->
+<!-- /components/content/story/loading-messages.vue -->
 <template>
   <div
     class="loading-overlay"
@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/story/loading-message.vue
+// /components/content/story/loading-messages.vue
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useLoadStore } from '../../stores/loadStore'
 

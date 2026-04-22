@@ -6,7 +6,7 @@
       :overlay-visible="showOverlay"
     />
 
-    <loading-message
+    <loading-messages
       v-if="showOverlay"
       :stores-ready="storesReady"
       @hidden="handleOverlayHidden"

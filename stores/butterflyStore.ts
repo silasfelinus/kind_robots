@@ -98,7 +98,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     wingSpeedRange: { min: 1, max: 5 },
     xRange: { min: 0, max: 100 },
     yRange: { min: 0, max: 100 },
-    zIndexRange: { min: 0, max: 50 },
+    zIndexRange: { min: 50, max: 50 },
   })
 
   const newButterflySettings = reactive<ButterflySettingsWithOptions>({
@@ -208,20 +208,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   function clampPercent(value: number) {
     return clampToTwoDecimals(Math.max(-20, Math.min(120, value)))
-  }
-
-  function viewportPointToPercent(clientX: number, clientY: number) {
-    if (typeof window === 'undefined') {
-      return { x: 50, y: 50 }
-    }
-
-    const width = window.innerWidth || 1
-    const height = window.innerHeight || 1
-
-    return {
-      x: clampPercent((clientX / width) * 100),
-      y: clampPercent((clientY / height) * 100),
-    }
   }
 
   function syncToggleAnchorFromDisplayStore(
@@ -368,8 +354,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     butterfly.goal.y = anchor.y
     butterfly.status = 'float'
     butterfly.isExiting = false
-    butterfly.baseZIndex = 120
-    butterfly.zIndex = 120
+    butterfly.baseZIndex = 50
+    butterfly.zIndex = 50
     butterfly.scaleMod = 1
     butterfly.rotation = butterfly.x < anchor.x ? 120 : 30
 
@@ -809,7 +795,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       butterfly.scaleMod = clampToTwoDecimals(
         0.9 + Math.sin(Date.now() * 0.01 + toggleState.idleSeed) * 0.04,
       )
-      butterfly.zIndex = 120
+      butterfly.zIndex = 50
 
       const closeEnough =
         Math.abs(butterfly.x - toggleState.anchor.x) < 2.2 &&
@@ -857,8 +843,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     )
 
     if (butterfly.isExiting) {
-      butterfly.zIndex = Math.max(1, butterfly.zIndex - 0.75)
-
       const goalDx = butterfly.goal.x - butterfly.x
       const goalDy = butterfly.goal.y - butterfly.y
       const goalDist = Math.sqrt(goalDx * goalDx + goalDy * goalDy) || 1

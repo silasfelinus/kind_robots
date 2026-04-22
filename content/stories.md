@@ -16,4 +16,4 @@ layout: 'default'
 navComponent: 'prompt-nav'
 ---
 
-:story-bar
+:story-creator

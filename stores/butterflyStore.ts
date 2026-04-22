@@ -75,7 +75,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   const inspectedButterfly = ref<Butterfly | null>(null)
 
   function hydrateButterfly(db: DbButterfly): Butterfly {
-    const baseZIndex = Math.floor(Math.random() * 50)
+    const baseZIndex = 50
 
     return {
       id: db.name,
@@ -95,7 +95,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       y: clampToTwoDecimals(Math.random() * 100),
       z: clampToTwoDecimals(Math.random() * 0.5 + 0.5),
       baseZIndex,
-      zIndex: baseZIndex + 100,
+      zIndex: baseZIndex,
       rotation: 110,
       status: 'random',
       isExiting: false,

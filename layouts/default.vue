@@ -23,11 +23,6 @@
         >
           <Icon name="kind-icon:chevron-down" class="icon-btn__icon" />
         </button>
-        <butterfly-toggle
-          toggle-key="header"
-          :target-ref="headerToggleRef"
-          :perch-offset-x="0"
-        />
       </div>
     </div>
 
@@ -155,12 +150,6 @@
       <Icon :name="leftSidebarIcon" class="icon-btn__icon" />
     </button>
 
-    <butterfly-toggle
-      toggle-key="left-sidebar"
-      :target-ref="leftToggleRef"
-      :perch-offset-x="0"
-    />
-
     <button
       ref="rightToggleRef"
       class="pointer-events-auto sidebar-toggle icon-btn icon-btn--edge icon-btn--accent"
@@ -170,12 +159,6 @@
     >
       <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
     </button>
-
-    <butterfly-toggle
-      toggle-key="right-sidebar"
-      :target-ref="rightToggleRef"
-      :perch-offset-x="0"
-    />
 
     <main
       class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"
@@ -218,11 +201,6 @@
         >
           <Icon :name="footerIcon" :class="footerToggleIconClass" />
         </button>
-        <butterfly-toggle
-          toggle-key="footer"
-          :target-ref="footerToggleRef"
-          :perch-offset-y="0"
-        />
       </div>
     </div>
   </div>
@@ -235,55 +213,6 @@ import { useRoute } from 'vue-router'
 import { NuxtImg } from '#components'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
-
-import { useButterflyStore } from '@/stores/butterflyStore'
-const butterflyStore = useButterflyStore()
-
-watch(
-  () => displayStore.leftToggleStyle,
-  async () => {
-    await nextTick()
-    if (leftToggleRef.value)
-      butterflyStore.relocateToggleButterfly(
-        'left-sidebar',
-        leftToggleRef.value,
-      )
-  },
-  { deep: true },
-)
-
-watch(
-  () => displayStore.rightToggleStyle,
-  async () => {
-    await nextTick()
-    if (rightToggleRef.value)
-      butterflyStore.relocateToggleButterfly(
-        'right-sidebar',
-        rightToggleRef.value,
-      )
-  },
-  { deep: true },
-)
-
-watch(
-  () => displayStore.footerToggleStyle,
-  async () => {
-    await nextTick()
-    if (footerToggleRef.value)
-      butterflyStore.relocateToggleButterfly('footer', footerToggleRef.value)
-  },
-  { deep: true },
-)
-
-watch(
-  () => displayStore.headerToggleStyle,
-  async () => {
-    await nextTick()
-    if (headerToggleRef.value)
-      butterflyStore.relocateToggleButterfly('header', headerToggleRef.value)
-  },
-  { deep: true },
-)
 
 type SidebarKey = 'left' | 'right'
 type ScrollDirection = 'up' | 'down'

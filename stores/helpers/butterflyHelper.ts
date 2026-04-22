@@ -155,7 +155,7 @@ export const createNewButterfly = async (
         settings.sizeRange.min,
     ),
     baseZIndex,
-    zIndex: baseZIndex + 100,
+    zIndex: baseZIndex,
     rotation: clampToTwoDecimals(
       Math.random() *
         (settings.rotationRange.max - settings.rotationRange.min) +

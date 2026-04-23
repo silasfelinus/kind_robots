@@ -1,40 +1,44 @@
 <template>
+  <!-- /components/navigation/footer/butterfly-footer.vue -->
   <div
     v-if="footerState !== 'hidden'"
     class="flex h-full w-full min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200/80 shadow-inner"
     :class="footerState === 'compact' ? 'px-3' : 'p-2 md:p-3'"
   >
-    <!-- ── COMPACT: single toolbar row ─────────────────────────────── -->
     <template v-if="isCompact">
-      <div class="flex h-full w-full items-center gap-1">
-        <!-- count pill -->
+      <div class="flex h-full w-full items-center gap-1 overflow-x-auto">
         <div
           class="badge badge-outline shrink-0 font-mono text-xs tabular-nums"
         >
           {{ activeCount }}
         </div>
 
-        <div class="mx-1.5 h-5 w-px shrink-0 bg-base-300" />
-
-        <!-- core +/- -->
         <button
           type="button"
           class="btn btn-sm btn-secondary shrink-0"
-          @click="removeRandom"
+          :disabled="activeCount <= 0"
+          @click="sendRandomAway"
         >
-          <icon name="kind-icon:minus" class="h-3.5 w-3.5" />
+          Away
         </button>
+
+        <button
+          type="button"
+          class="btn btn-sm btn-error shrink-0"
+          :disabled="totalCount <= 0"
+          @click="clearRandomNow"
+        >
+          Clear
+        </button>
+
         <button
           type="button"
           class="btn btn-sm btn-primary shrink-0"
           @click="summon(1)"
         >
-          <icon name="kind-icon:plus" class="h-3.5 w-3.5" />
+          +1
         </button>
 
-        <div class="mx-1.5 h-5 w-px shrink-0 bg-base-300" />
-
-        <!-- bulk summons -->
         <button
           type="button"
           class="btn btn-sm btn-ghost shrink-0"
@@ -42,6 +46,7 @@
         >
           +5
         </button>
+
         <button
           type="button"
           class="btn btn-sm btn-ghost shrink-0"
@@ -49,6 +54,7 @@
         >
           +10
         </button>
+
         <button
           type="button"
           class="btn btn-sm btn-ghost shrink-0"
@@ -57,9 +63,6 @@
           +20
         </button>
 
-        <div class="mx-1.5 h-5 w-px shrink-0 bg-base-300" />
-
-        <!-- names toggle -->
         <button
           type="button"
           class="btn btn-sm btn-ghost shrink-0"
@@ -68,35 +71,47 @@
           {{ showNames ? 'Hide Names' : 'Names' }}
         </button>
 
-        <!-- clear pushed to the right -->
         <button
           type="button"
-          class="btn btn-sm btn-warning ml-auto shrink-0"
+          class="btn btn-sm btn-outline ml-auto shrink-0"
           :disabled="activeCount <= 0"
-          @click="clearButterflies"
+          @click="sendAllAway"
         >
-          Clear
+          Send All
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-sm btn-warning shrink-0"
+          :disabled="totalCount <= 0"
+          @click="clearAllNow"
+        >
+          Clear All
         </button>
       </div>
     </template>
 
-    <!-- ── OPEN / PRIORITY: two-column ─────────────────────────────── -->
     <template v-else>
       <div
         class="grid h-full w-full min-h-0 gap-3 overflow-hidden"
         :class="contentLayoutClass"
       >
-        <!-- LEFT: controls panel -->
         <section class="flex min-h-0 flex-col gap-2 overflow-y-auto">
-          <!-- header row -->
           <div class="flex shrink-0 items-center justify-between gap-2">
             <span class="text-sm font-semibold tracking-tight">🦋 Swarm</span>
-            <div class="badge badge-outline font-mono text-xs tabular-nums">
-              {{ activeCount }} active
+            <div class="flex items-center gap-1">
+              <div class="badge badge-outline font-mono text-xs tabular-nums">
+                {{ activeCount }} active
+              </div>
+              <div
+                v-if="exitingCount > 0"
+                class="badge badge-warning font-mono text-xs tabular-nums"
+              >
+                {{ exitingCount }} exiting
+              </div>
             </div>
           </div>
 
-          <!-- butterfly selector -->
           <div
             class="shrink-0 rounded-xl border border-base-300 bg-base-100 p-3"
           >
@@ -123,7 +138,7 @@
             >
               <option value="">Choose a butterfly…</option>
               <option
-                v-for="butterfly in selectableButterflies"
+                v-for="butterfly in butterflies"
                 :key="butterfly.id"
                 :value="butterfly.id"
               >
@@ -131,7 +146,6 @@
               </option>
             </select>
 
-            <!-- mini stats grid -->
             <template v-if="currentButterfly">
               <div class="mt-2.5 grid grid-cols-2 gap-1.5 text-xs">
                 <div class="rounded-lg bg-base-200 px-2.5 py-1.5">
@@ -143,7 +157,11 @@
                 <div class="rounded-lg bg-base-200 px-2.5 py-1.5">
                   <div class="text-base-content/40">Status</div>
                   <div class="font-semibold">
-                    {{ currentButterfly.status || 'random' }}
+                    {{
+                      currentButterfly.isExiting
+                        ? 'exiting'
+                        : currentButterfly.status || 'random'
+                    }}
                   </div>
                 </div>
                 <div class="rounded-lg bg-base-200 px-2.5 py-1.5">
@@ -161,34 +179,27 @@
                 </div>
               </div>
             </template>
+
             <p v-else class="mt-2 text-xs text-base-content/40">
               Pick a butterfly to see its field guide.
             </p>
           </div>
 
-          <!-- swarm actions -->
           <div
             class="shrink-0 rounded-xl border border-base-300 bg-base-100 p-3"
           >
             <div
               class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/50"
             >
-              Actions
+              Summon
             </div>
-            <div class="grid grid-cols-3 gap-1.5">
+            <div class="grid grid-cols-4 gap-1.5">
               <button
                 type="button"
-                class="btn btn-sm btn-secondary col-span-1"
-                @click="removeRandom"
-              >
-                <icon name="kind-icon:minus" class="h-3.5 w-3.5" />−1
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-primary col-span-2"
+                class="btn btn-sm btn-primary"
                 @click="summon(1)"
               >
-                <icon name="kind-icon:plus" class="h-3.5 w-3.5" />+1
+                +1
               </button>
               <button
                 type="button"
@@ -214,7 +225,78 @@
             </div>
           </div>
 
-          <!-- quick options -->
+          <div
+            class="shrink-0 rounded-xl border border-base-300 bg-base-100 p-3"
+          >
+            <div
+              class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/50"
+            >
+              Send Away
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                class="btn btn-sm btn-secondary"
+                :disabled="activeCount <= 0"
+                @click="sendRandomAway"
+              >
+                Random
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-secondary"
+                :disabled="!currentButterfly || currentButterfly.isExiting"
+                @click="sendSelectedAway"
+              >
+                Selected
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline col-span-2"
+                :disabled="activeCount <= 0"
+                @click="sendAllAway"
+              >
+                Send All Away
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="shrink-0 rounded-xl border border-base-300 bg-base-100 p-3"
+          >
+            <div
+              class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/50"
+            >
+              Clear Now
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                class="btn btn-sm btn-error"
+                :disabled="totalCount <= 0"
+                @click="clearRandomNow"
+              >
+                Random
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-error"
+                :disabled="!currentButterfly"
+                @click="clearSelectedNow"
+              >
+                Selected
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-warning col-span-2"
+                :disabled="totalCount <= 0"
+                @click="clearAllNow"
+              >
+                Clear All Immediately
+              </button>
+            </div>
+          </div>
+
           <div
             class="shrink-0 rounded-xl border border-base-300 bg-base-100 p-3"
           >
@@ -223,35 +305,16 @@
             >
               Options
             </div>
-            <div class="grid grid-cols-2 gap-1.5">
-              <button
-                type="button"
-                class="btn btn-sm btn-outline"
-                @click="toggleNames"
-              >
-                {{ showNames ? 'Hide Names' : 'Show Names' }}
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-outline"
-                :disabled="!currentButterfly"
-                @click="removeSelectedButterfly"
-              >
-                Send Away
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-warning col-span-2"
-                :disabled="activeCount <= 0"
-                @click="clearButterflies"
-              >
-                Clear All
-              </button>
-            </div>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline w-full"
+              @click="toggleNames"
+            >
+              {{ showNames ? 'Hide Names' : 'Show Names' }}
+            </button>
           </div>
         </section>
 
-        <!-- RIGHT: butterfly guide -->
         <section
           class="flex min-h-0 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
         >
@@ -282,7 +345,7 @@
 // /components/navigation/footer/butterfly-footer.vue
 import { computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useButterflyStore } from '@/stores/butterflyStore'
+import { useButterflyStore, type Butterfly } from '@/stores/butterflyStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -296,16 +359,22 @@ const { butterflies, selectedButterflyId, showNames } =
 const footerState = computed(() => displayStore.footerState)
 const isCompact = computed(() => footerState.value === 'compact')
 
-const selectableButterflies = computed(() =>
+const activeButterflies = computed(() =>
   butterflies.value.filter((butterfly) => !butterfly.isExiting),
 )
 
-const activeCount = computed(() => selectableButterflies.value.length)
+const exitingButterflies = computed(() =>
+  butterflies.value.filter((butterfly) => butterfly.isExiting),
+)
+
+const activeCount = computed(() => activeButterflies.value.length)
+const exitingCount = computed(() => exitingButterflies.value.length)
+const totalCount = computed(() => butterflies.value.length)
 
 const currentButterfly = computed(() => butterflyStore.getSelectedButterfly)
 
 const emptyLabel = computed(() => {
-  if (!activeCount.value) return 'No butterflies are active right now.'
+  if (!totalCount.value) return 'No butterflies are active right now.'
   return 'Choose a butterfly from the selector to load its field guide.'
 })
 
@@ -326,6 +395,7 @@ const contentLayoutClass = computed(() => {
   if (footerState.value === 'priority') {
     return 'grid-cols-1 xl:grid-cols-[minmax(20rem,26rem)_minmax(0,1fr)]'
   }
+
   return 'grid-cols-1 2xl:grid-cols-[minmax(17rem,22rem)_minmax(0,1fr)]'
 })
 
@@ -336,64 +406,82 @@ onMounted(async () => {
 
   await butterflyStore.initGame()
 
-  if (!selectedButterflyId.value && selectableButterflies.value.length > 0) {
-    selectedButterflyId.value = selectableButterflies.value[0]?.id || ''
+  if (!selectedButterflyId.value && butterflies.value.length > 0) {
+    selectedButterflyId.value = butterflies.value[0]?.id || ''
   }
 })
 
-function butterflyLabel(butterfly: {
-  id: string
-  name?: string
-  message?: string
-  x?: number
-  y?: number
-  zIndex?: number
-}) {
+function butterflyLabel(butterfly: Butterfly) {
   const title = butterfly.name || butterfly.id
   const snippet = butterfly.message?.slice(0, 24)?.trim()
+  const state = butterfly.isExiting ? ' leaving' : ''
   const pos =
     butterfly.x != null && butterfly.y != null
       ? ` @ ${butterfly.x}, ${butterfly.y}`
       : ''
 
-  return snippet ? `${title} — ${snippet}${pos}` : `${title}${pos}`
+  return snippet
+    ? `${title}${state} — ${snippet}${pos}`
+    : `${title}${state}${pos}`
+}
+
+function selectFallbackButterfly(excludedId = '') {
+  if (
+    selectedButterflyId.value &&
+    selectedButterflyId.value !== excludedId &&
+    butterflies.value.some(
+      (butterfly) => butterfly.id === selectedButterflyId.value,
+    )
+  ) {
+    return
+  }
+
+  selectedButterflyId.value =
+    butterflies.value.find((butterfly) => butterfly.id !== excludedId)?.id || ''
 }
 
 async function summon(count: number) {
-  await butterflyStore.summonSwarm(count)
+  await butterflyStore.addButterflies(count)
 
-  const newest = selectableButterflies.value.at(-1)
+  const newest = butterflies.value.at(-1)
   if (newest) {
     selectedButterflyId.value = newest.id
   }
 }
 
-function removeRandom() {
-  butterflyStore.removeRandomButterfly?.()
-
-  if (currentButterfly.value && currentButterfly.value.isExiting) {
-    const next = selectableButterflies.value.find(
-      (item) => item.id !== currentButterfly.value?.id,
-    )
-    selectedButterflyId.value = next?.id || ''
-  }
+function sendRandomAway() {
+  butterflyStore.sendRandomButterflyAway()
+  selectFallbackButterfly()
 }
 
-function removeSelectedButterfly() {
+function sendSelectedAway() {
+  const butterfly = currentButterfly.value
+  if (!butterfly || butterfly.isExiting) return
+
+  butterflyStore.sendButterflyAway(butterfly)
+  selectFallbackButterfly(butterfly.id)
+}
+
+function sendAllAway() {
+  butterflyStore.markAllButterfliesForExit()
+  selectedButterflyId.value = ''
+}
+
+function clearRandomNow() {
+  butterflyStore.clearRandomButterfly()
+  selectFallbackButterfly()
+}
+
+function clearSelectedNow() {
   const butterfly = currentButterfly.value
   if (!butterfly) return
 
-  butterflyStore.markButterflyForExit(butterfly)
-
-  const next = selectableButterflies.value.find(
-    (item) => item.id !== butterfly.id,
-  )
-
-  selectedButterflyId.value = next?.id || ''
+  butterflyStore.clearButterflyById(butterfly.id)
+  selectFallbackButterfly(butterfly.id)
 }
 
-function clearButterflies() {
-  butterflyStore.clearButterflies()
+function clearAllNow() {
+  butterflyStore.clearAllButterflies()
   selectedButterflyId.value = ''
 }
 

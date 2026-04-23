@@ -3,6 +3,7 @@
     <div v-if="showLoader" class="fixed inset-0 z-40 pointer-events-none">
       <kind-loader @pageReady="handlePageReady" />
     </div>
+    <butterfly-layer />
 
     <div class="fixed inset-0 z-50 pointer-events-none">
       <milestone-popup />

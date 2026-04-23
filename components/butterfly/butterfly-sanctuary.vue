@@ -1,8 +1,6 @@
 <!-- /components/content/butterfly/butterfly-sanctuary.vue -->
 <template>
-  <div
-    class="flex min-h-0 hfull w-full flex-col overflow-hidden bg-base-200"
-  >
+  <div class="flex min-h-0 hfull w-full flex-col overflow-hidden bg-base-200">
     <header
       class="flex shrink-0 flex-wrap items-center gap-3 border-b border-base-300 bg-base-100 px-4 py-2.5"
     >
@@ -248,7 +246,9 @@
           class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-4 py-2.5"
         >
           <span class="truncate text-sm font-semibold">
-            {{ currentButterfly?.name || currentButterfly?.id || 'Field Guide' }}
+            {{
+              currentButterfly?.name || currentButterfly?.id || 'Field Guide'
+            }}
           </span>
 
           <div class="flex items-center gap-2">
@@ -443,7 +443,9 @@
           class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-4 py-2.5"
         >
           <span class="truncate text-sm font-semibold">
-            {{ currentButterfly?.name || currentButterfly?.id || 'Field Guide' }}
+            {{
+              currentButterfly?.name || currentButterfly?.id || 'Field Guide'
+            }}
           </span>
 
           <div
@@ -482,7 +484,10 @@ const centerHeight = computed(() => displayStore.mainContentHeight)
 const centerWidth = computed(() => displayStore.mainContentWidth)
 
 const isSinglePane = computed(() => {
-  return displayStore.isMobile || displayStore.isTablet
+  return (
+    displayStore.viewportSize === 'small' ||
+    displayStore.viewportSize === 'medium'
+  )
 })
 
 const selectableButterflies = computed(() =>

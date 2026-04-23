@@ -180,20 +180,20 @@ onBeforeUnmount(() => {
   justify-content: center;
   padding: 0.85rem 1.35rem;
   border-radius: 1rem;
-  border: 1px solid oklch(var(--bc) / 0.2);
-  background: oklch(var(--b1) / 0.92);
-  color: oklch(var(--bc));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.85);
+  color: #ffffff;
   font-size: clamp(1.1rem, 2vw, 2rem);
   font-weight: 700;
   text-align: center;
-  box-shadow: 0 0.75rem 2rem oklch(0 0 0 / 0.25);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
 }
 
 .bubble-loader {
   font-size: clamp(4rem, 10vw, 6rem);
-  color: oklch(var(--p));
-  filter: drop-shadow(0 0 1rem oklch(var(--p) / 0.35));
+  color: #ffffff;
+  filter: drop-shadow(0 0 0.75rem rgba(255, 255, 255, 0.25));
 }
 
 .loader-message-enter-active,

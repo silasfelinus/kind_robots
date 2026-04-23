@@ -308,7 +308,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBotStore } from '@/stores/botStore'
 
@@ -367,6 +367,7 @@ const parsedUserPrompts = computed(() => {
 // ── Methods ────────────────────────────────────────────────────────
 async function selectBot(botId: number) {
   await botStore.selectBot(botId)
+  activeMode.value = 'command'
 }
 
 function clearBot() {
@@ -424,7 +425,20 @@ onMounted(async () => {
     await botStore.initialize()
     isLoading.value = false
   }
+  if (botStore.currentBot) {
+    activeMode.value = 'command'
+  }
 })
+
+// Jump to command if a bot gets selected externally (e.g. from the footer)
+watch(
+  () => botStore.currentBot?.id,
+  (newId, oldId) => {
+    if (newId && newId !== oldId) {
+      activeMode.value = 'command'
+    }
+  },
+)
 </script>
 
 <style scoped>
@@ -701,8 +715,8 @@ onMounted(async () => {
   opacity: 0.55;
   margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   line-clamp: 2;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

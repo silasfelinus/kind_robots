@@ -1,7 +1,6 @@
 <!-- /components/content/bots/bot-manager.vue -->
 <template>
   <div class="bot-manager" :class="`mode-${activeMode}`">
-
     <!-- ── Header bar ───────────────────────────────────────────── -->
     <header class="bm-header">
       <div class="bm-header-brand">
@@ -36,10 +35,8 @@
 
     <!-- ── Body ─────────────────────────────────────────────────── -->
     <div class="bm-body">
-
       <!-- ══ ROSTER MODE ══════════════════════════════════════════ -->
       <section v-if="activeMode === 'roster'" class="bm-roster">
-
         <!-- Search + filter -->
         <div class="bm-search-bar">
           <input
@@ -73,12 +70,18 @@
                 :alt="bot.name || 'Bot avatar'"
                 class="bm-bot-card-avatar"
               />
-              <span v-if="bot.underConstruction" class="bm-badge bm-badge-warn">WIP</span>
-              <span v-else-if="bot.isPublic" class="bm-badge bm-badge-ok">PUB</span>
+              <span v-if="bot.underConstruction" class="bm-badge bm-badge-warn"
+                >WIP</span
+              >
+              <span v-else-if="bot.isPublic" class="bm-badge bm-badge-ok"
+                >PUB</span
+              >
             </div>
             <div class="bm-bot-card-body">
               <p class="bm-bot-card-name">{{ bot.name || 'Unnamed Bot' }}</p>
-              <p class="bm-bot-card-sub">{{ bot.subtitle || bot.description || '—' }}</p>
+              <p class="bm-bot-card-sub">
+                {{ bot.subtitle || bot.description || '—' }}
+              </p>
             </div>
             <div
               v-if="botStore.currentBot?.id === bot.id"
@@ -104,14 +107,24 @@
               class="bm-selected-bar-avatar"
             />
             <div class="bm-selected-bar-info">
-              <span class="bm-selected-bar-name">{{ botStore.currentBot.name }}</span>
-              <span class="bm-selected-bar-desc">{{ botStore.currentBot.description }}</span>
+              <span class="bm-selected-bar-name">{{
+                botStore.currentBot.name
+              }}</span>
+              <span class="bm-selected-bar-desc">{{
+                botStore.currentBot.description
+              }}</span>
             </div>
             <div class="bm-selected-bar-actions">
-              <button class="bm-btn bm-btn-ghost bm-btn-sm" @click="goToMode('command')">
+              <button
+                class="bm-btn bm-btn-ghost bm-btn-sm"
+                @click="goToMode('command')"
+              >
                 Chat →
               </button>
-              <button class="bm-btn bm-btn-primary bm-btn-sm" @click="launchBot">
+              <button
+                class="bm-btn bm-btn-primary bm-btn-sm"
+                @click="launchBot"
+              >
                 Open in Bots
               </button>
             </div>
@@ -121,7 +134,6 @@
 
       <!-- ══ COMMAND MODE ══════════════════════════════════════════ -->
       <section v-if="activeMode === 'command'" class="bm-command">
-
         <!-- Left: bot picker strip -->
         <aside class="bm-command-sidebar">
           <p class="bm-sidebar-label">Select a bot</p>
@@ -138,7 +150,9 @@
                 :alt="bot.name || 'Bot'"
                 class="bm-command-bot-avatar"
               />
-              <span class="bm-command-bot-name">{{ bot.name || 'Unnamed' }}</span>
+              <span class="bm-command-bot-name">{{
+                bot.name || 'Unnamed'
+              }}</span>
             </button>
           </div>
           <button
@@ -151,9 +165,7 @@
 
         <!-- Right: bot detail + composer -->
         <div class="bm-command-main">
-
           <div v-if="botStore.currentBot" class="bm-command-detail">
-
             <!-- Bot hero -->
             <div class="bm-bot-hero">
               <img
@@ -192,13 +204,22 @@
               <div class="bm-composer-header">
                 <span class="bm-composer-label">Opening message</span>
                 <div class="bm-composer-helpers">
-                  <button class="bm-btn bm-btn-ghost bm-btn-xs" @click="fillStarter">
+                  <button
+                    class="bm-btn bm-btn-ghost bm-btn-xs"
+                    @click="fillStarter"
+                  >
                     Starter
                   </button>
-                  <button class="bm-btn bm-btn-ghost bm-btn-xs" @click="fillWeird">
+                  <button
+                    class="bm-btn bm-btn-ghost bm-btn-xs"
+                    @click="fillWeird"
+                  >
                     Weird
                   </button>
-                  <button class="bm-btn bm-btn-ghost bm-btn-xs" @click="clearMessage">
+                  <button
+                    class="bm-btn bm-btn-ghost bm-btn-xs"
+                    @click="clearMessage"
+                  >
                     Clear
                   </button>
                 </div>
@@ -212,7 +233,9 @@
               <div class="bm-composer-footer">
                 <div class="bm-composer-preview">
                   <span class="bm-preview-label">Preview →</span>
-                  <span class="bm-preview-text">{{ launchMessage || '…' }}</span>
+                  <span class="bm-preview-text">{{
+                    launchMessage || '…'
+                  }}</span>
                 </div>
                 <button
                   class="bm-btn bm-btn-primary"
@@ -241,7 +264,6 @@
 
       <!-- ══ FORGE MODE ════════════════════════════════════════════ -->
       <section v-if="activeMode === 'forge'" class="bm-forge">
-
         <!-- Inline bot selector for editing existing -->
         <div class="bm-forge-top-bar">
           <div class="bm-forge-top-info">
@@ -272,8 +294,8 @@
         <!-- Delegate to the existing add-bot component -->
         <add-bot />
       </section>
-
-    </div><!-- /bm-body -->
+    </div>
+    <!-- /bm-body -->
 
     <!-- ── Loading overlay ──────────────────────────────────────── -->
     <transition name="bm-fade">
@@ -282,7 +304,6 @@
         <span>Loading bots…</span>
       </div>
     </transition>
-
   </div>
 </template>
 
@@ -409,13 +430,13 @@ onMounted(async () => {
 <style scoped>
 /* ── Design tokens ─────────────────────────────────────────── */
 .bot-manager {
-  --bm-amber:   #d97706;
+  --bm-amber: #d97706;
   --bm-amber-l: #fef3c7;
-  --bm-teal:    #0f766e;
-  --bm-teal-l:  #ccfbf1;
-  --bm-red:     #b91c1c;
-  --bm-green:   #15803d;
-  --bm-radius:  0.75rem;
+  --bm-teal: #0f766e;
+  --bm-teal-l: #ccfbf1;
+  --bm-red: #b91c1c;
+  --bm-green: #15803d;
+  --bm-radius: 0.75rem;
   --bm-radius-sm: 0.375rem;
   --bm-font-display: 'Exo 2', 'Segoe UI', system-ui, sans-serif;
   --bm-font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
@@ -496,16 +517,21 @@ onMounted(async () => {
   transition: all 0.15s ease;
 }
 
-.bm-tab:hover { opacity: 0.85; background: var(--b3, oklch(var(--b3))); }
+.bm-tab:hover {
+  opacity: 0.85;
+  background: var(--b3, oklch(var(--b3)));
+}
 
 .bm-tab.active {
   background: var(--b1, oklch(var(--b1)));
   opacity: 1;
   color: var(--bm-amber);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
-.bm-tab-icon { font-size: 0.95rem; }
+.bm-tab-icon {
+  font-size: 0.95rem;
+}
 
 /* ── Clear btn ─────────────────────────────────────────────── */
 .bm-clear-btn {
@@ -520,7 +546,9 @@ onMounted(async () => {
   color: inherit;
   transition: opacity 0.15s;
 }
-.bm-clear-btn:hover { opacity: 1; }
+.bm-clear-btn:hover {
+  opacity: 1;
+}
 
 /* ── Body ──────────────────────────────────────────────────── */
 .bm-body {
@@ -563,7 +591,9 @@ onMounted(async () => {
   outline: none;
   transition: border-color 0.15s;
 }
-.bm-search-input:focus { border-color: var(--bm-amber); }
+.bm-search-input:focus {
+  border-color: var(--bm-amber);
+}
 
 .bm-filter-toggle {
   display: flex;
@@ -574,7 +604,9 @@ onMounted(async () => {
   cursor: pointer;
   user-select: none;
 }
-.bm-filter-toggle:hover { opacity: 1; }
+.bm-filter-toggle:hover {
+  opacity: 1;
+}
 
 /* Grid */
 .bm-grid {
@@ -599,7 +631,10 @@ onMounted(async () => {
   background: var(--b1, oklch(var(--b1)));
   cursor: pointer;
   text-align: center;
-  transition: border-color 0.15s, transform 0.12s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    transform 0.12s,
+    box-shadow 0.15s;
   font-family: inherit;
   color: inherit;
 }
@@ -641,10 +676,18 @@ onMounted(async () => {
   border-radius: 3px;
   letter-spacing: 0.05em;
 }
-.bm-badge-warn { background: var(--bm-amber-l); color: var(--bm-amber); }
-.bm-badge-ok   { background: var(--bm-teal-l);  color: var(--bm-teal);  }
+.bm-badge-warn {
+  background: var(--bm-amber-l);
+  color: var(--bm-amber);
+}
+.bm-badge-ok {
+  background: var(--bm-teal-l);
+  color: var(--bm-teal);
+}
 
-.bm-bot-card-body { width: 100%; }
+.bm-bot-card-body {
+  width: 100%;
+}
 .bm-bot-card-name {
   font-size: 0.85rem;
   font-weight: 700;
@@ -741,9 +784,16 @@ onMounted(async () => {
 
 /* Slide-up transition */
 .bm-slide-up-enter-active,
-.bm-slide-up-leave-active { transition: transform 0.25s ease, opacity 0.2s ease; }
+.bm-slide-up-leave-active {
+  transition:
+    transform 0.25s ease,
+    opacity 0.2s ease;
+}
 .bm-slide-up-enter-from,
-.bm-slide-up-leave-to { transform: translateY(100%); opacity: 0; }
+.bm-slide-up-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
+}
 
 /* ══ COMMAND ═══════════════════════════════════════════════════ */
 .bm-command {
@@ -793,9 +843,13 @@ onMounted(async () => {
   text-align: left;
   font-family: inherit;
   color: inherit;
-  transition: background 0.12s, border-color 0.12s;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
 }
-.bm-command-bot-item:hover { background: var(--b2, oklch(var(--b2))); }
+.bm-command-bot-item:hover {
+  background: var(--b2, oklch(var(--b2)));
+}
 .bm-command-bot-item.active {
   background: color-mix(in oklch, var(--bm-amber) 10%, var(--b2, white));
   border-color: var(--bm-amber);
@@ -854,7 +908,10 @@ onMounted(async () => {
   border: 2px solid var(--bm-amber);
 }
 
-.bm-bot-hero-info { flex: 1; min-width: 0; }
+.bm-bot-hero-info {
+  flex: 1;
+  min-width: 0;
+}
 
 .bm-bot-hero-name {
   font-size: 1.5rem;
@@ -908,7 +965,9 @@ onMounted(async () => {
   font-family: inherit;
   color: inherit;
   cursor: pointer;
-  transition: border-color 0.12s, background 0.12s;
+  transition:
+    border-color 0.12s,
+    background 0.12s;
 }
 .bm-chip:hover {
   border-color: var(--bm-amber);
@@ -1068,14 +1127,24 @@ onMounted(async () => {
   font-family: inherit;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.12s, border-color 0.12s, opacity 0.12s, transform 0.1s;
+  transition:
+    background 0.12s,
+    border-color 0.12s,
+    opacity 0.12s,
+    transform 0.1s;
   padding: 0.5rem 1rem;
   font-size: 0.85rem;
   line-height: 1;
   white-space: nowrap;
 }
-.bm-btn:active { transform: scale(0.97); }
-.bm-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.bm-btn:active {
+  transform: scale(0.97);
+}
+.bm-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
 
 .bm-btn-primary {
   background: var(--bm-amber);
@@ -1091,7 +1160,9 @@ onMounted(async () => {
   border-color: var(--b3, oklch(var(--b3)));
   color: inherit;
 }
-.bm-btn-secondary:hover { background: var(--b3, oklch(var(--b3))); }
+.bm-btn-secondary:hover {
+  background: var(--b3, oklch(var(--b3)));
+}
 
 .bm-btn-ghost {
   background: transparent;
@@ -1099,11 +1170,23 @@ onMounted(async () => {
   color: inherit;
   opacity: 0.65;
 }
-.bm-btn-ghost:hover { opacity: 1; background: var(--b2, oklch(var(--b2))); }
+.bm-btn-ghost:hover {
+  opacity: 1;
+  background: var(--b2, oklch(var(--b2)));
+}
 
-.bm-btn-sm  { padding: 0.35rem 0.75rem; font-size: 0.78rem; }
-.bm-btn-xs  { padding: 0.25rem 0.55rem; font-size: 0.72rem; }
-.bm-btn-full { width: 100%; justify-content: center; }
+.bm-btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+}
+.bm-btn-xs {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.72rem;
+}
+.bm-btn-full {
+  width: 100%;
+  justify-content: center;
+}
 
 /* ── Select ────────────────────────────────────────────────── */
 .bm-select {
@@ -1117,7 +1200,9 @@ onMounted(async () => {
   cursor: pointer;
   outline: none;
 }
-.bm-select:focus { border-color: var(--bm-amber); }
+.bm-select:focus {
+  border-color: var(--bm-amber);
+}
 
 /* ── Loading overlay ───────────────────────────────────────── */
 .bm-loading-overlay {
@@ -1143,21 +1228,53 @@ onMounted(async () => {
   animation: bm-spin 0.7s linear infinite;
 }
 
-@keyframes bm-spin { to { transform: rotate(360deg); } }
+@keyframes bm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .bm-fade-enter-active,
-.bm-fade-leave-active { transition: opacity 0.2s; }
+.bm-fade-leave-active {
+  transition: opacity 0.2s;
+}
 .bm-fade-enter-from,
-.bm-fade-leave-to { opacity: 0; }
+.bm-fade-leave-to {
+  opacity: 0;
+}
 
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .bm-command { flex-direction: column; }
-  .bm-command-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--b3, oklch(var(--b3))); max-height: 10rem; }
-  .bm-command-bot-list { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; flex: unset; padding: 0.25rem 0.5rem; }
-  .bm-command-bot-item { flex-direction: column; min-width: 4.5rem; padding: 0.5rem; }
-  .bm-command-bot-name { font-size: 0.65rem; text-align: center; }
-  .bm-tab-label { display: none; }
-  .bm-tab-icon { font-size: 1.1rem; }
+  .bm-command {
+    flex-direction: column;
+  }
+  .bm-command-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--b3, oklch(var(--b3)));
+    max-height: 10rem;
+  }
+  .bm-command-bot-list {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    flex: unset;
+    padding: 0.25rem 0.5rem;
+  }
+  .bm-command-bot-item {
+    flex-direction: column;
+    min-width: 4.5rem;
+    padding: 0.5rem;
+  }
+  .bm-command-bot-name {
+    font-size: 0.65rem;
+    text-align: center;
+  }
+  .bm-tab-label {
+    display: none;
+  }
+  .bm-tab-icon {
+    font-size: 1.1rem;
+  }
 }
 </style>

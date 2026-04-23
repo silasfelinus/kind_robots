@@ -5,12 +5,10 @@
       <button
         v-if="canScrollLeft && !isEditing"
         type="button"
-        class="absolute left-0 top-0 z-10 h-full w-8 pointer-events-none flex items-center justify-start pl-1 bg-linear-to-r from-base-100/70 to-transparent md:static md:pointer-events-auto md:w-3 md:shrink-0 md:justify-center md:rounded-2xl md:bg-transparent md:pl-0 md:hover:bg-base-300/80 lg:w-5 xl:w-auto xl:aspect-square transition"
+        class="absolute left-0 top-0 z-10 h-full w-8 pointer-events-none flex items-center justify-start pl-1 bg-linear-to-r from-base-100/70 to-transparent md:static md:pointer-events-auto md:h-full md:w-7 md:shrink-0 md:justify-center md:pl-0 md:rounded-xl md:bg-transparent md:hover:bg-base-300/80 transition"
         @click="scrollByStep(-1)"
       >
-        <div
-          class="flex items-center justify-center overflow-hidden h-5 w-5 md:h-[65%] md:w-[65%]"
-        >
+        <div class="flex items-center justify-center overflow-hidden h-5 w-5">
           <Icon
             name="kind-icon:chevron-left"
             class="force-fill h-full w-full"
@@ -273,12 +271,10 @@
       <button
         v-if="canScrollRight && !isEditing"
         type="button"
-        class="absolute right-0 top-0 z-10 h-full w-8 pointer-events-none flex items-center justify-end pr-1 bg-linear-to-l from-base-100/70 to-transparent md:static md:pointer-events-auto md:w-3 md:shrink-0 md:justify-center md:rounded-2xl md:bg-transparent md:pr-0 md:hover:bg-base-300/80 lg:w-5 xl:w-auto xl:aspect-square transition"
+        class="absolute right-0 top-0 z-10 h-full w-8 pointer-events-none flex items-center justify-end pr-1 bg-linear-to-l from-base-100/70 to-transparent md:static md:pointer-events-auto md:h-full md:w-7 md:shrink-0 md:justify-center md:pr-0 md:rounded-xl md:bg-transparent md:hover:bg-base-300/80 transition"
         @click="scrollByStep(1)"
       >
-        <div
-          class="flex items-center justify-center overflow-hidden h-5 w-5 md:h-[65%] md:w-[65%]"
-        >
+        <div class="flex items-center justify-center overflow-hidden h-5 w-5">
           <Icon
             name="kind-icon:chevron-right"
             class="force-fill h-full w-full"

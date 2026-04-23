@@ -1,40 +1,40 @@
 <!-- /components/navigation/footer-selector.vue -->
 <template>
-  <div class="relative">
-    <!-- LOCK TOGGLE — floated outside flex, top-right corner -->
+  <div
+    class="flex h-full w-full items-stretch gap-2 rounded-2xl border border-base-300 bg-base-100/80 p-2"
+  >
     <button
       type="button"
-      class="absolute -top-3 -right-3 z-20 flex h-7 w-7 items-center justify-center rounded-lg border border-base-300 bg-base-100/90 shadow-sm transition hover:scale-110 hover:bg-base-200"
-      @click="toggleLock"
-      :title="isLocked ? 'Locked to page' : 'Navigate on change'"
+      class="flex h-full w-12 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300"
+      aria-label="Previous footer component"
+      @click="showPrevious"
     >
-      <icon
-        :name="isLocked ? 'kind-icon:lock' : 'kind-icon:house'"
-        class="h-3.5 w-3.5"
-      />
+      <icon name="kind-icon:chevron-left" class="h-5 w-5" />
     </button>
 
     <div
-      class="flex h-full w-full items-stretch gap-2 rounded-2xl border border-base-300 bg-base-100/80 p-2"
+      class="min-w-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200/60"
     >
+      <component :is="activeComponent" class="h-full w-full" />
+    </div>
+
+    <!-- Right column: lock toggle above next chevron -->
+    <div class="flex w-12 shrink-0 flex-col items-center justify-center gap-1">
       <button
         type="button"
-        class="flex h-full w-12 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300"
-        aria-label="Previous footer component"
-        @click="showPrevious"
+        class="flex h-8 w-full items-center justify-center rounded-xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300"
+        @click="toggleLock"
+        :title="isLocked ? 'Locked to page' : 'Navigate on change'"
       >
-        <icon name="kind-icon:chevron-left" class="h-5 w-5" />
+        <icon
+          :name="isLocked ? 'kind-icon:lock' : 'kind-icon:house'"
+          class="h-4 w-4"
+        />
       </button>
 
-      <div
-        class="min-w-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200/60"
-      >
-        <component :is="activeComponent" class="h-full w-full" />
-      </div>
-
       <button
         type="button"
-        class="flex h-full w-12 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300"
+        class="flex flex-1 w-full items-center justify-center rounded-2xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300"
         aria-label="Next footer component"
         @click="showNext"
       >

@@ -215,46 +215,6 @@
         </div>
       </div>
     </section>
-
-    <section
-      class="rounded-2xl border border-base-content bg-base-200 p-4 shadow-md"
-    >
-      <h2 class="mb-4 text-xl font-bold">🌈 Default Themes</h2>
-
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <magic-container
-          v-for="theme in themeStore.daisyuiThemes"
-          :key="theme"
-          :data-theme="theme"
-          class="cursor-pointer rounded-xl border p-4 text-center shadow-sm transition-all hover:ring hover:ring-primary"
-          @click="applyBuiltInTheme(theme)"
-        >
-          <div class="text-lg font-mono">{{ theme }}</div>
-        </magic-container>
-      </div>
-    </section>
-
-    <section
-      v-if="themeStore.sharedThemes.length"
-      class="rounded-2xl border border-base-content bg-base-200 p-4 shadow-md"
-    >
-      <h2 class="mb-4 text-xl font-bold">🌍 Shared Themes</h2>
-
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <magic-container
-          v-for="theme in themeStore.sharedThemes"
-          :key="theme.id"
-          :style="getPreviewCardStyle(getSafeThemeValues(theme.values))"
-          class="cursor-pointer rounded-xl border p-4 shadow-sm transition-all hover:ring hover:ring-secondary"
-          @click="applySharedTheme(theme)"
-        >
-          <div class="font-mono text-lg">{{ theme.name }}</div>
-          <div class="mt-1 text-sm opacity-80">
-            {{ theme.tagline || 'Shared custom theme' }}
-          </div>
-        </magic-container>
-      </div>
-    </section>
   </div>
 </template>
 

@@ -40,26 +40,16 @@
               </div>
             </div>
           </div>
-
-          <div class="flex shrink-0 items-center gap-2">
-            <div
-              class="h-6 w-6 rounded-full border border-base-300"
-              :style="{
-                background: currentButterfly.wingTopColor || 'transparent',
-              }"
-            />
-            <div
-              class="h-6 w-6 rounded-full border border-base-300"
-              :style="{
-                background: currentButterfly.wingBottomColor || 'transparent',
-              }"
-            />
-          </div>
         </div>
       </div>
 
       <div class="min-h-0 flex-1 overflow-y-auto p-4">
         <div class="grid grid-cols-1 gap-3 xl:grid-cols-2">
+          <div
+            class="rounded-2xl border border-base-300 bg-base-100 p-1 xl:col-span-2"
+          >
+            <butterfly-demo class="h-64 w-full" />
+          </div>
           <div
             class="rounded-2xl border border-base-300 bg-base-100 p-3 xl:col-span-2"
           >

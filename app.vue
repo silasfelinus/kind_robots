@@ -1,21 +1,18 @@
-<!-- /app.vue -->
 <template>
   <div class="relative min-h-screen w-full overflow-hidden bg-base-100">
-    <div class="pointer-events-none fixed inset-0 z-40">
-      <div class="pointer-events-auto h-full w-full">
-        <kind-loader />
-      </div>
+    <div v-if="showLoader" class="fixed inset-0 z-40 pointer-events-none">
+      <kind-loader @pageReady="handlePageReady" />
     </div>
 
     <div class="pointer-events-none fixed inset-0 z-50">
-      <div class="pointer-events-auto">
+      <div class="pointer-events-auto h-full w-full">
         <milestone-popup />
       </div>
     </div>
 
     <div
       v-if="isNavigating"
-      class="fixed inset-0 z-45 flex items-center justify-center animate-fade-in"
+      class="fixed inset-0 z-50 flex items-center justify-center animate-fade-in"
     >
       <div class="loading loading-dots loading-lg text-primary" />
     </div>
@@ -47,10 +44,15 @@ const userStore = useUserStore()
 const themeStore = useThemeStore()
 
 const isNavigating = ref(false)
+const showLoader = ref(true)
 
 let removeAfter: (() => void) | null = null
 let removeBefore: (() => void) | null = null
 let navigationTimer: ReturnType<typeof setTimeout> | null = null
+
+function handlePageReady() {
+  showLoader.value = false
+}
 
 onMounted(async () => {
   removeBefore = router.beforeEach(() => {
@@ -62,18 +64,30 @@ onMounted(async () => {
   })
 
   removeAfter = router.afterEach(() => {
-    if (navigationTimer) clearTimeout(navigationTimer)
+    if (navigationTimer) {
+      clearTimeout(navigationTimer)
+    }
+
     navigationTimer = setTimeout(() => {
       isNavigating.value = false
       navigationTimer = null
     }, 450)
   })
 
-  if (!displayStore.isInitialized) displayStore.initialize()
+  if (!displayStore.isInitialized) {
+    displayStore.initialize()
+  }
+
   layoutStore.initializeStore()
   pageStore.initialize()
-  if (!userStore.initialized) await userStore.initialize()
-  if (!themeStore.initialized) await themeStore.initialize()
+
+  if (!userStore.initialized) {
+    await userStore.initialize()
+  }
+
+  if (!themeStore.initialized) {
+    await themeStore.initialize()
+  }
 })
 
 onUnmounted(() => {
@@ -81,6 +95,7 @@ onUnmounted(() => {
     clearTimeout(navigationTimer)
     navigationTimer = null
   }
+
   removeBefore?.()
   removeAfter?.()
 })

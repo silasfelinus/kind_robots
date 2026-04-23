@@ -1,4 +1,3 @@
-<!-- /components/content/story/kind-loader.vue -->
 <template>
   <div v-if="showOverlay || !pageReadyEmitted" class="loader-root">
     <butterfly-layer
@@ -148,9 +147,5 @@ onBeforeUnmount(() => {
   inset: 0;
   z-index: 40;
   pointer-events: none;
-}
-
-.loader-root > * {
-  pointer-events: auto;
 }
 </style>

@@ -1,6 +1,7 @@
-<!-- /components/content/butterfly/butterfly-layer.vue -->
 <template>
+  <!-- /components/content/butterfly/butterfly-layer.vue -->
   <div
+    v-if="showSwarm"
     class="butterfly-layer"
     :class="{
       'butterfly-layer--overlay': overlayVisible,
@@ -37,8 +38,8 @@
 
 <script setup lang="ts">
 // /components/content/butterfly/butterfly-layer.vue
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { onBeforeUnmount, onMounted, watch } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
 const props = withDefaults(
@@ -69,6 +70,8 @@ const butterflyStore = useButterflyStore()
 const storeApi = butterflyStore as unknown as ButterflyStoreLike
 const { butterflies } = storeToRefs(butterflyStore)
 
+const showSwarm = computed(() => butterflyStore.showSwarm)
+
 let exitIntervalId: ReturnType<typeof setInterval> | null = null
 
 function spawnInitialButterflies() {
@@ -76,7 +79,6 @@ function spawnInitialButterflies() {
     storeApi.spawnLoaderButterflies(20)
     return
   }
-
   if (storeApi.spawnButterflies) {
     storeApi.spawnButterflies(20)
   }
@@ -87,17 +89,14 @@ function sendOneButterflyOut() {
     storeApi.signalRandomButterflyExit()
     return
   }
-
   if (storeApi.sendRandomButterflyOffscreen) {
     storeApi.sendRandomButterflyOffscreen()
     return
   }
-
   if (storeApi.triggerRandomExit) {
     storeApi.triggerRandomExit()
     return
   }
-
   if (storeApi.removeRandomButterfly) {
     storeApi.removeRandomButterfly()
   }
@@ -105,17 +104,14 @@ function sendOneButterflyOut() {
 
 function startExitSequence() {
   if (exitIntervalId) return
-
   if (storeApi.releaseButterflies) {
     storeApi.releaseButterflies()
   }
-
   exitIntervalId = setInterval(() => {
     if (!butterflies.value.length) {
       stopExitSequence()
       return
     }
-
     sendOneButterflyOut()
   }, 260)
 }
@@ -130,11 +126,9 @@ onMounted(async () => {
   if (!storeApi.initialized && storeApi.initialize) {
     await storeApi.initialize()
   }
-
   if (!butterflies.value.length) {
     spawnInitialButterflies()
   }
-
   if (props.beginExit) {
     startExitSequence()
   }
@@ -147,7 +141,6 @@ watch(
       startExitSequence()
       return
     }
-
     stopExitSequence()
   },
 )
@@ -194,7 +187,6 @@ onBeforeUnmount(() => {
 .butterfly-layer--overlay {
   z-index: 84;
 }
-
 .butterfly-layer--released {
   z-index: 5;
 }

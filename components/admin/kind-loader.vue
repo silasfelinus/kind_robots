@@ -1,9 +1,6 @@
 <template>
   <div v-if="showOverlay || !pageReadyEmitted" class="loader-root">
-    <butterfly-layer
-      :begin-exit="beginButterflyExit"
-      :overlay-visible="showOverlay"
-    />
+    <butterfly-layer :begin-exit="false" />
 
     <loading-messages
       v-if="showOverlay"
@@ -67,7 +64,6 @@ const emit = defineEmits<{
 }>()
 
 const showOverlay = ref(true)
-const beginButterflyExit = ref(false)
 const storesReady = ref(false)
 const pageReadyEmitted = ref(false)
 
@@ -80,7 +76,6 @@ function emitReadyOnce() {
 function handleOverlayHidden() {
   if (!showOverlay.value) return
   showOverlay.value = false
-  beginButterflyExit.value = true
   emitReadyOnce()
 }
 

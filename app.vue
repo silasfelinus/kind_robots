@@ -4,10 +4,8 @@
       <kind-loader @pageReady="handlePageReady" />
     </div>
 
-    <div class="pointer-events-none fixed inset-0 z-50">
-      <div class="pointer-events-auto h-full w-full">
-        <milestone-popup />
-      </div>
+    <div class="fixed inset-0 z-50">
+      <milestone-popup />
     </div>
 
     <div

@@ -5,11 +5,11 @@
       <button
         v-if="canScrollLeft && !isEditing"
         type="button"
-        class="shrink-0 flex h-full aspect-square items-center justify-center rounded-2xl hover:bg-base-300/80 transition"
+        class="absolute left-0 top-0 z-10 h-full w-8 pointer-events-none flex items-center justify-start pl-1 bg-linear-to-r from-base-100/70 to-transparent md:static md:pointer-events-auto md:w-3 md:shrink-0 md:justify-center md:rounded-2xl md:bg-transparent md:pl-0 md:hover:bg-base-300/80 lg:w-5 xl:w-auto xl:aspect-square transition"
         @click="scrollByStep(-1)"
       >
         <div
-          class="flex h-[65%] w-[65%] items-center justify-center overflow-hidden"
+          class="flex items-center justify-center overflow-hidden h-5 w-5 md:h-[65%] md:w-[65%]"
         >
           <Icon
             name="kind-icon:chevron-left"
@@ -121,18 +121,18 @@
           <div
             v-for="(icon, index) in rowIcons"
             :key="icon.id"
-            class="flex h-full aspect-square items-stretch justify-center shrink-0 text-base-content"
+            class="relative flex h-full aspect-square items-stretch justify-center shrink-0 text-base-content hover:z-10"
             :draggable="isEditing"
             @dragstart="smartbarStore.startDrag(index)"
             @dragover.prevent
             @drop="smartbarStore.dropIcon(index)"
           >
             <div
-              class="flex h-full w-full min-h-0 flex-col items-center justify-center overflow-hidden rounded-2xl"
+              class="flex h-full w-full min-h-0 flex-col items-center justify-center rounded-2xl"
               :class="isEditing ? 'border border-base-300' : ''"
             >
               <div
-                class="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden"
+                class="flex-1 min-h-0 w-full flex items-center justify-center"
               >
                 <div
                   v-if="isEditing"
@@ -273,11 +273,11 @@
       <button
         v-if="canScrollRight && !isEditing"
         type="button"
-        class="shrink-0 flex h-full aspect-square items-center justify-center rounded-2xl hover:bg-base-300/80 transition"
+        class="absolute right-0 top-0 z-10 h-full w-8 pointer-events-none flex items-center justify-end pr-1 bg-linear-to-l from-base-100/70 to-transparent md:static md:pointer-events-auto md:w-3 md:shrink-0 md:justify-center md:rounded-2xl md:bg-transparent md:pr-0 md:hover:bg-base-300/80 lg:w-5 xl:w-auto xl:aspect-square transition"
         @click="scrollByStep(1)"
       >
         <div
-          class="flex h-[65%] w-[65%] items-center justify-center overflow-hidden"
+          class="flex items-center justify-center overflow-hidden h-5 w-5 md:h-[65%] md:w-[65%]"
         >
           <Icon
             name="kind-icon:chevron-right"

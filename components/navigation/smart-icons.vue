@@ -84,7 +84,7 @@
                   class="flex min-h-0 flex-1 w-full items-center justify-center overflow-hidden"
                 >
                   <component
-                    :is="icon.component"
+                    :is="resolvedPrependComponent(icon.component)"
                     class="prepend-icon h-full w-full"
                     :class="icon.color"
                   />
@@ -364,6 +364,10 @@ function computedLabel(icon: SmartIcon): string {
     default:
       return icon.label || ''
   }
+}
+
+function resolvedPrependComponent(componentName: string) {
+  return componentMap[componentName] || componentName
 }
 
 const scrollContainer = ref<HTMLElement | null>(null)

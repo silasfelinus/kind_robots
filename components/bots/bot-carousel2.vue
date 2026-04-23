@@ -5,7 +5,7 @@
   >
     <!-- Background Gradient -->
     <div
-      class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
+      class="absolute inset-0 bg-linear-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
     />
 
     <h1

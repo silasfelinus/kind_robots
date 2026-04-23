@@ -230,129 +230,25 @@
       <div
         class="grid h-full w-full min-h-0 grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] gap-3 overflow-hidden"
       >
-        <section
-          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-        >
-          <div
-            class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3 py-2"
-          >
-            <span class="text-sm font-semibold">Bot Carousel</span>
-            <span class="badge badge-outline text-xs">{{ bots.length }}</span>
-          </div>
-
-          <div class="shrink-0 border-b border-base-300 p-3">
-            <div
-              v-if="botStore.currentBot"
-              class="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-3"
-            >
-              <img
-                :src="botStore.currentBot.avatarImage || '/images/bot.webp'"
-                :alt="botStore.currentBot.name || 'Bot'"
-                class="h-16 w-16 shrink-0 rounded-2xl border border-base-300 object-cover"
-              />
-              <div class="min-w-0 flex-1">
-                <div class="truncate text-base font-bold">
-                  {{ botStore.currentBot.name || 'Unnamed Bot' }}
-                </div>
-                <div
-                  v-if="botStore.currentBot.subtitle"
-                  class="truncate text-xs italic text-base-content/55"
-                >
-                  {{ botStore.currentBot.subtitle }}
-                </div>
-                <div
-                  class="line-clamp-2 text-xs leading-relaxed text-base-content/60"
-                >
-                  {{ botStore.currentBot.description || 'A bot of mystery.' }}
-                </div>
-              </div>
-              <button
-                type="button"
-                class="btn btn-xs btn-ghost shrink-0"
-                @click="clearSelectedBot"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div
-              v-else
-              class="rounded-2xl border border-dashed border-base-300 bg-base-200/60 px-3 py-4 text-sm text-base-content/40"
-            >
-              Pick a bot from the carousel.
-            </div>
-          </div>
-
-          <div class="min-h-0 flex-1 overflow-hidden p-3">
-            <div class="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
-              <div class="shrink-0">
-                <div
-                  class="mb-2 text-[10px] font-semibold uppercase tracking-wide text-base-content/40"
-                >
-                  Scroll
-                </div>
-                <div class="flex gap-2 overflow-x-auto pb-2">
-                  <button
-                    v-for="bot in bots"
-                    :key="`priority-rail-${bot.id}`"
-                    type="button"
-                    class="flex w-24 shrink-0 flex-col items-center gap-2 rounded-2xl border p-2 text-center transition"
-                    :class="
-                      botStore.currentBot?.id === bot.id
-                        ? 'border-primary bg-primary/10'
-                        : 'border-base-300 bg-base-100 hover:bg-base-200'
-                    "
-                    @click="selectBot(bot.id)"
-                  >
-                    <img
-                      :src="bot.avatarImage || '/images/bot.webp'"
-                      :alt="bot.name || 'Bot'"
-                      class="h-14 w-14 rounded-2xl border border-base-300 object-cover"
-                    />
-                    <div class="w-full truncate text-xs font-semibold">
-                      {{ bot.name || 'Unnamed' }}
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              <div class="min-h-0 flex-1 overflow-y-auto">
-                <div class="grid grid-cols-1 gap-2">
-                  <button
-                    v-for="bot in bots"
-                    :key="`priority-card-${bot.id}`"
-                    type="button"
-                    class="flex w-full items-center gap-2.5 rounded-2xl border px-3 py-2 text-left transition"
-                    :class="
-                      botStore.currentBot?.id === bot.id
-                        ? 'border-primary bg-primary/10'
-                        : 'border-base-300 bg-base-100 hover:bg-base-200'
-                    "
-                    @click="selectBot(bot.id)"
-                  >
-                    <img
-                      :src="bot.avatarImage || '/images/bot.webp'"
-                      :alt="bot.name || 'Bot'"
-                      class="h-10 w-10 shrink-0 rounded-xl border border-base-300 object-cover"
-                    />
-                    <div class="min-w-0 flex-1">
-                      <div class="truncate text-sm font-semibold">
-                        {{ bot.name || 'Unnamed Bot' }}
-                      </div>
-                      <div class="truncate text-xs text-base-content/55">
-                        {{ bot.description || '—' }}
-                      </div>
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+        <!-- LEFT: Bot Carousel -->
+        <section class="min-h-0 overflow-hidden">
+          <bot-carousel
+            title="Bot Carousel"
+            subtitle="Browse and select a bot"
+            :show-hero="true"
+            :show-rail="true"
+            :show-expanded-panel="false"
+            :show-edit-actions="false"
+            :compact-cards="true"
+            @selected="selectBot"
+          />
         </section>
 
+        <!-- RIGHT: Bot Info + Composer -->
         <section
           class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
         >
+          <!-- Bot Info -->
           <div class="border-b border-base-300 px-4 py-3">
             <template v-if="botStore.currentBot">
               <div class="flex items-start gap-3">
@@ -361,16 +257,19 @@
                   :alt="botStore.currentBot.name || 'Bot'"
                   class="h-20 w-20 shrink-0 rounded-2xl border border-base-300 object-cover"
                 />
+
                 <div class="min-w-0 flex-1">
                   <div class="truncate text-lg font-bold">
                     {{ botStore.currentBot.name || 'Unnamed Bot' }}
                   </div>
+
                   <div
                     v-if="botStore.currentBot.subtitle"
                     class="truncate text-sm italic text-base-content/55"
                   >
                     {{ botStore.currentBot.subtitle }}
                   </div>
+
                   <div
                     class="mt-1 text-sm leading-relaxed text-base-content/70"
                   >
@@ -397,11 +296,13 @@
             </div>
           </div>
 
+          <!-- Composer -->
           <div class="flex min-h-0 flex-col overflow-hidden">
             <div
               class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-4 py-2"
             >
               <span class="text-sm font-semibold">Opening Message</span>
+
               <div class="flex items-center gap-1.5">
                 <button
                   type="button"
@@ -410,6 +311,7 @@
                 >
                   Starter
                 </button>
+
                 <button
                   type="button"
                   class="btn btn-xs btn-ghost"
@@ -417,6 +319,7 @@
                 >
                   Weird
                 </button>
+
                 <button
                   type="button"
                   class="btn btn-xs btn-ghost"
@@ -436,6 +339,7 @@
             />
           </div>
 
+          <!-- Footer Actions -->
           <div class="border-t border-base-300 bg-base-200/60 px-4 py-3">
             <div class="flex items-end justify-between gap-3">
               <div class="min-w-0 flex-1">
@@ -444,12 +348,14 @@
                 >
                   Preview
                 </div>
+
                 <p
                   v-if="launchMessage.trim()"
                   class="line-clamp-3 text-sm leading-relaxed text-base-content/65"
                 >
                   {{ launchMessage }}
                 </p>
+
                 <p v-else class="text-sm text-base-content/35">
                   Your opening prompt preview will show here.
                 </p>

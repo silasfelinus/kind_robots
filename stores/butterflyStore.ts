@@ -115,6 +115,51 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   const userCaughtIds = ref<Set<number>>(new Set())
   const inspectedButterfly = ref<Butterfly | null>(null)
 
+  function clearRandomButterfly() {
+    if (!butterflies.value.length) return
+
+    const butterfly =
+      butterflies.value[Math.floor(Math.random() * butterflies.value.length)]
+
+    if (!butterfly) return
+    removeButterflyById(butterfly.id)
+  }
+
+  function clearAllButterflies() {
+    stopDrain()
+    butterflies.value = []
+    selectedButterflyId.value = ''
+  }
+
+  function sendRandomButterflyAway() {
+    const available = butterflies.value.filter((b) => !b.isExiting)
+    if (!available.length) return
+
+    const butterfly = available[Math.floor(Math.random() * available.length)]
+    if (!butterfly) return
+
+    sendButterflyAway(butterfly)
+  }
+
+  function sendAllButterfliesAway() {
+    butterflies.value.forEach((butterfly) => {
+      if (!butterfly.isExiting) {
+        markButterflyForExit(butterfly)
+      }
+    })
+
+    selectedButterflyId.value =
+      butterflies.value.find((b) => !b.isExiting)?.id || ''
+  }
+
+  function clearButterflies() {
+    clearAllButterflies()
+  }
+
+  function removeRandomButterfly() {
+    sendRandomButterflyAway()
+  }
+
   function hydrateButterfly(db: DbButterfly): Butterfly {
     const baseZIndex = 50
 
@@ -157,6 +202,50 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       'bottom',
     ]
     return sides[Math.floor(Math.random() * sides.length)] || 'right'
+  }
+
+  function animateButterflies() {
+    if (animationFrameId.value !== null) return
+
+    animationPaused.value = false
+
+    const animate = () => {
+      const next = butterflies.value.filter((butterfly) => {
+        updateButterflyPosition(butterfly)
+        return !(butterfly.isExiting && isOutsideRemovalBounds(butterfly))
+      })
+
+      if (
+        selectedButterflyId.value &&
+        !next.some((butterfly) => butterfly.id === selectedButterflyId.value)
+      ) {
+        selectedButterflyId.value =
+          next.find((butterfly) => !butterfly.isExiting)?.id || ''
+      }
+
+      butterflies.value = next
+      animationFrameId.value = requestAnimationFrame(animate)
+    }
+
+    animationFrameId.value = requestAnimationFrame(animate)
+  }
+
+  function pauseAnimation() {
+    if (animationFrameId.value === null) return
+
+    cancelAnimationFrame(animationFrameId.value)
+    animationFrameId.value = null
+    animationPaused.value = true
+  }
+
+  function resetButterflyLayer() {
+    pauseAnimation()
+    stopDrain()
+    destroyToggleButterflies()
+    butterflies.value = []
+    selectedButterflyId.value = ''
+    animationPaused.value = false
+    animateButterflies()
   }
 
   function markButterflyForExit(butterfly: Butterfly) {
@@ -716,33 +805,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     removeButterflyById(id)
   }
 
-  function clearRandomButterfly() {
-    const available = butterflies.value.filter((b) => !isToggleButterfly(b))
-    if (!available.length) return
-
-    const butterfly = available[Math.floor(Math.random() * available.length)]
-    if (!butterfly) return
-
-    removeButterflyById(butterfly.id)
-  }
-
-  function clearAllButterflies() {
-    const preserved = butterflies.value.filter((butterfly) =>
-      isToggleButterfly(butterfly),
-    )
-    butterflies.value = [...preserved]
-
-    if (
-      selectedButterflyId.value &&
-      !butterflies.value.some(
-        (butterfly) => butterfly.id === selectedButterflyId.value,
-      )
-    ) {
-      selectedButterflyId.value =
-        butterflies.value.find((b) => !b.isExiting)?.id || ''
-    }
-  }
-
   function sendButterflyAway(butterfly: Butterfly) {
     markButterflyForExit(butterfly)
 
@@ -750,54 +812,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       selectedButterflyId.value =
         butterflies.value.find((b) => !b.isExiting && b.id !== butterfly.id)
           ?.id || ''
-    }
-  }
-
-  function sendRandomButterflyAway() {
-    const available = butterflies.value.filter(
-      (b) => !b.isExiting && !isToggleButterfly(b),
-    )
-    if (!available.length) return
-
-    const butterfly = available[Math.floor(Math.random() * available.length)]
-    if (!butterfly) return
-
-    sendButterflyAway(butterfly)
-  }
-
-  function sendAllButterfliesAway() {
-    butterflies.value.forEach((butterfly) => {
-      if (butterfly.isExiting) return
-      if (isToggleButterfly(butterfly)) return
-      markButterflyForExit(butterfly)
-    })
-
-    if (
-      selectedButterflyId.value &&
-      butterflies.value.some(
-        (butterfly) =>
-          butterfly.id === selectedButterflyId.value && butterfly.isExiting,
-      )
-    ) {
-      selectedButterflyId.value =
-        butterflies.value.find((b) => !b.isExiting)?.id || ''
-    }
-  }
-
-  function clearButterflies() {
-    clearAllButterflies()
-  }
-
-  function removeRandomButterfly() {
-    sendRandomButterflyAway()
-  }
-
-  async function summonSwarm(amount = 20) {
-    try {
-      stopDrain()
-      await addButterflies(amount)
-    } catch (error) {
-      addError(ErrorType.STORE_ERROR, error)
     }
   }
 
@@ -965,35 +979,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     )
   }
 
-  function animateButterflies() {
-    const animate = () => {
-      const next: Butterfly[] = []
-
-      for (const butterfly of butterflies.value) {
-        updateButterflyPosition(butterfly)
-
-        if (butterfly.isExiting && isOutsideRemovalBounds(butterfly)) {
-          continue
-        }
-
-        next.push(butterfly)
-      }
-
-      if (
-        selectedButterflyId.value &&
-        !next.some((b) => b.id === selectedButterflyId.value)
-      ) {
-        selectedButterflyId.value = next.find((b) => !b.isExiting)?.id || ''
-      }
-
-      butterflies.value = next
-
-      animationFrameId.value = requestAnimationFrame(animate)
-    }
-
-    animate()
-  }
-
   function destroyToggleButterflies() {
     Object.values(toggleStates.value).forEach((state) => {
       if (state?.returnTimeoutId) {
@@ -1012,14 +997,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
     if (typeof window !== 'undefined') {
       window.removeEventListener('resize', syncToggleAnchors)
-    }
-  }
-
-  function pauseAnimation() {
-    if (animationFrameId.value !== null) {
-      cancelAnimationFrame(animationFrameId.value)
-      animationPaused.value = true
-      animationFrameId.value = null
     }
   }
 
@@ -1193,7 +1170,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     discoveryButterfly,
     clearDiscovery,
     spawnStartupSwarm,
-    summonSwarm,
     toggleSwarm,
 
     usedNames,
@@ -1237,6 +1213,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     initGame,
     recordCapture,
     setInspected,
+    resetButterflyLayer,
 
     createNewButterfly,
     clampToTwoDecimals,
@@ -1253,6 +1230,14 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     isToggleButterfly,
     showSwarm,
     setShowSwarm,
+    sendAllButterfliesAway,
+
+    clearRandomButterfly,
+    clearAllButterflies,
+    sendRandomButterflyAway,
+    sendButterflyAway,
+    clearButterflyById,
+    markAllButterfliesForExit,
   }
 })
 

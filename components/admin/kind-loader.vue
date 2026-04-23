@@ -1,6 +1,6 @@
 <template>
   <div v-if="showOverlay || !pageReadyEmitted" class="loader-root">
-    <butterfly-layer :begin-exit="false" />
+ 
 
     <loading-messages
       v-if="showOverlay"

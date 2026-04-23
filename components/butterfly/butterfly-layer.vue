@@ -14,7 +14,6 @@
       :style="{
         left: butterfly.x + '%',
         top: butterfly.y + '%',
-        zIndex: 50,
         transform: `rotate3d(1, 0.5, 0, ${butterfly.rotation}deg) scale(${butterfly.scale * butterfly.scaleMod})`,
       }"
     >

@@ -16,8 +16,6 @@ layout: 'default'
 theme: retro
 navComponent: 'dashboard-nav'
 ---
-:theme-gallery
-:theme-preview
-:add-theme
+:theme-manager
 
 

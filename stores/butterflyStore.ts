@@ -51,6 +51,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   const initialized = ref(false)
   const drainIntervalId = ref<ReturnType<typeof setInterval> | null>(null)
   const drainStartTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
+  const showSwarm = ref(true)
 
   type ToggleButterflyKey =
     | 'header'
@@ -1162,6 +1163,10 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     discoveryButterfly.value = null
   }
 
+  function setShowSwarm(value: boolean) {
+    showSwarm.value = value
+  }
+
   function setInspected(butterfly: Butterfly) {
     inspectedButterfly.value = butterfly
   }
@@ -1246,6 +1251,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     handleToggleButterflyClick,
     destroyToggleButterflies,
     isToggleButterfly,
+    showSwarm,
+    setShowSwarm,
   }
 })
 

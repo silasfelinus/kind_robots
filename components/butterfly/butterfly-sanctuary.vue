@@ -16,7 +16,23 @@
       </div>
 
       <div class="ml-auto flex items-center gap-1.5">
-        <button type="button" class="btn btn-sm btn-ghost" @click="toggleNames">
+        <!-- Swarm visibility toggle -->
+        <button
+          type="button"
+          class="btn btn-sm"
+          :class="showSwarm ? 'btn-ghost' : 'btn-primary'"
+          @click="butterflyStore.setShowSwarm(!showSwarm)"
+        >
+          {{ showSwarm ? 'Hide Swarm' : 'Show Swarm' }}
+        </button>
+
+        <div class="h-5 w-px bg-base-300" />
+
+        <button
+          type="button"
+          class="btn btn-sm btn-ghost"
+          @click="butterflyStore.setShowNames(!showNames)"
+        >
           {{ showNames ? 'Hide Names' : 'Show Names' }}
         </button>
         <button
@@ -150,7 +166,6 @@
           >
             Roster
           </div>
-
           <div
             v-if="selectableButterflies.length"
             class="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto"
@@ -217,7 +232,7 @@ const butterflyStore = useButterflyStore()
 const displayStore = useDisplayStore()
 const userStore = useUserStore()
 
-const { butterflies, selectedButterflyId, showNames } =
+const { butterflies, selectedButterflyId, showNames, showSwarm } =
   storeToRefs(butterflyStore)
 
 const centerHeight = computed(() => displayStore.mainContentHeight)
@@ -226,7 +241,6 @@ const centerWidth = computed(() => displayStore.mainContentWidth)
 const selectableButterflies = computed(() =>
   butterflies.value.filter((b) => !b.isExiting),
 )
-
 const activeCount = computed(() => selectableButterflies.value.length)
 const currentButterfly = computed(() => butterflyStore.getSelectedButterfly)
 
@@ -263,7 +277,7 @@ async function summon(count: number) {
 }
 
 function removeRandom() {
-  butterflyStore.removeRandomButterfly?.()
+  butterflyStore.removeRandomButterfly()
   if (currentButterfly.value?.isExiting) {
     const next = selectableButterflies.value.find(
       (b) => b.id !== currentButterfly.value?.id,
@@ -283,10 +297,6 @@ function removeSelectedButterfly() {
 function clearButterflies() {
   butterflyStore.clearButterflies()
   selectedButterflyId.value = ''
-}
-
-function toggleNames() {
-  butterflyStore.setShowNames(!showNames.value)
 }
 
 function editSelectedButterfly() {

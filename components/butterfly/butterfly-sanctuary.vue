@@ -1,105 +1,298 @@
-<!-- /components/content/butterfly/butterfly-sanctuary.vue -->
 <template>
+  <!-- /components/content/butterfly/butterfly-sanctuary.vue -->
   <div
-    class="relative grid grid-cols-2 gap-1 md:gap-4 bg-info bg-opacity-90 border-white box-border"
+    class="flex min-h-0 flex-col overflow-hidden bg-base-200"
     :style="{ width: centerWidth, height: centerHeight }"
   >
-    <!-- Left Column: Image Area (70%) and Buttons (30%) -->
-    <div class="flex flex-col h-full p-1 md:p-4 bg-black bg-opacity-50">
-      <!-- Image Area (70% of parent height) -->
-      <div class="w-full h-[70%] relative overflow-hidden">
-        <butterfly-canvas :fallback-image="'/images/art1.webp'" />
-      </div>
-
-      <!-- Control Panel (30% of parent height) -->
-      <div class="w-full h-[30%] flex justify-center space-x-4 items-center">
-        <button class="control-btn" @click="toggleAmiSwarm">
-          {{ showSwarm ? 'Stop' : 'Start' }} Animation
-        </button>
-        <button class="control-btn" @click="addButterfly">Add Butterfly</button>
-        <button class="control-btn" @click="removeButterfly">
-          Remove Butterfly
-        </button>
-      </div>
-    </div>
-
-    <!-- Right Column: Butterfly Count (10%), Flip-Card (65%), and Demo (25%) -->
-    <div class="flex flex-col items-center h-full p-4 bg-gray-200">
-      <!-- Butterfly Count Section (10% of parent height) -->
-      <div
-        class="w-full h-[10%] text-center bg-black text-white p-2 rounded-lg"
+    <!-- ── Header bar ────────────────────────────────────────────── -->
+    <header
+      class="flex shrink-0 items-center gap-3 border-b border-base-300 bg-base-100 px-4 py-2.5"
+    >
+      <span class="text-base font-semibold tracking-tight"
+        >🦋 Butterfly Sanctuary</span
       >
-        Butterflies: {{ butterflyCount }}
+      <div class="badge badge-outline font-mono text-xs tabular-nums">
+        {{ activeCount }} active
       </div>
 
-      <!-- Butterfly Demo Section ) -->
-      <div class="w-full h-[90%] bg-info bg-opacity-80 rounded-md">
-        <butterfly-guide />
+      <div class="ml-auto flex items-center gap-1.5">
+        <button type="button" class="btn btn-sm btn-ghost" @click="toggleNames">
+          {{ showNames ? 'Hide Names' : 'Show Names' }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-warning"
+          :disabled="activeCount <= 0"
+          @click="clearButterflies"
+        >
+          Clear All
+        </button>
       </div>
+    </header>
+
+    <!-- ── Main: sidebar + guide ─────────────────────────────────── -->
+    <div class="grid min-h-0 flex-1 grid-cols-[17rem_1fr] overflow-hidden">
+      <!-- LEFT sidebar -->
+      <aside
+        class="flex min-h-0 flex-col gap-2 overflow-y-auto border-r border-base-300 bg-base-100 p-3"
+      >
+        <!-- Summon controls -->
+        <div class="shrink-0 rounded-xl border border-base-300 bg-base-200 p-3">
+          <div
+            class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/50"
+          >
+            Summon
+          </div>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button
+              type="button"
+              class="btn btn-sm btn-secondary"
+              @click="removeRandom"
+            >
+              <icon name="kind-icon:minus" class="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-primary col-span-2"
+              @click="summon(1)"
+            >
+              <icon name="kind-icon:plus" class="h-3.5 w-3.5" />+1
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost"
+              @click="summon(5)"
+            >
+              +5
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost"
+              @click="summon(10)"
+            >
+              +10
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost"
+              @click="summon(20)"
+            >
+              +20
+            </button>
+          </div>
+        </div>
+
+        <!-- Selected butterfly detail -->
+        <div class="shrink-0 rounded-xl border border-base-300 bg-base-200 p-3">
+          <div class="mb-2 flex items-center justify-between gap-2">
+            <span
+              class="text-xs font-semibold uppercase tracking-wide text-base-content/50"
+            >
+              Selected
+            </span>
+            <button
+              v-if="canEditSelected"
+              type="button"
+              class="btn btn-accent btn-xs"
+              @click="editSelectedButterfly"
+            >
+              <icon name="kind-icon:pen" class="h-3 w-3" />Edit
+            </button>
+          </div>
+
+          <template v-if="currentButterfly">
+            <div class="grid grid-cols-2 gap-1.5 text-xs">
+              <div class="col-span-2 rounded-lg bg-base-100 px-2.5 py-1.5">
+                <div class="text-base-content/40">Name</div>
+                <div class="truncate font-semibold">
+                  {{ currentButterfly.name || currentButterfly.id }}
+                </div>
+              </div>
+              <div class="rounded-lg bg-base-100 px-2.5 py-1.5">
+                <div class="text-base-content/40">Status</div>
+                <div class="font-semibold">
+                  {{ currentButterfly.status || 'random' }}
+                </div>
+              </div>
+              <div class="rounded-lg bg-base-100 px-2.5 py-1.5">
+                <div class="text-base-content/40">Z Index</div>
+                <div class="font-semibold">
+                  {{ currentButterfly.zIndex ?? '—' }}
+                </div>
+              </div>
+              <div class="col-span-2 rounded-lg bg-base-100 px-2.5 py-1.5">
+                <div class="text-base-content/40">Position</div>
+                <div class="font-semibold tabular-nums">
+                  {{ currentButterfly.x ?? '—' }},
+                  {{ currentButterfly.y ?? '—' }}
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="btn btn-outline btn-xs mt-2 w-full"
+              @click="removeSelectedButterfly"
+            >
+              Send Away
+            </button>
+          </template>
+          <p v-else class="text-xs text-base-content/40">
+            No butterfly selected.
+          </p>
+        </div>
+
+        <!-- Roster list — fills remaining sidebar height -->
+        <div
+          class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-200 p-3"
+        >
+          <div
+            class="mb-2 shrink-0 text-xs font-semibold uppercase tracking-wide text-base-content/50"
+          >
+            Roster
+          </div>
+
+          <div
+            v-if="selectableButterflies.length"
+            class="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto"
+          >
+            <button
+              v-for="butterfly in selectableButterflies"
+              :key="butterfly.id"
+              type="button"
+              class="flex w-full shrink-0 items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs transition-colors"
+              :class="
+                selectedButterflyId === butterfly.id
+                  ? 'bg-primary text-primary-content'
+                  : 'bg-base-100 hover:bg-base-300'
+              "
+              @click="selectedButterflyId = butterfly.id"
+            >
+              <span class="text-base leading-none">🦋</span>
+              <span class="min-w-0 flex-1 truncate font-medium">
+                {{ butterfly.name || butterfly.id }}
+              </span>
+              <span class="shrink-0 tabular-nums text-[10px] opacity-50">
+                {{ butterfly.x ?? '?' }},{{ butterfly.y ?? '?' }}
+              </span>
+            </button>
+          </div>
+          <p v-else class="text-xs text-base-content/40">
+            No butterflies in the swarm.
+          </p>
+        </div>
+      </aside>
+
+      <!-- RIGHT: butterfly guide -->
+      <section class="flex min-h-0 flex-col overflow-hidden">
+        <div
+          class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-4 py-2.5"
+        >
+          <span class="truncate text-sm font-semibold">
+            {{
+              currentButterfly?.name || currentButterfly?.id || 'Field Guide'
+            }}
+          </span>
+          <div
+            v-if="currentButterfly"
+            class="badge shrink-0 text-xs"
+            :class="canEditSelected ? 'badge-secondary' : 'badge-ghost'"
+          >
+            {{ canEditSelected ? 'Editable' : 'Read only' }}
+          </div>
+        </div>
+        <butterfly-guide class="min-h-0 flex-1" :empty-label="emptyLabel" />
+      </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useButterflyStore } from '@/stores/butterflyStore'
 import { useDisplayStore } from '@/stores/displayStore'
+import { useUserStore } from '@/stores/userStore'
 
-// Access the butterfly store
 const butterflyStore = useButterflyStore()
-
-// Access the display store for centerHeight and centerWidth
 const displayStore = useDisplayStore()
+const userStore = useUserStore()
+
+const { butterflies, selectedButterflyId, showNames } =
+  storeToRefs(butterflyStore)
+
 const centerHeight = computed(() => displayStore.mainContentHeight)
 const centerWidth = computed(() => displayStore.mainContentWidth)
 
-// Get butterflies count from the store
-const butterflyCount = computed(() => butterflyStore.butterflies.length)
+const selectableButterflies = computed(() =>
+  butterflies.value.filter((b) => !b.isExiting),
+)
 
-// Watch for the swarm toggle
-const showSwarm = ref(false)
-const swarmSize = ref(15) // Keeping track of the initial swarm size
+const activeCount = computed(() => selectableButterflies.value.length)
+const currentButterfly = computed(() => butterflyStore.getSelectedButterfly)
 
-// Toggle the butterfly swarm on and off
-const toggleAmiSwarm = () => {
-  showSwarm.value = !showSwarm.value
+const emptyLabel = computed(() => {
+  if (!activeCount.value) return 'No butterflies are active. Summon some!'
+  return 'Select a butterfly from the roster to open its field guide.'
+})
 
-  if (showSwarm.value) {
-    butterflyStore.generateInitialButterflies(swarmSize.value)
-    butterflyStore.animateButterflies()
-  } else {
-    butterflyStore.clearButterflies()
-    butterflyStore.pauseAnimation()
+const canEditSelected = computed(() => {
+  const butterfly = currentButterfly.value
+  if (!butterfly) return false
+  const isAdmin = userStore.isAdmin === true || userStore.role === 'ADMIN'
+  const isOwner =
+    butterfly.userId != null &&
+    userStore.userId != null &&
+    butterfly.userId === userStore.userId
+  return isAdmin || isOwner
+})
+
+onMounted(async () => {
+  if (!butterflyStore.initialized) {
+    await butterflyStore.initialize()
+  }
+  await butterflyStore.initGame()
+  if (!selectedButterflyId.value && selectableButterflies.value.length > 0) {
+    selectedButterflyId.value = selectableButterflies.value[0]?.id || ''
+  }
+})
+
+async function summon(count: number) {
+  await butterflyStore.summonSwarm(count)
+  const newest = selectableButterflies.value.at(-1)
+  if (newest) selectedButterflyId.value = newest.id
+}
+
+function removeRandom() {
+  butterflyStore.removeRandomButterfly?.()
+  if (currentButterfly.value?.isExiting) {
+    const next = selectableButterflies.value.find(
+      (b) => b.id !== currentButterfly.value?.id,
+    )
+    selectedButterflyId.value = next?.id || ''
   }
 }
 
-// Add a new butterfly
-const addButterfly = () => {
-  butterflyStore.generateInitialButterflies(1)
+function removeSelectedButterfly() {
+  const butterfly = currentButterfly.value
+  if (!butterfly) return
+  butterflyStore.markButterflyForExit(butterfly)
+  const next = selectableButterflies.value.find((b) => b.id !== butterfly.id)
+  selectedButterflyId.value = next?.id || ''
 }
 
-// Remove the last butterfly
-const removeButterfly = () => {
-  if (butterflyCount.value > 0) {
-    butterflyStore.removeLastButterfly()
-  }
+function clearButterflies() {
+  butterflyStore.clearButterflies()
+  selectedButterflyId.value = ''
+}
+
+function toggleNames() {
+  butterflyStore.setShowNames(!showNames.value)
+}
+
+function editSelectedButterfly() {
+  const butterfly = currentButterfly.value
+  if (!butterfly || !canEditSelected.value) return
+  butterflyStore.setInspected(butterfly)
+  displayStore.setMainComponent?.('edit-butterfly')
 }
 </script>
-
-<style scoped>
-/* Control button styles */
-.control-btn {
-  background-color: #1d4ed8;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.control-btn:hover {
-  transform: scale(1.05);
-}
-</style>

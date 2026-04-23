@@ -16,7 +16,7 @@
             v-for="bot in bots"
             :key="`compact-${bot.id}`"
             type="button"
-            class="flex h-full min-w-[11rem] max-w-[13rem] shrink-0 items-center gap-2 rounded-2xl border px-2 py-2 text-left transition"
+            class="flex h-full min-w-44 max-w-52nk-0 items-center gap-2 rounded-2xl border px-2 py-2 text-left transition"
             :class="
               botStore.currentBot?.id === bot.id
                 ? 'border-primary bg-primary/10'
@@ -174,7 +174,7 @@
 
               <div
                 v-else
-                class="flex h-full min-h-[10rem] items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/70"
+                class="flex h-full min-h-40 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/70"
               >
                 Pick a bot from the gallery to load its card.
               </div>
@@ -270,7 +270,7 @@
                 <textarea
                   ref="messageMeasureRef"
                   v-model="launchMessage"
-                  class="textarea textarea-bordered min-h-[8rem] flex-1 resize-none overflow-y-auto bg-base-100 text-sm"
+                  class="textarea textarea-bordered min-h-32 flex-1 resize-none overflow-y-auto bg-base-100 text-sm"
                   placeholder="Type the first message to hand off to /bots..."
                   :disabled="!botStore.currentBot"
                 />
@@ -433,7 +433,7 @@
 
               <div
                 v-else
-                class="flex h-full min-h-[12rem] items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/70"
+                class="flex h-full min-h-48 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/70"
               >
                 No bot selected yet.
               </div>

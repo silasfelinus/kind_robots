@@ -55,7 +55,7 @@
         >
           <input
             v-model="searchQuery"
-            class="input input-bordered input-sm min-w-44 flex-1 bg-base-200 focus:border-amber-500"
+            class="input input-bordered input-sm min-w-44 flex-1 bg-base-200 focus:border-primary"
             placeholder="Search themes…"
             type="search"
           />
@@ -74,73 +74,42 @@
         <!-- Theme grid -->
         <div
           v-if="filteredDaisyThemes.length"
-          class="grid flex-1 gap-3 overflow-y-auto p-5 pb-8"
-          style="grid-template-columns: repeat(auto-fill, minmax(155px, 1fr))"
+          class="grid flex-1 gap-2 overflow-y-auto p-4 pb-8"
+          style="grid-template-columns: repeat(auto-fill, minmax(100px, 1fr))"
         >
-          <!--
-            data-theme is set to the theme name on each card.
-            All DaisyUI classes inside (bg-primary, btn-primary, bg-base-100, etc.)
-            resolve in THAT theme's color space — a genuine live preview.
-          -->
           <button
             v-for="theme in filteredDaisyThemes"
             :key="theme"
             :data-theme="theme"
-            class="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-2 transition-all duration-150 hover:-translate-y-0.5"
+            class="group relative flex flex-col items-center gap-1.5 rounded-2xl border-2 bg-base-200 px-2 py-3 text-center transition-all duration-150 hover:-translate-y-0.5"
             :class="
               themeStore.currentTheme === theme
-                ? 'border-amber-500 shadow-lg shadow-amber-500/20'
-                : 'border-transparent hover:border-amber-400 hover:shadow-md'
+                ? 'border-accent shadow-md'
+                : 'border-base-300 hover:border-accent/60 hover:shadow-sm'
             "
             @click="applyTheme(theme)"
           >
             <!-- Active badge -->
             <span
               v-if="themeStore.currentTheme === theme"
-              class="absolute right-1.5 top-1.5 z-10 rounded bg-amber-500 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wide text-white"
+              class="absolute right-1.5 top-1.5 rounded bg-accent px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wide text-accent-content"
             >
-              Active
+              ✓
             </span>
 
-            <!--
-              Mini component preview.
-              Uses real DaisyUI component classes — they render correctly
-              because this element is a descendant of [data-theme="<theme>"].
-            -->
-            <div class="flex flex-col gap-1.5 bg-base-200 p-2.5">
-              <div class="flex gap-1">
-                <span class="btn btn-primary h-6 min-h-0 px-1.5 text-[10px]"
-                  >P</span
-                >
-                <span class="btn btn-secondary h-6 min-h-0 px-1.5 text-[10px]"
-                  >S</span
-                >
-                <span class="btn btn-accent h-6 min-h-0 px-1.5 text-[10px]"
-                  >A</span
-                >
-              </div>
-              <progress
-                class="progress progress-primary h-1.5 w-full"
-                value="45"
-                max="100"
-              />
-              <div class="h-4 rounded border border-base-300 bg-base-100" />
-            </div>
-
-            <!-- Color swatch strip — these resolve in the card's data-theme context -->
-            <div class="flex h-2.5">
-              <span class="flex-1 bg-primary" />
-              <span class="flex-1 bg-secondary" />
-              <span class="flex-1 bg-accent" />
-              <span class="flex-1 bg-neutral" />
-              <span class="flex-1 bg-base-300" />
-            </div>
-
-            <!-- Name label — bg/text use the card's own theme -->
-            <div
-              class="border-t border-base-300 bg-base-100 py-1.5 text-center font-mono text-xs font-bold text-base-content"
+            <!-- Name -->
+            <span
+              class="w-full truncate text-center font-mono text-[11px] font-semibold text-base-content"
             >
               {{ theme }}
+            </span>
+
+            <!-- Color circles -->
+            <div class="flex gap-1">
+              <span class="h-3.5 w-3.5 rounded-full bg-primary" />
+              <span class="h-3.5 w-3.5 rounded-full bg-secondary" />
+              <span class="h-3.5 w-3.5 rounded-full bg-accent" />
+              <span class="h-3.5 w-3.5 rounded-full bg-neutral" />
             </div>
           </button>
         </div>

@@ -68,6 +68,8 @@ function clearRotation() {
 
 function doFade() {
   if (destroyed || fadeOverlay.value) return
+
+  loadStore.revealDesktop()
   fadeOverlay.value = true
 
   if (fallbackFadeTimeoutId) {

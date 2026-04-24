@@ -59,37 +59,14 @@ import GameFooter from '@/components/wonderlab/game-footer.vue'
 import GiftshopFooter from '@/components/giftshop/giftshop-footer.vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-type FooterName =
-  | 'fx'
-  | 'kind'
-  | 'art'
-  | 'story'
-  | 'theme'
-  | 'user'
-  | 'gallery'
-  | 'lab'
-  | 'brainstorm'
-  | 'game'
-  | 'giftshop'
-
 const displayStore = useDisplayStore()
 const router = useRouter()
 
 const isLocked = ref(false)
 
-const footerOptions: FooterName[] = [
-  'fx',
-  'kind',
-  'art',
-  'story',
-  'theme',
-  'user',
-  'gallery',
-  'lab',
-  'brainstorm',
-  'game',
-  'giftshop',
-]
+type FooterName = (typeof displayStore.footerComponentNames)[number]
+
+const footerOptions = [...displayStore.footerComponentNames] as FooterName[]
 
 const footerComponentMap: Record<FooterName, Component> = {
   fx: ButterflyFooter,

@@ -1,189 +1,339 @@
-<!-- /components/content/user/user-panel.vue -->
 <template>
-  <div class="user-panel p-4 bg-base-200 rounded-lg max-w-2xl mx-auto">
-    <h2 class="text-xl font-semibold mb-4">User Profile</h2>
-    <form v-if="userProfile" @submit.prevent="updateProfile">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div
-          v-for="(field, key) in profileFields"
-          :key="key"
-          class="flex flex-col"
+  <section
+    class="mx-auto flex w-full max-w-5xl min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-4"
+  >
+    <header
+      class="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
+    >
+      <div>
+        <h2 class="text-xl font-black">User Profile</h2>
+        <p class="text-sm text-base-content/60">
+          Edit your account details without summoning form goblins.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        :disabled="isSaving || !hasProfile"
+        @click="updateProfile"
+      >
+        <span v-if="isSaving" class="loading loading-spinner loading-xs" />
+        <span>{{ isSaving ? 'Saving...' : 'Update Profile' }}</span>
+      </button>
+    </header>
+
+    <form
+      v-if="hasProfile"
+      class="min-h-0 overflow-y-auto"
+      @submit.prevent="updateProfile"
+    >
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <label
+          v-for="field in profileFields"
+          :key="field.key"
+          class="flex min-w-0 flex-col gap-1"
         >
-          <label
-            :for="key"
-            class="block text-sm font-medium mb-1 text-gray-700"
-          >
+          <span class="text-sm font-bold text-base-content/70">
             {{ field.label }}
-          </label>
-          <input
-            v-if="field.type !== 'textarea' && field.type !== 'date'"
-            :id="key"
-            v-model="nonNullableUserProfile[key as keyof User]"
-            :type="field.type"
-            :placeholder="field.placeholder"
-            class="input input-bordered w-full mt-1"
-          />
+          </span>
 
           <textarea
-            v-else-if="field.type === 'textarea'"
-            :id="key"
-            :value="nonNullableUserProfile[key as keyof User]?.toString() || ''"
+            v-if="field.type === 'textarea'"
+            v-model="form[field.key]"
             :placeholder="field.placeholder"
-            class="textarea textarea-bordered w-full mt-1"
-            @input="
-              (e) => {
-                const target = e.target as HTMLTextAreaElement | null
-                if (target) {
-                  updateUserProfile(key, target.value)
-                }
-              }
-            "
-          ></textarea>
+            class="textarea textarea-bordered min-h-28 w-full resize-none rounded-2xl bg-base-100"
+          />
 
           <input
-            v-else-if="field.type === 'date'"
-            :id="key"
-            v-model="nonNullableUserProfile[key as keyof User]"
-            type="date"
+            v-else
+            v-model="form[field.key]"
+            :type="field.type"
             :placeholder="field.placeholder"
-            class="input input-bordered w-full mt-1"
+            class="input input-bordered w-full rounded-2xl bg-base-100"
           />
-        </div>
+        </label>
       </div>
-      <button
-        type="submit"
-        class="btn btn-primary mt-4 w-full md:w-auto px-6 py-2"
+
+      <div
+        v-if="message"
+        class="mt-4 rounded-2xl border p-3 text-sm font-semibold"
+        :class="
+          success
+            ? 'border-success/40 bg-success/10 text-success'
+            : 'border-error/40 bg-error/10 text-error'
+        "
       >
-        Update Profile
-      </button>
+        {{ message }}
+      </div>
+
+      <div class="mt-4 flex justify-end">
+        <button
+          type="submit"
+          class="btn btn-primary w-full md:w-auto"
+          :disabled="isSaving"
+        >
+          <span v-if="isSaving" class="loading loading-spinner loading-xs" />
+          <span>{{ isSaving ? 'Saving Profile' : 'Save Changes' }}</span>
+        </button>
+      </div>
     </form>
-    <div v-else>
-      <p class="text-center text-gray-500">No user profile available.</p>
+
+    <div
+      v-else
+      class="flex min-h-48 items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
+    >
+      <div>
+        <p class="text-lg font-black">No user profile available.</p>
+        <p class="mt-1 text-sm text-base-content/60">
+          Guest mode is charming, but it does not fill out forms.
+        </p>
+      </div>
     </div>
-  </div>
+  </section>
 </template>
 
-<script lang="ts" setup>
-import { computed } from 'vue'
+<script setup lang="ts">
+// /components/content/user/user-panel.vue
+import { computed, reactive, ref, watch } from 'vue'
 import { useUserStore, type User } from '@/stores/userStore'
+
+type EditableUserKey =
+  | 'username'
+  | 'email'
+  | 'name'
+  | 'bio'
+  | 'city'
+  | 'state'
+  | 'country'
+  | 'phone'
+  | 'birthday'
+  | 'languages'
+  | 'timezone'
+  | 'discordUrl'
+  | 'facebookUrl'
+  | 'instagramUrl'
+  | 'twitterUrl'
+  | 'kindrobotsUrl'
+
+type ProfileField = {
+  key: EditableUserKey
+  label: string
+  type: 'text' | 'email' | 'url' | 'date' | 'textarea'
+  placeholder: string
+}
+
+type UserProfileForm = Record<EditableUserKey, string>
 
 const userStore = useUserStore()
 
-// Define userProfile as a computed ref, allowing null when userStore.user is null
-const userProfile = computed(() =>
-  userStore.user ? { ...userStore.user } : null,
-)
+const isSaving = ref(false)
+const success = ref(false)
+const message = ref('')
 
-const nonNullableUserProfile = computed<
-  Partial<Record<keyof User, User[keyof User] | undefined>>
->(() => {
-  if (!userProfile.value) {
-    throw new Error('User profile is null')
-  }
+const hasProfile = computed(() => Boolean(userStore.user))
 
-  return {
-    ...userProfile.value,
-    birthday: userProfile.value.birthday
-      ? new Date(userProfile.value.birthday).toISOString().split('T')[0]
-      : '',
-  }
+const form = reactive<UserProfileForm>({
+  username: '',
+  email: '',
+  name: '',
+  bio: '',
+  city: '',
+  state: '',
+  country: '',
+  phone: '',
+  birthday: '',
+  languages: '',
+  timezone: '',
+  discordUrl: '',
+  facebookUrl: '',
+  instagramUrl: '',
+  twitterUrl: '',
+  kindrobotsUrl: '',
 })
 
-const updateProfile = async () => {
-  if (!userProfile.value) {
-    alert('No user profile to update!')
-    return
-  }
-
-  try {
-    if (typeof userProfile.value.birthday === 'string') {
-      userProfile.value.birthday = new Date(userProfile.value.birthday)
-    }
-    await userStore.updateUserInfo(userProfile.value)
-    alert('Profile updated successfully!')
-  } catch (error) {
-    console.error('Failed to update profile:', error)
-    alert('An error occurred while updating your profile.')
-  }
-}
-
-// Profile fields configuration
-const profileFields = {
-  username: {
+const profileFields: ProfileField[] = [
+  {
+    key: 'username',
     label: 'Username',
     type: 'text',
     placeholder: 'Enter your username',
   },
-  email: { label: 'Email', type: 'email', placeholder: 'Enter your email' },
-  name: { label: 'Name', type: 'text', placeholder: 'Enter your full name' },
-  bio: {
+  {
+    key: 'email',
+    label: 'Email',
+    type: 'email',
+    placeholder: 'Enter your email',
+  },
+  {
+    key: 'name',
+    label: 'Name',
+    type: 'text',
+    placeholder: 'Enter your full name',
+  },
+  {
+    key: 'bio',
     label: 'Bio',
     type: 'textarea',
     placeholder: 'Tell us about yourself',
   },
-  city: { label: 'City', type: 'text', placeholder: 'Enter your city' },
-  state: { label: 'State', type: 'text', placeholder: 'Enter your state' },
-  country: {
+  {
+    key: 'city',
+    label: 'City',
+    type: 'text',
+    placeholder: 'Enter your city',
+  },
+  {
+    key: 'state',
+    label: 'State',
+    type: 'text',
+    placeholder: 'Enter your state',
+  },
+  {
+    key: 'country',
     label: 'Country',
     type: 'text',
     placeholder: 'Enter your country',
   },
-  phone: {
+  {
+    key: 'phone',
     label: 'Phone',
     type: 'text',
     placeholder: 'Enter your phone number',
   },
-  birthday: {
+  {
+    key: 'birthday',
     label: 'Birthday',
     type: 'date',
     placeholder: 'Select your birthday',
   },
-  languages: {
+  {
+    key: 'languages',
     label: 'Languages',
     type: 'text',
     placeholder: 'Enter languages you speak',
   },
-  timezone: {
+  {
+    key: 'timezone',
     label: 'Timezone',
     type: 'text',
     placeholder: 'Enter your timezone',
   },
-  discordUrl: {
+  {
+    key: 'discordUrl',
     label: 'Discord URL',
     type: 'url',
     placeholder: 'Enter your Discord profile URL',
   },
-  facebookUrl: {
+  {
+    key: 'facebookUrl',
     label: 'Facebook URL',
     type: 'url',
     placeholder: 'Enter your Facebook profile URL',
   },
-  instagramUrl: {
+  {
+    key: 'instagramUrl',
     label: 'Instagram URL',
     type: 'url',
     placeholder: 'Enter your Instagram profile URL',
   },
-  twitterUrl: {
+  {
+    key: 'twitterUrl',
     label: 'Twitter/X URL',
     type: 'url',
     placeholder: 'Enter your Twitter profile URL',
   },
-  kindrobotsUrl: {
+  {
+    key: 'kindrobotsUrl',
     label: 'KindRobots URL',
     type: 'url',
     placeholder: 'Enter your KindRobots profile URL',
   },
+]
+
+function formatBirthday(
+  value: User['birthday'] | string | null | undefined,
+): string {
+  if (!value) return ''
+
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+
+  return date.toISOString().split('T')[0] || ''
 }
 
-const updateUserProfile = (
-  key: keyof User,
-  value: User[keyof User] | undefined,
-) => {
-  if (nonNullableUserProfile.value) {
-    if (key === 'birthday' && typeof value === 'string') {
-      value = new Date(value) as User[keyof User]
+function syncFormFromUser(user: User | null): void {
+  if (!user) return
+
+  form.username = user.username || ''
+  form.email = user.email || ''
+  form.name = user.name || ''
+  form.bio = user.bio || ''
+  form.city = user.city || ''
+  form.state = user.state || ''
+  form.country = user.country || ''
+  form.phone = user.phone || ''
+  form.birthday = formatBirthday(user.birthday)
+  form.languages = user.languages || ''
+  form.timezone = user.timezone || ''
+  form.discordUrl = user.discordUrl || ''
+  form.facebookUrl = user.facebookUrl || ''
+  form.instagramUrl = user.instagramUrl || ''
+  form.twitterUrl = user.twitterUrl || ''
+  form.kindrobotsUrl = user.kindrobotsUrl || ''
+}
+
+async function updateProfile(): Promise<void> {
+  if (!userStore.user) {
+    success.value = false
+    message.value = 'No user profile to update.'
+    return
+  }
+
+  isSaving.value = true
+  message.value = ''
+
+  try {
+    const birthday = form.birthday ? new Date(form.birthday) : null
+
+    const payload: Partial<User> = {
+      ...userStore.user,
+      username: form.username,
+      email: form.email,
+      name: form.name,
+      bio: form.bio,
+      city: form.city,
+      state: form.state,
+      country: form.country,
+      phone: form.phone,
+      birthday,
+      languages: form.languages,
+      timezone: form.timezone,
+      discordUrl: form.discordUrl,
+      facebookUrl: form.facebookUrl,
+      instagramUrl: form.instagramUrl,
+      twitterUrl: form.twitterUrl,
+      kindrobotsUrl: form.kindrobotsUrl,
     }
-    nonNullableUserProfile.value[key] = value
+
+    await userStore.updateUserInfo(payload)
+
+    success.value = true
+    message.value = 'Profile updated successfully.'
+  } catch (error) {
+    success.value = false
+    message.value =
+      error instanceof Error
+        ? error.message
+        : 'An error occurred while updating your profile.'
+  } finally {
+    isSaving.value = false
   }
 }
+
+watch(
+  () => userStore.user,
+  (user) => syncFormFromUser(user),
+  { immediate: true },
+)
 </script>

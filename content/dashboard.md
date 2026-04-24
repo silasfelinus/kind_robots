@@ -16,4 +16,4 @@ sort: highlight
 navComponent: 'dashboard-nav'
 ---
 
-:user-dashboard
+:user-manager

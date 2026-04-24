@@ -1,6 +1,12 @@
+// /stores/loadStore.ts
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { useButterflyStore } from './butterflyStore'
 
 export const useLoadStore = defineStore('loadStore', () => {
+  const desktopRevealStarted = ref(false)
+  const recentLoadMessages = ref<string[]>([])
+
   const loadMessages = [
     'Brewing tea...',
     'Releasing digital butterflies...',
@@ -36,10 +42,42 @@ export const useLoadStore = defineStore('loadStore', () => {
     'Loading failed successfully...',
   ]
 
-  function randomLoadMessage() {
-    const randomIndex = Math.floor(Math.random() * loadMessages.length)
-    return loadMessages[randomIndex]
+  function rememberLoadMessage(message: string) {
+    recentLoadMessages.value = [message, ...recentLoadMessages.value].slice(0, 4)
   }
 
-  return { loadMessages, randomLoadMessage }
+  function randomLoadMessage() {
+    const availableMessages = loadMessages.filter(
+      (message) => !recentLoadMessages.value.includes(message),
+    )
+
+    const messagePool = availableMessages.length ? availableMessages : loadMessages
+    const randomIndex = Math.floor(Math.random() * messagePool.length)
+    const message = messagePool[randomIndex] ?? 'Loading failed successfully...'
+
+    rememberLoadMessage(message)
+    return message
+  }
+
+  function revealDesktop() {
+    if (desktopRevealStarted.value) return
+
+    desktopRevealStarted.value = true
+
+    const butterflyStore = useButterflyStore()
+    butterflyStore.startStartupExit()
+  }
+
+  function resetRevealState() {
+    desktopRevealStarted.value = false
+  }
+
+  return {
+    loadMessages,
+    recentLoadMessages,
+    desktopRevealStarted,
+    randomLoadMessage,
+    revealDesktop,
+    resetRevealState,
+  }
 })

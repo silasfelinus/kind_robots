@@ -72,6 +72,7 @@ export default defineNuxtConfig({
       GOOGLE_SECRET: process.env.GOOGLE_SECRET || '',
       AUTH_SECRET: process.env.AUTH_SECRET || '',
       JWT_SECRET: process.env.JWT_SECRET || '',
+      SERVER_SECRET_KEY: process.env.SERVER_SECRET_KEY || '',
     },
   },
 

@@ -191,6 +191,58 @@ export const useServerStore = defineStore('serverStore', () => {
     )
   })
 
+  async function updateServerApiKey(
+    id: number,
+    payload: {
+      apiKey?: string | null
+      apiKeyName?: string | null
+      clearKey?: boolean
+    },
+  ): Promise<{ success: boolean; message?: string }> {
+    isSaving.value = true
+
+    try {
+      const res = (await performFetch(`/api/server/key/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })) as FetchResponse<Server>
+
+      if (!res.success || !res.data || !isServer(res.data)) {
+        throw new Error(res.message || 'Failed to update server API key.')
+      }
+
+      const index = servers.value.findIndex((server) => server.id === id)
+
+      if (index !== -1) {
+        servers.value[index] = res.data
+      }
+
+      if (selectedServer.value?.id === id) {
+        selectedServer.value = res.data
+        serverForm.value = { ...res.data }
+      }
+
+      syncToLocalStorage()
+
+      return {
+        success: true,
+        message: res.message || 'Server API key updated.',
+      }
+    } catch (error) {
+      handleError(error, 'updating server API key')
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to update server API key.',
+      }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
   const activeTextServer = computed<Server | null>(() => {
     if (activeTextServerId.value !== null) {
       const match = servers.value.find(
@@ -787,63 +839,53 @@ export const useServerStore = defineStore('serverStore', () => {
     }
   }
 
-  function setActiveArtServer(id: number | null): {
+  async function setActiveTextServer(id: number | null): Promise<{
     success: boolean
     message?: string
-  } {
-    if (id === null) {
-      activeArtServerId.value = null
-      syncToLocalStorage()
-      return { success: true, message: 'Active art server cleared.' }
+  }> {
+    const result = validateTextServer(id)
+
+    if (!result.success) {
+      setStoreError(
+        ErrorType.VALIDATION_ERROR,
+        result.message || 'Invalid text server.',
+        'setActiveTextServer',
+      )
+      return result
     }
 
-    const server = getServerById(id)
+    activeTextServerId.value = id
 
-    if (!server) {
-      const message = 'Art server not found.'
-      setStoreError(ErrorType.VALIDATION_ERROR, message, 'setActiveArtServer')
-      return { success: false, message }
+    if (userStore.isLoggedIn) {
+      await userStore.updateUser({
+        preferredTextServerId: id,
+      })
     }
 
-    const canUse =
-      Boolean(server.isActive) &&
-      (server.serverType === 'ART' ||
-        server.serverType === 'COMFY' ||
-        server.serverType === 'A1111' ||
-        Boolean(server.supportsTxt2Img) ||
-        Boolean(server.supportsImg2Img))
-
-    if (!canUse) {
-      const message = 'This server is not compatible with art generation.'
-      setStoreError(ErrorType.VALIDATION_ERROR, message, 'setActiveArtServer')
-      return { success: false, message }
-    }
-
-    activeArtServerId.value = id
     syncToLocalStorage()
 
     return {
       success: true,
-      message: 'Active art server updated.',
+      message:
+        id === null
+          ? 'Using Kind Robots default text server.'
+          : 'Preferred text server updated.',
     }
   }
 
-  function setActiveTextServer(id: number | null): {
+  function validateTextServer(id: number | null): {
     success: boolean
     message?: string
   } {
-    if (id === null) {
-      activeTextServerId.value = null
-      syncToLocalStorage()
-      return { success: true, message: 'Active text server cleared.' }
-    }
+    if (id === null) return { success: true }
 
     const server = getServerById(id)
 
     if (!server) {
-      const message = 'Text server not found.'
-      setStoreError(ErrorType.VALIDATION_ERROR, message, 'setActiveTextServer')
-      return { success: false, message }
+      return {
+        success: false,
+        message: 'Text server not found.',
+      }
     }
 
     const canUse =
@@ -853,18 +895,81 @@ export const useServerStore = defineStore('serverStore', () => {
         Boolean(server.supportsChat))
 
     if (!canUse) {
-      const message = 'This server is not compatible with text generation.'
-      setStoreError(ErrorType.VALIDATION_ERROR, message, 'setActiveTextServer')
-      return { success: false, message }
+      return {
+        success: false,
+        message: 'This server is not compatible with text generation.',
+      }
     }
 
-    activeTextServerId.value = id
+    return { success: true }
+  }
+
+  async function setActiveArtServer(id: number | null): Promise<{
+    success: boolean
+    message?: string
+  }> {
+    const result = validateArtServer(id)
+
+    if (!result.success) {
+      setStoreError(
+        ErrorType.VALIDATION_ERROR,
+        result.message || 'Invalid art server.',
+        'setActiveArtServer',
+      )
+      return result
+    }
+
+    activeArtServerId.value = id
+
+    if (userStore.isLoggedIn) {
+      await userStore.updateUser({
+        preferredArtServerId: id,
+      })
+    }
+
     syncToLocalStorage()
 
     return {
       success: true,
-      message: 'Active text server updated.',
+      message:
+        id === null
+          ? 'Using Kind Robots default image server.'
+          : 'Preferred image server updated.',
     }
+  }
+
+  function validateArtServer(id: number | null): {
+    success: boolean
+    message?: string
+  } {
+    if (id === null) return { success: true }
+
+    const server = getServerById(id)
+
+    if (!server) {
+      return {
+        success: false,
+        message: 'Art server not found.',
+      }
+    }
+
+    const canUse =
+      Boolean(server.isActive) &&
+      (server.serverType === 'ART' ||
+        server.serverType === 'COMFY' ||
+        server.serverType === 'A1111' ||
+        Boolean(server.supportsTxt2Img) ||
+        Boolean(server.supportsImg2Img) ||
+        Boolean(server.supportsComfyWorkflow))
+
+    if (!canUse) {
+      return {
+        success: false,
+        message: 'This server is not compatible with art generation.',
+      }
+    }
+
+    return { success: true }
   }
 
   function clearActiveServers(): void {
@@ -939,6 +1044,7 @@ export const useServerStore = defineStore('serverStore', () => {
     getServerById,
     getServersByType,
     getCompatibleServers,
+    updateServerApiKey,
   }
 })
 

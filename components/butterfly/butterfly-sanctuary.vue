@@ -537,7 +537,7 @@ onMounted(async () => {
 })
 
 async function summon(count: number) {
-  await butterflyStore.summonSwarm(count)
+  await butterflyStore.addButterflies(count)
   const newest = selectableButterflies.value.at(-1)
 
   if (newest) {

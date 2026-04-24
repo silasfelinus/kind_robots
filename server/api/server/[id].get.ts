@@ -17,8 +17,49 @@ export default defineEventHandler(async (event) => {
     }
 
     const { isValid, user } = await validateApiKey(event)
+
     const data = await prisma.server.findUnique({
       where: { id },
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        title: true,
+        label: true,
+        description: true,
+        serverType: true,
+        category: true,
+        baseUrl: true,
+        endpointPath: true,
+        healthPath: true,
+        userId: true,
+        isPublic: true,
+        isOfficial: true,
+        isDefault: true,
+        isActive: true,
+        isEditable: true,
+        requiresApiKey: true,
+        apiKeyName: true,
+        supportsTxt2Img: true,
+        supportsImg2Img: true,
+        supportsChat: true,
+        supportsComfyWorkflow: true,
+        supportsCheckpointOverride: true,
+        supportsSampler: true,
+        supportsNegativePrompt: true,
+        supportsSeed: true,
+        supportsSteps: true,
+        supportsVideo: true,
+        apiLink: true,
+        model: true,
+        designer: true,
+        version: true,
+        notes: true,
+        sortOrder: true,
+        lastCheckedAt: true,
+        lastStatus: true,
+        apiKey: true,
+      },
     })
 
     if (!data) {
@@ -39,11 +80,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const safeData = {
+      ...data,
+      apiKey: data.apiKey ? 'CONFIGURED' : null,
+    }
+
     event.node.res.statusCode = 200
     return {
       success: true,
       message: 'Server fetched successfully.',
-      data,
+      data: safeData,
       statusCode: 200,
     }
   } catch (error) {

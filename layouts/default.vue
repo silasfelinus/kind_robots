@@ -176,7 +176,12 @@
     </main>
 
     <footer
-      class="fixed overflow-hidden border-t-2 border-base-content/20 bg-base-200 text-base-content transition-[height,width,left,bottom] duration-200"
+      class="fixed overflow-hidden bg-base-200 text-base-content transition-[height,width,left,bottom] duration-200"
+      :class="
+        displayStore.footerState !== 'hidden'
+          ? 'border-t-2 border-base-content/20'
+          : ''
+      "
       :style="displayStore.footerStyle"
     >
       <div class="absolute inset-0 overflow-hidden">

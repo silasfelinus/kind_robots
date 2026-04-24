@@ -17,8 +17,24 @@ type FullscreenState = 'nuxt' | 'fullscreen'
 type SidebarStage = 'hidden' | 'compact' | 'open' | 'priority'
 type SidebarStateKey = 'sidebarLeftState' | 'sidebarRightState'
 type LogicalSide = 'left' | 'right'
-type FooterComponentName = 'fx' | 'kind' | 'art' | 'story' | 'theme'
+const footerComponentNames = [
+  'fx',
+  'kind',
+  'art',
+  'story',
+  'theme',
+  'user',
+  'gallery',
+  'lab',
+  'brainstorm',
+  'game',
+  'giftshop',
+] as const
+
+type FooterComponentName = (typeof footerComponentNames)[number]
 type PromptOffsetOwner = FooterComponentName | ''
+
+type FooterStage = 'hidden' | 'compact' | 'open' | 'priority' | 'disabled'
 
 export const useDisplayStore = defineStore('displayStore', () => {
   const state = reactive({
@@ -65,13 +81,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function normalizeFooterComponent(value: string): FooterComponentName {
-    return value === 'fx' ||
-      value === 'kind' ||
-      value === 'art' ||
-      value === 'story' ||
-      value === 'theme'
-      ? value
+    return footerComponentNames.includes(value as FooterComponentName)
+      ? (value as FooterComponentName)
       : 'kind'
+  }
+
+  function normalizeFooterState(value: DisplayState): FooterStage {
+    if (value === 'hidden') return 'hidden'
+    if (value === 'compact') return 'compact'
+    if (value === 'open') return 'open'
+    if (value === 'priority') return 'priority'
+    if (value === 'disabled') return 'disabled'
+    return 'hidden'
   }
 
   const fullColumnTopOffset = computed(() => {
@@ -174,15 +195,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const footerVisible = computed(() => state.footerState !== 'hidden')
 
   const footerHeight = computed(() => {
-    const stateKey =
-      state.footerState === 'compact' ||
-      state.footerState === 'open' ||
-      state.footerState === 'hidden' ||
-      state.footerState === 'priority' ||
-      state.footerState === 'disabled'
-        ? state.footerState
-        : 'hidden'
-
+    const stateKey = normalizeFooterState(state.footerState)
     return footerHeights[stateKey][state.viewportSize]
   })
 
@@ -716,7 +729,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
 
     if (section === 'footerState') {
-      state.footerState = newState
+      state.footerState = normalizeFooterState(newState) as DisplayState
       clearPromptOffset()
       saveState()
       return
@@ -813,6 +826,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
       ) as DisplayState
       state.sidebarRightState = normalizeSidebarState(
         state.sidebarRightState,
+      ) as DisplayState
+
+      state.footerState = normalizeFooterState(
+        state.footerState,
       ) as DisplayState
 
       if (
@@ -962,6 +979,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
     setSmartState,
     headerCornerToggleStyle,
     showCornerPanel,
+    ...toRefs(state),
+    footerComponentNames,
   }
 })
 

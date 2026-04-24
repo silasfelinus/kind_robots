@@ -1,4 +1,3 @@
-<!-- /components/navigation/footer-selector.vue -->
 <template>
   <div
     class="flex h-full w-full items-stretch gap-2 rounded-2xl border border-base-300 bg-base-100/80 p-2"
@@ -18,13 +17,12 @@
       <component :is="activeComponent" class="h-full w-full" />
     </div>
 
-    <!-- Right column: lock toggle above next chevron -->
     <div class="flex w-12 shrink-0 flex-col items-center justify-center gap-1">
       <button
         type="button"
         class="flex h-8 w-full items-center justify-center rounded-xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300"
-        @click="toggleLock"
         :title="isLocked ? 'Locked to page' : 'Navigate on change'"
+        @click="toggleLock"
       >
         <icon
           :name="isLocked ? 'kind-icon:lock' : 'kind-icon:house'"
@@ -53,16 +51,45 @@ import BotFooter from '@/components/bots/bot-footer.vue'
 import ArtFooter from '@/components/art/art-footer.vue'
 import StoryFooter from '@/components/navigation/story-footer.vue'
 import ThemeFooter from '@/components/navigation/theme-footer.vue'
+import UserFooter from '@/components/user/user-footer.vue'
+import GalleryFooter from '@/components/gallery/gallery-footer.vue'
+import LabFooter from '@/components/wonderlab/lab-footer.vue'
+import BrainstormFooter from '@/components/prompts/brainstorm-footer.vue'
+import GameFooter from '@/components/wonderlab/game-footer.vue'
+import GiftshopFooter from '@/components/giftshop/giftshop-footer.vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-type FooterName = 'fx' | 'kind' | 'art' | 'story' | 'theme'
+type FooterName =
+  | 'fx'
+  | 'kind'
+  | 'art'
+  | 'story'
+  | 'theme'
+  | 'user'
+  | 'gallery'
+  | 'lab'
+  | 'brainstorm'
+  | 'game'
+  | 'giftshop'
 
 const displayStore = useDisplayStore()
 const router = useRouter()
 
 const isLocked = ref(false)
 
-const footerOptions: FooterName[] = ['fx', 'kind', 'art', 'story', 'theme']
+const footerOptions: FooterName[] = [
+  'fx',
+  'kind',
+  'art',
+  'story',
+  'theme',
+  'user',
+  'gallery',
+  'lab',
+  'brainstorm',
+  'game',
+  'giftshop',
+]
 
 const footerComponentMap: Record<FooterName, Component> = {
   fx: ButterflyFooter,
@@ -70,6 +97,12 @@ const footerComponentMap: Record<FooterName, Component> = {
   art: ArtFooter,
   story: StoryFooter,
   theme: ThemeFooter,
+  user: UserFooter,
+  gallery: GalleryFooter,
+  lab: LabFooter,
+  brainstorm: BrainstormFooter,
+  game: GameFooter,
+  giftshop: GiftshopFooter,
 }
 
 const footerRouteMap: Record<FooterName, string> = {
@@ -78,6 +111,12 @@ const footerRouteMap: Record<FooterName, string> = {
   art: '/addart',
   story: '/stories',
   theme: '/themes',
+  user: '/dashboard',
+  gallery: '/galleries',
+  lab: '/wonderlab',
+  brainstorm: '/brainstorm',
+  game: '/memory',
+  giftshop: '/giftshop',
 }
 
 function isFooterName(value: unknown): value is FooterName {
@@ -114,10 +153,7 @@ function setFooterComponent(name: FooterName): void {
   displayStore.setFooterComponent(name)
 
   if (!isLocked.value) {
-    const route = footerRouteMap[name]
-    if (route) {
-      router.push(route)
-    }
+    router.push(footerRouteMap[name])
   }
 }
 

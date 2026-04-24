@@ -77,9 +77,10 @@ const avatarToggleTitle = computed(() => {
 })
 
 const prependIcons = computed(() =>
-  isCompactHeader.value
-    ? []
-    : [
+  headerState.value === 'open' ||
+  headerState.value === 'compact' ||
+  headerState.value === 'priority'
+    ? [
         {
           id: '__login',
           component: 'login-icon',
@@ -104,7 +105,8 @@ const prependIcons = computed(() =>
           color: 'text-info',
           label: 'swarm',
         },
-      ],
+      ]
+    : [],
 )
 
 const leftPriority = computed(

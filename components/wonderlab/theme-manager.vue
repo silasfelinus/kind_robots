@@ -175,7 +175,7 @@
                 ? 'border-amber-500 shadow-lg shadow-amber-500/20'
                 : 'border-base-300 hover:border-amber-400'
             "
-            :style="sharedCardBg(theme)"
+            :style="sharedCardStyle(theme)"
             @click="applySharedTheme(theme)"
           >
             <span
@@ -185,8 +185,57 @@
               Active
             </span>
 
-            <!-- Color swatches from stored hex values -->
-            <div class="flex h-8">
+            <!-- Mini component preview using injected CSS vars -->
+            <div
+              class="flex flex-col gap-1.5 p-2.5"
+              style="background: var(--base-200, var(--b2, #e5e7eb))"
+            >
+              <div class="flex gap-1">
+                <span
+                  class="rounded px-1.5 py-0.5 text-[10px] font-bold"
+                  style="
+                    background: var(--primary, var(--p, #570df8));
+                    color: var(--primary-content, var(--pc, #fff));
+                  "
+                  >P</span
+                >
+                <span
+                  class="rounded px-1.5 py-0.5 text-[10px] font-bold"
+                  style="
+                    background: var(--secondary, var(--s, #f000b8));
+                    color: var(--secondary-content, var(--sc, #fff));
+                  "
+                  >S</span
+                >
+                <span
+                  class="rounded px-1.5 py-0.5 text-[10px] font-bold"
+                  style="
+                    background: var(--accent, var(--a, #1fb2a5));
+                    color: var(--accent-content, var(--ac, #fff));
+                  "
+                  >A</span
+                >
+              </div>
+              <div
+                class="h-1.5 w-full overflow-hidden rounded-full"
+                style="background: var(--base-300, var(--b3, #d1d5db))"
+              >
+                <div
+                  class="h-full w-[45%] rounded-full"
+                  style="background: var(--primary, var(--p, #570df8))"
+                />
+              </div>
+              <div
+                class="h-4 rounded"
+                style="
+                  background: var(--base-100, var(--b1, #fff));
+                  border: 1px solid var(--base-300, var(--b3, #d1d5db));
+                "
+              />
+            </div>
+
+            <!-- Color swatch strip using resolved hex values -->
+            <div class="flex h-2.5">
               <span
                 v-for="(val, key) in topSwatches(theme)"
                 :key="key"
@@ -196,7 +245,7 @@
             </div>
 
             <!-- Name + meta -->
-            <div class="flex-1 p-3" :style="sharedTextStyle(theme)">
+            <div class="flex-1 p-3">
               <div class="truncate text-sm font-bold">{{ theme.name }}</div>
               <div v-if="theme.tagline" class="truncate text-xs opacity-60">
                 {{ theme.tagline }}
@@ -204,18 +253,20 @@
               <div class="mt-1.5 flex gap-1">
                 <span
                   v-if="theme.isPublic"
-                  class="rounded bg-black/10 px-1.5 py-0.5 font-mono text-[10px]"
+                  class="rounded px-1.5 py-0.5 font-mono text-[10px]"
+                  style="background: rgba(0, 0, 0, 0.1)"
                   >Public</span
                 >
                 <span
                   v-if="theme.prefersDark"
-                  class="rounded bg-black/50 px-1.5 py-0.5 font-mono text-[10px] text-white"
+                  class="rounded px-1.5 py-0.5 font-mono text-[10px]"
+                  style="background: rgba(0, 0, 0, 0.5); color: #fff"
                   >Dark</span
                 >
               </div>
             </div>
 
-            <!-- Edit: visible on hover -->
+            <!-- Edit button -->
             <button
               class="absolute left-1.5 top-1.5 rounded border border-current bg-transparent px-1.5 py-0.5 font-mono text-[10px] font-bold opacity-0 transition-opacity group-hover:opacity-60 hover:opacity-100!"
               @click.stop="editSharedTheme(theme)"
@@ -331,6 +382,78 @@ const isLoading = ref(false)
 // theme, so its onMounted/initializeThemeFormIfNeeded sees the pre-set form.
 const forgeKey = ref(0)
 
+// ── Shared-theme card helpers ─────────────────────────────────────
+
+function safeValues(val: unknown): Record<string, string> {
+  return typeof val === 'object' && val !== null && !Array.isArray(val)
+    ? (val as Record<string, string>)
+    : {}
+}
+
+// Map canonical names → every alias we might see stored
+const KEY_ALIASES: Record<string, string[]> = {
+  primary: ['primary', '--primary', 'p', '--p'],
+  secondary: ['secondary', '--secondary', 's', '--s'],
+  accent: ['accent', '--accent', 'a', '--a'],
+  neutral: ['neutral', '--neutral', 'n', '--n'],
+  'base-100': ['base-100', '--base-100', 'b1', '--b1', 'base100'],
+  'base-200': ['base-200', '--base-200', 'b2', '--b2', 'base200'],
+  'base-300': ['base-300', '--base-300', 'b3', '--b3', 'base300'],
+}
+
+function resolveKey(
+  vals: Record<string, string>,
+  canonical: string,
+): string | undefined {
+  for (const alias of KEY_ALIASES[canonical] ?? [canonical, `--${canonical}`]) {
+    if (vals[alias] !== undefined) return vals[alias]
+  }
+}
+
+function topSwatches(theme: Theme): Record<string, string> {
+  const vals = safeValues(theme.values)
+  const keys = ['primary', 'secondary', 'accent', 'neutral', 'base-100']
+  const out: Record<string, string> = {}
+  for (const k of keys) {
+    const v = resolveKey(vals, k)
+    if (v) out[k] = v
+  }
+  return out
+}
+
+/**
+ * Builds an inline style object that injects the theme's stored values
+ * as CSS custom properties, so DaisyUI utility classes (bg-primary, etc.)
+ * resolve correctly inside the card without needing data-theme.
+ */
+function sharedCardStyle(theme: Theme): Record<string, string> {
+  const vals = safeValues(theme.values)
+  const style: Record<string, string> = {}
+
+  // Pass every stored value through as a CSS variable
+  for (const [key, val] of Object.entries(vals)) {
+    const cssKey = key.startsWith('--') ? key : `--${key}`
+    style[cssKey] = val
+  }
+
+  // Also cover canonical aliases so DaisyUI v3 (--primary etc.) definitely lands
+  for (const canonical of Object.keys(KEY_ALIASES)) {
+    const v = resolveKey(vals, canonical)
+    if (v) style[`--${canonical}`] = v
+  }
+
+  // Explicit background so the card itself isn't transparent
+  const bg = resolveKey(vals, 'base-100') ?? '#ffffff'
+  style['background'] = bg
+
+  // Text color from neutral or base-content
+  const color =
+    resolveKey(vals, 'neutral') ?? resolveKey(vals, 'base-content') ?? '#000000'
+  style['color'] = color
+
+  return style
+}
+
 // ── Tabs ─────────────────────────────────────────────────────────
 const tabs = [
   { id: 'gallery' as Mode, label: 'Gallery', icon: '◫' },
@@ -369,25 +492,7 @@ const allThemeCount = computed(
     (themeStore.sharedThemes?.length ?? 0),
 )
 
-// ── Shared-theme card helpers ─────────────────────────────────────
-function safeValues(val: unknown): Record<string, string> {
-  return typeof val === 'object' && val !== null && !Array.isArray(val)
-    ? (val as Record<string, string>)
-    : {}
-}
-
 const SWATCH_KEYS = ['primary', 'secondary', 'accent', 'neutral', 'base-100']
-
-function topSwatches(theme: Theme): Record<string, string> {
-  const vals = safeValues(theme.values)
-  const out: Record<string, string> = {}
-  for (const k of SWATCH_KEYS) {
-    const v = vals[k] ?? vals[`--${k}`]
-    if (v) out[k] = v
-    if (Object.keys(out).length >= 5) break
-  }
-  return out
-}
 
 function sharedCardBg(theme: Theme): string {
   const bg = safeValues(theme.values)['base-100'] ?? '#ffffff'

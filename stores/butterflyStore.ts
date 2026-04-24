@@ -194,16 +194,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     }
   }
 
-  function pickExitSide(): 'left' | 'right' | 'top' | 'bottom' {
-    const sides: Array<'left' | 'right' | 'top' | 'bottom'> = [
-      'left',
-      'right',
-      'top',
-      'bottom',
-    ]
-    return sides[Math.floor(Math.random() * sides.length)] || 'right'
-  }
-
   function animateButterflies() {
     if (animationFrameId.value !== null) return
 
@@ -246,36 +236,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     selectedButterflyId.value = ''
     animationPaused.value = false
     animateButterflies()
-  }
-
-  function markButterflyForExit(butterfly: Butterfly) {
-    if (butterfly.isExiting) return
-
-    butterfly.isExiting = true
-
-    const overshoot = 18
-    const side = pickExitSide()
-
-    if (side === 'left') {
-      butterfly.goal.x = -overshoot
-      butterfly.goal.y = clampToTwoDecimals(Math.random() * 100)
-      return
-    }
-
-    if (side === 'right') {
-      butterfly.goal.x = 100 + overshoot
-      butterfly.goal.y = clampToTwoDecimals(Math.random() * 100)
-      return
-    }
-
-    if (side === 'top') {
-      butterfly.goal.x = clampToTwoDecimals(Math.random() * 100)
-      butterfly.goal.y = -overshoot
-      return
-    }
-
-    butterfly.goal.x = clampToTwoDecimals(Math.random() * 100)
-    butterfly.goal.y = 100 + overshoot
   }
 
   function markAllButterfliesForExit() {
@@ -627,6 +587,58 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
         butterfly: userCaughtIds.value.has(db.id) ? hydrateButterfly(db) : null,
       }))
   })
+
+  function getNearestExitGoal(butterfly: Butterfly) {
+    const overshoot = 18
+
+    const distanceToLeft = butterfly.x
+    const distanceToRight = 100 - butterfly.x
+    const distanceToTop = butterfly.y
+    const distanceToBottom = 100 - butterfly.y
+
+    const nearestDistance = Math.min(
+      distanceToLeft,
+      distanceToRight,
+      distanceToTop,
+      distanceToBottom,
+    )
+
+    if (nearestDistance === distanceToLeft) {
+      return {
+        x: -overshoot,
+        y: butterfly.y,
+      }
+    }
+
+    if (nearestDistance === distanceToRight) {
+      return {
+        x: 100 + overshoot,
+        y: butterfly.y,
+      }
+    }
+
+    if (nearestDistance === distanceToTop) {
+      return {
+        x: butterfly.x,
+        y: -overshoot,
+      }
+    }
+
+    return {
+      x: butterfly.x,
+      y: 100 + overshoot,
+    }
+  }
+
+  function markButterflyForExit(butterfly: Butterfly) {
+    if (butterfly.isExiting) return
+
+    const goal = getNearestExitGoal(butterfly)
+
+    butterfly.isExiting = true
+    butterfly.goal.x = clampToTwoDecimals(goal.x)
+    butterfly.goal.y = clampToTwoDecimals(goal.y)
+  }
 
   function toggleShowNames() {
     showNames.value = !showNames.value

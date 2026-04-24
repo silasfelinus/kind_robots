@@ -16,4 +16,4 @@ dottitip: Did I tell you I like to dabble in art? The artbots do most of the wor
 navComponent: 'art-nav'
 ---
 
-:galleries-viewer
+:gallery-gallery

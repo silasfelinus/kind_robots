@@ -155,7 +155,6 @@
           </button>
         </div>
       </section>
-
       <!-- ══ SHARED ════════════════════════════════════════════════ -->
       <section
         v-if="activeMode === 'shared'"
@@ -164,103 +163,133 @@
         <div
           v-if="themeStore.sharedThemes.length"
           class="grid flex-1 gap-3 overflow-y-auto p-5 pb-8"
-          style="grid-template-columns: repeat(auto-fill, minmax(175px, 1fr))"
+          style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))"
         >
           <button
             v-for="theme in themeStore.sharedThemes"
             :key="theme.id"
-            class="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-2 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md"
+            class="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-2 transition-all duration-150 hover:-translate-y-0.5"
             :class="
               themeStore.currentTheme === theme.name
                 ? 'border-amber-500 shadow-lg shadow-amber-500/20'
-                : 'border-base-300 hover:border-amber-400'
+                : 'border-transparent hover:border-amber-400 hover:shadow-md'
             "
-            :style="sharedCardStyle(theme)"
+            :style="{
+              background: swatchesFor(theme).base100,
+              color: swatchesFor(theme).neutral,
+            }"
             @click="applySharedTheme(theme)"
           >
+            <!-- Active badge -->
             <span
               v-if="themeStore.currentTheme === theme.name"
-              class="absolute right-1.5 top-1.5 rounded bg-amber-500 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wide text-white"
+              class="absolute right-1.5 top-1.5 z-10 rounded px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wide text-white"
+              style="background: #f59e0b"
             >
               Active
             </span>
 
-            <!-- Mini component preview using injected CSS vars -->
+            <!-- Mini diorama -->
             <div
               class="flex flex-col gap-1.5 p-2.5"
-              style="background: var(--base-200, var(--b2, #e5e7eb))"
+              :style="{ background: swatchesFor(theme).base200 }"
             >
               <div class="flex gap-1">
                 <span
-                  class="rounded px-1.5 py-0.5 text-[10px] font-bold"
-                  style="
-                    background: var(--primary, var(--p, #570df8));
-                    color: var(--primary-content, var(--pc, #fff));
-                  "
-                  >P</span
-                >
-                <span
-                  class="rounded px-1.5 py-0.5 text-[10px] font-bold"
-                  style="
-                    background: var(--secondary, var(--s, #f000b8));
-                    color: var(--secondary-content, var(--sc, #fff));
-                  "
-                  >S</span
-                >
-                <span
-                  class="rounded px-1.5 py-0.5 text-[10px] font-bold"
-                  style="
-                    background: var(--accent, var(--a, #1fb2a5));
-                    color: var(--accent-content, var(--ac, #fff));
-                  "
-                  >A</span
+                  v-for="[label, color] in [
+                    ['P', swatchesFor(theme).primary],
+                    ['S', swatchesFor(theme).secondary],
+                    ['A', swatchesFor(theme).accent],
+                  ]"
+                  :key="label"
+                  class="rounded px-1.5 py-0.5 text-[10px] font-bold text-white"
+                  :style="{ background: color }"
+                  >{{ label }}</span
                 >
               </div>
+
+              <!-- Progress bar -->
               <div
                 class="h-1.5 w-full overflow-hidden rounded-full"
-                style="background: var(--base-300, var(--b3, #d1d5db))"
+                :style="{ background: swatchesFor(theme).base300 }"
               >
                 <div
                   class="h-full w-[45%] rounded-full"
-                  style="background: var(--primary, var(--p, #570df8))"
+                  :style="{ background: swatchesFor(theme).primary }"
                 />
               </div>
+
+              <!-- Input mock -->
               <div
-                class="h-4 rounded"
-                style="
-                  background: var(--base-100, var(--b1, #fff));
-                  border: 1px solid var(--base-300, var(--b3, #d1d5db));
-                "
+                class="h-4 rounded border"
+                :style="{
+                  background: swatchesFor(theme).base100,
+                  borderColor: swatchesFor(theme).base300,
+                }"
               />
             </div>
 
-            <!-- Color swatch strip using resolved hex values -->
-            <div class="flex h-2.5">
+            <!-- No-values fallback strip -->
+            <div
+              v-if="!swatchesFor(theme).hasColors"
+              class="flex h-2.5 items-center justify-center"
+              :style="{ background: swatchesFor(theme).base300 }"
+            >
+              <span class="font-mono text-[8px] opacity-40">no preview</span>
+            </div>
+
+            <!-- Color swatch strip -->
+            <div v-else class="flex h-2.5">
               <span
-                v-for="(val, key) in topSwatches(theme)"
-                :key="key"
                 class="flex-1"
-                :style="`background: ${val}`"
+                :style="{ background: swatchesFor(theme).primary }"
+              />
+              <span
+                class="flex-1"
+                :style="{ background: swatchesFor(theme).secondary }"
+              />
+              <span
+                class="flex-1"
+                :style="{ background: swatchesFor(theme).accent }"
+              />
+              <span
+                class="flex-1"
+                :style="{ background: swatchesFor(theme).neutral }"
+              />
+              <span
+                class="flex-1"
+                :style="{ background: swatchesFor(theme).base300 }"
               />
             </div>
 
             <!-- Name + meta -->
-            <div class="flex-1 p-3">
-              <div class="truncate text-sm font-bold">{{ theme.name }}</div>
-              <div v-if="theme.tagline" class="truncate text-xs opacity-60">
+            <div
+              class="border-t p-2"
+              :style="{
+                borderColor: swatchesFor(theme).base300,
+                background: swatchesFor(theme).base100,
+              }"
+            >
+              <div class="truncate text-center font-mono text-xs font-bold">
+                {{ theme.name }}
+              </div>
+              <div
+                v-if="theme.tagline"
+                class="truncate text-center text-[10px] opacity-60"
+              >
                 {{ theme.tagline }}
               </div>
-              <div class="mt-1.5 flex gap-1">
+              <div class="mt-1 flex justify-center gap-1">
                 <span
                   v-if="theme.isPublic"
-                  class="rounded px-1.5 py-0.5 font-mono text-[10px]"
-                  style="background: rgba(0, 0, 0, 0.1)"
+                  class="rounded px-1 py-0.5 font-mono text-[9px] opacity-60"
+                  :style="{ background: swatchesFor(theme).base200 }"
                   >Public</span
                 >
                 <span
                   v-if="theme.prefersDark"
-                  class="rounded px-1.5 py-0.5 font-mono text-[10px]"
-                  style="background: rgba(0, 0, 0, 0.5); color: #fff"
+                  class="rounded px-1 py-0.5 font-mono text-[9px] text-white"
+                  :style="{ background: swatchesFor(theme).neutral }"
                   >Dark</span
                 >
               </div>
@@ -268,7 +297,7 @@
 
             <!-- Edit button -->
             <button
-              class="absolute left-1.5 top-1.5 rounded border border-current bg-transparent px-1.5 py-0.5 font-mono text-[10px] font-bold opacity-0 transition-opacity group-hover:opacity-60 hover:opacity-100!"
+              class="absolute left-1.5 top-1.5 rounded border bg-white/80 px-1.5 py-0.5 font-mono text-[10px] font-bold opacity-0 transition-opacity group-hover:opacity-80 hover:opacity-100!"
               @click.stop="editSharedTheme(theme)"
             >
               Edit
@@ -276,6 +305,7 @@
           </button>
         </div>
 
+        <!-- Empty state -->
         <div
           v-else
           class="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center opacity-60"
@@ -290,7 +320,6 @@
           </button>
         </div>
       </section>
-
       <!-- ══ FORGE ═════════════════════════════════════════════════ -->
       <section
         v-if="activeMode === 'forge'"
@@ -410,48 +439,20 @@ function resolveKey(
   }
 }
 
-function topSwatches(theme: Theme): Record<string, string> {
+// Replace topSwatches with this in <script setup>
+function swatchesFor(theme: Theme) {
   const vals = safeValues(theme.values)
-  const keys = ['primary', 'secondary', 'accent', 'neutral', 'base-100']
-  const out: Record<string, string> = {}
-  for (const k of keys) {
-    const v = resolveKey(vals, k)
-    if (v) out[k] = v
+  const get = (canonical: string) => resolveKey(vals, canonical)
+  return {
+    primary: get('primary') ?? '#570df8',
+    secondary: get('secondary') ?? '#f000b8',
+    accent: get('accent') ?? '#1fb2a5',
+    neutral: get('neutral') ?? '#3d4451',
+    base100: get('base-100') ?? '#ffffff',
+    base200: get('base-200') ?? '#e5e7eb',
+    base300: get('base-300') ?? '#d1d5db',
+    hasColors: Object.keys(vals).length > 0,
   }
-  return out
-}
-
-/**
- * Builds an inline style object that injects the theme's stored values
- * as CSS custom properties, so DaisyUI utility classes (bg-primary, etc.)
- * resolve correctly inside the card without needing data-theme.
- */
-function sharedCardStyle(theme: Theme): Record<string, string> {
-  const vals = safeValues(theme.values)
-  const style: Record<string, string> = {}
-
-  // Pass every stored value through as a CSS variable
-  for (const [key, val] of Object.entries(vals)) {
-    const cssKey = key.startsWith('--') ? key : `--${key}`
-    style[cssKey] = val
-  }
-
-  // Also cover canonical aliases so DaisyUI v3 (--primary etc.) definitely lands
-  for (const canonical of Object.keys(KEY_ALIASES)) {
-    const v = resolveKey(vals, canonical)
-    if (v) style[`--${canonical}`] = v
-  }
-
-  // Explicit background so the card itself isn't transparent
-  const bg = resolveKey(vals, 'base-100') ?? '#ffffff'
-  style['background'] = bg
-
-  // Text color from neutral or base-content
-  const color =
-    resolveKey(vals, 'neutral') ?? resolveKey(vals, 'base-content') ?? '#000000'
-  style['color'] = color
-
-  return style
 }
 
 // ── Tabs ─────────────────────────────────────────────────────────
@@ -493,16 +494,6 @@ const allThemeCount = computed(
 )
 
 const SWATCH_KEYS = ['primary', 'secondary', 'accent', 'neutral', 'base-100']
-
-function sharedCardBg(theme: Theme): string {
-  const bg = safeValues(theme.values)['base-100'] ?? '#ffffff'
-  return `background: ${bg};`
-}
-
-function sharedTextStyle(theme: Theme): string {
-  const color = safeValues(theme.values)['neutral'] ?? '#000000'
-  return `color: ${color};`
-}
 
 // ── Actions ───────────────────────────────────────────────────────
 async function applyTheme(name: string) {

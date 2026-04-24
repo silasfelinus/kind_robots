@@ -760,16 +760,29 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   function startDrain(delay = 1200, interval = 450) {
     stopDrain()
+
     drainStartTimeoutId.value = setTimeout(() => {
       drainStartTimeoutId.value = null
+
       drainIntervalId.value = setInterval(() => {
-        if (!butterflies.value.length) {
+        const available = butterflies.value.filter(
+          (butterfly) => !butterfly.isExiting && !isToggleButterfly(butterfly),
+        )
+
+        if (!available.length) {
           stopDrain()
           return
         }
-        removeRandomButterfly()
+
+        const butterfly =
+          available[Math.floor(Math.random() * available.length)]
+        if (butterfly) sendButterflyAway(butterfly)
       }, interval)
     }, delay)
+  }
+
+  function startStartupExit() {
+    startDrain(500, 180)
   }
 
   async function initialize() {
@@ -1250,6 +1263,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     sendButterflyAway,
     clearButterflyById,
     markAllButterfliesForExit,
+    startStartupExit,
   }
 })
 

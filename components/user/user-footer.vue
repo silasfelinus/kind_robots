@@ -16,15 +16,17 @@
           <p class="truncate text-xs text-base-content/60">{{ statusLine }}</p>
         </div>
 
-        <NuxtLink
-          v-for="link in compactLinks"
-          :key="link.to"
-          :to="link.to"
+        <button
+          v-for="link in footerLinks"
+          :key="link.key"
+          type="button"
           class="btn btn-sm shrink-0"
+          :class="navStore.userDashboardTab === link.key ? 'btn-primary' : ''"
+          @click="selectUserTab(link.key)"
         >
           <icon :name="link.icon" class="h-4 w-4" />
-          <span class="hidden md:inline">{{ link.label }}</span>
-        </NuxtLink>
+          {{ link.label }}
+        </button>
       </div>
     </template>
 
@@ -83,12 +85,18 @@
           class="min-h-0 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3"
         >
           <div class="grid grid-cols-2 gap-2 md:grid-cols-4">
-            <NuxtLink
+            <button
               v-for="link in footerLinks"
-              :key="link.to"
-              :to="link.to"
-              class="group flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-center transition hover:border-primary hover:bg-primary/10"
+              :key="link.key"
+              type="button"
+              class="btn btn-sm shrink-0"
+              :class="
+                navStore.userDashboardTab === link.key ? 'btn-primary' : ''
+              "
+              @click="selectUserTab(link.key)"
             >
+              <icon :name="link.icon" class="h-4 w-4" />
+              {{ link.label }}
               <icon
                 :name="link.icon"
                 class="h-7 w-7 text-primary transition group-hover:scale-110"
@@ -97,7 +105,7 @@
               <span class="line-clamp-2 text-xs text-base-content/55">{{
                 link.description
               }}</span>
-            </NuxtLink>
+            </button>
           </div>
         </section>
       </div>
@@ -124,15 +132,17 @@
         <section
           class="flex min-w-0 items-center gap-2 overflow-x-auto rounded-2xl border border-base-300 bg-base-200 px-3"
         >
-          <NuxtLink
+          <button
             v-for="link in footerLinks"
-            :key="link.to"
-            :to="link.to"
+            :key="link.key"
+            type="button"
             class="btn btn-sm shrink-0"
+            :class="navStore.userDashboardTab === link.key ? 'btn-primary' : ''"
+            @click="selectUserTab(link.key)"
           >
             <icon :name="link.icon" class="h-4 w-4" />
             {{ link.label }}
-          </NuxtLink>
+          </button>
         </section>
       </div>
     </template>
@@ -144,16 +154,22 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useUserStore } from '@/stores/userStore'
+import { useNavStore, type UserDashboardTab } from '@/stores/navStore'
 
 type UserFooterLink = {
   label: string
-  to: string
+  key: UserDashboardTab
   icon: string
   description: string
 }
 
 const displayStore = useDisplayStore()
 const userStore = useUserStore()
+const navStore = useNavStore()
+
+function selectUserTab(tab: UserDashboardTab) {
+  navStore.setUserDashboardTab(tab)
+}
 
 const footerState = computed(() => displayStore.footerState)
 const isCompact = computed(() => footerState.value === 'compact')
@@ -169,43 +185,43 @@ const statusLine = computed(() => {
 const footerLinks: UserFooterLink[] = [
   {
     label: 'Dashboard',
-    to: '/dashboard',
+    key: 'dashboard',
     icon: 'kind-icon:user',
     description: 'Profile, avatar, account basics',
   },
   {
     label: 'Subscription',
-    to: '/subscription',
+    key: 'subscription',
     icon: 'kind-icon:jellybean',
     description: 'Plans, credits, billing tools',
   },
   {
     label: 'Milestones',
-    to: '/milestones',
+    key: 'milestones',
     icon: 'kind-icon:trophy',
     description: 'Rewards, progress, achievements',
   },
   {
     label: 'Servers',
-    to: '/servers',
+    key: 'servers',
     icon: 'kind-icon:server',
     description: 'AI endpoints and model backends',
   },
   {
     label: 'Themes',
-    to: '/themes',
+    key: 'themes',
     icon: 'kind-icon:palette',
     description: 'DaisyUI and custom site themes',
   },
   {
     label: 'Chats',
-    to: '/chats',
+    key: 'chats',
     icon: 'kind-icon:chat',
     description: 'Conversations and chat galleries',
   },
   {
     label: 'Galleries',
-    to: '/galleries',
+    key: 'galleries',
     icon: 'kind-icon:gallery',
     description: 'Collections, art, and visual chaos',
   },

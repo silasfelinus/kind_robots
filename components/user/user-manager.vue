@@ -9,6 +9,7 @@
         <avatar-image
           class="h-16 w-16 rounded-2xl border-2 border-primary object-cover"
         />
+        <avatar-upload class="h-16 w-16" />
         <div class="min-w-0">
           <h1 class="truncate text-2xl font-black">{{ username }}</h1>
           <p class="truncate text-sm text-base-content/60">{{ userStatus }}</p>
@@ -76,19 +77,6 @@
             </span>
           </button>
         </div>
-
-        <div
-          class="mt-3 hidden min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3 xl:block"
-        >
-          <p class="text-sm font-bold">User Control Deck</p>
-          <p class="mt-2 text-sm text-base-content/60">
-            One screen, many trapdoors. Pick a panel and pretend this was always
-            organized.
-          </p>
-          <div class="mt-3">
-            <jellybean-counter />
-          </div>
-        </div>
       </aside>
 
       <main
@@ -99,33 +87,6 @@
           class="h-full min-h-0 overflow-y-auto p-3"
         >
           <div class="grid gap-3 lg:grid-cols-[18rem_minmax(0,1fr)]">
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-              <div class="flex flex-col items-center gap-3 text-center">
-                <avatar-image
-                  class="h-32 w-32 rounded-full border-4 border-primary object-cover shadow-lg"
-                />
-                <avatar-upload class="h-16 w-16" />
-                <div>
-                  <h2 class="text-xl font-black">{{ username }}</h2>
-                  <p class="text-sm text-base-content/60">
-                    {{ userStore.user?.email || 'No email attached' }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="mt-4 grid grid-cols-2 gap-2">
-                <NuxtLink
-                  v-for="quickLink in quickLinks"
-                  :key="quickLink.to"
-                  :to="quickLink.to"
-                  class="btn btn-sm"
-                >
-                  <icon :name="quickLink.icon" class="h-4 w-4" />
-                  {{ quickLink.label }}
-                </NuxtLink>
-              </div>
-            </div>
-
             <div class="grid gap-3">
               <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
                 <h2 class="text-xl font-black">Account Snapshot</h2>
@@ -215,8 +176,10 @@
 
 <script setup lang="ts">
 // /components/content/user/user-manager.vue
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useNavStore } from '@/stores/navStore'
+import type { UserDashboardTab } from '@/stores/navStore'
 
 type UserManagerSection =
   | 'dashboard'
@@ -235,7 +198,12 @@ type ManagerSection = {
 }
 
 const userStore = useUserStore()
-const activeSection = ref<UserManagerSection>('dashboard')
+const navStore = useNavStore()
+
+const activeSection = computed({
+  get: () => navStore.userDashboardTab,
+  set: (tab: UserDashboardTab) => navStore.setUserDashboardTab(tab),
+})
 
 const username = computed(() => userStore.username || 'Kind Guest')
 

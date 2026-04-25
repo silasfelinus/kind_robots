@@ -7,6 +7,15 @@ import smartIconSeeds from '@/stores/seeds/smartIcons.json'
 
 export type NavTab = 'favorites' | 'navigation' | 'all'
 
+export type UserDashboardTab =
+  | 'dashboard'
+  | 'subscription'
+  | 'milestones'
+  | 'servers'
+  | 'themes'
+  | 'chats'
+  | 'galleries'
+
 export const useNavStore = defineStore('navStore', () => {
   const items = ref<SmartIcon[]>([])
   const favorites = ref<string[]>([])
@@ -24,6 +33,13 @@ export const useNavStore = defineStore('navStore', () => {
   const directoryIcons = computed(() =>
     items.value.filter((icon) => (icon.type ?? 'directory') === 'directory'),
   )
+
+  const userDashboardTab = ref<UserDashboardTab>('dashboard')
+
+  function setUserDashboardTab(tab: UserDashboardTab) {
+    userDashboardTab.value = tab
+    syncToLocalStorage()
+  }
 
   const modelTypes = computed(() => {
     const set = new Set<string>()
@@ -50,6 +66,7 @@ export const useNavStore = defineStore('navStore', () => {
     try {
       localStorage.setItem('navIcons', JSON.stringify(items.value))
       localStorage.setItem('navFavorites', JSON.stringify(favorites.value))
+      localStorage.setItem('userDashboardTab', userDashboardTab.value)
     } catch {}
   }
 
@@ -59,6 +76,20 @@ export const useNavStore = defineStore('navStore', () => {
     try {
       const rawIcons = localStorage.getItem('navIcons')
       const rawFavorites = localStorage.getItem('navFavorites')
+
+      const rawUserDashboardTab = localStorage.getItem('userDashboardTab')
+
+      if (
+        rawUserDashboardTab === 'dashboard' ||
+        rawUserDashboardTab === 'subscription' ||
+        rawUserDashboardTab === 'milestones' ||
+        rawUserDashboardTab === 'servers' ||
+        rawUserDashboardTab === 'themes' ||
+        rawUserDashboardTab === 'chats' ||
+        rawUserDashboardTab === 'galleries'
+      ) {
+        userDashboardTab.value = rawUserDashboardTab
+      }
 
       if (rawIcons) {
         const parsed = JSON.parse(rawIcons)
@@ -81,6 +112,8 @@ export const useNavStore = defineStore('navStore', () => {
 
     watch(favorites, () => syncToLocalStorage(), { deep: true })
   }
+
+  watch(userDashboardTab, () => syncToLocalStorage())
 
   async function fetchAllIcons(force = false): Promise<SmartIcon[]> {
     if (!force && items.value.length) {
@@ -266,5 +299,7 @@ export const useNavStore = defineStore('navStore', () => {
     setIcons,
     syncToLocalStorage,
     recordVisit,
+    userDashboardTab,
+    setUserDashboardTab,
   }
 })

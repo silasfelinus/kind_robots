@@ -195,7 +195,7 @@ const galleries = [
     key: 'dominions',
     name: 'Dominions',
     page: 'dominions',
-    icon: 'kind-icon:frame',
+    icon: 'kind-icon:card',
     description: 'Manage and filter custom Dominion cards',
   },
   {

@@ -16,6 +16,8 @@ export type UserDashboardTab =
   | 'chats'
   | 'galleries'
 
+export type WonderDashboardTab = 'memory' | 'button' | 'wonderlab' | 'screenfx'
+
 export const useNavStore = defineStore('navStore', () => {
   const items = ref<SmartIcon[]>([])
   const favorites = ref<string[]>([])
@@ -61,12 +63,27 @@ export const useNavStore = defineStore('navStore', () => {
     })
   })
 
+  const wonderDashboardTab = ref<WonderDashboardTab>('memory')
+  const wonderLabFolder = ref<string | null>(null)
+
+  function setWonderDashboardTab(tab: WonderDashboardTab) {
+    wonderDashboardTab.value = tab
+    syncToLocalStorage()
+  }
+
+  function setWonderLabFolder(folder: string | null) {
+    wonderLabFolder.value = folder
+    syncToLocalStorage()
+  }
+
   function syncToLocalStorage() {
     if (typeof window === 'undefined') return
     try {
       localStorage.setItem('navIcons', JSON.stringify(items.value))
       localStorage.setItem('navFavorites', JSON.stringify(favorites.value))
       localStorage.setItem('userDashboardTab', userDashboardTab.value)
+      localStorage.setItem('wonderDashboardTab', wonderDashboardTab.value)
+      localStorage.setItem('wonderLabFolder', wonderLabFolder.value ?? '')
     } catch {}
   }
 
@@ -91,6 +108,20 @@ export const useNavStore = defineStore('navStore', () => {
         userDashboardTab.value = rawUserDashboardTab
       }
 
+      const rawWonderDashboardTab = localStorage.getItem('wonderDashboardTab')
+      const rawWonderLabFolder = localStorage.getItem('wonderLabFolder')
+
+      if (
+        rawWonderDashboardTab === 'memory' ||
+        rawWonderDashboardTab === 'button' ||
+        rawWonderDashboardTab === 'wonderlab' ||
+        rawWonderDashboardTab === 'screenfx'
+      ) {
+        wonderDashboardTab.value = rawWonderDashboardTab
+      }
+
+      wonderLabFolder.value = rawWonderLabFolder || null
+
       if (rawIcons) {
         const parsed = JSON.parse(rawIcons)
         if (Array.isArray(parsed)) {
@@ -114,6 +145,8 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   watch(userDashboardTab, () => syncToLocalStorage())
+  watch(wonderDashboardTab, () => syncToLocalStorage())
+  watch(wonderLabFolder, () => syncToLocalStorage())
 
   async function fetchAllIcons(force = false): Promise<SmartIcon[]> {
     if (!force && items.value.length) {
@@ -301,5 +334,9 @@ export const useNavStore = defineStore('navStore', () => {
     recordVisit,
     userDashboardTab,
     setUserDashboardTab,
+    wonderDashboardTab,
+    wonderLabFolder,
+    setWonderDashboardTab,
+    setWonderLabFolder,
   }
 })

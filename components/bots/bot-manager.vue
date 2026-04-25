@@ -9,9 +9,7 @@
       class="flex items-center gap-4 px-5 py-3 bg-base-100 border-b border-base-300 shrink-0 flex-wrap"
     >
       <div class="flex items-center gap-2 mr-auto">
-        <span class="text-2xl leading-none" style="color: var(--bm-amber)"
-          >⬡</span
-        >
+        <span class="text-2xl leading-none bm-amber">⬡</span>
         <span class="text-lg font-bold tracking-tight">Bot Manager</span>
         <span class="text-[0.7rem] font-mono opacity-50 self-end pb-px"
           >{{ bots.length }} available</span
@@ -25,7 +23,7 @@
           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-150"
           :class="
             activeMode === tab.id
-              ? 'bg-base-100 shadow-sm opacity-100 bm-tab-active'
+              ? 'bg-base-100 shadow-sm bm-tab-active'
               : 'opacity-55 hover:opacity-85 hover:bg-base-300'
           "
           @click="activeMode = tab.id"
@@ -51,21 +49,14 @@
         v-if="activeMode === 'roster'"
         class="flex-1 flex flex-col overflow-hidden"
       >
-        <!-- Search + filters -->
         <div
           class="flex items-center gap-4 flex-wrap px-5 py-3 border-b border-base-300 bg-base-100 shrink-0"
         >
           <input
             v-model="searchQuery"
-            class="flex-1 min-w-44 px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm outline-none transition-colors"
-            style="--tw-ring-color: var(--bm-amber)"
+            class="flex-1 min-w-44 px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm outline-none transition-colors bm-focus"
             placeholder="Search bots…"
             type="search"
-            @focus="
-              ($event.target as HTMLInputElement).style.borderColor =
-                'var(--bm-amber)'
-            "
-            @blur="($event.target as HTMLInputElement).style.borderColor = ''"
           />
           <label
             class="flex items-center gap-1.5 text-sm opacity-70 hover:opacity-100 cursor-pointer select-none"
@@ -92,10 +83,9 @@
           >
         </div>
 
-        <!-- Bot grid — large cards for XL displays -->
         <div
           v-if="filteredBots.length"
-          class="bm-grid overflow-y-auto flex-1 p-5 gap-4"
+          class="bm-roster-grid overflow-y-auto flex-1 p-5 gap-4"
           :style="{ paddingBottom: botStore.currentBot ? '5.5rem' : '1.25rem' }"
         >
           <button
@@ -109,7 +99,6 @@
             "
             @click="selectBot(bot.id)"
           >
-            <!-- Avatar -->
             <div class="relative shrink-0">
               <img
                 :src="bot.avatarImage || '/images/bot.webp'"
@@ -132,8 +121,6 @@
                 >PUB</span
               >
             </div>
-
-            <!-- Info -->
             <div class="w-full min-w-0">
               <p class="text-sm font-bold mb-1 truncate">
                 {{ bot.name || 'Unnamed Bot' }}
@@ -142,8 +129,6 @@
                 {{ bot.subtitle || bot.description || '—' }}
               </p>
             </div>
-
-            <!-- Selected dot -->
             <div
               v-if="botStore.currentBot?.id === bot.id"
               class="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-amber-500"
@@ -164,18 +149,15 @@
           </button>
         </div>
 
-        <!-- Selected bot sticky bar -->
         <transition name="bm-slide-up">
           <div
             v-if="botStore.currentBot"
-            class="absolute bottom-0 left-0 right-0 flex items-center gap-3 px-5 py-3 bg-base-100 flex-wrap z-10"
-            style="border-top: 1px solid var(--bm-amber)"
+            class="absolute bottom-0 left-0 right-0 flex items-center gap-3 px-5 py-3 bg-base-100 flex-wrap z-10 bm-border-top-amber"
           >
             <img
               :src="botStore.currentBot.avatarImage || '/images/bot.webp'"
               :alt="botStore.currentBot.name || 'Bot'"
-              class="w-10 h-10 rounded-full object-cover border-2 shrink-0"
-              style="border-color: var(--bm-amber)"
+              class="w-10 h-10 rounded-full object-cover border-2 border-amber-500 shrink-0"
             />
             <div class="flex-1 min-w-0">
               <span class="block font-bold text-sm truncate">{{
@@ -185,15 +167,12 @@
                 botStore.currentBot.description
               }}</span>
             </div>
-            <div class="flex gap-2 shrink-0">
-              <button
-                class="px-4 py-1.5 text-sm font-bold rounded-lg text-white transition-all active:scale-95"
-                style="background: var(--bm-amber)"
-                @click="goToMode('command')"
-              >
-                Chat →
-              </button>
-            </div>
+            <button
+              class="px-4 py-1.5 text-sm font-bold rounded-lg text-white bm-btn-primary transition-all active:scale-95 shrink-0"
+              @click="goToMode('command')"
+            >
+              Chat →
+            </button>
           </div>
         </transition>
       </section>
@@ -203,7 +182,6 @@
         v-if="activeMode === 'command'"
         class="flex-1 flex overflow-hidden"
       >
-        <!-- Bot picker sidebar -->
         <aside
           class="w-56 shrink-0 flex flex-col border-r border-base-300 bg-base-100 overflow-hidden"
         >
@@ -244,7 +222,6 @@
           </div>
         </aside>
 
-        <!-- Main panel -->
         <div class="flex-1 flex flex-col overflow-hidden">
           <div
             v-if="botStore.currentBot"
@@ -257,8 +234,7 @@
               <img
                 :src="botStore.currentBot.avatarImage || '/images/bot.webp'"
                 :alt="botStore.currentBot.name || 'Bot'"
-                class="w-16 h-16 rounded-xl object-cover border-2 shrink-0"
-                style="border-color: var(--bm-amber)"
+                class="w-16 h-16 rounded-xl object-cover border-2 border-amber-500 shrink-0"
               />
               <div class="flex-1 min-w-0">
                 <h2
@@ -276,17 +252,12 @@
                   {{ botStore.currentBot.description || 'A bot of mystery.' }}
                 </p>
               </div>
-
-              <!-- Temperature slider -->
               <div class="flex flex-col items-end gap-1 shrink-0">
                 <div class="flex items-center gap-2">
                   <span class="text-xs font-mono opacity-55">temperature</span>
-                  <span
-                    class="text-sm font-bold font-mono"
-                    style="color: var(--bm-amber)"
-                  >
-                    {{ temperature.toFixed(1) }}
-                  </span>
+                  <span class="text-sm font-bold font-mono bm-amber">{{
+                    temperature.toFixed(1)
+                  }}</span>
                 </div>
                 <input
                   v-model.number="temperature"
@@ -294,14 +265,12 @@
                   min="0"
                   max="2"
                   step="0.1"
-                  class="w-36 bm-range-amber"
+                  class="w-36 bm-range"
                 />
                 <div
                   class="flex justify-between w-36 text-[0.6rem] opacity-40 font-mono"
                 >
-                  <span>precise</span>
-                  <span>balanced</span>
-                  <span>wild</span>
+                  <span>precise</span><span>balanced</span><span>wild</span>
                 </div>
               </div>
             </div>
@@ -328,10 +297,10 @@
             <!-- Chat log -->
             <div
               ref="chatLog"
-              class="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3"
+              class="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4"
             >
               <div
-                v-if="!chatMessages.length"
+                v-if="!sessionChats.length"
                 class="flex flex-col items-center justify-center h-full gap-2 opacity-25 select-none"
               >
                 <span class="text-6xl">⬡</span>
@@ -339,38 +308,57 @@
               </div>
 
               <div
-                v-for="msg in chatMessages"
-                :key="msg.id"
-                class="flex gap-3"
-                :class="msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'"
+                v-for="chat in sessionChats"
+                :key="chat.id"
+                class="flex flex-col gap-3"
               >
-                <img
-                  v-if="msg.role === 'assistant'"
-                  :src="botStore.currentBot?.avatarImage || '/images/bot.webp'"
-                  class="w-8 h-8 rounded-full object-cover shrink-0 border border-base-300 self-end"
-                  alt="bot"
-                />
-                <div
-                  class="max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed"
-                  :class="
-                    msg.role === 'user'
-                      ? 'text-white rounded-br-sm bm-user-bubble'
-                      : 'bg-base-200 rounded-bl-sm'
-                  "
-                >
-                  <!-- Loading dots -->
-                  <span
-                    v-if="msg.isLoading"
-                    class="flex gap-1 items-center py-0.5"
+                <!-- User bubble -->
+                <div class="flex flex-row-reverse gap-3">
+                  <div
+                    class="max-w-[75%] rounded-2xl rounded-br-sm px-4 py-2.5 text-sm leading-relaxed bm-user-bubble text-white whitespace-pre-wrap"
                   >
-                    <span class="bm-dot" style="animation-delay: 0ms" />
-                    <span class="bm-dot" style="animation-delay: 160ms" />
-                    <span class="bm-dot" style="animation-delay: 320ms" />
-                  </span>
-                  <span v-else class="whitespace-pre-wrap">{{
-                    msg.content
-                  }}</span>
+                    {{ chat.content }}
+                  </div>
                 </div>
+                <!-- Bot bubble -->
+                <div class="flex flex-row gap-3">
+                  <img
+                    :src="
+                      botStore.currentBot?.avatarImage || '/images/bot.webp'
+                    "
+                    class="w-8 h-8 rounded-full object-cover shrink-0 border border-base-300 self-end"
+                    alt="bot"
+                  />
+                  <div
+                    class="max-w-[75%] rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm leading-relaxed bg-base-200"
+                  >
+                    <span
+                      v-if="!chat.botResponse"
+                      class="flex gap-1 items-center py-0.5"
+                    >
+                      <span class="bm-dot" style="animation-delay: 0ms" />
+                      <span class="bm-dot" style="animation-delay: 160ms" />
+                      <span class="bm-dot" style="animation-delay: 320ms" />
+                    </span>
+                    <span v-else class="whitespace-pre-wrap">{{
+                      chat.botResponse
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                v-if="chatError"
+                class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm"
+              >
+                <span>⚠️</span>
+                <span class="flex-1">{{ chatError }}</span>
+                <button
+                  class="text-xs underline opacity-70 hover:opacity-100"
+                  @click="chatError = ''"
+                >
+                  dismiss
+                </button>
               </div>
             </div>
 
@@ -378,7 +366,6 @@
             <div
               class="shrink-0 border-t border-base-300 bg-base-100 pt-2 px-4 pb-4"
             >
-              <!-- Helper row -->
               <div class="flex items-center gap-2 mb-2">
                 <button
                   class="text-xs px-2.5 py-1 rounded-lg border border-base-300 opacity-60 hover:opacity-100 transition-opacity font-semibold"
@@ -399,37 +386,27 @@
                   Clear
                 </button>
                 <button
-                  v-if="chatMessages.length"
+                  v-if="sessionChatIds.length"
                   class="text-xs px-2.5 py-1 rounded-lg border border-base-300 opacity-60 hover:opacity-100 transition-opacity font-semibold ml-auto"
                   @click="clearChat"
                 >
                   New chat
                 </button>
               </div>
-
-              <!-- Textarea + send -->
               <div class="flex items-end gap-2">
                 <textarea
                   v-model="launchMessage"
-                  class="flex-1 bg-base-200 border border-base-300 rounded-xl px-3 py-2.5 text-sm leading-relaxed resize-none outline-none transition-colors min-h-12 max-h-40"
+                  class="flex-1 bg-base-200 border border-base-300 rounded-xl px-3 py-2.5 text-sm leading-relaxed resize-none outline-none transition-colors min-h-12 max-h-40 bm-focus"
                   rows="2"
                   placeholder="Message the bot… (Enter to send)"
                   :disabled="isResponding"
                   @keydown.enter.exact.prevent="sendMessage"
-                  @focus="
-                    ($event.target as HTMLTextAreaElement).style.borderColor =
-                      'var(--bm-amber)'
-                  "
-                  @blur="
-                    ($event.target as HTMLTextAreaElement).style.borderColor =
-                      ''
-                  "
                 />
                 <button
                   class="shrink-0 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-100 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
                   :class="
                     launchMessage.trim() && !isResponding
-                      ? 'text-white bm-btn-send'
+                      ? 'bm-btn-primary text-white'
                       : 'bg-base-300 text-base-content'
                   "
                   :disabled="!launchMessage.trim() || isResponding"
@@ -441,7 +418,6 @@
             </div>
           </div>
 
-          <!-- No-bot empty state -->
           <div
             v-else
             class="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center"
@@ -462,197 +438,435 @@
       </section>
 
       <!-- ══ SERVER ════════════════════════════════════════════════ -->
-      <section v-if="activeMode === 'server'" class="flex-1 overflow-y-auto">
-        <div class="max-w-2xl mx-auto px-6 py-8 flex flex-col gap-7">
-          <div>
-            <h2 class="text-xl font-extrabold tracking-tight mb-1">
-              Server Configuration
-            </h2>
-            <p class="text-sm opacity-55">
-              AI backend settings and default generation parameters.
-            </p>
-          </div>
-
-          <!-- Model -->
-          <div class="flex flex-col gap-2">
-            <label
-              class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
-              >Model</label
-            >
-            <select
-              v-model="serverConfig.model"
-              class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm outline-none font-mono transition-colors"
-              @focus="
-                ($event.target as HTMLSelectElement).style.borderColor =
-                  'var(--bm-amber)'
-              "
-              @blur="
-                ($event.target as HTMLSelectElement).style.borderColor = ''
-              "
-            >
-              <option value="gpt-4o">gpt-4o</option>
-              <option value="gpt-4o-mini">gpt-4o-mini</option>
-              <option value="gpt-4-turbo">gpt-4-turbo</option>
-              <option value="claude-opus-4-6">claude-opus-4-6</option>
-              <option value="claude-sonnet-4-6">claude-sonnet-4-6</option>
-              <option value="claude-haiku-4-5">claude-haiku-4-5</option>
-              <option value="llama-3-70b">llama-3-70b</option>
-              <option value="custom">custom…</option>
-            </select>
-            <input
-              v-if="serverConfig.model === 'custom'"
-              v-model="serverConfig.customModel"
-              class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm font-mono outline-none transition-colors mt-1"
-              placeholder="model-name-here"
-              @focus="
-                ($event.target as HTMLInputElement).style.borderColor =
-                  'var(--bm-amber)'
-              "
-              @blur="($event.target as HTMLInputElement).style.borderColor = ''"
-            />
-          </div>
-
-          <!-- API Endpoint -->
-          <div class="flex flex-col gap-2">
-            <label
-              class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
-              >API Endpoint</label
-            >
-            <input
-              v-model="serverConfig.endpoint"
-              type="url"
-              class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm font-mono outline-none transition-colors"
-              placeholder="https://api.openai.com/v1/chat/completions"
-              @focus="
-                ($event.target as HTMLInputElement).style.borderColor =
-                  'var(--bm-amber)'
-              "
-              @blur="($event.target as HTMLInputElement).style.borderColor = ''"
-            />
-          </div>
-
-          <!-- System Prompt -->
-          <div class="flex flex-col gap-2">
-            <label
-              class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
-            >
-              Default System Prompt
-            </label>
-            <textarea
-              v-model="serverConfig.systemPrompt"
-              class="px-3 py-2.5 rounded-lg border border-base-300 bg-base-200 text-sm leading-relaxed outline-none transition-colors resize-y min-h-28 font-mono"
-              rows="5"
-              placeholder="You are a helpful, creative assistant…"
-              @focus="
-                ($event.target as HTMLTextAreaElement).style.borderColor =
-                  'var(--bm-amber)'
-              "
-              @blur="
-                ($event.target as HTMLTextAreaElement).style.borderColor = ''
-              "
-            />
-            <p class="text-xs opacity-40">
-              Per-bot personality overrides this. Used as a fallback when a bot
-              has no personality set.
-            </p>
-          </div>
-
-          <!-- Max Tokens -->
-          <div class="flex flex-col gap-2">
-            <div class="flex items-center justify-between">
-              <label
-                class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
-                >Max Tokens</label
-              >
-              <span
-                class="text-sm font-bold font-mono"
-                style="color: var(--bm-amber)"
-                >{{ serverConfig.maxTokens }}</span
-              >
-            </div>
-            <input
-              v-model.number="serverConfig.maxTokens"
-              type="range"
-              min="256"
-              max="8192"
-              step="256"
-              class="w-full bm-range-amber"
-            />
-            <div
-              class="flex justify-between text-[0.65rem] opacity-40 font-mono"
-            >
-              <span>256</span><span>2048</span><span>4096</span
-              ><span>8192</span>
-            </div>
-          </div>
-
-          <!-- Default Temperature -->
-          <div class="flex flex-col gap-2">
-            <div class="flex items-center justify-between">
-              <label
-                class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
-                >Default Temperature</label
-              >
-              <span
-                class="text-sm font-bold font-mono"
-                style="color: var(--bm-amber)"
-                >{{ serverConfig.defaultTemp.toFixed(1) }}</span
-              >
-            </div>
-            <input
-              v-model.number="serverConfig.defaultTemp"
-              type="range"
-              min="0"
-              max="2"
-              step="0.1"
-              class="w-full bm-range-amber"
-            />
-            <div
-              class="flex justify-between text-[0.65rem] opacity-40 font-mono"
-            >
-              <span>0.0 precise</span><span>1.0</span><span>2.0 wild</span>
-            </div>
-          </div>
-
-          <!-- Streaming toggle -->
+      <section
+        v-if="activeMode === 'server'"
+        class="flex-1 flex overflow-hidden"
+      >
+        <!-- Left: server list -->
+        <aside
+          class="w-64 shrink-0 flex flex-col border-r border-base-300 bg-base-100 overflow-hidden"
+        >
           <div
-            class="flex items-center justify-between p-4 rounded-xl border border-base-300 bg-base-100"
+            class="flex items-center justify-between px-4 pt-3 pb-2 shrink-0"
           >
-            <div>
-              <p class="text-sm font-semibold">Streaming responses</p>
-              <p class="text-xs opacity-55">
-                Stream tokens as they are generated
-              </p>
-            </div>
-            <input
-              v-model="serverConfig.streaming"
-              type="checkbox"
-              class="toggle toggle-warning"
-            />
+            <p
+              class="text-[0.65rem] font-mono uppercase tracking-widest opacity-45"
+            >
+              Text Servers
+            </p>
+            <span class="text-[0.6rem] font-mono opacity-30"
+              >{{ serverStore.textServers.length }} active</span
+            >
           </div>
 
-          <!-- Save / Reset -->
-          <div class="flex items-center gap-3 pt-1">
+          <div class="flex-1 overflow-y-auto flex flex-col gap-1 p-1">
             <button
-              class="px-5 py-2 rounded-lg font-bold text-sm text-white transition-all active:scale-95 bm-btn-send"
-              @click="saveServerConfig"
+              v-for="opt in serverStore.textServerOptions"
+              :key="opt.value"
+              class="flex flex-col gap-0.5 px-3 py-2.5 rounded-lg border text-left transition-all duration-100 cursor-pointer"
+              :class="
+                serverStore.activeTextServer?.id === opt.value
+                  ? 'bm-sidebar-active border-amber-500'
+                  : serverStore.selectedServer?.id === opt.value
+                    ? 'bg-base-200 border-base-300'
+                    : 'border-transparent hover:bg-base-200'
+              "
+              @click="selectTextServer(opt.value)"
             >
-              Save Configuration
+              <div class="flex items-center gap-2">
+                <!-- Health dot -->
+                <span
+                  class="w-1.5 h-1.5 rounded-full shrink-0"
+                  :class="serverHealthClass(opt.value)"
+                />
+                <span class="text-sm font-semibold truncate flex-1">{{
+                  opt.label
+                }}</span>
+                <!-- Active badge -->
+                <span
+                  v-if="serverStore.activeTextServer?.id === opt.value"
+                  class="text-[0.55rem] font-bold font-mono px-1.5 py-px rounded-full bm-active-badge shrink-0"
+                  >ACTIVE</span
+                >
+                <span
+                  v-if="opt.isOfficial"
+                  class="text-[0.55rem] font-bold font-mono px-1.5 py-px rounded-full bg-teal-100 text-teal-700 border border-teal-200 shrink-0"
+                  >OFC</span
+                >
+              </div>
+              <p class="text-[0.7rem] opacity-50 truncate pl-3.5">
+                {{ opt.description || '—' }}
+              </p>
+            </button>
+
+            <div
+              v-if="!serverStore.textServerOptions.length"
+              class="flex flex-col items-center justify-center gap-2 py-8 opacity-40 text-xs text-center"
+            >
+              <span class="text-2xl">⚙</span>
+              <p>No text servers available</p>
+            </div>
+          </div>
+
+          <!-- Set active button -->
+          <div
+            class="p-2 shrink-0 border-t border-base-300 flex flex-col gap-1.5"
+          >
+            <button
+              v-if="
+                serverStore.selectedServer &&
+                serverStore.selectedServer.id !==
+                  serverStore.activeTextServer?.id
+              "
+              class="w-full flex items-center justify-center px-3 py-1.5 text-xs font-bold rounded-lg text-white bm-btn-primary transition-all active:scale-95"
+              @click="setAsActiveServer"
+            >
+              Set as Active Text Server
             </button>
             <button
-              class="px-5 py-2 rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 font-semibold text-sm transition-colors"
-              @click="resetServerConfig"
+              v-if="serverStore.activeTextServer"
+              class="w-full flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 transition-colors opacity-70 hover:opacity-100"
+              @click="serverStore.setActiveTextServer(null)"
             >
-              Reset to defaults
+              Clear active server
             </button>
-            <transition name="bm-fade">
-              <span
-                v-if="serverSaveMsg"
-                class="text-xs font-semibold font-mono text-teal-600"
+          </div>
+        </aside>
+
+        <!-- Right: server detail / edit form -->
+        <div class="flex-1 overflow-y-auto">
+          <div
+            v-if="serverStore.selectedServer"
+            class="max-w-2xl mx-auto px-6 py-6 flex flex-col gap-6"
+          >
+            <!-- Server identity header -->
+            <div class="flex items-start gap-4">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h2 class="text-xl font-extrabold tracking-tight">
+                    {{
+                      serverStore.selectedServer.label ||
+                      serverStore.selectedServer.title
+                    }}
+                  </h2>
+                  <span
+                    class="text-[0.6rem] font-bold font-mono px-1.5 py-px rounded-full border"
+                    :class="
+                      serverStore.selectedServer.isActive
+                        ? 'bg-teal-100 text-teal-700 border-teal-200'
+                        : 'bg-base-300 opacity-50'
+                    "
+                    >{{ serverStore.selectedServer.serverType }}</span
+                  >
+                </div>
+                <p class="text-sm opacity-55 mt-0.5">
+                  {{
+                    serverStore.selectedServer.description || 'No description.'
+                  }}
+                </p>
+              </div>
+
+              <!-- Health status widget -->
+              <div class="flex flex-col items-end gap-1.5 shrink-0">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-2.5 h-2.5 rounded-full"
+                    :class="serverHealthClass(serverStore.selectedServer.id)"
+                  />
+                  <span
+                    class="text-xs font-mono font-bold"
+                    :class="
+                      serverHealthTextClass(serverStore.selectedServer.id)
+                    "
+                  >
+                    {{ serverHealthLabel(serverStore.selectedServer.id) }}
+                  </span>
+                </div>
+                <span
+                  v-if="activeHealth"
+                  class="text-[0.65rem] font-mono opacity-50"
+                >
+                  {{ activeHealth.latencyMs }}ms
+                </span>
+                <button
+                  class="text-xs px-3 py-1 rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 transition-colors font-semibold disabled:opacity-40"
+                  :disabled="serverStore.testingHealth"
+                  @click="testHealth"
+                >
+                  {{ serverStore.testingHealth ? 'Testing…' : 'Test Health' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Editable form fields -->
+            <div class="flex flex-col gap-5">
+              <!-- Base URL -->
+              <div class="flex flex-col gap-1.5">
+                <label
+                  class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                  >Base URL</label
+                >
+                <input
+                  v-model="serverStore.serverForm.baseUrl"
+                  type="url"
+                  class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm font-mono outline-none bm-focus transition-colors"
+                  placeholder="http://localhost:11434"
+                />
+              </div>
+
+              <!-- Endpoint path + health path side by side -->
+              <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5">
+                  <label
+                    class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                    >Endpoint Path</label
+                  >
+                  <input
+                    v-model="serverStore.serverForm.endpointPath"
+                    class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm font-mono outline-none bm-focus transition-colors"
+                    placeholder="/v1/chat/completions"
+                  />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label
+                    class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                    >Health Path</label
+                  >
+                  <input
+                    v-model="serverStore.serverForm.healthPath"
+                    class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm font-mono outline-none bm-focus transition-colors"
+                    placeholder="/health"
+                  />
+                </div>
+              </div>
+
+              <!-- Title / Label -->
+              <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5">
+                  <label
+                    class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                    >Title</label
+                  >
+                  <input
+                    v-model="serverStore.serverForm.title"
+                    class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm outline-none bm-focus transition-colors"
+                    placeholder="My Text Server"
+                  />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label
+                    class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                    >Label (display)</label
+                  >
+                  <input
+                    v-model="serverStore.serverForm.label"
+                    class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm outline-none bm-focus transition-colors"
+                    placeholder="My Server"
+                  />
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div class="flex flex-col gap-1.5">
+                <label
+                  class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                  >Description</label
+                >
+                <textarea
+                  v-model="serverStore.serverForm.description"
+                  class="px-3 py-2.5 rounded-lg border border-base-300 bg-base-200 text-sm leading-relaxed outline-none bm-focus transition-colors resize-y min-h-16"
+                  rows="2"
+                  placeholder="What this server is for…"
+                />
+              </div>
+
+              <!-- API key section -->
+              <div
+                class="flex flex-col gap-3 p-4 rounded-xl border border-base-300 bg-base-100"
               >
-                {{ serverSaveMsg }}
-              </span>
-            </transition>
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-semibold">Requires API Key</p>
+                    <p class="text-xs opacity-55">
+                      Enable if this server needs authentication
+                    </p>
+                  </div>
+                  <input
+                    v-model="serverStore.serverForm.requiresApiKey"
+                    type="checkbox"
+                    class="toggle toggle-warning toggle-sm"
+                  />
+                </div>
+                <div
+                  v-if="serverStore.serverForm.requiresApiKey"
+                  class="flex flex-col gap-2"
+                >
+                  <label
+                    class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                    >API Key Name / Header</label
+                  >
+                  <input
+                    v-model="serverStore.serverForm.apiKeyName"
+                    class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm font-mono outline-none bm-focus transition-colors"
+                    placeholder="Authorization"
+                  />
+                  <p class="text-xs opacity-40">
+                    Actual key value is stored securely — use the key manager to
+                    update it.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div class="flex flex-col gap-1.5">
+                <label
+                  class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                  >Notes</label
+                >
+                <textarea
+                  v-model="serverStore.serverForm.notes"
+                  class="px-3 py-2.5 rounded-lg border border-base-300 bg-base-200 text-sm leading-relaxed outline-none bm-focus transition-colors resize-y min-h-16 font-mono"
+                  rows="2"
+                  placeholder="Internal notes…"
+                />
+              </div>
+
+              <!-- Toggles row -->
+              <div class="grid grid-cols-2 gap-3">
+                <div
+                  class="flex items-center justify-between p-3 rounded-xl border border-base-300 bg-base-100"
+                >
+                  <span class="text-sm font-semibold">Public</span>
+                  <input
+                    v-model="serverStore.serverForm.isPublic"
+                    type="checkbox"
+                    class="toggle toggle-success toggle-sm"
+                  />
+                </div>
+                <div
+                  class="flex items-center justify-between p-3 rounded-xl border border-base-300 bg-base-100"
+                >
+                  <span class="text-sm font-semibold">Active</span>
+                  <input
+                    v-model="serverStore.serverForm.isActive"
+                    type="checkbox"
+                    class="toggle toggle-warning toggle-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Chat defaults (local prefs, not on Server schema) -->
+            <div class="flex flex-col gap-4 pt-2 border-t border-base-300">
+              <p
+                class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50 mt-2"
+              >
+                Chat Defaults (local prefs)
+              </p>
+
+              <div class="flex flex-col gap-1.5">
+                <label
+                  class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                  >Model name</label
+                >
+                <input
+                  v-model="chatPrefs.model"
+                  class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm font-mono outline-none bm-focus transition-colors"
+                  placeholder="e.g. gpt-4o, llama-3-70b, mistral…"
+                />
+                <p class="text-xs opacity-40">
+                  Passed as the model field in chat requests.
+                </p>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <div class="flex items-center justify-between">
+                  <label
+                    class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                    >Max Tokens</label
+                  >
+                  <span class="text-sm font-bold font-mono bm-amber">{{
+                    chatPrefs.maxTokens
+                  }}</span>
+                </div>
+                <input
+                  v-model.number="chatPrefs.maxTokens"
+                  type="range"
+                  min="256"
+                  max="8192"
+                  step="256"
+                  class="w-full bm-range"
+                />
+                <div
+                  class="flex justify-between text-[0.65rem] opacity-40 font-mono"
+                >
+                  <span>256</span><span>2048</span><span>4096</span
+                  ><span>8192</span>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <div class="flex items-center justify-between">
+                  <label
+                    class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                    >Default Temperature</label
+                  >
+                  <span class="text-sm font-bold font-mono bm-amber">{{
+                    chatPrefs.defaultTemp.toFixed(1)
+                  }}</span>
+                </div>
+                <input
+                  v-model.number="chatPrefs.defaultTemp"
+                  type="range"
+                  min="0"
+                  max="2"
+                  step="0.1"
+                  class="w-full bm-range"
+                />
+                <div
+                  class="flex justify-between text-[0.65rem] opacity-40 font-mono"
+                >
+                  <span>0.0 precise</span><span>1.0</span><span>2.0 wild</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action row -->
+            <div class="flex items-center gap-3 pb-4">
+              <button
+                class="px-5 py-2 rounded-lg font-bold text-sm text-white bm-btn-primary transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                :disabled="serverStore.isSaving"
+                @click="saveServer"
+              >
+                {{ serverStore.isSaving ? 'Saving…' : 'Save Server' }}
+              </button>
+              <button
+                class="px-5 py-2 rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 font-semibold text-sm transition-colors"
+                @click="saveChatPrefs"
+              >
+                Save Chat Prefs
+              </button>
+              <transition name="bm-fade">
+                <span
+                  v-if="serverSaveMsg"
+                  class="text-xs font-semibold font-mono text-teal-600"
+                  >{{ serverSaveMsg }}</span
+                >
+              </transition>
+            </div>
+          </div>
+
+          <!-- Nothing selected -->
+          <div
+            v-else
+            class="flex flex-col items-center justify-center h-full gap-3 opacity-40 text-sm p-8 text-center"
+          >
+            <span class="text-5xl">⚙</span>
+            <p class="font-semibold">Select a text server from the list</p>
+            <p class="text-xs max-w-xs">
+              Click any server in the sidebar to view and edit its
+              configuration.
+            </p>
           </div>
         </div>
       </section>
@@ -673,11 +887,9 @@
             </span>
             <span
               v-if="botStore.currentBot"
-              class="text-sm font-bold"
-              style="color: var(--bm-amber)"
+              class="text-sm font-bold bm-amber"
+              >{{ botStore.currentBot.name }}</span
             >
-              {{ botStore.currentBot.name }}
-            </span>
           </div>
           <div class="flex items-center gap-2">
             <button
@@ -688,15 +900,8 @@
               New Bot instead
             </button>
             <select
-              class="px-2.5 py-1.5 rounded-lg border border-base-300 bg-base-200 text-xs cursor-pointer outline-none transition-colors"
+              class="px-2.5 py-1.5 rounded-lg border border-base-300 bg-base-200 text-xs cursor-pointer outline-none bm-focus transition-colors"
               @change="onForgeSelect"
-              @focus="
-                ($event.target as HTMLSelectElement).style.borderColor =
-                  'var(--bm-amber)'
-              "
-              @blur="
-                ($event.target as HTMLSelectElement).style.borderColor = ''
-              "
             >
               <option value="">— Edit existing bot —</option>
               <option v-for="bot in bots" :key="bot.id" :value="bot.id">
@@ -705,22 +910,17 @@
             </select>
           </div>
         </div>
-
         <div class="flex-1 overflow-y-auto">
           <add-bot />
         </div>
       </section>
     </div>
-    <!-- /bm-body -->
 
     <!-- ── Loading overlay ─────────────────────────────────────── -->
     <transition name="bm-fade">
       <div
         v-if="isLoading"
-        class="absolute inset-0 flex flex-col items-center justify-center gap-3 z-50 text-sm font-mono"
-        style="
-          background: color-mix(in oklch, var(--b1, white) 85%, transparent);
-        "
+        class="absolute inset-0 flex flex-col items-center justify-center gap-3 z-50 text-sm font-mono bm-loading-bg"
       >
         <span class="bm-spinner" />
         <span>Loading bots…</span>
@@ -732,27 +932,20 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useBotStore } from '@/stores/botStore'
+import { useChatStore } from '@/stores/chatStore'
+import { useServerStore } from '@/stores/serverStore'
 
 type Mode = 'roster' | 'command' | 'server' | 'forge'
 
 const botStore = useBotStore()
+const chatStore = useChatStore()
+const serverStore = useServerStore()
 
 // ── Types ──────────────────────────────────────────────────────────
-interface ChatMessage {
-  id: number
-  role: 'user' | 'assistant'
-  content: string
-  isLoading?: boolean
-}
-
-interface ServerConfig {
+interface ChatPrefs {
   model: string
-  customModel: string
-  endpoint: string
-  systemPrompt: string
   maxTokens: number
   defaultTemp: number
-  streaming: boolean
 }
 
 // ── State ──────────────────────────────────────────────────────────
@@ -763,24 +956,20 @@ const showPublicOnly = ref(false)
 const isLoading = ref(false)
 const launchMessage = ref('')
 
-// Command / chat
+// Chat
 const temperature = ref(0.7)
-const chatMessages = ref<ChatMessage[]>([])
-const isResponding = ref(false)
 const chatLog = ref<HTMLElement | null>(null)
+const chatError = ref('')
+const sessionChatIds = ref<number[]>([])
 
-// Server
+// Server tab
 const serverSaveMsg = ref('')
-const defaultServerConfig: ServerConfig = {
-  model: 'gpt-4o',
-  customModel: '',
-  endpoint: '/api/chat',
-  systemPrompt: '',
+const defaultChatPrefs: ChatPrefs = {
+  model: '',
   maxTokens: 2048,
   defaultTemp: 0.7,
-  streaming: true,
 }
-const serverConfig = ref<ServerConfig>({ ...defaultServerConfig })
+const chatPrefs = ref<ChatPrefs>({ ...defaultChatPrefs })
 
 // ── Tabs ───────────────────────────────────────────────────────────
 const tabs = [
@@ -819,16 +1008,108 @@ const parsedUserPrompts = computed(() => {
     .map((text: string, i: number) => ({ id: i, text }))
 })
 
-// ── Roster methods ─────────────────────────────────────────────────
+const sessionChats = computed(() =>
+  chatStore.chats.filter((c) => sessionChatIds.value.includes(c.id)),
+)
+
+const isResponding = computed(() =>
+  sessionChats.value.some((c) => !c.botResponse),
+)
+
+/** Health result for the currently selected server (if tested). */
+const activeHealth = computed(() =>
+  serverStore.selectedServer
+    ? serverStore.healthResults[serverStore.selectedServer.id]
+    : null,
+)
+
+// ── Server tab helpers ─────────────────────────────────────────────
+function serverHealthClass(serverId: number): string {
+  const h = serverStore.healthResults[serverId]
+  if (!h) return 'bg-base-300'
+  return h.ok ? 'bg-teal-500' : 'bg-red-500'
+}
+
+function serverHealthTextClass(serverId: number): string {
+  const h = serverStore.healthResults[serverId]
+  if (!h) return 'opacity-30'
+  return h.ok ? 'text-teal-600' : 'text-red-600'
+}
+
+function serverHealthLabel(serverId: number): string {
+  const h = serverStore.healthResults[serverId]
+  if (!h) return 'untested'
+  return h.ok ? 'online' : 'offline'
+}
+
+function selectTextServer(serverId: number) {
+  serverStore.selectServer(serverId)
+}
+
+async function setAsActiveServer() {
+  if (!serverStore.selectedServer) return
+  const result = await serverStore.setActiveTextServer(
+    serverStore.selectedServer.id,
+  )
+  serverSaveMsg.value =
+    result.message || (result.success ? '✓ Active server updated' : '✗ Failed')
+  setTimeout(() => {
+    serverSaveMsg.value = ''
+  }, 2500)
+}
+
+async function testHealth() {
+  if (!serverStore.selectedServer) return
+  await serverStore.testServerHealth(serverStore.selectedServer.id)
+}
+
+async function saveServer() {
+  const result = await serverStore.saveServer()
+  serverSaveMsg.value =
+    result.message || (result.success ? '✓ Server saved' : '✗ Save failed')
+  setTimeout(() => {
+    serverSaveMsg.value = ''
+  }, 2500)
+}
+
+function saveChatPrefs() {
+  try {
+    localStorage.setItem('bm-chat-prefs', JSON.stringify(chatPrefs.value))
+    temperature.value = chatPrefs.value.defaultTemp
+  } catch {
+    /* SSR guard */
+  }
+  serverSaveMsg.value = '✓ Chat prefs saved'
+  setTimeout(() => {
+    serverSaveMsg.value = ''
+  }, 2500)
+}
+
+function loadChatPrefs() {
+  try {
+    const stored = localStorage.getItem('bm-chat-prefs')
+    if (stored) {
+      chatPrefs.value = { ...defaultChatPrefs, ...JSON.parse(stored) }
+      temperature.value = chatPrefs.value.defaultTemp
+    }
+  } catch {
+    /* SSR guard */
+  }
+}
+
+// ── Roster ─────────────────────────────────────────────────────────
 async function selectBot(botId: number) {
   await botStore.selectBot(botId)
+  sessionChatIds.value = []
+  chatError.value = ''
   activeMode.value = 'command'
 }
 
 function clearBot() {
   botStore.deselectBot()
   launchMessage.value = ''
-  chatMessages.value = []
+  sessionChatIds.value = []
+  chatError.value = ''
 }
 
 function resetFilters() {
@@ -841,12 +1122,12 @@ function goToMode(mode: Mode) {
   activeMode.value = mode
 }
 
-// ── Command methods ────────────────────────────────────────────────
-// Selects a bot from the sidebar without navigating away from command
+// ── Command ────────────────────────────────────────────────────────
 async function selectBotNoNav(botId: number) {
   if (botStore.currentBot?.id === botId) return
   await botStore.selectBot(botId)
-  chatMessages.value = []
+  sessionChatIds.value = []
+  chatError.value = ''
 }
 
 function usePrompt(text: string) {
@@ -870,132 +1151,42 @@ function fillWeird() {
 function clearMessage() {
   launchMessage.value = ''
 }
-
 function clearChat() {
-  chatMessages.value = []
+  sessionChatIds.value = []
+  chatError.value = ''
 }
 
 function scrollToBottom() {
-  if (chatLog.value) {
-    chatLog.value.scrollTop = chatLog.value.scrollHeight
-  }
+  if (chatLog.value) chatLog.value.scrollTop = chatLog.value.scrollHeight
 }
 
 async function sendMessage() {
   if (!launchMessage.value.trim() || isResponding.value || !botStore.currentBot)
     return
-
   const userText = launchMessage.value.trim()
   launchMessage.value = ''
-
-  chatMessages.value.push({
-    id: Date.now(),
-    role: 'user',
-    content: userText,
-  })
-
-  const loadingId = Date.now() + 1
-  chatMessages.value.push({
-    id: loadingId,
-    role: 'assistant',
-    content: '',
-    isLoading: true,
-  })
-
-  isResponding.value = true
-  await nextTick()
-  scrollToBottom()
+  chatError.value = ''
 
   try {
-    const systemPrompt =
-      (botStore.currentBot as any).personality ||
-      botStore.currentBot.description ||
-      serverConfig.value.systemPrompt ||
-      'You are a helpful assistant.'
-
-    const historyForApi = chatMessages.value
-      .filter((m) => !m.isLoading && m.id !== loadingId)
-      .map((m) => ({ role: m.role, content: m.content }))
-
-    const response = await fetch(serverConfig.value.endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        botId: botStore.currentBot.id,
-        message: userText,
-        temperature: temperature.value,
-        model:
-          serverConfig.value.model === 'custom'
-            ? serverConfig.value.customModel
-            : serverConfig.value.model,
-        maxTokens: serverConfig.value.maxTokens,
-        systemPrompt,
-        messages: historyForApi,
-      }),
+    const newChat = await chatStore.addChat({
+      botId: botStore.currentBot.id,
+      content: userText,
+      isPublic: false,
+      userId: 0,
+      type: 'ToBot',
+      recipientId: null,
+      characterId: null,
     })
-
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json()
-
-    const idx = chatMessages.value.findIndex((m) => m.id === loadingId)
-    if (idx !== -1) {
-      chatMessages.value[idx] = {
-        id: loadingId,
-        role: 'assistant',
-        content:
-          data.message ??
-          data.content ??
-          data.response ??
-          'No response received.',
-        isLoading: false,
-      }
-    }
-  } catch (err) {
-    const idx = chatMessages.value.findIndex((m) => m.id === loadingId)
-    if (idx !== -1) {
-      chatMessages.value[idx] = {
-        id: loadingId,
-        role: 'assistant',
-        content:
-          '⚠️ Could not reach the bot. Check the endpoint in Server settings.',
-        isLoading: false,
-      }
-    }
-  } finally {
-    isResponding.value = false
+    sessionChatIds.value.push(newChat.id)
     await nextTick()
     scrollToBottom()
+    await chatStore.streamResponse(newChat.id)
+    await nextTick()
+    scrollToBottom()
+  } catch (err: unknown) {
+    chatError.value =
+      err instanceof Error ? err.message : 'Send failed — check server config.'
   }
-}
-
-// ── Server methods ─────────────────────────────────────────────────
-function saveServerConfig() {
-  try {
-    localStorage.setItem('bm-server-config', JSON.stringify(serverConfig.value))
-    temperature.value = serverConfig.value.defaultTemp
-  } catch {}
-  serverSaveMsg.value = '✓ Saved'
-  setTimeout(() => {
-    serverSaveMsg.value = ''
-  }, 2500)
-}
-
-function resetServerConfig() {
-  serverConfig.value = { ...defaultServerConfig }
-  serverSaveMsg.value = '✓ Reset to defaults'
-  setTimeout(() => {
-    serverSaveMsg.value = ''
-  }, 2500)
-}
-
-function loadServerConfig() {
-  try {
-    const stored = localStorage.getItem('bm-server-config')
-    if (stored) {
-      serverConfig.value = { ...defaultServerConfig, ...JSON.parse(stored) }
-      temperature.value = serverConfig.value.defaultTemp
-    }
-  } catch {}
 }
 
 // ── Forge ──────────────────────────────────────────────────────────
@@ -1006,44 +1197,85 @@ function onForgeSelect(e: Event) {
 
 // ── Lifecycle ──────────────────────────────────────────────────────
 onMounted(async () => {
-  loadServerConfig()
+  loadChatPrefs()
+
   if (!bots.value.length) {
     isLoading.value = true
-    await botStore.initialize()
+    await botStore.initialize() // also initializes serverStore internally
     isLoading.value = false
   }
-  if (botStore.currentBot) {
-    activeMode.value = 'command'
+
+  // Ensure serverStore is initialized (botStore.initialize calls it, but be safe)
+  if (!serverStore.isInitialized) {
+    await serverStore.initialize()
   }
+
+  await chatStore.initialize()
+
+  // Pre-select the active text server in the sidebar if one exists
+  if (serverStore.activeTextServer) {
+    serverStore.selectServer(serverStore.activeTextServer.id)
+  }
+
+  if (botStore.currentBot) activeMode.value = 'command'
 })
 
 watch(
   () => botStore.currentBot?.id,
   (newId, oldId) => {
     if (newId && newId !== oldId && activeMode.value !== 'command') {
+      sessionChatIds.value = []
+      chatError.value = ''
       activeMode.value = 'command'
     }
+  },
+)
+
+watch(
+  () => sessionChats.value.map((c) => c.botResponse).join(''),
+  async () => {
+    await nextTick()
+    scrollToBottom()
   },
 )
 </script>
 
 <style scoped>
-/* ── Design tokens ─────────────────────────────────────────── */
 .bot-manager {
   --bm-amber: #d97706;
-  --bm-amber-l: #fef3c7;
-  --bm-teal: #0f766e;
-  --bm-teal-l: #ccfbf1;
-  --bm-radius: 0.75rem;
   --bm-font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
 }
 
-/* ── Active tab color ──────────────────────────────────────── */
+.bm-amber {
+  color: var(--bm-amber);
+}
 .bm-tab-active {
   color: var(--bm-amber);
 }
+.bm-btn-primary {
+  background: var(--bm-amber);
+}
+.bm-btn-primary:hover:not(:disabled) {
+  background: color-mix(in oklch, var(--bm-amber) 82%, black);
+}
+.bm-user-bubble {
+  background: var(--bm-amber);
+}
+.bm-border-top-amber {
+  border-top: 1px solid var(--bm-amber);
+}
+.bm-loading-bg {
+  background: color-mix(in oklch, var(--b1, white) 85%, transparent);
+}
+.bm-sidebar-active {
+  background: color-mix(in oklch, var(--bm-amber) 10%, var(--b2, white));
+}
+.bm-active-badge {
+  background: color-mix(in oklch, var(--bm-amber) 15%, white);
+  color: var(--bm-amber);
+  border: 1px solid color-mix(in oklch, var(--bm-amber) 40%, white);
+}
 
-/* ── Card states ───────────────────────────────────────────── */
 .bm-bot-card {
   border: 1px solid;
 }
@@ -1052,36 +1284,31 @@ watch(
   background: color-mix(in oklch, var(--bm-amber) 6%, var(--b1, white));
 }
 
-/* ── Roster grid ───────────────────────────────────────────── */
-.bm-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+.bm-focus:focus {
+  border-color: var(--bm-amber);
 }
-
-/* ── Sidebar active state ──────────────────────────────────── */
-.bm-sidebar-active {
-  background: color-mix(in oklch, var(--bm-amber) 10%, var(--b2, white));
-}
-
-/* ── Chat bubbles ──────────────────────────────────────────── */
-.bm-user-bubble {
-  background: var(--bm-amber);
-}
-
-/* ── Send / save button ────────────────────────────────────── */
-.bm-btn-send {
-  background: var(--bm-amber);
-}
-.bm-btn-send:hover:not(:disabled) {
-  background: color-mix(in oklch, var(--bm-amber) 82%, black);
-}
-
-/* ── Range accent ──────────────────────────────────────────── */
-.bm-range-amber {
+.bm-range {
   accent-color: var(--bm-amber);
 }
 
-/* ── Loading dots ──────────────────────────────────────────── */
+.bm-roster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+@media (min-width: 1280px) {
+  .bm-roster-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .bm-roster-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+  .tab-label {
+    display: none;
+  }
+}
+
 .bm-dot {
   display: inline-block;
   width: 6px;
@@ -1103,7 +1330,6 @@ watch(
   }
 }
 
-/* ── Spinner ───────────────────────────────────────────────── */
 .bm-spinner {
   width: 2rem;
   height: 2rem;
@@ -1118,7 +1344,6 @@ watch(
   }
 }
 
-/* ── Transitions ───────────────────────────────────────────── */
 .bm-slide-up-enter-active,
 .bm-slide-up-leave-active {
   transition:
@@ -1138,21 +1363,5 @@ watch(
 .bm-fade-enter-from,
 .bm-fade-leave-to {
   opacity: 0;
-}
-
-/* ── Responsive ────────────────────────────────────────────── */
-@media (max-width: 640px) {
-  .bm-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  }
-  .tab-label {
-    display: none;
-  }
-}
-
-@media (min-width: 1280px) {
-  .bm-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  }
 }
 </style>

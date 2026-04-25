@@ -934,12 +934,14 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useServerStore } from '@/stores/serverStore'
+import { useUserStore } from '@/stores/userStore'
 
 type Mode = 'roster' | 'command' | 'server' | 'forge'
 
 const botStore = useBotStore()
 const chatStore = useChatStore()
 const serverStore = useServerStore()
+const userStore = useUserStore()
 
 // ── Types ──────────────────────────────────────────────────────────
 interface ChatPrefs {
@@ -1172,10 +1174,10 @@ async function sendMessage() {
       botId: botStore.currentBot.id,
       content: userText,
       isPublic: false,
-      userId: 0,
+      userId: userStore.userId ?? 0,
       type: 'ToBot',
-      recipientId: null,
-      characterId: null,
+      recipientId: botStore.currentBot.id,
+      characterId: 0,
     })
     sessionChatIds.value.push(newChat.id)
     await nextTick()

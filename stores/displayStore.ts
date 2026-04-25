@@ -24,7 +24,6 @@ const footerComponentNames = [
   'story',
   'theme',
   'user',
-  'gallery',
   'lab',
   'brainstorm',
   'game',

@@ -36,7 +36,7 @@
       </div>
 
       <div
-        class="overflow-y-auto flex-grow grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 pr-1"
+        class="overflow-y-auto grow grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 pr-1"
       >
         <div
           v-for="component in folderComponents"

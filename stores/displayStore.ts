@@ -26,7 +26,6 @@ const footerComponentNames = [
   'user',
   'lab',
   'brainstorm',
-  'game',
   'giftshop',
 ] as const
 

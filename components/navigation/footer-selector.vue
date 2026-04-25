@@ -54,7 +54,6 @@ import ThemeFooter from '~/components/wonderlab/theme-footer.vue'
 import UserFooter from '@/components/user/user-footer.vue'
 import LabFooter from '@/components/wonderlab/lab-footer.vue'
 import BrainstormFooter from '@/components/prompts/brainstorm-footer.vue'
-import GameFooter from '@/components/wonderlab/game-footer.vue'
 import GiftshopFooter from '@/components/giftshop/giftshop-footer.vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
@@ -76,7 +75,6 @@ const footerComponentMap: Record<FooterName, Component> = {
   user: UserFooter,
   lab: LabFooter,
   brainstorm: BrainstormFooter,
-  game: GameFooter,
   giftshop: GiftshopFooter,
 }
 
@@ -89,7 +87,6 @@ const footerRouteMap: Record<FooterName, string> = {
   user: '/dashboard',
   lab: '/wonderlab',
   brainstorm: '/brainstorm',
-  game: '/memory',
   giftshop: '/giftshop',
 }
 

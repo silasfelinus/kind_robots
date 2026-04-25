@@ -1,288 +1,703 @@
 <!-- /components/content/bots/bot-manager.vue -->
 <template>
-  <div class="bot-manager" :class="`mode-${activeMode}`">
-    <!-- ── Header bar ───────────────────────────────────────────── -->
-    <header class="bm-header">
-      <div class="bm-header-brand">
-        <span class="bm-logo">⬡</span>
-        <span class="bm-title">Bot Manager</span>
-        <span class="bm-count">{{ bots.length }} available</span>
+  <div
+    class="bot-manager flex flex-col min-h-dvh bg-base-300 text-base-content relative overflow-hidden"
+    :class="`mode-${activeMode}`"
+  >
+    <!-- ── Header ──────────────────────────────────────────────── -->
+    <header
+      class="flex items-center gap-4 px-5 py-3 bg-base-100 border-b border-base-300 shrink-0 flex-wrap"
+    >
+      <div class="flex items-center gap-2 mr-auto">
+        <span class="text-2xl leading-none" style="color: var(--bm-amber)"
+          >⬡</span
+        >
+        <span class="text-lg font-bold tracking-tight">Bot Manager</span>
+        <span class="text-[0.7rem] font-mono opacity-50 self-end pb-px"
+          >{{ bots.length }} available</span
+        >
       </div>
 
-      <nav class="bm-tabs">
+      <nav class="flex gap-1 bg-base-200 p-1 rounded-xl border border-base-300">
         <button
           v-for="tab in tabs"
           :key="tab.id"
-          class="bm-tab"
-          :class="{ active: activeMode === tab.id }"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-150"
+          :class="
+            activeMode === tab.id
+              ? 'bg-base-100 shadow-sm opacity-100 bm-tab-active'
+              : 'opacity-55 hover:opacity-85 hover:bg-base-300'
+          "
           @click="activeMode = tab.id"
         >
-          <span class="bm-tab-icon">{{ tab.icon }}</span>
-          <span class="bm-tab-label">{{ tab.label }}</span>
+          <span class="text-base">{{ tab.icon }}</span>
+          <span class="tab-label">{{ tab.label }}</span>
         </button>
       </nav>
 
-      <div class="bm-header-actions">
-        <button
-          v-if="botStore.currentBot"
-          class="bm-clear-btn"
-          @click="clearBot"
-        >
-          Clear Selection
-        </button>
-      </div>
+      <button
+        v-if="botStore.currentBot"
+        class="text-xs px-3 py-1.5 rounded border border-current opacity-55 hover:opacity-100 transition-opacity font-medium"
+        @click="clearBot"
+      >
+        Clear Selection
+      </button>
     </header>
 
-    <!-- ── Body ─────────────────────────────────────────────────── -->
-    <div class="bm-body">
-      <!-- ══ ROSTER MODE ══════════════════════════════════════════ -->
-      <section v-if="activeMode === 'roster'" class="bm-roster">
-        <!-- Search + filter -->
-        <div class="bm-search-bar">
+    <!-- ── Body ───────────────────────────────────────────────── -->
+    <div class="flex-1 min-h-0 overflow-hidden flex flex-col">
+      <!-- ══ ROSTER ══════════════════════════════════════════════ -->
+      <section
+        v-if="activeMode === 'roster'"
+        class="flex-1 flex flex-col overflow-hidden"
+      >
+        <!-- Search + filters -->
+        <div
+          class="flex items-center gap-4 flex-wrap px-5 py-3 border-b border-base-300 bg-base-100 shrink-0"
+        >
           <input
             v-model="searchQuery"
-            class="bm-search-input"
+            class="flex-1 min-w-44 px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm outline-none transition-colors"
+            style="--tw-ring-color: var(--bm-amber)"
             placeholder="Search bots…"
             type="search"
+            @focus="
+              ($event.target as HTMLInputElement).style.borderColor =
+                'var(--bm-amber)'
+            "
+            @blur="($event.target as HTMLInputElement).style.borderColor = ''"
           />
-          <label class="bm-filter-toggle">
-            <input v-model="showConstructionOnly" type="checkbox" />
-            <span>Under construction only</span>
+          <label
+            class="flex items-center gap-1.5 text-sm opacity-70 hover:opacity-100 cursor-pointer select-none"
+          >
+            <input
+              v-model="showConstructionOnly"
+              type="checkbox"
+              class="checkbox checkbox-xs checkbox-warning"
+            />
+            <span>WIP only</span>
           </label>
-          <label class="bm-filter-toggle">
-            <input v-model="showPublicOnly" type="checkbox" />
+          <label
+            class="flex items-center gap-1.5 text-sm opacity-70 hover:opacity-100 cursor-pointer select-none"
+          >
+            <input
+              v-model="showPublicOnly"
+              type="checkbox"
+              class="checkbox checkbox-xs checkbox-success"
+            />
             <span>Public only</span>
           </label>
+          <span class="text-xs font-mono opacity-40 ml-auto"
+            >{{ filteredBots.length }} shown</span
+          >
         </div>
 
-        <!-- Bot grid -->
-        <div v-if="filteredBots.length" class="bm-grid">
+        <!-- Bot grid — large cards for XL displays -->
+        <div
+          v-if="filteredBots.length"
+          class="bm-grid overflow-y-auto flex-1 p-5 gap-4"
+          :style="{ paddingBottom: botStore.currentBot ? '5.5rem' : '1.25rem' }"
+        >
           <button
             v-for="bot in filteredBots"
             :key="bot.id"
-            class="bm-bot-card"
-            :class="{ selected: botStore.currentBot?.id === bot.id }"
+            class="bm-bot-card relative flex flex-col items-center gap-3 pt-7 pb-5 px-4 rounded-2xl border transition-all duration-150 text-center cursor-pointer group"
+            :class="
+              botStore.currentBot?.id === bot.id
+                ? 'bm-card-selected shadow-lg'
+                : 'bg-base-100 border-base-300 hover:border-amber-400 hover:-translate-y-1 hover:shadow-md'
+            "
             @click="selectBot(bot.id)"
           >
-            <div class="bm-bot-card-avatar-wrap">
+            <!-- Avatar -->
+            <div class="relative shrink-0">
               <img
                 :src="bot.avatarImage || '/images/bot.webp'"
                 :alt="bot.name || 'Bot avatar'"
-                class="bm-bot-card-avatar"
+                class="w-24 h-24 object-cover rounded-full border-2 transition-colors duration-150"
+                :class="
+                  botStore.currentBot?.id === bot.id
+                    ? 'border-amber-500'
+                    : 'border-base-300 group-hover:border-amber-400'
+                "
               />
-              <span v-if="bot.underConstruction" class="bm-badge bm-badge-warn"
+              <span
+                v-if="bot.underConstruction"
+                class="absolute -bottom-1 -right-1 text-[0.55rem] font-bold font-mono px-1.5 py-px rounded-full bg-amber-100 text-amber-700 border border-amber-200"
                 >WIP</span
               >
-              <span v-else-if="bot.isPublic" class="bm-badge bm-badge-ok"
+              <span
+                v-else-if="bot.isPublic"
+                class="absolute -bottom-1 -right-1 text-[0.55rem] font-bold font-mono px-1.5 py-px rounded-full bg-teal-100 text-teal-700 border border-teal-200"
                 >PUB</span
               >
             </div>
-            <div class="bm-bot-card-body">
-              <p class="bm-bot-card-name">{{ bot.name || 'Unnamed Bot' }}</p>
-              <p class="bm-bot-card-sub">
+
+            <!-- Info -->
+            <div class="w-full min-w-0">
+              <p class="text-sm font-bold mb-1 truncate">
+                {{ bot.name || 'Unnamed Bot' }}
+              </p>
+              <p class="text-xs opacity-55 line-clamp-2 leading-relaxed">
                 {{ bot.subtitle || bot.description || '—' }}
               </p>
             </div>
+
+            <!-- Selected dot -->
             <div
               v-if="botStore.currentBot?.id === bot.id"
-              class="bm-bot-card-selected-indicator"
-              aria-label="Selected"
+              class="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-amber-500"
             />
           </button>
         </div>
 
-        <div v-else class="bm-empty">
+        <div
+          v-else
+          class="flex-1 flex flex-col items-center justify-center gap-3 opacity-60 text-sm"
+        >
           <p>No bots match your filter.</p>
-          <button class="bm-btn bm-btn-secondary" @click="resetFilters">
+          <button
+            class="px-4 py-2 rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 text-sm font-semibold transition-colors"
+            @click="resetFilters"
+          >
             Reset filters
           </button>
         </div>
 
-        <!-- Sticky selected-bot bar -->
+        <!-- Selected bot sticky bar -->
         <transition name="bm-slide-up">
-          <div v-if="botStore.currentBot" class="bm-selected-bar">
+          <div
+            v-if="botStore.currentBot"
+            class="absolute bottom-0 left-0 right-0 flex items-center gap-3 px-5 py-3 bg-base-100 flex-wrap z-10"
+            style="border-top: 1px solid var(--bm-amber)"
+          >
             <img
               :src="botStore.currentBot.avatarImage || '/images/bot.webp'"
               :alt="botStore.currentBot.name || 'Bot'"
-              class="bm-selected-bar-avatar"
+              class="w-10 h-10 rounded-full object-cover border-2 shrink-0"
+              style="border-color: var(--bm-amber)"
             />
-            <div class="bm-selected-bar-info">
-              <span class="bm-selected-bar-name">{{
+            <div class="flex-1 min-w-0">
+              <span class="block font-bold text-sm truncate">{{
                 botStore.currentBot.name
               }}</span>
-              <span class="bm-selected-bar-desc">{{
+              <span class="block text-xs opacity-55 truncate">{{
                 botStore.currentBot.description
               }}</span>
             </div>
-            <div class="bm-selected-bar-actions">
+            <div class="flex gap-2 shrink-0">
               <button
-                class="bm-btn bm-btn-ghost bm-btn-sm"
+                class="px-4 py-1.5 text-sm font-bold rounded-lg text-white transition-all active:scale-95"
+                style="background: var(--bm-amber)"
                 @click="goToMode('command')"
               >
                 Chat →
-              </button>
-              <button
-                class="bm-btn bm-btn-primary bm-btn-sm"
-                @click="launchBot"
-              >
-                Open in Bots
               </button>
             </div>
           </div>
         </transition>
       </section>
 
-      <!-- ══ COMMAND MODE ══════════════════════════════════════════ -->
-      <section v-if="activeMode === 'command'" class="bm-command">
-        <!-- Left: bot picker strip -->
-        <aside class="bm-command-sidebar">
-          <p class="bm-sidebar-label">Select a bot</p>
-          <div class="bm-command-bot-list">
+      <!-- ══ COMMAND ══════════════════════════════════════════════ -->
+      <section
+        v-if="activeMode === 'command'"
+        class="flex-1 flex overflow-hidden"
+      >
+        <!-- Bot picker sidebar -->
+        <aside
+          class="w-56 shrink-0 flex flex-col border-r border-base-300 bg-base-100 overflow-hidden"
+        >
+          <p
+            class="text-[0.65rem] font-mono uppercase tracking-widest opacity-45 px-4 pt-3 pb-2 shrink-0"
+          >
+            Select a bot
+          </p>
+          <div class="flex-1 overflow-y-auto flex flex-col gap-1 p-1">
             <button
               v-for="bot in bots"
               :key="`cmd-${bot.id}`"
-              class="bm-command-bot-item"
-              :class="{ active: botStore.currentBot?.id === bot.id }"
-              @click="selectBot(bot.id)"
+              class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg border transition-all duration-100 text-left cursor-pointer"
+              :class="
+                botStore.currentBot?.id === bot.id
+                  ? 'bm-sidebar-active border-amber-500'
+                  : 'border-transparent hover:bg-base-200'
+              "
+              @click="selectBotNoNav(bot.id)"
             >
               <img
                 :src="bot.avatarImage || '/images/bot.webp'"
                 :alt="bot.name || 'Bot'"
-                class="bm-command-bot-avatar"
+                class="w-8 h-8 rounded-full object-cover shrink-0 border border-base-300"
               />
-              <span class="bm-command-bot-name">{{
+              <span class="text-sm font-semibold truncate">{{
                 bot.name || 'Unnamed'
               }}</span>
             </button>
           </div>
-          <button
-            class="bm-btn bm-btn-secondary bm-btn-sm bm-btn-full"
-            @click="goToMode('forge')"
-          >
-            + Create Bot
-          </button>
+          <div class="p-2 shrink-0 border-t border-base-300">
+            <button
+              class="w-full flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 transition-colors"
+              @click="goToMode('forge')"
+            >
+              + Create Bot
+            </button>
+          </div>
         </aside>
 
-        <!-- Right: bot detail + composer -->
-        <div class="bm-command-main">
-          <div v-if="botStore.currentBot" class="bm-command-detail">
-            <!-- Bot hero -->
-            <div class="bm-bot-hero">
+        <!-- Main panel -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+          <div
+            v-if="botStore.currentBot"
+            class="flex-1 flex flex-col overflow-hidden"
+          >
+            <!-- Bot hero + temperature -->
+            <div
+              class="flex items-center gap-4 px-5 py-3 bg-base-100 border-b border-base-300 shrink-0 flex-wrap"
+            >
               <img
                 :src="botStore.currentBot.avatarImage || '/images/bot.webp'"
                 :alt="botStore.currentBot.name || 'Bot'"
-                class="bm-bot-hero-avatar"
+                class="w-16 h-16 rounded-xl object-cover border-2 shrink-0"
+                style="border-color: var(--bm-amber)"
               />
-              <div class="bm-bot-hero-info">
-                <h2 class="bm-bot-hero-name">{{ botStore.currentBot.name }}</h2>
-                <p v-if="botStore.currentBot.subtitle" class="bm-bot-hero-sub">
+              <div class="flex-1 min-w-0">
+                <h2
+                  class="text-xl font-extrabold tracking-tight leading-tight truncate"
+                >
+                  {{ botStore.currentBot.name }}
+                </h2>
+                <p
+                  v-if="botStore.currentBot.subtitle"
+                  class="text-xs italic opacity-60 truncate"
+                >
                   {{ botStore.currentBot.subtitle }}
                 </p>
-                <p class="bm-bot-hero-desc">
+                <p class="text-sm opacity-75 line-clamp-1">
                   {{ botStore.currentBot.description || 'A bot of mystery.' }}
                 </p>
               </div>
+
+              <!-- Temperature slider -->
+              <div class="flex flex-col items-end gap-1 shrink-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-mono opacity-55">temperature</span>
+                  <span
+                    class="text-sm font-bold font-mono"
+                    style="color: var(--bm-amber)"
+                  >
+                    {{ temperature.toFixed(1) }}
+                  </span>
+                </div>
+                <input
+                  v-model.number="temperature"
+                  type="range"
+                  min="0"
+                  max="2"
+                  step="0.1"
+                  class="w-36 bm-range-amber"
+                />
+                <div
+                  class="flex justify-between w-36 text-[0.6rem] opacity-40 font-mono"
+                >
+                  <span>precise</span>
+                  <span>balanced</span>
+                  <span>wild</span>
+                </div>
+              </div>
             </div>
 
-            <!-- Quick-prompt chips -->
-            <div v-if="parsedUserPrompts.length" class="bm-prompts">
-              <p class="bm-prompts-label">Quick starts</p>
-              <div class="bm-prompt-chips">
-                <button
-                  v-for="p in parsedUserPrompts"
-                  :key="p.id"
-                  class="bm-chip"
-                  @click="usePrompt(p.text)"
+            <!-- Quick-start chips -->
+            <div
+              v-if="parsedUserPrompts.length"
+              class="flex gap-2 flex-wrap items-center px-5 py-2 border-b border-base-300 bg-base-100/60 shrink-0"
+            >
+              <span
+                class="text-[0.65rem] font-mono uppercase tracking-widest opacity-40"
+                >Quick:</span
+              >
+              <button
+                v-for="p in parsedUserPrompts"
+                :key="p.id"
+                class="px-3 py-1 rounded-full border border-base-300 bg-base-200 text-xs hover:border-amber-400 transition-all font-medium"
+                @click="usePrompt(p.text)"
+              >
+                {{ p.text }}
+              </button>
+            </div>
+
+            <!-- Chat log -->
+            <div
+              ref="chatLog"
+              class="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3"
+            >
+              <div
+                v-if="!chatMessages.length"
+                class="flex flex-col items-center justify-center h-full gap-2 opacity-25 select-none"
+              >
+                <span class="text-6xl">⬡</span>
+                <p class="text-sm font-semibold">Start the conversation</p>
+              </div>
+
+              <div
+                v-for="msg in chatMessages"
+                :key="msg.id"
+                class="flex gap-3"
+                :class="msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'"
+              >
+                <img
+                  v-if="msg.role === 'assistant'"
+                  :src="botStore.currentBot?.avatarImage || '/images/bot.webp'"
+                  class="w-8 h-8 rounded-full object-cover shrink-0 border border-base-300 self-end"
+                  alt="bot"
+                />
+                <div
+                  class="max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed"
+                  :class="
+                    msg.role === 'user'
+                      ? 'text-white rounded-br-sm bm-user-bubble'
+                      : 'bg-base-200 rounded-bl-sm'
+                  "
                 >
-                  {{ p.text }}
-                </button>
+                  <!-- Loading dots -->
+                  <span
+                    v-if="msg.isLoading"
+                    class="flex gap-1 items-center py-0.5"
+                  >
+                    <span class="bm-dot" style="animation-delay: 0ms" />
+                    <span class="bm-dot" style="animation-delay: 160ms" />
+                    <span class="bm-dot" style="animation-delay: 320ms" />
+                  </span>
+                  <span v-else class="whitespace-pre-wrap">{{
+                    msg.content
+                  }}</span>
+                </div>
               </div>
             </div>
 
             <!-- Composer -->
-            <div class="bm-composer">
-              <div class="bm-composer-header">
-                <span class="bm-composer-label">Opening message</span>
-                <div class="bm-composer-helpers">
-                  <button
-                    class="bm-btn bm-btn-ghost bm-btn-xs"
-                    @click="fillStarter"
-                  >
-                    Starter
-                  </button>
-                  <button
-                    class="bm-btn bm-btn-ghost bm-btn-xs"
-                    @click="fillWeird"
-                  >
-                    Weird
-                  </button>
-                  <button
-                    class="bm-btn bm-btn-ghost bm-btn-xs"
-                    @click="clearMessage"
-                  >
-                    Clear
-                  </button>
-                </div>
-              </div>
-              <textarea
-                v-model="launchMessage"
-                class="bm-textarea"
-                rows="4"
-                placeholder="Give your bot a first line…"
-              />
-              <div class="bm-composer-footer">
-                <div class="bm-composer-preview">
-                  <span class="bm-preview-label">Preview →</span>
-                  <span class="bm-preview-text">{{
-                    launchMessage || '…'
-                  }}</span>
-                </div>
+            <div
+              class="shrink-0 border-t border-base-300 bg-base-100 pt-2 px-4 pb-4"
+            >
+              <!-- Helper row -->
+              <div class="flex items-center gap-2 mb-2">
                 <button
-                  class="bm-btn bm-btn-primary"
-                  :disabled="!launchMessage.trim()"
-                  @click="launchBot"
+                  class="text-xs px-2.5 py-1 rounded-lg border border-base-300 opacity-60 hover:opacity-100 transition-opacity font-semibold"
+                  @click="fillStarter"
                 >
-                  Open in Bots
+                  Starter
+                </button>
+                <button
+                  class="text-xs px-2.5 py-1 rounded-lg border border-base-300 opacity-60 hover:opacity-100 transition-opacity font-semibold"
+                  @click="fillWeird"
+                >
+                  Weird
+                </button>
+                <button
+                  class="text-xs px-2.5 py-1 rounded-lg border border-base-300 opacity-60 hover:opacity-100 transition-opacity font-semibold"
+                  @click="clearMessage"
+                >
+                  Clear
+                </button>
+                <button
+                  v-if="chatMessages.length"
+                  class="text-xs px-2.5 py-1 rounded-lg border border-base-300 opacity-60 hover:opacity-100 transition-opacity font-semibold ml-auto"
+                  @click="clearChat"
+                >
+                  New chat
+                </button>
+              </div>
+
+              <!-- Textarea + send -->
+              <div class="flex items-end gap-2">
+                <textarea
+                  v-model="launchMessage"
+                  class="flex-1 bg-base-200 border border-base-300 rounded-xl px-3 py-2.5 text-sm leading-relaxed resize-none outline-none transition-colors min-h-12 max-h-40"
+                  rows="2"
+                  placeholder="Message the bot… (Enter to send)"
+                  :disabled="isResponding"
+                  @keydown.enter.exact.prevent="sendMessage"
+                  @focus="
+                    ($event.target as HTMLTextAreaElement).style.borderColor =
+                      'var(--bm-amber)'
+                  "
+                  @blur="
+                    ($event.target as HTMLTextAreaElement).style.borderColor =
+                      ''
+                  "
+                />
+                <button
+                  class="shrink-0 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-100 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+                  :class="
+                    launchMessage.trim() && !isResponding
+                      ? 'text-white bm-btn-send'
+                      : 'bg-base-300 text-base-content'
+                  "
+                  :disabled="!launchMessage.trim() || isResponding"
+                  @click="sendMessage"
+                >
+                  {{ isResponding ? '…' : 'Send' }}
                 </button>
               </div>
             </div>
           </div>
 
           <!-- No-bot empty state -->
-          <div v-else class="bm-command-empty">
-            <div class="bm-command-empty-icon">⬡</div>
-            <p class="bm-command-empty-title">No bot selected</p>
-            <p class="bm-command-empty-sub">
+          <div
+            v-else
+            class="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center"
+          >
+            <div class="text-7xl opacity-10 leading-none">⬡</div>
+            <p class="text-lg font-bold mt-2">No bot selected</p>
+            <p class="text-sm opacity-55 max-w-xs">
               Pick one from the sidebar, or browse the full roster.
             </p>
-            <button class="bm-btn bm-btn-secondary" @click="goToMode('roster')">
+            <button
+              class="mt-2 px-5 py-2 rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 text-sm font-semibold transition-colors"
+              @click="goToMode('roster')"
+            >
               Browse Bots
             </button>
           </div>
         </div>
       </section>
 
-      <!-- ══ FORGE MODE ════════════════════════════════════════════ -->
-      <section v-if="activeMode === 'forge'" class="bm-forge">
-        <!-- Inline bot selector for editing existing -->
-        <div class="bm-forge-top-bar">
-          <div class="bm-forge-top-info">
-            <span class="bm-forge-mode-label">
+      <!-- ══ SERVER ════════════════════════════════════════════════ -->
+      <section v-if="activeMode === 'server'" class="flex-1 overflow-y-auto">
+        <div class="max-w-2xl mx-auto px-6 py-8 flex flex-col gap-7">
+          <div>
+            <h2 class="text-xl font-extrabold tracking-tight mb-1">
+              Server Configuration
+            </h2>
+            <p class="text-sm opacity-55">
+              AI backend settings and default generation parameters.
+            </p>
+          </div>
+
+          <!-- Model -->
+          <div class="flex flex-col gap-2">
+            <label
+              class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+              >Model</label
+            >
+            <select
+              v-model="serverConfig.model"
+              class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm outline-none font-mono transition-colors"
+              @focus="
+                ($event.target as HTMLSelectElement).style.borderColor =
+                  'var(--bm-amber)'
+              "
+              @blur="
+                ($event.target as HTMLSelectElement).style.borderColor = ''
+              "
+            >
+              <option value="gpt-4o">gpt-4o</option>
+              <option value="gpt-4o-mini">gpt-4o-mini</option>
+              <option value="gpt-4-turbo">gpt-4-turbo</option>
+              <option value="claude-opus-4-6">claude-opus-4-6</option>
+              <option value="claude-sonnet-4-6">claude-sonnet-4-6</option>
+              <option value="claude-haiku-4-5">claude-haiku-4-5</option>
+              <option value="llama-3-70b">llama-3-70b</option>
+              <option value="custom">custom…</option>
+            </select>
+            <input
+              v-if="serverConfig.model === 'custom'"
+              v-model="serverConfig.customModel"
+              class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm font-mono outline-none transition-colors mt-1"
+              placeholder="model-name-here"
+              @focus="
+                ($event.target as HTMLInputElement).style.borderColor =
+                  'var(--bm-amber)'
+              "
+              @blur="($event.target as HTMLInputElement).style.borderColor = ''"
+            />
+          </div>
+
+          <!-- API Endpoint -->
+          <div class="flex flex-col gap-2">
+            <label
+              class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+              >API Endpoint</label
+            >
+            <input
+              v-model="serverConfig.endpoint"
+              type="url"
+              class="px-3 py-2 rounded-lg border border-base-300 bg-base-200 text-sm font-mono outline-none transition-colors"
+              placeholder="https://api.openai.com/v1/chat/completions"
+              @focus="
+                ($event.target as HTMLInputElement).style.borderColor =
+                  'var(--bm-amber)'
+              "
+              @blur="($event.target as HTMLInputElement).style.borderColor = ''"
+            />
+          </div>
+
+          <!-- System Prompt -->
+          <div class="flex flex-col gap-2">
+            <label
+              class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+            >
+              Default System Prompt
+            </label>
+            <textarea
+              v-model="serverConfig.systemPrompt"
+              class="px-3 py-2.5 rounded-lg border border-base-300 bg-base-200 text-sm leading-relaxed outline-none transition-colors resize-y min-h-28 font-mono"
+              rows="5"
+              placeholder="You are a helpful, creative assistant…"
+              @focus="
+                ($event.target as HTMLTextAreaElement).style.borderColor =
+                  'var(--bm-amber)'
+              "
+              @blur="
+                ($event.target as HTMLTextAreaElement).style.borderColor = ''
+              "
+            />
+            <p class="text-xs opacity-40">
+              Per-bot personality overrides this. Used as a fallback when a bot
+              has no personality set.
+            </p>
+          </div>
+
+          <!-- Max Tokens -->
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <label
+                class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                >Max Tokens</label
+              >
+              <span
+                class="text-sm font-bold font-mono"
+                style="color: var(--bm-amber)"
+                >{{ serverConfig.maxTokens }}</span
+              >
+            </div>
+            <input
+              v-model.number="serverConfig.maxTokens"
+              type="range"
+              min="256"
+              max="8192"
+              step="256"
+              class="w-full bm-range-amber"
+            />
+            <div
+              class="flex justify-between text-[0.65rem] opacity-40 font-mono"
+            >
+              <span>256</span><span>2048</span><span>4096</span
+              ><span>8192</span>
+            </div>
+          </div>
+
+          <!-- Default Temperature -->
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <label
+                class="text-[0.68rem] font-mono uppercase tracking-widest opacity-50"
+                >Default Temperature</label
+              >
+              <span
+                class="text-sm font-bold font-mono"
+                style="color: var(--bm-amber)"
+                >{{ serverConfig.defaultTemp.toFixed(1) }}</span
+              >
+            </div>
+            <input
+              v-model.number="serverConfig.defaultTemp"
+              type="range"
+              min="0"
+              max="2"
+              step="0.1"
+              class="w-full bm-range-amber"
+            />
+            <div
+              class="flex justify-between text-[0.65rem] opacity-40 font-mono"
+            >
+              <span>0.0 precise</span><span>1.0</span><span>2.0 wild</span>
+            </div>
+          </div>
+
+          <!-- Streaming toggle -->
+          <div
+            class="flex items-center justify-between p-4 rounded-xl border border-base-300 bg-base-100"
+          >
+            <div>
+              <p class="text-sm font-semibold">Streaming responses</p>
+              <p class="text-xs opacity-55">
+                Stream tokens as they are generated
+              </p>
+            </div>
+            <input
+              v-model="serverConfig.streaming"
+              type="checkbox"
+              class="toggle toggle-warning"
+            />
+          </div>
+
+          <!-- Save / Reset -->
+          <div class="flex items-center gap-3 pt-1">
+            <button
+              class="px-5 py-2 rounded-lg font-bold text-sm text-white transition-all active:scale-95 bm-btn-send"
+              @click="saveServerConfig"
+            >
+              Save Configuration
+            </button>
+            <button
+              class="px-5 py-2 rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 font-semibold text-sm transition-colors"
+              @click="resetServerConfig"
+            >
+              Reset to defaults
+            </button>
+            <transition name="bm-fade">
+              <span
+                v-if="serverSaveMsg"
+                class="text-xs font-semibold font-mono text-teal-600"
+              >
+                {{ serverSaveMsg }}
+              </span>
+            </transition>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ FORGE ════════════════════════════════════════════════ -->
+      <section
+        v-if="activeMode === 'forge'"
+        class="flex-1 flex flex-col overflow-hidden"
+      >
+        <div
+          class="flex items-center justify-between gap-4 px-5 py-3 border-b border-base-300 bg-base-100 shrink-0 flex-wrap"
+        >
+          <div class="flex items-center gap-2.5">
+            <span
+              class="text-[0.7rem] font-mono uppercase tracking-widest opacity-50"
+            >
               {{ botStore.selectedBotId ? 'Editing' : 'Creating new bot' }}
             </span>
-            <span v-if="botStore.currentBot" class="bm-forge-editing-name">
+            <span
+              v-if="botStore.currentBot"
+              class="text-sm font-bold"
+              style="color: var(--bm-amber)"
+            >
               {{ botStore.currentBot.name }}
             </span>
           </div>
-          <div class="bm-forge-top-actions">
+          <div class="flex items-center gap-2">
             <button
               v-if="botStore.currentBot"
-              class="bm-btn bm-btn-ghost bm-btn-sm"
+              class="text-xs px-3 py-1.5 rounded-lg border border-base-300 opacity-65 hover:opacity-100 transition-opacity font-semibold"
               @click="botStore.deselectBot()"
             >
               New Bot instead
             </button>
-            <select class="bm-select" @change="onForgeSelect">
+            <select
+              class="px-2.5 py-1.5 rounded-lg border border-base-300 bg-base-200 text-xs cursor-pointer outline-none transition-colors"
+              @change="onForgeSelect"
+              @focus="
+                ($event.target as HTMLSelectElement).style.borderColor =
+                  'var(--bm-amber)'
+              "
+              @blur="
+                ($event.target as HTMLSelectElement).style.borderColor = ''
+              "
+            >
               <option value="">— Edit existing bot —</option>
               <option v-for="bot in bots" :key="bot.id" :value="bot.id">
                 {{ bot.name || `Bot #${bot.id}` }}
@@ -291,15 +706,22 @@
           </div>
         </div>
 
-        <!-- Delegate to the existing add-bot component -->
-        <add-bot />
+        <div class="flex-1 overflow-y-auto">
+          <add-bot />
+        </div>
       </section>
     </div>
     <!-- /bm-body -->
 
-    <!-- ── Loading overlay ──────────────────────────────────────── -->
+    <!-- ── Loading overlay ─────────────────────────────────────── -->
     <transition name="bm-fade">
-      <div v-if="isLoading" class="bm-loading-overlay">
+      <div
+        v-if="isLoading"
+        class="absolute inset-0 flex flex-col items-center justify-center gap-3 z-50 text-sm font-mono"
+        style="
+          background: color-mix(in oklch, var(--b1, white) 85%, transparent);
+        "
+      >
         <span class="bm-spinner" />
         <span>Loading bots…</span>
       </div>
@@ -308,14 +730,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 
-type Mode = 'roster' | 'command' | 'forge'
+type Mode = 'roster' | 'command' | 'server' | 'forge'
 
-const router = useRouter()
 const botStore = useBotStore()
+
+// ── Types ──────────────────────────────────────────────────────────
+interface ChatMessage {
+  id: number
+  role: 'user' | 'assistant'
+  content: string
+  isLoading?: boolean
+}
+
+interface ServerConfig {
+  model: string
+  customModel: string
+  endpoint: string
+  systemPrompt: string
+  maxTokens: number
+  defaultTemp: number
+  streaming: boolean
+}
 
 // ── State ──────────────────────────────────────────────────────────
 const activeMode = ref<Mode>('roster')
@@ -325,10 +763,30 @@ const showPublicOnly = ref(false)
 const isLoading = ref(false)
 const launchMessage = ref('')
 
-// ── Tabs config ────────────────────────────────────────────────────
+// Command / chat
+const temperature = ref(0.7)
+const chatMessages = ref<ChatMessage[]>([])
+const isResponding = ref(false)
+const chatLog = ref<HTMLElement | null>(null)
+
+// Server
+const serverSaveMsg = ref('')
+const defaultServerConfig: ServerConfig = {
+  model: 'gpt-4o',
+  customModel: '',
+  endpoint: '/api/chat',
+  systemPrompt: '',
+  maxTokens: 2048,
+  defaultTemp: 0.7,
+  streaming: true,
+}
+const serverConfig = ref<ServerConfig>({ ...defaultServerConfig })
+
+// ── Tabs ───────────────────────────────────────────────────────────
 const tabs = [
   { id: 'roster' as Mode, label: 'Roster', icon: '⊞' },
   { id: 'command' as Mode, label: 'Command', icon: '⌖' },
+  { id: 'server' as Mode, label: 'Server', icon: '⚙' },
   { id: 'forge' as Mode, label: 'Forge', icon: '⬡' },
 ]
 
@@ -346,12 +804,9 @@ const filteredBots = computed(() => {
         (b.subtitle || '').toLowerCase().includes(q),
     )
   }
-  if (showConstructionOnly.value) {
+  if (showConstructionOnly.value)
     result = result.filter((b) => b.underConstruction)
-  }
-  if (showPublicOnly.value) {
-    result = result.filter((b) => b.isPublic)
-  }
+  if (showPublicOnly.value) result = result.filter((b) => b.isPublic)
   return result
 })
 
@@ -364,7 +819,7 @@ const parsedUserPrompts = computed(() => {
     .map((text: string, i: number) => ({ id: i, text }))
 })
 
-// ── Methods ────────────────────────────────────────────────────────
+// ── Roster methods ─────────────────────────────────────────────────
 async function selectBot(botId: number) {
   await botStore.selectBot(botId)
   activeMode.value = 'command'
@@ -373,6 +828,7 @@ async function selectBot(botId: number) {
 function clearBot() {
   botStore.deselectBot()
   launchMessage.value = ''
+  chatMessages.value = []
 }
 
 function resetFilters() {
@@ -383,6 +839,14 @@ function resetFilters() {
 
 function goToMode(mode: Mode) {
   activeMode.value = mode
+}
+
+// ── Command methods ────────────────────────────────────────────────
+// Selects a bot from the sidebar without navigating away from command
+async function selectBotNoNav(botId: number) {
+  if (botStore.currentBot?.id === botId) return
+  await botStore.selectBot(botId)
+  chatMessages.value = []
 }
 
 function usePrompt(text: string) {
@@ -407,12 +871,134 @@ function clearMessage() {
   launchMessage.value = ''
 }
 
-async function launchBot() {
-  if (!botStore.currentBot || !launchMessage.value.trim()) return
-  botStore.setPendingLaunchMessage(launchMessage.value)
-  await router.push('/bots')
+function clearChat() {
+  chatMessages.value = []
 }
 
+function scrollToBottom() {
+  if (chatLog.value) {
+    chatLog.value.scrollTop = chatLog.value.scrollHeight
+  }
+}
+
+async function sendMessage() {
+  if (!launchMessage.value.trim() || isResponding.value || !botStore.currentBot)
+    return
+
+  const userText = launchMessage.value.trim()
+  launchMessage.value = ''
+
+  chatMessages.value.push({
+    id: Date.now(),
+    role: 'user',
+    content: userText,
+  })
+
+  const loadingId = Date.now() + 1
+  chatMessages.value.push({
+    id: loadingId,
+    role: 'assistant',
+    content: '',
+    isLoading: true,
+  })
+
+  isResponding.value = true
+  await nextTick()
+  scrollToBottom()
+
+  try {
+    const systemPrompt =
+      (botStore.currentBot as any).personality ||
+      botStore.currentBot.description ||
+      serverConfig.value.systemPrompt ||
+      'You are a helpful assistant.'
+
+    const historyForApi = chatMessages.value
+      .filter((m) => !m.isLoading && m.id !== loadingId)
+      .map((m) => ({ role: m.role, content: m.content }))
+
+    const response = await fetch(serverConfig.value.endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        botId: botStore.currentBot.id,
+        message: userText,
+        temperature: temperature.value,
+        model:
+          serverConfig.value.model === 'custom'
+            ? serverConfig.value.customModel
+            : serverConfig.value.model,
+        maxTokens: serverConfig.value.maxTokens,
+        systemPrompt,
+        messages: historyForApi,
+      }),
+    })
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const data = await response.json()
+
+    const idx = chatMessages.value.findIndex((m) => m.id === loadingId)
+    if (idx !== -1) {
+      chatMessages.value[idx] = {
+        id: loadingId,
+        role: 'assistant',
+        content:
+          data.message ??
+          data.content ??
+          data.response ??
+          'No response received.',
+        isLoading: false,
+      }
+    }
+  } catch (err) {
+    const idx = chatMessages.value.findIndex((m) => m.id === loadingId)
+    if (idx !== -1) {
+      chatMessages.value[idx] = {
+        id: loadingId,
+        role: 'assistant',
+        content:
+          '⚠️ Could not reach the bot. Check the endpoint in Server settings.',
+        isLoading: false,
+      }
+    }
+  } finally {
+    isResponding.value = false
+    await nextTick()
+    scrollToBottom()
+  }
+}
+
+// ── Server methods ─────────────────────────────────────────────────
+function saveServerConfig() {
+  try {
+    localStorage.setItem('bm-server-config', JSON.stringify(serverConfig.value))
+    temperature.value = serverConfig.value.defaultTemp
+  } catch {}
+  serverSaveMsg.value = '✓ Saved'
+  setTimeout(() => {
+    serverSaveMsg.value = ''
+  }, 2500)
+}
+
+function resetServerConfig() {
+  serverConfig.value = { ...defaultServerConfig }
+  serverSaveMsg.value = '✓ Reset to defaults'
+  setTimeout(() => {
+    serverSaveMsg.value = ''
+  }, 2500)
+}
+
+function loadServerConfig() {
+  try {
+    const stored = localStorage.getItem('bm-server-config')
+    if (stored) {
+      serverConfig.value = { ...defaultServerConfig, ...JSON.parse(stored) }
+      temperature.value = serverConfig.value.defaultTemp
+    }
+  } catch {}
+}
+
+// ── Forge ──────────────────────────────────────────────────────────
 function onForgeSelect(e: Event) {
   const id = Number((e.target as HTMLSelectElement).value)
   if (id) botStore.selectBot(id)
@@ -420,6 +1006,7 @@ function onForgeSelect(e: Event) {
 
 // ── Lifecycle ──────────────────────────────────────────────────────
 onMounted(async () => {
+  loadServerConfig()
   if (!bots.value.length) {
     isLoading.value = true
     await botStore.initialize()
@@ -430,11 +1017,10 @@ onMounted(async () => {
   }
 })
 
-// Jump to command if a bot gets selected externally (e.g. from the footer)
 watch(
   () => botStore.currentBot?.id,
   (newId, oldId) => {
-    if (newId && newId !== oldId) {
+    if (newId && newId !== oldId && activeMode.value !== 'command') {
       activeMode.value = 'command'
     }
   },
@@ -448,355 +1034,91 @@ watch(
   --bm-amber-l: #fef3c7;
   --bm-teal: #0f766e;
   --bm-teal-l: #ccfbf1;
-  --bm-red: #b91c1c;
-  --bm-green: #15803d;
   --bm-radius: 0.75rem;
-  --bm-radius-sm: 0.375rem;
-  --bm-font-display: 'Exo 2', 'Segoe UI', system-ui, sans-serif;
   --bm-font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-
-  font-family: var(--bm-font-display);
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  background: var(--b3, oklch(var(--b3)));
-  color: var(--bc, currentColor);
-  position: relative;
-  overflow: hidden;
 }
 
-/* ── Header ────────────────────────────────────────────────── */
-.bm-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1.25rem;
-  background: var(--b1, oklch(var(--b1)));
-  border-bottom: 1px solid var(--b3, oklch(var(--b3)));
-  flex-shrink: 0;
-  flex-wrap: wrap;
-}
-
-.bm-header-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-right: auto;
-}
-
-.bm-logo {
-  font-size: 1.5rem;
+/* ── Active tab color ──────────────────────────────────────── */
+.bm-tab-active {
   color: var(--bm-amber);
-  line-height: 1;
 }
 
-.bm-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.bm-count {
-  font-size: 0.7rem;
-  font-family: var(--bm-font-mono);
-  opacity: 0.5;
-  align-self: flex-end;
-  padding-bottom: 0.1rem;
-}
-
-/* ── Tabs ──────────────────────────────────────────────────── */
-.bm-tabs {
-  display: flex;
-  gap: 0.25rem;
-  background: var(--b2, oklch(var(--b2)));
-  padding: 0.25rem;
-  border-radius: var(--bm-radius);
-  border: 1px solid var(--b3, oklch(var(--b3)));
-}
-
-.bm-tab {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.35rem 0.85rem;
-  border-radius: calc(var(--bm-radius) - 2px);
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
-  font-family: inherit;
-  color: var(--bc, currentColor);
-  opacity: 0.55;
-  transition: all 0.15s ease;
-}
-
-.bm-tab:hover {
-  opacity: 0.85;
-  background: var(--b3, oklch(var(--b3)));
-}
-
-.bm-tab.active {
-  background: var(--b1, oklch(var(--b1)));
-  opacity: 1;
-  color: var(--bm-amber);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-}
-
-.bm-tab-icon {
-  font-size: 0.95rem;
-}
-
-/* ── Clear btn ─────────────────────────────────────────────── */
-.bm-clear-btn {
-  font-size: 0.75rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: var(--bm-radius-sm);
-  border: 1px solid currentColor;
-  background: transparent;
-  cursor: pointer;
-  opacity: 0.55;
-  font-family: inherit;
-  color: inherit;
-  transition: opacity 0.15s;
-}
-.bm-clear-btn:hover {
-  opacity: 1;
-}
-
-/* ── Body ──────────────────────────────────────────────────── */
-.bm-body {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ══ ROSTER ════════════════════════════════════════════════════ */
-.bm-roster {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.bm-search-bar {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding: 0.875rem 1.25rem;
-  border-bottom: 1px solid var(--b3, oklch(var(--b3)));
-  flex-shrink: 0;
-  background: var(--b1, oklch(var(--b1)));
-}
-
-.bm-search-input {
-  flex: 1;
-  min-width: 180px;
-  padding: 0.45rem 0.75rem;
-  border-radius: var(--bm-radius-sm);
-  border: 1px solid var(--b3, oklch(var(--b3)));
-  background: var(--b2, oklch(var(--b2)));
-  font-family: inherit;
-  font-size: 0.875rem;
-  color: inherit;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.bm-search-input:focus {
-  border-color: var(--bm-amber);
-}
-
-.bm-filter-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.8rem;
-  opacity: 0.7;
-  cursor: pointer;
-  user-select: none;
-}
-.bm-filter-toggle:hover {
-  opacity: 1;
-}
-
-/* Grid */
-.bm-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  overflow-y: auto;
-  flex: 1;
-  padding-bottom: 6rem; /* room for selected bar */
-}
-
+/* ── Card states ───────────────────────────────────────────── */
 .bm-bot-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 0.75rem 0.85rem;
-  border-radius: var(--bm-radius);
-  border: 1px solid var(--b3, oklch(var(--b3)));
-  background: var(--b1, oklch(var(--b1)));
-  cursor: pointer;
-  text-align: center;
-  transition:
-    border-color 0.15s,
-    transform 0.12s,
-    box-shadow 0.15s;
-  font-family: inherit;
-  color: inherit;
+  border: 1px solid;
 }
-.bm-bot-card:hover {
-  border-color: var(--bm-amber);
-  transform: translateY(-2px);
-}
-.bm-bot-card.selected {
+.bm-card-selected {
   border-color: var(--bm-amber);
   background: color-mix(in oklch, var(--bm-amber) 6%, var(--b1, white));
 }
 
-.bm-bot-card-avatar-wrap {
-  position: relative;
-  width: 4rem;
-  height: 4rem;
-  flex-shrink: 0;
+/* ── Roster grid ───────────────────────────────────────────── */
+.bm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 }
 
-.bm-bot-card-avatar {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 2px solid var(--b3, oklch(var(--b3)));
-}
-.bm-bot-card.selected .bm-bot-card-avatar {
-  border-color: var(--bm-amber);
+/* ── Sidebar active state ──────────────────────────────────── */
+.bm-sidebar-active {
+  background: color-mix(in oklch, var(--bm-amber) 10%, var(--b2, white));
 }
 
-.bm-badge {
-  position: absolute;
-  bottom: -2px;
-  right: -4px;
-  font-size: 0.55rem;
-  font-weight: 700;
-  font-family: var(--bm-font-mono);
-  padding: 1px 4px;
-  border-radius: 3px;
-  letter-spacing: 0.05em;
-}
-.bm-badge-warn {
-  background: var(--bm-amber-l);
-  color: var(--bm-amber);
-}
-.bm-badge-ok {
-  background: var(--bm-teal-l);
-  color: var(--bm-teal);
-}
-
-.bm-bot-card-body {
-  width: 100%;
-}
-.bm-bot-card-name {
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin: 0 0 0.2rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.bm-bot-card-sub {
-  font-size: 0.72rem;
-  opacity: 0.55;
-  margin: 0;
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.bm-bot-card-selected-indicator {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+/* ── Chat bubbles ──────────────────────────────────────────── */
+.bm-user-bubble {
   background: var(--bm-amber);
 }
 
-/* Empty state */
-.bm-empty {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  opacity: 0.6;
-  font-size: 0.9rem;
+/* ── Send / save button ────────────────────────────────────── */
+.bm-btn-send {
+  background: var(--bm-amber);
+}
+.bm-btn-send:hover:not(:disabled) {
+  background: color-mix(in oklch, var(--bm-amber) 82%, black);
 }
 
-/* Selected bot sticky bar */
-.bm-selected-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.25rem;
-  background: var(--b1, oklch(var(--b1)));
-  border-top: 1px solid var(--bm-amber);
-  flex-wrap: wrap;
+/* ── Range accent ──────────────────────────────────────────── */
+.bm-range-amber {
+  accent-color: var(--bm-amber);
 }
 
-.bm-selected-bar-avatar {
-  width: 2.5rem;
-  height: 2.5rem;
+/* ── Loading dots ──────────────────────────────────────────── */
+.bm-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--bm-amber);
-  flex-shrink: 0;
+  background: currentColor;
+  animation: bm-bounce 1s ease-in-out infinite;
+}
+@keyframes bm-bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
-.bm-selected-bar-info {
-  flex: 1;
-  min-width: 0;
+/* ── Spinner ───────────────────────────────────────────────── */
+.bm-spinner {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2px solid var(--b3, oklch(var(--b3)));
+  border-top-color: var(--bm-amber);
+  animation: bm-spin 0.7s linear infinite;
+}
+@keyframes bm-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.bm-selected-bar-name {
-  display: block;
-  font-weight: 700;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.bm-selected-bar-desc {
-  display: block;
-  font-size: 0.75rem;
-  opacity: 0.55;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.bm-selected-bar-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-/* Slide-up transition */
+/* ── Transitions ───────────────────────────────────────────── */
 .bm-slide-up-enter-active,
 .bm-slide-up-leave-active {
   transition:
@@ -807,445 +1129,6 @@ watch(
 .bm-slide-up-leave-to {
   transform: translateY(100%);
   opacity: 0;
-}
-
-/* ══ COMMAND ═══════════════════════════════════════════════════ */
-.bm-command {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-}
-
-.bm-command-sidebar {
-  width: 220px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--b3, oklch(var(--b3)));
-  background: var(--b1, oklch(var(--b1)));
-  overflow: hidden;
-}
-
-.bm-sidebar-label {
-  font-size: 0.7rem;
-  font-family: var(--bm-font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  opacity: 0.45;
-  padding: 0.75rem 1rem 0.4rem;
-  flex-shrink: 0;
-}
-
-.bm-command-bot-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.bm-command-bot-item {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 0.625rem;
-  border-radius: calc(var(--bm-radius) - 2px);
-  border: 1px solid transparent;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  color: inherit;
-  transition:
-    background 0.12s,
-    border-color 0.12s;
-}
-.bm-command-bot-item:hover {
-  background: var(--b2, oklch(var(--b2)));
-}
-.bm-command-bot-item.active {
-  background: color-mix(in oklch, var(--bm-amber) 10%, var(--b2, white));
-  border-color: var(--bm-amber);
-}
-
-.bm-command-bot-avatar {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-  border: 1px solid var(--b3, oklch(var(--b3)));
-}
-
-.bm-command-bot-name {
-  font-size: 0.8rem;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Command main */
-.bm-command-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-.bm-command-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding: 1.5rem;
-  max-width: 780px;
-}
-
-/* Bot hero */
-.bm-bot-hero {
-  display: flex;
-  align-items: flex-start;
-  gap: 1.25rem;
-  padding: 1.25rem;
-  border-radius: var(--bm-radius);
-  border: 1px solid var(--b3, oklch(var(--b3)));
-  background: var(--b1, oklch(var(--b1)));
-}
-
-.bm-bot-hero-avatar {
-  width: 6rem;
-  height: 6rem;
-  border-radius: var(--bm-radius);
-  object-fit: cover;
-  flex-shrink: 0;
-  border: 2px solid var(--bm-amber);
-}
-
-.bm-bot-hero-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.bm-bot-hero-name {
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  margin: 0 0 0.2rem;
-}
-
-.bm-bot-hero-sub {
-  font-size: 0.85rem;
-  opacity: 0.6;
-  margin: 0 0 0.5rem;
-  font-style: italic;
-}
-
-.bm-bot-hero-desc {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  margin: 0;
-  opacity: 0.8;
-}
-
-/* Prompt chips */
-.bm-prompts {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.bm-prompts-label {
-  font-size: 0.7rem;
-  font-family: var(--bm-font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  opacity: 0.45;
-  margin: 0;
-}
-
-.bm-prompt-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.bm-chip {
-  padding: 0.35rem 0.85rem;
-  border-radius: 99px;
-  border: 1px solid var(--b3, oklch(var(--b3)));
-  background: var(--b2, oklch(var(--b2)));
-  font-size: 0.8rem;
-  font-family: inherit;
-  color: inherit;
-  cursor: pointer;
-  transition:
-    border-color 0.12s,
-    background 0.12s;
-}
-.bm-chip:hover {
-  border-color: var(--bm-amber);
-  background: color-mix(in oklch, var(--bm-amber) 8%, var(--b2, white));
-}
-
-/* Composer */
-.bm-composer {
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-  border-radius: var(--bm-radius);
-  border: 1px solid var(--b3, oklch(var(--b3)));
-  background: var(--b1, oklch(var(--b1)));
-  overflow: hidden;
-}
-
-.bm-composer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.65rem 0.875rem;
-  border-bottom: 1px solid var(--b3, oklch(var(--b3)));
-}
-
-.bm-composer-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.bm-composer-helpers {
-  display: flex;
-  gap: 0.375rem;
-}
-
-.bm-textarea {
-  width: 100%;
-  padding: 0.75rem 0.875rem;
-  border: none;
-  background: transparent;
-  font-family: inherit;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: inherit;
-  resize: vertical;
-  outline: none;
-  min-height: 6rem;
-}
-
-.bm-composer-footer {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.875rem;
-  border-top: 1px solid var(--b3, oklch(var(--b3)));
-  flex-wrap: wrap;
-}
-
-.bm-composer-preview {
-  flex: 1;
-  min-width: 0;
-  font-size: 0.78rem;
-  opacity: 0.55;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.bm-preview-label {
-  font-family: var(--bm-font-mono);
-  margin-right: 0.375rem;
-}
-
-/* Command empty state */
-.bm-command-empty {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 2rem;
-  text-align: center;
-}
-
-.bm-command-empty-icon {
-  font-size: 3.5rem;
-  opacity: 0.15;
-}
-
-.bm-command-empty-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.bm-command-empty-sub {
-  font-size: 0.85rem;
-  opacity: 0.55;
-  margin: 0;
-  max-width: 24rem;
-}
-
-/* ══ FORGE ══════════════════════════════════════════════════════ */
-.bm-forge {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.bm-forge-top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem 1.25rem;
-  border-bottom: 1px solid var(--b3, oklch(var(--b3)));
-  background: var(--b1, oklch(var(--b1)));
-  flex-shrink: 0;
-  flex-wrap: wrap;
-}
-
-.bm-forge-top-info {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-}
-
-.bm-forge-mode-label {
-  font-size: 0.75rem;
-  font-family: var(--bm-font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  opacity: 0.5;
-}
-
-.bm-forge-editing-name {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--bm-amber);
-}
-
-.bm-forge-top-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* ── Buttons ───────────────────────────────────────────────── */
-.bm-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  border-radius: var(--bm-radius-sm);
-  border: 1px solid transparent;
-  font-family: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background 0.12s,
-    border-color 0.12s,
-    opacity 0.12s,
-    transform 0.1s;
-  padding: 0.5rem 1rem;
-  font-size: 0.85rem;
-  line-height: 1;
-  white-space: nowrap;
-}
-.bm-btn:active {
-  transform: scale(0.97);
-}
-.bm-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.bm-btn-primary {
-  background: var(--bm-amber);
-  color: #fff;
-  border-color: var(--bm-amber);
-}
-.bm-btn-primary:hover:not(:disabled) {
-  background: color-mix(in oklch, var(--bm-amber) 85%, black);
-}
-
-.bm-btn-secondary {
-  background: var(--b2, oklch(var(--b2)));
-  border-color: var(--b3, oklch(var(--b3)));
-  color: inherit;
-}
-.bm-btn-secondary:hover {
-  background: var(--b3, oklch(var(--b3)));
-}
-
-.bm-btn-ghost {
-  background: transparent;
-  border-color: transparent;
-  color: inherit;
-  opacity: 0.65;
-}
-.bm-btn-ghost:hover {
-  opacity: 1;
-  background: var(--b2, oklch(var(--b2)));
-}
-
-.bm-btn-sm {
-  padding: 0.35rem 0.75rem;
-  font-size: 0.78rem;
-}
-.bm-btn-xs {
-  padding: 0.25rem 0.55rem;
-  font-size: 0.72rem;
-}
-.bm-btn-full {
-  width: 100%;
-  justify-content: center;
-}
-
-/* ── Select ────────────────────────────────────────────────── */
-.bm-select {
-  padding: 0.35rem 0.625rem;
-  border-radius: var(--bm-radius-sm);
-  border: 1px solid var(--b3, oklch(var(--b3)));
-  background: var(--b2, oklch(var(--b2)));
-  font-family: inherit;
-  font-size: 0.8rem;
-  color: inherit;
-  cursor: pointer;
-  outline: none;
-}
-.bm-select:focus {
-  border-color: var(--bm-amber);
-}
-
-/* ── Loading overlay ───────────────────────────────────────── */
-.bm-loading-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  background: color-mix(in oklch, var(--b1, white) 85%, transparent);
-  font-size: 0.9rem;
-  font-family: var(--bm-font-mono);
-  z-index: 50;
-}
-
-.bm-spinner {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  border: 2px solid var(--b3, oklch(var(--b3)));
-  border-top-color: var(--bm-amber);
-  animation: bm-spin 0.7s linear infinite;
-}
-
-@keyframes bm-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .bm-fade-enter-active,
@@ -1259,36 +1142,17 @@ watch(
 
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .bm-command {
-    flex-direction: column;
+  .bm-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
-  .bm-command-sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--b3, oklch(var(--b3)));
-    max-height: 10rem;
-  }
-  .bm-command-bot-list {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    flex: unset;
-    padding: 0.25rem 0.5rem;
-  }
-  .bm-command-bot-item {
-    flex-direction: column;
-    min-width: 4.5rem;
-    padding: 0.5rem;
-  }
-  .bm-command-bot-name {
-    font-size: 0.65rem;
-    text-align: center;
-  }
-  .bm-tab-label {
+  .tab-label {
     display: none;
   }
-  .bm-tab-icon {
-    font-size: 1.1rem;
+}
+
+@media (min-width: 1280px) {
+  .bm-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
 }
 </style>

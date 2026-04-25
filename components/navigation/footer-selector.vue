@@ -52,7 +52,6 @@ import ArtFooter from '@/components/art/art-footer.vue'
 import StoryFooter from '@/components/navigation/story-footer.vue'
 import ThemeFooter from '~/components/wonderlab/theme-footer.vue'
 import UserFooter from '@/components/user/user-footer.vue'
-import GalleryFooter from '@/components/gallery/gallery-footer.vue'
 import LabFooter from '@/components/wonderlab/lab-footer.vue'
 import BrainstormFooter from '@/components/prompts/brainstorm-footer.vue'
 import GameFooter from '@/components/wonderlab/game-footer.vue'
@@ -75,7 +74,6 @@ const footerComponentMap: Record<FooterName, Component> = {
   story: StoryFooter,
   theme: ThemeFooter,
   user: UserFooter,
-  gallery: GalleryFooter,
   lab: LabFooter,
   brainstorm: BrainstormFooter,
   game: GameFooter,
@@ -89,7 +87,6 @@ const footerRouteMap: Record<FooterName, string> = {
   story: '/stories',
   theme: '/themes',
   user: '/dashboard',
-  gallery: '/galleries',
   lab: '/wonderlab',
   brainstorm: '/brainstorm',
   game: '/memory',

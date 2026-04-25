@@ -22,7 +22,7 @@
             :class="[swatch.bgClass, size === 'sm' ? 'h-6 w-6' : 'h-8 w-8']"
           />
           <span
-            class="font-mono text-[9px] text-base-content/50 max-w-[4rem] text-center leading-tight"
+            class="font-mono text-[9px] text-base-content/50 max-w-16 text-center leading-tight"
           >
             {{ swatch.label }}
           </span>

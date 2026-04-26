@@ -45,6 +45,7 @@ export default defineEventHandler(async (event) => {
         galleryId: promptData.galleryId || null,
         pitchId: promptData.pitchId || null,
         botId: promptData.botId || null,
+        CreationSource: promptData.creationSource || 'UNKNOWN',
       } as Prisma.PromptCreateInput,
     })
 

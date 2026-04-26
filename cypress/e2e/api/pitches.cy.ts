@@ -61,6 +61,7 @@ describe('Pitch Management API Tests', () => {
         pitch: uniquePitchName,
         PitchType: 'BRAINSTORM',
         userId: 9,
+        CreationSource: 'HUMAN',
       },
     }).then((response) => {
       expect(response.status).to.eq(201)

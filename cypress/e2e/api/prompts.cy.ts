@@ -60,6 +60,7 @@ describe('Prompt Management API Tests', () => {
         galleryId: 21,
         userId: 9,
         prompt: uniquePrompt,
+        CreationSource: 'HUMAN',
       },
     }).then((response) => {
       expect(response.status).to.eq(201)

@@ -1,5 +1,5 @@
 import type { Pitch } from '~/prisma/generated/prisma/client'
-import { PitchType } from '~/prisma/generated/prisma/client'
+import { PitchType, CreationSource } from '~/prisma/generated/prisma/client'
 
 // Upgraded samplePitches to use the full Pitch model structure
 export const samplePitches: Pitch[] = [
@@ -21,6 +21,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 2,
@@ -40,6 +41,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 3,
@@ -59,6 +61,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 4,
@@ -78,6 +81,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 5,
@@ -97,6 +101,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 6,
@@ -116,6 +121,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 7,
@@ -135,6 +141,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 8,
@@ -154,6 +161,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 9,
@@ -173,6 +181,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 10,
@@ -192,6 +201,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 11,
@@ -211,6 +221,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 12,
@@ -230,6 +241,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 13,
@@ -249,6 +261,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 14,
@@ -268,6 +281,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 15,
@@ -287,6 +301,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 16,
@@ -306,6 +321,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 17,
@@ -325,6 +341,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 18,
@@ -344,6 +361,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 19,
@@ -363,6 +381,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 20,
@@ -382,6 +401,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 21,
@@ -401,6 +421,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 22,
@@ -420,6 +441,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 23,
@@ -439,6 +461,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 24,
@@ -458,6 +481,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 25,
@@ -477,6 +501,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 26,
@@ -496,6 +521,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 27,
@@ -515,6 +541,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 28,
@@ -534,6 +561,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 29,
@@ -553,6 +581,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 30,
@@ -572,6 +601,7 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
   {
     id: 31,
@@ -591,5 +621,6 @@ export const samplePitches: Pitch[] = [
     artImageId: null,
     examples: null,
     icon: '',
+    creationSource: CreationSource.AI,
   },
 ]

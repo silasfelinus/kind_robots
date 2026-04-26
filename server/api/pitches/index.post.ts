@@ -46,6 +46,7 @@ export default defineEventHandler(async (event) => {
       description: pitchData.description || null,
       examples: pitchData.examples || null,
       artImageId: pitchData.artImageId || null,
+      creationSource: pitchData.creationSource || 'UNKNOWN',
     }
 
     // Create the pitch and set status code to 201 for successful creation

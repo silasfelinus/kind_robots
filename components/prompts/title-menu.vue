@@ -31,7 +31,12 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import { usePitchStore, type Pitch, PitchType } from '~/stores/pitchStore'
+import {
+  usePitchStore,
+  type Pitch,
+  PitchType,
+  CreationSource,
+} from '~/stores/pitchStore'
 import { useUserStore } from '~/stores/userStore'
 
 // Initialize user store to access `userId`
@@ -63,6 +68,7 @@ watch([customTitle, selectedTitle], ([newCustom, newSelected]) => {
       isPublic: true,
       userId: userStore.userId,
       artImageId: null,
+      creationSource: CreationSource.AI,
 
       icon: '',
 

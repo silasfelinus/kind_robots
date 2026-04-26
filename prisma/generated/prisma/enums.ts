@@ -117,3 +117,14 @@ export const ServerStatus = {
 } as const
 
 export type ServerStatus = (typeof ServerStatus)[keyof typeof ServerStatus]
+
+
+export const CreationSource = {
+  HUMAN: 'HUMAN',
+  AI: 'AI',
+  HYBRID: 'HYBRID',
+  UPLOAD: 'UPLOAD',
+  UNKNOWN: 'UNKNOWN'
+} as const
+
+export type CreationSource = (typeof CreationSource)[keyof typeof CreationSource]

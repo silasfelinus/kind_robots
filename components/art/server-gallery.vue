@@ -1,11 +1,12 @@
 <!-- /components/server/server-gallery.vue -->
 <!--
   Props
-    mode         'text' | 'image'   which half of the store to show
-    searchQuery  string             forwarded from parent for filtering
+    mode         'text' | 'image'
+    searchQuery  string
 
   Emits
-    open-add(serverType)            ask parent to open add-server panel
+    open-add(serverType)   parent should createNewServer(type) then show panel
+    open-edit()            parent should show panel — form already prepped here
 -->
 <template>
   <section
@@ -40,17 +41,131 @@
         </div>
       </div>
 
-      <!-- Active chip -->
-      <div
-        class="flex flex-col items-end gap-0.5 rounded-xl border border-base-300 bg-base-200 px-3 py-1.5"
-      >
-        <span class="text-[9px] font-black uppercase tracking-widest opacity-40"
-          >Active</span
+      <div class="flex items-center gap-2">
+        <!-- Debug toggle -->
+        <button
+          type="button"
+          :class="[
+            'btn btn-xs rounded-lg gap-1',
+            showDebug ? 'btn-warning' : 'btn-ghost opacity-40 hover:opacity-80',
+          ]"
+          title="Toggle store debug info"
+          @click="showDebug = !showDebug"
         >
-        <span class="max-w-48 truncate text-[11px] font-bold">
-          {{ activeServer?.title ?? 'Kind Robots Default' }}
-        </span>
+          <Icon name="kind-icon:bug" class="h-3 w-3" />
+          <span class="hidden sm:inline">Debug</span>
+        </button>
+
+        <!-- Active chip -->
+        <div
+          class="flex flex-col items-end gap-0.5 rounded-xl border border-base-300 bg-base-200 px-3 py-1.5"
+        >
+          <span
+            class="text-[9px] font-black uppercase tracking-widest opacity-40"
+            >Active</span
+          >
+          <span class="max-w-48 truncate text-[11px] font-bold">
+            {{ activeServer?.title ?? 'Kind Robots Default' }}
+          </span>
+        </div>
       </div>
+    </div>
+
+    <!-- ── Debug panel ───────────────────────────────────────────────────── -->
+    <div
+      v-if="showDebug"
+      class="shrink-0 border-b border-warning/30 bg-warning/5 px-4 py-3 text-[11px]"
+    >
+      <p class="mb-2 font-black text-warning">
+        Store Debug — {{ mode }} gallery
+      </p>
+
+      <!-- Status row -->
+      <div class="mb-2 flex flex-wrap gap-2">
+        <span
+          :class="[
+            'badge badge-xs',
+            serverStore.isInitialized ? 'badge-success' : 'badge-error',
+          ]"
+        >
+          {{ serverStore.isInitialized ? 'initialized' : 'not initialized' }}
+        </span>
+        <span
+          :class="[
+            'badge badge-xs',
+            serverStore.loading ? 'badge-warning' : 'badge-neutral',
+          ]"
+        >
+          {{ serverStore.loading ? 'loading…' : 'idle' }}
+        </span>
+        <span class="badge badge-xs badge-neutral"
+          >{{ serverStore.servers.length }} total servers</span
+        >
+        <span class="badge badge-xs badge-info"
+          >{{ serverStore.textServers.length }} text</span
+        >
+        <span class="badge badge-xs badge-accent"
+          >{{ serverStore.artServers.length }} art</span
+        >
+        <span class="badge badge-xs badge-secondary"
+          >{{ serverStore.comfyServers.length }} comfy</span
+        >
+        <span class="badge badge-xs badge-neutral"
+          >{{ modeServers.length }} in this column</span
+        >
+      </div>
+
+      <!-- Active IDs -->
+      <div class="mb-2 flex flex-wrap gap-2 opacity-70">
+        <span
+          >activeTextServerId:
+          <code class="text-info">{{
+            serverStore.activeTextServerId ?? 'null'
+          }}</code></span
+        >
+        <span
+          >activeArtServerId:
+          <code class="text-accent">{{
+            serverStore.activeArtServerId ?? 'null'
+          }}</code></span
+        >
+      </div>
+
+      <!-- Server list -->
+      <div v-if="serverStore.servers.length" class="flex flex-col gap-1">
+        <p class="font-bold opacity-60">All servers in store:</p>
+        <div
+          v-for="s in serverStore.servers"
+          :key="s.id"
+          :class="[
+            'flex flex-wrap gap-x-3 gap-y-0.5 rounded-lg px-2 py-1 font-mono',
+            modeServers.some((m) => m.id === s.id)
+              ? 'bg-warning/10'
+              : 'bg-base-200 opacity-50',
+          ]"
+        >
+          <span class="font-bold text-primary">#{{ s.id }}</span>
+          <span>{{ s.title || s.label || '(untitled)' }}</span>
+          <span class="opacity-60">{{ s.serverType }}</span>
+          <span :class="s.isActive ? 'text-success' : 'text-error'">{{
+            s.isActive ? 'active' : 'inactive'
+          }}</span>
+          <span v-if="s.isOfficial" class="text-info">official</span>
+          <span v-if="s.isPublic" class="text-secondary">public</span>
+          <span v-if="s.userId" class="opacity-50">uid:{{ s.userId }}</span>
+        </div>
+      </div>
+      <p v-else class="rounded-lg bg-error/10 px-2 py-1 text-error">
+        ⚠ serverStore.servers is empty — fetch may have failed or not run yet.
+      </p>
+
+      <button
+        type="button"
+        class="btn btn-xs btn-outline mt-2 rounded-lg"
+        @click="serverStore.fetchAllServers(true)"
+      >
+        Force refetch
+      </button>
     </div>
 
     <!-- ── Scrollable list ───────────────────────────────────────────────── -->
@@ -88,18 +203,12 @@
       </button>
 
       <!-- ── Official & Public ─────────────────────────────────────────── -->
-      <template
-        v-if="
-          filteredPublic.length ||
-          (!searchQuery && publicServers.length === 0 && !serverStore.loading)
-        "
-      >
+      <template v-if="filteredPublic.length">
         <gallery-section-header
           label="Official & Public"
           icon="kind-icon:verified"
           :count="filteredPublic.length"
         />
-
         <server-card
           v-for="server in filteredPublic"
           :key="`pub-${server.id}`"
@@ -110,18 +219,13 @@
           @edit="beginEdit(server)"
           @test="serverStore.testServerHealth(server.id)"
         />
-
-        <p
-          v-if="
-            searchQuery &&
-            filteredPublic.length === 0 &&
-            publicServers.length > 0
-          "
-          class="rounded-xl border border-dashed border-base-300 p-3 text-center text-xs opacity-50"
-        >
-          No official servers match "{{ searchQuery }}"
-        </p>
       </template>
+      <p
+        v-else-if="searchQuery && publicServers.length"
+        class="rounded-xl border border-dashed border-base-300 p-3 text-center text-xs opacity-50"
+      >
+        No official servers match "{{ searchQuery }}"
+      </p>
 
       <!-- ── My Servers ────────────────────────────────────────────────── -->
       <gallery-section-header
@@ -182,7 +286,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, resolveComponent } from 'vue'
+import { ref, computed, defineComponent, h, resolveComponent } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 import type { Server, ServerType } from '~/prisma/generated/prisma/client'
@@ -196,6 +300,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'open-add', serverType: ServerType): void
+  (e: 'open-edit'): void
 }>()
 
 // ── Stores ────────────────────────────────────────────────────────────────────
@@ -204,13 +309,12 @@ const serverStore = useServerStore()
 const userStore = useUserStore()
 const myUserId = computed(() => userStore.user?.id)
 
-// ── Derive server sets from store computed properties ─────────────────────────
-// We intersect the store's mode-specific lists with ownership/visibility lists.
-// No local filtering logic — all classification lives in serverStore.
+const showDebug = ref(false)
+
+// ── Server sets — all from store computed properties ──────────────────────────
 
 const modeServers = computed<Server[]>(() => {
   if (props.mode === 'text') return serverStore.textServers
-  // Deduplicate artServers ∪ comfyServers by id
   const seen = new Set<number>()
   return [...serverStore.artServers, ...serverStore.comfyServers].filter(
     (s) => {
@@ -221,21 +325,19 @@ const modeServers = computed<Server[]>(() => {
   )
 })
 
-// Official or public within this mode
-const publicServers = computed<Server[]>(() =>
+const publicServers = computed(() =>
   modeServers.value.filter((s) => s.isOfficial || s.isPublic),
 )
 
-// Owned by current user and not official (private copies / custom)
-const myServers = computed<Server[]>(() =>
+const myServers = computed(() =>
   modeServers.value.filter((s) => s.userId === myUserId.value && !s.isOfficial),
 )
 
-// ── Search filtering ──────────────────────────────────────────────────────────
+// ── Search ────────────────────────────────────────────────────────────────────
 
 const q = computed(() => (props.searchQuery ?? '').toLowerCase())
 
-function matches(s: Server): boolean {
+function matches(s: Server) {
   if (!q.value) return true
   return !!(
     s.title?.toLowerCase().includes(q.value) ||
@@ -271,7 +373,6 @@ function selectServer(id: number) {
   else serverStore.setActiveArtServer(id)
 }
 
-// Pre-fill the form then ask parent to open the panel
 function beginEdit(server: Server) {
   const isOwner = server.userId === myUserId.value
   const shouldClone = !isOwner || server.isPublic || server.isOfficial
@@ -292,10 +393,10 @@ function beginEdit(server: Server) {
   } else {
     serverStore.selectServer(server.id)
   }
-  emit('open-add', server.serverType)
+  emit('open-edit')
 }
 
-// ── Quick-add presets (UI only — no data) ─────────────────────────────────────
+// ── Quick-add presets ─────────────────────────────────────────────────────────
 
 const defaultNewType = computed<ServerType>(() =>
   props.mode === 'text' ? 'TEXT' : 'ART',
@@ -361,10 +462,7 @@ function statusDot(status: string | null | undefined) {
     OFFLINE: 'bg-error',
     DEGRADED: 'bg-warning',
   }
-  const pulse =
-    status === 'ONLINE'
-      ? ' [animation:status-pulse_2.5s_ease-in-out_infinite]'
-      : ''
+  const pulse = status === 'ONLINE' ? ' status-pulse' : ''
   return h('span', {
     class: `inline-block h-2 w-2 shrink-0 rounded-full ${colors[status ?? ''] ?? 'bg-base-300'}${pulse}`,
   })
@@ -497,7 +595,7 @@ const ServerCard = defineComponent({
             ],
           ),
 
-          // Capability + status badges
+          // Badges
           h('div', { class: 'flex flex-wrap gap-1' }, [
             ...capBadges.value.map((b) =>
               h('span', { class: `badge badge-xs ${b.cls}` }, b.label),
@@ -509,7 +607,7 @@ const ServerCard = defineComponent({
             ),
           ]),
 
-          // Health result
+          // Health line
           props.healthResult &&
             h(
               'p',
@@ -555,7 +653,6 @@ const ServerCard = defineComponent({
 </script>
 
 <style scoped>
-/* Tailwind doesn't ship scrollbar utilities in base — keep these three */
 .scrollbar-thin {
   scrollbar-width: thin;
 }
@@ -585,5 +682,8 @@ const ServerCard = defineComponent({
     opacity: 0.35;
     transform: scale(1.5);
   }
+}
+.status-pulse {
+  animation: status-pulse 2.5s ease-in-out infinite;
 }
 </style>

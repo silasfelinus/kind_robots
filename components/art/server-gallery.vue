@@ -71,17 +71,42 @@
       </div>
     </div>
 
+    <!-- ── Error banner (visible without debug, shown when fetch clearly failed) -->
+    <div
+      v-if="fetchFailed"
+      class="flex shrink-0 items-start gap-3 border-b border-error/30 bg-error/8 px-4 py-3"
+    >
+      <Icon
+        name="kind-icon:alert-triangle"
+        class="mt-0.5 h-4 w-4 shrink-0 text-error"
+      />
+      <div class="min-w-0 flex-1">
+        <p class="text-xs font-black text-error">Server fetch failed</p>
+        <p class="mt-0.5 text-[11px] opacity-70">
+          {{
+            latestError ??
+            'Could not load servers from the API. Check the console for details.'
+          }}
+        </p>
+      </div>
+      <button
+        type="button"
+        class="btn btn-error btn-xs rounded-lg shrink-0"
+        @click="serverStore.fetchAllServers(true)"
+      >
+        Retry
+      </button>
+    </div>
+
     <!-- ── Debug panel ───────────────────────────────────────────────────── -->
     <div
       v-if="showDebug"
-      class="shrink-0 border-b border-warning/30 bg-warning/5 px-4 py-3 text-[11px]"
+      class="shrink-0 border-b border-warning/30 bg-warning/5 px-4 py-3 text-[11px] space-y-2"
     >
-      <p class="mb-2 font-black text-warning">
-        Store Debug — {{ mode }} gallery
-      </p>
+      <p class="font-black text-warning">Store Debug — {{ mode }} gallery</p>
 
-      <!-- Status row -->
-      <div class="mb-2 flex flex-wrap gap-2">
+      <!-- State badges -->
+      <div class="flex flex-wrap gap-1.5">
         <span
           :class="[
             'badge badge-xs',
@@ -93,13 +118,21 @@
         <span
           :class="[
             'badge badge-xs',
+            serverStore.hasLoaded ? 'badge-success' : 'badge-warning',
+          ]"
+        >
+          {{ serverStore.hasLoaded ? 'hasLoaded' : 'not loaded' }}
+        </span>
+        <span
+          :class="[
+            'badge badge-xs',
             serverStore.loading ? 'badge-warning' : 'badge-neutral',
           ]"
         >
           {{ serverStore.loading ? 'loading…' : 'idle' }}
         </span>
         <span class="badge badge-xs badge-neutral"
-          >{{ serverStore.servers.length }} total servers</span
+          >{{ serverStore.servers.length }} total</span
         >
         <span class="badge badge-xs badge-info"
           >{{ serverStore.textServers.length }} text</span
@@ -116,7 +149,7 @@
       </div>
 
       <!-- Active IDs -->
-      <div class="mb-2 flex flex-wrap gap-2 opacity-70">
+      <div class="flex flex-wrap gap-x-4 gap-y-0.5 opacity-70">
         <span
           >activeTextServerId:
           <code class="text-info">{{
@@ -131,17 +164,36 @@
         >
       </div>
 
+      <!-- Error store -->
+      <div
+        v-if="errorStore.currentError"
+        class="rounded-lg border border-error/30 bg-error/10 px-3 py-2"
+      >
+        <p
+          class="font-black text-error text-[10px] uppercase tracking-widest mb-1"
+        >
+          Error Store
+        </p>
+        <p class="text-error opacity-80">
+          {{ errorStore.currentError.message }}
+        </p>
+        <p v-if="errorStore.currentError.type" class="opacity-50 mt-0.5">
+          type: {{ errorStore.currentError.type }}
+        </p>
+      </div>
+      <p v-else class="text-[10px] opacity-40">No errors in errorStore.</p>
+
       <!-- Server list -->
-      <div v-if="serverStore.servers.length" class="flex flex-col gap-1">
+      <div v-if="serverStore.servers.length" class="space-y-1">
         <p class="font-bold opacity-60">All servers in store:</p>
         <div
           v-for="s in serverStore.servers"
           :key="s.id"
           :class="[
-            'flex flex-wrap gap-x-3 gap-y-0.5 rounded-lg px-2 py-1 font-mono',
+            'flex flex-wrap gap-x-3 gap-y-0.5 rounded-lg px-2 py-1 font-mono text-[10px]',
             modeServers.some((m) => m.id === s.id)
               ? 'bg-warning/10'
-              : 'bg-base-200 opacity-50',
+              : 'bg-base-200 opacity-40',
           ]"
         >
           <span class="font-bold text-primary">#{{ s.id }}</span>
@@ -152,20 +204,40 @@
           }}</span>
           <span v-if="s.isOfficial" class="text-info">official</span>
           <span v-if="s.isPublic" class="text-secondary">public</span>
-          <span v-if="s.userId" class="opacity-50">uid:{{ s.userId }}</span>
+          <span class="opacity-40">uid:{{ s.userId ?? '—' }}</span>
         </div>
       </div>
-      <p v-else class="rounded-lg bg-error/10 px-2 py-1 text-error">
-        ⚠ serverStore.servers is empty — fetch may have failed or not run yet.
-      </p>
-
-      <button
-        type="button"
-        class="btn btn-xs btn-outline mt-2 rounded-lg"
-        @click="serverStore.fetchAllServers(true)"
+      <div
+        v-else
+        class="rounded-lg bg-error/10 px-3 py-2 text-error text-[11px]"
       >
-        Force refetch
-      </button>
+        ⚠ serverStore.servers is empty — fetch may have failed or not run yet.
+      </div>
+
+      <div class="flex gap-1.5">
+        <button
+          type="button"
+          class="btn btn-xs btn-outline rounded-lg"
+          @click="serverStore.fetchAllServers(true)"
+        >
+          Force refetch
+        </button>
+        <button
+          type="button"
+          class="btn btn-xs btn-ghost rounded-lg opacity-60"
+          @click="serverStore.initialize()"
+        >
+          Re-initialize
+        </button>
+        <button
+          v-if="errorStore.currentError"
+          type="button"
+          class="btn btn-xs btn-ghost rounded-lg opacity-60"
+          @click="errorStore.clearError()"
+        >
+          Clear error
+        </button>
+      </div>
     </div>
 
     <!-- ── Scrollable list ───────────────────────────────────────────────── -->
@@ -289,6 +361,7 @@
 import { ref, computed, defineComponent, h, resolveComponent } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
+import { useErrorStore } from '@/stores/errorStore'
 import type { Server, ServerType } from '~/prisma/generated/prisma/client'
 
 // ── Props & emits ─────────────────────────────────────────────────────────────
@@ -307,9 +380,27 @@ const emit = defineEmits<{
 
 const serverStore = useServerStore()
 const userStore = useUserStore()
+const errorStore = useErrorStore()
 const myUserId = computed(() => userStore.user?.id)
-
 const showDebug = ref(false)
+
+// ── Error surfacing ───────────────────────────────────────────────────────────
+
+/**
+ * Show the error banner when:
+ *   - the store has finished attempting to load (not loading, initialize ran)
+ *   - servers is still empty
+ *   - OR errorStore has a current error
+ * Don't show it while loading is in progress.
+ */
+const fetchFailed = computed(
+  () =>
+    !serverStore.loading &&
+    serverStore.isInitialized &&
+    (serverStore.servers.length === 0 || !!errorStore.currentError),
+)
+
+const latestError = computed(() => errorStore.currentError?.message ?? null)
 
 // ── Server sets — all from store computed properties ──────────────────────────
 
@@ -536,7 +627,6 @@ const ServerCard = defineComponent({
           ],
         },
         [
-          // Title row
           h('div', { class: 'flex items-start gap-2.5' }, [
             h(
               'div',
@@ -576,7 +666,6 @@ const ServerCard = defineComponent({
             ]),
           ]),
 
-          // URL strip
           h(
             'div',
             {
@@ -595,7 +684,6 @@ const ServerCard = defineComponent({
             ],
           ),
 
-          // Badges
           h('div', { class: 'flex flex-wrap gap-1' }, [
             ...capBadges.value.map((b) =>
               h('span', { class: `badge badge-xs ${b.cls}` }, b.label),
@@ -607,7 +695,6 @@ const ServerCard = defineComponent({
             ),
           ]),
 
-          // Health line
           props.healthResult &&
             h(
               'p',
@@ -615,7 +702,6 @@ const ServerCard = defineComponent({
               `${props.healthResult.ok ? '✓ Healthy' : '✗ Failed'} · ${props.healthResult.latencyMs}ms`,
             ),
 
-          // Actions
           h('div', { class: 'flex flex-wrap gap-1.5 pt-0.5' }, [
             h(
               'button',
